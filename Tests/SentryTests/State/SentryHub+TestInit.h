@@ -8,7 +8,7 @@ SentryHub (TestInit)
 
 - (instancetype)initWithClient:(SentryClient *_Nullable)client
                       andScope:(SentryScope *_Nullable)scope
-               andCrashAdapter:(SentryCrashAdapter *)crashAdapter
+               andCrashWrapper:(SentryCrashWrapper *)crashAdapter
         andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider;
 
 @end

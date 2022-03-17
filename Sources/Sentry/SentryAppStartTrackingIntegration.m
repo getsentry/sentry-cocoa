@@ -6,11 +6,9 @@
 #import <Foundation/Foundation.h>
 #import <PrivateSentrySDKOnly.h>
 #import <SentryAppStateManager.h>
-#import <SentryClient+Private.h>
-#import <SentryCrashAdapter.h>
+#import <SentryCrashWrapper.h>
+#import <SentryDependencyContainer.h>
 #import <SentryDispatchQueueWrapper.h>
-#import <SentryHub.h>
-#import <SentrySDK+Private.h>
 #import <SentrySysctl.h>
 
 @interface
@@ -34,15 +32,10 @@ SentryAppStartTrackingIntegration ()
 
     SentryDefaultCurrentDateProvider *currentDateProvider =
         [SentryDefaultCurrentDateProvider sharedInstance];
-    SentryCrashAdapter *crashAdapter = [SentryCrashAdapter sharedInstance];
     SentrySysctl *sysctl = [[SentrySysctl alloc] init];
 
-    SentryAppStateManager *appStateManager = [[SentryAppStateManager alloc]
-            initWithOptions:options
-               crashAdapter:crashAdapter
-                fileManager:[[[SentrySDK currentHub] getClient] fileManager]
-        currentDateProvider:currentDateProvider
-                     sysctl:sysctl];
+    SentryAppStateManager *appStateManager =
+        [SentryDependencyContainer sharedInstance].appStateManager;
 
     self.tracker = [[SentryAppStartTracker alloc]
         initWithCurrentDateProvider:currentDateProvider

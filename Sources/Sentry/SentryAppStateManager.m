@@ -3,7 +3,7 @@
 #import <Foundation/Foundation.h>
 #import <SentryAppState.h>
 #import <SentryAppStateManager.h>
-#import <SentryCrashAdapter.h>
+#import <SentryCrashWrapper.h>
 #import <SentryCurrentDateProvider.h>
 #import <SentryFileManager.h>
 #import <SentryOptions.h>
@@ -16,7 +16,7 @@
 SentryAppStateManager ()
 
 @property (nonatomic, strong) SentryOptions *options;
-@property (nonatomic, strong) SentryCrashAdapter *crashAdapter;
+@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDate;
 @property (nonatomic, strong) SentrySysctl *sysctl;
@@ -26,14 +26,14 @@ SentryAppStateManager ()
 @implementation SentryAppStateManager
 
 - (instancetype)initWithOptions:(SentryOptions *)options
-                   crashAdapter:(SentryCrashAdapter *)crashAdatper
+                   crashWrapper:(SentryCrashWrapper *)crashWrapper
                     fileManager:(SentryFileManager *)fileManager
             currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
                          sysctl:(SentrySysctl *)sysctl
 {
     if (self = [super init]) {
         self.options = options;
-        self.crashAdapter = crashAdatper;
+        self.crashWrapper = crashWrapper;
         self.fileManager = fileManager;
         self.currentDate = currentDateProvider;
         self.sysctl = sysctl;
@@ -46,7 +46,7 @@ SentryAppStateManager ()
 - (SentryAppState *)buildCurrentAppState
 {
     // Is the current process being traced or not? If it is a debugger is attached.
-    bool isDebugging = self.crashAdapter.isBeingTraced;
+    bool isDebugging = self.crashWrapper.isBeingTraced;
 
     NSString *vendorId = [UIDevice.currentDevice.identifierForVendor UUIDString];
 
@@ -70,6 +70,17 @@ SentryAppStateManager ()
 - (void)removeCurrentAppState
 {
     [self.fileManager deleteAppState];
+}
+
+- (void)updateAppState:(void (^)(SentryAppState *))block
+{
+    @synchronized(self) {
+        SentryAppState *appState = [self.fileManager readAppState];
+        if (nil != appState) {
+            block(appState);
+            [self.fileManager storeAppState:appState];
+        }
+    }
 }
 
 #endif

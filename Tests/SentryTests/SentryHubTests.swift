@@ -15,7 +15,7 @@ class SentryHubTests: XCTestCase {
         let message = "some message"
         let event: Event
         let currentDateProvider = TestCurrentDateProvider()
-        let sentryCrash = TestSentryCrashAdapter.sharedInstance()
+        let sentryCrash = TestSentryCrashWrapper.sharedInstance()
         let fileManager: SentryFileManager
         let crashedSession: SentrySession
         let transactionName = "Some Transaction"
@@ -48,7 +48,7 @@ class SentryHubTests: XCTestCase {
         
         func getSut(_ options: Options, _ scope: Scope? = nil) -> SentryHub {
             client = TestClient(options: options)
-            let hub = SentryHub(client: client, andScope: scope, andCrashAdapter: sentryCrash, andCurrentDateProvider: currentDateProvider)
+            let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: sentryCrash, andCurrentDateProvider: currentDateProvider)
             hub.bindClient(client)
             return hub
         }
