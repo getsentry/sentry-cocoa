@@ -105,12 +105,14 @@ static NSLock *profilerLock;
         }
 #endif
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        [profilerLock lock];
-        if (profiler == nil && [_hub getClient].options.enableProfiling) {
-            profiler = [[SentryProfiler alloc] init];
-            [profiler start];
+        if ([_hub getClient].options.enableProfiling) {
+            [profilerLock lock];
+            if (profiler == nil) {
+                profiler = [[SentryProfiler alloc] init];
+                [profiler start];
+            }
+            [profilerLock unlock];
         }
-        [profilerLock unlock];
 #endif
     }
 
@@ -281,9 +283,11 @@ static NSLock *profilerLock;
 
     [_rootSpan finishWithStatus:_finishStatus];
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    [profilerLock lock];
-    [profiler stop];
-    [profilerLock unlock];
+    if ([_hub getClient].options.enableProfiling) {
+        [profilerLock lock];
+        [profiler stop];
+        [profilerLock unlock];
+    }
 #endif
     [self captureTransaction];
 }
@@ -314,15 +318,17 @@ static NSLock *profilerLock;
     SentryTransaction *transaction = [self toTransaction];
     NSMutableArray<SentryEnvelopeItem *> *additionalEnvelopeItems = [NSMutableArray array];
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    [profilerLock lock];
-    if (profiler != nil) {
-        SentryEnvelopeItem *profile = [profiler buildEnvelopeItemForTransaction:transaction];
-        if (profile != nil) {
-            [additionalEnvelopeItems addObject:profile];
+    if ([_hub getClient].options.enableProfiling) {
+        [profilerLock lock];
+        if (profiler != nil) {
+            SentryEnvelopeItem *profile = [profiler buildEnvelopeItemForTransaction:transaction];
+            if (profile != nil) {
+                [additionalEnvelopeItems addObject:profile];
+            }
+            profiler = nil;
         }
-        profiler = nil;
+        [profilerLock unlock];
     }
-    [profilerLock unlock];
 #endif
     [_hub captureTransaction:transaction
                       withScope:_hub.scope
