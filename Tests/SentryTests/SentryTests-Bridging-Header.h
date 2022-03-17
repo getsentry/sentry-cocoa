@@ -26,7 +26,6 @@
 #import "SentryCoreDataSwizzling.h"
 #import "SentryCoreDataTracker.h"
 #import "SentryCoreDataTrackingIntegration.h"
-#import "SentryCrashAdapter.h"
 #import "SentryCrashBinaryImageProvider.h"
 #import "SentryCrashC.h"
 #import "SentryCrashDebug.h"
