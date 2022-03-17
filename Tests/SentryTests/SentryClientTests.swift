@@ -226,7 +226,7 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsNotEmpty()
     }
     
-    func testCaptureEventWithDebugMeta_KeepsDebugMeta() {
+    func tesCaptureEventWithDebugMeta_KeepsDebugMeta() {
         let sut = fixture.getSut(configureOptions: { options in
             options.attachStacktrace = true
         })
