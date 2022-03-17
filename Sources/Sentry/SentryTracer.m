@@ -57,8 +57,8 @@ static NSObject *appStartMeasurementLock;
 static BOOL appStartMeasurementRead;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-SentryProfiler *profiler = nil;
-NSLock *profilerLock = nil;
+static SentryProfiler *_Nullable profiler;
+static NSLock *profilerLock;
 #endif
 
 + (void)initialize
