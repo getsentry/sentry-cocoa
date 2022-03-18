@@ -11,8 +11,7 @@ class SentryClientTest: XCTestCase {
         let transport = TestTransport()
         
         let debugImageBuilder = SentryDebugImageProvider()
-        
-        let threadInspector: SentryThreadInspector
+        let threadInspector = TestThreadInspector()
         
         let session: SentrySession
         let event: Event
@@ -39,14 +38,6 @@ class SentryClientTest: XCTestCase {
             let options = Options()
             options.dsn = SentryClientTest.dsn
             fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
-            
-            let inAppLogic = SentryInAppLogic(inAppIncludes: options.inAppIncludes, inAppExcludes: options.inAppExcludes)
-            let crashStackEntryMapper = SentryCrashStackEntryMapper(inAppLogic: inAppLogic)
-            let stacktraceBuilder = SentryStacktraceBuilder(crashStackEntryMapper: crashStackEntryMapper)
-            threadInspector = SentryThreadInspector(
-                stacktraceBuilder: stacktraceBuilder,
-                andMachineContextWrapper: SentryCrashDefaultMachineContextWrapper()
-            )
         }
 
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> Client {
@@ -57,7 +48,7 @@ class SentryClientTest: XCTestCase {
                 ])
                 configureOptions(options)
 
-                client = Client(options: options, andTransport: transport, andFileManager: fileManager)
+                client = Client(options: options, transport: transport, fileManager: fileManager, threadInspector: threadInspector)
             } catch {
                 XCTFail("Options could not be created")
             }
@@ -226,7 +217,7 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsNotEmpty()
     }
     
-    func tesCaptureEventWithDebugMeta_KeepsDebugMeta() {
+    func testCaptureEventWithDebugMeta_KeepsDebugMeta() {
         let sut = fixture.getSut(configureOptions: { options in
             options.attachStacktrace = true
         })
@@ -421,7 +412,7 @@ class SentryClientTest: XCTestCase {
         }
     }
 
-    func tesCaptureExceptionWithoutAttachStacktrace() {
+    func testCaptureExceptionWithoutAttachStacktrace() {
         let eventId = fixture.getSut(configureOptions: { options in
             options.attachStacktrace = false
         }).capture(exception: exception, scope: fixture.scope)
@@ -1003,22 +994,7 @@ class SentryClientTest: XCTestCase {
     private func assertValidThreads(actual: [Sentry.Thread]?) {
         let expected = fixture.threadInspector.getCurrentThreads()
         XCTAssertEqual(expected.count, actual?.count)
-        
-        // We can only compare the stacktrace up to the test method. Therefore we
-        // need to remove a few frames for the stacktraces.
-        removeFrames(thread: expected[0])
-        removeFrames(thread: actual![0])
-        
         XCTAssertEqual(expected, actual)
-    }
-
-    private func removeFrames(thread: Sentry.Thread) {
-        var actualFrames = thread.stacktrace?.frames ?? []
-        XCTAssertTrue(actualFrames.count > 1, "Event has no stacktrace.")
-        if actualFrames.count > 1 {
-            actualFrames.removeLast(3)
-            thread.stacktrace?.frames = actualFrames
-        }
     }
     
     private func shortenIntegrations(_ integrations: [String]?) -> [String]? {

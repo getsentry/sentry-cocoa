@@ -99,13 +99,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 /** Internal constructor for testing */
 - (instancetype)initWithOptions:(SentryOptions *)options
-                   andTransport:(id<SentryTransport>)transport
-                 andFileManager:(SentryFileManager *)fileManager
+                   transport:(id<SentryTransport>)transport
+                 fileManager:(SentryFileManager *)fileManager
+                threadInspector:(SentryThreadInspector *)threadInspector
 {
     self = [self initWithOptions:options];
 
     self.transport = transport;
     self.fileManager = fileManager;
+    self.threadInspector = threadInspector;
 
     return self;
 }
