@@ -11,7 +11,7 @@ class SentryClientTest: XCTestCase {
         let transport = TestTransport()
         
         let debugImageBuilder = SentryDebugImageProvider()
-        let threadInspector = TestThreadInspector()
+        let threadInspector = TestThreadInspector.instance
         
         let session: SentrySession
         let event: Event
