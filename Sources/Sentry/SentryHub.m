@@ -1,6 +1,6 @@
 #import "SentryHub.h"
 #import "SentryClient+Private.h"
-#import "SentryCrashAdapter.h"
+#import "SentryCrashWrapper.h"
 #import "SentryCurrentDateProvider.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryEnvelope.h"
@@ -24,7 +24,7 @@ SentryHub ()
 
 @property (nullable, nonatomic, strong) SentryClient *client;
 @property (nullable, nonatomic, strong) SentryScope *scope;
-@property (nonatomic, strong) SentryCrashAdapter *crashAdapter;
+@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryTracesSampler *sampler;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 
@@ -42,7 +42,7 @@ SentryHub ()
         _scope = scope;
         _sessionLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
-        _crashAdapter = [SentryCrashAdapter sharedInstance];
+        _crashWrapper = [SentryCrashWrapper sharedInstance];
         _sampler = [[SentryTracesSampler alloc] initWithOptions:client.options];
         _currentDateProvider = [SentryDefaultCurrentDateProvider sharedInstance];
     }
@@ -52,11 +52,11 @@ SentryHub ()
 /** Internal constructor for testing */
 - (instancetype)initWithClient:(nullable SentryClient *)client
                       andScope:(nullable SentryScope *)scope
-               andCrashAdapter:(SentryCrashAdapter *)crashAdapter
+               andCrashWrapper:(SentryCrashWrapper *)crashWrapper
         andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
 {
     self = [self initWithClient:client andScope:scope];
-    _crashAdapter = crashAdapter;
+    _crashWrapper = crashWrapper;
     _currentDateProvider = currentDateProvider;
 
     return self;
@@ -147,7 +147,7 @@ SentryHub ()
 
     // The crashed session is handled in SentryCrashIntegration. Checkout the comments there to find
     // out more.
-    if (!self.crashAdapter.crashedLastLaunch) {
+    if (!self.crashWrapper.crashedLastLaunch) {
         if (nil == timestamp) {
             [SentryLog
                 logWithMessage:[NSString stringWithFormat:@"No timestamp to close session "
@@ -333,7 +333,7 @@ SentryHub ()
                                                                          hub:self
                                                              waitForChildren:waitForChildren];
     if (bindToScope)
-        _scope.span = tracer;
+        self.scope.span = tracer;
 
     return tracer;
 }

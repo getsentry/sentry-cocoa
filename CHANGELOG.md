@@ -3,10 +3,12 @@
 ## Unreleased
 
 - feat: Add support for profiling on iOS (#1652)
+- feat: Add CoreData performance tracking (#1682)
+- fix: Detecting ANRs as false OOMs (#1695)
 
 ## 7.10.2
 
-fix: Crash in UIViewControllerSwizzling (#1692)
+- fix: Crash in UIViewControllerSwizzling (#1692)
 
 ## 7.10.1
 

@@ -44,6 +44,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, readonly) SentryTraceState *traceState;
 
+/*
+ The root span of this tracer.
+ */
+@property (nonatomic, readonly) id<SentrySpan> rootSpan;
+
+/*
+ All the spans that where created with this tracer but rootSpan.
+ */
+@property (nonatomic, readonly) NSArray<id<SentrySpan>> *children;
+
 /**
  * Init a SentryTracer with given transaction context and hub and set other fields by default
  *

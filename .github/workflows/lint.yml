@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Validate Podspec
-        run: pod lib lint
+        run: pod lib lint --verbose
         shell: sh
 
   validate-high-risk-files:

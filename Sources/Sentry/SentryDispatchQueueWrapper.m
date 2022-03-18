@@ -51,6 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     dispatch_once(predicate, block);
 }
+
 @end
 
 NS_ASSUME_NONNULL_END

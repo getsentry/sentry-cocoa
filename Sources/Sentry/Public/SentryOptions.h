@@ -272,6 +272,15 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableSwizzling;
 
+/**
+ * This feature is experimental.
+ *
+ * When enabled, the SDK tracks the performance of Core Data operations. It requires enabling
+ * performance monitoring. The default is <code>NO</code>.
+ * @see <https://docs.sentry.io/platforms/apple/performance/>
+ */
+@property (nonatomic, assign) BOOL enableCoreDataTracking;
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
  * Whether to enable the sampling profiler. Default is NO.

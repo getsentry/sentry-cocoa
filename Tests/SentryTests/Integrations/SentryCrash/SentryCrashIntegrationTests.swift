@@ -11,10 +11,10 @@ class SentryCrashIntegrationTests: XCTestCase {
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         let hub: SentryHub
         let options: Options
-        let sentryCrash: TestSentryCrashAdapter
+        let sentryCrash: TestSentryCrashWrapper
         
         init() {
-            sentryCrash = TestSentryCrashAdapter.sharedInstance()
+            sentryCrash = TestSentryCrashWrapper.sharedInstance()
             sentryCrash.internalActiveDurationSinceLastCrash = 5.0
             sentryCrash.internalCrashedLastLaunch = true
             

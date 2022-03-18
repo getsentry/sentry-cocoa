@@ -20,11 +20,15 @@ SentryOptions ()
 + (NSArray<NSString *> *)defaultIntegrations
 {
     return @[
-        @"SentryCrashIntegration", @"SentryFramesTrackingIntegration",
-        @"SentryAutoBreadcrumbTrackingIntegration", @"SentryAutoSessionTrackingIntegration",
-        @"SentryAppStartTrackingIntegration", @"SentryOutOfMemoryTrackingIntegration",
-        @"SentryPerformanceTrackingIntegration", @"SentryNetworkTrackingIntegration",
-        @"SentryFileIOTrackingIntegration"
+        @"SentryCrashIntegration",
+#if SENTRY_HAS_UIKIT
+        @"SentryANRTrackingIntegration",
+#endif
+        @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
+        @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
+        @"SentryOutOfMemoryTrackingIntegration", @"SentryPerformanceTrackingIntegration",
+        @"SentryNetworkTrackingIntegration", @"SentryFileIOTrackingIntegration",
+        @"SentryCoreDataTrackingIntegration"
     ];
 }
 
@@ -53,6 +57,7 @@ SentryOptions ()
         self.enableNetworkBreadcrumbs = YES;
         _defaultTracesSampleRate = nil;
         self.tracesSampleRate = _defaultTracesSampleRate;
+        self.enableCoreDataTracking = NO;
         _experimentalEnableTraceSampling = NO;
         _enableSwizzling = YES;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -251,6 +256,9 @@ SentryOptions ()
 
     [self setBool:options[@"enableSwizzling"]
             block:^(BOOL value) { self->_enableSwizzling = value; }];
+
+    [self setBool:options[@"enableCoreDataTracking"]
+            block:^(BOOL value) { self->_enableCoreDataTracking = value; }];
 
     if (nil != error && nil != *error) {
         return NO;

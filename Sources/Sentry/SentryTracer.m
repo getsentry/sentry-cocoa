@@ -144,7 +144,7 @@ static NSLock *profilerLock;
 
     SentrySpan *child = [[SentrySpan alloc] initWithTransaction:self context:context];
     @synchronized(self.children) {
-        [self.children addObject:child];
+        [_children addObject:child];
     }
 
     return child;

@@ -178,6 +178,11 @@
     [self testBooleanField:@"enableNetworkBreadcrumbs"];
 }
 
+- (void)testEnableCoreDataTracking
+{
+    [self testBooleanField:@"enableCoreDataTracking" defaultValue:NO];
+}
+
 - (void)testDefaultMaxBreadcrumbs
 {
     SentryOptions *options = [self getValidOptions:@{}];
@@ -489,7 +494,7 @@
         @"urlSessionDelegate" : [NSNull null],
         @"experimentalEnableTraceSampling" : [NSNull null],
         @"enableSwizzling" : [NSNull null],
-        @"enableIOTracking" : [NSNull null],
+        @"enableIOTracking" : [NSNull null]
     }
                                                 didFailWithError:nil];
 

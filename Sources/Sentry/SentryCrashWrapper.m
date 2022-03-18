@@ -1,16 +1,17 @@
-#import "SentryCrashAdapter.h"
+#import "SentryCrashWrapper.h"
 #import "SentryCrash.h"
+#import "SentryCrashMonitor_AppState.h"
 #import "SentryHook.h"
 #import <Foundation/Foundation.h>
 #import <SentryCrashDebug.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation SentryCrashAdapter
+@implementation SentryCrashWrapper
 
 + (instancetype)sharedInstance
 {
-    static SentryCrashAdapter *instance = nil;
+    static SentryCrashWrapper *instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{ instance = [[self alloc] init]; });
     return instance;
@@ -29,6 +30,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isBeingTraced
 {
     return sentrycrashdebug_isBeingTraced();
+}
+
+- (BOOL)isApplicationInForeground
+{
+    return sentrycrashstate_currentState()->applicationIsInForeground;
 }
 
 - (void)installAsyncHooks
