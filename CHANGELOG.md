@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- feat: Add flag for UIViewControllerTracking (#1711)
+
 ## 7.11.0
 
 - feat: Add CoreData performance tracking (#1682)
