@@ -58,6 +58,15 @@ SentryPerformanceTrackingIntegration ()
         return YES;
     }
 
+#if SENTRY_HAS_UIKIT
+    if (!options.enableUIViewControllerTracking) {
+        [SentryLog logWithMessage:@"enableUIViewControllerTracking disabled. Will not start "
+                                  @"SentryPerformanceTrackingIntegration."
+                         andLevel:kSentryLevelDebug];
+        return YES;
+    }
+#endif
+
     if (!options.isTracingEnabled) {
         [SentryLog logWithMessage:@"No tracesSampleRate and tracesSampler set. Will not start "
                                   @"SentryPerformanceTrackingIntegration."

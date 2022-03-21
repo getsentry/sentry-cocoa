@@ -184,6 +184,14 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableAutoPerformanceTracking;
 
+#if SENTRY_HAS_UIKIT
+/**
+ * When enabled, the SDK tracks performance for UIViewController subclasses. The default is
+ * <code>YES</code>.
+ */
+@property (nonatomic, assign) BOOL enableUIViewControllerTracking;
+#endif
+
 /**
  * When enabled, the SDK adds breadcrumbs for HTTP requests and tracks performance for HTTP
  * requests if auto performance tracking and enableSwizzling are enabled. The default is

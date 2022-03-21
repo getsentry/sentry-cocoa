@@ -52,6 +52,9 @@ SentryOptions ()
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
         self.enableAutoPerformanceTracking = YES;
+#if SENTRY_HAS_UIKIT
+        self.enableUIViewControllerTracking = YES;
+#endif
         self.enableNetworkTracking = YES;
         self.enableFileIOTracking = NO;
         self.enableNetworkBreadcrumbs = YES;
@@ -219,6 +222,11 @@ SentryOptions ()
 
     [self setBool:options[@"enableAutoPerformanceTracking"]
             block:^(BOOL value) { self->_enableAutoPerformanceTracking = value; }];
+
+#if SENTRY_HAS_UIKIT
+    [self setBool:options[@"enableUIViewControllerTracking"]
+            block:^(BOOL value) { self->_enableUIViewControllerTracking = value; }];
+#endif
 
     [self setBool:options[@"enableNetworkTracking"]
             block:^(BOOL value) { self->_enableNetworkTracking = value; }];
