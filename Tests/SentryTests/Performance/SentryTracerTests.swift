@@ -395,6 +395,42 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(["key": 0], sut.data as! [String: Int])
     }
     
+    #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+    func testCapturesProfile_whenProfilingEnabled() {
+        let scope = Scope()
+        let options = Options()
+        options.enableProfiling = true
+        options.tracesSampleRate = 1.0
+        let client = TestClient(options: options)!
+        let hub = TestHub(client: client, andScope: scope)
+        
+        let tracer = hub.startTransaction(transactionContext: fixture.transactionContext) as! SentryTracer
+        tracer.finish()
+        hub.group.wait()
+        
+        XCTAssertEqual("profile", hub.capturedEventsWithScopes.first?.additionalEnvelopeItems.first?.header.type)
+    }
+    
+    func testDoesNotCapturesProfile_whenProfilingDisabled() {
+        let scope = Scope()
+        let options = Options()
+        options.enableProfiling = false
+        options.tracesSampleRate = 1.0
+        let client = TestClient(options: options)!
+        let hub = TestHub(client: client, andScope: scope)
+        
+        let tracer = hub.startTransaction(transactionContext: fixture.transactionContext) as! SentryTracer
+        tracer.finish()
+        hub.group.wait()
+        
+        if let items = hub.capturedEventsWithScopes.first?.additionalEnvelopeItems {
+            for item in items {
+                XCTAssertNotEqual("profile", item.header.type)
+            }
+        }
+    }
+    #endif
+    
     private func getSerializedTransaction() -> [String: Any] {
         guard let transaction = fixture.hub.capturedEventsWithScopes.first?.event else {
             fatalError("Event must not be nil.")

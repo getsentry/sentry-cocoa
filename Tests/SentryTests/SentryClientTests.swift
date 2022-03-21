@@ -883,6 +883,21 @@ class SentryClientTest: XCTestCase {
         XCTAssertNil(fixture.transport.sendEventWithTraceStateInvocations.first?.traceState)
     }
     
+    func testCaptureEvent_withAdditionalEnvelopeItem() {
+        let event = Event(level: SentryLevel.warning)
+        event.message = fixture.message
+        
+        let attachment = "{}"
+        let data = attachment.data(using: .utf8)!
+        let itemHeader = SentryEnvelopeItemHeader(type: "attachment", length: UInt(data.count))
+        let item = SentryEnvelopeItem(header: itemHeader, data: data)
+        
+        let client = fixture.getSut()
+        client.capture(event: event, scope: Scope(), additionalEnvelopeItems: [item])
+        
+        XCTAssertEqual(item, fixture.transport.sendEventWithTraceStateInvocations.first?.additionalEnvelopeItems.first)
+    }
+    
     private func givenEventWithDebugMeta() -> Event {
         let event = Event(level: SentryLevel.fatal)
         let debugMeta = DebugMeta()

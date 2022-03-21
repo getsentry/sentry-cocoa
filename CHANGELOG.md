@@ -2,6 +2,7 @@
 
 ## 7.11.0
 
+- feat: Add support for profiling on iOS (#1652)
 - feat: Add CoreData performance tracking (#1682)
 - fix: Detecting ANRs as false OOMs (#1695)
 

@@ -16,11 +16,15 @@ public class TestTransport: NSObject, Transport {
         sentEventsWithSessionTraceState.record((event, session, traceState, attachments))
     }
     
-    var sendEventWithTraceStateInvocations = Invocations<(event: Event, traceState: SentryTraceState?, attachments: [Attachment])>()
+    var sendEventWithTraceStateInvocations = Invocations<(event: Event, traceState: SentryTraceState?, attachments: [Attachment], additionalEnvelopeItems: [SentryEnvelopeItem])>()
     public func send(event: Event, traceState: SentryTraceState?, attachments: [Attachment]) {
-        sendEventWithTraceStateInvocations.record((event, traceState, attachments))
+        sendEventWithTraceStateInvocations.record((event, traceState, attachments, []))
     }
-          
+    
+    public func send(event: Event, traceState: SentryTraceState?, attachments: [Attachment], additionalEnvelopeItems: [SentryEnvelopeItem]) {
+        sendEventWithTraceStateInvocations.record((event, traceState, attachments, additionalEnvelopeItems))
+    }
+
     var userFeedbackInvocations = Invocations<UserFeedback>()
     public func send(userFeedback: UserFeedback) {
         userFeedbackInvocations.record(userFeedback)

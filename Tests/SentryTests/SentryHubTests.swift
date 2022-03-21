@@ -291,6 +291,66 @@ class SentryHubTests: XCTestCase {
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         XCTAssertEqual(span.context.sampled, .no)
     }
+
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+    func testStartTransaction_WhenProfilingEnabled_CapturesProfile() {
+        let options = fixture.options
+        options.enableProfiling = true
+        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
+            return 1
+        }
+        let hub = fixture.getSut(options)
+        let profileExpectation = expectation(description: "collects profiling data")
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        // Give it time to collect a profile, otherwise there will be no samples.
+        DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
+            span.finish()
+
+            guard let additionalEnvelopeItems = self.fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
+                XCTFail("Expected to capture at least 1 event")
+                return
+            }
+            XCTAssertEqual(1, additionalEnvelopeItems.count)
+            guard let profileItem = additionalEnvelopeItems.first else {
+                XCTFail("Expected at least 1 additional envelope item")
+                return
+            }
+            XCTAssertEqual("profile", profileItem.header.type)
+            self.assertValidProfileData(data: profileItem.data)
+            profileExpectation.fulfill()
+        }
+        
+        // Some busy work to try and get it to show up in the profile.
+        let str = "a"
+        var concatStr = ""
+        for _ in 0..<100_000 {
+            concatStr = concatStr.appending(str)
+        }
+        
+        waitForExpectations(timeout: 5.0) {
+            if let error = $0 {
+                print(error)
+            }
+        }
+    }
+    
+    func testStartTransaction_WhenProfilingDisabled_DoesNotCaptureProfile() {
+        let options = fixture.options
+        options.enableProfiling = false
+        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
+            return 1
+        }
+        let hub = fixture.getSut(options)
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        span.finish()
+        
+        guard let additionalEnvelopeItems = fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
+            XCTFail("Expected to capture at least 1 event")
+            return
+        }
+        XCTAssertEqual(0, additionalEnvelopeItems.count)
+    }
+#endif
         
     func testCaptureMessageWithScope() {
         fixture.getSut().capture(message: fixture.message, scope: fixture.scope)
@@ -699,6 +759,40 @@ class SentryHubTests: XCTestCase {
     
     private func assertNoEnvelopesCaptured() {
         XCTAssertEqual(0, fixture.client.captureEnvelopeInvocations.count)
+    }
+    
+    private func assertValidProfileData(data: Data) {
+        let profile = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
+        XCTAssertEqual("Apple", profile["device_manufacturer"] as! String)
+        XCTAssertEqual("cocoa", profile["platform"] as! String)
+        XCTAssertEqual(fixture.transactionName, profile["transaction_name"] as! String)
+#if os(iOS)
+        XCTAssertEqual("iOS", profile["device_os_name"] as! String)
+        XCTAssertFalse((profile["device_os_version"] as! String).isEmpty)
+#endif
+        XCTAssertFalse((profile["device_os_build_number"] as! String).isEmpty)
+        XCTAssertFalse((profile["device_locale"] as! String).isEmpty)
+        XCTAssertFalse((profile["device_model"] as! String).isEmpty)
+#if os(iOS) && !targetEnvironment(macCatalyst)
+        XCTAssertTrue(profile["device_is_emulator"] as! Bool)
+#else
+        XCTAssertFalse(profile["device_is_emulator"] as! Bool)
+#endif
+        XCTAssertFalse((profile["device_physical_memory_bytes"] as! String).isEmpty)
+        XCTAssertFalse((profile["version_code"] as! String).isEmpty)
+        
+        XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["transaction_id"] as! String))
+        XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["profile_id"] as! String))
+        XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["trace_id"] as! String))
+        
+        XCTAssertFalse(((profile["debug_meta"] as! [String: Any])["images"] as! [Any]).isEmpty)
+        let sampledProfile = profile["sampled_profile"] as! [String: Any]
+        let samples = sampledProfile["samples"] as! [[String: Any]]
+        XCTAssertFalse(samples.isEmpty)
+        
+        let frames = samples[0]["frames"] as! [[String: Any]]
+        XCTAssertFalse(frames.isEmpty)
+        XCTAssertFalse((frames[0]["instruction_addr"] as! String).isEmpty)
     }
     
     private func testSampler(expected: SentrySampleDecision, options: (Options) -> Void) {

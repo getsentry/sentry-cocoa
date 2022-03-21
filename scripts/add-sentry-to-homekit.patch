@@ -23,7 +23,7 @@ index 8e0e35f4..3d34887d 100644
  
  let keychain = Constants.Keychain
  
-@@ -125,6 +126,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
+@@ -125,6 +126,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
          _ application: UIApplication,
          didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
      ) -> Bool {
@@ -32,6 +32,7 @@ index 8e0e35f4..3d34887d 100644
 +            options.environment = "integration-tests"
 +            options.tracesSampleRate = 1.0
 +            options.enableFileIOTracking = true
++            options.enableProfiling = true
 +        }
 +        
          if NSClassFromString("XCTest") != nil {
