@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- feat: Add flag for UIViewControllerTracking (#1711)
 - feat: Add CoreData performance tracking (#1682)
 - fix: Detecting ANRs as false OOMs (#1695)
 
