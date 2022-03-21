@@ -23,7 +23,7 @@ index 45e05469..0050ffbc 100644
  
  NSString *VLCAppCenterAppID = @"0114ca8e-2652-44ce-588d-2ebd035c3577";
  
-@@ -136,6 +137,13 @@ NSString *VLCAppCenterAppID = @"0114ca8e-2652-44ce-588d-2ebd035c3577";
+@@ -136,6 +137,14 @@ NSString *VLCAppCenterAppID = @"0114ca8e-2652-44ce-588d-2ebd035c3577";
  - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
  {
      [MSACAppCenter start:VLCAppCenterAppID withServices:@[[MSACAnalytics class], [MSACCrashes class]]];
@@ -33,6 +33,7 @@ index 45e05469..0050ffbc 100644
 +        options.environment = @"integration-tests";
 +        options.tracesSampleRate = @0;
 +        options.enableFileIOTracking = YES;
++        options.enableProfiling = YES;
 +    }];
  
      self.orientationLock = UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskLandscape;

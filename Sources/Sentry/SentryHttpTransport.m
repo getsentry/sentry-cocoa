@@ -71,8 +71,20 @@ SentryHttpTransport ()
        traceState:(nullable SentryTraceState *)traceState
       attachments:(NSArray<SentryAttachment *> *)attachments
 {
+    [self sendEvent:event
+                     traceState:traceState
+                    attachments:attachments
+        additionalEnvelopeItems:@[]];
+}
+
+- (void)sendEvent:(SentryEvent *)event
+                 traceState:(nullable SentryTraceState *)traceState
+                attachments:(NSArray<SentryAttachment *> *)attachments
+    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
+{
     NSMutableArray<SentryEnvelopeItem *> *items = [self buildEnvelopeItems:event
                                                                attachments:attachments];
+    [items addObjectsFromArray:additionalEnvelopeItems];
 
     SentryEnvelopeHeader *envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:event.eventId
                                                                          traceState:traceState];

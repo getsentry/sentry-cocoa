@@ -233,6 +233,17 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:NO];
 }
 
+- (SentryId *)captureEvent:(SentryEvent *)event
+                  withScope:(SentryScope *)scope
+    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
+{
+    return [self sendEvent:event
+                      withScope:scope
+         alwaysAttachStacktrace:NO
+                   isCrashEvent:NO
+        additionalEnvelopeItems:additionalEnvelopeItems];
+}
+
 - (SentryId *)sendEvent:(SentryEvent *)event
                  withScope:(SentryScope *)scope
     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
@@ -267,6 +278,19 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
               isCrashEvent:(BOOL)isCrashEvent
 {
+    return [self sendEvent:event
+                      withScope:scope
+         alwaysAttachStacktrace:alwaysAttachStacktrace
+                   isCrashEvent:isCrashEvent
+        additionalEnvelopeItems:@[]];
+}
+
+- (SentryId *)sendEvent:(SentryEvent *)event
+                  withScope:(SentryScope *)scope
+     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+               isCrashEvent:(BOOL)isCrashEvent
+    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
+{
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
                              alwaysAttachStacktrace:alwaysAttachStacktrace
@@ -278,8 +302,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             : nil;
 
         [self.transport sendEvent:preparedEvent
-                       traceState:traceState
-                      attachments:scope.attachments];
+                         traceState:traceState
+                        attachments:scope.attachments
+            additionalEnvelopeItems:additionalEnvelopeItems];
         return preparedEvent.eventId;
     }
 

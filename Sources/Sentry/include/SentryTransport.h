@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 
-@class SentryEnvelope, SentryEvent, SentrySession, SentryUserFeedback, SentryAttachment,
-    SentryTraceState;
+@class SentryEnvelope, SentryEnvelopeItem, SentryEvent, SentrySession, SentryUserFeedback,
+    SentryAttachment, SentryTraceState;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -21,6 +21,12 @@ NS_SWIFT_NAME(Transport)
        traceState:(nullable SentryTraceState *)traceState
       attachments:(NSArray<SentryAttachment *> *)attachments
     NS_SWIFT_NAME(send(event:traceState:attachments:));
+
+- (void)sendEvent:(SentryEvent *)event
+                 traceState:(nullable SentryTraceState *)traceState
+                attachments:(NSArray<SentryAttachment *> *)attachments
+    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
+    NS_SWIFT_NAME(send(event:traceState:attachments:additionalEnvelopeItems:));
 
 - (void)sendEvent:(SentryEvent *)event
       withSession:(SentrySession *)session
