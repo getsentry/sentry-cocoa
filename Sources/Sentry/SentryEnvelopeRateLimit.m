@@ -1,6 +1,6 @@
 #import "SentryEnvelopeRateLimit.h"
+#import "SentryDataCategoryMapper.h"
 #import "SentryEnvelope.h"
-#import "SentryRateLimitCategoryMapper.h"
 #import "SentryRateLimits.h"
 #import <Foundation/Foundation.h>
 
@@ -48,8 +48,8 @@ SentryEnvelopeRateLimit ()
     NSMutableArray<SentryEnvelopeItem *> *itemsToDrop = [NSMutableArray new];
 
     for (SentryEnvelopeItem *item in items) {
-        SentryRateLimitCategory rateLimitCategory =
-            [SentryRateLimitCategoryMapper mapEnvelopeItemTypeToCategory:item.header.type];
+        SentryDataCategory rateLimitCategory =
+            [SentryDataCategoryMapper mapEnvelopeItemTypeToCategory:item.header.type];
         if ([self.rateLimits isRateLimitActive:rateLimitCategory]) {
             [itemsToDrop addObject:item];
         }

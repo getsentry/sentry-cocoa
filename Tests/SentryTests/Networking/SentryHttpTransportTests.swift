@@ -495,7 +495,7 @@ class SentryHttpTransportTests: XCTestCase {
 
     private func assertRateLimitUpdated(response: HTTPURLResponse) {
         XCTAssertEqual(1, fixture.requestManager.requests.count)
-        XCTAssertTrue(fixture.rateLimits.isRateLimitActive(SentryRateLimitCategory.session))
+        XCTAssertTrue(fixture.rateLimits.isRateLimitActive(SentryDataCategory.session))
     }
 
     private func assertRequestsSent(requestCount: Int) {
