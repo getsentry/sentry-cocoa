@@ -1,3 +1,4 @@
+#import "SentryRandom.h"
 #import "SentryTransport.h"
 #import <Sentry/Sentry.h>
 
@@ -12,7 +13,8 @@ SentryClient (TestInit)
 - (instancetype)initWithOptions:(SentryOptions *)options
                       transport:(id<SentryTransport>)transport
                     fileManager:(SentryFileManager *)fileManager
-                threadInspector:(SentryThreadInspector *)threadInspector;
+                threadInspector:(SentryThreadInspector *)threadInspector
+                         random:(id<SentryRandom>)random;
 
 @end
 
