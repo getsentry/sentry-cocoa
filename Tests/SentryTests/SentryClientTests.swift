@@ -21,6 +21,10 @@ class SentryClientTest: XCTestCase {
         
         let user: User
         let fileManager: SentryFileManager
+        let random = TestRandom(value: 1.0)
+        
+        let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
+        let transaction: Transaction
         
         init() {
             session = SentrySession(releaseName: "release")
@@ -38,6 +42,8 @@ class SentryClientTest: XCTestCase {
             let options = Options()
             options.dsn = SentryClientTest.dsn
             fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
+            
+            transaction = Transaction(trace: trace, children: [])
         }
 
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> Client {
@@ -48,7 +54,7 @@ class SentryClientTest: XCTestCase {
                 ])
                 configureOptions(options)
 
-                client = Client(options: options, transport: transport, fileManager: fileManager, threadInspector: threadInspector)
+                client = Client(options: options, transport: transport, fileManager: fileManager, threadInspector: threadInspector, random: random)
             } catch {
                 XCTFail("Options could not be created")
             }
@@ -596,6 +602,53 @@ class SentryClientTest: XCTestCase {
         assertNothingSent()
     }
     
+    func testSampleRateNil_EventNotSampled() {
+        testSampleRate(sampleRate: nil, randomValue: 0, isSampled: false)
+    }
+    
+    func testSampleRateBiggerRandom_EventNotSampled() {
+        testSampleRate(sampleRate: 0.5, randomValue: 0.49, isSampled: false)
+    }
+    
+    func testSampleRateEqualsRandom_EventNotSampled() {
+        testSampleRate(sampleRate: 0.5, randomValue: 0.5, isSampled: false)
+    }
+    
+    func testSampleRateSmallerRandom_EventSampled() {
+        testSampleRate(sampleRate: 0.50, randomValue: 0.51, isSampled: true)
+    }
+    
+    private func testSampleRate( sampleRate: NSNumber?, randomValue: Double, isSampled: Bool) {
+        fixture.random.value = randomValue
+        
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.sampleRate = sampleRate
+        }).capture(event: TestData.event)
+        
+        if isSampled {
+            eventId.assertIsEmpty()
+            assertNothingSent()
+        } else {
+            eventId.assertIsNotEmpty()
+            assertLastSentEvent { actual in
+                XCTAssertEqual(eventId, actual.eventId)
+            }
+        }
+    }
+    
+    func testSampleRateDoesNotImpactTransactions() {
+        fixture.random.value = 0.51
+        
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.sampleRate = 0.00
+        }).capture(event: fixture.transaction)
+        
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            XCTAssertEqual(eventId, actual.eventId)
+        }
+    }
+    
     func testNoDsn_UserFeedbackNotSent() {
         let sut = fixture.getSutWithNoDsn()
         sut.capture(userFeedback: UserFeedback(eventId: SentryId()))
@@ -836,8 +889,7 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureTransactionEvent_sendTraceState() {
-        let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
-        let transaction = Transaction(trace: trace, children: [])
+        let transaction = fixture.transaction
         let client = fixture.getSut()
         client.options.experimentalEnableTraceSampling = true
         client.capture(event: transaction)
@@ -846,8 +898,7 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureTransactionEvent_dontSendTraceState() {
-        let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
-        let transaction = Transaction(trace: trace, children: [])
+        let transaction = fixture.transaction
         let client = fixture.getSut()
         client.capture(event: transaction)
         
@@ -858,7 +909,7 @@ class SentryClientTest: XCTestCase {
         let event = Event(level: SentryLevel.warning)
         event.message = fixture.message
         let scope = Scope()
-        scope.span = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
+        scope.span = fixture.trace
         
         let client = fixture.getSut()
         client.options.experimentalEnableTraceSampling = true

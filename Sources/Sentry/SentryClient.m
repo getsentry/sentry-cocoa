@@ -5,6 +5,7 @@
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryDebugImageProvider.h"
 #import "SentryDefaultCurrentDateProvider.h"
+#import "SentryDependencyContainer.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
@@ -25,6 +26,7 @@
 #import "SentryOptions+Private.h"
 #import "SentryOptions.h"
 #import "SentryOutOfMemoryTracker.h"
+#import "SentryRandom.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryScope.h"
@@ -52,6 +54,7 @@ SentryClient ()
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
+@property (nonatomic, strong) id<SentryRandom> random;
 
 @end
 
@@ -93,6 +96,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
         self.transport = [SentryTransportFactory initTransport:self.options
                                              sentryFileManager:self.fileManager];
+
+        self.random = [SentryDependencyContainer sharedInstance].random;
     }
     return self;
 }
@@ -102,12 +107,14 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                       transport:(id<SentryTransport>)transport
                     fileManager:(SentryFileManager *)fileManager
                 threadInspector:(SentryThreadInspector *)threadInspector
+                         random:(id<SentryRandom>)random
 {
     self = [self initWithOptions:options];
 
     self.transport = transport;
     self.fileManager = fileManager;
     self.threadInspector = threadInspector;
+    self.random = random;
 
     return self;
 }
@@ -378,19 +385,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self.fileManager storeEnvelope:envelope];
 }
 
-/**
- * returns BOOL chance of YES is defined by sampleRate.
- * if sample rate isn't within 0.0 - 1.0 it returns YES (like if sampleRate
- * is 1.0)
- */
-- (BOOL)checkSampleRate:(NSNumber *)sampleRate
-{
-    if (nil == sampleRate || ![self.options isValidSampleRate:sampleRate]) {
-        return YES;
-    }
-    return ([sampleRate floatValue] >= ((double)arc4random() / 0x100000000));
-}
-
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
                              withScope:(SentryScope *)scope
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
@@ -412,7 +406,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return nil;
     }
 
-    if (NO == [self checkSampleRate:self.options.sampleRate]) {
+    BOOL eventIsNotATransaction
+        = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeTransaction];
+
+    // Transactions have their own sampleRate
+    if (eventIsNotATransaction && [self isSampled:self.options.sampleRate]) {
         [SentryLog logWithMessage:@"Event got sampled, will not send the event"
                          andLevel:kSentryLevelDebug];
         return nil;
@@ -445,9 +443,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     [self setSdk:event];
 
-    // We don't want to attach debug meta and stacktraces for transactions
-    BOOL eventIsNotATransaction
-        = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeTransaction];
+    // We don't want to attach debug meta and stacktraces for transactions;
     if (eventIsNotATransaction) {
         BOOL shouldAttachStacktrace = alwaysAttachStacktrace || self.options.attachStacktrace
             || (nil != event.exceptions && [event.exceptions count] > 0);
@@ -503,6 +499,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     return event;
+}
+
+- (BOOL)isSampled:(NSNumber *)sampleRate
+{
+    if (nil == sampleRate) {
+        return NO;
+    }
+
+    return [self.random nextNumber] <= sampleRate.doubleValue ? NO : YES;
 }
 
 - (BOOL)isDisabled

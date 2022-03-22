@@ -75,4 +75,14 @@ static NSObject *sentryDependencyContainerLock;
     }
 }
 
+- (id<SentryRandom>)random
+{
+    @synchronized(sentryDependencyContainerLock) {
+        if (_random == nil) {
+            _random = [[SentryRandom alloc] init];
+        }
+        return _random;
+    }
+}
+
 @end
