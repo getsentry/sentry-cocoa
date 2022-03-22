@@ -1,7 +1,7 @@
 #import "SentryRateLimitParser.h"
 #import "SentryCurrentDate.h"
+#import "SentryDataCategoryMapper.h"
 #import "SentryDateUtil.h"
-#import "SentryRateLimitCategoryMapper.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -57,26 +57,26 @@ SentryRateLimitParser ()
     return [numberFormatter numberFromString:string];
 }
 
-- (SentryRateLimitCategory)mapStringToCategory:(NSString *)category
+- (SentryDataCategory)mapStringToCategory:(NSString *)category
 {
-    SentryRateLimitCategory result = kSentryRateLimitCategoryUnknown;
+    SentryDataCategory result = kSentryDataCategoryUnknown;
     if ([category isEqualToString:@""]) {
-        result = kSentryRateLimitCategoryAll;
+        result = kSentryDataCategoryAll;
     }
     if ([category isEqualToString:@"default"]) {
-        result = kSentryRateLimitCategoryDefault;
+        result = kSentryDataCategoryDefault;
     }
     if ([category isEqualToString:@"error"]) {
-        result = kSentryRateLimitCategoryError;
+        result = kSentryDataCategoryError;
     }
     if ([category isEqualToString:@"session"]) {
-        result = kSentryRateLimitCategorySession;
+        result = kSentryDataCategorySession;
     }
     if ([category isEqualToString:@"transaction"]) {
-        result = kSentryRateLimitCategoryTransaction;
+        result = kSentryDataCategoryTransaction;
     }
     if ([category isEqualToString:@"attachment"]) {
-        result = kSentryRateLimitCategoryAttachment;
+        result = kSentryDataCategoryAttachment;
     }
     return result;
 }
@@ -88,10 +88,10 @@ SentryRateLimitParser ()
     // category even if this parameter is empty.
     NSMutableArray<NSNumber *> *categories = [NSMutableArray new];
     for (NSString *categoryAsString in [categoriesAsString componentsSeparatedByString:@";"]) {
-        SentryRateLimitCategory category = [self mapStringToCategory:categoryAsString];
+        SentryDataCategory category = [self mapStringToCategory:categoryAsString];
 
         // Unknown categories must be ignored
-        if (category != kSentryRateLimitCategoryUnknown) {
+        if (category != kSentryDataCategoryUnknown) {
             [categories addObject:@(category)];
         }
     }

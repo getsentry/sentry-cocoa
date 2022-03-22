@@ -20,7 +20,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
     }
     
     func testLimitForErrorActive() {
-        rateLimits.rateLimits = [SentryRateLimitCategory.error]
+        rateLimits.rateLimits = [SentryDataCategory.error]
         
         let envelope = getEnvelope()
         let actual = sut.removeRateLimitedItems(envelope)
@@ -33,7 +33,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
     }
     
     func testLimitForSessionActive() {
-        rateLimits.rateLimits = [SentryRateLimitCategory.session]
+        rateLimits.rateLimits = [SentryDataCategory.session]
         
         let envelope = getEnvelope()
         let actual = sut.removeRateLimitedItems(envelope)
@@ -46,7 +46,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
     }
     
     func testLimitForCustomType() {
-        rateLimits.rateLimits = [SentryRateLimitCategory.default]
+        rateLimits.rateLimits = [SentryDataCategory.default]
         var envelopeItems = [SentryEnvelopeItem]()
         envelopeItems.append(SentryEnvelopeItem(event: Event()))
         

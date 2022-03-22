@@ -10,7 +10,6 @@
 #import "SentryLog.h"
 #import "SentryNSURLRequest.h"
 #import "SentryOptions.h"
-#import "SentryRateLimitCategoryMapper.h"
 #import "SentrySerialization.h"
 #import "SentryTraceState.h"
 
