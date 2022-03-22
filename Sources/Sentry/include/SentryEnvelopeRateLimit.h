@@ -11,7 +11,7 @@ NS_SWIFT_NAME(EnvelopeRateLimit)
 - (instancetype)initWithRateLimits:(id<SentryRateLimits>)sentryRateLimits;
 
 /**
- Removes SentryEnvelopItems for which a rate limit is active.
+ * Removes SentryEnvelopItems for which a rate limit is active.
  */
 - (SentryEnvelope *)removeRateLimitedItems:(SentryEnvelope *)envelope;
 
