@@ -406,9 +406,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return nil;
     }
 
+    BOOL eventIsNotATransaction
+        = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeTransaction];
+
     // Transactions have their own sampleRate
-    if (![event isKindOfClass:[SentryTransaction class]] &&
-        [self isSampled:self.options.sampleRate]) {
+    if (eventIsNotATransaction && [self isSampled:self.options.sampleRate]) {
         [SentryLog logWithMessage:@"Event got sampled, will not send the event"
                          andLevel:kSentryLevelDebug];
         return nil;
@@ -441,9 +443,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     [self setSdk:event];
 
-    // We don't want to attach debug meta and stacktraces for transactions
-    BOOL eventIsNotATransaction
-        = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeTransaction];
+    // We don't want to attach debug meta and stacktraces for transactions;
     if (eventIsNotATransaction) {
         BOOL shouldAttachStacktrace = alwaysAttachStacktrace || self.options.attachStacktrace
             || (nil != event.exceptions && [event.exceptions count] > 0);
