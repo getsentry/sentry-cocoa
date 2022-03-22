@@ -111,8 +111,8 @@ NS_SWIFT_NAME(Options)
 
 /**
  * Indicates the percentage of events being sent to Sentry. Setting this to 0 discards all
- * events, 1.0 or NIL sends all events, 0.01 collects 1% of all events. The default is 1. The value needs
- * to be >= 0.0 and <= 1.0. When setting a value out of range  the SDK sets it to the default
+ * events, 1.0 or NIL sends all events, 0.01 collects 1% of all events. The default is 1. The value
+ * needs to be >= 0.0 and <= 1.0. When setting a value out of range  the SDK sets it to the default
  * of 1.0.
  */
 @property (nullable, nonatomic, copy) NSNumber *sampleRate;

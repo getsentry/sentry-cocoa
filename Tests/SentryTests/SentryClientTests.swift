@@ -24,7 +24,7 @@ class SentryClientTest: XCTestCase {
         let random = TestRandom(value: 1.0)
         
         let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
-        let transaction : Transaction
+        let transaction: Transaction
         
         init() {
             session = SentrySession(releaseName: "release")
@@ -625,7 +625,7 @@ class SentryClientTest: XCTestCase {
             options.sampleRate = sampleRate
         }).capture(event: TestData.event)
         
-        if (isSampled) {
+        if isSampled {
             eventId.assertIsEmpty()
             assertNothingSent()
         } else {
