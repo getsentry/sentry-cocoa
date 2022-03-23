@@ -1,3 +1,4 @@
+import Sentry
 import XCTest
 
 // swiftlint:disable file_length
@@ -493,13 +494,27 @@ class SentryClientTest: XCTestCase {
     }
 
     func testBeforeSendReturnsNil_EventNotSent() {
-        fixture.getSut(configureOptions: { options in
-            options.beforeSend = { _ in
-                nil
-            }
-        }).capture(message: fixture.messageAsString)
+        beforeSendReturnsNil { $0.capture(message: fixture.messageAsString) }
 
         assertNoEventSent()
+    }
+    
+    func testBeforeSendReturnsNil_LostEventRecorded() {
+        beforeSendReturnsNil { $0.capture(message: fixture.messageAsString) }
+        
+        assertLostEventRecorded(category: .error, reason: .beforeSend)
+    }
+    
+    func testBeforeSendReturnsNilForTransaction_TransactionNotSend() {
+        beforeSendReturnsNil { $0.capture(event: fixture.transaction) }
+        
+        assertLostEventRecorded(category: .transaction, reason: .beforeSend)
+    }
+    
+    func testBeforeSendReturnsNilForTransaction_LostEventRecorded() {
+        beforeSendReturnsNil { $0.capture(event: fixture.transaction) }
+        
+        assertLostEventRecorded(category: .transaction, reason: .beforeSend)
     }
 
     func testBeforeSendReturnsNewEvent_NewEventSent() {
@@ -647,6 +662,30 @@ class SentryClientTest: XCTestCase {
         assertLastSentEvent { actual in
             XCTAssertEqual(eventId, actual.eventId)
         }
+    }
+    
+    func testEventSampled_RecordsLostEvent() {
+        fixture.getSut(configureOptions: { options in
+            options.sampleRate = 0.00
+        }).capture(event: TestData.event)
+        
+        assertLostEventRecorded(category: .error, reason: .sampleRate)
+    }
+    
+    func testEventDroppedByEventProcessor_RecordsLostEvent() {
+        SentryGlobalEventProcessor.shared().add { _ in return nil }
+        
+        beforeSendReturnsNil { $0.capture(message: fixture.messageAsString) }
+        
+        assertLostEventRecorded(category: .error, reason: .eventProcessor)
+    }
+    
+    func testTransactionDroppedByEventProcessor_RecordsLostEvent() {
+        SentryGlobalEventProcessor.shared().add { _ in return nil }
+        
+        beforeSendReturnsNil { $0.capture(event: fixture.transaction) }
+        
+        assertLostEventRecorded(category: .transaction, reason: .eventProcessor)
     }
     
     func testNoDsn_UserFeedbackNotSent() {
@@ -967,6 +1006,14 @@ class SentryClientTest: XCTestCase {
         return event
     }
     
+    private func beforeSendReturnsNil(capture: (Client) -> Void) {
+        capture(fixture.getSut(configureOptions: { options in
+            options.beforeSend = { _ in
+                nil
+            }
+        }))
+    }
+    
     private func assertNoEventSent() {
         XCTAssertEqual(0, fixture.transport.sendEventWithTraceStateInvocations.count, "No events should have been sent.")
     }
@@ -1072,6 +1119,13 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(0, fixture.transport.sentEventsWithSessionTraceState.count)
         XCTAssertEqual(0, fixture.transport.sendEventWithTraceStateInvocations.count)
         XCTAssertEqual(0, fixture.transport.userFeedbackInvocations.count)
+    }
+    
+    private func assertLostEventRecorded(category: SentryDataCategory, reason: SentryDiscardReason) {
+        XCTAssertEqual(1, fixture.transport.recordLostEvents.count)
+        let lostEvent = fixture.transport.recordLostEvents.first
+        XCTAssertEqual(category, lostEvent?.category)
+        XCTAssertEqual(reason, lostEvent?.reason)
     }
 
     private enum TestError: Error {

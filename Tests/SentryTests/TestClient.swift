@@ -105,6 +105,11 @@ class TestClient: Client {
     override func store(_ envelope: SentryEnvelope) {
         storedEnvelopeInvocations.record(envelope)
     }
+    
+    var recordLostEvents = Invocations<(category: SentryDataCategory, reason: SentryDiscardReason)>()
+    override func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason) {
+        recordLostEvents.record((category, reason))
+    }
 }
 
 class TestFileManager: SentryFileManager {

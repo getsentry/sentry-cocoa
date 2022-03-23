@@ -66,6 +66,19 @@ SentryDataCategoryMapper ()
     return category;
 }
 
++ (SentryDataCategory)mapStringToCategory:(NSString *)value
+{
+    SentryDataCategory category = kSentryDataCategoryUnknown;
+
+    for (int i = 0; i <= kSentryDataCategoryUnknown; i++) {
+        if ([value isEqualToString:SentryDataCategoryNames[i]]) {
+            category = [SentryDataCategoryMapper mapIntegerToCategory:i];
+        }
+    }
+
+    return category;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

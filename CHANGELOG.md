@@ -9,6 +9,7 @@ This is fixed now by ignoring the sampleRate for transactions. If you use custom
 
 ### Various fixes & improvements
 
+- feat: Add Client Reports (#1733)
 - fix: Wrongly sampling transactions (#1716)
 - feat: Add flag for UIViewControllerTracking (#1711)
 - feat: Add more info to touch event breadcrumbs (#1724)

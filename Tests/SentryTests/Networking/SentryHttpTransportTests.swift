@@ -1,3 +1,4 @@
+import Sentry
 import XCTest
 
 // Altough we only run this test above the below specified versions, we exped the
@@ -13,6 +14,7 @@ class SentryHttpTransportTests: XCTestCase {
     private class Fixture {
         let event: Event
         let eventRequest: SentryNSURLRequest
+        let attachmentEnvelopeItem: SentryEnvelopeItem
         let eventWithAttachmentRequest: SentryNSURLRequest
         let eventWithSessionEnvelope: SentryEnvelope
         let eventWithSessionRequest: SentryNSURLRequest
@@ -27,6 +29,10 @@ class SentryHttpTransportTests: XCTestCase {
 
         let userFeedback: UserFeedback
         let userFeedbackRequest: SentryNSURLRequest
+        
+        let clientReport: SentryClientReport
+        let clientReportEnvelope: SentryEnvelope
+        let clientReportRequest: SentryNSURLRequest
 
         init() {
             currentDateProvider = TestCurrentDateProvider()
@@ -36,8 +42,10 @@ class SentryHttpTransportTests: XCTestCase {
             event.message = SentryMessage(formatted: "Some message")
 
             eventRequest = buildRequest(SentryEnvelope(event: event))
+            
+            attachmentEnvelopeItem = SentryEnvelopeItem(attachment: TestData.dataAttachment, maxAttachmentSize: 5 * 1_024 * 1_024)!
 
-            let eventEnvelope = SentryEnvelope(id: event.eventId, items: [SentryEnvelopeItem(event: event), SentryEnvelopeItem(attachment: TestData.dataAttachment, maxAttachmentSize: 5 * 1_024 * 1_024)!])
+            let eventEnvelope = SentryEnvelope(id: event.eventId, items: [SentryEnvelopeItem(event: event), attachmentEnvelopeItem])
             eventWithAttachmentRequest = buildRequest(eventEnvelope)
 
             session = SentrySession(releaseName: "2.0.1")
@@ -61,6 +69,24 @@ class SentryHttpTransportTests: XCTestCase {
             userFeedback.name = "John Me"
 
             userFeedbackRequest = buildRequest(SentryEnvelope(userFeedback: userFeedback))
+            
+            let beforeSendTransaction = SentryDiscardedEvent(reason: .beforeSend, category: .transaction, quantity: 2)
+            let sampleRateTransaction = SentryDiscardedEvent(reason: .sampleRate, category: .transaction, quantity: 1)
+            let rateLimitBackoffError = SentryDiscardedEvent(reason: .rateLimitBackoff, category: .error, quantity: 1)
+            
+            clientReport = SentryClientReport(discardedEvents: [
+                beforeSendTransaction,
+                sampleRateTransaction,
+                rateLimitBackoffError
+            ])
+            
+            let clientReportEnvelopeItems = [
+                SentryEnvelopeItem(event: event),
+                attachmentEnvelopeItem,
+                SentryEnvelopeItem(clientReport: clientReport)
+            ]
+            clientReportEnvelope = SentryEnvelope(id: event.eventId, items: clientReportEnvelopeItems)
+            clientReportRequest = buildRequest(clientReportEnvelope)
         }
 
         var sut: SentryHttpTransport {
@@ -152,8 +178,14 @@ class SentryHttpTransportTests: XCTestCase {
         assertRequestsSent(requestCount: 2)
         assertEnvelopesStored(envelopeCount: 0)
 
-        // Envelope with only Session is sent
-        let envelope = SentryEnvelope(id: fixture.event.eventId, items: [SentryEnvelopeItem(session: fixture.session)])
+        // Envelope with only session and client report is sent
+        let discardedError = SentryDiscardedEvent(reason: .rateLimitBackoff, category: .error, quantity: 1)
+        let clientReport = SentryClientReport(discardedEvents: [discardedError])
+        let envelopeItems = [
+            SentryEnvelopeItem(session: fixture.session),
+            SentryEnvelopeItem(clientReport: clientReport)
+        ]
+        let envelope = SentryEnvelope(id: fixture.event.eventId, items: envelopeItems)
         let request = SentryHttpTransportTests.buildRequest(envelope)
         XCTAssertEqual(request.httpBody, fixture.requestManager.requests.last?.httpBody)
     }
@@ -378,6 +410,56 @@ class SentryHttpTransportTests: XCTestCase {
 
         XCTAssertEqual(fixture.sessionRequest.httpBody, fixture.requestManager.requests.invocations[2].httpBody, "Cached envelope was not sent first.")
     }
+    
+    func testRecordLostEvent_SendingEvent_AttachesClientReport() {
+        givenRecordedLostEvents()
+        
+        sendEvent()
+        
+        let actualEventRequest = fixture.requestManager.requests.last
+        XCTAssertEqual(fixture.clientReportRequest.httpBody, actualEventRequest?.httpBody, "Client report not sent.")
+    }
+    
+    func testRecordLostEvent_SendingEvent_ClearsLostEvents() {
+        givenRecordedLostEvents()
+        
+        sendEvent()
+        
+        // Second envelope item doesn't contain client reports
+        sendEvent()
+        assertEventIsSentAsEnvelope()
+    }
+    
+    func testRecordLostEvent_NoInternet_StoredWithEnvelope() {
+        givenNoInternetConnection()
+        givenRecordedLostEvents()
+        
+        sendEvent()
+        givenOkResponse()
+        sendEvent()
+        
+        let actualEventRequest = fixture.requestManager.requests.first
+        XCTAssertEqual(fixture.clientReportRequest.httpBody, actualEventRequest?.httpBody, "Client report not sent.")
+    }
+    
+    func testEventRateLimited_RecordsLostEvent() {
+        let rateLimitBackoffError = SentryDiscardedEvent(reason: .rateLimitBackoff, category: .error, quantity: 1)
+        let clientReport = SentryClientReport(discardedEvents: [rateLimitBackoffError])
+        
+        let clientReportEnvelopeItems = [
+            fixture.attachmentEnvelopeItem,
+            SentryEnvelopeItem(clientReport: clientReport)
+        ]
+        let clientReportEnvelope = SentryEnvelope(id: fixture.event.eventId, items: clientReportEnvelopeItems)
+        let clientReportRequest = SentryHttpTransportTests.buildRequest(clientReportEnvelope)
+        
+        givenRateLimitResponse(forCategory: "error")
+        sendEvent()
+        sendEvent()
+        
+        let actualEventRequest = fixture.requestManager.requests.last
+        XCTAssertEqual(clientReportRequest.httpBody, actualEventRequest?.httpBody, "Client report not sent.")
+    }
 
     func testPerformanceOfSending() {
         self.measure {
@@ -402,6 +484,7 @@ class SentryHttpTransportTests: XCTestCase {
             for _ in 0...20 {
                 group.enter()
                 queue.async {
+                    self.givenRecordedLostEvents()
                     self.sendEventAsync()
                     group.leave()
                 }
@@ -456,6 +539,14 @@ class SentryHttpTransportTests: XCTestCase {
 
     private func givenOkResponse() {
         fixture.requestManager.returnResponse(response: HTTPURLResponse())
+    }
+    
+    private func givenRecordedLostEvents() {
+        fixture.clientReport.discardedEvents.forEach { event in
+            for _ in 0..<event.quantity {
+                sut.recordLostEvent(event.category, reason: event.reason)
+            }
+        }
     }
 
     func givenFirstRateLimitGetsActiveWithSecondResponse() {

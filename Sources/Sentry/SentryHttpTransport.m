@@ -1,6 +1,11 @@
 #import "SentryHttpTransport.h"
+#import "SentryClientReport.h"
+#import "SentryDataCategoryMapper.h"
+#import "SentryDiscardReasonMapper.h"
+#import "SentryDiscardedEvent.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
+#import "SentryEnvelope+Private.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEnvelopeRateLimit.h"
@@ -22,6 +27,15 @@ SentryHttpTransport ()
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
+
+/**
+ * Relay expects the discarded events split by data category and reason; see
+ * https://develop.sentry.dev/sdk/client-reports/#envelope-item-payload.
+ * We could use nested dictionaries, but instead, we use a dictionary with key
+ * `data-category:reason` and value `SentryDiscardedEvent` because it's easier to read and type.
+ */
+@property (nonatomic, strong)
+    NSMutableDictionary<NSString *, SentryDiscardedEvent *> *discardedEvents;
 
 /**
  * Synching with a dispatch queue to have concurrent reads and writes as barrier blocks is roughly
@@ -48,6 +62,8 @@ SentryHttpTransport ()
         self.envelopeRateLimit = envelopeRateLimit;
         self.dispatchQueue = dispatchQueueWrapper;
         _isSending = NO;
+        self.discardedEvents = [NSMutableDictionary new];
+        [self.envelopeRateLimit setDelegate:self];
 
         [self sendAllCachedEnvelopes];
     }
@@ -145,16 +161,71 @@ SentryHttpTransport ()
         return;
     }
 
+    SentryEnvelope *envelopeToStore = [self addClientReportTo:envelope];
+
     // With this we accept the a tradeoff. We might loose some envelopes when a hard crash happens,
     // because this being done on a background thread, but instead we don't block the calling
     // thread, which could be the main thread.
     [self.dispatchQueue dispatchAsyncWithBlock:^{
-        [self.fileManager storeEnvelope:envelope];
+        [self.fileManager storeEnvelope:envelopeToStore];
         [self sendAllCachedEnvelopes];
     }];
 }
 
+- (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason
+{
+    NSString *key = [NSString stringWithFormat:@"%@:%@", SentryDataCategoryNames[category],
+                              SentryDiscardReasonNames[reason]];
+
+    @synchronized(self.discardedEvents) {
+        SentryDiscardedEvent *event = self.discardedEvents[key];
+        NSUInteger quantity = 1;
+        if (event != nil) {
+            quantity = event.quantity + 1;
+        }
+
+        event = [[SentryDiscardedEvent alloc] initWithReason:reason
+                                                    category:category
+                                                    quantity:quantity];
+
+        self.discardedEvents[key] = event;
+    }
+}
+
+/**
+ * SentryEnvelopeRateLimitDelegate implementation.
+ */
+- (void)envelopeItemDropped:(SentryDataCategory)dataCategory
+{
+    [self recordLostEvent:dataCategory reason:kSentryDiscardReasonRateLimitBackoff];
+}
+
 #pragma mark private methods
+
+- (SentryEnvelope *)addClientReportTo:(SentryEnvelope *)envelope
+{
+    NSArray<SentryDiscardedEvent *> *events;
+
+    @synchronized(self.discardedEvents) {
+        if (self.discardedEvents.count == 0) {
+            return envelope;
+        }
+
+        events = [self.discardedEvents allValues];
+        [self.discardedEvents removeAllObjects];
+    }
+
+    SentryClientReport *clientReport = [[SentryClientReport alloc] initWithDiscardedEvents:events];
+
+    SentryEnvelopeItem *clientReportEnvelopeItem =
+        [[SentryEnvelopeItem alloc] initWithClientReport:clientReport];
+
+    NSMutableArray<SentryEnvelopeItem *> *currentItems =
+        [[NSMutableArray alloc] initWithArray:envelope.items];
+    [currentItems addObject:clientReportEnvelopeItem];
+
+    return [[SentryEnvelope alloc] initWithHeader:envelope.header items:currentItems];
+}
 
 - (void)sendAllCachedEnvelopes
 {
