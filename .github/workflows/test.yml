@@ -124,7 +124,7 @@ jobs:
         run: swift run &
         working-directory: test-server
 
-      - run: ./scripts/ci-select-xcode.sh 13.0
+      - run: ./scripts/ci-select-xcode.sh
 
       - name: Running tests with ThreadSanitizer
         run: ./scripts/tests-with-thread-sanitizer.sh
