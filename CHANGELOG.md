@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- feat: Add more info to touch event breadcrumbs (#1724)
 - feat: Add support for dynamic library (#1726)
 
 ### Important notice

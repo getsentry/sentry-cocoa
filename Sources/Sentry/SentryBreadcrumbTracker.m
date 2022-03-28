@@ -137,9 +137,10 @@
                 NSDictionary *data = nil;
                 for (UITouch *touch in event.allTouches) {
                     if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
-                        data = @ { @"view" : [NSString stringWithFormat:@"%@", touch.view] };
+                        data = [SentryBreadcrumbTracker extractDataFromView:touch.view];
                     }
                 }
+
                 SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
                                                                          category:@"touch"];
                 crumb.type = @"user";
@@ -195,5 +196,30 @@
                      andLevel:kSentryLevelDebug];
 #endif
 }
+
+#if SENTRY_HAS_UIKIT
++ (NSDictionary *)extractDataFromView:(UIView *)view
+{
+    NSMutableDictionary *result =
+        @{ @"view" : [NSString stringWithFormat:@"%@", view] }.mutableCopy;
+
+    if (view.tag > 0) {
+        [result setValue:[NSNumber numberWithInteger:view.tag] forKey:@"tag"];
+    }
+
+    if (view.accessibilityIdentifier && ![view.accessibilityIdentifier isEqualToString:@""]) {
+        [result setValue:view.accessibilityIdentifier forKey:@"accessibilityIdentifier"];
+    }
+
+    if ([view isKindOfClass:UIButton.class]) {
+        UIButton *button = (UIButton *)view;
+        if (button.currentTitle && ![button.currentTitle isEqual:@""]) {
+            [result setValue:[button currentTitle] forKey:@"title"];
+        }
+    }
+
+    return result;
+}
+#endif
 
 @end
