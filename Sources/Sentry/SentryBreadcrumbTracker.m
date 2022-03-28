@@ -134,32 +134,10 @@
     SentrySwizzleInstanceMethod(UIApplication.class, selector, SentrySWReturnType(BOOL),
         SentrySWArguments(SEL action, id target, id sender, UIEvent * event), SentrySWReplacement({
             if (nil != [SentrySDK.currentHub getClient]) {
-                NSMutableDictionary *data = nil;
+                NSDictionary *data = nil;
                 for (UITouch *touch in event.allTouches) {
                     if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
-                        data = @ { @"view" : [NSString stringWithFormat:@"%@", touch.view] }
-                                   .mutableCopy;
-
-                        if ([sender isKindOfClass:UIView.class]) {
-                            UIView *senderView = sender;
-                            if (senderView.tag > 0) {
-                                [data setValue:[NSNumber numberWithInteger:senderView.tag]
-                                        forKey:@"tag"];
-                            }
-
-                            if (senderView.accessibilityIdentifier
-                                && ![senderView.accessibilityIdentifier isEqualToString:@""]) {
-                                [data setValue:senderView.accessibilityIdentifier
-                                        forKey:@"accessibilityIdentifier"];
-                            }
-
-                            if ([sender isKindOfClass:UIButton.class]) {
-                                UIButton *button = sender;
-                                if (button.currentTitle && ![button.currentTitle isEqual:@""]) {
-                                    [data setValue:[button currentTitle] forKey:@"title"];
-                                }
-                            }
-                        }
+                        data = [SentryBreadcrumbTracker extractDataFromView:touch.view];
                     }
                 }
 
@@ -218,5 +196,30 @@
                      andLevel:kSentryLevelDebug];
 #endif
 }
+
+#if SENTRY_HAS_UIKIT
++ (NSDictionary *)extractDataFromView:(UIView *)view
+{
+    NSMutableDictionary *result =
+        @{ @"view" : [NSString stringWithFormat:@"%@", view] }.mutableCopy;
+
+    if (view.tag > 0) {
+        [result setValue:[NSNumber numberWithInteger:view.tag] forKey:@"tag"];
+    }
+
+    if (view.accessibilityIdentifier && ![view.accessibilityIdentifier isEqualToString:@""]) {
+        [result setValue:view.accessibilityIdentifier forKey:@"accessibilityIdentifier"];
+    }
+
+    if ([view isKindOfClass:UIButton.class]) {
+        UIButton *button = (UIButton *)view;
+        if (button.currentTitle && ![button.currentTitle isEqual:@""]) {
+            [result setValue:[button currentTitle] forKey:@"title"];
+        }
+    }
+
+    return result;
+}
+#endif
 
 @end
