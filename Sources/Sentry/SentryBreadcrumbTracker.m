@@ -134,12 +134,35 @@
     SentrySwizzleInstanceMethod(UIApplication.class, selector, SentrySWReturnType(BOOL),
         SentrySWArguments(SEL action, id target, id sender, UIEvent * event), SentrySWReplacement({
             if (nil != [SentrySDK.currentHub getClient]) {
-                NSDictionary *data = nil;
+                NSMutableDictionary *data = nil;
                 for (UITouch *touch in event.allTouches) {
                     if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
-                        data = @ { @"view" : [NSString stringWithFormat:@"%@", touch.view] };
+                        data = @ { @"view" : [NSString stringWithFormat:@"%@", touch.view] }
+                                   .mutableCopy;
+
+                        if ([sender isKindOfClass:UIView.class]) {
+                            UIView *senderView = sender;
+                            if (senderView.tag > 0) {
+                                [data setValue:[NSNumber numberWithInteger:senderView.tag]
+                                        forKey:@"tag"];
+                            }
+
+                            if (senderView.accessibilityIdentifier
+                                && ![senderView.accessibilityIdentifier isEqualToString:@""]) {
+                                [data setValue:senderView.accessibilityIdentifier
+                                        forKey:@"accessibilityIdentifier"];
+                            }
+
+                            if ([sender isKindOfClass:UIButton.class]) {
+                                UIButton *button = sender;
+                                if (button.currentTitle && ![button.currentTitle isEqual:@""]) {
+                                    [data setValue:[button currentTitle] forKey:@"title"];
+                                }
+                            }
+                        }
                     }
                 }
+
                 SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
                                                                          category:@"touch"];
                 crumb.type = @"user";
