@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- feat: Add support for dynamic library (#1726)
+
 ### Important notice
 
 This release contains a fix for the sampling of transactions. The SDK applied both sample rates for events and transactions when capturing transactions. Previously, when setting sampleRate to 0.0, the SDK would discard all transactions.
