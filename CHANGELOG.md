@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- feat: Add more information on the action breadcrumb (#1724)
+
 ### Important notice
 
 This release contains a fix for the sampling of transactions. The SDK applied both sample rates for events and transactions when capturing transactions. Previously, when setting sampleRate to 0.0, the SDK would discard all transactions.
