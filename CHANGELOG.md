@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- feat: Add more information on the action breadcrumb (#1724)
+- feat: Add more info to touch event breadcrumbs (#1724)
 
 ### Important notice
 
