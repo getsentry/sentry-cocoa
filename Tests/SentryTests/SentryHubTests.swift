@@ -290,7 +290,7 @@ class SentryHubTests: XCTestCase {
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes))
         
         let trans = Dynamic(transaction).toTransaction().asAnyObject
-        let id = sut.capture(trans as! Transaction, with:Scope())
+        let id = sut.capture(trans as! Transaction, with: Scope())
         id.assertIsEmpty()
     }
 
