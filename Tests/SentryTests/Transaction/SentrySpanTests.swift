@@ -150,7 +150,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(serialization["timestamp"] as? TimeInterval, TestData.timestamp.timeIntervalSince1970)
         XCTAssertEqual(serialization["start_timestamp"] as? TimeInterval, TestData.timestamp.timeIntervalSince1970)
         XCTAssertEqual(serialization["type"] as? String, SpanContext.type)
-        XCTAssertEqual(serialization["sampled"] as? String, "true")
+        XCTAssertEqual(serialization["sampled"] as? String, "false")
         XCTAssertNotNil(serialization["data"])
         XCTAssertNotNil(serialization["tags"])
         XCTAssertEqual((serialization["data"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
@@ -179,25 +179,25 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual((mergedSerialization["tags"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
     }
     
-    func testTraceHeaderNotSampled() {
+    func testTraceHeaderSampled() {
         fixture.options.tracesSampleRate = 0
         let span = fixture.getSut()
         let header = span.toTraceHeader()
         
         XCTAssertEqual(header.traceId, span.context.traceId)
         XCTAssertEqual(header.spanId, span.context.spanId)
-        XCTAssertEqual(header.sampled, .no)
-        XCTAssertEqual(header.value(), "\(span.context.traceId)-\(span.context.spanId)-0")
+        XCTAssertEqual(header.sampled, .yes)
+        XCTAssertEqual(header.value(), "\(span.context.traceId)-\(span.context.spanId)-1")
     }
     
-    func testTraceHeaderSampled() {
-        let span = SentrySpan(transaction: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .yes))
+    func testTraceHeaderNotSampled() {
+        let span = SentrySpan(transaction: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .no))
         let header = span.toTraceHeader()
         
         XCTAssertEqual(header.traceId, span.context.traceId)
         XCTAssertEqual(header.spanId, span.context.spanId)
-        XCTAssertEqual(header.sampled, .yes)
-        XCTAssertEqual(header.value(), "\(span.context.traceId)-\(span.context.spanId)-1")
+        XCTAssertEqual(header.sampled, .no)
+        XCTAssertEqual(header.value(), "\(span.context.traceId)-\(span.context.spanId)-0")
     }
     
     func testTraceHeaderUndecided() {
