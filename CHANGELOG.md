@@ -2,8 +2,6 @@
 
 ## Unreleased
 
-- feat: Add more info to touch event breadcrumbs (#1724)
-
 ### Important notice
 
 This release contains a fix for the sampling of transactions. The SDK applied both sample rates for events and transactions when capturing transactions. Previously, when setting sampleRate to 0.0, the SDK would discard all transactions.
@@ -11,6 +9,8 @@ This is fixed now by ignoring the sampleRate for transactions. If you use custom
 
 - fix: Wrongly sampling transactions (#1716)
 - feat: Add flag for UIViewControllerTracking (#1711)
+- feat: Add more info to touch event breadcrumbs (#1724)
+- feat: Add support for profiling on iOS (#1652) by @armcknight
 
 ## 7.12.0-beta.0
 
