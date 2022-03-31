@@ -14,6 +14,7 @@
 #import "SentryFileManager.h"
 #import "SentryLog.h"
 #import "SentryNSURLRequest.h"
+#import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
 #import "SentryTraceState.h"
@@ -23,6 +24,7 @@ SentryHttpTransport ()
 
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) id<SentryRequestManager> requestManager;
+@property (nonatomic, strong) SentryNSURLRequestBuilder *requestBuilder;
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
@@ -50,6 +52,7 @@ SentryHttpTransport ()
 - (id)initWithOptions:(SentryOptions *)options
              fileManager:(SentryFileManager *)fileManager
           requestManager:(id<SentryRequestManager>)requestManager
+          requestBuilder:(SentryNSURLRequestBuilder *)requestBuilder
               rateLimits:(id<SentryRateLimits>)rateLimits
        envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
@@ -57,6 +60,7 @@ SentryHttpTransport ()
     if (self = [super init]) {
         self.options = options;
         self.requestManager = requestManager;
+        self.requestBuilder = requestBuilder;
         self.fileManager = fileManager;
         self.rateLimits = rateLimits;
         self.envelopeRateLimit = envelopeRateLimit;
@@ -255,10 +259,17 @@ SentryHttpTransport ()
     }
 
     NSError *requestError = nil;
-    NSURLRequest *request = [self createEnvelopeRequest:rateLimitedEnvelope
-                                       didFailWithError:requestError];
+    NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:rateLimitedEnvelope
+                                                                   dsn:self.options.parsedDsn
+                                                      didFailWithError:&requestError];
 
     if (nil != requestError) {
+        for (SentryEnvelopeItem *item in envelope.items) {
+            SentryDataCategory category =
+                [SentryDataCategoryMapper mapEnvelopeItemTypeToCategory:item.header.type];
+            [self recordLostEvent:category reason:kSentryDiscardReasonNetworkError];
+        }
+
         [self deleteEnvelopeAndSendNext:envelopeFileContents.path];
         return;
     } else {
@@ -271,15 +282,6 @@ SentryHttpTransport ()
     [self.fileManager removeFileAtPath:envelopePath];
     self.isSending = NO;
     [self sendAllCachedEnvelopes];
-}
-
-- (NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
-                       didFailWithError:(NSError *_Nullable)error
-{
-    return [[SentryNSURLRequest alloc]
-        initEnvelopeRequestWithDsn:self.options.parsedDsn
-                           andData:[SentrySerialization dataWithEnvelope:envelope error:&error]
-                  didFailWithError:&error];
 }
 
 - (void)sendEnvelope:(NSString *)envelopePath request:(NSURLRequest *)request

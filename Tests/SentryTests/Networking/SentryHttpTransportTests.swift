@@ -25,6 +25,7 @@ class SentryHttpTransportTests: XCTestCase {
         let fileManager: SentryFileManager
         let options: Options
         let requestManager: TestRequestManager
+        let requestBuilder = TestNSURLRequestBuilder()
         let rateLimits: DefaultRateLimits
 
         let userFeedback: UserFeedback
@@ -95,6 +96,7 @@ class SentryHttpTransportTests: XCTestCase {
                     options: options,
                     fileManager: fileManager,
                     requestManager: requestManager,
+                    requestBuilder: requestBuilder,
                     rateLimits: rateLimits,
                     envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
                     dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
@@ -519,6 +521,16 @@ class SentryHttpTransportTests: XCTestCase {
         // The attachment gets dropped
         let actualRequest = fixture.requestManager.requests.last
         XCTAssertEqual(fixture.eventRequest.httpBody, actualRequest?.httpBody, "Request for faulty attachment is faulty.")
+    }
+    
+    func testBuildingRequestFails_DeletesEnvelopeAndSendsNext() {
+        givenNoInternetConnection()
+        sendEvent()
+        
+        fixture.requestBuilder.shouldFailWithError = true
+        sendEvent()
+        assertEnvelopesStored(envelopeCount: 0)
+        assertRequestsSent(requestCount: 1)
     }
 
     private func givenRetryAfterResponse() -> HTTPURLResponse {
