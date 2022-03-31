@@ -892,7 +892,7 @@ class SentryClientTest: XCTestCase {
         let event = TestData.event
         let expectation = expectation(description: "onCrashedLastRun called")
         
-        var captureCrash: (()-> Void)?
+        var captureCrash: (() -> Void)?
         
         let client = fixture.getSut(configureOptions: { options in
             options.onCrashedLastRun = { crashEvent in
