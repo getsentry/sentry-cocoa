@@ -890,13 +890,13 @@ class SentryClientTest: XCTestCase {
     
     func testOnCrashedLastRun_CallingCaptureCrash_OnlyInvokeCallbackOnce() {
         let event = TestData.event
-        let expectation = expectation(description: "onCrashedLastRun called")
+        let callbackExpectation = expectation(description: "onCrashedLastRun called")
         
         var captureCrash: (() -> Void)?
         
         let client = fixture.getSut(configureOptions: { options in
             options.onCrashedLastRun = { crashEvent in
-                expectation.fulfill()
+                callbackExpectation.fulfill()
                 XCTAssertEqual(event.eventId, crashEvent.eventId)
                 captureCrash!()
             }
@@ -905,7 +905,7 @@ class SentryClientTest: XCTestCase {
         
         client.captureCrash(event, with: fixture.scope)
         
-        wait(for: [expectation], timeout: 0.1)
+        wait(for: [callbackExpectation], timeout: 0.1)
     }
     
     func testCaptureTransactionEvent_sendTraceState() {
