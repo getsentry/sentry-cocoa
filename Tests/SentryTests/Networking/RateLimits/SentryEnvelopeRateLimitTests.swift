@@ -3,7 +3,7 @@ import XCTest
 class SentryEnvelopeRateLimitTests: XCTestCase {
     
     private var rateLimits: TestRateLimits!
-    private weak var delegate: TestEnvelopeRateLimitDelegate!
+    private var delegate: TestEnvelopeRateLimitDelegate!
     private var sut: EnvelopeRateLimit!
     
     override func setUp() {

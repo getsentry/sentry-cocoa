@@ -18,14 +18,13 @@ class SentryClientReportTests: XCTestCase {
         
         let discardedEvents = actual["discarded_events"] as! [[String: Any]]
         
-        assertEvent(event: discardedEvents[0], reason: "sample_rate", category: "transaction", quantity: event1.quantity)
-        assertEvent(event: discardedEvents[1], reason: "before_send", category: "transaction", quantity: event2.quantity)
-        assertEvent(event: discardedEvents[2], reason: "ratelimit_backoff", category: "error", quantity: event3.quantity)
-        
         func assertEvent(event: [String: Any], reason: String, category: String, quantity: UInt) {
             XCTAssertEqual(reason, event["reason"] as? String)
             XCTAssertEqual(category, event["category"] as? String)
             XCTAssertEqual(quantity, event["quantity"] as? UInt)
         }
+        assertEvent(event: discardedEvents[0], reason: "sample_rate", category: "transaction", quantity: event1.quantity)
+        assertEvent(event: discardedEvents[1], reason: "before_send", category: "transaction", quantity: event2.quantity)
+        assertEvent(event: discardedEvents[2], reason: "ratelimit_backoff", category: "error", quantity: event3.quantity)
     }
 }
