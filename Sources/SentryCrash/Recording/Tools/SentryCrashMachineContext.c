@@ -212,7 +212,7 @@ sentrycrashmc_resumeEnvironment(
     const thread_t thisThread = (thread_t)sentrycrashthread_self();
 
     if (threads == NULL || numThreads == 0) {
-        SentryCrashLOG_ERROR("we should call ksmc_suspendEnvironment() first");
+        SentryCrashLOG_ERROR("we should call sentrycrashmc_suspendEnvironment() first");
         return;
     }
 
