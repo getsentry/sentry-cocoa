@@ -264,16 +264,13 @@ SentryHttpTransport ()
                                                       didFailWithError:&requestError];
 
     if (nil != requestError) {
-        for (SentryEnvelopeItem *item in envelope.items) {
-            SentryDataCategory category =
-                [SentryDataCategoryMapper mapEnvelopeItemTypeToCategory:item.header.type];
-            [self recordLostEvent:category reason:kSentryDiscardReasonNetworkError];
-        }
-
+        [self recordLostEventFor:rateLimitedEnvelope.items];
         [self deleteEnvelopeAndSendNext:envelopeFileContents.path];
         return;
     } else {
-        [self sendEnvelope:envelopeFileContents.path request:request];
+        [self sendEnvelope:rateLimitedEnvelope
+              envelopePath:envelopeFileContents.path
+                   request:request];
     }
 }
 
@@ -284,14 +281,19 @@ SentryHttpTransport ()
     [self sendAllCachedEnvelopes];
 }
 
-- (void)sendEnvelope:(NSString *)envelopePath request:(NSURLRequest *)request
+- (void)sendEnvelope:(SentryEnvelope *)envelope
+        envelopePath:(NSString *)envelopePath
+             request:(NSURLRequest *)request
 {
     __block SentryHttpTransport *_self = self;
     [self.requestManager
                addRequest:request
         completionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
             // If the response is not nil we had an internet connection.
-            // We don't worry about errors here.
+            if (error) {
+                [_self recordLostEventFor:envelope.items];
+            }
+
             if (nil != response) {
                 [_self.rateLimits update:response];
                 [_self deleteEnvelopeAndSendNext:envelopePath];
@@ -299,6 +301,21 @@ SentryHttpTransport ()
                 _self.isSending = NO;
             }
         }];
+}
+
+- (void)recordLostEventFor:(NSArray<SentryEnvelopeItem *> *)items
+{
+    for (SentryEnvelopeItem *item in items) {
+        NSString *itemType = item.header.type;
+        // We don't want to record a lost event when it's a client report.
+        // It's fine to drop it silently.
+        if ([itemType isEqualToString:SentryEnvelopeItemTypeClientReport]) {
+            continue;
+        }
+        SentryDataCategory category =
+            [SentryDataCategoryMapper mapEnvelopeItemTypeToCategory:itemType];
+        [self recordLostEvent:category reason:kSentryDiscardReasonNetworkError];
+    }
 }
 
 @end
