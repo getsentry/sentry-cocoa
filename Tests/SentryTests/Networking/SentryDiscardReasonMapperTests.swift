@@ -14,3 +14,4 @@ class SentryDiscardReasonMapperTests: XCTestCase {
         XCTAssertEqual(.rateLimitBackoff, SentryDiscardReasonMapper.mapString(toReason: "ratelimit_backoff"))
     }
 }
+
