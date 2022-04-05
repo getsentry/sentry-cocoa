@@ -805,7 +805,6 @@ class SentryHubTests: XCTestCase {
         
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         
-        let sampled = span.context.sampled
-        XCTAssertEqual(expected, sampled)
+        XCTAssertEqual(expected, span.context.sampled)
     }
 }
