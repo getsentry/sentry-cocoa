@@ -42,10 +42,16 @@
 
 - (void)testSuspendResumeThreads
 {
-    sentrycrashmc_suspendEnvironment();
-    sentrycrashmc_suspendEnvironment();
-    sentrycrashmc_resumeEnvironment();
-    sentrycrashmc_resumeEnvironment();
+    thread_act_array_t threads1 = NULL;
+    mach_msg_type_number_t numThreads1 = 0;
+    sentrycrashmc_suspendEnvironment(&threads1, &numThreads1);
+
+    thread_act_array_t threads2 = NULL;
+    mach_msg_type_number_t numThreads2 = 0;
+    sentrycrashmc_suspendEnvironment(&threads2, &numThreads2);
+
+    sentrycrashmc_resumeEnvironment(threads2, numThreads2);
+    sentrycrashmc_resumeEnvironment(threads1, numThreads1);
 }
 
 @end
