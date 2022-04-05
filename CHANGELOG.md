@@ -2,7 +2,6 @@
 
 ## Unreleased
 
-- fix: Setting invalid sample range (#1729)
 - feat: Add more info to touch event breadcrumbs (#1724)
 
 ### Important notice
