@@ -1,8 +1,10 @@
 # Changelog
 
-## Unreleased
+## Unreleased 
 
 - feat: Add Client Reports (#1733)
+
+## 7.12.0
 
 ### Important notice
 
