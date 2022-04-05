@@ -172,8 +172,8 @@ isThreadInList(thread_t thread, SentryCrashThread *list, int listCount)
 #endif
 
 void
-sentrycrashmc_suspendEnvironment(__unused thread_act_array_t *suspendedThreads,
-    __unused mach_msg_type_number_t *numSuspendedThreads)
+sentrycrashmc_suspendEnvironment(
+    thread_act_array_t *suspendedThreads, mach_msg_type_number_t *numSuspendedThreads)
 {
 #if SentryCrashCRASH_HAS_THREADS_API
     SentryCrashLOG_DEBUG("Suspending environment.");
