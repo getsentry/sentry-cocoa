@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     for (int i = 0; i <= kSentryDiscardReasonRateLimitBackoff; i++) {
         if ([value isEqualToString:SentryDiscardReasonNames[i]]) {
-            reason = [SentryDiscardReasonMapper mapIntegerToReason:i];
+            return [SentryDiscardReasonMapper mapIntegerToReason:i];
         }
     }
 
