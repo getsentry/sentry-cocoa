@@ -240,7 +240,7 @@ SentryHub ()
                        withScope:(SentryScope *)scope
          additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
-    if (transaction.trace.context.sampled == kSentrySampleDecisionYes) {
+    if (transaction.trace.context.sampled != kSentrySampleDecisionYes) {
         return SentryId.empty;
     }
 

@@ -150,7 +150,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(serialization["timestamp"] as? TimeInterval, TestData.timestamp.timeIntervalSince1970)
         XCTAssertEqual(serialization["start_timestamp"] as? TimeInterval, TestData.timestamp.timeIntervalSince1970)
         XCTAssertEqual(serialization["type"] as? String, SpanContext.type)
-        XCTAssertEqual(serialization["sampled"] as? String, "false")
+        XCTAssertEqual(serialization["sampled"] as? String, "true")
         XCTAssertNotNil(serialization["data"])
         XCTAssertNotNil(serialization["tags"])
         XCTAssertEqual((serialization["data"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
@@ -180,7 +180,7 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testTraceHeaderSampled() {
-        fixture.options.tracesSampleRate = 0
+        fixture.options.tracesSampleRate = 1
         let span = fixture.getSut()
         let header = span.toTraceHeader()
         

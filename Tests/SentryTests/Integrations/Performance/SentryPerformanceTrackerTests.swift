@@ -176,7 +176,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         let spanId = sut.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
         let span = sut.getSpan(spanId)
         
-        XCTAssertEqual(span!.context.sampled, .yes)
+        XCTAssertEqual(span!.context.sampled, .no)
     }
     
     func testSampled() {
@@ -185,7 +185,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         let spanId = sut.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
         let span = sut.getSpan(spanId)
         
-        XCTAssertEqual(span!.context.sampled, .no)
+        XCTAssertEqual(span!.context.sampled, .yes)
     }
     
     func testFinishSpan() {

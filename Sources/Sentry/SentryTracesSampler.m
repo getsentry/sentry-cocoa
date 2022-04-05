@@ -55,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentrySampleDecision)calcSample:(double)sampleRate
 {
     double randomValue = [self.random nextNumber];
-    return randomValue <= sampleRate ? kSentrySampleDecisionNo : kSentrySampleDecisionYes;
+    return randomValue <= sampleRate ? kSentrySampleDecisionYes : kSentrySampleDecisionNo;
 }
 
 @end

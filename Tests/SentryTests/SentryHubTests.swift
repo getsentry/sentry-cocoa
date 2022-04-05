@@ -244,19 +244,19 @@ class SentryHubTests: XCTestCase {
     }
     
     func testStartTransactionNotSamplingUsingSampleRate() {
-        testSampler(expected: .yes) { options in
+        testSampler(expected: .no) { options in
             options.tracesSampler = { _ in return 0.49 }
         }
     }
     
     func testStartTransactionSamplingUsingSampleRate() {
-        testSampler(expected: .no) { options in
+        testSampler(expected: .yes) { options in
             options.tracesSampler = { _ in return 0.5 }
         }
     }
     
     func testStartTransactionSamplingUsingTracesSampler() {
-        testSampler(expected: .no) { options in
+        testSampler(expected: .yes) { options in
             options.tracesSampler = { _ in return 0.51 }
         }
     }
@@ -287,7 +287,7 @@ class SentryHubTests: XCTestCase {
     }
     
     func testCaptureSampledTransaction_ReturnsEmptyId() {
-        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes))
+        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
         
         let trans = Dynamic(transaction).toTransaction().asAnyObject
         let id = sut.capture(trans as! Transaction, with: Scope())
