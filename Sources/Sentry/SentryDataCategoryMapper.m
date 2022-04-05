@@ -59,6 +59,9 @@ SentryDataCategoryMapper ()
     if (value == kSentryDataCategoryAttachment) {
         category = kSentryDataCategoryAttachment;
     }
+    if (value == kSentryDataCategoryUserFeedback) {
+        category = kSentryDataCategoryUserFeedback;
+    }
     if (value == kSentryDataCategoryUnknown) {
         category = kSentryDataCategoryUnknown;
     }
@@ -72,7 +75,7 @@ SentryDataCategoryMapper ()
 
     for (int i = 0; i <= kSentryDataCategoryUnknown; i++) {
         if ([value isEqualToString:SentryDataCategoryNames[i]]) {
-            category = [SentryDataCategoryMapper mapIntegerToCategory:i];
+            return [SentryDataCategoryMapper mapIntegerToCategory:i];
         }
     }
 
