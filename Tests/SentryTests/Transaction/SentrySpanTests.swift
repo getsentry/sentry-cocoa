@@ -191,7 +191,8 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testTraceHeaderSampled() {
-        let span = SentrySpan(transaction: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .yes))
+        fixture.options.tracesSampleRate = 1
+        let span = fixture.getSut()
         let header = span.toTraceHeader()
         
         XCTAssertEqual(header.traceId, span.context.traceId)
