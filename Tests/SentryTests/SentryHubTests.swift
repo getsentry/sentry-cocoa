@@ -255,20 +255,14 @@ class SentryHubTests: XCTestCase {
         }
     }
     
-    func testStartTransactionNotSamplingUsingTracesSampler() {
-        testSampler(expected: .no) { options in
-            options.tracesSampler = { _ in return 0.4 }
-        }
-    }
-    
     func testStartTransactionSamplingUsingTracesSampler() {
         testSampler(expected: .yes) { options in
-            options.tracesSampler = { _ in return 0.6 }
+            options.tracesSampler = { _ in return 0.51 }
         }
     }
     
     func testStartTransaction_WhenSampleRateAndSamplerNil() {
-        testSampler(expected: SentrySampleDecision.no) { options in
+        testSampler(expected: .no) { options in
             options.tracesSampleRate = nil
             options.tracesSampler = { _ in return nil }
         }
@@ -290,6 +284,14 @@ class SentryHubTests: XCTestCase {
         
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         XCTAssertEqual(span.context.sampled, .no)
+    }
+    
+    func testCaptureSampledTransaction_ReturnsEmptyId() {
+        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
+        
+        let trans = Dynamic(transaction).toTransaction().asAnyObject
+        let id = sut.capture(trans as! Transaction, with: Scope())
+        id.assertIsEmpty()
     }
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
