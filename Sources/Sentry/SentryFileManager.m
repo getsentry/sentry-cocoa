@@ -1,6 +1,7 @@
 #import "SentryFileManager.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryAppState.h"
+#import "SentryDataCategoryMapper.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
@@ -29,6 +30,7 @@ SentryFileManager ()
 @property (nonatomic, copy) NSString *appStateFilePath;
 @property (nonatomic, assign) NSUInteger currentFileCounter;
 @property (nonatomic, assign) NSUInteger maxEnvelopes;
+@property (nonatomic, weak) id<SentryFileManagerDelegate> delegate;
 
 @end
 
@@ -77,6 +79,11 @@ SentryFileManager ()
         self.maxEnvelopes = options.maxCacheItems;
     }
     return self;
+}
+
+- (void)setDelegate:(id<SentryFileManagerDelegate>)delegate
+{
+    _delegate = delegate;
 }
 
 - (void)deleteAllFolders
@@ -212,9 +219,26 @@ SentryFileManager ()
             [[NSMutableArray alloc] initWithArray:[envelopeFilePaths copy]];
         [envelopePathsCopy removeObjectAtIndex:i];
 
-        [SentryMigrateSessionInit migrateSessionInit:envelopeFilePath
-                                    envelopesDirPath:self.envelopesPath
-                                   envelopeFilePaths:envelopePathsCopy];
+        NSData *envelopeData = [[NSFileManager defaultManager] contentsAtPath:envelopeFilePath];
+        SentryEnvelope *envelope = [SentrySerialization envelopeWithData:envelopeData];
+
+        BOOL didMigrateSessionInit =
+            [SentryMigrateSessionInit migrateSessionInit:envelope
+                                        envelopesDirPath:self.envelopesPath
+                                       envelopeFilePaths:envelopePathsCopy];
+
+        for (SentryEnvelopeItem *item in envelope.items) {
+            SentryDataCategory rateLimitCategory =
+                [SentryDataCategoryMapper mapEnvelopeItemTypeToCategory:item.header.type];
+
+            // When migrating the session init the envelope to delete still contains the migrated
+            // envelope item
+            if (didMigrateSessionInit && rateLimitCategory == kSentryDataCategorySession) {
+                continue;
+            }
+
+            [_delegate envelopeItemDeleted:rateLimitCategory];
+        }
 
         [self removeFileAtPath:envelopeFilePath];
     }
