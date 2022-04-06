@@ -14,6 +14,7 @@
 #import "SentryFileManager.h"
 #import "SentryLog.h"
 #import "SentryNSURLRequest.h"
+#import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
 #import "SentryTraceState.h"
@@ -23,6 +24,7 @@ SentryHttpTransport ()
 
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) id<SentryRequestManager> requestManager;
+@property (nonatomic, strong) SentryNSURLRequestBuilder *requestBuilder;
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
@@ -50,6 +52,7 @@ SentryHttpTransport ()
 - (id)initWithOptions:(SentryOptions *)options
              fileManager:(SentryFileManager *)fileManager
           requestManager:(id<SentryRequestManager>)requestManager
+          requestBuilder:(SentryNSURLRequestBuilder *)requestBuilder
               rateLimits:(id<SentryRateLimits>)rateLimits
        envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
@@ -57,6 +60,7 @@ SentryHttpTransport ()
     if (self = [super init]) {
         self.options = options;
         self.requestManager = requestManager;
+        self.requestBuilder = requestBuilder;
         self.fileManager = fileManager;
         self.rateLimits = rateLimits;
         self.envelopeRateLimit = envelopeRateLimit;
@@ -255,14 +259,18 @@ SentryHttpTransport ()
     }
 
     NSError *requestError = nil;
-    NSURLRequest *request = [self createEnvelopeRequest:rateLimitedEnvelope
-                                       didFailWithError:requestError];
+    NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:rateLimitedEnvelope
+                                                                   dsn:self.options.parsedDsn
+                                                      didFailWithError:&requestError];
 
     if (nil != requestError) {
+        [self recordLostEventFor:rateLimitedEnvelope.items];
         [self deleteEnvelopeAndSendNext:envelopeFileContents.path];
         return;
     } else {
-        [self sendEnvelope:envelopeFileContents.path request:request];
+        [self sendEnvelope:rateLimitedEnvelope
+              envelopePath:envelopeFileContents.path
+                   request:request];
     }
 }
 
@@ -273,23 +281,19 @@ SentryHttpTransport ()
     [self sendAllCachedEnvelopes];
 }
 
-- (NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
-                       didFailWithError:(NSError *_Nullable)error
-{
-    return [[SentryNSURLRequest alloc]
-        initEnvelopeRequestWithDsn:self.options.parsedDsn
-                           andData:[SentrySerialization dataWithEnvelope:envelope error:&error]
-                  didFailWithError:&error];
-}
-
-- (void)sendEnvelope:(NSString *)envelopePath request:(NSURLRequest *)request
+- (void)sendEnvelope:(SentryEnvelope *)envelope
+        envelopePath:(NSString *)envelopePath
+             request:(NSURLRequest *)request
 {
     __block SentryHttpTransport *_self = self;
     [self.requestManager
                addRequest:request
         completionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
             // If the response is not nil we had an internet connection.
-            // We don't worry about errors here.
+            if (error) {
+                [_self recordLostEventFor:envelope.items];
+            }
+
             if (nil != response) {
                 [_self.rateLimits update:response];
                 [_self deleteEnvelopeAndSendNext:envelopePath];
@@ -297,6 +301,21 @@ SentryHttpTransport ()
                 _self.isSending = NO;
             }
         }];
+}
+
+- (void)recordLostEventFor:(NSArray<SentryEnvelopeItem *> *)items
+{
+    for (SentryEnvelopeItem *item in items) {
+        NSString *itemType = item.header.type;
+        // We don't want to record a lost event when it's a client report.
+        // It's fine to drop it silently.
+        if ([itemType isEqualToString:SentryEnvelopeItemTypeClientReport]) {
+            continue;
+        }
+        SentryDataCategory category =
+            [SentryDataCategoryMapper mapEnvelopeItemTypeToCategory:itemType];
+        [self recordLostEvent:category reason:kSentryDiscardReasonNetworkError];
+    }
 }
 
 @end
