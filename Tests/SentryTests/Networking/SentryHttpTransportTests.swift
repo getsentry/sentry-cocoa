@@ -585,6 +585,26 @@ class SentryHttpTransportTests: XCTestCase {
         
         assertClientReportStoredInMemory()
     }
+    
+    func testSendClientReportsDisabled_DoesNotRecordLostEvents() {
+        fixture.options.sendClientReports = false
+        givenErrorResponse()
+        
+        sendEvent()
+        
+        assertClientReportNotStoredInMemory()
+    }
+    
+    func testSendClientReportsDisabled_DoesSendClientReport() {
+        givenErrorResponse()
+        sendEvent()
+        
+        givenOkResponse()
+        fixture.options.sendClientReports = false
+        sendEvent()
+        
+        assertEventIsSentAsEnvelope()
+    }
 
     private func givenRetryAfterResponse() -> HTTPURLResponse {
         let response = TestResponseFactory.createRetryAfterResponse(headerValue: "1")
@@ -685,5 +705,11 @@ class SentryHttpTransportTests: XCTestCase {
         let attachment = dict?["attachment:network_error"]
         XCTAssertEqual(1, event?.quantity)
         XCTAssertEqual(1, attachment?.quantity)
+    }
+    
+    private func assertClientReportNotStoredInMemory() {
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertNotNil(dict)
+        XCTAssertEqual(0, dict?.count)
     }
 }

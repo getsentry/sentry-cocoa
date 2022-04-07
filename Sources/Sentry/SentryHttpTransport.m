@@ -178,6 +178,10 @@ SentryHttpTransport ()
 
 - (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason
 {
+    if (!self.options.sendClientReports) {
+        return;
+    }
+
     NSString *key = [NSString stringWithFormat:@"%@:%@", SentryDataCategoryNames[category],
                               SentryDiscardReasonNames[reason]];
 
@@ -208,6 +212,10 @@ SentryHttpTransport ()
 
 - (SentryEnvelope *)addClientReportTo:(SentryEnvelope *)envelope
 {
+    if (!self.options.sendClientReports) {
+        return envelope;
+    }
+
     NSArray<SentryDiscardedEvent *> *events;
 
     @synchronized(self.discardedEvents) {
