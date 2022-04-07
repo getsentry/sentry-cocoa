@@ -1,6 +1,5 @@
 #import "SentrySysctl.h"
 #import "SentryCrashSysCtl.h"
-#import <Foundation/Foundation.h>
 
 @implementation SentrySysctl
 
