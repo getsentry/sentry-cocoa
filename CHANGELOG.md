@@ -1,8 +1,9 @@
 # Changelog
 
-## Unreleased 
+## Unreleased
 
 - feat: Add Client Reports (#1733)
+- fix: enableProfiling option via initWithDict (#1743)
 
 ## 7.12.0
 
