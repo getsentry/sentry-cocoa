@@ -268,6 +268,11 @@ SentryOptions ()
     [self setBool:options[@"enableCoreDataTracking"]
             block:^(BOOL value) { self->_enableCoreDataTracking = value; }];
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    [self setBool:options[@"enableProfiling"]
+            block:^(BOOL value) { self->_enableProfiling = value; }];
+#endif
+
     if (nil != error && nil != *error) {
         return NO;
     } else {
