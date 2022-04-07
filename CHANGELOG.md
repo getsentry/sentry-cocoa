@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: enableProfiling option via initWithDict (#1743)
+
 ## 7.12.0
 
 ### Important notice
