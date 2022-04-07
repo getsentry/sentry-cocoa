@@ -254,7 +254,7 @@ class SentryHubTests: XCTestCase {
             options.tracesSampler = { _ in return 0.5 }
         }
     }
-    
+
     func testStartTransactionSamplingUsingTracesSampler() {
         testSampler(expected: .yes) { options in
             options.tracesSampler = { _ in return 0.51 }
@@ -285,13 +285,25 @@ class SentryHubTests: XCTestCase {
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         XCTAssertEqual(span.context.sampled, .no)
     }
-    
+
     func testCaptureSampledTransaction_ReturnsEmptyId() {
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
-        
+
         let trans = Dynamic(transaction).toTransaction().asAnyObject
         let id = sut.capture(trans as! Transaction, with: Scope())
         id.assertIsEmpty()
+    }
+
+    func testCaptureSampledTransaction_RecordsLostEvent() {
+        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
+
+        let trans = Dynamic(transaction).toTransaction().asAnyObject
+        sut.capture(trans as! Transaction, with: Scope())
+
+        XCTAssertEqual(1, fixture.client.recordLostEvents.count)
+        let lostEvent = fixture.client.recordLostEvents.first
+        XCTAssertEqual(.transaction, lostEvent?.category)
+        XCTAssertEqual(.sampleRate, lostEvent?.reason)
     }
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)

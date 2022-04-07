@@ -34,4 +34,9 @@ public class TestTransport: NSObject, Transport {
     public func send(envelope: SentryEnvelope) {
         lastSentEnvelope.record(envelope)
     }
+    
+    var recordLostEvents = Invocations<(category: SentryDataCategory, reason: SentryDiscardReason)>()
+    public func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason) {
+        recordLostEvents.record((category, reason))
+    }
 }

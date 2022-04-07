@@ -14,6 +14,8 @@ NS_SWIFT_NAME(DataCategoryMapper)
 
 + (SentryDataCategory)mapIntegerToCategory:(NSUInteger)value;
 
++ (SentryDataCategory)mapStringToCategory:(NSString *)value;
+
 @end
 
 NS_ASSUME_NONNULL_END

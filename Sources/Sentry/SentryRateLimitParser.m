@@ -60,24 +60,29 @@ SentryRateLimitParser ()
 - (SentryDataCategory)mapStringToCategory:(NSString *)category
 {
     SentryDataCategory result = kSentryDataCategoryUnknown;
-    if ([category isEqualToString:@""]) {
+
+    if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategoryAll]]) {
         result = kSentryDataCategoryAll;
     }
-    if ([category isEqualToString:@"default"]) {
+    if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategoryDefault]]) {
         result = kSentryDataCategoryDefault;
     }
-    if ([category isEqualToString:@"error"]) {
+    if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategoryError]]) {
         result = kSentryDataCategoryError;
     }
-    if ([category isEqualToString:@"session"]) {
+    if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategorySession]]) {
         result = kSentryDataCategorySession;
     }
-    if ([category isEqualToString:@"transaction"]) {
+    if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategoryTransaction]]) {
         result = kSentryDataCategoryTransaction;
     }
-    if ([category isEqualToString:@"attachment"]) {
+    if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategoryAttachment]]) {
         result = kSentryDataCategoryAttachment;
     }
+
+    // UserFeedback is not listed for rate limits
+    // https://develop.sentry.dev/sdk/rate-limiting/#definitions
+
     return result;
 }
 

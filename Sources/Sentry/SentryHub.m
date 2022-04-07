@@ -241,6 +241,8 @@ SentryHub ()
          additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
     if (transaction.trace.context.sampled != kSentrySampleDecisionYes) {
+        [self.client recordLostEvent:kSentryDataCategoryTransaction
+                              reason:kSentryDiscardReasonSampleRate];
         return SentryId.empty;
     }
 

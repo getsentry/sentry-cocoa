@@ -17,14 +17,25 @@ class SentryDataCategoryMapperTests: XCTestCase {
     }
 
     func testMapIntegerToCategory() {
-        XCTAssertEqual(SentryDataCategory.all, DataCategoryMapper.mapInteger(toCategory: 0))
-        XCTAssertEqual(SentryDataCategory.default, DataCategoryMapper.mapInteger(toCategory: 1))
-        XCTAssertEqual(SentryDataCategory.error, DataCategoryMapper.mapInteger(toCategory: 2))
-        XCTAssertEqual(SentryDataCategory.session, DataCategoryMapper.mapInteger(toCategory: 3))
-        XCTAssertEqual(SentryDataCategory.transaction, DataCategoryMapper.mapInteger(toCategory: 4))
-        XCTAssertEqual(SentryDataCategory.attachment, DataCategoryMapper.mapInteger(toCategory: 5))
-        XCTAssertEqual(SentryDataCategory.unknown, DataCategoryMapper.mapInteger(toCategory: 6))
-        XCTAssertEqual(SentryDataCategory.unknown, DataCategoryMapper.mapInteger(toCategory: 7))
+        XCTAssertEqual(.all, DataCategoryMapper.mapInteger(toCategory: 0))
+        XCTAssertEqual(.default, DataCategoryMapper.mapInteger(toCategory: 1))
+        XCTAssertEqual(.error, DataCategoryMapper.mapInteger(toCategory: 2))
+        XCTAssertEqual(.session, DataCategoryMapper.mapInteger(toCategory: 3))
+        XCTAssertEqual(.transaction, DataCategoryMapper.mapInteger(toCategory: 4))
+        XCTAssertEqual(.attachment, DataCategoryMapper.mapInteger(toCategory: 5))
+        XCTAssertEqual(.userFeedback, DataCategoryMapper.mapInteger(toCategory: 6))
+        XCTAssertEqual(.unknown, DataCategoryMapper.mapInteger(toCategory: 7))
+    }
+    
+    func testMapStringToCategory() {
+        XCTAssertEqual(.all, DataCategoryMapper.mapString(toCategory: ""))
+        XCTAssertEqual(.default, DataCategoryMapper.mapString(toCategory: "default"))
+        XCTAssertEqual(.error, DataCategoryMapper.mapString(toCategory: "error"))
+        XCTAssertEqual(.session, DataCategoryMapper.mapString(toCategory: "session"))
+        XCTAssertEqual(.transaction, DataCategoryMapper.mapString(toCategory: "transaction"))
+        XCTAssertEqual(.attachment, DataCategoryMapper.mapString(toCategory: "attachment"))
+        XCTAssertEqual(.userFeedback, DataCategoryMapper.mapString(toCategory: "user_report"))
+        XCTAssertEqual(.unknown, DataCategoryMapper.mapString(toCategory: "unkown"))
     }
 
     private func mapEnvelopeItemType(itemType: String) -> SentryDataCategory {

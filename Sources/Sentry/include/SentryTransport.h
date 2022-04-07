@@ -1,3 +1,5 @@
+#import "SentryDataCategory.h"
+#import "SentryDiscardReason.h"
 #import <Foundation/Foundation.h>
 
 @class SentryEnvelope, SentryEnvelopeItem, SentryEvent, SentrySession, SentryUserFeedback,
@@ -36,6 +38,8 @@ NS_SWIFT_NAME(Transport)
 - (void)sendUserFeedback:(SentryUserFeedback *)userFeedback NS_SWIFT_NAME(send(userFeedback:));
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(send(envelope:));
+
+- (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason;
 
 @end
 

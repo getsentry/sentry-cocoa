@@ -385,6 +385,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self.fileManager storeEnvelope:envelope];
 }
 
+- (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason
+{
+    [self.transport recordLostEvent:category reason:reason];
+}
+
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
                              withScope:(SentryScope *)scope
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
@@ -413,6 +418,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (eventIsNotATransaction && [self isSampled:self.options.sampleRate]) {
         [SentryLog logWithMessage:@"Event got sampled, will not send the event"
                          andLevel:kSentryLevelDebug];
+        [self recordLostEvent:kSentryDataCategoryError reason:kSentryDiscardReasonSampleRate];
         return nil;
     }
 
@@ -486,9 +492,16 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     event = [self callEventProcessors:event];
+    if (event == nil) {
+        [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonEventProcessor];
+    }
 
-    if (nil != self.options.beforeSend) {
+    if (event != nil && nil != self.options.beforeSend) {
         event = self.options.beforeSend(event);
+
+        if (event == nil) {
+            [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonBeforeSend];
+        }
     }
 
     if (isCrashEvent && nil != self.options.onCrashedLastRun && !SentrySDK.crashedLastRunCalled) {
@@ -619,6 +632,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     context[@"device"] = device;
 
     event.context = context;
+}
+
+- (void)recordLost:(BOOL)eventIsNotATransaction reason:(SentryDiscardReason)reason
+{
+    if (eventIsNotATransaction) {
+        [self recordLostEvent:kSentryDataCategoryError reason:reason];
+    } else {
+        [self recordLostEvent:kSentryDataCategoryTransaction reason:reason];
+    }
 }
 
 @end

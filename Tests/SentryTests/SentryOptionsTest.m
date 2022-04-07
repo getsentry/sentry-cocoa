@@ -183,6 +183,11 @@
     [self testBooleanField:@"enableCoreDataTracking" defaultValue:NO];
 }
 
+- (void)testSendClientReports
+{
+    [self testBooleanField:@"sendClientReports" defaultValue:YES];
+}
+
 - (void)testDefaultMaxBreadcrumbs
 {
     SentryOptions *options = [self getValidOptions:@{}];
