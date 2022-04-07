@@ -26,6 +26,8 @@ SENTRY_NO_INIT
  * @param envelopesDirPath The path of the directory where the envelopes are stored.
  * @param envelopeFilePaths An array containing the file paths of envelopes to check if they contain
  * a session init.
+ *
+ * @return YES if the function migrated the session init. NO if not.
  */
 + (BOOL)migrateSessionInit:(SentryEnvelope *)envelope
           envelopesDirPath:(NSString *)envelopesDirPath

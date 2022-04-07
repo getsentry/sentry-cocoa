@@ -231,8 +231,9 @@ SentryFileManager ()
             SentryDataCategory rateLimitCategory =
                 [SentryDataCategoryMapper mapEnvelopeItemTypeToCategory:item.header.type];
 
-            // When migrating the session init the envelope to delete still contains the migrated
-            // envelope item
+            // When migrating the session init, the envelope to delete still contains the session
+            // migrated to another envelope. Therefore, the envelope item is not deleted but
+            // migrated.
             if (didMigrateSessionInit && rateLimitCategory == kSentryDataCategorySession) {
                 continue;
             }
