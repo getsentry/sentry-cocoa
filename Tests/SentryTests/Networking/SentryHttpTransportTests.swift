@@ -463,6 +463,24 @@ class SentryHttpTransportTests: XCTestCase {
         let actualEventRequest = fixture.requestManager.requests.last
         XCTAssertEqual(clientReportRequest.httpBody, actualEventRequest?.httpBody, "Client report not sent.")
     }
+    
+    func testCacheFull_RecordsLostEvent() {
+        givenNoInternetConnection()
+        for _ in 0...fixture.options.maxCacheItems {
+            sendEventAsync()
+        }
+        
+        waitForAllRequests()
+        
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertNotNil(dict)
+        XCTAssertEqual(2, dict?.count)
+        
+        let deletedError = dict?["error:cache_overflow"]
+        let attachment = dict?["attachment:cache_overflow"]
+        XCTAssertEqual(1, deletedError?.quantity)
+        XCTAssertEqual(1, attachment?.quantity)
+    }
 
     func testPerformanceOfSending() {
         self.measure {

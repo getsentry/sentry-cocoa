@@ -68,6 +68,7 @@ SentryHttpTransport ()
         _isSending = NO;
         self.discardedEvents = [NSMutableDictionary new];
         [self.envelopeRateLimit setDelegate:self];
+        [self.fileManager setDelegate:self];
 
         [self sendAllCachedEnvelopes];
     }
@@ -201,11 +202,19 @@ SentryHttpTransport ()
 }
 
 /**
- * SentryEnvelopeRateLimitDelegate implementation.
+ * SentryEnvelopeRateLimitDelegate.
  */
 - (void)envelopeItemDropped:(SentryDataCategory)dataCategory
 {
     [self recordLostEvent:dataCategory reason:kSentryDiscardReasonRateLimitBackoff];
+}
+
+/**
+ * SentryFileManagerDelegate.
+ */
+- (void)envelopeItemDeleted:(SentryDataCategory)dataCategory
+{
+    [self recordLostEvent:dataCategory reason:kSentryDiscardReasonCacheOverflow];
 }
 
 #pragma mark private methods
