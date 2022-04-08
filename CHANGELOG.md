@@ -9,6 +9,7 @@ This is fixed now by ignoring the sampleRate for transactions. If you use custom
 
 - fix: Wrongly sampling transactions (#1716)
 - feat: Add flag for UIViewControllerTracking (#1711)
+- feat: Error Screenshots (#1751)
 
 ## 7.12.0-beta.0
 
