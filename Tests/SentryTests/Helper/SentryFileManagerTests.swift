@@ -188,12 +188,14 @@ class SentryFileManagerTests: XCTestCase {
     }
 
     func testDefaultMaxEnvelopesConcurrent() {
-        let envelopeCount = fixture.maxCacheItems * 10
+        let parallelTaskAmount = 5
         let envelopeStoredExpectation = expectation(description: "Envelope stored")
-        envelopeStoredExpectation.expectedFulfillmentCount = envelopeCount
-        for _ in 0..<envelopeCount {
+        envelopeStoredExpectation.expectedFulfillmentCount = parallelTaskAmount
+        for _ in 0..<parallelTaskAmount {
             fixture.queue.async {
-                self.sut.store(TestConstants.envelope)
+                for _ in 0..<self.fixture.maxCacheItems {
+                    self.sut.store(TestConstants.envelope)
+                }
                 envelopeStoredExpectation.fulfill()
             }
         }
