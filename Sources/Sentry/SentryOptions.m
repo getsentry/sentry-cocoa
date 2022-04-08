@@ -1,6 +1,5 @@
 #import "SentryOptions.h"
 #import "SentryDsn.h"
-#import "SentryError.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentrySDK.h"

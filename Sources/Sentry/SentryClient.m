@@ -12,7 +12,6 @@
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryFileManager.h"
-#import "SentryFrameRemover.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryId.h"
 #import "SentryInAppLogic.h"
@@ -24,13 +23,9 @@
 #import "SentryMeta.h"
 #import "SentryNSError.h"
 #import "SentryOptions+Private.h"
-#import "SentryOptions.h"
 #import "SentryOutOfMemoryTracker.h"
-#import "SentryRandom.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
-#import "SentryScope.h"
-#import "SentrySpan.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThreadInspector.h"
 #import "SentryTraceState.h"
@@ -40,10 +35,6 @@
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
-
-#if SENTRY_HAS_UIKIT
-#    import <UIKit/UIKit.h>
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

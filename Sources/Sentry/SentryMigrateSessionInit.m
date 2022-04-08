@@ -1,11 +1,10 @@
-#import <Foundation/Foundation.h>
-
+#import "SentryMigrateSessionInit.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryLog.h"
-#import "SentryMigrateSessionInit.h"
 #import "SentrySerialization.h"
 #import "SentrySession+Private.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
