@@ -31,6 +31,8 @@ jobs:
 
         test-destination-os: ["latest"]
 
+        a: [1,2,3,4,5]
+
         # Test on iOS 12.4
         include:
           - runs-on: macos-10.15
