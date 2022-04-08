@@ -1,7 +1,7 @@
 #import "SentryScreenShot.h"
-
-//#if SENTRY_HAS_UIKIT
 #import "SentryUIApplication.h"
+
+#if SENTRY_HAS_UIKIT
 #import <UIKit/UIKit.h>
 
 @implementation SentryScreenshot
@@ -28,4 +28,4 @@
 
 @end
 
-//#endif
+#endif

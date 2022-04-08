@@ -3,6 +3,7 @@
 #import <Foundation/Foundation.h>
 
 @class SentryAppStateManager, SentryCrashWrapper, SentryThreadWrapper;
+
 #if SENTRY_HAS_UIKIT
 @class SentryScreenshot;
 #endif

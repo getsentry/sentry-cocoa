@@ -1,6 +1,6 @@
 #import "SentryUIApplication.h"
 
-//#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT
 
 @implementation SentryUIApplication
 
@@ -40,4 +40,4 @@
 
 @end
 
-//#endif
+#endif
