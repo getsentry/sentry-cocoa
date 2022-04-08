@@ -37,12 +37,10 @@
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
 
-
 #if SENTRY_HAS_UIKIT
-#    import <UIKit/UIKit.h>
 #    import "SentryScreenshot.h"
+#    import <UIKit/UIKit.h>
 #endif
-
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -645,7 +643,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 }
 
-
 - (void)attachScreenshots:(SentryScope *)scope
 {
 #if SENTRY_HAS_UIKIT
@@ -668,7 +665,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 #endif
 }
-
 
 @end
 

@@ -2,7 +2,7 @@
 #import "SentryUIApplication.h"
 
 #if SENTRY_HAS_UIKIT
-#import <UIKit/UIKit.h>
+#    import <UIKit/UIKit.h>
 
 @implementation SentryScreenshot
 
