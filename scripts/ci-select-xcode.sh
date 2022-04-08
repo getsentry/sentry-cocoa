@@ -8,8 +8,8 @@
 
 set -euo pipefail
 
-# 12.5.1 is the default
-XCODE_VERSION="${1:-12.5.1}"
+# 13.2.1 is the default
+XCODE_VERSION="${1:-13.2.1}"
 
 sudo xcode-select -s /Applications/Xcode_${XCODE_VERSION}.app/Contents/Developer
 

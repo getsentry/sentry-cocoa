@@ -1,6 +1,5 @@
 #import "SentrySerialization.h"
 #import "SentryAppState.h"
-#import "SentryDefines.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryError.h"

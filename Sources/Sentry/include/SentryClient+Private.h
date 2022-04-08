@@ -1,4 +1,6 @@
 #import "SentryClient.h"
+#import "SentryDataCategory.h"
+#import "SentryDiscardReason.h"
 #import <Foundation/Foundation.h>
 
 @class SentryEnvelopeItem, SentryId;
@@ -33,6 +35,8 @@ SentryClient (Private)
  * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
  */
 - (void)storeEnvelope:(SentryEnvelope *)envelope;
+
+- (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason;
 
 @end
 

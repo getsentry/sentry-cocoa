@@ -305,6 +305,14 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableProfiling;
 #endif
 
+/**
+ * Whether to send client reports, which contain statistics about discarded events. The default is
+ * <code>YES</code>.
+ *
+ * @see <https://develop.sentry.dev/sdk/client-reports/>
+ */
+@property (nonatomic, assign) BOOL sendClientReports;
+
 @end
 
 NS_ASSUME_NONNULL_END

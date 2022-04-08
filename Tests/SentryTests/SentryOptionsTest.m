@@ -183,6 +183,11 @@
     [self testBooleanField:@"enableCoreDataTracking" defaultValue:NO];
 }
 
+- (void)testSendClientReports
+{
+    [self testBooleanField:@"sendClientReports" defaultValue:YES];
+}
+
 - (void)testDefaultMaxBreadcrumbs
 {
     SentryOptions *options = [self getValidOptions:@{}];
@@ -629,6 +634,13 @@
 {
     [self testBooleanField:@"enableSwizzling"];
 }
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+- (void)testEnableProfiling
+{
+    [self testBooleanField:@"enableProfiling" defaultValue:NO];
+}
+#endif
 
 - (void)testTracesSampleRate
 {

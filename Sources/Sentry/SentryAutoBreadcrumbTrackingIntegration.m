@@ -1,8 +1,5 @@
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryBreadcrumbTracker.h"
-#import "SentryEvent.h"
-#import "SentryLog.h"
-#import "SentryOptions.h"
 #import "SentrySystemEventBreadcrumbs.h"
 
 NS_ASSUME_NONNULL_BEGIN

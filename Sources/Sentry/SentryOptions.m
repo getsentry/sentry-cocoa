@@ -1,6 +1,5 @@
 #import "SentryOptions.h"
 #import "SentryDsn.h"
-#import "SentryError.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentrySDK.h"
@@ -67,6 +66,7 @@ SentryOptions ()
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         self.enableProfiling = NO;
 #endif
+        self.sendClientReports = YES;
 
         // Use the name of the bundle’s executable file as inAppInclude, so SentryInAppLogic
         // marks frames coming from there as inApp. With this approach, the SDK marks public
@@ -271,6 +271,14 @@ SentryOptions ()
 
     [self setBool:options[@"enableCoreDataTracking"]
             block:^(BOOL value) { self->_enableCoreDataTracking = value; }];
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    [self setBool:options[@"enableProfiling"]
+            block:^(BOOL value) { self->_enableProfiling = value; }];
+#endif
+
+    [self setBool:options[@"sendClientReports"]
+            block:^(BOOL value) { self->_sendClientReports = value; }];
 
     if (nil != error && nil != *error) {
         return NO;

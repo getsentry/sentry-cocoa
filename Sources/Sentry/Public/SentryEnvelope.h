@@ -3,7 +3,7 @@
 #import "SentryDefines.h"
 
 @class SentryEvent, SentrySession, SentrySdkInfo, SentryId, SentryUserFeedback, SentryAttachment,
-    SentryTransaction, SentryTraceState;
+    SentryTransaction, SentryTraceState, SentryClientReport;
 
 NS_ASSUME_NONNULL_BEGIN
 

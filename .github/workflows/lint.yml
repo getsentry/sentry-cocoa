@@ -30,7 +30,7 @@ jobs:
     runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
-      - run: ./scripts/ci-select-xcode.sh 13.0
+      - run: ./scripts/ci-select-xcode.sh
       - name: Run analyze
         run: xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer | xcpretty -t && [[ -z `find analyzer -name "*.html"` ]]
 
