@@ -188,11 +188,18 @@ class SentryFileManagerTests: XCTestCase {
     }
 
     func testDefaultMaxEnvelopesConcurrent() {
-        for _ in 0...1_000 {
-            storeAsync(envelope: TestConstants.envelope)
+        let envelopeCount = fixture.maxCacheItems * 10
+        let envelopeStoredExpectation = expectation(description: "Envelope stored")
+        envelopeStoredExpectation.expectedFulfillmentCount = envelopeCount
+        for _ in 0..<envelopeCount {
+            fixture.queue.async {
+                self.sut.store(TestConstants.envelope)
+                envelopeStoredExpectation.fulfill()
+            }
         }
         fixture.queue.activate()
-        fixture.group.waitWithTimeout()
+        
+        wait(for: [envelopeStoredExpectation], timeout: 2)
 
         let events = sut.getAllEnvelopes()
         XCTAssertEqual(fixture.maxCacheItems, events.count)
