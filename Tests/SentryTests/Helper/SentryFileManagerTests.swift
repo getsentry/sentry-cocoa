@@ -199,7 +199,7 @@ class SentryFileManagerTests: XCTestCase {
         }
         fixture.queue.activate()
         
-        wait(for: [envelopeStoredExpectation], timeout: 2)
+        wait(for: [envelopeStoredExpectation], timeout: 5)
 
         let events = sut.getAllEnvelopes()
         XCTAssertEqual(fixture.maxCacheItems, events.count)
