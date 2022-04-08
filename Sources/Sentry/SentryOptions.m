@@ -54,6 +54,7 @@ SentryOptions ()
         self.enableAutoPerformanceTracking = YES;
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracking = YES;
+        self.attachScreenshot = NO;
 #endif
         self.enableNetworkTracking = YES;
         self.enableFileIOTracking = NO;
@@ -229,6 +230,9 @@ SentryOptions ()
 #if SENTRY_HAS_UIKIT
     [self setBool:options[@"enableUIViewControllerTracking"]
             block:^(BOOL value) { self->_enableUIViewControllerTracking = value; }];
+
+    [self setBool:options[@"attachScreenshot"]
+            block:^(BOOL value) { self->_attachScreenshot = value; }];
 #endif
 
     [self setBool:options[@"enableNetworkTracking"]

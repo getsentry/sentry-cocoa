@@ -1,5 +1,6 @@
 #import "SentryClient.h"
 #import "NSDictionary+SentrySanitize.h"
+#import "SentryAttachment.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashIntegration.h"
 #import "SentryCrashStackEntryMapper.h"
@@ -43,7 +44,9 @@
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
+
 #endif
+#import "SentryScreenshot.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -143,7 +146,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope
 {
-    SentryEvent *event = [self buildExceptionEvent:exception];
+    SentryEvent *event = [self buildExceptionEvent:exception scope:scope];
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
 }
 
@@ -151,17 +154,19 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                    withSession:(SentrySession *)session
                      withScope:(SentryScope *)scope
 {
-    SentryEvent *event = [self buildExceptionEvent:exception];
+    SentryEvent *event = [self buildExceptionEvent:exception scope:scope];
     event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
     return [self sendEvent:event withSession:session withScope:scope];
 }
 
-- (SentryEvent *)buildExceptionEvent:(NSException *)exception
+- (SentryEvent *)buildExceptionEvent:(NSException *)exception scope:(SentryScope *)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     SentryException *sentryException = [[SentryException alloc] initWithValue:exception.reason
                                                                          type:exception.name];
+
     event.exceptions = @[ sentryException ];
+    [self attachScreenshots:scope];
     [self setUserInfo:exception.userInfo withEvent:event];
     return event;
 }
@@ -173,7 +178,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
 {
-    SentryEvent *event = [self buildErrorEvent:error];
+    SentryEvent *event = [self buildErrorEvent:error scope:scope];
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
 }
 
@@ -181,12 +186,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                withSession:(SentrySession *)session
                  withScope:(SentryScope *)scope
 {
-    SentryEvent *event = [self buildErrorEvent:error];
+    SentryEvent *event = [self buildErrorEvent:error scope:scope];
     event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
     return [self sendEvent:event withSession:session withScope:scope];
 }
 
-- (SentryEvent *)buildErrorEvent:(NSError *)error
+- (SentryEvent *)buildErrorEvent:(NSError *)error scope:(SentryScope *)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithError:error];
 
@@ -210,6 +215,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     // Once the UI displays the mechanism data we can the userInfo from the event.context.
     [self setUserInfo:userInfo withEvent:event];
+    [self attachScreenshots:scope];
 
     return event;
 }
@@ -619,6 +625,29 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     context[@"device"] = device;
 
     event.context = context;
+}
+
+- (void)attachScreenshots:(SentryScope *)scope
+{
+#if SENTRY_HAS_UIKIT
+    if (!scope || !self.options.attachScreenshot)
+        return;
+
+    NSArray *shots = [SentryDependencyContainer.sharedInstance.screenshot appScreenshots];
+
+    for (int i = 0; i < shots.count; i++) {
+        NSString *name;
+        if (i == 0)
+            name = @"screenshot.png";
+        else
+            name = [NSString stringWithFormat:@"screenshot-%i.png", i + 1];
+
+        SentryAttachment *att = [[SentryAttachment alloc] initWithData:shots[i]
+                                                              filename:name
+                                                           contentType:@"image/png"];
+        [scope addAttachment:att];
+    }
+#endif
 }
 
 @end

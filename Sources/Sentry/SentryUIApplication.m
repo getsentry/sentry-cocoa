@@ -4,37 +4,38 @@
 
 @implementation SentryUIApplication
 
-+ (UIApplication *)sharedApplication {
++ (UIApplication *)sharedApplication
+{
     if (![UIApplication respondsToSelector:@selector(sharedApplication)])
         return nil;
 
     return [UIApplication performSelector:@selector(sharedApplication)];
 }
 
-+ (NSArray<UIWindow *> *)windows {
-    UIApplication* app = SentryUIApplication.sharedApplication;
++ (NSArray<UIWindow *> *)windows
+{
+    UIApplication *app = SentryUIApplication.sharedApplication;
     if (app == nil)
         return nil;
-    
-    if ([app.delegate respondsToSelector:@selector(window)]) {
-        return @[app.delegate.window];
-    }
-    
+
+    NSMutableArray *result = [NSMutableArray new];
+
     if (@available(iOS 13.0, *)) {
         if ([app respondsToSelector:@selector(connectedScenes)]) {
-            NSMutableArray* result = [NSMutableArray new];
-            
-            for (UIScene* scene in app.connectedScenes) {
-                if (scene.delegate && [scene.delegate respondsToSelector:@selector(window)]) {
+            for (UIScene *scene in app.connectedScenes) {
+                if (scene.activationState == UISceneActivationStateForegroundActive
+                    && scene.delegate && [scene.delegate respondsToSelector:@selector(window)]) {
                     [result addObject:[scene.delegate performSelector:@selector(window)]];
                 }
             }
-            
-            return result;
         }
     }
-    
-    return nil;
+
+    if ([app.delegate respondsToSelector:@selector(window)]) {
+        [result addObject:app.delegate.window];
+    }
+
+    return result;
 }
 
 @end

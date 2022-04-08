@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * All application open windows.
  */
-@property (class, nonatomic, readonly, nullable) NSArray<UIWindow *> * windows;
+@property (class, nonatomic, readonly, nullable) NSArray<UIWindow *> *windows;
 
 @end
 

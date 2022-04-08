@@ -6,6 +6,7 @@
 #import <SentryDependencyContainer.h>
 #import <SentryHub.h>
 #import <SentrySDK+Private.h>
+#import <SentryScreenshot.h>
 #import <SentrySysctl.h>
 #import <SentryThreadWrapper.h>
 
@@ -82,6 +83,16 @@ static NSObject *sentryDependencyContainerLock;
             _random = [[SentryRandom alloc] init];
         }
         return _random;
+    }
+}
+
+- (SentryScreenshot *)screenshot
+{
+    @synchronized(sentryDependencyContainerLock) {
+        if (_screenshot == nil) {
+            _screenshot = [[SentryScreenshot alloc] init];
+        }
+        return _screenshot;
     }
 }
 
