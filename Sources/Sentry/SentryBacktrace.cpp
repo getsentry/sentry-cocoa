@@ -14,11 +14,6 @@
 
 #    include <cassert>
 
-#    if __has_include(<ptrauth.h>)
-#        include <ptrauth.h>
-#    else
-#        define ptrauth_strip(__value, __key) __value
-#    endif
 
 using namespace sentry::profiling;
 using namespace sentry::profiling::thread;
@@ -31,15 +26,6 @@ ALWAYS_INLINE bool
 isValidFrame(std::uintptr_t frame, const StackBounds &bounds)
 {
     return bounds.contains(frame) && StackFrame::isAligned(frame);
-}
-
-ALWAYS_INLINE std::uintptr_t
-stripPtrAuthentication(std::uintptr_t retAddr)
-{
-    // https://github.com/apple/darwin-xnu/blob/8f02f2a044b9bb1ad951987ef5bab20ec9486310/osfmk/kern/backtrace.c#L120
-    return reinterpret_cast<std::uintptr_t>(
-        ptrauth_strip(reinterpret_cast<void *>(getPreviousInstructionAddress(retAddr)),
-            ptrauth_key_return_address));
 }
 
 constexpr std::size_t kMaxBacktraceDepth = 128;
@@ -64,7 +50,7 @@ namespace profiling {
             return 0;
         }
         if (LIKELY(skip == 0)) {
-            addresses[depth++] = getProgramCounter(&machineContext);
+            addresses[depth++] = getPreviousInstructionAddress(getProgramCounter(&machineContext));
         } else {
             skip--;
         }
@@ -72,7 +58,7 @@ namespace profiling {
             const auto lr = getLinkRegister(&machineContext);
             if (isValidFrame(lr, bounds)) {
                 if (LIKELY(skip == 0)) {
-                    addresses[depth++] = stripPtrAuthentication(lr);
+                    addresses[depth++] = getPreviousInstructionAddress(lr);
                 } else {
                     skip--;
                 }
@@ -96,7 +82,7 @@ namespace profiling {
         while (depth < maxDepth) {
             const auto frame = reinterpret_cast<StackFrame *>(current);
             if (LIKELY(skip == 0)) {
-                addresses[depth++] = stripPtrAuthentication(frame->returnAddress);
+                addresses[depth++] = getPreviousInstructionAddress(frame->returnAddress);
             } else {
                 skip--;
             }
