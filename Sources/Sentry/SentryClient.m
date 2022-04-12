@@ -1,6 +1,7 @@
 #import "SentryClient.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryAttachment.h"
+#import "SentryClient+Private.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashIntegration.h"
 #import "SentryCrashStackEntryMapper.h"
@@ -37,12 +38,9 @@
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
 
-
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
-#    import "SentryScreenshot.h"
 #endif
-
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -54,6 +52,7 @@ SentryClient ()
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
 @property (nonatomic, strong) id<SentryRandom> random;
+@property (nonatomic, weak) id<SentryClientAttachmentProcessor> attachmentProcessor;
 
 @end
 
@@ -162,7 +161,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                                                          type:exception.name];
 
     event.exceptions = @[ sentryException ];
-    [self attachScreenshots:scope];
     [self setUserInfo:exception.userInfo withEvent:event];
     return event;
 }
@@ -211,7 +209,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     // Once the UI displays the mechanism data we can the userInfo from the event.context.
     [self setUserInfo:userInfo withEvent:event];
-    [self attachScreenshots:scope];
 
     return event;
 }
@@ -310,9 +307,14 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             ? [self getTraceStateWithEvent:event withScope:scope]
             : nil;
 
+        NSArray *attachments = scope.attachments;
+        if (self.attachmentProcessor)
+            attachments = [self.attachmentProcessor processAttachments:attachments
+                                                              forEvent:preparedEvent];
+
         [self.transport sendEvent:preparedEvent
                          traceState:traceState
-                        attachments:scope.attachments
+                        attachments:attachments
             additionalEnvelopeItems:additionalEnvelopeItems];
         return preparedEvent.eventId;
     }
@@ -325,17 +327,21 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
               withScope:(SentryScope *)scope
 {
     if (nil != event) {
+        NSArray *attachments = scope.attachments;
+        if (self.attachmentProcessor)
+            attachments = [self.attachmentProcessor processAttachments:attachments forEvent:event];
+
         if (nil == session.releaseName || [session.releaseName length] == 0) {
             SentryTraceState *traceState = _options.experimentalEnableTraceSampling
                 ? [self getTraceStateWithEvent:event withScope:scope]
                 : nil;
 
             [SentryLog logWithMessage:DropSessionLogMessage andLevel:kSentryLevelDebug];
-            [self.transport sendEvent:event traceState:traceState attachments:scope.attachments];
+            [self.transport sendEvent:event traceState:traceState attachments:attachments];
             return event.eventId;
         }
 
-        [self.transport sendEvent:event withSession:session attachments:scope.attachments];
+        [self.transport sendEvent:event withSession:session attachments:attachments];
         return event.eventId;
     } else {
         [self captureSession:session];
@@ -644,31 +650,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         [self recordLostEvent:kSentryDataCategoryTransaction reason:reason];
     }
 }
-
-
-- (void)attachScreenshots:(SentryScope *)scope
-{
-#if SENTRY_HAS_UIKIT
-    if (!scope || !self.options.attachScreenshot)
-        return;
-
-    NSArray *shots = [SentryDependencyContainer.sharedInstance.screenshot appScreenshots];
-
-    for (int i = 0; i < shots.count; i++) {
-        NSString *name;
-        if (i == 0)
-            name = @"screenshot.png";
-        else
-            name = [NSString stringWithFormat:@"screenshot-%i.png", i + 1];
-
-        SentryAttachment *att = [[SentryAttachment alloc] initWithData:shots[i]
-                                                              filename:name
-                                                           contentType:@"image/png"];
-        [scope addAttachment:att];
-    }
-#endif
-}
-
 
 @end
 

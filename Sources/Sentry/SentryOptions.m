@@ -21,7 +21,7 @@ SentryOptions ()
     return @[
         @"SentryCrashIntegration",
 #if SENTRY_HAS_UIKIT
-        @"SentryANRTrackingIntegration",
+        @"SentryANRTrackingIntegration", @"SentryScreenshotIntegration",
 #endif
         @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
         @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",

@@ -6,12 +6,9 @@
 #import <SentryDependencyContainer.h>
 #import <SentryHub.h>
 #import <SentrySDK+Private.h>
+#import <SentryScreenshot.h>
 #import <SentrySysctl.h>
 #import <SentryThreadWrapper.h>
-
-//#if SENTRY_HAS_UIKIT
-#import <SentryScreenshot.h>
-//#endif
 
 @implementation SentryDependencyContainer
 

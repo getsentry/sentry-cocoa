@@ -4,6 +4,7 @@
 
 - feat: Add Client Reports (#1733)
 - fix: enableProfiling option via initWithDict (#1743)
+- feat: Error Screenshots (#1751)
 
 ## 7.12.0
 
@@ -18,7 +19,6 @@ This is fixed now by ignoring the sampleRate for transactions. If you use custom
 - fix: Possible endless loop for onCrashedLastRun (#1734)
 - fix: Wrongly sampling transactions (#1716)
 - feat: Add flag for UIViewControllerTracking (#1711)
-- feat: Error Screenshots (#1751)
 - feat: Add more info to touch event breadcrumbs (#1724)
 - feat: Add support for profiling on iOS (#1652) by @armcknight
 
