@@ -14,7 +14,6 @@
 
 #    include <cassert>
 
-
 using namespace sentry::profiling;
 using namespace sentry::profiling::thread;
 
