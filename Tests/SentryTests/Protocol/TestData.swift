@@ -1,4 +1,5 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+import Sentry
 import UIKit
 #endif
 
@@ -203,6 +204,14 @@ class TestData {
         scope.add(crumb2)
         
         return scope
+    }
+    
+    static var userFeedback: UserFeedback {
+        let userFeedback = UserFeedback(eventId: SentryId())
+        userFeedback.comments = "It doesn't really"
+        userFeedback.email = "john@me.com"
+        userFeedback.name = "John Me"
+        return userFeedback
     }
     
     static func setContext(_ scope: Scope) {
