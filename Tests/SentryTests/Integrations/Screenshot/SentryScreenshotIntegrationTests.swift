@@ -1,6 +1,7 @@
 import Sentry
 import XCTest
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryScreenshotIntegrationTests: XCTestCase {
     
     private class Fixture {
@@ -130,3 +131,4 @@ class SentryScreenshotIntegrationTests: XCTestCase {
     }
     
 }
+#endif
