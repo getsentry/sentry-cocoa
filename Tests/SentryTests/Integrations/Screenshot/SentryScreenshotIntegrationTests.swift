@@ -1,10 +1,10 @@
-import XCTest
 import Sentry
+import XCTest
 
 class SentryScreenshotIntegrationTests: XCTestCase {
     
     private class Fixture {
-        let screenshot : TestSentryScreenshot
+        let screenshot: TestSentryScreenshot
         
         init() {
             let testScreenShot = TestSentryScreenshot()
@@ -86,7 +86,6 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         XCTAssertEqual(newAttachmentList?.first, attachment)
     }
     
-    
     func test_noScreenshot_attachment() {
         let sut = fixture.getSut()
         let event = Event()
@@ -127,7 +126,6 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         XCTAssertEqual(newAttachmentList[0].data?.count, 1)
         XCTAssertEqual(newAttachmentList[1].data?.count, 2)
         XCTAssertEqual(newAttachmentList[2].data?.count, 3)
-        
         
     }
     

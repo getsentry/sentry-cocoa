@@ -26,7 +26,7 @@
                                            forEvent:(nonnull SentryEvent *)event
 {
 
-    if (event.exceptions == nil && event.error == nil) 
+    if (event.exceptions == nil && event.error == nil)
         return attachments;
 
     NSArray *screenshot = [SentryDependencyContainer.sharedInstance.screenshot appScreenshots];

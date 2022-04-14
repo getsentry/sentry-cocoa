@@ -1,9 +1,8 @@
 import Foundation
 
-
-class TestSentryScreenshot  : SentryScreenshot {
+class TestSentryScreenshot: SentryScreenshot {
     
-    var result : [Data]? = nil
+    var result: [Data]?
         
     override func appScreenshots() -> [Data]? {
         return result

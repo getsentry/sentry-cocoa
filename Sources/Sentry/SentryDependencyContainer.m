@@ -1,3 +1,4 @@
+#import "SentryUIApplication.h"
 #import <Foundation/Foundation.h>
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
@@ -9,7 +10,6 @@
 #import <SentryScreenshot.h>
 #import <SentrySysctl.h>
 #import <SentryThreadWrapper.h>
-#import "SentryUIApplication.h"
 
 @implementation SentryDependencyContainer
 
@@ -98,8 +98,9 @@ static NSObject *sentryDependencyContainerLock;
     }
 }
 
-- (SentryUIApplication *)application {
-    @synchronized (sentryDependencyContainerLock) {
+- (SentryUIApplication *)application
+{
+    @synchronized(sentryDependencyContainerLock) {
         if (_application == nil) {
             _application = [[SentryUIApplication alloc] init];
         }
