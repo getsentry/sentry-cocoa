@@ -14,12 +14,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Application shared UIApplication instance.
  */
-@property (class, nonatomic, readonly, nullable) UIApplication *sharedApplication;
+@property (nonatomic, readonly, nullable) UIApplication *sharedApplication;
 
 /**
  * All application open windows.
  */
-@property (class, nonatomic, readonly, nullable) NSArray<UIWindow *> *windows;
+@property (nonatomic, readonly, nullable) NSArray<UIWindow *> *windows;
 
 @end
 

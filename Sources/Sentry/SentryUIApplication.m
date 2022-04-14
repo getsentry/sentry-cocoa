@@ -4,7 +4,7 @@
 
 @implementation SentryUIApplication
 
-+ (UIApplication *)sharedApplication
+- (UIApplication *)sharedApplication
 {
     if (![UIApplication respondsToSelector:@selector(sharedApplication)])
         return nil;
@@ -12,9 +12,9 @@
     return [UIApplication performSelector:@selector(sharedApplication)];
 }
 
-+ (NSArray<UIWindow *> *)windows
+- (NSArray<UIWindow *> *)windows
 {
-    UIApplication *app = SentryUIApplication.sharedApplication;
+    UIApplication *app = [self sharedApplication];
     if (app == nil)
         return nil;
 

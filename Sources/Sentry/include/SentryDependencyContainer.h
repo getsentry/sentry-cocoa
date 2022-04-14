@@ -5,7 +5,7 @@
 @class SentryAppStateManager, SentryCrashWrapper, SentryThreadWrapper;
 
 #if SENTRY_HAS_UIKIT
-@class SentryScreenshot;
+@class SentryScreenshot, SentryUIApplication;
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -27,6 +27,7 @@ SENTRY_NO_INIT
 
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryScreenshot *screenshot;
+@property (nonatomic, strong) SentryUIApplication *application;
 #endif
 
 @end

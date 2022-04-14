@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return An array of NSData containing a PNG image
  */
-- (NSArray<NSData *> *)appScreenshots;
+- (nullable NSArray<NSData *> *)appScreenshots;
 
 @end
 
