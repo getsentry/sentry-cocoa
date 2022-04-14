@@ -20,7 +20,7 @@
 
     NSMutableArray *result = [NSMutableArray new];
 
-    if (@available(iOS 13.0, *)) {
+    if (@available(iOS 13.0, tvOS 13.0, *)) {
         if ([app respondsToSelector:@selector(connectedScenes)]) {
             for (UIScene *scene in app.connectedScenes) {
                 if (scene.activationState == UISceneActivationStateForegroundActive
