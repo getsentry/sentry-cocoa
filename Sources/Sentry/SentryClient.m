@@ -32,6 +32,7 @@
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
 #import "SentryTransport.h"
+#import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
@@ -41,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryClient ()
 
-@property (nonatomic, strong) id<SentryTransport> transport;
+@property (nonatomic, strong) SentryTransportAdapter *transportAdapter;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
@@ -85,8 +86,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             return nil;
         }
 
-        self.transport = [SentryTransportFactory initTransport:self.options
-                                             sentryFileManager:self.fileManager];
+        id<SentryTransport> transport = [SentryTransportFactory initTransport:self.options
+                                                            sentryFileManager:self.fileManager];
+
+        self.transportAdapter = [[SentryTransportAdapter alloc] initWithTransport:transport
+                                                                          options:options];
 
         self.random = [SentryDependencyContainer sharedInstance].random;
     }
@@ -95,14 +99,14 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 /** Internal constructor for testing */
 - (instancetype)initWithOptions:(SentryOptions *)options
-                      transport:(id<SentryTransport>)transport
+               transportAdapter:(SentryTransportAdapter *)transportAdapter
                     fileManager:(SentryFileManager *)fileManager
                 threadInspector:(SentryThreadInspector *)threadInspector
                          random:(id<SentryRandom>)random
 {
     self = [self initWithOptions:options];
 
-    self.transport = transport;
+    self.transportAdapter = transportAdapter;
     self.fileManager = fileManager;
     self.threadInspector = threadInspector;
     self.random = random;
@@ -299,10 +303,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             ? [self getTraceStateWithEvent:event withScope:scope]
             : nil;
 
-        [self.transport sendEvent:preparedEvent
-                         traceState:traceState
-                        attachments:scope.attachments
-            additionalEnvelopeItems:additionalEnvelopeItems];
+        [self.transportAdapter sendEvent:preparedEvent
+                              traceState:traceState
+                             attachments:scope.attachments
+                 additionalEnvelopeItems:additionalEnvelopeItems];
         return preparedEvent.eventId;
     }
 
@@ -320,11 +324,13 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                 : nil;
 
             [SentryLog logWithMessage:DropSessionLogMessage andLevel:kSentryLevelDebug];
-            [self.transport sendEvent:event traceState:traceState attachments:scope.attachments];
+            [self.transportAdapter sendEvent:event
+                                  traceState:traceState
+                                 attachments:scope.attachments];
             return event.eventId;
         }
 
-        [self.transport sendEvent:event withSession:session attachments:scope.attachments];
+        [self.transportAdapter sendEvent:event session:session attachments:scope.attachments];
         return event.eventId;
     } else {
         [self captureSession:session];
@@ -352,7 +358,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-    [self.transport sendEnvelope:envelope];
+    [self.transportAdapter sendEnvelope:envelope];
 }
 
 - (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
@@ -368,7 +374,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-    [self.transport sendUserFeedback:userFeedback];
+    [self.transportAdapter sendUserFeedback:userFeedback];
 }
 
 - (void)storeEnvelope:(SentryEnvelope *)envelope
@@ -378,7 +384,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason
 {
-    [self.transport recordLostEvent:category reason:reason];
+    [self.transportAdapter recordLostEvent:category reason:reason];
 }
 
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
