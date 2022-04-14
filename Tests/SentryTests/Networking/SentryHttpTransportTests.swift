@@ -65,11 +65,7 @@ class SentryHttpTransportTests: XCTestCase {
             requestManager = TestRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
             rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser()), andRateLimitParser: RateLimitParser())
 
-            userFeedback = UserFeedback(eventId: SentryId())
-            userFeedback.comments = "It doesn't really"
-            userFeedback.email = "john@me.com"
-            userFeedback.name = "John Me"
-
+            userFeedback = TestData.userFeedback
             userFeedbackRequest = buildRequest(SentryEnvelope(userFeedback: userFeedback))
             
             let beforeSendTransaction = SentryDiscardedEvent(reason: .beforeSend, category: .transaction, quantity: 2)
@@ -161,7 +157,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     func testSendEventWithSession_SentInOneEnvelope() {
-        sut.send(fixture.event, with: fixture.session, attachments: [])
+        sut.send(envelope: fixture.eventWithSessionEnvelope)
         waitForAllRequests()
 
         assertRequestsSent(requestCount: 1)
@@ -169,13 +165,30 @@ class SentryHttpTransportTests: XCTestCase {
 
         assertEventAndSesionAreSentInOneEnvelope()
     }
+    
+    func testSendEventWithFaultyNSUrlRequest() {
+        let envelope = SentryEnvelope(event: TestConstants.eventWithSerializationError)
+        sut.send(envelope: envelope)
 
+        assertRequestsSent(requestCount: 1)
+    }
+    
+    func testSendUserFeedback() {
+        let envelope = SentryEnvelope(userFeedback: fixture.userFeedback)
+        sut.send(envelope: envelope)
+        waitForAllRequests()
+
+        XCTAssertEqual(1, fixture.requestManager.requests.count)
+
+        let actualRequest = fixture.requestManager.requests.last
+        XCTAssertEqual(fixture.userFeedbackRequest.httpBody, actualRequest?.httpBody, "Request for user feedback is faulty.")
+    }
+    
     func testSendEventWithSession_RateLimitForEventIsActive_OnlySessionSent() {
         givenRateLimitResponse(forCategory: "error")
         sendEvent()
 
-        sut.send(fixture.event, with: fixture.session, attachments: [])
-
+        sut.send(envelope: fixture.eventWithSessionEnvelope)
         waitForAllRequests()
 
         assertRequestsSent(requestCount: 2)
@@ -192,7 +205,7 @@ class SentryHttpTransportTests: XCTestCase {
         let request = SentryHttpTransportTests.buildRequest(envelope)
         XCTAssertEqual(request.httpBody, fixture.requestManager.requests.last?.httpBody)
     }
-
+    
     func testSendAllCachedEvents() {
         givenNoInternetConnection()
         sendEvent()
@@ -324,12 +337,6 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
 
         assertRequestsSent(requestCount: 3)
-    }
-
-    func testSendEventWithFaultyNSUrlRequest() {
-        sut.send(event: TestConstants.eventWithSerializationError, attachments: [])
-
-        assertRequestsSent(requestCount: 1)
     }
 
     func testSendOneEnvelope() {
@@ -519,28 +526,6 @@ class SentryHttpTransportTests: XCTestCase {
 
         XCTAssertEqual(210, fixture.requestManager.requests.count)
     }
-
-    func testSendUserFeedback() {
-        sut.send(userFeedback: fixture.userFeedback)
-        waitForAllRequests()
-
-        XCTAssertEqual(1, fixture.requestManager.requests.count)
-
-        let actualRequest = fixture.requestManager.requests.last
-        XCTAssertEqual(fixture.userFeedbackRequest.httpBody, actualRequest?.httpBody, "Request for user feedback is faulty.")
-    }
-
-    func testSendFaultyAttachment() {
-        let faultyAttachment = Attachment(path: "")
-        sut.send(event: fixture.event, attachments: [faultyAttachment])
-        waitForAllRequests()
-
-        XCTAssertEqual(1, fixture.requestManager.requests.count)
-
-        // The attachment gets dropped
-        let actualRequest = fixture.requestManager.requests.last
-        XCTAssertEqual(fixture.eventRequest.httpBody, actualRequest?.httpBody, "Request for faulty attachment is faulty.")
-    }
     
     func testBuildingRequestFails_DeletesEnvelopeAndSendsNext() {
         givenNoInternetConnection()
@@ -679,7 +664,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     private func sendEventAsync() {
-        sut.send(event: fixture.event, attachments: [TestData.dataAttachment])
+        sut.send(envelope: fixture.eventEnvelope)
     }
 
     private func sendEnvelope(envelope: SentryEnvelope = TestConstants.envelope) {

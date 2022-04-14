@@ -141,6 +141,7 @@
 #import "SentryTransaction+Private.h"
 #import "SentryTransaction.h"
 #import "SentryTransport.h"
+#import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
 #import "SentryUIViewControllerSanitizer.h"
