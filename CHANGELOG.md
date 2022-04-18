@@ -4,6 +4,7 @@
 
 - feat: Add Client Reports (#1733)
 - fix: enableProfiling option via initWithDict (#1743)
+- fix: Remove authenticated pointer stripping for iOS backtraces (#1757)
 
 ## 7.12.0
 
