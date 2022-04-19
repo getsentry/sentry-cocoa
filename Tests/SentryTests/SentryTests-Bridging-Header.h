@@ -128,6 +128,7 @@
 #import "SentryStacktrace.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySubClassFinder.h"
+#import "SentrySwizzleWrapper.h"
 #import "SentrySysctl.h"
 #import "SentrySystemEventBreadcrumbs.h"
 #import "SentryTestIntegration.h"

@@ -20,8 +20,20 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
+    func testStopRemovesSwizzleSendAction() {
+        let swizzleWrapper = SentrySwizzleWrapper()
+        let sut = SentryBreadcrumbTracker(swizzleWrapper: swizzleWrapper)
+        
+        sut.start()
+        sut.startSwizzle()
+        sut.stop()
+        
+        let dict = Dynamic(swizzleWrapper).swizzleSendActionCallbacks.asDictionary
+        XCTAssertEqual(0, dict?.count)
+    }
+    
     func testSwizzlingStarted_ViewControllerAppears_AddsUILifeCycleBreadcrumb() {
-        let sut = SentryBreadcrumbTracker()
+        let sut = SentryBreadcrumbTracker(swizzleWrapper: SentrySwizzleWrapper())
         sut.start()
         sut.startSwizzle()
         
