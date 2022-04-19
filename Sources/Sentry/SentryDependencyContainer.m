@@ -90,7 +90,7 @@ static NSObject *sentryDependencyContainerLock;
 {
     @synchronized(sentryDependencyContainerLock) {
         if (_swizzleWrapper == nil) {
-            _swizzleWrapper = [[SentrySwizzleWrapper alloc] init];
+            _swizzleWrapper = SentrySwizzleWrapper.sharedInstance;
         }
         return _swizzleWrapper;
     }

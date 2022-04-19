@@ -15,6 +15,9 @@ typedef void (^SentrySwizzleSendActionCallback)(NSString *actionName, UIEvent *e
  * need to be called for the same swizzled method.
  */
 @interface SentrySwizzleWrapper : NSObject
+SENTRY_NO_INIT
+
+@property (class, readonly, nonatomic) SentrySwizzleWrapper *sharedInstance;
 
 #if SENTRY_HAS_UIKIT
 - (void)swizzleSendAction:(SentrySwizzleSendActionCallback)callback forKey:(NSString *)key;

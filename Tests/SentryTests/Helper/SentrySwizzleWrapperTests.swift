@@ -21,12 +21,12 @@ class SentrySwizzleWrapperTests: XCTestCase {
         super.setUp()
         
         fixture = Fixture()
-        sut = SentrySwizzleWrapper()
+        sut = SentrySwizzleWrapper.sharedInstance
     }
     
     override func tearDown() {
         super.tearDown()
-        sut.removeAllCallbacks()
+        clearTestState()
     }
     
     func testSendAction_RegisterCallbacks_CallbacksCalled() {
@@ -97,7 +97,7 @@ class SentrySwizzleWrapperTests: XCTestCase {
     }
     
     private func sendActionCalled() {
-        Dynamic(sut).sendActionCalled(#selector(someMethod), event: self.fixture.event)
+        Dynamic(SentrySwizzleWrapper.self).sendActionCalled(#selector(someMethod), event: self.fixture.event)
     }
 
 #endif
