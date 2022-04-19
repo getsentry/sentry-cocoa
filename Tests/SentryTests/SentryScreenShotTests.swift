@@ -68,7 +68,7 @@ class SentryScreenShotTests: XCTestCase {
     }
     
     func test_image_size() {
-        let testWindow = TestWindow(frame: CGRect(x: 0, y: 0, width:   10, height: 10))
+        let testWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         fixture.uiApplication.windows = [testWindow]
         
         guard let data = self.fixture.sut.appScreenshots() else {
