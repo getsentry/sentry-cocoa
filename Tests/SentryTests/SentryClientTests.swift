@@ -1221,9 +1221,9 @@ class SentryClientTest: XCTestCase {
         case somethingElse
     }
     
-    class TestAttachmentProcessor : NSObject, SentryClientAttachmentProcessor {
+    class TestAttachmentProcessor: NSObject, SentryClientAttachmentProcessor {
         
-        var callback : (([Attachment]?, Event) -> [Attachment]?)
+        var callback: (([Attachment]?, Event) -> [Attachment]?)
         
         init(callback: @escaping ([Attachment]?, Event) -> [Attachment]?) {
             self.callback = callback
@@ -1233,7 +1233,6 @@ class SentryClientTest: XCTestCase {
             return callback(attachments, event)
         }
     }
-    
     
 }
 
