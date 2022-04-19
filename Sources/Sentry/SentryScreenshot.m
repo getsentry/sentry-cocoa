@@ -11,7 +11,7 @@
 {
     __block NSMutableArray *result;
 
-    dispatch_sync(dispatch_get_main_queue(), ^{
+    void (^takeScreenShot)(void) = ^{
         NSArray<UIWindow *> *windows =
             [SentryDependencyContainer.sharedInstance.application windows];
 
@@ -27,7 +27,13 @@
 
             UIGraphicsEndImageContext();
         }
-    });
+    };
+
+    if ([NSThread isMainThread]) {
+        takeScreenShot();
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), takeScreenShot);
+    }
 
     return result;
 }
