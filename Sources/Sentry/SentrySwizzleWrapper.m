@@ -4,13 +4,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#if SENTRY_HAS_UIKIT
-
 @interface
 SentrySwizzleWrapper ()
 
+#if SENTRY_HAS_UIKIT
 @property (nonatomic, strong)
     NSMutableDictionary<NSString *, SentrySwizzleSendActionCallback> *swizzleSendActionCallbacks;
+#endif
 
 @end
 
@@ -19,11 +19,14 @@ SentrySwizzleWrapper ()
 - (instancetype)init
 {
     if (self = [super init]) {
+#if SENTRY_HAS_UIKIT
         self.swizzleSendActionCallbacks = [NSMutableDictionary new];
+#endif
     }
     return self;
 }
 
+#if SENTRY_HAS_UIKIT
 - (void)swizzleSendAction:(SentrySwizzleSendActionCallback)callback forKey:(NSString *)key
 {
     // We need to make a copy of the block to avoid ARC of autoreleasing it.
@@ -62,13 +65,14 @@ SentrySwizzleWrapper ()
         callback([NSString stringWithFormat:@"%s", sel_getName(action)], event);
     }
 }
+#endif
 
 - (void)removeAllCallbacks
 {
+#if SENTRY_HAS_UIKIT
     [self.swizzleSendActionCallbacks removeAllObjects];
+#endif
 }
 @end
-
-#endif
 
 NS_ASSUME_NONNULL_END

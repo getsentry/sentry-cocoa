@@ -54,7 +54,9 @@ SentryBreadcrumbTracker ()
 {
     // All breadcrumbs are guarded by checking the client of the current hub, which we remove when
     // uninstalling the SDK. Therefore, we don't clean up everything.
+#if SENTRY_HAS_UIKIT
     [self.swizzleWrapper removeSwizzleSendActionForKey:SentryBreadcrumbTrackerSwizzleSendAction];
+#endif
 }
 
 - (void)trackApplicationUIKitNotifications

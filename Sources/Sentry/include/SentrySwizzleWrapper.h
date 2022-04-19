@@ -2,10 +2,13 @@
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if SENTRY_HAS_UIKIT
 typedef void (^SentrySwizzleSendActionCallback)(NSString *actionName, UIEvent *event);
+#endif
 
 /**
  * A wrapper around swizzling for testability and to only swizzle once when multiple implementations
@@ -13,9 +16,11 @@ typedef void (^SentrySwizzleSendActionCallback)(NSString *actionName, UIEvent *e
  */
 @interface SentrySwizzleWrapper : NSObject
 
+#if SENTRY_HAS_UIKIT
 - (void)swizzleSendAction:(SentrySwizzleSendActionCallback)callback forKey:(NSString *)key;
 
 - (void)removeSwizzleSendActionForKey:(NSString *)key;
+#endif
 
 /**
  * For testing purposes.
@@ -25,5 +30,3 @@ typedef void (^SentrySwizzleSendActionCallback)(NSString *actionName, UIEvent *e
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif
