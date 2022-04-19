@@ -1,10 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- feat: Error Screenshots (#1751)
+
 ## 7.13.0
 
 - feat: Add Client Reports (#1733)
 - fix: enableProfiling option via initWithDict (#1743)
-- feat: Error Screenshots (#1751)
 - fix: Remove authenticated pointer stripping for iOS backtraces (#1757)
 
 ## 7.12.0
