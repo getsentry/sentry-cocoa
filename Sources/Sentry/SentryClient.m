@@ -347,7 +347,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             return event.eventId;
         }
 
-        [self.transportAdapter sendEvent:event session:session attachments:scope.attachments];
+        [self.transportAdapter sendEvent:event session:session attachments:attachments];
 
         return event.eventId;
     } else {
