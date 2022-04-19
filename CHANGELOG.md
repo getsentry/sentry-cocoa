@@ -3,6 +3,7 @@
 ## Unreleased
 
 - feat: Error Screenshots (#1751)
+- fix: Remove authenticated pointer stripping for iOS backtraces (#1757)
 
 ## 7.13.0
 
