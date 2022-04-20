@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- fix: Remove authenticated pointer stripping for iOS backtraces (#1757)
+
+## 7.13.0
+
 - feat: Add Client Reports (#1733)
 - fix: enableProfiling option via initWithDict (#1743)
 

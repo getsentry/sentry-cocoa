@@ -4,47 +4,47 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentrySwizzleWrapper ()
-
-#if SENTRY_HAS_UIKIT
-@property (nonatomic, strong)
-    NSMutableDictionary<NSString *, SentrySwizzleSendActionCallback> *swizzleSendActionCallbacks;
-#endif
-
-@end
-
 @implementation SentrySwizzleWrapper
 
-- (instancetype)init
-{
-    if (self = [super init]) {
 #if SENTRY_HAS_UIKIT
-        self.swizzleSendActionCallbacks = [NSMutableDictionary new];
+static NSMutableDictionary<NSString *, SentrySwizzleSendActionCallback>
+    *sentrySwizzleSendActionCallbacks;
 #endif
+
++ (SentrySwizzleWrapper *)sharedInstance
+{
+    static SentrySwizzleWrapper *instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ instance = [[self alloc] init]; });
+    return instance;
+}
+
++ (void)initialize
+{
+#if SENTRY_HAS_UIKIT
+    if (self == [SentrySwizzleWrapper class]) {
+        sentrySwizzleSendActionCallbacks = [NSMutableDictionary new];
     }
-    return self;
+#endif
 }
 
 #if SENTRY_HAS_UIKIT
 - (void)swizzleSendAction:(SentrySwizzleSendActionCallback)callback forKey:(NSString *)key
 {
     // We need to make a copy of the block to avoid ARC of autoreleasing it.
-    self.swizzleSendActionCallbacks[key] = [callback copy];
+    sentrySwizzleSendActionCallbacks[key] = [callback copy];
 
-    if (self.swizzleSendActionCallbacks.count != 1) {
+    if (sentrySwizzleSendActionCallbacks.count != 1) {
         return;
     }
 
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wshadow"
-
-    __block SentrySwizzleWrapper *_self = self;
     static const void *swizzleSendActionKey = &swizzleSendActionKey;
     SEL selector = NSSelectorFromString(@"sendAction:to:from:forEvent:");
     SentrySwizzleInstanceMethod(UIApplication.class, selector, SentrySWReturnType(BOOL),
         SentrySWArguments(SEL action, id target, id sender, UIEvent * event), SentrySWReplacement({
-            [_self sendActionCalled:action event:event];
+            [SentrySwizzleWrapper sendActionCalled:action event:event];
             return SentrySWCallOriginal(action, target, sender, event);
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, swizzleSendActionKey);
@@ -53,24 +53,33 @@ SentrySwizzleWrapper ()
 
 - (void)removeSwizzleSendActionForKey:(NSString *)key
 {
-    [self.swizzleSendActionCallbacks removeObjectForKey:key];
+    [sentrySwizzleSendActionCallbacks removeObjectForKey:key];
+}
+
+/**
+ * For testing. We want the swizzling block above to call a static function to avoid having a block
+ * reference to an instance of this class.
+ */
++ (void)sendActionCalled:(SEL)action event:(UIEvent *)event
+{
+    for (SentrySwizzleSendActionCallback callback in sentrySwizzleSendActionCallbacks.allValues) {
+        callback([NSString stringWithFormat:@"%s", sel_getName(action)], event);
+    }
 }
 
 /**
  * For testing.
  */
-- (void)sendActionCalled:(SEL)action event:(UIEvent *)event
+- (NSDictionary<NSString *, SentrySwizzleSendActionCallback> *)swizzleSendActionCallbacks
 {
-    for (SentrySwizzleSendActionCallback callback in self.swizzleSendActionCallbacks.allValues) {
-        callback([NSString stringWithFormat:@"%s", sel_getName(action)], event);
-    }
+    return sentrySwizzleSendActionCallbacks;
 }
 #endif
 
 - (void)removeAllCallbacks
 {
 #if SENTRY_HAS_UIKIT
-    [self.swizzleSendActionCallbacks removeAllObjects];
+    [sentrySwizzleSendActionCallbacks removeAllObjects];
 #endif
 }
 @end

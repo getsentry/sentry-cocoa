@@ -64,15 +64,13 @@ NS_SWIFT_NAME(Span)
 /**
  * Sets a value to data.
  */
-- (void)setDataValue:(nullable id)value
-              forKey:(NSString *)key NS_SWIFT_NAME(setData(value:key:));
+- (void)setDataValue:(nullable id)value forKey:(NSString *)key NS_SWIFT_NAME(setData(value:key:));
 
 /**
  * Use setDataValue instead. This method calls setDataValue, was added by mistake, and will be
  * deprecated in a future version.
  */
-- (void)setExtraValue:(nullable id)value
-               forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
+- (void)setExtraValue:(nullable id)value forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
 
 /**
  * Removes a data value.
