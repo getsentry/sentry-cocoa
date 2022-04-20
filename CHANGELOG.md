@@ -3,6 +3,7 @@
 ## Unreleased
 
 - fix: Remove authenticated pointer stripping for iOS backtraces (#1757)
+- fix: NSURL warning during SDK initialization (#1764)
 
 ## 7.13.0
 
