@@ -7,6 +7,8 @@ NS_SWIFT_NAME(CurrentDateProvider)
 
 - (NSDate *)date;
 
+- (dispatch_time_t)dispatchTimeNow;
+
 @end
 
 NS_ASSUME_NONNULL_END

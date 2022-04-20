@@ -47,6 +47,15 @@ NS_ASSUME_NONNULL_BEGIN
     });
 }
 
+- (void)dispatchAfter:(dispatch_time_t)when block:(void (^)(void))block
+{
+    dispatch_after(when, queue, ^{
+        @autoreleasepool {
+            block();
+        }
+    });
+}
+
 - (void)dispatchOnce:(dispatch_once_t *)predicate block:(void (^)(void))block
 {
     dispatch_once(predicate, block);

@@ -22,6 +22,14 @@ static id<SentryCurrentDateProvider> currentDateProvider;
     return [currentDateProvider date];
 }
 
++ (dispatch_time_t)dispatchTimeNow
+{
+    if (nil == currentDateProvider) {
+        currentDateProvider = [SentryDefaultCurrentDateProvider sharedInstance];
+    }
+    return [currentDateProvider dispatchTimeNow];
+}
+
 + (void)setCurrentDateProvider:(nullable id<SentryCurrentDateProvider>)value
 {
     currentDateProvider = value;

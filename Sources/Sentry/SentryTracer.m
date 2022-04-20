@@ -2,6 +2,7 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryClient.h"
+#import "SentryCurrentDate.h"
 #import "SentryFramesTracker.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
@@ -17,6 +18,7 @@
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
+#import <SentryDispatchQueueWrapper.h>
 #import <SentryScreenFrames.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -37,6 +39,7 @@ SentryTracer ()
 @property (nonatomic, strong) SentryHub *hub;
 @property (nonatomic) SentrySpanStatus finishStatus;
 @property (nonatomic) BOOL isWaitingForChildren;
+@property (nonatomic) BOOL hasIdleTimeout;
 
 @end
 
@@ -82,6 +85,20 @@ static NSLock *profilerLock;
                                        hub:(nullable SentryHub *)hub
                            waitForChildren:(BOOL)waitForChildren
 {
+    return [self initWithTransactionContext:transactionContext
+                                        hub:hub
+                            waitForChildren:waitForChildren
+                                idleTimeout:0.0
+                       dispatchQueueWrapper:nil];
+}
+
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
+                                       hub:(nullable SentryHub *)hub
+                           waitForChildren:(BOOL)waitForChildren
+                               idleTimeout:(NSTimeInterval)idleTimeout
+                      dispatchQueueWrapper:
+                          (nullable SentryDispatchQueueWrapper *)dispatchQueueWrapper
+{
     if (self = [super init]) {
         self.rootSpan = [[SentrySpan alloc] initWithTransaction:self context:transactionContext];
         self.name = transactionContext.name;
@@ -90,6 +107,16 @@ static NSLock *profilerLock;
         self.isWaitingForChildren = NO;
         _waitForChildren = waitForChildren;
         self.finishStatus = kSentrySpanStatusUndefined;
+        self.hasIdleTimeout = NO;
+
+        if (idleTimeout > 0 && dispatchQueueWrapper != nil) {
+            self.hasIdleTimeout = YES;
+            dispatch_time_t now = [SentryCurrentDate dispatchTimeNow];
+            dispatch_time_t when = dispatch_time(now, (dispatch_time_t)idleTimeout * NSEC_PER_SEC);
+            [dispatchQueueWrapper dispatchAfter:when block:^{
+                [self finish];
+            }];
+        }
 
 #if SENTRY_HAS_UIKIT
         _startTimeChanged = NO;
@@ -298,6 +325,10 @@ static NSLock *profilerLock;
         return;
 
     @synchronized(_children) {
+        if (self.hasIdleTimeout && _children.count == 0) {
+            return;
+        }
+
         for (id<SentrySpan> span in _children) {
             if (!span.isFinished) {
                 [span finishWithStatus:kSentrySpanStatusDeadlineExceeded];

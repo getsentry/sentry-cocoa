@@ -1,6 +1,6 @@
 #import "SentryHub.h"
 
-@class SentryEnvelopeItem, SentryId, SentryScope, SentryTransaction;
+@class SentryEnvelopeItem, SentryId, SentryScope, SentryTransaction, SentryDispatchQueueWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -17,6 +17,14 @@ SentryHub (Private)
                                   bindToScope:(BOOL)bindToScope
                               waitForChildren:(BOOL)waitForChildren
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext;
+
+- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bindToScope
+                              waitForChildren:(BOOL)waitForChildren
+                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
+                                  idleTimeout:(NSTimeInterval)idleTimeout
+                         dispatchQueueWrapper:
+                             (nullable SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
 - (SentryId *)captureEvent:(SentryEvent *)event
                   withScope:(SentryScope *)scope

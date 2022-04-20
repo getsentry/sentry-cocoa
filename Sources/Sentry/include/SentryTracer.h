@@ -3,7 +3,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceState;
+@class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceState,
+    SentryDispatchQueueWrapper;
 
 @interface SentryTracer : NSObject <SentrySpan>
 
@@ -78,6 +79,24 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
                            waitForChildren:(BOOL)waitForChildren;
+
+/**
+ * Init a SentryTracer with given transaction context, hub and whether the tracer should wait
+ * for all children to finish before it finishes.
+ *
+ * @param transactionContext Transaction context
+ * @param hub A hub to bind this transaction
+ * @param waitForChildren Whether this tracer should wait all children to finish.
+ * @param idleTimeout The idle time to wait until to finish the transaction.
+ *
+ * @return SentryTracer
+ */
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
+                                       hub:(nullable SentryHub *)hub
+                           waitForChildren:(BOOL)waitForChildren
+                               idleTimeout:(NSTimeInterval)idleTimeout
+                      dispatchQueueWrapper:
+                          (nullable SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
 /**
  * Starts a child span.

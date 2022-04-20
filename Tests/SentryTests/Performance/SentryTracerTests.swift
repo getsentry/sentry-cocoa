@@ -6,6 +6,7 @@ class SentryTracerTests: XCTestCase {
         let client: TestClient
         let hub: TestHub
         let scope: Scope
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
         
         let transactionName = "Some Transaction"
         let transactionOperation = "ui.load"
@@ -18,6 +19,8 @@ class SentryTracerTests: XCTestCase {
         let appStart: Date
         let appStartEnd: Date
         let appStartDuration = 0.5
+        
+        let idleTimeout: TimeInterval = 1.0
         
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         var displayLinkWrapper: TestDiplayLinkWrapper
@@ -54,8 +57,8 @@ class SentryTracerTests: XCTestCase {
             return SentryAppStartMeasurement(type: type, appStartTimestamp: appStart, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, didFinishLaunchingTimestamp: didFinishLaunching)
         }
         
-        func getSut(waitForChildren: Bool = true) -> SentryTracer {
-            return hub.startTransaction(with: transactionContext, bindToScope: false, waitForChildren: waitForChildren, customSamplingContext: [:]) as! SentryTracer
+        func getSut(waitForChildren: Bool = true, idleTimeout: TimeInterval = 0.0, dispatchQueueWrapper: SentryDispatchQueueWrapper? = nil) -> SentryTracer {
+            return hub.startTransaction(with: transactionContext, bindToScope: false, waitForChildren: waitForChildren, customSamplingContext: [:], idleTimeout: idleTimeout, dispatchQueueWrapper: dispatchQueueWrapper) as! SentryTracer
         }
     }
     
@@ -123,6 +126,23 @@ class SentryTracerTests: XCTestCase {
         sut.finish()
         
         XCTAssertEqual(0, fixture.hub.capturedEventsWithScopes.count)
+    }
+    
+    func testIdleTimeout_NoChildren_TransactionNotCaptured() {
+        _ = fixture.getSut(waitForChildren: false, idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        
+        fixture.dispatchQueue.invokeDispatchAfter()
+        
+        XCTAssertEqual(0, fixture.hub.capturedEventsWithScopes.count)
+    }
+    
+    func testIdleTimeout_InvokesDispatchAfterWithCorrectWhen() {
+        _ = fixture.getSut(waitForChildren: false, idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        
+        fixture.dispatchQueue.invokeDispatchAfter()
+        
+        let expectedWhen = fixture.currentDateProvider.dispatchTimeNow() + UInt64(fixture.idleTimeout) * NSEC_PER_SEC
+        XCTAssertEqual(expectedWhen, fixture.dispatchQueue.dispatchAfterInvocations.invocations.first?.when)
     }
     
     func testAddColdAppStartMeasurement_PutOnNextAutoUITransaction() {

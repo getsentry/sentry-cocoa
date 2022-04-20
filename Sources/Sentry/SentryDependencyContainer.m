@@ -4,6 +4,7 @@
 #import <SentryCrashWrapper.h>
 #import <SentryDefaultCurrentDateProvider.h>
 #import <SentryDependencyContainer.h>
+#import <SentryDispatchQueueWrapper.h>
 #import <SentryHub.h>
 #import <SentrySDK+Private.h>
 #import <SentrySwizzleWrapper.h>
@@ -73,6 +74,16 @@ static NSObject *sentryDependencyContainerLock;
             _threadWrapper = [[SentryThreadWrapper alloc] init];
         }
         return _threadWrapper;
+    }
+}
+
+- (SentryDispatchQueueWrapper *)dispatchQueueWrapper
+{
+    @synchronized(sentryDependencyContainerLock) {
+        if (_dispatchQueueWrapper == nil) {
+            _dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
+        }
+        return _dispatchQueueWrapper;
     }
 }
 

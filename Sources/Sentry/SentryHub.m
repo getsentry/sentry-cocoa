@@ -3,6 +3,7 @@
 #import "SentryCrashWrapper.h"
 #import "SentryCurrentDateProvider.h"
 #import "SentryDefaultCurrentDateProvider.h"
+#import "SentryDependencyContainer.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryFileManager.h"
@@ -240,7 +241,8 @@ SentryHub ()
                        withScope:(SentryScope *)scope
          additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
-    if (transaction.trace.context.sampled != kSentrySampleDecisionYes) {
+    SentrySampleDecision decision = transaction.trace.context.sampled;
+    if (decision != kSentrySampleDecisionYes) {
         [self.client recordLostEvent:kSentryDataCategoryTransaction
                               reason:kSentryDiscardReasonSampleRate];
         return SentryId.empty;
@@ -327,6 +329,22 @@ SentryHub ()
                               waitForChildren:(BOOL)waitForChildren
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
+    return [self startTransactionWithContext:transactionContext
+                                 bindToScope:bindToScope
+                             waitForChildren:waitForChildren
+                       customSamplingContext:customSamplingContext
+                                 idleTimeout:0.0
+                        dispatchQueueWrapper:nil];
+}
+
+- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bindToScope
+                              waitForChildren:(BOOL)waitForChildren
+                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
+                                  idleTimeout:(NSTimeInterval)idleTimeout
+                         dispatchQueueWrapper:
+                             (nullable SentryDispatchQueueWrapper *)dispatchQueueWrapper
+{
     SentrySamplingContext *samplingContext =
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
                                             customSamplingContext:customSamplingContext];
@@ -335,7 +353,9 @@ SentryHub ()
 
     id<SentrySpan> tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                          hub:self
-                                                             waitForChildren:waitForChildren];
+                                                             waitForChildren:waitForChildren
+                                                                 idleTimeout:idleTimeout
+                                                        dispatchQueueWrapper:dispatchQueueWrapper];
     if (bindToScope)
         self.scope.span = tracer;
 

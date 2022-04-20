@@ -1,6 +1,10 @@
 #import "SentrySwizzleWrapper.h"
-#import <SentryUIEventTracker.h>
+#import <SentryHub+Private.h>
+#import <SentrySDK+Private.h>
 #import <SentrySDK.h>
+#import <SentrySpanProtocol.h>
+#import <SentryTransactionContext.h>
+#import <SentryUIEventTracker.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -15,15 +19,18 @@ static NSString *const SentryUIEventTrackerSwizzleSendAction
 SentryUIEventTracker ()
 
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
+@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 
 @end
 
 @implementation SentryUIEventTracker
 
 - (instancetype)initWithSwizzleWrapper:(SentrySwizzleWrapper *)swizzleWrapper
+                  dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
         self.swizzleWrapper = swizzleWrapper;
+        self.dispatchQueueWrapper = dispatchQueueWrapper;
     }
     return self;
 }
@@ -33,21 +40,23 @@ SentryUIEventTracker ()
 #if SENTRY_HAS_UIKIT
     [self.swizzleWrapper
         swizzleSendAction:^(NSString *action, UIEvent *event) {
-        
-        for (UITouch *touch in event.allTouches) {
-            if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
-                
+            for (UITouch *touch in event.allTouches) {
+                if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) { }
             }
-        }
-        
-        if (event.view.accessibilityIdentifier && ![event.accessibilityIdentifier isEqualToString:@""]) {
-            
-        }
-        
-        id<SentrySpan> transaction = [SentrySDK startTransactionWithName:@"" operation:@"ui.action.click" bindToScope:YES];
-        
+
+            SentryTransactionContext *context =
+                [[SentryTransactionContext alloc] initWithName:@"UIEvent"
+                                                     operation:@"ui.action.click"];
+
+            [SentrySDK.currentHub startTransactionWithContext:context
+                                                  bindToScope:YES
+                                              waitForChildren:YES
+                                        customSamplingContext:@{}
+                                                  idleTimeout:3.0
+                                         dispatchQueueWrapper:self.dispatchQueueWrapper];
         }
                    forKey:SentryUIEventTrackerSwizzleSendAction];
+
 #endif
 }
 

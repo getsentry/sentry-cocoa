@@ -13,6 +13,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)dispatchOnMainQueue:(void (^)(void))block;
 
+- (void)dispatchAfter:(dispatch_time_t)when block:(void (^)(void))block;
+
 - (void)dispatchOnce:(dispatch_once_t *)predicate block:(void (^)(void))block;
 
 @end

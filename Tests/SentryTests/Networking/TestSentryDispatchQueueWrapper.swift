@@ -19,6 +19,17 @@ class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
         }
     }
     
+    var dispatchAfterInvocations = Invocations<(when: dispatch_time_t, block: () -> Void)>()
+    override func dispatch(after when: dispatch_time_t, block: @escaping () -> Void) {
+        dispatchAfterInvocations.record((when, block))
+    }
+    
+    func invokeDispatchAfter() {
+        dispatchAfterInvocations.invocations.forEach {
+            $0.block()
+        }
+    }
+    
     override func dispatchOnce(_ predicate: UnsafeMutablePointer<Int>, block: @escaping () -> Void) {
         block()
     }

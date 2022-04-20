@@ -2,7 +2,8 @@
 #import "SentryRandom.h"
 #import <Foundation/Foundation.h>
 
-@class SentryAppStateManager, SentryCrashWrapper, SentryThreadWrapper, SentrySwizzleWrapper;
+@class SentryAppStateManager, SentryCrashWrapper, SentryThreadWrapper, SentryDispatchQueueWrapper,
+    SentrySwizzleWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -19,6 +20,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
+@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) id<SentryRandom> random;
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
 
