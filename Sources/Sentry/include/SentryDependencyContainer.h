@@ -2,7 +2,7 @@
 #import "SentryRandom.h"
 #import <Foundation/Foundation.h>
 
-@class SentryAppStateManager, SentryCrashWrapper, SentryThreadWrapper;
+@class SentryAppStateManager, SentryCrashWrapper, SentryThreadWrapper, SentrySwizzleWrapper;
 
 #if SENTRY_HAS_UIKIT
 @class SentryScreenshot, SentryUIApplication;
@@ -24,6 +24,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
 @property (nonatomic, strong) id<SentryRandom> random;
+@property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
 
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryScreenshot *screenshot;

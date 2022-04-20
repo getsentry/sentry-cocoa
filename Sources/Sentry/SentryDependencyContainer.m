@@ -8,6 +8,7 @@
 #import <SentryHub.h>
 #import <SentrySDK+Private.h>
 #import <SentryScreenshot.h>
+#import <SentrySwizzleWrapper.h>
 #import <SentrySysctl.h>
 #import <SentryThreadWrapper.h>
 
@@ -108,5 +109,15 @@ static NSObject *sentryDependencyContainerLock;
     return _application;
 }
 #endif
+
+- (SentrySwizzleWrapper *)swizzleWrapper
+{
+    @synchronized(sentryDependencyContainerLock) {
+        if (_swizzleWrapper == nil) {
+            _swizzleWrapper = SentrySwizzleWrapper.sharedInstance;
+        }
+        return _swizzleWrapper;
+    }
+}
 
 @end

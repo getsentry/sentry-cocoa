@@ -4,7 +4,7 @@ import XCTest
 class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
     
     private class Fixture {
-        let tracker = SentryTestBreadcrumbTracker()
+        let tracker = SentryTestBreadcrumbTracker(swizzleWrapper: SentrySwizzleWrapper.sharedInstance)
         
         var sut: SentryAutoBreadcrumbTrackingIntegration {
             return SentryAutoBreadcrumbTrackingIntegration()
@@ -16,6 +16,11 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
     }
 
     func testInstallWithSwizzleEnabled_StartSwizzleCalled() {
