@@ -453,7 +453,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
         BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
         if (!isCrashEvent && shouldAttachStacktrace && debugMetaNotAttached) {
-            NSThread.currentThread
             event.debugMeta = [self.debugImageProvider getDebugImages];
         }
 
