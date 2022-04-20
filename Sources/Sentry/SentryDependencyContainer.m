@@ -6,6 +6,7 @@
 #import <SentryDependencyContainer.h>
 #import <SentryHub.h>
 #import <SentrySDK+Private.h>
+#import <SentrySwizzleWrapper.h>
 #import <SentrySysctl.h>
 #import <SentryThreadWrapper.h>
 
@@ -82,6 +83,16 @@ static NSObject *sentryDependencyContainerLock;
             _random = [[SentryRandom alloc] init];
         }
         return _random;
+    }
+}
+
+- (SentrySwizzleWrapper *)swizzleWrapper
+{
+    @synchronized(sentryDependencyContainerLock) {
+        if (_swizzleWrapper == nil) {
+            _swizzleWrapper = SentrySwizzleWrapper.sharedInstance;
+        }
+        return _swizzleWrapper;
     }
 }
 
