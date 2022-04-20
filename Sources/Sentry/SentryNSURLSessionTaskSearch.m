@@ -43,7 +43,7 @@ https://github.com/AFNetworking/AFNetworking/blob/4eaec5b586ddd897ebeda896e332a6
     // thats why the URL parameter is a empty url that points nowhere.
     // AFNetwork uses nil as parameter, but according to documentation this a nonnull parameter,
     // and when bridged to swift, the nil parameters causes an exception.
-    NSURLSessionDataTask *localDataTask = [session dataTaskWithURL:[NSURL new]];
+    NSURLSessionDataTask *localDataTask = [session dataTaskWithURL:[NSURL URLWithString:@""]];
 
     Class currentClass = [localDataTask class];
     NSMutableArray *result = [[NSMutableArray alloc] init];
