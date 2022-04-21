@@ -1,3 +1,4 @@
+#import "SentryUIApplication.h"
 #import <Foundation/Foundation.h>
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
@@ -6,6 +7,7 @@
 #import <SentryDependencyContainer.h>
 #import <SentryHub.h>
 #import <SentrySDK+Private.h>
+#import <SentryScreenshot.h>
 #import <SentrySwizzleWrapper.h>
 #import <SentrySysctl.h>
 #import <SentryThreadWrapper.h>
@@ -85,6 +87,28 @@ static NSObject *sentryDependencyContainerLock;
         return _random;
     }
 }
+
+#if SENTRY_HAS_UIKIT
+- (SentryScreenshot *)screenshot
+{
+    @synchronized(sentryDependencyContainerLock) {
+        if (_screenshot == nil) {
+            _screenshot = [[SentryScreenshot alloc] init];
+        }
+        return _screenshot;
+    }
+}
+
+- (SentryUIApplication *)application
+{
+    @synchronized(sentryDependencyContainerLock) {
+        if (_application == nil) {
+            _application = [[SentryUIApplication alloc] init];
+        }
+    }
+    return _application;
+}
+#endif
 
 - (SentrySwizzleWrapper *)swizzleWrapper
 {

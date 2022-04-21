@@ -4,6 +4,10 @@
 
 @class SentryAppStateManager, SentryCrashWrapper, SentryThreadWrapper, SentrySwizzleWrapper;
 
+#if SENTRY_HAS_UIKIT
+@class SentryScreenshot, SentryUIApplication;
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryDependencyContainer : NSObject
@@ -21,6 +25,11 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
 @property (nonatomic, strong) id<SentryRandom> random;
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
+
+#if SENTRY_HAS_UIKIT
+@property (nonatomic, strong) SentryScreenshot *screenshot;
+@property (nonatomic, strong) SentryUIApplication *application;
+#endif
 
 @end
 

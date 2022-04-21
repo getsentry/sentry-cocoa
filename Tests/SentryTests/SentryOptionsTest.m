@@ -493,6 +493,7 @@
         @"enableAutoPerformanceTracking" : [NSNull null],
 #if SENTRY_HAS_UIKIT
         @"enableUIViewControllerTracking" : [NSNull null],
+        @"attachScreenshot" : [NSNull null],
 #endif
         @"enableNetworkTracking" : [NSNull null],
         @"tracesSampleRate" : [NSNull null],
@@ -536,6 +537,7 @@
     XCTAssertTrue(options.enableAutoPerformanceTracking);
 #if SENTRY_HAS_UIKIT
     XCTAssertTrue(options.enableUIViewControllerTracking);
+    XCTAssertFalse(options.attachScreenshot);
 #endif
     XCTAssertEqual(YES, options.enableNetworkTracking);
     XCTAssertNil(options.tracesSampleRate);
@@ -623,6 +625,12 @@
 {
     [self testBooleanField:@"enableUIViewControllerTracking"];
 }
+
+- (void)testAttachScreenshot
+{
+    [self testBooleanField:@"attachScreenshot" defaultValue:NO];
+}
+
 #endif
 
 - (void)testEnableNetworkTracking
