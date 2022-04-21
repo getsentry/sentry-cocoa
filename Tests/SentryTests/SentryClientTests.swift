@@ -255,8 +255,8 @@ class SentryClientTest: XCTestCase {
         
         let sentAttachments = fixture.transportAdapter.sentEventsWithSessionTraceState.first?.attachments ?? []
         
-        XCTAssertEqual(sendedAttachments.count, 1)
-        XCTAssertEqual(extraAttachment, sendedAttachments.first)
+        XCTAssertEqual(sentAttachments.count, 1)
+        XCTAssertEqual(extraAttachment, sentAttachments.first)
     }
     
     func test_AttachmentProcessor_CaptureError_WithSession_NoReleaseName() {

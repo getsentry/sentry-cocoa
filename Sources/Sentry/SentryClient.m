@@ -145,7 +145,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope
 {
-    SentryEvent *event = [self buildExceptionEvent:exception scope:scope];
+    SentryEvent *event = [self buildExceptionEvent:exception];
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
 }
 
@@ -153,7 +153,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                    withSession:(SentrySession *)session
                      withScope:(SentryScope *)scope
 {
-    SentryEvent *event = [self buildExceptionEvent:exception scope:scope];
+    SentryEvent *event = [self buildExceptionEvent:exception];
     event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
     return [self sendEvent:event withSession:session withScope:scope];
 }
@@ -176,7 +176,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
 {
-    SentryEvent *event = [self buildErrorEvent:error scope:scope];
+    SentryEvent *event = [self buildErrorEvent:error];
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
 }
 
@@ -184,7 +184,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                withSession:(SentrySession *)session
                  withScope:(SentryScope *)scope
 {
-    SentryEvent *event = [self buildErrorEvent:error scope:scope];
+    SentryEvent *event = [self buildErrorEvent:error];
     event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
     return [self sendEvent:event withSession:session withScope:scope];
 }
