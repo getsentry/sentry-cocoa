@@ -253,7 +253,7 @@ class SentryClientTest: XCTestCase {
         sut.attachmentProcessor = processor
         sut.captureError(error, with: fixture.session, with: Scope())
         
-        let sendedAttachments = fixture.transportAdapter.sentEventsWithSessionTraceState.first?.attachments ?? []
+        let sentAttachments = fixture.transportAdapter.sentEventsWithSessionTraceState.first?.attachments ?? []
         
         XCTAssertEqual(sendedAttachments.count, 1)
         XCTAssertEqual(extraAttachment, sendedAttachments.first)

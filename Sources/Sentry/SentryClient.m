@@ -158,7 +158,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return [self sendEvent:event withSession:session withScope:scope];
 }
 
-- (SentryEvent *)buildExceptionEvent:(NSException *)exception scope:(SentryScope *)scope
+- (SentryEvent *)buildExceptionEvent:(NSException *)exception
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     SentryException *sentryException = [[SentryException alloc] initWithValue:exception.reason
@@ -189,7 +189,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return [self sendEvent:event withSession:session withScope:scope];
 }
 
-- (SentryEvent *)buildErrorEvent:(NSError *)error scope:(SentryScope *)scope
+- (SentryEvent *)buildErrorEvent:(NSError *)error
 {
     SentryEvent *event = [[SentryEvent alloc] initWithError:error];
 
