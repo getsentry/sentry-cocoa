@@ -25,7 +25,7 @@ class SentryScreenShotTests: XCTestCase {
     }
     
     func test_IsMainThread() {
-        let testWindow = TestWindow()
+        let testWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         var isMainThread = false
         
         testWindow.onDrawHierarchy = {
@@ -47,8 +47,8 @@ class SentryScreenShotTests: XCTestCase {
     }
     
     func test_Draw_Each_Window() {
-        let firstWindow = TestWindow()
-        let secondWindow = TestWindow()
+        let firstWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        let secondWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         var drawFirstWindow = false
         var drawSecondWindow = false
         
