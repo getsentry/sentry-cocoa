@@ -99,6 +99,7 @@ ViewController ()
     NSException *exception = [[NSException alloc] initWithName:@"My Custom exception"
                                                         reason:@"User clicked the button"
                                                       userInfo:nil];
+
     SentryScope *scope = [[SentryScope alloc] init];
     [scope setLevel:kSentryLevelFatal];
     // By explicitly just passing the scope, only the data in this scope object

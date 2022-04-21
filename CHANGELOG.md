@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- feat: Attach screenshots for errors (#1751)
 - fix: Remove authenticated pointer stripping for iOS backtraces (#1757)
 - fix: NSURL warning during SDK initialization (#1764)
 
