@@ -218,13 +218,14 @@ class SentryClientTest: XCTestCase {
     func test_AttachmentProcessor_CaptureEvent() {
         let sut = fixture.getSut()
         let event = Event()
-        var checkEvent = false
         let extraAttachment = Attachment(data: Data(), filename: "ExtraAttachment")
-        
+
+        let expectProcessorCall = expectation(description: "Processor Call")
         let processor = TestAttachmentProcessor { atts, e in
             var result = atts ?? []
             result.append(extraAttachment)
-            checkEvent = event == e
+            XCTAssertEqual(event, e)
+            expectProcessorCall.fulfill()
             return result
         }
         
@@ -233,9 +234,9 @@ class SentryClientTest: XCTestCase {
         
         let sendedAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
         
+        wait(for: [expectProcessorCall], timeout: 1)
         XCTAssertEqual(sendedAttachments.count, 1)
         XCTAssertEqual(extraAttachment, sendedAttachments.first)
-        XCTAssertTrue(checkEvent)
     }
     
     func test_AttachmentProcessor_CaptureError_WithSession() {
