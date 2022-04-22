@@ -3,6 +3,7 @@
 ## Unreleased
 
 - fix: Remove authenticated pointer stripping for iOS backtraces (#1757)
+- feat: Filter binary images on Sentry Crash (#1767)
 
 ## 7.13.0
 
