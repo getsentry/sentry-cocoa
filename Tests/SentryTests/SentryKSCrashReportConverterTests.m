@@ -34,7 +34,7 @@
     XCTAssertNotNil(event);
     XCTAssertEqualObjects(
         [NSDate dateWithTimeIntervalSince1970:@(1491210797).integerValue], event.timestamp);
-    XCTAssertEqual(event.debugMeta.count, (unsigned long)256);
+    XCTAssertEqual(event.debugMeta.count, (unsigned long)13);
     SentryDebugMeta *firstDebugImage = event.debugMeta.firstObject;
     XCTAssertTrue([firstDebugImage.name isEqualToString:@"/var/containers/Bundle/Application/"
                                                         @"94765405-4249-4E20-B1E7-9801C14D5645/"
@@ -114,11 +114,23 @@
 
     NSDictionary *eventJson = [self getCrashReport:@"Resources/converted-event"];
 
-    NSArray *convertedDebugImages = ((NSArray *)[eventJson valueForKeyPath:@"debug_meta.images"]);
-    NSArray *serializedDebugImages
+    __block NSArray *serializedDebugImages
         = ((NSArray *)[serializedEvent valueForKeyPath:@"debug_meta.images"]);
+
+    NSArray *convertedDebugImages = [((NSArray *)[eventJson valueForKeyPath:@"debug_meta.images"])
+        filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
+                                        NSDictionary *evaluatedObject,
+                                        __unused NSDictionary<NSString *, id> *bindings) {
+            for (NSDictionary *image in serializedDebugImages) {
+                if ([image[@"name"] isEqualToString:evaluatedObject[@"name"]])
+                    return true;
+            }
+            return false;
+        }]];
+    ;
+
     XCTAssertEqual(convertedDebugImages.count, serializedDebugImages.count);
-    for (NSUInteger i = 0; i < convertedDebugImages.count; i++) {
+    for (NSUInteger i = 0; i < serializedDebugImages.count; i++) {
         [self compareDict:[convertedDebugImages objectAtIndex:i]
                  withDict:[serializedDebugImages objectAtIndex:i]];
     }

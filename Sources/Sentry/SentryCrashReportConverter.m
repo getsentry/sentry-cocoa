@@ -106,8 +106,8 @@ SentryCrashReportConverter ()
             event.timestamp =
                 [NSDate sentry_fromIso8601String:self.report[@"report"][@"timestamp"]];
         }
-        event.debugMeta = [self convertDebugMeta];
         event.threads = [self convertThreads];
+        event.debugMeta = [self debugMetaForThreads:event.threads];
         event.exceptions = [self convertExceptions];
 
         event.dist = self.userContext[@"dist"];
@@ -316,21 +316,49 @@ SentryCrashReportConverter ()
     return [self threadAtIndex:self.crashedThreadIndex];
 }
 
+- (SentryDebugMeta *)debugMetaFromBinaryImageDictionary:(NSDictionary *)sourceImage
+{
+    SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
+    debugMeta.uuid = sourceImage[@"uuid"];
+    debugMeta.type = @"apple";
+    // We default to 0 on the server if not sent
+    if ([sourceImage[@"image_vmaddr"] integerValue] > 0) {
+        debugMeta.imageVmAddress = sentry_formatHexAddress(sourceImage[@"image_vmaddr"]);
+    }
+    debugMeta.imageAddress = sentry_formatHexAddress(sourceImage[@"image_addr"]);
+    debugMeta.imageSize = sourceImage[@"image_size"];
+    debugMeta.name = sourceImage[@"name"];
+    return debugMeta;
+}
+
+- (NSArray<SentryDebugMeta *> *)debugMetaForThreads:(NSArray<SentryThread *> *)threads
+{
+    NSMutableSet<NSString *> *imageNames = [[NSMutableSet alloc] init];
+
+    for (SentryThread *thread in threads) {
+        for (SentryFrame *frame in thread.stacktrace.frames) {
+            if (frame.package && ![imageNames containsObject:frame.package]) {
+                [imageNames addObject:frame.package];
+            }
+        }
+    }
+
+    NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray new];
+
+    for (NSDictionary *sourceImage in self.binaryImages) {
+        if ([imageNames containsObject:sourceImage[@"name"]]) {
+            [result addObject:[self debugMetaFromBinaryImageDictionary:sourceImage]];
+        }
+    }
+
+    return result;
+}
+
 - (NSArray<SentryDebugMeta *> *)convertDebugMeta
 {
     NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray new];
     for (NSDictionary *sourceImage in self.binaryImages) {
-        SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
-        debugMeta.uuid = sourceImage[@"uuid"];
-        debugMeta.type = @"apple";
-        // We default to 0 on the server if not sent
-        if ([sourceImage[@"image_vmaddr"] integerValue] > 0) {
-            debugMeta.imageVmAddress = sentry_formatHexAddress(sourceImage[@"image_vmaddr"]);
-        }
-        debugMeta.imageAddress = sentry_formatHexAddress(sourceImage[@"image_addr"]);
-        debugMeta.imageSize = sourceImage[@"image_size"];
-        debugMeta.name = sourceImage[@"name"];
-        [result addObject:debugMeta];
+        [result addObject:[self debugMetaFromBinaryImageDictionary:sourceImage]];
     }
     return result;
 }
