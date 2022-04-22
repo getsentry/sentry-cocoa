@@ -214,7 +214,71 @@ class SentryClientTest: XCTestCase {
         
         eventId.assertIsEmpty()
     }
+    
+    func test_AttachmentProcessor_CaptureEvent() {
+        let sut = fixture.getSut()
+        let event = Event()
+        let extraAttachment = Attachment(data: Data(), filename: "ExtraAttachment")
 
+        let expectProcessorCall = expectation(description: "Processor Call")
+        let processor = TestAttachmentProcessor { atts, e in
+            var result = atts ?? []
+            result.append(extraAttachment)
+            XCTAssertEqual(event, e)
+            expectProcessorCall.fulfill()
+            return result
+        }
+        
+        sut.attachmentProcessor = processor
+        sut.capture(event: event)
+        
+        let sendedAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
+        
+        wait(for: [expectProcessorCall], timeout: 1)
+        XCTAssertEqual(sendedAttachments.count, 1)
+        XCTAssertEqual(extraAttachment, sendedAttachments.first)
+    }
+    
+    func test_AttachmentProcessor_CaptureError_WithSession() {
+        let sut = fixture.getSut()
+        let error = NSError(domain: "test", code: -1)
+        let extraAttachment = Attachment(data: Data(), filename: "ExtraAttachment")
+        
+        let processor = TestAttachmentProcessor { atts, _ in
+            var result = atts ?? []
+            result.append(extraAttachment)
+            return result
+        }
+        
+        sut.attachmentProcessor = processor
+        sut.captureError(error, with: fixture.session, with: Scope())
+        
+        let sentAttachments = fixture.transportAdapter.sentEventsWithSessionTraceState.first?.attachments ?? []
+        
+        XCTAssertEqual(sentAttachments.count, 1)
+        XCTAssertEqual(extraAttachment, sentAttachments.first)
+    }
+    
+    func test_AttachmentProcessor_CaptureError_WithSession_NoReleaseName() {
+        let sut = fixture.getSut()
+        let error = NSError(domain: "test", code: -1)
+        let extraAttachment = Attachment(data: Data(), filename: "ExtraAttachment")
+        
+        let processor = TestAttachmentProcessor { atts, _ in
+            var result = atts ?? []
+            result.append(extraAttachment)
+            return result
+        }
+        
+        sut.attachmentProcessor = processor
+        sut.captureError(error, with: SentrySession(releaseName: ""), with: Scope())
+        
+        let sendedAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
+        
+        XCTAssertEqual(sendedAttachments.count, 1)
+        XCTAssertEqual(extraAttachment, sendedAttachments.first)
+    }
+    
     func testCaptureEventWithDsnSetAfterwards() {
         let event = Event()
 
@@ -1157,6 +1221,20 @@ class SentryClientTest: XCTestCase {
         case testIsFailing
         case somethingElse
     }
+    
+    class TestAttachmentProcessor: NSObject, SentryClientAttachmentProcessor {
+        
+        var callback: (([Attachment]?, Event) -> [Attachment]?)
+        
+        init(callback: @escaping ([Attachment]?, Event) -> [Attachment]?) {
+            self.callback = callback
+        }
+        
+        func processAttachments(_ attachments: [Attachment]?, for event: Event) -> [Attachment]? {
+            return callback(attachments, event)
+        }
+    }
+    
 }
 
 // swiftlint:enable file_length

@@ -2,8 +2,11 @@
 
 ## Unreleased
 
+- fix: User feedback crash (#1766)
+- feat: Attach screenshots for errors (#1751)
 - fix: Remove authenticated pointer stripping for iOS backtraces (#1757)
 - feat: Filter binary images on Sentry Crash (#1767)
+- fix: NSURL warning during SDK initialization (#1764)
 
 ## 7.13.0
 

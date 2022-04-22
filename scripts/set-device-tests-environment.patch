@@ -2,13 +2,13 @@ diff --git a/Samples/iOS-Swift/iOS-Swift/AppDelegate.swift b/Samples/iOS-Swift/i
 index 25b92eed..8934d90b 100644
 --- a/Samples/iOS-Swift/iOS-Swift/AppDelegate.swift
 +++ b/Samples/iOS-Swift/iOS-Swift/AppDelegate.swift
-@@ -26,6 +26,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
+@@ -24,6 +24,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
+             options.tracesSampleRate = 1.0
+             options.sessionTrackingIntervalMillis = 5_000
              options.enableFileIOTracking = true
-             options.enableCoreDataTracking = true
-             options.enableProfiling = true
 +            options.environment = "device-tests"
 +            // The UI tests generate false OOMs
 +            options.enableOutOfMemoryTracking = false
-         }
-         
-         return true
+             options.enableCoreDataTracking = true
+             options.enableProfiling = true
+             options.attachScreenshot = true
