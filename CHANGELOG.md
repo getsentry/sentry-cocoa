@@ -23,6 +23,8 @@ to work or you have to manually disable sending client reports via the `sendClie
 This release contains a fix for the sampling of transactions. The SDK applied both sample rates for events and transactions when capturing transactions. Previously, when setting sampleRate to 0.0, the SDK would discard all transactions.
 This is fixed now by ignoring the sampleRate for transactions. If you use custom values for sampleRate and traceSampleRate or traceSampler, this change will have an impact on you.
 
+If you are using profiling and self-hosted Sentry, this version requires Sentry version >= [22.3.0](https://github.com/getsentry/relay/releases/tag/22.3.0).
+
 ### Various fixes & improvements
 
 - fix: Avoid race condition in SentryCrash (#1735)
