@@ -66,7 +66,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (self = [super init]) {
         self.options = options;
 
-        self.debugImageProvider = [[SentryDebugImageProvider alloc] init];
+        self.debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
 
         SentryInAppLogic *inAppLogic =
             [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
