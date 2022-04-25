@@ -35,8 +35,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     }
     
     func testGetDebugImages() {
-        let sut = PrivateSentrySDKOnly()
-        let images = sut.getDebugImages()
+        let images = PrivateSentrySDKOnly.getDebugImages()
         
         // Only make sure we get some images. The actual tests are in
         // SentryDebugImageProviderTests
