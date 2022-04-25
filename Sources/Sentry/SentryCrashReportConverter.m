@@ -337,8 +337,8 @@ SentryCrashReportConverter ()
 
     for (SentryThread *thread in threads) {
         for (SentryFrame *frame in thread.stacktrace.frames) {
-            if (frame.package && ![imageNames containsObject:frame.package]) {
-                [imageNames addObject:frame.package];
+            if (frame.imageAddress && ![imageNames containsObject:frame.imageAddress]) {
+                [imageNames addObject:frame.imageAddress];
             }
         }
     }
@@ -346,20 +346,11 @@ SentryCrashReportConverter ()
     NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray new];
 
     for (NSDictionary *sourceImage in self.binaryImages) {
-        if ([imageNames containsObject:sourceImage[@"name"]]) {
+        if ([imageNames containsObject:sentry_formatHexAddress(sourceImage[@"image_addr"])]) {
             [result addObject:[self debugMetaFromBinaryImageDictionary:sourceImage]];
         }
     }
 
-    return result;
-}
-
-- (NSArray<SentryDebugMeta *> *)convertDebugMeta
-{
-    NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray new];
-    for (NSDictionary *sourceImage in self.binaryImages) {
-        [result addObject:[self debugMetaFromBinaryImageDictionary:sourceImage]];
-    }
     return result;
 }
 

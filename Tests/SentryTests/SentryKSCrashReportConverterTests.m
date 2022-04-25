@@ -74,6 +74,20 @@
     XCTAssertTrue([NSJSONSerialization isValidJSONObject:[event serialize]]);
     XCTAssertNotNil([[event serialize] valueForKeyPath:@"exception.values"]);
     XCTAssertNotNil([[event serialize] valueForKeyPath:@"threads.values"]);
+    
+    XCTAssertEqualObjects([event.debugMeta[0].name lastPathComponent], @"CrashProbeiOS");
+    XCTAssertEqualObjects([event.debugMeta[1].name lastPathComponent], @"CrashLibiOS");
+    XCTAssertEqualObjects([event.debugMeta[2].name lastPathComponent], @"KSCrash");
+    XCTAssertEqualObjects([event.debugMeta[3].name lastPathComponent], @"libsystem_pthread.dylib");
+    XCTAssertEqualObjects([event.debugMeta[4].name lastPathComponent], @"libsystem_kernel.dylib");
+    XCTAssertEqualObjects([event.debugMeta[5].name lastPathComponent], @"libdyld.dylib");
+    XCTAssertEqualObjects([event.debugMeta[6].name lastPathComponent], @"libsystem_c.dylib");
+    XCTAssertEqualObjects([event.debugMeta[7].name lastPathComponent], @"AVFAudio");
+    XCTAssertEqualObjects([event.debugMeta[8].name lastPathComponent], @"Foundation");
+    XCTAssertEqualObjects([event.debugMeta[9].name lastPathComponent], @"CoreFoundation");
+    XCTAssertEqualObjects([event.debugMeta[10].name lastPathComponent], @"CFNetwork");
+    XCTAssertEqualObjects([event.debugMeta[11].name lastPathComponent], @"GraphicsServices");
+    XCTAssertEqualObjects([event.debugMeta[12].name lastPathComponent], @"UIKit");
 }
 
 /**
