@@ -6,6 +6,7 @@
 #    import "SentryDebugImageProvider.h"
 #    import "SentryDebugMeta.h"
 #    import "SentryDefines.h"
+#    import "SentryDependencyContainer.h"
 #    import "SentryEnvelope.h"
 #    import "SentryHexAddressFormatter.h"
 #    import "SentryId.h"
@@ -75,7 +76,7 @@ isSimulatorBuild()
 - (instancetype)init
 {
     if (self = [super init]) {
-        _debugImageProvider = [[SentryDebugImageProvider alloc] init];
+        _debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
     }
     return self;
 }
