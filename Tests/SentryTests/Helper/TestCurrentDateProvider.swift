@@ -13,7 +13,7 @@ public class TestCurrentDateProvider: NSObject, CurrentDateProvider {
         internalDate = date
     }
     
-    private var internalDispatchNow = DispatchTime.now()
+    var internalDispatchNow = DispatchTime.now()
     public func dispatchTimeNow() -> dispatch_time_t {
         return internalDispatchNow.rawValue
     }

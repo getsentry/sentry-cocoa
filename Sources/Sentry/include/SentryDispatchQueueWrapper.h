@@ -15,6 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)dispatchAfter:(dispatch_time_t)when block:(void (^)(void))block;
 
+- (void)dispatchCancel:(void (^)(void))block;
+
 - (void)dispatchOnce:(dispatch_once_t *)predicate block:(void (^)(void))block;
 
 @end

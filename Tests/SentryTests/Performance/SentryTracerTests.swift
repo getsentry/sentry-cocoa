@@ -145,6 +145,20 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(expectedWhen, fixture.dispatchQueue.dispatchAfterInvocations.invocations.first?.when)
     }
     
+    @available(iOS 13.0, *)
+    func testIdleTimeout_SpanAdded_TimeoutReset() {
+        let sut = fixture.getSut(waitForChildren: false, idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        
+        advanceTime(bySeconds: 1.0)
+        
+        sut.startChild(operation: fixture.transactionOperation)
+        
+        XCTAssertEqual(2, fixture.dispatchQueue.dispatchAfterInvocations.invocations.count)
+        
+        let expectedWhen = fixture.currentDateProvider.dispatchTimeNow() + UInt64(fixture.idleTimeout) * NSEC_PER_SEC
+        XCTAssertEqual(expectedWhen, fixture.dispatchQueue.dispatchAfterInvocations.invocations.last?.when)
+    }
+    
     func testAddColdAppStartMeasurement_PutOnNextAutoUITransaction() {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
@@ -451,6 +465,15 @@ class SentryTracerTests: XCTestCase {
     }
     #endif
     
+    private func advanceTime(bySeconds: TimeInterval) {
+        fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(bySeconds))
+        
+        
+        let delta = bySeconds * Double(NSEC_PER_SEC)
+        let newNow = fixture.currentDateProvider.internalDispatchNow + .nanoseconds(Int(delta))
+        fixture.currentDateProvider.internalDispatchNow = newNow
+    }
+    
     private func getSerializedTransaction() -> [String: Any] {
         guard let transaction = fixture.hub.capturedEventsWithScopes.first?.event else {
             fatalError("Event must not be nil.")
@@ -524,5 +547,5 @@ class SentryTracerTests: XCTestCase {
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
         XCTAssertNil(serializedTransaction["measurements"])
     }
-
+    
 }

@@ -30,6 +30,11 @@ class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
         }
     }
     
+    var dispatchCancelInvocations = Invocations<() -> Void>()
+    override func dispatchCancel(_ block: @escaping () -> Void) {
+        dispatchCancelInvocations.record(block)
+    }
+    
     override func dispatchOnce(_ predicate: UnsafeMutablePointer<Int>, block: @escaping () -> Void) {
         block()
     }

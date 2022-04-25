@@ -56,6 +56,10 @@ NS_ASSUME_NONNULL_BEGIN
     });
 }
 
+- (void)dispatchCancel:(void (^)(void))block {
+    dispatch_block_cancel(block);
+}
+
 - (void)dispatchOnce:(dispatch_once_t *)predicate block:(void (^)(void))block
 {
     dispatch_once(predicate, block);
