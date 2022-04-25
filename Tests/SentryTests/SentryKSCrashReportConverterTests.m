@@ -74,7 +74,7 @@
     XCTAssertTrue([NSJSONSerialization isValidJSONObject:[event serialize]]);
     XCTAssertNotNil([[event serialize] valueForKeyPath:@"exception.values"]);
     XCTAssertNotNil([[event serialize] valueForKeyPath:@"threads.values"]);
-    
+
     XCTAssertEqualObjects([event.debugMeta[0].name lastPathComponent], @"CrashProbeiOS");
     XCTAssertEqualObjects([event.debugMeta[1].name lastPathComponent], @"CrashLibiOS");
     XCTAssertEqualObjects([event.debugMeta[2].name lastPathComponent], @"KSCrash");
