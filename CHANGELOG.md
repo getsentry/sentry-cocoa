@@ -10,6 +10,9 @@
 
 ## 7.13.0
 
+If you are using self-hosted Sentry, this version requires Sentry version >= [21.9.0](https://github.com/getsentry/relay/blob/master/CHANGELOG.md#2190)
+to work or you have to manually disable sending client reports via the `sendClientReports` option.
+
 - feat: Add Client Reports (#1733)
 - fix: enableProfiling option via initWithDict (#1743)
 
