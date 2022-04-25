@@ -3,6 +3,7 @@
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
 #import <SentryCrashWrapper.h>
+#import <SentryDebugImageProvider.h>
 #import <SentryDefaultCurrentDateProvider.h>
 #import <SentryDependencyContainer.h>
 #import <SentryHub.h>
@@ -117,6 +118,16 @@ static NSObject *sentryDependencyContainerLock;
             _swizzleWrapper = SentrySwizzleWrapper.sharedInstance;
         }
         return _swizzleWrapper;
+    }
+}
+
+- (SentryDebugImageProvider *)debugImageProvider
+{
+    @synchronized(sentryDependencyContainerLock) {
+        if (_debugImageProvider == nil) {
+            _debugImageProvider = [[SentryDebugImageProvider alloc] init];
+        }
+        return _debugImageProvider;
     }
 }
 

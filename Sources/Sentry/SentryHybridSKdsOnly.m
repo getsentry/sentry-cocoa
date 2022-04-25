@@ -4,14 +4,8 @@
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 #import <Foundation/Foundation.h>
+#import <SentryDependencyContainer.h>
 #import <SentryFramesTracker.h>
-
-@interface
-PrivateSentrySDKOnly ()
-
-@property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
-
-@end
 
 @implementation PrivateSentrySDKOnly
 
@@ -20,14 +14,6 @@ static BOOL _appStartMeasurementHybridSDKMode = NO;
 #if SENTRY_HAS_UIKIT
 static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 #endif
-
-- (instancetype)init
-{
-    if (self = [super init]) {
-        _debugImageProvider = [[SentryDebugImageProvider alloc] init];
-    }
-    return self;
-}
 
 + (void)storeEnvelope:(SentryEnvelope *)envelope
 {
@@ -44,9 +30,9 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [SentrySerialization envelopeWithData:data];
 }
 
-- (NSArray<SentryDebugMeta *> *)getDebugImages
++ (NSArray<SentryDebugMeta *> *)getDebugImages
 {
-    return [self.debugImageProvider getDebugImages];
+    return [[SentryDependencyContainer sharedInstance].debugImageProvider getDebugImages];
 }
 
 + (nullable SentryAppStartMeasurement *)appStartMeasurement
