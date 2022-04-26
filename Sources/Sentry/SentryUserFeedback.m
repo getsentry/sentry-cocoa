@@ -8,6 +8,9 @@
 {
     if (self = [super init]) {
         _eventId = eventId;
+        _email = @"";
+        _name = @"";
+        _comments = @"";
     }
     return self;
 }

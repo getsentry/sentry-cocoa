@@ -3,7 +3,11 @@
 #import <Foundation/Foundation.h>
 
 @class SentryAppStateManager, SentryCrashWrapper, SentryThreadWrapper, SentryDispatchQueueWrapper,
-    SentrySwizzleWrapper;
+    SentrySwizzleWrapper, SentryDebugImageProvider;
+
+#if SENTRY_HAS_UIKIT
+@class SentryScreenshot, SentryUIApplication;
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -20,9 +24,15 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
-@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) id<SentryRandom> random;
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
+@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
+@property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
+
+#if SENTRY_HAS_UIKIT
+@property (nonatomic, strong) SentryScreenshot *screenshot;
+@property (nonatomic, strong) SentryUIApplication *application;
+#endif
 
 @end
 

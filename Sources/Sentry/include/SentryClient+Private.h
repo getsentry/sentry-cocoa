@@ -3,12 +3,22 @@
 #import "SentryDiscardReason.h"
 #import <Foundation/Foundation.h>
 
-@class SentryEnvelopeItem, SentryId;
+@class SentryEnvelopeItem, SentryId, SentryAttachment;
 
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol SentryClientAttachmentProcessor <NSObject>
+
+- (nullable NSArray<SentryAttachment *> *)processAttachments:
+                                              (nullable NSArray<SentryAttachment *> *)attachments
+                                                    forEvent:(SentryEvent *)event;
+
+@end
+
 @interface
 SentryClient (Private)
+
+@property (nonatomic, weak) id<SentryClientAttachmentProcessor> attachmentProcessor;
 
 - (SentryFileManager *)fileManager;
 

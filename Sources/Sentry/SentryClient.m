@@ -1,5 +1,7 @@
 #import "SentryClient.h"
 #import "NSDictionary+SentrySanitize.h"
+#import "SentryAttachment.h"
+#import "SentryClient+Private.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashIntegration.h"
 #import "SentryCrashStackEntryMapper.h"
@@ -37,6 +39,10 @@
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
 
+#if SENTRY_HAS_UIKIT
+#    import <UIKit/UIKit.h>
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
@@ -47,6 +53,7 @@ SentryClient ()
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
 @property (nonatomic, strong) id<SentryRandom> random;
+@property (nonatomic, weak) id<SentryClientAttachmentProcessor> attachmentProcessor;
 
 @end
 
@@ -59,7 +66,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (self = [super init]) {
         self.options = options;
 
-        self.debugImageProvider = [[SentryDebugImageProvider alloc] init];
+        self.debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
 
         SentryInAppLogic *inAppLogic =
             [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
@@ -156,6 +163,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     SentryException *sentryException = [[SentryException alloc] initWithValue:exception.reason
                                                                          type:exception.name];
+
     event.exceptions = @[ sentryException ];
     [self setUserInfo:exception.userInfo withEvent:event];
     return event;
@@ -303,10 +311,16 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             ? [self getTraceStateWithEvent:event withScope:scope]
             : nil;
 
+        NSArray *attachments = scope.attachments;
+        if (self.attachmentProcessor)
+            attachments = [self.attachmentProcessor processAttachments:attachments
+                                                              forEvent:preparedEvent];
+
         [self.transportAdapter sendEvent:preparedEvent
                               traceState:traceState
-                             attachments:scope.attachments
+                             attachments:attachments
                  additionalEnvelopeItems:additionalEnvelopeItems];
+
         return preparedEvent.eventId;
     }
 
@@ -318,19 +332,23 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
               withScope:(SentryScope *)scope
 {
     if (nil != event) {
+        NSArray *attachments = scope.attachments;
+        if (self.attachmentProcessor)
+            attachments = [self.attachmentProcessor processAttachments:attachments forEvent:event];
+
         if (nil == session.releaseName || [session.releaseName length] == 0) {
             SentryTraceState *traceState = _options.experimentalEnableTraceSampling
                 ? [self getTraceStateWithEvent:event withScope:scope]
                 : nil;
 
             [SentryLog logWithMessage:DropSessionLogMessage andLevel:kSentryLevelDebug];
-            [self.transportAdapter sendEvent:event
-                                  traceState:traceState
-                                 attachments:scope.attachments];
+
+            [self.transportAdapter sendEvent:event traceState:traceState attachments:attachments];
             return event.eventId;
         }
 
-        [self.transportAdapter sendEvent:event session:session attachments:scope.attachments];
+        [self.transportAdapter sendEvent:event session:session attachments:attachments];
+
         return event.eventId;
     } else {
         [self captureSession:session];

@@ -35,7 +35,15 @@ class LaunchUITests: XCTestCase {
         XCTAssertTrue(app.buttons["lonelyButton"].waitForExistence(), "Nib ViewController not loaded.")
         assertApp()
     }
-
+    
+    func testCaptureError() {
+        app.buttons["Error"].tap()
+    }
+    
+    func testCaptureException() {
+        app.buttons["NSException"].tap()
+    }
+    
     func testShowTableView() {
         app.buttons["showTableViewButton"].tap()
         XCTAssertTrue(app.navigationBars.buttons.element(boundBy: 0).waitForExistence(), "TableView not loaded.")
