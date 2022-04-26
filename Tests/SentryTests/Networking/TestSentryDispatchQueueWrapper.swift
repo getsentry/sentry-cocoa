@@ -24,10 +24,8 @@ class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
         dispatchAfterInvocations.record((when, block))
     }
     
-    func invokeDispatchAfter() {
-        dispatchAfterInvocations.invocations.forEach {
-            $0.block()
-        }
+    func invokeLastDispatchAfter() {
+        dispatchAfterInvocations.invocations.last?.block()
     }
     
     var dispatchCancelInvocations = Invocations<() -> Void>()

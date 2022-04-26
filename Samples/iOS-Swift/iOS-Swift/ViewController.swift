@@ -52,10 +52,17 @@ class ViewController: UIViewController {
     }
     
     @IBAction func captureMessage(_ sender: Any) {
-        let eventId = SentrySDK.capture(message: "Yeah captured a message")
-        // Returns eventId in case of successfull processed event
-        // otherwise nil
-        print("\(String(describing: eventId))")
+
+        let dispatchQueue = DispatchQueue(label: "LoremIpsumViewController")
+        dispatchQueue.async {
+            if let path = Bundle.main.path(forResource: "LoremIpsum", ofType: "txt") {
+                if let contents = FileManager.default.contents(atPath: path) {
+                    DispatchQueue.main.async {
+                        
+                    }
+                }
+            }
+        }
     }
     
     @IBAction func captureUserFeedback(_ sender: Any) {

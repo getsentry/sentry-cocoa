@@ -131,7 +131,7 @@ class SentryTracerTests: XCTestCase {
     func testIdleTimeout_NoChildren_TransactionNotCaptured() {
         _ = fixture.getSut(waitForChildren: false, idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
         
-        fixture.dispatchQueue.invokeDispatchAfter()
+        fixture.dispatchQueue.invokeLastDispatchAfter()
         
         XCTAssertEqual(0, fixture.hub.capturedEventsWithScopes.count)
     }
@@ -139,24 +139,40 @@ class SentryTracerTests: XCTestCase {
     func testIdleTimeout_InvokesDispatchAfterWithCorrectWhen() {
         _ = fixture.getSut(waitForChildren: false, idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
         
-        fixture.dispatchQueue.invokeDispatchAfter()
+        fixture.dispatchQueue.invokeLastDispatchAfter()
         
         let expectedWhen = fixture.currentDateProvider.dispatchTimeNow() + UInt64(fixture.idleTimeout) * NSEC_PER_SEC
         XCTAssertEqual(expectedWhen, fixture.dispatchQueue.dispatchAfterInvocations.invocations.first?.when)
     }
     
-    @available(iOS 13.0, *)
-    func testIdleTimeout_SpanAdded_TimeoutReset() {
+    func testIdleTimeout_SpanAdded_IdleTimeoutCanceled() {
         let sut = fixture.getSut(waitForChildren: false, idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
-        
-        advanceTime(bySeconds: 1.0)
         
         sut.startChild(operation: fixture.transactionOperation)
         
-        XCTAssertEqual(2, fixture.dispatchQueue.dispatchAfterInvocations.invocations.count)
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchAfterInvocations.count)
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations.count)
+    }
+    
+    func testIdleTimeout_ChildSpanFinished_IdleStarted() {
+        let sut = fixture.getSut(waitForChildren: true, idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchAfterInvocations.count)
         
-        let expectedWhen = fixture.currentDateProvider.dispatchTimeNow() + UInt64(fixture.idleTimeout) * NSEC_PER_SEC
-        XCTAssertEqual(expectedWhen, fixture.dispatchQueue.dispatchAfterInvocations.invocations.last?.when)
+        let child = sut.startChild(operation: fixture.transactionOperation)
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations.count)
+        
+        child.finish()
+        XCTAssertEqual(2, fixture.dispatchQueue.dispatchAfterInvocations.count)
+        
+        let grandChild = child.startChild(operation: fixture.transactionOperation)
+        XCTAssertEqual(2, fixture.dispatchQueue.dispatchCancelInvocations.count)
+        
+        grandChild.finish()
+        XCTAssertEqual(3, fixture.dispatchQueue.dispatchAfterInvocations.count)
+        
+        fixture.dispatchQueue.invokeLastDispatchAfter()
+        
+        assertOneTransactionCaptured(sut)
     }
     
     func testAddColdAppStartMeasurement_PutOnNextAutoUITransaction() {
