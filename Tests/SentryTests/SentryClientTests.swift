@@ -126,7 +126,7 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(SentryLevel.info, actual.level)
             XCTAssertEqual(fixture.message, actual.message)
 
-            assertValidDebugMeta(actual: actual.debugMeta)
+            assertValidDebugMeta(actual: actual.debugMeta, forThreads: actual.threads)
             assertValidThreads(actual: actual.threads)
         }
     }
@@ -200,7 +200,7 @@ class SentryClientTest: XCTestCase {
         fixture.getSut().capture(event: event, scope: fixture.scope)
         
         assertLastSentEventWithAttachment { actual in
-            assertValidDebugMeta(actual: actual.debugMeta)
+            assertValidDebugMeta(actual: actual.debugMeta, forThreads: event.threads)
             assertValidThreads(actual: actual.threads)
         }
     }
@@ -315,7 +315,7 @@ class SentryClientTest: XCTestCase {
         sut.capture(event: event)
         
         assertLastSentEvent { actual in
-            assertValidDebugMeta(actual: actual.debugMeta)
+            assertValidDebugMeta(actual: actual.debugMeta, forThreads: event.threads)
             XCTAssertEqual(event.threads, actual.threads)
         }
     }
@@ -331,7 +331,7 @@ class SentryClientTest: XCTestCase {
         assertLastSentEvent { actual in
             XCTAssertEqual(event.level, actual.level)
             XCTAssertEqual(event.message, actual.message)
-            assertValidDebugMeta(actual: actual.debugMeta)
+            assertValidDebugMeta(actual: actual.debugMeta, forThreads: event.threads)
             assertValidThreads(actual: actual.threads)
         }
     }
@@ -1160,7 +1160,7 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(error.domain, mechanism.meta?.error?.domain)
         XCTAssertEqual(error.code, mechanism.meta?.error?.code)
         
-        assertValidDebugMeta(actual: event.debugMeta)
+        assertValidDebugMeta(actual: event.debugMeta, forThreads: event.threads)
         assertValidThreads(actual: event.threads)
     }
     
@@ -1168,7 +1168,7 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(SentryLevel.error, event.level)
         XCTAssertEqual(exception.reason, event.exceptions!.first!.value)
         XCTAssertEqual(exception.name.rawValue, event.exceptions!.first!.type)
-        assertValidDebugMeta(actual: event.debugMeta)
+        assertValidDebugMeta(actual: event.debugMeta, forThreads: event.threads)
         assertValidThreads(actual: event.threads)
     }
     
@@ -1186,8 +1186,8 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    private func assertValidDebugMeta(actual: [DebugMeta]?) {
-        let debugMetas = fixture.debugImageBuilder.getDebugImages()
+    private func assertValidDebugMeta(actual: [DebugMeta]?, forThreads threads: [Sentry.Thread]?) {
+        let debugMetas = fixture.debugImageBuilder.getDebugImages(for: threads ?? [])
         
         XCTAssertEqual(debugMetas, actual ?? [])
     }
