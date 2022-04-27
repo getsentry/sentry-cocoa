@@ -40,7 +40,7 @@ SentryTracer ()
 @property (nonatomic) SentrySpanStatus finishStatus;
 @property (nonatomic) BOOL isWaitingForChildren;
 @property (nonatomic) NSTimeInterval idleTimeout;
-@property (nonatomic, nullable, strong) SentryDispatchQueueWrapper * dispatchQueueWrapper;
+@property (nonatomic, nullable, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 
 @end
 
@@ -111,14 +111,11 @@ static NSLock *profilerLock;
         self.finishStatus = kSentrySpanStatusUndefined;
         self.idleTimeout = idleTimeout;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
-        
-        __block SentryTracer *_self = self;
-        dispatch_block_t block = ^{
-            [SentryLog logWithMessage:@"PH: Timed out. Finishing." andLevel:kSentryLevelDebug];
-            [_self finishWithoutChecks];
-        };
-        _idleTimeoutBlock = block;
-        [self dispatchIdleTimeout];
+
+        if ([self hasIdleTimeout]) {
+            self.isWaitingForChildren = YES;
+            [self dispatchIdleTimeout];
+        }
 
 #if SENTRY_HAS_UIKIT
         _startTimeChanged = NO;
@@ -148,16 +145,32 @@ static NSLock *profilerLock;
     return self;
 }
 
--(void)dispatchIdleTimeout {
-    if (self.idleTimeout > 0 && self.dispatchQueueWrapper != nil) {
-        self.isWaitingForChildren = YES;
-        
+- (void)dispatchIdleTimeout
+{
+    if ([self hasIdleTimeout]) {
         dispatch_time_t now = [SentryCurrentDate dispatchTimeNow];
         dispatch_time_t delta = (int64_t)(self.idleTimeout * NSEC_PER_SEC);
         dispatch_time_t when = dispatch_time(now, delta);
-        
-        [SentryLog logWithMessage:@"PH: Reset timeout." andLevel:kSentryLevelDebug];
+
+        //
+        if (_idleTimeoutBlock != nil) {
+            [self.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
+        }
+        __block SentryTracer *_self = self;
+        _idleTimeoutBlock = dispatch_block_create(0, ^{ [_self finishInternal]; });
         [self.dispatchQueueWrapper dispatchAfter:when block:_idleTimeoutBlock];
+    }
+}
+
+- (BOOL)hasIdleTimeout
+{
+    return self.idleTimeout > 0 && self.dispatchQueueWrapper != nil;
+}
+
+- (void)cancelIdleTimeout
+{
+    if ([self hasIdleTimeout]) {
+        [self.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
     }
 }
 
@@ -176,8 +189,8 @@ static NSLock *profilerLock;
                                operation:(NSString *)operation
                              description:(nullable NSString *)description
 {
-    [self.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
-    
+    [self cancelIdleTimeout];
+
     SentrySpanContext *context =
         [[SentrySpanContext alloc] initWithTraceId:_rootSpan.context.traceId
                                             spanId:[[SentrySpanId alloc] init]
@@ -324,16 +337,17 @@ static NSLock *profilerLock;
 
     if (!self.isWaitingForChildren || (_waitForChildren && [self hasUnfinishedChildren]))
         return;
-    
-    if (self.idleTimeout > 0) {
+
+    if ([self hasIdleTimeout]) {
         [self dispatchIdleTimeout];
         return;
     }
-    
-    [self finishWithoutChecks];
+
+    [self finishInternal];
 }
 
--(void)finishWithoutChecks {
+- (void)finishInternal
+{
     [_rootSpan finishWithStatus:_finishStatus];
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if ([_hub getClient].options.enableProfiling) {

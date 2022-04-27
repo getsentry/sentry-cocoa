@@ -154,6 +154,19 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations.count)
     }
     
+    func testIdleTimeoutWithRealDispatchQueue_SpanAdded_IdleTimeoutCanceled() {
+        let sut = fixture.getSut(waitForChildren: true, idleTimeout: 0.1, dispatchQueueWrapper: SentryDispatchQueueWrapper())
+        
+        let child = sut.startChild(operation: fixture.transactionOperation)
+        let grandChild = child.startChild(operation: fixture.transactionOperation)
+        grandChild.finish()
+        child.finish()
+        
+        delayNonBlocking(timeout: 0.5)
+        
+        assertOneTransactionCaptured(sut)
+    }
+    
     func testIdleTimeout_ChildSpanFinished_IdleStarted() {
         let sut = fixture.getSut(waitForChildren: true, idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAfterInvocations.count)
@@ -165,10 +178,11 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(2, fixture.dispatchQueue.dispatchAfterInvocations.count)
         
         let grandChild = child.startChild(operation: fixture.transactionOperation)
-        XCTAssertEqual(2, fixture.dispatchQueue.dispatchCancelInvocations.count)
+        XCTAssertEqual(3, fixture.dispatchQueue.dispatchCancelInvocations.count)
         
         grandChild.finish()
         XCTAssertEqual(3, fixture.dispatchQueue.dispatchAfterInvocations.count)
+        XCTAssertEqual(4, fixture.dispatchQueue.dispatchCancelInvocations.count)
         
         fixture.dispatchQueue.invokeLastDispatchAfter()
         
@@ -483,7 +497,6 @@ class SentryTracerTests: XCTestCase {
     
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(bySeconds))
-        
         
         let delta = bySeconds * Double(NSEC_PER_SEC)
         let newNow = fixture.currentDateProvider.internalDispatchNow + .nanoseconds(Int(delta))
