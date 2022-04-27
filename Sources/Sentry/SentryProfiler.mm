@@ -32,7 +32,9 @@
 
 using namespace sentry::profiling;
 
-NSString *parseBacktraceSymbolsFunctionName(const char *symbol) {
+NSString *
+parseBacktraceSymbolsFunctionName(const char *symbol)
+{
     static NSRegularExpression *regex = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
