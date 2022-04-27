@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: Parsing of output from backtrace_symbols() (#1782)
+
 ## 7.14.0
 
 - fix: User feedback crash (#1766)
@@ -7,7 +11,6 @@
 - fix: Remove authenticated pointer stripping for iOS backtraces (#1757)
 - perf: Filter binary images on Sentry Crash (#1767)
 - fix: NSURL warning during SDK initialization (#1764)
-- fix: Parsing of output from backtrace_symbols() (#1782)
 
 ## 7.13.0
 
