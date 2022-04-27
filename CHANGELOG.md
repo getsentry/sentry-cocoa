@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.14.0
 
 - fix: User feedback crash (#1766)
 - feat: Attach screenshots for errors (#1751)
