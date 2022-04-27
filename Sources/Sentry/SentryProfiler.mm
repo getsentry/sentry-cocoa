@@ -69,18 +69,23 @@ isSimulatorBuild()
 // like the frame index, image name, function name, and offset in a single string.
 // e.g.
 // For the input:
-// 2   UIKitCore                           0x00000001850d97ac -[UIFieldEditor _fullContentInsetsFromFonts] + 160
-// This function would return:
+// 2   UIKitCore                           0x00000001850d97ac -[UIFieldEditor
+// _fullContentInsetsFromFonts] + 160 This function would return:
 // -[UIFieldEditor _fullContentInsetsFromFonts]
 //
 // If the format does not match the expected format, this returns the input string.
-NSString *parseFunctionName(const char *symbol) {
+NSString *
+parseFunctionName(const char *symbol)
+{
     static NSRegularExpression *regex = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        regex = [NSRegularExpression regularExpressionWithPattern:@"\\d+\\s+\\S+\\s+0[xX][0-9a-fA-F]+\\s+(.+)\\s+\\+\\s+\\d+" options:0 error:nil];
+        regex = [NSRegularExpression
+            regularExpressionWithPattern:@"\\d+\\s+\\S+\\s+0[xX][0-9a-fA-F]+\\s+(.+)\\s+\\+\\s+\\d+"
+                                 options:0
+                                   error:nil];
     });
-    const auto symbolNSStr =  [NSString stringWithUTF8String:symbol];
+    const auto symbolNSStr = [NSString stringWithUTF8String:symbol];
     const auto match = [regex firstMatchInString:symbolNSStr
                                          options:0
                                            range:NSMakeRange(0, [symbolNSStr length])];
