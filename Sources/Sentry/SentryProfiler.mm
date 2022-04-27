@@ -74,6 +74,7 @@ isSimulatorBuild()
 // -[UIFieldEditor _fullContentInsetsFromFonts]
 //
 // If the format does not match the expected format, this returns the input string.
+#if defined(DEBUG)
 NSString *
 parseFunctionName(const char *symbol)
 {
@@ -94,6 +95,7 @@ parseFunctionName(const char *symbol)
     }
     return [symbolNSStr substringWithRange:[match rangeAtIndex:1]];
 }
+#endif
 } // namespace
 
 @implementation SentryProfiler {
