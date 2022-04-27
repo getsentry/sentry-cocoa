@@ -32,6 +32,25 @@
 
 using namespace sentry::profiling;
 
+NSString *parseBacktraceSymbolsFunctionName(const char *symbol) {
+    static NSRegularExpression *regex = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        regex = [NSRegularExpression
+            regularExpressionWithPattern:@"\\d+\\s+\\S+\\s+0[xX][0-9a-fA-F]+\\s+(.+)\\s+\\+\\s+\\d+"
+                                 options:0
+                                   error:nil];
+    });
+    const auto symbolNSStr = [NSString stringWithUTF8String:symbol];
+    const auto match = [regex firstMatchInString:symbolNSStr
+                                         options:0
+                                           range:NSMakeRange(0, [symbolNSStr length])];
+    if (match == nil) {
+        return symbolNSStr;
+    }
+    return [symbolNSStr substringWithRange:[match rangeAtIndex:1]];
+}
+
 namespace {
 NSString *
 getDeviceModel()
@@ -64,38 +83,6 @@ isSimulatorBuild()
     return false;
 #    endif
 }
-
-// Parses a symbol that is returned from `backtrace_symbols()`, which encodes information
-// like the frame index, image name, function name, and offset in a single string.
-// e.g.
-// For the input:
-// 2   UIKitCore                           0x00000001850d97ac -[UIFieldEditor
-// _fullContentInsetsFromFonts] + 160 This function would return:
-// -[UIFieldEditor _fullContentInsetsFromFonts]
-//
-// If the format does not match the expected format, this returns the input string.
-#if defined(DEBUG)
-NSString *
-parseFunctionName(const char *symbol)
-{
-    static NSRegularExpression *regex = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        regex = [NSRegularExpression
-            regularExpressionWithPattern:@"\\d+\\s+\\S+\\s+0[xX][0-9a-fA-F]+\\s+(.+)\\s+\\+\\s+\\d+"
-                                 options:0
-                                   error:nil];
-    });
-    const auto symbolNSStr = [NSString stringWithUTF8String:symbol];
-    const auto match = [regex firstMatchInString:symbolNSStr
-                                         options:0
-                                           range:NSMakeRange(0, [symbolNSStr length])];
-    if (match == nil) {
-        return symbolNSStr;
-    }
-    return [symbolNSStr substringWithRange:[match rangeAtIndex:1]];
-}
-#endif
 } // namespace
 
 @implementation SentryProfiler {
@@ -165,7 +152,7 @@ parseFunctionName(const char *symbol)
                     const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
                     frame[@"instruction_addr"] = sentry_formatHexAddress(@(backtrace.addresses[i]));
 #    if defined(DEBUG)
-                    frame[@"function"] = parseFunctionName(symbols[i]);
+                    frame[@"function"] = parseBacktraceSymbolsFunctionName(symbols[i]);
 #    endif
                     [frames addObject:frame];
                 }
