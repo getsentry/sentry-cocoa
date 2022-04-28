@@ -31,14 +31,14 @@ class SentrySwizzleWrapperTests: XCTestCase {
     
     func testSendAction_RegisterCallbacks_CallbacksCalled() {
         let firstExcpectation = expectation(description: "first")
-        sut.swizzleSendAction({ actualAction, actualEvent in
+        sut.swizzleSendAction({ actualAction, _, _, actualEvent in
             XCTAssertEqual(self.fixture.actionName, actualAction)
             XCTAssertEqual(self.fixture.event, actualEvent)
             firstExcpectation.fulfill()
         }, forKey: "first")
         
         let secondExcpectation = expectation(description: "second")
-        sut.swizzleSendAction({ actualAction, actualEvent in
+        sut.swizzleSendAction({ actualAction, _, _, actualEvent in
             XCTAssertEqual(self.fixture.actionName, actualAction)
             XCTAssertEqual(self.fixture.event, actualEvent)
             secondExcpectation.fulfill()
@@ -52,12 +52,12 @@ class SentrySwizzleWrapperTests: XCTestCase {
     func testSendAction_RegisterCallbackForSameKey_LastCallbackCalled() {
         let firstExcpectation = expectation(description: "first")
         firstExcpectation.isInverted = true
-        sut.swizzleSendAction({ _, _ in
+        sut.swizzleSendAction({ _, _, _, _ in
             firstExcpectation.fulfill()
         }, forKey: "first")
         
         let secondExcpectation = expectation(description: "second")
-        sut.swizzleSendAction({ actualAction, actualEvent in
+        sut.swizzleSendAction({ actualAction, _, _, actualEvent in
             XCTAssertEqual(self.fixture.actionName, actualAction)
             XCTAssertEqual(self.fixture.event, actualEvent)
             secondExcpectation.fulfill()
@@ -71,7 +71,7 @@ class SentrySwizzleWrapperTests: XCTestCase {
     func testSendAction_RemoveCallback_CallbackNotCalled() {
         let firstExcpectation = expectation(description: "first")
         firstExcpectation.isInverted = true
-        sut.swizzleSendAction({ _, _ in
+        sut.swizzleSendAction({ _, _, _, _ in
             firstExcpectation.fulfill()
         }, forKey: "first")
         
@@ -85,7 +85,7 @@ class SentrySwizzleWrapperTests: XCTestCase {
     func testSendAction_AfterCallingReset_CallbackNotCalled() {
         let neverExcpectation = expectation(description: "never")
         neverExcpectation.isInverted = true
-        sut.swizzleSendAction({ _, _ in
+        sut.swizzleSendAction({ _, _, _, _ in
             neverExcpectation.fulfill()
         }, forKey: "never")
         
@@ -97,7 +97,7 @@ class SentrySwizzleWrapperTests: XCTestCase {
     }
     
     private func sendActionCalled() {
-        Dynamic(SentrySwizzleWrapper.self).sendActionCalled(#selector(someMethod), event: self.fixture.event)
+        Dynamic(SentrySwizzleWrapper.self).sendActionCalled(#selector(someMethod), target: nil, sender: nil, event: self.fixture.event)
     }
 
 #endif

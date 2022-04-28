@@ -43,7 +43,7 @@ class ViewController: UIViewController {
             }
         }
         
-        let toggle = UISwitch(frame: CGRect(x: 100, y: 100, width:100,height: 100))
+        let toggle = UISwitch(frame: CGRect(x: 100, y: 100, width: 100, height: 100))
         toggle.addTarget(self, action: #selector(toggleChanged(_:)), for: .valueChanged)
         self.view.addSubview(toggle)
     }

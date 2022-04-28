@@ -113,7 +113,7 @@ static NSLock *profilerLock;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
 
         if ([self hasIdleTimeout]) {
-            self.isWaitingForChildren = YES;
+            //            self.isWaitingForChildren = YES;
             [self dispatchIdleTimeout];
         }
 
@@ -147,19 +147,16 @@ static NSLock *profilerLock;
 
 - (void)dispatchIdleTimeout
 {
-    if ([self hasIdleTimeout]) {
-        dispatch_time_t now = [SentryCurrentDate dispatchTimeNow];
-        dispatch_time_t delta = (int64_t)(self.idleTimeout * NSEC_PER_SEC);
-        dispatch_time_t when = dispatch_time(now, delta);
+    dispatch_time_t now = [SentryCurrentDate dispatchTimeNow];
+    dispatch_time_t delta = (int64_t)(self.idleTimeout * NSEC_PER_SEC);
+    dispatch_time_t when = dispatch_time(now, delta);
 
-        //
-        if (_idleTimeoutBlock != nil) {
-            [self.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
-        }
-        __block SentryTracer *_self = self;
-        _idleTimeoutBlock = dispatch_block_create(0, ^{ [_self finishInternal]; });
-        [self.dispatchQueueWrapper dispatchAfter:when block:_idleTimeoutBlock];
+    if (_idleTimeoutBlock != nil) {
+        [self.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
     }
+    __block SentryTracer *_self = self;
+    _idleTimeoutBlock = dispatch_block_create(0, ^{ [_self finishInternal:YES]; });
+    [self.dispatchQueueWrapper dispatchAfter:when block:_idleTimeoutBlock];
 }
 
 - (BOOL)hasIdleTimeout
@@ -335,18 +332,23 @@ static NSLock *profilerLock;
     if (self.rootSpan.isFinished)
         return;
 
-    if (!self.isWaitingForChildren || (_waitForChildren && [self hasUnfinishedChildren]))
-        return;
-
     if ([self hasIdleTimeout]) {
         [self dispatchIdleTimeout];
         return;
     }
 
+    if (!self.isWaitingForChildren || (_waitForChildren && [self hasUnfinishedChildren]))
+        return;
+
     [self finishInternal];
 }
 
 - (void)finishInternal
+{
+    [self finishInternal:NO];
+}
+
+- (void)finishInternal:(BOOL)trimEndTimestamp
 {
     [_rootSpan finishWithStatus:_finishStatus];
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -356,11 +358,7 @@ static NSLock *profilerLock;
         [profilerLock unlock];
     }
 #endif
-    [self captureTransaction];
-}
 
-- (void)captureTransaction
-{
     if (_hub == nil)
         return;
 
@@ -377,6 +375,14 @@ static NSLock *profilerLock;
                 // end timestamp as their parent transaction
                 span.timestamp = self.timestamp;
             }
+        }
+
+        if (trimEndTimestamp) {
+            NSArray<id<SentrySpan>> *sortedChildrenNewestFirst =
+                [_children sortedArrayUsingComparator:^NSComparisonResult(id<SentrySpan> first,
+                    id<SentrySpan> second) { return [first.timestamp compare:second.timestamp]; }];
+
+            self.timestamp = sortedChildrenNewestFirst.lastObject.timestamp;
         }
     }
 

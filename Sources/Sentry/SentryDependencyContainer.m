@@ -62,22 +62,26 @@ static NSObject *sentryDependencyContainerLock;
 
 - (SentryCrashWrapper *)crashWrapper
 {
-    @synchronized(sentryDependencyContainerLock) {
-        if (_crashWrapper == nil) {
-            _crashWrapper = [SentryCrashWrapper sharedInstance];
+    if (_crashWrapper == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_crashWrapper == nil) {
+                _crashWrapper = [SentryCrashWrapper sharedInstance];
+            }
         }
-        return _crashWrapper;
     }
+    return _crashWrapper;
 }
 
 - (SentryThreadWrapper *)threadWrapper
 {
-    @synchronized(sentryDependencyContainerLock) {
-        if (_threadWrapper == nil) {
-            _threadWrapper = [[SentryThreadWrapper alloc] init];
+    if (_threadWrapper == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_threadWrapper == nil) {
+                _threadWrapper = [[SentryThreadWrapper alloc] init];
+            }
         }
-        return _threadWrapper;
     }
+    return _threadWrapper;
 }
 
 - (SentryDispatchQueueWrapper *)dispatchQueueWrapper
@@ -92,30 +96,36 @@ static NSObject *sentryDependencyContainerLock;
 
 - (id<SentryRandom>)random
 {
-    @synchronized(sentryDependencyContainerLock) {
-        if (_random == nil) {
-            _random = [[SentryRandom alloc] init];
+    if (_random == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_random == nil) {
+                _random = [[SentryRandom alloc] init];
+            }
         }
-        return _random;
     }
+    return _random;
 }
 
 #if SENTRY_HAS_UIKIT
 - (SentryScreenshot *)screenshot
 {
-    @synchronized(sentryDependencyContainerLock) {
-        if (_screenshot == nil) {
-            _screenshot = [[SentryScreenshot alloc] init];
+    if (_screenshot == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_screenshot == nil) {
+                _screenshot = [[SentryScreenshot alloc] init];
+            }
         }
-        return _screenshot;
     }
+    return _screenshot;
 }
 
 - (SentryUIApplication *)application
 {
-    @synchronized(sentryDependencyContainerLock) {
-        if (_application == nil) {
-            _application = [[SentryUIApplication alloc] init];
+    if (_application == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_application == nil) {
+                _application = [[SentryUIApplication alloc] init];
+            }
         }
     }
     return _application;
@@ -124,22 +134,27 @@ static NSObject *sentryDependencyContainerLock;
 
 - (SentrySwizzleWrapper *)swizzleWrapper
 {
-    @synchronized(sentryDependencyContainerLock) {
-        if (_swizzleWrapper == nil) {
-            _swizzleWrapper = SentrySwizzleWrapper.sharedInstance;
+    if (_swizzleWrapper == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_swizzleWrapper == nil) {
+                _swizzleWrapper = SentrySwizzleWrapper.sharedInstance;
+            }
         }
-        return _swizzleWrapper;
     }
+    return _swizzleWrapper;
 }
 
 - (SentryDebugImageProvider *)debugImageProvider
 {
-    @synchronized(sentryDependencyContainerLock) {
-        if (_debugImageProvider == nil) {
-            _debugImageProvider = [[SentryDebugImageProvider alloc] init];
+    if (_debugImageProvider == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_debugImageProvider == nil) {
+                _debugImageProvider = [[SentryDebugImageProvider alloc] init];
+            }
         }
-        return _debugImageProvider;
     }
+
+    return _debugImageProvider;
 }
 
 @end

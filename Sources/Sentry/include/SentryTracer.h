@@ -8,7 +8,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
-
 @interface SentryTracer : NSObject <SentrySpan>
 
 /**
