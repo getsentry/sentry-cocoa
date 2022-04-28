@@ -96,6 +96,18 @@ static NSLock *profilerLock;
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
+                               idleTimeout:(NSTimeInterval)idleTimeout
+                      dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+{
+    return [self initWithTransactionContext:transactionContext
+                                        hub:hub
+                            waitForChildren:YES
+                                idleTimeout:idleTimeout
+                       dispatchQueueWrapper:dispatchQueueWrapper];
+}
+
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
+                                       hub:(nullable SentryHub *)hub
                            waitForChildren:(BOOL)waitForChildren
                                idleTimeout:(NSTimeInterval)idleTimeout
                       dispatchQueueWrapper:
@@ -113,7 +125,6 @@ static NSLock *profilerLock;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
 
         if ([self hasIdleTimeout]) {
-            //            self.isWaitingForChildren = YES;
             [self dispatchIdleTimeout];
         }
 
@@ -378,11 +389,7 @@ static NSLock *profilerLock;
         }
 
         if (trimEndTimestamp) {
-            NSArray<id<SentrySpan>> *sortedChildrenNewestFirst =
-                [_children sortedArrayUsingComparator:^NSComparisonResult(id<SentrySpan> first,
-                    id<SentrySpan> second) { return [first.timestamp compare:second.timestamp]; }];
-
-            self.timestamp = sortedChildrenNewestFirst.lastObject.timestamp;
+            [self trimEndTimestamp];
         }
     }
 
@@ -410,6 +417,19 @@ static NSLock *profilerLock;
     [_hub captureTransaction:transaction
                       withScope:_hub.scope
         additionalEnvelopeItems:additionalEnvelopeItems];
+}
+
+- (void)trimEndTimestamp
+{
+    NSArray<id<SentrySpan>> *sortedChildrenNewestFirst =
+        [_children sortedArrayUsingComparator:^NSComparisonResult(id<SentrySpan> first,
+            id<SentrySpan> second) { return [first.timestamp compare:second.timestamp]; }];
+
+    // Only trim if all children are finished. Otherwise the timestamp would be nil
+    NSDate *timestamp = sortedChildrenNewestFirst.lastObject.timestamp;
+    if (timestamp) {
+        self.timestamp = timestamp;
+    }
 }
 
 - (SentryTransaction *)toTransaction

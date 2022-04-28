@@ -64,7 +64,6 @@ SentryUIEventTracker ()
 
                 [SentrySDK.currentHub startTransactionWithContext:context
                                                       bindToScope:YES
-                                                  waitForChildren:YES
                                             customSamplingContext:@{}
                                                       idleTimeout:defaultIdleTransactionTimeout
                                              dispatchQueueWrapper:self.dispatchQueueWrapper];

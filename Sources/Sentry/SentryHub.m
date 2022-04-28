@@ -329,21 +329,27 @@ SentryHub ()
                               waitForChildren:(BOOL)waitForChildren
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
-    return [self startTransactionWithContext:transactionContext
-                                 bindToScope:bindToScope
-                             waitForChildren:waitForChildren
-                       customSamplingContext:customSamplingContext
-                                 idleTimeout:0.0
-                        dispatchQueueWrapper:nil];
+    SentrySamplingContext *samplingContext =
+        [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
+                                            customSamplingContext:customSamplingContext];
+
+    transactionContext.sampled = [_sampler sample:samplingContext];
+
+    id<SentrySpan> tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
+                                                                         hub:self
+                                                             waitForChildren:waitForChildren];
+
+    if (bindToScope)
+        self.scope.span = tracer;
+
+    return tracer;
 }
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope
-                              waitForChildren:(BOOL)waitForChildren
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
                                   idleTimeout:(NSTimeInterval)idleTimeout
-                         dispatchQueueWrapper:
-                             (nullable SentryDispatchQueueWrapper *)dispatchQueueWrapper
+                         dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     SentrySamplingContext *samplingContext =
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
@@ -353,7 +359,6 @@ SentryHub ()
 
     id<SentrySpan> tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                          hub:self
-                                                             waitForChildren:waitForChildren
                                                                  idleTimeout:idleTimeout
                                                         dispatchQueueWrapper:dispatchQueueWrapper];
     if (bindToScope)
