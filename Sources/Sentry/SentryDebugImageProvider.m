@@ -41,7 +41,7 @@ SentryDebugImageProvider ()
 
 - (NSArray<SentryDebugMeta *> *)getDebugImagesForThreads:(NSArray<SentryThread *> *)threads
 {
-    NSMutableSet<NSString *> *imageNames = [[NSMutableSet alloc] init];
+    NSMutableSet<NSString *> *imageAdresses = [[NSMutableSet alloc] init];
 
     for (SentryThread *thread in threads) {
         for (SentryFrame *frame in thread.stacktrace.frames) {
