@@ -124,7 +124,7 @@ namespace profiling {
         return {};
     }
 
-    uint64_t ThreadHandle::dispatchQueueAddress() const noexcept {
+    std::uint64_t ThreadHandle::dispatchQueueAddress() const noexcept {
         if (handle_ == THREAD_NULL) {
             return {};
         }

@@ -7,6 +7,7 @@
 #    include "SentryStackBounds.hpp"
 
 #    include <chrono>
+#    include <cstdint>
 #    include <mach/mach.h>
 #    include <memory>
 #    include <pthread.h>
@@ -105,7 +106,7 @@ namespace profiling {
          *
          * @warning This function is not async-signal safe!
          */
-        uint64_t dispatchQueueAddress() const noexcept;
+        std::uint64_t dispatchQueueAddress() const noexcept;
 
         /**
          * @return The priority of the specified thread, or -1 if the thread priority
