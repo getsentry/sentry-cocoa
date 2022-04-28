@@ -62,6 +62,9 @@ namespace profiling {
     }
 
     QueueMetadata ThreadMetadataCache::metadataForQueue(std::uint64_t address) {
+        if (address == 0) {
+            return {};
+        }
         const auto it = std::find_if(queueMetadataCache_.cbegin(), queueMetadataCache_.cend(),
             [address](const QueueMetadata &metadata) { return metadata.address == address; });
         if (it == queueMetadataCache_.cend()) {

@@ -112,6 +112,14 @@ threadSpin(void *name)
     XCTAssertTrue(cache->metadataForQueue(reinterpret_cast<std::uint64_t>(&queue)).label == label);
 }
 
+- (void)testNullQueueAddressReturnsNoMetadata {
+    const auto cache = std::make_shared<ThreadMetadataCache>();
+    const auto metadata = cache->metadataForQueue(0);
+    
+    XCTAssertEqual(metadata.address, static_cast<unsigned long long>(0));
+    XCTAssertEqual(metadata.label, "");
+}
+
 @end
 
 #endif
