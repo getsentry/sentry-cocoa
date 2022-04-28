@@ -5,6 +5,7 @@
 #import <SentrySpanProtocol.h>
 #import <SentryTransactionContext.h>
 #import <SentryUIEventTracker.h>
+#import <SentryScope.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -13,7 +14,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const SentryUIEventTrackerSwizzleSendAction
-    = @"SentryUIEventTrackerSwizzleSendAction";
+= @"SentryUIEventTrackerSwizzleSendAction";
 
 @interface
 SentryUIEventTracker ()
@@ -39,24 +40,38 @@ SentryUIEventTracker ()
 {
 #if SENTRY_HAS_UIKIT
     [self.swizzleWrapper
-        swizzleSendAction:^(NSString *action, UIEvent *event) {
-            for (UITouch *touch in event.allTouches) {
-                if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) { }
+     swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
+        Class targetClass = [target class];
+        NSString* transactionName;
+        
+        if (targetClass) {
+            transactionName = [NSString stringWithFormat:@"[%@ %@]", NSStringFromClass(targetClass), action];
+        } else {
+            transactionName = action;
+        }
+        
+        SentryTransactionContext *context =
+        [[SentryTransactionContext alloc] initWithName:transactionName
+                                             operation:@"ui.action"];
+        
+        
+        [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+            if (span != nil && ![span.context.operation isEqualToString:@"ui.action"]) {
+                return;
             }
-
-            SentryTransactionContext *context =
-                [[SentryTransactionContext alloc] initWithName:@"UIEvent"
-                                                     operation:@"ui.action.click"];
-
+            
+            [span finish];
+            
             [SentrySDK.currentHub startTransactionWithContext:context
                                                   bindToScope:YES
                                               waitForChildren:YES
                                         customSamplingContext:@{}
                                                   idleTimeout:3.0
                                          dispatchQueueWrapper:self.dispatchQueueWrapper];
-        }
-                   forKey:SentryUIEventTrackerSwizzleSendAction];
-
+        }];
+    }
+     forKey:SentryUIEventTrackerSwizzleSendAction];
+    
 #endif
 }
 

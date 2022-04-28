@@ -44,7 +44,7 @@ static NSMutableDictionary<NSString *, SentrySwizzleSendActionCallback>
     SEL selector = NSSelectorFromString(@"sendAction:to:from:forEvent:");
     SentrySwizzleInstanceMethod(UIApplication.class, selector, SentrySWReturnType(BOOL),
         SentrySWArguments(SEL action, id target, id sender, UIEvent * event), SentrySWReplacement({
-            [SentrySwizzleWrapper sendActionCalled:action event:event];
+            [SentrySwizzleWrapper sendActionCalled:action target:target sender:sender event:event];
             return SentrySWCallOriginal(action, target, sender, event);
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, swizzleSendActionKey);
@@ -60,10 +60,10 @@ static NSMutableDictionary<NSString *, SentrySwizzleSendActionCallback>
  * For testing. We want the swizzling block above to call a static function to avoid having a block
  * reference to an instance of this class.
  */
-+ (void)sendActionCalled:(SEL)action event:(UIEvent *)event
++ (void)sendActionCalled:(SEL)action target:(id)target sender:(id)sender event:(UIEvent *)event
 {
     for (SentrySwizzleSendActionCallback callback in sentrySwizzleSendActionCallbacks.allValues) {
-        callback([NSString stringWithFormat:@"%s", sel_getName(action)], event);
+        callback([NSString stringWithFormat:@"%s", sel_getName(action)], target, sender, event);
     }
 }
 

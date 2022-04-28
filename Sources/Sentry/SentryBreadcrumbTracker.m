@@ -147,7 +147,7 @@ SentryBreadcrumbTracker ()
 #if SENTRY_HAS_UIKIT
 
     [self.swizzleWrapper
-        swizzleSendAction:^(NSString *action, UIEvent *event) {
+        swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
             if ([SentrySDK.currentHub getClient] == nil) {
                 return;
             }

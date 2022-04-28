@@ -42,6 +42,15 @@ class ViewController: UIViewController {
                 self.dsnTextField.backgroundColor = UIColor.systemGreen
             }
         }
+        
+        let toggle = UISwitch(frame: CGRect(x: 100, y: 100, width:100,height: 100))
+        toggle.addTarget(self, action: #selector(toggleChanged(_:)), for: .valueChanged)
+        self.view.addSubview(toggle)
+    }
+    
+    @objc
+    func toggleChanged(_ sender: Any) {
+        print("Something")
     }
     
     @IBAction func addBreadcrumb(_ sender: Any) {
