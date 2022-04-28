@@ -118,3 +118,4 @@ static NSString *_Nonnull const SentryLevelNames[] = {
 };
 
 static NSUInteger const defaultMaxBreadcrumbs = 100;
+static NSTimeInterval const defaultIdleTransactionTimeout = 3.0;
