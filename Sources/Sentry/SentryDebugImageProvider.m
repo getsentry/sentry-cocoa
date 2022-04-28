@@ -45,8 +45,8 @@ SentryDebugImageProvider ()
 
     for (SentryThread *thread in threads) {
         for (SentryFrame *frame in thread.stacktrace.frames) {
-            if (frame.imageAddress && ![imageNames containsObject:frame.imageAddress]) {
-                [imageNames addObject:frame.imageAddress];
+            if (frame.imageAddress && ![imageAdresses containsObject:frame.imageAddress]) {
+                [imageAdresses addObject:frame.imageAddress];
             }
         }
     }
@@ -56,7 +56,7 @@ SentryDebugImageProvider ()
     NSArray<SentryDebugMeta *> *binaryImages = [self getDebugImages];
 
     for (SentryDebugMeta *sourceImage in binaryImages) {
-        if ([imageNames containsObject:sourceImage.imageAddress]) {
+        if ([imageAdresses containsObject:sourceImage.imageAddress]) {
             [result addObject:sourceImage];
         }
     }
