@@ -49,10 +49,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)dispatchAfter:(dispatch_time_t)when block:(dispatch_block_t)block
 {
-    dispatch_after(when, queue, block);
+    dispatch_after(when, queue, ^{
+        @autoreleasepool {
+            block();
+        }
+    });
 }
 
-- (void)dispatchCancel:(dispatch_block_t)block {
+- (void)dispatchCancel:(dispatch_block_t)block
+{
     dispatch_block_cancel(block);
 }
 

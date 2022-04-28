@@ -63,15 +63,17 @@ class ViewController: UIViewController {
     @IBAction func captureMessage(_ sender: Any) {
 
         let dispatchQueue = DispatchQueue(label: "LoremIpsumViewController")
-        dispatchQueue.async {
-            if let path = Bundle.main.path(forResource: "LoremIpsum", ofType: "txt") {
-                if let contents = FileManager.default.contents(atPath: path) {
-                    DispatchQueue.main.async {
-                        
+        
+        for _ in 0...10 {
+            dispatchQueue.async {
+                if let path = Bundle.main.path(forResource: "LoremIpsum", ofType: "txt") {
+                    if let contents = FileManager.default.contents(atPath: path) {
+            
                     }
                 }
             }
         }
+      
     }
     
     @IBAction func captureUserFeedback(_ sender: Any) {
