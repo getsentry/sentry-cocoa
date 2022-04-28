@@ -3,6 +3,7 @@
 ## Unreleased
 
 - fix: Parsing of output from backtrace_symbols() (#1782)
+- feat: Collect queue label information for profiles (#1787)
 
 ## 7.14.0
 
