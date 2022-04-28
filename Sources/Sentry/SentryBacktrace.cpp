@@ -137,7 +137,7 @@ namespace profiling {
             if (!thread->suspend()) {
                 continue;
             }
-            
+
             // Retrieving queue metadata *must* be done after suspending the thread,
             // because otherwise the queue could be deallocated in the middle of us
             // trying to read from it. This doesn't use any of the pthread APIs, only

@@ -96,7 +96,7 @@ namespace profiling {
          * @warning This function is not async-signal safe!
          */
         std::string name() const noexcept;
-        
+
         /**
          * @return The address of the dispatch queue currently associated with
          * the thread, or 0 if there is no valid queue. This function checks if

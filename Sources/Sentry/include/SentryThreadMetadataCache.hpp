@@ -39,7 +39,7 @@ namespace profiling {
          * for this thread.
          */
         ThreadMetadata metadataForThread(const ThreadHandle &thread);
-        
+
         /**
          * Returns the metadata for the queue at the specified address.
          * @param address The address of the queue to retrieve metadata from.

@@ -6,9 +6,9 @@
 #    include "SentryThreadHandle.hpp"
 
 #    include <algorithm>
+#    include <dispatch/dispatch.h>
 #    include <string>
 #    include <vector>
-# include <dispatch/dispatch.h>
 
 namespace {
 
@@ -61,7 +61,9 @@ namespace profiling {
         }
     }
 
-    QueueMetadata ThreadMetadataCache::metadataForQueue(std::uint64_t address) {
+    QueueMetadata
+    ThreadMetadataCache::metadataForQueue(std::uint64_t address)
+    {
         if (address == 0) {
             return {};
         }

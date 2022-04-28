@@ -151,7 +151,10 @@ isSimulatorBuild()
                     threadMetadata[threadID] = metadata;
                 }
                 if (queueAddress != nil && queueMetadata[queueAddress] == nil) {
-                    queueMetadata[queueAddress] = @{@"label": [NSString stringWithUTF8String:backtrace.queueMetadata.label.c_str()]};
+                    queueMetadata[queueAddress] = @{
+                        @"label" :
+                            [NSString stringWithUTF8String:backtrace.queueMetadata.label.c_str()]
+                    };
                 }
 #    if defined(DEBUG)
                 const auto symbols
