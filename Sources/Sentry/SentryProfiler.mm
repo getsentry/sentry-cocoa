@@ -32,6 +32,27 @@
 
 using namespace sentry::profiling;
 
+NSString *
+parseBacktraceSymbolsFunctionName(const char *symbol)
+{
+    static NSRegularExpression *regex = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        regex = [NSRegularExpression
+            regularExpressionWithPattern:@"\\d+\\s+\\S+\\s+0[xX][0-9a-fA-F]+\\s+(.+)\\s+\\+\\s+\\d+"
+                                 options:0
+                                   error:nil];
+    });
+    const auto symbolNSStr = [NSString stringWithUTF8String:symbol];
+    const auto match = [regex firstMatchInString:symbolNSStr
+                                         options:0
+                                           range:NSMakeRange(0, [symbolNSStr length])];
+    if (match == nil) {
+        return symbolNSStr;
+    }
+    return [symbolNSStr substringWithRange:[match rangeAtIndex:1]];
+}
+
 namespace {
 NSString *
 getDeviceModel()
@@ -133,7 +154,7 @@ isSimulatorBuild()
                     const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
                     frame[@"instruction_addr"] = sentry_formatHexAddress(@(backtrace.addresses[i]));
 #    if defined(DEBUG)
-                    frame[@"function"] = [NSString stringWithUTF8String:symbols[i]];
+                    frame[@"function"] = parseBacktraceSymbolsFunctionName(symbols[i]);
 #    endif
                     [frames addObject:frame];
                 }
