@@ -129,7 +129,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testIdleTimeout_NoChildren_TransactionNotCaptured() {
-        _ = fixture.getSut(waitForChildren: false, idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        _ = fixture.getSut(waitForChildren: true, idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
         
         fixture.dispatchQueue.invokeLastDispatchAfter()
         
@@ -137,7 +137,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testIdleTimeout_InvokesDispatchAfterWithCorrectWhen() {
-        _ = fixture.getSut(waitForChildren: false, idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        _ = fixture.getSut(waitForChildren: true, idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
         
         fixture.dispatchQueue.invokeLastDispatchAfter()
         
@@ -146,7 +146,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testIdleTimeout_SpanAdded_IdleTimeoutCanceled() {
-        let sut = fixture.getSut(waitForChildren: false, idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        let sut = fixture.getSut(waitForChildren: true, idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
         
         sut.startChild(operation: fixture.transactionOperation)
         
@@ -187,6 +187,26 @@ class SentryTracerTests: XCTestCase {
         fixture.dispatchQueue.invokeLastDispatchAfter()
         
         assertOneTransactionCaptured(sut)
+    }
+    
+    func testIdleTimeout_TimesOut_TrimsTimestamp() {
+        let sut = fixture.getSut(waitForChildren: true, idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        
+        let child1 = sut.startChild(operation: fixture.transactionOperation)
+        advanceTime(bySeconds: 1.0)
+        child1.finish()
+        
+        let child2 = sut.startChild(operation: fixture.transactionOperation)
+        
+        advanceTime(bySeconds: 1.0)
+        let expectedEndTimestamp = fixture.currentDateProvider.date()
+        child2.finish()
+        
+        advanceTime(bySeconds: fixture.idleTimeout)
+        fixture.dispatchQueue.invokeLastDispatchAfter()
+        
+        assertOneTransactionCaptured(sut)
+        XCTAssertEqual(expectedEndTimestamp, sut.timestamp)
     }
     
     func testAddColdAppStartMeasurement_PutOnNextAutoUITransaction() {
