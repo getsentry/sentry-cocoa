@@ -32,7 +32,6 @@ SentryCoreDataTrackingIntegration ()
         [SentryLog logWithMessage:@"Not going to enable CoreData tracking because "
                                   @"enableAutoPerformanceTracking is disabled."
                          andLevel:kSentryLevelDebug];
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
         return YES;
     }
 
@@ -40,7 +39,6 @@ SentryCoreDataTrackingIntegration ()
         [SentryLog logWithMessage:
                        @"Not going to enable CoreData tracking because enableSwizzling is disabled."
                          andLevel:kSentryLevelDebug];
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
         return YES;
     }
 
@@ -56,7 +54,6 @@ SentryCoreDataTrackingIntegration ()
             logWithMessage:
                 @"Not going to enable CoreData tracking because enableCoreDataTracking is disabled."
                   andLevel:kSentryLevelDebug];
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
         return YES;
     }
 
