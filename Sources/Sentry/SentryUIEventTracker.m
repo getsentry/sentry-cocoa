@@ -14,7 +14,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const SentryUIEventTrackerSwizzleSendAction
-    = @"SentryUIEventTrackerSwizzleSendAction";
+= @"SentryUIEventTrackerSwizzleSendAction";
 
 @interface
 SentryUIEventTracker ()
@@ -40,37 +40,36 @@ SentryUIEventTracker ()
 {
 #if SENTRY_HAS_UIKIT
     [self.swizzleWrapper
-        swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
-            [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-                if (span != nil && ![span.context.operation isEqualToString:@"ui.action"]) {
-                    return;
-                }
-
-                [span finish];
-
-                Class targetClass = [target class];
-                NSString *transactionName;
-
-                if (targetClass) {
-                    transactionName = [NSString
-                        stringWithFormat:@"[%@ %@]", NSStringFromClass(targetClass), action];
-                } else {
-                    transactionName = action;
-                }
-
-                SentryTransactionContext *context =
-                    [[SentryTransactionContext alloc] initWithName:transactionName
-                                                         operation:@"ui.action"];
-
-                [SentrySDK.currentHub startTransactionWithContext:context
-                                                      bindToScope:YES
-                                                  waitForChildren:YES
-                                            customSamplingContext:@{}
-                                                      idleTimeout:defaultIdleTransactionTimeout
-                                             dispatchQueueWrapper:self.dispatchQueueWrapper];
-            }];
-        }
-                   forKey:SentryUIEventTrackerSwizzleSendAction];
+     swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
+        [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+            if (span != nil && ![span.context.operation isEqualToString:@"ui.action"]) {
+                return;
+            }
+            
+            [span finish];
+            
+            Class targetClass = [target class];
+            NSString *transactionName;
+            
+            if (targetClass) {
+                transactionName = [NSString
+                                   stringWithFormat:@"[%@ %@]", NSStringFromClass(targetClass), action];
+            } else {
+                transactionName = action;
+            }
+            
+            SentryTransactionContext *context =
+            [[SentryTransactionContext alloc] initWithName:transactionName
+                                                 operation:@"ui.action"];
+            
+            [SentrySDK.currentHub startTransactionWithContext:context
+                                                  bindToScope:YES
+                                              waitForChildren:YES
+                                        customSamplingContext:@{}
+                                                  idleTimeout:defaultIdleTransactionTimeout
+                                         dispatchQueueWrapper:self.dispatchQueueWrapper];
+        }];
+    } forKey:SentryUIEventTrackerSwizzleSendAction];
 #endif
 }
 

@@ -65,8 +65,6 @@ SentryUIEventTrackingIntegration ()
     return NO;
 }
 
-
-
 - (void)uninstall
 {
     if (self.uiEventTracker) {

@@ -7,8 +7,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 #if SENTRY_HAS_UIKIT
-typedef void (^SentrySwizzleSendActionCallback)(
-    NSString *actionName, __nullable id target, __nullable id sender, UIEvent *event);
+typedef void (^SentrySwizzleSendActionCallback)(NSString *actionName, _Nullable id target, _Nullable id sender, UIEvent * _Nullable event);
 #endif
 
 /**
@@ -16,7 +15,6 @@ typedef void (^SentrySwizzleSendActionCallback)(
  * need to be called for the same swizzled method.
  */
 @interface SentrySwizzleWrapper : NSObject
-SENTRY_NO_INIT
 
 @property (class, readonly, nonatomic) SentrySwizzleWrapper *sharedInstance;
 

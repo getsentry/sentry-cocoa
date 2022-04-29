@@ -100,15 +100,7 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
                       dispatchQueueWrapper:
                           (nullable SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
-/**
- * Starts a child span.
- *
- * @param parentId The child span parent id.
- * @param operation The child span operation.
- * @param description The child span description.
- *
- * @return SentrySpan
- */
+
 - (id<SentrySpan>)startChildWithParentId:(SentrySpanId *)parentId
                                operation:(NSString *)operation
                              description:(nullable NSString *)description

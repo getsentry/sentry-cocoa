@@ -631,6 +631,11 @@
     [self testBooleanField:@"attachScreenshot" defaultValue:NO];
 }
 
+- (void)testEnableUserInteractionTrackin
+{
+    [self testBooleanField:@"enableUserInteractionTracing" defaultValue:NO];
+}
+
 #endif
 
 - (void)testEnableNetworkTracking
