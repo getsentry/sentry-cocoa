@@ -97,7 +97,6 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
                                idleTimeout:(NSTimeInterval)idleTimeout
                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
-
 - (id<SentrySpan>)startChildWithParentId:(SentrySpanId *)parentId
                                operation:(NSString *)operation
                              description:(nullable NSString *)description

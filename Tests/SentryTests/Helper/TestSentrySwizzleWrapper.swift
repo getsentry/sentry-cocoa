@@ -1,6 +1,6 @@
 import Foundation
 
-class TestSentrySwizzleWrapper : SentrySwizzleWrapper {
+class TestSentrySwizzleWrapper: SentrySwizzleWrapper {
     
     var callbacks = [String: SentrySwizzleSendActionCallback]()
         
@@ -16,7 +16,7 @@ class TestSentrySwizzleWrapper : SentrySwizzleWrapper {
         callbacks.removeAll()
     }
     
-    func execute(action: String, target: Any?, sender : Any?, event: UIEvent?){
+    func execute(action: String, target: Any?, sender: Any?, event: UIEvent?) {
         callbacks.values.forEach { $0(action, target, sender, event) }
     }
 }

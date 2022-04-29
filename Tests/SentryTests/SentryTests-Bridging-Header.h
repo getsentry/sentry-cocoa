@@ -162,4 +162,5 @@
 #if SENTRY_HAS_UIKIT
 #    import "SentryANRTrackingIntegration.h"
 #    import "SentryUIEventTracker.h"
+#    import "SentryUIEventTrackingIntegration.h"
 #endif

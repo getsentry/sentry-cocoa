@@ -234,7 +234,7 @@ SentryOptions ()
 
     [self setBool:options[@"attachScreenshot"]
             block:^(BOOL value) { self->_attachScreenshot = value; }];
-    
+
     [self setBool:options[@"enableUserInteractionTracing"]
             block:^(BOOL value) { self->_enableUserInteractionTracing = value; }];
 #endif

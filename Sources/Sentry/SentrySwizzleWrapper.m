@@ -82,6 +82,13 @@ static NSMutableDictionary<NSString *, SentrySwizzleSendActionCallback>
     [sentrySwizzleSendActionCallbacks removeAllObjects];
 #endif
 }
+
+// For test purpose
++ (BOOL)hasCallbacks
+{
+    return sentrySwizzleSendActionCallbacks.count > 0;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

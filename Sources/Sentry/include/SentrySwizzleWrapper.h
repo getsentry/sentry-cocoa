@@ -7,7 +7,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 #if SENTRY_HAS_UIKIT
-typedef void (^SentrySwizzleSendActionCallback)(NSString *actionName, _Nullable id target, _Nullable id sender, UIEvent * _Nullable event);
+typedef void (^SentrySwizzleSendActionCallback)(
+    NSString *actionName, _Nullable id target, _Nullable id sender, UIEvent *_Nullable event);
 #endif
 
 /**

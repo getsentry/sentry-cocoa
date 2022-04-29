@@ -1,5 +1,17 @@
 import XCTest
 
+extension SentrySwizzleWrapper {
+    
+    static func hasItens() -> Bool {
+        guard let result = Dynamic(self).hasCallbacks as Bool? else {
+            return false
+        }
+        
+        return result
+    }
+    
+}
+
 class SentrySwizzleWrapperTests: XCTestCase {
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
