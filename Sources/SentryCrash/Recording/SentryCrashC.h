@@ -85,6 +85,16 @@ void sentrycrash_setUserInfoJSON(const char *const userInfoJSON);
  */
 void sentrycrash_setDeadlockWatchdogInterval(double deadlockWatchdogInterval);
 
+/** If true, attempt to fetch dispatch queue names for each running thread.
+ *
+ * WARNING: There is a chance that this will crash on a sentrycrashccd_getQueueName() call!
+ *
+ * Enable at your own risk.
+ *
+ * Default: false
+ */
+void sentrycrash_setSearchQueueNames(bool searchQueueNames);
+
 /** If true, introspect memory contents during a crash.
  * Any Objective-C objects or C strings near the stack pointer or referenced by
  * cpu registers or exceptions will be recorded in the crash report, along with

@@ -50,6 +50,8 @@ static const char **g_allThreadNames;
 static const char **g_allQueueNames;
 static int g_allThreadsCount;
 static _Atomic(int) g_semaphoreCount;
+static bool g_searchQueueNames = false;
+static bool g_hasThreadStarted = false;
 
 static void
 updateThreadList()
@@ -63,7 +65,11 @@ updateThreadList()
 
     mach_msg_type_number_t allThreadsCount;
     thread_act_array_t threads;
-    task_threads(thisTask, &threads, &allThreadsCount);
+    kern_return_t kr;
+    if ((kr = task_threads(thisTask, &threads, &allThreadsCount)) != KERN_SUCCESS) {
+        SentryCrashLOG_ERROR("task_threads: %s", mach_error_string(kr));
+        return;
+    }
 
     allMachThreads = calloc(allThreadsCount, sizeof(*allMachThreads));
     allPThreads = calloc(allThreadsCount, sizeof(*allPThreads));
@@ -79,6 +85,11 @@ updateThreadList()
         if (pthread != 0 && pthread_getname_np(pthread, buffer, sizeof(buffer)) == 0
             && buffer[0] != 0) {
             allThreadNames[i] = strdup(buffer);
+        }
+        if (g_searchQueueNames
+            && sentrycrashthread_getQueueName((SentryCrashThread)thread, buffer, sizeof(buffer))
+            && buffer[0] != 0) {
+            allQueueNames[i] = strdup(buffer);
         }
     }
 
@@ -144,6 +155,10 @@ monitorCachedData(__unused void *const userData)
 void
 sentrycrashccd_init(int pollingIntervalInSeconds)
 {
+    if (g_hasThreadStarted == true) {
+        return;
+    }
+    g_hasThreadStarted = true;
     g_pollingIntervalInSeconds = pollingIntervalInSeconds;
     pthread_attr_t attr;
     pthread_attr_init(&attr);
@@ -154,6 +169,15 @@ sentrycrashccd_init(int pollingIntervalInSeconds)
         SentryCrashLOG_ERROR("pthread_create_suspended_np: %s", strerror(error));
     }
     pthread_attr_destroy(&attr);
+}
+
+void
+sentrycrashccd_close()
+{
+    if (g_hasThreadStarted == true) {
+        g_hasThreadStarted = false;
+        pthread_cancel(g_cacheThread);
+    }
 }
 
 void
@@ -173,6 +197,12 @@ sentrycrashccd_unfreeze()
         // Handle extra calls to unfreeze somewhat gracefully.
         g_semaphoreCount++;
     }
+}
+
+void
+sentrycrashccd_setSearchQueueNames(bool searchQueueNames)
+{
+    g_searchQueueNames = searchQueueNames;
 }
 
 SentryCrashThread *

@@ -176,6 +176,12 @@ sentrycrash_setDeadlockWatchdogInterval(double deadlockWatchdogInterval)
 }
 
 void
+sentrycrash_setSearchQueueNames(bool searchQueueNames)
+{
+    sentrycrashccd_setSearchQueueNames(searchQueueNames);
+}
+
+void
 sentrycrash_setIntrospectMemory(bool introspectMemory)
 {
     sentrycrashreport_setIntrospectMemory(introspectMemory);

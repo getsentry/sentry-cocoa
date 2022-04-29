@@ -28,9 +28,12 @@
 #include "SentryCrashThread.h"
 
 void sentrycrashccd_init(int pollingIntervalInSeconds);
+void sentrycrashccd_close(void);
 
 void sentrycrashccd_freeze(void);
 void sentrycrashccd_unfreeze(void);
+
+void sentrycrashccd_setSearchQueueNames(bool searchQueueNames);
 
 SentryCrashThread *sentrycrashccd_getAllThreads(int *threadCount);
 

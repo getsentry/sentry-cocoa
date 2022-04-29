@@ -2,7 +2,10 @@
 
 ## Unreleased
 
-- fix: Parsing of output from backtrace_symbols() (#1782)
+### Fixes 
+
+- Apply patch for SentryCrashCachedData (#1799)
+- Fix parsing of output from backtrace_symbols() (#1782)
 
 ## 7.14.0
 

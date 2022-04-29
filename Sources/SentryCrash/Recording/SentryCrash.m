@@ -96,6 +96,7 @@ getBasePath()
 @synthesize deleteBehaviorAfterSendAll = _deleteBehaviorAfterSendAll;
 @synthesize monitoring = _monitoring;
 @synthesize deadlockWatchdogInterval = _deadlockWatchdogInterval;
+@synthesize searchQueueNames = _searchQueueNames;
 @synthesize onCrash = _onCrash;
 @synthesize bundleName = _bundleName;
 @synthesize basePath = _basePath;
@@ -142,6 +143,7 @@ getBasePath()
         self.introspectMemory = YES;
         self.catchZombies = NO;
         self.maxReportCount = 5;
+        self.searchQueueNames = NO;
         self.monitoring = SentryCrashMonitorTypeProductionSafeMinimal;
     }
     return self;
@@ -185,6 +187,12 @@ getBasePath()
 {
     _deadlockWatchdogInterval = deadlockWatchdogInterval;
     sentrycrash_setDeadlockWatchdogInterval(deadlockWatchdogInterval);
+}
+
+- (void)setSearchQueueNames:(BOOL)searchQueueNames
+{
+    _searchQueueNames = searchQueueNames;
+    sentrycrash_setSearchQueueNames(searchQueueNames);
 }
 
 - (void)setOnCrash:(SentryCrashReportWriteCallback)onCrash
