@@ -151,7 +151,7 @@ SentryCrashIntegration ()
         [self.crashAdapter close];
         installationToken = 0;
     }
-    
+
     [NSNotificationCenter.defaultCenter removeObserver:self];
 }
 

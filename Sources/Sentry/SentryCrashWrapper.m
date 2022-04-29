@@ -3,8 +3,8 @@
 #import "SentryCrashMonitor_AppState.h"
 #import "SentryHook.h"
 #import <Foundation/Foundation.h>
-#import <SentryCrashDebug.h>
 #import <SentryCrashCachedData.h>
+#import <SentryCrashDebug.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
         [handler setMonitoring:SentryCrashMonitorTypeNone];
         handler.onCrash = NULL;
     }
-    
+
     sentrycrash_deactivate_async_hooks();
     sentrycrashccd_close();
 }

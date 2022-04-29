@@ -35,7 +35,7 @@
 - (void)testGetThreadName
 {
     sentrycrashccd_close();
-    
+
     NSString *expectedName = @"This is a test thread";
     TestThread *thread = [TestThread new];
     thread.name = expectedName;
