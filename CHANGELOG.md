@@ -2,7 +2,10 @@
 
 ## Unreleased
 
-- fix: Parsing of output from backtrace_symbols() (#1782)
+### Fixes 
+
+- Fix getting class data mask in SentryCrash (#1788)
+- Fix parsing of output from backtrace_symbols() (#1782)
 
 ## 7.14.0
 
