@@ -50,7 +50,6 @@ static const char **g_allThreadNames;
 static const char **g_allQueueNames;
 static int g_allThreadsCount;
 static _Atomic(int) g_semaphoreCount;
-static bool g_searchQueueNames = false;
 static bool g_hasThreadStarted = false;
 
 static void
@@ -85,11 +84,6 @@ updateThreadList()
         if (pthread != 0 && pthread_getname_np(pthread, buffer, sizeof(buffer)) == 0
             && buffer[0] != 0) {
             allThreadNames[i] = strdup(buffer);
-        }
-        if (g_searchQueueNames
-            && sentrycrashthread_getQueueName((SentryCrashThread)thread, buffer, sizeof(buffer))
-            && buffer[0] != 0) {
-            allQueueNames[i] = strdup(buffer);
         }
     }
 
@@ -197,12 +191,6 @@ sentrycrashccd_unfreeze()
         // Handle extra calls to unfreeze somewhat gracefully.
         g_semaphoreCount++;
     }
-}
-
-void
-sentrycrashccd_setSearchQueueNames(bool searchQueueNames)
-{
-    g_searchQueueNames = searchQueueNames;
 }
 
 SentryCrashThread *
