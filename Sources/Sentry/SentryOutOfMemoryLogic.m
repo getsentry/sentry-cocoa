@@ -21,12 +21,12 @@ SentryOutOfMemoryLogic ()
 @implementation SentryOutOfMemoryLogic
 
 - (instancetype)initWithOptions:(SentryOptions *)options
-                   crashAdapter:(SentryCrashWrapper *)crashAdatper
+                   crashAdapter:(SentryCrashWrapper *)crashAdapter
                 appStateManager:(SentryAppStateManager *)appStateManager
 {
     if (self = [super init]) {
         self.options = options;
-        self.crashAdapter = crashAdatper;
+        self.crashAdapter = crashAdapter;
         self.appStateManager = appStateManager;
     }
     return self;
