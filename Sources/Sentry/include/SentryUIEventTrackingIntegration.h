@@ -6,5 +6,5 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryUIEventTrackingIntegration : NSObject <SentryIntegrationProtocol>
 
 @end
-#endif  
+#endif
 NS_ASSUME_NONNULL_END
