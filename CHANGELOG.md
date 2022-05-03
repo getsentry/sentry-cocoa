@@ -3,6 +3,7 @@
 ## Unreleased
 
 - fix: Parsing of output from backtrace_symbols() (#1782)
+- feat: Allow setting SDK info (name & version) with Options initWithDict (#1793)
 
 ## 7.14.0
 
@@ -61,7 +62,7 @@ If you are using profiling and self-hosted Sentry, this version requires Sentry 
 
 ## 7.10.0
 
-- fix: Always tracks App start for Hybrid SDKs (#1662) 
+- fix: Always tracks App start for Hybrid SDKs (#1662)
 - feat: Send SDK integrations (#1647)
 - fix: Don't track OOMs for unit tests (#1651)
 - fix: Add verification for vendor UUID in OOM logic (#1648)
