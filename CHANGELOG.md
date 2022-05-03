@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- fix: Case sensitive header import error (#1794)
 - fix: Parsing of output from backtrace_symbols() (#1782)
 
 ## 7.14.0
