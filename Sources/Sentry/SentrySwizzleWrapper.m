@@ -83,11 +83,13 @@ static NSMutableDictionary<NSString *, SentrySwizzleSendActionCallback>
 #endif
 }
 
+#if SENTRY_HAS_UIKIT
 // For test purpose
 + (BOOL)hasCallbacks
 {
     return sentrySwizzleSendActionCallbacks.count > 0;
 }
+#endif
 
 @end
 

@@ -7,6 +7,7 @@
 #import <SentryOptions.h>
 #import <SentryUIEventTracker.h>
 
+#if SENTRY_HAS_UIKIT
 @interface
 SentryUIEventTrackingIntegration ()
 
@@ -72,3 +73,4 @@ SentryUIEventTrackingIntegration ()
 }
 
 @end
+#endif

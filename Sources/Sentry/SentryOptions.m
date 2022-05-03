@@ -22,12 +22,13 @@ SentryOptions ()
         @"SentryCrashIntegration",
 #if SENTRY_HAS_UIKIT
         @"SentryANRTrackingIntegration", @"SentryScreenshotIntegration",
+        @"SentryUIEventTrackingIntegration",
 #endif
         @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
         @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
         @"SentryOutOfMemoryTrackingIntegration", @"SentryPerformanceTrackingIntegration",
         @"SentryNetworkTrackingIntegration", @"SentryFileIOTrackingIntegration",
-        @"SentryCoreDataTrackingIntegration", @"SentryUIEventTrackingIntegration"
+        @"SentryCoreDataTrackingIntegration"
     ];
 }
 

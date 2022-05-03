@@ -1,5 +1,5 @@
 import Foundation
-
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class TestSentrySwizzleWrapper: SentrySwizzleWrapper {
     
     var callbacks = [String: SentrySwizzleSendActionCallback]()
@@ -20,3 +20,4 @@ class TestSentrySwizzleWrapper: SentrySwizzleWrapper {
         callbacks.values.forEach { $0(action, target, sender, event) }
     }
 }
+#endif
