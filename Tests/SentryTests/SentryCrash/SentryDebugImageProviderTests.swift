@@ -14,32 +14,58 @@ class SentryDebugImageProviderTests: XCTestCase {
             imageProvider.binaryImage = images
             return SentryDebugImageProvider(binaryImageProvider: imageProvider)
         }
+        
+        func getTestImages() -> [SentryCrashBinaryImage] {
+            let imageName1 = "dyld_sim"
+            let imageNameAsCharArray1 = SentryDebugImageProviderTests.stringToUIntCharArray(value: imageName1)
+            let uuidAsCharArray1: [UInt8] = [132, 186, 235, 218, 173, 26, 51, 244, 179, 93, 138, 69, 245, 218, 243, 34]
+            let image1 = SentryDebugImageProviderTests.createSentryCrashBinaryImage(
+                address: 4_386_213_888,
+                vmAddress: 140_734_563_811_328,
+                size: 352_256,
+                name: imageNameAsCharArray1,
+                uuidAsCharArray: uuidAsCharArray1
+            )
+            
+            let imageName2 = "UIKit"
+            let imageNameAsCharArray2 = SentryDebugImageProviderTests.stringToUIntCharArray(value: imageName2)
+            let uuidAsCharArray2: [UInt8] = [132, 186, 235, 218, 173, 26, 51, 244, 179, 93, 138, 69, 245, 218, 243, 34]
+            let image2 = SentryDebugImageProviderTests.createSentryCrashBinaryImage(
+                address: 5_386_213_888,
+                vmAddress: 240_734_563_811_328,
+                size: 1_352_256,
+                name: imageNameAsCharArray2,
+                uuidAsCharArray: uuidAsCharArray2
+            )
+            
+            let imageName3 = "CoreData"
+            let imageNameAsCharArray3 = SentryDebugImageProviderTests.stringToUIntCharArray(value: imageName3)
+            let uuidAsCharArray3: [UInt8] = [132, 186, 235, 218, 173, 26, 51, 244, 179, 93, 138, 69, 245, 218, 243, 34]
+            let image3 = SentryDebugImageProviderTests.createSentryCrashBinaryImage(
+                address: 6_386_213_888,
+                vmAddress: 340_734_563_811_328,
+                size: 900_256,
+                name: imageNameAsCharArray3,
+                uuidAsCharArray: uuidAsCharArray3
+            )
+            
+            return [image1, image2, image3]
+        }
     }
     
     private let fixture = Fixture()
     
     func testThreeImages() {
-        let imageName = "dyld_sim"
-        let imageNameAsCharArray = stringToUIntCharArray(value: imageName)
-        let uuidAsCharArray: [UInt8] = [132, 186, 235, 218, 173, 26, 51, 244, 179, 93, 138, 69, 245, 218, 243, 34]
-        let image = createSentryCrashBinaryImage(
-            address: 4_386_213_888,
-            vmAddress: 140_734_563_811_328,
-            size: 352_256,
-            name: imageNameAsCharArray,
-            uuidAsCharArray: uuidAsCharArray
-        )
-        
-        let sut = fixture.getSut(images: [image, image, image])
+        let sut = fixture.getSut(images: fixture.getTestImages())
         let actual = sut.getDebugImages()
         
         XCTAssertEqual(3, actual.count)
-        for i in 0...(actual.count - 1) {
-            XCTAssertEqual(imageName, actual[i].name)
-        }
+        
+        XCTAssertEqual("dyld_sim", actual[0].name)
+        XCTAssertEqual("UIKit", actual[1].name)
+        XCTAssertEqual("CoreData", actual[2].name)
         
         let debugMeta = actual[0]
-        XCTAssertEqual(imageName, debugMeta.name)
         XCTAssertEqual("84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322", debugMeta.uuid)
         XCTAssertEqual("0x0000000105705000", debugMeta.imageAddress)
         XCTAssertEqual("0x00007fff51af0000", debugMeta.imageVmAddress)
@@ -48,7 +74,7 @@ class SentryDebugImageProviderTests: XCTestCase {
     }
     
     func testImageVmAddressIsZero() {
-        let image = createSentryCrashBinaryImage(vmAddress: 0)
+        let image = SentryDebugImageProviderTests.createSentryCrashBinaryImage(vmAddress: 0)
         
         let sut = fixture.getSut(images: [image])
         let actual = sut.getDebugImages()
@@ -58,7 +84,7 @@ class SentryDebugImageProviderTests: XCTestCase {
     
     func testImageSize() {
         func testWith(value: UInt64) {
-            let image = createSentryCrashBinaryImage(size: value)
+            let image = SentryDebugImageProviderTests.createSentryCrashBinaryImage(size: value)
             let sut = fixture.getSut(images: [image])
             let actual = sut.getDebugImages()
             XCTAssertEqual(NSNumber(value: value), actual[0].imageSize)
@@ -71,7 +97,7 @@ class SentryDebugImageProviderTests: XCTestCase {
     
     func testImageAddress() {
         func testWith(value: UInt64, expected: String) {
-            let image = createSentryCrashBinaryImage(address: value)
+            let image = SentryDebugImageProviderTests.createSentryCrashBinaryImage(address: value)
             let sut = fixture.getSut(images: [image])
             let actual = sut.getDebugImages()
             
@@ -93,7 +119,45 @@ class SentryDebugImageProviderTests: XCTestCase {
         XCTAssertEqual(0, actual.count)
     }
     
-    private func createSentryCrashBinaryImage(
+    func testImagesForThreads() {
+        let sut = fixture.getSut(images: fixture.getTestImages())
+        
+        let thread = Sentry.Thread(threadId: NSNumber(value: 1))
+        let frame = Sentry.Frame()
+        frame.imageAddress = "0x0000000105705000"
+        thread.stacktrace = Stacktrace(frames: [frame], registers: [:])
+        
+        var actual = sut.getDebugImages(for: [thread])
+        
+        XCTAssertEqual(actual.count, 1)
+        XCTAssertEqual(actual[0].name, "dyld_sim")
+        XCTAssertEqual(actual[0].imageAddress, "0x0000000105705000")
+        
+        let frame2 = Sentry.Frame()
+        frame2.imageAddress = "0x00000001410b1a00"
+        let frame3 = Sentry.Frame()
+        frame3.imageAddress = "0x000000017ca5e400"
+        thread.stacktrace = Stacktrace(frames: [frame2, frame3], registers: [:])
+        
+        actual = sut.getDebugImages(for: [thread])
+        
+        XCTAssertEqual(actual.count, 2)
+        XCTAssertEqual(actual[0].name, "UIKit")
+        XCTAssertEqual(actual[0].imageAddress, "0x00000001410b1a00")
+        
+        XCTAssertEqual(actual[1].name, "CoreData")
+        XCTAssertEqual(actual[1].imageAddress, "0x000000017ca5e400")
+    }
+    
+    func test_NoImage_ForThread_WithoutStackTrace() {
+        let sut = fixture.getSut(images: fixture.getTestImages())
+        let thread = Sentry.Thread(threadId: NSNumber(value: 1))
+        let actual = sut.getDebugImages(for: [thread])
+        
+        XCTAssertEqual(actual.count, 0)
+    }
+        
+    private static func createSentryCrashBinaryImage(
         address: UInt64 = 0,
         vmAddress: UInt64 = 0,
         size: UInt64 = 0,
@@ -129,7 +193,7 @@ class SentryDebugImageProviderTests: XCTestCase {
         )
     }
     
-    private func stringToUIntCharArray(value: String) -> [CChar] {
+    private static func stringToUIntCharArray(value: String) -> [CChar] {
         var buffer: [CChar] = Array(repeating: 0, count: value.utf8.count + 1)
         strcpy(&buffer, value)
         return buffer

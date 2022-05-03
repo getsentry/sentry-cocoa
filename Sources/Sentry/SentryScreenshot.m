@@ -1,4 +1,4 @@
-#import "SentryScreenShot.h"
+#import "SentryScreenshot.h"
 #import "SentryDependencyContainer.h"
 #import "SentryUIApplication.h"
 
