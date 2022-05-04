@@ -8,6 +8,7 @@
 #    import "SentryDefines.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryEnvelope.h"
+#    import "SentryEnvelopeItemType.h"
 #    import "SentryHexAddressFormatter.h"
 #    import "SentryId.h"
 #    import "SentryLog.h"
@@ -16,7 +17,6 @@
 #    import "SentrySerialization.h"
 #    import "SentryTime.h"
 #    import "SentryTransaction.h"
-#    import "SentryEnvelopeItemType.h"
 
 #    if defined(DEBUG)
 #        include <execinfo.h>
