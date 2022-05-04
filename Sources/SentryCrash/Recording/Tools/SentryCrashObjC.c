@@ -261,7 +261,7 @@ getIsaPointer(const void *const objectOrClassPtr)
 static inline struct class_rw_t *
 getClassRW(const struct class_t *const class)
 {
-    uintptr_t ptr = class->data_NEVER_USE & (~WORD_MASK);
+    uintptr_t ptr = class->data_NEVER_USE & FAST_DATA_MASK;
     return (struct class_rw_t *)ptr;
 }
 
