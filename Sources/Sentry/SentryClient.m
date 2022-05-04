@@ -469,14 +469,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         BOOL shouldAttachStacktrace = alwaysAttachStacktrace || self.options.attachStacktrace
             || (nil != event.exceptions && [event.exceptions count] > 0);
 
-        BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
-        if (!isCrashEvent && shouldAttachStacktrace && debugMetaNotAttached) {
-            event.debugMeta = [self.debugImageProvider getDebugImages];
-        }
-
         BOOL threadsNotAttached = !(nil != event.threads && event.threads.count > 0);
         if (!isCrashEvent && shouldAttachStacktrace && threadsNotAttached) {
             event.threads = [self.threadInspector getCurrentThreads];
+        }
+
+        BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
+        if (!isCrashEvent && shouldAttachStacktrace && debugMetaNotAttached
+            && event.threads != nil) {
+            event.debugMeta = [self.debugImageProvider getDebugImagesForThreads:event.threads];
         }
     }
 
