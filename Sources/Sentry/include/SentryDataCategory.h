@@ -13,7 +13,8 @@ typedef NS_ENUM(NSUInteger, SentryDataCategory) {
     kSentryDataCategoryTransaction = 4,
     kSentryDataCategoryAttachment = 5,
     kSentryDataCategoryUserFeedback = 6,
-    kSentryDataCategoryUnknown = 7
+    kSentryDataCategoryProfile = 7,
+    kSentryDataCategoryUnknown = 8
 };
 
 static NSString *_Nonnull const SentryDataCategoryNames[] = {
@@ -24,5 +25,6 @@ static NSString *_Nonnull const SentryDataCategoryNames[] = {
     @"transaction",
     @"attachment",
     @"user_report",
+    @"profile",
     @"unkown",
 };

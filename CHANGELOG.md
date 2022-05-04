@@ -4,6 +4,7 @@
 
 Features: 
 
+- Add profile data category for rate limiting (#1799)
 - Allow setting SDK info with Options initWithDict (#1793)
 
 Fixes: 

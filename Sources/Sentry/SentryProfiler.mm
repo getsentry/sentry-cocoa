@@ -16,6 +16,7 @@
 #    import "SentrySerialization.h"
 #    import "SentryTime.h"
 #    import "SentryTransaction.h"
+#    import "SentryEnvelopeItemType.h"
 
 #    if defined(DEBUG)
 #        include <execinfo.h>
@@ -228,7 +229,7 @@ isSimulatorBuild()
         return nil;
     }
 
-    const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:@"profile"
+    const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfile
                                                                 length:JSONData.length];
     return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
 }
