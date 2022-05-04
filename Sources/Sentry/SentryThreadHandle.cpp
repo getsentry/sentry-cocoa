@@ -136,7 +136,7 @@ namespace profiling {
         const auto rv = thread_info(handle_, THREAD_IDENTIFIER_INFO, info, &count);
         const auto idInfo = reinterpret_cast<thread_identifier_info_t>(info);
         // MACH_SEND_INVALID_DEST is returned when the thread no longer exists
-        if ((rv != MACH_SEND_INVALID_DEST) && (SENTRY_PROF_LOG_KERN_RETURN(rv) == KERN_SUCCESS)
+        if (rv != MACH_SEND_INVALID_DEST && SENTRY_PROF_LOG_KERN_RETURN(rv) == KERN_SUCCESS
             && sentrycrashmem_isMemoryReadable(idInfo, sizeof(*idInfo))) {
             const auto queuePtr = reinterpret_cast<dispatch_queue_t *>(idInfo->dispatch_qaddr);
             if (queuePtr != nullptr && sentrycrashmem_isMemoryReadable(queuePtr, sizeof(*queuePtr))
