@@ -6,7 +6,7 @@
 #import "SentryFrame.h"
 #import "SentryHexAddressFormatter.h"
 #import "SentryLog.h"
-#import "SentryStackTrace.h"
+#import "SentryStacktrace.h"
 #import "SentryThread.h"
 #import <Foundation/Foundation.h>
 
