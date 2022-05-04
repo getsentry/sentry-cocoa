@@ -8,6 +8,7 @@ Features:
 
 Fixes: 
 
+- Fix getting class data mask in SentryCrash (#1788)
 - Use pod_target_xcconfig for Podspec #1792
 - Case sensitive header import error (#1794)
 - Parsing of output from backtrace_symbols() (#1782)
