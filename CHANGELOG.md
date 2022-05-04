@@ -2,8 +2,11 @@
 
 ## Unreleased
 
-- fix: Case sensitive header import error (#1794)
-- fix: Parsing of output from backtrace_symbols() (#1782)
+Fixes: 
+
+- Use pod_target_xcconfig for Podspec #1792
+- Case sensitive header import error (#1794)
+- Parsing of output from backtrace_symbols() (#1782)
 
 ## 7.14.0
 
