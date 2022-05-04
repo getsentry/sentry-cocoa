@@ -2,8 +2,15 @@
 
 ## Unreleased
 
-- fix: Parsing of output from backtrace_symbols() (#1782)
-- feat: Allow setting SDK info (name & version) with Options initWithDict (#1793)
+Features: 
+
+- Allow setting SDK info with Options initWithDict (#1793)
+
+Fixes: 
+
+- Use pod_target_xcconfig for Podspec #1792
+- Case sensitive header import error (#1794)
+- Parsing of output from backtrace_symbols() (#1782)
 
 ## 7.14.0
 
