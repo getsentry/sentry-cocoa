@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+Features: 
+
+- Allow setting SDK info with Options initWithDict (#1793)
+
 Fixes: 
 
 - Use pod_target_xcconfig for Podspec #1792
@@ -65,7 +69,7 @@ If you are using profiling and self-hosted Sentry, this version requires Sentry 
 
 ## 7.10.0
 
-- fix: Always tracks App start for Hybrid SDKs (#1662) 
+- fix: Always tracks App start for Hybrid SDKs (#1662)
 - feat: Send SDK integrations (#1647)
 - fix: Don't track OOMs for unit tests (#1651)
 - fix: Add verification for vendor UUID in OOM logic (#1648)
