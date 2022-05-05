@@ -119,7 +119,6 @@ SentryUIViewControllerPerformanceTracker ()
                                         measureSpanWithDescription:@"viewWillAppear"
                                                          operation:
                                                              SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
-                                                      parentSpanId:spanId
                                                            inBlock:callbackToOrigin];
 
                                     SentrySpanId *viewAppearingId = [self.tracker
@@ -193,7 +192,6 @@ SentryUIViewControllerPerformanceTracker ()
                      [self.tracker
                          measureSpanWithDescription:lifecycleMethod
                                           operation:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION
-                                       parentSpanId:spanId
                                             inBlock:callbackToOrigin];
                  }];
 
