@@ -5,6 +5,7 @@
 Features: 
 
 - Allow setting SDK info with Options initWithDict (#1793)
+- Remove ViewController name match for swizzling (#1802)
 
 Fixes: 
 
