@@ -13,6 +13,7 @@ class SentryDataCategoryMapperTests: XCTestCase {
         XCTAssertEqual(SentryDataCategory.session, mapEnvelopeItemType(itemType: "session"))
         XCTAssertEqual(SentryDataCategory.transaction, mapEnvelopeItemType(itemType: "transaction"))
         XCTAssertEqual(SentryDataCategory.attachment, mapEnvelopeItemType(itemType: "attachment"))
+        XCTAssertEqual(SentryDataCategory.profile, mapEnvelopeItemType(itemType: "profile"))
         XCTAssertEqual(SentryDataCategory.default, mapEnvelopeItemType(itemType: "unkown item type"))
     }
 
@@ -24,7 +25,8 @@ class SentryDataCategoryMapperTests: XCTestCase {
         XCTAssertEqual(.transaction, DataCategoryMapper.mapInteger(toCategory: 4))
         XCTAssertEqual(.attachment, DataCategoryMapper.mapInteger(toCategory: 5))
         XCTAssertEqual(.userFeedback, DataCategoryMapper.mapInteger(toCategory: 6))
-        XCTAssertEqual(.unknown, DataCategoryMapper.mapInteger(toCategory: 7))
+        XCTAssertEqual(.profile, DataCategoryMapper.mapInteger(toCategory: 7))
+        XCTAssertEqual(.unknown, DataCategoryMapper.mapInteger(toCategory: 8))
     }
     
     func testMapStringToCategory() {
@@ -35,6 +37,7 @@ class SentryDataCategoryMapperTests: XCTestCase {
         XCTAssertEqual(.transaction, DataCategoryMapper.mapString(toCategory: "transaction"))
         XCTAssertEqual(.attachment, DataCategoryMapper.mapString(toCategory: "attachment"))
         XCTAssertEqual(.userFeedback, DataCategoryMapper.mapString(toCategory: "user_report"))
+        XCTAssertEqual(.profile, DataCategoryMapper.mapString(toCategory: "profile"))
         XCTAssertEqual(.unknown, DataCategoryMapper.mapString(toCategory: "unkown"))
     }
 
