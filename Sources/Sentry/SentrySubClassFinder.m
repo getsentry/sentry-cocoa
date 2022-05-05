@@ -61,8 +61,12 @@ SentrySubClassFinder ()
             for (NSString *className in classesToSwizzle) {
                 block(NSClassFromString(className));
             }
-            
-            [SentryLog logWithMessage:[NSString stringWithFormat:@"This are the UIViewControllers that generates automatic transactions: %@", [classesToSwizzle componentsJoinedByString:@", "] ] andLevel:kSentryLevelDebug];
+
+            [SentryLog
+                logWithMessage:[NSString stringWithFormat:@"This are the UIViewControllers that "
+                                                          @"generates automatic transactions: %@",
+                                         [classesToSwizzle componentsJoinedByString:@", "]]
+                      andLevel:kSentryLevelDebug];
         }];
     }];
 }
