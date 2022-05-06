@@ -123,25 +123,19 @@ isSimulatorBuild()
         const auto sampledProfile = [NSMutableDictionary<NSString *, id> dictionary];
         const auto samples = [NSMutableArray<NSDictionary<NSString *, id> *> array];
         const auto threadMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
-        const auto queueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
         sampledProfile[@"samples"] = samples;
         sampledProfile[@"thread_metadata"] = threadMetadata;
-        sampledProfile[@"queue_metadata"] = queueMetadata;
         _profile[@"sampled_profile"] = sampledProfile;
         _startTimestamp = getAbsoluteTime();
 
         __weak const auto weakSelf = self;
         _profiler = std::make_shared<SamplingProfiler>(
-            [weakSelf, sampledProfile, threadMetadata, queueMetadata, samples](auto &backtrace) {
+            [weakSelf, sampledProfile, threadMetadata, samples](auto &backtrace) {
                 const auto strongSelf = weakSelf;
                 if (strongSelf == nil) {
                     return;
                 }
                 const auto threadID = [@(backtrace.threadMetadata.threadID) stringValue];
-                NSString *queueAddress = nil;
-                if (backtrace.queueMetadata.address != 0) {
-                    queueAddress = sentry_formatHexAddress(@(backtrace.queueMetadata.address));
-                }
                 if (threadMetadata[threadID] == nil) {
                     const auto metadata = [NSMutableDictionary<NSString *, id> dictionary];
                     if (!backtrace.threadMetadata.name.empty()) {
@@ -150,12 +144,6 @@ isSimulatorBuild()
                     }
                     metadata[@"priority"] = @(backtrace.threadMetadata.priority);
                     threadMetadata[threadID] = metadata;
-                }
-                if (queueAddress != nil && queueMetadata[queueAddress] == nil) {
-                    queueMetadata[queueAddress] = @{
-                        @"label" :
-                            [NSString stringWithUTF8String:backtrace.queueMetadata.label.c_str()]
-                    };
                 }
 #    if defined(DEBUG)
                 const auto symbols
@@ -178,9 +166,6 @@ isSimulatorBuild()
                     [@(getDurationNs(strongSelf->_startTimestamp, backtrace.absoluteTimestamp))
                         stringValue];
                 sample[@"thread_id"] = threadID;
-                if (queueAddress != nil) {
-                    sample[@"queue_address"] = queueAddress;
-                }
                 [samples addObject:sample];
             },
             100 /** Sample 100 times per second */);
