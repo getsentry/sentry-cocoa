@@ -306,65 +306,65 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(.sampleRate, lostEvent?.reason)
     }
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-    func testStartTransaction_WhenProfilingEnabled_CapturesProfile() {
-        let options = fixture.options
-        options.enableProfiling = true
-        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
-            return 1
-        }
-        let hub = fixture.getSut(options)
-        let profileExpectation = expectation(description: "collects profiling data")
-        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        // Give it time to collect a profile, otherwise there will be no samples.
-        DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
-            span.finish()
-
-            guard let additionalEnvelopeItems = self.fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
-                XCTFail("Expected to capture at least 1 event")
-                return
-            }
-            XCTAssertEqual(1, additionalEnvelopeItems.count)
-            guard let profileItem = additionalEnvelopeItems.first else {
-                XCTFail("Expected at least 1 additional envelope item")
-                return
-            }
-            XCTAssertEqual("profile", profileItem.header.type)
-            self.assertValidProfileData(data: profileItem.data)
-            profileExpectation.fulfill()
-        }
-        
-        // Some busy work to try and get it to show up in the profile.
-        let str = "a"
-        var concatStr = ""
-        for _ in 0..<100_000 {
-            concatStr = concatStr.appending(str)
-        }
-        
-        waitForExpectations(timeout: 5.0) {
-            if let error = $0 {
-                print(error)
-            }
-        }
-    }
-    
-    func testStartTransaction_WhenProfilingDisabled_DoesNotCaptureProfile() {
-        let options = fixture.options
-        options.enableProfiling = false
-        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
-            return 1
-        }
-        let hub = fixture.getSut(options)
-        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        span.finish()
-        
-        guard let additionalEnvelopeItems = fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
-            XCTFail("Expected to capture at least 1 event")
-            return
-        }
-        XCTAssertEqual(0, additionalEnvelopeItems.count)
-    }
-#endif
+//#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+//    func testStartTransaction_WhenProfilingEnabled_CapturesProfile() {
+//        let options = fixture.options
+//        options.enableProfiling = true
+//        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
+//            return 1
+//        }
+//        let hub = fixture.getSut(options)
+//        let profileExpectation = expectation(description: "collects profiling data")
+//        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+//        // Give it time to collect a profile, otherwise there will be no samples.
+//        DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
+//            span.finish()
+//
+//            guard let additionalEnvelopeItems = self.fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
+//                XCTFail("Expected to capture at least 1 event")
+//                return
+//            }
+//            XCTAssertEqual(1, additionalEnvelopeItems.count)
+//            guard let profileItem = additionalEnvelopeItems.first else {
+//                XCTFail("Expected at least 1 additional envelope item")
+//                return
+//            }
+//            XCTAssertEqual("profile", profileItem.header.type)
+//            self.assertValidProfileData(data: profileItem.data)
+//            profileExpectation.fulfill()
+//        }
+//        
+//        // Some busy work to try and get it to show up in the profile.
+//        let str = "a"
+//        var concatStr = ""
+//        for _ in 0..<100_000 {
+//            concatStr = concatStr.appending(str)
+//        }
+//        
+//        waitForExpectations(timeout: 5.0) {
+//            if let error = $0 {
+//                print(error)
+//            }
+//        }
+//    }
+//    
+//    func testStartTransaction_WhenProfilingDisabled_DoesNotCaptureProfile() {
+//        let options = fixture.options
+//        options.enableProfiling = false
+//        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
+//            return 1
+//        }
+//        let hub = fixture.getSut(options)
+//        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+//        span.finish()
+//        
+//        guard let additionalEnvelopeItems = fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
+//            XCTFail("Expected to capture at least 1 event")
+//            return
+//        }
+//        XCTAssertEqual(0, additionalEnvelopeItems.count)
+//    }
+//#endif
         
     func testCaptureMessageWithScope() {
         fixture.getSut().capture(message: fixture.message, scope: fixture.scope)
