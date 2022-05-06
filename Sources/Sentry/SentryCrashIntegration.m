@@ -148,16 +148,9 @@ SentryCrashIntegration ()
 - (void)uninstall
 {
     if (nil != installation) {
-        // Its not really possible to uninstall SentryCrash. Best we can do is to deactivate
-        // all the monitors and clear the `onCrash` callback installed on the global handler.
-        SentryCrash *handler = [SentryCrash sharedInstance];
-        @synchronized(handler) {
-            [handler setMonitoring:SentryCrashMonitorTypeNone];
-            handler.onCrash = NULL;
-        }
+        [self.crashAdapter close];
         installationToken = 0;
     }
-    [self.crashAdapter deactivateAsyncHooks];
 
     [NSNotificationCenter.defaultCenter removeObserver:self];
 }

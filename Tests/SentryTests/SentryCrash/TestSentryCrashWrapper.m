@@ -11,7 +11,7 @@
     instance.internalIsBeingTraced = NO;
     instance.internalIsApplicationInForeground = YES;
     instance.installAsyncHooksCalled = NO;
-    instance.deactivateAsyncHooksCalled = NO;
+    instance.closeCalled = NO;
     return instance;
 }
 
@@ -40,9 +40,9 @@
     self.installAsyncHooksCalled = YES;
 }
 
-- (void)deactivateAsyncHooks
+- (void)close
 {
-    self.deactivateAsyncHooksCalled = YES;
+    self.closeCalled = YES;
 }
 
 @end

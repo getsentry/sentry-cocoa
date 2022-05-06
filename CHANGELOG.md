@@ -4,11 +4,14 @@
 
 Features: 
 
+- Add profile data category for rate limiting (#1799)
 - Allow setting SDK info with Options initWithDict (#1793)
 - Collect queue label information for profiles (#1787)
+- Remove ViewController name match for swizzling (#1802)
 
 Fixes: 
 
+- Apply patch for SentryCrashCachedData (#1790)
 - Fix getting class data mask in SentryCrash (#1788)
 - Use pod_target_xcconfig for Podspec #1792
 - Case sensitive header import error (#1794)
