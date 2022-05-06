@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - ci/xcbeautify
     paths:
       - 'Sources/**'
       - 'Tests/**'
@@ -31,8 +32,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: ./scripts/ci-select-xcode.sh
+      - run: brew install xcbeautify
       - name: Run analyze
-        run: xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer | xcpretty -t && [[ -z `find analyzer -name "*.html"` ]]
+        run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer | xcbeautify -t && [[ -z `find analyzer -name "*.html"` ]]
 
   validate-podspec:
     name: Validate Podspec

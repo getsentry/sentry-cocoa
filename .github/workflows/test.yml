@@ -39,7 +39,8 @@ jobs:
             test-destination-os: "12.4"
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2 
+      - run: brew install xcbeautify
 
       # As we use swift-tools-version:5.5 the test server only compiles with Xcode 13.
       # macos-10.15 doesn't have Xcode 13 and macos-11 doesn't have a simulator with
@@ -110,6 +111,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - run: brew install xcbeautify
 
       - name: Cache for Test Server
         uses: actions/cache@v2
