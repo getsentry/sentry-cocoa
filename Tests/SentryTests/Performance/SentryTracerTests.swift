@@ -403,33 +403,33 @@ class SentryTracerTests: XCTestCase {
 //        options.tracesSampleRate = 1.0
 //        let client = TestClient(options: options)!
 //        let hub = TestHub(client: client, andScope: scope)
+//
+//        let tracer = hub.startTransaction(transactionContext: fixture.transactionContext) as! SentryTracer
+//        tracer.finish()
+//        hub.group.wait()
+//
+//        XCTAssertEqual("profile", hub.capturedEventsWithScopes.first?.additionalEnvelopeItems.first?.header.type)
+//    }
+    
+//    func testDoesNotCapturesProfile_whenProfilingDisabled() {
+//        let scope = Scope()
+//        let options = Options()
+//        options.enableProfiling = false
+//        options.tracesSampleRate = 1.0
+//        let client = TestClient(options: options)!
+//        let hub = TestHub(client: client, andScope: scope)
 //        
 //        let tracer = hub.startTransaction(transactionContext: fixture.transactionContext) as! SentryTracer
 //        tracer.finish()
 //        hub.group.wait()
 //        
-//        XCTAssertEqual("profile", hub.capturedEventsWithScopes.first?.additionalEnvelopeItems.first?.header.type)
+//        if let items = hub.capturedEventsWithScopes.first?.additionalEnvelopeItems {
+//            for item in items {
+//                XCTAssertNotEqual("profile", item.header.type)
+//            }
+//        }
 //    }
-    
-    func testDoesNotCapturesProfile_whenProfilingDisabled() {
-        let scope = Scope()
-        let options = Options()
-        options.enableProfiling = false
-        options.tracesSampleRate = 1.0
-        let client = TestClient(options: options)!
-        let hub = TestHub(client: client, andScope: scope)
-        
-        let tracer = hub.startTransaction(transactionContext: fixture.transactionContext) as! SentryTracer
-        tracer.finish()
-        hub.group.wait()
-        
-        if let items = hub.capturedEventsWithScopes.first?.additionalEnvelopeItems {
-            for item in items {
-                XCTAssertNotEqual("profile", item.header.type)
-            }
-        }
-    }
-    #endif
+//    #endif
     
     private func getSerializedTransaction() -> [String: Any] {
         guard let transaction = fixture.hub.capturedEventsWithScopes.first?.event else {
