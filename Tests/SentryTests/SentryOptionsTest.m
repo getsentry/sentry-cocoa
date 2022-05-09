@@ -631,7 +631,7 @@
     [self testBooleanField:@"attachScreenshot" defaultValue:NO];
 }
 
-- (void)testEnableUserInteractionTrackin
+- (void)testEnableUserInteractionTracking
 {
     [self testBooleanField:@"enableUserInteractionTracing" defaultValue:NO];
 }

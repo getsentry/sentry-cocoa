@@ -200,8 +200,8 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL attachScreenshot;
 
 /**
- * When enabled, the SDK start transactions for UI Events like Buttons clicks, Switch toggle,
- * Scrollview interaction and others.
+ * When enabled, the SDK creates transactions for UI events like buttons clicks, switch toggles,
+ * and scroll view interactions.
  */
 @property (nonatomic, assign) BOOL enableUserInteractionTracing;
 #endif
