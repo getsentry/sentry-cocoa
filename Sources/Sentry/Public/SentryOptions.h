@@ -201,7 +201,7 @@ NS_SWIFT_NAME(Options)
 
 /**
  * When enabled, the SDK creates transactions for UI events like buttons clicks, switch toggles,
- * and scroll view interactions.
+ * and other ui elements that uses UIControl `sendAction:to:forEvent:`.
  */
 @property (nonatomic, assign) BOOL enableUserInteractionTracing;
 #endif
