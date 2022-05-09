@@ -2,13 +2,13 @@
 
 ## Unreleased
 
-Features: 
+### Features
 
 - Add profile data category for rate limiting (#1799)
 - Allow setting SDK info with Options initWithDict (#1793)
 - Remove ViewController name match for swizzling (#1802)
 
-Fixes: 
+### Fixes
 
 - Apply patch for SentryCrashCachedData (#1790)
 - Fix getting class data mask in SentryCrash (#1788)
