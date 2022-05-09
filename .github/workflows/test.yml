@@ -30,6 +30,8 @@ jobs:
         # which is only available since iOS 13 / Xcode 11.
         xcode: ["13.2.1", "12.5.1", "11.7"]
 
+        a: ["a", "b", "c", "d"]
+
         test-destination-os: ["latest"]
 
         # Test on iOS 12.4
