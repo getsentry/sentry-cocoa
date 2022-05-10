@@ -1,4 +1,4 @@
-#import "TestObserver.h"
+#import "SentryTestObserver.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient.h"
 #import "SentryCrashIntegration.h"
@@ -16,21 +16,21 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
-TestObserver ()
+SentryTestObserver ()
 
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryScope *scope;
 
 @end
 
-@implementation TestObserver
+@implementation SentryTestObserver
 
 + (void)load
 {
     NSString *value = [NSProcessInfo processInfo].environment[@"SEND_TEST_FAILURES_TO_SENTRY"];
     if (value != nil) {
         [[XCTestObservationCenter sharedTestObservationCenter]
-            addTestObserver:[[TestObserver alloc] init]];
+            addTestObserver:[[SentryTestObserver alloc] init]];
     }
 }
 
@@ -50,6 +50,16 @@ TestObserver ()
 
         self.scope = [[SentryScope alloc] init];
         [SentryCrashIntegration enrichScope:self.scope];
+
+        NSString *platform = [NSProcessInfo processInfo].environment[@"SENTRY_PLATFORM"];
+        if (platform != nil) {
+            [self.scope setTagValue:platform forKey:@"os.platform"];
+        }
+
+        NSString *xcodeVersion = [NSProcessInfo processInfo].environment[@"SENTRY_XCODE_VERSION"];
+        if (xcodeVersion != nil) {
+            [self.scope setTagValue:xcodeVersion forKey:@"xcode.version"];
+        }
 
         self.options = options;
     }

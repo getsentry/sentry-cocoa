@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Report failing tests to Sentry.
  */
-@interface TestObserver : NSObject <XCTestObservation>
+@interface SentryTestObserver : NSObject <XCTestObservation>
 
 @end
 

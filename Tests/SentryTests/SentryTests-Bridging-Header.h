@@ -153,7 +153,6 @@
 #import "SentryUIViewControllerSwizzling.h"
 #import "SentryUserFeedback.h"
 #import "TestNSURLRequestBuilder.h"
-#import "TestObserver.h"
 #import "TestSentryCrashWrapper.h"
 #import "TestSentrySpan.h"
 #import "TestUrlSession.h"
