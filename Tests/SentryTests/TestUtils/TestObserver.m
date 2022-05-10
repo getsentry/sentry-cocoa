@@ -25,7 +25,7 @@ TestObserver ()
 + (void)load
 {
     NSString *value = [NSProcessInfo processInfo].environment[@"SEND_TEST_FAILURES_TO_SENTRY"];
-    if (value == nil) {
+    if (value != nil) {
         [[XCTestObservationCenter sharedTestObservationCenter]
             addTestObserver:[[TestObserver alloc] init]];
     }
@@ -33,26 +33,24 @@ TestObserver ()
 
 - (void)testBundleWillStart:(NSBundle *)testBundle
 {
-    // The SentryCrashIntegration enriches the scope. We need to install the integration
-    // once to get the scope data.
-    [SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
-        options.dsn = @"https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557";
-    }];
-
-    // We create our own hub here, because we don't know the state of the SentrySDK.
     SentryOptions *options = [[SentryOptions alloc] init];
     options.dsn = @"https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557";
     options.environment = @"unit-tests";
+    options.enableAutoSessionTracking = false;
     options.maxBreadcrumbs = 5000;
     SentryClient *client = [[SentryClient alloc] initWithOptions:options];
 
+    // The SentryCrashIntegration enriches the scope. We need to install the integration
+    // once to get the scope data.
+    [SentrySDK startWithOptionsObject:options];
+
+    // We create our own hub here, because we don't know the state of the SentrySDK.
     self.hub = [[SentryHub alloc] initWithClient:client andScope:nil];
     [self.hub configureScope:^(SentryScope *scope) { [SentryCrashIntegration enrichScope:scope]; }];
 }
 
 - (void)testCaseWillStart:(XCTestCase *)testCase
 {
-
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug
                                                              category:@"test.started"];
     [crumb setMessage:testCase.name];
