@@ -5,14 +5,14 @@
 #import "SentryCurrentDate.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryHub.h"
+#import "SentryLog.h"
 #import "SentryOptions.h"
+#import "SentryScope.h"
 #import "SentrySdk+Private.h"
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTIssue.h>
 #import <XCTest/XCTest.h>
 #import <XCTest/XCTestCase.h>
-#import "SentryScope.h"
-#import "SentryLog.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -44,15 +44,14 @@ TestObserver ()
         options.debug = YES;
         options.enableAutoSessionTracking = NO;
         options.maxBreadcrumbs = 5000;
-        
 
         // The SentryCrashIntegration enriches the scope. We need to install the integration
         // once to get the scope data.
         [SentrySDK startWithOptionsObject:options];
-        
+
         self.scope = [[SentryScope alloc] init];
         [SentryCrashIntegration enrichScope:self.scope];
-        
+
         self.options = options;
     }
     return self;
@@ -74,10 +73,10 @@ TestObserver ()
     // the test result to Sentry.
     id<SentryCurrentDateProvider> currentDateProvider = [SentryCurrentDate getCurrentDateProvider];
     [SentryCurrentDate setCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]];
-    
+
     SentryClient *client = [[SentryClient alloc] initWithOptions:self.options];
     // We create our own hub here, because we don't know the state of the SentrySDK.
-    SentryHub * hub = [[SentryHub alloc] initWithClient:client andScope:self.scope];
+    SentryHub *hub = [[SentryHub alloc] initWithClient:client andScope:self.scope];
     NSException *exception = [[NSException alloc] initWithName:testCase.name
                                                         reason:issue.description
                                                       userInfo:nil];
