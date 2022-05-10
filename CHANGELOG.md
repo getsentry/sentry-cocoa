@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Allow partial SDK info override (#1816)
+
 ## 7.15.0
 
 ### Features
