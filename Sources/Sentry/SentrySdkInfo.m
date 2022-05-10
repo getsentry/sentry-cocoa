@@ -44,6 +44,25 @@ NS_ASSUME_NONNULL_BEGIN
     return [self initWithName:name andVersion:version];
 }
 
+- (instancetype)initWithDict:(NSDictionary *)dict orDefaults:(SentrySdkInfo *)info;
+{
+    NSString *name = info.name;
+    NSString *version = info.version;
+
+    if (nil != dict[@"sdk"] && [dict[@"sdk"] isKindOfClass:[NSDictionary class]]) {
+        NSDictionary<NSString *, id> *sdkInfoDict = dict[@"sdk"];
+        if ([sdkInfoDict[@"name"] isKindOfClass:[NSString class]]) {
+            name = sdkInfoDict[@"name"];
+        }
+
+        if ([sdkInfoDict[@"version"] isKindOfClass:[NSString class]]) {
+            version = sdkInfoDict[@"version"];
+        }
+    }
+
+    return [self initWithName:name andVersion:version];
+}
+
 - (NSDictionary<NSString *, id> *)serialize
 {
     return @{ @"sdk" : @ { @"name" : self.name, @"version" : self.version } };
