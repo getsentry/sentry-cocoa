@@ -72,6 +72,8 @@ TestObserver ()
     id<SentryCurrentDateProvider> currentDateProvider = [SentryCurrentDate getCurrentDateProvider];
     [SentryCurrentDate setCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]];
 
+    // The tests might mess up the files or something else. Therefore, we create a fresh client and
+    // hub to make sure the sending works.
     SentryClient *client = [[SentryClient alloc] initWithOptions:self.options];
     // We create our own hub here, because we don't know the state of the SentrySDK.
     SentryHub *hub = [[SentryHub alloc] initWithClient:client andScope:self.scope];
