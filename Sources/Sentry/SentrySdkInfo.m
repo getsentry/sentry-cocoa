@@ -27,36 +27,35 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDict:(NSDictionary *)dict
 {
-    NSString *name = @"";
-    NSString *version = @"";
-
-    if (nil != dict[@"sdk"] && [dict[@"sdk"] isKindOfClass:[NSDictionary class]]) {
-        NSDictionary<NSString *, id> *sdkInfoDict = dict[@"sdk"];
-        if ([sdkInfoDict[@"name"] isKindOfClass:[NSString class]]) {
-            name = sdkInfoDict[@"name"];
-        }
-
-        if ([sdkInfoDict[@"version"] isKindOfClass:[NSString class]]) {
-            version = sdkInfoDict[@"version"];
-        }
-    }
-
-    return [self initWithName:name andVersion:version];
+    return [self initWithDictInternal:dict orDefaults:nil];
 }
 
 - (instancetype)initWithDict:(NSDictionary *)dict orDefaults:(SentrySdkInfo *)info;
 {
-    NSString *name = info.name;
-    NSString *version = info.version;
+    return [self initWithDictInternal:dict orDefaults:info];
+}
+
+- (instancetype)initWithDictInternal:(NSDictionary *)dict orDefaults:(SentrySdkInfo *_Nullable)info;
+{
+    NSString *name;
+    NSString *version;
 
     if (nil != dict[@"sdk"] && [dict[@"sdk"] isKindOfClass:[NSDictionary class]]) {
         NSDictionary<NSString *, id> *sdkInfoDict = dict[@"sdk"];
         if ([sdkInfoDict[@"name"] isKindOfClass:[NSString class]]) {
             name = sdkInfoDict[@"name"];
+        } else if (info) {
+            name = info.name;
+        } else {
+            name = @"";
         }
 
         if ([sdkInfoDict[@"version"] isKindOfClass:[NSString class]]) {
             version = sdkInfoDict[@"version"];
+        } else if (info) {
+            version = info.version;
+        } else {
+            version = @"";
         }
     }
 
