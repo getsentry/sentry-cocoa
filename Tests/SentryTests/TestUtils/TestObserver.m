@@ -5,7 +5,6 @@
 #import "SentryCurrentDate.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryHub.h"
-#import "SentryLog.h"
 #import "SentryOptions.h"
 #import "SentryScope.h"
 #import "SentrySdk+Private.h"
@@ -68,7 +67,6 @@ TestObserver ()
 
 - (void)testCase:(XCTestCase *)testCase didRecordIssue:(XCTIssue *)issue
 {
-    NSLog(@"TestObserver: DidRecordIssue");
     // Tests set a fixed time. We want to use the current time for sending
     // the test result to Sentry.
     id<SentryCurrentDateProvider> currentDateProvider = [SentryCurrentDate getCurrentDateProvider];
