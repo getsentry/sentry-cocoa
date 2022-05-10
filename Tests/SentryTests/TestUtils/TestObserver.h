@@ -1,7 +1,7 @@
-#if TEST
 
-#    import <Foundation/Foundation.h>
-#    import <XCTest/XCTest.h>
+
+#import <Foundation/Foundation.h>
+#import <XCTest/XCTest.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -13,5 +13,3 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif
