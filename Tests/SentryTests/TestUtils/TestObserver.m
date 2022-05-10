@@ -1,3 +1,5 @@
+#if TEST
+
 #import "TestObserver.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient.h"
@@ -85,3 +87,5 @@ TestObserver ()
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif
