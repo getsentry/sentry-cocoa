@@ -1,18 +1,18 @@
 #if TEST
 
-#import "TestObserver.h"
-#import "SentryBreadcrumb.h"
-#import "SentryClient.h"
-#import "SentryCrashIntegration.h"
-#import "SentryCurrentDate.h"
-#import "SentryDefaultCurrentDateProvider.h"
-#import "SentryHub.h"
-#import "SentryOptions.h"
-#import "SentrySdk+Private.h"
-#import <Foundation/Foundation.h>
-#import <XCTest/XCTIssue.h>
-#import <XCTest/XCTest.h>
-#import <XCTest/XCTestCase.h>
+#    import "TestObserver.h"
+#    import "SentryBreadcrumb.h"
+#    import "SentryClient.h"
+#    import "SentryCrashIntegration.h"
+#    import "SentryCurrentDate.h"
+#    import "SentryDefaultCurrentDateProvider.h"
+#    import "SentryHub.h"
+#    import "SentryOptions.h"
+#    import "SentrySdk+Private.h"
+#    import <Foundation/Foundation.h>
+#    import <XCTest/XCTIssue.h>
+#    import <XCTest/XCTest.h>
+#    import <XCTest/XCTestCase.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
