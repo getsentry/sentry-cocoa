@@ -112,7 +112,7 @@ class SentryFileManagerTests: XCTestCase {
         _ = try SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
         let fileManager = try SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
 
-        XCTAssertEqual(1, fileManager.getAllEnvelopes().count)
+        XCTAssertEqual(0, fileManager.getAllEnvelopes().count)
         XCTAssertNotNil(fileManager.readCurrentSession())
         XCTAssertNotNil(fileManager.readTimestampLastInForeground())
     }
