@@ -33,8 +33,7 @@ SENTRY_NO_INIT
 
 - (instancetype)initWithDict:(NSDictionary *)dict;
 
-- (instancetype)initWithDict:(NSDictionary *)dict
-                  orDefaults:(SentrySdkInfo *)info;
+- (instancetype)initWithDict:(NSDictionary *)dict orDefaults:(SentrySdkInfo *)info;
 
 @end
 
