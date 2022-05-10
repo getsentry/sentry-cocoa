@@ -48,6 +48,8 @@ TestObserver ()
     // We create our own hub here, because we don't know the state of the SentrySDK.
     self.hub = [[SentryHub alloc] initWithClient:client andScope:nil];
     [self.hub configureScope:^(SentryScope *scope) { [SentryCrashIntegration enrichScope:scope]; }];
+
+    [self.hub captureMessage:@"TestObserver started."];
 }
 
 - (void)testCaseWillStart:(XCTestCase *)testCase
