@@ -42,11 +42,11 @@ echo "REF_NAME: $REF_NAME"
 
 case $REF_NAME in
     "master")
-        CONFIGURATION="TESTCI"
+        CONFIGURATION="TestCI"
         ;;
     
     *)
-        CONFIGURATION="TEST"
+        CONFIGURATION="Test"
         ;;
 esac
 
