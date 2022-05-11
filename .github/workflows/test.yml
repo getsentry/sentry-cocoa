@@ -53,19 +53,19 @@ jobs:
       # iOS 12. Ideally, we would compile the test-server on macos-11 and use it on
       # macos-10.15. For now, disable the tests on iOS 12 requiring the test server in
       # xcode-test.sh
-      - name: Cache for Test Server
-        if: ${{ matrix.runs-on == 'macos-11'}}  
-        uses: actions/cache@v2
-        with:
-          path: ./test-server/.build
-          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
+      # - name: Cache for Test Server
+      #   if: ${{ matrix.runs-on == 'macos-11'}}  
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ./test-server/.build
+      #     key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
 
-      - name: Run Test Server in Background
-        if: ${{ matrix.runs-on == 'macos-11'}}  
-        run: | 
-          swift build
-          swift run &
-        working-directory: test-server
+      # - name: Run Test Server in Background
+      #   if: ${{ matrix.runs-on == 'macos-11'}}  
+      #   run: | 
+      #     swift build
+      #     swift run &
+      #   working-directory: test-server
 
       # Select Xcode after starting server, because the server needs Xcode 13
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
