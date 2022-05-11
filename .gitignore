@@ -44,7 +44,6 @@ Packages
 Carthage/Build
 Carthage/Checkouts
 Carthage
-Cartfile.resolved
 Sentry.Carthage.json
 Sentry.framework.zip
 Sentry.xcframework.zip
