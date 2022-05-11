@@ -25,14 +25,13 @@ SentryTestObserver ()
 
 @implementation SentryTestObserver
 
+#if TESTCI
 + (void)load
 {
-    NSString *value = [NSProcessInfo processInfo].environment[@"SEND_TEST_FAILURES_TO_SENTRY"];
-    if (value != nil) {
-        [[XCTestObservationCenter sharedTestObservationCenter]
-            addTestObserver:[[SentryTestObserver alloc] init]];
-    }
+    [[XCTestObservationCenter sharedTestObservationCenter]
+        addTestObserver:[[SentryTestObserver alloc] init]];
 }
+#endif
 
 - (instancetype)init
 {
