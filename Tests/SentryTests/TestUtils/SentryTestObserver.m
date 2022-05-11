@@ -57,6 +57,7 @@ SentryTestObserver ()
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug
                                                              category:@"test.started"];
     [crumb setMessage:testCase.name];
+    // The tests might have a different time set
     [crumb setTimestamp:[NSDate new]];
     [self.scope addBreadcrumb:crumb];
 }
