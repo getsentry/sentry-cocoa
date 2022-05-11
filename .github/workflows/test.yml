@@ -18,6 +18,7 @@ jobs:
     name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}} - OS ${{matrix.test-destination-os}}
     runs-on: ${{matrix.runs-on}}
     timeout-minutes: 20
+    
     strategy:      
       fail-fast: false
       matrix:
@@ -95,8 +96,8 @@ jobs:
         # We call a script with the platform so the destination
         # passed to xcodebuild doesn't ends up in the job name, 
         # because GitHub Actions don't provide an easy way of 
-        # manipulating string in expressions.
-        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}}
+        # manipulating string in expressions.  
+        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@v2
