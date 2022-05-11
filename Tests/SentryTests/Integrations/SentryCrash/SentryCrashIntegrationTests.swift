@@ -109,7 +109,7 @@ class SentryCrashIntegrationTests: XCTestCase {
         // We don't worry about the actual values
         // This is an edge case where the user doesn't use the
         // SentryCrashIntegration. Just make sure to not crash.
-        XCTAssertTrue(scope.contextDictionary.count > 0)
+        XCTAssertFalse(scope.contextDictionary.allValues.isEmpty)
     }
     
     func testEndSessionAsCrashed_WithCurrentSession() {
