@@ -36,7 +36,7 @@ jobs:
         include:
           - runs-on: macos-10.15
             platform: "iOS"
-            xcode: "11.7"
+            xcode: "12.4"
             test-destination-os: "12.4"
 
     steps:
