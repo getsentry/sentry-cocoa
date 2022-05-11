@@ -28,6 +28,10 @@ jobs:
         
         # We can't use Xcode 10.3 because our tests contain a reference to MacCatalyst,
         # which is only available since iOS 13 / Xcode 11.
+        # We can't use Xcode 11.7 as we use XCTestObservation. When building with Xcode 11.7
+        # we get the error 'XCTest/XCTest.h' not found. Setting ENABLE_TESTING_SEARCH_PATH=YES
+        # didn't help either.
+        
         xcode: ["13.2.1", "12.5.1"]
 
         test-destination-os: ["latest"]
@@ -53,19 +57,19 @@ jobs:
       # iOS 12. Ideally, we would compile the test-server on macos-11 and use it on
       # macos-10.15. For now, disable the tests on iOS 12 requiring the test server in
       # xcode-test.sh
-      # - name: Cache for Test Server
-      #   if: ${{ matrix.runs-on == 'macos-11'}}  
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: ./test-server/.build
-      #     key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
+      - name: Cache for Test Server
+        if: ${{ matrix.runs-on == 'macos-11'}}  
+        uses: actions/cache@v2
+        with:
+          path: ./test-server/.build
+          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
 
-      # - name: Run Test Server in Background
-      #   if: ${{ matrix.runs-on == 'macos-11'}}  
-      #   run: | 
-      #     swift build
-      #     swift run &
-      #   working-directory: test-server
+      - name: Run Test Server in Background
+        if: ${{ matrix.runs-on == 'macos-11'}}  
+        run: | 
+          swift build
+          swift run &
+        working-directory: test-server
 
       # Select Xcode after starting server, because the server needs Xcode 13
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
