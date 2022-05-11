@@ -2,6 +2,7 @@
 #import "SentryBreadcrumb.h"
 #import "SentryClient.h"
 #import "SentryCrashIntegration.h"
+#import "SentryCrashWrapper.h"
 #import "SentryCurrentDate.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryHub.h"
@@ -48,7 +49,8 @@ SentryTestObserver ()
         [SentrySDK startWithOptionsObject:options];
 
         self.scope = [[SentryScope alloc] init];
-        [SentryCrashIntegration enrichScope:self.scope];
+        [SentryCrashIntegration enrichScope:self.scope
+                               crashWrapper:[SentryCrashWrapper sharedInstance]];
 
         self.options = options;
     }

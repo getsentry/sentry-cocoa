@@ -60,19 +60,6 @@ SentryCrashIntegration ()
     return self;
 }
 
-/**
- * Wrapper for `SentryCrash.sharedInstance.systemInfo`, to cash the result.
- *
- * @return NSDictionary system info.
- */
-+ (NSDictionary *)systemInfo
-{
-    static NSDictionary *sharedInfo = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ sharedInfo = SentryCrash.sharedInstance.systemInfo; });
-    return sharedInfo;
-}
-
 - (void)installWithOptions:(nonnull SentryOptions *)options
 {
     self.options = options;
@@ -163,7 +150,7 @@ SentryCrashIntegration ()
     if (nil != [SentrySDK.currentHub getIntegration:integrationName]) {
 
         [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
-            [SentryCrashIntegration enrichScope:outerScope];
+            [SentryCrashIntegration enrichScope:outerScope crashWrapper:self.crashAdapter];
 
             NSMutableDictionary<NSString *, id> *userInfo =
                 [[NSMutableDictionary alloc] initWithDictionary:[outerScope serialize]];
@@ -188,9 +175,8 @@ SentryCrashIntegration ()
                                              object:nil];
 }
 
-+ (void)enrichScope:(SentryScope *)scope
++ (void)enrichScope:(SentryScope *)scope crashWrapper:(SentryCrashWrapper *)crashWrapper
 {
-
     // OS
     NSMutableDictionary *osData = [NSMutableDictionary new];
 
@@ -216,12 +202,21 @@ SentryCrashIntegration ()
 
 #endif
 
-    NSDictionary *systemInfo = [SentryCrashIntegration systemInfo];
-    [osData setValue:systemInfo[@"osVersion"] forKey:@"build"];
-    [osData setValue:systemInfo[@"kernelVersion"] forKey:@"kernel_version"];
-    [osData setValue:systemInfo[@"isJailbroken"] forKey:@"rooted"];
+    NSDictionary *systemInfo = [crashWrapper systemInfo];
+
+    // This only applies if SentryCrashIntegration is not installed
+    if (systemInfo != nil && systemInfo.count != 0) {
+        [osData setValue:systemInfo[@"osVersion"] forKey:@"build"];
+        [osData setValue:systemInfo[@"kernelVersion"] forKey:@"kernel_version"];
+        [osData setValue:systemInfo[@"isJailbroken"] forKey:@"rooted"];
+    }
 
     [scope setContextValue:osData forKey:@"os"];
+
+    // This only applies if SentryCrashIntegration is not installed
+    if (systemInfo == nil || systemInfo.count == 0) {
+        return;
+    }
 
     // DEVICE
 
