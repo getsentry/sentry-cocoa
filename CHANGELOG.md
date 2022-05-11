@@ -4,6 +4,12 @@
 
 ### Features
 
+- Allow partial SDK info override (#1816)
+
+## 7.15.0
+
+### Features
+
 - Add profile data category for rate limiting (#1799)
 - Allow setting SDK info with Options initWithDict (#1793)
 - Remove ViewController name match for swizzling (#1802)
