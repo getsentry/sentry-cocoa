@@ -27,6 +27,11 @@ static id<SentryCurrentDateProvider> currentDateProvider;
     currentDateProvider = value;
 }
 
++ (nullable id<SentryCurrentDateProvider>)getCurrentDateProvider
+{
+    return currentDateProvider;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
