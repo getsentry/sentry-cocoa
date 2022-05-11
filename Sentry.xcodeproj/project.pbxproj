@@ -1,4 +1,3 @@
-
 // !$*UTF8*$!
 {
 	archiveVersion = 1;
@@ -1264,7 +1263,6 @@
 		844DA81D28246DAE00E6B62E /* develop-docs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "develop-docs"; sourceTree = "<group>"; };
 		844DA81E28246DB900E6B62E /* fastlane */ = {isa = PBXFileReference; lastKnownFileType = folder; path = fastlane; sourceTree = "<group>"; };
 		844DA81F28246DE300E6B62E /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = scripts; sourceTree = "<group>"; };
-		844DA82028246E0600E6B62E /* test-server */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "test-server"; sourceTree = "<group>"; };
 		861265F72404EC1500C4AFDE /* NSArray+SentrySanitize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSArray+SentrySanitize.h"; path = "include/NSArray+SentrySanitize.h"; sourceTree = "<group>"; };
 		861265F82404EC1500C4AFDE /* NSArray+SentrySanitize.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSArray+SentrySanitize.m"; sourceTree = "<group>"; };
 		8E0551DF26A7A63C00400526 /* TestProtocolClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestProtocolClient.swift; sourceTree = "<group>"; };
@@ -1536,7 +1534,6 @@
 				844DA80728246D5000E6B62E /* Gemfile */,
 				844DA80428246D5000E6B62E /* Makefile */,
 				844DA81F28246DE300E6B62E /* scripts */,
-				844DA82028246E0600E6B62E /* test-server */,
 				844DA80928246D5000E6B62E /* dangerfile.js */,
 				844DA81B28246D9300E6B62E /* Brewfile.lock.json */,
 				844DA81C28246D9300E6B62E /* Gemfile.lock */,
