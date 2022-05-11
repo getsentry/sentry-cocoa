@@ -6,6 +6,10 @@
 
 - Allow partial SDK info override (#1816)
 
+### Fixes
+
+- Hub uses its scope (#1821)
+
 ## 7.15.0
 
 ### Features
