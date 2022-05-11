@@ -50,6 +50,8 @@ case $REF_NAME in
         ;;
 esac
 
+echo "CONFIGURATION: $CONFIGURATION"
+
 # The following tests fail on iOS 12.4. We ignore them for now and are going to fix them later.
 if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
     echo "Skipping tests for iOS 12.4."
