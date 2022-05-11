@@ -91,6 +91,14 @@ jobs:
           path: |
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@v2
+        with:
+          name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            raw-test-output.log
+      
+
       # We can upload all coverage reports, because codecov merges them.
       # See https://docs.codecov.io/docs/merging-reports
       # Checkout .codecov.yml to see the config of Codecov
