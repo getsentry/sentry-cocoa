@@ -42,7 +42,7 @@ jobs:
          # Test on iOS 13.7
           - runs-on:  macos-11
             platform: "iOS"
-            xcode: "12.4"
+            xcode: "13.2.1"
             test-destination-os: "13.7"
 
     steps:
@@ -80,10 +80,11 @@ jobs:
           sudo ln -s /Applications/Xcode_10.3.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 12.4.simruntime
           xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-12-4"
 
-      - name: Prepare iOS 12.4 simulator
+      - name: Prepare iOS 13.7 simulator
         if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '13.7'}}  
         run: |
           sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
+          ls -l /Applications/Xcode_11.7.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/CoreSimulator/Profiles/Runtimes/
           sudo ln -s /Applications/Xcode_11.7.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 13.7.simruntime
           xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-13-7"   
 
