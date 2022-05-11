@@ -22,7 +22,7 @@ format:
 
 test:
 	@echo "--> Running all tests"
-	env SEND_TEST_FAILURES_TO_SENTRY=YES xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination "platform=macOS" test
+	xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration TestCI GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination "platform=iOS Simulator,OS=latest,name=iPhone 8" test | tee log.txt
 .PHONY: test
 
 run-test-server:

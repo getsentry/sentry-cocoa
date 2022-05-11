@@ -47,16 +47,6 @@ SentryTestObserver ()
         self.scope = [[SentryScope alloc] init];
         [SentryCrashIntegration enrichScope:self.scope];
 
-        NSString *platform = [NSProcessInfo processInfo].environment[@"SENTRY_PLATFORM"];
-        if (platform != nil) {
-            [self.scope setTagValue:platform forKey:@"os.platform"];
-        }
-
-        NSString *xcodeVersion = [NSProcessInfo processInfo].environment[@"SENTRY_XCODE_VERSION"];
-        if (xcodeVersion != nil) {
-            [self.scope setTagValue:xcodeVersion forKey:@"xcode.version"];
-        }
-
         self.options = options;
     }
     return self;
