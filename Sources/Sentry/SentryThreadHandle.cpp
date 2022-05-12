@@ -133,17 +133,17 @@ namespace profiling {
         integer_t infoBuffer[THREAD_IDENTIFIER_INFO_COUNT] = { 0 };
         thread_info_t info = infoBuffer;
         mach_msg_type_number_t count = THREAD_IDENTIFIER_INFO_COUNT;
-        thread_info(handle_, THREAD_IDENTIFIER_INFO, info, &count);
-//        const auto idInfo = reinterpret_cast<thread_identifier_info_t>(info);
-//        // MACH_SEND_INVALID_DEST is returned when the thread no longer exists
-//        if (rv != MACH_SEND_INVALID_DEST && SENTRY_PROF_LOG_KERN_RETURN(rv) == KERN_SUCCESS
-//            && sentrycrashmem_isMemoryReadable(idInfo, sizeof(*idInfo))) {
-//            const auto queuePtr = reinterpret_cast<dispatch_queue_t *>(idInfo->dispatch_qaddr);
-//            if (queuePtr != nullptr && sentrycrashmem_isMemoryReadable(queuePtr, sizeof(*queuePtr))
-//                && idInfo->thread_handle != 0 && *queuePtr != nullptr) {
-//                return idInfo->dispatch_qaddr;
-//            }
-//        }
+        const auto rv = thread_info(handle_, THREAD_IDENTIFIER_INFO, info, &count);
+        const auto idInfo = reinterpret_cast<thread_identifier_info_t>(info);
+        // MACH_SEND_INVALID_DEST is returned when the thread no longer exists
+        if (rv != MACH_SEND_INVALID_DEST && SENTRY_PROF_LOG_KERN_RETURN(rv) == KERN_SUCCESS
+            && sentrycrashmem_isMemoryReadable(idInfo, sizeof(*idInfo))) {
+            const auto queuePtr = reinterpret_cast<dispatch_queue_t *>(idInfo->dispatch_qaddr);
+            if (queuePtr != nullptr && sentrycrashmem_isMemoryReadable(queuePtr, sizeof(*queuePtr))
+                && idInfo->thread_handle != 0 && *queuePtr != nullptr) {
+                return idInfo->dispatch_qaddr;
+            }
+        }
         return 0;
     }
 
