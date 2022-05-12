@@ -38,7 +38,6 @@ SentryTracer ()
 @property (nonatomic, strong) NSMutableArray<id<SentrySpan>> *children;
 @property (nonatomic, strong) SentryHub *hub;
 @property (nonatomic) SentrySpanStatus finishStatus;
-@property (nonatomic) BOOL isWaitingForChildren;
 @property (nonatomic) NSTimeInterval idleTimeout;
 @property (nonatomic, nullable, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 
@@ -118,7 +117,6 @@ static NSLock *profilerLock;
         self.name = transactionContext.name;
         self.children = [[NSMutableArray alloc] init];
         self.hub = hub;
-        self.isWaitingForChildren = NO;
         _waitForChildren = waitForChildren;
         self.finishStatus = kSentrySpanStatusUndefined;
         self.idleTimeout = idleTimeout;
@@ -314,7 +312,6 @@ static NSLock *profilerLock;
 
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
-    self.isWaitingForChildren = YES;
     _finishStatus = status;
     [self canBeFinished];
 }
@@ -322,17 +319,6 @@ static NSLock *profilerLock;
 - (SentryTraceHeader *)toTraceHeader
 {
     return [self.rootSpan toTraceHeader];
-}
-
-- (BOOL)hasUnfinishedChildren
-{
-    @synchronized(_children) {
-        for (id<SentrySpan> span in _children) {
-            if (![span isFinished])
-                return YES;
-        }
-        return NO;
-    }
 }
 
 - (void)canBeFinished
@@ -343,15 +329,31 @@ static NSLock *profilerLock;
     if (self.rootSpan.isFinished)
         return;
 
-    if ([self hasIdleTimeout]) {
+    BOOL hasChildrenToWaitFor = [self hasChildrenToWaitFor];
+    if (!hasChildrenToWaitFor && [self hasIdleTimeout]) {
         [self dispatchIdleTimeout];
         return;
     }
 
-    if (!self.isWaitingForChildren || (_waitForChildren && [self hasUnfinishedChildren]))
+    if (hasChildrenToWaitFor)
         return;
 
     [self finishInternal];
+}
+
+- (BOOL)hasChildrenToWaitFor
+{
+    if (!_waitForChildren) {
+        return NO;
+    }
+
+    @synchronized(_children) {
+        for (id<SentrySpan> span in _children) {
+            if (![span isFinished])
+                return YES;
+        }
+        return NO;
+    }
 }
 
 - (void)finishInternal
