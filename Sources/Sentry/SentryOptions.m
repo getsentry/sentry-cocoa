@@ -22,12 +22,13 @@ SentryOptions ()
         @"SentryCrashIntegration",
 #if SENTRY_HAS_UIKIT
         @"SentryANRTrackingIntegration", @"SentryScreenshotIntegration",
+        @"SentryUIEventTrackingIntegration",
 #endif
         @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
         @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
         @"SentryOutOfMemoryTrackingIntegration", @"SentryPerformanceTrackingIntegration",
         @"SentryNetworkTrackingIntegration", @"SentryFileIOTrackingIntegration",
-        @"SentryCoreDataTrackingIntegration", @"SentryUIEventTrackingIntegration"
+        @"SentryCoreDataTrackingIntegration"
     ];
 }
 
@@ -54,6 +55,7 @@ SentryOptions ()
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracking = YES;
         self.attachScreenshot = NO;
+        self.enableUserInteractionTracing = NO;
 #endif
         self.enableNetworkTracking = YES;
         self.enableFileIOTracking = NO;
@@ -233,6 +235,9 @@ SentryOptions ()
 
     [self setBool:options[@"attachScreenshot"]
             block:^(BOOL value) { self->_attachScreenshot = value; }];
+
+    [self setBool:options[@"enableUserInteractionTracing"]
+            block:^(BOOL value) { self->_enableUserInteractionTracing = value; }];
 #endif
 
     [self setBool:options[@"enableNetworkTracking"]

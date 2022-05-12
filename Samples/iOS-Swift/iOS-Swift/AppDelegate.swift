@@ -27,6 +27,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enableCoreDataTracking = true
             options.enableProfiling = true
             options.attachScreenshot = true
+            options.enableUserInteractionTracing = true
         }
         
         return true

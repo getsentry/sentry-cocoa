@@ -198,6 +198,12 @@ NS_SWIFT_NAME(Options)
  * Default value is <code>NO</code>
  */
 @property (nonatomic, assign) BOOL attachScreenshot;
+
+/**
+ * When enabled, the SDK creates transactions for UI events like buttons clicks, switch toggles,
+ * and other ui elements that uses UIControl `sendAction:to:forEvent:`.
+ */
+@property (nonatomic, assign) BOOL enableUserInteractionTracing;
 #endif
 
 /**

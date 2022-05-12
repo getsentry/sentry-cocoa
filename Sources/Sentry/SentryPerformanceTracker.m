@@ -45,17 +45,28 @@ SentryPerformanceTracker ()
         activeSpan = [self.activeSpanStack lastObject];
     }
 
-    id<SentrySpan> newSpan;
+    __block id<SentrySpan> newSpan;
     if (activeSpan != nil) {
         newSpan = [activeSpan startChildWithOperation:operation description:name];
     } else {
         SentryTransactionContext *context =
             [[SentryTransactionContext alloc] initWithName:name operation:operation];
-        newSpan =
-            [SentrySDK.currentHub startTransactionWithContext:context
-                                                  bindToScope:SentrySDK.currentHub.scope.span == nil
-                                              waitForChildren:YES
-                                        customSamplingContext:@{}];
+
+        [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> span) {
+            BOOL bindToScope = true;
+            if (span != nil) {
+                if ([span.context.operation isEqualToString:@"ui.action"]) {
+                    [span finish];
+                } else {
+                    bindToScope = false;
+                }
+            }
+
+            newSpan = [SentrySDK.currentHub startTransactionWithContext:context
+                                                            bindToScope:bindToScope
+                                                        waitForChildren:YES
+                                                  customSamplingContext:@ {}];
+        }];
     }
 
     SentrySpanId *spanId = newSpan.context.spanId;
