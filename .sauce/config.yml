@@ -16,7 +16,7 @@ suites:
   - name: "iOS-15"
     devices:
       - name: "iPhone.*"
-        platformVersion: "15.2"
+        platformVersion: "15.4"
         
   - name: "iOS-14"
     devices:

@@ -1,12 +1,14 @@
 diff --git a/Samples/iOS-Swift/iOS-Swift/AppDelegate.swift b/Samples/iOS-Swift/iOS-Swift/AppDelegate.swift
-index befbf74a..3e35cf69 100644
+index 25b92eed..8934d90b 100644
 --- a/Samples/iOS-Swift/iOS-Swift/AppDelegate.swift
 +++ b/Samples/iOS-Swift/iOS-Swift/AppDelegate.swift
-@@ -16,6 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
-         
-         SentrySDK.start { options in
-             options.dsn = dsn
+@@ -24,6 +24,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
+             options.tracesSampleRate = 1.0
+             options.sessionTrackingIntervalMillis = 5_000
+             options.enableFileIOTracking = true
 +            options.environment = "device-tests"
-             options.beforeSend = { event in
-                 return event
-             }
++            // The UI tests generate false OOMs
++            options.enableOutOfMemoryTracking = false
+             options.enableCoreDataTracking = true
+             options.enableProfiling = true
+             options.attachScreenshot = true

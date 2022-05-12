@@ -233,21 +233,43 @@ SentryHub ()
 
 - (SentryId *)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
 {
-    if (transaction.trace.context.sampled != kSentrySampleDecisionYes)
+    return [self captureTransaction:transaction withScope:scope additionalEnvelopeItems:@[]];
+}
+
+- (SentryId *)captureTransaction:(SentryTransaction *)transaction
+                       withScope:(SentryScope *)scope
+         additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
+{
+    if (transaction.trace.context.sampled != kSentrySampleDecisionYes) {
+        [self.client recordLostEvent:kSentryDataCategoryTransaction
+                              reason:kSentryDiscardReasonSampleRate];
         return SentryId.empty;
-    return [self captureEvent:transaction withScope:scope];
+    }
+
+    return [self captureEvent:transaction
+                      withScope:scope
+        additionalEnvelopeItems:additionalEnvelopeItems];
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event
 {
-    return [self captureEvent:event withScope:[[SentryScope alloc] init]];
+    return [self captureEvent:event withScope:self.scope];
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
+    return [self captureEvent:event withScope:scope additionalEnvelopeItems:@[]];
+}
+
+- (SentryId *)captureEvent:(SentryEvent *)event
+                  withScope:(SentryScope *)scope
+    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
+{
     SentryClient *client = _client;
     if (nil != client) {
-        return [client captureEvent:event withScope:scope];
+        return [client captureEvent:event
+                          withScope:scope
+            additionalEnvelopeItems:additionalEnvelopeItems];
     }
     return SentryId.empty;
 }
@@ -315,14 +337,14 @@ SentryHub ()
                                                                          hub:self
                                                              waitForChildren:waitForChildren];
     if (bindToScope)
-        _scope.span = tracer;
+        self.scope.span = tracer;
 
     return tracer;
 }
 
 - (SentryId *)captureMessage:(NSString *)message
 {
-    return [self captureMessage:message withScope:[[SentryScope alloc] init]];
+    return [self captureMessage:message withScope:self.scope];
 }
 
 - (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
@@ -336,7 +358,7 @@ SentryHub ()
 
 - (SentryId *)captureError:(NSError *)error
 {
-    return [self captureError:error withScope:[[SentryScope alloc] init]];
+    return [self captureError:error withScope:self.scope];
 }
 
 - (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
@@ -355,7 +377,7 @@ SentryHub ()
 
 - (SentryId *)captureException:(NSException *)exception
 {
-    return [self captureException:exception withScope:[[SentryScope alloc] init]];
+    return [self captureException:exception withScope:self.scope];
 }
 
 - (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope

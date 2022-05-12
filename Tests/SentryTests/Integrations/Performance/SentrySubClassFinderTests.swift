@@ -16,7 +16,7 @@ class SentrySubClassFinderTests: XCTestCase {
         let testClassesNames = [NSStringFromClass(FirstViewController.self),
                                 NSStringFromClass(SecondViewController.self),
                                 NSStringFromClass(ViewControllerNumberThree.self),
-                                NSStringFromClass(VCWrongNaming.self),
+                                NSStringFromClass(VCAnyNaming.self),
                                 NSStringFromClass(FakeViewController.self)]
         init() {
             if let name = class_getImageName(FirstViewController.self) {
@@ -39,7 +39,7 @@ class SentrySubClassFinderTests: XCTestCase {
     }
     
     func testActOnSubclassesOfViewController() {
-        testActOnSubclassesOfViewController(expected: [FirstViewController.self, SecondViewController.self, ViewControllerNumberThree.self])
+        testActOnSubclassesOfViewController(expected: [FirstViewController.self, SecondViewController.self, ViewControllerNumberThree.self, VCAnyNaming.self])
     }
     
     func testActOnSubclassesOfViewController_NoViewController() {
@@ -51,12 +51,7 @@ class SentrySubClassFinderTests: XCTestCase {
         fixture.runtimeWrapper.classesNames = { _ in [NSStringFromClass(FakeViewController.self)] }
         testActOnSubclassesOfViewController(expected: [])
     }
-    
-    func testActOnSubclassesOfViewController_IgnoreWrongNaming() {
-        fixture.runtimeWrapper.classesNames = { _ in [NSStringFromClass(VCWrongNaming.self)] }
-        testActOnSubclassesOfViewController(expected: [])
-    }
-    
+     
     func testActOnSubclassesOfViewController_WrongImage_NoViewController() {
         fixture.runtimeWrapper.classesNames = nil
         testActOnSubclassesOfViewController(expected: [], imageName: "OtherImage")
@@ -108,6 +103,6 @@ class SentrySubClassFinderTests: XCTestCase {
 class FirstViewController: UIViewController {}
 class SecondViewController: UIViewController {}
 class ViewControllerNumberThree: UIViewController {}
-class VCWrongNaming: UIViewController {}
+class VCAnyNaming: UIViewController {}
 class FakeViewController {}
 #endif

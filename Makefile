@@ -13,7 +13,7 @@ lint:
 
 # Format all h,c,cpp and m files
 format:
-	@find . -type f \( -name "*.h" -or -name "*.c" -or -name "*.cpp" -or -name "*.m" \) -and \
+	@find . -type f \( -name "*.h" -or -name "*.hpp" -or -name "*.c" -or -name "*.cpp" -or -name "*.m" -or -name "*.mm" \) -and \
 		! \( -path "**.build/*" -or -path "**/libs/**" \) \
 		| xargs clang-format -i -style=file
 	

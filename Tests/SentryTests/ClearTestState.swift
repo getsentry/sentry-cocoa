@@ -19,4 +19,6 @@ func clearTestState() {
     #endif
     
     SentryDependencyContainer.reset()
+    Dynamic(SentryGlobalEventProcessor.shared()).removeAllProcessors()
+    SentrySwizzleWrapper.sharedInstance.removeAllCallbacks()
 }

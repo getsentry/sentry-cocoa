@@ -102,7 +102,9 @@ static NSTimeInterval g_watchdogInterval = 0;
 
 - (void)handleDeadlock
 {
-    sentrycrashmc_suspendEnvironment();
+    thread_act_array_t threads = NULL;
+    mach_msg_type_number_t numThreads = 0;
+    sentrycrashmc_suspendEnvironment(&threads, &numThreads);
     sentrycrashcm_notifyFatalExceptionCaptured(false);
 
     SentryCrashMC_NEW_CONTEXT(machineContext);
@@ -122,7 +124,7 @@ static NSTimeInterval g_watchdogInterval = 0;
     crashContext->stackCursor = &stackCursor;
 
     sentrycrashcm_handleException(crashContext);
-    sentrycrashmc_resumeEnvironment();
+    sentrycrashmc_resumeEnvironment(threads, numThreads);
     sentrycrash_async_backtrace_decref(stackCursor.async_caller);
 
     SentryCrashLOG_DEBUG(@"Calling abort()");

@@ -1,6 +1,7 @@
 #import "SentryEnvelope.h"
 #import "SentryAttachment.h"
 #import "SentryBreadcrumb.h"
+#import "SentryClientReport.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
 #import "SentryLog.h"
@@ -182,6 +183,24 @@ NS_ASSUME_NONNULL_BEGIN
 
     return [self initWithHeader:[[SentryEnvelopeItemHeader alloc]
                                     initWithType:SentryEnvelopeItemTypeUserFeedback
+                                          length:json.length]
+                           data:json];
+}
+
+- (instancetype)initWithClientReport:(SentryClientReport *)clientReport
+{
+    NSError *error = nil;
+    NSData *json = [NSJSONSerialization dataWithJSONObject:[clientReport serialize]
+                                                   options:0
+                                                     error:&error];
+
+    if (nil != error) {
+        [SentryLog logWithMessage:@"Couldn't serialize client report." andLevel:kSentryLevelError];
+        json = [NSData new];
+    }
+
+    return [self initWithHeader:[[SentryEnvelopeItemHeader alloc]
+                                    initWithType:SentryEnvelopeItemTypeClientReport
                                           length:json.length]
                            data:json];
 }

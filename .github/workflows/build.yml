@@ -89,7 +89,7 @@ jobs:
     runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh 12.5.1
       - run: make build-framework
         shell: sh
       - run: make build-framework-sample

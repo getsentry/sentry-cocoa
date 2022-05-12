@@ -178,6 +178,16 @@
     [self testBooleanField:@"enableNetworkBreadcrumbs"];
 }
 
+- (void)testEnableCoreDataTracking
+{
+    [self testBooleanField:@"enableCoreDataTracking" defaultValue:NO];
+}
+
+- (void)testSendClientReports
+{
+    [self testBooleanField:@"sendClientReports" defaultValue:YES];
+}
+
 - (void)testDefaultMaxBreadcrumbs
 {
     SentryOptions *options = [self getValidOptions:@{}];
@@ -481,6 +491,10 @@
         @"maxAttachmentSize" : [NSNull null],
         @"sendDefaultPii" : [NSNull null],
         @"enableAutoPerformanceTracking" : [NSNull null],
+#if SENTRY_HAS_UIKIT
+        @"enableUIViewControllerTracking" : [NSNull null],
+        @"attachScreenshot" : [NSNull null],
+#endif
         @"enableNetworkTracking" : [NSNull null],
         @"tracesSampleRate" : [NSNull null],
         @"tracesSampler" : [NSNull null],
@@ -489,7 +503,8 @@
         @"urlSessionDelegate" : [NSNull null],
         @"experimentalEnableTraceSampling" : [NSNull null],
         @"enableSwizzling" : [NSNull null],
-        @"enableIOTracking" : [NSNull null]
+        @"enableIOTracking" : [NSNull null],
+        @"sdk" : [NSNull null]
     }
                                                 didFailWithError:nil];
 
@@ -521,6 +536,10 @@
     XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);
     XCTAssertEqual(NO, options.sendDefaultPii);
     XCTAssertTrue(options.enableAutoPerformanceTracking);
+#if SENTRY_HAS_UIKIT
+    XCTAssertTrue(options.enableUIViewControllerTracking);
+    XCTAssertFalse(options.attachScreenshot);
+#endif
     XCTAssertEqual(YES, options.enableNetworkTracking);
     XCTAssertNil(options.tracesSampleRate);
     XCTAssertNil(options.tracesSampler);
@@ -530,6 +549,11 @@
     XCTAssertFalse(options.experimentalEnableTraceSampling);
     XCTAssertEqual(YES, options.enableSwizzling);
     XCTAssertEqual(NO, options.enableFileIOTracking);
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    XCTAssertEqual(NO, options.enableProfiling);
+#endif
+    XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name);
+    XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version);
 }
 
 - (void)testSetValidDsn
@@ -574,6 +598,48 @@
     XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version);
 }
 
+- (void)testSetCustomSdkInfo
+{
+    NSDictionary *dict = @{ @"name" : @"custom.sdk", @"version" : @"1.2.3-alpha.0" };
+
+    NSError *error = nil;
+    SentryOptions *options =
+        [[SentryOptions alloc] initWithDict:@{ @"sdk" : dict, @"dsn" : @"https://a:b@c.d/1" }
+                           didFailWithError:&error];
+
+    XCTAssertNil(error);
+    XCTAssertEqual(dict[@"name"], options.sdkInfo.name);
+    XCTAssertEqual(dict[@"version"], options.sdkInfo.version);
+}
+
+- (void)testSetCustomSdkName
+{
+    NSDictionary *dict = @{ @"name" : @"custom.sdk" };
+
+    NSError *error = nil;
+    SentryOptions *options =
+        [[SentryOptions alloc] initWithDict:@{ @"sdk" : dict, @"dsn" : @"https://a:b@c.d/1" }
+                           didFailWithError:&error];
+
+    XCTAssertNil(error);
+    XCTAssertEqual(dict[@"name"], options.sdkInfo.name);
+    XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version); // default version
+}
+
+- (void)testSetCustomSdkVersion
+{
+    NSDictionary *dict = @{ @"version" : @"1.2.3-alpha.0" };
+
+    NSError *error = nil;
+    SentryOptions *options =
+        [[SentryOptions alloc] initWithDict:@{ @"sdk" : dict, @"dsn" : @"https://a:b@c.d/1" }
+                           didFailWithError:&error];
+
+    XCTAssertNil(error);
+    XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name); // default name
+    XCTAssertEqual(dict[@"version"], options.sdkInfo.version);
+}
+
 - (void)testMaxAttachmentSize
 {
     NSNumber *maxAttachmentSize = @21;
@@ -599,6 +665,19 @@
     [self testBooleanField:@"enableAutoPerformanceTracking"];
 }
 
+#if SENTRY_HAS_UIKIT
+- (void)testEnableUIViewControllerTracking
+{
+    [self testBooleanField:@"enableUIViewControllerTracking"];
+}
+
+- (void)testAttachScreenshot
+{
+    [self testBooleanField:@"attachScreenshot" defaultValue:NO];
+}
+
+#endif
+
 - (void)testEnableNetworkTracking
 {
     [self testBooleanField:@"enableNetworkTracking"];
@@ -608,6 +687,13 @@
 {
     [self testBooleanField:@"enableSwizzling"];
 }
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+- (void)testEnableProfiling
+{
+    [self testBooleanField:@"enableProfiling" defaultValue:NO];
+}
+#endif
 
 - (void)testTracesSampleRate
 {

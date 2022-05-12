@@ -85,7 +85,7 @@ platform :ios do
 
   desc "Build iOS-Swift with Release"
   lane :build_ios_swift do
-
+    
     match_ci
 
     sync_code_signing(
@@ -104,7 +104,6 @@ platform :ios do
       export_method: "app-store",
       archive_path: "iOS-Swift"
     )
-
   end
 
   lane :build_ios_swift_ui_test do
@@ -146,7 +145,7 @@ platform :ios do
       build_number: ENV["FASTLANE_BUNDLE_VERSION"]
     )
 
-    sentry_upload_dsym(
+    sentry_upload_dif(
       auth_token: ENV["SENTRY_AUTH_TOKEN"],
       org_slug: 'sentry-sdks',
       project_slug: 'sentry-cocoa',

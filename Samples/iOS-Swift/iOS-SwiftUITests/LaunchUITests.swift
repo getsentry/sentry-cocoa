@@ -35,7 +35,15 @@ class LaunchUITests: XCTestCase {
         XCTAssertTrue(app.buttons["lonelyButton"].waitForExistence(), "Nib ViewController not loaded.")
         assertApp()
     }
-
+    
+    func testCaptureError() {
+        app.buttons["Error"].tap()
+    }
+    
+    func testCaptureException() {
+        app.buttons["NSException"].tap()
+    }
+    
     func testShowTableView() {
         app.buttons["showTableViewButton"].tap()
         XCTAssertTrue(app.navigationBars.buttons.element(boundBy: 0).waitForExistence(), "TableView not loaded.")
@@ -44,7 +52,9 @@ class LaunchUITests: XCTestCase {
     
     func testSplitView() {
         app.buttons["showSplitViewButton"].tap()
-        XCTAssertTrue(app.navigationBars["iOS_Swift.SplitViewSecondary"].buttons["Root ViewController"].waitForExistence(), "SplitView not loaded.")
+        
+        let app = XCUIApplication()
+        XCTAssertTrue(app.navigationBars["iOS_Swift.SecondarySplitView"].buttons["Root ViewController"].waitForExistence(), "SplitView not loaded.")
         
         // This validation is currently not working on iOS 10.
         if #available(iOS 11.0, *) {

@@ -36,5 +36,6 @@ let package = Package(
                 .linkedLibrary("c++")
             ]
         )
-    ]
+    ],
+    cxxLanguageStandard: .cxx14
 )

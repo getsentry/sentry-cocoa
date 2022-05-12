@@ -21,7 +21,7 @@ SENTRY_NO_INIT
 
 @property (nonatomic, assign) BOOL installAsyncHooksCalled;
 
-@property (nonatomic, assign) BOOL deactivateAsyncHooksCalled;
+@property (nonatomic, assign) BOOL closeCalled;
 
 @end
 
