@@ -204,7 +204,7 @@ SentryCrashIntegration ()
 
     NSDictionary *systemInfo = [crashWrapper systemInfo];
 
-    // This only applies if SentryCrashIntegration is not installed
+    // SystemInfo should only be nil when SentryCrash has not been installed
     if (systemInfo != nil && systemInfo.count != 0) {
         [osData setValue:systemInfo[@"osVersion"] forKey:@"build"];
         [osData setValue:systemInfo[@"kernelVersion"] forKey:@"kernel_version"];
@@ -213,7 +213,7 @@ SentryCrashIntegration ()
 
     [scope setContextValue:osData forKey:@"os"];
 
-    // This only applies if SentryCrashIntegration is not installed
+    // SystemInfo should only be nil when SentryCrash has not been installed
     if (systemInfo == nil || systemInfo.count == 0) {
         return;
     }
