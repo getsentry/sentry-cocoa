@@ -3,7 +3,7 @@
 ## Unreleased
 
 - fix: Detecting ANRs as false OOMs (#1695)
-- fix: Move tags and data from trace dict to transaction level (#1311)
+- fix: Move tags and data from trace (and trace context) to transaction level (#1311)
 
 ## 7.10.2
 
