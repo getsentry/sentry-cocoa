@@ -38,7 +38,11 @@ class SentryCrashIntegrationTests: XCTestCase {
         }
         
         func getSut() -> SentryCrashIntegration {
-            return SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: dispatchQueueWrapper)
+            return getSut(crashWrapper: sentryCrash)
+        }
+        
+        func getSut(crashWrapper: SentryCrashWrapper) -> SentryCrashIntegration {
+            return SentryCrashIntegration(crashAdapter: crashWrapper, andDispatchQueueWrapper: dispatchQueueWrapper)
         }
         
         var sutWithoutCrash: SentryCrashIntegration {
@@ -96,6 +100,16 @@ class SentryCrashIntegrationTests: XCTestCase {
         let context = userInfo["context"] as? [String: Any]
         
         assertContext(context: context)
+    }
+    
+    func testSystemInfoIsEmpty() {
+        let scope = Scope()
+        SentryCrashIntegration.enrichScope(scope, crashWrapper: TestSentryCrashWrapper.sharedInstance())
+        
+        // We don't worry about the actual values
+        // This is an edge case where the user doesn't use the
+        // SentryCrashIntegration. Just make sure to not crash.
+        XCTAssertFalse(scope.contextDictionary.allValues.isEmpty)
     }
     
     func testEndSessionAsCrashed_WithCurrentSession() {
@@ -202,7 +216,7 @@ class SentryCrashIntegrationTests: XCTestCase {
     }
     
     func testUninstall_DoesNotUpdateLocale_OnLocaleDidChangeNotification() {
-        let (sut, hub) = givenSutWithGlobalHub()
+        let (sut, hub) = givenSutWithGlobalHubAndCrashWrapper()
 
         sut.install(with: Options())
 
@@ -217,7 +231,7 @@ class SentryCrashIntegrationTests: XCTestCase {
     }
     
     func testOSCorrectlySetToScopeContext() {
-        let (sut, hub) = givenSutWithGlobalHub()
+        let (sut, hub) = givenSutWithGlobalHubAndCrashWrapper()
         
         sut.install(with: Options())
         
@@ -239,7 +253,7 @@ class SentryCrashIntegrationTests: XCTestCase {
     }
     
     func testLocaleChanged_DifferentLocale_SetsCurrentLocale() {
-        let (sut, hub) = givenSutWithGlobalHub()
+        let (sut, hub) = givenSutWithGlobalHubAndCrashWrapper()
         
         sut.install(with: Options())
         
@@ -274,6 +288,14 @@ class SentryCrashIntegrationTests: XCTestCase {
     
     private func givenSutWithGlobalHub() -> (SentryCrashIntegration, SentryHub) {
         let sut = fixture.getSut()
+        let hub = fixture.hub
+        SentrySDK.setCurrentHub(hub)
+
+        return (sut, hub)
+    }
+    
+    private func givenSutWithGlobalHubAndCrashWrapper() -> (SentryCrashIntegration, SentryHub) {
+        let sut = fixture.getSut(crashWrapper: SentryCrashWrapper.sharedInstance())
         let hub = fixture.hub
         SentrySDK.setCurrentHub(hub)
 
