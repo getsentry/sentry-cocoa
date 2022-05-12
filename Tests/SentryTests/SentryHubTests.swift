@@ -202,12 +202,12 @@ class SentryHubTests: XCTestCase {
     }
     
     func testCaptureEventWithoutScope() {
-        fixture.getSut(fixture.options, fixture.scope).capture(event: fixture.event)
+        fixture.getSut().capture(event: fixture.event)
         
         XCTAssertEqual(1, fixture.client.captureEventWithScopeInvocations.count)
         if let eventArguments = fixture.client.captureEventWithScopeInvocations.first {
             XCTAssertEqual(fixture.event.eventId, eventArguments.event.eventId)
-            XCTAssertEqual(fixture.scope, eventArguments.scope)
+            XCTAssertEqual(Scope(), eventArguments.scope)
         }
     }
     
@@ -377,12 +377,12 @@ class SentryHubTests: XCTestCase {
     }
     
     func testCaptureMessageWithoutScope() {
-        fixture.getSut(fixture.options, fixture.scope).capture(message: fixture.message)
+        fixture.getSut().capture(message: fixture.message)
         
         XCTAssertEqual(1, fixture.client.captureMessageWithScopeInvocations.count)
         if let messageArguments = fixture.client.captureMessageWithScopeInvocations.first {
             XCTAssertEqual(fixture.message, messageArguments.message)
-            XCTAssertEqual(fixture.scope, messageArguments.scope)
+            XCTAssertEqual(Scope(), messageArguments.scope)
         }
     }
     
@@ -416,12 +416,12 @@ class SentryHubTests: XCTestCase {
     }
     
     func testCatpureErrorWithoutScope() {
-        fixture.getSut(fixture.options, fixture.scope).capture(error: fixture.error).assertIsNotEmpty()
+        fixture.getSut().capture(error: fixture.error).assertIsNotEmpty()
         
         XCTAssertEqual(1, fixture.client.captureErrorWithScopeInvocations.count)
         if let errorArguments = fixture.client.captureErrorWithScopeInvocations.first {
             XCTAssertEqual(fixture.error, errorArguments.error as NSError)
-            XCTAssertEqual(fixture.scope, errorArguments.scope)
+            XCTAssertEqual(Scope(), errorArguments.scope)
         }
     }
     
@@ -436,12 +436,12 @@ class SentryHubTests: XCTestCase {
     }
     
     func testCatpureExceptionWithoutScope() {
-        fixture.getSut(fixture.options, fixture.scope).capture(exception: fixture.exception).assertIsNotEmpty()
+        fixture.getSut().capture(exception: fixture.exception).assertIsNotEmpty()
         
         XCTAssertEqual(1, fixture.client.captureExceptionWithScopeInvocations.count)
         if let errorArguments = fixture.client.captureExceptionWithScopeInvocations.first {
             XCTAssertEqual(fixture.exception, errorArguments.exception)
-            XCTAssertEqual(fixture.scope, errorArguments.scope)
+            XCTAssertEqual(Scope(), errorArguments.scope)
         }
     }
     

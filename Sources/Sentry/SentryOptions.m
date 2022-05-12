@@ -283,7 +283,7 @@ SentryOptions ()
     // SentrySdkInfo already expects a dictionary with {"sdk": {"name": ..., "value": ...}}
     // so we're passing the whole options object.
     if ([options[@"sdk"] isKindOfClass:[NSDictionary class]]) {
-        _sdkInfo = [[SentrySdkInfo alloc] initWithDict:options orDefaults:_sdkInfo];
+        _sdkInfo = [[SentrySdkInfo alloc] initWithDict:options];
     }
 
     if (nil != error && nil != *error) {

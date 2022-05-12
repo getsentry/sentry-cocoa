@@ -612,34 +612,6 @@
     XCTAssertEqual(dict[@"version"], options.sdkInfo.version);
 }
 
-- (void)testSetCustomSdkName
-{
-    NSDictionary *dict = @{ @"name" : @"custom.sdk" };
-
-    NSError *error = nil;
-    SentryOptions *options =
-        [[SentryOptions alloc] initWithDict:@{ @"sdk" : dict, @"dsn" : @"https://a:b@c.d/1" }
-                           didFailWithError:&error];
-
-    XCTAssertNil(error);
-    XCTAssertEqual(dict[@"name"], options.sdkInfo.name);
-    XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version); // default version
-}
-
-- (void)testSetCustomSdkVersion
-{
-    NSDictionary *dict = @{ @"version" : @"1.2.3-alpha.0" };
-
-    NSError *error = nil;
-    SentryOptions *options =
-        [[SentryOptions alloc] initWithDict:@{ @"sdk" : dict, @"dsn" : @"https://a:b@c.d/1" }
-                           didFailWithError:&error];
-
-    XCTAssertNil(error);
-    XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name); // default name
-    XCTAssertEqual(dict[@"version"], options.sdkInfo.version);
-}
-
 - (void)testMaxAttachmentSize
 {
     NSNumber *maxAttachmentSize = @21;

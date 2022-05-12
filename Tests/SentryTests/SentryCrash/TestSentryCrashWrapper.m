@@ -1,5 +1,4 @@
 #import "TestSentryCrashWrapper.h"
-#import "SentryCrash.h"
 #import <Foundation/Foundation.h>
 
 @implementation TestSentryCrashWrapper
@@ -44,11 +43,6 @@
 - (void)close
 {
     self.closeCalled = YES;
-}
-
-- (NSDictionary *)systemInfo
-{
-    return @{};
 }
 
 @end

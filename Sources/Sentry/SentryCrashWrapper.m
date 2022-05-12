@@ -55,14 +55,6 @@ NS_ASSUME_NONNULL_BEGIN
     sentrycrashccd_close();
 }
 
-- (NSDictionary *)systemInfo
-{
-    static NSDictionary *sharedInfo = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ sharedInfo = SentryCrash.sharedInstance.systemInfo; });
-    return sharedInfo;
-}
-
 @end
 
 NS_ASSUME_NONNULL_END

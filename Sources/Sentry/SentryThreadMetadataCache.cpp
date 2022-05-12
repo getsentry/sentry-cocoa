@@ -6,6 +6,7 @@
 #    include "SentryThreadHandle.hpp"
 
 #    include <algorithm>
+#    include <dispatch/dispatch.h>
 #    include <string>
 #    include <vector>
 
@@ -28,9 +29,9 @@ namespace profiling {
     ThreadMetadataCache::metadataForThread(const ThreadHandle &thread)
     {
         const auto handle = thread.nativeHandle();
-        const auto it = std::find_if(cache_.cbegin(), cache_.cend(),
+        const auto it = std::find_if(threadMetadataCache_.cbegin(), threadMetadataCache_.cend(),
             [handle](const ThreadHandleMetadataPair &pair) { return pair.handle == handle; });
-        if (it == cache_.cend()) {
+        if (it == threadMetadataCache_.cend()) {
             ThreadMetadata metadata;
             metadata.threadID = ThreadHandle::tidFromNativeHandle(handle);
             metadata.priority = thread.priority();
@@ -43,7 +44,7 @@ namespace profiling {
                     // Don't collect backtraces for Sentry-owned threads.
                     metadata.priority = 0;
                     metadata.threadID = 0;
-                    cache_.push_back({ handle, metadata });
+                    threadMetadataCache_.push_back({ handle, metadata });
                     return metadata;
                 }
                 if (threadName.size() > kMaxThreadNameLength) {
@@ -53,7 +54,7 @@ namespace profiling {
                 metadata.name = threadName;
             }
 
-            cache_.push_back({ handle, metadata });
+            threadMetadataCache_.push_back({ handle, metadata });
             return metadata;
         } else {
             return (*it).metadata;
@@ -69,7 +70,7 @@ namespace profiling {
         const auto it = std::find_if(queueMetadataCache_.cbegin(), queueMetadataCache_.cend(),
             [address](const QueueMetadata &metadata) { return metadata.address == address; });
         if (it == queueMetadataCache_.cend()) {
-            //            const auto queue = reinterpret_cast<dispatch_queue_t *>(address);
+//            const auto queue = reinterpret_cast<dispatch_queue_t *>(address);
             QueueMetadata metadata = { address, "" };
             queueMetadataCache_.push_back(metadata);
             return metadata;
