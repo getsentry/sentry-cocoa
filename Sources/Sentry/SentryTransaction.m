@@ -1,6 +1,7 @@
 #import "SentryTransaction.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryEnvelopeItemType.h"
+#import "SentryTracer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -14,7 +15,7 @@ SentryTransaction ()
 
 @implementation SentryTransaction
 
-- (instancetype)initWithTrace:(id<SentrySpan>)trace children:(NSArray<id<SentrySpan>> *)children
+- (instancetype)initWithTrace:(SentryTracer *)trace children:(NSArray<id<SentrySpan>> *)children
 {
     if (self = [super init]) {
         self.timestamp = trace.timestamp;
@@ -48,25 +49,10 @@ SentryTransaction ()
         [mutableContext addEntriesFromDictionary:serializedData[@"contexts"]];
     }
     
-    NSMutableDictionary *traceDict = [[_trace serialize] mutableCopy];
-    
-    // We need to remove tags and data from trace, and move them to the top level
-    // https://github.com/getsentry/sentry-cocoa/issues/1311
-    NSMutableDictionary *traceTags = [NSMutableDictionary new];
-    if(traceDict[@"tags"] != nil && [traceDict[@"tags"] isKindOfClass:NSDictionary.class]) {
-        [traceTags addEntriesFromDictionary:traceDict[@"tags"]];
-        traceDict[@"tags"] = nil;
-    }
-    
-    NSMutableDictionary *traceData = [NSMutableDictionary new];
-    if(traceDict[@"data"] != nil && [traceDict[@"data"] isKindOfClass:NSDictionary.class]) {
-        [traceData addEntriesFromDictionary:traceDict[@"data"]];
-        traceDict[@"data"] = nil;
-    }
-    
-    mutableContext[@"trace"] = traceDict;
-    
+    mutableContext[@"trace"] = [self.trace serialize];
     [serializedData setValue:mutableContext forKey:@"contexts"];
+    
+    NSDictionary<NSString *, id> *traceTags = [self.trace.tags sentry_sanitize];
 
     // Adding tags from Trace to serializedData dictionary
     if (serializedData[@"tags"] != nil && [serializedData[@"tags"] isKindOfClass:NSDictionary.class]) {
@@ -77,6 +63,8 @@ SentryTransaction ()
     } else {
         serializedData[@"tags"] = traceTags;
     }
+    
+    NSDictionary<NSString *, id> *traceData = [self.trace.data sentry_sanitize];
     
     // Adding data from Trace to serializedData dictionary
     if (serializedData[@"extra"] != nil && [serializedData[@"extra"] isKindOfClass:NSDictionary.class]) {

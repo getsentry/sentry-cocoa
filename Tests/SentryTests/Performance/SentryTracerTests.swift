@@ -18,6 +18,8 @@ class SentryTracerTests: XCTestCase {
         let appStart: Date
         let appStartEnd: Date
         let appStartDuration = 0.5
+        let testKey = "extra_key"
+        let testValue = "extra_value"
         
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         var displayLinkWrapper: TestDiplayLinkWrapper
@@ -393,6 +395,18 @@ class SentryTracerTests: XCTestCase {
         sut.setExtra(value: 0, key: "key")
         
         XCTAssertEqual(["key": 0], sut.data as! [String: Int])
+    }
+    
+    func testTagsFromContext_shouldBeSerialized() {
+        // given
+        fixture.transactionContext.setTag(value: fixture.testValue, key: fixture.testKey)
+        let transaction = fixture.getSut()
+        
+        // when
+        let dict = try! XCTUnwrap(transaction.serialize()["tags"] as? [String:String])
+        
+        // then
+        XCTAssertEqual(dict, [fixture.testKey: fixture.testValue])
     }
     
     private func getSerializedTransaction() -> [String: Any] {

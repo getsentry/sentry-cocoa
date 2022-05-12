@@ -40,6 +40,8 @@ SentryTracer ()
 @implementation SentryTracer {
     BOOL _waitForChildren;
     SentryTraceState *_traceState;
+    NSMutableDictionary<NSString *, id> *_tags;
+    NSMutableDictionary<NSString *, id> *_data;
 
 #if SENTRY_HAS_UIKIT
     BOOL _startTimeChanged;
@@ -78,6 +80,8 @@ static BOOL appStartMeasurementRead;
         self.hub = hub;
         self.isWaitingForChildren = NO;
         _waitForChildren = waitForChildren;
+        _tags = [[NSMutableDictionary alloc] init];
+        _data = [[NSMutableDictionary alloc] init];
         self.finishStatus = kSentrySpanStatusUndefined;
 
 #if SENTRY_HAS_UIKIT
@@ -183,12 +187,16 @@ static BOOL appStartMeasurementRead;
 
 - (nullable NSDictionary<NSString *, id> *)data
 {
-    return self.rootSpan.data;
+    @synchronized(_data) {
+        return [_data copy];
+    }
 }
 
 - (NSDictionary<NSString *, id> *)tags
 {
-    return self.rootSpan.tags;
+    @synchronized(_tags) {
+        return [_tags copy];
+    }
 }
 
 - (BOOL)isFinished
@@ -198,7 +206,9 @@ static BOOL appStartMeasurementRead;
 
 - (void)setDataValue:(nullable id)value forKey:(NSString *)key
 {
-    [self.rootSpan setDataValue:value forKey:key];
+    @synchronized(_data) {
+        [_data setValue:value forKey:key];
+    }
 }
 
 - (void)setExtraValue:(nullable id)value forKey:(NSString *)key
@@ -208,17 +218,23 @@ static BOOL appStartMeasurementRead;
 
 - (void)removeDataForKey:(NSString *)key
 {
-    [self.rootSpan removeDataForKey:key];
+    @synchronized(_data) {
+        [_data removeObjectForKey:key];
+    }
 }
 
 - (void)setTagValue:(NSString *)value forKey:(NSString *)key
 {
-    [self.rootSpan setTagValue:value forKey:key];
+    @synchronized(_tags) {
+        [_tags setValue:value forKey:key];
+    }
 }
 
 - (void)removeTagForKey:(NSString *)key
 {
-    [self.rootSpan removeTagForKey:key];
+    @synchronized(_tags) {
+        [_tags removeObjectForKey:key];
+    }
 }
 
 - (void)finish
