@@ -3,6 +3,7 @@
 #import "SentryCrashMonitor_AppState.h"
 #import "SentryHook.h"
 #import <Foundation/Foundation.h>
+#import <SentryCrashCachedData.h>
 #import <SentryCrashDebug.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -42,9 +43,24 @@ NS_ASSUME_NONNULL_BEGIN
     sentrycrash_install_async_hooks();
 }
 
-- (void)deactivateAsyncHooks
+- (void)close
 {
+    SentryCrash *handler = [SentryCrash sharedInstance];
+    @synchronized(handler) {
+        [handler setMonitoring:SentryCrashMonitorTypeNone];
+        handler.onCrash = NULL;
+    }
+
     sentrycrash_deactivate_async_hooks();
+    sentrycrashccd_close();
+}
+
+- (NSDictionary *)systemInfo
+{
+    static NSDictionary *sharedInfo = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ sharedInfo = SentryCrash.sharedInstance.systemInfo; });
+    return sharedInfo;
 }
 
 @end

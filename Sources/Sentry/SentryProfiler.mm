@@ -8,6 +8,7 @@
 #    import "SentryDefines.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryEnvelope.h"
+#    import "SentryEnvelopeItemType.h"
 #    import "SentryHexAddressFormatter.h"
 #    import "SentryId.h"
 #    import "SentryLog.h"
@@ -228,7 +229,7 @@ isSimulatorBuild()
         return nil;
     }
 
-    const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:@"profile"
+    const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfile
                                                                 length:JSONData.length];
     return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
 }

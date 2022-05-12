@@ -106,6 +106,12 @@ typedef enum {
  */
 @property (nonatomic, readwrite, assign) double deadlockWatchdogInterval;
 
+// We removed searchQueueNames in 4.0.0 see:
+// https://github.com/getsentry/sentry-cocoa/commit/b728c74e898e6ed3b1cab0b1cf5b6c8892b29b70,
+// because we were deferencing a pointer to the dispatch queue, which could have been deallocated by
+// the time you deference it. Also see this comment in some WebKit code:
+// https://github.com/WebKit/WebKit/blob/09225dc168d445890bb0e2a5fa8bc19aef8556f2/Source/WebCore/page/cocoa/ResourceUsageThreadCocoa.mm#L119.
+
 /** If YES, introspect memory contents during a crash.
  * Any Objective-C objects or C strings near the stack pointer or referenced by
  * cpu registers or exceptions will be recorded in the crash report, along with

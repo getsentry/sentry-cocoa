@@ -34,6 +34,9 @@ SentryDataCategoryMapper ()
     if ([itemType isEqualToString:SentryEnvelopeItemTypeAttachment]) {
         category = kSentryDataCategoryAttachment;
     }
+    if ([itemType isEqualToString:SentryEnvelopeItemTypeProfile]) {
+        category = kSentryDataCategoryProfile;
+    }
     return category;
 }
 
@@ -61,6 +64,9 @@ SentryDataCategoryMapper ()
     }
     if (value == kSentryDataCategoryUserFeedback) {
         category = kSentryDataCategoryUserFeedback;
+    }
+    if (value == kSentryDataCategoryProfile) {
+        category = kSentryDataCategoryProfile;
     }
     if (value == kSentryDataCategoryUnknown) {
         category = kSentryDataCategoryUnknown;

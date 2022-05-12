@@ -20,7 +20,13 @@ SENTRY_NO_INIT
 
 - (void)installAsyncHooks;
 
-- (void)deactivateAsyncHooks;
+/**
+ * It's not really possible to close SentryCrash. Best we can do is to deactivate all the monitors,
+ * clear the `onCrash` callback installed on the global handler, and a few more minor things.
+ */
+- (void)close;
+
+- (NSDictionary *)systemInfo;
 
 @end
 

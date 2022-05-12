@@ -1,4 +1,5 @@
 #import "TestSentryCrashWrapper.h"
+#import "SentryCrash.h"
 #import <Foundation/Foundation.h>
 
 @implementation TestSentryCrashWrapper
@@ -11,7 +12,7 @@
     instance.internalIsBeingTraced = NO;
     instance.internalIsApplicationInForeground = YES;
     instance.installAsyncHooksCalled = NO;
-    instance.deactivateAsyncHooksCalled = NO;
+    instance.closeCalled = NO;
     return instance;
 }
 
@@ -40,9 +41,14 @@
     self.installAsyncHooksCalled = YES;
 }
 
-- (void)deactivateAsyncHooks
+- (void)close
 {
-    self.deactivateAsyncHooksCalled = YES;
+    self.closeCalled = YES;
+}
+
+- (NSDictionary *)systemInfo
+{
+    return @{};
 }
 
 @end

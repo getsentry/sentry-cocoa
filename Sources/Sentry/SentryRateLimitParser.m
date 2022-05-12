@@ -79,6 +79,9 @@ SentryRateLimitParser ()
     if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategoryAttachment]]) {
         result = kSentryDataCategoryAttachment;
     }
+    if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategoryProfile]]) {
+        result = kSentryDataCategoryProfile;
+    }
 
     // UserFeedback is not listed for rate limits
     // https://develop.sentry.dev/sdk/rate-limiting/#definitions

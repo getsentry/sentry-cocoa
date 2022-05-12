@@ -255,7 +255,7 @@ SentryHub ()
 
 - (SentryId *)captureEvent:(SentryEvent *)event
 {
-    return [self captureEvent:event withScope:[[SentryScope alloc] init]];
+    return [self captureEvent:event withScope:self.scope];
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope
@@ -369,7 +369,7 @@ SentryHub ()
 
 - (SentryId *)captureMessage:(NSString *)message
 {
-    return [self captureMessage:message withScope:[[SentryScope alloc] init]];
+    return [self captureMessage:message withScope:self.scope];
 }
 
 - (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
@@ -383,7 +383,7 @@ SentryHub ()
 
 - (SentryId *)captureError:(NSError *)error
 {
-    return [self captureError:error withScope:[[SentryScope alloc] init]];
+    return [self captureError:error withScope:self.scope];
 }
 
 - (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
@@ -402,7 +402,7 @@ SentryHub ()
 
 - (SentryId *)captureException:(NSException *)exception
 {
-    return [self captureException:exception withScope:[[SentryScope alloc] init]];
+    return [self captureException:exception withScope:self.scope];
 }
 
 - (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope

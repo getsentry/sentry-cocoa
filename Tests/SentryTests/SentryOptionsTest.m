@@ -503,7 +503,8 @@
         @"urlSessionDelegate" : [NSNull null],
         @"experimentalEnableTraceSampling" : [NSNull null],
         @"enableSwizzling" : [NSNull null],
-        @"enableIOTracking" : [NSNull null]
+        @"enableIOTracking" : [NSNull null],
+        @"sdk" : [NSNull null]
     }
                                                 didFailWithError:nil];
 
@@ -551,6 +552,8 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     XCTAssertEqual(NO, options.enableProfiling);
 #endif
+    XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name);
+    XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version);
 }
 
 - (void)testSetValidDsn
@@ -593,6 +596,48 @@
 
     XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name);
     XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version);
+}
+
+- (void)testSetCustomSdkInfo
+{
+    NSDictionary *dict = @{ @"name" : @"custom.sdk", @"version" : @"1.2.3-alpha.0" };
+
+    NSError *error = nil;
+    SentryOptions *options =
+        [[SentryOptions alloc] initWithDict:@{ @"sdk" : dict, @"dsn" : @"https://a:b@c.d/1" }
+                           didFailWithError:&error];
+
+    XCTAssertNil(error);
+    XCTAssertEqual(dict[@"name"], options.sdkInfo.name);
+    XCTAssertEqual(dict[@"version"], options.sdkInfo.version);
+}
+
+- (void)testSetCustomSdkName
+{
+    NSDictionary *dict = @{ @"name" : @"custom.sdk" };
+
+    NSError *error = nil;
+    SentryOptions *options =
+        [[SentryOptions alloc] initWithDict:@{ @"sdk" : dict, @"dsn" : @"https://a:b@c.d/1" }
+                           didFailWithError:&error];
+
+    XCTAssertNil(error);
+    XCTAssertEqual(dict[@"name"], options.sdkInfo.name);
+    XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version); // default version
+}
+
+- (void)testSetCustomSdkVersion
+{
+    NSDictionary *dict = @{ @"version" : @"1.2.3-alpha.0" };
+
+    NSError *error = nil;
+    SentryOptions *options =
+        [[SentryOptions alloc] initWithDict:@{ @"sdk" : dict, @"dsn" : @"https://a:b@c.d/1" }
+                           didFailWithError:&error];
+
+    XCTAssertNil(error);
+    XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name); // default name
+    XCTAssertEqual(dict[@"version"], options.sdkInfo.version);
 }
 
 - (void)testMaxAttachmentSize

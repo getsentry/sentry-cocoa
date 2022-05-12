@@ -16,6 +16,8 @@ NS_SWIFT_NAME(CurrentDate)
 
 + (void)setCurrentDateProvider:(nullable id<SentryCurrentDateProvider>)currentDateProvider;
 
++ (nullable id<SentryCurrentDateProvider>)getCurrentDateProvider;
+
 @end
 
 NS_ASSUME_NONNULL_END
