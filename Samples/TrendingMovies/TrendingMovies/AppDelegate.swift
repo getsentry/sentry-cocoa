@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             URLCache.shared.removeAllCachedResponses()
         }
 
-        if ProcessInfo().arguments.contains("--clear") {
+        if ProcessInfo().arguments.contains("--io.sentry.ui-test.benchmarking") {
             clearCaches()
         }
 
