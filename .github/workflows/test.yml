@@ -35,8 +35,6 @@ jobs:
         
         xcode: ["13.2.1", "12.5.1"]
 
-        a: ["a", "b", "c", "d"]
-
         test-destination-os: ["latest"]
         
         include:
