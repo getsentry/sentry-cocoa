@@ -14,9 +14,5 @@ jobs:
   benchmark-with-movies:
     runs-on: macos-11
     steps:
-      - uses: actions/checkout@v2
-        with:
-          repository: 'getsentry/sentry-cocoa-samples'
-          ref: '28ffa40b417d878e4a4f58f0f86f27927eaca649'
       - name: Benchmark Sentry SDK PR
         run: make benchmark-sentry-pr SENTRY_PR_COMMIT_HASH="${{ github.event.pull_request.head.sha }}"
