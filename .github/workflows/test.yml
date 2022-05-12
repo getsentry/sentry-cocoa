@@ -17,6 +17,8 @@ jobs:
   unit-tests:
     name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}} - OS ${{matrix.test-destination-os}}
     runs-on: ${{matrix.runs-on}}
+    timeout-minutes: 20
+    
     strategy:      
       fail-fast: false
       matrix:
@@ -27,16 +29,26 @@ jobs:
         
         # We can't use Xcode 10.3 because our tests contain a reference to MacCatalyst,
         # which is only available since iOS 13 / Xcode 11.
-        xcode: ["13.0", "12.5.1", "11.7"]
+        # We can't use Xcode 11.7 as we use XCTestObservation. When building with Xcode 11.7
+        # we get the error 'XCTest/XCTest.h' not found. Setting ENABLE_TESTING_SEARCH_PATH=YES
+        # doesn't work.
+        
+        xcode: ["13.2.1", "12.5.1"]
 
         test-destination-os: ["latest"]
-
-        # Test on iOS 12.4
+        
         include:
+          # Test on iOS 12.4
           - runs-on: macos-10.15
             platform: "iOS"
-            xcode: "11.7"
+            xcode: "12.4"
             test-destination-os: "12.4"
+
+         # Test on iOS 13.7
+          - runs-on:  macos-11
+            platform: "iOS"
+            xcode: "13.2.1"
+            test-destination-os: "13.7"
 
     steps:
       - uses: actions/checkout@v2
@@ -71,16 +83,21 @@ jobs:
         run: |
           sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
           sudo ln -s /Applications/Xcode_10.3.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 12.4.simruntime
-          xcrun simctl list runtimes
           xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-12-4"
-          xcrun simctl list devices 12.4
+
+      - name: Prepare iOS 13.7 simulator
+        if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '13.7'}}  
+        run: |
+          sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
+          sudo ln -s /Applications/Xcode_11.7.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 13.7.simruntime
+          xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-13-7"   
 
       - name: Running tests
         # We call a script with the platform so the destination
         # passed to xcodebuild doesn't ends up in the job name, 
         # because GitHub Actions don't provide an easy way of 
-        # manipulating string in expressions.
-        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}}
+        # manipulating string in expressions.  
+        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@v2
@@ -89,6 +106,15 @@ jobs:
           name: derived-data-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
           path: |
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
+
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            raw-test-output.log
+      
 
       # We can upload all coverage reports, because codecov merges them.
       # See https://docs.codecov.io/docs/merging-reports
