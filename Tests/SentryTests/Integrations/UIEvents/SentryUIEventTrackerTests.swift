@@ -13,6 +13,8 @@ class SentryUIEventTrackerTests: XCTestCase {
     }
 
     private var fixture: Fixture!
+    let operation = "ui.action"
+    let operationClick = "ui.action.click"
     
     override func setUp() {
         super.setUp()
@@ -35,8 +37,25 @@ class SentryUIEventTrackerTests: XCTestCase {
             return
         }
         
-        XCTAssertEqual(span.name, "[NSObject SomeAction]")
-        XCTAssertEqual(span.context.operation, "ui.action")
+        XCTAssertEqual(span.name, "NSObject.SomeAction")
+        XCTAssertEqual(span.context.operation, operation)
+    }
+    
+    func test_Create_Transaction_WithButtonClick() {
+        let sut = fixture.getSut()
+        sut.start()
+        
+        let event = TestUIEvent()
+        
+        callExecuteAction(sut, action: "captureMessage", target: FirstViewController(), sender: nil, event: event)
+
+        guard let span = SentrySDK.span as? SentryTracer else {
+            XCTFail("Transaction not created")
+            return
+        }
+        
+        XCTAssertEqual(span.name, "SentryTests.FirstViewController.captureMessage")
+        XCTAssertEqual(span.context.operation, operationClick)
     }
     
     func test_Create_Transaction_noTarget() {
@@ -50,7 +69,7 @@ class SentryUIEventTrackerTests: XCTestCase {
         }
         
         XCTAssertEqual(span.name, "SomeAction")
-        XCTAssertEqual(span.context.operation, "ui.action")
+        XCTAssertEqual(span.context.operation, operation)
     }
     
     func test_dont_Create_Transaction_Scope_Used() {
@@ -102,6 +121,14 @@ class SentryUIEventTrackerTests: XCTestCase {
         
     func callExecuteAction(_ tracker: SentryUIEventTracker, action: String, target: Any?, sender: Any?, event: UIEvent?) {
         fixture.swizzleWrapper.execute(action: action, target: target, sender: sender, event: event)
+    }
+    
+    private class TestUIEvent: UIEvent {
+        
+        var internalType: UIEvent.EventType = .presses
+        override var type: UIEvent.EventType {
+            return internalType
+        }
     }
 }
 #endif

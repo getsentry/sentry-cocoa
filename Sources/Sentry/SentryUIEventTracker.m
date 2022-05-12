@@ -46,6 +46,12 @@ SentryUIEventTracker ()
                     return;
                 }
 
+                NSString *operation = @"ui.action";
+                if (event
+                    && (event.type == UIEventTypePresses || event.type == UIEventTypeTouches)) {
+                    operation = @"ui.action.click";
+                }
+
                 [span finish];
 
                 Class targetClass = [target class];
@@ -53,14 +59,14 @@ SentryUIEventTracker ()
 
                 if (targetClass) {
                     transactionName = [NSString
-                        stringWithFormat:@"[%@ %@]", NSStringFromClass(targetClass), action];
+                        stringWithFormat:@"%@.%@", NSStringFromClass(targetClass), action];
                 } else {
                     transactionName = action;
                 }
 
                 SentryTransactionContext *context =
                     [[SentryTransactionContext alloc] initWithName:transactionName
-                                                         operation:@"ui.action"];
+                                                         operation:operation];
 
                 [SentrySDK.currentHub startTransactionWithContext:context
                                                       bindToScope:YES
