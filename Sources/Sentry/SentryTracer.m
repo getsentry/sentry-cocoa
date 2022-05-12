@@ -38,6 +38,7 @@ SentryTracer ()
 @property (nonatomic, strong) NSMutableArray<id<SentrySpan>> *children;
 @property (nonatomic, strong) SentryHub *hub;
 @property (nonatomic) SentrySpanStatus finishStatus;
+@property (nonatomic) BOOL isWaitingForChildren;
 @property (nonatomic) NSTimeInterval idleTimeout;
 @property (nonatomic, nullable, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 
@@ -117,6 +118,7 @@ static NSLock *profilerLock;
         self.name = transactionContext.name;
         self.children = [[NSMutableArray alloc] init];
         self.hub = hub;
+        self.isWaitingForChildren = NO;
         _waitForChildren = waitForChildren;
         self.finishStatus = kSentrySpanStatusUndefined;
         self.idleTimeout = idleTimeout;
@@ -312,6 +314,7 @@ static NSLock *profilerLock;
 
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
+    self.isWaitingForChildren = YES;
     _finishStatus = status;
     [self canBeFinished];
 }
@@ -335,7 +338,7 @@ static NSLock *profilerLock;
         return;
     }
 
-    if (hasChildrenToWaitFor)
+    if (!self.isWaitingForChildren || hasChildrenToWaitFor)
         return;
 
     [self finishInternal];
