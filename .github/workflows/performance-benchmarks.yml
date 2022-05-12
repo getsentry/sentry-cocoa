@@ -17,6 +17,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           repository: 'getsentry/sentry-cocoa-samples'
+          ref: '88e88bd86af083ae1d0b36bb2889c29a5839859f'
       - name: Install dev tools
         run: make init
       - name: Benchmark Sentry SDK PR
