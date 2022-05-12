@@ -52,7 +52,8 @@ SentryTransaction ()
     mutableContext[@"trace"] = [self.trace serialize];
     [serializedData setValue:mutableContext forKey:@"contexts"];
     
-    NSDictionary<NSString *, id> *traceTags = [self.trace.tags sentry_sanitize];
+    NSMutableDictionary<NSString *, id> *traceTags = [[self.trace.tags sentry_sanitize] mutableCopy];
+    [traceTags addEntriesFromDictionary:[self.trace.context.tags sentry_sanitize]];
 
     // Adding tags from Trace to serializedData dictionary
     if (serializedData[@"tags"] != nil && [serializedData[@"tags"] isKindOfClass:NSDictionary.class]) {
