@@ -70,8 +70,8 @@ namespace profiling {
         const auto it = std::find_if(queueMetadataCache_.cbegin(), queueMetadataCache_.cend(),
             [address](const QueueMetadata &metadata) { return metadata.address == address; });
         if (it == queueMetadataCache_.cend()) {
-            const auto queue = reinterpret_cast<dispatch_queue_t *>(address);
-            QueueMetadata metadata = { address, std::string(dispatch_queue_get_label(*queue)) };
+//            const auto queue = reinterpret_cast<dispatch_queue_t *>(address);
+            QueueMetadata metadata = { address, "" };
             queueMetadataCache_.push_back(metadata);
             return metadata;
         } else {
