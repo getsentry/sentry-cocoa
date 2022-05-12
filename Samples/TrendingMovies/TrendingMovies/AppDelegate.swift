@@ -6,20 +6,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     var tracer: Tracer?
 
+    // these are only used in benchmarking UI tests
+    let benchmarkValueTextField = UITextField(frame: CGRect(x: 0, y: 0, width: 100, height: 50))
+    let valueMarshalWindow = UIWindow(frame: UIScreen.main.bounds)
+
     func application(_: UIApplication, willFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         print("[TrendingMovies] willFinishLaunchingWithOptions")
         Tracer.setUp(finishedLaunching: false)
 
-        func clearCaches() {
+        if ProcessInfo().arguments.contains("--io.sentry.ui-test.benchmarking") {
             let sharedCache = KingfisherManager.shared.cache
             sharedCache.clearMemoryCache()
             sharedCache.clearDiskCache()
             sharedCache.cleanExpiredDiskCache()
             URLCache.shared.removeAllCachedResponses()
-        }
-
-        if ProcessInfo().arguments.contains("--io.sentry.ui-test.benchmarking") {
-            clearCaches()
         }
 
         return true
@@ -63,6 +63,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.makeKeyAndVisible()
 
         // TODO: show debug menu launcher?
+
+        if ProcessInfo().arguments.contains("--io.sentry.ui-test.benchmarking") {
+            let vc = UIViewController(nibName: nil, bundle: nil)
+            vc.view.addSubview(benchmarkValueTextField)
+            benchmarkValueTextField.accessibilityLabel = "io.sentry.accessibility-identifier.benchmarking-value-marshaling-text-field"
+            valueMarshalWindow.rootViewController = vc
+            valueMarshalWindow.windowLevel = .init(rawValue: window!.windowLevel.rawValue + 1.0)
+            valueMarshalWindow.isHidden = false
+        }
 
         return true
     }
