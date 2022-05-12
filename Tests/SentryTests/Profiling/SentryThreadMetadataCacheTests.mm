@@ -104,23 +104,23 @@ threadSpin(void *name)
     XCTAssertEqual(pthread_join(thread, nullptr), 0);
 }
 
-- (void)testRetrievesQueueMetadata
-{
-    const auto label = "io.sentry.SentryThreadMetadataCacheTests.testQueue";
-    const auto queue = dispatch_queue_create(label, DISPATCH_QUEUE_SERIAL);
-    const auto cache = std::make_shared<ThreadMetadataCache>();
-
-    XCTAssertTrue(cache->metadataForQueue(reinterpret_cast<std::uint64_t>(&queue)).label == label);
-}
-
-- (void)testNullQueueAddressReturnsNoMetadata
-{
-    const auto cache = std::make_shared<ThreadMetadataCache>();
-    const auto metadata = cache->metadataForQueue(0);
-
-    XCTAssertEqual(metadata.address, static_cast<unsigned long long>(0));
-    XCTAssertEqual(metadata.label, "");
-}
+//- (void)testRetrievesQueueMetadata
+//{
+//    const auto label = "io.sentry.SentryThreadMetadataCacheTests.testQueue";
+//    const auto queue = dispatch_queue_create(label, DISPATCH_QUEUE_SERIAL);
+//    const auto cache = std::make_shared<ThreadMetadataCache>();
+//
+//    XCTAssertTrue(cache->metadataForQueue(reinterpret_cast<std::uint64_t>(&queue)).label == label);
+//}
+//
+//- (void)testNullQueueAddressReturnsNoMetadata
+//{
+//    const auto cache = std::make_shared<ThreadMetadataCache>();
+//    const auto metadata = cache->metadataForQueue(0);
+//
+//    XCTAssertEqual(metadata.address, static_cast<unsigned long long>(0));
+//    XCTAssertEqual(metadata.label, "");
+//}
 
 @end
 
