@@ -169,7 +169,7 @@ namespace profiling {
                     // There's no cached metadata, so we should try to read it.
                     const auto queue = reinterpret_cast<dispatch_queue_t *>(queueAddress);
                     const auto queueLabel = dispatch_queue_get_label(*queue);
-                    std::strncat(newQueueLabel, queueLabel, sizeof(newQueueLabel) - 1);
+                    strlcpy(newQueueLabel, queueLabel, sizeof(newQueueLabel));
                 }
 
                 thread->resume();
