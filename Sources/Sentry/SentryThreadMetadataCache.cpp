@@ -6,7 +6,6 @@
 #    include "SentryThreadHandle.hpp"
 
 #    include <algorithm>
-#    include <dispatch/dispatch.h>
 #    include <string>
 #    include <vector>
 
@@ -62,7 +61,7 @@ namespace profiling {
     }
 
     QueueMetadata
-    ThreadMetadataCache::metadataForQueue(std::uint64_t address)
+    ThreadMetadataCache::metadataForQueue(std::uint64_t address) const
     {
         if (address == 0) {
             return {};
@@ -70,13 +69,14 @@ namespace profiling {
         const auto it = std::find_if(queueMetadataCache_.cbegin(), queueMetadataCache_.cend(),
             [address](const QueueMetadata &metadata) { return metadata.address == address; });
         if (it == queueMetadataCache_.cend()) {
-            const auto queue = reinterpret_cast<dispatch_queue_t *>(address);
-            QueueMetadata metadata = { address, std::string(dispatch_queue_get_label(*queue)) };
-            queueMetadataCache_.push_back(metadata);
-            return metadata;
+            return { 0, {} };
         } else {
             return (*it);
         }
+    }
+
+    void ThreadMetadataCache::setQueueMetadata(QueueMetadata metadata) {
+        queueMetadataCache_.push_back(std::move(metadata));
     }
 
 } // namespace profiling

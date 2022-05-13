@@ -42,12 +42,18 @@ namespace profiling {
 
         /**
          * Returns the metadata for the queue at the specified address.
-         * @param address The address of the queue to retrieve metadata from.
-         * @note This function assumes that the queue address is valid. If the address
-         * is invalid, the behavior is non-deterministic and will probably crash.
-         * @return @c QueueMetadata for the queue at the specified address.
+         * @param address The address of the queue.
+         * @return @c QueueMetadata for the queue at the specified address if a cached
+         * entry exists, or an empty @c QueueMetadata with the address set to 0 if it
+         * does not exist.
          */
-        QueueMetadata metadataForQueue(std::uint64_t address);
+        QueueMetadata metadataForQueue(std::uint64_t address) const;
+        
+        /**
+         * Stores metadata for the queue at the address specified in `metadata.address`
+         * @param metadata The metadata to associate with the queue.
+         */
+        void setQueueMetadata(QueueMetadata metadata);
 
         ThreadMetadataCache() = default;
         ThreadMetadataCache(const ThreadMetadataCache &) = delete;

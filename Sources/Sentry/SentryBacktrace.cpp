@@ -13,6 +13,8 @@
 #    include "SentryTime.h"
 
 #    include <cassert>
+#    include <cstring>
+#    include <dispatch/dispatch.h>
 
 using namespace sentry::profiling;
 using namespace sentry::profiling::thread;
@@ -128,7 +130,15 @@ namespace profiling {
             // ############################################
             // DEADLOCK WARNING: It is not safe to call any functions that acquire a
             // lock between here and `thread->resume()` -- this may cause a deadlock.
-            // Pay special attention to functions that may end up calling any of the
+            //
+            // Heap allocations are unsafe, because `nanov2_malloc` takes an unfair
+            // lock.
+            // libsystem_kernel.dylib`__ulock_wait + 8
+            // frame #1: 0x000000020dfcd9ac libsystem_platform.dylib`_os_unfair_lock_lock_slow + 172
+            // frame #2: 0x00000001aeabe1d8 libsystem_malloc.dylib`nanov2_allocate + 244
+            // frame #3: 0x00000001aeabe080 libsystem_malloc.dylib`nanov2_malloc + 64
+            //
+            // Also pay special attention to functions that may end up calling any of the
             // pthread_*_np functions, which typically take a lock used by other
             // OS APIs like GCD. You can see the full list of functions that take the
             // lock by going here and searching for `_pthread_list_lock:
@@ -138,22 +148,47 @@ namespace profiling {
                 continue;
             }
 
-            // Retrieving queue metadata *must* be done after suspending the thread,
-            // because otherwise the queue could be deallocated in the middle of us
-            // trying to read from it. This doesn't use any of the pthread APIs, only
-            // thread_info, so the above comment about the deadlock does not apply here.
-            bt.queueMetadata = cache->metadataForQueue(thread->dispatchQueueAddress());
-
             bool reachedEndOfStack = false;
             std::uintptr_t addresses[kMaxBacktraceDepth];
             const auto depth = backtrace(*thread, *pair.second, addresses, stackBounds,
                 &reachedEndOfStack, kMaxBacktraceDepth, 0);
-
-            thread->resume();
+            
+            // Retrieving queue metadata *must* be done after suspending the thread,
+            // because otherwise the queue could be deallocated in the middle of us
+            // trying to read from it. This doesn't use any of the pthread APIs, only
+            // thread_info, so the above comment about the deadlock does not apply here.
+            const auto queueAddress = thread->dispatchQueueAddress();
+            if (queueAddress != 0) {
+                // This operation is read-only and does not result in any heap allocations.
+                auto cachedMetadata = cache->metadataForQueue(queueAddress);
+                
+                // Copy the queue label onto the stack to avoid a heap allocation.
+                char newQueueLabel[128];
+                *newQueueLabel = '\0';
+                if (cachedMetadata.address == 0) {
+                    // There's no cached metadata, so we should try to read it.
+                    const auto queue = reinterpret_cast<dispatch_queue_t *>(queueAddress);
+                    const auto queueLabel = dispatch_queue_get_label(*queue);
+                    std::strncat(newQueueLabel, queueLabel, sizeof(newQueueLabel) - 1);
+                }
+                
+                thread->resume();
+                
+                if (cachedMetadata.address == 0) {
+                    cachedMetadata.address = queueAddress;
+                    // These cause heap allocations but it's safe now since the thread has
+                    // been resumed above.
+                    cachedMetadata.label = std::string(newQueueLabel);
+                    cache->setQueueMetadata(cachedMetadata);
+                }
+                bt.queueMetadata = std::move(cachedMetadata);
+            } else {
+                thread->resume();
+            }
+            
             // ############################################
             // END DEADLOCK WARNING
             // ############################################
-
             // Consider the backtraces only if we're able to collect the full stack
             if (reachedEndOfStack) {
                 for (std::remove_const<decltype(depth)>::type i = 0; i < depth; i++) {

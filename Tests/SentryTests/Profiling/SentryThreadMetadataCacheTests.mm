@@ -110,10 +110,12 @@ threadSpin(void *name)
     const auto queue = dispatch_queue_create(label, DISPATCH_QUEUE_SERIAL);
     const auto cache = std::make_shared<ThreadMetadataCache>();
 
+    const auto address = reinterpret_cast<std::uint64_t>(&queue);
+    cache->setQueueMetadata({address, label});
     XCTAssertTrue(cache->metadataForQueue(reinterpret_cast<std::uint64_t>(&queue)).label == label);
 }
 
-- (void)testNullQueueAddressReturnsNoMetadata
+- (void)testNonexistentQueueAddressReturnsNoMetadata
 {
     const auto cache = std::make_shared<ThreadMetadataCache>();
     const auto metadata = cache->metadataForQueue(0);
