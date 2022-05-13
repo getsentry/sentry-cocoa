@@ -138,6 +138,12 @@ namespace profiling {
                 continue;
             }
 
+            // Retrieving queue metadata *must* be done after suspending the thread,
+            // because otherwise the queue could be deallocated in the middle of us
+            // trying to read from it. This doesn't use any of the pthread APIs, only
+            // thread_info, so the above comment about the deadlock does not apply here.
+            bt.queueMetadata = cache->metadataForQueue(thread->dispatchQueueAddress());
+
             bool reachedEndOfStack = false;
             std::uintptr_t addresses[kMaxBacktraceDepth];
             const auto depth = backtrace(*thread, *pair.second, addresses, stackBounds,
