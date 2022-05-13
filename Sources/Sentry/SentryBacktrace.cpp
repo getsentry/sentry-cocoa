@@ -178,7 +178,7 @@ namespace profiling {
                     cachedMetadata.address = queueAddress;
                     // These cause heap allocations but it's safe now since the thread has
                     // been resumed above.
-                    cachedMetadata.label = std::string(newQueueLabel);
+                    cachedMetadata.label = std::make_shared<std::string>(newQueueLabel);
                     cache->setQueueMetadata(cachedMetadata);
                 }
                 bt.queueMetadata = std::move(cachedMetadata);

@@ -151,10 +151,10 @@ isSimulatorBuild()
                     metadata[@"priority"] = @(backtrace.threadMetadata.priority);
                     threadMetadata[threadID] = metadata;
                 }
-                if (queueAddress != nil && queueMetadata[queueAddress] == nil) {
+                if (queueAddress != nil && queueMetadata[queueAddress] == nil && backtrace.queueMetadata.label != nullptr) {
                     queueMetadata[queueAddress] = @{
                         @"label" :
-                            [NSString stringWithUTF8String:backtrace.queueMetadata.label.c_str()]
+                            [NSString stringWithUTF8String:backtrace.queueMetadata.label->c_str()]
                     };
                 }
 #    if defined(DEBUG)

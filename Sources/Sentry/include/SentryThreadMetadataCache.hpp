@@ -20,7 +20,9 @@ namespace profiling {
 
     struct QueueMetadata {
         std::uint64_t address;
-        std::string label;
+        // std::string always heap allocates a string buffer, since this data structure
+        // might be created while its unsafe to allocate, we wrap it in a pointer.
+        std::shared_ptr<std::string> label;
     };
 
     /**
