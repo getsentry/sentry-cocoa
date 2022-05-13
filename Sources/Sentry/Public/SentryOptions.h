@@ -313,6 +313,17 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL sendClientReports;
 
+/**
+ * When enabled, the SDK tracks when the application stop responding for and expecific amount of time determined in `anrTimeoutInterval` option.
+ */
+@property (nonatomic, assign) BOOL anrEnable;
+
+
+/**
+ *
+ */
+@property (nonatomic, assign) NSTimeInterval anrTimeoutInterval;
+
 @end
 
 NS_ASSUME_NONNULL_END

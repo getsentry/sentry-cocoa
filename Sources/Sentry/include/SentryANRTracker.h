@@ -33,9 +33,11 @@ SENTRY_NO_INIT
             dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                    threadWrapper:(SentryThreadWrapper *)threadWrapper;
 
-- (void)start;
+- (void)addListener:(id<SentryANRTrackerDelegate>)listener;
 
-- (void)stop;
+- (void)removeListener:(id<SentryANRTrackerDelegate>)listener;
+
+- (void)clear;
 
 @end
 
