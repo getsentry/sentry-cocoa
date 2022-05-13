@@ -22,13 +22,11 @@ class SentryUIEventTrackerTests: XCTestCase {
     let action = "SomeAction"
     let accessibilityIdentifier = "accessibilityIdentifier"
     
-    
     override func setUp() {
         super.setUp()
         fixture = Fixture()
         sut = fixture.getSut()
         sut.start()
-        
         
         SentrySDK.setCurrentHub(fixture.hub)
     }

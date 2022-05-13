@@ -21,7 +21,7 @@ SentryUIEventTracker ()
 
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
-@property (nonatomic, strong) NSMutableArray<id<SentrySpan>> * transactions;
+@property (nonatomic, strong) NSMutableArray<id<SentrySpan>> *transactions;
 
 @end
 
@@ -46,13 +46,12 @@ SentryUIEventTracker ()
             [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
                 [self removeFinishedTransactions];
 
-
                 NSString *operation = @"ui.action";
                 if (event
                     && (event.type == UIEventTypePresses || event.type == UIEventTypeTouches)) {
                     operation = @"ui.action.click";
                 }
-                
+
                 NSString *transactionName = [self getTransactionName:action
                                                               target:target
                                                               sender:sender];
@@ -61,18 +60,20 @@ SentryUIEventTracker ()
                     [[SentryTransactionContext alloc] initWithName:transactionName
                                                          operation:operation];
 
-                BOOL ongoingScreenLoadTransaction = span != nil && [span.context.operation isEqualToString:@"ui.load"];
-                BOOL ongoingManualTransaction = span != nil && ![span.context.operation isEqualToString:@"ui.load"] && ![span.context.operation containsString:@"ui.action."];
-                
-                
-                
+                BOOL ongoingScreenLoadTransaction
+                    = span != nil && [span.context.operation isEqualToString:@"ui.load"];
+                BOOL ongoingManualTransaction = span != nil
+                    && ![span.context.operation isEqualToString:@"ui.load"]
+                    && ![span.context.operation containsString:@"ui.action."];
+
                 BOOL bindToScope = !ongoingScreenLoadTransaction && !ongoingManualTransaction;
-                id<SentrySpan> transaction = [SentrySDK.currentHub startTransactionWithContext:context
-                                                      bindToScope:bindToScope
-                                            customSamplingContext:@{}
-                                                      idleTimeout:defaultIdleTransactionTimeout
-                                             dispatchQueueWrapper:self.dispatchQueueWrapper];
-                
+                id<SentrySpan> transaction =
+                    [SentrySDK.currentHub startTransactionWithContext:context
+                                                          bindToScope:bindToScope
+                                                customSamplingContext:@{}
+                                                          idleTimeout:defaultIdleTransactionTimeout
+                                                 dispatchQueueWrapper:self.dispatchQueueWrapper];
+
                 [self.transactions addObject:transaction];
             }];
         }
@@ -110,14 +111,15 @@ SentryUIEventTracker ()
     return transactionName;
 }
 
-- (void)removeFinishedTransactions {
+- (void)removeFinishedTransactions
+{
     NSMutableArray<id<SentrySpan>> *finishedTransactions = [NSMutableArray new];
     for (id<SentrySpan> transaction in self.transactions) {
         if (transaction.isFinished) {
             [finishedTransactions addObject:transaction];
         }
     }
-    
+
     for (id<SentrySpan> transaction in finishedTransactions) {
         [self.transactions removeObject:transaction];
     }
