@@ -75,7 +75,9 @@ namespace profiling {
         }
     }
 
-    void ThreadMetadataCache::setQueueMetadata(QueueMetadata metadata) {
+    void
+    ThreadMetadataCache::setQueueMetadata(QueueMetadata metadata)
+    {
         queueMetadataCache_.push_back(std::move(metadata));
     }
 

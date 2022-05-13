@@ -111,7 +111,7 @@ threadSpin(void *name)
     const auto cache = std::make_shared<ThreadMetadataCache>();
 
     const auto address = reinterpret_cast<std::uint64_t>(&queue);
-    cache->setQueueMetadata({address, label});
+    cache->setQueueMetadata({ address, label });
     XCTAssertTrue(cache->metadataForQueue(reinterpret_cast<std::uint64_t>(&queue)).label == label);
 }
 

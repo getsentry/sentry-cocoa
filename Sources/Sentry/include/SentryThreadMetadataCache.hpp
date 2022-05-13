@@ -48,7 +48,7 @@ namespace profiling {
          * does not exist.
          */
         QueueMetadata metadataForQueue(std::uint64_t address) const;
-        
+
         /**
          * Stores metadata for the queue at the address specified in `metadata.address`
          * @param metadata The metadata to associate with the queue.

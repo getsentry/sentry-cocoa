@@ -152,7 +152,7 @@ namespace profiling {
             std::uintptr_t addresses[kMaxBacktraceDepth];
             const auto depth = backtrace(*thread, *pair.second, addresses, stackBounds,
                 &reachedEndOfStack, kMaxBacktraceDepth, 0);
-            
+
             // Retrieving queue metadata *must* be done after suspending the thread,
             // because otherwise the queue could be deallocated in the middle of us
             // trying to read from it. This doesn't use any of the pthread APIs, only
@@ -161,7 +161,7 @@ namespace profiling {
             if (queueAddress != 0) {
                 // This operation is read-only and does not result in any heap allocations.
                 auto cachedMetadata = cache->metadataForQueue(queueAddress);
-                
+
                 // Copy the queue label onto the stack to avoid a heap allocation.
                 char newQueueLabel[256];
                 *newQueueLabel = '\0';
@@ -171,9 +171,9 @@ namespace profiling {
                     const auto queueLabel = dispatch_queue_get_label(*queue);
                     std::strncat(newQueueLabel, queueLabel, sizeof(newQueueLabel) - 1);
                 }
-                
+
                 thread->resume();
-                
+
                 if (cachedMetadata.address == 0) {
                     cachedMetadata.address = queueAddress;
                     // These cause heap allocations but it's safe now since the thread has
@@ -185,7 +185,7 @@ namespace profiling {
             } else {
                 thread->resume();
             }
-            
+
             // ############################################
             // END DEADLOCK WARNING
             // ############################################
