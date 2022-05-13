@@ -163,7 +163,7 @@ namespace profiling {
                 auto cachedMetadata = cache->metadataForQueue(queueAddress);
                 
                 // Copy the queue label onto the stack to avoid a heap allocation.
-                char newQueueLabel[128];
+                char newQueueLabel[256];
                 *newQueueLabel = '\0';
                 if (cachedMetadata.address == 0) {
                     // There's no cached metadata, so we should try to read it.
