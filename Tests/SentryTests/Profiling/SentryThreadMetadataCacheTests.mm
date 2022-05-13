@@ -111,8 +111,8 @@ threadSpin(void *name)
     const auto cache = std::make_shared<ThreadMetadataCache>();
 
     const auto address = reinterpret_cast<std::uint64_t>(&queue);
-    cache->setQueueMetadata({ address, label });
-    XCTAssertTrue(cache->metadataForQueue(reinterpret_cast<std::uint64_t>(&queue)).label == label);
+    cache->setQueueMetadata({ address, std::make_shared<std::string>(label) });
+    XCTAssertTrue(*cache->metadataForQueue(reinterpret_cast<std::uint64_t>(&queue)).label == label);
 }
 
 - (void)testNonexistentQueueAddressReturnsNoMetadata
@@ -121,7 +121,7 @@ threadSpin(void *name)
     const auto metadata = cache->metadataForQueue(0);
 
     XCTAssertEqual(metadata.address, static_cast<unsigned long long>(0));
-    XCTAssertEqual(metadata.label, "");
+    XCTAssertEqual(metadata.label, nullptr);
 }
 
 @end
