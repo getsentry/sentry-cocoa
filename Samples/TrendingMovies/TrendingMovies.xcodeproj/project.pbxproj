@@ -67,6 +67,7 @@
 		844A359C282DAA6100C6D1DF /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 844A356B282B3E4500C6D1DF /* Sentry.framework */; };
 		844A359D282DAA6100C6D1DF /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 844A356B282B3E4500C6D1DF /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		844A35B4282DB71400C6D1DF /* TrendingMovies_Benchmarking_UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844A35B3282DB71400C6D1DF /* TrendingMovies_Benchmarking_UITests.swift */; };
+		844A35C0282DCE7100C6D1DF /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 844A35BF282DCE7100C6D1DF /* SentryBenchmarking.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -172,6 +173,8 @@
 		844A3573282B4B6500C6D1DF /* KingfisherSwiftUI.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = KingfisherSwiftUI.xcframework; path = Carthage/Build/KingfisherSwiftUI.xcframework; sourceTree = "<group>"; };
 		844A35B1282DB71400C6D1DF /* TrendingMovies-Benchmarking-UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "TrendingMovies-Benchmarking-UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		844A35B3282DB71400C6D1DF /* TrendingMovies_Benchmarking_UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendingMovies_Benchmarking_UITests.swift; sourceTree = "<group>"; };
+		844A35BE282DCE7100C6D1DF /* SentryBenchmarking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryBenchmarking.h; path = TrendingMovies/SentryBenchmarking.h; sourceTree = "<group>"; };
+		844A35BF282DCE7100C6D1DF /* SentryBenchmarking.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = SentryBenchmarking.mm; path = TrendingMovies/SentryBenchmarking.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -202,6 +205,8 @@
 			children = (
 				844A3565282B3E4500C6D1DF /* Sentry.xcodeproj */,
 				844A3516282B2B9B00C6D1DF /* AppDelegate.swift */,
+				844A35BE282DCE7100C6D1DF /* SentryBenchmarking.h */,
+				844A35BF282DCE7100C6D1DF /* SentryBenchmarking.mm */,
 				844A350B282B2B9B00C6D1DF /* Assets.xcassets */,
 				844A3521282B2B9B00C6D1DF /* Base.lproj */,
 				844A34E8282B2B9B00C6D1DF /* Common */,
@@ -557,6 +562,7 @@
 				844A3557282B2B9B00C6D1DF /* MoviesViewController.swift in Sources */,
 				844A355F282B2B9B00C6D1DF /* MovieDetailViewController.swift in Sources */,
 				844A355E282B2B9B00C6D1DF /* MovieDetailBarBackgroundView.swift in Sources */,
+				844A35C0282DCE7100C6D1DF /* SentryBenchmarking.mm in Sources */,
 				844A3561282B2B9B00C6D1DF /* VideoCollectionViewCell.swift in Sources */,
 				844A352F282B2B9B00C6D1DF /* NSLayoutConstraintExtensions.swift in Sources */,
 				844A3543282B2B9B00C6D1DF /* Video.swift in Sources */,

@@ -5,52 +5,42 @@ class TrendingMovies_Benchmarking_UITests: XCTestCase {
         continueAfterFailure = false
     }
 
-    func testBenchmarkingOnLaunch() throws {
-        guard let withoutProfiling = measureAppLaunch(withProfiling: false) else { return }
-        XCUIApplication().terminate()
-        guard let withProfiling = measureAppLaunch(withProfiling: true) else { return }
-        XCTAssertLessThanOrEqual((withProfiling - withoutProfiling) / withoutProfiling, 0.05, "Running profiling resulted in more than 5% overhead on app launch.")
-    }
-
     func testBenchmarkingOnScrolling() throws {
-        guard let withoutProfiling = measureScrollingInApp(withProfiling: false) else { return }
-        XCUIApplication().terminate()
-        guard let withProfiling = measureScrollingInApp(withProfiling: true) else { return }
-        XCTAssertLessThanOrEqual((withProfiling - withoutProfiling) / withoutProfiling, 0.05, "Running profiling resulted in more than 5% overhead while scrolling in the app.")
+        let app = XCUIApplication()
+        guard let withoutProfiling = benchmarkAppUsage(app: app, withProfiling: false) else { return }
+        app.terminate()
+        guard let withProfiling = benchmarkAppUsage(app: app, withProfiling: true) else { return }
+        let percentIncrease = Double(withProfiling - withoutProfiling) / Double(withoutProfiling)
+        XCTAssertLessThanOrEqual(percentIncrease, 0.05, "Running profiling resulted in more than 5% overhead while scrolling in the app.")
     }
 }
 
 extension TrendingMovies_Benchmarking_UITests {
-    func measureAppLaunch(withProfiling: Bool) -> Double? {
-        launchApp(withProfiling: withProfiling, launchOnly: true)
-        return getValue()
-    }
-
-    func measureScrollingInApp(withProfiling: Bool) -> Double? {
-        launchApp(withProfiling: withProfiling, launchOnly: false)
-
-        let app = XCUIApplication()
-        for _ in 0..<25 {
-            app.swipeDown(velocity: .fast)
-        }
-
-        return getValue()
-    }
-
-    func launchApp(withProfiling: Bool, launchOnly: Bool) {
-        let app = XCUIApplication()
+    func benchmarkAppUsage(app: XCUIApplication, withProfiling: Bool) -> Int64? {
         app.launchArguments.append("--io.sentry.ui-test.benchmarking")
-        app.launchArguments.append(launchOnly ? "--io.sentry.ui-test.benchmark-launch" : "--io.sentry.ui-test.benchmark-app-usage")
         if withProfiling {
             app.launchArguments.append("--io.sentry.enable-profiling")
         }
         app.launch()
+
+        startBenchmark(app: app)
+
+        for _ in 0..<5 {
+            app.swipeUp(velocity: .fast)
+        }
+
+        return stopBenchmark(app: app)
     }
 
-    func getValue() -> Double? {
-        let app = XCUIApplication()
+    func startBenchmark(app: XCUIApplication) {
+        tapBenchmarkStartStopButton(app: app)
+    }
+
+    func stopBenchmark(app: XCUIApplication) -> Int64? {
+        tapBenchmarkStartStopButton(app: app)
+
         let textField = app.textFields["io.sentry.accessibility-identifier.benchmarking-value-marshaling-text-field"]
-        if !textField.waitForExistence(timeout: 5.0) {
+            if !textField.waitForExistence(timeout: 5.0) {
             XCTFail("Couldn't find benchmark value marshaling text field.")
             return nil
         }
@@ -60,6 +50,14 @@ extension TrendingMovies_Benchmarking_UITests {
             return nil
         }
 
-        return benchmarkValueString.doubleValue
+        return benchmarkValueString.longLongValue
+    }
+
+    func tapBenchmarkStartStopButton(app: XCUIApplication) {
+        let button = app.buttons["io.sentry.accessibility-identifier.benchmarking-value-marshaling-button"]
+        if !button.waitForExistence(timeout: 5.0) {
+            XCTFail("Couldn't find benchmark retrieval button.")
+        }
+        button.tap()
     }
 }

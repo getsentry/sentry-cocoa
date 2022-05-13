@@ -3,3 +3,4 @@
 //
 
 #import "UIImageEffects.h"
+#import "SentryBenchmarking.h"
