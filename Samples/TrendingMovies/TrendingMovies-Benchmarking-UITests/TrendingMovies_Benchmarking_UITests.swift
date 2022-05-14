@@ -6,12 +6,17 @@ class TrendingMovies_Benchmarking_UITests: XCTestCase {
     }
 
     func testBenchmarkingOnScrolling() throws {
-        let app = XCUIApplication()
-        guard let withoutProfiling = benchmarkAppUsage(app: app, withProfiling: false) else { return }
-        app.terminate()
-        guard let withProfiling = benchmarkAppUsage(app: app, withProfiling: true) else { return }
-        let percentIncrease = Double(withProfiling - withoutProfiling) / Double(withoutProfiling)
-        XCTAssertLessThanOrEqual(percentIncrease, 0.05, "Running profiling resulted in more than 5% overhead while scrolling in the app.")
+        var avgPercentIncrease = 0.0
+        for _ in 0..<5 {
+            let app = XCUIApplication()
+            guard let withoutProfiling = benchmarkAppUsage(app: app, withProfiling: false) else { return }
+            app.terminate()
+            guard let withProfiling = benchmarkAppUsage(app: app, withProfiling: true) else { return }
+            avgPercentIncrease += Double(withProfiling - withoutProfiling) / Double(withoutProfiling)
+        }
+        avgPercentIncrease /= 5.0
+        print("Average overhead: \(avgPercentIncrease * 100)%")
+        XCTAssertLessThanOrEqual(avgPercentIncrease, 0.05, "Running profiling resulted in more than 5% overhead while scrolling in the app.")
     }
 }
 
