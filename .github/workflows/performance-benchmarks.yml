@@ -15,4 +15,4 @@ jobs:
     runs-on: macos-11
     steps:
       - name: Benchmark Sentry SDK PR
-        run: make benchmark-sentry-pr SENTRY_PR_COMMIT_HASH="${{ github.event.pull_request.head.sha }}"
+        run: make benchmark-sentry-pr
