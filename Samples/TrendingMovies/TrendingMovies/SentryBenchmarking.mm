@@ -12,9 +12,11 @@ namespace {
         thread_act_array_t list;
 
         if (task_threads(mach_task_self(), &list, &count) == KERN_SUCCESS) {
+            const auto mainThreadID = pthread_mach_thread_np(pthread_self());
             for (decltype(count) i = 0; i < count; i++) {
                 const auto thread = list[i];
 
+                // get thread name to check for the sampling profiler thread
                 const auto handle = pthread_from_mach_thread_np(thread);
                 std::string namestr;
                 if (handle == nullptr) {
@@ -26,6 +28,11 @@ namespace {
                 }
                 namestr = std::string(name);
                 printf("***thread name: %s\n", namestr.c_str()); // TODO: remove before merging
+
+                // we're only interested in work on the main thread and the profiling thread
+                if (thread != mainThreadID && namestr != "io.sentry.SamplingProfiler") {
+                    continue;
+                }
 
                 mach_msg_type_number_t count = THREAD_BASIC_INFO_COUNT;
                 thread_basic_info_data_t data;
@@ -56,7 +63,9 @@ namespace {
     [beforeKeys intersectSet:afterKeys];
     auto delta = 0;
     for (NSNumber *key : beforeKeys) {
-        delta += after[key].integerValue - before[key].integerValue;
+        const auto thisDelta = after[key].integerValue - before[key].integerValue;
+        printf("before: %ld; after: %ld; delta: %ld", (long)before[key].integerValue, after[key].integerValue, thisDelta);
+        delta += thisDelta;
     }
     return delta;
 }
