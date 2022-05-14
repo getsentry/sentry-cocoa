@@ -62,7 +62,6 @@ extension Tracer {
 extension Tracer {
     static func startSpan(name: String) -> SpanHandle {
         let span = SentrySDK.startTransaction(name: name, operation: "trending-movies-profiling-integration")
-        tracer.currentSpan = span
         return SpanHandle(span: span)
     }
 
