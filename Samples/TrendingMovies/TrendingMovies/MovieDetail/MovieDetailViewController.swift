@@ -19,6 +19,8 @@ class MovieDetailViewController: UIViewController, UIScrollViewDelegate, MovieDe
     private var barBackgroundViewTopConstraint: NSLayoutConstraint?
     private var didActivateBarBackgroundViewHeightConstraint = false
 
+    private var span: Tracer.SpanHandle?
+
     private var backdropImage: UIImage? {
         didSet { detailView?.backdropImage = backdropImage }
     }
@@ -93,7 +95,7 @@ class MovieDetailViewController: UIViewController, UIScrollViewDelegate, MovieDe
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if !hasTriggeredInitialLoad {
-            Tracer.startTracing(interaction: "load-movie-details")
+            span = Tracer.startSpan(name: "load-movie-details")
             fetchBackdrop()
             fetchGenres()
             fetchMovieDetails()
@@ -308,7 +310,7 @@ class MovieDetailViewController: UIViewController, UIScrollViewDelegate, MovieDe
 
     private func endTraceIfNecessary() {
         if hasFetchedGenres, hasFetchedBackdrop, hasFetchedMovieDetails, hasFetchedSections {
-            Tracer.endTracing(interaction: "load-movie-details")
+            span?.end()
         }
     }
 

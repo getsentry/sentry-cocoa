@@ -111,9 +111,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     @objc func controlBenchmarks() {
         if !startedBenchmark {
             startedBenchmark = true
+            Tracer.startTracing(interaction: "benchmarking")
             SentryBenchmarking.startBenchmarkProfile()
         } else {
             let value = SentryBenchmarking.retrieveBenchmarks()
+            Tracer.endTracing(interaction: "benchmarking")
             benchmarkValueTextField.text = String(value)
         }
     }
