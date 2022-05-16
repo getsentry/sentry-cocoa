@@ -7,6 +7,7 @@
 #    include "SentryStackBounds.hpp"
 
 #    include <chrono>
+#    include <cstdint>
 #    include <mach/mach.h>
 #    include <memory>
 #    include <pthread.h>
@@ -95,6 +96,17 @@ namespace profiling {
          * @warning This function is not async-signal safe!
          */
         std::string name() const noexcept;
+
+        /**
+         * @return The address of the dispatch queue currently associated with
+         * the thread, or 0 if there is no valid queue. This function checks if
+         * the memory at the returned address is readable, but there is no guarantee
+         * that the queue will continue to stay valid by the time you deference it,
+         * as queue deallocation can happen concurrently.
+         *
+         * @warning This function is not async-signal safe!
+         */
+        std::uint64_t dispatchQueueAddress() const noexcept;
 
         /**
          * @return The priority of the specified thread, or -1 if the thread priority

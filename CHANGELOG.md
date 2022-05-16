@@ -4,6 +4,10 @@
 
 ### Features
 
+- Collect queue label information for profiles (#1828)
+
+### Features
+
 - Allow partial SDK info override (#1816)
 
 ### Fixes
