@@ -62,9 +62,17 @@ namespace {
     const auto beforeKeys = [NSMutableSet<NSNumber *> setWithArray:before.allKeys];
     [beforeKeys intersectSet:afterKeys];
     auto delta = 0;
+
+    /// TODO: debugging; remove before merging
+    const auto threadsOfInterest = [NSMutableDictionary<NSNumber *, NSArray<NSNumber *> *> dictionary];
+    for (NSNumber *key : beforeKeys) {
+        threadsOfInterest[key] = @[before[key], after[key]];
+    }
+    printf("threads of interest: %s\n", threadsOfInterest.description.UTF8String);
+
     for (NSNumber *key : beforeKeys) {
         const auto thisDelta = after[key].integerValue - before[key].integerValue;
-        printf("before: %ld; after: %ld; delta: %ld", (long)before[key].integerValue, after[key].integerValue, thisDelta);
+        printf("before: %ld; after: %ld; delta: %ld\n", (long)before[key].integerValue, after[key].integerValue, thisDelta);
         delta += thisDelta;
     }
     return delta;

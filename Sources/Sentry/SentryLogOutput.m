@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)log:(NSString *)message
 {
-    NSLog(@"%@", message);
+    printf("%s\n", message.UTF8String);
 }
 
 @end
