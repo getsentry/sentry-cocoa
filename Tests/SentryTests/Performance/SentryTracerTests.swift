@@ -246,6 +246,21 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(expectedEndTimestamp, sut.timestamp)
     }
     
+    func testIdleTimeout_CallFinish_WaitsForChildren() {
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        
+        let child = sut.startChild(operation: fixture.transactionOperation)
+        
+        sut.finish()
+        XCTAssertEqual(2, fixture.dispatchQueue.dispatchCancelInvocations.count)
+        
+        XCTAssertFalse(sut.isFinished)
+        advanceTime(bySeconds: 1)
+        child.finish()
+        
+        XCTAssertTrue(sut.isFinished)
+    }
+    
     func testAddColdAppStartMeasurement_PutOnNextAutoUITransaction() {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)

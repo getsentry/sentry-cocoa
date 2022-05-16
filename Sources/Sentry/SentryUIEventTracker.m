@@ -21,7 +21,9 @@ SentryUIEventTracker ()
 
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
-@property (nonatomic, strong) NSMutableArray<id<SentrySpan>> *transactions;
+@property (nonatomic, strong) id<SentrySpan> activeTransaction;
+@property (nullable, nonatomic, weak) UIView *activeView;
+@property (nonatomic, assign) UIEventType activeEventType;
 
 @end
 
@@ -33,7 +35,6 @@ SentryUIEventTracker ()
     if (self = [super init]) {
         self.swizzleWrapper = swizzleWrapper;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
-        self.transactions = [NSMutableArray new];
     }
     return self;
 }
@@ -44,7 +45,11 @@ SentryUIEventTracker ()
     [self.swizzleWrapper
         swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
             [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-                [self removeFinishedTransactions];
+                if (target == nil || sender == nil || ![sender isKindOfClass:[UIView class]]) {
+                    return;
+                }
+
+                UIView *view = sender;
 
                 NSString *operation = @"ui.action";
                 if (event
@@ -54,7 +59,11 @@ SentryUIEventTracker ()
 
                 NSString *transactionName = [self getTransactionName:action
                                                               target:target
-                                                              sender:sender];
+                                                                view:view];
+
+                if (view == self.activeView && event.type != self.activeEventType) {
+                    [self.activeTransaction finish];
+                }
 
                 SentryTransactionContext *context =
                     [[SentryTransactionContext alloc] initWithName:transactionName
@@ -74,7 +83,9 @@ SentryUIEventTracker ()
                                                           idleTimeout:defaultIdleTransactionTimeout
                                                  dispatchQueueWrapper:self.dispatchQueueWrapper];
 
-                [self.transactions addObject:transaction];
+                self.activeTransaction = transaction;
+                self.activeView = view;
+                self.activeEventType = event.type;
             }];
         }
                    forKey:SentryUIEventTrackerSwizzleSendAction];
@@ -88,41 +99,15 @@ SentryUIEventTracker ()
 #endif
 }
 
-- (NSString *)getTransactionName:(NSString *)action target:(id)target sender:(id)sender
+- (NSString *)getTransactionName:(NSString *)action target:(id)target view:(UIView *)element
 {
     NSString *viewIdentifier = action;
-    if ([sender isKindOfClass:[UIView class]]) {
-        UIView *element = sender;
-        if (element.accessibilityIdentifier) {
-            viewIdentifier = element.accessibilityIdentifier;
-        }
+    if (element.accessibilityIdentifier) {
+        viewIdentifier = element.accessibilityIdentifier;
     }
 
     Class targetClass = [target class];
-
-    NSString *transactionName = @"";
-    if (targetClass) {
-        transactionName =
-            [NSString stringWithFormat:@"%@.%@", NSStringFromClass(targetClass), viewIdentifier];
-    } else {
-        transactionName = viewIdentifier;
-    }
-
-    return transactionName;
-}
-
-- (void)removeFinishedTransactions
-{
-    NSMutableArray<id<SentrySpan>> *finishedTransactions = [NSMutableArray new];
-    for (id<SentrySpan> transaction in self.transactions) {
-        if (transaction.isFinished) {
-            [finishedTransactions addObject:transaction];
-        }
-    }
-
-    for (id<SentrySpan> transaction in finishedTransactions) {
-        [self.transactions removeObject:transaction];
-    }
+    return [NSString stringWithFormat:@"%@.%@", NSStringFromClass(targetClass), viewIdentifier];
 }
 
 @end

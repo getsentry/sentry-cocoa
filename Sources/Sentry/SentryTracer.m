@@ -316,6 +316,8 @@ static NSLock *profilerLock;
 {
     self.isWaitingForChildren = YES;
     _finishStatus = status;
+
+    [self cancelIdleTimeout];
     [self canBeFinished];
 }
 
@@ -333,7 +335,7 @@ static NSLock *profilerLock;
         return;
 
     BOOL hasChildrenToWaitFor = [self hasChildrenToWaitFor];
-    if (!hasChildrenToWaitFor && [self hasIdleTimeout]) {
+    if (self.isWaitingForChildren == NO && !hasChildrenToWaitFor && [self hasIdleTimeout]) {
         [self dispatchIdleTimeout];
         return;
     }
