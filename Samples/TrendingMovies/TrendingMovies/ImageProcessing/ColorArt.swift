@@ -28,10 +28,10 @@ struct ColorArt {
     /// - Returns: Background and text colors
     /// - Throws: `ColorArt.Error` if image analysis failed
     static func analyzeImage(_ image: CGImage, width: Int, height: Int, dominantEdge: CGRectEdge) throws -> Colors {
-        let span = Tracer.startSpan(name: "analyze-image")
-        span.annotate(key: "width", value: String(width))
-        span.annotate(key: "height", value: String(height))
-        defer { span.end() }
+//        let span = Tracer.startSpan(name: "analyze-image")
+//        span.annotate(key: "width", value: String(width))
+//        span.annotate(key: "height", value: String(height))
+//        defer { span.end() }
 
         let components = try findColorComponents(image: image, width: width, height: height, dominantEdge: dominantEdge)
         guard let backgroundColor = findBackgroundColorComponents(components: components) else {

@@ -35,9 +35,9 @@ class MovieCellConfigurator {
         print("[TrendingMovies] configuring cell for movie: \(movie.id) (\(movie.title))")
         cell.titleLabel.text = movie.title
 
-        let span = Tracer.startSpan(name: "poster-retrieval")
+//        let span = Tracer.startSpan(name: "poster-retrieval")
         imageResolver.getPosterImageURL(path: movie.posterPath, preferredWidth: posterWidth) { result in
-            span.end()
+//            span.end()
             switch result {
             case let .success(url):
                 if let url = url {
