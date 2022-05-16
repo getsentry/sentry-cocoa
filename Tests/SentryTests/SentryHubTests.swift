@@ -799,14 +799,30 @@ class SentryHubTests: XCTestCase {
         XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["profile_id"] as! String))
         XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["trace_id"] as! String))
         
-        XCTAssertFalse(((profile["debug_meta"] as! [String: Any])["images"] as! [Any]).isEmpty)
+        let images = (profile["debug_meta"] as! [String: Any])["images"] as! [[String: Any]]
+        XCTAssertFalse(images.isEmpty)
+        let firstImage = images[0]
+        XCTAssertFalse((firstImage["code_file"] as! String).isEmpty)
+        XCTAssertFalse((firstImage["debug_id"] as! String).isEmpty)
+        XCTAssertFalse((firstImage["image_addr"] as! String).isEmpty)
+        XCTAssertGreaterThan((firstImage["image_size"] as! Int), 0)
+        XCTAssertEqual(firstImage["type"] as! String, "macho")
+        
         let sampledProfile = profile["sampled_profile"] as! [String: Any]
+        let threadMetadata = sampledProfile["thread_metadata"] as! [String: Any]
+        let queueMetadata = sampledProfile["queue_metadata"] as! [String: Any]
+        
+        XCTAssertFalse(threadMetadata.isEmpty)
+        XCTAssertGreaterThan((threadMetadata.first?.value as! [String: Any])["priority"] as! Int, 0)
+        XCTAssertFalse(queueMetadata.isEmpty)
+        XCTAssertFalse(((queueMetadata.first?.value as! [String: Any])["label"] as! String).isEmpty)
+        
         let samples = sampledProfile["samples"] as! [[String: Any]]
         XCTAssertFalse(samples.isEmpty)
-        
         let frames = samples[0]["frames"] as! [[String: Any]]
         XCTAssertFalse(frames.isEmpty)
         XCTAssertFalse((frames[0]["instruction_addr"] as! String).isEmpty)
+        XCTAssertFalse((frames[0]["function"] as! String).isEmpty)
     }
     
     private func testSampler(expected: SentrySampleDecision, options: (Options) -> Void) {
