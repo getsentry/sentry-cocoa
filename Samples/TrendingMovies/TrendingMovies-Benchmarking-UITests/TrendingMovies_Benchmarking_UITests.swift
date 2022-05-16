@@ -12,7 +12,9 @@ class TrendingMovies_Benchmarking_UITests: XCTestCase {
             guard let withoutProfiling = benchmarkAppUsage(app: app, withProfiling: false) else { return }
             app.terminate()
             guard let withProfiling = benchmarkAppUsage(app: app, withProfiling: true) else { return }
-            avgPercentIncrease += Double(withProfiling - withoutProfiling) / Double(withoutProfiling)
+            let percentIncrease = Double(withProfiling - withoutProfiling) / Double(withoutProfiling)
+            print("Percent increase: \(percentIncrease * 100.0)%")
+            avgPercentIncrease += percentIncrease
         }
         avgPercentIncrease /= 5.0
         print("Average overhead: \(avgPercentIncrease * 100)%")
