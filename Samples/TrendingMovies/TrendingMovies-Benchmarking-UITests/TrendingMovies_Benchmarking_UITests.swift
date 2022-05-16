@@ -7,7 +7,7 @@ class TrendingMovies_Benchmarking_UITests: XCTestCase {
 
     func testBenchmarkingOnScrolling() throws {
         var avgPercentIncrease = 0.0
-        for _ in 0..<5 {
+        for _ in 0..<15 {
             let app = XCUIApplication()
             guard let withoutProfiling = benchmarkAppUsage(app: app, withProfiling: false) else { return }
             app.terminate()
@@ -31,7 +31,7 @@ extension TrendingMovies_Benchmarking_UITests {
         app.launch()
 
         // warm up caches by performing the operation we'll benchmark, before actually enabling the benchmarking instrumentation
-        for _ in 0..<5 {
+        for _ in 0..<3 {
             app.swipeUp(velocity: .fast)
         }
 
