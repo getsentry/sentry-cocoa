@@ -127,7 +127,7 @@ class MovieDetailView: UIScrollView, UIScrollViewDelegate {
             backdropImageView.topAnchor.constraint(equalTo: containerView.topAnchor),
             gradientView.widthAnchor.constraint(equalTo: containerView.widthAnchor),
             gradientView.heightAnchor.constraint(equalTo: backdropImageView.heightAnchor),
-            gradientView.topAnchor.constraint(equalTo: backdropImageView.topAnchor),
+            gradientView.topAnchor.constraint(equalTo: backdropImageView.topAnchor)
         ])
 
         return containerView
@@ -191,7 +191,7 @@ class MovieDetailView: UIScrollView, UIScrollViewDelegate {
         stackView.spacing = 10.0
 
         NSLayoutConstraint.activate([
-            insetContentStackView.widthAnchor.constraint(equalTo: stackView.widthAnchor, constant: -(Layout.contentHorizontalInset * 2.0)),
+            insetContentStackView.widthAnchor.constraint(equalTo: stackView.widthAnchor, constant: -(Layout.contentHorizontalInset * 2.0))
         ])
 
         return stackView
@@ -231,7 +231,7 @@ class MovieDetailView: UIScrollView, UIScrollViewDelegate {
             stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
             stackViewTopConstraint,
             backdropContainerView.widthAnchor.constraint(equalTo: widthAnchor),
-            backdropHeightConstraint,
+            backdropHeightConstraint
         ])
         self.stackViewTopConstraint = stackViewTopConstraint
         self.backdropHeightConstraint = backdropHeightConstraint
@@ -249,7 +249,7 @@ class MovieDetailView: UIScrollView, UIScrollViewDelegate {
         let views = [
             createSpacerView(height: 0.0),
             label,
-            view,
+            view
         ]
         let insertionIndex = initialStackViewSubviewCount + (index * views.count)
         precondition(insertionIndex <= stackView.arrangedSubviews.count)
@@ -261,7 +261,7 @@ class MovieDetailView: UIScrollView, UIScrollViewDelegate {
         NSLayoutConstraint.activate([
             view.widthAnchor.constraint(equalTo: stackView.widthAnchor),
             label.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: Layout.contentHorizontalInset),
-            label.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -Layout.contentHorizontalInset),
+            label.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -Layout.contentHorizontalInset)
         ])
 
         numberOfSections += 1
@@ -320,7 +320,7 @@ class MovieDetailView: UIScrollView, UIScrollViewDelegate {
         let backgroundColor = self.backgroundColor ?? .white
         gradientView.colors = [
             backgroundColor.withAlphaComponent(0.0),
-            backgroundColor,
+            backgroundColor
         ]
     }
 

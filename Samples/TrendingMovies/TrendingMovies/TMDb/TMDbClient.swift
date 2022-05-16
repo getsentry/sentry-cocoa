@@ -143,7 +143,7 @@ class TMDbClient: NSObject, URLSessionDataDelegate, URLSessionTaskDelegate {
     /// - Returns: A task that can be used to cancel the request.
     @discardableResult
     func getNowPlaying(page: Int = 1, locale: Locale = .current, completion: @escaping (Result<Movies, Swift.Error>) -> Void) -> URLSessionTask? {
-        precondition(page >= 1 && page <= 1000)
+        precondition(page >= 1 && page <= 1_000)
         var queryItems = [URLQueryItem(name: "page", value: String(page))]
         if let language = getLanguageQueryItem(locale: locale) {
             queryItems.append(language)
@@ -184,7 +184,7 @@ class TMDbClient: NSObject, URLSessionDataDelegate, URLSessionTaskDelegate {
     /// - Returns: A task that can be used to cancel the request.
     @discardableResult
     func getMovieRecommendations(movie: Movie, page: Int = 1, locale: Locale = .current, completion: @escaping (Result<Movies, Swift.Error>) -> Void) -> URLSessionTask? {
-        precondition(page >= 1 && page <= 1000)
+        precondition(page >= 1 && page <= 1_000)
         var queryItems = [URLQueryItem(name: "page", value: String(page))]
         if let language = getLanguageQueryItem(locale: locale) {
             queryItems.append(language)
@@ -222,7 +222,7 @@ class TMDbClient: NSObject, URLSessionDataDelegate, URLSessionTaskDelegate {
     /// - Returns: A task that can be used to cancel the request.
     @discardableResult
     func getSimilarMovies(movie: Movie, page: Int = 1, locale: Locale = .current, completion: @escaping (Result<Movies, Swift.Error>) -> Void) -> URLSessionTask? {
-        precondition(page >= 1 && page <= 1000)
+        precondition(page >= 1 && page <= 1_000)
         var queryItems = [URLQueryItem(name: "page", value: String(page))]
         if let language = getLanguageQueryItem(locale: locale) {
             queryItems.append(language)
@@ -259,7 +259,7 @@ class TMDbClient: NSObject, URLSessionDataDelegate, URLSessionTaskDelegate {
     /// - Returns: A task that can be used to cancel the request.
     @discardableResult
     func getUpcomingMovies(page: Int = 1, locale: Locale = .current, completion: @escaping (Result<Movies, Swift.Error>) -> Void) -> URLSessionTask? {
-        precondition(page >= 1 && page <= 1000)
+        precondition(page >= 1 && page <= 1_000)
         var queryItems = [URLQueryItem(name: "page", value: String(page))]
         if let language = getLanguageQueryItem(locale: locale) {
             queryItems.append(language)
@@ -299,7 +299,7 @@ class TMDbClient: NSObject, URLSessionDataDelegate, URLSessionTaskDelegate {
     /// - Returns: A task that can be used to cancel the request.
     @discardableResult
     func getTrendingMovies(page: Int = 1, window: TimeWindow, completion: @escaping (Result<Movies, Swift.Error>) -> Void) -> URLSessionTask? {
-        precondition(page >= 1 && page <= 1000)
+        precondition(page >= 1 && page <= 1_000)
         let queryItems = [URLQueryItem(name: "page", value: String(page))]
         guard let url = getRequestURL(path: "/trending/movie/\(window.rawValue)", description: "Get Trending Movies", queryItems: queryItems) else {
             completion(.failure(TMDbClientError.URLConstructionFailed))

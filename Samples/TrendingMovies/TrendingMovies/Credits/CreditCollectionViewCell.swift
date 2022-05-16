@@ -48,7 +48,7 @@ class CreditCollectionViewCell: UICollectionViewCell {
 
         NSLayoutConstraint.activate([
             imageView.widthAnchor.constraint(equalToConstant: CreditCollectionViewCell.profileImageSize),
-            imageView.heightAnchor.constraint(equalToConstant: CreditCollectionViewCell.profileImageSize),
+            imageView.heightAnchor.constraint(equalToConstant: CreditCollectionViewCell.profileImageSize)
         ])
 
         return imageView
@@ -97,7 +97,7 @@ class CreditCollectionViewCell: UICollectionViewCell {
             stackView.widthAnchor.constraint(equalTo: contentView.widthAnchor),
             stackView.heightAnchor.constraint(equalTo: contentView.heightAnchor),
             nameLabel.widthAnchor.constraint(equalTo: profileImageView.widthAnchor),
-            roleLabel.widthAnchor.constraint(equalTo: profileImageView.widthAnchor),
+            roleLabel.widthAnchor.constraint(equalTo: profileImageView.widthAnchor)
         ])
     }
 

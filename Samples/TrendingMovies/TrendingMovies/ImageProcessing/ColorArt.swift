@@ -319,7 +319,7 @@ private struct RGBADecimalComponents: Hashable {
 
     // Relative luminance formula: https://en.wikipedia.org/wiki/Relative_luminance
     var luminance: CGFloat {
-        0.2126 * r + 0.7152 * g + 0.0722 * b
+        0.212_6 * r + 0.715_2 * g + 0.072_2 * b
     }
 
     var isDarkColor: Bool {

@@ -44,7 +44,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 createViewController: createUpcomingViewController,
                 title: Titles.upcoming,
                 icon: UIImage(named: "Upcoming")
-            ),
+            )
         ])
         window?.rootViewController = tabBarController
         window?.makeKeyAndVisible()

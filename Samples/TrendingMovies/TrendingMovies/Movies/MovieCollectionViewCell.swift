@@ -59,7 +59,7 @@ class MovieCollectionViewCell: UICollectionViewCell {
 
         NSLayoutConstraint.activate([
             imageView.widthAnchor.constraint(equalToConstant: Layout.imageWidth),
-            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: Layout.aspectRatio),
+            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: Layout.aspectRatio)
         ])
 
         return imageView
@@ -71,7 +71,7 @@ class MovieCollectionViewCell: UICollectionViewCell {
         imageView.contentMode = .scaleAspectFit
 
         NSLayoutConstraint.activate([
-            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: Layout.aspectRatio),
+            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: Layout.aspectRatio)
         ])
 
         return imageView
@@ -131,7 +131,7 @@ class MovieCollectionViewCell: UICollectionViewCell {
             shadowImageView.widthAnchor.constraint(equalTo: posterImageView.widthAnchor),
             shadowImageView.leadingAnchor.constraint(equalTo: posterImageView.leadingAnchor),
             shadowImageView.bottomAnchor.constraint(equalTo: posterImageView.bottomAnchor, constant: Layout.shadowBleed),
-            spacerView.heightAnchor.constraint(equalToConstant: Layout.imageTextVerticalSpacing - (stackView.spacing * 2.0)),
+            spacerView.heightAnchor.constraint(equalToConstant: Layout.imageTextVerticalSpacing - (stackView.spacing * 2.0))
         ])
 
         widthConstraint = contentView.widthAnchor.constraint(equalToConstant: 0.0)

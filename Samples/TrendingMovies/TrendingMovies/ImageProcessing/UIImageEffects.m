@@ -57,7 +57,8 @@
 #pragma mark - Effects
 
 //| ----------------------------------------------------------------------------
-+ (UIImage *)imageByApplyingLightEffectToImage:(UIImage *)inputImage {
++ (UIImage *)imageByApplyingLightEffectToImage:(UIImage *)inputImage
+{
     UIColor *tintColor = [UIColor colorWithWhite:1.0 alpha:0.3];
     return [self imageByApplyingBlurToImage:inputImage
                                  withRadius:60
@@ -67,7 +68,8 @@
 }
 
 //| ----------------------------------------------------------------------------
-+ (UIImage *)imageByApplyingExtraLightEffectToImage:(UIImage *)inputImage {
++ (UIImage *)imageByApplyingExtraLightEffectToImage:(UIImage *)inputImage
+{
     UIColor *tintColor = [UIColor colorWithWhite:0.97 alpha:0.82];
     return [self imageByApplyingBlurToImage:inputImage
                                  withRadius:40
@@ -77,7 +79,8 @@
 }
 
 //| ----------------------------------------------------------------------------
-+ (UIImage *)imageByApplyingDarkEffectToImage:(UIImage *)inputImage {
++ (UIImage *)imageByApplyingDarkEffectToImage:(UIImage *)inputImage
+{
     UIColor *tintColor = [UIColor colorWithWhite:0.11 alpha:0.73];
     return [self imageByApplyingBlurToImage:inputImage
                                  withRadius:40
@@ -87,7 +90,8 @@
 }
 
 //| ----------------------------------------------------------------------------
-+ (UIImage *)imageByApplyingTintEffectWithColor:(UIColor *)tintColor toImage:(UIImage *)inputImage {
++ (UIImage *)imageByApplyingTintEffectWithColor:(UIColor *)tintColor toImage:(UIImage *)inputImage
+{
     const CGFloat EffectColorAlpha = 0.6;
     UIColor *effectColor = tintColor;
     size_t componentCount = CGColorGetNumberOfComponents(tintColor.CGColor);
@@ -117,7 +121,8 @@
                              withRadius:(CGFloat)blurRadius
                               tintColor:(UIColor *)tintColor
                   saturationDeltaFactor:(CGFloat)saturationDeltaFactor
-                              maskImage:(UIImage *)maskImage {
+                              maskImage:(UIImage *)maskImage
+{
 #define ENABLE_BLUR 1
 #define ENABLE_SATURATION_ADJUSTMENT 1
 #define ENABLE_TINT 1
@@ -125,9 +130,7 @@
     // Check pre-conditions.
     if (inputImage.size.width < 1 || inputImage.size.height < 1) {
         NSLog(@"*** error: invalid size: (%.2f x %.2f). Both dimensions must be >= 1: %@",
-              inputImage.size.width,
-              inputImage.size.height,
-              inputImage);
+            inputImage.size.width, inputImage.size.height, inputImage);
         return nil;
     }
     if (!inputImage.CGImage) {
@@ -145,8 +148,8 @@
     CGImageRef inputCGImage = inputImage.CGImage;
     CGFloat inputImageScale = inputImage.scale;
     CGBitmapInfo inputImageBitmapInfo = CGImageGetBitmapInfo(inputCGImage);
-    CGImageAlphaInfo inputImageAlphaInfo =
-      (CGImageAlphaInfo)(inputImageBitmapInfo & kCGBitmapAlphaInfoMask);
+    CGImageAlphaInfo inputImageAlphaInfo
+        = (CGImageAlphaInfo)(inputImageBitmapInfo & kCGBitmapAlphaInfoMask);
 
     CGSize outputImageSizeInPoints = inputImage.size;
     CGRect outputImageRectInPoints = { CGPointZero, outputImageSizeInPoints };
@@ -159,7 +162,7 @@
     else
         useOpaqueContext = NO;
     UIGraphicsBeginImageContextWithOptions(
-      outputImageRectInPoints.size, useOpaqueContext, inputImageScale);
+        outputImageRectInPoints.size, useOpaqueContext, inputImageScale);
     CGContextRef outputContext = UIGraphicsGetCurrentContext();
     CGContextScaleCTM(outputContext, 1.0, -1.0);
     CGContextTranslateCTM(outputContext, 0, -outputImageRectInPoints.size.height);
@@ -172,32 +175,27 @@
         vImage_Buffer *outputBuffer;
 
         vImage_CGImageFormat format = { .bitsPerComponent = 8,
-                                        .bitsPerPixel = 32,
-                                        .colorSpace = NULL,
-                                        // (kCGImageAlphaPremultipliedFirst |
-                                        // kCGBitmapByteOrder32Little) requests a BGRA buffer.
-                                        .bitmapInfo = kCGImageAlphaPremultipliedFirst
-                                                      | kCGBitmapByteOrder32Little,
-                                        .version = 0,
-                                        .decode = NULL,
-                                        .renderingIntent = kCGRenderingIntentDefault };
+            .bitsPerPixel = 32,
+            .colorSpace = NULL,
+            // (kCGImageAlphaPremultipliedFirst |
+            // kCGBitmapByteOrder32Little) requests a BGRA buffer.
+            .bitmapInfo = kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Little,
+            .version = 0,
+            .decode = NULL,
+            .renderingIntent = kCGRenderingIntentDefault };
 
         vImage_Error e = vImageBuffer_InitWithCGImage(
-          &effectInBuffer, &format, NULL, inputImage.CGImage, kvImagePrintDiagnosticsToConsole);
+            &effectInBuffer, &format, NULL, inputImage.CGImage, kvImagePrintDiagnosticsToConsole);
         if (e != kvImageNoError) {
-            NSLog(
-              @"*** error: vImageBuffer_InitWithCGImage returned error code %zi for inputImage: %@",
-              e,
-              inputImage);
+            NSLog(@"*** error: vImageBuffer_InitWithCGImage returned error code %zi for "
+                  @"inputImage: %@",
+                e, inputImage);
             UIGraphicsEndImageContext();
             return nil;
         }
 
-        vImageBuffer_Init(&scratchBuffer1,
-                          effectInBuffer.height,
-                          effectInBuffer.width,
-                          format.bitsPerPixel,
-                          kvImageNoFlags);
+        vImageBuffer_Init(&scratchBuffer1, effectInBuffer.height, effectInBuffer.width,
+            format.bitsPerPixel, kvImageNoFlags);
         inputBuffer = &effectInBuffer;
         outputBuffer = &scratchBuffer1;
 
@@ -222,24 +220,16 @@
 
             radius |= 1; // force radius to be odd so that the three box-blur methodology works.
 
-            NSInteger tempBufferSize =
-              vImageBoxConvolve_ARGB8888(inputBuffer,
-                                         outputBuffer,
-                                         NULL,
-                                         0,
-                                         0,
-                                         radius,
-                                         radius,
-                                         NULL,
-                                         kvImageGetTempBufferSize | kvImageEdgeExtend);
+            NSInteger tempBufferSize = vImageBoxConvolve_ARGB8888(inputBuffer, outputBuffer, NULL,
+                0, 0, radius, radius, NULL, kvImageGetTempBufferSize | kvImageEdgeExtend);
             void *tempBuffer = malloc(tempBufferSize);
 
-            vImageBoxConvolve_ARGB8888(
-              inputBuffer, outputBuffer, tempBuffer, 0, 0, radius, radius, NULL, kvImageEdgeExtend);
-            vImageBoxConvolve_ARGB8888(
-              outputBuffer, inputBuffer, tempBuffer, 0, 0, radius, radius, NULL, kvImageEdgeExtend);
-            vImageBoxConvolve_ARGB8888(
-              inputBuffer, outputBuffer, tempBuffer, 0, 0, radius, radius, NULL, kvImageEdgeExtend);
+            vImageBoxConvolve_ARGB8888(inputBuffer, outputBuffer, tempBuffer, 0, 0, radius, radius,
+                NULL, kvImageEdgeExtend);
+            vImageBoxConvolve_ARGB8888(outputBuffer, inputBuffer, tempBuffer, 0, 0, radius, radius,
+                NULL, kvImageEdgeExtend);
+            vImageBoxConvolve_ARGB8888(inputBuffer, outputBuffer, tempBuffer, 0, 0, radius, radius,
+                NULL, kvImageEdgeExtend);
 
             free(tempBuffer);
 
@@ -274,14 +264,14 @@
                 1,
             };
             const int32_t divisor = 256;
-            NSUInteger matrixSize =
-              sizeof(floatingPointSaturationMatrix) / sizeof(floatingPointSaturationMatrix[0]);
+            NSUInteger matrixSize
+                = sizeof(floatingPointSaturationMatrix) / sizeof(floatingPointSaturationMatrix[0]);
             int16_t saturationMatrix[matrixSize];
             for (NSUInteger i = 0; i < matrixSize; ++i) {
                 saturationMatrix[i] = (int16_t)roundf(floatingPointSaturationMatrix[i] * divisor);
             }
             vImageMatrixMultiply_ARGB8888(
-              inputBuffer, outputBuffer, saturationMatrix, divisor, NULL, NULL, kvImageNoFlags);
+                inputBuffer, outputBuffer, saturationMatrix, divisor, NULL, NULL, kvImageNoFlags);
 
             vImage_Buffer *temp = inputBuffer;
             inputBuffer = outputBuffer;
@@ -291,10 +281,10 @@
 
         CGImageRef effectCGImage;
         if ((effectCGImage = vImageCreateCGImageFromBuffer(
-               inputBuffer, &format, &cleanupBuffer, NULL, kvImageNoAllocate, NULL))
+                 inputBuffer, &format, &cleanupBuffer, NULL, kvImageNoAllocate, NULL))
             == NULL) {
-            effectCGImage =
-              vImageCreateCGImageFromBuffer(inputBuffer, &format, NULL, NULL, kvImageNoFlags, NULL);
+            effectCGImage = vImageCreateCGImageFromBuffer(
+                inputBuffer, &format, NULL, NULL, kvImageNoFlags, NULL);
             free(inputBuffer->data);
         }
         if (maskImage) {
@@ -340,7 +330,9 @@
 //| ----------------------------------------------------------------------------
 //  Helper function to handle deferred cleanup of a buffer.
 //
-void cleanupBuffer(__unused void *userData, void *buf_data) {
+void
+cleanupBuffer(__unused void *userData, void *buf_data)
+{
     free(buf_data);
 }
 
