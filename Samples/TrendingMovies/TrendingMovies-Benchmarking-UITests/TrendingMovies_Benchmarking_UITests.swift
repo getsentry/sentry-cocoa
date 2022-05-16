@@ -30,6 +30,11 @@ extension TrendingMovies_Benchmarking_UITests {
         }
         app.launch()
 
+        // warm up caches by performing the operation we'll benchmark, before actually enabling the benchmarking instrumentation
+        for _ in 0..<5 {
+            app.swipeUp(velocity: .fast)
+        }
+
         startBenchmark(app: app)
 
         for _ in 0..<5 {
