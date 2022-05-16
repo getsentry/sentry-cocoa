@@ -38,7 +38,7 @@ namespace {
                 thread_basic_info_data_t data;
                 // MACH_SEND_INVALID_DEST is returned when the thread no longer exists
                 if (thread_info(thread, THREAD_BASIC_INFO, reinterpret_cast<thread_info_t>(&data), &count) == KERN_SUCCESS) {
-                    const auto systemTime_micros = data.system_time.seconds * 1e6 + data.system_time.microseconds;
+                    const auto systemTime_micros = data.system_time.seconds * 1e6 + data.system_time.microseconds + data.user_time.seconds * 1e6 + data.user_time.microseconds;
                     dict[@(thread)] = @(systemTime_micros);
                 }
             }
