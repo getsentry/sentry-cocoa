@@ -203,6 +203,7 @@
 			buildPhases = (
 				7B82C48124C98A93002CA6D1 /* Resources */,
 				7B82C4AD24C98A96002CA6D1 /* Embed App Extensions */,
+				844A35F928344B8F00C6D1DF /* Swiftlint */,
 			);
 			buildRules = (
 			);
@@ -301,6 +302,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		844A35F928344B8F00C6D1DF /* Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = Swiftlint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/opt/homebrew/bin/swiftlint lint --force-exclude --config ../../.swiftlint.yml\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		7B82C48E24C98A95002CA6D1 /* Sources */ = {
