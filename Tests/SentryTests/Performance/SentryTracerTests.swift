@@ -400,16 +400,18 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testFinishCallback_CalledWhenTracerFinishes() {
-        let expectation = expectation(description: "FinishCallback called")
+        let callbackExpectation = expectation(description: "FinishCallback called")
         
         let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
-        sut.finishCallback = {
-            expectation.fulfill()
+        
+        let block: () -> Void = {
+            callbackExpectation.fulfill()
         }
+        sut.finishCallback = block
         
         fixture.dispatchQueue.invokeLastDispatchAfter()
         
-        wait(for: [expectation], timeout: 0.1)
+        wait(for: [callbackExpectation], timeout: 0.1)
     }
     
     // Although we only run this test above the below specified versions, we expect the
