@@ -369,6 +369,11 @@ static NSLock *profilerLock;
 - (void)finishInternal:(BOOL)trimEndTimestamp
 {
     [_rootSpan finishWithStatus:_finishStatus];
+
+    if (self.finishCallback) {
+        self.finishCallback();
+    }
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if ([_hub getClient].options.enableProfiling) {
         [profilerLock lock];

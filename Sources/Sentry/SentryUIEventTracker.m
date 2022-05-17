@@ -4,6 +4,7 @@
 #import <SentrySDK.h>
 #import <SentryScope.h>
 #import <SentrySpanProtocol.h>
+#import <SentryTracer.h>
 #import <SentryTransactionContext.h>
 #import <SentryUIEventTracker.h>
 
@@ -21,7 +22,7 @@ SentryUIEventTracker ()
 
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
-@property (nonatomic, strong) id<SentrySpan> activeTransaction;
+@property (nullable, nonatomic, strong) SentryTracer *activeTransaction;
 @property (nullable, nonatomic, weak) UIView *activeView;
 @property (nonatomic, assign) UIEventType activeEventType;
 
@@ -51,19 +52,22 @@ SentryUIEventTracker ()
 
                 UIView *view = sender;
 
-                NSString *operation = @"ui.action";
-                if (event
-                    && (event.type == UIEventTypePresses || event.type == UIEventTypeTouches)) {
-                    operation = @"ui.action.click";
+                BOOL sameView = self.activeView != nil && view == self.activeView;
+
+                NSString *operation = [self getOperation:event];
+                BOOL sameOperation =
+                    [self.activeTransaction.context.operation isEqualToString:operation];
+
+                if (sameView && sameOperation) {
+                    [self.activeTransaction dispatchIdleTimeout];
+                    return;
                 }
+
+                [self.activeTransaction finish];
 
                 NSString *transactionName = [self getTransactionName:action
                                                               target:target
                                                                 view:view];
-
-                if (view == self.activeView && event.type != self.activeEventType) {
-                    [self.activeTransaction finish];
-                }
 
                 SentryTransactionContext *context =
                     [[SentryTransactionContext alloc] initWithName:transactionName
@@ -76,12 +80,17 @@ SentryUIEventTracker ()
                     && ![span.context.operation containsString:@"ui.action."];
 
                 BOOL bindToScope = !ongoingScreenLoadTransaction && !ongoingManualTransaction;
-                id<SentrySpan> transaction =
+                SentryTracer *transaction =
                     [SentrySDK.currentHub startTransactionWithContext:context
                                                           bindToScope:bindToScope
                                                 customSamplingContext:@{}
                                                           idleTimeout:defaultIdleTransactionTimeout
                                                  dispatchQueueWrapper:self.dispatchQueueWrapper];
+
+                transaction.finishCallback = ^(void) {
+                    self.activeTransaction = nil;
+                    self.activeView = nil;
+                };
 
                 self.activeTransaction = transaction;
                 self.activeView = view;
@@ -97,6 +106,16 @@ SentryUIEventTracker ()
 #if SENTRY_HAS_UIKIT
     [self.swizzleWrapper removeSwizzleSendActionForKey:SentryUIEventTrackerSwizzleSendAction];
 #endif
+}
+
+- (NSString *)getOperation:(UIEvent *)event
+{
+    NSString *operation = @"ui.action";
+    if (event && (event.type == UIEventTypePresses || event.type == UIEventTypeTouches)) {
+        operation = @"ui.action.click";
+    }
+
+    return operation;
 }
 
 - (NSString *)getTransactionName:(NSString *)action target:(id)target view:(UIView *)element

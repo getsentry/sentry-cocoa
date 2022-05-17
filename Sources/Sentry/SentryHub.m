@@ -345,7 +345,7 @@ SentryHub ()
     return tracer;
 }
 
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+- (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
                                   idleTimeout:(NSTimeInterval)idleTimeout
@@ -357,10 +357,10 @@ SentryHub ()
 
     transactionContext.sampled = [_sampler sample:samplingContext];
 
-    id<SentrySpan> tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
-                                                                         hub:self
-                                                                 idleTimeout:idleTimeout
-                                                        dispatchQueueWrapper:dispatchQueueWrapper];
+    SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
+                                                                        hub:self
+                                                                idleTimeout:idleTimeout
+                                                       dispatchQueueWrapper:dispatchQueueWrapper];
     if (bindToScope)
         self.scope.span = tracer;
 

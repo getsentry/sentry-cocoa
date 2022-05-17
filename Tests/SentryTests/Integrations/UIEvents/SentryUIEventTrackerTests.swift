@@ -8,9 +8,10 @@ class SentryUIEventTrackerTests: XCTestCase {
         let swizzleWrapper = TestSentrySwizzleWrapper()
         let target = FirstViewController()
         let hub = SentryHub(client: TestClient(options: Options()), andScope: nil)
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
         
         func getSut() -> SentryUIEventTracker {
-            return SentryUIEventTracker(swizzleWrapper: swizzleWrapper, dispatchQueueWrapper: SentryDispatchQueueWrapper())
+            return SentryUIEventTracker(swizzleWrapper: swizzleWrapper, dispatchQueueWrapper: dispatchQueue)
         }
     }
 
@@ -89,10 +90,51 @@ class SentryUIEventTrackerTests: XCTestCase {
     }
     
     func test_SameUIElementWithSameEvent_ResetsTimeout() {
-        callExecuteAction(action: action, target: fixture.target, sender: UIView(), event: TestUIEvent())
+        let view = UIView()
+        callExecuteAction(action: action, target: fixture.target, sender: view, event: TestUIEvent())
+        
+        let firstTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
 
-        callExecuteAction(action: action, target: fixture.target, sender: UIView(), event: TestUIEvent())
+        callExecuteAction(action: action, target: fixture.target, sender: view, event: TestUIEvent())
+        
+        let secondTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        
+        XCTAssertTrue(firstTransaction === secondTransaction)
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations.count)
+        XCTAssertEqual(2, fixture.dispatchQueue.dispatchAfterInvocations.count)
+    }
     
+    func test_SameUIElementWithSameEvent_TransactionFinished_NewTransaction() {
+        let view = UIView()
+        callExecuteAction(action: action, target: fixture.target, sender: view, event: TestUIEvent())
+        
+        let firstTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        fixture.dispatchQueue.invokeLastDispatchAfter()
+        
+        callExecuteAction(action: action, target: fixture.target, sender: view, event: TestUIEvent())
+        
+        let secondTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        
+        XCTAssertFalse(firstTransaction === secondTransaction)
+    }
+    
+    func test_SameUIElementWithDifferentEvent_ButSameOperation_ResetsTimeout() {
+        let view = UIView()
+        
+        callExecuteAction(action: action, target: fixture.target, sender: view, event: TestUIEvent())
+        
+        let firstTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        
+        let event = TestUIEvent()
+        event.internalType = .touches
+        
+        callExecuteAction(action: action, target: fixture.target, sender: view, event: event)
+        
+        let secondTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        
+        XCTAssertTrue(firstTransaction === secondTransaction)
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations.count)
+        XCTAssertEqual(2, fixture.dispatchQueue.dispatchAfterInvocations.count)
     }
     
     func test_SameUIElementWithDifferentEvent_FinishesTransaction() {
@@ -108,15 +150,22 @@ class SentryUIEventTrackerTests: XCTestCase {
         callExecuteAction(action: action, target: fixture.target, sender: view, event: event)
         
         XCTAssertTrue(firstTransaction.isFinished)
-        assertTransaction(name: "SentryTests.FirstViewController.SomeAction", operation: operation)
+        XCTAssertEqual(.ok, firstTransaction.context.status)
+        assertTransaction(name: "SentryTests.FirstViewController.\(action)", operation: operation)
     }
     
     func test_DifferentUIElement_FinishesTransaction() {
         let view1 = UIView()
         callExecuteAction(action: action, target: fixture.target, sender: view1, event: TestUIEvent())
         
+        let firstTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        
         let view2 = UIView()
         callExecuteAction(action: action, target: fixture.target, sender: view2, event: TestUIEvent())
+        
+        XCTAssertTrue(firstTransaction.isFinished)
+        XCTAssertEqual(.ok, firstTransaction.context.status)
+        assertTransaction(name: "SentryTests.FirstViewController.\(action)", operation: operationClick)
     }
     
     func test_Stop() {

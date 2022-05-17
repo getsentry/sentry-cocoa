@@ -35,6 +35,8 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  */
 @property (readonly) BOOL isFinished;
 
+@property (nullable, nonatomic, copy) void (^finishCallback)(void);
+
 /**
  * Indicates whether this tracer will be finished only if all children have been finished.
  * If this property is YES and the finish function is called before all children are finished
@@ -111,6 +113,9 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  * Get the tracer from a span.
  */
 + (nullable SentryTracer *)getTracer:(id<SentrySpan>)span;
+
+- (void)dispatchIdleTimeout;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -62,7 +62,7 @@ class SentryTracerTests: XCTestCase {
         }
         
         func getSut(idleTimeout: TimeInterval = 0.0, dispatchQueueWrapper: SentryDispatchQueueWrapper) -> SentryTracer {
-            return hub.startTransaction(with: transactionContext, bindToScope: false, customSamplingContext: [:], idleTimeout: idleTimeout, dispatchQueueWrapper: dispatchQueueWrapper) as! SentryTracer
+            return hub.startTransaction(with: transactionContext, bindToScope: false, customSamplingContext: [:], idleTimeout: idleTimeout, dispatchQueueWrapper: dispatchQueueWrapper)
         }
     }
     
@@ -397,6 +397,19 @@ class SentryTracerTests: XCTestCase {
         XCTAssertTrue(child3.isFinished)
         XCTAssertEqual(child3.context.status, .deadlineExceeded)
         XCTAssertEqual(sut.timestamp, child3.timestamp)
+    }
+    
+    func testFinishCallback_CalledWhenTracerFinishes() {
+        let expectation = expectation(description: "FinishCallback called")
+        
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        sut.finishCallback = {
+            expectation.fulfill()
+        }
+        
+        fixture.dispatchQueue.invokeLastDispatchAfter()
+        
+        wait(for: [expectation], timeout: 0.1)
     }
     
     // Although we only run this test above the below specified versions, we expect the
