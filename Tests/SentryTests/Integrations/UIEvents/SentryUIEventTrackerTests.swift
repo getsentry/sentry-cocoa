@@ -56,11 +56,29 @@ class SentryUIEventTrackerTests: XCTestCase {
         assertNoTransaction()
     }
     
+    func testAction_WithNoArgument() {
+        callExecuteAction(action: "method:", target: fixture.target, sender: fixture.button, event: TestUIEvent())
+        
+        assertTransaction(name: "SentryTests.FirstViewController.method", operation: operationClick)
+    }
+    
+    func testAction_WithOneArgument() {
+        callExecuteAction(action: "method:firstArgument:", target: fixture.target, sender: fixture.button, event: TestUIEvent())
+        
+        assertTransaction(name: "SentryTests.FirstViewController.method(firstArgument:)", operation: operationClick)
+    }
+    
+    func testAction_WithThreeArguments() {
+        callExecuteAction(action: "method:first:second:third:", target: fixture.target, sender: fixture.button, event: TestUIEvent())
+        
+        assertTransaction(name: "SentryTests.FirstViewController.method(first:second:third:)", operation: operationClick)
+    }
+    
     func test_UIViewWithAccessibilityIdentifier_UseAccessibilityIdentifier() {
         let button = fixture.button
         button.accessibilityIdentifier = accessibilityIdentifier
         
-        callExecuteAction(action: action, target: fixture.target, sender: button, event: TestUIEvent())
+        callExecuteAction(action: "method:first:second:third:", target: fixture.target, sender: button, event: TestUIEvent())
         
         assertTransaction(name: "SentryTests.FirstViewController.\(accessibilityIdentifier)", operation: operationClick)
     }

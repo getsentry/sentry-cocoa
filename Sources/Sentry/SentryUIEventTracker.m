@@ -110,13 +110,31 @@ SentryUIEventTracker ()
 
 - (NSString *)getTransactionName:(NSString *)action target:(id)target view:(UIView *)element
 {
-    NSString *viewIdentifier = action;
+    NSString *targetClass = NSStringFromClass([target class]);
+
     if (element.accessibilityIdentifier) {
-        viewIdentifier = element.accessibilityIdentifier;
+        return [NSString stringWithFormat:@"%@.%@", targetClass, element.accessibilityIdentifier];
     }
 
-    Class targetClass = [target class];
-    return [NSString stringWithFormat:@"%@.%@", NSStringFromClass(targetClass), viewIdentifier];
+    // The action is an Objective-C selector and might look weird for Swift developers. Therefore we
+    // convert the selector to a Swift appropriate format aligned with the Swift #selector syntax.
+    // method:first:second:third: gets converted to method(first:second:third:)
+
+    NSArray<NSString *> *componens = [action componentsSeparatedByString:@":"];
+    if (componens.count > 2) {
+        NSMutableString *result =
+            [[NSMutableString alloc] initWithFormat:@"%@.%@(", targetClass, componens.firstObject];
+
+        for (int i = 1; i < (componens.count - 1); i++) {
+            [result appendFormat:@"%@:", componens[i]];
+        }
+
+        [result appendFormat:@")"];
+
+        return result;
+    }
+
+    return [NSString stringWithFormat:@"%@.%@", targetClass, componens.firstObject];
 }
 
 NS_ASSUME_NONNULL_END
