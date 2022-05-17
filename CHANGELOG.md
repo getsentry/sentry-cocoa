@@ -5,9 +5,7 @@
 ### Features
 
 - Collect queue label information for profiles (#1828)
-
-### Features
-
+- Use the macho format for debug information in Profiling (#1830)
 - Allow partial SDK info override (#1816)
 
 ### Fixes
