@@ -2,6 +2,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if SENTRY_HAS_UIKIT
+
 @class SentrySwizzleWrapper, SentryDispatchQueueWrapper;
 
 @interface SentryUIEventTracker : NSObject
@@ -14,5 +16,7 @@ SENTRY_NO_INIT
 - (void)stop;
 
 @end
+
+#endif
 
 NS_ASSUME_NONNULL_END

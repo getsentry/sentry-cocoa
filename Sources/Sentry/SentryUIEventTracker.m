@@ -6,11 +6,11 @@
 #import <SentrySpanProtocol.h>
 #import <SentryTracer.h>
 #import <SentryTransactionContext.h>
-#import <SentryUIEventTracker.h>
 
 #if SENTRY_HAS_UIKIT
+
+#    import <SentryUIEventTracker.h>
 #    import <UIKit/UIKit.h>
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -42,7 +42,6 @@ SentryUIEventTracker ()
 
 - (void)start
 {
-#if SENTRY_HAS_UIKIT
     [self.swizzleWrapper
         swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
             [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
@@ -98,14 +97,11 @@ SentryUIEventTracker ()
             }];
         }
                    forKey:SentryUIEventTrackerSwizzleSendAction];
-#endif
 }
 
 - (void)stop
 {
-#if SENTRY_HAS_UIKIT
     [self.swizzleWrapper removeSwizzleSendActionForKey:SentryUIEventTrackerSwizzleSendAction];
-#endif
 }
 
 - (NSString *)getOperation:(UIEvent *)event
@@ -132,3 +128,5 @@ SentryUIEventTracker ()
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif
