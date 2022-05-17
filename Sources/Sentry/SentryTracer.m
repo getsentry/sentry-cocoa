@@ -167,7 +167,7 @@ static NSLock *profilerLock;
         [self.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
     }
     __block SentryTracer *_self = self;
-    _idleTimeoutBlock = dispatch_block_create(0, ^{ [_self finishInternal:YES]; });
+    _idleTimeoutBlock = dispatch_block_create(0, ^{ [_self finishInternal]; });
     [self.dispatchQueueWrapper dispatchAfter:when block:_idleTimeoutBlock];
 }
 
@@ -364,11 +364,6 @@ static NSLock *profilerLock;
 
 - (void)finishInternal
 {
-    [self finishInternal:NO];
-}
-
-- (void)finishInternal:(BOOL)trimEndTimestamp
-{
     [_rootSpan finishWithStatus:_finishStatus];
 
     if (self.finishCallback) {
@@ -401,7 +396,7 @@ static NSLock *profilerLock;
             }
         }
 
-        if (trimEndTimestamp) {
+        if ([self hasIdleTimeout]) {
             [self trimEndTimestamp];
         }
     }

@@ -61,21 +61,27 @@ class ViewController: UIViewController {
     }
     
     @IBAction func captureMessage(_ sender: Any) {
-
-        let dispatchQueue = DispatchQueue(label: "LoremIpsumViewController")
-        
-        dispatchQueue.asyncAfter(deadline: .now() + 1) {
-            for _ in 0...10 {
-                dispatchQueue.asyncAfter(deadline: .now() + 0.1) {
-                    if let path = Bundle.main.path(forResource: "LoremIpsum", ofType: "txt") {
-                        if let contents = FileManager.default.contents(atPath: path) {
-                            
-                        }
-                    }
+        let eventId = SentrySDK.capture(message: "Yeah captured a message")
+        // Returns eventId in case of successfull processed event
+        // otherwise nil
+        print("\(String(describing: eventId))")
+    }
+    
+    @IBAction func uiClickTransaction(_ sender: Any) {
+        for _ in 0...10 {
+            dispatchQueue.async {
+                if let path = Bundle.main.path(forResource: "LoremIpsum", ofType: "txt") {
+                    _ = FileManager.default.contents(atPath: path)
                 }
             }
+            
+            guard let imgUrl = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png") else {
+                return
+            }
+            let session = URLSession(configuration: URLSessionConfiguration.default)
+            let dataTask = session.dataTask(with: imgUrl) { (_, _, _) in }
+            dataTask.resume()
         }
-      
     }
     
     @IBAction func captureUserFeedback(_ sender: Any) {

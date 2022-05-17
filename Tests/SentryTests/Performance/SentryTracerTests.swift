@@ -228,6 +228,36 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(expectedEndTimestamp, sut.timestamp)
     }
     
+    func testIdleTimeout_CallFinish_TrimsEndTimestamp() {
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        
+        let child = sut.startChild(operation: fixture.transactionOperation)
+        advanceTime(bySeconds: 1.0)
+        child.finish()
+        let expectedEndTimestamp = fixture.currentDateProvider.date()
+        
+        advanceTime(bySeconds: 1.0)
+        sut.finish(status: .cancelled)
+        
+        assertOneTransactionCaptured(sut)
+        XCTAssertEqual(expectedEndTimestamp, sut.timestamp)
+    }
+    
+    func testNonIdleTransaction_CallFinish_DoesNotTrimEndTimestamp() {
+        let sut = fixture.getSut()
+        
+        advanceTime(bySeconds: 1.0)
+        let child = sut.startChild(operation: fixture.transactionOperation)
+        child.finish()
+        advanceTime(bySeconds: 1.0)
+        
+        let expectedEndTimestamp = fixture.currentDateProvider.date()
+        sut.finish()
+        
+        assertOneTransactionCaptured(sut)
+        XCTAssertEqual(expectedEndTimestamp, sut.timestamp)
+    }
+    
     func testIdleTimeoutWithUnfinishedChildren_TimesOut_TrimsEndTimestamp() {
         let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
         
