@@ -8,6 +8,7 @@
 #import "SentrySpanProtocol.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
+#import "SentryUIEventTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -55,7 +56,7 @@ SentryPerformanceTracker ()
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> span) {
             BOOL bindToScope = true;
             if (span != nil) {
-                if ([span.context.operation isEqualToString:@"ui.action"]) {
+                if ([SentryUIEventTracker isUIEventOperation:span.context.operation]) {
                     [span finish];
                 } else {
                     bindToScope = false;

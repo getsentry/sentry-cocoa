@@ -159,6 +159,18 @@ class SentryUIEventTrackerTests: XCTestCase {
         sut.stop()
         XCTAssertTrue(fixture.swizzleWrapper.callbacks.isEmpty)
     }
+    
+    func test_IsUIEventOperation_UIAction() {
+        XCTAssertTrue(SentryUIEventTracker.isUIEventOperation("ui.action"))
+    }
+    
+    func test_IsUIEventOperation_UIActionClick() {
+        XCTAssertTrue(SentryUIEventTracker.isUIEventOperation("ui.action.click"))
+    }
+    
+    func test_IsUIEventOperation_Unknown() {
+        XCTAssertFalse(SentryUIEventTracker.isUIEventOperation("unkown"))
+    }
         
     func callExecuteAction(action: String, target: Any?, sender: Any?, event: UIEvent?) {
         fixture.swizzleWrapper.execute(action: action, target: target, sender: sender, event: event)

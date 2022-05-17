@@ -15,6 +15,8 @@ SENTRY_NO_INIT
 - (void)start;
 - (void)stop;
 
++ (BOOL)isUIEventOperation:(NSString *)operation;
+
 @end
 
 #endif

@@ -3,6 +3,7 @@
 #import <SentrySDK+Private.h>
 #import <SentrySDK.h>
 #import <SentryScope.h>
+#import <SentrySpanOperations.h>
 #import <SentrySpanProtocol.h>
 #import <SentryTracer.h>
 #import <SentryTransactionContext.h>
@@ -72,11 +73,11 @@ SentryUIEventTracker ()
                     [[SentryTransactionContext alloc] initWithName:transactionName
                                                          operation:operation];
 
-                BOOL ongoingScreenLoadTransaction
-                    = span != nil && [span.context.operation isEqualToString:@"ui.load"];
+                BOOL ongoingScreenLoadTransaction = span != nil &&
+                    [span.context.operation isEqualToString:SentrySpanOperationUILoad];
                 BOOL ongoingManualTransaction = span != nil
-                    && ![span.context.operation isEqualToString:@"ui.load"]
-                    && ![span.context.operation containsString:@"ui.action."];
+                    && ![span.context.operation isEqualToString:SentrySpanOperationUILoad]
+                    && ![span.context.operation containsString:SentrySpanOperationUIAction];
 
                 BOOL bindToScope = !ongoingScreenLoadTransaction && !ongoingManualTransaction;
                 SentryTracer *transaction =
@@ -102,6 +103,17 @@ SentryUIEventTracker ()
 - (void)stop
 {
     [self.swizzleWrapper removeSwizzleSendActionForKey:SentryUIEventTrackerSwizzleSendAction];
+}
+
++ (BOOL)isUIEventOperation:(NSString *)operation
+{
+    if ([operation isEqualToString:SentrySpanOperationUIAction]) {
+        return YES;
+    }
+    if ([operation isEqualToString:SentrySpanOperationUIActionClick]) {
+        return YES;
+    }
+    return NO;
 }
 
 - (NSString *)getOperation:(UIEvent *)event
