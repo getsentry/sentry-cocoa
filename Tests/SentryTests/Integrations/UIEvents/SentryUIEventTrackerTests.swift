@@ -9,6 +9,7 @@ class SentryUIEventTrackerTests: XCTestCase {
         let target = FirstViewController()
         let hub = SentryHub(client: TestClient(options: Options()), andScope: nil)
         let dispatchQueue = TestSentryDispatchQueueWrapper()
+        let button = UIButton()
         
         func getSut() -> SentryUIEventTracker {
             return SentryUIEventTracker(swizzleWrapper: swizzleWrapper, dispatchQueueWrapper: dispatchQueue)
@@ -18,7 +19,6 @@ class SentryUIEventTrackerTests: XCTestCase {
     private var fixture: Fixture!
     private var sut: SentryUIEventTracker!
     
-    let operation = "ui.action"
     let operationClick = "ui.action.click"
     let action = "SomeAction"
     let accessibilityIdentifier = "accessibilityIdentifier"
@@ -50,33 +50,51 @@ class SentryUIEventTrackerTests: XCTestCase {
         assertNoTransaction()
     }
     
-    func test_UIViewWithAccessibilityIdentifier_UseAccessibilityIdentifier() {
-        let view = UIView()
-        view.accessibilityIdentifier = accessibilityIdentifier
+    func test_UIView_NoTransaction() {
+        callExecuteAction(action: action, target: fixture.target, sender: UIView(), event: nil)
         
-        callExecuteAction(action: action, target: fixture.target, sender: view, event: TestUIEvent())
+        assertNoTransaction()
+    }
+    
+    func test_UIViewWithAccessibilityIdentifier_UseAccessibilityIdentifier() {
+        let button = fixture.button
+        button.accessibilityIdentifier = accessibilityIdentifier
+        
+        callExecuteAction(action: action, target: fixture.target, sender: button, event: TestUIEvent())
         
         assertTransaction(name: "SentryTests.FirstViewController.\(accessibilityIdentifier)", operation: operationClick)
     }
     
-    func test_UIViewWithoutAccessibilityIdentifier_UseAction() {
-        callExecuteAction(action: action, target: fixture.target, sender: UIView(), event: TestUIEvent())
+    func test_UIButtonWithoutAccessibilityIdentifier_UseAction() {
+        callExecuteAction(action: action, target: fixture.target, sender: fixture.button, event: TestUIEvent())
         
         assertTransaction(name: "SentryTests.FirstViewController.\(action)", operation: operationClick)
     }
     
-    func test_UIEventWithPresses_IsClickOperation() {
-        let event = TestUIEvent()
-        event.internalType = .presses
-        callExecuteAction(action: "captureMessage", target: fixture.target, sender: UIView(), event: event)
+    func test_UISegmentedControl_CreatesTransaction() {
+        callExecuteAction(action: action, target: fixture.target, sender: UISegmentedControl(), event: TestUIEvent())
         
-        assertTransaction(name: "SentryTests.FirstViewController.captureMessage", operation: operation)
+        assertTransaction(name: "SentryTests.FirstViewController.\(action)", operation: operationClick)
+    }
+    
+    func test_UIPageControl_CreatesTransaction() {
+        callExecuteAction(action: action, target: fixture.target, sender: UISegmentedControl(), event: TestUIEvent())
+        
+        assertTransaction(name: "SentryTests.FirstViewController.\(action)", operation: operationClick)
+    }
+    
+    func test_UIEventWithMotion_IsClickOperation() {
+        let event = TestUIEvent()
+        event.internalType = .motion
+        callExecuteAction(action: "captureMessage", target: fixture.target, sender: fixture.button, event: event)
+        
+        assertTransaction(name: "SentryTests.FirstViewController.captureMessage", operation: operationClick)
     }
     
     func test_OnGoingUILoadTransaction_StartNewUIEventTransaction_NotBoundToScope() {
         let uiLoadTransaction = SentrySDK.startTransaction(name: "test", operation: "ui.load", bindToScope: true)
         
-        callExecuteAction(action: action, target: fixture.target, sender: UIView(), event: TestUIEvent())
+        callExecuteAction(action: action, target: fixture.target, sender: fixture.button, event: TestUIEvent())
         
         XCTAssertTrue(uiLoadTransaction === SentrySDK.span)
     }
@@ -84,13 +102,13 @@ class SentryUIEventTrackerTests: XCTestCase {
     func test_ManualTransactionOnScope_StartNewUIEventTransaction_NotBoundToScope() {
         let manualTransaction = SentrySDK.startTransaction(name: "test", operation: "my.operation", bindToScope: true)
         
-        callExecuteAction(action: action, target: fixture.target, sender: UIView(), event: TestUIEvent())
+        callExecuteAction(action: action, target: fixture.target, sender: fixture.button, event: TestUIEvent())
         
         XCTAssertTrue(manualTransaction === SentrySDK.span)
     }
     
     func test_SameUIElementWithSameEvent_ResetsTimeout() {
-        let view = UIView()
+        let view = fixture.button
         
         callExecuteAction(action: action, target: fixture.target, sender: view, event: TestUIEvent())
         let firstTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
@@ -102,7 +120,7 @@ class SentryUIEventTrackerTests: XCTestCase {
     }
     
     func test_SameUIElementWithSameEvent_TransactionFinished_NewTransaction() {
-        let view = UIView()
+        let view = fixture.button
         callExecuteAction(action: action, target: fixture.target, sender: view, event: TestUIEvent())
         
         let firstTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
@@ -115,26 +133,13 @@ class SentryUIEventTrackerTests: XCTestCase {
         XCTAssertFalse(firstTransaction === secondTransaction)
     }
     
-    func test_SameUIElementWithDifferentEvent_FinishesTransaction() {
-        let view = UIView()
-        let event = TestUIEvent()
-        event.internalType = .motion
-        
-        callExecuteAction(action: action, target: fixture.target, sender: view, event: TestUIEvent())
-        let firstTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
-        
-        callExecuteAction(action: action, target: fixture.target, sender: view, event: event)
-        
-        assertFinishesTransaction(firstTransaction, operation)
-    }
-    
     func test_DifferentUIElement_FinishesTransaction() {
-        let view1 = UIView()
+        let view1 = fixture.button
         callExecuteAction(action: action, target: fixture.target, sender: view1, event: TestUIEvent())
         
         let firstTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
         
-        let view2 = UIView()
+        let view2 = UIButton()
         callExecuteAction(action: action, target: fixture.target, sender: view2, event: TestUIEvent())
         
         assertFinishesTransaction(firstTransaction, operationClick)

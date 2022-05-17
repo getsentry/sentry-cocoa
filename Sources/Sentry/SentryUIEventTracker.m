@@ -49,19 +49,19 @@ SentryUIEventTracker ()
     [self.swizzleWrapper
         swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
             [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-                if (target == nil || sender == nil || ![sender isKindOfClass:[UIView class]]) {
+                if (target == nil || sender == nil) {
+                    return;
+                }
+
+                if (![sender isKindOfClass:[UIButton class]]
+                    && ![sender isKindOfClass:[UISegmentedControl class]]
+                    && ![sender isKindOfClass:[UIPageControl class]]) {
                     return;
                 }
 
                 UIView *view = sender;
-
                 BOOL sameView = self.activeView != nil && view == self.activeView;
-
-                NSString *operation = [self getOperation:event];
-                BOOL sameOperation =
-                    [self.activeTransaction.context.operation isEqualToString:operation];
-
-                if (sameView && sameOperation) {
+                if (sameView) {
                     [self.activeTransaction dispatchIdleTimeout];
                     return;
                 }
@@ -72,9 +72,9 @@ SentryUIEventTracker ()
                                                               target:target
                                                                 view:view];
 
-                SentryTransactionContext *context =
-                    [[SentryTransactionContext alloc] initWithName:transactionName
-                                                         operation:operation];
+                SentryTransactionContext *context = [[SentryTransactionContext alloc]
+                    initWithName:transactionName
+                       operation:SentrySpanOperationUIActionClick];
 
                 BOOL ongoingScreenLoadTransaction = span != nil &&
                     [span.context.operation isEqualToString:SentrySpanOperationUILoad];
@@ -106,16 +106,6 @@ SentryUIEventTracker ()
 - (void)stop
 {
     [self.swizzleWrapper removeSwizzleSendActionForKey:SentryUIEventTrackerSwizzleSendAction];
-}
-
-- (NSString *)getOperation:(UIEvent *)event
-{
-    NSString *operation = @"ui.action";
-    if (event && event.type == UIEventTypeTouches) {
-        operation = @"ui.action.click";
-    }
-
-    return operation;
 }
 
 - (NSString *)getTransactionName:(NSString *)action target:(id)target view:(UIView *)element

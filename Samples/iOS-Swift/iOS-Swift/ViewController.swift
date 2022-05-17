@@ -64,11 +64,13 @@ class ViewController: UIViewController {
 
         let dispatchQueue = DispatchQueue(label: "LoremIpsumViewController")
         
-        for _ in 0...10 {
-            dispatchQueue.async {
-                if let path = Bundle.main.path(forResource: "LoremIpsum", ofType: "txt") {
-                    if let contents = FileManager.default.contents(atPath: path) {
-            
+        dispatchQueue.asyncAfter(deadline: .now() + 1) {
+            for _ in 0...10 {
+                dispatchQueue.asyncAfter(deadline: .now() + 0.1) {
+                    if let path = Bundle.main.path(forResource: "LoremIpsum", ofType: "txt") {
+                        if let contents = FileManager.default.contents(atPath: path) {
+                            
+                        }
                     }
                 }
             }
