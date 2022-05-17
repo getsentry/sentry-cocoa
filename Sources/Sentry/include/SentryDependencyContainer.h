@@ -3,7 +3,7 @@
 #import <Foundation/Foundation.h>
 
 @class SentryAppStateManager, SentryCrashWrapper, SentryThreadWrapper, SentrySwizzleWrapper,
-    SentryDebugImageProvider;
+    SentryDebugImageProvider, SentryANRTracker;
 
 #if SENTRY_HAS_UIKIT
 @class SentryScreenshot, SentryUIApplication;
@@ -27,6 +27,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) id<SentryRandom> random;
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
+@property (nonatomic, strong) SentryANRTracker *anrTracker;
 
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryScreenshot *screenshot;

@@ -12,6 +12,9 @@
 #import <SentrySwizzleWrapper.h>
 #import <SentrySysctl.h>
 #import <SentryThreadWrapper.h>
+#import "SentryANRTracker.h"
+#import "SentryDefaultCurrentDateProvider.h"
+#import "SentryDispatchQueueWrapper.h"
 
 @implementation SentryDependencyContainer
 
@@ -144,6 +147,22 @@ static NSObject *sentryDependencyContainerLock;
     }
 
     return _debugImageProvider;
+}
+
+- (SentryANRTracker *)anrTracker
+{
+    if (_anrTracker == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_anrTracker == nil) {
+                _anrTracker = [[SentryANRTracker alloc] initWithCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                                                                         crashWrapper:self.crashWrapper
+                                                                 dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
+                                                                        threadWrapper:self.threadWrapper];
+            }
+        }
+    }
+
+    return _anrTracker;
 }
 
 @end

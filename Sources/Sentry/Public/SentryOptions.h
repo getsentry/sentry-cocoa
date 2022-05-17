@@ -320,7 +320,8 @@ NS_SWIFT_NAME(Options)
 
 
 /**
- *
+ * The minimum amount of time an app shoud be unresponsive to be classified as an ANR.
+ * The actual amount may be a little longer.
  */
 @property (nonatomic, assign) NSTimeInterval anrTimeoutInterval;
 

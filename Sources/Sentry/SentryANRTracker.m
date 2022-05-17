@@ -11,12 +11,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryANRTracker ()
 
-@property (weak, nonatomic) id<SentryANRTrackerDelegate> delegate;
-@property (nonatomic, assign) NSTimeInterval timeoutInterval;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDate;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
+@property (nonatomic, strong) NSMutableArray<id<SentryANRTrackerDelegate>> * listeners;
 
 @property (weak, nonatomic) NSThread *thread;
 
@@ -24,27 +23,20 @@ SentryANRTracker ()
 
 @implementation SentryANRTracker
 
-- (instancetype)initWithDelegate:(id<SentryANRTrackerDelegate>)delegate
-           timeoutIntervalMillis:(NSUInteger)timeoutIntervalMillis
-             currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+- (instancetype)initWithCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
                     crashWrapper:(SentryCrashWrapper *)crashWrapper
             dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                    threadWrapper:(SentryThreadWrapper *)threadWrapper
 {
     if (self = [super init]) {
-        self.delegate = delegate;
-        self.timeoutInterval = (double)timeoutIntervalMillis / 1000;
+        self.timeoutInterval = (double)SENTRY_ANR_TRACKER_TIMEOUT_MILLIS / 1000;
         self.currentDate = currentDateProvider;
         self.crashWrapper = crashWrapper;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
         self.threadWrapper = threadWrapper;
+        self.listeners = [NSMutableArray new];
     }
     return self;
-}
-
-- (void)start
-{
-    [NSThread detachNewThreadSelector:@selector(detectANRs) toTarget:self withObject:nil];
 }
 
 - (void)detectANRs
@@ -68,7 +60,7 @@ SentryANRTracker ()
         if (blockExecutedOnMainThread) {
             if (wasPreviousANR) {
                 [SentryLog logWithMessage:@"ANR stopped." andLevel:kSentryLevelWarning];
-                [self.delegate anrStopped];
+                [self notifyEnd];
             }
 
             wasPreviousANR = NO;
@@ -103,8 +95,33 @@ SentryANRTracker ()
 
         wasPreviousANR = YES;
         [SentryLog logWithMessage:@"ANR detected." andLevel:kSentryLevelWarning];
-        [self.delegate anrDetected];
+        [self notifyBegin];
     }
+}
+
+- (void)notifyBegin {
+    
+}
+
+- (void)notifyEnd {
+    
+}
+
+- (void)addListener:(id<SentryANRTrackerDelegate>)listener{
+    
+}
+
+- (void)removeListener:(id<SentryANRTrackerDelegate>)listener{
+    
+}
+
+- (void)clear {
+    
+}
+
+- (void)start
+{
+    [NSThread detachNewThreadSelector:@selector(detectANRs) toTarget:self withObject:nil];
 }
 
 - (void)stop
