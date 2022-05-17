@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: checkout repo
         uses: actions/checkout@v3
+      - name: Install Carthage deps
+        run: cd Samples/TrendingMovies && carthage update --use-xcframeworks
       - name: Benchmark Sentry SDK PR
         run: make benchmark-sentry-pr
       - name: Archive benchmark report
