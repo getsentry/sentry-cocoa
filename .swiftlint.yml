@@ -1,5 +1,5 @@
 excluded:
-  - Carthage
+  - '**/Carthage'
   - Pods
   - Utils/**/.build
   - DependencyManagerTests
