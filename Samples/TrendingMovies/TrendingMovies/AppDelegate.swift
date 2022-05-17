@@ -22,7 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let benchmarkRetrieveValueButton = UIButton(type: .custom)
     let benchmarkValueTextField = UITextField(frame: .zero)
     let valueMarshalWindow = PassthroughWindow(frame: UIScreen.main.bounds)
-    var startedBenchmark = false
+    var benchmarkRunning = false
 
     func application(_: UIApplication, willFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         print("[TrendingMovies] willFinishLaunchingWithOptions")
@@ -109,11 +109,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     @objc func controlBenchmarks() {
-        if !startedBenchmark {
-            startedBenchmark = true
+        if !benchmarkRunning {
+            benchmarkRunning = true
             Tracer.startTracing(interaction: "benchmarking")
             SentryBenchmarking.startBenchmarkProfile()
         } else {
+            benchmarkRunning = false
             let value = SentryBenchmarking.retrieveBenchmarks()
             Tracer.endTracing(interaction: "benchmarking")
             benchmarkValueTextField.text = String(value)

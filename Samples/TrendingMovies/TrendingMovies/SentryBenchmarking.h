@@ -5,7 +5,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryBenchmarking : NSObject
 
 + (void)startBenchmarkProfile;
-+ (uint64_t)retrieveBenchmarks;
++ (double)retrieveBenchmarks;
 
 @end
 

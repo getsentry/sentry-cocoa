@@ -6,49 +6,53 @@ class TrendingMovies_Benchmarking_UITests: XCTestCase {
     }
 
     func testBenchmarkingOnScrolling() throws {
-        var avgPercentIncrease = 0.0
-        for _ in 0..<15 {
+        var avgUsagePercentage = 0.0
+        let numberOfTrials = 15
+        for _ in 0..<numberOfTrials {
             let app = XCUIApplication()
-            guard let withoutProfiling = benchmarkAppUsage(app: app, withProfiling: false) else { return }
-            app.terminate()
-            guard let withProfiling = benchmarkAppUsage(app: app, withProfiling: true) else { return }
-            let percentIncrease = Double(withProfiling - withoutProfiling) / Double(withoutProfiling)
-            print("Percent increase: \(percentIncrease * 100.0)%")
-            avgPercentIncrease += percentIncrease
+            guard let usagePercentage = benchmarkAppUsage(app: app, withProfiling: true) else { return }
+            print("Percent usage: \(usagePercentage * 100.0)%")
+            avgUsagePercentage += usagePercentage
         }
-        avgPercentIncrease /= 5.0
-        print("Average overhead: \(avgPercentIncrease * 100)%")
-        XCTAssertLessThanOrEqual(avgPercentIncrease, 0.05, "Running profiling resulted in more than 5% overhead while scrolling in the app.")
+        avgUsagePercentage /= Double(numberOfTrials)
+
+        let url = URL(fileURLWithPath: String(describing: #file).components(separatedBy: "Samples").first!).appendingPathComponent("bookmark.json")
+        try JSONEncoder().encode(["profiling_overhead_percentage": avgUsagePercentage]).write(to: url)
+
+        print("Average overhead: \(avgUsagePercentage * 100)%")
+        XCTAssertLessThanOrEqual(avgUsagePercentage, 5, "Running profiling resulted in more than 5% overhead while scrolling in the app.")
     }
 }
 
 extension TrendingMovies_Benchmarking_UITests {
-    func benchmarkAppUsage(app: XCUIApplication, withProfiling: Bool) -> Int64? {
+    func benchmarkAppUsage(app: XCUIApplication, withProfiling: Bool) -> Double? {
         app.launchArguments.append("--io.sentry.ui-test.benchmarking")
         if withProfiling {
             app.launchArguments.append("--io.sentry.enable-profiling")
         }
         app.launch()
 
-        // warm up caches by performing the operation we'll benchmark, before actually enabling the benchmarking instrumentation
+        func performBenchmarkedWork(app: XCUIApplication) -> Double? {
+            startBenchmark(app: app)
+            for _ in 0..<5 {
+                app.swipeUp(velocity: .fast)
+            }
+            return stopBenchmark(app: app)
+        }
+
+        // warm up caches by performing the operation we'll benchmark, plus running the profiling components
         for _ in 0..<3 {
-            app.swipeUp(velocity: .fast)
+            let _ = performBenchmarkedWork(app: app)
         }
 
-        startBenchmark(app: app)
-
-        for _ in 0..<5 {
-            app.swipeUp(velocity: .fast)
-        }
-
-        return stopBenchmark(app: app)
+        return performBenchmarkedWork(app: app)
     }
 
     func startBenchmark(app: XCUIApplication) {
         tapBenchmarkStartStopButton(app: app)
     }
 
-    func stopBenchmark(app: XCUIApplication) -> Int64? {
+    func stopBenchmark(app: XCUIApplication) -> Double? {
         tapBenchmarkStartStopButton(app: app)
 
         let textField = app.textFields["io.sentry.accessibility-identifier.benchmarking-value-marshaling-text-field"]
@@ -62,7 +66,7 @@ extension TrendingMovies_Benchmarking_UITests {
             return nil
         }
 
-        return benchmarkValueString.longLongValue
+        return benchmarkValueString.doubleValue
     }
 
     func tapBenchmarkStartStopButton(app: XCUIApplication) {
