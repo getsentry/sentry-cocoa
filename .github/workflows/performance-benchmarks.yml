@@ -20,6 +20,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/Samples/TrendingMovies/Carthage/Build
+          key: ${{ hashFiles('Samples/TrendingMovies/Cartfile.resolved') }}
       - name: Install Carthage deps
         run: cd Samples/TrendingMovies && carthage update --use-xcframeworks
       - name: Benchmark Sentry SDK PR
