@@ -65,12 +65,12 @@ class SentryUIEventTrackerTests: XCTestCase {
         assertTransaction(name: "SentryTests.FirstViewController.\(action)", operation: operationClick)
     }
     
-    func test_UIEventWithTouches_IsClickOperation() {
+    func test_UIEventWithPresses_IsClickOperation() {
         let event = TestUIEvent()
-        event.internalType = .touches
+        event.internalType = .presses
         callExecuteAction(action: "captureMessage", target: fixture.target, sender: UIView(), event: event)
         
-        assertTransaction(name: "SentryTests.FirstViewController.captureMessage", operation: operationClick)
+        assertTransaction(name: "SentryTests.FirstViewController.captureMessage", operation: operation)
     }
     
     func test_OnGoingUILoadTransaction_StartNewUIEventTransaction_NotBoundToScope() {
@@ -113,20 +113,6 @@ class SentryUIEventTrackerTests: XCTestCase {
         let secondTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
         
         XCTAssertFalse(firstTransaction === secondTransaction)
-    }
-    
-    func test_SameUIElementWithDifferentEvent_ButSameOperation_ResetsTimeout() {
-        let view = UIView()
-        let event = TestUIEvent()
-        event.internalType = .touches
-        
-        callExecuteAction(action: action, target: fixture.target, sender: view, event: TestUIEvent())
-        let firstTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
-        
-        callExecuteAction(action: action, target: fixture.target, sender: view, event: event)
-        let secondTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
-        
-        assertResetsTimeout(firstTransaction, secondTransaction)
     }
     
     func test_SameUIElementWithDifferentEvent_FinishesTransaction() {
@@ -202,7 +188,7 @@ class SentryUIEventTrackerTests: XCTestCase {
     
     private class TestUIEvent: UIEvent {
         
-        var internalType: UIEvent.EventType = .presses
+        var internalType: UIEvent.EventType = .touches
         override var type: UIEvent.EventType {
             return internalType
         }

@@ -111,7 +111,7 @@ SentryUIEventTracker ()
 - (NSString *)getOperation:(UIEvent *)event
 {
     NSString *operation = @"ui.action";
-    if (event && (event.type == UIEventTypePresses || event.type == UIEventTypeTouches)) {
+    if (event && event.type == UIEventTypeTouches) {
         operation = @"ui.action.click";
     }
 
