@@ -433,14 +433,16 @@ static NSLock *profilerLock;
 
 - (void)trimEndTimestamp
 {
-    NSArray<id<SentrySpan>> *sortedChildrenNewestFirst =
-        [_children sortedArrayUsingComparator:^NSComparisonResult(id<SentrySpan> first,
-            id<SentrySpan> second) { return [first.timestamp compare:second.timestamp]; }];
+    NSDate *oldest = self.startTimestamp;
 
-    // Only trim if all children are finished. Otherwise the timestamp would be nil
-    NSDate *timestamp = sortedChildrenNewestFirst.lastObject.timestamp;
-    if (timestamp) {
-        self.timestamp = timestamp;
+    for (id<SentrySpan> childSpan in _children) {
+        if ([oldest compare:childSpan.timestamp] == NSOrderedAscending) {
+            oldest = childSpan.timestamp;
+        }
+    }
+
+    if (oldest) {
+        self.timestamp = oldest;
     }
 }
 
