@@ -77,6 +77,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         XCTAssert(scopeSpan === transaction)
         XCTAssert(scopeSpan !== firstTransaction)
         XCTAssertTrue(firstTransaction.isFinished)
+        XCTAssertEqual(.cancelled, firstTransaction.context.status)
     }
     
     func testStartSpan_WithActiveSpan() {

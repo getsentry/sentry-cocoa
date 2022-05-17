@@ -57,7 +57,7 @@ SentryPerformanceTracker ()
             BOOL bindToScope = true;
             if (span != nil) {
                 if ([SentryUIEventTracker isUIEventOperation:span.context.operation]) {
-                    [span finish];
+                    [span finishWithStatus:kSentrySpanStatusCancelled];
                 } else {
                     bindToScope = false;
                 }
