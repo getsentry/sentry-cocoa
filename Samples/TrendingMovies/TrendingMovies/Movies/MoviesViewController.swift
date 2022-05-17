@@ -90,7 +90,7 @@ class MoviesViewController: UICollectionViewController, UICollectionViewDelegate
     }
 
     override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+        super.viewWillDisappear(animated)
         Tracer.endTracing(interaction: interactionName)
     }
 

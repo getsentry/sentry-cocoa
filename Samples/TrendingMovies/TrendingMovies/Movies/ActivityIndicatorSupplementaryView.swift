@@ -30,6 +30,7 @@ class ActivityIndicatorSupplementaryView: UICollectionReusableView {
     }
 
     override func prepareForReuse() {
+        super.prepareForReuse()
         activityIndicatorView.stopAnimating()
     }
 }

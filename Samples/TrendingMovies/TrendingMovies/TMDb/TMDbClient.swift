@@ -3,7 +3,7 @@ import Foundation
 class TMDbClient: NSObject, URLSessionDataDelegate, URLSessionTaskDelegate {
     enum TMDbClientError: Swift.Error {
         case URLConstructionFailed
-        case Unknown
+        case unknown
     }
 
     enum AdditionalData: String {
@@ -19,7 +19,9 @@ class TMDbClient: NSObject, URLSessionDataDelegate, URLSessionTaskDelegate {
         case week
     }
 
+    // swiftlint:disable force_unwrapping
     private static let baseURL = URL(string: "https://api.themoviedb.org/3")!
+    // swiftlint:enable force_unwrapping
 
     private let apiKey: String
 
@@ -548,7 +550,7 @@ class TMDbClient: NSObject, URLSessionDataDelegate, URLSessionTaskDelegate {
         } else if let error = error {
             completion(.failure(error))
         } else {
-            completion(.failure(TMDbClientError.Unknown))
+            completion(.failure(TMDbClientError.unknown))
         }
     }
 

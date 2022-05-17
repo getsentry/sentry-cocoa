@@ -4,8 +4,8 @@ import CoreGraphics
 /// https://github.com/panicinc/ColorArt/blob/master/ColorArt/SLColorArt.m
 struct ColorArt {
     enum ColorArtError: Swift.Error {
-        case ContextCreationFailed
-        case BackgroundColorNotFound
+        case contextCreationFailed
+        case backgroundColorNotFound
     }
 
     struct Colors {
@@ -35,7 +35,7 @@ struct ColorArt {
 
         let components = try findColorComponents(image: image, width: width, height: height, dominantEdge: dominantEdge)
         guard let backgroundColor = findBackgroundColorComponents(components: components) else {
-            throw ColorArtError.BackgroundColorNotFound
+            throw ColorArtError.backgroundColorNotFound
         }
         let darkBackground = backgroundColor.isDarkColor
         let textColorComponents = findTextColorComponents(colors: components.allColors, backgroundColor: backgroundColor)
@@ -155,7 +155,7 @@ private func findColorComponents(image: CGImage, width: Int, height: Int, domina
         space: CGColorSpaceCreateDeviceRGB(),
         bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
     ) else {
-        throw ColorArt.ColorArtError.ContextCreationFailed
+        throw ColorArt.ColorArtError.contextCreationFailed
     }
     context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
     switch dominantEdge {
