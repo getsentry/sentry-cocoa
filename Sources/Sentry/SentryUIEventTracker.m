@@ -9,10 +9,10 @@
 #import <SentryTransactionContext.h>
 #import <SentryUIEventTracker.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const SentryUIEventTrackerSwizzleSendAction
     = @"SentryUIEventTrackerSwizzleSendAction";
@@ -129,7 +129,11 @@ SentryUIEventTracker ()
     return [NSString stringWithFormat:@"%@.%@", NSStringFromClass(targetClass), viewIdentifier];
 }
 
+NS_ASSUME_NONNULL_END
+
 #endif
+
+NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)isUIEventOperation:(NSString *)operation
 {
