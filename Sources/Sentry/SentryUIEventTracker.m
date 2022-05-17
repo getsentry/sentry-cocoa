@@ -7,13 +7,12 @@
 #import <SentrySpanProtocol.h>
 #import <SentryTracer.h>
 #import <SentryTransactionContext.h>
-
-#if SENTRY_HAS_UIKIT
-
-#    import <SentryUIEventTracker.h>
-#    import <UIKit/UIKit.h>
+#import <SentryUIEventTracker.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+#if SENTRY_HAS_UIKIT
+#    import <UIKit/UIKit.h>
 
 static NSString *const SentryUIEventTrackerSwizzleSendAction
     = @"SentryUIEventTrackerSwizzleSendAction";
@@ -29,7 +28,11 @@ SentryUIEventTracker ()
 
 @end
 
+#endif
+
 @implementation SentryUIEventTracker
+
+#if SENTRY_HAS_UIKIT
 
 - (instancetype)initWithSwizzleWrapper:(SentrySwizzleWrapper *)swizzleWrapper
                   dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
@@ -105,17 +108,6 @@ SentryUIEventTracker ()
     [self.swizzleWrapper removeSwizzleSendActionForKey:SentryUIEventTrackerSwizzleSendAction];
 }
 
-+ (BOOL)isUIEventOperation:(NSString *)operation
-{
-    if ([operation isEqualToString:SentrySpanOperationUIAction]) {
-        return YES;
-    }
-    if ([operation isEqualToString:SentrySpanOperationUIActionClick]) {
-        return YES;
-    }
-    return NO;
-}
-
 - (NSString *)getOperation:(UIEvent *)event
 {
     NSString *operation = @"ui.action";
@@ -137,8 +129,19 @@ SentryUIEventTracker ()
     return [NSString stringWithFormat:@"%@.%@", NSStringFromClass(targetClass), viewIdentifier];
 }
 
+#endif
+
++ (BOOL)isUIEventOperation:(NSString *)operation
+{
+    if ([operation isEqualToString:SentrySpanOperationUIAction]) {
+        return YES;
+    }
+    if ([operation isEqualToString:SentrySpanOperationUIActionClick]) {
+        return YES;
+    }
+    return NO;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif
