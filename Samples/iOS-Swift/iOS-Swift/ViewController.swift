@@ -60,20 +60,18 @@ class ViewController: UIViewController {
     }
     
     @IBAction func uiClickTransaction(_ sender: Any) {
-        for _ in 0...10 {
-            dispatchQueue.async {
-                if let path = Bundle.main.path(forResource: "LoremIpsum", ofType: "txt") {
-                    _ = FileManager.default.contents(atPath: path)
-                }
+        dispatchQueue.async {
+            if let path = Bundle.main.path(forResource: "LoremIpsum", ofType: "txt") {
+                _ = FileManager.default.contents(atPath: path)
             }
-            
-            guard let imgUrl = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png") else {
-                return
-            }
-            let session = URLSession(configuration: URLSessionConfiguration.default)
-            let dataTask = session.dataTask(with: imgUrl) { (_, _, _) in }
-            dataTask.resume()
         }
+        
+        guard let imgUrl = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png") else {
+            return
+        }
+        let session = URLSession(configuration: URLSessionConfiguration.default)
+        let dataTask = session.dataTask(with: imgUrl) { (_, _, _) in }
+        dataTask.resume()
     }
     
     @IBAction func captureUserFeedback(_ sender: Any) {
