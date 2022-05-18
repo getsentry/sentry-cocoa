@@ -11,6 +11,8 @@ on:
       - 'test-server/**'
       - 'Samples/**'
       - '.github/workflows/**'
+env:
+  SENTRY_CI: 1
 
 jobs:
   # We had issues that the release build was broken on master.
