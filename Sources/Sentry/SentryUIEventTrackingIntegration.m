@@ -27,7 +27,8 @@ SentryUIEventTrackingIntegration ()
     SentryDependencyContainer *dependencies = [SentryDependencyContainer sharedInstance];
     self.uiEventTracker = [[SentryUIEventTracker alloc]
         initWithSwizzleWrapper:[SentryDependencyContainer sharedInstance].swizzleWrapper
-          dispatchQueueWrapper:dependencies.dispatchQueueWrapper];
+          dispatchQueueWrapper:dependencies.dispatchQueueWrapper
+                   idleTimeout:options.idleTimeout];
 
     [self.uiEventTracker start];
 }

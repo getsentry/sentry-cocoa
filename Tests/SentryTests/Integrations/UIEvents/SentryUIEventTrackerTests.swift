@@ -12,7 +12,7 @@ class SentryUIEventTrackerTests: XCTestCase {
         let button = UIButton()
         
         func getSut() -> SentryUIEventTracker {
-            return SentryUIEventTracker(swizzleWrapper: swizzleWrapper, dispatchQueueWrapper: dispatchQueue)
+            return SentryUIEventTracker(swizzleWrapper: swizzleWrapper, dispatchQueueWrapper: dispatchQueue, idleTimeout: 3.0)
         }
     }
 

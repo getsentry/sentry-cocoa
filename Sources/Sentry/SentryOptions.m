@@ -56,6 +56,7 @@ SentryOptions ()
         self.enableUIViewControllerTracking = YES;
         self.attachScreenshot = NO;
         self.enableUserInteractionTracing = NO;
+        self.idleTimeout = 3.0;
 #endif
         self.enableNetworkTracking = YES;
         self.enableFileIOTracking = NO;
@@ -238,6 +239,10 @@ SentryOptions ()
 
     [self setBool:options[@"enableUserInteractionTracing"]
             block:^(BOOL value) { self->_enableUserInteractionTracing = value; }];
+
+    if ([options[@"idleTimeout"] isKindOfClass:[NSNumber class]]) {
+        self.idleTimeout = [options[@"idleTimeout"] doubleValue];
+    }
 #endif
 
     [self setBool:options[@"enableNetworkTracking"]

@@ -539,6 +539,7 @@
 #if SENTRY_HAS_UIKIT
     XCTAssertTrue(options.enableUIViewControllerTracking);
     XCTAssertFalse(options.attachScreenshot);
+    XCTAssertEqual(3.0, options.idleTimeout);
 #endif
     XCTAssertEqual(YES, options.enableNetworkTracking);
     XCTAssertNil(options.tracesSampleRate);
@@ -679,6 +680,14 @@
 - (void)testEnableUserInteractionTracking
 {
     [self testBooleanField:@"enableUserInteractionTracing" defaultValue:NO];
+}
+
+- (void)testIdleTimeout
+{
+    NSNumber *idleTimeout = @2.1;
+    SentryOptions *options = [self getValidOptions:@{ @"idleTimeout" : idleTimeout }];
+
+    XCTAssertEqual([idleTimeout doubleValue], options.idleTimeout);
 }
 
 #endif

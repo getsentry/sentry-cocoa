@@ -22,6 +22,7 @@ SentryUIEventTracker ()
 
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
+@property (nonatomic, assign) NSTimeInterval idleTimeout;
 @property (nullable, nonatomic, strong) SentryTracer *activeTransaction;
 
 @end
@@ -34,10 +35,12 @@ SentryUIEventTracker ()
 
 - (instancetype)initWithSwizzleWrapper:(SentrySwizzleWrapper *)swizzleWrapper
                   dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+                           idleTimeout:(NSTimeInterval)idleTimeout
 {
     if (self = [super init]) {
         self.swizzleWrapper = swizzleWrapper;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
+        self.idleTimeout = idleTimeout;
     }
     return self;
 }
@@ -78,7 +81,7 @@ SentryUIEventTracker ()
                     [SentrySDK.currentHub startTransactionWithContext:context
                                                           bindToScope:bindToScope
                                                 customSamplingContext:@{}
-                                                          idleTimeout:defaultIdleTransactionTimeout
+                                                          idleTimeout:self.idleTimeout
                                                  dispatchQueueWrapper:self.dispatchQueueWrapper];
 
                 if ([[sender class] isSubclassOfClass:[UIView class]]) {

@@ -204,6 +204,13 @@ NS_SWIFT_NAME(Options)
  * and other ui elements that uses UIControl `sendAction:to:forEvent:`.
  */
 @property (nonatomic, assign) BOOL enableUserInteractionTracing;
+
+/**
+ * How long an idle transaction waits for new children after all its child spans finished. Only UI
+ * event transactions are idle transactions. The default is 3 seconds.
+ */
+@property (nonatomic, assign) NSTimeInterval idleTimeout;
+
 #endif
 
 /**

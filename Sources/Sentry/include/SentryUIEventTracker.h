@@ -10,7 +10,8 @@ SENTRY_NO_INIT
 #if SENTRY_HAS_UIKIT
 
 - (instancetype)initWithSwizzleWrapper:(SentrySwizzleWrapper *)swizzleWrapper
-                  dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
+                  dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+                           idleTimeout:(NSTimeInterval)idleTimeout;
 
 - (void)start;
 - (void)stop;
