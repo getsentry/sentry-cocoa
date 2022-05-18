@@ -16,7 +16,7 @@ class TrendingMovies_Benchmarking_UITests: XCTestCase {
         }
         avgUsagePercentage /= Double(numberOfTrials)
 
-        let url = URL(fileURLWithPath: String(describing: #file).components(separatedBy: "Samples").first!).appendingPathComponent("bookmark.json")
+        let url = URL(fileURLWithPath: String(describing: #file).components(separatedBy: "Samples").first!).appendingPathComponent("benchmark.json")
         try JSONEncoder().encode(["profiling_overhead_percentage": avgUsagePercentage]).write(to: url)
 
         print("Average overhead: \(avgUsagePercentage)%")
