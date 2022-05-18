@@ -64,8 +64,6 @@
 		D8D7BB4E27501B9400044146 /* SpanObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB4D27501B9400044146 /* SpanObserver.swift */; };
 		D8DBDA76274D591F00007380 /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DBDA75274D591F00007380 /* TableViewController.swift */; };
 		D8DBDA78274D5FC400007380 /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DBDA77274D5FC400007380 /* SplitViewController.swift */; };
-		D8E6C72128250E12000544CC /* CoreDataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F57BC427BBD787000D09D4 /* CoreDataViewController.swift */; };
-		D8E6C72328250E1A000544CC /* SentryData.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D845F35927BAD4CC00A4D7A2 /* SentryData.xcdatamodeld */; };
 		D8F3D052274E572F00B56F8C /* DSNStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F3D04F274E572F00B56F8C /* DSNStorage.swift */; };
 		D8F3D053274E572F00B56F8C /* DSNStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F3D04F274E572F00B56F8C /* DSNStorage.swift */; };
 		D8F3D054274E572F00B56F8C /* RandomErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F3D051274E572F00B56F8C /* RandomErrors.swift */; };
@@ -452,6 +450,7 @@
 				637AFDA4243B02760034958B /* Resources */,
 				630853552440C60F00DDE4CE /* Embed Frameworks */,
 				D840D535273A07F600CDF142 /* Embed App Clips */,
+				844A35EC2834480300C6D1DF /* Swiftlint */,
 			);
 			buildRules = (
 			);
@@ -492,6 +491,7 @@
 				D8269A36274C095E00BD5BD5 /* Frameworks */,
 				D8269A37274C095E00BD5BD5 /* Resources */,
 				D8269A5B274C100300BD5BD5 /* Embed Frameworks */,
+				844A35F328344A2700C6D1DF /* Swiftlint */,
 			);
 			buildRules = (
 			);
@@ -664,6 +664,45 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		844A35EC2834480300C6D1DF /* Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = Swiftlint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "bash ../../scripts/run-swiftlint.sh\n";
+		};
+		844A35F328344A2700C6D1DF /* Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = Swiftlint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "bash ../../scripts/run-swiftlint.sh\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		637AFDA2243B02760034958B /* Sources */ = {
