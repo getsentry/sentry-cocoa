@@ -8,6 +8,8 @@ env
 if [[ -n ${CI+x} ]]; then
     echo "Detected CI environment. `swiftlint` will run in a dedicated workflow."
     exit 0;
+else
+    echo "Did not detect CI environment. Running swiftlint..."
 fi
 
 /opt/homebrew/bin/swiftlint lint --force-exclude
