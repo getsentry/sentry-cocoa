@@ -11,7 +11,7 @@ class TrendingMovies_Benchmarking_UITests: XCTestCase {
         for _ in 0..<numberOfTrials {
             let app = XCUIApplication()
             guard let usagePercentage = benchmarkAppUsage(app: app, withProfiling: true) else { return }
-            print("Percent usage: \(usagePercentage * 100.0)%")
+            print("Percent usage: \(usagePercentage)%")
             avgUsagePercentage += usagePercentage
         }
         avgUsagePercentage /= Double(numberOfTrials)
@@ -19,7 +19,7 @@ class TrendingMovies_Benchmarking_UITests: XCTestCase {
         let url = URL(fileURLWithPath: String(describing: #file).components(separatedBy: "Samples").first!).appendingPathComponent("bookmark.json")
         try JSONEncoder().encode(["profiling_overhead_percentage": avgUsagePercentage]).write(to: url)
 
-        print("Average overhead: \(avgUsagePercentage * 100)%")
+        print("Average overhead: \(avgUsagePercentage)%")
         XCTAssertLessThanOrEqual(avgUsagePercentage, 5, "Running profiling resulted in more than 5% overhead while scrolling in the app.")
     }
 }
