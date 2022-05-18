@@ -682,7 +682,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/opt/homebrew/bin/swiftlint lint --force-exclude --config ../../.swiftlint.yml\n";
+			shellScript = "bash ../../scripts/run-swiftlint.sh\n";
 		};
 		844A35F328344A2700C6D1DF /* Swiftlint */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -700,7 +700,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/opt/homebrew/bin/swiftlint lint --force-exclude --config ../../.swiftlint.yml\n";
+			shellScript = "bash ../../scripts/run-swiftlint.sh\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
