@@ -22,6 +22,7 @@ AppDelegate ()
         options.tracesSampleRate = @1.0;
         options.enableFileIOTracking = YES;
         options.attachScreenshot = YES;
+        options.enableUserInteractionTracing = YES;
     }];
 
     return YES;
