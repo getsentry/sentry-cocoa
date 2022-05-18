@@ -200,6 +200,8 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL attachScreenshot;
 
 /**
+ * This feature is EXPERIMENTAL.
+ *
  * When enabled, the SDK creates transactions for UI events like buttons clicks, switch toggles,
  * and other ui elements that uses UIControl `sendAction:to:forEvent:`.
  */
