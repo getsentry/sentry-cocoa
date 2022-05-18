@@ -43,9 +43,7 @@
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mjD-vZ-Wtp" userLabel="UIClick Transaction">
                                                         <rect key="frame" x="0.0" y="60" width="194.5" height="30"/>
-                                                        <accessibility key="accessibilityConfiguration">
-                                                            <bool key="isElement" value="NO"/>
-                                                        </accessibility>
+                                                        <accessibility key="accessibilityConfiguration" identifier="uiClickTransactionButton"/>
                                                         <state key="normal" title="UIClick Transaction"/>
                                                         <connections>
                                                             <action selector="uiClickTransaction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="JCq-Fy-ciF"/>

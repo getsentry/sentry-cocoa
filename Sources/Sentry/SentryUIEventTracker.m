@@ -23,8 +23,6 @@ SentryUIEventTracker ()
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nullable, nonatomic, strong) SentryTracer *activeTransaction;
-@property (nullable, nonatomic, weak) UIView *activeView;
-@property (nonatomic, assign) UIEventType activeEventType;
 
 @end
 
@@ -53,28 +51,21 @@ SentryUIEventTracker ()
                     return;
                 }
 
-                if (![sender isKindOfClass:[UIButton class]]
-                    && ![sender isKindOfClass:[UISegmentedControl class]]
-                    && ![sender isKindOfClass:[UIPageControl class]]) {
-                    return;
-                }
+                NSString *transactionName = [self getTransactionName:action target:target];
 
-                UIView *view = sender;
-                BOOL sameView = self.activeView != nil && view == self.activeView;
-                if (sameView) {
+                BOOL sameAction = [self.activeTransaction.name isEqualToString:transactionName];
+                if (sameAction) {
                     [self.activeTransaction dispatchIdleTimeout];
                     return;
                 }
 
                 [self.activeTransaction finish];
 
-                NSString *transactionName = [self getTransactionName:action
-                                                              target:target
-                                                                view:view];
+                NSString *operation = [self getOperation:sender];
 
-                SentryTransactionContext *context = [[SentryTransactionContext alloc]
-                    initWithName:transactionName
-                       operation:SentrySpanOperationUIActionClick];
+                SentryTransactionContext *context =
+                    [[SentryTransactionContext alloc] initWithName:transactionName
+                                                         operation:operation];
 
                 BOOL ongoingScreenLoadTransaction = span != nil &&
                     [span.context.operation isEqualToString:SentrySpanOperationUILoad];
@@ -90,14 +81,17 @@ SentryUIEventTracker ()
                                                           idleTimeout:defaultIdleTransactionTimeout
                                                  dispatchQueueWrapper:self.dispatchQueueWrapper];
 
-                transaction.finishCallback = ^(void) {
-                    self.activeTransaction = nil;
-                    self.activeView = nil;
-                };
+                if ([[sender class] isSubclassOfClass:[UIView class]]) {
+                    UIView *view = sender;
+                    if (view.accessibilityIdentifier) {
+                        [transaction setTagValue:view.accessibilityIdentifier
+                                          forKey:@"accessibilityIdentifier"];
+                    }
+                }
+
+                transaction.finishCallback = ^(void) { self.activeTransaction = nil; };
 
                 self.activeTransaction = transaction;
-                self.activeView = view;
-                self.activeEventType = event.type;
             }];
         }
                    forKey:SentryUIEventTrackerSwizzleSendAction];
@@ -108,17 +102,27 @@ SentryUIEventTracker ()
     [self.swizzleWrapper removeSwizzleSendActionForKey:SentryUIEventTrackerSwizzleSendAction];
 }
 
-- (NSString *)getTransactionName:(NSString *)action target:(id)target view:(UIView *)element
+- (NSString *)getOperation:(id)sender
 {
-    NSString *targetClass = NSStringFromClass([target class]);
-
-    if (element.accessibilityIdentifier) {
-        return [NSString stringWithFormat:@"%@.%@", targetClass, element.accessibilityIdentifier];
+    Class senderClass = [sender class];
+    if ([senderClass isSubclassOfClass:[UIButton class]] ||
+        [senderClass isSubclassOfClass:[UIBarButtonItem class]] ||
+        [senderClass isSubclassOfClass:[UISegmentedControl class]] ||
+        [senderClass isSubclassOfClass:[UIPageControl class]]) {
+        return SentrySpanOperationUIActionClick;
     }
 
-    // The action is an Objective-C selector and might look weird for Swift developers. Therefore we
-    // convert the selector to a Swift appropriate format aligned with the Swift #selector syntax.
-    // method:first:second:third: gets converted to method(first:second:third:)
+    return SentrySpanOperationUIAction;
+}
+
+/**
+ * The action is an Objective-C selector and might look weird for Swift developers. Therefore we
+ * convert the selector to a Swift appropriate format aligned with the Swift #selector syntax.
+ * method:first:second:third: gets converted to method(first:second:third:)
+ */
+- (NSString *)getTransactionName:(NSString *)action target:(id)target
+{
+    NSString *targetClass = NSStringFromClass([target class]);
 
     NSArray<NSString *> *componens = [action componentsSeparatedByString:@":"];
     if (componens.count > 2) {

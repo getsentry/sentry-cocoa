@@ -19,8 +19,10 @@ class SentryUIEventTrackerTests: XCTestCase {
     private var fixture: Fixture!
     private var sut: SentryUIEventTracker!
     
+    let operation = "ui.action"
     let operationClick = "ui.action.click"
-    let action = "SomeAction"
+    let action = "SomeAction:"
+    let expectedAction = "SomeAction"
     let accessibilityIdentifier = "accessibilityIdentifier"
     
     override func setUp() {
@@ -38,7 +40,7 @@ class SentryUIEventTrackerTests: XCTestCase {
         clearTestState()
     }
     
-    func test_NSObject_NoTransaction() {
+    func test_NSSender_NoTransaction() {
         callExecuteAction(action: action, target: NSObject(), sender: nil, event: nil)
         
         assertNoTransaction()
@@ -50,10 +52,16 @@ class SentryUIEventTrackerTests: XCTestCase {
         assertNoTransaction()
     }
     
-    func test_UIView_NoTransaction() {
-        callExecuteAction(action: action, target: fixture.target, sender: UIView(), event: nil)
+    func test_NSObject_Transaction() {
+        callExecuteAction(action: "method:", target: fixture.target, sender: NSObject(), event: TestUIEvent())
         
-        assertNoTransaction()
+        assertTransaction(name: "SentryTests.FirstViewController.method", operation: operation)
+    }
+    
+    func test_UIView_Transaction() {
+        callExecuteAction(action: "method:", target: fixture.target, sender: UIView(), event: TestUIEvent())
+        
+        assertTransaction(name: "SentryTests.FirstViewController.method", operation: operation)
     }
     
     func testAction_WithNoArgument() {
@@ -78,35 +86,30 @@ class SentryUIEventTrackerTests: XCTestCase {
         let button = fixture.button
         button.accessibilityIdentifier = accessibilityIdentifier
         
-        callExecuteAction(action: "method:first:second:third:", target: fixture.target, sender: button, event: TestUIEvent())
+        callExecuteAction(action: action, target: fixture.target, sender: button, event: TestUIEvent())
         
-        assertTransaction(name: "SentryTests.FirstViewController.\(accessibilityIdentifier)", operation: operationClick)
+        let span = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        XCTAssertTrue(span.tags.contains {
+            $0.key == "accessibilityIdentifier" && $0.value == accessibilityIdentifier
+        })
     }
     
-    func test_UIButtonWithoutAccessibilityIdentifier_UseAction() {
-        callExecuteAction(action: action, target: fixture.target, sender: fixture.button, event: TestUIEvent())
+    func test_SubclassOfUIButton_CreatesTransaction() {
+        callExecuteAction(action: action, target: fixture.target, sender: TestUIButton(), event: TestUIEvent())
         
-        assertTransaction(name: "SentryTests.FirstViewController.\(action)", operation: operationClick)
+        assertTransaction(name: "SentryTests.FirstViewController.\(expectedAction)", operation: operationClick)
     }
     
     func test_UISegmentedControl_CreatesTransaction() {
         callExecuteAction(action: action, target: fixture.target, sender: UISegmentedControl(), event: TestUIEvent())
         
-        assertTransaction(name: "SentryTests.FirstViewController.\(action)", operation: operationClick)
+        assertTransaction(name: "SentryTests.FirstViewController.\(expectedAction)", operation: operationClick)
     }
     
     func test_UIPageControl_CreatesTransaction() {
         callExecuteAction(action: action, target: fixture.target, sender: UISegmentedControl(), event: TestUIEvent())
         
-        assertTransaction(name: "SentryTests.FirstViewController.\(action)", operation: operationClick)
-    }
-    
-    func test_UIEventWithMotion_IsClickOperation() {
-        let event = TestUIEvent()
-        event.internalType = .motion
-        callExecuteAction(action: "captureMessage", target: fixture.target, sender: fixture.button, event: event)
-        
-        assertTransaction(name: "SentryTests.FirstViewController.captureMessage", operation: operationClick)
+        assertTransaction(name: "SentryTests.FirstViewController.\(expectedAction)", operation: operationClick)
     }
     
     func test_OnGoingUILoadTransaction_StartNewUIEventTransaction_NotBoundToScope() {
@@ -151,9 +154,22 @@ class SentryUIEventTrackerTests: XCTestCase {
         XCTAssertFalse(firstTransaction === secondTransaction)
     }
     
-    func test_DifferentUIElement_FinishesTransaction() {
+    func test_DifferentUIElement_SameAction_ResetsTimeout() {
         let view1 = fixture.button
         callExecuteAction(action: action, target: fixture.target, sender: view1, event: TestUIEvent())
+        
+        let firstTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        
+        let view2 = UIView()
+        callExecuteAction(action: action, target: fixture.target, sender: view2, event: TestUIEvent())
+        let secondTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        
+        assertResetsTimeout(firstTransaction, secondTransaction)
+    }
+    
+    func test_DifferentUIElement_DifferentAction_FinishesTransaction() {
+        let view1 = fixture.button
+        callExecuteAction(action: "otherAction", target: fixture.target, sender: view1, event: TestUIEvent())
         
         let firstTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
         
@@ -206,15 +222,11 @@ class SentryUIEventTrackerTests: XCTestCase {
     private func assertFinishesTransaction(_ transaction: SentryTracer, _ operation: String) {
         XCTAssertTrue(transaction.isFinished)
         XCTAssertEqual(.ok, transaction.context.status)
-        assertTransaction(name: "SentryTests.FirstViewController.\(action)", operation: operation)
+        assertTransaction(name: "SentryTests.FirstViewController.\(expectedAction)", operation: operation)
     }
     
-    private class TestUIEvent: UIEvent {
-        
-        var internalType: UIEvent.EventType = .touches
-        override var type: UIEvent.EventType {
-            return internalType
-        }
-    }
+    private class TestUIEvent: UIEvent {}
+    
+    private class TestUIButton: UIButton {}
 }
 #endif
