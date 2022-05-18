@@ -24,7 +24,7 @@ class MovieDetailBarBackgroundView: UIView {
             visualEffectView.leadingAnchor.constraint(equalTo: leadingAnchor),
             visualEffectView.trailingAnchor.constraint(equalTo: trailingAnchor),
             visualEffectView.topAnchor.constraint(equalTo: topAnchor),
-            visualEffectView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            visualEffectView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
     }
 

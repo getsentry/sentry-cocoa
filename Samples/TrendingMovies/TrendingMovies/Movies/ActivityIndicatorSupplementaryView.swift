@@ -21,7 +21,7 @@ class ActivityIndicatorSupplementaryView: UICollectionReusableView {
 
         NSLayoutConstraint.activate([
             activityIndicatorView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            activityIndicatorView.centerYAnchor.constraint(equalTo: centerYAnchor)
+            activityIndicatorView.centerYAnchor.constraint(equalTo: centerYAnchor),
         ])
     }
 

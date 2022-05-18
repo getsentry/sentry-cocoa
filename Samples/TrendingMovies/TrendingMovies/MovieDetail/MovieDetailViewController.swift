@@ -302,7 +302,7 @@ class MovieDetailViewController: UIViewController, UIScrollViewDelegate, MovieDe
             Section(
                 title: NSLocalizedString("Similar Movies", comment: "Title for the Similar Movies section"),
                 viewController: SimilarMoviesViewController(movie: movie, client: client, imageResolver: imageResolver, genreResolver: genreResolver, errorHandler: errorHandler)
-            )
+            ),
         ])
     }
 

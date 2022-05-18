@@ -33,7 +33,7 @@ class VideoCollectionViewCell: UICollectionViewCell {
 
         NSLayoutConstraint.activate([
             imageView.widthAnchor.constraint(equalToConstant: Layout.thumbnailWidth),
-            imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor, multiplier: Layout.aspectRatio)
+            imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor, multiplier: Layout.aspectRatio),
         ])
 
         return imageView
@@ -73,7 +73,7 @@ class VideoCollectionViewCell: UICollectionViewCell {
             vibrancyView.heightAnchor.constraint(equalTo: blurView.contentView.heightAnchor),
             titleLabel.topAnchor.constraint(equalTo: vibrancyView.contentView.topAnchor, constant: Layout.titlePadding),
             titleLabel.bottomAnchor.constraint(equalTo: vibrancyView.contentView.bottomAnchor, constant: -Layout.titlePadding),
-            titleLabel.centerXAnchor.constraint(equalTo: vibrancyView.contentView.centerXAnchor)
+            titleLabel.centerXAnchor.constraint(equalTo: vibrancyView.contentView.centerXAnchor),
         ])
 
         return view
@@ -91,7 +91,7 @@ class VideoCollectionViewCell: UICollectionViewCell {
             thumbnailImageView.topAnchor.constraint(equalTo: view.topAnchor),
             thumbnailImageView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             titleContainerView.widthAnchor.constraint(equalTo: thumbnailImageView.widthAnchor),
-            titleContainerView.bottomAnchor.constraint(equalTo: thumbnailImageView.bottomAnchor)
+            titleContainerView.bottomAnchor.constraint(equalTo: thumbnailImageView.bottomAnchor),
         ])
 
         return view
@@ -106,7 +106,7 @@ class VideoCollectionViewCell: UICollectionViewCell {
             roundedCornerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             roundedCornerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             roundedCornerView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            roundedCornerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).withPriority(.defaultHigh)
+            roundedCornerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).withPriority(.defaultHigh),
         ])
     }
 

@@ -103,3 +103,5 @@ type_name:
     - 1
 large_tuple:
     - 3
+trailing_comma:
+  mandatory_comma: true
