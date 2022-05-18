@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -19,7 +19,8 @@
 		7B82C4A024C98A95002CA6D1 /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B82C49F24C98A95002CA6D1 /* NotificationView.swift */; };
 		7B82C4A224C98A96002CA6D1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B82C4A124C98A96002CA6D1 /* Assets.xcassets */; };
 		7B82C4A524C98A96002CA6D1 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B82C4A424C98A96002CA6D1 /* Preview Assets.xcassets */; };
-		844A3618283479D700C6D1DF /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 844A36112834791700C6D1DF /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		7B82C4C624C993E6002CA6D1 /* Sentry.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82C4BA24C98CFC002CA6D1 /* Sentry.xcframework */; };
+		7B82C4C724C993E6002CA6D1 /* Sentry.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82C4BA24C98CFC002CA6D1 /* Sentry.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,7 +69,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				844A3618283479D700C6D1DF /* Sentry.framework in Embed Frameworks */,
+				7B82C4C724C993E6002CA6D1 /* Sentry.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -96,7 +97,6 @@
 		7B82C4BA24C98CFC002CA6D1 /* Sentry.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Sentry.xcframework; path = libs/Sentry.xcframework; sourceTree = "<group>"; };
 		7B82C4BF24C99340002CA6D1 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B82C4C224C9939A002CA6D1 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		844A36112834791700C6D1DF /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,6 +104,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7B82C4C624C993E6002CA6D1 /* Sentry.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -168,7 +169,6 @@
 		7B82C4B524C98AF4002CA6D1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				844A36112834791700C6D1DF /* Sentry.framework */,
 				7B82C4C224C9939A002CA6D1 /* Sentry.framework */,
 				7B82C4BF24C99340002CA6D1 /* Sentry.framework */,
 				7B82C4BA24C98CFC002CA6D1 /* Sentry.xcframework */,
@@ -203,7 +203,6 @@
 			buildPhases = (
 				7B82C48124C98A93002CA6D1 /* Resources */,
 				7B82C4AD24C98A96002CA6D1 /* Embed App Extensions */,
-				844A35F928344B8F00C6D1DF /* Swiftlint */,
 			);
 			buildRules = (
 			);
@@ -302,27 +301,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		844A35F928344B8F00C6D1DF /* Swiftlint */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = Swiftlint;
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "bash ../../scripts/run-swiftlint.sh\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		7B82C48E24C98A95002CA6D1 /* Sources */ = {
