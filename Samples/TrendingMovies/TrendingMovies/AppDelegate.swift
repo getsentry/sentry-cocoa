@@ -1,6 +1,6 @@
 import Kingfisher
-import UIKit
 import Sentry
+import UIKit
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
