@@ -368,6 +368,9 @@ static NSLock *profilerLock;
 
     if (self.finishCallback) {
         self.finishCallback(self);
+
+        // The callback will only be executed once. No need to keep the reference and we avoid
+        // potential retain cycles.
         self.finishCallback = nil;
     }
 
