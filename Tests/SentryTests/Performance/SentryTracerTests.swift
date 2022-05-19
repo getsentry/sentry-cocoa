@@ -177,10 +177,12 @@ class SentryTracerTests: XCTestCase {
         let child1 = sut.startChild(operation: fixture.transactionOperation)
         let child2 = sut.startChild(operation: fixture.transactionOperation)
         
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchAfterInvocations.count)
         child1.finish()
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAfterInvocations.count)
         
         child2.finish()
+        XCTAssertEqual(2, fixture.dispatchQueue.dispatchAfterInvocations.count)
         
         fixture.dispatchQueue.invokeLastDispatchAfter()
         
