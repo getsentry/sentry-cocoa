@@ -7,7 +7,7 @@ on:
   pull_request:
     paths:
       - 'Sources/**'
-      - 'Tests/**'
+      - 'Samples/TrendingMovies/TrendingMovies-Benchmarking-UITests/**'
       - '.github/workflows/performance-benchmarks.yml'
 
 jobs:
