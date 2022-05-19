@@ -76,3 +76,22 @@ Finally, you have to configure the rendering server in Visual Studio Code. For t
 Save the settings and you should be able to render a diagram.
 
 You can find the official guide here: [configure a rendering server](https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml#user-content-use-plantuml-server-as-render).
+
+## Performance Benchmarks
+
+These tests exist to measure how much overhead the Sentry SDK uses while doing its work in an app. Note that this is a different concept than our "Performance" product offering.
+
+Currently, the Sentry SDK's new experimental profiling feature is being benchmarked. Other components are planned in the future.
+
+A GitHub workflow ([//.github/workflows/performance-benchmarks.yml](../.github/workflows/performance-benchmarks.yml)) runs a [UI test](../Samples/TrendingMovies/TrendingMovies-Benchmarking-UITests/TrendingMovies_Benchmarking_UITests.swift) that drives the [TrendingMovies sample app](../Samples/TrendingMovies), which contains some code ([SentryBenchmarking.mm](../Samples/TrendingMovies/TrendingMovies/SentryBenchmarking.mm)) to sample all the app's threads, including the dedicated thread used by the Sentry profiler, to determine what percentage of the overall work being done by the app is devoted to the profiler.
+
+The UI test launches the app and configures Sentry to enable the experimental profiler. The test app provides a special UIButton that can be used to start and stop a Sentry transaction that will include the profiling information.
+
+The UI test plan is as follows:
+- Tap the button to start a Sentry transaction with the associated profiling.
+- Scroll the app's UICollectionView a few times, causing various work to be done on the CPU that will be profiled by Sentry.
+- Tap the button to stop the transaction.
+- Do this times to warm up caches.
+- Do it a fourth time, and then grab the value passed from the test app back to the UI test runner app via a special UITextField provided by the test app.
+- Do the whole thing 15 times, averaging the results.
+- Use XCTAssert on the value. We set the bar at 5% overhead cost for running the Sentry SDK's profiling code.
