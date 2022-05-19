@@ -424,6 +424,7 @@
 				844A34D2282B2B6100C6D1DF /* Frameworks */,
 				844A34D3282B2B6100C6D1DF /* Resources */,
 				844A357C282B4B6500C6D1DF /* Embed Frameworks */,
+				84FB80FE2836DC5D00F3A94A /* Swiftlint */,
 			);
 			buildRules = (
 			);
@@ -532,6 +533,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		84FB80FE2836DC5D00F3A94A /* Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = Swiftlint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# /opt/homebrew/bin/swiftlint\n../../scripts/run_swiftlint.py\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		844A34D1282B2B6100C6D1DF /* Sources */ = {
