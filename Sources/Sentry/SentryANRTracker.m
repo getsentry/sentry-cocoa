@@ -6,7 +6,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#if SENTRY_HAS_UIKIT
+
 
 @interface
 SentryANRTracker ()
@@ -21,7 +21,9 @@ SentryANRTracker ()
 
 @end
 
-@implementation SentryANRTracker
+@implementation SentryANRTracker {
+    NSObject* threadLock;
+}
 
 - (instancetype)initWithCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
                     crashWrapper:(SentryCrashWrapper *)crashWrapper
@@ -35,6 +37,7 @@ SentryANRTracker ()
         self.dispatchQueueWrapper = dispatchQueueWrapper;
         self.threadWrapper = threadWrapper;
         self.listeners = [NSMutableArray new];
+        threadLock = [[NSObject alloc] init];
     }
     return self;
 }
@@ -100,38 +103,75 @@ SentryANRTracker ()
 }
 
 - (void)notifyBegin {
+    NSArray* targets = [NSArray new];
+    @synchronized (self.listeners) {
+        targets = [self.listeners copy];
+    }
     
+    for (id<SentryANRTrackerDelegate> target in targets) {
+        [target anrDetected];
+    }
 }
 
 - (void)notifyEnd {
+    NSArray* targets = [NSArray new];
+    @synchronized (self.listeners) {
+        targets = [self.listeners copy];
+    }
     
+    for (id<SentryANRTrackerDelegate> target in targets) {
+        [target anrStopped];
+    }
 }
 
 - (void)addListener:(id<SentryANRTrackerDelegate>)listener{
-    
+    @synchronized (self.listeners) {
+        [self.listeners addObject:listener];
+        
+        if (self.listeners.count > 0 && self.thread == nil) {
+            @synchronized (threadLock) {
+                if (self.thread == nil) {
+                    [self start];
+                }
+            }
+        }
+    }
 }
 
 - (void)removeListener:(id<SentryANRTrackerDelegate>)listener{
-    
+    @synchronized (self.listeners) {
+        [self.listeners removeObject:listener];
+        
+        if (self.listeners.count == 0) {
+            [self stop];
+        }
+    }
 }
 
 - (void)clear {
-    
+    @synchronized (self.listeners) {
+        [self.listeners removeAllObjects];
+        [self stop];
+    }
 }
 
 - (void)start
 {
-    [NSThread detachNewThreadSelector:@selector(detectANRs) toTarget:self withObject:nil];
+    @synchronized (threadLock) {
+        [NSThread detachNewThreadSelector:@selector(detectANRs) toTarget:self withObject:nil];
+    }
 }
 
 - (void)stop
 {
-    [SentryLog logWithMessage:@"Stopping ANR detection" andLevel:kSentryLevelInfo];
-    [self.thread cancel];
+    @synchronized (threadLock) {
+        [SentryLog logWithMessage:@"Stopping ANR detection" andLevel:kSentryLevelInfo];
+        [self.thread cancel];
+        self.thread = nil;
+    }
 }
 
 @end
 
-#endif
 
 NS_ASSUME_NONNULL_END

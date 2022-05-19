@@ -18,6 +18,8 @@ SENTRY_NO_INIT
  */
 - (NSArray<SentryThread *> *)getCurrentThreads;
 
+
+- (NSArray<SentryThread *> *)getCurrentThreadsWithStackTrace:(BOOL)forceStackTraces;
 @end
 
 NS_ASSUME_NONNULL_END

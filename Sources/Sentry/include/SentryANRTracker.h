@@ -5,7 +5,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#if SENTRY_HAS_UIKIT
+
 
 /**
  * As we only use the ANR tracking integration for detecting falsely reported OOMs we can use a more
@@ -54,7 +54,5 @@ SENTRY_NO_INIT
 - (void)anrStopped;
 
 @end
-
-#endif
 
 NS_ASSUME_NONNULL_END

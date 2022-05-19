@@ -3,7 +3,7 @@
 #import "SentryDiscardReason.h"
 #import <Foundation/Foundation.h>
 
-@class SentryEnvelopeItem, SentryId, SentryAttachment;
+@class SentryEnvelopeItem, SentryId, SentryAttachment, SentryThreadInspector;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -19,6 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 SentryClient (Private)
 
 @property (nonatomic, weak) id<SentryClientAttachmentProcessor> attachmentProcessor;
+@property (nonatomic, strong) SentryThreadInspector *threadInspector;
 
 - (SentryFileManager *)fileManager;
 

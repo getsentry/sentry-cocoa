@@ -12,6 +12,8 @@
 #import <SentryOutOfMemoryTracker.h>
 #import <SentryOutOfMemoryTrackingIntegration.h>
 #import <SentrySDK+Private.h>
+#import <SentryAppState.h>
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -19,7 +21,9 @@ NS_ASSUME_NONNULL_BEGIN
 SentryOutOfMemoryTrackingIntegration ()
 
 @property (nonatomic, strong) SentryOutOfMemoryTracker *tracker;
+@property (nonatomic, strong) SentryANRTracker *anrTracker;
 @property (nullable, nonatomic, copy) NSString *testConfigurationFilePath;
+@property (nonatomic, strong) SentryAppStateManager *appStateManager;
 
 @end
 
@@ -62,6 +66,13 @@ SentryOutOfMemoryTrackingIntegration ()
                                                 dispatchQueueWrapper:dispatchQueueWrapper
                                                          fileManager:fileManager];
     [self.tracker start];
+    
+    
+    self.anrTracker = SentryDependencyContainer.sharedInstance.anrTracker;
+    self.anrTracker.timeoutInterval = options.anrTimeoutInterval;
+    [self.anrTracker addListener:self];
+    
+    self.appStateManager = appStateManager;
 }
 
 - (BOOL)shouldBeDisabled:(SentryOptions *)options
@@ -86,6 +97,23 @@ SentryOutOfMemoryTrackingIntegration ()
     if (nil != self.tracker) {
         [self.tracker stop];
     }
+    [self.anrTracker removeListener:self];
+}
+
+- (void)anrDetected
+{
+#if SENTRY_HAS_UIKIT
+    [self.appStateManager
+        updateAppState:^(SentryAppState *appState) { appState.isANROngoing = YES; }];
+#endif
+}
+
+- (void)anrStopped
+{
+#if SENTRY_HAS_UIKIT
+    [self.appStateManager
+        updateAppState:^(SentryAppState *appState) { appState.isANROngoing = NO; }];
+#endif
 }
 
 @end

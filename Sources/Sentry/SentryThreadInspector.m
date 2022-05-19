@@ -26,6 +26,11 @@ SentryThreadInspector ()
 
 - (NSArray<SentryThread *> *)getCurrentThreads
 {
+    return [self getCurrentThreadsWithStackTrace:NO];
+}
+
+- (NSArray<SentryThread *> *)getCurrentThreadsWithStackTrace:(BOOL)forceStackTraces
+{
     NSMutableArray<SentryThread *> *threads = [NSMutableArray new];
 
     SentryCrashMC_NEW_CONTEXT(context);
@@ -33,6 +38,13 @@ SentryThreadInspector ()
 
     int threadCount = [self.machineContextWrapper getThreadCount:context];
 
+    
+    thread_act_array_t suspendedThreads = nil;
+    mach_msg_type_number_t numSuspendedThreads = 0;
+    if (forceStackTraces) {
+        sentrycrashmc_suspendEnvironment(&suspendedThreads, &numSuspendedThreads);
+    }
+    
     for (int i = 0; i < threadCount; i++) {
         SentryCrashThread thread = [self.machineContextWrapper getThread:context withIndex:i];
         SentryThread *sentryThread = [[SentryThread alloc] initWithThreadId:@(i)];
@@ -46,9 +58,15 @@ SentryThreadInspector ()
         // For now we can only retrieve the stack trace of the current thread.
         if (isCurrent) {
             sentryThread.stacktrace = [self.stacktraceBuilder buildStacktraceForCurrentThread];
+        } else if (forceStackTraces) {
+            sentryThread.stacktrace = [self.stacktraceBuilder buildStacktraceForThread:thread];
         }
 
         [threads addObject:sentryThread];
+    }
+    
+    if (numSuspendedThreads > 0) {
+        sentrycrashmc_resumeEnvironment(suspendedThreads, numSuspendedThreads);
     }
 
     return threads;
