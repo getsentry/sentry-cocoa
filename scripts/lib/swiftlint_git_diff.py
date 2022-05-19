@@ -9,7 +9,8 @@ from lib.git_repo_root import git_repo_root
 def get_swiftlint_issues_in_diff():
     def get_git_diff():
         "Filter some git-diff output to get the line number ranges of additions to each modified file."
-        diff = subprocess.check_output(['git', 'diff', '--diff-filter=AM', '-U0'], encoding='utf-8').strip().split('\n')
+        subprocess.check_call(['git', 'fetch', 'origin'])
+        diff = subprocess.check_output(['git', 'diff', '--diff-filter=AM', '-U0', 'origin/master'], encoding='utf-8').strip().split('\n')
 
         # find every instance of the string "diff --git a/... b/...", as this separates hunks in the diff output
 
