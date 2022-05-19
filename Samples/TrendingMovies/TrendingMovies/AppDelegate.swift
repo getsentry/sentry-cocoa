@@ -89,7 +89,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 view.translatesAutoresizingMaskIntoConstraints = false
                 NSLayoutConstraint.activate([
                     view.widthAnchor.constraint(equalToConstant: 100),
-                    view.heightAnchor.constraint(equalToConstant: 50),
+                    view.heightAnchor.constraint(equalToConstant: 50)
                 ])
             }
             NSLayoutConstraint.activate([
