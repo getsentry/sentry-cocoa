@@ -278,17 +278,21 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(expectedEndTimestamp, sut.timestamp)
     }
     
-    func testIdleTimeout_CallFinish_WaitsForChildren() {
+    func testIdleTimeout_CallFinish_WaitsForChildren_DoesntStartTimeout() {
         let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
         
         let child = sut.startChild(operation: fixture.transactionOperation)
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchAfterInvocations.count)
         
         sut.finish()
         XCTAssertEqual(2, fixture.dispatchQueue.dispatchCancelInvocations.count)
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchAfterInvocations.count)
         
         XCTAssertFalse(sut.isFinished)
         advanceTime(bySeconds: 1)
         child.finish()
+        
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchAfterInvocations.count)
         
         XCTAssertTrue(sut.isFinished)
     }
@@ -436,7 +440,8 @@ class SentryTracerTests: XCTestCase {
         
         let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
         
-        let block: () -> Void = {
+        let block: (SentryTracer) -> Void = { tracer in
+            XCTAssertEqual(sut, tracer)
             callbackExpectation.fulfill()
         }
         sut.finishCallback = block

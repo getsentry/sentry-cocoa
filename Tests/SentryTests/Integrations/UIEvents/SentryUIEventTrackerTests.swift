@@ -191,6 +191,32 @@ class SentryUIEventTrackerTests: XCTestCase {
         assertFinishesTransaction(firstTransaction, operationClick)
     }
     
+    func testFinishedTransaction_DoesntFinishImmidiately_KeepsTransactionInMemory() {
+        
+        // We want firstTransaction to be deallocated by ARC
+        func startChild() -> Span {
+            let firstTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+            return firstTransaction.startChild(operation: "some")
+        }
+        
+        callExecuteAction(action: action, target: fixture.target, sender: fixture.button, event: TestUIEvent())
+        
+        let child = startChild()
+
+        callExecuteAction(action: "otherAction", target: fixture.target, sender: UIView(), event: TestUIEvent())
+        
+        XCTAssertEqual(2, getInternalTransactions().count)
+        
+        let secondTransaction = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        
+        XCTAssertTrue(secondTransaction === getInternalTransactions().last)
+        
+        child.finish()
+        
+        XCTAssertEqual(1, getInternalTransactions().count)
+        XCTAssertTrue(secondTransaction === getInternalTransactions().last)
+    }
+    
     func test_Stop() {
         XCTAssertEqual(fixture.swizzleWrapper.callbacks.count, 1)
         sut.stop()
@@ -213,9 +239,16 @@ class SentryUIEventTrackerTests: XCTestCase {
         fixture.swizzleWrapper.execute(action: action, target: target, sender: sender, event: event)
     }
     
+    private func getInternalTransactions() -> [SentryTracer] {
+        return try! XCTUnwrap(Dynamic(sut).activeTransactions.asArray as? [SentryTracer])
+    }
+    
     private func assertTransaction(name: String, operation: String) {
         let span = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
-        XCTAssertTrue(span === Dynamic(sut).activeTransaction.asObject)
+        
+        let transactions = try! XCTUnwrap(Dynamic(sut).activeTransactions.asArray as? [SentryTracer])
+        XCTAssertEqual(1, transactions.count)
+        XCTAssertTrue(span === transactions.first)
         
         XCTAssertEqual(name, span.name)
         XCTAssertEqual(operation, span.context.operation)
@@ -235,6 +268,9 @@ class SentryUIEventTrackerTests: XCTestCase {
         XCTAssertTrue(transaction.isFinished)
         XCTAssertEqual(.ok, transaction.context.status)
         assertTransaction(name: "SentryTests.FirstViewController.\(expectedAction)", operation: operation)
+        
+        let transactions = getInternalTransactions()
+        XCTAssertEqual(1, transactions.count)
     }
     
     private class TestUIEvent: UIEvent {}

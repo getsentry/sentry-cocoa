@@ -23,7 +23,7 @@ SentryUIEventTracker ()
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, assign) NSTimeInterval idleTimeout;
-@property (nullable, nonatomic, strong) SentryTracer *activeTransaction;
+@property (nullable, nonatomic, strong) NSMutableArray<SentryTracer *> *activeTransactions;
 
 @end
 
@@ -41,6 +41,7 @@ SentryUIEventTracker ()
         self.swizzleWrapper = swizzleWrapper;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
         self.idleTimeout = idleTimeout;
+        self.activeTransactions = [NSMutableArray new];
     }
     return self;
 }
@@ -67,13 +68,17 @@ SentryUIEventTracker ()
 
                 NSString *transactionName = [self getTransactionName:action target:targetClass];
 
-                BOOL sameAction = [self.activeTransaction.name isEqualToString:transactionName];
+                SentryTracer *currentActiveTransaction;
+                @synchronized(self.activeTransactions) {
+                    currentActiveTransaction = self.activeTransactions.lastObject;
+                }
+                BOOL sameAction = [currentActiveTransaction.name isEqualToString:transactionName];
                 if (sameAction) {
-                    [self.activeTransaction dispatchIdleTimeout];
+                    [currentActiveTransaction dispatchIdleTimeout];
                     return;
                 }
 
-                [self.activeTransaction finish];
+                [currentActiveTransaction finish];
 
                 NSString *operation = [self getOperation:sender];
 
@@ -103,9 +108,14 @@ SentryUIEventTracker ()
                     }
                 }
 
-                transaction.finishCallback = ^(void) { self.activeTransaction = nil; };
-
-                self.activeTransaction = transaction;
+                transaction.finishCallback = ^(SentryTracer *tracer) {
+                    @synchronized(self.activeTransactions) {
+                        [self.activeTransactions removeObject:tracer];
+                    }
+                };
+                @synchronized(self.activeTransactions) {
+                    [self.activeTransactions addObject:transaction];
+                }
             }];
         }
                    forKey:SentryUIEventTrackerSwizzleSendAction];

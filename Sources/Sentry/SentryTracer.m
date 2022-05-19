@@ -308,6 +308,11 @@ static NSLock *profilerLock;
     [self.rootSpan removeTagForKey:key];
 }
 
+- (SentryTraceHeader *)toTraceHeader
+{
+    return [self.rootSpan toTraceHeader];
+}
+
 - (void)finish
 {
     [self finishWithStatus:kSentrySpanStatusOk];
@@ -320,11 +325,6 @@ static NSLock *profilerLock;
 
     [self cancelIdleTimeout];
     [self canBeFinished];
-}
-
-- (SentryTraceHeader *)toTraceHeader
-{
-    return [self.rootSpan toTraceHeader];
 }
 
 - (void)canBeFinished
@@ -367,7 +367,7 @@ static NSLock *profilerLock;
     [_rootSpan finishWithStatus:_finishStatus];
 
     if (self.finishCallback) {
-        self.finishCallback();
+        self.finishCallback(self);
     }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
