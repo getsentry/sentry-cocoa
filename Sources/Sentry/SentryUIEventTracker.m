@@ -67,10 +67,14 @@ SentryUIEventTracker ()
 
             NSString *transactionName = [self getTransactionName:action target:targetClass];
 
+            // There might be more active transactions stored, but only the last one might still be
+            // active with a timeout. The others are already waiting for their children to finish
+            // without a timeout.
             SentryTracer *currentActiveTransaction;
             @synchronized(self.activeTransactions) {
                 currentActiveTransaction = self.activeTransactions.lastObject;
             }
+
             BOOL sameAction = [currentActiveTransaction.name isEqualToString:transactionName];
             if (sameAction) {
                 [currentActiveTransaction dispatchIdleTimeout];
