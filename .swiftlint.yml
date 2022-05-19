@@ -5,6 +5,8 @@ excluded:
   - DependencyManagerTests
   - Sources/SentryCrash
   - vendor
+  - test-server/.build/
+
 only_rules:
   #- attributes
   - class_delegate_protocol
