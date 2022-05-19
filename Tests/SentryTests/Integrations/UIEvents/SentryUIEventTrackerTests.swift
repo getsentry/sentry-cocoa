@@ -52,6 +52,15 @@ class SentryUIEventTrackerTests: XCTestCase {
         assertNoTransaction()
     }
     
+    func test_TargetContainsSwiftUI_NoTransaction() {
+        
+        class _Bla_SwiftUIForFun_UglyLongName_Coordinator { }
+        
+        callExecuteAction(action: action, target: _Bla_SwiftUIForFun_UglyLongName_Coordinator(), sender: UIView(), event: TestUIEvent())
+        
+        assertNoTransaction()
+    }
+    
     func test_NSObject_Transaction() {
         callExecuteAction(action: "method:", target: fixture.target, sender: NSObject(), event: TestUIEvent())
         

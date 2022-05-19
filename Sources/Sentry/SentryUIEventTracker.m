@@ -54,7 +54,18 @@ SentryUIEventTracker ()
                     return;
                 }
 
-                NSString *transactionName = [self getTransactionName:action target:target];
+                // When using an application delegate with SwiftUI we receive touch events here, but
+                // the target class name looks something like
+                // _TtC7SwiftUIP33_64A26C7A8406856A733B1A7B593971F711Coordinator.primaryActionTriggered,
+                // which is unacceptable for a transaction name. Ideally, we should somehow shorten
+                // the long name.
+
+                NSString *targetClass = NSStringFromClass([target class]);
+                if ([targetClass containsString:@"SwiftUI"]) {
+                    return;
+                }
+
+                NSString *transactionName = [self getTransactionName:action target:targetClass];
 
                 BOOL sameAction = [self.activeTransaction.name isEqualToString:transactionName];
                 if (sameAction) {
@@ -123,14 +134,12 @@ SentryUIEventTracker ()
  * convert the selector to a Swift appropriate format aligned with the Swift #selector syntax.
  * method:first:second:third: gets converted to method(first:second:third:)
  */
-- (NSString *)getTransactionName:(NSString *)action target:(id)target
+- (NSString *)getTransactionName:(NSString *)action target:(NSString *)target
 {
-    NSString *targetClass = NSStringFromClass([target class]);
-
     NSArray<NSString *> *componens = [action componentsSeparatedByString:@":"];
     if (componens.count > 2) {
         NSMutableString *result =
-            [[NSMutableString alloc] initWithFormat:@"%@.%@(", targetClass, componens.firstObject];
+            [[NSMutableString alloc] initWithFormat:@"%@.%@(", target, componens.firstObject];
 
         for (int i = 1; i < (componens.count - 1); i++) {
             [result appendFormat:@"%@:", componens[i]];
@@ -141,7 +150,7 @@ SentryUIEventTracker ()
         return result;
     }
 
-    return [NSString stringWithFormat:@"%@.%@", targetClass, componens.firstObject];
+    return [NSString stringWithFormat:@"%@.%@", target, componens.firstObject];
 }
 
 NS_ASSUME_NONNULL_END
