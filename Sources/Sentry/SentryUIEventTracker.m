@@ -50,42 +50,42 @@ SentryUIEventTracker ()
 {
     [self.swizzleWrapper
         swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
+            if (target == nil || sender == nil) {
+                return;
+            }
+
+            // When using an application delegate with SwiftUI we receive touch events here, but
+            // the target class name looks something like
+            // _TtC7SwiftUIP33_64A26C7A8406856A733B1A7B593971F711Coordinator.primaryActionTriggered,
+            // which is unacceptable for a transaction name. Ideally, we should somehow shorten
+            // the long name.
+
+            NSString *targetClass = NSStringFromClass([target class]);
+            if ([targetClass containsString:@"SwiftUI"]) {
+                return;
+            }
+
+            NSString *transactionName = [self getTransactionName:action target:targetClass];
+
+            SentryTracer *currentActiveTransaction;
+            @synchronized(self.activeTransactions) {
+                currentActiveTransaction = self.activeTransactions.lastObject;
+            }
+            BOOL sameAction = [currentActiveTransaction.name isEqualToString:transactionName];
+            if (sameAction) {
+                [currentActiveTransaction dispatchIdleTimeout];
+                return;
+            }
+
+            [currentActiveTransaction finish];
+
+            NSString *operation = [self getOperation:sender];
+
+            SentryTransactionContext *context =
+                [[SentryTransactionContext alloc] initWithName:transactionName operation:operation];
+
+            __block SentryTracer *transaction;
             [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-                if (target == nil || sender == nil) {
-                    return;
-                }
-
-                // When using an application delegate with SwiftUI we receive touch events here, but
-                // the target class name looks something like
-                // _TtC7SwiftUIP33_64A26C7A8406856A733B1A7B593971F711Coordinator.primaryActionTriggered,
-                // which is unacceptable for a transaction name. Ideally, we should somehow shorten
-                // the long name.
-
-                NSString *targetClass = NSStringFromClass([target class]);
-                if ([targetClass containsString:@"SwiftUI"]) {
-                    return;
-                }
-
-                NSString *transactionName = [self getTransactionName:action target:targetClass];
-
-                SentryTracer *currentActiveTransaction;
-                @synchronized(self.activeTransactions) {
-                    currentActiveTransaction = self.activeTransactions.lastObject;
-                }
-                BOOL sameAction = [currentActiveTransaction.name isEqualToString:transactionName];
-                if (sameAction) {
-                    [currentActiveTransaction dispatchIdleTimeout];
-                    return;
-                }
-
-                [currentActiveTransaction finish];
-
-                NSString *operation = [self getOperation:sender];
-
-                SentryTransactionContext *context =
-                    [[SentryTransactionContext alloc] initWithName:transactionName
-                                                         operation:operation];
-
                 BOOL ongoingScreenLoadTransaction = span != nil &&
                     [span.context.operation isEqualToString:SentrySpanOperationUILoad];
                 BOOL ongoingManualTransaction = span != nil
@@ -93,30 +93,30 @@ SentryUIEventTracker ()
                     && ![span.context.operation containsString:SentrySpanOperationUIAction];
 
                 BOOL bindToScope = !ongoingScreenLoadTransaction && !ongoingManualTransaction;
-                SentryTracer *transaction =
+                transaction =
                     [SentrySDK.currentHub startTransactionWithContext:context
                                                           bindToScope:bindToScope
                                                 customSamplingContext:@{}
                                                           idleTimeout:self.idleTimeout
                                                  dispatchQueueWrapper:self.dispatchQueueWrapper];
-
-                if ([[sender class] isSubclassOfClass:[UIView class]]) {
-                    UIView *view = sender;
-                    if (view.accessibilityIdentifier) {
-                        [transaction setTagValue:view.accessibilityIdentifier
-                                          forKey:@"accessibilityIdentifier"];
-                    }
-                }
-
-                transaction.finishCallback = ^(SentryTracer *tracer) {
-                    @synchronized(self.activeTransactions) {
-                        [self.activeTransactions removeObject:tracer];
-                    }
-                };
-                @synchronized(self.activeTransactions) {
-                    [self.activeTransactions addObject:transaction];
-                }
             }];
+
+            if ([[sender class] isSubclassOfClass:[UIView class]]) {
+                UIView *view = sender;
+                if (view.accessibilityIdentifier) {
+                    [transaction setTagValue:view.accessibilityIdentifier
+                                      forKey:@"accessibilityIdentifier"];
+                }
+            }
+
+            transaction.finishCallback = ^(SentryTracer *tracer) {
+                @synchronized(self.activeTransactions) {
+                    [self.activeTransactions removeObject:tracer];
+                }
+            };
+            @synchronized(self.activeTransactions) {
+                [self.activeTransactions addObject:transaction];
+            }
         }
                    forKey:SentryUIEventTrackerSwizzleSendAction];
 }
