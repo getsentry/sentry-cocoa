@@ -132,7 +132,7 @@ isSimulatorBuild()
 
         __weak const auto weakSelf = self;
         _profiler = std::make_shared<SamplingProfiler>(
-            [weakSelf, sampledProfile, threadMetadata, queueMetadata, samples](auto &backtrace) {
+            [weakSelf, threadMetadata, queueMetadata, samples](auto &backtrace) {
                 const auto strongSelf = weakSelf;
                 if (strongSelf == nil) {
                     return;

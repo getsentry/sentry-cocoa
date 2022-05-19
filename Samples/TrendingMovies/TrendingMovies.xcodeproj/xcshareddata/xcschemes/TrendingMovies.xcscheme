@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1310"
+   LastUpgradeVersion = "1320"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,24 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "7B82C48224C98A93002CA6D1"
-               BuildableName = "watchOS-Swift WatchKit App.app"
-               BlueprintName = "watchOS-Swift WatchKit App"
-               ReferencedContainer = "container:watchOS-Swift.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "7B82C47E24C98A93002CA6D1"
-               BuildableName = "watchOS-Swift.app"
-               BlueprintName = "watchOS-Swift"
-               ReferencedContainer = "container:watchOS-Swift.xcodeproj">
+               BlueprintIdentifier = "844A34D4282B2B6100C6D1DF"
+               BuildableName = "TrendingMovies.app"
+               BlueprintName = "TrendingMovies"
+               ReferencedContainer = "container:TrendingMovies.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -46,8 +32,8 @@
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
-      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
-      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      selectedDebuggerIdentifier = ""
+      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
@@ -58,10 +44,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "7B82C48224C98A93002CA6D1"
-            BuildableName = "watchOS-Swift WatchKit App.app"
-            BlueprintName = "watchOS-Swift WatchKit App"
-            ReferencedContainer = "container:watchOS-Swift.xcodeproj">
+            BlueprintIdentifier = "844A34D4282B2B6100C6D1DF"
+            BuildableName = "TrendingMovies.app"
+            BlueprintName = "TrendingMovies"
+            ReferencedContainer = "container:TrendingMovies.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -75,10 +61,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "7B82C48224C98A93002CA6D1"
-            BuildableName = "watchOS-Swift WatchKit App.app"
-            BlueprintName = "watchOS-Swift WatchKit App"
-            ReferencedContainer = "container:watchOS-Swift.xcodeproj">
+            BlueprintIdentifier = "844A34D4282B2B6100C6D1DF"
+            BuildableName = "TrendingMovies.app"
+            BlueprintName = "TrendingMovies"
+            ReferencedContainer = "container:TrendingMovies.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
