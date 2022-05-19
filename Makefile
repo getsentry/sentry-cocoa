@@ -4,6 +4,7 @@ init:
 	rbenv install --skip-existing
 	rbenv exec gem update bundler
 	rbenv exec bundle update
+	cd Samples/TrendingMovies && carthage update --use-xcframeworks
 
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
@@ -16,7 +17,7 @@ format:
 	@find . -type f \( -name "*.h" -or -name "*.hpp" -or -name "*.c" -or -name "*.cpp" -or -name "*.m" -or -name "*.mm" \) -and \
 		! \( -path "**.build/*" -or -path "**/libs/**" \) \
 		| xargs clang-format -i -style=file
-	
+
 	swiftlint autocorrect
 .PHONY: format
 
@@ -26,7 +27,7 @@ test:
 .PHONY: test
 
 run-test-server:
-	cd ./test-server && swift build 
+	cd ./test-server && swift build
 	cd ./test-server && swift run &
 .PHONY: run-test-server
 

@@ -8,6 +8,9 @@
          location = "group:Samples/README.md">
       </FileRef>
       <FileRef
+         location = "group:Samples/TrendingMovies/TrendingMovies.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:Samples/iOS15-SwiftUI/iOS15-SwiftUI.xcodeproj">
       </FileRef>
       <FileRef
