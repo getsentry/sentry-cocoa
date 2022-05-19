@@ -448,6 +448,8 @@ class SentryTracerTests: XCTestCase {
         
         fixture.dispatchQueue.invokeLastDispatchAfter()
         
+        XCTAssertNil(sut.finishCallback)
+        
         wait(for: [callbackExpectation], timeout: 0.1)
     }
     

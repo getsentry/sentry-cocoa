@@ -368,6 +368,7 @@ static NSLock *profilerLock;
 
     if (self.finishCallback) {
         self.finishCallback(self);
+        self.finishCallback = nil;
     }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
