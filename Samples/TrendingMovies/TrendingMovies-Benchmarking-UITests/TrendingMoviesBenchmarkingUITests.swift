@@ -1,7 +1,8 @@
 import XCTest
 
-class TrendingMovies_Benchmarking_UITests: XCTestCase {
+class TrendingMoviesBenchmarkingUITests: XCTestCase {
     override func setUpWithError() throws {
+        super.setUpWithError()
         continueAfterFailure = false
     }
 
@@ -16,7 +17,11 @@ class TrendingMovies_Benchmarking_UITests: XCTestCase {
         }
         avgUsagePercentage /= Double(numberOfTrials)
 
-        let url = URL(fileURLWithPath: String(describing: #file).components(separatedBy: "Samples").first!).appendingPathComponent("benchmark.json")
+        guard let path = String(describing: #file).components(separatedBy: "Samples").first else {
+            XCTFail("Could not find location to write benchmark report.")
+            return
+        }
+        let url = URL(fileURLWithPath: path).appendingPathComponent("benchmark.json")
         try JSONEncoder().encode(["profiling_overhead_percentage": avgUsagePercentage]).write(to: url)
 
         print("Average overhead: \(avgUsagePercentage)%")
@@ -24,7 +29,7 @@ class TrendingMovies_Benchmarking_UITests: XCTestCase {
     }
 }
 
-extension TrendingMovies_Benchmarking_UITests {
+extension TrendingMoviesBenchmarkingUITests {
     func benchmarkAppUsage(app: XCUIApplication, withProfiling: Bool) -> Double? {
         app.launchArguments.append("--io.sentry.ui-test.benchmarking")
         if withProfiling {

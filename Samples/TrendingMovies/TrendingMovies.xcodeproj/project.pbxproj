@@ -66,7 +66,7 @@
 		844A357B282B4B6500C6D1DF /* KingfisherSwiftUI.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 844A3573282B4B6500C6D1DF /* KingfisherSwiftUI.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		844A359C282DAA6100C6D1DF /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 844A356B282B3E4500C6D1DF /* Sentry.framework */; };
 		844A359D282DAA6100C6D1DF /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 844A356B282B3E4500C6D1DF /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		844A35B4282DB71400C6D1DF /* TrendingMovies_Benchmarking_UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844A35B3282DB71400C6D1DF /* TrendingMovies_Benchmarking_UITests.swift */; };
+		844A35B4282DB71400C6D1DF /* TrendingMoviesBenchmarkingUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844A35B3282DB71400C6D1DF /* TrendingMoviesBenchmarkingUITests.swift */; };
 		844A35C0282DCE7100C6D1DF /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 844A35BF282DCE7100C6D1DF /* SentryBenchmarking.mm */; };
 /* End PBXBuildFile section */
 
@@ -172,7 +172,7 @@
 		844A3572282B4B6500C6D1DF /* Kingfisher.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Kingfisher.xcframework; path = Carthage/Build/Kingfisher.xcframework; sourceTree = "<group>"; };
 		844A3573282B4B6500C6D1DF /* KingfisherSwiftUI.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = KingfisherSwiftUI.xcframework; path = Carthage/Build/KingfisherSwiftUI.xcframework; sourceTree = "<group>"; };
 		844A35B1282DB71400C6D1DF /* TrendingMovies-Benchmarking-UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "TrendingMovies-Benchmarking-UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		844A35B3282DB71400C6D1DF /* TrendingMovies_Benchmarking_UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendingMovies_Benchmarking_UITests.swift; sourceTree = "<group>"; };
+		844A35B3282DB71400C6D1DF /* TrendingMoviesBenchmarkingUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendingMoviesBenchmarkingUITests.swift; sourceTree = "<group>"; };
 		844A35BE282DCE7100C6D1DF /* SentryBenchmarking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryBenchmarking.h; path = TrendingMovies/SentryBenchmarking.h; sourceTree = "<group>"; };
 		844A35BF282DCE7100C6D1DF /* SentryBenchmarking.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = SentryBenchmarking.mm; path = TrendingMovies/SentryBenchmarking.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -413,7 +413,7 @@
 		844A35B2282DB71400C6D1DF /* TrendingMovies-Benchmarking-UITests */ = {
 			isa = PBXGroup;
 			children = (
-				844A35B3282DB71400C6D1DF /* TrendingMovies_Benchmarking_UITests.swift */,
+				844A35B3282DB71400C6D1DF /* TrendingMoviesBenchmarkingUITests.swift */,
 			);
 			path = "TrendingMovies-Benchmarking-UITests";
 			sourceTree = "<group>";
@@ -598,7 +598,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				844A35B4282DB71400C6D1DF /* TrendingMovies_Benchmarking_UITests.swift in Sources */,
+				844A35B4282DB71400C6D1DF /* TrendingMoviesBenchmarkingUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
