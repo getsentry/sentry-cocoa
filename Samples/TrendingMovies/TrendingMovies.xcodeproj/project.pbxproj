@@ -551,7 +551,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# /opt/homebrew/bin/swiftlint\n../../scripts/run_swiftlint.py\n";
+			shellScript = "# /opt/homebrew/bin/swiftlint\n../../scripts/run_swiftlint -v\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
