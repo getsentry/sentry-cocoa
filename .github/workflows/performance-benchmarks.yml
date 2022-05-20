@@ -21,7 +21,9 @@ jobs:
         id: carthage-cache
         with:
           path: ~/Samples/TrendingMovies/Carthage/Build
-          key: ${{ hashFiles('Samples/TrendingMovies/Cartfile.resolved') }}
+          key: ${{ runner.os }}-carthage-${{ hashFiles('**/Cartfile.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-carthage-
       - name: Install Carthage deps
         if: steps.carthage-cache.outputs.cache-hit != 'true'
         run: cd Samples/TrendingMovies && carthage update --use-xcframeworks
