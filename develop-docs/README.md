@@ -85,13 +85,17 @@ Currently, the Sentry SDK's new experimental profiling feature is being benchmar
 
 A GitHub workflow ([//.github/workflows/performance-benchmarks.yml](../.github/workflows/performance-benchmarks.yml)) runs a [UI test](../Samples/TrendingMovies/TrendingMovies-Benchmarking-UITests/TrendingMovies_Benchmarking_UITests.swift) that drives the [TrendingMovies sample app](../Samples/TrendingMovies), which contains some code ([SentryBenchmarking.mm](../Samples/TrendingMovies/TrendingMovies/SentryBenchmarking.mm)) to sample all the app's threads, including the dedicated thread used by the Sentry profiler, to determine what percentage of the overall work being done by the app is devoted to the profiler.
 
-The UI test launches the app and configures Sentry to enable the experimental profiler. The test app provides a special UIButton that can be used to start and stop a Sentry transaction that will include the profiling information.
+The UI test launches the app with arguments for it to configure Sentry with profiling enabled. The test app provides a special UIButton that starts and stops a Sentry transaction to exercise the profiling code.
 
 The UI test plan is as follows:
+
+*Warmup*
 - Tap the button to start a Sentry transaction with the associated profiling.
 - Scroll the app's UICollectionView a few times, causing various work to be done on the CPU that will be profiled by Sentry.
 - Tap the button to stop the transaction.
-- Do this times to warm up caches.
-- Do it a fourth time, and then grab the value passed from the test app back to the UI test runner app via a special UITextField provided by the test app.
-- Do the whole thing 15 times, averaging the results.
-- Use XCTAssert on the value. We set the bar at 5% overhead cost for running the Sentry SDK's profiling code.
+- Do this 3 times to warm up system caches.
+*Benchmark*
+- Run the above process a fourth time, then grab the value written by the test app in a special UITextField accessible to the UI test runner.
+
+- Run (warmup + benchmark) 15 times, averaging the results.
+- Assert that the overhead remains under 5% with XCTest APIs so we can be alerted via CI if it spikes.
