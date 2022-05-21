@@ -82,13 +82,10 @@ gcdBasedApproach()
     const auto leewayNs = intervalNs / 2;
     queue = dispatch_queue_create("io.sentry.benchmarking.gcd-scheduler", attr);
     source = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
-    dispatch_source_set_event_handler(source, ^{
-        [samples addObject:cpuInfoByThread()];
-    });
+    dispatch_source_set_event_handler(source, ^{ [samples addObject:cpuInfoByThread()]; });
     dispatch_source_set_timer(
         source, dispatch_time(DISPATCH_TIME_NOW, intervalNs), intervalNs, leewayNs);
     dispatch_resume(source);
-
 }
 
 // MARK: pthread-based approach
@@ -194,12 +191,12 @@ nsthreadBasedApproach()
 + (double)retrieveBenchmarks
 {
 #if defined(SENTRY_BENCHMARK_GCD_BASED)
-        dispatch_cancel(source);
+    dispatch_cancel(source);
 #elif defined(SENTRY_BENCHMARK_PTHREAD_BASED)
-        assert(pthread_cancel(thread_.native_handle()) == KERN_SUCCESS);
-        thread_.join();
+    assert(pthread_cancel(thread_.native_handle()) == KERN_SUCCESS);
+    thread_.join();
 #elif defined(SENTRY_BENCHMARK_NSTHREAD_BASED)
-        [thread cancel];
+    [thread cancel];
 #endif
 
     [samples addObject:cpuInfoByThread()];
