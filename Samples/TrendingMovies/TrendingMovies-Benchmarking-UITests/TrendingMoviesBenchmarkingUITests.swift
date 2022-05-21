@@ -2,7 +2,7 @@ import XCTest
 
 class TrendingMoviesBenchmarkingUITests: XCTestCase {
     override func setUpWithError() throws {
-        super.setUpWithError()
+        try super.setUpWithError()
         continueAfterFailure = false
     }
 
