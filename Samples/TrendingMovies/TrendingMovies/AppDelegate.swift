@@ -101,7 +101,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             benchmarkRetrieveValueButton.addTarget(self, action: #selector(controlBenchmarks), for: .touchUpInside)
             benchmarkRetrieveValueButton.setTitle("Retrieve benchmark reading", for: .normal)
             valueMarshalWindow.rootViewController = vc
+
+            // if the main window ref is nil, the UI test that needs this other window won't work anyways; crash here to fail as early as possible
+            // swiftlint:disable force_unwrap
             valueMarshalWindow.windowLevel = .init(rawValue: window!.windowLevel.rawValue + 1.0) // ???: likely not needed
+
             valueMarshalWindow.isHidden = false
         }
 
