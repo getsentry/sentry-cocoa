@@ -16,6 +16,7 @@ jobs:
     steps:
       - name: checkout repo
         uses: actions/checkout@v3
+      - run: ./scripts/ci-select-xcode.sh
       - name: Cache Carthage dependencies
         uses: actions/cache@v3
         id: carthage-cache
