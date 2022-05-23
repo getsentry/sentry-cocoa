@@ -549,6 +549,7 @@ class SentryFileManagerTests: XCTestCase {
     private func assertValidAppStateStored() {
         let actual = sut.readAppState()
         XCTAssertEqual(TestData.appState, actual)
+        
     }
 
     private func advanceTime(bySeconds: TimeInterval) {

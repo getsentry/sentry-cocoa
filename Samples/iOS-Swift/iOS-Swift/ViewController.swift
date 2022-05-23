@@ -42,6 +42,7 @@ class ViewController: UIViewController {
                 self.dsnTextField.backgroundColor = UIColor.systemGreen
             }
         }
+        
     }
     
     @IBAction func addBreadcrumb(_ sender: Any) {
@@ -56,6 +57,21 @@ class ViewController: UIViewController {
         // Returns eventId in case of successfull processed event
         // otherwise nil
         print("\(String(describing: eventId))")
+    }
+    
+    @IBAction func uiClickTransaction(_ sender: Any) {
+        dispatchQueue.async {
+            if let path = Bundle.main.path(forResource: "LoremIpsum", ofType: "txt") {
+                _ = FileManager.default.contents(atPath: path)
+            }
+        }
+        
+        guard let imgUrl = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png") else {
+            return
+        }
+        let session = URLSession(configuration: URLSessionConfiguration.default)
+        let dataTask = session.dataTask(with: imgUrl) { (_, _, _) in }
+        dataTask.resume()
     }
     
     @IBAction func captureUserFeedback(_ sender: Any) {

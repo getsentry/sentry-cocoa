@@ -2,6 +2,7 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryClient.h"
+#import "SentryCurrentDate.h"
 #import "SentryFramesTracker.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
@@ -17,7 +18,9 @@
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
+#import <SentryDispatchQueueWrapper.h>
 #import <SentryScreenFrames.h>
+#import <SentrySpanOperations.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -37,12 +40,15 @@ SentryTracer ()
 @property (nonatomic, strong) SentryHub *hub;
 @property (nonatomic) SentrySpanStatus finishStatus;
 @property (nonatomic) BOOL isWaitingForChildren;
+@property (nonatomic) NSTimeInterval idleTimeout;
+@property (nonatomic, nullable, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 
 @end
 
 @implementation SentryTracer {
     BOOL _waitForChildren;
     SentryTraceState *_traceState;
+    dispatch_block_t _idleTimeoutBlock;
 
 #if SENTRY_HAS_UIKIT
     BOOL _startTimeChanged;
@@ -82,6 +88,32 @@ static NSLock *profilerLock;
                                        hub:(nullable SentryHub *)hub
                            waitForChildren:(BOOL)waitForChildren
 {
+    return [self initWithTransactionContext:transactionContext
+                                        hub:hub
+                            waitForChildren:waitForChildren
+                                idleTimeout:0.0
+                       dispatchQueueWrapper:nil];
+}
+
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
+                                       hub:(nullable SentryHub *)hub
+                               idleTimeout:(NSTimeInterval)idleTimeout
+                      dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+{
+    return [self initWithTransactionContext:transactionContext
+                                        hub:hub
+                            waitForChildren:YES
+                                idleTimeout:idleTimeout
+                       dispatchQueueWrapper:dispatchQueueWrapper];
+}
+
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
+                                       hub:(nullable SentryHub *)hub
+                           waitForChildren:(BOOL)waitForChildren
+                               idleTimeout:(NSTimeInterval)idleTimeout
+                      dispatchQueueWrapper:
+                          (nullable SentryDispatchQueueWrapper *)dispatchQueueWrapper
+{
     if (self = [super init]) {
         self.rootSpan = [[SentrySpan alloc] initWithTransaction:self context:transactionContext];
         self.name = transactionContext.name;
@@ -90,6 +122,12 @@ static NSLock *profilerLock;
         self.isWaitingForChildren = NO;
         _waitForChildren = waitForChildren;
         self.finishStatus = kSentrySpanStatusUndefined;
+        self.idleTimeout = idleTimeout;
+        self.dispatchQueueWrapper = dispatchQueueWrapper;
+
+        if ([self hasIdleTimeout]) {
+            [self dispatchIdleTimeout];
+        }
 
 #if SENTRY_HAS_UIKIT
         _startTimeChanged = NO;
@@ -119,6 +157,32 @@ static NSLock *profilerLock;
     return self;
 }
 
+- (void)dispatchIdleTimeout
+{
+    dispatch_time_t now = [SentryCurrentDate dispatchTimeNow];
+    dispatch_time_t delta = (int64_t)(self.idleTimeout * NSEC_PER_SEC);
+    dispatch_time_t when = dispatch_time(now, delta);
+
+    if (_idleTimeoutBlock != nil) {
+        [self.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
+    }
+    __block SentryTracer *_self = self;
+    _idleTimeoutBlock = dispatch_block_create(0, ^{ [_self finishInternal]; });
+    [self.dispatchQueueWrapper dispatchAfter:when block:_idleTimeoutBlock];
+}
+
+- (BOOL)hasIdleTimeout
+{
+    return self.idleTimeout > 0 && self.dispatchQueueWrapper != nil;
+}
+
+- (void)cancelIdleTimeout
+{
+    if ([self hasIdleTimeout]) {
+        [self.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
+    }
+}
+
 - (id<SentrySpan>)startChildWithOperation:(NSString *)operation
 {
     return [_rootSpan startChildWithOperation:operation];
@@ -134,6 +198,8 @@ static NSLock *profilerLock;
                                operation:(NSString *)operation
                              description:(nullable NSString *)description
 {
+    [self cancelIdleTimeout];
+
     SentrySpanContext *context =
         [[SentrySpanContext alloc] initWithTraceId:_rootSpan.context.traceId
                                             spanId:[[SentrySpanId alloc] init]
@@ -242,6 +308,11 @@ static NSLock *profilerLock;
     [self.rootSpan removeTagForKey:key];
 }
 
+- (SentryTraceHeader *)toTraceHeader
+{
+    return [self.rootSpan toTraceHeader];
+}
+
 - (void)finish
 {
     [self finishWithStatus:kSentrySpanStatusOk];
@@ -251,23 +322,9 @@ static NSLock *profilerLock;
 {
     self.isWaitingForChildren = YES;
     _finishStatus = status;
+
+    [self cancelIdleTimeout];
     [self canBeFinished];
-}
-
-- (SentryTraceHeader *)toTraceHeader
-{
-    return [self.rootSpan toTraceHeader];
-}
-
-- (BOOL)hasUnfinishedChildren
-{
-    @synchronized(_children) {
-        for (id<SentrySpan> span in _children) {
-            if (![span isFinished])
-                return YES;
-        }
-        return NO;
-    }
 }
 
 - (void)canBeFinished
@@ -278,10 +335,45 @@ static NSLock *profilerLock;
     if (self.rootSpan.isFinished)
         return;
 
-    if (!self.isWaitingForChildren || (_waitForChildren && [self hasUnfinishedChildren]))
+    BOOL hasChildrenToWaitFor = [self hasChildrenToWaitFor];
+    if (self.isWaitingForChildren == NO && !hasChildrenToWaitFor && [self hasIdleTimeout]) {
+        [self dispatchIdleTimeout];
+        return;
+    }
+
+    if (!self.isWaitingForChildren || hasChildrenToWaitFor)
         return;
 
+    [self finishInternal];
+}
+
+- (BOOL)hasChildrenToWaitFor
+{
+    if (!_waitForChildren) {
+        return NO;
+    }
+
+    @synchronized(_children) {
+        for (id<SentrySpan> span in _children) {
+            if (![span isFinished])
+                return YES;
+        }
+        return NO;
+    }
+}
+
+- (void)finishInternal
+{
     [_rootSpan finishWithStatus:_finishStatus];
+
+    if (self.finishCallback) {
+        self.finishCallback(self);
+
+        // The callback will only be executed once. No need to keep the reference and we avoid
+        // potential retain cycles.
+        self.finishCallback = nil;
+    }
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if ([_hub getClient].options.enableProfiling) {
         [profilerLock lock];
@@ -289,15 +381,15 @@ static NSLock *profilerLock;
         [profilerLock unlock];
     }
 #endif
-    [self captureTransaction];
-}
 
-- (void)captureTransaction
-{
     if (_hub == nil)
         return;
 
     @synchronized(_children) {
+        if (self.idleTimeout > 0.0 && _children.count == 0) {
+            return;
+        }
+
         for (id<SentrySpan> span in _children) {
             if (!span.isFinished) {
                 [span finishWithStatus:kSentrySpanStatusDeadlineExceeded];
@@ -306,6 +398,10 @@ static NSLock *profilerLock;
                 // end timestamp as their parent transaction
                 span.timestamp = self.timestamp;
             }
+        }
+
+        if ([self hasIdleTimeout]) {
+            [self trimEndTimestamp];
         }
     }
 
@@ -335,6 +431,21 @@ static NSLock *profilerLock;
         additionalEnvelopeItems:additionalEnvelopeItems];
 }
 
+- (void)trimEndTimestamp
+{
+    NSDate *oldest = self.startTimestamp;
+
+    for (id<SentrySpan> childSpan in _children) {
+        if ([oldest compare:childSpan.timestamp] == NSOrderedAscending) {
+            oldest = childSpan.timestamp;
+        }
+    }
+
+    if (oldest) {
+        self.timestamp = oldest;
+    }
+}
+
 - (SentryTransaction *)toTransaction
 {
     SentryAppStartMeasurement *appStartMeasurement = [self getAppStartMeasurement];
@@ -361,7 +472,7 @@ static NSLock *profilerLock;
 {
     // Only send app start measurement for transactions generated by auto performance
     // instrumentation.
-    if (![self.context.operation isEqualToString:SENTRY_VIEWCONTROLLER_RENDERING_OPERATION]) {
+    if (![self.context.operation isEqualToString:SentrySpanOperationUILoad]) {
         return nil;
     }
 

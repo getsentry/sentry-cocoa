@@ -3,7 +3,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceState;
+@class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceState,
+    SentryDispatchQueueWrapper;
+
+static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
 @interface SentryTracer : NSObject <SentrySpan>
 
@@ -31,6 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Whether the span is finished.
  */
 @property (readonly) BOOL isFinished;
+
+@property (nullable, nonatomic, copy) void (^finishCallback)(SentryTracer *);
 
 /**
  * Indicates whether this tracer will be finished only if all children have been finished.
@@ -80,14 +85,20 @@ NS_ASSUME_NONNULL_BEGIN
                            waitForChildren:(BOOL)waitForChildren;
 
 /**
- * Starts a child span.
+ * Init a SentryTracer with given transaction context, hub and whether the tracer should wait
+ * for all children to finish before it finishes.
  *
- * @param parentId The child span parent id.
- * @param operation The child span operation.
- * @param description The child span description.
+ * @param transactionContext Transaction context
+ * @param hub A hub to bind this transaction
+ * @param idleTimeout The idle time to wait until to finish the transaction.
  *
- * @return SentrySpan
+ * @return SentryTracer
  */
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
+                                       hub:(nullable SentryHub *)hub
+                               idleTimeout:(NSTimeInterval)idleTimeout
+                      dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
+
 - (id<SentrySpan>)startChildWithParentId:(SentrySpanId *)parentId
                                operation:(NSString *)operation
                              description:(nullable NSString *)description
@@ -102,6 +113,9 @@ NS_ASSUME_NONNULL_BEGIN
  * Get the tracer from a span.
  */
 + (nullable SentryTracer *)getTracer:(id<SentrySpan>)span;
+
+- (void)dispatchIdleTimeout;
+
 @end
 
 NS_ASSUME_NONNULL_END
