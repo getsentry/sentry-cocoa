@@ -22,7 +22,7 @@ jobs:
         xcode: ["13.2", "12.5.1"]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
       - run: git apply ./scripts/set-device-tests-environment.patch
       
@@ -67,7 +67,7 @@ jobs:
             iOS: 10
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: actions/download-artifact@v2
         with:
