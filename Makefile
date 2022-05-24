@@ -5,6 +5,7 @@ init:
 	rbenv exec gem update bundler
 	rbenv exec bundle update
 	cd Samples/TrendingMovies && carthage update --use-xcframeworks
+	pip3 install argh
 
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
