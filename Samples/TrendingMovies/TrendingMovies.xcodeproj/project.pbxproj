@@ -68,6 +68,7 @@
 		844A359D282DAA6100C6D1DF /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 844A356B282B3E4500C6D1DF /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		844A35B4282DB71400C6D1DF /* TrendingMoviesBenchmarkingUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844A35B3282DB71400C6D1DF /* TrendingMoviesBenchmarkingUITests.swift */; };
 		844A35C0282DCE7100C6D1DF /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 844A35BF282DCE7100C6D1DF /* SentryBenchmarking.mm */; };
+		84FB811B283C9F1500F3A94A /* ProcessInfoExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8117283C9E8D00F3A94A /* ProcessInfoExtensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -175,6 +176,7 @@
 		844A35B3282DB71400C6D1DF /* TrendingMoviesBenchmarkingUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendingMoviesBenchmarkingUITests.swift; sourceTree = "<group>"; };
 		844A35BE282DCE7100C6D1DF /* SentryBenchmarking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryBenchmarking.h; path = TrendingMovies/SentryBenchmarking.h; sourceTree = "<group>"; };
 		844A35BF282DCE7100C6D1DF /* SentryBenchmarking.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = SentryBenchmarking.mm; path = TrendingMovies/SentryBenchmarking.mm; sourceTree = "<group>"; };
+		84FB8117283C9E8D00F3A94A /* ProcessInfoExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessInfoExtensions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -242,6 +244,7 @@
 		844A34E8282B2B9B00C6D1DF /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				84FB8117283C9E8D00F3A94A /* ProcessInfoExtensions.swift */,
 				844A34E9282B2B9B00C6D1DF /* ErrorHandler.swift */,
 				844A34EA282B2B9B00C6D1DF /* NSLayoutConstraintExtensions.swift */,
 			);
@@ -580,6 +583,7 @@
 				844A3533282B2B9B00C6D1DF /* Genres.swift in Sources */,
 				844A3558282B2B9B00C6D1DF /* MovieCollectionViewCell.swift in Sources */,
 				844A3547282B2B9B00C6D1DF /* UIImageEffects.m in Sources */,
+				84FB811B283C9F1500F3A94A /* ProcessInfoExtensions.swift in Sources */,
 				844A3542282B2B9B00C6D1DF /* Movies.swift in Sources */,
 				844A353A282B2B9B00C6D1DF /* PersonDetails.swift in Sources */,
 				844A353D282B2B9B00C6D1DF /* TMDbGenreResolver.swift in Sources */,

@@ -26,10 +26,13 @@ class SimilarMoviesViewController: MovieDetailSectionViewController<Movie, Movie
         if let movies = details?.similar?.results {
             completion(.success(movies))
         } else {
-//            let span = Tracer.startSpan(name: "load-similar-movies")
-//            span.annotate(key: "movie.title", value: movie.title)
+            var span: Tracer.SpanHandle? = nil
+            if !ProcessInfo.isBenchmarking {
+                span = Tracer.startSpan(name: "load-similar-movies")
+                span?.annotate(key: "movie.title", value: movie.title)
+            }
             client.getSimilarMovies(movie: movie) { result in
-//                span.end()
+                span?.end()
                 completion(result.map { $0.results })
             }
         }
