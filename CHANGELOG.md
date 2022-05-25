@@ -5,6 +5,7 @@
 ### Fixes
 
 - Fix JSON conversion error message (#1856)
+- Propagate configured SDK info from options to events (#1853)
 
 ## 7.16.0
 
