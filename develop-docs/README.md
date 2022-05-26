@@ -85,7 +85,9 @@ Currently, the Sentry SDK's experimental profiling feature is being benchmarked.
 
 The test runs in a UI test ([`SDKPerformanceBenchmarkTests`](../Samples/iOS-Swift/iOS-SwiftUITests/SDKPerformanceBenchmarkTests.swift)) using the iOS-Swift sample app, which has a new view controller for this purpose: [`PerformanceViewController`](../Samples/iOS-Swift/iOS-Swift/ViewControllers/PerformanceViewController.swift).
 
-The UI test plan is as follows:
+### Test procedure
+
+There are two general phases:
 
 *Warmup*
 - Tap the button to start a Sentry transaction with the associated profiling.
@@ -96,6 +98,6 @@ The UI test plan is as follows:
 *Benchmark*
 - Run the above process a fourth time, then grab the value written by the test app in a UITextField accessible to the UI test runner so it can extract the value and use it in an `XCTAssert`.
 
-*Test Plan*
+#### Test Plan
 - Run (warmup + benchmark) 15 times, averaging the results.
 - Assert that the overhead remains under 5% so we can be alerted via CI if it spikes.
