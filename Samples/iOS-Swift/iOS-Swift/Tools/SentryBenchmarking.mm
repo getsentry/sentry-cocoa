@@ -202,6 +202,11 @@ nsthreadBasedApproach()
 #endif
 
     [samples addObject:cpuInfoByThread()];
+
+    if (samples.count < 2) {
+        return -1;
+    }
+
     const auto totals = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
     for (auto i = 0; i < samples.count - 2; i++) {
         const auto before = samples[i];

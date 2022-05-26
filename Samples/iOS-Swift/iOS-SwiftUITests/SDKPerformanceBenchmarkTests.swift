@@ -12,17 +12,11 @@ class SDKPerformanceBenchmarkTests: XCTestCase {
         for _ in 0..<numberOfTrials {
             let app = XCUIApplication()
             guard let usagePercentage = benchmarkAppUsage(app: app, withProfiling: true) else { return }
+            XCTAssert(usagePercentage > 0, "Failure to record enough CPU samples to calculate benchmark.")
             print("Percent usage: \(usagePercentage)%")
             avgUsagePercentage += usagePercentage
         }
         avgUsagePercentage /= Double(numberOfTrials)
-
-        guard let path = String(describing: #file).components(separatedBy: "Samples").first else {
-            XCTFail("Could not find location to write benchmark report.")
-            return
-        }
-        let url = URL(fileURLWithPath: path).appendingPathComponent("benchmark.json")
-        try JSONEncoder().encode(["profiling_overhead_percentage": avgUsagePercentage]).write(to: url)
 
         print("Average overhead: \(avgUsagePercentage)%")
         XCTAssertLessThanOrEqual(avgUsagePercentage, 5, "Running profiling resulted in more than 5% overhead while scrolling in the app.")
@@ -67,7 +61,7 @@ extension SDKPerformanceBenchmarkTests {
         }
         button.tap()
 
-        let textField = app.textFields["io.sentry.accessibility-identifier.benchmarking-value-marshaling-text-field"]
+        let textField = app.textFields["io.sentry.benchmark.value-marshaling-text-field"]
             if !textField.waitForExistence(timeout: 5.0) {
             XCTFail("Couldn't find benchmark value marshaling text field.")
             return nil
