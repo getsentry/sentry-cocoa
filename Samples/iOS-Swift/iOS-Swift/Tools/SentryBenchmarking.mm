@@ -6,18 +6,18 @@
 #include <string>
 #import <thread>
 
-//#define SENTRY_BENCHMARK_GCD_BASED
+#define SENTRY_BENCHMARK_GCD_BASED
 //#define SENTRY_BENCHMARK_NSTHREAD_BASED
-#define SENTRY_BENCHMARK_PTHREAD_BASED
+//#define SENTRY_BENCHMARK_PTHREAD_BASED
 
 #define SENTRY_BENCHMARKING_THREAD_NAME "io.sentry.BenchmarkingSamplingProfiler"
 
 namespace {
 /// @note: Implementation ported from @c SentryThreadHandle.hpp .
-NSDictionary<NSString *, NSNumber *> *
+NSDictionary<NSString *, NSArray<NSNumber *> *> *
 cpuInfoByThread()
 {
-    const auto dict = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+    const auto dict = [NSMutableDictionary<NSString *, NSArray<NSNumber *> *> dictionary];
     mach_msg_type_number_t count;
     thread_act_array_t list;
 
@@ -50,10 +50,11 @@ cpuInfoByThread()
             if (thread_info(
                     thread, THREAD_BASIC_INFO, reinterpret_cast<thread_info_t>(&data), &count)
                 == KERN_SUCCESS) {
-                const auto time_micros = data.system_time.seconds * 1e6
-                    + data.system_time.microseconds + data.user_time.seconds * 1e6
+                const auto system_time_micros = data.system_time.seconds * 1e6
+                + data.system_time.microseconds;
+                const auto user_time_micros = data.user_time.seconds * 1e6
                     + data.user_time.microseconds;
-                dict[[NSString stringWithUTF8String:namestr.c_str()]] = @(time_micros);
+                dict[[NSString stringWithUTF8String:namestr.c_str()]] = @[@(system_time_micros), @(user_time_micros), @(data.cpu_usage)];
             }
         }
     }
@@ -66,8 +67,8 @@ const auto intervalNs = 1e9 / frequencyHz;
 
 bool cancel_ = false;
 
-NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *samples =
-    [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
+NSMutableArray<NSDictionary<NSString *, NSArray<NSNumber *> *> *> *samples =
+    [NSMutableArray<NSDictionary<NSString *, NSArray<NSNumber *> *> *> array];
 
 // MARK: GCD-based approach
 
@@ -214,16 +215,16 @@ nsthreadBasedApproach()
         printf("%lu destroyed threads\n", (unsigned long)destroyedThreads.count);
 
         for (NSString *key : persistedThreads) {
-            const auto lastSampleValue = before[key].integerValue;
-            const auto thisSampleValue = after[key].integerValue;
-            if (thisSampleValue < lastSampleValue) {
+            const auto lastSystemTime = before[key][0].integerValue;
+            const auto thisSystemTime = after[key][0].integerValue;
+            const auto lastUserTime = before[key][1].integerValue;
+            const auto thisUserTime = after[key][1].integerValue;
+            if (thisSystemTime + thisUserTime < lastSystemTime + lastUserTime) {
                 // thread id was reassigned to a new thread since last sample
                 [destroyedThreads addObject:key];
                 continue;
             }
-            const auto thisDelta = thisSampleValue - lastSampleValue;
-            printf("before: %ld; after: %ld; delta: %ld\n", (long)before[key].integerValue,
-                after[key].integerValue, thisDelta);
+            const auto thisDelta = thisSystemTime + thisUserTime - lastSystemTime - lastUserTime;
             if (!totals[key]) {
                 totals[key] = @(thisDelta);
             } else {
@@ -231,6 +232,8 @@ nsthreadBasedApproach()
             }
         }
     }
+
+    [samples removeAllObjects];
 
     const auto samplingThreadUsage = totals[@"io.sentry.SamplingProfiler"].integerValue;
     const auto totalUsage

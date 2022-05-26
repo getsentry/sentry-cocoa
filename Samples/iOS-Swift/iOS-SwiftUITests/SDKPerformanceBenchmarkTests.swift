@@ -1,6 +1,6 @@
 import XCTest
 
-class TrendingMoviesBenchmarkingUITests: XCTestCase {
+class SDKPerformanceBenchmarkTests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
         continueAfterFailure = false
@@ -29,19 +29,18 @@ class TrendingMoviesBenchmarkingUITests: XCTestCase {
     }
 }
 
-extension TrendingMoviesBenchmarkingUITests {
+extension SDKPerformanceBenchmarkTests {
     func benchmarkAppUsage(app: XCUIApplication, withProfiling: Bool) -> Double? {
         app.launchArguments.append("--io.sentry.ui-test.benchmarking")
         if withProfiling {
             app.launchArguments.append("--io.sentry.enable-profiling")
         }
         app.launch()
+        app.buttons["Performance scenarios"].tap()
 
         func performBenchmarkedWork(app: XCUIApplication) -> Double? {
             startBenchmark(app: app)
-            for _ in 0..<5 {
-                app.swipeUp(velocity: .fast)
-            }
+            sleep(15) // let the CPU run with profiling enabled for a while; see PerformanceViewController.startTest and SentryBenchmarking.startBenchmarkProfile
             return stopBenchmark(app: app)
         }
 
@@ -54,11 +53,19 @@ extension TrendingMoviesBenchmarkingUITests {
     }
 
     func startBenchmark(app: XCUIApplication) {
-        tapBenchmarkStartStopButton(app: app)
+        let button = app.buttons["Start test"]
+        if !button.waitForExistence(timeout: 5.0) {
+            XCTFail("Couldn't find benchmark retrieval button.")
+        }
+        button.tap()
     }
 
     func stopBenchmark(app: XCUIApplication) -> Double? {
-        tapBenchmarkStartStopButton(app: app)
+        let button = app.buttons["Stop test"]
+        if !button.waitForExistence(timeout: 5.0) {
+            XCTFail("Couldn't find benchmark retrieval button.")
+        }
+        button.tap()
 
         let textField = app.textFields["io.sentry.accessibility-identifier.benchmarking-value-marshaling-text-field"]
             if !textField.waitForExistence(timeout: 5.0) {
@@ -72,13 +79,5 @@ extension TrendingMoviesBenchmarkingUITests {
         }
 
         return benchmarkValueString.doubleValue
-    }
-
-    func tapBenchmarkStartStopButton(app: XCUIApplication) {
-        let button = app.buttons["io.sentry.accessibility-identifier.benchmarking-value-marshaling-button"]
-        if !button.waitForExistence(timeout: 5.0) {
-            XCTFail("Couldn't find benchmark retrieval button.")
-        }
-        button.tap()
     }
 }

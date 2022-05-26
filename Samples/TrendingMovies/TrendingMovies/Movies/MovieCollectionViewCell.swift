@@ -18,12 +18,9 @@ class MovieCollectionViewCell: UICollectionViewCell {
             print("[TrendingMovies] set poster image on cell")
             posterImageView.image = posterImage ?? UIImage(named: MovieCollectionViewCell.placeholderImageName)
             if let capturedPosterImage = posterImage, !hideShadow {
-                var span: Tracer.SpanHandle? = nil
-                if !ProcessInfo.isBenchmarking {
-                    span = Tracer.startSpan(name: "poster-blurring")
-                }
+                Tracer.startTracing(interaction: "poster-blurring")
                 blurPosterImage(capturedPosterImage) { blurredImage in
-                    span?.end()
+                    Tracer.endTracing(interaction: "poster-blurring")
                     // Image could have changed while doing the blur.
                     if self.posterImage == capturedPosterImage {
                         self.shadowImageView.image = blurredImage

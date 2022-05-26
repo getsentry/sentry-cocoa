@@ -1,6 +1,5 @@
 import Kingfisher
 import UIKit
-import Sentry
 
 class CreditsViewController: MovieDetailSectionViewController<Person, CreditCollectionViewCell>, UICollectionViewDataSourcePrefetching {
     private let movie: Movie
@@ -32,13 +31,10 @@ class CreditsViewController: MovieDetailSectionViewController<Person, CreditColl
         if let credits = details?.credits {
             completion(.success(sort(credits)))
         } else {
-            var span: Tracer.SpanHandle? = nil
-            if !ProcessInfo.isBenchmarking {
-                span = Tracer.startSpan(name: "load-movie-credits")
-                span?.annotate(key: "movie.title", value: movie.title)
-            }
+            let span = Tracer.startSpan(name: "load-movie-credits")
+            span.annotate(key: "movie.title", value: movie.title)
             client.getMovieCredits(movie: movie) { result in
-                span?.end()
+                span.end()
                 completion(result.map { sort($0) })
             }
         }

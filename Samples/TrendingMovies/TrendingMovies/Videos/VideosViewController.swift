@@ -31,13 +31,10 @@ class VideosViewController: MovieDetailSectionViewController<Video, VideoCollect
         if let videos = details?.videos?.results {
             completion(.success(filter(videos)))
         } else {
-            var span: Tracer.SpanHandle? = nil
-            if !ProcessInfo.isBenchmarking {
-                span = Tracer.startSpan(name: "load-movie-videos")
-                span?.annotate(key: "movie.title", value: movie.title)
-            }
+            let span = Tracer.startSpan(name: "load-movie-videos")
+            span.annotate(key: "movie.title", value: String(movie.title))
             client.getMovieVideos(movie: movie) { result in
-                span?.end()
+                span.end()
                 completion(result.map { filter($0.results) })
             }
         }

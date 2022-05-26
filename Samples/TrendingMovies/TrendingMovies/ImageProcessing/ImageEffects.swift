@@ -6,16 +6,13 @@ struct ImageEffects {
                                       blurRadius: CGFloat,
                                       tintColor: UIColor? = nil,
                                       saturationDeltaFactor: CGFloat = 1.0) -> UIImage? {
-        var span: Tracer.SpanHandle? = nil
-        if !ProcessInfo.isBenchmarking {
-            span = Tracer.startSpan(name: "create-blurred-backdrop")
-            span?.annotate(key: "width", value: String(Double(image.size.width)))
-            span?.annotate(key: "height", value: String(Double(image.size.height)))
-            span?.annotate(key: "blurRadius", value: String(Double(blurRadius)))
-            span?.annotate(key: "downsamplingFactor", value: String(Double(downsamplingFactor)))
-            span?.annotate(key: "saturationDeltaFactor", value: String(Double(saturationDeltaFactor)))
-        }
-        defer { span?.end() }
+        let span = Tracer.startSpan(name: "create-blurred-backdrop")
+        span.annotate(key: "width", value: String(Double(image.size.width)))
+        span.annotate(key: "height", value: String(Double(image.size.height)))
+        span.annotate(key: "blurRadius", value: String(Double(blurRadius)))
+        span.annotate(key: "downsamplingFactor", value: String(Double(downsamplingFactor)))
+        span.annotate(key: "saturationDeltaFactor", value: String(Double(saturationDeltaFactor)))
+        defer { span.end() }
 
         let containerLayer = CALayer()
         containerLayer.frame = CGRect(origin: .zero, size: image.size)

@@ -2,38 +2,24 @@ import Kingfisher
 import Sentry
 import UIKit
 
-class PassthroughWindow: UIWindow {
-    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-        guard let result = super.hitTest(point, with: event) else {
-            return nil
-        }
-        if !result.isKind(of: UIButton.self) || result.isKind(of: UITextField.self) {
-            return nil
-        }
-        return result
-    }
-}
-
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     var tracer: Tracer?
-
-    // these are only used in benchmarking UI tests
-    let benchmarkRetrieveValueButton = UIButton(type: .custom)
-    let benchmarkValueTextField = UITextField(frame: .zero)
-    let valueMarshalWindow = PassthroughWindow(frame: UIScreen.main.bounds)
-    var benchmarkRunning = false
 
     func application(_: UIApplication, willFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         print("[TrendingMovies] willFinishLaunchingWithOptions")
         Tracer.setUp(finishedLaunching: false)
 
-        if ProcessInfo().arguments.contains("--io.sentry.ui-test.benchmarking") {
+        func clearCaches() {
             let sharedCache = KingfisherManager.shared.cache
             sharedCache.clearMemoryCache()
             sharedCache.clearDiskCache()
             sharedCache.cleanExpiredDiskCache()
             URLCache.shared.removeAllCachedResponses()
+        }
+
+        if ProcessInfo().arguments.contains("--clear") {
+            clearCaches()
         }
 
         return true
@@ -78,52 +64,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // TODO: show debug menu launcher?
 
-        if ProcessInfo().arguments.contains("--io.sentry.ui-test.benchmarking") {
-            let vc = UIViewController(nibName: nil, bundle: nil)
-            let views = [benchmarkValueTextField, benchmarkRetrieveValueButton]
-            let stack = UIStackView(arrangedSubviews: views)
-            stack.translatesAutoresizingMaskIntoConstraints = false
-            stack.axis = .vertical
-            vc.view.addSubview(stack)
-            for view in views {
-                view.translatesAutoresizingMaskIntoConstraints = false
-                NSLayoutConstraint.activate([
-                    view.widthAnchor.constraint(equalToConstant: 100),
-                    view.heightAnchor.constraint(equalToConstant: 50)
-                ])
-            }
-            NSLayoutConstraint.activate([
-                stack.leadingAnchor.constraint(equalTo: vc.view.leadingAnchor),
-                stack.topAnchor.constraint(equalTo: vc.view.topAnchor)
-            ])
-            benchmarkValueTextField.accessibilityLabel = "io.sentry.accessibility-identifier.benchmarking-value-marshaling-text-field"
-            benchmarkRetrieveValueButton.accessibilityLabel = "io.sentry.accessibility-identifier.benchmarking-value-marshaling-button"
-            benchmarkRetrieveValueButton.addTarget(self, action: #selector(controlBenchmarks), for: .touchUpInside)
-            benchmarkRetrieveValueButton.setTitle("Retrieve benchmark reading", for: .normal)
-            valueMarshalWindow.rootViewController = vc
-
-            // if the main window ref is nil, the UI test that needs this other window won't work anyways; crash here to fail as early as possible
-            // swiftlint:disable force_unwrapping
-            valueMarshalWindow.windowLevel = .init(rawValue: window!.windowLevel.rawValue + 1.0) // ???: likely not needed
-            // swiftlint:enable force_unwrapping
-
-            valueMarshalWindow.isHidden = false
-        }
-
         return true
-    }
-
-    @objc func controlBenchmarks() {
-        if !benchmarkRunning {
-            benchmarkRunning = true
-            Tracer.startTracing(interaction: "benchmarking")
-            SentryBenchmarking.startBenchmarkProfile()
-        } else {
-            benchmarkRunning = false
-            let value = SentryBenchmarking.retrieveBenchmarks()
-            Tracer.endTracing(interaction: "benchmarking")
-            benchmarkValueTextField.text = String(value)
-        }
     }
 }
 

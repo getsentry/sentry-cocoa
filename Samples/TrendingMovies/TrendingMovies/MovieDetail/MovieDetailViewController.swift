@@ -19,8 +19,6 @@ class MovieDetailViewController: UIViewController, UIScrollViewDelegate, MovieDe
     private var barBackgroundViewTopConstraint: NSLayoutConstraint?
     private var didActivateBarBackgroundViewHeightConstraint = false
 
-    private var span: Tracer.SpanHandle?
-
     private var backdropImage: UIImage? {
         didSet { detailView?.backdropImage = backdropImage }
     }
@@ -95,9 +93,7 @@ class MovieDetailViewController: UIViewController, UIScrollViewDelegate, MovieDe
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if !hasTriggeredInitialLoad {
-            if !ProcessInfo.isBenchmarking {
-                span = Tracer.startSpan(name: "load-movie-details")
-            }
+            Tracer.startTracing(interaction: "load-movie-details")
             fetchBackdrop()
             fetchGenres()
             fetchMovieDetails()
@@ -229,18 +225,12 @@ class MovieDetailViewController: UIViewController, UIScrollViewDelegate, MovieDe
          * `fetch-backdrop` starts, then `retrieve-image-kingfisher`, which is
          * ended before `fetch-backdrop`.
          */
-        var fetchBackdropSpan: Tracer.SpanHandle? = nil
-        if !ProcessInfo.isBenchmarking {
-            fetchBackdropSpan = Tracer.startSpan(name: "fetch-backdrop")
-        }
+        let fetchBackdropSpan = Tracer.startSpan(name: "fetch-backdrop")
         imageResolver.getBackdropImageURL(path: movie.backdropPath ?? movie.posterPath, preferredWidth: Int(UIScreen.main.bounds.width)) { result in
             switch result {
             case let .success(url):
                 if let url = url {
-                    var kingfisherSpan: Tracer.SpanHandle? = nil
-                    if !ProcessInfo.isBenchmarking {
-                        kingfisherSpan = Tracer.startSpan(name: "retrieve-image-kingfisher")
-                    }
+                    let kingfisherSpan = Tracer.startSpan(name: "retrieve-image-kingfisher")
                     KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.dispatch(self.bgQueue))]) { imageResult in
                         switch imageResult {
                         case let .success(image):
@@ -256,22 +246,19 @@ class MovieDetailViewController: UIViewController, UIScrollViewDelegate, MovieDe
                         case let .failure(error):
                             self.errorHandler?(error)
                         }
-                        kingfisherSpan?.end()
+                        kingfisherSpan.end()
                     }
                 }
             case let .failure(error):
                 self.errorHandler?(error)
             }
             self.hasFetchedBackdrop = true
-            fetchBackdropSpan?.end()
+            fetchBackdropSpan.end()
         }
     }
 
     private func fetchGenres() {
-        var span: Tracer.SpanHandle? = nil
-        if !ProcessInfo.isBenchmarking {
-            span = Tracer.startSpan(name: "fetch-genre")
-        }
+        let span = Tracer.startSpan(name: "fetch-genre")
         genreResolver.getGenres(ids: movie.genreIds) { result in
             switch result {
             case let .success(genres):
@@ -280,15 +267,12 @@ class MovieDetailViewController: UIViewController, UIScrollViewDelegate, MovieDe
                 self.errorHandler?(error)
             }
             self.hasFetchedGenres = true
-            span?.end()
+            span.end()
         }
     }
 
     private func fetchMovieDetails() {
-        var span: Tracer.SpanHandle? = nil
-        if !ProcessInfo.isBenchmarking {
-            span = Tracer.startSpan(name: "fetch-movie-details")
-        }
+        let span = Tracer.startSpan(name: "fetch-movie-details")
         client.getMovieDetails(movie: movie, additionalData: [.credits, .videos, .similar]) { result in
             switch result {
             case let .success(details):
@@ -297,7 +281,7 @@ class MovieDetailViewController: UIViewController, UIScrollViewDelegate, MovieDe
                 self.errorHandler?(error)
             }
             self.hasFetchedMovieDetails = true
-            span?.end()
+            span.end()
         }
     }
 
@@ -324,7 +308,7 @@ class MovieDetailViewController: UIViewController, UIScrollViewDelegate, MovieDe
 
     private func endTraceIfNecessary() {
         if hasFetchedGenres, hasFetchedBackdrop, hasFetchedMovieDetails, hasFetchedSections {
-            span?.end()
+            Tracer.endTracing(interaction: "load-movie-details")
         }
     }
 

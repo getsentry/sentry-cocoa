@@ -35,8 +35,6 @@ class MoviesViewController: UICollectionViewController, UICollectionViewDelegate
         }
     }
 
-    private var span: Tracer.SpanHandle?
-
     init(subtitleStyle: MovieCellConfigurator.SubtitleStyle = .genre, enableStartupTimeLogging: Bool, sortFunction: SortFunction? = nil, dataFetchingFunction: @escaping DataFetchingFunction) {
         let layout = UICollectionViewFlowLayout()
         layout.minimumInteritemSpacing = 0.0
@@ -93,7 +91,7 @@ class MoviesViewController: UICollectionViewController, UICollectionViewDelegate
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        span?.end()
+        Tracer.endTracing(interaction: interactionName)
     }
 
     // MARK: UICollectionViewDataSource
@@ -181,11 +179,11 @@ class MoviesViewController: UICollectionViewController, UICollectionViewDelegate
             return
         }
         isLoadingNextPage = true
-        if !ProcessInfo.isBenchmarking && (!enableStartupTimeLogging || endedStartupTrace) {
-            span = Tracer.startSpan(name: interactionName)
+        if !enableStartupTimeLogging || endedStartupTrace {
+            Tracer.startTracing(interaction: interactionName)
         }
         dataFetchingFunction(client, pageNumber + 1) { result in
-            self.span?.end()
+            Tracer.endTracing(interaction: self.interactionName)
 
             switch result {
             case let .success(response):
