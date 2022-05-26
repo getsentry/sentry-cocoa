@@ -50,11 +50,12 @@ cpuInfoByThread()
             if (thread_info(
                     thread, THREAD_BASIC_INFO, reinterpret_cast<thread_info_t>(&data), &count)
                 == KERN_SUCCESS) {
-                const auto system_time_micros = data.system_time.seconds * 1e6
-                + data.system_time.microseconds;
-                const auto user_time_micros = data.user_time.seconds * 1e6
-                    + data.user_time.microseconds;
-                dict[[NSString stringWithUTF8String:namestr.c_str()]] = @[@(system_time_micros), @(user_time_micros), @(data.cpu_usage)];
+                const auto system_time_micros
+                    = data.system_time.seconds * 1e6 + data.system_time.microseconds;
+                const auto user_time_micros
+                    = data.user_time.seconds * 1e6 + data.user_time.microseconds;
+                dict[[NSString stringWithUTF8String:namestr.c_str()]] =
+                    @[ @(system_time_micros), @(user_time_micros), @(data.cpu_usage) ];
             }
         }
     }

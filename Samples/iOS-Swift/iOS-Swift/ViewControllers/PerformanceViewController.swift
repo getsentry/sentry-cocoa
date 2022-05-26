@@ -17,7 +17,7 @@ class PerformanceViewController: UIViewController {
 
         let buttons = [
             startTestButton,
-            stopTestButton,
+            stopTestButton
         ]
         buttons.forEach {
             $0.setTitleColor(.black, for: .normal)
@@ -33,16 +33,16 @@ class PerformanceViewController: UIViewController {
             stack.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             stack.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             stack.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor),
-            stack.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            stack.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
 
         if #available(iOS 11.0, *) {
             NSLayoutConstraint.activate([
-                stack.topAnchor.constraint(greaterThanOrEqualTo: view.safeAreaLayoutGuide.topAnchor),
+                stack.topAnchor.constraint(greaterThanOrEqualTo: view.safeAreaLayoutGuide.topAnchor)
             ])
         } else {
             NSLayoutConstraint.activate([
-                stack.topAnchor.constraint(greaterThanOrEqualTo: view.topAnchor),
+                stack.topAnchor.constraint(greaterThanOrEqualTo: view.topAnchor)
             ])
         }
 
@@ -62,10 +62,10 @@ class PerformanceViewController: UIViewController {
     // refresh rate of 60 hz is 0.0167
     // 120 hz is 0.0083
     // 240 hz is 0.004167
-    private let interval = 0.00000005
+    private let interval = 0.000_000_05
 
     private var timer: Timer?
-    private let iterations = 5000000
+    private let iterations = 5_000_000
     private let range = 1..<Double.greatestFiniteMagnitude
     private var transaction: Span?
 
