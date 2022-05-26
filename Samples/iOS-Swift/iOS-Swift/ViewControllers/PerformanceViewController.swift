@@ -22,7 +22,7 @@ class PerformanceViewController: UIViewController {
         buttons.forEach {
             $0.setTitleColor(.black, for: .normal)
         }
-        valueTextField.accessibilityLabel = "io.sentry.accessibility-identifier.benchmarking-value-marshaling-text-field"
+        valueTextField.accessibilityLabel = "io.sentry.benchmark.value-marshaling-text-field"
         let stack = UIStackView(arrangedSubviews: buttons + [valueTextField])
         stack.axis = .vertical
         stack.alignment = .center

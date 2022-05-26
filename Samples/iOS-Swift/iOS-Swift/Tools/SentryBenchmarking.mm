@@ -10,7 +10,7 @@
 //#define SENTRY_BENCHMARK_NSTHREAD_BASED
 //#define SENTRY_BENCHMARK_PTHREAD_BASED
 
-#define SENTRY_BENCHMARKING_THREAD_NAME "io.sentry.BenchmarkingSamplingProfiler"
+#define SENTRY_BENCHMARKING_THREAD_NAME "io.sentry.benchmark.sampler-thread"
 
 namespace {
 /// @note: Implementation ported from @c SentryThreadHandle.hpp .
@@ -82,7 +82,7 @@ gcdBasedApproach()
     const auto attr = dispatch_queue_attr_make_with_qos_class(
         DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_USER_INTERACTIVE, 0);
     const auto leewayNs = intervalNs / 2;
-    queue = dispatch_queue_create("io.sentry.benchmarking.gcd-scheduler", attr);
+    queue = dispatch_queue_create("io.sentry.benchmark.gcd-scheduler", attr);
     source = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
     dispatch_source_set_event_handler(source, ^{ [samples addObject:cpuInfoByThread()]; });
     dispatch_source_set_timer(
@@ -160,7 +160,7 @@ void
 nsthreadBasedApproach()
 {
     thread = [[NSThread alloc] initWithBlock:^{
-        assert(pthread_setname_np("io.sentry.BenchmarkingSamplingProfiler") == KERN_SUCCESS);
+        assert(pthread_setname_np(SENTRY_BENCHMARKING_THREAD_NAME) == KERN_SUCCESS);
         while (true) {
             if (cancel_) {
                 break;
