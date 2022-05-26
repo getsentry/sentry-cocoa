@@ -118,7 +118,7 @@ class PerformanceViewController: UIViewController {
                 "percent-usage": value,
                 "device-model": UIDevice.current.model,
                 "device-system-name": UIDevice.current.systemName,
-                "device-system-version": UIDevice.current.systemVersion,
+                "device-system-version": UIDevice.current.systemVersion
             ], key: "performance-benchmark-results")
         }
     }
