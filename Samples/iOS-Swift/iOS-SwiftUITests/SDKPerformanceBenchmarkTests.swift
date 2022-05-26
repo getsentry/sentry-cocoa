@@ -8,7 +8,7 @@ class SDKPerformanceBenchmarkTests: XCTestCase {
 
     func testBenchmarkingOnScrolling() throws {
         var avgUsagePercentage = 0.0
-        let numberOfTrials = 15
+        let numberOfTrials = 1
         for _ in 0..<numberOfTrials {
             let app = XCUIApplication()
             guard let usagePercentage = benchmarkAppUsage(app: app, withProfiling: true) else { return }
