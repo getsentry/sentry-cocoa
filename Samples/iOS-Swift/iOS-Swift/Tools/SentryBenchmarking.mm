@@ -208,35 +208,17 @@ nsthreadBasedApproach()
     }
 
     const auto totals = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-    const auto cpuUsages =
-        [NSMutableDictionary<NSString *, NSMutableArray<NSNumber *> *> dictionary];
     for (auto i = 0; i < samples.count - 2; i++) {
         const auto before = samples[i];
         const auto after = samples[i + 1];
-
-        void (^cpuUsageConsumer)(NSString *_Nonnull, NSArray<NSNumber *> *_Nonnull, BOOL *_Nonnull)
-            = ^(NSString *_Nonnull key, NSArray<NSNumber *> *_Nonnull obj, BOOL *_Nonnull stop) {
-                  if (![key isEqualToString:@"io.sentry.SamplingProfiler"]) {
-                      return;
-                  }
-
-                  if (cpuUsages[key]) {
-                      [cpuUsages[key] addObject:obj[2]];
-                  } else {
-                      cpuUsages[key] = [@[ obj[2] ] mutableCopy];
-                  }
-              };
-
-        [before enumerateKeysAndObjectsUsingBlock:cpuUsageConsumer];
-        if (i == samples.count - 3) {
-            [after enumerateKeysAndObjectsUsingBlock:cpuUsageConsumer];
-        }
 
         const auto afterKeys = [NSSet<NSString *> setWithArray:after.allKeys];
         const auto persistedThreads = [NSMutableSet<NSString *> setWithArray:before.allKeys];
         [persistedThreads intersectSet:afterKeys];
         const auto destroyedThreads = [NSMutableSet<NSString *> setWithArray:before.allKeys];
         [destroyedThreads minusSet:persistedThreads];
+
+        printf("%lu destroyed threads\n", (unsigned long)destroyedThreads.count);
 
         for (NSString *key : persistedThreads) {
             const auto lastSystemTime = before[key][0].integerValue;
@@ -259,8 +241,11 @@ nsthreadBasedApproach()
 
     [samples removeAllObjects];
 
-    return [[cpuUsages[@"io.sentry.SamplingProfiler"] valueForKeyPath:@"@avg.self"] doubleValue]
-        / TH_USAGE_SCALE * 100.0;
+    const auto samplingThreadUsage = totals[@"io.sentry.SamplingProfiler"].integerValue;
+    const auto totalUsage
+        = ((NSNumber *)[totals.allValues valueForKeyPath:@"@sum.self"]).integerValue;
+
+    return 100.0 * samplingThreadUsage / totalUsage;
 }
 
 @end
