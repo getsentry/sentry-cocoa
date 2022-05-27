@@ -208,22 +208,24 @@ nsthreadBasedApproach()
     }
 
     const auto totals = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-    const auto cpuUsages = [NSMutableDictionary<NSString *, NSMutableArray<NSNumber *> *> dictionary];
+    const auto cpuUsages =
+        [NSMutableDictionary<NSString *, NSMutableArray<NSNumber *> *> dictionary];
     for (auto i = 0; i < samples.count - 2; i++) {
         const auto before = samples[i];
         const auto after = samples[i + 1];
 
-        void(^cpuUsageConsumer)(NSString * _Nonnull, NSArray<NSNumber *> * _Nonnull, BOOL * _Nonnull) = ^(NSString * _Nonnull key, NSArray<NSNumber *> * _Nonnull obj, BOOL * _Nonnull stop) {
-            if (![key isEqualToString:@"io.sentry.SamplingProfiler"]) {
-                return;
-            }
+        void (^cpuUsageConsumer)(NSString *_Nonnull, NSArray<NSNumber *> *_Nonnull, BOOL *_Nonnull)
+            = ^(NSString *_Nonnull key, NSArray<NSNumber *> *_Nonnull obj, BOOL *_Nonnull stop) {
+                  if (![key isEqualToString:@"io.sentry.SamplingProfiler"]) {
+                      return;
+                  }
 
-            if (cpuUsages[key]) {
-                [cpuUsages[key] addObject:obj[2]];
-            } else {
-                cpuUsages[key] = [@[obj[2]] mutableCopy];
-            }
-        };
+                  if (cpuUsages[key]) {
+                      [cpuUsages[key] addObject:obj[2]];
+                  } else {
+                      cpuUsages[key] = [@[ obj[2] ] mutableCopy];
+                  }
+              };
 
         [before enumerateKeysAndObjectsUsingBlock:cpuUsageConsumer];
         if (i == samples.count - 3) {
@@ -257,7 +259,8 @@ nsthreadBasedApproach()
 
     [samples removeAllObjects];
 
-    return [[cpuUsages[@"io.sentry.SamplingProfiler"] valueForKeyPath:@"@avg.self"] doubleValue] / TH_USAGE_SCALE * 100.0;
+    return [[cpuUsages[@"io.sentry.SamplingProfiler"] valueForKeyPath:@"@avg.self"] doubleValue]
+        / TH_USAGE_SCALE * 100.0;
 }
 
 @end
