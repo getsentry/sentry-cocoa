@@ -6,11 +6,17 @@ class SentryMessageTests: XCTestCase {
         let stringMaxCount = 8_192
         let maximumCount: String
         let tooLong: String
+        let message: SentryMessage
         
         init() {
             maximumCount = String(repeating: "a", count: stringMaxCount)
             tooLong = String(repeating: "a", count: stringMaxCount + 1)
+            
+            message = SentryMessage(formatted: "A message my params")
+            message.message = "A message %s %s"
+            message.params = ["my", "params"]
         }
+        
     }
     
     private let fixture = Fixture()
@@ -38,14 +44,34 @@ class SentryMessageTests: XCTestCase {
     }
     
     func testSerialize() {
-        let message = SentryMessage(formatted: "A message my params")
-        message.message = "A message %s %s"
-        message.params = ["my", "params"]
+        let message = fixture.message
         
         let actual = message.serialize()
         
         XCTAssertEqual(message.formatted, actual["formatted"] as? String)
         XCTAssertEqual(message.message, actual["message"] as? String)
         XCTAssertEqual(message.params, actual["params"] as? [String])
+    }
+    
+    func testDescription() {
+        let message = fixture.message
+        
+        let actual = message.description
+        
+        let beginning = String(format: "<SentryMessage: %p, ", message)
+        let expected = "\(beginning){\n    formatted = \"\(message.formatted)\";\n    message = \"\(message.message ?? "")\";\n    params =     (\n        my,\n        params\n    );\n}>"
+        XCTAssertEqual(expected, actual)
+    }
+    
+    func testDescription_WithoutMessageAndParams() {
+        let message = fixture.message
+        message.message = nil
+        message.params = nil
+        
+        let actual = message.description
+        
+        let beginning = String(format: "<SentryMessage: %p, ", message)
+        let expected = "\(beginning){\n    formatted = \"\(message.formatted)\";\n}>"
+        XCTAssertEqual(expected, actual)
     }
 }
