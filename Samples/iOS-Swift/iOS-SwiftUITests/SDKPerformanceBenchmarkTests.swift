@@ -6,7 +6,7 @@ class SDKPerformanceBenchmarkTests: XCTestCase {
         continueAfterFailure = false
     }
 
-    func testBenchmarkingOnScrolling() throws {
+    func testCPUBenchmark() throws {
         var avgUsagePercentage = 0.0
         let numberOfTrials = 1
         for _ in 0..<numberOfTrials {
