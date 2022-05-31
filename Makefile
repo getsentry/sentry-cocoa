@@ -6,12 +6,7 @@ init:
 	rbenv exec bundle update
 	cd Samples/TrendingMovies && carthage update --use-xcframeworks
 	pip3 install argh
-
-lint:
-	@echo "--> Running Swiftlint and Clang-Format"
-	./scripts/check-clang-format.py -r Sources Tests
-	swiftlint
-.PHONY: lint
+	pre-commit install
 
 test:
 	@echo "--> Running all tests"
