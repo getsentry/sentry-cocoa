@@ -8,75 +8,627 @@ excluded:
   - test-server/.build/
 
 only_rules:
-  - class_delegate_protocol
-  - closing_brace
+
+# Closure end should have the same indentation as the line that started it.
+# * **Identifier:** closure_end_indentation
+# * **Enabled by default:** No
+# * **Supports autocorrection:** Yes
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - closure_end_indentation
+
+# Closure parameters should be on the same line as opening brace.
+# * **Identifier:** closure_parameter_position
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - closure_parameter_position
-  - closure_spacing
+
+# Colons should be next to the identifier when specifying a type and next to the key in dictionary literals.
+# * **Identifier:** colon
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning, flexible_right_spacing: false, apply_to_dictionaries: true
   - colon
+
+# There should be no space before and one after any comma.
+# * **Identifier:** comma
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - comma
+
+# The initializers declared in compiler protocols such as `ExpressibleByArrayLiteral` shouldn't be called directly.
+# * **Identifier:** compiler_protocol_init
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** lint
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - compiler_protocol_init
-  - control_statement
-  - custom_rules
+
+# Complexity of function bodies should be limited.
+# * **Identifier:** cyclomatic_complexity
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** metrics
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning: 10, error: 20, ignores_case_statements: false
   - cyclomatic_complexity
+
+# Avoid using 'dynamic' and '@inline(__always)' together.
+# * **Identifier:** dynamic_inline
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** lint
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** error
   - dynamic_inline
-  - empty_count
+
+# Prefer `() -> ` over `Void -> `.
+# * **Identifier:** empty_parameters
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - empty_parameters
+
+# When using trailing closures, empty parentheses should be avoided after the method call.
+# * **Identifier:** empty_parentheses_with_trailing_closure
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - empty_parentheses_with_trailing_closure
+
+# Explicitly calling .init() should be avoided.
+# * **Identifier:** explicit_init
+# * **Enabled by default:** No
+# * **Supports autocorrection:** Yes
+# * **Kind:** idiomatic
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - explicit_init
+
+# Files should not span too many lines.
+# * **Identifier:** file_length
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** metrics
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning: 400, error: 1000, ignore_comment_only_lines: false
   - file_length
+
+# Prefer using `.first(where:)` over `.filter { }.first` in collections.
+# * **Identifier:** first_where
+# * **Enabled by default:** No
+# * **Supports autocorrection:** No
+# * **Kind:** performance
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - first_where
+
+# Force casts should be avoided.
+# * **Identifier:** force_cast
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** idiomatic
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** error
   - force_cast
+
+# Force tries should be avoided.
+# * **Identifier:** force_try
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** idiomatic
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** error
   - force_try
+
+# Force unwrapping should be avoided.
+# * **Identifier:** force_unwrapping
+# * **Enabled by default:** No
+# * **Supports autocorrection:** No
+# * **Kind:** idiomatic
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - force_unwrapping
+
+# Functions bodies should not span too many lines.
+# * **Identifier:** function_body_length
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** metrics
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning: 40, error: 10
   - function_body_length
+
+# Number of function parameters should be low.
+# * **Identifier:** function_parameter_count
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** metrics
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning: 5, error: 8ignores_default_parameters: true
   - function_parameter_count
+
+# Generic type name should only contain alphanumeric characters, start wih an uppercase character and span between 1 and 20 characters in length.
+# * **Identifier:** generic_type_name
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** idiomatic
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** (min_length) w/e: 1/0, (max_length) w/e: 20/1000, excluded: [], allowed_symbols: [], validates_start_with_lowercase: true
   - generic_type_name
+
+# Computed read-only properties and subscripts should avoid using the getkeyword.
+# * **Identifier:** implicit_getter
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - implicit_getter
+
+# Tuples shouldn't have too many members. Create a custom type instead.
+# * **Identifier:** large_tuple
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** metrics
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning: 2, error: 3
   - large_tuple
+
+# Files should not contain leading whitespace.
+# * **Identifier:** leading_whitespace
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - leading_whitespace
+
+# Struct extension properties and methods are preferred over legacy functons
+# * **Identifier:** legacy_cggeometry_functions
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** idiomatic
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - legacy_cggeometry_functions
+
+# Struct-scoped constants are preferred over legacy global constants.
+# * **Identifier:** legacy_constant
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** idiomatic
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - legacy_constant
+
+# Swift constructors are preferred over legacy convenience functions.
+# * **Identifier:** legacy_constructor
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** idiomatic
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - legacy_constructor
+
+# Struct extension properties and methods are preferred over legacy functons
+# * **Identifier:** legacy_nsgeometry_functions
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** idiomatic
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - legacy_nsgeometry_functions
+
+# Lines should not span too many characters.
+# * **Identifier:** line_length
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** metrics
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning: 120, error: 200, ignores urls: false, ignores function declarations: false, ignores comments: false, ignores interpolated strings: false
   - line_length
+
+# MARK comment should be in valid format. e.g. '// MARK: ...' or '// MARK - ...'
+# * **Identifier:** mark
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** lint
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - mark
-  #- missing_docs
+
+# Prefer Nimble operator overloads over free matcher functions.
+# * **Identifier:** nimble_operator
+# * **Enabled by default:** No
+# * **Supports autocorrection:** Yes
+# * **Kind:** idiomatic
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - nimble_operator
+
+# Underscores should be used as thousand separator in large decimal numbes.
+# * **Identifier:** number_separator
+# * **Enabled by default:** No
+# * **Supports autocorrection:** Yes
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning, minimum_length: 0, minimum_fraction_length: none
   - number_separator
+
+# Prefer initializers over object literals.
+# * **Identifier:** discouraged_object_literal
+# * **Enabled by default:** No
+# * **Supports autocorrection:** No
+# * **Kind:** idiomatic
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning, image_literal: true, color_literal: true
   - object_literal
+
+# Opening braces should be preceded by a single space and on the same lin as the declaration.
+# * **Identifier:** opening_brace
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning, allowMultilineFunc: false
   - opening_brace
+
+# Operators should be surrounded by a single whitespace when they are beig used.
+# * **Identifier:** operator_usage_whitespace
+# * **Enabled by default:** No
+# * **Supports autocorrection:** Yes
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning, lines_look_around: 2, skip_aligned_constants: true
   - operator_usage_whitespace
+
+# Operators should be surrounded by a single whitespace when defining the.
+# * **Identifier:** operator_whitespace
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - operator_whitespace
+
+# Some overridden methods should always call super
+# * **Identifier:** overridden_super_call
+# * **Enabled by default:** No
+# * **Supports autocorrection:** No
+# * **Kind:** lint
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning, excluded: [], included: ["*"]
   - overridden_super_call
+
+# IBOutlets should be private to avoid leaking UIKit to higher layers.
+# * **Identifier:** private_outlet
+# * **Enabled by default:** No
+# * **Supports autocorrection:** No
+# * **Kind:** lint
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning, allow_private_set: false
   - private_outlet
+
+# Unit tests marked private are silently skipped.
+# * **Identifier:** private_unit_test
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** lint
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning: XCTestCase
   - private_unit_test
+
+# Some methods should not call super
+# * **Identifier:** prohibited_super_call
+# * **Enabled by default:** No
+# * **Supports autocorrection:** No
+# * **Kind:** lint
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning, excluded: [[]], included: [["*"]]
   - prohibited_super_call
+
+# nil coalescing operator is only evaluated if the lhs is nil, coalescingoperator with nil as rhs is redundant
+# * **Identifier:** redundant_nil_coalescing
+# * **Enabled by default:** No
+# * **Supports autocorrection:** Yes
+# * **Kind:** idiomatic
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - redundant_nil_coalescing
+
+# Initializing an optional variable with nil is redundant.
+# * **Identifier:** redundant_optional_initialization
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** idiomatic
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - redundant_optional_initialization
+
+# String enum values can be omitted when they are equal to the enumcase nme.
+# * **Identifier:** redundant_string_enum_value
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** idiomatic
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - redundant_string_enum_value
+
+# Returning Void in a function declaration is redundant.
+# * **Identifier:** redundant_void_return
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** idiomatic
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - redundant_void_return
+
+# Return arrow and return type should be separated by a single space or o a separate line.
+# * **Identifier:** return_arrow_whitespace
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - return_arrow_whitespace
+
+# Prefer shorthand operators (+=, -=, *=, /=) over doing the operation an assigning.
+# * **Identifier:** shorthand_operator
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** error
   - shorthand_operator
+
+# Imports should be sorted.
+# * **Identifier:** sorted_imports
+# * **Enabled by default:** No
+# * **Supports autocorrection:** Yes
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - sorted_imports
+
+# Else and catch should be on the same line, one space after the previousdeclaration.
+# * **Identifier:** statement_position
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** (statement_mode) default, (severity) warning
   - statement_position
+
+# Cases inside a switch should always be on a newline
+# * **Identifier:** switch_case_on_newline
+# * **Enabled by default:** No
+# * **Supports autocorrection:** No
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - switch_case_on_newline
+
+# Shorthand syntactic sugar should be used, i.e. [Int] instead of Array<It>.
+# * **Identifier:** syntactic_sugar
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** idiomatic
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - syntactic_sugar
+
+# TODOs and FIXMEs should be resolved prior to their expiry date.
+# * **Identifier:** expiring_todo
+# * **Enabled by default:** No
+# * **Supports autocorrection:** No
+# * **Kind:** lint
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** approaching_expiry_severity: warning, expired_severity: error, bad_formatting_severity: error, approaching_expiry_threshold: 15, date_format: MM/dd/yyyy, date_delimiters: { opening: [, closing: ] }, date_separator: /
   - todo
+
+# Trailing commas in arrays and dictionaries should be avoided/enforced.
+# * **Identifier:** trailing_comma
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning, mandatory_comma: false
   - trailing_comma
+
+# Files should have a single trailing newline.
+# * **Identifier:** trailing_newline
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - trailing_newline
+
+# Lines should not have trailing semicolons.
+# * **Identifier:** trailing_semicolon
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** idiomatic
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - trailing_semicolon
+
+# Type bodies should not span too many lines.
+# * **Identifier:** type_body_length
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** metrics
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning: 200, error: 350
   - type_body_length
+
+# Type name should only contain alphanumeric characters, start with an uppercase character and span between 3 and 40 characters in length.
+# * **Identifier:** type_name
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** idiomatic
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** (min_length) w/e: 3/0, (max_length) w/e: 40/1000, excluded: [], allowed_symbols: [], validates_start_with_lowercase: true
   - type_name
+
+# Unused parameter in a closure should be replaced with _.
+# * **Identifier:** unused_closure_parameter
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** lint
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - unused_closure_parameter
+
+# When the index or the item is not used, `.enumerated()` can be removed.
+# * **Identifier:** unused_enumerated
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** idiomatic
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - unused_enumerated
+
+# Prefer `!= nil` over `let _ =`
+# * **Identifier:** unused_optional_binding
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning, ignore_optional_try: false
   - unused_optional_binding
+
+# @IBInspectable should be applied to variables only, have its type expliit and be of a supported type
+# * **Identifier:** valid_ibinspectable
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** lint
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - valid_ibinspectable
+
+# Identifier names should only contain alphanumeric characters and start ith a lowercase character or should only contain capital letters. In an exception to the above, variable names may start with a capital letter when they are declared static and immutable. Variable names should not be too long or too short.
+# * **Identifier:** identifier_name
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** (min_length) w/e: 3/2, (max_length) w/e: 40/60, excluded: ["id"], allowed_symbols: [], validates_start_with_lowercase: true
   - identifier_name
+
+# Function parameters should be aligned vertically if they're in multiplelines in a declaration.
+# * **Identifier:** vertical_parameter_alignment
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** No
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - vertical_parameter_alignment
+
+# Limit vertical whitespace to a single empty line.
+# * **Identifier:** vertical_whitespace
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** style
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning, max_empty_lines: 1
   - vertical_whitespace
+
+# Returning Void in a function declaration is redundant.
+# * **Identifier:** redundant_void_return
+# * **Enabled by default:** Yes
+# * **Supports autocorrection:** Yes
+# * **Kind:** idiomatic
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - void_return
+
+# Delegates should be weak to avoid reference cycles.
+# * **Identifier:** weak_delegate
+# * **Enabled by default:** No
+# * **Supports autocorrection:** Yes
+# * **Kind:** lint
+# * **Analyzer rule:** No
+# * **Minimum Swift compiler version:** 5.0.0
+# * **Default configuration:** warning
   - weak_delegate
+
 identifier_name:
   allowed_symbols:
     - i

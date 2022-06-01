@@ -1,0 +1,84 @@
+--acronyms ID,URL,UUID
+--allman false
+--assetliterals visual-width
+--beforemarks
+--binarygrouping none
+--categorymark "MARK: %c"
+--classthreshold 0
+--closurevoid preserve
+--commas always
+--conflictmarkers reject
+--consecutivespaces
+--decimalgrouping 3,4
+--elseposition same-line
+--emptybraces no-space
+--enumthreshold 0
+--exponentcase lowercase
+--exponentgrouping disabled
+--extensionacl on-extension
+--extensionlength 0
+--extensionmark "MARK: - %t + %c"
+--fractiongrouping enabled
+--fragment false
+--funcattributes preserve
+--groupedextension "MARK: %c"
+--guardelse auto
+--header ignore
+--hexgrouping none
+--hexliteralcase lowercase
+--ifdef no-indent
+--importgrouping alpha
+--indent 4
+--indentcase false
+--indentstrings false
+--lifecycle
+--lineaftermarks true
+--linebreaks lf
+--markcategories true
+--markextensions always
+--marktypes always
+--maxwidth none
+--modifierorder
+--nevertrailing
+--nospaceoperators ...,..<
+--nowrapoperators
+--octalgrouping none
+--operatorfunc no-space
+--organizetypes actor,class,enum,struct
+--patternlet inline
+--ranges spaced
+--redundantinit
+--redundantget
+--redundantnilinit
+--redundantrawvalues
+--redundanttype infer-locals-only
+--self remove
+--selfrequired
+--semicolons inline
+--shortoptionals always
+--smarttabs enabled
+--sortedimports
+--spacearoundbraces
+--spacearoundoperators
+--stripunusedargs closure-only
+--structthreshold 0
+--tabwidth unspecified
+--todos
+--trailingclosures
+--trimwhitespace nonblank-lines
+--typeattributes preserve
+--typemark "MARK: - %t"
+--typesugar
+--varattributes preserve
+--voidtype void
+--wraparguments preserve
+--wrapcollections preserve
+--wrapconditions preserve
+--wrapparameters preserve
+--wrapreturntype preserve
+--wrapternary default
+--wraptypealiases preserve
+--xcodeindentation disabled
+--yodaswap always
+
+--disable redundantReturn
