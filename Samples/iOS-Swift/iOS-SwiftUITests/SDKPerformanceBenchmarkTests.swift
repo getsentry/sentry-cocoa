@@ -1,12 +1,8 @@
 import XCTest
 
 class SDKPerformanceBenchmarkTests: XCTestCase {
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-        continueAfterFailure = false
-    }
-
     func testCPUBenchmark() throws {
+        try XCTSkipUnless(UIDevice.current.systemVersion.components(separatedBy: ".").first ?? "" == "15", "Only run benchmarks on iOS 15.")
         var avgUsagePercentage = 0.0
         let numberOfTrials = 1
         for _ in 0..<numberOfTrials {
