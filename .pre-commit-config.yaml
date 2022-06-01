@@ -10,7 +10,7 @@ repos:
   hooks:
     - id: swiftlint
       exclude: .*\/Carthage\/.*
-      args: ["--strict"]
+      args: ["--strict", "--config", '.swiftlint.yml']
 - repo: https://github.com/pre-commit/mirrors-clang-format
   rev: v14.0.3
   hooks:
