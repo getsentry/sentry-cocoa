@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run SwiftLint
-        run: ./scripts/run_swiftlint --fix
+        run: swiftlint
 
   xcode-analyze:
     name: Xcode Analyze
