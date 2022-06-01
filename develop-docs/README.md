@@ -83,7 +83,7 @@ These tests exist to measure how much overhead the Sentry SDK uses while doing i
 
 Currently, the Sentry SDK's experimental profiling feature is being benchmarked. Other components are planned in the future.
 
-The test runs in a UI test ([`SDKPerformanceBenchmarkTests`](../Samples/iOS-Swift/iOS-SwiftUITests/SDKPerformanceBenchmarkTests.swift)) using the iOS-Swift sample app, which has a new view controller for this purpose: [`PerformanceViewController`](../Samples/iOS-Swift/iOS-Swift/ViewControllers/PerformanceViewController.swift).
+The test runs in a UI test ([`SDKPerformanceBenchmarkTests`](../Samples/iOS-Swift/iOS-SwiftUITests/SDKPerformanceBenchmarkTests.swift)) using the iOS-Swift sample app, which has a view controller for this purpose: [`PerformanceViewController`](../Samples/iOS-Swift/iOS-Swift/ViewControllers/PerformanceViewController.swift).
 
 ### Test procedure
 
