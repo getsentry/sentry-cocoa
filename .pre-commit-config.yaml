@@ -5,12 +5,16 @@ repos:
     - id: check-yaml
     - id: end-of-file-fixer
     - id: trailing-whitespace
-- repo: https://github.com/realm/SwiftLint
-  rev: 0.46.5
+- repo: local
   hooks:
     - id: swiftlint
+      name: swiftlint
+      description: Check Swift style rules with Swiftlint.
+      entry: swiftlint
+      language: system
+      files: \.swift$
       exclude: .*\/Carthage\/.*
-      args: ["--strict", "--config", '.swiftlint.yml']
+      args: ["--strict"]
 - repo: https://github.com/pre-commit/mirrors-clang-format
   rev: v14.0.3
   hooks:
