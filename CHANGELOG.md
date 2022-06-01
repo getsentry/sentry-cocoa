@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix JSON conversion error message (#1856)
+
 ## 7.16.0
 
 ### Features
