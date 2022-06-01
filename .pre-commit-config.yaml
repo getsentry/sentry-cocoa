@@ -6,7 +6,7 @@ repos:
     - id: end-of-file-fixer
     - id: trailing-whitespace
 - repo: https://github.com/realm/SwiftLint
-  rev: 0.47.1
+  rev: 0.46.5
   hooks:
     - id: swiftlint
       exclude: .*\/Carthage\/.*
