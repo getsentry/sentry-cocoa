@@ -87,17 +87,11 @@ The test runs in a UI test ([`SDKPerformanceBenchmarkTests`](../Samples/iOS-Swif
 
 ### Test procedure
 
-There are two general phases:
-
-*Warmup*
 - Tap the button to start a Sentry transaction with the associated profiling.
-- **Run a loop performing large amount of calculations to use as much CPU as possible.** This simulates something an app developer would want to profile in a real world scenario.
-- Tap the button to stop the transaction.
-- Do this 3 times to warm up system caches.
-
-*Benchmark*
-- Run the above process a fourth time, then grab the value written by the test app in a UITextField accessible to the UI test runner so it can extract the value and use it in an `XCTAssert`.
+- Run a loop performing large amount of calculations to use as much CPU as possible. This simulates something an app developer would want to profile in a real world scenario.
+- Tap the button to stop the transaction after waiting for 15 seconds.
+- Grab the value written by the test app in a UITextField accessible to the UI test runner so it can extract the value and use it in an `XCTAssert`.
 
 #### Test Plan
-- Run (warmup + benchmark) 5 times, averaging the results.
+- Run the procedure 5 times, averaging the results.
 - Assert that the overhead remains under 5% so we can be alerted via CI if it spikes.
