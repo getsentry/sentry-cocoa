@@ -34,11 +34,6 @@ extension SDKPerformanceBenchmarkTests {
             return stopBenchmark(app: app)
         }
 
-        // warm up caches by performing the operation we'll benchmark, plus running the profiling components
-        for _ in 0..<3 {
-            let _ = performBenchmarkedWork(app: app)
-        }
-
         return performBenchmarkedWork(app: app)
     }
 
