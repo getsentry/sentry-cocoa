@@ -99,5 +99,5 @@ There are two general phases:
 - Run the above process a fourth time, then grab the value written by the test app in a UITextField accessible to the UI test runner so it can extract the value and use it in an `XCTAssert`.
 
 #### Test Plan
-- Run (warmup + benchmark) 15 times, averaging the results.
+- Run (warmup + benchmark) 5 times, averaging the results.
 - Assert that the overhead remains under 5% so we can be alerted via CI if it spikes.
