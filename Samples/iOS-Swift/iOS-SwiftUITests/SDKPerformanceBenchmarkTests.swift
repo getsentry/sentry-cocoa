@@ -4,7 +4,7 @@ class SDKPerformanceBenchmarkTests: XCTestCase {
     func testCPUBenchmark() throws {
         try XCTSkipUnless(UIDevice.current.systemVersion.components(separatedBy: ".").first ?? "" == "15", "Only run benchmarks on iOS 15.")
         var avgUsagePercentage = 0.0
-        let numberOfTrials = 1
+        let numberOfTrials = 15
         for _ in 0..<numberOfTrials {
             let app = XCUIApplication()
             guard let usagePercentage = benchmarkAppUsage(app: app, withProfiling: true) else { return }
