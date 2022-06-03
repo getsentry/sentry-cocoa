@@ -4,7 +4,7 @@ class SDKPerformanceBenchmarkTests: XCTestCase {
     func testCPUBenchmark() throws {
         try XCTSkipUnless(UIDevice.current.systemVersion.components(separatedBy: ".").first ?? "" == "15", "Only run benchmarks on iOS 15.")
         var results = [Double]()
-        for _ in 0..<15 {
+        for _ in 0..<5 {
             let app = XCUIApplication()
             guard let usagePercentage = benchmarkAppUsage(app: app, withProfiling: true) else { return }
             // SentryBenchmarking.retrieveBenchmarks returns -1 if there aren't at least 2 samples to use for calculating deltas
