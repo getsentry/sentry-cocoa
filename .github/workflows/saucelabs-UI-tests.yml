@@ -46,7 +46,7 @@ jobs:
 
 
   run-ui-tests-with-sauce:
-    name: Run UITests iOS ${{ matrix.iOS }} on Sauce Labs
+    name: Run UI Tests for iOS ${{ matrix.iOS }} on Sauce Labs
     runs-on: ubuntu-latest
     needs: build-ui-tests
     strategy:      
