@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- feat: Add ANR tracking (#1861) 
+
 ### Fixes
 
 - Fix JSON conversion error message (#1856)
