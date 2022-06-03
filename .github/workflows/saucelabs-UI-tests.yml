@@ -12,6 +12,7 @@ on:
     paths:
       - 'Sources/**'
       - 'Tests/**'
+      - '.github/workflows/saucelabs-UI-tests.yml'
 
 jobs:
   build-ui-tests:
