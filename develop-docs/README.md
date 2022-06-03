@@ -93,5 +93,4 @@ The test runs in a UI test ([`SDKPerformanceBenchmarkTests`](../Samples/iOS-Swif
 - Grab the value written by the test app in a UITextField accessible to the UI test runner so it can extract the value and use it in an `XCTAssert`.
 
 #### Test Plan
-- Run the procedure 5 times, averaging the results.
-- Assert that the overhead remains under 5% so we can be alerted via CI if it spikes.
+- Run the procedure 15 times, then assert that the 90th percentile remains under 5% so we can be alerted via CI if it spikes.

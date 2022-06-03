@@ -3,19 +3,20 @@ import XCTest
 class SDKPerformanceBenchmarkTests: XCTestCase {
     func testCPUBenchmark() throws {
         try XCTSkipUnless(UIDevice.current.systemVersion.components(separatedBy: ".").first ?? "" == "15", "Only run benchmarks on iOS 15.")
-        var avgUsagePercentage = 0.0
-        let numberOfTrials = 5
-        for _ in 0..<numberOfTrials {
+        var results = [Double]()
+        for _ in 0..<15 {
             let app = XCUIApplication()
             guard let usagePercentage = benchmarkAppUsage(app: app, withProfiling: true) else { return }
+            // SentryBenchmarking.retrieveBenchmarks returns -1 if there aren't at least 2 samples to use for calculating deltas
             XCTAssert(usagePercentage > 0, "Failure to record enough CPU samples to calculate benchmark.")
             print("Percent usage: \(usagePercentage)%")
-            avgUsagePercentage += usagePercentage
+            results.append(usagePercentage)
         }
-        avgUsagePercentage /= Double(numberOfTrials)
+        let index = Int(ceil(0.9 * Double(results.count)))
+        let p90 = results.sorted()[index >= results.count ? results.count - 1 : index]
 
-        print("Average overhead: \(avgUsagePercentage)%")
-        XCTAssertLessThanOrEqual(avgUsagePercentage, 5, "Running profiling resulted in more than 5% overhead while scrolling in the app.")
+        print("p90 overhead: \(p90)%")
+        XCTAssertLessThanOrEqual(p90, 5, "Running profiling resulted in more than 5% overhead while scrolling in the app.")
     }
 }
 
