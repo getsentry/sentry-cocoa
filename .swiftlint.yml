@@ -1,11 +1,13 @@
 excluded:
-  - Carthage
+  - '**/Carthage'
   - Pods
   - Utils/**/.build
   - DependencyManagerTests
   - Sources/SentryCrash
   - vendor
-whitelist_rules:
+  - test-server/.build/
+
+only_rules:
   #- attributes
   - class_delegate_protocol
   - closing_brace
@@ -81,7 +83,7 @@ whitelist_rules:
   - void_return
   - weak_delegate
 identifier_name:
-  allowed_symbols: 
+  allowed_symbols:
     - i
     - _
   min_length:

@@ -29,6 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.attachScreenshot = true
             options.anrEnable = true
             options.anrTimeoutInterval = 2 
+            options.enableUserInteractionTracing = true
         }
         
         Thread.current.name = "MAIN_THREAD"

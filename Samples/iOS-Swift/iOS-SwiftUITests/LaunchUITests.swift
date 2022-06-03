@@ -36,6 +36,10 @@ class LaunchUITests: XCTestCase {
         assertApp()
     }
     
+    func testUiClickTransaction() {
+        app.buttons["uiClickTransactionButton"].tap()
+    }
+    
     func testCaptureError() {
         app.buttons["Error"].tap()
     }

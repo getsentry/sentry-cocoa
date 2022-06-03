@@ -26,6 +26,8 @@ SENTRY_NO_INIT
  */
 - (void)close;
 
+- (NSDictionary *)systemInfo;
+
 @end
 
 NS_ASSUME_NONNULL_END

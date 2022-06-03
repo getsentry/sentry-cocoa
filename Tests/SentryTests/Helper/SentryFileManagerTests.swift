@@ -24,9 +24,6 @@ class SentryFileManagerTests: XCTestCase {
         let sessionUpdateEnvelope: SentryEnvelope
 
         let expectedSessionUpdate: SentrySession
-
-        let queue = DispatchQueue(label: "SentryFileManagerTests", qos: .utility, attributes: [.concurrent, .initiallyInactive])
-        let group = DispatchGroup()
         
         // swiftlint:disable weak_delegate
         // Swiftlint automatically changes this to a weak reference,
@@ -189,17 +186,19 @@ class SentryFileManagerTests: XCTestCase {
 
     func testDefaultMaxEnvelopesConcurrent() {
         let parallelTaskAmount = 5
+        let queue = DispatchQueue(label: "testDefaultMaxEnvelopesConcurrent", qos: .userInitiated, attributes: [.concurrent, .initiallyInactive])
+        
         let envelopeStoredExpectation = expectation(description: "Envelope stored")
         envelopeStoredExpectation.expectedFulfillmentCount = parallelTaskAmount
         for _ in 0..<parallelTaskAmount {
-            fixture.queue.async {
-                for _ in 0..<self.fixture.maxCacheItems {
+            queue.async {
+                for _ in 0...(self.fixture.maxCacheItems + 5) {
                     self.sut.store(TestConstants.envelope)
                 }
                 envelopeStoredExpectation.fulfill()
             }
         }
-        fixture.queue.activate()
+        queue.activate()
         
         wait(for: [envelopeStoredExpectation], timeout: 10)
 
@@ -471,14 +470,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNotNil(sut.readAppState())
     }
 
-    private func storeAsync(envelope: SentryEnvelope) {
-        fixture.group.enter()
-        fixture.queue.async {
-            self.sut.store(envelope)
-            self.fixture.group.leave()
-        }
-    }
-
     private func givenMaximumEnvelopes() {
         fixture.eventIds.forEach { id in
             let envelope = SentryEnvelope(id: id, singleItem: SentryEnvelopeItem(event: Event()))
@@ -558,6 +549,7 @@ class SentryFileManagerTests: XCTestCase {
     private func assertValidAppStateStored() {
         let actual = sut.readAppState()
         XCTAssertEqual(TestData.appState, actual)
+        
     }
 
     private func advanceTime(bySeconds: TimeInterval) {

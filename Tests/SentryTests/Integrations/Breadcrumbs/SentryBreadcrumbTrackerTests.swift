@@ -23,15 +23,15 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
     func testStopRemovesSwizzleSendAction() {
         let swizzleWrapper = SentrySwizzleWrapper.sharedInstance
         let sut = SentryBreadcrumbTracker(swizzleWrapper: swizzleWrapper)
-        
+
         sut.start()
         sut.startSwizzle()
         sut.stop()
-        
+
         let dict = Dynamic(swizzleWrapper).swizzleSendActionCallbacks().asDictionary
         XCTAssertEqual(0, dict?.count)
     }
-    
+
     func testSwizzlingStarted_ViewControllerAppears_AddsUILifeCycleBreadcrumb() {
         let sut = SentryBreadcrumbTracker(swizzleWrapper: SentrySwizzleWrapper.sharedInstance)
         sut.start()

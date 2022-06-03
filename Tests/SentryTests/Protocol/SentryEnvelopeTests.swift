@@ -256,7 +256,13 @@ class SentryEnvelopeTests: XCTestCase {
         if let data = envelope.items.first?.data {
             let json = String(data: data, encoding: .utf8) ?? ""
 
-            json.assertContains("JSON conversion error for event with message: '\(event.message?.description ?? "")'", "message")
+            // Asserting the description of the message doesn't work properly, because
+            // the serialization adds \n. Therefore, we only check for bits of the
+            // the description. The actual description is tested in the tests for the
+            // SentryMessage
+            json.assertContains("JSON conversion error for event with message: '<SentryMessage: ", "message")
+            json.assertContains("formatted = \(event.message?.formatted ?? "")", "message")
+            
             json.assertContains("warning", "level")
             json.assertContains(event.releaseName ?? "", "releaseName")
             json.assertContains(event.environment ?? "", "environment")
