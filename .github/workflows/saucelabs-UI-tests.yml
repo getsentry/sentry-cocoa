@@ -1,4 +1,4 @@
-name: UI Tests
+name: Sauce Labs UI Tests
 on:
   # Schedule the UI tests so we can see in Sentry how the duration of transactions
   # changes over time.
@@ -45,8 +45,8 @@ jobs:
             **/Debug-iphoneos/iOS-SwiftUITests-Runner.app
 
 
-  run-ui-tests:
-    name: Run UITests iOS ${{ matrix.iOS }}
+  run-ui-tests-with-sauce:
+    name: Run UITests iOS ${{ matrix.iOS }} on Sauce Labs
     runs-on: ubuntu-latest
     needs: build-ui-tests
     strategy:      
@@ -75,7 +75,7 @@ jobs:
 
       - run: npm install -g saucectl@0.93.0
 
-      # As SauceLabs is a bit flaky we retry 5 times
+      # As Sauce Labs is a bit flaky we retry 5 times
       - name: Run Tests in SauceLab
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
