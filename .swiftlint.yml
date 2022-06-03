@@ -87,7 +87,8 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** warning
-  - empty_parameters
+#  - empty_parameters
+# -> --voidtype void
 
 # When using trailing closures, empty parentheses should be avoided after the method call.
 # * **Identifier:** empty_parentheses_with_trailing_closure
@@ -97,7 +98,8 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** warning
-  - empty_parentheses_with_trailing_closure
+#  - empty_parentheses_with_trailing_closure
+# -> --trailingclosures
 
 # Explicitly calling .init() should be avoided.
 # * **Identifier:** explicit_init
@@ -107,7 +109,8 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** warning
-  - explicit_init
+#  - explicit_init
+# -> --redundantinit
 
 # Files should not span too many lines.
 # * **Identifier:** file_length
@@ -197,7 +200,8 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** warning
-  - implicit_getter
+#  - implicit_getter
+# -> redundantget
 
 # Tuples shouldn't have too many members. Create a custom type instead.
 # * **Identifier:** large_tuple
@@ -277,7 +281,8 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** warning
-  - mark
+#  - mark
+# -> --todos
 
 # Prefer Nimble operator overloads over free matcher functions.
 # * **Identifier:** nimble_operator
@@ -287,7 +292,8 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** warning
-  - nimble_operator
+#  - nimble_operator
+# we don't use Nimble
 
 # Underscores should be used as thousand separator in large decimal numbes.
 # * **Identifier:** number_separator
@@ -317,7 +323,8 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** warning, allowMultilineFunc: false
-  - opening_brace
+#  - opening_brace
+# -> --allman false; spacearoundbraces
 
 # Operators should be surrounded by a single whitespace when they are beig used.
 # * **Identifier:** operator_usage_whitespace
@@ -327,7 +334,8 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** warning, lines_look_around: 2, skip_aligned_constants: true
-  - operator_usage_whitespace
+#  - operator_usage_whitespace
+# spacearoundoperators
 
 # Operators should be surrounded by a single whitespace when defining the.
 # * **Identifier:** operator_whitespace
@@ -337,7 +345,8 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** warning
-  - operator_whitespace
+#  - operator_whitespace
+# spacearoundoperators
 
 # Some overridden methods should always call super
 # * **Identifier:** overridden_super_call
@@ -397,7 +406,8 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** warning
-  - redundant_optional_initialization
+#  - redundant_optional_initialization
+# -> redundantnilinit
 
 # String enum values can be omitted when they are equal to the enumcase nme.
 # * **Identifier:** redundant_string_enum_value
@@ -407,7 +417,8 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** warning
-  - redundant_string_enum_value
+#  - redundant_string_enum_value
+# -> redundantrawvalues
 
 # Returning Void in a function declaration is redundant.
 # * **Identifier:** redundant_void_return
@@ -417,7 +428,8 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** warning
-  - redundant_void_return
+#  - redundant_void_return
+# -> --closurevoid preserve
 
 # Return arrow and return type should be separated by a single space or o a separate line.
 # * **Identifier:** return_arrow_whitespace
@@ -427,7 +439,8 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** warning
-  - return_arrow_whitespace
+#  - return_arrow_whitespace
+# should be redundant based on spacearoundparens and spacearoundbraces
 
 # Prefer shorthand operators (+=, -=, *=, /=) over doing the operation an assigning.
 # * **Identifier:** shorthand_operator
@@ -447,7 +460,8 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** warning
-  - sorted_imports
+#  - sorted_imports
+# -> sortedimports
 
 # Else and catch should be on the same line, one space after the previousdeclaration.
 # * **Identifier:** statement_position
@@ -457,7 +471,8 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** (statement_mode) default, (severity) warning
-  - statement_position
+#  - statement_position
+# elseposition same-line; also fixes `while`
 
 # Cases inside a switch should always be on a newline
 # * **Identifier:** switch_case_on_newline
@@ -477,7 +492,8 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** warning
-  - syntactic_sugar
+#  - syntactic_sugar
+# --typesugar
 
 # TODOs and FIXMEs should be resolved prior to their expiry date.
 # * **Identifier:** expiring_todo
@@ -488,6 +504,7 @@ only_rules:
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** approaching_expiry_severity: warning, expired_severity: error, bad_formatting_severity: error, approaching_expiry_threshold: 15, date_format: MM/dd/yyyy, date_delimiters: { opening: [, closing: ] }, date_separator: /
   - todo
+# not the same as swiftformat's --todos!
 
 # Trailing commas in arrays and dictionaries should be avoided/enforced.
 # * **Identifier:** trailing_comma
@@ -497,7 +514,8 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** warning, mandatory_comma: false
-  - trailing_comma
+#  - trailing_comma
+# -> --commas
 
 # Files should have a single trailing newline.
 # * **Identifier:** trailing_newline
@@ -507,7 +525,8 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** warning
-  - trailing_newline
+#  - trailing_newline
+# --linebreakatendoffileB
 
 # Lines should not have trailing semicolons.
 # * **Identifier:** trailing_semicolon
@@ -517,7 +536,8 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** warning
-  - trailing_semicolon
+#  - trailing_semicolon
+# -> --semicolons
 
 # Type bodies should not span too many lines.
 # * **Identifier:** type_body_length
@@ -547,7 +567,8 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** warning
-  - unused_closure_parameter
+#  - unused_closure_parameter
+# -> --stripunusedargs closure-only
 
 # When the index or the item is not used, `.enumerated()` can be removed.
 # * **Identifier:** unused_enumerated
@@ -617,7 +638,8 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** warning
-  - void_return
+#  - void_return
+# -> redundant with redundant_void_return
 
 # Delegates should be weak to avoid reference cycles.
 # * **Identifier:** weak_delegate
@@ -650,6 +672,6 @@ type_name:
     - 1
 large_tuple:
     - 3
-trailing_comma:
-  mandatory_comma: true
-  severity: error
+# trailing_comma:
+#   mandatory_comma: true
+#   severity: error

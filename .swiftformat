@@ -1,4 +1,4 @@
---acronyms ID,URL,UUID
+--acronyms ID,URL,UUID,SDK
 --allman false
 --assetliterals visual-width
 --beforemarks
@@ -8,7 +8,6 @@
 --closurevoid preserve
 --commas always
 --conflictmarkers reject
---consecutivespaces
 --decimalgrouping 3,4
 --elseposition same-line
 --emptybraces no-space
@@ -40,35 +39,42 @@
 --maxwidth none
 --modifierorder
 --nevertrailing
---nospaceoperators ...,..<
 --nowrapoperators
 --octalgrouping none
---operatorfunc no-space
 --organizetypes actor,class,enum,struct
 --patternlet inline
 --ranges spaced
---redundantinit
---redundantget
---redundantnilinit
---redundantrawvalues
 --redundanttype infer-locals-only
+--rules acronyms
+--rules consecutiveSpaces
+--rules hoistPatternLet
+--rules indent
+--rules numberFormatting
+--rules redundantVoidReturnType
+--rules redundantget
+--rules redundantinit
+--rules redundantnilinit
+--rules redundantrawvalues
+--rules sortedimports
+--rules spacearoundbraces
+--rules spacearoundoperators
+--rules todos
+--rules trailingSpace
+--rules trailingclosures
+--rules typesugar
+--rules unusedArguments
+--rules wrapArguments
 --self remove
 --selfrequired
 --semicolons inline
 --shortoptionals always
 --smarttabs enabled
---sortedimports
---spacearoundbraces
---spacearoundoperators
 --stripunusedargs closure-only
 --structthreshold 0
 --tabwidth unspecified
---todos
---trailingclosures
 --trimwhitespace nonblank-lines
 --typeattributes preserve
 --typemark "MARK: - %t"
---typesugar
 --varattributes preserve
 --voidtype void
 --wraparguments preserve
@@ -80,5 +86,3 @@
 --wraptypealiases preserve
 --xcodeindentation disabled
 --yodaswap always
-
---disable redundantReturn
