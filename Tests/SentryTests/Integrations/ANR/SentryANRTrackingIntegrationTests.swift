@@ -1,59 +1,44 @@
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryANRTrackingIntegrationTests: XCTestCase {
-    
-    private static let dsn = TestConstants.dsnAsString(username: "SentryANRTrackingIntegrationTests")
+class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     
     private class Fixture {
         let options: Options
-        let client: TestClient!
-        let crashWrapper: TestSentryCrashWrapper
-        let currentDate = TestCurrentDateProvider()
-        let fileManager: SentryFileManager
         
+        let currentDate = TestCurrentDateProvider()
+                
         init() {
             options = Options()
-            options.dsn = SentryANRTrackingIntegrationTests.dsn
-    
-            client = TestClient(options: options)
-            
-            crashWrapper = TestSentryCrashWrapper.sharedInstance()
-            SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
-
-            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andCurrentDateProvider: currentDate)
-            SentrySDK.setCurrentHub(hub)
-            
-            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
+            options.anrEnable = true
+            options.anrTimeoutInterval = 4.5
         }
     }
     
     private var fixture: Fixture!
     private var sut: SentryANRTrackingIntegration!
     
+    override var options: Options {
+        self.fixture.options
+    }
+    
     override func setUp() {
         super.setUp()
-        
         fixture = Fixture()
-        fixture.fileManager.store(TestData.appState)
     }
     
     override func tearDown() {
-        super.tearDown()
         sut.uninstall()
-        fixture.fileManager.deleteAllFolders()
-        clearTestState()
+        super.tearDown()
     }
 
     func testWhenBeingTraced_TrackerNotInitialized() {
         givenInitializedTracker(isBeingTraced: true)
-
         XCTAssertNil(Dynamic(sut).tracker.asAnyObject)
     }
 
     func testWhenNoDebuggerAttached_TrackerInitialized() {
         givenInitializedTracker()
-
         XCTAssertNotNil(Dynamic(sut).tracker.asAnyObject)
     }
     
@@ -68,37 +53,29 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
         assertArrayEquals(expected: expexted, actual: Array(options.enabledIntegrations))
     }
     
-    func testANRDetected_UpdatesAppStateToTrue() {
+    func testANRDetected_EventCaptured() {
         givenInitializedTracker()
         
         Dynamic(sut).anrDetected()
         
-        guard let appState = fixture.fileManager.readAppState() else {
-            XCTFail("appState must not be nil")
-            return
+        assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertNotNil(event)
+            guard let ex = event?.exceptions?.first else {
+                XCTFail("ANR Exception not found")
+                return
+            }
+            
+            XCTAssertEqual(ex.mechanism?.type, "anr")
+            XCTAssertEqual(ex.type, "App Hanging")
+            XCTAssertEqual(ex.value, "Application Not Responding for at least 4500 ms.")
         }
-
-        XCTAssertTrue(appState.isANROngoing)
-    }
-    
-    func testANRStopped_UpdatesAppStateToFalse() {
-        givenInitializedTracker()
-        
-        Dynamic(sut).anrStopped()
-        
-        guard let appState = fixture.fileManager.readAppState() else {
-            XCTFail("appState must not be nil")
-            return
-        }
-        XCTAssertFalse(appState.isANROngoing)
     }
 
     private func givenInitializedTracker(isBeingTraced: Bool = false) {
-        fixture.crashWrapper.internalIsBeingTraced = isBeingTraced
+        givenSdkWithHub()
+        self.crashWrapper.internalIsBeingTraced = isBeingTraced
         sut = SentryANRTrackingIntegration()
-        let options = Options()
-        Dynamic(sut).setTestConfigurationFilePath(nil)
-        sut.install(with: options)
+        sut.install(with: self.options)
     }
 }
 

@@ -1,5 +1,5 @@
-#import "SentryDefines.h"
 #include "SentryCrashThread.h"
+#import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
 @class SentryStacktrace, SentryFrameRemover, SentryCrashStackEntryMapper;
@@ -20,7 +20,6 @@ SENTRY_NO_INIT
  * without skipping frames.
  */
 - (SentryStacktrace *)buildStacktraceForCurrentThread;
-
 
 /**
  * Builds the stacktrace for given thread removing frames from the SentrySDK until frames from

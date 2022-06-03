@@ -470,7 +470,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             || (nil != event.exceptions && [event.exceptions count] > 0);
 
         BOOL threadsNotAttached = !(nil != event.threads && event.threads.count > 0);
-        
+
         if (!isCrashEvent && shouldAttachStacktrace && threadsNotAttached) {
             event.threads = [self.threadInspector getCurrentThreads];
         }

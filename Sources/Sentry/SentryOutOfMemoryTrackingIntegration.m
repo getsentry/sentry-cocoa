@@ -1,4 +1,6 @@
+#import "SentryDefines.h"
 #import <Foundation/Foundation.h>
+#import <SentryAppState.h>
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
 #import <SentryCrashWrapper.h>
@@ -12,8 +14,6 @@
 #import <SentryOutOfMemoryTracker.h>
 #import <SentryOutOfMemoryTrackingIntegration.h>
 #import <SentrySDK+Private.h>
-#import <SentryAppState.h>
-#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -66,12 +66,11 @@ SentryOutOfMemoryTrackingIntegration ()
                                                 dispatchQueueWrapper:dispatchQueueWrapper
                                                          fileManager:fileManager];
     [self.tracker start];
-    
-    
+
     self.anrTracker = SentryDependencyContainer.sharedInstance.anrTracker;
     self.anrTracker.timeoutInterval = options.anrTimeoutInterval;
     [self.anrTracker addListener:self];
-    
+
     self.appStateManager = appStateManager;
 }
 

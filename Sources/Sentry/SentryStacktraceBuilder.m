@@ -1,12 +1,11 @@
 #import "SentryStacktraceBuilder.h"
 #import "SentryCrashStackCursor.h"
+#import "SentryCrashStackCursor_MachineContext.h"
 #import "SentryCrashStackCursor_SelfThread.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryFrame.h"
 #import "SentryFrameRemover.h"
 #import "SentryStacktrace.h"
-#import "SentryCrashStackCursor_MachineContext.h"
-
 
 NS_ASSUME_NONNULL_BEGIN
 

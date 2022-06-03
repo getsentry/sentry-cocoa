@@ -5,8 +5,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-
-
 /**
  * As we only use the ANR tracking integration for detecting falsely reported OOMs we can use a more
  * defensive value, because we are not reporting any ANRs.
@@ -33,9 +31,9 @@ static NSUInteger const SENTRY_ANR_TRACKER_TIMEOUT_MILLIS = 2000;
 SENTRY_NO_INIT
 
 - (instancetype)initWithCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                    crashWrapper:(SentryCrashWrapper *)crashWrapper
-            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                   threadWrapper:(SentryThreadWrapper *)threadWrapper;
+                               crashWrapper:(SentryCrashWrapper *)crashWrapper
+                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+                              threadWrapper:(SentryThreadWrapper *)threadWrapper;
 
 @property (nonatomic, assign) NSTimeInterval timeoutInterval;
 
