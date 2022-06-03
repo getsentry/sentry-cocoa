@@ -3,7 +3,7 @@ on:
   # Schedule the UI tests so we can see in Sentry how the duration of transactions
   # changes over time.
   schedule:
-    - cron: '* */4 * * *'
+    - cron: '0 */4 * * *'
   push:
     branches:
       - master
