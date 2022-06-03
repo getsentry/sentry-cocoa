@@ -213,6 +213,6 @@ jobs:
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"$iPhone 8 (12.4)" && break ; done
+        run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} device:"$iPhone 8 (12.4)" && break ; done
         shell: sh
 
