@@ -190,6 +190,9 @@ jobs:
 
           - xcode: "12.5.1"
             device: "iPhone 8 (14.5)"
+
+          - xcode: "12.5.1"
+            device: "iPhone 8 (13.7)"
             
     steps:
       - uses: actions/checkout@v3
