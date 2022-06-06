@@ -6,7 +6,7 @@ class SDKPerformanceBenchmarkTests: XCTestCase {
         var results = [Double]()
         for _ in 0..<5 {
             let app = XCUIApplication()
-            guard let usagePercentage = benchmarkAppUsage(app: app, withProfiling: true) else { return }
+            guard let usagePercentage = benchmarkAppUsage(app: app) else { return }
             // SentryBenchmarking.retrieveBenchmarks returns -1 if there aren't at least 2 samples to use for calculating deltas
             XCTAssert(usagePercentage > 0, "Failure to record enough CPU samples to calculate benchmark.")
             print("Percent usage: \(usagePercentage)%")
@@ -21,11 +21,7 @@ class SDKPerformanceBenchmarkTests: XCTestCase {
 }
 
 extension SDKPerformanceBenchmarkTests {
-    func benchmarkAppUsage(app: XCUIApplication, withProfiling: Bool) -> Double? {
-        app.launchArguments.append("--io.sentry.ui-test.benchmarking")
-        if withProfiling {
-            app.launchArguments.append("--io.sentry.enable-profiling")
-        }
+    func benchmarkAppUsage(app: XCUIApplication) -> Double? {
         app.launch()
         app.buttons["Performance scenarios"].tap()
 
