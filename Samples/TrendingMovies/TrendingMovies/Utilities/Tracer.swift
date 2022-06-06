@@ -30,8 +30,8 @@ extension Tracer {
         SentrySDK.start { options in
             options.dsn = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
             options.environment = "integration-tests"
-            options.debug = true
             options.enableProfiling = true
+            options.debug = true
         }
 
         SentrySDK.configureScope { scope in

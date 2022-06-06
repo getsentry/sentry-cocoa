@@ -95,7 +95,3 @@ git-commit-add:
 
 release-pod:
 	pod trunk push Sentry.podspec
-
-.PHONY: benchmark-sentry-pr
-benchmark-sentry-pr:
-	set -o pipefail && env NSUnbufferedIO=YES xcodebuild -workspace "Sentry.xcworkspace" -scheme "TrendingMovies-Benchmarking-UITests" -destination "OS=15.2,name=iPhone 13 Pro" test | xcpretty

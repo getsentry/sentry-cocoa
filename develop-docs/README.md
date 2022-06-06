@@ -89,6 +89,7 @@ The test runs in a UI test ([`SDKPerformanceBenchmarkTests`](../Samples/iOS-Swif
 
 - Tap the button to start a Sentry transaction with the associated profiling.
 - Run a loop performing large amount of calculations to use as much CPU as possible. This simulates something an app developer would want to profile in a real world scenario.
+- While benchmarking, run a sampling profiler at 10 Hz to calculate the CPU usage of each thread; in particular the Sentry profiler's, to calculate its relative usage.
 - Tap the button to stop the transaction after waiting for 15 seconds.
 - Grab the value written by the test app in a UITextField accessible to the UI test runner so it can extract the value and use it in an `XCTAssert`.
 

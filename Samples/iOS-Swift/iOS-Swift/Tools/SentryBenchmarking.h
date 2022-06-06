@@ -7,8 +7,10 @@ NS_ASSUME_NONNULL_BEGIN
 /** Begin a Sentry transaction, starting the profiler components. */
 + (void)startBenchmarkProfile;
 
-/** @return The % CPU overhead incurred by running the sampling profiler in the Sentry SDK in the
- * test app. */
+/**
+ * @return The % CPU overhead incurred by running the sampling profiler in the Sentry SDK in the
+ * test app.
+ * */
 + (double)retrieveBenchmarks;
 
 @end

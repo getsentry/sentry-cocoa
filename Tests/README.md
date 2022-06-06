@@ -9,4 +9,4 @@ For test guidelines please checkout the [Contributing Guidelines](../CONTRIBUTIN
 
 # Performance benchmarking
 
-* [Performance benchmarks](../.github/workflows/performance-benchmarks.yml) integrate the Sentry SDK via CocoaPods into a sample application that uses various Sentry API and is instrumented to measure the overhead of that usage.
+* [Performance benchmarks](../Samples/iOS-Swift/iOS-SwiftUITests/SDKPerformanceBenchmarkTests.swift) calculates the overhead CPU usage of the Sentry profiler.
