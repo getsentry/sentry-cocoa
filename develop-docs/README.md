@@ -40,6 +40,10 @@ You can use the `generate-classes.sh` to generate ViewControllers and other clas
 
 CI runs UI tests on simulators via the `test.yml` workflow, and on devices via `saucelabs-UI-tests.yml`. All are run for each PR, and Sauce Labs tests also run on a nightly cron schedule.
 
+### Performance benchmarking
+
+* [Performance benchmarks](../Samples/iOS-Swift/iOS-SwiftUITests/SDKPerformanceBenchmarkTests.swift) calculates the overhead CPU usage of the Sentry profiler. These only run on devices running the latest iOS major series.
+
 ## Generating Diagrams
 
 The diagrams are created with [PlantUml](http://plantuml.com). The advantage of PlantUml
