@@ -246,4 +246,10 @@ class ViewController: UIViewController {
         controller.title = "CoreData"
         navigationController?.pushViewController(controller, animated: false)
     }
+
+    @IBAction func performanceScenarios(_ sender: Any) {
+        let controller = PerformanceViewController()
+        controller.title = "Performance Scenarios"
+        navigationController?.pushViewController(controller, animated: false)
+    }
 }
