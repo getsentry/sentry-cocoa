@@ -62,6 +62,7 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
         XCTAssertEqual(path, ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"])
     }
     
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testANRDetected_UpdatesAppStateToTrue() {
         givenInitializedTracker()
         
@@ -74,6 +75,7 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
         
         XCTAssertTrue(appState.isANROngoing)
     }
+#endif
     
     func testANRStopped_UpdatesAppStateToFalse() {
         givenInitializedTracker()
