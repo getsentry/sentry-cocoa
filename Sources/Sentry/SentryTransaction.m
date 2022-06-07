@@ -1,7 +1,6 @@
 #import "SentryTransaction.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryEnvelopeItemType.h"
-#import "SentryTracer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

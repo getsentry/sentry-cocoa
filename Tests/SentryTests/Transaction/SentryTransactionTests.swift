@@ -35,9 +35,7 @@ class SentryTransactionTests: XCTestCase {
             let trace = SentryTracer(transactionContext: self.getContext(), hub: hub)
             let transaction = Transaction(trace: trace, children: [])
             return transaction
-        }
-        
-        init() { }
+        }        
     }
     
     private var fixture: Fixture!
