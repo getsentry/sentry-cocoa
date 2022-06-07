@@ -6,7 +6,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryScope, SentryOptions, SentryTracer, SentryUser, SentryBaggage;
 
-
 @interface SentryTraceStateUser : NSObject
 
 /**

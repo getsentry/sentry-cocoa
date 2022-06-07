@@ -1,4 +1,5 @@
 #import "SentryTraceState.h"
+#import "SentryBaggage.h"
 #import "SentryDsn.h"
 #import "SentryLog.h"
 #import "SentryOptions+Private.h"
@@ -6,7 +7,6 @@
 #import "SentrySerialization.h"
 #import "SentryTracer.h"
 #import "SentryUser.h"
-#import "SentryBaggage.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -105,8 +105,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryBaggage *)toBaggage
 {
-    SentryBaggage * result = [[SentryBaggage alloc] initWithTraceId:_traceId publicKey:_publicKey releaseName:_releaseName environment:_environment transaction:_transaction userId:[_user userId] userSegment:[_user segment]];
-    
+    SentryBaggage *result = [[SentryBaggage alloc] initWithTraceId:_traceId
+                                                         publicKey:_publicKey
+                                                       releaseName:_releaseName
+                                                       environment:_environment
+                                                       transaction:_transaction
+                                                            userId:[_user userId]
+                                                       userSegment:[_user segment]];
+
     return result;
 }
 

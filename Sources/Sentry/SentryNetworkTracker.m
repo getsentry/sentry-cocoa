@@ -1,4 +1,5 @@
 #import "SentryNetworkTracker.h"
+#import "SentryBaggage.h"
 #import "SentryBreadcrumb.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
@@ -8,7 +9,6 @@
 #import "SentryTraceState.h"
 #import "SentryTracer.h"
 #import <objc/runtime.h>
-#import "SentryBaggage.h"
 
 @interface
 SentryNetworkTracker ()
