@@ -126,6 +126,12 @@ platform :ios do
       skip_archive: true
     )
 
+    sentry_upload_dsym(
+      auth_token: 'b0a3f3b1fd384bbcaacbe1e6faf1b2e0850e35b35b834500872c91a72bef20e6',
+      org_slug: 'sentry-sdks',
+      project_slug: 'sentry-cocoa',
+      dsym_path: 'DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app.dSYM.zip'
+    )
   end
 
   desc "Upload iOS-Swift to TestFlight and symbols to Sentry"
