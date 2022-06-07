@@ -111,7 +111,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let traceState = transaction.traceState
         
         if canHeaderBeAdded() {
-            let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value(), SENTRY_TRACESTATE_HEADER: traceState.toHTTPHeader() ]
+            let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value(), SENTRY_BAGGAGE_HEADER: traceState.toBaggage().toHTTPHeader() ]
             XCTAssertEqual(expected, configuration.httpAdditionalHeaders as! [String: String])
         } else {
             XCTAssertNil(configuration.httpAdditionalHeaders)
@@ -135,7 +135,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         }
         
         if canHeaderBeAdded() {
-            let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value(), SENTRY_TRACESTATE_HEADER: traceState.toHTTPHeader()]
+            let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value(), SENTRY_BAGGAGE_HEADER: traceState.toBaggage().toHTTPHeader()]
                 .merging(additionalHeaders) { (current, _) in current }
             XCTAssertEqual(expected, dataTask.currentRequest?.allHTTPHeaderFields)
         } else {

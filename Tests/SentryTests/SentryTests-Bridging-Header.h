@@ -158,6 +158,7 @@
 #import "TestUrlSession.h"
 #import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"
+#import "SentryBaggage.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryANRTrackingIntegration.h"

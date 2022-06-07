@@ -6,6 +6,7 @@
 #import "SentrySerialization.h"
 #import "SentryTracer.h"
 #import "SentryUser.h"
+#import "SentryBaggage.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -102,28 +103,11 @@ NS_ASSUME_NONNULL_BEGIN
                             user:user];
 }
 
-- (nullable NSString *)toHTTPHeader
+- (SentryBaggage *)toBaggage
 {
-    NSError *error;
-    NSDictionary *json = [self serialize];
-    NSData *data = [SentrySerialization dataWithJSONObject:json error:&error];
-
-    if (nil != error) {
-        [SentryLog
-            logWithMessage:[NSString stringWithFormat:@"Couldn't encode trace state: %@", error]
-                  andLevel:kSentryLevelError];
-        return nil;
-    }
-
-    // base64 uses `=` as trailing pads, but we need to remove `=`, as `=` is a reserved character
-    // in the tracestate header, see
-    // https://develop.sentry.dev/sdk/performance/trace-context/#tracestate-headers As base54 only
-    // uses `=` as trailing pads we can replace all occurrences.
-    NSString *encodedData =
-        [[data base64EncodedStringWithOptions:0] stringByReplacingOccurrencesOfString:@"="
-                                                                           withString:@""];
-
-    return [NSString stringWithFormat:@"sentry=%@", encodedData];
+    SentryBaggage * result = [[SentryBaggage alloc] initWithTraceId:_traceId publicKey:_publicKey releaseName:_releaseName environment:_environment transaction:_transaction userId:[_user userId] userSegment:[_user segment]];
+    
+    return result;
 }
 
 - (NSDictionary<NSString *, id> *)serialize

@@ -4,9 +4,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryScope, SentryOptions, SentryTracer, SentryUser;
+@class SentryScope, SentryOptions, SentryTracer, SentryUser, SentryBaggage;
 
-static NSString *const SENTRY_TRACESTATE_HEADER = @"tracestate";
 
 @interface SentryTraceStateUser : NSObject
 
@@ -93,9 +92,9 @@ static NSString *const SENTRY_TRACESTATE_HEADER = @"tracestate";
                                 options:(SentryOptions *)options;
 
 /**
- * Encode this SentryTraceState to a base64 value that can be used in a http header.
+ * Create a SentryBaggage with the information of this SentryTraceState.
  */
-- (nullable NSString *)toHTTPHeader;
+- (SentryBaggage *)toBaggage;
 @end
 
 NS_ASSUME_NONNULL_END

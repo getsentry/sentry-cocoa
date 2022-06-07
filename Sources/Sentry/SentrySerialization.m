@@ -107,6 +107,19 @@ NS_ASSUME_NONNULL_BEGIN
     return envelopeData;
 }
 
++ (NSString *)urlEncodedDictionary:(NSDictionary *)dictionary {
+    NSMutableArray* itens = [[NSMutableArray alloc] initWithCapacity:dictionary.count];
+    
+    for (id key in dictionary.allKeys) {
+        id value = dictionary[key];
+        NSString* keyDescription = [[key description] stringByAddingPercentEncodingWithAllowedCharacters:NSCharacterSet.URLQueryAllowedCharacterSet];
+        NSString* valueDescription = [[value description] stringByAddingPercentEncodingWithAllowedCharacters:NSCharacterSet.URLQueryAllowedCharacterSet];        
+        [itens addObject:[NSString stringWithFormat:@"%@=%@", keyDescription, valueDescription]];
+    }
+    
+    return [itens componentsJoinedByString:@"&"];
+}
+
 + (SentryEnvelope *_Nullable)envelopeWithData:(NSData *)data
 {
     SentryEnvelopeHeader *envelopeHeader = nil;

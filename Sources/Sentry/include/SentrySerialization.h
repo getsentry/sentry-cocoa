@@ -14,6 +14,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSData *_Nullable)dataWithSession:(SentrySession *)session
                                error:(NSError *_Nullable *_Nullable)error;
 
++ (NSString *)urlEncodedDictionary:(NSDictionary *)dictionary;
+
 + (SentrySession *_Nullable)sessionWithData:(NSData *)sessionData;
 
 // TODO: use (NSOutputStream *)outputStream

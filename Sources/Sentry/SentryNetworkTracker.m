@@ -8,6 +8,7 @@
 #import "SentryTraceState.h"
 #import "SentryTracer.h"
 #import <objc/runtime.h>
+#import "SentryBaggage.h"
 
 @interface
 SentryNetworkTracker ()
@@ -291,7 +292,7 @@ SentryNetworkTracker ()
 
     SentryTracer *tracer = [SentryTracer getTracer:span];
     if (tracer != nil) {
-        result[SENTRY_TRACESTATE_HEADER] = [tracer.traceState toHTTPHeader];
+        result[SENTRY_BAGGAGE_HEADER] = [[tracer.traceState toBaggage] toHTTPHeader];
     }
 
     return [[NSDictionary alloc] initWithDictionary:result];
