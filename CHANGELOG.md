@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Replace tracestate header with baggage (#1867)
+
 ### Fixes
 
 - Fix JSON conversion error message (#1856)
