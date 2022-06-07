@@ -17,6 +17,7 @@
 #import "SentryAutoBreadcrumbTrackingIntegration+Test.h"
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryAutoSessionTrackingIntegration.h"
+#import "SentryBaggage.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryByteCountFormatter.h"
 #import "SentryClassRegistrator.h"
@@ -158,7 +159,6 @@
 #import "TestUrlSession.h"
 #import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"
-#import "SentryBaggage.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryANRTrackingIntegration.h"

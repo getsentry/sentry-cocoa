@@ -1,10 +1,10 @@
 #import "SentryBaggage.h"
-#import "SentryTraceState.h"
 #import "SentryDsn.h"
 #import "SentryLog.h"
 #import "SentryOptions+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
+#import "SentryTraceState.h"
 #import "SentryTracer.h"
 #import "SentryUser.h"
 
@@ -18,7 +18,7 @@
                          userId:(nullable NSString *)userId
                     userSegment:(nullable NSString *)userSegment
 {
-    
+
     if (self = [super init]) {
         _traceId = traceId;
         _publicKey = publicKey;
@@ -28,17 +28,15 @@
         _userId = userId;
         _userSegment = userSegment;
     }
-    
-    return  self;
-}
 
+    return self;
+}
 
 - (nullable NSString *)toHTTPHeader
 {
     NSMutableDictionary *information =
-        @{ @"sentry-traceid" : _traceId.sentryIdString,
-           @"sentry-publickey" : _publicKey
-        }.mutableCopy;
+        @{ @"sentry-traceid" : _traceId.sentryIdString, @"sentry-publickey" : _publicKey }
+            .mutableCopy;
 
     if (_releaseName != nil)
         [information setValue:_releaseName forKey:@"sentry-release"];
@@ -48,13 +46,13 @@
 
     if (_transaction != nil)
         [information setValue:_transaction forKey:@"sentry-transaction"];
-    
+
     if (_userId != nil)
         [information setValue:_userId forKey:@"sentry-userid"];
 
     if (_userSegment != nil)
         [information setValue:_userSegment forKey:@"sentry-usersegment"];
-    
+
     return [SentrySerialization urlEncodedDictionary:information];
 }
 
