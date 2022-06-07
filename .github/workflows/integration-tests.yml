@@ -25,7 +25,7 @@ jobs:
     runs-on: macos-11
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           repository: 'Alamofire/Alamofire'
           ref: 'f82c23a8a7ef8dc1a49a8bfc6a96883e79121864'
@@ -78,7 +78,7 @@ jobs:
     env:
       DEVELOPER_DIR: /Applications/Xcode_13.2.app/Contents/Developer
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           repository: 'home-assistant/iOS'
           ref: '6d6606aed63a778c5a2bd64f8981823433a7f2fa'
@@ -100,7 +100,7 @@ jobs:
       - name: Download and Apply Patch
         run: ./apply-patch.sh "${{ github.event.pull_request.head.sha }}" "${{ github.sha }}" add-sentry-to-homekit
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         name: "Cache: Pods"
         id: cache_pods
         with:
@@ -112,7 +112,7 @@ jobs:
             ${{ runner.os }}-pods-xcode-13.2
             ${{ hashFiles('**/Gemfile.lock', '**/Podfile.lock', 'Tools/BuildMaterialDesignIconsFont.sh') }}
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         name: "Cache: Gems"
         id: cache_gems
         with:
@@ -137,7 +137,7 @@ jobs:
   vlc-tests:
     runs-on: macos-11
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           repository: 'videolan/vlc-ios'
           ref: 'f2d4a28031509f263255457c91703b6d2f388b65'
@@ -159,7 +159,7 @@ jobs:
       - name: Download and Apply Patch
         run: ./apply-patch.sh "${{ github.event.pull_request.head.sha }}" "${{ github.sha }}" add-sentry-to-vlc
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         name: "Cache: Pods"
         with:
           path: Pods

@@ -198,6 +198,21 @@ NS_SWIFT_NAME(Options)
  * Default value is <code>NO</code>
  */
 @property (nonatomic, assign) BOOL attachScreenshot;
+
+/**
+ * This feature is EXPERIMENTAL.
+ *
+ * When enabled, the SDK creates transactions for UI events like buttons clicks, switch toggles,
+ * and other ui elements that uses UIControl `sendAction:to:forEvent:`.
+ */
+@property (nonatomic, assign) BOOL enableUserInteractionTracing;
+
+/**
+ * How long an idle transaction waits for new children after all its child spans finished. Only UI
+ * event transactions are idle transactions. The default is 3 seconds.
+ */
+@property (nonatomic, assign) NSTimeInterval idleTimeout;
+
 #endif
 
 /**

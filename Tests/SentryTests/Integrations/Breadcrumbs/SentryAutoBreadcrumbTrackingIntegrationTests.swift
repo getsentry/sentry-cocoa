@@ -17,7 +17,7 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
         super.setUp()
         fixture = Fixture()
     }
-    
+
     override func tearDown() {
         super.tearDown()
         clearTestState()

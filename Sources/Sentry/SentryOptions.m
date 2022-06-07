@@ -22,6 +22,7 @@ SentryOptions ()
         @"SentryCrashIntegration",
 #if SENTRY_HAS_UIKIT
         @"SentryANRTrackingIntegration", @"SentryScreenshotIntegration",
+        @"SentryUIEventTrackingIntegration",
 #endif
         @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
         @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
@@ -54,6 +55,8 @@ SentryOptions ()
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracking = YES;
         self.attachScreenshot = NO;
+        self.enableUserInteractionTracing = NO;
+        self.idleTimeout = 3.0;
 #endif
         self.enableNetworkTracking = YES;
         self.enableFileIOTracking = NO;
@@ -233,6 +236,13 @@ SentryOptions ()
 
     [self setBool:options[@"attachScreenshot"]
             block:^(BOOL value) { self->_attachScreenshot = value; }];
+
+    [self setBool:options[@"enableUserInteractionTracing"]
+            block:^(BOOL value) { self->_enableUserInteractionTracing = value; }];
+
+    if ([options[@"idleTimeout"] isKindOfClass:[NSNumber class]]) {
+        self.idleTimeout = [options[@"idleTimeout"] doubleValue];
+    }
 #endif
 
     [self setBool:options[@"enableNetworkTracking"]

@@ -6,6 +6,7 @@
 #import <SentryDebugImageProvider.h>
 #import <SentryDefaultCurrentDateProvider.h>
 #import <SentryDependencyContainer.h>
+#import <SentryDispatchQueueWrapper.h>
 #import <SentryHub.h>
 #import <SentrySDK+Private.h>
 #import <SentryScreenshot.h>
@@ -81,6 +82,16 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _threadWrapper;
+}
+
+- (SentryDispatchQueueWrapper *)dispatchQueueWrapper
+{
+    @synchronized(sentryDependencyContainerLock) {
+        if (_dispatchQueueWrapper == nil) {
+            _dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
+        }
+        return _dispatchQueueWrapper;
+    }
 }
 
 - (id<SentryRandom>)random

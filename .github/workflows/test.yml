@@ -11,7 +11,7 @@ on:
       - 'Tests/**'
       - 'test-server/**'
       - 'Samples/**'
-      - '.github/workflows/**'
+      - '.github/workflows/test.yml'
 
 jobs:
   unit-tests:
@@ -51,7 +51,7 @@ jobs:
             test-destination-os: "13.7"
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # As we use swift-tools-version:5.5 the test server only compiles with Xcode 13.
       # macos-10.15 doesn't have Xcode 13 and macos-11 doesn't have a simulator with
@@ -60,7 +60,7 @@ jobs:
       # xcode-test.sh
       - name: Cache for Test Server
         if: ${{ matrix.runs-on == 'macos-11'}}  
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ./test-server/.build
           key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
@@ -109,7 +109,7 @@ jobs:
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v2
-        if: failure()
+        if: ${{  failure() || cancelled() }}
         with:
           name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
           path: |
@@ -135,10 +135,10 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Cache for Test Server
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ./test-server/.build
           key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
@@ -162,24 +162,24 @@ jobs:
 
 
   ui-tests:
-    name: UI Tests for ${{matrix.target}}
+    name: UI Tests for ${{matrix.target}} on Simulators
     runs-on: macos-11
     strategy:
       matrix:
-        target: ["ios_swiftui", "ios_objc", "tvos_swift" ]
+        target: ["ios_swift", "ios_objc", "tvos_swift" ]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh 
 
-      # GitHub Actions sometimes fail to launch the UI tests. 
-      # Therefore we retry
+      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
         run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} && break ; done
         shell: sh
 
+  # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:
-    name: UI Tests for SwiftUI on ${{matrix.device}}
+    name: UI Tests for SwiftUI on ${{matrix.device}} Simulator
     runs-on: macos-11
     strategy:
       fail-fast: false
@@ -190,28 +190,29 @@ jobs:
 
           - xcode: "12.5.1"
             device: "iPhone 8 (14.5)"
-
-        # Our SwiftUI requires iOS 14 or higher
             
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"${{matrix.device}}" && break ; done
+        run: for i in {1..2}; do fastlane ui_tests_ios_swiftui device:"${{matrix.device}}" && break ; done
         shell: sh
 
   # macos-11 doesn't have a simulator for iOS 12
-  ui-tests-swift-ui-ios-12:
-    name: UI Tests for iOS 12
+  ui-tests-swift-ios-12:
+    name: UI Tests on iOS 12 Simulator
     runs-on: macos-10.15
+    strategy:
+      matrix:
+        target: ["ios_swift", "ios_objc", "tvos_swift" ]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"$iPhone 8 (12.4)" && break ; done
+        run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} device:"$iPhone 8 (12.4)" && break ; done
         shell: sh
 
