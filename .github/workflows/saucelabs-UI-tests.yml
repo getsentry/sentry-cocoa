@@ -13,6 +13,7 @@ on:
       - 'Sources/**'
       - 'Tests/**'
       - '.github/workflows/saucelabs-UI-tests.yml'
+      - 'fastlane/**'
 
 jobs:
   build-ui-tests:
