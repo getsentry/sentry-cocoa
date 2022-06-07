@@ -9,7 +9,7 @@
 ### Fixes
 
 - Hub uses its scope (#1821)
-- Move tags and data from trace (and trace context) to transaction level (#1311)
+- Transaction tag and data serialization (#1826)
 
 ## 7.15.0
 
