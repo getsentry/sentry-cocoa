@@ -69,7 +69,7 @@ SentryANRTrackingIntegration ()
 - (void)anrDetected
 {
     NSString *message =
-    [NSString stringWithFormat:@"Application Not Responding for at least %li ms.",
+        [NSString stringWithFormat:@"Application Not Responding for at least %li ms.",
                   (long)(self.options.anrTimeoutInterval * 1000)];
 
     NSArray<SentryThread *> *threads =
