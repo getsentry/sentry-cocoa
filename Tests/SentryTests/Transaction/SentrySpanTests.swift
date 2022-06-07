@@ -140,6 +140,8 @@ class SentrySpanTests: XCTestCase {
     func testSerialization() {
         let span = fixture.getSut()
         
+        span.setExtra(value: fixture.extraValue, key: fixture.extraKey)
+        span.setTag(value: fixture.extraValue, key: fixture.extraKey)
         span.finish()
         
         let serialization = span.serialize()
@@ -149,6 +151,10 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(serialization["start_timestamp"] as? TimeInterval, TestData.timestamp.timeIntervalSince1970)
         XCTAssertEqual(serialization["type"] as? String, SpanContext.type)
         XCTAssertEqual(serialization["sampled"] as? String, "true")
+        XCTAssertNotNil(serialization["data"])
+        XCTAssertNotNil(serialization["tags"])
+        XCTAssertEqual((serialization["data"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
+        XCTAssertEqual((serialization["tags"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
     }
     
     func testSerialization_WithNoDataAndTag() {
