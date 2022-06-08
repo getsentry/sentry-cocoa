@@ -93,3 +93,18 @@ Finally, you have to configure the rendering server in Visual Studio Code. For t
 Save the settings and you should be able to render a diagram.
 
 You can find the official guide here: [configure a rendering server](https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml#user-content-use-plantuml-server-as-render).
+
+## Decision Log
+
+### Not capturing screenshots for crashes
+
+Date: April 21st 2022
+Contributors: @philipphofmann, @brustolin
+
+We decided against capturing screenshots for crashes because we must only call [async-safe functions](https://man7.org/linux/man-pages/man7/signal-safety.7.html) in signal handlers. Capturing a screenshot requires Objcetive-C code, which is not async safe.
+We could create the crash report first, write it to disk and then call Objective-C to get the screenshot. The outcome in such a scenario would be undefined, potentially breaking other signal handlers. We decided against this approach because we don't want to break the contract of signal handlers only calling async-safe functions.
+
+Related links:
+
+- https://github.com/getsentry/sentry-cocoa/pull/1751
+
