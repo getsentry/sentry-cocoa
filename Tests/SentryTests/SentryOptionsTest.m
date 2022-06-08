@@ -494,7 +494,7 @@
 #if SENTRY_HAS_UIKIT
         @"enableUIViewControllerTracking" : [NSNull null],
         @"attachScreenshot" : [NSNull null],
-        @"enableANRTracking": [NSNull null],
+        @"enableANRTracking" : [NSNull null],
 #endif
         @"enableNetworkTracking" : [NSNull null],
         @"tracesSampleRate" : [NSNull null],

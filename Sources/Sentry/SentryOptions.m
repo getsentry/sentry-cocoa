@@ -240,10 +240,10 @@ SentryOptions ()
 
     [self setBool:options[@"enableUserInteractionTracing"]
             block:^(BOOL value) { self->_enableUserInteractionTracing = value; }];
-    
+
     [self setBool:options[@"enableANRTracking"]
             block:^(BOOL value) { self->_enableANRTracking = value; }];
-    
+
     if ([options[@"idleTimeout"] isKindOfClass:[NSNumber class]]) {
         self.idleTimeout = [options[@"idleTimeout"] doubleValue];
     }
