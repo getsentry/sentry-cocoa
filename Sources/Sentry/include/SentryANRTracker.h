@@ -41,7 +41,7 @@ SENTRY_NO_INIT
 
 - (void)removeListener:(id<SentryANRTrackerDelegate>)listener;
 
-//Function used for tests
+// Function used for tests
 - (void)clear;
 
 @end
