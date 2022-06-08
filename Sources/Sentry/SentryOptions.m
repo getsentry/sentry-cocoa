@@ -57,6 +57,7 @@ SentryOptions ()
         self.attachScreenshot = NO;
         self.enableUserInteractionTracing = NO;
         self.idleTimeout = 3.0;
+        self.enableANRTracking = YES;
 #endif
         self.enableNetworkTracking = YES;
         self.enableFileIOTracking = NO;
@@ -239,7 +240,10 @@ SentryOptions ()
 
     [self setBool:options[@"enableUserInteractionTracing"]
             block:^(BOOL value) { self->_enableUserInteractionTracing = value; }];
-
+    
+    [self setBool:options[@"enableANRTracking"]
+            block:^(BOOL value) { self->_enableANRTracking = value; }];
+    
     if ([options[@"idleTimeout"] isKindOfClass:[NSNumber class]]) {
         self.idleTimeout = [options[@"idleTimeout"] doubleValue];
     }

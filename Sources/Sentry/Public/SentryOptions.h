@@ -332,7 +332,7 @@ NS_SWIFT_NAME(Options)
  * When enabled, the SDK tracks when the application stops responding for a specific amount of
  * time defined by the `anrTimeoutInterval` option.
  */
-@property (nonatomic, assign) BOOL anrEnable;
+@property (nonatomic, assign) BOOL enableANRTracking;
 
 /**
  * The minimum amount of time an app shoud be unresponsive to be classified as an ANR.

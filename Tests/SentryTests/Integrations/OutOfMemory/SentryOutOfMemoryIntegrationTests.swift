@@ -76,7 +76,7 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
         XCTAssertTrue(appState.isANROngoing)
     }
 #endif
-    
+  
     func testANRStopped_UpdatesAppStateToFalse() {
         givenInitializedTracker()
         

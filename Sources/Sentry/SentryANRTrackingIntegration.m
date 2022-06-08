@@ -49,7 +49,7 @@ SentryANRTrackingIntegration ()
 
 - (BOOL)shouldBeDisabled:(SentryOptions *)options
 {
-    if (!options.anrEnable) {
+    if (!options.enableANRTracking) {
         return YES;
     }
 

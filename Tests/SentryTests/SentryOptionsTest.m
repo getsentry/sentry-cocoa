@@ -494,6 +494,7 @@
 #if SENTRY_HAS_UIKIT
         @"enableUIViewControllerTracking" : [NSNull null],
         @"attachScreenshot" : [NSNull null],
+        @"enableANRTracking": [NSNull null],
 #endif
         @"enableNetworkTracking" : [NSNull null],
         @"tracesSampleRate" : [NSNull null],
@@ -540,6 +541,7 @@
     XCTAssertTrue(options.enableUIViewControllerTracking);
     XCTAssertFalse(options.attachScreenshot);
     XCTAssertEqual(3.0, options.idleTimeout);
+    XCTAssertTrue(options.enableANRTracking);
 #endif
     XCTAssertEqual(YES, options.enableNetworkTracking);
     XCTAssertNil(options.tracesSampleRate);
@@ -680,6 +682,11 @@
 - (void)testEnableUserInteractionTracking
 {
     [self testBooleanField:@"enableUserInteractionTracing" defaultValue:NO];
+}
+
+- (void)testEnableANRTracking
+{
+    [self testBooleanField:@"enableANRTracking" defaultValue:YES];
 }
 
 - (void)testIdleTimeout

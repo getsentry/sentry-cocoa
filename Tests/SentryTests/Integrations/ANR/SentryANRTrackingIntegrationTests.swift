@@ -10,7 +10,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
                 
         init() {
             options = Options()
-            options.anrEnable = true
+            options.enableANRTracking = true
             options.anrTimeoutInterval = 4.5
         }
     }
@@ -44,7 +44,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     
     func test_OOMDisabled_RemovesEnabledIntegration() {
         let options = Options()
-        options.enableOutOfMemoryTracking = false
+        options.enableANRTracking = false
         
         sut = SentryANRTrackingIntegration()
         sut.install(with: options)
