@@ -8,6 +8,7 @@ on:
       - 'Tests/**'
       - 'test-server/**'
       - 'Samples/**'
+      - '.github/workflows/lint.yml'
 
   pull_request:
     paths:
@@ -15,6 +16,7 @@ on:
       - 'Tests/**'
       - 'test-server/**'
       - 'Samples/**'
+      - '.github/workflows/lint.yml'
 
 jobs:
   swift-lint:

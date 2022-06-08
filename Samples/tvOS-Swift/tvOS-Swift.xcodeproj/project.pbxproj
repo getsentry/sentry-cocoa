@@ -479,7 +479,6 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TEST_TARGET_NAME = "tvOS-Swift";
-				TVOS_DEPLOYMENT_TARGET = 14.5;
 			};
 			name = Debug;
 		};
@@ -499,7 +498,6 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TEST_TARGET_NAME = "tvOS-Swift";
-				TVOS_DEPLOYMENT_TARGET = 14.5;
 			};
 			name = Release;
 		};

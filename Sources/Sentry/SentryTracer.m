@@ -147,6 +147,7 @@ static NSLock *profilerLock;
             [profilerLock lock];
             if (profiler == nil) {
                 profiler = [[SentryProfiler alloc] init];
+                [SentryLog logWithMessage:@"Starting profiler." andLevel:kSentryLevelDebug];
                 [profiler start];
             }
             [profilerLock unlock];
@@ -376,6 +377,7 @@ static NSLock *profilerLock;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if ([_hub getClient].options.enableProfiling) {
+        [SentryLog logWithMessage:@"Stopping profiler." andLevel:kSentryLevelDebug];
         [profilerLock lock];
         [profiler stop];
         [profilerLock unlock];
