@@ -37,7 +37,7 @@ class SentryThreadInspectorTests: XCTestCase {
         XCTAssertTrue(30 < stacktrace?.frames.count ?? 0, "Not enough stacktrace frames.")
     }
     
-    func testStacktraceHasFrames_forEveryThread() {
+    func flaky_testStacktraceHasFrames_forEveryThread() {
         let actual = fixture.getSut(testWithRealMachineConextWrapper: true).getCurrentThreads(withStackTrace: true)
         
         //Sometimes during tests its possible to have one thread without frames
