@@ -102,7 +102,7 @@ SentryANRTracker ()
     }
 }
 
-- (void)notifyBegin
+- (void)notifyANRDetected
 {
     NSArray *targets;
     @synchronized(self.listeners) {
@@ -114,7 +114,7 @@ SentryANRTracker ()
     }
 }
 
-- (void)notifyEnd
+- (void)notifyANRStopped
 {
     NSArray *targets;
     @synchronized(self.listeners) {
