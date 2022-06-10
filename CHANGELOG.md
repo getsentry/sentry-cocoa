@@ -5,6 +5,7 @@
 ### Fixes
 
 - Fix JSON conversion error message (#1856)
+- Transaction tag and data serialization (#1826)
 
 ## 7.16.0
 
@@ -18,7 +19,6 @@
 ### Fixes
 
 - Hub uses its scope (#1821)
-- Transaction tag and data serialization (#1826)
 
 ## 7.15.0
 
