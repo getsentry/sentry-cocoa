@@ -8,7 +8,6 @@
 --closurevoid preserve
 --commas always
 --conflictmarkers reject
---decimalgrouping 3,4
 --elseposition same-line
 --emptybraces no-space
 --enumthreshold 0
@@ -17,7 +16,6 @@
 --extensionacl on-extension
 --extensionlength 0
 --extensionmark "MARK: - %t + %c"
---fractiongrouping enabled
 --fragment false
 --funcattributes preserve
 --groupedextension "MARK: %c"

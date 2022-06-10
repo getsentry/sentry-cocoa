@@ -303,6 +303,7 @@ only_rules:
 # * **Analyzer rule:** No
 # * **Minimum Swift compiler version:** 5.0.0
 # * **Default configuration:** warning, minimum_length: 0, minimum_fraction_length: none
+# swiftformat's fractiongrouping and decimalgrouping don't work correctly for decimals; it'll turn 0.000_1 into 0.0_001
   - number_separator
 
 # Prefer initializers over object literals.
