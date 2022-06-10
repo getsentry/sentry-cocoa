@@ -7,7 +7,7 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
     private var fixture: Fixture!
     private var anrDetectedExpectation: XCTestExpectation!
     private var anrStoppedExpectation: XCTestExpectation!
-    private let waitTimeout: TimeInterval = 0.05
+    private let waitTimeout: TimeInterval = 0.1
     
     private class Fixture {
         let timeoutInterval: TimeInterval = 5

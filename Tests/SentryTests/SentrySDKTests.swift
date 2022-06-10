@@ -396,47 +396,6 @@ class SentrySDKTests: XCTestCase {
         assertIntegrationsInstalled(integrations: [])
     }
     
-    @available(tvOS 13.0, *)
-    @available(OSX 10.15, *)
-    @available(iOS 13.0, *)
-    func testMemoryFootprintOfAddingBreadcrumbs() {
-        SentrySDK.start { options in
-            options.dsn = SentrySDKTests.dsnAsString
-            options.debug = true
-            options.diagnosticLevel = SentryLevel.debug
-            options.attachStacktrace = true
-        }
-        
-        self.measure(metrics: [XCTMemoryMetric()]) {
-            for i in 0...1_000 {
-                let crumb = TestData.crumb
-                crumb.message = "\(i)"
-                SentrySDK.addBreadcrumb(crumb: crumb)
-            }
-        }
-    }
-    
-    @available(tvOS 13.0, *)
-    @available(OSX 10.15, *)
-    @available(iOS 13.0, *)
-    func testMemoryFootprintOfTransactions() {
-        SentrySDK.start { options in
-            options.dsn = SentrySDKTests.dsnAsString
-        }
-        
-        self.measure(metrics: [XCTMemoryMetric()]) {
-            for _ in 0...1_000 {
-                let trans = SentrySDK.startTransaction(name: "no leak", operation: "")
-                
-                for _ in 0...10 {
-                    let span = trans.startChild(operation: "ui.load")
-                    span.finish()
-                }
-                trans.finish()
-            }
-        }
-    }
-    
     func testStartSession() {
         givenSdkWithHub()
         
