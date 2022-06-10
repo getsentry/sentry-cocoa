@@ -61,7 +61,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: data-generator-build-products
-      - run: npm install -g saucectl@0.93.0
+      - run: npm install -g saucectl@0.99.4
       - name: Run Tests in SauceLab
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
