@@ -16,7 +16,7 @@ class SentryTransactionTests: XCTestCase {
             return TransactionContext(name: transactionName, operation: transactionOperation)
         }
         
-        func getTrace() ->  SentryTracer {
+        func getTrace() -> SentryTracer {
             return SentryTracer(transactionContext: getContext(), hub: nil)
         }
         
@@ -44,7 +44,6 @@ class SentryTransactionTests: XCTestCase {
         super.setUp()
         fixture = Fixture()
     }
-
 
     func testSerializeMeasurements_NoMeasurements() {
         let actual = fixture.getTransaction().serialize()
@@ -83,10 +82,10 @@ class SentryTransactionTests: XCTestCase {
         
         // when
         let serializedTransaction = sut.serialize()
-        let serializedTransactionTags = try! XCTUnwrap(serializedTransaction["tags"] as? [String : String])
+        let serializedTransactionTags = try! XCTUnwrap(serializedTransaction["tags"] as? [String: String])
         
         // then
-        XCTAssertEqual(serializedTransactionTags, [fixture.testKey:fixture.testValue])
+        XCTAssertEqual(serializedTransactionTags, [fixture.testKey: fixture.testValue])
     }
     
     func testSerialize_shouldPreserveTagsFromContext() {
@@ -98,10 +97,10 @@ class SentryTransactionTests: XCTestCase {
         
         // when
         let serializedTransaction = sut.serialize()
-        let serializedTransactionTags = try! XCTUnwrap(serializedTransaction["tags"] as? [String : String])
+        let serializedTransactionTags = try! XCTUnwrap(serializedTransaction["tags"] as? [String: String])
         
         // then
-        XCTAssertEqual(serializedTransactionTags, [fixture.testKey:fixture.testValue])
+        XCTAssertEqual(serializedTransactionTags, [fixture.testKey: fixture.testValue])
     }
     
     func testSerialize_shouldPreserveTagsFromScope() {
@@ -114,10 +113,10 @@ class SentryTransactionTests: XCTestCase {
 
         // when
         let serializedTransaction = sut.serialize()
-        let serializedTransactionTags = try! XCTUnwrap(serializedTransaction["tags"] as? [String : String])
+        let serializedTransactionTags = try! XCTUnwrap(serializedTransaction["tags"] as? [String: String])
         
         // then
-        XCTAssertEqual(serializedTransactionTags, [fixture.testKey:fixture.testValue])
+        XCTAssertEqual(serializedTransactionTags, [fixture.testKey: fixture.testValue])
     }
     
     func testSerialize_shouldPreserveExtra() {
@@ -129,10 +128,10 @@ class SentryTransactionTests: XCTestCase {
         
         // when
         let serializedTransaction = sut.serialize()
-        let serializedTransactionExtra = try! XCTUnwrap(serializedTransaction["extra"] as? [String : String])
+        let serializedTransactionExtra = try! XCTUnwrap(serializedTransaction["extra"] as? [String: String])
         
         // then
-        XCTAssertEqual(serializedTransactionExtra, [fixture.testKey:fixture.testValue])
+        XCTAssertEqual(serializedTransactionExtra, [fixture.testKey: fixture.testValue])
     }
     
     func testSerialize_shouldPreserveExtraFromScope() {
@@ -146,11 +145,10 @@ class SentryTransactionTests: XCTestCase {
 
         // when
         let serializedTransaction = sut.serialize()
-        let serializedTransactionExtra = try! XCTUnwrap(serializedTransaction["extra"] as? [String : String])
+        let serializedTransactionExtra = try! XCTUnwrap(serializedTransaction["extra"] as? [String: String])
         
         // then
-        XCTAssertEqual(serializedTransactionExtra, [fixture.testKey:fixture.testValue])
+        XCTAssertEqual(serializedTransactionExtra, [fixture.testKey: fixture.testValue])
     }
     
 }
-

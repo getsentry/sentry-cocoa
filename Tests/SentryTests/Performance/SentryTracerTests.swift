@@ -593,7 +593,7 @@ class SentryTracerTests: XCTestCase {
         let transaction = fixture.getSut()
         
         // when
-        let dict = try! XCTUnwrap(transaction.serialize()["tags"] as? [String:String])
+        let dict = try! XCTUnwrap(transaction.serialize()["tags"] as? [String: String])
         
         // then
         XCTAssertEqual(dict, [fixture.testKey: fixture.testValue])
