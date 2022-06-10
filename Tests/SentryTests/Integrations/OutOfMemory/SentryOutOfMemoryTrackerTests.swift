@@ -50,6 +50,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         fixture = Fixture()
         sut = fixture.getSut()
+        SentrySDK.startInvocations = 1
     }
     
     override func tearDown() {
@@ -159,6 +160,15 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         sut.start()
         
+        assertNoOOMSent()
+    }
+    
+    func testSDKStartedTwice_NoOOM() {
+        sut.start()
+        goToForeground()
+
+        SentrySDK.startInvocations = 2
+        sut.start()
         assertNoOOMSent()
     }
     

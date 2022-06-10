@@ -503,6 +503,16 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(SentrySDK.getAppStartMeasurement(), appStartMeasurement)
     }
     
+    func testSDKStartInvocations() {
+        XCTAssertEqual(0, SentrySDK.startInvocations)
+        
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+        }
+        
+        XCTAssertEqual(1, SentrySDK.startInvocations)
+    }
+    
     func testIsEnabled() {
         XCTAssertFalse(SentrySDK.isEnabled)
         
