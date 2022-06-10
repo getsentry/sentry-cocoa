@@ -18,6 +18,7 @@
 ### Fixes
 
 - Hub uses its scope (#1821)
+- Transaction tag and data serialization (#1826)
 
 ## 7.15.0
 

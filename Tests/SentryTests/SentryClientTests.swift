@@ -169,6 +169,27 @@ class SentryClientTest: XCTestCase {
         }
     }
     
+    func testCaptureEventWithScope_SerializedTagsAndExtraShouldMatch() {
+        let event = Event(level: SentryLevel.warning)
+        event.message = fixture.message
+        let scope = Scope()
+        let expectedTags = ["tagKey": "tagValue"]
+        let expectedExtra = ["extraKey":"extraValue"]
+        scope.setTags(expectedTags)
+        scope.setExtras(expectedExtra)
+        
+        let eventId = fixture.getSut().capture(event: event, scope: scope)
+        
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            let serializedEvent = actual.serialize()
+            let tags = try! XCTUnwrap(serializedEvent["tags"] as? [String:String])
+            let extra = try! XCTUnwrap(serializedEvent["extra"] as? [String:String])
+            XCTAssertEqual(expectedTags,tags)
+            XCTAssertEqual(expectedExtra,extra)
+        }
+    }
+        
     func testCaptureEventTypeTransactionDoesNotIncludeThreadAndDebugMeta() {
         let event = Event(level: SentryLevel.warning)
         event.message = fixture.message
