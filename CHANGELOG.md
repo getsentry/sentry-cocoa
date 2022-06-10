@@ -4,7 +4,7 @@
 
 ### Features
 
-- feat: Add ANR tracking (#1861) 
+- feat: Add App Hangs tracking (#1861) 
 
 ### Fixes
 
