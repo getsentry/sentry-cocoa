@@ -26,7 +26,8 @@ SentryStacktraceBuilder ()
     return self;
 }
 
-- (SentryStacktrace *)retrieveStacktraceFromCursor:(SentryCrashStackCursor)stackCursor {
+- (SentryStacktrace *)retrieveStacktraceFromCursor:(SentryCrashStackCursor)stackCursor
+{
     NSMutableArray<SentryFrame *> *frames = [NSMutableArray new];
     SentryFrame *frame = nil;
     while (stackCursor.advanceCursor(&stackCursor)) {
@@ -62,7 +63,6 @@ SentryStacktraceBuilder ()
     SentryCrashStackCursor stackCursor;
     sentrycrashsc_initWithMachineContext(&stackCursor, 100, machineContext);
 
-    
     return [self retrieveStacktraceFromCursor:stackCursor];
 }
 
