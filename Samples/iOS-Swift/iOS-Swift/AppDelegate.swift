@@ -27,8 +27,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enableCoreDataTracking = true
             options.enableProfiling = true
             options.attachScreenshot = true
-            options.enableANRTracking = true
-            options.anrTimeoutInterval = 2 
+            options.enableAppHangTracking = true
+            options.appHangTimeoutInterval = 2 
             options.enableUserInteractionTracing = true
         }
         

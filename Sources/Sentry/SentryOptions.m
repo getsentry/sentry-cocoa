@@ -58,9 +58,10 @@ SentryOptions ()
         self.attachScreenshot = NO;
         self.enableUserInteractionTracing = NO;
         self.idleTimeout = 3.0;
-        self.enableAppHangsTracking = YES;
-        self.appHangsTimeoutInterval = (double)SENTRY_ANR_TRACKER_TIMEOUT_MILLIS / 1000.0;
 #endif
+        self.enableAppHangTracking = YES;
+        self.appHangTimeoutInterval = (double)SENTRY_ANR_TRACKER_TIMEOUT_MILLIS / 1000.0;
+        
         self.enableNetworkTracking = YES;
         self.enableFileIOTracking = NO;
         self.enableNetworkBreadcrumbs = YES;
@@ -243,14 +244,19 @@ SentryOptions ()
     [self setBool:options[@"enableUserInteractionTracing"]
             block:^(BOOL value) { self->_enableUserInteractionTracing = value; }];
 
-    [self setBool:options[@"enableANRTracking"]
-            block:^(BOOL value) { self->_enableAppHangsTracking = value; }];
-
     if ([options[@"idleTimeout"] isKindOfClass:[NSNumber class]]) {
         self.idleTimeout = [options[@"idleTimeout"] doubleValue];
     }
+    
 #endif
 
+    [self setBool:options[@"enableAppHangTracking"]
+            block:^(BOOL value) { self->_enableAppHangTracking = value; }];
+    
+    if ([options[@"appHangTimeoutInterval"] isKindOfClass:[NSNumber class]]) {
+        self.appHangTimeoutInterval = [options[@"appHangTimeoutInterval"] doubleValue];
+    }
+    
     [self setBool:options[@"enableNetworkTracking"]
             block:^(BOOL value) { self->_enableNetworkTracking = value; }];
 

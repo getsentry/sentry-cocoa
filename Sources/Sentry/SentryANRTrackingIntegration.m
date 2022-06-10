@@ -39,7 +39,7 @@ SentryANRTrackingIntegration ()
     }
 
     self.tracker = SentryDependencyContainer.sharedInstance.anrTracker;
-    self.tracker.timeoutInterval = options.appHangsTimeoutInterval;
+    self.tracker.timeoutInterval = options.appHangTimeoutInterval;
 
     [self.tracker addListener:self];
     self.options = options;
@@ -47,14 +47,14 @@ SentryANRTrackingIntegration ()
 
 - (BOOL)shouldBeDisabled:(SentryOptions *)options
 {
-    if (!options.enableAppHangsTracking) {
+    if (!options.enableAppHangTracking) {
         [SentryLog logWithMessage:@"Not going to enable App Hanging integration because "
                                   @"enableAppHangsTracking is disabled."
                          andLevel:kSentryLevelDebug];
         return YES;
     }
 
-    if (options.appHangsTimeoutInterval == 0) {
+    if (options.appHangTimeoutInterval == 0) {
         [SentryLog logWithMessage:@"Not going to enable App Hanging integration because "
                                   @"appHangsTimeoutInterval is 0."
                          andLevel:kSentryLevelDebug];
@@ -63,7 +63,7 @@ SentryANRTrackingIntegration ()
 
     // In case the debugger is attached
     if ([SentryDependencyContainer.sharedInstance.crashWrapper isBeingTraced]) {
-        if (!options.enableAppHangsTracking) {
+        if (!options.enableAppHangTracking) {
             [SentryLog logWithMessage:@"Not going to enable App Hanging integration because "
                                       @"app being debugged."
                              andLevel:kSentryLevelDebug];
@@ -84,7 +84,7 @@ SentryANRTrackingIntegration ()
 {
     NSString *message =
         [NSString stringWithFormat:@"Application Not Responding for at least %li ms.",
-                  (long)(self.options.appHangsTimeoutInterval * 1000)];
+                  (long)(self.options.appHangTimeoutInterval * 1000)];
 
     NSArray<SentryThread *> *threads =
         [SentrySDK.currentHub.getClient.threadInspector getCurrentThreadsWithStackTrace:YES];

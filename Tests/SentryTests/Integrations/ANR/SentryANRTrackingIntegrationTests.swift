@@ -9,8 +9,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
                 
         init() {
             options = Options()
-            options.enableAppHangsTracking = true
-            options.appHangsTimeoutInterval = 4.5
+            options.enableAppHangTracking = true
+            options.appHangTimeoutInterval = 4.5
         }
     }
     
@@ -43,7 +43,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     
     func test_enableAppHangsTracking_Disabled_RemovesEnabledIntegration() {
         let options = Options()
-        options.enableAppHangsTracking = false
+        options.enableAppHangTracking = false
         
         sut = SentryANRTrackingIntegration()
         sut.install(with: options)
@@ -54,8 +54,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     
     func test_appHangsTimeoutInterval_Zero_RemovesEnabledIntegration() {
         let options = Options()
-        options.enableAppHangsTracking = true
-        options.appHangsTimeoutInterval = 0
+        options.enableAppHangTracking = true
+        options.appHangTimeoutInterval = 0
         
         sut = SentryANRTrackingIntegration()
         sut.install(with: options)

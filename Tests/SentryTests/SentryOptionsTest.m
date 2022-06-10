@@ -541,7 +541,7 @@
     XCTAssertTrue(options.enableUIViewControllerTracking);
     XCTAssertFalse(options.attachScreenshot);
     XCTAssertEqual(3.0, options.idleTimeout);
-    XCTAssertTrue(options.enableAppHangsTracking);
+    XCTAssertTrue(options.enableAppHangTracking);
 #endif
     XCTAssertEqual(YES, options.enableNetworkTracking);
     XCTAssertNil(options.tracesSampleRate);
@@ -684,11 +684,6 @@
     [self testBooleanField:@"enableUserInteractionTracing" defaultValue:NO];
 }
 
-- (void)testEnableANRTracking
-{
-    [self testBooleanField:@"enableANRTracking" defaultValue:YES];
-}
-
 - (void)testIdleTimeout
 {
     NSNumber *idleTimeout = @2.1;
@@ -697,13 +692,19 @@
     XCTAssertEqual([idleTimeout doubleValue], options.idleTimeout);
 }
 
+#endif
+
+- (void)testEnableAppHangTracking
+{
+    [self testBooleanField:@"enableAppHangTracking" defaultValue:YES];
+}
+
+
 - (void)testDefaultAppHangsTimeout
 {
     SentryOptions *options = [self getValidOptions:@{}];
-
-    XCTAssertEqual(SENTRY_ANR_TRACKER_TIMEOUT_MILLIS / 1000, options.appHangsTimeoutInterval);
+    XCTAssertEqual(SENTRY_ANR_TRACKER_TIMEOUT_MILLIS / 1000, options.appHangTimeoutInterval);
 }
-#endif
 
 - (void)testEnableNetworkTracking
 {
