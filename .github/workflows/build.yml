@@ -76,7 +76,7 @@ jobs:
         shell: sh
 
       - name: Archiving XCFramework.zip
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ github.sha }}
           if-no-files-found: error
@@ -96,7 +96,7 @@ jobs:
         shell: sh
 
       - name: Archiving Framework.zip
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ github.sha }}
           if-no-files-found: error
