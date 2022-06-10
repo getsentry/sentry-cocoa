@@ -659,7 +659,8 @@ static NSLock *profilerLock;
     @synchronized(_data) {
         if (_data.count > 0) {
             NSMutableDictionary *data = _data.mutableCopy;
-            if (mutableDictionary[@"data"] != nil && [mutableDictionary[@"data"] isKindOfClass:NSDictionary.class]) {
+            if (mutableDictionary[@"data"] != nil &&
+                [mutableDictionary[@"data"] isKindOfClass:NSDictionary.class]) {
                 [data addEntriesFromDictionary:mutableDictionary[@"data"]];
             }
             mutableDictionary[@"data"] = data;
@@ -669,7 +670,8 @@ static NSLock *profilerLock;
     @synchronized(_tags) {
         if (_tags.count > 0) {
             NSMutableDictionary *tags = _tags.mutableCopy;
-            if (mutableDictionary[@"tags"] != nil && [mutableDictionary[@"tags"] isKindOfClass:NSDictionary.class]) {
+            if (mutableDictionary[@"tags"] != nil &&
+                [mutableDictionary[@"tags"] isKindOfClass:NSDictionary.class]) {
                 [tags addEntriesFromDictionary:mutableDictionary[@"tags"]];
             }
             mutableDictionary[@"tags"] = tags;

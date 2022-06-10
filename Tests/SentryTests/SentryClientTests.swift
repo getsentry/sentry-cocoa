@@ -174,7 +174,7 @@ class SentryClientTest: XCTestCase {
         event.message = fixture.message
         let scope = Scope()
         let expectedTags = ["tagKey": "tagValue"]
-        let expectedExtra = ["extraKey":"extraValue"]
+        let expectedExtra = ["extraKey": "extraValue"]
         scope.setTags(expectedTags)
         scope.setExtras(expectedExtra)
         
@@ -183,10 +183,10 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             let serializedEvent = actual.serialize()
-            let tags = try! XCTUnwrap(serializedEvent["tags"] as? [String:String])
-            let extra = try! XCTUnwrap(serializedEvent["extra"] as? [String:String])
-            XCTAssertEqual(expectedTags,tags)
-            XCTAssertEqual(expectedExtra,extra)
+            let tags = try! XCTUnwrap(serializedEvent["tags"] as? [String: String])
+            let extra = try! XCTUnwrap(serializedEvent["extra"] as? [String: String])
+            XCTAssertEqual(expectedTags, tags)
+            XCTAssertEqual(expectedExtra, extra)
         }
     }
         
