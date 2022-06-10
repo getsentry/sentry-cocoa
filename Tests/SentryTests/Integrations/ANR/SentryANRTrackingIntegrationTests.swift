@@ -85,15 +85,11 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
                 return
             }
             
-            //Sometimes during tests its possible to have one thread without frames
-            //We just need to make sure we retrieve frame information for at least one other thread than the main thread
-            var threadsWithFrames = 0
-            
-            for thr in threads {
-                if (thr.stacktrace?.frames.count ?? 0) >= 1 {
-                    threadsWithFrames += 1
-                }
-            }
+            // Sometimes during tests its possible to have one thread without frames
+            // We just need to make sure we retrieve frame information for at least one other thread than the main thread
+            let threadsWithFrames = threads.filter {
+                ($0.stacktrace?.frames.count ?? 0) >= 1
+            }.count
             
             XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
         }
