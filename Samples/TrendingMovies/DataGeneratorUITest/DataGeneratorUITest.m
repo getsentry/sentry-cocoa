@@ -10,12 +10,14 @@ static NSTimeInterval const kWaitForElementTimeout = 5.0;
 
 @implementation DataGeneratorUITest
 
-- (void)setUp {
+- (void)setUp
+{
     [super setUp];
     self.continueAfterFailure = NO;
 }
 
-- (void)testGenerateData {
+- (void)testGenerateData
+{
     CFTimeInterval const startTime = CACurrentMediaTime();
     CFTimeInterval const runDuration = 20.0 * 60.0; // 20 minutes in seconds
     generatedata(5 /* nCellsPerTab */, YES /* clearState */);
@@ -35,10 +37,12 @@ static NSTimeInterval const kWaitForElementTimeout = 5.0;
  * @param clearState Whether to clear filesystem state when the app starts.
  * @return Whether the operation was successful or not.
  */
-BOOL generatedata(NSUInteger nCellsPerTab, BOOL clearState) {
+BOOL
+generatedata(NSUInteger nCellsPerTab, BOOL clearState)
+{
     XCUIApplication *app = [[XCUIApplication alloc] init];
     if (clearState) {
-        app.launchArguments = @[@"--clear", @"--network-request-automation"];
+        app.launchArguments = @[ @"--clear", @"--network-request-automation" ];
     }
     [app launch];
     if (![app waitForState:XCUIApplicationStateRunningForeground timeout:kWaitForAppStateTimeout]) {
@@ -57,9 +61,9 @@ BOOL generatedata(NSUInteger nCellsPerTab, BOOL clearState) {
         [tabBarButton doubleTap];
 
         for (NSUInteger i = 0; i < nCellsPerTab; i++) {
-            XCUIElement *const cellElement =
-              app.collectionViews
-                .cells[[NSString stringWithFormat:@"movie %llu", (unsigned long long)i]];
+            XCUIElement *const cellElement
+                = app.collectionViews
+                      .cells[[NSString stringWithFormat:@"movie %llu", (unsigned long long)i]];
 
             NSUInteger scrollCount = 0;
             BOOL retriedOnce = NO;
@@ -99,7 +103,7 @@ BOOL generatedata(NSUInteger nCellsPerTab, BOOL clearState) {
 
         if (consecutiveFindCellFailureCount >= kMaxConsecutiveFindCellFailures) {
             XCTFail("Failed to find a cell %llu times",
-                    (unsigned long long)consecutiveFindCellFailureCount);
+                (unsigned long long)consecutiveFindCellFailureCount);
             break;
         }
     }
@@ -115,6 +119,5 @@ BOOL generatedata(NSUInteger nCellsPerTab, BOOL clearState) {
     }
     return YES;
 }
-
 
 @end
