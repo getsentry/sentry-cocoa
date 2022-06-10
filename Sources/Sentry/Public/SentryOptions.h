@@ -330,15 +330,15 @@ NS_SWIFT_NAME(Options)
 
 /**
  * When enabled, the SDK tracks when the application stops responding for a specific amount of
- * time defined by the `anrTimeoutInterval` option.
+ * time defined by the `appHangsTimeoutInterval` option.
  */
-@property (nonatomic, assign) BOOL enableANRTracking;
+@property (nonatomic, assign) BOOL enableAppHangsTracking;
 
 /**
- * The minimum amount of time an app shoud be unresponsive to be classified as an ANR.
+ * The minimum amount of time an app shoud be unresponsive to be classified as an App Hanging.
  * The actual amount may be a little longer.
  */
-@property (nonatomic, assign) NSTimeInterval anrTimeoutInterval;
+@property (nonatomic, assign) NSTimeInterval appHangsTimeoutInterval;
 
 @end
 

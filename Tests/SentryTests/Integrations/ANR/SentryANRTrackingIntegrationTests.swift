@@ -9,8 +9,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
                 
         init() {
             options = Options()
-            options.enableANRTracking = true
-            options.anrTimeoutInterval = 4.5
+            options.enableAppHangsTracking = true
+            options.appHangsTimeoutInterval = 4.5
         }
     }
     
@@ -41,9 +41,21 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertNotNil(Dynamic(sut).tracker.asAnyObject)
     }
     
-    func test_OOMDisabled_RemovesEnabledIntegration() {
+    func test_enableAppHangsTracking_Disabled_RemovesEnabledIntegration() {
         let options = Options()
-        options.enableANRTracking = false
+        options.enableAppHangsTracking = false
+        
+        sut = SentryANRTrackingIntegration()
+        sut.install(with: options)
+        
+        let expexted = Options.defaultIntegrations().filter { !$0.contains("ANRTracking") }
+        assertArrayEquals(expected: expexted, actual: Array(options.enabledIntegrations))
+    }
+    
+    func test_appHangsTimeoutInterval_Zero_RemovesEnabledIntegration() {
+        let options = Options()
+        options.enableAppHangsTracking = true
+        options.appHangsTimeoutInterval = 0
         
         sut = SentryANRTrackingIntegration()
         sut.install(with: options)

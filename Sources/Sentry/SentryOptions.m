@@ -1,4 +1,5 @@
 #import "SentryOptions.h"
+#import "SentryANRTracker.h"
 #import "SentryDsn.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
@@ -57,7 +58,8 @@ SentryOptions ()
         self.attachScreenshot = NO;
         self.enableUserInteractionTracing = NO;
         self.idleTimeout = 3.0;
-        self.enableANRTracking = YES;
+        self.enableAppHangsTracking = YES;
+        self.appHangsTimeoutInterval = (double)SENTRY_ANR_TRACKER_TIMEOUT_MILLIS / 1000.0;
 #endif
         self.enableNetworkTracking = YES;
         self.enableFileIOTracking = NO;
@@ -242,7 +244,7 @@ SentryOptions ()
             block:^(BOOL value) { self->_enableUserInteractionTracing = value; }];
 
     [self setBool:options[@"enableANRTracking"]
-            block:^(BOOL value) { self->_enableANRTracking = value; }];
+            block:^(BOOL value) { self->_enableAppHangsTracking = value; }];
 
     if ([options[@"idleTimeout"] isKindOfClass:[NSNumber class]]) {
         self.idleTimeout = [options[@"idleTimeout"] doubleValue];
