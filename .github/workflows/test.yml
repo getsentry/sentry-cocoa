@@ -100,7 +100,7 @@ jobs:
         run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME
 
       - name: Archiving DerivedData Logs
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: derived-data-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
@@ -108,7 +108,7 @@ jobs:
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
       - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: ${{  failure() || cancelled() }}
         with:
           name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
@@ -156,7 +156,7 @@ jobs:
         run: ./scripts/tests-with-thread-sanitizer.sh
       
       - name: Archiving Test Logs
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           path: thread-sanitizer.log
 
