@@ -104,7 +104,7 @@ platform :ios do
       type: "development",
       keychain_name: ci_keychain_name,
       keychain_password: ci_keychain_password,
-      readonly: true,
+      readonly: false,
       app_identifier: ["io.sentry.sample.TrendingMovies"]
     )
 
