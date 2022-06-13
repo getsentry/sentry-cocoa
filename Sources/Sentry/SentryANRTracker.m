@@ -106,7 +106,7 @@ SentryANRTracker ()
 
 - (void)notifyANRDetected
 {
-    NSArray *targets;
+    NSArray *localListeners;
     @synchronized(self.listeners) {
         targets = [self.listeners allObjects];
     }
