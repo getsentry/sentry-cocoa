@@ -160,20 +160,20 @@ static NSObject *sentryDependencyContainerLock;
     return _debugImageProvider;
 }
 
-- (SentryANRTracker *)anrTracker
+- (SentryANRTracker *)getANRTracker:(NSTimeInterval)timeout
 {
     if (_anrTracker == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_anrTracker == nil) {
                 _anrTracker = [[SentryANRTracker alloc]
-                    initWithCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-                                   crashWrapper:self.crashWrapper
-                           dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
-                                  threadWrapper:self.threadWrapper];
+                    initWithTimeoutInterval:timeout
+                        currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                               crashWrapper:self.crashWrapper
+                       dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
+                              threadWrapper:self.threadWrapper];
             }
         }
     }
-
     return _anrTracker;
 }
 

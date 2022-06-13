@@ -67,8 +67,8 @@ SentryOutOfMemoryTrackingIntegration ()
                                                          fileManager:fileManager];
     [self.tracker start];
 
-    self.anrTracker = SentryDependencyContainer.sharedInstance.anrTracker;
-    self.anrTracker.timeoutInterval = options.appHangTimeoutInterval;
+    self.anrTracker =
+        [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval];
     [self.anrTracker addListener:self];
 
     self.appStateManager = appStateManager;

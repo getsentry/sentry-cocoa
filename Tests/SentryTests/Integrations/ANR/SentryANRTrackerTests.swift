@@ -31,11 +31,11 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         fixture = Fixture()
         
         sut = SentryANRTracker(
+            timeoutInterval: fixture.timeoutInterval,
             currentDateProvider: fixture.currentDate,
             crashWrapper: fixture.crashWrapper,
             dispatchQueueWrapper: fixture.dispatchQueue,
             threadWrapper: fixture.threadWrapper)
-        sut.timeoutInterval = fixture.timeoutInterval
     }
     
     override func tearDown() {

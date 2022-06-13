@@ -38,8 +38,8 @@ SentryANRTrackingIntegration ()
         return;
     }
 
-    self.tracker = SentryDependencyContainer.sharedInstance.anrTracker;
-    self.tracker.timeoutInterval = options.appHangTimeoutInterval;
+    self.tracker =
+        [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval];
 
     [self.tracker addListener:self];
     self.options = options;

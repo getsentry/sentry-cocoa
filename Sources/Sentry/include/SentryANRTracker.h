@@ -30,12 +30,11 @@ static NSUInteger const SENTRY_ANR_TRACKER_TIMEOUT_MILLIS = 2000;
 @interface SentryANRTracker : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                               crashWrapper:(SentryCrashWrapper *)crashWrapper
-                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                              threadWrapper:(SentryThreadWrapper *)threadWrapper;
-
-@property (nonatomic, assign) NSTimeInterval timeoutInterval;
+- (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
+                    currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+                           crashWrapper:(SentryCrashWrapper *)crashWrapper
+                   dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+                          threadWrapper:(SentryThreadWrapper *)threadWrapper;
 
 - (void)addListener:(id<SentryANRTrackerDelegate>)listener;
 

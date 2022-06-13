@@ -35,6 +35,8 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryUIApplication *application;
 #endif
 
+- (SentryANRTracker *)getANRTracker:(NSTimeInterval)timeout;
+
 @end
 
 NS_ASSUME_NONNULL_END

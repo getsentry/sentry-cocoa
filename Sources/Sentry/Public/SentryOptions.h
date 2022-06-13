@@ -337,6 +337,7 @@ NS_SWIFT_NAME(Options)
 /**
  * The minimum amount of time an app shoud be unresponsive to be classified as an App Hanging.
  * The actual amount may be a little longer.
+ * Avoid using values lower than 100ms, that may cause a lot of events being transmitted.
  */
 @property (nonatomic, assign) NSTimeInterval appHangTimeoutInterval;
 

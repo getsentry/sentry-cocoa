@@ -14,6 +14,7 @@ SentryANRTracker ()
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
 @property (nonatomic, strong) NSMutableSet<id<SentryANRTrackerDelegate>> *listeners;
+@property (nonatomic, assign) NSTimeInterval timeoutInterval;
 
 @property (weak, nonatomic) NSThread *thread;
 
@@ -24,13 +25,14 @@ SentryANRTracker ()
     BOOL running;
 }
 
-- (instancetype)initWithCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                               crashWrapper:(SentryCrashWrapper *)crashWrapper
-                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                              threadWrapper:(SentryThreadWrapper *)threadWrapper
+- (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
+                    currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+                           crashWrapper:(SentryCrashWrapper *)crashWrapper
+                   dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+                          threadWrapper:(SentryThreadWrapper *)threadWrapper
 {
     if (self = [super init]) {
-        self.timeoutInterval = (double)SENTRY_ANR_TRACKER_TIMEOUT_MILLIS / 1000;
+        self.timeoutInterval = timeoutInterval;
         self.currentDate = currentDateProvider;
         self.crashWrapper = crashWrapper;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
