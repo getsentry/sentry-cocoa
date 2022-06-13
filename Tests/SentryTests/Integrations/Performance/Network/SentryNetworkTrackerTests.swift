@@ -448,6 +448,10 @@ class SentryNetworkTrackerTests: XCTestCase {
         assertOneSpanCreated(transaction)
     }
     
+    func testAddTraceContextHeader(){
+        
+    }
+    
     // Altough we only run this test above the below specified versions, we exped the
     // implementation to be thread safe
     @available(tvOS 10.0, *)
