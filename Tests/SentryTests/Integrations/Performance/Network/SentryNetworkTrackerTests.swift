@@ -448,8 +448,27 @@ class SentryNetworkTrackerTests: XCTestCase {
         assertOneSpanCreated(transaction)
     }
     
-    func testAddTraceContextHeader(){
+    func test_AddTraceHeader() {
+        let sut = fixture.getSut()
+        SentrySDK.currentHub().scope.span = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
+        let headers = sut.addTraceHeader([:])
+        XCTAssertEqual(headers?.count, 2)
+        XCTAssertNotNil(headers?["baggage"])
+        XCTAssertNotNil(headers?["sentry-trace"])
+    }
+    
+    func test_AddTraceHeader_NoTransaction() {
+        let sut = fixture.getSut()
+        let headers = sut.addTraceHeader([:])
+        XCTAssertEqual(headers?.count, 0)
+    }
+    
+    func test_AddTraceHeader_TrackingDisabled() {
+        let sut = fixture.getSut()
+        sut.disable()
+        let headers = sut.addTraceHeader([:])
         
+        XCTAssertEqual(headers?.count, 0)
     }
     
     // Altough we only run this test above the below specified versions, we exped the

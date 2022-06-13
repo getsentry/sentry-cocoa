@@ -5,8 +5,8 @@
 #import "SentryLog.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
-#import "SentryTraceHeader.h"
 #import "SentryTraceContext.h"
+#import "SentryTraceHeader.h"
 #import "SentryTracer.h"
 #import <objc/runtime.h>
 
