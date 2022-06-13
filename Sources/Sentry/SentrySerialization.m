@@ -111,18 +111,21 @@ NS_ASSUME_NONNULL_BEGIN
 {
     NSMutableArray *itens = [[NSMutableArray alloc] initWithCapacity:dictionary.count];
     
+    NSMutableCharacterSet *allowedSet = [NSCharacterSet.alphanumericCharacterSet mutableCopy];
+    [allowedSet addCharactersInString:@"-_"];
+    
     for (id key in dictionary.allKeys) {
         id value = dictionary[key];
         NSString *keyDescription = [[key description]
-                                    stringByAddingPercentEncodingWithAllowedCharacters:NSCharacterSet
-            .URLQueryAllowedCharacterSet];
+                                    stringByAddingPercentEncodingWithAllowedCharacters:allowedSet];
         NSString *valueDescription = [[value description]
-                                      stringByAddingPercentEncodingWithAllowedCharacters:NSCharacterSet
-            .URLQueryAllowedCharacterSet];
+                                      stringByAddingPercentEncodingWithAllowedCharacters:allowedSet];
         [itens addObject:[NSString stringWithFormat:@"%@=%@", keyDescription, valueDescription]];
     }
     
-    return [itens componentsJoinedByString:@"&"];
+    return [[itens sortedArrayUsingComparator:^NSComparisonResult(NSString * obj1, NSString * obj2) {
+        return [obj1 compare:obj2];
+    }] componentsJoinedByString:@"&"];
 }
 
 + (SentryEnvelope *_Nullable)envelopeWithData:(NSData *)data
