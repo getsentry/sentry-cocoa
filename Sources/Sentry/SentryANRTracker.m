@@ -65,7 +65,7 @@ SentryANRTracker ()
         if (blockExecutedOnMainThread) {
             if (wasPreviousANR) {
                 [SentryLog logWithMessage:@"ANR stopped." andLevel:kSentryLevelWarning];
-                [self notifyANRStopped];
+                [self ANRStopped];
             }
 
             wasPreviousANR = NO;
@@ -100,23 +100,23 @@ SentryANRTracker ()
 
         wasPreviousANR = YES;
         [SentryLog logWithMessage:@"ANR detected." andLevel:kSentryLevelWarning];
-        [self notifyANRDetected];
+        [self ANRDetected];
     }
 }
 
-- (void)notifyANRDetected
+- (void)ANRDetected
 {
     NSArray *localListeners;
     @synchronized(self.listeners) {
-        targets = [self.listeners allObjects];
+        localListeners = [self.listeners allObjects];
     }
 
-    for (id<SentryANRTrackerDelegate> target in targets) {
+    for (id<SentryANRTrackerDelegate> target in localListeners) {
         [target anrDetected];
     }
 }
 
-- (void)notifyANRStopped
+- (void)ANRStopped
 {
     NSArray *targets;
     @synchronized(self.listeners) {
