@@ -8,7 +8,9 @@
 
 ### Fixes
 
+- Fix reporting wrong OOM when starting SDK twice (#1878)
 - Fix JSON conversion error message (#1856)
+- Transaction tag and data serialization (#1826)
 
 ## 7.16.0
 

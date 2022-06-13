@@ -18,6 +18,8 @@ SentrySDK (Private)
 
 + (nullable SentryAppStartMeasurement *)getAppStartMeasurement;
 
+@property (nonatomic, class) NSUInteger startInvocations;
+
 + (SentryHub *)currentHub;
 
 @property (nonatomic, nullable, readonly, class) SentryOptions *options;

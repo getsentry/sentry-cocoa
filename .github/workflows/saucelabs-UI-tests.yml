@@ -38,7 +38,7 @@ jobs:
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       
       - name: Archiving DerivedData
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: DerivedData-Xcode-${{matrix.xcode}}
           path: |
@@ -72,11 +72,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: DerivedData-Xcode-${{matrix.xcode}}
 
-      - run: npm install -g saucectl@0.93.0
+      - run: npm install -g saucectl@0.99.4
 
       # As Sauce Labs is a bit flaky we retry 5 times
       - name: Run Tests in SauceLab

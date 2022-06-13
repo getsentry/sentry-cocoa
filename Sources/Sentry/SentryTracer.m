@@ -48,6 +48,8 @@ SentryTracer ()
 @implementation SentryTracer {
     BOOL _waitForChildren;
     SentryTraceContext *_traceContext;
+    NSMutableDictionary<NSString *, id> *_tags;
+    NSMutableDictionary<NSString *, id> *_data;
     dispatch_block_t _idleTimeoutBlock;
 
 #if SENTRY_HAS_UIKIT
@@ -121,6 +123,8 @@ static NSLock *profilerLock;
         self.hub = hub;
         self.isWaitingForChildren = NO;
         _waitForChildren = waitForChildren;
+        _tags = [[NSMutableDictionary alloc] init];
+        _data = [[NSMutableDictionary alloc] init];
         self.finishStatus = kSentrySpanStatusUndefined;
         self.idleTimeout = idleTimeout;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
@@ -271,12 +275,16 @@ static NSLock *profilerLock;
 
 - (nullable NSDictionary<NSString *, id> *)data
 {
-    return self.rootSpan.data;
+    @synchronized(_data) {
+        return [_data copy];
+    }
 }
 
 - (NSDictionary<NSString *, id> *)tags
 {
-    return self.rootSpan.tags;
+    @synchronized(_tags) {
+        return [_tags copy];
+    }
 }
 
 - (BOOL)isFinished
@@ -286,7 +294,9 @@ static NSLock *profilerLock;
 
 - (void)setDataValue:(nullable id)value forKey:(NSString *)key
 {
-    [self.rootSpan setDataValue:value forKey:key];
+    @synchronized(_data) {
+        [_data setValue:value forKey:key];
+    }
 }
 
 - (void)setExtraValue:(nullable id)value forKey:(NSString *)key
@@ -296,17 +306,23 @@ static NSLock *profilerLock;
 
 - (void)removeDataForKey:(NSString *)key
 {
-    [self.rootSpan removeDataForKey:key];
+    @synchronized(_data) {
+        [_data removeObjectForKey:key];
+    }
 }
 
 - (void)setTagValue:(NSString *)value forKey:(NSString *)key
 {
-    [self.rootSpan setTagValue:value forKey:key];
+    @synchronized(_tags) {
+        [_tags setValue:value forKey:key];
+    }
 }
 
 - (void)removeTagForKey:(NSString *)key
 {
-    [self.rootSpan removeTagForKey:key];
+    @synchronized(_tags) {
+        [_tags removeObjectForKey:key];
+    }
 }
 
 - (SentryTraceHeader *)toTraceHeader
@@ -637,7 +653,32 @@ static NSLock *profilerLock;
 
 - (NSDictionary *)serialize
 {
-    return [_rootSpan serialize];
+    NSMutableDictionary<NSString *, id> *mutableDictionary =
+        [[NSMutableDictionary alloc] initWithDictionary:[_rootSpan serialize]];
+
+    @synchronized(_data) {
+        if (_data.count > 0) {
+            NSMutableDictionary *data = _data.mutableCopy;
+            if (mutableDictionary[@"data"] != nil &&
+                [mutableDictionary[@"data"] isKindOfClass:NSDictionary.class]) {
+                [data addEntriesFromDictionary:mutableDictionary[@"data"]];
+            }
+            mutableDictionary[@"data"] = data;
+        }
+    }
+
+    @synchronized(_tags) {
+        if (_tags.count > 0) {
+            NSMutableDictionary *tags = _tags.mutableCopy;
+            if (mutableDictionary[@"tags"] != nil &&
+                [mutableDictionary[@"tags"] isKindOfClass:NSDictionary.class]) {
+                [tags addEntriesFromDictionary:mutableDictionary[@"tags"]];
+            }
+            mutableDictionary[@"tags"] = tags;
+        }
+    }
+
+    return mutableDictionary;
 }
 
 /**
