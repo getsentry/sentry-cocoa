@@ -4,7 +4,7 @@
 #import "SentryOptions+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
-#import "SentryTraceState.h"
+#import "SentryTraceContext.h"
 #import "SentryTracer.h"
 #import "SentryUser.h"
 

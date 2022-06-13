@@ -6,7 +6,7 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryTraceHeader.h"
-#import "SentryTraceState.h"
+#import "SentryTraceContext.h"
 #import "SentryTracer.h"
 #import <objc/runtime.h>
 
@@ -292,7 +292,7 @@ SentryNetworkTracker ()
 
     SentryTracer *tracer = [SentryTracer getTracer:span];
     if (tracer != nil) {
-        result[SENTRY_BAGGAGE_HEADER] = [[tracer.traceState toBaggage] toHTTPHeader];
+        result[SENTRY_BAGGAGE_HEADER] = [[tracer.traceContext toBaggage] toHTTPHeader];
     }
 
     return [[NSDictionary alloc] initWithDictionary:result];

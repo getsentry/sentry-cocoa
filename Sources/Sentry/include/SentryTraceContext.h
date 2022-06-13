@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryScope, SentryOptions, SentryTracer, SentryUser, SentryBaggage;
 
-@interface SentryTraceStateUser : NSObject
+@interface SentryTraceContextUser : NSObject
 
 /**
  * The id attribute of the user context.
@@ -19,18 +19,18 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, readonly) NSString *segment;
 
 /**
- * Initializes a SentryTraceStateUser with given properties.
+ * Initializes a SentryTraceContextUser with given properties.
  */
 - (instancetype)initWithUserId:(nullable NSString *)userId segment:(nullable NSString *)segment;
 
 /**
- * Initializes a SentryTraceStateUser with data from SentryUser.
+ * Initializes a SentryTraceContextUser with data from SentryUser.
  */
 - (instancetype)initWithUser:(nullable SentryUser *)user;
 
 @end
 
-@interface SentryTraceState : NSObject <SentrySerializable>
+@interface SentryTraceContext : NSObject <SentrySerializable>
 
 /**
  * UUID V4 encoded as a hexadecimal sequence with no dashes (e.g. 771a43a4192642f0b136d5159a501700)
@@ -61,37 +61,37 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * A subset of the scope's user context.
  */
-@property (nullable, nonatomic, readonly) SentryTraceStateUser *user;
+@property (nullable, nonatomic, readonly) SentryTraceContextUser *user;
 
 /**
- * Initializes a SentryTraceState with given properties.
+ * Initializes a SentryTraceContext with given properties.
  */
 - (instancetype)initWithTraceId:(SentryId *)traceId
                       publicKey:(NSString *)publicKey
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
                     transaction:(nullable NSString *)transaction
-                           user:(nullable SentryTraceStateUser *)user;
+                           user:(nullable SentryTraceContextUser *)user;
 
 /**
- * Initializes a SentryTraceState with data from scope and options.
+ * Initializes a SentryTraceContext with data from scope and options.
  */
 - (nullable instancetype)initWithScope:(SentryScope *)scope options:(SentryOptions *)options;
 
 /**
- * Initializes a SentryTraceState with data from a dictionary.
+ * Initializes a SentryTraceContext with data from a dictionary.
  */
 - (nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)dictionary;
 
 /**
- * Initializes a SentryTraceState with data from a trace, scope and options.
+ * Initializes a SentryTraceContext with data from a trace, scope and options.
  */
 - (nullable instancetype)initWithTracer:(SentryTracer *)tracer
                                   scope:(nullable SentryScope *)scope
                                 options:(SentryOptions *)options;
 
 /**
- * Create a SentryBaggage with the information of this SentryTraceState.
+ * Create a SentryBaggage with the information of this SentryTraceContext.
  */
 - (SentryBaggage *)toBaggage;
 @end

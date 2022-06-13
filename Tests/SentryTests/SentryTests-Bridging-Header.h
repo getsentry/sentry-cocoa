@@ -139,7 +139,7 @@
 #import "SentryThread.h"
 #import "SentryThreadInspector.h"
 #import "SentryThreadWrapper.h"
-#import "SentryTraceState.h"
+#import "SentryTraceContext.h"
 #import "SentryTracer+Test.h"
 #import "SentryTracer.h"
 #import "SentryTransaction+Private.h"
@@ -159,6 +159,7 @@
 #import "TestUrlSession.h"
 #import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"
+#import "SentryBaggage.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryANRTrackingIntegration.h"

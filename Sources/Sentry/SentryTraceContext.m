@@ -1,4 +1,4 @@
-#import "SentryTraceState.h"
+#import "SentryTraceContext.h"
 #import "SentryBaggage.h"
 #import "SentryDsn.h"
 #import "SentryLog.h"
@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation SentryTraceStateUser
+@implementation SentryTraceContextUser
 
 - (instancetype)initWithUserId:(nullable NSString *)userId segment:(nullable NSString *)segment
 {
@@ -33,14 +33,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@implementation SentryTraceState
+@implementation SentryTraceContext
 
 - (instancetype)initWithTraceId:(SentryId *)traceId
                       publicKey:(NSString *)publicKey
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
                     transaction:(nullable NSString *)transaction
-                           user:(nullable SentryTraceStateUser *)user
+                           user:(nullable SentryTraceContextUser *)user
 {
     if (self = [super init]) {
         _traceId = traceId;
@@ -70,9 +70,9 @@ NS_ASSUME_NONNULL_BEGIN
     if (tracer.context.traceId == nil || options.parsedDsn == nil)
         return nil;
 
-    SentryTraceStateUser *stateUser;
+    SentryTraceContextUser *stateUser;
     if (scope.userObject != nil)
-        stateUser = [[SentryTraceStateUser alloc] initWithUser:scope.userObject];
+        stateUser = [[SentryTraceContextUser alloc] initWithUser:scope.userObject];
 
     return [self initWithTraceId:tracer.context.traceId
                        publicKey:options.parsedDsn.url.user
@@ -89,10 +89,10 @@ NS_ASSUME_NONNULL_BEGIN
     if (traceId == nil || publicKey == nil)
         return nil;
 
-    SentryTraceStateUser *user;
+    SentryTraceContextUser *user;
     if (dictionary[@"user"] != nil) {
         NSDictionary *userInfo = dictionary[@"user"];
-        user = [[SentryTraceStateUser alloc] initWithUserId:userInfo[@"id"]
+        user = [[SentryTraceContextUser alloc] initWithUserId:userInfo[@"id"]
                                                     segment:userInfo[@"segment"]];
     }
     return [self initWithTraceId:traceId

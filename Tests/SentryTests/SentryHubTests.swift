@@ -702,7 +702,7 @@ class SentryHubTests: XCTestCase {
         modifyEventDict(&eventDict)
         
         let eventData = try JSONSerialization.data(withJSONObject: eventDict)
-        return SentryEnvelope(header: SentryEnvelopeHeader(id: event.eventId, traceState: nil), items: [SentryEnvelopeItem(header: envelopeItem.header, data: eventData)])
+        return SentryEnvelope(header: SentryEnvelopeHeader(id: event.eventId, traceContext: nil), items: [SentryEnvelopeItem(header: envelopeItem.header, data: eventData)])
     }
     
     private func advanceTime(bySeconds: TimeInterval) {
