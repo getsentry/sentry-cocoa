@@ -44,6 +44,7 @@
 --ranges spaced
 --redundanttype infer-locals-only
 --rules acronyms
+--rules trailingCommas
 --rules consecutiveSpaces
 --rules hoistPatternLet
 --rules indent
