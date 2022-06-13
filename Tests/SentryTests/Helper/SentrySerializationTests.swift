@@ -246,14 +246,14 @@ class SentrySerializationTests: XCTestCase {
     }
 
     func testDictionaryToUrlEncoded() {
-        XCTAssertEqual(SentrySerialization.urlEncodedDictionary(["key":"value"]), "key=value")
-        XCTAssertEqual(SentrySerialization.urlEncodedDictionary(["key":"value","key2":"value2"]), "key2=value2&key=value")
-        XCTAssertEqual(SentrySerialization.urlEncodedDictionary(["key":"value&"]), "key=value%26")
-        XCTAssertEqual(SentrySerialization.urlEncodedDictionary(["key":"value="]), "key=value%3D")
-        XCTAssertEqual(SentrySerialization.urlEncodedDictionary(["key":"value "]), "key=value%20")
-        XCTAssertEqual(SentrySerialization.urlEncodedDictionary(["key":"value%"]), "key=value%25")
-        XCTAssertEqual(SentrySerialization.urlEncodedDictionary(["key":"value-_"]), "key=value-_")
-        XCTAssertEqual(SentrySerialization.urlEncodedDictionary(["key":"value\n\r"]), "key=value%0A%0D")
+        XCTAssertEqual(SentrySerialization.urlEncodedDictionary(["key": "value"]), "key=value")
+        XCTAssertEqual(SentrySerialization.urlEncodedDictionary(["key": "value", "key2": "value2"]), "key2=value2&key=value")
+        XCTAssertEqual(SentrySerialization.urlEncodedDictionary(["key": "value&"]), "key=value%26")
+        XCTAssertEqual(SentrySerialization.urlEncodedDictionary(["key": "value="]), "key=value%3D")
+        XCTAssertEqual(SentrySerialization.urlEncodedDictionary(["key": "value "]), "key=value%20")
+        XCTAssertEqual(SentrySerialization.urlEncodedDictionary(["key": "value%"]), "key=value%25")
+        XCTAssertEqual(SentrySerialization.urlEncodedDictionary(["key": "value-_"]), "key=value-_")
+        XCTAssertEqual(SentrySerialization.urlEncodedDictionary(["key": "value\n\r"]), "key=value%0A%0D")
     }
     
     private func serializeEnvelope(envelope: SentryEnvelope) -> Data {

@@ -39,17 +39,17 @@ SentryTransportAdapter ()
 }
 
 - (void)sendEvent:(SentryEvent *)event
-       traceContext:(nullable SentryTraceContext *)traceContext
+     traceContext:(nullable SentryTraceContext *)traceContext
       attachments:(NSArray<SentryAttachment *> *)attachments
 {
     [self sendEvent:event
-                     traceContext:traceContext
+                   traceContext:traceContext
                     attachments:attachments
         additionalEnvelopeItems:@[]];
 }
 
 - (void)sendEvent:(SentryEvent *)event
-                 traceContext:(nullable SentryTraceContext *)traceContext
+               traceContext:(nullable SentryTraceContext *)traceContext
                 attachments:(NSArray<SentryAttachment *> *)attachments
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
@@ -58,7 +58,7 @@ SentryTransportAdapter ()
     [items addObjectsFromArray:additionalEnvelopeItems];
 
     SentryEnvelopeHeader *envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:event.eventId
-                                                                         traceContext:traceContext];
+                                                                       traceContext:traceContext];
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader items:items];
 
     [self sendEnvelope:envelope];
@@ -66,7 +66,7 @@ SentryTransportAdapter ()
 
 - (void)sendEvent:(SentryEvent *)event
       withSession:(SentrySession *)session
-       traceContext:(nullable SentryTraceContext *)traceContext
+     traceContext:(nullable SentryTraceContext *)traceContext
       attachments:(NSArray<SentryAttachment *> *)attachments
 {
     NSMutableArray<SentryEnvelopeItem *> *items = [self buildEnvelopeItems:event
@@ -74,7 +74,7 @@ SentryTransportAdapter ()
     [items addObject:[[SentryEnvelopeItem alloc] initWithSession:session]];
 
     SentryEnvelopeHeader *envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:event.eventId
-                                                                         traceContext:traceContext];
+                                                                       traceContext:traceContext];
 
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader items:items];
 

@@ -11,7 +11,7 @@ class SentryBaggageTests: XCTestCase {
     }
     
     func test_baggageToHeader_onlyTrace_ignoreNils() {
-        let header = SentryBaggage(trace: SentryId.empty, publicKey: "publicKey", releaseName:nil, environment: nil, transaction: nil, userId: nil, userSegment: nil).toHTTPHeader()
+        let header = SentryBaggage(trace: SentryId.empty, publicKey: "publicKey", releaseName: nil, environment: nil, transaction: nil, userId: nil, userSegment: nil).toHTTPHeader()
         
         XCTAssertEqual(header, "sentry-publickey=publicKey&sentry-traceid=00000000000000000000000000000000")
     }

@@ -28,7 +28,7 @@ SENTRY_NO_INIT
  * @param traceContext Current trace state.
  */
 - (instancetype)initWithId:(nullable SentryId *)eventId
-                traceContext:(nullable SentryTraceContext *)traceContext;
+              traceContext:(nullable SentryTraceContext *)traceContext;
 
 /**
  * Initializes an SentryEnvelopeHeader object with the specified eventId, skdInfo and traceContext.
@@ -43,7 +43,7 @@ SENTRY_NO_INIT
  */
 - (instancetype)initWithId:(nullable SentryId *)eventId
                    sdkInfo:(nullable SentrySdkInfo *)sdkInfo
-                traceContext:(nullable SentryTraceContext *)traceContext NS_DESIGNATED_INITIALIZER;
+              traceContext:(nullable SentryTraceContext *)traceContext NS_DESIGNATED_INITIALIZER;
 
 /**
  * The event identifier, if available.

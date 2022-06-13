@@ -265,7 +265,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 }
 
 - (nullable SentryTraceContext *)getTraceStateWithEvent:(SentryEvent *)event
-                                            withScope:(SentryScope *)scope
+                                              withScope:(SentryScope *)scope
 {
     id<SentrySpan> span;
     if ([event isKindOfClass:[SentryTransaction class]]) {
@@ -317,7 +317,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                                               forEvent:preparedEvent];
 
         [self.transportAdapter sendEvent:preparedEvent
-                              traceContext:traceContext
+                            traceContext:traceContext
                              attachments:attachments
                  additionalEnvelopeItems:additionalEnvelopeItems];
 
@@ -343,7 +343,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
             [SentryLog logWithMessage:DropSessionLogMessage andLevel:kSentryLevelDebug];
 
-            [self.transportAdapter sendEvent:event traceContext:traceContext attachments:attachments];
+            [self.transportAdapter sendEvent:event
+                                traceContext:traceContext
+                                 attachments:attachments];
             return event.eventId;
         }
 

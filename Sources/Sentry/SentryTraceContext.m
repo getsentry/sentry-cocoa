@@ -93,7 +93,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (dictionary[@"user"] != nil) {
         NSDictionary *userInfo = dictionary[@"user"];
         user = [[SentryTraceContextUser alloc] initWithUserId:userInfo[@"id"]
-                                                    segment:userInfo[@"segment"]];
+                                                      segment:userInfo[@"segment"]];
     }
     return [self initWithTraceId:traceId
                        publicKey:publicKey

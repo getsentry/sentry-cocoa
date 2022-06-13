@@ -256,8 +256,8 @@ static NSLock *profilerLock;
         @synchronized(self) {
             if (_traceContext == nil) {
                 _traceContext = [[SentryTraceContext alloc] initWithTracer:self
-                                                                 scope:_hub.scope
-                                                               options:SentrySDK.options];
+                                                                     scope:_hub.scope
+                                                                   options:SentrySDK.options];
             }
         }
     }
