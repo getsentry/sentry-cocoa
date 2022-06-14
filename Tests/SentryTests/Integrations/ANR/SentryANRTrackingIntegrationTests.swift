@@ -79,6 +79,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(ex.mechanism?.type, "AppHang")
             XCTAssertEqual(ex.type, "App Hanging")
             XCTAssertEqual(ex.value, "App hanging for at least 4500 ms.")
+            XCTAssertNotNil(ex.stacktrace)
+            XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
             
             guard let threads = event?.threads else {
                 XCTFail("ANR Exception not found")
