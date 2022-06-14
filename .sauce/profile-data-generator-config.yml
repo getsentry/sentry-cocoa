@@ -9,7 +9,7 @@ defaults:
 
 xcuitest:
   app: ./DerivedData/Build/Products/Debug-iphoneos/TrendingMovies.app
-  testApp: ./DerivedData/Build/Products/Debug-iphoneos/DataGeneratorUITests-Runner.app
+  testApp: ./DerivedData/Build/Products/Debug-iphoneos/ProfileDataGeneratorUITests-Runner.app
 
 suites:
 

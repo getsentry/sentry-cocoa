@@ -5,10 +5,10 @@ static NSUInteger const kMaxConsecutiveFindCellFailures = 3;
 static NSTimeInterval const kWaitForAppStateTimeout = 10.0;
 static NSTimeInterval const kWaitForElementTimeout = 5.0;
 
-@interface DataGeneratorUITest : XCTestCase
+@interface ProfileDataGeneratorUITest : XCTestCase
 @end
 
-@implementation DataGeneratorUITest
+@implementation ProfileDataGeneratorUITest
 
 - (void)setUp
 {
@@ -16,33 +16,34 @@ static NSTimeInterval const kWaitForElementTimeout = 5.0;
     self.continueAfterFailure = NO;
 }
 
-- (void)testGenerateData
+- (void)testGenerateProfileData
 {
     CFTimeInterval const startTime = CACurrentMediaTime();
     CFTimeInterval const runDuration = 20.0 * 60.0; // 20 minutes in seconds
-    generatedata(5 /* nCellsPerTab */, YES /* clearState */);
+    generateProfileData(5 /* nCellsPerTab */, YES /* clearState */);
     while (true) {
         if ((CACurrentMediaTime() - startTime) >= runDuration) {
             break;
         }
-        if (!generatedata(5 /* nCellsPerTab */, NO /* clearState */)) {
+        if (!generateProfileData(5 /* nCellsPerTab */, NO /* clearState */)) {
             break;
         }
     }
 }
 
 /**
- * Generates data by interacting with UI elements in the TrendingMovies app.
+ * Generates profile data by interacting with UI elements in the TrendingMovies app while running a Sentry
+ * transaction with profiling enabled.
  * @param nCellsPerTab The number of cells to tap on, per tab.
  * @param clearState Whether to clear filesystem state when the app starts.
  * @return Whether the operation was successful or not.
  */
 BOOL
-generatedata(NSUInteger nCellsPerTab, BOOL clearState)
+generateProfileData(NSUInteger nCellsPerTab, BOOL clearState)
 {
     XCUIApplication *app = [[XCUIApplication alloc] init];
     if (clearState) {
-        app.launchArguments = @[ @"--clear", @"--network-request-automation" ];
+        app.launchArguments = @[ @"--clear"];
     }
     [app launch];
     if (![app waitForState:XCUIApplicationStateRunningForeground timeout:kWaitForAppStateTimeout]) {

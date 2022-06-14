@@ -1,6 +1,6 @@
-# Defines a workflow that generates large volumes of real-ish data to work with for various development tasks.
+# Defines a workflow that generates large volumes of real-ish profiling data to work with for various development tasks.
 
-name: Generate Test Data
+name: Generate Profiling Test Data
 on:
   schedule:
     - cron: '0 7 * * *' # every day at 0700 UTC (midnight SF, 0300 NYC, 0900 Paris)
@@ -9,11 +9,11 @@ on:
       - master
   pull_request:
     paths:
-      - '.github/workflows/data-generator.yml'
+      - '.github/workflows/profile-data-generator.yml'
 
 jobs:
-  build-data-generator-targets:
-    name: Build UITest Targets
+  build-profile-data-generator-targets:
+    name: Build app and UI test targets
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
@@ -28,7 +28,7 @@ jobs:
       - name: Install Carthage deps
         if: steps.trendingmovies-carthage-cache.cache-hit != 'true'
         run: cd Samples/TrendingMovies && carthage update --use-xcframeworks
-      - run: fastlane build_data_generator_ui_test
+      - run: fastlane build_profile_data_generator_ui_test
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -43,11 +43,12 @@ jobs:
           name: data-generator-build-products
           path: |
             **/Debug-iphoneos/TrendingMovies.app
-            **/Debug-iphoneos/DataGeneratorUITests-Runner.app
+            **/Debug-iphoneos/ProfileDataGeneratorUITests-Runner.app
 
-  run-data-generator:
+  run-profile-data-generator:
+    name: Run on Sauce Labs
     runs-on: ubuntu-latest
-    needs: build-data-generator-targets
+    needs: build-profile-data-generator-targets
     strategy:
       fail-fast: false
       matrix:
@@ -62,4 +63,4 @@ jobs:
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        run: saucectl run --select-suite iOS-${{ matrix.iOS }}
+        run: saucectl run --select-suite iOS-${{ matrix.iOS }} --config .sauce/profile-data-generator-config.yml
