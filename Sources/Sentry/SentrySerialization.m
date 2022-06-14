@@ -121,11 +121,12 @@ NS_ASSUME_NONNULL_BEGIN
             [[key description] stringByAddingPercentEncodingWithAllowedCharacters:allowedSet];
         NSString *valueDescription =
             [[value description] stringByAddingPercentEncodingWithAllowedCharacters:allowedSet];
-        
-        NSString * item = [NSString stringWithFormat:@"%@=%@", keyDescription, valueDescription];
-        if (item.length + currentSize <= 8192 ) {
-            currentSize += item.length + 1; // +1 is to account for the comma that will be added for each extra itemapp
-            [items addObject: item];
+
+        NSString *item = [NSString stringWithFormat:@"%@=%@", keyDescription, valueDescription];
+        if (item.length + currentSize <= 8192) {
+            currentSize += item.length
+                + 1; // +1 is to account for the comma that will be added for each extra itemapp
+            [items addObject:item];
         }
     }
 

@@ -255,11 +255,11 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": "value-_"]), "key=value-_")
         XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": "value\n\r"]), "key=value%0A%0D")
         
-        let largeValue = String(repeating: "a", count: 8188)
+        let largeValue = String(repeating: "a", count: 8_188)
         
         XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": largeValue]), "key=\(largeValue)")
-        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["AKey":"something", "BKey": largeValue]), "AKey=something")
-        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["AKey":"something", "BKey": largeValue, "CKey": "Other Value"]), "AKey=something,CKey=Other%20Value")
+        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["AKey": "something", "BKey": largeValue]), "AKey=something")
+        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["AKey": "something", "BKey": largeValue, "CKey": "Other Value"]), "AKey=something,CKey=Other%20Value")
     }
     
     private func serializeEnvelope(envelope: SentryEnvelope) -> Data {
