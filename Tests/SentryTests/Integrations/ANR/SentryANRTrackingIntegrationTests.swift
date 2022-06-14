@@ -107,7 +107,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         sut.install(with: self.options)
     }
     
-    private func setUpThreadInspector()  {
+    private func setUpThreadInspector() {
         let threadInspector = TestThreadInspector.instance
         threadInspector.mainThread = 256
         
@@ -115,7 +115,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         frame1.function = "Second_frame_function"
         
         let thread1 = Sentry.Thread(threadId: 0)
-        thread1.thread = 245432
+        thread1.thread = 245_432
         thread1.stacktrace = Stacktrace(frames: [frame1], registers: [:])
         thread1.current = true
         

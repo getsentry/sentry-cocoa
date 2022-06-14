@@ -2,8 +2,8 @@ import Foundation
 
 class TestThreadInspector: SentryThreadInspector {
     
-    var mainThread : SentryCrashThread?
-    var allThreds : [Sentry.Thread]?
+    var mainThread: SentryCrashThread?
+    var allThreds: [Sentry.Thread]?
     
     static var instance: TestThreadInspector {
         // We need something to pass to the super initializer, because the empty initializer has been marked unavailable.
@@ -22,7 +22,7 @@ class TestThreadInspector: SentryThreadInspector {
     }
     
     override func isMainThread(_ thread: SentryCrashThread) -> Bool {
-        return thread == mainThread;
+        return thread == mainThread
     }
     
 }
