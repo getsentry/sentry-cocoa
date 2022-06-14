@@ -88,4 +88,13 @@ class SentryBreadcrumbTests: XCTestCase {
         XCTAssertEqual(fixture.message, actual["message"] as? String)
         XCTAssertEqual(["some": ["data": "data", "date": fixture.dateAs8601String]], actual["data"] as? Dictionary)
     }
+    
+    func testDescription() {
+        let crumb = fixture.breadcrumb
+        let actual = crumb.description
+        
+        let serialaziedString = NSString(format: "<SentryBreadcrumb: %p, %@>", crumb, crumb.serialize())
+        
+        XCTAssertEqual(serialaziedString, actual as NSString)
+    }
 }

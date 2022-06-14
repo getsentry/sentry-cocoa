@@ -5,10 +5,15 @@
 ### Features
 
 - feat: Add App Hangs tracking (#1861) 
+- Implement description for SentryBreadcrumb (#1880)
+
+## 7.16.1
 
 ### Fixes
 
+- Fix reporting wrong OOM when starting SDK twice (#1878)
 - Fix JSON conversion error message (#1856)
+- Transaction tag and data serialization (#1826)
 
 ## 7.16.0
 

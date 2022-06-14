@@ -67,8 +67,8 @@ SentrySubClassFinder ()
             }
 
             [SentryLog
-                logWithMessage:[NSString stringWithFormat:@"This are the UIViewControllers that "
-                                                          @"generates automatic transactions: %@",
+                logWithMessage:[NSString stringWithFormat:@"The following UIViewControllers will "
+                                                          @"generate automatic transactions: %@",
                                          [classesToSwizzle componentsJoinedByString:@", "]]
                       andLevel:kSentryLevelDebug];
         }];

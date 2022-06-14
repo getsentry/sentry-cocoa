@@ -5,6 +5,7 @@ func clearTestState() {
     SentrySDK.close()
     SentrySDK.setCurrentHub(nil)
     SentrySDK.crashedLastRunCalled = false
+    SentrySDK.startInvocations = 0
     
     PrivateSentrySDKOnly.onAppStartMeasurementAvailable = nil
     PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = false
