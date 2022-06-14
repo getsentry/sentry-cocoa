@@ -32,8 +32,8 @@ static NSTimeInterval const kWaitForElementTimeout = 5.0;
 }
 
 /**
- * Generates profile data by interacting with UI elements in the TrendingMovies app while running a Sentry
- * transaction with profiling enabled.
+ * Generates profile data by interacting with UI elements in the TrendingMovies app while running a
+ * Sentry transaction with profiling enabled.
  * @param nCellsPerTab The number of cells to tap on, per tab.
  * @param clearState Whether to clear filesystem state when the app starts.
  * @return Whether the operation was successful or not.
@@ -43,7 +43,7 @@ generateProfileData(NSUInteger nCellsPerTab, BOOL clearState)
 {
     XCUIApplication *app = [[XCUIApplication alloc] init];
     if (clearState) {
-        app.launchArguments = @[ @"--clear"];
+        app.launchArguments = @[ @"--clear" ];
     }
     [app launch];
     if (![app waitForState:XCUIApplicationStateRunningForeground timeout:kWaitForAppStateTimeout]) {
