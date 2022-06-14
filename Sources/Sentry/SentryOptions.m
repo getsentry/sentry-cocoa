@@ -60,7 +60,7 @@ SentryOptions ()
         self.idleTimeout = 3.0;
 #endif
         self.enableAppHangTracking = YES;
-        self.appHangTimeoutInterval = (double)SENTRY_ANR_TRACKER_TIMEOUT_MILLIS / 1000.0;
+        self.appHangTimeoutInterval = 2000.0;
 
         self.enableNetworkTracking = YES;
         self.enableFileIOTracking = NO;

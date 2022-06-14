@@ -702,7 +702,7 @@
 - (void)testDefaultAppHangsTimeout
 {
     SentryOptions *options = [self getValidOptions:@{}];
-    XCTAssertEqual(SENTRY_ANR_TRACKER_TIMEOUT_MILLIS / 1000, options.appHangTimeoutInterval);
+    XCTAssertEqual(2000, options.appHangTimeoutInterval);
 }
 
 - (void)testEnableNetworkTracking
