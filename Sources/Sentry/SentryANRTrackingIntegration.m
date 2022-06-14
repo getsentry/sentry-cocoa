@@ -64,7 +64,7 @@ SentryANRTrackingIntegration ()
 
     // In case the debugger is attached
     if ([SentryDependencyContainer.sharedInstance.crashWrapper isBeingTraced]) {
-       return YES;
+        return YES;
     }
 
     return NO;
