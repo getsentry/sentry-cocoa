@@ -34,7 +34,6 @@ SENTRY_NO_INIT
  */
 @property (nonatomic, copy) NSNumber *_Nullable current;
 
-
 /**
  * The thread from which this SentryThread extracted its information
  */

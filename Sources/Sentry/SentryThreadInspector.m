@@ -17,10 +17,10 @@ SentryThreadInspector ()
 
 @implementation SentryThreadInspector
 
-+(void)initialize {
-     mainThreadID = pthread_mach_thread_np(pthread_self());
++ (void)initialize
+{
+    mainThreadID = pthread_mach_thread_np(pthread_self());
 }
-
 
 - (id)initWithStacktraceBuilder:(SentryStacktraceBuilder *)stacktraceBuilder
        andMachineContextWrapper:(id<SentryCrashMachineContextWrapper>)machineContextWrapper
@@ -56,7 +56,7 @@ SentryThreadInspector ()
         SentryCrashThread thread = [self.machineContextWrapper getThread:context withIndex:i];
         SentryThread *sentryThread = [[SentryThread alloc] initWithThreadId:@(i)];
         sentryThread.thread = thread;
-        
+
         sentryThread.name = [self getThreadName:thread];
 
         sentryThread.crashed = @NO;
@@ -92,7 +92,8 @@ SentryThreadInspector ()
     return threadName;
 }
 
-- (BOOL)isMainThread:(SentryCrashThread)thread {
+- (BOOL)isMainThread:(SentryCrashThread)thread
+{
     return thread == mainThreadID;
 }
 

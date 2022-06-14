@@ -64,7 +64,7 @@ SentryANRTrackingIntegration ()
 
     // In case the debugger is attached
     if ([SentryDependencyContainer.sharedInstance.crashWrapper isBeingTraced]) {
-      //  return YES;
+        //  return YES;
     }
 
     return NO;
@@ -77,8 +77,8 @@ SentryANRTrackingIntegration ()
 
 - (void)anrDetected
 {
-    SentryThreadInspector* threadInspector = SentrySDK.currentHub.getClient.threadInspector;
-    
+    SentryThreadInspector *threadInspector = SentrySDK.currentHub.getClient.threadInspector;
+
     NSString *message = [NSString stringWithFormat:@"App hanging for at least %li ms.",
                                   (long)(self.options.appHangTimeoutInterval * 1000)];
 
@@ -88,10 +88,10 @@ SentryANRTrackingIntegration ()
     SentryException *sentryException = [[SentryException alloc] initWithValue:message
                                                                          type:@"App Hanging"];
     sentryException.mechanism = [[SentryMechanism alloc] initWithType:@"AppHang"];
-    
-    SentryThread * mainThread;
-    
-    for (SentryThread* sentryThread in threads) {
+
+    SentryThread *mainThread;
+
+    for (SentryThread *sentryThread in threads) {
         if ([threadInspector isMainThread:sentryThread.thread]) {
             sentryThread.current = @YES;
             mainThread = sentryThread;
@@ -99,10 +99,9 @@ SentryANRTrackingIntegration ()
             sentryThread.current = @NO;
         }
     }
-    
+
     sentryException.stacktrace = [mainThread stacktrace];
-    
-    
+
     event.exceptions = @[ sentryException ];
     event.threads = threads;
 
