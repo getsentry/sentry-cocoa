@@ -3,6 +3,9 @@
 #import "SentryStacktrace.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThread.h"
+#include <pthread.h>
+
+SentryCrashThread mainThreadID;
 
 @interface
 SentryThreadInspector ()
@@ -13,6 +16,11 @@ SentryThreadInspector ()
 @end
 
 @implementation SentryThreadInspector
+
++(void)initialize {
+     mainThreadID = pthread_mach_thread_np(pthread_self());
+}
+
 
 - (id)initWithStacktraceBuilder:(SentryStacktraceBuilder *)stacktraceBuilder
        andMachineContextWrapper:(id<SentryCrashMachineContextWrapper>)machineContextWrapper
@@ -47,14 +55,14 @@ SentryThreadInspector ()
     for (int i = 0; i < threadCount; i++) {
         SentryCrashThread thread = [self.machineContextWrapper getThread:context withIndex:i];
         SentryThread *sentryThread = [[SentryThread alloc] initWithThreadId:@(i)];
-
+        sentryThread.thread = thread;
+        
         sentryThread.name = [self getThreadName:thread];
 
         sentryThread.crashed = @NO;
         bool isCurrent = thread == sentrycrashthread_self();
         sentryThread.current = @(isCurrent);
 
-        // For now we can only retrieve the stack trace of the current thread.
         if (isCurrent) {
             sentryThread.stacktrace = [self.stacktraceBuilder buildStacktraceForCurrentThread];
         } else if (getAllStacktraces) {
@@ -82,6 +90,10 @@ SentryThreadInspector ()
         threadName = @"";
     }
     return threadName;
+}
+
+- (BOOL)isMainThread:(SentryCrashThread)thread {
+    return thread == mainThreadID;
 }
 
 @end

@@ -46,7 +46,7 @@ SentryANRTracker ()
 
 - (void)detectANRs
 {
-    NSThread.currentThread.name = @"io.sentry.anr-tracker";
+    NSThread.currentThread.name = @"io.sentry.app-hang-tracker";
 
     self.thread = NSThread.currentThread;
 

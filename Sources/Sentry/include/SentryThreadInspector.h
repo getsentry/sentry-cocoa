@@ -19,6 +19,8 @@ SENTRY_NO_INIT
 - (NSArray<SentryThread *> *)getCurrentThreads;
 
 - (NSArray<SentryThread *> *)getCurrentThreadsWithStackTrace:(BOOL)getAllStacktraces;
+
+- (BOOL)isMainThread:(SentryCrashThread)thread;
 @end
 
 NS_ASSUME_NONNULL_END
