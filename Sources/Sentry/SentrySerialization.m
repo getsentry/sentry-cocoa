@@ -107,12 +107,13 @@ NS_ASSUME_NONNULL_BEGIN
     return envelopeData;
 }
 
-+ (NSString *)urlEncodedDictionary:(NSDictionary *)dictionary
++ (NSString *)baggageEncodedDictionary:(NSDictionary *)dictionary
 {
-    NSMutableArray *itens = [[NSMutableArray alloc] initWithCapacity:dictionary.count];
+    NSMutableArray *items = [[NSMutableArray alloc] initWithCapacity:dictionary.count];
 
     NSMutableCharacterSet *allowedSet = [NSCharacterSet.alphanumericCharacterSet mutableCopy];
     [allowedSet addCharactersInString:@"-_"];
+    NSInteger currentSize = 0;
 
     for (id key in dictionary.allKeys) {
         id value = dictionary[key];
@@ -120,12 +121,17 @@ NS_ASSUME_NONNULL_BEGIN
             [[key description] stringByAddingPercentEncodingWithAllowedCharacters:allowedSet];
         NSString *valueDescription =
             [[value description] stringByAddingPercentEncodingWithAllowedCharacters:allowedSet];
-        [itens addObject:[NSString stringWithFormat:@"%@=%@", keyDescription, valueDescription]];
+        
+        NSString * item = [NSString stringWithFormat:@"%@=%@", keyDescription, valueDescription];
+        if (item.length + currentSize <= 8192 ) {
+            currentSize += item.length + 1; // +1 is to account for the comma that will be added for each extra itemapp
+            [items addObject: item];
+        }
     }
 
-    return [[itens sortedArrayUsingComparator:^NSComparisonResult(NSString *obj1, NSString *obj2) {
+    return [[items sortedArrayUsingComparator:^NSComparisonResult(NSString *obj1, NSString *obj2) {
         return [obj1 compare:obj2];
-    }] componentsJoinedByString:@"&"];
+    }] componentsJoinedByString:@","];
 }
 
 + (SentryEnvelope *_Nullable)envelopeWithData:(NSData *)data

@@ -53,7 +53,7 @@
     if (_userSegment != nil)
         [information setValue:_userSegment forKey:@"sentry-usersegment"];
 
-    return [SentrySerialization urlEncodedDictionary:information];
+    return [SentrySerialization baggageEncodedDictionary:information];
 }
 
 @end
