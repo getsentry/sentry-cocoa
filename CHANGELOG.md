@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Implement description for SentryBreadcrumb (#1880)
+
 ## 7.16.1
 
 ### Fixes

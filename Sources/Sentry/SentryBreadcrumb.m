@@ -79,4 +79,9 @@
     return hash;
 }
 
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"<%@: %p, %@>", [self class], self, [self serialize]];
+}
+
 @end
