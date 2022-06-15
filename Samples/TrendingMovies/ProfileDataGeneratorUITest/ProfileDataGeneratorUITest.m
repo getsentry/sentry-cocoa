@@ -19,10 +19,10 @@ static NSTimeInterval const kWaitForElementTimeout = 5.0;
 - (void)testGenerateProfileData
 {
     CFTimeInterval const startTime = CACurrentMediaTime();
-    CFTimeInterval const runDuration = 20.0 * 60.0; // 20 minutes in seconds
+    CFTimeInterval const runDuration_seconds = 3.0 * 60.0;
     generateProfileData(5 /* nCellsPerTab */, YES /* clearState */);
     while (true) {
-        if ((CACurrentMediaTime() - startTime) >= runDuration) {
+        if ((CACurrentMediaTime() - startTime) >= runDuration_seconds) {
             break;
         }
         if (!generateProfileData(5 /* nCellsPerTab */, NO /* clearState */)) {
