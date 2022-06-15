@@ -10,7 +10,7 @@ on:
       - 'Sources/**'
       - 'test-server/**'
       - 'Samples/**'
-      - '.github/workflows/**'
+      - '.github/workflows/build.yml'
 
 jobs:
   # We had issues that the release build was broken on master.
@@ -76,7 +76,7 @@ jobs:
         shell: sh
 
       - name: Archiving XCFramework.zip
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ github.sha }}
           if-no-files-found: error
@@ -96,7 +96,7 @@ jobs:
         shell: sh
 
       - name: Archiving Framework.zip
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ github.sha }}
           if-no-files-found: error

@@ -2,10 +2,21 @@
 
 ## Unreleased
 
+### Features
+
+- Implement description for SentryBreadcrumb (#1880)
+
 ### Fixes
 
-- Fix JSON conversion error message (#1856)
 - Propagate configured SDK info from options to events (#1853)
+
+## 7.16.1
+
+### Fixes
+
+- Fix reporting wrong OOM when starting SDK twice (#1878)
+- Fix JSON conversion error message (#1856)
+- Transaction tag and data serialization (#1826)
 
 ## 7.16.0
 

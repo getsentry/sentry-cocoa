@@ -1,9 +1,9 @@
-name: UI Tests
+name: Sauce Labs UI Tests
 on:
   # Schedule the UI tests so we can see in Sentry how the duration of transactions
   # changes over time.
   schedule:
-    - cron: '* */4 * * *'
+    - cron: '0 0 * * *'
   push:
     branches:
       - master
@@ -12,6 +12,7 @@ on:
     paths:
       - 'Sources/**'
       - 'Tests/**'
+      - '.github/workflows/saucelabs-UI-tests.yml'
 
 jobs:
   build-ui-tests:
@@ -37,7 +38,7 @@ jobs:
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       
       - name: Archiving DerivedData
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: DerivedData-Xcode-${{matrix.xcode}}
           path: |
@@ -45,8 +46,8 @@ jobs:
             **/Debug-iphoneos/iOS-SwiftUITests-Runner.app
 
 
-  run-ui-tests:
-    name: Run UITests iOS ${{ matrix.iOS }}
+  run-ui-tests-with-sauce:
+    name: Run UI Tests for iOS ${{ matrix.iOS }} on Sauce Labs
     runs-on: ubuntu-latest
     needs: build-ui-tests
     strategy:      
@@ -59,7 +60,9 @@ jobs:
           - xcode: "13.2"
             iOS: 14
 
-          # iOS 13 has a failing test that we need to fix https://github.com/getsentry/sentry-cocoa/issues/1564
+          - xcode: "13.2"
+            iOS: 13
+
           # iOS 12 has a failing test that we need to fix https://github.com/getsentry/sentry-cocoa/issues/1566
           # iOS 11 keeps timing out and we don't know how to fix it.
 
@@ -69,13 +72,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: DerivedData-Xcode-${{matrix.xcode}}
 
-      - run: npm install -g saucectl@0.93.0
+      - run: npm install -g saucectl@0.99.4
 
-      # As SauceLabs is a bit flaky we retry 5 times
+      # As Sauce Labs is a bit flaky we retry 5 times
       - name: Run Tests in SauceLab
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}

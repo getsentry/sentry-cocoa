@@ -127,6 +127,7 @@ class SentryCrashIntegrationTests: XCTestCase {
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testEndSessionAsCrashed_WhenOOM_WithCurrentSession() {
         givenOOMAppState()
+        SentrySDK.startInvocations = 1
         
         let expectedCrashedSession = givenCrashedSession()
         

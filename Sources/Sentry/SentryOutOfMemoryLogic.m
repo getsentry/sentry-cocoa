@@ -4,6 +4,7 @@
 #import <SentryCrashWrapper.h>
 #import <SentryOptions.h>
 #import <SentryOutOfMemoryLogic.h>
+#import <SentrySDK+Private.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -86,6 +87,12 @@ SentryOutOfMemoryLogic ()
     }
 
     if (previousAppState.isANROngoing) {
+        return NO;
+    }
+
+    // When calling SentrySDK.start twice we would wrongly report an OOM. We can only
+    // report an OOM when the SDK is started the first time.
+    if (SentrySDK.startInvocations != 1) {
         return NO;
     }
 
