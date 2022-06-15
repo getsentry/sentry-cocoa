@@ -69,6 +69,8 @@ platform :ios do
       export_method: "app-store",
       archive_path: "iOS-Swift"
     )
+
+    delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
   
   lane :build_ios_swift_ui_test do
@@ -91,6 +93,7 @@ platform :ios do
       skip_archive: true
     )
 
+    delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
 
   desc "Upload iOS-Swift to TestFlight and symbols to Sentry"
