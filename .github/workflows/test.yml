@@ -120,7 +120,7 @@ jobs:
       # See https://docs.codecov.io/docs/merging-reports
       # Checkout .codecov.yml to see the config of Codecov
       - name: Push code coverage to codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
         
         # SentrySystemEventsBreadcrumbsTest only run on Catalyst and iOS
         # so the coverage report shows a reduced coverage.
