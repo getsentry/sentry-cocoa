@@ -88,19 +88,9 @@ SentryANRTrackingIntegration ()
     SentryException *sentryException = [[SentryException alloc] initWithValue:message
                                                                          type:@"App Hanging"];
     sentryException.mechanism = [[SentryMechanism alloc] initWithType:@"AppHang"];
-
-    SentryThread *mainThread;
-
-    for (SentryThread *sentryThread in threads) {
-        if ([threadInspector isMainThread:sentryThread.thread]) {
-            sentryThread.current = @YES;
-            mainThread = sentryThread;
-        } else {
-            sentryThread.current = @NO;
-        }
-    }
-
-    sentryException.stacktrace = [mainThread stacktrace];
+    sentryException.stacktrace = [threads[0] stacktrace];
+    [threads enumerateObjectsUsingBlock:^(SentryThread *_Nonnull obj, NSUInteger idx,
+        BOOL *_Nonnull stop) { obj.current = [NSNumber numberWithBool:idx == 0]; }];
 
     event.exceptions = @[ sentryException ];
     event.threads = threads;

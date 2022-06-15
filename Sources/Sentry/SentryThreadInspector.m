@@ -5,8 +5,6 @@
 #import "SentryThread.h"
 #include <pthread.h>
 
-SentryCrashThread mainThreadID;
-
 @interface
 SentryThreadInspector ()
 
@@ -16,11 +14,6 @@ SentryThreadInspector ()
 @end
 
 @implementation SentryThreadInspector
-
-+ (void)initialize
-{
-    mainThreadID = pthread_mach_thread_np(pthread_self());
-}
 
 - (id)initWithStacktraceBuilder:(SentryStacktraceBuilder *)stacktraceBuilder
        andMachineContextWrapper:(id<SentryCrashMachineContextWrapper>)machineContextWrapper
@@ -55,7 +48,6 @@ SentryThreadInspector ()
     for (int i = 0; i < threadCount; i++) {
         SentryCrashThread thread = [self.machineContextWrapper getThread:context withIndex:i];
         SentryThread *sentryThread = [[SentryThread alloc] initWithThreadId:@(i)];
-        sentryThread.thread = thread;
 
         sentryThread.name = [self getThreadName:thread];
 
@@ -69,7 +61,11 @@ SentryThreadInspector ()
             sentryThread.stacktrace = [self.stacktraceBuilder buildStacktraceForThread:thread];
         }
 
-        [threads addObject:sentryThread];
+        // We need to make sure the main thread is always the first thread in the result
+        if ([self.machineContextWrapper isMainThread:thread])
+            [threads insertObject:sentryThread atIndex:0];
+        else
+            [threads addObject:sentryThread];
     }
 
     if (numSuspendedThreads > 0) {
@@ -90,11 +86,6 @@ SentryThreadInspector ()
         threadName = @"";
     }
     return threadName;
-}
-
-- (BOOL)isMainThread:(SentryCrashThread)thread
-{
-    return thread == mainThreadID;
 }
 
 @end

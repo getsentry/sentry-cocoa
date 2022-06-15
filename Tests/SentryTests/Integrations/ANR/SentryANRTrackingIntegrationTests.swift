@@ -83,7 +83,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(ex.value, "App hanging for at least 4500 ms.")
             XCTAssertNotNil(ex.stacktrace)
             XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
-            XCTAssertTrue(event?.threads?[1].current?.boolValue ?? false)
+            XCTAssertTrue(event?.threads?[0].current?.boolValue ?? false)
             
             guard let threads = event?.threads else {
                 XCTFail("ANR Exception not found")
@@ -109,13 +109,11 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     
     private func setUpThreadInspector() {
         let threadInspector = TestThreadInspector.instance
-        threadInspector.mainThread = 256
         
         let frame1 = Sentry.Frame()
         frame1.function = "Second_frame_function"
         
         let thread1 = Sentry.Thread(threadId: 0)
-        thread1.thread = 245_432
         thread1.stacktrace = Stacktrace(frames: [frame1], registers: [:])
         thread1.current = true
         
@@ -123,13 +121,12 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         frame2.function = "main"
         
         let thread2 = Sentry.Thread(threadId: 1)
-        thread2.thread = 256
         thread2.stacktrace = Stacktrace(frames: [frame2], registers: [:])
         thread2.current = false
         
         threadInspector.allThreds = [
-            thread1,
-            thread2
+            thread2,
+            thread1
         ]
         
         SentrySDK.currentHub().getClient()?.threadInspector = threadInspector
