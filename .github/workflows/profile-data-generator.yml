@@ -63,4 +63,4 @@ jobs:
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        run: saucectl run --select-suite iOS-${{ matrix.iOS }} --config .sauce/profile-data-generator-config.yml
+        run: for i in {1..5}; do saucectl run --select-suite iOS-${{ matrix.iOS }} --config .sauce/profile-data-generator-config.yml && break ; done     
