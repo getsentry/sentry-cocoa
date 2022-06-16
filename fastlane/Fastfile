@@ -117,6 +117,12 @@ platform :ios do
       skip_archive: true
     )
 
+    sentry_upload_dsym(
+      auth_token: ENV["SENTRY_AUTH_TOKEN"],
+      org_slug: 'sentry-sdks',
+      project_slug: 'sentry-cocoa',
+    )
+
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
 
