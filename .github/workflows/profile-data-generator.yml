@@ -23,7 +23,7 @@ jobs:
         id: trendingmovies-carthage-cache
         uses: actions/cache@v3
         with:
-          path: ~/Samples/TrendingMovies/Carthage/Build
+          path: ./Samples/TrendingMovies/Carthage/Build
           key: trendingmovies-carthage-cache-key-${{ hashFiles('Samples/TrendingMovies/Cartfile.resolved') }}
       - name: Install Carthage deps
         if: steps.trendingmovies-carthage-cache.cache-hit != 'true'
