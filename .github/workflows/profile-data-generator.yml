@@ -11,6 +11,7 @@ on:
     paths:
       - '.github/workflows/profile-data-generator.yml'
       - 'fastlane/**'
+      - 'Samples/TrendingMovies/**'
       - '.sauce/profile-data-generator-config.yml'
 
 jobs:
