@@ -131,6 +131,7 @@ dispatch_queue_t queue;
     [samples removeAllObjects];
 
     const auto samplingThreadUsage = totals[@"io.sentry.SamplingProfiler"].integerValue;
+    [totals removeObjectForKey:@"io.sentry.SamplingProfiler"];
     const auto totalUsage
         = ((NSNumber *)[totals.allValues valueForKeyPath:@"@sum.self"]).integerValue;
 
