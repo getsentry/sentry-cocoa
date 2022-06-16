@@ -96,7 +96,7 @@ platform :ios do
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
 
-  desc 'Run an XCode UI test that exercises a test app to generate and upload profile data for testing/development purposes throughout the stack.'
+  desc 'Build an XCode UI test target that exercises the Trending Movies test app to generate and upload profile data for testing/development purposes throughout the rest of the Sentry stack.'
   lane :build_profile_data_generator_ui_test do
 
     setup_ci(

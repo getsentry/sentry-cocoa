@@ -10,6 +10,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/profile-data-generator.yml'
+      - 'fastlane/**'
 
 jobs:
   build-profile-data-generator-targets:
