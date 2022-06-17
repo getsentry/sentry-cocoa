@@ -6,6 +6,10 @@
 
 - Implement description for SentryBreadcrumb (#1880)
 
+### Fixes
+
+- Propagate configured SDK info from options to events (#1853)
+
 ## 7.16.1
 
 ### Fixes
