@@ -114,13 +114,17 @@ platform :ios do
       scheme: "TrendingMovies",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
-      skip_archive: true
+      skip_archive: true,
     )
 
     sentry_upload_dsym(
       auth_token: ENV["SENTRY_AUTH_TOKEN"],
       org_slug: 'sentry-sdks',
       project_slug: 'trending-movies',
+      dsym_paths: [
+        'DerivedData/Build/Products/Debug-iphoneos/ProfileDataGeneratorUITest-Runner.app/PlugIns/ProfileDataGeneratorUITest.xctest.dSYM',
+        'DerivedData//Build/Products/Debug-iphoneos/TrendingMovies.app.dSYM',
+      ],
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
