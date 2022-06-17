@@ -12,6 +12,7 @@ on:
       - 'test-server/**'
       - 'Samples/**'
       - '.github/workflows/test.yml'
+      - 'fastlane/**'
 
 jobs:
   unit-tests:
