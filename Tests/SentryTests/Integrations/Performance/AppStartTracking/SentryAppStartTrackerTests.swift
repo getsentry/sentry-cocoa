@@ -127,6 +127,14 @@ class SentryAppStartTrackerTests: XCTestCase {
         assertNoAppStartUp()
     }
     
+    @available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)
+    func testAppLaunches_OSPrewarmedProcess_NoAppStartUp() {
+        let processStartTime = fixture.currentDate.date().advanced(by: -60)
+        startApp(processStartTimeStamp: processStartTime)
+        
+        assertNoAppStartUp()
+    }
+    
     func testAppLaunchesBackgroundTask_NoAppStartUp() {
         sut = fixture.sut
         sut.start()
@@ -195,8 +203,8 @@ class SentryAppStartTrackerTests: XCTestCase {
         givenPreviousAppState(appState: appState)
     }
     
-    private func givenProcessStartTimestamp() {
-        fixture.sysctl.setProcessStartTimestamp(value: fixture.currentDate.date())
+    private func givenProcessStartTimestamp(processStartTimeStamp: Date? = nil) {
+        fixture.sysctl.setProcessStartTimestamp(value: processStartTimeStamp ?? fixture.currentDate.date())
     }
     
     private func givenRuntimeInitTimestamp(sut: SentryAppStartTracker) {
@@ -209,8 +217,8 @@ class SentryAppStartTrackerTests: XCTestCase {
         advanceTime(bySeconds: 0.3)
     }
     
-    private func startApp() {
-        givenProcessStartTimestamp()
+    private func startApp(processStartTimeStamp: Date? = nil) {
+        givenProcessStartTimestamp(processStartTimeStamp: processStartTimeStamp)
         
         sut = fixture.sut
         givenRuntimeInitTimestamp(sut: sut)
