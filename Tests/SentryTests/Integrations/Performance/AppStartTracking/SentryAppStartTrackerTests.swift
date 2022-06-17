@@ -127,9 +127,8 @@ class SentryAppStartTrackerTests: XCTestCase {
         assertNoAppStartUp()
     }
     
-    @available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)
     func testAppLaunches_OSPrewarmedProcess_NoAppStartUp() {
-        let processStartTime = fixture.currentDate.date().advanced(by: -60)
+        let processStartTime = fixture.currentDate.date().addingTimeInterval(-60)
         startApp(processStartTimeStamp: processStartTime)
         
         assertNoAppStartUp()
