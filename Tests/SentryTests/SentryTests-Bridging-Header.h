@@ -69,6 +69,7 @@
 #import "SentryEnvelope+Private.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEnvelopeRateLimit.h"
+#import "SentryEvent+Private.h"
 #import "SentryFileContents.h"
 #import "SentryFileIOTrackingIntegration.h"
 #import "SentryFileManager+TestProperties.h"
