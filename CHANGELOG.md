@@ -2,12 +2,26 @@
 
 ## Unreleased
 
+### Fixes
+
+- Unset scope span when finishing idle transaction (#1902)
+- Set max app start duration to 60s (#1899)
+
+## 7.17.0
+
 ### Features
 
-- feat: Add App Hangs tracking (#1861) 
+- Add App Hangs tracking (#1861) 
+- Replace tracestate header with baggage (#1867)
 - Implement description for SentryBreadcrumb (#1880)
 
+### Fixes
+
+- Propagate configured SDK info from options to events (#1853)
+- Stop reporting pre warmed app starts (#1896)
+
 ## 7.16.1
+
 
 ### Fixes
 

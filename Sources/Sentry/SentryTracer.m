@@ -13,7 +13,7 @@
 #import "SentrySpan.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
-#import "SentryTraceState.h"
+#import "SentryTraceContext.h"
 #import "SentryTransaction+Private.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
@@ -47,7 +47,7 @@ SentryTracer ()
 
 @implementation SentryTracer {
     BOOL _waitForChildren;
-    SentryTraceState *_traceState;
+    SentryTraceContext *_traceContext;
     NSMutableDictionary<NSString *, id> *_tags;
     NSMutableDictionary<NSString *, id> *_data;
     dispatch_block_t _idleTimeoutBlock;
@@ -250,18 +250,18 @@ static NSLock *profilerLock;
     return self.rootSpan.startTimestamp;
 }
 
-- (SentryTraceState *)traceState
+- (SentryTraceContext *)traceContext
 {
-    if (_traceState == nil) {
+    if (_traceContext == nil) {
         @synchronized(self) {
-            if (_traceState == nil) {
-                _traceState = [[SentryTraceState alloc] initWithTracer:self
-                                                                 scope:_hub.scope
-                                                               options:SentrySDK.options];
+            if (_traceContext == nil) {
+                _traceContext = [[SentryTraceContext alloc] initWithTracer:self
+                                                                     scope:_hub.scope
+                                                                   options:SentrySDK.options];
             }
         }
     }
-    return _traceState;
+    return _traceContext;
 }
 
 - (void)setStartTimestamp:(nullable NSDate *)startTimestamp
@@ -403,6 +403,12 @@ static NSLock *profilerLock;
     if (_hub == nil)
         return;
 
+    [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+        if (span == self) {
+            [self->_hub.scope setSpan:nil];
+        }
+    }];
+
     @synchronized(_children) {
         if (self.idleTimeout > 0.0 && _children.count == 0) {
             return;
@@ -422,12 +428,6 @@ static NSLock *profilerLock;
             [self trimEndTimestamp];
         }
     }
-
-    [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        if (span == self) {
-            [self->_hub.scope setSpan:nil];
-        }
-    }];
 
     SentryTransaction *transaction = [self toTransaction];
     NSMutableArray<SentryEnvelopeItem *> *additionalEnvelopeItems = [NSMutableArray array];

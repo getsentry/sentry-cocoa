@@ -10,6 +10,7 @@ on:
       - 'Tests/**'
       - 'scripts/**'
       - '.github/workflows/integration-tests.yml'
+      - 'fastlane/**'
 
 jobs:
 

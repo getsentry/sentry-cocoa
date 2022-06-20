@@ -2,6 +2,7 @@
 #import "SentryEnvelope.h"
 #import "SentryEvent.h"
 #import "SentryOptions.h"
+#import "SentryUserFeedback.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -28,28 +29,28 @@ SentryTransportAdapter ()
 
 - (void)sendEvent:(SentryEvent *)event attachments:(NSArray<SentryAttachment *> *)attachments
 {
-    [self sendEvent:event traceState:nil attachments:attachments];
+    [self sendEvent:event traceContext:nil attachments:attachments];
 }
 
 - (void)sendEvent:(SentryEvent *)event
           session:(SentrySession *)session
       attachments:(NSArray<SentryAttachment *> *)attachments
 {
-    [self sendEvent:event withSession:session traceState:nil attachments:attachments];
+    [self sendEvent:event withSession:session traceContext:nil attachments:attachments];
 }
 
 - (void)sendEvent:(SentryEvent *)event
-       traceState:(nullable SentryTraceState *)traceState
+     traceContext:(nullable SentryTraceContext *)traceContext
       attachments:(NSArray<SentryAttachment *> *)attachments
 {
     [self sendEvent:event
-                     traceState:traceState
+                   traceContext:traceContext
                     attachments:attachments
         additionalEnvelopeItems:@[]];
 }
 
 - (void)sendEvent:(SentryEvent *)event
-                 traceState:(nullable SentryTraceState *)traceState
+               traceContext:(nullable SentryTraceContext *)traceContext
                 attachments:(NSArray<SentryAttachment *> *)attachments
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
@@ -57,8 +58,10 @@ SentryTransportAdapter ()
                                                                attachments:attachments];
     [items addObjectsFromArray:additionalEnvelopeItems];
 
-    SentryEnvelopeHeader *envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:event.eventId
-                                                                         traceState:traceState];
+    SentryEnvelopeHeader *envelopeHeader =
+        [[SentryEnvelopeHeader alloc] initWithId:event.eventId
+                                         sdkInfo:self.options.sdkInfo
+                                    traceContext:traceContext];
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader items:items];
 
     [self sendEnvelope:envelope];
@@ -66,15 +69,17 @@ SentryTransportAdapter ()
 
 - (void)sendEvent:(SentryEvent *)event
       withSession:(SentrySession *)session
-       traceState:(nullable SentryTraceState *)traceState
+     traceContext:(nullable SentryTraceContext *)traceContext
       attachments:(NSArray<SentryAttachment *> *)attachments
 {
     NSMutableArray<SentryEnvelopeItem *> *items = [self buildEnvelopeItems:event
                                                                attachments:attachments];
     [items addObject:[[SentryEnvelopeItem alloc] initWithSession:session]];
 
-    SentryEnvelopeHeader *envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:event.eventId
-                                                                         traceState:traceState];
+    SentryEnvelopeHeader *envelopeHeader =
+        [[SentryEnvelopeHeader alloc] initWithId:event.eventId
+                                         sdkInfo:self.options.sdkInfo
+                                    traceContext:traceContext];
 
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader items:items];
 
@@ -83,7 +88,13 @@ SentryTransportAdapter ()
 
 - (void)sendUserFeedback:(SentryUserFeedback *)userFeedback
 {
-    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithUserFeedback:userFeedback];
+    SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithUserFeedback:userFeedback];
+    SentryEnvelopeHeader *envelopeHeader =
+        [[SentryEnvelopeHeader alloc] initWithId:userFeedback.eventId
+                                         sdkInfo:self.options.sdkInfo
+                                    traceContext:nil];
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader
+                                                           singleItem:item];
     [self sendEnvelope:envelope];
 }
 

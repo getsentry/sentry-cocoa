@@ -1122,7 +1122,8 @@ sentrycrashobjc_ivarValue(const void *const objectPtr, int ivarIndex, void *dst)
         return false;
     }
     uintptr_t ivarPtr = (uintptr_t)&ivars->first;
-    const struct ivar_t *ivar = (void *)(ivarPtr + ivars->entsizeAndFlags * (unsigned)ivarIndex);
+    const struct ivar_t *ivar
+        = (void *)(ivarPtr + (uintptr_t)ivars->entsizeAndFlags * (uintptr_t)ivarIndex);
 
     uintptr_t valuePtr = (uintptr_t)objectPtr + (uintptr_t)*ivar->offset;
     if (!sentrycrashmem_copySafely((void *)valuePtr, dst, (int)ivar->size)) {

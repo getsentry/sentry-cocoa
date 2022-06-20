@@ -2,14 +2,15 @@ import XCTest
 
 class SDKPerformanceBenchmarkTests: XCTestCase {
     func testCPUBenchmark() throws {
-        try XCTSkipUnless(UIDevice.current.systemVersion.components(separatedBy: ".").first ?? "" == "15", "Only run benchmarks on iOS 15.")
+        let allowedIOSVersion = "15"
+        try XCTSkipUnless(UIDevice.current.systemVersion.components(separatedBy: ".").first ?? "" == allowedIOSVersion, "Only run benchmarks on iOS \(allowedIOSVersion).")
         var isSimulator: Bool
         #if targetEnvironment(simulator)
         isSimulator = true
         #else
         isSimulator = false
         #endif
-        try XCTSkipUnless(isSimulator, "Only run benchmarks on real devices, not in simulators.")
+        try XCTSkipIf(isSimulator, "Only run benchmarks on real devices, not in simulators.")
         var results = [Double]()
         for _ in 0..<5 {
             let app = XCUIApplication()
@@ -52,6 +53,6 @@ class SDKPerformanceBenchmarkTests: XCTestCase {
         let p90 = results.sorted()[index >= results.count ? results.count - 1 : index]
 
         print("p90 overhead: \(p90)%")
-        XCTAssertLessThanOrEqual(p90, 5, "Running profiling resulted in more than 5% overhead while scrolling in the app.")
+        XCTAssertLessThanOrEqual(p90, 5, "Running profiling resulted in more than 5% overhead.")
     }
 }
