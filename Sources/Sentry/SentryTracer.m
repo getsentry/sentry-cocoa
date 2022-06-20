@@ -403,6 +403,12 @@ static NSLock *profilerLock;
     if (_hub == nil)
         return;
 
+    [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+        if (span == self) {
+            [self->_hub.scope setSpan:nil];
+        }
+    }];
+
     @synchronized(_children) {
         if (self.idleTimeout > 0.0 && _children.count == 0) {
             return;
@@ -422,12 +428,6 @@ static NSLock *profilerLock;
             [self trimEndTimestamp];
         }
     }
-
-    [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-        if (span == self) {
-            [self->_hub.scope setSpan:nil];
-        }
-    }];
 
     SentryTransaction *transaction = [self toTransaction];
     NSMutableArray<SentryEnvelopeItem *> *additionalEnvelopeItems = [NSMutableArray array];
