@@ -1,3 +1,6 @@
+#import "SentryANRTracker.h"
+#import "SentryDefaultCurrentDateProvider.h"
+#import "SentryDispatchQueueWrapper.h"
 #import "SentryUIApplication.h"
 #import <Foundation/Foundation.h>
 #import <SentryAppStateManager.h>
@@ -155,6 +158,23 @@ static NSObject *sentryDependencyContainerLock;
     }
 
     return _debugImageProvider;
+}
+
+- (SentryANRTracker *)getANRTracker:(NSTimeInterval)timeout
+{
+    if (_anrTracker == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_anrTracker == nil) {
+                _anrTracker = [[SentryANRTracker alloc]
+                    initWithTimeoutInterval:timeout
+                        currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                               crashWrapper:self.crashWrapper
+                       dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
+                              threadWrapper:self.threadWrapper];
+            }
+        }
+    }
+    return _anrTracker;
 }
 
 @end
