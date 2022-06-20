@@ -10,7 +10,7 @@
 
 - Propagate configured SDK info from options to events (#1853)
 - Stop reporting pre warmed app starts (#1896)
-- Screenshot wrongly attached for crash events (#1901)
+- Screenshot wrongly attached in crash events (#1901)
 
 ## 7.16.1
 
