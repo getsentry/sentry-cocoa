@@ -1,6 +1,5 @@
 #import "SentryStacktraceBuilder.h"
 #import "SentryCrashStackCursor.h"
-#import "SentryCrashStackCursor_MachineContext.h"
 #import "SentryCrashStackCursor_SelfThread.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryFrame.h"
@@ -26,9 +25,15 @@ SentryStacktraceBuilder ()
     return self;
 }
 
-- (SentryStacktrace *)retrieveStacktraceFromCursor:(SentryCrashStackCursor)stackCursor
+- (SentryStacktrace *)buildStacktraceForCurrentThread
 {
     NSMutableArray<SentryFrame *> *frames = [NSMutableArray new];
+
+    SentryCrashStackCursor stackCursor;
+    // We don't need to skip any frames, because we filter out non sentry frames below.
+    NSInteger framesToSkip = 0;
+    sentrycrashsc_initSelfThread(&stackCursor, (int)framesToSkip);
+
     SentryFrame *frame = nil;
     while (stackCursor.advanceCursor(&stackCursor)) {
         if (stackCursor.symbolicate(&stackCursor)) {
@@ -54,26 +59,6 @@ SentryStacktraceBuilder ()
                                                                   registers:@{}];
 
     return stacktrace;
-}
-
-- (SentryStacktrace *)buildStacktraceForThread:(SentryCrashThread)thread
-{
-    SentryCrashMC_NEW_CONTEXT(machineContext);
-    sentrycrashmc_getContextForThread(thread, machineContext, false);
-    SentryCrashStackCursor stackCursor;
-    sentrycrashsc_initWithMachineContext(&stackCursor, 100, machineContext);
-
-    return [self retrieveStacktraceFromCursor:stackCursor];
-}
-
-- (SentryStacktrace *)buildStacktraceForCurrentThread
-{
-    SentryCrashStackCursor stackCursor;
-    // We don't need to skip any frames, because we filter out non sentry frames below.
-    NSInteger framesToSkip = 0;
-    sentrycrashsc_initSelfThread(&stackCursor, (int)framesToSkip);
-
-    return [self retrieveStacktraceFromCursor:stackCursor];
 }
 
 @end

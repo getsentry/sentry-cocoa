@@ -54,11 +54,6 @@
                BlueprintName = "SentryTests"
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "SentrySDKIntegrationTestsBase">
-               </Test>
-            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>
