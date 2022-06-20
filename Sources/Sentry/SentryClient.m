@@ -368,7 +368,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithSession:session];
     SentryEnvelopeHeader *envelopeHeader =
-        [[SentryEnvelopeHeader alloc] initWithId:nil sdkInfo:self.options.sdkInfo traceState:nil];
+        [[SentryEnvelopeHeader alloc] initWithId:nil sdkInfo:self.options.sdkInfo traceContext:nil];
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader
                                                            singleItem:item];
     [self captureEnvelope:envelope];

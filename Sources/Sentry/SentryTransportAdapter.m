@@ -61,7 +61,7 @@ SentryTransportAdapter ()
     SentryEnvelopeHeader *envelopeHeader =
         [[SentryEnvelopeHeader alloc] initWithId:event.eventId
                                          sdkInfo:self.options.sdkInfo
-                                      traceState:traceState];
+                                      traceContext:traceContext];
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader items:items];
 
     [self sendEnvelope:envelope];
@@ -79,7 +79,7 @@ SentryTransportAdapter ()
     SentryEnvelopeHeader *envelopeHeader =
         [[SentryEnvelopeHeader alloc] initWithId:event.eventId
                                          sdkInfo:self.options.sdkInfo
-                                      traceState:traceState];
+                                      traceContext:traceContext];
 
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader items:items];
 
@@ -92,7 +92,7 @@ SentryTransportAdapter ()
     SentryEnvelopeHeader *envelopeHeader =
         [[SentryEnvelopeHeader alloc] initWithId:userFeedback.eventId
                                          sdkInfo:self.options.sdkInfo
-                                      traceState:nil];
+                                      traceContext:nil];
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader
                                                            singleItem:item];
     [self sendEnvelope:envelope];
