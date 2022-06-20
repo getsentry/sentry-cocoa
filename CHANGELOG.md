@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Set max app start duration to 60s (#1899)
+
 ## 7.17.0
 
 ### Features
