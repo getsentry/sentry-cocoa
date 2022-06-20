@@ -154,6 +154,19 @@ class SentryTracerTests: XCTestCase {
         assertOneTransactionCaptured(sut)
     }
     
+    func testFinish_WaitForAllChildren_StartTimeModified_NoTransactionCaptured() {
+        let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
+        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        advanceTime(bySeconds: 1)
+        
+        let sut = fixture.getSut()
+        advanceTime(bySeconds: 499)
+        
+        sut.finish()
+        
+        assertTransactionNotCaptured(sut)
+    }
+    
     func testFinish_IdleTimeout_ExceedsMaxDuration_NoTransactionCaptured() {
         let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
         

@@ -436,20 +436,6 @@ static NSLock *profilerLock;
     }
 
     SentryTransaction *transaction = [self toTransaction];
-    NSMutableArray<SentryEnvelopeItem *> *additionalEnvelopeItems = [NSMutableArray array];
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-    if ([_hub getClient].options.enableProfiling) {
-        [profilerLock lock];
-        if (profiler != nil) {
-            SentryEnvelopeItem *profile = [profiler buildEnvelopeItemForTransaction:transaction];
-            if (profile != nil) {
-                [additionalEnvelopeItems addObject:profile];
-            }
-            profiler = nil;
-        }
-        [profilerLock unlock];
-    }
-#endif
 
     // Prewarming can execute code up to viewDidLoad of a UIViewController, and keep the app in the
     // background. This can lead to auto-generated transactions lasting for minutes or event hours.
@@ -464,6 +450,21 @@ static NSLock *profilerLock;
         [SentryLog logWithMessage:message andLevel:kSentryLevelInfo];
         return;
     }
+
+    NSMutableArray<SentryEnvelopeItem *> *additionalEnvelopeItems = [NSMutableArray array];
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    if ([_hub getClient].options.enableProfiling) {
+        [profilerLock lock];
+        if (profiler != nil) {
+            SentryEnvelopeItem *profile = [profiler buildEnvelopeItemForTransaction:transaction];
+            if (profile != nil) {
+                [additionalEnvelopeItems addObject:profile];
+            }
+            profiler = nil;
+        }
+        [profilerLock unlock];
+    }
+#endif
 
     [_hub captureTransaction:transaction
                       withScope:_hub.scope
