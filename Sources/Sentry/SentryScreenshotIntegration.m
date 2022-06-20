@@ -26,10 +26,11 @@
                                            forEvent:(nonnull SentryEvent *)event
 {
 
-    //We dont take screens shots if there is not exception/error.
-    //We dont take screenshots if the event is older than 1 second,
-    //the screen may be different already or it could be a report from a previous session.
-    if ((event.exceptions == nil && event.error == nil) || (event.timestamp && [event.timestamp timeIntervalSinceNow] < -1))
+    // We dont take screens shots if there is not exception/error.
+    // We dont take screenshots if the event is older than 1 second,
+    // the screen may be different already or it could be a report from a previous session.
+    if ((event.exceptions == nil && event.error == nil)
+        || (event.timestamp && [event.timestamp timeIntervalSinceNow] < -1))
         return attachments;
 
     NSArray *screenshot = [SentryDependencyContainer.sharedInstance.screenshot appScreenshots];
