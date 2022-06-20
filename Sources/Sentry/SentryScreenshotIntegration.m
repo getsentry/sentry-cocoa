@@ -2,6 +2,7 @@
 #import "SentryAttachment.h"
 #import "SentryClient+Private.h"
 #import "SentryDependencyContainer.h"
+#import "SentryEvent+Private.h"
 #import "SentryEvent.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
@@ -26,7 +27,9 @@
                                            forEvent:(nonnull SentryEvent *)event
 {
 
-    if (event.exceptions == nil && event.error == nil)
+    // We don't take screenshots if there is no exception/error.
+    // We dont take screenshots if the event is a crash event.
+    if ((event.exceptions == nil && event.error == nil) || event.isCrashEvent)
         return attachments;
 
     NSArray *screenshot = [SentryDependencyContainer.sharedInstance.screenshot appScreenshots];

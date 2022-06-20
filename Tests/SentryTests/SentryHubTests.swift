@@ -734,12 +734,14 @@ class SentryHubTests: XCTestCase {
         let arguments = fixture.client.captureEventWithScopeInvocations
         XCTAssertEqual(1, arguments.count)
         XCTAssertEqual(fixture.event, arguments.first?.event)
+        XCTAssertFalse(arguments.first?.event.isCrashEvent ?? true)
     }
     
     private func assertCrashEventSent() {
         let arguments = fixture.client.captureCrashEventInvocations
         XCTAssertEqual(1, arguments.count)
         XCTAssertEqual(fixture.event, arguments.first?.event)
+        XCTAssertTrue(arguments.first?.event.isCrashEvent ?? false)
     }
 
     private func assertEventSentWithSession() {

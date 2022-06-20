@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Discard long-lasting auto-generated transactions (#1903)
 - Unset scope span when finishing idle transaction (#1902)
 - Set max app start duration to 60s (#1899)
 
@@ -19,6 +20,7 @@
 
 - Propagate configured SDK info from options to events (#1853)
 - Stop reporting pre warmed app starts (#1896)
+- Screenshot wrongly attached in crash events (#1901)
 
 ## 7.16.1
 
