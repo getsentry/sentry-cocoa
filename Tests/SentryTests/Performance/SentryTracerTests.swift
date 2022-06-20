@@ -134,6 +134,36 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(0, fixture.hub.capturedEventsWithScopes.count)
     }
     
+    func testFinish_WaitForAllChildren_ExceedsMaxDuration_NoTransactionCaptured() {
+        let sut = fixture.getSut()
+        
+        advanceTime(bySeconds: 500)
+        
+        sut.finish()
+        
+        assertTransactionNotCaptured(sut)
+    }
+    
+    func testFinish_WaitForAllChildren_DoesNotExceedsMaxDuration_TransactionCaptured() {
+        let sut = fixture.getSut()
+        
+        advanceTime(bySeconds: 499.9)
+        
+        sut.finish()
+        
+        assertOneTransactionCaptured(sut)
+    }
+    
+    func testFinish_IdleTimeout_ExceedsMaxDuration_NoTransactionCaptured() {
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        
+        advanceTime(bySeconds: 500)
+        
+        sut.finish()
+        
+        assertTransactionNotCaptured(sut)
+    }
+    
     func testIdleTimeout_NoChildren_TransactionNotCaptured() {
         _ = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
         
@@ -564,7 +594,7 @@ class SentryTracerTests: XCTestCase {
     func testChangeStartTimeStamp_RemovesFramesMeasurement() {
         let sut = fixture.getSut()
         fixture.displayLinkWrapper.givenFrames(1, 1, 1)
-        sut.startTimestamp = Date(timeIntervalSince1970: 0)
+        sut.startTimestamp = sut.startTimestamp?.addingTimeInterval(-1)
 
         sut.finish()
 
@@ -681,7 +711,6 @@ class SentryTracerTests: XCTestCase {
     
     private func assertTransactionNotCaptured(_ tracer: SentryTracer) {
         fixture.hub.group.wait()
-        XCTAssertFalse(tracer.isFinished)
         XCTAssertEqual(0, fixture.hub.capturedEventsWithScopes.count)
     }
     
@@ -742,8 +771,8 @@ class SentryTracerTests: XCTestCase {
         fixture.hub.group.wait()
         
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
-        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
-        XCTAssertNil(serializedTransaction["measurements"])
+        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first?.event.serialize()
+        XCTAssertNil(serializedTransaction?["measurements"])
     }
     
 }
