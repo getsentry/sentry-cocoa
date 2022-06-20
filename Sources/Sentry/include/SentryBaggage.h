@@ -52,7 +52,7 @@ static NSString *const SENTRY_BAGGAGE_HEADER = @"baggage";
                          userId:(nullable NSString *)userId
                     userSegment:(nullable NSString *)userSegment;
 
-- (nullable NSString *)toHTTPHeader;
+- (NSString *)toHTTPHeader;
 
 @end
 

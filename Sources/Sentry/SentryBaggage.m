@@ -32,7 +32,7 @@
     return self;
 }
 
-- (nullable NSString *)toHTTPHeader
+- (NSString *)toHTTPHeader
 {
     NSMutableDictionary *information =
         @{ @"sentry-traceid" : _traceId.sentryIdString, @"sentry-publickey" : _publicKey }
