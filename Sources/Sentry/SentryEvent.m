@@ -15,7 +15,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryEvent ()
+@interface
+SentryEvent ()
 
 @property (nonatomic) BOOL isCrashEvent;
 

@@ -1,12 +1,12 @@
 #import "SentryHub.h"
 #import "SentryClient+Private.h"
-#import "SentryEvent+Private.h"
 #import "SentryCrashWrapper.h"
 #import "SentryCurrentDateProvider.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
+#import "SentryEvent+Private.h"
 #import "SentryFileManager.h"
 #import "SentryId.h"
 #import "SentryLog.h"
@@ -212,7 +212,7 @@ SentryHub ()
 - (void)captureCrashEvent:(SentryEvent *)event
 {
     event.isCrashEvent = YES;
-    
+
     SentryClient *client = _client;
     if (nil == client) {
         return;
