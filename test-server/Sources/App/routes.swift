@@ -6,12 +6,12 @@ func routes(_ app: Application) throws {
     }
 
     app.get("hello") { request -> String in
-        let tracestate = request.headers["tracestate"]
+        let tracestate = request.headers["baggage"]
         if let sentryTraceHeader = tracestate.first {
             // We just validate if the trace header is there.
             // The proper format of the trace header is covered
             // with unit tests.
-            if sentryTraceHeader.starts(with: "sentry=") {
+            if sentryTraceHeader.starts(with: "sentry-") {
                 return "Hello, world! Trace header added."
             }
         }

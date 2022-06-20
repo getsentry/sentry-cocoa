@@ -154,35 +154,35 @@ class SentryEnvelopeTests: XCTestCase {
     }
     
     func testInitSentryEnvelopeHeader_IdAndSkInfoNil() {
-        let allNil = SentryEnvelopeHeader(id: nil, sdkInfo: nil, traceState: nil)
+        let allNil = SentryEnvelopeHeader(id: nil, sdkInfo: nil, traceContext: nil)
         XCTAssertNil(allNil.eventId)
         XCTAssertNil(allNil.sdkInfo)
-        XCTAssertNil(allNil.traceState)
+        XCTAssertNil(allNil.traceContext)
     }
     
     func testInitSentryEnvelopeHeader_IdAndTraceStateNil() {
-        let allNil = SentryEnvelopeHeader(id: nil, traceState: nil)
+        let allNil = SentryEnvelopeHeader(id: nil, traceContext: nil)
         XCTAssertNil(allNil.eventId)
         XCTAssertNotNil(allNil.sdkInfo)
-        XCTAssertNil(allNil.traceState)
+        XCTAssertNil(allNil.traceContext)
     }
     
     func testInitSentryEnvelopeHeader_SetIdAndSdkInfo() {
         let eventId = SentryId()
         let sdkInfo = SentrySdkInfo(name: "sdk", andVersion: "1.2.3-alpha.0")
         
-        let envelopeHeader = SentryEnvelopeHeader(id: eventId, sdkInfo: sdkInfo, traceState: nil)
+        let envelopeHeader = SentryEnvelopeHeader(id: eventId, sdkInfo: sdkInfo, traceContext: nil)
         XCTAssertEqual(eventId, envelopeHeader.eventId)
         XCTAssertEqual(sdkInfo, envelopeHeader.sdkInfo)
     }
     
     func testInitSentryEnvelopeHeader_SetIdAndTraceState() {
         let eventId = SentryId()
-        let traceState = SentryTraceState(trace: SentryId(), publicKey: "publicKey", releaseName: "releaseName", environment: "environment", transaction: "transaction", user: nil)
+        let traceContext = SentryTraceContext(trace: SentryId(), publicKey: "publicKey", releaseName: "releaseName", environment: "environment", transaction: "transaction", user: nil)
         
-        let envelopeHeader = SentryEnvelopeHeader(id: eventId, traceState: traceState)
+        let envelopeHeader = SentryEnvelopeHeader(id: eventId, traceContext: traceContext)
         XCTAssertEqual(eventId, envelopeHeader.eventId)
-        XCTAssertEqual(traceState, envelopeHeader.traceState)
+        XCTAssertEqual(traceContext, envelopeHeader.traceContext)
     }
     
     func testInitSentryEnvelopeWithSession_DefaultSdkInfoIsSet() {

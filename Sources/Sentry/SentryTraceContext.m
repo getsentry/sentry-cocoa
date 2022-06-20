@@ -1,4 +1,5 @@
-#import "SentryTraceState.h"
+#import "SentryTraceContext.h"
+#import "SentryBaggage.h"
 #import "SentryDsn.h"
 #import "SentryLog.h"
 #import "SentryOptions+Private.h"
@@ -9,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation SentryTraceStateUser
+@implementation SentryTraceContextUser
 
 - (instancetype)initWithUserId:(nullable NSString *)userId segment:(nullable NSString *)segment
 {
@@ -32,14 +33,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@implementation SentryTraceState
+@implementation SentryTraceContext
 
 - (instancetype)initWithTraceId:(SentryId *)traceId
                       publicKey:(NSString *)publicKey
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
                     transaction:(nullable NSString *)transaction
-                           user:(nullable SentryTraceStateUser *)user
+                           user:(nullable SentryTraceContextUser *)user
 {
     if (self = [super init]) {
         _traceId = traceId;
@@ -69,9 +70,9 @@ NS_ASSUME_NONNULL_BEGIN
     if (tracer.context.traceId == nil || options.parsedDsn == nil)
         return nil;
 
-    SentryTraceStateUser *stateUser;
+    SentryTraceContextUser *stateUser;
     if (scope.userObject != nil)
-        stateUser = [[SentryTraceStateUser alloc] initWithUser:scope.userObject];
+        stateUser = [[SentryTraceContextUser alloc] initWithUser:scope.userObject];
 
     return [self initWithTraceId:tracer.context.traceId
                        publicKey:options.parsedDsn.url.user
@@ -88,11 +89,11 @@ NS_ASSUME_NONNULL_BEGIN
     if (traceId == nil || publicKey == nil)
         return nil;
 
-    SentryTraceStateUser *user;
+    SentryTraceContextUser *user;
     if (dictionary[@"user"] != nil) {
         NSDictionary *userInfo = dictionary[@"user"];
-        user = [[SentryTraceStateUser alloc] initWithUserId:userInfo[@"id"]
-                                                    segment:userInfo[@"segment"]];
+        user = [[SentryTraceContextUser alloc] initWithUserId:userInfo[@"id"]
+                                                      segment:userInfo[@"segment"]];
     }
     return [self initWithTraceId:traceId
                        publicKey:publicKey
@@ -102,28 +103,17 @@ NS_ASSUME_NONNULL_BEGIN
                             user:user];
 }
 
-- (nullable NSString *)toHTTPHeader
+- (SentryBaggage *)toBaggage
 {
-    NSError *error;
-    NSDictionary *json = [self serialize];
-    NSData *data = [SentrySerialization dataWithJSONObject:json error:&error];
+    SentryBaggage *result = [[SentryBaggage alloc] initWithTraceId:_traceId
+                                                         publicKey:_publicKey
+                                                       releaseName:_releaseName
+                                                       environment:_environment
+                                                       transaction:_transaction
+                                                            userId:[_user userId]
+                                                       userSegment:[_user segment]];
 
-    if (nil != error) {
-        [SentryLog
-            logWithMessage:[NSString stringWithFormat:@"Couldn't encode trace state: %@", error]
-                  andLevel:kSentryLevelError];
-        return nil;
-    }
-
-    // base64 uses `=` as trailing pads, but we need to remove `=`, as `=` is a reserved character
-    // in the tracestate header, see
-    // https://develop.sentry.dev/sdk/performance/trace-context/#tracestate-headers As base54 only
-    // uses `=` as trailing pads we can replace all occurrences.
-    NSString *encodedData =
-        [[data base64EncodedStringWithOptions:0] stringByReplacingOccurrencesOfString:@"="
-                                                                           withString:@""];
-
-    return [NSString stringWithFormat:@"sentry=%@", encodedData];
+    return result;
 }
 
 - (NSDictionary<NSString *, id> *)serialize

@@ -11,6 +11,7 @@
 
 ### Features
 
+- Replace tracestate header with baggage (#1867)
 - Implement description for SentryBreadcrumb (#1880)
 
 ### Fixes
@@ -19,6 +20,7 @@
 - Stop reporting pre warmed app starts (#1896)
 
 ## 7.16.1
+
 
 ### Fixes
 

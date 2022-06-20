@@ -17,7 +17,6 @@
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
-#import "SentryTraceState.h"
 
 @interface
 SentryHttpTransport ()
