@@ -7,7 +7,7 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
     private var fixture: Fixture!
     private var anrDetectedExpectation: XCTestExpectation!
     private var anrStoppedExpectation: XCTestExpectation!
-    private let waitTimeout: TimeInterval = 0.1
+    private let waitTimeout: TimeInterval = 0.05
     
     private class Fixture {
         let timeoutInterval: TimeInterval = 5
@@ -30,21 +30,17 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         
         fixture = Fixture()
         
-        sut = SentryANRTracker(
-            timeoutInterval: fixture.timeoutInterval,
-            currentDateProvider: fixture.currentDate,
-            crashWrapper: fixture.crashWrapper,
-            dispatchQueueWrapper: fixture.dispatchQueue,
-            threadWrapper: fixture.threadWrapper)
+        sut = SentryANRTracker(delegate: self,
+                               timeoutIntervalMillis: UInt(fixture.timeoutInterval) * 1_000,
+                               currentDateProvider: fixture.currentDate,
+                               crashWrapper: fixture.crashWrapper,
+                               dispatchQueueWrapper: fixture.dispatchQueue,
+                               threadWrapper: fixture.threadWrapper)
     }
     
     override func tearDown() {
         super.tearDown()
-        sut.clear()
-    }
-    
-    func start() {
-        sut.addListener(self)
+        sut.stop()
     }
     
     func testContinousANR_OneReported() {
@@ -52,23 +48,9 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
             self.advanceTime(bySeconds: self.fixture.timeoutInterval)
             return false
         }
-        start()
+        sut.start()
         
         wait(for: [anrDetectedExpectation, anrStoppedExpectation], timeout: waitTimeout)
-    }
-    
-    func testMultipleListeners() {
-        fixture.dispatchQueue.blockBeforeMainBlock = {
-            self.advanceTime(bySeconds: self.fixture.timeoutInterval)
-            return false
-        }
-        
-        let secondListener = SentryANRTrackerTestDelegate()
-        sut.addListener(secondListener)
-        
-        start()
-        
-        wait(for: [anrDetectedExpectation, anrStoppedExpectation, secondListener.anrStoppedExpectation, secondListener.anrDetectedExpectation], timeout: waitTimeout)
     }
     
     func testANRButAppInBackground_NoANR() {
@@ -79,7 +61,7 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
             self.advanceTime(bySeconds: self.fixture.timeoutInterval)
             return false
         }
-        start()
+        sut.start()
         
         wait(for: [anrDetectedExpectation, anrStoppedExpectation], timeout: waitTimeout)
     }
@@ -98,7 +80,7 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
             
             return false
         }
-        start()
+        sut.start()
         
         wait(for: [anrDetectedExpectation, anrStoppedExpectation], timeout: waitTimeout)
     }
@@ -110,44 +92,24 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
             self.advanceTime(bySeconds: delta)
             return false
         }
-        start()
+        sut.start()
         
         wait(for: [anrDetectedExpectation, anrStoppedExpectation], timeout: waitTimeout)
     }
     
-    func testRemoveListener_StopsReportingANRs() {
+    func testStop_StopsReportingANRs() {
         anrDetectedExpectation.isInverted = true
         
         let mainBlockExpectation = expectation(description: "Main Block")
-       
         fixture.dispatchQueue.blockBeforeMainBlock = {
-            self.sut.removeListener(self)
+            self.sut.stop()
             mainBlockExpectation.fulfill()
             return true
         }
         
-        start()
+        sut.start()
         
         wait(for: [anrDetectedExpectation, anrStoppedExpectation, mainBlockExpectation], timeout: waitTimeout)
-    }
-    
-    func testClear_StopsReportingANRs() {
-        let secondListener = SentryANRTrackerTestDelegate()
-        secondListener.anrDetectedExpectation.isInverted = true
-        anrDetectedExpectation.isInverted = true
-        
-        let mainBlockExpectation = expectation(description: "Main Block")
-       
-        fixture.dispatchQueue.blockBeforeMainBlock = {
-            self.sut.clear()
-            mainBlockExpectation.fulfill()
-            return true
-        }
-        
-        sut.addListener(secondListener)
-        start()
-        
-        wait(for: [anrDetectedExpectation, anrStoppedExpectation, mainBlockExpectation, secondListener.anrStoppedExpectation, secondListener.anrDetectedExpectation], timeout: waitTimeout)
     }
     
     func anrDetected() {
@@ -162,23 +124,4 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         fixture.currentDate.setDate(date: fixture.currentDate.date().addingTimeInterval(bySeconds))
     }
 }
-
-class SentryANRTrackerTestDelegate: NSObject, SentryANRTrackerDelegate {
-    
-    let anrDetectedExpectation = XCTestExpectation(description: "Test Delegate ANR Detection")
-    let anrStoppedExpectation  = XCTestExpectation(description: "Test Delegate ANR Stopped")
-    
-    override init() {
-        anrStoppedExpectation.isInverted = true
-    }
-    
-    func anrStopped() {
-        anrStoppedExpectation.fulfill()
-    }
-    
-    func anrDetected() {
-        anrDetectedExpectation.fulfill()
-    }
-}
-
 #endif
