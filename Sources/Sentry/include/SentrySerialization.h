@@ -6,6 +6,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+static int const SENTRY_BAHHAGE_MAX_SIZE = 8192;
+
 @interface SentrySerialization : NSObject
 
 + (NSData *_Nullable)dataWithJSONObject:(NSDictionary *)dictionary
