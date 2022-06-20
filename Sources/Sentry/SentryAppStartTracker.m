@@ -17,7 +17,11 @@
 
 static NSDate *runtimeInit = nil;
 
-static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 5.0;
+/**
+ * The watchdog usually kicks in after an app hanging 10 to 20 seconds. As the app could hang in
+ * multiple stages during the launch we pick a higher threshold.
+ */
+static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 60.0;
 
 @interface
 SentryAppStartTracker ()

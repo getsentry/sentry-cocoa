@@ -31,7 +31,7 @@
 #import "SentrySdkInfo.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThreadInspector.h"
-#import "SentryTraceState.h"
+#import "SentryTraceContext.h"
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
 #import "SentryTransport.h"
@@ -265,8 +265,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                   isCrashEvent:NO];
 }
 
-- (nullable SentryTraceState *)getTraceStateWithEvent:(SentryEvent *)event
-                                            withScope:(SentryScope *)scope
+- (nullable SentryTraceContext *)getTraceStateWithEvent:(SentryEvent *)event
+                                              withScope:(SentryScope *)scope
 {
     id<SentrySpan> span;
     if ([event isKindOfClass:[SentryTransaction class]]) {
@@ -281,7 +281,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (tracer == nil)
         return nil;
 
-    return [[SentryTraceState alloc] initWithTracer:tracer scope:scope options:_options];
+    return [[SentryTraceContext alloc] initWithTracer:tracer scope:scope options:_options];
 }
 
 - (SentryId *)sendEvent:(SentryEvent *)event
@@ -308,7 +308,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                        isCrashEvent:isCrashEvent];
 
     if (nil != preparedEvent) {
-        SentryTraceState *traceState = _options.experimentalEnableTraceSampling
+        SentryTraceContext *traceContext = _options.experimentalEnableTraceSampling
             ? [self getTraceStateWithEvent:event withScope:scope]
             : nil;
 
@@ -318,7 +318,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                                               forEvent:preparedEvent];
 
         [self.transportAdapter sendEvent:preparedEvent
-                              traceState:traceState
+                            traceContext:traceContext
                              attachments:attachments
                  additionalEnvelopeItems:additionalEnvelopeItems];
 
@@ -338,13 +338,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             attachments = [self.attachmentProcessor processAttachments:attachments forEvent:event];
 
         if (nil == session.releaseName || [session.releaseName length] == 0) {
-            SentryTraceState *traceState = _options.experimentalEnableTraceSampling
+            SentryTraceContext *traceContext = _options.experimentalEnableTraceSampling
                 ? [self getTraceStateWithEvent:event withScope:scope]
                 : nil;
 
             [SentryLog logWithMessage:DropSessionLogMessage andLevel:kSentryLevelDebug];
 
-            [self.transportAdapter sendEvent:event traceState:traceState attachments:attachments];
+            [self.transportAdapter sendEvent:event
+                                traceContext:traceContext
+                                 attachments:attachments];
             return event.eventId;
         }
 
@@ -366,7 +368,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithSession:session];
     SentryEnvelopeHeader *envelopeHeader =
-        [[SentryEnvelopeHeader alloc] initWithId:nil sdkInfo:self.options.sdkInfo traceState:nil];
+        [[SentryEnvelopeHeader alloc] initWithId:nil sdkInfo:self.options.sdkInfo traceContext:nil];
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader
                                                            singleItem:item];
     [self captureEnvelope:envelope];
@@ -475,6 +477,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             || (nil != event.exceptions && [event.exceptions count] > 0);
 
         BOOL threadsNotAttached = !(nil != event.threads && event.threads.count > 0);
+
         if (!isCrashEvent && shouldAttachStacktrace && threadsNotAttached) {
             event.threads = [self.threadInspector getCurrentThreads];
         }

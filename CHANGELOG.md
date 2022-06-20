@@ -1,9 +1,18 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Unset scope span when finishing idle transaction (#1902)
+- Set max app start duration to 60s (#1899)
+
 ## 7.17.0
 
 ### Features
 
+- Add App Hangs tracking (#1861) 
+- Replace tracestate header with baggage (#1867)
 - Implement description for SentryBreadcrumb (#1880)
 
 ### Fixes
@@ -13,6 +22,7 @@
 - Screenshot wrongly attached in crash events (#1901)
 
 ## 7.16.1
+
 
 ### Fixes
 

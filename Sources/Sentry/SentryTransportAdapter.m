@@ -29,28 +29,28 @@ SentryTransportAdapter ()
 
 - (void)sendEvent:(SentryEvent *)event attachments:(NSArray<SentryAttachment *> *)attachments
 {
-    [self sendEvent:event traceState:nil attachments:attachments];
+    [self sendEvent:event traceContext:nil attachments:attachments];
 }
 
 - (void)sendEvent:(SentryEvent *)event
           session:(SentrySession *)session
       attachments:(NSArray<SentryAttachment *> *)attachments
 {
-    [self sendEvent:event withSession:session traceState:nil attachments:attachments];
+    [self sendEvent:event withSession:session traceContext:nil attachments:attachments];
 }
 
 - (void)sendEvent:(SentryEvent *)event
-       traceState:(nullable SentryTraceState *)traceState
+     traceContext:(nullable SentryTraceContext *)traceContext
       attachments:(NSArray<SentryAttachment *> *)attachments
 {
     [self sendEvent:event
-                     traceState:traceState
+                   traceContext:traceContext
                     attachments:attachments
         additionalEnvelopeItems:@[]];
 }
 
 - (void)sendEvent:(SentryEvent *)event
-                 traceState:(nullable SentryTraceState *)traceState
+               traceContext:(nullable SentryTraceContext *)traceContext
                 attachments:(NSArray<SentryAttachment *> *)attachments
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
@@ -61,7 +61,7 @@ SentryTransportAdapter ()
     SentryEnvelopeHeader *envelopeHeader =
         [[SentryEnvelopeHeader alloc] initWithId:event.eventId
                                          sdkInfo:self.options.sdkInfo
-                                      traceState:traceState];
+                                    traceContext:traceContext];
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader items:items];
 
     [self sendEnvelope:envelope];
@@ -69,7 +69,7 @@ SentryTransportAdapter ()
 
 - (void)sendEvent:(SentryEvent *)event
       withSession:(SentrySession *)session
-       traceState:(nullable SentryTraceState *)traceState
+     traceContext:(nullable SentryTraceContext *)traceContext
       attachments:(NSArray<SentryAttachment *> *)attachments
 {
     NSMutableArray<SentryEnvelopeItem *> *items = [self buildEnvelopeItems:event
@@ -79,7 +79,7 @@ SentryTransportAdapter ()
     SentryEnvelopeHeader *envelopeHeader =
         [[SentryEnvelopeHeader alloc] initWithId:event.eventId
                                          sdkInfo:self.options.sdkInfo
-                                      traceState:traceState];
+                                    traceContext:traceContext];
 
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader items:items];
 
@@ -92,7 +92,7 @@ SentryTransportAdapter ()
     SentryEnvelopeHeader *envelopeHeader =
         [[SentryEnvelopeHeader alloc] initWithId:userFeedback.eventId
                                          sdkInfo:self.options.sdkInfo
-                                      traceState:nil];
+                                    traceContext:nil];
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader
                                                            singleItem:item];
     [self sendEnvelope:envelope];

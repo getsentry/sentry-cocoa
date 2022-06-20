@@ -15,8 +15,18 @@ SENTRY_NO_INIT
 /**
  * Gets current threads with the stacktrace only for the current thread. Frames from the SentrySDK
  * are not included. For more details checkout SentryStacktraceBuilder.
+ * The first thread in the result is always the main thread.
  */
 - (NSArray<SentryThread *> *)getCurrentThreads;
+
+/**
+ * Gets current threads. The calling thread always has the stacktrace information.
+ * It is possible to get stacktrace for all threads passing YES in `getAllStacktraces`,
+ * this will pause every thread in order to be possible to retrieve this information.
+ * Frames from the SentrySDK are not included. For more details checkout SentryStacktraceBuilder.
+ * The first thread in the result is always the main thread.
+ */
+- (NSArray<SentryThread *> *)getCurrentThreadsWithStackTrace:(BOOL)getAllStacktraces;
 
 @end
 

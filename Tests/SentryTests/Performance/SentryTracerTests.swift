@@ -142,6 +142,16 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(0, fixture.hub.capturedEventsWithScopes.count)
     }
     
+    func testIdleTimeout_NoChildren_SpanOnScopeUnset() {
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        
+        fixture.hub.scope.span = sut
+        
+        fixture.dispatchQueue.invokeLastDispatchAfter()
+        
+        XCTAssertNil(fixture.hub.scope.span)
+    }
+    
     func testIdleTimeout_InvokesDispatchAfterWithCorrectWhen() {
         _ = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
         
@@ -453,6 +463,25 @@ class SentryTracerTests: XCTestCase {
         XCTAssertNil(sut.finishCallback)
         
         wait(for: [callbackExpectation], timeout: 0.1)
+    }
+    
+    func testFinish_SetScopeSpanToNil() {
+        let sut = fixture.getSut()
+        fixture.hub.scope.span = sut
+        
+        sut.finish()
+        
+        XCTAssertNil(fixture.hub.scope.span)
+    }
+    
+    func testFinish_DifferentSpanOnScope_DoesNotSetScopeSpanToNil() {
+        let sut = fixture.getSut()
+        let sutOnScope = fixture.getSut()
+        fixture.hub.scope.span = sutOnScope
+        
+        sut.finish()
+        
+        XCTAssertTrue(sutOnScope === fixture.hub.scope.span)
     }
     
     // Although we only run this test above the below specified versions, we expect the

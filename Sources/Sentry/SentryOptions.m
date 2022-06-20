@@ -1,4 +1,5 @@
 #import "SentryOptions.h"
+#import "SentryANRTracker.h"
 #import "SentryDsn.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
@@ -58,6 +59,9 @@ SentryOptions ()
         self.enableUserInteractionTracing = NO;
         self.idleTimeout = 3.0;
 #endif
+        self.enableAppHangTracking = NO;
+        self.appHangTimeoutInterval = 2.0;
+
         self.enableNetworkTracking = YES;
         self.enableFileIOTracking = NO;
         self.enableNetworkBreadcrumbs = YES;
@@ -243,7 +247,15 @@ SentryOptions ()
     if ([options[@"idleTimeout"] isKindOfClass:[NSNumber class]]) {
         self.idleTimeout = [options[@"idleTimeout"] doubleValue];
     }
+
 #endif
+
+    [self setBool:options[@"enableAppHangTracking"]
+            block:^(BOOL value) { self->_enableAppHangTracking = value; }];
+
+    if ([options[@"appHangTimeoutInterval"] isKindOfClass:[NSNumber class]]) {
+        self.appHangTimeoutInterval = [options[@"appHangTimeoutInterval"] doubleValue];
+    }
 
     [self setBool:options[@"enableNetworkTracking"]
             block:^(BOOL value) { self->_enableNetworkTracking = value; }];

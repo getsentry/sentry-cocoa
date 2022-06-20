@@ -2,7 +2,7 @@
 #import "SentryDiscardReason.h"
 #import <Foundation/Foundation.h>
 
-@class SentryEnvelope, SentryTraceState;
+@class SentryEnvelope;
 
 NS_ASSUME_NONNULL_BEGIN
 
