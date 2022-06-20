@@ -112,6 +112,7 @@ SentryAppStartTracker ()
         // might decide to pre-warm your app before the user tries to open it. Therefore we use the
         // process start timestamp only if it's not too long ago. The process start time returned
         // valid values when testing with real devices before iOS 15. See:
+        // https://developer.apple.com/documentation/uikit/app_and_environment/responding_to_the_launch_of_your_app/about_the_app_launch_sequence#3894431
         // https://developer.apple.com/documentation/metrickit/mxapplaunchmetric,
         // https://twitter.com/steipete/status/1466013492180312068,
         // https://github.com/MobileNativeFoundation/discussions/discussions/146
