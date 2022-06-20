@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Discard long-lasting auto-generated transactions (#1903)
 - Unset scope span when finishing idle transaction (#1902)
 - Set max app start duration to 60s (#1899)
 
