@@ -95,6 +95,26 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
         XCTAssertEqual(newAttachmentList?.count, 0)
     }
+
+    func test_attachScreenShot_withErrorAndTimestamp() {
+        let sut = fixture.getSut()
+        let event = Event(error: NSError(domain: "", code: -1))
+        event.timestamp = Date(timeIntervalSinceNow: -0.9)
+        
+        let newAttachmentList = sut.processAttachments([], for: event)
+        
+        XCTAssertEqual(newAttachmentList?.count, 1)
+    }
+    
+    func test_noScreenShot_oldEvent() {
+        let sut = fixture.getSut()
+        let event = Event(error: NSError(domain: "", code: -1))
+        event.timestamp = Date(timeIntervalSinceNow: -1.1)
+        
+        let newAttachmentList = sut.processAttachments([], for: event)
+        
+        XCTAssertEqual(newAttachmentList?.count, 0)
+    }
     
     func test_noScreenshot_keepAttachment() {
         let sut = fixture.getSut()
