@@ -123,7 +123,7 @@ NS_ASSUME_NONNULL_BEGIN
             [[value description] stringByAddingPercentEncodingWithAllowedCharacters:allowedSet];
 
         NSString *item = [NSString stringWithFormat:@"%@=%@", keyDescription, valueDescription];
-        if (item.length + currentSize <= SENTRY_BAHHAGE_MAX_SIZE) {
+        if (item.length + currentSize <= SENTRY_BAGGAGE_MAX_SIZE) {
             currentSize += item.length
                 + 1; // +1 is to account for the comma that will be added for each extra itemapp
             [items addObject:item];
