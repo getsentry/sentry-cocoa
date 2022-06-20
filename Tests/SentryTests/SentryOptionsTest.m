@@ -494,8 +494,9 @@
 #if SENTRY_HAS_UIKIT
         @"enableUIViewControllerTracking" : [NSNull null],
         @"attachScreenshot" : [NSNull null],
-        @"enableANRTracking" : [NSNull null],
 #endif
+        @"enableAppHangTracking" : [NSNull null],
+        @"appHangTimeoutInterval" : [NSNull null],
         @"enableNetworkTracking" : [NSNull null],
         @"tracesSampleRate" : [NSNull null],
         @"tracesSampler" : [NSNull null],
@@ -541,8 +542,9 @@
     XCTAssertTrue(options.enableUIViewControllerTracking);
     XCTAssertFalse(options.attachScreenshot);
     XCTAssertEqual(3.0, options.idleTimeout);
-    XCTAssertTrue(options.enableAppHangTracking);
 #endif
+    XCTAssertFalse(options.enableAppHangTracking);
+    XCTAssertEqual(options.appHangTimeoutInterval, 2);
     XCTAssertEqual(YES, options.enableNetworkTracking);
     XCTAssertNil(options.tracesSampleRate);
     XCTAssertNil(options.tracesSampler);
@@ -696,13 +698,13 @@
 
 - (void)testEnableAppHangTracking
 {
-    [self testBooleanField:@"enableAppHangTracking" defaultValue:YES];
+    [self testBooleanField:@"enableAppHangTracking" defaultValue:NO];
 }
 
 - (void)testDefaultAppHangsTimeout
 {
     SentryOptions *options = [self getValidOptions:@{}];
-    XCTAssertEqual(2000, options.appHangTimeoutInterval);
+    XCTAssertEqual(2, options.appHangTimeoutInterval);
 }
 
 - (void)testEnableNetworkTracking

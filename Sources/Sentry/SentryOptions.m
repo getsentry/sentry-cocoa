@@ -59,8 +59,8 @@ SentryOptions ()
         self.enableUserInteractionTracing = NO;
         self.idleTimeout = 3.0;
 #endif
-        self.enableAppHangTracking = YES;
-        self.appHangTimeoutInterval = 2000.0;
+        self.enableAppHangTracking = NO;
+        self.appHangTimeoutInterval = 2.0;
 
         self.enableNetworkTracking = YES;
         self.enableFileIOTracking = NO;
