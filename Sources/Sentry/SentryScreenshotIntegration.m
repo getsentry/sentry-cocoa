@@ -30,7 +30,7 @@
     // We dont take screenshots if the event is older than 1 second,
     // the screen may be different already or it could be a report from a previous session.
     if ((event.exceptions == nil && event.error == nil)
-        || (event.timestamp && [event.timestamp timeIntervalSinceNow] < -1))
+        || (event.timestamp && [event.timestamp timeIntervalSinceNow] < -2))
         return attachments;
 
     NSArray *screenshot = [SentryDependencyContainer.sharedInstance.screenshot appScreenshots];

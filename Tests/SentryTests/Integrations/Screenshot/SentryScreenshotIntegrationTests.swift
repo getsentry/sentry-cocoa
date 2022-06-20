@@ -99,7 +99,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
     func test_attachScreenShot_withErrorAndTimestamp() {
         let sut = fixture.getSut()
         let event = Event(error: NSError(domain: "", code: -1))
-        event.timestamp = Date(timeIntervalSinceNow: -0.9)
+        event.timestamp = Date(timeIntervalSinceNow: -1.9)
         
         let newAttachmentList = sut.processAttachments([], for: event)
         
@@ -109,7 +109,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
     func test_noScreenShot_oldEvent() {
         let sut = fixture.getSut()
         let event = Event(error: NSError(domain: "", code: -1))
-        event.timestamp = Date(timeIntervalSinceNow: -1.1)
+        event.timestamp = Date(timeIntervalSinceNow: -2.1)
         
         let newAttachmentList = sut.processAttachments([], for: event)
         
