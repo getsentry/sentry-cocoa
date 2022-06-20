@@ -2,6 +2,7 @@
 #import "SentryEnvelope.h"
 #import "SentryEvent.h"
 #import "SentryOptions.h"
+#import "SentryUserFeedback.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -57,8 +58,10 @@ SentryTransportAdapter ()
                                                                attachments:attachments];
     [items addObjectsFromArray:additionalEnvelopeItems];
 
-    SentryEnvelopeHeader *envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:event.eventId
-                                                                       traceContext:traceContext];
+    SentryEnvelopeHeader *envelopeHeader =
+        [[SentryEnvelopeHeader alloc] initWithId:event.eventId
+                                         sdkInfo:self.options.sdkInfo
+                                      traceState:traceState];
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader items:items];
 
     [self sendEnvelope:envelope];
@@ -73,8 +76,10 @@ SentryTransportAdapter ()
                                                                attachments:attachments];
     [items addObject:[[SentryEnvelopeItem alloc] initWithSession:session]];
 
-    SentryEnvelopeHeader *envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:event.eventId
-                                                                       traceContext:traceContext];
+    SentryEnvelopeHeader *envelopeHeader =
+        [[SentryEnvelopeHeader alloc] initWithId:event.eventId
+                                         sdkInfo:self.options.sdkInfo
+                                      traceState:traceState];
 
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader items:items];
 
@@ -83,7 +88,13 @@ SentryTransportAdapter ()
 
 - (void)sendUserFeedback:(SentryUserFeedback *)userFeedback
 {
-    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithUserFeedback:userFeedback];
+    SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithUserFeedback:userFeedback];
+    SentryEnvelopeHeader *envelopeHeader =
+        [[SentryEnvelopeHeader alloc] initWithId:userFeedback.eventId
+                                         sdkInfo:self.options.sdkInfo
+                                      traceState:nil];
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader
+                                                           singleItem:item];
     [self sendEnvelope:envelope];
 }
 

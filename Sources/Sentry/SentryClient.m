@@ -28,6 +28,7 @@
 #import "SentryOutOfMemoryTracker.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
+#import "SentrySdkInfo.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThreadInspector.h"
 #import "SentryTraceContext.h"
@@ -365,7 +366,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithSession:session];
+    SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithSession:session];
+    SentryEnvelopeHeader *envelopeHeader =
+        [[SentryEnvelopeHeader alloc] initWithId:nil sdkInfo:self.options.sdkInfo traceState:nil];
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader
+                                                           singleItem:item];
     [self captureEnvelope:envelope];
 }
 
@@ -570,30 +575,29 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)setSdk:(SentryEvent *)event
 {
-    // Every integration starts with "Sentry" and ends with "Integration". To keep the payload of
-    // the event small we remove both.
-    NSMutableArray<NSString *> *integrations = [NSMutableArray new];
-    for (NSString *integration in self.options.enabledIntegrations) {
-        NSString *withoutSentry = [integration stringByReplacingOccurrencesOfString:@"Sentry"
+    if (event.sdk) {
+        return;
+    }
+
+    id integrations = event.extra[@"__sentry_sdk_integrations"];
+    if (!integrations) {
+        integrations = [NSMutableArray new];
+        for (NSString *integration in self.options.enabledIntegrations) {
+            // Every integration starts with "Sentry" and ends with "Integration". To keep the
+            // payload of the event small we remove both.
+            NSString *withoutSentry = [integration stringByReplacingOccurrencesOfString:@"Sentry"
+                                                                             withString:@""];
+            NSString *trimmed = [withoutSentry stringByReplacingOccurrencesOfString:@"Integration"
                                                                          withString:@""];
-        NSString *trimmed = [withoutSentry stringByReplacingOccurrencesOfString:@"Integration"
-                                                                     withString:@""];
-        [integrations addObject:trimmed];
-    }
-
-    NSMutableDictionary *sdk = @{
-        @"name" : SentryMeta.sdkName,
-        @"version" : SentryMeta.versionString,
-        @"integrations" : integrations
-    }
-                                   .mutableCopy;
-
-    if (nil == event.sdk) {
-        if (event.extra[@"__sentry_sdk_integrations"]) {
-            [sdk setValue:event.extra[@"__sentry_sdk_integrations"] forKey:@"integrations"];
+            [integrations addObject:trimmed];
         }
-        event.sdk = sdk;
     }
+
+    event.sdk = @{
+        @"name" : self.options.sdkInfo.name,
+        @"version" : self.options.sdkInfo.version,
+        @"integrations" : integrations
+    };
 }
 
 - (void)setUserInfo:(NSDictionary *)userInfo withEvent:(SentryEvent *)event
