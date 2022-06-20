@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Unset scope span when finishing idle transaction (#1902)
 - Set max app start duration to 60s (#1899)
 
 ## 7.17.0
