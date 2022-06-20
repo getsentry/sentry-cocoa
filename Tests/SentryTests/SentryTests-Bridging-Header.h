@@ -114,6 +114,7 @@
 #import "SentryRateLimits.h"
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentrySDK+Private.h"
+#import "SentryEvent+Private.h"
 #import "SentrySDK+Tests.h"
 #import "SentryScope+Private.h"
 #import "SentryScopeObserver.h"

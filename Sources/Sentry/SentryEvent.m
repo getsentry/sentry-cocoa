@@ -15,6 +15,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface SentryEvent ()
+
+@property (nonatomic) BOOL isCrashEvent;
+
+@end
+
 @implementation SentryEvent
 
 - (instancetype)init

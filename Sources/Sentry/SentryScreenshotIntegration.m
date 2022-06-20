@@ -7,6 +7,7 @@
 #import "SentryLog.h"
 #import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
+#import "SentryEvent+Private.h"
 
 #if SENTRY_HAS_UIKIT
 @implementation SentryScreenshotIntegration
@@ -27,10 +28,8 @@
 {
 
     // We don't take screenshots if there is no exception/error.
-    // We dont take screenshots if the event is older than 1 second,
-    // the screen may be different already or it could be a report from a previous session.
-    if ((event.exceptions == nil && event.error == nil)
-        || (event.timestamp && [event.timestamp timeIntervalSinceNow] < -2))
+    // We dont take screenshots if the event is a crash event.
+    if ((event.exceptions == nil && event.error == nil) || event.isCrashEvent)
         return attachments;
 
     NSArray *screenshot = [SentryDependencyContainer.sharedInstance.screenshot appScreenshots];
