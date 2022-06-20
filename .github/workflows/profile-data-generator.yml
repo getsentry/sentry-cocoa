@@ -60,14 +60,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        iOS: [15.5, 15.4, 14.8, 14.7, 13.7, 13.6.1, 13.5.1]
+        iOS: [15.5, 15.4, 14.8, 14.7, 13.7]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with:
           name: data-generator-build-products
       - run: npm install -g saucectl@0.99.4
-      - name: Run Tests in SauceLab
+      - name: Run Tests in Sauce Labs
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}

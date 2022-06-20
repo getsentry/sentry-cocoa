@@ -24,7 +24,7 @@ suites:
 # iPhone XR
   - name: "iOS-15.5"
     devices:
-      - name: "i.*"
+      - name: "iPhone.*"
         platformVersion: "15.5"
 
 # iPad 10.2 2020
@@ -34,7 +34,7 @@ suites:
 # iPhone XS
   - name: "iOS-15.4"
     devices:
-      - name: "i.*"
+      - name: "iPhone.*"
         platformVersion: "15.4"
 
 # iPad Air 3 (2019)
@@ -49,14 +49,14 @@ suites:
 # iPhone X
   - name: "iOS-14.8"
     devices:
-      - name: "i.*"
+      - name: "iPhone.*"
         platformVersion: "14.8"
 
 # iPad Pro 12.9 2020
 # iPad Pro 12.9 2021
   - name: "iOS-14.7"
     devices:
-      - name: "i.*"
+      - name: "iPhone.*"
         platformVersion: "14.7"
 
 #iPad Pro 11 2018
@@ -65,24 +65,5 @@ suites:
 #iPhone X
   - name: "iOS-13.7"
     devices:
-      - name: "i.*"
+      - name: "iPhone.*"
         platformVersion: "13.7"
-
-#iPad Air 2
-#iPhone 7
-  - name: "iOS-13.6.1"
-    devices:
-      - name: "i.*"
-        platformVersion: "13.6.1"
-
-#iPhone 6S
-#iPhone 7
-#iPhone 7 Plus
-#iPhone 8
-#iPhone 8 Plus
-#iPhone XR
-#iPhone XS Max
-  - name: "iOS-13.5.1"
-    devices:
-      - name: "i.*"
-        platformVersion: "13.5.1"
