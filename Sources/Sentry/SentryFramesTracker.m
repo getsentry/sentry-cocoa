@@ -7,7 +7,7 @@
 #    import <UIKit/UIKit.h>
 
 static CFTimeInterval const SentryFrozenFrameThreshold = 0.7;
-static CFTimeInterval const SentryPreviousFrameInitalValue = -1;
+static CFTimeInterval const SentryPreviousFrameInitialValue = -1;
 
 /**
  * Relaxed memoring ordering is typical for incrementing counters. This operation only requires
@@ -81,7 +81,7 @@ SentryFramesTracker ()
     atomic_store_explicit(&_frozenFrames, 0, SentryFramesMemoryOrder);
     atomic_store_explicit(&_slowFrames, 0, SentryFramesMemoryOrder);
 
-    self.previousFrameTimestamp = SentryPreviousFrameInitalValue;
+    self.previousFrameTimestamp = SentryPreviousFrameInitialValue;
 }
 
 - (void)start
@@ -94,7 +94,7 @@ SentryFramesTracker ()
 {
     CFTimeInterval lastFrameTimestamp = self.displayLinkWrapper.timestamp;
 
-    if (self.previousFrameTimestamp == SentryPreviousFrameInitalValue) {
+    if (self.previousFrameTimestamp == SentryPreviousFrameInitialValue) {
         self.previousFrameTimestamp = lastFrameTimestamp;
         return;
     }
