@@ -10,7 +10,10 @@ typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *> SentryFrameTimest
 @interface SentryScreenFrames : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithTotal:(NSUInteger)total frozen:(NSUInteger)frozen slow:(NSUInteger)slow timestamps:(SentryFrameTimestampInfo *)timestamps;
+- (instancetype)initWithTotal:(NSUInteger)total
+                       frozen:(NSUInteger)frozen
+                         slow:(NSUInteger)slow
+                   timestamps:(SentryFrameTimestampInfo *)timestamps;
 
 @property (nonatomic, assign, readonly) NSUInteger total;
 @property (nonatomic, assign, readonly) NSUInteger frozen;

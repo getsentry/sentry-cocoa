@@ -105,9 +105,12 @@ SentryFramesTracker ()
             = 1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp);
     }
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-    [self.frameTimestamps addObject:@{@"start_timestamp": @(self.previousFrameTimestamp), @"end_timestamp": @(lastFrameTimestamp)}];
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
+    [self.frameTimestamps addObject:@{
+        @"start_timestamp" : @(self.previousFrameTimestamp),
+        @"end_timestamp" : @(lastFrameTimestamp)
+    }];
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     self.previousFrameTimestamp = lastFrameTimestamp;
 
@@ -128,7 +131,10 @@ SentryFramesTracker ()
     NSUInteger slow = atomic_load_explicit(&_slowFrames, SentryFramesMemoryOrder);
     NSUInteger frozen = atomic_load_explicit(&_frozenFrames, SentryFramesMemoryOrder);
 
-    return [[SentryScreenFrames alloc] initWithTotal:total frozen:frozen slow:slow timestamps:self.frameTimestamps];
+    return [[SentryScreenFrames alloc] initWithTotal:total
+                                              frozen:frozen
+                                                slow:slow
+                                          timestamps:self.frameTimestamps];
 }
 
 - (void)stop

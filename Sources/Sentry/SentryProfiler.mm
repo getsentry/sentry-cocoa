@@ -255,9 +255,9 @@ isSimulatorBuild()
     profile[@"version_code"] = [bundle objectForInfoDictionaryKey:(NSString *)kCFBundleVersionKey];
     profile[@"version_name"] = [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
 
-#if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT
     profile[@"frame_timestamps"] = SentryFramesTracker.sharedInstance.currentFrames.timestamps;
-#endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT
 
     NSError *error = nil;
     const auto JSONData = [SentrySerialization dataWithJSONObject:profile error:&error];
@@ -274,7 +274,8 @@ isSimulatorBuild()
     return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
 }
 
-- (BOOL)isRunning {
+- (BOOL)isRunning
+{
     return _profiler->isSampling();
 }
 
