@@ -29,8 +29,12 @@ SENTRY_EXTERN_C_END
 
 /** Clears all accumulated profiling data and starts profiling. */
 - (void)start;
+
 /** Stops profiling. */
 - (void)stop;
+
+/** Whether or not the sampling profiler is currently running. */
+- (BOOL)isRunning;
 
 /**
  * Builds an envelope item using the currently accumulated profile data.

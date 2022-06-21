@@ -1,6 +1,7 @@
 #import "SentryFramesTracker.h"
 #import "SentryDisplayLinkWrapper.h"
 #import <SentryLog.h>
+#import "SentryProfilingConditionals.h"
 #import <SentryScreenFrames.h>
 #include <stdatomic.h>
 
@@ -21,6 +22,7 @@ SentryFramesTracker ()
 
 @property (nonatomic, strong, readonly) SentryDisplayLinkWrapper *displayLinkWrapper;
 @property (nonatomic, assign) CFTimeInterval previousFrameTimestamp;
+@property (nonatomic, readwrite) SentryFrameTimestampInfo *frameTimestamps;
 
 @end
 
@@ -71,6 +73,8 @@ SentryFramesTracker ()
     atomic_store_explicit(&_slowFrames, 0, SentryFramesMemoryOrder);
 
     self.previousFrameTimestamp = SentryPreviousFrameInitialValue;
+
+    self.frameTimestamps = [SentryFrameTimestampInfo array];
 }
 
 - (void)start
@@ -101,11 +105,10 @@ SentryFramesTracker ()
             = 1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp);
     }
 
-    // Most frames take just a few microseconds longer than the optimal caculated duration.
-    // Therefore we substract one, because otherwise almost all frames would be slow.
-    CFTimeInterval slowFrameThreshold = 1 / (actualFramesPerSecond - 1);
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    [self.frameTimestamps addObject:@{@"start_timestamp": @(self.previousFrameTimestamp), @"end_timestamp": @(lastFrameTimestamp)}];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-    CFTimeInterval frameDuration = lastFrameTimestamp - self.previousFrameTimestamp;
     self.previousFrameTimestamp = lastFrameTimestamp;
 
     if (frameDuration > slowFrameThreshold && frameDuration <= SentryFrozenFrameThreshold) {
@@ -125,7 +128,7 @@ SentryFramesTracker ()
     NSUInteger slow = atomic_load_explicit(&_slowFrames, SentryFramesMemoryOrder);
     NSUInteger frozen = atomic_load_explicit(&_frozenFrames, SentryFramesMemoryOrder);
 
-    return [[SentryScreenFrames alloc] initWithTotal:total frozen:frozen slow:slow];
+    return [[SentryScreenFrames alloc] initWithTotal:total frozen:frozen slow:slow timestamps:self.frameTimestamps];
 }
 
 - (void)stop

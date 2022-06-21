@@ -9,11 +9,13 @@
 #    import "SentryDependencyContainer.h"
 #    import "SentryEnvelope.h"
 #    import "SentryEnvelopeItemType.h"
+#    import "SentryFramesTracker.h"
 #    import "SentryHexAddressFormatter.h"
 #    import "SentryId.h"
 #    import "SentryLog.h"
 #    import "SentryProfilingLogging.hpp"
 #    import "SentrySamplingProfiler.hpp"
+#    import "SentryScreenFrames.h"
 #    import "SentrySerialization.h"
 #    import "SentryTime.h"
 #    import "SentryTransaction.h"
@@ -253,6 +255,10 @@ isSimulatorBuild()
     profile[@"version_code"] = [bundle objectForInfoDictionaryKey:(NSString *)kCFBundleVersionKey];
     profile[@"version_name"] = [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
 
+#if SENTRY_HAS_UIKIT
+    profile[@"frame_timestamps"] = SentryFramesTracker.sharedInstance.currentFrames.timestamps;
+#endif // SENTRY_HAS_UIKIT
+
     NSError *error = nil;
     const auto JSONData = [SentrySerialization dataWithJSONObject:profile error:&error];
     if (JSONData == nil) {
@@ -266,6 +272,10 @@ isSimulatorBuild()
     const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfile
                                                                 length:JSONData.length];
     return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
+}
+
+- (BOOL)isRunning {
+    return _profiler->isSampling();
 }
 
 @end

@@ -43,6 +43,7 @@ SentryTracer ()
 @property (nonatomic) BOOL isWaitingForChildren;
 @property (nonatomic) NSTimeInterval idleTimeout;
 @property (nonatomic, nullable, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
+@property (nonatomic, assign, readwrite) BOOL isProfiling;
 
 @end
 
@@ -726,6 +727,13 @@ static NSLock *profilerLock;
     }
     return nil;
 }
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+- (BOOL)isProfiling {
+    [profilerLock lock];
+    return profiler.isRunning;
+}
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
 
