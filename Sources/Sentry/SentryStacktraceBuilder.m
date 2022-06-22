@@ -56,12 +56,54 @@ SentryStacktraceBuilder ()
     return stacktrace;
 }
 
-- (SentryStacktrace *)buildStacktraceForThread:(SentryCrashThread)thread
-{
-    SentryCrashMC_NEW_CONTEXT(machineContext);
-    sentrycrashmc_getContextForThread(thread, machineContext, false);
+- (unsigned int)getStackEntriesFromThread:(SentryCrashThread)thread context:(struct SentryCrashMachineContext *)context buffer:(SentryCrashStackEntry *)buffer maxEntries:(unsigned int)amount {
+    sentrycrashmc_getContextForThread(thread, context, false);
     SentryCrashStackCursor stackCursor;
-    sentrycrashsc_initWithMachineContext(&stackCursor, 100, machineContext);
+    sentrycrashsc_initWithMachineContext(&stackCursor, 100, context);
+    
+    unsigned int result = 0;
+    while (stackCursor.advanceCursor(&stackCursor)) {
+        if (result == amount) break;
+        if (stackCursor.symbolicate(&stackCursor)) {
+            buffer[result] = stackCursor.stackEntry;
+            result++;
+        }
+    }
+    sentrycrash_async_backtrace_decref(stackCursor.async_caller);
+    
+    return result;
+}
+
+- (SentryStacktrace *)buildStackTraceFromStackEntries:(SentryCrashStackEntry *)entries amount:(unsigned int)amount {
+    NSMutableArray<SentryFrame *> *frames = [[NSMutableArray alloc] initWithCapacity:amount];
+    SentryFrame *frame = nil;
+    for (int i = 0; i < amount; i++) {
+        SentryCrashStackEntry stackEntry = entries[i];
+        if (stackEntry.address == SentryCrashSC_ASYNC_MARKER) {
+            if (frame != nil) {
+                frame.stackStart = @(YES);
+            }
+            // skip the marker frame
+            continue;
+        }
+        frame = [self.crashStackEntryMapper sentryCrashStackEntryToSentryFrame:stackEntry];
+        [frames addObject:frame];
+    }
+    
+    NSArray<SentryFrame *> *framesCleared = [SentryFrameRemover removeNonSdkFrames:frames];
+
+    // The frames must be ordered from caller to callee, or oldest to youngest
+    NSArray<SentryFrame *> *framesReversed = [[framesCleared reverseObjectEnumerator] allObjects];
+    
+    return [[SentryStacktrace alloc] initWithFrames:framesReversed registers:@{}];
+}
+
+- (SentryStacktrace *)buildStacktraceForThread:(SentryCrashThread)thread
+                                       context:(struct SentryCrashMachineContext *)context
+{
+    sentrycrashmc_getContextForThread(thread, context, false);
+    SentryCrashStackCursor stackCursor;
+    sentrycrashsc_initWithMachineContext(&stackCursor, 100, context);
 
     return [self retrieveStacktraceFromCursor:stackCursor];
 }
