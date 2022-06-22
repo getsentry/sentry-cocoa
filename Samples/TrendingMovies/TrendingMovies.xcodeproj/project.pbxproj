@@ -66,6 +66,7 @@
 		844A357B282B4B6500C6D1DF /* KingfisherSwiftUI.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 844A3573282B4B6500C6D1DF /* KingfisherSwiftUI.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		844A359C282DAA6100C6D1DF /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 844A356B282B3E4500C6D1DF /* Sentry.framework */; };
 		844A359D282DAA6100C6D1DF /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 844A356B282B3E4500C6D1DF /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		847EA5542852F7E800F65FE4 /* ProfileDataGeneratorUITest.m in Sources */ = {isa = PBXBuildFile; fileRef = 847EA5532852F7E800F65FE4 /* ProfileDataGeneratorUITest.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -82,6 +83,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = 63AA76651EB8CB2F00D153DE;
 			remoteInfo = SentryTests;
+		};
+		847EA5492852F7CD00F65FE4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 844A34CD282B2B6100C6D1DF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 844A34D4282B2B6100C6D1DF;
+			remoteInfo = TrendingMovies;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -162,6 +170,8 @@
 		844A3571282B4B6500C6D1DF /* FaceAware.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = FaceAware.xcframework; path = Carthage/Build/FaceAware.xcframework; sourceTree = "<group>"; };
 		844A3572282B4B6500C6D1DF /* Kingfisher.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Kingfisher.xcframework; path = Carthage/Build/Kingfisher.xcframework; sourceTree = "<group>"; };
 		844A3573282B4B6500C6D1DF /* KingfisherSwiftUI.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = KingfisherSwiftUI.xcframework; path = Carthage/Build/KingfisherSwiftUI.xcframework; sourceTree = "<group>"; };
+		847EA5432852F7CD00F65FE4 /* ProfileDataGeneratorUITest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ProfileDataGeneratorUITest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		847EA5532852F7E800F65FE4 /* ProfileDataGeneratorUITest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProfileDataGeneratorUITest.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -174,6 +184,13 @@
 				844A3574282B4B6500C6D1DF /* TUSafariActivity.xcframework in Frameworks */,
 				844A359C282DAA6100C6D1DF /* Sentry.framework in Frameworks */,
 				844A3576282B4B6500C6D1DF /* FaceAware.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		847EA5402852F7CD00F65FE4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -201,6 +218,7 @@
 				844A352B282B2B9B00C6D1DF /* Videos */,
 				844A3511282B2B9B00C6D1DF /* ViewControllers */,
 				844A3525282B2B9B00C6D1DF /* YouTube */,
+				847EA5442852F7CD00F65FE4 /* ProfileDataGeneratorUITest */,
 				844A34D6282B2B6100C6D1DF /* Products */,
 				844A34E7282B2B9A00C6D1DF /* TrendingMovies-Bridging-Header.h */,
 				844A356F282B4B6500C6D1DF /* Frameworks */,
@@ -211,6 +229,7 @@
 			isa = PBXGroup;
 			children = (
 				844A34D5282B2B6100C6D1DF /* TrendingMovies.app */,
+				847EA5432852F7CD00F65FE4 /* ProfileDataGeneratorUITest.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -386,6 +405,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		847EA5442852F7CD00F65FE4 /* ProfileDataGeneratorUITest */ = {
+			isa = PBXGroup;
+			children = (
+				847EA5532852F7E800F65FE4 /* ProfileDataGeneratorUITest.m */,
+			);
+			path = ProfileDataGeneratorUITest;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -407,6 +434,24 @@
 			productReference = 844A34D5282B2B6100C6D1DF /* TrendingMovies.app */;
 			productType = "com.apple.product-type.application";
 		};
+		847EA5422852F7CD00F65FE4 /* ProfileDataGeneratorUITest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 847EA54F2852F7CD00F65FE4 /* Build configuration list for PBXNativeTarget "ProfileDataGeneratorUITest" */;
+			buildPhases = (
+				847EA53F2852F7CD00F65FE4 /* Sources */,
+				847EA5402852F7CD00F65FE4 /* Frameworks */,
+				847EA5412852F7CD00F65FE4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				847EA54A2852F7CD00F65FE4 /* PBXTargetDependency */,
+			);
+			name = ProfileDataGeneratorUITest;
+			productName = DataGeneratorUITest;
+			productReference = 847EA5432852F7CD00F65FE4 /* ProfileDataGeneratorUITest.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -420,6 +465,10 @@
 					844A34D4282B2B6100C6D1DF = {
 						CreatedOnToolsVersion = 13.2;
 						LastSwiftMigration = 1320;
+					};
+					847EA5422852F7CD00F65FE4 = {
+						CreatedOnToolsVersion = 13.2;
+						TestTargetID = 844A34D4282B2B6100C6D1DF;
 					};
 				};
 			};
@@ -443,6 +492,7 @@
 			projectRoot = "";
 			targets = (
 				844A34D4282B2B6100C6D1DF /* TrendingMovies */,
+				847EA5422852F7CD00F65FE4 /* ProfileDataGeneratorUITest */,
 			);
 		};
 /* End PBXProject section */
@@ -471,6 +521,13 @@
 			files = (
 				844A355A282B2B9B00C6D1DF /* LaunchScreen.storyboard in Resources */,
 				844A354C282B2B9B00C6D1DF /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		847EA5412852F7CD00F65FE4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -531,7 +588,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		847EA53F2852F7CD00F65FE4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				847EA5542852F7E800F65FE4 /* ProfileDataGeneratorUITest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		847EA54A2852F7CD00F65FE4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 844A34D4282B2B6100C6D1DF /* TrendingMovies */;
+			targetProxy = 847EA5492852F7CD00F65FE4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		844A3522282B2B9B00C6D1DF /* LaunchScreen.storyboard */ = {
@@ -579,7 +652,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -666,12 +739,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				FRAMEWORK_SEARCH_PATHS = "\"$(SRCROOT)/Carthage/Build\"";
 				INFOPLIST_FILE = "$(SRCROOT)/TrendingMovies/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -680,6 +754,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.TrendingMovies;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.TrendingMovies";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "TrendingMovies-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -693,12 +768,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				FRAMEWORK_SEARCH_PATHS = "\"$(SRCROOT)/Carthage/Build\"";
 				INFOPLIST_FILE = "$(SRCROOT)/TrendingMovies/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -707,9 +783,53 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.TrendingMovies;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "TrendingMovies-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		847EA54B2852F7CD00F65FE4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 97JCY7859U;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.movies.ProfileDataGeneratorUITest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.movies.ProfileDataGeneratorUITest.xctrunner";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TrendingMovies;
+			};
+			name = Debug;
+		};
+		847EA54C2852F7CD00F65FE4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 97JCY7859U;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.movies.ProfileDataGeneratorUITest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TrendingMovies;
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
@@ -730,6 +850,15 @@
 			buildConfigurations = (
 				844A34E5282B2B6200C6D1DF /* Debug */,
 				844A34E6282B2B6200C6D1DF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		847EA54F2852F7CD00F65FE4 /* Build configuration list for PBXNativeTarget "ProfileDataGeneratorUITest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				847EA54B2852F7CD00F65FE4 /* Debug */,
+				847EA54C2852F7CD00F65FE4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
