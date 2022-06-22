@@ -133,6 +133,13 @@ void sentrycrash_setPrintPreviousLog(bool shouldPrintPreviousLog);
  */
 void sentrycrash_setMaxReportCount(int maxReportCount);
 
+/**
+ * Set the callback to be called at the end of a crash to make the app save a screenshot;
+ *
+ * @param callback function pointer that will be called with a give path.
+ */
+void sentrycrash_setSaveScreenShot(void(*callback)(const char *));
+
 /** Report a custom, user defined exception.
  * This can be useful when dealing with scripting languages.
  *

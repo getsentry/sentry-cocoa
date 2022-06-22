@@ -145,7 +145,6 @@ SentryCrashReportConverter ()
             [NSString stringWithFormat:@"Could not convert report:%@", exception.description];
         [SentryLog logWithMessage:errorMessage andLevel:kSentryLevelError];
     }
-
     return nil;
 }
 

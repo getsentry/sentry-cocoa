@@ -61,6 +61,7 @@ static bool g_shouldPrintPreviousLog = false;
 static char g_consoleLogPath[SentryCrashFU_MAX_PATH_LENGTH];
 static SentryCrashMonitorType g_monitoring = SentryCrashMonitorTypeProductionSafeMinimal;
 static char g_lastCrashReportFilePath[SentryCrashFU_MAX_PATH_LENGTH];
+static void(*g_saveScreenShot)(const char *) = 0;
 
 // ============================================================================
 #pragma mark - Utility -
@@ -105,6 +106,10 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
         sentrycrashcrs_getNextCrashReportPath(crashReportFilePath);
         strncpy(g_lastCrashReportFilePath, crashReportFilePath, sizeof(g_lastCrashReportFilePath));
         sentrycrashreport_writeStandardReport(monitorContext, crashReportFilePath);
+    }
+    
+    if (g_saveScreenShot) {
+        g_saveScreenShot(g_lastCrashReportFilePath);
     }
 }
 
@@ -209,6 +214,12 @@ void
 sentrycrash_setMaxReportCount(int maxReportCount)
 {
     sentrycrashcrs_setMaxReportCount(maxReportCount);
+}
+
+void
+sentrycrash_setSaveScreenShot(void(*callback)(const char *))
+{
+    g_saveScreenShot = callback;
 }
 
 void
