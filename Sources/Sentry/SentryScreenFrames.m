@@ -20,6 +20,7 @@
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+- (instancetype)initWithTotal:(NSUInteger)total
                        frozen:(NSUInteger)frozen
                          slow:(NSUInteger)slow
                    timestamps:(SentryFrameTimestampInfo *)timestamps
