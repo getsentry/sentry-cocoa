@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
  * A ring buffer backed by @c NSArray that can return an @c NSArray containing its elements in the
  * order in which they were added.
  */
-@interface SentryNSArrayRingBuffer<T> : NSObject
+@interface SentryNSArrayRingBuffer<T>: NSObject
 
 @property (nonatomic, copy) NSArray<T> *array;
 
@@ -14,8 +14,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithCapacity:(NSUInteger)capacity;
 
 /**
- * Add an object. If there are already @c capacity objects in the backing array, overwrites the
- * oldest one to make room for this one.
+ * Add an object. If there are already @c capacity objects in the backing array, overwrites the oldest one
+ * to make room for this one.
  */
 - (void)addObject:(T)object;
 

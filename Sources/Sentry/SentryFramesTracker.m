@@ -2,9 +2,8 @@
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryNSArrayRingBuffer.h"
 #import "SentryProfilingConditionals.h"
-#import "SentryTracer.h"
-#import <SentryLog.h>
 #import <SentryScreenFrames.h>
+#import "SentryTracer.h"
 #include <stdatomic.h>
 
 #if SENTRY_HAS_UIKIT
@@ -130,6 +129,7 @@ SentryFramesTracker ()
     CFTimeInterval slowFrameThreshold = 1 / (actualFramesPerSecond - 1);
 
     CFTimeInterval frameDuration = lastFrameTimestamp - self.previousFrameTimestamp;
+    self.previousFrameTimestamp = lastFrameTimestamp;
 
     if (frameDuration > slowFrameThreshold && frameDuration <= SentryFrozenFrameThreshold) {
         atomic_fetch_add_explicit(&_slowFrames, 1, SentryFramesMemoryOrder);
