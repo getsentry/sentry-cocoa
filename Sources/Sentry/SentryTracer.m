@@ -734,7 +734,9 @@ static NSLock *profilerLock;
 - (BOOL)isProfiling
 {
     [profilerLock lock];
-    return profiler.isRunning;
+    BOOL isRunning = profiler.isRunning;
+    [profilerLock unlock];
+    return isRunning;
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
