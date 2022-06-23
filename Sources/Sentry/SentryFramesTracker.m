@@ -1,6 +1,7 @@
 #import "SentryFramesTracker.h"
 #import "SentryDisplayLinkWrapper.h"
 #import <SentryLog.h>
+#import "SentryNSArrayRingBuffer.h"
 #import "SentryProfilingConditionals.h"
 #import <SentryScreenFrames.h>
 #import "SentryTracer.h"
@@ -9,11 +10,15 @@
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
 
-/** A mutable version of @c SentryFrameTimestampInfo so we can build the results here. */
-typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *> SentryMutableFrameTimestampInfo;
+/**
+ * A ring-buffered version of @c SentryFrameTimestampInfo so we can build the results here and limit
+ * how many timestamps we will retain.
+ */
+typedef SentryNSArrayRingBuffer<NSDictionary<NSString *, NSNumber *> *> SentryMutableFrameTimestampInfo;
 
 static CFTimeInterval const SentryFrozenFrameThreshold = 0.7;
 static CFTimeInterval const SentryPreviousFrameInitialValue = -1;
+static NSUInteger const SentryNumberOfFrameTimestampsToRetain = 10000;
 
 /**
  * Relaxed memoring ordering is typical for incrementing counters. This operation only requires
@@ -81,7 +86,7 @@ SentryFramesTracker ()
     self.previousFrameTimestamp = SentryPreviousFrameInitialValue;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    self.frameTimestamps = [SentryMutableFrameTimestampInfo array];
+    self.frameTimestamps = [[SentryMutableFrameTimestampInfo alloc] initWithCapacity:SentryNumberOfFrameTimestampsToRetain];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
@@ -152,7 +157,7 @@ SentryFramesTracker ()
     return [[SentryScreenFrames alloc] initWithTotal:total
                                               frozen:frozen
                                                 slow:slow
-                                          timestamps:self.frameTimestamps];
+                                          timestamps:self.frameTimestamps.array];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
