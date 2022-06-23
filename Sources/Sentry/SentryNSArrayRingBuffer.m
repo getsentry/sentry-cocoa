@@ -6,7 +6,8 @@
     NSUInteger _capacity;
 }
 
-- (instancetype)initWithCapacity:(NSUInteger)capacity {
+- (instancetype)initWithCapacity:(NSUInteger)capacity
+{
     self = [super init];
     if (!self) {
         return nil;
@@ -16,7 +17,8 @@
     return self;
 }
 
-- (void)addObject:(id)object {
+- (void)addObject:(id)object
+{
     if (_bufferHead < _circularBuffer.count)
         [_circularBuffer replaceObjectAtIndex:_bufferHead withObject:object];
     else
@@ -25,17 +27,22 @@
     _bufferHead = (_bufferHead + 1) % _capacity;
 }
 
-- (NSArray *)array {
+- (NSArray *)array
+{
     if (_circularBuffer.count < _capacity) {
         return _circularBuffer;
     } else {
-        NSArray *latestEntries = [_circularBuffer objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _bufferHead)]];
-        NSArray *oldestEntries = [_circularBuffer objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(_bufferHead, _capacity-_bufferHead)]];
+        NSArray *latestEntries = [_circularBuffer
+            objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _bufferHead)]];
+        NSArray *oldestEntries = [_circularBuffer
+            objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(_bufferHead,
+                                                                        _capacity - _bufferHead)]];
         return [oldestEntries arrayByAddingObjectsFromArray:latestEntries];
     }
 }
 
-- (void)reset {
+- (void)reset
+{
     _circularBuffer = [NSMutableArray arrayWithCapacity:_capacity];
     _bufferHead = 0;
 }
