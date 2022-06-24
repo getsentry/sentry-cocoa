@@ -8,6 +8,8 @@
 #import "SentryThread.h"
 #include <pthread.h>
 
+#define MAX_STACKTRACE_LENGTH 100
+
 @interface
 SentryThreadInspector ()
 
@@ -18,7 +20,7 @@ SentryThreadInspector ()
 
 typedef struct {
     SentryCrashThread thread;
-    SentryCrashStackEntry stackEntries[100];
+    SentryCrashStackEntry stackEntries[MAX_STACKTRACE_LENGTH];
     int stackLength;
 } ThreadInfo;
 
@@ -30,7 +32,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
 {
     sentrycrashmc_getContextForThread(thread, context, false);
     SentryCrashStackCursor stackCursor;
-    sentrycrashsc_initWithMachineContext(&stackCursor, 100, context);
+    sentrycrashsc_initWithMachineContext(&stackCursor, MAX_STACKTRACE_LENGTH, context);
 
     unsigned int result = 0;
     while (stackCursor.advanceCursor(&stackCursor)) {
@@ -112,7 +114,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
         for (int i = 0; i < numSuspendedThreads; i++) {
             if (suspendedThreads[i] != currentThread) {
                 int numberOfEntries = getStackEntriesFromThread(
-                    suspendedThreads[i], context, threadsInfos[i].stackEntries, 100);
+                    suspendedThreads[i], context, threadsInfos[i].stackEntries, MAX_STACKTRACE_LENGTH);
                 threadsInfos[i].stackLength = numberOfEntries;
             } else {
                 threadsInfos[i].stackLength = 0;
