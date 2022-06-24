@@ -796,7 +796,6 @@ class SentryHubTests: XCTestCase {
 #endif
         XCTAssertFalse((profile["device_physical_memory_bytes"] as! String).isEmpty)
         XCTAssertFalse((profile["version_code"] as! String).isEmpty)
-        XCTAssertGreaterThan(Int(profile["main_thread_id"] as! String)!, 0)
         
         XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["transaction_id"] as! String))
         XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["profile_id"] as! String))
@@ -812,11 +811,12 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(firstImage["type"] as! String, "macho")
         
         let sampledProfile = profile["sampled_profile"] as! [String: Any]
-        let threadMetadata = sampledProfile["thread_metadata"] as! [String: Any]
+        let threadMetadata = sampledProfile["thread_metadata"] as! [String: [String: Any]]
         let queueMetadata = sampledProfile["queue_metadata"] as! [String: Any]
         
         XCTAssertFalse(threadMetadata.isEmpty)
-        XCTAssertGreaterThan((threadMetadata.first?.value as! [String: Any])["priority"] as! Int, 0)
+        XCTAssertGreaterThan(threadMetadata.first?.value["priority"] as! Int, 0)
+        XCTAssertFalse(threadMetadata.values.filter { $0["is_main_thread"] as? Bool == true }.isEmpty)
         XCTAssertFalse(queueMetadata.isEmpty)
         XCTAssertFalse(((queueMetadata.first?.value as! [String: Any])["label"] as! String).isEmpty)
         

@@ -140,7 +140,7 @@ isSimulatorBuild()
 
         __weak const auto weakSelf = self;
         _profiler = std::make_shared<SamplingProfiler>(
-            [weakSelf, threadMetadata, queueMetadata, samples](auto &backtrace) {
+            [weakSelf, threadMetadata, queueMetadata, samples, mainThreadID = _mainThreadID](auto &backtrace) {
                 const auto strongSelf = weakSelf;
                 if (strongSelf == nil) {
                     return;
@@ -157,6 +157,9 @@ isSimulatorBuild()
                             [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
                     }
                     metadata[@"priority"] = @(backtrace.threadMetadata.priority);
+                    if (backtrace.threadMetadata.threadID == mainThreadID) {
+                        metadata[@"is_main_thread"] = @YES;
+                    }
                     threadMetadata[threadID] = metadata;
                 }
                 if (queueAddress != nil && queueMetadata[queueAddress] == nil
@@ -245,7 +248,6 @@ isSimulatorBuild()
     profile[@"profile_id"] = [[SentryId alloc] init].sentryIdString;
     profile[@"transaction_name"] = transaction.transaction;
     profile[@"duration_ns"] = [@(getDurationNs(_startTimestamp, getAbsoluteTime())) stringValue];
-    profile[@"main_thread_id"] = [@(_mainThreadID) stringValue];
 
     const auto bundle = NSBundle.mainBundle;
     profile[@"version_code"] = [bundle objectForInfoDictionaryKey:(NSString *)kCFBundleVersionKey];
