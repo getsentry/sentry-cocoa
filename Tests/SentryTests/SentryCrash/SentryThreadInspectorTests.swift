@@ -40,7 +40,7 @@ class SentryThreadInspectorTests: XCTestCase {
         XCTAssertTrue(30 < stacktrace?.frames.count ?? 0, "Not enough stacktrace frames.")
     }
     
-    @available(macOS 10.12,iOS 10.0, *)
+    @available(macOS 10.12, iOS 10.0, *)
     func testStacktraceHasFrames_forEveryThread() {
         let queue = DispatchQueue(label: "defaultphil", attributes: [.concurrent, .initiallyInactive])
         

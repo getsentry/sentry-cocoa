@@ -23,7 +23,8 @@ SentryCrashStackEntryMapper ()
     return self;
 }
 
-- (SentryFrame *)sentryCrashStackEntryToSentryFrame:(SentryCrashStackEntry)stackEntry {
+- (SentryFrame *)sentryCrashStackEntryToSentryFrame:(SentryCrashStackEntry)stackEntry
+{
     SentryFrame *frame = [[SentryFrame alloc] init];
 
     NSNumber *symbolAddress = @(stackEntry.symbolAddress);
