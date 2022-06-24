@@ -93,8 +93,13 @@ SentryFramesTracker ()
     // frame rate can change at any time by setting preferredFramesPerSecond or due to ProMotion
     // display, low power mode, critical thermal state, and accessibility settings. Therefore we
     // need to check the frame rate for every callback.
-    double actualFramesPerSecond
-        = 1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp);
+    // targetTimestamp is only available on iOS 10.0 and tvOS 10.0 and above. We use a fallback of
+    // 60 fps.
+    double actualFramesPerSecond = 60.0;
+    if (@available(iOS 10.0, tvOS 10.0, *)) {
+        actualFramesPerSecond
+            = 1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp);
+    }
 
     // Most frames take just a few microseconds longer than the optimal caculated duration.
     // Therefore we substract one, because otherwise almost all frames would be slow.

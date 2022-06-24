@@ -12,7 +12,7 @@
     return displayLink.timestamp;
 }
 
-- (CFTimeInterval)targetTimestamp
+- (CFTimeInterval)targetTimestamp API_AVAILABLE(ios(10.0), tvos(10.0))
 {
     return displayLink.targetTimestamp;
 }
