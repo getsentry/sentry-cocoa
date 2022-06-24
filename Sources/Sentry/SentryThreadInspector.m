@@ -113,8 +113,8 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
 
         for (int i = 0; i < numSuspendedThreads; i++) {
             if (suspendedThreads[i] != currentThread) {
-                int numberOfEntries = getStackEntriesFromThread(
-                    suspendedThreads[i], context, threadsInfos[i].stackEntries, MAX_STACKTRACE_LENGTH);
+                int numberOfEntries = getStackEntriesFromThread(suspendedThreads[i], context,
+                    threadsInfos[i].stackEntries, MAX_STACKTRACE_LENGTH);
                 threadsInfos[i].stackLength = numberOfEntries;
             } else {
                 threadsInfos[i].stackLength = 0;
