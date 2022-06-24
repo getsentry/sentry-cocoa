@@ -6,6 +6,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var dsnTextField: UITextField!
     @IBOutlet weak var anrFullyBlockingButton: UIButton!
     @IBOutlet weak var anrFillingRunLoopButton: UIButton!
+    @IBOutlet weak var framesLabel: UILabel!
     
     private let dispatchQueue = DispatchQueue(label: "ViewController")
 
@@ -43,6 +44,14 @@ class ViewController: UIViewController {
             }
         }
         
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        if #available(iOS 10.0, *) {
+            Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
+                self.framesLabel.text = "Frames Total:\(PrivateSentrySDKOnly.currentScreenFrames.total) Slow:\(PrivateSentrySDKOnly.currentScreenFrames.slow) Frozen:\(PrivateSentrySDKOnly.currentScreenFrames.frozen)"
+            }
+        }
     }
     
     @IBAction func addBreadcrumb(_ sender: Any) {

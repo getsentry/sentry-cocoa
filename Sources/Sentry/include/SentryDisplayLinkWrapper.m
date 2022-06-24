@@ -12,6 +12,11 @@
     return displayLink.timestamp;
 }
 
+- (CFTimeInterval)targetTimestamp
+{
+    return displayLink.targetTimestamp;
+}
+
 - (void)linkWithTarget:(id)target selector:(SEL)sel
 {
     displayLink = [CADisplayLink displayLinkWithTarget:target selector:sel];

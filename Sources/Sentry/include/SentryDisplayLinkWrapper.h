@@ -11,6 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (readonly, nonatomic) CFTimeInterval timestamp;
 
+@property (readonly, nonatomic) CFTimeInterval targetTimestamp;
+
 - (void)linkWithTarget:(id)target selector:(SEL)sel;
 
 - (void)invalidate;
