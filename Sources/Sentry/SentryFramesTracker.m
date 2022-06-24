@@ -1,9 +1,9 @@
 #import "SentryFramesTracker.h"
 #import "SentryDisplayLinkWrapper.h"
-#import <SentryLog.h>
 #import "SentryNSArrayRingBuffer.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryTracer.h"
+#import <SentryLog.h>
 #import <SentryScreenFrames.h>
 #include <stdatomic.h>
 
