@@ -65,7 +65,7 @@ typedef struct {
 
 typedef struct SentryCrashStackCursor {
     SentryCrashStackEntry stackEntry;
-    
+
     struct {
         /** Current depth as we walk the stack (1-based). */
         int currentDepth;

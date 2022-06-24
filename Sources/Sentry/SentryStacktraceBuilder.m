@@ -7,7 +7,6 @@
 #import "SentryFrameRemover.h"
 #import "SentryStacktrace.h"
 
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
@@ -57,7 +56,9 @@ SentryStacktraceBuilder ()
     return stacktrace;
 }
 
-- (SentryStacktrace *)buildStackTraceFromStackEntries:(SentryCrashStackEntry *)entries amount:(unsigned int)amount {
+- (SentryStacktrace *)buildStackTraceFromStackEntries:(SentryCrashStackEntry *)entries
+                                               amount:(unsigned int)amount
+{
     NSMutableArray<SentryFrame *> *frames = [[NSMutableArray alloc] initWithCapacity:amount];
     SentryFrame *frame = nil;
     for (int i = 0; i < amount; i++) {
@@ -72,12 +73,12 @@ SentryStacktraceBuilder ()
         frame = [self.crashStackEntryMapper sentryCrashStackEntryToSentryFrame:stackEntry];
         [frames addObject:frame];
     }
-    
+
     NSArray<SentryFrame *> *framesCleared = [SentryFrameRemover removeNonSdkFrames:frames];
 
     // The frames must be ordered from caller to callee, or oldest to youngest
     NSArray<SentryFrame *> *framesReversed = [[framesCleared reverseObjectEnumerator] allObjects];
-    
+
     return [[SentryStacktrace alloc] initWithFrames:framesReversed registers:@{}];
 }
 

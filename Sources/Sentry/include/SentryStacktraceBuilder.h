@@ -1,8 +1,8 @@
 #import "SentryCrashMachineContext.h"
+#import "SentryCrashStackCursor.h"
 #include "SentryCrashThread.h"
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
-#import "SentryCrashStackCursor.h"
 
 @class SentryStacktrace, SentryFrameRemover, SentryCrashStackEntryMapper;
 
@@ -32,8 +32,8 @@ SENTRY_NO_INIT
 - (SentryStacktrace *)buildStacktraceForThread:(SentryCrashThread)thread
                                        context:(struct SentryCrashMachineContext *)context;
 
-
-- (SentryStacktrace *)buildStackTraceFromStackEntries:(SentryCrashStackEntry *)entries amount:(unsigned int)amount;
+- (SentryStacktrace *)buildStackTraceFromStackEntries:(SentryCrashStackEntry *)entries
+                                               amount:(unsigned int)amount;
 @end
 
 NS_ASSUME_NONNULL_END
