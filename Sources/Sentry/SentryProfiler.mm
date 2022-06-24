@@ -99,9 +99,8 @@ isSimulatorBuild()
 - (instancetype)init
 {
     if (![NSThread isMainThread]) {
-        [SentryLog
-            logWithMessage:@"SentryProfiler must be initialized on the main thread"
-                  andLevel:kSentryLevelError];
+        [SentryLog logWithMessage:@"SentryProfiler must be initialized on the main thread"
+                         andLevel:kSentryLevelError];
         return nil;
     }
     if (self = [super init]) {
