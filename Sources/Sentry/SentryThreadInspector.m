@@ -104,7 +104,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
         SentryCrashMC_NEW_CONTEXT(context);
         SentryCrashThread currentThread = sentrycrashthread_self();
 
-        thread_act_array_t suspendedThreads = nil;
+        thread_act_array_t suspendedThreads = NULL;
         mach_msg_type_number_t numSuspendedThreads = 0;
 
         sentrycrashmc_suspendEnvironment(&suspendedThreads, &numSuspendedThreads);
