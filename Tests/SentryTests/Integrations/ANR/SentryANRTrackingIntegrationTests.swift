@@ -124,7 +124,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         thread2.stacktrace = Stacktrace(frames: [frame2], registers: [:])
         thread2.current = false
         
-        threadInspector.allThreds = [
+        threadInspector.allThreads = [
             thread2,
             thread1
         ]
