@@ -28,6 +28,16 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "847EA5422852F7CD00F65FE4"
+               BuildableName = "ProfileDataGeneratorUITest.xctest"
+               BlueprintName = "ProfileDataGeneratorUITest"
+               ReferencedContainer = "container:TrendingMovies.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

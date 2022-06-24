@@ -14,6 +14,7 @@ on:
       - 'Tests/**'
       - '.github/workflows/saucelabs-UI-tests.yml'
       - 'fastlane/**'
+      - '.sauce/config.yml'
 
 jobs:
   build-ui-tests:

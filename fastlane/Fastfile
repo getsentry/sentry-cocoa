@@ -96,6 +96,30 @@ platform :ios do
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
 
+  desc 'Build an XCode UI test target that exercises the Trending Movies test app to generate and upload profile data for testing/development purposes throughout the rest of the Sentry stack.'
+  lane :build_profile_data_generator_ui_test do
+
+    setup_ci(
+      force: true
+    )
+
+    sync_code_signing(
+      type: "development",
+      readonly: true,
+      app_identifier: ["io.sentry.sample.TrendingMovies", "io.sentry.sample.movies.ProfileDataGeneratorUITest.xctrunner"]
+    )
+
+    build_app(
+      workspace: "Sentry.xcworkspace",
+      scheme: "TrendingMovies",
+      xcargs: "build-for-testing",
+      derived_data_path: "DerivedData",
+      skip_archive: true,
+    )
+
+    delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
+  end
+
   desc "Upload iOS-Swift to TestFlight and symbols to Sentry"
   lane :ios_swift_to_testflight do
 
