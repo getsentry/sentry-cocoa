@@ -61,7 +61,7 @@ jobs:
 
           # We want to test the frame tracker at 120 fps
           - xcode: "13.2"
-            suite: "iPhone-13-Pro"
+            suite: "iPhone-Pro"
 
           - xcode: "13.2"
             suite: "iOS-14"
