@@ -93,12 +93,20 @@ isSimulatorBuild()
     uint64_t _startTimestamp;
     std::shared_ptr<SamplingProfiler> _profiler;
     SentryDebugImageProvider *_debugImageProvider;
+    thread::TIDType _mainThreadID;
 }
 
 - (instancetype)init
 {
+    if (![NSThread isMainThread]) {
+        [SentryLog
+            logWithMessage:@"SentryProfiler must be initialized on the main thread"
+                  andLevel:kSentryLevelError];
+        return nil;
+    }
     if (self = [super init]) {
         _debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
+        _mainThreadID = ThreadHandle::current()->tid();
     }
     return self;
 }
@@ -237,6 +245,7 @@ isSimulatorBuild()
     profile[@"profile_id"] = [[SentryId alloc] init].sentryIdString;
     profile[@"transaction_name"] = transaction.transaction;
     profile[@"duration_ns"] = [@(getDurationNs(_startTimestamp, getAbsoluteTime())) stringValue];
+    profile[@"main_thread_id"] = [@(_mainThreadID) stringValue];
 
     const auto bundle = NSBundle.mainBundle;
     profile[@"version_code"] = [bundle objectForInfoDictionaryKey:(NSString *)kCFBundleVersionKey];
