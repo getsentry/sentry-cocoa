@@ -90,7 +90,7 @@ SentryFramesTracker ()
 
     // Calculate the actual frame rate as pointed out by the Apple docs:
     // https://developer.apple.com/documentation/quartzcore/cadisplaylink?language=objc The actual
-    // frame rate can change at any time by setting preferredFramesPerSecond or due to promotion
+    // frame rate can change at any time by setting preferredFramesPerSecond or due to ProMotion
     // display, low power mode, critical thermal state, and accessibility settings. Therefore we
     // need to check the frame rate for every callback.
     double actualFramesPerSecond
