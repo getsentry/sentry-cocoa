@@ -16,7 +16,7 @@ class TestThreadInspector: SentryThreadInspector {
         return allThreds ?? [TestData.thread]
     }
 
-    override func getCurrentThreads(withStackTrace getAllStacktraces: Bool) -> [Sentry.Thread] {
+    override func getCurrentThreadsWithStackTrace() -> [Sentry.Thread] {
         return allThreds ?? [TestData.thread]
     }
 

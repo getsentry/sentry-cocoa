@@ -45,13 +45,13 @@ class SentryThreadInspectorTests: XCTestCase {
         let queue = DispatchQueue(label: "defaultphil", attributes: [.concurrent, .initiallyInactive])
         
         let expect = expectation(description: "Read every thread")
-        expect.expectedFulfillmentCount = 1
+        expect.expectedFulfillmentCount = 20
         
         let sut = self.fixture.getSut(testWithRealMachineConextWrapper: true)
-        for _ in 0..<1 {
+        for _ in 0..<20 {
             
             queue.async {
-                let actual = sut.getCurrentThreads(withStackTrace: true)
+                let actual = sut.getCurrentThreadsWithStackTrace()
                 
                 // Sometimes during tests its possible to have one thread without frames
                 // We just need to make sure we retrieve frame information for at least one other thread than the main thread
@@ -70,7 +70,7 @@ class SentryThreadInspectorTests: XCTestCase {
         }
         
         queue.activate()
-       wait(for: [expect], timeout: 5)
+        wait(for: [expect], timeout: 1)
     }
     
     func testOnlyCurrentThreadHasStacktrace() {

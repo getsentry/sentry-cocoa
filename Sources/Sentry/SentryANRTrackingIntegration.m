@@ -82,7 +82,7 @@ SentryANRTrackingIntegration ()
     NSString *message = [NSString stringWithFormat:@"App hanging for at least %li ms.",
                                   (long)(self.options.appHangTimeoutInterval * 1000)];
 
-    NSArray<SentryThread *> *threads = [threadInspector getCurrentThreadsWithStackTrace:YES];
+    NSArray<SentryThread *> *threads = [threadInspector getCurrentThreadsWithStackTrace];
 
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     SentryException *sentryException = [[SentryException alloc] initWithValue:message

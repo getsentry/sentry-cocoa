@@ -7,6 +7,7 @@
 #import "SentryFrameRemover.h"
 #import "SentryStacktrace.h"
 
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
@@ -54,24 +55,6 @@ SentryStacktraceBuilder ()
                                                                   registers:@{}];
 
     return stacktrace;
-}
-
-- (unsigned int)getStackEntriesFromThread:(SentryCrashThread)thread context:(struct SentryCrashMachineContext *)context buffer:(SentryCrashStackEntry *)buffer maxEntries:(unsigned int)amount {
-    sentrycrashmc_getContextForThread(thread, context, false);
-    SentryCrashStackCursor stackCursor;
-    sentrycrashsc_initWithMachineContext(&stackCursor, 100, context);
-    
-    unsigned int result = 0;
-    while (stackCursor.advanceCursor(&stackCursor)) {
-        if (result == amount) break;
-        if (stackCursor.symbolicate(&stackCursor)) {
-            buffer[result] = stackCursor.stackEntry;
-            result++;
-        }
-    }
-    sentrycrash_async_backtrace_decref(stackCursor.async_caller);
-    
-    return result;
 }
 
 - (SentryStacktrace *)buildStackTraceFromStackEntries:(SentryCrashStackEntry *)entries amount:(unsigned int)amount {

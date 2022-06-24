@@ -15,12 +15,6 @@ SENTRY_NO_INIT
 
 - (id)initWithCrashStackEntryMapper:(SentryCrashStackEntryMapper *)crashStackEntryMapper;
 
-
-/**
- * Copies the stack entries from a thread to the especified buffer up to the max entries and return the number of entries found.
- */
-- (unsigned int)getStackEntriesFromThread:(SentryCrashThread)thread context:(struct SentryCrashMachineContext *)context buffer:(SentryCrashStackEntry *)buffer maxEntries:(unsigned int)amount;
-
 /**
  * Builds the stacktrace for the current thread removing frames from the SentrySDK until frames from
  * a different package are found. When including Sentry via the Swift Package Manager the package is
