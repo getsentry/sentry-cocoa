@@ -120,6 +120,10 @@ SentryFramesTracker ()
             = 1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp);
     }
 
+    // Most frames take just a few microseconds longer than the optimal caculated duration.
+    // Therefore we substract one, because otherwise almost all frames would be slow.
+    CFTimeInterval slowFrameThreshold = 1 / (actualFramesPerSecond - 1);
+
     CFTimeInterval frameDuration = lastFrameTimestamp - self.previousFrameTimestamp;
 
     if (frameDuration > slowFrameThreshold && frameDuration <= SentryFrozenFrameThreshold) {
