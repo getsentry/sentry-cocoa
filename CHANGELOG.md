@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add screenshot at crash (#1920)
+
 ## 7.18.1
 
 ### Fixes
