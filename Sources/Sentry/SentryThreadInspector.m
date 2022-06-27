@@ -22,30 +22,30 @@ typedef struct {
     SentryCrashThread thread;
     SentryCrashStackEntry stackEntries[MAX_STACKTRACE_LENGTH];
     int stackLength;
-} ThreadInfo;
+} SentryThreadInfo;
 
 // We need a C function to retrieve information from the stack trace in order to avoid
 // calling into async code while there is suspended threads.
 unsigned int
 getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineContext *context,
-    SentryCrashStackEntry *buffer, unsigned int amount)
+    SentryCrashStackEntry *buffer, unsigned int maxEntries)
 {
     sentrycrashmc_getContextForThread(thread, context, false);
     SentryCrashStackCursor stackCursor;
     sentrycrashsc_initWithMachineContext(&stackCursor, MAX_STACKTRACE_LENGTH, context);
 
-    unsigned int result = 0;
+    unsigned int entries = 0;
     while (stackCursor.advanceCursor(&stackCursor)) {
-        if (result == amount)
+        if (entries == maxEntries)
             break;
         if (stackCursor.symbolicate(&stackCursor)) {
-            buffer[result] = stackCursor.stackEntry;
-            result++;
+            buffer[entries] = stackCursor.stackEntry;
+            entries++;
         }
     }
     sentrycrash_async_backtrace_decref(stackCursor.async_caller);
 
-    return result;
+    return entries;
 }
 
 @implementation SentryThreadInspector
@@ -64,38 +64,42 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
 {
     NSMutableArray<SentryThread *> *threads = [NSMutableArray new];
 
-    @synchronized(self) {
-        SentryCrashMC_NEW_CONTEXT(context);
-        SentryCrashThread currentThread = sentrycrashthread_self();
+    SentryCrashMC_NEW_CONTEXT(context);
+    SentryCrashThread currentThread = sentrycrashthread_self();
 
-        [self.machineContextWrapper fillContextForCurrentThread:context];
-        int threadCount = [self.machineContextWrapper getThreadCount:context];
+    [self.machineContextWrapper fillContextForCurrentThread:context];
+    int threadCount = [self.machineContextWrapper getThreadCount:context];
 
-        for (int i = 0; i < threadCount; i++) {
-            SentryCrashThread thread = [self.machineContextWrapper getThread:context withIndex:i];
-            SentryThread *sentryThread = [[SentryThread alloc] initWithThreadId:@(i)];
+    for (int i = 0; i < threadCount; i++) {
+        SentryCrashThread thread = [self.machineContextWrapper getThread:context withIndex:i];
+        SentryThread *sentryThread = [[SentryThread alloc] initWithThreadId:@(i)];
 
-            sentryThread.name = [self getThreadName:thread];
+        sentryThread.name = [self getThreadName:thread];
 
-            sentryThread.crashed = @NO;
-            bool isCurrent = thread == currentThread;
-            sentryThread.current = @(isCurrent);
+        sentryThread.crashed = @NO;
+        bool isCurrent = thread == currentThread;
+        sentryThread.current = @(isCurrent);
 
-            if (isCurrent) {
-                sentryThread.stacktrace = [self.stacktraceBuilder buildStacktraceForCurrentThread];
-            }
-
-            // We need to make sure the main thread is always the first thread in the result
-            if ([self.machineContextWrapper isMainThread:thread])
-                [threads insertObject:sentryThread atIndex:0];
-            else
-                [threads addObject:sentryThread];
+        if (isCurrent) {
+            sentryThread.stacktrace = [self.stacktraceBuilder buildStacktraceForCurrentThread];
         }
+
+        // We need to make sure the main thread is always the first thread in the result
+        if ([self.machineContextWrapper isMainThread:thread])
+            [threads insertObject:sentryThread atIndex:0];
+        else
+            [threads addObject:sentryThread];
     }
 
     return threads;
 }
 
+/*
+ We are not sharing code with 'getCurrentThreads' because both methods use different approaches.
+ This method retrieves thread information from the suspend method
+ while the other retrieves information from the machine context.
+ Having both approaches in the same method can lead to inconsistency between the number of threads.
+ */
 - (NSArray<SentryThread *> *)getCurrentThreadsWithStackTrace
 {
     NSMutableArray<SentryThread *> *threads = [NSMutableArray new];
@@ -109,7 +113,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
 
         sentrycrashmc_suspendEnvironment(&suspendedThreads, &numSuspendedThreads);
 
-        ThreadInfo threadsInfos[numSuspendedThreads];
+        SentryThreadInfo threadsInfos[numSuspendedThreads];
 
         for (int i = 0; i < numSuspendedThreads; i++) {
             if (suspendedThreads[i] != currentThread) {
@@ -117,6 +121,8 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
                     threadsInfos[i].stackEntries, MAX_STACKTRACE_LENGTH);
                 threadsInfos[i].stackLength = numberOfEntries;
             } else {
+                // We can't use 'getStackEntriesFromThread' to retrieve stackframes from the current
+                // thread. We are using the stackTraceBuilder to retrieve this information later.
                 threadsInfos[i].stackLength = 0;
             }
             threadsInfos[i].thread = suspendedThreads[i];

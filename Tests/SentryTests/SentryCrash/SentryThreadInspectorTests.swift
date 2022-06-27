@@ -42,6 +42,8 @@ class SentryThreadInspectorTests: XCTestCase {
     
     @available(macOS 10.12, iOS 10.0, tvOS 10.0, *)
     func testStacktraceHasFrames_forEveryThread() {
+        SentrySDK.start { $0.stitchAsyncCode = true }
+        
         let queue = DispatchQueue(label: "defaultphil", attributes: [.concurrent, .initiallyInactive])
         
         let expect = expectation(description: "Read every thread")
