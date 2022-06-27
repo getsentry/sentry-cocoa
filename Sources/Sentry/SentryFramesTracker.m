@@ -19,7 +19,10 @@ typedef SentryNSArrayRingBuffer<NSDictionary<NSString *, NSNumber *> *>
 
 static CFTimeInterval const SentryFrozenFrameThreshold = 0.7;
 static CFTimeInterval const SentryPreviousFrameInitialValue = -1;
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
 static NSUInteger const SentryNumberOfFrameTimestampsToRetain = 10000;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 /**
  * Relaxed memoring ordering is typical for incrementing counters. This operation only requires
@@ -163,6 +166,8 @@ SentryFramesTracker ()
                                               frozen:frozen
                                                 slow:slow
                                           timestamps:self.frameTimestamps.array];
+#else
+    return [[SentryScreenFrames alloc] initWithTotal:total frozen:frozen slow:slow];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
