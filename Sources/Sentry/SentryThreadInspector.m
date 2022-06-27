@@ -25,7 +25,7 @@ typedef struct {
 } SentryThreadInfo;
 
 // We need a C function to retrieve information from the stack trace in order to avoid
-// calling into async code while there is suspended threads.
+// calling into not async-signal-safe code while there are suspended threads.
 unsigned int
 getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineContext *context,
     SentryCrashStackEntry *buffer, unsigned int maxEntries)
