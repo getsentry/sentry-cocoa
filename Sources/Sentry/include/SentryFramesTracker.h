@@ -26,6 +26,9 @@ SENTRY_NO_INIT
  * query for whether a profiler is currently running.
  */
 @property (nullable, nonatomic, weak) SentryTracer *currentTracer;
+
+/** Remove previously recorded timestamps in preparation for a later profiled transaction. */
+- (void)resetTimestamps;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 - (void)start;

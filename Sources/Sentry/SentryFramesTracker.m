@@ -87,14 +87,16 @@ SentryFramesTracker ()
     atomic_store_explicit(&_slowFrames, 0, SentryFramesMemoryOrder);
 
     self.previousFrameTimestamp = SentryPreviousFrameInitialValue;
-
-#    if SENTRY_TARGET_PROFILING_SUPPORTED
-    if (self.currentTracer.isProfiling) {
-        self.frameTimestamps = [[SentryMutableFrameTimestampInfo alloc]
-            initWithCapacity:SentryNumberOfFrameTimestampsToRetain];
-    }
-#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
+    [self resetTimestamps];
 }
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+- (void)resetTimestamps
+{
+    self.frameTimestamps = [[SentryMutableFrameTimestampInfo alloc]
+        initWithCapacity:SentryNumberOfFrameTimestampsToRetain];
+}
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 - (void)start
 {
