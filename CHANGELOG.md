@@ -48,6 +48,12 @@
 
 - Fix high percentage of slow frames (#1915)
 
+## 7.18.1
+
+### Fixes
+
+- Fix high percentage of slow frames (#1915)
+
 ## 7.18.0
 
 ### Features
