@@ -28,7 +28,7 @@ extension Tracer {
         }
 
         SentrySDK.start { options in
-            options.dsn = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
+            options.dsn = "https://fff20ae0c1d141fda99ba8bdedd0e9cd@o447951.ingest.sentry.io/6509889"
             options.debug = true
             options.sessionTrackingIntervalMillis = 5_000
             // Sampling 100% - In Production you probably want to adjust this
@@ -37,6 +37,7 @@ extension Tracer {
             options.enableCoreDataTracking = true
             options.enableProfiling = true
             options.attachScreenshot = true
+            options.enableUserInteractionTracing = true
         }
 
         SentrySDK.configureScope { scope in

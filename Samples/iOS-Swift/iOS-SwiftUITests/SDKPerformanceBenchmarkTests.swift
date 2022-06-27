@@ -14,7 +14,7 @@ class SDKPerformanceBenchmarkTests: XCTestCase {
         var results = [Double]()
         for _ in 0..<5 {
             let app = XCUIApplication()
-
+            app.launchArguments.append("--io.sentry.test.benchmarking")
             app.launch()
             app.buttons["Performance scenarios"].tap()
 

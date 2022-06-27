@@ -1,5 +1,6 @@
 #import "SentryFramesTracker.h"
 #import "SentryDisplayLinkWrapper.h"
+#import <SentryLog.h>
 #import <SentryScreenFrames.h>
 #include <stdatomic.h>
 
@@ -19,7 +20,6 @@ static memory_order const SentryFramesMemoryOrder = memory_order_relaxed;
 SentryFramesTracker ()
 
 @property (nonatomic, strong, readonly) SentryDisplayLinkWrapper *displayLinkWrapper;
-@property (nonatomic, assign, readonly) CFTimeInterval slowFrameThreshold;
 @property (nonatomic, assign) CFTimeInterval previousFrameTimestamp;
 
 @end
@@ -52,17 +52,6 @@ SentryFramesTracker ()
     if (self = [super init]) {
         _isRunning = NO;
         _displayLinkWrapper = displayLinkWrapper;
-
-        // If we can't get the frame rate we assume it is 60.
-        double maximumFramesPerSecond = 60.0;
-        if (@available(iOS 10.3, tvOS 10.3, macCatalyst 13.0, *)) {
-            maximumFramesPerSecond = (double)UIScreen.mainScreen.maximumFramesPerSecond;
-        }
-
-        // Most frames take just a few microseconds longer than the optimal caculated duration.
-        // Therefore we substract one, because otherwise almost all frames would be slow.
-        _slowFrameThreshold = 1 / (maximumFramesPerSecond - 1);
-
         [self resetFrames];
     }
     return self;
@@ -99,10 +88,27 @@ SentryFramesTracker ()
         return;
     }
 
+    // Calculate the actual frame rate as pointed out by the Apple docs:
+    // https://developer.apple.com/documentation/quartzcore/cadisplaylink?language=objc The actual
+    // frame rate can change at any time by setting preferredFramesPerSecond or due to ProMotion
+    // display, low power mode, critical thermal state, and accessibility settings. Therefore we
+    // need to check the frame rate for every callback.
+    // targetTimestamp is only available on iOS 10.0 and tvOS 10.0 and above. We use a fallback of
+    // 60 fps.
+    double actualFramesPerSecond = 60.0;
+    if (@available(iOS 10.0, tvOS 10.0, *)) {
+        actualFramesPerSecond
+            = 1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp);
+    }
+
+    // Most frames take just a few microseconds longer than the optimal caculated duration.
+    // Therefore we substract one, because otherwise almost all frames would be slow.
+    CFTimeInterval slowFrameThreshold = 1 / (actualFramesPerSecond - 1);
+
     CFTimeInterval frameDuration = lastFrameTimestamp - self.previousFrameTimestamp;
     self.previousFrameTimestamp = lastFrameTimestamp;
 
-    if (frameDuration > self.slowFrameThreshold && frameDuration <= SentryFrozenFrameThreshold) {
+    if (frameDuration > slowFrameThreshold && frameDuration <= SentryFrozenFrameThreshold) {
         atomic_fetch_add_explicit(&_slowFrames, 1, SentryFramesMemoryOrder);
     }
 
