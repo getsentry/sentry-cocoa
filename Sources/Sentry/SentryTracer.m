@@ -141,9 +141,9 @@ static NSLock *profilerLock;
         // Store current amount of frames at the beginning to be able to calculate the amount of
         // frames at the end of the transaction.
         SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
         framesTracker.currentTracer = self;
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
         if (framesTracker.isRunning) {
             SentryScreenFrames *currentFrames = framesTracker.currentFrames;
             initTotalFrames = currentFrames.total;
