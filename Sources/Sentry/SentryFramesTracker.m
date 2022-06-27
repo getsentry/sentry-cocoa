@@ -91,8 +91,8 @@ SentryFramesTracker ()
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
     if (self.currentTracer.isProfiling) {
-            self.frameTimestamps = [[SentryMutableFrameTimestampInfo alloc]
-                initWithCapacity:SentryNumberOfFrameTimestampsToRetain];
+        self.frameTimestamps = [[SentryMutableFrameTimestampInfo alloc]
+            initWithCapacity:SentryNumberOfFrameTimestampsToRetain];
     }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
