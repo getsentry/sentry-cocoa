@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add main thread ID to profiling payload(#1918)
+- Add main thread ID to profiling payload (#1918)
 
 ## 7.18.1
 
