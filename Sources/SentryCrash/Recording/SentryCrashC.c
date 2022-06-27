@@ -61,7 +61,7 @@ static bool g_shouldPrintPreviousLog = false;
 static char g_consoleLogPath[SentryCrashFU_MAX_PATH_LENGTH];
 static SentryCrashMonitorType g_monitoring = SentryCrashMonitorTypeProductionSafeMinimal;
 static char g_lastCrashReportFilePath[SentryCrashFU_MAX_PATH_LENGTH];
-static void(*g_saveScreenShot)(const char *) = 0;
+static void (*g_saveScreenShot)(const char *) = 0;
 
 // ============================================================================
 #pragma mark - Utility -
@@ -107,16 +107,15 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
         strncpy(g_lastCrashReportFilePath, crashReportFilePath, sizeof(g_lastCrashReportFilePath));
         sentrycrashreport_writeStandardReport(monitorContext, crashReportFilePath);
     }
-    
-    
-    //Report is saved to disk, now we try to take screenshots.
-    //Depending on the state of the crash this may not work
-    //because we gonna call into asyng code.
+
+    // Report is saved to disk, now we try to take screenshots.
+    // Depending on the state of the crash this may not work
+    // because we gonna call into asyng code.
     if (g_saveScreenShot) {
         unsigned long pathLen = strlen(g_lastCrashReportFilePath);
         char crashScreenshotsPath[pathLen];
         strcpy(crashScreenshotsPath, g_lastCrashReportFilePath);
-        crashScreenshotsPath[pathLen - 5] = 0; //remove extension to use as a directory
+        crashScreenshotsPath[pathLen - 5] = 0; // remove extension to use as a directory
         g_saveScreenShot(crashScreenshotsPath);
     }
 }
@@ -225,7 +224,7 @@ sentrycrash_setMaxReportCount(int maxReportCount)
 }
 
 void
-sentrycrash_setSaveScreenShot(void(*callback)(const char *))
+sentrycrash_setSaveScreenShot(void (*callback)(const char *))
 {
     g_saveScreenShot = callback;
 }
