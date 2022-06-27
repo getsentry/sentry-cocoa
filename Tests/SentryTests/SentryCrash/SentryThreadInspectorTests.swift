@@ -47,10 +47,10 @@ class SentryThreadInspectorTests: XCTestCase {
         let queue = DispatchQueue(label: "defaultphil", attributes: [.concurrent, .initiallyInactive])
         
         let expect = expectation(description: "Read every thread")
-        expect.expectedFulfillmentCount = 20
+        expect.expectedFulfillmentCount = 10
         
         let sut = self.fixture.getSut(testWithRealMachineConextWrapper: true)
-        for _ in 0..<20 {
+        for _ in 0..<10 {
             
             queue.async {
                 let actual = sut.getCurrentThreadsWithStackTrace()
@@ -72,7 +72,7 @@ class SentryThreadInspectorTests: XCTestCase {
         }
         
         queue.activate()
-        wait(for: [expect], timeout: 5)
+        wait(for: [expect], timeout: 10)
     }
     
     func testOnlyCurrentThreadHasStacktrace() {
