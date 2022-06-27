@@ -406,9 +406,9 @@ static NSLock *profilerLock;
         [profiler stop];
         [profilerLock unlock];
     }
-#if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT
     SentryFramesTracker.sharedInstance.currentTracer = nil;
-#endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     if (_hub == nil)
