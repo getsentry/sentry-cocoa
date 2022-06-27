@@ -13,7 +13,13 @@
 #if SENTRY_HAS_UIKIT
 
 void saveScreenShot(const char * path) {
-    NSString* reportPath = [[NSString stringWithUTF8String:path] stringByDeletingLastPathComponent];
+    NSString* reportPath = [NSString stringWithUTF8String:path];
+    if (![NSFileManager.defaultManager fileExistsAtPath:reportPath isDirectory:nil]){
+        NSError *error = nil;
+        [NSFileManager.defaultManager createDirectoryAtPath:reportPath withIntermediateDirectories:YES attributes:nil error:&error];
+        if (error != nil)
+            return;
+    }
     [SentryDependencyContainer.sharedInstance.screenshot saveScreenShots:reportPath];
 }
 

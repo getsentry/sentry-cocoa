@@ -9,6 +9,8 @@ SentrySDK (Private)
 
 + (void)captureCrashEvent:(SentryEvent *)event;
 
++ (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
+
 /**
  * SDK private field to store the state if onCrashedLastRun was called.
  */

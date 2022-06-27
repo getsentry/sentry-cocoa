@@ -212,6 +212,13 @@ sentrycrashcrs_readReport(int64_t reportID)
     return result;
 }
 
+void
+sentrycrashcrs_screenShotPath(int64_t reportID, char *pathBuffer)
+{
+    snprintf(pathBuffer, SentryCrashCRS_MAX_PATH_LENGTH, "%s/%s-report-%016llx", g_reportsPath,
+        g_appName, reportID);
+}
+
 int64_t
 sentrycrashcrs_addUserReport(const char *report, int reportLength)
 {

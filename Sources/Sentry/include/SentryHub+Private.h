@@ -10,6 +10,8 @@ SentryHub (Private)
 
 - (void)captureCrashEvent:(SentryEvent *)event;
 
+- (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
+
 - (void)setSampleRandomValue:(NSNumber *)value;
 
 - (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp;

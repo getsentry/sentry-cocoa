@@ -73,6 +73,13 @@ int sentrycrashcrs_getReportIDs(int64_t *reportIDs, int count);
  */
 char *sentrycrashcrs_readReport(int64_t reportID);
 
+/** Gets a report screenshots directory.
+ *
+ * @param reportID The report's ID.
+ * @param pathBuffer A buffer to store the path;
+ */
+void sentrycrashcrs_screenShotPath(int64_t reportID, char *pathBuffer);
+
 /** Add a custom report to the store.
  *
  * @param report The report's contents (must be JSON encoded).

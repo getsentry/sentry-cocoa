@@ -36,6 +36,7 @@
 #import "SentryCrashReportFields.h"
 #import "SentryCrashSystemCapabilities.h"
 #import <NSData+Sentry.h>
+#import "SentryCrashReportStore.h"
 
 //#define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
@@ -407,6 +408,26 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
     return nil;
 }
 
+- (NSArray *)getScreenShots:(int64_t)reportID
+{
+    char report_screenshot_path[SentryCrashCRS_MAX_PATH_LENGTH];
+    sentrycrashcrs_screenShotPath(reportID, report_screenshot_path);
+    NSString* path = [NSString stringWithUTF8String:report_screenshot_path];
+    
+    bool isDir = false;
+    if (![NSFileManager.defaultManager fileExistsAtPath:path isDirectory:&isDir] || !isDir) return @[];
+    
+    NSArray* files = [NSFileManager.defaultManager contentsOfDirectoryAtPath:path error:nil];
+    if (files == nil) return @[];
+    
+    NSMutableArray* result = [[NSMutableArray alloc] initWithCapacity:files.count];
+    [files enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            [result addObject:[NSString stringWithFormat:@"%@/%@", path, obj]];
+    }];
+    
+    return result;
+}
+
 - (void)doctorReport:(NSMutableDictionary *)report
 {
     NSMutableDictionary *crashReport = report[@SentryCrashField_Crash];
@@ -452,6 +473,7 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
                              | SentryCrashJSONDecodeOptionIgnoreNullInObject
                              | SentryCrashJSONDecodeOptionKeepPartialObject
                                error:&error];
+    
     if (error != nil) {
         SentryCrashLOG_ERROR(
             @"Encountered error loading crash report %" PRIx64 ": %@", reportID, error);
@@ -460,6 +482,12 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
         SentryCrashLOG_ERROR(@"Could not load crash report");
         return nil;
     }
+    
+    NSArray *screenShots = [self getScreenShots:reportID];
+    if (screenShots.count > 0) {
+        [crashReport setObject:screenShots forKey:@"screenshots"];
+    }
+    
     [self doctorReport:crashReport];
 
     return crashReport;

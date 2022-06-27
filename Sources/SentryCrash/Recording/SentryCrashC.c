@@ -108,8 +108,16 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
         sentrycrashreport_writeStandardReport(monitorContext, crashReportFilePath);
     }
     
+    
+    //Report is saved to disk, now we try to take screenshots.
+    //Depending on the state of the crash this may not work
+    //because we gonna call into asyng code.
     if (g_saveScreenShot) {
-        g_saveScreenShot(g_lastCrashReportFilePath);
+        unsigned long pathLen = strlen(g_lastCrashReportFilePath);
+        char crashScreenshotsPath[pathLen];
+        strcpy(crashScreenshotsPath, g_lastCrashReportFilePath);
+        crashScreenshotsPath[pathLen - 5] = 0; //remove extension to use as a directory
+        g_saveScreenShot(crashScreenshotsPath);
     }
 }
 
