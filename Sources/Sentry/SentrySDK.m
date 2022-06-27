@@ -159,10 +159,10 @@ static NSUInteger startInvocations;
     [SentrySDK.currentHub captureCrashEvent:event];
 }
 
-+ (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope {
++ (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope
+{
     [SentrySDK.currentHub captureCrashEvent:event withScope:scope];
 }
-
 
 + (SentryId *)captureEvent:(SentryEvent *)event
 {

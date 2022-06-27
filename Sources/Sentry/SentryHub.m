@@ -203,7 +203,8 @@ SentryHub ()
     return sessionCopy;
 }
 
-- (void)captureCrashEvent:(SentryEvent *)event {
+- (void)captureCrashEvent:(SentryEvent *)event
+{
     [self captureCrashEvent:event withScope:self.scope];
 }
 

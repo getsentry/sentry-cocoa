@@ -1,6 +1,7 @@
 #import "SentryScreenshotIntegration.h"
 #import "SentryAttachment.h"
 #import "SentryClient+Private.h"
+#import "SentryCrashC.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
 #import "SentryEvent.h"
@@ -8,21 +9,24 @@
 #import "SentryLog.h"
 #import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
-#import "SentryCrashC.h"
 
 #if SENTRY_HAS_UIKIT
 
-void saveScreenShot(const char * path) {
-    NSString* reportPath = [NSString stringWithUTF8String:path];
-    if (![NSFileManager.defaultManager fileExistsAtPath:reportPath isDirectory:nil]){
+void
+saveScreenShot(const char *path)
+{
+    NSString *reportPath = [NSString stringWithUTF8String:path];
+    if (![NSFileManager.defaultManager fileExistsAtPath:reportPath isDirectory:nil]) {
         NSError *error = nil;
-        [NSFileManager.defaultManager createDirectoryAtPath:reportPath withIntermediateDirectories:YES attributes:nil error:&error];
+        [NSFileManager.defaultManager createDirectoryAtPath:reportPath
+                                withIntermediateDirectories:YES
+                                                 attributes:nil
+                                                      error:&error];
         if (error != nil)
             return;
     }
     [SentryDependencyContainer.sharedInstance.screenshot saveScreenShots:reportPath];
 }
-
 
 @implementation SentryScreenshotIntegration
 
@@ -35,7 +39,7 @@ void saveScreenShot(const char * path) {
 
     SentryClient *client = [SentrySDK.currentHub getClient];
     client.attachmentProcessor = self;
-    
+
     sentrycrash_setSaveScreenShot(&saveScreenShot);
 }
 
@@ -55,7 +59,8 @@ void saveScreenShot(const char * path) {
     [result addObjectsFromArray:attachments];
 
     for (int i = 0; i < screenshot.count; i++) {
-        NSString *name = i == 0 ? @"screenshot.png" : [NSString stringWithFormat:@"screenshot-%i.png", i + 1];
+        NSString *name
+            = i == 0 ? @"screenshot.png" : [NSString stringWithFormat:@"screenshot-%i.png", i + 1];
 
         SentryAttachment *att = [[SentryAttachment alloc] initWithData:screenshot[i]
                                                               filename:name
