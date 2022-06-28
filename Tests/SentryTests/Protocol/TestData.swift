@@ -218,22 +218,6 @@ class TestData {
         scope.setContext(value: TestData.context["context"]!, key: "context")
     }
     
-    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    private static var maximumFramesPerSecond: Int {
-        if #available(iOS 10.3, tvOS 10.3, macCatalyst 13.0, *) {
-            return UIScreen.main.maximumFramesPerSecond
-        } else {
-            return 60
-        }
-    }
-    
-    static var slowFrameThreshold: Double {
-        return 1 / (Double(maximumFramesPerSecond) - 1.0)
-    }
-    
-    static let frozenFrameThreshold = 0.7
-    #endif
-    
     static func getAppStartMeasurement(type: SentryAppStartType, appStartTimestamp: Date = TestData.timestamp) -> SentryAppStartMeasurement {
         let appStartDuration = 0.5
         let runtimeInit = appStartTimestamp.addingTimeInterval(0.2)

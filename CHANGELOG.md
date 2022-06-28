@@ -5,6 +5,15 @@
 ### Features
 
 - Add App Hangs tracking (#1906)
+### Fixes
+
+- Remove WebKit optimization check (#1921)
+
+## 7.18.1
+
+### Fixes
+
+- Fix high percentage of slow frames (#1915)
 
 ## 7.18.0
 
