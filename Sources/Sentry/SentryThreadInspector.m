@@ -94,11 +94,11 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
     return threads;
 }
 
-/*
- We are not sharing code with 'getCurrentThreads' because both methods use different approaches.
- This method retrieves thread information from the suspend method
- while the other retrieves information from the machine context.
- Having both approaches in the same method can lead to inconsistency between the number of threads.
+/**
+* We are not sharing code with 'getCurrentThreads' because both methods use different approaches.
+* This method retrieves thread information from the suspend method 
+ * while the other retrieves information from the machine context.
+ * Having both approaches in the same method can lead to inconsistency between the number of threads.
  */
 - (NSArray<SentryThread *> *)getCurrentThreadsWithStackTrace
 {
@@ -112,6 +112,8 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
         mach_msg_type_number_t numSuspendedThreads = 0;
 
         sentrycrashmc_suspendEnvironment(&suspendedThreads, &numSuspendedThreads);
+        // DANGER: Do not call Objective-C code in this section
+        // Calling Objective-C code when the threads are suspended may lead to deadlocks or crashes.
 
         SentryThreadInfo threadsInfos[numSuspendedThreads];
 
@@ -129,6 +131,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
         }
 
         sentrycrashmc_resumeEnvironment(suspendedThreads, numSuspendedThreads);
+        // DANGER END: You may call Objective-C code again.
 
         for (int i = 0; i < numSuspendedThreads; i++) {
             SentryThread *sentryThread = [[SentryThread alloc] initWithThreadId:@(i)];
