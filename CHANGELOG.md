@@ -5,6 +5,7 @@
 ### Features
 
 - Add App Hangs tracking (#1906)
+
 ### Fixes
 
 - Remove WebKit optimization check (#1921)
