@@ -8,8 +8,6 @@
 #import "SentryThread.h"
 #include <pthread.h>
 
-
-
 @interface
 SentryThreadInspector ()
 
