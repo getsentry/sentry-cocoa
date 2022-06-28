@@ -99,7 +99,8 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
  * This method retrieves thread information from the suspend method
  * while the other retrieves information from the machine context.
  * Having both approaches in the same method can lead to inconsistency between the number of
- * threads.
+ * threads, and while there is suspended threads we can't call into obj-c, so the previous approach
+ * wont work for retrieving stacktrace information for every thread.
  */
 - (NSArray<SentryThread *> *)getCurrentThreadsWithStackTrace
 {
@@ -113,8 +114,8 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
         mach_msg_type_number_t numSuspendedThreads = 0;
 
         sentrycrashmc_suspendEnvironment(&suspendedThreads, &numSuspendedThreads);
-        // DANGER: Do not call Objective-C code in this section
-        // Calling Objective-C code when the threads are suspended may lead to deadlocks or crashes.
+        // DANGER: Do not try to allocate memory in the heap or call Objective-C code in this section
+        // Doing so when the threads are suspended may lead to deadlocks or crashes.
 
         SentryThreadInfo threadsInfos[numSuspendedThreads];
 
@@ -124,7 +125,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
                     threadsInfos[i].stackEntries, MAX_STACKTRACE_LENGTH);
                 threadsInfos[i].stackLength = numberOfEntries;
             } else {
-                // We can't use 'getStackEntriesFromThread' to retrieve stackframes from the current
+                // We can't use 'getStackEntriesFromThread' to retrieve stack frames from the current
                 // thread. We are using the stackTraceBuilder to retrieve this information later.
                 threadsInfos[i].stackLength = 0;
             }
@@ -132,7 +133,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
         }
 
         sentrycrashmc_resumeEnvironment(suspendedThreads, numSuspendedThreads);
-        // DANGER END: You may call Objective-C code again.
+        // DANGER END: You may call Objective-C code again or allocate memory.
 
         for (int i = 0; i < numSuspendedThreads; i++) {
             SentryThread *sentryThread = [[SentryThread alloc] initWithThreadId:@(i)];
