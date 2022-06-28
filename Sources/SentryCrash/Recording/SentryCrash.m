@@ -411,7 +411,7 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
 - (NSArray *)getScreenShots:(int64_t)reportID
 {
     char report_screenshot_path[SentryCrashCRS_MAX_PATH_LENGTH];
-    sentrycrashcrs_screenShotPath(reportID, report_screenshot_path);
+    sentrycrashcrs_getScreenshotPath_forReportId(reportID, report_screenshot_path);
     NSString *path = [NSString stringWithUTF8String:report_screenshot_path];
 
     bool isDir = false;
@@ -487,7 +487,7 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
 
     NSArray *screenShots = [self getScreenShots:reportID];
     if (screenShots.count > 0) {
-        [crashReport setObject:screenShots forKey:@"screenshots"];
+        [crashReport setObject:screenShots forKey:SENTRYCRASH_REPORT_SCREENSHOT_ITEM];
     }
 
     [self doctorReport:crashReport];

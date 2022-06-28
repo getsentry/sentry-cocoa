@@ -16,8 +16,9 @@ void
 saveScreenShot(const char *path)
 {
     NSString *reportPath = [NSString stringWithUTF8String:path];
-    if (![NSFileManager.defaultManager fileExistsAtPath:reportPath isDirectory:nil]) {
-        NSError *error = nil;
+    NSError *error = nil;
+
+    if (![NSFileManager.defaultManager fileExistsAtPath:reportPath]) {
         [NSFileManager.defaultManager createDirectoryAtPath:reportPath
                                 withIntermediateDirectories:YES
                                                  attributes:nil
@@ -25,6 +26,16 @@ saveScreenShot(const char *path)
         if (error != nil)
             return;
     }
+
+    // We first delete any screenshot that could be from an old crash report
+    NSArray *oldFiles = [NSFileManager.defaultManager contentsOfDirectoryAtPath:reportPath
+                                                                          error:&error];
+    if (!error) {
+        [oldFiles enumerateObjectsUsingBlock:^(NSString *obj, NSUInteger idx, BOOL *stop) {
+            [NSFileManager.defaultManager removeItemAtPath:obj error:nil];
+        }];
+    }
+
     [SentryDependencyContainer.sharedInstance.screenshot saveScreenShots:reportPath];
 }
 
@@ -40,7 +51,7 @@ saveScreenShot(const char *path)
     SentryClient *client = [SentrySDK.currentHub getClient];
     client.attachmentProcessor = self;
 
-    sentrycrash_setSaveScreenShot(&saveScreenShot);
+    sentrycrash_setSaveScreenshots(&saveScreenShot);
 }
 
 - (NSArray<SentryAttachment *> *)processAttachments:(NSArray<SentryAttachment *> *)attachments

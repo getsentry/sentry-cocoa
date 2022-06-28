@@ -110,12 +110,13 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
 
     // Report is saved to disk, now we try to take screenshots.
     // Depending on the state of the crash this may not work
-    // because we gonna call into non async-signal safe code.
+    // because we gonna call into non async-signal safe code
+    // but since the app is already in a crash state we don't
+    // mind if this approach causes more crashes.
     if (g_saveScreenShot) {
-        unsigned long pathLen = strlen(g_lastCrashReportFilePath);
-        char crashScreenshotsPath[pathLen];
-        strcpy(crashScreenshotsPath, g_lastCrashReportFilePath);
-        crashScreenshotsPath[pathLen - 5] = 0; // remove extension to use as a directory
+        char crashScreenshotsPath[SentryCrashFU_MAX_PATH_LENGTH];
+        sentrycrashcrs_getScreenshotsPath_forReport(
+            g_lastCrashReportFilePath, crashScreenshotsPath);
         g_saveScreenShot(crashScreenshotsPath);
     }
 }
@@ -224,7 +225,7 @@ sentrycrash_setMaxReportCount(int maxReportCount)
 }
 
 void
-sentrycrash_setSaveScreenShot(void (*callback)(const char *))
+sentrycrash_setSaveScreenshots(void (*callback)(const char *))
 {
     g_saveScreenShot = callback;
 }
