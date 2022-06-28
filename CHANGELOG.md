@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Remove WebKit optimization check (#1921)
+
 ## 7.18.1
 
 ### Fixes
