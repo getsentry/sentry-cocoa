@@ -43,40 +43,16 @@ class SentryThreadInspectorTests: XCTestCase {
     @available(macOS 10.12, iOS 10.0, tvOS 10.0, *)
     func testStacktraceHasFrames_forEveryThread_withStitchAsyncOn() {
         SentrySDK.start { $0.stitchAsyncCode = true }
-        
-        let queue = DispatchQueue(label: "defaultphil", attributes: [.concurrent, .initiallyInactive])
-        
-        let expect = expectation(description: "Read every thread")
-        expect.expectedFulfillmentCount = 10
-        
-        let sut = self.fixture.getSut(testWithRealMachineConextWrapper: true)
-        for _ in 0..<10 {
-            
-            queue.async {
-                let actual = sut.getCurrentThreadsWithStackTrace()
-                
-                // Sometimes during tests its possible to have one thread without frames
-                // We just need to make sure we retrieve frame information for at least one other thread than the main thread
-                var threadsWithFrames = 0
-                
-                for thr in actual {
-                    if (thr.stacktrace?.frames.count ?? 0) >= 1 {
-                        threadsWithFrames += 1
-                    }
-                }
-                
-                XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
-                
-                expect.fulfill()
-            }
-        }
-        
-        queue.activate()
-        wait(for: [expect], timeout: 10)
+        assertStackForEveryThread()
     }
     
     @available(macOS 10.12, iOS 10.0, tvOS 10.0, *)
-    func testStacktraceHasFrames_forEveryThread() { 
+    func testStacktraceHasFrames_forEveryThread() {
+        assertStackForEveryThread()
+    }
+    
+    @available(macOS 10.12, iOS 10.0, tvOS 10.0, *)
+    func assertStackForEveryThread() {
         
         let queue = DispatchQueue(label: "defaultphil", attributes: [.concurrent, .initiallyInactive])
         
