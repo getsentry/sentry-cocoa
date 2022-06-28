@@ -1,10 +1,15 @@
 # Changelog
 
-## 7.18.0
+## Unreleased
 
 ### Features
 
-- Add App Hangs tracking (#1906) 
+- Add App Hangs tracking (#1906)
+
+## 7.18.0
+
+### Features
+ 
 - Replace tracestate header with baggage (#1867)
 
 ### Fixes
