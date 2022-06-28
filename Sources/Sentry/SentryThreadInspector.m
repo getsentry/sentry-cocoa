@@ -114,8 +114,8 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
         mach_msg_type_number_t numSuspendedThreads = 0;
 
         sentrycrashmc_suspendEnvironment(&suspendedThreads, &numSuspendedThreads);
-        // DANGER: Do not try to allocate memory in the heap or call Objective-C code in this section
-        // Doing so when the threads are suspended may lead to deadlocks or crashes.
+        // DANGER: Do not try to allocate memory in the heap or call Objective-C code in this
+        // section Doing so when the threads are suspended may lead to deadlocks or crashes.
 
         SentryThreadInfo threadsInfos[numSuspendedThreads];
 
@@ -125,8 +125,9 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
                     threadsInfos[i].stackEntries, MAX_STACKTRACE_LENGTH);
                 threadsInfos[i].stackLength = numberOfEntries;
             } else {
-                // We can't use 'getStackEntriesFromThread' to retrieve stack frames from the current
-                // thread. We are using the stackTraceBuilder to retrieve this information later.
+                // We can't use 'getStackEntriesFromThread' to retrieve stack frames from the
+                // current thread. We are using the stackTraceBuilder to retrieve this information
+                // later.
                 threadsInfos[i].stackLength = 0;
             }
             threadsInfos[i].thread = suspendedThreads[i];
