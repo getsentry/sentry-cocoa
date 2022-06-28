@@ -335,9 +335,10 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableAppHangTracking;
 
 /**
- * The minimum amount of time an app shoud be unresponsive to be classified as an App Hanging.
+ * The minimum amount of time an app should be unresponsive to be classified as an App Hanging.
  * The actual amount may be a little longer.
  * Avoid using values lower than 100ms, which may cause a lot of app hangs events being transmitted.
+ * The default value is 2 seconds.
  */
 @property (nonatomic, assign) NSTimeInterval appHangTimeoutInterval;
 

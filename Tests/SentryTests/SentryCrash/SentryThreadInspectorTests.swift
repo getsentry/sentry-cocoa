@@ -1,5 +1,3 @@
-@testable import Sentry
-import SwiftUI
 import XCTest
 
 class SentryThreadInspectorTests: XCTestCase {
