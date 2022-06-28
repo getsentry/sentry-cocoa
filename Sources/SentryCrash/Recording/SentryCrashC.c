@@ -110,7 +110,7 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
 
     // Report is saved to disk, now we try to take screenshots.
     // Depending on the state of the crash this may not work
-    // because we gonna call into asyng code.
+    // because we gonna call into non async-signal safe code.
     if (g_saveScreenShot) {
         unsigned long pathLen = strlen(g_lastCrashReportFilePath);
         char crashScreenshotsPath[pathLen];
