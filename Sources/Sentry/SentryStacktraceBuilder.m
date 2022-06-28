@@ -87,7 +87,7 @@ SentryStacktraceBuilder ()
 {
     sentrycrashmc_getContextForThread(thread, context, false);
     SentryCrashStackCursor stackCursor;
-    sentrycrashsc_initWithMachineContext(&stackCursor, 100, context);
+    sentrycrashsc_initWithMachineContext(&stackCursor, MAX_STACKTRACE_LENGTH, context);
 
     return [self retrieveStacktraceFromCursor:stackCursor];
 }

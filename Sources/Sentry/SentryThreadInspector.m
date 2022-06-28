@@ -8,7 +8,7 @@
 #import "SentryThread.h"
 #include <pthread.h>
 
-#define MAX_STACKTRACE_LENGTH 100
+
 
 @interface
 SentryThreadInspector ()
