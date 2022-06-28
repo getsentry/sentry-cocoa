@@ -95,10 +95,11 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
 }
 
 /**
-* We are not sharing code with 'getCurrentThreads' because both methods use different approaches.
-* This method retrieves thread information from the suspend method 
+ * We are not sharing code with 'getCurrentThreads' because both methods use different approaches.
+ * This method retrieves thread information from the suspend method
  * while the other retrieves information from the machine context.
- * Having both approaches in the same method can lead to inconsistency between the number of threads.
+ * Having both approaches in the same method can lead to inconsistency between the number of
+ * threads.
  */
 - (NSArray<SentryThread *> *)getCurrentThreadsWithStackTrace
 {
