@@ -5,6 +5,7 @@
 ### Features
 
 - Add screenshot at crash (#1920)
+
 ### Fixes
 
 - Remove WebKit optimization check (#1921)

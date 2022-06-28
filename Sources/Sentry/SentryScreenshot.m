@@ -27,7 +27,7 @@
     NSLog(@"### %@", path);
     [[self takeScreenshots] enumerateObjectsUsingBlock:^(NSData *obj, NSUInteger idx, BOOL *stop) {
         NSString *name = idx == 0 ? @"screenshot.png"
-                                  : [NSString stringWithFormat:@"screenshot-%li.png", idx + 1];
+                                  : [NSString stringWithFormat:@"screenshot-%li.png", (unsigned long)idx + 1];
         NSString *fileName = [path stringByAppendingPathComponent:name];
         [obj writeToFile:fileName atomically:YES];
     }];
