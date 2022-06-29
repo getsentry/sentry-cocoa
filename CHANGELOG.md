@@ -4,6 +4,7 @@
 
 ### Features
 
+- Add main thread ID to profiling payload (#1918)
 - Add App Hangs tracking (#1906)
 
 ### Fixes
