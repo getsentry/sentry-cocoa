@@ -77,3 +77,9 @@ Package.resolved
 
 # Visual Studio Code
 .vscode/
+
+### Emacs ###
+# -*- mode: gitignore; -*-
+\#*\#
+*~
+\.\#*
