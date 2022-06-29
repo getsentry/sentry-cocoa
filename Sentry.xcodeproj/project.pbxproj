@@ -1306,6 +1306,21 @@
 		844DA81D28246DAE00E6B62E /* develop-docs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "develop-docs"; sourceTree = "<group>"; };
 		844DA81E28246DB900E6B62E /* fastlane */ = {isa = PBXFileReference; lastKnownFileType = folder; path = fastlane; sourceTree = "<group>"; };
 		844DA81F28246DE300E6B62E /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = scripts; sourceTree = "<group>"; };
+		848A24C1286D0E3A008A8858 /* Sentry-Test.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Sentry-Test.xcconfig"; sourceTree = "<group>"; };
+		848A24C2286D0E3A008A8858 /* SentryTests-Test.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "SentryTests-Test.xcconfig"; sourceTree = "<group>"; };
+		848A24C3286D0E3A008A8858 /* Project-TestCI.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Project-TestCI.xcconfig"; sourceTree = "<group>"; };
+		848A24C4286D0E3A008A8858 /* Sentry-Shared.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Sentry-Shared.xcconfig"; sourceTree = "<group>"; };
+		848A24C5286D0E3A008A8858 /* SentryTests-Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "SentryTests-Debug.xcconfig"; sourceTree = "<group>"; };
+		848A24C6286D0E3A008A8858 /* Project-Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Project-Release.xcconfig"; sourceTree = "<group>"; };
+		848A24C7286D0E3A008A8858 /* Project-Shared.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Project-Shared.xcconfig"; sourceTree = "<group>"; };
+		848A24C8286D0E3A008A8858 /* Sentry-TestCI.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Sentry-TestCI.xcconfig"; sourceTree = "<group>"; };
+		848A24C9286D0E3A008A8858 /* SentryTests-Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "SentryTests-Release.xcconfig"; sourceTree = "<group>"; };
+		848A24CA286D0E3A008A8858 /* Sentry-Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Sentry-Release.xcconfig"; sourceTree = "<group>"; };
+		848A24CB286D0E3A008A8858 /* SentryTests-Shared.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "SentryTests-Shared.xcconfig"; sourceTree = "<group>"; };
+		848A24CC286D0E3A008A8858 /* Sentry-Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Sentry-Debug.xcconfig"; sourceTree = "<group>"; };
+		848A24CD286D0E3A008A8858 /* Project-Test.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Project-Test.xcconfig"; sourceTree = "<group>"; };
+		848A24CE286D0E3A008A8858 /* SentryTests-TestCI.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "SentryTests-TestCI.xcconfig"; sourceTree = "<group>"; };
+		848A24CF286D0E3A008A8858 /* Project-Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Project-Debug.xcconfig"; sourceTree = "<group>"; };
 		861265F72404EC1500C4AFDE /* NSArray+SentrySanitize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSArray+SentrySanitize.h"; path = "include/NSArray+SentrySanitize.h"; sourceTree = "<group>"; };
 		861265F82404EC1500C4AFDE /* NSArray+SentrySanitize.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSArray+SentrySanitize.m"; sourceTree = "<group>"; };
 		8E0551DF26A7A63C00400526 /* TestProtocolClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestProtocolClient.swift; sourceTree = "<group>"; };
@@ -1605,6 +1620,7 @@
 				844DA80D28246D5000E6B62E /* Package.swift */,
 				844DA80628246D5000E6B62E /* .craft.yml */,
 				844DA80A28246D5000E6B62E /* .swiftlint.yml */,
+				848A24BF286D0E3A008A8858 /* Sentry */,
 				6304360C1EC05CEF00C4D3FA /* Frameworks */,
 				6327C5D41EB8A783004E799B /* Products */,
 				63AA756E1EB8AEDB00D153DE /* Sources */,
@@ -2624,6 +2640,37 @@
 				0356A56F288B4612008BF593 /* SentryProfilesSampler.m */,
 			);
 			path = Profiling;
+			sourceTree = "<group>";
+		};
+		848A24BF286D0E3A008A8858 /* Sentry */ = {
+			isa = PBXGroup;
+			children = (
+				848A24C0286D0E3A008A8858 /* xcconfig */,
+			);
+			name = Sentry;
+			path = xcconfig/Sentry;
+			sourceTree = "<group>";
+		};
+		848A24C0286D0E3A008A8858 /* xcconfig */ = {
+			isa = PBXGroup;
+			children = (
+				848A24CF286D0E3A008A8858 /* Project-Debug.xcconfig */,
+				848A24C6286D0E3A008A8858 /* Project-Release.xcconfig */,
+				848A24C7286D0E3A008A8858 /* Project-Shared.xcconfig */,
+				848A24CD286D0E3A008A8858 /* Project-Test.xcconfig */,
+				848A24C3286D0E3A008A8858 /* Project-TestCI.xcconfig */,
+				848A24CC286D0E3A008A8858 /* Sentry-Debug.xcconfig */,
+				848A24CA286D0E3A008A8858 /* Sentry-Release.xcconfig */,
+				848A24C4286D0E3A008A8858 /* Sentry-Shared.xcconfig */,
+				848A24C1286D0E3A008A8858 /* Sentry-Test.xcconfig */,
+				848A24C8286D0E3A008A8858 /* Sentry-TestCI.xcconfig */,
+				848A24C5286D0E3A008A8858 /* SentryTests-Debug.xcconfig */,
+				848A24C9286D0E3A008A8858 /* SentryTests-Release.xcconfig */,
+				848A24CB286D0E3A008A8858 /* SentryTests-Shared.xcconfig */,
+				848A24C2286D0E3A008A8858 /* SentryTests-Test.xcconfig */,
+				848A24CE286D0E3A008A8858 /* SentryTests-TestCI.xcconfig */,
+			);
+			path = xcconfig;
 			sourceTree = "<group>";
 		};
 		8E25C94F25F836AB00DC215B /* Tools */ = {
