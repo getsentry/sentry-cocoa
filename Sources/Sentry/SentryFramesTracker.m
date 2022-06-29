@@ -1,6 +1,5 @@
 #import "SentryFramesTracker.h"
 #import "SentryDisplayLinkWrapper.h"
-#import "SentryNSArrayRingBuffer.h"
 #import "SentryProfilingConditionals.h"
 #import <SentryScreenFrames.h>
 #import "SentryTracer.h"
@@ -9,11 +8,8 @@
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
 
-/**
- * A ring-buffered version of @c SentryFrameTimestampInfo so we can build the results here and limit
- * how many timestamps we will retain.
- */
-typedef SentryNSArrayRingBuffer<NSDictionary<NSString *, NSNumber *> *>
+/** A mutable version of @c SentryFrameTimestampInfo so we can accumulate results. */
+typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *>
     SentryMutableFrameTimestampInfo;
 
 static CFTimeInterval const SentryFrozenFrameThreshold = 0.7;
@@ -169,7 +165,7 @@ SentryFramesTracker ()
     return [[SentryScreenFrames alloc] initWithTotal:total
                                               frozen:frozen
                                                 slow:slow
-                                          timestamps:self.frameTimestamps.array];
+                                          timestamps:self.frameTimestamps];
 #    else
     return [[SentryScreenFrames alloc] initWithTotal:total frozen:frozen slow:slow];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
