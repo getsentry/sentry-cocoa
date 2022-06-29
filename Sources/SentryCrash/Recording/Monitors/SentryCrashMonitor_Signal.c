@@ -91,7 +91,7 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
         SentryCrashLOG_DEBUG("Filling out context.");
         SentryCrashMC_NEW_CONTEXT(machineContext);
         sentrycrashmc_getContextForSignal(userContext, machineContext);
-        sentrycrashsc_initWithMachineContext(&g_stackCursor, 100, machineContext);
+        sentrycrashsc_initWithMachineContext(&g_stackCursor, MAX_STACKTRACE_LENGTH, machineContext);
 
         SentryCrash_MonitorContext *crashContext = &g_monitorContext;
         memset(crashContext, 0, sizeof(*crashContext));

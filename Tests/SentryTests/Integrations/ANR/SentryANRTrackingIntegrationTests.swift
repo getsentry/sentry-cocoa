@@ -1,65 +1,50 @@
 import XCTest
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryANRTrackingIntegrationTests: XCTestCase {
-    
-    private static let dsn = TestConstants.dsnAsString(username: "SentryANRTrackingIntegrationTests")
+class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     
     private class Fixture {
         let options: Options
-        let client: TestClient!
-        let crashWrapper: TestSentryCrashWrapper
-        let currentDate = TestCurrentDateProvider()
-        let fileManager: SentryFileManager
         
+        let currentDate = TestCurrentDateProvider()
+                
         init() {
             options = Options()
-            options.dsn = SentryANRTrackingIntegrationTests.dsn
-    
-            client = TestClient(options: options)
-            
-            crashWrapper = TestSentryCrashWrapper.sharedInstance()
-            SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
-
-            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andCurrentDateProvider: currentDate)
-            SentrySDK.setCurrentHub(hub)
-            
-            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
+            options.enableAppHangTracking = true
+            options.appHangTimeoutInterval = 4.5
         }
     }
     
     private var fixture: Fixture!
     private var sut: SentryANRTrackingIntegration!
     
+    override var options: Options {
+        self.fixture.options
+    }
+    
     override func setUp() {
         super.setUp()
-        
         fixture = Fixture()
-        fixture.fileManager.store(TestData.appState)
     }
     
     override func tearDown() {
-        super.tearDown()
         sut.uninstall()
-        fixture.fileManager.deleteAllFolders()
         clearTestState()
+        super.tearDown()
     }
 
     func testWhenBeingTraced_TrackerNotInitialized() {
         givenInitializedTracker(isBeingTraced: true)
-
         XCTAssertNil(Dynamic(sut).tracker.asAnyObject)
     }
 
     func testWhenNoDebuggerAttached_TrackerInitialized() {
         givenInitializedTracker()
-
         XCTAssertNotNil(Dynamic(sut).tracker.asAnyObject)
     }
     
-    func test_OOMDisabled_RemovesEnabledIntegration() {
+    func test_enableAppHangsTracking_Disabled_RemovesEnabledIntegration() {
         let options = Options()
-        options.enableOutOfMemoryTracking = false
+        options.enableAppHangTracking = false
         
         sut = SentryANRTrackingIntegration()
         sut.install(with: options)
@@ -68,38 +53,82 @@ class SentryANRTrackingIntegrationTests: XCTestCase {
         assertArrayEquals(expected: expexted, actual: Array(options.enabledIntegrations))
     }
     
-    func testANRDetected_UpdatesAppStateToTrue() {
+    func test_appHangsTimeoutInterval_Zero_RemovesEnabledIntegration() {
+        let options = Options()
+        options.enableAppHangTracking = true
+        options.appHangTimeoutInterval = 0
+        
+        sut = SentryANRTrackingIntegration()
+        sut.install(with: options)
+        
+        let expexted = Options.defaultIntegrations().filter { !$0.contains("ANRTracking") }
+        assertArrayEquals(expected: expexted, actual: Array(options.enabledIntegrations))
+    }
+    
+    func testANRDetected_EventCaptured() {
         givenInitializedTracker()
+        setUpThreadInspector()
         
         Dynamic(sut).anrDetected()
         
-        guard let appState = fixture.fileManager.readAppState() else {
-            XCTFail("appState must not be nil")
-            return
+        assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertNotNil(event)
+            guard let ex = event?.exceptions?.first else {
+                XCTFail("ANR Exception not found")
+                return
+            }
+            
+            XCTAssertEqual(ex.mechanism?.type, "AppHang")
+            XCTAssertEqual(ex.type, "App Hanging")
+            XCTAssertEqual(ex.value, "App hanging for at least 4500 ms.")
+            XCTAssertNotNil(ex.stacktrace)
+            XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
+            XCTAssertTrue(event?.threads?[0].current?.boolValue ?? false)
+            
+            guard let threads = event?.threads else {
+                XCTFail("ANR Exception not found")
+                return
+            }
+            
+            // Sometimes during tests its possible to have one thread without frames
+            // We just need to make sure we retrieve frame information for at least one other thread than the main thread
+            let threadsWithFrames = threads.filter {
+                ($0.stacktrace?.frames.count ?? 0) >= 1
+            }.count
+            
+            XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
         }
-
-        XCTAssertTrue(appState.isANROngoing)
-    }
-    
-    func testANRStopped_UpdatesAppStateToFalse() {
-        givenInitializedTracker()
-        
-        Dynamic(sut).anrStopped()
-        
-        guard let appState = fixture.fileManager.readAppState() else {
-            XCTFail("appState must not be nil")
-            return
-        }
-        XCTAssertFalse(appState.isANROngoing)
     }
 
     private func givenInitializedTracker(isBeingTraced: Bool = false) {
-        fixture.crashWrapper.internalIsBeingTraced = isBeingTraced
+        givenSdkWithHub()
+        self.crashWrapper.internalIsBeingTraced = isBeingTraced
         sut = SentryANRTrackingIntegration()
-        let options = Options()
-        Dynamic(sut).setTestConfigurationFilePath(nil)
-        sut.install(with: options)
+        sut.install(with: self.options)
+    }
+    
+    private func setUpThreadInspector() {
+        let threadInspector = TestThreadInspector.instance
+        
+        let frame1 = Sentry.Frame()
+        frame1.function = "Second_frame_function"
+        
+        let thread1 = Sentry.Thread(threadId: 0)
+        thread1.stacktrace = Stacktrace(frames: [frame1], registers: [:])
+        thread1.current = true
+        
+        let frame2 = Sentry.Frame()
+        frame2.function = "main"
+        
+        let thread2 = Sentry.Thread(threadId: 1)
+        thread2.stacktrace = Stacktrace(frames: [frame2], registers: [:])
+        thread2.current = false
+        
+        threadInspector.allThreads = [
+            thread2,
+            thread1
+        ]
+        
+        SentrySDK.currentHub().getClient()?.threadInspector = threadInspector
     }
 }
-
-#endif

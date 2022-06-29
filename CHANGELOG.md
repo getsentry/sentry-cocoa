@@ -5,6 +5,7 @@
 ### Features
 
 - Add screenshot at crash (#1920)
+- Add App Hangs tracking (#1906)
 
 ### Fixes
 
@@ -19,7 +20,7 @@
 ## 7.18.0
 
 ### Features
-
+ 
 - Replace tracestate header with baggage (#1867)
 
 ### Fixes
