@@ -110,7 +110,7 @@ static NSTimeInterval g_watchdogInterval = 0;
     SentryCrashMC_NEW_CONTEXT(machineContext);
     sentrycrashmc_getContextForThread(g_mainQueueThread, machineContext, false);
     SentryCrashStackCursor stackCursor;
-    sentrycrashsc_initWithMachineContext(&stackCursor, 100, machineContext);
+    sentrycrashsc_initWithMachineContext(&stackCursor, MAX_STACKTRACE_LENGTH, machineContext);
     char eventID[37];
     sentrycrashid_generate(eventID);
 

@@ -309,7 +309,8 @@ handleExceptions(void *const userData)
         crashContext->offendingMachineContext = machineContext;
         sentrycrashsc_initCursor(&g_stackCursor, NULL, NULL);
         if (sentrycrashmc_getContextForThread(exceptionMessage.thread.name, machineContext, true)) {
-            sentrycrashsc_initWithMachineContext(&g_stackCursor, 100, machineContext);
+            sentrycrashsc_initWithMachineContext(
+                &g_stackCursor, MAX_STACKTRACE_LENGTH, machineContext);
             SentryCrashLOG_TRACE("Fault address 0x%x, instruction address 0x%x",
                 sentrycrashcpu_faultAddress(machineContext),
                 sentrycrashcpu_instructionAddress(machineContext));
