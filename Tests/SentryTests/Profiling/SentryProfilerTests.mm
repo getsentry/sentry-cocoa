@@ -33,19 +33,20 @@
         @"-[SentryProfilerTests testParseFunctionNameWithBacktraceSymbolsInput]");
 }
 
-- (void)testProfilerCanBeInitializedOnMainThread {
+- (void)testProfilerCanBeInitializedOnMainThread
+{
     XCTAssertNotNil([[SentryProfiler alloc] init]);
 }
 
-- (void)testProfilerCannotBeInitializedOffMainThread {
+- (void)testProfilerCannotBeInitializedOffMainThread
+{
     const auto expectation = [self expectationWithDescription:@"background initializing profiler"];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul), ^{
         XCTAssertNil([[SentryProfiler alloc] init]);
         [expectation fulfill];
     });
-    [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
-        NSLog(@"%@", error);
-    }];
+    [self waitForExpectationsWithTimeout:1.0
+                                 handler:^(NSError *_Nullable error) { NSLog(@"%@", error); }];
 }
 
 @end
