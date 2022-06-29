@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add App Hangs tracking (#1906)
+
 ### Fixes
 
 - Remove WebKit optimization check (#1921)
@@ -15,7 +19,7 @@
 ## 7.18.0
 
 ### Features
-
+ 
 - Replace tracestate header with baggage (#1867)
 
 ### Fixes
