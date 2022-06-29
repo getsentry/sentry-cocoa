@@ -483,3 +483,4 @@ Build settings for action build and target iOS-Swift:
     __CODE_SIGNING_ALLOWED_watchos = NO
     arch = arm64
     variant = normal
+
