@@ -157,9 +157,9 @@ static NSLock *profilerLock;
             if (profiler == nil) {
                 profiler = [[SentryProfiler alloc] init];
                 [SentryLog logWithMessage:@"Starting profiler." andLevel:kSentryLevelDebug];
-#if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT
                 [framesTracker resetProfilingTimestamps];
-#endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT
                 [profiler start];
             }
             [profilerLock unlock];
