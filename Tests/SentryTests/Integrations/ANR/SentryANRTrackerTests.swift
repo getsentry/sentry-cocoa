@@ -136,21 +136,21 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         secondListener.anrDetectedExpectation.isInverted = true
         anrDetectedExpectation.isInverted = true
         
-        //We cant use expectation because we don't control how many times blockBeforeMainBlock is called
-        //Having a second Listener may cause the APP Hang tracker to execute more than once before the end of the test
+        let mainBlockExpectation = expectation(description: "Main Block")
         
-        var beforeMainCalled = false
-        
+        //Having a second Listener may cause the tracker to execute more than once before the end of the test
+        mainBlockExpectation.assertForOverFulfill = true
+                
         fixture.dispatchQueue.blockBeforeMainBlock = {
             self.sut.clear()
-            beforeMainCalled = true
+            mainBlockExpectation.fulfill()
             return true
         }
         
         sut.addListener(secondListener)
         start()
-        wait(for: [anrDetectedExpectation, anrStoppedExpectation, secondListener.anrStoppedExpectation, secondListener.anrDetectedExpectation], timeout: waitTimeout)
-        XCTAssertTrue(beforeMainCalled)
+        wait(for: [anrDetectedExpectation, anrStoppedExpectation, mainBlockExpectation, secondListener.anrStoppedExpectation, secondListener.anrDetectedExpectation], timeout: waitTimeout)
+
     }
     
     func anrDetected() {
