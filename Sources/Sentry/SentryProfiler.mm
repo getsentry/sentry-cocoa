@@ -256,16 +256,9 @@ isSimulatorBuild()
     profile[@"version_name"] = [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
 
 #    if SENTRY_HAS_UIKIT
-    const auto relativeFrameTimestampsNs = [NSMutableArray array];
-    [SentryFramesTracker.sharedInstance.currentFrames.timestamps enumerateObjectsUsingBlock:^(NSDictionary<NSString *,NSNumber *> * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        const auto begin = (uint64_t)(obj[@"start_timestamp"].doubleValue * 1e9);
-        if (begin < _startTimestamp) {
-            return;
-        }
-        const auto end = (uint64_t)(obj[@"end_timestamp"].doubleValue * 1e9);
-        [relativeFrameTimestampsNs addObject:@{@"start_timestamp_relative_ns": @(getDurationNs(_startTimestamp, begin)), @"end_timestamp_relative_ns": @(getDurationNs(_startTimestamp, end))}];
-    }];
-    profile[@"adverse_frame_render_timestamps"] = relativeFrameTimestampsNs;
+    const auto frameInfo = SentryFramesTracker.sharedInstance.currentFrames;
+    profile[@"adverse_frame_render_timestamps"] = [self frameTimeseriesConvertedToRelativeTimestamps:frameInfo.frameTimestamps];
+    profile[@"screen_refresh_rates"] = [self frameTimeseriesConvertedToRelativeTimestamps:frameInfo.refreshRateTimestamps];
 #    endif // SENTRY_HAS_UIKIT
 
     NSError *error = nil;
@@ -281,6 +274,19 @@ isSimulatorBuild()
     const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfile
                                                                 length:JSONData.length];
     return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
+}
+
+- (NSArray *)frameTimeseriesConvertedToRelativeTimestamps:(SentryFrameInfoTimeSeries *)timeseries {
+    const auto relativeFrameTimestampsNs = [NSMutableArray array];
+    [timeseries enumerateObjectsUsingBlock:^(NSDictionary<NSString *,NSNumber *> * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        const auto begin = (uint64_t)(obj[@"start_timestamp"].doubleValue * 1e9);
+        if (begin < _startTimestamp) {
+            return;
+        }
+        const auto end = (uint64_t)(obj[@"end_timestamp"].doubleValue * 1e9);
+        [relativeFrameTimestampsNs addObject:@{@"start_timestamp_relative_ns": @(getDurationNs(_startTimestamp, begin)), @"end_timestamp_relative_ns": @(getDurationNs(_startTimestamp, end))}];
+    }];
+    return relativeFrameTimestampsNs;
 }
 
 - (BOOL)isRunning

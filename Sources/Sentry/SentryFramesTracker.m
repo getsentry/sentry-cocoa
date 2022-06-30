@@ -8,16 +8,14 @@
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
 
-/** A mutable version of @c SentryFrameTimestampInfo so we can accumulate results. */
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+/** A mutable version of @c SentryFrameInfoTimeSeries so we can accumulate results. */
 typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *>
-    SentryMutableFrameTimestampInfo;
+    SentryMutableFrameInfoTimeSeries;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 static CFTimeInterval const SentryFrozenFrameThreshold = 0.7;
 static CFTimeInterval const SentryPreviousFrameInitialValue = -1;
-
-#    if SENTRY_TARGET_PROFILING_SUPPORTED
-static NSUInteger const SentryNumberOfFrameTimestampsToRetain = 10000;
-#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 /**
  * Relaxed memoring ordering is typical for incrementing counters. This operation only requires
@@ -31,7 +29,8 @@ SentryFramesTracker ()
 @property (nonatomic, strong, readonly) SentryDisplayLinkWrapper *displayLinkWrapper;
 @property (nonatomic, assign) CFTimeInterval previousFrameTimestamp;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-@property (nonatomic, readwrite) SentryMutableFrameTimestampInfo *frameTimestamps;
+@property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *frameTimestamps;
+@property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *refreshRateTimestamps;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
@@ -83,14 +82,14 @@ SentryFramesTracker ()
     atomic_store_explicit(&_slowFrames, 0, SentryFramesMemoryOrder);
 
     self.previousFrameTimestamp = SentryPreviousFrameInitialValue;
-    [self resetTimestamps];
+    [self resetProfilingTimestamps];
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-- (void)resetTimestamps
+- (void)resetProfilingTimestamps
 {
-    self.frameTimestamps = [[SentryMutableFrameTimestampInfo alloc]
-        initWithCapacity:SentryNumberOfFrameTimestampsToRetain];
+    self.frameTimestamps = [SentryMutableFrameInfoTimeSeries array];
+    self.refreshRateTimestamps = [SentryMutableFrameInfoTimeSeries array];
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -120,6 +119,13 @@ SentryFramesTracker ()
     if (@available(iOS 10.0, tvOS 10.0, *)) {
         actualFramesPerSecond
             = 1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp);
+    }
+
+    if (self.refreshRateTimestamps.count == 0 || self.refreshRateTimestamps.lastObject[@"refresh_rate"].doubleValue != actualFramesPerSecond) {
+        [self.refreshRateTimestamps addObject:@{
+            @"timestamp": @(self.displayLinkWrapper.timestamp),
+            @"refresh_rate": @(actualFramesPerSecond),
+        }];
     }
 
     // Most frames take just a few microseconds longer than the optimal caculated duration.
@@ -165,7 +171,7 @@ SentryFramesTracker ()
     return [[SentryScreenFrames alloc] initWithTotal:total
                                               frozen:frozen
                                                 slow:slow
-                                          timestamps:self.frameTimestamps];
+                                          frameTimestamps:self.frameTimestamps refreshRateTimestamps:self.refreshRateTimestamps];
 #    else
     return [[SentryScreenFrames alloc] initWithTotal:total frozen:frozen slow:slow];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
