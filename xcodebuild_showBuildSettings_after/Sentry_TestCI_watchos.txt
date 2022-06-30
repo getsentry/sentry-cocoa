@@ -478,3 +478,4 @@ Build settings for action build and target Sentry:
     __CODE_SIGNING_ALLOWED_watchos = NO
     arch = armv7k
     variant = normal
+
