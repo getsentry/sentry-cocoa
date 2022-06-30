@@ -2,8 +2,6 @@ import XCTest
 
 class SDKPerformanceBenchmarkTests: XCTestCase {
     func testCPUBenchmark() throws {
-        let allowedIOSVersion = "15"
-        try XCTSkipUnless(UIDevice.current.systemVersion.components(separatedBy: ".").first ?? "" == allowedIOSVersion, "Only run benchmarks on iOS \(allowedIOSVersion).")
         var isSimulator: Bool
         #if targetEnvironment(simulator)
         isSimulator = true
@@ -11,6 +9,7 @@ class SDKPerformanceBenchmarkTests: XCTestCase {
         isSimulator = false
         #endif
         try XCTSkipIf(isSimulator, "Only run benchmarks on real devices, not in simulators.")
+
         var results = [Double]()
         for _ in 0..<5 {
             let app = XCUIApplication()
