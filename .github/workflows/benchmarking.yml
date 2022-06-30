@@ -34,7 +34,7 @@ jobs:
       - name: Archiving DerivedData
         uses: actions/upload-artifact@v3
         with:
-          name: DerivedData-Xcode-${{matrix.xcode}}
+          name: DerivedData-Xcode
           path: |
             **/Debug-iphoneos/iOS-Swift.app
             **/Debug-iphoneos/PerformanceBenchmarking-Runner.app
@@ -58,7 +58,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with:
-          name: DerivedData-Xcode-${{matrix.xcode}}
+          name: DerivedData-Xcode
       - run: npm install -g saucectl@0.99.4
       - name: Run Benchmarks in SauceLab
         env:
