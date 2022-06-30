@@ -93,12 +93,19 @@ isSimulatorBuild()
     uint64_t _startTimestamp;
     std::shared_ptr<SamplingProfiler> _profiler;
     SentryDebugImageProvider *_debugImageProvider;
+    thread::TIDType _mainThreadID;
 }
 
 - (instancetype)init
 {
+    if (![NSThread isMainThread]) {
+        [SentryLog logWithMessage:@"SentryProfiler must be initialized on the main thread"
+                         andLevel:kSentryLevelError];
+        return nil;
+    }
     if (self = [super init]) {
         _debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
+        _mainThreadID = ThreadHandle::current()->tid();
     }
     return self;
 }
@@ -132,7 +139,8 @@ isSimulatorBuild()
 
         __weak const auto weakSelf = self;
         _profiler = std::make_shared<SamplingProfiler>(
-            [weakSelf, threadMetadata, queueMetadata, samples](auto &backtrace) {
+            [weakSelf, threadMetadata, queueMetadata, samples, mainThreadID = _mainThreadID](
+                auto &backtrace) {
                 const auto strongSelf = weakSelf;
                 if (strongSelf == nil) {
                     return;
@@ -149,6 +157,9 @@ isSimulatorBuild()
                             [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
                     }
                     metadata[@"priority"] = @(backtrace.threadMetadata.priority);
+                    if (backtrace.threadMetadata.threadID == mainThreadID) {
+                        metadata[@"is_main_thread"] = @YES;
+                    }
                     threadMetadata[threadID] = metadata;
                 }
                 if (queueAddress != nil && queueMetadata[queueAddress] == nil

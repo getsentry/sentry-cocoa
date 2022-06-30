@@ -5,6 +5,7 @@
 ### Features
 
 - Add screenshot at crash (#1920)
+- Add main thread ID to profiling payload (#1918)
 - Add App Hangs tracking (#1906)
 
 ### Fixes
