@@ -81,7 +81,9 @@ SentryFramesTracker ()
     atomic_store_explicit(&_slowFrames, 0, SentryFramesMemoryOrder);
 
     self.previousFrameTimestamp = SentryPreviousFrameInitialValue;
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
     [self resetProfilingTimestamps];
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -120,6 +122,7 @@ SentryFramesTracker ()
             = 1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp);
     }
 
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
     if (self.refreshRateTimestamps.count == 0
         || self.refreshRateTimestamps.lastObject[@"refresh_rate"].doubleValue
             != actualFramesPerSecond) {
@@ -128,6 +131,7 @@ SentryFramesTracker ()
             @"refresh_rate" : @(actualFramesPerSecond),
         }];
     }
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     // Most frames take just a few microseconds longer than the optimal caculated duration.
     // Therefore we substract one, because otherwise almost all frames would be slow.

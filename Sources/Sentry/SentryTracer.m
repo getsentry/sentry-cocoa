@@ -150,19 +150,21 @@ static NSLock *profilerLock;
             initSlowFrames = currentFrames.slow;
             initFrozenFrames = currentFrames.frozen;
         }
-#endif
+#endif // SENTRY_HAS_UIKIT
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         if ([_hub getClient].options.enableProfiling) {
             [profilerLock lock];
             if (profiler == nil) {
                 profiler = [[SentryProfiler alloc] init];
                 [SentryLog logWithMessage:@"Starting profiler." andLevel:kSentryLevelDebug];
+#if SENTRY_HAS_UIKIT
                 [framesTracker resetProfilingTimestamps];
+#endif // SENTRY_HAS_UIKIT
                 [profiler start];
             }
             [profilerLock unlock];
         }
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
 
     return self;

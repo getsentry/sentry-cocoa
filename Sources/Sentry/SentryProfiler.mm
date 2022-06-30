@@ -278,6 +278,7 @@ isSimulatorBuild()
     return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
 }
 
+#    if SENTRY_HAS_UIKIT
 - (NSArray *)frameTimeseriesConvertedToRelativeTimestamps:(SentryFrameInfoTimeSeries *)timeseries
 {
     const auto relativeFrameTimestampsNs = [NSMutableArray array];
@@ -295,6 +296,7 @@ isSimulatorBuild()
     }];
     return relativeFrameTimestampsNs;
 }
+#    endif // SENTRY_HAS_UIKIT
 
 - (BOOL)isRunning
 {
