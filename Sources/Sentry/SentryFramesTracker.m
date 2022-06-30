@@ -1,18 +1,17 @@
 #import "SentryFramesTracker.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryProfilingConditionals.h"
-#import <SentryScreenFrames.h>
 #import "SentryTracer.h"
+#import <SentryScreenFrames.h>
 #include <stdatomic.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
 /** A mutable version of @c SentryFrameInfoTimeSeries so we can accumulate results. */
-typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *>
-    SentryMutableFrameInfoTimeSeries;
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *> SentryMutableFrameInfoTimeSeries;
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 static CFTimeInterval const SentryFrozenFrameThreshold = 0.7;
 static CFTimeInterval const SentryPreviousFrameInitialValue = -1;
@@ -85,13 +84,13 @@ SentryFramesTracker ()
     [self resetProfilingTimestamps];
 }
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
 - (void)resetProfilingTimestamps
 {
     self.frameTimestamps = [SentryMutableFrameInfoTimeSeries array];
     self.refreshRateTimestamps = [SentryMutableFrameInfoTimeSeries array];
 }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 - (void)start
 {
@@ -121,10 +120,12 @@ SentryFramesTracker ()
             = 1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp);
     }
 
-    if (self.refreshRateTimestamps.count == 0 || self.refreshRateTimestamps.lastObject[@"refresh_rate"].doubleValue != actualFramesPerSecond) {
+    if (self.refreshRateTimestamps.count == 0
+        || self.refreshRateTimestamps.lastObject[@"refresh_rate"].doubleValue
+            != actualFramesPerSecond) {
         [self.refreshRateTimestamps addObject:@{
-            @"timestamp": @(self.displayLinkWrapper.timestamp),
-            @"refresh_rate": @(actualFramesPerSecond),
+            @"timestamp" : @(self.displayLinkWrapper.timestamp),
+            @"refresh_rate" : @(actualFramesPerSecond),
         }];
     }
 
@@ -171,7 +172,8 @@ SentryFramesTracker ()
     return [[SentryScreenFrames alloc] initWithTotal:total
                                               frozen:frozen
                                                 slow:slow
-                                          frameTimestamps:self.frameTimestamps refreshRateTimestamps:self.refreshRateTimestamps];
+                                     frameTimestamps:self.frameTimestamps
+                               refreshRateTimestamps:self.refreshRateTimestamps];
 #    else
     return [[SentryScreenFrames alloc] initWithTotal:total frozen:frozen slow:slow];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
