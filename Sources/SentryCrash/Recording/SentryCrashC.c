@@ -317,3 +317,8 @@ sentrycrash_deleteReportWithID(int64_t reportID)
 {
     sentrycrashcrs_deleteReportWithID(reportID);
 }
+
+bool
+sentrycrash_hasSaveScreenshotCallback() {
+    return g_saveScreenShot != NULL;
+}

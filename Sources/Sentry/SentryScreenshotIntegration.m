@@ -54,6 +54,10 @@ saveScreenShot(const char *path)
     sentrycrash_setSaveScreenshots(&saveScreenShot);
 }
 
+-(void)uninstall {
+    sentrycrash_setSaveScreenshots(NULL);
+}
+
 - (NSArray<SentryAttachment *> *)processAttachments:(NSArray<SentryAttachment *> *)attachments
                                            forEvent:(nonnull SentryEvent *)event
 {

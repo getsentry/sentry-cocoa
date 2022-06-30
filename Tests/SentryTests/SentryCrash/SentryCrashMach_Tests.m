@@ -30,6 +30,7 @@
 #include <mach/exception_types.h>
 #include <mach/kern_return.h>
 
+
 @interface SentryCrashMach_Tests : XCTestCase
 @end
 

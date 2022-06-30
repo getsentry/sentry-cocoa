@@ -235,6 +235,12 @@ void sentrycrash_deleteAllReports(void);
  */
 void sentrycrash_deleteReportWithID(int64_t reportID);
 
+/**
+ * For testing purpose.
+ * Indicates that a callback was registered for screenshot.
+ */
+bool sentrycrash_hasSaveScreenshotCallback(void);
+
 #ifdef __cplusplus
 }
 #endif
