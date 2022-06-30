@@ -39,7 +39,7 @@ SentryANRTracker ()
         self.threadWrapper = threadWrapper;
         self.listeners = [NSMutableSet new];
         threadLock = [[NSObject alloc] init];
-        running = false;
+        running = NO;
     }
     return self;
 }
