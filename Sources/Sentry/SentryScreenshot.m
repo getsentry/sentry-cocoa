@@ -24,7 +24,6 @@
 
 - (void)saveScreenShots:(NSString *)path
 {
-    NSLog(@"### %@", path);
     [[self takeScreenshots] enumerateObjectsUsingBlock:^(NSData *obj, NSUInteger idx, BOOL *stop) {
         NSString *name = idx == 0
             ? @"screenshot.png"
