@@ -15,6 +15,12 @@
 		7BA13E3E267B3F5400DEE308 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7BA13E3C267B3F5400DEE308 /* LaunchScreen.storyboard */; };
 		7BA13E47267B4A2D00DEE308 /* Sentry.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA13E46267B4A2D00DEE308 /* Sentry.xcframework */; };
 		7BA13E48267B4A2D00DEE308 /* Sentry.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA13E46267B4A2D00DEE308 /* Sentry.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		848A2545286D2068008A8858 /* XCFramework-Release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 848A253F286D2068008A8858 /* XCFramework-Release.xcconfig */; };
+		848A2546286D2068008A8858 /* Project-Release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 848A2540286D2068008A8858 /* Project-Release.xcconfig */; };
+		848A2547286D2068008A8858 /* XCFramework-Debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 848A2541286D2068008A8858 /* XCFramework-Debug.xcconfig */; };
+		848A2548286D2068008A8858 /* Project-Shared.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 848A2542286D2068008A8858 /* Project-Shared.xcconfig */; };
+		848A2549286D2068008A8858 /* XCFramework-Shared.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 848A2543286D2068008A8858 /* XCFramework-Shared.xcconfig */; };
+		848A254A286D2068008A8858 /* Project-Debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 848A2544286D2068008A8858 /* Project-Debug.xcconfig */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -41,6 +47,12 @@
 		7BA13E3D267B3F5400DEE308 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7BA13E3F267B3F5400DEE308 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7BA13E46267B4A2D00DEE308 /* Sentry.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Sentry.xcframework; path = Carthage/Build/Sentry.xcframework; sourceTree = "<group>"; };
+		848A253F286D2068008A8858 /* XCFramework-Release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "XCFramework-Release.xcconfig"; sourceTree = "<group>"; };
+		848A2540286D2068008A8858 /* Project-Release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Project-Release.xcconfig"; sourceTree = "<group>"; };
+		848A2541286D2068008A8858 /* XCFramework-Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "XCFramework-Debug.xcconfig"; sourceTree = "<group>"; };
+		848A2542286D2068008A8858 /* Project-Shared.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Project-Shared.xcconfig"; sourceTree = "<group>"; };
+		848A2543286D2068008A8858 /* XCFramework-Shared.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "XCFramework-Shared.xcconfig"; sourceTree = "<group>"; };
+		848A2544286D2068008A8858 /* Project-Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Project-Debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +70,7 @@
 		7BA13E25267B3F5200DEE308 = {
 			isa = PBXGroup;
 			children = (
+				848A253E286D2068008A8858 /* xcconfig */,
 				7BA13E30267B3F5200DEE308 /* XCFramework */,
 				7BA13E2F267B3F5200DEE308 /* Products */,
 				7BA13E45267B4A2D00DEE308 /* Frameworks */,
@@ -100,6 +113,20 @@
 				7BA13E46267B4A2D00DEE308 /* Sentry.xcframework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		848A253E286D2068008A8858 /* xcconfig */ = {
+			isa = PBXGroup;
+			children = (
+				848A253F286D2068008A8858 /* XCFramework-Release.xcconfig */,
+				848A2540286D2068008A8858 /* Project-Release.xcconfig */,
+				848A2541286D2068008A8858 /* XCFramework-Debug.xcconfig */,
+				848A2542286D2068008A8858 /* Project-Shared.xcconfig */,
+				848A2543286D2068008A8858 /* XCFramework-Shared.xcconfig */,
+				848A2544286D2068008A8858 /* Project-Debug.xcconfig */,
+			);
+			name = xcconfig;
+			path = "../../../xcconfig/Carthage-Validation/XCFramework/xcconfig";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -160,9 +187,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				848A2548286D2068008A8858 /* Project-Shared.xcconfig in Resources */,
+				848A2547286D2068008A8858 /* XCFramework-Debug.xcconfig in Resources */,
+				848A2546286D2068008A8858 /* Project-Release.xcconfig in Resources */,
 				7BA13E3E267B3F5400DEE308 /* LaunchScreen.storyboard in Resources */,
 				7BA13E3B267B3F5400DEE308 /* Preview Assets.xcassets in Resources */,
+				848A2545286D2068008A8858 /* XCFramework-Release.xcconfig in Resources */,
+				848A254A286D2068008A8858 /* Project-Debug.xcconfig in Resources */,
 				7BA13E38267B3F5400DEE308 /* Assets.xcassets in Resources */,
+				848A2549286D2068008A8858 /* XCFramework-Shared.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -195,159 +228,29 @@
 /* Begin XCBuildConfiguration section */
 		7BA13E40267B3F5400DEE308 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 848A2544286D2068008A8858 /* Project-Debug.xcconfig */;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = iphoneos;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
 		7BA13E41267B3F5400DEE308 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 848A2540286D2068008A8858 /* Project-Release.xcconfig */;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				MTL_FAST_MATH = YES;
-				SDKROOT = iphoneos;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
 		7BA13E43267B3F5400DEE308 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 848A2541286D2068008A8858 /* XCFramework-Debug.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_ASSET_PATHS = "\"XCFramework/Preview Content\"";
-				DEVELOPMENT_TEAM = 97JCY7859U;
-				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = XCFramework/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.carthage.XCFramework;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
 		7BA13E44267B3F5400DEE308 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 848A253F286D2068008A8858 /* XCFramework-Release.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_ASSET_PATHS = "\"XCFramework/Preview Content\"";
-				DEVELOPMENT_TEAM = 97JCY7859U;
-				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = XCFramework/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.carthage.XCFramework;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};

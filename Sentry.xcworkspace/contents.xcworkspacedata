@@ -7,6 +7,39 @@
       <FileRef
          location = "group:Samples/README.md">
       </FileRef>
+      <Group
+         location = "group:Samples/Carthage-Validation"
+         name = "Carthage-Validation">
+         <Group
+            location = "group:Framework"
+            name = "Framework">
+            <FileRef
+               location = "group:Cartfile">
+            </FileRef>
+            <FileRef
+               location = "group:Framework.xcodeproj">
+            </FileRef>
+            <FileRef
+               location = "group:output.xcfilelist">
+            </FileRef>
+            <FileRef
+               location = "group:input.xcfilelist">
+            </FileRef>
+         </Group>
+         <FileRef
+            location = "group:README.md">
+         </FileRef>
+         <Group
+            location = "group:XCFramework"
+            name = "XCFramework">
+            <FileRef
+               location = "group:Cartfile">
+            </FileRef>
+            <FileRef
+               location = "group:XCFramework.xcodeproj">
+            </FileRef>
+         </Group>
+      </Group>
       <FileRef
          location = "group:Samples/TrendingMovies/TrendingMovies.xcodeproj">
       </FileRef>
