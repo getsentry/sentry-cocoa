@@ -137,6 +137,8 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         anrDetectedExpectation.isInverted = true
         
         //We cant use expectation because we don't control how many times blockBeforeMainBlock is called
+        //Having a second Listener may cause the APP Hang tracker to execute more than once before the end of the test
+        
         var beforeMainCalled = false
         
         fixture.dispatchQueue.blockBeforeMainBlock = {
