@@ -2921,8 +2921,6 @@
 				7B5CAF7127F5953400ED0DB6 /* SentryEnvelope+Private.h in Headers */,
 				63FE713320DA4C1100CDBAE8 /* SentryCrashCPU.h in Headers */,
 				D8853C842833EABC00700D64 /* SentryANRTracker.h in Headers */,
-				849EACE22864EC8F00664474 /* SentryNSArrayRingBuffer.h in Headers */,
-				D8853C842833EABC00700D64 /* SentryANRTracker.h in Headers */,
 				63FE715B20DA4C1100CDBAE8 /* SentryCrashSignalInfo.h in Headers */,
 				63FE70E520DA4C1000CDBAE8 /* SentryCrashMonitor_CPPException.h in Headers */,
 				7B127B0D27CF6F2300A71ED2 /* SentryANRTrackingIntegration.h in Headers */,
