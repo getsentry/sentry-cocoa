@@ -139,7 +139,7 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         let mainBlockExpectation = expectation(description: "Main Block")
         
         //Having a second Listener may cause the tracker to execute more than once before the end of the test
-        mainBlockExpectation.assertForOverFulfill = true
+        mainBlockExpectation.assertForOverFulfill = false
                 
         fixture.dispatchQueue.blockBeforeMainBlock = {
             self.sut.clear()
