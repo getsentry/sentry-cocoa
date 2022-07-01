@@ -63,14 +63,14 @@ int sentrycrashcrs_getReportCount(void);
  */
 int sentrycrashcrs_getReportIDs(int64_t *reportIDs, int count);
 
-
 /**
  * Gets a report path for given Id.
  *
  * @param reportId The report's Id.
- * @param pathBuffer A buffer to store the result. The buffer size must be equal or greater than `SentryCrashCRS_MAX_PATH_LENGTH`.
+ * @param pathBuffer A buffer to store the result. The buffer size must be equal or greater than
+ * `SentryCrashCRS_MAX_PATH_LENGTH`.
  */
-void sentrycrashcrs_getCrashReportPathById(int64_t reportId, char * pathBuffer);
+void sentrycrashcrs_getCrashReportPathById(int64_t reportId, char *pathBuffer);
 
 /** Read a report.
  *

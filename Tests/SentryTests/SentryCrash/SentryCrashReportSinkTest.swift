@@ -8,10 +8,10 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         let reportSink = SentryCrashReportSink(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []))
         let expect = expectation(description: "Callback Called")
         
-        let report = ["screenshots":["file.png"]];
+        let report = ["screenshots": ["file.png"]]
         
-        reportSink.filterReports([report]) { reports, completed, error in
-            self.assertCrashEventWithScope { event, scope in
+        reportSink.filterReports([report]) { _, _, _ in
+            self.assertCrashEventWithScope { _, scope in
                 XCTAssertEqual(scope?.attachments.count, 1)
                 expect.fulfill()
             }
@@ -27,10 +27,10 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         let reportSink = SentryCrashReportSink(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []))
         let expect = expectation(description: "Callback Called")
         
-        let report = [String:Any]();
+        let report = [String: Any]()
         
-        reportSink.filterReports([report]) { reports, completed, error in
-            self.assertCrashEventWithScope { event, scope in
+        reportSink.filterReports([report]) { _, _, _ in
+            self.assertCrashEventWithScope { _, scope in
                 let data = scope?.serialize()
                 XCTAssertEqual(data?["environment"] as? String, "testFilterReports_CopyHubScope")
                 expect.fulfill()

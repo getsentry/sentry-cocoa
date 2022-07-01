@@ -54,7 +54,8 @@ saveScreenShot(const char *path)
     sentrycrash_setSaveScreenshots(&saveScreenShot);
 }
 
--(void)uninstall {
+- (void)uninstall
+{
     sentrycrash_setSaveScreenshots(NULL);
 }
 
