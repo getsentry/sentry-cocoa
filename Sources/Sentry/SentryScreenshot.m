@@ -24,11 +24,11 @@
 
 - (void)saveScreenShots:(NSString *)path
 {
-    //This function does not dispatch the screenshot to the main thread.
-    //The caller should be aware of that.
-    //We done this way because we use this function to save screenshots
-    //during signal handling, and if we dispatch it to the main thread,
-    //that is probably blocked by the crash event, we freeze the application.
+    // This function does not dispatch the screenshot to the main thread.
+    // The caller should be aware of that.
+    // We done this way because we use this function to save screenshots
+    // during signal handling, and if we dispatch it to the main thread,
+    // that is probably blocked by the crash event, we freeze the application.
     [[self takeScreenshots] enumerateObjectsUsingBlock:^(NSData *obj, NSUInteger idx, BOOL *stop) {
         NSString *name = idx == 0
             ? @"screenshot.png"

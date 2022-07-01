@@ -319,6 +319,7 @@ sentrycrash_deleteReportWithID(int64_t reportID)
 }
 
 bool
-sentrycrash_hasSaveScreenshotCallback() {
+sentrycrash_hasSaveScreenshotCallback()
+{
     return g_saveScreenShot != NULL;
 }
