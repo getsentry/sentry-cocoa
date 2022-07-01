@@ -65,4 +65,4 @@ jobs:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
         # As Sauce Labs is a bit flaky we retry 5 times
-        run: for i in {1..5}; do saucectl run --select-suite ${{ matrix.suite }} && break ; done
+        run: for i in {1..5}; do saucectl run --select-suite "${{ matrix.suite }}" && break ; done
