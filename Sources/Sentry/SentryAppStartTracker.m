@@ -159,7 +159,7 @@ SentryAppStartTracker ()
             NSString *message = [NSString
                 stringWithFormat:
                     @"The app start exceeded the max duration of %f seconds. Not measuring app "
-                    @"start.\n",
+                    @"start.",
                 SENTRY_APP_START_MAX_DURATION];
             [SentryLog logWithMessage:message andLevel:kSentryLevelInfo];
             return;
