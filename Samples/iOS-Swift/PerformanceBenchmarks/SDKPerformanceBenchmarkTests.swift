@@ -11,7 +11,7 @@ class SDKPerformanceBenchmarkTests: XCTestCase {
 //            return
 //        }
 
-        try! JSONSerialization.data(withJSONObject: allResults).write(to: URL(fileURLWithPath: "")) // TODO: figure out the file path we can write to for sauce labs artifacts
+        try! JSONSerialization.data(withJSONObject: allResults).write(to: URL(fileURLWithPath: "benchmarks.json")) // TODO: figure out the file path we can write to for sauce labs artifacts
     }
 
     func testCPUBenchmarkA() throws {
