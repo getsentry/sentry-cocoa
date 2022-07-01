@@ -16,12 +16,13 @@
 #    import <UIKit/UIKit.h>
 
 static NSDate *runtimeInit = nil;
+static BOOL isActivePrewarm = NO;
 
 /**
- * The watchdog usually kicks in after an app hanging 10 to 20 seconds. As the app could hang in
+ * The watchdog usually kicks in after an app hanging for 30 seconds. As the app could hang in
  * multiple stages during the launch we pick a higher threshold.
  */
-static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 60.0;
+static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
 
 @interface
 SentryAppStartTracker ()
@@ -42,6 +43,11 @@ SentryAppStartTracker ()
 {
     // Invoked whenever this class is added to the Objective-C runtime.
     runtimeInit = [NSDate date];
+
+    // The OS sets this environment variable if the app start is pre warmed. There are no official
+    // docs for this. Found at https://eisel.me/startup. Investigations show that this variable is
+    // deleted after UIApplicationDidFinishLaunchingNotification, so we have to check it here.
+    isActivePrewarm = [[NSProcessInfo processInfo].environment[@"ActivePrewarm"] isEqual:@"1"];
 }
 
 - (instancetype)initWithCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
@@ -59,6 +65,21 @@ SentryAppStartTracker ()
         self.didFinishLaunchingTimestamp = [currentDateProvider date];
     }
     return self;
+}
+
+- (BOOL)isActivePrewarmAvailable
+{
+#    if TARGET_OS_IOS
+    // Customer data suggest that app starts are also prewarmed on iOS 14 although this contradicts
+    // with Apple docs.
+    if (@available(iOS 14, *)) {
+        return YES;
+    } else {
+        return NO;
+    }
+#    else
+    return NO;
+#    endif
 }
 
 - (void)start
@@ -94,6 +115,15 @@ SentryAppStartTracker ()
     void (^block)(void) = ^(void) {
         [self stop];
 
+        // Don't (yet) report pre warmed app starts.
+        // Check if prewarm is available. Just to be safe to not drop app start data on earlier OS
+        // verions.
+        if ([self isActivePrewarmAvailable] && isActivePrewarm) {
+            [SentryLog logWithMessage:@"The app was prewarmed. Not measuring app start."
+                             andLevel:kSentryLevelInfo];
+            return;
+        }
+
         SentryAppStartType appStartType = [self getStartType];
 
         if (appStartType == SentryAppStartTypeUnknown) {
@@ -113,9 +143,9 @@ SentryAppStartTracker ()
         // According to a talk at WWDC about optimizing app launch
         // (https://devstreaming-cdn.apple.com/videos/wwdc/2019/423lzf3qsjedrzivc7/423/423_optimizing_app_launch.pdf?dl=1
         // slide 17) no process exists for cold and warm launches. Since iOS 15, though, the system
-        // might decide to pre-warm your app before the user tries to open it. Therefore we use the
-        // process start timestamp only if it's not too long ago. The process start time returned
-        // valid values when testing with real devices before iOS 15. See:
+        // might decide to pre-warm your app before the user tries to open it. The process start
+        // time returned valid values when testing with real devices if the app start is not
+        // prewarmed. See:
         // https://developer.apple.com/documentation/uikit/app_and_environment/responding_to_the_launch_of_your_app/about_the_app_launch_sequence#3894431
         // https://developer.apple.com/documentation/metrickit/mxapplaunchmetric,
         // https://twitter.com/steipete/status/1466013492180312068,
@@ -124,11 +154,12 @@ SentryAppStartTracker ()
         NSTimeInterval appStartDuration =
             [[self.currentDate date] timeIntervalSinceDate:self.sysctl.processStartTimestamp];
 
+        // Safety check to not report app starts that are completely off.
         if (appStartDuration >= SENTRY_APP_START_MAX_DURATION) {
             NSString *message = [NSString
                 stringWithFormat:
                     @"The app start exceeded the max duration of %f seconds. Not measuring app "
-                    @"start.\nThis could be because the OS prewarmed the app's process.",
+                    @"start.\n",
                 SENTRY_APP_START_MAX_DURATION];
             [SentryLog logWithMessage:message andLevel:kSentryLevelInfo];
             return;

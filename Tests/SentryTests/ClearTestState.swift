@@ -22,4 +22,7 @@ func clearTestState() {
     SentryDependencyContainer.reset()
     Dynamic(SentryGlobalEventProcessor.shared()).removeAllProcessors()
     SentrySwizzleWrapper.sharedInstance.removeAllCallbacks()
+    
+    setenv("ActivePrewarm", "0", 1)
+    SentryAppStartTracker.load()
 }
