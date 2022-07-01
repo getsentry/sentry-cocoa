@@ -17,6 +17,9 @@ func clearTestState() {
     let framesTracker = SentryFramesTracker.sharedInstance()
     framesTracker.stop()
     framesTracker.resetFrames()
+    
+    setenv("ActivePrewarm", "0", 1)
+    SentryAppStartTracker.load()
     #endif
     
     SentryDependencyContainer.reset()

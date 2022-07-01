@@ -10,6 +10,7 @@
 ### Fixes
 
 - Remove WebKit optimization check (#1921)
+- Detect prewarmed starts with env variable (#1927)
 
 ## 7.18.1
 
