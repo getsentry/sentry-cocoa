@@ -75,8 +75,7 @@ static int64_t
 getReportIDFromFilename(const char *filename)
 {
     char scanFormat[SentryCrashCRS_MAX_PATH_LENGTH];
-    snprintf(
-        scanFormat, sizeof(scanFormat), "%s-report-%%" PRIx64 ".json", g_appName);
+    snprintf(scanFormat, sizeof(scanFormat), "%s-report-%%" PRIx64 ".json", g_appName);
 
     int64_t reportID = 0;
     sscanf(filename, scanFormat, &reportID);
@@ -89,7 +88,7 @@ getReportIDFromFilePath(const char *filepath)
 {
     char scanFormat[SentryCrashCRS_MAX_PATH_LENGTH];
     snprintf(
-        scanFormat, sizeof(scanFormat), "%s/%s-report-%%" PRIx64 ".json",g_reportsPath, g_appName);
+        scanFormat, sizeof(scanFormat), "%s/%s-report-%%" PRIx64 ".json", g_reportsPath, g_appName);
 
     int64_t reportID = 0;
     sscanf(filepath, scanFormat, &reportID);
