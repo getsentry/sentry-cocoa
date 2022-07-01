@@ -76,10 +76,23 @@ getReportIDFromFilename(const char *filename)
 {
     char scanFormat[SentryCrashCRS_MAX_PATH_LENGTH];
     snprintf(
-        scanFormat, sizeof(scanFormat), "%s/%s-report-%%" PRIx64 ".json", g_reportsPath, g_appName);
+        scanFormat, sizeof(scanFormat), "%s-report-%%" PRIx64 ".json", g_appName);
 
     int64_t reportID = 0;
     sscanf(filename, scanFormat, &reportID);
+
+    return reportID;
+}
+
+static int64_t
+getReportIDFromFilePath(const char *filepath)
+{
+    char scanFormat[SentryCrashCRS_MAX_PATH_LENGTH];
+    snprintf(
+        scanFormat, sizeof(scanFormat), "%s/%s-report-%%" PRIx64 ".json",g_reportsPath, g_appName);
+
+    int64_t reportID = 0;
+    sscanf(filepath, scanFormat, &reportID);
 
     return reportID;
 }
@@ -231,7 +244,7 @@ sentrycrashcrs_getScreenshotPath_forReportId(int64_t reportID, char *pathBuffer)
 void
 sentrycrashcrs_getScreenshotsPath_forReport(const char *reportPath, char *pathBuffer)
 {
-    sentrycrashcrs_getScreenshotPath_forReportId(getReportIDFromFilename(reportPath), pathBuffer);
+    sentrycrashcrs_getScreenshotPath_forReportId(getReportIDFromFilePath(reportPath), pathBuffer);
 }
 
 int64_t
