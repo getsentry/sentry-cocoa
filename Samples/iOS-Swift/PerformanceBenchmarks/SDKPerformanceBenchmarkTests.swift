@@ -1,7 +1,36 @@
 import XCTest
+import ObjectiveC
 
 class SDKPerformanceBenchmarkTests: XCTestCase {
-    func testCPUBenchmark() throws {
+    var allResults = [Double]()
+
+    override func tearDown() {
+        defer { super.tearDown() }
+
+//        guard allResults.count == 20 else {
+//            return
+//        }
+
+        try! JSONSerialization.data(withJSONObject: allResults).write(to: URL(fileURLWithPath: "")) // TODO: figure out the file path we can write to for sauce labs artifacts
+    }
+
+    func testCPUBenchmarkA() throws {
+        allResults.append(contentsOf: try _testCPUBenchmark())
+    }
+
+//    func testCPUBenchmarkB() throws {
+//        allResults.append(contentsOf: try _testCPUBenchmark())
+//    }
+//
+//    func testCPUBenchmarkC() throws {
+//        allResults.append(contentsOf: try _testCPUBenchmark())
+//    }
+//
+//    func testCPUBenchmarkD() throws {
+//        allResults.append(contentsOf: try _testCPUBenchmark())
+//    }
+
+    func _testCPUBenchmark() throws -> [Double] {
         var isSimulator: Bool
         #if targetEnvironment(simulator)
         isSimulator = true
@@ -11,7 +40,7 @@ class SDKPerformanceBenchmarkTests: XCTestCase {
         try XCTSkipIf(isSimulator, "Only run benchmarks on real devices, not in simulators.")
 
         var results = [Double]()
-        for _ in 0..<5 {
+        for _ in 0..<1/*5*/ {
             let app = XCUIApplication()
             app.launchArguments.append("--io.sentry.test.benchmarking")
             app.launch()
@@ -48,6 +77,9 @@ class SDKPerformanceBenchmarkTests: XCTestCase {
             print("Percent usage: \(usagePercentage)%")
             results.append(usagePercentage)
         }
+
+        return results
+
         let index = Int(ceil(0.9 * Double(results.count)))
         let p90 = results.sorted()[index >= results.count ? results.count - 1 : index]
 
