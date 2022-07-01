@@ -257,10 +257,37 @@ isSimulatorBuild()
 
 #    if SENTRY_HAS_UIKIT
     const auto frameInfo = SentryFramesTracker.sharedInstance.currentFrames;
-    profile[@"adverse_frame_render_timestamps"] =
-        [self frameTimeseriesConvertedToRelativeTimestamps:frameInfo.frameTimestamps];
-    profile[@"screen_refresh_rates"] =
-        [self frameTimeseriesConvertedToRelativeTimestamps:frameInfo.refreshRateTimestamps];
+
+    auto relativeFrameTimestampsNs = [NSMutableArray array];
+    [frameInfo.frameTimestamps enumerateObjectsUsingBlock:^(
+        NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+        const auto begin = (uint64_t)(obj[@"start_timestamp"].doubleValue * 1e9);
+        if (begin < _startTimestamp) {
+            return;
+        }
+        const auto end = (uint64_t)(obj[@"end_timestamp"].doubleValue * 1e9);
+        [relativeFrameTimestampsNs addObject:@{
+            @"start_timestamp_relative_ns" : @(getDurationNs(_startTimestamp, begin)),
+            @"end_timestamp_relative_ns" : @(getDurationNs(_startTimestamp, end)),
+        }];
+    }];
+    profile[@"adverse_frame_render_timestamps"] = relativeFrameTimestampsNs;
+
+    relativeFrameTimestampsNs = [NSMutableArray array];
+    [frameInfo.refreshRateTimestamps enumerateObjectsUsingBlock:^(
+        NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+        const auto timestamp = (uint64_t)(obj[@"timestamp"].doubleValue * 1e9);
+        const auto refreshRate = obj[@"refresh_rate"];
+        uint64_t relativeTimestamp = 0;
+        if (timestamp >= _startTimestamp) {
+            relativeTimestamp = getDurationNs(_startTimestamp, timestamp);
+        }
+        [relativeFrameTimestampsNs addObject:@{
+            @"start_timestamp_relative_ns" : @(relativeTimestamp),
+            @"refresh_rate" : refreshRate,
+        }];
+    }];
+    profile[@"screen_refresh_rates"] = relativeFrameTimestampsNs;
 #    endif // SENTRY_HAS_UIKIT
 
     NSError *error = nil;
@@ -277,26 +304,6 @@ isSimulatorBuild()
                                                                 length:JSONData.length];
     return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
 }
-
-#    if SENTRY_HAS_UIKIT
-- (NSArray *)frameTimeseriesConvertedToRelativeTimestamps:(SentryFrameInfoTimeSeries *)timeseries
-{
-    const auto relativeFrameTimestampsNs = [NSMutableArray array];
-    [timeseries enumerateObjectsUsingBlock:^(
-        NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-        const auto begin = (uint64_t)(obj[@"start_timestamp"].doubleValue * 1e9);
-        if (begin < _startTimestamp) {
-            return;
-        }
-        const auto end = (uint64_t)(obj[@"end_timestamp"].doubleValue * 1e9);
-        [relativeFrameTimestampsNs addObject:@{
-            @"start_timestamp_relative_ns" : @(getDurationNs(_startTimestamp, begin)),
-            @"end_timestamp_relative_ns" : @(getDurationNs(_startTimestamp, end))
-        }];
-    }];
-    return relativeFrameTimestampsNs;
-}
-#    endif // SENTRY_HAS_UIKIT
 
 - (BOOL)isRunning
 {
