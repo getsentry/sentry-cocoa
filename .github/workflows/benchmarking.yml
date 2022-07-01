@@ -37,7 +37,7 @@ jobs:
           name: DerivedData-Xcode
           path: |
             **/Debug-iphoneos/iOS-Swift.app
-            **/Debug-iphoneos/PerformanceBenchmarking-Runner.app
+            **/Debug-iphoneos/PerformanceBenchmarks-Runner.app
 
   run-ui-tests-with-sauce:
     name: Run Benchmarks on ${{ matrix.suite }} in Sauce Labs
