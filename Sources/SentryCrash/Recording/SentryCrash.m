@@ -414,7 +414,7 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
     sentrycrashcrs_getScreenshotPath_forReportId(reportID, report_screenshot_path);
     NSString *path = [NSString stringWithUTF8String:report_screenshot_path];
 
-    bool isDir = false;
+    BOOL isDir = false;
     if (![NSFileManager.defaultManager fileExistsAtPath:path isDirectory:&isDir] || !isDir)
         return @[];
 
