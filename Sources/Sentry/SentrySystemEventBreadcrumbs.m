@@ -20,7 +20,7 @@
                      andLevel:kSentryLevelDebug];
 #endif
 
-    [self initTimeZoneObserver];
+    [self initTimezoneObserver];
 }
 
 - (void)stop
@@ -181,7 +181,7 @@
     [SentrySDK addBreadcrumb:crumb];
 }
 
-- (void)initTimeZoneObserver
+- (void)initTimezoneObserver
 {
     // Posted when the timezone of the device changed
     [[NSNotificationCenter defaultCenter] addObserver:self
