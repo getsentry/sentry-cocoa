@@ -1583,7 +1583,9 @@
 				63AA75921EB8AEDB00D153DE /* Tests */,
 				7D826E3C2390840E00EED93D /* Utils */,
 			);
+			indentWidth = 4;
 			sourceTree = "<group>";
+			tabWidth = 4;
 		};
 		6327C5D41EB8A783004E799B /* Products */ = {
 			isa = PBXGroup;
