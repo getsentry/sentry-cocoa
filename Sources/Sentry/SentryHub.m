@@ -336,8 +336,10 @@ SentryHub ()
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
                                             customSamplingContext:customSamplingContext];
 
-    transactionContext.sampled = [_sampler sample:samplingContext];
-
+    SentryTracesSamplerDecision * samplerDecision = [_sampler sample:samplingContext];
+    transactionContext.sampled = samplerDecision.decision;
+    transactionContext.sampleRate = samplerDecision.sampleRate;
+    
     id<SentrySpan> tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                          hub:self
                                                              waitForChildren:waitForChildren];
@@ -358,7 +360,9 @@ SentryHub ()
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
                                             customSamplingContext:customSamplingContext];
 
-    transactionContext.sampled = [_sampler sample:samplingContext];
+    SentryTracesSamplerDecision * samplerDecision = [_sampler sample:samplingContext];
+    transactionContext.sampled = samplerDecision.decision;
+    transactionContext.sampleRate = samplerDecision.sampleRate;
 
     SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                         hub:self

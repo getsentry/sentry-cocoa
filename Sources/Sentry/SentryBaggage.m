@@ -17,6 +17,7 @@
                     transaction:(nullable NSString *)transaction
                          userId:(nullable NSString *)userId
                     userSegment:(nullable NSString *)userSegment
+                     sampleRate:(nullable NSNumber *)sampleRate
 {
 
     if (self = [super init]) {
@@ -27,6 +28,7 @@
         _transaction = transaction;
         _userId = userId;
         _userSegment = userSegment;
+        _sampleRate = sampleRate;
     }
 
     return self;
@@ -35,7 +37,7 @@
 - (NSString *)toHTTPHeader
 {
     NSMutableDictionary *information =
-        @{ @"sentry-traceid" : _traceId.sentryIdString, @"sentry-publickey" : _publicKey }
+        @{ @"sentry-trace_id" : _traceId.sentryIdString, @"sentry-public_key" : _publicKey }
             .mutableCopy;
 
     if (_releaseName != nil)
@@ -48,10 +50,13 @@
         [information setValue:_transaction forKey:@"sentry-transaction"];
 
     if (_userId != nil)
-        [information setValue:_userId forKey:@"sentry-userid"];
+        [information setValue:_userId forKey:@"sentry-user_id"];
 
     if (_userSegment != nil)
-        [information setValue:_userSegment forKey:@"sentry-usersegment"];
+        [information setValue:_userSegment forKey:@"sentry-user_segment"];
+    
+    if (_sampleRate != nil)
+        [information setValue:_sampleRate forKey:@"sentry-sample_rate"];
 
     return [SentrySerialization baggageEncodedDictionary:information];
 }

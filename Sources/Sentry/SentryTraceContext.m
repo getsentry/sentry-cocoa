@@ -7,6 +7,7 @@
 #import "SentrySerialization.h"
 #import "SentryTracer.h"
 #import "SentryUser.h"
+#import "SentryTransactionContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -41,6 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
                     environment:(nullable NSString *)environment
                     transaction:(nullable NSString *)transaction
                            user:(nullable SentryTraceContextUser *)user
+                     sampleRate:(nullable NSNumber *)sampleRate
 {
     if (self = [super init]) {
         _traceId = traceId;
@@ -49,12 +51,13 @@ NS_ASSUME_NONNULL_BEGIN
         _releaseName = releaseName;
         _transaction = transaction;
         _user = user;
+        _sampleRate = sampleRate;
     }
     return self;
 }
 
-- (nullable instancetype)initWithScope:(SentryScope *)scope options:(SentryOptions *)options
-{
+- (nullable instancetype)initWithScope:(SentryScope *)scope
+                               options:(SentryOptions *)options {
     SentryTracer *tracer = [SentryTracer getTracer:scope.span];
     if (tracer == nil) {
         return nil;
@@ -71,15 +74,21 @@ NS_ASSUME_NONNULL_BEGIN
         return nil;
 
     SentryTraceContextUser *stateUser;
-    if (scope.userObject != nil)
+    if (scope.userObject != nil && options.sendDefaultPii)
         stateUser = [[SentryTraceContextUser alloc] initWithUser:scope.userObject];
+    
+    NSNumber *sampleRate = nil;
+    if ([tracer.context isKindOfClass:[SentryTransactionContext class]]) {
+        sampleRate = [(SentryTransactionContext *)tracer.context sampleRate];
+    }
 
     return [self initWithTraceId:tracer.context.traceId
                        publicKey:options.parsedDsn.url.user
                      releaseName:options.releaseName
                      environment:options.environment
                      transaction:tracer.name
-                            user:stateUser];
+                            user:stateUser
+                      sampleRate:sampleRate];
 }
 
 - (nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)dictionary
@@ -94,13 +103,18 @@ NS_ASSUME_NONNULL_BEGIN
         NSDictionary *userInfo = dictionary[@"user"];
         user = [[SentryTraceContextUser alloc] initWithUserId:userInfo[@"id"]
                                                       segment:userInfo[@"segment"]];
+    } else {
+        
     }
+    
     return [self initWithTraceId:traceId
                        publicKey:publicKey
                      releaseName:dictionary[@"release"]
                      environment:dictionary[@"environment"]
                      transaction:dictionary[@"transaction"]
-                            user:user];
+                            user:user
+                      sampleRate:dictionary[@"sample_rate"]
+    ];
 }
 
 - (SentryBaggage *)toBaggage
@@ -111,8 +125,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                        environment:_environment
                                                        transaction:_transaction
                                                             userId:[_user userId]
-                                                       userSegment:[_user segment]];
-
+                                                       userSegment:[_user segment]
+                                                        sampleRate:@0];
     return result;
 }
 
