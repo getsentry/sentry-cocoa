@@ -16,11 +16,8 @@
     UIDevice *currentDevice = [UIDevice currentDevice];
     [self start:currentDevice];
 #else
-    [SentryLog logWithMessage:@"NO iOS -> [SentrySystemEventsBreadcrumbs.start] does nothing."
-                     andLevel:kSentryLevelDebug];
-#endif
-
     [self initTimezoneObserver];
+#endif
 }
 
 - (void)stop
