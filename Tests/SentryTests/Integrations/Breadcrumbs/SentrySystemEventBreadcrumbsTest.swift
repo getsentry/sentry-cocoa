@@ -223,8 +223,8 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         let scope = Scope()
         sut = fixture.getSut(scope: scope, currentDevice: nil)
 
-        NotificationCenter.default.post(Notification(name: NSSystemTimeZoneDidChangeNotification))
-        assertBreadcrumbAction(scope: scope, action: "NSSystemTimeZoneDidChangeNotification")
+        NotificationCenter.default.post(Notification(name: NSNotification.Name.NSSystemTimeZoneDidChange))
+        assertBreadcrumbAction(scope: scope, action: "NSSystemTimeZoneDidChange")
     }
     
     private func assertBreadcrumbAction(scope: Scope, action: String) {
