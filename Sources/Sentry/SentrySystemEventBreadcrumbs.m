@@ -47,6 +47,7 @@
     }
     [self initKeyboardVisibilityObserver];
     [self initScreenshotObserver];
+    [self initTimezoneObserver];
 }
 #endif
 
