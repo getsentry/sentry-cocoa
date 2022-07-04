@@ -9,6 +9,12 @@
 
 We welcome suggested improvements and bug fixes for `sentry-cocoa`, in the form of pull requests. Please follow our official [Commit Guidelines](https://develop.sentry.dev/code-review/#commit-guidelines) and also prefix the title of your PR according to the [Commit Guidelines](https://develop.sentry.dev/code-review/#commit-guidelines). The guide below will help you get started, but if you have further questions, please feel free to reach out on [Discord](https://discord.gg/Ww9hbqr).
 
+For feedback in PRs, we use the [LOGAF scale](https://blog.danlew.net/2020/04/15/the-logaf-scale/) to specify how important a comment is:
+
+* `l`: low - nitpick. You may address this comment, but you don't have to.
+* `m`: medium - normal comment. Worth adressing and fixing.
+* `h`: high - Very important. We must not merge this PR without adressing this issue.
+
 ## Setting up an Environment
 
 Run `make init` to get started. This will install `bundler` and `Homebrew` and their managed dependencies (see `Gemfile` and `Brewfile`).
