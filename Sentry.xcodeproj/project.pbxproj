@@ -1732,8 +1732,10 @@
 				63AA76AA1EB9D5CD00D153DE /* Configuration */,
 				63AA75931EB8AEDB00D153DE /* SentryTests */,
 			);
+			indentWidth = 4;
 			path = Tests;
 			sourceTree = "<group>";
+			tabWidth = 4;
 		};
 		63AA75931EB8AEDB00D153DE /* SentryTests */ = {
 			isa = PBXGroup;
