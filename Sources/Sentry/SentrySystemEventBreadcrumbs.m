@@ -19,6 +19,8 @@
     [SentryLog logWithMessage:@"NO iOS -> [SentrySystemEventsBreadcrumbs.start] does nothing."
                      andLevel:kSentryLevelDebug];
 #endif
+
+    [self initTimeZoneObserver];
 }
 
 - (void)stop
@@ -160,15 +162,6 @@
                         object:nil];
 }
 
-- (void)systemEventTriggered:(NSNotification *)notification
-{
-    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                                             category:@"device.event"];
-    crumb.type = @"system";
-    crumb.data = @{ @"action" : notification.name };
-    [SentrySDK addBreadcrumb:crumb];
-}
-
 - (void)initScreenshotObserver
 {
     // it's only about the action, but not the SS itself
@@ -178,5 +171,23 @@
                                                object:nil];
 }
 #endif
+
+- (void)systemEventTriggered:(NSNotification *)notification
+{
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                             category:@"device.event"];
+    crumb.type = @"system";
+    crumb.data = @{ @"action" : notification.name };
+    [SentrySDK addBreadcrumb:crumb];
+}
+
+- (void)initTimeZoneObserver
+{
+  // Posted when the timezone of the device changed
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(systemEventTriggered:)
+                                               name:NSSystemTimeZoneDidChangeNotification
+                                             object:nil];
+}
 
 @end

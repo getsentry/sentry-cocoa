@@ -1718,8 +1718,10 @@
 				63FE6FB920DA4C1000CDBAE8 /* SentryCrash */,
 				63AA75C61EB8B06100D153DE /* Sentry */,
 			);
+			indentWidth = 4;
 			path = Sources;
 			sourceTree = "<group>";
+			tabWidth = 4;
 		};
 		63AA75921EB8AEDB00D153DE /* Tests */ = {
 			isa = PBXGroup;
