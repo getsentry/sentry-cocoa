@@ -183,11 +183,11 @@
 
 - (void)initTimeZoneObserver
 {
-  // Posted when the timezone of the device changed
-  [[NSNotificationCenter defaultCenter] addObserver:self
-                                           selector:@selector(systemEventTriggered:)
-                                               name:NSSystemTimeZoneDidChangeNotification
-                                             object:nil];
+    // Posted when the timezone of the device changed
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(systemEventTriggered:)
+                                                 name:NSSystemTimeZoneDidChangeNotification
+                                               object:nil];
 }
 
 @end
