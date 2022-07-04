@@ -54,7 +54,7 @@
 
     if (_userSegment != nil)
         [information setValue:_userSegment forKey:@"sentry-user_segment"];
-    
+
     if (_sampleRate != nil)
         [information setValue:_sampleRate forKey:@"sentry-sample_rate"];
 

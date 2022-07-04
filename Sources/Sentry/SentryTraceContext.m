@@ -6,8 +6,8 @@
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
 #import "SentryTracer.h"
-#import "SentryUser.h"
 #import "SentryTransactionContext.h"
+#import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -56,8 +56,8 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (nullable instancetype)initWithScope:(SentryScope *)scope
-                               options:(SentryOptions *)options {
+- (nullable instancetype)initWithScope:(SentryScope *)scope options:(SentryOptions *)options
+{
     SentryTracer *tracer = [SentryTracer getTracer:scope.span];
     if (tracer == nil) {
         return nil;
@@ -76,7 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
     SentryTraceContextUser *stateUser;
     if (scope.userObject != nil && options.sendDefaultPii)
         stateUser = [[SentryTraceContextUser alloc] initWithUser:scope.userObject];
-    
+
     NSNumber *sampleRate = nil;
     if ([tracer.context isKindOfClass:[SentryTransactionContext class]]) {
         sampleRate = [(SentryTransactionContext *)tracer.context sampleRate];
@@ -104,15 +104,14 @@ NS_ASSUME_NONNULL_BEGIN
         user = [[SentryTraceContextUser alloc] initWithUserId:userInfo[@"id"]
                                                       segment:userInfo[@"segment"]];
     }
-    
+
     return [self initWithTraceId:traceId
                        publicKey:publicKey
                      releaseName:dictionary[@"release"]
                      environment:dictionary[@"environment"]
                      transaction:dictionary[@"transaction"]
                             user:user
-                      sampleRate:dictionary[@"sample_rate"]
-    ];
+                      sampleRate:dictionary[@"sample_rate"]];
 }
 
 - (SentryBaggage *)toBaggage
