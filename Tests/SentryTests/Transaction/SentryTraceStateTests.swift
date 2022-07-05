@@ -22,6 +22,7 @@ class SentryTraceContextTests: XCTestCase {
             options.dsn = SentryTraceContextTests.dsnAsString
             options.releaseName = releaseName
             options.environment = environment
+            options.sendDefaultPii = true
             
             tracer = SentryTracer(transactionContext: TransactionContext(name: transactionName, operation: transactionOperation), hub: nil)
             
@@ -53,7 +54,8 @@ class SentryTraceContextTests: XCTestCase {
             releaseName: fixture.releaseName,
             environment: fixture.environment,
             transaction: fixture.transactionName,
-            user: SentryTraceContextUser(userId: fixture.userId, segment: fixture.userSegment))
+            user: SentryTraceContextUser(userId: fixture.userId, segment: fixture.userSegment),
+            sampleRate: nil)
         
         assertTraceState(traceContext: traceContext)
     }
@@ -66,7 +68,6 @@ class SentryTraceContextTests: XCTestCase {
     
     func testInitWithTracerScopeOptions() {
         let traceContext = SentryTraceContext(tracer: fixture.tracer, scope: fixture.scope, options: fixture.options)
-        
         assertTraceState(traceContext: traceContext!)
     }
     
@@ -79,12 +80,18 @@ class SentryTraceContextTests: XCTestCase {
     func testUserSegment() {
         var traceContext = SentryTraceContext(scope: fixture.scope, options: fixture.options)
         XCTAssertNotNil(traceContext?.user?.segment)
-        XCTAssertEqual(traceContext!.user!.segment, "Test Segment")
+        XCTAssertEqual(traceContext!.user?.segment, "Test Segment")
         fixture.scope.userObject?.data = ["segment": 5]
         traceContext = SentryTraceContext(scope: fixture.scope, options: fixture.options)
         XCTAssertNil(traceContext?.user?.segment)
     }
     
+    func test_NoUser_NoPII() {
+        fixture.options.sendDefaultPii = false
+        let traceContext = SentryTraceContext(scope: fixture.scope, options: fixture.options)
+        XCTAssertNil(traceContext?.user)
+    }
+        
     func assertTraceState(traceContext: SentryTraceContext) {
         XCTAssertEqual(traceContext.traceId, fixture.traceId)
         XCTAssertEqual(traceContext.publicKey, fixture.publicKey)

@@ -153,6 +153,10 @@ NS_ASSUME_NONNULL_BEGIN
         if (userDictionary.count > 0)
             [result setValue:userDictionary forKey:@"user"];
     }
+    
+    if (_sampleRate != nil) {
+        [result setValue:_sampleRate forKey:@"sample_rate"];
+    }
 
     return result;
 }
