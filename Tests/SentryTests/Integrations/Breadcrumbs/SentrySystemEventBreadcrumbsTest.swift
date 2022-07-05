@@ -7,22 +7,31 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
     #if os(iOS)
     
     private class Fixture {
+        let options: Options
+        let fileManager: SentryFileManager
+        var currentDateProvider = TestCurrentDateProvider()
+
+        init() {
+            options = Options()
+            options.dsn = TestConstants.dsnAsString(username: "SentrySessionTrackerTests")
+            options.releaseName = "SentrySessionTrackerIntegrationTests"
+            options.sessionTrackingIntervalMillis = 10_000
+            options.environment = "debug"
+
+            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider)
+        }
+
         func getSut(scope: Scope, currentDevice: UIDevice? = UIDevice.current) -> SentrySystemEventBreadcrumbs {
-            do {
-                let options = try Options(dict: ["dsn": "https://username@sentry.io/1"])
-                let client = Client(options: options)
-                let hub = SentryHub(client: client, andScope: scope)
-                SentrySDK.setCurrentHub(hub)
-            } catch {
-                XCTFail("Failed to setup test")
-            }
-            
-            let systemEvents = SentrySystemEventBreadcrumbs(fileManager: SentryDependencyContainer.sharedInstance().fileManager, andCurrentDateProvider: DefaultCurrentDateProvider.sharedInstance())!
+            let client = Client(options: self.options)
+            let hub = SentryHub(client: client, andScope: scope)
+            SentrySDK.setCurrentHub(hub)
+
+            let systemEvents = SentrySystemEventBreadcrumbs(fileManager: fileManager, andCurrentDateProvider: currentDateProvider)!
             systemEvents.start(currentDevice)
             return systemEvents
         }
     }
-    
+
     private let fixture = Fixture()
     private var sut: SentrySystemEventBreadcrumbs!
     
@@ -51,7 +60,6 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
     override func tearDown() {
         super.tearDown()
         clearTestState()
-        SentryDependencyContainer.sharedInstance().appStateManager.removeCurrentAppState()
     }
     
     func testBatteryLevelBreadcrumb() {
@@ -221,14 +229,22 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
     }
 
     func testTimezoneChangeBreadcrumb() {
+        fixture.fileManager.deleteTimezoneOffset()
+        fixture.currentDateProvider.timezoneOffsetValue = 0
+
         let scope = Scope()
         sut = fixture.getSut(scope: scope, currentDevice: nil)
 
+        fixture.currentDateProvider.timezoneOffsetValue = 7200
+
         NotificationCenter.default.post(Notification(name: NSNotification.Name.NSSystemTimeZoneDidChange))
-        assertBreadcrumbAction(scope: scope, action: "TIMEZONE_CHANGE")
+        assertBreadcrumbAction(scope: scope, action: "TIMEZONE_CHANGE") { data in
+            XCTAssertEqual(data["previous_seconds_from_gmt"] as? Int, 0)
+            XCTAssertEqual(data["current_seconds_from_gmt"] as? Int, 7200)
+        }
     }
     
-    private func assertBreadcrumbAction(scope: Scope, action: String) {
+    private func assertBreadcrumbAction(scope: Scope, action: String, checks: (([String: Any]) -> Void)? = nil) {
         let ser = scope.serialize()
         if let breadcrumbs = ser["breadcrumbs"] as? [[String: Any]] {
             if let crumb = breadcrumbs.first {
@@ -238,6 +254,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
                 
                 if let data = crumb["data"] as? [String: Any] {
                     XCTAssertEqual(action, data["action"] as? String)
+                    checks?(data)
                 } else {
                     XCTFail("no breadcrumb.data")
                 }

@@ -203,7 +203,7 @@ SentrySystemEventBreadcrumbs ()
 {
     // Detect if the stored timezone is different from the current one;
     // if so, then we also send a breadcrumb
-    NSNumber *_Nullable storedTimezoneOffset = [self storedTimezoneOffset];
+    NSNumber *_Nullable storedTimezoneOffset = [self.fileManager readTimezoneOffset];
 
     if (storedTimezoneOffset == nil) {
         [self updateStoredTimezone];
@@ -218,11 +218,6 @@ SentrySystemEventBreadcrumbs ()
                                                object:nil];
 }
 
-- (NSNumber *_Nullable)storedTimezoneOffset
-{
-    return [self.fileManager readTimezoneOffset];
-}
-
 - (void)timezoneEventTriggered
 {
     [self timezoneEventTriggered:nil];
@@ -231,14 +226,14 @@ SentrySystemEventBreadcrumbs ()
 - (void)timezoneEventTriggered:(NSNumber *)storedTimezoneOffset
 {
     if (storedTimezoneOffset == nil) {
-        storedTimezoneOffset = [self storedTimezoneOffset];
+        storedTimezoneOffset = [self.fileManager readTimezoneOffset];
     }
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
                                                              category:@"device.event"];
     crumb.type = @"system";
     crumb.data = @{
         @"action" : @"TIMEZONE_CHANGE",
-        @"previous_seconds_from_gmt" : storedTimezoneOffset ?: @(0),
+        @"previous_seconds_from_gmt" : storedTimezoneOffset,
         @"current_seconds_from_gmt" : @(self.currentDateProvider.timezoneOffset)
     };
     [SentrySDK addBreadcrumb:crumb];

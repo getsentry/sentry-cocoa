@@ -67,6 +67,7 @@ SENTRY_NO_INIT
 
 - (NSNumber *_Nullable)readTimezoneOffset;
 - (void)storeTimezoneOffset:(NSInteger)offset;
+- (void)deleteTimezoneOffset;
 
 @end
 
