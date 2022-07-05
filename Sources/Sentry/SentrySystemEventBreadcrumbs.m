@@ -5,6 +5,7 @@
 #import "SentryDependencyContainer.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
+#import "SentryCurrentDateProvider.h"
 
 // all those notifications are not available for tvOS
 #if TARGET_OS_IOS
@@ -13,22 +14,18 @@
 
 @interface
 SentrySystemEventBreadcrumbs ()
-@property (nonatomic, strong) SentryAppStateManager *appStateManager;
+@property (nonatomic, strong) SentryFileManager *fileManager;
+@property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 @end
 
 @implementation SentrySystemEventBreadcrumbs
 
-- (instancetype)initWithAppStateManager:(SentryAppStateManager *)appStateManager
+- (instancetype)initWithFileManager:(SentryFileManager *)fileManager andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
 {
     if (self = [super init]) {
-        _appStateManager = appStateManager;
+        _fileManager = fileManager;
+        _currentDateProvider = currentDateProvider;
     }
-    return self;
-}
-
-- (instancetype)init
-{
-    _appStateManager = [SentryDependencyContainer sharedInstance].appStateManager;
     return self;
 }
 
@@ -222,7 +219,7 @@ SentrySystemEventBreadcrumbs ()
 
 - (NSNumber *_Nullable)storedTimezoneOffset
 {
-    return [self.appStateManager loadCurrentAppState].timezoneOffset;
+    return [self.fileManager readTimezoneOffset];
 }
 
 - (void)timezoneEventTriggered
@@ -250,11 +247,7 @@ SentrySystemEventBreadcrumbs ()
 
 - (void)updateStoredTimezone
 {
-    SentryAppStateManager *appStateManager =
-        [SentryDependencyContainer sharedInstance].appStateManager;
-    [appStateManager updateAppState:^(SentryAppState *appState) {
-        appState.timezoneOffset = @([NSTimeZone localTimeZone].secondsFromGMT);
-    }];
+    [self.fileManager storeTimezoneOffset:self.currentDateProvider.timezoneOffset];
 }
 
 #endif

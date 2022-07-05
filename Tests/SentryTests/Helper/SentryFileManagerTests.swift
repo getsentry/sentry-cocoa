@@ -444,7 +444,7 @@ class SentryFileManagerTests: XCTestCase {
         
         setImmutableForAppState(immutable: true)
         
-        sut.store(SentryAppState(releaseName: "", osVersion: "", vendorId: "", isDebugging: false, systemBootTimestamp: fixture.currentDateProvider.date(), timezoneOffset: 0))
+        sut.store(SentryAppState(releaseName: "", osVersion: "", vendorId: "", isDebugging: false, systemBootTimestamp: fixture.currentDateProvider.date()))
         
         assertValidAppStateStored()
     }
@@ -452,7 +452,7 @@ class SentryFileManagerTests: XCTestCase {
     func testStoreFaultyAppState_AppStateIsNotOverwritten() {
         sut.store(TestData.appState)
         
-        sut.store(AppStateWithFaultySerialization(releaseName: "", osVersion: "", vendorId: "", isDebugging: false, systemBootTimestamp: fixture.currentDateProvider.date(), timezoneOffset: 0))
+        sut.store(AppStateWithFaultySerialization(releaseName: "", osVersion: "", vendorId: "", isDebugging: false, systemBootTimestamp: fixture.currentDateProvider.date()))
         
         assertValidAppStateStored()
     }

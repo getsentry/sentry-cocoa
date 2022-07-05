@@ -1,4 +1,5 @@
 #import "SentryAppStateManager.h"
+#import "SentryCurrentDateProvider.h"
 #import <Foundation/Foundation.h>
 
 #if TARGET_OS_IOS
@@ -6,6 +7,9 @@
 #endif
 
 @interface SentrySystemEventBreadcrumbs : NSObject
+SENTRY_NO_INIT
+
+- (instancetype)initWithFileManager:(SentryFileManager *)fileManager andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider;
 
 - (void)start;
 

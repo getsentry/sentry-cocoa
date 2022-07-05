@@ -1,5 +1,6 @@
 #import "SentryDefines.h"
 #import "SentryRandom.h"
+#import "SentryFileManager.h"
 #import <Foundation/Foundation.h>
 
 @class SentryAppStateManager, SentryCrashWrapper, SentryThreadWrapper, SentrySwizzleWrapper,
@@ -21,6 +22,7 @@ SENTRY_NO_INIT
  */
 + (void)reset;
 
+@property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;

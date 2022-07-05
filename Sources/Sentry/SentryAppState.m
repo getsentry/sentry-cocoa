@@ -11,7 +11,6 @@ NS_ASSUME_NONNULL_BEGIN
                            vendorId:(NSString *)vendorId
                         isDebugging:(BOOL)isDebugging
                 systemBootTimestamp:(NSDate *)systemBootTimestamp
-                     timezoneOffset:(NSInteger)timezoneOffset
 {
     if (self = [super init]) {
         _releaseName = releaseName;
@@ -27,7 +26,6 @@ NS_ASSUME_NONNULL_BEGIN
         _isActive = NO;
         _wasTerminated = NO;
         _isANROngoing = NO;
-        _timezoneOffset = @(timezoneOffset);
     }
     return self;
 }
@@ -92,11 +90,6 @@ NS_ASSUME_NONNULL_BEGIN
         } else {
             _isANROngoing = [isANROngoing boolValue];
         }
-
-        id timezoneOffset = [jsonObject valueForKey:@"timezone_offset"];
-        if (timezoneOffset != nil && [timezoneOffset isKindOfClass:[NSNumber class]]) {
-            _timezoneOffset = timezoneOffset;
-        }
     }
     return self;
 }
@@ -114,10 +107,6 @@ NS_ASSUME_NONNULL_BEGIN
     [data setValue:@(self.isActive) forKey:@"is_active"];
     [data setValue:@(self.wasTerminated) forKey:@"was_terminated"];
     [data setValue:@(self.isANROngoing) forKey:@"is_anr_ongoing"];
-
-    if (self.timezoneOffset != nil) {
-        [data setValue:self.timezoneOffset forKey:@"timezone_offset"];
-    }
 
     return data;
 }

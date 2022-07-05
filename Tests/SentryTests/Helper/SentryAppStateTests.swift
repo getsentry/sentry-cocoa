@@ -14,7 +14,6 @@ class SentryAppStateTests: XCTestCase {
         XCTAssertEqual(appState.isActive, actual["is_active"] as? Bool)
         XCTAssertEqual(appState.wasTerminated, actual["was_terminated"] as? Bool)
         XCTAssertEqual(appState.isANROngoing, actual["is_anr_ongoing"] as? Bool)
-        XCTAssertEqual(appState.timezoneOffset, actual["timezone_offset"] as? NSNumber)
     }
     
     func testInitWithJSON_AllFields() {
@@ -27,8 +26,7 @@ class SentryAppStateTests: XCTestCase {
             "system_boot_timestamp": (appState.systemBootTimestamp as NSDate).sentry_toIso8601String(),
             "is_active": appState.isActive,
             "was_terminated": appState.wasTerminated,
-            "is_anr_ongoing": appState.isANROngoing,
-            "timezone_offset": appState.timezoneOffset!
+            "is_anr_ongoing": appState.isANROngoing
         ] as [String: Any]
         
         let actual = SentryAppState(jsonObject: dict)
@@ -47,11 +45,6 @@ class SentryAppStateTests: XCTestCase {
         withValue { $0["is_anr_ongoing"] = nil }
     }
 
-    func testInitWithJSON_IfJsonMissesTimezoneOffset_AppStateIsNotNil() {
-        withoutValue { $0["timezone_offset"] = nil }
-        withoutValue { $0["timezone_offset"] = "" }
-    }
-    
     func testInitWithJSON_IfJsonContainsWrongField_AppStateIsNil() {
         withValue { $0["release_name"] = 0 }
         withValue { $0["os_version"] = nil }
@@ -68,7 +61,7 @@ class SentryAppStateTests: XCTestCase {
         let date = Date(timeIntervalSince1970: 0.1)
         let expectedDate = Date(timeIntervalSince1970: 0)
         
-        let sut = SentryAppState(releaseName: "", osVersion: "", vendorId: "", isDebugging: false, systemBootTimestamp: date, timezoneOffset: 0)
+        let sut = SentryAppState(releaseName: "", osVersion: "", vendorId: "", isDebugging: false, systemBootTimestamp: date)
         
         XCTAssertEqual(expectedDate, sut.systemBootTimestamp)
     }
@@ -79,12 +72,4 @@ class SentryAppStateTests: XCTestCase {
         setValue(&serialized)
         XCTAssertNil(SentryAppState(jsonObject: serialized))
     }
-
-    func withoutValue(setValue: (inout [String: Any]) -> Void) {
-        let expected = TestData.appState
-        var serialized = expected.serialize()
-        setValue(&serialized)
-        XCTAssertNotNil(SentryAppState(jsonObject: serialized))
-    }
-
 }
