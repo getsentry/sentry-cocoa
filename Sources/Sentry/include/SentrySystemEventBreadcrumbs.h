@@ -9,7 +9,8 @@
 @interface SentrySystemEventBreadcrumbs : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithFileManager:(SentryFileManager *)fileManager andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider;
+- (instancetype)initWithFileManager:(SentryFileManager *)fileManager
+             andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider;
 
 - (void)start;
 

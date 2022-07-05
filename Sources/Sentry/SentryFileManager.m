@@ -64,7 +64,8 @@ SentryFileManager ()
             [self.sentryPath stringByAppendingPathComponent:@"lastInForeground.timestamp"];
 
         self.appStateFilePath = [self.sentryPath stringByAppendingPathComponent:@"app.state"];
-        self.timezoneOffsetFilePath = [self.sentryPath stringByAppendingPathComponent:@"timezone.offset"];
+        self.timezoneOffsetFilePath =
+            [self.sentryPath stringByAppendingPathComponent:@"timezone.offset"];
 
         // Remove old cached events for versions before 6.0.0
         self.eventsPath = [self.sentryPath stringByAppendingPathComponent:@"events"];
@@ -440,8 +441,7 @@ SentryFileManager ()
 
 - (NSNumber *_Nullable)readTimezoneOffset
 {
-    [SentryLog logWithMessage:@"Reading timezone offset"
-                     andLevel:kSentryLevelDebug];
+    [SentryLog logWithMessage:@"Reading timezone offset" andLevel:kSentryLevelDebug];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSData *timezoneOffsetData = nil;
     @synchronized(self.timezoneOffsetFilePath) {
@@ -452,7 +452,7 @@ SentryFileManager ()
         return nil;
     }
     NSString *timezoneOffsetString = [[NSString alloc] initWithData:timezoneOffsetData
-                                                      encoding:NSUTF8StringEncoding];
+                                                           encoding:NSUTF8StringEncoding];
 
     NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
     formatter.numberStyle = NSNumberFormatterDecimalStyle;
@@ -464,13 +464,13 @@ SentryFileManager ()
 {
     NSString *timezoneOffsetString = [NSString stringWithFormat:@"%ld", offset];
     NSString *logMessage =
-    [NSString stringWithFormat:@"Persisting timezone offset: %@", timezoneOffsetString];
+        [NSString stringWithFormat:@"Persisting timezone offset: %@", timezoneOffsetString];
     [SentryLog logWithMessage:logMessage andLevel:kSentryLevelDebug];
     @synchronized(self.timezoneOffsetFilePath) {
         [[timezoneOffsetString dataUsingEncoding:NSUTF8StringEncoding]
-         writeToFile:self.timezoneOffsetFilePath
-         options:NSDataWritingAtomic
-         error:nil];
+            writeToFile:self.timezoneOffsetFilePath
+                options:NSDataWritingAtomic
+                  error:nil];
     }
 }
 

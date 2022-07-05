@@ -1,6 +1,6 @@
 #import "SentryDefines.h"
-#import "SentryRandom.h"
 #import "SentryFileManager.h"
+#import "SentryRandom.h"
 #import <Foundation/Foundation.h>
 
 @class SentryAppStateManager, SentryCrashWrapper, SentryThreadWrapper, SentrySwizzleWrapper,

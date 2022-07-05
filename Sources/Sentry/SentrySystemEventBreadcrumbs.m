@@ -2,10 +2,10 @@
 #import "SentryAppState.h"
 #import "SentryAppStateManager.h"
 #import "SentryBreadcrumb.h"
+#import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
-#import "SentryCurrentDateProvider.h"
 
 // all those notifications are not available for tvOS
 #if TARGET_OS_IOS
@@ -20,7 +20,8 @@ SentrySystemEventBreadcrumbs ()
 
 @implementation SentrySystemEventBreadcrumbs
 
-- (instancetype)initWithFileManager:(SentryFileManager *)fileManager andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+- (instancetype)initWithFileManager:(SentryFileManager *)fileManager
+             andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
 {
     if (self = [super init]) {
         _fileManager = fileManager;
