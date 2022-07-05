@@ -254,6 +254,18 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(context?.sampleRate, 0.49)
     }
     
+    func testStartTransaction_checkContextSampleRate_fromSampler() {
+        let options = fixture.options
+        options.tracesSampler = {  _ -> NSNumber in
+            return NSNumber(value: 0.51)
+        }
+        
+        let span = fixture.getSut().startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation), customSamplingContext: ["customKey": "customValue"])
+        let context = span.context as? TransactionContext
+        
+        XCTAssertEqual(context?.sampleRate, 0.51)
+    }
+    
     func testStartTransactionNotSamplingUsingSampleRate() {
         testSampler(expected: .no) { options in
             options.tracesSampler = { _ in return 0.49 }

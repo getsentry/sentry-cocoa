@@ -53,8 +53,7 @@ class SentryTraceContextTests: XCTestCase {
             publicKey: fixture.publicKey,
             releaseName: fixture.releaseName,
             environment: fixture.environment,
-            transaction: fixture.transactionName,
-            user: SentryTraceContextUser(userId: fixture.userId, segment: fixture.userSegment),
+            userSegment: fixture.userSegment,
             sampleRate: nil)
         
         assertTraceState(traceContext: traceContext)
@@ -79,17 +78,11 @@ class SentryTraceContextTests: XCTestCase {
     
     func testUserSegment() {
         var traceContext = SentryTraceContext(scope: fixture.scope, options: fixture.options)
-        XCTAssertNotNil(traceContext?.user?.segment)
-        XCTAssertEqual(traceContext!.user?.segment, "Test Segment")
+        XCTAssertNotNil(traceContext?.userSegment)
+        XCTAssertEqual(traceContext?.userSegment, "Test Segment")
         fixture.scope.userObject?.data = ["segment": 5]
         traceContext = SentryTraceContext(scope: fixture.scope, options: fixture.options)
-        XCTAssertNil(traceContext?.user?.segment)
-    }
-    
-    func test_NoUser_NoPII() {
-        fixture.options.sendDefaultPii = false
-        let traceContext = SentryTraceContext(scope: fixture.scope, options: fixture.options)
-        XCTAssertNil(traceContext?.user)
+        XCTAssertNil(traceContext?.userSegment)
     }
         
     func assertTraceState(traceContext: SentryTraceContext) {
@@ -97,10 +90,7 @@ class SentryTraceContextTests: XCTestCase {
         XCTAssertEqual(traceContext.publicKey, fixture.publicKey)
         XCTAssertEqual(traceContext.releaseName, fixture.releaseName)
         XCTAssertEqual(traceContext.environment, fixture.environment)
-        XCTAssertEqual(traceContext.transaction, fixture.transactionName)
-        XCTAssertNotNil(traceContext.user)
-        XCTAssertEqual(traceContext.user?.userId, fixture.userId)
-        XCTAssertEqual(traceContext.user?.segment, fixture.userSegment)
+        XCTAssertEqual(traceContext.userSegment, fixture.userSegment)
     }
     
 }
