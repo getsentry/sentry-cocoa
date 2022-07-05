@@ -1,4 +1,5 @@
 import XCTest
+import Sentry
 
 class SentryHubTests: XCTestCase {
     
@@ -241,6 +242,16 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(tracer.name, fixture.transactionName)
         XCTAssertEqual(customSamplingContext?["customKey"] as? String, "customValue")
         XCTAssertEqual(span.context.operation, fixture.transactionOperation)
+    }
+    
+    func testStartTransaction_checkContextSampleRate_fromOptions() {
+        let options = fixture.options
+        options.tracesSampleRate = 0.49
+        
+        let span = fixture.getSut().startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation), customSamplingContext: ["customKey": "customValue"])
+        let context = span.context as? TransactionContext
+        
+        XCTAssertEqual(context?.sampleRate, 0.49)
     }
     
     func testStartTransactionNotSamplingUsingSampleRate() {
