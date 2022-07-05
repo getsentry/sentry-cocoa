@@ -239,7 +239,7 @@ SentrySystemEventBreadcrumbs ()
     crumb.data = @{
         @"action" : @"TIMEZONE_CHANGE",
         @"previous_seconds_from_gmt" : storedTimezoneOffset ?: @(0),
-        @"current_seconds_from_gmt" : @([NSTimeZone localTimeZone].secondsFromGMT)
+        @"current_seconds_from_gmt" : @(self.currentDateProvider.timezoneOffset)
     };
     [SentrySDK addBreadcrumb:crumb];
 
