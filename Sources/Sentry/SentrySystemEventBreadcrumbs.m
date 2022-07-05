@@ -19,7 +19,8 @@
     UIDevice *currentDevice = [UIDevice currentDevice];
     [self start:currentDevice];
 #else
-    [self initTimezoneObserver];
+    [SentryLog logWithMessage:@"NO iOS -> [SentrySystemEventsBreadcrumbs.start] does nothing."
+                     andLevel:kSentryLevelDebug];
 #endif
 }
 
@@ -180,12 +181,11 @@
                                                  name:UIApplicationUserDidTakeScreenshotNotification
                                                object:nil];
 }
-#endif
 
 - (NSNumber *_Nullable)storedTimezoneOffset
 {
     SentryAppStateManager *appStateManager =
-        [SentryDependencyContainer sharedInstance].appStateManager;
+    [SentryDependencyContainer sharedInstance].appStateManager;
     SentryAppState *currentState = [appStateManager loadCurrentAppState];
     return currentState.timezoneOffset;
 }
@@ -216,7 +216,7 @@
     crumb.type = @"system";
     crumb.data = @{
         @"action" : @"TIMEZONE_CHANGE",
-        @"previous" : [self storedTimezoneOffset],
+        @"previous" : [self storedTimezoneOffset] ?: @(0),
         @"new" : @([NSTimeZone localTimeZone].secondsFromGMT)
     };
     [SentrySDK addBreadcrumb:crumb];
@@ -227,10 +227,12 @@
 - (void)updateStoredTimezone
 {
     SentryAppStateManager *appStateManager =
-        [SentryDependencyContainer sharedInstance].appStateManager;
+    [SentryDependencyContainer sharedInstance].appStateManager;
     [appStateManager updateAppState:^(SentryAppState *appState) {
         appState.timezoneOffset = @([NSTimeZone localTimeZone].secondsFromGMT);
     }];
 }
+
+#endif
 
 @end
