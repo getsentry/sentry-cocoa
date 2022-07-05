@@ -17,7 +17,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
                 XCTFail("Failed to setup test")
             }
             
-            let systemEvents = SentrySystemEventBreadcrumbs()
+            let systemEvents = SentrySystemEventBreadcrumbs(fileManager: SentryDependencyContainer.sharedInstance().fileManager, andCurrentDateProvider: DefaultCurrentDateProvider.sharedInstance())!
             systemEvents.start(currentDevice)
             return systemEvents
         }
