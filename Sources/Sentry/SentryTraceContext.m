@@ -11,7 +11,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-
 @implementation SentryTraceContext
 
 - (instancetype)initWithTraceId:(SentryId *)traceId
@@ -50,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
         return nil;
 
     NSString *userSegment = scope.userObject.data[@"segment"];
-    
+
     NSNumber *sampleRate = nil;
     if ([tracer.context isKindOfClass:[SentryTransactionContext class]]) {
         sampleRate = [(SentryTransactionContext *)tracer.context sampleRate];
@@ -71,9 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (traceId == nil || publicKey == nil)
         return nil;
 
-    
-    
-    NSString * userSegment;
+    NSString *userSegment;
     if (dictionary[@"user"] != nil) {
         NSDictionary *userInfo = dictionary[@"user"];
         userSegment = userInfo[@"segment"];
@@ -86,8 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
                      releaseName:dictionary[@"release"]
                      environment:dictionary[@"environment"]
                      userSegment:userSegment
-                      sampleRate:dictionary[@"sample_rate"]
-    ];
+                      sampleRate:dictionary[@"sample_rate"]];
 }
 
 - (SentryBaggage *)toBaggage
@@ -114,10 +110,10 @@ NS_ASSUME_NONNULL_BEGIN
 
     if (_userSegment != nil)
         [result setValue:_userSegment forKey:@"user_segment"];
-    
+
     if (_sampleRate != nil)
         [result setValue:_sampleRate forKey:@"sample_rate"];
-    
+
     return result;
 }
 
