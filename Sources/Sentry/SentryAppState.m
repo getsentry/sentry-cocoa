@@ -94,9 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
 
         id timezoneOffset = [jsonObject valueForKey:@"timezone_offset"];
-        if (timezoneOffset == nil || ![timezoneOffset isKindOfClass:[NSNumber class]]) {
-            return nil;
-        } else {
+        if (timezoneOffset != nil && [timezoneOffset isKindOfClass:[NSNumber class]]) {
             _timezoneOffset = timezoneOffset;
         }
     }
