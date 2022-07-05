@@ -185,7 +185,7 @@
 - (NSNumber *_Nullable)storedTimezoneOffset
 {
     SentryAppStateManager *appStateManager =
-    [SentryDependencyContainer sharedInstance].appStateManager;
+        [SentryDependencyContainer sharedInstance].appStateManager;
     SentryAppState *currentState = [appStateManager loadCurrentAppState];
     return currentState.timezoneOffset;
 }
@@ -227,7 +227,7 @@
 - (void)updateStoredTimezone
 {
     SentryAppStateManager *appStateManager =
-    [SentryDependencyContainer sharedInstance].appStateManager;
+        [SentryDependencyContainer sharedInstance].appStateManager;
     [appStateManager updateAppState:^(SentryAppState *appState) {
         appState.timezoneOffset = @([NSTimeZone localTimeZone].secondsFromGMT);
     }];
