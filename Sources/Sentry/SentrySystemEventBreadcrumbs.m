@@ -2,6 +2,9 @@
 #import "SentryBreadcrumb.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
+#import "SentryDependencyContainer.h"
+#import "SentryAppStateManager.h"
+#import "SentryAppState.h"
 
 // all those notifications are not available for tvOS
 #if TARGET_OS_IOS
@@ -160,6 +163,15 @@
                         object:nil];
 }
 
+- (void)systemEventTriggered:(NSNotification *)notification
+{
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                             category:@"device.event"];
+    crumb.type = @"system";
+    crumb.data = @{ @"action" : notification.name };
+    [SentrySDK addBreadcrumb:crumb];
+}
+
 - (void)initScreenshotObserver
 {
     // it's only about the action, but not the SS itself
@@ -170,22 +182,52 @@
 }
 #endif
 
-- (void)systemEventTriggered:(NSNotification *)notification
+- (NSNumber *_Nullable)storedTimezoneOffset
 {
-    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                                             category:@"device.event"];
-    crumb.type = @"system";
-    crumb.data = @{ @"action" : notification.name };
-    [SentrySDK addBreadcrumb:crumb];
+    SentryAppStateManager *appStateManager = [SentryDependencyContainer sharedInstance].appStateManager;
+    SentryAppState *currentState = [appStateManager loadCurrentAppState];
+    return currentState.timezoneOffset;
 }
 
 - (void)initTimezoneObserver
 {
+    // Detect if the stored timezone is different from the current one;
+    // if so, then we also send a breadcrumb
+    NSNumber *_Nullable storedTimezoneOffset = [self storedTimezoneOffset];
+
+    if (storedTimezoneOffset == nil) {
+        [self updateStoredTimezone];
+    } else if (storedTimezoneOffset.doubleValue != [NSTimeZone localTimeZone].secondsFromGMT) {
+        [self timezoneEventTriggered];
+    }
+
     // Posted when the timezone of the device changed
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(systemEventTriggered:)
+                                             selector:@selector(timezoneEventTriggered)
                                                  name:NSSystemTimeZoneDidChangeNotification
                                                object:nil];
+}
+
+- (void)timezoneEventTriggered
+{
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                             category:@"device.event"];
+    crumb.type = @"system";
+    crumb.data = @{
+        @"action" : @"TIMEZONE_CHANGE",
+        @"previous" : [self storedTimezoneOffset],
+        @"new" : @([NSTimeZone localTimeZone].secondsFromGMT)
+    };
+    [SentrySDK addBreadcrumb:crumb];
+
+    [self updateStoredTimezone];
+}
+
+- (void)updateStoredTimezone {
+    SentryAppStateManager *appStateManager = [SentryDependencyContainer sharedInstance].appStateManager;
+    [appStateManager updateAppState:^(SentryAppState *appState) {
+        appState.timezoneOffset = @([NSTimeZone localTimeZone].secondsFromGMT);
+    }];
 }
 
 @end

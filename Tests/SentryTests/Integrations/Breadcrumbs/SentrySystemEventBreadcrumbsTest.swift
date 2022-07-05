@@ -47,10 +47,11 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
             return _orientation
         }
     }
-    
+
     override func tearDown() {
         super.tearDown()
         clearTestState()
+        SentryDependencyContainer.sharedInstance().appStateManager.removeCurrentAppState()
     }
     
     func testBatteryLevelBreadcrumb() {
@@ -224,7 +225,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         sut = fixture.getSut(scope: scope, currentDevice: nil)
 
         NotificationCenter.default.post(Notification(name: NSNotification.Name.NSSystemTimeZoneDidChange))
-        assertBreadcrumbAction(scope: scope, action: NSNotification.Name.NSSystemTimeZoneDidChange.rawValue)
+        assertBreadcrumbAction(scope: scope, action: "TIMEZONE_CHANGE")
     }
     
     private func assertBreadcrumbAction(scope: Scope, action: String) {

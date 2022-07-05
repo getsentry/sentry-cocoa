@@ -54,7 +54,8 @@ SentryAppStateManager ()
                                              osVersion:UIDevice.currentDevice.systemVersion
                                               vendorId:vendorId
                                            isDebugging:isDebugging
-                                   systemBootTimestamp:self.sysctl.systemBootTimestamp];
+                                   systemBootTimestamp:self.sysctl.systemBootTimestamp
+                                        timezoneOffset:[NSTimeZone localTimeZone].secondsFromGMT];
 }
 
 - (SentryAppState *)loadCurrentAppState

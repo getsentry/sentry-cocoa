@@ -61,7 +61,7 @@ class SentryAppStateTests: XCTestCase {
         let date = Date(timeIntervalSince1970: 0.1)
         let expectedDate = Date(timeIntervalSince1970: 0)
         
-        let sut = SentryAppState(releaseName: "", osVersion: "", vendorId: "", isDebugging: false, systemBootTimestamp: date)
+        let sut = SentryAppState(releaseName: "", osVersion: "", vendorId: "", isDebugging: false, systemBootTimestamp: date, timezoneOffset: 0)
         
         XCTAssertEqual(expectedDate, sut.systemBootTimestamp)
     }
