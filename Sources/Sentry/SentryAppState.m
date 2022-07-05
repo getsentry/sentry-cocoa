@@ -114,7 +114,10 @@ NS_ASSUME_NONNULL_BEGIN
     [data setValue:@(self.isActive) forKey:@"is_active"];
     [data setValue:@(self.wasTerminated) forKey:@"was_terminated"];
     [data setValue:@(self.isANROngoing) forKey:@"is_anr_ongoing"];
-    [data setValue:self.timezoneOffset forKey:@"timezone_offset"];
+
+    if (self.timezoneOffset != nil) {
+        [data setValue:self.timezoneOffset forKey:@"timezone_offset"];
+    }
 
     return data;
 }
