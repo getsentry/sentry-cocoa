@@ -11,7 +11,8 @@
 #    import <UIKit/UIKit.h>
 #endif
 
-@interface SentrySystemEventBreadcrumbs()
+@interface
+SentrySystemEventBreadcrumbs ()
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @end
 
@@ -25,7 +26,8 @@
     return self;
 }
 
-- (instancetype)init {
+- (instancetype)init
+{
     _appStateManager = [SentryDependencyContainer sharedInstance].appStateManager;
     return self;
 }
@@ -223,7 +225,8 @@
     return [self.appStateManager loadCurrentAppState].timezoneOffset;
 }
 
-- (void)timezoneEventTriggered {
+- (void)timezoneEventTriggered
+{
     [self timezoneEventTriggered:nil];
 }
 
