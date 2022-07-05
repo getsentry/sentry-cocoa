@@ -48,7 +48,12 @@ static NSObject *sentryDependencyContainerLock;
 
 - (SentryFileManager *)fileManager
 {
-    return [[[SentrySDK currentHub] getClient] fileManager];
+    @synchronized(sentryDependencyContainerLock) {
+        if (_fileManager == nil) {
+            _fileManager = [[[SentrySDK currentHub] getClient] fileManager];
+        }
+        return _fileManager;
+    }
 }
 
 - (SentryAppStateManager *)appStateManager
