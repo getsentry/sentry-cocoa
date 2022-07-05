@@ -39,7 +39,6 @@ SENTRY_NO_INIT
 - (SentryANRTracker *)getANRTracker:(NSTimeInterval)timeout;
 - (SentryFileManager *)fileManager;
 
-
 @end
 
 NS_ASSUME_NONNULL_END
