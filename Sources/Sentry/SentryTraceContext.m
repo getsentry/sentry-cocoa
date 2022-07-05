@@ -6,8 +6,8 @@
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
 #import "SentryTracer.h"
-#import "SentryUser.h"
 #import "SentryTransactionContext.h"
+#import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -32,8 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (nullable instancetype)initWithScope:(SentryScope *)scope
-                               options:(SentryOptions *)options {
+- (nullable instancetype)initWithScope:(SentryScope *)scope options:(SentryOptions *)options
+{
     SentryTracer *tracer = [SentryTracer getTracer:scope.span];
     if (tracer == nil) {
         return nil;
@@ -80,7 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
     } else {
         userSegment = dictionary[@"user_segment"];
     }
-    
+
     return [self initWithTraceId:traceId
                        publicKey:publicKey
                      releaseName:dictionary[@"release"]

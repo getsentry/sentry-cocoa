@@ -49,7 +49,6 @@ static NSString *const SENTRY_BAGGAGE_HEADER = @"baggage";
  */
 @property (nullable, nonatomic, readonly) NSNumber *sampleRate;
 
-
 - (instancetype)initWithTraceId:(SentryId *)traceId
                       publicKey:(NSString *)publicKey
                     releaseName:(nullable NSString *)releaseName
