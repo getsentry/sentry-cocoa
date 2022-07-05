@@ -22,7 +22,6 @@ SENTRY_NO_INIT
  */
 + (void)reset;
 
-@property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
@@ -38,6 +37,8 @@ SENTRY_NO_INIT
 #endif
 
 - (SentryANRTracker *)getANRTracker:(NSTimeInterval)timeout;
+- (SentryFileManager *)fileManager;
+
 
 @end
 
