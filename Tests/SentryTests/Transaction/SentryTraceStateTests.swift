@@ -76,7 +76,7 @@ class SentryTraceContextTests: XCTestCase {
         XCTAssertNil(traceContext)
     }
     
-    func testUserSegment() {
+    func testUserSegment_wrongData() {
         var traceContext = SentryTraceContext(scope: fixture.scope, options: fixture.options)
         XCTAssertNotNil(traceContext?.userSegment)
         XCTAssertEqual(traceContext?.userSegment, "Test Segment")
