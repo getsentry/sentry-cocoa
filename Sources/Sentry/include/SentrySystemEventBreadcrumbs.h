@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import "SentryAppStateManager.h"
 
 #if TARGET_OS_IOS
 #    import <UIKit/UIKit.h>

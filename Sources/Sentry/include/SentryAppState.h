@@ -11,7 +11,7 @@ SENTRY_NO_INIT
                            vendorId:(NSString *)vendorId
                         isDebugging:(BOOL)isDebugging
                 systemBootTimestamp:(NSDate *)systemBootTimestamp
-                     timezoneOffset:(NSTimeInterval)timezoneOffset;
+                     timezoneOffset:(NSInteger)timezoneOffset;
 
 /**
  * Initializes SentryAppState from a JSON object.
@@ -43,7 +43,7 @@ SENTRY_NO_INIT
 
 @property (nonatomic, assign) BOOL isANROngoing;
 
-@property (nonatomic, copy) NSNumber *_Nullable timezoneOffset;
+@property (nonatomic, copy, nullable) NSNumber *timezoneOffset;
 
 @end
 

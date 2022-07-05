@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
                            vendorId:(NSString *)vendorId
                         isDebugging:(BOOL)isDebugging
                 systemBootTimestamp:(NSDate *)systemBootTimestamp
-                     timezoneOffset:(NSTimeInterval)timezoneOffset
+                     timezoneOffset:(NSInteger)timezoneOffset
 {
     if (self = [super init]) {
         _releaseName = releaseName;
