@@ -1,10 +1,10 @@
 #import "SentrySystemEventBreadcrumbs.h"
+#import "SentryAppState.h"
+#import "SentryAppStateManager.h"
 #import "SentryBreadcrumb.h"
+#import "SentryDependencyContainer.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
-#import "SentryDependencyContainer.h"
-#import "SentryAppStateManager.h"
-#import "SentryAppState.h"
 
 // all those notifications are not available for tvOS
 #if TARGET_OS_IOS
@@ -184,7 +184,8 @@
 
 - (NSNumber *_Nullable)storedTimezoneOffset
 {
-    SentryAppStateManager *appStateManager = [SentryDependencyContainer sharedInstance].appStateManager;
+    SentryAppStateManager *appStateManager =
+        [SentryDependencyContainer sharedInstance].appStateManager;
     SentryAppState *currentState = [appStateManager loadCurrentAppState];
     return currentState.timezoneOffset;
 }
@@ -223,8 +224,10 @@
     [self updateStoredTimezone];
 }
 
-- (void)updateStoredTimezone {
-    SentryAppStateManager *appStateManager = [SentryDependencyContainer sharedInstance].appStateManager;
+- (void)updateStoredTimezone
+{
+    SentryAppStateManager *appStateManager =
+        [SentryDependencyContainer sharedInstance].appStateManager;
     [appStateManager updateAppState:^(SentryAppState *appState) {
         appState.timezoneOffset = @([NSTimeZone localTimeZone].secondsFromGMT);
     }];
