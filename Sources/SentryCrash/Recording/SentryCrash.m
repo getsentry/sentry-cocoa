@@ -485,7 +485,7 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
         return nil;
     }
 
-    NSArray *screenShots = [self getScreenShots:reportID];
+    NSArray *screenShots = [self getScreenshotPaths:reportID];
     if (screenShots.count > 0) {
         crashReport[SENTRYCRASH_REPORT_SCREENSHOT_ITEM] = screenShots;
     }
