@@ -2,43 +2,8 @@ import XCTest
 import ObjectiveC
 
 class SDKPerformanceBenchmarkTests: XCTestCase {
-    var allResults = [Double]()
-
-    override func tearDown() {
-        defer { super.tearDown() }
-
-//        guard allResults.count == 20 else {
-//            return
-//        }
-
-        let url = URL(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!).appendingPathComponent("benchmarks.json")
-        try! JSONSerialization.data(withJSONObject: allResults).write(to: url)
-    }
-
-    func testCPUBenchmarkA() throws {
-        allResults.append(contentsOf: try _testCPUBenchmark())
-    }
-
-//    func testCPUBenchmarkB() throws {
-//        allResults.append(contentsOf: try _testCPUBenchmark())
-//    }
-//
-//    func testCPUBenchmarkC() throws {
-//        allResults.append(contentsOf: try _testCPUBenchmark())
-//    }
-//
-//    func testCPUBenchmarkD() throws {
-//        allResults.append(contentsOf: try _testCPUBenchmark())
-//    }
 
     func _testCPUBenchmark() throws -> [Double] {
-        var isSimulator: Bool
-        #if targetEnvironment(simulator)
-        isSimulator = true
-        #else
-        isSimulator = false
-        #endif
-        try XCTSkipIf(isSimulator, "Only run benchmarks on real devices, not in simulators.")
 
         var results = [Double]()
         for _ in 0..<1/*5*/ {
@@ -75,16 +40,9 @@ class SDKPerformanceBenchmarkTests: XCTestCase {
 
             // SentryBenchmarking.retrieveBenchmarks returns -1 if there aren't at least 2 samples to use for calculating deltas
             XCTAssert(usagePercentage > 0, "Failure to record enough CPU samples to calculate benchmark.")
-            print("Percent usage: \(usagePercentage)%")
             results.append(usagePercentage)
         }
 
         return results
-
-        let index = Int(ceil(0.9 * Double(results.count)))
-        let p90 = results.sorted()[index >= results.count ? results.count - 1 : index]
-
-        print("p90 overhead: \(p90)%")
-        XCTAssertLessThanOrEqual(p90, 5, "Running profiling resulted in more than 5% overhead.")
     }
 }

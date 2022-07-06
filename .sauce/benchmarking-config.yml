@@ -24,9 +24,3 @@ suites:
     devices:
       - name: "iPhone 6S"
         platformVersion: "13.5"
-
-artifacts:
-  download:
-    when: always
-    match:
-      - "benchmarks.json"
