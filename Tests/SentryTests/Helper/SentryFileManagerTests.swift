@@ -501,6 +501,11 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNotNil(sut.readTimezoneOffset())
     }
 
+    func testReadGarbageTimezoneOffset() throws {
+        try "garbage".write(to: URL(fileURLWithPath: sut.timezoneOffsetFilePath), atomically: true, encoding: .utf8)
+        XCTAssertNil(sut.readTimezoneOffset())
+    }
+
     private func givenMaximumEnvelopes() {
         fixture.eventIds.forEach { id in
             let envelope = SentryEnvelope(id: id, singleItem: SentryEnvelopeItem(event: Event()))
