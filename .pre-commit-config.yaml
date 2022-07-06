@@ -1,0 +1,10 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+      - id: check-merge-conflict
+      # -   id: code-format
+      #     name: Code format
+      #     description: This hook runs eslint on JavaScript files
+      #     entry: make format
+          
