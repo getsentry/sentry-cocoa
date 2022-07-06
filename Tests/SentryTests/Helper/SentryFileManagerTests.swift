@@ -472,28 +472,28 @@ class SentryFileManagerTests: XCTestCase {
     }
 
     func testStoreAndReadTimezoneOffset() {
-        sut.storeTimezoneOffset(7200)
-        XCTAssertEqual(sut.readTimezoneOffset(), 7200)
+        sut.storeTimezoneOffset(7_200)
+        XCTAssertEqual(sut.readTimezoneOffset(), 7_200)
     }
 
     func testStoreDeleteTimezoneOffset() {
-        sut.storeTimezoneOffset(7200)
+        sut.storeTimezoneOffset(7_200)
         sut.deleteTimezoneOffset()
         XCTAssertNil(sut.readTimezoneOffset())
     }
 
     func testStore_WhenFileImmutable_TimezoneOffsetIsNotOverwritten() {
-        sut.storeTimezoneOffset(7200)
+        sut.storeTimezoneOffset(7_200)
 
         setImmutableForTimezoneOffset(immutable: true)
 
-        sut.storeTimezoneOffset(9600)
+        sut.storeTimezoneOffset(9_600)
 
-        XCTAssertEqual(sut.readTimezoneOffset(), 7200)
+        XCTAssertEqual(sut.readTimezoneOffset(), 7_200)
     }
 
     func testStoreDeleteTimezoneOffset_WhenFileLocked_DontCrash() throws {
-        sut.storeTimezoneOffset(7200)
+        sut.storeTimezoneOffset(7_200)
 
         setImmutableForTimezoneOffset(immutable: true)
 

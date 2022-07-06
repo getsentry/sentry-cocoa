@@ -474,8 +474,10 @@ SentryFileManager ()
                   error:&error];
 
         if (error != nil) {
-            [SentryLog logWithMessage:[NSString stringWithFormat:@"Failed to store timezone offset: %@", error]
-                             andLevel:kSentryLevelError];
+            [SentryLog
+                logWithMessage:[NSString
+                                   stringWithFormat:@"Failed to store timezone offset: %@", error]
+                      andLevel:kSentryLevelError];
         }
     }
 }
