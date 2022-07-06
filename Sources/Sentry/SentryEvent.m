@@ -138,7 +138,7 @@ SentryEvent ()
 
     [serializedData setValue:[self serializeBreadcrumbs] forKey:@"breadcrumbs"];
 
-    [serializedData setValue:self.context forKey:@"contexts"];
+    [serializedData setValue:[self.context sentry_sanitize] forKey:@"contexts"];
 
     if (nil != self.message) {
         [serializedData setValue:[self.message serialize] forKey:@"message"];
