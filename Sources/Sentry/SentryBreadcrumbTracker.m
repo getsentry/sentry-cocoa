@@ -197,7 +197,7 @@ SentryBreadcrumbTracker ()
 
                 NSMutableDictionary *data = @ { @"screen" : viewControllerName }.mutableCopy;
 
-                NSString *title = [SentryUIViewControllerSanitizer extractTitle: self];
+                NSString *title = [SentryUIViewControllerSanitizer extractTitle:self];
                 if ([title length] != 0) {
                     data[@"title"] = title;
                 }
