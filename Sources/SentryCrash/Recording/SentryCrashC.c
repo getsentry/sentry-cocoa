@@ -30,7 +30,6 @@
 #include "SentryCrashFileUtils.h"
 #include "SentryCrashMonitorContext.h"
 #include "SentryCrashMonitor_AppState.h"
-#include "SentryCrashMonitor_Deadlock.h"
 #include "SentryCrashMonitor_System.h"
 #include "SentryCrashMonitor_User.h"
 #include "SentryCrashMonitor_Zombie.h"
@@ -165,14 +164,6 @@ void
 sentrycrash_setUserInfoJSON(const char *const userInfoJSON)
 {
     sentrycrashreport_setUserInfoJSON(userInfoJSON);
-}
-
-void
-sentrycrash_setDeadlockWatchdogInterval(double deadlockWatchdogInterval)
-{
-#if SentryCrashCRASH_HAS_OBJC
-    sentrycrashcm_setDeadlockHandlerWatchdogInterval(deadlockWatchdogInterval);
-#endif
 }
 
 void

@@ -95,7 +95,6 @@ getBasePath()
 @synthesize userInfo = _userInfo;
 @synthesize deleteBehaviorAfterSendAll = _deleteBehaviorAfterSendAll;
 @synthesize monitoring = _monitoring;
-@synthesize deadlockWatchdogInterval = _deadlockWatchdogInterval;
 @synthesize onCrash = _onCrash;
 @synthesize bundleName = _bundleName;
 @synthesize basePath = _basePath;
@@ -179,12 +178,6 @@ getBasePath()
 - (void)setMonitoring:(SentryCrashMonitorType)monitoring
 {
     _monitoring = sentrycrash_setMonitoring(monitoring);
-}
-
-- (void)setDeadlockWatchdogInterval:(double)deadlockWatchdogInterval
-{
-    _deadlockWatchdogInterval = deadlockWatchdogInterval;
-    sentrycrash_setDeadlockWatchdogInterval(deadlockWatchdogInterval);
 }
 
 - (void)setOnCrash:(SentryCrashReportWriteCallback)onCrash
