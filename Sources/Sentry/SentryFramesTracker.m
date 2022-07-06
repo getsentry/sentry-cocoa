@@ -90,7 +90,7 @@ SentryFramesTracker ()
 - (void)resetProfilingTimestamps
 {
     self.frameTimestamps = [SentryMutableFrameInfoTimeSeries array];
-    self.refreshRateTimestamps = [SentryMutableFrameInfoTimeSeries array];
+    self.frameRateTimestamps = [SentryMutableFrameInfoTimeSeries array];
 }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -124,10 +124,10 @@ SentryFramesTracker ()
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
     if (self.currentTracer.isProfiling
-        && (self.refreshRateTimestamps.count == 0
-            || self.refreshRateTimestamps.lastObject[@"refresh_rate"].doubleValue
+        && (self.frameRateTimestamps.count == 0
+            || self.frameRateTimestamps.lastObject[@"frame_rate"].doubleValue
                 != actualFramesPerSecond)) {
-        [self.refreshRateTimestamps addObject:@{
+        [self.frameRateTimestamps addObject:@{
             @"timestamp" : @(self.displayLinkWrapper.timestamp),
             @"frame_rate" : @(actualFramesPerSecond),
         }];
@@ -178,7 +178,7 @@ SentryFramesTracker ()
                                               frozen:frozen
                                                 slow:slow
                                      frameTimestamps:self.frameTimestamps
-                               refreshRateTimestamps:self.refreshRateTimestamps];
+                               frameRateTimestamps:self.frameRateTimestamps];
 #    else
     return [[SentryScreenFrames alloc] initWithTotal:total frozen:frozen slow:slow];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED

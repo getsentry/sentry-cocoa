@@ -11,7 +11,7 @@
                         frozen:frozen
                           slow:slow
                frameTimestamps:@[]
-         refreshRateTimestamps:@[]];
+         frameRateTimestamps:@[]];
 #    else
     if (self = [super init]) {
         _total = total;
@@ -28,14 +28,14 @@
                        frozen:(NSUInteger)frozen
                          slow:(NSUInteger)slow
               frameTimestamps:(SentryFrameInfoTimeSeries *)frameTimestamps
-        refreshRateTimestamps:(SentryFrameInfoTimeSeries *)refreshRateTimestamps
+        frameRateTimestamps:(SentryFrameInfoTimeSeries *)frameRateTimestamps
 {
     if (self = [super init]) {
         _total = total;
         _slow = slow;
         _frozen = frozen;
         _frameTimestamps = frameTimestamps;
-        _refreshRateTimestamps = refreshRateTimestamps;
+        _frameRateTimestamps = frameRateTimestamps;
     }
 
     return self;

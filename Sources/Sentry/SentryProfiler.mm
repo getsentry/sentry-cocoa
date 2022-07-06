@@ -274,20 +274,20 @@ isSimulatorBuild()
     profile[@"adverse_frame_render_timestamps"] = relativeFrameTimestampsNs;
 
     relativeFrameTimestampsNs = [NSMutableArray array];
-    [frameInfo.refreshRateTimestamps enumerateObjectsUsingBlock:^(
+    [frameInfo.frameRateTimestamps enumerateObjectsUsingBlock:^(
         NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
         const auto timestamp = (uint64_t)(obj[@"timestamp"].doubleValue * 1e9);
-        const auto refreshRate = obj[@"refresh_rate"];
+        const auto refreshRate = obj[@"frame_rate"];
         uint64_t relativeTimestamp = 0;
         if (timestamp >= _startTimestamp) {
             relativeTimestamp = getDurationNs(_startTimestamp, timestamp);
         }
         [relativeFrameTimestampsNs addObject:@{
             @"start_timestamp_relative_ns" : @(relativeTimestamp),
-            @"refresh_rate" : refreshRate,
+            @"frame_rate" : refreshRate,
         }];
     }];
-    profile[@"screen_refresh_rates"] = relativeFrameTimestampsNs;
+    profile[@"screen_frame_rates"] = relativeFrameTimestampsNs;
 #    endif // SENTRY_HAS_UIKIT
 
     NSError *error = nil;
