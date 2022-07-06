@@ -112,7 +112,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableArray *items = [[NSMutableArray alloc] initWithCapacity:dictionary.count];
 
     NSMutableCharacterSet *allowedSet = [NSCharacterSet.alphanumericCharacterSet mutableCopy];
-    [allowedSet addCharactersInString:@"-_"];
+    [allowedSet addCharactersInString:@"-_."];
     NSInteger currentSize = 0;
 
     for (id key in dictionary.allKeys) {

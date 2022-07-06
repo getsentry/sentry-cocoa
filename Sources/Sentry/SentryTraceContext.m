@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                        releaseName:_releaseName
                                                        environment:_environment
                                                        userSegment:_userSegment
-                                                        sampleRate:@0];
+                                                        sampleRate:_sampleRate];
     return result;
 }
 

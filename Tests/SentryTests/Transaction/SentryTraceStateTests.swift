@@ -12,6 +12,7 @@ class SentryTraceContextTests: XCTestCase {
         let tracer: SentryTracer
         let userId = "SomeUserID"
         let userSegment = "Test Segment"
+        let sampleRate = NSNumber(value: 0.45)
         let traceId: SentryId
         let publicKey = "SentrySessionTrackerTests"
         let releaseName = "SentrySessionTrackerIntegrationTests"
@@ -54,7 +55,7 @@ class SentryTraceContextTests: XCTestCase {
             releaseName: fixture.releaseName,
             environment: fixture.environment,
             userSegment: fixture.userSegment,
-            sampleRate: nil)
+            sampleRate: fixture.sampleRate)
         
         assertTraceState(traceContext: traceContext)
     }
@@ -84,6 +85,26 @@ class SentryTraceContextTests: XCTestCase {
         traceContext = SentryTraceContext(scope: fixture.scope, options: fixture.options)
         XCTAssertNil(traceContext?.userSegment)
     }
+    
+    func test_toBaggage() {
+        let traceContext = SentryTraceContext(
+            trace: fixture.traceId,
+            publicKey: fixture.publicKey,
+            releaseName: fixture.releaseName,
+            environment: fixture.environment,
+            userSegment: fixture.userSegment,
+            sampleRate: fixture.sampleRate)
+        
+        let baggage = traceContext.toBaggage()
+        
+        XCTAssertEqual(baggage.traceId, fixture.traceId)
+        XCTAssertEqual(baggage.publicKey, fixture.publicKey)
+        XCTAssertEqual(baggage.releaseName, fixture.releaseName)
+        XCTAssertEqual(baggage.environment, fixture.environment)
+        XCTAssertEqual(baggage.userSegment, fixture.userSegment)
+        XCTAssertEqual(baggage.sampleRate, fixture.sampleRate)
+    }
+    
         
     func assertTraceState(traceContext: SentryTraceContext) {
         XCTAssertEqual(traceContext.traceId, fixture.traceId)
