@@ -34,7 +34,7 @@ static NSMutableArray *allResults;
 + (void)initialize {
     allResults = [NSMutableArray array];
     for (NSUInteger i = 0; i < SentrySDKPerformanceBenchmarkTestCases; i++) {
-        [self addInstanceMethodWithSelectorName:[NSString stringWithFormat:@"testCPUBenchmark%d", i] block:^(XCTestCase *testCase) {
+        [self addInstanceMethodWithSelectorName:[NSString stringWithFormat:@"testCPUBenchmark%lu", (unsigned long)i] block:^(XCTestCase *testCase) {
             [allResults addObjectsFromArray:[self _testCPUBenchmark]];
         }];
     }
