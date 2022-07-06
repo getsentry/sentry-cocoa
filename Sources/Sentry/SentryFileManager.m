@@ -462,6 +462,7 @@ SentryFileManager ()
 
 - (void)storeTimezoneOffset:(NSInteger)offset
 {
+    NSError *error = nil;
     NSString *timezoneOffsetString = [NSString stringWithFormat:@"%zd", offset];
     NSString *logMessage =
         [NSString stringWithFormat:@"Persisting timezone offset: %@", timezoneOffsetString];
@@ -470,7 +471,12 @@ SentryFileManager ()
         [[timezoneOffsetString dataUsingEncoding:NSUTF8StringEncoding]
             writeToFile:self.timezoneOffsetFilePath
                 options:NSDataWritingAtomic
-                  error:nil];
+                  error:&error];
+
+        if (error != nil) {
+            [SentryLog logWithMessage:[NSString stringWithFormat:@"Failed to store timezone offset: %@", error]
+                             andLevel:kSentryLevelError];
+        }
     }
 }
 
