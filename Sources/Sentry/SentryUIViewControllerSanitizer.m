@@ -31,4 +31,12 @@
     return description;
 }
 
++ (NSString *)extractTitle:(UIViewController *)controller
+{
+    if ([controller.navigationItem.title length] != 0) {
+        return controller.navigationItem.title;
+    }
+    return controller.title;
+}
+
 @end

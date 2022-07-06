@@ -194,7 +194,15 @@ SentryBreadcrumbTracker ()
                 crumb.type = @"navigation";
                 NSString *viewControllerName = [SentryUIViewControllerSanitizer
                     sanitizeViewControllerName:[NSString stringWithFormat:@"%@", self]];
-                crumb.data = @ { @"screen" : viewControllerName };
+
+                NSMutableDictionary *data = @ { @"screen" : viewControllerName }.mutableCopy;
+
+                NSString *title = [SentryUIViewControllerSanitizer extractTitle: self];
+                if ([title length] != 0) {
+                    data[@"title"] = title;
+                }
+
+                crumb.data = data;
 
                 // Adding crumb via the SDK calls SentryBeforeBreadcrumbCallback
                 [SentrySDK addBreadcrumb:crumb];
