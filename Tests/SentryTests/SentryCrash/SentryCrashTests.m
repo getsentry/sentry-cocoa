@@ -7,7 +7,7 @@
 @end
 
 @interface SentryCrash (private)
-- (NSArray *)getScreenShots:(int64_t)reportID;
+- (NSArray *)getScreenshotPaths:(int64_t)reportID;
 @end
 
 @implementation SentryCrashTests
@@ -25,7 +25,7 @@
 
     SentryCrash *sentryCrash = [[SentryCrash alloc]
         initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Reports"]];
-    NSArray *files = [sentryCrash getScreenShots:12];
+    NSArray *files = [sentryCrash getScreenshotPaths:12];
 
     XCTAssertEqual(files.count, 1);
     XCTAssertEqualObjects(files.firstObject,
@@ -39,7 +39,7 @@
 
     SentryCrash *sentryCrash = [[SentryCrash alloc]
         initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Reports"]];
-    NSArray *files = [sentryCrash getScreenShots:12];
+    NSArray *files = [sentryCrash getScreenshotPaths:12];
     XCTAssertEqual(files.count, 2);
 }
 
@@ -49,7 +49,7 @@
 
     SentryCrash *sentryCrash = [[SentryCrash alloc]
         initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Reports"]];
-    NSArray *files = [sentryCrash getScreenShots:12];
+    NSArray *files = [sentryCrash getScreenshotPaths:12];
     XCTAssertEqual(files.count, 0);
 }
 
@@ -57,7 +57,7 @@
 {
     SentryCrash *sentryCrash = [[SentryCrash alloc]
         initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"ReportsFake"]];
-    NSArray *files = [sentryCrash getScreenShots:12];
+    NSArray *files = [sentryCrash getScreenshotPaths:12];
     XCTAssertEqual(files.count, 0);
 }
 

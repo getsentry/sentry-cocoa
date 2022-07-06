@@ -114,7 +114,7 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
     // but since the app is already in a crash state we don't
     // mind if this approach crashes.
     if (g_saveScreenShot) {
-        char crashScreenshotsPath[SentryCrashFU_MAX_PATH_LENGTH];
+        char crashScreenshotsPath[SentryCrashCRS_MAX_PATH_LENGTH];
         sentrycrashcrs_getScreenshotsPath_forReport(
             g_lastCrashReportFilePath, crashScreenshotsPath);
         g_saveScreenShot(crashScreenshotsPath);
