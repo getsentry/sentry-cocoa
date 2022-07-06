@@ -1,24 +1,26 @@
+#import "SentryProcessInfo.h"
 #import <objc/runtime.h>
 #import <XCTest/XCTest.h>
 
 // To get around the 15 minute timeout per test case on Sauce Labs.
-static NSUInteger SentrySDKPerformanceBenchmarkTestCases = 4;
-static NSUInteger SentrySDKPerformanceBenchmarkIterationsPerTestCase = 5;
+static NSUInteger SentrySDKPerformanceBenchmarkTestCases = 1;
+static NSUInteger SentrySDKPerformanceBenchmarkIterationsPerTestCase = 1;
 
+// All results are aggregated to analyse after completing the separate,
+// dynamically generated test cases
 static NSMutableArray *allResults;
+static BOOL checkedAssertions = NO;
 
 @interface SentrySDKPerformanceBenchmarkTests : XCTestCase
-
-/**
- * Dynamically add a test method to an XCTestCase class.
- * @see https://www.gaige.net/dynamic-xctests.html
- */
-+ (BOOL)addInstanceMethodWithSelectorName:(NSString *)selectorName block:(void (^)(id))block;
 
 @end
 
 @implementation SentrySDKPerformanceBenchmarkTests
 
+/**
+ * Dynamically add a test method to an XCTestCase class.
+ * @see https://www.gaige.net/dynamic-xctests.html
+ */
 + (BOOL)addInstanceMethodWithSelectorName:(NSString *)selectorName block:(void (^)(id))block {
     NSParameterAssert(selectorName);
     NSParameterAssert(block);
@@ -42,29 +44,25 @@ static NSMutableArray *allResults;
 
 - (void)tearDown {
     if (allResults.count == SentrySDKPerformanceBenchmarkTestCases * SentrySDKPerformanceBenchmarkIterationsPerTestCase) {
-        NSLog(@"All results begin");
-        NSLog(@"%@", allResults);
-        NSLog(@"All results end");
+        NSUInteger index = (NSUInteger)ceil(0.9 * allResults.count);
+        NSNumber *p90 = [allResults sortedArrayUsingComparator:^NSComparisonResult(NSNumber *a, NSNumber *b) {
+            return [a compare:b];
+        }][index >= allResults.count ? allResults.count - 1 : index];
+        XCTAssertLessThanOrEqual(p90.doubleValue, 5, @"Profiling P90 overhead should remain under 5%%.");
+        checkedAssertions = YES;
     }
 
     [super tearDown];
 }
 
-+ (BOOL)isSimulator {
-    NSOperatingSystemVersion ios9 = {9, 0, 0};
-    NSProcessInfo *processInfo = [NSProcessInfo processInfo];
-    if ([processInfo isOperatingSystemAtLeastVersion:ios9]) {
-        NSDictionary<NSString *, NSString *> *environment = [processInfo environment];
-        NSString *simulator = [environment objectForKey:@"SIMULATOR_DEVICE_NAME"];
-        return simulator != nil;
-    } else {
-        UIDevice *currentDevice = [UIDevice currentDevice];
-        return ([currentDevice.model rangeOfString:@"Simulator"].location != NSNotFound);
++ (void)tearDown {
+    if (!checkedAssertions) {
+        @throw @"Did not perform assertion checks, might not have completed all benchmark trials.";
     }
 }
 
 + (NSArray<NSNumber *> *)_testCPUBenchmark {
-//    XCTSkipIf([self isSimulator]);
+    XCTSkipIf(isSimulator() && !isDebugging());
 
     NSMutableArray *results = [NSMutableArray array];
     for (NSUInteger j = 0; j < SentrySDKPerformanceBenchmarkIterationsPerTestCase; j++) {
@@ -100,6 +98,7 @@ static NSMutableArray *allResults;
 
         // SentryBenchmarking.retrieveBenchmarks returns -1 if there aren't at least 2 samples to use for calculating deltas
         XCTAssert(usagePercentage > 0, @"Failure to record enough CPU samples to calculate benchmark.");
+        
         [results addObject:@(usagePercentage)];
     }
 

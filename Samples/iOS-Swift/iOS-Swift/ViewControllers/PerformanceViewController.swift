@@ -95,12 +95,12 @@ class PerformanceViewController: UIViewController {
         }
         transaction = SentrySDK.startTransaction(name: "io.sentry.benchmark.transaction", operation: "crunch-numbers")
         timer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(doRandomWork), userInfo: nil, repeats: true)
-        SentryBenchmarking.startBenchmarkProfile()
+        SentryBenchmarking.startBenchmark()
     }
 
     @objc func stopTest() {
-        let value = SentryBenchmarking.retrieveBenchmarks()
-        
+        let value = SentryBenchmarking.stopBenchmark()
+
         defer {
             timer?.invalidate()
             transaction?.finish()
