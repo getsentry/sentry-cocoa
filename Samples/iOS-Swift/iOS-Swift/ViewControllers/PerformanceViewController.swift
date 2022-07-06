@@ -99,19 +99,18 @@ class PerformanceViewController: UIViewController {
     }
 
     @objc func stopTest() {
-        let value = SentryBenchmarking.stopBenchmark()
-
         defer {
             timer?.invalidate()
             transaction?.finish()
             transaction = nil
-            valueTextField.text = "\(value)"
         }
 
-        guard value >= 0 else {
+        guard let value = SentryBenchmarking.stopBenchmark() else {
             SentrySDK.capture(error: NSError(domain: "io.sentry.benchmark.error", code: 1, userInfo: ["description": "Only one CPU sample was taken, can't calculate benchmark deltas."]))
+            valueTextField.text = "nil"
             return
         }
+        valueTextField.text = "\(value)"
 
         SentrySDK.configureScope {
             $0.setContext(value: [

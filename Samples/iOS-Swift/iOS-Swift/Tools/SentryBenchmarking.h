@@ -11,11 +11,13 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)startBenchmark;
 
 /**
- * Stop the profiled transaction and print statistics on CPU usage by the profiler and test app separately to
- * the console for downstream processing.
- * @return The calculated % overhead of the profiler vs. the rest of the app.
+ * Stop the profiled transaction and return statistics on CPU usage by the profiler and test app for
+ * downstream processing.
+ * @return A dictionary serialized to a string, containing the values for profiler system time, profiler user
+ * time, app system time and app user time, which can be used to calculate the overhead of the profiler; or,
+ * if an error occurred, returns @c nil .
  */
-+ (double)stopBenchmark;
++ (nullable NSString *)stopBenchmark;
 
 @end
 

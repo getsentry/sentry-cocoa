@@ -91,13 +91,30 @@ static BOOL checkedAssertions = NO;
         }
 
         NSString *benchmarkValueString = textField.value;
+        // SentryBenchmarking.retrieveBenchmarks returns nil if there aren't at least 2 samples to use for calculating deltas
+        XCTAssertFalse([benchmarkValueString isEqualToString:@"nil"], @"Failure to record enough CPU samples to calculate benchmark.");
         if (benchmarkValueString == nil) {
             XCTFail(@"No benchmark value received from the app.");
         }
-        double usagePercentage = benchmarkValueString.doubleValue;
 
-        // SentryBenchmarking.retrieveBenchmarks returns -1 if there aren't at least 2 samples to use for calculating deltas
-        XCTAssert(usagePercentage > 0, @"Failure to record enough CPU samples to calculate benchmark.");
+        NSData *data = [[NSData alloc] initWithBase64EncodedString:benchmarkValueString options:0];
+        NSError *error;
+        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+        if (dict == nil) {
+            XCTFail(@"Failed to deserialize results: %@", error);
+        }
+
+        NSInteger profilerSystemTime = [dict[@"profiler"][@"system"] integerValue];
+        NSInteger profilerUserTime = [dict[@"profiler"][@"user"] integerValue];
+        NSInteger appSystemTime = [dict[@"app"][@"system"] integerValue];
+        NSInteger appUserTime = [dict[@"app"][@"user"] integerValue];
+
+        NSLog(@"[Sentry Benchmark] profiler system time: %ld", profilerSystemTime);
+        NSLog(@"[Sentry Benchmark] profiler user time: %ld", profilerUserTime);
+        NSLog(@"[Sentry Benchmark] app system time: %ld", appSystemTime);
+        NSLog(@"[Sentry Benchmark] app user time: %ld", appUserTime);
+
+        double usagePercentage = 100.0 * (profilerUserTime + profilerSystemTime) / (appUserTime + appSystemTime);
         
         [results addObject:@(usagePercentage)];
     }

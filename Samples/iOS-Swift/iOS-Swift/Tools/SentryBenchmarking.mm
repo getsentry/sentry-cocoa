@@ -86,7 +86,7 @@ dispatch_queue_t queue;
     dispatch_resume(source);
 }
 
-+ (double)stopBenchmark
++ (NSString *)stopBenchmark
 {
     dispatch_cancel(source);
 
@@ -94,7 +94,7 @@ dispatch_queue_t queue;
 
     if (samples.count < 2) {
         printf("[Sentry Benchmark] not enough samples were gathered to compute CPU usage.\n");
-        return -1;
+        return nil;
     }
 
     const auto systemTimeTotals = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
@@ -142,12 +142,25 @@ dispatch_queue_t queue;
     const auto appUserTime
         = ((NSNumber *)[userTimeTotals.allValues valueForKeyPath:@"@sum.self"]).integerValue;
 
-    printf("[Sentry Benchmark] profiler system time: %ld\n", samplingThreadSystemTime);
-    printf("[Sentry Benchmark] profiler user time: %ld\n", samplingThreadUserTime);
-    printf("[Sentry Benchmark] app system time: %ld\n", appSystemTime);
-    printf("[Sentry Benchmark] app user time: %ld\n", appUserTime);
+    const auto dict = @{
+        @"profiler": @{
+            @"system": @(samplingThreadSystemTime),
+            @"user": @(samplingThreadUserTime),
+        },
+        @"app": @{
+            @"system": @(appSystemTime),
+            @"user": @(appUserTime),
+        },
+    };
 
-    return 100.0 * (samplingThreadSystemTime + samplingThreadUserTime) / (appSystemTime + appUserTime);
+    NSError *error;
+    const auto data = [NSJSONSerialization dataWithJSONObject:dict options:0 error:&error];
+    if (data == nil) {
+        printf("Error serializing results: %@\n", error);
+        return nil;
+    }
+
+    return [data base64EncodedStringWithOptions:0];
 }
 
 @end
