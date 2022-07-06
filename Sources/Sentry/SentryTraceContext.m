@@ -116,7 +116,7 @@ NS_ASSUME_NONNULL_BEGIN
         [result setValue:_userSegment forKey:@"user_segment"];
 
     if (_sampleRate != nil)
-        [result setValue:_sampleRate forKey:@"sample_rate"];
+        [result setValue:[NSString stringWithFormat:@"%@", _sampleRate] forKey:@"sample_rate"];
 
     return result;
 }
