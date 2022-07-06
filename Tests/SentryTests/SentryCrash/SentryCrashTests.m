@@ -27,11 +27,10 @@
         initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Reports"]];
     NSArray *files = [sentryCrash getScreenShots:12];
 
+    XCTAssertEqual(files.count, 1);
     XCTAssertEqualObjects(files.firstObject,
         [self.tempPath stringByAppendingPathComponent:
                            @"Reports/AppName-report-000000000000000c-screenshots/0.png"]);
-
-    XCTAssertEqual(files.count, 1);
 }
 
 - (void)test_getScreenshots_TwoFiles
