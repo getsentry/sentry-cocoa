@@ -20,7 +20,7 @@ SentryCrashThread mainThreadID;
 
 @implementation SentryCrashDefaultMachineContextWrapper
 
-+ (void)initialize
++ (void)load
 {
     mainThreadID = pthread_mach_thread_np(pthread_self());
 }

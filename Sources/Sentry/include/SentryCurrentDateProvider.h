@@ -9,6 +9,8 @@ NS_SWIFT_NAME(CurrentDateProvider)
 
 - (dispatch_time_t)dispatchTimeNow;
 
+- (NSInteger)timezoneOffset;
+
 @end
 
 NS_ASSUME_NONNULL_END

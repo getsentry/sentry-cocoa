@@ -128,17 +128,45 @@ class SentryAppStartTrackerTests: XCTestCase {
     }
     
     func testAppLaunches_OSPrewarmedProcess_NoAppStartUp() {
-        let processStartTime = fixture.currentDate.date().addingTimeInterval(-60)
+        setenv("ActivePrewarm", "1", 1)
+        SentryAppStartTracker.load()
+        givenSystemNotRebooted()
+        
+        startApp()
+        
+        #if os(iOS)
+        if #available(iOS 14.0, *) {
+            assertNoAppStartUp()
+        } else {
+            assertValidStart(type: .warm)
+        }
+        #else
+        assertValidStart(type: .warm)
+        #endif
+    }
+    
+    func testAppLaunches_WrongEnvValue_AppStartUp() {
+        setenv("ActivePrewarm", "0", 1)
+        SentryAppStartTracker.load()
+        givenSystemNotRebooted()
+        
+        startApp()
+        
+        assertValidStart(type: .warm)
+    }
+    
+    func testAppLaunches_MaximumAppStartDuration_NoAppStart() {
+        let processStartTime = fixture.currentDate.date().addingTimeInterval(-180)
         startApp(processStartTimeStamp: processStartTime)
         
         assertNoAppStartUp()
     }
     
     func testAppLaunches_OSAlmostPrewarmedProcess_AppStartUp() {
-        let processStartTime = fixture.currentDate.date().addingTimeInterval(-59)
+        let processStartTime = fixture.currentDate.date().addingTimeInterval(-179)
         startApp(processStartTimeStamp: processStartTime)
         
-        assertValidStart(type: .cold, expectedDuration: 59.4)
+        assertValidStart(type: .cold, expectedDuration: 179.4)
     }
     
     func testAppLaunchesBackgroundTask_NoAppStartUp() {

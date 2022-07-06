@@ -44,7 +44,7 @@ class SentryAppStateTests: XCTestCase {
         withValue { $0["was_terminated"] = nil }
         withValue { $0["is_anr_ongoing"] = nil }
     }
-    
+
     func testInitWithJSON_IfJsonContainsWrongField_AppStateIsNil() {
         withValue { $0["release_name"] = 0 }
         withValue { $0["os_version"] = nil }
@@ -72,5 +72,4 @@ class SentryAppStateTests: XCTestCase {
         setValue(&serialized)
         XCTAssertNil(SentryAppState(jsonObject: serialized))
     }
-
 }

@@ -5,12 +5,19 @@
 ### Features
 
 - Add screenshot at crash (#1920)
+- Track timezone changes as breadcrumbs (#1930)
+
+## 7.19.0
+
+### Features
+
 - Add main thread ID to profiling payload (#1918)
 - Add App Hangs tracking (#1906)
 
 ### Fixes
 
 - Remove WebKit optimization check (#1921)
+- Detect prewarmed starts with env variable (#1927)
 
 ## 7.18.1
 

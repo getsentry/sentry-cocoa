@@ -46,16 +46,25 @@ static NSObject *sentryDependencyContainerLock;
     }
 }
 
+- (SentryFileManager *)fileManager
+{
+    @synchronized(sentryDependencyContainerLock) {
+        if (_fileManager == nil) {
+            _fileManager = [[[SentrySDK currentHub] getClient] fileManager];
+        }
+        return _fileManager;
+    }
+}
+
 - (SentryAppStateManager *)appStateManager
 {
     @synchronized(sentryDependencyContainerLock) {
         if (_appStateManager == nil) {
-            SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
             SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
             _appStateManager = [[SentryAppStateManager alloc]
                     initWithOptions:options
                        crashWrapper:self.crashWrapper
-                        fileManager:fileManager
+                        fileManager:self.fileManager
                 currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
                              sysctl:[[SentrySysctl alloc] init]];
         }

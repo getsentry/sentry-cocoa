@@ -65,6 +65,10 @@ SENTRY_NO_INIT
 - (SentryAppState *_Nullable)readAppState;
 - (void)deleteAppState;
 
+- (NSNumber *_Nullable)readTimezoneOffset;
+- (void)storeTimezoneOffset:(NSInteger)offset;
+- (void)deleteTimezoneOffset;
+
 @end
 
 @protocol SentryFileManagerDelegate <NSObject>
