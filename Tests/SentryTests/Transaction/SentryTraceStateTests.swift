@@ -104,7 +104,6 @@ class SentryTraceContextTests: XCTestCase {
         XCTAssertEqual(baggage.userSegment, fixture.userSegment)
         XCTAssertEqual(baggage.sampleRate, fixture.sampleRate)
     }
-    
         
     func assertTraceState(traceContext: SentryTraceContext) {
         XCTAssertEqual(traceContext.traceId, fixture.traceId)
