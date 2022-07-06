@@ -29,7 +29,7 @@ SentryFramesTracker ()
 @property (nonatomic, assign) CFTimeInterval previousFrameTimestamp;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *frameTimestamps;
-@property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *refreshRateTimestamps;
+@property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *frameRateTimestamps;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
