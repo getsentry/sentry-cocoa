@@ -261,6 +261,9 @@
     char firstReportPath[SentryCrashCRS_MAX_PATH_LENGTH];
     sentrycrashcrs_getNextCrashReportPath(firstReportPath);
 
+    //Unique Ids are created based on the time,
+    //thats why we sleep for 1 second, to see a different Id being created
+    //during initialization.
     [NSThread sleepForTimeInterval:1];
     [self prepareReportStoreWithPathEnd:@"/ReportPath"];
 
