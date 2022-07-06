@@ -207,7 +207,7 @@ SentrySystemEventBreadcrumbs ()
 
     if (storedTimezoneOffset == nil) {
         [self updateStoredTimezone];
-    } else if (storedTimezoneOffset.doubleValue != [NSTimeZone localTimeZone].secondsFromGMT) {
+    } else if (storedTimezoneOffset.doubleValue != self.currentDateProvider.timezoneOffset) {
         [self timezoneEventTriggered:storedTimezoneOffset];
     }
 
@@ -228,13 +228,17 @@ SentrySystemEventBreadcrumbs ()
     if (storedTimezoneOffset == nil) {
         storedTimezoneOffset = [self.fileManager readTimezoneOffset];
     }
+
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
                                                              category:@"device.event"];
+
+    NSInteger offset = self.currentDateProvider.timezoneOffset;
+
     crumb.type = @"system";
     crumb.data = @{
         @"action" : @"TIMEZONE_CHANGE",
         @"previous_seconds_from_gmt" : storedTimezoneOffset,
-        @"current_seconds_from_gmt" : @(self.currentDateProvider.timezoneOffset)
+        @"current_seconds_from_gmt" : @(offset)
     };
     [SentrySDK addBreadcrumb:crumb];
 

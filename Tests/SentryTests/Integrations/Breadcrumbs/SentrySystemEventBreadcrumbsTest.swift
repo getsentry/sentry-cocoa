@@ -13,7 +13,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
 
         init() {
             options = Options()
-            options.dsn = TestConstants.dsnAsString(username: "SentrySessionTrackerTests")
+            options.dsn = TestConstants.dsnAsString(username: "SentrySystemEventBreadcrumbsTest")
             options.releaseName = "SentrySessionTrackerIntegrationTests"
             options.sessionTrackingIntervalMillis = 10_000
             options.environment = "debug"
@@ -60,6 +60,8 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
     override func tearDown() {
         super.tearDown()
         clearTestState()
+        fixture.fileManager.deleteTimezoneOffset()
+        sut.stop()
     }
     
     func testBatteryLevelBreadcrumb() {
@@ -228,10 +230,29 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         assertBreadcrumbAction(scope: scope, action: "UIApplicationUserDidTakeScreenshotNotification")
     }
 
-    func testTimezoneChangeBreadcrumb() {
-        fixture.fileManager.deleteTimezoneOffset()
-        fixture.currentDateProvider.timezoneOffsetValue = 0
+    func testTimezoneFirstTimeNilNoBreadcrumb() {
+        fixture.currentDateProvider.timezoneOffsetValue = 7200
 
+        let scope = Scope()
+        sut = fixture.getSut(scope: scope, currentDevice: nil)
+
+        assertNoBreadcrumbAction(scope: scope, action: "TIMEZONE_CHANGE")
+    }
+
+    func testTimezoneChangeInitialBreadcrumb() {
+        fixture.fileManager.storeTimezoneOffset(0)
+        fixture.currentDateProvider.timezoneOffsetValue = 7200
+
+        let scope = Scope()
+        sut = fixture.getSut(scope: scope, currentDevice: nil)
+
+        assertBreadcrumbAction(scope: scope, action: "TIMEZONE_CHANGE") { data in
+            XCTAssertEqual(data["previous_seconds_from_gmt"] as? Int, 0)
+            XCTAssertEqual(data["current_seconds_from_gmt"] as? Int, 7200)
+        }
+    }
+
+    func testTimezoneChangeNoticiationBreadcrumb() {
         let scope = Scope()
         sut = fixture.getSut(scope: scope, currentDevice: nil)
 
@@ -243,7 +264,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
             XCTAssertEqual(data["current_seconds_from_gmt"] as? Int, 7200)
         }
     }
-    
+
     private func assertBreadcrumbAction(scope: Scope, action: String, checks: (([String: Any]) -> Void)? = nil) {
         let ser = scope.serialize()
         if let breadcrumbs = ser["breadcrumbs"] as? [[String: Any]] {
@@ -263,6 +284,15 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
             }
         } else {
             XCTFail("no scope.breadcrumbs")
+        }
+    }
+
+    private func assertNoBreadcrumbAction(scope: Scope, action: String) {
+        let ser = scope.serialize()
+        if let breadcrumbs = ser["breadcrumbs"] as? [[String: Any]] {
+            if let crumb = breadcrumbs.first, let data = crumb["data"] as? [String: Any], data["action"] as? String == action {
+                XCTFail("unwanted breadcrumb found")
+            }
         }
     }
     
