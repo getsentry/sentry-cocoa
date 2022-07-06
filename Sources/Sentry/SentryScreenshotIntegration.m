@@ -29,7 +29,7 @@ saveScreenShot(const char *path)
         // We first delete any screenshot that could be from an old crash report
         NSArray *oldFiles = [NSFileManager.defaultManager contentsOfDirectoryAtPath:reportPath
                                                                               error:&error];
-        
+
         if (!error) {
             [oldFiles enumerateObjectsUsingBlock:^(NSString *obj, NSUInteger idx, BOOL *stop) {
                 [NSFileManager.defaultManager removeItemAtPath:obj error:nil];
