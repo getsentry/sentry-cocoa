@@ -17,4 +17,9 @@ public class TestCurrentDateProvider: NSObject, CurrentDateProvider {
     public func dispatchTimeNow() -> dispatch_time_t {
         return internalDispatchNow.rawValue
     }
+
+    var timezoneOffsetValue = 0
+    public func timezoneOffset() -> Int {
+        return timezoneOffsetValue
+    }
 }

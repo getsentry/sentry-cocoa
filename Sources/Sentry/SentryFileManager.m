@@ -24,6 +24,7 @@ SentryFileManager ()
 @property (nonatomic, copy) NSString *crashedSessionFilePath;
 @property (nonatomic, copy) NSString *lastInForegroundFilePath;
 @property (nonatomic, copy) NSString *appStateFilePath;
+@property (nonatomic, copy) NSString *timezoneOffsetFilePath;
 @property (nonatomic, assign) NSUInteger currentFileCounter;
 @property (nonatomic, assign) NSUInteger maxEnvelopes;
 @property (nonatomic, weak) id<SentryFileManagerDelegate> delegate;
@@ -63,6 +64,8 @@ SentryFileManager ()
             [self.sentryPath stringByAppendingPathComponent:@"lastInForeground.timestamp"];
 
         self.appStateFilePath = [self.sentryPath stringByAppendingPathComponent:@"app.state"];
+        self.timezoneOffsetFilePath =
+            [self.sentryPath stringByAppendingPathComponent:@"timezone.offset"];
 
         // Remove old cached events for versions before 6.0.0
         self.eventsPath = [self.sentryPath stringByAppendingPathComponent:@"events"];
@@ -431,6 +434,66 @@ SentryFileManager ()
         if (nil != error && error.code != NSFileNoSuchFileError) {
             [SentryLog
                 logWithMessage:[NSString stringWithFormat:@"Failed to delete app state %@", error]
+                      andLevel:kSentryLevelError];
+        }
+    }
+}
+
+- (NSNumber *_Nullable)readTimezoneOffset
+{
+    [SentryLog logWithMessage:@"Reading timezone offset" andLevel:kSentryLevelDebug];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSData *timezoneOffsetData = nil;
+    @synchronized(self.timezoneOffsetFilePath) {
+        timezoneOffsetData = [fileManager contentsAtPath:self.timezoneOffsetFilePath];
+    }
+    if (nil == timezoneOffsetData) {
+        [SentryLog logWithMessage:@"No timezone offset found." andLevel:kSentryLevelDebug];
+        return nil;
+    }
+    NSString *timezoneOffsetString = [[NSString alloc] initWithData:timezoneOffsetData
+                                                           encoding:NSUTF8StringEncoding];
+
+    NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+    formatter.numberStyle = NSNumberFormatterDecimalStyle;
+
+    return [formatter numberFromString:timezoneOffsetString];
+}
+
+- (void)storeTimezoneOffset:(NSInteger)offset
+{
+    NSError *error = nil;
+    NSString *timezoneOffsetString = [NSString stringWithFormat:@"%zd", offset];
+    NSString *logMessage =
+        [NSString stringWithFormat:@"Persisting timezone offset: %@", timezoneOffsetString];
+    [SentryLog logWithMessage:logMessage andLevel:kSentryLevelDebug];
+    @synchronized(self.timezoneOffsetFilePath) {
+        [[timezoneOffsetString dataUsingEncoding:NSUTF8StringEncoding]
+            writeToFile:self.timezoneOffsetFilePath
+                options:NSDataWritingAtomic
+                  error:&error];
+
+        if (error != nil) {
+            [SentryLog
+                logWithMessage:[NSString
+                                   stringWithFormat:@"Failed to store timezone offset: %@", error]
+                      andLevel:kSentryLevelError];
+        }
+    }
+}
+
+- (void)deleteTimezoneOffset
+{
+    NSError *error = nil;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    @synchronized(self.timezoneOffsetFilePath) {
+        [fileManager removeItemAtPath:self.timezoneOffsetFilePath error:&error];
+
+        // We don't want to log an error if the file doesn't exist.
+        if (nil != error && error.code != NSFileNoSuchFileError) {
+            [SentryLog
+                logWithMessage:[NSString
+                                   stringWithFormat:@"Failed to delete timezone offset %@", error]
                       andLevel:kSentryLevelError];
         }
     }

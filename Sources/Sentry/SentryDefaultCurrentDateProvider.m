@@ -27,6 +27,11 @@ SentryDefaultCurrentDateProvider ()
     return dispatch_time(DISPATCH_TIME_NOW, 0);
 }
 
+- (NSInteger)timezoneOffset
+{
+    return [NSTimeZone localTimeZone].secondsFromGMT;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

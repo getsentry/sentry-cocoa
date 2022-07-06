@@ -95,6 +95,7 @@ class SentryFileManagerTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         setImmutableForAppState(immutable: false)
+        setImmutableForTimezoneOffset(immutable: false)
         sut.deleteAllEnvelopes()
         sut.deleteAllFolders()
         sut.deleteTimestampLastInForeground()
@@ -470,6 +471,41 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNotNil(sut.readAppState())
     }
 
+    func testStoreAndReadTimezoneOffset() {
+        sut.storeTimezoneOffset(7_200)
+        XCTAssertEqual(sut.readTimezoneOffset(), 7_200)
+    }
+
+    func testStoreDeleteTimezoneOffset() {
+        sut.storeTimezoneOffset(7_200)
+        sut.deleteTimezoneOffset()
+        XCTAssertNil(sut.readTimezoneOffset())
+    }
+
+    func testStore_WhenFileImmutable_TimezoneOffsetIsNotOverwritten() {
+        sut.storeTimezoneOffset(7_200)
+
+        setImmutableForTimezoneOffset(immutable: true)
+
+        sut.storeTimezoneOffset(9_600)
+
+        XCTAssertEqual(sut.readTimezoneOffset(), 7_200)
+    }
+
+    func testStoreDeleteTimezoneOffset_WhenFileLocked_DontCrash() throws {
+        sut.storeTimezoneOffset(7_200)
+
+        setImmutableForTimezoneOffset(immutable: true)
+
+        sut.deleteTimezoneOffset()
+        XCTAssertNotNil(sut.readTimezoneOffset())
+    }
+
+    func testReadGarbageTimezoneOffset() throws {
+        try "garbage".write(to: URL(fileURLWithPath: sut.timezoneOffsetFilePath), atomically: true, encoding: .utf8)
+        XCTAssertNil(sut.readTimezoneOffset())
+    }
+
     private func givenMaximumEnvelopes() {
         fixture.eventIds.forEach { id in
             let envelope = SentryEnvelope(id: id, singleItem: SentryEnvelopeItem(event: Event()))
@@ -509,6 +545,21 @@ class SentryFileManagerTests: XCTestCase {
             try fileManager.setAttributes([FileAttributeKey.immutable: immutable], ofItemAtPath: appStateFilePath)
         } catch {
             XCTFail("Couldn't change immutable state of app state file.")
+        }
+    }
+
+    private func setImmutableForTimezoneOffset(immutable: Bool) {
+        let timezoneOffsetFilePath = Dynamic(sut).timezoneOffsetFilePath.asString ?? ""
+        let fileManager = FileManager.default
+
+        if !fileManager.fileExists(atPath: timezoneOffsetFilePath) {
+            return
+        }
+
+        do {
+            try fileManager.setAttributes([FileAttributeKey.immutable: immutable], ofItemAtPath: timezoneOffsetFilePath)
+        } catch {
+            XCTFail("Couldn't change immutable state of timezone offset file.")
         }
     }
 

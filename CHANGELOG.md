@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Track timezone changes as breadcrumbs (#1930)
+
 ## 7.19.0
 
 ### Features

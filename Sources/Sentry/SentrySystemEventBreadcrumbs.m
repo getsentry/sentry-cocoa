@@ -1,5 +1,9 @@
 #import "SentrySystemEventBreadcrumbs.h"
+#import "SentryAppState.h"
+#import "SentryAppStateManager.h"
 #import "SentryBreadcrumb.h"
+#import "SentryCurrentDateProvider.h"
+#import "SentryDependencyContainer.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
 
@@ -8,7 +12,23 @@
 #    import <UIKit/UIKit.h>
 #endif
 
+@interface
+SentrySystemEventBreadcrumbs ()
+@property (nonatomic, strong) SentryFileManager *fileManager;
+@property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
+@end
+
 @implementation SentrySystemEventBreadcrumbs
+
+- (instancetype)initWithFileManager:(SentryFileManager *)fileManager
+             andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+{
+    if (self = [super init]) {
+        _fileManager = fileManager;
+        _currentDateProvider = currentDateProvider;
+    }
+    return self;
+}
 
 - (void)start
 {
@@ -45,6 +65,7 @@
     }
     [self initKeyboardVisibilityObserver];
     [self initScreenshotObserver];
+    [self initTimezoneObserver];
 }
 #endif
 
@@ -177,6 +198,58 @@
                                                  name:UIApplicationUserDidTakeScreenshotNotification
                                                object:nil];
 }
+
+- (void)initTimezoneObserver
+{
+    // Detect if the stored timezone is different from the current one;
+    // if so, then we also send a breadcrumb
+    NSNumber *_Nullable storedTimezoneOffset = [self.fileManager readTimezoneOffset];
+
+    if (storedTimezoneOffset == nil) {
+        [self updateStoredTimezone];
+    } else if (storedTimezoneOffset.doubleValue != self.currentDateProvider.timezoneOffset) {
+        [self timezoneEventTriggered:storedTimezoneOffset];
+    }
+
+    // Posted when the timezone of the device changed
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(timezoneEventTriggered)
+                                                 name:NSSystemTimeZoneDidChangeNotification
+                                               object:nil];
+}
+
+- (void)timezoneEventTriggered
+{
+    [self timezoneEventTriggered:nil];
+}
+
+- (void)timezoneEventTriggered:(NSNumber *)storedTimezoneOffset
+{
+    if (storedTimezoneOffset == nil) {
+        storedTimezoneOffset = [self.fileManager readTimezoneOffset];
+    }
+
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                             category:@"device.event"];
+
+    NSInteger offset = self.currentDateProvider.timezoneOffset;
+
+    crumb.type = @"system";
+    crumb.data = @{
+        @"action" : @"TIMEZONE_CHANGE",
+        @"previous_seconds_from_gmt" : storedTimezoneOffset,
+        @"current_seconds_from_gmt" : @(offset)
+    };
+    [SentrySDK addBreadcrumb:crumb];
+
+    [self updateStoredTimezone];
+}
+
+- (void)updateStoredTimezone
+{
+    [self.fileManager storeTimezoneOffset:self.currentDateProvider.timezoneOffset];
+}
+
 #endif
 
 @end
