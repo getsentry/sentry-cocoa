@@ -61,6 +61,7 @@ static bool g_shouldPrintPreviousLog = false;
 static char g_consoleLogPath[SentryCrashFU_MAX_PATH_LENGTH];
 static SentryCrashMonitorType g_monitoring = SentryCrashMonitorTypeProductionSafeMinimal;
 static char g_lastCrashReportFilePath[SentryCrashFU_MAX_PATH_LENGTH];
+static void (*g_saveScreenShot)(const char *) = 0;
 
 // ============================================================================
 #pragma mark - Utility -
@@ -105,6 +106,18 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
         sentrycrashcrs_getNextCrashReportPath(crashReportFilePath);
         strncpy(g_lastCrashReportFilePath, crashReportFilePath, sizeof(g_lastCrashReportFilePath));
         sentrycrashreport_writeStandardReport(monitorContext, crashReportFilePath);
+    }
+
+    // Report is saved to disk, now we try to take screenshots.
+    // Depending on the state of the crash this may not work
+    // because we gonna call into non async-signal safe code
+    // but since the app is already in a crash state we don't
+    // mind if this approach crashes.
+    if (g_saveScreenShot) {
+        char crashScreenshotsPath[SentryCrashCRS_MAX_PATH_LENGTH];
+        sentrycrashcrs_getScreenshotsPath_forReport(
+            g_lastCrashReportFilePath, crashScreenshotsPath);
+        g_saveScreenShot(crashScreenshotsPath);
     }
 }
 
@@ -212,6 +225,12 @@ sentrycrash_setMaxReportCount(int maxReportCount)
 }
 
 void
+sentrycrash_setSaveScreenshots(void (*callback)(const char *))
+{
+    g_saveScreenShot = callback;
+}
+
+void
 sentrycrash_reportUserException(const char *name, const char *reason, const char *language,
     const char *lineOfCode, const char *stackTrace, bool logAllThreads, bool terminateProgram)
 {
@@ -297,4 +316,10 @@ void
 sentrycrash_deleteReportWithID(int64_t reportID)
 {
     sentrycrashcrs_deleteReportWithID(reportID);
+}
+
+bool
+sentrycrash_hasSaveScreenshotCallback()
+{
+    return g_saveScreenShot != NULL;
 }

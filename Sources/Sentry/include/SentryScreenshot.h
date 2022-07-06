@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable NSArray<NSData *> *)appScreenshots;
 
+- (void)saveScreenShots:(NSString *)path;
 @end
 
 NS_ASSUME_NONNULL_END

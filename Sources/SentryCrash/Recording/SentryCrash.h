@@ -43,6 +43,8 @@ typedef enum {
     SentryCrashCDeleteAlways
 } SentryCrashCDeleteBehavior;
 
+static NSString *const SENTRYCRASH_REPORT_SCREENSHOT_ITEM = @"screenshots";
+
 /**
  * Reports any crashes that occur in the application.
  *
