@@ -484,8 +484,9 @@ SentryFileManager ()
         // We don't want to log an error if the file doesn't exist.
         if (nil != error && error.code != NSFileNoSuchFileError) {
             [SentryLog
-             logWithMessage:[NSString stringWithFormat:@"Failed to delete timezone offset %@", error]
-             andLevel:kSentryLevelError];
+                logWithMessage:[NSString
+                                   stringWithFormat:@"Failed to delete timezone offset %@", error]
+                      andLevel:kSentryLevelError];
         }
     }
 }

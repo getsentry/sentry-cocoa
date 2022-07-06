@@ -231,7 +231,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
     }
 
     func testTimezoneFirstTimeNilNoBreadcrumb() {
-        fixture.currentDateProvider.timezoneOffsetValue = 7200
+        fixture.currentDateProvider.timezoneOffsetValue = 7_200
 
         let scope = Scope()
         sut = fixture.getSut(scope: scope, currentDevice: nil)
@@ -241,14 +241,14 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
 
     func testTimezoneChangeInitialBreadcrumb() {
         fixture.fileManager.storeTimezoneOffset(0)
-        fixture.currentDateProvider.timezoneOffsetValue = 7200
+        fixture.currentDateProvider.timezoneOffsetValue = 7_200
 
         let scope = Scope()
         sut = fixture.getSut(scope: scope, currentDevice: nil)
 
         assertBreadcrumbAction(scope: scope, action: "TIMEZONE_CHANGE") { data in
             XCTAssertEqual(data["previous_seconds_from_gmt"] as? Int, 0)
-            XCTAssertEqual(data["current_seconds_from_gmt"] as? Int, 7200)
+            XCTAssertEqual(data["current_seconds_from_gmt"] as? Int, 7_200)
         }
     }
 
@@ -256,12 +256,12 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         let scope = Scope()
         sut = fixture.getSut(scope: scope, currentDevice: nil)
 
-        fixture.currentDateProvider.timezoneOffsetValue = 7200
+        fixture.currentDateProvider.timezoneOffsetValue = 7_200
 
         NotificationCenter.default.post(Notification(name: NSNotification.Name.NSSystemTimeZoneDidChange))
         assertBreadcrumbAction(scope: scope, action: "TIMEZONE_CHANGE") { data in
             XCTAssertEqual(data["previous_seconds_from_gmt"] as? Int, 0)
-            XCTAssertEqual(data["current_seconds_from_gmt"] as? Int, 7200)
+            XCTAssertEqual(data["current_seconds_from_gmt"] as? Int, 7_200)
         }
     }
 
