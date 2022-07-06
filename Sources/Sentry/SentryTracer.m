@@ -470,7 +470,9 @@ static NSLock *profilerLock;
             }
             profiler = nil;
         }
+#if SENTRY_HAS_UIKIT
         [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
+#endif // SENTRY_HAS_UIKIT
         [profilerLock unlock];
     }
 #endif
