@@ -6,6 +6,10 @@
 
 - Track timezone changes as breadcrumbs (#1930)
 
+### Fixes
+
+- Properly sanitize the scope context (#1943)
+
 ## 7.19.0
 
 ### Features
