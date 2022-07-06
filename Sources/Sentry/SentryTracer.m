@@ -141,9 +141,6 @@ static NSLock *profilerLock;
         // Store current amount of frames at the beginning to be able to calculate the amount of
         // frames at the end of the transaction.
         SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
-#    if SENTRY_TARGET_PROFILING_SUPPORTED
-        framesTracker.currentTracer = self;
-#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
         if (framesTracker.isRunning) {
             SentryScreenFrames *currentFrames = framesTracker.currentFrames;
             initTotalFrames = currentFrames.total;
@@ -158,6 +155,7 @@ static NSLock *profilerLock;
                 profiler = [[SentryProfiler alloc] init];
                 [SentryLog logWithMessage:@"Starting profiler." andLevel:kSentryLevelDebug];
 #    if SENTRY_HAS_UIKIT
+                framesTracker.currentTracer = self;
                 [framesTracker resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
                 [profiler start];
@@ -410,10 +408,10 @@ static NSLock *profilerLock;
         [profilerLock lock];
         [profiler stop];
         [profilerLock unlock];
-    }
 #    if SENTRY_HAS_UIKIT
-    SentryFramesTracker.sharedInstance.currentTracer = nil;
+        SentryFramesTracker.sharedInstance.currentTracer = nil;
 #    endif // SENTRY_HAS_UIKIT
+    }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     if (_hub == nil)
@@ -472,6 +470,7 @@ static NSLock *profilerLock;
             }
             profiler = nil;
         }
+        [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
         [profilerLock unlock];
     }
 #endif

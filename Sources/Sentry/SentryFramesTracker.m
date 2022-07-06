@@ -123,9 +123,9 @@ SentryFramesTracker ()
     }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-    if (self.refreshRateTimestamps.count == 0
+    if (self.currentTracer.isProfiling && (self.refreshRateTimestamps.count == 0
         || self.refreshRateTimestamps.lastObject[@"refresh_rate"].doubleValue
-            != actualFramesPerSecond) {
+            != actualFramesPerSecond)) {
         [self.refreshRateTimestamps addObject:@{
             @"timestamp" : @(self.displayLinkWrapper.timestamp),
             @"refresh_rate" : @(actualFramesPerSecond),
