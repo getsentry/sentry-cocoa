@@ -48,11 +48,11 @@ NS_ASSUME_NONNULL_BEGIN
     if (tracer.context.traceId == nil || options.parsedDsn == nil)
         return nil;
 
-    
     NSString *userSegment;
-    if (scope.userObject.data[@"segment"] && [scope.userObject.data[@"segment"] isKindOfClass:[NSString class]])
+    if (scope.userObject.data[@"segment"] &&
+        [scope.userObject.data[@"segment"] isKindOfClass:[NSString class]])
         userSegment = scope.userObject.data[@"segment"];
-    
+
     NSNumber *sampleRate = nil;
     if ([tracer.context isKindOfClass:[SentryTransactionContext class]]) {
         sampleRate = [(SentryTransactionContext *)tracer.context sampleRate];
