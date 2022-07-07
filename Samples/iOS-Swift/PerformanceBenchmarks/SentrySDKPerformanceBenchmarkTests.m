@@ -3,8 +3,8 @@
 #import <objc/runtime.h>
 
 // To get around the 15 minute timeout per test case on Sauce Labs.
-static NSUInteger SentrySDKPerformanceBenchmarkTestCases = 10;
-static NSUInteger SentrySDKPerformanceBenchmarkIterationsPerTestCase = 2;
+static NSUInteger SentrySDKPerformanceBenchmarkTestCases = 1;
+static NSUInteger SentrySDKPerformanceBenchmarkIterationsPerTestCase = 5;
 
 // All results are aggregated to analyse after completing the separate,
 // dynamically generated test cases
