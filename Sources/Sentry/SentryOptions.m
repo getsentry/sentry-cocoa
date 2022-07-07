@@ -68,7 +68,6 @@ SentryOptions ()
         _defaultTracesSampleRate = nil;
         self.tracesSampleRate = _defaultTracesSampleRate;
         self.enableCoreDataTracking = NO;
-        _experimentalEnableTraceSampling = NO;
         _enableSwizzling = YES;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         self.enableProfiling = NO;
@@ -284,9 +283,6 @@ SentryOptions ()
     if ([options[@"urlSessionDelegate"] conformsToProtocol:@protocol(NSURLSessionDelegate)]) {
         self.urlSessionDelegate = options[@"urlSessionDelegate"];
     }
-
-    [self setBool:options[@"experimentalEnableTraceSampling"]
-            block:^(BOOL value) { self->_experimentalEnableTraceSampling = value; }];
 
     [self setBool:options[@"enableSwizzling"]
             block:^(BOOL value) { self->_enableSwizzling = value; }];

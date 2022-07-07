@@ -308,9 +308,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                        isCrashEvent:isCrashEvent];
 
     if (nil != preparedEvent) {
-        SentryTraceContext *traceContext = _options.experimentalEnableTraceSampling
-            ? [self getTraceStateWithEvent:event withScope:scope]
-            : nil;
+        SentryTraceContext *traceContext = [self getTraceStateWithEvent:event withScope:scope];
 
         NSArray *attachments = scope.attachments;
         if (self.attachmentProcessor)
@@ -338,9 +336,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             attachments = [self.attachmentProcessor processAttachments:attachments forEvent:event];
 
         if (nil == session.releaseName || [session.releaseName length] == 0) {
-            SentryTraceContext *traceContext = _options.experimentalEnableTraceSampling
-                ? [self getTraceStateWithEvent:event withScope:scope]
-                : nil;
+            SentryTraceContext *traceContext = [self getTraceStateWithEvent:event withScope:scope];
 
             [SentryLog logWithMessage:DropSessionLogMessage andLevel:kSentryLevelDebug];
 
