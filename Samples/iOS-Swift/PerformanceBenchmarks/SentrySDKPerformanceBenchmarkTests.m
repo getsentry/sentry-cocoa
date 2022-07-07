@@ -97,22 +97,14 @@ static BOOL checkedAssertions = NO;
             XCTFail(@"No benchmark value received from the app.");
         }
 
-        NSData *data = [[NSData alloc] initWithBase64EncodedString:benchmarkValueString options:0];
-        NSError *error;
-        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
-        if (dict == nil) {
-            XCTFail(@"Failed to deserialize results: %@", error);
-        }
+        NSArray *values = [benchmarkValueString componentsSeparatedByString:@","];
 
-        NSInteger profilerSystemTime = [dict[@"profiler"][@"system"] integerValue];
-        NSInteger profilerUserTime = [dict[@"profiler"][@"user"] integerValue];
-        NSInteger appSystemTime = [dict[@"app"][@"system"] integerValue];
-        NSInteger appUserTime = [dict[@"app"][@"user"] integerValue];
+        NSInteger profilerSystemTime = [values[0] integerValue];
+        NSInteger profilerUserTime = [values[1] integerValue];
+        NSInteger appSystemTime = [values[2] integerValue];
+        NSInteger appUserTime = [values[3] integerValue];
 
-        NSLog(@"[Sentry Benchmark] profiler system time: %ld", profilerSystemTime);
-        NSLog(@"[Sentry Benchmark] profiler user time: %ld", profilerUserTime);
-        NSLog(@"[Sentry Benchmark] app system time: %ld", appSystemTime);
-        NSLog(@"[Sentry Benchmark] app user time: %ld", appUserTime);
+        NSLog(@"[Sentry Benchmark] %ld,%ld,%ld,%ld", profilerSystemTime, profilerUserTime, appSystemTime, appUserTime);
 
         double usagePercentage = 100.0 * (profilerUserTime + profilerSystemTime) / (appUserTime + appSystemTime);
         

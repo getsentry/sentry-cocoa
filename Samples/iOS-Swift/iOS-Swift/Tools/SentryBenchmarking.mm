@@ -133,8 +133,8 @@ dispatch_queue_t queue;
 
     [samples removeAllObjects];
 
-    const auto samplingThreadSystemTime = systemTimeTotals[@"io.sentry.SamplingProfiler"].integerValue;
-    const auto samplingThreadUserTime = userTimeTotals[@"io.sentry.SamplingProfiler"].integerValue;
+    const auto profilerSystemTime = systemTimeTotals[@"io.sentry.SamplingProfiler"].integerValue;
+    const auto profilerUserTime = userTimeTotals[@"io.sentry.SamplingProfiler"].integerValue;
     [systemTimeTotals removeObjectForKey:@"io.sentry.SamplingProfiler"];
     [userTimeTotals removeObjectForKey:@"io.sentry.SamplingProfiler"];
     const auto appSystemTime
@@ -142,25 +142,7 @@ dispatch_queue_t queue;
     const auto appUserTime
         = ((NSNumber *)[userTimeTotals.allValues valueForKeyPath:@"@sum.self"]).integerValue;
 
-    const auto dict = @{
-        @"profiler": @{
-            @"system": @(samplingThreadSystemTime),
-            @"user": @(samplingThreadUserTime),
-        },
-        @"app": @{
-            @"system": @(appSystemTime),
-            @"user": @(appUserTime),
-        },
-    };
-
-    NSError *error;
-    const auto data = [NSJSONSerialization dataWithJSONObject:dict options:0 error:&error];
-    if (data == nil) {
-        printf("Error serializing results: %@\n", error);
-        return nil;
-    }
-
-    return [data base64EncodedStringWithOptions:0];
+    return [NSString stringWithFormat:@"%ld,%ld,%ld,%ld", profilerSystemTime, profilerUserTime, appSystemTime, appUserTime];
 }
 
 @end
