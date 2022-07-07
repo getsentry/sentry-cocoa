@@ -47,6 +47,8 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let lifeCycleCrumb = crumbs?[1]
         XCTAssertEqual("navigation", lifeCycleCrumb?.type)
         XCTAssertEqual("ui.lifecycle", lifeCycleCrumb?.category)
+        XCTAssertEqual("false", lifeCycleCrumb?.data?["beingPresented"] as? String)
+        XCTAssertEqual("UIViewController", lifeCycleCrumb?.data?["screen"] as? String)
     }
     
     func testExtractDataFrom_View() {
