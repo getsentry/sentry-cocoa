@@ -57,10 +57,6 @@
             [self sanitizeViewControllerName:controller.parentViewController];
     }
 
-    if (controller.storyboard != nil) {
-        info[@"storyboard"] = controller.storyboard.description;
-    }
-
     if (controller.view.window != nil) {
         info[@"window"] = controller.view.window.description;
         info[@"window_isKeyWindow"] = controller.view.window.isKeyWindow ? @"true" : @"false";
