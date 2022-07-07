@@ -55,7 +55,8 @@ NS_ASSUME_NONNULL_BEGIN
 
     NSString *sampleRate = nil;
     if ([tracer.context isKindOfClass:[SentryTransactionContext class]]) {
-        sampleRate = [NSString stringWithFormat:@"%@", [(SentryTransactionContext *)tracer.context sampleRate]];
+        sampleRate = [NSString
+            stringWithFormat:@"%@", [(SentryTransactionContext *)tracer.context sampleRate]];
     }
 
     return [self initWithTraceId:tracer.context.traceId
@@ -81,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
     } else {
         userSegment = dictionary[@"user_segment"];
     }
-            
+
     return [self initWithTraceId:traceId
                        publicKey:publicKey
                      releaseName:dictionary[@"release"]
