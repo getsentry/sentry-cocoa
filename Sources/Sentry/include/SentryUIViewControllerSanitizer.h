@@ -22,8 +22,12 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The view controller sanitized class name.
  */
 + (NSString *)sanitizeViewControllerName:(id)controller;
-+ (NSString *)extractTitle:(UIViewController *)controller;
 
+/**
+ * Fetch useful information about a UIViewController like its classname,
+ * title, presentation mode, and mode.
+ * */
++ (NSDictionary *)fetchInfoAboutViewController:(UIViewController *)controller;
 @end
 
 NS_ASSUME_NONNULL_END

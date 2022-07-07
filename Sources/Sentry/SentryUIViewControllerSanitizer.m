@@ -31,12 +31,38 @@
     return description;
 }
 
-+ (NSString *)extractTitle:(UIViewController *)controller
++ (NSDictionary *)fetchInfoAboutViewController:(UIViewController *)controller
 {
+    NSMutableDictionary *info = @ { }.mutableCopy;
+
+    info[@"screen"] = [self sanitizeViewControllerName:[NSString stringWithFormat:@"%@", controller]];
+
     if ([controller.navigationItem.title length] != 0) {
-        return controller.navigationItem.title;
+        info[@"title"] = controller.navigationItem.title;
+    } else if ([controller.title length] != 0) {
+        info[@"title"] = controller.title;
     }
-    return controller.title;
+
+    info[@"beingPresented"] = controller.beingPresented ? @"true" : @"false";
+
+    if (controller.presentingViewController != nil) {
+        info[@"presentingViewController"] = [self sanitizeViewControllerName:controller.presentingViewController];
+    }
+
+    if (controller.parentViewController != nil) {
+        info[@"parentViewController"] = [self sanitizeViewControllerName:controller.parentViewController];
+    }
+
+    if (controller.storyboard != nil) {
+        info[@"storyboard"] = controller.storyboard.description;
+    }
+
+    if (controller.view.window != nil) {
+        info[@"window"] = controller.view.window.description;
+        info[@"window_isKeyWindow"] = controller.view.window.isKeyWindow ? @"true" : @"false";
+    }
+
+    return info;
 }
 
 @end

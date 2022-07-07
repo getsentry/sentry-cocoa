@@ -192,22 +192,12 @@ SentryBreadcrumbTracker ()
                 SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
                                                                          category:@"ui.lifecycle"];
                 crumb.type = @"navigation";
-                NSString *viewControllerName = [SentryUIViewControllerSanitizer
-                    sanitizeViewControllerName:[NSString stringWithFormat:@"%@", self]];
-
-                NSMutableDictionary *data = @ { @"screen" : viewControllerName }.mutableCopy;
-
-                NSString *title = [SentryUIViewControllerSanitizer extractTitle:self];
-                if ([title length] != 0) {
-                    data[@"title"] = title;
-                }
-
-                crumb.data = data;
+                crumb.data = [SentryUIViewControllerSanitizer fetchInfoAboutViewController:self];
 
                 // Adding crumb via the SDK calls SentryBeforeBreadcrumbCallback
                 [SentrySDK addBreadcrumb:crumb];
                 [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
-                    [scope setExtraValue:viewControllerName forKey:@"__sentry_transaction"];
+                    [scope setExtraValue:crumb.data[@"screen"] forKey:@"__sentry_transaction"];
                 }];
             }
             SentrySWCallOriginal(animated);
