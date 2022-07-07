@@ -49,6 +49,7 @@
 
 - (int64_t)getReportIDFromPath:(NSString *)path
 {
+
     const char *filename = path.lastPathComponent.UTF8String;
     char scanFormat[100];
     snprintf(
@@ -217,6 +218,59 @@
     NSString *reportContents = @"Testing";
     int64_t reportID = [self writeCrashReportWithStringContents:reportContents];
     [self expectReports:@[ @(reportID) ] areStrings:@[ reportContents ]];
+}
+
+- (void)test_ScreenshotsPath_forReportId
+{
+    self.appName = @"AppName";
+    [self prepareReportStoreWithPathEnd:@"/ReportPath"];
+    uint64_t reportId = 84568454541;
+
+    char screenshotsPath[SentryCrashCRS_MAX_PATH_LENGTH];
+    sentrycrashcrs_getScreenshotPath_forReportId(reportId, screenshotsPath);
+
+    XCTAssertEqualObjects([NSString stringWithUTF8String:screenshotsPath],
+        [self.tempPath stringByAppendingPathComponent:
+                           @"/ReportPath/AppName-report-00000013b0ac358d-screenshots"]);
+}
+
+- (void)test_ScreenshotsPath_forReport
+{
+    self.appName = @"AppName";
+    [self prepareReportStoreWithPathEnd:@"/ReportPath"];
+
+    uint64_t reportId = 84568454541;
+
+    char reportPath[SentryCrashCRS_MAX_PATH_LENGTH];
+    sentrycrashcrs_getCrashReportPathById(reportId, reportPath);
+
+    char screenshotPath[SentryCrashCRS_MAX_PATH_LENGTH];
+    sentrycrashcrs_getScreenshotsPath_forReport(reportPath, screenshotPath);
+
+    XCTAssertEqualObjects([NSString stringWithUTF8String:screenshotPath],
+        [self.tempPath stringByAppendingPathComponent:
+                           @"/ReportPath/AppName-report-00000013b0ac358d-screenshots"]);
+}
+
+- (void)test_initializeIDs
+{
+    self.appName = @"AppName";
+
+    [self prepareReportStoreWithPathEnd:@"/ReportPath"];
+
+    char firstReportPath[SentryCrashCRS_MAX_PATH_LENGTH];
+    sentrycrashcrs_getNextCrashReportPath(firstReportPath);
+
+    // Unique Ids are created based on the time,
+    // thats why we sleep for 1 second, to see a different Id being created
+    // during initialization.
+    [NSThread sleepForTimeInterval:1];
+    [self prepareReportStoreWithPathEnd:@"/ReportPath"];
+
+    char secondReportPath[SentryCrashCRS_MAX_PATH_LENGTH];
+    sentrycrashcrs_getNextCrashReportPath(secondReportPath);
+    XCTAssertNotEqualObjects([NSString stringWithUTF8String:firstReportPath],
+        [NSString stringWithUTF8String:secondReportPath]);
 }
 
 @end

@@ -4,6 +4,7 @@
 
 ### Features
 
+- Add screenshot at crash (#1920)
 - Track timezone changes as breadcrumbs (#1930)
 - Enhance the UIViewController breadcrumbs with more data (#1945)
 
