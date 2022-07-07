@@ -1,0 +1,25 @@
+## You can find more hooks here https://pre-commit.com/hooks.html
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: check-xml
+      - id: check-yaml
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: no-commit-to-branch
+        args: ["-b master"]
+
+  - repo: local
+    hooks:
+      - id: clang-format
+        name: Clang Format
+        entry: make
+        language: system
+        args:
+          - "format"
