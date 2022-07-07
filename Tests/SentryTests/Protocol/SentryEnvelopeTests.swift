@@ -41,7 +41,7 @@ class SentryEnvelopeTests: XCTestCase {
         }
 
         var eventWithContinousSerializationFailure: Event {
-            let event = EventSeriliazationFailure()
+            let event = EventSerializationFailure()
             event.message = SentryMessage(formatted: "Failure")
             event.releaseName = "release"
             event.environment = "environment"
@@ -290,7 +290,7 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertFalse(json.contains("\"contexts\":{"))
     }
 
-    private class EventSeriliazationFailure: Event {
+    private class EventSerializationFailure: Event {
         override func serialize() -> [String: Any] {
             return ["is going": ["to fail": Date()]]
         }
