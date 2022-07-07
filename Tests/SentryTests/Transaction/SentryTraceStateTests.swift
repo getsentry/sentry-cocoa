@@ -12,7 +12,7 @@ class SentryTraceContextTests: XCTestCase {
         let tracer: SentryTracer
         let userId = "SomeUserID"
         let userSegment = "Test Segment"
-        let sampleRate = NSNumber(value: 0.45)
+        let sampleRate = "0.45"
         let traceId: SentryId
         let publicKey = "SentrySessionTrackerTests"
         let releaseName = "SentrySessionTrackerIntegrationTests"

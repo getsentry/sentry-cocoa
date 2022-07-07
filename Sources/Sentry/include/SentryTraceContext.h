@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Sample rate used for this trace.
  */
-@property (nullable, nonatomic) NSNumber *sampleRate;
+@property (nullable, nonatomic) NSString *sampleRate;
 
 /**
  * Initializes a SentryTraceContext with given properties.
@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
                     userSegment:(nullable NSString *)userSegment
-                     sampleRate:(nullable NSNumber *)sampleRate;
+                     sampleRate:(nullable NSString *)sampleRate;
 
 /**
  * Initializes a SentryTraceContext with data from scope and options.

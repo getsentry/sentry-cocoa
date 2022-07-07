@@ -47,14 +47,14 @@ static NSString *const SENTRY_BAGGAGE_HEADER = @"baggage";
 /**
  * The sample rate.
  */
-@property (nullable, nonatomic, readonly) NSNumber *sampleRate;
+@property (nullable, nonatomic, readonly) NSString *sampleRate;
 
 - (instancetype)initWithTraceId:(SentryId *)traceId
                       publicKey:(NSString *)publicKey
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
                     userSegment:(nullable NSString *)userSegment
-                     sampleRate:(nullable NSNumber *)sampleRate;
+                     sampleRate:(nullable NSString *)sampleRate;
 
 - (NSString *)toHTTPHeader;
 

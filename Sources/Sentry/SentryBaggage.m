@@ -15,7 +15,7 @@
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
                     userSegment:(nullable NSString *)userSegment
-                     sampleRate:(nullable NSNumber *)sampleRate
+                     sampleRate:(nullable NSString *)sampleRate
 {
 
     if (self = [super init]) {

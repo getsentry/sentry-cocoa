@@ -4,7 +4,7 @@ class SentrySerializationTests: XCTestCase {
     
     private class Fixture {
         static var invalidData = "hi".data(using: .utf8)!
-        static var traceContext = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", userSegment: "some segment", sampleRate: NSNumber(value: 0.25))
+        static var traceContext = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", userSegment: "some segment", sampleRate: "0.25")
     }
 
     func testSentryEnvelopeSerializer_WithSingleEvent() {

@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
                     userSegment:(nullable NSString *)userSegment
-                     sampleRate:(nullable NSNumber *)sampleRate
+                     sampleRate:(nullable NSString *)sampleRate
 {
     if (self = [super init]) {
         _traceId = traceId;
@@ -53,9 +53,9 @@ NS_ASSUME_NONNULL_BEGIN
         [scope.userObject.data[@"segment"] isKindOfClass:[NSString class]])
         userSegment = scope.userObject.data[@"segment"];
 
-    NSNumber *sampleRate = nil;
+    NSString *sampleRate = nil;
     if ([tracer.context isKindOfClass:[SentryTransactionContext class]]) {
-        sampleRate = [(SentryTransactionContext *)tracer.context sampleRate];
+        sampleRate = [NSString stringWithFormat:@"%@", [(SentryTransactionContext *)tracer.context sampleRate]];
     }
 
     return [self initWithTraceId:tracer.context.traceId
@@ -81,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
     } else {
         userSegment = dictionary[@"user_segment"];
     }
-
+            
     return [self initWithTraceId:traceId
                        publicKey:publicKey
                      releaseName:dictionary[@"release"]
@@ -116,7 +116,7 @@ NS_ASSUME_NONNULL_BEGIN
         [result setValue:_userSegment forKey:@"user_segment"];
 
     if (_sampleRate != nil)
-        [result setValue:[NSString stringWithFormat:@"%@", _sampleRate] forKey:@"sample_rate"];
+        [result setValue:_sampleRate forKey:@"sample_rate"];
 
     return result;
 }
