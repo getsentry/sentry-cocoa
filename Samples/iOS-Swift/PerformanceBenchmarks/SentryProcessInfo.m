@@ -1,9 +1,11 @@
 #import "SentryProcessInfo.h"
-#import <sys/sysctl.h>
 #import <UIKit/UIKit.h>
+#import <sys/sysctl.h>
 #import <unistd.h>
 
-BOOL isDebugging() {
+BOOL
+isDebugging()
+{
     struct kinfo_proc info;
 
     // Initialize the flags so that, if sysctl fails for some bizarre
@@ -30,8 +32,10 @@ BOOL isDebugging() {
     return (info.kp_proc.p_flag & P_TRACED) != 0;
 }
 
-BOOL isSimulator() {
-    NSOperatingSystemVersion ios9 = {9, 0, 0};
+BOOL
+isSimulator()
+{
+    NSOperatingSystemVersion ios9 = { 9, 0, 0 };
     NSProcessInfo *processInfo = [NSProcessInfo processInfo];
     if ([processInfo isOperatingSystemAtLeastVersion:ios9]) {
         NSDictionary<NSString *, NSString *> *environment = [processInfo environment];

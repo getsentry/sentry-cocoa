@@ -1,6 +1,6 @@
 #import "SentryProcessInfo.h"
-#import <objc/runtime.h>
 #import <XCTest/XCTest.h>
+#import <objc/runtime.h>
 
 // To get around the 15 minute timeout per test case on Sauce Labs.
 static NSUInteger SentrySDKPerformanceBenchmarkTestCases = 10;
@@ -21,7 +21,8 @@ static BOOL checkedAssertions = NO;
  * Dynamically add a test method to an XCTestCase class.
  * @see https://www.gaige.net/dynamic-xctests.html
  */
-+ (BOOL)addInstanceMethodWithSelectorName:(NSString *)selectorName block:(void (^)(id))block {
++ (BOOL)addInstanceMethodWithSelectorName:(NSString *)selectorName block:(void (^)(id))block
+{
     NSParameterAssert(selectorName);
     NSParameterAssert(block);
 
@@ -33,41 +34,53 @@ static BOOL checkedAssertions = NO;
     return class_addMethod(self, selector, myIMP, "v@:");
 }
 
-+ (void)initialize {
++ (void)initialize
+{
     allResults = [NSMutableArray array];
     for (NSUInteger i = 0; i < SentrySDKPerformanceBenchmarkTestCases; i++) {
-        [self addInstanceMethodWithSelectorName:[NSString stringWithFormat:@"testCPUBenchmark%lu", (unsigned long)i] block:^(XCTestCase *testCase) {
-            [allResults addObjectsFromArray:[self _testCPUBenchmark]];
-        }];
+        [self addInstanceMethodWithSelectorName:[NSString stringWithFormat:@"testCPUBenchmark%lu",
+                                                          (unsigned long)i]
+                                          block:^(XCTestCase *testCase) {
+                                              [allResults
+                                                  addObjectsFromArray:[self _testCPUBenchmark]];
+                                          }];
     }
 }
 
-- (void)tearDown {
-    if (allResults.count == SentrySDKPerformanceBenchmarkTestCases * SentrySDKPerformanceBenchmarkIterationsPerTestCase) {
+- (void)tearDown
+{
+    if (allResults.count
+        == SentrySDKPerformanceBenchmarkTestCases
+            * SentrySDKPerformanceBenchmarkIterationsPerTestCase) {
         NSUInteger index = (NSUInteger)ceil(0.9 * allResults.count);
-        NSNumber *p90 = [allResults sortedArrayUsingComparator:^NSComparisonResult(NSNumber *a, NSNumber *b) {
-            return [a compare:b];
-        }][index >= allResults.count ? allResults.count - 1 : index];
-        XCTAssertLessThanOrEqual(p90.doubleValue, 5, @"Profiling P90 overhead should remain under 5%%.");
+        NSNumber *p90 =
+            [allResults sortedArrayUsingComparator:^NSComparisonResult(NSNumber *a, NSNumber *b) {
+                return [a compare:b];
+            }][index >= allResults.count ? allResults.count - 1 : index];
+        XCTAssertLessThanOrEqual(
+            p90.doubleValue, 5, @"Profiling P90 overhead should remain under 5%%.");
         checkedAssertions = YES;
     }
 
     [super tearDown];
 }
 
-+ (void)tearDown {
++ (void)tearDown
+{
     if (!checkedAssertions) {
         @throw @"Did not perform assertion checks, might not have completed all benchmark trials.";
     }
 }
 
-+ (NSArray<NSNumber *> *)_testCPUBenchmark {
++ (NSArray<NSNumber *> *)_testCPUBenchmark
+{
     XCTSkipIf(isSimulator() && !isDebugging());
 
     NSMutableArray *results = [NSMutableArray array];
     for (NSUInteger j = 0; j < SentrySDKPerformanceBenchmarkIterationsPerTestCase; j++) {
         XCUIApplication *app = [[XCUIApplication alloc] init];
-        app.launchArguments = [app.launchArguments arrayByAddingObject:@"--io.sentry.test.benchmarking"];
+        app.launchArguments =
+            [app.launchArguments arrayByAddingObject:@"--io.sentry.test.benchmarking"];
         [app launch];
         [app.buttons[@"Performance scenarios"] tap];
 
@@ -91,8 +104,10 @@ static BOOL checkedAssertions = NO;
         }
 
         NSString *benchmarkValueString = textField.value;
-        // SentryBenchmarking.retrieveBenchmarks returns nil if there aren't at least 2 samples to use for calculating deltas
-        XCTAssertFalse([benchmarkValueString isEqualToString:@"nil"], @"Failure to record enough CPU samples to calculate benchmark.");
+        // SentryBenchmarking.retrieveBenchmarks returns nil if there aren't at least 2 samples to
+        // use for calculating deltas
+        XCTAssertFalse([benchmarkValueString isEqualToString:@"nil"],
+            @"Failure to record enough CPU samples to calculate benchmark.");
         if (benchmarkValueString == nil) {
             XCTFail(@"No benchmark value received from the app.");
         }
@@ -104,10 +119,12 @@ static BOOL checkedAssertions = NO;
         NSInteger appSystemTime = [values[2] integerValue];
         NSInteger appUserTime = [values[3] integerValue];
 
-        NSLog(@"[Sentry Benchmark] %ld,%ld,%ld,%ld", profilerSystemTime, profilerUserTime, appSystemTime, appUserTime);
+        NSLog(@"[Sentry Benchmark] %ld,%ld,%ld,%ld", profilerSystemTime, profilerUserTime,
+            appSystemTime, appUserTime);
 
-        double usagePercentage = 100.0 * (profilerUserTime + profilerSystemTime) / (appUserTime + appSystemTime);
-        
+        double usagePercentage
+            = 100.0 * (profilerUserTime + profilerSystemTime) / (appUserTime + appSystemTime);
+
         [results addObject:@(usagePercentage)];
     }
 

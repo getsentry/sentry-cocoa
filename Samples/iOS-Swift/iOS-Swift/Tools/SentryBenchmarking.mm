@@ -142,7 +142,8 @@ dispatch_queue_t queue;
     const auto appUserTime
         = ((NSNumber *)[userTimeTotals.allValues valueForKeyPath:@"@sum.self"]).integerValue;
 
-    return [NSString stringWithFormat:@"%ld,%ld,%ld,%ld", profilerSystemTime, profilerUserTime, appSystemTime, appUserTime];
+    return [NSString stringWithFormat:@"%ld,%ld,%ld,%ld", profilerSystemTime, profilerUserTime,
+                     appSystemTime, appUserTime];
 }
 
 @end
