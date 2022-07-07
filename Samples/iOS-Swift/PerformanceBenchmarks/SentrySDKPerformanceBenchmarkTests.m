@@ -3,8 +3,8 @@
 #import <XCTest/XCTest.h>
 
 // To get around the 15 minute timeout per test case on Sauce Labs.
-static NSUInteger SentrySDKPerformanceBenchmarkTestCases = 4;
-static NSUInteger SentrySDKPerformanceBenchmarkIterationsPerTestCase = 5;
+static NSUInteger SentrySDKPerformanceBenchmarkTestCases = 10;
+static NSUInteger SentrySDKPerformanceBenchmarkIterationsPerTestCase = 2;
 
 // All results are aggregated to analyse after completing the separate,
 // dynamically generated test cases
