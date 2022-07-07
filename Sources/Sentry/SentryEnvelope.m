@@ -106,9 +106,8 @@ NS_ASSUME_NONNULL_BEGIN
 
         // Add some context to the event. We can only set simple properties otherwise we
         // risk that the conversion fails again.
-        NSString *message =
-            [NSString stringWithFormat:@"JSON conversion error for event with message: '%@'",
-                      event.message];
+        NSString *message = [NSString
+            stringWithFormat:@"JSON conversion error for event with message: '%@'", event.message];
 
         errorEvent.message = [[SentryMessage alloc] initWithFormatted:message];
         errorEvent.releaseName = event.releaseName;
