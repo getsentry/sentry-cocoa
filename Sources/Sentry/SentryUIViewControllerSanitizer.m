@@ -33,9 +33,10 @@
 
 + (NSDictionary *)fetchInfoAboutViewController:(UIViewController *)controller
 {
-    NSMutableDictionary *info = @ { }.mutableCopy;
+    NSMutableDictionary *info = @{}.mutableCopy;
 
-    info[@"screen"] = [self sanitizeViewControllerName:[NSString stringWithFormat:@"%@", controller]];
+    info[@"screen"] =
+        [self sanitizeViewControllerName:[NSString stringWithFormat:@"%@", controller]];
 
     if ([controller.navigationItem.title length] != 0) {
         info[@"title"] = controller.navigationItem.title;
@@ -46,11 +47,13 @@
     info[@"beingPresented"] = controller.beingPresented ? @"true" : @"false";
 
     if (controller.presentingViewController != nil) {
-        info[@"presentingViewController"] = [self sanitizeViewControllerName:controller.presentingViewController];
+        info[@"presentingViewController"] =
+            [self sanitizeViewControllerName:controller.presentingViewController];
     }
 
     if (controller.parentViewController != nil) {
-        info[@"parentViewController"] = [self sanitizeViewControllerName:controller.parentViewController];
+        info[@"parentViewController"] =
+            [self sanitizeViewControllerName:controller.parentViewController];
     }
 
     if (controller.storyboard != nil) {
