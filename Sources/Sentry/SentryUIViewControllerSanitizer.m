@@ -31,6 +31,7 @@
     return description;
 }
 
+#if SENTRY_HAS_UIKIT
 + (NSDictionary *)fetchInfoAboutViewController:(UIViewController *)controller
 {
     NSMutableDictionary *info = @{}.mutableCopy;
@@ -67,5 +68,6 @@
 
     return info;
 }
+#endif
 
 @end
