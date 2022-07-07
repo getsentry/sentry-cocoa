@@ -68,23 +68,6 @@ SentryCrashMonitorType sentrycrash_setMonitoring(SentryCrashMonitorType monitors
  */
 void sentrycrash_setUserInfoJSON(const char *const userInfoJSON);
 
-/** Set the maximum time to allow the main thread to run without returning.
- * If a task occupies the main thread for longer than this interval, the
- * watchdog will consider the queue deadlocked and shut down the app and write a
- * crash report.
- *
- * Warning: Make SURE that nothing in your app that runs on the main thread
- * takes longer to complete than this value or it WILL get shut down! This
- * includes your app startup process, so you may need to push app initialization
- * to another thread, or perhaps set this to a higher value until your
- * application has been fully initialized.
- *
- * 0 = Disabled.
- *
- * Default: 0
- */
-void sentrycrash_setDeadlockWatchdogInterval(double deadlockWatchdogInterval);
-
 /** If true, introspect memory contents during a crash.
  * Any Objective-C objects or C strings near the stack pointer or referenced by
  * cpu registers or exceptions will be recorded in the crash report, along with
