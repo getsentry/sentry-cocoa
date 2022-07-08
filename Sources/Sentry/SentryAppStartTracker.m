@@ -180,6 +180,7 @@ SentryAppStartTracker ()
             [[SentryAppStartMeasurement alloc] initWithType:appStartType
                                           appStartTimestamp:self.sysctl.processStartTimestamp
                                                    duration:appStartDuration
+                                              mainTimestamp:self.sysctl.mainTimestamp
                                        runtimeInitTimestamp:runtimeInit
                                 didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
 

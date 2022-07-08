@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- feat: Add runtime init app start span (#1952)
+
 ## 7.20.0
 
 ### Features
@@ -29,7 +35,7 @@
 ## 7.18.0
 
 ### Features
- 
+
 - Replace tracestate header with baggage (#1867)
 
 ### Fixes

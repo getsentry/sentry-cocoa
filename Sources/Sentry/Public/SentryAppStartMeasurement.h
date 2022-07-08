@@ -18,6 +18,19 @@ SENTRY_NO_INIT
               appStartTimestamp:(NSDate *)appStartTimestamp
                        duration:(NSTimeInterval)duration
            runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
+    didFinishLaunchingTimestamp:(NSDate *)didFinishLaunchingTimestamp
+    DEPRECATED_MSG_ATTRIBUTE("Use "
+                             "initWithType:appStartTimestamp:duration:mainTimestamp:"
+                             "runtimeInitTimestamp:didFinishLaunchingTimestamp instead.");
+
+/**
+ * Initializes SentryAppStartMeasurement with the given parameters.
+ */
+- (instancetype)initWithType:(SentryAppStartType)type
+              appStartTimestamp:(NSDate *)appStartTimestamp
+                       duration:(NSTimeInterval)duration
+                  mainTimestamp:(NSDate *)mainTimestamp
+           runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
     didFinishLaunchingTimestamp:(NSDate *)didFinishLaunchingTimestamp;
 
 /**
@@ -35,6 +48,11 @@ SENTRY_NO_INIT
  * The timestamp when the app started, which is is the proces start timestamp.
  */
 @property (readonly, nonatomic, strong) NSDate *appStartTimestamp;
+
+/**
+ * When application main function is called.
+ */
+@property (readonly, nonatomic, strong) NSDate *mainTimestamp;
 
 /**
  * When the runtime was initialized / when SentryAppStartTracker is added to the Objective-C runtime

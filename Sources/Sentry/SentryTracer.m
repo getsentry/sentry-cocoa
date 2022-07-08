@@ -588,10 +588,16 @@ static NSLock *profilerLock;
                                    description:type];
     [appStartSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
 
+    SentrySpan *premainSpan = [self buildSpan:appStartSpan.context.spanId
+                                    operation:operation
+                                  description:@"Pre main"];
+    [premainSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
+    [premainSpan setTimestamp:appStartMeasurement.mainTimestamp];
+
     SentrySpan *runtimeInitSpan = [self buildSpan:appStartSpan.context.spanId
                                         operation:operation
-                                      description:@"Pre main"];
-    [runtimeInitSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
+                                      description:@"Runtime Init"];
+    [runtimeInitSpan setStartTimestamp:appStartMeasurement.mainTimestamp];
     [runtimeInitSpan setTimestamp:appStartMeasurement.runtimeInitTimestamp];
 
     SentrySpan *appInitSpan = [self buildSpan:appStartSpan.context.spanId
@@ -608,7 +614,7 @@ static NSLock *profilerLock;
 
     [appStartSpan setTimestamp:appStartEndTimestamp];
 
-    return @[ appStartSpan, runtimeInitSpan, appInitSpan, frameRenderSpan ];
+    return @[ appStartSpan, premainSpan, runtimeInitSpan, appInitSpan, frameRenderSpan ];
 }
 
 - (void)addMeasurements:(SentryTransaction *)transaction
