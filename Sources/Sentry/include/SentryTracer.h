@@ -45,7 +45,7 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 @property (readonly) BOOL waitForChildren;
 
 /**
- * Retrieves a trace state from this tracer.
+ * Retrieves a trace context from this tracer.
  */
 @property (nonatomic, readonly) SentryTraceContext *traceContext;
 

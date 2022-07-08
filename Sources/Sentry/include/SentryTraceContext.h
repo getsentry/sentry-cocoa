@@ -6,30 +6,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryScope, SentryOptions, SentryTracer, SentryUser, SentryBaggage;
 
-@interface SentryTraceContextUser : NSObject
-
-/**
- * The id attribute of the user context.
- */
-@property (nullable, nonatomic, readonly) NSString *userId;
-
-/**
- * The value of a segment attribute in the user's data bag, if it exists.
- */
-@property (nullable, nonatomic, readonly) NSString *segment;
-
-/**
- * Initializes a SentryTraceContextUser with given properties.
- */
-- (instancetype)initWithUserId:(nullable NSString *)userId segment:(nullable NSString *)segment;
-
-/**
- * Initializes a SentryTraceContextUser with data from SentryUser.
- */
-- (instancetype)initWithUser:(nullable SentryUser *)user;
-
-@end
-
 @interface SentryTraceContext : NSObject <SentrySerializable>
 
 /**
@@ -54,14 +30,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, readonly) NSString *environment;
 
 /**
- * The transaction name set on the scope.
- */
-@property (nullable, nonatomic, readonly) NSString *transaction;
-
-/**
  * A subset of the scope's user context.
  */
-@property (nullable, nonatomic, readonly) SentryTraceContextUser *user;
+@property (nullable, nonatomic, readonly) NSString *userSegment;
+
+/**
+ * Sample rate used for this trace.
+ */
+@property (nullable, nonatomic) NSString *sampleRate;
 
 /**
  * Initializes a SentryTraceContext with given properties.
@@ -70,8 +46,8 @@ NS_ASSUME_NONNULL_BEGIN
                       publicKey:(NSString *)publicKey
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
-                    transaction:(nullable NSString *)transaction
-                           user:(nullable SentryTraceContextUser *)user;
+                    userSegment:(nullable NSString *)userSegment
+                     sampleRate:(nullable NSString *)sampleRate;
 
 /**
  * Initializes a SentryTraceContext with data from scope and options.

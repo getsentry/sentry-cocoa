@@ -4,9 +4,15 @@
 
 ### Features
 
+- Enhance the UIViewController breadcrumbs with more data (#1945)
+
+## 7.20.0
+
+### Features
+
 - Add screenshot at crash (#1920)
 - Track timezone changes as breadcrumbs (#1930)
-- Enhance the UIViewController breadcrumbs with more data (#1945)
+- Add sample rate in the baggage header, remove Userid and Transaction (#1936)
 
 ## 7.19.0
 
