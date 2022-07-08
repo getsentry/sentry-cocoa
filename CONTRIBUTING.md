@@ -17,7 +17,7 @@ For feedback in PRs, we use the [LOGAF scale](https://blog.danlew.net/2020/04/15
 
 ## Setting up an Environment
 
-Run `make init` to get started. This will install `bundler` and `Homebrew` and their managed dependencies (see `Gemfile` and `Brewfile`).
+Run `make init` to get started. This will install `pre-commit`, `bundler` and `Homebrew` and their managed dependencies (see `Gemfile` and `Brewfile`).
 
 ## Tests
 

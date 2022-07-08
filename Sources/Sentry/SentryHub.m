@@ -203,13 +203,18 @@ SentryHub ()
     return sessionCopy;
 }
 
+- (void)captureCrashEvent:(SentryEvent *)event
+{
+    [self captureCrashEvent:event withScope:self.scope];
+}
+
 /**
  * If autoSessionTracking is enabled we want to send the crash and the event together to get proper
  * numbers for release health statistics. If there are multiple crash events to be sent on the start
  * of the SDK there is currently no way to know which one belongs to the crashed session so we just
  * send the session with the first crashed event we receive.
  */
-- (void)captureCrashEvent:(SentryEvent *)event
+- (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
     event.isCrashEvent = YES;
 
@@ -226,13 +231,13 @@ SentryHub ()
         // It can be that there is no session yet, because autoSessionTracking was just enabled and
         // there is a previous crash on disk. In this case we just send the crash event.
         if (nil != crashedSession) {
-            [client captureCrashEvent:event withSession:crashedSession withScope:self.scope];
+            [client captureCrashEvent:event withSession:crashedSession withScope:scope];
             [fileManager deleteCrashedSession];
             return;
         }
     }
 
-    [client captureCrashEvent:event withScope:self.scope];
+    [client captureCrashEvent:event withScope:scope];
 }
 
 - (SentryId *)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
@@ -336,7 +341,9 @@ SentryHub ()
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
                                             customSamplingContext:customSamplingContext];
 
-    transactionContext.sampled = [_sampler sample:samplingContext];
+    SentryTracesSamplerDecision *samplerDecision = [_sampler sample:samplingContext];
+    transactionContext.sampled = samplerDecision.decision;
+    transactionContext.sampleRate = samplerDecision.sampleRate;
 
     id<SentrySpan> tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                          hub:self
@@ -358,7 +365,9 @@ SentryHub ()
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
                                             customSamplingContext:customSamplingContext];
 
-    transactionContext.sampled = [_sampler sample:samplingContext];
+    SentryTracesSamplerDecision *samplerDecision = [_sampler sample:samplingContext];
+    transactionContext.sampled = samplerDecision.decision;
+    transactionContext.sampleRate = samplerDecision.sampleRate;
 
     SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                         hub:self

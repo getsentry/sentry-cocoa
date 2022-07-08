@@ -2,13 +2,17 @@
 
 ## Unreleased
 
-### Features
-
-- Track timezone changes as breadcrumbs (#1930)
-
 ### Fixes
 
 - Properly sanitize the scope context (#1943)
+
+## 7.20.0
+
+### Features
+
+- Add screenshot at crash (#1920)
+- Track timezone changes as breadcrumbs (#1930)
+- Add sample rate in the baggage header, remove Userid and Transaction (#1936)
 
 ## 7.19.0
 

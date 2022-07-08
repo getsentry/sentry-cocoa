@@ -440,24 +440,6 @@
     [self testBooleanField:@"enableFileIOTracking" defaultValue:NO];
 }
 
-- (void)testEnableTraceSampling
-{
-    SentryOptions *options = [self getValidOptions:@{}];
-    XCTAssertFalse(options.experimentalEnableTraceSampling);
-}
-
-- (void)testEnableTraceSamplingEnabled
-{
-    SentryOptions *options = [self getValidOptions:@{ @"experimentalEnableTraceSampling" : @YES }];
-    XCTAssertTrue(options.experimentalEnableTraceSampling);
-}
-
-- (void)testEnableTraceSamplingDisabled
-{
-    SentryOptions *options = [self getValidOptions:@{ @"experimentalEnableTraceSampling" : @NO }];
-    XCTAssertFalse(options.experimentalEnableTraceSampling);
-}
-
 - (void)testEmptyConstructorSetsDefaultValues
 {
     SentryOptions *options = [[SentryOptions alloc] init];
@@ -551,7 +533,6 @@
     XCTAssertEqualObjects([self getDefaultInAppIncludes], options.inAppIncludes);
     XCTAssertEqual(@[], options.inAppExcludes);
     XCTAssertNil(options.urlSessionDelegate);
-    XCTAssertFalse(options.experimentalEnableTraceSampling);
     XCTAssertEqual(YES, options.enableSwizzling);
     XCTAssertEqual(NO, options.enableFileIOTracking);
 #if SENTRY_TARGET_PROFILING_SUPPORTED

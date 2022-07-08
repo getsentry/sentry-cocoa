@@ -286,13 +286,6 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic, weak) id<NSURLSessionDelegate> urlSessionDelegate;
 
 /**
- * Controls if the `tracestate` header is attached to envelopes and HTTP client integrations.
- *
- * Note: this is an experimental API and will be removed without notice.
- */
-@property (nonatomic) BOOL experimentalEnableTraceSampling;
-
-/**
  * Wether the SDK should use swizzling or not. Default is YES.
  *
  * @discussion When turned off the following features are disabled: breadcrumbs for touch events and
