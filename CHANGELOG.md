@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add option to choose Crash Report and offline Event directory (#1954)
+
 ## 7.20.0
 
 ### Features
