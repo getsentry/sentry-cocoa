@@ -26,7 +26,7 @@ class SentrySpanTests: XCTestCase {
         }
         
         func getSut(client: Client) -> Span {
-            let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: TestSentryCrashAdapter.sharedInstance(), andCurrentDateProvider: currentDateProvider)
+            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andCurrentDateProvider: currentDateProvider)
             return hub.startTransaction(name: someTransaction, operation: someOperation)
         }
         
@@ -191,7 +191,8 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testTraceHeaderSampled() {
-        let span = SentrySpan(transaction: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .yes))
+        fixture.options.tracesSampleRate = 1
+        let span = fixture.getSut()
         let header = span.toTraceHeader()
         
         XCTAssertEqual(header.traceId, span.context.traceId)

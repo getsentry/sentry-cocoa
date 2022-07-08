@@ -1,3 +1,4 @@
+import Sentry
 import XCTest
 
 // Altough we only run this test above the below specified versions, we exped the
@@ -12,7 +13,9 @@ class SentryHttpTransportTests: XCTestCase {
 
     private class Fixture {
         let event: Event
+        let eventEnvelope: SentryEnvelope
         let eventRequest: SentryNSURLRequest
+        let attachmentEnvelopeItem: SentryEnvelopeItem
         let eventWithAttachmentRequest: SentryNSURLRequest
         let eventWithSessionEnvelope: SentryEnvelope
         let eventWithSessionRequest: SentryNSURLRequest
@@ -23,10 +26,15 @@ class SentryHttpTransportTests: XCTestCase {
         let fileManager: SentryFileManager
         let options: Options
         let requestManager: TestRequestManager
+        let requestBuilder = TestNSURLRequestBuilder()
         let rateLimits: DefaultRateLimits
 
         let userFeedback: UserFeedback
         let userFeedbackRequest: SentryNSURLRequest
+        
+        let clientReport: SentryClientReport
+        let clientReportEnvelope: SentryEnvelope
+        let clientReportRequest: SentryNSURLRequest
 
         init() {
             currentDateProvider = TestCurrentDateProvider()
@@ -36,8 +44,10 @@ class SentryHttpTransportTests: XCTestCase {
             event.message = SentryMessage(formatted: "Some message")
 
             eventRequest = buildRequest(SentryEnvelope(event: event))
+            
+            attachmentEnvelopeItem = SentryEnvelopeItem(attachment: TestData.dataAttachment, maxAttachmentSize: 5 * 1_024 * 1_024)!
 
-            let eventEnvelope = SentryEnvelope(id: event.eventId, items: [SentryEnvelopeItem(event: event), SentryEnvelopeItem(attachment: TestData.dataAttachment, maxAttachmentSize: 5 * 1_024 * 1_024)!])
+            eventEnvelope = SentryEnvelope(id: event.eventId, items: [SentryEnvelopeItem(event: event), attachmentEnvelopeItem])
             eventWithAttachmentRequest = buildRequest(eventEnvelope)
 
             session = SentrySession(releaseName: "2.0.1")
@@ -55,12 +65,26 @@ class SentryHttpTransportTests: XCTestCase {
             requestManager = TestRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
             rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser()), andRateLimitParser: RateLimitParser())
 
-            userFeedback = UserFeedback(eventId: SentryId())
-            userFeedback.comments = "It doesn't really"
-            userFeedback.email = "john@me.com"
-            userFeedback.name = "John Me"
-
+            userFeedback = TestData.userFeedback
             userFeedbackRequest = buildRequest(SentryEnvelope(userFeedback: userFeedback))
+            
+            let beforeSendTransaction = SentryDiscardedEvent(reason: .beforeSend, category: .transaction, quantity: 2)
+            let sampleRateTransaction = SentryDiscardedEvent(reason: .sampleRate, category: .transaction, quantity: 1)
+            let rateLimitBackoffError = SentryDiscardedEvent(reason: .rateLimitBackoff, category: .error, quantity: 1)
+            
+            clientReport = SentryClientReport(discardedEvents: [
+                beforeSendTransaction,
+                sampleRateTransaction,
+                rateLimitBackoffError
+            ])
+            
+            let clientReportEnvelopeItems = [
+                SentryEnvelopeItem(event: event),
+                attachmentEnvelopeItem,
+                SentryEnvelopeItem(clientReport: clientReport)
+            ]
+            clientReportEnvelope = SentryEnvelope(id: event.eventId, items: clientReportEnvelopeItems)
+            clientReportRequest = buildRequest(clientReportEnvelope)
         }
 
         var sut: SentryHttpTransport {
@@ -69,6 +93,7 @@ class SentryHttpTransportTests: XCTestCase {
                     options: options,
                     fileManager: fileManager,
                     requestManager: requestManager,
+                    requestBuilder: requestBuilder,
                     rateLimits: rateLimits,
                     envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
                     dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
@@ -132,7 +157,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     func testSendEventWithSession_SentInOneEnvelope() {
-        sut.send(fixture.event, with: fixture.session, attachments: [])
+        sut.send(envelope: fixture.eventWithSessionEnvelope)
         waitForAllRequests()
 
         assertRequestsSent(requestCount: 1)
@@ -140,24 +165,47 @@ class SentryHttpTransportTests: XCTestCase {
 
         assertEventAndSesionAreSentInOneEnvelope()
     }
+    
+    func testSendEventWithFaultyNSUrlRequest() {
+        let envelope = SentryEnvelope(event: TestConstants.eventWithSerializationError)
+        sut.send(envelope: envelope)
 
+        assertRequestsSent(requestCount: 1)
+    }
+    
+    func testSendUserFeedback() {
+        let envelope = SentryEnvelope(userFeedback: fixture.userFeedback)
+        sut.send(envelope: envelope)
+        waitForAllRequests()
+
+        XCTAssertEqual(1, fixture.requestManager.requests.count)
+
+        let actualRequest = fixture.requestManager.requests.last
+        XCTAssertEqual(fixture.userFeedbackRequest.httpBody, actualRequest?.httpBody, "Request for user feedback is faulty.")
+    }
+    
     func testSendEventWithSession_RateLimitForEventIsActive_OnlySessionSent() {
         givenRateLimitResponse(forCategory: "error")
         sendEvent()
 
-        sut.send(fixture.event, with: fixture.session, attachments: [])
-
+        sut.send(envelope: fixture.eventWithSessionEnvelope)
         waitForAllRequests()
 
         assertRequestsSent(requestCount: 2)
         assertEnvelopesStored(envelopeCount: 0)
 
-        // Envelope with only Session is sent
-        let envelope = SentryEnvelope(id: fixture.event.eventId, items: [SentryEnvelopeItem(session: fixture.session)])
+        // Envelope with only session and client report is sent
+        let discardedError = SentryDiscardedEvent(reason: .rateLimitBackoff, category: .error, quantity: 1)
+        let clientReport = SentryClientReport(discardedEvents: [discardedError])
+        let envelopeItems = [
+            SentryEnvelopeItem(session: fixture.session),
+            SentryEnvelopeItem(clientReport: clientReport)
+        ]
+        let envelope = SentryEnvelope(id: fixture.event.eventId, items: envelopeItems)
         let request = SentryHttpTransportTests.buildRequest(envelope)
         XCTAssertEqual(request.httpBody, fixture.requestManager.requests.last?.httpBody)
     }
-
+    
     func testSendAllCachedEvents() {
         givenNoInternetConnection()
         sendEvent()
@@ -291,12 +339,6 @@ class SentryHttpTransportTests: XCTestCase {
         assertRequestsSent(requestCount: 3)
     }
 
-    func testSendEventWithFaultyNSUrlRequest() {
-        sut.send(event: TestConstants.eventWithSerializationError, attachments: [])
-
-        assertRequestsSent(requestCount: 1)
-    }
-
     func testSendOneEnvelope() {
         sendEnvelope()
 
@@ -378,6 +420,74 @@ class SentryHttpTransportTests: XCTestCase {
 
         XCTAssertEqual(fixture.sessionRequest.httpBody, fixture.requestManager.requests.invocations[2].httpBody, "Cached envelope was not sent first.")
     }
+    
+    func testRecordLostEvent_SendingEvent_AttachesClientReport() {
+        givenRecordedLostEvents()
+        
+        sendEvent()
+        
+        let actualEventRequest = fixture.requestManager.requests.last
+        XCTAssertEqual(fixture.clientReportRequest.httpBody, actualEventRequest?.httpBody, "Client report not sent.")
+    }
+    
+    func testRecordLostEvent_SendingEvent_ClearsLostEvents() {
+        givenRecordedLostEvents()
+        
+        sendEvent()
+        
+        // Second envelope item doesn't contain client reports
+        sendEvent()
+        assertEventIsSentAsEnvelope()
+    }
+    
+    func testRecordLostEvent_NoInternet_StoredWithEnvelope() {
+        givenNoInternetConnection()
+        givenRecordedLostEvents()
+        
+        sendEvent()
+        givenOkResponse()
+        sendEvent()
+        
+        let actualEventRequest = fixture.requestManager.requests.first
+        XCTAssertEqual(fixture.clientReportRequest.httpBody, actualEventRequest?.httpBody, "Client report not sent.")
+    }
+    
+    func testEventRateLimited_RecordsLostEvent() {
+        let rateLimitBackoffError = SentryDiscardedEvent(reason: .rateLimitBackoff, category: .error, quantity: 1)
+        let clientReport = SentryClientReport(discardedEvents: [rateLimitBackoffError])
+        
+        let clientReportEnvelopeItems = [
+            fixture.attachmentEnvelopeItem,
+            SentryEnvelopeItem(clientReport: clientReport)
+        ]
+        let clientReportEnvelope = SentryEnvelope(id: fixture.event.eventId, items: clientReportEnvelopeItems)
+        let clientReportRequest = SentryHttpTransportTests.buildRequest(clientReportEnvelope)
+        
+        givenRateLimitResponse(forCategory: "error")
+        sendEvent()
+        sendEvent()
+        
+        let actualEventRequest = fixture.requestManager.requests.last
+        XCTAssertEqual(clientReportRequest.httpBody, actualEventRequest?.httpBody, "Client report not sent.")
+    }
+    
+    func testCacheFull_RecordsLostEvent() {
+        givenNoInternetConnection()
+        for _ in 0...fixture.options.maxCacheItems {
+            sendEventAsync()
+        }
+        
+        waitForAllRequests()
+        
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertNotNil(dict)
+        XCTAssertEqual(2, dict?.count)
+        
+        let deletedError = dict?["error:cache_overflow"]
+        let attachment = dict?["attachment:cache_overflow"]
+        XCTAssertEqual(1, deletedError?.quantity)
+        XCTAssertEqual(1, attachment?.quantity)
+    }
 
     func testPerformanceOfSending() {
         self.measure {
@@ -402,6 +512,7 @@ class SentryHttpTransportTests: XCTestCase {
             for _ in 0...20 {
                 group.enter()
                 queue.async {
+                    self.givenRecordedLostEvents()
                     self.sendEventAsync()
                     group.leave()
                 }
@@ -415,27 +526,87 @@ class SentryHttpTransportTests: XCTestCase {
 
         XCTAssertEqual(210, fixture.requestManager.requests.count)
     }
-
-    func testSendUserFeedback() {
-        sut.send(userFeedback: fixture.userFeedback)
-        waitForAllRequests()
-
-        XCTAssertEqual(1, fixture.requestManager.requests.count)
-
-        let actualRequest = fixture.requestManager.requests.last
-        XCTAssertEqual(fixture.userFeedbackRequest.httpBody, actualRequest?.httpBody, "Request for user feedback is faulty.")
+    
+    func testBuildingRequestFails_DeletesEnvelopeAndSendsNext() {
+        givenNoInternetConnection()
+        sendEvent()
+        
+        fixture.requestBuilder.shouldFailWithError = true
+        sendEvent()
+        assertEnvelopesStored(envelopeCount: 0)
+        assertRequestsSent(requestCount: 1)
     }
-
-    func testSendFaultyAttachment() {
-        let faultyAttachment = Attachment(path: "")
-        sut.send(event: fixture.event, attachments: [faultyAttachment])
-        waitForAllRequests()
-
-        XCTAssertEqual(1, fixture.requestManager.requests.count)
-
-        // The attachment gets dropped
-        let actualRequest = fixture.requestManager.requests.last
-        XCTAssertEqual(fixture.eventRequest.httpBody, actualRequest?.httpBody, "Request for faulty attachment is faulty.")
+    
+    func testBuildingRequestFailsAndRateLimitActive_RecordsLostEvents() {
+        givenRateLimitResponse(forCategory: "error")
+        sendEvent()
+        
+        fixture.requestBuilder.shouldFailWithError = true
+        sendEvent()
+        
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertNotNil(dict)
+        XCTAssertEqual(1, dict?.count)
+        
+        let attachment = dict?["attachment:network_error"]
+        XCTAssertEqual(1, attachment?.quantity)
+        
+        assertEnvelopesStored(envelopeCount: 0)
+        assertRequestsSent(requestCount: 1)
+    }
+    
+    func testBuildingRequestFails_ClientReportNotRecordedAsLostEvent() {
+        fixture.requestBuilder.shouldFailWithError = true
+        sendEvent()
+        sendEvent()
+        
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertNotNil(dict)
+        XCTAssertEqual(2, dict?.count)
+        
+        let event = dict?["error:network_error"]
+        let attachment = dict?["attachment:network_error"]
+        XCTAssertEqual(1, event?.quantity)
+        XCTAssertEqual(1, attachment?.quantity)
+        
+        assertEnvelopesStored(envelopeCount: 0)
+        assertRequestsSent(requestCount: 0)
+    }
+    
+    func testRequestManagerReturnsError_RecordsLostEvent() {
+        givenErrorResponse()
+        
+        sendEvent()
+        
+        assertClientReportStoredInMemory()
+    }
+    
+    func testRequestManagerReturnsError_ClientReportNotRecordedAsLostEvent() {
+        givenErrorResponse()
+        sendEvent()
+        sendEvent()
+        
+        assertClientReportStoredInMemory()
+    }
+    
+    func testSendClientReportsDisabled_DoesNotRecordLostEvents() {
+        fixture.options.sendClientReports = false
+        givenErrorResponse()
+        
+        sendEvent()
+        
+        assertClientReportNotStoredInMemory()
+    }
+    
+    func testSendClientReportsDisabled_DoesSendClientReport() {
+        givenErrorResponse()
+        sendEvent()
+        
+        givenOkResponse()
+        fixture.options.sendClientReports = false
+        sendEvent()
+        
+        assertEventIsSentAsEnvelope()
     }
 
     private func givenRetryAfterResponse() -> HTTPURLResponse {
@@ -456,6 +627,19 @@ class SentryHttpTransportTests: XCTestCase {
 
     private func givenOkResponse() {
         fixture.requestManager.returnResponse(response: HTTPURLResponse())
+    }
+    
+    private func givenErrorResponse() {
+        fixture.requestManager.returnResponse(response: HTTPURLResponse())
+        fixture.requestManager.nextError = NSError(domain: "something", code: 12)
+    }
+    
+    private func givenRecordedLostEvents() {
+        fixture.clientReport.discardedEvents.forEach { event in
+            for _ in 0..<event.quantity {
+                sut.recordLostEvent(event.category, reason: event.reason)
+            }
+        }
     }
 
     func givenFirstRateLimitGetsActiveWithSecondResponse() {
@@ -480,7 +664,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     private func sendEventAsync() {
-        sut.send(event: fixture.event, attachments: [TestData.dataAttachment])
+        sut.send(envelope: fixture.eventEnvelope)
     }
 
     private func sendEnvelope(envelope: SentryEnvelope = TestConstants.envelope) {
@@ -495,7 +679,7 @@ class SentryHttpTransportTests: XCTestCase {
 
     private func assertRateLimitUpdated(response: HTTPURLResponse) {
         XCTAssertEqual(1, fixture.requestManager.requests.count)
-        XCTAssertTrue(fixture.rateLimits.isRateLimitActive(SentryRateLimitCategory.session))
+        XCTAssertTrue(fixture.rateLimits.isRateLimitActive(SentryDataCategory.session))
     }
 
     private func assertRequestsSent(requestCount: Int) {
@@ -514,5 +698,21 @@ class SentryHttpTransportTests: XCTestCase {
 
     private func assertEnvelopesStored(envelopeCount: Int) {
         XCTAssertEqual(envelopeCount, fixture.fileManager.getAllEnvelopes().count)
+    }
+    
+    private func assertClientReportStoredInMemory() {
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertNotNil(dict)
+        XCTAssertEqual(2, dict?.count)
+        let event = dict?["error:network_error"]
+        let attachment = dict?["attachment:network_error"]
+        XCTAssertEqual(1, event?.quantity)
+        XCTAssertEqual(1, attachment?.quantity)
+    }
+    
+    private func assertClientReportNotStoredInMemory() {
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertNotNil(dict)
+        XCTAssertEqual(0, dict?.count)
     }
 }

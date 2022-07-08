@@ -1,4 +1,5 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+import Sentry
 import UIKit
 #endif
 
@@ -11,7 +12,7 @@ class TestData {
         }
     }
     static let sdk = ["name": SentryMeta.sdkName, "version": SentryMeta.versionString]
-    static let context = ["context": ["c": "a"]]
+    static let context = ["context": ["c": "a", "date": timestamp]]
     
     static var crumb: Breadcrumb {
         let crumb = Breadcrumb()
@@ -164,8 +165,10 @@ class TestData {
         case awesomeCentaur
     }
     
+    static var someUUID = "12345678-1234-1234-1234-12344567890AB"
+    
     static var appState: SentryAppState {
-        return SentryAppState(releaseName: "1.0.0", osVersion: "14.4.1", isDebugging: false, systemBootTimestamp: timestamp)
+        return SentryAppState(releaseName: "1.0.0", osVersion: "14.4.1", vendorId: someUUID, isDebugging: false, systemBootTimestamp: timestamp)
     }
     
     static var oomEvent: Event {
@@ -203,25 +206,17 @@ class TestData {
         return scope
     }
     
+    static var userFeedback: UserFeedback {
+        let userFeedback = UserFeedback(eventId: SentryId())
+        userFeedback.comments = "It doesn't really"
+        userFeedback.email = "john@me.com"
+        userFeedback.name = "John Me"
+        return userFeedback
+    }
+    
     static func setContext(_ scope: Scope) {
         scope.setContext(value: TestData.context["context"]!, key: "context")
     }
-    
-    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    private static var maximumFramesPerSecond: Int {
-        if #available(iOS 10.3, tvOS 10.3, macCatalyst 13.0, *) {
-            return UIScreen.main.maximumFramesPerSecond
-        } else {
-            return 60
-        }
-    }
-    
-    static var slowFrameThreshold: Double {
-        return 1 / (Double(maximumFramesPerSecond) - 1.0)
-    }
-    
-    static let frozenFrameThreshold = 0.7
-    #endif
     
     static func getAppStartMeasurement(type: SentryAppStartType, appStartTimestamp: Date = TestData.timestamp) -> SentryAppStartMeasurement {
         let appStartDuration = 0.5

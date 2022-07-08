@@ -24,6 +24,11 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         sut = fixture.sut
     }
     
+    override func tearDown() {
+        PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = false
+        super.tearDown()
+    }
+    
     func testTracesSampleRateSet_MeasuresFrames() {
         let options = fixture.options
         options.tracesSampleRate = 0.1
@@ -57,6 +62,16 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         XCTAssertNil(Dynamic(sut).tracker.asObject)
     }
     
+    func test_HybridSDKEnables_MeasureFrames() {
+        PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = true
+        
+        let options = fixture.options
+        options.enableAutoPerformanceTracking = false
+        sut.install(with: options)
+        
+        XCTAssertNotNil(Dynamic(sut).tracker.asObject)
+    }
+    
     func testUninstall() {
         sut.install(with: fixture.options)
         
@@ -66,6 +81,16 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         
         XCTAssertNil(fixture.displayLink.target)
         XCTAssertNil(fixture.displayLink.selector)
+    }
+    
+    func test_FramesTrackingDisabled_RemovesEnabledIntegration() {
+        let options = Options()
+        options.enableAutoPerformanceTracking = false
+        
+        fixture.sut.install(with: options)
+        
+        let expexted = Options.defaultIntegrations().filter { !$0.contains("FramesTracking") }
+        assertArrayEquals(expected: expexted, actual: Array(options.enabledIntegrations))
     }
 }
 #endif

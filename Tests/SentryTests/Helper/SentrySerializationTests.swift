@@ -4,7 +4,7 @@ class SentrySerializationTests: XCTestCase {
     
     private class Fixture {
         static var invalidData = "hi".data(using: .utf8)!
-        static var traceState = SentryTraceState(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "Some Transaction", user: SentryTraceStateUser(userId: "User Id", segment: "some segment"))
+        static var traceContext = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", userSegment: "some segment", sampleRate: "0.25")
     }
 
     func testSentryEnvelopeSerializer_WithSingleEvent() {
@@ -25,7 +25,7 @@ class SentrySerializationTests: XCTestCase {
             XCTAssertEqual("event", envelope.items[0].header.type)
             XCTAssertEqual(envelope.items[0].header.length, deserializedEnvelope.items[0].header.length)
             XCTAssertEqual(envelope.items[0].data, deserializedEnvelope.items[0].data)
-            XCTAssertNil(deserializedEnvelope.header.traceState)
+            XCTAssertNil(deserializedEnvelope.header.traceContext)
         }
     }
 
@@ -92,7 +92,7 @@ class SentrySerializationTests: XCTestCase {
 
     func testSentryEnvelopeSerializer_SdkInfo() {
         let sdkInfo = SentrySdkInfo(name: "sentry.cocoa", andVersion: "5.0.1")
-        let envelopeHeader = SentryEnvelopeHeader(id: nil, sdkInfo: sdkInfo, traceState: nil)
+        let envelopeHeader = SentryEnvelopeHeader(id: nil, sdkInfo: sdkInfo, traceContext: nil)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
 
         assertEnvelopeSerialization(envelope: envelope) { deserializedEnvelope in
@@ -101,29 +101,29 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testSentryEnvelopeSerializer_TraceState() {
-        let envelopeHeader = SentryEnvelopeHeader(id: nil, traceState: Fixture.traceState)
+        let envelopeHeader = SentryEnvelopeHeader(id: nil, traceContext: Fixture.traceContext)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
 
         assertEnvelopeSerialization(envelope: envelope) { deserializedEnvelope in
-            XCTAssertNotNil(deserializedEnvelope.header.traceState)
-            assertTraceState(firstTrace: Fixture.traceState, secondTrace: deserializedEnvelope.header.traceState!)
+            XCTAssertNotNil(deserializedEnvelope.header.traceContext)
+            assertTraceState(firstTrace: Fixture.traceContext, secondTrace: deserializedEnvelope.header.traceContext!)
         }
     }
     
     func testSentryEnvelopeSerializer_TraceStateWithoutUser() {
-        let trace = SentryTraceState(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "Some Transaction", user: nil)
+        let trace = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", userSegment: nil, sampleRate: nil)
         
-        let envelopeHeader = SentryEnvelopeHeader(id: nil, traceState: trace)
+        let envelopeHeader = SentryEnvelopeHeader(id: nil, traceContext: trace)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
 
         assertEnvelopeSerialization(envelope: envelope) { deserializedEnvelope in
-            XCTAssertNotNil(deserializedEnvelope.header.traceState)
-            assertTraceState(firstTrace: trace, secondTrace: deserializedEnvelope.header.traceState!)
+            XCTAssertNotNil(deserializedEnvelope.header.traceContext)
+            assertTraceState(firstTrace: trace, secondTrace: deserializedEnvelope.header.traceContext!)
         }
     }
     
     func testSentryEnvelopeSerializer_SdkInfoIsNil() {
-        let envelopeHeader = SentryEnvelopeHeader(id: nil, sdkInfo: nil, traceState: nil)
+        let envelopeHeader = SentryEnvelopeHeader(id: nil, sdkInfo: nil, traceContext: nil)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
 
         assertEnvelopeSerialization(envelope: envelope) { deserializedEnvelope in
@@ -245,6 +245,23 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertNil(actual)
     }
 
+    func testDictionaryToBaggageEncoded() {
+        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": "value"]), "key=value")
+        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": "value", "key2": "value2"]), "key2=value2,key=value")
+        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": "value&"]), "key=value%26")
+        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": "value="]), "key=value%3D")
+        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": "value "]), "key=value%20")
+        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": "value%"]), "key=value%25")
+        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": "value-_"]), "key=value-_")
+        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": "value\n\r"]), "key=value%0A%0D")
+        
+        let largeValue = String(repeating: "a", count: 8_188)
+        
+        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": largeValue]), "key=\(largeValue)")
+        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["AKey": "something", "BKey": largeValue]), "AKey=something")
+        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["AKey": "something", "BKey": largeValue, "CKey": "Other Value"]), "AKey=something,CKey=Other%20Value")
+    }
+    
     private func serializeEnvelope(envelope: SentryEnvelope) -> Data {
         var serializedEnvelope: Data = Data()
         do {
@@ -279,13 +296,12 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual(sdkInfo, deserializedEnvelope.header.sdkInfo)
     }
     
-    func assertTraceState(firstTrace: SentryTraceState, secondTrace: SentryTraceState) {
+    func assertTraceState(firstTrace: SentryTraceContext, secondTrace: SentryTraceContext) {
         XCTAssertEqual(firstTrace.traceId, secondTrace.traceId)
         XCTAssertEqual(firstTrace.publicKey, secondTrace.publicKey)
         XCTAssertEqual(firstTrace.releaseName, secondTrace.releaseName)
-        XCTAssertEqual(firstTrace.transaction, secondTrace.transaction)
         XCTAssertEqual(firstTrace.environment, secondTrace.environment)
-        XCTAssertEqual(firstTrace.user?.userId, secondTrace.user?.userId)
-        XCTAssertEqual(firstTrace.user?.segment, secondTrace.user?.segment)
+        XCTAssertEqual(firstTrace.userSegment, secondTrace.userSegment)
+        XCTAssertEqual(firstTrace.sampleRate, secondTrace.sampleRate)
     }
 }

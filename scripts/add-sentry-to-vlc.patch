@@ -12,7 +12,7 @@ index efdc34e6..95a5a944 100644
    pod 'SwiftLint', '~> 0.25.0', :configurations => ['Debug']
  end
 diff --git a/Sources/VLCAppDelegate.m b/Sources/VLCAppDelegate.m
-index 45e05469..cbddbe19 100644
+index 45e05469..0050ffbc 100644
 --- a/Sources/VLCAppDelegate.m
 +++ b/Sources/VLCAppDelegate.m
 @@ -23,6 +23,7 @@
@@ -30,10 +30,10 @@ index 45e05469..cbddbe19 100644
 +    
 +    [SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
 +        options.dsn = @"https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557";
-+        options.tracesSampler = ^NSNumber * (SentrySamplingContext * samplingContext) {
-+            // Discard all traces.
-+            return @0;
-+            };
++        options.environment = @"integration-tests";
++        options.tracesSampleRate = @0;
++        options.enableFileIOTracking = YES;
++        options.enableProfiling = YES;
 +    }];
  
      self.orientationLock = UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskLandscape;

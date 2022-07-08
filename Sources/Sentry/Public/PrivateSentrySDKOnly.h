@@ -39,12 +39,14 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  * Returns the current list of debug images. Be aware that the SentryDebugMeta is actually
  * describing a debug image. This class should be renamed to SentryDebugImage in a future version.
  */
-- (NSArray<SentryDebugMeta *> *)getDebugImages;
++ (NSArray<SentryDebugMeta *> *)getDebugImages;
 
 @property (class, nullable, nonatomic, copy)
     SentryOnAppStartMeasurementAvailable onAppStartMeasurementAvailable;
 
 @property (class, nullable, nonatomic, readonly) SentryAppStartMeasurement *appStartMeasurement;
+
+@property (class, nonatomic, readonly, copy) NSString *installationID;
 
 /**
  * If enabled, the SDK won't send the app start measurement with the first transaction. Instead, if
@@ -57,7 +59,13 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 @property (class, nonatomic, assign) BOOL appStartMeasurementHybridSDKMode;
 
 #if SENTRY_HAS_UIKIT
+/**
+ * Allows hybrid SDKs to enable frame tracking measurements despite other options.
+ */
+@property (class, nonatomic, assign) BOOL framesTrackingMeasurementHybridSDKMode;
+
 @property (class, nonatomic, assign, readonly) BOOL isFramesTrackingRunning;
+
 @property (class, nonatomic, assign, readonly) SentryScreenFrames *currentScreenFrames;
 #endif
 

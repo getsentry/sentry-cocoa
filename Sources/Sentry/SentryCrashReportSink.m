@@ -1,4 +1,5 @@
 #import "SentryCrashReportSink.h"
+#import "SentryAttachment.h"
 #import "SentryClient.h"
 #import "SentryCrash.h"
 #import "SentryCrashReportConverter.h"
@@ -9,6 +10,7 @@
 #import "SentryLog.h"
 #import "SentrySDK+Private.h"
 #import "SentrySDK.h"
+#import "SentryScope.h"
 #import "SentryThread.h"
 
 @interface
@@ -33,7 +35,15 @@ SentryCrashReportSink ()
                  sentReports:(NSMutableArray *)sentReports
 {
     [sentReports addObject:report];
-    [SentrySDK captureCrashEvent:event];
+    SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDK.currentHub.scope];
+
+    if (report[SENTRYCRASH_REPORT_SCREENSHOT_ITEM]) {
+        for (NSString *ssPath in report[SENTRYCRASH_REPORT_SCREENSHOT_ITEM]) {
+            [scope addAttachment:[[SentryAttachment alloc] initWithPath:ssPath]];
+        }
+    }
+
+    [SentrySDK captureCrashEvent:event withScope:scope];
 }
 
 - (void)filterReports:(NSArray *)reports

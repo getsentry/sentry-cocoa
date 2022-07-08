@@ -30,11 +30,11 @@ class SplitRootViewController: UIViewController {
     }
     
     @IBAction func showSecondary() {
-            splitViewController?.showDetailViewController(SplitViewSecondaryController(), sender: nil)
+            splitViewController?.showDetailViewController(SecondarySplitViewController(), sender: nil)
     }
 }
 
-class SplitViewSecondaryController: UIViewController {
+class SecondarySplitViewController: UIViewController {
     
     var spanObserver: SpanObserver?
     var assertView: AssertView!

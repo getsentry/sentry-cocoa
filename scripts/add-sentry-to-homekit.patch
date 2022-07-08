@@ -7,12 +7,12 @@ index d2d83b14..6756f31b 100644
  
  pod 'RealmSwift'
 -pod 'Sentry'
-+pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :commit => 'c9b42ad58ddce3b26df04133cf0c6355ede22410'
++pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :commit => '__GITHUB_REVISION_PLACEHOLDER__'
  pod 'UIColor_Hex_Swift'
  pod 'Version'
  pod 'XCGLogger'
 diff --git a/Sources/App/AppDelegate.swift b/Sources/App/AppDelegate.swift
-index 8e0e35f4..0cb45503 100644
+index 8e0e35f4..3d34887d 100644
 --- a/Sources/App/AppDelegate.swift
 +++ b/Sources/App/AppDelegate.swift
 @@ -13,6 +13,7 @@ import SafariServices
@@ -23,13 +23,16 @@ index 8e0e35f4..0cb45503 100644
  
  let keychain = Constants.Keychain
  
-@@ -125,6 +126,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
+@@ -125,6 +126,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
          _ application: UIApplication,
          didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
      ) -> Bool {
 +        SentrySDK.start { options in
 +            options.dsn = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
++            options.environment = "integration-tests"
 +            options.tracesSampleRate = 1.0
++            options.enableFileIOTracking = true
++            options.enableProfiling = true
 +        }
 +        
          if NSClassFromString("XCTest") != nil {

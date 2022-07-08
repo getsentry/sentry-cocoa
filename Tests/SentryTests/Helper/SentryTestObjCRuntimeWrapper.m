@@ -15,29 +15,45 @@ SentryTestObjCRuntimeWrapper ()
 - (instancetype)init
 {
     if (self = [super init]) {
-        self.objcRuntimeWrapper = [[SentryDefaultObjCRuntimeWrapper alloc] init];
+        self.objcRuntimeWrapper = [SentryDefaultObjCRuntimeWrapper sharedInstance];
     }
 
     return self;
 }
 
-- (int)getClassList:(__unsafe_unretained Class *)buffer bufferCount:(int)bufferCount
+- (const char **)copyClassNamesForImage:(const char *)image amount:(unsigned int *)outCount
 {
     if (self.beforeGetClassList != nil) {
         self.beforeGetClassList();
     }
-    int numClasses = [self.objcRuntimeWrapper getClassList:buffer bufferCount:bufferCount];
+    const char **result = [self.objcRuntimeWrapper copyClassNamesForImage:image amount:outCount];
 
-    if (self.numClasses != nil) {
-        numClasses = self.numClasses(numClasses);
+    if (self.classesNames != nil) {
+        NSMutableArray *names = [NSMutableArray new];
+        for (unsigned int i = 0; i < *outCount; i++) {
+            [names addObject:[NSString stringWithCString:result[i] encoding:NSUTF8StringEncoding]];
+        }
+
+        NSArray<NSString *> *newNames = self.classesNames(names);
+        free(result);
+
+        result = malloc(sizeof(char *) * newNames.count);
+        for (NSUInteger i = 0; i < newNames.count; i++) {
+            result[i] = [newNames[i] cStringUsingEncoding:NSUTF8StringEncoding];
+        }
+        *outCount = (unsigned int)newNames.count;
     }
 
-    return numClasses;
+    if (self.afterGetClassList != nil) {
+        self.afterGetClassList();
+    }
+
+    return result;
 }
 
-- (void)countIterateClasses
+- (const char *)class_getImageName:(Class)cls
 {
-    self.iterateClassesInvocations++;
+    return self.imageName;
 }
 
 @end

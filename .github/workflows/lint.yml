@@ -8,6 +8,7 @@ on:
       - 'Tests/**'
       - 'test-server/**'
       - 'Samples/**'
+      - '.github/workflows/lint.yml'
 
   pull_request:
     paths:
@@ -15,13 +16,14 @@ on:
       - 'Tests/**'
       - 'test-server/**'
       - 'Samples/**'
+      - '.github/workflows/lint.yml'
 
 jobs:
   swift-lint:
     name: Swift Lint
     runs-on: macos-11
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Run SwiftLint
         run: swiftlint
 
@@ -29,8 +31,8 @@ jobs:
     name: Xcode Analyze
     runs-on: macos-11
     steps:
-      - uses: actions/checkout@v2
-      - run: ./scripts/ci-select-xcode.sh 13.0
+      - uses: actions/checkout@v3
+      - run: ./scripts/ci-select-xcode.sh
       - name: Run analyze
         run: xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer | xcpretty -t && [[ -z `find analyzer -name "*.html"` ]]
 
@@ -38,14 +40,14 @@ jobs:
     name: Validate Podspec
     runs-on: macos-11
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Validate Podspec
-        run: pod lib lint
+        run: pod lib lint --verbose
         shell: sh
 
   validate-high-risk-files:
     name: No changes in high risk files
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: ./scripts/no-changes-in-high-risk-files.sh

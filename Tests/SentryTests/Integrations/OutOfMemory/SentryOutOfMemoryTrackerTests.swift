@@ -10,7 +10,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         let options: Options
         let client: TestClient!
-        let crashWrapper: TestSentryCrashAdapter
+        let crashWrapper: TestSentryCrashWrapper
         let fileManager: SentryFileManager
         let currentDate = TestCurrentDateProvider()
         let sysctl = TestSysctl()
@@ -23,9 +23,9 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
             
             client = TestClient(options: options)
             
-            crashWrapper = TestSentryCrashAdapter.sharedInstance()
+            crashWrapper = TestSentryCrashWrapper.sharedInstance()
             
-            let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: crashWrapper, andCurrentDateProvider: currentDate)
+            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andCurrentDateProvider: currentDate)
             SentrySDK.setCurrentHub(hub)
             
             fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
@@ -36,7 +36,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         }
         
         func getSut(fileManager: SentryFileManager) -> SentryOutOfMemoryTracker {
-            let appStateManager = SentryAppStateManager(options: options, crashAdapter: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl)
+            let appStateManager = SentryAppStateManager(options: options, crashWrapper: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl)
             let logic = SentryOutOfMemoryLogic(options: options, crashAdapter: crashWrapper, appStateManager: appStateManager)
             return SentryOutOfMemoryTracker(options: options, outOfMemoryLogic: logic, appStateManager: appStateManager, dispatchQueueWrapper: dispatchQueue, fileManager: fileManager)
         }
@@ -50,6 +50,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         fixture = Fixture()
         sut = fixture.getSut()
+        SentrySDK.startInvocations = 1
     }
     
     override func tearDown() {
@@ -65,7 +66,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         
         let actual = fixture.fileManager.readAppState()
         
-        let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, isDebugging: false, systemBootTimestamp: fixture.sysctl.systemBootTimestamp)
+        let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.sysctl.systemBootTimestamp)
         
         XCTAssertEqual(appState, actual)
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAsyncCalled)
@@ -93,7 +94,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     }
 
     func testDifferentAppVersions_NoOOM() {
-        givenPreviousAppState(appState: SentryAppState(releaseName: "0.9.0", osVersion: UIDevice.current.systemVersion, isDebugging: false, systemBootTimestamp: fixture.currentDate.date()))
+        givenPreviousAppState(appState: SentryAppState(releaseName: "0.9.0", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.currentDate.date()))
         
         sut.start()
         
@@ -101,7 +102,15 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     }
     
     func testDifferentOSVersions_NoOOM() {
-        givenPreviousAppState(appState: SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: "1.0.0", isDebugging: false, systemBootTimestamp: fixture.currentDate.date()))
+        givenPreviousAppState(appState: SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: "1.0.0", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.currentDate.date()))
+        
+        sut.start()
+        
+        assertNoOOMSent()
+    }
+    
+    func testDifferentVendorId_NoOOM() {
+        givenPreviousAppState(appState: SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: "1.0.0", vendorId: "0987654321", isDebugging: false, systemBootTimestamp: fixture.currentDate.date()))
         
         sut.start()
         
@@ -133,7 +142,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     }
     
     func testCrashReport_NoOOM() {
-        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, isDebugging: false, systemBootTimestamp: fixture.currentDate.date())
+        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.currentDate.date())
         givenPreviousAppState(appState: appState)
         fixture.crashWrapper.internalCrashedLastLaunch = true
         
@@ -154,12 +163,33 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         assertNoOOMSent()
     }
     
+    func testSDKStartedTwice_NoOOM() {
+        sut.start()
+        goToForeground()
+
+        SentrySDK.startInvocations = 2
+        sut.start()
+        assertNoOOMSent()
+    }
+    
     func testAppWasInForeground_OOM() {
         sut.start()
         goToForeground()
 
         sut.start()
         assertOOMEventSent()
+    }
+    
+    func testANR_NoOOM() {
+        sut.start()
+        goToForeground()
+        
+        update(appState: { appState in
+            appState.isANROngoing = true
+        })
+
+        sut.start()
+        assertNoOOMSent()
     }
     
     func testAppOOM_WithOnlyHybridSdkDidBecomeActive() {
@@ -223,6 +253,13 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     
     private func givenPreviousAppState(appState: SentryAppState) {
         fixture.fileManager.store(appState)
+    }
+    
+    private func update(appState: (SentryAppState) -> Void) {
+        if let currentAppState = fixture.fileManager.readAppState() {
+            appState(currentAppState)
+            fixture.fileManager.store(currentAppState)
+        }
     }
     
     private func goToForeground() {

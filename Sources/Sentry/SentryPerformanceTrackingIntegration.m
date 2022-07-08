@@ -1,6 +1,9 @@
 #import "SentryPerformanceTrackingIntegration.h"
+#import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryLog.h"
+#import "SentryOptions+Private.h"
+#import "SentrySubClassFinder.h"
 #import "SentryUIViewControllerSwizzling.h"
 
 @interface
@@ -16,24 +19,8 @@ SentryPerformanceTrackingIntegration ()
 
 - (void)installWithOptions:(SentryOptions *)options
 {
-    if (!options.enableAutoPerformanceTracking) {
-        [SentryLog logWithMessage:@"AutoUIPerformanceTracking disabled. Will not start "
-                                  @"SentryPerformanceTrackingIntegration."
-                         andLevel:kSentryLevelDebug];
-        return;
-    }
-
-    if (!options.isTracingEnabled) {
-        [SentryLog logWithMessage:@"No tracesSampleRate and tracesSampler set. Will not start "
-                                  @"SentryPerformanceTrackingIntegration."
-                         andLevel:kSentryLevelDebug];
-        return;
-    }
-
-    if (!options.enableSwizzling) {
-        [SentryLog logWithMessage:@"enableSwizzling disabled. Will not start "
-                                  @"SentryPerformanceTrackingIntegration."
-                         andLevel:kSentryLevelDebug];
+    if ([self shouldBeDisabled:options]) {
+        [options removeEnabledIntegration:NSStringFromClass([self class])];
         return;
     }
 
@@ -43,8 +30,16 @@ SentryPerformanceTrackingIntegration ()
     SentryDispatchQueueWrapper *dispatchQueue =
         [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-ui-view-controller-swizzling"
                                               attributes:attributes];
-    self.swizzling = [[SentryUIViewControllerSwizzling alloc] initWithOptions:options
-                                                                dispatchQueue:dispatchQueue];
+
+    SentrySubClassFinder *subClassFinder = [[SentrySubClassFinder alloc]
+        initWithDispatchQueue:dispatchQueue
+           objcRuntimeWrapper:[SentryDefaultObjCRuntimeWrapper sharedInstance]];
+
+    self.swizzling = [[SentryUIViewControllerSwizzling alloc]
+           initWithOptions:options
+             dispatchQueue:dispatchQueue
+        objcRuntimeWrapper:[SentryDefaultObjCRuntimeWrapper sharedInstance]
+            subClassFinder:subClassFinder];
 
     [self.swizzling start];
 #else
@@ -52,6 +47,41 @@ SentryPerformanceTrackingIntegration ()
                               @"start] does nothing."
                      andLevel:kSentryLevelDebug];
 #endif
+}
+
+- (BOOL)shouldBeDisabled:(SentryOptions *)options
+{
+    if (!options.enableAutoPerformanceTracking) {
+        [SentryLog logWithMessage:@"AutoUIPerformanceTracking disabled. Will not start "
+                                  @"SentryPerformanceTrackingIntegration."
+                         andLevel:kSentryLevelDebug];
+        return YES;
+    }
+
+#if SENTRY_HAS_UIKIT
+    if (!options.enableUIViewControllerTracking) {
+        [SentryLog logWithMessage:@"enableUIViewControllerTracking disabled. Will not start "
+                                  @"SentryPerformanceTrackingIntegration."
+                         andLevel:kSentryLevelDebug];
+        return YES;
+    }
+#endif
+
+    if (!options.isTracingEnabled) {
+        [SentryLog logWithMessage:@"No tracesSampleRate and tracesSampler set. Will not start "
+                                  @"SentryPerformanceTrackingIntegration."
+                         andLevel:kSentryLevelDebug];
+        return YES;
+    }
+
+    if (!options.enableSwizzling) {
+        [SentryLog logWithMessage:@"enableSwizzling disabled. Will not start "
+                                  @"SentryPerformanceTrackingIntegration."
+                         andLevel:kSentryLevelDebug];
+        return YES;
+    }
+
+    return NO;
 }
 
 @end

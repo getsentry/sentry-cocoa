@@ -45,7 +45,6 @@
 #pragma mark - Exception Types -
 
 #define SentryCrashExcType_CPPException "cpp_exception"
-#define SentryCrashExcType_Deadlock "deadlock"
 #define SentryCrashExcType_Mach "mach"
 #define SentryCrashExcType_NSException "nsexception"
 #define SentryCrashExcType_Signal "signal"

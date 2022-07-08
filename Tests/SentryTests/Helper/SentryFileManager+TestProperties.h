@@ -13,6 +13,8 @@ SentryFileManager (TestProperties)
 
 @property (nonatomic, copy) NSString *envelopesPath;
 
+@property (nonatomic, copy) NSString *timezoneOffsetFilePath;
+
 @end
 
 NS_ASSUME_NONNULL_END

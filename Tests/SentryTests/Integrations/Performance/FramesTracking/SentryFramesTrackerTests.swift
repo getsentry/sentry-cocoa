@@ -47,12 +47,9 @@ class SentryFramesTrackerTests: XCTestCase {
         sut.start()
         
         fixture.displayLinkWrapper.call()
-        fixture.displayLinkWrapper.internalTimestamp += TestData.slowFrameThreshold + 0.001
-        fixture.displayLinkWrapper.call()
-        fixture.displayLinkWrapper.internalTimestamp += TestData.slowFrameThreshold
-        fixture.displayLinkWrapper.call()
-        fixture.displayLinkWrapper.internalTimestamp += TestData.frozenFrameThreshold
-        fixture.displayLinkWrapper.call()
+        fixture.displayLinkWrapper.slowFrame()
+        fixture.displayLinkWrapper.normalFrame()
+        fixture.displayLinkWrapper.almostFrozenFrame()
         
         let currentFrames = sut.currentFrames
         XCTAssertEqual(2, currentFrames.slow)
@@ -65,10 +62,8 @@ class SentryFramesTrackerTests: XCTestCase {
         sut.start()
         
         fixture.displayLinkWrapper.call()
-        fixture.displayLinkWrapper.internalTimestamp += TestData.frozenFrameThreshold + 0.001
-        fixture.displayLinkWrapper.call()
-        fixture.displayLinkWrapper.internalTimestamp += TestData.frozenFrameThreshold
-        fixture.displayLinkWrapper.call()
+        fixture.displayLinkWrapper.slowFrame()
+        fixture.displayLinkWrapper.frozenFrame()
         
         let currentFrames = sut.currentFrames
         XCTAssertEqual(1, currentFrames.slow)
@@ -91,16 +86,14 @@ class SentryFramesTrackerTests: XCTestCase {
         
         let frames: UInt = 600_000
         for _ in 0 ..< frames {
-            fixture.displayLinkWrapper.internalTimestamp += TestData.slowFrameThreshold + 0.001
-            fixture.displayLinkWrapper.call()
-            
-            fixture.displayLinkWrapper.internalTimestamp += TestData.frozenFrameThreshold + 0.001
-            fixture.displayLinkWrapper.call()
+            fixture.displayLinkWrapper.normalFrame()
+            fixture.displayLinkWrapper.slowFrame()
+            fixture.displayLinkWrapper.frozenFrame()
         }
         
         group.wait()
         currentFrames = sut.currentFrames
-        XCTAssertEqual(2 * frames, currentFrames.total)
+        XCTAssertEqual(3 * frames, currentFrames.total)
         XCTAssertEqual(frames, currentFrames.slow)
         XCTAssertEqual(frames, currentFrames.frozen)
     }
@@ -112,10 +105,12 @@ class SentryFramesTrackerTests: XCTestCase {
         let frames: UInt = 1_000
         self.measure {
             for _ in 0 ..< frames {
-                fixture.displayLinkWrapper.call()
-                fixture.displayLinkWrapper.internalTimestamp += TestData.slowFrameThreshold
+                fixture.displayLinkWrapper.normalFrame()
             }
         }
+        
+        XCTAssertEqual(0, sut.currentFrames.slow)
+        XCTAssertEqual(0, sut.currentFrames.frozen)
     }
     
     private func assertPreviousCountBiggerThanCurrent(_ group: DispatchGroup, count:  @escaping () -> UInt) {

@@ -1,7 +1,8 @@
+#import "SentryRandom.h"
 #import "SentryTransport.h"
 #import <Sentry/Sentry.h>
 
-@class SentryCrashAdapter;
+@class SentryCrashWrapper, SentryThreadInspector, SentryTransportAdapter;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -10,8 +11,10 @@ NS_ASSUME_NONNULL_BEGIN
 SentryClient (TestInit)
 
 - (instancetype)initWithOptions:(SentryOptions *)options
-                   andTransport:(id<SentryTransport>)transport
-                 andFileManager:(SentryFileManager *)fileManager;
+               transportAdapter:(SentryTransportAdapter *)transportAdapter
+                    fileManager:(SentryFileManager *)fileManager
+                threadInspector:(SentryThreadInspector *)threadInspector
+                         random:(id<SentryRandom>)random;
 
 @end
 

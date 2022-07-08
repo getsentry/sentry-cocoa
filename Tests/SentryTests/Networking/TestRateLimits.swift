@@ -4,9 +4,9 @@ public class TestRateLimits: NSObject, RateLimits {
     
     public var responses: [HTTPURLResponse] = []
     public var isLimitForAllActive: Bool = false
-    public var rateLimits: [SentryRateLimitCategory] = []
+    public var rateLimits: [SentryDataCategory] = []
     
-    public func isRateLimitActive(_ category: SentryRateLimitCategory) -> Bool {
+    public func isRateLimitActive(_ category: SentryDataCategory) -> Bool {
         return isLimitForAllActive || rateLimits.contains(category)
     }
     

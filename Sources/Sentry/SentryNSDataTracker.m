@@ -4,15 +4,17 @@
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
-#import "SentryPerformanceTracker.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySpanProtocol.h"
+
+const NSString *SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 
 @interface
 SentryNSDataTracker ()
 
 @property (nonatomic, assign) BOOL isEnabled;
+@property (nonatomic, strong) NSMutableSet<NSData *> *processingData;
 
 @end
 
@@ -90,6 +92,7 @@ SentryNSDataTracker ()
         [self finishTrackingNSData:result span:span];
     }
 
+    [self endTrackingFile];
     return result;
 }
 
@@ -106,6 +109,7 @@ SentryNSDataTracker ()
         [self finishTrackingNSData:result span:span];
     }
 
+    [self endTrackingFile];
     return result;
 }
 
@@ -129,6 +133,7 @@ SentryNSDataTracker ()
         [self finishTrackingNSData:result span:span];
     }
 
+    [self endTrackingFile];
     return result;
 }
 
@@ -175,7 +180,33 @@ SentryNSDataTracker ()
 
 - (nullable id<SentrySpan>)startTrackingReadingFilePath:(NSString *)path
 {
+    // Some iOS versions nest constructors calls. This counter help us avoid create more than one
+    // span for the same operation.
+    NSNumber *count =
+        [[NSThread currentThread].threadDictionary objectForKey:SENTRY_TRACKING_COUNTER_KEY];
+    [[NSThread currentThread].threadDictionary setObject:[NSNumber numberWithInt:count.intValue + 1]
+                                                  forKey:SENTRY_TRACKING_COUNTER_KEY];
+
+    if (count)
+        return nil;
+
     return [self spanForPath:path operation:SENTRY_FILE_READ_OPERATION size:0];
+}
+
+- (void)endTrackingFile
+{
+    NSNumber *count =
+        [[NSThread currentThread].threadDictionary objectForKey:SENTRY_TRACKING_COUNTER_KEY];
+    if (!count)
+        return;
+
+    if (count.intValue <= 1) {
+        [[NSThread currentThread].threadDictionary removeObjectForKey:SENTRY_TRACKING_COUNTER_KEY];
+    } else {
+        [[NSThread currentThread].threadDictionary
+            setObject:[NSNumber numberWithInt:count.intValue - 1]
+               forKey:SENTRY_TRACKING_COUNTER_KEY];
+    }
 }
 
 - (void)finishTrackingNSData:(NSData *)data span:(id<SentrySpan>)span

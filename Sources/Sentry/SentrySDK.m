@@ -4,6 +4,7 @@
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
+#import "SentryDependencyContainer.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
@@ -23,11 +24,13 @@ static SentryHub *_Nullable currentHub;
 static BOOL crashedLastRunCalled;
 static SentryAppStartMeasurement *sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
+static NSUInteger startInvocations;
 
 + (void)initialize
 {
     if (self == [SentrySDK class]) {
         sentrySDKappStartMeasurementLock = [[NSObject alloc] init];
+        startInvocations = 0;
     }
 }
 
@@ -99,6 +102,22 @@ static NSObject *sentrySDKappStartMeasurementLock;
     }
 }
 
+/**
+ * Not public, only for internal use.
+ */
++ (NSUInteger)startInvocations
+{
+    return startInvocations;
+}
+
+/**
+ * Only needed for testing.
+ */
++ (void)setStartInvocations:(NSUInteger)value
+{
+    startInvocations = value;
+}
+
 + (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict
 {
     NSError *error = nil;
@@ -115,6 +134,8 @@ static NSObject *sentrySDKappStartMeasurementLock;
 
 + (void)startWithOptionsObject:(SentryOptions *)options
 {
+    startInvocations++;
+
     [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
     SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
     // The Hub needs to be initialized with a client so that closing a session
@@ -136,6 +157,11 @@ static NSObject *sentrySDKappStartMeasurementLock;
 + (void)captureCrashEvent:(SentryEvent *)event
 {
     [SentrySDK.currentHub captureCrashEvent:event];
+}
+
++ (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope
+{
+    [SentrySDK.currentHub captureCrashEvent:event withScope:scope];
 }
 
 + (SentryId *)captureEvent:(SentryEvent *)event
@@ -358,6 +384,8 @@ static NSObject *sentrySDKappStartMeasurementLock;
     SentryClient *client = [hub getClient];
     client.options.enabled = NO;
     [hub bindClient:nil];
+
+    [SentryDependencyContainer reset];
 
     [SentryLog logWithMessage:@"SDK closed!" andLevel:kSentryLevelDebug];
 }

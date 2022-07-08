@@ -1,8 +1,8 @@
 diff --git a/Alamofire.xcodeproj/project.pbxproj b/Alamofire.xcodeproj/project.pbxproj
-index f3e5d1a..2b3096d 100644
+index 3882645..56fea58 100644
 --- a/Alamofire.xcodeproj/project.pbxproj
 +++ b/Alamofire.xcodeproj/project.pbxproj
-@@ -402,6 +402,7 @@
+@@ -409,6 +409,7 @@
  		4CFB030E1D7D2FA20056F249 /* utf8_string.txt in Resources */ = {isa = PBXBuildFile; fileRef = 4CFB02F41D7D2FA20056F249 /* utf8_string.txt */; };
  		4CFB030F1D7D2FA20056F249 /* utf8_string.txt in Resources */ = {isa = PBXBuildFile; fileRef = 4CFB02F41D7D2FA20056F249 /* utf8_string.txt */; };
  		4DD67C251A5C590000ED2280 /* Alamofire.swift in Sources */ = {isa = PBXBuildFile; fileRef = F897FF4019AA800700AB5182 /* Alamofire.swift */; };
@@ -10,7 +10,7 @@ index f3e5d1a..2b3096d 100644
  		8035DB621BAB492500466CB3 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8111E3319A95C8B0040E7D1 /* Alamofire.framework */; };
  		E4202FD01B667AA100C997FB /* ParameterEncoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE2724E1AF88FB500F1D59A /* ParameterEncoding.swift */; };
  		E4202FD21B667AA100C997FB /* ResponseSerialization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CDE2C451AF89FF300BABAE5 /* ResponseSerialization.swift */; };
-@@ -621,6 +622,7 @@
+@@ -623,6 +624,7 @@
  			isa = PBXFrameworksBuildPhase;
  			buildActionMask = 2147483647;
  			files = (
@@ -18,7 +18,7 @@ index f3e5d1a..2b3096d 100644
  			);
  			runOnlyForDeploymentPostprocessing = 0;
  		};
-@@ -951,6 +953,13 @@
+@@ -962,6 +964,13 @@
  			path = String;
  			sourceTree = "<group>";
  		};
@@ -32,7 +32,7 @@ index f3e5d1a..2b3096d 100644
  		B39E2F821C1A72E5002DA1A9 /* Varying Encoding Types and Extensions */ = {
  			isa = PBXGroup;
  			children = (
-@@ -973,6 +982,7 @@
+@@ -984,6 +993,7 @@
  				F8111E3519A95C8B0040E7D1 /* Source */,
  				F8111E3F19A95C8B0040E7D1 /* Tests */,
  				F8111E3419A95C8B0040E7D1 /* Products */,
@@ -40,7 +40,7 @@ index f3e5d1a..2b3096d 100644
  			);
  			indentWidth = 4;
  			sourceTree = "<group>";
-@@ -1141,6 +1151,8 @@
+@@ -1152,6 +1162,8 @@
  			dependencies = (
  			);
  			name = "Alamofire macOS";
@@ -49,7 +49,7 @@ index f3e5d1a..2b3096d 100644
  			productName = AlamofireOSX;
  			productReference = 4DD67C0B1A5C55C900ED2280 /* Alamofire.framework */;
  			productType = "com.apple.product-type.framework";
-@@ -1177,6 +1189,9 @@
+@@ -1188,6 +1200,9 @@
  			dependencies = (
  			);
  			name = "Alamofire iOS";
@@ -59,7 +59,7 @@ index f3e5d1a..2b3096d 100644
  			productName = Alamofire;
  			productReference = F8111E3319A95C8B0040E7D1 /* Alamofire.framework */;
  			productType = "com.apple.product-type.framework";
-@@ -1270,6 +1285,9 @@
+@@ -1281,6 +1296,9 @@
  				Base,
  			);
  			mainGroup = F8111E2919A95C8B0040E7D1;
@@ -69,7 +69,7 @@ index f3e5d1a..2b3096d 100644
  			productRefGroup = F8111E3419A95C8B0040E7D1 /* Products */;
  			projectDirPath = "";
  			projectRoot = "";
-@@ -2361,6 +2379,25 @@
+@@ -2379,6 +2397,25 @@
  			defaultConfigurationName = Release;
  		};
  /* End XCConfigurationList section */
@@ -96,10 +96,10 @@ index f3e5d1a..2b3096d 100644
  	rootObject = F8111E2A19A95C8B0040E7D1 /* Project object */;
  }
 diff --git a/Tests/BaseTestCase.swift b/Tests/BaseTestCase.swift
-index fe54ffc..d85da5e 100644
+index 1eeafe7..f5f3dea 100644
 --- a/Tests/BaseTestCase.swift
 +++ b/Tests/BaseTestCase.swift
-@@ -25,8 +25,39 @@
+@@ -25,8 +25,38 @@
  import Alamofire
  import Foundation
  import XCTest
@@ -117,11 +117,10 @@ index fe54ffc..d85da5e 100644
 +        if (!SentryInitialized) {
 +            SentrySDK.start { options in
 +                options.dsn = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
-+                options.tracesSampler = { _ in
-+                    // Discard all traces.
-+                    return 0
-+                }
-+                
++                options.environment = "integration-tests"
++                options.tracesSampleRate = 1.0
++                options.enableFileIOTracking = true
++                options.enableProfiling = true
 +            }
 +            
 +            SentryInitialized = true
