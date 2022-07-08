@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Properly sanitize the scope context (#1943)
+- Properly sanitize the event context and SDK information (#1943)
 
 ## 7.20.0
 
