@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Properly sanitize the event context and SDK information (#1943)
+
 ## 7.20.0
 
 ### Features
