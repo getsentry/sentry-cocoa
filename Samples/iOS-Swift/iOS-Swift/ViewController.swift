@@ -1,3 +1,4 @@
+import Combine
 import Sentry
 import UIKit
 
@@ -7,6 +8,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var anrFullyBlockingButton: UIButton!
     @IBOutlet weak var anrFillingRunLoopButton: UIButton!
     @IBOutlet weak var framesLabel: UILabel!
+    @IBOutlet weak var breadcrumbLabel: UILabel!
     
     private let dispatchQueue = DispatchQueue(label: "ViewController")
 
@@ -18,6 +20,7 @@ class ViewController: UIViewController {
             scope.setEnvironment("debug")
             scope.setTag(value: "swift", key: "language")
             scope.setExtra(value: String(describing: self), key: "currentViewController")
+
             let user = Sentry.User(userId: "1")
             user.email = "tony@example.com"
             scope.setUser(user)
@@ -28,8 +31,8 @@ class ViewController: UIViewController {
             if let data = "hello".data(using: .utf8) {
                 scope.add(Attachment(data: data, filename: "log.txt"))
             }
-            
         }
+
         // Also works
         let user = Sentry.User(userId: "1")
         user.email = "tony1@example.com"
@@ -43,7 +46,11 @@ class ViewController: UIViewController {
                 self.dsnTextField.backgroundColor = UIColor.systemGreen
             }
         }
-        
+
+        NotificationCenter.default.addObserver(forName: .breadcrumb, object: nil, queue: .main) { notification in
+            guard let breadcrumb = notification.object as? Breadcrumb else { return }
+            self.breadcrumbLabel.text = "{ category: \(breadcrumb.category), parentViewController: \(breadcrumb.data?["parentViewController"] ?? "nil"), beingPresented: \(breadcrumb.data?["beingPresented"] ?? "nil"), window_isKeyWindow: \(breadcrumb.data?["window_isKeyWindow"] ?? "nil"), is_window_rootViewController: \(breadcrumb.data?["is_window_rootViewController"] ?? "nil") }"
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {

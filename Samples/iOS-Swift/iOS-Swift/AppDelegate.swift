@@ -1,11 +1,15 @@
 import Sentry
 import UIKit
 
+extension Notification.Name {
+    static let breadcrumb = Notification.Name("breadcrumb")
+}
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
-    
+
     static let defaultDSN = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -34,6 +38,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // the benchmark test starts and stops a custom transaction using a UIButton, and automatic user interaction tracing stops the transaction that begins with that button press after the idle timeout elapses, stopping the profiler (only one profiler runs regardless of the number of concurrent transactions)
             if !ProcessInfo.processInfo.arguments.contains("--io.sentry.test.benchmarking") {
                 options.enableUserInteractionTracing = true
+            }
+
+            options.beforeBreadcrumb = { breadcrumb in
+                NotificationCenter.default.post(name: .breadcrumb, object: breadcrumb)
+                return breadcrumb
             }
         }
         
