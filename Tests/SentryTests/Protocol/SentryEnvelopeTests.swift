@@ -36,37 +36,18 @@ class SentryEnvelopeTests: XCTestCase {
             event.message = SentryMessage(formatted: "Don't do this")
             event.releaseName = "releaseName1.0.0"
             event.environment = "save the environment"
-            event.sdk = ["version": sdkVersion]
-            return event
-        }
-
-        var eventWithFaultyContext: Event {
-            let event = self.event
-            event.context = ["dont": ["dothis": Date()]]
-            return event
-        }
-
-        var eventWithFaultySDK: Event {
-            let event = self.event
-            event.sdk = ["dont": ["dothis": Date()]]
-            return event
-        }
-
-        var eventWithFaultyContextAndBreadrumb: Event {
-            let event = eventWithFaultyContext
-            event.breadcrumbs = [breadcrumb]
+            event.sdk = ["version": sdkVersion, "date": Date()]
             return event
         }
 
         var eventWithContinousSerializationFailure: Event {
-            let event = EventSerilazationFailure()
+            let event = EventSerializationFailure()
             event.message = SentryMessage(formatted: "Failure")
             event.releaseName = "release"
             event.environment = "environment"
             event.platform = "platform"
             return event
         }
-        
     }
 
     private let fixture = Fixture()
@@ -204,49 +185,6 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(expected, actual)
     }
 
-    func testInitWithEvent_FaultyContextNoBreadcrumbs_SendsEventWithBreadcrumb() {
-        let event = fixture.eventWithFaultyContext
-        let envelope = SentryEnvelope(event: event)
-
-        XCTAssertEqual(1, envelope.items.count)
-        XCTAssertNotNil(envelope.items.first?.data)
-        if let data = envelope.items.first?.data {
-            let json = String(data: data, encoding: .utf8) ?? ""
-            assertContainsBreadcrumbForDroppingContextAndSDK(json)
-            assertEventDoesNotContainContext(json)
-        }
-    }
-
-    func testInitWithEvent_FaultySDKNoBreadcrumbs_SendsEventWithBreadcrumb() {
-        let event = fixture.eventWithFaultySDK
-        let envelope = SentryEnvelope(event: event)
-
-        XCTAssertEqual(1, envelope.items.count)
-        XCTAssertNotNil(envelope.items.first?.data)
-        if let data = envelope.items.first?.data {
-            let json = String(data: data, encoding: .utf8) ?? ""
-            assertContainsBreadcrumbForDroppingContextAndSDK(json)
-            assertEventDoesNotContainContext(json)
-        }
-    }
-
-    func testInitWithEvent_FaultyContextAndBreadcrumb_SendsEventWithBreadcrumbs() {
-        let event = fixture.eventWithFaultyContextAndBreadrumb
-
-        let envelope = SentryEnvelope(event: event)
-
-        XCTAssertEqual(1, envelope.items.count)
-        XCTAssertNotNil(envelope.items.first?.data)
-        if let data = envelope.items.first?.data {
-            let json = String(data: data, encoding: .utf8) ?? ""
-
-            assertContainsBreadcrumbForDroppingContextAndSDK(json)
-            assertEventDoesNotContainContext(json)
-
-            json.assertContains(fixture.breadcrumb.message!, "breadrumb message")
-        }
-    }
-
     func testInitWithEvent_SerializationFails_SendsEventWithSerializationFailure() {
         let event = fixture.eventWithContinousSerializationFailure
         let envelope = SentryEnvelope(event: event)
@@ -348,19 +286,11 @@ class SentryEnvelopeTests: XCTestCase {
         }
     }
 
-    private func assertContainsBreadcrumbForDroppingContextAndSDK(_ json: String) {
-        json.assertContains("A value set to the context or sdk is not serializable. Dropping context and sdk.", "breadcrumb message")
-
-        json.assertContains("\"category\":\"sentry.event\"", "breadcrumb category")
-        json.assertContains("\"type\":\"error\"", "breadcrumb type")
-        json.assertContains("\"level\":\"error\"", "breadcrumb level")
-    }
-
     private func assertEventDoesNotContainContext(_ json: String) {
         XCTAssertFalse(json.contains("\"contexts\":{"))
     }
 
-    private class EventSerilazationFailure: Event {
+    private class EventSerializationFailure: Event {
         override func serialize() -> [String: Any] {
             return ["is going": ["to fail": Date()]]
         }
