@@ -204,6 +204,7 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
     @autoreleasepool {
         id object = [SentrySwizzleTestClass_D new];
         object = nil;
+        XCTAssertNil(object);
     }
     ASSERT_LOG_IS(@"d'-d-c'-c-C-a");
 }

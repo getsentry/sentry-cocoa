@@ -66,6 +66,20 @@ class SentryPerformanceTrackerTests: XCTestCase {
         XCTAssert(scopeSpan === firstTransaction)
     }
     
+    func testStartSpan_ScopeWithUIActionSpan_FinishesSoan() {
+        let sut = fixture.getSut()
+        let firstTransaction = SentrySDK.startTransaction(name: fixture.someTransaction, operation: "ui.action", bindToScope: true)
+        let spanId = startSpan(tracker: sut)
+                
+        let transaction = sut.getSpan(spanId)
+        let scopeSpan = SentrySDK.currentHub().scope.span
+        
+        XCTAssert(scopeSpan === transaction)
+        XCTAssert(scopeSpan !== firstTransaction)
+        XCTAssertTrue(firstTransaction.isFinished)
+        XCTAssertEqual(.cancelled, firstTransaction.context.status)
+    }
+    
     func testStartSpan_WithActiveSpan() {
         let sut = fixture.getSut()
         let spanId = startSpan(tracker: sut)

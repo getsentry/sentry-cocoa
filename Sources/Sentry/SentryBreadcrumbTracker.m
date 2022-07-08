@@ -7,6 +7,7 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope.h"
 #import "SentrySwizzle.h"
+#import "SentrySwizzleWrapper.h"
 #import "SentryUIViewControllerSanitizer.h"
 
 #if SENTRY_HAS_UIKIT
@@ -15,7 +16,27 @@
 #    import <Cocoa/Cocoa.h>
 #endif
 
+NS_ASSUME_NONNULL_BEGIN
+
+static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
+    = @"SentryBreadcrumbTrackerSwizzleSendAction";
+
+@interface
+SentryBreadcrumbTracker ()
+
+@property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
+
+@end
+
 @implementation SentryBreadcrumbTracker
+
+- (instancetype)initWithSwizzleWrapper:(SentrySwizzleWrapper *)swizzleWrapper
+{
+    if (self = [super init]) {
+        self.swizzleWrapper = swizzleWrapper;
+    }
+    return self;
+}
 
 - (void)start
 {
@@ -31,10 +52,11 @@
 
 - (void)stop
 {
-    // This is a noop because the notifications are registered via blocks and monkey patching
-    // which are both super hard to clean up.
-    // Either way, all these are guarded by checking the client of the current hub, which
-    // we remove when uninstalling the SDK.
+    // All breadcrumbs are guarded by checking the client of the current hub, which we remove when
+    // uninstalling the SDK. Therefore, we don't clean up everything.
+#if SENTRY_HAS_UIKIT
+    [self.swizzleWrapper removeSwizzleSendActionForKey:SentryBreadcrumbTrackerSwizzleSendAction];
+#endif
 }
 
 - (void)trackApplicationUIKitNotifications
@@ -124,33 +146,28 @@
 {
 #if SENTRY_HAS_UIKIT
 
-    // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
-    // fine and we accept this warning.
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wshadow"
-
-    static const void *swizzleSendActionKey = &swizzleSendActionKey;
-    SEL selector = NSSelectorFromString(@"sendAction:to:from:forEvent:");
-    SentrySwizzleInstanceMethod(UIApplication.class, selector, SentrySWReturnType(BOOL),
-        SentrySWArguments(SEL action, id target, id sender, UIEvent * event), SentrySWReplacement({
-            if (nil != [SentrySDK.currentHub getClient]) {
-                NSDictionary *data = nil;
-                for (UITouch *touch in event.allTouches) {
-                    if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
-                        data = @ { @"view" : [NSString stringWithFormat:@"%@", touch.view] };
-                    }
-                }
-                SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                                                         category:@"touch"];
-                crumb.type = @"user";
-                crumb.message = [NSString stringWithFormat:@"%s", sel_getName(action)];
-                crumb.data = data;
-                [SentrySDK addBreadcrumb:crumb];
+    [self.swizzleWrapper
+        swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
+            if ([SentrySDK.currentHub getClient] == nil) {
+                return;
             }
-            return SentrySWCallOriginal(action, target, sender, event);
-        }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleSendActionKey);
-#    pragma clang diagnostic pop
+
+            NSDictionary *data = nil;
+            for (UITouch *touch in event.allTouches) {
+                if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
+                    data = [SentryBreadcrumbTracker extractDataFromView:touch.view];
+                }
+            }
+
+            SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                                     category:@"touch"];
+            crumb.type = @"user";
+            crumb.message = action;
+            crumb.data = data;
+            [SentrySDK addBreadcrumb:crumb];
+        }
+                   forKey:SentryBreadcrumbTrackerSwizzleSendAction];
+
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
                               @"swizzleSendAction] does nothing."
@@ -196,4 +213,31 @@
 #endif
 }
 
+#if SENTRY_HAS_UIKIT
++ (NSDictionary *)extractDataFromView:(UIView *)view
+{
+    NSMutableDictionary *result =
+        @{ @"view" : [NSString stringWithFormat:@"%@", view] }.mutableCopy;
+
+    if (view.tag > 0) {
+        [result setValue:[NSNumber numberWithInteger:view.tag] forKey:@"tag"];
+    }
+
+    if (view.accessibilityIdentifier && ![view.accessibilityIdentifier isEqualToString:@""]) {
+        [result setValue:view.accessibilityIdentifier forKey:@"accessibilityIdentifier"];
+    }
+
+    if ([view isKindOfClass:UIButton.class]) {
+        UIButton *button = (UIButton *)view;
+        if (button.currentTitle && ![button.currentTitle isEqual:@""]) {
+            [result setValue:[button currentTitle] forKey:@"title"];
+        }
+    }
+
+    return result;
+}
+#endif
+
 @end
+
+NS_ASSUME_NONNULL_END

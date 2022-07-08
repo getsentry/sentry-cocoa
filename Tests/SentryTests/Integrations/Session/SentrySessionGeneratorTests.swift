@@ -15,7 +15,7 @@ class SentrySessionGeneratorTests: XCTestCase {
         var abnormal = 0
     }
     
-    private var sentryCrash: TestSentryCrashAdapter!
+    private var sentryCrash: TestSentryCrashWrapper!
     private var autoSessionTrackingIntegration: SentryAutoSessionTrackingIntegration!
     private var crashIntegration: SentryCrashIntegration!
     private var options: Options!
@@ -109,7 +109,7 @@ class SentrySessionGeneratorTests: XCTestCase {
         sentryCrash.internalCrashedLastLaunch = false
         
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        let appState = SentryAppState(releaseName: options.releaseName!, osVersion: UIDevice.current.systemVersion, isDebugging: false, systemBootTimestamp: Date())
+        let appState = SentryAppState(releaseName: options.releaseName!, osVersion: UIDevice.current.systemVersion, vendorId: "12345678-1234-1234-1234-1234567890AB", isDebugging: false, systemBootTimestamp: Date())
         appState.isActive = true
         fileManager.store(appState)
         
@@ -143,9 +143,9 @@ class SentrySessionGeneratorTests: XCTestCase {
         
         SentrySDK.start(options: options)
         
-        sentryCrash = TestSentryCrashAdapter.sharedInstance()
+        sentryCrash = TestSentryCrashWrapper.sharedInstance()
         let client = SentrySDK.currentHub().getClient()
-        let hub = SentryHub(client: client, andScope: nil, andCrashAdapter: self.sentryCrash, andCurrentDateProvider: DefaultCurrentDateProvider.sharedInstance())
+        let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: self.sentryCrash, andCurrentDateProvider: DefaultCurrentDateProvider.sharedInstance())
         SentrySDK.setCurrentHub(hub)
         
         crashIntegration = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: TestSentryDispatchQueueWrapper())

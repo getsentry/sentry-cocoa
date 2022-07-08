@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="19529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="5CD-RQ-aBU">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="5CD-RQ-aBU">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19519"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -17,122 +17,175 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="480-5y-FtF">
-                                <rect key="frame" x="8" y="188" width="398" height="574.5"/>
+                            <stackView opaque="NO" contentMode="scaleAspectFit" axis="vertical" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="480-5y-FtF">
+                                <rect key="frame" x="8" y="252.5" width="398" height="445"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QJW-l9-sD6">
-                                        <rect key="frame" x="0.0" y="0.0" width="398" height="30"/>
-                                        <state key="normal" title="add Breadcrumb"/>
-                                        <connections>
-                                            <action selector="addBreadcrumb:" destination="BYZ-38-t0r" eventType="touchUpInside" id="QZb-n6-c67"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jwi-v3-e8T">
-                                        <rect key="frame" x="0.0" y="30" width="398" height="30"/>
-                                        <accessibility key="accessibilityConfiguration" identifier="loremIpsumButton"/>
-                                        <state key="normal" title="Lorem Ipsum"/>
-                                        <connections>
-                                            <segue destination="2jd-n4-Ihk" kind="show" id="wcP-y8-kPR"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ls3-eR-jlU">
-                                        <rect key="frame" x="0.0" y="60" width="398" height="30"/>
-                                        <accessibility key="accessibilityConfiguration" identifier="captureMessageButton"/>
-                                        <state key="normal" title="captureMessage"/>
-                                        <connections>
-                                            <action selector="captureMessage:" destination="BYZ-38-t0r" eventType="touchUpInside" id="qLd-Cq-psO"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KU1-qd-h5w">
-                                        <rect key="frame" x="0.0" y="90" width="398" height="30"/>
-                                        <state key="normal" title="captureUserFeedback"/>
-                                        <connections>
-                                            <action selector="captureUserFeedback:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ek5-6c-HRz"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WZK-C2-hjR">
-                                        <rect key="frame" x="0.0" y="120" width="398" height="30"/>
-                                        <state key="normal" title="captureError"/>
-                                        <connections>
-                                            <action selector="captureError:" destination="BYZ-38-t0r" eventType="touchUpInside" id="XSc-zg-aee"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="D9Z-XG-OJP">
-                                        <rect key="frame" x="0.0" y="150" width="398" height="30"/>
-                                        <state key="normal" title="captureNSException"/>
-                                        <connections>
-                                            <action selector="captureNSException:" destination="BYZ-38-t0r" eventType="touchUpInside" id="BT7-dZ-MrB"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UQw-od-fYk" userLabel="fatalError">
-                                        <rect key="frame" x="0.0" y="180" width="398" height="30"/>
-                                        <state key="normal" title="fatalError"/>
-                                        <connections>
-                                            <action selector="captureFatalError:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Uyy-8e-VRa"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lgF-Uq-3Bb">
-                                        <rect key="frame" x="0.0" y="210" width="398" height="30"/>
-                                        <state key="normal" title="crash"/>
-                                        <connections>
-                                            <action selector="crash:" destination="BYZ-38-t0r" eventType="touchUpInside" id="imm-ZO-4Af"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0Au-jS-aRl">
-                                        <rect key="frame" x="0.0" y="240" width="398" height="30"/>
-                                        <state key="normal" title="OOM crash"/>
-                                        <connections>
-                                            <action selector="oomCrash:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Oju-om-O6e"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xur-X2-ih4">
-                                        <rect key="frame" x="0.0" y="270" width="398" height="30"/>
-                                        <state key="normal" title="async crash"/>
-                                        <connections>
-                                            <action selector="asyncCrash:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Mqi-sE-R7d"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cdR-H3-8fr">
-                                        <rect key="frame" x="0.0" y="300" width="398" height="30"/>
-                                        <state key="normal" title="Capture Transaction"/>
-                                        <connections>
-                                            <action selector="captureTransaction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kff-pT-Uf4"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8CV-WC-ffq">
-                                        <rect key="frame" x="0.0" y="330" width="398" height="30"/>
-                                        <accessibility key="accessibilityConfiguration" identifier="testNavigationTransactionButton"/>
-                                        <state key="normal" title="Test Navigation Transaction"/>
-                                        <connections>
-                                            <segue destination="cay-7M-Gvd" kind="show" id="boD-GG-VVF"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LvU-yx-01i">
-                                        <rect key="frame" x="0.0" y="360" width="398" height="30"/>
-                                        <accessibility key="accessibilityConfiguration" identifier="showNibButton"/>
-                                        <state key="normal" title="Show Nib"/>
-                                        <connections>
-                                            <action selector="showNibController:" destination="BYZ-38-t0r" eventType="touchUpInside" id="E8m-GA-zvY"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RjO-LN-eHj">
-                                        <rect key="frame" x="0.0" y="390" width="398" height="30"/>
-                                        <accessibility key="accessibilityConfiguration" identifier="showTableViewButton"/>
-                                        <state key="normal" title="Show TableView"/>
-                                        <connections>
-                                            <action selector="showTableViewController:" destination="BYZ-38-t0r" eventType="touchUpInside" id="u6U-9d-UMi"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ok0-hq-2kK">
-                                        <rect key="frame" x="0.0" y="420" width="398" height="30"/>
-                                        <accessibility key="accessibilityConfiguration" identifier="showSplitViewButton"/>
-                                        <state key="normal" title="Show SplitView"/>
-                                        <connections>
-                                            <segue destination="DGj-BO-BQ5" kind="presentation" id="G2z-UO-upZ"/>
-                                        </connections>
-                                    </button>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="VbH-LD-DBn">
+                                        <rect key="frame" x="0.0" y="0.0" width="398" height="300"/>
+                                        <subviews>
+                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="hHG-as-TfH">
+                                                <rect key="frame" x="0.0" y="0.0" width="181.5" height="300"/>
+                                                <subviews>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QJW-l9-sD6">
+                                                        <rect key="frame" x="0.0" y="0.0" width="181.5" height="30"/>
+                                                        <state key="normal" title="add Breadcrumb"/>
+                                                        <connections>
+                                                            <action selector="addBreadcrumb:" destination="BYZ-38-t0r" eventType="touchUpInside" id="QZb-n6-c67"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ls3-eR-jlU">
+                                                        <rect key="frame" x="0.0" y="30" width="181.5" height="30"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="captureMessageButton"/>
+                                                        <state key="normal" title="Message"/>
+                                                        <connections>
+                                                            <action selector="captureMessage:" destination="BYZ-38-t0r" eventType="touchUpInside" id="qLd-Cq-psO"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mjD-vZ-Wtp" userLabel="UIClick Transaction">
+                                                        <rect key="frame" x="0.0" y="60" width="181.5" height="30"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="uiClickTransactionButton"/>
+                                                        <state key="normal" title="UIClick Transaction"/>
+                                                        <connections>
+                                                            <action selector="uiClickTransaction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="JCq-Fy-ciF"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KU1-qd-h5w">
+                                                        <rect key="frame" x="0.0" y="90" width="181.5" height="30"/>
+                                                        <state key="normal" title="User Feedback"/>
+                                                        <connections>
+                                                            <action selector="captureUserFeedback:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ek5-6c-HRz"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WZK-C2-hjR">
+                                                        <rect key="frame" x="0.0" y="120" width="181.5" height="30"/>
+                                                        <state key="normal" title="Error"/>
+                                                        <connections>
+                                                            <action selector="captureError:" destination="BYZ-38-t0r" eventType="touchUpInside" id="XSc-zg-aee"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="D9Z-XG-OJP">
+                                                        <rect key="frame" x="0.0" y="150" width="181.5" height="30"/>
+                                                        <state key="normal" title="NSException"/>
+                                                        <connections>
+                                                            <action selector="captureNSException:" destination="BYZ-38-t0r" eventType="touchUpInside" id="BT7-dZ-MrB"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UQw-od-fYk" userLabel="fatalError">
+                                                        <rect key="frame" x="0.0" y="180" width="181.5" height="30"/>
+                                                        <state key="normal" title="fatalError"/>
+                                                        <connections>
+                                                            <action selector="captureFatalError:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Uyy-8e-VRa"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lgF-Uq-3Bb">
+                                                        <rect key="frame" x="0.0" y="210" width="181.5" height="30"/>
+                                                        <state key="normal" title="crash"/>
+                                                        <connections>
+                                                            <action selector="crash:" destination="BYZ-38-t0r" eventType="touchUpInside" id="imm-ZO-4Af"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0Au-jS-aRl">
+                                                        <rect key="frame" x="0.0" y="240" width="181.5" height="30"/>
+                                                        <state key="normal" title="OOM crash"/>
+                                                        <connections>
+                                                            <action selector="oomCrash:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Oju-om-O6e"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xur-X2-ih4">
+                                                        <rect key="frame" x="0.0" y="270" width="181.5" height="30"/>
+                                                        <state key="normal" title="async crash"/>
+                                                        <connections>
+                                                            <action selector="asyncCrash:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Mqi-sE-R7d"/>
+                                                        </connections>
+                                                    </button>
+                                                </subviews>
+                                            </stackView>
+                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="1a2-Yg-Az9">
+                                                <rect key="frame" x="181.5" y="0.0" width="216.5" height="300"/>
+                                                <subviews>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Yi7-GN-26l">
+                                                        <rect key="frame" x="0.0" y="0.0" width="216.5" height="30"/>
+                                                        <state key="normal" title="ANR fully blocking"/>
+                                                        <connections>
+                                                            <action selector="anrFullyBlocking:" destination="BYZ-38-t0r" eventType="touchUpInside" id="dJy-Fs-khK"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TSF-10-5ts">
+                                                        <rect key="frame" x="0.0" y="30" width="216.5" height="30"/>
+                                                        <state key="normal" title="ANR filling run loop"/>
+                                                        <connections>
+                                                            <action selector="anrFillingRunLoop:" destination="BYZ-38-t0r" eventType="touchUpInside" id="13D-io-hVz"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cdR-H3-8fr">
+                                                        <rect key="frame" x="0.0" y="60" width="216.5" height="30"/>
+                                                        <state key="normal" title="Capture Transaction"/>
+                                                        <connections>
+                                                            <action selector="captureTransaction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kff-pT-Uf4"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jwi-v3-e8T">
+                                                        <rect key="frame" x="0.0" y="90" width="216.5" height="30"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="loremIpsumButton"/>
+                                                        <state key="normal" title="Lorem Ipsum"/>
+                                                        <connections>
+                                                            <segue destination="2jd-n4-Ihk" kind="show" id="wcP-y8-kPR"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8CV-WC-ffq">
+                                                        <rect key="frame" x="0.0" y="120" width="216.5" height="30"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="testNavigationTransactionButton"/>
+                                                        <state key="normal" title="Image"/>
+                                                        <connections>
+                                                            <segue destination="cay-7M-Gvd" kind="show" id="boD-GG-VVF"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LvU-yx-01i">
+                                                        <rect key="frame" x="0.0" y="150" width="216.5" height="30"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="showNibButton"/>
+                                                        <state key="normal" title="Show Nib"/>
+                                                        <connections>
+                                                            <action selector="showNibController:" destination="BYZ-38-t0r" eventType="touchUpInside" id="E8m-GA-zvY"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RjO-LN-eHj">
+                                                        <rect key="frame" x="0.0" y="180" width="216.5" height="30"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="showTableViewButton"/>
+                                                        <state key="normal" title="TableView"/>
+                                                        <connections>
+                                                            <action selector="showTableViewController:" destination="BYZ-38-t0r" eventType="touchUpInside" id="u6U-9d-UMi"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ok0-hq-2kK">
+                                                        <rect key="frame" x="0.0" y="210" width="216.5" height="30"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="showSplitViewButton"/>
+                                                        <state key="normal" title="SplitView"/>
+                                                        <connections>
+                                                            <segue destination="DGj-BO-BQ5" kind="presentation" id="G2z-UO-upZ"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cTC-V8-T1j">
+                                                        <rect key="frame" x="0.0" y="240" width="216.5" height="30"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="useCoreData"/>
+                                                        <state key="normal" title="Core Data"/>
+                                                        <connections>
+                                                            <action selector="useCoreData:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ycl-fG-7Bk"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ld2-mz-wQD">
+                                                        <rect key="frame" x="0.0" y="270" width="216.5" height="30"/>
+                                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                        <state key="normal" title="Performance scenarios"/>
+                                                        <connections>
+                                                            <action selector="performanceScenarios:" destination="BYZ-38-t0r" eventType="touchUpInside" id="cuc-qv-hNv"/>
+                                                        </connections>
+                                                    </button>
+                                                </subviews>
+                                            </stackView>
+                                        </subviews>
+                                    </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="UrL-kT-AJU">
-                                        <rect key="frame" x="0.0" y="450" width="398" height="124.5"/>
+                                        <rect key="frame" x="0.0" y="300" width="398" height="145"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="DSN  " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="m3h-wb-Xfa">
                                                 <rect key="frame" x="8" y="32" width="382" height="20.5"/>
@@ -140,7 +193,7 @@
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="L2a-LY-eQ7">
+                                            <textField opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="L2a-LY-eQ7">
                                                 <rect key="frame" x="8" y="52.5" width="382" height="34"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <textInputTraits key="textInputTraits"/>
@@ -148,13 +201,20 @@
                                                     <action selector="dsnChanged:" destination="BYZ-38-t0r" eventType="editingChanged" id="PSj-ja-pxV"/>
                                                 </connections>
                                             </textField>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="piA-94-ut3">
+                                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="piA-94-ut3">
                                                 <rect key="frame" x="8" y="86.5" width="382" height="30"/>
                                                 <state key="normal" title="Reset DSN"/>
                                                 <connections>
                                                     <action selector="resetDSN:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Mc6-d3-jaa"/>
                                                 </connections>
                                             </button>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Frames" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Lcm-n2-ys4" userLabel="frames">
+                                                <rect key="frame" x="8" y="116.5" width="382" height="20.5"/>
+                                                <accessibility key="accessibilityConfiguration" identifier="framesStatsLabel"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
                                         </subviews>
                                         <edgeInsets key="layoutMargins" top="32" left="8" bottom="8" right="8"/>
                                     </stackView>
@@ -166,18 +226,20 @@
                         <constraints>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="480-5y-FtF" secondAttribute="trailing" constant="8" id="Ft5-oH-aFZ"/>
                             <constraint firstItem="480-5y-FtF" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="Rua-N2-Dui"/>
-                            <constraint firstItem="Ls3-eR-jlU" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="8" id="c6a-ie-ueZ"/>
                             <constraint firstItem="480-5y-FtF" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="ccY-ia-uJZ"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Sentry Test App (Swift)" id="Ddh-Ww-vzM"/>
                     <connections>
+                        <outlet property="anrFillingRunLoopButton" destination="TSF-10-5ts" id="Qp6-8q-IPH"/>
+                        <outlet property="anrFullyBlockingButton" destination="Yi7-GN-26l" id="tMf-U3-onN"/>
                         <outlet property="dsnTextField" destination="L2a-LY-eQ7" id="TWn-0u-2v7"/>
+                        <outlet property="framesLabel" destination="Lcm-n2-ys4" id="7mO-bc-HWw"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="343" y="7"/>
+            <point key="canvasLocation" x="342.02898550724638" y="6.6964285714285712"/>
         </scene>
         <!--Navigation Transaction-->
         <scene sceneID="nC1-NO-4uj">
@@ -209,7 +271,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="JzG-vp-oCD" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1722" y="305"/>
+            <point key="canvasLocation" x="1383" y="155"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="0gQ-IO-Fn5">
@@ -236,7 +298,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="This is Split Root ViewController" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5bi-2z-fqb">
-                                <rect key="frame" x="85.5" y="439" width="243" height="20.5"/>
+                                <rect key="frame" x="85.5" y="438.5" width="243" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -279,10 +341,10 @@
             </objects>
             <point key="canvasLocation" x="396" y="1371"/>
         </scene>
-        <!--Split View Secondary Controller-->
+        <!--Secondary Split View Controller-->
         <scene sceneID="qwb-vD-6AF">
             <objects>
-                <viewController id="g8o-dT-S6v" customClass="SplitViewSecondaryController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="g8o-dT-S6v" customClass="SecondarySplitViewController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="BKf-tT-kLA">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="842"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -328,7 +390,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5Rz-Om-HMJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1723" y="-353"/>
+            <point key="canvasLocation" x="1367" y="-493"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="LFx-vP-o2F">

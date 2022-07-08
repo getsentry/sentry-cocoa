@@ -1,0 +1,69 @@
+apiVersion: v1alpha
+kind: xcuitest
+sauce:
+  region: us-west-1
+  concurrency: 2
+
+defaults:
+  timeout: 20m
+
+xcuitest:
+  app: ./DerivedData/Build/Products/Debug-iphoneos/TrendingMovies.app
+  testApp: ./DerivedData/Build/Products/Debug-iphoneos/ProfileDataGeneratorUITest-Runner.app
+
+suites:
+
+# iPhone 11
+# iPhone 11 Pro Max
+# iPhone 12
+# iPhone 12 mini
+# iPhone 13
+# iPhone 13 Pro
+# iPhone 13 Pro Max
+# iPhone 13 mini
+# iPhone XR
+  - name: "iOS-15.5"
+    devices:
+      - name: "iPhone.*"
+        platformVersion: "15.5"
+
+# iPad 10.2 2020
+# iPad Air 2022 5th Gen
+# iPad Mini 2021 6th Gen
+# iPhone SE 2022
+# iPhone XS
+  - name: "iOS-15.4"
+    devices:
+      - name: "iPhone.*"
+        platformVersion: "15.4"
+
+# iPad Air 3 (2019)
+# iPhone 11
+# iPhone 11 Pro
+# iPhone 12
+# iPhone 12 Pro
+# iPhone 12 Pro Max
+# iPhone 7 Plus
+# iPhone 8
+# iPhone SE 2020
+# iPhone X
+  - name: "iOS-14.8"
+    devices:
+      - name: "iPhone.*"
+        platformVersion: "14.8"
+
+# iPad Pro 12.9 2020
+# iPad Pro 12.9 2021
+  - name: "iOS-14.7"
+    devices:
+      - name: "iPhone.*"
+        platformVersion: "14.7"
+
+#iPad Pro 11 2018
+#iPad Pro 12.9 2018
+#iPhone SE 2020
+#iPhone X
+  - name: "iOS-13.7"
+    devices:
+      - name: "iPhone.*"
+        platformVersion: "13.7"

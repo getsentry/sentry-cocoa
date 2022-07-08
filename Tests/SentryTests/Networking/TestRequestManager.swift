@@ -6,6 +6,7 @@ import Foundation
 public class TestRequestManager: NSObject, RequestManager {
     
     private var nextResponse : () -> HTTPURLResponse? = { return nil }
+    var nextError: NSError?
     public var isReady: Bool
     
     var requests = Invocations<URLRequest>()
@@ -23,10 +24,11 @@ public class TestRequestManager: NSObject, RequestManager {
         requests.record(request)
         
         let response = self.nextResponse()
+        let error = self.nextError
         group.enter()
         queue.asyncAfter(deadline: .now() + responseDelay, execute: {
             if let handler = completionHandler {
-                handler(response, nil)
+                handler(response, error)
             }
             self.group.leave()
         })
@@ -43,4 +45,5 @@ public class TestRequestManager: NSObject, RequestManager {
     func returnResponse(response: @escaping () -> HTTPURLResponse?) {
         nextResponse = response
     }
+    
 }

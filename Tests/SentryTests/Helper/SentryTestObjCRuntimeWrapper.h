@@ -8,8 +8,13 @@
 
 @property (nullable, nonatomic, copy) void (^beforeGetClassList)(void);
 
+@property (nullable, nonatomic, copy) void (^afterGetClassList)(void);
+
 @property (nullable, nonatomic, copy) int (^numClasses)(int);
 
-@property (nonatomic, assign) NSUInteger iterateClassesInvocations;
+@property (nullable, nonatomic, copy) NSArray<NSString *> *_Nullable (^classesNames)
+    (NSArray<NSString *> *_Nullable);
+
+@property (nullable, nonatomic) const char *imageName;
 
 @end

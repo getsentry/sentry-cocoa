@@ -15,6 +15,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.sessionTrackingIntervalMillis = 5_000
             // Sampling 100% - In Production you probably want to adjust this
             options.tracesSampleRate = 1.0
+            options.enableFileIOTracking = true
+            options.enableUserInteractionTracing = true
         }
         
         SentrySDK.configureScope { scope in

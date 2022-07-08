@@ -13,26 +13,30 @@ xcuitest:
 
 suites:
    
-
   - name: "iOS-15"
     devices:
       - name: "iPhone.*"
-        platformVersion: "15.2"
+        platformVersion: "15.4"
 
+  - name: "iPhone-Pro"
+    devices:
+      - name: "iPhone 13 Pro.*"
+        platformVersion: "15.5"
+        
   - name: "iOS-14"
     devices:
       - name: "iPhone.*"
         platformVersion: "14.8"
 
   - name: "iOS-13"
-    devices:    
+    devices:
       - name: "iPhone.*"
         platformVersion: "13.7"
 
   - name: "iOS-12"
     devices:
       - name: "iPhone.*"
-        platformVersion: "12.5.5"  
+        platformVersion: "12.5.5"
 
   - name: "iOS-11"
     devices:

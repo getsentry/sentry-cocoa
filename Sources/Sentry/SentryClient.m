@@ -1,17 +1,19 @@
 #import "SentryClient.h"
 #import "NSDictionary+SentrySanitize.h"
+#import "SentryAttachment.h"
+#import "SentryClient+Private.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashIntegration.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryDebugImageProvider.h"
 #import "SentryDefaultCurrentDateProvider.h"
+#import "SentryDependencyContainer.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryFileManager.h"
-#import "SentryFrameRemover.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryId.h"
 #import "SentryInAppLogic.h"
@@ -23,18 +25,17 @@
 #import "SentryMeta.h"
 #import "SentryNSError.h"
 #import "SentryOptions+Private.h"
-#import "SentryOptions.h"
 #import "SentryOutOfMemoryTracker.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
-#import "SentryScope.h"
-#import "SentrySpan.h"
+#import "SentrySdkInfo.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThreadInspector.h"
-#import "SentryTraceState.h"
+#import "SentryTraceContext.h"
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
 #import "SentryTransport.h"
+#import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
@@ -48,10 +49,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryClient ()
 
-@property (nonatomic, strong) id<SentryTransport> transport;
+@property (nonatomic, strong) SentryTransportAdapter *transportAdapter;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
+@property (nonatomic, strong) id<SentryRandom> random;
+@property (nonatomic, weak) id<SentryClientAttachmentProcessor> attachmentProcessor;
 
 @end
 
@@ -64,7 +67,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (self = [super init]) {
         self.options = options;
 
-        self.debugImageProvider = [[SentryDebugImageProvider alloc] init];
+        self.debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
 
         SentryInAppLogic *inAppLogic =
             [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
@@ -91,21 +94,30 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             return nil;
         }
 
-        self.transport = [SentryTransportFactory initTransport:self.options
-                                             sentryFileManager:self.fileManager];
+        id<SentryTransport> transport = [SentryTransportFactory initTransport:self.options
+                                                            sentryFileManager:self.fileManager];
+
+        self.transportAdapter = [[SentryTransportAdapter alloc] initWithTransport:transport
+                                                                          options:options];
+
+        self.random = [SentryDependencyContainer sharedInstance].random;
     }
     return self;
 }
 
 /** Internal constructor for testing */
 - (instancetype)initWithOptions:(SentryOptions *)options
-                   andTransport:(id<SentryTransport>)transport
-                 andFileManager:(SentryFileManager *)fileManager
+               transportAdapter:(SentryTransportAdapter *)transportAdapter
+                    fileManager:(SentryFileManager *)fileManager
+                threadInspector:(SentryThreadInspector *)threadInspector
+                         random:(id<SentryRandom>)random
 {
     self = [self initWithOptions:options];
 
-    self.transport = transport;
+    self.transportAdapter = transportAdapter;
     self.fileManager = fileManager;
+    self.threadInspector = threadInspector;
+    self.random = random;
 
     return self;
 }
@@ -152,6 +164,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     SentryException *sentryException = [[SentryException alloc] initWithValue:exception.reason
                                                                          type:exception.name];
+
     event.exceptions = @[ sentryException ];
     [self setUserInfo:exception.userInfo withEvent:event];
     return event;
@@ -239,6 +252,17 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:NO];
 }
 
+- (SentryId *)captureEvent:(SentryEvent *)event
+                  withScope:(SentryScope *)scope
+    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
+{
+    return [self sendEvent:event
+                      withScope:scope
+         alwaysAttachStacktrace:NO
+                   isCrashEvent:NO
+        additionalEnvelopeItems:additionalEnvelopeItems];
+}
+
 - (SentryId *)sendEvent:(SentryEvent *)event
                  withScope:(SentryScope *)scope
     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
@@ -249,8 +273,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                   isCrashEvent:NO];
 }
 
-- (nullable SentryTraceState *)getTraceStateWithEvent:(SentryEvent *)event
-                                            withScope:(SentryScope *)scope
+- (nullable SentryTraceContext *)getTraceStateWithEvent:(SentryEvent *)event
+                                              withScope:(SentryScope *)scope
 {
     id<SentrySpan> span;
     if ([event isKindOfClass:[SentryTransaction class]]) {
@@ -265,7 +289,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (tracer == nil)
         return nil;
 
-    return [[SentryTraceState alloc] initWithTracer:tracer scope:scope options:_options];
+    return [[SentryTraceContext alloc] initWithTracer:tracer scope:scope options:_options];
 }
 
 - (SentryId *)sendEvent:(SentryEvent *)event
@@ -273,19 +297,37 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
               isCrashEvent:(BOOL)isCrashEvent
 {
+    return [self sendEvent:event
+                      withScope:scope
+         alwaysAttachStacktrace:alwaysAttachStacktrace
+                   isCrashEvent:isCrashEvent
+        additionalEnvelopeItems:@[]];
+}
+
+- (SentryId *)sendEvent:(SentryEvent *)event
+                  withScope:(SentryScope *)scope
+     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+               isCrashEvent:(BOOL)isCrashEvent
+    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
+{
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
                              alwaysAttachStacktrace:alwaysAttachStacktrace
                                        isCrashEvent:isCrashEvent];
 
     if (nil != preparedEvent) {
-        SentryTraceState *traceState = _options.experimentalEnableTraceSampling
-            ? [self getTraceStateWithEvent:event withScope:scope]
-            : nil;
+        SentryTraceContext *traceContext = [self getTraceStateWithEvent:event withScope:scope];
 
-        [self.transport sendEvent:preparedEvent
-                       traceState:traceState
-                      attachments:scope.attachments];
+        NSArray *attachments = scope.attachments;
+        if (self.attachmentProcessor)
+            attachments = [self.attachmentProcessor processAttachments:attachments
+                                                              forEvent:preparedEvent];
+
+        [self.transportAdapter sendEvent:preparedEvent
+                            traceContext:traceContext
+                             attachments:attachments
+                 additionalEnvelopeItems:additionalEnvelopeItems];
+
         return preparedEvent.eventId;
     }
 
@@ -297,17 +339,23 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
               withScope:(SentryScope *)scope
 {
     if (nil != event) {
+        NSArray *attachments = scope.attachments;
+        if (self.attachmentProcessor)
+            attachments = [self.attachmentProcessor processAttachments:attachments forEvent:event];
+
         if (nil == session.releaseName || [session.releaseName length] == 0) {
-            SentryTraceState *traceState = _options.experimentalEnableTraceSampling
-                ? [self getTraceStateWithEvent:event withScope:scope]
-                : nil;
+            SentryTraceContext *traceContext = [self getTraceStateWithEvent:event withScope:scope];
 
             [SentryLog logWithMessage:DropSessionLogMessage andLevel:kSentryLevelDebug];
-            [self.transport sendEvent:event traceState:traceState attachments:scope.attachments];
+
+            [self.transportAdapter sendEvent:event
+                                traceContext:traceContext
+                                 attachments:attachments];
             return event.eventId;
         }
 
-        [self.transport sendEvent:event withSession:session attachments:scope.attachments];
+        [self.transportAdapter sendEvent:event session:session attachments:attachments];
+
         return event.eventId;
     } else {
         [self captureSession:session];
@@ -322,7 +370,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithSession:session];
+    SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithSession:session];
+    SentryEnvelopeHeader *envelopeHeader =
+        [[SentryEnvelopeHeader alloc] initWithId:nil sdkInfo:self.options.sdkInfo traceContext:nil];
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader
+                                                           singleItem:item];
     [self captureEnvelope:envelope];
 }
 
@@ -335,7 +387,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-    [self.transport sendEnvelope:envelope];
+    [self.transportAdapter sendEnvelope:envelope];
 }
 
 - (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
@@ -351,7 +403,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-    [self.transport sendUserFeedback:userFeedback];
+    [self.transportAdapter sendUserFeedback:userFeedback];
 }
 
 - (void)storeEnvelope:(SentryEnvelope *)envelope
@@ -359,17 +411,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self.fileManager storeEnvelope:envelope];
 }
 
-/**
- * returns BOOL chance of YES is defined by sampleRate.
- * if sample rate isn't within 0.0 - 1.0 it returns YES (like if sampleRate
- * is 1.0)
- */
-- (BOOL)checkSampleRate:(NSNumber *)sampleRate
+- (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason
 {
-    if (nil == sampleRate || ![self.options isValidSampleRate:sampleRate]) {
-        return YES;
-    }
-    return ([sampleRate floatValue] >= ((double)arc4random() / 0x100000000));
+    [self.transportAdapter recordLostEvent:category reason:reason];
 }
 
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
@@ -393,9 +437,14 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return nil;
     }
 
-    if (NO == [self checkSampleRate:self.options.sampleRate]) {
+    BOOL eventIsNotATransaction
+        = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeTransaction];
+
+    // Transactions have their own sampleRate
+    if (eventIsNotATransaction && [self isSampled:self.options.sampleRate]) {
         [SentryLog logWithMessage:@"Event got sampled, will not send the event"
                          andLevel:kSentryLevelDebug];
+        [self recordLostEvent:kSentryDataCategoryError reason:kSentryDiscardReasonSampleRate];
         return nil;
     }
 
@@ -424,30 +473,23 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         event.environment = environment;
     }
 
-    NSMutableDictionary *sdk =
-        @{ @"name" : SentryMeta.sdkName, @"version" : SentryMeta.versionString }.mutableCopy;
-    if (nil != sdk && nil == event.sdk) {
-        if (event.extra[@"__sentry_sdk_integrations"]) {
-            [sdk setValue:event.extra[@"__sentry_sdk_integrations"] forKey:@"integrations"];
-        }
-        event.sdk = sdk;
-    }
+    [self setSdk:event];
 
-    // We don't want to attach debug meta and stacktraces for transactions
-    BOOL eventIsNotATransaction
-        = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeTransaction];
+    // We don't want to attach debug meta and stacktraces for transactions;
     if (eventIsNotATransaction) {
         BOOL shouldAttachStacktrace = alwaysAttachStacktrace || self.options.attachStacktrace
             || (nil != event.exceptions && [event.exceptions count] > 0);
 
-        BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
-        if (!isCrashEvent && shouldAttachStacktrace && debugMetaNotAttached) {
-            event.debugMeta = [self.debugImageProvider getDebugImages];
-        }
-
         BOOL threadsNotAttached = !(nil != event.threads && event.threads.count > 0);
+
         if (!isCrashEvent && shouldAttachStacktrace && threadsNotAttached) {
             event.threads = [self.threadInspector getCurrentThreads];
+        }
+
+        BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
+        if (!isCrashEvent && shouldAttachStacktrace && debugMetaNotAttached
+            && event.threads != nil) {
+            event.debugMeta = [self.debugImageProvider getDebugImagesForThreads:event.threads];
         }
     }
 
@@ -471,23 +513,42 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // User can't be nil as setUserIdIfNoUserSet sets it.
     if (self.options.sendDefaultPii && nil == event.user.ipAddress) {
         // Let Sentry infer the IP address from the connection.
+        // Due to backward compatibility concerns, Sentry servers set the IP address to {{auto}} out
+        // of the box for only Cocoa and JavaScript, which makes this toggle currently somewhat
+        // useless. Still, we keep it for future compatibility reasons.
         event.user.ipAddress = @"{{auto}}";
     }
 
     event = [self callEventProcessors:event];
+    if (event == nil) {
+        [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonEventProcessor];
+    }
 
-    if (nil != self.options.beforeSend) {
+    if (event != nil && nil != self.options.beforeSend) {
         event = self.options.beforeSend(event);
+
+        if (event == nil) {
+            [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonBeforeSend];
+        }
     }
 
     if (isCrashEvent && nil != self.options.onCrashedLastRun && !SentrySDK.crashedLastRunCalled) {
         // We only want to call the callback once. It can occur that multiple crash events are
         // about to be sent.
-        self.options.onCrashedLastRun(event);
         SentrySDK.crashedLastRunCalled = YES;
+        self.options.onCrashedLastRun(event);
     }
 
     return event;
+}
+
+- (BOOL)isSampled:(NSNumber *)sampleRate
+{
+    if (nil == sampleRate) {
+        return NO;
+    }
+
+    return [self.random nextNumber] <= sampleRate.doubleValue ? NO : YES;
 }
 
 - (BOOL)isDisabled
@@ -515,6 +576,33 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         }
     }
     return newEvent;
+}
+
+- (void)setSdk:(SentryEvent *)event
+{
+    if (event.sdk) {
+        return;
+    }
+
+    id integrations = event.extra[@"__sentry_sdk_integrations"];
+    if (!integrations) {
+        integrations = [NSMutableArray new];
+        for (NSString *integration in self.options.enabledIntegrations) {
+            // Every integration starts with "Sentry" and ends with "Integration". To keep the
+            // payload of the event small we remove both.
+            NSString *withoutSentry = [integration stringByReplacingOccurrencesOfString:@"Sentry"
+                                                                             withString:@""];
+            NSString *trimmed = [withoutSentry stringByReplacingOccurrencesOfString:@"Integration"
+                                                                         withString:@""];
+            [integrations addObject:trimmed];
+        }
+    }
+
+    event.sdk = @{
+        @"name" : self.options.sdkInfo.name,
+        @"version" : self.options.sdkInfo.version,
+        @"integrations" : integrations
+    };
 }
 
 - (void)setUserInfo:(NSDictionary *)userInfo withEvent:(SentryEvent *)event
@@ -571,6 +659,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     context[@"device"] = device;
 
     event.context = context;
+}
+
+- (void)recordLost:(BOOL)eventIsNotATransaction reason:(SentryDiscardReason)reason
+{
+    if (eventIsNotATransaction) {
+        [self recordLostEvent:kSentryDataCategoryError reason:reason];
+    } else {
+        [self recordLostEvent:kSentryDataCategoryTransaction reason:reason];
+    }
 }
 
 @end

@@ -24,6 +24,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.tracesSampleRate = 1.0
             options.sessionTrackingIntervalMillis = 5_000
             options.enableFileIOTracking = true
+            options.enableCoreDataTracking = true
+            options.enableProfiling = true
+            options.attachScreenshot = true
+            options.enableAppHangTracking = true
+            options.appHangTimeoutInterval = 2 
+            options.enableUserInteractionTracing = true
+
+            // the benchmark test starts and stops a custom transaction using a UIButton, and automatic user interaction tracing stops the transaction that begins with that button press after the idle timeout elapses, stopping the profiler (only one profiler runs regardless of the number of concurrent transactions)
+            if !ProcessInfo.processInfo.arguments.contains("--io.sentry.test.benchmarking") {
+                options.enableUserInteractionTracing = true
+            }
         }
         
         return true

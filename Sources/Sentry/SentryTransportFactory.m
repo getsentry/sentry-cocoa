@@ -1,17 +1,17 @@
-#import <Foundation/Foundation.h>
-
+#import "SentryTransportFactory.h"
 #import "SentryDefaultRateLimits.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryHttpDateParser.h"
 #import "SentryHttpTransport.h"
+#import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
 #import "SentryQueueableRequestManager.h"
 #import "SentryRateLimitParser.h"
 #import "SentryRateLimits.h"
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentryTransport.h"
-#import "SentryTransportFactory.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -53,6 +53,7 @@ SentryTransportFactory ()
     return [[SentryHttpTransport alloc] initWithOptions:options
                                             fileManager:sentryFileManager
                                          requestManager:requestManager
+                                         requestBuilder:[[SentryNSURLRequestBuilder alloc] init]
                                              rateLimits:rateLimits
                                       envelopeRateLimit:envelopeRateLimit
                                    dispatchQueueWrapper:dispatchQueueWrapper];

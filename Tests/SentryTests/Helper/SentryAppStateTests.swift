@@ -13,6 +13,7 @@ class SentryAppStateTests: XCTestCase {
         XCTAssertEqual((appState.systemBootTimestamp as NSDate).sentry_toIso8601String(), actual["system_boot_timestamp"] as? String)
         XCTAssertEqual(appState.isActive, actual["is_active"] as? Bool)
         XCTAssertEqual(appState.wasTerminated, actual["was_terminated"] as? Bool)
+        XCTAssertEqual(appState.isANROngoing, actual["is_anr_ongoing"] as? Bool)
     }
     
     func testInitWithJSON_AllFields() {
@@ -20,10 +21,12 @@ class SentryAppStateTests: XCTestCase {
         let dict = [
             "release_name": appState.releaseName,
             "os_version": appState.osVersion,
+            "vendor_id": appState.vendorId,
             "is_debugging": appState.isDebugging,
             "system_boot_timestamp": (appState.systemBootTimestamp as NSDate).sentry_toIso8601String(),
             "is_active": appState.isActive,
-            "was_terminated": appState.wasTerminated
+            "was_terminated": appState.wasTerminated,
+            "is_anr_ongoing": appState.isANROngoing
         ] as [String: Any]
         
         let actual = SentryAppState(jsonObject: dict)
@@ -34,19 +37,23 @@ class SentryAppStateTests: XCTestCase {
     func testInitWithJSON_IfJsonMissesField_AppStateIsNil() {
         withValue { $0["release_name"] = nil }
         withValue { $0["os_version"] = nil }
+        withValue { $0["vendor_id"] = nil }
         withValue { $0["is_debugging"] = nil }
         withValue { $0["system_boot_timestamp"] = nil }
         withValue { $0["is_active"] = nil }
         withValue { $0["was_terminated"] = nil }
+        withValue { $0["is_anr_ongoing"] = nil }
     }
-    
+
     func testInitWithJSON_IfJsonContainsWrongField_AppStateIsNil() {
         withValue { $0["release_name"] = 0 }
         withValue { $0["os_version"] = nil }
+        withValue { $0["vendor_id"] = nil }
         withValue { $0["is_debugging"] = "" }
         withValue { $0["system_boot_timestamp"] = "" }
         withValue { $0["is_active"] = "" }
         withValue { $0["was_terminated"] = "" }
+        withValue { $0["is_anr_ongoing"] = "" }
     }
     
     func testBootTimeRoundedDownToSeconds() {
@@ -54,7 +61,7 @@ class SentryAppStateTests: XCTestCase {
         let date = Date(timeIntervalSince1970: 0.1)
         let expectedDate = Date(timeIntervalSince1970: 0)
         
-        let sut = SentryAppState(releaseName: "", osVersion: "", isDebugging: false, systemBootTimestamp: date)
+        let sut = SentryAppState(releaseName: "", osVersion: "", vendorId: "", isDebugging: false, systemBootTimestamp: date)
         
         XCTAssertEqual(expectedDate, sut.systemBootTimestamp)
     }
@@ -65,5 +72,4 @@ class SentryAppStateTests: XCTestCase {
         setValue(&serialized)
         XCTAssertNil(SentryAppState(jsonObject: serialized))
     }
-
 }

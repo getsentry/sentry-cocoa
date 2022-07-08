@@ -2,15 +2,13 @@
 #define CppSample_hpp
 #if defined __cplusplus
 
-#include <stdio.h>
+#    include <stdio.h>
 
-namespace Sentry
-{
-    class CppSample
-    {
-    public:
-        void throwCPPException();
-    };
+namespace Sentry {
+class CppSample {
+public:
+    void throwCPPException();
+};
 }
 
 #endif /* __cplusplus */

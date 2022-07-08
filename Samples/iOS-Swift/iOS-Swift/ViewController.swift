@@ -4,6 +4,9 @@ import UIKit
 class ViewController: UIViewController {
     
     @IBOutlet weak var dsnTextField: UITextField!
+    @IBOutlet weak var anrFullyBlockingButton: UIButton!
+    @IBOutlet weak var anrFillingRunLoopButton: UIButton!
+    @IBOutlet weak var framesLabel: UILabel!
     
     private let dispatchQueue = DispatchQueue(label: "ViewController")
 
@@ -40,6 +43,17 @@ class ViewController: UIViewController {
                 self.dsnTextField.backgroundColor = UIColor.systemGreen
             }
         }
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        if #available(iOS 10.0, *) {
+            Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
+                self.framesLabel?.text = "Frames Total:\(PrivateSentrySDKOnly.currentScreenFrames.total) Slow:\(PrivateSentrySDKOnly.currentScreenFrames.slow) Frozen:\(PrivateSentrySDKOnly.currentScreenFrames.frozen)"
+            }
+        }
     }
     
     @IBAction func addBreadcrumb(_ sender: Any) {
@@ -49,11 +63,26 @@ class ViewController: UIViewController {
         SentrySDK.addBreadcrumb(crumb: crumb)
     }
     
-    @IBAction func captureMessage(_ sender: Any) {        
+    @IBAction func captureMessage(_ sender: Any) {
         let eventId = SentrySDK.capture(message: "Yeah captured a message")
         // Returns eventId in case of successfull processed event
         // otherwise nil
         print("\(String(describing: eventId))")
+    }
+    
+    @IBAction func uiClickTransaction(_ sender: Any) {
+        dispatchQueue.async {
+            if let path = Bundle.main.path(forResource: "LoremIpsum", ofType: "txt") {
+                _ = FileManager.default.contents(atPath: path)
+            }
+        }
+        
+        guard let imgUrl = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png") else {
+            return
+        }
+        let session = URLSession(configuration: URLSessionConfiguration.default)
+        let dataTask = session.dataTask(with: imgUrl) { (_, _, _) in }
+        dataTask.resume()
     }
     
     @IBAction func captureUserFeedback(_ sender: Any) {
@@ -149,6 +178,40 @@ class ViewController: UIViewController {
         }
     }
 
+    @IBAction func anrFullyBlocking(_ sender: Any) {
+        let buttonTitle = self.anrFullyBlockingButton.currentTitle
+        var i = 0
+        
+        for _ in 0...5_000_000 {
+            i += Int.random(in: 0...10)
+            i -= 1
+            
+            self.anrFullyBlockingButton.setTitle("\(i)", for: .normal)
+        }
+        
+        self.anrFullyBlockingButton.setTitle(buttonTitle, for: .normal)
+    }
+    
+    @IBAction func anrFillingRunLoop(_ sender: Any) {
+        let buttonTitle = self.anrFillingRunLoopButton.currentTitle
+        var i = 0
+
+        dispatchQueue.async {
+            for _ in 0...100_000 {
+                i += Int.random(in: 0...10)
+                i -= 1
+                
+                DispatchQueue.main.async {
+                    self.anrFillingRunLoopButton.setTitle("Work in Progress \(i)", for: .normal)
+                }
+            }
+            
+            DispatchQueue.main.async {
+                self.anrFillingRunLoopButton.setTitle(buttonTitle, for: .normal)
+            }
+        }
+    }
+    
     @IBAction func dsnChanged(_ sender: UITextField) {
         let options = Options()
         options.dsn = sender.text
@@ -186,6 +249,18 @@ class ViewController: UIViewController {
     @IBAction func showTableViewController(_ sender: Any) {
         let controller = TableViewController(style: .plain)
         controller.title = "Table View Controller"
+        navigationController?.pushViewController(controller, animated: false)
+    }
+    
+    @IBAction func useCoreData(_ sender: Any) {
+        let controller = CoreDataViewController()
+        controller.title = "CoreData"
+        navigationController?.pushViewController(controller, animated: false)
+    }
+
+    @IBAction func performanceScenarios(_ sender: Any) {
+        let controller = PerformanceViewController()
+        controller.title = "Performance Scenarios"
         navigationController?.pushViewController(controller, animated: false)
     }
 }

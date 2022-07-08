@@ -35,8 +35,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     }
     
     func testGetDebugImages() {
-        let sut = PrivateSentrySDKOnly()
-        let images = sut.getDebugImages()
+        let images = PrivateSentrySDKOnly.getDebugImages()
         
         // Only make sure we get some images. The actual tests are in
         // SentryDebugImageProviderTests
@@ -51,6 +50,10 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         
         SentrySDK.setAppStartMeasurement(nil)
         XCTAssertNil(PrivateSentrySDKOnly.appStartMeasurement)
+    }
+    
+    func testGetInstallationId() {
+        XCTAssertEqual(SentryInstallation.id(), PrivateSentrySDKOnly.installationID)
     }
     
     func testSendAppStartMeasurement() {

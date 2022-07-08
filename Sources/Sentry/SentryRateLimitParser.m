@@ -1,7 +1,7 @@
 #import "SentryRateLimitParser.h"
 #import "SentryCurrentDate.h"
+#import "SentryDataCategoryMapper.h"
 #import "SentryDateUtil.h"
-#import "SentryRateLimitCategoryMapper.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -57,27 +57,35 @@ SentryRateLimitParser ()
     return [numberFormatter numberFromString:string];
 }
 
-- (SentryRateLimitCategory)mapStringToCategory:(NSString *)category
+- (SentryDataCategory)mapStringToCategory:(NSString *)category
 {
-    SentryRateLimitCategory result = kSentryRateLimitCategoryUnknown;
-    if ([category isEqualToString:@""]) {
-        result = kSentryRateLimitCategoryAll;
+    SentryDataCategory result = kSentryDataCategoryUnknown;
+
+    if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategoryAll]]) {
+        result = kSentryDataCategoryAll;
     }
-    if ([category isEqualToString:@"default"]) {
-        result = kSentryRateLimitCategoryDefault;
+    if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategoryDefault]]) {
+        result = kSentryDataCategoryDefault;
     }
-    if ([category isEqualToString:@"error"]) {
-        result = kSentryRateLimitCategoryError;
+    if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategoryError]]) {
+        result = kSentryDataCategoryError;
     }
-    if ([category isEqualToString:@"session"]) {
-        result = kSentryRateLimitCategorySession;
+    if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategorySession]]) {
+        result = kSentryDataCategorySession;
     }
-    if ([category isEqualToString:@"transaction"]) {
-        result = kSentryRateLimitCategoryTransaction;
+    if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategoryTransaction]]) {
+        result = kSentryDataCategoryTransaction;
     }
-    if ([category isEqualToString:@"attachment"]) {
-        result = kSentryRateLimitCategoryAttachment;
+    if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategoryAttachment]]) {
+        result = kSentryDataCategoryAttachment;
     }
+    if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategoryProfile]]) {
+        result = kSentryDataCategoryProfile;
+    }
+
+    // UserFeedback is not listed for rate limits
+    // https://develop.sentry.dev/sdk/rate-limiting/#definitions
+
     return result;
 }
 
@@ -88,10 +96,10 @@ SentryRateLimitParser ()
     // category even if this parameter is empty.
     NSMutableArray<NSNumber *> *categories = [NSMutableArray new];
     for (NSString *categoryAsString in [categoriesAsString componentsSeparatedByString:@";"]) {
-        SentryRateLimitCategory category = [self mapStringToCategory:categoryAsString];
+        SentryDataCategory category = [self mapStringToCategory:categoryAsString];
 
         // Unknown categories must be ignored
-        if (category != kSentryRateLimitCategoryUnknown) {
+        if (category != kSentryDataCategoryUnknown) {
             [categories addObject:@(category)];
         }
     }

@@ -68,6 +68,21 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         }
     }
     
+    func test_TracingAndBreadcrumbsDisabled_RemovesEnabledIntegration() {
+        let options = Options()
+        options.tracesSampleRate = 0.0
+        options.enableNetworkBreadcrumbs = false
+                
+        assertRemovedIntegration(options)
+    }
+    
+    func test_SwizzingDisabled_RemovesEnabledIntegration() {
+        let options = Options()
+        options.enableSwizzling = false
+        
+        assertRemovedIntegration(options)
+    }
+    
     func testBreadcrumbDisabled_WhenSwizzlingDisabled() {
         fixture.options.enableSwizzling = false
         startSDK()
@@ -93,10 +108,10 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let configuration = URLSessionConfiguration.default
         
         let transaction = startTransactionBoundToScope()
-        let traceState = transaction.traceState
+        let traceContext = transaction.traceContext
         
         if canHeaderBeAdded() {
-            let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value(), SENTRY_TRACESTATE_HEADER: traceState.toHTTPHeader() ]
+            let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value(), SENTRY_BAGGAGE_HEADER: traceContext.toBaggage().toHTTPHeader() ]
             XCTAssertEqual(expected, configuration.httpAdditionalHeaders as! [String: String])
         } else {
             XCTAssertNil(configuration.httpAdditionalHeaders)
@@ -109,7 +124,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let expect = expectation(description: "Callback Expectation")
         
         let transaction = SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true) as! SentryTracer
-        let traceState = transaction.traceState
+        let traceContext = transaction.traceContext
         
         let configuration = URLSessionConfiguration.default
         let additionalHeaders = ["test": "SDK"]
@@ -120,7 +135,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         }
         
         if canHeaderBeAdded() {
-            let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value(), SENTRY_TRACESTATE_HEADER: traceState.toHTTPHeader()]
+            let expected = [SENTRY_TRACE_HEADER: transaction.toTraceHeader().value(), SENTRY_BAGGAGE_HEADER: traceContext.toBaggage().toHTTPHeader()]
                 .merging(additionalHeaders) { (current, _) in current }
             XCTAssertEqual(expected, dataTask.currentRequest?.allHTTPHeaderFields)
         } else {
@@ -242,6 +257,13 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         return SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true) as! SentryTracer
     }
     
+    private func assertRemovedIntegration(_ options: Options) {
+        let sut = SentryNetworkTrackingIntegration()
+        sut.install(with: options)
+        
+        let expexted = Options.defaultIntegrations().filter { !$0.contains("NetworkTracking") }
+        assertArrayEquals(expected: expexted, actual: Array(options.enabledIntegrations))
+    }
 }
 
 class BlockAllRequestsProtocol: URLProtocol {
