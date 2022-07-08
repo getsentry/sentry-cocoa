@@ -100,7 +100,13 @@ SentryCrashIntegration ()
             canSendReports = YES;
         }
 
-        [installation install];
+        NSString *reportPath = self.options.cacheDirectoryPath;
+        if (reportPath == nil) {
+            reportPath = [NSSearchPathForDirectoriesInDomains(
+                NSCachesDirectory, NSUserDomainMask, YES) firstObject];
+        }
+
+        [installation installWithReportPath:reportPath];
 
         // We need to send the crashed event together with the crashed session in the same envelope
         // to have proper statistics in release health. To achieve this we need both synchronously

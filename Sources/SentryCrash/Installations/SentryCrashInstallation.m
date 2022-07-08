@@ -288,13 +288,13 @@ SentryCrashInstallation ()
     }
 }
 
-- (void)install
+- (void)installWithReportPath:(NSString *)reportPath
 {
     SentryCrash *handler = [SentryCrash sharedInstance];
     @synchronized(handler) {
         g_crashHandlerData = self.crashHandlerData;
         handler.onCrash = crashCallback;
-        [handler install];
+        [handler installWithReportPath:reportPath];
     }
 }
 

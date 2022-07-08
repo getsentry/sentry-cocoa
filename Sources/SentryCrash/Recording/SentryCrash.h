@@ -55,9 +55,6 @@ static NSString *const SENTRYCRASH_REPORT_SCREENSHOT_ITEM = @"screenshots";
 
 #pragma mark - Configuration -
 
-/** Init SentryCrash instance with custom base path. */
-- (id)initWithBasePath:(NSString *)basePath;
-
 /** A dictionary containing any info you'd like to appear in crash reports. Must
  * contain only JSON-safe data: NSString for keys, and NSDictionary, NSArray,
  * NSString, NSDate, and NSNumber for values.
@@ -208,6 +205,16 @@ static NSString *const SENTRYCRASH_REPORT_SCREENSHOT_ITEM = @"screenshots";
  * @return YES if the reporter successfully installed.
  */
 - (BOOL)install;
+
+/** Install the crash reporter.
+ * The reporter will record crashes, but will not send any crash reports unless
+ * sink is set.
+ *
+ *@param reportPath A path to store crash reports.
+ *
+ * @return YES if the reporter successfully installed.
+ */
+- (BOOL)installWithReportPath:(NSString *)reportPath;
 
 /** Send all outstanding crash reports to the current sink.
  * It will only attempt to send the most recent 5 reports. All others will be

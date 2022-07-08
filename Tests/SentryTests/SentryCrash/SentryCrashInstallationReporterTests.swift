@@ -12,7 +12,10 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     override func setUp() {
         super.setUp()
         sut = SentryCrashInstallationReporter(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []))
-        sut.install()
+        
+        let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first
+        
+        sut.install(withReportPath: cacheDir)
         // Works only if SentryCrash is installed
         sentrycrash_deleteAllReports()
     }

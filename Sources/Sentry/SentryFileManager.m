@@ -40,13 +40,17 @@ SentryFileManager ()
     self = [super init];
     if (self) {
         self.currentDateProvider = currentDateProvider;
-
         NSFileManager *fileManager = [NSFileManager defaultManager];
-        NSString *cachePath
-            = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
-                  .firstObject;
 
-        self.sentryPath = [cachePath stringByAppendingPathComponent:@"io.sentry"];
+        if (options.cacheDirectoryPath) {
+            self.sentryPath = options.cacheDirectoryPath;
+        } else {
+            self.sentryPath
+                = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
+                      .firstObject;
+        }
+
+        self.sentryPath = [self.sentryPath stringByAppendingPathComponent:@"io.sentry"];
         self.sentryPath =
             [self.sentryPath stringByAppendingPathComponent:[options.parsedDsn getHash]];
 

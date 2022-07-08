@@ -335,6 +335,13 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) NSTimeInterval appHangTimeoutInterval;
 
+/**
+ * The cache directory path for caching offline events.
+ * If this property is nil the SDK uses the default user cache directory in the OS.
+ * If this path does not exists the SDK tries to create it with intermediate directories.
+ */
+@property (nonatomic, strong) NSString *cacheDirectoryPath;
+
 @end
 
 NS_ASSUME_NONNULL_END

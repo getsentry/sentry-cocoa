@@ -93,6 +93,15 @@
     XCTAssertEqualObjects(options.dist, @"hhh");
 }
 
+- (void)testCacheDirectoryPath
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertNil(options.cacheDirectoryPath);
+
+    options = [self getValidOptions:@{ @"cacheDirectoryPath" : @"/somePath/" }];
+    XCTAssertEqualObjects(options.cacheDirectoryPath, @"/somePath/");
+}
+
 - (void)testValidDebug
 {
     [self testDebugWith:@YES expected:YES];
@@ -488,7 +497,9 @@
         @"experimentalEnableTraceSampling" : [NSNull null],
         @"enableSwizzling" : [NSNull null],
         @"enableIOTracking" : [NSNull null],
-        @"sdk" : [NSNull null]
+        @"sdk" : [NSNull null],
+        @"cacheDirectoryPath" : [NSNull null]
+
     }
                                                 didFailWithError:nil];
 
@@ -540,6 +551,7 @@
 #endif
     XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name);
     XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version);
+    XCTAssertNil(options.cacheDirectoryPath);
 }
 
 - (void)testSetValidDsn

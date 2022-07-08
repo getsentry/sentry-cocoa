@@ -54,7 +54,6 @@
 SentryCrash ()
 
 @property (nonatomic, readwrite, retain) NSString *bundleName;
-@property (nonatomic, readwrite, retain) NSString *basePath;
 
 @end
 
@@ -82,8 +81,7 @@ getBasePath()
         SentryCrashLOG_ERROR(@"Could not locate cache directory path.");
         return nil;
     }
-    NSString *pathEnd = [@"SentryCrash" stringByAppendingPathComponent:getBundleName()];
-    return [cachePath stringByAppendingPathComponent:pathEnd];
+    return cachePath;
 }
 
 @implementation SentryCrash
@@ -98,7 +96,6 @@ getBasePath()
 @synthesize monitoring = _monitoring;
 @synthesize onCrash = _onCrash;
 @synthesize bundleName = _bundleName;
-@synthesize basePath = _basePath;
 @synthesize introspectMemory = _introspectMemory;
 @synthesize catchZombies = _catchZombies;
 @synthesize doNotIntrospectClasses = _doNotIntrospectClasses;
@@ -125,19 +122,8 @@ getBasePath()
 
 - (id)init
 {
-    return [self initWithBasePath:getBasePath()];
-}
-
-- (id)initWithBasePath:(NSString *)basePath
-{
     if ((self = [super init])) {
         self.bundleName = getBundleName();
-        self.basePath = basePath;
-        if (self.basePath == nil) {
-            SentryCrashLOG_ERROR(@"Failed to initialize crash handler. Crash "
-                                 @"reporting disabled.");
-            return nil;
-        }
         self.deleteBehaviorAfterSendAll = SentryCrashCDeleteAlways;
         self.introspectMemory = YES;
         self.catchZombies = NO;
@@ -269,7 +255,22 @@ getBasePath()
 
 - (BOOL)install
 {
-    _monitoring = sentrycrash_install(self.bundleName.UTF8String, self.basePath.UTF8String);
+    return [self installWithReportPath:getBasePath()];
+}
+
+- (BOOL)installWithReportPath:(NSString *)reportPath
+{
+    if (reportPath == nil) {
+        SentryCrashLOG_ERROR(@"Failed to initialize crash handler. Crash "
+                             @"reporting disabled.");
+        return false;
+    }
+
+    reportPath = [reportPath
+        stringByAppendingPathComponent:[@"SentryCrash"
+                                           stringByAppendingPathComponent:getBundleName()]];
+
+    _monitoring = sentrycrash_install(self.bundleName.UTF8String, reportPath.UTF8String);
     if (self.monitoring == 0) {
         return false;
     }

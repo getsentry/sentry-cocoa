@@ -304,6 +304,10 @@ SentryOptions ()
         _sdkInfo = [[SentrySdkInfo alloc] initWithDict:options orDefaults:_sdkInfo];
     }
 
+    if ([options[@"cacheDirectoryPath"] isKindOfClass:[NSString class]]) {
+        self.cacheDirectoryPath = options[@"cacheDirectoryPath"];
+    }
+
     if (nil != error && nil != *error) {
         return NO;
     } else {

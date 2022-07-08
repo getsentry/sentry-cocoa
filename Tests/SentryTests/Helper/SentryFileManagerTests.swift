@@ -505,6 +505,16 @@ class SentryFileManagerTests: XCTestCase {
         try "garbage".write(to: URL(fileURLWithPath: sut.timezoneOffsetFilePath), atomically: true, encoding: .utf8)
         XCTAssertNil(sut.readTimezoneOffset())
     }
+    
+    func testPathFromOptions() throws {
+        var altCache = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first ?? ""
+        altCache += "/altReportPath"
+        fixture.options.cacheDirectoryPath = altCache
+        
+        let sut = try fixture.getSut()
+        
+        XCTAssertTrue(sut.sentryPath.hasPrefix(altCache))
+    }
 
     private func givenMaximumEnvelopes() {
         fixture.eventIds.forEach { id in

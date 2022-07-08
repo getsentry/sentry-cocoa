@@ -48,7 +48,7 @@
 /** Install this installation. Call this instead of -[SentryCrash install] to
  * install with everything needed for your particular backend.
  */
-- (void)install;
+- (void)installWithReportPath:(NSString *)reportPath;
 
 /** Convenience method to call -[SentryCrash sendAllReportsWithCompletion:].
  * This method will set the SentryCrash sink and then send all outstanding
