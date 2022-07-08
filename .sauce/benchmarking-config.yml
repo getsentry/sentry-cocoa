@@ -16,11 +16,3 @@ suites:
     devices:
       - name: "iPad Pro 12.9 2021"
         platformVersion: "15.5"
-  - name: "Mid-tier device"
-    devices:
-      - name: "iPhone 7"
-        platformVersion: "15.3.1"
-  - name: "Low-end device"
-    devices:
-      - name: "iPhone 6S"
-        platformVersion: "15.3.1"

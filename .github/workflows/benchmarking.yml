@@ -45,12 +45,6 @@ jobs:
     needs: build-benchmark-test-target
     strategy:      
       fail-fast: false
-      matrix:
-        include:
-          - suite: "High-end device"
-          - suite: "Mid-tier device"
-          - suite: "Low-end device"
-
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
@@ -61,4 +55,4 @@ jobs:
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        run: saucectl run --select-suite "${{ matrix.suite }}" --config .sauce/benchmarking-config.yml --tags benchmark,"${{ matrix.suite }}" --retries 5
+        run: saucectl run --select-suite "High-end device" --config .sauce/benchmarking-config.yml --tags benchmark --retries 5
