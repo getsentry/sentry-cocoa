@@ -8,7 +8,7 @@ static time_t mod_init_time;
 void
 sentry_mod_init_hook(int argc, char **argv, char **envp)
 {
-    time(&mod_init_time);
+    mod_init_time = time(NULL);
 }
 __attribute__((section("__DATA,__mod_init_func"))) typeof(sentry_mod_init_hook) *__init
     = sentry_mod_init_hook;
