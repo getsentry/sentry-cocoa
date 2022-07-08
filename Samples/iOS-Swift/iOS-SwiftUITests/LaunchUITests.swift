@@ -1,3 +1,4 @@
+import Sentry
 import XCTest
 
 class LaunchUITests: XCTestCase {
@@ -64,6 +65,17 @@ class LaunchUITests: XCTestCase {
         // This validation is currently not working on iOS 10.
         if #available(iOS 11.0, *) {
             assertApp()
+        }
+    }
+    
+    func testAppStart() {
+        PrivateSentrySDKOnly.onAppStartMeasurementAvailable = { appStartMeasurement in
+            let appStart = try! XCTUnwrap(appStartMeasurement)
+            XCTAssertTrue(appStart.appStartTimestamp < appStart.mainTimestamp)
+            XCTAssertTrue(appStart.mainTimestamp < appStart.runtimeInitTimestamp)
+            XCTAssertTrue(appStart.runtimeInitTimestamp < appStart.didFinishLaunchingTimestamp)
+            
+            XCTAssertTrue(appStart.duration < 30)
         }
     }
         
