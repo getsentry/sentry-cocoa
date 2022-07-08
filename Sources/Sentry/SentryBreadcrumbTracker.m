@@ -239,8 +239,8 @@ SentryBreadcrumbTracker ()
 {
     NSMutableDictionary *info = @{}.mutableCopy;
 
-    info[@"screen"] =
-    [SentryUIViewControllerSanitizer sanitizeViewControllerName:[NSString stringWithFormat:@"%@", controller]];
+    info[@"screen"] = [SentryUIViewControllerSanitizer
+        sanitizeViewControllerName:[NSString stringWithFormat:@"%@", controller]];
 
     if ([controller.navigationItem.title length] != 0) {
         info[@"title"] = controller.navigationItem.title;
@@ -251,20 +251,22 @@ SentryBreadcrumbTracker ()
     info[@"beingPresented"] = controller.beingPresented ? @"true" : @"false";
 
     if (controller.presentingViewController != nil) {
-        info[@"presentingViewController"] =
-        [SentryUIViewControllerSanitizer sanitizeViewControllerName:controller.presentingViewController];
+        info[@"presentingViewController"] = [SentryUIViewControllerSanitizer
+            sanitizeViewControllerName:controller.presentingViewController];
     }
 
     if (controller.parentViewController != nil) {
-        info[@"parentViewController"] =
-        [SentryUIViewControllerSanitizer sanitizeViewControllerName:controller.parentViewController];
+        info[@"parentViewController"] = [SentryUIViewControllerSanitizer
+            sanitizeViewControllerName:controller.parentViewController];
     }
 
     if (controller.view.window != nil) {
         info[@"window"] = controller.view.window.description;
         info[@"window_isKeyWindow"] = controller.view.window.isKeyWindow ? @"true" : @"false";
-        info[@"window_windowLevel"] = [NSString stringWithFormat:@"%f", controller.view.window.windowLevel];
-        info[@"is_window_rootViewController"] = controller.view.window.rootViewController == controller ? @"true" : @"false";
+        info[@"window_windowLevel"] =
+            [NSString stringWithFormat:@"%f", controller.view.window.windowLevel];
+        info[@"is_window_rootViewController"]
+            = controller.view.window.rootViewController == controller ? @"true" : @"false";
     }
 
     return info;
