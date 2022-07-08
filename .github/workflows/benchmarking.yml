@@ -47,12 +47,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - xcode: "13.2"
-            suite: "High-end device"
-          - xcode: "13.2"
-            suite: "Mid-tier device"
-          - xcode: "13.2"
-            suite: "Low-end device"
+          - suite: "High-end device"
+          - suite: "Mid-tier device"
+          - suite: "Low-end device"
 
     steps:
       - uses: actions/checkout@v3
