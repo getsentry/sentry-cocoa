@@ -1,9 +1,5 @@
 #import <Foundation/Foundation.h>
 
-#if SENTRY_HAS_UIKIT
-#    import <UIKit/UIKit.h>
-#endif
-
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -24,14 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The view controller sanitized class name.
  */
 + (NSString *)sanitizeViewControllerName:(id)controller;
-
-#if SENTRY_HAS_UIKIT
-/**
- * Fetch useful information about a UIViewController like its classname,
- * title, presentation mode, and mode.
- * */
-+ (NSDictionary *)fetchInfoAboutViewController:(UIViewController *)controller;
-#endif
 
 @end
 
