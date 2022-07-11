@@ -6,6 +6,10 @@
 
 - feat: Add runtime init app start span (#1952)
 
+### Fixes
+
+- Properly sanitize the event context and SDK information (#1943)
+
 ## 7.20.0
 
 ### Features
