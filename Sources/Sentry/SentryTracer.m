@@ -51,8 +51,8 @@ SentryTracer ()
     NSMutableDictionary<NSString *, id> *_tags;
     NSMutableDictionary<NSString *, id> *_data;
     dispatch_block_t _idleTimeoutBlock;
-    NSMutableSet<id<SentrySpan>> * _children;
-    
+    NSMutableSet<id<SentrySpan>> *_children;
+
 #if SENTRY_HAS_UIKIT
     BOOL _startTimeChanged;
 
