@@ -5,6 +5,7 @@
 ### Fixes
 
 - Properly sanitize the event context and SDK information (#1943)
+- Don't send error 429 as `network_error` (#1957)
 
 ## 7.20.0
 
