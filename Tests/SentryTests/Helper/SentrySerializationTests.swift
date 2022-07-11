@@ -91,8 +91,8 @@ class SentrySerializationTests: XCTestCase {
     }
 
     func testSentryEnvelopeSerializer_SdkInfo() {
-        let sdkInfo = SentrySdkInfo(name: "sentry.cocoa", andVersion: "5.0.1")
-        let envelopeHeader = SentryEnvelopeHeader(id: nil, sdkInfo: sdkInfo, traceContext: nil)
+        let sdkInfo = SentrySdkInfo(name: SentryMeta.sdkName, andVersion: SentryMeta.versionString)
+        let envelopeHeader = SentryEnvelopeHeader(id: nil, traceContext: nil)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
 
         assertEnvelopeSerialization(envelope: envelope) { deserializedEnvelope in
@@ -122,15 +122,6 @@ class SentrySerializationTests: XCTestCase {
         }
     }
     
-    func testSentryEnvelopeSerializer_SdkInfoIsNil() {
-        let envelopeHeader = SentryEnvelopeHeader(id: nil, sdkInfo: nil, traceContext: nil)
-        let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
-
-        assertEnvelopeSerialization(envelope: envelope) { deserializedEnvelope in
-            XCTAssertNil(deserializedEnvelope.header.sdkInfo)
-        }
-    }
-
     func testSentryEnvelopeSerializer_ZeroByteItemReturnsEnvelope() {
         let itemData = "{}\n{\"length\":0,\"type\":\"attachment\"}\n".data(using: .utf8)!
         XCTAssertNotNil(SentrySerialization.envelope(with: itemData))

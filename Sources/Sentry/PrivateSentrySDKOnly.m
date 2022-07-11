@@ -1,6 +1,7 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryDebugImageProvider.h"
 #import "SentryInstallation.h"
+#import "SentryMeta.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 #import <Foundation/Foundation.h>
@@ -64,6 +65,16 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (void)setAppStartMeasurementHybridSDKMode:(BOOL)appStartMeasurementHybridSDKMode
 {
     _appStartMeasurementHybridSDKMode = appStartMeasurementHybridSDKMode;
+}
+
++ (void)setSdkName:(NSString *)sdkName
+{
+    SentryMeta.sdkName = sdkName;
+}
+
++ (void)setSdkVersionString:(NSString *)versionString
+{
+    SentryMeta.versionString = versionString;
 }
 
 #if SENTRY_HAS_UIKIT

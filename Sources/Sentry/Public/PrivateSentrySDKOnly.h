@@ -41,6 +41,12 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  */
 + (NSArray<SentryDebugMeta *> *)getDebugImages;
 
+/**
+ * Override SDK information.
+ */
++ (void)setSdkName:(NSString *)sdkName;
++ (void)setSdkVersionString:(NSString *)versionString;
+
 @property (class, nullable, nonatomic, copy)
     SentryOnAppStartMeasurementAvailable onAppStartMeasurementAvailable;
 

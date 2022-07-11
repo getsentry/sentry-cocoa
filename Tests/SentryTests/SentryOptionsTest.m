@@ -545,8 +545,12 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     XCTAssertEqual(NO, options.enableProfiling);
 #endif
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name);
     XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version);
+#pragma clang diagnostic pop
 }
 
 - (void)testSetValidDsn
@@ -585,10 +589,12 @@
 
 - (void)testSdkInfo
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     SentryOptions *options = [[SentryOptions alloc] init];
-
     XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name);
     XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version);
+#pragma clang diagnostic pop
 }
 
 - (void)testSetCustomSdkInfo
@@ -601,8 +607,12 @@
                            didFailWithError:&error];
 
     XCTAssertNil(error);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertEqual(dict[@"name"], options.sdkInfo.name);
     XCTAssertEqual(dict[@"version"], options.sdkInfo.version);
+#pragma clang diagnostic pop
 }
 
 - (void)testSetCustomSdkName
@@ -615,8 +625,12 @@
                            didFailWithError:&error];
 
     XCTAssertNil(error);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertEqual(dict[@"name"], options.sdkInfo.name);
     XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version); // default version
+#pragma clang diagnostic pop
 }
 
 - (void)testSetCustomSdkVersion
@@ -629,8 +643,12 @@
                            didFailWithError:&error];
 
     XCTAssertNil(error);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name); // default name
     XCTAssertEqual(dict[@"version"], options.sdkInfo.version);
+#pragma clang diagnostic pop
 }
 
 - (void)testMaxAttachmentSize
