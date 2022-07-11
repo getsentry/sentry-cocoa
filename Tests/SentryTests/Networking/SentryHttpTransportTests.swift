@@ -292,6 +292,9 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
 
         assertRateLimitUpdated(response: response)
+
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertEqual(dict?.count, 0)
     }
 
     func testSendEventWithRateLimitResponse() {
