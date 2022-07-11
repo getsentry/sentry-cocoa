@@ -4,7 +4,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @return YES if the process has a debugger attached.
- * @see https://developer.apple.com/library/mac/#qa/qa2004/qa1361.html
+ * @see https://developer.apple.com/library/archive/qa/qa1361/_index.html
  */
 BOOL isDebugging(void);
 
