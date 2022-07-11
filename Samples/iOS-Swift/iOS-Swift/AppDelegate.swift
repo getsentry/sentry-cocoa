@@ -1,10 +1,6 @@
 import Sentry
 import UIKit
 
-extension Notification.Name {
-    static let breadcrumb = Notification.Name("breadcrumb")
-}
-
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
