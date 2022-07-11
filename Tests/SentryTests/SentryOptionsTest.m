@@ -178,6 +178,11 @@
     [self testBooleanField:@"enableNetworkBreadcrumbs"];
 }
 
+- (void)testEnableAutoBreadcrumbTracking
+{
+    [self testBooleanField:@"enableAutoBreadcrumbTracking"];
+}
+
 - (void)testEnableCoreDataTracking
 {
     [self testBooleanField:@"enableCoreDataTracking" defaultValue:NO];
@@ -480,6 +485,7 @@
         @"enableAppHangTracking" : [NSNull null],
         @"appHangTimeoutInterval" : [NSNull null],
         @"enableNetworkTracking" : [NSNull null],
+        @"enableAutoBreadcrumbTracking" : [NSNull null],
         @"tracesSampleRate" : [NSNull null],
         @"tracesSampler" : [NSNull null],
         @"inAppIncludes" : [NSNull null],
@@ -535,6 +541,7 @@
     XCTAssertNil(options.urlSessionDelegate);
     XCTAssertEqual(YES, options.enableSwizzling);
     XCTAssertEqual(NO, options.enableFileIOTracking);
+    XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     XCTAssertEqual(NO, options.enableProfiling);
 #endif

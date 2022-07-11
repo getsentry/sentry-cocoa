@@ -61,6 +61,7 @@ SentryOptions ()
 #endif
         self.enableAppHangTracking = NO;
         self.appHangTimeoutInterval = 2.0;
+        self.enableAutoBreadcrumbTracking = YES;
 
         self.enableNetworkTracking = YES;
         self.enableFileIOTracking = NO;
@@ -246,7 +247,6 @@ SentryOptions ()
     if ([options[@"idleTimeout"] isKindOfClass:[NSNumber class]]) {
         self.idleTimeout = [options[@"idleTimeout"] doubleValue];
     }
-
 #endif
 
     [self setBool:options[@"enableAppHangTracking"]
@@ -297,6 +297,9 @@ SentryOptions ()
 
     [self setBool:options[@"sendClientReports"]
             block:^(BOOL value) { self->_sendClientReports = value; }];
+
+    [self setBool:options[@"enableAutoBreadcrumbTracking"]
+            block:^(BOOL value) { self->_enableAutoBreadcrumbTracking = value; }];
 
     // SentrySdkInfo already expects a dictionary with {"sdk": {"name": ..., "value": ...}}
     // so we're passing the whole options object.
