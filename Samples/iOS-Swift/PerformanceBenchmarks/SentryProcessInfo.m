@@ -14,11 +14,7 @@ isDebugging()
 
     // Initialize mib, which tells sysctl the info we want, in this case
     // we're looking for information about a specific process ID.
-    int mib[4];
-    mib[0] = CTL_KERN;
-    mib[1] = KERN_PROC;
-    mib[2] = KERN_PROC_PID;
-    mib[3] = getpid();
+    int mib[] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid() };
 
     // Call sysctl.
     size_t size = sizeof(info);
