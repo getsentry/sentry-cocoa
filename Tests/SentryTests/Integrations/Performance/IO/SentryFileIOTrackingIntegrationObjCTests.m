@@ -206,8 +206,8 @@
 
     block();
 
-    NSArray<SentrySpan *> * allChildren = parentTransaction.children.allObjects;
-    
+    NSArray<SentrySpan *> *allChildren = parentTransaction.children.allObjects;
+
     SentrySpan *ioSpan = allChildren.firstObject;
 
     XCTAssertEqual(allChildren.count, 1);
