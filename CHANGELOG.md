@@ -4,11 +4,13 @@
 
 ### Features
 
-- Automatic nest new spans with the ui life cycle function #1959
+- Add enableAutoBreadcrumbTracking option (#1958)
+- Automatic nest new spans with the ui life cycle function (#1959)
 
 ### Fixes
 
 - Properly sanitize the event context and SDK information (#1943)
+- Don't send error 429 as `network_error` (#1957)
 
 ## 7.20.0
 

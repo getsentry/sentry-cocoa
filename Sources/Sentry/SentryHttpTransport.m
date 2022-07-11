@@ -225,7 +225,7 @@ SentryHttpTransport ()
                addRequest:request
         completionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
             // If the response is not nil we had an internet connection.
-            if (error) {
+            if (error && response.statusCode != 429) {
                 [_self recordLostEventFor:envelope.items];
             }
 
