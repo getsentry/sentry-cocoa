@@ -57,7 +57,7 @@ class SentryTracerTests: XCTestCase {
             let runtimeInit = appStart.addingTimeInterval(0.05)
             let didFinishLaunching = appStart.addingTimeInterval(0.3)
             
-            return SentryAppStartMeasurement(type: type, appStartTimestamp: appStart, duration: appStartDuration, mainTimestamp: main, runtimeInitTimestamp: runtimeInit, didFinishLaunchingTimestamp: didFinishLaunching)
+            return SentryAppStartMeasurement(type: type, appStartTimestamp: appStart, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, mainTimestamp: main, didFinishLaunchingTimestamp: didFinishLaunching)
         }
         
         func getSut(waitForChildren: Bool = true) -> SentryTracer {
@@ -396,8 +396,8 @@ class SentryTracerTests: XCTestCase {
             type: SentryAppStartType.unknown,
             appStartTimestamp: fixture.currentDateProvider.date(),
             duration: 0.5,
-            mainTimestamp: fixture.currentDateProvider.date(),
             runtimeInitTimestamp: fixture.currentDateProvider.date(),
+            mainTimestamp: fixture.currentDateProvider.date(),
             didFinishLaunchingTimestamp: fixture.currentDateProvider.date()
         ))
         
@@ -759,9 +759,9 @@ class SentryTracerTests: XCTestCase {
             XCTAssertEqual(timestamp, span?.timestamp)
         }
         
-        assertSpan("Pre main", appStartMeasurement.appStartTimestamp, appStartMeasurement.mainTimestamp)
-        assertSpan("Runtime Init", appStartMeasurement.mainTimestamp, appStartMeasurement.runtimeInitTimestamp)
-        assertSpan("UIKit and Application Init", appStartMeasurement.runtimeInitTimestamp, appStartMeasurement.didFinishLaunchingTimestamp)
+        assertSpan("Pre Runtime Init", appStartMeasurement.appStartTimestamp, appStartMeasurement.runtimeInitTimestamp)
+        assertSpan("Runtime Init to Main", appStartMeasurement.runtimeInitTimestamp, appStartMeasurement.mainTimestamp)
+        assertSpan("UIKit and Application Init", appStartMeasurement.mainTimestamp, appStartMeasurement.didFinishLaunchingTimestamp)
         assertSpan("Initial Frame Render", appStartMeasurement.didFinishLaunchingTimestamp, fixture.appStartEnd)
     }
     

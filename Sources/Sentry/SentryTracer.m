@@ -590,20 +590,20 @@ static NSLock *profilerLock;
 
     SentrySpan *premainSpan = [self buildSpan:appStartSpan.context.spanId
                                     operation:operation
-                                  description:@"Pre main"];
+                                  description:@"Pre Runtime Init"];
     [premainSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
-    [premainSpan setTimestamp:appStartMeasurement.mainTimestamp];
+    [premainSpan setTimestamp:appStartMeasurement.runtimeInitTimestamp];
 
     SentrySpan *runtimeInitSpan = [self buildSpan:appStartSpan.context.spanId
                                         operation:operation
-                                      description:@"Runtime Init"];
-    [runtimeInitSpan setStartTimestamp:appStartMeasurement.mainTimestamp];
-    [runtimeInitSpan setTimestamp:appStartMeasurement.runtimeInitTimestamp];
+                                      description:@"Runtime Init to Main"];
+    [runtimeInitSpan setStartTimestamp:appStartMeasurement.runtimeInitTimestamp];
+    [runtimeInitSpan setTimestamp:appStartMeasurement.mainTimestamp];
 
     SentrySpan *appInitSpan = [self buildSpan:appStartSpan.context.spanId
                                     operation:operation
                                   description:@"UIKit and Application Init"];
-    [appInitSpan setStartTimestamp:appStartMeasurement.runtimeInitTimestamp];
+    [appInitSpan setStartTimestamp:appStartMeasurement.mainTimestamp];
     [appInitSpan setTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
 
     SentrySpan *frameRenderSpan = [self buildSpan:appStartSpan.context.spanId
@@ -613,6 +613,9 @@ static NSLock *profilerLock;
     [frameRenderSpan setTimestamp:appStartEndTimestamp];
 
     [appStartSpan setTimestamp:appStartEndTimestamp];
+
+    NSString *message = [NSString stringWithFormat:@"Phil: %@", appStartMeasurement.description];
+    [SentryLog logWithMessage:message andLevel:kSentryLevelInfo];
 
     return @[ appStartSpan, premainSpan, runtimeInitSpan, appInitSpan, frameRenderSpan ];
 }

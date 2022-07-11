@@ -3,19 +3,14 @@
 #include <stdio.h>
 #include <time.h>
 
-static uint64_t mod_init_time_in_millis;
-
-static inline uint64_t
-sentry__msec_time(void)
-{
-    struct timeval tv;
-    return (gettimeofday(&tv, NULL) == 0) ? (uint64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000 : 0;
-}
+static double mod_init_time_in_seconds;
 
 void
 sentry_mod_init_hook(int argc, char **argv, char **envp)
 {
-    mod_init_time_in_millis = sentry__msec_time();
+    struct timeval value;
+    mod_init_time_in_seconds
+        = (gettimeofday(&value, NULL) == 0) ? (uint64_t)value.tv_sec + value.tv_usec / 1E6 : 0;
 }
 __attribute__((section("__DATA,__mod_init_func"))) typeof(sentry_mod_init_hook) *__init
     = sentry_mod_init_hook;
@@ -36,7 +31,7 @@ __attribute__((section("__DATA,__mod_init_func"))) typeof(sentry_mod_init_hook) 
 
 - (NSDate *)mainTimestamp
 {
-    return [NSDate dateWithTimeIntervalSince1970:mod_init_time_in_millis / 1000];
+    return [NSDate dateWithTimeIntervalSince1970:mod_init_time_in_seconds];
 }
 
 @end

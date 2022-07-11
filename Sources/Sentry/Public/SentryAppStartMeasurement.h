@@ -29,8 +29,8 @@ SENTRY_NO_INIT
 - (instancetype)initWithType:(SentryAppStartType)type
               appStartTimestamp:(NSDate *)appStartTimestamp
                        duration:(NSTimeInterval)duration
-                  mainTimestamp:(NSDate *)mainTimestamp
            runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
+                  mainTimestamp:(NSDate *)mainTimestamp
     didFinishLaunchingTimestamp:(NSDate *)didFinishLaunchingTimestamp;
 
 /**
@@ -50,14 +50,14 @@ SENTRY_NO_INIT
 @property (readonly, nonatomic, strong) NSDate *appStartTimestamp;
 
 /**
- * When application main function is called.
- */
-@property (readonly, nonatomic, strong) NSDate *mainTimestamp;
-
-/**
  * When the runtime was initialized / when SentryAppStartTracker is added to the Objective-C runtime
  */
 @property (readonly, nonatomic, strong) NSDate *runtimeInitTimestamp;
+
+/**
+ * When application main function is called.
+ */
+@property (readonly, nonatomic, strong) NSDate *mainTimestamp;
 
 /**
  * When OS posts UIApplicationDidFinishLaunchingNotification.
