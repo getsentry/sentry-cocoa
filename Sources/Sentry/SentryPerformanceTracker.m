@@ -12,7 +12,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-
 @interface
 SentryPerformanceTracker () <SentryTracerDelegate>
 
@@ -68,7 +67,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
                                                             bindToScope:bindToScope
                                                         waitForChildren:YES
                                                   customSamplingContext:@ {}];
-            
+
             if ([newSpan isKindOfClass:[SentryTracer class]]) {
                 [(SentryTracer *)newSpan setDelegate:self];
             }

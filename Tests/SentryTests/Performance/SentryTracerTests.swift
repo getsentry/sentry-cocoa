@@ -2,9 +2,9 @@ import XCTest
 
 class SentryTracerTests: XCTestCase {
     
-    private class TracerDelegate : SentryTracerDelegate {
+    private class TracerDelegate: SentryTracerDelegate {
         
-        var activeSpan : Span?
+        var activeSpan: Span?
         
         func activeSpan(for tracer: SentryTracer) -> Span? {
             return activeSpan
@@ -582,8 +582,6 @@ class SentryTracerTests: XCTestCase {
         
         XCTAssertTrue(sutOnScope === fixture.hub.scope.span)
     }
-    
-   
     
     // Although we only run this test above the below specified versions, we expect the
     // implementation to be thread safe

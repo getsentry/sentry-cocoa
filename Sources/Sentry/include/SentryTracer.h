@@ -8,7 +8,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
-
 @protocol SentryTracerDelegate
 
 /**
@@ -18,7 +17,6 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 - (nullable id<SentrySpan>)activeSpanForTracer:(SentryTracer *)tracer;
 
 @end
-
 
 @interface SentryTracer : NSObject <SentrySpan>
 
@@ -70,7 +68,6 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  All the spans that where created with this tracer but rootSpan.
  */
 @property (nonatomic, readonly) NSMutableSet<id<SentrySpan>> *children;
-
 
 /*
  * A delegate that provides extra information for the transaction.

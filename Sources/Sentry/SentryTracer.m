@@ -197,7 +197,7 @@ static NSLock *profilerLock;
 - (id<SentrySpan>)getActiveSpan
 {
     id<SentrySpan> span;
-    
+
     if (self.delegate) {
         span = [self.delegate activeSpanForTracer:self];
         if (span == nil || span == self || ![_children containsObject:span]) {
@@ -206,7 +206,7 @@ static NSLock *profilerLock;
     } else {
         span = _rootSpan;
     }
-    
+
     return span;
 }
 
