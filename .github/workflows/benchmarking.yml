@@ -5,9 +5,14 @@ on:
   push:
     branches:
       - master
+      - release/**
 
   pull_request:
     paths:
+        # test changes to Sentry SDK sources
+      - 'Sources/**'
+
+        # test changes to benchmarking implementation
       - 'Samples/iOS-Swift/iOS-Swift/**'
       - 'Samples/iOS-Swift/PerformanceBenchmarks/**'
       - '.github/workflows/benchmarking.yml'
