@@ -222,16 +222,4 @@ class ExtraViewController: UIViewController {
 
         return pi
     }
-
-    func highlightButton(_ sender: UIButton) {
-        let originalLayerColor = sender.layer.backgroundColor
-        let originalTitleColor = sender.titleColor(for: .normal)
-        sender.layer.backgroundColor = UIColor.blue.cgColor
-        sender.setTitleColor(.white, for: .normal)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            sender.layer.backgroundColor = originalLayerColor
-            sender.setTitleColor(originalTitleColor, for: .normal)
-            sender.titleLabel?.textColor = originalTitleColor
-        }
-    }
 }
