@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Automatic nest new spans with the ui life cycle function #1959
+
 ### Fixes
 
 - Properly sanitize the event context and SDK information (#1943)
