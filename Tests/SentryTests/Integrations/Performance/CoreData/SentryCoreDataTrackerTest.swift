@@ -146,9 +146,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         
         XCTAssertEqual(transaction.children.count, 1)
         
-        let allChildren = transaction.children.allObjects as? [Span]
-        
-        guard let operations = allChildren?[0].data?["operations"] as? [String: Any?] else {
+        guard let operations = transaction.children[0].data?["operations"] as? [String: Any?] else {
             XCTFail("Transaction has no `operations` extra")
             return
         }
@@ -206,11 +204,9 @@ class SentryCoreDataTrackerTests: XCTestCase {
             return true
         }
         
-        let allChildren = transaction.children.allObjects as? [Span]
-        
         XCTAssertEqual(transaction.children.count, 1)
-        XCTAssertEqual(allChildren?[0].context.operation, SENTRY_COREDATA_SAVE_OPERATION)
-        XCTAssertEqual(allChildren?[0].context.spanDescription, expectedDescription)
+        XCTAssertEqual(transaction.children[0].context.operation, SENTRY_COREDATA_SAVE_OPERATION)
+        XCTAssertEqual(transaction.children[0].context.spanDescription, expectedDescription)
     }
     
     func assertRequest(_ fetch: NSFetchRequest<TestEntity>, expectedDescription: String) {
@@ -225,13 +221,11 @@ class SentryCoreDataTrackerTests: XCTestCase {
             return [someEntity]
         }
         
-        let allChildren = transaction.children.allObjects as? [Span]
-        
         XCTAssertEqual(result?.count, 1)
         XCTAssertEqual(transaction.children.count, 1)
-        XCTAssertEqual(allChildren?[0].context.operation, SENTRY_COREDATA_FETCH_OPERATION)
-        XCTAssertEqual(allChildren?[0].context.spanDescription, expectedDescription)
-        XCTAssertEqual(allChildren?[0].data!["read_count"] as? Int, 1)
+        XCTAssertEqual(transaction.children[0].context.operation, SENTRY_COREDATA_FETCH_OPERATION)
+        XCTAssertEqual(transaction.children[0].context.spanDescription, expectedDescription)
+        XCTAssertEqual(transaction.children[0].data!["read_count"] as? Int, 1)
     }
     
     private func startTransaction() -> SentryTracer {

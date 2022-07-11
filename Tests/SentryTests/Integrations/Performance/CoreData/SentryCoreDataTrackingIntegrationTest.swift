@@ -77,10 +77,8 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         newEntity.field1 = "Some Update"
         try? stack.managedObjectContext.save()
         
-        let allChildren = transaction.children.allObjects as? [Span]
-        
         XCTAssertEqual(transaction.children.count, 1)
-        XCTAssertEqual(allChildren?[0].context.operation, "db.transaction")
+        XCTAssertEqual(transaction.children[0].context.operation, "db.transaction")
     }
     
     func test_Save_noChanges() {

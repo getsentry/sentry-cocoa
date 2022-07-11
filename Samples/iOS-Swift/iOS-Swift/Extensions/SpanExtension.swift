@@ -10,21 +10,7 @@ extension Span {
             return nil
         }
                 
-        let children = (self.perform(sel)?.takeUnretainedValue() as? NSSet)?.allObjects as? NSArray
-        
-        if children == nil {
-            return nil
-        }
-        
-        var result = [Span]()
-        
-        children?.forEach({
-            if let span = $0 as? Span {
-                result.append(span)
-            }
-        })
-        
-        return result
+        return self.perform(sel)?.takeUnretainedValue() as? [Span]
     }
     
     //If span is a transaction it has a rootSpan

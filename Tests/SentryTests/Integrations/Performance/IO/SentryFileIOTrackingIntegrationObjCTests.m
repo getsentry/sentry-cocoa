@@ -206,11 +206,9 @@
 
     block();
 
-    NSArray<SentrySpan *> *allChildren = parentTransaction.children.allObjects;
+    SentrySpan *ioSpan = parentTransaction.children.firstObject;
 
-    SentrySpan *ioSpan = allChildren.firstObject;
-
-    XCTAssertEqual(allChildren.count, 1);
+    XCTAssertEqual(parentTransaction.children.count, 1);
     XCTAssertEqual([ioSpan.data[@"file.size"] unsignedIntValue], someData.length);
     XCTAssertEqualObjects(ioSpan.data[@"file.path"], filePath);
     XCTAssertEqualObjects(operation, ioSpan.context.operation);

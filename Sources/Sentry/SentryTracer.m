@@ -37,7 +37,6 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
 SentryTracer ()
 
 @property (nonatomic, strong) SentrySpan *rootSpan;
-@property (nonatomic, strong) NSMutableSet<id<SentrySpan>> *children;
 @property (nonatomic, strong) SentryHub *hub;
 @property (nonatomic) SentrySpanStatus finishStatus;
 @property (nonatomic) BOOL isWaitingForChildren;
@@ -52,7 +51,8 @@ SentryTracer ()
     NSMutableDictionary<NSString *, id> *_tags;
     NSMutableDictionary<NSString *, id> *_data;
     dispatch_block_t _idleTimeoutBlock;
-
+    NSMutableSet<id<SentrySpan>> * _children;
+    
 #if SENTRY_HAS_UIKIT
     BOOL _startTimeChanged;
 
@@ -120,7 +120,7 @@ static NSLock *profilerLock;
     if (self = [super init]) {
         self.rootSpan = [[SentrySpan alloc] initWithTransaction:self context:transactionContext];
         self.name = transactionContext.name;
-        self.children = [[NSMutableSet alloc] init];
+        _children = [[NSMutableSet alloc] init];
         self.hub = hub;
         self.isWaitingForChildren = NO;
         _waitForChildren = waitForChildren;
@@ -236,7 +236,7 @@ static NSLock *profilerLock;
     context.spanDescription = description;
 
     SentrySpan *child = [[SentrySpan alloc] initWithTransaction:self context:context];
-    @synchronized(self.children) {
+    @synchronized(_children) {
         [_children addObject:child];
     }
 
@@ -312,6 +312,11 @@ static NSLock *profilerLock;
 - (BOOL)isFinished
 {
     return self.rootSpan.isFinished;
+}
+
+- (NSArray<id<SentrySpan>> *)children
+{
+    return [_children allObjects];
 }
 
 - (void)setDataValue:(nullable id)value forKey:(NSString *)key
