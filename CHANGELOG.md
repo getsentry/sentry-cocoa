@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add a new enableAutoBreadcrumbTracking option (#1958)
+
 ### Fixes
 
 - Properly sanitize the event context and SDK information (#1943)
