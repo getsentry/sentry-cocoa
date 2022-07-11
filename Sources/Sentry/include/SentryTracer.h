@@ -4,9 +4,21 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceContext,
-    SentryDispatchQueueWrapper;
+    SentryDispatchQueueWrapper, SentryTracer;
 
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
+
+
+@protocol SentryTracerDelegate
+
+/**
+ * Return the active span of given tracer.
+ * This function is used to determine which span will be used to create a new child.
+ */
+- (nullable id<SentrySpan>)activeSpanForTracer:(SentryTracer *)tracer;
+
+@end
+
 
 @interface SentryTracer : NSObject <SentrySpan>
 
@@ -57,7 +69,13 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 /*
  All the spans that where created with this tracer but rootSpan.
  */
-@property (nonatomic, readonly) NSArray<id<SentrySpan>> *children;
+@property (nonatomic, readonly) NSMutableSet<id<SentrySpan>> *children;
+
+
+/*
+ * A delegate that provides extra information for the transaction.
+ */
+@property (nullable, nonatomic, weak) id<SentryTracerDelegate> delegate;
 
 /**
  * Init a SentryTracer with given transaction context and hub and set other fields by default

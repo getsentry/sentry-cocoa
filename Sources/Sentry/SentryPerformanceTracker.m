@@ -12,8 +12,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+
 @interface
-SentryPerformanceTracker ()
+SentryPerformanceTracker () <SentryTracerDelegate>
 
 @property (nonatomic, strong) NSMutableDictionary<SentrySpanId *, id<SentrySpan>> *spans;
 @property (nonatomic, strong) NSMutableArray<id<SentrySpan>> *activeSpanStack;
@@ -67,6 +68,10 @@ SentryPerformanceTracker ()
                                                             bindToScope:bindToScope
                                                         waitForChildren:YES
                                                   customSamplingContext:@ {}];
+            
+            if ([newSpan isKindOfClass:[SentryTracer class]]) {
+                [(SentryTracer *)newSpan setDelegate:self];
+            }
         }];
     }
 
@@ -176,6 +181,13 @@ SentryPerformanceTracker ()
 {
     @synchronized(self.spans) {
         return self.spans[spanId];
+    }
+}
+
+- (nullable id<SentrySpan>)activeSpanForTracer:(SentryTracer *)tracer
+{
+    @synchronized(self.activeSpanStack) {
+        return [self.activeSpanStack lastObject];
     }
 }
 
