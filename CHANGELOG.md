@@ -6,6 +6,10 @@
 
 - Add option to choose Crash Report and offline Event directory (#1954)
 
+### Fixes
+
+- Properly sanitize the event context and SDK information (#1943)
+
 ## 7.20.0
 
 ### Features
