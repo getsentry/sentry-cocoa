@@ -20,5 +20,6 @@ repos:
         name: Clang Format
         entry: make
         language: system
+        types_or: ["objective-c", "objective-c++", "c", "c++", "swift" ]
         args:
           - "format"
