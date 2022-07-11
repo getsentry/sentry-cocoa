@@ -4,6 +4,7 @@
 #include <time.h>
 
 static double mod_init_time_in_seconds;
+static NSDate *runtimeInit = nil;
 
 void
 sentry_mod_init_hook(int argc, char **argv, char **envp)
@@ -16,6 +17,17 @@ __attribute__((section("__DATA,__mod_init_func"))) typeof(sentry_mod_init_hook) 
     = sentry_mod_init_hook;
 
 @implementation SentrySysctl
+
++ (void)load
+{
+    // Invoked whenever this class is added to the Objective-C runtime.
+    runtimeInit = [NSDate date];
+}
+
+- (NSDate *)runtimeInitTimestamp
+{
+    return runtimeInit;
+}
 
 - (NSDate *)systemBootTimestamp
 {
