@@ -287,14 +287,14 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     func testSendEventWithRetryAfterResponse() {
+        fixture.requestManager.nextError = NSError(domain: "something", code: 12)
+        
         let response = givenRetryAfterResponse()
 
         sendEvent()
 
         assertRateLimitUpdated(response: response)
-
-        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
-        XCTAssertEqual(dict?.count, 0)
+        assertClientReportNotStoredInMemory()
     }
 
     func testSendEventWithRateLimitResponse() {
