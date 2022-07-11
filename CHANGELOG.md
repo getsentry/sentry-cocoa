@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add a new enableAutoBreadcrumbTracking option (#1958)
+- Add a enableAutoBreadcrumbTracking option (#1958)
 
 ### Fixes
 
