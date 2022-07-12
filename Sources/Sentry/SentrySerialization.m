@@ -179,6 +179,7 @@ NS_ASSUME_NONNULL_BEGIN
                 }
 
                 envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:eventId
+                                                                  sdkInfo:sdkInfo
                                                              traceContext:traceContext];
             }
             break;
