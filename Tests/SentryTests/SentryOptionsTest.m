@@ -930,6 +930,19 @@
     XCTAssertNotNil(options.urlSessionDelegate);
 }
 
+- (void)testSdkInfoChanges
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    SentryMeta.sdkName = @"new name";
+    SentryMeta.versionString = @"0.0.6";
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    XCTAssertEqual(options.sdkInfo.name, SentryMeta.sdkName);
+    XCTAssertEqual(options.sdkInfo.version, SentryMeta.versionString);
+#pragma clang diagnostic pop
+}
+
 - (void)assertArrayEquals:(NSArray<NSString *> *)expected actual:(NSArray<NSString *> *)actual
 {
     XCTAssertEqualObjects([expected sortedArrayUsingSelector:@selector(compare:)],
