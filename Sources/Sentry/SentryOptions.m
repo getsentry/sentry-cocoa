@@ -95,8 +95,6 @@ SentryOptions ()
         }
 
         _inAppExcludes = [NSArray new];
-        _sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
-                                            andVersion:SentryMeta.versionString];
 
         // Set default release name
         if (nil != infoDict) {
@@ -306,10 +304,9 @@ SentryOptions ()
     // Note: we should remove this code once the hybrid SDKs move over to the new
     // PrivateSentrySDKOnly setter function.
     if ([options[@"sdk"] isKindOfClass:[NSDictionary class]]) {
-        SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithDict:options orDefaults:_sdkInfo];
+        SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithDict:options];
         SentryMeta.versionString = sdkInfo.version;
         SentryMeta.sdkName = sdkInfo.name;
-        _sdkInfo = sdkInfo;
     }
 
     if (nil != error && nil != *error) {
@@ -317,6 +314,12 @@ SentryOptions ()
     } else {
         return YES;
     }
+}
+
+- (SentrySdkInfo *)sdkInfo
+{
+    return [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
+                                    andVersion:SentryMeta.versionString];
 }
 
 - (void)setBool:(id)value block:(void (^)(BOOL))block
