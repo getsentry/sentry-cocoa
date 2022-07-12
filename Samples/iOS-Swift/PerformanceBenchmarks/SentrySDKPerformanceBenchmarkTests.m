@@ -2,7 +2,7 @@
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
-// To get around the 15 minute timeout per test case on Sauce Labs.
+// To get around the 15 minute timeout per test case on Sauce Labs. See develop-docs/README.md.
 static NSUInteger SentrySDKPerformanceBenchmarkTestCases = 5;
 static NSUInteger SentrySDKPerformanceBenchmarkIterationsPerTestCase = 4;
 
@@ -90,6 +90,7 @@ static BOOL checkedAssertions = NO;
         }
         [startButton tap];
 
+        // after hitting the start button, the test app will do CPU intensive work until hitting the stop button. wait 15 seconds so that work can be done while the profiler does its thing, and the benchmarking observation in the test app will record how much CPU time is used by everything
         sleep(15);
 
         XCUIElement *stopButton = app.buttons[@"Stop test"];
