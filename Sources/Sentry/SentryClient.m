@@ -5,6 +5,7 @@
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashIntegration.h"
 #import "SentryCrashStackEntryMapper.h"
+#import "SentryCrashWrapper.h"
 #import "SentryDebugImageProvider.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
@@ -487,10 +488,13 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
 
-    // Remove free_memory if OOM as free_memory stems from the current run and not of the time of
-    // the OOM.
     if ([self isOOM:event isCrashEvent:isCrashEvent]) {
+        // Remove free_memory if OOM as free_memory stems from the current run and not of
+        // the time of the OOM.
         [self removeFreeMemoryFromDeviceContext:event];
+    } else {
+        // Store the actual free memory at the time of this event
+        [self storeFreeMemoryToDeviceContext:event];
     }
 
     // With scope applied, before running callbacks run:
@@ -636,6 +640,23 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     SentryException *exception = event.exceptions[0];
     return nil != exception.mechanism &&
         [exception.mechanism.type isEqualToString:SentryOutOfMemoryMechanismType];
+}
+
+- (void)storeFreeMemoryToDeviceContext:(SentryEvent *)event
+{
+    if (nil == event.context || event.context.count == 0 || nil == event.context[@"device"]) {
+        return;
+    }
+
+    NSMutableDictionary *context = [[NSMutableDictionary alloc] initWithDictionary:event.context];
+    NSMutableDictionary *device =
+        [[NSMutableDictionary alloc] initWithDictionary:context[@"device"]];
+
+    NSDictionary *systemInfo = [[SentryCrashWrapper sharedInstance] systemInfo];
+    device[SentryDeviceContextFreeMemoryKey] = systemInfo[@"freeMemory"];
+
+    context[@"device"] = device;
+    event.context = context;
 }
 
 - (void)removeFreeMemoryFromDeviceContext:(SentryEvent *)event
