@@ -51,8 +51,8 @@ SentryTracer ()
     NSMutableDictionary<NSString *, id> *_tags;
     NSMutableDictionary<NSString *, id> *_data;
     dispatch_block_t _idleTimeoutBlock;
-    NSMutableArray<id<SentrySpan>> * _children;
-    
+    NSMutableArray<id<SentrySpan>> *_children;
+
 #if SENTRY_HAS_UIKIT
     BOOL _startTimeChanged;
 
@@ -199,7 +199,7 @@ static NSLock *profilerLock;
     id<SentrySpan> span;
 
     if (self.delegate) {
-        @synchronized (_children) {
+        @synchronized(_children) {
             span = [self.delegate activeSpanForTracer:self];
             if (span == nil || span == self || ![_children containsObject:span]) {
                 span = _rootSpan;
