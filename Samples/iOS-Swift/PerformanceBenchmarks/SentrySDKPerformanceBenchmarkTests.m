@@ -90,7 +90,10 @@ static BOOL checkedAssertions = NO;
         }
         [startButton tap];
 
-        // after hitting the start button, the test app will do CPU intensive work until hitting the stop button. wait 15 seconds so that work can be done while the profiler does its thing, and the benchmarking observation in the test app will record how much CPU time is used by everything
+        // after hitting the start button, the test app will do CPU intensive work until hitting the
+        // stop button. wait 15 seconds so that work can be done while the profiler does its thing,
+        // and the benchmarking observation in the test app will record how much CPU time is used by
+        // everything
         sleep(15);
 
         XCUIElement *stopButton = app.buttons[@"Stop test"];
