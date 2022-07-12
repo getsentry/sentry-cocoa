@@ -4,7 +4,7 @@
 
 ### Features
 
-- feat: Add runtime init app start span (#1952)
+- feat: Add extra app start span (#1952)
 - Add enableAutoBreadcrumbTracking option (#1958)
 
 ### Fixes
