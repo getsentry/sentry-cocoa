@@ -335,6 +335,11 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) NSTimeInterval appHangTimeoutInterval;
 
+/**
+ * When enabled, the SDK adds breadcrumbs for various system events. Default value is YES.
+ */
+@property (nonatomic, assign) BOOL enableAutoBreadcrumbTracking;
+
 @end
 
 NS_ASSUME_NONNULL_END
