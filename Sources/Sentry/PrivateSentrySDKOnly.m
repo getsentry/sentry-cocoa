@@ -67,13 +67,9 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     _appStartMeasurementHybridSDKMode = appStartMeasurementHybridSDKMode;
 }
 
-+ (void)setSdkName:(NSString *)sdkName
++ (void)setSdkName:(NSString *)sdkName andVersionString:(NSString *)versionString
 {
     SentryMeta.sdkName = sdkName;
-}
-
-+ (void)setSdkVersionString:(NSString *)versionString
-{
     SentryMeta.versionString = versionString;
 }
 

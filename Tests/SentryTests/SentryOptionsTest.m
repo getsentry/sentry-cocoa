@@ -599,6 +599,9 @@
 
 - (void)testSetCustomSdkInfo
 {
+    NSString *originalName = SentryMeta.sdkName;
+    NSString *originalVersion = SentryMeta.versionString;
+
     NSDictionary *dict = @{ @"name" : @"custom.sdk", @"version" : @"1.2.3-alpha.0" };
 
     NSError *error = nil;
@@ -613,6 +616,9 @@
     XCTAssertEqual(dict[@"name"], options.sdkInfo.name);
     XCTAssertEqual(dict[@"version"], options.sdkInfo.version);
 #pragma clang diagnostic pop
+
+    SentryMeta.sdkName = originalName;
+    SentryMeta.versionString = originalVersion;
 }
 
 - (void)testSetCustomSdkName
