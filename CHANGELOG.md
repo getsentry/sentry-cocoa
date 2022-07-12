@@ -4,6 +4,7 @@
 
 ### Features
 
+- feat: Add extra app start span (#1952)
 - Add enableAutoBreadcrumbTracking option (#1958)
 
 ### Fixes
@@ -40,7 +41,7 @@
 ## 7.18.0
 
 ### Features
- 
+
 - Replace tracestate header with baggage (#1867)
 
 ### Fixes
