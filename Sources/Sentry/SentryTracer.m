@@ -614,9 +614,6 @@ static NSLock *profilerLock;
 
     [appStartSpan setTimestamp:appStartEndTimestamp];
 
-    NSString *message = [NSString stringWithFormat:@"Phil: %@", appStartMeasurement.description];
-    [SentryLog logWithMessage:message andLevel:kSentryLevelInfo];
-
     return @[ appStartSpan, premainSpan, runtimeInitSpan, appInitSpan, frameRenderSpan ];
 }
 
