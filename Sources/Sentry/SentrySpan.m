@@ -1,5 +1,6 @@
 #import "SentrySpan.h"
 #import "NSDate+SentryExtras.h"
+#import "NSDictionary+SentrySanitize.h"
 #import "SentryCurrentDate.h"
 #import "SentryNoOpSpan.h"
 #import "SentryTraceHeader.h"
@@ -130,7 +131,7 @@ SentrySpan ()
 
     @synchronized(_data) {
         if (_data.count > 0) {
-            mutableDictionary[@"data"] = _data.copy;
+            mutableDictionary[@"data"] = [_data.copy sentry_sanitize];
         }
     }
 
@@ -138,7 +139,7 @@ SentrySpan ()
         if (_tags.count > 0) {
             NSMutableDictionary *tags = _context.tags.mutableCopy;
             [tags addEntriesFromDictionary:_tags.copy];
-            mutableDictionary[@"tags"] = tags;
+            mutableDictionary[@"tags"] = [tags sentry_sanitize];
         }
     }
 
