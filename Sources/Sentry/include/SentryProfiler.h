@@ -5,6 +5,8 @@
 
 #    import "SentryCompiler.h"
 
+@class SentryScreenFrames;
+
 NS_ASSUME_NONNULL_BEGIN
 
 SENTRY_EXTERN_C_BEGIN
@@ -39,7 +41,7 @@ SENTRY_EXTERN_C_END
 /**
  * Builds an envelope item using the currently accumulated profile data.
  */
-- (nullable SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction;
+- (nullable SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction frameInfo:(SentryScreenFrames *)frameInfo;
 
 @end
 

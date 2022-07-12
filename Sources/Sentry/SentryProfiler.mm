@@ -209,7 +209,7 @@ isSimulatorBuild()
     }
 }
 
-- (SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction
+- (SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction frameInfo:(SentryScreenFrames *)frameInfo
 {
     NSMutableDictionary<NSString *, id> *profile = nil;
     @synchronized(self) {
@@ -256,8 +256,6 @@ isSimulatorBuild()
     profile[@"version_name"] = [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
 
 #    if SENTRY_HAS_UIKIT
-    const auto frameInfo = SentryFramesTracker.sharedInstance.currentFrames;
-
     auto relativeFrameTimestampsNs = [NSMutableArray array];
     [frameInfo.frameTimestamps enumerateObjectsUsingBlock:^(
         NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {

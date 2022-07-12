@@ -402,20 +402,23 @@ static NSLock *profilerLock;
         self.finishCallback = nil;
     }
 
+    if (_hub == nil)
+        return;
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+    SentryScreenFrames *frameInfo;
     if ([_hub getClient].options.enableProfiling) {
         [SentryLog logWithMessage:@"Stopping profiler." andLevel:kSentryLevelDebug];
         [profilerLock lock];
         [profiler stop];
-        [profilerLock unlock];
-#    if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT
+        frameInfo = SentryFramesTracker.sharedInstance.currentFrames;
+        [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
         SentryFramesTracker.sharedInstance.currentTracer = nil;
-#    endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT
+        [profilerLock unlock];
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
-    if (_hub == nil)
-        return;
 
     [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
         if (span == self) {
@@ -460,19 +463,17 @@ static NSLock *profilerLock;
     }
 
     NSMutableArray<SentryEnvelopeItem *> *additionalEnvelopeItems = [NSMutableArray array];
+    
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if ([_hub getClient].options.enableProfiling) {
         [profilerLock lock];
         if (profiler != nil) {
-            SentryEnvelopeItem *profile = [profiler buildEnvelopeItemForTransaction:transaction];
+            SentryEnvelopeItem *profile = [profiler buildEnvelopeItemForTransaction:transaction frameInfo:frameInfo];
             if (profile != nil) {
                 [additionalEnvelopeItems addObject:profile];
             }
             profiler = nil;
         }
-#    if SENTRY_HAS_UIKIT
-        [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
-#    endif // SENTRY_HAS_UIKIT
         [profilerLock unlock];
     }
 #endif
