@@ -288,7 +288,7 @@ targets:
       Test: xcconfig/Targets/iOS-Swift.xcconfig
       TestCI: xcconfig/Targets/iOS-Swift.xcconfig
 
-  iOS-SwiftUITests: # TODO: rename to iOS-Swift-UITests
+  iOS-Swift-UITests:
     type: "bundle.ui-testing"
     platform: iOS
     sources:
@@ -302,11 +302,11 @@ targets:
       Test: xcconfig/Targets/iOS-Swift-UITests.xcconfig
       TestCI: xcconfig/Targets/iOS-Swift-UITests.xcconfig
 
-  iOS-SwiftClip: # TODO: rename to iOS-Swift-Clip
+  iOS-Swift-Clip:
     type: "application.on-demand-install-capable"
     platform: iOS
     sources:
-      - path: "Samples/iOS-Swift/iOS-SwiftClip"
+      - path: "Samples/iOS-Swift/iOS-Swift-Clip"
     dependencies:
       - target: Sentry_iOS
     configFiles:
@@ -352,11 +352,11 @@ targets:
       Test: xcconfig/Targets/iOS13-Swift.xcconfig
       TestCI: xcconfig/Targets/iOS13-Swift.xcconfig
 
-  iOS13-SwiftUITests: # TODO: rename to iOS13-Swift-UITests
+  iOS13-Swift-UITests:
     type: "bundle.ui-testing"
     platform: iOS
     sources:
-      - path: "Samples/iOS-Swift/iOS13-SwiftTests"
+      - path: "Samples/iOS-Swift/iOS13-Swift-UITests"
     dependencies:
       - target: iOS13-Swift
     configFiles:
@@ -380,11 +380,11 @@ targets:
       Test: xcconfig/Targets/iOS-ObjectiveC.xcconfig
       TestCI: xcconfig/Targets/iOS-ObjectiveC.xcconfig
 
-  iOS-ObjectiveCUITests: # TODO: rename to iOS=ObjectiveC-UITests
+  iOS-ObjectiveC-UITests:
     type: "bundle.ui-testing"
     platform: iOS
     sources:
-      - path: "Samples/iOS-ObjectiveC/iOS-ObjectiveCUITests"
+      - path: "Samples/iOS-ObjectiveC/iOS-ObjectiveC-UITests"
     dependencies:
       - target: iOS-ObjectiveC
     configFiles:
@@ -456,11 +456,11 @@ targets:
       Test: xcconfig/Targets/TrendingMovies.xcconfig
       TestCI: xcconfig/Targets/TrendingMovies.xcconfig
 
-  ProfileDataGeneratorUITest:
+  ProfileDataGenerator:
     type: "bundle.ui-testing"
     platform: iOS
     sources:
-      - path: "Samples/TrendingMovies/ProfileDataGeneratorUITest"
+      - path: "Samples/TrendingMovies/ProfileDataGenerator"
     dependencies:
       - target: TrendingMovies
     configFiles:
@@ -503,7 +503,7 @@ targets:
     type: "bundle.ui-testing"
     platform: tvOS
     sources:
-      - path: "Samples/tvOS-Swift/tvOS-SwiftUITests"
+      - path: "Samples/tvOS-Swift/tvOS-Swift-UITests"
     dependencies:
       - target: tvOS-Swift
     configFiles:
@@ -529,7 +529,7 @@ targets:
     type: "bundle.ui-testing"
     platform: tvOS
     sources:
-      - path: "Samples/tvOS-Swift/tvOS-SBSwiftUITests"
+      - path: "Samples/tvOS-Swift/tvOS-SBSwift-UITests"
     dependencies:
       - target: tvOS-SBSwift
     configFiles:
