@@ -18,7 +18,7 @@ SENTRY_NO_INIT
                        frozen:(NSUInteger)frozen
                          slow:(NSUInteger)slow
               frameTimestamps:(SentryFrameInfoTimeSeries *)frameTimestamps
-        frameRateTimestamps:(SentryFrameInfoTimeSeries *)frameRateTimestamps;
+          frameRateTimestamps:(SentryFrameInfoTimeSeries *)frameRateTimestamps;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @property (nonatomic, assign, readonly) NSUInteger total;

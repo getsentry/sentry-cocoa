@@ -178,7 +178,7 @@ SentryFramesTracker ()
                                               frozen:frozen
                                                 slow:slow
                                      frameTimestamps:self.frameTimestamps
-                               frameRateTimestamps:self.frameRateTimestamps];
+                                 frameRateTimestamps:self.frameRateTimestamps];
 #    else
     return [[SentryScreenFrames alloc] initWithTotal:total frozen:frozen slow:slow];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
