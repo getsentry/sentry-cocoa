@@ -411,11 +411,11 @@ static NSLock *profilerLock;
         [SentryLog logWithMessage:@"Stopping profiler." andLevel:kSentryLevelDebug];
         [profilerLock lock];
         [profiler stop];
-#if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT
         frameInfo = SentryFramesTracker.sharedInstance.currentFrames;
         [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
         SentryFramesTracker.sharedInstance.currentTracer = nil;
-#endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT
         [profilerLock unlock];
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -463,12 +463,13 @@ static NSLock *profilerLock;
     }
 
     NSMutableArray<SentryEnvelopeItem *> *additionalEnvelopeItems = [NSMutableArray array];
-    
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if ([_hub getClient].options.enableProfiling) {
         [profilerLock lock];
         if (profiler != nil) {
-            SentryEnvelopeItem *profile = [profiler buildEnvelopeItemForTransaction:transaction frameInfo:frameInfo];
+            SentryEnvelopeItem *profile = [profiler buildEnvelopeItemForTransaction:transaction
+                                                                          frameInfo:frameInfo];
             if (profile != nil) {
                 [additionalEnvelopeItems addObject:profile];
             }

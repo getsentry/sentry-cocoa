@@ -209,7 +209,8 @@ isSimulatorBuild()
     }
 }
 
-- (SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction frameInfo:(SentryScreenFrames *)frameInfo
+- (SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction
+                                              frameInfo:(SentryScreenFrames *)frameInfo
 {
     NSMutableDictionary<NSString *, id> *profile = nil;
     @synchronized(self) {
