@@ -36,8 +36,7 @@ namespace profiling {
         const auto fmtStr = [[NSString alloc] initWithUTF8String:fmt];
         const auto msgStr = [[NSString alloc] initWithFormat:fmtStr arguments:args];
         va_end(args);
-        [SentryLog logWithMessage:msgStr
-                         andLevel:sentryLevelFromLogLevel(level)];
+        [SentryLog logWithMessage:msgStr andLevel:sentryLevelFromLogLevel(level)];
     }
 
 } // namespace profiling
