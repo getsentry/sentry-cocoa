@@ -24,12 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (instancetype)initWithId:(SentryId *_Nullable)eventId andSdkInfo:(SentrySdkInfo *_Nullable)sdkInfo
-{
-    self = [self initWithId:eventId sdkInfo:sdkInfo traceContext:nil];
-    return self;
-}
-
 - (instancetype)initWithId:(nullable SentryId *)eventId
               traceContext:(nullable SentryTraceContext *)traceContext
 {
