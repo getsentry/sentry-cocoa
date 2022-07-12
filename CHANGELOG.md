@@ -5,6 +5,7 @@
 ### Features
 
 - Add enableAutoBreadcrumbTracking option (#1958)
+- Upload frame rendering timestamps to correlate to sampled backtraces (#1910)
 
 ### Fixes
 
@@ -30,21 +31,6 @@
 
 - Remove WebKit optimization check (#1921)
 - Detect prewarmed starts with env variable (#1927)
-
-## 7.18.1
-
-### Fixes
-
-- Fix high percentage of slow frames (#1915)
-## Unreleased
-
-### Features
-
-- Upload frame rendering timestamps to correlate to sampled backtraces (#1910)
-
-### Fixes
-
-- Remove WebKit optimization check (#1921)
 
 ## 7.18.1
 
