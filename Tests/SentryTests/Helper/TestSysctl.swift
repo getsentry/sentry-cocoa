@@ -21,4 +21,14 @@ class TestSysctl: SentrySysctl {
     public func setProcessStartTimestamp(value: Date) {
         internalProcessStartTimestamp = value
     }
+    
+    private var internalModuleInitializationTimestamp: Date = Date(timeIntervalSinceReferenceDate: 0)
+    
+    override var moduleInitializationTimestamp: Date {
+        return internalModuleInitializationTimestamp
+    }
+    
+    public func setModuleInitializationTimestamp(value: Date) {
+        internalModuleInitializationTimestamp = value
+    }
 }

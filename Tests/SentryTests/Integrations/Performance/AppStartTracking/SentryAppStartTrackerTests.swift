@@ -17,6 +17,7 @@ class SentryAppStartTrackerTests: XCTestCase {
         
         let appStartDuration: TimeInterval = 0.4
         var runtimeInitTimestamp: Date
+        var moduleInitializationTimestamp: Date
         var didFinishLaunchingTimestamp: Date
         
         init() {
@@ -29,6 +30,7 @@ class SentryAppStartTrackerTests: XCTestCase {
             appStateManager = SentryAppStateManager(options: options, crashWrapper: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl)
             
             runtimeInitTimestamp = currentDate.date().addingTimeInterval(0.2)
+            moduleInitializationTimestamp = currentDate.date().addingTimeInterval(0.1)
             didFinishLaunchingTimestamp = currentDate.date().addingTimeInterval(0.3)
         }
         
@@ -127,22 +129,38 @@ class SentryAppStartTrackerTests: XCTestCase {
         assertNoAppStartUp()
     }
     
-    func testAppLaunches_OSPrewarmedProcess_NoAppStartUp() {
+    func testAppLaunches_OSPrewarmedProcess_AppStartUpShortened() {
         setenv("ActivePrewarm", "1", 1)
         SentryAppStartTracker.load()
         givenSystemNotRebooted()
         
-        startApp()
-        
+        startApp(processStartTimeStamp: fixture.currentDate.date().addingTimeInterval(-60 * 60 * 4))
+
 #if os(iOS)
         if #available(iOS 14.0, *) {
-            assertNoAppStartUp()
+            assertValidStart(type: .warm, expectedDuration: 0.3)
         } else {
-            assertValidStart(type: .warm)
+            assertNoAppStartUp()
         }
 #else
-        assertValidStart(type: .warm)
+        assertNoAppStartUp()
 #endif
+    }
+    
+    func testAppLaunches_OSStopsAtLaterAppLaunchStep_NoAppStartUp() {
+        setenv("ActivePrewarm", "1", 1)
+        SentryAppStartTracker.load()
+        givenSystemNotRebooted()
+        givenModuleInitializationTimestamp(timestamp: fixture.currentDate.date().addingTimeInterval(-200))
+        
+        let currentDate = fixture.currentDate.date()
+        startApp(
+            processStartTimeStamp: currentDate.addingTimeInterval(-200.5),
+            runtimeInitTimestamp: currentDate.addingTimeInterval(-200.4),
+            moduleInitializationTimestamp: currentDate.addingTimeInterval(-200)
+        )
+        
+        assertNoAppStartUp()
     }
     
     func testAppLaunches_WrongEnvValue_AppStartUp() {
@@ -237,13 +255,17 @@ class SentryAppStartTrackerTests: XCTestCase {
         givenPreviousAppState(appState: appState)
     }
     
-    private func givenProcessStartTimestamp(processStartTimeStamp: Date? = nil) {
-        fixture.sysctl.setProcessStartTimestamp(value: processStartTimeStamp ?? fixture.currentDate.date())
+    private func givenProcessStartTimestamp(processStartTimestamp: Date? = nil) {
+        fixture.sysctl.setProcessStartTimestamp(value: processStartTimestamp ?? fixture.currentDate.date())
     }
     
-    private func givenRuntimeInitTimestamp(sut: SentryAppStartTracker) {
-        fixture.runtimeInitTimestamp = fixture.currentDate.date().addingTimeInterval(0.2)
+    private func givenRuntimeInitTimestamp(sut: SentryAppStartTracker, timestamp: Date? = nil) {
+        fixture.runtimeInitTimestamp = timestamp ?? fixture.currentDate.date().addingTimeInterval(0.2)
         Dynamic(sut).setRuntimeInit(fixture.runtimeInitTimestamp)
+    }
+    
+    private func givenModuleInitializationTimestamp(timestamp: Date? = nil) {
+        fixture.sysctl.setModuleInitializationTimestamp(value: timestamp ?? fixture.moduleInitializationTimestamp)
     }
     
     private func givenDidFinishLaunchingTimestamp() {
@@ -251,11 +273,12 @@ class SentryAppStartTrackerTests: XCTestCase {
         advanceTime(bySeconds: 0.3)
     }
     
-    private func startApp(processStartTimeStamp: Date? = nil) {
-        givenProcessStartTimestamp(processStartTimeStamp: processStartTimeStamp)
+    private func startApp(processStartTimeStamp: Date? = nil, runtimeInitTimestamp: Date? = nil, moduleInitializationTimestamp: Date? = nil) {
+        givenProcessStartTimestamp(processStartTimestamp: processStartTimeStamp)
         
         sut = fixture.sut
-        givenRuntimeInitTimestamp(sut: sut)
+        givenRuntimeInitTimestamp(sut: sut, timestamp: runtimeInitTimestamp)
+        givenModuleInitializationTimestamp(timestamp: moduleInitializationTimestamp)
         sut.start()
         
         TestNotificationCenter.willEnterForeground()
@@ -283,6 +306,7 @@ class SentryAppStartTrackerTests: XCTestCase {
         
         sut = fixture.sut
         Dynamic(sut).setRuntimeInit(fixture.runtimeInitTimestamp)
+        givenModuleInitializationTimestamp()
         
         TestNotificationCenter.didFinishLaunching()
         

@@ -57,7 +57,7 @@ class SentryTracerTests: XCTestCase {
             let runtimeInit = appStart.addingTimeInterval(0.05)
             let didFinishLaunching = appStart.addingTimeInterval(0.3)
             
-            return SentryAppStartMeasurement(type: type, appStartTimestamp: appStart, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, didFinishLaunchingTimestamp: didFinishLaunching)
+            return SentryAppStartMeasurement(type: type, preWarmed: false, appStartTimestamp: appStart, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, didFinishLaunchingTimestamp: didFinishLaunching)
         }
         
         func getSut(waitForChildren: Bool = true) -> SentryTracer {
@@ -394,6 +394,7 @@ class SentryTracerTests: XCTestCase {
     func testAddUnknownAppStartMeasurement_NotPutOnNextTransaction() {
         SentrySDK.setAppStartMeasurement(SentryAppStartMeasurement(
             type: SentryAppStartType.unknown,
+            preWarmed: false,
             appStartTimestamp: fixture.currentDateProvider.date(),
             duration: 0.5,
             runtimeInitTimestamp: fixture.currentDateProvider.date(),
