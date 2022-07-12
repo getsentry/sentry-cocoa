@@ -1,4 +1,3 @@
-import Sentry
 import XCTest
 
 class LaunchUITests: XCTestCase {
@@ -18,21 +17,6 @@ class LaunchUITests: XCTestCase {
     }
 
     func testLaunch() throws {
-        waitForExistenseOfMainScreen()
-    }
-    
-    func testAppStart() {
-        PrivateSentrySDKOnly.onAppStartMeasurementAvailable = { appStartMeasurement in
-            let appStart = try! XCTUnwrap(appStartMeasurement)
-            XCTAssertTrue(appStart.appStartTimestamp < appStart.mainTimestamp)
-            XCTAssertTrue(appStart.mainTimestamp < appStart.runtimeInitTimestamp)
-            XCTAssertTrue(appStart.runtimeInitTimestamp < appStart.didFinishLaunchingTimestamp)
-            
-            XCTAssertTrue(appStart.duration < 30)
-        }
-    }
-    
-    private func waitForExistenseOfMainScreen() {
         XCTAssertTrue(app.buttons["captureMessageButton"].waitForExistence(), "Home Screen doesn't exist.")
     }
 }
