@@ -156,6 +156,16 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual((serialization["data"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
         XCTAssertEqual((serialization["tags"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
     }
+
+    func testSanitizeData() {
+        let span = fixture.getSut()
+
+        span.setExtra(value: Date(timeIntervalSince1970: 10), key: "date")
+        span.finish()
+
+        let serialization = span.serialize()
+        XCTAssertEqual((serialization["data"] as! Dictionary)["date"], "1970-01-01T00:00:10.000Z")
+    }
     
     func testSerialization_WithNoDataAndTag() {
         let span = fixture.getSut()
