@@ -6,7 +6,9 @@ NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_HAS_UIKIT
 
 /** An array of dictionaries that each contain a start and end timestamp for a rendered frame. */
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
 typedef NSArray<NSDictionary<NSString *, NSNumber *> *> SentryFrameInfoTimeSeries;
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @interface SentryScreenFrames : NSObject
 SENTRY_NO_INIT
