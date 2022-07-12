@@ -599,9 +599,6 @@
 
 - (void)testSetCustomSdkInfo
 {
-    NSString *originalName = SentryMeta.sdkName;
-    NSString *originalVersion = SentryMeta.versionString;
-
     NSDictionary *dict = @{ @"name" : @"custom.sdk", @"version" : @"1.2.3-alpha.0" };
 
     NSError *error = nil;
@@ -617,8 +614,9 @@
     XCTAssertEqual(dict[@"version"], options.sdkInfo.version);
 #pragma clang diagnostic pop
 
-    SentryMeta.sdkName = originalName;
-    SentryMeta.versionString = originalVersion;
+    NSDictionary *info = [[NSBundle bundleForClass:[SentryClient class]] infoDictionary];
+    NSString *version = [NSString stringWithFormat:@"%@", info[@"CFBundleShortVersionString"]];
+    SentryMeta.versionString = version;
 }
 
 - (void)testSetCustomSdkName
@@ -655,6 +653,10 @@
     XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name); // default name
     XCTAssertEqual(dict[@"version"], options.sdkInfo.version);
 #pragma clang diagnostic pop
+
+    NSDictionary *info = [[NSBundle bundleForClass:[SentryClient class]] infoDictionary];
+    NSString *version = [NSString stringWithFormat:@"%@", info[@"CFBundleShortVersionString"]];
+    SentryMeta.versionString = version;
 }
 
 - (void)testMaxAttachmentSize
