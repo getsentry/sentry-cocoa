@@ -13,6 +13,11 @@ sentry_mod_init_hook(int argc, char **argv, char **envp)
     mod_init_time_in_seconds
         = (gettimeofday(&value, NULL) == 0) ? (uint64_t)value.tv_sec + value.tv_usec / 1E6 : 0;
 }
+/**
+ * Module initialization functions. The C++ compiler places static constructors here. For more info
+ * visit:
+ * https://github.com/aidansteele/osx-abi-macho-file-format-reference#table-2-the-sections-of-a__datasegment
+ */
 __attribute__((section("__DATA,__mod_init_func"))) typeof(sentry_mod_init_hook) *__init
     = sentry_mod_init_hook;
 
