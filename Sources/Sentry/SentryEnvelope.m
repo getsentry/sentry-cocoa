@@ -24,13 +24,28 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
+- (instancetype)initWithId:(SentryId *_Nullable)eventId andSdkInfo:(SentrySdkInfo *_Nullable)sdkInfo
+{
+    self = [self initWithId:eventId sdkInfo:sdkInfo traceContext:nil];
+    return self;
+}
+
 - (instancetype)initWithId:(nullable SentryId *)eventId
+              traceContext:(nullable SentryTraceContext *)traceContext
+{
+    SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
+                                                      andVersion:SentryMeta.versionString];
+    self = [self initWithId:eventId sdkInfo:sdkInfo traceContext:traceContext];
+    return self;
+}
+
+- (instancetype)initWithId:(nullable SentryId *)eventId
+                   sdkInfo:(nullable SentrySdkInfo *)sdkInfo
               traceContext:(nullable SentryTraceContext *)traceContext
 {
     if (self = [super init]) {
         _eventId = eventId;
-        _sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
-                                            andVersion:SentryMeta.versionString];
+        _sdkInfo = sdkInfo;
         _traceContext = traceContext;
     }
 
