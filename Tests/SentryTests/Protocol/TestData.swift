@@ -198,7 +198,7 @@ class TestData {
         let crumb1 = TestData.crumb
         crumb1.message = "Crumb 1"
         scope.add(crumb1)
-
+        
         let crumb2 = TestData.crumb
         crumb2.message = "Crumb 2"
         scope.add(crumb2)
@@ -220,9 +220,10 @@ class TestData {
     
     static func getAppStartMeasurement(type: SentryAppStartType, appStartTimestamp: Date = TestData.timestamp) -> SentryAppStartMeasurement {
         let appStartDuration = 0.5
-        let runtimeInit = appStartTimestamp.addingTimeInterval(0.2)
+        let main = appStartTimestamp.addingTimeInterval(0.15)
+        let runtimeInit = appStartTimestamp.addingTimeInterval(0.05)
         let didFinishLaunching = appStartTimestamp.addingTimeInterval(0.3)
         
-        return SentryAppStartMeasurement(type: type, appStartTimestamp: appStartTimestamp, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, didFinishLaunchingTimestamp: didFinishLaunching)
+        return SentryAppStartMeasurement(type: type, appStartTimestamp: appStartTimestamp, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, didFinishLaunchingTimestamp: didFinishLaunching)
     }
 }

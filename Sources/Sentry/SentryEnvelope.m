@@ -20,16 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 // id can be null if no event in the envelope or attachment related to event
 - (instancetype)initWithId:(SentryId *_Nullable)eventId
 {
-    SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
-                                                      andVersion:SentryMeta.versionString];
-    self = [self initWithId:eventId andSdkInfo:sdkInfo];
-
+    self = [self initWithId:eventId traceContext:nil];
     return self;
-}
-
-- (instancetype)initWithId:(SentryId *_Nullable)eventId andSdkInfo:(SentrySdkInfo *_Nullable)sdkInfo
-{
-    return [self initWithId:eventId sdkInfo:sdkInfo traceContext:nil];
 }
 
 - (instancetype)initWithId:(nullable SentryId *)eventId
@@ -37,9 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
                                                       andVersion:SentryMeta.versionString];
-
     self = [self initWithId:eventId sdkInfo:sdkInfo traceContext:traceContext];
-
     return self;
 }
 
@@ -47,7 +37,6 @@ NS_ASSUME_NONNULL_BEGIN
                    sdkInfo:(nullable SentrySdkInfo *)sdkInfo
               traceContext:(nullable SentryTraceContext *)traceContext
 {
-
     if (self = [super init]) {
         _eventId = eventId;
         _sdkInfo = sdkInfo;

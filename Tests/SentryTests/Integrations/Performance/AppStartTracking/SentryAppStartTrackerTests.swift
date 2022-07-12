@@ -134,15 +134,15 @@ class SentryAppStartTrackerTests: XCTestCase {
         
         startApp()
         
-        #if os(iOS)
+#if os(iOS)
         if #available(iOS 14.0, *) {
             assertNoAppStartUp()
         } else {
             assertValidStart(type: .warm)
         }
-        #else
+#else
         assertValidStart(type: .warm)
-        #endif
+#endif
     }
     
     func testAppLaunches_WrongEnvValue_AppStartUp() {
@@ -317,7 +317,7 @@ class SentryAppStartTrackerTests: XCTestCase {
     private func sendAppMeasurement() {
         SentrySDK.setAppStartMeasurement(nil)
     }
-
+    
     private func assertValidStart(type: SentryAppStartType, expectedDuration: TimeInterval? = nil) {
         guard let appStartMeasurement = SentrySDK.getAppStartMeasurement() else {
             XCTFail("AppStartMeasurement must not be nil")
@@ -325,12 +325,13 @@ class SentryAppStartTrackerTests: XCTestCase {
         }
         
         XCTAssertEqual(type.rawValue, appStartMeasurement.type.rawValue)
-
+        
         let expectedAppStartDuration = expectedDuration ?? fixture.appStartDuration
         let actualAppStartDuration = appStartMeasurement.duration
         XCTAssertEqual(expectedAppStartDuration, actualAppStartDuration, accuracy: 0.000_1)
-
+        
         XCTAssertEqual(fixture.sysctl.processStartTimestamp, appStartMeasurement.appStartTimestamp)
+        XCTAssertEqual(fixture.sysctl.moduleInitializationTimestamp, appStartMeasurement.moduleInitializationTimestamp)
         XCTAssertEqual(fixture.runtimeInitTimestamp, appStartMeasurement.runtimeInitTimestamp)
         XCTAssertEqual(fixture.didFinishLaunchingTimestamp, appStartMeasurement.didFinishLaunchingTimestamp)
     }
@@ -342,15 +343,15 @@ class SentryAppStartTrackerTests: XCTestCase {
         }
         
         XCTAssertEqual(type.rawValue, appStartMeasurement.type.rawValue)
-
+        
         let actualAppStartDuration = appStartMeasurement.duration
         XCTAssertEqual(0.0, actualAppStartDuration, accuracy: 0.000_1)
-
+        
         XCTAssertEqual(fixture.sysctl.processStartTimestamp, appStartMeasurement.appStartTimestamp)
         XCTAssertEqual(fixture.runtimeInitTimestamp, appStartMeasurement.runtimeInitTimestamp)
         XCTAssertEqual(Date(timeIntervalSinceReferenceDate: 0), appStartMeasurement.didFinishLaunchingTimestamp)
     }
-
+    
     private func assertNoAppStartUp() {
         XCTAssertNil(SentrySDK.getAppStartMeasurement())
     }
