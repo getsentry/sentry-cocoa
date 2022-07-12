@@ -27,11 +27,11 @@ SENTRY_NO_INIT
  * Initializes SentryAppStartMeasurement with the given parameters.
  */
 - (instancetype)initWithType:(SentryAppStartType)type
-              appStartTimestamp:(NSDate *)appStartTimestamp
-                       duration:(NSTimeInterval)duration
-           runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
-                  mainTimestamp:(NSDate *)mainTimestamp
-    didFinishLaunchingTimestamp:(NSDate *)didFinishLaunchingTimestamp;
+                appStartTimestamp:(NSDate *)appStartTimestamp
+                         duration:(NSTimeInterval)duration
+             runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
+    moduleInitializationTimestamp:(NSDate *)moduleInitializationTimestamp
+      didFinishLaunchingTimestamp:(NSDate *)didFinishLaunchingTimestamp;
 
 /**
  * The type of the app start.
@@ -57,7 +57,7 @@ SENTRY_NO_INIT
 /**
  * When application main function is called.
  */
-@property (readonly, nonatomic, strong) NSDate *mainTimestamp;
+@property (readonly, nonatomic, strong) NSDate *moduleInitializationTimestamp;
 
 /**
  * When OS posts UIApplicationDidFinishLaunchingNotification.

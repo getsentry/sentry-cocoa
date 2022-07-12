@@ -57,7 +57,7 @@ class SentryTracerTests: XCTestCase {
             let runtimeInit = appStart.addingTimeInterval(0.05)
             let didFinishLaunching = appStart.addingTimeInterval(0.3)
             
-            return SentryAppStartMeasurement(type: type, appStartTimestamp: appStart, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, mainTimestamp: main, didFinishLaunchingTimestamp: didFinishLaunching)
+            return SentryAppStartMeasurement(type: type, appStartTimestamp: appStart, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, didFinishLaunchingTimestamp: didFinishLaunching)
         }
         
         func getSut(waitForChildren: Bool = true) -> SentryTracer {
@@ -397,7 +397,7 @@ class SentryTracerTests: XCTestCase {
             appStartTimestamp: fixture.currentDateProvider.date(),
             duration: 0.5,
             runtimeInitTimestamp: fixture.currentDateProvider.date(),
-            mainTimestamp: fixture.currentDateProvider.date(),
+            moduleInitializationTimestamp: fixture.currentDateProvider.date(),
             didFinishLaunchingTimestamp: fixture.currentDateProvider.date()
         ))
         
@@ -760,8 +760,8 @@ class SentryTracerTests: XCTestCase {
         }
         
         assertSpan("Pre Runtime Init", appStartMeasurement.appStartTimestamp, appStartMeasurement.runtimeInitTimestamp)
-        assertSpan("Runtime Init to Main", appStartMeasurement.runtimeInitTimestamp, appStartMeasurement.mainTimestamp)
-        assertSpan("UIKit and Application Init", appStartMeasurement.mainTimestamp, appStartMeasurement.didFinishLaunchingTimestamp)
+        assertSpan("Runtime Init to Pre Main Initializers", appStartMeasurement.runtimeInitTimestamp, appStartMeasurement.moduleInitializationTimestamp)
+        assertSpan("UIKit and Application Init", appStartMeasurement.moduleInitializationTimestamp, appStartMeasurement.didFinishLaunchingTimestamp)
         assertSpan("Initial Frame Render", appStartMeasurement.didFinishLaunchingTimestamp, fixture.appStartEnd)
     }
     

@@ -331,7 +331,7 @@ class SentryAppStartTrackerTests: XCTestCase {
         XCTAssertEqual(expectedAppStartDuration, actualAppStartDuration, accuracy: 0.000_1)
         
         XCTAssertEqual(fixture.sysctl.processStartTimestamp, appStartMeasurement.appStartTimestamp)
-        XCTAssertEqual(fixture.sysctl.mainTimestamp, appStartMeasurement.mainTimestamp)
+        XCTAssertEqual(fixture.sysctl.moduleInitializationTimestamp, appStartMeasurement.moduleInitializationTimestamp)
         XCTAssertEqual(fixture.runtimeInitTimestamp, appStartMeasurement.runtimeInitTimestamp)
         XCTAssertEqual(fixture.didFinishLaunchingTimestamp, appStartMeasurement.didFinishLaunchingTimestamp)
     }

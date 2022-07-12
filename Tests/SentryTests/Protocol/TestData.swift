@@ -224,6 +224,6 @@ class TestData {
         let runtimeInit = appStartTimestamp.addingTimeInterval(0.05)
         let didFinishLaunching = appStartTimestamp.addingTimeInterval(0.3)
         
-        return SentryAppStartMeasurement(type: type, appStartTimestamp: appStartTimestamp, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, mainTimestamp: main, didFinishLaunchingTimestamp: didFinishLaunching)
+        return SentryAppStartMeasurement(type: type, appStartTimestamp: appStartTimestamp, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, didFinishLaunchingTimestamp: didFinishLaunching)
     }
 }

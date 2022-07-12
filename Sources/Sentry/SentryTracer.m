@@ -596,14 +596,14 @@ static NSLock *profilerLock;
 
     SentrySpan *runtimeInitSpan = [self buildSpan:appStartSpan.context.spanId
                                         operation:operation
-                                      description:@"Runtime Init to Main"];
+                                      description:@"Runtime Init to Pre Main Initializers"];
     [runtimeInitSpan setStartTimestamp:appStartMeasurement.runtimeInitTimestamp];
-    [runtimeInitSpan setTimestamp:appStartMeasurement.mainTimestamp];
+    [runtimeInitSpan setTimestamp:appStartMeasurement.moduleInitializationTimestamp];
 
     SentrySpan *appInitSpan = [self buildSpan:appStartSpan.context.spanId
                                     operation:operation
                                   description:@"UIKit and Application Init"];
-    [appInitSpan setStartTimestamp:appStartMeasurement.mainTimestamp];
+    [appInitSpan setStartTimestamp:appStartMeasurement.moduleInitializationTimestamp];
     [appInitSpan setTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
 
     SentrySpan *frameRenderSpan = [self buildSpan:appStartSpan.context.spanId

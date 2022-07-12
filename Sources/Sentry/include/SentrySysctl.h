@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (readonly) NSDate *runtimeInitTimestamp;
 
-@property (readonly) NSDate *mainTimestamp;
+@property (readonly) NSDate *moduleInitializationTimestamp;
 
 @end
 

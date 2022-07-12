@@ -22,19 +22,19 @@ class SentrySysctlTests: XCTestCase {
     }
     
     func testMainTimestamp_IsInThePast() {
-        let distance = Date().timeIntervalSince(sut.mainTimestamp)
+        let distance = Date().timeIntervalSince(sut.moduleInitializationTimestamp)
 
         XCTAssertGreaterThan(distance, 0)
     }
     
     func testMainTimestamp_IsBiggerThan_ProcessStartTime() {
-        let distance = sut.mainTimestamp.timeIntervalSince(sut.processStartTimestamp)
+        let distance = sut.moduleInitializationTimestamp.timeIntervalSince(sut.processStartTimestamp)
 
         XCTAssertGreaterThan(distance, 0)
     }
     
     func testMainTimestamp_IsBiggerThan_RuntimeInitTimestamp() {
-        let distance = sut.mainTimestamp.timeIntervalSince(sut.runtimeInitTimestamp)
+        let distance = sut.moduleInitializationTimestamp.timeIntervalSince(sut.runtimeInitTimestamp)
 
         XCTAssertGreaterThan(distance, 0)
     }
