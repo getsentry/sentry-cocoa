@@ -11,6 +11,7 @@
 
 - Properly sanitize the event context and SDK information (#1943)
 - Don't send error 429 as `network_error` (#1957)
+- Deprecate not needed option `sdkInfo` (#1960)
 
 ## 7.20.0
 
