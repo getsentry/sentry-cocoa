@@ -10,6 +10,7 @@
 
 - Properly sanitize the event context and SDK information (#1943)
 - Don't send error 429 as `network_error` (#1957)
+- Read free_memory when the event is captured, not only at SDK startup (#1962)
 
 ## 7.20.0
 
