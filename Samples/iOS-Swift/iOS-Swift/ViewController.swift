@@ -48,7 +48,9 @@ class ViewController: UIViewController {
 
         NotificationCenter.default.addObserver(forName: .breadcrumb, object: nil, queue: .main) { notification in
             guard let breadcrumb = notification.object as? Breadcrumb else { return }
-            self.breadcrumbLabel.text = "{ category: \(breadcrumb.category), parentViewController: \(breadcrumb.data?["parentViewController"] ?? "nil"), beingPresented: \(breadcrumb.data?["beingPresented"] ?? "nil"), window_isKeyWindow: \(breadcrumb.data?["window_isKeyWindow"] ?? "nil"), is_window_rootViewController: \(breadcrumb.data?["is_window_rootViewController"] ?? "nil") }"
+            if breadcrumb.data?["parentViewController"] != nil {
+                self.breadcrumbLabel.text = "{ category: \(breadcrumb.category), parentViewController: \(breadcrumb.data?["parentViewController"] ?? "nil"), beingPresented: \(breadcrumb.data?["beingPresented"] ?? "nil"), window_isKeyWindow: \(breadcrumb.data?["window_isKeyWindow"] ?? "nil"), is_window_rootViewController: \(breadcrumb.data?["is_window_rootViewController"] ?? "nil") }"
+            }
         }
     }
     
