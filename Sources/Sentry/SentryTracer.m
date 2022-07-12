@@ -51,7 +51,7 @@ SentryTracer ()
     NSMutableDictionary<NSString *, id> *_tags;
     NSMutableDictionary<NSString *, id> *_data;
     dispatch_block_t _idleTimeoutBlock;
-    NSMutableSet<id<SentrySpan>> * _children;
+    NSMutableArray<id<SentrySpan>> * _children;
     
 #if SENTRY_HAS_UIKIT
     BOOL _startTimeChanged;
@@ -120,7 +120,7 @@ static NSLock *profilerLock;
     if (self = [super init]) {
         self.rootSpan = [[SentrySpan alloc] initWithTransaction:self context:transactionContext];
         self.name = transactionContext.name;
-        _children = [[NSMutableSet alloc] init];
+        _children = [[NSMutableArray alloc] init];
         self.hub = hub;
         self.isWaitingForChildren = NO;
         _waitForChildren = waitForChildren;
@@ -199,9 +199,11 @@ static NSLock *profilerLock;
     id<SentrySpan> span;
 
     if (self.delegate) {
-        span = [self.delegate activeSpanForTracer:self];
-        if (span == nil || span == self || ![_children containsObject:span]) {
-            span = _rootSpan;
+        @synchronized (_children) {
+            span = [self.delegate activeSpanForTracer:self];
+            if (span == nil || span == self || ![_children containsObject:span]) {
+                span = _rootSpan;
+            }
         }
     } else {
         span = _rootSpan;
@@ -316,7 +318,7 @@ static NSLock *profilerLock;
 
 - (NSArray<id<SentrySpan>> *)children
 {
-    return [_children allObjects];
+    return [_children copy];
 }
 
 - (void)setDataValue:(nullable id)value forKey:(NSString *)key
@@ -516,7 +518,7 @@ static NSLock *profilerLock;
     NSArray<id<SentrySpan>> *spans;
     @synchronized(_children) {
         [_children addObjectsFromArray:appStartSpans];
-        spans = [_children allObjects];
+        spans = [_children copy];
     }
 
     if (appStartMeasurement != nil) {
