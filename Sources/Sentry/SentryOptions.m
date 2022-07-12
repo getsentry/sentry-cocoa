@@ -302,7 +302,7 @@ SentryOptions ()
     // SentrySdkInfo already expects a dictionary with {"sdk": {"name": ..., "value": ...}}
     // so we're passing the whole options object.
     // Note: we should remove this code once the hybrid SDKs move over to the new
-    // PrivateSentrySDKOnly setter function.
+    // PrivateSentrySDKOnly setter functions.
     if ([options[@"sdk"] isKindOfClass:[NSDictionary class]]) {
         SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithDict:options];
         SentryMeta.versionString = sdkInfo.version;
