@@ -652,7 +652,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     NSMutableDictionary *device =
         [[NSMutableDictionary alloc] initWithDictionary:context[@"device"]];
 
-    NSDictionary *systemInfo = [[SentryCrashWrapper sharedInstance] systemInfo];
+    NSDictionary *systemInfo = SentryCrash.sharedInstance.systemInfo;
     device[SentryDeviceContextFreeMemoryKey] = systemInfo[@"freeMemory"];
 
     context[@"device"] = device;
