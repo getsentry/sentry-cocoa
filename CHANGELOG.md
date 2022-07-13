@@ -11,6 +11,7 @@
 
 - Properly sanitize the event context and SDK information (#1943)
 - Don't send error 429 as `network_error` (#1957)
+- Sanitize Span data (#1963)
 - Deprecate not needed option `sdkInfo` (#1960)
 - Crash in profiling logger (#1964)
 
