@@ -83,6 +83,8 @@ SentryTransaction ()
         serializedData[@"measurements"] = [self.measurements.copy sentry_sanitize];
     }
 
+    return nil;
+
     return serializedData;
 }
 @end

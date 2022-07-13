@@ -233,17 +233,14 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableFileIOTracking;
 
 /**
- * Indicates the percentage of the tracing data that is collected. Setting this to 0 or NIL discards
- * all trace data, 1.0 collects all trace data, 0.01 collects 1% of all trace data. The default is
- * 0. The value needs to be >= 0.0 and <= 1.0. When setting a value out of range  the SDK sets it to
- * the default of 0.
+ * The sample rate at which to collect Sentry tracing data.
+ * @seealso See @c SentrySampleRate for discussion on valid sample rate values.
  */
-@property (nullable, nonatomic, strong) NSNumber *tracesSampleRate;
+@property (nullable, nonatomic, strong) SentrySampleRate *tracesSampleRate;
 
 /**
- * A callback to a user defined traces sampler function. Returning 0 or NIL discards all trace
- * data, 1.0 collects all trace data, 0.01 collects 1% of all trace data. The sample rate needs to
- * be >= 0.0 and <= 1.0 or NIL. When returning a value out of range the SDK uses the default of 0.
+ * A callback to a user defined traces sampler function.
+ * @seealso See @c SentrySampleRate for discussion on valid sample rate values.
  */
 @property (nullable, nonatomic) SentryTracesSamplerCallback tracesSampler;
 
@@ -308,11 +305,26 @@ NS_SWIFT_NAME(Options)
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
- * Whether to enable the sampling profiler. Default is NO.
+ * Whether to enable the sampling profiler. Default is @c NO.
  * @note This is a beta feature that is currently not available to all Sentry customers. This
  * feature is not supported on watchOS or tvOS.
  */
 @property (nonatomic, assign) BOOL enableProfiling;
+
+/**
+ * The rate at which to sample profiles attached to transactions.
+ * @note To calculate how many profiles are ultimately sampled, @c tracesSampleRate must be combined with the profile sample rate, e.g. if @c tracesSampleRate is @c 0.5 and the profile sample rate is @c 0.2, then profiles will be sampled at a rate of @c 0.5*0.2=0.1 of all traced events.
+ * @seealso See @c SentrySampleRate for discussion on valid sample rate values.
+ */
+@property (nonatomic, assign) SentrySampleRate *profilingSampleRate;
+
+/**
+ * A callback to a user-defined profile sampler function.
+ * @seealso See @c profilingSampleRate for discussion on how the profile sample rate combines with the transaction sample rate.
+ * @seealso See @c SentrySampleRate for discussion on valid sample rate values.
+ * @return @c 0 or @c NIL to discard all profile data, @c 1.0 to collect all profile data, @c 0.01 to collect 1% of all profile data, etc.
+ */
+@property (nullable, nonatomic) SentryTracesSamplerCallback profileSampler;
 #endif
 
 /**
