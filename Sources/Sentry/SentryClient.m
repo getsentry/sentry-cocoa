@@ -363,8 +363,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithSession:session];
-    SentryEnvelopeHeader *envelopeHeader =
-        [[SentryEnvelopeHeader alloc] initWithId:nil sdkInfo:self.options.sdkInfo traceContext:nil];
+    SentryEnvelopeHeader *envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:nil
+                                                                       traceContext:nil];
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader
                                                            singleItem:item];
     [self captureEnvelope:envelope];
@@ -591,8 +591,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     event.sdk = @{
-        @"name" : self.options.sdkInfo.name,
-        @"version" : self.options.sdkInfo.version,
+        @"name" : SentryMeta.sdkName,
+        @"version" : SentryMeta.versionString,
         @"integrations" : integrations
     };
 }

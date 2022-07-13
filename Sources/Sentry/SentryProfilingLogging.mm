@@ -33,10 +33,10 @@ namespace profiling {
         }
         va_list args;
         va_start(args, fmt);
-        va_end(args);
         const auto fmtStr = [[NSString alloc] initWithUTF8String:fmt];
-        [SentryLog logWithMessage:[[NSString alloc] initWithFormat:fmtStr arguments:args]
-                         andLevel:sentryLevelFromLogLevel(level)];
+        const auto msgStr = [[NSString alloc] initWithFormat:fmtStr arguments:args];
+        va_end(args);
+        [SentryLog logWithMessage:msgStr andLevel:sentryLevelFromLogLevel(level)];
     }
 
 } // namespace profiling
