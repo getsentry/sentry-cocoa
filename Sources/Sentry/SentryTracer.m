@@ -151,6 +151,7 @@ static NSLock *profilerLock;
 #endif // SENTRY_HAS_UIKIT
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         if ([_hub getClient].options.enableProfiling) {
+            // TODO: decide here whether to sample the profiler
             [profilerLock lock];
             if (profiler == nil) {
                 profiler = [[SentryProfiler alloc] init];

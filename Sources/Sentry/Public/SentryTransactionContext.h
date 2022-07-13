@@ -25,6 +25,11 @@ SENTRY_NO_INIT
 @property (nonatomic, strong, nullable) NSNumber *sampleRate;
 
 /**
+ * Sample rate used for profiling this transaction.
+ */
+@property (nonatomic, strong, nullable) NSNumber *profileSampleRate;
+
+/**
  * Init a SentryTransactionContext with given name and set other fields by default
  *
  * @param name Transaction name
