@@ -644,22 +644,22 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)storeFreeMemoryToDeviceContext:(SentryEvent *)event
 {
-    if (nil == event.context || event.context.count == 0 || nil == event.context[@"device"]) {
-        return;
-    }
-
-    NSMutableDictionary *context = [[NSMutableDictionary alloc] initWithDictionary:event.context];
-    NSMutableDictionary *device =
-        [[NSMutableDictionary alloc] initWithDictionary:context[@"device"]];
-
-    NSDictionary *systemInfo = SentryCrash.sharedInstance.systemInfo;
-    device[SentryDeviceContextFreeMemoryKey] = systemInfo[@"freeMemory"];
-
-    context[@"device"] = device;
-    event.context = context;
+    [self modifyDeviceContext:event
+                        block:^(NSMutableDictionary *device) {
+                            NSDictionary *systemInfo = SentryCrash.sharedInstance.systemInfo;
+                            device[SentryDeviceContextFreeMemoryKey] = systemInfo[@"freeMemory"];
+                        }];
 }
 
 - (void)removeFreeMemoryFromDeviceContext:(SentryEvent *)event
+{
+    [self modifyDeviceContext:event
+                        block:^(NSMutableDictionary *device) {
+                            [device removeObjectForKey:SentryDeviceContextFreeMemoryKey];
+                        }];
+}
+
+- (void)modifyDeviceContext:(SentryEvent *)event block:(void (^)(NSMutableDictionary *))block
 {
     if (nil == event.context || event.context.count == 0 || nil == event.context[@"device"]) {
         return;
@@ -668,9 +668,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     NSMutableDictionary *context = [[NSMutableDictionary alloc] initWithDictionary:event.context];
     NSMutableDictionary *device =
         [[NSMutableDictionary alloc] initWithDictionary:context[@"device"]];
-    [device removeObjectForKey:SentryDeviceContextFreeMemoryKey];
+    block(device);
     context[@"device"] = device;
-
     event.context = context;
 }
 
