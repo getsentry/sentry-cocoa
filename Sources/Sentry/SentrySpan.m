@@ -139,7 +139,7 @@ SentrySpan ()
         if (_tags.count > 0) {
             NSMutableDictionary *tags = _context.tags.mutableCopy;
             [tags addEntriesFromDictionary:_tags.copy];
-            mutableDictionary[@"tags"] = [tags sentry_sanitize];
+            mutableDictionary[@"tags"] = tags;
         }
     }
 

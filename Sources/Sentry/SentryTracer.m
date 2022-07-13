@@ -697,7 +697,7 @@ static NSLock *profilerLock;
                 [mutableDictionary[@"tags"] isKindOfClass:NSDictionary.class]) {
                 [tags addEntriesFromDictionary:mutableDictionary[@"tags"]];
             }
-            mutableDictionary[@"tags"] = [tags sentry_sanitize];
+            mutableDictionary[@"tags"] = tags;
         }
     }
 
