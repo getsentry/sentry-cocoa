@@ -188,7 +188,7 @@ SentryAppStartTracker ()
 
         SentryAppStartMeasurement *appStartMeasurement = [[SentryAppStartMeasurement alloc]
                              initWithType:appStartType
-                                preWarmed:YES
+                                preWarmed:preWarmed
                         appStartTimestamp:self.sysctl.processStartTimestamp
                                  duration:appStartDuration
                      runtimeInitTimestamp:runtimeInit

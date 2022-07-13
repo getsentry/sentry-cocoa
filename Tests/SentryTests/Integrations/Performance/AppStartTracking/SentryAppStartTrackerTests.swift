@@ -138,7 +138,7 @@ class SentryAppStartTrackerTests: XCTestCase {
 
 #if os(iOS)
         if #available(iOS 14.0, *) {
-            assertValidStart(type: .warm, expectedDuration: 0.3)
+            assertValidStart(type: .warm, expectedDuration: 0.3, preWarmed: true)
         } else {
             assertNoAppStartUp()
         }
@@ -342,7 +342,7 @@ class SentryAppStartTrackerTests: XCTestCase {
         SentrySDK.setAppStartMeasurement(nil)
     }
     
-    private func assertValidStart(type: SentryAppStartType, expectedDuration: TimeInterval? = nil) {
+    private func assertValidStart(type: SentryAppStartType, expectedDuration: TimeInterval? = nil, preWarmed: Bool = false) {
         guard let appStartMeasurement = SentrySDK.getAppStartMeasurement() else {
             XCTFail("AppStartMeasurement must not be nil")
             return
@@ -358,6 +358,7 @@ class SentryAppStartTrackerTests: XCTestCase {
         XCTAssertEqual(fixture.sysctl.moduleInitializationTimestamp, appStartMeasurement.moduleInitializationTimestamp)
         XCTAssertEqual(fixture.runtimeInitTimestamp, appStartMeasurement.runtimeInitTimestamp)
         XCTAssertEqual(fixture.didFinishLaunchingTimestamp, appStartMeasurement.didFinishLaunchingTimestamp)
+        XCTAssertEqual(preWarmed, appStartMeasurement.preWarmed)
     }
     
     private func assertValidHybridStart(type: SentryAppStartType) {
