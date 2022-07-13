@@ -192,14 +192,12 @@ SentryBreadcrumbTracker ()
                 SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
                                                                          category:@"ui.lifecycle"];
                 crumb.type = @"navigation";
-                NSString *viewControllerName = [SentryUIViewControllerSanitizer
-                    sanitizeViewControllerName:[NSString stringWithFormat:@"%@", self]];
-                crumb.data = @ { @"screen" : viewControllerName };
+                crumb.data = [SentryBreadcrumbTracker fetchInfoAboutViewController:self];
 
                 // Adding crumb via the SDK calls SentryBeforeBreadcrumbCallback
                 [SentrySDK addBreadcrumb:crumb];
                 [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
-                    [scope setExtraValue:viewControllerName forKey:@"__sentry_transaction"];
+                    [scope setExtraValue:crumb.data[@"screen"] forKey:@"__sentry_transaction"];
                 }];
             }
             SentrySWCallOriginal(animated);
@@ -235,6 +233,43 @@ SentryBreadcrumbTracker ()
     }
 
     return result;
+}
+
++ (NSDictionary *)fetchInfoAboutViewController:(UIViewController *)controller
+{
+    NSMutableDictionary *info = @{}.mutableCopy;
+
+    info[@"screen"] = [SentryUIViewControllerSanitizer
+        sanitizeViewControllerName:[NSString stringWithFormat:@"%@", controller]];
+
+    if ([controller.navigationItem.title length] != 0) {
+        info[@"title"] = controller.navigationItem.title;
+    } else if ([controller.title length] != 0) {
+        info[@"title"] = controller.title;
+    }
+
+    info[@"beingPresented"] = controller.beingPresented ? @"true" : @"false";
+
+    if (controller.presentingViewController != nil) {
+        info[@"presentingViewController"] = [SentryUIViewControllerSanitizer
+            sanitizeViewControllerName:controller.presentingViewController];
+    }
+
+    if (controller.parentViewController != nil) {
+        info[@"parentViewController"] = [SentryUIViewControllerSanitizer
+            sanitizeViewControllerName:controller.parentViewController];
+    }
+
+    if (controller.view.window != nil) {
+        info[@"window"] = controller.view.window.description;
+        info[@"window_isKeyWindow"] = controller.view.window.isKeyWindow ? @"true" : @"false";
+        info[@"window_windowLevel"] =
+            [NSString stringWithFormat:@"%f", controller.view.window.windowLevel];
+        info[@"is_window_rootViewController"]
+            = controller.view.window.rootViewController == controller ? @"true" : @"false";
+    }
+
+    return info;
 }
 #endif
 

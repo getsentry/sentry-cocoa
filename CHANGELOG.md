@@ -4,6 +4,7 @@
 
 ### Features
 
+- Enhance the UIViewController breadcrumbs with more data (#1945)
 - feat: Add extra app start span (#1952)
 - Add enableAutoBreadcrumbTracking option (#1958)
 
