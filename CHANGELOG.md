@@ -4,6 +4,7 @@
 
 ### Features
 
+- feat: Add extra app start span (#1952)
 - Add enableAutoBreadcrumbTracking option (#1958)
 
 ### Fixes
@@ -11,6 +12,8 @@
 - Properly sanitize the event context and SDK information (#1943)
 - Don't send error 429 as `network_error` (#1957)
 - Read free_memory when the event is captured, not only at SDK startup (#1962)
+- Deprecate not needed option `sdkInfo` (#1960)
+- Crash in profiling logger (#1964)
 
 ## 7.20.0
 
@@ -41,7 +44,7 @@
 ## 7.18.0
 
 ### Features
- 
+
 - Replace tracestate header with baggage (#1867)
 
 ### Fixes
