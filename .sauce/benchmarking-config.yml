@@ -1,0 +1,18 @@
+apiVersion: v1alpha
+kind: xcuitest
+sauce:
+  region: us-west-1
+  concurrency: 2
+
+defaults:
+  timeout: 30m # empirically observed; job usually takes 20-25 minutes on iPad Pro 12.9 2021
+
+xcuitest:
+  app: ./DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app
+  testApp: ./DerivedData/Build/Products/Debug-iphoneos/PerformanceBenchmarks-Runner.app
+
+suites:
+  - name: "High-end device"
+    devices:
+      - name: "iPad Pro 12.9 2021"
+        platformVersion: "15.5"

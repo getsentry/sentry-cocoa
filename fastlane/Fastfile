@@ -72,7 +72,7 @@ platform :ios do
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
-  
+
   lane :build_ios_swift_ui_test do
 
     setup_ci(
@@ -88,6 +88,29 @@ platform :ios do
     build_app(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
+      xcargs: "build-for-testing",
+      derived_data_path: "DerivedData",
+      skip_archive: true
+    )
+
+    delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
+  end
+
+  lane :build_ios_benchmark_test do
+
+    setup_ci(
+      force: true
+    )
+
+    sync_code_signing(
+      type: "development",
+      readonly: true,
+      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-Benchmarking.xctrunner"]
+    )
+
+    build_app(
+      workspace: "Sentry.xcworkspace",
+      scheme: "iOS-Swift-Benchmarking",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
       skip_archive: true

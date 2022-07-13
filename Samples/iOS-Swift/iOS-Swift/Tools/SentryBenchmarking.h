@@ -4,14 +4,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryBenchmarking : NSObject
 
-/** Begin a Sentry transaction, starting the profiler components. */
-+ (void)startBenchmarkProfile;
+/**
+ * Start a Sentry transaction, which will start the profiler, and also spin up an in-app sampling
+ * profiler to gather information on thread CPU usages throughout the benchmark.
+ */
++ (void)startBenchmark;
 
 /**
- * @return The % CPU overhead incurred by running the sampling profiler in the Sentry SDK in the
- * test app.
- * */
-+ (double)retrieveBenchmarks;
+ * Stop the profiled transaction and return statistics on CPU usage by the profiler and test app for
+ * downstream processing.
+ * @return A dictionary serialized to a string, containing the values for profiler system time,
+ * profiler user time, app system time and app user time, which can be used to calculate the
+ * overhead of the profiler; or, if an error occurred, returns @c nil .
+ */
++ (nullable NSString *)stopBenchmark;
 
 @end
 
