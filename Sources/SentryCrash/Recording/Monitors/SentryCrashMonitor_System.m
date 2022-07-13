@@ -199,6 +199,12 @@ freeMemory(void)
     return 0;
 }
 
+uint64_t
+sentrycrashcm_system_freememory(void)
+{
+    return freeMemory();
+}
+
 static uint64_t
 usableMemory(void)
 {

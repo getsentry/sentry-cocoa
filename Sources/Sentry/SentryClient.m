@@ -5,6 +5,7 @@
 #import "SentryCrash.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashIntegration.h"
+#import "SentryCrashMonitor_System.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryDebugImageProvider.h"
 #import "SentryDefaultCurrentDateProvider.h"
@@ -646,8 +647,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     [self modifyDeviceContext:event
                         block:^(NSMutableDictionary *device) {
-                            NSDictionary *systemInfo = SentryCrash.sharedInstance.systemInfo;
-                            device[SentryDeviceContextFreeMemoryKey] = systemInfo[@"freeMemory"];
+                            device[SentryDeviceContextFreeMemoryKey] =
+                                @(sentrycrashcm_system_freememory());
                         }];
 }
 
