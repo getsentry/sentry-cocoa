@@ -9,6 +9,7 @@
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
 #import <Foundation/Foundation.h>
+#include <mach-o/dyld.h>
 
 @interface
 SentryDebugImageProvider ()
@@ -18,6 +19,8 @@ SentryDebugImageProvider ()
 @end
 
 @implementation SentryDebugImageProvider
+
+static NSArray<SentryDebugMeta *> *_Nullable cachedDebugImages;
 
 - (instancetype)init
 {
@@ -36,7 +39,17 @@ SentryDebugImageProvider ()
     if (self = [super init]) {
         self.binaryImageProvider = binaryImageProvider;
     }
+
+    _dyld_register_func_for_add_image(clearCachedDebugImages);
+    _dyld_register_func_for_remove_image(clearCachedDebugImages);
+
     return self;
+}
+
+void
+clearCachedDebugImages(const struct mach_header *header, intptr_t slide)
+{
+    cachedDebugImages = nil;
 }
 
 - (NSArray<SentryDebugMeta *> *)getDebugImagesForThreads:(NSArray<SentryThread *> *)threads
@@ -66,6 +79,10 @@ SentryDebugImageProvider ()
 
 - (NSArray<SentryDebugMeta *> *)getDebugImages
 {
+    if (cachedDebugImages != nil) {
+        return cachedDebugImages;
+    }
+
     NSMutableArray<SentryDebugMeta *> *debugMetaArray = [NSMutableArray new];
 
     NSInteger imageCount = [self.binaryImageProvider getImageCount];
@@ -75,6 +92,7 @@ SentryDebugImageProvider ()
         [debugMetaArray addObject:debugMeta];
     }
 
+    cachedDebugImages = debugMetaArray;
     return debugMetaArray;
 }
 
