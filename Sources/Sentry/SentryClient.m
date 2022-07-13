@@ -2,7 +2,6 @@
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryAttachment.h"
 #import "SentryClient+Private.h"
-#import "SentryCrash.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashIntegration.h"
 #import "SentryCrashMonitor_System.h"
