@@ -156,12 +156,15 @@ SentryAppStartTracker ()
         // https://github.com/MobileNativeFoundation/discussions/discussions/146
         // https://eisel.me/startup
         NSTimeInterval appStartDuration = 0.0;
+        NSDate *appStartTimestamp;
         if (preWarmed) {
             appStartDuration = [[self.currentDate date]
                 timeIntervalSinceDate:self.sysctl.moduleInitializationTimestamp];
+            appStartTimestamp = self.sysctl.moduleInitializationTimestamp;
         } else {
             appStartDuration =
                 [[self.currentDate date] timeIntervalSinceDate:self.sysctl.processStartTimestamp];
+            appStartTimestamp = self.sysctl.processStartTimestamp;
         }
 
         // Safety check to not report app starts that are completely off.
@@ -189,7 +192,7 @@ SentryAppStartTracker ()
         SentryAppStartMeasurement *appStartMeasurement = [[SentryAppStartMeasurement alloc]
                              initWithType:appStartType
                                 preWarmed:preWarmed
-                        appStartTimestamp:self.sysctl.processStartTimestamp
+                        appStartTimestamp:appStartTimestamp
                                  duration:appStartDuration
                      runtimeInitTimestamp:runtimeInit
             moduleInitializationTimestamp:self.sysctl.moduleInitializationTimestamp

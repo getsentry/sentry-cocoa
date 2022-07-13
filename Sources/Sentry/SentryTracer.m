@@ -588,18 +588,7 @@ static NSLock *profilerLock;
                                      operation:operation
                                    description:type];
     [appStartSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
-
-    SentrySpan *premainSpan = [self buildSpan:appStartSpan.context.spanId
-                                    operation:operation
-                                  description:@"Pre Runtime Init"];
-    [premainSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
-    [premainSpan setTimestamp:appStartMeasurement.runtimeInitTimestamp];
-
-    SentrySpan *runtimeInitSpan = [self buildSpan:appStartSpan.context.spanId
-                                        operation:operation
-                                      description:@"Runtime Init to Pre Main Initializers"];
-    [runtimeInitSpan setStartTimestamp:appStartMeasurement.runtimeInitTimestamp];
-    [runtimeInitSpan setTimestamp:appStartMeasurement.moduleInitializationTimestamp];
+    [appStartSpan setTimestamp:appStartEndTimestamp];
 
     SentrySpan *appInitSpan = [self buildSpan:appStartSpan.context.spanId
                                     operation:operation
@@ -613,9 +602,23 @@ static NSLock *profilerLock;
     [frameRenderSpan setStartTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
     [frameRenderSpan setTimestamp:appStartEndTimestamp];
 
-    [appStartSpan setTimestamp:appStartEndTimestamp];
+    if (!appStartMeasurement.preWarmed) {
+        SentrySpan *premainSpan = [self buildSpan:appStartSpan.context.spanId
+                                        operation:operation
+                                      description:@"Pre Runtime Init"];
+        [premainSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
+        [premainSpan setTimestamp:appStartMeasurement.runtimeInitTimestamp];
 
-    return @[ appStartSpan, premainSpan, runtimeInitSpan, appInitSpan, frameRenderSpan ];
+        SentrySpan *runtimeInitSpan = [self buildSpan:appStartSpan.context.spanId
+                                            operation:operation
+                                          description:@"Runtime Init to Pre Main Initializers"];
+        [runtimeInitSpan setStartTimestamp:appStartMeasurement.runtimeInitTimestamp];
+        [runtimeInitSpan setTimestamp:appStartMeasurement.moduleInitializationTimestamp];
+
+        return @[ appStartSpan, premainSpan, runtimeInitSpan, appInitSpan, frameRenderSpan ];
+    } else {
+        return @[ appStartSpan, appInitSpan, frameRenderSpan ];
+    }
 }
 
 - (void)addMeasurements:(SentryTransaction *)transaction

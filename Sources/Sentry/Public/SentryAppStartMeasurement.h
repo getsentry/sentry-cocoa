@@ -48,7 +48,8 @@ SENTRY_NO_INIT
 @property (readonly, nonatomic, assign) NSTimeInterval duration;
 
 /**
- * The timestamp when the app started, which is is the proces start timestamp.
+ * The timestamp when the app started, which is is the proces start timestamp and for prewarmed app
+ * starts the moduleInitializationTimestamp.
  */
 @property (readonly, nonatomic, strong) NSDate *appStartTimestamp;
 
