@@ -35,11 +35,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             if !ProcessInfo.processInfo.arguments.contains("--io.sentry.test.benchmarking") {
                 options.enableUserInteractionTracing = true
             }
-
-            options.beforeBreadcrumb = { breadcrumb in
-                NotificationCenter.default.post(name: .breadcrumb, object: breadcrumb)
-                return breadcrumb
-            }
         }
         
         return true

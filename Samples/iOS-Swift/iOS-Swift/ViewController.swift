@@ -45,13 +45,6 @@ class ViewController: UIViewController {
                 self.dsnTextField.backgroundColor = UIColor.systemGreen
             }
         }
-
-        NotificationCenter.default.addObserver(forName: .breadcrumb, object: nil, queue: .main) { notification in
-            guard let breadcrumb = notification.object as? Breadcrumb else { return }
-            if breadcrumb.data?["parentViewController"] != nil {
-                self.breadcrumbLabel.text = "{ category: \(breadcrumb.category), parentViewController: \(breadcrumb.data?["parentViewController"] ?? "nil"), beingPresented: \(breadcrumb.data?["beingPresented"] ?? "nil"), window_isKeyWindow: \(breadcrumb.data?["window_isKeyWindow"] ?? "nil"), is_window_rootViewController: \(breadcrumb.data?["is_window_rootViewController"] ?? "nil") }"
-            }
-        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -61,6 +54,15 @@ class ViewController: UIViewController {
             Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
                 self.framesLabel?.text = "Frames Total:\(PrivateSentrySDKOnly.currentScreenFrames.total) Slow:\(PrivateSentrySDKOnly.currentScreenFrames.slow) Frozen:\(PrivateSentrySDKOnly.currentScreenFrames.frozen)"
             }
+        }
+
+        SentrySDK.configureScope { (scope) in
+            let dict = scope.serialize()
+            let crumbs = dict["breadcrumbs"] as! [[String: Any]]
+            let breadcrumb = crumbs.last!
+            let data = breadcrumb["data"] as! [String: String]
+
+            self.breadcrumbLabel.text = "{ category: \(breadcrumb["category"] ?? "nil"), parentViewController: \(data["parentViewController"] ?? "nil"), beingPresented: \(data["beingPresented"] ?? "nil"), window_isKeyWindow: \(data["window_isKeyWindow"] ?? "nil"), is_window_rootViewController: \(data["is_window_rootViewController"] ?? "nil") }"
         }
     }
     

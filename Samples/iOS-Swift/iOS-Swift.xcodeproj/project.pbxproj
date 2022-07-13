@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0A1C358B287C17AF007D01E3 /* UINotificationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C358A287C17AF007D01E3 /* UINotificationExtension.swift */; };
-		0A1C358D287C17BA007D01E3 /* UINotificationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C358A287C17AF007D01E3 /* UINotificationExtension.swift */; };
 		630853532440C60F00DDE4CE /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; };
 		637AFDAA243B02760034958B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDA9243B02760034958B /* AppDelegate.swift */; };
 		637AFDAE243B02760034958B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDAD243B02760034958B /* ViewController.swift */; };
@@ -193,11 +191,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		0A1C358A287C17AF007D01E3 /* UINotificationExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UINotificationExtension.swift; sourceTree = "<group>"; };
 		6308532C2440C44F00DDE4CE /* Sentry.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sentry.xcodeproj; path = ../../Sentry.xcodeproj; sourceTree = "<group>"; };
 		637AFDA6243B02760034958B /* iOS-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		637AFDA9243B02760034958B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		637AFDAD243B02760034958B /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		637AFDAD243B02760034958B /* ViewController.swift */ = {isa = PBXFileReference; indentWidth = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; tabWidth = 4; };
 		637AFDB0243B02760034958B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		637AFDB2243B02770034958B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		637AFDB5243B02770034958B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -454,7 +451,6 @@
 				D8F3D061274EBD4800B56F8C /* SpanExtension.swift */,
 				D8D7BB4B2750095800044146 /* UIViewExtension.swift */,
 				D8444E4B275E38090042F4DE /* UIViewControllerExtension.swift */,
-				0A1C358A287C17AF007D01E3 /* UINotificationExtension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -691,7 +687,6 @@
 			files = (
 				D8F3D05F274E6A8B00B56F8C /* AssertView.swift in Sources */,
 				D890CD3F26CEE31B001246CF /* NibViewController.swift in Sources */,
-				0A1C358B287C17AF007D01E3 /* UINotificationExtension.swift in Sources */,
 				D845F35B27BAD4CC00A4D7A2 /* SentryData.xcdatamodeld in Sources */,
 				D8444E4C275E38090042F4DE /* UIViewControllerExtension.swift in Sources */,
 				637AFDAE243B02760034958B /* ViewController.swift in Sources */,
@@ -734,7 +729,6 @@
 				D8444E57275F795D0042F4DE /* UIViewControllerExtension.swift in Sources */,
 				D8F3D058274E57D600B56F8C /* TableViewController.swift in Sources */,
 				D8269A58274C0FC700BD5BD5 /* ViewController.swift in Sources */,
-				0A1C358D287C17BA007D01E3 /* UINotificationExtension.swift in Sources */,
 				844DA821282584C300E6B62E /* CoreDataViewController.swift in Sources */,
 				D8444E55275F79570042F4DE /* SpanExtension.swift in Sources */,
 				D8444E51275F79240042F4DE /* AssertView.swift in Sources */,
