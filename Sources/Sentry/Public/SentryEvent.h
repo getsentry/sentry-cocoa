@@ -60,7 +60,7 @@ NS_SWIFT_NAME(Event)
 
 /**
  * This property will be filled before the event is sent.
- * @warning This is maintained automatically, and shouldn't normally need to be modified. 
+ * @warning This is maintained automatically, and shouldn't normally need to be modified.
  */
 @property (nonatomic, copy) NSString *_Nullable releaseName;
 
