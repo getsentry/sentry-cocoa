@@ -1,4 +1,5 @@
 #import "SentryTracer.h"
+#import "NSDictionary+SentrySanitize.h"
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryClient.h"
@@ -691,7 +692,7 @@ static NSLock *profilerLock;
                 [mutableDictionary[@"data"] isKindOfClass:NSDictionary.class]) {
                 [data addEntriesFromDictionary:mutableDictionary[@"data"]];
             }
-            mutableDictionary[@"data"] = data;
+            mutableDictionary[@"data"] = [data sentry_sanitize];
         }
     }
 
