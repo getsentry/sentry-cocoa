@@ -130,6 +130,19 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         assertNoOOMSent()
     }
     
+    func testIsSimulatorBuild_NoOOM() {
+        fixture.crashWrapper.internalIsSimulatorBuild = true
+        sut.start()
+        
+        goToForeground()
+        goToBackground()
+        terminateApp()
+        
+        sut.start()
+        
+        assertNoOOMSent()
+    }
+    
     func testTerminatedNormally_NoOOM() {
         sut.start()
         goToForeground()
@@ -274,7 +287,6 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     
     private func terminateApp() {
         TestNotificationCenter.willTerminate()
-        sut.stop()
     }
     
     private func assertOOMEventSent() {

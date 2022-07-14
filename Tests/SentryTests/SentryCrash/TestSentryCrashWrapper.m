@@ -10,6 +10,7 @@
     instance.internalActiveDurationSinceLastCrash = NO;
     instance.internalActiveDurationSinceLastCrash = 0;
     instance.internalIsBeingTraced = NO;
+    instance.internalIsSimulatorBuild = NO;
     instance.internalIsApplicationInForeground = YES;
     instance.installAsyncHooksCalled = NO;
     instance.closeCalled = NO;
@@ -29,6 +30,11 @@
 - (BOOL)isBeingTraced
 {
     return self.internalIsBeingTraced;
+}
+
+- (BOOL)isSimulatorBuild
+{
+    return self.internalIsSimulatorBuild;
 }
 
 - (BOOL)isApplicationInForeground

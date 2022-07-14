@@ -37,6 +37,8 @@ extern "C" {
  */
 SentryCrashMonitorAPI *sentrycrashcm_system_getAPI(void);
 
+bool sentrycrash_isSimulatorBuild(void);
+
 #ifdef __cplusplus
 }
 #endif

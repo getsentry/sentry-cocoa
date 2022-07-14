@@ -351,6 +351,12 @@ isSimulatorBuild()
 #endif
 }
 
+bool
+sentrycrash_isSimulatorBuild(void)
+{
+    return isSimulatorBuild();
+}
+
 /** The file path for the bundle’s App Store receipt.
  *
  * @return App Store receipt for iOS 7+, nil otherwise.
