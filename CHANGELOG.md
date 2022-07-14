@@ -5,7 +5,7 @@
 ### Features
 
 - Add enableAutoBreadcrumbTracking option (#1958)
-- Automatic nest new spans with the ui life cycle function (#1959)
+- Automatic nest spans with the UI life cycle (#1959)
 
 ### Fixes
 
