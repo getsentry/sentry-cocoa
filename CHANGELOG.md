@@ -12,6 +12,7 @@
 
 ### Fixes
 
+- Don't track OOMs for simulators (#1970)
 - Properly sanitize the event context and SDK information (#1943)
 - Don't send error 429 as `network_error` (#1957)
 - Sanitize Span data (#1963)

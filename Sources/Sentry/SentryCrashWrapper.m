@@ -5,6 +5,7 @@
 #import <Foundation/Foundation.h>
 #import <SentryCrashCachedData.h>
 #import <SentryCrashDebug.h>
+#import <SentryCrashMonitor_System.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,6 +32,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isBeingTraced
 {
     return sentrycrashdebug_isBeingTraced();
+}
+
+- (BOOL)isSimulatorBuild
+{
+    return sentrycrash_isSimulatorBuild();
 }
 
 - (BOOL)isApplicationInForeground
