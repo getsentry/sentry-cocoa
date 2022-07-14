@@ -362,16 +362,9 @@ class SentryTracerTests: XCTestCase {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
         
-        let sut = fixture.getSut()
-        sut.startTimestamp = fixture.appStartEnd.addingTimeInterval(5)
-        sut.finish()
-        fixture.hub.group.wait()
+        whenFinishingAutoUITransaction(startTimestamp: 5)
         
-        XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
-        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
-        let measurements = serializedTransaction["measurements"] as? [String: [String: Double]]
-        
-        XCTAssertEqual(["app_start_cold": ["value": fixture.appStartDuration * 1_000]], measurements)
+        assertMeasurements(["app_start_cold": ["value": fixture.appStartDuration * 1_000]])
         
         let transaction = fixture.hub.capturedEventsWithScopes.first!.event as! Transaction
         assertAppStartsSpanAdded(transaction: transaction, startType: "Cold Start", operation: fixture.appStartColdOperation, appStartMeasurement: appStartMeasurement)
@@ -381,16 +374,9 @@ class SentryTracerTests: XCTestCase {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold, preWarmed: true)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
         
-        let sut = fixture.getSut()
-        sut.startTimestamp = fixture.appStartEnd.addingTimeInterval(4)
-        sut.finish()
-        fixture.hub.group.wait()
+        whenFinishingAutoUITransaction(startTimestamp: 5)
         
-        XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
-        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
-        let measurements = serializedTransaction["measurements"] as? [String: [String: Double]]
-        
-        XCTAssertEqual(["app_start_cold": ["value": fixture.appStartDuration * 1_000]], measurements)
+        assertMeasurements(["app_start_cold": ["value": fixture.appStartDuration * 1_000]])
         
         let transaction = fixture.hub.capturedEventsWithScopes.first!.event as! Transaction
         assertPreWarmedAppStartsSpanAdded(transaction: transaction, startType: "Cold Start", operation: fixture.appStartColdOperation, appStartMeasurement: appStartMeasurement)
@@ -400,16 +386,9 @@ class SentryTracerTests: XCTestCase {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
         
-        let sut = fixture.getSut()
-        sut.startTimestamp = fixture.appStartEnd.addingTimeInterval(-5)
-        sut.finish()
-        fixture.hub.group.wait()
+        whenFinishingAutoUITransaction(startTimestamp: -5)
         
-        XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
-        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
-        let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
-        
-        XCTAssertEqual(["app_start_warm": ["value": 500]], measurements)
+        assertMeasurements(["app_start_warm": ["value": 500]])
         
         let transaction = fixture.hub.capturedEventsWithScopes.first!.event as! Transaction
         assertAppStartsSpanAdded(transaction: transaction, startType: "Warm Start", operation: fixture.appStartWarmOperation, appStartMeasurement: appStartMeasurement)
@@ -453,26 +432,20 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(0, spans.count)
     }
     
-    func testAddWarmAppStartMeasurement_TooOldTransaction_NotPutOnNonAutoUITransaction() {
+    func testAddWarmAppStartMeasurement_TooOldTransaction_NotPutOnTransaction() {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
         
-        let sut = fixture.getSut()
-        sut.startTimestamp = fixture.appStartEnd.addingTimeInterval(5.1)
-        sut.finish()
-        fixture.hub.group.wait()
+        whenFinishingAutoUITransaction(startTimestamp: 5.1)
         
         assertAppStartMeasurementNotPutOnTransaction()
     }
     
-    func testAddWarmAppStartMeasurement_TooYoungTransaction_NotPutOnNonAutoUITransaction() {
+    func testAddWarmAppStartMeasurement_TooYoungTransaction_NotPutOnTransaction() {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
         
-        let sut = fixture.getSut()
-        sut.startTimestamp = fixture.appStartEnd.addingTimeInterval(-5.1)
-        sut.finish()
-        fixture.hub.group.wait()
+        whenFinishingAutoUITransaction(startTimestamp: -5.1)
         
         assertAppStartMeasurementNotPutOnTransaction()
     }
@@ -749,6 +722,13 @@ class SentryTracerTests: XCTestCase {
         return transaction.serialize()
     }
     
+    private func whenFinishingAutoUITransaction(startTimestamp: TimeInterval) {
+        let sut = fixture.getSut()
+        sut.startTimestamp = fixture.appStartEnd.addingTimeInterval(startTimestamp)
+        sut.finish()
+        fixture.hub.group.wait()
+    }
+    
     private func assertTransactionNotCaptured(_ tracer: SentryTracer) {
         fixture.hub.group.wait()
         XCTAssertEqual(0, fixture.hub.capturedEventsWithScopes.count)
@@ -833,6 +813,14 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first?.event.serialize()
         XCTAssertNil(serializedTransaction?["measurements"])
+    }
+    
+    private func assertMeasurements(_ expectedMeasurements: [String: [String: Double]]) {
+        XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
+        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
+        let measurements = serializedTransaction["measurements"] as? [String: [String: Double]]
+        
+        XCTAssertEqual(expectedMeasurements, measurements)
     }
     
 }

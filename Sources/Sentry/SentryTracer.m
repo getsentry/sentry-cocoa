@@ -581,6 +581,8 @@ static NSLock *profilerLock;
         return @[];
     }
 
+    NSMutableArray<SentrySpan *> *appStartSpans = [NSMutableArray new];
+
     NSDate *appStartEndTimestamp = [appStartMeasurement.appStartTimestamp
         dateByAddingTimeInterval:appStartMeasurement.duration];
 
@@ -590,17 +592,7 @@ static NSLock *profilerLock;
     [appStartSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
     [appStartSpan setTimestamp:appStartEndTimestamp];
 
-    SentrySpan *appInitSpan = [self buildSpan:appStartSpan.context.spanId
-                                    operation:operation
-                                  description:@"UIKit and Application Init"];
-    [appInitSpan setStartTimestamp:appStartMeasurement.moduleInitializationTimestamp];
-    [appInitSpan setTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
-
-    SentrySpan *frameRenderSpan = [self buildSpan:appStartSpan.context.spanId
-                                        operation:operation
-                                      description:@"Initial Frame Render"];
-    [frameRenderSpan setStartTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
-    [frameRenderSpan setTimestamp:appStartEndTimestamp];
+    [appStartSpans addObject:appStartSpan];
 
     if (!appStartMeasurement.preWarmed) {
         SentrySpan *premainSpan = [self buildSpan:appStartSpan.context.spanId
@@ -608,17 +600,31 @@ static NSLock *profilerLock;
                                       description:@"Pre Runtime Init"];
         [premainSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
         [premainSpan setTimestamp:appStartMeasurement.runtimeInitTimestamp];
+        [appStartSpans addObject:premainSpan];
 
         SentrySpan *runtimeInitSpan = [self buildSpan:appStartSpan.context.spanId
                                             operation:operation
                                           description:@"Runtime Init to Pre Main Initializers"];
         [runtimeInitSpan setStartTimestamp:appStartMeasurement.runtimeInitTimestamp];
         [runtimeInitSpan setTimestamp:appStartMeasurement.moduleInitializationTimestamp];
-
-        return @[ appStartSpan, premainSpan, runtimeInitSpan, appInitSpan, frameRenderSpan ];
-    } else {
-        return @[ appStartSpan, appInitSpan, frameRenderSpan ];
+        [appStartSpans addObject:runtimeInitSpan];
     }
+
+    SentrySpan *appInitSpan = [self buildSpan:appStartSpan.context.spanId
+                                    operation:operation
+                                  description:@"UIKit and Application Init"];
+    [appInitSpan setStartTimestamp:appStartMeasurement.moduleInitializationTimestamp];
+    [appInitSpan setTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
+    [appStartSpans addObject:appInitSpan];
+
+    SentrySpan *frameRenderSpan = [self buildSpan:appStartSpan.context.spanId
+                                        operation:operation
+                                      description:@"Initial Frame Render"];
+    [frameRenderSpan setStartTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
+    [frameRenderSpan setTimestamp:appStartEndTimestamp];
+    [appStartSpans addObject:frameRenderSpan];
+
+    return appStartSpans;
 }
 
 - (void)addMeasurements:(SentryTransaction *)transaction
