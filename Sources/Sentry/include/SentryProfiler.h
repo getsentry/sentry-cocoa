@@ -5,6 +5,8 @@
 
 #    import "SentryCompiler.h"
 
+@class SentryScreenFrames;
+
 NS_ASSUME_NONNULL_BEGIN
 
 SENTRY_EXTERN_C_BEGIN
@@ -29,13 +31,19 @@ SENTRY_EXTERN_C_END
 
 /** Clears all accumulated profiling data and starts profiling. */
 - (void)start;
+
 /** Stops profiling. */
 - (void)stop;
+
+/** Whether or not the sampling profiler is currently running. */
+- (BOOL)isRunning;
 
 /**
  * Builds an envelope item using the currently accumulated profile data.
  */
-- (nullable SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction;
+- (nullable SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction
+                                                       frameInfo:
+                                                           (nullable SentryScreenFrames *)frameInfo;
 
 @end
 

@@ -20,6 +20,12 @@ class LaunchUITests: XCTestCase {
         super.tearDown()
     }
 
+    func testBreadcrumbData() {
+        let breadcrumbLabel = app.staticTexts["breadcrumbLabel"]
+        XCTAssertTrue(breadcrumbLabel.waitForExistence(), "Breadcrumb label not found.")
+        XCTAssertEqual(breadcrumbLabel.label, "{ category: ui.lifecycle, parentViewController: UINavigationController, beingPresented: false, window_isKeyWindow: true, is_window_rootViewController: false }")
+      }
+
     func testLoremIpsum() {
         app.buttons["loremIpsumButton"].tap()
         XCTAssertTrue(app.textViews.firstMatch.waitForExistence(), "Lorem Ipsum not loaded.")

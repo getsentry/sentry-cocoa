@@ -18,7 +18,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleAspectFit" axis="vertical" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="480-5y-FtF">
-                                <rect key="frame" x="8" y="252.5" width="398" height="445"/>
+                                <rect key="frame" x="8" y="242.5" width="398" height="465.5"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="VbH-LD-DBn">
                                         <rect key="frame" x="0.0" y="0.0" width="398" height="300"/>
@@ -185,7 +185,7 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="UrL-kT-AJU">
-                                        <rect key="frame" x="0.0" y="300" width="398" height="145"/>
+                                        <rect key="frame" x="0.0" y="300" width="398" height="165.5"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="DSN  " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="m3h-wb-Xfa">
                                                 <rect key="frame" x="8" y="32" width="382" height="20.5"/>
@@ -215,6 +215,13 @@
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Last breadcrumb" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ccs-Ny-MiI" userLabel="breadcrumb">
+                                                <rect key="frame" x="8" y="137" width="382" height="20.5"/>
+                                                <accessibility key="accessibilityConfiguration" identifier="breadcrumbLabel"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
                                         </subviews>
                                         <edgeInsets key="layoutMargins" top="32" left="8" bottom="8" right="8"/>
                                     </stackView>
@@ -233,6 +240,7 @@
                     <connections>
                         <outlet property="anrFillingRunLoopButton" destination="TSF-10-5ts" id="Qp6-8q-IPH"/>
                         <outlet property="anrFullyBlockingButton" destination="Yi7-GN-26l" id="tMf-U3-onN"/>
+                        <outlet property="breadcrumbLabel" destination="Ccs-Ny-MiI" id="WqJ-PA-KfJ"/>
                         <outlet property="dsnTextField" destination="L2a-LY-eQ7" id="TWn-0u-2v7"/>
                         <outlet property="framesLabel" destination="Lcm-n2-ys4" id="7mO-bc-HWw"/>
                     </connections>
@@ -372,7 +380,7 @@
                                 </items>
                             </navigationBar>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" preservesSuperviewLayoutMargins="YES" layoutMarginsFollowReadableWidth="YES" delaysContentTouches="NO" editable="NO" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sla-j3-cfX">
-                                <rect key="frame" x="20" y="70" width="374" height="826"/>
+                                <rect key="frame" x="19" y="70" width="374" height="825"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <color key="textColor" systemColor="labelColor"/>

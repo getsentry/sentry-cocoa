@@ -16,6 +16,8 @@ SENTRY_NO_INIT
 
 - (BOOL)isBeingTraced;
 
+- (BOOL)isSimulatorBuild;
+
 - (BOOL)isApplicationInForeground;
 
 - (void)installAsyncHooks;
