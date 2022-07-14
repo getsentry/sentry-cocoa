@@ -289,7 +289,7 @@ isSimulatorBuild()
     profile[@"screen_frame_rates"] = relativeFrameTimestampsNs;
 #    endif // SENTRY_HAS_UIKIT
 
-//    profile[@"sample_rate"] =
+    //    profile[@"sample_rate"] =
 
     NSError *error = nil;
     const auto JSONData = [SentrySerialization dataWithJSONObject:profile error:&error];

@@ -64,9 +64,10 @@ typedef BOOL (^SentryShouldQueueEvent)(
     NSHTTPURLResponse *_Nullable response, NSError *_Nullable error);
 
 /**
- * Indicates a percentage of the data to send to the Sentry backend. Setting this to e.g. @c 0 or @c nil discards
- * all data, @c 1.0 collects all data, @c 0.01 collects 1% of all data.
- * @warning A sample rate must either be @c nil or in @c [0.0,1.0]. When using a value out of range the SDK defaults to @c 0.
+ * Indicates a percentage of the data to send to the Sentry backend. Setting this to e.g. @c 0 or @c
+ * nil discards all data, @c 1.0 collects all data, @c 0.01 collects 1% of all data.
+ * @warning A sample rate must either be @c nil or in @c [0.0,1.0]. When using a value out of range
+ * the SDK defaults to @c 0.
  */
 typedef NSNumber SentrySampleRate;
 

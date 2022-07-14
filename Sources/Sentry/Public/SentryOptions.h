@@ -111,7 +111,7 @@ NS_SWIFT_NAME(Options)
 
 /**
  * Indicates the percentage of events being sent to Sentry.
- * @seealso See @c SentrySampleRate for discussion on valid sample rate values. 
+ * @seealso See @c SentrySampleRate for discussion on valid sample rate values.
  */
 @property (nullable, nonatomic, copy) SentrySampleRate *sampleRate;
 
@@ -311,16 +311,20 @@ NS_SWIFT_NAME(Options)
 
 /**
  * The rate at which to sample profiles attached to transactions.
- * @note To calculate how many profiles are ultimately sampled, @c tracesSampleRate must be combined with the profile sample rate, e.g. if @c tracesSampleRate is @c 0.5 and the profile sample rate is @c 0.2, then profiles will be sampled at a rate of @c 0.5*0.2=0.1 of all traced events.
+ * @note To calculate how many profiles are ultimately sampled, @c tracesSampleRate must be combined
+ * with the profile sample rate, e.g. if @c tracesSampleRate is @c 0.5 and the profile sample rate
+ * is @c 0.2, then profiles will be sampled at a rate of @c 0.5*0.2=0.1 of all traced events.
  * @seealso See @c SentrySampleRate for discussion on valid sample rate values.
  */
 @property (nonatomic, assign) SentrySampleRate *profilingSampleRate;
 
 /**
  * A callback to a user-defined profile sampler function.
- * @seealso See @c profilingSampleRate for discussion on how the profile sample rate combines with the transaction sample rate.
+ * @seealso See @c profilingSampleRate for discussion on how the profile sample rate combines with
+ * the transaction sample rate.
  * @seealso See @c SentrySampleRate for discussion on valid sample rate values.
- * @return @c 0 or @c NIL to discard all profile data, @c 1.0 to collect all profile data, @c 0.01 to collect 1% of all profile data, etc.
+ * @return @c 0 or @c NIL to discard all profile data, @c 1.0 to collect all profile data, @c 0.01
+ * to collect 1% of all profile data, etc.
  */
 @property (nullable, nonatomic) SentryTracesSamplerCallback profileSampler;
 #endif
