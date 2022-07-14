@@ -9,8 +9,8 @@
 @interface
 SentryOptions ()
 
-@property (nullable, nonatomic, copy, readonly) NSNumber *defaultSampleRate;
-@property (nullable, nonatomic, copy, readonly) NSNumber *defaultTracesSampleRate;
+@property (nullable, nonatomic, copy, readonly) SentrySampleRate *defaultSampleRate;
+@property (nullable, nonatomic, copy, readonly) SentrySampleRate *defaultTracesSampleRate;
 @property (nonatomic, strong) NSMutableSet<NSString *> *disabledIntegrations;
 
 @end
@@ -340,7 +340,7 @@ SentryOptions ()
     _inAppExcludes = [self.inAppExcludes arrayByAddingObject:inAppExclude];
 }
 
-- (void)setSampleRate:(NSNumber *)sampleRate
+- (void)setSampleRate:(SentrySampleRate *)sampleRate
 {
     if (sampleRate == nil) {
         _sampleRate = nil;
@@ -351,13 +351,13 @@ SentryOptions ()
     }
 }
 
-- (BOOL)isValidSampleRate:(NSNumber *)sampleRate
+- (BOOL)isValidSampleRate:(SentrySampleRate *)sampleRate
 {
     // Same valid range, so we can reuse the logic.
     return [self isValidTracesSampleRate:sampleRate];
 }
 
-- (void)setTracesSampleRate:(NSNumber *)tracesSampleRate
+- (void)setTracesSampleRate:(SentrySampleRate *)tracesSampleRate
 {
     if (tracesSampleRate == nil) {
         _tracesSampleRate = nil;
@@ -368,7 +368,7 @@ SentryOptions ()
     }
 }
 
-- (BOOL)isValidTracesSampleRate:(NSNumber *)tracesSampleRate
+- (BOOL)isValidTracesSampleRate:(SentrySampleRate *)tracesSampleRate
 {
     double rate = [tracesSampleRate doubleValue];
     return rate >= 0 && rate <= 1.0;

@@ -1,3 +1,4 @@
+#import "SentryDefines.h"
 #import "SentryRandom.h"
 #import "SentrySampleDecision.h"
 #import <Foundation/Foundation.h>
@@ -10,10 +11,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) SentrySampleDecision decision;
 
-@property (nullable, nonatomic, strong, readonly) NSNumber *sampleRate;
+@property (nullable, nonatomic, strong, readonly) SentrySampleRate *sampleRate;
 
 - (instancetype)initWithDecision:(SentrySampleDecision)decision
-                   forSampleRate:(nullable NSNumber *)sampleRate;
+                   forSampleRate:(nullable SentrySampleRate *)sampleRate;
 
 @end
 

@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentryTracesSamplerDecision
 
 - (instancetype)initWithDecision:(SentrySampleDecision)decision
-                   forSampleRate:(nullable NSNumber *)sampleRate
+                   forSampleRate:(nullable SentrySampleRate *)sampleRate
 {
     if (self = [super init]) {
         _decision = decision;

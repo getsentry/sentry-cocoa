@@ -5,11 +5,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryOptions (Private)
 
-@property (nullable, nonatomic, copy, readonly) NSNumber *defaultTracesSampleRate;
+@property (nullable, nonatomic, copy, readonly) SentrySampleRate *defaultTracesSampleRate;
 
-- (BOOL)isValidSampleRate:(NSNumber *)sampleRate;
+- (BOOL)isValidSampleRate:(SentrySampleRate *)sampleRate;
 
-- (BOOL)isValidTracesSampleRate:(NSNumber *)tracesSampleRate;
+- (BOOL)isValidTracesSampleRate:(SentrySampleRate *)tracesSampleRate;
 
 @property (nonatomic, strong, readonly) NSSet<NSString *> *enabledIntegrations;
 

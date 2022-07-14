@@ -534,7 +534,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return event;
 }
 
-- (BOOL)isSampled:(NSNumber *)sampleRate
+- (BOOL)isSampled:(SentrySampleRate *)sampleRate
 {
     if (nil == sampleRate) {
         return NO;
