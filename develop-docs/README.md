@@ -30,20 +30,22 @@ CI runs UI tests on simulators via the `test.yml` workflow, and on devices via `
 
 ### Performance benchmarking
 
-* [Performance benchmarks](../Samples/iOS-Swift/iOS-SwiftUITests/SDKPerformanceBenchmarkTests.swift) calculates the overhead CPU usage of the Sentry profiler. These only run on devices running the latest iOS major series.
-
-The benchmark runs in a UI test ([`SDKPerformanceBenchmarkTests`](../Samples/iOS-Swift/iOS-SwiftUITests/SDKPerformanceBenchmarkTests.swift)) using the iOS-Swift sample app, which has a view controller for this purpose: [`PerformanceViewController`](../Samples/iOS-Swift/iOS-Swift/ViewControllers/PerformanceViewController.swift).
+Once daily and for every PR via [Github action](../.github/workflows/benchmarking.yml), the benchmark runs in Sauce Labs, on a [high-end device](https://github.com/getsentry/sentry/blob/8986f81e19f63ee370b1649e08630c9b946c87ed/src/sentry/profiles/device.py#L43-L49) we categorize. Benchmarks run from an XCUITest (`PerformanceBenchmarks` target) using the iOS-Swift sample app, under the `iOS-Swift-Benchmarking` scheme. [`PerformanceViewController`](../Samples/iOS-Swift/iOS-Swift/ViewControllers/PerformanceViewController.swift) provides a start and stop button for controlling when the benchmarking runs, and a text field to marshal observations from within the test harness app into the test runner app. There, we assert that the P90 of all trials remains under 5%. We also print the raw results to the test runner's console logs for postprocessing into reports with `//scripts/process-benchmark-raw-results.py`.
 
 #### Test procedure
 
 - Tap the button to start a Sentry transaction with the associated profiling.
 - Run a loop performing large amount of calculations to use as much CPU as possible. This simulates something an app developer would want to profile in a real world scenario.
-- While benchmarking, run a sampling profiler at 10 Hz to calculate the CPU usage of each thread; in particular the Sentry profiler's, to calculate its relative usage.
+- While benchmarking, run a sampling profiler at 10 Hz to calculate the CPU usage of each thread, in particular the Sentry profiler's, to calculate its relative usage.
 - Tap the button to stop the transaction after waiting for 15 seconds.
-- Grab the value written by the test app in a UITextField accessible to the UI test runner so it can extract the value and use it in an `XCTAssert`.
+- Calculate the total time used by app threads and separately, the profiler's thread. Keep separated by system call and user call times.
+- Write these four values as CSV into the text field accessible as an XCUIElement in the runner app.
 
 #### Test Plan
-- Run the procedure 5 times, then assert that the 90th percentile remains under 5% so we can be alerted via CI if it spikes.
+
+- Run the procedure 20 times, then assert that the 90th percentile remains under 5% so we can be alerted via CI if it spikes.
+    - Sauce Labs allows relaxing the timeout for a suite of tests and for a `XCTestCase` subclass' collection of test case methods, but each test case in the suite must run in less than 15 minutes. 20 trials takes too long, so we split it up into multiple test cases, each running a subset of the trials. 
+    - This is done by dynamically generating test case methods in `SentrySDKPerformanceBenchmarkTests`, which is necessarily written in Objective-C since this is not possible to do in Swift tests. By doing this dynamically, we can easily fine tune how we split up the work to account for changes in the test duration or in constraints on how things run in Sauce Labs etc.
 
 ## Auto UI Performance Class Overview
 

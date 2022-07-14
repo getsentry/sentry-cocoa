@@ -176,12 +176,13 @@ SentryAppStartTracker ()
             appStartDuration = 0;
         }
 
-        SentryAppStartMeasurement *appStartMeasurement =
-            [[SentryAppStartMeasurement alloc] initWithType:appStartType
-                                          appStartTimestamp:self.sysctl.processStartTimestamp
-                                                   duration:appStartDuration
-                                       runtimeInitTimestamp:runtimeInit
-                                didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
+        SentryAppStartMeasurement *appStartMeasurement = [[SentryAppStartMeasurement alloc]
+                             initWithType:appStartType
+                        appStartTimestamp:self.sysctl.processStartTimestamp
+                                 duration:appStartDuration
+                     runtimeInitTimestamp:runtimeInit
+            moduleInitializationTimestamp:self.sysctl.moduleInitializationTimestamp
+              didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
 
         SentrySDK.appStartMeasurement = appStartMeasurement;
     };

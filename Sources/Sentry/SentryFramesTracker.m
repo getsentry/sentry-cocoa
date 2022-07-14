@@ -1,11 +1,17 @@
 #import "SentryFramesTracker.h"
 #import "SentryDisplayLinkWrapper.h"
-#import <SentryLog.h>
+#import "SentryProfilingConditionals.h"
+#import "SentryTracer.h"
 #import <SentryScreenFrames.h>
 #include <stdatomic.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
+
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
+/** A mutable version of @c SentryFrameInfoTimeSeries so we can accumulate results. */
+typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *> SentryMutableFrameInfoTimeSeries;
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 static CFTimeInterval const SentryFrozenFrameThreshold = 0.7;
 static CFTimeInterval const SentryPreviousFrameInitialValue = -1;
@@ -21,6 +27,10 @@ SentryFramesTracker ()
 
 @property (nonatomic, strong, readonly) SentryDisplayLinkWrapper *displayLinkWrapper;
 @property (nonatomic, assign) CFTimeInterval previousFrameTimestamp;
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
+@property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *frameTimestamps;
+@property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *frameRateTimestamps;
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
 
@@ -71,7 +81,18 @@ SentryFramesTracker ()
     atomic_store_explicit(&_slowFrames, 0, SentryFramesMemoryOrder);
 
     self.previousFrameTimestamp = SentryPreviousFrameInitialValue;
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
+    [self resetProfilingTimestamps];
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
+
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
+- (void)resetProfilingTimestamps
+{
+    self.frameTimestamps = [SentryMutableFrameInfoTimeSeries array];
+    self.frameRateTimestamps = [SentryMutableFrameInfoTimeSeries array];
+}
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 - (void)start
 {
@@ -101,6 +122,18 @@ SentryFramesTracker ()
             = 1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp);
     }
 
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
+    if (self.currentTracer.isProfiling
+        && (self.frameRateTimestamps.count == 0
+            || self.frameRateTimestamps.lastObject[@"frame_rate"].doubleValue
+                != actualFramesPerSecond)) {
+        [self.frameRateTimestamps addObject:@{
+            @"timestamp" : @(self.displayLinkWrapper.timestamp),
+            @"frame_rate" : @(actualFramesPerSecond),
+        }];
+    }
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
     // Most frames take just a few microseconds longer than the optimal caculated duration.
     // Therefore we substract one, because otherwise almost all frames would be slow.
     CFTimeInterval slowFrameThreshold = 1 / (actualFramesPerSecond - 1);
@@ -110,14 +143,29 @@ SentryFramesTracker ()
 
     if (frameDuration > slowFrameThreshold && frameDuration <= SentryFrozenFrameThreshold) {
         atomic_fetch_add_explicit(&_slowFrames, 1, SentryFramesMemoryOrder);
-    }
-
-    if (frameDuration > SentryFrozenFrameThreshold) {
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
+        [self recordTimestampStart:@(self.previousFrameTimestamp) end:@(lastFrameTimestamp)];
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
+    } else if (frameDuration > SentryFrozenFrameThreshold) {
         atomic_fetch_add_explicit(&_frozenFrames, 1, SentryFramesMemoryOrder);
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
+        [self recordTimestampStart:@(self.previousFrameTimestamp) end:@(lastFrameTimestamp)];
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
 
     atomic_fetch_add_explicit(&_totalFrames, 1, SentryFramesMemoryOrder);
+
+    self.previousFrameTimestamp = lastFrameTimestamp;
 }
+
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
+- (void)recordTimestampStart:(NSNumber *)start end:(NSNumber *)end
+{
+    if (self.currentTracer.isProfiling) {
+        [self.frameTimestamps addObject:@{ @"start_timestamp" : start, @"end_timestamp" : end }];
+    }
+}
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 - (SentryScreenFrames *)currentFrames
 {
@@ -125,7 +173,15 @@ SentryFramesTracker ()
     NSUInteger slow = atomic_load_explicit(&_slowFrames, SentryFramesMemoryOrder);
     NSUInteger frozen = atomic_load_explicit(&_frozenFrames, SentryFramesMemoryOrder);
 
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
+    return [[SentryScreenFrames alloc] initWithTotal:total
+                                              frozen:frozen
+                                                slow:slow
+                                     frameTimestamps:self.frameTimestamps
+                                 frameRateTimestamps:self.frameRateTimestamps];
+#    else
     return [[SentryScreenFrames alloc] initWithTotal:total frozen:frozen slow:slow];
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 - (void)stop

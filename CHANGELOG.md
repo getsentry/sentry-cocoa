@@ -4,13 +4,19 @@
 
 ### Features
 
+- Enhance the UIViewController breadcrumbs with more data (#1945)
+- feat: Add extra app start span (#1952)
 - Add enableAutoBreadcrumbTracking option (#1958)
 - Automatic nest spans with the UI life cycle (#1959)
+- Upload frame rendering timestamps to correlate to sampled backtraces (#1910)
 
 ### Fixes
 
 - Properly sanitize the event context and SDK information (#1943)
 - Don't send error 429 as `network_error` (#1957)
+- Sanitize Span data (#1963)
+- Deprecate not needed option `sdkInfo` (#1960)
+- Crash in profiling logger (#1964)
 
 ## 7.20.0
 
@@ -41,7 +47,7 @@
 ## 7.18.0
 
 ### Features
- 
+
 - Replace tracestate header with baggage (#1867)
 
 ### Fixes

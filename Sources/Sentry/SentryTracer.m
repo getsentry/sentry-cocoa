@@ -1,4 +1,5 @@
 #import "SentryTracer.h"
+#import "NSDictionary+SentrySanitize.h"
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryClient.h"
@@ -42,6 +43,7 @@ SentryTracer ()
 @property (nonatomic) BOOL isWaitingForChildren;
 @property (nonatomic) NSTimeInterval idleTimeout;
 @property (nonatomic, nullable, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
+@property (nonatomic, assign, readwrite) BOOL isProfiling;
 
 @end
 
@@ -146,18 +148,22 @@ static NSLock *profilerLock;
             initSlowFrames = currentFrames.slow;
             initFrozenFrames = currentFrames.frozen;
         }
-#endif
+#endif // SENTRY_HAS_UIKIT
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         if ([_hub getClient].options.enableProfiling) {
             [profilerLock lock];
             if (profiler == nil) {
                 profiler = [[SentryProfiler alloc] init];
                 [SentryLog logWithMessage:@"Starting profiler." andLevel:kSentryLevelDebug];
+#    if SENTRY_HAS_UIKIT
+                framesTracker.currentTracer = self;
+                [framesTracker resetProfilingTimestamps];
+#    endif // SENTRY_HAS_UIKIT
                 [profiler start];
             }
             [profilerLock unlock];
         }
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
 
     return self;
@@ -420,17 +426,23 @@ static NSLock *profilerLock;
         self.finishCallback = nil;
     }
 
+    if (_hub == nil)
+        return;
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+    SentryScreenFrames *frameInfo;
     if ([_hub getClient].options.enableProfiling) {
         [SentryLog logWithMessage:@"Stopping profiler." andLevel:kSentryLevelDebug];
         [profilerLock lock];
         [profiler stop];
+#    if SENTRY_HAS_UIKIT
+        frameInfo = SentryFramesTracker.sharedInstance.currentFrames;
+        [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
+        SentryFramesTracker.sharedInstance.currentTracer = nil;
+#    endif // SENTRY_HAS_UIKIT
         [profilerLock unlock];
     }
-#endif
-
-    if (_hub == nil)
-        return;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
         if (span == self) {
@@ -475,11 +487,13 @@ static NSLock *profilerLock;
     }
 
     NSMutableArray<SentryEnvelopeItem *> *additionalEnvelopeItems = [NSMutableArray array];
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if ([_hub getClient].options.enableProfiling) {
         [profilerLock lock];
         if (profiler != nil) {
-            SentryEnvelopeItem *profile = [profiler buildEnvelopeItemForTransaction:transaction];
+            SentryEnvelopeItem *profile = [profiler buildEnvelopeItemForTransaction:transaction
+                                                                          frameInfo:frameInfo];
             if (profile != nil) {
                 [additionalEnvelopeItems addObject:profile];
             }
@@ -611,16 +625,22 @@ static NSLock *profilerLock;
                                    description:type];
     [appStartSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
 
+    SentrySpan *premainSpan = [self buildSpan:appStartSpan.context.spanId
+                                    operation:operation
+                                  description:@"Pre Runtime Init"];
+    [premainSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
+    [premainSpan setTimestamp:appStartMeasurement.runtimeInitTimestamp];
+
     SentrySpan *runtimeInitSpan = [self buildSpan:appStartSpan.context.spanId
                                         operation:operation
-                                      description:@"Pre main"];
-    [runtimeInitSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
-    [runtimeInitSpan setTimestamp:appStartMeasurement.runtimeInitTimestamp];
+                                      description:@"Runtime Init to Pre Main Initializers"];
+    [runtimeInitSpan setStartTimestamp:appStartMeasurement.runtimeInitTimestamp];
+    [runtimeInitSpan setTimestamp:appStartMeasurement.moduleInitializationTimestamp];
 
     SentrySpan *appInitSpan = [self buildSpan:appStartSpan.context.spanId
                                     operation:operation
                                   description:@"UIKit and Application Init"];
-    [appInitSpan setStartTimestamp:appStartMeasurement.runtimeInitTimestamp];
+    [appInitSpan setStartTimestamp:appStartMeasurement.moduleInitializationTimestamp];
     [appInitSpan setTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
 
     SentrySpan *frameRenderSpan = [self buildSpan:appStartSpan.context.spanId
@@ -631,7 +651,7 @@ static NSLock *profilerLock;
 
     [appStartSpan setTimestamp:appStartEndTimestamp];
 
-    return @[ appStartSpan, runtimeInitSpan, appInitSpan, frameRenderSpan ];
+    return @[ appStartSpan, premainSpan, runtimeInitSpan, appInitSpan, frameRenderSpan ];
 }
 
 - (void)addMeasurements:(SentryTransaction *)transaction
@@ -708,7 +728,7 @@ static NSLock *profilerLock;
                 [mutableDictionary[@"data"] isKindOfClass:NSDictionary.class]) {
                 [data addEntriesFromDictionary:mutableDictionary[@"data"]];
             }
-            mutableDictionary[@"data"] = data;
+            mutableDictionary[@"data"] = [data sentry_sanitize];
         }
     }
 
@@ -749,6 +769,16 @@ static NSLock *profilerLock;
     }
     return nil;
 }
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+- (BOOL)isProfiling
+{
+    [profilerLock lock];
+    BOOL isRunning = profiler.isRunning;
+    [profilerLock unlock];
+    return isRunning;
+}
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
 

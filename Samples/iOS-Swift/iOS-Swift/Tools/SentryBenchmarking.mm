@@ -73,7 +73,7 @@ dispatch_queue_t queue;
 
 @implementation SentryBenchmarking
 
-+ (void)startBenchmarkProfile
++ (void)startBenchmark
 {
     const auto attr = dispatch_queue_attr_make_with_qos_class(
         DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_USER_INTERACTIVE, 0);
@@ -86,17 +86,19 @@ dispatch_queue_t queue;
     dispatch_resume(source);
 }
 
-+ (double)retrieveBenchmarks
++ (NSString *)stopBenchmark
 {
     dispatch_cancel(source);
 
     [samples addObject:cpuInfoByThread()];
 
     if (samples.count < 2) {
-        return -1;
+        printf("[Sentry Benchmark] not enough samples were gathered to compute CPU usage.\n");
+        return nil;
     }
 
-    const auto totals = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+    const auto systemTimeTotals = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+    const auto userTimeTotals = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
     for (auto i = 0; i < samples.count - 2; i++) {
         const auto before = samples[i];
         const auto after = samples[i + 1];
@@ -106,8 +108,6 @@ dispatch_queue_t queue;
         [persistedThreads intersectSet:afterKeys];
         const auto destroyedThreads = [NSMutableSet<NSString *> setWithArray:before.allKeys];
         [destroyedThreads minusSet:persistedThreads];
-
-        printf("%lu destroyed threads\n", (unsigned long)destroyedThreads.count);
 
         for (NSString *key : persistedThreads) {
             const auto lastSystemTime = before[key][0].integerValue;
@@ -119,23 +119,31 @@ dispatch_queue_t queue;
                 [destroyedThreads addObject:key];
                 continue;
             }
-            const auto thisDelta = thisSystemTime + thisUserTime - lastSystemTime - lastUserTime;
-            if (!totals[key]) {
-                totals[key] = @(thisDelta);
+            const auto systemTimeDelta = thisSystemTime - lastSystemTime;
+            const auto userTimeDelta = thisUserTime - lastUserTime;
+            if (!systemTimeTotals[key]) {
+                systemTimeTotals[key] = @(systemTimeDelta);
+                userTimeTotals[key] = @(userTimeDelta);
             } else {
-                totals[key] = @(thisDelta + totals[key].integerValue);
+                systemTimeTotals[key] = @(systemTimeDelta + systemTimeTotals[key].integerValue);
+                userTimeTotals[key] = @(userTimeDelta + userTimeTotals[key].integerValue);
             }
         }
     }
 
     [samples removeAllObjects];
 
-    const auto samplingThreadUsage = totals[@"io.sentry.SamplingProfiler"].integerValue;
-    [totals removeObjectForKey:@"io.sentry.SamplingProfiler"];
-    const auto totalUsage
-        = ((NSNumber *)[totals.allValues valueForKeyPath:@"@sum.self"]).integerValue;
+    const auto profilerSystemTime = systemTimeTotals[@"io.sentry.SamplingProfiler"].integerValue;
+    const auto profilerUserTime = userTimeTotals[@"io.sentry.SamplingProfiler"].integerValue;
+    [systemTimeTotals removeObjectForKey:@"io.sentry.SamplingProfiler"];
+    [userTimeTotals removeObjectForKey:@"io.sentry.SamplingProfiler"];
+    const auto appSystemTime
+        = ((NSNumber *)[systemTimeTotals.allValues valueForKeyPath:@"@sum.self"]).integerValue;
+    const auto appUserTime
+        = ((NSNumber *)[userTimeTotals.allValues valueForKeyPath:@"@sum.self"]).integerValue;
 
-    return 100.0 * samplingThreadUsage / totalUsage;
+    return [NSString stringWithFormat:@"%ld,%ld,%ld,%ld", profilerSystemTime, profilerUserTime,
+                     appSystemTime, appUserTime];
 }
 
 @end

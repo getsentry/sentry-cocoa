@@ -85,6 +85,7 @@ struct ContentView: View {
             Button(action: captureMessageAction) {
                 Text("Capture Message")
             }
+            .accessibility(identifier: "captureMessageButton")
             
             Button(action: captureUserFeedbackAction) {
                 Text("Capture User Feedback")

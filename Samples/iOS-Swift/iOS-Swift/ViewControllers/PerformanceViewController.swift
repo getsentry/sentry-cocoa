@@ -95,23 +95,22 @@ class PerformanceViewController: UIViewController {
         }
         transaction = SentrySDK.startTransaction(name: "io.sentry.benchmark.transaction", operation: "crunch-numbers")
         timer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(doRandomWork), userInfo: nil, repeats: true)
-        SentryBenchmarking.startBenchmarkProfile()
+        SentryBenchmarking.startBenchmark()
     }
 
     @objc func stopTest() {
-        let value = SentryBenchmarking.retrieveBenchmarks()
-        
         defer {
             timer?.invalidate()
             transaction?.finish()
             transaction = nil
-            valueTextField.text = "\(value)"
         }
 
-        guard value >= 0 else {
+        guard let value = SentryBenchmarking.stopBenchmark() else {
             SentrySDK.capture(error: NSError(domain: "io.sentry.benchmark.error", code: 1, userInfo: ["description": "Only one CPU sample was taken, can't calculate benchmark deltas."]))
+            valueTextField.text = "nil"
             return
         }
+        valueTextField.text = "\(value)"
 
         SentrySDK.configureScope {
             $0.setContext(value: [
