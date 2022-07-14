@@ -5,7 +5,7 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
-    
+
     static let defaultDSN = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -27,13 +27,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enableCoreDataTracking = true
             options.enableProfiling = true
             options.attachScreenshot = true
-            options.enableAppHangTracking = true
-            options.appHangTimeoutInterval = 2 
-            options.enableUserInteractionTracing = true
 
-            // the benchmark test starts and stops a custom transaction using a UIButton, and automatic user interaction tracing stops the transaction that begins with that button press after the idle timeout elapses, stopping the profiler (only one profiler runs regardless of the number of concurrent transactions)
             if !ProcessInfo.processInfo.arguments.contains("--io.sentry.test.benchmarking") {
+                // the benchmark test starts and stops a custom transaction using a UIButton, and automatic user interaction tracing stops the transaction that begins with that button press after the idle timeout elapses, stopping the profiler (only one profiler runs regardless of the number of concurrent transactions)
                 options.enableUserInteractionTracing = true
+
+                // because we run CPU for 15 seconds at full throttle, we trigger ANR issues being sent. disable such during benchmarks.
+                options.enableAppHangTracking = true
+                options.appHangTimeoutInterval = 2
             }
         }
         
