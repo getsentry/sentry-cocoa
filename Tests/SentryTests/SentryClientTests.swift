@@ -497,6 +497,29 @@ class SentryClientTest: XCTestCase {
         }
     }
 
+    func testCaptureCrash_FreeMemory() {
+        var freeMemory = 0
+        let event = TestData.event
+        event.threads = nil
+        event.debugMeta = nil
+
+        fixture.getSut().captureCrash(event, with: fixture.scope)
+
+        assertLastSentEventWithAttachment { actual in
+            let eventFreeMemory = actual.context?["device"]?["free_memory"] as? Int
+            XCTAssertNotNil(eventFreeMemory)
+            freeMemory = eventFreeMemory ?? 0
+        }
+
+        fixture.getSut().captureCrash(event, with: fixture.scope)
+
+        assertLastSentEventWithAttachment { actual in
+            let eventFreeMemory = actual.context?["device"]?["free_memory"] as? Int
+            XCTAssertNotNil(eventFreeMemory)
+            XCTAssertNotEqual(freeMemory, eventFreeMemory)
+        }
+    }
+
     func testCaptureErrorWithUserInfo() {
         let expectedValue = "val"
         let error = NSError(domain: "domain", code: 0, userInfo: ["key": expectedValue])
