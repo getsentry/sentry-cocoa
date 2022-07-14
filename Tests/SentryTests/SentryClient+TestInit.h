@@ -14,7 +14,8 @@ SentryClient (TestInit)
                transportAdapter:(SentryTransportAdapter *)transportAdapter
                     fileManager:(SentryFileManager *)fileManager
                 threadInspector:(SentryThreadInspector *)threadInspector
-                         random:(id<SentryRandom>)random;
+                         random:(id<SentryRandom>)random
+                   crashWrapper:(SentryCrashWrapper *)crashWrapper;
 
 @end
 

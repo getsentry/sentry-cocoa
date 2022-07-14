@@ -4,8 +4,8 @@
 #import "SentryClient+Private.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashIntegration.h"
-#import "SentryCrashMonitor_System.h"
 #import "SentryCrashStackEntryMapper.h"
+#import "SentryCrashWrapper.h"
 #import "SentryDebugImageProvider.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
@@ -56,6 +56,7 @@ SentryClient ()
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
 @property (nonatomic, strong) id<SentryRandom> random;
 @property (nonatomic, weak) id<SentryClientAttachmentProcessor> attachmentProcessor;
+@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 
 @end
 
@@ -102,6 +103,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                                                           options:options];
 
         self.random = [SentryDependencyContainer sharedInstance].random;
+
+        self.crashWrapper = [SentryCrashWrapper sharedInstance];
     }
     return self;
 }
@@ -112,6 +115,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                     fileManager:(SentryFileManager *)fileManager
                 threadInspector:(SentryThreadInspector *)threadInspector
                          random:(id<SentryRandom>)random
+                   crashWrapper:(SentryCrashWrapper *)crashWrapper
 {
     self = [self initWithOptions:options];
 
@@ -119,6 +123,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     self.fileManager = fileManager;
     self.threadInspector = threadInspector;
     self.random = random;
+    self.crashWrapper = crashWrapper;
 
     return self;
 }
@@ -647,7 +652,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self modifyDeviceContext:event
                         block:^(NSMutableDictionary *device) {
                             device[SentryDeviceContextFreeMemoryKey] =
-                                @(sentrycrashcm_system_freememory());
+                                @(self.crashWrapper.freeMemory);
                         }];
 }
 

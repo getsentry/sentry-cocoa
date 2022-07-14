@@ -13,6 +13,7 @@
     instance.internalIsApplicationInForeground = YES;
     instance.installAsyncHooksCalled = NO;
     instance.closeCalled = NO;
+    instance.internalFreeMemory = 0;
     return instance;
 }
 
@@ -49,6 +50,11 @@
 - (NSDictionary *)systemInfo
 {
     return @{};
+}
+
+- (NSInteger)freeMemory
+{
+    return self.internalFreeMemory;
 }
 
 @end
