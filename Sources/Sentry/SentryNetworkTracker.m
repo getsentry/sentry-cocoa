@@ -284,6 +284,8 @@ SentryNetworkTracker ()
 
     id<SentrySpan> span = SentrySDK.currentHub.scope.span;
     if (span == nil) {
+        // Remove the Sentry keys from the cached headers (cached by NSURLSession itself),
+        // because it could contain a completely unrelated trace id from a previous request.
         NSMutableDictionary *existingHeaders = headers.mutableCopy;
         [existingHeaders removeObjectsForKeys:@[ SENTRY_TRACE_HEADER, SENTRY_BAGGAGE_HEADER ]];
         return [existingHeaders copy];
