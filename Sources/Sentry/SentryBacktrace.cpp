@@ -114,19 +114,19 @@ namespace profiling {
             } else {
                 bt.threadMetadata = std::move(metadata);
             }
-            
+
             // This one is probably safe to call while the thread is suspended, but
             // being conservative here in case the platform time functions take any
             // locks that we're not aware of.
             bt.absoluteTimestamp = getAbsoluteTime();
-            
+
             if (thread->isIdle()) {
                 // Avoid collecting stacks for idle threads as an optimization, we
                 // instead just use an empty backtrace to represent it.
                 f(bt);
                 continue;
             }
-            
+
             // This function calls `pthread_from_mach_thread_np`, which takes a lock,
             // so we must read the value before suspending the thread to avoid risking
             // a deadlock. See the comment below.
