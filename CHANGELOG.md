@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Remove Sentry keys from cached HTTP request headers (#1975)
+
 ## 7.21.0
 
 ### Features
