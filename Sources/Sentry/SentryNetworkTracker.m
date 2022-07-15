@@ -284,7 +284,9 @@ SentryNetworkTracker ()
 
     id<SentrySpan> span = SentrySDK.currentHub.scope.span;
     if (span == nil) {
-        return headers;
+        NSMutableDictionary *existingHeaders = headers.mutableCopy;
+        [existingHeaders removeObjectsForKeys:@[ SENTRY_TRACE_HEADER, SENTRY_BAGGAGE_HEADER ]];
+        return [existingHeaders copy];
     }
 
     NSMutableDictionary *result = [[NSMutableDictionary alloc] initWithDictionary:headers];
