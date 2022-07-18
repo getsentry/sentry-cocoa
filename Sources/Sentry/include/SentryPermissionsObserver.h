@@ -11,8 +11,8 @@ typedef enum {
 
 @interface SentryPermissionsObserver : NSObject
 
-@property (nonatomic) SentryPermissionStatus hasPushPermission;
-@property (nonatomic) SentryPermissionStatus hasLocationPermission;
+@property (nonatomic) SentryPermissionStatus pushPermissionStatus;
+@property (nonatomic) SentryPermissionStatus locationPermissionStatus;
 
 @end
 

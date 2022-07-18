@@ -661,11 +661,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                     key:@"app"
                   block:^(NSMutableDictionary *app) {
                       app[@"permissions"] = @ {
-                          @"push_notifications" : [self
-                              stringForPermissionStatus:self.permissionsObserver.hasPushPermission],
+                          @"push_notifications" :
+                              [self stringForPermissionStatus:self.permissionsObserver
+                                                                  .pushPermissionStatus],
                           @"location_access" :
                               [self stringForPermissionStatus:self.permissionsObserver
-                                                                  .hasLocationPermission],
+                                                                  .locationPermissionStatus],
                       };
                   }];
 }
