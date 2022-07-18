@@ -30,7 +30,7 @@ SENTRY_NO_INIT
 
 - (NSDictionary *)systemInfo;
 
-- (NSInteger)freeMemory;
+- (uint64_t)freeMemory;
 
 @end
 

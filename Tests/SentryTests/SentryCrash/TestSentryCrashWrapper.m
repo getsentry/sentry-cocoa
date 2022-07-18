@@ -58,7 +58,7 @@
     return @{};
 }
 
-- (NSInteger)freeMemory
+- (uint64_t)freeMemory
 {
     return self.internalFreeMemory;
 }
