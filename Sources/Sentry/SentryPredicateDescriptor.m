@@ -12,7 +12,7 @@
         return [self expressionDescription:(NSExpression *)predicate];
     }
 
-    return @"<UNKNOWN>";
+    return @"<UNKNOWN PREDICATE>";
 }
 
 - (NSString *)compoundPredicateDescription:(NSCompoundPredicate *)predicate
@@ -63,7 +63,7 @@
         return @"%@";
     case NSAggregateExpressionType:
         if ([predicate.collection isKindOfClass:[NSArray class]]) {
-            __block NSMutableArray *itens =
+            __block NSMutableArray *items =
                 [[NSMutableArray alloc] initWithCapacity:[predicate.collection count]];
             [predicate.collection enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
                 [itens addObject:[self expressionDescription:obj]];

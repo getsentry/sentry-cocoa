@@ -3,9 +3,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * Used to transforms a NSPredicate into a human friendly string.
+ * Used to transform an NSPredicate into a human-friendly string.
  * This class is used for CoreData and omits variable values
- * and don't convert CoreData not supported instructions.
+ * and doesn't convert CoreData unsupported instructions.
  */
 @interface SentryPredicateDescriptor : NSObject
 
