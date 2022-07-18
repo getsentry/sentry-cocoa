@@ -111,6 +111,7 @@
 #import "SentryOutOfMemoryTrackingIntegration.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryPerformanceTrackingIntegration.h"
+#import "SentryPredicateDescriptor.h"
 #import "SentryQueueableRequestManager.h"
 #import "SentryRandom.h"
 #import "SentryRateLimitParser.h"
@@ -161,7 +162,6 @@
 #import "TestUrlSession.h"
 #import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"
-#import "SentryPredicateDescriptor.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIEventTracker.h"

@@ -4,11 +4,11 @@ class SentryPredicateDescriptorTests: XCTestCase {
     
     private class Fixture {
         func getSut() -> SentryPredicateDescriptor {
-            return SentryPredicateDescriptor();
+            return SentryPredicateDescriptor()
         }
     }
     
-    private var fixture : Fixture!
+    private var fixture: Fixture!
     
     override func setUp() {
         super.setUp()
@@ -95,12 +95,12 @@ class SentryPredicateDescriptorTests: XCTestCase {
         assertPredicate(predicate: pred, expectedResult: "NOT field1 == %@")
     }
     
-    func test_AggregateExpression(){
+    func test_AggregateExpression() {
         let pred = NSPredicate(format: "field1 in {1,2,3,4}")
         assertPredicate(predicate: pred, expectedResult: "field1 IN {%@, %@, %@, %@}")
     }
     
-    func test_ternaryExpression(){
+    func test_ternaryExpression() {
         let pred = NSPredicate(format: "ternary(field1 = %@ , 1 , 2) == 1")
         assertPredicate(predicate: pred, expectedResult: "TERNARY(field1 == %@,%@,%@) == %@")
     }
@@ -116,23 +116,22 @@ class SentryPredicateDescriptorTests: XCTestCase {
     }
     
     func test_UNKNOWN() {
-        let pred = NSPredicate { p1, p2 in
+        let pred = NSPredicate { _, _ in
             return false
         }
         assertPredicate(predicate: pred, expectedResult: "<UNKNOWN>")
     }
     
     func test_invalidCompound() {
-        guard let invalidCompound = NSCompoundPredicate.LogicalType.init(rawValue: 6) else {
+        guard let invalidCompound = NSCompoundPredicate.LogicalType(rawValue: 6) else {
             XCTFail("Could not create invalid compound type")
             return
         }
         
-        let pred = NSCompoundPredicate(type: invalidCompound, subpredicates: [NSComparisonPredicate(format: "field1 == 1"),NSComparisonPredicate(format: "field2 == 2")])
+        let pred = NSCompoundPredicate(type: invalidCompound, subpredicates: [NSComparisonPredicate(format: "field1 == 1"), NSComparisonPredicate(format: "field2 == 2")])
         
         assertPredicate(predicate: pred, expectedResult: "field1 == %@, field2 == %@")
     }
-    
     
     func test_invalidComparison() {
         let pred = NSComparisonPredicate(leftExpression: NSExpression(format: "field1"), rightExpression: NSExpression(format: "1"), customSelector: #selector(compareFunction(_:_:)))
@@ -141,14 +140,13 @@ class SentryPredicateDescriptorTests: XCTestCase {
     }
     
     @objc
-    func compareFunction(_ item1 : AnyObject, _ item2 : AnyObject) -> Bool {
+    func compareFunction(_ item1: AnyObject, _ item2: AnyObject) -> Bool {
         return item1 === item2
     }
     
-    func assertPredicate(predicate: NSPredicate, expectedResult : String ) {
+    func assertPredicate(predicate: NSPredicate, expectedResult: String ) {
         let sut = fixture.getSut()
         XCTAssertEqual(sut.predicateDescription(predicate), expectedResult)
     }
     
 }
-

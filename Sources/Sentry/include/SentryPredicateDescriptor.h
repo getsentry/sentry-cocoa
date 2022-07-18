@@ -2,7 +2,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-
 /**
  * Used to transforms a NSPredicate into a human friendly string.
  * This class is used for CoreData and omits variable values
