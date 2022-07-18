@@ -516,9 +516,7 @@ SentryScope ()
     if (nil == event.context) {
         newContext = [self context].mutableCopy;
     } else {
-        newContext = [NSMutableDictionary new];
-        [newContext addEntriesFromDictionary:[self context]];
-        [newContext addEntriesFromDictionary:event.context];
+        newContext = [self mergeContext:event.context];
     }
 
     if (self.span != nil) {
@@ -538,6 +536,34 @@ SentryScope ()
     }
     event.context = newContext;
     return event;
+}
+
+- (NSMutableDictionary *)mergeContext:(NSDictionary *)otherContext
+{
+    NSMutableDictionary *newContext =
+        [[NSMutableDictionary alloc] initWithDictionary:[self context]];
+
+    // Merge dictionaries on first nesting level and overwrite deeply nested dictionaries
+    [otherContext
+        enumerateKeysAndObjectsUsingBlock:^(id otherContextKey, id otherContextObj, BOOL *stop) {
+            if ([otherContextObj isKindOfClass:NSDictionary.class]) {
+
+                // If the new context already contains the key, we add to the existing dict.
+                // addEntriesFromDictionary overwrites existing keys
+                if (newContext[otherContextKey] != nil) {
+                    NSDictionary *eventContextDict = (NSDictionary *)otherContextObj;
+                    NSMutableDictionary *mergedDict
+                        = ((NSDictionary *)newContext[otherContextKey]).mutableCopy;
+                    [mergedDict addEntriesFromDictionary:eventContextDict];
+                    newContext[otherContextKey] = mergedDict;
+                    return;
+                }
+            }
+
+            newContext[otherContextKey] = otherContextObj;
+        }];
+
+    return newContext;
 }
 
 - (void)addObserver:(id<SentryScopeObserver>)observer

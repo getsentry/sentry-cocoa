@@ -238,6 +238,31 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(context as? [String: [String: String]],
                        actual?.context as? [String: [String: String]])
     }
+    
+    func testApplyToEvent_EventWithContext_MergesContext() {
+        let context = NSMutableDictionary(dictionary: [
+            "first": ["a": "b", "c": "d"]])
+        let event = fixture.event
+        event.context = context as? [String: [String: String]]
+        
+        let expectedAppContext = [
+            "first": [ "a": "b", "c": "d", "e": "f"],
+            "second": ["0": "1" ]
+        ]
+        
+        let scope = fixture.scope
+        scope.setContext(value: ["e": "f"], key: "first")
+        scope.setContext(value: ["0": "1"], key: "second")
+        
+        let actual = scope.apply(to: event, maxBreadcrumb: 10)
+        let actualContext = actual?.context as? [String: [String: String]]
+        
+        context.addEntries(from: fixture.context)
+        context.addEntries(from: expectedAppContext)
+        
+        XCTAssertEqual(context as? [String: [String: String]],
+                       actualContext)
+    }
         
     func testClear() {
         let scope = fixture.scope

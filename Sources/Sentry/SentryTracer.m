@@ -686,7 +686,13 @@ static NSLock *profilerLock;
             NSString *appStartType = appStartMeasurement.preWarmed
                 ? [NSString stringWithFormat:@"%@.prewarmed", dataType]
                 : dataType;
-            [self setDataValue:appStartType forKey:@"appSartType"];
+            NSMutableDictionary *context =
+                [[NSMutableDictionary alloc] initWithDictionary:[transaction context]];
+            NSMutableDictionary *appContext =
+                [[NSMutableDictionary alloc] initWithDictionary:context[@"app"]];
+            appContext[@"start_type"] = appStartType;
+            context[@"app"] = appContext;
+            [transaction setContext:context];
         }
     }
 

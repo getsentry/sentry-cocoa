@@ -447,53 +447,6 @@ class SentryTracerTests: XCTestCase {
         XCTAssertNil(data)
     }
 
-    func test_startChildWithDelegate() {
-        let delegate = TracerDelegate()
-
-        let sut = fixture.getSut()
-        sut.delegate = delegate
-
-        let child = sut.startChild(operation: fixture.transactionOperation)
-
-        delegate.activeSpan = child
-
-        let secondChild = sut.startChild(operation: fixture.transactionOperation)
-
-        XCTAssertEqual(secondChild.context.parentSpanId, child.context.spanId)
-    }
-
-    func test_startChildWithDelegate_ActiveNotChild() {
-        let delegate = TracerDelegate()
-
-        let sut = fixture.getSut()
-        sut.delegate = delegate
-
-        delegate.activeSpan = SentryTracer(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation), hub: nil)
-
-        let child = sut.startChild(operation: fixture.transactionOperation)
-
-        let secondChild = sut.startChild(operation: fixture.transactionOperation)
-
-        XCTAssertEqual(secondChild.context.parentSpanId, sut.context.spanId)
-        XCTAssertEqual(secondChild.context.parentSpanId, child.context.parentSpanId)
-    }
-
-    func test_startChildWithDelegate_SelfIsActive() {
-        let delegate = TracerDelegate()
-
-        let sut = fixture.getSut()
-        sut.delegate = delegate
-
-        delegate.activeSpan = sut
-
-        let child = sut.startChild(operation: fixture.transactionOperation)
-
-        let secondChild = sut.startChild(operation: fixture.transactionOperation)
-
-        XCTAssertEqual(secondChild.context.parentSpanId, sut.context.spanId)
-        XCTAssertEqual(secondChild.context.parentSpanId, child.context.parentSpanId)
-    }
-
     func testAddWarmAppStartMeasurement_PutOnNextAutoUITransaction() {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
