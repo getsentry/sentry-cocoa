@@ -4,12 +4,25 @@
 
 ### Features
 
-- Enhance the UIViewController breadcrumbs with more data (#1945)
-- feat: Add extra app start span (#1952)
-- Add enableAutoBreadcrumbTracking option (#1958)
+- Read free_memory when the event is captured, not only at SDK startup (#1962)
 
 ### Fixes
 
+- Remove Sentry keys from cached HTTP request headers (#1975)
+
+## 7.21.0
+
+### Features
+
+- Enhance the UIViewController breadcrumbs with more data (#1945)
+- feat: Add extra app start span (#1952)
+- Add enableAutoBreadcrumbTracking option (#1958)
+- Automatic nest spans with the UI life cycle (#1959)
+- Upload frame rendering timestamps to correlate to sampled backtraces (#1910)
+
+### Fixes
+
+- Don't track OOMs for simulators (#1970)
 - Properly sanitize the event context and SDK information (#1943)
 - Don't send error 429 as `network_error` (#1957)
 - Sanitize Span data (#1963)

@@ -27,6 +27,7 @@ class SentryClientTest: XCTestCase {
         
         let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
         let transaction: Transaction
+        let crashWrapper = TestSentryCrashWrapper.sharedInstance()
         
         init() {
             session = SentrySession(releaseName: "release")
@@ -59,7 +60,7 @@ class SentryClientTest: XCTestCase {
                 ])
                 configureOptions(options)
 
-                client = Client(options: options, transportAdapter: transportAdapter, fileManager: fileManager, threadInspector: threadInspector, random: random)
+                client = Client(options: options, transportAdapter: transportAdapter, fileManager: fileManager, threadInspector: threadInspector, random: random, crashWrapper: crashWrapper)
             } catch {
                 XCTFail("Options could not be created")
             }
@@ -494,6 +495,20 @@ class SentryClientTest: XCTestCase {
         assertLastSentEventWithAttachment { actual in
             XCTAssertNil(actual.threads)
             XCTAssertNil(actual.debugMeta)
+        }
+    }
+
+    func testCaptureCrash_FreeMemory() {
+        let event = TestData.event
+        event.threads = nil
+        event.debugMeta = nil
+
+        fixture.crashWrapper.internalFreeMemory = 123_456
+        fixture.getSut().captureCrash(event, with: fixture.scope)
+
+        assertLastSentEventWithAttachment { actual in
+            let eventFreeMemory = actual.context?["device"]?["free_memory"] as? Int
+            XCTAssertEqual(eventFreeMemory, 123_456)
         }
     }
 

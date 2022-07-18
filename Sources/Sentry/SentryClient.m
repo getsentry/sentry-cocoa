@@ -5,6 +5,7 @@
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashIntegration.h"
 #import "SentryCrashStackEntryMapper.h"
+#import "SentryCrashWrapper.h"
 #import "SentryDebugImageProvider.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
@@ -55,6 +56,7 @@ SentryClient ()
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
 @property (nonatomic, strong) id<SentryRandom> random;
 @property (nonatomic, weak) id<SentryClientAttachmentProcessor> attachmentProcessor;
+@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 
 @end
 
@@ -101,6 +103,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                                                           options:options];
 
         self.random = [SentryDependencyContainer sharedInstance].random;
+
+        self.crashWrapper = [SentryCrashWrapper sharedInstance];
     }
     return self;
 }
@@ -111,6 +115,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                     fileManager:(SentryFileManager *)fileManager
                 threadInspector:(SentryThreadInspector *)threadInspector
                          random:(id<SentryRandom>)random
+                   crashWrapper:(SentryCrashWrapper *)crashWrapper
 {
     self = [self initWithOptions:options];
 
@@ -118,6 +123,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     self.fileManager = fileManager;
     self.threadInspector = threadInspector;
     self.random = random;
+    self.crashWrapper = crashWrapper;
 
     return self;
 }
@@ -487,10 +493,13 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
 
-    // Remove free_memory if OOM as free_memory stems from the current run and not of the time of
-    // the OOM.
     if ([self isOOM:event isCrashEvent:isCrashEvent]) {
+        // Remove free_memory if OOM as free_memory stems from the current run and not of
+        // the time of the OOM.
         [self removeFreeMemoryFromDeviceContext:event];
+    } else {
+        // Store the actual free memory at the time of this event
+        [self storeFreeMemoryToDeviceContext:event];
     }
 
     // With scope applied, before running callbacks run:
@@ -638,7 +647,24 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         [exception.mechanism.type isEqualToString:SentryOutOfMemoryMechanismType];
 }
 
+- (void)storeFreeMemoryToDeviceContext:(SentryEvent *)event
+{
+    [self modifyDeviceContext:event
+                        block:^(NSMutableDictionary *device) {
+                            device[SentryDeviceContextFreeMemoryKey] =
+                                @(self.crashWrapper.freeMemory);
+                        }];
+}
+
 - (void)removeFreeMemoryFromDeviceContext:(SentryEvent *)event
+{
+    [self modifyDeviceContext:event
+                        block:^(NSMutableDictionary *device) {
+                            [device removeObjectForKey:SentryDeviceContextFreeMemoryKey];
+                        }];
+}
+
+- (void)modifyDeviceContext:(SentryEvent *)event block:(void (^)(NSMutableDictionary *))block
 {
     if (nil == event.context || event.context.count == 0 || nil == event.context[@"device"]) {
         return;
@@ -647,9 +673,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     NSMutableDictionary *context = [[NSMutableDictionary alloc] initWithDictionary:event.context];
     NSMutableDictionary *device =
         [[NSMutableDictionary alloc] initWithDictionary:context[@"device"]];
-    [device removeObjectForKey:SentryDeviceContextFreeMemoryKey];
+    block(device);
     context[@"device"] = device;
-
     event.context = context;
 }
 

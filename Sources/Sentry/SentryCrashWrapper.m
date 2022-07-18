@@ -1,10 +1,12 @@
 #import "SentryCrashWrapper.h"
 #import "SentryCrash.h"
 #import "SentryCrashMonitor_AppState.h"
+#import "SentryCrashMonitor_System.h"
 #import "SentryHook.h"
 #import <Foundation/Foundation.h>
 #import <SentryCrashCachedData.h>
 #import <SentryCrashDebug.h>
+#import <SentryCrashMonitor_System.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,6 +33,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isBeingTraced
 {
     return sentrycrashdebug_isBeingTraced();
+}
+
+- (BOOL)isSimulatorBuild
+{
+    return sentrycrash_isSimulatorBuild();
 }
 
 - (BOOL)isApplicationInForeground
@@ -61,6 +68,11 @@ NS_ASSUME_NONNULL_BEGIN
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{ sharedInfo = SentryCrash.sharedInstance.systemInfo; });
     return sharedInfo;
+}
+
+- (uint64_t)freeMemory
+{
+    return sentrycrashcm_system_freememory();
 }
 
 @end
