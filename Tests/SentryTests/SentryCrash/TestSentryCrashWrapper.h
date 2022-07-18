@@ -25,7 +25,7 @@ SENTRY_NO_INIT
 
 @property (nonatomic, assign) BOOL closeCalled;
 
-@property (nonatomic, assign) NSInteger internalFreeMemory;
+@property (nonatomic, assign) uint64_t internalFreeMemory;
 
 @end
 

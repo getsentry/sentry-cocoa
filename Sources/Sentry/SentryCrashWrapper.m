@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
     return sharedInfo;
 }
 
-- (NSInteger)freeMemory
+- (uint64_t)freeMemory
 {
     return sentrycrashcm_system_freememory();
 }
