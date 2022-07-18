@@ -66,9 +66,9 @@
             __block NSMutableArray *items =
                 [[NSMutableArray alloc] initWithCapacity:[predicate.collection count]];
             [predicate.collection enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                [itens addObject:[self expressionDescription:obj]];
+                [items addObject:[self expressionDescription:obj]];
             }];
-            return [NSString stringWithFormat:@"{%@}", [itens componentsJoinedByString:@", "]];
+            return [NSString stringWithFormat:@"{%@}", [items componentsJoinedByString:@", "]];
         } else {
             return @"%@";
         }

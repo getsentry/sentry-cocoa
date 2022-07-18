@@ -9,7 +9,7 @@
 - Add enableAutoBreadcrumbTracking option (#1958)
 - Automatic nest spans with the UI life cycle (#1959)
 - Upload frame rendering timestamps to correlate to sampled backtraces (#1910)
-- Remove variable values from CoreData queries (#1982)
+- Remove PII from auto-generated core data spans (#1982)
 
 ### Fixes
 
