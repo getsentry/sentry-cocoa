@@ -1,3 +1,4 @@
+#import "SentryPermissionsObserver.h"
 #import "SentryRandom.h"
 #import "SentryTransport.h"
 #import <Sentry/Sentry.h>
@@ -15,7 +16,8 @@ SentryClient (TestInit)
                     fileManager:(SentryFileManager *)fileManager
                 threadInspector:(SentryThreadInspector *)threadInspector
                          random:(id<SentryRandom>)random
-                   crashWrapper:(SentryCrashWrapper *)crashWrapper;
+                   crashWrapper:(SentryCrashWrapper *)crashWrapper
+            permissionsObserver:(SentryPermissionsObserver *)permissionsObserver;
 
 @end
 

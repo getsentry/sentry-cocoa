@@ -35,7 +35,6 @@ SentryCrashIntegration ()
 @property (nonatomic, strong) SentryCrashWrapper *crashAdapter;
 @property (nonatomic, strong) SentrySessionCrashedHandler *crashedSessionHandler;
 @property (nonatomic, strong) SentryCrashScopeObserver *scopeObserver;
-@property (nonatomic, strong) SentryPermissionsObserver *permissionsObserver;
 
 @end
 
@@ -44,8 +43,7 @@ SentryCrashIntegration ()
 - (instancetype)init
 {
     self = [self initWithCrashAdapter:[SentryCrashWrapper sharedInstance]
-              andDispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
-               andPermissionsObserver:[[SentryPermissionsObserver alloc] init]];
+              andDispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]];
 
     return self;
 }
@@ -53,12 +51,10 @@ SentryCrashIntegration ()
 /** Internal constructor for testing */
 - (instancetype)initWithCrashAdapter:(SentryCrashWrapper *)crashAdapter
              andDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-              andPermissionsObserver:(SentryPermissionsObserver *)permissionsObserver
 {
     if (self = [super init]) {
         self.crashAdapter = crashAdapter;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
-        self.permissionsObserver = permissionsObserver;
     }
 
     return self;
@@ -154,9 +150,7 @@ SentryCrashIntegration ()
     if (nil != [SentrySDK.currentHub getIntegration:integrationName]) {
 
         [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
-            [SentryCrashIntegration enrichScope:outerScope
-                                   crashWrapper:self.crashAdapter
-                            permissionsObserver:self.permissionsObserver];
+            [SentryCrashIntegration enrichScope:outerScope crashWrapper:self.crashAdapter];
 
             NSMutableDictionary<NSString *, id> *userInfo =
                 [[NSMutableDictionary alloc] initWithDictionary:[outerScope serialize]];
@@ -181,9 +175,7 @@ SentryCrashIntegration ()
                                              object:nil];
 }
 
-+ (void)enrichScope:(SentryScope *)scope
-           crashWrapper:(SentryCrashWrapper *)crashWrapper
-    permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
++ (void)enrichScope:(SentryScope *)scope crashWrapper:(SentryCrashWrapper *)crashWrapper
 {
     // OS
     NSMutableDictionary *osData = [NSMutableDictionary new];
@@ -272,32 +264,7 @@ SentryCrashIntegration ()
     [appData setValue:systemInfo[@"appID"] forKey:@"app_id"];
     [appData setValue:systemInfo[@"buildType"] forKey:@"build_type"];
 
-    NSMutableDictionary *permissions = [NSMutableDictionary new];
-    [permissions setValue:[self stringForPermissionStatus:permissionsObserver.hasPushPermission]
-                   forKey:@"push_notifications"];
-    [permissions setValue:[self stringForPermissionStatus:permissionsObserver.hasLocationPermission]
-                   forKey:@"location_access"];
-
-    [appData setValue:permissions forKey:@"permissions"];
-
     [scope setContextValue:appData forKey:@"app"];
-}
-
-+ (NSString *)stringForPermissionStatus:(SentryPermissionStatus)status
-{
-    switch (status) {
-    case kPermissionStatusUnknown:
-        return @"unknown";
-        break;
-
-    case kPermissionStatusGranted:
-        return @"granted";
-        break;
-
-    case kPermissionStatusDenied:
-        return @"denied";
-        break;
-    }
 }
 
 - (void)currentLocaleDidChange

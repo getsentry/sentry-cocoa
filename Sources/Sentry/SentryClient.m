@@ -27,6 +27,7 @@
 #import "SentryNSError.h"
 #import "SentryOptions+Private.h"
 #import "SentryOutOfMemoryTracker.h"
+#import "SentryPermissionsObserver.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySdkInfo.h"
@@ -57,6 +58,7 @@ SentryClient ()
 @property (nonatomic, strong) id<SentryRandom> random;
 @property (nonatomic, weak) id<SentryClientAttachmentProcessor> attachmentProcessor;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
+@property (nonatomic, strong) SentryPermissionsObserver *permissionsObserver;
 
 @end
 
@@ -105,6 +107,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.random = [SentryDependencyContainer sharedInstance].random;
 
         self.crashWrapper = [SentryCrashWrapper sharedInstance];
+
+        self.permissionsObserver = [[SentryPermissionsObserver alloc] init];
     }
     return self;
 }
@@ -116,6 +120,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                 threadInspector:(SentryThreadInspector *)threadInspector
                          random:(id<SentryRandom>)random
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
+            permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
 {
     self = [self initWithOptions:options];
 
@@ -124,6 +129,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     self.threadInspector = threadInspector;
     self.random = random;
     self.crashWrapper = crashWrapper;
+    self.permissionsObserver = permissionsObserver;
 
     return self;
 }
@@ -502,6 +508,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         [self storeFreeMemoryToDeviceContext:event];
     }
 
+    [self applyPermissionsToEvent:event];
+
     // With scope applied, before running callbacks run:
     if (nil == event.environment) {
         // We default to environment 'production' if nothing was set
@@ -647,34 +655,68 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         [exception.mechanism.type isEqualToString:SentryOutOfMemoryMechanismType];
 }
 
+- (void)applyPermissionsToEvent:(SentryEvent *)event
+{
+    [self modifyContext:event
+                    key:@"app"
+                  block:^(NSMutableDictionary *app) {
+                      app[@"permissions"] = @ {
+                          @"push_notifications" : [self
+                              stringForPermissionStatus:self.permissionsObserver.hasPushPermission],
+                          @"location_access" :
+                              [self stringForPermissionStatus:self.permissionsObserver
+                                                                  .hasLocationPermission],
+                      };
+                  }];
+}
+
+- (NSString *)stringForPermissionStatus:(SentryPermissionStatus)status
+{
+    switch (status) {
+    case kPermissionStatusUnknown:
+        return @"unknown";
+        break;
+
+    case kPermissionStatusGranted:
+        return @"granted";
+        break;
+
+    case kPermissionStatusDenied:
+        return @"not_granted";
+        break;
+    }
+}
+
 - (void)storeFreeMemoryToDeviceContext:(SentryEvent *)event
 {
-    [self modifyDeviceContext:event
-                        block:^(NSMutableDictionary *device) {
-                            device[SentryDeviceContextFreeMemoryKey] =
-                                @(self.crashWrapper.freeMemory);
-                        }];
+    [self modifyContext:event
+                    key:@"device"
+                  block:^(NSMutableDictionary *device) {
+                      device[SentryDeviceContextFreeMemoryKey] = @(self.crashWrapper.freeMemory);
+                  }];
 }
 
 - (void)removeFreeMemoryFromDeviceContext:(SentryEvent *)event
 {
-    [self modifyDeviceContext:event
-                        block:^(NSMutableDictionary *device) {
-                            [device removeObjectForKey:SentryDeviceContextFreeMemoryKey];
-                        }];
+    [self modifyContext:event
+                    key:@"device"
+                  block:^(NSMutableDictionary *device) {
+                      [device removeObjectForKey:SentryDeviceContextFreeMemoryKey];
+                  }];
 }
 
-- (void)modifyDeviceContext:(SentryEvent *)event block:(void (^)(NSMutableDictionary *))block
+- (void)modifyContext:(SentryEvent *)event
+                  key:(NSString *)key
+                block:(void (^)(NSMutableDictionary *))block
 {
-    if (nil == event.context || event.context.count == 0 || nil == event.context[@"device"]) {
+    if (nil == event.context || event.context.count == 0 || nil == event.context[key]) {
         return;
     }
 
     NSMutableDictionary *context = [[NSMutableDictionary alloc] initWithDictionary:event.context];
-    NSMutableDictionary *device =
-        [[NSMutableDictionary alloc] initWithDictionary:context[@"device"]];
-    block(device);
-    context[@"device"] = device;
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] initWithDictionary:context[key]];
+    block(dict);
+    context[key] = dict;
     event.context = context;
 }
 
