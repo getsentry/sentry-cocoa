@@ -372,13 +372,13 @@ class SentryTracerTests: XCTestCase {
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
         
         whenFinishingAutoUITransaction(startTimestamp: 5)
-        
+
         assertMeasurements(["app_start_cold": ["value": fixture.appStartDuration * 1_000]])
-        
+
         let transaction = fixture.hub.capturedEventsWithScopes.first!.event as! Transaction
         assertAppStartsSpanAdded(transaction: transaction, startType: "Cold Start", operation: fixture.appStartColdOperation, appStartMeasurement: appStartMeasurement)
     }
-    
+
     func test_startChildWithDelegate() {
         let delegate = TracerDelegate()
 
@@ -438,13 +438,60 @@ class SentryTracerTests: XCTestCase {
         let transaction = fixture.hub.capturedEventsWithScopes.first!.event as! Transaction
         assertPreWarmedAppStartsSpanAdded(transaction: transaction, startType: "Cold Start", operation: fixture.appStartColdOperation, appStartMeasurement: appStartMeasurement)
     }
-    
+
     private func assertAppStartTypeAddedtoData(expected: String) {
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
         let data = serializedTransaction["data"] as? [String: [String: Any]]
 
         XCTAssertNil(data)
+    }
+
+    func test_startChildWithDelegate() {
+        let delegate = TracerDelegate()
+
+        let sut = fixture.getSut()
+        sut.delegate = delegate
+
+        let child = sut.startChild(operation: fixture.transactionOperation)
+
+        delegate.activeSpan = child
+
+        let secondChild = sut.startChild(operation: fixture.transactionOperation)
+
+        XCTAssertEqual(secondChild.context.parentSpanId, child.context.spanId)
+    }
+
+    func test_startChildWithDelegate_ActiveNotChild() {
+        let delegate = TracerDelegate()
+
+        let sut = fixture.getSut()
+        sut.delegate = delegate
+
+        delegate.activeSpan = SentryTracer(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation), hub: nil)
+
+        let child = sut.startChild(operation: fixture.transactionOperation)
+
+        let secondChild = sut.startChild(operation: fixture.transactionOperation)
+
+        XCTAssertEqual(secondChild.context.parentSpanId, sut.context.spanId)
+        XCTAssertEqual(secondChild.context.parentSpanId, child.context.parentSpanId)
+    }
+
+    func test_startChildWithDelegate_SelfIsActive() {
+        let delegate = TracerDelegate()
+
+        let sut = fixture.getSut()
+        sut.delegate = delegate
+
+        delegate.activeSpan = sut
+
+        let child = sut.startChild(operation: fixture.transactionOperation)
+
+        let secondChild = sut.startChild(operation: fixture.transactionOperation)
+
+        XCTAssertEqual(secondChild.context.parentSpanId, sut.context.spanId)
+        XCTAssertEqual(secondChild.context.parentSpanId, child.context.parentSpanId)
     }
 
     func testAddWarmAppStartMeasurement_PutOnNextAutoUITransaction() {
