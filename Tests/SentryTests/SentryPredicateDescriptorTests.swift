@@ -119,7 +119,7 @@ class SentryPredicateDescriptorTests: XCTestCase {
         let pred = NSPredicate { _, _ in
             return false
         }
-        assertPredicate(predicate: pred, expectedResult: "<UNKNOWN>")
+        assertPredicate(predicate: pred, expectedResult: "<UNKNOWN PREDICATE>")
     }
     
     func test_invalidCompound() {
