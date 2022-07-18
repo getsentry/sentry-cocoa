@@ -48,6 +48,10 @@ SentryOutOfMemoryLogic ()
         return NO;
     }
 
+    if (self.crashAdapter.isSimulatorBuild) {
+        return NO;
+    }
+
     // If the release name is different we assume it's an upgrade
     if (![currentAppState.releaseName isEqualToString:previousAppState.releaseName]) {
         return NO;

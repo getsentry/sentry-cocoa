@@ -16,6 +16,8 @@ SENTRY_NO_INIT
 
 - (BOOL)isBeingTraced;
 
+- (BOOL)isSimulatorBuild;
+
 - (BOOL)isApplicationInForeground;
 
 - (void)installAsyncHooks;
@@ -27,6 +29,8 @@ SENTRY_NO_INIT
 - (void)close;
 
 - (NSDictionary *)systemInfo;
+
+- (uint64_t)freeMemory;
 
 @end
 

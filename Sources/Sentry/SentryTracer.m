@@ -38,7 +38,6 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
 SentryTracer ()
 
 @property (nonatomic, strong) SentrySpan *rootSpan;
-@property (nonatomic, strong) NSMutableArray<id<SentrySpan>> *children;
 @property (nonatomic, strong) SentryHub *hub;
 @property (nonatomic) SentrySpanStatus finishStatus;
 @property (nonatomic) BOOL isWaitingForChildren;
@@ -54,6 +53,7 @@ SentryTracer ()
     NSMutableDictionary<NSString *, id> *_tags;
     NSMutableDictionary<NSString *, id> *_data;
     dispatch_block_t _idleTimeoutBlock;
+    NSMutableArray<id<SentrySpan>> *_children;
 
 #if SENTRY_HAS_UIKIT
     BOOL _startTimeChanged;
@@ -122,7 +122,7 @@ static NSLock *profilerLock;
     if (self = [super init]) {
         self.rootSpan = [[SentrySpan alloc] initWithTransaction:self context:transactionContext];
         self.name = transactionContext.name;
-        self.children = [[NSMutableArray alloc] init];
+        _children = [[NSMutableArray alloc] init];
         self.hub = hub;
         self.isWaitingForChildren = NO;
         _waitForChildren = waitForChildren;
@@ -200,15 +200,33 @@ static NSLock *profilerLock;
     }
 }
 
+- (id<SentrySpan>)getActiveSpan
+{
+    id<SentrySpan> span;
+
+    if (self.delegate) {
+        @synchronized(_children) {
+            span = [self.delegate activeSpanForTracer:self];
+            if (span == nil || span == self || ![_children containsObject:span]) {
+                span = _rootSpan;
+            }
+        }
+    } else {
+        span = _rootSpan;
+    }
+
+    return span;
+}
+
 - (id<SentrySpan>)startChildWithOperation:(NSString *)operation
 {
-    return [_rootSpan startChildWithOperation:operation];
+    return [[self getActiveSpan] startChildWithOperation:operation];
 }
 
 - (id<SentrySpan>)startChildWithOperation:(NSString *)operation
                               description:(nullable NSString *)description
 {
-    return [_rootSpan startChildWithOperation:operation description:description];
+    return [[self getActiveSpan] startChildWithOperation:operation description:description];
 }
 
 - (id<SentrySpan>)startChildWithParentId:(SentrySpanId *)parentId
@@ -226,7 +244,7 @@ static NSLock *profilerLock;
     context.spanDescription = description;
 
     SentrySpan *child = [[SentrySpan alloc] initWithTransaction:self context:context];
-    @synchronized(self.children) {
+    @synchronized(_children) {
         [_children addObject:child];
     }
 
@@ -302,6 +320,11 @@ static NSLock *profilerLock;
 - (BOOL)isFinished
 {
     return self.rootSpan.isFinished;
+}
+
+- (NSArray<id<SentrySpan>> *)children
+{
+    return [_children copy];
 }
 
 - (void)setDataValue:(nullable id)value forKey:(NSString *)key

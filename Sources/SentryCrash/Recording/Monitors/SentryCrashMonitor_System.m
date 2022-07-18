@@ -199,6 +199,12 @@ freeMemory(void)
     return 0;
 }
 
+uint64_t
+sentrycrashcm_system_freememory(void)
+{
+    return freeMemory();
+}
+
 static uint64_t
 usableMemory(void)
 {
@@ -349,6 +355,12 @@ isSimulatorBuild()
 #else
     return NO;
 #endif
+}
+
+bool
+sentrycrash_isSimulatorBuild(void)
+{
+    return isSimulatorBuild();
 }
 
 /** The file path for the bundle’s App Store receipt.
