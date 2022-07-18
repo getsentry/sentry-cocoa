@@ -1,6 +1,7 @@
 #import "SentryCrashWrapper.h"
 #import "SentryCrash.h"
 #import "SentryCrashMonitor_AppState.h"
+#import "SentryCrashMonitor_System.h"
 #import "SentryHook.h"
 #import <Foundation/Foundation.h>
 #import <SentryCrashCachedData.h>
@@ -67,6 +68,11 @@ NS_ASSUME_NONNULL_BEGIN
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{ sharedInfo = SentryCrash.sharedInstance.systemInfo; });
     return sharedInfo;
+}
+
+- (NSInteger)freeMemory
+{
+    return sentrycrashcm_system_freememory();
 }
 
 @end

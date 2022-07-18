@@ -25,6 +25,8 @@ SENTRY_NO_INIT
 
 @property (nonatomic, assign) BOOL closeCalled;
 
+@property (nonatomic, assign) NSInteger internalFreeMemory;
+
 @end
 
 NS_ASSUME_NONNULL_END

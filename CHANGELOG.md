@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Read free_memory when the event is captured, not only at SDK startup (#1962)
+
 ### Fixes
 
 - Remove Sentry keys from cached HTTP request headers (#1975)
