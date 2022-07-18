@@ -23,12 +23,13 @@ class PerformanceViewController: UIViewController {
             $0.setTitleColor(.black, for: .normal)
         }
         valueTextField.accessibilityLabel = "io.sentry.benchmark.value-marshaling-text-field"
-        let stack = UIStackView(arrangedSubviews: buttons + [valueTextField])
+        let stack = UIStackView(arrangedSubviews: buttons + [valueTextField]).forAutoLayout()
         stack.axis = .vertical
         stack.alignment = .center
         stack.distribution = .fillProportionally
-        stack.translatesAutoresizingMaskIntoConstraints = false
+
         view.addSubview(stack)
+
         NSLayoutConstraint.activate([
             stack.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             stack.trailingAnchor.constraint(equalTo: view.trailingAnchor),
