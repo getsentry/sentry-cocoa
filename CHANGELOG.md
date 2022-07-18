@@ -5,6 +5,7 @@
 ### Features
 
 - Read free_memory when the event is captured, not only at SDK startup (#1962)
+- Include app permissions with event (#1984)
 
 ### Fixes
 
