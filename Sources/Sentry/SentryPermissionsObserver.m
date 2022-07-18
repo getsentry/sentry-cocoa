@@ -49,17 +49,17 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 {
     switch (status) {
     case UNAuthorizationStatusNotDetermined:
-        self.hasLocationPermission = kPermissionStatusUnknown;
+        self.hasPushPermission = kPermissionStatusUnknown;
         break;
 
     case UNAuthorizationStatusDenied:
-        self.hasLocationPermission = kPermissionStatusDenied;
+        self.hasPushPermission = kPermissionStatusDenied;
         break;
 
     case UNAuthorizationStatusAuthorized:
     case UNAuthorizationStatusProvisional:
     case UNAuthorizationStatusEphemeral:
-        self.hasLocationPermission = kPermissionStatusGranted;
+        self.hasPushPermission = kPermissionStatusGranted;
         break;
     }
 }

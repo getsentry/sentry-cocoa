@@ -7,6 +7,8 @@ class PermissionsViewController: UIViewController {
     private lazy var pushPermissionButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Request Push Permission", for: .normal)
+        button.addTarget(self, action: #selector(requestPushPermission), for: .touchUpInside)
+
         return button
     }()
 
@@ -31,7 +33,13 @@ class PermissionsViewController: UIViewController {
 
         locationManager.delegate = self
 
-        print("Initial status: \(CLLocationManager.authorizationStatus())")
+        if #available(iOS 10.0, *) {
+            UNUserNotificationCenter.current().getNotificationSettings { settings in
+                print("Initial push permission status: \(settings.authorizationStatus)")
+            }
+        }
+
+        print("Initial location permission status: \(CLLocationManager.authorizationStatus())")
     }
 
     private func setupView() {
@@ -49,6 +57,18 @@ class PermissionsViewController: UIViewController {
 
     @objc func requestLocationPermission() {
         locationManager.requestWhenInUseAuthorization()
+    }
+
+    @objc func requestPushPermission() {
+        if #available(iOS 10.0, *) {
+            UNUserNotificationCenter.current()
+                .requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+                    if let error = error {
+                        print(error)
+                    }
+                    print(granted)
+                }
+        }
     }
 }
 
