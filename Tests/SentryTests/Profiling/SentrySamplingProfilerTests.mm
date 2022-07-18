@@ -25,18 +25,19 @@ using namespace sentry::profiling;
 {
     const auto cache = std::make_shared<ThreadMetadataCache>();
     const std::uint32_t samplingRateHz = 300;
-    
+
     pthread_t idleThread;
     XCTAssertEqual(pthread_create(&idleThread, nullptr, idleThreadEntry, nullptr), 0);
     int numIdleSamples = 0;
-    
-    const auto profiler
-        = std::make_shared<SamplingProfiler>([&](auto &backtrace) {
+
+    const auto profiler = std::make_shared<SamplingProfiler>(
+        [&](auto &backtrace) {
             const auto thread = backtrace.threadMetadata.threadID;
             if (thread == pthread_mach_thread_np(idleThread)) {
                 numIdleSamples++;
             }
-        }, samplingRateHz);
+        },
+        samplingRateHz);
     XCTAssertFalse(profiler->isSampling());
 
     std::uint64_t start = 0;
@@ -55,7 +56,8 @@ using namespace sentry::profiling;
     XCTAssertGreaterThan(numIdleSamples, 0);
 }
 
-static void *idleThreadEntry(__unused void *ptr)
+static void *
+idleThreadEntry(__unused void *ptr)
 {
     // Wait on a condition variable that will never be signaled to make the thread idle.
     pthread_cond_t cv;
