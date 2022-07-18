@@ -433,9 +433,18 @@ class SentryTracerTests: XCTestCase {
         whenFinishingAutoUITransaction(startTimestamp: 5)
 
         assertMeasurements(["app_start_cold": ["value": fixture.appStartDuration * 1_000]])
+        assertAppStartTypeAddedtoData(expected: "cold")
 
         let transaction = fixture.hub.capturedEventsWithScopes.first!.event as! Transaction
         assertPreWarmedAppStartsSpanAdded(transaction: transaction, startType: "Cold Start", operation: fixture.appStartColdOperation, appStartMeasurement: appStartMeasurement)
+    }
+    
+    private func assertAppStartTypeAddedtoData(expected: String) {
+        XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
+        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
+        let data = serializedTransaction["data"] as? [String: [String: Any]]
+
+        XCTAssertNil(data)
     }
 
     func testAddWarmAppStartMeasurement_PutOnNextAutoUITransaction() {

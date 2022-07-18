@@ -670,15 +670,23 @@ static NSLock *profilerLock;
 
     if (appStartMeasurement != nil && appStartMeasurement.type != SentryAppStartTypeUnknown) {
         NSString *type = nil;
+        NSString *dataType = nil;
         if (appStartMeasurement.type == SentryAppStartTypeCold) {
             type = @"app_start_cold";
+            dataType = @"cold";
         } else if (appStartMeasurement.type == SentryAppStartTypeWarm) {
             type = @"app_start_warm";
+            dataType = @"warm";
         }
 
-        if (type != nil) {
+        if (type != nil && dataType != nil) {
             [transaction setMeasurementValue:@{ valueKey : @(appStartMeasurement.duration * 1000) }
                                       forKey:type];
+
+            NSString *appStartType = appStartMeasurement.preWarmed
+                ? [NSString stringWithFormat:@"%@.prewarmed", dataType]
+                : dataType;
+            [self setDataValue:appStartType forKey:@"appSartType"];
         }
     }
 
