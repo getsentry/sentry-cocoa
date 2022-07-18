@@ -8,8 +8,9 @@ import XCTest
 class SentryDebugImageProviderTests: XCTestCase {
     
     private class Fixture {
+        let imageProvider = TestSentryCrashBinaryImageProvider()
+
         func getSut(images: [SentryCrashBinaryImage] = []) -> SentryDebugImageProvider {
-            let imageProvider = TestSentryCrashBinaryImageProvider()
             imageProvider.imageCount = images.count
             imageProvider.binaryImage = images
             return SentryDebugImageProvider(binaryImageProvider: imageProvider)
@@ -71,6 +72,27 @@ class SentryDebugImageProviderTests: XCTestCase {
         XCTAssertEqual("0x00007fff51af0000", debugMeta.imageVmAddress)
         XCTAssertEqual("apple", debugMeta.type)
         XCTAssertEqual(352_256, debugMeta.imageSize)
+    }
+
+    func test_DebugImageCache() {
+        let twoImages = Array(fixture.getTestImages().dropLast())
+        let sut = fixture.getSut(images: twoImages)
+
+        var actual = sut.getDebugImages()
+        XCTAssertEqual(2, actual.count)
+
+        // We update the debug images under the hood
+        fixture.imageProvider.binaryImage = fixture.getTestImages()
+        fixture.imageProvider.imageCount = fixture.imageProvider.binaryImage.count
+
+        // It's still using the cached value
+        actual = sut.getDebugImages()
+        XCTAssertEqual(2, actual.count)
+
+        // Clear the cache and get the new value
+        sut.clearCachedDebugImages()
+        actual = sut.getDebugImages()
+        XCTAssertEqual(3, actual.count)
     }
     
     func testImageVmAddressIsZero() {
@@ -156,7 +178,7 @@ class SentryDebugImageProviderTests: XCTestCase {
         
         XCTAssertEqual(actual.count, 0)
     }
-        
+
     private static func createSentryCrashBinaryImage(
         address: UInt64 = 0,
         vmAddress: UInt64 = 0,

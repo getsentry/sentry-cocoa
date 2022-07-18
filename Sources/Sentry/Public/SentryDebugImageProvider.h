@@ -25,6 +25,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (NSArray<SentryDebugMeta *> *)getDebugImages;
 
+/**
+ * Clears the cached debug images.
+ */
+- (void)clearCachedDebugImages;
+
 @end
 
 NS_ASSUME_NONNULL_END

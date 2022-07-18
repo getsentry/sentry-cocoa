@@ -52,6 +52,11 @@ clearCachedDebugImages(const struct mach_header *header, intptr_t slide)
     cachedDebugImages = nil;
 }
 
+- (void)clearCachedDebugImages
+{
+    cachedDebugImages = nil;
+}
+
 - (NSArray<SentryDebugMeta *> *)getDebugImagesForThreads:(NSArray<SentryThread *> *)threads
 {
     NSMutableSet<NSString *> *imageAdresses = [[NSMutableSet alloc] init];
