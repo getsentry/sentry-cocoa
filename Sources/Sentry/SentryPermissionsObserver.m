@@ -70,9 +70,14 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 
     case UNAuthorizationStatusAuthorized:
     case UNAuthorizationStatusProvisional:
+        self.pushPermissionStatus = kSentryPermissionStatusGranted;
+        break;
+
+#    if TARGET_OS_IOS
     case UNAuthorizationStatusEphemeral:
         self.pushPermissionStatus = kSentryPermissionStatusGranted;
         break;
+#    endif
     }
 }
 #endif
