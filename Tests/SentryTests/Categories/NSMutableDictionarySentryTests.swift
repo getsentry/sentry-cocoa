@@ -37,4 +37,18 @@ class NSMutableDictionarySentryTests: XCTestCase {
         
         XCTAssertEqual([0: [0: [0: 0, 1: 1]]], dict as? [Int: [Int: [Int: Int]]])
     }
+    
+    func testExistingNotADict_NewIsADict_GetsOverwritten() {
+        let dict = NSMutableDictionary(dictionary: [0: 0])
+        dict.mergeEntries(from: [0: [1: 1]])
+        
+        XCTAssertEqual([0: [1: 1]], dict as? [Int: [Int: Int]])
+    }
+    
+    func testExistingIsADict_NewIsNotADict_GetsOverwritten() {
+        let dict = NSMutableDictionary(dictionary: [0: [0: 0]])
+        dict.mergeEntries(from: [0: 1])
+        
+        XCTAssertEqual([0: 1], dict as? [Int: Int])
+    }
 }
