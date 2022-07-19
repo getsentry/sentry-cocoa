@@ -131,11 +131,11 @@ SentryAppStartTracker ()
             return;
         }
 
-        BOOL preWarmed = NO;
+        BOOL isPreWarmed = NO;
         if ([self isActivePrewarmAvailable] && isActivePrewarm) {
             [SentryLog logWithMessage:@"The app was prewarmed." andLevel:kSentryLevelInfo];
 
-            preWarmed = YES;
+            isPreWarmed = YES;
         }
 
         // According to a talk at WWDC about optimizing app launch
@@ -157,7 +157,7 @@ SentryAppStartTracker ()
         // https://eisel.me/startup
         NSTimeInterval appStartDuration = 0.0;
         NSDate *appStartTimestamp;
-        if (preWarmed) {
+        if (isPreWarmed) {
             appStartDuration = [[self.currentDate date]
                 timeIntervalSinceDate:self.sysctl.moduleInitializationTimestamp];
             appStartTimestamp = self.sysctl.moduleInitializationTimestamp;
@@ -191,7 +191,7 @@ SentryAppStartTracker ()
 
         SentryAppStartMeasurement *appStartMeasurement = [[SentryAppStartMeasurement alloc]
                              initWithType:appStartType
-                              isPreWarmed:preWarmed
+                              isPreWarmed:isPreWarmed
                         appStartTimestamp:appStartTimestamp
                                  duration:appStartDuration
                      runtimeInitTimestamp:runtimeInit
