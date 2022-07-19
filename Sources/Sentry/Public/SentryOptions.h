@@ -308,11 +308,39 @@ NS_SWIFT_NAME(Options)
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
+ * DEPRECATED: Use `profilesSampleRate` instead. Setting `enableProfiling` to YES is the equivalent
+ * of setting `profilesSampleRate` to `1.0`. If `profilesSampleRate` is set, it will take precedence
+ * over this setting.
+ *
  * Whether to enable the sampling profiler. Default is NO.
  * @note This is a beta feature that is currently not available to all Sentry customers. This
  * feature is not supported on watchOS or tvOS.
  */
-@property (nonatomic, assign) BOOL enableProfiling;
+@property (nonatomic, assign) BOOL enableProfiling DEPRECATED_MSG_ATTRIBUTE("This property will be removed in a future version of the SDK");
+
+/**
+ * This feature is experimental. Profiling is not supported on watchOS or tvOS.
+ *
+ * Indicates the percentage of sampled transactions for which profiles are also collected.
+ *
+ * The default is 0. The value needs to be >= 0.0 and <= 1.0. When setting a value out of range
+ * the SDK sets it to the default of 0.
+ *
+ * This property is dependent on `tracesSampleRate` -- if `tracesSampleRate` is 0 (default),
+ * no profiles will be collected no matter what this property is set to. The effective percentage
+ * of profiles that are collected is `tracesSampleRate` x `profilesSampleRate`. For example, if
+ * `tracesSampleRate` is 0.5 and `profilesSampleRate` is 0.1, profiles will be collected for 0.05 (5%)
+ * of all transactions.
+ */
+@property (nullable, nonatomic, strong) NSNumber *profilesSampleRate;
+
+/**
+ * This feature is experimental. Profiling is not supported on watchOS or tvOS.
+ *
+ * A callback to a user defined profiles sampler function. This is similar to setting `profilesSampleRate`,
+ * but instead of a static value, the callback function will be called to determine the sample rate.
+ */
+@property (nullable, nonatomic) SentryTracesSamplerCallback profilesSampler;
 #endif
 
 /**
