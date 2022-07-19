@@ -1,7 +1,10 @@
 #import "SentryPermissionsObserver.h"
 #import <CoreLocation/CoreLocation.h>
-#import <UIKit/UIKit.h>
 #import <UserNotifications/UserNotifications.h>
+
+#if SENTRY_HAS_UIKIT
+#    import <UIKit/UIKit.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,24 +34,29 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
     self.locationManager = [[CLLocationManager alloc] init];
     self.locationManager.delegate = self;
 
+#if SENTRY_HAS_UIKIT
     // We can't listen for push permission updates directly, there simply is no API for that.
     // Instead we re-check when the application comes back to the foreground.
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(checkPushPermissions)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
+#endif
 }
 
 - (void)checkPushPermissions
 {
+#if SENTRY_HAS_UIKIT
     if (@available(iOS 10, *)) {
         [[UNUserNotificationCenter currentNotificationCenter]
             getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
                 [self setPushPermissionFromStatus:settings.authorizationStatus];
             }];
     }
+#endif
 }
 
+#if SENTRY_HAS_UIKIT
 - (void)setPushPermissionFromStatus:(UNAuthorizationStatus)status
 {
     switch (status) {
@@ -67,6 +75,7 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
         break;
     }
 }
+#endif
 
 - (void)setLocationPermissionFromStatus:(CLAuthorizationStatus)status
 {
@@ -81,9 +90,14 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
         break;
 
     case kCLAuthorizationStatusAuthorizedAlways:
+        self.locationPermissionStatus = kSentryPermissionStatusGranted;
+        break;
+
+#if SENTRY_HAS_UIKIT
     case kCLAuthorizationStatusAuthorizedWhenInUse:
         self.locationPermissionStatus = kSentryPermissionStatusGranted;
         break;
+#endif
     }
 }
 
