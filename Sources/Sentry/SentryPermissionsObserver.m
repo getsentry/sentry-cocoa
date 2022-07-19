@@ -98,7 +98,7 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
         self.locationPermissionStatus = kSentryPermissionStatusGranted;
         break;
 
-#if SENTRY_HAS_UIKIT
+#if !TARGET_OS_OSX
     case kCLAuthorizationStatusAuthorizedWhenInUse:
         self.locationPermissionStatus = kSentryPermissionStatusGranted;
         break;
