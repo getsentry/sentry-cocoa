@@ -7,6 +7,20 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@implementation SentryTracesSamplerDecision
+
+- (instancetype)initWithDecision:(SentrySampleDecision)decision
+                   forSampleRate:(nullable NSNumber *)sampleRate
+{
+    if (self = [super init]) {
+        _decision = decision;
+        _sampleRate = sampleRate;
+    }
+    return self;
+}
+
+@end
+
 @implementation SentryTracesSampler {
     SentryOptions *_options;
 }
@@ -25,10 +39,12 @@ NS_ASSUME_NONNULL_BEGIN
     return [self initWithOptions:options random:[SentryDependencyContainer sharedInstance].random];
 }
 
-- (SentrySampleDecision)sample:(SentrySamplingContext *)context
+- (SentryTracesSamplerDecision *)sample:(SentrySamplingContext *)context
 {
     if (context.transactionContext.sampled != kSentrySampleDecisionUndecided) {
-        return context.transactionContext.sampled;
+        return [[SentryTracesSamplerDecision alloc]
+            initWithDecision:context.transactionContext.sampled
+               forSampleRate:context.transactionContext.sampleRate];
     }
 
     if (_options.tracesSampler != nil) {
@@ -44,18 +60,23 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     if (context.transactionContext.parentSampled != kSentrySampleDecisionUndecided)
-        return context.transactionContext.parentSampled;
+        return [[SentryTracesSamplerDecision alloc]
+            initWithDecision:context.transactionContext.parentSampled
+               forSampleRate:context.transactionContext.sampleRate];
 
     if (_options.tracesSampleRate != nil)
         return [self calcSample:_options.tracesSampleRate.doubleValue];
 
-    return kSentrySampleDecisionNo;
+    return [[SentryTracesSamplerDecision alloc] initWithDecision:kSentrySampleDecisionNo
+                                                   forSampleRate:nil];
 }
 
-- (SentrySampleDecision)calcSample:(double)rate
+- (SentryTracesSamplerDecision *)calcSample:(double)rate
 {
     double r = [self.random nextNumber];
-    return r <= rate ? kSentrySampleDecisionYes : kSentrySampleDecisionNo;
+    SentrySampleDecision decision = r <= rate ? kSentrySampleDecisionYes : kSentrySampleDecisionNo;
+    return [[SentryTracesSamplerDecision alloc] initWithDecision:decision
+                                                   forSampleRate:[NSNumber numberWithDouble:rate]];
 }
 
 @end

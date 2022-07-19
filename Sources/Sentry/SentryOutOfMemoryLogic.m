@@ -4,6 +4,7 @@
 #import <SentryCrashWrapper.h>
 #import <SentryOptions.h>
 #import <SentryOutOfMemoryLogic.h>
+#import <SentrySDK+Private.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -21,12 +22,12 @@ SentryOutOfMemoryLogic ()
 @implementation SentryOutOfMemoryLogic
 
 - (instancetype)initWithOptions:(SentryOptions *)options
-                   crashAdapter:(SentryCrashWrapper *)crashAdatper
+                   crashAdapter:(SentryCrashWrapper *)crashAdapter
                 appStateManager:(SentryAppStateManager *)appStateManager
 {
     if (self = [super init]) {
         self.options = options;
-        self.crashAdapter = crashAdatper;
+        self.crashAdapter = crashAdapter;
         self.appStateManager = appStateManager;
     }
     return self;
@@ -44,6 +45,10 @@ SentryOutOfMemoryLogic ()
 
     // If there is no previous app state, we can't do anything.
     if (nil == previousAppState) {
+        return NO;
+    }
+
+    if (self.crashAdapter.isSimulatorBuild) {
         return NO;
     }
 
@@ -86,6 +91,12 @@ SentryOutOfMemoryLogic ()
     }
 
     if (previousAppState.isANROngoing) {
+        return NO;
+    }
+
+    // When calling SentrySDK.start twice we would wrongly report an OOM. We can only
+    // report an OOM when the SDK is started the first time.
+    if (SentrySDK.startInvocations != 1) {
         return NO;
     }
 

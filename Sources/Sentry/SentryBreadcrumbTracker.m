@@ -7,6 +7,7 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope.h"
 #import "SentrySwizzle.h"
+#import "SentrySwizzleWrapper.h"
 #import "SentryUIViewControllerSanitizer.h"
 
 #if SENTRY_HAS_UIKIT
@@ -15,7 +16,27 @@
 #    import <Cocoa/Cocoa.h>
 #endif
 
+NS_ASSUME_NONNULL_BEGIN
+
+static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
+    = @"SentryBreadcrumbTrackerSwizzleSendAction";
+
+@interface
+SentryBreadcrumbTracker ()
+
+@property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
+
+@end
+
 @implementation SentryBreadcrumbTracker
+
+- (instancetype)initWithSwizzleWrapper:(SentrySwizzleWrapper *)swizzleWrapper
+{
+    if (self = [super init]) {
+        self.swizzleWrapper = swizzleWrapper;
+    }
+    return self;
+}
 
 - (void)start
 {
@@ -31,10 +52,11 @@
 
 - (void)stop
 {
-    // This is a noop because the notifications are registered via blocks and monkey patching
-    // which are both super hard to clean up.
-    // Either way, all these are guarded by checking the client of the current hub, which
-    // we remove when uninstalling the SDK.
+    // All breadcrumbs are guarded by checking the client of the current hub, which we remove when
+    // uninstalling the SDK. Therefore, we don't clean up everything.
+#if SENTRY_HAS_UIKIT
+    [self.swizzleWrapper removeSwizzleSendActionForKey:SentryBreadcrumbTrackerSwizzleSendAction];
+#endif
 }
 
 - (void)trackApplicationUIKitNotifications
@@ -124,34 +146,28 @@
 {
 #if SENTRY_HAS_UIKIT
 
-    // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
-    // fine and we accept this warning.
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wshadow"
-
-    static const void *swizzleSendActionKey = &swizzleSendActionKey;
-    SEL selector = NSSelectorFromString(@"sendAction:to:from:forEvent:");
-    SentrySwizzleInstanceMethod(UIApplication.class, selector, SentrySWReturnType(BOOL),
-        SentrySWArguments(SEL action, id target, id sender, UIEvent * event), SentrySWReplacement({
-            if (nil != [SentrySDK.currentHub getClient]) {
-                NSDictionary *data = nil;
-                for (UITouch *touch in event.allTouches) {
-                    if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
-                        data = [SentryBreadcrumbTracker extractDataFromView:touch.view];
-                    }
-                }
-
-                SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                                                         category:@"touch"];
-                crumb.type = @"user";
-                crumb.message = [NSString stringWithFormat:@"%s", sel_getName(action)];
-                crumb.data = data;
-                [SentrySDK addBreadcrumb:crumb];
+    [self.swizzleWrapper
+        swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
+            if ([SentrySDK.currentHub getClient] == nil) {
+                return;
             }
-            return SentrySWCallOriginal(action, target, sender, event);
-        }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, swizzleSendActionKey);
-#    pragma clang diagnostic pop
+
+            NSDictionary *data = nil;
+            for (UITouch *touch in event.allTouches) {
+                if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
+                    data = [SentryBreadcrumbTracker extractDataFromView:touch.view];
+                }
+            }
+
+            SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                                     category:@"touch"];
+            crumb.type = @"user";
+            crumb.message = action;
+            crumb.data = data;
+            [SentrySDK addBreadcrumb:crumb];
+        }
+                   forKey:SentryBreadcrumbTrackerSwizzleSendAction];
+
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
                               @"swizzleSendAction] does nothing."
@@ -176,14 +192,12 @@
                 SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
                                                                          category:@"ui.lifecycle"];
                 crumb.type = @"navigation";
-                NSString *viewControllerName = [SentryUIViewControllerSanitizer
-                    sanitizeViewControllerName:[NSString stringWithFormat:@"%@", self]];
-                crumb.data = @ { @"screen" : viewControllerName };
+                crumb.data = [SentryBreadcrumbTracker fetchInfoAboutViewController:self];
 
                 // Adding crumb via the SDK calls SentryBeforeBreadcrumbCallback
                 [SentrySDK addBreadcrumb:crumb];
                 [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
-                    [scope setExtraValue:viewControllerName forKey:@"__sentry_transaction"];
+                    [scope setExtraValue:crumb.data[@"screen"] forKey:@"__sentry_transaction"];
                 }];
             }
             SentrySWCallOriginal(animated);
@@ -220,6 +234,45 @@
 
     return result;
 }
+
++ (NSDictionary *)fetchInfoAboutViewController:(UIViewController *)controller
+{
+    NSMutableDictionary *info = @{}.mutableCopy;
+
+    info[@"screen"] = [SentryUIViewControllerSanitizer
+        sanitizeViewControllerName:[NSString stringWithFormat:@"%@", controller]];
+
+    if ([controller.navigationItem.title length] != 0) {
+        info[@"title"] = controller.navigationItem.title;
+    } else if ([controller.title length] != 0) {
+        info[@"title"] = controller.title;
+    }
+
+    info[@"beingPresented"] = controller.beingPresented ? @"true" : @"false";
+
+    if (controller.presentingViewController != nil) {
+        info[@"presentingViewController"] = [SentryUIViewControllerSanitizer
+            sanitizeViewControllerName:controller.presentingViewController];
+    }
+
+    if (controller.parentViewController != nil) {
+        info[@"parentViewController"] = [SentryUIViewControllerSanitizer
+            sanitizeViewControllerName:controller.parentViewController];
+    }
+
+    if (controller.view.window != nil) {
+        info[@"window"] = controller.view.window.description;
+        info[@"window_isKeyWindow"] = controller.view.window.isKeyWindow ? @"true" : @"false";
+        info[@"window_windowLevel"] =
+            [NSString stringWithFormat:@"%f", controller.view.window.windowLevel];
+        info[@"is_window_rootViewController"]
+            = controller.view.window.rootViewController == controller ? @"true" : @"false";
+    }
+
+    return info;
+}
 #endif
 
 @end
+
+NS_ASSUME_NONNULL_END

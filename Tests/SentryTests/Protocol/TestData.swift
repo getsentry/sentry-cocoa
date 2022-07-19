@@ -1,4 +1,5 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+import Sentry
 import UIKit
 #endif
 
@@ -11,7 +12,7 @@ class TestData {
         }
     }
     static let sdk = ["name": SentryMeta.sdkName, "version": SentryMeta.versionString]
-    static let context = ["context": ["c": "a"]]
+    static let context = ["context": ["c": "a", "date": timestamp]]
     
     static var crumb: Breadcrumb {
         let crumb = Breadcrumb()
@@ -197,7 +198,7 @@ class TestData {
         let crumb1 = TestData.crumb
         crumb1.message = "Crumb 1"
         scope.add(crumb1)
-
+        
         let crumb2 = TestData.crumb
         crumb2.message = "Crumb 2"
         scope.add(crumb2)
@@ -205,31 +206,24 @@ class TestData {
         return scope
     }
     
+    static var userFeedback: UserFeedback {
+        let userFeedback = UserFeedback(eventId: SentryId())
+        userFeedback.comments = "It doesn't really"
+        userFeedback.email = "john@me.com"
+        userFeedback.name = "John Me"
+        return userFeedback
+    }
+    
     static func setContext(_ scope: Scope) {
         scope.setContext(value: TestData.context["context"]!, key: "context")
     }
     
-    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    private static var maximumFramesPerSecond: Int {
-        if #available(iOS 10.3, tvOS 10.3, macCatalyst 13.0, *) {
-            return UIScreen.main.maximumFramesPerSecond
-        } else {
-            return 60
-        }
-    }
-    
-    static var slowFrameThreshold: Double {
-        return 1 / (Double(maximumFramesPerSecond) - 1.0)
-    }
-    
-    static let frozenFrameThreshold = 0.7
-    #endif
-    
     static func getAppStartMeasurement(type: SentryAppStartType, appStartTimestamp: Date = TestData.timestamp) -> SentryAppStartMeasurement {
         let appStartDuration = 0.5
-        let runtimeInit = appStartTimestamp.addingTimeInterval(0.2)
+        let main = appStartTimestamp.addingTimeInterval(0.15)
+        let runtimeInit = appStartTimestamp.addingTimeInterval(0.05)
         let didFinishLaunching = appStartTimestamp.addingTimeInterval(0.3)
         
-        return SentryAppStartMeasurement(type: type, appStartTimestamp: appStartTimestamp, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, didFinishLaunchingTimestamp: didFinishLaunching)
+        return SentryAppStartMeasurement(type: type, appStartTimestamp: appStartTimestamp, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, didFinishLaunchingTimestamp: didFinishLaunching)
     }
 }

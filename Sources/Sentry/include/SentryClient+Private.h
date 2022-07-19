@@ -1,12 +1,25 @@
 #import "SentryClient.h"
+#import "SentryDataCategory.h"
+#import "SentryDiscardReason.h"
 #import <Foundation/Foundation.h>
 
-@class SentryEnvelopeItem, SentryId;
+@class SentryEnvelopeItem, SentryId, SentryAttachment, SentryThreadInspector;
 
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol SentryClientAttachmentProcessor <NSObject>
+
+- (nullable NSArray<SentryAttachment *> *)processAttachments:
+                                              (nullable NSArray<SentryAttachment *> *)attachments
+                                                    forEvent:(SentryEvent *)event;
+
+@end
+
 @interface
 SentryClient (Private)
+
+@property (nonatomic, weak) id<SentryClientAttachmentProcessor> attachmentProcessor;
+@property (nonatomic, strong) SentryThreadInspector *threadInspector;
 
 - (SentryFileManager *)fileManager;
 
@@ -33,6 +46,8 @@ SentryClient (Private)
  * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
  */
 - (void)storeEnvelope:(SentryEnvelope *)envelope;
+
+- (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason;
 
 @end
 

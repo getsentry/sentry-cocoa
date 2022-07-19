@@ -1,6 +1,6 @@
 #import "SentryOptions.h"
+#import "SentryANRTracker.h"
 #import "SentryDsn.h"
-#import "SentryError.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentrySDK.h"
@@ -22,7 +22,8 @@ SentryOptions ()
     return @[
         @"SentryCrashIntegration",
 #if SENTRY_HAS_UIKIT
-        @"SentryANRTrackingIntegration",
+        @"SentryANRTrackingIntegration", @"SentryScreenshotIntegration",
+        @"SentryUIEventTrackingIntegration",
 #endif
         @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
         @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
@@ -54,18 +55,25 @@ SentryOptions ()
         self.enableAutoPerformanceTracking = YES;
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracking = YES;
+        self.attachScreenshot = NO;
+        self.enableUserInteractionTracing = NO;
+        self.idleTimeout = 3.0;
 #endif
+        self.enableAppHangTracking = NO;
+        self.appHangTimeoutInterval = 2.0;
+        self.enableAutoBreadcrumbTracking = YES;
+
         self.enableNetworkTracking = YES;
         self.enableFileIOTracking = NO;
         self.enableNetworkBreadcrumbs = YES;
         _defaultTracesSampleRate = nil;
         self.tracesSampleRate = _defaultTracesSampleRate;
         self.enableCoreDataTracking = NO;
-        _experimentalEnableTraceSampling = NO;
         _enableSwizzling = YES;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         self.enableProfiling = NO;
 #endif
+        self.sendClientReports = YES;
 
         // Use the name of the bundle’s executable file as inAppInclude, so SentryInAppLogic
         // marks frames coming from there as inApp. With this approach, the SDK marks public
@@ -87,8 +95,6 @@ SentryOptions ()
         }
 
         _inAppExcludes = [NSArray new];
-        _sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
-                                            andVersion:SentryMeta.versionString];
 
         // Set default release name
         if (nil != infoDict) {
@@ -229,7 +235,24 @@ SentryOptions ()
 #if SENTRY_HAS_UIKIT
     [self setBool:options[@"enableUIViewControllerTracking"]
             block:^(BOOL value) { self->_enableUIViewControllerTracking = value; }];
+
+    [self setBool:options[@"attachScreenshot"]
+            block:^(BOOL value) { self->_attachScreenshot = value; }];
+
+    [self setBool:options[@"enableUserInteractionTracing"]
+            block:^(BOOL value) { self->_enableUserInteractionTracing = value; }];
+
+    if ([options[@"idleTimeout"] isKindOfClass:[NSNumber class]]) {
+        self.idleTimeout = [options[@"idleTimeout"] doubleValue];
+    }
 #endif
+
+    [self setBool:options[@"enableAppHangTracking"]
+            block:^(BOOL value) { self->_enableAppHangTracking = value; }];
+
+    if ([options[@"appHangTimeoutInterval"] isKindOfClass:[NSNumber class]]) {
+        self.appHangTimeoutInterval = [options[@"appHangTimeoutInterval"] doubleValue];
+    }
 
     [self setBool:options[@"enableNetworkTracking"]
             block:^(BOOL value) { self->_enableNetworkTracking = value; }];
@@ -259,20 +282,44 @@ SentryOptions ()
         self.urlSessionDelegate = options[@"urlSessionDelegate"];
     }
 
-    [self setBool:options[@"experimentalEnableTraceSampling"]
-            block:^(BOOL value) { self->_experimentalEnableTraceSampling = value; }];
-
     [self setBool:options[@"enableSwizzling"]
             block:^(BOOL value) { self->_enableSwizzling = value; }];
 
     [self setBool:options[@"enableCoreDataTracking"]
             block:^(BOOL value) { self->_enableCoreDataTracking = value; }];
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    [self setBool:options[@"enableProfiling"]
+            block:^(BOOL value) { self->_enableProfiling = value; }];
+#endif
+
+    [self setBool:options[@"sendClientReports"]
+            block:^(BOOL value) { self->_sendClientReports = value; }];
+
+    [self setBool:options[@"enableAutoBreadcrumbTracking"]
+            block:^(BOOL value) { self->_enableAutoBreadcrumbTracking = value; }];
+
+    // SentrySdkInfo already expects a dictionary with {"sdk": {"name": ..., "value": ...}}
+    // so we're passing the whole options object.
+    // Note: we should remove this code once the hybrid SDKs move over to the new
+    // PrivateSentrySDKOnly setter functions.
+    if ([options[@"sdk"] isKindOfClass:[NSDictionary class]]) {
+        SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithDict:options];
+        SentryMeta.versionString = sdkInfo.version;
+        SentryMeta.sdkName = sdkInfo.name;
+    }
+
     if (nil != error && nil != *error) {
         return NO;
     } else {
         return YES;
     }
+}
+
+- (SentrySdkInfo *)sdkInfo
+{
+    return [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
+                                    andVersion:SentryMeta.versionString];
 }
 
 - (void)setBool:(id)value block:(void (^)(BOOL))block

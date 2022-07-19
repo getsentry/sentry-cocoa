@@ -6,11 +6,25 @@
  * that these categories are different from the envelope item types.
  */
 typedef NS_ENUM(NSUInteger, SentryDataCategory) {
-    kSentryDataCategoryAll,
-    kSentryDataCategoryDefault,
-    kSentryDataCategoryError,
-    kSentryDataCategorySession,
-    kSentryDataCategoryTransaction,
-    kSentryDataCategoryAttachment,
-    kSentryDataCategoryUnknown
+    kSentryDataCategoryAll = 0,
+    kSentryDataCategoryDefault = 1,
+    kSentryDataCategoryError = 2,
+    kSentryDataCategorySession = 3,
+    kSentryDataCategoryTransaction = 4,
+    kSentryDataCategoryAttachment = 5,
+    kSentryDataCategoryUserFeedback = 6,
+    kSentryDataCategoryProfile = 7,
+    kSentryDataCategoryUnknown = 8
+};
+
+static NSString *_Nonnull const SentryDataCategoryNames[] = {
+    @"", // empty on purpose
+    @"default",
+    @"error",
+    @"session",
+    @"transaction",
+    @"attachment",
+    @"user_report",
+    @"profile",
+    @"unkown",
 };

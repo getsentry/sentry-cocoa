@@ -14,7 +14,7 @@ SentryTransaction ()
 
 @implementation SentryTransaction
 
-- (instancetype)initWithTrace:(id<SentrySpan>)trace children:(NSArray<id<SentrySpan>> *)children
+- (instancetype)initWithTrace:(SentryTracer *)trace children:(NSArray<id<SentrySpan>> *)children
 {
     if (self = [super init]) {
         self.timestamp = trace.timestamp;
@@ -47,8 +47,37 @@ SentryTransaction ()
     if (serializedData[@"contexts"] != nil) {
         [mutableContext addEntriesFromDictionary:serializedData[@"contexts"]];
     }
-    mutableContext[@"trace"] = [_trace serialize];
+
+    mutableContext[@"trace"] = [self.trace serialize];
     [serializedData setValue:mutableContext forKey:@"contexts"];
+
+    NSMutableDictionary<NSString *, id> *traceTags =
+        [[self.trace.tags sentry_sanitize] mutableCopy];
+    [traceTags addEntriesFromDictionary:[self.trace.context.tags sentry_sanitize]];
+
+    // Adding tags from Trace to serializedData dictionary
+    if (serializedData[@"tags"] != nil &&
+        [serializedData[@"tags"] isKindOfClass:NSDictionary.class]) {
+        NSMutableDictionary *tags = [NSMutableDictionary new];
+        [tags addEntriesFromDictionary:serializedData[@"tags"]];
+        [tags addEntriesFromDictionary:traceTags];
+        serializedData[@"tags"] = tags;
+    } else {
+        serializedData[@"tags"] = traceTags;
+    }
+
+    NSDictionary<NSString *, id> *traceData = [self.trace.data sentry_sanitize];
+
+    // Adding data from Trace to serializedData dictionary
+    if (serializedData[@"extra"] != nil &&
+        [serializedData[@"extra"] isKindOfClass:NSDictionary.class]) {
+        NSMutableDictionary *extra = [NSMutableDictionary new];
+        [extra addEntriesFromDictionary:serializedData[@"extra"]];
+        [extra addEntriesFromDictionary:traceData];
+        serializedData[@"extra"] = extra;
+    } else {
+        serializedData[@"extra"] = traceData;
+    }
 
     if (self.measurements.count > 0) {
         serializedData[@"measurements"] = [self.measurements.copy sentry_sanitize];

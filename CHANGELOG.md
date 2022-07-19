@@ -4,14 +4,155 @@
 
 - feat: Add more info to touch event breadcrumbs (#1724)
 - feat: Add support for dynamic library (#1726)
+### Features
+
+- Read free_memory when the event is captured, not only at SDK startup (#1962)
+
+### Fixes
+
+- Remove Sentry keys from cached HTTP request headers (#1975)
+- Collect samples for idle threads in iOS profiler (#1978)
+
+## 7.21.0
+
+### Features
+
+- Enhance the UIViewController breadcrumbs with more data (#1945)
+- feat: Add extra app start span (#1952)
+- Add enableAutoBreadcrumbTracking option (#1958)
+- Automatic nest spans with the UI life cycle (#1959)
+- Upload frame rendering timestamps to correlate to sampled backtraces (#1910)
+
+### Fixes
+
+- Don't track OOMs for simulators (#1970)
+- Properly sanitize the event context and SDK information (#1943)
+- Don't send error 429 as `network_error` (#1957)
+- Sanitize Span data (#1963)
+- Deprecate not needed option `sdkInfo` (#1960)
+- Crash in profiling logger (#1964)
+
+## 7.20.0
+
+### Features
+
+- Add screenshot at crash (#1920)
+- Track timezone changes as breadcrumbs (#1930)
+- Add sample rate in the baggage header, remove Userid and Transaction (#1936)
+
+## 7.19.0
+
+### Features
+
+- Add main thread ID to profiling payload (#1918)
+- Add App Hangs tracking (#1906)
+
+### Fixes
+
+- Remove WebKit optimization check (#1921)
+- Detect prewarmed starts with env variable (#1927)
+
+## 7.18.1
+
+### Fixes
+
+- Fix high percentage of slow frames (#1915)
+
+## 7.18.0
+
+### Features
+
+- Replace tracestate header with baggage (#1867)
+
+### Fixes
+
+- Discard long-lasting auto-generated transactions (#1903)
+- Unset scope span when finishing idle transaction (#1902)
+- Set max app start duration to 60s (#1899)
+- Screenshot wrongly attached in crash events (#1901)
+
+## 7.17.0
+
+### Features
+
+- Implement description for SentryBreadcrumb (#1880)
+
+### Fixes
+
+- Propagate configured SDK info from options to events (#1853)
+- Stop reporting pre warmed app starts (#1896)
+
+## 7.16.1
+
+
+### Fixes
+
+- Fix reporting wrong OOM when starting SDK twice (#1878)
+- Fix JSON conversion error message (#1856)
+- Transaction tag and data serialization (#1826)
+
+## 7.16.0
+
+### Features
+
+- UI event transactions for clicks (#1784)
+- Collect queue label information for profiles (#1828)
+- Use the macho format for debug information in Profiling (#1830)
+- Allow partial SDK info override (#1816)
+
+### Fixes
+
+- Hub uses its scope (#1821)
+
+## 7.15.0
+
+### Features
+
+- Add profile data category for rate limiting (#1799)
+- Allow setting SDK info with Options initWithDict (#1793)
+- Remove ViewController name match for swizzling (#1802)
+
+### Fixes
+
+- Apply patch for SentryCrashCachedData (#1790)
+- Fix getting class data mask in SentryCrash (#1788)
+- Use pod_target_xcconfig for Podspec #1792
+- Case sensitive header import error (#1794)
+- Parsing of output from backtrace_symbols() (#1782)
+
+## 7.14.0
+
+- fix: User feedback crash (#1766)
+- feat: Attach screenshots for errors (#1751)
+- fix: Remove authenticated pointer stripping for iOS backtraces (#1757)
+- perf: Filter binary images on Sentry Crash (#1767)
+- fix: NSURL warning during SDK initialization (#1764)
+
+## 7.13.0
+
+If you are using self-hosted Sentry, this version requires Sentry version >= [21.9.0](https://github.com/getsentry/relay/blob/master/CHANGELOG.md#2190)
+to work or you have to manually disable sending client reports via the `sendClientReports` option.
+
+- feat: Add Client Reports (#1733)
+- fix: enableProfiling option via initWithDict (#1743)
+
+## 7.12.0
 
 ### Important notice
 
 This release contains a fix for the sampling of transactions. The SDK applied both sample rates for events and transactions when capturing transactions. Previously, when setting sampleRate to 0.0, the SDK would discard all transactions.
 This is fixed now by ignoring the sampleRate for transactions. If you use custom values for sampleRate and traceSampleRate or traceSampler, this change will have an impact on you.
 
+If you are using profiling and self-hosted Sentry, this version requires Sentry version >= [22.3.0](https://github.com/getsentry/relay/releases/tag/22.3.0).
+
+### Various fixes & improvements
+
+- fix: Avoid race condition in SentryCrash (#1735)
+- fix: Possible endless loop for onCrashedLastRun (#1734)
 - fix: Wrongly sampling transactions (#1716)
 - feat: Add flag for UIViewControllerTracking (#1711)
+- feat: Add more info to touch event breadcrumbs (#1724)
+- feat: Add support for profiling on iOS (#1652) by @armcknight
 
 ## 7.12.0-beta.0
 
@@ -36,7 +177,7 @@ This is fixed now by ignoring the sampleRate for transactions. If you use custom
 
 ## 7.10.0
 
-- fix: Always tracks App start for Hybrid SDKs (#1662) 
+- fix: Always tracks App start for Hybrid SDKs (#1662)
 - feat: Send SDK integrations (#1647)
 - fix: Don't track OOMs for unit tests (#1651)
 - fix: Add verification for vendor UUID in OOM logic (#1648)

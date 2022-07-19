@@ -178,9 +178,19 @@
     [self testBooleanField:@"enableNetworkBreadcrumbs"];
 }
 
+- (void)testEnableAutoBreadcrumbTracking
+{
+    [self testBooleanField:@"enableAutoBreadcrumbTracking"];
+}
+
 - (void)testEnableCoreDataTracking
 {
     [self testBooleanField:@"enableCoreDataTracking" defaultValue:NO];
+}
+
+- (void)testSendClientReports
+{
+    [self testBooleanField:@"sendClientReports" defaultValue:YES];
 }
 
 - (void)testDefaultMaxBreadcrumbs
@@ -435,24 +445,6 @@
     [self testBooleanField:@"enableFileIOTracking" defaultValue:NO];
 }
 
-- (void)testEnableTraceSampling
-{
-    SentryOptions *options = [self getValidOptions:@{}];
-    XCTAssertFalse(options.experimentalEnableTraceSampling);
-}
-
-- (void)testEnableTraceSamplingEnabled
-{
-    SentryOptions *options = [self getValidOptions:@{ @"experimentalEnableTraceSampling" : @YES }];
-    XCTAssertTrue(options.experimentalEnableTraceSampling);
-}
-
-- (void)testEnableTraceSamplingDisabled
-{
-    SentryOptions *options = [self getValidOptions:@{ @"experimentalEnableTraceSampling" : @NO }];
-    XCTAssertFalse(options.experimentalEnableTraceSampling);
-}
-
 - (void)testEmptyConstructorSetsDefaultValues
 {
     SentryOptions *options = [[SentryOptions alloc] init];
@@ -488,8 +480,12 @@
         @"enableAutoPerformanceTracking" : [NSNull null],
 #if SENTRY_HAS_UIKIT
         @"enableUIViewControllerTracking" : [NSNull null],
+        @"attachScreenshot" : [NSNull null],
 #endif
+        @"enableAppHangTracking" : [NSNull null],
+        @"appHangTimeoutInterval" : [NSNull null],
         @"enableNetworkTracking" : [NSNull null],
+        @"enableAutoBreadcrumbTracking" : [NSNull null],
         @"tracesSampleRate" : [NSNull null],
         @"tracesSampler" : [NSNull null],
         @"inAppIncludes" : [NSNull null],
@@ -497,7 +493,8 @@
         @"urlSessionDelegate" : [NSNull null],
         @"experimentalEnableTraceSampling" : [NSNull null],
         @"enableSwizzling" : [NSNull null],
-        @"enableIOTracking" : [NSNull null]
+        @"enableIOTracking" : [NSNull null],
+        @"sdk" : [NSNull null]
     }
                                                 didFailWithError:nil];
 
@@ -531,19 +528,29 @@
     XCTAssertTrue(options.enableAutoPerformanceTracking);
 #if SENTRY_HAS_UIKIT
     XCTAssertTrue(options.enableUIViewControllerTracking);
+    XCTAssertFalse(options.attachScreenshot);
+    XCTAssertEqual(3.0, options.idleTimeout);
 #endif
+    XCTAssertFalse(options.enableAppHangTracking);
+    XCTAssertEqual(options.appHangTimeoutInterval, 2);
     XCTAssertEqual(YES, options.enableNetworkTracking);
     XCTAssertNil(options.tracesSampleRate);
     XCTAssertNil(options.tracesSampler);
     XCTAssertEqualObjects([self getDefaultInAppIncludes], options.inAppIncludes);
     XCTAssertEqual(@[], options.inAppExcludes);
     XCTAssertNil(options.urlSessionDelegate);
-    XCTAssertFalse(options.experimentalEnableTraceSampling);
     XCTAssertEqual(YES, options.enableSwizzling);
     XCTAssertEqual(NO, options.enableFileIOTracking);
+    XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     XCTAssertEqual(NO, options.enableProfiling);
 #endif
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name);
+    XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version);
+#pragma clang diagnostic pop
 }
 
 - (void)testSetValidDsn
@@ -582,10 +589,74 @@
 
 - (void)testSdkInfo
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     SentryOptions *options = [[SentryOptions alloc] init];
-
     XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name);
     XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version);
+#pragma clang diagnostic pop
+}
+
+- (void)testSetCustomSdkInfo
+{
+    NSDictionary *dict = @{ @"name" : @"custom.sdk", @"version" : @"1.2.3-alpha.0" };
+
+    NSError *error = nil;
+    SentryOptions *options =
+        [[SentryOptions alloc] initWithDict:@{ @"sdk" : dict, @"dsn" : @"https://a:b@c.d/1" }
+                           didFailWithError:&error];
+
+    XCTAssertNil(error);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    XCTAssertEqual(dict[@"name"], options.sdkInfo.name);
+    XCTAssertEqual(dict[@"version"], options.sdkInfo.version);
+#pragma clang diagnostic pop
+
+    NSDictionary *info = [[NSBundle bundleForClass:[SentryClient class]] infoDictionary];
+    NSString *version = [NSString stringWithFormat:@"%@", info[@"CFBundleShortVersionString"]];
+    SentryMeta.versionString = version;
+}
+
+- (void)testSetCustomSdkName
+{
+    NSDictionary *dict = @{ @"name" : @"custom.sdk" };
+
+    NSError *error = nil;
+    SentryOptions *options =
+        [[SentryOptions alloc] initWithDict:@{ @"sdk" : dict, @"dsn" : @"https://a:b@c.d/1" }
+                           didFailWithError:&error];
+
+    XCTAssertNil(error);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    XCTAssertEqual(dict[@"name"], options.sdkInfo.name);
+    XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version); // default version
+#pragma clang diagnostic pop
+}
+
+- (void)testSetCustomSdkVersion
+{
+    NSDictionary *dict = @{ @"version" : @"1.2.3-alpha.0" };
+
+    NSError *error = nil;
+    SentryOptions *options =
+        [[SentryOptions alloc] initWithDict:@{ @"sdk" : dict, @"dsn" : @"https://a:b@c.d/1" }
+                           didFailWithError:&error];
+
+    XCTAssertNil(error);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name); // default name
+    XCTAssertEqual(dict[@"version"], options.sdkInfo.version);
+#pragma clang diagnostic pop
+
+    NSDictionary *info = [[NSBundle bundleForClass:[SentryClient class]] infoDictionary];
+    NSString *version = [NSString stringWithFormat:@"%@", info[@"CFBundleShortVersionString"]];
+    SentryMeta.versionString = version;
 }
 
 - (void)testMaxAttachmentSize
@@ -618,7 +689,37 @@
 {
     [self testBooleanField:@"enableUIViewControllerTracking"];
 }
+
+- (void)testAttachScreenshot
+{
+    [self testBooleanField:@"attachScreenshot" defaultValue:NO];
+}
+
+- (void)testEnableUserInteractionTracking
+{
+    [self testBooleanField:@"enableUserInteractionTracing" defaultValue:NO];
+}
+
+- (void)testIdleTimeout
+{
+    NSNumber *idleTimeout = @2.1;
+    SentryOptions *options = [self getValidOptions:@{ @"idleTimeout" : idleTimeout }];
+
+    XCTAssertEqual([idleTimeout doubleValue], options.idleTimeout);
+}
+
 #endif
+
+- (void)testEnableAppHangTracking
+{
+    [self testBooleanField:@"enableAppHangTracking" defaultValue:NO];
+}
+
+- (void)testDefaultAppHangsTimeout
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertEqual(2, options.appHangTimeoutInterval);
+}
 
 - (void)testEnableNetworkTracking
 {
@@ -629,6 +730,13 @@
 {
     [self testBooleanField:@"enableSwizzling"];
 }
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+- (void)testEnableProfiling
+{
+    [self testBooleanField:@"enableProfiling" defaultValue:NO];
+}
+#endif
 
 - (void)testTracesSampleRate
 {
@@ -828,6 +936,19 @@
     SentryOptions *options = [self getValidOptions:@{ @"urlSessionDelegate" : urlSessionDelegate }];
 
     XCTAssertNotNil(options.urlSessionDelegate);
+}
+
+- (void)testSdkInfoChanges
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    SentryMeta.sdkName = @"new name";
+    SentryMeta.versionString = @"0.0.6";
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    XCTAssertEqual(options.sdkInfo.name, SentryMeta.sdkName);
+    XCTAssertEqual(options.sdkInfo.version, SentryMeta.versionString);
+#pragma clang diagnostic pop
 }
 
 - (void)assertArrayEquals:(NSArray<NSString *> *)expected actual:(NSArray<NSString *> *)actual

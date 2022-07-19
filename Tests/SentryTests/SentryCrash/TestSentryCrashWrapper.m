@@ -1,4 +1,5 @@
 #import "TestSentryCrashWrapper.h"
+#import "SentryCrash.h"
 #import <Foundation/Foundation.h>
 
 @implementation TestSentryCrashWrapper
@@ -9,9 +10,11 @@
     instance.internalActiveDurationSinceLastCrash = NO;
     instance.internalActiveDurationSinceLastCrash = 0;
     instance.internalIsBeingTraced = NO;
+    instance.internalIsSimulatorBuild = NO;
     instance.internalIsApplicationInForeground = YES;
     instance.installAsyncHooksCalled = NO;
-    instance.deactivateAsyncHooksCalled = NO;
+    instance.closeCalled = NO;
+    instance.internalFreeMemory = 0;
     return instance;
 }
 
@@ -30,6 +33,11 @@
     return self.internalIsBeingTraced;
 }
 
+- (BOOL)isSimulatorBuild
+{
+    return self.internalIsSimulatorBuild;
+}
+
 - (BOOL)isApplicationInForeground
 {
     return self.internalIsApplicationInForeground;
@@ -40,9 +48,19 @@
     self.installAsyncHooksCalled = YES;
 }
 
-- (void)deactivateAsyncHooks
+- (void)close
 {
-    self.deactivateAsyncHooksCalled = YES;
+    self.closeCalled = YES;
+}
+
+- (NSDictionary *)systemInfo
+{
+    return @{};
+}
+
+- (uint64_t)freeMemory
+{
+    return self.internalFreeMemory;
 }
 
 @end

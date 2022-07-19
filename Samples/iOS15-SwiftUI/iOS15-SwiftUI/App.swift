@@ -12,6 +12,7 @@ struct SwiftUIApp: App {
             options.tracesSampleRate = 1.0
             options.enableFileIOTracking = true
             options.enableProfiling = true
+            options.enableUserInteractionTracing = true
         }
     }
     

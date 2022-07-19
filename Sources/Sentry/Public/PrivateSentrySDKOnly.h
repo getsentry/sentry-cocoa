@@ -39,7 +39,12 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  * Returns the current list of debug images. Be aware that the SentryDebugMeta is actually
  * describing a debug image. This class should be renamed to SentryDebugImage in a future version.
  */
-- (NSArray<SentryDebugMeta *> *)getDebugImages;
++ (NSArray<SentryDebugMeta *> *)getDebugImages;
+
+/**
+ * Override SDK information.
+ */
++ (void)setSdkName:(NSString *)sdkName andVersionString:(NSString *)versionString;
 
 @property (class, nullable, nonatomic, copy)
     SentryOnAppStartMeasurementAvailable onAppStartMeasurementAvailable;

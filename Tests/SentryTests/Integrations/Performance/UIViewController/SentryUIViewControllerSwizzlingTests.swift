@@ -213,7 +213,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
 }
 
-class MockApplication: NSObject, SentryUIApplication {
+class MockApplication: NSObject, SentryUIApplicationProtocol {
     class MockApplicationDelegate: NSObject, UIApplicationDelegate {
         var window: UIWindow?
         

@@ -1,5 +1,4 @@
-@testable import Sentry.SentryClient
-@testable import Sentry.SentryOptions
+import Sentry
 import XCTest
 
 // Even if we don't run this test below OSX 10.12 we expect the actual
@@ -25,9 +24,12 @@ class SentryFileManagerTests: XCTestCase {
         let sessionUpdateEnvelope: SentryEnvelope
 
         let expectedSessionUpdate: SentrySession
-
-        let queue = DispatchQueue(label: "SentryFileManagerTests", qos: .utility, attributes: [.concurrent, .initiallyInactive])
-        let group = DispatchGroup()
+        
+        // swiftlint:disable weak_delegate
+        // Swiftlint automatically changes this to a weak reference,
+        // but we need a strong reference to make the test work.
+        var delegate: TestFileManagerDelegate!
+        // swiftlint:enable weak_delegate
         
         init() {
             currentDateProvider = TestCurrentDateProvider()
@@ -53,15 +55,21 @@ class SentryFileManagerTests: XCTestCase {
             expectedSessionUpdate = SentrySession(jsonObject: sessionUpdateCopy.serialize())!
             // We can only set the init flag after serialize, because the duration is not set if the init flag is set
             expectedSessionUpdate.setFlagInit()
+            
+            delegate = TestFileManagerDelegate()
         }
         
         func getSut() throws -> SentryFileManager {
-            return try SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider)
+            let sut = try SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider)
+            sut.setDelegate(delegate)
+            return sut
         }
         
         func getSut(maxCacheItems: UInt) throws -> SentryFileManager {
             options.maxCacheItems = maxCacheItems
-            return try SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider)
+            let sut = try SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider)
+            sut.setDelegate(delegate)
+            return sut
         }
 
     }
@@ -87,6 +95,7 @@ class SentryFileManagerTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         setImmutableForAppState(immutable: false)
+        setImmutableForTimezoneOffset(immutable: false)
         sut.deleteAllEnvelopes()
         sut.deleteAllFolders()
         sut.deleteTimestampLastInForeground()
@@ -158,13 +167,41 @@ class SentryFileManagerTests: XCTestCase {
         let events = sut.getAllEnvelopes()
         XCTAssertEqual(fixture.maxCacheItems, events.count)
     }
+    
+    func testDefaultMaxEnvelopes_CallsEnvelopeItemDeleted() {
+        let event = Event()
+        let envelope = SentryEnvelope(id: event.eventId, items: [
+            SentryEnvelopeItem(event: event),
+            SentryEnvelopeItem(attachment: TestData.dataAttachment, maxAttachmentSize: 5 * 1_024 * 1_024)!
+        ])
+        sut.store(envelope)
+        sut.store(fixture.sessionUpdateEnvelope)
+        for _ in 0..<(fixture.maxCacheItems) {
+            sut.store(TestConstants.envelope)
+        }
+        
+        XCTAssertEqual(4, fixture.delegate.envelopeItemsDeleted.count)
+        let expected: [SentryDataCategory] = [.error, .attachment, .session, .error]
+        XCTAssertEqual(expected, fixture.delegate.envelopeItemsDeleted.invocations)
+    }
 
     func testDefaultMaxEnvelopesConcurrent() {
-        for _ in 0...1_000 {
-            storeAsync(envelope: TestConstants.envelope)
+        let parallelTaskAmount = 5
+        let queue = DispatchQueue(label: "testDefaultMaxEnvelopesConcurrent", qos: .userInitiated, attributes: [.concurrent, .initiallyInactive])
+        
+        let envelopeStoredExpectation = expectation(description: "Envelope stored")
+        envelopeStoredExpectation.expectedFulfillmentCount = parallelTaskAmount
+        for _ in 0..<parallelTaskAmount {
+            queue.async {
+                for _ in 0...(self.fixture.maxCacheItems + 5) {
+                    self.sut.store(TestConstants.envelope)
+                }
+                envelopeStoredExpectation.fulfill()
+            }
         }
-        fixture.queue.activate()
-        fixture.group.waitWithTimeout()
+        queue.activate()
+        
+        wait(for: [envelopeStoredExpectation], timeout: 10)
 
         let events = sut.getAllEnvelopes()
         XCTAssertEqual(fixture.maxCacheItems, events.count)
@@ -262,6 +299,16 @@ class SentryFileManagerTests: XCTestCase {
         sut.store(fixture.sessionUpdateEnvelope)
 
         assertSessionInitMoved(sut.getAllEnvelopes().last!)
+    }
+    
+    func testMigrateSessionInit_DoesNotCallEnvelopeItemDeleted() {
+        sut.store(fixture.sessionEnvelope)
+        sut.store(fixture.sessionUpdateEnvelope)
+        for _ in 0...(fixture.maxCacheItems - 2) {
+            sut.store(TestConstants.envelope)
+        }
+
+        XCTAssertEqual(0, fixture.delegate.envelopeItemsDeleted.count)
     }
 
     /**
@@ -424,12 +471,39 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNotNil(sut.readAppState())
     }
 
-    private func storeAsync(envelope: SentryEnvelope) {
-        fixture.group.enter()
-        fixture.queue.async {
-            self.sut.store(envelope)
-            self.fixture.group.leave()
-        }
+    func testStoreAndReadTimezoneOffset() {
+        sut.storeTimezoneOffset(7_200)
+        XCTAssertEqual(sut.readTimezoneOffset(), 7_200)
+    }
+
+    func testStoreDeleteTimezoneOffset() {
+        sut.storeTimezoneOffset(7_200)
+        sut.deleteTimezoneOffset()
+        XCTAssertNil(sut.readTimezoneOffset())
+    }
+
+    func testStore_WhenFileImmutable_TimezoneOffsetIsNotOverwritten() {
+        sut.storeTimezoneOffset(7_200)
+
+        setImmutableForTimezoneOffset(immutable: true)
+
+        sut.storeTimezoneOffset(9_600)
+
+        XCTAssertEqual(sut.readTimezoneOffset(), 7_200)
+    }
+
+    func testStoreDeleteTimezoneOffset_WhenFileLocked_DontCrash() throws {
+        sut.storeTimezoneOffset(7_200)
+
+        setImmutableForTimezoneOffset(immutable: true)
+
+        sut.deleteTimezoneOffset()
+        XCTAssertNotNil(sut.readTimezoneOffset())
+    }
+
+    func testReadGarbageTimezoneOffset() throws {
+        try "garbage".write(to: URL(fileURLWithPath: sut.timezoneOffsetFilePath), atomically: true, encoding: .utf8)
+        XCTAssertNil(sut.readTimezoneOffset())
     }
 
     private func givenMaximumEnvelopes() {
@@ -474,6 +548,21 @@ class SentryFileManagerTests: XCTestCase {
         }
     }
 
+    private func setImmutableForTimezoneOffset(immutable: Bool) {
+        let timezoneOffsetFilePath = Dynamic(sut).timezoneOffsetFilePath.asString ?? ""
+        let fileManager = FileManager.default
+
+        if !fileManager.fileExists(atPath: timezoneOffsetFilePath) {
+            return
+        }
+
+        do {
+            try fileManager.setAttributes([FileAttributeKey.immutable: immutable], ofItemAtPath: timezoneOffsetFilePath)
+        } catch {
+            XCTFail("Couldn't change immutable state of timezone offset file.")
+        }
+    }
+
     private func assertEventFolderDoesntExist() {
         XCTAssertFalse(FileManager.default.fileExists(atPath: sut.eventsPath),
                         "Folder for events should be deleted on init: \(sut.eventsPath)")
@@ -511,6 +600,7 @@ class SentryFileManagerTests: XCTestCase {
     private func assertValidAppStateStored() {
         let actual = sut.readAppState()
         XCTAssertEqual(TestData.appState, actual)
+        
     }
 
     private func advanceTime(bySeconds: TimeInterval) {

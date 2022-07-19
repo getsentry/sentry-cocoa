@@ -34,6 +34,9 @@ SentryDataCategoryMapper ()
     if ([itemType isEqualToString:SentryEnvelopeItemTypeAttachment]) {
         category = kSentryDataCategoryAttachment;
     }
+    if ([itemType isEqualToString:SentryEnvelopeItemTypeProfile]) {
+        category = kSentryDataCategoryProfile;
+    }
     return category;
 }
 
@@ -59,8 +62,27 @@ SentryDataCategoryMapper ()
     if (value == kSentryDataCategoryAttachment) {
         category = kSentryDataCategoryAttachment;
     }
+    if (value == kSentryDataCategoryUserFeedback) {
+        category = kSentryDataCategoryUserFeedback;
+    }
+    if (value == kSentryDataCategoryProfile) {
+        category = kSentryDataCategoryProfile;
+    }
     if (value == kSentryDataCategoryUnknown) {
         category = kSentryDataCategoryUnknown;
+    }
+
+    return category;
+}
+
++ (SentryDataCategory)mapStringToCategory:(NSString *)value
+{
+    SentryDataCategory category = kSentryDataCategoryUnknown;
+
+    for (int i = 0; i <= kSentryDataCategoryUnknown; i++) {
+        if ([value isEqualToString:SentryDataCategoryNames[i]]) {
+            return [SentryDataCategoryMapper mapIntegerToCategory:i];
+        }
     }
 
     return category;

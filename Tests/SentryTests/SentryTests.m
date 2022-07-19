@@ -33,7 +33,9 @@ SentryBreadcrumbTracker (Private)
         // (code was loaded inside an app for example)
         // in this case, we don't care about asserting our hard coded value matches
         // since this will be the app version instead of our SDK version.
-        XCTAssert([version isEqualToString:SentryMeta.versionString]);
+        XCTAssert([version isEqualToString:SentryMeta.versionString],
+            @"Version of bundle:%@ not equal to version of SentryMeta:%@", version,
+            SentryMeta.versionString);
     }
 }
 

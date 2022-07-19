@@ -153,8 +153,10 @@ NS_SWIFT_NAME(Options)
 
 /**
  * Describes the Sentry SDK and its configuration used to capture and transmit an event.
+ * This is reserved for internal use, and will be removed in a future version of the SDK.
  */
-@property (nonatomic, readonly, strong) SentrySdkInfo *sdkInfo;
+@property (nonatomic, readonly, strong) SentrySdkInfo *sdkInfo DEPRECATED_MSG_ATTRIBUTE(
+    "This property will be removed in a future version of the SDK");
 
 /**
  * The maximum size for each attachment in bytes. Default is 20 MiB / 20 * 1024 * 1024 bytes.
@@ -191,6 +193,28 @@ NS_SWIFT_NAME(Options)
  * <code>YES</code>.
  */
 @property (nonatomic, assign) BOOL enableUIViewControllerTracking;
+
+/**
+ * Automatically attaches a screenshot when capturing an error or exception.
+ *
+ * Default value is <code>NO</code>
+ */
+@property (nonatomic, assign) BOOL attachScreenshot;
+
+/**
+ * This feature is EXPERIMENTAL.
+ *
+ * When enabled, the SDK creates transactions for UI events like buttons clicks, switch toggles,
+ * and other ui elements that uses UIControl `sendAction:to:forEvent:`.
+ */
+@property (nonatomic, assign) BOOL enableUserInteractionTracing;
+
+/**
+ * How long an idle transaction waits for new children after all its child spans finished. Only UI
+ * event transactions are idle transactions. The default is 3 seconds.
+ */
+@property (nonatomic, assign) NSTimeInterval idleTimeout;
+
 #endif
 
 /**
@@ -264,13 +288,6 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic, weak) id<NSURLSessionDelegate> urlSessionDelegate;
 
 /**
- * Controls if the `tracestate` header is attached to envelopes and HTTP client integrations.
- *
- * Note: this is an experimental API and will be removed without notice.
- */
-@property (nonatomic) BOOL experimentalEnableTraceSampling;
-
-/**
  * Wether the SDK should use swizzling or not. Default is YES.
  *
  * @discussion When turned off the following features are disabled: breadcrumbs for touch events and
@@ -297,6 +314,33 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableProfiling;
 #endif
+
+/**
+ * Whether to send client reports, which contain statistics about discarded events. The default is
+ * <code>YES</code>.
+ *
+ * @see <https://develop.sentry.dev/sdk/client-reports/>
+ */
+@property (nonatomic, assign) BOOL sendClientReports;
+
+/**
+ * When enabled, the SDK tracks when the application stops responding for a specific amount of
+ * time defined by the `appHangsTimeoutInterval` option.
+ */
+@property (nonatomic, assign) BOOL enableAppHangTracking;
+
+/**
+ * The minimum amount of time an app should be unresponsive to be classified as an App Hanging.
+ * The actual amount may be a little longer.
+ * Avoid using values lower than 100ms, which may cause a lot of app hangs events being transmitted.
+ * The default value is 2 seconds.
+ */
+@property (nonatomic, assign) NSTimeInterval appHangTimeoutInterval;
+
+/**
+ * When enabled, the SDK adds breadcrumbs for various system events. Default value is YES.
+ */
+@property (nonatomic, assign) BOOL enableAutoBreadcrumbTracking;
 
 @end
 

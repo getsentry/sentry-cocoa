@@ -1,9 +1,12 @@
 #import "SentryCrashWrapper.h"
 #import "SentryCrash.h"
 #import "SentryCrashMonitor_AppState.h"
+#import "SentryCrashMonitor_System.h"
 #import "SentryHook.h"
 #import <Foundation/Foundation.h>
+#import <SentryCrashCachedData.h>
 #import <SentryCrashDebug.h>
+#import <SentryCrashMonitor_System.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -32,6 +35,11 @@ NS_ASSUME_NONNULL_BEGIN
     return sentrycrashdebug_isBeingTraced();
 }
 
+- (BOOL)isSimulatorBuild
+{
+    return sentrycrash_isSimulatorBuild();
+}
+
 - (BOOL)isApplicationInForeground
 {
     return sentrycrashstate_currentState()->applicationIsInForeground;
@@ -42,9 +50,29 @@ NS_ASSUME_NONNULL_BEGIN
     sentrycrash_install_async_hooks();
 }
 
-- (void)deactivateAsyncHooks
+- (void)close
 {
+    SentryCrash *handler = [SentryCrash sharedInstance];
+    @synchronized(handler) {
+        [handler setMonitoring:SentryCrashMonitorTypeNone];
+        handler.onCrash = NULL;
+    }
+
     sentrycrash_deactivate_async_hooks();
+    sentrycrashccd_close();
+}
+
+- (NSDictionary *)systemInfo
+{
+    static NSDictionary *sharedInfo = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ sharedInfo = SentryCrash.sharedInstance.systemInfo; });
+    return sharedInfo;
+}
+
+- (uint64_t)freeMemory
+{
+    return sentrycrashcm_system_freememory();
 }
 
 @end

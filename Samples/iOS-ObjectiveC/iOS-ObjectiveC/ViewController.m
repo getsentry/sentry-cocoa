@@ -99,13 +99,13 @@ ViewController ()
     NSException *exception = [[NSException alloc] initWithName:@"My Custom exception"
                                                         reason:@"User clicked the button"
                                                       userInfo:nil];
+
     SentryScope *scope = [[SentryScope alloc] init];
     [scope setLevel:kSentryLevelFatal];
-    // By explicitly just passing the scope, only the data in this scope object
-    // will be added to the event The global scope (calls to configureScope)
-    // will be ignored Only do this if you know what you are doing, you loose a
-    // lot of useful info If you just want to mutate what's in the scope use the
-    // callback, see: captureError
+    // !!!: By explicity just passing the scope, only the data in this scope object will be added to
+    // the event; the global scope (calls to configureScope) will be ignored. If you do that, be
+    // careful–a lot of useful info is lost. If you just want to mutate what's in the scope use the
+    // callback, see: captureError.
     [SentrySDK captureException:exception withScope:scope];
 }
 

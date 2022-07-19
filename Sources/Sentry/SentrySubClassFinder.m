@@ -47,23 +47,30 @@ SentrySubClassFinder ()
         // NSObject:isSubclassOfClass as not all classes in the runtime in classes inherit from
         // NSObject and a call to isSubclassOfClass would call the initializer of the class, which
         // we can't allow because of the problem with UIViewControllers mentioned above.
+        //
+        // Turn out the approach to search all the view controllers inside the app binary image is
+        // fast and we don't need to include this restriction that will cause confusion.
+        // In a project with 1000 classes (a big project), it took only ~3ms to check all classes.
         NSMutableArray<NSString *> *classesToSwizzle = [NSMutableArray new];
         for (int i = 0; i < count; i++) {
             NSString *className = [NSString stringWithUTF8String:classes[i]];
-            if ([className containsString:@"ViewController"]) {
-                Class class = NSClassFromString(className);
-                if ([self isClass:class subClassOf:viewControllerClass]) {
-                    [classesToSwizzle addObject:className];
-                }
+            Class class = NSClassFromString(className);
+            if ([self isClass:class subClassOf:viewControllerClass]) {
+                [classesToSwizzle addObject:className];
             }
         }
 
         free(classes);
-
         [self.dispatchQueue dispatchOnMainQueue:^{
             for (NSString *className in classesToSwizzle) {
                 block(NSClassFromString(className));
             }
+
+            [SentryLog
+                logWithMessage:[NSString stringWithFormat:@"The following UIViewControllers will "
+                                                          @"generate automatic transactions: %@",
+                                         [classesToSwizzle componentsJoinedByString:@", "]]
+                      andLevel:kSentryLevelDebug];
         }];
     }];
 }

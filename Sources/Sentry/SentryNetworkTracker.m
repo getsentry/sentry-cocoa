@@ -1,11 +1,12 @@
 #import "SentryNetworkTracker.h"
+#import "SentryBaggage.h"
 #import "SentryBreadcrumb.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
+#import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
-#import "SentryTraceState.h"
 #import "SentryTracer.h"
 #import <objc/runtime.h>
 
@@ -283,7 +284,11 @@ SentryNetworkTracker ()
 
     id<SentrySpan> span = SentrySDK.currentHub.scope.span;
     if (span == nil) {
-        return headers;
+        // Remove the Sentry keys from the cached headers (cached by NSURLSession itself),
+        // because it could contain a completely unrelated trace id from a previous request.
+        NSMutableDictionary *existingHeaders = headers.mutableCopy;
+        [existingHeaders removeObjectsForKeys:@[ SENTRY_TRACE_HEADER, SENTRY_BAGGAGE_HEADER ]];
+        return [existingHeaders copy];
     }
 
     NSMutableDictionary *result = [[NSMutableDictionary alloc] initWithDictionary:headers];
@@ -291,7 +296,7 @@ SentryNetworkTracker ()
 
     SentryTracer *tracer = [SentryTracer getTracer:span];
     if (tracer != nil) {
-        result[SENTRY_TRACESTATE_HEADER] = [tracer.traceState toHTTPHeader];
+        result[SENTRY_BAGGAGE_HEADER] = [[tracer.traceContext toBaggage] toHTTPHeader];
     }
 
     return [[NSDictionary alloc] initWithDictionary:result];

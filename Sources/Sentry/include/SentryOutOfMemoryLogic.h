@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 - (instancetype)initWithOptions:(SentryOptions *)options
-                   crashAdapter:(SentryCrashWrapper *)crashAdatper
+                   crashAdapter:(SentryCrashWrapper *)crashAdapter
                 appStateManager:(SentryAppStateManager *)appStateManager;
 
 - (BOOL)isOOM;

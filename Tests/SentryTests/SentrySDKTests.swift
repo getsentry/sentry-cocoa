@@ -340,38 +340,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssert(span === newSpan)
     }
     
-    func testPerformanceOfConfigureScope() {
-        func buildCrumb(_ i: Int) -> Breadcrumb {
-            let crumb = Breadcrumb()
-            crumb.message = String(repeating: String(i), count: 100)
-            crumb.data = ["some": String(repeating: String(i), count: 1_000)]
-            crumb.category = String(i)
-            return crumb
-        }
-        
-        SentrySDK.start(options: ["dsn": SentrySDKTests.dsnAsString])
-        
-        SentrySDK.configureScope { scope in
-            let user = User()
-            user.email = "someone@gmail.com"
-            scope.setUser(user)
-        }
-        
-        for i in 0...100 {
-            SentrySDK.configureScope { scope in
-                scope.add(buildCrumb(i))
-            }
-        }
-        
-        self.measure {
-            for i in 0...10 {
-                SentrySDK.configureScope { scope in
-                    scope.add(buildCrumb(i))
-                }
-            }
-        }
-    }
-    
     func testInstallIntegrations() {
         let options = Options()
         options.dsn = "mine"
@@ -394,47 +362,6 @@ class SentrySDKTests: XCTestCase {
         }
         
         assertIntegrationsInstalled(integrations: [])
-    }
-    
-    @available(tvOS 13.0, *)
-    @available(OSX 10.15, *)
-    @available(iOS 13.0, *)
-    func testMemoryFootprintOfAddingBreadcrumbs() {
-        SentrySDK.start { options in
-            options.dsn = SentrySDKTests.dsnAsString
-            options.debug = true
-            options.diagnosticLevel = SentryLevel.debug
-            options.attachStacktrace = true
-        }
-        
-        self.measure(metrics: [XCTMemoryMetric()]) {
-            for i in 0...1_000 {
-                let crumb = TestData.crumb
-                crumb.message = "\(i)"
-                SentrySDK.addBreadcrumb(crumb: crumb)
-            }
-        }
-    }
-    
-    @available(tvOS 13.0, *)
-    @available(OSX 10.15, *)
-    @available(iOS 13.0, *)
-    func testMemoryFootprintOfTransactions() {
-        SentrySDK.start { options in
-            options.dsn = SentrySDKTests.dsnAsString
-        }
-        
-        self.measure(metrics: [XCTMemoryMetric()]) {
-            for _ in 0...1_000 {
-                let trans = SentrySDK.startTransaction(name: "no leak", operation: "")
-                
-                for _ in 0...10 {
-                    let span = trans.startChild(operation: "ui.load")
-                    span.finish()
-                }
-                trans.finish()
-            }
-        }
     }
     
     func testStartSession() {
@@ -501,6 +428,16 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.setAppStartMeasurement(appStartMeasurement)
         
         XCTAssertEqual(SentrySDK.getAppStartMeasurement(), appStartMeasurement)
+    }
+    
+    func testSDKStartInvocations() {
+        XCTAssertEqual(0, SentrySDK.startInvocations)
+        
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+        }
+        
+        XCTAssertEqual(1, SentrySDK.startInvocations)
     }
     
     func testIsEnabled() {

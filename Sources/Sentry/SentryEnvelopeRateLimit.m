@@ -10,6 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 SentryEnvelopeRateLimit ()
 
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
+@property (nonatomic, weak) id<SentryEnvelopeRateLimitDelegate> delegate;
 
 @end
 
@@ -21,6 +22,11 @@ SentryEnvelopeRateLimit ()
         self.rateLimits = sentryRateLimits;
     }
     return self;
+}
+
+- (void)setDelegate:(id<SentryEnvelopeRateLimitDelegate>)delegate
+{
+    _delegate = delegate;
 }
 
 - (SentryEnvelope *)removeRateLimitedItems:(SentryEnvelope *)envelope
@@ -52,6 +58,7 @@ SentryEnvelopeRateLimit ()
             [SentryDataCategoryMapper mapEnvelopeItemTypeToCategory:item.header.type];
         if ([self.rateLimits isRateLimitActive:rateLimitCategory]) {
             [itemsToDrop addObject:item];
+            [self.delegate envelopeItemDropped:rateLimitCategory];
         }
     }
 
