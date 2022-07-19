@@ -107,9 +107,6 @@ namespace profiling {
     {
         const auto pair = ThreadHandle::allExcludingCurrent();
         for (const auto &thread : pair.first) {
-            if (thread->isIdle()) {
-                continue;
-            }
             Backtrace bt;
             auto metadata = cache->metadataForThread(*thread);
             if (metadata.threadID == 0) {
