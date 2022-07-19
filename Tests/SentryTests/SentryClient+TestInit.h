@@ -12,6 +12,9 @@ NS_ASSUME_NONNULL_BEGIN
 SentryClient (TestInit)
 
 - (instancetype)initWithOptions:(SentryOptions *)options
+            permissionsObserver:(SentryPermissionsObserver *)permissionsObserver;
+
+- (instancetype)initWithOptions:(SentryOptions *)options
                transportAdapter:(SentryTransportAdapter *)transportAdapter
                     fileManager:(SentryFileManager *)fileManager
                 threadInspector:(SentryThreadInspector *)threadInspector

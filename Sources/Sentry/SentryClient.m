@@ -68,52 +68,52 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
 {
-    if (self = [super init]) {
-        self.options = options;
-
-        self.debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
-
-        SentryInAppLogic *inAppLogic =
-            [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
-                                              inAppExcludes:options.inAppExcludes];
-        SentryCrashStackEntryMapper *crashStackEntryMapper =
-            [[SentryCrashStackEntryMapper alloc] initWithInAppLogic:inAppLogic];
-        SentryStacktraceBuilder *stacktraceBuilder =
-            [[SentryStacktraceBuilder alloc] initWithCrashStackEntryMapper:crashStackEntryMapper];
-        id<SentryCrashMachineContextWrapper> machineContextWrapper =
-            [[SentryCrashDefaultMachineContextWrapper alloc] init];
-
-        self.threadInspector =
-            [[SentryThreadInspector alloc] initWithStacktraceBuilder:stacktraceBuilder
-                                            andMachineContextWrapper:machineContextWrapper];
-
-        NSError *error = nil;
-
-        self.fileManager = [[SentryFileManager alloc]
-                   initWithOptions:self.options
-            andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-                             error:&error];
-        if (nil != error) {
-            [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLevelError];
-            return nil;
-        }
-
-        id<SentryTransport> transport = [SentryTransportFactory initTransport:self.options
-                                                            sentryFileManager:self.fileManager];
-
-        self.transportAdapter = [[SentryTransportAdapter alloc] initWithTransport:transport
-                                                                          options:options];
-
-        self.random = [SentryDependencyContainer sharedInstance].random;
-
-        self.crashWrapper = [SentryCrashWrapper sharedInstance];
-
-        self.permissionsObserver = [[SentryPermissionsObserver alloc] init];
-    }
-    return self;
+    return [self initWithOptions:options
+             permissionsObserver:[[SentryPermissionsObserver alloc] init]];
 }
 
-/** Internal constructor for testing */
+/** Internal constructors for testing */
+- (_Nullable instancetype)initWithOptions:(SentryOptions *)options
+                      permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
+{
+    id<SentryTransport> transport = [SentryTransportFactory initTransport:self.options
+                                                        sentryFileManager:self.fileManager];
+
+    SentryTransportAdapter *transportAdapter =
+        [[SentryTransportAdapter alloc] initWithTransport:transport options:options];
+
+    NSError *error = nil;
+    SentryFileManager *fileManager =
+        [[SentryFileManager alloc] initWithOptions:self.options
+                            andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                                             error:&error];
+    if (nil != error) {
+        [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLevelError];
+        return nil;
+    }
+
+    SentryInAppLogic *inAppLogic =
+        [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
+                                          inAppExcludes:options.inAppExcludes];
+    SentryCrashStackEntryMapper *crashStackEntryMapper =
+        [[SentryCrashStackEntryMapper alloc] initWithInAppLogic:inAppLogic];
+    SentryStacktraceBuilder *stacktraceBuilder =
+        [[SentryStacktraceBuilder alloc] initWithCrashStackEntryMapper:crashStackEntryMapper];
+    id<SentryCrashMachineContextWrapper> machineContextWrapper =
+        [[SentryCrashDefaultMachineContextWrapper alloc] init];
+    SentryThreadInspector *threadInspector =
+        [[SentryThreadInspector alloc] initWithStacktraceBuilder:stacktraceBuilder
+                                        andMachineContextWrapper:machineContextWrapper];
+
+    return [self initWithOptions:options
+                transportAdapter:transportAdapter
+                     fileManager:fileManager
+                 threadInspector:threadInspector
+                          random:[SentryDependencyContainer sharedInstance].random
+                    crashWrapper:[SentryCrashWrapper sharedInstance]
+             permissionsObserver:permissionsObserver];
+}
+
 - (instancetype)initWithOptions:(SentryOptions *)options
                transportAdapter:(SentryTransportAdapter *)transportAdapter
                     fileManager:(SentryFileManager *)fileManager
@@ -122,15 +122,16 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
             permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
 {
-    self = [self initWithOptions:options];
-
-    self.transportAdapter = transportAdapter;
-    self.fileManager = fileManager;
-    self.threadInspector = threadInspector;
-    self.random = random;
-    self.crashWrapper = crashWrapper;
-    self.permissionsObserver = permissionsObserver;
-
+    if (self = [super init]) {
+        self.options = options;
+        self.transportAdapter = transportAdapter;
+        self.fileManager = fileManager;
+        self.threadInspector = threadInspector;
+        self.random = random;
+        self.crashWrapper = crashWrapper;
+        self.permissionsObserver = permissionsObserver;
+        self.debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
+    }
     return self;
 }
 

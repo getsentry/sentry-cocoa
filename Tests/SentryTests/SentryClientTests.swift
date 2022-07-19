@@ -28,6 +28,7 @@ class SentryClientTest: XCTestCase {
         let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
         let transaction: Transaction
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
+        let permissionsObserver = TestSentryPermissionsObserver()
         
         init() {
             session = SentrySession(releaseName: "release")
@@ -60,7 +61,15 @@ class SentryClientTest: XCTestCase {
                 ])
                 configureOptions(options)
 
-                client = Client(options: options, transportAdapter: transportAdapter, fileManager: fileManager, threadInspector: threadInspector, random: random, crashWrapper: crashWrapper)
+                client = Client(
+                    options: options,
+                    transportAdapter: transportAdapter,
+                    fileManager: fileManager,
+                    threadInspector: threadInspector,
+                    random: random,
+                    crashWrapper: crashWrapper,
+                    permissionsObserver: permissionsObserver
+                )
             } catch {
                 XCTFail("Options could not be created")
             }

@@ -16,23 +16,27 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 {
     self = [super init];
     if (self) {
-        // Set initial values
-        [self checkPushPermissions];
-        [self setLocationPermissionFromStatus:[CLLocationManager authorizationStatus]];
-
-        // Listen for location permission updates
-        self.locationManager = [[CLLocationManager alloc] init];
-        self.locationManager.delegate = self;
-
-        // We can't listen for push permission updates directly, there simply is no API for that.
-        // Instead we re-check when the application comes back to the foreground.
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(checkPushPermissions)
-                                                     name:UIApplicationDidBecomeActiveNotification
-                                                   object:nil];
+        //[self startObserving];
     }
-
     return self;
+}
+
+- (void)startObserving
+{
+    // Set initial values
+    [self checkPushPermissions];
+    [self setLocationPermissionFromStatus:[CLLocationManager authorizationStatus]];
+
+    // Listen for location permission updates
+    self.locationManager = [[CLLocationManager alloc] init];
+    self.locationManager.delegate = self;
+
+    // We can't listen for push permission updates directly, there simply is no API for that.
+    // Instead we re-check when the application comes back to the foreground.
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(checkPushPermissions)
+                                                 name:UIApplicationDidBecomeActiveNotification
+                                               object:nil];
 }
 
 - (void)checkPushPermissions

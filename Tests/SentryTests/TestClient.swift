@@ -7,7 +7,12 @@ class TestClient: Client {
     
     override init?(options: Options) {
         sentryFileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
-        super.init(options: options)
+        super.init(options: options, permissionsObserver: TestSentryPermissionsObserver())
+    }
+
+    override init(options: Options, transportAdapter: SentryTransportAdapter, fileManager: SentryFileManager, threadInspector: SentryThreadInspector, random: SentryRandomProtocol, crashWrapper: SentryCrashWrapper, permissionsObserver: SentryPermissionsObserver) {
+        sentryFileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
+        super.init(options: options, transportAdapter: transportAdapter, fileManager: fileManager, threadInspector: threadInspector, random: random, crashWrapper: crashWrapper, permissionsObserver: permissionsObserver)
     }
     
     override func fileManager() -> SentryFileManager {

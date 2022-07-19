@@ -14,6 +14,8 @@ typedef enum {
 @property (nonatomic) SentryPermissionStatus pushPermissionStatus;
 @property (nonatomic) SentryPermissionStatus locationPermissionStatus;
 
+- (void)startObserving;
+
 @end
 
 NS_ASSUME_NONNULL_END
