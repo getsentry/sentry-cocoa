@@ -332,7 +332,7 @@ class SentryHubTests: XCTestCase {
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     func testStartTransaction_WhenProfilingEnabled_CapturesProfile() {
         let options = fixture.options
-        options.enableProfiling = true
+        options.profilesSampleRate = 1.0
         options.tracesSampler = {(_: SamplingContext) -> NSNumber in
             return 1
         }
@@ -373,7 +373,7 @@ class SentryHubTests: XCTestCase {
     
     func testStartTransaction_WhenProfilingDisabled_DoesNotCaptureProfile() {
         let options = fixture.options
-        options.enableProfiling = false
+        options.profilesSampleRate = 1.0
         options.tracesSampler = {(_: SamplingContext) -> NSNumber in
             return 1
         }

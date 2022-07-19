@@ -308,17 +308,6 @@ NS_SWIFT_NAME(Options)
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
- * DEPRECATED: Use `profilesSampleRate` instead. Setting `enableProfiling` to YES is the equivalent
- * of setting `profilesSampleRate` to `1.0`. If `profilesSampleRate` is set, it will take precedence
- * over this setting.
- *
- * Whether to enable the sampling profiler. Default is NO.
- * @note This is a beta feature that is currently not available to all Sentry customers. This
- * feature is not supported on watchOS or tvOS.
- */
-@property (nonatomic, assign) BOOL enableProfiling DEPRECATED_MSG_ATTRIBUTE("This property will be removed in a future version of the SDK");
-
-/**
  * This feature is experimental. Profiling is not supported on watchOS or tvOS.
  *
  * Indicates the percentage of sampled transactions for which profiles are also collected.
@@ -341,6 +330,23 @@ NS_SWIFT_NAME(Options)
  * but instead of a static value, the callback function will be called to determine the sample rate.
  */
 @property (nullable, nonatomic) SentryTracesSamplerCallback profilesSampler;
+
+/**
+ * If profiling should be enabled or not. Returns YES if either a profilesSampleRate > 0 and
+ * <=1 or a profilesSampler is set otherwise NO.
+ */
+@property (nonatomic, assign, readonly) BOOL isProfilingEnabled;
+
+/**
+ * DEPRECATED: Use `profilesSampleRate` instead. Setting `enableProfiling` to YES is the equivalent
+ * of setting `profilesSampleRate` to `1.0`. If `profilesSampleRate` is set, it will take precedence
+ * over this setting.
+ *
+ * Whether to enable the sampling profiler. Default is NO.
+ * @note This is a beta feature that is currently not available to all Sentry customers. This
+ * feature is not supported on watchOS or tvOS.
+ */
+@property (nonatomic, assign) BOOL enableProfiling DEPRECATED_MSG_ATTRIBUTE("This property will be removed in a future version of the SDK");
 #endif
 
 /**

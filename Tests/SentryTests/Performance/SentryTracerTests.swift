@@ -733,7 +733,7 @@ class SentryTracerTests: XCTestCase {
     func testCapturesProfile_whenProfilingEnabled() {
         let scope = Scope()
         let options = Options()
-        options.enableProfiling = true
+        options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
         let client = TestClient(options: options)!
         let hub = TestHub(client: client, andScope: scope)
@@ -748,7 +748,7 @@ class SentryTracerTests: XCTestCase {
     func testDoesNotCapturesProfile_whenProfilingDisabled() {
         let scope = Scope()
         let options = Options()
-        options.enableProfiling = false
+        options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
         let client = TestClient(options: options)!
         let hub = TestHub(client: client, andScope: scope)
