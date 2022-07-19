@@ -927,7 +927,7 @@ class SentryClientTest: XCTestCase {
         
         let options = Options()
         options.dsn = SentryClientTest.dsn
-        let client = Client(options: options)
+        let client = Client(options: options, permissionsObserver: TestSentryPermissionsObserver())
         
         XCTAssertNil(client)
         

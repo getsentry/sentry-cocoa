@@ -16,7 +16,7 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 {
     self = [super init];
     if (self) {
-        //[self startObserving];
+        [self startObserving];
     }
     return self;
 }
