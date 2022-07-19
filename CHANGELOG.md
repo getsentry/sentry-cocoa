@@ -8,6 +8,7 @@
 
 ### Fixes
 
+- Report pre-warmed app starts (#1969)
 - Remove Sentry keys from cached HTTP request headers (#1975)
 
 ## 7.21.0
@@ -22,7 +23,6 @@
 
 ### Fixes
 
-- Report pre-warmed app starts (#1969)
 - Don't track OOMs for simulators (#1970)
 - Properly sanitize the event context and SDK information (#1943)
 - Don't send error 429 as `network_error` (#1957)
