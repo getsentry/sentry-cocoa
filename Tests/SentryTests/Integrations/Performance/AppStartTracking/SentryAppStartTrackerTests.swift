@@ -363,7 +363,7 @@ class SentryAppStartTrackerTests: XCTestCase {
         XCTAssertEqual(fixture.sysctl.moduleInitializationTimestamp, appStartMeasurement.moduleInitializationTimestamp)
         XCTAssertEqual(fixture.runtimeInitTimestamp, appStartMeasurement.runtimeInitTimestamp)
         XCTAssertEqual(fixture.didFinishLaunchingTimestamp, appStartMeasurement.didFinishLaunchingTimestamp)
-        XCTAssertEqual(preWarmed, appStartMeasurement.preWarmed)
+        XCTAssertEqual(preWarmed, appStartMeasurement.isPreWarmed)
     }
     
     private func assertValidHybridStart(type: SentryAppStartType) {

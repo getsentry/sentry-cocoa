@@ -27,7 +27,7 @@ SENTRY_NO_INIT
  * Initializes SentryAppStartMeasurement with the given parameters.
  */
 - (instancetype)initWithType:(SentryAppStartType)type
-                        preWarmed:(BOOL)preWarmed
+                      isPreWarmed:(BOOL)isPreWarmed
                 appStartTimestamp:(NSDate *)appStartTimestamp
                          duration:(NSTimeInterval)duration
              runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
@@ -39,7 +39,7 @@ SENTRY_NO_INIT
  */
 @property (readonly, nonatomic, assign) SentryAppStartType type;
 
-@property (readonly, nonatomic, assign) BOOL preWarmed;
+@property (readonly, nonatomic, assign) BOOL isPreWarmed;
 
 /**
  * How long the app start took. From appStartTimestamp to when the SDK creates the
@@ -48,7 +48,7 @@ SENTRY_NO_INIT
 @property (readonly, nonatomic, assign) NSTimeInterval duration;
 
 /**
- * The timestamp when the app started, which is is the proces start timestamp and for prewarmed app
+ * The timestamp when the app started, which is is the process start timestamp and for prewarmed app
  * starts the moduleInitializationTimestamp.
  */
 @property (readonly, nonatomic, strong) NSDate *appStartTimestamp;

@@ -11,7 +11,7 @@
     didFinishLaunchingTimestamp:(NSDate *)didFinishLaunchingTimestamp
 {
     return [self initWithType:type
-                            preWarmed:NO
+                          isPreWarmed:NO
                     appStartTimestamp:appStartTimestamp
                              duration:duration
                  runtimeInitTimestamp:runtimeInitTimestamp
@@ -20,7 +20,7 @@
 }
 
 - (instancetype)initWithType:(SentryAppStartType)type
-                        preWarmed:(BOOL)preWarmed
+                      isPreWarmed:(BOOL)isPreWarmed
                 appStartTimestamp:(NSDate *)appStartTimestamp
                          duration:(NSTimeInterval)duration
              runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
@@ -29,7 +29,7 @@
 {
     if (self = [super init]) {
         _type = type;
-        _preWarmed = preWarmed;
+        _isPreWarmed = isPreWarmed;
         _appStartTimestamp = appStartTimestamp;
         _duration = duration;
         _runtimeInitTimestamp = runtimeInitTimestamp;

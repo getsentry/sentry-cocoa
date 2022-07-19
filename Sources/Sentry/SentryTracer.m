@@ -631,7 +631,7 @@ static NSLock *profilerLock;
 
     [appStartSpans addObject:appStartSpan];
 
-    if (!appStartMeasurement.preWarmed) {
+    if (!appStartMeasurement.isPreWarmed) {
         SentrySpan *premainSpan = [self buildSpan:appStartSpan.context.spanId
                                         operation:operation
                                       description:@"Pre Runtime Init"];
@@ -684,7 +684,7 @@ static NSLock *profilerLock;
             [transaction setMeasurementValue:@{ valueKey : @(appStartMeasurement.duration * 1000) }
                                       forKey:type];
 
-            NSString *appStartType = appStartMeasurement.preWarmed
+            NSString *appStartType = appStartMeasurement.isPreWarmed
                 ? [NSString stringWithFormat:@"%@.prewarmed", appContextType]
                 : appContextType;
             NSMutableDictionary *context =

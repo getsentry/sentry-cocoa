@@ -191,7 +191,7 @@ SentryAppStartTracker ()
 
         SentryAppStartMeasurement *appStartMeasurement = [[SentryAppStartMeasurement alloc]
                              initWithType:appStartType
-                                preWarmed:preWarmed
+                              isPreWarmed:preWarmed
                         appStartTimestamp:appStartTimestamp
                                  duration:appStartDuration
                      runtimeInitTimestamp:runtimeInit
