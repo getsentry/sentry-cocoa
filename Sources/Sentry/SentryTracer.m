@@ -19,6 +19,7 @@
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
+#import <NSMutableDictionary+Sentry.h>
 #import <SentryDispatchQueueWrapper.h>
 #import <SentryScreenFrames.h>
 #import <SentrySpanOperations.h>
@@ -670,28 +671,26 @@ static NSLock *profilerLock;
 
     if (appStartMeasurement != nil && appStartMeasurement.type != SentryAppStartTypeUnknown) {
         NSString *type = nil;
-        NSString *dataType = nil;
+        NSString *appContextType = nil;
         if (appStartMeasurement.type == SentryAppStartTypeCold) {
             type = @"app_start_cold";
-            dataType = @"cold";
+            appContextType = @"cold";
         } else if (appStartMeasurement.type == SentryAppStartTypeWarm) {
             type = @"app_start_warm";
-            dataType = @"warm";
+            appContextType = @"warm";
         }
 
-        if (type != nil && dataType != nil) {
+        if (type != nil && appContextType != nil) {
             [transaction setMeasurementValue:@{ valueKey : @(appStartMeasurement.duration * 1000) }
                                       forKey:type];
 
             NSString *appStartType = appStartMeasurement.preWarmed
-                ? [NSString stringWithFormat:@"%@.prewarmed", dataType]
-                : dataType;
+                ? [NSString stringWithFormat:@"%@.prewarmed", appContextType]
+                : appContextType;
             NSMutableDictionary *context =
                 [[NSMutableDictionary alloc] initWithDictionary:[transaction context]];
-            NSMutableDictionary *appContext =
-                [[NSMutableDictionary alloc] initWithDictionary:context[@"app"]];
-            appContext[@"start_type"] = appStartType;
-            context[@"app"] = appContext;
+            NSDictionary *appContext = @{ @"app" : @ { @"start_type" : appStartType } };
+            [context mergeEntriesFromDictionary:appContext];
             [transaction setContext:context];
         }
     }
