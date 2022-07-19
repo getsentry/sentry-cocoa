@@ -521,6 +521,23 @@ class SentryClientTest: XCTestCase {
         }
     }
 
+    func testCaptureCrash_Permissions() {
+        fixture.permissionsObserver.internalLocationPermissionStatus = SentryPermissionStatus.granted
+        fixture.permissionsObserver.internalPushPermissionStatus = SentryPermissionStatus.granted
+
+        let event = TestData.event
+        event.threads = nil
+        event.debugMeta = nil
+
+        fixture.getSut().captureCrash(event, with: fixture.scope)
+
+        assertLastSentEventWithAttachment { actual in
+            let permissions = actual.context?["app"]?["permissions"] as? [String: String]
+            XCTAssertEqual(permissions?["push_notifications"], "granted")
+            XCTAssertEqual(permissions?["location_access"], "granted")
+        }
+    }
+
     func testCaptureErrorWithUserInfo() {
         let expectedValue = "val"
         let error = NSError(domain: "domain", code: 0, userInfo: ["key": expectedValue])

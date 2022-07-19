@@ -1,18 +1,24 @@
-import Foundation
+import Sentry
 
 class TestSentryPermissionsObserver: SentryPermissionsObserver {
-    var internalPushPermissionStatus = SentryPermissionStatus(0)
-    var internalLocationPermissionStatus = SentryPermissionStatus(0)
+    var internalPushPermissionStatus = SentryPermissionStatus.unknown
+    var internalLocationPermissionStatus = SentryPermissionStatus.unknown
 
     override func startObserving() {
         // noop
     }
 
-    public func getPushPermissionStatus() -> SentryPermissionStatus {
-        return internalPushPermissionStatus
+    override var pushPermissionStatus: SentryPermissionStatus {
+        get {
+            return internalPushPermissionStatus
+        }
+        set {}
     }
 
-    public func getLocationPermissionStatus() -> SentryPermissionStatus {
-        return internalLocationPermissionStatus
+    override var locationPermissionStatus: SentryPermissionStatus {
+        get {
+            return internalLocationPermissionStatus
+        }
+        set {}
     }
 }

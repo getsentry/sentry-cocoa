@@ -675,15 +675,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (NSString *)stringForPermissionStatus:(SentryPermissionStatus)status
 {
     switch (status) {
-    case kPermissionStatusUnknown:
+    case kSentryPermissionStatusUnknown:
         return @"unknown";
         break;
 
-    case kPermissionStatusGranted:
+    case kSentryPermissionStatusGranted:
         return @"granted";
         break;
 
-    case kPermissionStatusDenied:
+    case kSentryPermissionStatusDenied:
         return @"not_granted";
         break;
     }
@@ -711,12 +711,14 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                   key:(NSString *)key
                 block:(void (^)(NSMutableDictionary *))block
 {
-    if (nil == event.context || event.context.count == 0 || nil == event.context[key]) {
+    if (nil == event.context || event.context.count == 0) {
         return;
     }
 
     NSMutableDictionary *context = [[NSMutableDictionary alloc] initWithDictionary:event.context];
-    NSMutableDictionary *dict = [[NSMutableDictionary alloc] initWithDictionary:context[key]];
+    NSMutableDictionary *dict = event.context[key] == nil
+        ? [[NSMutableDictionary alloc] init]
+        : [[NSMutableDictionary alloc] initWithDictionary:context[key]];
     block(dict);
     context[key] = dict;
     event.context = context;

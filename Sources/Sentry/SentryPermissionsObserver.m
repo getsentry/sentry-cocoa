@@ -53,17 +53,17 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 {
     switch (status) {
     case UNAuthorizationStatusNotDetermined:
-        self.pushPermissionStatus = kPermissionStatusUnknown;
+        self.pushPermissionStatus = kSentryPermissionStatusUnknown;
         break;
 
     case UNAuthorizationStatusDenied:
-        self.pushPermissionStatus = kPermissionStatusDenied;
+        self.pushPermissionStatus = kSentryPermissionStatusDenied;
         break;
 
     case UNAuthorizationStatusAuthorized:
     case UNAuthorizationStatusProvisional:
     case UNAuthorizationStatusEphemeral:
-        self.pushPermissionStatus = kPermissionStatusGranted;
+        self.pushPermissionStatus = kSentryPermissionStatusGranted;
         break;
     }
 }
@@ -72,17 +72,17 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 {
     switch (status) {
     case kCLAuthorizationStatusNotDetermined:
-        self.locationPermissionStatus = kPermissionStatusUnknown;
+        self.locationPermissionStatus = kSentryPermissionStatusUnknown;
         break;
 
     case kCLAuthorizationStatusDenied:
     case kCLAuthorizationStatusRestricted:
-        self.locationPermissionStatus = kPermissionStatusDenied;
+        self.locationPermissionStatus = kSentryPermissionStatusDenied;
         break;
 
     case kCLAuthorizationStatusAuthorizedAlways:
     case kCLAuthorizationStatusAuthorizedWhenInUse:
-        self.locationPermissionStatus = kPermissionStatusGranted;
+        self.locationPermissionStatus = kSentryPermissionStatusGranted;
         break;
     }
 }

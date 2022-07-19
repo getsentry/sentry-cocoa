@@ -3,12 +3,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef enum {
-    kPermissionStatusUnknown,
-    kPermissionStatusGranted,
-    kPermissionStatusDenied
-} SentryPermissionStatus;
-
 @interface SentryPermissionsObserver : NSObject
 
 @property (nonatomic) SentryPermissionStatus pushPermissionStatus;
