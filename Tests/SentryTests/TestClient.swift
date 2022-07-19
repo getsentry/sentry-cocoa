@@ -2,21 +2,11 @@ import Foundation
 
 class TestClient: Client {
     
-    let sentryFileManager: SentryFileManager
     let queue = DispatchQueue(label: "TestClient", attributes: .concurrent)
-    
-    override init?(options: Options) {
-        sentryFileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
-        super.init(options: options, permissionsObserver: TestSentryPermissionsObserver())
+    var sentryFileManager: SentryFileManager {
+        try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
     }
 
-    // Without this override we get a fatal error: use of unimplemented initializer
-    // see https://stackoverflow.com/questions/28187261/ios-swift-fatal-error-use-of-unimplemented-initializer-init
-    override init(options: Options, transportAdapter: SentryTransportAdapter, fileManager: SentryFileManager, threadInspector: SentryThreadInspector, random: SentryRandomProtocol, crashWrapper: SentryCrashWrapper, permissionsObserver: SentryPermissionsObserver) {
-        sentryFileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
-        super.init(options: options, transportAdapter: transportAdapter, fileManager: fileManager, threadInspector: threadInspector, random: random, crashWrapper: crashWrapper, permissionsObserver: permissionsObserver)
-    }
-    
     override func fileManager() -> SentryFileManager {
         sentryFileManager
     }

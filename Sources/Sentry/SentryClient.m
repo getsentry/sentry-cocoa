@@ -76,21 +76,21 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
                       permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
 {
-    id<SentryTransport> transport = [SentryTransportFactory initTransport:self.options
-                                                        sentryFileManager:self.fileManager];
-
-    SentryTransportAdapter *transportAdapter =
-        [[SentryTransportAdapter alloc] initWithTransport:transport options:options];
-
     NSError *error = nil;
     SentryFileManager *fileManager =
-        [[SentryFileManager alloc] initWithOptions:self.options
+        [[SentryFileManager alloc] initWithOptions:options
                             andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
                                              error:&error];
     if (nil != error) {
         [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLevelError];
         return nil;
     }
+
+    id<SentryTransport> transport = [SentryTransportFactory initTransport:options
+                                                        sentryFileManager:fileManager];
+
+    SentryTransportAdapter *transportAdapter =
+        [[SentryTransportAdapter alloc] initWithTransport:transport options:options];
 
     SentryInAppLogic *inAppLogic =
         [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
