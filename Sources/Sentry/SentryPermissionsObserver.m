@@ -56,7 +56,7 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 #endif
 
 #if SENTRY_HAS_UIKIT
-    if (@available(iOS 10, tvOS 10, *)) {
+    if (@available(iOS 9, tvOS 10, *)) {
         [self setPhotoLibraryPermissionFromStatus:PHPhotoLibrary.authorizationStatus];
     }
 
