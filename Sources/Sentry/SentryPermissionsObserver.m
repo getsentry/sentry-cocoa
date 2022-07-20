@@ -3,9 +3,12 @@
 #import <UserNotifications/UserNotifications.h>
 
 #if SENTRY_HAS_UIKIT
-#    import <MediaPlayer/MediaPlayer.h>
 #    import <Photos/Photos.h>
 #    import <UIKit/UIKit.h>
+#endif
+
+#if TARGET_OS_IOS
+#    import <MediaPlayer/MediaPlayer.h>
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -48,8 +51,11 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 
 - (void)refreshPermissions
 {
-#if SENTRY_HAS_UIKIT
+#if TARGET_OS_IOS
     [self setMediaLibraryPermissionFromStatus:MPMediaLibrary.authorizationStatus];
+#endif
+
+#if SENTRY_HAS_UIKIT
     [self setPhotoLibraryPermissionFromStatus:PHPhotoLibrary.authorizationStatus];
 
     if (@available(iOS 10, *)) {
@@ -66,7 +72,7 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 #endif
 }
 
-#if SENTRY_HAS_UIKIT
+#if TARGET_OS_IOS
 - (void)setMediaLibraryPermissionFromStatus:(MPMediaLibraryAuthorizationStatus)status
 {
     switch (status) {
@@ -83,7 +89,9 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
         break;
     }
 }
+#endif
 
+#if SENTRY_HAS_UIKIT
 - (void)setPhotoLibraryPermissionFromStatus:(PHAuthorizationStatus)status
 {
     switch (status) {
