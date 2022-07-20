@@ -668,6 +668,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                           @"location_access" :
                               [self stringForPermissionStatus:self.permissionsObserver
                                                                   .locationPermissionStatus],
+                          @"media_library" :
+                              [self stringForPermissionStatus:self.permissionsObserver
+                                                                  .mediaLibraryPermissionStatus],
                       };
                   }];
 }

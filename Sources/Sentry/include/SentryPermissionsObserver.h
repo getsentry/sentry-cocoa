@@ -7,6 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) SentryPermissionStatus pushPermissionStatus;
 @property (nonatomic) SentryPermissionStatus locationPermissionStatus;
+@property (nonatomic) SentryPermissionStatus mediaLibraryPermissionStatus;
 
 - (void)startObserving;
 

@@ -1,5 +1,6 @@
 #import "SentryPermissionsObserver.h"
 #import <CoreLocation/CoreLocation.h>
+#import <MediaPlayer/MediaPlayer.h>
 #import <UserNotifications/UserNotifications.h>
 
 #if SENTRY_HAS_UIKIT
@@ -27,7 +28,7 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 - (void)startObserving
 {
     // Set initial values
-    [self checkPushPermissions];
+    [self refreshPermissions];
     [self setLocationPermissionFromStatus:[CLLocationManager authorizationStatus]];
 
     // Listen for location permission updates
@@ -35,17 +36,19 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
     self.locationManager.delegate = self;
 
 #if SENTRY_HAS_UIKIT
-    // We can't listen for push permission updates directly, there simply is no API for that.
-    // Instead we re-check when the application comes back to the foreground.
+    // For most permissions there is no API for to be notified of changes (delegate, completion
+    // handler). Instead we refresh the values when the application comes back to the foreground.
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(checkPushPermissions)
+                                             selector:@selector(refreshPermissions)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
 #endif
 }
 
-- (void)checkPushPermissions
+- (void)refreshPermissions
 {
+    [self setMediaLibraryPermissionFromStatus:MPMediaLibrary.authorizationStatus];
+
 #if SENTRY_HAS_UIKIT
     if (@available(iOS 10, *)) {
         // We can not access UNUserNotificationCenter from tests, or it'll crash
@@ -59,6 +62,24 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
         }
     }
 #endif
+}
+
+- (void)setMediaLibraryPermissionFromStatus:(MPMediaLibraryAuthorizationStatus)status
+{
+    switch (status) {
+    case MPMediaLibraryAuthorizationStatusNotDetermined:
+        self.mediaLibraryPermissionStatus = kSentryPermissionStatusUnknown;
+        break;
+    case MPMediaLibraryAuthorizationStatusDenied:
+        self.mediaLibraryPermissionStatus = kSentryPermissionStatusDenied;
+        break;
+    case MPMediaLibraryAuthorizationStatusRestricted:
+        self.mediaLibraryPermissionStatus = kSentryPermissionStatusGranted;
+        break;
+    case MPMediaLibraryAuthorizationStatusAuthorized:
+        self.mediaLibraryPermissionStatus = kSentryPermissionStatusGranted;
+        break;
+    }
 }
 
 #if SENTRY_HAS_UIKIT

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0AAAB8572887F7C60011845C /* PermissionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AABE2E928855FF80057ED69 /* PermissionsViewController.swift */; };
 		0AABE2EA28855FF80057ED69 /* PermissionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AABE2E928855FF80057ED69 /* PermissionsViewController.swift */; };
 		630853532440C60F00DDE4CE /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; };
 		637AFDAA243B02760034958B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637AFDA9243B02760034958B /* AppDelegate.swift */; };
@@ -836,6 +837,7 @@
 				D8F3D053274E572F00B56F8C /* DSNStorage.swift in Sources */,
 				84FB812B284001B800F3A94A /* SentryBenchmarking.mm in Sources */,
 				D8F3D055274E572F00B56F8C /* RandomErrors.swift in Sources */,
+				0AAAB8572887F7C60011845C /* PermissionsViewController.swift in Sources */,
 				D8269A3C274C095E00BD5BD5 /* AppDelegate.swift in Sources */,
 				D8444E53275F792A0042F4DE /* UIAssert.swift in Sources */,
 				D8269A3E274C095E00BD5BD5 /* SceneDelegate.swift in Sources */,
