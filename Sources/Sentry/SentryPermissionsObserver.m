@@ -1,10 +1,10 @@
 #import "SentryPermissionsObserver.h"
 #import <CoreLocation/CoreLocation.h>
-#import <MediaPlayer/MediaPlayer.h>
-#import <Photos/Photos.h>
 #import <UserNotifications/UserNotifications.h>
 
 #if SENTRY_HAS_UIKIT
+#    import <MediaPlayer/MediaPlayer.h>
+#    import <Photos/Photos.h>
 #    import <UIKit/UIKit.h>
 #endif
 
@@ -48,10 +48,10 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 
 - (void)refreshPermissions
 {
+#if SENTRY_HAS_UIKIT
     [self setMediaLibraryPermissionFromStatus:MPMediaLibrary.authorizationStatus];
     [self setPhotoLibraryPermissionFromStatus:PHPhotoLibrary.authorizationStatus];
 
-#if SENTRY_HAS_UIKIT
     if (@available(iOS 10, *)) {
         // We can not access UNUserNotificationCenter from tests, or it'll crash
         // with error `bundleProxyForCurrentProcess is nil`.
@@ -66,6 +66,7 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 #endif
 }
 
+#if SENTRY_HAS_UIKIT
 - (void)setMediaLibraryPermissionFromStatus:(MPMediaLibraryAuthorizationStatus)status
 {
     switch (status) {
@@ -101,7 +102,6 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
     }
 }
 
-#if SENTRY_HAS_UIKIT
 - (void)setPushPermissionFromStatus:(UNAuthorizationStatus)status
 {
     switch (status) {
