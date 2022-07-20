@@ -48,10 +48,14 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 {
 #if SENTRY_HAS_UIKIT
     if (@available(iOS 10, *)) {
-        [[UNUserNotificationCenter currentNotificationCenter]
-            getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
-                [self setPushPermissionFromStatus:settings.authorizationStatus];
-            }];
+        // We can not access UNUserNotificationCenter from tests, or it'll crash
+        if (NSBundle.mainBundle.bundleIdentifier != nil
+            && ![NSBundle.mainBundle.bundleIdentifier isEqual:@"com.apple.dt.xctest.tool"]) {
+            [[UNUserNotificationCenter currentNotificationCenter]
+                getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
+                    [self setPushPermissionFromStatus:settings.authorizationStatus];
+                }];
+        }
     }
 #endif
 }

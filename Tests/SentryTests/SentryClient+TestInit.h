@@ -11,8 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryClient (TestInit)
 
-- (instancetype)initWithOptions:(SentryOptions *)options
-            permissionsObserver:(SentryPermissionsObserver *)permissionsObserver;
+- (_Nullable instancetype)initWithOptions:(SentryOptions *)options
+                      permissionsObserver:(SentryPermissionsObserver *)permissionsObserver;
 
 - (instancetype)initWithOptions:(SentryOptions *)options
                transportAdapter:(SentryTransportAdapter *)transportAdapter
