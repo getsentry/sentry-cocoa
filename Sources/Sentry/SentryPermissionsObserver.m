@@ -52,7 +52,9 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 - (void)refreshPermissions
 {
 #if TARGET_OS_IOS
-    [self setMediaLibraryPermissionFromStatus:MPMediaLibrary.authorizationStatus];
+    if (@available(iOS 9.3, *)) {
+        [self setMediaLibraryPermissionFromStatus:MPMediaLibrary.authorizationStatus];
+    }
 #endif
 
 #if SENTRY_HAS_UIKIT
@@ -60,7 +62,7 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
         [self setPhotoLibraryPermissionFromStatus:PHPhotoLibrary.authorizationStatus];
     }
 
-    if (@available(iOS 10, *)) {
+    if (@available(iOS 10, tvOS 10, *)) {
         // We can not access UNUserNotificationCenter from tests, or it'll crash
         // with error `bundleProxyForCurrentProcess is nil`.
         if (NSBundle.mainBundle.bundleIdentifier != nil
@@ -76,6 +78,7 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 
 #if TARGET_OS_IOS
 - (void)setMediaLibraryPermissionFromStatus:(MPMediaLibraryAuthorizationStatus)status
+    API_AVAILABLE(ios(9.3))
 {
     switch (status) {
     case MPMediaLibraryAuthorizationStatusNotDetermined:
@@ -95,6 +98,7 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 
 #if SENTRY_HAS_UIKIT
 - (void)setPhotoLibraryPermissionFromStatus:(PHAuthorizationStatus)status
+    API_AVAILABLE(ios(9), tvos(10))
 {
     switch (status) {
     case PHAuthorizationStatusNotDetermined:
@@ -112,7 +116,7 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
     }
 }
 
-- (void)setPushPermissionFromStatus:(UNAuthorizationStatus)status
+- (void)setPushPermissionFromStatus:(UNAuthorizationStatus)status API_AVAILABLE(ios(10), tvos(10))
 {
     switch (status) {
     case UNAuthorizationStatusNotDetermined:
