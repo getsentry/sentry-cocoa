@@ -5,6 +5,7 @@
 ### Features
 
 - Read free_memory when the event is captured, not only at SDK startup (#1962)
+- Provide private access to SentryOptions for hybrid SDKs (#1991)
 
 ### Fixes
 
