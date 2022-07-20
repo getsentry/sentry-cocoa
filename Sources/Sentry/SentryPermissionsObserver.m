@@ -56,7 +56,9 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 #endif
 
 #if SENTRY_HAS_UIKIT
-    [self setPhotoLibraryPermissionFromStatus:PHPhotoLibrary.authorizationStatus];
+    if (@available(iOS 10, tvOS 10, *)) {
+        [self setPhotoLibraryPermissionFromStatus:PHPhotoLibrary.authorizationStatus];
+    }
 
     if (@available(iOS 10, *)) {
         // We can not access UNUserNotificationCenter from tests, or it'll crash
