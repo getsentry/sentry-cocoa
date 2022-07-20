@@ -525,6 +525,7 @@ class SentryClientTest: XCTestCase {
         fixture.permissionsObserver.internalLocationPermissionStatus = SentryPermissionStatus.granted
         fixture.permissionsObserver.internalPushPermissionStatus = SentryPermissionStatus.granted
         fixture.permissionsObserver.internalMediaLibraryPermissionStatus = SentryPermissionStatus.granted
+        fixture.permissionsObserver.internalPhotoLibraryPermissionStatus = SentryPermissionStatus.granted
 
         let event = TestData.event
         event.threads = nil
@@ -537,6 +538,7 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(permissions?["push_notifications"], "granted")
             XCTAssertEqual(permissions?["location_access"], "granted")
             XCTAssertEqual(permissions?["media_library"], "granted")
+            XCTAssertEqual(permissions?["photo_library"], "granted")
         }
     }
 

@@ -1,6 +1,7 @@
 #import "SentryPermissionsObserver.h"
 #import <CoreLocation/CoreLocation.h>
 #import <MediaPlayer/MediaPlayer.h>
+#import <Photos/Photos.h>
 #import <UserNotifications/UserNotifications.h>
 
 #if SENTRY_HAS_UIKIT
@@ -48,6 +49,7 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 - (void)refreshPermissions
 {
     [self setMediaLibraryPermissionFromStatus:MPMediaLibrary.authorizationStatus];
+    [self setPhotoLibraryPermissionFromStatus:PHPhotoLibrary.authorizationStatus];
 
 #if SENTRY_HAS_UIKIT
     if (@available(iOS 10, *)) {
@@ -73,11 +75,28 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
     case MPMediaLibraryAuthorizationStatusDenied:
         self.mediaLibraryPermissionStatus = kSentryPermissionStatusDenied;
         break;
-    case MPMediaLibraryAuthorizationStatusRestricted:
-        self.mediaLibraryPermissionStatus = kSentryPermissionStatusGranted;
-        break;
+    case MPMediaLibraryAuthorizationStatusRestricted: // The app may access some of the content in
+                                                      // the user's media library.
     case MPMediaLibraryAuthorizationStatusAuthorized:
         self.mediaLibraryPermissionStatus = kSentryPermissionStatusGranted;
+        break;
+    }
+}
+
+- (void)setPhotoLibraryPermissionFromStatus:(PHAuthorizationStatus)status
+{
+    switch (status) {
+    case PHAuthorizationStatusNotDetermined:
+        self.photoLibraryPermissionStatus = kSentryPermissionStatusUnknown;
+        break;
+    case PHAuthorizationStatusDenied:
+    case PHAuthorizationStatusRestricted: // The app isn’t authorized to access the photo library,
+                                          // and the user can’t grant such permission.
+        self.photoLibraryPermissionStatus = kSentryPermissionStatusDenied;
+        break;
+    case PHAuthorizationStatusLimited:
+    case PHAuthorizationStatusAuthorized:
+        self.photoLibraryPermissionStatus = kSentryPermissionStatusGranted;
         break;
     }
 }

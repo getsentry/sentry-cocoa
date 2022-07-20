@@ -4,6 +4,7 @@ class TestSentryPermissionsObserver: SentryPermissionsObserver {
     var internalPushPermissionStatus = SentryPermissionStatus.unknown
     var internalLocationPermissionStatus = SentryPermissionStatus.unknown
     var internalMediaLibraryPermissionStatus = SentryPermissionStatus.unknown
+    var internalPhotoLibraryPermissionStatus = SentryPermissionStatus.unknown
 
     override func startObserving() {
         // noop
@@ -26,6 +27,13 @@ class TestSentryPermissionsObserver: SentryPermissionsObserver {
     override var mediaLibraryPermissionStatus: SentryPermissionStatus {
         get {
             return internalMediaLibraryPermissionStatus
+        }
+        set {}
+    }
+
+    override var photoLibraryPermissionStatus: SentryPermissionStatus {
+        get {
+            return internalPhotoLibraryPermissionStatus
         }
         set {}
     }
