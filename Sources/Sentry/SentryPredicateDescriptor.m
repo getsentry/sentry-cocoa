@@ -84,7 +84,7 @@
             // this is not supposed to happen, NSConditionalExpressionType was introduced in
             // macOS 10.11 but we need this version check because cocoapod lint check is failing
             // without it.
-            return @"";
+            return @"<EXPRESSION UNKNOWN>";
         }
     default:
         return predicate.description;
