@@ -49,6 +49,7 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 #if SENTRY_HAS_UIKIT
     if (@available(iOS 10, *)) {
         // We can not access UNUserNotificationCenter from tests, or it'll crash
+        // with error `bundleProxyForCurrentProcess is nil`.
         if (NSBundle.mainBundle.bundleIdentifier != nil
             && ![NSBundle.mainBundle.bundleIdentifier isEqual:@"com.apple.dt.xctest.tool"]) {
             [[UNUserNotificationCenter currentNotificationCenter]
