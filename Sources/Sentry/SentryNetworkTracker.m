@@ -296,8 +296,13 @@ SentryNetworkTracker ()
         // because it could contain a completely unrelated trace id from a previous request.
         NSMutableDictionary *existingHeaders = headers.mutableCopy;
         [existingHeaders removeObjectForKey:SENTRY_TRACE_HEADER];
-        existingHeaders[SENTRY_BAGGAGE_HEADER] =
+
+        NSString *newBaggageHeader =
             [self removeSentryTraceIdFromBaggage:headers[SENTRY_BAGGAGE_HEADER]];
+        if (newBaggageHeader.length > 0) {
+            existingHeaders[SENTRY_BAGGAGE_HEADER] =
+                [self removeSentryTraceIdFromBaggage:headers[SENTRY_BAGGAGE_HEADER]];
+        }
         return [existingHeaders copy];
     }
 
