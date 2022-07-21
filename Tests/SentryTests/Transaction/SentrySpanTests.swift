@@ -63,6 +63,17 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(lastEvent.startTimestamp, TestData.timestamp)
         XCTAssertEqual(lastEvent.type, SentryEnvelopeItemTypeTransaction)
     }
+
+    func testFinishWithCustomTimestamp() {
+        let span = SentrySpan(transaction: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
+        span.timestamp = Date(timeIntervalSince1970: 123)
+        span.finish()
+
+        XCTAssertEqual(span.startTimestamp, TestData.timestamp)
+        XCTAssertEqual(span.timestamp, Date(timeIntervalSince1970: 123))
+        XCTAssertTrue(span.isFinished)
+        XCTAssertEqual(span.context.status, .ok)
+    }
     
     func testFinishWithStatus() {
         let span = fixture.getSut()
@@ -168,7 +179,7 @@ class SentrySpanTests: XCTestCase {
     }
 
     func testSanitizeDataSpan() {
-        let span = SentrySpan(transaction: fixture.getSut() as! SentryTracer, context: SpanContext(operation: "test"))
+        let span = SentrySpan(transaction: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
 
         span.setExtra(value: Date(timeIntervalSince1970: 10), key: "date")
         span.finish()
