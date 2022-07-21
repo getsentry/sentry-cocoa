@@ -5,11 +5,13 @@
 ### Features
 
 - Read free_memory when the event is captured, not only at SDK startup (#1962)
+- Provide private access to SentryOptions for hybrid SDKs (#1991)
 
 ### Fixes
 
 - Report pre-warmed app starts (#1969)
 - Remove Sentry keys from cached HTTP request headers (#1975)
+- Collect samples for idle threads in iOS profiler (#1978)
 
 ## 7.21.0
 
@@ -20,6 +22,7 @@
 - Add enableAutoBreadcrumbTracking option (#1958)
 - Automatic nest spans with the UI life cycle (#1959)
 - Upload frame rendering timestamps to correlate to sampled backtraces (#1910)
+- Remove PII from auto-generated core data spans (#1982)
 
 ### Fixes
 
