@@ -5,6 +5,7 @@
 #import "SentryLog.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
+#import "SentrySerialization.h"
 #import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
 #import "SentryTracer.h"
@@ -274,6 +275,14 @@ SentryNetworkTracker ()
     return kSentrySpanStatusUndefined;
 }
 
+- (NSString *)removeSentryTraceIdFromBaggage:(NSString *)baggage
+{
+    NSMutableDictionary *original =
+        [SentrySerialization baggageDecodedDictionary:baggage].mutableCopy;
+    [original removeObjectForKey:@"sentry-trace_id"];
+    return [SentrySerialization baggageEncodedDictionary:original];
+}
+
 - (nullable NSDictionary *)addTraceHeader:(nullable NSDictionary *)headers
 {
     @synchronized(self) {
@@ -287,7 +296,9 @@ SentryNetworkTracker ()
         // Remove the Sentry keys from the cached headers (cached by NSURLSession itself),
         // because it could contain a completely unrelated trace id from a previous request.
         NSMutableDictionary *existingHeaders = headers.mutableCopy;
-        [existingHeaders removeObjectsForKeys:@[ SENTRY_TRACE_HEADER, SENTRY_BAGGAGE_HEADER ]];
+        [existingHeaders removeObjectForKey:SENTRY_TRACE_HEADER];
+        existingHeaders[SENTRY_BAGGAGE_HEADER] =
+            [self removeSentryTraceIdFromBaggage:headers[SENTRY_BAGGAGE_HEADER]];
         return [existingHeaders copy];
     }
 
@@ -296,7 +307,9 @@ SentryNetworkTracker ()
 
     SentryTracer *tracer = [SentryTracer getTracer:span];
     if (tracer != nil) {
-        result[SENTRY_BAGGAGE_HEADER] = [[tracer.traceContext toBaggage] toHTTPHeader];
+        result[SENTRY_BAGGAGE_HEADER] = [[tracer.traceContext toBaggage]
+            toHTTPHeaderWithOriginalBaggage:
+                [SentrySerialization baggageDecodedDictionary:headers[SENTRY_BAGGAGE_HEADER]]];
     }
 
     return [[NSDictionary alloc] initWithDictionary:result];

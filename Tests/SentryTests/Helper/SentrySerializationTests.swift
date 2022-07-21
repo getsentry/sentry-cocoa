@@ -254,12 +254,27 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": "value%"]), "key=value%25")
         XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": "value-_"]), "key=value-_")
         XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": "value\n\r"]), "key=value%0A%0D")
+        XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": ""]), "key=")
         
         let largeValue = String(repeating: "a", count: 8_188)
         
         XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["key": largeValue]), "key=\(largeValue)")
         XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["AKey": "something", "BKey": largeValue]), "AKey=something")
         XCTAssertEqual(SentrySerialization.baggageEncodedDictionary(["AKey": "something", "BKey": largeValue, "CKey": "Other Value"]), "AKey=something,CKey=Other%20Value")
+    }
+
+    func testBaggageStringToDictionaryDecoded() {
+        XCTAssertEqual(SentrySerialization.baggageDecodedDictionary("key=value"), ["key": "value"])
+        XCTAssertEqual(SentrySerialization.baggageDecodedDictionary("key2=value2,key=value"), ["key": "value", "key2": "value2"])
+        XCTAssertEqual(SentrySerialization.baggageDecodedDictionary("key=value%26"), ["key": "value&"])
+        XCTAssertEqual(SentrySerialization.baggageDecodedDictionary("key=value%3D"), ["key": "value="])
+        XCTAssertEqual(SentrySerialization.baggageDecodedDictionary("key=value%20"), ["key": "value "])
+        XCTAssertEqual(SentrySerialization.baggageDecodedDictionary("key=value%25"), ["key": "value%"])
+        XCTAssertEqual(SentrySerialization.baggageDecodedDictionary("key=value-_"), ["key": "value-_"])
+        XCTAssertEqual(SentrySerialization.baggageDecodedDictionary("key=value%0A%0D"), ["key": "value\n\r"])
+        XCTAssertEqual(SentrySerialization.baggageDecodedDictionary(""), [:])
+        XCTAssertEqual(SentrySerialization.baggageDecodedDictionary("key"), [:])
+        XCTAssertEqual(SentrySerialization.baggageDecodedDictionary("key="), ["key": ""])
     }
     
     private func serializeEnvelope(envelope: SentryEnvelope) -> Data {
