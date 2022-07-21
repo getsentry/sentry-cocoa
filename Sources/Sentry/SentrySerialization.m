@@ -135,7 +135,7 @@ NS_ASSUME_NONNULL_BEGIN
     }] componentsJoinedByString:@","];
 }
 
-+ (NSDictionary<NSString *, NSString *> *)baggageDecodedDictionary:(NSString *)baggage
++ (NSDictionary<NSString *, NSString *> *)decodeBaggage:(NSString *)baggage
 {
     NSMutableDictionary *decoded = [[NSMutableDictionary alloc] init];
 

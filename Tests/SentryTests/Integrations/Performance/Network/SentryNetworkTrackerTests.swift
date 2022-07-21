@@ -456,7 +456,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNotNil(headers?["baggage"])
         XCTAssertNotNil(headers?["sentry-trace"])
 
-        let decodedBaggage = SentrySerialization.baggageDecodedDictionary(headers?["baggage"] ?? "")
+        let decodedBaggage = SentrySerialization.decodeBaggage(headers?["baggage"] ?? "")
         XCTAssertEqual(decodedBaggage.count, 4)
     }
 
@@ -468,7 +468,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNotNil(headers?["baggage"])
         XCTAssertNotNil(headers?["sentry-trace"])
 
-        let decodedBaggage = SentrySerialization.baggageDecodedDictionary(headers?["baggage"] ?? "")
+        let decodedBaggage = SentrySerialization.decodeBaggage(headers?["baggage"] ?? "")
         XCTAssertEqual(decodedBaggage.count, 5)
     }
 
