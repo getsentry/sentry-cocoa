@@ -137,6 +137,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSDictionary<NSString *, NSString *> *)decodeBaggage:(NSString *)baggage
 {
+    if (baggage == nil || baggage.length == 0) {
+        return @{};
+    }
+
     NSMutableDictionary *decoded = [[NSMutableDictionary alloc] init];
 
     NSArray<NSString *> *properties = [baggage componentsSeparatedByString:@","];
