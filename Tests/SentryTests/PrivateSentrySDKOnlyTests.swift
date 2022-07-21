@@ -62,6 +62,21 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
         XCTAssertTrue(PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode)
     }
+
+    func testOptions() {
+        let options = Options()
+        options.dsn = TestConstants.dsnAsString(username: "SentryFramesTrackingIntegrationTests")
+        let client = TestClient(options: options)
+        SentrySDK.setCurrentHub(TestHub(client: client, andScope: nil))
+
+        XCTAssertEqual(PrivateSentrySDKOnly.options, options)
+    }
+
+    func testDefaultOptions() {
+        XCTAssertNotNil(PrivateSentrySDKOnly.options)
+        XCTAssertNil(PrivateSentrySDKOnly.options.dsn)
+        XCTAssertEqual(PrivateSentrySDKOnly.options.enabled, true)
+    }
     
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
