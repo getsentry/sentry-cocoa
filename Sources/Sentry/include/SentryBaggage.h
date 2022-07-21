@@ -53,6 +53,7 @@ static NSString *const SENTRY_BAGGAGE_HEADER = @"baggage";
                       publicKey:(NSString *)publicKey
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
+                    transaction:(nullable NSString *)transaction
                     userSegment:(nullable NSString *)userSegment
                      sampleRate:(nullable NSString *)sampleRate;
 
