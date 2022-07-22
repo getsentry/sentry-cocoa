@@ -24,7 +24,12 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 {
     self = [super init];
     if (self) {
-        [self startObserving];
+        // Don't start observing when we're in tests, or in an app extension
+        if (NSBundle.mainBundle.bundleIdentifier != nil
+            && ![NSBundle.mainBundle.bundleIdentifier isEqual:@"com.apple.dt.xctest.tool"]
+            && ![NSBundle.mainBundle.bundlePath hasSuffix:@".appex"]) {
+            [self startObserving];
+        }
     }
     return self;
 }
@@ -63,15 +68,10 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
     }
 
     if (@available(iOS 10, tvOS 10, *)) {
-        // We can not access UNUserNotificationCenter from tests, or it'll crash
-        // with error `bundleProxyForCurrentProcess is nil`.
-        if (NSBundle.mainBundle.bundleIdentifier != nil
-            && ![NSBundle.mainBundle.bundleIdentifier isEqual:@"com.apple.dt.xctest.tool"]) {
-            [[UNUserNotificationCenter currentNotificationCenter]
-                getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
-                    [self setPushPermissionFromStatus:settings.authorizationStatus];
-                }];
-        }
+        [[UNUserNotificationCenter currentNotificationCenter]
+            getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
+                [self setPushPermissionFromStatus:settings.authorizationStatus];
+            }];
     }
 #endif
 }

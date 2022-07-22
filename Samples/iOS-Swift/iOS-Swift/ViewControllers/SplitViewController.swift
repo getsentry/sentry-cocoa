@@ -30,7 +30,7 @@ class SplitRootViewController: UIViewController {
     }
     
     @IBAction func showSecondary() {
-            splitViewController?.showDetailViewController(SecondarySplitViewController(), sender: nil)
+        splitViewController?.showDetailViewController(SecondarySplitViewController(), sender: nil)
     }
 }
 
