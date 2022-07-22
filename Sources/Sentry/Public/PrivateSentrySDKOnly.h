@@ -2,7 +2,8 @@
 
 #import "SentryDefines.h"
 
-@class SentryEnvelope, SentryDebugMeta, SentryAppStartMeasurement, SentryScreenFrames;
+@class SentryEnvelope, SentryDebugMeta, SentryAppStartMeasurement, SentryScreenFrames,
+    SentryOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -52,6 +53,8 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 @property (class, nullable, nonatomic, readonly) SentryAppStartMeasurement *appStartMeasurement;
 
 @property (class, nonatomic, readonly, copy) NSString *installationID;
+
+@property (class, nonatomic, readonly, copy) SentryOptions *options;
 
 /**
  * If enabled, the SDK won't send the app start measurement with the first transaction. Instead, if

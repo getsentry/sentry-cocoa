@@ -2,11 +2,22 @@
 #import "SentryCoreDataTracker.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
+#import "SentryPredicateDescriptor.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySpanProtocol.h"
 
-@implementation SentryCoreDataTracker
+@implementation SentryCoreDataTracker {
+    SentryPredicateDescriptor *predicateDescriptor;
+}
+
+- (instancetype)init
+{
+    if (self = [super init]) {
+        predicateDescriptor = [[SentryPredicateDescriptor alloc] init];
+    }
+    return self;
+}
 
 - (NSArray *)managedObjectContext:(NSManagedObjectContext *)context
               executeFetchRequest:(NSFetchRequest *)request
@@ -116,7 +127,8 @@
         [[NSMutableString alloc] initWithFormat:@"SELECT '%@'", request.entityName];
 
     if (request.predicate) {
-        [result appendFormat:@" WHERE %@", [self predicateDescription:request.predicate]];
+        [result appendFormat:@" WHERE %@",
+                [predicateDescriptor predicateDescription:request.predicate]];
     }
 
     if (request.sortDescriptors.count > 0) {
@@ -124,11 +136,6 @@
     }
 
     return result;
-}
-
-- (NSString *)predicateDescription:(NSPredicate *)predicate
-{
-    return predicate.predicateFormat;
 }
 
 - (NSString *)sortDescription:(NSArray<NSSortDescriptor *> *)sortList

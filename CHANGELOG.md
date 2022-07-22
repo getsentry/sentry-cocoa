@@ -6,6 +6,7 @@
 
 - Read free_memory when the event is captured, not only at SDK startup (#1962)
 - Add transaction to baggage and trace headers (#1992)
+- Provide private access to SentryOptions for hybrid SDKs (#1991)
 
 ### Fixes
 
@@ -21,6 +22,7 @@
 - Add enableAutoBreadcrumbTracking option (#1958)
 - Automatic nest spans with the UI life cycle (#1959)
 - Upload frame rendering timestamps to correlate to sampled backtraces (#1910)
+- Remove PII from auto-generated core data spans (#1982)
 
 ### Fixes
 
