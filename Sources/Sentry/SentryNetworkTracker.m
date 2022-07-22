@@ -275,7 +275,7 @@ SentryNetworkTracker ()
     return kSentrySpanStatusUndefined;
 }
 
-- (NSString *)removeSentryTraceIdFromBaggage:(NSString *)baggage
+- (NSString *)removeSentryKeysFromBaggage:(NSString *)baggage
 {
     NSMutableDictionary *original = [SentrySerialization decodeBaggage:baggage].mutableCopy;
     NSDictionary *filtered =
@@ -302,10 +302,9 @@ SentryNetworkTracker ()
         [existingHeaders removeObjectForKey:SENTRY_TRACE_HEADER];
 
         NSString *newBaggageHeader =
-            [self removeSentryTraceIdFromBaggage:headers[SENTRY_BAGGAGE_HEADER]];
+            [self removeSentryKeysFromBaggage:headers[SENTRY_BAGGAGE_HEADER]];
         if (newBaggageHeader.length > 0) {
-            existingHeaders[SENTRY_BAGGAGE_HEADER] =
-                [self removeSentryTraceIdFromBaggage:headers[SENTRY_BAGGAGE_HEADER]];
+            existingHeaders[SENTRY_BAGGAGE_HEADER] = newBaggageHeader;
         }
         return [existingHeaders copy];
     }
