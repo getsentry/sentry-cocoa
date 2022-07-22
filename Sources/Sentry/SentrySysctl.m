@@ -14,6 +14,9 @@ static NSDate *runtimeInit = nil;
  * The constructor attribute causes the function to be called automatically before execution enters
  * main(). The lower the priority number, the sooner the constructor runs, which means 100 runs
  * before 101. As we want to be as close to main() as possible, we choose a high number.
+ *
+ * Previously, we used __DATA,__mod_init_func, which leads to compilation errors and runtime crashes
+ * when enabling the address sanitizer.
  */
 __used __attribute__((constructor(60000))) static void
 sentryModuleInitializationHook()

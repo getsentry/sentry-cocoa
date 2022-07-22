@@ -11,6 +11,7 @@
 
 - Remove Sentry keys from cached HTTP request headers (#1975)
 - Collect samples for idle threads in iOS profiler (#1978)
+- Fix address sanitizer compilation error (#1996)
 
 ## 7.21.0
 
