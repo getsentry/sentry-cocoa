@@ -278,8 +278,12 @@ SentryNetworkTracker ()
 - (NSString *)removeSentryTraceIdFromBaggage:(NSString *)baggage
 {
     NSMutableDictionary *original = [SentrySerialization decodeBaggage:baggage].mutableCopy;
-    [original removeObjectForKey:@"sentry-trace_id"];
-    return [SentrySerialization baggageEncodedDictionary:original];
+    NSDictionary *filtered =
+        [original dictionaryWithValuesForKeys:
+                      [original.allKeys
+                          filteredArrayUsingPredicate:
+                              [NSPredicate predicateWithFormat:@"NOT SELF BEGINSWITH 'sentry-'"]]];
+    return [SentrySerialization baggageEncodedDictionary:filtered];
 }
 
 - (nullable NSDictionary *)addTraceHeader:(nullable NSDictionary *)headers
