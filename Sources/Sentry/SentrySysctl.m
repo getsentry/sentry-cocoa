@@ -6,18 +6,20 @@
 static NSDate *moduleInitializationTimestamp;
 static NSDate *runtimeInit = nil;
 
-void
-sentryModuleInitializationHook(int argc, char **argv, char **envp)
+/**
+ *
+ * Constructor priority must be bounded between 101 and 65535 inclusive, see
+ * https://gcc.gnu.org/onlinedocs/gcc-4.7.0/gcc/Function-Attributes.html and
+ * https://gcc.gnu.org/onlinedocs/gcc-4.7.0/gcc/C_002b_002b-Attributes.html#C_002b_002b-Attributes
+ * The constructor attribute causes the function to be called automatically before execution enters
+ * main(). The lower the priority number, the sooner the constructor runs, which means 100 runs
+ * before 101. As we want to be as close to main() as possible, we choose a high number.
+ */
+__used __attribute__((constructor(60000))) static void
+sentryModuleInitializationHook()
 {
     moduleInitializationTimestamp = [NSDate date];
 }
-/**
- * Module initialization functions. The C++ compiler places static constructors here. For more info
- * visit:
- * https://github.com/aidansteele/osx-abi-macho-file-format-reference#table-2-the-sections-of-a__datasegment
- */
-__attribute__((section("__DATA,__mod_init_func"))) typeof(sentryModuleInitializationHook) *__init
-    = sentryModuleInitializationHook;
 
 @implementation SentrySysctl
 
