@@ -305,6 +305,8 @@ SentryNetworkTracker ()
             [self removeSentryKeysFromBaggage:headers[SENTRY_BAGGAGE_HEADER]];
         if (newBaggageHeader.length > 0) {
             existingHeaders[SENTRY_BAGGAGE_HEADER] = newBaggageHeader;
+        } else {
+            [existingHeaders removeObjectForKey:SENTRY_BAGGAGE_HEADER];
         }
         return [existingHeaders copy];
     }

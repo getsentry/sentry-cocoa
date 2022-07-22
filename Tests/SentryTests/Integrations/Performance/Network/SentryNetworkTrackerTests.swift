@@ -479,6 +479,14 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(headers?["baggage"], "key=value")
         XCTAssertNil(headers?["sentry-trace"])
     }
+
+    func test_RemoveExistingTraceHeader_WhenNoSpan_NoEmptyBaggage() {
+        let sut = fixture.getSut()
+        let headers = sut.addTraceHeader(["a": "a", "baggage": "sentry-trace_id=sentry-trace_id,sentry-release=abc", "sentry-trace": "sentry-trace"])
+        XCTAssertEqual(headers?.count, 1)
+        XCTAssertNil(headers?["baggage"])
+        XCTAssertNil(headers?["sentry-trace"])
+    }
     
     func test_AddTraceHeader_NoTransaction() {
         let sut = fixture.getSut()
