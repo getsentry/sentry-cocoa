@@ -16,6 +16,7 @@
 #import "SentrySerialization.h"
 #import "SentryTracer.h"
 #import "SentryTracesSampler.h"
+#import "SentryProfilesSampler.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 
@@ -27,7 +28,8 @@ SentryHub ()
 @property (nullable, nonatomic, strong) SentryClient *client;
 @property (nullable, nonatomic, strong) SentryScope *scope;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
-@property (nonatomic, strong) SentryTracesSampler *sampler;
+@property (nonatomic, strong) SentryTracesSampler *tracesSampler;
+@property (nonatomic, strong) SentryProfilesSampler *profilesSampler;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 
 @end
@@ -45,7 +47,8 @@ SentryHub ()
         _sessionLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
         _crashWrapper = [SentryCrashWrapper sharedInstance];
-        _sampler = [[SentryTracesSampler alloc] initWithOptions:client.options];
+        _tracesSampler = [[SentryTracesSampler alloc] initWithOptions:client.options];
+        _profilesSampler = [[SentryProfilesSampler alloc] initWithOptions:client.options];
         _currentDateProvider = [SentryDefaultCurrentDateProvider sharedInstance];
     }
     return self;
@@ -341,7 +344,7 @@ SentryHub ()
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
                                             customSamplingContext:customSamplingContext];
 
-    SentryTracesSamplerDecision *samplerDecision = [_sampler sample:samplingContext];
+    SentryTracesSamplerDecision *samplerDecision = [_tracesSampler sample:samplingContext];
     transactionContext.sampled = samplerDecision.decision;
     transactionContext.sampleRate = samplerDecision.sampleRate;
 
@@ -365,7 +368,7 @@ SentryHub ()
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
                                             customSamplingContext:customSamplingContext];
 
-    SentryTracesSamplerDecision *samplerDecision = [_sampler sample:samplingContext];
+    SentryTracesSamplerDecision *samplerDecision = [_tracesSampler sample:samplingContext];
     transactionContext.sampled = samplerDecision.decision;
     transactionContext.sampleRate = samplerDecision.sampleRate;
 
