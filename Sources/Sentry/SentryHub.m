@@ -347,9 +347,12 @@ SentryHub ()
     SentryTracesSamplerDecision *samplerDecision = [_tracesSampler sample:samplingContext];
     transactionContext.sampled = samplerDecision.decision;
     transactionContext.sampleRate = samplerDecision.sampleRate;
+    
+    SentryProfilesSamplerDecision *profilesSamplerDecision = [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
 
     id<SentrySpan> tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                          hub:self
+                                                     profilesSamplerDecision:profilesSamplerDecision
                                                              waitForChildren:waitForChildren];
 
     if (bindToScope)
@@ -371,9 +374,12 @@ SentryHub ()
     SentryTracesSamplerDecision *samplerDecision = [_tracesSampler sample:samplingContext];
     transactionContext.sampled = samplerDecision.decision;
     transactionContext.sampleRate = samplerDecision.sampleRate;
+    
+    SentryProfilesSamplerDecision *profilesSamplerDecision = [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
 
     SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                         hub:self
+                                                    profilesSamplerDecision:profilesSamplerDecision
                                                                 idleTimeout:idleTimeout
                                                        dispatchQueueWrapper:dispatchQueueWrapper];
     if (bindToScope)

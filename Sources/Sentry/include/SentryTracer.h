@@ -4,7 +4,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceContext,
-    SentryDispatchQueueWrapper, SentryTracer;
+    SentryDispatchQueueWrapper, SentryTracer, SentryProfilesSamplerDecision;
 
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
@@ -85,12 +85,14 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  *
  * @param transactionContext Transaction context
  * @param hub A hub to bind this transaction
+ * @param profilesSamplerDecision Whether to sample a profile corresponding to this transaction
  * @param waitForChildren Whether this tracer should wait all children to finish.
  *
  * @return SentryTracer
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
+                   profilesSamplerDecision:(nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
                            waitForChildren:(BOOL)waitForChildren;
 
 /**
@@ -99,12 +101,14 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  *
  * @param transactionContext Transaction context
  * @param hub A hub to bind this transaction
+ * @param profilesSamplerDecision Whether to sample a profile corresponding to this transaction
  * @param idleTimeout The idle time to wait until to finish the transaction.
  *
  * @return SentryTracer
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
+                   profilesSamplerDecision:(nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
                                idleTimeout:(NSTimeInterval)idleTimeout
                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
