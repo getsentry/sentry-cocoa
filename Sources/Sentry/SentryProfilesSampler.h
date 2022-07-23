@@ -28,23 +28,20 @@ NS_ASSUME_NONNULL_BEGIN
  * Init a ProfilesSampler with given options and random generator.
  * @param options Sentry options with sampling configuration
  * @param random A random number generator
- * @param tracesSamplerDecision The sampler decision for whether to sample the trace that
- * the profile is coupled to.
  */
-- (instancetype)initWithOptions:(SentryOptions *)options random:(id<SentryRandom>)random tracesSamplerDecision:(SentryTracesSamplerDecision *)tracesSamplerDecision;
+- (instancetype)initWithOptions:(SentryOptions *)options random:(id<SentryRandom>)random;
 
 /**
  * Init a ProfilesSampler with given options and a default Random generator.
  * @param options Sentry options with sampling configuration
- * @param tracesSamplerDecision The sampler decision for whether to sample the trace that
- * the profile is coupled to.
  */
-- (instancetype)initWithOptions:(SentryOptions *)options tracesSamplerDecision:(SentryTracesSamplerDecision *)tracesSamplerDecision;
+- (instancetype)initWithOptions:(SentryOptions *)options;
 
 /**
- * Determines whether a profile should be sampled based on the context and options.
+ * Determines whether a profile should be sampled based on the context, options, and
+ * whether the trace corresponding to the profile was sampled.
  */
-- (SentryProfilesSamplerDecision *)sample:(SentrySamplingContext *)context;
+- (SentryProfilesSamplerDecision *)sample:(SentrySamplingContext *)context tracesSamplerDecision:(SentryTracesSamplerDecision *)tracesSamplerDecision;
 
 @end
 

@@ -21,30 +21,28 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryProfilesSampler {
     SentryOptions *_options;
-    SentryTracesSamplerDecision *_tracesSamplerDecision;
 }
 
-- (instancetype)initWithOptions:(SentryOptions *)options random:(id<SentryRandom>)random tracesSamplerDecision:(SentryTracesSamplerDecision *)tracesSamplerDecision
+- (instancetype)initWithOptions:(SentryOptions *)options random:(id<SentryRandom>)random
 {
     if (self = [super init]) {
         _options = options;
-        _tracesSamplerDecision = tracesSamplerDecision;
         self.random = random;
     }
     return self;
 }
 
-- (instancetype)initWithOptions:(SentryOptions *)options tracesSamplerDecision:(SentryTracesSamplerDecision *)tracesSamplerDecision
+- (instancetype)initWithOptions:(SentryOptions *)options
 {
-    return [self initWithOptions:options random:[SentryDependencyContainer sharedInstance].random tracesSamplerDecision:tracesSamplerDecision];
+    return [self initWithOptions:options random:[SentryDependencyContainer sharedInstance].random];
 }
 
-- (SentryProfilesSamplerDecision *)sample:(__unused SentrySamplingContext *)context
+- (SentryProfilesSamplerDecision *)sample:(SentrySamplingContext *)context tracesSamplerDecision:(SentryTracesSamplerDecision *)tracesSamplerDecision
 {
     // Profiles are always undersampled with respect to traces. If the trace is not sampled,
     // the profile will not be either. If the trace is sampled, we can proceed to checking
     // whether the associated profile should be sampled.
-    if (_tracesSamplerDecision.decision == kSentrySampleDecisionYes) {
+    if (tracesSamplerDecision.decision == kSentrySampleDecisionYes) {
         if (_options.profilesSampler != nil) {
             NSNumber *callbackDecision = _options.profilesSampler(context);
             if (callbackDecision != nil) {
