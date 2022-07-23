@@ -80,17 +80,6 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 @property (nullable, nonatomic, weak) id<SentryTracerDelegate> delegate;
 
 /**
- * Init a SentryTracer with given transaction context and hub and set other fields by default
- *
- * @param transactionContext Transaction context
- * @param hub A hub to bind this transaction
- *
- * @return SentryTracer
- */
-- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                                       hub:(nullable SentryHub *)hub;
-
-/**
  * Init a SentryTracer with given transaction context, hub and whether the tracer should wait
  * for all children to finish before it finishes.
  *
