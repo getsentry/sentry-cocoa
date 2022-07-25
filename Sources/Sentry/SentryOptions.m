@@ -11,9 +11,11 @@ SentryOptions ()
 
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultSampleRate;
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultTracesSampleRate;
-@property (nullable, nonatomic, copy, readonly) NSNumber *defaultProfilesSampleRate;
 @property (nonatomic, strong) NSMutableSet<NSString *> *disabledIntegrations;
-
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+@property (nullable, nonatomic, copy, readonly) NSNumber *defaultProfilesSampleRate;
+@property (nonatomic, assign) BOOL enableProfiling_DEPRECATED_TEST_ONLY;
+#endif
 @end
 
 @implementation SentryOptions
@@ -412,6 +414,17 @@ SentryOptions ()
 {
     return (_profilesSampleRate != nil && [_profilesSampleRate doubleValue] > 0) || _profilesSampler != nil || _enableProfiling;
 }
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+- (void)setEnableProfiling_DEPRECATED_TEST_ONLY:(BOOL)enableProfiling_DEPRECATED_TEST_ONLY {
+    self.enableProfiling = enableProfiling_DEPRECATED_TEST_ONLY;
+}
+
+- (BOOL)enableProfiling_DEPRECATED_TEST_ONLY {
+    return self.enableProfiling;
+}
+#pragma clang diagnostic pop
 #endif
 
 /**

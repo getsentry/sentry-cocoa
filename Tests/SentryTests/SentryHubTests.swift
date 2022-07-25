@@ -371,6 +371,18 @@ class SentryHubTests: XCTestCase {
         }
     }
     
+    func testStartTransaction_NotSamplingProfileUsingEnableProfiling() {
+        testProfilesSampler(expected: .no) { options in
+            options.enableProfiling_DEPRECATED_TEST_ONLY = false
+        }
+    }
+    
+    func testStartTransaction_SamplingProfileUsingEnableProfiling() {
+        testProfilesSampler(expected: .yes) { options in
+            options.enableProfiling_DEPRECATED_TEST_ONLY = true
+        }
+    }
+    
     func testStartTransaction_NotSamplingProfileUsingSampleRate() {
         testProfilesSampler(expected: .no) { options in
             options.profilesSampleRate = 0.49
