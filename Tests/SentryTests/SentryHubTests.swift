@@ -855,7 +855,7 @@ class SentryHubTests: XCTestCase {
         options(fixture.options)
         
         let hub = fixture.getSut()
-        Dynamic(hub).sampler.random = fixture.random
+        Dynamic(hub).tracesSampler.random = fixture.random
         
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         
