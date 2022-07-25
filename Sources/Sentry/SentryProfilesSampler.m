@@ -63,7 +63,8 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
         if (_options.enableProfiling) {
-            return [self calcSample:1.0];
+            return [[SentryProfilesSamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
+                                                             forSampleRate:@1.0];
         }
 #pragma clang diagnostic pop
     }
