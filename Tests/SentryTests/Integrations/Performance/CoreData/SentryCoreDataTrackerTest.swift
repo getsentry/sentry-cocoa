@@ -44,7 +44,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
     func test_FetchRequest_WithPredicate() {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         fetch.predicate = NSPredicate(format: "field1 = %@ and field2 = %@", argumentArray: ["First Argument", 2])
-        assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' WHERE field1 == \"First Argument\" AND field2 == 2")
+        assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' WHERE field1 == %@ AND field2 == %@")
     }
     
     func test_FetchRequest_WithSortAscending() {
@@ -69,7 +69,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         fetch.predicate = NSPredicate(format: "field1 = %@", argumentArray: ["First Argument"])
         fetch.sortDescriptors = [NSSortDescriptor(key: "field1", ascending: false)]
-        assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' WHERE field1 == \"First Argument\" SORT BY field1 DESCENDING")
+        assertRequest(fetch, expectedDescription: "SELECT 'TestEntity' WHERE field1 == %@ SORT BY field1 DESCENDING")
     }
     
     func test_Save_1Insert_1Entity() {

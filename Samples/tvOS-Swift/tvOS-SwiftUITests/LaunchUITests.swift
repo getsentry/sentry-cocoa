@@ -17,14 +17,13 @@ class LaunchUITests: XCTestCase {
     }
 
     func testLaunch() throws {
-        XCTAssertTrue(app.buttons["captureMessageButton"].waitForExistence(), "Home Screen doesn't exist.")
+        app.buttons["captureMessageButton"].waitForExistence("Home Screen doesn't exist.")
     }
 }
 
 extension XCUIElement {
 
-    @discardableResult
-    func waitForExistence() -> Bool {
-        self.waitForExistence(timeout: TimeInterval(10))
+    func waitForExistence(_ message: String) {
+        XCTAssertTrue(self.waitForExistence(timeout: TimeInterval(10)), message)
     }
 }
