@@ -620,11 +620,15 @@
 		D808FB8B281BCE96009A2A33 /* TestSentrySwizzleWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D808FB89281BCE46009A2A33 /* TestSentrySwizzleWrapper.swift */; };
 		D808FB92281BF6EC009A2A33 /* SentryUIEventTrackingIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D808FB90281BF6E9009A2A33 /* SentryUIEventTrackingIntegrationTests.swift */; };
 		D8137D54272B53070082656C /* TestSentrySpan.m in Sources */ = {isa = PBXBuildFile; fileRef = D8137D53272B53070082656C /* TestSentrySpan.m */; };
+		D8144FC8288A8B20001B2543 /* SentryDemangler.h in Headers */ = {isa = PBXBuildFile; fileRef = D8144FC6288A8B20001B2543 /* SentryDemangler.h */; };
+		D8144FC9288A8B20001B2543 /* SentryDemangler.mm in Sources */ = {isa = PBXBuildFile; fileRef = D8144FC7288A8B20001B2543 /* SentryDemangler.mm */; };
 		D81FDF12280EA1060045E0E4 /* SentryScreenShotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81FDF10280EA0080045E0E4 /* SentryScreenShotTests.swift */; };
 		D8370B6A273DF1E900F66E2D /* SentryNSURLSessionTaskSearch.m in Sources */ = {isa = PBXBuildFile; fileRef = D8370B68273DF1E900F66E2D /* SentryNSURLSessionTaskSearch.m */; };
 		D8370B6C273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h in Headers */ = {isa = PBXBuildFile; fileRef = D8370B6B273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h */; };
 		D84793262788737D00BE8E99 /* SentryByteCountFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = D84793242788737D00BE8E99 /* SentryByteCountFormatter.m */; };
 		D8479328278873A100BE8E99 /* SentryByteCountFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = D8479327278873A100BE8E99 /* SentryByteCountFormatter.h */; };
+		D84900BB288E9B4900DA3342 /* SentryDescriptor.h in Headers */ = {isa = PBXBuildFile; fileRef = D84900B9288E9B4900DA3342 /* SentryDescriptor.h */; };
+		D84900BC288E9B4900DA3342 /* SentryDescriptor.m in Sources */ = {isa = PBXBuildFile; fileRef = D84900BA288E9B4900DA3342 /* SentryDescriptor.m */; };
 		D85596F3280580F10041FF8B /* SentryScreenshotIntegration.m in Sources */ = {isa = PBXBuildFile; fileRef = D85596F1280580F10041FF8B /* SentryScreenshotIntegration.m */; };
 		D855AD62286ED6A4002573E1 /* SentryCrashTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D855AD61286ED6A4002573E1 /* SentryCrashTests.m */; };
 		D855B3E827D652AF00BCED76 /* SentryCoreDataTrackingIntegrationTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D855B3E727D652AF00BCED76 /* SentryCoreDataTrackingIntegrationTest.swift */; };
@@ -688,14 +692,14 @@
 		D886DA1F288845010050BDFA /* ReferenceStorage.def in Resources */ = {isa = PBXBuildFile; fileRef = D886D9E5288845010050BDFA /* ReferenceStorage.def */; };
 		D886DA20288845010050BDFA /* DataTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = D886D9E7288845010050BDFA /* DataTypes.h */; };
 		D886DA21288845010050BDFA /* RemanglerBase.h in Headers */ = {isa = PBXBuildFile; fileRef = D886D9EA288845010050BDFA /* RemanglerBase.h */; };
-		D886DA22288845010050BDFA /* NodePrinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9EB288845010050BDFA /* NodePrinter.cpp */; };
-		D886DA23288845010050BDFA /* Demangler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9EC288845010050BDFA /* Demangler.cpp */; };
+		D886DA22288845010050BDFA /* NodePrinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9EB288845010050BDFA /* NodePrinter.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
+		D886DA23288845010050BDFA /* Demangler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9EC288845010050BDFA /* Demangler.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		D886DA24288845010050BDFA /* CMakeLists.txt in Resources */ = {isa = PBXBuildFile; fileRef = D886D9ED288845010050BDFA /* CMakeLists.txt */; };
 		D886DA25288845010050BDFA /* Punycode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9EE288845010050BDFA /* Punycode.cpp */; };
-		D886DA26288845010050BDFA /* Remangler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9EF288845010050BDFA /* Remangler.cpp */; };
-		D886DA27288845010050BDFA /* OldRemangler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9F0288845010050BDFA /* OldRemangler.cpp */; };
+		D886DA26288845010050BDFA /* Remangler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9EF288845010050BDFA /* Remangler.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
+		D886DA27288845010050BDFA /* OldRemangler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9F0288845010050BDFA /* OldRemangler.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		D886DA28288845010050BDFA /* Context.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9F1288845010050BDFA /* Context.cpp */; };
-		D886DA29288845010050BDFA /* OldDemangler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9F2288845010050BDFA /* OldDemangler.cpp */; };
+		D886DA29288845010050BDFA /* OldDemangler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9F2288845010050BDFA /* OldDemangler.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		D886DA2A288845010050BDFA /* NodeDumper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9F3288845010050BDFA /* NodeDumper.cpp */; };
 		D886DA2B288845010050BDFA /* ManglingUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9F4288845010050BDFA /* ManglingUtils.cpp */; };
 		D886DA2C288845010050BDFA /* Visibility.h in Headers */ = {isa = PBXBuildFile; fileRef = D886D9F8288845010050BDFA /* Visibility.h */; };
@@ -1407,11 +1411,15 @@
 		D808FB90281BF6E9009A2A33 /* SentryUIEventTrackingIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryUIEventTrackingIntegrationTests.swift; sourceTree = "<group>"; };
 		D8137D52272B53070082656C /* TestSentrySpan.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestSentrySpan.h; sourceTree = "<group>"; };
 		D8137D53272B53070082656C /* TestSentrySpan.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestSentrySpan.m; sourceTree = "<group>"; };
+		D8144FC6288A8B20001B2543 /* SentryDemangler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryDemangler.h; sourceTree = "<group>"; };
+		D8144FC7288A8B20001B2543 /* SentryDemangler.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryDemangler.mm; sourceTree = "<group>"; };
 		D81FDF10280EA0080045E0E4 /* SentryScreenShotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryScreenShotTests.swift; sourceTree = "<group>"; };
 		D8370B68273DF1E900F66E2D /* SentryNSURLSessionTaskSearch.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryNSURLSessionTaskSearch.m; sourceTree = "<group>"; };
 		D8370B6B273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryNSURLSessionTaskSearch.h; path = include/SentryNSURLSessionTaskSearch.h; sourceTree = "<group>"; };
 		D84793242788737D00BE8E99 /* SentryByteCountFormatter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryByteCountFormatter.m; sourceTree = "<group>"; };
 		D8479327278873A100BE8E99 /* SentryByteCountFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryByteCountFormatter.h; path = include/SentryByteCountFormatter.h; sourceTree = "<group>"; };
+		D84900B9288E9B4900DA3342 /* SentryDescriptor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryDescriptor.h; sourceTree = "<group>"; };
+		D84900BA288E9B4900DA3342 /* SentryDescriptor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryDescriptor.m; sourceTree = "<group>"; };
 		D85596F1280580F10041FF8B /* SentryScreenshotIntegration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryScreenshotIntegration.m; sourceTree = "<group>"; };
 		D855AD61286ED6A4002573E1 /* SentryCrashTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryCrashTests.m; sourceTree = "<group>"; };
 		D855B3E727D652AF00BCED76 /* SentryCoreDataTrackingIntegrationTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCoreDataTrackingIntegrationTest.swift; sourceTree = "<group>"; };
@@ -1815,6 +1823,8 @@
 				D84793242788737D00BE8E99 /* SentryByteCountFormatter.m */,
 				7B2A70DA27D607CF008B0D15 /* SentryThreadWrapper.h */,
 				7B2A70DC27D6083D008B0D15 /* SentryThreadWrapper.m */,
+				D84900B9288E9B4900DA3342 /* SentryDescriptor.h */,
+				D84900BA288E9B4900DA3342 /* SentryDescriptor.m */,
 			);
 			name = Helper;
 			sourceTree = "<group>";
@@ -2826,6 +2836,8 @@
 				D886D9B5288845010050BDFA /* include */,
 				D886D9E8288845010050BDFA /* lib */,
 				D886D9F5288845010050BDFA /* stdlib */,
+				D8144FC6288A8B20001B2543 /* SentryDemangler.h */,
+				D8144FC7288A8B20001B2543 /* SentryDemangler.mm */,
 			);
 			path = SwiftDemangling;
 			sourceTree = "<group>";
@@ -3175,6 +3187,7 @@
 				D886D9FA288845010050BDFA /* iterator_range.h in Headers */,
 				63FE70F520DA4C1000CDBAE8 /* SentryCrashMonitor_System.h in Headers */,
 				7BE3C7672445C0CA00A38442 /* SentryCurrentDate.h in Headers */,
+				D8144FC8288A8B20001B2543 /* SentryDemangler.h in Headers */,
 				7B31C291277B04A000337126 /* SentryCrashPlatformSpecificDefines.h in Headers */,
 				D886DA02288845010050BDFA /* SmallVector.h in Headers */,
 				7B77BE3527EC8445003C9020 /* SentryDiscardReasonMapper.h in Headers */,
@@ -3186,6 +3199,7 @@
 				7BF9EF862722D10600B5BBEF /* SentryTestObjCRuntimeWrapper.h in Headers */,
 				15360CD2243277A000112302 /* SentrySessionTracker.h in Headers */,
 				63FE718B20DA4C1100CDBAE8 /* SentryCrashReport.h in Headers */,
+				D84900BB288E9B4900DA3342 /* SentryDescriptor.h in Headers */,
 				7D0FCFB22379B915004DD83A /* SentryHub.h in Headers */,
 				7B7A30C624B48321005A4C6E /* SentryCrashWrapper.h in Headers */,
 				D886DA07288845010050BDFA /* SwapByteOrder.h in Headers */,
@@ -3501,6 +3515,7 @@
 				63FE711D20DA4C1000CDBAE8 /* SentryCrashCPU_arm64.c in Sources */,
 				630435FF1EBCA9D900C4D3FA /* SentryNSURLRequest.m in Sources */,
 				7B5CAF7727F5A68C00ED0DB6 /* SentryNSURLRequestBuilder.m in Sources */,
+				D84900BC288E9B4900DA3342 /* SentryDescriptor.m in Sources */,
 				639FCFA11EBC804600778193 /* SentryException.m in Sources */,
 				7BA61CAD247BAA0B00C130A8 /* SentryDebugImageProvider.m in Sources */,
 				63FE70E720DA4C1000CDBAE8 /* SentryCrashMonitor.c in Sources */,
@@ -3546,6 +3561,7 @@
 				638DC9A11EBC6B6400A66E41 /* SentryRequestOperation.m in Sources */,
 				63AA767A1EB8D20500D153DE /* SentryLog.m in Sources */,
 				6344DDBA1EC3115C00D9160D /* SentryCrashReportConverter.m in Sources */,
+				D8144FC9288A8B20001B2543 /* SentryDemangler.mm in Sources */,
 				63FE70FD20DA4C1000CDBAE8 /* SentryCrashCachedData.c in Sources */,
 				8EE32518261FE27B00DC3FF2 /* SentryUIViewControllerSanitizer.m in Sources */,
 				7BE1E33424F7E3CB009D3AD0 /* SentryMigrateSessionInit.m in Sources */,
@@ -4019,7 +4035,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = NO;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_SHADOW = YES;
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/Sources/SwiftDemangling/include\"";
 				INFOPLIST_FILE = Sources/Sentry/Info.plist;
@@ -4059,7 +4075,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = NO;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_OPTIMIZATION_LEVEL = s;
-				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_SHADOW = YES;
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/Sources/SwiftDemangling/include\"";
 				INFOPLIST_FILE = Sources/Sentry/Info.plist;
@@ -4229,7 +4245,7 @@
 					"TEST=1",
 					"TESTCI=1",
 				);
-				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_SHADOW = YES;
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/Sources/SwiftDemangling/include\"";
 				INFOPLIST_FILE = Sources/Sentry/Info.plist;
@@ -4366,7 +4382,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = NO;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_SHADOW = YES;
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/Sources/SwiftDemangling/include\"";
 				INFOPLIST_FILE = Sources/Sentry/Info.plist;
