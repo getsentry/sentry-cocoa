@@ -106,7 +106,9 @@ SentrySpan ()
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
     self.context.status = status;
-    self.timestamp = [SentryCurrentDate date];
+    if (self.timestamp == nil) {
+        self.timestamp = [SentryCurrentDate date];
+    }
     if (self.transaction != nil) {
         [self.transaction spanFinished:self];
     }
