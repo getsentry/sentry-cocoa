@@ -135,6 +135,29 @@ NS_ASSUME_NONNULL_BEGIN
     }] componentsJoinedByString:@","];
 }
 
++ (NSDictionary<NSString *, NSString *> *)decodeBaggage:(NSString *)baggage
+{
+    if (baggage == nil || baggage.length == 0) {
+        return @{};
+    }
+
+    NSMutableDictionary *decoded = [[NSMutableDictionary alloc] init];
+
+    NSArray<NSString *> *properties = [baggage componentsSeparatedByString:@","];
+
+    for (NSString *property in properties) {
+        NSArray<NSString *> *parts = [property componentsSeparatedByString:@"="];
+        if (parts.count != 2) {
+            continue;
+        }
+        NSString *key = parts[0];
+        NSString *value = [parts[1] stringByRemovingPercentEncoding];
+        decoded[key] = value;
+    }
+
+    return decoded.copy;
+}
+
 + (SentryEnvelope *_Nullable)envelopeWithData:(NSData *)data
 {
     SentryEnvelopeHeader *envelopeHeader = nil;
