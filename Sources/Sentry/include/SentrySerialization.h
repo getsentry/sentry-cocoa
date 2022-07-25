@@ -16,6 +16,7 @@ static int const SENTRY_BAGGAGE_MAX_SIZE = 8192;
 + (NSData *_Nullable)dataWithSession:(SentrySession *)session
                                error:(NSError *_Nullable *_Nullable)error;
 
++ (NSDictionary<NSString *, NSString *> *)decodeBaggage:(NSString *)baggage;
 + (NSString *)baggageEncodedDictionary:(NSDictionary *)dictionary;
 
 + (SentrySession *_Nullable)sessionWithData:(NSData *)sessionData;
