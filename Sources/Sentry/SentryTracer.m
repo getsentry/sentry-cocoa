@@ -87,6 +87,12 @@ static NSLock *profilerLock;
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
+{
+    return [self initWithTransactionContext:transactionContext hub:hub profilesSamplerDecision:nil  waitForChildren:NO];
+}
+
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
+                                       hub:(nullable SentryHub *)hub
                    profilesSamplerDecision:(nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
                            waitForChildren:(BOOL)waitForChildren
 {
