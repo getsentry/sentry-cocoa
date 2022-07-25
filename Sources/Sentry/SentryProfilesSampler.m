@@ -58,6 +58,14 @@ NS_ASSUME_NONNULL_BEGIN
         if (_options.profilesSampleRate != nil) {
             return [self calcSample:_options.profilesSampleRate.doubleValue];
         }
+        
+        // Backward compatibility for clients that are still using the enableProfiling option.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        if (_options.enableProfiling) {
+            return [self calcSample:1.0];
+        }
+#pragma clang diagnostic pop
     }
     
     return [[SentryProfilesSamplerDecision alloc] initWithDecision:kSentrySampleDecisionNo
