@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add sampling configuration for profiling (#2004)
+
 ## 7.22.0
 
 ### Features
