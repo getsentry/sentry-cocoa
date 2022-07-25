@@ -25,7 +25,6 @@ class SentryFrameRemoverTests: XCTestCase {
             return frame(withPackage: "/Users/sentry/var/containers/Bundle/Application/F42DD392-77D6-42B4-8092-D1AAE50C5B4B/iOS-Swift.app/iOS-Swift")
         }
         
-        
         var sentryFrames: [Frame] {
             var frames: [Frame] = []
             (0...7).forEach { _ in frames.append(sentryFrame) }
@@ -69,7 +68,6 @@ class SentryFrameRemoverTests: XCTestCase {
         
         XCTAssertEqual(expected, actual)
     }
-    
     
     func testNoSdkFramesFirst_NoFramesRemoved() {
         let frames = [fixture.nonSentryFrame] +
