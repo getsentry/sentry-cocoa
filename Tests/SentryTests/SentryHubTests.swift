@@ -268,13 +268,13 @@ class SentryHubTests: XCTestCase {
     
     func testStartTransactionNotSamplingUsingSampleRate() {
         testSampler(expected: .no) { options in
-            options.tracesSampler = { _ in return 0.49 }
+            options.tracesSampleRate = 0.49
         }
     }
     
     func testStartTransactionSamplingUsingSampleRate() {
         testSampler(expected: .yes) { options in
-            options.tracesSampler = { _ in return 0.5 }
+            options.tracesSampleRate = 0.50
         }
     }
 
@@ -330,7 +330,7 @@ class SentryHubTests: XCTestCase {
     }
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-    func testStartTransaction_WhenProfilingEnabled_CapturesProfile() {
+    func testStartTransaction_ProfilingDataIsValid() {
         let options = fixture.options
         options.profilesSampleRate = 1.0
         options.tracesSampler = {(_: SamplingContext) -> NSNumber in
@@ -371,21 +371,41 @@ class SentryHubTests: XCTestCase {
         }
     }
     
-    func testStartTransaction_WhenProfilingDisabled_DoesNotCaptureProfile() {
-        let options = fixture.options
-        options.profilesSampleRate = 0.0
-        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
-            return 1
+    func testStartTransaction_NotSamplingProfileUsingSampleRate() {
+        testProfilesSampler(expected: .no) { options in
+            options.profilesSampleRate = 0.49
         }
-        let hub = fixture.getSut(options)
-        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        span.finish()
-        
-        guard let additionalEnvelopeItems = fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
-            XCTFail("Expected to capture at least 1 event")
-            return
+    }
+    
+    func testStartTransaction_SamplingProfileUsingSampleRate() {
+        testProfilesSampler(expected: .yes) { options in
+            options.profilesSampleRate = 0.5
         }
-        XCTAssertEqual(0, additionalEnvelopeItems.count)
+    }
+    
+    func testStartTransaction_SamplingProfileUsingProfilesSampler() {
+        testProfilesSampler(expected: .yes) { options in
+            options.profilesSampler = { _ in return 0.51 }
+        }
+    }
+    
+    func testStartTransaction_WhenProfilesSampleRateAndProfilesSamplerNil() {
+        testProfilesSampler(expected: .no) { options in
+            options.profilesSampleRate = nil
+            options.profilesSampler = { _ in return nil }
+        }
+    }
+    
+    func testStartTransaction_WhenProfilesSamplerOutOfRange_TooBig() {
+        testProfilesSampler(expected: .no) { options in
+            options.profilesSampler = { _ in return 1.01 }
+        }
+    }
+    
+    func testStartTransaction_WhenProfilesSamplersOutOfRange_TooSmall() {
+        testProfilesSampler(expected: .no) { options in
+            options.profilesSampler = { _ in return -0.01 }
+        }
     }
 #endif
         
@@ -860,5 +880,31 @@ class SentryHubTests: XCTestCase {
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         
         XCTAssertEqual(expected, span.context.sampled)
+    }
+    
+    private func testProfilesSampler(expected: SentrySampleDecision, options: (Options) -> Void) {
+        let fixtureOptions = fixture.options
+        fixtureOptions.tracesSampleRate = 1.0
+        options(fixtureOptions)
+        
+        let hub = fixture.getSut()
+        Dynamic(hub).tracesSampler.random = TestRandom(value: 1.0)
+        Dynamic(hub).profilesSampler.random = TestRandom(value: 0.5)
+        
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        span.finish()
+        
+        guard let additionalEnvelopeItems = fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
+            XCTFail("Expected to capture at least 1 event")
+            return
+        }
+        switch expected {
+        case .undecided, .no:
+            XCTAssertEqual(0, additionalEnvelopeItems.count)
+        case .yes:
+            XCTAssertEqual(1, additionalEnvelopeItems.count)
+        @unknown default:
+            fatalError("Unexpected value for sample decision")
+        }
     }
 }
