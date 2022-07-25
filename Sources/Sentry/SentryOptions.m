@@ -301,7 +301,7 @@ SentryOptions ()
     if ([self isBlock:options[@"profilesSampler"]]) {
         self.profilesSampler = options[@"profilesSampler"];
     }
-    
+
     [self setBool:options[@"enableProfiling"]
             block:^(BOOL value) { self->_enableProfiling = value; }];
 #endif
@@ -412,19 +412,22 @@ SentryOptions ()
 
 - (BOOL)isProfilingEnabled
 {
-    return (_profilesSampleRate != nil && [_profilesSampleRate doubleValue] > 0) || _profilesSampler != nil || _enableProfiling;
+    return (_profilesSampleRate != nil && [_profilesSampleRate doubleValue] > 0)
+        || _profilesSampler != nil || _enableProfiling;
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-- (void)setEnableProfiling_DEPRECATED_TEST_ONLY:(BOOL)enableProfiling_DEPRECATED_TEST_ONLY {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+- (void)setEnableProfiling_DEPRECATED_TEST_ONLY:(BOOL)enableProfiling_DEPRECATED_TEST_ONLY
+{
     self.enableProfiling = enableProfiling_DEPRECATED_TEST_ONLY;
 }
 
-- (BOOL)enableProfiling_DEPRECATED_TEST_ONLY {
+- (BOOL)enableProfiling_DEPRECATED_TEST_ONLY
+{
     return self.enableProfiling;
 }
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
 #endif
 
 /**

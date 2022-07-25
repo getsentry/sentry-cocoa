@@ -10,13 +10,13 @@
 #import "SentryFileManager.h"
 #import "SentryId.h"
 #import "SentryLog.h"
+#import "SentryProfilesSampler.h"
 #import "SentrySDK+Private.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
 #import "SentryTracer.h"
 #import "SentryTracesSampler.h"
-#import "SentryProfilesSampler.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 
@@ -349,8 +349,9 @@ SentryHub ()
     SentryTracesSamplerDecision *samplerDecision = [_tracesSampler sample:samplingContext];
     transactionContext.sampled = samplerDecision.decision;
     transactionContext.sampleRate = samplerDecision.sampleRate;
-    
-    SentryProfilesSamplerDecision *profilesSamplerDecision = [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
+
+    SentryProfilesSamplerDecision *profilesSamplerDecision =
+        [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
 
     id<SentrySpan> tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                          hub:self
@@ -376,8 +377,9 @@ SentryHub ()
     SentryTracesSamplerDecision *samplerDecision = [_tracesSampler sample:samplingContext];
     transactionContext.sampled = samplerDecision.decision;
     transactionContext.sampleRate = samplerDecision.sampleRate;
-    
-    SentryProfilesSamplerDecision *profilesSamplerDecision = [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
+
+    SentryProfilesSamplerDecision *profilesSamplerDecision =
+        [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
 
     SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                         hub:self

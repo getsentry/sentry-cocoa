@@ -543,10 +543,10 @@
     XCTAssertEqual(NO, options.enableFileIOTracking);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertEqual(NO, options.enableProfiling);
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
     XCTAssertNil(options.profilesSampleRate);
     XCTAssertNil(options.profilesSampler);
 #endif
@@ -941,10 +941,10 @@
 - (void)testIsProfilingEnabled_EnableProfilingSet_IsEnabled
 {
     SentryOptions *options = [[SentryOptions alloc] init];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     options.enableProfiling = YES;
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
     XCTAssertTrue(options.isProfilingEnabled);
 }
 

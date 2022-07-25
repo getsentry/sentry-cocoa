@@ -117,7 +117,8 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
-                   profilesSamplerDecision:(nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
+                   profilesSamplerDecision:
+                       (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
                            waitForChildren:(BOOL)waitForChildren;
 
 /**
@@ -133,7 +134,8 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
-                   profilesSamplerDecision:(nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
+                   profilesSamplerDecision:
+                       (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
                                idleTimeout:(NSTimeInterval)idleTimeout
                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 

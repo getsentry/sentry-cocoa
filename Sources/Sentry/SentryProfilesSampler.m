@@ -37,7 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
     return [self initWithOptions:options random:[SentryDependencyContainer sharedInstance].random];
 }
 
-- (SentryProfilesSamplerDecision *)sample:(SentrySamplingContext *)context tracesSamplerDecision:(SentryTracesSamplerDecision *)tracesSamplerDecision
+- (SentryProfilesSamplerDecision *)sample:(SentrySamplingContext *)context
+                    tracesSamplerDecision:(SentryTracesSamplerDecision *)tracesSamplerDecision
 {
     // Profiles are always undersampled with respect to traces. If the trace is not sampled,
     // the profile will not be either. If the trace is sampled, we can proceed to checking
@@ -54,11 +55,11 @@ NS_ASSUME_NONNULL_BEGIN
                 return [self calcSample:callbackDecision.doubleValue];
             }
         }
-        
+
         if (_options.profilesSampleRate != nil) {
             return [self calcSample:_options.profilesSampleRate.doubleValue];
         }
-        
+
         // Backward compatibility for clients that are still using the enableProfiling option.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -68,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
 #pragma clang diagnostic pop
     }
-    
+
     return [[SentryProfilesSamplerDecision alloc] initWithDecision:kSentrySampleDecisionNo
                                                      forSampleRate:nil];
 }
@@ -77,8 +78,9 @@ NS_ASSUME_NONNULL_BEGIN
 {
     double r = [self.random nextNumber];
     SentrySampleDecision decision = r <= rate ? kSentrySampleDecisionYes : kSentrySampleDecisionNo;
-    return [[SentryProfilesSamplerDecision alloc] initWithDecision:decision
-                                                   forSampleRate:[NSNumber numberWithDouble:rate]];
+    return
+        [[SentryProfilesSamplerDecision alloc] initWithDecision:decision
+                                                  forSampleRate:[NSNumber numberWithDouble:rate]];
 }
 
 @end
