@@ -8,8 +8,8 @@
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryProfiler.h"
-#import "SentryProfilingConditionals.h"
 #import "SentryProfilesSampler.h"
+#import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope.h"
 #import "SentrySpan.h"
@@ -88,7 +88,10 @@ static NSLock *profilerLock;
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
 {
-    return [self initWithTransactionContext:transactionContext hub:hub profilesSamplerDecision:nil  waitForChildren:NO];
+    return [self initWithTransactionContext:transactionContext
+                                        hub:hub
+                    profilesSamplerDecision:nil
+                            waitForChildren:NO];
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
@@ -105,7 +108,8 @@ static NSLock *profilerLock;
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
-                   profilesSamplerDecision:(nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
+                   profilesSamplerDecision:
+                       (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
                            waitForChildren:(BOOL)waitForChildren
 {
     return [self initWithTransactionContext:transactionContext
@@ -118,7 +122,8 @@ static NSLock *profilerLock;
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
-                   profilesSamplerDecision:(nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
+                   profilesSamplerDecision:
+                       (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
                                idleTimeout:(NSTimeInterval)idleTimeout
                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
@@ -130,13 +135,13 @@ static NSLock *profilerLock;
                        dispatchQueueWrapper:dispatchQueueWrapper];
 }
 
-- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                                       hub:(nullable SentryHub *)hub
-                   profilesSamplerDecision:(nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
-                           waitForChildren:(BOOL)waitForChildren
-                               idleTimeout:(NSTimeInterval)idleTimeout
-                      dispatchQueueWrapper:
-                          (nullable SentryDispatchQueueWrapper *)dispatchQueueWrapper
+- (instancetype)
+    initWithTransactionContext:(SentryTransactionContext *)transactionContext
+                           hub:(nullable SentryHub *)hub
+       profilesSamplerDecision:(nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
+               waitForChildren:(BOOL)waitForChildren
+                   idleTimeout:(NSTimeInterval)idleTimeout
+          dispatchQueueWrapper:(nullable SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
         self.rootSpan = [[SentrySpan alloc] initWithTransaction:self context:transactionContext];

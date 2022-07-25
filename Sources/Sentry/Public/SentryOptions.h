@@ -324,8 +324,9 @@ NS_SWIFT_NAME(Options)
 /**
  * This feature is experimental. Profiling is not supported on watchOS or tvOS.
  *
- * A callback to a user defined profiles sampler function. This is similar to setting `profilesSampleRate`,
- * but instead of a static value, the callback function will be called to determine the sample rate.
+ * A callback to a user defined profiles sampler function. This is similar to setting
+ * `profilesSampleRate`, but instead of a static value, the callback function will be called to
+ * determine the sample rate.
  */
 @property (nullable, nonatomic) SentryTracesSamplerCallback profilesSampler;
 
@@ -344,7 +345,8 @@ NS_SWIFT_NAME(Options)
  * @note This is a beta feature that is currently not available to all Sentry customers. This
  * feature is not supported on watchOS or tvOS.
  */
-@property (nonatomic, assign) BOOL enableProfiling DEPRECATED_MSG_ATTRIBUTE("This property will be removed in a future version of the SDK");
+@property (nonatomic, assign) BOOL enableProfiling DEPRECATED_MSG_ATTRIBUTE(
+    "This property will be removed in a future version of the SDK");
 #endif
 
 /**
