@@ -48,9 +48,11 @@ SentryHub ()
         _installedIntegrations = [[NSMutableArray alloc] init];
         _crashWrapper = [SentryCrashWrapper sharedInstance];
         _tracesSampler = [[SentryTracesSampler alloc] initWithOptions:client.options];
+#if SENTRY_TARGET_PROFILING_SUPPORTED
         if (client.options.isProfilingEnabled) {
             _profilesSampler = [[SentryProfilesSampler alloc] initWithOptions:client.options];
         }
+#endif
         _currentDateProvider = [SentryDefaultCurrentDateProvider sharedInstance];
     }
     return self;
