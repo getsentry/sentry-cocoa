@@ -31,27 +31,22 @@ constexpr static const StringLiteral BUILTIN_NAME = "Builtin";
 /// The name of the clang imported header module.
 constexpr static const StringLiteral CLANG_HEADER_MODULE_NAME = "__ObjC";
 /// The prefix of module names used by LLDB to capture Swift expressions
-constexpr static const StringLiteral LLDB_EXPRESSIONS_MODULE_NAME_PREFIX =
-    "__lldb_expr_";
+constexpr static const StringLiteral LLDB_EXPRESSIONS_MODULE_NAME_PREFIX = "__lldb_expr_";
 
 /// The name of the fake module used to hold imported Objective-C things.
 constexpr static const StringLiteral MANGLING_MODULE_OBJC = "__C";
 /// The name of the fake module used to hold synthesized ClangImporter things.
-constexpr static const StringLiteral MANGLING_MODULE_CLANG_IMPORTER =
-    "__C_Synthesized";
+constexpr static const StringLiteral MANGLING_MODULE_CLANG_IMPORTER = "__C_Synthesized";
 
 /// The name prefix for C++ template instantiation imported as a Swift struct.
-constexpr static const StringLiteral CXX_TEMPLATE_INST_PREFIX =
-    "__CxxTemplateInst";
+constexpr static const StringLiteral CXX_TEMPLATE_INST_PREFIX = "__CxxTemplateInst";
 
-constexpr static const StringLiteral SEMANTICS_PROGRAMTERMINATION_POINT =
-    "programtermination_point";
+constexpr static const StringLiteral SEMANTICS_PROGRAMTERMINATION_POINT
+    = "programtermination_point";
 
-constexpr static const StringLiteral SEMANTICS_DEFAULT_ACTOR =
-    "defaultActor";
+constexpr static const StringLiteral SEMANTICS_DEFAULT_ACTOR = "defaultActor";
 
-constexpr static const StringLiteral DEFAULT_ACTOR_STORAGE_FIELD_NAME =
-    "$defaultActor";
+constexpr static const StringLiteral DEFAULT_ACTOR_STORAGE_FIELD_NAME = "$defaultActor";
 
 /// The name of the Builtin type prefix
 constexpr static const StringLiteral BUILTIN_TYPE_NAME_PREFIX = "Builtin.";
@@ -65,87 +60,72 @@ constexpr static const StringLiteral BUILTIN_TYPE_NAME_PREFIX = "Builtin.";
 /// work properly, one must always initialize these classes using an
 /// initializer list as shown below.
 struct BuiltinNameStringLiteral {
-  const StringLiteral literal;
+    const StringLiteral literal;
 
-  constexpr operator StringRef() const { return literal; }
+    constexpr operator StringRef() const { return literal; }
 
-  StringRef getWithoutPrefix() const {
-    return literal.drop_front(BUILTIN_TYPE_NAME_PREFIX.size());
-  }
+    StringRef
+    getWithoutPrefix() const
+    {
+        return literal.drop_front(BUILTIN_TYPE_NAME_PREFIX.size());
+    }
 };
 
 /// The name of the Builtin type for Int
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_INT = {
-    "Builtin.Int"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_INT = { "Builtin.Int" };
 /// The name of the Builtin type for Int8
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_INT8 = {
-    "Builtin.Int8"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_INT8 = { "Builtin.Int8" };
 /// The name of the Builtin type for Int16
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_INT16 = {
-    "Builtin.Int16"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_INT16 = { "Builtin.Int16" };
 /// The name of the Builtin type for Int32
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_INT32 = {
-    "Builtin.Int32"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_INT32 = { "Builtin.Int32" };
 /// The name of the Builtin type for Int64
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_INT64 = {
-    "Builtin.Int64"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_INT64 = { "Builtin.Int64" };
 /// The name of the Builtin type for Int128
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_INT128 = {
-    "Builtin.Int128"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_INT128 = { "Builtin.Int128" };
 /// The name of the Builtin type for Int256
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_INT256 = {
-    "Builtin.Int256"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_INT256 = { "Builtin.Int256" };
 /// The name of the Builtin type for Int512
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_INT512 = {
-    "Builtin.Int512"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_INT512 = { "Builtin.Int512" };
 /// The name of the Builtin type for IntLiteral
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_INTLITERAL = {
-    "Builtin.IntLiteral"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_INTLITERAL = { "Builtin.IntLiteral" };
 /// The name of the Builtin type for IEEE Floating point types.
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_FLOAT = {
-    "Builtin.FPIEEE"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_FLOAT = { "Builtin.FPIEEE" };
 // The name of the builtin type for power pc specific floating point types.
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_FLOAT_PPC = {
-    "Builtin.FPPPC"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_FLOAT_PPC = { "Builtin.FPPPC" };
 /// The name of the Builtin type for NativeObject
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_NATIVEOBJECT = {
-    "Builtin.NativeObject"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_NATIVEOBJECT
+    = { "Builtin.NativeObject" };
 /// The name of the Builtin type for BridgeObject
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_BRIDGEOBJECT = {
-    "Builtin.BridgeObject"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_BRIDGEOBJECT
+    = { "Builtin.BridgeObject" };
 /// The name of the Builtin type for RawPointer
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_RAWPOINTER = {
-    "Builtin.RawPointer"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_RAWPOINTER = { "Builtin.RawPointer" };
 /// The name of the Builtin type for RawUnsafeContinuation
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_RAWUNSAFECONTINUATION = {
-    "Builtin.RawUnsafeContinuation"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_RAWUNSAFECONTINUATION
+    = { "Builtin.RawUnsafeContinuation" };
 /// The name of the Builtin type for UnsafeValueBuffer
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_UNSAFEVALUEBUFFER =
-    {"Builtin.UnsafeValueBuffer"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_UNSAFEVALUEBUFFER
+    = { "Builtin.UnsafeValueBuffer" };
 /// The name of the Builtin type for Job
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_JOB = {
-    "Builtin.Job"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_JOB = { "Builtin.Job" };
 /// The name of the Builtin type for ExecutorRef
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_EXECUTOR = {
-    "Builtin.Executor"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_EXECUTOR = { "Builtin.Executor" };
 /// The name of the Builtin type for DefaultActorStorage
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_DEFAULTACTORSTORAGE = {
-    "Builtin.DefaultActorStorage"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_DEFAULTACTORSTORAGE
+    = { "Builtin.DefaultActorStorage" };
 /// The name of the Builtin type for UnknownObject
 ///
 /// This no longer exists as an AST-accessible type, but it's still used for
 /// fields shaped like AnyObject when ObjC interop is enabled.
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_UNKNOWNOBJECT = {
-    "Builtin.UnknownObject"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_UNKNOWNOBJECT
+    = { "Builtin.UnknownObject" };
 /// The name of the Builtin type for Vector
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_VEC = {
-    "Builtin.Vec"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_VEC = { "Builtin.Vec" };
 /// The name of the Builtin type for SILToken
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_SILTOKEN = {
-    "Builtin.SILToken"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_SILTOKEN = { "Builtin.SILToken" };
 /// The name of the Builtin type for Word
-constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_WORD = {
-    "Builtin.Word"};
+constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_WORD = { "Builtin.Word" };
 
 } // end namespace swift
 

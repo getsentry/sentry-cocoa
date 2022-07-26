@@ -29,88 +29,87 @@
 // Don't pre-declare certain LLVM types in the runtime, which must
 // not put things in namespace llvm for ODR reasons.
 #if !defined(swiftCore_EXPORTS)
-#define SWIFT_LLVM_ODR_SAFE 1
+#    define SWIFT_LLVM_ODR_SAFE 1
 #else
-#define SWIFT_LLVM_ODR_SAFE 0
+#    define SWIFT_LLVM_ODR_SAFE 0
 #endif
 
 // Forward declarations.
 namespace llvm {
-  // Containers.
-  class StringRef;
-  class StringLiteral;
-  class Twine;
-  template <typename T> class SmallPtrSetImpl;
-  template <typename T, unsigned N> class SmallPtrSet;
+// Containers.
+class StringRef;
+class StringLiteral;
+class Twine;
+template <typename T> class SmallPtrSetImpl;
+template <typename T, unsigned N> class SmallPtrSet;
 #if SWIFT_LLVM_ODR_SAFE
-  template <typename T> class SmallVectorImpl;
-  template <typename T, unsigned N> class SmallVector;
+template <typename T> class SmallVectorImpl;
+template <typename T, unsigned N> class SmallVector;
 #endif
-  template <unsigned N> class SmallString;
-  template <typename T, unsigned N> class SmallSetVector;
+template <unsigned N> class SmallString;
+template <typename T, unsigned N> class SmallSetVector;
 #if SWIFT_LLVM_ODR_SAFE
-  template<typename T> class ArrayRef;
-  template<typename T> class MutableArrayRef;
+template <typename T> class ArrayRef;
+template <typename T> class MutableArrayRef;
 #endif
-  template<typename T> class TinyPtrVector;
+template <typename T> class TinyPtrVector;
 #if SWIFT_LLVM_ODR_SAFE
-  template<typename T> class Optional;
+template <typename T> class Optional;
 #endif
-  template <typename ...PTs> class PointerUnion;
-  template <typename IteratorT> class iterator_range;
-  class SmallBitVector;
+template <typename... PTs> class PointerUnion;
+template <typename IteratorT> class iterator_range;
+class SmallBitVector;
 
-  // Other common classes.
-  class raw_ostream;
-  class APInt;
-  class APFloat;
+// Other common classes.
+class raw_ostream;
+class APInt;
+class APFloat;
 #if SWIFT_LLVM_ODR_SAFE
-  template <typename Fn> class function_ref;
+template <typename Fn> class function_ref;
 #endif
 } // end namespace llvm
 
-
 namespace swift {
-  // Casting operators.
-  using llvm::isa;
-  using llvm::cast;
-  using llvm::dyn_cast;
-  using llvm::dyn_cast_or_null;
-  using llvm::cast_or_null;
+// Casting operators.
+using llvm::cast;
+using llvm::cast_or_null;
+using llvm::dyn_cast;
+using llvm::dyn_cast_or_null;
+using llvm::isa;
 
-  // Containers.
+// Containers.
 #if SWIFT_LLVM_ODR_SAFE
-  using llvm::ArrayRef;
-  using llvm::MutableArrayRef;
+using llvm::ArrayRef;
+using llvm::MutableArrayRef;
 #endif
-  using llvm::iterator_range;
-  using llvm::None;
+using llvm::iterator_range;
+using llvm::None;
 #if SWIFT_LLVM_ODR_SAFE
-  using llvm::Optional;
+using llvm::Optional;
 #endif
-  using llvm::PointerUnion;
-  using llvm::SmallBitVector;
-  using llvm::SmallPtrSet;
-  using llvm::SmallPtrSetImpl;
-  using llvm::SmallSetVector;
-  using llvm::SmallString;
+using llvm::PointerUnion;
+using llvm::SmallBitVector;
+using llvm::SmallPtrSet;
+using llvm::SmallPtrSetImpl;
+using llvm::SmallSetVector;
+using llvm::SmallString;
 #if SWIFT_LLVM_ODR_SAFE
-  using llvm::SmallVector;
-  using llvm::SmallVectorImpl;
+using llvm::SmallVector;
+using llvm::SmallVectorImpl;
 #endif
-  using llvm::StringLiteral;
-  using llvm::StringRef;
-  using llvm::TinyPtrVector;
-  using llvm::Twine;
+using llvm::StringLiteral;
+using llvm::StringRef;
+using llvm::TinyPtrVector;
+using llvm::Twine;
 
-  // Other common classes.
-  using llvm::APFloat;
-  using llvm::APInt;
+// Other common classes.
+using llvm::APFloat;
+using llvm::APInt;
 #if SWIFT_LLVM_ODR_SAFE
-  using llvm::function_ref;
+using llvm::function_ref;
 #endif
-  using llvm::NoneType;
-  using llvm::raw_ostream;
+using llvm::NoneType;
+using llvm::raw_ostream;
 } // end namespace swift
 
 #endif // SWIFT_BASIC_LLVM_H

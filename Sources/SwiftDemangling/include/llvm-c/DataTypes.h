@@ -29,52 +29,52 @@
 
 #ifndef _MSC_VER
 
-#if !defined(UINT32_MAX)
-# error "The standard header <cstdint> is not C++11 compliant. Must #define "\
+#    if !defined(UINT32_MAX)
+#        error "The standard header <cstdint> is not C++11 compliant. Must #define "\
         "__STDC_LIMIT_MACROS before #including llvm-c/DataTypes.h"
-#endif
+#    endif
 
-#if !defined(UINT32_C)
-# error "The standard header <cstdint> is not C++11 compliant. Must #define "\
+#    if !defined(UINT32_C)
+#        error "The standard header <cstdint> is not C++11 compliant. Must #define "\
         "__STDC_CONSTANT_MACROS before #including llvm-c/DataTypes.h"
-#endif
+#    endif
 
 /* Note that <inttypes.h> includes <stdint.h>, if this is a C99 system. */
-#include <sys/types.h>
+#    include <sys/types.h>
 
-#ifdef _AIX
+#    ifdef _AIX
 // GCC is strict about defining large constants: they must have LL modifier.
-#undef INT64_MAX
-#undef INT64_MIN
-#endif
+#        undef INT64_MAX
+#        undef INT64_MIN
+#    endif
 
 #else /* _MSC_VER */
-#ifdef __cplusplus
-#include <cstddef>
-#include <cstdlib>
-#else
-#include <stddef.h>
-#include <stdlib.h>
-#endif
-#include <sys/types.h>
+#    ifdef __cplusplus
+#        include <cstddef>
+#        include <cstdlib>
+#    else
+#        include <stddef.h>
+#        include <stdlib.h>
+#    endif
+#    include <sys/types.h>
 
-#if defined(_WIN64)
+#    if defined(_WIN64)
 typedef signed __int64 ssize_t;
-#else
+#    else
 typedef signed int ssize_t;
-#endif /* _WIN64 */
+#    endif /* _WIN64 */
 
 #endif /* _MSC_VER */
 
 /* Set defaults for constants which we cannot find. */
 #if !defined(INT64_MAX)
-# define INT64_MAX 9223372036854775807LL
+#    define INT64_MAX 9223372036854775807LL
 #endif
 #if !defined(INT64_MIN)
-# define INT64_MIN ((-INT64_MAX)-1)
+#    define INT64_MIN ((-INT64_MAX) - 1)
 #endif
 #if !defined(UINT64_MAX)
-# define UINT64_MAX 0xffffffffffffffffULL
+#    define UINT64_MAX 0xffffffffffffffffULL
 #endif
 
 #endif /* LLVM_C_DATATYPES_H */

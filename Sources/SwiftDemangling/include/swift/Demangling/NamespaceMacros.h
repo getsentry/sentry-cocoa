@@ -22,13 +22,13 @@
 
 #if defined(__cplusplus)
 
-#if defined(SWIFT_INLINE_NAMESPACE)
-#define SWIFT_BEGIN_INLINE_NAMESPACE inline namespace SWIFT_INLINE_NAMESPACE {
-#define SWIFT_END_INLINE_NAMESPACE }
-#else
-#define SWIFT_BEGIN_INLINE_NAMESPACE
-#define SWIFT_END_INLINE_NAMESPACE
-#endif
+#    if defined(SWIFT_INLINE_NAMESPACE)
+#        define SWIFT_BEGIN_INLINE_NAMESPACE inline namespace SWIFT_INLINE_NAMESPACE {
+#        define SWIFT_END_INLINE_NAMESPACE }
+#    else
+#        define SWIFT_BEGIN_INLINE_NAMESPACE
+#        define SWIFT_END_INLINE_NAMESPACE
+#    endif
 
 #endif
 

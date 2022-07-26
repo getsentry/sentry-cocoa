@@ -2,6 +2,12 @@ import XCTest
 
 class SentryUIViewControllerSanitizerTests: XCTestCase {
     
+    #if os(iOS)
+    private class SomeViewController : UIViewController {
+    }
+    
+    #endif
+    
     func testSanitizeViewControllerNameWithBaseObject() {
         let object = NSObject()
         let name = sanitize(object)
@@ -28,8 +34,14 @@ class SentryUIViewControllerSanitizerTests: XCTestCase {
         XCTAssertEqual(
             "sentry_ios_cocoapods.ViewController.miau", sanitize("<sentry_ios_cocoapods.ViewController.miau: 0x7fd9201253c0>")
         )
-        
     }
+    
+    #if os(iOS)
+    func testSanitize_mangledViewController() {
+        let vc = SomeViewController()
+        XCTAssertEqual("SentryTests.SentryUIViewControllerSanitizerTests.SomeViewController", sanitize(vc))
+    }
+    #endif
     
     private func sanitize(_ name: Any) -> String {
         return SentryUIViewControllerSanitizer.sanitizeViewControllerName(name)

@@ -19,7 +19,7 @@
 #include <limits>
 #include <string>
 #if __cplusplus > 201402L
-#include <string_view>
+#    include <string_view>
 #endif
 #include <type_traits>
 #include <utility>
@@ -32,38 +32,36 @@ extern "C" size_t __builtin_strlen(const char *);
 
 namespace llvm {
 
-  class APInt;
-  class hash_code;
-  template <typename T> class SmallVectorImpl;
-  template <typename T> struct DenseMapInfo;
-  class StringRef;
+class APInt;
+class hash_code;
+template <typename T> class SmallVectorImpl;
+template <typename T> struct DenseMapInfo;
+class StringRef;
 
-  /// Helper functions for StringRef::getAsInteger.
-  bool getAsUnsignedInteger(StringRef Str, unsigned Radix,
-                            unsigned long long &Result);
+/// Helper functions for StringRef::getAsInteger.
+bool getAsUnsignedInteger(StringRef Str, unsigned Radix, unsigned long long &Result);
 
-  bool getAsSignedInteger(StringRef Str, unsigned Radix, long long &Result);
+bool getAsSignedInteger(StringRef Str, unsigned Radix, long long &Result);
 
-  bool consumeUnsignedInteger(StringRef &Str, unsigned Radix,
-                              unsigned long long &Result);
-  bool consumeSignedInteger(StringRef &Str, unsigned Radix, long long &Result);
+bool consumeUnsignedInteger(StringRef &Str, unsigned Radix, unsigned long long &Result);
+bool consumeSignedInteger(StringRef &Str, unsigned Radix, long long &Result);
 
-  /// StringRef - Represent a constant reference to a string, i.e. a character
-  /// array and a length, which need not be null terminated.
-  ///
-  /// This class does not own the string data, it is expected to be used in
-  /// situations where the character data resides in some other buffer, whose
-  /// lifetime extends past that of the StringRef. For this reason, it is not in
-  /// general safe to store a StringRef.
-  class LLVM_GSL_POINTER StringRef {
-  public:
+/// StringRef - Represent a constant reference to a string, i.e. a character
+/// array and a length, which need not be null terminated.
+///
+/// This class does not own the string data, it is expected to be used in
+/// situations where the character data resides in some other buffer, whose
+/// lifetime extends past that of the StringRef. For this reason, it is not in
+/// general safe to store a StringRef.
+class LLVM_GSL_POINTER StringRef {
+public:
     static constexpr size_t npos = ~size_t(0);
 
     using iterator = const char *;
     using const_iterator = const char *;
     using size_type = size_t;
 
-  private:
+private:
     /// The start of the string, in an external buffer.
     const char *Data = nullptr;
 
@@ -72,27 +70,33 @@ namespace llvm {
 
     // Workaround memcmp issue with null pointers (undefined behavior)
     // by providing a specialized version
-    static int compareMemory(const char *Lhs, const char *Rhs, size_t Length) {
-      if (Length == 0) { return 0; }
-      return ::memcmp(Lhs,Rhs,Length);
+    static int
+    compareMemory(const char *Lhs, const char *Rhs, size_t Length)
+    {
+        if (Length == 0) {
+            return 0;
+        }
+        return ::memcmp(Lhs, Rhs, Length);
     }
 
     // Constexpr version of std::strlen.
-    static constexpr size_t strLen(const char *Str) {
+    static constexpr size_t
+    strLen(const char *Str)
+    {
 #if __cplusplus > 201402L
-      return std::char_traits<char>::length(Str);
-#elif __has_builtin(__builtin_strlen) || defined(__GNUC__) || \
-    (defined(_MSC_VER) && _MSC_VER >= 1916)
-      return __builtin_strlen(Str);
+        return std::char_traits<char>::length(Str);
+#elif __has_builtin(__builtin_strlen) || defined(__GNUC__)                                         \
+    || (defined(_MSC_VER) && _MSC_VER >= 1916)
+        return __builtin_strlen(Str);
 #else
-      const char *Begin = Str;
-      while (*Str != '\0')
-        ++Str;
-      return Str - Begin;
+        const char *Begin = Str;
+        while (*Str != '\0')
+            ++Str;
+        return Str - Begin;
 #endif
     }
 
-  public:
+public:
     /// @name Constructors
     /// @{
 
@@ -105,38 +109,64 @@ namespace llvm {
 
     /// Construct a string ref from a cstring.
     /*implicit*/ constexpr StringRef(const char *Str)
-        : Data(Str), Length(Str ? strLen(Str) : 0) {}
+        : Data(Str)
+        , Length(Str ? strLen(Str) : 0)
+    {
+    }
 
     /// Construct a string ref from a pointer and length.
     /*implicit*/ constexpr StringRef(const char *data, size_t length)
-        : Data(data), Length(length) {}
+        : Data(data)
+        , Length(length)
+    {
+    }
 
     /// Construct a string ref from an std::string.
     /*implicit*/ StringRef(const std::string &Str)
-      : Data(Str.data()), Length(Str.length()) {}
+        : Data(Str.data())
+        , Length(Str.length())
+    {
+    }
 
 #if __cplusplus > 201402L
     /// Construct a string ref from an std::string_view.
     /*implicit*/ constexpr StringRef(std::string_view Str)
-        : Data(Str.data()), Length(Str.size()) {}
+        : Data(Str.data())
+        , Length(Str.size())
+    {
+    }
 #endif
 
     /// @}
     /// @name Iterators
     /// @{
 
-    iterator begin() const { return Data; }
-
-    iterator end() const { return Data + Length; }
-
-    const unsigned char *bytes_begin() const {
-      return reinterpret_cast<const unsigned char *>(begin());
+    iterator
+    begin() const
+    {
+        return Data;
     }
-    const unsigned char *bytes_end() const {
-      return reinterpret_cast<const unsigned char *>(end());
+
+    iterator
+    end() const
+    {
+        return Data + Length;
     }
-    iterator_range<const unsigned char *> bytes() const {
-      return make_range(bytes_begin(), bytes_end());
+
+    const unsigned char *
+    bytes_begin() const
+    {
+        return reinterpret_cast<const unsigned char *>(begin());
+    }
+    const unsigned char *
+    bytes_end() const
+    {
+        return reinterpret_cast<const unsigned char *>(end());
+    }
+    iterator_range<const unsigned char *>
+    bytes() const
+    {
+        return make_range(bytes_begin(), bytes_end());
     }
 
     /// @}
@@ -146,67 +176,90 @@ namespace llvm {
     /// data - Get a pointer to the start of the string (which may not be null
     /// terminated).
     LLVM_NODISCARD
-    const char *data() const { return Data; }
+    const char *
+    data() const
+    {
+        return Data;
+    }
 
     /// empty - Check if the string is empty.
     LLVM_NODISCARD
-    bool empty() const { return Length == 0; }
+    bool
+    empty() const
+    {
+        return Length == 0;
+    }
 
     /// size - Get the string size.
     LLVM_NODISCARD
-    size_t size() const { return Length; }
+    size_t
+    size() const
+    {
+        return Length;
+    }
 
     /// front - Get the first character in the string.
     LLVM_NODISCARD
-    char front() const {
-      assert(!empty());
-      return Data[0];
+    char
+    front() const
+    {
+        assert(!empty());
+        return Data[0];
     }
 
     /// back - Get the last character in the string.
     LLVM_NODISCARD
-    char back() const {
-      assert(!empty());
-      return Data[Length-1];
+    char
+    back() const
+    {
+        assert(!empty());
+        return Data[Length - 1];
     }
 
     // copy - Allocate copy in Allocator and return StringRef to it.
     template <typename Allocator>
-    LLVM_NODISCARD StringRef copy(Allocator &A) const {
-      // Don't request a length 0 copy from the allocator.
-      if (empty())
-        return StringRef();
-      char *S = A.template Allocate<char>(Length);
-      std::copy(begin(), end(), S);
-      return StringRef(S, Length);
+    LLVM_NODISCARD StringRef
+    copy(Allocator &A) const
+    {
+        // Don't request a length 0 copy from the allocator.
+        if (empty())
+            return StringRef();
+        char *S = A.template Allocate<char>(Length);
+        std::copy(begin(), end(), S);
+        return StringRef(S, Length);
     }
 
     /// equals - Check for string equality, this is more efficient than
     /// compare() when the relative ordering of inequal strings isn't needed.
     LLVM_NODISCARD
-    bool equals(StringRef RHS) const {
-      return (Length == RHS.Length &&
-              compareMemory(Data, RHS.Data, RHS.Length) == 0);
+    bool
+    equals(StringRef RHS) const
+    {
+        return (Length == RHS.Length && compareMemory(Data, RHS.Data, RHS.Length) == 0);
     }
 
     /// Check for string equality, ignoring case.
     LLVM_NODISCARD
-    bool equals_insensitive(StringRef RHS) const {
-      return Length == RHS.Length && compare_insensitive(RHS) == 0;
+    bool
+    equals_insensitive(StringRef RHS) const
+    {
+        return Length == RHS.Length && compare_insensitive(RHS) == 0;
     }
 
     /// compare - Compare two strings; the result is -1, 0, or 1 if this string
     /// is lexicographically less than, equal to, or greater than the \p RHS.
     LLVM_NODISCARD
-    int compare(StringRef RHS) const {
-      // Check the prefix for a mismatch.
-      if (int Res = compareMemory(Data, RHS.Data, std::min(Length, RHS.Length)))
-        return Res < 0 ? -1 : 1;
+    int
+    compare(StringRef RHS) const
+    {
+        // Check the prefix for a mismatch.
+        if (int Res = compareMemory(Data, RHS.Data, std::min(Length, RHS.Length)))
+            return Res < 0 ? -1 : 1;
 
-      // Otherwise the prefixes match, so we only need to check the lengths.
-      if (Length == RHS.Length)
-        return 0;
-      return Length < RHS.Length ? -1 : 1;
+        // Otherwise the prefixes match, so we only need to check the lengths.
+        if (Length == RHS.Length)
+            return 0;
+        return Length < RHS.Length ? -1 : 1;
     }
 
     /// Compare two strings, ignoring case.
@@ -237,14 +290,17 @@ namespace llvm {
     /// transform one of the given strings into the other. If zero,
     /// the strings are identical.
     LLVM_NODISCARD
-    unsigned edit_distance(StringRef Other, bool AllowReplacements = true,
-                           unsigned MaxEditDistance = 0) const;
+    unsigned edit_distance(
+        StringRef Other, bool AllowReplacements = true, unsigned MaxEditDistance = 0) const;
 
     /// str - Get the contents as an std::string.
     LLVM_NODISCARD
-    std::string str() const {
-      if (!Data) return std::string();
-      return std::string(Data, Length);
+    std::string
+    str() const
+    {
+        if (!Data)
+            return std::string();
+        return std::string(Data, Length);
     }
 
     /// @}
@@ -252,9 +308,11 @@ namespace llvm {
     /// @{
 
     LLVM_NODISCARD
-    char operator[](size_t Index) const {
-      assert(Index < Length && "Invalid index!");
-      return Data[Index];
+    char
+    operator[](size_t Index) const
+    {
+        assert(Index < Length && "Invalid index!");
+        return Data[Index];
     }
 
     /// Disallow accidental assignment from a temporary std::string.
@@ -262,8 +320,7 @@ namespace llvm {
     /// The declaration here is extra complicated so that `stringRef = {}`
     /// and `stringRef = "abc"` continue to select the move assignment operator.
     template <typename T>
-    std::enable_if_t<std::is_same<T, std::string>::value, StringRef> &
-    operator=(T &&Str) = delete;
+    std::enable_if_t<std::is_same<T, std::string>::value, StringRef> &operator=(T &&Str) = delete;
 
     /// @}
     /// @name Type Conversions
@@ -272,9 +329,7 @@ namespace llvm {
     explicit operator std::string() const { return str(); }
 
 #if __cplusplus > 201402L
-    operator std::string_view() const {
-      return std::string_view(data(), size());
-    }
+    operator std::string_view() const { return std::string_view(data(), size()); }
 #endif
 
     /// @}
@@ -283,9 +338,10 @@ namespace llvm {
 
     /// Check if this string starts with the given \p Prefix.
     LLVM_NODISCARD
-    bool startswith(StringRef Prefix) const {
-      return Length >= Prefix.Length &&
-             compareMemory(Data, Prefix.Data, Prefix.Length) == 0;
+    bool
+    startswith(StringRef Prefix) const
+    {
+        return Length >= Prefix.Length && compareMemory(Data, Prefix.Data, Prefix.Length) == 0;
     }
 
     /// Check if this string starts with the given \p Prefix, ignoring case.
@@ -294,9 +350,11 @@ namespace llvm {
 
     /// Check if this string ends with the given \p Suffix.
     LLVM_NODISCARD
-    bool endswith(StringRef Suffix) const {
-      return Length >= Suffix.Length &&
-        compareMemory(end() - Suffix.Length, Suffix.Data, Suffix.Length) == 0;
+    bool
+    endswith(StringRef Suffix) const
+    {
+        return Length >= Suffix.Length
+            && compareMemory(end() - Suffix.Length, Suffix.Data, Suffix.Length) == 0;
     }
 
     /// Check if this string ends with the given \p Suffix, ignoring case.
@@ -312,14 +370,16 @@ namespace llvm {
     /// \returns The index of the first occurrence of \p C, or npos if not
     /// found.
     LLVM_NODISCARD
-    size_t find(char C, size_t From = 0) const {
-      size_t FindBegin = std::min(From, Length);
-      if (FindBegin < Length) { // Avoid calling memchr with nullptr.
-        // Just forward to memchr, which is faster than a hand-rolled loop.
-        if (const void *P = ::memchr(Data + FindBegin, C, Length - FindBegin))
-          return static_cast<const char *>(P) - Data;
-      }
-      return npos;
+    size_t
+    find(char C, size_t From = 0) const
+    {
+        size_t FindBegin = std::min(From, Length);
+        if (FindBegin < Length) { // Avoid calling memchr with nullptr.
+            // Just forward to memchr, which is faster than a hand-rolled loop.
+            if (const void *P = ::memchr(Data + FindBegin, C, Length - FindBegin))
+                return static_cast<const char *>(P) - Data;
+        }
+        return npos;
     }
 
     /// Search for the first character \p C in the string, ignoring case.
@@ -334,14 +394,16 @@ namespace llvm {
     /// \returns The index of the first character satisfying \p F starting from
     /// \p From, or npos if not found.
     LLVM_NODISCARD
-    size_t find_if(function_ref<bool(char)> F, size_t From = 0) const {
-      StringRef S = drop_front(From);
-      while (!S.empty()) {
-        if (F(S.front()))
-          return size() - S.size();
-        S = S.drop_front();
-      }
-      return npos;
+    size_t
+    find_if(function_ref<bool(char)> F, size_t From = 0) const
+    {
+        StringRef S = drop_front(From);
+        while (!S.empty()) {
+            if (F(S.front()))
+                return size() - S.size();
+            S = S.drop_front();
+        }
+        return npos;
     }
 
     /// Search for the first character not satisfying the predicate \p F
@@ -349,8 +411,10 @@ namespace llvm {
     /// \returns The index of the first character not satisfying \p F starting
     /// from \p From, or npos if not found.
     LLVM_NODISCARD
-    size_t find_if_not(function_ref<bool(char)> F, size_t From = 0) const {
-      return find_if([F](char c) { return !F(c); }, From);
+    size_t
+    find_if_not(function_ref<bool(char)> F, size_t From = 0) const
+    {
+        return find_if([F](char c) { return !F(c); }, From);
     }
 
     /// Search for the first string \p Str in the string.
@@ -372,15 +436,17 @@ namespace llvm {
     /// \returns The index of the last occurrence of \p C, or npos if not
     /// found.
     LLVM_NODISCARD
-    size_t rfind(char C, size_t From = npos) const {
-      From = std::min(From, Length);
-      size_t i = From;
-      while (i != 0) {
-        --i;
-        if (Data[i] == C)
-          return i;
-      }
-      return npos;
+    size_t
+    rfind(char C, size_t From = npos) const
+    {
+        From = std::min(From, Length);
+        size_t i = From;
+        while (i != 0) {
+            --i;
+            if (Data[i] == C)
+                return i;
+        }
+        return npos;
     }
 
     /// Search for the last character \p C in the string, ignoring case.
@@ -407,8 +473,10 @@ namespace llvm {
     /// Find the first character in the string that is \p C, or npos if not
     /// found. Same as find.
     LLVM_NODISCARD
-    size_t find_first_of(char C, size_t From = 0) const {
-      return find(C, From);
+    size_t
+    find_first_of(char C, size_t From = 0) const
+    {
+        return find(C, From);
     }
 
     /// Find the first character in the string that is in \p Chars, or npos if
@@ -433,8 +501,10 @@ namespace llvm {
     /// Find the last character in the string that is \p C, or npos if not
     /// found.
     LLVM_NODISCARD
-    size_t find_last_of(char C, size_t From = npos) const {
-      return rfind(C, From);
+    size_t
+    find_last_of(char C, size_t From = npos) const
+    {
+        return rfind(C, From);
     }
 
     /// Find the last character in the string that is in \p C, or npos if not
@@ -459,25 +529,37 @@ namespace llvm {
     /// Return true if the given string is a substring of *this, and false
     /// otherwise.
     LLVM_NODISCARD
-    bool contains(StringRef Other) const { return find(Other) != npos; }
-
-    /// Return true if the given character is contained in *this, and false
-    /// otherwise.
-    LLVM_NODISCARD
-    bool contains(char C) const { return find_first_of(C) != npos; }
-
-    /// Return true if the given string is a substring of *this, and false
-    /// otherwise.
-    LLVM_NODISCARD
-    bool contains_insensitive(StringRef Other) const {
-      return find_insensitive(Other) != npos;
+    bool
+    contains(StringRef Other) const
+    {
+        return find(Other) != npos;
     }
 
     /// Return true if the given character is contained in *this, and false
     /// otherwise.
     LLVM_NODISCARD
-    bool contains_insensitive(char C) const {
-      return find_insensitive(C) != npos;
+    bool
+    contains(char C) const
+    {
+        return find_first_of(C) != npos;
+    }
+
+    /// Return true if the given string is a substring of *this, and false
+    /// otherwise.
+    LLVM_NODISCARD
+    bool
+    contains_insensitive(StringRef Other) const
+    {
+        return find_insensitive(Other) != npos;
+    }
+
+    /// Return true if the given character is contained in *this, and false
+    /// otherwise.
+    LLVM_NODISCARD
+    bool
+    contains_insensitive(char C) const
+    {
+        return find_insensitive(C) != npos;
     }
 
     /// @}
@@ -486,12 +568,14 @@ namespace llvm {
 
     /// Return the number of occurrences of \p C in the string.
     LLVM_NODISCARD
-    size_t count(char C) const {
-      size_t Count = 0;
-      for (size_t i = 0, e = Length; i != e; ++i)
-        if (Data[i] == C)
-          ++Count;
-      return Count;
+    size_t
+    count(char C) const
+    {
+        size_t Count = 0;
+        for (size_t i = 0, e = Length; i != e; ++i)
+            if (Data[i] == C)
+                ++Count;
+        return Count;
     }
 
     /// Return the number of non-overlapped occurrences of \p Str in
@@ -507,27 +591,28 @@ namespace llvm {
     /// erroneous if empty or if it overflows T.
     template <typename T>
     std::enable_if_t<std::numeric_limits<T>::is_signed, bool>
-    getAsInteger(unsigned Radix, T &Result) const {
-      long long LLVal;
-      if (getAsSignedInteger(*this, Radix, LLVal) ||
-            static_cast<T>(LLVal) != LLVal)
-        return true;
-      Result = LLVal;
-      return false;
+    getAsInteger(unsigned Radix, T &Result) const
+    {
+        long long LLVal;
+        if (getAsSignedInteger(*this, Radix, LLVal) || static_cast<T>(LLVal) != LLVal)
+            return true;
+        Result = LLVal;
+        return false;
     }
 
     template <typename T>
     std::enable_if_t<!std::numeric_limits<T>::is_signed, bool>
-    getAsInteger(unsigned Radix, T &Result) const {
-      unsigned long long ULLVal;
-      // The additional cast to unsigned long long is required to avoid the
-      // Visual C++ warning C4805: '!=' : unsafe mix of type 'bool' and type
-      // 'unsigned __int64' when instantiating getAsInteger with T = bool.
-      if (getAsUnsignedInteger(*this, Radix, ULLVal) ||
-          static_cast<unsigned long long>(static_cast<T>(ULLVal)) != ULLVal)
-        return true;
-      Result = ULLVal;
-      return false;
+    getAsInteger(unsigned Radix, T &Result) const
+    {
+        unsigned long long ULLVal;
+        // The additional cast to unsigned long long is required to avoid the
+        // Visual C++ warning C4805: '!=' : unsafe mix of type 'bool' and type
+        // 'unsigned __int64' when instantiating getAsInteger with T = bool.
+        if (getAsUnsignedInteger(*this, Radix, ULLVal)
+            || static_cast<unsigned long long>(static_cast<T>(ULLVal)) != ULLVal)
+            return true;
+        Result = ULLVal;
+        return false;
     }
 
     /// Parse the current string as an integer of the specified radix.  If
@@ -541,24 +626,26 @@ namespace llvm {
     /// is removed from the beginning of the string.
     template <typename T>
     std::enable_if_t<std::numeric_limits<T>::is_signed, bool>
-    consumeInteger(unsigned Radix, T &Result) {
-      long long LLVal;
-      if (consumeSignedInteger(*this, Radix, LLVal) ||
-          static_cast<long long>(static_cast<T>(LLVal)) != LLVal)
-        return true;
-      Result = LLVal;
-      return false;
+    consumeInteger(unsigned Radix, T &Result)
+    {
+        long long LLVal;
+        if (consumeSignedInteger(*this, Radix, LLVal)
+            || static_cast<long long>(static_cast<T>(LLVal)) != LLVal)
+            return true;
+        Result = LLVal;
+        return false;
     }
 
     template <typename T>
     std::enable_if_t<!std::numeric_limits<T>::is_signed, bool>
-    consumeInteger(unsigned Radix, T &Result) {
-      unsigned long long ULLVal;
-      if (consumeUnsignedInteger(*this, Radix, ULLVal) ||
-          static_cast<unsigned long long>(static_cast<T>(ULLVal)) != ULLVal)
-        return true;
-      Result = ULLVal;
-      return false;
+    consumeInteger(unsigned Radix, T &Result)
+    {
+        unsigned long long ULLVal;
+        if (consumeUnsignedInteger(*this, Radix, ULLVal)
+            || static_cast<unsigned long long>(static_cast<T>(ULLVal)) != ULLVal)
+            return true;
+        Result = ULLVal;
+        return false;
     }
 
     /// Parse the current string as an integer of the specified \p Radix, or of
@@ -608,113 +695,139 @@ namespace llvm {
     /// exceeds the number of characters remaining in the string, the string
     /// suffix (starting with \p Start) will be returned.
     LLVM_NODISCARD
-    StringRef substr(size_t Start, size_t N = npos) const {
-      Start = std::min(Start, Length);
-      return StringRef(Data + Start, std::min(N, Length - Start));
+    StringRef
+    substr(size_t Start, size_t N = npos) const
+    {
+        Start = std::min(Start, Length);
+        return StringRef(Data + Start, std::min(N, Length - Start));
     }
 
     /// Return a StringRef equal to 'this' but with only the first \p N
     /// elements remaining.  If \p N is greater than the length of the
     /// string, the entire string is returned.
     LLVM_NODISCARD
-    StringRef take_front(size_t N = 1) const {
-      if (N >= size())
-        return *this;
-      return drop_back(size() - N);
+    StringRef
+    take_front(size_t N = 1) const
+    {
+        if (N >= size())
+            return *this;
+        return drop_back(size() - N);
     }
 
     /// Return a StringRef equal to 'this' but with only the last \p N
     /// elements remaining.  If \p N is greater than the length of the
     /// string, the entire string is returned.
     LLVM_NODISCARD
-    StringRef take_back(size_t N = 1) const {
-      if (N >= size())
-        return *this;
-      return drop_front(size() - N);
+    StringRef
+    take_back(size_t N = 1) const
+    {
+        if (N >= size())
+            return *this;
+        return drop_front(size() - N);
     }
 
     /// Return the longest prefix of 'this' such that every character
     /// in the prefix satisfies the given predicate.
     LLVM_NODISCARD
-    StringRef take_while(function_ref<bool(char)> F) const {
-      return substr(0, find_if_not(F));
+    StringRef
+    take_while(function_ref<bool(char)> F) const
+    {
+        return substr(0, find_if_not(F));
     }
 
     /// Return the longest prefix of 'this' such that no character in
     /// the prefix satisfies the given predicate.
     LLVM_NODISCARD
-    StringRef take_until(function_ref<bool(char)> F) const {
-      return substr(0, find_if(F));
+    StringRef
+    take_until(function_ref<bool(char)> F) const
+    {
+        return substr(0, find_if(F));
     }
 
     /// Return a StringRef equal to 'this' but with the first \p N elements
     /// dropped.
     LLVM_NODISCARD
-    StringRef drop_front(size_t N = 1) const {
-      assert(size() >= N && "Dropping more elements than exist");
-      return substr(N);
+    StringRef
+    drop_front(size_t N = 1) const
+    {
+        assert(size() >= N && "Dropping more elements than exist");
+        return substr(N);
     }
 
     /// Return a StringRef equal to 'this' but with the last \p N elements
     /// dropped.
     LLVM_NODISCARD
-    StringRef drop_back(size_t N = 1) const {
-      assert(size() >= N && "Dropping more elements than exist");
-      return substr(0, size()-N);
+    StringRef
+    drop_back(size_t N = 1) const
+    {
+        assert(size() >= N && "Dropping more elements than exist");
+        return substr(0, size() - N);
     }
 
     /// Return a StringRef equal to 'this', but with all characters satisfying
     /// the given predicate dropped from the beginning of the string.
     LLVM_NODISCARD
-    StringRef drop_while(function_ref<bool(char)> F) const {
-      return substr(find_if_not(F));
+    StringRef
+    drop_while(function_ref<bool(char)> F) const
+    {
+        return substr(find_if_not(F));
     }
 
     /// Return a StringRef equal to 'this', but with all characters not
     /// satisfying the given predicate dropped from the beginning of the string.
     LLVM_NODISCARD
-    StringRef drop_until(function_ref<bool(char)> F) const {
-      return substr(find_if(F));
+    StringRef
+    drop_until(function_ref<bool(char)> F) const
+    {
+        return substr(find_if(F));
     }
 
     /// Returns true if this StringRef has the given prefix and removes that
     /// prefix.
-    bool consume_front(StringRef Prefix) {
-      if (!startswith(Prefix))
-        return false;
+    bool
+    consume_front(StringRef Prefix)
+    {
+        if (!startswith(Prefix))
+            return false;
 
-      *this = drop_front(Prefix.size());
-      return true;
+        *this = drop_front(Prefix.size());
+        return true;
     }
 
     /// Returns true if this StringRef has the given prefix, ignoring case,
     /// and removes that prefix.
-    bool consume_front_insensitive(StringRef Prefix) {
-      if (!startswith_insensitive(Prefix))
-        return false;
+    bool
+    consume_front_insensitive(StringRef Prefix)
+    {
+        if (!startswith_insensitive(Prefix))
+            return false;
 
-      *this = drop_front(Prefix.size());
-      return true;
+        *this = drop_front(Prefix.size());
+        return true;
     }
 
     /// Returns true if this StringRef has the given suffix and removes that
     /// suffix.
-    bool consume_back(StringRef Suffix) {
-      if (!endswith(Suffix))
-        return false;
+    bool
+    consume_back(StringRef Suffix)
+    {
+        if (!endswith(Suffix))
+            return false;
 
-      *this = drop_back(Suffix.size());
-      return true;
+        *this = drop_back(Suffix.size());
+        return true;
     }
 
     /// Returns true if this StringRef has the given suffix, ignoring case,
     /// and removes that suffix.
-    bool consume_back_insensitive(StringRef Suffix) {
-      if (!endswith_insensitive(Suffix))
-        return false;
+    bool
+    consume_back_insensitive(StringRef Suffix)
+    {
+        if (!endswith_insensitive(Suffix))
+            return false;
 
-      *this = drop_back(Suffix.size());
-      return true;
+        *this = drop_back(Suffix.size());
+        return true;
     }
 
     /// Return a reference to the substring from [Start, End).
@@ -729,10 +842,12 @@ namespace llvm {
     /// will be returned. If this is less than \p Start, an empty string will
     /// be returned.
     LLVM_NODISCARD
-    StringRef slice(size_t Start, size_t End) const {
-      Start = std::min(Start, Length);
-      End = std::min(std::max(Start, End), Length);
-      return StringRef(Data + Start, End - Start);
+    StringRef
+    slice(size_t Start, size_t End) const
+    {
+        Start = std::min(Start, Length);
+        End = std::min(std::max(Start, End), Length);
+        return StringRef(Data + Start, End - Start);
     }
 
     /// Split into two substrings around the first occurrence of a separator
@@ -746,8 +861,10 @@ namespace llvm {
     /// \param Separator The character to split on.
     /// \returns The split substrings.
     LLVM_NODISCARD
-    std::pair<StringRef, StringRef> split(char Separator) const {
-      return split(StringRef(&Separator, 1));
+    std::pair<StringRef, StringRef>
+    split(char Separator) const
+    {
+        return split(StringRef(&Separator, 1));
     }
 
     /// Split into two substrings around the first occurrence of a separator
@@ -761,11 +878,13 @@ namespace llvm {
     /// \param Separator - The string to split on.
     /// \return - The split substrings.
     LLVM_NODISCARD
-    std::pair<StringRef, StringRef> split(StringRef Separator) const {
-      size_t Idx = find(Separator);
-      if (Idx == npos)
-        return std::make_pair(*this, StringRef());
-      return std::make_pair(slice(0, Idx), slice(Idx + Separator.size(), npos));
+    std::pair<StringRef, StringRef>
+    split(StringRef Separator) const
+    {
+        size_t Idx = find(Separator);
+        if (Idx == npos)
+            return std::make_pair(*this, StringRef());
+        return std::make_pair(slice(0, Idx), slice(Idx + Separator.size(), npos));
     }
 
     /// Split into two substrings around the last occurrence of a separator
@@ -779,11 +898,13 @@ namespace llvm {
     /// \param Separator - The string to split on.
     /// \return - The split substrings.
     LLVM_NODISCARD
-    std::pair<StringRef, StringRef> rsplit(StringRef Separator) const {
-      size_t Idx = rfind(Separator);
-      if (Idx == npos)
-        return std::make_pair(*this, StringRef());
-      return std::make_pair(slice(0, Idx), slice(Idx + Separator.size(), npos));
+    std::pair<StringRef, StringRef>
+    rsplit(StringRef Separator) const
+    {
+        size_t Idx = rfind(Separator);
+        if (Idx == npos)
+            return std::make_pair(*this, StringRef());
+        return std::make_pair(slice(0, Idx), slice(Idx + Separator.size(), npos));
     }
 
     /// Split into substrings around the occurrences of a separator string.
@@ -800,9 +921,8 @@ namespace llvm {
     /// \param Separator - The string to split on.
     /// \param MaxSplit - The maximum number of times the string is split.
     /// \param KeepEmpty - True if empty substring should be added.
-    void split(SmallVectorImpl<StringRef> &A,
-               StringRef Separator, int MaxSplit = -1,
-               bool KeepEmpty = true) const;
+    void split(SmallVectorImpl<StringRef> &A, StringRef Separator, int MaxSplit = -1,
+        bool KeepEmpty = true) const;
 
     /// Split into substrings around the occurrences of a separator character.
     ///
@@ -819,7 +939,7 @@ namespace llvm {
     /// \param MaxSplit - The maximum number of times the string is split.
     /// \param KeepEmpty - True if empty substring should be added.
     void split(SmallVectorImpl<StringRef> &A, char Separator, int MaxSplit = -1,
-               bool KeepEmpty = true) const;
+        bool KeepEmpty = true) const;
 
     /// Split into two substrings around the last occurrence of a separator
     /// character.
@@ -832,150 +952,188 @@ namespace llvm {
     /// \param Separator - The character to split on.
     /// \return - The split substrings.
     LLVM_NODISCARD
-    std::pair<StringRef, StringRef> rsplit(char Separator) const {
-      return rsplit(StringRef(&Separator, 1));
+    std::pair<StringRef, StringRef>
+    rsplit(char Separator) const
+    {
+        return rsplit(StringRef(&Separator, 1));
     }
 
     /// Return string with consecutive \p Char characters starting from the
     /// the left removed.
     LLVM_NODISCARD
-    StringRef ltrim(char Char) const {
-      return drop_front(std::min(Length, find_first_not_of(Char)));
+    StringRef
+    ltrim(char Char) const
+    {
+        return drop_front(std::min(Length, find_first_not_of(Char)));
     }
 
     /// Return string with consecutive characters in \p Chars starting from
     /// the left removed.
     LLVM_NODISCARD
-    StringRef ltrim(StringRef Chars = " \t\n\v\f\r") const {
-      return drop_front(std::min(Length, find_first_not_of(Chars)));
+    StringRef
+    ltrim(StringRef Chars = " \t\n\v\f\r") const
+    {
+        return drop_front(std::min(Length, find_first_not_of(Chars)));
     }
 
     /// Return string with consecutive \p Char characters starting from the
     /// right removed.
     LLVM_NODISCARD
-    StringRef rtrim(char Char) const {
-      return drop_back(Length - std::min(Length, find_last_not_of(Char) + 1));
+    StringRef
+    rtrim(char Char) const
+    {
+        return drop_back(Length - std::min(Length, find_last_not_of(Char) + 1));
     }
 
     /// Return string with consecutive characters in \p Chars starting from
     /// the right removed.
     LLVM_NODISCARD
-    StringRef rtrim(StringRef Chars = " \t\n\v\f\r") const {
-      return drop_back(Length - std::min(Length, find_last_not_of(Chars) + 1));
+    StringRef
+    rtrim(StringRef Chars = " \t\n\v\f\r") const
+    {
+        return drop_back(Length - std::min(Length, find_last_not_of(Chars) + 1));
     }
 
     /// Return string with consecutive \p Char characters starting from the
     /// left and right removed.
     LLVM_NODISCARD
-    StringRef trim(char Char) const {
-      return ltrim(Char).rtrim(Char);
+    StringRef
+    trim(char Char) const
+    {
+        return ltrim(Char).rtrim(Char);
     }
 
     /// Return string with consecutive characters in \p Chars starting from
     /// the left and right removed.
     LLVM_NODISCARD
-    StringRef trim(StringRef Chars = " \t\n\v\f\r") const {
-      return ltrim(Chars).rtrim(Chars);
+    StringRef
+    trim(StringRef Chars = " \t\n\v\f\r") const
+    {
+        return ltrim(Chars).rtrim(Chars);
     }
 
     /// @}
-  };
+};
 
-  /// A wrapper around a string literal that serves as a proxy for constructing
-  /// global tables of StringRefs with the length computed at compile time.
-  /// In order to avoid the invocation of a global constructor, StringLiteral
-  /// should *only* be used in a constexpr context, as such:
-  ///
-  /// constexpr StringLiteral S("test");
-  ///
-  class StringLiteral : public StringRef {
-  private:
-    constexpr StringLiteral(const char *Str, size_t N) : StringRef(Str, N) {
+/// A wrapper around a string literal that serves as a proxy for constructing
+/// global tables of StringRefs with the length computed at compile time.
+/// In order to avoid the invocation of a global constructor, StringLiteral
+/// should *only* be used in a constexpr context, as such:
+///
+/// constexpr StringLiteral S("test");
+///
+class StringLiteral : public StringRef {
+private:
+    constexpr StringLiteral(const char *Str, size_t N)
+        : StringRef(Str, N)
+    {
     }
 
-  public:
+public:
     template <size_t N>
     constexpr StringLiteral(const char (&Str)[N])
 #if defined(__clang__) && __has_attribute(enable_if)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wgcc-compat"
-        __attribute((enable_if(__builtin_strlen(Str) == N - 1,
-                               "invalid string literal")))
-#pragma clang diagnostic pop
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wgcc-compat"
+        __attribute((enable_if(__builtin_strlen(Str) == N - 1, "invalid string literal")))
+#    pragma clang diagnostic pop
 #endif
-        : StringRef(Str, N - 1) {
+        : StringRef(Str, N - 1)
+    {
     }
 
     // Explicit construction for strings like "foo\0bar".
     template <size_t N>
-    static constexpr StringLiteral withInnerNUL(const char (&Str)[N]) {
-      return StringLiteral(Str, N - 1);
+    static constexpr StringLiteral
+    withInnerNUL(const char (&Str)[N])
+    {
+        return StringLiteral(Str, N - 1);
     }
-  };
+};
 
-  /// @name StringRef Comparison Operators
-  /// @{
+/// @name StringRef Comparison Operators
+/// @{
 
-  inline bool operator==(StringRef LHS, StringRef RHS) {
+inline bool
+operator==(StringRef LHS, StringRef RHS)
+{
     return LHS.equals(RHS);
-  }
+}
 
-  inline bool operator!=(StringRef LHS, StringRef RHS) { return !(LHS == RHS); }
+inline bool
+operator!=(StringRef LHS, StringRef RHS)
+{
+    return !(LHS == RHS);
+}
 
-  inline bool operator<(StringRef LHS, StringRef RHS) {
+inline bool
+operator<(StringRef LHS, StringRef RHS)
+{
     return LHS.compare(RHS) == -1;
-  }
+}
 
-  inline bool operator<=(StringRef LHS, StringRef RHS) {
+inline bool
+operator<=(StringRef LHS, StringRef RHS)
+{
     return LHS.compare(RHS) != 1;
-  }
+}
 
-  inline bool operator>(StringRef LHS, StringRef RHS) {
+inline bool
+operator>(StringRef LHS, StringRef RHS)
+{
     return LHS.compare(RHS) == 1;
-  }
+}
 
-  inline bool operator>=(StringRef LHS, StringRef RHS) {
+inline bool
+operator>=(StringRef LHS, StringRef RHS)
+{
     return LHS.compare(RHS) != -1;
-  }
+}
 
-  inline std::string &operator+=(std::string &buffer, StringRef string) {
+inline std::string &
+operator+=(std::string &buffer, StringRef string)
+{
     return buffer.append(string.data(), string.size());
-  }
+}
 
-  /// @}
+/// @}
 
-  /// Compute a hash_code for a StringRef.
-  LLVM_NODISCARD
-  hash_code hash_value(StringRef S);
+/// Compute a hash_code for a StringRef.
+LLVM_NODISCARD
+hash_code hash_value(StringRef S);
 
-  // Provide DenseMapInfo for StringRefs.
-  template <> struct DenseMapInfo<StringRef> {
-    static inline StringRef getEmptyKey() {
-      return StringRef(
-          reinterpret_cast<const char *>(~static_cast<uintptr_t>(0)), 0);
+// Provide DenseMapInfo for StringRefs.
+template <> struct DenseMapInfo<StringRef> {
+    static inline StringRef
+    getEmptyKey()
+    {
+        return StringRef(reinterpret_cast<const char *>(~static_cast<uintptr_t>(0)), 0);
     }
 
-    static inline StringRef getTombstoneKey() {
-      return StringRef(
-          reinterpret_cast<const char *>(~static_cast<uintptr_t>(1)), 0);
+    static inline StringRef
+    getTombstoneKey()
+    {
+        return StringRef(reinterpret_cast<const char *>(~static_cast<uintptr_t>(1)), 0);
     }
 
-    static unsigned getHashValue(StringRef Val) {
-      assert(Val.data() != getEmptyKey().data() &&
-             "Cannot hash the empty key!");
-      assert(Val.data() != getTombstoneKey().data() &&
-             "Cannot hash the tombstone key!");
-      return (unsigned)(hash_value(Val));
+    static unsigned
+    getHashValue(StringRef Val)
+    {
+        assert(Val.data() != getEmptyKey().data() && "Cannot hash the empty key!");
+        assert(Val.data() != getTombstoneKey().data() && "Cannot hash the tombstone key!");
+        return (unsigned)(hash_value(Val));
     }
 
-    static bool isEqual(StringRef LHS, StringRef RHS) {
-      if (RHS.data() == getEmptyKey().data())
-        return LHS.data() == getEmptyKey().data();
-      if (RHS.data() == getTombstoneKey().data())
-        return LHS.data() == getTombstoneKey().data();
-      return LHS == RHS;
+    static bool
+    isEqual(StringRef LHS, StringRef RHS)
+    {
+        if (RHS.data() == getEmptyKey().data())
+            return LHS.data() == getEmptyKey().data();
+        if (RHS.data() == getTombstoneKey().data())
+            return LHS.data() == getTombstoneKey().data();
+        return LHS == RHS;
     }
-  };
+};
 
 } // end namespace llvm
 

@@ -20,42 +20,42 @@
 
 /* Allow selectively disabling link-time mismatch checking so that header-only
    ADT content from LLVM can be used without linking libSupport. */
-#if !defined(LLVM_DISABLE_ABI_BREAKING_CHECKS_ENFORCING) || !LLVM_DISABLE_ABI_BREAKING_CHECKS_ENFORCING
+#if !defined(LLVM_DISABLE_ABI_BREAKING_CHECKS_ENFORCING)                                           \
+    || !LLVM_DISABLE_ABI_BREAKING_CHECKS_ENFORCING
 
 // ABI_BREAKING_CHECKS protection: provides link-time failure when clients build
 // mismatch with LLVM
-#if defined(_MSC_VER)
+#    if defined(_MSC_VER)
 // Use pragma with MSVC
-#define LLVM_XSTR(s) LLVM_STR(s)
-#define LLVM_STR(s) #s
-#pragma detect_mismatch("LLVM_ENABLE_ABI_BREAKING_CHECKS", LLVM_XSTR(LLVM_ENABLE_ABI_BREAKING_CHECKS))
-#undef LLVM_XSTR
-#undef LLVM_STR
-#elif defined(_WIN32) || defined(__CYGWIN__) // Win32 w/o #pragma detect_mismatch
+#        define LLVM_XSTR(s) LLVM_STR(s)
+#        define LLVM_STR(s) #        s
+#        pragma detect_mismatch(                                                                   \
+            "LLVM_ENABLE_ABI_BREAKING_CHECKS", LLVM_XSTR(LLVM_ENABLE_ABI_BREAKING_CHECKS))
+#        undef LLVM_XSTR
+#        undef LLVM_STR
+#    elif defined(_WIN32) || defined(__CYGWIN__) // Win32 w/o #pragma detect_mismatch
 // FIXME: Implement checks without weak.
-#elif defined(__cplusplus)
-#if !(defined(_AIX) && defined(__GNUC__) && !defined(__clang__))
-#define LLVM_HIDDEN_VISIBILITY __attribute__ ((visibility("hidden")))
-#else
+#    elif defined(__cplusplus)
+#        if !(defined(_AIX) && defined(__GNUC__) && !defined(__clang__))
+#            define LLVM_HIDDEN_VISIBILITY __attribute__((visibility("hidden")))
+#        else
 // GCC on AIX does not support visibility attributes. Symbols are not
 // exported by default on AIX.
-#define LLVM_HIDDEN_VISIBILITY
-#endif
+#            define LLVM_HIDDEN_VISIBILITY
+#        endif
 namespace llvm {
-#if LLVM_ENABLE_ABI_BREAKING_CHECKS
+#        if LLVM_ENABLE_ABI_BREAKING_CHECKS
 extern int EnableABIBreakingChecks;
 LLVM_HIDDEN_VISIBILITY
-__attribute__((weak)) int *VerifyEnableABIBreakingChecks =
-    &EnableABIBreakingChecks;
-#else
+__attribute__((weak)) int *VerifyEnableABIBreakingChecks = &EnableABIBreakingChecks;
+#        else
 extern int DisableABIBreakingChecks;
 LLVM_HIDDEN_VISIBILITY
-__attribute__((weak)) int *VerifyDisableABIBreakingChecks =
-    &DisableABIBreakingChecks;
-#endif
+__attribute__((weak)) int *VerifyDisableABIBreakingChecks = &DisableABIBreakingChecks;
+#        endif
 }
-#undef LLVM_HIDDEN_VISIBILITY
-#endif // _MSC_VER
+#        undef LLVM_HIDDEN_VISIBILITY
+#    endif // _MSC_VER
 
 #endif // LLVM_DISABLE_ABI_BREAKING_CHECKS_ENFORCING
 

@@ -27,42 +27,39 @@
 #ifndef SWIFT_DEMANGLING_PUNYCODE_H
 #define SWIFT_DEMANGLING_PUNYCODE_H
 
-#include "llvm/ADT/StringRef.h"
 #include "swift/Demangling/NamespaceMacros.h"
-#include <vector>
+#include "llvm/ADT/StringRef.h"
 #include <cstdint>
+#include <vector>
 
 namespace swift {
 namespace Punycode {
-SWIFT_BEGIN_INLINE_NAMESPACE
+    SWIFT_BEGIN_INLINE_NAMESPACE
 
-using llvm::StringRef;
+    using llvm::StringRef;
 
-/// Encodes a sequence of code points into Punycode.
-///
-/// Returns false if input contains surrogate code points.
-bool encodePunycode(const std::vector<uint32_t> &InputCodePoints,
-                    std::string &OutPunycode);
+    /// Encodes a sequence of code points into Punycode.
+    ///
+    /// Returns false if input contains surrogate code points.
+    bool encodePunycode(const std::vector<uint32_t> &InputCodePoints, std::string &OutPunycode);
 
-/// Decodes a Punycode string into a sequence of Unicode scalars.
-///
-/// Returns false if decoding failed.
-bool decodePunycode(StringRef InputPunycode,
-                    std::vector<uint32_t> &OutCodePoints);
+    /// Decodes a Punycode string into a sequence of Unicode scalars.
+    ///
+    /// Returns false if decoding failed.
+    bool decodePunycode(StringRef InputPunycode, std::vector<uint32_t> &OutCodePoints);
 
-/// Encodes an UTF8 string into Punycode.
-///
-/// If \p mapNonSymbolChars is true, non-symbol ASCII characters (characters
-/// except [$_a-zA-Z0-9]) are also encoded like non-ASCII unicode characters.
-/// Returns false if \p InputUTF8 contains surrogate code points.
-bool encodePunycodeUTF8(StringRef InputUTF8, std::string &OutPunycode,
-                        bool mapNonSymbolChars = false);
+    /// Encodes an UTF8 string into Punycode.
+    ///
+    /// If \p mapNonSymbolChars is true, non-symbol ASCII characters (characters
+    /// except [$_a-zA-Z0-9]) are also encoded like non-ASCII unicode characters.
+    /// Returns false if \p InputUTF8 contains surrogate code points.
+    bool encodePunycodeUTF8(
+        StringRef InputUTF8, std::string &OutPunycode, bool mapNonSymbolChars = false);
 
-bool decodePunycodeUTF8(StringRef InputPunycode, std::string &OutUTF8);
+    bool decodePunycodeUTF8(StringRef InputPunycode, std::string &OutUTF8);
 
-SWIFT_END_INLINE_NAMESPACE
+    SWIFT_END_INLINE_NAMESPACE
 } // end namespace Punycode
 } // end namespace swift
 
 #endif // SWIFT_DEMANGLING_PUNYCODE_H
-

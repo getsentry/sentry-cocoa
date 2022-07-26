@@ -2,6 +2,7 @@
 #import "SentryBreadcrumb.h"
 #import "SentryClient.h"
 #import "SentryDefines.h"
+#import "SentryDescriptor.h"
 #import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentrySDK+Private.h"
@@ -239,8 +240,7 @@ SentryBreadcrumbTracker ()
 {
     NSMutableDictionary *info = @{}.mutableCopy;
 
-    info[@"screen"] = [SentryUIViewControllerSanitizer
-        sanitizeViewControllerName:[NSString stringWithFormat:@"%@", controller]];
+    info[@"screen"] = [SentryUIViewControllerSanitizer sanitizeViewControllerName:controller];
 
     if ([controller.navigationItem.title length] != 0) {
         info[@"title"] = controller.navigationItem.title;
