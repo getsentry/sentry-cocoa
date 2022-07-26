@@ -61,7 +61,7 @@ SentryAppStartTrackingIntegration ()
 
     if (!options.enableAutoPerformanceTracking) {
         [SentryLog
-            logWithMessage:@"AutoUIPerformanceTracking disabled. Will not track app start up time."
+            logWithMessage:@"enableAutoPerformanceTracking disabled. Will not track app start up time."
                   andLevel:kSentryLevelDebug];
         return NO;
     }

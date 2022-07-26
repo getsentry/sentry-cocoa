@@ -52,7 +52,7 @@ SentryPerformanceTrackingIntegration ()
 - (BOOL)shouldBeDisabled:(SentryOptions *)options
 {
     if (!options.enableAutoPerformanceTracking) {
-        [SentryLog logWithMessage:@"AutoUIPerformanceTracking disabled. Will not start "
+        [SentryLog logWithMessage:@"enableAutoPerformanceTracking disabled. Will not start "
                                   @"SentryPerformanceTrackingIntegration."
                          andLevel:kSentryLevelDebug];
         return YES;
