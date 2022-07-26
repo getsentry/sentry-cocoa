@@ -62,13 +62,13 @@ NS_ASSUME_NONNULL_BEGIN
         }
 
         // Backward compatibility for clients that are still using the enableProfiling option.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
         if (_options.enableProfiling) {
             return [[SentryProfilesSamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
                                                              forSampleRate:@1.0];
         }
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
     }
 #endif
 
