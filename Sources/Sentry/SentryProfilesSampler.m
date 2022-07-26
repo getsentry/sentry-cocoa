@@ -43,6 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
     // Profiles are always undersampled with respect to traces. If the trace is not sampled,
     // the profile will not be either. If the trace is sampled, we can proceed to checking
     // whether the associated profile should be sampled.
+#if SENTRY_TARGET_PROFILING_SUPPORTED
     if (tracesSamplerDecision.decision == kSentrySampleDecisionYes) {
         if (_options.profilesSampler != nil) {
             NSNumber *callbackDecision = _options.profilesSampler(context);
@@ -69,6 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
 #pragma clang diagnostic pop
     }
+#endif
 
     return [[SentryProfilesSamplerDecision alloc] initWithDecision:kSentrySampleDecisionNo
                                                      forSampleRate:nil];
