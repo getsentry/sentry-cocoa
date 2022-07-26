@@ -8,11 +8,8 @@ on:
 
   pull_request:
     paths:
-        # test changes to Sentry SDK sources
-      - 'Sources/**'
-
         # test changes to benchmarking implementation
-      - 'Samples/iOS-Swift/iOS-Swift/**'
+      - 'Samples/iOS-Swift/iOS-Swift/ViewControllers/PerformanceViewController.swift'
       - 'Samples/iOS-Swift/PerformanceBenchmarks/**'
       - '.github/workflows/benchmarking.yml'
       - '.sauce/benchmarking-config.yml'
