@@ -10,31 +10,35 @@ Therefore the sample apps use manual code signing, see [fastlane docs](https://d
 
 Reach out to @philipphofmann if you need access to the match git repository.
 
-## Unit Tests with Thread Sanitizer
+## Testing
+
+### Unit Tests with Thread Sanitizer
 
 CI runs the unit tests for one job with thread sanitizer enabled to detect race conditions.
 The Test scheme of Sentry uses `TSAN_OPTIONS` to specify the [suppression file](../Tests/ThreadSanitizer.sup) to ignore false positives or known issues.
 It's worth noting that you can use the `$(PROJECT_DIR)` to specify the path to the suppression file.
 To run the unit tests with the thread sanitizer enabled in Xcode click on edit scheme, go to tests, then open diagnostics, and enable Thread Sanitizer.
 
-### Further Reading
+#### Further Reading
 
 * [ThreadSanitizerSuppressions](https://github.com/google/sanitizers/wiki/ThreadSanitizerSuppressions)
 * [Running Tests with Clang's AddressSanitizer](https://pspdfkit.com/blog/2016/test-with-asan/)
 * [Diagnosing Memory, Thread, and Crash Issues Early](https://developer.apple.com/documentation/xcode/diagnosing-memory-thread-and-crash-issues-early)
 * [Stackoverflow: ThreadSanitizer suppression file with Xcode](https://stackoverflow.com/questions/38251409/how-can-i-suppress-thread-sanitizer-warnings-in-xcode-from-an-external-library)
 
-## UI Tests
+### UI Tests
 
 CI runs UI tests on simulators via the `test.yml` workflow, and on devices via `saucelabs-UI-tests.yml`. All are run for each PR, and Sauce Labs tests also run on a nightly cron schedule.
 
-### Performance benchmarking
+There are a few specialized UI test bundles for specific purposes, that we currently only run locally, on-demand, as we don't regularly need them, they take a while to run and tend to flake on SauceLabs.
+
+#### Performance benchmarking
 
 Benchmarks run from an XCUITest (`PerformanceBenchmarks` target) using the iOS-Swift sample app, under the `iOS-Swift-Benchmarking` scheme. [`PerformanceViewController`](../Samples/iOS-Swift/iOS-Swift/ViewControllers/PerformanceViewController.swift) provides a start and stop button for controlling when the benchmarking runs, and a text field to marshal observations from within the test harness app into the test runner app. There, we assert that the P90 of all trials remains under 5%. We also print the raw results to the test runner's console logs for postprocessing into reports with `//scripts/process-benchmark-raw-results.py`.
 
 Changes to implementation are checked by `//.github/workflows/benchmarking.yml`.
 
-#### Test procedure
+##### Test procedure
 
 - Tap the button to start a Sentry transaction with the associated profiling.
 - Run a loop performing large amount of calculations to use as much CPU as possible. This simulates something an app developer would want to profile in a real world scenario.
@@ -43,11 +47,15 @@ Changes to implementation are checked by `//.github/workflows/benchmarking.yml`.
 - Calculate the total time used by app threads and separately, the profiler's thread. Keep separated by system call and user call times.
 - Write these four values as CSV into the text field accessible as an XCUIElement in the runner app.
 
-#### Test Plan
+##### Test Plan
 
 - Run the procedure 20 times, then assert that the 90th percentile remains under 5% so we can be alerted via CI if it spikes.
     - Sauce Labs allows relaxing the timeout for a suite of tests and for a `XCTestCase` subclass' collection of test case methods, but each test case in the suite must run in less than 15 minutes. 20 trials takes too long, so we split it up into multiple test cases, each running a subset of the trials. 
     - This is done by dynamically generating test case methods in `SentrySDKPerformanceBenchmarkTests`, which is necessarily written in Objective-C since this is not possible to do in Swift tests. By doing this dynamically, we can easily fine tune how we split up the work to account for changes in the test duration or in constraints on how things run in Sauce Labs etc.
+
+#### Test Profile Generation
+
+High-volume generation of transactions and profiles by navigating around Trending Movies for long amounts of time. Implementation is in `//Samples/TrendingMovies/ProfileDataGeneratorUITest` and changes to it are checked by `//.github/workflows/profile-data-generator.yml`.
 
 ## Auto UI Performance Class Overview
 
