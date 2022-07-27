@@ -8,6 +8,7 @@
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryProfiler.h"
+#import "SentryProfilesSampler.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope.h"
@@ -50,6 +51,7 @@ SentryTracer ()
 @implementation SentryTracer {
     BOOL _waitForChildren;
     SentryTraceContext *_traceContext;
+    SentryProfilesSamplerDecision *_profilesSamplerDecision;
     NSMutableDictionary<NSString *, id> *_tags;
     NSMutableDictionary<NSString *, id> *_data;
     dispatch_block_t _idleTimeoutBlock;
@@ -86,7 +88,10 @@ static NSLock *profilerLock;
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
 {
-    return [self initWithTransactionContext:transactionContext hub:hub waitForChildren:NO];
+    return [self initWithTransactionContext:transactionContext
+                                        hub:hub
+                    profilesSamplerDecision:nil
+                            waitForChildren:NO];
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
@@ -95,6 +100,7 @@ static NSLock *profilerLock;
 {
     return [self initWithTransactionContext:transactionContext
                                         hub:hub
+                    profilesSamplerDecision:nil
                             waitForChildren:waitForChildren
                                 idleTimeout:0.0
                        dispatchQueueWrapper:nil];
@@ -102,22 +108,40 @@ static NSLock *profilerLock;
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
+                   profilesSamplerDecision:
+                       (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
+                           waitForChildren:(BOOL)waitForChildren
+{
+    return [self initWithTransactionContext:transactionContext
+                                        hub:hub
+                    profilesSamplerDecision:profilesSamplerDecision
+                            waitForChildren:waitForChildren
+                                idleTimeout:0.0
+                       dispatchQueueWrapper:nil];
+}
+
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
+                                       hub:(nullable SentryHub *)hub
+                   profilesSamplerDecision:
+                       (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
                                idleTimeout:(NSTimeInterval)idleTimeout
                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     return [self initWithTransactionContext:transactionContext
                                         hub:hub
+                    profilesSamplerDecision:profilesSamplerDecision
                             waitForChildren:YES
                                 idleTimeout:idleTimeout
                        dispatchQueueWrapper:dispatchQueueWrapper];
 }
 
-- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                                       hub:(nullable SentryHub *)hub
-                           waitForChildren:(BOOL)waitForChildren
-                               idleTimeout:(NSTimeInterval)idleTimeout
-                      dispatchQueueWrapper:
-                          (nullable SentryDispatchQueueWrapper *)dispatchQueueWrapper
+- (instancetype)
+    initWithTransactionContext:(SentryTransactionContext *)transactionContext
+                           hub:(nullable SentryHub *)hub
+       profilesSamplerDecision:(nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
+               waitForChildren:(BOOL)waitForChildren
+                   idleTimeout:(NSTimeInterval)idleTimeout
+          dispatchQueueWrapper:(nullable SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
         self.rootSpan = [[SentrySpan alloc] initWithTransaction:self context:transactionContext];
@@ -125,6 +149,7 @@ static NSLock *profilerLock;
         _children = [[NSMutableArray alloc] init];
         self.hub = hub;
         self.isWaitingForChildren = NO;
+        _profilesSamplerDecision = profilesSamplerDecision;
         _waitForChildren = waitForChildren;
         _tags = [[NSMutableDictionary alloc] init];
         _data = [[NSMutableDictionary alloc] init];
@@ -150,7 +175,7 @@ static NSLock *profilerLock;
         }
 #endif // SENTRY_HAS_UIKIT
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        if ([_hub getClient].options.enableProfiling) {
+        if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
             [profilerLock lock];
             if (profiler == nil) {
                 profiler = [[SentryProfiler alloc] init];
@@ -431,7 +456,7 @@ static NSLock *profilerLock;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     SentryScreenFrames *frameInfo;
-    if ([_hub getClient].options.enableProfiling) {
+    if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
         [SentryLog logWithMessage:@"Stopping profiler." andLevel:kSentryLevelDebug];
         [profilerLock lock];
         [profiler stop];
@@ -489,7 +514,7 @@ static NSLock *profilerLock;
     NSMutableArray<SentryEnvelopeItem *> *additionalEnvelopeItems = [NSMutableArray array];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    if ([_hub getClient].options.enableProfiling) {
+    if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
         [profilerLock lock];
         if (profiler != nil) {
             SentryEnvelopeItem *profile = [profiler buildEnvelopeItemForTransaction:transaction
