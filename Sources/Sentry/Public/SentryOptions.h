@@ -346,7 +346,8 @@ NS_SWIFT_NAME(Options)
  * feature is not supported on watchOS or tvOS.
  */
 @property (nonatomic, assign) BOOL enableProfiling DEPRECATED_MSG_ATTRIBUTE(
-    "This property will be removed in a future version of the SDK");
+    "Use profilesSampleRate or profilesSampler instead. This property will be removed in a future "
+    "version of the SDK");
 #endif
 
 /**
