@@ -232,11 +232,13 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
 
 #pragma mark - String Swizzling
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+
 - (void)testStringSwizzling
 {
     SEL selector = @selector(string);
     SentrySwizzleTestClass_A *a = [SentrySwizzleTestClass_A new];
-
     SentrySwizzleInstanceMethod([a class], selector, SentrySWReturnType(NSString *),
         SentrySWArguments(), SentrySWReplacement({
             NSString *res = SentrySWCallOriginal();
@@ -353,5 +355,7 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
 
     XCTAssertThrows([a methodForSwizzlingWithoutCallOriginal]);
 }
+
+#pragma clang diagnostic pop
 
 @end

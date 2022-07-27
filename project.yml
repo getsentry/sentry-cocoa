@@ -1,0 +1,635 @@
+name: Sentry
+
+configs:
+  Debug: debug
+  Release: release
+  Test: debug
+  TestCI: debug
+
+configFiles:
+  Debug: xcconfig/Project.xcconfig
+  Release: xcconfig/Project.xcconfig
+  Test: xcconfig/Project.xcconfig
+  TestCI: xcconfig/Project.xcconfig
+
+options:
+  bundleIdPrefix: "io.sentry"
+  createIntermediateGroups: true
+  settingPresets: none
+
+fileGroups:
+  - .clang-format
+  - .craft.yml
+  - .github
+  - .gitignore
+  - .oclint
+  - .pre-commit-config.yaml
+  - .ruby-version
+  - .sauce
+  - .swiftlint.yml
+  - Brewfile
+  - CHANGELOG.md
+  - CONTRIBUTING.md
+  - Gemfile
+  - LICENSE.md
+  - MIGRATION.md
+  - Makefile
+  - Package.swift
+  - README.md
+  - Sentry.podspec
+  - dangerfile.js
+  - develop-docs
+  - fastlane
+  - project.yml
+  - scripts
+  - test-server
+  - xcconfig
+  - Utils
+
+# Mark: Schemes
+
+schemes:
+
+  Sentry_iOS:
+    build:
+      targets:
+        Sentry_iOS: all
+    test:
+      targets:
+        - SentryTests_iOS
+
+  Sentry_macOS:
+    build:
+      targets:
+        Sentry_macOS: all
+    test:
+      targets:
+        - SentryTests_macOS
+
+  Sentry_tvOS:
+    build:
+      targets:
+        Sentry_tvOS: all
+    test:
+      targets:
+        - SentryTests_tvOS
+
+  Sentry_watchOS:
+    build:
+      targets:
+        Sentry_watchOS: all
+    test:
+      targets:
+        - SentryTests_watchOS
+
+  iOS-ObjectiveC:
+    build:
+      targets:
+        iOS-ObjectiveC: all
+    test:
+      targets:
+        - iOS-ObjectiveC-UITests
+
+  iOS-Swift:
+    build:
+      targets:
+        iOS-Swift: all
+    test:
+      targets:
+        - iOS-Swift-UITests
+
+  iOS-SwiftUI:
+    build:
+      targets:
+        iOS-SwiftUI: all
+    test:
+      targets:
+        - iOS-SwiftUI-UITests
+
+  iOS13-Swift:
+    build:
+      targets:
+        iOS13-Swift: all
+    test:
+      targets:
+        - iOS13-Swift-UITests
+
+  iOS15-SwiftUI:
+    build:
+      targets:
+        iOS15-SwiftUI: all
+
+  TrendingMovies:
+    build:
+      targets:
+        TrendingMovies: all
+
+  macOS-Swift:
+    build:
+      targets:
+        macOS-Swift: all
+
+  tvOS-Swift:
+    build:
+      targets:
+        tvOS-Swift: all
+    test:
+      targets:
+        - tvOS-Swift-UITests
+
+  tvOS-SBSwift:
+    build:
+      targets:
+        tvOS-SBSwift: all
+    test:
+      targets:
+        - tvOS-SBSwift-UITests
+
+  ProfileDataGenerator:
+    build:
+      targets:
+        ProfileDataGenerator: test
+    test:
+      targets:
+        - ProfileDataGenerator
+
+  PerformanceBenchmarks:
+    build:
+      targets:
+        PerformanceBenchmarks: test
+      test:
+        targets:
+          - PerformanceBenchmarks
+
+# Mark: -
+# Mark: Targets
+
+targetTemplates:
+  Sentry_Framework:
+    type: "framework"
+    platform: ${frameworkPlatform}
+    dependencies:
+      - sdk: libz.tbd
+    sources:
+      - path: "Sources/Sentry"
+        buildPhase: sources
+        includes:
+          - "**/*.{m,mm,c,cpp}"
+      - path: "Sources/SentryCrash"
+        buildPhase: sources
+        includes:
+          - "**/*.{m,mm,c,cpp}"
+      - path: "Sources/SentryCrash"
+        buildPhase: headers
+        headerVisibility: project
+        includes:
+          - "**/*.{h,hpp}"
+      - path: "Sources/Sentry"
+        buildPhase: headers
+        headerVisibility: project
+        includes:
+          - "*.{h,hpp}"
+      - path: "Sources/Sentry/include"
+        buildPhase: headers
+        headerVisibility: project
+        includes:
+          - "*.{h,hpp}"
+        excludes:
+          - "SentryLog.h"
+          - "NSDictionary+SentrySanitize.h"
+          - "SentryAsynchronousOperation.h"
+          - "NSData+SentryCompression.h"
+          - "SentryCrashReportSink.h"
+          - "NSDate+SentryExtras.h"
+          - "SentryAutoSessionTrackingIntegration.h"
+          - "SentryRequestOperation.h"
+          - "SentryCrashInstallationReporter.h"
+          - "SentryCrashReportConverter.h"
+      - path: "Sources/Sentry/include"
+        buildPhase: headers
+        headerVisibility: private
+        includes:
+          - "SentryLog.h"
+          - "NSDictionary+SentrySanitize.h"
+          - "SentryAsynchronousOperation.h"
+          - "NSData+SentryCompression.h"
+          - "SentryCrashReportSink.h"
+          - "NSDate+SentryExtras.h"
+          - "SentryAutoSessionTrackingIntegration.h"
+          - "SentryRequestOperation.h"
+          - "SentryCrashInstallationReporter.h"
+          - "SentryCrashReportConverter.h"
+      - path: "Sources/Sentry/Public"
+        buildPhase: headers
+        headerVisibility: public
+        includes:
+          - "*.{h,hpp}"
+    configFiles:
+      Debug: xcconfig/Targets/Sentry_${frameworkPlatform}.xcconfig
+      Release: xcconfig/Targets/Sentry_${frameworkPlatform}.xcconfig
+      Test: xcconfig/Targets/Sentry_${frameworkPlatform}.xcconfig
+      TestCI: xcconfig/Targets/Sentry_${frameworkPlatform}.xcconfig
+
+targets:
+
+  # Mark: Sentry Framework
+
+  Sentry_iOS:
+    templates:
+      - Sentry_Framework
+    templateAttributes:
+      frameworkPlatform: iOS
+
+  Sentry_macOS:
+    templates:
+      - Sentry_Framework
+    templateAttributes:
+      frameworkPlatform: macOS
+
+  Sentry_watchOS:
+    templates:
+      - Sentry_Framework
+    templateAttributes:
+      frameworkPlatform: watchOS
+
+  Sentry_tvOS:
+    templates:
+      - Sentry_Framework
+    templateAttributes:
+      frameworkPlatform: tvOS
+
+  SentryTests:
+    type: "bundle.unit-test"
+    platform: [iOS, macOS, tvOS, watchOS]
+    sources:
+      - path: "Tests/SentryTests"
+      - path: "Tests/Resources/fatal-error-binary-images-message2.json"
+    dependencies:
+      - target: Sentry_${platform}
+    configFiles:
+      Debug: xcconfig/Targets/SentryTests_${platform}.xcconfig
+      Release: xcconfig/Targets/SentryTests_${platform}.xcconfig
+      Test: xcconfig/Targets/SentryTests_${platform}.xcconfig
+      TestCI: xcconfig/Targets/SentryTests_${platform}.xcconfig
+
+  # Mark: iOS-Swift
+
+  iOS-Swift:
+    type: "application"
+    platform: iOS
+    sources:
+      - path: "Samples/iOS-Swift/iOS-Swift"
+    dependencies:
+      - target: iOS-Swift-Clip
+      - target: Sentry_iOS
+    configFiles:
+      Debug: xcconfig/Targets/iOS-Swift.xcconfig
+      Release: xcconfig/Targets/iOS-Swift.xcconfig
+      Test: xcconfig/Targets/iOS-Swift.xcconfig
+      TestCI: xcconfig/Targets/iOS-Swift.xcconfig
+
+  iOS-SwiftUITests: # TODO: rename to iOS-Swift-UITests
+    type: "bundle.ui-testing"
+    platform: iOS
+    sources:
+      - path: "Samples/iOS-Swift/iOS-Swift-UITests"
+      - path: "Tests/Resources/fatal-error-binary-images-message2.json"
+    dependencies:
+      - target: iOS-Swift
+    configFiles:
+      Debug: xcconfig/Targets/iOS-Swift-UITests.xcconfig
+      Release: xcconfig/Targets/iOS-Swift-UITests.xcconfig
+      Test: xcconfig/Targets/iOS-Swift-UITests.xcconfig
+      TestCI: xcconfig/Targets/iOS-Swift-UITests.xcconfig
+
+  iOS-SwiftClip: # TODO: rename to iOS-Swift-Clip
+    type: "application.on-demand-install-capable"
+    platform: iOS
+    sources:
+      - path: "Samples/iOS-Swift/iOS-SwiftClip"
+    dependencies:
+      - target: Sentry_iOS
+    configFiles:
+      Debug: xcconfig/Targets/iOS-Swift-Clip.xcconfig
+      Release: xcconfig/Targets/iOS-Swift-Clip.xcconfig
+      Test: xcconfig/Targets/iOS-Swift-Clip.xcconfig
+      TestCI: xcconfig/Targets/iOS-Swift-Clip.xcconfig
+
+  PerformanceBenchmarks:
+    type: "bundle.ui-testing"
+    platform: iOS
+    sources:
+      - path: "Samples/iOS-Swift/PerformanceBenchmarks"
+    dependencies:
+      - target: iOS-Swift
+    configFiles:
+      Debug: xcconfig/Targets/PerformanceBenchmarks.xcconfig
+      Release: xcconfig/Targets/PerformanceBenchmarks.xcconfig
+      Test: xcconfig/Targets/PerformanceBenchmarks.xcconfig
+      TestCI: xcconfig/Targets/PerformanceBenchmarks.xcconfig
+
+  # Mark: iOS13-Swift
+
+  iOS13-Swift:
+    type: "application"
+    platform: iOS
+    sources:
+      - path: "Samples/iOS-Swift/iOS13-Swift"
+      - name: "Base Swift sources"
+        path: "Samples/iOS-Swift/iOS-Swift"
+        excludes:
+          - "**/Main.storyboard"
+          - "LoremIpsum.txt"
+          - "Info.plist"
+          - "AppDelegate.swift"
+          - "ViewControllers/LoremIpsumViewController.swift"
+          - "ViewControllers/SplitViewController.swift"
+    dependencies:
+      - target: Sentry_iOS
+    configFiles:
+      Debug: xcconfig/Targets/iOS13-Swift.xcconfig
+      Release: xcconfig/Targets/iOS13-Swift.xcconfig
+      Test: xcconfig/Targets/iOS13-Swift.xcconfig
+      TestCI: xcconfig/Targets/iOS13-Swift.xcconfig
+
+  iOS13-SwiftUITests: # TODO: rename to iOS13-Swift-UITests
+    type: "bundle.ui-testing"
+    platform: iOS
+    sources:
+      - path: "Samples/iOS-Swift/iOS13-SwiftTests"
+    dependencies:
+      - target: iOS13-Swift
+    configFiles:
+      Debug: xcconfig/Targets/iOS13-Swift-UITests.xcconfig
+      Release: xcconfig/Targets/iOS13-Swift-UITests.xcconfig
+      Test: xcconfig/Targets/iOS13-Swift-UITests.xcconfig
+      TestCI: xcconfig/Targets/iOS13-Swift-UITests.xcconfig
+
+  # Mark: iOS-ObjectiveC
+
+  iOS-ObjectiveC:
+    type: "application"
+    platform: iOS
+    sources:
+      - path: "Samples/iOS-ObjectiveC/iOS-ObjectiveC"
+    dependencies:
+      - target: Sentry_iOS
+    configFiles:
+      Debug: xcconfig/Targets/iOS-ObjectiveC.xcconfig
+      Release: xcconfig/Targets/iOS-ObjectiveC.xcconfig
+      Test: xcconfig/Targets/iOS-ObjectiveC.xcconfig
+      TestCI: xcconfig/Targets/iOS-ObjectiveC.xcconfig
+
+  iOS-ObjectiveCUITests: # TODO: rename to iOS=ObjectiveC-UITests
+    type: "bundle.ui-testing"
+    platform: iOS
+    sources:
+      - path: "Samples/iOS-ObjectiveC/iOS-ObjectiveCUITests"
+    dependencies:
+      - target: iOS-ObjectiveC
+    configFiles:
+      Debug: xcconfig/Targets/iOS-ObjectiveC-UITests.xcconfig
+      Release: xcconfig/Targets/iOS-ObjectiveC-UITests.xcconfig
+      Test: xcconfig/Targets/iOS-ObjectiveC-UITests.xcconfig
+      TestCI: xcconfig/Targets/iOS-ObjectiveC-UITests.xcconfig
+
+  # Mark: iOS-SwiftUI
+
+  iOS-SwiftUI:
+    type: "application"
+    platform: iOS
+    sources:
+      - path: "Samples/iOS-SwiftUI/iOS-SwiftUI"
+      - path: "Samples/iOS-Swift/iOS-Swift/LoremIpsum.txt"
+    dependencies:
+      - target: Sentry_iOS
+    configFiles:
+      Debug: xcconfig/Targets/iOS-SwiftUI.xcconfig
+      Release: xcconfig/Targets/iOS-SwiftUI.xcconfig
+      Test: xcconfig/Targets/iOS-SwiftUI.xcconfig
+      TestCI: xcconfig/Targets/iOS-SwiftUI.xcconfig
+
+  iOS-SwiftUI-UITests:
+    type: "bundle.ui-testing"
+    platform: iOS
+    sources:
+      - path: "Samples/iOS-SwiftUI/iOS-SwiftUI-UITests"
+    dependencies:
+      - target: iOS-SwiftUI
+    configFiles:
+      Debug: xcconfig/Targets/iOS-SwiftUI-UITests.xcconfig
+      Release: xcconfig/Targets/iOS-SwiftUI-UITests.xcconfig
+      Test: xcconfig/Targets/iOS-SwiftUI-UITests.xcconfig
+      TestCI: xcconfig/Targets/iOS-SwiftUI-UITests.xcconfig
+
+  # Mark: iOS15-SwiftUI
+
+  iOS15-SwiftUI:
+    type: "application"
+    platform: iOS
+    sources:
+      - path: "Samples/iOS15-SwiftUI/iOS15-SwiftUI"
+    dependencies:
+      - target: Sentry_iOS
+    configFiles:
+      Debug: xcconfig/Targets/iOS15-SwiftUI.xcconfig
+      Release: xcconfig/Targets/iOS15-SwiftUI.xcconfig
+      Test: xcconfig/Targets/iOS15-SwiftUI.xcconfig
+      TestCI: xcconfig/Targets/iOS15-SwiftUI.xcconfig
+
+  # Mark: TrendingMovies
+
+  TrendingMovies:
+    type: "application"
+    platform: iOS
+    sources:
+      - path: "Samples/TrendingMovies/TrendingMovies"
+    dependencies:
+      - framework: Samples/TrendingMovies/Carthage/Build/Kingfisher.xcframework
+      - framework: Samples/TrendingMovies/Carthage/Build/KingfisherSwiftUI.xcframework
+      - framework: Samples/TrendingMovies/Carthage/Build/FaceAware.xcframework
+      - framework: Samples/TrendingMovies/Carthage/Build/TUSafariActivity.xcframework
+      - target: Sentry_iOS
+    configFiles:
+      Debug: xcconfig/Targets/TrendingMovies.xcconfig
+      Release: xcconfig/Targets/TrendingMovies.xcconfig
+      Test: xcconfig/Targets/TrendingMovies.xcconfig
+      TestCI: xcconfig/Targets/TrendingMovies.xcconfig
+
+  ProfileDataGeneratorUITest:
+    type: "bundle.ui-testing"
+    platform: iOS
+    sources:
+      - path: "Samples/TrendingMovies/ProfileDataGeneratorUITest"
+    dependencies:
+      - target: TrendingMovies
+    configFiles:
+      Debug: xcconfig/Targets/ProfileDataGenerator.xcconfig
+      Release: xcconfig/Targets/ProfileDataGenerator.xcconfig
+      Test: xcconfig/Targets/ProfileDataGenerator.xcconfig
+      TestCI: xcconfig/Targets/ProfileDataGenerator.xcconfig
+
+  # Mark: macOS-Swift
+
+  macOS-Swift:
+    type: "application"
+    platform: macOS
+    sources:
+      - path: "Samples/macOS-Swift/macOS-Swift"
+    dependencies:
+      - target: Sentry_macOS
+    configFiles:
+      Debug: xcconfig/Targets/macOS-Swift.xcconfig
+      Release: xcconfig/Targets/macOS-Swift.xcconfig
+      Test: xcconfig/Targets/macOS-Swift.xcconfig
+      TestCI: xcconfig/Targets/macOS-Swift.xcconfig
+
+  # Mark: tvOS-Swift
+
+  tvOS-Swift:
+    type: "application"
+    platform: tvOS
+    sources:
+      - path: "Samples/tvOS-Swift/tvOS-Swift"
+    dependencies:
+      - target: Sentry_tvOS
+    configFiles:
+      Debug: xcconfig/Targets/tvOS-Swift.xcconfig
+      Release: xcconfig/Targets/tvOS-Swift.xcconfig
+      Test: xcconfig/Targets/tvOS-Swift.xcconfig
+      TestCI: xcconfig/Targets/tvOS-Swift.xcconfig
+
+  tvOS-Swift-UITests:
+    type: "bundle.ui-testing"
+    platform: tvOS
+    sources:
+      - path: "Samples/tvOS-Swift/tvOS-SwiftUITests"
+    dependencies:
+      - target: tvOS-Swift
+    configFiles:
+      Debug: xcconfig/Targets/tvOS-Swift-UITests.xcconfig
+      Release: xcconfig/Targets/tvOS-Swift-UITests.xcconfig
+      Test: xcconfig/Targets/tvOS-Swift-UITests.xcconfig
+      TestCI: xcconfig/Targets/tvOS-Swift-UITests.xcconfig
+
+  tvOS-SBSwift:
+    type: "application"
+    platform: tvOS
+    sources:
+      - path: "Samples/tvOS-Swift/tvOS-SBSwift"
+    dependencies:
+      - target: Sentry_tvOS
+    configFiles:
+      Debug: xcconfig/Targets/tvOS-SBSwift.xcconfig
+      Release: xcconfig/Targets/tvOS-SBSwift.xcconfig
+      Test: xcconfig/Targets/tvOS-SBSwift.xcconfig
+      TestCI: xcconfig/Targets/tvOS-SBSwift.xcconfig
+
+  tvOS-SBSwift-UITests:
+    type: "bundle.ui-testing"
+    platform: tvOS
+    sources:
+      - path: "Samples/tvOS-Swift/tvOS-SBSwiftUITests"
+    dependencies:
+      - target: tvOS-SBSwift
+    configFiles:
+      Debug: xcconfig/Targets/tvOS-SBSwift-UITests.xcconfig
+      Release: xcconfig/Targets/tvOS-SBSwift-UITests.xcconfig
+      Test: xcconfig/Targets/tvOS-SBSwift-UITests.xcconfig
+      TestCI: xcconfig/Targets/tvOS-SBSwift-UITests.xcconfig
+
+#
+# build phases done up to this point
+#
+
+  # Mark: watchOS-Swift
+
+  watchOS-Swift:
+    type: "application.watchapp2-container"
+    platform: watchOS
+    dependencies:
+      - target: "watchOS-Swift WatchKit App"
+    configFiles:
+      Debug: xcconfig/Targets/watchOS-Swift.xcconfig
+      Release: xcconfig/Targets/watchOS-Swift.xcconfig
+      Test: xcconfig/Targets/watchOS-Swift.xcconfig
+      TestCI: xcconfig/Targets/watchOS-Swift.xcconfig
+
+  "watchOS-Swift WatchKit App":
+#    type: "application.watchapp"
+    type: "application.watchapp2"
+    platform: watchOS
+    sources:
+      - path: "Samples/watchOS-Swift/watchOS-Swift WatchKit App"
+    dependencies:
+      - target: "watchOS-Swift WatchKit Extension"
+    configFiles:
+      Debug: xcconfig/Targets/watchOS-Swift-WatchKit-App.xcconfig
+      Release: xcconfig/Targets/watchOS-Swift-WatchKit-App.xcconfig
+      Test: xcconfig/Targets/watchOS-Swift-WatchKit-App.xcconfig
+      TestCI: xcconfig/Targets/watchOS-Swift-WatchKit-App.xcconfig
+
+  "watchOS-Swift WatchKit Extension":
+#    type: "watchkit-extension"
+    type: "watchkit2-extension"
+    platform: iOS
+    sources:
+      - path: "Samples/watchOS-Swift/watchOS-Swift WatchKit Extension"
+    dependencies:
+      - target: Sentry_watchOS
+    configFiles:
+      Debug: xcconfig/Targets/watchOS-Swift-WatchKit-Extension.xcconfig
+      Release: xcconfig/Targets/watchOS-Swift-WatchKit-Extension.xcconfig
+      Test: xcconfig/Targets/watchOS-Swift-WatchKit-Extension.xcconfig
+      TestCI: xcconfig/Targets/watchOS-Swift-WatchKit-Extension.xcconfig
+
+  # Mark: Carthage Validation
+
+  Carthage-Validation-Framework:
+    type: "application"
+    platform: iOS
+    sources:
+      - path: "Samples/Carthage-Validation/Framework"
+        includes: "../README.md"
+    configFiles:
+      Debug: xcconfig/Targets/Carthage-Validation_Framework.xcconfig
+      Release: xcconfig/Targets/Carthage-Validation_Framework.xcconfig
+      Test: xcconfig/Targets/Carthage-Validation_Framework.xcconfig
+      TestCI: xcconfig/Targets/Carthage-Validation_Framework.xcconfig
+
+  Carthage-Validation-XCFramework:
+    type: "application"
+    platform: iOS
+    sources:
+      - path: "Samples/Carthage-Validation/XCFramework"
+        includes: "../README.md"
+    configFiles:
+      Debug: xcconfig/Targets/Carthage-Validation_XCFramework.xcconfig
+      Release: xcconfig/Targets/Carthage-Validation_XCFramework.xcconfig
+      Test: xcconfig/Targets/Carthage-Validation_XCFramework.xcconfig
+      TestCI: xcconfig/Targets/Carthage-Validation_XCFramework.xcconfig
+
+  # Mark: macOS-SPM-CommandLine
+
+  macOS-SPM-CommandLine:
+    type: "tool"
+    platform: macOS
+    sources:
+      - path: "Samples/macOS-SPM-CommandLine"
+    dependencies:
+      - package: macOS-SPM-CommandLine
+
+  # Mark: test-server
+
+  test-server:
+    type: "tool"
+    platform: macOS
+    sources:
+      - path: "test-server"
+
+# Mark: -
+# Mark: - Packages
+
+packages:
+  macOS-SPM-CommandLine:
+    path: "Samples/macOS-SPM-CommandLine"

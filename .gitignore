@@ -4,6 +4,11 @@ tmp
 
 # Xcode
 
+# we use XcodeGen, so ignore the generated xcodeproj etc
+*.xcodeproj
+*.xcscheme
+*.xcworkspace
+
 ## Build generated
 build/
 DerivedData

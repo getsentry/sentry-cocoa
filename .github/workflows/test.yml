@@ -93,6 +93,8 @@ jobs:
           sudo ln -s /Applications/Xcode_11.7.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 13.7.simruntime
           xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-13-7"   
 
+      - run: brew install xcodegen
+      - run: make xcode-ci
       - name: Running tests
         # We call a script with the platform so the destination
         # passed to xcodebuild doesn't ends up in the job name, 
@@ -138,14 +140,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - run: brew install xcodegen
+      - run: make xcode-ci
+
       - name: Cache for Test Server
         uses: actions/cache@v3
+        id: test-server-cache
         with:
           path: ./test-server/.build
           key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
 
       - run: swift build
         working-directory: test-server
+        if: steps.test-server-cache.outputs.cache-hit != 'true'
 
       - name: Run Test Server in Background
         run: swift run &
@@ -171,7 +178,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - run: ./scripts/ci-select-xcode.sh 
+      - run: ./scripts/ci-select-xcode.sh
+      - run: brew install xcodegen
+      - run: make xcode-ci
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
@@ -195,6 +204,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+      - run: brew install xcodegen
+      - run: make xcode-ci
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
@@ -211,6 +222,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - run: brew install xcodegen
+      - run: make xcode-ci
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
@@ -224,6 +237,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh 13.4.1
+      - run: brew install xcodegen
+      - run: make xcode-ci
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane

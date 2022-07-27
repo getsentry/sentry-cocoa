@@ -11,6 +11,19 @@ ifneq (, $(shell which pre-commit))
 	pre-commit install
 endif
 
+.PHONY: close-xcode
+close-xcode:
+	killall Xcode ||:
+
+.PHONY: xcode-ci
+xcode-ci:
+	xcodegen
+	./scripts/remove_pbxproj_build_settings.sh Sentry.xcodeproj
+
+.PHONY: xcode
+xcode: close-xcode xcode-ci
+	open Sentry.xcodeproj
+
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
@@ -26,9 +39,9 @@ format:
 	swiftlint --fix
 .PHONY: format
 
-test:
+test: xcode-ci
 	@echo "--> Running all tests"
-	xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination "platform=macOS" test | rbenv exec bundle exec xcpretty -t
+	xcodebuild -project Sentry.xcodeproj -scheme Sentry_macOS -configuration Test GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination "platform=macOS" test | rbenv exec bundle exec xcpretty -t
 .PHONY: test
 
 run-test-server:
@@ -36,9 +49,9 @@ run-test-server:
 	cd ./test-server && swift run &
 .PHONY: run-test-server
 
-analyze:
+analyze: xcode-ci
 	rm -r analyzer
-	xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer | rbenv exec bundle exec xcpretty -t
+	xcodebuild analyze -project Sentry.xcodeproj -scheme Sentry_macOS -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer | rbenv exec bundle exec xcpretty -t
 
 # Since Carthage 0.38.0 we need to create separate .framework.zip and .xcframework.zip archives.
 # After creating the zips we create a JSON to be able to test Carthage locally.
@@ -64,16 +77,6 @@ build-framework-sample:
 	./scripts/create-carthage-json.sh
 	cd Samples/Carthage-Validation/Framework/ && carthage update
 	xcodebuild -project "Samples/Carthage-Validation/Framework/Framework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
-
-## Build Sentry as a XCFramework that can be used with watchOS and save it to
-## the watchOS sample.
-watchOSLibPath = ./Samples/watchOS-Swift/libs
-build-for-watchos:
-	@echo "--> Building Sentry as a XCFramework that can be used with watchOS"
-	rm -rf ${watchOSLibPath}
-	xcodebuild archive -scheme Sentry -destination="watchOS" -archivePath ${watchOSLibPath}/watchos.xcarchive -sdk watchos SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
-	xcodebuild archive -scheme Sentry -destination="watch Simulator" -archivePath ${watchOSLibPath}//watchsimulator.xcarchive -sdk watchsimulator SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
-	xcodebuild -create-xcframework -allow-internal-distribution -framework ${watchOSLibPath}/watchos.xcarchive/Products/Library/Frameworks/Sentry.framework -framework ${watchOSLibPath}/watchsimulator.xcarchive/Products/Library/Frameworks/Sentry.framework -output ${watchOSLibPath}//Sentry.xcframework
 
 # call this like `make bump-version TO=5.0.0-rc.0`
 bump-version: clean-version-bump

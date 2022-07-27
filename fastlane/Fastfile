@@ -2,7 +2,7 @@ default_platform(:ios)
 
 platform :ios do
   ios_swift_infoplist_path = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
-  ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
+  ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-Swift-Clip/Info.plist"
 
   lane :bump_bundle_version do
     set_info_plist_value(
@@ -21,7 +21,7 @@ platform :ios do
   # for App Store Connect. If we are on a preview we to remove these suffixes.
   lane :remove_preview_version_suffixes do
     version = get_version_number(
-      xcodeproj: "./Samples/iOS-Swift/iOS-Swift.xcodeproj",
+      xcodeproj: "Sentry.xcodeproj",
       target: "iOS-Swift"
       )
     version = version.split("-", -1)[0]
@@ -52,17 +52,37 @@ platform :ios do
 
   desc "Build iOS-Swift with Release"
   lane :build_ios_swift do
-    
-    setup_ci
+    setup_ci(force: true)
 
     sync_code_signing(
       type: "appstore",
       readonly: true,
-      app_identifier: ["io.sentry.sample.iOS-Swift",  "io.sentry.sample.iOS-Swift.Clip"]
+      app_identifier: ["io.sentry.sample.iOS-Swift",  "io.sentry.sample.iOS-Swift.Clip"],
+                      output_path: "./signing"
+    )
+
+    update_code_signing_settings(
+                                 path: "Sentry.xcodeproj",
+                                 use_automatic_signing: false,
+                                 code_sign_identity: "iPhone Distribution"
+                                 )
+
+    update_project_provisioning(
+      xcodeproj: "Sentry.xcodeproj",
+      profile: "./signing/AppStore_io.sentry.sample.iOS-Swift.mobileprovision",
+      target_filter: "iOS-Swift",
+      build_configuration: "Release"
+    )
+
+    update_project_provisioning(
+      xcodeproj: "Sentry.xcodeproj",
+      profile: "./signing/AppStore_io.sentry.sample.iOS-Swift.Clip.mobileprovision",
+      target_filter: "iOS-Swift-Clip",
+      build_configuration: "Release"
     )
 
     build_app(
-      workspace: "Sentry.xcworkspace",
+      project: "Sentry.xcodeproj",
       scheme: "iOS-Swift",
       include_bitcode: true,
       include_symbols: false,
@@ -86,7 +106,7 @@ platform :ios do
     )
 
     build_app(
-      workspace: "Sentry.xcworkspace",
+      project: "Sentry.xcodeproj",
       scheme: "iOS-Swift",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
@@ -109,8 +129,8 @@ platform :ios do
     )
 
     build_app(
-      workspace: "Sentry.xcworkspace",
-      scheme: "iOS-Swift-Benchmarking",
+      project: "Sentry.xcodeproj",
+      scheme: "PerformanceBenchmarks",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
       skip_archive: true
@@ -133,7 +153,7 @@ platform :ios do
     )
 
     build_app(
-      workspace: "Sentry.xcworkspace",
+      project: "Sentry.xcodeproj",
       scheme: "TrendingMovies",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
@@ -169,21 +189,21 @@ platform :ios do
 
   lane :ui_tests_ios_swiftui do
     run_tests(
-      workspace: "Sentry.xcworkspace",
+      project: "Sentry.xcodeproj",
       scheme: "iOS-SwiftUI"
     )
   end
 
   lane :ui_tests_ios_objc do
     run_tests(
-      workspace: "Sentry.xcworkspace",
+      project: "Sentry.xcodeproj",
       scheme: "iOS-ObjectiveC"
     )
   end
 
   lane :ui_tests_ios_swift do |options|
     run_tests(
-      workspace: "Sentry.xcworkspace",
+      project: "Sentry.xcodeproj",
       scheme: "iOS-Swift",
       device: options[:device], 
       address_sanitizer: options[:address_sanitizer]
@@ -192,7 +212,7 @@ platform :ios do
 
   lane :ui_tests_tvos_swift do
     run_tests(
-      workspace: "Sentry.xcworkspace",
+      project: "Sentry.xcodeproj",
       scheme: "tvOS-Swift"
     )
   end

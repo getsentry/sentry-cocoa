@@ -154,7 +154,6 @@
     id<SentryCrashReportFilter> filter = [[SentryCrashReportFilterPipeline alloc]
         initWithFilters:[SentryCrashReportFilterPassthrough filter],
         [SentryCrashReportFilterPassthrough filter], nil];
-    filter = filter;
 
     [filter filterReports:expected
              onCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
@@ -358,7 +357,6 @@
     id<SentryCrashReportFilter> filter = [[SentryCrashReportFilterCombine alloc]
         initWithFiltersAndKeys:[SentryCrashReportFilterPassthrough filter], @"normal",
         [SentryCrashReportFilterStringToData filter], @"data", nil];
-    filter = filter;
 
     [filter filterReports:expected1
              onCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
@@ -567,7 +565,6 @@
     id<SentryCrashReportFilter> filter =
         [[SentryCrashReportFilterConcatenate alloc] initWithSeparatorFmt:@","
                                                                     keys:@"first", @"second", nil];
-    filter = filter;
 
     [filter filterReports:reports
              onCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
@@ -622,7 +619,6 @@
         [NSDictionary dictionaryWithObjectsAndKeys:@"1", @"first", @"b", @"third", nil];
     id<SentryCrashReportFilter> filter =
         [[SentryCrashReportFilterSubset alloc] initWithKeys:@"first", @"third", nil];
-    filter = filter;
 
     [filter filterReports:reports
              onCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {

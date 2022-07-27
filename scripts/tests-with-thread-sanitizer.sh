@@ -4,7 +4,7 @@
 # the logs only show failing tests, but don't highlight the threading issues.
 # Therefore we print a hint to find the threading issues.
 
-env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test -enableThreadSanitizer YES \
+env NSUnbufferedIO=YES xcodebuild -project Sentry.xcodeproj -scheme Sentry_iOS -configuration Test -enableThreadSanitizer YES \
     -destination "platform=iOS Simulator,OS=latest,name=iPhone 11" \
     # The test works when having thread sanitizer not enabled, we have no clue why it fails, and threading issues will be caught
     # even when it is disabled.

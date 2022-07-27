@@ -59,8 +59,6 @@ make lint
 
 ## Environment
 
-Please use `Sentry.xcworkspace` as the entry point when opening the project in Xcode. It also contains all samples for different environments.
-
 ## Public Headers
 
 To make a header public follow these steps:

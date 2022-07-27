@@ -5,7 +5,7 @@ set -x
 phase="$1"
 
 # get the list of schemes with the following command
-# xcodebuild -workspace Sentry.xcworkspace -list 2>/dev/null -quiet \
+# xcodebuild -project Sentry.xcodeproj -list 2>/dev/null -quiet \
 # | grep -v -e "Information about workspace" -e "Schemes:" -e "Sentry" \
 # | awk '{print "\"" $1 " " $2 " " $3 "\""};' | sed 's/  //'
 
@@ -13,7 +13,7 @@ for scheme in "iOS-ObjectiveC" "iOS-ObjectiveCUITests" "iOS-Swift" "iOS-Swift-Be
 do
     for config in "Debug" "Release"
     do
-        xcodebuild -workspace Sentry.xcworkspace \
+        xcodebuild -project Sentry.xcodeproj \
             -showBuildSettings \
             -scheme "$scheme" \
             -configuration $config \
@@ -29,7 +29,7 @@ do
     do
         for scheme in "Sentry" "SentryTests"
         do
-            xcodebuild -workspace Sentry.xcworkspace \
+            xcodebuild -project Sentry.xcodeproj \
                 -showBuildSettings \
                 -scheme $scheme \
                 -configuration $config \

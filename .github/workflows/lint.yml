@@ -33,8 +33,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh
+      - run: brew install xcodegen
+      - run: make xcode-ci
       - name: Run analyze
-        run: xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer | xcpretty -t && [[ -z `find analyzer -name "*.html"` ]]
+        run: xcodebuild analyze -project Sentry.xcodeproj -scheme Sentry_macOS -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer | xcpretty -t && [[ -z `find analyzer -name "*.html"` ]]
 
   validate-podspec:
     name: Validate Podspec

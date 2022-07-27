@@ -32,6 +32,8 @@ jobs:
       - name: Install Carthage deps
         if: steps.trendingmovies-carthage-cache.outputs.cache-hit != 'true'
         run: cd Samples/TrendingMovies && carthage update --use-xcframeworks
+      - run: brew install xcodegen
+      - run: make xcode-ci
       - run: fastlane build_profile_data_generator_ui_test
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}

@@ -26,11 +26,13 @@ jobs:
       with:
         languages: ${{ matrix.language }}
 
+    - run: brew install xcodegen
+    - run: make xcode-ci
     - run: >-
         env NSUnbufferedIO=YES
         xcodebuild 
-        -workspace Sentry.xcworkspace 
-        -scheme Sentry 
+        -project Sentry.xcodeproj 
+        -scheme Sentry_iOS
         -configuration Release 
         -destination platform="iOS Simulator,OS=latest,name=iPhone 11 Pro"
 

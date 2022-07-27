@@ -11,6 +11,8 @@
     return instance;
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
 + (void)swizzleURLProtocol
 {
     SentrySwizzleClassMethod(NSURLProtocol.class, NSSelectorFromString(@"registerClass:"),
@@ -29,5 +31,7 @@
             SentrySWCallOriginal(class);
         }));
 }
+
+#pragma clang diagnostic pop
 
 @end
