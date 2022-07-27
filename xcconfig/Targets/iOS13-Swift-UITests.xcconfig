@@ -1,0 +1,5 @@
+#include "iOS13-Swift.xcconfig"
+#include "../Testing.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.iOS13-SwiftTests
+TEST_TARGET_NAME = iOS13-Swift

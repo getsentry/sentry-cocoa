@@ -1,0 +1,8 @@
+#include "../Testing.xcconfig"
+
+CODE_SIGN_STYLE = Manual
+INFOPLIST_FILE = $(SRCROOT)/Tests/SentryTests/Info.plist
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests
+PRODUCT_MODULE_NAME = SentryTests
+SWIFT_OBJC_BRIDGING_HEADER = $(SRCROOT)/Tests/SentryTests/SentryTests-Bridging-Header.h
+SWIFT_OBJC_INTERFACE_HEADER_NAME = SentryTests-Swift.h

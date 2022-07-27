@@ -1,0 +1,5 @@
+#include "tvOS-Swift.xcconfig"
+
+INFOPLIST_FILE = $(SRCROOT)/Samples/tvOS-Swift/tvOS-Swift-UITests/Info.plist
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.tvOS-SwiftUITests
+TEST_TARGET_NAME = tvOS-Swift

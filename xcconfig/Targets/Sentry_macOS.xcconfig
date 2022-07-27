@@ -1,0 +1,2 @@
+#include "Sentry_Shared.xcconfig"
+#include "../macOS.xcconfig"

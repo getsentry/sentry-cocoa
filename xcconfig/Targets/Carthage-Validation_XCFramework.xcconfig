@@ -1,0 +1,5 @@
+#include "Carthage-Validation_Shared.xcconfig"
+
+DEVELOPMENT_ASSET_PATHS = "$(SRCROOT)/Samples/Carthage-Validation/XCFramework/Preview Content"
+INFOPLIST_FILE = $(SRCROOT)/Samples/Carthage-Validation/XCFramework/XCFramework/Info.plist
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.carthage.XCFramework

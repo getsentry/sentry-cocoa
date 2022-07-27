@@ -1,0 +1,9 @@
+#include "../SampleApp.xcconfig"
+#include "../watchOS.xcconfig"
+
+ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES
+IBSC_MODULE = watchOS_Swift_WatchKit_Extension
+INFOPLIST_FILE = "$(SRCROOT)/Samples/watchOS-Swift/watchOS-Swift WatchKit App/Info.plist"
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.watchOS-Swift.watchkitapp
+SKIP_INSTALL = YES
+WATCHOS_DEPLOYMENT_TARGET = 6.2

@@ -1,0 +1,6 @@
+#include "../iOS.xcconfig"
+#include "../SampleApp.xcconfig"
+
+ENABLE_PREVIEWS = YES
+FRAMEWORK_SEARCH_PATHS = $(inherited) $(SRCROOT)/Samples/Carthage-Validation/Carthage/Build/iOS
+IPHONEOS_DEPLOYMENT_TARGET = 14.5

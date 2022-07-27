@@ -1,0 +1,6 @@
+// The comments above settings in this file originally appeared in //Sources/Configuration/Sentry.xcconfig.
+
+IPHONEOS_DEPLOYMENT_TARGET = 9.0
+MACOSX_DEPLOYMENT_TARGET = 10.10
+TVOS_DEPLOYMENT_TARGET = 9.0
+WATCHOS_DEPLOYMENT_TARGET = 2.0

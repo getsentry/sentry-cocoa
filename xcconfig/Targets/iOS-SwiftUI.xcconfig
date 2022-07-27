@@ -1,0 +1,9 @@
+#include "../iOS.xcconfig"
+#include "../SampleApp.xcconfig"
+
+CODE_SIGN_ENTITLEMENTS = $(SRCROOT)/Samples/iOS-SwiftUI/iOS-SwiftUI/iOS-SwiftUI.entitlements
+DEVELOPMENT_ASSET_PATHS = "$(SRCROOT)/Samples/iOS-SwiftUI/iOS-SwiftUI/Preview Content"
+ENABLE_PREVIEWS = YES
+INFOPLIST_FILE = $(SRCROOT)/Samples/iOS-SwiftUI/iOS-SwiftUI/Info.plist
+IPHONEOS_DEPLOYMENT_TARGET = 14.0
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-SwiftUI

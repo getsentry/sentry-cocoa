@@ -1,0 +1,14 @@
+#include "../iOS.xcconfig"
+#include "../SampleApp.xcconfig"
+#include "../Catalyst.xcconfig"
+
+CODE_SIGN_ENTITLEMENTS = $(SRCROOT)/Samples/iOS-Swift/iOS-Swift/iOS-Swift.entitlements
+INFOPLIST_FILE = $(SRCROOT)/Samples/iOS-Swift/iOS-Swift/Info.plist
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift
+SWIFT_OBJC_BRIDGING_HEADER = $(SRCROOT)/Samples/iOS-Swift/iOS-Swift/Tools/iOS-Swift-Bridging-Header.h
+
+PROVISIONING_PROFILE_SPECIFIER = $(PROVISIONING_PROFILE_SPECIFIER_$(CONFIGURATION))
+PROVISIONING_PROFILE_SPECIFIER_Debug = match Development io.sentry.sample.iOS-Swift
+PROVISIONING_PROFILE_SPECIFIER_Test = match Development io.sentry.sample.iOS-Swift
+PROVISIONING_PROFILE_SPECIFIER_TestCI = match Development io.sentry.sample.iOS-Swift
+PROVISIONING_PROFILE_SPECIFIER_Release = match AppStore io.sentry.sample.iOS-Swift

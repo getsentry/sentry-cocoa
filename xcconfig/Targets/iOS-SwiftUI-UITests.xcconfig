@@ -1,0 +1,6 @@
+#include "iOS-SwiftUI.xcconfig"
+#include "../Testing.xcconfig"
+
+INFOPLIST_FILE = iOS-SwiftUI-UITests/Info.plist
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-SwiftUI-UITests
+TEST_TARGET_NAME = iOS-SwiftUI

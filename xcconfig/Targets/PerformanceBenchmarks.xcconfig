@@ -1,0 +1,6 @@
+#include "iOS-Swift.xcconfig"
+#include "../Testing.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-Benchmarking
+PROVISIONING_PROFILE_SPECIFIER = match Development io.sentry.iOS-Benchmarking.xctrunner
+TEST_TARGET_NAME = iOS-Swift

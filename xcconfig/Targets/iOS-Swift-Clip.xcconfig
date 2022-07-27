@@ -1,0 +1,8 @@
+#include "../iOS.xcconfig"
+#include "../SampleApp.xcconfig"
+
+CODE_SIGN_ENTITLEMENTS = $(SRCROOT)/Samples/iOS-Swift/iOS-Swift-Clip/iOS_SwiftClip.entitlements
+INFOPLIST_FILE = $(SRCROOT)/Samples/iOS-Swift/iOS-Swift-Clip/Info.plist
+IPHONEOS_DEPLOYMENT_TARGET = 14.0
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift.Clip
+SKIP_INSTALL = YES

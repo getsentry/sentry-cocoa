@@ -1,0 +1,7 @@
+#include "../tvOS.xcconfig"
+#include "../SampleApp.xcconfig"
+
+ENABLE_PREVIEWS = YES
+INFOPLIST_FILE = $(SRCROOT)/Samples/tvOS-Swift/tvOS-Swift/Info.plist
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.tvOS-Swift
+TVOS_DEPLOYMENT_TARGET = 13.0

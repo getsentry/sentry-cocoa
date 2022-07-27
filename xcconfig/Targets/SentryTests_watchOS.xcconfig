@@ -1,0 +1,2 @@
+#include "SentryTests_Shared.xcconfig"
+#include "../watchOS.xcconfig"

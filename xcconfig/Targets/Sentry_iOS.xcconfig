@@ -1,0 +1,3 @@
+#include "Sentry_Shared.xcconfig"
+#include "../iOS.xcconfig"
+#include "../Catalyst.xcconfig"

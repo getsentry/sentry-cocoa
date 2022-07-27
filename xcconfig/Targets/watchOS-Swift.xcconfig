@@ -1,0 +1,4 @@
+#include "../iOS.xcconfig"
+#include "../SampleApp.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.watchOS-Swift

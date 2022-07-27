@@ -1,0 +1,10 @@
+#include "../watchOS.xcconfig"
+#include "../SampleApp.xcconfig"
+
+ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication
+DEVELOPMENT_ASSET_PATHS = "$(SRCROOT)/Samples/watchOS-Swift/watchOS-Swift WatchKit Extension/Preview Content"
+ENABLE_PREVIEWS = YES
+INFOPLIST_FILE = "$(SRCROOT)/Samples/watchOS-Swift/watchOS-Swift WatchKit Extension/Info.plist"
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.watchOS-Swift.watchkitapp.watchkitextension
+SKIP_INSTALL = YES
+WATCHOS_DEPLOYMENT_TARGET = 6.2

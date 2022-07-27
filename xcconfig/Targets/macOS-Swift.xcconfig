@@ -1,0 +1,9 @@
+#include "../macOS.xcconfig"
+#include "../SampleApp.xcconfig"
+
+CODE_SIGN_ENTITLEMENTS = $(SRCROOT)/Samples/macOS-Swift/macOS-Swift/macOS_Swift.entitlements
+INFOPLIST_FILE = $(SRCROOT)/Samples/macOS-Swift/macOS-Swift/Info.plist
+INSTALL_PATH = /Applications
+MACOSX_DEPLOYMENT_TARGET = 10.15
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.macOS-Swift
+SWIFT_OBJC_BRIDGING_HEADER = $(SRCROOT)/Samples/macOS-Swift/macOS-Swift/macOS-Swift-Bridging-Header.h

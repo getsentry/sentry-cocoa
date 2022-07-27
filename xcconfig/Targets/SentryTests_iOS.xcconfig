@@ -1,0 +1,4 @@
+#include "SentryTests_Shared.xcconfig"
+#include "../iOS.xcconfig"
+
+// TODO: customize SWIFT_OBJC_INTERFACE_HEADER_NAME?

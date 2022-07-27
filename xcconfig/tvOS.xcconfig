@@ -1,0 +1,4 @@
+ASSETCATALOG_COMPILER_APPICON_NAME = App Icon & Top Shelf Image
+SDKROOT = appletvos
+SUPPORTED_PLATFORMS = appletvos appletvsimulator
+TARGETED_DEVICE_FAMILY = 3

@@ -1,0 +1,9 @@
+#include "../iOS.xcconfig"
+#include "../SampleApp.xcconfig"
+
+FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/Samples/TrendingMovies/Carthage/Build"
+INFOPLIST_FILE = $(SRCROOT)/Samples/TrendingMovies/TrendingMovies/Info.plist
+IPHONEOS_DEPLOYMENT_TARGET = 12.0
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.TrendingMovies
+PROVISIONING_PROFILE_SPECIFIER = match Development io.sentry.sample.TrendingMovies
+SWIFT_OBJC_BRIDGING_HEADER = $(SRCROOT)/Samples/TrendingMovies/TrendingMovies-Bridging-Header.h

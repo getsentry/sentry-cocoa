@@ -1,0 +1,9 @@
+#include "../tvOS.xcconfig"
+#include "../SampleApp.xcconfig"
+
+GENERATE_INFOPLIST_FILE = YES
+INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen
+INFOPLIST_KEY_UIMainStoryboardFile = Main
+INFOPLIST_KEY_UIUserInterfaceStyle = Automatic
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.tvOS-SBSwift
+TVOS_DEPLOYMENT_TARGET = 15.0

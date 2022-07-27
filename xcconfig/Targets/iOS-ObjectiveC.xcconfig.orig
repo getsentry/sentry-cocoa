@@ -1,0 +1,10 @@
+#include "../iOS.xcconfig"
+#include "../SampleApp.xcconfig"
+
+CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = NO
+INFOPLIST_FILE = $(SRCROOT)/Samples/iOS-ObjectiveC/iOS-ObjectiveC/Info.plist
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-ObjectiveC
+<<<<<<< HEAD
+=======
+SWIFT_OBJC_BRIDGING_HEADER = $(SRCROOT)/Samples/iOS-Swift/iOS-Swift/Tools/iOS-Swift-Bridging-Header.h
+>>>>>>> 5a23c5ac (fix: code sign settings)

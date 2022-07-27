@@ -1,0 +1,6 @@
+#include "iOS-ObjectiveC.xcconfig"
+#include "../Testing.xcconfig"
+
+INFOPLIST_FILE = $(SRCROOT)/Samples/iOS-ObjectiveC/iOS-ObjectiveC-UITests/Info.plist
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-ObjectiveCUITests
+TEST_TARGET_NAME = iOS-ObjectiveC

@@ -1,0 +1,4 @@
+#include "tvOS-SBSwift.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.tvOS-SBSwiftUITests
+TEST_TARGET_NAME = tvOS-SBSwift

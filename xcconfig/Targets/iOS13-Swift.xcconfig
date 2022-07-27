@@ -1,0 +1,21 @@
+#include "../iOS.xcconfig"
+#include "../SampleApp.xcconfig"
+
+CODE_SIGN_ENTITLEMENTS = $(SRCROOT)/Samples/iOS-Swift/iOS13-Swift/iOS13-Swift.entitlements
+GENERATE_INFOPLIST_FILE = YES
+INFOPLIST_FILE = $(SRCROOT)/Samples/iOS-Swift/iOS13-Swift/Info.plist
+INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES
+INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen
+INFOPLIST_KEY_UIMainStoryboardFile = Main
+INFOPLIST_KEY_UISupportedInterfaceOrientations =
+INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+IPHONEOS_DEPLOYMENT_TARGET = 13.0
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.iOS13-Swift
+SWIFT_OBJC_BRIDGING_HEADER = $(SRCROOT)/Samples/iOS-Swift/iOS13-Swift/iOS13-Swift-Bridging-Header.h
+
+PROVISIONING_PROFILE_SPECIFIER = $(PROVISIONING_PROFILE_SPECIFIER_$(CONFIGURATION))
+PROVISIONING_PROFILE_SPECIFIER_Debug = match Development io.sentry.Sentry.iOS13-Swift
+PROVISIONING_PROFILE_SPECIFIER_Test = match Development io.sentry.Sentry.iOS13-Swift
+PROVISIONING_PROFILE_SPECIFIER_TestCI = match Development io.sentry.Sentry.iOS13-Swift
+PROVISIONING_PROFILE_SPECIFIER_Release = match AppStore io.sentry.Sentry.iOS13-Swift
