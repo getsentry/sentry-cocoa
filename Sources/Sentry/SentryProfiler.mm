@@ -156,19 +156,16 @@ isSimulatorBuild()
                 NSMutableDictionary<NSString *, id> *metadata = threadMetadata[threadID];
                 if (metadata == nil) {
                     metadata = [NSMutableDictionary<NSString *, id> dictionary];
-                    if (!backtrace.threadMetadata.name.empty()) {
-                        metadata[@"name"] =
-                            [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
-                    }
-                    if (backtrace.threadMetadata.priority != -1) {
-                        metadata[@"priority"] = @(backtrace.threadMetadata.priority);
-                    }
                     if (backtrace.threadMetadata.threadID == mainThreadID) {
                         metadata[@"is_main_thread"] = @YES;
                     }
                     threadMetadata[threadID] = metadata;
-                } else if (backtrace.threadMetadata.priority != -1
-                    && metadata[@"priority"] == nil) {
+                }
+                if (!backtrace.threadMetadata.name.empty() && metadata[@"name"] == nil) {
+                    metadata[@"name"] =
+                        [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
+                }
+                if (backtrace.threadMetadata.priority != -1 && metadata[@"priority"] == nil) {
                     metadata[@"priority"] = @(backtrace.threadMetadata.priority);
                 }
                 if (queueAddress != nil && queueMetadata[queueAddress] == nil
