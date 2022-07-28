@@ -25,7 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.sessionTrackingIntervalMillis = 5_000
             options.enableFileIOTracking = true
             options.enableCoreDataTracking = true
-            options.enableProfiling = true
+            options.profilesSampleRate = 1.0
             options.attachScreenshot = true
 
             if !ProcessInfo.processInfo.arguments.contains("--io.sentry.test.benchmarking") {

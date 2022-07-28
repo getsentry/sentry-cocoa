@@ -185,7 +185,8 @@ platform :ios do
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
-      device: options[:device]
+      device: options[:device], 
+      address_sanitizer: options[:address_sanitizer]
     )
   end
 

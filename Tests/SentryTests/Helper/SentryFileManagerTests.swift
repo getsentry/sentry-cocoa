@@ -185,7 +185,10 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(expected, fixture.delegate.envelopeItemsDeleted.invocations)
     }
 
-    func testDefaultMaxEnvelopesConcurrent() {
+    /**
+     * Disabled because flaky. Fix with https://github.com/getsentry/sentry-cocoa/issues/2017.
+     */
+    func tesDefaultMaxEnvelopesConcurrent() {
         let parallelTaskAmount = 5
         let queue = DispatchQueue(label: "testDefaultMaxEnvelopesConcurrent", qos: .userInitiated, attributes: [.concurrent, .initiallyInactive])
         

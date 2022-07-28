@@ -35,7 +35,7 @@ extension Tracer {
             options.tracesSampleRate = 1.0
             options.enableFileIOTracking = true
             options.enableCoreDataTracking = true
-            options.enableProfiling = true
+            options.profilesSampleRate = 1.0
             options.attachScreenshot = true
             options.enableUserInteractionTracing = true
         }

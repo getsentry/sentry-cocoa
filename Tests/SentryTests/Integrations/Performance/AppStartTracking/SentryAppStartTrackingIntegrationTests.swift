@@ -77,7 +77,7 @@ class SentryAppStartTrackingIntegrationTests: XCTestCase {
         XCTAssertNil(SentrySDK.getAppStartMeasurement())
     }
     
-    func testAutoUIPerformanceTrackingDisabled_DoesNotUpdatesAppState() {
+    func testAutoPerformanceTrackingDisabled_DoesNotUpdatesAppState() {
         let options = fixture.options
         options.enableAutoPerformanceTracking = false
         sut.install(with: options)
