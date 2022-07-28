@@ -10,5 +10,5 @@ index 25b92eed..8934d90b 100644
 +            // The UI tests generate false OOMs
 +            options.enableOutOfMemoryTracking = false
              options.enableCoreDataTracking = true
-             options.enableProfiling = true
+             options.profilesSampleRate = 1.0
              options.attachScreenshot = true

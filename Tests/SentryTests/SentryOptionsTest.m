@@ -543,7 +543,12 @@
     XCTAssertEqual(NO, options.enableFileIOTracking);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertEqual(NO, options.enableProfiling);
+#    pragma clang diagnostic pop
+    XCTAssertNil(options.profilesSampleRate);
+    XCTAssertNil(options.profilesSampler);
 #endif
 
 #pragma clang diagnostic push
@@ -731,13 +736,6 @@
     [self testBooleanField:@"enableSwizzling"];
 }
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-- (void)testEnableProfiling
-{
-    [self testBooleanField:@"enableProfiling" defaultValue:NO];
-}
-#endif
-
 - (void)testTracesSampleRate
 {
     SentryOptions *options = [self getValidOptions:@{ @"tracesSampleRate" : @0.1 }];
@@ -850,6 +848,136 @@
     };
     XCTAssertTrue(options.isTracingEnabled);
 }
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+- (void)testEnableProfiling
+{
+    [self testBooleanField:@"enableProfiling" defaultValue:NO];
+}
+
+- (void)testProfilesSampleRate
+{
+    SentryOptions *options = [self getValidOptions:@{ @"profilesSampleRate" : @0.1 }];
+
+    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0.1);
+}
+
+- (void)testDefaultProfilesSampleRate
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+
+    XCTAssertNil(options.profilesSampleRate);
+}
+
+- (void)testProfilesSampleRate_SetToNil
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.profilesSampleRate = nil;
+    XCTAssertNil(options.profilesSampleRate);
+}
+
+- (void)testProfilesSampleRateLowerBound
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.profilesSampleRate = @0.5;
+
+    NSNumber *lowerBound = @0;
+    options.profilesSampleRate = lowerBound;
+    XCTAssertEqual(lowerBound, options.profilesSampleRate);
+
+    options.profilesSampleRate = @0.5;
+
+    NSNumber *tooLow = @-0.01;
+    options.profilesSampleRate = tooLow;
+    XCTAssertNil(options.profilesSampleRate);
+}
+
+- (void)testProfilesSampleRateUpperBound
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.profilesSampleRate = @0.5;
+
+    NSNumber *lowerBound = @1;
+    options.profilesSampleRate = lowerBound;
+    XCTAssertEqual(lowerBound, options.profilesSampleRate);
+
+    options.profilesSampleRate = @0.5;
+
+    NSNumber *tooLow = @1.01;
+    options.profilesSampleRate = tooLow;
+    XCTAssertNil(options.profilesSampleRate);
+}
+
+- (void)testIsProfilingEnabled_NothingSet_IsDisabled
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    XCTAssertFalse(options.isProfilingEnabled);
+}
+
+- (void)testIsProfilingEnabled_ProfilesSampleRateSetToZero_IsDisabled
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.profilesSampleRate = @0.00;
+    XCTAssertFalse(options.isProfilingEnabled);
+}
+
+- (void)testIsProfilingEnabled_ProfilesSampleRateSet_IsEnabled
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.profilesSampleRate = @0.01;
+    XCTAssertTrue(options.isProfilingEnabled);
+}
+
+- (void)testIsProfilingEnabled_ProfilesSamplerSet_IsEnabled
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.profilesSampler = ^(SentrySamplingContext *context) {
+        XCTAssertNotNil(context);
+        return @0.0;
+    };
+    XCTAssertTrue(options.isProfilingEnabled);
+}
+
+- (void)testIsProfilingEnabled_EnableProfilingSet_IsEnabled
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    options.enableProfiling = YES;
+#    pragma clang diagnostic pop
+    XCTAssertTrue(options.isProfilingEnabled);
+}
+
+- (double)profilesSamplerCallback:(NSDictionary *)context
+{
+    return 0.1;
+}
+
+- (void)testProfilesSampler
+{
+    SentryTracesSamplerCallback sampler = ^(SentrySamplingContext *context) {
+        XCTAssertNotNil(context);
+        return @1.0;
+    };
+
+    SentryOptions *options = [self getValidOptions:@{ @"profilesSampler" : sampler }];
+
+    SentrySamplingContext *context = [[SentrySamplingContext alloc] init];
+    XCTAssertEqual(options.profilesSampler(context), @1.0);
+}
+
+- (void)testDefaultProfilesSampler
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertNil(options.profilesSampler);
+}
+
+- (void)testGarbageProfilesSampler_ReturnsNil
+{
+    SentryOptions *options = [self getValidOptions:@{ @"profilesSampler" : @"fault" }];
+    XCTAssertNil(options.profilesSampler);
+}
+#endif
 
 - (void)testInAppIncludes
 {
