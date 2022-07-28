@@ -61,4 +61,4 @@ jobs:
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        run: saucectl run --select-suite "${{matrix.suite}}" --config .sauce/benchmarking-config.yml --tags benchmark --retries 5
+        run: saucectl run --select-suite "${{matrix.suite}}" --config .sauce/benchmarking-config.yml --tags benchmark
