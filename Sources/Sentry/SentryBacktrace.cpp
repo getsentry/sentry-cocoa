@@ -116,6 +116,7 @@ namespace profiling {
             // Log an empty stack for an idle thread, we don't need to walk the stack.
             if (thread->isIdle()) {
                 bt.threadMetadata.threadID = thread->tid();
+                bt.threadMetadata.priority = -1;
                 f(bt);
                 continue;
             }
