@@ -51,61 +51,39 @@ generateProfileData(NSUInteger nCellsPerTab, BOOL clearState)
         return NO;
     }
 
-    XCUIElementQuery *const tabBarButtons = app.tabBars.firstMatch.buttons;
-    NSUInteger consecutiveFindCellFailureCount = 0;
-    for (NSUInteger t = 0; t < tabBarButtons.count; t++) {
-        XCUIElement *const tabBarButton = [tabBarButtons elementBoundByIndex:t];
+    XCUIElement *const tabBar = app.tabBars.firstMatch;
+    if (![tabBar waitForExistenceWithTimeout:kWaitForElementTimeout]) {
+        XCTFail("Failed to locate tab bar");
+        return NO;
+    }
+
+    for (NSUInteger t = 0; t < 3; t++) {
+        XCUIElement *const tabBarButton = [tabBar.buttons elementBoundByIndex:t];
         if (![tabBarButton waitForExistenceWithTimeout:kWaitForElementTimeout]) {
             XCTFail("Failed to find tab bar button %llu", (unsigned long long)t);
             return NO;
         }
-        [tabBarButton doubleTap];
 
-        for (NSUInteger i = 0; i < nCellsPerTab; i++) {
+        [tabBarButton tap];
+
+        for (NSUInteger i = 0; i < 4; i++) {
             XCUIElement *const cellElement
                 = app.collectionViews
                       .cells[[NSString stringWithFormat:@"movie %llu", (unsigned long long)i]];
-
-            NSUInteger scrollCount = 0;
-            BOOL retriedOnce = NO;
-            while (!cellElement.hittable) {
-                [app swipeUpWithVelocity:XCUIGestureVelocitySlow];
-                scrollCount++;
-
-                if (scrollCount >= kMaxScrollCount) {
-                    if (!retriedOnce) {
-                        // We might have overshot the cell, so scroll back up to the top and
-                        // try again.
-                        for (NSUInteger i = 0; i < kMaxScrollCount; i++) {
-                            [app swipeDownWithVelocity:XCUIGestureVelocityFast];
-                        }
-                        scrollCount = 0;
-                        retriedOnce = YES;
-                    } else {
-                        // Something's wrong, bail out.
-                        break;
-                    }
-                }
-            }
             if (![cellElement waitForExistenceWithTimeout:kWaitForElementTimeout]) {
-                consecutiveFindCellFailureCount++;
-                break;
+                XCTFail("Failed to find the cell.");
+                return NO;
             }
-            consecutiveFindCellFailureCount = 0;
             [cellElement tap];
+
             [NSThread sleepForTimeInterval:1.0];
+
             XCUIElement *const backButton = [app.navigationBars.buttons elementBoundByIndex:0];
             if (![backButton waitForExistenceWithTimeout:kWaitForElementTimeout]) {
                 XCTFail("Failed to find back button");
                 return NO;
             }
             [backButton tap];
-        }
-
-        if (consecutiveFindCellFailureCount >= kMaxConsecutiveFindCellFailures) {
-            XCTFail("Failed to find a cell %llu times",
-                (unsigned long long)consecutiveFindCellFailureCount);
-            break;
         }
     }
 
