@@ -131,7 +131,7 @@ isSimulatorBuild()
         _profile = [NSMutableDictionary<NSString *, id> dictionary];
         const auto sampledProfile = [NSMutableDictionary<NSString *, id> dictionary];
         const auto samples = [NSMutableArray<NSDictionary<NSString *, id> *> array];
-        const auto threadMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
+        const auto threadMetadata = [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
         const auto queueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
         sampledProfile[@"samples"] = samples;
         sampledProfile[@"thread_metadata"] = threadMetadata;
@@ -152,17 +152,22 @@ isSimulatorBuild()
                 if (backtrace.queueMetadata.address != 0) {
                     queueAddress = sentry_formatHexAddress(@(backtrace.queueMetadata.address));
                 }
-                if (threadMetadata[threadID] == nil) {
-                    const auto metadata = [NSMutableDictionary<NSString *, id> dictionary];
+                NSMutableDictionary<NSString *, id> *metadata = threadMetadata[threadID];
+                if (metadata == nil) {
+                    metadata = [NSMutableDictionary<NSString *, id> dictionary];
                     if (!backtrace.threadMetadata.name.empty()) {
                         metadata[@"name"] =
                             [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
                     }
-                    metadata[@"priority"] = @(backtrace.threadMetadata.priority);
+                    if (backtrace.threadMetadata.priority != -1) {
+                        metadata[@"priority"] = @(backtrace.threadMetadata.priority);
+                    }
                     if (backtrace.threadMetadata.threadID == mainThreadID) {
                         metadata[@"is_main_thread"] = @YES;
                     }
                     threadMetadata[threadID] = metadata;
+                } else if (backtrace.threadMetadata.priority != -1 && metadata[@"priority"] == nil) {
+                    metadata[@"priority"] = @(backtrace.threadMetadata.priority);
                 }
                 if (queueAddress != nil && queueMetadata[queueAddress] == nil
                     && backtrace.queueMetadata.label != nullptr) {
