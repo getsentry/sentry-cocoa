@@ -18,6 +18,7 @@
 
 - Remove Sentry keys from cached HTTP request headers (#1975)
 - Collect samples for idle threads in iOS profiler (#1978)
+- Fix address sanitizer compilation error (#1996)
 - Don't override already-set timestamp when finishing Span (#1993)
 - Respect existing baggage header instead of overwriting it (#1995)
 
