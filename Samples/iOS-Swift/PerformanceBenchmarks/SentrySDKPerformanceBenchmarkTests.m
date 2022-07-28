@@ -53,6 +53,8 @@
         double usagePercentage
             = 100.0 * (profilerUserTime + profilerSystemTime) / (appUserTime + appSystemTime);
 
+        XCTAssertNotEqual(usagePercentage, 0, @"Overhead percentage should be > 0%%");
+
         [results addObject:@(usagePercentage)];
     }
 }
