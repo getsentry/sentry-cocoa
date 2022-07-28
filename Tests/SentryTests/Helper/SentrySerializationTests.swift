@@ -4,7 +4,7 @@ class SentrySerializationTests: XCTestCase {
     
     private class Fixture {
         static var invalidData = "hi".data(using: .utf8)!
-        static var traceContext = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", userSegment: "some segment", sampleRate: "0.25")
+        static var traceContext = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: "some segment", sampleRate: "0.25")
     }
 
     func testSentryEnvelopeSerializer_WithSingleEvent() {
@@ -111,7 +111,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testSentryEnvelopeSerializer_TraceStateWithoutUser() {
-        let trace = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", userSegment: nil, sampleRate: nil)
+        let trace = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: nil, sampleRate: nil)
         
         let envelopeHeader = SentryEnvelopeHeader(id: nil, traceContext: trace)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())

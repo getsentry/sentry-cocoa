@@ -30,6 +30,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, readonly) NSString *environment;
 
 /**
+ * The transaction name set on the scope.
+ */
+@property (nullable, nonatomic, readonly) NSString *transaction;
+
+/**
  * A subset of the scope's user context.
  */
 @property (nullable, nonatomic, readonly) NSString *userSegment;
@@ -46,6 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
                       publicKey:(NSString *)publicKey
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
+                    transaction:(nullable NSString *)transaction
                     userSegment:(nullable NSString *)userSegment
                      sampleRate:(nullable NSString *)sampleRate;
 

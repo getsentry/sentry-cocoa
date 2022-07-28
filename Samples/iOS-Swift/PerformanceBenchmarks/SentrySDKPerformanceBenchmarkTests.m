@@ -84,23 +84,11 @@ static BOOL checkedAssertions = NO;
         [app launch];
         [app.buttons[@"Performance scenarios"] tap];
 
-        XCUIElement *startButton = app.buttons[@"Start test"];
-        if (![startButton waitForExistenceWithTimeout:5.0]) {
-            XCTFail(@"Couldn't find benchmark retrieval button.");
-        }
-        [startButton tap];
-
-        // after hitting the start button, the test app will do CPU intensive work until hitting the
+        // after navigating to the test, the test app will do CPU intensive work until hitting the
         // stop button. wait 15 seconds so that work can be done while the profiler does its thing,
         // and the benchmarking observation in the test app will record how much CPU time is used by
         // everything
         sleep(15);
-
-        XCUIElement *stopButton = app.buttons[@"Stop test"];
-        if (![stopButton waitForExistenceWithTimeout:5.0]) {
-            XCTFail(@"Couldn't find benchmark retrieval button.");
-        }
-        [stopButton tap];
 
         XCUIElement *textField = app.textFields[@"io.sentry.benchmark.value-marshaling-text-field"];
         if (![textField waitForExistenceWithTimeout:5.0]) {
