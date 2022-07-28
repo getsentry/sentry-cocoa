@@ -20,7 +20,7 @@ on:
 
 jobs:
   build-benchmark-test-target:
-    name: Build UITests with Xcode ${{matrix.xcode}}
+    name: Build UITests
     runs-on: macos-11
     steps:
       - uses: actions/checkout@v3
@@ -49,6 +49,8 @@ jobs:
     needs: build-benchmark-test-target
     strategy:      
       fail-fast: false
+      matrix:
+        suite: ["High-end device", "Mid-range device", "Low-end device"]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
@@ -59,4 +61,4 @@ jobs:
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        run: saucectl run --select-suite "High-end device" --config .sauce/benchmarking-config.yml --tags benchmark --retries 5
+        run: saucectl run --select-suite "${{matrix.suite}}" --config .sauce/benchmarking-config.yml --tags benchmark --retries 5

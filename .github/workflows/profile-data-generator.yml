@@ -60,7 +60,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        iOS: [15.5, 15.4, 14.8, 14.7, 13.7]
+        suite: ["High-end device", "Mid-range device", "Low-end device"]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
@@ -71,4 +71,4 @@ jobs:
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        run: for i in {1..5}; do saucectl run --select-suite iOS-${{ matrix.iOS }} --config .sauce/profile-data-generator-config.yml && break ; done     
+        run: for i in {1..5}; do saucectl run --select-suite "${{ matrix.suite }}" --config .sauce/profile-data-generator-config.yml && break ; done     
