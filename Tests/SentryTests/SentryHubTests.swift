@@ -870,7 +870,7 @@ class SentryHubTests: XCTestCase {
         let queueMetadata = sampledProfile["queue_metadata"] as! [String: Any]
         
         XCTAssertFalse(threadMetadata.isEmpty)
-        XCTAssertGreaterThan(threadMetadata.first?.value["priority"] as! Int, 0)
+        XCTAssertFalse(threadMetadata.values.compactMap { $0["priority"] }.filter { ($0 as! Int) > 0 }.isEmpty)
         XCTAssertFalse(threadMetadata.values.filter { $0["is_main_thread"] as? Bool == true }.isEmpty)
         XCTAssertFalse(queueMetadata.isEmpty)
         XCTAssertFalse(((queueMetadata.first?.value as! [String: Any])["label"] as! String).isEmpty)
