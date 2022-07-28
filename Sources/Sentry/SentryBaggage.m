@@ -14,6 +14,7 @@
                       publicKey:(NSString *)publicKey
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
+                    transaction:(nullable NSString *)transaction
                     userSegment:(nullable NSString *)userSegment
                      sampleRate:(nullable NSString *)sampleRate
 {
@@ -23,6 +24,7 @@
         _publicKey = publicKey;
         _releaseName = releaseName;
         _environment = environment;
+        _transaction = transaction;
         _userSegment = userSegment;
         _sampleRate = sampleRate;
     }
@@ -48,6 +50,9 @@
 
     if (_environment != nil)
         [information setValue:_environment forKey:@"sentry-environment"];
+
+    if (_transaction != nil)
+        [information setValue:_transaction forKey:@"sentry-transaction"];
 
     if (_userSegment != nil)
         [information setValue:_userSegment forKey:@"sentry-user_segment"];
