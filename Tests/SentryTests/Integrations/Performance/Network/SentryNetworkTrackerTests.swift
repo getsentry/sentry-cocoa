@@ -457,7 +457,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNotNil(headers?["sentry-trace"])
 
         let decodedBaggage = SentrySerialization.decodeBaggage(headers?["baggage"] ?? "")
-        XCTAssertEqual(decodedBaggage.count, 4)
+        XCTAssertEqual(decodedBaggage.count, 5)
     }
 
     func test_AddTraceHeader_AppendOriginalBaggage() {
@@ -469,7 +469,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNotNil(headers?["sentry-trace"])
 
         let decodedBaggage = SentrySerialization.decodeBaggage(headers?["baggage"] ?? "")
-        XCTAssertEqual(decodedBaggage.count, 5)
+        XCTAssertEqual(decodedBaggage.count, 6)
     }
 
     func test_RemoveExistingTraceHeader_WhenNoSpan() {
