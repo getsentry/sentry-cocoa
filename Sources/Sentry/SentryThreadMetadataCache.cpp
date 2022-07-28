@@ -41,7 +41,7 @@ namespace profiling {
             if (metadata.priority == -1) {
                 return metadata;
             }
-            
+
             auto threadName = thread.name();
             if (isSentryOwnedThreadName(threadName)) {
                 // Don't collect backtraces for Sentry-owned threads.
