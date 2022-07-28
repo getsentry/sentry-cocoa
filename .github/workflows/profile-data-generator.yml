@@ -30,7 +30,7 @@ jobs:
           path: ./Samples/TrendingMovies/Carthage/Build
           key: trendingmovies-carthage-cache-key-${{ hashFiles('Samples/TrendingMovies/Cartfile.resolved') }}
       - name: Install Carthage deps
-        if: steps.trendingmovies-carthage-cache.cache-hit != 'true'
+        if: steps.trendingmovies-carthage-cache.outputs.cache-hit != 'true'
         run: cd Samples/TrendingMovies && carthage update --use-xcframeworks
       - run: fastlane build_profile_data_generator_ui_test
         env:
