@@ -6,6 +6,10 @@
 
 - Add sampling configuration for profiling (#2004)
 
+### Fixed
+
+- Handle failure to read thread priority gracefully (#2015)
+
 ## 7.22.0
 
 ### Features
