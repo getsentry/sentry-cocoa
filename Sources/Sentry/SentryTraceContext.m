@@ -17,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
                       publicKey:(NSString *)publicKey
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
+                    transaction:(nullable NSString *)transaction
                     userSegment:(nullable NSString *)userSegment
                      sampleRate:(nullable NSString *)sampleRate
 {
@@ -25,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
         _publicKey = publicKey;
         _environment = environment;
         _releaseName = releaseName;
+        _transaction = transaction;
         _userSegment = userSegment;
         _sampleRate = sampleRate;
     }
@@ -63,6 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
                        publicKey:options.parsedDsn.url.user
                      releaseName:options.releaseName
                      environment:options.environment
+                     transaction:tracer.name
                      userSegment:userSegment
                       sampleRate:sampleRate];
 }
@@ -87,6 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
                        publicKey:publicKey
                      releaseName:dictionary[@"release"]
                      environment:dictionary[@"environment"]
+                     transaction:dictionary[@"transaction"]
                      userSegment:userSegment
                       sampleRate:dictionary[@"sample_rate"]];
 }
@@ -97,6 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                          publicKey:_publicKey
                                                        releaseName:_releaseName
                                                        environment:_environment
+                                                       transaction:_transaction
                                                        userSegment:_userSegment
                                                         sampleRate:_sampleRate];
     return result;
@@ -112,6 +117,9 @@ NS_ASSUME_NONNULL_BEGIN
 
     if (_environment != nil)
         [result setValue:_environment forKey:@"environment"];
+
+    if (_transaction != nil)
+        [result setValue:_transaction forKey:@"transaction"];
 
     if (_userSegment != nil)
         [result setValue:_userSegment forKey:@"user_segment"];
