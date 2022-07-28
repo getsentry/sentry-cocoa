@@ -6,6 +6,10 @@
 
 - Add sampling configuration for profiling (#2004)
 
+### Fixes
+
+- Log empty samples instead of collecting stacks for idle threads (#2013)
+
 ## 7.22.0
 
 ### Features
