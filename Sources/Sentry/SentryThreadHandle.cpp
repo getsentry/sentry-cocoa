@@ -117,7 +117,7 @@ namespace profiling {
         if (handle == nullptr) {
             return {};
         }
-        char name[128];
+        char name[MAXTHREADNAMESIZE];
         if (SENTRY_PROF_LOG_ERROR_RETURN(pthread_getname_np(handle, name, sizeof(name))) == 0) {
             return std::string(name);
         }
