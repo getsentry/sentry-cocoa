@@ -9,6 +9,9 @@
 ### Fixed
 
 - Handle failure to read thread priority gracefully (#2015)
+### Fixes
+
+- Remove logging that could occur while a thread is suspended (#2014)
 
 ## 7.22.0
 
