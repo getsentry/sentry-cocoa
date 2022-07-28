@@ -10,6 +10,7 @@
 
 - Log empty samples instead of collecting stacks for idle threads (#2013)
 - Remove logging that could occur while a thread is suspended (#2014)
+- Handle failure to read thread priority gracefully (#2015)
 
 ## 7.22.0
 
