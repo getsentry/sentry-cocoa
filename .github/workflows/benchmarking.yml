@@ -20,7 +20,7 @@ on:
 
 jobs:
   build-benchmark-test-target:
-    name: Build UITests
+    name: Build app and test runner
     runs-on: macos-11
     steps:
       - uses: actions/checkout@v3
