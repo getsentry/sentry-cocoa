@@ -11,6 +11,7 @@
 ### Features
 
 - Read free_memory when the event is captured, not only at SDK startup (#1962)
+- Add transaction to baggage and trace headers (#1992)
 - Provide private access to SentryOptions for hybrid SDKs (#1991)
 
 ### Fixes
