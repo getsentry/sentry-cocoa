@@ -131,7 +131,8 @@ isSimulatorBuild()
         _profile = [NSMutableDictionary<NSString *, id> dictionary];
         const auto sampledProfile = [NSMutableDictionary<NSString *, id> dictionary];
         const auto samples = [NSMutableArray<NSDictionary<NSString *, id> *> array];
-        const auto threadMetadata = [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
+        const auto threadMetadata =
+            [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
         const auto queueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
         sampledProfile[@"samples"] = samples;
         sampledProfile[@"thread_metadata"] = threadMetadata;
@@ -166,7 +167,8 @@ isSimulatorBuild()
                         metadata[@"is_main_thread"] = @YES;
                     }
                     threadMetadata[threadID] = metadata;
-                } else if (backtrace.threadMetadata.priority != -1 && metadata[@"priority"] == nil) {
+                } else if (backtrace.threadMetadata.priority != -1
+                    && metadata[@"priority"] == nil) {
                     metadata[@"priority"] = @(backtrace.threadMetadata.priority);
                 }
                 if (queueAddress != nil && queueMetadata[queueAddress] == nil
