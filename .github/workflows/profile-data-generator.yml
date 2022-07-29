@@ -59,7 +59,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: ["High-end device", "Mid-range device", "Low-end device"]
+        suite: ["High-end device", "Mid-range device"]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3

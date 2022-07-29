@@ -20,7 +20,3 @@ suites:
     devices:
       - name: "iPhone 8"
         platformVersion: "14.8"
-  - name: "Low-end device"
-    devices:
-      - name: "iPhone 6S Plus"
-        platformVersion: "15.3.1"
