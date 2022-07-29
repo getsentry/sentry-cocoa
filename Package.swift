@@ -31,7 +31,7 @@ let package = Package(
                 .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
                 .headerSearchPath("SentryCrash/Reporting/Tools"),
                 .headerSearchPath("SwiftDemangling"),
-                .headerSearchPath("SwiftDemangling/include"),
+                .headerSearchPath("SwiftDemangling/include")
             ],
             linkerSettings: [
                 .linkedLibrary("z"),
