@@ -2,7 +2,7 @@ import XCTest
 
 class SentryUIViewControllerSanitizerTests: XCTestCase {
 
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     private class SomeViewController: UIViewController {
     }
 #endif
@@ -35,7 +35,7 @@ class SentryUIViewControllerSanitizerTests: XCTestCase {
         )
     }
     
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testSanitize_mangledViewController() {
         let vc = SomeViewController()
         XCTAssertEqual("SentryTests.SentryUIViewControllerSanitizerTests.SomeViewController", sanitize(vc))
