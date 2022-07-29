@@ -14,7 +14,7 @@ def main():
 
     def extract_values(line):
         """Given a log line with benchmark values, return a list of integer results it contains."""
-        return line.split('[Sentry Benchmark]')[-1].replace('\\n"', '').split(',')
+        return line.split('[Sentry Benchmark]')[-1].split('\\n')[0].split(',')
 
     with open(args.log_file_path, 'r') as log_file:
         results = [extract_values(x) for x in log_file.read().splitlines() if 'Sentry Benchmark' in x]

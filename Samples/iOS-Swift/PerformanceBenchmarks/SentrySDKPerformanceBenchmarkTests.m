@@ -2,82 +2,18 @@
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
-// To get around the 15 minute timeout per test case on Sauce Labs. See develop-docs/README.md.
-static NSUInteger SentrySDKPerformanceBenchmarkTestCases = 5;
-static NSUInteger SentrySDKPerformanceBenchmarkIterationsPerTestCase = 4;
-
-// All results are aggregated to analyse after completing the separate,
-// dynamically generated test cases
-static NSMutableArray *allResults;
-static BOOL checkedAssertions = NO;
-
 @interface SentrySDKPerformanceBenchmarkTests : XCTestCase
 
 @end
 
 @implementation SentrySDKPerformanceBenchmarkTests
 
-/**
- * Dynamically add a test method to an XCTestCase class.
- * @see https://www.gaige.net/dynamic-xctests.html
- */
-+ (BOOL)addInstanceMethodWithSelectorName:(NSString *)selectorName block:(void (^)(id))block
-{
-    NSParameterAssert(selectorName);
-    NSParameterAssert(block);
-
-    // See
-    // http://stackoverflow.com/questions/6357663/casting-a-block-to-a-void-for-dynamic-class-method-resolution
-    id impBlockForIMP = (__bridge id)(__bridge void *)(block);
-    IMP myIMP = imp_implementationWithBlock(impBlockForIMP);
-    SEL selector = NSSelectorFromString(selectorName);
-    return class_addMethod(self, selector, myIMP, "v@:");
-}
-
-+ (void)initialize
-{
-    allResults = [NSMutableArray array];
-    for (NSUInteger i = 0; i < SentrySDKPerformanceBenchmarkTestCases; i++) {
-        [self addInstanceMethodWithSelectorName:[NSString stringWithFormat:@"testCPUBenchmark%lu",
-                                                          (unsigned long)i]
-                                          block:^(XCTestCase *testCase) {
-                                              [allResults
-                                                  addObjectsFromArray:[self _testCPUBenchmark]];
-                                          }];
-    }
-}
-
-- (void)tearDown
-{
-    if (allResults.count
-        == SentrySDKPerformanceBenchmarkTestCases
-            * SentrySDKPerformanceBenchmarkIterationsPerTestCase) {
-        NSUInteger index = (NSUInteger)ceil(0.9 * allResults.count);
-        NSNumber *p90 =
-            [allResults sortedArrayUsingComparator:^NSComparisonResult(NSNumber *a, NSNumber *b) {
-                return [a compare:b];
-            }][index >= allResults.count ? allResults.count - 1 : index];
-        XCTAssertLessThanOrEqual(
-            p90.doubleValue, 5, @"Profiling P90 overhead should remain under 5%%.");
-        checkedAssertions = YES;
-    }
-
-    [super tearDown];
-}
-
-+ (void)tearDown
-{
-    if (!checkedAssertions) {
-        @throw @"Did not perform assertion checks, might not have completed all benchmark trials.";
-    }
-}
-
-+ (NSArray<NSNumber *> *)_testCPUBenchmark
+- (void)testCPUBenchmark
 {
     XCTSkipIf(isSimulator() && !isDebugging());
 
     NSMutableArray *results = [NSMutableArray array];
-    for (NSUInteger j = 0; j < SentrySDKPerformanceBenchmarkIterationsPerTestCase; j++) {
+    for (NSUInteger j = 0; j < 20; j++) {
         XCUIApplication *app = [[XCUIApplication alloc] init];
         app.launchArguments =
             [app.launchArguments arrayByAddingObject:@"--io.sentry.test.benchmarking"];
@@ -117,10 +53,10 @@ static BOOL checkedAssertions = NO;
         double usagePercentage
             = 100.0 * (profilerUserTime + profilerSystemTime) / (appUserTime + appSystemTime);
 
+        XCTAssertNotEqual(usagePercentage, 0, @"Overhead percentage should be > 0%%");
+
         [results addObject:@(usagePercentage)];
     }
-
-    return results;
 }
 
 @end
