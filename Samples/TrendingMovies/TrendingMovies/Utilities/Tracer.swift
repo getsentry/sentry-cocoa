@@ -37,10 +37,9 @@ extension Tracer {
             options.enableCoreDataTracking = true
             options.profilesSampleRate = 1.0
             options.attachScreenshot = true
-
-            let isGeneratingProfiles = ProcessInfo.processInfo.arguments.contains("--io.sentry.test.profile-generation")
-            options.enableUserInteractionTracing = !isGeneratingProfiles
-            options.enableAutoPerformanceTracking = !isGeneratingProfiles
+            if !ProcessInfo.processInfo.arguments.contains("--io.sentry.test.profile-generation") {
+                options.enableUserInteractionTracing = true
+            }
         }
 
         SentrySDK.configureScope { scope in
