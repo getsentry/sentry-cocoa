@@ -37,7 +37,9 @@ extension Tracer {
             options.enableCoreDataTracking = true
             options.profilesSampleRate = 1.0
             options.attachScreenshot = true
-            options.enableUserInteractionTracing = true
+            if !ProcessInfo.processInfo.arguments.contains("--io.sentry.test.profile-generation") {
+                options.enableUserInteractionTracing = true
+            }
         }
 
         SentrySDK.configureScope { scope in
