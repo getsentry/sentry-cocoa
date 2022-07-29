@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Get swift class user friendly description (#2023)
+
 ## 7.23.0
 
 ### Features
