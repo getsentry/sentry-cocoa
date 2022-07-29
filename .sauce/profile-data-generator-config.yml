@@ -22,5 +22,5 @@ suites:
         platformVersion: "14.8"
   - name: "Low-end device"
     devices:
-      - name: "iPad mini 4"
-        platformVersion: "14.7.1"
+      - name: "iPhone 6S Plus"
+        platformVersion: "15.3.1"
