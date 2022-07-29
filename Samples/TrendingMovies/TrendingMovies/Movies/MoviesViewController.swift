@@ -119,7 +119,8 @@ class MoviesViewController: UICollectionViewController, UICollectionViewDelegate
             }
             return view
         default:
-            fatalError("Unexpected element kind \(kind)")
+            print("[TrendingMovies] Unexpected element kind \(kind)")
+            return UICollectionReusableView(frame: CGRect.zero)
         }
     }
 
@@ -221,7 +222,8 @@ class MoviesViewController: UICollectionViewController, UICollectionViewDelegate
 
     private func calculateCellWidth() -> CGFloat {
         guard let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout else {
-            fatalError("Expected a UICollectionViewFlowLayout, got \(collectionView.collectionViewLayout) instead")
+            print("[TrendingMovies] Expected a UICollectionViewFlowLayout, got \(collectionView.collectionViewLayout) instead")
+            return 0
         }
         return floor((collectionView.bounds.size.width - layout.minimumInteritemSpacing - layout.sectionInset.left - layout.sectionInset.right) / 2.0)
     }

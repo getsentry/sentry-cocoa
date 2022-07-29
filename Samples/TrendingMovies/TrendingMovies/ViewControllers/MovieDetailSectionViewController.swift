@@ -110,11 +110,11 @@ class MovieDetailSectionViewController<ItemType, CellType: UICollectionViewCell>
     // MARK: Subclass Overrides
 
     func configureCell(indexPath _: IndexPath, item _: ItemType, cell _: CellType) {
-        fatalError("Must be overridden by subclasses")
+        print("[TrendingMovies] Must be overridden by subclasses")
     }
 
     func fetch(completion _: @escaping (Result<[ItemType], Swift.Error>) -> Void) {
-        fatalError("Must be overridden by subclasses")
+        print("[TrendingMovies] Must be overridden by subclasses")
     }
 
     // MARK: UICollectionViewDataSource
