@@ -1,12 +1,9 @@
 import XCTest
 
 class SentryUIViewControllerSanitizerTests: XCTestCase {
-    
-    #if os(iOS)
+
     private class SomeViewController : UIViewController {
     }
-    
-    #endif
     
     func testSanitizeViewControllerNameWithBaseObject() {
         let object = NSObject()
@@ -36,12 +33,12 @@ class SentryUIViewControllerSanitizerTests: XCTestCase {
         )
     }
     
-    #if os(iOS)
+#if os(iOS) || os(tvOS)
     func testSanitize_mangledViewController() {
         let vc = SomeViewController()
         XCTAssertEqual("SentryTests.SentryUIViewControllerSanitizerTests.SomeViewController", sanitize(vc))
     }
-    #endif
+#endif
     
     private func sanitize(_ name: Any) -> String {
         return SentryUIViewControllerSanitizer.sanitizeViewControllerName(name)

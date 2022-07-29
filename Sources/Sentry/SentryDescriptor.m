@@ -1,5 +1,6 @@
 #import "SentryDescriptor.h"
 #import "SentryDemangler.h"
+#import "SentryDefines.h"
 
 static SentryDescriptor *_globalDescriptor;
 
@@ -28,14 +29,17 @@ sentry_setGlobalDescriptor(SentryDescriptor *descriptor)
 }
 
 @implementation SentryDescriptor {
+#if SENTRY_HAS_UIKIT && TARGET_OS_MACCATALYST == 0
     SentryDemangler *demangler;
+#endif
 }
 
 + (void)load
 {
     _globalDescriptor = [[SentryDescriptor alloc] init];
+    NSLog(@"%d", TARGET_OS_MACCATALYST);
 }
-
+#if SENTRY_HAS_UIKIT  && TARGET_OS_MACCATALYST == 0
 - (instancetype)init
 {
     if (self = [super init]) {
@@ -52,11 +56,6 @@ sentry_setGlobalDescriptor(SentryDescriptor *descriptor)
     return result;
 }
 
-- (NSString *)getObjectClassDescription:(NSObject *)object
-{
-    return [self getClassDescription:object.class];
-}
-
 - (NSString *)getDescription:(NSObject *)object
 {
     NSString *result = object.description;
@@ -64,5 +63,25 @@ sentry_setGlobalDescriptor(SentryDescriptor *descriptor)
         result = [demangler demangleClassName:result];
     return result;
 }
+
+#else
+
+- (NSString *)getClassDescription:(Class)aClass
+{
+    return NSStringFromClass(aClass);
+}
+
+- (NSString *)getDescription:(NSObject *)object
+{
+    return object.description;
+}
+
+#endif
+
+- (NSString *)getObjectClassDescription:(NSObject *)object
+{
+    return [self getClassDescription:object.class];
+}
+
 
 @end
