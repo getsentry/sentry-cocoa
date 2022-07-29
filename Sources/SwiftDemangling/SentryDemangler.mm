@@ -52,6 +52,7 @@ using namespace swift::Demangle;
 @end
 
 #else
+
 @implementation SentryDemangler
 @end
 

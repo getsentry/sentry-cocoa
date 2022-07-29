@@ -668,7 +668,6 @@
 		D8C67E9C28000E24007E326E /* SentryScreenshot.h in Headers */ = {isa = PBXBuildFile; fileRef = D8C67E9A28000E23007E326E /* SentryScreenshot.h */; };
 		D8CE69BC277E39C700C6EC5C /* SentryFileIOTrackingIntegrationObjCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D8CE69BB277E39C700C6EC5C /* SentryFileIOTrackingIntegrationObjCTests.m */; };
 		D8E62B4A2893DFF0003752C2 /* SentryDemangler.h in Headers */ = {isa = PBXBuildFile; fileRef = D8144FC6288A8B20001B2543 /* SentryDemangler.h */; };
-		D8E62B4B28940551003752C2 /* SentryDemangler.mm in Sources */ = {isa = PBXBuildFile; fileRef = D8144FC7288A8B20001B2543 /* SentryDemangler.mm */; settings = {COMPILER_FLAGS = "-w"; }; };
 		D8E62B4C28940561003752C2 /* Context.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9F1288845010050BDFA /* Context.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		D8E62B4D28940561003752C2 /* ManglingUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9F4288845010050BDFA /* ManglingUtils.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		D8E62B4E28940561003752C2 /* Remangler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9EF288845010050BDFA /* Remangler.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
@@ -678,6 +677,7 @@
 		D8E62B5228940561003752C2 /* NodePrinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9EB288845010050BDFA /* NodePrinter.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		D8E62B5328940561003752C2 /* OldRemangler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9F0288845010050BDFA /* OldRemangler.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		D8E62B5428940561003752C2 /* Punycode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9EE288845010050BDFA /* Punycode.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
+		D8E62B5528941C30003752C2 /* SentryDemangler.mm in Sources */ = {isa = PBXBuildFile; fileRef = D8144FC7288A8B20001B2543 /* SentryDemangler.mm */; };
 		D8F6A2472885512100320515 /* SentryPredicateDescriptor.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F6A2452885512100320515 /* SentryPredicateDescriptor.m */; };
 		D8F6A24B2885515C00320515 /* SentryPredicateDescriptor.h in Headers */ = {isa = PBXBuildFile; fileRef = D8F6A24A2885515B00320515 /* SentryPredicateDescriptor.h */; };
 		D8F6A24E288553A800320515 /* SentryPredicateDescriptorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F6A24C2885534E00320515 /* SentryPredicateDescriptorTests.swift */; };
@@ -691,13 +691,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
 			remoteInfo = "Sentry-iOS";
-		};
-		D8E62B402893C34D003752C2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D8E62B272893C244003752C2;
-			remoteInfo = SentryDemangling;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -3294,7 +3287,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D8E62B412893C34D003752C2 /* PBXTargetDependency */,
 			);
 			name = Sentry;
 			productName = "Sentry-iOS";
@@ -3545,6 +3537,7 @@
 				63FE70E320DA4C1000CDBAE8 /* SentryCrashMonitor_Zombie.c in Sources */,
 				63FE713120DA4C1100CDBAE8 /* SentryCrashDynamicLinker.c in Sources */,
 				8E25C95325F836D000DC215B /* SentryRandom.m in Sources */,
+				D8E62B5528941C30003752C2 /* SentryDemangler.mm in Sources */,
 				7BC85231245812EC005A70F0 /* SentryFileContents.m in Sources */,
 				03F84D3527DD4191008FE43F /* SentryThreadHandle.cpp in Sources */,
 				8EA1ED0B2668F8C400E62B98 /* SentryUIViewControllerSwizzling.m in Sources */,
@@ -3560,7 +3553,6 @@
 				63FE711B20DA4C1000CDBAE8 /* SentryCrashString.c in Sources */,
 				7B14089824878F950035403D /* SentryCrashStackEntryMapper.m in Sources */,
 				63FE711720DA4C1000CDBAE8 /* SentryCrashStackCursor_Backtrace.c in Sources */,
-				D8E62B4B28940551003752C2 /* SentryDemangler.mm in Sources */,
 				63FE70CB20DA4C1000CDBAE8 /* SentryCrashReportFixer.c in Sources */,
 				63FE710F20DA4C1000CDBAE8 /* NSError+SentrySimpleConstructor.m in Sources */,
 				8ECC674925C23A20000E2BF6 /* SentrySpanId.m in Sources */,
@@ -3823,10 +3815,6 @@
 			isa = PBXTargetDependency;
 			target = 63AA759A1EB8AEF500D153DE /* Sentry */;
 			targetProxy = 63AA766B1EB8CB2F00D153DE /* PBXContainerItemProxy */;
-		};
-		D8E62B412893C34D003752C2 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			targetProxy = D8E62B402893C34D003752C2 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
