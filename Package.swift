@@ -16,7 +16,8 @@ let package = Package(
             path: "Sources",
             sources: [
                 "Sentry/",
-                "SentryCrash/"
+                "SentryCrash/",
+                "SwiftDemangling/"
             ],
             publicHeadersPath: "Sentry/Public/",
             cxxSettings: [
@@ -29,7 +30,9 @@ let package = Package(
                 .headerSearchPath("SentryCrash/Recording/Tools"),
                 .headerSearchPath("SentryCrash/Reporting/Filters"),
                 .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
-                .headerSearchPath("SentryCrash/Reporting/Tools")
+                .headerSearchPath("SentryCrash/Reporting/Tools"),
+                .headerSearchPath("SwiftDemangling"),
+                .headerSearchPath("SwiftDemangling/include"),
             ],
             linkerSettings: [
                 .linkedLibrary("z"),
