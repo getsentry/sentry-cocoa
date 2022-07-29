@@ -1,6 +1,6 @@
 #import "SentryDescriptor.h"
-#import "SentryDemangler.h"
 #import "SentryDefines.h"
+#import "SentryDemangler.h"
 
 static SentryDescriptor *_globalDescriptor;
 
@@ -39,7 +39,7 @@ sentry_setGlobalDescriptor(SentryDescriptor *descriptor)
     _globalDescriptor = [[SentryDescriptor alloc] init];
     NSLog(@"%d", TARGET_OS_MACCATALYST);
 }
-#if SENTRY_HAS_UIKIT  && TARGET_OS_MACCATALYST == 0
+#if SENTRY_HAS_UIKIT && TARGET_OS_MACCATALYST == 0
 - (instancetype)init
 {
     if (self = [super init]) {
@@ -82,6 +82,5 @@ sentry_setGlobalDescriptor(SentryDescriptor *descriptor)
 {
     return [self getClassDescription:object.class];
 }
-
 
 @end

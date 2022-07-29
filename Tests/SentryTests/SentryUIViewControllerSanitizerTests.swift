@@ -2,7 +2,7 @@ import XCTest
 
 class SentryUIViewControllerSanitizerTests: XCTestCase {
 
-    private class SomeViewController : UIViewController {
+    private class SomeViewController: UIViewController {
     }
     
     func testSanitizeViewControllerNameWithBaseObject() {

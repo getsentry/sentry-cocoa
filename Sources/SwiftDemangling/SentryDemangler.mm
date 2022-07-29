@@ -1,6 +1,6 @@
 #import "SentryDemangler.h"
 #if (TARGET_OS_IOS && TARGET_OS_MACCATALYST == 0) || TARGET_OS_TV
-#import "swift/Demangling/Demangle.h"
+#    import "swift/Demangling/Demangle.h"
 
 using namespace swift::Demangle;
 
