@@ -120,7 +120,7 @@ index 1eeafe7..f5f3dea 100644
 +                options.environment = "integration-tests"
 +                options.tracesSampleRate = 1.0
 +                options.enableFileIOTracking = true
-+                options.enableProfiling = true
++                options.profilesSampleRate = 1.0
 +            }
 +            
 +            SentryInitialized = true

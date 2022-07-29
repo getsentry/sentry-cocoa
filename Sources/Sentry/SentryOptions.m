@@ -12,7 +12,10 @@ SentryOptions ()
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultSampleRate;
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultTracesSampleRate;
 @property (nonatomic, strong) NSMutableSet<NSString *> *disabledIntegrations;
-
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+@property (nullable, nonatomic, copy, readonly) NSNumber *defaultProfilesSampleRate;
+@property (nonatomic, assign) BOOL enableProfiling_DEPRECATED_TEST_ONLY;
+#endif
 @end
 
 @implementation SentryOptions
@@ -68,11 +71,13 @@ SentryOptions ()
         self.enableNetworkBreadcrumbs = YES;
         _defaultTracesSampleRate = nil;
         self.tracesSampleRate = _defaultTracesSampleRate;
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+        _enableProfiling = NO;
+        _defaultProfilesSampleRate = nil;
+        self.profilesSampleRate = _defaultProfilesSampleRate;
+#endif
         self.enableCoreDataTracking = NO;
         _enableSwizzling = YES;
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-        self.enableProfiling = NO;
-#endif
         self.sendClientReports = YES;
 
         // Use the name of the bundle’s executable file as inAppInclude, so SentryInAppLogic
@@ -289,6 +294,14 @@ SentryOptions ()
             block:^(BOOL value) { self->_enableCoreDataTracking = value; }];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+    if ([options[@"profilesSampleRate"] isKindOfClass:[NSNumber class]]) {
+        self.profilesSampleRate = options[@"profilesSampleRate"];
+    }
+
+    if ([self isBlock:options[@"profilesSampler"]]) {
+        self.profilesSampler = options[@"profilesSampler"];
+    }
+
     [self setBool:options[@"enableProfiling"]
             block:^(BOOL value) { self->_enableProfiling = value; }];
 #endif
@@ -379,6 +392,43 @@ SentryOptions ()
     return (_tracesSampleRate != nil && [_tracesSampleRate doubleValue] > 0)
         || _tracesSampler != nil;
 }
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+- (BOOL)isValidProfilesSampleRate:(NSNumber *)profilesSampleRate
+{
+    return [self isValidTracesSampleRate:profilesSampleRate];
+}
+
+- (void)setProfilesSampleRate:(NSNumber *)profilesSampleRate
+{
+    if (profilesSampleRate == nil) {
+        _profilesSampleRate = nil;
+    } else if ([self isValidProfilesSampleRate:profilesSampleRate]) {
+        _profilesSampleRate = profilesSampleRate;
+    } else {
+        _profilesSampleRate = _defaultProfilesSampleRate;
+    }
+}
+
+- (BOOL)isProfilingEnabled
+{
+    return (_profilesSampleRate != nil && [_profilesSampleRate doubleValue] > 0)
+        || _profilesSampler != nil || _enableProfiling;
+}
+
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+- (void)setEnableProfiling_DEPRECATED_TEST_ONLY:(BOOL)enableProfiling_DEPRECATED_TEST_ONLY
+{
+    self.enableProfiling = enableProfiling_DEPRECATED_TEST_ONLY;
+}
+
+- (BOOL)enableProfiling_DEPRECATED_TEST_ONLY
+{
+    return self.enableProfiling;
+}
+#    pragma clang diagnostic pop
+#endif
 
 /**
  * Checks if the passed in block is actually of type block. We can't check if the block matches a

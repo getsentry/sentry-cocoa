@@ -46,9 +46,10 @@ SentryFramesTrackingIntegration ()
     }
 
     if (!options.enableAutoPerformanceTracking) {
-        [SentryLog logWithMessage:
-                       @"AutoUIPerformanceTracking disabled. Will not track slow and frozen frames."
-                         andLevel:kSentryLevelDebug];
+        [SentryLog
+            logWithMessage:
+                @"enableAutoPerformanceTracking disabled. Will not track slow and frozen frames."
+                  andLevel:kSentryLevelDebug];
         return YES;
     }
 
