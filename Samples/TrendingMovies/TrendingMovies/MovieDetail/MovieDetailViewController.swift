@@ -112,8 +112,7 @@ class MovieDetailViewController: UIViewController, UIScrollViewDelegate, MovieDe
     override func viewDidLoad() {
         super.viewDidLoad()
         guard let detailView = detailView else {
-            print("[TrendingMovies] Detail view was not loaded")
-            return
+            fatalError("Detail view was not loaded")
         }
 
         updateColors()
@@ -149,8 +148,7 @@ class MovieDetailViewController: UIViewController, UIScrollViewDelegate, MovieDe
 
     private func addSections(_ sections: [Section]) {
         guard let detailView = detailView else {
-            print("[TrendingMovies] addSections cannot be called before the view is loaded")
-            return
+            fatalError("addSections cannot be called before the view is loaded")
         }
         let initialCount = detailView.numberOfSections
         let newSectionCount = sections.count
@@ -165,7 +163,7 @@ class MovieDetailViewController: UIViewController, UIScrollViewDelegate, MovieDe
                 case .empty, .failure:
                     break
                 case .none, .triggered:
-                    print("[TrendingMovies] The fetch completion handler should never be called with this state")
+                    fatalError("The fetch completion handler should never be called with this state")
                 }
                 loadedSectionCount.mutate { $0 += 1 }
                 if loadedSectionCount.value == newSectionCount {
@@ -177,8 +175,7 @@ class MovieDetailViewController: UIViewController, UIScrollViewDelegate, MovieDe
 
     private func addChildSectionViewController(_ viewController: MovieDetailSectionViewControllerProtocol, title: String, index: Int) {
         guard let detailView = detailView else {
-            print("[TrendingMovies] addChildSectionViewController cannot be called before the view is loaded")
-            return
+            fatalError("addChildSectionViewController cannot be called before the view is loaded")
         }
         viewController.colors = colors
         addChild(viewController)
@@ -198,8 +195,7 @@ class MovieDetailViewController: UIViewController, UIScrollViewDelegate, MovieDe
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         guard let barBackgroundView = barBackgroundView else {
-            print("[TrendingMovies] Expected barBackgroundView to be set")
-            return
+            fatalError("Expected barBackgroundView to be set")
         }
         let shouldHide = scrollView.contentOffset.y <= 20.0
         if barBackgroundView.isVisualEffectHidden != shouldHide {

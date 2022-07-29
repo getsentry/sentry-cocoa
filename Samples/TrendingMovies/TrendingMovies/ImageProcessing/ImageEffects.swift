@@ -28,8 +28,7 @@ struct ImageEffects {
 
         UIGraphicsBeginImageContextWithOptions(containerLayer.bounds.size, false, 0.0)
         guard let context = UIGraphicsGetCurrentContext() else {
-            print("[TrendingMovies] Could not get graphics context")
-            return nil
+            fatalError("Could not get graphics context")
         }
         containerLayer.render(in: context)
         guard let contextImage = UIGraphicsGetImageFromCurrentImageContext() else {
