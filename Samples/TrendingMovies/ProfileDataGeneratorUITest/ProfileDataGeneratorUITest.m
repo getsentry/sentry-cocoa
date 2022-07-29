@@ -80,8 +80,11 @@ generateProfileData(NSUInteger nCellsPerTab, BOOL clearState)
 
             XCUIElement *const backButton = [app.navigationBars.buttons elementBoundByIndex:0];
             if (![backButton waitForExistenceWithTimeout:kWaitForElementTimeout]) {
-                XCTFail("Failed to find back button");
-                return NO;
+                // failed to find a back button; maybe we're still on the movie list screen
+                if (![app.tabBars.firstMatch waitForExistenceWithTimeout:kWaitForElementTimeout]) {
+                    XCTFail("Failed to find back button");
+                    return NO;
+                }
             }
             [backButton tap];
         }
