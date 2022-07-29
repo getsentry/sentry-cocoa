@@ -31,13 +31,13 @@ let package = Package(
                 .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
                 .headerSearchPath("SentryCrash/Reporting/Tools"),
                 .headerSearchPath("SwiftDemangling"),
-                .headerSearchPath("SwiftDemangling/include")
+                .headerSearchPath("SwiftDemangling/include", .when(platforms: [.iOS, .tvOS]))
             ],
             linkerSettings: [
                 .linkedLibrary("z"),
                 .linkedLibrary("c++")
             ]
-        )
+        ),
     ],
     cxxLanguageStandard: .cxx14
 )

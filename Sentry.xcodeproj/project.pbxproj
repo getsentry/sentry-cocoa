@@ -678,7 +678,7 @@
 		D8E62B3B2893C286003752C2 /* OldDemangler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9F2288845010050BDFA /* OldDemangler.cpp */; platformFilters = (ios, tvos, watchos, ); settings = {COMPILER_FLAGS = "-w"; }; };
 		D8E62B3C2893C286003752C2 /* NodePrinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9EB288845010050BDFA /* NodePrinter.cpp */; platformFilters = (ios, tvos, watchos, ); settings = {COMPILER_FLAGS = "-w"; }; };
 		D8E62B3F2893C34D003752C2 /* libSentryDemangling.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D8E62B282893C244003752C2 /* libSentryDemangling.a */; platformFilters = (ios, maccatalyst, tvos, watchos, ); };
-		D8E62B472893CF0B003752C2 /* SentryDemangler.h in Headers */ = {isa = PBXBuildFile; fileRef = D8144FC6288A8B20001B2543 /* SentryDemangler.h */; };
+		D8E62B4A2893DFF0003752C2 /* SentryDemangler.h in Headers */ = {isa = PBXBuildFile; fileRef = D8144FC6288A8B20001B2543 /* SentryDemangler.h */; };
 		D8F6A2472885512100320515 /* SentryPredicateDescriptor.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F6A2452885512100320515 /* SentryPredicateDescriptor.m */; };
 		D8F6A24B2885515C00320515 /* SentryPredicateDescriptor.h in Headers */ = {isa = PBXBuildFile; fileRef = D8F6A24A2885515B00320515 /* SentryPredicateDescriptor.h */; };
 		D8F6A24E288553A800320515 /* SentryPredicateDescriptorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F6A24C2885534E00320515 /* SentryPredicateDescriptorTests.swift */; };
@@ -3159,7 +3159,7 @@
 				63FE718720DA4C1100CDBAE8 /* SentryCrashReportVersion.h in Headers */,
 				8E7C98312693E1CC00E6336C /* SentryTraceHeader.h in Headers */,
 				7BBD18912449BE9000427C76 /* SentryDefaultRateLimits.h in Headers */,
-				D8E62B472893CF0B003752C2 /* SentryDemangler.h in Headers */,
+				D8E62B4A2893DFF0003752C2 /* SentryDemangler.h in Headers */,
 				7B8713AE26415ADF006D6004 /* SentryAppStartTrackingIntegration.h in Headers */,
 				7B7D873224864BB900D2ECFF /* SentryCrashMachineContextWrapper.h in Headers */,
 				861265F92404EC1500C4AFDE /* NSArray+SentrySanitize.h in Headers */,
