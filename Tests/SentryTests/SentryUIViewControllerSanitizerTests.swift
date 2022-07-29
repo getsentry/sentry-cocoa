@@ -2,8 +2,10 @@ import XCTest
 
 class SentryUIViewControllerSanitizerTests: XCTestCase {
 
+#if os(iOS) || os(tvOS)
     private class SomeViewController: UIViewController {
     }
+#endif
     
     func testSanitizeViewControllerNameWithBaseObject() {
         let object = NSObject()
