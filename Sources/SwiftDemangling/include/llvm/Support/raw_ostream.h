@@ -470,7 +470,7 @@ std::enable_if_t<!std::is_reference<OStream>::value && std::is_base_of<raw_ostre
 operator<<(OStream &&OS, const T &Value)
 {
     OS << Value;
-    return std::move(OS);
+    return std::forward(OS);
 }
 
 /// An abstract base class for streams implementations that also support a

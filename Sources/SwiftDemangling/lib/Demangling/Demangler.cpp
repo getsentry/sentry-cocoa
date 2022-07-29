@@ -2205,13 +2205,13 @@ Demangler::demangleImplFunctionType()
     while (NodePointer Param = demangleImplParamConvention(Node::Kind::ImplParameter)) {
         type = addChild(type, Param);
         if (NodePointer Diff = demangleImplParameterResultDifferentiability())
-            Param = addChild(Param, Diff);
+            addChild(Param, Diff);
         ++NumTypesToAdd;
     }
     while (NodePointer Result = demangleImplResultConvention(Node::Kind::ImplResult)) {
         type = addChild(type, Result);
         if (NodePointer Diff = demangleImplParameterResultDifferentiability())
-            Result = addChild(Result, Diff);
+            addChild(Result, Diff);
         ++NumTypesToAdd;
     }
     while (nextIf('Y')) {

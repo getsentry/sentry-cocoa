@@ -1738,7 +1738,6 @@ NodePrinter::print(NodePointer Node, bool asPrefixContext)
         auto lastChild = Node->getChild(lastChildIndex - 1);
         bool isSerialized = false;
         if (lastChild->getKind() == Node::Kind::IsSerialized) {
-            isSerialized = true;
             --lastChildIndex;
             lastChild = Node->getChild(lastChildIndex - 1);
         }
