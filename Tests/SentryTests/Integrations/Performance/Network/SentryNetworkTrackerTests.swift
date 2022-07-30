@@ -100,6 +100,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertTrue(span!.isFinished)
     }
     
+    @available(macOS 10.11, *)
     func testIgnoreStreamTask() {
         let task = createStreamTask()
         let span = spanForTask(task: task)
@@ -666,6 +667,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         return URLSessionUploadTaskMock(request: request)
     }
     
+    @available(macOS 10.11, *)
     func createStreamTask(method: String = "GET") -> URLSessionStreamTaskMock {
         var request = URLRequest(url: SentryNetworkTrackerTests.testURL)
         request.httpMethod = method

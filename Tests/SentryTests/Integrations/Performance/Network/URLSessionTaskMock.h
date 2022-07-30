@@ -53,6 +53,7 @@ static int64_t const DATA_BYTES_SENT = 652;
 
 @end
 
+API_AVAILABLE(macos(10.11))
 @interface URLSessionStreamTaskMock : NSURLSessionStreamTask <URLSessionTaskMock>
 
 @property (nonatomic) NSURLSessionTaskState state;

@@ -1,7 +1,5 @@
 #import <XCTest/XCTest.h>
 
-static NSUInteger const kMaxScrollCount = 10;
-static NSUInteger const kMaxConsecutiveFindCellFailures = 3;
 static NSTimeInterval const kWaitForAppStateTimeout = 10.0;
 static NSTimeInterval const kWaitForElementTimeout = 5.0;
 
@@ -20,12 +18,12 @@ static NSTimeInterval const kWaitForElementTimeout = 5.0;
 {
     CFTimeInterval const startTime = CACurrentMediaTime();
     CFTimeInterval const runDuration_seconds = 3.0 * 60.0;
-    generateProfileData(5 /* nCellsPerTab */, YES /* clearState */);
+    generateProfileData(YES /* clearState */);
     while (true) {
         if ((CACurrentMediaTime() - startTime) >= runDuration_seconds) {
             break;
         }
-        if (!generateProfileData(5 /* nCellsPerTab */, NO /* clearState */)) {
+        if (!generateProfileData(NO /* clearState */)) {
             break;
         }
     }
@@ -34,12 +32,11 @@ static NSTimeInterval const kWaitForElementTimeout = 5.0;
 /**
  * Generates profile data by interacting with UI elements in the TrendingMovies app while running a
  * Sentry transaction with profiling enabled.
- * @param nCellsPerTab The number of cells to tap on, per tab.
  * @param clearState Whether to clear filesystem state when the app starts.
  * @return Whether the operation was successful or not.
  */
 BOOL
-generateProfileData(NSUInteger nCellsPerTab, BOOL clearState)
+generateProfileData(BOOL clearState)
 {
     XCUIApplication *app = [[XCUIApplication alloc] init];
     if (clearState) {

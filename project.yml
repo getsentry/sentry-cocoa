@@ -74,14 +74,6 @@ schemes:
       targets:
         - SentryTests_tvOS
 
-  Sentry_watchOS:
-    build:
-      targets:
-        Sentry_watchOS: all
-    test:
-      targets:
-        - SentryTests_watchOS
-
   iOS-ObjectiveC:
     build:
       targets:
@@ -260,7 +252,7 @@ targets:
 
   SentryTests:
     type: "bundle.unit-test"
-    platform: [iOS, macOS, tvOS, watchOS]
+    platform: [iOS, macOS, tvOS]
     sources:
       - path: "Tests/SentryTests"
       - path: "Tests/Resources/fatal-error-binary-images-message2.json"
@@ -296,6 +288,7 @@ targets:
       - path: "Tests/Resources/fatal-error-binary-images-message2.json"
     dependencies:
       - target: iOS-Swift
+      - target: Sentry_iOS
     configFiles:
       Debug: xcconfig/Targets/iOS-Swift-UITests.xcconfig
       Release: xcconfig/Targets/iOS-Swift-UITests.xcconfig

@@ -42,11 +42,11 @@ cpuInfoByThread()
                 continue;
             }
 
-            mach_msg_type_number_t count = THREAD_BASIC_INFO_COUNT;
+            mach_msg_type_number_t count_ = THREAD_BASIC_INFO_COUNT;
             thread_basic_info_data_t data;
             // MACH_SEND_INVALID_DEST is returned when the thread no longer exists
             if (thread_info(
-                    thread, THREAD_BASIC_INFO, reinterpret_cast<thread_info_t>(&data), &count)
+                    thread, THREAD_BASIC_INFO, reinterpret_cast<thread_info_t>(&data), &count_)
                 == KERN_SUCCESS) {
                 const auto system_time_micros
                     = data.system_time.seconds * 1e6 + data.system_time.microseconds;
@@ -82,7 +82,7 @@ dispatch_queue_t queue;
     source = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
     dispatch_source_set_event_handler(source, ^{ [samples addObject:cpuInfoByThread()]; });
     dispatch_source_set_timer(
-        source, dispatch_time(DISPATCH_TIME_NOW, intervalNs), intervalNs, leewayNs);
+        source, dispatch_time(DISPATCH_TIME_NOW, (long long)intervalNs), (unsigned long long)intervalNs, (unsigned long long)leewayNs);
     dispatch_resume(source);
 }
 

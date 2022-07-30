@@ -216,7 +216,7 @@
             CGFloat inputRadius = blurRadius * inputImageScale;
             if (inputRadius - 2. < __FLT_EPSILON__)
                 inputRadius = 2.;
-            uint32_t radius = floor((inputRadius * 3. * sqrt(2 * M_PI) / 4 + 0.5) / 2);
+            uint32_t radius = (uint32_t)floor((inputRadius * 3. * sqrt(2 * M_PI) / 4 + 0.5) / 2);
 
             radius |= 1; // force radius to be odd so that the three box-blur methodology works.
 
@@ -268,7 +268,7 @@
                 = sizeof(floatingPointSaturationMatrix) / sizeof(floatingPointSaturationMatrix[0]);
             int16_t saturationMatrix[matrixSize];
             for (NSUInteger i = 0; i < matrixSize; ++i) {
-                saturationMatrix[i] = (int16_t)roundf(floatingPointSaturationMatrix[i] * divisor);
+                saturationMatrix[i] = (int16_t)roundf((float)floatingPointSaturationMatrix[i] * divisor);
             }
             vImageMatrixMultiply_ARGB8888(
                 inputBuffer, outputBuffer, saturationMatrix, divisor, NULL, NULL, kvImageNoFlags);
