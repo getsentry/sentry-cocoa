@@ -81,8 +81,8 @@ dispatch_queue_t queue;
     queue = dispatch_queue_create("io.sentry.benchmark.gcd-scheduler", attr);
     source = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
     dispatch_source_set_event_handler(source, ^{ [samples addObject:cpuInfoByThread()]; });
-    dispatch_source_set_timer(
-        source, dispatch_time(DISPATCH_TIME_NOW, (long long)intervalNs), (unsigned long long)intervalNs, (unsigned long long)leewayNs);
+    dispatch_source_set_timer(source, dispatch_time(DISPATCH_TIME_NOW, (long long)intervalNs),
+        (unsigned long long)intervalNs, (unsigned long long)leewayNs);
     dispatch_resume(source);
 }
 
