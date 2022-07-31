@@ -9,46 +9,15 @@ phase="$1"
 # | grep -v -e "Information about workspace" -e "Schemes:" -e "Sentry" \
 # | awk '{print "\"" $1 " " $2 " " $3 "\""};' | sed 's/  //'
 
-for scheme in "iOS-ObjectiveC" "iOS-ObjectiveCUITests" "iOS-Swift" "iOS-Swift-Benchmarking" "iOS-SwiftClip" "iOS-SwiftUI" "iOS-SwiftUI-UITests" "iOS-SwiftUITests" "iOS13-Swift" "iOS13-SwiftTests" "iOS15-SwiftUI" "iOS15-SwiftUITests" "iOS15-SwiftUIUITests" "macOS-Swift" "ProfileDataGeneratorUITest" "TrendingMovies" "tvOS-SBSwift" "tvOS-SBSwiftUITests" "tvOS-Swift" "tvOS-SwiftUITests" "watchOS-Swift" "watchOS-Swift WatchKit App" "watchOS-Swift WatchKit Extension"
+for scheme in "iOS-ObjectiveC" "iOS-ObjectiveC-UITests" "iOS-Swift" "PerformanceBenchmarks" "iOS-Swift-Clip" "iOS-SwiftUI" "iOS-SwiftUI-UITests" "iOS-Swift-UITests" "iOS13-Swift" "iOS13-Swift-Tests" "iOS15-SwiftUI" "iOS15-SwiftUI-Tests" "iOS15-SwiftUI-UITests" "macOS-Swift" "ProfileDataGenerator" "TrendingMovies" "tvOS-SBSwift" "tvOS-SBSwiftUITests" "tvOS-Swift" "tvOS-Swift-UITests" "watchOS-Swift" "watchOS-Swift WatchKit App" "watchOS-Swift WatchKit Extension" "Sentry_iOS" "SentryTests_OiS" "Sentry_macOS" "SentryTests_macOS" "Sentry_tvOS" "SentryTests_tvOS" "Sentry_watchOS" "SentryTests_watchOS" "Carthage-Validation-Framework" "Carthage-Validation-XCFramework"
 do
-    for config in "Debug" "Release"
+    for config in "Debug" "Release" "Test" "TestCI"
     do
         xcodebuild -project Sentry.xcodeproj \
             -showBuildSettings \
             -scheme "$scheme" \
             -configuration $config \
                 > xcodebuild_showBuildSettings_${phase}/${scheme}_${config}.txt \
-                2>/dev/null
-    done
-done
-
-# Output all build settings for all configs of the SentryTests target for all SDKs.
-for sdk in "macosx" "iphoneos" "appletvos" "watchos"
-do
-    for config in "Debug" "Release" "Test" "TestCI"
-    do
-        for scheme in "Sentry" "SentryTests"
-        do
-            xcodebuild -project Sentry.xcodeproj \
-                -showBuildSettings \
-                -scheme $scheme \
-                -configuration $config \
-                -sdk $sdk \
-                    > xcodebuild_showBuildSettings_${phase}/${scheme}_${config}_${sdk}.txt \
-                    2>/dev/null
-        done
-    done
-done
-
-for project in "Framework" "XCFramework"
-do
-    for config in "Debug" "Release"
-    do
-        xcodebuild -project Samples/Carthage-Validation/$project/${project}.xcodeproj \
-            -showBuildSettings \
-            -scheme $project \
-            -configuration $config \
-                > xcodebuild_showBuildSettings_${phase}/Carthage-Validation_${project}_${config}.txt \
                 2>/dev/null
     done
 done
