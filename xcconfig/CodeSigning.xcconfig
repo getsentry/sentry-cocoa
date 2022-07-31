@@ -1,8 +1,8 @@
-CODE_SIGN_IDENTITY[sdk=iphoneos*] = iPhone Developer
-CODE_SIGN_IDENTITY[sdk=macosx*] = Apple Development
+//CODE_SIGN_IDENTITY[sdk=iphoneos*] = iPhone Developer
+//CODE_SIGN_IDENTITY[sdk=macosx*] = Apple Development
+//
+//CODE_SIGN_IDENTITY[sdk=iphoneos*][config=Release] = iPhone Distribution
+//CODE_SIGN_IDENTITY[sdk=macosx*][config=Release] = Apple Distribution
 
-CODE_SIGN_IDENTITY[sdk=iphoneos*][config=Release] = iPhone Distribution
-CODE_SIGN_IDENTITY[sdk=macosx*][config=Release] = Apple Distribution
-
-CODE_SIGN_STYLE = Manual
+CODE_SIGN_STYLE = Automatic
 DEVELOPMENT_TEAM = 97JCY7859U

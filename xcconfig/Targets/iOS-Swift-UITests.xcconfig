@@ -3,5 +3,4 @@
 
 INFOPLIST_FILE = $(SRCROOT)/Samples/iOS-Swift/iOS-Swift-UITests/Info.plist
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-SwiftUITests
-PROVISIONING_PROFILE_SPECIFIER = match Development io.sentry.iOS-SwiftUITests.xctrunner
 TEST_TARGET_NAME = iOS-Swift

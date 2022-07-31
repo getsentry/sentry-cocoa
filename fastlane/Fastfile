@@ -95,9 +95,7 @@ platform :ios do
 
   lane :build_ios_swift_ui_test do
 
-    setup_ci(
-      force: true
-    )
+    setup_ci
 
     sync_code_signing(
       type: "development",
@@ -118,9 +116,7 @@ platform :ios do
 
   lane :build_ios_benchmark_test do
 
-    setup_ci(
-      force: true
-    )
+    setup_ci
 
     sync_code_signing(
       type: "development",
@@ -142,9 +138,7 @@ platform :ios do
   desc 'Build an XCode UI test target that exercises the Trending Movies test app to generate and upload profile data for testing/development purposes throughout the rest of the Sentry stack.'
   lane :build_profile_data_generator_ui_test do
 
-    setup_ci(
-      force: true
-    )
+    setup_ci
 
     sync_code_signing(
       type: "development",

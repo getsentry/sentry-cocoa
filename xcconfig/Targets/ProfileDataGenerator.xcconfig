@@ -3,5 +3,4 @@
 
 IPHONEOS_DEPLOYMENT_TARGET = 12.0
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.movies.ProfileDataGeneratorUITest
-PROVISIONING_PROFILE_SPECIFIER = match Development io.sentry.sample.movies.ProfileDataGeneratorUITest.xctrunner
 TEST_TARGET_NAME = TrendingMovies
