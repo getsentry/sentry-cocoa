@@ -63,7 +63,7 @@ jobs:
           -scheme '${{matrix.scheme}}'
           -configuration Debug
           CODE_SIGNING_ALLOWED="NO"
-          build
+          build | xcpretty
 
   build-xcframework:
     name: Build & Validate XCFramework

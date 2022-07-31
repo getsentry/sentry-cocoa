@@ -34,7 +34,7 @@ jobs:
         -project Sentry.xcodeproj 
         -scheme Sentry_iOS
         -configuration Release 
-        -destination platform="iOS Simulator,OS=latest,name=iPhone 11 Pro"
+        -destination platform="iOS Simulator,OS=latest,name=iPhone 11 Pro" | xcpretty
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
