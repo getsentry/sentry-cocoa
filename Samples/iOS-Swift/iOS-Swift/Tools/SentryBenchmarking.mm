@@ -133,14 +133,14 @@ dispatch_queue_t queue;
 
     [samples removeAllObjects];
 
-    const auto profilerSystemTime = systemTimeTotals[@"io.sentry.SamplingProfiler"].integerValue;
-    const auto profilerUserTime = userTimeTotals[@"io.sentry.SamplingProfiler"].integerValue;
+    const auto profilerSystemTime = systemTimeTotals[@"io.sentry.SamplingProfiler"].longValue;
+    const auto profilerUserTime = userTimeTotals[@"io.sentry.SamplingProfiler"].longValue;
     [systemTimeTotals removeObjectForKey:@"io.sentry.SamplingProfiler"];
     [userTimeTotals removeObjectForKey:@"io.sentry.SamplingProfiler"];
     const auto appSystemTime
-        = ((NSNumber *)[systemTimeTotals.allValues valueForKeyPath:@"@sum.self"]).integerValue;
+        = ((NSNumber *)[systemTimeTotals.allValues valueForKeyPath:@"@sum.self"]).longValue;
     const auto appUserTime
-        = ((NSNumber *)[userTimeTotals.allValues valueForKeyPath:@"@sum.self"]).integerValue;
+        = ((NSNumber *)[userTimeTotals.allValues valueForKeyPath:@"@sum.self"]).longValue;
 
     return [NSString stringWithFormat:@"%ld,%ld,%ld,%ld", profilerSystemTime, profilerUserTime,
                      appSystemTime, appUserTime];
