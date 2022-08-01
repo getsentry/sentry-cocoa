@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Report App Memory Usage (#2027)
+
 ## 7.23.0
 
 ### Features
