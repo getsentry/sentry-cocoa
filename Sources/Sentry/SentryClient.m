@@ -653,6 +653,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                         block:^(NSMutableDictionary *device) {
                             device[SentryDeviceContextFreeMemoryKey] =
                                 @(self.crashWrapper.freeMemory);
+
+                            device[SentryDeviceContextAppMemoryKey] =
+                                @(self.crashWrapper.appMemory);
                         }];
 }
 
@@ -661,6 +664,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self modifyDeviceContext:event
                         block:^(NSMutableDictionary *device) {
                             [device removeObjectForKey:SentryDeviceContextFreeMemoryKey];
+                            [device removeObjectForKey:SentryDeviceContextAppMemoryKey];
                         }];
 }
 

@@ -458,6 +458,7 @@ class SentryClientTest: XCTestCase {
         assertLastSentEventWithAttachment { event in
             XCTAssertEqual(oomEvent.eventId, event.eventId)
             XCTAssertNil(event.context?["device"]?["free_memory"])
+            XCTAssertNil(event.context?["device"]?["app_memory"])
         }
     }
     
@@ -509,6 +510,20 @@ class SentryClientTest: XCTestCase {
         assertLastSentEventWithAttachment { actual in
             let eventFreeMemory = actual.context?["device"]?["free_memory"] as? Int
             XCTAssertEqual(eventFreeMemory, 123_456)
+        }
+    }
+
+    func testCaptureCrash_AppMemory() {
+        let event = TestData.event
+        event.threads = nil
+        event.debugMeta = nil
+
+        fixture.crashWrapper.internalAppMemory = 123_456
+        fixture.getSut().captureCrash(event, with: fixture.scope)
+
+        assertLastSentEventWithAttachment { actual in
+            let eventAppMemory = actual.context?["device"]?["app_memory"] as? Int
+            XCTAssertEqual(eventAppMemory, 123_456)
         }
     }
 
