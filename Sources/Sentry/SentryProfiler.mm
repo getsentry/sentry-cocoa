@@ -122,16 +122,20 @@ isSimulatorBuild()
     [SentryLog logWithMessage:@"Disabling profiling when running with TSAN"
                      andLevel:kSentryLevelDebug];
     return;
+#            pragma clang diagnostic push
+#            pragma clang diagnostic ignored "-Wunreachable-code"
 #        endif
 #    endif
     @synchronized(self) {
+#    pragma clang diagnostic pop
         if (_profiler != nullptr) {
             _profiler->stopSampling();
         }
         _profile = [NSMutableDictionary<NSString *, id> dictionary];
         const auto sampledProfile = [NSMutableDictionary<NSString *, id> dictionary];
         const auto samples = [NSMutableArray<NSDictionary<NSString *, id> *> array];
-        const auto threadMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
+        const auto threadMetadata =
+            [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
         const auto queueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
         sampledProfile[@"samples"] = samples;
         sampledProfile[@"thread_metadata"] = threadMetadata;
@@ -152,17 +156,20 @@ isSimulatorBuild()
                 if (backtrace.queueMetadata.address != 0) {
                     queueAddress = sentry_formatHexAddress(@(backtrace.queueMetadata.address));
                 }
-                if (threadMetadata[threadID] == nil) {
-                    const auto metadata = [NSMutableDictionary<NSString *, id> dictionary];
-                    if (!backtrace.threadMetadata.name.empty()) {
-                        metadata[@"name"] =
-                            [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
-                    }
-                    metadata[@"priority"] = @(backtrace.threadMetadata.priority);
+                NSMutableDictionary<NSString *, id> *metadata = threadMetadata[threadID];
+                if (metadata == nil) {
+                    metadata = [NSMutableDictionary<NSString *, id> dictionary];
                     if (backtrace.threadMetadata.threadID == mainThreadID) {
                         metadata[@"is_main_thread"] = @YES;
                     }
                     threadMetadata[threadID] = metadata;
+                }
+                if (!backtrace.threadMetadata.name.empty() && metadata[@"name"] == nil) {
+                    metadata[@"name"] =
+                        [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
+                }
+                if (backtrace.threadMetadata.priority != -1 && metadata[@"priority"] == nil) {
+                    metadata[@"priority"] = @(backtrace.threadMetadata.priority);
                 }
                 if (queueAddress != nil && queueMetadata[queueAddress] == nil
                     && backtrace.queueMetadata.label != nullptr) {
@@ -205,7 +212,9 @@ isSimulatorBuild()
 - (void)stop
 {
     @synchronized(self) {
-        _profiler->stopSampling();
+        if (_profiler != nullptr) {
+            _profiler->stopSampling();
+        }
     }
 }
 
@@ -306,6 +315,9 @@ isSimulatorBuild()
 
 - (BOOL)isRunning
 {
+    if (_profiler == nullptr) {
+        return NO;
+    }
     return _profiler->isSampling();
 }
 

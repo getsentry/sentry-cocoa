@@ -4,8 +4,27 @@
 
 ### Features
 
-- Read free_memory when the event is captured, not only at SDK startup (#1962)
 - Include app permissions with event (#1984)
+
+## 7.23.0
+
+### Features
+
+- Add sampling configuration for profiling (#2004)
+- Add transaction to baggage and trace headers (#1992)
+
+### Fixes
+
+- Log empty samples instead of collecting stacks for idle threads (#2013)
+- Remove logging that could occur while a thread is suspended (#2014)
+- Handle failure to read thread priority gracefully (#2015)
+- Fix address sanitizer compilation error (#1996)
+
+## 7.22.0
+
+### Features
+
+- Read free_memory when the event is captured, not only at SDK startup (#1962)
 - Provide private access to SentryOptions for hybrid SDKs (#1991)
 
 ### Fixes

@@ -54,6 +54,7 @@ class SentryTraceContextTests: XCTestCase {
             publicKey: fixture.publicKey,
             releaseName: fixture.releaseName,
             environment: fixture.environment,
+            transaction: fixture.transactionName,
             userSegment: fixture.userSegment,
             sampleRate: fixture.sampleRate)
         
@@ -92,6 +93,7 @@ class SentryTraceContextTests: XCTestCase {
             publicKey: fixture.publicKey,
             releaseName: fixture.releaseName,
             environment: fixture.environment,
+            transaction: fixture.transactionName,
             userSegment: fixture.userSegment,
             sampleRate: fixture.sampleRate)
         
@@ -110,6 +112,7 @@ class SentryTraceContextTests: XCTestCase {
         XCTAssertEqual(traceContext.publicKey, fixture.publicKey)
         XCTAssertEqual(traceContext.releaseName, fixture.releaseName)
         XCTAssertEqual(traceContext.environment, fixture.environment)
+        XCTAssertEqual(traceContext.transaction, fixture.transactionName)
         XCTAssertEqual(traceContext.userSegment, fixture.userSegment)
     }
     
