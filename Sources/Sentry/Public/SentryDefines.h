@@ -118,5 +118,3 @@ static NSString *_Nonnull const SentryLevelNames[] = {
 };
 
 static NSUInteger const defaultMaxBreadcrumbs = 100;
-
-static CFTimeInterval const SentryFrozenFrameThreshold = 0.7;
