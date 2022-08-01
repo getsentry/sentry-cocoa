@@ -20,8 +20,9 @@ Pod::Spec.new do |s|
       'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES',
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
       'CLANG_CXX_LIBRARY' => 'libc++',
-      'HEADER_SEARCH_PATHS' => '${PODS_TARGET_SRCROOT}/Sources/SwiftDemangling/include'
-}
+      'HEADER_SEARCH_PATHS' => '${PODS_TARGET_SRCROOT}/Sources/SwiftDemangling/include',
+      'GCC_TREAT_WARNINGS_AS_ERRORS' => 'NO'
+ }
 
   s.default_subspecs = ['Core']
 
