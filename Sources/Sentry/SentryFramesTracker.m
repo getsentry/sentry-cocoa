@@ -144,7 +144,6 @@ SentryFramesTracker ()
     CFTimeInterval slowFrameThreshold = 1 / (actualFramesPerSecond - 1);
 
     CFTimeInterval frameDuration = lastFrameTimestamp - self.previousFrameTimestamp;
-    self.previousFrameTimestamp = lastFrameTimestamp;
 
     if (frameDuration > slowFrameThreshold && frameDuration <= SentryFrozenFrameThreshold) {
         atomic_fetch_add_explicit(&_slowFrames, 1, SentryFramesMemoryOrder);
