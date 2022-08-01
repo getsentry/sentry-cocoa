@@ -663,7 +663,7 @@
 		D8ACE3CE2762187D00F5A213 /* SentryNSDataTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = D8ACE3CB2762187D00F5A213 /* SentryNSDataTracker.h */; };
 		D8ACE3CF2762187D00F5A213 /* SentryFileIOTrackingIntegration.h in Headers */ = {isa = PBXBuildFile; fileRef = D8ACE3CC2762187D00F5A213 /* SentryFileIOTrackingIntegration.h */; };
 		D8B6DABD2897D876005814CD /* SentryDemangler.mm in Sources */ = {isa = PBXBuildFile; fileRef = D8B6DABB2897D876005814CD /* SentryDemangler.mm */; settings = {COMPILER_FLAGS = "-w"; }; };
-		D8B6DABE2897D876005814CD /* SentryDemangler.h in Headers */ = {isa = PBXBuildFile; fileRef = D8B6DABC2897D876005814CD /* SentryDemangler.h */; };
+		D8B6DAE32898060F005814CD /* SentryDemangler.h in Headers */ = {isa = PBXBuildFile; fileRef = D8B6DAE22898060F005814CD /* SentryDemangler.h */; };
 		D8B76B062808066D000A58C4 /* SentryScreenshotIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B76B042808060E000A58C4 /* SentryScreenshotIntegrationTests.swift */; };
 		D8B76B0828081461000A58C4 /* TestSentryScreenShot.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B76B0728081461000A58C4 /* TestSentryScreenShot.swift */; };
 		D8C67E9B28000E24007E326E /* SentryUIApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = D8C67E9928000E23007E326E /* SentryUIApplication.h */; };
@@ -1469,7 +1469,7 @@
 		D8ACE3CB2762187D00F5A213 /* SentryNSDataTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryNSDataTracker.h; path = include/SentryNSDataTracker.h; sourceTree = "<group>"; };
 		D8ACE3CC2762187D00F5A213 /* SentryFileIOTrackingIntegration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryFileIOTrackingIntegration.h; path = include/SentryFileIOTrackingIntegration.h; sourceTree = "<group>"; };
 		D8B6DABB2897D876005814CD /* SentryDemangler.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryDemangler.mm; sourceTree = "<group>"; };
-		D8B6DABC2897D876005814CD /* SentryDemangler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryDemangler.h; sourceTree = "<group>"; };
+		D8B6DAE22898060F005814CD /* SentryDemangler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryDemangler.h; path = include/SentryDemangler.h; sourceTree = "<group>"; };
 		D8B76B042808060E000A58C4 /* SentryScreenshotIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryScreenshotIntegrationTests.swift; sourceTree = "<group>"; };
 		D8B76B0728081461000A58C4 /* TestSentryScreenShot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSentryScreenShot.swift; sourceTree = "<group>"; };
 		D8C67E9928000E23007E326E /* SentryUIApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryUIApplication.h; path = include/SentryUIApplication.h; sourceTree = "<group>"; };
@@ -1792,6 +1792,8 @@
 				7B2A70DC27D6083D008B0D15 /* SentryThreadWrapper.m */,
 				D84900B9288E9B4900DA3342 /* SentryDescriptor.h */,
 				D84900BA288E9B4900DA3342 /* SentryDescriptor.m */,
+				D8B6DAE22898060F005814CD /* SentryDemangler.h */,
+				D8B6DABB2897D876005814CD /* SentryDemangler.mm */,
 			);
 			name = Helper;
 			sourceTree = "<group>";
@@ -2805,8 +2807,6 @@
 		D886D9B4288845010050BDFA /* SwiftDemangling */ = {
 			isa = PBXGroup;
 			children = (
-				D8B6DABC2897D876005814CD /* SentryDemangler.h */,
-				D8B6DABB2897D876005814CD /* SentryDemangler.mm */,
 				D886D9B5288845010050BDFA /* include */,
 				D886D9E8288845010050BDFA /* lib */,
 				D886D9F5288845010050BDFA /* stdlib */,
@@ -3122,7 +3122,7 @@
 				63FE718720DA4C1100CDBAE8 /* SentryCrashReportVersion.h in Headers */,
 				8E7C98312693E1CC00E6336C /* SentryTraceHeader.h in Headers */,
 				7BBD18912449BE9000427C76 /* SentryDefaultRateLimits.h in Headers */,
-				D8B6DABE2897D876005814CD /* SentryDemangler.h in Headers */,
+				D8B6DAE32898060F005814CD /* SentryDemangler.h in Headers */,
 				7B8713AE26415ADF006D6004 /* SentryAppStartTrackingIntegration.h in Headers */,
 				7B7D873224864BB900D2ECFF /* SentryCrashMachineContextWrapper.h in Headers */,
 				861265F92404EC1500C4AFDE /* NSArray+SentrySanitize.h in Headers */,
