@@ -677,7 +677,7 @@
 		D8E62B5228940561003752C2 /* NodePrinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9EB288845010050BDFA /* NodePrinter.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		D8E62B5328940561003752C2 /* OldRemangler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9F0288845010050BDFA /* OldRemangler.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		D8E62B5428940561003752C2 /* Punycode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D886D9EE288845010050BDFA /* Punycode.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
-		D8E62B5528941C30003752C2 /* SentryDemangler.mm in Sources */ = {isa = PBXBuildFile; fileRef = D8144FC7288A8B20001B2543 /* SentryDemangler.mm */; };
+		D8E62B5528941C30003752C2 /* SentryDemangler.mm in Sources */ = {isa = PBXBuildFile; fileRef = D8144FC7288A8B20001B2543 /* SentryDemangler.mm */; settings = {COMPILER_FLAGS = "-w"; }; };
 		D8F6A2472885512100320515 /* SentryPredicateDescriptor.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F6A2452885512100320515 /* SentryPredicateDescriptor.m */; };
 		D8F6A24B2885515C00320515 /* SentryPredicateDescriptor.h in Headers */ = {isa = PBXBuildFile; fileRef = D8F6A24A2885515B00320515 /* SentryPredicateDescriptor.h */; };
 		D8F6A24E288553A800320515 /* SentryPredicateDescriptorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F6A24C2885534E00320515 /* SentryPredicateDescriptorTests.swift */; };
