@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add spans for slow and frozen frames (#2028)
+
 ## 7.23.0
 
 ### Features
