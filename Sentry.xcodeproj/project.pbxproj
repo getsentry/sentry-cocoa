@@ -662,7 +662,7 @@
 		D8ACE3CD2762187D00F5A213 /* SentryNSDataSwizzling.h in Headers */ = {isa = PBXBuildFile; fileRef = D8ACE3CA2762187D00F5A213 /* SentryNSDataSwizzling.h */; };
 		D8ACE3CE2762187D00F5A213 /* SentryNSDataTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = D8ACE3CB2762187D00F5A213 /* SentryNSDataTracker.h */; };
 		D8ACE3CF2762187D00F5A213 /* SentryFileIOTrackingIntegration.h in Headers */ = {isa = PBXBuildFile; fileRef = D8ACE3CC2762187D00F5A213 /* SentryFileIOTrackingIntegration.h */; };
-		D8B6DABD2897D876005814CD /* SentryDemangler.mm in Sources */ = {isa = PBXBuildFile; fileRef = D8B6DABB2897D876005814CD /* SentryDemangler.mm */; };
+		D8B6DABD2897D876005814CD /* SentryDemangler.mm in Sources */ = {isa = PBXBuildFile; fileRef = D8B6DABB2897D876005814CD /* SentryDemangler.mm */; settings = {COMPILER_FLAGS = "-w"; }; };
 		D8B6DABE2897D876005814CD /* SentryDemangler.h in Headers */ = {isa = PBXBuildFile; fileRef = D8B6DABC2897D876005814CD /* SentryDemangler.h */; };
 		D8B76B062808066D000A58C4 /* SentryScreenshotIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B76B042808060E000A58C4 /* SentryScreenshotIntegrationTests.swift */; };
 		D8B76B0828081461000A58C4 /* TestSentryScreenShot.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B76B0728081461000A58C4 /* TestSentryScreenShot.swift */; };
