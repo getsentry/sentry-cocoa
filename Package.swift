@@ -16,8 +16,7 @@ let package = Package(
             path: "Sources",
             sources: [
                 "Sentry/",
-                "SentryCrash/",
-                "SwiftDemangling/"
+                "SentryCrash/"
             ],
             publicHeadersPath: "Sentry/Public/",
             cxxSettings: [
