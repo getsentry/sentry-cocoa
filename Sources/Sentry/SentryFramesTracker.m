@@ -190,10 +190,7 @@ SentryFramesTracker ()
 - (void)recordTimestampStart:(NSNumber *)start end:(NSNumber *)end
 {
     if (self.currentTracer.isProfiling) {
-        [self.frameTimestamps addObject:@{
-            @"start_timestamp" : start,
-            @"end_timestamp" : end,
-        }];
+        [self.frameTimestamps addObject:@{ @"start_timestamp" : start, @"end_timestamp" : end }];
     }
 }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
