@@ -1,5 +1,6 @@
 #import "SentryDefines.h"
 #import "SentryProfilingConditionals.h"
+#import <SentryScreenFrames.h>
 
 @class SentryOptions, SentryDisplayLinkWrapper, SentryScreenFrames;
 
@@ -29,6 +30,8 @@ SENTRY_NO_INIT
 
 /** Remove previously recorded timestamps in preparation for a later profiled transaction. */
 - (void)resetProfilingTimestamps;
+
+- (SentryFrameInfoTimeSeries *)frameTimestamps;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 - (void)start;

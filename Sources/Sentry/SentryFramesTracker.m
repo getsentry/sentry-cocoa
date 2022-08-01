@@ -2,7 +2,6 @@
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryTracer.h"
-#import <SentryScreenFrames.h>
 #include <stdatomic.h>
 
 #if SENTRY_HAS_UIKIT
@@ -13,7 +12,6 @@
 typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *> SentryMutableFrameInfoTimeSeries;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-static CFTimeInterval const SentryFrozenFrameThreshold = 0.7;
 static CFTimeInterval const SentryPreviousFrameInitialValue = -1;
 
 /**
@@ -28,7 +26,7 @@ SentryFramesTracker ()
 @property (nonatomic, strong, readonly) SentryDisplayLinkWrapper *displayLinkWrapper;
 @property (nonatomic, assign) CFTimeInterval previousFrameTimestamp;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-@property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *frameTimestamps;
+@property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *mutableFrameTimestamps;
 @property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *frameRateTimestamps;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -89,7 +87,7 @@ SentryFramesTracker ()
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 - (void)resetProfilingTimestamps
 {
-    self.frameTimestamps = [SentryMutableFrameInfoTimeSeries array];
+    self.mutableFrameTimestamps = [SentryMutableFrameInfoTimeSeries array];
     self.frameRateTimestamps = [SentryMutableFrameInfoTimeSeries array];
 }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -162,7 +160,11 @@ SentryFramesTracker ()
 - (void)recordTimestampStart:(NSNumber *)start end:(NSNumber *)end
 {
     if (self.currentTracer.isProfiling) {
-        [self.frameTimestamps addObject:@{ @"start_timestamp" : start, @"end_timestamp" : end }];
+        [self.mutableFrameTimestamps addObject:@{
+            @"start_timestamp" : start,
+            @"end_timestamp" : end,
+            @"unix_timestamp" : @([NSDate date].timeIntervalSince1970)
+        }];
     }
 }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -177,7 +179,7 @@ SentryFramesTracker ()
     return [[SentryScreenFrames alloc] initWithTotal:total
                                               frozen:frozen
                                                 slow:slow
-                                     frameTimestamps:self.frameTimestamps
+                                     frameTimestamps:self.mutableFrameTimestamps
                                  frameRateTimestamps:self.frameRateTimestamps];
 #    else
     return [[SentryScreenFrames alloc] initWithTotal:total frozen:frozen slow:slow];
@@ -189,6 +191,13 @@ SentryFramesTracker ()
     _isRunning = NO;
     [self.displayLinkWrapper invalidate];
 }
+
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
+- (SentryFrameInfoTimeSeries *)frameTimestamps
+{
+    return self.mutableFrameTimestamps.copy;
+}
+#    endif
 
 @end
 
