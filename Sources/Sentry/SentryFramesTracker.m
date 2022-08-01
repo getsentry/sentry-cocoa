@@ -1,7 +1,13 @@
 #import "SentryFramesTracker.h"
+#import "SentryClient+Private.h"
 #import "SentryDisplayLinkWrapper.h"
+#import "SentryHub+Private.h"
 #import "SentryProfilingConditionals.h"
+#import "SentrySDK+Private.h"
+#import "SentryScope+Private.h"
+#import "SentrySpanProtocol.h"
 #import "SentryTracer.h"
+#import <SentryScreenFrames.h>
 #include <stdatomic.h>
 
 #if SENTRY_HAS_UIKIT
@@ -26,7 +32,7 @@ SentryFramesTracker ()
 @property (nonatomic, strong, readonly) SentryDisplayLinkWrapper *displayLinkWrapper;
 @property (nonatomic, assign) CFTimeInterval previousFrameTimestamp;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-@property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *mutableFrameTimestamps;
+@property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *frameTimestamps;
 @property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *frameRateTimestamps;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -87,7 +93,7 @@ SentryFramesTracker ()
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 - (void)resetProfilingTimestamps
 {
-    self.mutableFrameTimestamps = [SentryMutableFrameInfoTimeSeries array];
+    self.frameTimestamps = [SentryMutableFrameInfoTimeSeries array];
     self.frameRateTimestamps = [SentryMutableFrameInfoTimeSeries array];
 }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -141,11 +147,17 @@ SentryFramesTracker ()
 
     if (frameDuration > slowFrameThreshold && frameDuration <= SentryFrozenFrameThreshold) {
         atomic_fetch_add_explicit(&_slowFrames, 1, SentryFramesMemoryOrder);
+        [self sendTimestampSpanWithStart:self.previousFrameTimestamp
+                                     end:lastFrameTimestamp
+                                isFrozen:NO];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
         [self recordTimestampStart:@(self.previousFrameTimestamp) end:@(lastFrameTimestamp)];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
     } else if (frameDuration > SentryFrozenFrameThreshold) {
         atomic_fetch_add_explicit(&_frozenFrames, 1, SentryFramesMemoryOrder);
+        [self sendTimestampSpanWithStart:self.previousFrameTimestamp
+                                     end:lastFrameTimestamp
+                                isFrozen:YES];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
         [self recordTimestampStart:@(self.previousFrameTimestamp) end:@(lastFrameTimestamp)];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -156,14 +168,31 @@ SentryFramesTracker ()
     self.previousFrameTimestamp = lastFrameTimestamp;
 }
 
+- (void)sendTimestampSpanWithStart:(CFTimeInterval)start
+                               end:(CFTimeInterval)end
+                          isFrozen:(BOOL)isFrozen
+{
+    __block id<SentrySpan> frameSpan;
+    [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+        frameSpan = [span startChildWithOperation:@"frame.info"
+                                      description:isFrozen ? @"Frozen frame" : @"Slow frame"];
+    }];
+
+    if (frameSpan == nil) {
+        return;
+    }
+
+    [frameSpan setStartTimestamp:[NSDate dateWithTimeIntervalSinceNow:-(end - start)]];
+    [frameSpan finish];
+}
+
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 - (void)recordTimestampStart:(NSNumber *)start end:(NSNumber *)end
 {
     if (self.currentTracer.isProfiling) {
-        [self.mutableFrameTimestamps addObject:@{
+        [self.frameTimestamps addObject:@{
             @"start_timestamp" : start,
             @"end_timestamp" : end,
-            @"unix_timestamp" : @([NSDate date].timeIntervalSince1970)
         }];
     }
 }
@@ -179,7 +208,7 @@ SentryFramesTracker ()
     return [[SentryScreenFrames alloc] initWithTotal:total
                                               frozen:frozen
                                                 slow:slow
-                                     frameTimestamps:self.mutableFrameTimestamps
+                                     frameTimestamps:self.frameTimestamps
                                  frameRateTimestamps:self.frameRateTimestamps];
 #    else
     return [[SentryScreenFrames alloc] initWithTotal:total frozen:frozen slow:slow];
@@ -191,13 +220,6 @@ SentryFramesTracker ()
     _isRunning = NO;
     [self.displayLinkWrapper invalidate];
 }
-
-#    if SENTRY_TARGET_PROFILING_SUPPORTED
-- (SentryFrameInfoTimeSeries *)frameTimestamps
-{
-    return self.mutableFrameTimestamps.copy;
-}
-#    endif
 
 @end
 

@@ -462,27 +462,6 @@ static NSLock *profilerLock;
         [profiler stop];
 
 #    if SENTRY_HAS_UIKIT
-        SentryFrameInfoTimeSeries *frameTimestamps
-            = SentryFramesTracker.sharedInstance.frameTimestamps;
-
-        for (NSDictionary<NSString *, NSNumber *> *frameTimestamp in frameTimestamps) {
-            NSTimeInterval start = [frameTimestamp[@"start_timestamp"] doubleValue];
-            NSTimeInterval end = [frameTimestamp[@"end_timestamp"] doubleValue];
-            NSTimeInterval unixTimestamp = [frameTimestamp[@"unix_timestamp"] doubleValue];
-            NSTimeInterval frameDuration = end - start;
-
-            SentrySpanContext *context = [[SentrySpanContext alloc]
-                initWithOperation:(frameDuration <= SentryFrozenFrameThreshold ? @"Slow Frame"
-                                                                               : @"Frozen Frame")];
-            SentrySpan *child = [[SentrySpan alloc] initWithTransaction:self context:context];
-            child.timestamp = [NSDate dateWithTimeIntervalSince1970:unixTimestamp];
-            [child finish];
-
-            @synchronized(_children) {
-                [_children addObject:child];
-            }
-        }
-
         frameInfo = SentryFramesTracker.sharedInstance.currentFrames;
         [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
         SentryFramesTracker.sharedInstance.currentTracer = nil;
