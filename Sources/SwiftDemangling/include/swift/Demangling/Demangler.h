@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===--- Demangler.h - String to Node-Tree Demangling -----------*- C++ -*-===//
 //
 // This source file is part of the Swift.org open source project
@@ -21,10 +21,10 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef SWIFT_DEMANGLING_DEMANGLER_H
-#define SWIFT_DEMANGLING_DEMANGLER_H
+#    define SWIFT_DEMANGLING_DEMANGLER_H
 
-#include "swift/Demangling/Demangle.h"
-#include "swift/Demangling/NamespaceMacros.h"
+#    include "swift/Demangling/Demangle.h"
+#    include "swift/Demangling/NamespaceMacros.h"
 
 //#define NODE_FACTORY_DEBUGGING
 
@@ -78,7 +78,7 @@ namespace Demangle {
         /// True if some other NodeFactory borrowed free memory from this factory.
         bool isBorrowed = false;
 
-#ifdef NODE_FACTORY_DEBUGGING
+#    ifdef NODE_FACTORY_DEBUGGING
         size_t allocatedMemory = 0;
         static int nestingLevel;
         std::string
@@ -86,15 +86,15 @@ namespace Demangle {
         {
             return std::string(nestingLevel * 2, ' ');
         }
-#endif
+#    endif
 
     public:
         NodeFactory()
         {
-#ifdef NODE_FACTORY_DEBUGGING
+#    ifdef NODE_FACTORY_DEBUGGING
             fprintf(stderr, "%s## New NodeFactory\n", indent().c_str());
             nestingLevel++;
-#endif
+#    endif
         }
 
         /// Provide pre-allocated memory, e.g. memory on the stack.
@@ -103,10 +103,10 @@ namespace Demangle {
         void
         providePreallocatedMemory(char *Memory, size_t Size)
         {
-#ifdef NODE_FACTORY_DEBUGGING
+#    ifdef NODE_FACTORY_DEBUGGING
             fprintf(
                 stderr, "%s++ provide preallocated memory, size = %zu\n", indent().c_str(), Size);
-#endif
+#    endif
             assert(!CurPtr && !End && !CurrentSlab);
             CurPtr = Memory;
             End = CurPtr + Size;
@@ -125,19 +125,19 @@ namespace Demangle {
             BorrowedFrom = &BorrowFrom;
             CurPtr = BorrowFrom.CurPtr;
             End = BorrowFrom.End;
-#ifdef NODE_FACTORY_DEBUGGING
+#    ifdef NODE_FACTORY_DEBUGGING
             fprintf(stderr, "%s++ borrow memory, size = %zu\n", indent().c_str(), (End - CurPtr));
-#endif
+#    endif
         }
 
         virtual ~NodeFactory()
         {
             freeSlabs(CurrentSlab);
-#ifdef NODE_FACTORY_DEBUGGING
+#    ifdef NODE_FACTORY_DEBUGGING
             nestingLevel--;
             fprintf(stderr, "%s## Delete NodeFactory: allocated memory = %zu\n", indent().c_str(),
                 allocatedMemory)
-#endif
+#    endif
                 if (BorrowedFrom)
             {
                 BorrowedFrom->isBorrowed = false;
@@ -154,11 +154,11 @@ namespace Demangle {
             assert(!isBorrowed);
             size_t ObjectSize = NumObjects * sizeof(T);
             CurPtr = align(CurPtr, alignof(T));
-#ifdef NODE_FACTORY_DEBUGGING
+#    ifdef NODE_FACTORY_DEBUGGING
             fprintf(stderr, "%salloc %zu, CurPtr = %p\n", indent().c_str(), ObjectSize,
                 (void *)CurPtr) allocatedMemory
                 += ObjectSize;
-#endif
+#    endif
 
             // Do we have enough space in the current slab?
             if (!CurPtr || CurPtr + ObjectSize > End) {
@@ -176,10 +176,10 @@ namespace Demangle {
                 CurPtr = align((char *)(newSlab + 1), alignof(T));
                 End = (char *)newSlab + AllocSize;
                 assert(CurPtr + ObjectSize <= End);
-#ifdef NODE_FACTORY_DEBUGGING
+#    ifdef NODE_FACTORY_DEBUGGING
                 fprintf(stderr, "%s** new slab %p, allocsize = %zu, CurPtr = %p, End = %p\n",
                     indent().c_str(), newSlab, AllocSize, (void *)CurPtr, (void *)End);
-#endif
+#    endif
             }
             T *AllocatedObj = (T *)CurPtr;
             CurPtr += ObjectSize;
@@ -203,19 +203,19 @@ namespace Demangle {
             size_t OldAllocSize = Capacity * sizeof(T);
             size_t AdditionalAlloc = MinGrowth * sizeof(T);
 
-#ifdef NODE_FACTORY_DEBUGGING
+#    ifdef NODE_FACTORY_DEBUGGING
             fprintf(stderr, "%srealloc: capacity = %d (size = %zu), growth = %zu (size = %zu)\n",
                 indent().c_str(), Capacity, OldAllocSize, MinGrowth, AdditionalAlloc);
-#endif
+#    endif
             if ((char *)Objects + OldAllocSize == CurPtr && CurPtr + AdditionalAlloc <= End) {
                 // The existing array is at the end of the current slab and there is
                 // enough space. So we are fine.
                 CurPtr += AdditionalAlloc;
                 Capacity += MinGrowth;
-#ifdef NODE_FACTORY_DEBUGGING
+#    ifdef NODE_FACTORY_DEBUGGING
                 fprintf(stderr, "%s** can grow: %p\n", indent().c_str(), (void *)CurPtr);
                 allocatedMemory += AdditionalAlloc;
-#endif
+#    endif
                 return;
             }
             // We need a new allocation.
@@ -719,4 +719,4 @@ namespace Demangle {
 } // end namespace swift
 
 #endif // SWIFT_DEMANGLING_DEMANGLER_H
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===--- NodePrinter.cpp - Swift Demangling Node Printer ------------------===//
 //
 // This source file is part of the Swift.org open source project
@@ -3042,4 +3042,4 @@ Demangle::nodeToString(NodePointer root, const DemangleOptions &options)
 
     return NodePrinter(options).printRoot(root);
 }
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

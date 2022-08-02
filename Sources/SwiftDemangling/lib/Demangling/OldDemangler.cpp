@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===--- OldDemangler.cpp - Old Swift Demangling --------------------------===//
 //
 // This source file is part of the Swift.org open source project
@@ -2533,4 +2533,4 @@ swift::Demangle::demangleOldSymbolAsNode(StringRef MangledName, NodeFactory &Fac
     OldDemangler demangler(MangledName, Factory);
     return demangler.demangleTopLevel();
 }
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

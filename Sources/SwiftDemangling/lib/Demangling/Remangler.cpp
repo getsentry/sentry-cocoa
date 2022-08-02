@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===--- Remangler.cpp - Swift re-mangling from a demangling tree ---------===//
 //
 // This source file is part of the Swift.org open source project
@@ -3592,4 +3592,4 @@ Demangle::getUnspecialized(Node *node, NodeFactory &Factory)
         unreachable("bad nominal type kind");
     }
 }
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

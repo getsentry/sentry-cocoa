@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===- llvm/Support/Casting.h - Allow flexible, checked, casts --*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -16,13 +16,13 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_SUPPORT_CASTING_H
-#define LLVM_SUPPORT_CASTING_H
+#    define LLVM_SUPPORT_CASTING_H
 
-#include "llvm/Support/Compiler.h"
-#include "llvm/Support/type_traits.h"
-#include <cassert>
-#include <memory>
-#include <type_traits>
+#    include "llvm/Support/Compiler.h"
+#    include "llvm/Support/type_traits.h"
+#    include <cassert>
+#    include <memory>
+#    include <type_traits>
 
 namespace llvm {
 
@@ -455,4 +455,4 @@ unique_dyn_cast_or_null(std::unique_ptr<Y> &&Val)
 } // end namespace llvm
 
 #endif // LLVM_SUPPORT_CASTING_H
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

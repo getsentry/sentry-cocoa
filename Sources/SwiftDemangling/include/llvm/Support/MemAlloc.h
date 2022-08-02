@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===- MemAlloc.h - Memory allocation functions -----------------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -18,11 +18,11 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_SUPPORT_MEMALLOC_H
-#define LLVM_SUPPORT_MEMALLOC_H
+#    define LLVM_SUPPORT_MEMALLOC_H
 
-#include "llvm/Support/Compiler.h"
-#include "llvm/Support/ErrorHandling.h"
-#include <cstdlib>
+#    include "llvm/Support/Compiler.h"
+#    include "llvm/Support/ErrorHandling.h"
+#    include <cstdlib>
 
 namespace llvm {
 
@@ -94,4 +94,4 @@ void deallocate_buffer(void *Ptr, size_t Size, size_t Alignment);
 
 } // namespace llvm
 #endif
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

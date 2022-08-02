@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===--- Ownership.h - Swift ASTs for Ownership ---------------*- C++ -*-===//
 //
 // This source file is part of the Swift.org open source project
@@ -21,15 +21,15 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef SWIFT_OWNERSHIP_H
-#define SWIFT_OWNERSHIP_H
+#    define SWIFT_OWNERSHIP_H
 
-#include "swift/Basic/InlineBitfield.h"
-#include "llvm/ADT/StringRef.h"
-#include "llvm/Support/Compiler.h"
-#include "llvm/Support/ErrorHandling.h"
-#include "llvm/Support/raw_ostream.h"
-#include <assert.h>
-#include <stdint.h>
+#    include "swift/Basic/InlineBitfield.h"
+#    include "llvm/ADT/StringRef.h"
+#    include "llvm/Support/Compiler.h"
+#    include "llvm/Support/ErrorHandling.h"
+#    include "llvm/Support/raw_ostream.h"
+#    include <assert.h>
+#    include <stdint.h>
 
 namespace swift {
 
@@ -40,9 +40,9 @@ enum class ReferenceOwnership : uint8_t {
     /// a strong reference (the default semantics)
     Strong,
 
-#define REF_STORAGE(Name, ...) Name,
-#define REF_STORAGE_RANGE(First, Last) Last_Kind = Last
-#include "swift/AST/ReferenceStorage.def"
+#    define REF_STORAGE(Name, ...) Name,
+#    define REF_STORAGE_RANGE(First, Last) Last_Kind = Last
+#    include "swift/AST/ReferenceStorage.def"
 };
 
 enum : unsigned {
@@ -103,10 +103,10 @@ isLessStrongThan(ReferenceOwnership left, ReferenceOwnership right)
             return -1;
         case ReferenceOwnership::Weak:
             return -1;
-#define UNCHECKED_REF_STORAGE(Name, ...)                                                           \
-case ReferenceOwnership::Name:                                                                     \
-    return INT_MIN;
-#include "swift/AST/ReferenceStorage.def"
+#    define UNCHECKED_REF_STORAGE(Name, ...)                                                       \
+    case ReferenceOwnership::Name:                                                                 \
+        return INT_MIN;
+#    include "swift/AST/ReferenceStorage.def"
         }
         llvm_unreachable("impossible");
     };
@@ -164,4 +164,4 @@ enum : unsigned {
 } // end namespace swift
 
 #endif
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===--- BackDeployment.h - Support for running on older OS versions. -----===//
 //
 // This source file is part of the Swift.org open source project
@@ -15,38 +15,38 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef SWIFT_STDLIB_BACKDEPLOYMENT_H
-#define SWIFT_STDLIB_BACKDEPLOYMENT_H
+#    define SWIFT_STDLIB_BACKDEPLOYMENT_H
 
-#if defined(__APPLE__) && defined(__MACH__)
+#    if defined(__APPLE__) && defined(__MACH__)
 
-#    include "../../../stdlib/public/SwiftShims/Visibility.h"
-#    include "swift/Runtime/Config.h"
+#        include "../../../stdlib/public/SwiftShims/Visibility.h"
+#        include "swift/Runtime/Config.h"
 
-#    ifdef __cplusplus
+#        ifdef __cplusplus
 namespace swift {
 extern "C" {
-#    endif
+#        endif
 
-#    if SWIFT_CLASS_IS_SWIFT_MASK_GLOBAL_VARIABLE
-#        ifndef __cplusplus
+#        if SWIFT_CLASS_IS_SWIFT_MASK_GLOBAL_VARIABLE
+#            ifndef __cplusplus
 // This file gets included from some C/ObjC files and
 // SWIFT_RUNTIME_STDLIB_SPI doesn't imply extern in C.
 extern
-#        endif
+#            endif
     SWIFT_RUNTIME_STDLIB_SPI unsigned long long _swift_classIsSwiftMask;
-#    endif
+#        endif
 
 /// Returns true if the current OS version, at runtime, is a back-deployment
 /// version.
 SWIFT_RUNTIME_STDLIB_INTERNAL
 int _swift_isBackDeploying();
 
-#    ifdef __cplusplus
+#        ifdef __cplusplus
 }
 } // extern "C", namespace swift
-#    endif
+#        endif
 
-#endif // defined(__APPLE__) && defined(__MACH__)
+#    endif // defined(__APPLE__) && defined(__MACH__)
 
 #endif // SWIFT_STDLIB_BACKDEPLOYMENT_H
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

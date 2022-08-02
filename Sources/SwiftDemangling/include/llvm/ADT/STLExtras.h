@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===- llvm/ADT/STLExtras.h - Useful STL related functions ------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -18,31 +18,31 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_ADT_STLEXTRAS_H
-#define LLVM_ADT_STLEXTRAS_H
+#    define LLVM_ADT_STLEXTRAS_H
 
-#include "llvm/ADT/Optional.h"
-#include "llvm/ADT/STLForwardCompat.h"
-#include "llvm/ADT/iterator.h"
-#include "llvm/ADT/iterator_range.h"
-#include "llvm/Config/abi-breaking.h"
-#include "llvm/Support/ErrorHandling.h"
-#include <algorithm>
-#include <cassert>
-#include <cstddef>
-#include <cstdint>
-#include <cstdlib>
-#include <functional>
-#include <initializer_list>
-#include <iterator>
-#include <limits>
-#include <memory>
-#include <tuple>
-#include <type_traits>
-#include <utility>
+#    include "llvm/ADT/Optional.h"
+#    include "llvm/ADT/STLForwardCompat.h"
+#    include "llvm/ADT/iterator.h"
+#    include "llvm/ADT/iterator_range.h"
+#    include "llvm/Config/abi-breaking.h"
+#    include "llvm/Support/ErrorHandling.h"
+#    include <algorithm>
+#    include <cassert>
+#    include <cstddef>
+#    include <cstdint>
+#    include <cstdlib>
+#    include <functional>
+#    include <initializer_list>
+#    include <iterator>
+#    include <limits>
+#    include <memory>
+#    include <tuple>
+#    include <type_traits>
+#    include <utility>
 
-#ifdef EXPENSIVE_CHECKS
-#    include <random> // for std::mt19937
-#endif
+#    ifdef EXPENSIVE_CHECKS
+#        include <random> // for std::mt19937
+#    endif
 
 namespace llvm {
 
@@ -569,9 +569,9 @@ class early_inc_iterator_impl
     using PointerT = typename std::iterator_traits<WrappedIteratorT>::pointer;
 
 protected:
-#if LLVM_ENABLE_ABI_BREAKING_CHECKS
+#    if LLVM_ENABLE_ABI_BREAKING_CHECKS
     bool IsEarlyIncremented = false;
-#endif
+#    endif
 
 public:
     early_inc_iterator_impl(WrappedIteratorT I)
@@ -583,10 +583,10 @@ public:
     decltype(*std::declval<WrappedIteratorT>())
     operator*()
     {
-#if LLVM_ENABLE_ABI_BREAKING_CHECKS
+#    if LLVM_ENABLE_ABI_BREAKING_CHECKS
         assert(!IsEarlyIncremented && "Cannot dereference twice!");
         IsEarlyIncremented = true;
-#endif
+#    endif
         return *(this->I)++;
     }
 
@@ -594,19 +594,19 @@ public:
     early_inc_iterator_impl &
     operator++()
     {
-#if LLVM_ENABLE_ABI_BREAKING_CHECKS
+#    if LLVM_ENABLE_ABI_BREAKING_CHECKS
         assert(IsEarlyIncremented && "Cannot increment before dereferencing!");
         IsEarlyIncremented = false;
-#endif
+#    endif
         return *this;
     }
 
     friend bool
     operator==(const early_inc_iterator_impl &LHS, const early_inc_iterator_impl &RHS)
     {
-#if LLVM_ENABLE_ABI_BREAKING_CHECKS
+#    if LLVM_ENABLE_ABI_BREAKING_CHECKS
         assert(!LHS.IsEarlyIncremented && "Cannot compare after dereferencing!");
-#endif
+#    endif
         return (const BaseT &)LHS == (const BaseT &)RHS;
     }
 };
@@ -1674,7 +1674,7 @@ inline int (*get_array_pod_sort_comparator(const T &))(const void *, const void 
     return array_pod_sort_comparator<T>;
 }
 
-#ifdef EXPENSIVE_CHECKS
+#    ifdef EXPENSIVE_CHECKS
 namespace detail {
 
     inline unsigned
@@ -1693,7 +1693,7 @@ namespace detail {
     }
 
 } // end namespace detail
-#endif
+#    endif
 
 /// array_pod_sort - This sorts an array with the specified start and end
 /// extent.  This is just like std::sort, except that it calls qsort instead of
@@ -1718,9 +1718,9 @@ array_pod_sort(IteratorTy Start, IteratorTy End)
     auto NElts = End - Start;
     if (NElts <= 1)
         return;
-#ifdef EXPENSIVE_CHECKS
+#    ifdef EXPENSIVE_CHECKS
     detail::presortShuffle<IteratorTy>(Start, End);
-#endif
+#    endif
     qsort(&*Start, NElts, sizeof(*Start), get_array_pod_sort_comparator(*Start));
 }
 
@@ -1735,9 +1735,9 @@ array_pod_sort(IteratorTy Start, IteratorTy End,
     auto NElts = End - Start;
     if (NElts <= 1)
         return;
-#ifdef EXPENSIVE_CHECKS
+#    ifdef EXPENSIVE_CHECKS
     detail::presortShuffle<IteratorTy>(Start, End);
-#endif
+#    endif
     qsort(&*Start, NElts, sizeof(*Start),
         reinterpret_cast<int (*)(const void *, const void *)>(Compare));
 }
@@ -1757,9 +1757,9 @@ template <typename IteratorTy,
 inline void
 sort(IteratorTy Start, IteratorTy End)
 {
-#ifdef EXPENSIVE_CHECKS
+#    ifdef EXPENSIVE_CHECKS
     detail::presortShuffle<IteratorTy>(Start, End);
-#endif
+#    endif
     std::sort(Start, End);
 }
 
@@ -1784,9 +1784,9 @@ template <typename IteratorTy, typename Compare>
 inline void
 sort(IteratorTy Start, IteratorTy End, Compare Comp)
 {
-#ifdef EXPENSIVE_CHECKS
+#    ifdef EXPENSIVE_CHECKS
     detail::presortShuffle<IteratorTy>(Start, End);
-#endif
+#    endif
     std::sort(Start, End, Comp);
 }
 
@@ -2552,4 +2552,4 @@ to_address(T *P)
 } // end namespace llvm
 
 #endif // LLVM_ADT_STLEXTRAS_H
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

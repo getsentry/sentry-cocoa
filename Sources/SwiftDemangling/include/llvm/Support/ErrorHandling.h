@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===- llvm/Support/ErrorHandling.h - Fatal error handling ------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -16,9 +16,9 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_SUPPORT_ERRORHANDLING_H
-#define LLVM_SUPPORT_ERRORHANDLING_H
+#    define LLVM_SUPPORT_ERRORHANDLING_H
 
-#include "llvm/Support/Compiler.h"
+#    include "llvm/Support/Compiler.h"
 
 namespace llvm {
 class StringRef;
@@ -125,13 +125,13 @@ void install_out_of_memory_new_handler();
 ///
 /// Use this instead of assert(0).  It conveys intent more clearly and
 /// allows compilers to omit some unnecessary code.
-#ifndef NDEBUG
-#    define llvm_unreachable(msg) ::llvm::llvm_unreachable_internal(msg, __FILE__, __LINE__)
-#elif defined(LLVM_BUILTIN_UNREACHABLE)
-#    define llvm_unreachable(msg) LLVM_BUILTIN_UNREACHABLE
-#else
-#    define llvm_unreachable(msg) ::llvm::llvm_unreachable_internal()
-#endif
+#    ifndef NDEBUG
+#        define llvm_unreachable(msg) ::llvm::llvm_unreachable_internal(msg, __FILE__, __LINE__)
+#    elif defined(LLVM_BUILTIN_UNREACHABLE)
+#        define llvm_unreachable(msg) LLVM_BUILTIN_UNREACHABLE
+#    else
+#        define llvm_unreachable(msg) ::llvm::llvm_unreachable_internal()
+#    endif
 
 #endif
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

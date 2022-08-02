@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===--- Demangle.h - Interface to Swift symbol demangling ------*- C++ -*-===//
 //
 // This source file is part of the Swift.org open source project
@@ -21,15 +21,15 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef SWIFT_DEMANGLING_DEMANGLE_H
-#define SWIFT_DEMANGLING_DEMANGLE_H
+#    define SWIFT_DEMANGLING_DEMANGLE_H
 
-#include "swift/Demangling/NamespaceMacros.h"
-#include "swift/Runtime/Config.h"
-#include "llvm/ADT/StringRef.h"
-#include <cassert>
-#include <cstdint>
-#include <memory>
-#include <string>
+#    include "swift/Demangling/NamespaceMacros.h"
+#    include "swift/Runtime/Config.h"
+#    include "llvm/ADT/StringRef.h"
+#    include <cassert>
+#    include <cstdint>
+#    include <memory>
+#    include <string>
 
 namespace llvm {
 class raw_ostream;
@@ -158,8 +158,8 @@ namespace Demangle {
     }
 
     enum class ValueWitnessKind {
-#define VALUE_WITNESS(MANGLING, NAME) NAME,
-#include "swift/Demangling/ValueWitnessMangling.def"
+#    define VALUE_WITNESS(MANGLING, NAME) NAME,
+#    include "swift/Demangling/ValueWitnessMangling.def"
     };
 
     enum class Directness { Direct, Indirect };
@@ -170,8 +170,8 @@ namespace Demangle {
     class Node {
     public:
         enum class Kind : uint16_t {
-#define NODE(ID) ID,
-#include "swift/Demangling/DemangleNodes.def"
+#    define NODE(ID) ID,
+#    include "swift/Demangling/DemangleNodes.def"
         };
 
         using IndexType = uint64_t;
@@ -721,4 +721,4 @@ char *swift_demangle(const char *mangledName, size_t mangledNameLength, char *ou
     size_t *outputBufferSize, uint32_t flags);
 
 #endif // SWIFT_DEMANGLING_DEMANGLE_H
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

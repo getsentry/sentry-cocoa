@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===- llvm/Support/type_traits.h - Simplfied type traits -------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -15,11 +15,11 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_SUPPORT_TYPE_TRAITS_H
-#define LLVM_SUPPORT_TYPE_TRAITS_H
+#    define LLVM_SUPPORT_TYPE_TRAITS_H
 
-#include "llvm/Support/Compiler.h"
-#include <type_traits>
-#include <utility>
+#    include "llvm/Support/Compiler.h"
+#    include <type_traits>
+#    include <utility>
 
 namespace llvm {
 
@@ -165,10 +165,10 @@ public:
         && (has_deleted_copy_assign || has_trivial_copy_assign)
         && (has_deleted_copy_constructor || has_trivial_copy_constructor);
 
-#ifdef HAVE_STD_IS_TRIVIALLY_COPYABLE
+#    ifdef HAVE_STD_IS_TRIVIALLY_COPYABLE
     static_assert(value == std::is_trivially_copyable<T>::value,
         "inconsistent behavior between llvm:: and std:: implementation of is_trivially_copyable");
-#endif
+#    endif
 };
 template <typename T> class is_trivially_copyable<T *> : public std::true_type {
 };
@@ -176,4 +176,4 @@ template <typename T> class is_trivially_copyable<T *> : public std::true_type {
 } // end namespace llvm
 
 #endif // LLVM_SUPPORT_TYPE_TRAITS_H
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

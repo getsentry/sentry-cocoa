@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===- STLForwardCompat.h - Library features from future STLs ------C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -18,9 +18,9 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_ADT_STLFORWARDCOMPAT_H
-#define LLVM_ADT_STLFORWARDCOMPAT_H
+#    define LLVM_ADT_STLFORWARDCOMPAT_H
 
-#include <type_traits>
+#    include <type_traits>
 
 namespace llvm {
 
@@ -89,4 +89,4 @@ using remove_cvref_t // NOLINT(readability-identifier-naming)
 } // namespace llvm
 
 #endif // LLVM_ADT_STLFORWARDCOMPAT_H
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

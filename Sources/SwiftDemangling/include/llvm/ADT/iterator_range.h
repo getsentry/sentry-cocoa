@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===- iterator_range.h - A range adaptor for iterators ---------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -20,9 +20,9 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_ADT_ITERATOR_RANGE_H
-#define LLVM_ADT_ITERATOR_RANGE_H
+#    define LLVM_ADT_ITERATOR_RANGE_H
 
-#include <utility>
+#    include <utility>
 
 namespace llvm {
 
@@ -87,4 +87,4 @@ make_range(std::pair<T, T> p)
 }
 
 #endif
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

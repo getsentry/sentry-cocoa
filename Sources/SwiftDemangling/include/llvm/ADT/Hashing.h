@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===-- llvm/ADT/Hashing.h - Utilities for hashing --------------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -46,18 +46,18 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_ADT_HASHING_H
-#define LLVM_ADT_HASHING_H
+#    define LLVM_ADT_HASHING_H
 
-#include "llvm/Support/DataTypes.h"
-#include "llvm/Support/ErrorHandling.h"
-#include "llvm/Support/SwapByteOrder.h"
-#include "llvm/Support/type_traits.h"
-#include <algorithm>
-#include <cassert>
-#include <cstring>
-#include <string>
-#include <tuple>
-#include <utility>
+#    include "llvm/Support/DataTypes.h"
+#    include "llvm/Support/ErrorHandling.h"
+#    include "llvm/Support/SwapByteOrder.h"
+#    include "llvm/Support/type_traits.h"
+#    include <algorithm>
+#    include <cassert>
+#    include <cstring>
+#    include <string>
+#    include <tuple>
+#    include <utility>
 
 namespace llvm {
 template <typename T> struct DenseMapInfo;
@@ -773,4 +773,4 @@ template <> struct DenseMapInfo<hash_code> {
 } // namespace llvm
 
 #endif
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop
