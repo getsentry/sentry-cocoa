@@ -106,6 +106,15 @@ typedef NS_ENUM(NSUInteger, SentryLevel) {
 };
 
 /**
+ * Permission status
+ */
+typedef NS_ENUM(NSInteger, SentryPermissionStatus) {
+    kSentryPermissionStatusUnknown = 0,
+    kSentryPermissionStatusGranted,
+    kSentryPermissionStatusDenied
+};
+
+/**
  * Static internal helper to convert enum to string
  */
 static NSString *_Nonnull const SentryLevelNames[] = {

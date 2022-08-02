@@ -27,6 +27,7 @@
 #import "SentryNSError.h"
 #import "SentryOptions+Private.h"
 #import "SentryOutOfMemoryTracker.h"
+#import "SentryPermissionsObserver.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySdkInfo.h"
@@ -57,6 +58,7 @@ SentryClient ()
 @property (nonatomic, strong) id<SentryRandom> random;
 @property (nonatomic, weak) id<SentryClientAttachmentProcessor> attachmentProcessor;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
+@property (nonatomic, strong) SentryPermissionsObserver *permissionsObserver;
 
 @end
 
@@ -66,65 +68,70 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
 {
-    if (self = [super init]) {
-        self.options = options;
-
-        self.debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
-
-        SentryInAppLogic *inAppLogic =
-            [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
-                                              inAppExcludes:options.inAppExcludes];
-        SentryCrashStackEntryMapper *crashStackEntryMapper =
-            [[SentryCrashStackEntryMapper alloc] initWithInAppLogic:inAppLogic];
-        SentryStacktraceBuilder *stacktraceBuilder =
-            [[SentryStacktraceBuilder alloc] initWithCrashStackEntryMapper:crashStackEntryMapper];
-        id<SentryCrashMachineContextWrapper> machineContextWrapper =
-            [[SentryCrashDefaultMachineContextWrapper alloc] init];
-
-        self.threadInspector =
-            [[SentryThreadInspector alloc] initWithStacktraceBuilder:stacktraceBuilder
-                                            andMachineContextWrapper:machineContextWrapper];
-
-        NSError *error = nil;
-
-        self.fileManager = [[SentryFileManager alloc]
-                   initWithOptions:self.options
-            andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-                             error:&error];
-        if (nil != error) {
-            [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLevelError];
-            return nil;
-        }
-
-        id<SentryTransport> transport = [SentryTransportFactory initTransport:self.options
-                                                            sentryFileManager:self.fileManager];
-
-        self.transportAdapter = [[SentryTransportAdapter alloc] initWithTransport:transport
-                                                                          options:options];
-
-        self.random = [SentryDependencyContainer sharedInstance].random;
-
-        self.crashWrapper = [SentryCrashWrapper sharedInstance];
-    }
-    return self;
+    return [self initWithOptions:options
+             permissionsObserver:[[SentryPermissionsObserver alloc] init]];
 }
 
-/** Internal constructor for testing */
+/** Internal constructors for testing */
+- (_Nullable instancetype)initWithOptions:(SentryOptions *)options
+                      permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
+{
+    NSError *error = nil;
+    SentryFileManager *fileManager =
+        [[SentryFileManager alloc] initWithOptions:options
+                            andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                                             error:&error];
+    if (nil != error) {
+        [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLevelError];
+        return nil;
+    }
+
+    id<SentryTransport> transport = [SentryTransportFactory initTransport:options
+                                                        sentryFileManager:fileManager];
+
+    SentryTransportAdapter *transportAdapter =
+        [[SentryTransportAdapter alloc] initWithTransport:transport options:options];
+
+    SentryInAppLogic *inAppLogic =
+        [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
+                                          inAppExcludes:options.inAppExcludes];
+    SentryCrashStackEntryMapper *crashStackEntryMapper =
+        [[SentryCrashStackEntryMapper alloc] initWithInAppLogic:inAppLogic];
+    SentryStacktraceBuilder *stacktraceBuilder =
+        [[SentryStacktraceBuilder alloc] initWithCrashStackEntryMapper:crashStackEntryMapper];
+    id<SentryCrashMachineContextWrapper> machineContextWrapper =
+        [[SentryCrashDefaultMachineContextWrapper alloc] init];
+    SentryThreadInspector *threadInspector =
+        [[SentryThreadInspector alloc] initWithStacktraceBuilder:stacktraceBuilder
+                                        andMachineContextWrapper:machineContextWrapper];
+
+    return [self initWithOptions:options
+                transportAdapter:transportAdapter
+                     fileManager:fileManager
+                 threadInspector:threadInspector
+                          random:[SentryDependencyContainer sharedInstance].random
+                    crashWrapper:[SentryCrashWrapper sharedInstance]
+             permissionsObserver:permissionsObserver];
+}
+
 - (instancetype)initWithOptions:(SentryOptions *)options
                transportAdapter:(SentryTransportAdapter *)transportAdapter
                     fileManager:(SentryFileManager *)fileManager
                 threadInspector:(SentryThreadInspector *)threadInspector
                          random:(id<SentryRandom>)random
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
+            permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
 {
-    self = [self initWithOptions:options];
-
-    self.transportAdapter = transportAdapter;
-    self.fileManager = fileManager;
-    self.threadInspector = threadInspector;
-    self.random = random;
-    self.crashWrapper = crashWrapper;
-
+    if (self = [super init]) {
+        self.options = options;
+        self.transportAdapter = transportAdapter;
+        self.fileManager = fileManager;
+        self.threadInspector = threadInspector;
+        self.random = random;
+        self.crashWrapper = crashWrapper;
+        self.permissionsObserver = permissionsObserver;
+        self.debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
+    }
     return self;
 }
 
@@ -502,6 +509,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         [self storeFreeMemoryToDeviceContext:event];
     }
 
+    [self applyPermissionsToEvent:event];
+
     // With scope applied, before running callbacks run:
     if (nil == event.environment) {
         // We default to environment 'production' if nothing was set
@@ -647,34 +656,77 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         [exception.mechanism.type isEqualToString:SentryOutOfMemoryMechanismType];
 }
 
+- (void)applyPermissionsToEvent:(SentryEvent *)event
+{
+    [self modifyContext:event
+                    key:@"app"
+                  block:^(NSMutableDictionary *app) {
+                      app[@"permissions"] = @ {
+                          @"push_notifications" :
+                              [self stringForPermissionStatus:self.permissionsObserver
+                                                                  .pushPermissionStatus],
+                          @"location_access" :
+                              [self stringForPermissionStatus:self.permissionsObserver
+                                                                  .locationPermissionStatus],
+                          @"media_library" :
+                              [self stringForPermissionStatus:self.permissionsObserver
+                                                                  .mediaLibraryPermissionStatus],
+                          @"photo_library" :
+                              [self stringForPermissionStatus:self.permissionsObserver
+                                                                  .photoLibraryPermissionStatus],
+                      };
+                  }];
+}
+
+- (NSString *)stringForPermissionStatus:(SentryPermissionStatus)status
+{
+    switch (status) {
+    case kSentryPermissionStatusUnknown:
+        return @"unknown";
+        break;
+
+    case kSentryPermissionStatusGranted:
+        return @"granted";
+        break;
+
+    case kSentryPermissionStatusDenied:
+        return @"not_granted";
+        break;
+    }
+}
+
 - (void)storeFreeMemoryToDeviceContext:(SentryEvent *)event
 {
-    [self modifyDeviceContext:event
-                        block:^(NSMutableDictionary *device) {
-                            device[SentryDeviceContextFreeMemoryKey] =
-                                @(self.crashWrapper.freeMemory);
-                        }];
+    [self modifyContext:event
+                    key:@"device"
+                  block:^(NSMutableDictionary *device) {
+                      device[SentryDeviceContextFreeMemoryKey] = @(self.crashWrapper.freeMemory);
+                  }];
 }
 
 - (void)removeFreeMemoryFromDeviceContext:(SentryEvent *)event
 {
-    [self modifyDeviceContext:event
-                        block:^(NSMutableDictionary *device) {
-                            [device removeObjectForKey:SentryDeviceContextFreeMemoryKey];
-                        }];
+    [self modifyContext:event
+                    key:@"device"
+                  block:^(NSMutableDictionary *device) {
+                      [device removeObjectForKey:SentryDeviceContextFreeMemoryKey];
+                  }];
 }
 
-- (void)modifyDeviceContext:(SentryEvent *)event block:(void (^)(NSMutableDictionary *))block
+- (void)modifyContext:(SentryEvent *)event
+                  key:(NSString *)key
+                block:(void (^)(NSMutableDictionary *))block
 {
-    if (nil == event.context || event.context.count == 0 || nil == event.context[@"device"]) {
+    if (nil == event.context || event.context.count == 0) {
         return;
     }
 
     NSMutableDictionary *context = [[NSMutableDictionary alloc] initWithDictionary:event.context];
-    NSMutableDictionary *device =
-        [[NSMutableDictionary alloc] initWithDictionary:context[@"device"]];
-    block(device);
-    context[@"device"] = device;
+    NSMutableDictionary *dict = event.context[key] == nil
+        ? [[NSMutableDictionary alloc] init]
+        : [[NSMutableDictionary alloc] initWithDictionary:context[key]];
+    block(dict);
+    context[key] = dict;
     event.context = context;
 }
 
