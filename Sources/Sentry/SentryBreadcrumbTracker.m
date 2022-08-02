@@ -2,6 +2,7 @@
 #import "SentryBreadcrumb.h"
 #import "SentryClient.h"
 #import "SentryDefines.h"
+#import "SentryDescriptor.h"
 #import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentrySDK+Private.h"
@@ -9,7 +10,6 @@
 #import "SentrySwizzle.h"
 #import "SentrySwizzleWrapper.h"
 #import "SentryUIViewControllerSanitizer.h"
-#import "SentryDescriptor.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -221,7 +221,7 @@ SentryBreadcrumbTracker ()
     if (view.tag > 0) {
         [result setValue:[NSNumber numberWithInteger:view.tag] forKey:@"tag"];
     }
-    
+
     if (view.accessibilityIdentifier && ![view.accessibilityIdentifier isEqualToString:@""]) {
         [result setValue:view.accessibilityIdentifier forKey:@"accessibilityIdentifier"];
     }
