@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Include app permissions with event (#1984)
+
 ## 7.23.0
 
 ### Features
