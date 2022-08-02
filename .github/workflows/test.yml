@@ -168,7 +168,6 @@ jobs:
         with:
           path: thread-sanitizer.log
 
-
   ui-tests:
     name: UI Tests for ${{matrix.target}} on Simulators
     runs-on: macos-11
@@ -186,6 +185,8 @@ jobs:
       - name: Run Fastlane
         run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} && break ; done
         shell: sh
+
+  # TODO: add job to run UI tests in iOS-Swift on Mac Catalyst
 
   # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:
