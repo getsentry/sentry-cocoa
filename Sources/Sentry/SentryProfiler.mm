@@ -122,9 +122,12 @@ isSimulatorBuild()
     [SentryLog logWithMessage:@"Disabling profiling when running with TSAN"
                      andLevel:kSentryLevelDebug];
     return;
+#            pragma clang diagnostic push
+#            pragma clang diagnostic ignored "-Wunreachable-code"
 #        endif
 #    endif
     @synchronized(self) {
+#    pragma clang diagnostic pop
         if (_profiler != nullptr) {
             _profiler->stopSampling();
         }
@@ -209,7 +212,9 @@ isSimulatorBuild()
 - (void)stop
 {
     @synchronized(self) {
-        _profiler->stopSampling();
+        if (_profiler != nullptr) {
+            _profiler->stopSampling();
+        }
     }
 }
 
@@ -310,6 +315,9 @@ isSimulatorBuild()
 
 - (BOOL)isRunning
 {
+    if (_profiler == nullptr) {
+        return NO;
+    }
     return _profiler->isSampling();
 }
 
