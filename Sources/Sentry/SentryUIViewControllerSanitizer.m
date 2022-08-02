@@ -26,7 +26,7 @@
     }
 #endif
     NSString *description = [NSString stringWithFormat:@"%@", controller];
-    
+
     NSRange searchedRange = NSMakeRange(0, [description length]);
     NSArray *matches = [[self.class viewControllerRegex] matchesInString:description
                                                                  options:0
