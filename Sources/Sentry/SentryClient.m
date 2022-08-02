@@ -1,5 +1,6 @@
 #import "SentryClient.h"
 #import "NSDictionary+SentrySanitize.h"
+#import "NSLocale+Sentry.h"
 #import "SentryAttachment.h"
 #import "SentryClient+Private.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
@@ -510,6 +511,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     [self applyPermissionsToEvent:event];
+    [self applyCultureContextToEvent:event];
 
     // With scope applied, before running callbacks run:
     if (nil == event.environment) {
@@ -693,6 +695,24 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return @"not_granted";
         break;
     }
+}
+
+- (void)applyCultureContextToEvent:(SentryEvent *)event
+{
+    [self modifyContext:event
+                    key:@"culture"
+                  block:^(NSMutableDictionary *culture) {
+                      NSLocale *locale = [NSLocale currentLocale];
+                      NSCalendar *calendar = [NSCalendar currentCalendar];
+
+                      culture[@"calendar"] =
+                          [locale localizedStringForCalendarIdentifier:locale.calendarIdentifier];
+                      culture[@"display_name"] =
+                          [locale localizedStringForLocaleIdentifier:locale.localeIdentifier];
+                      culture[@"locale"] = locale.localeIdentifier;
+                      culture[@"is_24_hour_format"] = @(locale.timeIs24HourFormat);
+                      culture[@"timezone"] = calendar.timeZone.name;
+                  }];
 }
 
 - (void)storeFreeMemoryToDeviceContext:(SentryEvent *)event
