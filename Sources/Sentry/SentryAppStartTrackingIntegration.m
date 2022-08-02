@@ -57,7 +57,7 @@ SentryAppStartTrackingIntegration ()
 }
 
 #if SENTRY_HAS_UIKIT
-- (BOOL)shouldBeEnabled:(NSArray *)options;
+- (BOOL)shouldBeEnabled:(NSArray *)options
 {
     // If the cocoa SDK is being used by a hybrid SDK,
     // we install App start tracking and let the hybrid SDK decide what to do.
