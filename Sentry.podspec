@@ -16,13 +16,11 @@ Pod::Spec.new do |s|
   s.requires_arc = true
   s.frameworks = 'Foundation'
   s.libraries = 'z', 'c++'
-  s.compiler_flags = '-Wshorten-64-to-32', '-Wunused-parameter'
   s.pod_target_xcconfig = {
       'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES',
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
       'CLANG_CXX_LIBRARY' => 'libc++',
-      'HEADER_SEARCH_PATHS' => '${PODS_TARGET_SRCROOT}/Sources/SwiftDemangling/include',
-      'GCC_TREAT_WARNINGS_AS_ERRORS' => 'NO'
+      'HEADER_SEARCH_PATHS' => '${PODS_TARGET_SRCROOT}/Sources/SwiftDemangling/include'
  }
 
   s.default_subspecs = ['Core']
