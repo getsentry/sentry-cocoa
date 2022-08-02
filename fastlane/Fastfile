@@ -52,34 +52,36 @@ platform :ios do
 
   desc "Build iOS-Swift with Release"
   lane :build_ios_swift do
-    setup_ci(force: true)
+    if is_ci then
+      setup_ci
 
-    sync_code_signing(
-      type: "appstore",
-      readonly: true,
-      app_identifier: ["io.sentry.sample.iOS-Swift",  "io.sentry.sample.iOS-Swift.Clip"],
-                      output_path: "./signing"
-    )
+      sync_code_signing(
+        type: "appstore",
+        readonly: true,
+        app_identifier: ["io.sentry.sample.iOS-Swift",  "io.sentry.sample.iOS-Swift.Clip"],
+        output_path: "./signing"
+      )
 
-    update_code_signing_settings(
-                                 path: "Sentry.xcodeproj",
-                                 use_automatic_signing: false,
-                                 code_sign_identity: "iPhone Distribution"
-                                 )
+      update_code_signing_settings(
+        path: "Sentry.xcodeproj",
+        use_automatic_signing: false,
+        code_sign_identity: "iPhone Distribution"
+      )
 
-    update_project_provisioning(
-      xcodeproj: "Sentry.xcodeproj",
-      profile: "./signing/AppStore_io.sentry.sample.iOS-Swift.mobileprovision",
-      target_filter: "iOS-Swift",
-      build_configuration: "Release"
-    )
+      update_project_provisioning(
+        xcodeproj: "Sentry.xcodeproj",
+        profile: "./signing/AppStore_io.sentry.sample.iOS-Swift.mobileprovision",
+        target_filter: "iOS-Swift",
+        build_configuration: "Release"
+      )
 
-    update_project_provisioning(
-      xcodeproj: "Sentry.xcodeproj",
-      profile: "./signing/AppStore_io.sentry.sample.iOS-Swift.Clip.mobileprovision",
-      target_filter: "iOS-Swift-Clip",
-      build_configuration: "Release"
-    )
+      update_project_provisioning(
+        xcodeproj: "Sentry.xcodeproj",
+        profile: "./signing/AppStore_io.sentry.sample.iOS-Swift.Clip.mobileprovision",
+        target_filter: "iOS-Swift-Clip",
+        build_configuration: "Release"
+      )
+    end
 
     build_app(
       project: "Sentry.xcodeproj",
@@ -87,21 +89,49 @@ platform :ios do
       include_bitcode: true,
       include_symbols: false,
       export_method: "app-store",
-      archive_path: "iOS-Swift"
+      archive_path: "iOS-Swift",
+      export_xcargs: "-allowProvisioningUpdates"
     )
-
-    delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
 
   lane :build_ios_swift_ui_test do
+    if is_ci then
+      setup_ci
 
-    setup_ci
+      sync_code_signing(
+        type: "development",
+        readonly: true,
+        app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-SwiftUITests.xctrunner"],
+        output_path: "./signing"
+      )
 
-    sync_code_signing(
-      type: "development",
-      readonly: true,
-      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-SwiftUITests.xctrunner"]
-    )
+      update_code_signing_settings(
+        path: "Sentry.xcodeproj",
+        use_automatic_signing: false,
+        code_sign_identity: "iPhone Development"
+      )
+
+      update_project_provisioning(
+        xcodeproj: "Sentry.xcodeproj",
+        profile: "./signing/Development_io.sentry.sample.iOS-Swift.mobileprovision",
+        target_filter: "iOS-Swift",
+        build_configuration: "Debug"
+      )
+
+      update_project_provisioning(
+        xcodeproj: "Sentry.xcodeproj",
+        profile: "./signing/Development_io.sentry.sample.iOS-Swift.Clip.mobileprovision",
+        target_filter: "iOS-Swift-Clip",
+        build_configuration: "Debug"
+      )
+
+      update_project_provisioning(
+        xcodeproj: "Sentry.xcodeproj",
+        profile: "./signing/Development_io.sentry.iOS-SwiftUITests.xctrunner.mobileprovision",
+        target_filter: "iOS-Swift-UITests",
+        build_configuration: "Debug"
+      )
+    end
 
     build_app(
       project: "Sentry.xcodeproj",
@@ -110,19 +140,46 @@ platform :ios do
       derived_data_path: "DerivedData",
       skip_archive: true
     )
-
-    delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
 
   lane :build_ios_benchmark_test do
+    if is_ci then
+      setup_ci
 
-    setup_ci
+      sync_code_signing(
+        type: "development",
+        readonly: true,
+        app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-Benchmarking.xctrunner"],
+        output_path: "./signing"
+      )
 
-    sync_code_signing(
-      type: "development",
-      readonly: true,
-      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-Benchmarking.xctrunner"]
-    )
+      update_code_signing_settings(
+        path: "Sentry.xcodeproj",
+        use_automatic_signing: false,
+        code_sign_identity: "iPhone Development"
+      )
+
+      update_project_provisioning(
+        xcodeproj: "Sentry.xcodeproj",
+        profile: "./signing/Development_io.sentry.sample.iOS-Swift.mobileprovision",
+        target_filter: "iOS-Swift",
+        build_configuration: "Debug"
+      )
+
+      update_project_provisioning(
+        xcodeproj: "Sentry.xcodeproj",
+        profile: "./signing/Development_io.sentry.sample.iOS-Swift.Clip.mobileprovision",
+        target_filter: "iOS-Swift-Clip",
+        build_configuration: "Debug"
+      )
+
+      update_project_provisioning(
+        xcodeproj: "Sentry.xcodeproj",
+        profile: "./signing/Development_io.sentry.iOS-Benchmarking.xctrunner.mobileprovision",
+        target_filter: "PerformanceBenchmarks",
+        build_configuration: "Debug"
+      )
+    end
 
     build_app(
       project: "Sentry.xcodeproj",
@@ -131,20 +188,40 @@ platform :ios do
       derived_data_path: "DerivedData",
       skip_archive: true
     )
-
-    delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
 
   desc 'Build an XCode UI test target that exercises the Trending Movies test app to generate and upload profile data for testing/development purposes throughout the rest of the Sentry stack.'
   lane :build_profile_data_generator_ui_test do
+    if is_ci then
+      setup_ci
 
-    setup_ci
+      sync_code_signing(
+        type: "development",
+        readonly: true,
+        app_identifier: ["io.sentry.sample.TrendingMovies", "io.sentry.sample.movies.ProfileDataGeneratorUITest.xctrunner"],
+        output_path: "./signing"
+      )
 
-    sync_code_signing(
-      type: "development",
-      readonly: true,
-      app_identifier: ["io.sentry.sample.TrendingMovies", "io.sentry.sample.movies.ProfileDataGeneratorUITest.xctrunner"]
-    )
+      update_code_signing_settings(
+        path: "Sentry.xcodeproj",
+        use_automatic_signing: false,
+        code_sign_identity: "iPhone Development"
+      )
+
+      update_project_provisioning(
+        xcodeproj: "Sentry.xcodeproj",
+        profile: "./signing/Development_io.sentry.sample.TrendingMovies.mobileprovision",
+        target_filter: "TrendingMovies",
+        build_configuration: "Debug"
+      )
+
+      update_project_provisioning(
+        xcodeproj: "Sentry.xcodeproj",
+        profile: "./signing/Development_io.sentry.sample.movies.ProfileDataGeneratorUITest.xctrunner.mobileprovision",
+        target_filter: "ProfileDataGenerator",
+        build_configuration: "Debug"
+      )
+    end
 
     build_app(
       project: "Sentry.xcodeproj",
@@ -153,8 +230,6 @@ platform :ios do
       derived_data_path: "DerivedData",
       skip_archive: true,
     )
-
-    delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
 
   desc "Upload iOS-Swift to TestFlight and symbols to Sentry"
