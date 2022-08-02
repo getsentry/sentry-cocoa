@@ -9,6 +9,7 @@
 #import "SentrySwizzle.h"
 #import "SentrySwizzleWrapper.h"
 #import "SentryUIViewControllerSanitizer.h"
+#import "SentryDescriptor.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -220,7 +221,7 @@ SentryBreadcrumbTracker ()
     if (view.tag > 0) {
         [result setValue:[NSNumber numberWithInteger:view.tag] forKey:@"tag"];
     }
-
+    
     if (view.accessibilityIdentifier && ![view.accessibilityIdentifier isEqualToString:@""]) {
         [result setValue:view.accessibilityIdentifier forKey:@"accessibilityIdentifier"];
     }
@@ -239,8 +240,7 @@ SentryBreadcrumbTracker ()
 {
     NSMutableDictionary *info = @{}.mutableCopy;
 
-    info[@"screen"] = [SentryUIViewControllerSanitizer
-        sanitizeViewControllerName:[NSString stringWithFormat:@"%@", controller]];
+    info[@"screen"] = [SentryUIViewControllerSanitizer sanitizeViewControllerName:controller];
 
     if ([controller.navigationItem.title length] != 0) {
         info[@"title"] = controller.navigationItem.title;

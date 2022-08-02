@@ -19,7 +19,8 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = {
       'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES',
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
-      'CLANG_CXX_LIBRARY' => 'libc++'
+      'CLANG_CXX_LIBRARY' => 'libc++',
+      'HEADER_SEARCH_PATHS' => '${PODS_TARGET_SRCROOT}/Sources/SentryDemangling/include'
 }
 
   s.default_subspecs = ['Core']
@@ -27,6 +28,10 @@ Pod::Spec.new do |s|
   s.subspec 'Core' do |sp|
       sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
         "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}"
+        
+      sp.ios.source_files = "Sources/SentryDemangling/**/*.{h,hpp,m,mm,c,cpp,def}"
+      
+      sp.tvos.source_files = "Sources/SentryDemangling/**/*.{h,hpp,m,mm,c,cpp,def}"
         
       sp.public_header_files =
         "Sources/Sentry/Public/*.h"

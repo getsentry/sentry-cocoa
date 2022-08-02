@@ -29,7 +29,9 @@ let package = Package(
                 .headerSearchPath("SentryCrash/Recording/Tools"),
                 .headerSearchPath("SentryCrash/Reporting/Filters"),
                 .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
-                .headerSearchPath("SentryCrash/Reporting/Tools")
+                .headerSearchPath("SentryCrash/Reporting/Tools"),
+                .headerSearchPath("SwiftDemangling"),
+                .headerSearchPath("SwiftDemangling/include", .when(platforms: [.iOS, .tvOS]))
             ],
             linkerSettings: [
                 .linkedLibrary("z"),

@@ -623,6 +623,20 @@
 		D808FB92281BF6EC009A2A33 /* SentryUIEventTrackingIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D808FB90281BF6E9009A2A33 /* SentryUIEventTrackingIntegrationTests.swift */; };
 		D8137D54272B53070082656C /* TestSentrySpan.m in Sources */ = {isa = PBXBuildFile; fileRef = D8137D53272B53070082656C /* TestSentrySpan.m */; };
 		D81FDF12280EA1060045E0E4 /* SentryScreenShotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81FDF10280EA0080045E0E4 /* SentryScreenShotTests.swift */; };
+		D8326E3228994539009F6F62 /* NodePrinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8326DFB28994538009F6F62 /* NodePrinter.cpp */; };
+		D8326E3328994539009F6F62 /* Demangler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8326DFC28994538009F6F62 /* Demangler.cpp */; };
+		D8326E3428994539009F6F62 /* CMakeLists.txt in Resources */ = {isa = PBXBuildFile; fileRef = D8326DFD28994538009F6F62 /* CMakeLists.txt */; };
+		D8326E3528994539009F6F62 /* Punycode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8326DFE28994538009F6F62 /* Punycode.cpp */; };
+		D8326E3628994539009F6F62 /* Remangler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8326DFF28994538009F6F62 /* Remangler.cpp */; };
+		D8326E3728994539009F6F62 /* OldRemangler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8326E0028994538009F6F62 /* OldRemangler.cpp */; };
+		D8326E3828994539009F6F62 /* Context.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8326E0128994538009F6F62 /* Context.cpp */; };
+		D8326E3928994539009F6F62 /* OldDemangler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8326E0228994538009F6F62 /* OldDemangler.cpp */; };
+		D8326E3A28994539009F6F62 /* NodeDumper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8326E0328994538009F6F62 /* NodeDumper.cpp */; };
+		D8326E3B28994539009F6F62 /* ManglingUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8326E0428994538009F6F62 /* ManglingUtils.cpp */; };
+		D8326E3F289949C7009F6F62 /* SentryDescriptor.m in Sources */ = {isa = PBXBuildFile; fileRef = D8326E3D289949C7009F6F62 /* SentryDescriptor.m */; };
+		D8326E40289949C7009F6F62 /* SentryDemangler.mm in Sources */ = {isa = PBXBuildFile; fileRef = D8326E3E289949C7009F6F62 /* SentryDemangler.mm */; };
+		D8326E43289949D5009F6F62 /* SentryDescriptor.h in Headers */ = {isa = PBXBuildFile; fileRef = D8326E41289949D5009F6F62 /* SentryDescriptor.h */; };
+		D8326E44289949D5009F6F62 /* SentryDemangler.h in Headers */ = {isa = PBXBuildFile; fileRef = D8326E42289949D5009F6F62 /* SentryDemangler.h */; };
 		D8370B6A273DF1E900F66E2D /* SentryNSURLSessionTaskSearch.m in Sources */ = {isa = PBXBuildFile; fileRef = D8370B68273DF1E900F66E2D /* SentryNSURLSessionTaskSearch.m */; };
 		D8370B6C273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h in Headers */ = {isa = PBXBuildFile; fileRef = D8370B6B273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h */; };
 		D84793262788737D00BE8E99 /* SentryByteCountFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = D84793242788737D00BE8E99 /* SentryByteCountFormatter.m */; };
@@ -1363,6 +1377,62 @@
 		D8137D52272B53070082656C /* TestSentrySpan.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestSentrySpan.h; sourceTree = "<group>"; };
 		D8137D53272B53070082656C /* TestSentrySpan.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestSentrySpan.m; sourceTree = "<group>"; };
 		D81FDF10280EA0080045E0E4 /* SentryScreenShotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryScreenShotTests.swift; sourceTree = "<group>"; };
+		D8326DC828994538009F6F62 /* StringSwitch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringSwitch.h; sourceTree = "<group>"; };
+		D8326DC928994538009F6F62 /* iterator_range.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iterator_range.h; sourceTree = "<group>"; };
+		D8326DCA28994538009F6F62 /* None.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = None.h; sourceTree = "<group>"; };
+		D8326DCB28994538009F6F62 /* STLExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STLExtras.h; sourceTree = "<group>"; };
+		D8326DCC28994538009F6F62 /* Optional.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Optional.h; sourceTree = "<group>"; };
+		D8326DCD28994538009F6F62 /* StringRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringRef.h; sourceTree = "<group>"; };
+		D8326DCE28994538009F6F62 /* STLForwardCompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STLForwardCompat.h; sourceTree = "<group>"; };
+		D8326DCF28994538009F6F62 /* Hashing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Hashing.h; sourceTree = "<group>"; };
+		D8326DD028994538009F6F62 /* iterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iterator.h; sourceTree = "<group>"; };
+		D8326DD128994538009F6F62 /* SmallVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SmallVector.h; sourceTree = "<group>"; };
+		D8326DD328994538009F6F62 /* abi-breaking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "abi-breaking.h"; sourceTree = "<group>"; };
+		D8326DD428994538009F6F62 /* llvm-config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "llvm-config.h"; sourceTree = "<group>"; };
+		D8326DD628994538009F6F62 /* Casting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Casting.h; sourceTree = "<group>"; };
+		D8326DD728994538009F6F62 /* Compiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Compiler.h; sourceTree = "<group>"; };
+		D8326DD828994538009F6F62 /* SwapByteOrder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwapByteOrder.h; sourceTree = "<group>"; };
+		D8326DD928994538009F6F62 /* DataTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataTypes.h; sourceTree = "<group>"; };
+		D8326DDA28994538009F6F62 /* ErrorHandling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ErrorHandling.h; sourceTree = "<group>"; };
+		D8326DDB28994538009F6F62 /* raw_ostream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = raw_ostream.h; sourceTree = "<group>"; };
+		D8326DDC28994538009F6F62 /* type_traits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = type_traits.h; sourceTree = "<group>"; };
+		D8326DDD28994538009F6F62 /* MemAlloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MemAlloc.h; sourceTree = "<group>"; };
+		D8326DE028994538009F6F62 /* CMakeConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMakeConfig.h; sourceTree = "<group>"; };
+		D8326DE128994538009F6F62 /* Config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Config.h; sourceTree = "<group>"; };
+		D8326DE228994538009F6F62 /* BackDeployment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BackDeployment.h; sourceTree = "<group>"; };
+		D8326DE428994538009F6F62 /* Compiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Compiler.h; sourceTree = "<group>"; };
+		D8326DE528994538009F6F62 /* STLExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STLExtras.h; sourceTree = "<group>"; };
+		D8326DE628994538009F6F62 /* LLVM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LLVM.h; sourceTree = "<group>"; };
+		D8326DE728994538009F6F62 /* InlineBitfield.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InlineBitfield.h; sourceTree = "<group>"; };
+		D8326DE828994538009F6F62 /* Strings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Strings.h; sourceTree = "<group>"; };
+		D8326DEA28994538009F6F62 /* NamespaceMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NamespaceMacros.h; sourceTree = "<group>"; };
+		D8326DEB28994538009F6F62 /* Demangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Demangle.h; sourceTree = "<group>"; };
+		D8326DEC28994538009F6F62 /* DemangleNodes.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DemangleNodes.def; sourceTree = "<group>"; };
+		D8326DED28994538009F6F62 /* StandardTypesMangling.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = StandardTypesMangling.def; sourceTree = "<group>"; };
+		D8326DEE28994538009F6F62 /* Punycode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Punycode.h; sourceTree = "<group>"; };
+		D8326DEF28994538009F6F62 /* Demangler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Demangler.h; sourceTree = "<group>"; };
+		D8326DF028994538009F6F62 /* ValueWitnessMangling.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ValueWitnessMangling.def; sourceTree = "<group>"; };
+		D8326DF128994538009F6F62 /* ManglingUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ManglingUtils.h; sourceTree = "<group>"; };
+		D8326DF228994538009F6F62 /* ManglingMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ManglingMacros.h; sourceTree = "<group>"; };
+		D8326DF428994538009F6F62 /* Ownership.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ownership.h; sourceTree = "<group>"; };
+		D8326DF528994538009F6F62 /* ReferenceStorage.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ReferenceStorage.def; sourceTree = "<group>"; };
+		D8326DF728994538009F6F62 /* DataTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataTypes.h; sourceTree = "<group>"; };
+		D8326DFA28994538009F6F62 /* RemanglerBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RemanglerBase.h; sourceTree = "<group>"; };
+		D8326DFB28994538009F6F62 /* NodePrinter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NodePrinter.cpp; sourceTree = "<group>"; };
+		D8326DFC28994538009F6F62 /* Demangler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Demangler.cpp; sourceTree = "<group>"; };
+		D8326DFD28994538009F6F62 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		D8326DFE28994538009F6F62 /* Punycode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Punycode.cpp; sourceTree = "<group>"; };
+		D8326DFF28994538009F6F62 /* Remangler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Remangler.cpp; sourceTree = "<group>"; };
+		D8326E0028994538009F6F62 /* OldRemangler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OldRemangler.cpp; sourceTree = "<group>"; };
+		D8326E0128994538009F6F62 /* Context.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Context.cpp; sourceTree = "<group>"; };
+		D8326E0228994538009F6F62 /* OldDemangler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OldDemangler.cpp; sourceTree = "<group>"; };
+		D8326E0328994538009F6F62 /* NodeDumper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NodeDumper.cpp; sourceTree = "<group>"; };
+		D8326E0428994538009F6F62 /* ManglingUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ManglingUtils.cpp; sourceTree = "<group>"; };
+		D8326E0828994538009F6F62 /* Visibility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Visibility.h; sourceTree = "<group>"; };
+		D8326E3D289949C7009F6F62 /* SentryDescriptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryDescriptor.m; sourceTree = "<group>"; };
+		D8326E3E289949C7009F6F62 /* SentryDemangler.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryDemangler.mm; sourceTree = "<group>"; };
+		D8326E41289949D5009F6F62 /* SentryDescriptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryDescriptor.h; path = include/SentryDescriptor.h; sourceTree = "<group>"; };
+		D8326E42289949D5009F6F62 /* SentryDemangler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryDemangler.h; path = include/SentryDemangler.h; sourceTree = "<group>"; };
 		D8370B68273DF1E900F66E2D /* SentryNSURLSessionTaskSearch.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryNSURLSessionTaskSearch.m; sourceTree = "<group>"; };
 		D8370B6B273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryNSURLSessionTaskSearch.h; path = include/SentryNSURLSessionTaskSearch.h; sourceTree = "<group>"; };
 		D84793242788737D00BE8E99 /* SentryByteCountFormatter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryByteCountFormatter.m; sourceTree = "<group>"; };
@@ -1719,6 +1789,10 @@
 				D84793242788737D00BE8E99 /* SentryByteCountFormatter.m */,
 				7B2A70DA27D607CF008B0D15 /* SentryThreadWrapper.h */,
 				7B2A70DC27D6083D008B0D15 /* SentryThreadWrapper.m */,
+				D8326E42289949D5009F6F62 /* SentryDemangler.h */,
+				D8326E3E289949C7009F6F62 /* SentryDemangler.mm */,
+				D8326E41289949D5009F6F62 /* SentryDescriptor.h */,
+				D8326E3D289949C7009F6F62 /* SentryDescriptor.m */,
 			);
 			name = Helper;
 			sourceTree = "<group>";
@@ -1726,6 +1800,7 @@
 		63AA756E1EB8AEDB00D153DE /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				D8326DC428994504009F6F62 /* SentryDemangling */,
 				63AA75A31EB8AFDF00D153DE /* Configuration */,
 				63FE6FB920DA4C1000CDBAE8 /* SentryCrash */,
 				63AA75C61EB8B06100D153DE /* Sentry */,
@@ -2684,6 +2759,193 @@
 			name = Tools;
 			sourceTree = "<group>";
 		};
+		D8326DC428994504009F6F62 /* SentryDemangling */ = {
+			isa = PBXGroup;
+			children = (
+				D8326DC528994538009F6F62 /* include */,
+				D8326DF828994538009F6F62 /* lib */,
+				D8326E0528994538009F6F62 /* stdlib */,
+			);
+			path = SentryDemangling;
+			sourceTree = "<group>";
+		};
+		D8326DC528994538009F6F62 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				D8326DC628994538009F6F62 /* llvm */,
+				D8326DDE28994538009F6F62 /* swift */,
+				D8326DF628994538009F6F62 /* llvm-c */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		D8326DC628994538009F6F62 /* llvm */ = {
+			isa = PBXGroup;
+			children = (
+				D8326DC728994538009F6F62 /* ADT */,
+				D8326DD228994538009F6F62 /* Config */,
+				D8326DD528994538009F6F62 /* Support */,
+			);
+			path = llvm;
+			sourceTree = "<group>";
+		};
+		D8326DC728994538009F6F62 /* ADT */ = {
+			isa = PBXGroup;
+			children = (
+				D8326DC828994538009F6F62 /* StringSwitch.h */,
+				D8326DC928994538009F6F62 /* iterator_range.h */,
+				D8326DCA28994538009F6F62 /* None.h */,
+				D8326DCB28994538009F6F62 /* STLExtras.h */,
+				D8326DCC28994538009F6F62 /* Optional.h */,
+				D8326DCD28994538009F6F62 /* StringRef.h */,
+				D8326DCE28994538009F6F62 /* STLForwardCompat.h */,
+				D8326DCF28994538009F6F62 /* Hashing.h */,
+				D8326DD028994538009F6F62 /* iterator.h */,
+				D8326DD128994538009F6F62 /* SmallVector.h */,
+			);
+			path = ADT;
+			sourceTree = "<group>";
+		};
+		D8326DD228994538009F6F62 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				D8326DD328994538009F6F62 /* abi-breaking.h */,
+				D8326DD428994538009F6F62 /* llvm-config.h */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		D8326DD528994538009F6F62 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				D8326DD628994538009F6F62 /* Casting.h */,
+				D8326DD728994538009F6F62 /* Compiler.h */,
+				D8326DD828994538009F6F62 /* SwapByteOrder.h */,
+				D8326DD928994538009F6F62 /* DataTypes.h */,
+				D8326DDA28994538009F6F62 /* ErrorHandling.h */,
+				D8326DDB28994538009F6F62 /* raw_ostream.h */,
+				D8326DDC28994538009F6F62 /* type_traits.h */,
+				D8326DDD28994538009F6F62 /* MemAlloc.h */,
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
+		D8326DDE28994538009F6F62 /* swift */ = {
+			isa = PBXGroup;
+			children = (
+				D8326DDF28994538009F6F62 /* Runtime */,
+				D8326DE328994538009F6F62 /* Basic */,
+				D8326DE828994538009F6F62 /* Strings.h */,
+				D8326DE928994538009F6F62 /* Demangling */,
+				D8326DF328994538009F6F62 /* AST */,
+			);
+			path = swift;
+			sourceTree = "<group>";
+		};
+		D8326DDF28994538009F6F62 /* Runtime */ = {
+			isa = PBXGroup;
+			children = (
+				D8326DE028994538009F6F62 /* CMakeConfig.h */,
+				D8326DE128994538009F6F62 /* Config.h */,
+				D8326DE228994538009F6F62 /* BackDeployment.h */,
+			);
+			path = Runtime;
+			sourceTree = "<group>";
+		};
+		D8326DE328994538009F6F62 /* Basic */ = {
+			isa = PBXGroup;
+			children = (
+				D8326DE428994538009F6F62 /* Compiler.h */,
+				D8326DE528994538009F6F62 /* STLExtras.h */,
+				D8326DE628994538009F6F62 /* LLVM.h */,
+				D8326DE728994538009F6F62 /* InlineBitfield.h */,
+			);
+			path = Basic;
+			sourceTree = "<group>";
+		};
+		D8326DE928994538009F6F62 /* Demangling */ = {
+			isa = PBXGroup;
+			children = (
+				D8326DEA28994538009F6F62 /* NamespaceMacros.h */,
+				D8326DEB28994538009F6F62 /* Demangle.h */,
+				D8326DEC28994538009F6F62 /* DemangleNodes.def */,
+				D8326DED28994538009F6F62 /* StandardTypesMangling.def */,
+				D8326DEE28994538009F6F62 /* Punycode.h */,
+				D8326DEF28994538009F6F62 /* Demangler.h */,
+				D8326DF028994538009F6F62 /* ValueWitnessMangling.def */,
+				D8326DF128994538009F6F62 /* ManglingUtils.h */,
+				D8326DF228994538009F6F62 /* ManglingMacros.h */,
+			);
+			path = Demangling;
+			sourceTree = "<group>";
+		};
+		D8326DF328994538009F6F62 /* AST */ = {
+			isa = PBXGroup;
+			children = (
+				D8326DF428994538009F6F62 /* Ownership.h */,
+				D8326DF528994538009F6F62 /* ReferenceStorage.def */,
+			);
+			path = AST;
+			sourceTree = "<group>";
+		};
+		D8326DF628994538009F6F62 /* llvm-c */ = {
+			isa = PBXGroup;
+			children = (
+				D8326DF728994538009F6F62 /* DataTypes.h */,
+			);
+			path = "llvm-c";
+			sourceTree = "<group>";
+		};
+		D8326DF828994538009F6F62 /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				D8326DF928994538009F6F62 /* Demangling */,
+			);
+			path = lib;
+			sourceTree = "<group>";
+		};
+		D8326DF928994538009F6F62 /* Demangling */ = {
+			isa = PBXGroup;
+			children = (
+				D8326DFA28994538009F6F62 /* RemanglerBase.h */,
+				D8326DFB28994538009F6F62 /* NodePrinter.cpp */,
+				D8326DFC28994538009F6F62 /* Demangler.cpp */,
+				D8326DFD28994538009F6F62 /* CMakeLists.txt */,
+				D8326DFE28994538009F6F62 /* Punycode.cpp */,
+				D8326DFF28994538009F6F62 /* Remangler.cpp */,
+				D8326E0028994538009F6F62 /* OldRemangler.cpp */,
+				D8326E0128994538009F6F62 /* Context.cpp */,
+				D8326E0228994538009F6F62 /* OldDemangler.cpp */,
+				D8326E0328994538009F6F62 /* NodeDumper.cpp */,
+				D8326E0428994538009F6F62 /* ManglingUtils.cpp */,
+			);
+			path = Demangling;
+			sourceTree = "<group>";
+		};
+		D8326E0528994538009F6F62 /* stdlib */ = {
+			isa = PBXGroup;
+			children = (
+				D8326E0628994538009F6F62 /* public */,
+			);
+			path = stdlib;
+			sourceTree = "<group>";
+		};
+		D8326E0628994538009F6F62 /* public */ = {
+			isa = PBXGroup;
+			children = (
+				D8326E0728994538009F6F62 /* SwiftShims */,
+			);
+			path = public;
+			sourceTree = "<group>";
+		};
+		D8326E0728994538009F6F62 /* SwiftShims */ = {
+			isa = PBXGroup;
+			children = (
+				D8326E0828994538009F6F62 /* Visibility.h */,
+			);
+			path = SwiftShims;
+			sourceTree = "<group>";
+		};
 		D85596EF280580BE0041FF8B /* Screenshot */ = {
 			isa = PBXGroup;
 			children = (
@@ -2859,6 +3121,7 @@
 				63FE718720DA4C1100CDBAE8 /* SentryCrashReportVersion.h in Headers */,
 				8E7C98312693E1CC00E6336C /* SentryTraceHeader.h in Headers */,
 				7BBD18912449BE9000427C76 /* SentryDefaultRateLimits.h in Headers */,
+				D8326E44289949D5009F6F62 /* SentryDemangler.h in Headers */,
 				7B8713AE26415ADF006D6004 /* SentryAppStartTrackingIntegration.h in Headers */,
 				7B7D873224864BB900D2ECFF /* SentryCrashMachineContextWrapper.h in Headers */,
 				861265F92404EC1500C4AFDE /* NSArray+SentrySanitize.h in Headers */,
@@ -3001,6 +3264,7 @@
 				636085131ED47BE600E8599E /* SentryFileManager.h in Headers */,
 				7BD729962463E83300EA3610 /* SentryDateUtil.h in Headers */,
 				63FE707B20DA4C1000CDBAE8 /* Container+SentryDeepSearch.h in Headers */,
+				D8326E43289949D5009F6F62 /* SentryDescriptor.h in Headers */,
 				6344DDB91EC3115C00D9160D /* SentryCrashReportConverter.h in Headers */,
 				71F116E8F40D530BB68A2987 /* SentryCrashUUIDConversion.h in Headers */,
 				A2475E1725FB63AF007D9080 /* SentryHook.h in Headers */,
@@ -3092,6 +3356,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8326E3428994539009F6F62 /* CMakeLists.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3130,8 +3395,10 @@
 				8E564AE8267AF22600FE117D /* SentryNetworkTrackingIntegration.m in Sources */,
 				63AA75EF1EB8B3C400D153DE /* SentryClient.m in Sources */,
 				7B7D873624864C9D00D2ECFF /* SentryCrashDefaultMachineContextWrapper.m in Sources */,
+				D8326E3528994539009F6F62 /* Punycode.cpp in Sources */,
 				63FE712F20DA4C1100CDBAE8 /* SentryCrashSysCtl.c in Sources */,
 				7B3B473825D6CC7E00D01640 /* SentryNSError.m in Sources */,
+				D8326E3228994539009F6F62 /* NodePrinter.cpp in Sources */,
 				D8ACE3C82762187200F5A213 /* SentryNSDataTracker.m in Sources */,
 				7BE3C77D2446112C00A38442 /* SentryRateLimitParser.m in Sources */,
 				8ECC674A25C23A20000E2BF6 /* SentryTransactionContext.m in Sources */,
@@ -3141,6 +3408,7 @@
 				7B63459B280EB9E200CFA05A /* SentryUIEventTrackingIntegration.m in Sources */,
 				15E0A8ED240F2CB000F044E3 /* SentrySerialization.m in Sources */,
 				7BC85235245880AE005A70F0 /* SentryDataCategoryMapper.m in Sources */,
+				D8326E3728994539009F6F62 /* OldRemangler.cpp in Sources */,
 				7B7A30C824B48389005A4C6E /* SentryCrashWrapper.m in Sources */,
 				D8ACE3C92762187200F5A213 /* SentryFileIOTrackingIntegration.m in Sources */,
 				63FE713B20DA4C1100CDBAE8 /* SentryCrashFileUtils.c in Sources */,
@@ -3158,6 +3426,7 @@
 				7BCFA71627D0BB50008C662C /* SentryANRTracker.m in Sources */,
 				63EED6C02237923600E02400 /* SentryOptions.m in Sources */,
 				D84793262788737D00BE8E99 /* SentryByteCountFormatter.m in Sources */,
+				D8326E3A28994539009F6F62 /* NodeDumper.cpp in Sources */,
 				63AA769E1EB9C57A00D153DE /* SentryError.m in Sources */,
 				7B8713B026415B22006D6004 /* SentryAppStartTrackingIntegration.m in Sources */,
 				8E133FA225E72DEF00ABD0BF /* SentrySamplingContext.m in Sources */,
@@ -3234,6 +3503,7 @@
 				15360CCF2432777500112302 /* SentrySessionTracker.m in Sources */,
 				6334314320AD9AE40077E581 /* SentryMechanism.m in Sources */,
 				63FE70D320DA4C1000CDBAE8 /* SentryCrashMonitor_AppState.c in Sources */,
+				D8326E3928994539009F6F62 /* OldDemangler.cpp in Sources */,
 				639FCFA51EBC809A00778193 /* SentryStacktrace.m in Sources */,
 				63FE70DF20DA4C1000CDBAE8 /* SentryCrashMonitorType.c in Sources */,
 				7BF9EF7E2722B91F00B5BBEF /* SentryDefaultObjCRuntimeWrapper.m in Sources */,
@@ -3257,6 +3527,7 @@
 				7BD729982463E93500EA3610 /* SentryDateUtil.m in Sources */,
 				639FCF9D1EBC7F9500778193 /* SentryThread.m in Sources */,
 				8E8C57A225EEFC07001CEEFA /* SentryTracesSampler.m in Sources */,
+				D8326E3328994539009F6F62 /* Demangler.cpp in Sources */,
 				63FE714120DA4C1100CDBAE8 /* SentryCrashDate.c in Sources */,
 				63FE70DB20DA4C1000CDBAE8 /* SentryCrashMonitor_System.m in Sources */,
 				7BA61CBB247BC5D800C130A8 /* SentryCrashDefaultBinaryImageProvider.m in Sources */,
@@ -3266,6 +3537,7 @@
 				7BC85231245812EC005A70F0 /* SentryFileContents.m in Sources */,
 				03F84D3527DD4191008FE43F /* SentryThreadHandle.cpp in Sources */,
 				8EA1ED0B2668F8C400E62B98 /* SentryUIViewControllerSwizzling.m in Sources */,
+				D8326E40289949C7009F6F62 /* SentryDemangler.mm in Sources */,
 				7B98D7CF25FB650F00C5A389 /* SentryOutOfMemoryTrackingIntegration.m in Sources */,
 				8E5D38DD261D4A3E000D363D /* SentryPerformanceTrackingIntegration.m in Sources */,
 				7B4E23C2251A2C2B00060D68 /* SentrySessionCrashedHandler.m in Sources */,
@@ -3278,6 +3550,7 @@
 				63FE711B20DA4C1000CDBAE8 /* SentryCrashString.c in Sources */,
 				7B14089824878F950035403D /* SentryCrashStackEntryMapper.m in Sources */,
 				63FE711720DA4C1000CDBAE8 /* SentryCrashStackCursor_Backtrace.c in Sources */,
+				D8326E3F289949C7009F6F62 /* SentryDescriptor.m in Sources */,
 				63FE70CB20DA4C1000CDBAE8 /* SentryCrashReportFixer.c in Sources */,
 				63FE710F20DA4C1000CDBAE8 /* NSError+SentrySimpleConstructor.m in Sources */,
 				8ECC674925C23A20000E2BF6 /* SentrySpanId.m in Sources */,
@@ -3295,6 +3568,7 @@
 				63FE711520DA4C1000CDBAE8 /* SentryCrashJSONCodec.c in Sources */,
 				03F84D3327DD4191008FE43F /* SentryMachLogging.cpp in Sources */,
 				D85852BA27EDDC5900C6D8AE /* SentryUIApplication.m in Sources */,
+				D8326E3628994539009F6F62 /* Remangler.cpp in Sources */,
 				7B4E375F258231FC00059C93 /* SentryAttachment.m in Sources */,
 				636085141ED47BE600E8599E /* SentryFileManager.m in Sources */,
 				0356A571288B4612008BF593 /* SentryProfilesSampler.m in Sources */,
@@ -3305,7 +3579,9 @@
 				63FE714520DA4C1100CDBAE8 /* SentryCrashObjC.c in Sources */,
 				63FE710520DA4C1000CDBAE8 /* SentryCrashLogger.c in Sources */,
 				63FE70E920DA4C1000CDBAE8 /* SentryCrashMonitor_User.c in Sources */,
+				D8326E3B28994539009F6F62 /* ManglingUtils.cpp in Sources */,
 				639FCF991EBC7B9700778193 /* SentryEvent.m in Sources */,
+				D8326E3828994539009F6F62 /* Context.cpp in Sources */,
 				632F43521F581D5400A18A36 /* SentryCrashExceptionApplication.m in Sources */,
 				7B77BE3727EC8460003C9020 /* SentryDiscardReasonMapper.m in Sources */,
 				63FE712520DA4C1000CDBAE8 /* SentryCrashSignalInfo.c in Sources */,
@@ -3694,6 +3970,7 @@
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_SHADOW = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/Sources/SentryDemangling/include";
 				INFOPLIST_FILE = Sources/Sentry/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
@@ -3732,6 +4009,7 @@
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_OPTIMIZATION_LEVEL = s;
 				GCC_WARN_SHADOW = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/Sources/SentryDemangling/include";
 				INFOPLIST_FILE = Sources/Sentry/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
@@ -3900,6 +4178,7 @@
 					"TESTCI=1",
 				);
 				GCC_WARN_SHADOW = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/Sources/SentryDemangling/include";
 				INFOPLIST_FILE = Sources/Sentry/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
@@ -4034,6 +4313,7 @@
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_SHADOW = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/Sources/SentryDemangling/include";
 				INFOPLIST_FILE = Sources/Sentry/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
