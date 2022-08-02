@@ -6,6 +6,10 @@
 
 - Get swift class user friendly description (#2033)
 
+### Features
+
+- Include app permissions with event (#1984)
+
 ## 7.23.0
 
 ### Features

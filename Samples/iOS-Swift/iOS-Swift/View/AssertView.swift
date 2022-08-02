@@ -47,17 +47,15 @@ class AssertView: UIView {
     private func initialize() {
         backgroundColor = UIColor(white: 0.3, alpha: 1)
         
-        assertLabel = UILabel()
+        assertLabel = UILabel().forAutoLayout()
         assertLabel.textColor = UIColor(white: 1, alpha: 1)
         assertLabel.accessibilityIdentifier = "ASSERT_MESSAGE"
-        assertLabel.translatesAutoresizingMaskIntoConstraints = false
         addSubview(assertLabel)
         
-        errorLabel = UILabel()
+        errorLabel = UILabel().forAutoLayout()
         errorLabel.textColor = UIColor(white: 1, alpha: 1)
         errorLabel.accessibilityIdentifier = "ASSERT_ERROR"
         errorLabel.numberOfLines = 0
-        errorLabel.translatesAutoresizingMaskIntoConstraints = false
         addSubview(errorLabel)
         
         let guide = self.safeOrMarginGuide

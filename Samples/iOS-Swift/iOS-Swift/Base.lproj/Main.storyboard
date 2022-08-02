@@ -18,13 +18,13 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleAspectFit" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="480-5y-FtF">
-                                <rect key="frame" x="8" y="242.5" width="398" height="465.5"/>
+                                <rect key="frame" x="8" y="227.5" width="398" height="495.5"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="VbH-LD-DBn">
-                                        <rect key="frame" x="0.0" y="0.0" width="398" height="300"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="398" height="330"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="hHG-as-TfH">
-                                                <rect key="frame" x="0.0" y="0.0" width="181.5" height="300"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="181.5" height="330"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QJW-l9-sD6">
                                                         <rect key="frame" x="0.0" y="0.0" width="181.5" height="30"/>
@@ -96,6 +96,13 @@
                                                         <state key="normal" title="async crash"/>
                                                         <connections>
                                                             <action selector="asyncCrash:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Mqi-sE-R7d"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zmN-BT-tg3">
+                                                        <rect key="frame" x="0.0" y="300" width="181.5" height="30"/>
+                                                        <state key="normal" title="permissions"/>
+                                                        <connections>
+                                                            <action selector="permissions:" destination="BYZ-38-t0r" eventType="touchUpInside" id="65U-z2-FjW"/>
                                                         </connections>
                                                     </button>
                                                 </subviews>
@@ -185,7 +192,7 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="UrL-kT-AJU">
-                                        <rect key="frame" x="0.0" y="300" width="398" height="165.5"/>
+                                        <rect key="frame" x="0.0" y="330" width="398" height="165.5"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="DSN  " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="m3h-wb-Xfa">
                                                 <rect key="frame" x="8" y="32" width="382" height="20.5"/>
