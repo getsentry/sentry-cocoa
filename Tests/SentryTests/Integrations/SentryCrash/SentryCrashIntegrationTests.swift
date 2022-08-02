@@ -22,7 +22,7 @@ class SentryCrashIntegrationTests: XCTestCase {
             options.dsn = SentryCrashIntegrationTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
             
-            let client = Client(options: options)
+            let client = Client(options: options, permissionsObserver: TestSentryPermissionsObserver())
             hub = TestHub(client: client, andScope: nil)
         }
         

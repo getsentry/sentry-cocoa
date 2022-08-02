@@ -28,6 +28,7 @@ class SentryClientTest: XCTestCase {
         let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
         let transaction: Transaction
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
+        let permissionsObserver = TestSentryPermissionsObserver()
         
         init() {
             session = SentrySession(releaseName: "release")
@@ -60,7 +61,15 @@ class SentryClientTest: XCTestCase {
                 ])
                 configureOptions(options)
 
-                client = Client(options: options, transportAdapter: transportAdapter, fileManager: fileManager, threadInspector: threadInspector, random: random, crashWrapper: crashWrapper)
+                client = Client(
+                    options: options,
+                    transportAdapter: transportAdapter,
+                    fileManager: fileManager,
+                    threadInspector: threadInspector,
+                    random: random,
+                    crashWrapper: crashWrapper,
+                    permissionsObserver: permissionsObserver
+                )
             } catch {
                 XCTFail("Options could not be created")
             }
@@ -527,6 +536,27 @@ class SentryClientTest: XCTestCase {
         }
     }
 
+    func testCaptureCrash_Permissions() {
+        fixture.permissionsObserver.internalLocationPermissionStatus = SentryPermissionStatus.granted
+        fixture.permissionsObserver.internalPushPermissionStatus = SentryPermissionStatus.granted
+        fixture.permissionsObserver.internalMediaLibraryPermissionStatus = SentryPermissionStatus.granted
+        fixture.permissionsObserver.internalPhotoLibraryPermissionStatus = SentryPermissionStatus.granted
+
+        let event = TestData.event
+        event.threads = nil
+        event.debugMeta = nil
+
+        fixture.getSut().captureCrash(event, with: fixture.scope)
+
+        assertLastSentEventWithAttachment { actual in
+            let permissions = actual.context?["app"]?["permissions"] as? [String: String]
+            XCTAssertEqual(permissions?["push_notifications"], "granted")
+            XCTAssertEqual(permissions?["location_access"], "granted")
+            XCTAssertEqual(permissions?["media_library"], "granted")
+            XCTAssertEqual(permissions?["photo_library"], "granted")
+        }
+    }
+
     func testCaptureErrorWithUserInfo() {
         let expectedValue = "val"
         let error = NSError(domain: "domain", code: 0, userInfo: ["key": expectedValue])
@@ -933,7 +963,7 @@ class SentryClientTest: XCTestCase {
         
         let options = Options()
         options.dsn = SentryClientTest.dsn
-        let client = Client(options: options)
+        let client = Client(options: options, permissionsObserver: TestSentryPermissionsObserver())
         
         XCTAssertNil(client)
         
