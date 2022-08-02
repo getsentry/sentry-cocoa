@@ -25,7 +25,13 @@ SentryAppStartTrackingIntegration ()
 - (void)installWithOptions:(SentryOptions *)options
 {
 #if SENTRY_HAS_UIKIT
-    if (![self shouldBeEnabled:options]) {
+    if (![self shouldBeEnabled:@[
+            [[SentryOptionWithDescription alloc]
+                initWithOption:options.enableAutoPerformanceTracking
+                    optionName:@"enableAutoPerformanceTracking"],
+            [[SentryOptionWithDescription alloc] initWithOption:options.isTracingEnabled
+                                                     optionName:@"isTracingEnabled"],
+        ]]) {
         [options removeEnabledIntegration:NSStringFromClass([self class])];
         return;
     }
@@ -51,7 +57,7 @@ SentryAppStartTrackingIntegration ()
 }
 
 #if SENTRY_HAS_UIKIT
-- (BOOL)shouldBeEnabled:(SentryOptions *)options
+- (BOOL)shouldBeEnabled:(NSArray *)options;
 {
     // If the cocoa SDK is being used by a hybrid SDK,
     // we install App start tracking and let the hybrid SDK decide what to do.
@@ -59,22 +65,7 @@ SentryAppStartTrackingIntegration ()
         return YES;
     }
 
-    if (!options.enableAutoPerformanceTracking) {
-        [SentryLog logWithMessage:
-                       @"enableAutoPerformanceTracking disabled. Will not track app start up time."
-                         andLevel:kSentryLevelDebug];
-        return NO;
-    }
-
-    if (!options.isTracingEnabled) {
-        [SentryLog
-            logWithMessage:
-                @"No tracesSampleRate and tracesSampler set. Will not track app start up time."
-                  andLevel:kSentryLevelDebug];
-        return NO;
-    }
-
-    return YES;
+    return [super shouldBeEnabled:options];
 }
 #endif
 

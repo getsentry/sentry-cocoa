@@ -19,7 +19,7 @@ SentryAutoSessionTrackingIntegration ()
 
 - (void)installWithOptions:(SentryOptions *)options
 {
-    if (!options.enableAutoSessionTracking) {
+    if (![self isEnabled:options.enableAutoSessionTracking]) {
         [options removeEnabledIntegration:NSStringFromClass([self class])];
         return;
     }

@@ -22,10 +22,7 @@ SentryAutoBreadcrumbTrackingIntegration ()
 
 - (void)installWithOptions:(nonnull SentryOptions *)options
 {
-    if (!options.enableAutoBreadcrumbTracking) {
-        [SentryLog logWithMessage:@"Not going to enable BreadcrumbTracking because "
-                                  @"enableAutoBreadcrumbTracking is disabled."
-                         andLevel:kSentryLevelDebug];
+    if (![self isEnabled:options.enableAutoBreadcrumbTracking]) {
         [options removeEnabledIntegration:NSStringFromClass([self class])];
         return;
     }

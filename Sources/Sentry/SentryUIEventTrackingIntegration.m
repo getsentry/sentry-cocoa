@@ -19,7 +19,17 @@ SentryUIEventTrackingIntegration ()
 
 - (void)installWithOptions:(SentryOptions *)options
 {
-    if ([self shouldBeDisabled:options]) {
+    if (![self shouldBeEnabled:@[
+            [[SentryOptionWithDescription alloc]
+                initWithOption:options.enableAutoPerformanceTracking
+                    optionName:@"enableAutoPerformanceTracking"],
+            [[SentryOptionWithDescription alloc] initWithOption:options.enableSwizzling
+                                                     optionName:@"enableSwizzling"],
+            [[SentryOptionWithDescription alloc] initWithOption:options.isTracingEnabled
+                                                     optionName:@"isTracingEnabled"],
+            [[SentryOptionWithDescription alloc] initWithOption:options.enableUserInteractionTracing
+                                                     optionName:@"enableUserInteractionTracing"],
+        ]]) {
         [options removeEnabledIntegration:NSStringFromClass([self class])];
         return;
     }
@@ -31,39 +41,6 @@ SentryUIEventTrackingIntegration ()
                    idleTimeout:options.idleTimeout];
 
     [self.uiEventTracker start];
-}
-
-- (BOOL)shouldBeDisabled:(SentryOptions *)options
-{
-    if (!options.enableAutoPerformanceTracking) {
-        [SentryLog logWithMessage:@"Not going to enable User Interaction tracking because "
-                                  @"enableAutoPerformanceTracking is disabled."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    if (!options.enableSwizzling) {
-        [SentryLog logWithMessage:@"Not going to enable User Interaction tracking because "
-                                  @"enableSwizzling is disabled."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    if (!options.isTracingEnabled) {
-        [SentryLog logWithMessage:
-                       @"Not going to enable User Interaction tracking because tracing is disabled."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    if (!options.enableUserInteractionTracing) {
-        [SentryLog logWithMessage:@"Not going to enable User Interaction tracking because "
-                                  @"enableUserInteractionTracing is disabled."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    return NO;
 }
 
 - (void)uninstall

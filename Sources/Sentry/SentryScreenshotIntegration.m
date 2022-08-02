@@ -44,7 +44,7 @@ saveScreenShot(const char *path)
 
 - (void)installWithOptions:(nonnull SentryOptions *)options
 {
-    if ([self shouldBeDisabled:options]) {
+    if (![self isEnabled:options.attachScreenshot]) {
         [options removeEnabledIntegration:NSStringFromClass([self class])];
         return;
     }
@@ -86,16 +86,6 @@ saveScreenShot(const char *path)
     }
 
     return result;
-}
-
-- (BOOL)shouldBeDisabled:(SentryOptions *)options
-{
-    if (!options.attachScreenshot) {
-        [SentryLog logWithMessage:@"Screenshot integration disabled." andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    return NO;
 }
 
 @end

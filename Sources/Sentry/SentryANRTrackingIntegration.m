@@ -34,7 +34,19 @@ SentryANRTrackingIntegration ()
 
 - (void)installWithOptions:(SentryOptions *)options
 {
-    if ([self shouldBeDisabled:options]) {
+    if (![self shouldBeEnabled:@[
+            [[SentryOptionWithDescription alloc] initWithOption:options.enableAppHangTracking
+                                                     optionName:@"enableAppHangTracking"],
+            [[SentryOptionWithDescription alloc]
+                initWithOption:(options.appHangTimeoutInterval > 0)
+                           log:@"Not going to enable App Hanging integration because "
+                               @"appHangTimeoutInterval is 0."],
+            [[SentryOptionWithDescription alloc]
+                initWithOption:(![SentryDependencyContainer.sharedInstance
+                                       .crashWrapper isBeingTraced])
+                           log:@"Not going to enable App Hanging integration because the debugger "
+                               @"is attached."],
+        ]]) {
         [options removeEnabledIntegration:NSStringFromClass([self class])];
         return;
     }
@@ -44,30 +56,6 @@ SentryANRTrackingIntegration ()
 
     [self.tracker addListener:self];
     self.options = options;
-}
-
-- (BOOL)shouldBeDisabled:(SentryOptions *)options
-{
-    if (!options.enableAppHangTracking) {
-        [SentryLog logWithMessage:@"Not going to enable App Hanging integration because "
-                                  @"enableAppHangsTracking is disabled."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    if (options.appHangTimeoutInterval == 0) {
-        [SentryLog logWithMessage:@"Not going to enable App Hanging integration because "
-                                  @"appHangsTimeoutInterval is 0."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    // In case the debugger is attached
-    if ([SentryDependencyContainer.sharedInstance.crashWrapper isBeingTraced]) {
-        return YES;
-    }
-
-    return NO;
 }
 
 - (void)uninstall

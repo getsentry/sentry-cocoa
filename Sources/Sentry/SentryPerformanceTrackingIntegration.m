@@ -19,7 +19,20 @@ SentryPerformanceTrackingIntegration ()
 
 - (void)installWithOptions:(SentryOptions *)options
 {
-    if ([self shouldBeDisabled:options]) {
+    if (![self shouldBeEnabled:@[
+            [[SentryOptionWithDescription alloc]
+                initWithOption:options.enableAutoPerformanceTracking
+                    optionName:@"enableAutoPerformanceTracking"],
+#if SENTRY_HAS_UIKIT
+            [[SentryOptionWithDescription alloc]
+                initWithOption:options.enableUIViewControllerTracking
+                    optionName:@"enableUIViewControllerTracking"],
+#endif
+            [[SentryOptionWithDescription alloc] initWithOption:options.isTracingEnabled
+                                                     optionName:@"isTracingEnabled"],
+            [[SentryOptionWithDescription alloc] initWithOption:options.enableSwizzling
+                                                     optionName:@"enableSwizzling"],
+        ]]) {
         [options removeEnabledIntegration:NSStringFromClass([self class])];
         return;
     }
@@ -47,41 +60,6 @@ SentryPerformanceTrackingIntegration ()
                               @"start] does nothing."
                      andLevel:kSentryLevelDebug];
 #endif
-}
-
-- (BOOL)shouldBeDisabled:(SentryOptions *)options
-{
-    if (!options.enableAutoPerformanceTracking) {
-        [SentryLog logWithMessage:@"enableAutoPerformanceTracking disabled. Will not start "
-                                  @"SentryPerformanceTrackingIntegration."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-#if SENTRY_HAS_UIKIT
-    if (!options.enableUIViewControllerTracking) {
-        [SentryLog logWithMessage:@"enableUIViewControllerTracking disabled. Will not start "
-                                  @"SentryPerformanceTrackingIntegration."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-#endif
-
-    if (!options.isTracingEnabled) {
-        [SentryLog logWithMessage:@"No tracesSampleRate and tracesSampler set. Will not start "
-                                  @"SentryPerformanceTrackingIntegration."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    if (!options.enableSwizzling) {
-        [SentryLog logWithMessage:@"enableSwizzling disabled. Will not start "
-                                  @"SentryPerformanceTrackingIntegration."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    return NO;
 }
 
 @end

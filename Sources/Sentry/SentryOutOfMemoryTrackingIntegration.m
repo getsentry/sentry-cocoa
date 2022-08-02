@@ -40,7 +40,12 @@ SentryOutOfMemoryTrackingIntegration ()
 
 - (void)installWithOptions:(SentryOptions *)options
 {
-    if ([self shouldBeDisabled:options]) {
+    if (![self shouldBeEnabled:@[
+            @(options.enableOutOfMemoryTracking),
+            [[SentryOptionWithDescription alloc]
+                initWithOption:self.testConfigurationFilePath == nil
+                           log:@"Won't track OOMs, because detected that unit tests are running."],
+        ]]) {
         [options removeEnabledIntegration:NSStringFromClass([self class])];
         return;
     }
@@ -72,23 +77,6 @@ SentryOutOfMemoryTrackingIntegration ()
     [self.anrTracker addListener:self];
 
     self.appStateManager = appStateManager;
-}
-
-- (BOOL)shouldBeDisabled:(SentryOptions *)options
-{
-    if (!options.enableOutOfMemoryTracking) {
-        return YES;
-    }
-
-    // The testConfigurationFilePath is not nil when running unit tests. This doesn't work for UI
-    // tests though.
-    if (self.testConfigurationFilePath) {
-        [SentryLog logWithMessage:@"Won't track OOMs, because detected that unit tests are running."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    return NO;
 }
 
 - (void)uninstall

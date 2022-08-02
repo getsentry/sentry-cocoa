@@ -20,7 +20,13 @@ SentryFramesTrackingIntegration ()
 - (void)installWithOptions:(SentryOptions *)options
 {
 #if SENTRY_HAS_UIKIT
-    if ([self shouldBeDisabled:options]) {
+    if (![self shouldBeEnabled:@[
+            [[SentryOptionWithDescription alloc]
+                initWithOption:options.enableAutoPerformanceTracking
+                    optionName:@"enableAutoPerformanceTracking"],
+            [[SentryOptionWithDescription alloc] initWithOption:options.isTracingEnabled
+                                                     optionName:@"isTracingEnabled"],
+        ]]) {
         [options removeEnabledIntegration:NSStringFromClass([self class])];
         return;
     }
@@ -37,31 +43,15 @@ SentryFramesTrackingIntegration ()
 }
 
 #if SENTRY_HAS_UIKIT
-- (BOOL)shouldBeDisabled:(SentryOptions *)options
+- (BOOL)shouldBeEnabled:(NSArray<NSNumber *> *)options
 {
     // If the cocoa SDK is being used by a hybrid SDK,
     // we let the hybrid SDK decide whether to track frames or not.
     if (PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode) {
-        return NO;
-    }
-
-    if (!options.enableAutoPerformanceTracking) {
-        [SentryLog
-            logWithMessage:
-                @"enableAutoPerformanceTracking disabled. Will not track slow and frozen frames."
-                  andLevel:kSentryLevelDebug];
         return YES;
     }
 
-    if (!options.isTracingEnabled) {
-        [SentryLog
-            logWithMessage:
-                @"No tracesSampleRate and tracesSampler set. Will not track slow and frozen frames."
-                  andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    return NO;
+    return [super shouldBeEnabled:options];
 }
 #endif
 
