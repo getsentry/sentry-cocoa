@@ -5,6 +5,7 @@
 ### Features
 
 - Add spans for slow and frozen frames (#2028)
+- Include app permissions with event (#1984)
 
 ## 7.23.0
 
