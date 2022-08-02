@@ -27,8 +27,7 @@ saveScreenShot(const char *path)
             return;
     } else {
         // We first delete any screenshot that could be from an old crash report
-        NSArray *oldFiles = [NSFileManager.defaultManager contentsOfDirectoryAtPath:reportPath
-                                                                              error:&error];
+        NSArray *oldFiles = [NSFileManager.defaultManager contentsOfDirectoryAtPath:reportPath error:&error];
 
         if (!error) {
             [oldFiles enumerateObjectsUsingBlock:^(NSString *obj, NSUInteger idx, BOOL *stop) {
@@ -71,13 +70,11 @@ saveScreenShot(const char *path)
 
     NSArray *screenshot = [SentryDependencyContainer.sharedInstance.screenshot appScreenshots];
 
-    NSMutableArray *result =
-        [NSMutableArray arrayWithCapacity:attachments.count + screenshot.count];
+    NSMutableArray *result = [NSMutableArray arrayWithCapacity:attachments.count + screenshot.count];
     [result addObjectsFromArray:attachments];
 
     for (int i = 0; i < screenshot.count; i++) {
-        NSString *name
-            = i == 0 ? @"screenshot.png" : [NSString stringWithFormat:@"screenshot-%i.png", i + 1];
+        NSString *name = i == 0 ? @"screenshot.png" : [NSString stringWithFormat:@"screenshot-%i.png", i + 1];
 
         SentryAttachment *att = [[SentryAttachment alloc] initWithData:screenshot[i]
                                                               filename:name

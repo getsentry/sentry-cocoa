@@ -29,8 +29,7 @@ namespace profiling {
          * timestamp that the sample was collected at.
          * @param samplingRateHz The sampling rate, in Hz, to sample at.
          */
-        SamplingProfiler(
-            std::function<void(const Backtrace &)> callback, std::uint32_t samplingRateHz);
+        SamplingProfiler(std::function<void(const Backtrace &)> callback, std::uint32_t samplingRateHz);
 
         ~SamplingProfiler();
 

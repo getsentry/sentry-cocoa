@@ -23,11 +23,9 @@ SentryAttachment (Equality)
         return NO;
     if (self.path != attachment.path && ![self.path isEqualToString:attachment.path])
         return NO;
-    if (self.filename != attachment.filename
-        && ![self.filename isEqualToString:attachment.filename])
+    if (self.filename != attachment.filename && ![self.filename isEqualToString:attachment.filename])
         return NO;
-    return !(self.contentType != attachment.contentType
-        && ![self.contentType isEqualToString:attachment.contentType]);
+    return !(self.contentType != attachment.contentType && ![self.contentType isEqualToString:attachment.contentType]);
 }
 
 - (NSUInteger)hash

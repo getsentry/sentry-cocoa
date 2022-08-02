@@ -33,8 +33,7 @@ static NSString *const SENTRY_FILE_READ_OPERATION = @"file.read";
 /**
  * Measure NSData 'initWithContentsOfFile:' method.
  */
-- (nullable NSData *)measureNSDataFromFile:(NSString *)path
-                                    method:(NSData *_Nullable (^)(NSString *))method;
+- (nullable NSData *)measureNSDataFromFile:(NSString *)path method:(NSData *_Nullable (^)(NSString *))method;
 
 /**
  * Measure NSData 'initWithContentsOfFile:options:error:' method.
@@ -42,8 +41,7 @@ static NSString *const SENTRY_FILE_READ_OPERATION = @"file.read";
 - (nullable NSData *)measureNSDataFromFile:(NSString *)path
                                    options:(NSDataReadingOptions)readOptionsMask
                                      error:(NSError **)error
-                                    method:(NSData *_Nullable (^)(
-                                               NSString *, NSDataReadingOptions, NSError **))method;
+                                    method:(NSData *_Nullable (^)(NSString *, NSDataReadingOptions, NSError **))method;
 
 /**
  * Measure NSData 'initWithContentsOfURL:options:error:' method.
@@ -51,8 +49,7 @@ static NSString *const SENTRY_FILE_READ_OPERATION = @"file.read";
 - (nullable NSData *)measureNSDataFromURL:(NSURL *)url
                                   options:(NSDataReadingOptions)readOptionsMask
                                     error:(NSError **)error
-                                   method:(NSData *_Nullable (^)(
-                                              NSURL *, NSDataReadingOptions, NSError **))method;
+                                   method:(NSData *_Nullable (^)(NSURL *, NSDataReadingOptions, NSError **))method;
 @end
 
 NS_ASSUME_NONNULL_END

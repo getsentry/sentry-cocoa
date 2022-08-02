@@ -45,8 +45,7 @@
         XCTAssertNil([[SentryProfiler alloc] init]);
         [expectation fulfill];
     });
-    [self waitForExpectationsWithTimeout:1.0
-                                 handler:^(NSError *_Nullable error) { NSLog(@"%@", error); }];
+    [self waitForExpectationsWithTimeout:1.0 handler:^(NSError *_Nullable error) { NSLog(@"%@", error); }];
 }
 
 @end

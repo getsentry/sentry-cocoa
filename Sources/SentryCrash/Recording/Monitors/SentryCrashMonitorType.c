@@ -30,9 +30,9 @@ static const struct {
     const SentryCrashMonitorType type;
     const char *const name;
 } g_monitorTypes[] = {
-#define MONITORTYPE(NAME)                                                                          \
-    {                                                                                              \
-        NAME, #NAME                                                                                \
+#define MONITORTYPE(NAME)                                                                                              \
+    {                                                                                                                  \
+        NAME, #NAME                                                                                                    \
     }
     MONITORTYPE(SentryCrashMonitorTypeMachException),
     MONITORTYPE(SentryCrashMonitorTypeSignal),

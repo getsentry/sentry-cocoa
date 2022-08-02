@@ -39,12 +39,7 @@ stringFromDate(NSDate *date)
 
 @implementation RFC3339DateTool_Tests
 
-- (NSDate *)gmtDateWithYear:(int)year
-                      month:(int)month
-                        day:(int)day
-                       hour:(int)hour
-                     minute:(int)minute
-                     second:(int)second
+- (NSDate *)gmtDateWithYear:(int)year month:(int)month day:(int)day hour:(int)hour minute:(int)minute second:(int)second
 {
     NSDateComponents *components = [[NSDateComponents alloc] init];
     components.year = year;
@@ -53,8 +48,7 @@ stringFromDate(NSDate *date)
     components.hour = hour;
     components.minute = minute;
     components.second = second;
-    NSCalendar *calendar =
-        [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
+    NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
     [calendar setTimeZone:(NSTimeZone *_Nonnull)[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
     return [calendar dateFromComponents:components];
 }

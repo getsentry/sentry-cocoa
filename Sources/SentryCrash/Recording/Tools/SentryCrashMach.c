@@ -27,8 +27,8 @@
 #include <mach/mach.h>
 #include <stdlib.h>
 
-#define RETURN_NAME_FOR_ENUM(A)                                                                    \
-    case A:                                                                                        \
+#define RETURN_NAME_FOR_ENUM(A)                                                                                        \
+    case A:                                                                                                            \
         return #A
 
 const char *

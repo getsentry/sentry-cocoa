@@ -33,8 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [SentryNoOpSpan shared];
 }
 
-- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
-                              description:(nullable NSString *)description
+- (id<SentrySpan>)startChildWithOperation:(NSString *)operation description:(nullable NSString *)description
 {
     return [SentryNoOpSpan shared];
 }

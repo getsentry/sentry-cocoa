@@ -22,8 +22,7 @@ NOT_TAIL_CALLED NEVER_INLINE std::size_t
 c(std::uintptr_t *addresses, bool *reachedEndOfStackPtr, std::size_t maxDepth, std::size_t skip)
 {
     auto current = ThreadHandle::current();
-    return backtrace(*current, *current, addresses, current->stackBounds(), reachedEndOfStackPtr,
-        maxDepth, skip);
+    return backtrace(*current, *current, addresses, current->stackBounds(), reachedEndOfStackPtr, maxDepth, skip);
 }
 
 NOT_TAIL_CALLED NEVER_INLINE std::size_t
@@ -149,8 +148,7 @@ countof(Array &)
     std::uintptr_t addresses[128];
     std::memset(addresses, 0, countof(addresses));
     bool reachedEndOfStack = false;
-    XCTAssertGreaterThanOrEqual(
-        a(addresses, &reachedEndOfStack, countof(addresses), 0), static_cast<unsigned long>(3));
+    XCTAssertGreaterThanOrEqual(a(addresses, &reachedEndOfStack, countof(addresses), 0), static_cast<unsigned long>(3));
     XCTAssertTrue(reachedEndOfStack);
 
     const auto index = indexOfSymbol(addresses, countof(addresses), "c");
@@ -166,8 +164,7 @@ countof(Array &)
     std::uintptr_t addresses[128];
     std::memset(addresses, 0, countof(addresses));
     bool reachedEndOfStack = false;
-    XCTAssertGreaterThanOrEqual(
-        a(addresses, &reachedEndOfStack, countof(addresses), 2), static_cast<unsigned long>(3));
+    XCTAssertGreaterThanOrEqual(a(addresses, &reachedEndOfStack, countof(addresses), 2), static_cast<unsigned long>(3));
     XCTAssertTrue(reachedEndOfStack);
 
     const auto indexC = indexOfSymbol(addresses, countof(addresses), "c");
@@ -194,10 +191,8 @@ countof(Array &)
 - (void)testCollectsMultiThreadBacktrace
 {
     pthread_t thread1, thread2;
-    XCTAssertEqual(
-        pthread_create(&thread1, nullptr, threadEntry, reinterpret_cast<void *>(bc_a)), 0);
-    XCTAssertEqual(
-        pthread_create(&thread2, nullptr, threadEntry, reinterpret_cast<void *>(bc_d)), 0);
+    XCTAssertEqual(pthread_create(&thread1, nullptr, threadEntry, reinterpret_cast<void *>(bc_a)), 0);
+    XCTAssertEqual(pthread_create(&thread2, nullptr, threadEntry, reinterpret_cast<void *>(bc_d)), 0);
 
     const auto cache = std::make_shared<ThreadMetadataCache>();
     bool foundThread1 = false, foundThread2 = false;
@@ -207,8 +202,7 @@ countof(Array &)
             [&](auto &backtrace) {
                 const auto thread = backtrace.threadMetadata.threadID;
                 if (thread == pthread_mach_thread_np(thread1)) {
-                    const auto start = indexOfSymbol(
-                        reinterpret_cast<const uintptr_t *>(backtrace.addresses.data()),
+                    const auto start = indexOfSymbol(reinterpret_cast<const uintptr_t *>(backtrace.addresses.data()),
                         backtrace.addresses.size(), "bc_c");
                     std::cout << start << '\n';
                     if (start != -1 && backtrace.addresses.size() >= 3) {
@@ -218,8 +212,7 @@ countof(Array &)
                         XCTAssertEqual(symbolicate(backtrace.addresses[start + 2]), "bc_a");
                     }
                 } else if (thread == pthread_mach_thread_np(thread2)) {
-                    const auto start = indexOfSymbol(
-                        reinterpret_cast<const uintptr_t *>(backtrace.addresses.data()),
+                    const auto start = indexOfSymbol(reinterpret_cast<const uintptr_t *>(backtrace.addresses.data()),
                         backtrace.addresses.size(), "bc_c");
                     std::cout << start << '\n';
                     if (start != -1 && backtrace.addresses.size() >= 3) {
@@ -234,8 +227,7 @@ countof(Array &)
         if (foundThread1 && foundThread2) {
             break;
         }
-        std::this_thread::sleep_for(
-            std::chrono::milliseconds(static_cast<long long>(std::pow(2, i + 1)) * 1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long long>(std::pow(2, i + 1)) * 1000));
     }
 
     XCTAssertEqual(pthread_cancel(thread1), 0);

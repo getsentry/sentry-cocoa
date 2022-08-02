@@ -54,8 +54,7 @@ SentryANRTracker ()
 
     while (![self.thread isCancelled]) {
 
-        NSDate *blockDeadline =
-            [[self.currentDate date] dateByAddingTimeInterval:self.timeoutInterval];
+        NSDate *blockDeadline = [[self.currentDate date] dateByAddingTimeInterval:self.timeoutInterval];
 
         __block BOOL blockExecutedOnMainThread = NO;
         [self.dispatchQueueWrapper dispatchOnMainQueue:^{ blockExecutedOnMainThread = YES; }];
@@ -73,28 +72,24 @@ SentryANRTracker ()
         }
 
         if (wasPreviousANR) {
-            [SentryLog logWithMessage:@"Ignoring ANR because ANR is still ongoing."
-                             andLevel:kSentryLevelDebug];
+            [SentryLog logWithMessage:@"Ignoring ANR because ANR is still ongoing." andLevel:kSentryLevelDebug];
             continue;
         }
 
         // The blockDeadline should be roughly executed after the timeoutInterval even if there is
         // an ANR. If the app gets suspended this thread could sleep and wake up again. To avoid
         // false positives, we don't report ANRs if the delta is too big.
-        NSTimeInterval deltaFromNowToBlockDeadline =
-            [[self.currentDate date] timeIntervalSinceDate:blockDeadline];
+        NSTimeInterval deltaFromNowToBlockDeadline = [[self.currentDate date] timeIntervalSinceDate:blockDeadline];
 
         if (deltaFromNowToBlockDeadline >= self.timeoutInterval) {
-            NSString *message =
-                [NSString stringWithFormat:@"Ignoring ANR because the delta is too big: %f.",
-                          deltaFromNowToBlockDeadline];
+            NSString *message = [NSString
+                stringWithFormat:@"Ignoring ANR because the delta is too big: %f.", deltaFromNowToBlockDeadline];
             [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
             continue;
         }
 
         if (![self.crashWrapper isApplicationInForeground]) {
-            [SentryLog logWithMessage:@"Ignoring ANR because the app is in the background"
-                             andLevel:kSentryLevelDebug];
+            [SentryLog logWithMessage:@"Ignoring ANR because the app is in the background" andLevel:kSentryLevelDebug];
             continue;
         }
 

@@ -126,8 +126,8 @@ typedef struct {
  *
  * @param userData User-specified data which gets passed to addJSONData.
  */
-void sentrycrashjson_beginEncode(SentryCrashJSONEncodeContext *context, bool prettyPrint,
-    SentryCrashJSONAddDataFunc addJSONData, void *userData);
+void sentrycrashjson_beginEncode(
+    SentryCrashJSONEncodeContext *context, bool prettyPrint, SentryCrashJSONAddDataFunc addJSONData, void *userData);
 
 /** End the encoding process, ending any remaining open containers.
  *
@@ -145,8 +145,7 @@ int sentrycrashjson_endEncode(SentryCrashJSONEncodeContext *context);
  *
  * @return SentryCrashJSON_OK if the process was successful.
  */
-int sentrycrashjson_addBooleanElement(
-    SentryCrashJSONEncodeContext *context, const char *name, bool value);
+int sentrycrashjson_addBooleanElement(SentryCrashJSONEncodeContext *context, const char *name, bool value);
 
 /** Add an integer element.
  *
@@ -158,8 +157,7 @@ int sentrycrashjson_addBooleanElement(
  *
  * @return SentryCrashJSON_OK if the process was successful.
  */
-int sentrycrashjson_addIntegerElement(
-    SentryCrashJSONEncodeContext *context, const char *name, int64_t value);
+int sentrycrashjson_addIntegerElement(SentryCrashJSONEncodeContext *context, const char *name, int64_t value);
 
 /** Add a floating point element.
  *
@@ -171,8 +169,7 @@ int sentrycrashjson_addIntegerElement(
  *
  * @return SentryCrashJSON_OK if the process was successful.
  */
-int sentrycrashjson_addFloatingPointElement(
-    SentryCrashJSONEncodeContext *context, const char *name, double value);
+int sentrycrashjson_addFloatingPointElement(SentryCrashJSONEncodeContext *context, const char *name, double value);
 
 /** Add a null element.
  *
@@ -221,8 +218,7 @@ int sentrycrashjson_beginStringElement(SentryCrashJSONEncodeContext *context, co
  *
  * @return SentryCrashJSON_OK if the process was successful.
  */
-int sentrycrashjson_appendStringElement(
-    SentryCrashJSONEncodeContext *context, const char *value, int length);
+int sentrycrashjson_appendStringElement(SentryCrashJSONEncodeContext *context, const char *value, int length);
 
 /** End an incrementally-built string element.
  *
@@ -258,8 +254,7 @@ int sentrycrashjson_addDataElement(
  *
  * @return SentryCrashJSON_OK if the process was successful.
  */
-int sentrycrashjson_beginDataElement(
-    SentryCrashJSONEncodeContext *const context, const char *const name);
+int sentrycrashjson_beginDataElement(SentryCrashJSONEncodeContext *const context, const char *const name);
 
 /** Add a data fragment to an incrementally-built data element.
  *
@@ -271,8 +266,7 @@ int sentrycrashjson_beginDataElement(
  *
  * @return SentryCrashJSON_OK if the process was successful.
  */
-int sentrycrashjson_appendDataElement(
-    SentryCrashJSONEncodeContext *const context, const char *const value, int length);
+int sentrycrashjson_appendDataElement(SentryCrashJSONEncodeContext *const context, const char *const value, int length);
 
 /** End an incrementally-built data element.
  *
@@ -296,9 +290,8 @@ int sentrycrashjson_endDataElement(SentryCrashJSONEncodeContext *const context);
  *
  * @return SentryCrashJSON_OK if the process was successful.
  */
-int sentrycrashjson_addJSONElement(SentryCrashJSONEncodeContext *const encodeContext,
-    const char *restrict const name, const char *restrict const jsonData, const int jsonDataLength,
-    const bool closeLastContainer);
+int sentrycrashjson_addJSONElement(SentryCrashJSONEncodeContext *const encodeContext, const char *restrict const name,
+    const char *restrict const jsonData, const int jsonDataLength, const bool closeLastContainer);
 
 /** Begin a new object container.
  *
@@ -329,8 +322,7 @@ int sentrycrashjson_beginArray(SentryCrashJSONEncodeContext *context, const char
  * @param name The name of the next element (only needed if parent is a
  * dictionary).
  */
-int sentrycrashjson_beginElement(
-    SentryCrashJSONEncodeContext *const context, const char *const name);
+int sentrycrashjson_beginElement(SentryCrashJSONEncodeContext *const context, const char *const name);
 
 /** Add JSON data manually.
  * This function just passes your data directly through, even if it's malforned.
@@ -364,9 +356,8 @@ int sentrycrashjson_endContainer(SentryCrashJSONEncodeContext *context);
  *
  * @param closeLastContainer If false, do not close the last container.
  */
-int sentrycrashjson_addJSONFromFile(SentryCrashJSONEncodeContext *const context,
-    const char *restrict const name, const char *restrict const filename,
-    const bool closeLastContainer);
+int sentrycrashjson_addJSONFromFile(SentryCrashJSONEncodeContext *const context, const char *restrict const name,
+    const char *restrict const filename, const bool closeLastContainer);
 
 // ============================================================================
 // Decode

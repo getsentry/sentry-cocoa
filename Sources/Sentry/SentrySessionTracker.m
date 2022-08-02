@@ -109,8 +109,7 @@ SentrySessionTracker ()
 - (void)endCachedSession
 {
     SentryHub *hub = [SentrySDK currentHub];
-    NSDate *_Nullable lastInForeground =
-        [[[hub getClient] fileManager] readTimestampLastInForeground];
+    NSDate *_Nullable lastInForeground = [[[hub getClient] fileManager] readTimestampLastInForeground];
     if (nil != lastInForeground) {
         [[[hub getClient] fileManager] deleteTimestampLastInForeground];
     }
@@ -181,8 +180,7 @@ SentrySessionTracker ()
  */
 - (void)willTerminate
 {
-    NSDate *sessionEnded
-        = nil == self.lastInForeground ? [self.currentDateProvider date] : self.lastInForeground;
+    NSDate *sessionEnded = nil == self.lastInForeground ? [self.currentDateProvider date] : self.lastInForeground;
     SentryHub *hub = [SentrySDK currentHub];
     [hub endSessionWithTimestamp:sessionEnded];
     [[[hub getClient] fileManager] deleteTimestampLastInForeground];

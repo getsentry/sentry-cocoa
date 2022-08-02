@@ -19,8 +19,7 @@
 - (BOOL)shouldBeDisabled:(SentryOptions *)options
 {
     if (!options.enableSwizzling) {
-        [SentryLog logWithMessage:
-                       @"Not going to enable FileIOTracking because enableSwizzling is disabled."
+        [SentryLog logWithMessage:@"Not going to enable FileIOTracking because enableSwizzling is disabled."
                          andLevel:kSentryLevelDebug];
         return YES;
     }
@@ -39,10 +38,8 @@
     }
 
     if (!options.enableFileIOTracking) {
-        [SentryLog
-            logWithMessage:
-                @"Not going to enable FileIOTracking because enableFileIOTracking is disabled."
-                  andLevel:kSentryLevelDebug];
+        [SentryLog logWithMessage:@"Not going to enable FileIOTracking because enableFileIOTracking is disabled."
+                         andLevel:kSentryLevelDebug];
         return YES;
     }
 

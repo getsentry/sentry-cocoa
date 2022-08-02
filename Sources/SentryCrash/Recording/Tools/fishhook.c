@@ -67,11 +67,9 @@ struct rebindings_entry {
 static struct rebindings_entry *_rebindings_head;
 
 static int
-prepend_rebindings(
-    struct rebindings_entry **rebindings_head, struct rebinding rebindings[], size_t nel)
+prepend_rebindings(struct rebindings_entry **rebindings_head, struct rebinding rebindings[], size_t nel)
 {
-    struct rebindings_entry *new_entry
-        = (struct rebindings_entry *)malloc(sizeof(struct rebindings_entry));
+    struct rebindings_entry *new_entry = (struct rebindings_entry *)malloc(sizeof(struct rebindings_entry));
     if (!new_entry) {
         return -1;
     }
@@ -97,13 +95,13 @@ get_protection(void *sectionStart)
 #if __LP64__
     mach_msg_type_number_t count = VM_REGION_BASIC_INFO_COUNT_64;
     vm_region_basic_info_data_64_t info;
-    kern_return_t info_ret = vm_region_64(task, &address, &size, VM_REGION_BASIC_INFO_64,
-        (vm_region_info_64_t)&info, &count, &object);
+    kern_return_t info_ret
+        = vm_region_64(task, &address, &size, VM_REGION_BASIC_INFO_64, (vm_region_info_64_t)&info, &count, &object);
 #else
     mach_msg_type_number_t count = VM_REGION_BASIC_INFO_COUNT;
     vm_region_basic_info_data_t info;
-    kern_return_t info_ret = vm_region(
-        task, &address, &size, VM_REGION_BASIC_INFO, (vm_region_info_t)&info, &count, &object);
+    kern_return_t info_ret
+        = vm_region(task, &address, &size, VM_REGION_BASIC_INFO, (vm_region_info_t)&info, &count, &object);
 #endif
     if (info_ret == KERN_SUCCESS) {
         return info.protection;
@@ -113,8 +111,8 @@ get_protection(void *sectionStart)
 }
 
 static void
-perform_rebinding_with_section(struct rebindings_entry *rebindings, section_t *section,
-    intptr_t slide, nlist_t *symtab, char *strtab, uint32_t *indirect_symtab)
+perform_rebinding_with_section(struct rebindings_entry *rebindings, section_t *section, intptr_t slide, nlist_t *symtab,
+    char *strtab, uint32_t *indirect_symtab)
 {
     uint32_t *indirect_symbol_indices = indirect_symtab + section->reserved1;
     void **indirect_symbol_bindings = (void **)((uintptr_t)slide + section->addr);
@@ -130,8 +128,7 @@ perform_rebinding_with_section(struct rebindings_entry *rebindings, section_t *s
         struct rebindings_entry *cur = rebindings;
         while (cur) {
             for (uint j = 0; j < cur->rebindings_nel; j++) {
-                if (symbol_name_longer_than_1
-                    && strcmp(&symbol_name[1], cur->rebindings[j].name) == 0) {
+                if (symbol_name_longer_than_1 && strcmp(&symbol_name[1], cur->rebindings[j].name) == 0) {
                     if (cur->rebindings[j].replaced != NULL
                         && indirect_symbol_bindings[i] != cur->rebindings[j].replacement) {
                         *(cur->rebindings[j].replaced) = indirect_symbol_bindings[i];
@@ -141,17 +138,15 @@ perform_rebinding_with_section(struct rebindings_entry *rebindings, section_t *s
                     vm_prot_t prot = get_protection(address_to_write);
                     if ((prot & VM_PROT_WRITE) == 0) {
                         is_prot_changed = true;
-                        kern_return_t success
-                            = vm_protect(mach_task_self(), (vm_address_t)address_to_write,
-                                sizeof(void *), false, prot | VM_PROT_WRITE);
+                        kern_return_t success = vm_protect(mach_task_self(), (vm_address_t)address_to_write,
+                            sizeof(void *), false, prot | VM_PROT_WRITE);
                         if (success != KERN_SUCCESS) {
                             goto symbol_loop;
                         }
                     }
                     indirect_symbol_bindings[i] = cur->rebindings[j].replacement;
                     if (is_prot_changed) {
-                        vm_protect(mach_task_self(), (vm_address_t)address_to_write, sizeof(void *),
-                            false, prot);
+                        vm_protect(mach_task_self(), (vm_address_t)address_to_write, sizeof(void *), false, prot);
                     }
                     goto symbol_loop;
                 }
@@ -163,8 +158,7 @@ perform_rebinding_with_section(struct rebindings_entry *rebindings, section_t *s
 }
 
 static void
-rebind_symbols_for_image(
-    struct rebindings_entry *rebindings, const struct mach_header *header, intptr_t slide)
+rebind_symbols_for_image(struct rebindings_entry *rebindings, const struct mach_header *header, intptr_t slide)
 {
     Dl_info info;
     if (dladdr(header, &info) == 0) {
@@ -195,8 +189,7 @@ rebind_symbols_for_image(
     }
 
     // Find base symbol/string table addresses
-    uintptr_t linkedit_base
-        = (uintptr_t)slide + linkedit_segment->vmaddr - linkedit_segment->fileoff;
+    uintptr_t linkedit_base = (uintptr_t)slide + linkedit_segment->vmaddr - linkedit_segment->fileoff;
     nlist_t *symtab = (nlist_t *)(linkedit_base + symtab_cmd->symoff);
     char *strtab = (char *)(linkedit_base + symtab_cmd->stroff);
 
@@ -207,20 +200,17 @@ rebind_symbols_for_image(
     for (uint i = 0; i < header->ncmds; i++, cur += cur_seg_cmd->cmdsize) {
         cur_seg_cmd = (segment_command_t *)cur;
         if (cur_seg_cmd->cmd == LC_SEGMENT_ARCH_DEPENDENT) {
-            if (strcmp(cur_seg_cmd->segname, SEG_DATA) != 0
-                && strcmp(cur_seg_cmd->segname, SEG_DATA_CONST) != 0
+            if (strcmp(cur_seg_cmd->segname, SEG_DATA) != 0 && strcmp(cur_seg_cmd->segname, SEG_DATA_CONST) != 0
                 && strcmp(cur_seg_cmd->segname, SEG_AUTH_CONST) != 0) {
                 continue;
             }
             for (uint j = 0; j < cur_seg_cmd->nsects; j++) {
                 section_t *sect = (section_t *)(cur + sizeof(segment_command_t)) + j;
                 if ((sect->flags & SECTION_TYPE) == S_LAZY_SYMBOL_POINTERS) {
-                    perform_rebinding_with_section(
-                        rebindings, sect, slide, symtab, strtab, indirect_symtab);
+                    perform_rebinding_with_section(rebindings, sect, slide, symtab, strtab, indirect_symtab);
                 }
                 if ((sect->flags & SECTION_TYPE) == S_NON_LAZY_SYMBOL_POINTERS) {
-                    perform_rebinding_with_section(
-                        rebindings, sect, slide, symtab, strtab, indirect_symtab);
+                    perform_rebinding_with_section(rebindings, sect, slide, symtab, strtab, indirect_symtab);
                 }
             }
         }

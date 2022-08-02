@@ -253,8 +253,8 @@ i_sentrycrashlog_logCBasic(const char *const fmt, ...)
 }
 
 void
-i_sentrycrashlog_logC(const char *const level, const char *const file, const int line,
-    const char *const function, const char *const fmt, ...)
+i_sentrycrashlog_logC(const char *const level, const char *const file, const int line, const char *const function,
+    const char *const fmt, ...)
 {
     writeFmtToLog("%s: %s (%u): %s: ", level, lastPathEntry(file), line, function);
     va_list args;
@@ -287,8 +287,7 @@ i_sentrycrashlog_logObjCBasic(CFStringRef fmt, ...)
 
     int bufferLength = (int)CFStringGetLength(entry) * 4 + 1;
     char *stringBuffer = malloc((unsigned)bufferLength);
-    if (stringBuffer != NULL
-        && CFStringGetCString(entry, stringBuffer, (CFIndex)bufferLength, kCFStringEncodingUTF8)) {
+    if (stringBuffer != NULL && CFStringGetCString(entry, stringBuffer, (CFIndex)bufferLength, kCFStringEncodingUTF8)) {
         writeToLog(stringBuffer);
     } else {
         writeToLog("Could not convert log string to UTF-8. No logging performed.");
@@ -302,8 +301,8 @@ i_sentrycrashlog_logObjCBasic(CFStringRef fmt, ...)
 }
 
 void
-i_sentrycrashlog_logObjC(const char *const level, const char *const file, const int line,
-    const char *const function, CFStringRef fmt, ...)
+i_sentrycrashlog_logObjC(
+    const char *const level, const char *const file, const int line, const char *const function, CFStringRef fmt, ...)
 {
     CFStringRef logFmt = NULL;
     if (fmt == NULL) {

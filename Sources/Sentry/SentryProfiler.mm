@@ -47,9 +47,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
                                    error:nil];
     });
     const auto symbolNSStr = [NSString stringWithUTF8String:symbol];
-    const auto match = [regex firstMatchInString:symbolNSStr
-                                         options:0
-                                           range:NSMakeRange(0, [symbolNSStr length])];
+    const auto match = [regex firstMatchInString:symbolNSStr options:0 range:NSMakeRange(0, [symbolNSStr length])];
     if (match == nil) {
         return symbolNSStr;
     }
@@ -101,8 +99,7 @@ isSimulatorBuild()
 - (instancetype)init
 {
     if (![NSThread isMainThread]) {
-        [SentryLog logWithMessage:@"SentryProfiler must be initialized on the main thread"
-                         andLevel:kSentryLevelError];
+        [SentryLog logWithMessage:@"SentryProfiler must be initialized on the main thread" andLevel:kSentryLevelError];
         return nil;
     }
     if (self = [super init]) {
@@ -119,8 +116,7 @@ isSimulatorBuild()
 // https://github.com/envoyproxy/envoy/issues/2561
 #    if defined(__has_feature)
 #        if __has_feature(thread_sanitizer)
-    [SentryLog logWithMessage:@"Disabling profiling when running with TSAN"
-                     andLevel:kSentryLevelDebug];
+    [SentryLog logWithMessage:@"Disabling profiling when running with TSAN" andLevel:kSentryLevelDebug];
     return;
 #            pragma clang diagnostic push
 #            pragma clang diagnostic ignored "-Wunreachable-code"
@@ -134,8 +130,7 @@ isSimulatorBuild()
         _profile = [NSMutableDictionary<NSString *, id> dictionary];
         const auto sampledProfile = [NSMutableDictionary<NSString *, id> dictionary];
         const auto samples = [NSMutableArray<NSDictionary<NSString *, id> *> array];
-        const auto threadMetadata =
-            [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
+        const auto threadMetadata = [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
         const auto queueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
         sampledProfile[@"samples"] = samples;
         sampledProfile[@"thread_metadata"] = threadMetadata;
@@ -145,8 +140,7 @@ isSimulatorBuild()
 
         __weak const auto weakSelf = self;
         _profiler = std::make_shared<SamplingProfiler>(
-            [weakSelf, threadMetadata, queueMetadata, samples, mainThreadID = _mainThreadID](
-                auto &backtrace) {
+            [weakSelf, threadMetadata, queueMetadata, samples, mainThreadID = _mainThreadID](auto &backtrace) {
                 const auto strongSelf = weakSelf;
                 if (strongSelf == nil) {
                     return;
@@ -165,23 +159,19 @@ isSimulatorBuild()
                     threadMetadata[threadID] = metadata;
                 }
                 if (!backtrace.threadMetadata.name.empty() && metadata[@"name"] == nil) {
-                    metadata[@"name"] =
-                        [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
+                    metadata[@"name"] = [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
                 }
                 if (backtrace.threadMetadata.priority != -1 && metadata[@"priority"] == nil) {
                     metadata[@"priority"] = @(backtrace.threadMetadata.priority);
                 }
                 if (queueAddress != nil && queueMetadata[queueAddress] == nil
                     && backtrace.queueMetadata.label != nullptr) {
-                    queueMetadata[queueAddress] = @{
-                        @"label" :
-                            [NSString stringWithUTF8String:backtrace.queueMetadata.label->c_str()]
-                    };
+                    queueMetadata[queueAddress] =
+                        @{ @"label" : [NSString stringWithUTF8String:backtrace.queueMetadata.label->c_str()] };
                 }
 #    if defined(DEBUG)
-                const auto symbols
-                    = backtrace_symbols(reinterpret_cast<void *const *>(backtrace.addresses.data()),
-                        static_cast<int>(backtrace.addresses.size()));
+                const auto symbols = backtrace_symbols(reinterpret_cast<void *const *>(backtrace.addresses.data()),
+                    static_cast<int>(backtrace.addresses.size()));
 #    endif
                 const auto frames = [NSMutableArray<NSDictionary<NSString *, id> *> new];
                 for (std::vector<uintptr_t>::size_type i = 0; i < backtrace.addresses.size(); i++) {
@@ -196,8 +186,7 @@ isSimulatorBuild()
                 const auto sample = [NSMutableDictionary<NSString *, id> dictionary];
                 sample[@"frames"] = frames;
                 sample[@"relative_timestamp_ns"] =
-                    [@(getDurationNs(strongSelf->_startTimestamp, backtrace.absoluteTimestamp))
-                        stringValue];
+                    [@(getDurationNs(strongSelf->_startTimestamp, backtrace.absoluteTimestamp)) stringValue];
                 sample[@"thread_id"] = threadID;
                 if (queueAddress != nil) {
                     sample[@"queue_address"] = queueAddress;
@@ -251,8 +240,7 @@ isSimulatorBuild()
     profile[@"device_os_version"] = UIDevice.currentDevice.systemVersion;
 #    endif
     profile[@"device_is_emulator"] = @(isSimulatorBuild());
-    profile[@"device_physical_memory_bytes"] =
-        [@(NSProcessInfo.processInfo.physicalMemory) stringValue];
+    profile[@"device_physical_memory_bytes"] = [@(NSProcessInfo.processInfo.physicalMemory) stringValue];
     profile[@"environment"] = transaction.environment;
     profile[@"platform"] = transaction.platform;
     profile[@"transaction_id"] = transaction.eventId.sentryIdString;
@@ -301,10 +289,8 @@ isSimulatorBuild()
     NSError *error = nil;
     const auto JSONData = [SentrySerialization dataWithJSONObject:profile error:&error];
     if (JSONData == nil) {
-        [SentryLog
-            logWithMessage:[NSString
-                               stringWithFormat:@"Failed to encode profile to JSON: %@", error]
-                  andLevel:kSentryLevelError];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Failed to encode profile to JSON: %@", error]
+                         andLevel:kSentryLevelError];
         return nil;
     }
 

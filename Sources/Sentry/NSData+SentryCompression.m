@@ -30,8 +30,7 @@ NSData (SentryCompression)
 
     int err;
 
-    err = deflateInit2(
-        &stream, compressionLevel, Z_DEFLATED, (16 + MAX_WBITS), 9, Z_DEFAULT_STRATEGY);
+    err = deflateInit2(&stream, compressionLevel, Z_DEFLATED, (16 + MAX_WBITS), 9, Z_DEFAULT_STRATEGY);
     if (err != Z_OK) {
         if (error) {
             *error = NSErrorFromSentryError(kSentryErrorCompressionError, @"deflateInit2 error");

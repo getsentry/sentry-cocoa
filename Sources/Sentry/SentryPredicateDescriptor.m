@@ -18,28 +18,24 @@
 - (NSString *)compoundPredicateDescription:(NSCompoundPredicate *)predicate
 {
 
-    NSMutableArray<NSString *> *expressions =
-        [[NSMutableArray alloc] initWithCapacity:predicate.subpredicates.count];
+    NSMutableArray<NSString *> *expressions = [[NSMutableArray alloc] initWithCapacity:predicate.subpredicates.count];
 
     for (NSPredicate *sub in predicate.subpredicates) {
         if ([sub isKindOfClass:[NSCompoundPredicate class]]) {
-            [expressions
-                addObject:[NSString stringWithFormat:@"(%@)", [self predicateDescription:sub]]];
+            [expressions addObject:[NSString stringWithFormat:@"(%@)", [self predicateDescription:sub]]];
         } else {
             [expressions addObject:[self predicateDescription:sub]];
         }
     }
 
     if (expressions.count == 1) {
-        return [NSString stringWithFormat:@"%@ %@",
-                         [self compoundPredicateTypeDescription:predicate.compoundPredicateType],
-                         expressions.firstObject];
+        return
+            [NSString stringWithFormat:@"%@ %@",
+                      [self compoundPredicateTypeDescription:predicate.compoundPredicateType], expressions.firstObject];
     }
 
-    return [expressions
-        componentsJoinedByString:[self
-                                     compoundPredicateTypeDescription:predicate
-                                                                          .compoundPredicateType]];
+    return
+        [expressions componentsJoinedByString:[self compoundPredicateTypeDescription:predicate.compoundPredicateType]];
 }
 
 - (NSString *)comparisonPredicateDescription:(NSComparisonPredicate *)predicate
@@ -63,11 +59,9 @@
         return @"%@";
     case NSAggregateExpressionType:
         if ([predicate.collection isKindOfClass:[NSArray class]]) {
-            __block NSMutableArray *items =
-                [[NSMutableArray alloc] initWithCapacity:[predicate.collection count]];
-            [predicate.collection enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                [items addObject:[self expressionDescription:obj]];
-            }];
+            __block NSMutableArray *items = [[NSMutableArray alloc] initWithCapacity:[predicate.collection count]];
+            [predicate.collection enumerateObjectsUsingBlock:^(
+                id obj, NSUInteger idx, BOOL *stop) { [items addObject:[self expressionDescription:obj]]; }];
             return [NSString stringWithFormat:@"{%@}", [items componentsJoinedByString:@", "]];
         } else {
             return @"%@";
@@ -75,11 +69,10 @@
         break;
     case NSConditionalExpressionType:
         if (@available(macOS 10.11, *)) {
-            return [NSString
-                stringWithFormat:@"TERNARY(%@,%@,%@)",
-                [self comparisonPredicateDescription:(NSComparisonPredicate *)predicate.predicate],
-                [self expressionDescription:predicate.trueExpression],
-                [self expressionDescription:predicate.falseExpression]];
+            return [NSString stringWithFormat:@"TERNARY(%@,%@,%@)",
+                             [self comparisonPredicateDescription:(NSComparisonPredicate *)predicate.predicate],
+                             [self expressionDescription:predicate.trueExpression],
+                             [self expressionDescription:predicate.falseExpression]];
         } else {
             // this is not supposed to happen, NSConditionalExpressionType was introduced in
             // macOS 10.11 but we need this version check because cocoapod lint check is failing

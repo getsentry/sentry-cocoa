@@ -35,9 +35,7 @@ SENTRY_NO_INIT
  *
  * @return A SentryTraceHeader.
  */
-- (instancetype)initWithTraceId:(SentryId *)traceId
-                         spanId:(SentrySpanId *)spanId
-                        sampled:(SentrySampleDecision)sampled;
+- (instancetype)initWithTraceId:(SentryId *)traceId spanId:(SentrySpanId *)spanId sampled:(SentrySampleDecision)sampled;
 
 /**
  * Return the value to use in a request header.

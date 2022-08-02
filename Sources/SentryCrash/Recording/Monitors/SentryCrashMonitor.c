@@ -175,8 +175,7 @@ sentrycrashcm_setActiveMonitors(SentryCrashMonitorType monitorTypes)
         monitorTypes &= SentryCrashMonitorTypeAsyncSafe;
     }
 
-    SentryCrashLOG_DEBUG(
-        "Changing active monitors from 0x%x tp 0x%x.", g_activeMonitors, monitorTypes);
+    SentryCrashLOG_DEBUG("Changing active monitors from 0x%x tp 0x%x.", g_activeMonitors, monitorTypes);
 
     SentryCrashMonitorType activeMonitors = SentryCrashMonitorTypeNone;
     for (int i = 0; i < g_monitorsCount; i++) {

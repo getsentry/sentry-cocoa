@@ -17,8 +17,7 @@ ViewController ()
     [SentrySDK configureScope:^(SentryScope *_Nonnull scope) {
         [scope setEnvironment:@"debug"];
         [scope setTagValue:@"objc" forKey:@"language"];
-        [scope setExtraValue:[NSString stringWithFormat:@"%@", self]
-                      forKey:@"currentViewController"];
+        [scope setExtraValue:[NSString stringWithFormat:@"%@", self] forKey:@"currentViewController"];
         SentryUser *user = [[SentryUser alloc] initWithUserId:@"1"];
         user.email = @"tony@example.com";
         [scope setUser:user];
@@ -28,9 +27,8 @@ ViewController ()
                                                            filename:@"Tongariro.jpg"
                                                         contentType:@"image/jpeg"]];
 
-        [scope addAttachment:[[SentryAttachment alloc]
-                                 initWithData:[@"hello" dataUsingEncoding:NSUTF8StringEncoding]
-                                     filename:@"log.txt"]];
+        [scope addAttachment:[[SentryAttachment alloc] initWithData:[@"hello" dataUsingEncoding:NSUTF8StringEncoding]
+                                                           filename:@"log.txt"]];
     }];
     // Also works
     SentryUser *user = [[SentryUser alloc] initWithUserId:@"1"];
@@ -40,8 +38,7 @@ ViewController ()
     // Load an image just for HTTP swizzling
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
-    NSURL *url = [[NSURL alloc]
-        initWithString:@"https://sentry-brand.storage.googleapis.com/sentry-logo-black.png"];
+    NSURL *url = [[NSURL alloc] initWithString:@"https://sentry-brand.storage.googleapis.com/sentry-logo-black.png"];
     NSURLSessionDataTask *task = [session dataTaskWithURL:url];
     [task resume];
 }
@@ -63,13 +60,11 @@ ViewController ()
 
 - (IBAction)captureUserFeedback:(id)sender
 {
-    NSError *error =
-        [[NSError alloc] initWithDomain:@"UserFeedbackErrorDomain"
-                                   code:0
-                               userInfo:@{ NSLocalizedDescriptionKey : @"This never happens." }];
-    SentryId *eventId = [SentrySDK
-          captureError:error
-        withScopeBlock:^(SentryScope *_Nonnull scope) { [scope setLevel:kSentryLevelFatal]; }];
+    NSError *error = [[NSError alloc] initWithDomain:@"UserFeedbackErrorDomain"
+                                                code:0
+                                            userInfo:@{ NSLocalizedDescriptionKey : @"This never happens." }];
+    SentryId *eventId = [SentrySDK captureError:error
+                                 withScopeBlock:^(SentryScope *_Nonnull scope) { [scope setLevel:kSentryLevelFatal]; }];
 
     SentryUserFeedback *userFeedback = [[SentryUserFeedback alloc] initWithEventId:eventId];
     userFeedback.comments = @"It broke on iOS-ObjectiveC. I don't know why, but this happens.";
@@ -80,10 +75,9 @@ ViewController ()
 
 - (IBAction)captureError:(id)sender
 {
-    NSError *error =
-        [[NSError alloc] initWithDomain:@"SampleErrorDomain"
-                                   code:0
-                               userInfo:@{ NSLocalizedDescriptionKey : @"Object does not exist" }];
+    NSError *error = [[NSError alloc] initWithDomain:@"SampleErrorDomain"
+                                                code:0
+                                            userInfo:@{ NSLocalizedDescriptionKey : @"Object does not exist" }];
     [SentrySDK captureError:error
              withScopeBlock:^(SentryScope *_Nonnull scope) {
                  // Changes in here will only be captured for this event
@@ -114,8 +108,7 @@ ViewController ()
     __block id<SentrySpan> fakeTransaction = [SentrySDK startTransactionWithName:@"Some Transaction"
                                                                        operation:@"some operation"];
 
-    dispatch_after(
-        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(arc4random_uniform(100) + 400 * NSEC_PER_MSEC)),
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(arc4random_uniform(100) + 400 * NSEC_PER_MSEC)),
         dispatch_get_main_queue(), ^{ [fakeTransaction finish]; });
 }
 

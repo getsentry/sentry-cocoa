@@ -9,8 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryClientAttachmentProcessor <NSObject>
 
-- (nullable NSArray<SentryAttachment *> *)processAttachments:
-                                              (nullable NSArray<SentryAttachment *> *)attachments
+- (nullable NSArray<SentryAttachment *> *)processAttachments:(nullable NSArray<SentryAttachment *> *)attachments
                                                     forEvent:(SentryEvent *)event;
 
 @end
@@ -23,9 +22,7 @@ SentryClient (Private)
 
 - (SentryFileManager *)fileManager;
 
-- (SentryId *)captureError:(NSError *)error
-               withSession:(SentrySession *)session
-                 withScope:(SentryScope *)scope;
+- (SentryId *)captureError:(NSError *)error withSession:(SentrySession *)session withScope:(SentryScope *)scope;
 
 - (SentryId *)captureException:(NSException *)exception
                    withSession:(SentrySession *)session

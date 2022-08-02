@@ -36,18 +36,17 @@ SentryCrashInstallationReporter ()
 
 - (void)sendAllReportsWithCompletion:(SentryCrashReportFilterCompletion)onCompletion
 {
-    [super
-        sendAllReportsWithCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
-            if (nil != error) {
-                [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLevelError];
-            }
-            [SentryLog logWithMessage:[NSString stringWithFormat:@"Sent %lu crash report(s)",
-                                                (unsigned long)filteredReports.count]
-                             andLevel:kSentryLevelDebug];
-            if (completed && onCompletion) {
-                onCompletion(filteredReports, completed, error);
-            }
-        }];
+    [super sendAllReportsWithCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
+        if (nil != error) {
+            [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLevelError];
+        }
+        [SentryLog
+            logWithMessage:[NSString stringWithFormat:@"Sent %lu crash report(s)", (unsigned long)filteredReports.count]
+                  andLevel:kSentryLevelDebug];
+        if (completed && onCompletion) {
+            onCompletion(filteredReports, completed, error);
+        }
+    }];
 }
 
 @end

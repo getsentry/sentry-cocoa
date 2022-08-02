@@ -44,8 +44,7 @@ namespace profiling {
     public:
         using NativeHandle = thread_t;
 
-        static_assert(
-            std::is_fundamental<NativeHandle>::value, "NativeHandle must be a fundamental type");
+        static_assert(std::is_fundamental<NativeHandle>::value, "NativeHandle must be a fundamental type");
 
         /**
          * Constructs a \ref ThreadHandle using a native handle type.

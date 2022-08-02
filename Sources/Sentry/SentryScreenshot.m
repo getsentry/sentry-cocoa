@@ -30,9 +30,8 @@
     // during signal handling, and if we dispatch it to the main thread,
     // that is probably blocked by the crash event, we freeze the application.
     [[self takeScreenshots] enumerateObjectsUsingBlock:^(NSData *obj, NSUInteger idx, BOOL *stop) {
-        NSString *name = idx == 0
-            ? @"screenshot.png"
-            : [NSString stringWithFormat:@"screenshot-%li.png", (unsigned long)idx + 1];
+        NSString *name
+            = idx == 0 ? @"screenshot.png" : [NSString stringWithFormat:@"screenshot-%li.png", (unsigned long)idx + 1];
         NSString *fileName = [path stringByAppendingPathComponent:name];
         [obj writeToFile:fileName atomically:YES];
     }];

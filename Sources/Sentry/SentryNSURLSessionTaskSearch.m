@@ -35,8 +35,7 @@ https://github.com/AFNetworking/AFNetworking/blob/4eaec5b586ddd897ebeda896e332a6
     // This code is bulletproof. Don't think you are smart and can improve it.
     // It is tested and matured since 2015 in AFNetworking, see
     // https://github.com/AFNetworking/AFNetworking/blob/4eaec5b586ddd897ebeda896e332a62a9fdab818/AFNetworking/AFURLSessionManager.m#L382-L403
-    NSURLSessionConfiguration *configuration =
-        [NSURLSessionConfiguration ephemeralSessionConfiguration];
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
 
     // We dont use `localDataTask` as a task, we just need to know its class,
@@ -52,10 +51,8 @@ https://github.com/AFNetworking/AFNetworking/blob/4eaec5b586ddd897ebeda896e332a6
 
     while (class_getInstanceMethod(currentClass, setStateSelector)) {
         Class superClass = [currentClass superclass];
-        IMP classResumeIMP
-            = method_getImplementation(class_getInstanceMethod(currentClass, setStateSelector));
-        IMP superclassResumeIMP
-            = method_getImplementation(class_getInstanceMethod(superClass, setStateSelector));
+        IMP classResumeIMP = method_getImplementation(class_getInstanceMethod(currentClass, setStateSelector));
+        IMP superclassResumeIMP = method_getImplementation(class_getInstanceMethod(superClass, setStateSelector));
         if (classResumeIMP != superclassResumeIMP) {
             [result addObject:currentClass];
         }

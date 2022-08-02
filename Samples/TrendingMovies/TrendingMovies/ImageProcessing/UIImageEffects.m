@@ -129,8 +129,8 @@
 
     // Check pre-conditions.
     if (inputImage.size.width < 1 || inputImage.size.height < 1) {
-        NSLog(@"*** error: invalid size: (%.2f x %.2f). Both dimensions must be >= 1: %@",
-            inputImage.size.width, inputImage.size.height, inputImage);
+        NSLog(@"*** error: invalid size: (%.2f x %.2f). Both dimensions must be >= 1: %@", inputImage.size.width,
+            inputImage.size.height, inputImage);
         return nil;
     }
     if (!inputImage.CGImage) {
@@ -148,8 +148,7 @@
     CGImageRef inputCGImage = inputImage.CGImage;
     CGFloat inputImageScale = inputImage.scale;
     CGBitmapInfo inputImageBitmapInfo = CGImageGetBitmapInfo(inputCGImage);
-    CGImageAlphaInfo inputImageAlphaInfo
-        = (CGImageAlphaInfo)(inputImageBitmapInfo & kCGBitmapAlphaInfoMask);
+    CGImageAlphaInfo inputImageAlphaInfo = (CGImageAlphaInfo)(inputImageBitmapInfo & kCGBitmapAlphaInfoMask);
 
     CGSize outputImageSizeInPoints = inputImage.size;
     CGRect outputImageRectInPoints = { CGPointZero, outputImageSizeInPoints };
@@ -161,8 +160,7 @@
         useOpaqueContext = YES;
     else
         useOpaqueContext = NO;
-    UIGraphicsBeginImageContextWithOptions(
-        outputImageRectInPoints.size, useOpaqueContext, inputImageScale);
+    UIGraphicsBeginImageContextWithOptions(outputImageRectInPoints.size, useOpaqueContext, inputImageScale);
     CGContextRef outputContext = UIGraphicsGetCurrentContext();
     CGContextScaleCTM(outputContext, 1.0, -1.0);
     CGContextTranslateCTM(outputContext, 0, -outputImageRectInPoints.size.height);
@@ -194,8 +192,8 @@
             return nil;
         }
 
-        vImageBuffer_Init(&scratchBuffer1, effectInBuffer.height, effectInBuffer.width,
-            format.bitsPerPixel, kvImageNoFlags);
+        vImageBuffer_Init(
+            &scratchBuffer1, effectInBuffer.height, effectInBuffer.width, format.bitsPerPixel, kvImageNoFlags);
         inputBuffer = &effectInBuffer;
         outputBuffer = &scratchBuffer1;
 
@@ -220,16 +218,16 @@
 
             radius |= 1; // force radius to be odd so that the three box-blur methodology works.
 
-            NSInteger tempBufferSize = vImageBoxConvolve_ARGB8888(inputBuffer, outputBuffer, NULL,
-                0, 0, radius, radius, NULL, kvImageGetTempBufferSize | kvImageEdgeExtend);
+            NSInteger tempBufferSize = vImageBoxConvolve_ARGB8888(inputBuffer, outputBuffer, NULL, 0, 0, radius, radius,
+                NULL, kvImageGetTempBufferSize | kvImageEdgeExtend);
             void *tempBuffer = malloc(tempBufferSize);
 
-            vImageBoxConvolve_ARGB8888(inputBuffer, outputBuffer, tempBuffer, 0, 0, radius, radius,
-                NULL, kvImageEdgeExtend);
-            vImageBoxConvolve_ARGB8888(outputBuffer, inputBuffer, tempBuffer, 0, 0, radius, radius,
-                NULL, kvImageEdgeExtend);
-            vImageBoxConvolve_ARGB8888(inputBuffer, outputBuffer, tempBuffer, 0, 0, radius, radius,
-                NULL, kvImageEdgeExtend);
+            vImageBoxConvolve_ARGB8888(
+                inputBuffer, outputBuffer, tempBuffer, 0, 0, radius, radius, NULL, kvImageEdgeExtend);
+            vImageBoxConvolve_ARGB8888(
+                outputBuffer, inputBuffer, tempBuffer, 0, 0, radius, radius, NULL, kvImageEdgeExtend);
+            vImageBoxConvolve_ARGB8888(
+                inputBuffer, outputBuffer, tempBuffer, 0, 0, radius, radius, NULL, kvImageEdgeExtend);
 
             free(tempBuffer);
 
@@ -264,8 +262,7 @@
                 1,
             };
             const int32_t divisor = 256;
-            NSUInteger matrixSize
-                = sizeof(floatingPointSaturationMatrix) / sizeof(floatingPointSaturationMatrix[0]);
+            NSUInteger matrixSize = sizeof(floatingPointSaturationMatrix) / sizeof(floatingPointSaturationMatrix[0]);
             int16_t saturationMatrix[matrixSize];
             for (NSUInteger i = 0; i < matrixSize; ++i) {
                 saturationMatrix[i] = (int16_t)roundf(floatingPointSaturationMatrix[i] * divisor);
@@ -280,11 +277,10 @@
 #endif
 
         CGImageRef effectCGImage;
-        if ((effectCGImage = vImageCreateCGImageFromBuffer(
-                 inputBuffer, &format, &cleanupBuffer, NULL, kvImageNoAllocate, NULL))
+        if ((effectCGImage
+                = vImageCreateCGImageFromBuffer(inputBuffer, &format, &cleanupBuffer, NULL, kvImageNoAllocate, NULL))
             == NULL) {
-            effectCGImage = vImageCreateCGImageFromBuffer(
-                inputBuffer, &format, NULL, NULL, kvImageNoFlags, NULL);
+            effectCGImage = vImageCreateCGImageFromBuffer(inputBuffer, &format, NULL, NULL, kvImageNoFlags, NULL);
             free(inputBuffer->data);
         }
         if (maskImage) {

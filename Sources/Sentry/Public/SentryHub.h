@@ -2,15 +2,14 @@
 #import "SentryIntegrationProtocol.h"
 #import "SentrySpanProtocol.h"
 
-@class SentryEvent, SentryClient, SentryScope, SentrySession, SentryUser, SentryBreadcrumb,
-    SentryId, SentryUserFeedback, SentryEnvelope, SentryTransactionContext;
+@class SentryEvent, SentryClient, SentryScope, SentrySession, SentryUser, SentryBreadcrumb, SentryId,
+    SentryUserFeedback, SentryEnvelope, SentryTransactionContext;
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SentryHub : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithClient:(SentryClient *_Nullable)client
-                      andScope:(SentryScope *_Nullable)scope;
+- (instancetype)initWithClient:(SentryClient *_Nullable)client andScope:(SentryScope *_Nullable)scope;
 
 /**
  * Since there's no scope stack, single hub instance,  we keep the session here.
@@ -38,8 +37,7 @@ SENTRY_NO_INIT
  */
 - (void)endSessionWithTimestamp:(NSDate *)timestamp;
 
-@property (nonatomic, strong)
-    NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
+@property (nonatomic, strong) NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
 
 /**
  * Captures a manually created event and sends it to Sentry.
@@ -58,8 +56,7 @@ SENTRY_NO_INIT
  *
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
-- (SentryId *)captureEvent:(SentryEvent *)event
-                 withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(event:scope:));
+- (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(event:scope:));
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
@@ -70,8 +67,7 @@ SENTRY_NO_INIT
  * @return The created transaction.
  */
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                 operation:(NSString *)operation
-    NS_SWIFT_NAME(startTransaction(name:operation:));
+                                 operation:(NSString *)operation NS_SWIFT_NAME(startTransaction(name:operation:));
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
@@ -152,8 +148,7 @@ SENTRY_NO_INIT
  *
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
-- (SentryId *)captureError:(NSError *)error
-                 withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(error:scope:));
+- (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(error:scope:));
 
 /**
  * Captures an exception event and sends it to Sentry.
@@ -192,16 +187,14 @@ SENTRY_NO_INIT
  *
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
-- (SentryId *)captureMessage:(NSString *)message
-                   withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(message:scope:));
+- (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(message:scope:));
 
 /**
  * Captures a manually created user feedback and sends it to Sentry.
  *
  * @param userFeedback The user feedback to send to Sentry.
  */
-- (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
-    NS_SWIFT_NAME(capture(userFeedback:));
+- (void)captureUserFeedback:(SentryUserFeedback *)userFeedback NS_SWIFT_NAME(capture(userFeedback:));
 
 /**
  * Use this method to modify the Scope of the Hub. The SDK uses the Scope to attach

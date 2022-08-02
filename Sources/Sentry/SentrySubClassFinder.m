@@ -30,15 +30,14 @@ SentrySubClassFinder ()
     [self.dispatchQueue dispatchAsyncWithBlock:^{
         Class viewControllerClass = NSClassFromString(@"UIViewController");
         if (viewControllerClass == nil) {
-            [SentryLog logWithMessage:@"UIViewController class not found."
-                             andLevel:kSentryLevelDebug];
+            [SentryLog logWithMessage:@"UIViewController class not found." andLevel:kSentryLevelDebug];
             return;
         }
 
         unsigned int count = 0;
-        const char **classes = [self.objcRuntimeWrapper
-            copyClassNamesForImage:[imageName cStringUsingEncoding:NSUTF8StringEncoding]
-                            amount:&count];
+        const char **classes =
+            [self.objcRuntimeWrapper copyClassNamesForImage:[imageName cStringUsingEncoding:NSUTF8StringEncoding]
+                                                     amount:&count];
 
         // Storing the actual classes in an NSArray would call initializer of the class, which we
         // must avoid as we are on a background thread here and dealing with UIViewControllers,
@@ -66,11 +65,10 @@ SentrySubClassFinder ()
                 block(NSClassFromString(className));
             }
 
-            [SentryLog
-                logWithMessage:[NSString stringWithFormat:@"The following UIViewControllers will "
-                                                          @"generate automatic transactions: %@",
-                                         [classesToSwizzle componentsJoinedByString:@", "]]
-                      andLevel:kSentryLevelDebug];
+            [SentryLog logWithMessage:[NSString stringWithFormat:@"The following UIViewControllers will "
+                                                                 @"generate automatic transactions: %@",
+                                                [classesToSwizzle componentsJoinedByString:@", "]]
+                             andLevel:kSentryLevelDebug];
         }];
     }];
 }

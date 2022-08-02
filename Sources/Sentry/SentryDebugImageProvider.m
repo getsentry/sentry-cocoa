@@ -22,8 +22,7 @@ SentryDebugImageProvider ()
 - (instancetype)init
 {
 
-    SentryCrashDefaultBinaryImageProvider *provider =
-        [[SentryCrashDefaultBinaryImageProvider alloc] init];
+    SentryCrashDefaultBinaryImageProvider *provider = [[SentryCrashDefaultBinaryImageProvider alloc] init];
 
     self = [self initWithBinaryImageProvider:provider];
 

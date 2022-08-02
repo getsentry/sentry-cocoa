@@ -178,8 +178,8 @@ typedef struct {
  *
  * @return True if the file was successfully opened.
  */
-bool sentrycrashfu_openBufferedWriter(SentryCrashBufferedWriter *writer, const char *const path,
-    char *writeBuffer, int writeBufferLength);
+bool sentrycrashfu_openBufferedWriter(
+    SentryCrashBufferedWriter *writer, const char *const path, char *writeBuffer, int writeBufferLength);
 
 /** Close a buffered writer.
  *
@@ -230,8 +230,8 @@ typedef struct {
  *
  * @return True if the file was successfully opened.
  */
-bool sentrycrashfu_openBufferedReader(SentryCrashBufferedReader *reader, const char *const path,
-    char *readBuffer, int readBufferLength);
+bool sentrycrashfu_openBufferedReader(
+    SentryCrashBufferedReader *reader, const char *const path, char *readBuffer, int readBufferLength);
 
 /** Close a buffered reader.
  *
@@ -249,8 +249,7 @@ void sentrycrashfu_closeBufferedReader(SentryCrashBufferedReader *reader);
  *
  * @return The number of bytes actually read.
  */
-int sentrycrashfu_readBufferedReader(
-    SentryCrashBufferedReader *reader, char *dstBuffer, int byteCount);
+int sentrycrashfu_readBufferedReader(SentryCrashBufferedReader *reader, char *dstBuffer, int byteCount);
 
 /** Read from a buffered reader until the specified character is encountered.
  * All bytes up to and including the character will be read.
@@ -266,8 +265,7 @@ int sentrycrashfu_readBufferedReader(
  *
  * @return True if the character was found before giving up.
  */
-bool sentrycrashfu_readBufferedReaderUntilChar(
-    SentryCrashBufferedReader *reader, int ch, char *dstBuffer, int *length);
+bool sentrycrashfu_readBufferedReaderUntilChar(SentryCrashBufferedReader *reader, int ch, char *dstBuffer, int *length);
 
 #ifdef __cplusplus
 }

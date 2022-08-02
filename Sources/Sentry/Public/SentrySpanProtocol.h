@@ -46,8 +46,7 @@ NS_SWIFT_NAME(Span)
  *
  * @return SentrySpan
  */
-- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
-    NS_SWIFT_NAME(startChild(operation:));
+- (id<SentrySpan>)startChildWithOperation:(NSString *)operation NS_SWIFT_NAME(startChild(operation:));
 
 /**
  * Starts a child span.

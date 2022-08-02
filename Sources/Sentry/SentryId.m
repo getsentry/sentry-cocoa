@@ -53,8 +53,7 @@ static SentryId *_empty = nil;
 
 - (NSString *)sentryIdString;
 {
-    NSString *sentryIdString = [self.uuid.UUIDString stringByReplacingOccurrencesOfString:@"-"
-                                                                               withString:@""];
+    NSString *sentryIdString = [self.uuid.UUIDString stringByReplacingOccurrencesOfString:@"-" withString:@""];
     return [sentryIdString lowercaseString];
 }
 

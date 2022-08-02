@@ -39,8 +39,7 @@ SentryANRTrackingIntegration ()
         return;
     }
 
-    self.tracker =
-        [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval];
+    self.tracker = [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval];
 
     [self.tracker addListener:self];
     self.options = options;
@@ -79,18 +78,18 @@ SentryANRTrackingIntegration ()
 {
     SentryThreadInspector *threadInspector = SentrySDK.currentHub.getClient.threadInspector;
 
-    NSString *message = [NSString stringWithFormat:@"App hanging for at least %li ms.",
-                                  (long)(self.options.appHangTimeoutInterval * 1000)];
+    NSString *message = [NSString
+        stringWithFormat:@"App hanging for at least %li ms.", (long)(self.options.appHangTimeoutInterval * 1000)];
 
     NSArray<SentryThread *> *threads = [threadInspector getCurrentThreadsWithStackTrace];
 
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    SentryException *sentryException = [[SentryException alloc] initWithValue:message
-                                                                         type:@"App Hanging"];
+    SentryException *sentryException = [[SentryException alloc] initWithValue:message type:@"App Hanging"];
     sentryException.mechanism = [[SentryMechanism alloc] initWithType:@"AppHang"];
     sentryException.stacktrace = [threads[0] stacktrace];
-    [threads enumerateObjectsUsingBlock:^(SentryThread *_Nonnull obj, NSUInteger idx,
-        BOOL *_Nonnull stop) { obj.current = [NSNumber numberWithBool:idx == 0]; }];
+    [threads enumerateObjectsUsingBlock:^(SentryThread *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+        obj.current = [NSNumber numberWithBool:idx == 0];
+    }];
 
     event.exceptions = @[ sentryException ];
     event.threads = threads;

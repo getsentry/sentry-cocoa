@@ -22,16 +22,13 @@ SentryTransportFactory ()
 
 @implementation SentryTransportFactory
 
-+ (id<SentryTransport>)initTransport:(SentryOptions *)options
-                   sentryFileManager:(SentryFileManager *)sentryFileManager
++ (id<SentryTransport>)initTransport:(SentryOptions *)options sentryFileManager:(SentryFileManager *)sentryFileManager
 {
-    NSURLSessionConfiguration *configuration =
-        [NSURLSessionConfiguration ephemeralSessionConfiguration];
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
                                                           delegate:options.urlSessionDelegate
                                                      delegateQueue:nil];
-    id<SentryRequestManager> requestManager =
-        [[SentryQueueableRequestManager alloc] initWithSession:session];
+    id<SentryRequestManager> requestManager = [[SentryQueueableRequestManager alloc] initWithSession:session];
 
     SentryHttpDateParser *httpDateParser = [[SentryHttpDateParser alloc] init];
     SentryRetryAfterHeaderParser *retryAfterHeaderParser =
@@ -41,14 +38,12 @@ SentryTransportFactory ()
         [[SentryDefaultRateLimits alloc] initWithRetryAfterHeaderParser:retryAfterHeaderParser
                                                      andRateLimitParser:rateLimitParser];
 
-    SentryEnvelopeRateLimit *envelopeRateLimit =
-        [[SentryEnvelopeRateLimit alloc] initWithRateLimits:rateLimits];
+    SentryEnvelopeRateLimit *envelopeRateLimit = [[SentryEnvelopeRateLimit alloc] initWithRateLimits:rateLimits];
 
-    dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
-        DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_LOW, 0);
+    dispatch_queue_attr_t attributes
+        = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_LOW, 0);
     SentryDispatchQueueWrapper *dispatchQueueWrapper =
-        [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-http-transport"
-                                              attributes:attributes];
+        [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-http-transport" attributes:attributes];
 
     return [[SentryHttpTransport alloc] initWithOptions:options
                                             fileManager:sentryFileManager

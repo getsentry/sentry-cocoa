@@ -36,24 +36,20 @@ SentryCoreDataTrackingIntegration ()
     }
 
     if (!options.enableSwizzling) {
-        [SentryLog logWithMessage:
-                       @"Not going to enable CoreData tracking because enableSwizzling is disabled."
+        [SentryLog logWithMessage:@"Not going to enable CoreData tracking because enableSwizzling is disabled."
                          andLevel:kSentryLevelDebug];
         return YES;
     }
 
     if (!options.isTracingEnabled) {
-        [SentryLog
-            logWithMessage:@"Not going to enable CoreData tracking because tracing is disabled."
-                  andLevel:kSentryLevelDebug];
+        [SentryLog logWithMessage:@"Not going to enable CoreData tracking because tracing is disabled."
+                         andLevel:kSentryLevelDebug];
         return YES;
     }
 
     if (!options.enableCoreDataTracking) {
-        [SentryLog
-            logWithMessage:
-                @"Not going to enable CoreData tracking because enableCoreDataTracking is disabled."
-                  andLevel:kSentryLevelDebug];
+        [SentryLog logWithMessage:@"Not going to enable CoreData tracking because enableCoreDataTracking is disabled."
+                         andLevel:kSentryLevelDebug];
         return YES;
     }
 

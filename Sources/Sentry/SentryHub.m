@@ -38,8 +38,7 @@ SentryHub ()
     NSObject *_sessionLock;
 }
 
-- (instancetype)initWithClient:(nullable SentryClient *)client
-                      andScope:(nullable SentryScope *)scope
+- (instancetype)initWithClient:(nullable SentryClient *)client andScope:(nullable SentryScope *)scope
 {
     if (self = [super init]) {
         _client = client;
@@ -77,9 +76,8 @@ SentryHub ()
     SentryScope *scope = self.scope;
     SentryOptions *options = [_client options];
     if (nil == options || nil == options.releaseName) {
-        [SentryLog
-            logWithMessage:[NSString stringWithFormat:@"No option or release to start a session."]
-                  andLevel:kSentryLevelError];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"No option or release to start a session."]
+                         andLevel:kSentryLevelError];
         return;
     }
     @synchronized(_sessionLock) {
@@ -158,17 +156,15 @@ SentryHub ()
     // out more.
     if (!self.crashWrapper.crashedLastLaunch) {
         if (nil == timestamp) {
-            [SentryLog
-                logWithMessage:[NSString stringWithFormat:@"No timestamp to close session "
-                                                          @"was provided. Closing as abnormal. "
-                                                           "Using session's start time %@",
-                                         session.started]
-                      andLevel:kSentryLevelDebug];
+            [SentryLog logWithMessage:[NSString stringWithFormat:@"No timestamp to close session "
+                                                                 @"was provided. Closing as abnormal. "
+                                                                  "Using session's start time %@",
+                                                session.started]
+                             andLevel:kSentryLevelDebug];
             timestamp = session.started;
             [session endSessionAbnormalWithTimestamp:timestamp];
         } else {
-            [SentryLog logWithMessage:@"Closing cached session as exited."
-                             andLevel:kSentryLevelDebug];
+            [SentryLog logWithMessage:@"Closing cached session as exited." andLevel:kSentryLevelDebug];
             [session endSessionExitedWithTimestamp:timestamp];
         }
         [self deleteCurrentSession];
@@ -182,15 +178,10 @@ SentryHub ()
         SentryClient *client = _client;
 
         if (client.options.diagnosticLevel == kSentryLevelDebug) {
-            NSData *sessionData = [NSJSONSerialization dataWithJSONObject:[session serialize]
-                                                                  options:0
-                                                                    error:nil];
-            NSString *sessionString = [[NSString alloc] initWithData:sessionData
-                                                            encoding:NSUTF8StringEncoding];
-            [SentryLog
-                logWithMessage:[NSString stringWithFormat:@"Capturing session with status: %@",
-                                         sessionString]
-                      andLevel:kSentryLevelDebug];
+            NSData *sessionData = [NSJSONSerialization dataWithJSONObject:[session serialize] options:0 error:nil];
+            NSString *sessionString = [[NSString alloc] initWithData:sessionData encoding:NSUTF8StringEncoding];
+            [SentryLog logWithMessage:[NSString stringWithFormat:@"Capturing session with status: %@", sessionString]
+                             andLevel:kSentryLevelDebug];
         }
         [client captureSession:session];
     }
@@ -258,14 +249,11 @@ SentryHub ()
 {
     SentrySampleDecision decision = transaction.trace.context.sampled;
     if (decision != kSentrySampleDecisionYes) {
-        [self.client recordLostEvent:kSentryDataCategoryTransaction
-                              reason:kSentryDiscardReasonSampleRate];
+        [self.client recordLostEvent:kSentryDataCategoryTransaction reason:kSentryDiscardReasonSampleRate];
         return SentryId.empty;
     }
 
-    return [self captureEvent:transaction
-                      withScope:scope
-        additionalEnvelopeItems:additionalEnvelopeItems];
+    return [self captureEvent:transaction withScope:scope additionalEnvelopeItems:additionalEnvelopeItems];
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event
@@ -284,28 +272,22 @@ SentryHub ()
 {
     SentryClient *client = _client;
     if (nil != client) {
-        return [client captureEvent:event
-                          withScope:scope
-            additionalEnvelopeItems:additionalEnvelopeItems];
+        return [client captureEvent:event withScope:scope additionalEnvelopeItems:additionalEnvelopeItems];
     }
     return SentryId.empty;
 }
 
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation
 {
-    return [self
-        startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name
-                                                                         operation:operation]];
+    return [self startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name operation:operation]];
 }
 
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name
                                  operation:(NSString *)operation
                                bindToScope:(BOOL)bindToScope
 {
-    return
-        [self startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name
-                                                                               operation:operation]
-                              bindToScope:bindToScope];
+    return [self startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name operation:operation]
+                                 bindToScope:bindToScope];
 }
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
@@ -316,9 +298,7 @@ SentryHub ()
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope
 {
-    return [self startTransactionWithContext:transactionContext
-                                 bindToScope:bindToScope
-                       customSamplingContext:@{}];
+    return [self startTransactionWithContext:transactionContext bindToScope:bindToScope customSamplingContext:@{}];
 }
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
@@ -352,8 +332,8 @@ SentryHub ()
     transactionContext.sampled = samplerDecision.decision;
     transactionContext.sampleRate = samplerDecision.sampleRate;
 
-    SentryProfilesSamplerDecision *profilesSamplerDecision =
-        [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
+    SentryProfilesSamplerDecision *profilesSamplerDecision = [_profilesSampler sample:samplingContext
+                                                                tracesSamplerDecision:samplerDecision];
 
     id<SentrySpan> tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                          hub:self
@@ -380,8 +360,8 @@ SentryHub ()
     transactionContext.sampled = samplerDecision.decision;
     transactionContext.sampleRate = samplerDecision.sampleRate;
 
-    SentryProfilesSamplerDecision *profilesSamplerDecision =
-        [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
+    SentryProfilesSamplerDecision *profilesSamplerDecision = [_profilesSampler sample:samplingContext
+                                                                tracesSamplerDecision:samplerDecision];
 
     SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                         hub:self
@@ -557,8 +537,7 @@ SentryHub ()
 
         if (nil != currentSession) {
             // Create a new envelope with the session update
-            NSMutableArray<SentryEnvelopeItem *> *itemsToSend =
-                [[NSMutableArray alloc] initWithArray:envelope.items];
+            NSMutableArray<SentryEnvelopeItem *> *itemsToSend = [[NSMutableArray alloc] initWithArray:envelope.items];
             [itemsToSend addObject:[[SentryEnvelopeItem alloc] initWithSession:currentSession]];
 
             return [[SentryEnvelope alloc] initWithHeader:envelope.header items:itemsToSend];

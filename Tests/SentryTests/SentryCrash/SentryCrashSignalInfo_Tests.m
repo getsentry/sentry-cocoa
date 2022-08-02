@@ -36,8 +36,7 @@
 - (void)testSignalName
 {
     NSString *expected = @"SIGBUS";
-    NSString *actual = [NSString stringWithCString:sentrycrashsignal_signalName(SIGBUS)
-                                          encoding:NSUTF8StringEncoding];
+    NSString *actual = [NSString stringWithCString:sentrycrashsignal_signalName(SIGBUS) encoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(actual, expected, @"");
 }
 
@@ -56,9 +55,8 @@
 - (void)testSignalCodeName
 {
     NSString *expected = @"BUS_ADRERR";
-    NSString *actual =
-        [NSString stringWithCString:sentrycrashsignal_signalCodeName(SIGBUS, BUS_ADRERR)
-                           encoding:NSUTF8StringEncoding];
+    NSString *actual = [NSString stringWithCString:sentrycrashsignal_signalCodeName(SIGBUS, BUS_ADRERR)
+                                          encoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(actual, expected, @"");
 }
 

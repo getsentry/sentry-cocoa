@@ -92,13 +92,12 @@ advanceCursor(SentryCrashStackCursor *cursor)
         if (context->isPastFramePointer) {
             goto tryAsyncChain;
         }
-        context->currentFrame.previous
-            = (struct FrameEntry *)sentrycrashcpu_framePointer(context->machineContext);
+        context->currentFrame.previous = (struct FrameEntry *)sentrycrashcpu_framePointer(context->machineContext);
         context->isPastFramePointer = true;
     }
 
-    if (!sentrycrashmem_copySafely(context->currentFrame.previous, &context->currentFrame,
-            sizeof(context->currentFrame))) {
+    if (!sentrycrashmem_copySafely(
+            context->currentFrame.previous, &context->currentFrame, sizeof(context->currentFrame))) {
         return false;
     }
     if (context->currentFrame.previous == 0 || context->currentFrame.return_address == 0) {
@@ -129,8 +128,8 @@ resetCursor(SentryCrashStackCursor *cursor)
 }
 
 void
-sentrycrashsc_initWithMachineContext(SentryCrashStackCursor *cursor, int maxStackDepth,
-    const struct SentryCrashMachineContext *machineContext)
+sentrycrashsc_initWithMachineContext(
+    SentryCrashStackCursor *cursor, int maxStackDepth, const struct SentryCrashMachineContext *machineContext)
 {
     sentrycrashsc_initCursor(cursor, resetCursor, advanceCursor);
     MachineContextCursor *context = (MachineContextCursor *)cursor->context;

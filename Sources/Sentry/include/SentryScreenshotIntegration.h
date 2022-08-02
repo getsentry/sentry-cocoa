@@ -6,8 +6,7 @@
 NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_HAS_UIKIT
 
-@interface SentryScreenshotIntegration
-    : NSObject <SentryIntegrationProtocol, SentryClientAttachmentProcessor>
+@interface SentryScreenshotIntegration : NSObject <SentryIntegrationProtocol, SentryClientAttachmentProcessor>
 
 @end
 

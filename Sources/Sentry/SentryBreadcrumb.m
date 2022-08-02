@@ -52,11 +52,9 @@
         return NO;
     if (self.level != breadcrumb.level)
         return NO;
-    if (self.category != breadcrumb.category
-        && ![self.category isEqualToString:breadcrumb.category])
+    if (self.category != breadcrumb.category && ![self.category isEqualToString:breadcrumb.category])
         return NO;
-    if (self.timestamp != breadcrumb.timestamp
-        && ![self.timestamp isEqualToDate:breadcrumb.timestamp])
+    if (self.timestamp != breadcrumb.timestamp && ![self.timestamp isEqualToDate:breadcrumb.timestamp])
         return NO;
     if (self.type != breadcrumb.type && ![self.type isEqualToString:breadcrumb.type])
         return NO;

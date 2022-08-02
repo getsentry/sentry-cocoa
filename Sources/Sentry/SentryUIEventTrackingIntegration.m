@@ -25,10 +25,10 @@ SentryUIEventTrackingIntegration ()
     }
 
     SentryDependencyContainer *dependencies = [SentryDependencyContainer sharedInstance];
-    self.uiEventTracker = [[SentryUIEventTracker alloc]
-        initWithSwizzleWrapper:[SentryDependencyContainer sharedInstance].swizzleWrapper
-          dispatchQueueWrapper:dependencies.dispatchQueueWrapper
-                   idleTimeout:options.idleTimeout];
+    self.uiEventTracker =
+        [[SentryUIEventTracker alloc] initWithSwizzleWrapper:[SentryDependencyContainer sharedInstance].swizzleWrapper
+                                        dispatchQueueWrapper:dependencies.dispatchQueueWrapper
+                                                 idleTimeout:options.idleTimeout];
 
     [self.uiEventTracker start];
 }
@@ -50,8 +50,7 @@ SentryUIEventTrackingIntegration ()
     }
 
     if (!options.isTracingEnabled) {
-        [SentryLog logWithMessage:
-                       @"Not going to enable User Interaction tracking because tracing is disabled."
+        [SentryLog logWithMessage:@"Not going to enable User Interaction tracking because tracing is disabled."
                          andLevel:kSentryLevelDebug];
         return YES;
     }

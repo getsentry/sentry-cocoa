@@ -7,8 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentrySwizzleWrapper
 
 #if SENTRY_HAS_UIKIT
-static NSMutableDictionary<NSString *, SentrySwizzleSendActionCallback>
-    *sentrySwizzleSendActionCallbacks;
+static NSMutableDictionary<NSString *, SentrySwizzleSendActionCallback> *sentrySwizzleSendActionCallbacks;
 #endif
 
 + (SentrySwizzleWrapper *)sharedInstance

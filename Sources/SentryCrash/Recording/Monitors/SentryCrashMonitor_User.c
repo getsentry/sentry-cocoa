@@ -39,8 +39,8 @@
 static volatile bool g_isEnabled = false;
 
 void
-sentrycrashcm_reportUserException(const char *name, const char *reason, const char *language,
-    const char *lineOfCode, const char *stackTrace, bool logAllThreads, bool terminateProgram)
+sentrycrashcm_reportUserException(const char *name, const char *reason, const char *language, const char *lineOfCode,
+    const char *stackTrace, bool logAllThreads, bool terminateProgram)
 {
     if (!g_isEnabled) {
         SentryCrashLOG_WARN("User-reported exception monitor is not installed. "

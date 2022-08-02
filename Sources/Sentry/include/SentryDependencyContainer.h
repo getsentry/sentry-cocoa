@@ -3,8 +3,8 @@
 #import "SentryRandom.h"
 #import <Foundation/Foundation.h>
 
-@class SentryAppStateManager, SentryCrashWrapper, SentryThreadWrapper, SentrySwizzleWrapper,
-    SentryDispatchQueueWrapper, SentryDebugImageProvider, SentryANRTracker;
+@class SentryAppStateManager, SentryCrashWrapper, SentryThreadWrapper, SentrySwizzleWrapper, SentryDispatchQueueWrapper,
+    SentryDebugImageProvider, SentryANRTracker;
 
 #if SENTRY_HAS_UIKIT
 @class SentryScreenshot, SentryUIApplication;

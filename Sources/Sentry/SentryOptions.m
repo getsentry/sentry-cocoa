@@ -25,14 +25,12 @@ SentryOptions ()
     return @[
         @"SentryCrashIntegration",
 #if SENTRY_HAS_UIKIT
-        @"SentryANRTrackingIntegration", @"SentryScreenshotIntegration",
-        @"SentryUIEventTrackingIntegration",
+        @"SentryANRTrackingIntegration", @"SentryScreenshotIntegration", @"SentryUIEventTrackingIntegration",
 #endif
         @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
         @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
         @"SentryOutOfMemoryTrackingIntegration", @"SentryPerformanceTrackingIntegration",
-        @"SentryNetworkTrackingIntegration", @"SentryFileIOTrackingIntegration",
-        @"SentryCoreDataTrackingIntegration"
+        @"SentryNetworkTrackingIntegration", @"SentryFileIOTrackingIntegration", @"SentryCoreDataTrackingIntegration"
     ];
 }
 
@@ -103,9 +101,8 @@ SentryOptions ()
 
         // Set default release name
         if (nil != infoDict) {
-            self.releaseName =
-                [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"],
-                          infoDict[@"CFBundleShortVersionString"], infoDict[@"CFBundleVersion"]];
+            self.releaseName = [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"],
+                                         infoDict[@"CFBundleShortVersionString"], infoDict[@"CFBundleVersion"]];
         }
     }
     return self;
@@ -116,9 +113,8 @@ SentryOptions ()
 {
     if (self = [self init]) {
         if (![self validateOptions:options didFailWithError:error]) {
-            [SentryLog
-                logWithMessage:[NSString stringWithFormat:@"Failed to initialize: %@", *error]
-                      andLevel:kSentryLevelError];
+            [SentryLog logWithMessage:[NSString stringWithFormat:@"Failed to initialize: %@", *error]
+                             andLevel:kSentryLevelError];
             return nil;
         }
     }
@@ -141,8 +137,7 @@ SentryOptions ()
 /**
  * Populates all `SentryOptions` values from `options` dict using fallbacks/defaults if needed.
  */
-- (BOOL)validateOptions:(NSDictionary<NSString *, id> *)options
-       didFailWithError:(NSError *_Nullable *_Nullable)error
+- (BOOL)validateOptions:(NSDictionary<NSString *, id> *)options didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     NSPredicate *isNSString = [NSPredicate predicateWithBlock:^BOOL(
         id object, NSDictionary *bindings) { return [object isKindOfClass:[NSString class]]; }];
@@ -217,22 +212,18 @@ SentryOptions ()
             block:^(BOOL value) { self->_enableOutOfMemoryTracking = value; }];
 
     if ([options[@"sessionTrackingIntervalMillis"] isKindOfClass:[NSNumber class]]) {
-        self.sessionTrackingIntervalMillis =
-            [options[@"sessionTrackingIntervalMillis"] unsignedIntValue];
+        self.sessionTrackingIntervalMillis = [options[@"sessionTrackingIntervalMillis"] unsignedIntValue];
     }
 
-    [self setBool:options[@"attachStacktrace"]
-            block:^(BOOL value) { self->_attachStacktrace = value; }];
+    [self setBool:options[@"attachStacktrace"] block:^(BOOL value) { self->_attachStacktrace = value; }];
 
-    [self setBool:options[@"stitchAsyncCode"]
-            block:^(BOOL value) { self->_stitchAsyncCode = value; }];
+    [self setBool:options[@"stitchAsyncCode"] block:^(BOOL value) { self->_stitchAsyncCode = value; }];
 
     if ([options[@"maxAttachmentSize"] isKindOfClass:[NSNumber class]]) {
         self.maxAttachmentSize = [options[@"maxAttachmentSize"] unsignedIntValue];
     }
 
-    [self setBool:options[@"sendDefaultPii"]
-            block:^(BOOL value) { self->_sendDefaultPii = value; }];
+    [self setBool:options[@"sendDefaultPii"] block:^(BOOL value) { self->_sendDefaultPii = value; }];
 
     [self setBool:options[@"enableAutoPerformanceTracking"]
             block:^(BOOL value) { self->_enableAutoPerformanceTracking = value; }];
@@ -241,8 +232,7 @@ SentryOptions ()
     [self setBool:options[@"enableUIViewControllerTracking"]
             block:^(BOOL value) { self->_enableUIViewControllerTracking = value; }];
 
-    [self setBool:options[@"attachScreenshot"]
-            block:^(BOOL value) { self->_attachScreenshot = value; }];
+    [self setBool:options[@"attachScreenshot"] block:^(BOOL value) { self->_attachScreenshot = value; }];
 
     [self setBool:options[@"enableUserInteractionTracing"]
             block:^(BOOL value) { self->_enableUserInteractionTracing = value; }];
@@ -252,18 +242,15 @@ SentryOptions ()
     }
 #endif
 
-    [self setBool:options[@"enableAppHangTracking"]
-            block:^(BOOL value) { self->_enableAppHangTracking = value; }];
+    [self setBool:options[@"enableAppHangTracking"] block:^(BOOL value) { self->_enableAppHangTracking = value; }];
 
     if ([options[@"appHangTimeoutInterval"] isKindOfClass:[NSNumber class]]) {
         self.appHangTimeoutInterval = [options[@"appHangTimeoutInterval"] doubleValue];
     }
 
-    [self setBool:options[@"enableNetworkTracking"]
-            block:^(BOOL value) { self->_enableNetworkTracking = value; }];
+    [self setBool:options[@"enableNetworkTracking"] block:^(BOOL value) { self->_enableNetworkTracking = value; }];
 
-    [self setBool:options[@"enableFileIOTracking"]
-            block:^(BOOL value) { self->_enableFileIOTracking = value; }];
+    [self setBool:options[@"enableFileIOTracking"] block:^(BOOL value) { self->_enableFileIOTracking = value; }];
 
     if ([options[@"tracesSampleRate"] isKindOfClass:[NSNumber class]]) {
         self.tracesSampleRate = options[@"tracesSampleRate"];
@@ -274,8 +261,7 @@ SentryOptions ()
     }
 
     if ([options[@"inAppIncludes"] isKindOfClass:[NSArray class]]) {
-        NSArray<NSString *> *inAppIncludes =
-            [options[@"inAppIncludes"] filteredArrayUsingPredicate:isNSString];
+        NSArray<NSString *> *inAppIncludes = [options[@"inAppIncludes"] filteredArrayUsingPredicate:isNSString];
         _inAppIncludes = [_inAppIncludes arrayByAddingObjectsFromArray:inAppIncludes];
     }
 
@@ -287,11 +273,9 @@ SentryOptions ()
         self.urlSessionDelegate = options[@"urlSessionDelegate"];
     }
 
-    [self setBool:options[@"enableSwizzling"]
-            block:^(BOOL value) { self->_enableSwizzling = value; }];
+    [self setBool:options[@"enableSwizzling"] block:^(BOOL value) { self->_enableSwizzling = value; }];
 
-    [self setBool:options[@"enableCoreDataTracking"]
-            block:^(BOOL value) { self->_enableCoreDataTracking = value; }];
+    [self setBool:options[@"enableCoreDataTracking"] block:^(BOOL value) { self->_enableCoreDataTracking = value; }];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if ([options[@"profilesSampleRate"] isKindOfClass:[NSNumber class]]) {
@@ -302,12 +286,10 @@ SentryOptions ()
         self.profilesSampler = options[@"profilesSampler"];
     }
 
-    [self setBool:options[@"enableProfiling"]
-            block:^(BOOL value) { self->_enableProfiling = value; }];
+    [self setBool:options[@"enableProfiling"] block:^(BOOL value) { self->_enableProfiling = value; }];
 #endif
 
-    [self setBool:options[@"sendClientReports"]
-            block:^(BOOL value) { self->_sendClientReports = value; }];
+    [self setBool:options[@"sendClientReports"] block:^(BOOL value) { self->_sendClientReports = value; }];
 
     [self setBool:options[@"enableAutoBreadcrumbTracking"]
             block:^(BOOL value) { self->_enableAutoBreadcrumbTracking = value; }];
@@ -331,8 +313,7 @@ SentryOptions ()
 
 - (SentrySdkInfo *)sdkInfo
 {
-    return [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
-                                    andVersion:SentryMeta.versionString];
+    return [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName andVersion:SentryMeta.versionString];
 }
 
 - (void)setBool:(id)value block:(void (^)(BOOL))block
@@ -389,8 +370,7 @@ SentryOptions ()
 
 - (BOOL)isTracingEnabled
 {
-    return (_tracesSampleRate != nil && [_tracesSampleRate doubleValue] > 0)
-        || _tracesSampler != nil;
+    return (_tracesSampleRate != nil && [_tracesSampleRate doubleValue] > 0) || _tracesSampler != nil;
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -412,8 +392,8 @@ SentryOptions ()
 
 - (BOOL)isProfilingEnabled
 {
-    return (_profilesSampleRate != nil && [_profilesSampleRate doubleValue] > 0)
-        || _profilesSampler != nil || _enableProfiling;
+    return (_profilesSampleRate != nil && [_profilesSampleRate doubleValue] > 0) || _profilesSampler != nil
+        || _enableProfiling;
 }
 
 #    pragma clang diagnostic push
@@ -454,8 +434,7 @@ SentryOptions ()
 
 - (NSSet<NSString *> *)enabledIntegrations
 {
-    NSMutableSet<NSString *> *enabledIntegrations =
-        [[NSMutableSet alloc] initWithArray:self.integrations];
+    NSMutableSet<NSString *> *enabledIntegrations = [[NSMutableSet alloc] initWithArray:self.integrations];
     for (NSString *integration in self.disabledIntegrations) {
         [enabledIntegrations removeObject:integration];
     }

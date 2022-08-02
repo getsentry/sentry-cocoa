@@ -61,12 +61,12 @@ static NSObject *sentryDependencyContainerLock;
     @synchronized(sentryDependencyContainerLock) {
         if (_appStateManager == nil) {
             SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
-            _appStateManager = [[SentryAppStateManager alloc]
-                    initWithOptions:options
-                       crashWrapper:self.crashWrapper
-                        fileManager:self.fileManager
-                currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-                             sysctl:[[SentrySysctl alloc] init]];
+            _appStateManager =
+                [[SentryAppStateManager alloc] initWithOptions:options
+                                                  crashWrapper:self.crashWrapper
+                                                   fileManager:self.fileManager
+                                           currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                                                        sysctl:[[SentrySysctl alloc] init]];
         }
         return _appStateManager;
     }
@@ -174,12 +174,12 @@ static NSObject *sentryDependencyContainerLock;
     if (_anrTracker == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_anrTracker == nil) {
-                _anrTracker = [[SentryANRTracker alloc]
-                    initWithTimeoutInterval:timeout
-                        currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-                               crashWrapper:self.crashWrapper
-                       dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
-                              threadWrapper:self.threadWrapper];
+                _anrTracker =
+                    [[SentryANRTracker alloc] initWithTimeoutInterval:timeout
+                                                  currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                                                         crashWrapper:self.crashWrapper
+                                                 dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
+                                                        threadWrapper:self.threadWrapper];
             }
         }
     }

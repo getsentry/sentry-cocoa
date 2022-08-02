@@ -34,8 +34,7 @@ SentryScope ()
 /**
  * used to add values in event context.
  */
-@property (atomic, strong)
-    NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *contextDictionary;
+@property (atomic, strong) NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *contextDictionary;
 
 /**
  * Contains the breadcrumbs which will be sent with the event
@@ -123,8 +122,7 @@ SentryScope ()
     if (self.maxBreadcrumbs < 1) {
         return;
     }
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb]
-                     andLevel:kSentryLevelDebug];
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb] andLevel:kSentryLevelDebug];
     @synchronized(_breadcrumbArray) {
         [_breadcrumbArray addObject:crumb];
         if ([_breadcrumbArray count] > self.maxBreadcrumbs) {
@@ -455,8 +453,7 @@ SentryScope ()
     }
 }
 
-- (SentryEvent *__nullable)applyToEvent:(SentryEvent *)event
-                          maxBreadcrumb:(NSUInteger)maxBreadcrumbs
+- (SentryEvent *__nullable)applyToEvent:(SentryEvent *)event maxBreadcrumb:(NSUInteger)maxBreadcrumbs
 {
     if (nil == event.tags) {
         event.tags = [self tags];
@@ -483,8 +480,7 @@ SentryScope ()
 
     if (nil == event.breadcrumbs) {
         NSArray *breadcrumbs = [self breadcrumbs];
-        event.breadcrumbs = [breadcrumbs
-            subarrayWithRange:NSMakeRange(0, MIN(maxBreadcrumbs, [breadcrumbs count]))];
+        event.breadcrumbs = [breadcrumbs subarrayWithRange:NSMakeRange(0, MIN(maxBreadcrumbs, [breadcrumbs count]))];
     }
 
     SentryUser *user = self.userObject.copy;

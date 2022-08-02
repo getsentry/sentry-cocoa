@@ -29,9 +29,7 @@
 @implementation
 NSError (SentrySimpleConstructor)
 
-+ (NSError *)sentryErrorWithDomain:(NSString *)domain
-                              code:(NSInteger)code
-                       description:(NSString *)fmt, ...
++ (NSError *)sentryErrorWithDomain:(NSString *)domain code:(NSInteger)code description:(NSString *)fmt, ...
 {
     va_list args;
     va_start(args, fmt);
@@ -41,8 +39,7 @@ NSError (SentrySimpleConstructor)
 
     return [NSError errorWithDomain:domain
                                code:code
-                           userInfo:[NSDictionary dictionaryWithObject:desc
-                                                                forKey:NSLocalizedDescriptionKey]];
+                           userInfo:[NSDictionary dictionaryWithObject:desc forKey:NSLocalizedDescriptionKey]];
 }
 
 + (BOOL)sentryFillError:(NSError *__autoreleasing *)error
@@ -57,11 +54,9 @@ NSError (SentrySimpleConstructor)
         NSString *desc = [[NSString alloc] initWithFormat:fmt arguments:args];
         va_end(args);
 
-        *error =
-            [NSError errorWithDomain:domain
-                                code:code
-                            userInfo:[NSDictionary dictionaryWithObject:desc
-                                                                 forKey:NSLocalizedDescriptionKey]];
+        *error = [NSError errorWithDomain:domain
+                                     code:code
+                                 userInfo:[NSDictionary dictionaryWithObject:desc forKey:NSLocalizedDescriptionKey]];
     }
     return NO;
 }

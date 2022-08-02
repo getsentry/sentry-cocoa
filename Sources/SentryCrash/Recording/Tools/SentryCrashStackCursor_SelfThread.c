@@ -29,9 +29,8 @@
 //#define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
-#define MAX_BACKTRACE_LENGTH                                                                       \
-    (SentryCrashSC_CONTEXT_SIZE                                                                    \
-        - sizeof(SentryCrashStackCursor_Backtrace_Context) / sizeof(void *) - 1)
+#define MAX_BACKTRACE_LENGTH                                                                                           \
+    (SentryCrashSC_CONTEXT_SIZE - sizeof(SentryCrashStackCursor_Backtrace_Context) / sizeof(void *) - 1)
 
 typedef struct {
     SentryCrashStackCursor_Backtrace_Context SelfThreadContextSpacer;

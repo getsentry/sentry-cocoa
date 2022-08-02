@@ -2,16 +2,14 @@
 
 #import "SentryDefines.h"
 
-@class SentryEnvelope, SentryDebugMeta, SentryAppStartMeasurement, SentryScreenFrames,
-    SentryOptions;
+@class SentryEnvelope, SentryDebugMeta, SentryAppStartMeasurement, SentryScreenFrames, SentryOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
  * A callback to be notified when the AppStartMeasurement is available.
  */
-typedef void (^SentryOnAppStartMeasurementAvailable)(
-    SentryAppStartMeasurement *_Nullable appStartMeasurement);
+typedef void (^SentryOnAppStartMeasurementAvailable)(SentryAppStartMeasurement *_Nullable appStartMeasurement);
 
 /**
  * ATTENTION: This class is reserved for hybrid SDKs. Methods may be changed, renamed or removed
@@ -47,8 +45,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  */
 + (void)setSdkName:(NSString *)sdkName andVersionString:(NSString *)versionString;
 
-@property (class, nullable, nonatomic, copy)
-    SentryOnAppStartMeasurementAvailable onAppStartMeasurementAvailable;
+@property (class, nullable, nonatomic, copy) SentryOnAppStartMeasurementAvailable onAppStartMeasurementAvailable;
 
 @property (class, nullable, nonatomic, readonly) SentryAppStartMeasurement *appStartMeasurement;
 

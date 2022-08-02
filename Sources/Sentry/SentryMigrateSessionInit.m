@@ -22,10 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
         if ([item.header.type isEqualToString:SentryEnvelopeItemTypeSession]) {
             SentrySession *session = [SentrySerialization sessionWithData:item.data];
             if (nil != session && [session.flagInit boolValue]) {
-                BOOL didSetInitFlag =
-                    [self setInitFlagOnNextEnvelopeWithSameSessionId:session
-                                                    envelopesDirPath:envelopesDirPath
-                                                   envelopeFilePaths:envelopeFilePaths];
+                BOOL didSetInitFlag = [self setInitFlagOnNextEnvelopeWithSameSessionId:session
+                                                                      envelopesDirPath:envelopesDirPath
+                                                                     envelopeFilePaths:envelopeFilePaths];
 
                 if (didSetInitFlag) {
                     return YES;
@@ -92,39 +91,32 @@ NS_ASSUME_NONNULL_BEGIN
                  session:(SentrySession *)session
                     path:(NSString *)envelopeFilePath
 {
-    NSArray<SentryEnvelopeItem *> *envelopeItemsWithUpdatedSession =
-        [self replaceSessionEnvelopeItem:session onEnvelope:originalEnvelope];
-    SentryEnvelope *envelopeWithInitFlag =
-        [[SentryEnvelope alloc] initWithHeader:originalEnvelope.header
-                                         items:envelopeItemsWithUpdatedSession];
+    NSArray<SentryEnvelopeItem *> *envelopeItemsWithUpdatedSession = [self replaceSessionEnvelopeItem:session
+                                                                                           onEnvelope:originalEnvelope];
+    SentryEnvelope *envelopeWithInitFlag = [[SentryEnvelope alloc] initWithHeader:originalEnvelope.header
+                                                                            items:envelopeItemsWithUpdatedSession];
 
     NSError *error;
-    NSData *envelopeWithInitFlagData = [SentrySerialization dataWithEnvelope:envelopeWithInitFlag
-                                                                       error:&error];
-    [envelopeWithInitFlagData writeToFile:envelopeFilePath
-                                  options:NSDataWritingAtomic
-                                    error:&error];
+    NSData *envelopeWithInitFlagData = [SentrySerialization dataWithEnvelope:envelopeWithInitFlag error:&error];
+    [envelopeWithInitFlagData writeToFile:envelopeFilePath options:NSDataWritingAtomic error:&error];
 
     if (nil != error) {
-        [SentryLog
-            logWithMessage:[NSString stringWithFormat:@"Could not migrate session init, because "
-                                                      @"storing the updated envelope failed: %@",
-                                     error.description]
-                  andLevel:kSentryLevelError];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Could not migrate session init, because "
+                                                             @"storing the updated envelope failed: %@",
+                                            error.description]
+                         andLevel:kSentryLevelError];
     }
 }
 
 + (NSArray<SentryEnvelopeItem *> *)replaceSessionEnvelopeItem:(SentrySession *)session
                                                    onEnvelope:(SentryEnvelope *)envelope
 {
-    NSPredicate *noSessionEnvelopeItems =
-        [NSPredicate predicateWithBlock:^BOOL(id object, NSDictionary *bindings) {
-            SentryEnvelopeItem *item = object;
-            return ![item.header.type isEqualToString:SentryEnvelopeItemTypeSession];
-        }];
-    NSMutableArray<SentryEnvelopeItem *> *itemsWithoutSession
-        = (NSMutableArray<SentryEnvelopeItem *> *)[[envelope.items
-            filteredArrayUsingPredicate:noSessionEnvelopeItems] mutableCopy];
+    NSPredicate *noSessionEnvelopeItems = [NSPredicate predicateWithBlock:^BOOL(id object, NSDictionary *bindings) {
+        SentryEnvelopeItem *item = object;
+        return ![item.header.type isEqualToString:SentryEnvelopeItemTypeSession];
+    }];
+    NSMutableArray<SentryEnvelopeItem *> *itemsWithoutSession = (NSMutableArray<SentryEnvelopeItem *> *)[[envelope.items
+        filteredArrayUsingPredicate:noSessionEnvelopeItems] mutableCopy];
 
     SentryEnvelopeItem *sessionEnvelopeItem = [[SentryEnvelopeItem alloc] initWithSession:session];
     [itemsWithoutSession addObject:sessionEnvelopeItem];

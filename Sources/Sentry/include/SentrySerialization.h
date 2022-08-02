@@ -10,11 +10,9 @@ static int const SENTRY_BAGGAGE_MAX_SIZE = 8192;
 
 @interface SentrySerialization : NSObject
 
-+ (NSData *_Nullable)dataWithJSONObject:(NSDictionary *)dictionary
-                                  error:(NSError *_Nullable *_Nullable)error;
++ (NSData *_Nullable)dataWithJSONObject:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error;
 
-+ (NSData *_Nullable)dataWithSession:(SentrySession *)session
-                               error:(NSError *_Nullable *_Nullable)error;
++ (NSData *_Nullable)dataWithSession:(SentrySession *)session error:(NSError *_Nullable *_Nullable)error;
 
 + (NSDictionary<NSString *, NSString *> *)decodeBaggage:(NSString *)baggage;
 + (NSString *)baggageEncodedDictionary:(NSDictionary *)dictionary;
@@ -22,8 +20,7 @@ static int const SENTRY_BAGGAGE_MAX_SIZE = 8192;
 + (SentrySession *_Nullable)sessionWithData:(NSData *)sessionData;
 
 // TODO: use (NSOutputStream *)outputStream
-+ (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope
-                                error:(NSError *_Nullable *_Nullable)error;
++ (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope error:(NSError *_Nullable *_Nullable)error;
 
 // TODO: (NSInputStream *)inputStream
 + (SentryEnvelope *_Nullable)envelopeWithData:(NSData *)data;

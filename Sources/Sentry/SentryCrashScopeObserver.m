@@ -47,20 +47,17 @@ SentryCrashScopeObserver ()
 
 - (void)setContext:(nullable NSDictionary<NSString *, id> *)context
 {
-    [self syncScope:context
-        syncToSentryCrash:^(const void *bytes) { sentrycrash_scopesync_setContext(bytes); }];
+    [self syncScope:context syncToSentryCrash:^(const void *bytes) { sentrycrash_scopesync_setContext(bytes); }];
 }
 
 - (void)setExtras:(nullable NSDictionary<NSString *, id> *)extras
 {
-    [self syncScope:extras
-        syncToSentryCrash:^(const void *bytes) { sentrycrash_scopesync_setExtras(bytes); }];
+    [self syncScope:extras syncToSentryCrash:^(const void *bytes) { sentrycrash_scopesync_setExtras(bytes); }];
 }
 
 - (void)setTags:(nullable NSDictionary<NSString *, NSString *> *)tags
 {
-    [self syncScope:tags
-        syncToSentryCrash:^(const void *bytes) { sentrycrash_scopesync_setTags(bytes); }];
+    [self syncScope:tags syncToSentryCrash:^(const void *bytes) { sentrycrash_scopesync_setTags(bytes); }];
 }
 
 - (void)setFingerprint:(nullable NSArray<NSString *> *)fingerprint
@@ -151,9 +148,7 @@ SentryCrashScopeObserver ()
     NSError *error = nil;
     NSData *json = nil;
     if (toSerialize != nil) {
-        json = [SentryCrashJSONCodec encode:toSerialize
-                                    options:SentryCrashJSONEncodeOptionSorted
-                                      error:&error];
+        json = [SentryCrashJSONCodec encode:toSerialize options:SentryCrashJSONEncodeOptionSorted error:&error];
         if (error != nil) {
             NSString *message = [NSString stringWithFormat:@"Could not serialize %@", error];
             [SentryLog logWithMessage:message andLevel:kSentryLevelError];

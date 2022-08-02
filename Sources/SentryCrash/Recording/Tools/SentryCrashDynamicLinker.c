@@ -102,14 +102,12 @@ imageIndexContainingAddress(const uintptr_t address)
                 const struct load_command *loadCmd = (struct load_command *)cmdPtr;
                 if (loadCmd->cmd == LC_SEGMENT) {
                     const struct segment_command *segCmd = (struct segment_command *)cmdPtr;
-                    if (addressWSlide >= segCmd->vmaddr
-                        && addressWSlide < segCmd->vmaddr + segCmd->vmsize) {
+                    if (addressWSlide >= segCmd->vmaddr && addressWSlide < segCmd->vmaddr + segCmd->vmsize) {
                         return iImg;
                     }
                 } else if (loadCmd->cmd == LC_SEGMENT_64) {
                     const struct segment_command_64 *segCmd = (struct segment_command_64 *)cmdPtr;
-                    if (addressWSlide >= segCmd->vmaddr
-                        && addressWSlide < segCmd->vmaddr + segCmd->vmsize) {
+                    if (addressWSlide >= segCmd->vmaddr && addressWSlide < segCmd->vmaddr + segCmd->vmsize) {
                         return iImg;
                     }
                 }
@@ -258,8 +256,7 @@ sentrycrashdl_dladdr(const uintptr_t address, Dl_info *const info)
                     // and almost certainly resolves to "_mh_execute_header"
                     info->dli_sname = NULL;
                 } else {
-                    info->dli_sname
-                        = (char *)((intptr_t)stringTable + (intptr_t)bestMatch->n_un.n_strx);
+                    info->dli_sname = (char *)((intptr_t)stringTable + (intptr_t)bestMatch->n_un.n_strx);
                     if (*info->dli_sname == '_') {
                         info->dli_sname++;
                     }
@@ -279,8 +276,7 @@ isValidCrashInfoMessage(const char *str)
     if (str == NULL) {
         return false;
     }
-    int maxReadableBytes
-        = sentrycrashmem_maxReadableBytes(str, SENTRYCRASHDL_MaxCrashInfoStringLength + 1);
+    int maxReadableBytes = sentrycrashmem_maxReadableBytes(str, SENTRYCRASHDL_MaxCrashInfoStringLength + 1);
     if (maxReadableBytes == 0) {
         return false;
     }
@@ -296,15 +292,14 @@ static void
 getCrashInfo(const struct mach_header *header, SentryCrashBinaryImage *buffer)
 {
     unsigned long size = 0;
-    crash_info_t *crashInfo = (crash_info_t *)getsectiondata(
-        (mach_header_t *)header, SEG_DATA, SENTRYCRASHDL_SECT_CRASH_INFO, &size);
+    crash_info_t *crashInfo
+        = (crash_info_t *)getsectiondata((mach_header_t *)header, SEG_DATA, SENTRYCRASHDL_SECT_CRASH_INFO, &size);
     if (crashInfo == NULL) {
         return;
     }
 
     SentryCrashLOG_TRACE("Found crash info section in binary: %s", buffer->name);
-    const unsigned int minimalSize
-        = offsetof(crash_info_t, reserved); // Include message and message2
+    const unsigned int minimalSize = offsetof(crash_info_t, reserved); // Include message and message2
     if (size < minimalSize) {
         SentryCrashLOG_TRACE("Skipped reading crash info: section is too small");
         return;
@@ -314,8 +309,7 @@ getCrashInfo(const struct mach_header *header, SentryCrashBinaryImage *buffer)
         return;
     }
     if (crashInfo->version != 4 && crashInfo->version != 5) {
-        SentryCrashLOG_TRACE(
-            "Skipped reading crash info: invalid version '%d'", crashInfo->version);
+        SentryCrashLOG_TRACE("Skipped reading crash info: invalid version '%d'", crashInfo->version);
         return;
     }
     if (crashInfo->message == NULL && crashInfo->message2 == NULL) {
@@ -347,8 +341,7 @@ sentrycrashdl_getBinaryImage(int index, SentryCrashBinaryImage *buffer)
         return false;
     }
 
-    return sentrycrashdl_getBinaryImageForHeader(
-        (const void *)header, _dyld_get_image_name((unsigned)index), buffer);
+    return sentrycrashdl_getBinaryImageForHeader((const void *)header, _dyld_get_image_name((unsigned)index), buffer);
 }
 
 bool

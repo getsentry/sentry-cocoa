@@ -42,22 +42,19 @@ SentryCoreDataSwizzling ()
 {
     SEL fetchSelector = NSSelectorFromString(@"executeFetchRequest:error:");
 
-    SentrySwizzleInstanceMethod(NSManagedObjectContext.class, fetchSelector,
-        SentrySWReturnType(NSArray *),
+    SentrySwizzleInstanceMethod(NSManagedObjectContext.class, fetchSelector, SentrySWReturnType(NSArray *),
         SentrySWArguments(NSFetchRequest * originalRequest, NSError * *error), SentrySWReplacement({
             NSArray *result;
 
-            id<SentryCoreDataMiddleware> middleware
-                = SentryCoreDataSwizzling.sharedInstance.middleware;
+            id<SentryCoreDataMiddleware> middleware = SentryCoreDataSwizzling.sharedInstance.middleware;
 
             if (middleware) {
-                result = [middleware
-                    managedObjectContext:self
-                     executeFetchRequest:originalRequest
-                                   error:error
-                             originalImp:^NSArray *(NSFetchRequest *request, NSError **outError) {
-                                 return SentrySWCallOriginal(request, outError);
-                             }];
+                result = [middleware managedObjectContext:self
+                                      executeFetchRequest:originalRequest
+                                                    error:error
+                                              originalImp:^NSArray *(NSFetchRequest *request, NSError **outError) {
+                                                  return SentrySWCallOriginal(request, outError);
+                                              }];
             } else {
                 result = SentrySWCallOriginal(originalRequest, error);
             }
@@ -67,18 +64,16 @@ SentryCoreDataSwizzling ()
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)fetchSelector);
 
     SEL saveSelector = NSSelectorFromString(@"save:");
-    SentrySwizzleInstanceMethod(NSManagedObjectContext.class, saveSelector,
-        SentrySWReturnType(BOOL), SentrySWArguments(NSError * *error), SentrySWReplacement({
+    SentrySwizzleInstanceMethod(NSManagedObjectContext.class, saveSelector, SentrySWReturnType(BOOL),
+        SentrySWArguments(NSError * *error), SentrySWReplacement({
             BOOL result;
-            id<SentryCoreDataMiddleware> middleware
-                = SentryCoreDataSwizzling.sharedInstance.middleware;
+            id<SentryCoreDataMiddleware> middleware = SentryCoreDataSwizzling.sharedInstance.middleware;
 
             if (middleware) {
-                result = [middleware managedObjectContext:self
-                                                     save:error
-                                              originalImp:^BOOL(NSError **outError) {
-                                                  return SentrySWCallOriginal(outError);
-                                              }];
+                result = [middleware
+                    managedObjectContext:self
+                                    save:error
+                             originalImp:^BOOL(NSError **outError) { return SentrySWCallOriginal(outError); }];
             } else {
                 result = SentrySWCallOriginal(error);
             }

@@ -30,18 +30,15 @@ SentrySession (Equality)
         return NO;
     if (self.sequence != session.sequence)
         return NO;
-    if (self.distinctId != session.distinctId
-        && ![self.distinctId isEqualToString:session.distinctId])
+    if (self.distinctId != session.distinctId && ![self.distinctId isEqualToString:session.distinctId])
         return NO;
     if (self.timestamp != session.timestamp && ![self.timestamp isEqualToDate:session.timestamp])
         return NO;
     if (self.duration != session.duration && ![self.duration isEqualToNumber:session.duration])
         return NO;
-    if (self.releaseName != session.releaseName
-        && ![self.releaseName isEqualToString:session.releaseName])
+    if (self.releaseName != session.releaseName && ![self.releaseName isEqualToString:session.releaseName])
         return NO;
-    if (self.environment != session.environment
-        && ![self.environment isEqualToString:session.environment])
+    if (self.environment != session.environment && ![self.environment isEqualToString:session.environment])
         return NO;
     if (self.user != session.user && ![self.user isEqual:session.user])
         return NO;

@@ -3,8 +3,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceContext,
-    SentryDispatchQueueWrapper, SentryTracer, SentryProfilesSamplerDecision;
+@class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceContext, SentryDispatchQueueWrapper,
+    SentryTracer, SentryProfilesSamplerDecision;
 
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
@@ -87,8 +87,7 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  *
  * @return SentryTracer
  */
-- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                                       hub:(nullable SentryHub *)hub;
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext hub:(nullable SentryHub *)hub;
 
 /**
  * Init a SentryTracer with given transaction context, hub and whether the tracer should wait
@@ -117,8 +116,7 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
-                   profilesSamplerDecision:
-                       (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
+                   profilesSamplerDecision:(nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
                            waitForChildren:(BOOL)waitForChildren;
 
 /**
@@ -134,8 +132,7 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
-                   profilesSamplerDecision:
-                       (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
+                   profilesSamplerDecision:(nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
                                idleTimeout:(NSTimeInterval)idleTimeout
                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 

@@ -14,9 +14,7 @@
 - (void)testWithGarbageParametersDoesNotCrash
 {
     SentryEnvelope *envelope = [SentrySerialization envelopeWithData:[[NSData alloc] init]];
-    [SentryMigrateSessionInit migrateSessionInit:envelope
-                                envelopesDirPath:@"asdf"
-                               envelopeFilePaths:@[]];
+    [SentryMigrateSessionInit migrateSessionInit:envelope envelopesDirPath:@"asdf" envelopeFilePaths:@[]];
 }
 
 @end

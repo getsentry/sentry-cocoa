@@ -252,8 +252,7 @@ sentrycrashfu_readEntireFile(const char *const path, char **data, int *length, i
         bytesToRead = (int)st.st_size;
     } else if (bytesToRead > 0) {
         if (lseek(fd, -bytesToRead, SEEK_END) < 0) {
-            SentryCrashLOG_ERROR(
-                "Could not seek to %d from end of %s: %s", -bytesToRead, path, strerror(errno));
+            SentryCrashLOG_ERROR("Could not seek to %d from end of %s: %s", -bytesToRead, path, strerror(errno));
             goto done;
         }
     }
@@ -361,8 +360,7 @@ sentrycrashfu_makePath(const char *absolutePath)
         if (*ptr == '/') {
             *ptr = '\0';
             if (mkdir(pathCopy, S_IRWXU) < 0 && errno != EEXIST) {
-                SentryCrashLOG_ERROR(
-                    "Could not create directory %s: %s", pathCopy, strerror(errno));
+                SentryCrashLOG_ERROR("Could not create directory %s: %s", pathCopy, strerror(errno));
                 goto done;
             }
             *ptr = '/';
@@ -402,8 +400,8 @@ sentrycrashfu_deleteContentsOfPath(const char *path)
 }
 
 bool
-sentrycrashfu_openBufferedWriter(SentryCrashBufferedWriter *writer, const char *const path,
-    char *writeBuffer, int writeBufferLength)
+sentrycrashfu_openBufferedWriter(
+    SentryCrashBufferedWriter *writer, const char *const path, char *writeBuffer, int writeBufferLength)
 {
     writer->buffer = writeBuffer;
     writer->bufferLength = writeBufferLength;
@@ -427,8 +425,7 @@ sentrycrashfu_closeBufferedWriter(SentryCrashBufferedWriter *writer)
 }
 
 bool
-sentrycrashfu_writeBufferedWriter(
-    SentryCrashBufferedWriter *writer, const char *restrict const data, const int length)
+sentrycrashfu_writeBufferedWriter(SentryCrashBufferedWriter *writer, const char *restrict const data, const int length)
 {
     if (length > writer->bufferLength - writer->position) {
         sentrycrashfu_flushBufferedWriter(writer);
@@ -513,8 +510,7 @@ sentrycrashfu_readBufferedReader(SentryCrashBufferedReader *reader, char *dstBuf
 }
 
 bool
-sentrycrashfu_readBufferedReaderUntilChar(
-    SentryCrashBufferedReader *reader, int ch, char *dstBuffer, int *length)
+sentrycrashfu_readBufferedReaderUntilChar(SentryCrashBufferedReader *reader, int ch, char *dstBuffer, int *length)
 {
     int bytesRemaining = *length;
     int bytesConsumed = 0;
@@ -553,8 +549,8 @@ sentrycrashfu_readBufferedReaderUntilChar(
 }
 
 bool
-sentrycrashfu_openBufferedReader(SentryCrashBufferedReader *reader, const char *const path,
-    char *readBuffer, int readBufferLength)
+sentrycrashfu_openBufferedReader(
+    SentryCrashBufferedReader *reader, const char *const path, char *readBuffer, int readBufferLength)
 {
     readBuffer[0] = '\0';
     readBuffer[readBufferLength - 1] = '\0';

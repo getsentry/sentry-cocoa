@@ -148,12 +148,10 @@ SentryEvent ()
     [serializedData setValue:self.type forKey:@"type"];
     if (nil != self.type && [self.type isEqualToString:@"transaction"]) {
         if (nil != self.startTimestamp) {
-            [serializedData setValue:@(self.startTimestamp.timeIntervalSince1970)
-                              forKey:@"start_timestamp"];
+            [serializedData setValue:@(self.startTimestamp.timeIntervalSince1970) forKey:@"start_timestamp"];
         } else {
             // start timestamp should never be empty
-            [serializedData setValue:@(self.timestamp.timeIntervalSince1970)
-                              forKey:@"start_timestamp"];
+            [serializedData setValue:@(self.timestamp.timeIntervalSince1970) forKey:@"start_timestamp"];
         }
     }
 }

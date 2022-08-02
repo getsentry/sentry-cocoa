@@ -49,10 +49,8 @@ SentryFramesTracker ()
 {
     static SentryFramesTracker *sharedInstance = nil;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedInstance =
-            [[self alloc] initWithDisplayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
-    });
+    dispatch_once(&onceToken,
+        ^{ sharedInstance = [[self alloc] initWithDisplayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]]; });
     return sharedInstance;
 }
 
@@ -118,15 +116,13 @@ SentryFramesTracker ()
     // 60 fps.
     double actualFramesPerSecond = 60.0;
     if (@available(iOS 10.0, tvOS 10.0, *)) {
-        actualFramesPerSecond
-            = 1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp);
+        actualFramesPerSecond = 1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp);
     }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
     if (self.currentTracer.isProfiling
         && (self.frameRateTimestamps.count == 0
-            || self.frameRateTimestamps.lastObject[@"frame_rate"].doubleValue
-                != actualFramesPerSecond)) {
+            || self.frameRateTimestamps.lastObject[@"frame_rate"].doubleValue != actualFramesPerSecond)) {
         [self.frameRateTimestamps addObject:@{
             @"timestamp" : @(self.displayLinkWrapper.timestamp),
             @"frame_rate" : @(actualFramesPerSecond),

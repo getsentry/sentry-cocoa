@@ -25,21 +25,20 @@ SentryPerformanceTrackingIntegration ()
     }
 
 #if SENTRY_HAS_UIKIT
-    dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
-        DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    dispatch_queue_attr_t attributes
+        = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_HIGH, 0);
     SentryDispatchQueueWrapper *dispatchQueue =
-        [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-ui-view-controller-swizzling"
-                                              attributes:attributes];
+        [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-ui-view-controller-swizzling" attributes:attributes];
 
-    SentrySubClassFinder *subClassFinder = [[SentrySubClassFinder alloc]
-        initWithDispatchQueue:dispatchQueue
-           objcRuntimeWrapper:[SentryDefaultObjCRuntimeWrapper sharedInstance]];
+    SentrySubClassFinder *subClassFinder =
+        [[SentrySubClassFinder alloc] initWithDispatchQueue:dispatchQueue
+                                         objcRuntimeWrapper:[SentryDefaultObjCRuntimeWrapper sharedInstance]];
 
-    self.swizzling = [[SentryUIViewControllerSwizzling alloc]
-           initWithOptions:options
-             dispatchQueue:dispatchQueue
-        objcRuntimeWrapper:[SentryDefaultObjCRuntimeWrapper sharedInstance]
-            subClassFinder:subClassFinder];
+    self.swizzling =
+        [[SentryUIViewControllerSwizzling alloc] initWithOptions:options
+                                                   dispatchQueue:dispatchQueue
+                                              objcRuntimeWrapper:[SentryDefaultObjCRuntimeWrapper sharedInstance]
+                                                  subClassFinder:subClassFinder];
 
     [self.swizzling start];
 #else

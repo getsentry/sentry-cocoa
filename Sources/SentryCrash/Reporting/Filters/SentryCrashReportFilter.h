@@ -35,8 +35,7 @@
  *                  user cancelling the operation).
  * @param error Non-nil if an error occurred.
  */
-typedef void (^SentryCrashReportFilterCompletion)(
-    NSArray *filteredReports, BOOL completed, NSError *error);
+typedef void (^SentryCrashReportFilterCompletion)(NSArray *filteredReports, BOOL completed, NSError *error);
 
 /**
  * A filter receives a set of reports, possibly transforms them, and then
@@ -49,8 +48,7 @@ typedef void (^SentryCrashReportFilterCompletion)(
  * @param reports The reports to process.
  * @param onCompletion Block to call when processing is complete.
  */
-- (void)filterReports:(NSArray *)reports
-         onCompletion:(SentryCrashReportFilterCompletion)onCompletion;
+- (void)filterReports:(NSArray *)reports onCompletion:(SentryCrashReportFilterCompletion)onCompletion;
 
 @end
 
@@ -62,8 +60,8 @@ typedef void (^SentryCrashReportFilterCompletion)(
  * @param error The parameter to send as "error".
  */
 static inline void
-sentrycrash_callCompletion(SentryCrashReportFilterCompletion onCompletion, NSArray *filteredReports,
-    BOOL completed, NSError *error)
+sentrycrash_callCompletion(
+    SentryCrashReportFilterCompletion onCompletion, NSArray *filteredReports, BOOL completed, NSError *error)
 {
     if (onCompletion) {
         onCompletion(filteredReports, completed, error);

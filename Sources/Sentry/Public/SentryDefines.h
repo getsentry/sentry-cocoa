@@ -18,8 +18,8 @@
 #    define SENTRY_HAS_UIKIT 0
 #endif
 
-#define SENTRY_NO_INIT                                                                             \
-    -(instancetype)init NS_UNAVAILABLE;                                                            \
+#define SENTRY_NO_INIT                                                                                                 \
+    -(instancetype)init NS_UNAVAILABLE;                                                                                \
     +(instancetype) new NS_UNAVAILABLE;
 
 @class SentryEvent, SentryBreadcrumb, SentrySamplingContext;
@@ -34,14 +34,12 @@ typedef void (^SentryRequestFinished)(NSError *_Nullable error);
  * Block used for request operation finished, shouldDiscardEvent is YES if event
  * should be deleted regardless if an error ocured or not
  */
-typedef void (^SentryRequestOperationFinished)(
-    NSHTTPURLResponse *_Nullable response, NSError *_Nullable error);
+typedef void (^SentryRequestOperationFinished)(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error);
 /**
  * Block can be used to mutate a breadcrumb before it's added to the scope.
  * To avoid adding the breadcrumb altogether, return nil instead.
  */
-typedef SentryBreadcrumb *_Nullable (^SentryBeforeBreadcrumbCallback)(
-    SentryBreadcrumb *_Nonnull breadcrumb);
+typedef SentryBreadcrumb *_Nullable (^SentryBeforeBreadcrumbCallback)(SentryBreadcrumb *_Nonnull breadcrumb);
 
 /**
  * Block can be used to mutate event before its send.
@@ -60,8 +58,7 @@ typedef void (^SentryOnCrashedLastRunCallback)(SentryEvent *_Nonnull event);
  * this will only be called once the event is created and send manually. Once it
  * has been queued once it will be discarded if it fails again.
  */
-typedef BOOL (^SentryShouldQueueEvent)(
-    NSHTTPURLResponse *_Nullable response, NSError *_Nullable error);
+typedef BOOL (^SentryShouldQueueEvent)(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error);
 
 /**
  * Function pointer for a sampler callback.
@@ -71,8 +68,7 @@ typedef BOOL (^SentryShouldQueueEvent)(
  * @return A sample rate that is >= 0.0 and <= 1.0 or NIL if no sampling decision has been taken..
  * When returning a value out of range the SDK uses the default of 0.
  */
-typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
-    SentrySamplingContext *_Nonnull samplingContext);
+typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(SentrySamplingContext *_Nonnull samplingContext);
 
 /**
  * Function pointer for span manipulation.

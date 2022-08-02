@@ -41,8 +41,8 @@ SentrySessionCrashedHandler ()
             return;
         }
 
-        NSDate *timeSinceLastCrash = [[SentryCurrentDate date]
-            dateByAddingTimeInterval:-self.crashWrapper.activeDurationSinceLastCrash];
+        NSDate *timeSinceLastCrash =
+            [[SentryCurrentDate date] dateByAddingTimeInterval:-self.crashWrapper.activeDurationSinceLastCrash];
 
         [session endSessionCrashedWithTimestamp:timeSinceLastCrash];
         [fileManager storeCrashedSession:session];

@@ -32,8 +32,7 @@ SENTRY_NO_INIT
 - (SentryStacktrace *)buildStacktraceForThread:(SentryCrashThread)thread
                                        context:(struct SentryCrashMachineContext *)context;
 
-- (SentryStacktrace *)buildStackTraceFromStackEntries:(SentryCrashStackEntry *)entries
-                                               amount:(unsigned int)amount;
+- (SentryStacktrace *)buildStackTraceFromStackEntries:(SentryCrashStackEntry *)entries amount:(unsigned int)amount;
 @end
 
 NS_ASSUME_NONNULL_END

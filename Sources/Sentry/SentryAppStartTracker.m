@@ -119,24 +119,21 @@ SentryAppStartTracker ()
         // Check if prewarm is available. Just to be safe to not drop app start data on earlier OS
         // verions.
         if ([self isActivePrewarmAvailable] && isActivePrewarm) {
-            [SentryLog logWithMessage:@"The app was prewarmed. Not measuring app start."
-                             andLevel:kSentryLevelInfo];
+            [SentryLog logWithMessage:@"The app was prewarmed. Not measuring app start." andLevel:kSentryLevelInfo];
             return;
         }
 
         SentryAppStartType appStartType = [self getStartType];
 
         if (appStartType == SentryAppStartTypeUnknown) {
-            [SentryLog logWithMessage:@"Unknown start type. Not measuring app start."
-                             andLevel:kSentryLevelWarning];
+            [SentryLog logWithMessage:@"Unknown start type. Not measuring app start." andLevel:kSentryLevelWarning];
             return;
         }
 
         if (self.wasInBackground) {
             // If the app was already running in the background it's not a cold or warm
             // start.
-            [SentryLog logWithMessage:@"App was in background. Not measuring app start."
-                             andLevel:kSentryLevelInfo];
+            [SentryLog logWithMessage:@"App was in background. Not measuring app start." andLevel:kSentryLevelInfo];
             return;
         }
 
@@ -156,11 +153,10 @@ SentryAppStartTracker ()
 
         // Safety check to not report app starts that are completely off.
         if (appStartDuration >= SENTRY_APP_START_MAX_DURATION) {
-            NSString *message = [NSString
-                stringWithFormat:
-                    @"The app start exceeded the max duration of %f seconds. Not measuring app "
-                    @"start.",
-                SENTRY_APP_START_MAX_DURATION];
+            NSString *message =
+                [NSString stringWithFormat:@"The app start exceeded the max duration of %f seconds. Not measuring app "
+                                           @"start.",
+                          SENTRY_APP_START_MAX_DURATION];
             [SentryLog logWithMessage:message andLevel:kSentryLevelInfo];
             return;
         }
@@ -170,19 +166,18 @@ SentryAppStartTracker ()
         // didFinishLaunchingTimestamp, and we can't calculate the appStartDuration. Instead,
         // the SDK provides the information we know and leaves the rest to the HybridSDKs.
         if (PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode) {
-            self.didFinishLaunchingTimestamp =
-                [[NSDate alloc] initWithTimeIntervalSinceReferenceDate:0];
+            self.didFinishLaunchingTimestamp = [[NSDate alloc] initWithTimeIntervalSinceReferenceDate:0];
 
             appStartDuration = 0;
         }
 
-        SentryAppStartMeasurement *appStartMeasurement = [[SentryAppStartMeasurement alloc]
-                             initWithType:appStartType
-                        appStartTimestamp:self.sysctl.processStartTimestamp
-                                 duration:appStartDuration
-                     runtimeInitTimestamp:runtimeInit
-            moduleInitializationTimestamp:self.sysctl.moduleInitializationTimestamp
-              didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
+        SentryAppStartMeasurement *appStartMeasurement =
+            [[SentryAppStartMeasurement alloc] initWithType:appStartType
+                                          appStartTimestamp:self.sysctl.processStartTimestamp
+                                                   duration:appStartDuration
+                                       runtimeInitTimestamp:runtimeInit
+                              moduleInitializationTimestamp:self.sysctl.moduleInitializationTimestamp
+                                didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
 
         SentrySDK.appStartMeasurement = appStartMeasurement;
     };
@@ -220,8 +215,8 @@ SentryAppStartTracker ()
         return SentryAppStartTypeCold;
     }
 
-    NSTimeInterval intervalSincePreviousBootTime = [self.previousAppState.systemBootTimestamp
-        timeIntervalSinceDate:currentAppState.systemBootTimestamp];
+    NSTimeInterval intervalSincePreviousBootTime =
+        [self.previousAppState.systemBootTimestamp timeIntervalSinceDate:currentAppState.systemBootTimestamp];
 
     // System rebooted, because the previous boot time is in the past.
     if (intervalSincePreviousBootTime < 0) {

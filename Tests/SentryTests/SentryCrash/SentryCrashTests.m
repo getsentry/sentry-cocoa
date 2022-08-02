@@ -23,22 +23,21 @@
 {
     [self initReport:12 withScreenshots:1];
 
-    SentryCrash *sentryCrash = [[SentryCrash alloc]
-        initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Reports"]];
+    SentryCrash *sentryCrash =
+        [[SentryCrash alloc] initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Reports"]];
     NSArray *files = [sentryCrash getScreenshotPaths:12];
 
     XCTAssertEqual(files.count, 1);
     XCTAssertEqualObjects(files.firstObject,
-        [self.tempPath stringByAppendingPathComponent:
-                           @"Reports/AppName-report-000000000000000c-screenshots/0.png"]);
+        [self.tempPath stringByAppendingPathComponent:@"Reports/AppName-report-000000000000000c-screenshots/0.png"]);
 }
 
 - (void)test_getScreenshots_TwoFiles
 {
     [self initReport:12 withScreenshots:2];
 
-    SentryCrash *sentryCrash = [[SentryCrash alloc]
-        initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Reports"]];
+    SentryCrash *sentryCrash =
+        [[SentryCrash alloc] initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Reports"]];
     NSArray *files = [sentryCrash getScreenshotPaths:12];
     XCTAssertEqual(files.count, 2);
 }
@@ -47,16 +46,16 @@
 {
     [self initReport:12 withScreenshots:0];
 
-    SentryCrash *sentryCrash = [[SentryCrash alloc]
-        initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Reports"]];
+    SentryCrash *sentryCrash =
+        [[SentryCrash alloc] initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Reports"]];
     NSArray *files = [sentryCrash getScreenshotPaths:12];
     XCTAssertEqual(files.count, 0);
 }
 
 - (void)test_getScreenshots_NoDirectory
 {
-    SentryCrash *sentryCrash = [[SentryCrash alloc]
-        initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"ReportsFake"]];
+    SentryCrash *sentryCrash =
+        [[SentryCrash alloc] initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"ReportsFake"]];
     NSArray *files = [sentryCrash getScreenshotPaths:12];
     XCTAssertEqual(files.count, 0);
 }
@@ -76,9 +75,8 @@
 
     for (int i = 0; i < amount; i++) {
         NSString *name = [NSString stringWithFormat:@"%i.png", i];
-        [[name dataUsingEncoding:NSUTF8StringEncoding]
-            writeToFile:[ssDir stringByAppendingPathComponent:name]
-             atomically:YES];
+        [[name dataUsingEncoding:NSUTF8StringEncoding] writeToFile:[ssDir stringByAppendingPathComponent:name]
+                                                        atomically:YES];
     }
 }
 

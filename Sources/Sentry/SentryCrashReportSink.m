@@ -46,16 +46,14 @@ SentryCrashReportSink ()
     [SentrySDK captureCrashEvent:event withScope:scope];
 }
 
-- (void)filterReports:(NSArray *)reports
-         onCompletion:(SentryCrashReportFilterCompletion)onCompletion
+- (void)filterReports:(NSArray *)reports onCompletion:(SentryCrashReportFilterCompletion)onCompletion
 {
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul);
     dispatch_async(queue, ^{
         NSMutableArray *sentReports = [NSMutableArray new];
         for (NSDictionary *report in reports) {
             SentryCrashReportConverter *reportConverter =
-                [[SentryCrashReportConverter alloc] initWithReport:report
-                                                        inAppLogic:self.inAppLogic];
+                [[SentryCrashReportConverter alloc] initWithReport:report inAppLogic:self.inAppLogic];
             if (nil != [SentrySDK.currentHub getClient]) {
                 SentryEvent *event = [reportConverter convertReportToEvent];
                 if (nil != event) {

@@ -36,8 +36,8 @@ static inline int
 copySafely(const void *restrict const src, void *restrict const dst, const int byteCount)
 {
     vm_size_t bytesCopied = 0;
-    kern_return_t result = vm_read_overwrite(
-        mach_task_self(), (vm_address_t)src, (vm_size_t)byteCount, (vm_address_t)dst, &bytesCopied);
+    kern_return_t result
+        = vm_read_overwrite(mach_task_self(), (vm_address_t)src, (vm_size_t)byteCount, (vm_address_t)dst, &bytesCopied);
     if (result != KERN_SUCCESS) {
         return 0;
     }
@@ -125,15 +125,13 @@ sentrycrashmem_isMemoryReadable(const void *const memory, const int byteCount)
 }
 
 int
-sentrycrashmem_copyMaxPossible(
-    const void *restrict const src, void *restrict const dst, const int byteCount)
+sentrycrashmem_copyMaxPossible(const void *restrict const src, void *restrict const dst, const int byteCount)
 {
     return copyMaxPossible(src, dst, byteCount);
 }
 
 bool
-sentrycrashmem_copySafely(
-    const void *restrict const src, void *restrict const dst, const int byteCount)
+sentrycrashmem_copySafely(const void *restrict const src, void *restrict const dst, const int byteCount)
 {
     return copySafely(src, dst, byteCount);
 }

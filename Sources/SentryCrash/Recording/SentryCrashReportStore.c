@@ -67,8 +67,7 @@ getNextUniqueID()
 static void
 getCrashReportPathByID(int64_t id, char *pathBuffer)
 {
-    snprintf(pathBuffer, SentryCrashCRS_MAX_PATH_LENGTH, "%s/%s-report-%016llx.json", g_reportsPath,
-        g_appName, id);
+    snprintf(pathBuffer, SentryCrashCRS_MAX_PATH_LENGTH, "%s/%s-report-%016llx.json", g_reportsPath, g_appName, id);
 }
 
 static int64_t
@@ -87,8 +86,7 @@ static int64_t
 getReportIDFromFilePath(const char *filepath)
 {
     char scanFormat[SentryCrashCRS_MAX_PATH_LENGTH];
-    snprintf(
-        scanFormat, sizeof(scanFormat), "%s/%s-report-%%" PRIx64 ".json", g_reportsPath, g_appName);
+    snprintf(scanFormat, sizeof(scanFormat), "%s/%s-report-%%" PRIx64 ".json", g_reportsPath, g_appName);
 
     int64_t reportID = 0;
     sscanf(filepath, scanFormat, &reportID);
@@ -167,9 +165,8 @@ initializeIDs()
     time(&rawTime);
     struct tm time;
     gmtime_r(&rawTime, &time);
-    int64_t baseID = (int64_t)time.tm_sec + (int64_t)time.tm_min * 61
-        + (int64_t)time.tm_hour * 61 * 60 + (int64_t)time.tm_yday * 61 * 60 * 24
-        + (int64_t)time.tm_year * 61 * 60 * 24 * 366;
+    int64_t baseID = (int64_t)time.tm_sec + (int64_t)time.tm_min * 61 + (int64_t)time.tm_hour * 61 * 60
+        + (int64_t)time.tm_yday * 61 * 60 * 24 + (int64_t)time.tm_year * 61 * 60 * 24 * 366;
     baseID <<= 23;
 
     g_nextUniqueIDHigh = baseID & ~0xffffffff;
@@ -236,8 +233,8 @@ sentrycrashcrs_readReport(int64_t reportID)
 void
 sentrycrashcrs_getScreenshotPath_forReportId(int64_t reportID, char *pathBuffer)
 {
-    snprintf(pathBuffer, SentryCrashCRS_MAX_PATH_LENGTH, "%s/%s-report-%016llx-screenshots",
-        g_reportsPath, g_appName, reportID);
+    snprintf(pathBuffer, SentryCrashCRS_MAX_PATH_LENGTH, "%s/%s-report-%016llx-screenshots", g_reportsPath, g_appName,
+        reportID);
 }
 
 void
@@ -265,8 +262,8 @@ sentrycrashcrs_addUserReport(const char *report, int reportLength)
         SentryCrashLOG_ERROR("Could not write to file %s: %s", crashReportPath, strerror(errno));
         goto done;
     } else if (bytesWritten < reportLength) {
-        SentryCrashLOG_ERROR("Expected to write %d bytes to file %s, but only wrote %d",
-            crashReportPath, reportLength, bytesWritten);
+        SentryCrashLOG_ERROR(
+            "Expected to write %d bytes to file %s, but only wrote %d", crashReportPath, reportLength, bytesWritten);
     }
 
 done:

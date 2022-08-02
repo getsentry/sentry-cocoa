@@ -2,8 +2,8 @@
 
 #import "SentryDefines.h"
 
-@class SentryEvent, SentrySession, SentrySdkInfo, SentryId, SentryUserFeedback, SentryAttachment,
-    SentryTransaction, SentryTraceContext, SentryClientReport;
+@class SentryEvent, SentrySession, SentrySdkInfo, SentryId, SentryUserFeedback, SentryAttachment, SentryTransaction,
+    SentryTraceContext, SentryClientReport;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,8 +27,7 @@ SENTRY_NO_INIT
  * related to event.
  * @param traceContext Current trace state.
  */
-- (instancetype)initWithId:(nullable SentryId *)eventId
-              traceContext:(nullable SentryTraceContext *)traceContext;
+- (instancetype)initWithId:(nullable SentryId *)eventId traceContext:(nullable SentryTraceContext *)traceContext;
 
 /**
  * Initializes an SentryEnvelopeHeader object with the specified eventId, skdInfo and traceContext.
@@ -86,8 +85,7 @@ SENTRY_NO_INIT
 - (instancetype)initWithUserFeedback:(SentryUserFeedback *)userFeedback;
 - (_Nullable instancetype)initWithAttachment:(SentryAttachment *)attachment
                            maxAttachmentSize:(NSUInteger)maxAttachmentSize;
-- (instancetype)initWithHeader:(SentryEnvelopeItemHeader *)header
-                          data:(NSData *)data NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithHeader:(SentryEnvelopeItemHeader *)header data:(NSData *)data NS_DESIGNATED_INITIALIZER;
 
 /**
  * The envelope item header.

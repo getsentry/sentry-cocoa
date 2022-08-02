@@ -26,17 +26,17 @@ extern "C" {
 #include <CoreFoundation/CoreFoundation.h>
 #include <objc/objc.h>
 
-#define MAKE_LIST_T(TYPE)                                                                          \
-    typedef struct TYPE##_list_t {                                                                 \
-        uint32_t entsizeAndFlags;                                                                  \
-        uint32_t count;                                                                            \
-        TYPE##_t first;                                                                            \
-    } TYPE##_list_t;                                                                               \
+#define MAKE_LIST_T(TYPE)                                                                                              \
+    typedef struct TYPE##_list_t {                                                                                     \
+        uint32_t entsizeAndFlags;                                                                                      \
+        uint32_t count;                                                                                                \
+        TYPE##_t first;                                                                                                \
+    } TYPE##_list_t;                                                                                                   \
     typedef TYPE##_list_t TYPE##_array_t
 
-#define OBJC_OBJECT(NAME)                                                                          \
-    NAME                                                                                           \
-    {                                                                                              \
+#define OBJC_OBJECT(NAME)                                                                                              \
+    NAME                                                                                                               \
+    {                                                                                                                  \
         Class isa OBJC_ISA_AVAILABILITY;
 
 // ======================================================================
@@ -428,14 +428,12 @@ __CFStrIsInline(CFStringRef str)
 CF_INLINE Boolean
 __CFStrFreeContentsWhenDone(CFStringRef str)
 {
-    return (str->base._cfinfo[CF_INFO_BITS] & __kCFFreeContentsWhenDoneMask)
-        == __kCFFreeContentsWhenDone;
+    return (str->base._cfinfo[CF_INFO_BITS] & __kCFFreeContentsWhenDoneMask) == __kCFFreeContentsWhenDone;
 }
 CF_INLINE Boolean
 __CFStrHasContentsDeallocator(CFStringRef str)
 {
-    return (str->base._cfinfo[CF_INFO_BITS] & __kCFHasContentsDeallocatorMask)
-        == __kCFHasContentsDeallocator;
+    return (str->base._cfinfo[CF_INFO_BITS] & __kCFHasContentsDeallocatorMask) == __kCFHasContentsDeallocator;
 }
 CF_INLINE Boolean
 __CFStrIsUnicode(CFStringRef str)
@@ -460,8 +458,7 @@ __CFStrHasLengthByte(CFStringRef str)
 CF_INLINE Boolean
 __CFStrHasExplicitLength(CFStringRef str)
 {
-    return (str->base._cfinfo[CF_INFO_BITS] & (__kCFIsMutableMask | __kCFHasLengthByteMask))
-        != __kCFHasLengthByte;
+    return (str->base._cfinfo[CF_INFO_BITS] & (__kCFIsMutableMask | __kCFHasLengthByteMask)) != __kCFHasLengthByte;
 } // Has explicit length if (1) mutable or (2) not mutable and no length byte
 CF_INLINE Boolean
 __CFStrIsConstant(CFStringRef str)
@@ -479,8 +476,7 @@ CF_INLINE const void *
 __CFStrContents(CFStringRef str)
 {
     if (__CFStrIsInline(str)) {
-        return (const void *)(((uintptr_t) & (str->variants))
-            + (__CFStrHasExplicitLength(str) ? sizeof(CFIndex) : 0));
+        return (const void *)(((uintptr_t) & (str->variants)) + (__CFStrHasExplicitLength(str) ? sizeof(CFIndex) : 0));
     } else { // Not inline; pointer is always word 2
         return str->variants.notInlineImmutable1.buffer;
     }

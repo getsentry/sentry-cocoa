@@ -3,8 +3,8 @@
 #import "SentryDiscardReason.h"
 #import "SentryTransport.h"
 
-@class SentryEnvelope, SentryEnvelopeItem, SentryEvent, SentrySession, SentryUserFeedback,
-    SentryAttachment, SentryTraceContext, SentryOptions;
+@class SentryEnvelope, SentryEnvelopeItem, SentryEvent, SentrySession, SentryUserFeedback, SentryAttachment,
+    SentryTraceContext, SentryOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -19,8 +19,7 @@ SENTRY_NO_INIT
 - (instancetype)initWithTransport:(id<SentryTransport>)transport options:(SentryOptions *)options;
 
 - (void)sendEvent:(SentryEvent *)event
-      attachments:(NSArray<SentryAttachment *> *)attachments
-    NS_SWIFT_NAME(send(event:attachments:));
+      attachments:(NSArray<SentryAttachment *> *)attachments NS_SWIFT_NAME(send(event:attachments:));
 
 - (void)sendEvent:(SentryEvent *)event
           session:(SentrySession *)session
@@ -28,8 +27,7 @@ SENTRY_NO_INIT
 
 - (void)sendEvent:(SentryEvent *)event
      traceContext:(nullable SentryTraceContext *)traceContext
-      attachments:(NSArray<SentryAttachment *> *)attachments
-    NS_SWIFT_NAME(send(event:traceContext:attachments:));
+      attachments:(NSArray<SentryAttachment *> *)attachments NS_SWIFT_NAME(send(event:traceContext:attachments:));
 
 - (void)sendEvent:(SentryEvent *)event
                traceContext:(nullable SentryTraceContext *)traceContext

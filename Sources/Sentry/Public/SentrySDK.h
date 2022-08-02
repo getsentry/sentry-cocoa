@@ -4,8 +4,8 @@
 
 @protocol SentrySpan;
 
-@class SentryOptions, SentryEvent, SentryBreadcrumb, SentryScope, SentryUser, SentryId,
-    SentryUserFeedback, SentryTransactionContext;
+@class SentryOptions, SentryEvent, SentryBreadcrumb, SentryScope, SentryUser, SentryId, SentryUserFeedback,
+    SentryTransactionContext;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -62,8 +62,7 @@ SENTRY_NO_INIT
  *
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
-+ (SentryId *)captureEvent:(SentryEvent *)event
-                 withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(event:scope:));
++ (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(event:scope:));
 
 /**
  * Captures a manually created event and sends it to Sentry. Maintains the global scope but mutates
@@ -86,8 +85,7 @@ SENTRY_NO_INIT
  * @return The created transaction.
  */
 + (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                 operation:(NSString *)operation
-    NS_SWIFT_NAME(startTransaction(name:operation:));
+                                 operation:(NSString *)operation NS_SWIFT_NAME(startTransaction(name:operation:));
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
@@ -169,8 +167,7 @@ SENTRY_NO_INIT
  *
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
-+ (SentryId *)captureError:(NSError *)error
-                 withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(error:scope:));
++ (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(error:scope:));
 
 /**
  * Captures an error event and sends it to Sentry. Maintains the global scope but mutates scope data
@@ -215,8 +212,7 @@ SENTRY_NO_INIT
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
 + (SentryId *)captureException:(NSException *)exception
-                withScopeBlock:(void (^)(SentryScope *scope))block
-    NS_SWIFT_NAME(capture(exception:block:));
+                withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(exception:block:));
 
 /**
  * Captures a message event and sends it to Sentry.
@@ -236,8 +232,7 @@ SENTRY_NO_INIT
  *
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
-+ (SentryId *)captureMessage:(NSString *)message
-                   withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(message:scope:));
++ (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(message:scope:));
 
 /**
  * Captures a message event and sends it to Sentry. Maintains the global scope but mutates scope
@@ -249,16 +244,14 @@ SENTRY_NO_INIT
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
 + (SentryId *)captureMessage:(NSString *)message
-              withScopeBlock:(void (^)(SentryScope *scope))block
-    NS_SWIFT_NAME(capture(message:block:));
+              withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(message:block:));
 
 /**
  * Captures a manually created user feedback and sends it to Sentry.
  *
  * @param userFeedback The user feedback to send to Sentry.
  */
-+ (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
-    NS_SWIFT_NAME(capture(userFeedback:));
++ (void)captureUserFeedback:(SentryUserFeedback *)userFeedback NS_SWIFT_NAME(capture(userFeedback:));
 
 /**
  * Adds a Breadcrumb to the current Scope of the current Hub. If the total number of breadcrumbs

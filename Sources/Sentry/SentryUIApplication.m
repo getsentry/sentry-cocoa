@@ -23,8 +23,8 @@
     if (@available(iOS 13.0, tvOS 13.0, *)) {
         if ([app respondsToSelector:@selector(connectedScenes)]) {
             for (UIScene *scene in app.connectedScenes) {
-                if (scene.activationState == UISceneActivationStateForegroundActive
-                    && scene.delegate && [scene.delegate respondsToSelector:@selector(window)]) {
+                if (scene.activationState == UISceneActivationStateForegroundActive && scene.delegate &&
+                    [scene.delegate respondsToSelector:@selector(window)]) {
                     [result addObject:[scene.delegate performSelector:@selector(window)]];
                 }
             }

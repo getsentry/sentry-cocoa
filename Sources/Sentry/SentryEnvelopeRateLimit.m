@@ -40,8 +40,7 @@ SentryEnvelopeRateLimit ()
     NSArray<SentryEnvelopeItem *> *itemsToDrop = [self getEnvelopeItemsToDrop:envelope.items];
 
     if (itemsToDrop.count > 0) {
-        NSArray<SentryEnvelopeItem *> *itemsToSend = [self getItemsToSend:envelope.items
-                                                          withItemsToDrop:itemsToDrop];
+        NSArray<SentryEnvelopeItem *> *itemsToSend = [self getItemsToSend:envelope.items withItemsToDrop:itemsToDrop];
 
         result = [[SentryEnvelope alloc] initWithHeader:envelope.header items:itemsToSend];
     }
@@ -66,8 +65,7 @@ SentryEnvelopeRateLimit ()
 }
 
 - (NSArray<SentryEnvelopeItem *> *)getItemsToSend:(NSArray<SentryEnvelopeItem *> *)allItems
-                                  withItemsToDrop:
-                                      (NSArray<SentryEnvelopeItem *> *_Nonnull)itemsToDrop
+                                  withItemsToDrop:(NSArray<SentryEnvelopeItem *> *_Nonnull)itemsToDrop
 {
     NSMutableArray<SentryEnvelopeItem *> *itemsToSend = [NSMutableArray new];
 

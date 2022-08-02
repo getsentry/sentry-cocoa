@@ -10,8 +10,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray *)managedObjectContext:(NSManagedObjectContext *)context
               executeFetchRequest:(NSFetchRequest *)request
                             error:(NSError **)error
-                      originalImp:(NSArray *_Nullable(NS_NOESCAPE ^)(NSFetchRequest *, NSError **))
-                                      original NS_REFINED_FOR_SWIFT;
+                      originalImp:(NSArray *_Nullable(NS_NOESCAPE ^)(NSFetchRequest *, NSError **))original
+    NS_REFINED_FOR_SWIFT;
 
 - (BOOL)managedObjectContext:(NSManagedObjectContext *)context
                         save:(NSError **)error

@@ -13,9 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (instancetype)initWithName:(NSString *)name
-                   operation:(NSString *)operation
-                     sampled:(SentrySampleDecision)sampled
+- (instancetype)initWithName:(NSString *)name operation:(NSString *)operation sampled:(SentrySampleDecision)sampled
 {
     if (self = [super initWithOperation:operation sampled:sampled]) {
         _name = [NSString stringWithString:name];
@@ -31,11 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
                 parentSpanId:(nullable SentrySpanId *)parentSpanId
                parentSampled:(SentrySampleDecision)parentSampled
 {
-    if (self = [super initWithTraceId:traceId
-                               spanId:spanId
-                             parentId:parentSpanId
-                            operation:operation
-                              sampled:false]) {
+    if (self = [super initWithTraceId:traceId spanId:spanId parentId:parentSpanId operation:operation sampled:false]) {
         _name = [NSString stringWithString:name];
         self.parentSampled = parentSampled;
     }

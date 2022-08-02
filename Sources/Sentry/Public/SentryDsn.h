@@ -6,8 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong, readonly) NSURL *url;
 
-- (_Nullable instancetype)initWithString:(NSString *)dsnString
-                        didFailWithError:(NSError *_Nullable *_Nullable)error;
+- (_Nullable instancetype)initWithString:(NSString *)dsnString didFailWithError:(NSError *_Nullable *_Nullable)error;
 
 - (NSString *)getHash;
 

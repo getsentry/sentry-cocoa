@@ -15,8 +15,7 @@ SentryDsn ()
     NSURL *_envelopeEndpoint;
 }
 
-- (_Nullable instancetype)initWithString:(NSString *)dsnString
-                        didFailWithError:(NSError *_Nullable *_Nullable)error
+- (_Nullable instancetype)initWithString:(NSString *)dsnString didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     self = [super init];
     if (self) {
@@ -57,8 +56,7 @@ SentryDsn ()
     if (nil == _envelopeEndpoint) {
         @synchronized(self) {
             if (nil == _envelopeEndpoint) {
-                _envelopeEndpoint =
-                    [[self getBaseEndpoint] URLByAppendingPathComponent:@"envelope/"];
+                _envelopeEndpoint = [[self getBaseEndpoint] URLByAppendingPathComponent:@"envelope/"];
             }
         }
     }
@@ -89,11 +87,10 @@ SentryDsn ()
     return components.URL;
 }
 
-- (NSURL *_Nullable)convertDsnString:(NSString *)dsnString
-                    didFailWithError:(NSError *_Nullable *_Nullable)error
+- (NSURL *_Nullable)convertDsnString:(NSString *)dsnString didFailWithError:(NSError *_Nullable *_Nullable)error
 {
-    NSString *trimmedDsnString = [dsnString
-        stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSString *trimmedDsnString =
+        [dsnString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     NSSet *allowedSchemes = [NSSet setWithObjects:@"http", @"https", nil];
     NSURL *url = [NSURL URLWithString:trimmedDsnString];
     NSString *errorMessage = nil;

@@ -204,9 +204,8 @@ NS_ASSUME_NONNULL_BEGIN
             statusString = @"abnormal";
             break;
         default:
-            [SentryLog
-                logWithMessage:@"Missing string for SessionStatus when serializing SentrySession."
-                      andLevel:kSentryLevelWarning];
+            [SentryLog logWithMessage:@"Missing string for SessionStatus when serializing SentrySession."
+                             andLevel:kSentryLevelWarning];
             break;
         }
 

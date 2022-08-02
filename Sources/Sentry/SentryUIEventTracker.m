@@ -14,8 +14,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const SentryUIEventTrackerSwizzleSendAction
-    = @"SentryUIEventTrackerSwizzleSendAction";
+static NSString *const SentryUIEventTrackerSwizzleSendAction = @"SentryUIEventTrackerSwizzleSendAction";
 
 @interface
 SentryUIEventTracker ()
@@ -85,31 +84,29 @@ SentryUIEventTracker ()
 
             NSString *operation = [self getOperation:sender];
 
-            SentryTransactionContext *context =
-                [[SentryTransactionContext alloc] initWithName:transactionName operation:operation];
+            SentryTransactionContext *context = [[SentryTransactionContext alloc] initWithName:transactionName
+                                                                                     operation:operation];
 
             __block SentryTracer *transaction;
             [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-                BOOL ongoingScreenLoadTransaction = span != nil &&
-                    [span.context.operation isEqualToString:SentrySpanOperationUILoad];
+                BOOL ongoingScreenLoadTransaction
+                    = span != nil && [span.context.operation isEqualToString:SentrySpanOperationUILoad];
                 BOOL ongoingManualTransaction = span != nil
                     && ![span.context.operation isEqualToString:SentrySpanOperationUILoad]
                     && ![span.context.operation containsString:SentrySpanOperationUIAction];
 
                 BOOL bindToScope = !ongoingScreenLoadTransaction && !ongoingManualTransaction;
-                transaction =
-                    [SentrySDK.currentHub startTransactionWithContext:context
-                                                          bindToScope:bindToScope
-                                                customSamplingContext:@{}
-                                                          idleTimeout:self.idleTimeout
-                                                 dispatchQueueWrapper:self.dispatchQueueWrapper];
+                transaction = [SentrySDK.currentHub startTransactionWithContext:context
+                                                                    bindToScope:bindToScope
+                                                          customSamplingContext:@{}
+                                                                    idleTimeout:self.idleTimeout
+                                                           dispatchQueueWrapper:self.dispatchQueueWrapper];
             }];
 
             if ([[sender class] isSubclassOfClass:[UIView class]]) {
                 UIView *view = sender;
                 if (view.accessibilityIdentifier) {
-                    [transaction setTagValue:view.accessibilityIdentifier
-                                      forKey:@"accessibilityIdentifier"];
+                    [transaction setTagValue:view.accessibilityIdentifier forKey:@"accessibilityIdentifier"];
                 }
             }
 
@@ -133,8 +130,7 @@ SentryUIEventTracker ()
 - (NSString *)getOperation:(id)sender
 {
     Class senderClass = [sender class];
-    if ([senderClass isSubclassOfClass:[UIButton class]] ||
-        [senderClass isSubclassOfClass:[UIBarButtonItem class]] ||
+    if ([senderClass isSubclassOfClass:[UIButton class]] || [senderClass isSubclassOfClass:[UIBarButtonItem class]] ||
         [senderClass isSubclassOfClass:[UISegmentedControl class]] ||
         [senderClass isSubclassOfClass:[UIPageControl class]]) {
         return SentrySpanOperationUIActionClick;
@@ -152,8 +148,7 @@ SentryUIEventTracker ()
 {
     NSArray<NSString *> *componens = [action componentsSeparatedByString:@":"];
     if (componens.count > 2) {
-        NSMutableString *result =
-            [[NSMutableString alloc] initWithFormat:@"%@.%@(", target, componens.firstObject];
+        NSMutableString *result = [[NSMutableString alloc] initWithFormat:@"%@.%@(", target, componens.firstObject];
 
         for (int i = 1; i < (componens.count - 1); i++) {
             [result appendFormat:@"%@:", componens[i]];

@@ -74,8 +74,7 @@ sentrycrash_get_async_caller_for_thread(SentryCrashThread thread)
     size_t idx = sentrycrash__thread_idx(thread);
     sentrycrash_async_caller_slot_t *slot = &sentry_async_callers[idx];
     if (__atomic_load_n(&slot->thread, __ATOMIC_ACQUIRE) == thread) {
-        sentrycrash_async_backtrace_t *backtrace
-            = __atomic_load_n(&slot->backtrace, __ATOMIC_RELAXED);
+        sentrycrash_async_backtrace_t *backtrace = __atomic_load_n(&slot->backtrace, __ATOMIC_RELAXED);
         // UNSAFETY WARNING: There is a tiny chance of use-after-free here.
         // This call can happen across threads, and the thread that "owns" the
         // slot can decref and free the backtrace before *this* thread gets a
@@ -99,8 +98,8 @@ sentrycrash__set_async_caller(sentrycrash_async_backtrace_t *backtrace)
     sentrycrash_async_caller_slot_t *slot = &sentry_async_callers[idx];
 
     SentryCrashThread expected = (SentryCrashThread)NULL;
-    bool success = __atomic_compare_exchange_n(
-        &slot->thread, &expected, thread, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+    bool success
+        = __atomic_compare_exchange_n(&slot->thread, &expected, thread, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
 
     // SAFETY: While multiple threads can race on a "set" call to the same slot,
     // the cmpxchg makes sure that only one thread succeeds
@@ -164,12 +163,10 @@ sentrycrash__hook_dispatch_async(dispatch_queue_t queue, dispatch_block_t block)
     });
 }
 
-static void (*real_dispatch_async_f)(
-    dispatch_queue_t queue, void *_Nullable context, dispatch_function_t work);
+static void (*real_dispatch_async_f)(dispatch_queue_t queue, void *_Nullable context, dispatch_function_t work);
 
 void
-sentrycrash__hook_dispatch_async_f(
-    dispatch_queue_t queue, void *_Nullable context, dispatch_function_t work)
+sentrycrash__hook_dispatch_async_f(dispatch_queue_t queue, void *_Nullable context, dispatch_function_t work)
 {
     if (!__atomic_load_n(&hooks_active, __ATOMIC_RELAXED)) {
         return real_dispatch_async_f(queue, context, work);
@@ -177,12 +174,10 @@ sentrycrash__hook_dispatch_async_f(
     sentrycrash__hook_dispatch_async(queue, ^{ work(context); });
 }
 
-static void (*real_dispatch_after)(
-    dispatch_time_t when, dispatch_queue_t queue, dispatch_block_t block);
+static void (*real_dispatch_after)(dispatch_time_t when, dispatch_queue_t queue, dispatch_block_t block);
 
 void
-sentrycrash__hook_dispatch_after(
-    dispatch_time_t when, dispatch_queue_t queue, dispatch_block_t block)
+sentrycrash__hook_dispatch_after(dispatch_time_t when, dispatch_queue_t queue, dispatch_block_t block)
 {
     if (!__atomic_load_n(&hooks_active, __ATOMIC_RELAXED)) {
         return real_dispatch_after(when, queue, block);
@@ -203,8 +198,8 @@ sentrycrash__hook_dispatch_after(
     });
 }
 
-static void (*real_dispatch_after_f)(dispatch_time_t when, dispatch_queue_t queue,
-    void *_Nullable context, dispatch_function_t work);
+static void (*real_dispatch_after_f)(
+    dispatch_time_t when, dispatch_queue_t queue, void *_Nullable context, dispatch_function_t work);
 
 void
 sentrycrash__hook_dispatch_after_f(
@@ -240,12 +235,10 @@ sentrycrash__hook_dispatch_barrier_async(dispatch_queue_t queue, dispatch_block_
     });
 }
 
-static void (*real_dispatch_barrier_async_f)(
-    dispatch_queue_t queue, void *_Nullable context, dispatch_function_t work);
+static void (*real_dispatch_barrier_async_f)(dispatch_queue_t queue, void *_Nullable context, dispatch_function_t work);
 
 void
-sentrycrash__hook_dispatch_barrier_async_f(
-    dispatch_queue_t queue, void *_Nullable context, dispatch_function_t work)
+sentrycrash__hook_dispatch_barrier_async_f(dispatch_queue_t queue, void *_Nullable context, dispatch_function_t work)
 {
     if (!__atomic_load_n(&hooks_active, __ATOMIC_RELAXED)) {
         return real_dispatch_barrier_async_f(queue, context, work);
@@ -267,11 +260,9 @@ sentrycrash_install_async_hooks(void)
     sentrycrash__hook_rebind_symbols(
         (struct rebinding[6]) {
             { "dispatch_async", sentrycrash__hook_dispatch_async, (void *)&real_dispatch_async },
-            { "dispatch_async_f", sentrycrash__hook_dispatch_async_f,
-                (void *)&real_dispatch_async_f },
+            { "dispatch_async_f", sentrycrash__hook_dispatch_async_f, (void *)&real_dispatch_async_f },
             { "dispatch_after", sentrycrash__hook_dispatch_after, (void *)&real_dispatch_after },
-            { "dispatch_after_f", sentrycrash__hook_dispatch_after_f,
-                (void *)&real_dispatch_after_f },
+            { "dispatch_after_f", sentrycrash__hook_dispatch_after_f, (void *)&real_dispatch_after_f },
             { "dispatch_barrier_async", sentrycrash__hook_dispatch_barrier_async,
                 (void *)&real_dispatch_barrier_async },
             { "dispatch_barrier_async_f", sentrycrash__hook_dispatch_barrier_async_f,

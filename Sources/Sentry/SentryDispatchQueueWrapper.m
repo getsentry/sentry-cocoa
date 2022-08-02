@@ -15,8 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 {
     // DISPATCH_QUEUE_SERIAL_WITH_AUTORELEASE_POOL is requires iOS 10. Since we are targeting
     // iOS 9 we need to manually add the autoreleasepool.
-    dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
-        DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_queue_attr_t attributes
+        = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     self = [self initWithName:"sentry-default" attributes:attributes];
     return self;
 }

@@ -37,9 +37,8 @@
 #define SentryCrashCRASH_HOST_IOS (SentryCrashCRASH_HOST_APPLE && TARGET_OS_IOS)
 #define SentryCrashCRASH_HOST_TV (SentryCrashCRASH_HOST_APPLE && TARGET_OS_TV)
 #define SentryCrashCRASH_HOST_WATCH (SentryCrashCRASH_HOST_APPLE && TARGET_OS_WATCH)
-#define SentryCrashCRASH_HOST_MAC                                                                  \
-    (SentryCrashCRASH_HOST_APPLE && TARGET_OS_MAC                                                  \
-        && !(TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH))
+#define SentryCrashCRASH_HOST_MAC                                                                                      \
+    (SentryCrashCRASH_HOST_APPLE && TARGET_OS_MAC && !(TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH))
 
 #if SentryCrashCRASH_HOST_APPLE
 #    define SentryCrashCRASH_CAN_GET_MAC_ADDRESS 1
@@ -128,8 +127,7 @@
 #endif
 
 // WatchOS signal is broken as of 3.1
-#if SentryCrashCRASH_HOST_ANDROID || SentryCrashCRASH_HOST_IOS || SentryCrashCRASH_HOST_MAC        \
-    || SentryCrashCRASH_HOST_TV
+#if SentryCrashCRASH_HOST_ANDROID || SentryCrashCRASH_HOST_IOS || SentryCrashCRASH_HOST_MAC || SentryCrashCRASH_HOST_TV
 #    define SentryCrashCRASH_HAS_SIGNAL 1
 #else
 #    define SentryCrashCRASH_HAS_SIGNAL 0

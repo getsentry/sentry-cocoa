@@ -29,8 +29,7 @@ SentryTestObserver ()
 #if TESTCI
 + (void)load
 {
-    [[XCTestObservationCenter sharedTestObservationCenter]
-        addTestObserver:[[SentryTestObserver alloc] init]];
+    [[XCTestObservationCenter sharedTestObservationCenter] addTestObserver:[[SentryTestObserver alloc] init]];
 }
 #endif
 
@@ -49,8 +48,7 @@ SentryTestObserver ()
         [SentrySDK startWithOptionsObject:options];
 
         self.scope = [[SentryScope alloc] init];
-        [SentryCrashIntegration enrichScope:self.scope
-                               crashWrapper:[SentryCrashWrapper sharedInstance]];
+        [SentryCrashIntegration enrichScope:self.scope crashWrapper:[SentryCrashWrapper sharedInstance]];
 
         self.options = options;
     }
@@ -59,8 +57,7 @@ SentryTestObserver ()
 
 - (void)testCaseWillStart:(XCTestCase *)testCase
 {
-    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug
-                                                             category:@"test.started"];
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug category:@"test.started"];
     [crumb setMessage:testCase.name];
     // The tests might have a different time set
     [crumb setTimestamp:[NSDate new]];
@@ -79,9 +76,7 @@ SentryTestObserver ()
     SentryClient *client = [[SentryClient alloc] initWithOptions:self.options];
     // We create our own hub here, because we don't know the state of the SentrySDK.
     SentryHub *hub = [[SentryHub alloc] initWithClient:client andScope:self.scope];
-    NSException *exception = [[NSException alloc] initWithName:testCase.name
-                                                        reason:issue.description
-                                                      userInfo:nil];
+    NSException *exception = [[NSException alloc] initWithName:testCase.name reason:issue.description userInfo:nil];
     [hub captureException:exception withScope:hub.scope];
 
     [SentryCurrentDate setCurrentDateProvider:currentDateProvider];

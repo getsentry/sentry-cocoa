@@ -91,8 +91,6 @@ typedef enum {
  * SentryCrashJSONDecodeOptionKeepPartialFile option is not set, nil when an
  * error occurs.
  */
-+ (id)decode:(NSData *)JSONData
-     options:(SentryCrashJSONDecodeOption)options
-       error:(NSError **)error;
++ (id)decode:(NSData *)JSONData options:(SentryCrashJSONDecodeOption)options error:(NSError **)error;
 
 @end

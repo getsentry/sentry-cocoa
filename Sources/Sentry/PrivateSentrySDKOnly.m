@@ -62,8 +62,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return _onAppStartMeasurmentAvailable;
 }
 
-+ (void)setOnAppStartMeasurementAvailable:
-    (SentryOnAppStartMeasurementAvailable)onAppStartMeasurementAvailable
++ (void)setOnAppStartMeasurementAvailable:(SentryOnAppStartMeasurementAvailable)onAppStartMeasurementAvailable
 {
     _onAppStartMeasurmentAvailable = onAppStartMeasurementAvailable;
 }

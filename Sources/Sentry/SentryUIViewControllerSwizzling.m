@@ -70,10 +70,9 @@ SentryUIViewControllerSwizzling ()
         // twice. We could also use objc_getClassList to lookup sub classes of UIViewController, but
         // the lookup can take around 60ms, which is not acceptable.
         if (![self swizzleRootViewControllerFromUIApplication:app]) {
-            NSString *message
-                = @"UIViewControllerSwizziling: Fail to find root UIViewController from "
-                  @"UIApplicationDelegate. Trying to use UISceneWillConnectNotification "
-                  @"notification.";
+            NSString *message = @"UIViewControllerSwizziling: Fail to find root UIViewController from "
+                                @"UIApplicationDelegate. Trying to use UISceneWillConnectNotification "
+                                @"notification.";
             [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
 
             if (@available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)) {
@@ -83,10 +82,9 @@ SentryUIViewControllerSwizzling ()
                            name:UISceneWillConnectNotification
                          object:nil];
             } else {
-                message
-                    = @"UIViewControllerSwizziling: iOS version older then 13."
-                      @"There is no UISceneWillConnectNotification notification. Could not find a "
-                      @"rootViewController";
+                message = @"UIViewControllerSwizziling: iOS version older then 13."
+                          @"There is no UISceneWillConnectNotification notification. Could not find a "
+                          @"rootViewController";
 
                 [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
             }
@@ -139,9 +137,8 @@ SentryUIViewControllerSwizzling ()
     NSString *appImage = [NSString stringWithCString:imageName encoding:NSUTF8StringEncoding];
 
     if (appImage == nil || appImage.length == 0) {
-        NSString *message
-            = @"UIViewControllerSwizziling: Wasn't able to get the app image name of the app "
-              @"delegate class. Skipping swizzleAllSubViewControllersInApp.";
+        NSString *message = @"UIViewControllerSwizziling: Wasn't able to get the app image name of the app "
+                            @"delegate class. Skipping swizzleAllSubViewControllersInApp.";
         [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
         return;
     }
@@ -160,9 +157,7 @@ SentryUIViewControllerSwizzling ()
     // https://docs.swift.org/swift-book/LanguageGuide/Initialization.html#ID216.
     [self.subClassFinder
         actOnSubclassesOfViewControllerInImage:appImage
-                                         block:^(Class class) {
-                                             [self swizzleViewControllerSubClass:class];
-                                         }];
+                                         block:^(Class class) { [self swizzleViewControllerSubClass:class]; }];
 }
 
 /**
@@ -176,34 +171,28 @@ SentryUIViewControllerSwizzling ()
         if (![notification.name isEqualToString:UISceneWillConnectNotification])
             return;
 
-        [NSNotificationCenter.defaultCenter removeObserver:self
-                                                      name:UISceneWillConnectNotification
-                                                    object:nil];
+        [NSNotificationCenter.defaultCenter removeObserver:self name:UISceneWillConnectNotification object:nil];
 
         // The object of a UISceneWillConnectNotification should be a NSWindowScene
         if (![notification.object respondsToSelector:@selector(windows)]) {
-            NSString *message
-                = @"UIViewControllerSwizziling: Fail to find root UIViewController from "
-                  @"UISceneWillConnectNotification. Notification object has no windows property";
+            NSString *message = @"UIViewControllerSwizziling: Fail to find root UIViewController from "
+                                @"UISceneWillConnectNotification. Notification object has no windows property";
             [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
             return;
         }
 
         id windows = [notification.object performSelector:@selector(windows)];
         if (![windows isKindOfClass:[NSArray class]]) {
-            NSString *message
-                = @"UIViewControllerSwizziling: Fail to find root UIViewController from "
-                  @"UISceneWillConnectNotification. Windows is not an array";
+            NSString *message = @"UIViewControllerSwizziling: Fail to find root UIViewController from "
+                                @"UISceneWillConnectNotification. Windows is not an array";
             [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
             return;
         }
 
         NSArray *windowList = windows;
         for (id window in windowList) {
-            if ([window isKindOfClass:[UIWindow class]]
-                && ((UIWindow *)window).rootViewController != nil) {
-                [self
-                    swizzleRootViewControllerAndDescendant:((UIWindow *)window).rootViewController];
+            if ([window isKindOfClass:[UIWindow class]] && ((UIWindow *)window).rootViewController != nil) {
+                [self swizzleRootViewControllerAndDescendant:((UIWindow *)window).rootViewController];
             }
         }
     }
@@ -272,11 +261,10 @@ SentryUIViewControllerSwizzling ()
 - (void)swizzleUIViewController
 {
     SEL selector = NSSelectorFromString(@"loadView");
-    SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
-        SentrySWArguments(), SentrySWReplacement({
-            [SentryUIViewControllerPerformanceTracker.shared
-                viewControllerLoadView:self
-                      callbackToOrigin:^{ SentrySWCallOriginal(); }];
+    SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void), SentrySWArguments(),
+        SentrySWReplacement({
+            [SentryUIViewControllerPerformanceTracker.shared viewControllerLoadView:self
+                                                                   callbackToOrigin:^{ SentrySWCallOriginal(); }];
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 }
@@ -318,32 +306,28 @@ SentryUIViewControllerSwizzling ()
         return;
     }
 
-    SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(),
-        SentrySWReplacement({
-            [SentryUIViewControllerPerformanceTracker.shared
-                viewControllerLoadView:self
-                      callbackToOrigin:^{ SentrySWCallOriginal(); }];
-        }),
+    SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(), SentrySWReplacement({
+        [SentryUIViewControllerPerformanceTracker.shared viewControllerLoadView:self
+                                                               callbackToOrigin:^{ SentrySWCallOriginal(); }];
+    }),
         SentrySwizzleModeOncePerClass, (void *)selector);
 }
 
 - (void)swizzleViewDidLoad:(Class)class
 {
     SEL selector = NSSelectorFromString(@"viewDidLoad");
-    SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(),
-        SentrySWReplacement({
-            [SentryUIViewControllerPerformanceTracker.shared
-                viewControllerViewDidLoad:self
-                         callbackToOrigin:^{ SentrySWCallOriginal(); }];
-        }),
+    SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(), SentrySWReplacement({
+        [SentryUIViewControllerPerformanceTracker.shared viewControllerViewDidLoad:self
+                                                                  callbackToOrigin:^{ SentrySWCallOriginal(); }];
+    }),
         SentrySwizzleModeOncePerClass, (void *)selector);
 }
 
 - (void)swizzleViewWillAppear:(Class)class
 {
     SEL selector = NSSelectorFromString(@"viewWillAppear:");
-    SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void),
-        SentrySWArguments(BOOL animated), SentrySWReplacement({
+    SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(BOOL animated),
+        SentrySWReplacement({
             [SentryUIViewControllerPerformanceTracker.shared
                 viewControllerViewWillAppear:self
                             callbackToOrigin:^{ SentrySWCallOriginal(animated); }];
@@ -354,8 +338,8 @@ SentryUIViewControllerSwizzling ()
 - (void)swizzleViewDidAppear:(Class)class
 {
     SEL selector = NSSelectorFromString(@"viewDidAppear:");
-    SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void),
-        SentrySWArguments(BOOL animated), SentrySWReplacement({
+    SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(BOOL animated),
+        SentrySWReplacement({
             [SentryUIViewControllerPerformanceTracker.shared
                 viewControllerViewDidAppear:self
                            callbackToOrigin:^{ SentrySWCallOriginal(animated); }];
@@ -366,8 +350,8 @@ SentryUIViewControllerSwizzling ()
 - (void)swizzleViewWillDisappear:(Class)class
 {
     SEL selector = NSSelectorFromString(@"viewWillDisappear:");
-    SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void),
-        SentrySWArguments(BOOL animated), SentrySWReplacement({
+    SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(BOOL animated),
+        SentrySWReplacement({
             [SentryUIViewControllerPerformanceTracker.shared
                 viewControllerViewWillDisappear:self
                                callbackToOrigin:^{ SentrySWCallOriginal(animated); }];
@@ -387,12 +371,11 @@ SentryUIViewControllerSwizzling ()
         SentrySwizzleModeOncePerClass, (void *)willSelector);
 
     SEL didSelector = NSSelectorFromString(@"viewDidLayoutSubviews");
-    SentrySwizzleInstanceMethod(class, didSelector, SentrySWReturnType(void), SentrySWArguments(),
-        SentrySWReplacement({
-            [SentryUIViewControllerPerformanceTracker.shared
-                viewControllerViewDidLayoutSubViews:self
-                                   callbackToOrigin:^{ SentrySWCallOriginal(); }];
-        }),
+    SentrySwizzleInstanceMethod(class, didSelector, SentrySWReturnType(void), SentrySWArguments(), SentrySWReplacement({
+        [SentryUIViewControllerPerformanceTracker.shared
+            viewControllerViewDidLayoutSubViews:self
+                               callbackToOrigin:^{ SentrySWCallOriginal(); }];
+    }),
         SentrySwizzleModeOncePerClass, (void *)didSelector);
 }
 

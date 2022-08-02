@@ -15,8 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(DefaultRateLimits)
 @interface SentryDefaultRateLimits : NSObject <SentryRateLimits>
 
-- (instancetype)initWithRetryAfterHeaderParser:
-                    (SentryRetryAfterHeaderParser *)retryAfterHeaderParser
+- (instancetype)initWithRetryAfterHeaderParser:(SentryRetryAfterHeaderParser *)retryAfterHeaderParser
                             andRateLimitParser:(SentryRateLimitParser *)rateLimitParser;
 
 @end

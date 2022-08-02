@@ -12,8 +12,7 @@
 
 @property (nullable, nonatomic, copy) int (^numClasses)(int);
 
-@property (nullable, nonatomic, copy) NSArray<NSString *> *_Nullable (^classesNames)
-    (NSArray<NSString *> *_Nullable);
+@property (nullable, nonatomic, copy) NSArray<NSString *> *_Nullable (^classesNames)(NSArray<NSString *> *_Nullable);
 
 @property (nullable, nonatomic) const char *imageName;
 

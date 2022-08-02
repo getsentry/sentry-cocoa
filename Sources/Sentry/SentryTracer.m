@@ -85,13 +85,9 @@ static NSLock *profilerLock;
     }
 }
 
-- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                                       hub:(nullable SentryHub *)hub
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext hub:(nullable SentryHub *)hub
 {
-    return [self initWithTransactionContext:transactionContext
-                                        hub:hub
-                    profilesSamplerDecision:nil
-                            waitForChildren:NO];
+    return [self initWithTransactionContext:transactionContext hub:hub profilesSamplerDecision:nil waitForChildren:NO];
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
@@ -108,8 +104,7 @@ static NSLock *profilerLock;
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
-                   profilesSamplerDecision:
-                       (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
+                   profilesSamplerDecision:(nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
                            waitForChildren:(BOOL)waitForChildren
 {
     return [self initWithTransactionContext:transactionContext
@@ -122,8 +117,7 @@ static NSLock *profilerLock;
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
-                   profilesSamplerDecision:
-                       (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
+                   profilesSamplerDecision:(nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
                                idleTimeout:(NSTimeInterval)idleTimeout
                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
@@ -135,13 +129,12 @@ static NSLock *profilerLock;
                        dispatchQueueWrapper:dispatchQueueWrapper];
 }
 
-- (instancetype)
-    initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                           hub:(nullable SentryHub *)hub
-       profilesSamplerDecision:(nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
-               waitForChildren:(BOOL)waitForChildren
-                   idleTimeout:(NSTimeInterval)idleTimeout
-          dispatchQueueWrapper:(nullable SentryDispatchQueueWrapper *)dispatchQueueWrapper
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
+                                       hub:(nullable SentryHub *)hub
+                   profilesSamplerDecision:(nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
+                           waitForChildren:(BOOL)waitForChildren
+                               idleTimeout:(NSTimeInterval)idleTimeout
+                      dispatchQueueWrapper:(nullable SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
         self.rootSpan = [[SentrySpan alloc] initWithTransaction:self context:transactionContext];
@@ -248,8 +241,7 @@ static NSLock *profilerLock;
     return [[self getActiveSpan] startChildWithOperation:operation];
 }
 
-- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
-                              description:(nullable NSString *)description
+- (id<SentrySpan>)startChildWithOperation:(NSString *)operation description:(nullable NSString *)description
 {
     return [[self getActiveSpan] startChildWithOperation:operation description:description];
 }
@@ -260,12 +252,11 @@ static NSLock *profilerLock;
 {
     [self cancelIdleTimeout];
 
-    SentrySpanContext *context =
-        [[SentrySpanContext alloc] initWithTraceId:_rootSpan.context.traceId
-                                            spanId:[[SentrySpanId alloc] init]
-                                          parentId:parentId
-                                         operation:operation
-                                           sampled:_rootSpan.context.sampled];
+    SentrySpanContext *context = [[SentrySpanContext alloc] initWithTraceId:_rootSpan.context.traceId
+                                                                     spanId:[[SentrySpanId alloc] init]
+                                                                   parentId:parentId
+                                                                  operation:operation
+                                                                    sampled:_rootSpan.context.sampled];
     context.spanDescription = description;
 
     SentrySpan *child = [[SentrySpan alloc] initWithTransaction:self context:context];
@@ -501,12 +492,10 @@ static NSLock *profilerLock;
     // background. This can lead to auto-generated transactions lasting for minutes or event hours.
     // Therefore, we drop transactions lasting longer than SENTRY_AUTO_TRANSACTION_MAX_DURATION.
     NSTimeInterval transactionDuration = [self.timestamp timeIntervalSinceDate:self.startTimestamp];
-    if ([self isAutoGeneratedTransaction]
-        && transactionDuration >= SENTRY_AUTO_TRANSACTION_MAX_DURATION) {
-        NSString *message =
-            [NSString stringWithFormat:@"Auto generated transaction exceeded the max duration of "
-                                       @"%f seconds. Not capturing transaction.",
-                      SENTRY_AUTO_TRANSACTION_MAX_DURATION];
+    if ([self isAutoGeneratedTransaction] && transactionDuration >= SENTRY_AUTO_TRANSACTION_MAX_DURATION) {
+        NSString *message = [NSString stringWithFormat:@"Auto generated transaction exceeded the max duration of "
+                                                       @"%f seconds. Not capturing transaction.",
+                                      SENTRY_AUTO_TRANSACTION_MAX_DURATION];
         [SentryLog logWithMessage:message andLevel:kSentryLevelInfo];
         return;
     }
@@ -517,8 +506,7 @@ static NSLock *profilerLock;
     if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
         [profilerLock lock];
         if (profiler != nil) {
-            SentryEnvelopeItem *profile = [profiler buildEnvelopeItemForTransaction:transaction
-                                                                          frameInfo:frameInfo];
+            SentryEnvelopeItem *profile = [profiler buildEnvelopeItemForTransaction:transaction frameInfo:frameInfo];
             if (profile != nil) {
                 [additionalEnvelopeItems addObject:profile];
             }
@@ -528,9 +516,7 @@ static NSLock *profilerLock;
     }
 #endif
 
-    [_hub captureTransaction:transaction
-                      withScope:_hub.scope
-        additionalEnvelopeItems:additionalEnvelopeItems];
+    [_hub captureTransaction:transaction withScope:_hub.scope additionalEnvelopeItems:additionalEnvelopeItems];
 }
 
 - (void)trimEndTimestamp
@@ -603,24 +589,21 @@ static NSLock *profilerLock;
     }
 
     NSDate *appStartTimestamp = measurement.appStartTimestamp;
-    NSDate *appStartEndTimestamp =
-        [appStartTimestamp dateByAddingTimeInterval:measurement.duration];
+    NSDate *appStartEndTimestamp = [appStartTimestamp dateByAddingTimeInterval:measurement.duration];
 
     NSTimeInterval difference = [appStartEndTimestamp timeIntervalSinceDate:self.startTimestamp];
 
     // If the difference between the end of the app start and the beginning of the current
     // transaction is smaller than SENTRY_APP_START_MEASUREMENT_DIFFERENCE. With this we
     // avoid messing up transactions too much.
-    if (difference > SENTRY_APP_START_MEASUREMENT_DIFFERENCE
-        || difference < -SENTRY_APP_START_MEASUREMENT_DIFFERENCE) {
+    if (difference > SENTRY_APP_START_MEASUREMENT_DIFFERENCE || difference < -SENTRY_APP_START_MEASUREMENT_DIFFERENCE) {
         return nil;
     }
 
     return measurement;
 }
 
-- (NSArray<SentrySpan *> *)buildAppStartSpans:
-    (nullable SentryAppStartMeasurement *)appStartMeasurement
+- (NSArray<SentrySpan *> *)buildAppStartSpans:(nullable SentryAppStartMeasurement *)appStartMeasurement
 {
     if (appStartMeasurement == nil) {
         return @[];
@@ -642,12 +625,10 @@ static NSLock *profilerLock;
         return @[];
     }
 
-    NSDate *appStartEndTimestamp = [appStartMeasurement.appStartTimestamp
-        dateByAddingTimeInterval:appStartMeasurement.duration];
+    NSDate *appStartEndTimestamp =
+        [appStartMeasurement.appStartTimestamp dateByAddingTimeInterval:appStartMeasurement.duration];
 
-    SentrySpan *appStartSpan = [self buildSpan:_rootSpan.context.spanId
-                                     operation:operation
-                                   description:type];
+    SentrySpan *appStartSpan = [self buildSpan:_rootSpan.context.spanId operation:operation description:type];
     [appStartSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
 
     SentrySpan *premainSpan = [self buildSpan:appStartSpan.context.spanId
@@ -693,8 +674,7 @@ static NSLock *profilerLock;
         }
 
         if (type != nil) {
-            [transaction setMeasurementValue:@{ valueKey : @(appStartMeasurement.duration * 1000) }
-                                      forKey:type];
+            [transaction setMeasurementValue:@{ valueKey : @(appStartMeasurement.duration * 1000) } forKey:type];
         }
     }
 
@@ -714,28 +694,24 @@ static NSLock *profilerLock;
         if (allBiggerThanZero && oneBiggerThanZero) {
             [transaction setMeasurementValue:@{ valueKey : @(totalFrames) } forKey:@"frames_total"];
             [transaction setMeasurementValue:@{ valueKey : @(slowFrames) } forKey:@"frames_slow"];
-            [transaction setMeasurementValue:@{ valueKey : @(frozenFrames) }
-                                      forKey:@"frames_frozen"];
+            [transaction setMeasurementValue:@{ valueKey : @(frozenFrames) } forKey:@"frames_frozen"];
 
-            NSString *message = [NSString
-                stringWithFormat:@"Frames for transaction \"%@\" Total:%ld Slow:%ld Frozen:%ld",
-                self.context.operation, (long)totalFrames, (long)slowFrames, (long)frozenFrames];
+            NSString *message =
+                [NSString stringWithFormat:@"Frames for transaction \"%@\" Total:%ld Slow:%ld Frozen:%ld",
+                          self.context.operation, (long)totalFrames, (long)slowFrames, (long)frozenFrames];
             [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
         }
     }
 #endif
 }
 
-- (id<SentrySpan>)buildSpan:(SentrySpanId *)parentId
-                  operation:(NSString *)operation
-                description:(NSString *)description
+- (id<SentrySpan>)buildSpan:(SentrySpanId *)parentId operation:(NSString *)operation description:(NSString *)description
 {
-    SentrySpanContext *context =
-        [[SentrySpanContext alloc] initWithTraceId:_rootSpan.context.traceId
-                                            spanId:[[SentrySpanId alloc] init]
-                                          parentId:parentId
-                                         operation:operation
-                                           sampled:_rootSpan.context.sampled];
+    SentrySpanContext *context = [[SentrySpanContext alloc] initWithTraceId:_rootSpan.context.traceId
+                                                                     spanId:[[SentrySpanId alloc] init]
+                                                                   parentId:parentId
+                                                                  operation:operation
+                                                                    sampled:_rootSpan.context.sampled];
     context.spanDescription = description;
 
     return [[SentrySpan alloc] initWithTransaction:self context:context];
@@ -749,8 +725,7 @@ static NSLock *profilerLock;
     @synchronized(_data) {
         if (_data.count > 0) {
             NSMutableDictionary *data = _data.mutableCopy;
-            if (mutableDictionary[@"data"] != nil &&
-                [mutableDictionary[@"data"] isKindOfClass:NSDictionary.class]) {
+            if (mutableDictionary[@"data"] != nil && [mutableDictionary[@"data"] isKindOfClass:NSDictionary.class]) {
                 [data addEntriesFromDictionary:mutableDictionary[@"data"]];
             }
             mutableDictionary[@"data"] = [data sentry_sanitize];
@@ -760,8 +735,7 @@ static NSLock *profilerLock;
     @synchronized(_tags) {
         if (_tags.count > 0) {
             NSMutableDictionary *tags = _tags.mutableCopy;
-            if (mutableDictionary[@"tags"] != nil &&
-                [mutableDictionary[@"tags"] isKindOfClass:NSDictionary.class]) {
+            if (mutableDictionary[@"tags"] != nil && [mutableDictionary[@"tags"] isKindOfClass:NSDictionary.class]) {
                 [tags addEntriesFromDictionary:mutableDictionary[@"tags"]];
             }
             mutableDictionary[@"tags"] = tags;

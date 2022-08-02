@@ -139,10 +139,8 @@ SentryCrashJSONCodec ()
 
         self.prettyPrint = (encodeOptions & SentryCrashJSONEncodeOptionPretty) != 0;
         self.sorted = (encodeOptions & SentryCrashJSONEncodeOptionSorted) != 0;
-        self.ignoreNullsInArrays
-            = (decodeOptions & SentryCrashJSONDecodeOptionIgnoreNullInArray) != 0;
-        self.ignoreNullsInObjects
-            = (decodeOptions & SentryCrashJSONDecodeOptionIgnoreNullInObject) != 0;
+        self.ignoreNullsInArrays = (decodeOptions & SentryCrashJSONDecodeOptionIgnoreNullInArray) != 0;
+        self.ignoreNullsInObjects = (decodeOptions & SentryCrashJSONDecodeOptionIgnoreNullInObject) != 0;
     }
     return self;
 }
@@ -169,10 +167,9 @@ static int
 onElement(SentryCrashJSONCodec *codec, NSString *name, id element)
 {
     if (codec->_currentContainer == nil) {
-        codec.error = [NSError
-            sentryErrorWithDomain:@"SentryCrashJSONCodecObjC"
-                             code:0
-                      description:@"Type %@ not allowed as top level container", [element class]];
+        codec.error = [NSError sentryErrorWithDomain:@"SentryCrashJSONCodecObjC"
+                                                code:0
+                                         description:@"Type %@ not allowed as top level container", [element class]];
         return SentryCrashJSON_ERROR_INVALID_DATA;
     }
 
@@ -234,8 +231,7 @@ onNullElement(const char *const cName, void *const userData)
     SentryCrashJSONCodec *codec = (__bridge SentryCrashJSONCodec *)userData;
 
     if ((codec->_ignoreNullsInArrays && [codec->_currentContainer isKindOfClass:[NSArray class]])
-        || (codec->_ignoreNullsInObjects &&
-            [codec->_currentContainer isKindOfClass:[NSDictionary class]])) {
+        || (codec->_ignoreNullsInObjects && [codec->_currentContainer isKindOfClass:[NSDictionary class]])) {
         return SentryCrashJSON_OK;
     }
 
@@ -275,10 +271,9 @@ onEndContainer(void *const userData)
     SentryCrashJSONCodec *codec = (__bridge SentryCrashJSONCodec *)userData;
 
     if ([codec->_containerStack count] == 0) {
-        codec.error =
-            [NSError sentryErrorWithDomain:@"SentryCrashJSONCodecObjC"
-                                      code:0
-                               description:@"Already at the top level; no container left to end"];
+        codec.error = [NSError sentryErrorWithDomain:@"SentryCrashJSONCodecObjC"
+                                                code:0
+                                         description:@"Already at the top level; no container left to end"];
         return SentryCrashJSON_ERROR_INVALID_DATA;
     }
     [codec->_containerStack removeLastObject];
@@ -306,8 +301,7 @@ addJSONData(const char *const bytes, const int length, void *const userData)
 }
 
 static int
-encodeObject(
-    SentryCrashJSONCodec *codec, id object, NSString *name, SentryCrashJSONEncodeContext *context)
+encodeObject(SentryCrashJSONCodec *codec, id object, NSString *name, SentryCrashJSONEncodeContext *context)
 {
     int result;
     const char *cName = [name UTF8String];
@@ -371,8 +365,7 @@ encodeObject(
 
         for (id key in keys) {
             // It is not guaranteed that a key is NSString.
-            if ((result = encodeObject(codec, dict[key], [key description], context))
-                != SentryCrashJSON_OK) {
+            if ((result = encodeObject(codec, dict[key], [key description], context)) != SentryCrashJSON_OK) {
                 return result;
             }
         }
@@ -404,14 +397,12 @@ encodeObject(
 
 #pragma mark Public API
 
-+ (NSData *)encode:(id)object
-           options:(SentryCrashJSONEncodeOption)encodeOptions
-             error:(NSError *__autoreleasing *)error
++ (NSData *)encode:(id)object options:(SentryCrashJSONEncodeOption)encodeOptions error:(NSError *__autoreleasing *)error
 {
     NSMutableData *data = [NSMutableData data];
     SentryCrashJSONEncodeContext JSONContext;
-    sentrycrashjson_beginEncode(&JSONContext, encodeOptions & SentryCrashJSONEncodeOptionPretty,
-        addJSONData, (__bridge void *)data);
+    sentrycrashjson_beginEncode(
+        &JSONContext, encodeOptions & SentryCrashJSONEncodeOptionPretty, addJSONData, (__bridge void *)data);
     SentryCrashJSONCodec *codec = [self codecWithEncodeOptions:encodeOptions
                                                  decodeOptions:SentryCrashJSONDecodeOptionNone];
 
@@ -429,21 +420,19 @@ encodeObject(
     SentryCrashJSONCodec *codec = [self codecWithEncodeOptions:0 decodeOptions:decodeOptions];
     NSMutableData *stringData = [NSMutableData dataWithLength:SentryCrashMAX_STRINGBUFFERSIZE + 1];
     int errorOffset;
-    int result
-        = sentrycrashjson_decode(JSONData.bytes, (int)JSONData.length, stringData.mutableBytes,
-            (int)stringData.length, codec.callbacks, (__bridge void *)codec, &errorOffset);
+    int result = sentrycrashjson_decode(JSONData.bytes, (int)JSONData.length, stringData.mutableBytes,
+        (int)stringData.length, codec.callbacks, (__bridge void *)codec, &errorOffset);
     if (result != SentryCrashJSON_OK && codec.error == nil) {
-        codec.error = [NSError sentryErrorWithDomain:@"SentryCrashJSONCodecObjC"
-                                                code:0
-                                         description:@"%s (offset %d)",
-                                         sentrycrashjson_stringForError(result), errorOffset];
+        codec.error =
+            [NSError sentryErrorWithDomain:@"SentryCrashJSONCodecObjC"
+                                      code:0
+                               description:@"%s (offset %d)", sentrycrashjson_stringForError(result), errorOffset];
     }
     if (error != nil) {
         *error = codec.error;
     }
 
-    if (result != SentryCrashJSON_OK
-        && !(decodeOptions & SentryCrashJSONDecodeOptionKeepPartialObject)) {
+    if (result != SentryCrashJSON_OK && !(decodeOptions & SentryCrashJSONDecodeOptionKeepPartialObject)) {
         return nil;
     }
     return codec.topLevelContainer;

@@ -45,8 +45,7 @@ namespace profiling {
 #        error Unsupported architecture!
 #    endif
             mach_msg_type_number_t count = SENTRY_THREAD_STATE_COUNT;
-            return thread_get_state(
-                thread, SENTRY_THREAD_STATE_FLAVOR, (thread_state_t)&context->__ss, &count);
+            return thread_get_state(thread, SENTRY_THREAD_STATE_FLAVOR, (thread_state_t)&context->__ss, &count);
         }
 
         /**

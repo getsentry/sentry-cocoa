@@ -137,9 +137,7 @@ SentryNSDataTracker ()
     return result;
 }
 
-- (nullable id<SentrySpan>)spanForPath:(NSString *)path
-                             operation:(NSString *)operation
-                                  size:(NSUInteger)size
+- (nullable id<SentrySpan>)spanForPath:(NSString *)path operation:(NSString *)operation size:(NSUInteger)size
 {
     @synchronized(self) {
         if (!self.isEnabled) {
@@ -158,8 +156,7 @@ SentryNSDataTracker ()
     __block id<SentrySpan> ioSpan;
     [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
         ioSpan = [span startChildWithOperation:operation
-                                   description:[self transactionDescriptionForFile:path
-                                                                          fileSize:size]];
+                                   description:[self transactionDescriptionForFile:path fileSize:size]];
     }];
 
     if (ioSpan == nil) {
@@ -182,8 +179,7 @@ SentryNSDataTracker ()
 {
     // Some iOS versions nest constructors calls. This counter help us avoid create more than one
     // span for the same operation.
-    NSNumber *count =
-        [[NSThread currentThread].threadDictionary objectForKey:SENTRY_TRACKING_COUNTER_KEY];
+    NSNumber *count = [[NSThread currentThread].threadDictionary objectForKey:SENTRY_TRACKING_COUNTER_KEY];
     [[NSThread currentThread].threadDictionary setObject:[NSNumber numberWithInt:count.intValue + 1]
                                                   forKey:SENTRY_TRACKING_COUNTER_KEY];
 
@@ -195,17 +191,15 @@ SentryNSDataTracker ()
 
 - (void)endTrackingFile
 {
-    NSNumber *count =
-        [[NSThread currentThread].threadDictionary objectForKey:SENTRY_TRACKING_COUNTER_KEY];
+    NSNumber *count = [[NSThread currentThread].threadDictionary objectForKey:SENTRY_TRACKING_COUNTER_KEY];
     if (!count)
         return;
 
     if (count.intValue <= 1) {
         [[NSThread currentThread].threadDictionary removeObjectForKey:SENTRY_TRACKING_COUNTER_KEY];
     } else {
-        [[NSThread currentThread].threadDictionary
-            setObject:[NSNumber numberWithInt:count.intValue - 1]
-               forKey:SENTRY_TRACKING_COUNTER_KEY];
+        [[NSThread currentThread].threadDictionary setObject:[NSNumber numberWithInt:count.intValue - 1]
+                                                      forKey:SENTRY_TRACKING_COUNTER_KEY];
     }
 }
 

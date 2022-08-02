@@ -18,9 +18,7 @@
     NSString *description = [NSString stringWithFormat:@"%@", controller];
 
     NSRange searchedRange = NSMakeRange(0, [description length]);
-    NSArray *matches = [[self.class viewControllerRegex] matchesInString:description
-                                                                 options:0
-                                                                   range:searchedRange];
+    NSArray *matches = [[self.class viewControllerRegex] matchesInString:description options:0 range:searchedRange];
     NSMutableArray *strings = [NSMutableArray array];
     for (NSTextCheckingResult *match in matches) {
         [strings addObject:[description substringWithRange:[match rangeAtIndex:1]]];

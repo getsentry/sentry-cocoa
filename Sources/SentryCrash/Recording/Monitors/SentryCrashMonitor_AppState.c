@@ -137,8 +137,7 @@ onNullElement(__unused const char *const name, __unused void *const userData)
 }
 
 static int
-onStringElement(__unused const char *const name, __unused const char *const value,
-    __unused void *const userData)
+onStringElement(__unused const char *const name, __unused const char *const value, __unused void *const userData)
 {
     return SentryCrashJSON_OK;
 }
@@ -237,8 +236,7 @@ loadState(const char *const path)
         data, (int)length, stringBuffer, sizeof(stringBuffer), &callbacks, &g_state, &errorOffset);
     free(data);
     if (result != SentryCrashJSON_OK) {
-        SentryCrashLOG_ERROR(
-            "%s, offset %d: %s", path, errorOffset, sentrycrashjson_stringForError(result));
+        SentryCrashLOG_ERROR("%s, offset %d: %s", path, errorOffset, sentrycrashjson_stringForError(result));
         return false;
     }
     return true;
@@ -266,14 +264,12 @@ saveState(const char *const path)
     if ((result = sentrycrashjson_beginObject(&JSONContext, NULL)) != SentryCrashJSON_OK) {
         goto done;
     }
-    if ((result
-            = sentrycrashjson_addIntegerElement(&JSONContext, kKeyFormatVersion, kFormatVersion))
+    if ((result = sentrycrashjson_addIntegerElement(&JSONContext, kKeyFormatVersion, kFormatVersion))
         != SentryCrashJSON_OK) {
         goto done;
     }
     // Record this launch crashed state into "crashed last launch" field.
-    if ((result = sentrycrashjson_addBooleanElement(
-             &JSONContext, kKeyCrashedLastLaunch, g_state.crashedThisLaunch))
+    if ((result = sentrycrashjson_addBooleanElement(&JSONContext, kKeyCrashedLastLaunch, g_state.crashedThisLaunch))
         != SentryCrashJSON_OK) {
         goto done;
     }
@@ -282,8 +278,8 @@ saveState(const char *const path)
         != SentryCrashJSON_OK) {
         goto done;
     }
-    if ((result = sentrycrashjson_addFloatingPointElement(&JSONContext,
-             kKeyBackgroundDurationSinceLastCrash, g_state.backgroundDurationSinceLastCrash))
+    if ((result = sentrycrashjson_addFloatingPointElement(
+             &JSONContext, kKeyBackgroundDurationSinceLastCrash, g_state.backgroundDurationSinceLastCrash))
         != SentryCrashJSON_OK) {
         goto done;
     }
@@ -443,10 +439,8 @@ addContextualInfoToEvent(SentryCrash_MonitorContext *eventContext)
         eventContext->AppState.applicationIsActive = g_state.applicationIsActive;
         eventContext->AppState.applicationIsInForeground = g_state.applicationIsInForeground;
         eventContext->AppState.appStateTransitionTime = g_state.appStateTransitionTime;
-        eventContext->AppState.backgroundDurationSinceLastCrash
-            = g_state.backgroundDurationSinceLastCrash;
-        eventContext->AppState.backgroundDurationSinceLaunch
-            = g_state.backgroundDurationSinceLaunch;
+        eventContext->AppState.backgroundDurationSinceLastCrash = g_state.backgroundDurationSinceLastCrash;
+        eventContext->AppState.backgroundDurationSinceLaunch = g_state.backgroundDurationSinceLaunch;
         eventContext->AppState.crashedLastLaunch = g_state.crashedLastLaunch;
         eventContext->AppState.crashedThisLaunch = g_state.crashedThisLaunch;
         eventContext->AppState.launchesSinceLastCrash = g_state.launchesSinceLastCrash;
@@ -458,8 +452,7 @@ addContextualInfoToEvent(SentryCrash_MonitorContext *eventContext)
 SentryCrashMonitorAPI *
 sentrycrashcm_appstate_getAPI()
 {
-    static SentryCrashMonitorAPI api = { .setEnabled = setEnabled,
-        .isEnabled = isEnabled,
-        .addContextualInfoToEvent = addContextualInfoToEvent };
+    static SentryCrashMonitorAPI api
+        = { .setEnabled = setEnabled, .isEnabled = isEnabled, .addContextualInfoToEvent = addContextualInfoToEvent };
     return &api;
 }

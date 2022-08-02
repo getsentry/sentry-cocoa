@@ -25,8 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)value
 {
     return _sampled != kSentrySampleDecisionUndecided
-        ? [NSString stringWithFormat:@"%@-%@-%i", _traceId.sentryIdString,
-                    _spanId.sentrySpanIdString, _sampled == kSentrySampleDecisionYes ? 1 : 0]
+        ? [NSString stringWithFormat:@"%@-%@-%i", _traceId.sentryIdString, _spanId.sentrySpanIdString,
+                    _sampled == kSentrySampleDecisionYes ? 1 : 0]
         : [NSString stringWithFormat:@"%@-%@", _traceId.sentryIdString, _spanId.sentrySpanIdString];
 }
 

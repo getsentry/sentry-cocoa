@@ -36,17 +36,16 @@
 #include <string.h>
 #include <unistd.h>
 
-#define CHECK_SYSCTL_NAME(TYPE, CALL)                                                              \
-    if (0 != (CALL)) {                                                                             \
-        SentryCrashLOG_ERROR("Could not get %s value for %s: %s", #CALL, name, strerror(errno));   \
-        return 0;                                                                                  \
+#define CHECK_SYSCTL_NAME(TYPE, CALL)                                                                                  \
+    if (0 != (CALL)) {                                                                                                 \
+        SentryCrashLOG_ERROR("Could not get %s value for %s: %s", #CALL, name, strerror(errno));                       \
+        return 0;                                                                                                      \
     }
 
-#define CHECK_SYSCTL_CMD(TYPE, CALL)                                                               \
-    if (0 != (CALL)) {                                                                             \
-        SentryCrashLOG_ERROR(                                                                      \
-            "Could not get %s value for %d,%d: %s", #CALL, major_cmd, minor_cmd, strerror(errno)); \
-        return 0;                                                                                  \
+#define CHECK_SYSCTL_CMD(TYPE, CALL)                                                                                   \
+    if (0 != (CALL)) {                                                                                                 \
+        SentryCrashLOG_ERROR("Could not get %s value for %d,%d: %s", #CALL, major_cmd, minor_cmd, strerror(errno));    \
+        return 0;                                                                                                      \
     }
 
 int32_t
@@ -142,8 +141,7 @@ sentrycrashsysctl_uint64ForName(const char *const name)
 }
 
 int
-sentrycrashsysctl_string(
-    const int major_cmd, const int minor_cmd, char *const value, const int maxSize)
+sentrycrashsysctl_string(const int major_cmd, const int minor_cmd, char *const value, const int maxSize)
 {
     int cmd[2] = { major_cmd, minor_cmd };
     size_t size = value == NULL ? 0 : (size_t)maxSize;
@@ -171,8 +169,7 @@ sentrycrashsysctl_timeval(const int major_cmd, const int minor_cmd)
     size_t size = sizeof(value);
 
     if (0 != sysctl(cmd, sizeof(cmd) / sizeof(*cmd), &value, &size, NULL, 0)) {
-        SentryCrashLOG_ERROR(
-            "Could not get timeval value for %d,%d: %s", major_cmd, minor_cmd, strerror(errno));
+        SentryCrashLOG_ERROR("Could not get timeval value for %d,%d: %s", major_cmd, minor_cmd, strerror(errno));
     }
 
     return value;

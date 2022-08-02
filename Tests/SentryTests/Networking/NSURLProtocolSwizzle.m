@@ -13,16 +13,16 @@
 
 + (void)swizzleURLProtocol
 {
-    SentrySwizzleClassMethod(NSURLProtocol.class, NSSelectorFromString(@"registerClass:"),
-        SentrySWReturnType(BOOL), SentrySWArguments(Class class), SentrySWReplacement({
+    SentrySwizzleClassMethod(NSURLProtocol.class, NSSelectorFromString(@"registerClass:"), SentrySWReturnType(BOOL),
+        SentrySWArguments(Class class), SentrySWReplacement({
             if (NSURLProtocolSwizzle.shared.registerCallback != nil)
                 NSURLProtocolSwizzle.shared.registerCallback(class);
 
             return SentrySWCallOriginal(class);
         }));
 
-    SentrySwizzleClassMethod(NSURLProtocol.class, NSSelectorFromString(@"unregisterClass:"),
-        SentrySWReturnType(void), SentrySWArguments(Class class), SentrySWReplacement({
+    SentrySwizzleClassMethod(NSURLProtocol.class, NSSelectorFromString(@"unregisterClass:"), SentrySWReturnType(void),
+        SentrySWArguments(Class class), SentrySWReplacement({
             if (NSURLProtocolSwizzle.shared.unregisterCallback != nil)
                 NSURLProtocolSwizzle.shared.unregisterCallback(class);
 

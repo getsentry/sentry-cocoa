@@ -21,11 +21,9 @@ SentryAppState (Equality)
         return YES;
     if (appState == nil)
         return NO;
-    if (self.releaseName != appState.releaseName
-        && ![self.releaseName isEqualToString:appState.releaseName])
+    if (self.releaseName != appState.releaseName && ![self.releaseName isEqualToString:appState.releaseName])
         return NO;
-    if (self.osVersion != appState.osVersion
-        && ![self.osVersion isEqualToString:appState.osVersion])
+    if (self.osVersion != appState.osVersion && ![self.osVersion isEqualToString:appState.osVersion])
         return NO;
     if (self.isDebugging != appState.isDebugging)
         return NO;

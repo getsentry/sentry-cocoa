@@ -60,8 +60,7 @@ sentrycrashsymbolicator_symbolicate(SentryCrashStackCursor *cursor)
     }
 
     Dl_info symbolsBuffer;
-    if (sentrycrashdl_dladdr(
-            CALL_INSTRUCTION_FROM_RETURN_ADDRESS(cursor->stackEntry.address), &symbolsBuffer)) {
+    if (sentrycrashdl_dladdr(CALL_INSTRUCTION_FROM_RETURN_ADDRESS(cursor->stackEntry.address), &symbolsBuffer)) {
         cursor->stackEntry.imageAddress = (uintptr_t)symbolsBuffer.dli_fbase;
         cursor->stackEntry.imageName = symbolsBuffer.dli_fname;
         cursor->stackEntry.symbolAddress = (uintptr_t)symbolsBuffer.dli_saddr;

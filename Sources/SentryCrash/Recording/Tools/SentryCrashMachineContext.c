@@ -52,8 +52,7 @@ static inline bool
 isStackOverflow(const SentryCrashMachineContext *const context)
 {
     SentryCrashStackCursor stackCursor;
-    sentrycrashsc_initWithMachineContext(
-        &stackCursor, SentryCrashSC_STACK_OVERFLOW_THRESHOLD, context);
+    sentrycrashsc_initWithMachineContext(&stackCursor, SentryCrashSC_STACK_OVERFLOW_THRESHOLD, context);
     while (stackCursor.advanceCursor(&stackCursor)) { }
     bool rv = stackCursor.state.hasGivenUp;
     sentrycrash_async_backtrace_decref(stackCursor.async_caller);
@@ -77,8 +76,7 @@ getThreadList(SentryCrashMachineContext *context)
     int threadCount = (int)actualThreadCount;
     int maxThreadCount = sizeof(context->allThreads) / sizeof(context->allThreads[0]);
     if (threadCount > maxThreadCount) {
-        SentryCrashLOG_ERROR(
-            "Thread count %d is higher than maximum of %d", threadCount, maxThreadCount);
+        SentryCrashLOG_ERROR("Thread count %d is higher than maximum of %d", threadCount, maxThreadCount);
         threadCount = maxThreadCount;
     }
     for (int i = 0; i < threadCount; i++) {
@@ -110,8 +108,8 @@ bool
 sentrycrashmc_getContextForThread(
     SentryCrashThread thread, SentryCrashMachineContext *destinationContext, bool isCrashedContext)
 {
-    SentryCrashLOG_DEBUG("Fill thread 0x%x context into %p. is crashed = %d", thread,
-        destinationContext, isCrashedContext);
+    SentryCrashLOG_DEBUG(
+        "Fill thread 0x%x context into %p. is crashed = %d", thread, destinationContext, isCrashedContext);
     memset(destinationContext, 0, sizeof(*destinationContext));
     destinationContext->thisThread = (thread_t)thread;
     destinationContext->isCurrentThread = thread == sentrycrashthread_self();
@@ -129,14 +127,11 @@ sentrycrashmc_getContextForThread(
 }
 
 bool
-sentrycrashmc_getContextForSignal(
-    void *signalUserContext, SentryCrashMachineContext *destinationContext)
+sentrycrashmc_getContextForSignal(void *signalUserContext, SentryCrashMachineContext *destinationContext)
 {
-    SentryCrashLOG_DEBUG(
-        "Get context from signal user context and put into %p.", destinationContext);
+    SentryCrashLOG_DEBUG("Get context from signal user context and put into %p.", destinationContext);
     _STRUCT_MCONTEXT *sourceContext = ((SignalUserContext *)signalUserContext)->UC_MCONTEXT;
-    memcpy(&destinationContext->machineContext, sourceContext,
-        sizeof(destinationContext->machineContext));
+    memcpy(&destinationContext->machineContext, sourceContext, sizeof(destinationContext->machineContext));
     destinationContext->thisThread = (thread_t)sentrycrashthread_self();
     destinationContext->isCrashedContext = true;
     destinationContext->isSignalContext = true;
@@ -151,8 +146,7 @@ sentrycrashmc_addReservedThread(SentryCrashThread thread)
 {
     int nextIndex = g_reservedThreadsCount;
     if (nextIndex > g_reservedThreadsMaxIndex) {
-        SentryCrashLOG_ERROR(
-            "Too many reserved threads (%d). Max is %d", nextIndex, g_reservedThreadsMaxIndex);
+        SentryCrashLOG_ERROR("Too many reserved threads (%d). Max is %d", nextIndex, g_reservedThreadsMaxIndex);
         return;
     }
     g_reservedThreads[g_reservedThreadsCount++] = thread;
@@ -172,8 +166,7 @@ isThreadInList(thread_t thread, SentryCrashThread *list, int listCount)
 #endif
 
 void
-sentrycrashmc_suspendEnvironment(
-    thread_act_array_t *suspendedThreads, mach_msg_type_number_t *numSuspendedThreads)
+sentrycrashmc_suspendEnvironment(thread_act_array_t *suspendedThreads, mach_msg_type_number_t *numSuspendedThreads)
 {
 #if SentryCrashCRASH_HAS_THREADS_API
     SentryCrashLOG_DEBUG("Suspending environment.");
@@ -188,8 +181,7 @@ sentrycrashmc_suspendEnvironment(
 
     for (mach_msg_type_number_t i = 0; i < *numSuspendedThreads; i++) {
         thread_t thread = (*suspendedThreads)[i];
-        if (thread != thisThread
-            && !isThreadInList(thread, g_reservedThreads, g_reservedThreadsCount)) {
+        if (thread != thisThread && !isThreadInList(thread, g_reservedThreads, g_reservedThreadsCount)) {
             if ((kr = thread_suspend(thread)) != KERN_SUCCESS) {
                 // Record the error and keep going.
                 SentryCrashLOG_ERROR("thread_suspend (%08x): %s", thread, mach_error_string(kr));
@@ -202,8 +194,7 @@ sentrycrashmc_suspendEnvironment(
 }
 
 void
-sentrycrashmc_resumeEnvironment(
-    __unused thread_act_array_t threads, __unused mach_msg_type_number_t numThreads)
+sentrycrashmc_resumeEnvironment(__unused thread_act_array_t threads, __unused mach_msg_type_number_t numThreads)
 {
 #if SentryCrashCRASH_HAS_THREADS_API
     SentryCrashLOG_DEBUG("Resuming environment.");
@@ -218,8 +209,7 @@ sentrycrashmc_resumeEnvironment(
 
     for (mach_msg_type_number_t i = 0; i < numThreads; i++) {
         thread_t thread = threads[i];
-        if (thread != thisThread
-            && !isThreadInList(thread, g_reservedThreads, g_reservedThreadsCount)) {
+        if (thread != thisThread && !isThreadInList(thread, g_reservedThreads, g_reservedThreadsCount)) {
             if ((kr = thread_resume(thread)) != KERN_SUCCESS) {
                 // Record the error and keep going.
                 SentryCrashLOG_ERROR("thread_resume (%08x): %s", thread, mach_error_string(kr));
@@ -249,8 +239,7 @@ sentrycrashmc_getThreadAtIndex(const SentryCrashMachineContext *const context, i
 }
 
 int
-sentrycrashmc_indexOfThread(
-    const SentryCrashMachineContext *const context, SentryCrashThread thread)
+sentrycrashmc_indexOfThread(const SentryCrashMachineContext *const context, SentryCrashThread thread)
 {
     SentryCrashLOG_TRACE("check thread vs %d threads", context->threadCount);
     for (int i = 0; i < (int)context->threadCount; i++) {

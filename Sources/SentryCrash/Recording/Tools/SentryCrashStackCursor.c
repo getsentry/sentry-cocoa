@@ -53,8 +53,8 @@ sentrycrashsc_resetCursor(SentryCrashStackCursor *cursor)
 }
 
 void
-sentrycrashsc_initCursor(SentryCrashStackCursor *cursor,
-    void (*resetCursor)(SentryCrashStackCursor *), bool (*advanceCursor)(SentryCrashStackCursor *))
+sentrycrashsc_initCursor(SentryCrashStackCursor *cursor, void (*resetCursor)(SentryCrashStackCursor *),
+    bool (*advanceCursor)(SentryCrashStackCursor *))
 {
     cursor->symbolicate = sentrycrashsymbolicator_symbolicate;
     cursor->advanceCursor = advanceCursor != NULL ? advanceCursor : g_advanceCursor;
@@ -64,8 +64,7 @@ sentrycrashsc_initCursor(SentryCrashStackCursor *cursor,
 }
 
 bool
-sentrycrashsc_tryAsyncChain(
-    SentryCrashStackCursor *cursor, sentrycrash_async_backtrace_t *async_caller)
+sentrycrashsc_tryAsyncChain(SentryCrashStackCursor *cursor, sentrycrash_async_backtrace_t *async_caller)
 {
     if (!async_caller) {
         return false;

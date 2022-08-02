@@ -24,8 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
         [events addObject:[event serialize]];
     }
 
-    return
-        @{ @"timestamp" : @(self.timestamp.timeIntervalSince1970), @"discarded_events" : events };
+    return @{ @"timestamp" : @(self.timestamp.timeIntervalSince1970), @"discarded_events" : events };
 }
 
 @end

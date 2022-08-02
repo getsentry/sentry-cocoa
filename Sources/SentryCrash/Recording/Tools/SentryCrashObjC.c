@@ -35,8 +35,7 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED > 70000
 #    include <objc/NSObjCRuntime.h>
 #else
-#    if __LP64__ || (TARGET_OS_EMBEDDED && !TARGET_OS_IPHONE) || TARGET_OS_WIN32                   \
-        || NS_BUILD_32_LIKE_64
+#    if __LP64__ || (TARGET_OS_EMBEDDED && !TARGET_OS_IPHONE) || TARGET_OS_WIN32 || NS_BUILD_32_LIKE_64
 typedef long NSInteger;
 typedef unsigned long NSUInteger;
 #    else
@@ -109,56 +108,41 @@ static int taggedNumberDescription(const void *object, char *buffer, int bufferL
 static int taggedStringDescription(const void *object, char *buffer, int bufferLength);
 
 static ClassData g_classData[] = {
-    { "__NSCFString", SentryCrashObjCClassTypeString, ClassSubtypeNone, true, stringIsValid,
-        stringDescription },
-    { "NSCFString", SentryCrashObjCClassTypeString, ClassSubtypeNone, true, stringIsValid,
-        stringDescription },
+    { "__NSCFString", SentryCrashObjCClassTypeString, ClassSubtypeNone, true, stringIsValid, stringDescription },
+    { "NSCFString", SentryCrashObjCClassTypeString, ClassSubtypeNone, true, stringIsValid, stringDescription },
     { "__NSCFConstantString", SentryCrashObjCClassTypeString, ClassSubtypeNone, true, stringIsValid,
         stringDescription },
-    { "NSCFConstantString", SentryCrashObjCClassTypeString, ClassSubtypeNone, true, stringIsValid,
-        stringDescription },
-    { "__NSArray0", SentryCrashObjCClassTypeArray, ClassSubtypeNSArrayImmutable, false,
-        arrayIsValid, arrayDescription },
-    { "__NSArrayI", SentryCrashObjCClassTypeArray, ClassSubtypeNSArrayImmutable, false,
-        arrayIsValid, arrayDescription },
-    { "__NSArrayM", SentryCrashObjCClassTypeArray, ClassSubtypeNSArrayMutable, true, arrayIsValid,
+    { "NSCFConstantString", SentryCrashObjCClassTypeString, ClassSubtypeNone, true, stringIsValid, stringDescription },
+    { "__NSArray0", SentryCrashObjCClassTypeArray, ClassSubtypeNSArrayImmutable, false, arrayIsValid,
         arrayDescription },
-    { "__NSCFArray", SentryCrashObjCClassTypeArray, ClassSubtypeCFArray, false, arrayIsValid,
+    { "__NSArrayI", SentryCrashObjCClassTypeArray, ClassSubtypeNSArrayImmutable, false, arrayIsValid,
         arrayDescription },
-    { "NSCFArray", SentryCrashObjCClassTypeArray, ClassSubtypeCFArray, false, arrayIsValid,
-        arrayDescription },
-    { "__NSDate", SentryCrashObjCClassTypeDate, ClassSubtypeNone, false, dateIsValid,
-        dateDescription },
-    { "NSDate", SentryCrashObjCClassTypeDate, ClassSubtypeNone, false, dateIsValid,
-        dateDescription },
-    { "__NSCFNumber", SentryCrashObjCClassTypeNumber, ClassSubtypeNone, false, numberIsValid,
-        numberDescription },
-    { "NSCFNumber", SentryCrashObjCClassTypeNumber, ClassSubtypeNone, false, numberIsValid,
-        numberDescription },
-    { "NSNumber", SentryCrashObjCClassTypeNumber, ClassSubtypeNone, false, numberIsValid,
-        numberDescription },
+    { "__NSArrayM", SentryCrashObjCClassTypeArray, ClassSubtypeNSArrayMutable, true, arrayIsValid, arrayDescription },
+    { "__NSCFArray", SentryCrashObjCClassTypeArray, ClassSubtypeCFArray, false, arrayIsValid, arrayDescription },
+    { "NSCFArray", SentryCrashObjCClassTypeArray, ClassSubtypeCFArray, false, arrayIsValid, arrayDescription },
+    { "__NSDate", SentryCrashObjCClassTypeDate, ClassSubtypeNone, false, dateIsValid, dateDescription },
+    { "NSDate", SentryCrashObjCClassTypeDate, ClassSubtypeNone, false, dateIsValid, dateDescription },
+    { "__NSCFNumber", SentryCrashObjCClassTypeNumber, ClassSubtypeNone, false, numberIsValid, numberDescription },
+    { "NSCFNumber", SentryCrashObjCClassTypeNumber, ClassSubtypeNone, false, numberIsValid, numberDescription },
+    { "NSNumber", SentryCrashObjCClassTypeNumber, ClassSubtypeNone, false, numberIsValid, numberDescription },
     { "NSURL", SentryCrashObjCClassTypeURL, ClassSubtypeNone, false, urlIsValid, urlDescription },
-    { NULL, SentryCrashObjCClassTypeUnknown, ClassSubtypeNone, false, objectIsValid,
-        objectDescription },
+    { NULL, SentryCrashObjCClassTypeUnknown, ClassSubtypeNone, false, objectIsValid, objectDescription },
 };
 
 static ClassData g_taggedClassData[] = {
     { "NSAtom", SentryCrashObjCClassTypeUnknown, ClassSubtypeNone, false, taggedObjectIsValid,
         taggedObjectDescription },
-    { NULL, SentryCrashObjCClassTypeUnknown, ClassSubtypeNone, false, taggedObjectIsValid,
-        taggedObjectDescription },
+    { NULL, SentryCrashObjCClassTypeUnknown, ClassSubtypeNone, false, taggedObjectIsValid, taggedObjectDescription },
     { "NSString", SentryCrashObjCClassTypeString, ClassSubtypeNone, false, taggedStringIsValid,
         taggedStringDescription },
     { "NSNumber", SentryCrashObjCClassTypeNumber, ClassSubtypeNone, false, taggedNumberIsValid,
         taggedNumberDescription },
     { "NSIndexPath", SentryCrashObjCClassTypeUnknown, ClassSubtypeNone, false, taggedObjectIsValid,
         taggedObjectDescription },
-    { "NSManagedObjectID", SentryCrashObjCClassTypeUnknown, ClassSubtypeNone, false,
-        taggedObjectIsValid, taggedObjectDescription },
-    { "NSDate", SentryCrashObjCClassTypeDate, ClassSubtypeNone, false, taggedDateIsValid,
-        taggedDateDescription },
-    { NULL, SentryCrashObjCClassTypeUnknown, ClassSubtypeNone, false, taggedObjectIsValid,
+    { "NSManagedObjectID", SentryCrashObjCClassTypeUnknown, ClassSubtypeNone, false, taggedObjectIsValid,
         taggedObjectDescription },
+    { "NSDate", SentryCrashObjCClassTypeDate, ClassSubtypeNone, false, taggedDateIsValid, taggedDateDescription },
+    { NULL, SentryCrashObjCClassTypeUnknown, ClassSubtypeNone, false, taggedObjectIsValid, taggedObjectDescription },
 };
 static int g_taggedClassDataCount = sizeof(g_taggedClassData) / sizeof(*g_taggedClassData);
 
@@ -1122,8 +1106,7 @@ sentrycrashobjc_ivarValue(const void *const objectPtr, int ivarIndex, void *dst)
         return false;
     }
     uintptr_t ivarPtr = (uintptr_t)&ivars->first;
-    const struct ivar_t *ivar
-        = (void *)(ivarPtr + (uintptr_t)ivars->entsizeAndFlags * (uintptr_t)ivarIndex);
+    const struct ivar_t *ivar = (void *)(ivarPtr + (uintptr_t)ivars->entsizeAndFlags * (uintptr_t)ivarIndex);
 
     uintptr_t valuePtr = (uintptr_t)objectPtr + (uintptr_t)*ivar->offset;
     if (!sentrycrashmem_copySafely((void *)valuePtr, dst, (int)ivar->size)) {
@@ -1243,26 +1226,25 @@ stringIsValid(const void *const stringPtr)
     }
 
     if (__CFStrIsInline(string)) {
-        if (!sentrycrashmem_copySafely(
-                &string->variants.inline1, &temp, sizeof(string->variants.inline1))) {
+        if (!sentrycrashmem_copySafely(&string->variants.inline1, &temp, sizeof(string->variants.inline1))) {
             return false;
         }
         length = string->variants.inline1.length;
     } else if (__CFStrIsMutable(string)) {
-        if (!sentrycrashmem_copySafely(&string->variants.notInlineMutable, &temp,
-                sizeof(string->variants.notInlineMutable))) {
+        if (!sentrycrashmem_copySafely(
+                &string->variants.notInlineMutable, &temp, sizeof(string->variants.notInlineMutable))) {
             return false;
         }
         length = string->variants.notInlineMutable.length;
     } else if (!__CFStrHasLengthByte(string)) {
-        if (!sentrycrashmem_copySafely(&string->variants.notInlineImmutable1, &temp,
-                sizeof(string->variants.notInlineImmutable1))) {
+        if (!sentrycrashmem_copySafely(
+                &string->variants.notInlineImmutable1, &temp, sizeof(string->variants.notInlineImmutable1))) {
             return false;
         }
         length = string->variants.notInlineImmutable1.length;
     } else {
-        if (!sentrycrashmem_copySafely(&string->variants.notInlineImmutable2, &temp,
-                sizeof(string->variants.notInlineImmutable2))) {
+        if (!sentrycrashmem_copySafely(
+                &string->variants.notInlineImmutable2, &temp, sizeof(string->variants.notInlineImmutable2))) {
             return false;
         }
         if (!sentrycrashmem_copySafely(__CFStrContents(string), &oneByte, sizeof(oneByte))) {
@@ -1308,8 +1290,7 @@ sentrycrashobjc_stringLength(const void *const stringPtr)
 #define kUTF16_FirstSupplementaryPlane 0x10000u
 
 static int
-copyAndConvertUTF16StringToUTF8(
-    const void *const src, void *const dst, int charCount, int maxByteCount)
+copyAndConvertUTF16StringToUTF8(const void *const src, void *const dst, int charCount, int maxByteCount)
 {
     const uint16_t *pSrc = src;
     uint8_t *pDst = dst;
@@ -1318,8 +1299,7 @@ copyAndConvertUTF16StringToUTF8(
         // Decode UTF-16
         uint32_t character = 0;
         uint16_t leadSurrogate = *pSrc++;
-        likely_if(
-            leadSurrogate < kUTF16_LeadSurrogateStart || leadSurrogate > kUTF16_TailSurrogateEnd)
+        likely_if(leadSurrogate < kUTF16_LeadSurrogateStart || leadSurrogate > kUTF16_TailSurrogateEnd)
         {
             character = leadSurrogate;
         }
@@ -1332,14 +1312,13 @@ copyAndConvertUTF16StringToUTF8(
         else
         {
             uint16_t tailSurrogate = *pSrc++;
-            if (tailSurrogate < kUTF16_TailSurrogateStart
-                || tailSurrogate > kUTF16_TailSurrogateEnd) {
+            if (tailSurrogate < kUTF16_TailSurrogateStart || tailSurrogate > kUTF16_TailSurrogateEnd) {
                 // Invalid tail surrogate
                 *((uint8_t *)dst) = 0;
                 return 0;
             }
-            character = ((leadSurrogate - kUTF16_LeadSurrogateStart) << 10)
-                + (tailSurrogate - kUTF16_TailSurrogateStart);
+            character
+                = ((leadSurrogate - kUTF16_LeadSurrogateStart) << 10) + (tailSurrogate - kUTF16_TailSurrogateStart);
             character += kUTF16_FirstSupplementaryPlane;
             charsRemaining--;
         }
@@ -1546,37 +1525,37 @@ taggedDateDescription(const void *object, char *buffer, int bufferLength)
 #pragma mark - NSNumber -
 //======================================================================
 
-#define NSNUMBER_CASE(CFTYPE, RETURN_TYPE, CAST_TYPE, DATA)                                        \
-    case CFTYPE: {                                                                                 \
-        RETURN_TYPE result;                                                                        \
-        memcpy(&result, DATA, sizeof(result));                                                     \
-        return (CAST_TYPE)result;                                                                  \
+#define NSNUMBER_CASE(CFTYPE, RETURN_TYPE, CAST_TYPE, DATA)                                                            \
+    case CFTYPE: {                                                                                                     \
+        RETURN_TYPE result;                                                                                            \
+        memcpy(&result, DATA, sizeof(result));                                                                         \
+        return (CAST_TYPE)result;                                                                                      \
     }
 
-#define EXTRACT_AND_RETURN_NSNUMBER(OBJECT, RETURN_TYPE)                                           \
-    if (isValidTaggedPointer(object)) {                                                            \
-        return extractTaggedNSNumber(object);                                                      \
-    }                                                                                              \
-    const struct __CFNumber *number = OBJECT;                                                      \
-    CFNumberType cftype = CFNumberGetType((CFNumberRef)OBJECT);                                    \
-    const void *data = &(number->_pad);                                                            \
-    switch (cftype) {                                                                              \
-        NSNUMBER_CASE(kCFNumberSInt8Type, int8_t, RETURN_TYPE, data)                               \
-        NSNUMBER_CASE(kCFNumberSInt16Type, int16_t, RETURN_TYPE, data)                             \
-        NSNUMBER_CASE(kCFNumberSInt32Type, int32_t, RETURN_TYPE, data)                             \
-        NSNUMBER_CASE(kCFNumberSInt64Type, int64_t, RETURN_TYPE, data)                             \
-        NSNUMBER_CASE(kCFNumberFloat32Type, Float32, RETURN_TYPE, data)                            \
-        NSNUMBER_CASE(kCFNumberFloat64Type, Float64, RETURN_TYPE, data)                            \
-        NSNUMBER_CASE(kCFNumberCharType, char, RETURN_TYPE, data)                                  \
-        NSNUMBER_CASE(kCFNumberShortType, short, RETURN_TYPE, data)                                \
-        NSNUMBER_CASE(kCFNumberIntType, int, RETURN_TYPE, data)                                    \
-        NSNUMBER_CASE(kCFNumberLongType, long, RETURN_TYPE, data)                                  \
-        NSNUMBER_CASE(kCFNumberLongLongType, long long, RETURN_TYPE, data)                         \
-        NSNUMBER_CASE(kCFNumberFloatType, float, RETURN_TYPE, data)                                \
-        NSNUMBER_CASE(kCFNumberDoubleType, double, RETURN_TYPE, data)                              \
-        NSNUMBER_CASE(kCFNumberCFIndexType, CFIndex, RETURN_TYPE, data)                            \
-        NSNUMBER_CASE(kCFNumberNSIntegerType, NSInteger, RETURN_TYPE, data)                        \
-        NSNUMBER_CASE(kCFNumberCGFloatType, CGFloat, RETURN_TYPE, data)                            \
+#define EXTRACT_AND_RETURN_NSNUMBER(OBJECT, RETURN_TYPE)                                                               \
+    if (isValidTaggedPointer(object)) {                                                                                \
+        return extractTaggedNSNumber(object);                                                                          \
+    }                                                                                                                  \
+    const struct __CFNumber *number = OBJECT;                                                                          \
+    CFNumberType cftype = CFNumberGetType((CFNumberRef)OBJECT);                                                        \
+    const void *data = &(number->_pad);                                                                                \
+    switch (cftype) {                                                                                                  \
+        NSNUMBER_CASE(kCFNumberSInt8Type, int8_t, RETURN_TYPE, data)                                                   \
+        NSNUMBER_CASE(kCFNumberSInt16Type, int16_t, RETURN_TYPE, data)                                                 \
+        NSNUMBER_CASE(kCFNumberSInt32Type, int32_t, RETURN_TYPE, data)                                                 \
+        NSNUMBER_CASE(kCFNumberSInt64Type, int64_t, RETURN_TYPE, data)                                                 \
+        NSNUMBER_CASE(kCFNumberFloat32Type, Float32, RETURN_TYPE, data)                                                \
+        NSNUMBER_CASE(kCFNumberFloat64Type, Float64, RETURN_TYPE, data)                                                \
+        NSNUMBER_CASE(kCFNumberCharType, char, RETURN_TYPE, data)                                                      \
+        NSNUMBER_CASE(kCFNumberShortType, short, RETURN_TYPE, data)                                                    \
+        NSNUMBER_CASE(kCFNumberIntType, int, RETURN_TYPE, data)                                                        \
+        NSNUMBER_CASE(kCFNumberLongType, long, RETURN_TYPE, data)                                                      \
+        NSNUMBER_CASE(kCFNumberLongLongType, long long, RETURN_TYPE, data)                                             \
+        NSNUMBER_CASE(kCFNumberFloatType, float, RETURN_TYPE, data)                                                    \
+        NSNUMBER_CASE(kCFNumberDoubleType, double, RETURN_TYPE, data)                                                  \
+        NSNUMBER_CASE(kCFNumberCFIndexType, CFIndex, RETURN_TYPE, data)                                                \
+        NSNUMBER_CASE(kCFNumberNSIntegerType, NSInteger, RETURN_TYPE, data)                                            \
+        NSNUMBER_CASE(kCFNumberCGFloatType, CGFloat, RETURN_TYPE, data)                                                \
     }
 
 Float64
@@ -1693,8 +1672,7 @@ nsarrayContents(const void *const arrayPtr, uintptr_t *contents, int count)
         return 0;
     }
 
-    if (!sentrycrashmem_copySafely(
-            &array->basic.firstEntry, contents, (int)sizeof(*contents) * count)) {
+    if (!sentrycrashmem_copySafely(&array->basic.firstEntry, contents, (int)sizeof(*contents) * count)) {
         return 0;
     }
     return count;
@@ -1796,8 +1774,7 @@ arrayDescription(const void *object, char *buffer, int bufferLength)
     if (pBuffer < pEnd - 1 && sentrycrashobjc_arrayCount(object) > 0) {
         uintptr_t contents = 0;
         if (sentrycrashobjc_arrayContents(object, &contents, 1) == 1) {
-            pBuffer
-                += sentrycrashobjc_getDescription((void *)contents, pBuffer, (int)(pEnd - pBuffer));
+            pBuffer += sentrycrashobjc_getDescription((void *)contents, pBuffer, (int)(pEnd - pBuffer));
         }
     }
     pBuffer += stringPrintf(pBuffer, (int)(pEnd - pBuffer), "]");

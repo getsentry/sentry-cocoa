@@ -20,8 +20,8 @@
     [formatter setRoundingMode:NSNumberFormatterRoundFloor];
     [formatter setPositiveFormat:@"#,##0"];
 
-    return [NSString stringWithFormat:@"%@ %@",
-                     [formatter stringFromNumber:[NSNumber numberWithDouble:result]], units[index]];
+    return [NSString
+        stringWithFormat:@"%@ %@", [formatter stringFromNumber:[NSNumber numberWithDouble:result]], units[index]];
 }
 
 @end

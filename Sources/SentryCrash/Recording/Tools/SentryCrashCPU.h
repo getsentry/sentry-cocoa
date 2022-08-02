@@ -106,8 +106,7 @@ const char *sentrycrashcpu_registerName(int regNumber);
  *
  * @return The register's current value.
  */
-uint64_t sentrycrashcpu_registerValue(
-    const struct SentryCrashMachineContext *const context, int regNumber);
+uint64_t sentrycrashcpu_registerValue(const struct SentryCrashMachineContext *const context, int regNumber);
 
 /** Get the number of exception registers the currently running CPU has.
  *
@@ -129,8 +128,7 @@ const char *sentrycrashcpu_exceptionRegisterName(int regNumber);
  *
  * @return The register's current value.
  */
-uint64_t sentrycrashcpu_exceptionRegisterValue(
-    const struct SentryCrashMachineContext *const context, int regNumber);
+uint64_t sentrycrashcpu_exceptionRegisterValue(const struct SentryCrashMachineContext *const context, int regNumber);
 
 /** Get the direction in which the stack grows on the current architecture.
  *

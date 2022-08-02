@@ -24,9 +24,9 @@ SentryAutoSessionTrackingIntegration ()
         return;
     }
 
-    SentrySessionTracker *tracker = [[SentrySessionTracker alloc]
-            initWithOptions:options
-        currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]];
+    SentrySessionTracker *tracker =
+        [[SentrySessionTracker alloc] initWithOptions:options
+                                  currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]];
     [tracker start];
     self.tracker = tracker;
 }

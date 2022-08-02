@@ -119,8 +119,8 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
 
         for (int i = 0; i < numSuspendedThreads; i++) {
             if (suspendedThreads[i] != currentThread) {
-                int numberOfEntries = getStackEntriesFromThread(suspendedThreads[i], context,
-                    threadsInfos[i].stackEntries, MAX_STACKTRACE_LENGTH);
+                int numberOfEntries = getStackEntriesFromThread(
+                    suspendedThreads[i], context, threadsInfos[i].stackEntries, MAX_STACKTRACE_LENGTH);
                 threadsInfos[i].stackLength = numberOfEntries;
             } else {
                 // We can't use 'getStackEntriesFromThread' to retrieve stack frames from the
@@ -146,9 +146,9 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
             if (isCurrent) {
                 sentryThread.stacktrace = [self.stacktraceBuilder buildStacktraceForCurrentThread];
             } else {
-                sentryThread.stacktrace = [self.stacktraceBuilder
-                    buildStackTraceFromStackEntries:threadsInfos[i].stackEntries
-                                             amount:threadsInfos[i].stackLength];
+                sentryThread.stacktrace =
+                    [self.stacktraceBuilder buildStackTraceFromStackEntries:threadsInfos[i].stackEntries
+                                                                     amount:threadsInfos[i].stackLength];
             }
 
             // We need to make sure the main thread is always the first thread in the result

@@ -8,8 +8,7 @@
 
 - (void)reportException:(NSException *)exception
 {
-    [[NSUserDefaults standardUserDefaults]
-        registerDefaults:@{ @"NSApplicationCrashOnExceptions" : @YES }];
+    [[NSUserDefaults standardUserDefaults] registerDefaults:@{ @"NSApplicationCrashOnExceptions" : @YES }];
     if (nil != SentryCrash.sharedInstance.uncaughtExceptionHandler && nil != exception) {
         SentryCrash.sharedInstance.uncaughtExceptionHandler(exception);
     }

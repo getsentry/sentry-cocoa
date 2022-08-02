@@ -33,8 +33,7 @@
 
     [fetchSpan setDataValue:[NSNumber numberWithInteger:result.count] forKey:@"read_count"];
 
-    [fetchSpan
-        finishWithStatus:error != nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
+    [fetchSpan finishWithStatus:error != nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
 
     return result;
 }
@@ -46,13 +45,11 @@
 
     __block id<SentrySpan> fetchSpan = nil;
     if (context.hasChanges) {
-        __block NSDictionary<NSString *, NSDictionary *> *operations =
-            [self groupEntitiesOperations:context];
+        __block NSDictionary<NSString *, NSDictionary *> *operations = [self groupEntitiesOperations:context];
 
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
             fetchSpan = [span startChildWithOperation:SENTRY_COREDATA_SAVE_OPERATION
-                                          description:[self descriptionForOperations:operations
-                                                                           inContext:context]];
+                                          description:[self descriptionForOperations:operations inContext:context]];
 
             [fetchSpan setDataValue:operations forKey:@"operations"];
         }];
@@ -60,14 +57,12 @@
 
     BOOL result = original(error);
 
-    [fetchSpan
-        finishWithStatus:*error != nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
+    [fetchSpan finishWithStatus:*error != nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
 
     return result;
 }
 
-- (NSString *)descriptionForOperations:
-                  (NSDictionary<NSString *, NSDictionary<NSString *, NSNumber *> *> *)operations
+- (NSString *)descriptionForOperations:(NSDictionary<NSString *, NSDictionary<NSString *, NSNumber *> *> *)operations
                              inContext:(NSManagedObjectContext *)context
 {
     __block NSMutableArray *resultParts = [NSMutableArray new];
@@ -76,11 +71,10 @@
         NSDictionary *itens = operations[op];
         if (itens && itens.count > 0) {
             if (itens.count == 1) {
-                [resultParts addObject:[NSString stringWithFormat:@"%@ %@ '%@'", op,
-                                                 itens.allValues[0], itens.allKeys[0]]];
+                [resultParts
+                    addObject:[NSString stringWithFormat:@"%@ %@ '%@'", op, itens.allValues[0], itens.allKeys[0]]];
             } else {
-                [resultParts addObject:[NSString stringWithFormat:@"%@ %lu items", op,
-                                                 (unsigned long)total]];
+                [resultParts addObject:[NSString stringWithFormat:@"%@ %lu items", op, (unsigned long)total]];
             }
         }
     };
@@ -92,11 +86,9 @@
     return [resultParts componentsJoinedByString:@", "];
 }
 
-- (NSDictionary<NSString *, NSDictionary *> *)groupEntitiesOperations:
-    (NSManagedObjectContext *)context
+- (NSDictionary<NSString *, NSDictionary *> *)groupEntitiesOperations:(NSManagedObjectContext *)context
 {
-    NSMutableDictionary<NSString *, NSDictionary *> *operations =
-        [[NSMutableDictionary alloc] initWithCapacity:3];
+    NSMutableDictionary<NSString *, NSDictionary *> *operations = [[NSMutableDictionary alloc] initWithCapacity:3];
 
     if (context.insertedObjects.count > 0)
         [operations setValue:[self countEntities:context.insertedObjects] forKey:@"INSERTED"];
@@ -123,12 +115,10 @@
 
 - (NSString *)descriptionFromRequest:(NSFetchRequest *)request
 {
-    NSMutableString *result =
-        [[NSMutableString alloc] initWithFormat:@"SELECT '%@'", request.entityName];
+    NSMutableString *result = [[NSMutableString alloc] initWithFormat:@"SELECT '%@'", request.entityName];
 
     if (request.predicate) {
-        [result appendFormat:@" WHERE %@",
-                [predicateDescriptor predicateDescription:request.predicate]];
+        [result appendFormat:@" WHERE %@", [predicateDescriptor predicateDescription:request.predicate]];
     }
 
     if (request.sortDescriptors.count > 0) {

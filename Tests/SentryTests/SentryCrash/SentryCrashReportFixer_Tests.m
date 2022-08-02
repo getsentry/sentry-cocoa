@@ -38,9 +38,7 @@
 
     NSString *processedPath = [bundle pathForResource:@"Resources/processed" ofType:@"json"];
     NSData *processedData = [NSData dataWithContentsOfFile:processedPath];
-    id processedObjects = [NSJSONSerialization JSONObjectWithData:processedData
-                                                          options:0
-                                                            error:&error];
+    id processedObjects = [NSJSONSerialization JSONObjectWithData:processedData options:0 error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(processedObjects);
 

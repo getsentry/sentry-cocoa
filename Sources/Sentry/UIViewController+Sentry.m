@@ -14,8 +14,7 @@ UIViewController (Sentry)
     NSMutableArray<UIViewController *> *allViewControllers = [NSMutableArray new];
     [allViewControllers addObject:self];
 
-    NSMutableArray<UIViewController *> *toAdd =
-        [NSMutableArray arrayWithArray:self.childViewControllers];
+    NSMutableArray<UIViewController *> *toAdd = [NSMutableArray arrayWithArray:self.childViewControllers];
 
     while (toAdd.count > 0) {
         UIViewController *viewController = [toAdd lastObject];

@@ -57,8 +57,7 @@ NS_SWIFT_NAME(Scope)
 /**
  * Set global extra -> these will be sent with every event
  */
-- (void)setExtraValue:(id _Nullable)value
-               forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
+- (void)setExtraValue:(id _Nullable)value forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
 
 /**
  * Remove the extra for the specified key.
@@ -103,8 +102,7 @@ NS_SWIFT_NAME(Scope)
 /**
  * Adds the Scope to the event
  */
-- (SentryEvent *__nullable)applyToEvent:(SentryEvent *)event
-                          maxBreadcrumb:(NSUInteger)maxBreadcrumbs;
+- (SentryEvent *__nullable)applyToEvent:(SentryEvent *)event maxBreadcrumb:(NSUInteger)maxBreadcrumbs;
 
 - (void)applyToSession:(SentrySession *)session;
 

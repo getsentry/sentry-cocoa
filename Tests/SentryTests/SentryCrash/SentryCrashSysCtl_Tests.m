@@ -200,8 +200,7 @@
     struct kinfo_proc procInfo = { { { { 0 } } } };
     bool success = sentrycrashsysctl_getProcessInfo(pid, &procInfo);
     XCTAssertTrue(success, @"");
-    NSString *processName = [NSString stringWithCString:procInfo.kp_proc.p_comm
-                                               encoding:NSUTF8StringEncoding];
+    NSString *processName = [NSString stringWithCString:procInfo.kp_proc.p_comm encoding:NSUTF8StringEncoding];
     NSString *expected = @"xctest";
     XCTAssertEqualObjects(processName, expected, @"");
 }

@@ -64,18 +64,14 @@ SentryCrashIntegration ()
 {
     self.options = options;
 
-    SentryAppStateManager *appStateManager =
-        [SentryDependencyContainer sharedInstance].appStateManager;
-    SentryOutOfMemoryLogic *logic =
-        [[SentryOutOfMemoryLogic alloc] initWithOptions:options
-                                           crashAdapter:self.crashAdapter
-                                        appStateManager:appStateManager];
-    self.crashedSessionHandler =
-        [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:self.crashAdapter
-                                                 outOfMemoryLogic:logic];
+    SentryAppStateManager *appStateManager = [SentryDependencyContainer sharedInstance].appStateManager;
+    SentryOutOfMemoryLogic *logic = [[SentryOutOfMemoryLogic alloc] initWithOptions:options
+                                                                       crashAdapter:self.crashAdapter
+                                                                    appStateManager:appStateManager];
+    self.crashedSessionHandler = [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:self.crashAdapter
+                                                                          outOfMemoryLogic:logic];
 
-    self.scopeObserver =
-        [[SentryCrashScopeObserver alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs];
+    self.scopeObserver = [[SentryCrashScopeObserver alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs];
 
     [self startCrashHandler];
 
@@ -91,9 +87,8 @@ SentryCrashIntegration ()
     void (^block)(void) = ^{
         BOOL canSendReports = NO;
         if (installation == nil) {
-            SentryInAppLogic *inAppLogic =
-                [[SentryInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes
-                                                  inAppExcludes:self.options.inAppExcludes];
+            SentryInAppLogic *inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes
+                                                                             inAppExcludes:self.options.inAppExcludes];
 
             installation = [[SentryCrashInstallationReporter alloc] initWithInAppLogic:inAppLogic];
 
@@ -196,8 +191,8 @@ SentryCrashIntegration ()
     [osData setValue:[UIDevice currentDevice].systemVersion forKey:@"version"];
 #else
     NSOperatingSystemVersion version = [NSProcessInfo processInfo].operatingSystemVersion;
-    NSString *systemVersion = [NSString stringWithFormat:@"%d.%d.%d", (int)version.majorVersion,
-                                        (int)version.minorVersion, (int)version.patchVersion];
+    NSString *systemVersion = [NSString
+        stringWithFormat:@"%d.%d.%d", (int)version.majorVersion, (int)version.minorVersion, (int)version.patchVersion];
     [osData setValue:systemVersion forKey:@"version"];
 
 #endif
@@ -272,8 +267,7 @@ SentryCrashIntegration ()
     [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
         NSMutableDictionary<NSString *, id> *device;
         if (scope.contextDictionary != nil && scope.contextDictionary[DEVICE_KEY] != nil) {
-            device = [[NSMutableDictionary alloc]
-                initWithDictionary:scope.contextDictionary[DEVICE_KEY]];
+            device = [[NSMutableDictionary alloc] initWithDictionary:scope.contextDictionary[DEVICE_KEY]];
         } else {
             device = [NSMutableDictionary new];
         }

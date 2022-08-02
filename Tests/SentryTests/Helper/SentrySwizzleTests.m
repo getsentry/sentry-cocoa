@@ -44,7 +44,7 @@ static NSMutableString *_logString = nil;
 
 @end
 
-#define ASSERT_LOG_IS(STRING)                                                                      \
+#define ASSERT_LOG_IS(STRING)                                                                                          \
     XCTAssertTrue([SentryTestsLog is:STRING], @"LOG IS @\"%@\" INSTEAD", [SentryTestsLog logString])
 #define CLEAR_LOG() ([SentryTestsLog clear])
 #define SentryTestsLog(STRING) [SentryTestsLog log:STRING]
@@ -132,11 +132,11 @@ static NSMutableString *_logString = nil;
 #pragma mark - HELPER FUNCTIONS -
 
 static void
-swizzleVoidMethod(Class classToSwizzle, SEL selector, dispatch_block_t blockBefore,
-    SentrySwizzleMode mode, const void *key)
+swizzleVoidMethod(
+    Class classToSwizzle, SEL selector, dispatch_block_t blockBefore, SentrySwizzleMode mode, const void *key)
 {
-    SentrySwizzleInstanceMethod(classToSwizzle, selector, SentrySWReturnType(void),
-        SentrySWArguments(), SentrySWReplacement({
+    SentrySwizzleInstanceMethod(classToSwizzle, selector, SentrySWReturnType(void), SentrySWArguments(),
+        SentrySWReplacement({
             blockBefore();
             SentrySWCallOriginal();
         }),
@@ -153,8 +153,8 @@ swizzleDealloc(Class classToSwizzle, dispatch_block_t blockBefore)
 static void
 swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
 {
-    SentrySwizzleInstanceMethod(classToSwizzle, @selector(calc:), SentrySWReturnType(int),
-        SentrySWArguments(int num), SentrySWReplacement({
+    SentrySwizzleInstanceMethod(classToSwizzle, @selector(calc:), SentrySWReturnType(int), SentrySWArguments(int num),
+        SentrySWReplacement({
             int res = SentrySWCallOriginal(num);
             return transformationBlock(res);
         }),
@@ -237,8 +237,8 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
     SEL selector = @selector(string);
     SentrySwizzleTestClass_A *a = [SentrySwizzleTestClass_A new];
 
-    SentrySwizzleInstanceMethod([a class], selector, SentrySWReturnType(NSString *),
-        SentrySWArguments(), SentrySWReplacement({
+    SentrySwizzleInstanceMethod([a class], selector, SentrySWReturnType(NSString *), SentrySWArguments(),
+        SentrySWReplacement({
             NSString *res = SentrySWCallOriginal();
             return [res stringByAppendingString:@"DEF"];
         }),
@@ -291,11 +291,11 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
 {
     for (int i = 3; i > 0; --i) {
         swizzleVoidMethod(
-            [SentrySwizzleTestClass_A class], @selector(methodForAlwaysSwizzling),
-            ^{ SentryTestsLog(@"A"); }, SentrySwizzleModeAlways, NULL);
+            [SentrySwizzleTestClass_A class], @selector(methodForAlwaysSwizzling), ^{ SentryTestsLog(@"A"); },
+            SentrySwizzleModeAlways, NULL);
         swizzleVoidMethod(
-            [SentrySwizzleTestClass_B class], @selector(methodForAlwaysSwizzling),
-            ^{ SentryTestsLog(@"B"); }, SentrySwizzleModeAlways, NULL);
+            [SentrySwizzleTestClass_B class], @selector(methodForAlwaysSwizzling), ^{ SentryTestsLog(@"B"); },
+            SentrySwizzleModeAlways, NULL);
     }
 
     SentrySwizzleTestClass_B *object = [SentrySwizzleTestClass_B new];
@@ -308,11 +308,11 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
     static void *key = &key;
     for (int i = 3; i > 0; --i) {
         swizzleVoidMethod(
-            [SentrySwizzleTestClass_A class], @selector(methodForSwizzlingOncePerClass),
-            ^{ SentryTestsLog(@"A"); }, SentrySwizzleModeOncePerClass, key);
+            [SentrySwizzleTestClass_A class], @selector(methodForSwizzlingOncePerClass), ^{ SentryTestsLog(@"A"); },
+            SentrySwizzleModeOncePerClass, key);
         swizzleVoidMethod(
-            [SentrySwizzleTestClass_B class], @selector(methodForSwizzlingOncePerClass),
-            ^{ SentryTestsLog(@"B"); }, SentrySwizzleModeOncePerClass, key);
+            [SentrySwizzleTestClass_B class], @selector(methodForSwizzlingOncePerClass), ^{ SentryTestsLog(@"B"); },
+            SentrySwizzleModeOncePerClass, key);
     }
     SentrySwizzleTestClass_B *object = [SentrySwizzleTestClass_B new];
     [object methodForSwizzlingOncePerClass];
@@ -324,13 +324,11 @@ swizzleNumber(Class classToSwizzle, int (^transformationBlock)(int))
     static void *key = &key;
     for (int i = 3; i > 0; --i) {
         swizzleVoidMethod(
-            [SentrySwizzleTestClass_A class],
-            @selector(methodForSwizzlingOncePerClassOrSuperClasses), ^{ SentryTestsLog(@"A"); },
-            SentrySwizzleModeOncePerClassAndSuperclasses, key);
+            [SentrySwizzleTestClass_A class], @selector(methodForSwizzlingOncePerClassOrSuperClasses),
+            ^{ SentryTestsLog(@"A"); }, SentrySwizzleModeOncePerClassAndSuperclasses, key);
         swizzleVoidMethod(
-            [SentrySwizzleTestClass_B class],
-            @selector(methodForSwizzlingOncePerClassOrSuperClasses), ^{ SentryTestsLog(@"B"); },
-            SentrySwizzleModeOncePerClassAndSuperclasses, key);
+            [SentrySwizzleTestClass_B class], @selector(methodForSwizzlingOncePerClassOrSuperClasses),
+            ^{ SentryTestsLog(@"B"); }, SentrySwizzleModeOncePerClassAndSuperclasses, key);
     }
     SentrySwizzleTestClass_B *object = [SentrySwizzleTestClass_B new];
     [object methodForSwizzlingOncePerClassOrSuperClasses];

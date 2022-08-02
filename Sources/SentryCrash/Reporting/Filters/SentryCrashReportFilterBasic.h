@@ -53,8 +53,7 @@
  *                    Each "filter" can be id<SentryCrashReportFilter> or an
  * NSArray of filters (which gets wrapped in a pipeline filter).
  */
-+ (SentryCrashReportFilterCombine *)filterWithFiltersAndKeys:(id)firstFilter,
-                                                             ... NS_REQUIRES_NIL_TERMINATION;
++ (SentryCrashReportFilterCombine *)filterWithFiltersAndKeys:(id)firstFilter, ... NS_REQUIRES_NIL_TERMINATION;
 
 /** Initializer.
  *
@@ -81,8 +80,7 @@
  *
  * @param firstFilter The first filter, followed by filter, filter, ...
  */
-+ (SentryCrashReportFilterPipeline *)filterWithFilters:(id)firstFilter,
-                                                       ... NS_REQUIRES_NIL_TERMINATION;
++ (SentryCrashReportFilterPipeline *)filterWithFilters:(id)firstFilter, ... NS_REQUIRES_NIL_TERMINATION;
 
 /** Initializer.
  *
@@ -137,8 +135,7 @@
  * @param firstKey Series of keys to extract from the source report.
  */
 + (SentryCrashReportFilterConcatenate *)filterWithSeparatorFmt:(NSString *)separatorFmt
-                                                          keys:(id)firstKey,
-                                                               ... NS_REQUIRES_NIL_TERMINATION;
+                                                          keys:(id)firstKey, ... NS_REQUIRES_NIL_TERMINATION;
 
 /** Constructor.
  *
@@ -148,8 +145,7 @@
  * well.
  * @param firstKey Series of keys to extract from the source report.
  */
-- (id)initWithSeparatorFmt:(NSString *)separatorFmt
-                      keys:(id)firstKey, ... NS_REQUIRES_NIL_TERMINATION;
+- (id)initWithSeparatorFmt:(NSString *)separatorFmt keys:(id)firstKey, ... NS_REQUIRES_NIL_TERMINATION;
 
 @end
 

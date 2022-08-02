@@ -19,25 +19,22 @@ namespace profiling {
 } // namespace profiling
 } // namespace sentry
 
-#define SENTRY_PROF_LOG_DEBUG(...)                                                                 \
-    sentry::profiling::log(sentry::profiling::LogLevel::Debug, __VA_ARGS__)
-#define SENTRY_PROF_LOG_WARN(...)                                                                  \
-    sentry::profiling::log(sentry::profiling::LogLevel::Warning, __VA_ARGS__)
-#define SENTRY_PROF_LOG_ERROR(...)                                                                 \
-    sentry::profiling::log(sentry::profiling::LogLevel::Error, __VA_ARGS__)
+#define SENTRY_PROF_LOG_DEBUG(...) sentry::profiling::log(sentry::profiling::LogLevel::Debug, __VA_ARGS__)
+#define SENTRY_PROF_LOG_WARN(...) sentry::profiling::log(sentry::profiling::LogLevel::Warning, __VA_ARGS__)
+#define SENTRY_PROF_LOG_ERROR(...) sentry::profiling::log(sentry::profiling::LogLevel::Error, __VA_ARGS__)
 
 /**
  * Logs the error code returned by executing `statement`, and returns the
  * error code (i.e. returns the return value of `statement`).
  */
-#define SENTRY_PROF_LOG_ERROR_RETURN(statement)                                                    \
-    ({                                                                                             \
-        const int __log_errnum = statement;                                                        \
-        if (__log_errnum != 0) {                                                                   \
-            SENTRY_PROF_LOG_ERROR("%s failed with code: %d, description: %s", #statement,          \
-                __log_errnum, std::strerror(__log_errnum));                                        \
-        }                                                                                          \
-        __log_errnum;                                                                              \
+#define SENTRY_PROF_LOG_ERROR_RETURN(statement)                                                                        \
+    ({                                                                                                                 \
+        const int __log_errnum = statement;                                                                            \
+        if (__log_errnum != 0) {                                                                                       \
+            SENTRY_PROF_LOG_ERROR(                                                                                     \
+                "%s failed with code: %d, description: %s", #statement, __log_errnum, std::strerror(__log_errnum));    \
+        }                                                                                                              \
+        __log_errnum;                                                                                                  \
     })
 
 /**
@@ -45,14 +42,14 @@ namespace profiling {
  * the error value is logged, and the original return value of `statement` is
  * returned.
  */
-#define SENTRY_PROF_LOG_ERRNO(statement)                                                           \
-    ({                                                                                             \
-        errno = 0;                                                                                 \
-        const auto __log_rv = (statement);                                                         \
-        const int __log_errnum = errno;                                                            \
-        if (__log_errnum != 0) {                                                                   \
-            SENTRY_PROF_LOG_ERROR("%s failed with code: %s, description: %s", #statement,          \
-                __log_errnum, std::strerror(__log_errnum));                                        \
-        }                                                                                          \
-        __log_rv;                                                                                  \
+#define SENTRY_PROF_LOG_ERRNO(statement)                                                                               \
+    ({                                                                                                                 \
+        errno = 0;                                                                                                     \
+        const auto __log_rv = (statement);                                                                             \
+        const int __log_errnum = errno;                                                                                \
+        if (__log_errnum != 0) {                                                                                       \
+            SENTRY_PROF_LOG_ERROR(                                                                                     \
+                "%s failed with code: %s, description: %s", #statement, __log_errnum, std::strerror(__log_errnum));    \
+        }                                                                                                              \
+        __log_rv;                                                                                                      \
     })

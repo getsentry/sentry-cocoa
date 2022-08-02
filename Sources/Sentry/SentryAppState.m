@@ -102,8 +102,7 @@ NS_ASSUME_NONNULL_BEGIN
     [data setValue:self.osVersion forKey:@"os_version"];
     [data setValue:self.vendorId forKey:@"vendor_id"];
     [data setValue:@(self.isDebugging) forKey:@"is_debugging"];
-    [data setValue:[self.systemBootTimestamp sentry_toIso8601String]
-            forKey:@"system_boot_timestamp"];
+    [data setValue:[self.systemBootTimestamp sentry_toIso8601String] forKey:@"system_boot_timestamp"];
     [data setValue:@(self.isActive) forKey:@"is_active"];
     [data setValue:@(self.wasTerminated) forKey:@"was_terminated"];
     [data setValue:@(self.isANROngoing) forKey:@"is_anr_ongoing"];

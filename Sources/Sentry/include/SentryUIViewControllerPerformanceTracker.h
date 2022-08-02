@@ -7,8 +7,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
-    = @"SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID";
+static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID = @"SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID";
 
 static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
     = @"SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID";
@@ -36,8 +35,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET
  * @param callback A callback that indicates the swizzler to call the original view controller
  * LoadView method.
  */
-- (void)viewControllerLoadView:(UIViewController *)controller
-              callbackToOrigin:(void (^)(void))callback;
+- (void)viewControllerLoadView:(UIViewController *)controller callbackToOrigin:(void (^)(void))callback;
 
 /**
  * Measures viewController`s viewDidLoad method.
@@ -46,8 +44,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET
  * @param callback A callback that indicates the swizzler to call the original view controller
  * viewDidLoad method.
  */
-- (void)viewControllerViewDidLoad:(UIViewController *)controller
-                 callbackToOrigin:(void (^)(void))callback;
+- (void)viewControllerViewDidLoad:(UIViewController *)controller callbackToOrigin:(void (^)(void))callback;
 
 /**
  * Measures viewController`s viewWillAppear: method.
@@ -56,8 +53,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET
  * @param callback A callback that indicates the swizzler to call the original view controller
  * viewWillAppear: method.
  */
-- (void)viewControllerViewWillAppear:(UIViewController *)controller
-                    callbackToOrigin:(void (^)(void))callback;
+- (void)viewControllerViewWillAppear:(UIViewController *)controller callbackToOrigin:(void (^)(void))callback;
 
 - (void)viewControllerViewWillDisappear:(UIViewController *)controller
                        callbackToOrigin:(void (^)(void))callbackToOrigin;
@@ -72,8 +68,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET
  * @param callback A callback that indicates the swizzler to call the original view controller
  * viewDidAppear: method.
  */
-- (void)viewControllerViewDidAppear:(UIViewController *)controller
-                   callbackToOrigin:(void (^)(void))callback;
+- (void)viewControllerViewDidAppear:(UIViewController *)controller callbackToOrigin:(void (^)(void))callback;
 
 /**
  * Measures viewController`s viewWillLayoutSubViews method.
@@ -84,8 +79,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET
  * @param callback A callback that indicates the swizzler to call the original view controller
  * viewWillLayoutSubViews method.
  */
-- (void)viewControllerViewWillLayoutSubViews:(UIViewController *)controller
-                            callbackToOrigin:(void (^)(void))callback;
+- (void)viewControllerViewWillLayoutSubViews:(UIViewController *)controller callbackToOrigin:(void (^)(void))callback;
 
 /**
  * Measures viewController`s viewDidLayoutSubViews method.
@@ -97,8 +91,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET
  * @param callback A callback that indicates the swizzler to call the original view controller
  * viewDidLayoutSubViews method.
  */
-- (void)viewControllerViewDidLayoutSubViews:(UIViewController *)controller
-                           callbackToOrigin:(void (^)(void))callback;
+- (void)viewControllerViewDidLayoutSubViews:(UIViewController *)controller callbackToOrigin:(void (^)(void))callback;
 #endif
 @end
 

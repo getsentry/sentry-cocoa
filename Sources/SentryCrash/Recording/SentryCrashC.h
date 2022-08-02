@@ -148,8 +148,8 @@ void sentrycrash_setSaveScreenshots(void (*callback)(const char *));
  * @param terminateProgram If true, do not return from this function call.
  * Terminate the program instead.
  */
-void sentrycrash_reportUserException(const char *name, const char *reason, const char *language,
-    const char *lineOfCode, const char *stackTrace, bool logAllThreads, bool terminateProgram);
+void sentrycrash_reportUserException(const char *name, const char *reason, const char *language, const char *lineOfCode,
+    const char *stackTrace, bool logAllThreads, bool terminateProgram);
 
 #pragma mark-- Notifications --
 

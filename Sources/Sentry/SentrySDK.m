@@ -121,12 +121,10 @@ static NSUInteger startInvocations;
 + (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict
 {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:optionsDict
-                                                didFailWithError:&error];
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:optionsDict didFailWithError:&error];
     if (nil != error) {
         [SentryLog logWithMessage:@"Error while initializing the SDK" andLevel:kSentryLevelError];
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"%@", error]
-                         andLevel:kSentryLevelError];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"%@", error] andLevel:kSentryLevelError];
     } else {
         [SentrySDK startWithOptionsObject:options];
     }
@@ -141,8 +139,7 @@ static NSUInteger startInvocations;
     // The Hub needs to be initialized with a client so that closing a session
     // can happen.
     [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:nil]];
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"SDK initialized! Version: %@",
-                                        SentryMeta.versionString]
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"SDK initialized! Version: %@", SentryMeta.versionString]
                      andLevel:kSentryLevelDebug];
     [SentrySDK installIntegrations];
 }
@@ -190,9 +187,7 @@ static NSUInteger startInvocations;
                                  operation:(NSString *)operation
                                bindToScope:(BOOL)bindToScope
 {
-    return [SentrySDK.currentHub startTransactionWithName:name
-                                                operation:operation
-                                              bindToScope:bindToScope];
+    return [SentrySDK.currentHub startTransactionWithName:name operation:operation bindToScope:bindToScope];
 }
 
 + (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
@@ -203,8 +198,7 @@ static NSUInteger startInvocations;
 + (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope
 {
-    return [SentrySDK.currentHub startTransactionWithContext:transactionContext
-                                                 bindToScope:bindToScope];
+    return [SentrySDK.currentHub startTransactionWithContext:transactionContext bindToScope:bindToScope];
 }
 
 + (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
@@ -245,8 +239,7 @@ static NSUInteger startInvocations;
     return [SentrySDK captureException:exception withScope:SentrySDK.currentHub.scope];
 }
 
-+ (SentryId *)captureException:(NSException *)exception
-                withScopeBlock:(void (^)(SentryScope *))block
++ (SentryId *)captureException:(NSException *)exception withScopeBlock:(void (^)(SentryScope *))block
 {
     SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDK.currentHub.scope];
     block(scope);
@@ -347,18 +340,16 @@ static NSUInteger startInvocations;
             [SentryLog logWithMessage:logMessage andLevel:kSentryLevelError];
             continue;
         } else if ([SentrySDK.currentHub isIntegrationInstalled:integrationClass]) {
-            NSString *logMessage =
-                [NSString stringWithFormat:@"[SentryHub doInstallIntegrations] already "
-                                           @"installed \"%@\" -> skipping.",
-                          integrationName];
+            NSString *logMessage = [NSString stringWithFormat:@"[SentryHub doInstallIntegrations] already "
+                                                              @"installed \"%@\" -> skipping.",
+                                             integrationName];
             [SentryLog logWithMessage:logMessage andLevel:kSentryLevelError];
             continue;
         }
         id<SentryIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
         [integrationInstance installWithOptions:options];
-        [SentryLog
-            logWithMessage:[NSString stringWithFormat:@"Integration installed: %@", integrationName]
-                  andLevel:kSentryLevelDebug];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Integration installed: %@", integrationName]
+                         andLevel:kSentryLevelDebug];
         [SentrySDK.currentHub.installedIntegrations addObject:integrationInstance];
     }
 }

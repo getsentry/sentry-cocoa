@@ -42,9 +42,8 @@ swizzle(Class classToSwizzle, SEL selector, SentrySwizzleImpFactoryBlock factory
 {
     Method method = class_getInstanceMethod(classToSwizzle, selector);
 
-    NSCAssert(NULL != method, @"Selector %@ not found in %@ methods of class %@.",
-        NSStringFromSelector(selector), class_isMetaClass(classToSwizzle) ? @"class" : @"instance",
-        classToSwizzle);
+    NSCAssert(NULL != method, @"Selector %@ not found in %@ methods of class %@.", NSStringFromSelector(selector),
+        class_isMetaClass(classToSwizzle) ? @"class" : @"instance", classToSwizzle);
 
     static pthread_mutex_t gLock = PTHREAD_MUTEX_INITIALIZER;
 
@@ -119,8 +118,7 @@ swizzledClassesDictionary()
 static NSMutableSet<Class> *
 swizzledClassesForKey(const void *key)
 {
-    NSMutableDictionary<NSValue *, NSMutableSet<Class> *> *classesDictionary
-        = swizzledClassesDictionary();
+    NSMutableDictionary<NSValue *, NSMutableSet<Class> *> *classesDictionary = swizzledClassesDictionary();
     NSValue *keyValue = [NSValue valueWithPointer:key];
     NSMutableSet *swizzledClasses = [classesDictionary objectForKey:keyValue];
     if (!swizzledClasses) {

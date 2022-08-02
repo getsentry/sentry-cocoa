@@ -22,8 +22,7 @@
 - (void)testInvalidDsnBoolean
 {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{ @"dsn" : @YES }
-                                                didFailWithError:&error];
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{ @"dsn" : @YES } didFailWithError:&error];
 
     [self assertDsnNil:options andError:error];
 }
@@ -110,11 +109,9 @@
 - (void)testDebugWith:(NSObject *)debugValue expected:(BOOL)expectedDebugValue
 {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{
-        @"dsn" : @"https://username:password@sentry.io/1",
-        @"debug" : debugValue
-    }
-                                                didFailWithError:&error];
+    SentryOptions *options = [[SentryOptions alloc]
+            initWithDict:@{ @"dsn" : @"https://username:password@sentry.io/1", @"debug" : debugValue }
+        didFailWithError:&error];
 
     XCTAssertNil(error);
     XCTAssertEqual(expectedDebugValue, options.debug);
@@ -261,8 +258,7 @@
 
 - (void)testBeforeBreadcrumb
 {
-    SentryBeforeBreadcrumbCallback callback
-        = ^(SentryBreadcrumb *breadcrumb) { return breadcrumb; };
+    SentryBeforeBreadcrumbCallback callback = ^(SentryBreadcrumb *breadcrumb) { return breadcrumb; };
     SentryOptions *options = [self getValidOptions:@{ @"beforeBreadcrumb" : callback }];
 
     XCTAssertEqual(callback, options.beforeBreadcrumb);
@@ -331,8 +327,7 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
-    [self assertArrayEquals:[SentryOptions defaultIntegrations]
-                     actual:options.enabledIntegrations.allObjects];
+    [self assertArrayEquals:[SentryOptions defaultIntegrations] actual:options.enabledIntegrations.allObjects];
 }
 
 - (void)testEnabledIntegrations_AddCustomAndRemoveIntegration
@@ -417,8 +412,7 @@
 - (void)testSessionTrackingIntervalMillis
 {
     NSNumber *sessionTracking = @2000;
-    SentryOptions *options =
-        [self getValidOptions:@{ @"sessionTrackingIntervalMillis" : sessionTracking }];
+    SentryOptions *options = [self getValidOptions:@{ @"sessionTrackingIntervalMillis" : sessionTracking }];
 
     XCTAssertEqual([sessionTracking unsignedIntValue], options.sessionTrackingIntervalMillis);
 }
@@ -607,9 +601,8 @@
     NSDictionary *dict = @{ @"name" : @"custom.sdk", @"version" : @"1.2.3-alpha.0" };
 
     NSError *error = nil;
-    SentryOptions *options =
-        [[SentryOptions alloc] initWithDict:@{ @"sdk" : dict, @"dsn" : @"https://a:b@c.d/1" }
-                           didFailWithError:&error];
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{ @"sdk" : dict, @"dsn" : @"https://a:b@c.d/1" }
+                                                didFailWithError:&error];
 
     XCTAssertNil(error);
 
@@ -629,9 +622,8 @@
     NSDictionary *dict = @{ @"name" : @"custom.sdk" };
 
     NSError *error = nil;
-    SentryOptions *options =
-        [[SentryOptions alloc] initWithDict:@{ @"sdk" : dict, @"dsn" : @"https://a:b@c.d/1" }
-                           didFailWithError:&error];
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{ @"sdk" : dict, @"dsn" : @"https://a:b@c.d/1" }
+                                                didFailWithError:&error];
 
     XCTAssertNil(error);
 
@@ -647,9 +639,8 @@
     NSDictionary *dict = @{ @"version" : @"1.2.3-alpha.0" };
 
     NSError *error = nil;
-    SentryOptions *options =
-        [[SentryOptions alloc] initWithDict:@{ @"sdk" : dict, @"dsn" : @"https://a:b@c.d/1" }
-                           didFailWithError:&error];
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{ @"sdk" : dict, @"dsn" : @"https://a:b@c.d/1" }
+                                                didFailWithError:&error];
 
     XCTAssertNil(error);
 
@@ -1051,8 +1042,7 @@
 
     [options addEntriesFromDictionary:dict];
 
-    SentryOptions *sentryOptions = [[SentryOptions alloc] initWithDict:options
-                                                      didFailWithError:&error];
+    SentryOptions *sentryOptions = [[SentryOptions alloc] initWithDict:options didFailWithError:&error];
     XCTAssertNil(error);
     return sentryOptions;
 }
@@ -1081,8 +1071,8 @@
 
 - (void)assertArrayEquals:(NSArray<NSString *> *)expected actual:(NSArray<NSString *> *)actual
 {
-    XCTAssertEqualObjects([expected sortedArrayUsingSelector:@selector(compare:)],
-        [actual sortedArrayUsingSelector:@selector(compare:)]);
+    XCTAssertEqualObjects(
+        [expected sortedArrayUsingSelector:@selector(compare:)], [actual sortedArrayUsingSelector:@selector(compare:)]);
 }
 
 - (void)testBooleanField:(NSString *)property
@@ -1108,12 +1098,10 @@
 - (BOOL)getProperty:(NSString *)property of:(SentryOptions *)options
 {
     SEL selector = NSSelectorFromString(property);
-    NSAssert(
-        [options respondsToSelector:selector], @"Options doesn't have a property '%@'", property);
+    NSAssert([options respondsToSelector:selector], @"Options doesn't have a property '%@'", property);
 
-    NSInvocation *invocation = [NSInvocation
-        invocationWithMethodSignature:[[options class]
-                                          instanceMethodSignatureForSelector:selector]];
+    NSInvocation *invocation =
+        [NSInvocation invocationWithMethodSignature:[[options class] instanceMethodSignatureForSelector:selector]];
     [invocation setSelector:selector];
     [invocation setTarget:options];
     [invocation invoke];

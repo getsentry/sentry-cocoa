@@ -32,16 +32,15 @@ SentryQueueableRequestManager ()
     return self.queue.operationCount <= 1;
 }
 
-- (void)addRequest:(NSURLRequest *)request
-    completionHandler:(_Nullable SentryRequestOperationFinished)completionHandler
+- (void)addRequest:(NSURLRequest *)request completionHandler:(_Nullable SentryRequestOperationFinished)completionHandler
 {
     SentryRequestOperation *operation = [[SentryRequestOperation alloc]
           initWithSession:self.session
                   request:request
         completionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-            [SentryLog logWithMessage:[NSString stringWithFormat:@"Queued requests: %@",
-                                                @(self.queue.operationCount - 1)]
-                             andLevel:kSentryLevelDebug];
+            [SentryLog
+                logWithMessage:[NSString stringWithFormat:@"Queued requests: %@", @(self.queue.operationCount - 1)]
+                      andLevel:kSentryLevelDebug];
             if (completionHandler) {
                 completionHandler(response, error);
             }

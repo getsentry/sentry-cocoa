@@ -59,8 +59,7 @@ SentryCrashMonitorType sentrycrashcm_getActiveMonitors(void);
  *
  * @param onEvent Called whenever an event is captured.
  */
-void sentrycrashcm_setEventCallback(
-    void (*onEvent)(struct SentryCrash_MonitorContext *monitorContext));
+void sentrycrashcm_setEventCallback(void (*onEvent)(struct SentryCrash_MonitorContext *monitorContext));
 
 // ============================================================================
 #pragma mark - Internal API -

@@ -50,8 +50,7 @@ typedef struct SentryCrashReportWriter {
      *
      * @param value The value to add.
      */
-    void (*addBooleanElement)(
-        const struct SentryCrashReportWriter *writer, const char *name, bool value);
+    void (*addBooleanElement)(const struct SentryCrashReportWriter *writer, const char *name, bool value);
 
     /** Add a floating point element to the report.
      *
@@ -61,8 +60,7 @@ typedef struct SentryCrashReportWriter {
      *
      * @param value The value to add.
      */
-    void (*addFloatingPointElement)(
-        const struct SentryCrashReportWriter *writer, const char *name, double value);
+    void (*addFloatingPointElement)(const struct SentryCrashReportWriter *writer, const char *name, double value);
 
     /** Add an integer element to the report.
      *
@@ -72,8 +70,7 @@ typedef struct SentryCrashReportWriter {
      *
      * @param value The value to add.
      */
-    void (*addIntegerElement)(
-        const struct SentryCrashReportWriter *writer, const char *name, int64_t value);
+    void (*addIntegerElement)(const struct SentryCrashReportWriter *writer, const char *name, int64_t value);
 
     /** Add an unsigned integer element to the report.
      *
@@ -83,8 +80,7 @@ typedef struct SentryCrashReportWriter {
      *
      * @param value The value to add.
      */
-    void (*addUIntegerElement)(
-        const struct SentryCrashReportWriter *writer, const char *name, uint64_t value);
+    void (*addUIntegerElement)(const struct SentryCrashReportWriter *writer, const char *name, uint64_t value);
 
     /** Add a string element to the report.
      *
@@ -94,8 +90,7 @@ typedef struct SentryCrashReportWriter {
      *
      * @param value The value to add.
      */
-    void (*addStringElement)(
-        const struct SentryCrashReportWriter *writer, const char *name, const char *value);
+    void (*addStringElement)(const struct SentryCrashReportWriter *writer, const char *name, const char *value);
 
     /** Add a string element from a text file to the report.
      *
@@ -105,8 +100,7 @@ typedef struct SentryCrashReportWriter {
      *
      * @param filePath The path to the file containing the value to add.
      */
-    void (*addTextFileElement)(
-        const struct SentryCrashReportWriter *writer, const char *name, const char *filePath);
+    void (*addTextFileElement)(const struct SentryCrashReportWriter *writer, const char *name, const char *filePath);
 
     /** Add an array of string elements representing lines from a text file to
      * the report.
@@ -130,8 +124,8 @@ typedef struct SentryCrashReportWriter {
      *
      * @param closeLastContainer If false, do not close the last container.
      */
-    void (*addJSONFileElement)(const struct SentryCrashReportWriter *writer, const char *name,
-        const char *filePath, const bool closeLastContainer);
+    void (*addJSONFileElement)(const struct SentryCrashReportWriter *writer, const char *name, const char *filePath,
+        const bool closeLastContainer);
 
     /** Add a hex encoded data element to the report.
      *
@@ -143,8 +137,8 @@ typedef struct SentryCrashReportWriter {
      *
      * @paramn length The length of the data.
      */
-    void (*addDataElement)(const struct SentryCrashReportWriter *writer, const char *name,
-        const char *value, const int length);
+    void (*addDataElement)(
+        const struct SentryCrashReportWriter *writer, const char *name, const char *value, const int length);
 
     /** Begin writing a hex encoded data element to the report.
      *
@@ -162,8 +156,7 @@ typedef struct SentryCrashReportWriter {
      *
      * @paramn length The length of the data.
      */
-    void (*appendDataElement)(
-        const struct SentryCrashReportWriter *writer, const char *value, const int length);
+    void (*appendDataElement)(const struct SentryCrashReportWriter *writer, const char *value, const int length);
 
     /** Complete writing a hex encoded data element to the report.
      *
@@ -179,8 +172,7 @@ typedef struct SentryCrashReportWriter {
      *
      * @param value A pointer to the binary UUID data.
      */
-    void (*addUUIDElement)(
-        const struct SentryCrashReportWriter *writer, const char *name, const unsigned char *value);
+    void (*addUUIDElement)(const struct SentryCrashReportWriter *writer, const char *name, const unsigned char *value);
 
     /** Add a preformatted JSON element to the report.
      *
@@ -190,8 +182,8 @@ typedef struct SentryCrashReportWriter {
      *
      * @param value A pointer to the JSON data.
      */
-    void (*addJSONElement)(const struct SentryCrashReportWriter *writer, const char *name,
-        const char *jsonElement, bool closeLastContainer);
+    void (*addJSONElement)(const struct SentryCrashReportWriter *writer, const char *name, const char *jsonElement,
+        bool closeLastContainer);
 
     /** Begin a new object container.
      *

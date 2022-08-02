@@ -52,8 +52,7 @@
 
     const char *filename = path.lastPathComponent.UTF8String;
     char scanFormat[100];
-    snprintf(
-        scanFormat, sizeof(scanFormat), "%s-report-%%" PRIx64 ".json", self.appName.UTF8String);
+    snprintf(scanFormat, sizeof(scanFormat), "%s-report-%%" PRIx64 ".json", self.appName.UTF8String);
 
     int64_t reportID = 0;
     sscanf(filename, scanFormat, &reportID);
@@ -113,9 +112,9 @@
     if (reportBytes == NULL) {
         reportString = nil;
     } else {
-        *reportString = [[NSString alloc]
-            initWithData:[NSData dataWithBytesNoCopy:reportBytes length:strlen(reportBytes)]
-                encoding:NSUTF8StringEncoding];
+        *reportString = [[NSString alloc] initWithData:[NSData dataWithBytesNoCopy:reportBytes
+                                                                            length:strlen(reportBytes)]
+                                              encoding:NSUTF8StringEncoding];
     }
 }
 
@@ -230,8 +229,7 @@
     sentrycrashcrs_getScreenshotPath_forReportId(reportId, screenshotsPath);
 
     XCTAssertEqualObjects([NSString stringWithUTF8String:screenshotsPath],
-        [self.tempPath stringByAppendingPathComponent:
-                           @"/ReportPath/AppName-report-00000013b0ac358d-screenshots"]);
+        [self.tempPath stringByAppendingPathComponent:@"/ReportPath/AppName-report-00000013b0ac358d-screenshots"]);
 }
 
 - (void)test_ScreenshotsPath_forReport
@@ -248,8 +246,7 @@
     sentrycrashcrs_getScreenshotsPath_forReport(reportPath, screenshotPath);
 
     XCTAssertEqualObjects([NSString stringWithUTF8String:screenshotPath],
-        [self.tempPath stringByAppendingPathComponent:
-                           @"/ReportPath/AppName-report-00000013b0ac358d-screenshots"]);
+        [self.tempPath stringByAppendingPathComponent:@"/ReportPath/AppName-report-00000013b0ac358d-screenshots"]);
 }
 
 - (void)test_initializeIDs
@@ -269,8 +266,8 @@
 
     char secondReportPath[SentryCrashCRS_MAX_PATH_LENGTH];
     sentrycrashcrs_getNextCrashReportPath(secondReportPath);
-    XCTAssertNotEqualObjects([NSString stringWithUTF8String:firstReportPath],
-        [NSString stringWithUTF8String:secondReportPath]);
+    XCTAssertNotEqualObjects(
+        [NSString stringWithUTF8String:firstReportPath], [NSString stringWithUTF8String:secondReportPath]);
 }
 
 @end

@@ -45,8 +45,7 @@ SentryRateLimitParser ()
 
 - (NSString *)removeAllWhitespaces:(NSString *)string
 {
-    NSArray *words = [string
-        componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSArray *words = [string componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     return [words componentsJoinedByString:@""];
 }
 
@@ -107,11 +106,9 @@ SentryRateLimitParser ()
     return categories;
 }
 
-- (NSDate *)getLongerRateLimit:(NSDate *)existingRateLimit
-         andRateLimitInSeconds:(NSNumber *)newRateLimitInSeconds
+- (NSDate *)getLongerRateLimit:(NSDate *)existingRateLimit andRateLimitInSeconds:(NSNumber *)newRateLimitInSeconds
 {
-    NSDate *newDate =
-        [SentryCurrentDate.date dateByAddingTimeInterval:[newRateLimitInSeconds doubleValue]];
+    NSDate *newDate = [SentryCurrentDate.date dateByAddingTimeInterval:[newRateLimitInSeconds doubleValue]];
     return [SentryDateUtil getMaximumDate:newDate andOther:existingRateLimit];
 }
 

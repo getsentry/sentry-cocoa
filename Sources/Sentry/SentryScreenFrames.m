@@ -7,11 +7,7 @@
 - (instancetype)initWithTotal:(NSUInteger)total frozen:(NSUInteger)frozen slow:(NSUInteger)slow
 {
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-    return [self initWithTotal:total
-                        frozen:frozen
-                          slow:slow
-               frameTimestamps:@[]
-           frameRateTimestamps:@[]];
+    return [self initWithTotal:total frozen:frozen slow:slow frameTimestamps:@[] frameRateTimestamps:@[]];
 #    else
     if (self = [super init]) {
         _total = total;

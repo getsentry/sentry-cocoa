@@ -55,16 +55,14 @@ namespace profiling {
         std::vector<std::unique_ptr<ThreadHandle>> threads;
         mach_msg_type_number_t count;
         thread_act_array_t list;
-        if (SENTRY_PROF_LOG_KERN_RETURN(task_threads(mach_task_self(), &list, &count))
-            == KERN_SUCCESS) {
+        if (SENTRY_PROF_LOG_KERN_RETURN(task_threads(mach_task_self(), &list, &count)) == KERN_SUCCESS) {
             for (decltype(count) i = 0; i < count; i++) {
                 const auto thread = list[i];
-                threads.push_back(std::unique_ptr<ThreadHandle>(
-                    new ThreadHandle(thread, true /* isOwnedPort */)));
+                threads.push_back(std::unique_ptr<ThreadHandle>(new ThreadHandle(thread, true /* isOwnedPort */)));
             }
         }
-        SENTRY_PROF_LOG_KERN_RETURN(vm_deallocate(
-            mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count));
+        SENTRY_PROF_LOG_KERN_RETURN(
+            vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count));
         return threads;
     }
 
@@ -75,20 +73,18 @@ namespace profiling {
         mach_msg_type_number_t count;
         thread_act_array_t list;
         auto current = ThreadHandle::current();
-        if (SENTRY_PROF_LOG_KERN_RETURN(task_threads(mach_task_self(), &list, &count))
-            == KERN_SUCCESS) {
+        if (SENTRY_PROF_LOG_KERN_RETURN(task_threads(mach_task_self(), &list, &count)) == KERN_SUCCESS) {
             for (decltype(count) i = 0; i < count; i++) {
                 const auto thread = list[i];
                 if (thread != current->nativeHandle()) {
-                    threads.push_back(std::unique_ptr<ThreadHandle>(
-                        new ThreadHandle(thread, true /* isOwnedPort */)));
+                    threads.push_back(std::unique_ptr<ThreadHandle>(new ThreadHandle(thread, true /* isOwnedPort */)));
                 } else {
                     SENTRY_PROF_LOG_KERN_RETURN(mach_port_deallocate(mach_task_self(), thread));
                 }
             }
         }
-        SENTRY_PROF_LOG_KERN_RETURN(vm_deallocate(
-            mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count));
+        SENTRY_PROF_LOG_KERN_RETURN(
+            vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count));
         return std::make_pair(std::move(threads), std::move(current));
     }
 
@@ -189,12 +185,11 @@ namespace profiling {
         ThreadCPUInfo cpuInfo;
         mach_msg_type_number_t count = THREAD_BASIC_INFO_COUNT;
         thread_basic_info_data_t data;
-        const auto rv = thread_info(
-            handle_, THREAD_BASIC_INFO, reinterpret_cast<thread_info_t>(&data), &count);
+        const auto rv = thread_info(handle_, THREAD_BASIC_INFO, reinterpret_cast<thread_info_t>(&data), &count);
         // MACH_SEND_INVALID_DEST is returned when the thread no longer exists
         if ((rv != MACH_SEND_INVALID_DEST) && (SENTRY_PROF_LOG_KERN_RETURN(rv) == KERN_SUCCESS)) {
-            cpuInfo.userTimeMicros = std::chrono::seconds(data.user_time.seconds)
-                + std::chrono::microseconds(data.user_time.microseconds);
+            cpuInfo.userTimeMicros
+                = std::chrono::seconds(data.user_time.seconds) + std::chrono::microseconds(data.user_time.microseconds);
             cpuInfo.systemTimeMicros = std::chrono::seconds(data.system_time.seconds)
                 + std::chrono::microseconds(data.system_time.microseconds);
             cpuInfo.usagePercent = static_cast<float>(data.cpu_usage) / TH_USAGE_SCALE;
@@ -212,12 +207,10 @@ namespace profiling {
         }
         mach_msg_type_number_t count = THREAD_BASIC_INFO_COUNT;
         thread_basic_info_data_t data;
-        const auto rv = thread_info(
-            handle_, THREAD_BASIC_INFO, reinterpret_cast<thread_info_t>(&data), &count);
+        const auto rv = thread_info(handle_, THREAD_BASIC_INFO, reinterpret_cast<thread_info_t>(&data), &count);
         // MACH_SEND_INVALID_DEST is returned when the thread no longer exists
         if ((rv != MACH_SEND_INVALID_DEST) && (SENTRY_PROF_LOG_KERN_RETURN(rv) == KERN_SUCCESS)) {
-            return ((data.flags & TH_FLAGS_IDLE) == TH_FLAGS_IDLE)
-                || (data.run_state != TH_STATE_RUNNING);
+            return ((data.flags & TH_FLAGS_IDLE) == TH_FLAGS_IDLE) || (data.run_state != TH_STATE_RUNNING);
         }
         return true;
     }

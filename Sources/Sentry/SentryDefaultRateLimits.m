@@ -21,8 +21,7 @@ SentryDefaultRateLimits ()
 
 @implementation SentryDefaultRateLimits
 
-- (instancetype)initWithRetryAfterHeaderParser:
-                    (SentryRetryAfterHeaderParser *)retryAfterHeaderParser
+- (instancetype)initWithRetryAfterHeaderParser:(SentryRetryAfterHeaderParser *)retryAfterHeaderParser
                             andRateLimitParser:(SentryRateLimitParser *)rateLimitParser
 {
     if (self = [super init]) {
@@ -55,14 +54,13 @@ SentryDefaultRateLimits ()
         NSDictionary<NSNumber *, NSDate *> *limits = [self.rateLimitParser parse:rateLimitsHeader];
 
         for (NSNumber *categoryAsNumber in limits.allKeys) {
-            SentryDataCategory category = [SentryDataCategoryMapper
-                mapIntegerToCategory:(NSUInteger)[categoryAsNumber integerValue]];
+            SentryDataCategory category =
+                [SentryDataCategoryMapper mapIntegerToCategory:(NSUInteger)[categoryAsNumber integerValue]];
 
             [self updateRateLimit:category withDate:limits[categoryAsNumber]];
         }
     } else if (response.statusCode == 429) {
-        NSDate *retryAfterHeaderDate =
-            [self.retryAfterHeaderParser parse:response.allHeaderFields[@"Retry-After"]];
+        NSDate *retryAfterHeaderDate = [self.retryAfterHeaderParser parse:response.allHeaderFields[@"Retry-After"]];
 
         if (nil == retryAfterHeaderDate) {
             // parsing failed use default value

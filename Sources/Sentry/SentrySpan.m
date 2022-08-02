@@ -34,16 +34,13 @@ SentrySpan ()
     return [self startChildWithOperation:operation description:nil];
 }
 
-- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
-                              description:(nullable NSString *)description
+- (id<SentrySpan>)startChildWithOperation:(NSString *)operation description:(nullable NSString *)description
 {
     if (self.transaction == nil) {
         return [SentryNoOpSpan shared];
     }
 
-    return [self.transaction startChildWithParentId:[self.context spanId]
-                                          operation:operation
-                                        description:description];
+    return [self.transaction startChildWithParentId:[self.context spanId] operation:operation description:description];
 }
 
 - (void)setDataValue:(nullable id)value forKey:(NSString *)key
@@ -128,8 +125,7 @@ SentrySpan ()
 
     [mutableDictionary setValue:@(self.timestamp.timeIntervalSince1970) forKey:@"timestamp"];
 
-    [mutableDictionary setValue:@(self.startTimestamp.timeIntervalSince1970)
-                         forKey:@"start_timestamp"];
+    [mutableDictionary setValue:@(self.startTimestamp.timeIntervalSince1970) forKey:@"start_timestamp"];
 
     @synchronized(_data) {
         if (_data.count > 0) {

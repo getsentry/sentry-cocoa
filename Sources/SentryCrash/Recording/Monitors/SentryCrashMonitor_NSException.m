@@ -90,8 +90,7 @@ handleException(NSException *exception, BOOL currentSnapshotUserReported)
         crashContext->offendingMachineContext = machineContext;
         crashContext->registersAreValid = false;
         crashContext->NSException.name = [[exception name] UTF8String];
-        crashContext->NSException.userInfo =
-            [[NSString stringWithFormat:@"%@", exception.userInfo] UTF8String];
+        crashContext->NSException.userInfo = [[NSString stringWithFormat:@"%@", exception.userInfo] UTF8String];
         crashContext->exceptionName = crashContext->NSException.name;
         crashContext->crashReason = [[exception reason] UTF8String];
         crashContext->stackCursor = &cursor;

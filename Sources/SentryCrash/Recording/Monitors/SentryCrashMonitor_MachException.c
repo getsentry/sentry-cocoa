@@ -161,9 +161,8 @@ restoreExceptionPorts(void)
     // Reinstall old exception ports.
     for (mach_msg_type_number_t i = 0; i < g_previousExceptionPorts.count; i++) {
         SentryCrashLOG_TRACE("Restoring port index %d", i);
-        kr = task_set_exception_ports(thisTask, g_previousExceptionPorts.masks[i],
-            g_previousExceptionPorts.ports[i], g_previousExceptionPorts.behaviors[i],
-            g_previousExceptionPorts.flavors[i]);
+        kr = task_set_exception_ports(thisTask, g_previousExceptionPorts.masks[i], g_previousExceptionPorts.ports[i],
+            g_previousExceptionPorts.behaviors[i], g_previousExceptionPorts.flavors[i]);
         if (kr != KERN_SUCCESS) {
             SentryCrashLOG_ERROR("task_set_exception_ports: %s", mach_error_string(kr));
         }
@@ -263,8 +262,8 @@ handleExceptions(void *const userData)
         SentryCrashLOG_DEBUG("Waiting for mach exception");
 
         // Wait for a message.
-        kern_return_t kr = mach_msg(&exceptionMessage.header, MACH_RCV_MSG, 0,
-            sizeof(exceptionMessage), g_exceptionPort, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
+        kern_return_t kr = mach_msg(&exceptionMessage.header, MACH_RCV_MSG, 0, sizeof(exceptionMessage),
+            g_exceptionPort, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
         if (kr == KERN_SUCCESS) {
             break;
         }
@@ -273,8 +272,8 @@ handleExceptions(void *const userData)
         SentryCrashLOG_ERROR("mach_msg: %s", mach_error_string(kr));
     }
 
-    SentryCrashLOG_DEBUG("Trapped mach exception code 0x%x, subcode 0x%x", exceptionMessage.code[0],
-        exceptionMessage.code[1]);
+    SentryCrashLOG_DEBUG(
+        "Trapped mach exception code 0x%x, subcode 0x%x", exceptionMessage.code[0], exceptionMessage.code[1]);
     if (g_isEnabled) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
@@ -309,11 +308,9 @@ handleExceptions(void *const userData)
         crashContext->offendingMachineContext = machineContext;
         sentrycrashsc_initCursor(&g_stackCursor, NULL, NULL);
         if (sentrycrashmc_getContextForThread(exceptionMessage.thread.name, machineContext, true)) {
-            sentrycrashsc_initWithMachineContext(
-                &g_stackCursor, MAX_STACKTRACE_LENGTH, machineContext);
+            sentrycrashsc_initWithMachineContext(&g_stackCursor, MAX_STACKTRACE_LENGTH, machineContext);
             SentryCrashLOG_TRACE("Fault address 0x%x, instruction address 0x%x",
-                sentrycrashcpu_faultAddress(machineContext),
-                sentrycrashcpu_instructionAddress(machineContext));
+                sentrycrashcpu_faultAddress(machineContext), sentrycrashcpu_instructionAddress(machineContext));
             if (exceptionMessage.exception == EXC_BAD_ACCESS) {
                 crashContext->faultAddress = sentrycrashcpu_faultAddress(machineContext);
             } else {
@@ -334,8 +331,7 @@ handleExceptions(void *const userData)
             // stack, it generates KERN_PROTECTION_FAILURE. Correct for this.
             crashContext->mach.code = KERN_INVALID_ADDRESS;
         }
-        crashContext->signal.signum
-            = signalForMachException(crashContext->mach.type, crashContext->mach.code);
+        crashContext->signal.signum = signalForMachException(crashContext->mach.type, crashContext->mach.code);
         crashContext->stackCursor = &g_stackCursor;
 
         sentrycrashcm_handleException(crashContext);
@@ -352,8 +348,8 @@ handleExceptions(void *const userData)
     replyMessage.NDR = exceptionMessage.NDR;
     replyMessage.returnCode = KERN_FAILURE;
 
-    mach_msg(&replyMessage.header, MACH_SEND_MSG, sizeof(replyMessage), 0, MACH_PORT_NULL,
-        MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
+    mach_msg(&replyMessage.header, MACH_SEND_MSG, sizeof(replyMessage), 0, MACH_PORT_NULL, MACH_MSG_TIMEOUT_NONE,
+        MACH_PORT_NULL);
 
     return NULL;
 }
@@ -411,13 +407,12 @@ installExceptionHandler()
     int error;
 
     const task_t thisTask = mach_task_self();
-    exception_mask_t mask = EXC_MASK_BAD_ACCESS | EXC_MASK_BAD_INSTRUCTION | EXC_MASK_ARITHMETIC
-        | EXC_MASK_SOFTWARE | EXC_MASK_BREAKPOINT;
+    exception_mask_t mask = EXC_MASK_BAD_ACCESS | EXC_MASK_BAD_INSTRUCTION | EXC_MASK_ARITHMETIC | EXC_MASK_SOFTWARE
+        | EXC_MASK_BREAKPOINT;
 
     SentryCrashLOG_DEBUG("Backing up original exception ports.");
-    kr = task_get_exception_ports(thisTask, mask, g_previousExceptionPorts.masks,
-        &g_previousExceptionPorts.count, g_previousExceptionPorts.ports,
-        g_previousExceptionPorts.behaviors, g_previousExceptionPorts.flavors);
+    kr = task_get_exception_ports(thisTask, mask, g_previousExceptionPorts.masks, &g_previousExceptionPorts.count,
+        g_previousExceptionPorts.ports, g_previousExceptionPorts.behaviors, g_previousExceptionPorts.flavors);
     if (kr != KERN_SUCCESS) {
         SentryCrashLOG_ERROR("task_get_exception_ports: %s", mach_error_string(kr));
         goto failed;
@@ -432,8 +427,7 @@ installExceptionHandler()
         }
 
         SentryCrashLOG_DEBUG("Adding send rights to port.");
-        kr = mach_port_insert_right(
-            thisTask, g_exceptionPort, g_exceptionPort, MACH_MSG_TYPE_MAKE_SEND);
+        kr = mach_port_insert_right(thisTask, g_exceptionPort, g_exceptionPort, MACH_MSG_TYPE_MAKE_SEND);
         if (kr != KERN_SUCCESS) {
             SentryCrashLOG_ERROR("mach_port_insert_right: %s", mach_error_string(kr));
             goto failed;
@@ -441,8 +435,7 @@ installExceptionHandler()
     }
 
     SentryCrashLOG_DEBUG("Installing port as exception handler.");
-    kr = task_set_exception_ports(
-        thisTask, mask, g_exceptionPort, EXCEPTION_DEFAULT, THREAD_STATE_NONE);
+    kr = task_set_exception_ports(thisTask, mask, g_exceptionPort, EXCEPTION_DEFAULT, THREAD_STATE_NONE);
     if (kr != KERN_SUCCESS) {
         SentryCrashLOG_ERROR("task_set_exception_ports: %s", mach_error_string(kr));
         goto failed;

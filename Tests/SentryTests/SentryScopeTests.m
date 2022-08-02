@@ -181,8 +181,7 @@
 
     [cloned setExtras:@{ @"aa" : @"b" }];
     [cloned setTags:@{ @"ab" : @"c" }];
-    [cloned addBreadcrumb:[[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug
-                                                         category:@"http2"]];
+    [cloned addBreadcrumb:[[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug category:@"http2"]];
     [cloned setUser:[[SentryUser alloc] initWithUserId:@"aid"]];
     [cloned setContextValue:@{ @"ae" : @"af" } forKey:@"myContext"];
     [cloned setDist:@"a456"];

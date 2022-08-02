@@ -24,9 +24,8 @@
 + (void)swizzleNSData
 {
     SEL writeToFileAtomicallySelector = NSSelectorFromString(@"writeToFile:atomically:");
-    SentrySwizzleInstanceMethod(NSData.class, writeToFileAtomicallySelector,
-        SentrySWReturnType(BOOL), SentrySWArguments(NSString * path, BOOL useAuxiliaryFile),
-        SentrySWReplacement({
+    SentrySwizzleInstanceMethod(NSData.class, writeToFileAtomicallySelector, SentrySWReturnType(BOOL),
+        SentrySWArguments(NSString * path, BOOL useAuxiliaryFile), SentrySWReplacement({
             return [SentryNSDataTracker.sharedInstance
                 measureNSData:self
                   writeToFile:path
@@ -38,8 +37,7 @@
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)writeToFileAtomicallySelector);
 
     SEL writeToFileOptionsErrorSelector = NSSelectorFromString(@"writeToFile:options:error:");
-    SentrySwizzleInstanceMethod(NSData.class, writeToFileOptionsErrorSelector,
-        SentrySWReturnType(BOOL),
+    SentrySwizzleInstanceMethod(NSData.class, writeToFileOptionsErrorSelector, SentrySWReturnType(BOOL),
         SentrySWArguments(NSString * path, NSDataWritingOptions writeOptionsMask, NSError * *error),
         SentrySWReplacement({
             return [SentryNSDataTracker.sharedInstance
@@ -47,58 +45,46 @@
                   writeToFile:path
                       options:writeOptionsMask
                         error:error
-                       method:^BOOL(
-                           NSString *filePath, NSDataWritingOptions options, NSError **outError) {
+                       method:^BOOL(NSString *filePath, NSDataWritingOptions options, NSError **outError) {
                            return SentrySWCallOriginal(filePath, options, outError);
                        }];
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)writeToFileOptionsErrorSelector);
 
-    SEL initWithContentOfFileOptionsErrorSelector
-        = NSSelectorFromString(@"initWithContentsOfFile:options:error:");
-    SentrySwizzleInstanceMethod(NSData.class, initWithContentOfFileOptionsErrorSelector,
-        SentrySWReturnType(NSData *),
-        SentrySWArguments(NSString * path, NSDataReadingOptions options, NSError * *error),
-        SentrySWReplacement({
+    SEL initWithContentOfFileOptionsErrorSelector = NSSelectorFromString(@"initWithContentsOfFile:options:error:");
+    SentrySwizzleInstanceMethod(NSData.class, initWithContentOfFileOptionsErrorSelector, SentrySWReturnType(NSData *),
+        SentrySWArguments(NSString * path, NSDataReadingOptions options, NSError * *error), SentrySWReplacement({
             return [SentryNSDataTracker.sharedInstance
                 measureNSDataFromFile:path
                               options:options
                                 error:error
-                               method:^NSData *(NSString *filePath, NSDataReadingOptions options,
-                                   NSError **outError) {
+                               method:^NSData *(NSString *filePath, NSDataReadingOptions options, NSError **outError) {
                                    return SentrySWCallOriginal(filePath, options, outError);
                                }];
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses,
-        (void *)initWithContentOfFileOptionsErrorSelector);
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)initWithContentOfFileOptionsErrorSelector);
 
     SEL initWithContentsOfFileSelector = NSSelectorFromString(@"initWithContentsOfFile:");
-    SentrySwizzleInstanceMethod(NSData.class, initWithContentsOfFileSelector,
-        SentrySWReturnType(NSData *), SentrySWArguments(NSString * path), SentrySWReplacement({
+    SentrySwizzleInstanceMethod(NSData.class, initWithContentsOfFileSelector, SentrySWReturnType(NSData *),
+        SentrySWArguments(NSString * path), SentrySWReplacement({
             return [SentryNSDataTracker.sharedInstance
                 measureNSDataFromFile:path
-                               method:^NSData *(
-                                   NSString *filePath) { return SentrySWCallOriginal(filePath); }];
+                               method:^NSData *(NSString *filePath) { return SentrySWCallOriginal(filePath); }];
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)initWithContentsOfFileSelector);
 
-    SEL initWithContentsOfURLOptionsErrorSelector
-        = NSSelectorFromString(@"initWithContentsOfURL:options:error:");
-    SentrySwizzleInstanceMethod(NSData.class, initWithContentsOfURLOptionsErrorSelector,
-        SentrySWReturnType(NSData *),
-        SentrySWArguments(NSURL * url, NSDataReadingOptions options, NSError * *error),
-        SentrySWReplacement({
+    SEL initWithContentsOfURLOptionsErrorSelector = NSSelectorFromString(@"initWithContentsOfURL:options:error:");
+    SentrySwizzleInstanceMethod(NSData.class, initWithContentsOfURLOptionsErrorSelector, SentrySWReturnType(NSData *),
+        SentrySWArguments(NSURL * url, NSDataReadingOptions options, NSError * *error), SentrySWReplacement({
             return [SentryNSDataTracker.sharedInstance
                 measureNSDataFromURL:url
                              options:options
                                error:error
-                              method:^NSData *(NSURL *fileUrl, NSDataReadingOptions options,
-                                  NSError **outError) {
+                              method:^NSData *(NSURL *fileUrl, NSDataReadingOptions options, NSError **outError) {
                                   return SentrySWCallOriginal(fileUrl, options, outError);
                               }];
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses,
-        (void *)initWithContentsOfURLOptionsErrorSelector);
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)initWithContentsOfURLOptionsErrorSelector);
 }
 #pragma clang diagnostic pop
 @end

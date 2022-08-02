@@ -68,17 +68,14 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
     }
 
     if (@available(iOS 10, tvOS 10, *)) {
-        [[UNUserNotificationCenter currentNotificationCenter]
-            getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
-                [self setPushPermissionFromStatus:settings.authorizationStatus];
-            }];
+        [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(
+            UNNotificationSettings *settings) { [self setPushPermissionFromStatus:settings.authorizationStatus]; }];
     }
 #endif
 }
 
 #if TARGET_OS_IOS
-- (void)setMediaLibraryPermissionFromStatus:(MPMediaLibraryAuthorizationStatus)status
-    API_AVAILABLE(ios(9.3))
+- (void)setMediaLibraryPermissionFromStatus:(MPMediaLibraryAuthorizationStatus)status API_AVAILABLE(ios(9.3))
 {
     switch (status) {
     case MPMediaLibraryAuthorizationStatusNotDetermined:
@@ -97,8 +94,7 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 #endif
 
 #if SENTRY_HAS_UIKIT
-- (void)setPhotoLibraryPermissionFromStatus:(PHAuthorizationStatus)status
-    API_AVAILABLE(ios(9), tvos(10))
+- (void)setPhotoLibraryPermissionFromStatus:(PHAuthorizationStatus)status API_AVAILABLE(ios(9), tvos(10))
 {
     switch (status) {
     case PHAuthorizationStatusNotDetermined:
@@ -165,8 +161,7 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
     }
 }
 
-- (void)locationManager:(CLLocationManager *)manager
-    didChangeAuthorizationStatus:(CLAuthorizationStatus)status
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 {
     [self setLocationPermissionFromStatus:status];
 }

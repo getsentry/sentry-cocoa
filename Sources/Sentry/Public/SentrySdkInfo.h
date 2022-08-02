@@ -28,8 +28,7 @@ SENTRY_NO_INIT
  */
 @property (nonatomic, readonly, copy) NSString *version;
 
-- (instancetype)initWithName:(NSString *)name
-                  andVersion:(NSString *)version NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithName:(NSString *)name andVersion:(NSString *)version NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithDict:(NSDictionary *)dict;
 

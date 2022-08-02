@@ -9,8 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryTracesSamplerDecision
 
-- (instancetype)initWithDecision:(SentrySampleDecision)decision
-                   forSampleRate:(nullable NSNumber *)sampleRate
+- (instancetype)initWithDecision:(SentrySampleDecision)decision forSampleRate:(nullable NSNumber *)sampleRate
 {
     if (self = [super init]) {
         _decision = decision;
@@ -42,9 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryTracesSamplerDecision *)sample:(SentrySamplingContext *)context
 {
     if (context.transactionContext.sampled != kSentrySampleDecisionUndecided) {
-        return [[SentryTracesSamplerDecision alloc]
-            initWithDecision:context.transactionContext.sampled
-               forSampleRate:context.transactionContext.sampleRate];
+        return [[SentryTracesSamplerDecision alloc] initWithDecision:context.transactionContext.sampled
+                                                       forSampleRate:context.transactionContext.sampleRate];
     }
 
     if (_options.tracesSampler != nil) {
@@ -60,15 +58,13 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     if (context.transactionContext.parentSampled != kSentrySampleDecisionUndecided)
-        return [[SentryTracesSamplerDecision alloc]
-            initWithDecision:context.transactionContext.parentSampled
-               forSampleRate:context.transactionContext.sampleRate];
+        return [[SentryTracesSamplerDecision alloc] initWithDecision:context.transactionContext.parentSampled
+                                                       forSampleRate:context.transactionContext.sampleRate];
 
     if (_options.tracesSampleRate != nil)
         return [self calcSample:_options.tracesSampleRate.doubleValue];
 
-    return [[SentryTracesSamplerDecision alloc] initWithDecision:kSentrySampleDecisionNo
-                                                   forSampleRate:nil];
+    return [[SentryTracesSamplerDecision alloc] initWithDecision:kSentrySampleDecisionNo forSampleRate:nil];
 }
 
 - (SentryTracesSamplerDecision *)calcSample:(double)rate

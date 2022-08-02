@@ -221,8 +221,7 @@ int sentrycrashobjc_ivarList(const void *classPtr, SentryCrashObjCIvar *dstIvars
  *
  * @return true if the operation was successful.
  */
-bool sentrycrashobjc_ivarNamed(
-    const void *const classPtr, const char *name, SentryCrashObjCIvar *dst);
+bool sentrycrashobjc_ivarNamed(const void *const classPtr, const char *name, SentryCrashObjCIvar *dst);
 
 /** Get the value of an ivar in an object.
  *

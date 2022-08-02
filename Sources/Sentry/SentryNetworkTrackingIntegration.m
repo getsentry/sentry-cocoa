@@ -12,8 +12,7 @@
 - (void)installWithOptions:(SentryOptions *)options
 {
     if (!options.enableSwizzling) {
-        [SentryLog logWithMessage:
-                       @"Not going to enable NetworkTracking because enableSwizzling is disabled."
+        [SentryLog logWithMessage:@"Not going to enable NetworkTracking because enableSwizzling is disabled."
                          andLevel:kSentryLevelDebug];
         [options removeEnabledIntegration:NSStringFromClass([self class])];
         return;
@@ -22,8 +21,7 @@
     BOOL shouldEnableNetworkTracking = YES;
 
     if (!options.isTracingEnabled) {
-        [SentryLog logWithMessage:
-                       @"Not going to enable NetworkTracking because isTracingEnabled is disabled."
+        [SentryLog logWithMessage:@"Not going to enable NetworkTracking because isTracingEnabled is disabled."
                          andLevel:kSentryLevelDebug];
         shouldEnableNetworkTracking = NO;
     }
@@ -36,10 +34,8 @@
     }
 
     if (shouldEnableNetworkTracking && !options.enableNetworkTracking) {
-        [SentryLog
-            logWithMessage:
-                @"Not going to enable NetworkTracking because enableNetworkTracking is disabled."
-                  andLevel:kSentryLevelDebug];
+        [SentryLog logWithMessage:@"Not going to enable NetworkTracking because enableNetworkTracking is disabled."
+                         andLevel:kSentryLevelDebug];
         shouldEnableNetworkTracking = NO;
     }
 
@@ -77,8 +73,8 @@
     SEL resumeSelector = NSSelectorFromString(@"resume");
 
     for (Class classToSwizzle in classesToSwizzle) {
-        SentrySwizzleInstanceMethod(classToSwizzle, resumeSelector, SentrySWReturnType(void),
-            SentrySWArguments(), SentrySWReplacement({
+        SentrySwizzleInstanceMethod(classToSwizzle, resumeSelector, SentrySWReturnType(void), SentrySWArguments(),
+            SentrySWReplacement({
                 [SentryNetworkTracker.sharedInstance urlSessionTaskResume:self];
                 SentrySWCallOriginal();
             }),
@@ -116,10 +112,9 @@
     }
 
     if (method != nil) {
-        SentrySwizzleInstanceMethod(classToSwizzle, selector, SentrySWReturnType(NSDictionary *),
-            SentrySWArguments(), SentrySWReplacement({
-                return [SentryNetworkTracker.sharedInstance addTraceHeader:SentrySWCallOriginal()];
-            }),
+        SentrySwizzleInstanceMethod(classToSwizzle, selector, SentrySWReturnType(NSDictionary *), SentrySWArguments(),
+            SentrySWReplacement(
+                { return [SentryNetworkTracker.sharedInstance addTraceHeader:SentrySWCallOriginal()]; }),
             SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
     }
 }

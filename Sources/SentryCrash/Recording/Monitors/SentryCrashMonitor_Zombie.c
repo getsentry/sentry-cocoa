@@ -75,10 +75,7 @@ copyStringIvar(const void *self, const char *ivarName, char *buffer, int bufferL
         {
             likely_if(sentrycrashobjc_isValidObject(pointer))
             {
-                likely_if(sentrycrashobjc_copyStringContents(pointer, buffer, bufferLength) > 0)
-                {
-                    return true;
-                }
+                likely_if(sentrycrashobjc_copyStringContents(pointer, buffer, bufferLength) > 0) { return true; }
                 else
                 {
                     SentryCrashLOG_DEBUG("sentrycrashobjc_copyStringContents %s failed", ivarName);
@@ -105,10 +102,8 @@ static void
 storeException(const void *exception)
 {
     g_lastDeallocedException.address = exception;
-    copyStringIvar(
-        exception, "name", g_lastDeallocedException.name, sizeof(g_lastDeallocedException.name));
-    copyStringIvar(exception, "reason", g_lastDeallocedException.reason,
-        sizeof(g_lastDeallocedException.reason));
+    copyStringIvar(exception, "name", g_lastDeallocedException.name, sizeof(g_lastDeallocedException.name));
+    copyStringIvar(exception, "reason", g_lastDeallocedException.reason, sizeof(g_lastDeallocedException.reason));
 }
 
 static inline void
@@ -127,21 +122,20 @@ handleDealloc(const void *self)
     }
 }
 
-#define CREATE_ZOMBIE_HANDLER_INSTALLER(CLASS)                                                     \
-    static IMP g_originalDealloc_##CLASS;                                                          \
-    static void handleDealloc_##CLASS(id self, SEL _cmd)                                           \
-    {                                                                                              \
-        handleDealloc(self);                                                                       \
-        typedef void (*fn)(id, SEL);                                                               \
-        fn f = (fn)g_originalDealloc_##CLASS;                                                      \
-        f(self, _cmd);                                                                             \
-    }                                                                                              \
-    static void installDealloc_##CLASS()                                                           \
-    {                                                                                              \
-        Method method                                                                              \
-            = class_getInstanceMethod(objc_getClass(#CLASS), sel_registerName("dealloc"));         \
-        g_originalDealloc_##CLASS = method_getImplementation(method);                              \
-        method_setImplementation(method, (IMP)handleDealloc_##CLASS);                              \
+#define CREATE_ZOMBIE_HANDLER_INSTALLER(CLASS)                                                                         \
+    static IMP g_originalDealloc_##CLASS;                                                                              \
+    static void handleDealloc_##CLASS(id self, SEL _cmd)                                                               \
+    {                                                                                                                  \
+        handleDealloc(self);                                                                                           \
+        typedef void (*fn)(id, SEL);                                                                                   \
+        fn f = (fn)g_originalDealloc_##CLASS;                                                                          \
+        f(self, _cmd);                                                                                                 \
+    }                                                                                                                  \
+    static void installDealloc_##CLASS()                                                                               \
+    {                                                                                                                  \
+        Method method = class_getInstanceMethod(objc_getClass(#CLASS), sel_registerName("dealloc"));                   \
+        g_originalDealloc_##CLASS = method_getImplementation(method);                                                  \
+        method_setImplementation(method, (IMP)handleDealloc_##CLASS);                                                  \
     }
 // TODO: Uninstall doesn't work.
 // static void uninstallDealloc_ ## CLASS() \
@@ -240,8 +234,7 @@ addContextualInfoToEvent(SentryCrash_MonitorContext *eventContext)
 SentryCrashMonitorAPI *
 sentrycrashcm_zombie_getAPI()
 {
-    static SentryCrashMonitorAPI api = { .setEnabled = setEnabled,
-        .isEnabled = isEnabled,
-        .addContextualInfoToEvent = addContextualInfoToEvent };
+    static SentryCrashMonitorAPI api
+        = { .setEnabled = setEnabled, .isEnabled = isEnabled, .addContextualInfoToEvent = addContextualInfoToEvent };
     return &api;
 }

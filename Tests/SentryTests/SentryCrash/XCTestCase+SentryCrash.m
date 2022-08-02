@@ -31,8 +31,8 @@ XCTestCase (XCTestCase_SentryCrash)
 
 - (NSString *)createTempPath
 {
-    NSString *path = [NSTemporaryDirectory()
-        stringByAppendingString:[[NSProcessInfo processInfo] globallyUniqueString]];
+    NSString *path =
+        [NSTemporaryDirectory() stringByAppendingString:[[NSProcessInfo processInfo] globallyUniqueString]];
     NSFileManager *fm = [NSFileManager defaultManager];
     if (![fm fileExistsAtPath:path]) {
         [fm createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:nil];
@@ -50,10 +50,7 @@ XCTestCase (XCTestCase_SentryCrash)
     NSError *error = nil;
     NSFileManager *fm = [NSFileManager defaultManager];
 
-    [fm createDirectoryAtPath:reportsPath
-        withIntermediateDirectories:YES
-                         attributes:nil
-                              error:&error];
+    [fm createDirectoryAtPath:reportsPath withIntermediateDirectories:YES attributes:nil error:&error];
     XCTAssertNil(error, @"");
 
     NSString *bundlePath = [[NSBundle bundleForClass:[self class]] resourcePath];

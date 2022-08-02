@@ -102,10 +102,9 @@ SentryNetworkTracker ()
 
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
             if (span != nil) {
-                netSpan = [span
-                    startChildWithOperation:SENTRY_NETWORK_REQUEST_OPERATION
-                                description:[NSString stringWithFormat:@"%@ %@",
-                                                      sessionTask.currentRequest.HTTPMethod, url]];
+                netSpan = [span startChildWithOperation:SENTRY_NETWORK_REQUEST_OPERATION
+                                            description:[NSString stringWithFormat:@"%@ %@",
+                                                                  sessionTask.currentRequest.HTTPMethod, url]];
             }
         }];
 
@@ -114,8 +113,8 @@ SentryNetworkTracker ()
         if (netSpan == nil)
             return;
 
-        objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN, netSpan,
-            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(
+            sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN, netSpan, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 }
 
@@ -147,8 +146,8 @@ SentryNetworkTracker ()
     @synchronized(sessionTask) {
         netSpan = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN);
         // We'll just go through once
-        objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN, nil,
-            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(
+            sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 
     if (sessionTask.state == NSURLSessionTaskStateRunning) {
@@ -160,8 +159,7 @@ SentryNetworkTracker ()
             NSNumber *statusCode = [NSNumber numberWithInteger:responseStatusCode];
 
             if (netSpan != nil) {
-                [netSpan setTagValue:[NSString stringWithFormat:@"%@", statusCode]
-                              forKey:@"http.status_code"];
+                [netSpan setTagValue:[NSString stringWithFormat:@"%@", statusCode] forKey:@"http.status_code"];
             }
         }
     }
@@ -185,24 +183,20 @@ SentryNetworkTracker ()
     }
 
     SentryLevel breadcrumbLevel = sessionTask.error != nil ? kSentryLevelError : kSentryLevelInfo;
-    SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
-                                                                  category:@"http"];
+    SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel category:@"http"];
     breadcrumb.type = @"http";
     NSMutableDictionary<NSString *, id> *breadcrumbData = [NSMutableDictionary new];
     breadcrumbData[@"url"] = sessionTask.currentRequest.URL.absoluteString;
     breadcrumbData[@"method"] = sessionTask.currentRequest.HTTPMethod;
-    breadcrumbData[@"request_body_size"] =
-        [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
-    breadcrumbData[@"response_body_size"] =
-        [NSNumber numberWithLongLong:sessionTask.countOfBytesReceived];
+    breadcrumbData[@"request_body_size"] = [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
+    breadcrumbData[@"response_body_size"] = [NSNumber numberWithLongLong:sessionTask.countOfBytesReceived];
 
     NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
 
     if (responseStatusCode != -1) {
         NSNumber *statusCode = [NSNumber numberWithInteger:responseStatusCode];
         breadcrumbData[@"status_code"] = statusCode;
-        breadcrumbData[@"reason"] =
-            [NSHTTPURLResponse localizedStringForStatusCode:responseStatusCode];
+        breadcrumbData[@"reason"] = [NSHTTPURLResponse localizedStringForStatusCode:responseStatusCode];
     }
 
     breadcrumb.data = breadcrumbData;
@@ -238,8 +232,7 @@ SentryNetworkTracker ()
 {
     // Since streams are usually created to stay connected we don't measure this type of data
     // transfer.
-    return [task isKindOfClass:[NSURLSessionDataTask class]] ||
-        [task isKindOfClass:[NSURLSessionDownloadTask class]] ||
+    return [task isKindOfClass:[NSURLSessionDataTask class]] || [task isKindOfClass:[NSURLSessionDownloadTask class]] ||
         [task isKindOfClass:[NSURLSessionUploadTask class]];
 }
 
@@ -278,11 +271,10 @@ SentryNetworkTracker ()
 - (NSString *)removeSentryKeysFromBaggage:(NSString *)baggage
 {
     NSMutableDictionary *original = [SentrySerialization decodeBaggage:baggage].mutableCopy;
-    NSDictionary *filtered =
-        [original dictionaryWithValuesForKeys:
-                      [original.allKeys
-                          filteredArrayUsingPredicate:
-                              [NSPredicate predicateWithFormat:@"NOT SELF BEGINSWITH 'sentry-'"]]];
+    NSDictionary *filtered = [original
+        dictionaryWithValuesForKeys:
+            [original.allKeys
+                filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT SELF BEGINSWITH 'sentry-'"]]];
     return [SentrySerialization baggageEncodedDictionary:filtered];
 }
 
@@ -301,8 +293,7 @@ SentryNetworkTracker ()
         NSMutableDictionary *existingHeaders = headers.mutableCopy;
         [existingHeaders removeObjectForKey:SENTRY_TRACE_HEADER];
 
-        NSString *newBaggageHeader =
-            [self removeSentryKeysFromBaggage:headers[SENTRY_BAGGAGE_HEADER]];
+        NSString *newBaggageHeader = [self removeSentryKeysFromBaggage:headers[SENTRY_BAGGAGE_HEADER]];
         if (newBaggageHeader.length > 0) {
             existingHeaders[SENTRY_BAGGAGE_HEADER] = newBaggageHeader;
         } else {
@@ -317,8 +308,7 @@ SentryNetworkTracker ()
     SentryTracer *tracer = [SentryTracer getTracer:span];
     if (tracer != nil) {
         result[SENTRY_BAGGAGE_HEADER] = [[tracer.traceContext toBaggage]
-            toHTTPHeaderWithOriginalBaggage:[SentrySerialization
-                                                decodeBaggage:headers[SENTRY_BAGGAGE_HEADER]]];
+            toHTTPHeaderWithOriginalBaggage:[SentrySerialization decodeBaggage:headers[SENTRY_BAGGAGE_HEADER]]];
     }
 
     return [[NSDictionary alloc] initWithDictionary:result];

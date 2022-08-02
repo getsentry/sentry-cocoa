@@ -45,13 +45,10 @@ cpuInfoByThread()
             mach_msg_type_number_t count = THREAD_BASIC_INFO_COUNT;
             thread_basic_info_data_t data;
             // MACH_SEND_INVALID_DEST is returned when the thread no longer exists
-            if (thread_info(
-                    thread, THREAD_BASIC_INFO, reinterpret_cast<thread_info_t>(&data), &count)
+            if (thread_info(thread, THREAD_BASIC_INFO, reinterpret_cast<thread_info_t>(&data), &count)
                 == KERN_SUCCESS) {
-                const auto system_time_micros
-                    = data.system_time.seconds * 1e6 + data.system_time.microseconds;
-                const auto user_time_micros
-                    = data.user_time.seconds * 1e6 + data.user_time.microseconds;
+                const auto system_time_micros = data.system_time.seconds * 1e6 + data.system_time.microseconds;
+                const auto user_time_micros = data.user_time.seconds * 1e6 + data.user_time.microseconds;
                 dict[[NSString stringWithUTF8String:namestr.c_str()]] =
                     @[ @(system_time_micros), @(user_time_micros), @(data.cpu_usage) ];
             }
@@ -75,14 +72,12 @@ dispatch_queue_t queue;
 
 + (void)startBenchmark
 {
-    const auto attr = dispatch_queue_attr_make_with_qos_class(
-        DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_USER_INTERACTIVE, 0);
+    const auto attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_USER_INTERACTIVE, 0);
     const auto leewayNs = intervalNs / 2;
     queue = dispatch_queue_create("io.sentry.benchmark.gcd-scheduler", attr);
     source = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
     dispatch_source_set_event_handler(source, ^{ [samples addObject:cpuInfoByThread()]; });
-    dispatch_source_set_timer(
-        source, dispatch_time(DISPATCH_TIME_NOW, intervalNs), intervalNs, leewayNs);
+    dispatch_source_set_timer(source, dispatch_time(DISPATCH_TIME_NOW, intervalNs), intervalNs, leewayNs);
     dispatch_resume(source);
 }
 
@@ -137,13 +132,11 @@ dispatch_queue_t queue;
     const auto profilerUserTime = userTimeTotals[@"io.sentry.SamplingProfiler"].integerValue;
     [systemTimeTotals removeObjectForKey:@"io.sentry.SamplingProfiler"];
     [userTimeTotals removeObjectForKey:@"io.sentry.SamplingProfiler"];
-    const auto appSystemTime
-        = ((NSNumber *)[systemTimeTotals.allValues valueForKeyPath:@"@sum.self"]).integerValue;
-    const auto appUserTime
-        = ((NSNumber *)[userTimeTotals.allValues valueForKeyPath:@"@sum.self"]).integerValue;
+    const auto appSystemTime = ((NSNumber *)[systemTimeTotals.allValues valueForKeyPath:@"@sum.self"]).integerValue;
+    const auto appUserTime = ((NSNumber *)[userTimeTotals.allValues valueForKeyPath:@"@sum.self"]).integerValue;
 
-    return [NSString stringWithFormat:@"%ld,%ld,%ld,%ld", profilerSystemTime, profilerUserTime,
-                     appSystemTime, appUserTime];
+    return [NSString
+        stringWithFormat:@"%ld,%ld,%ld,%ld", profilerSystemTime, profilerUserTime, appSystemTime, appUserTime];
 }
 
 @end

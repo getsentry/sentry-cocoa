@@ -15,8 +15,7 @@
     NSMutableArray *results = [NSMutableArray array];
     for (NSUInteger j = 0; j < 20; j++) {
         XCUIApplication *app = [[XCUIApplication alloc] init];
-        app.launchArguments =
-            [app.launchArguments arrayByAddingObject:@"--io.sentry.test.benchmarking"];
+        app.launchArguments = [app.launchArguments arrayByAddingObject:@"--io.sentry.test.benchmarking"];
         [app launch];
         [app.buttons[@"Performance scenarios"] tap];
 
@@ -47,11 +46,9 @@
         NSInteger appSystemTime = [values[2] integerValue];
         NSInteger appUserTime = [values[3] integerValue];
 
-        NSLog(@"[Sentry Benchmark] %ld,%ld,%ld,%ld", profilerSystemTime, profilerUserTime,
-            appSystemTime, appUserTime);
+        NSLog(@"[Sentry Benchmark] %ld,%ld,%ld,%ld", profilerSystemTime, profilerUserTime, appSystemTime, appUserTime);
 
-        double usagePercentage
-            = 100.0 * (profilerUserTime + profilerSystemTime) / (appUserTime + appSystemTime);
+        double usagePercentage = 100.0 * (profilerUserTime + profilerSystemTime) / (appUserTime + appSystemTime);
 
         XCTAssertNotEqual(usagePercentage, 0, @"Overhead percentage should be > 0%%");
 

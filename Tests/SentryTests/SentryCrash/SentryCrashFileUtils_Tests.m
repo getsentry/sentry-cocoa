@@ -46,8 +46,7 @@
     char readBuffer[readBufferSize];
     SentryCrashBufferedReader reader;
     NSString *path = [self generateFileWithString:fileContents];
-    XCTAssertTrue(
-        sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
+    XCTAssertTrue(sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
     char dstBuffer[dstBufferSize + 1];
     int bytesRead = sentrycrashfu_readBufferedReader(&reader, dstBuffer, readSize);
     XCTAssertEqual(bytesRead, expectedBytesRead);
@@ -67,8 +66,7 @@
     char readBuffer[readBufferSize];
     SentryCrashBufferedReader reader;
     NSString *path = [self generateFileWithString:fileContents];
-    XCTAssertTrue(
-        sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
+    XCTAssertTrue(sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
     char dstBuffer[dstBufferSize + 1];
     int bytesRead = sentrycrashfu_readBufferedReader(&reader, dstBuffer, readSize);
     XCTAssertEqual(bytesRead, expectedBytesRead);
@@ -88,8 +86,7 @@
     char readBuffer[readBufferSize];
     SentryCrashBufferedReader reader;
     NSString *path = [self generateFileWithString:fileContents];
-    XCTAssertTrue(
-        sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
+    XCTAssertTrue(sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
     char dstBuffer[dstBufferSize + 1];
     int bytesRead = sentrycrashfu_readBufferedReader(&reader, dstBuffer, readSize);
     XCTAssertEqual(bytesRead, expectedBytesRead);
@@ -109,8 +106,7 @@
     char readBuffer[readBufferSize];
     SentryCrashBufferedReader reader;
     NSString *path = [self generateFileWithString:fileContents];
-    XCTAssertTrue(
-        sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
+    XCTAssertTrue(sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
     char dstBuffer[dstBufferSize + 1];
     int bytesRead = sentrycrashfu_readBufferedReader(&reader, dstBuffer, readSize);
     XCTAssertEqual(bytesRead, expectedBytesRead);
@@ -130,8 +126,7 @@
     char readBuffer[readBufferSize];
     SentryCrashBufferedReader reader;
     NSString *path = [self generateFileWithString:fileContents];
-    XCTAssertTrue(
-        sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
+    XCTAssertTrue(sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
     char dstBuffer[dstBufferSize + 1];
     int bytesRead = sentrycrashfu_readBufferedReader(&reader, dstBuffer, readSize);
     XCTAssertEqual(bytesRead, expectedBytesRead);
@@ -152,8 +147,7 @@
     char readBuffer[readBufferSize];
     SentryCrashBufferedReader reader;
     NSString *path = [self generateFileWithString:fileContents];
-    XCTAssertTrue(
-        sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
+    XCTAssertTrue(sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
     char dstBuffer[dstBufferSize + 1];
     bool result = sentrycrashfu_readBufferedReaderUntilChar(&reader, ch, dstBuffer, &bytesRead);
     XCTAssertTrue(result);
@@ -175,8 +169,7 @@
     char readBuffer[readBufferSize];
     SentryCrashBufferedReader reader;
     NSString *path = [self generateFileWithString:fileContents];
-    XCTAssertTrue(
-        sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
+    XCTAssertTrue(sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
     char dstBuffer[dstBufferSize + 1];
     bool result = sentrycrashfu_readBufferedReaderUntilChar(&reader, ch, dstBuffer, &bytesRead);
     XCTAssertTrue(result);
@@ -198,8 +191,7 @@
     char readBuffer[readBufferSize];
     SentryCrashBufferedReader reader;
     NSString *path = [self generateFileWithString:fileContents];
-    XCTAssertTrue(
-        sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
+    XCTAssertTrue(sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
     char dstBuffer[dstBufferSize + 1];
     bool result = sentrycrashfu_readBufferedReaderUntilChar(&reader, ch, dstBuffer, &bytesRead);
     XCTAssertTrue(result);
@@ -221,8 +213,7 @@
     char readBuffer[readBufferSize];
     SentryCrashBufferedReader reader;
     NSString *path = [self generateFileWithString:fileContents];
-    XCTAssertTrue(
-        sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
+    XCTAssertTrue(sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
     char dstBuffer[dstBufferSize + 1];
     bool result = sentrycrashfu_readBufferedReaderUntilChar(&reader, ch, dstBuffer, &bytesRead);
     XCTAssertTrue(result);
@@ -244,8 +235,7 @@
     char readBuffer[readBufferSize];
     SentryCrashBufferedReader reader;
     NSString *path = [self generateFileWithString:fileContents];
-    XCTAssertTrue(
-        sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
+    XCTAssertTrue(sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
     char dstBuffer[dstBufferSize + 1];
     bool result = sentrycrashfu_readBufferedReaderUntilChar(&reader, ch, dstBuffer, &bytesRead);
     XCTAssertTrue(result);
@@ -267,8 +257,7 @@
     char readBuffer[readBufferSize];
     SentryCrashBufferedReader reader;
     NSString *path = [self generateFileWithString:fileContents];
-    XCTAssertTrue(
-        sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
+    XCTAssertTrue(sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
     char dstBuffer[dstBufferSize + 1];
     bool result = sentrycrashfu_readBufferedReaderUntilChar(&reader, ch, dstBuffer, &bytesRead);
     XCTAssertFalse(result);
@@ -290,8 +279,7 @@
     char readBuffer[readBufferSize];
     SentryCrashBufferedReader reader;
     NSString *path = [self generateFileWithString:fileContents];
-    XCTAssertTrue(
-        sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
+    XCTAssertTrue(sentrycrashfu_openBufferedReader(&reader, path.UTF8String, readBuffer, readBufferSize));
     char dstBuffer[dstBufferSize + 1];
     bool result = sentrycrashfu_readBufferedReaderUntilChar(&reader, ch, dstBuffer, &bytesRead);
     XCTAssertFalse(result);
@@ -309,14 +297,11 @@
     char writeBuffer[writeBufferSize];
     SentryCrashBufferedWriter writer;
     NSString *path = [self generateTempFilePath];
-    XCTAssertTrue(
-        sentrycrashfu_openBufferedWriter(&writer, path.UTF8String, writeBuffer, writeBufferSize));
+    XCTAssertTrue(sentrycrashfu_openBufferedWriter(&writer, path.UTF8String, writeBuffer, writeBufferSize));
     XCTAssertTrue(sentrycrashfu_writeBufferedWriter(&writer, fileContents.UTF8String, writeSize));
     sentrycrashfu_closeBufferedWriter(&writer);
     NSError *error = nil;
-    NSString *actualFileContents = [NSString stringWithContentsOfFile:path
-                                                             encoding:NSUTF8StringEncoding
-                                                                error:&error];
+    NSString *actualFileContents = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
     XCTAssertNil(error);
     XCTAssertEqualObjects(actualFileContents, fileContents);
 }
@@ -329,14 +314,11 @@
     char writeBuffer[writeBufferSize];
     SentryCrashBufferedWriter writer;
     NSString *path = [self generateTempFilePath];
-    XCTAssertTrue(
-        sentrycrashfu_openBufferedWriter(&writer, path.UTF8String, writeBuffer, writeBufferSize));
+    XCTAssertTrue(sentrycrashfu_openBufferedWriter(&writer, path.UTF8String, writeBuffer, writeBufferSize));
     XCTAssertTrue(sentrycrashfu_writeBufferedWriter(&writer, fileContents.UTF8String, writeSize));
     sentrycrashfu_flushBufferedWriter(&writer);
     NSError *error = nil;
-    NSString *actualFileContents = [NSString stringWithContentsOfFile:path
-                                                             encoding:NSUTF8StringEncoding
-                                                                error:&error];
+    NSString *actualFileContents = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
     XCTAssertNil(error);
     XCTAssertEqualObjects(actualFileContents, fileContents);
     sentrycrashfu_closeBufferedWriter(&writer);
@@ -350,14 +332,11 @@
     char writeBuffer[writeBufferSize];
     SentryCrashBufferedWriter writer;
     NSString *path = [self generateTempFilePath];
-    XCTAssertTrue(
-        sentrycrashfu_openBufferedWriter(&writer, path.UTF8String, writeBuffer, writeBufferSize));
+    XCTAssertTrue(sentrycrashfu_openBufferedWriter(&writer, path.UTF8String, writeBuffer, writeBufferSize));
     XCTAssertTrue(sentrycrashfu_writeBufferedWriter(&writer, fileContents.UTF8String, writeSize));
     sentrycrashfu_closeBufferedWriter(&writer);
     NSError *error = nil;
-    NSString *actualFileContents = [NSString stringWithContentsOfFile:path
-                                                             encoding:NSUTF8StringEncoding
-                                                                error:&error];
+    NSString *actualFileContents = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
     XCTAssertNil(error);
     XCTAssertEqualObjects(actualFileContents, fileContents);
 }
@@ -370,14 +349,11 @@
     char writeBuffer[writeBufferSize];
     SentryCrashBufferedWriter writer;
     NSString *path = [self generateTempFilePath];
-    XCTAssertTrue(
-        sentrycrashfu_openBufferedWriter(&writer, path.UTF8String, writeBuffer, writeBufferSize));
+    XCTAssertTrue(sentrycrashfu_openBufferedWriter(&writer, path.UTF8String, writeBuffer, writeBufferSize));
     XCTAssertTrue(sentrycrashfu_writeBufferedWriter(&writer, fileContents.UTF8String, writeSize));
     sentrycrashfu_closeBufferedWriter(&writer);
     NSError *error = nil;
-    NSString *actualFileContents = [NSString stringWithContentsOfFile:path
-                                                             encoding:NSUTF8StringEncoding
-                                                                error:&error];
+    NSString *actualFileContents = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
     XCTAssertNil(error);
     XCTAssertEqualObjects(actualFileContents, fileContents);
 }
@@ -386,9 +362,9 @@
 {
     NSString *path = @"some/kind/of/path";
     NSString *expected = @"path";
-    NSString *actual = [NSString stringWithCString:sentrycrashfu_lastPathEntry([path
-                                                       cStringUsingEncoding:NSUTF8StringEncoding])
-                                          encoding:NSUTF8StringEncoding];
+    NSString *actual =
+        [NSString stringWithCString:sentrycrashfu_lastPathEntry([path cStringUsingEncoding:NSUTF8StringEncoding])
+                           encoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(actual, expected, @"");
 }
 
@@ -401,12 +377,9 @@
 
     int fd = open([path UTF8String], O_RDWR | O_CREAT | O_EXCL, 0644);
     XCTAssertTrue(fd >= 0, @"");
-    bool result = sentrycrashfu_writeBytesToFD(
-        fd, [expected cStringUsingEncoding:NSUTF8StringEncoding], stringLength);
+    bool result = sentrycrashfu_writeBytesToFD(fd, [expected cStringUsingEncoding:NSUTF8StringEncoding], stringLength);
     XCTAssertTrue(result, @"");
-    NSString *actual = [NSString stringWithContentsOfFile:path
-                                                 encoding:NSUTF8StringEncoding
-                                                    error:&error];
+    NSString *actual = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
     XCTAssertNil(error, @"");
     XCTAssertEqualObjects(actual, expected, @"");
 }
@@ -485,9 +458,7 @@
     int readLength;
     bool result = sentrycrashfu_readEntireFile([path UTF8String], &bytes, &readLength, 0);
     XCTAssertTrue(result, @"");
-    NSMutableData *data = [NSMutableData dataWithBytesNoCopy:bytes
-                                                      length:(unsigned)readLength
-                                                freeWhenDone:YES];
+    NSMutableData *data = [NSMutableData dataWithBytesNoCopy:bytes length:(unsigned)readLength freeWhenDone:YES];
     NSString *actual = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     XCTAssertNil(error, @"");
     XCTAssertEqualObjects(actual, expected, @"");
@@ -512,9 +483,7 @@
     int readLength;
     bool result = sentrycrashfu_readEntireFile([path UTF8String], &bytes, &readLength, 0);
     XCTAssertTrue(result, @"");
-    NSMutableData *actual = [NSMutableData dataWithBytesNoCopy:bytes
-                                                        length:(unsigned)readLength
-                                                  freeWhenDone:YES];
+    NSMutableData *actual = [NSMutableData dataWithBytesNoCopy:bytes length:(unsigned)readLength freeWhenDone:YES];
     XCTAssertEqualObjects(actual, expected, @"");
 }
 
@@ -526,12 +495,9 @@
 
     int fd = open([path UTF8String], O_RDWR | O_CREAT | O_EXCL, 0644);
     XCTAssertTrue(fd >= 0, @"");
-    bool result
-        = sentrycrashfu_writeStringToFD(fd, [expected cStringUsingEncoding:NSUTF8StringEncoding]);
+    bool result = sentrycrashfu_writeStringToFD(fd, [expected cStringUsingEncoding:NSUTF8StringEncoding]);
     XCTAssertTrue(result, @"");
-    NSString *actual = [NSString stringWithContentsOfFile:path
-                                                 encoding:NSUTF8StringEncoding
-                                                    error:&error];
+    NSString *actual = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
     XCTAssertNil(error, @"");
     XCTAssertEqualObjects(actual, expected, @"");
 }
@@ -546,9 +512,7 @@
     XCTAssertTrue(fd >= 0, @"");
     bool result = sentrycrashfu_writeFmtToFD(fd, "test test testing %d %.1f %s", 1, 2.0f, "3");
     XCTAssertTrue(result, @"");
-    NSString *actual = [NSString stringWithContentsOfFile:path
-                                                 encoding:NSUTF8StringEncoding
-                                                    error:&error];
+    NSString *actual = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
     XCTAssertNil(error, @"");
     XCTAssertEqualObjects(actual, expected, @"");
 }
@@ -572,9 +536,7 @@
     XCTAssertTrue(fd >= 0, @"");
     bool result = [self writeToFD:fd fmt:"test test testing %d %.1f %s", 1, 2.0f, "3"];
     XCTAssertTrue(result, @"");
-    NSString *actual = [NSString stringWithContentsOfFile:path
-                                                 encoding:NSUTF8StringEncoding
-                                                    error:&error];
+    NSString *actual = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
     XCTAssertNil(error, @"");
     XCTAssertEqualObjects(actual, expected, @"");
 }
@@ -598,23 +560,17 @@
 
     bytesRead = sentrycrashfu_readLineFromFD(fd, [data mutableBytes], 100);
     XCTAssertTrue(bytesRead > 0, @"");
-    actual = [[NSString alloc] initWithBytes:[data bytes]
-                                      length:(NSUInteger)bytesRead
-                                    encoding:NSUTF8StringEncoding];
+    actual = [[NSString alloc] initWithBytes:[data bytes] length:(NSUInteger)bytesRead encoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(actual, expected1, @"");
 
     bytesRead = sentrycrashfu_readLineFromFD(fd, [data mutableBytes], 100);
     XCTAssertTrue(bytesRead > 0, @"");
-    actual = [[NSString alloc] initWithBytes:[data bytes]
-                                      length:(NSUInteger)bytesRead
-                                    encoding:NSUTF8StringEncoding];
+    actual = [[NSString alloc] initWithBytes:[data bytes] length:(NSUInteger)bytesRead encoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(actual, expected2, @"");
 
     bytesRead = sentrycrashfu_readLineFromFD(fd, [data mutableBytes], 100);
     XCTAssertTrue(bytesRead > 0, @"");
-    actual = [[NSString alloc] initWithBytes:[data bytes]
-                                      length:(NSUInteger)bytesRead
-                                    encoding:NSUTF8StringEncoding];
+    actual = [[NSString alloc] initWithBytes:[data bytes] length:(NSUInteger)bytesRead encoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(actual, expected3, @"");
 
     bytesRead = sentrycrashfu_readLineFromFD(fd, [data mutableBytes], 100);

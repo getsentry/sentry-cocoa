@@ -214,8 +214,7 @@ toString(NSData *data)
 {
     NSError *error = (NSError *)self;
     NSString *expected = @"[\"One\",1000,true]";
-    id original = [NSArray
-        arrayWithObjects:@"One", [NSNumber numberWithInt:1000], [NSNumber numberWithBool:YES], nil];
+    id original = [NSArray arrayWithObjects:@"One", [NSNumber numberWithInt:1000], [NSNumber numberWithBool:YES], nil];
     NSString *jsonString = toString([SentryCrashJSONCodec encode:original
                                                          options:SentryCrashJSONEncodeOptionSorted
                                                            error:&error]);
@@ -284,9 +283,7 @@ toString(NSData *data)
     NSError *error = (NSError *)self;
     NSString *expected = @"[{\"Blah\":true}]";
     id original = [NSArray
-        arrayWithObjects:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES],
-                                       @"Blah", nil],
-        nil];
+        arrayWithObjects:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], @"Blah", nil], nil];
     NSString *jsonString = toString([SentryCrashJSONCodec encode:original
                                                          options:SentryCrashJSONEncodeOptionSorted
                                                            error:&error]);
@@ -337,8 +334,7 @@ toString(NSData *data)
 {
     NSError *error = (NSError *)self;
     NSString *expected = @"{\"One\":true}";
-    id original =
-        [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], @"One", nil];
+    id original = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], @"One", nil];
     NSString *jsonString = toString([SentryCrashJSONCodec encode:original
                                                          options:SentryCrashJSONEncodeOptionSorted
                                                            error:&error]);
@@ -355,8 +351,7 @@ toString(NSData *data)
 {
     NSError *error = (NSError *)self;
     NSString *expected = @"{\"One\":false}";
-    id original =
-        [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], @"One", nil];
+    id original = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], @"One", nil];
     NSString *jsonString = toString([SentryCrashJSONCodec encode:original
                                                          options:SentryCrashJSONEncodeOptionSorted
                                                            error:&error]);
@@ -373,8 +368,7 @@ toString(NSData *data)
 {
     NSError *error = (NSError *)self;
     NSString *expected = @"{\"One\":1}";
-    id original =
-        [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:1], @"One", nil];
+    id original = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:1], @"One", nil];
     NSString *jsonString = toString([SentryCrashJSONCodec encode:original
                                                          options:SentryCrashJSONEncodeOptionSorted
                                                            error:&error]);
@@ -391,8 +385,7 @@ toString(NSData *data)
 {
     NSError *error = (NSError *)self;
     NSString *expected = @"{\"One\":54.918}";
-    id original =
-        [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithFloat:54.918f], @"One", nil];
+    id original = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithFloat:54.918f], @"One", nil];
     NSString *jsonString = toString([SentryCrashJSONCodec encode:original
                                                          options:SentryCrashJSONEncodeOptionSorted
                                                            error:&error]);
@@ -411,8 +404,7 @@ toString(NSData *data)
 {
     NSError *error = (NSError *)self;
     NSString *expected = @"{\"One\":5e+20}";
-    id original =
-        [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithFloat:5e20f], @"One", nil];
+    id original = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithFloat:5e20f], @"One", nil];
     NSString *jsonString = toString([SentryCrashJSONCodec encode:original
                                                          options:SentryCrashJSONEncodeOptionSorted
                                                            error:&error]);
@@ -448,9 +440,8 @@ toString(NSData *data)
 {
     NSError *error = (NSError *)self;
     NSString *expected = @"{\"One\":\"Value\",\"Three\":true,\"Two\":1000}";
-    id original =
-        [NSDictionary dictionaryWithObjectsAndKeys:@"Value", @"One", [NSNumber numberWithInt:1000],
-                      @"Two", [NSNumber numberWithBool:YES], @"Three", nil];
+    id original = [NSDictionary dictionaryWithObjectsAndKeys:@"Value", @"One", [NSNumber numberWithInt:1000], @"Two",
+                                [NSNumber numberWithBool:YES], @"Three", nil];
     NSString *jsonString = toString([SentryCrashJSONCodec encode:original
                                                          options:SentryCrashJSONEncodeOptionSorted
                                                            error:&error]);
@@ -469,9 +460,7 @@ toString(NSData *data)
     NSDictionary *expected = @{ @"1" : @"Value", @"2" : @1000, @"3" : @YES };
     NSDictionary *original = @{ @1 : @"Value", @3 : @YES, @2 : @1000 };
 
-    [self testSerializeDeserializeDictionaryWith:original
-                                     andExpected:expected
-                                 andExpectedJSON:expectedJson];
+    [self testSerializeDeserializeDictionaryWith:original andExpected:expected andExpectedJSON:expectedJson];
 }
 
 - (void)testSerializeDeserializeDictionaryWith:(NSDictionary *)original
@@ -516,8 +505,7 @@ toString(NSData *data)
 {
     NSError *error = (NSError *)self;
     NSString *expected = @"{\"One\":{}}";
-    id original =
-        [NSDictionary dictionaryWithObjectsAndKeys:[NSDictionary dictionary], @"One", nil];
+    id original = [NSDictionary dictionaryWithObjectsAndKeys:[NSDictionary dictionary], @"One", nil];
     NSString *jsonString = toString([SentryCrashJSONCodec encode:original
                                                          options:SentryCrashJSONEncodeOptionSorted
                                                            error:&error]);
@@ -536,8 +524,7 @@ toString(NSData *data)
     NSString *expected = @"{\"One\":{\"Blah\":1}}";
     id original = [NSDictionary
         dictionaryWithObjectsAndKeys:[NSDictionary
-                                         dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:1],
-                                         @"Blah", nil],
+                                         dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:1], @"Blah", nil],
         @"One", nil];
     NSString *jsonString = toString([SentryCrashJSONCodec encode:original
                                                          options:SentryCrashJSONEncodeOptionSorted
@@ -573,8 +560,7 @@ toString(NSData *data)
     NSError *error = (NSError *)self;
     NSString *expected = @"{\"Blah\":[true]}";
     id original = [NSDictionary
-        dictionaryWithObjectsAndKeys:[NSArray arrayWithObject:[NSNumber numberWithBool:YES]],
-        @"Blah", nil];
+        dictionaryWithObjectsAndKeys:[NSArray arrayWithObject:[NSNumber numberWithBool:YES]], @"Blah", nil];
     NSString *jsonString = toString([SentryCrashJSONCodec encode:original
                                                          options:SentryCrashJSONEncodeOptionSorted
                                                            error:&error]);
@@ -591,16 +577,14 @@ toString(NSData *data)
 {
     NSError *error = (NSError *)self;
     id original = [NSDictionary
-        dictionaryWithObjectsAndKeys:@"0", @"0", @"1", @"1", @"2", @"2", @"3", @"3", @"4", @"4",
-        @"5", @"5", @"6", @"6", @"7", @"7", @"8", @"8", @"9", @"9", @"10", @"10", @"11", @"11",
-        @"12", @"12", @"13", @"13", @"14", @"14", @"15", @"15", @"16", @"16", @"17", @"17", @"18",
-        @"18", @"19", @"19", @"20", @"20", @"21", @"21", @"22", @"22", @"23", @"23", @"24", @"24",
-        @"25", @"25", @"26", @"26", @"27", @"27", @"28", @"28", @"29", @"29", @"30", @"30", @"31",
-        @"31", @"32", @"32", @"33", @"33", @"34", @"34", @"35", @"35", @"36", @"36", @"37", @"37",
-        @"38", @"38", @"39", @"39", @"40", @"40", @"41", @"41", @"42", @"42", @"43", @"43", @"44",
-        @"44", @"45", @"45", @"46", @"46", @"47", @"47", @"48", @"48", @"49", @"49", @"50", @"50",
-        @"51", @"51", @"52", @"52", @"53", @"53", @"54", @"54", @"55", @"55", @"56", @"56", @"57",
-        @"57", @"58", @"58", @"59", @"59", nil];
+        dictionaryWithObjectsAndKeys:@"0", @"0", @"1", @"1", @"2", @"2", @"3", @"3", @"4", @"4", @"5", @"5", @"6", @"6",
+        @"7", @"7", @"8", @"8", @"9", @"9", @"10", @"10", @"11", @"11", @"12", @"12", @"13", @"13", @"14", @"14", @"15",
+        @"15", @"16", @"16", @"17", @"17", @"18", @"18", @"19", @"19", @"20", @"20", @"21", @"21", @"22", @"22", @"23",
+        @"23", @"24", @"24", @"25", @"25", @"26", @"26", @"27", @"27", @"28", @"28", @"29", @"29", @"30", @"30", @"31",
+        @"31", @"32", @"32", @"33", @"33", @"34", @"34", @"35", @"35", @"36", @"36", @"37", @"37", @"38", @"38", @"39",
+        @"39", @"40", @"40", @"41", @"41", @"42", @"42", @"43", @"43", @"44", @"44", @"45", @"45", @"46", @"46", @"47",
+        @"47", @"48", @"48", @"49", @"49", @"50", @"50", @"51", @"51", @"52", @"52", @"53", @"53", @"54", @"54", @"55",
+        @"55", @"56", @"56", @"57", @"57", @"58", @"58", @"59", @"59", nil];
     NSString *jsonString = toString([SentryCrashJSONCodec encode:original
                                                          options:SentryCrashJSONEncodeOptionSorted
                                                            error:&error]);
@@ -620,15 +604,14 @@ toString(NSData *data)
     id original = [NSDictionary
         dictionaryWithObjectsAndKeys:@"A0", @"a0",
         [NSDictionary
-            dictionaryWithObjectsAndKeys:
-                [NSDictionary
-                    dictionaryWithObjectsAndKeys:@"C0", @"c0",
-                    [NSDictionary
-                        dictionaryWithObjectsAndKeys:[NSArray arrayWithObjects:[NSArray array],
-                                                              [NSArray array], [NSArray array],
-                                                              nil],
-                        @"d0", @"D1", @"d1", nil],
-                    @"c1", nil],
+            dictionaryWithObjectsAndKeys:[NSDictionary
+                                             dictionaryWithObjectsAndKeys:@"C0", @"c0",
+                                             [NSDictionary
+                                                 dictionaryWithObjectsAndKeys:[NSArray arrayWithObjects:[NSArray array],
+                                                                                       [NSArray array], [NSArray array],
+                                                                                       nil],
+                                                 @"d0", @"D1", @"d1", nil],
+                                             @"c1", nil],
             @"b0", @"B1", @"b1", nil],
         @"a1", @"A2", @"a2", nil];
 
@@ -794,8 +777,7 @@ toString(NSData *data)
     id result = [SentryCrashJSONCodec decode:toData(jsonString) options:0 error:&error];
     XCTAssertNotNil(result, @"");
     XCTAssertNil(error, @"");
-    XCTAssertTrue(
-        [[result objectAtIndex:0] floatValue] == [[original objectAtIndex:0] floatValue], @"");
+    XCTAssertTrue([[result objectAtIndex:0] floatValue] == [[original objectAtIndex:0] floatValue], @"");
 }
 
 - (void)testSerializeDeserializeDouble
@@ -812,8 +794,7 @@ toString(NSData *data)
     id result = [SentryCrashJSONCodec decode:toData(jsonString) options:0 error:&error];
     XCTAssertNotNil(result, @"");
     XCTAssertNil(error, @"");
-    XCTAssertTrue(
-        [[result objectAtIndex:0] floatValue] == [[original objectAtIndex:0] floatValue], @"");
+    XCTAssertTrue([[result objectAtIndex:0] floatValue] == [[original objectAtIndex:0] floatValue], @"");
 }
 
 - (void)testSerializeDeserializeChar
@@ -998,9 +979,7 @@ toString(NSData *data)
     XCTAssertNotNil(deserialized, @"");
     XCTAssertNil(error, @"");
     XCTAssertEqual(deserializedCount, numEntries, @"");
-    NSString *serialized = toString([SentryCrashJSONCodec encode:deserialized
-                                                         options:0
-                                                           error:&error]);
+    NSString *serialized = toString([SentryCrashJSONCodec encode:deserialized options:0 error:&error]);
     XCTAssertNotNil(serialized, @"");
     XCTAssertNil(error, @"");
     XCTAssertEqualObjects(serialized, jsonString, @"");
@@ -1023,9 +1002,7 @@ toString(NSData *data)
     [jsonString deleteCharactersInRange:NSMakeRange([jsonString length] - 1, 1)];
     [jsonString appendString:@"}"];
 
-    NSDictionary *deserialized = [SentryCrashJSONCodec decode:toData(jsonString)
-                                                      options:0
-                                                        error:&error];
+    NSDictionary *deserialized = [SentryCrashJSONCodec decode:toData(jsonString) options:0 error:&error];
     unsigned int deserializedCount = (unsigned int)[deserialized count];
     XCTAssertNotNil(deserialized, @"");
     XCTAssertNil(error, @"");
@@ -1517,10 +1494,10 @@ addJSONData(const char *data, int length, void *userData)
     XCTAssertTrue([data writeToFile:savedFilename atomically:YES]);
 
     NSError *error = nil;
-    NSData *expectedObject = [NSJSONSerialization
-        JSONObjectWithData:[NSData dataWithBytes:expectedJSON length:strlen(expectedJSON)]
-                   options:0
-                     error:&error];
+    NSData *expectedObject = [NSJSONSerialization JSONObjectWithData:[NSData dataWithBytes:expectedJSON
+                                                                                    length:strlen(expectedJSON)]
+                                                             options:0
+                                                               error:&error];
     XCTAssertNotNil(expectedObject);
     XCTAssertNil(error);
 

@@ -1,7 +1,6 @@
 #import "SentryDefines.h"
 
-@class SentryOptions, SentryOutOfMemoryLogic, SentryDispatchQueueWrapper, SentryAppStateManager,
-    SentryFileManager;
+@class SentryOptions, SentryOutOfMemoryLogic, SentryDispatchQueueWrapper, SentryAppStateManager, SentryFileManager;
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -32,8 +32,7 @@ SentryOutOfMemoryTrackingIntegration ()
 - (instancetype)init
 {
     if (self = [super init]) {
-        self.testConfigurationFilePath
-            = NSProcessInfo.processInfo.environment[@"XCTestConfigurationFilePath"];
+        self.testConfigurationFilePath = NSProcessInfo.processInfo.environment[@"XCTestConfigurationFilePath"];
     }
     return self;
 }
@@ -45,20 +44,17 @@ SentryOutOfMemoryTrackingIntegration ()
         return;
     }
 
-    dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
-        DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    dispatch_queue_attr_t attributes
+        = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_HIGH, 0);
     SentryDispatchQueueWrapper *dispatchQueueWrapper =
-        [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-out-of-memory-tracker"
-                                              attributes:attributes];
+        [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-out-of-memory-tracker" attributes:attributes];
 
     SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
-    SentryAppStateManager *appStateManager =
-        [SentryDependencyContainer sharedInstance].appStateManager;
+    SentryAppStateManager *appStateManager = [SentryDependencyContainer sharedInstance].appStateManager;
     SentryCrashWrapper *crashWrapper = [SentryDependencyContainer sharedInstance].crashWrapper;
-    SentryOutOfMemoryLogic *logic =
-        [[SentryOutOfMemoryLogic alloc] initWithOptions:options
-                                           crashAdapter:crashWrapper
-                                        appStateManager:appStateManager];
+    SentryOutOfMemoryLogic *logic = [[SentryOutOfMemoryLogic alloc] initWithOptions:options
+                                                                       crashAdapter:crashWrapper
+                                                                    appStateManager:appStateManager];
 
     self.tracker = [[SentryOutOfMemoryTracker alloc] initWithOptions:options
                                                     outOfMemoryLogic:logic
@@ -67,8 +63,7 @@ SentryOutOfMemoryTrackingIntegration ()
                                                          fileManager:fileManager];
     [self.tracker start];
 
-    self.anrTracker =
-        [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval];
+    self.anrTracker = [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval];
     [self.anrTracker addListener:self];
 
     self.appStateManager = appStateManager;
@@ -102,16 +97,14 @@ SentryOutOfMemoryTrackingIntegration ()
 - (void)anrDetected
 {
 #if SENTRY_HAS_UIKIT
-    [self.appStateManager
-        updateAppState:^(SentryAppState *appState) { appState.isANROngoing = YES; }];
+    [self.appStateManager updateAppState:^(SentryAppState *appState) { appState.isANROngoing = YES; }];
 #endif
 }
 
 - (void)anrStopped
 {
 #if SENTRY_HAS_UIKIT
-    [self.appStateManager
-        updateAppState:^(SentryAppState *appState) { appState.isANROngoing = NO; }];
+    [self.appStateManager updateAppState:^(SentryAppState *appState) { appState.isANROngoing = NO; }];
 #endif
 }
 

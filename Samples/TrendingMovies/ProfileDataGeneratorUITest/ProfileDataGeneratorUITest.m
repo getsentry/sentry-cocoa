@@ -68,8 +68,7 @@ generateProfileData(NSUInteger nCellsPerTab, BOOL clearState)
 
         for (NSUInteger i = 0; i < 4; i++) {
             XCUIElement *const cellElement
-                = app.collectionViews
-                      .cells[[NSString stringWithFormat:@"movie %llu", (unsigned long long)i]];
+                = app.collectionViews.cells[[NSString stringWithFormat:@"movie %llu", (unsigned long long)i]];
             if (![cellElement waitForExistenceWithTimeout:kWaitForElementTimeout]) {
                 XCTFail("Failed to find the cell.");
                 return NO;

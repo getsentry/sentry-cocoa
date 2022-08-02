@@ -160,8 +160,7 @@ static NSString *const SENTRYCRASH_REPORT_SCREENSHOT_ITEM = @"screenshots";
 
 /** Exposes the currentSnapshotUserReportedExceptionHandler if set from
  * SentryCrash. Is nil if debugger is running. **/
-@property (nonatomic, assign)
-    NSUncaughtExceptionHandler *currentSnapshotUserReportedExceptionHandler;
+@property (nonatomic, assign) NSUncaughtExceptionHandler *currentSnapshotUserReportedExceptionHandler;
 
 #pragma mark - Information -
 

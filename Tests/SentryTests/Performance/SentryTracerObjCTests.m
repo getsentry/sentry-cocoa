@@ -20,8 +20,7 @@
     // To make sure the tracer is deallocated.
     @autoreleasepool {
         SentryHub *hub = [[SentryHub alloc] initWithClient:nil andScope:nil];
-        SentryTransactionContext *context =
-            [[SentryTransactionContext alloc] initWithOperation:@""];
+        SentryTransactionContext *context = [[SentryTransactionContext alloc] initWithOperation:@""];
         SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:context
                                                                             hub:hub
                                                         profilesSamplerDecision:nil

@@ -22,8 +22,7 @@ SentryScope (Equality)
         return NO;
     if (self.userObject != scope.userObject && ![self.userObject isEqualToUser:scope.userObject])
         return NO;
-    if (self.tagDictionary != scope.tagDictionary
-        && ![self.tagDictionary isEqualToDictionary:scope.tagDictionary])
+    if (self.tagDictionary != scope.tagDictionary && ![self.tagDictionary isEqualToDictionary:scope.tagDictionary])
         return NO;
     if (self.extraDictionary != scope.extraDictionary
         && ![self.extraDictionary isEqualToDictionary:scope.extraDictionary])
@@ -31,8 +30,7 @@ SentryScope (Equality)
     if (self.contextDictionary != scope.contextDictionary
         && ![self.contextDictionary isEqualToDictionary:scope.contextDictionary])
         return NO;
-    if (self.breadcrumbArray != scope.breadcrumbArray
-        && ![self.breadcrumbArray isEqualToArray:scope.breadcrumbArray])
+    if (self.breadcrumbArray != scope.breadcrumbArray && ![self.breadcrumbArray isEqualToArray:scope.breadcrumbArray])
         return NO;
     if (self.distString != scope.distString && ![self.distString isEqualToString:scope.distString])
         return NO;
@@ -46,8 +44,7 @@ SentryScope (Equality)
         return NO;
     if (self.maxBreadcrumbs != scope.maxBreadcrumbs)
         return NO;
-    if (self.attachmentArray != scope.attachmentArray
-        && ![self.attachmentArray isEqualToArray:scope.attachmentArray])
+    if (self.attachmentArray != scope.attachmentArray && ![self.attachmentArray isEqualToArray:scope.attachmentArray])
         return NO;
     return YES;
 }

@@ -84,10 +84,9 @@ static NSArray *g_test_strings;
 - (NSArray *)componentsOfBasicDescription:(NSString *)description
 {
     NSError *error = nil;
-    NSRegularExpression *regex =
-        [NSRegularExpression regularExpressionWithPattern:@"^<(\\w+): [^>]+>"
-                                                  options:0
-                                                    error:&error];
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^<(\\w+): [^>]+>"
+                                                                           options:0
+                                                                             error:&error];
     NSTextCheckingResult *result = [regex firstMatchInString:description
                                                      options:0
                                                        range:NSMakeRange(0, [description length])];
@@ -98,10 +97,9 @@ static NSArray *g_test_strings;
 - (NSArray *)componentsOfComplexDescription:(NSString *)description
 {
     NSError *error = nil;
-    NSRegularExpression *regex =
-        [NSRegularExpression regularExpressionWithPattern:@"^<(\\w+): [^>]+>: (.*)$"
-                                                  options:0
-                                                    error:&error];
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^<(\\w+): [^>]+>: (.*)$"
+                                                                           options:0
+                                                                             error:&error];
     NSTextCheckingResult *result = [regex firstMatchInString:description
                                                      options:0
                                                        range:NSMakeRange(0, [description length])];
@@ -178,8 +176,7 @@ static NSArray *g_test_strings;
     const char *expected = [string UTF8String];
     int expectedLength = (int)string.length;
     char actual[100];
-    int copied
-        = sentrycrashobjc_copyStringContents((__bridge void *)string, actual, sizeof(actual));
+    int copied = sentrycrashobjc_copyStringContents((__bridge void *)string, actual, sizeof(actual));
     XCTAssertEqual(copied, expectedLength, @"");
     int result = strcmp(actual, expected);
     XCTAssertTrue(result == 0, @"String %s did not equal %s", actual, expected);
@@ -191,8 +188,7 @@ static NSArray *g_test_strings;
     const char *expected = [string UTF8String];
     int expectedLength = (int)string.length;
     char actual[100];
-    int copied
-        = sentrycrashobjc_copyStringContents((__bridge void *)string, actual, sizeof(actual));
+    int copied = sentrycrashobjc_copyStringContents((__bridge void *)string, actual, sizeof(actual));
     XCTAssertEqual(copied, expectedLength, @"");
     int result = strcmp(actual, expected);
     XCTAssertTrue(result == 0, @"String %s did not equal %s", actual, expected);
@@ -204,8 +200,7 @@ static NSArray *g_test_strings;
     const char *expected = [string UTF8String];
     int expectedLength = (int)string.length;
     char actual[100];
-    int copied
-        = sentrycrashobjc_copyStringContents((__bridge void *)string, actual, sizeof(actual));
+    int copied = sentrycrashobjc_copyStringContents((__bridge void *)string, actual, sizeof(actual));
     XCTAssertEqual(copied, expectedLength, @"");
     int result = strcmp(actual, expected);
     XCTAssertTrue(result == 0, @"String %s did not equal %s", actual, expected);
@@ -217,8 +212,7 @@ static NSArray *g_test_strings;
     const char *expected = "A lo";
     int expectedLength = 4;
     char actual[5];
-    int copied
-        = sentrycrashobjc_copyStringContents((__bridge void *)string, actual, sizeof(actual));
+    int copied = sentrycrashobjc_copyStringContents((__bridge void *)string, actual, sizeof(actual));
     XCTAssertEqual(copied, expectedLength, @"");
     int result = strcmp(actual, expected);
     XCTAssertTrue(result == 0, @"String %s did not equal %s", actual, expected);
@@ -241,8 +235,7 @@ static NSArray *g_test_strings;
     const char *expected = [string UTF8String];
     int expectedLength = (int)strlen(expected);
     char actual[100];
-    int copied
-        = sentrycrashobjc_copyStringContents((__bridge void *)string, actual, sizeof(actual));
+    int copied = sentrycrashobjc_copyStringContents((__bridge void *)string, actual, sizeof(actual));
     XCTAssertEqual(copied, expectedLength, @"");
     int result = strcmp(actual, expected);
     XCTAssertTrue(result == 0, @"String %s did not equal %s", actual, expected);
@@ -254,8 +247,7 @@ static NSArray *g_test_strings;
     const char *expected = [string UTF8String];
     int expectedLength = (int)strlen(expected);
     char actual[100];
-    int copied
-        = sentrycrashobjc_copyStringContents((__bridge void *)string, actual, sizeof(actual));
+    int copied = sentrycrashobjc_copyStringContents((__bridge void *)string, actual, sizeof(actual));
     XCTAssertEqual(copied, expectedLength, @"");
     int result = strcmp(actual, expected);
     XCTAssertTrue(result == 0, @"String %s did not equal %s", actual, expected);
@@ -267,8 +259,7 @@ static NSArray *g_test_strings;
     const char *expected = [string UTF8String];
     int expectedLength = (int)strlen(expected);
     char actual[100];
-    int copied
-        = sentrycrashobjc_copyStringContents((__bridge void *)string, actual, sizeof(actual));
+    int copied = sentrycrashobjc_copyStringContents((__bridge void *)string, actual, sizeof(actual));
     XCTAssertEqual(copied, expectedLength, @"");
     int result = strcmp(actual, expected);
     XCTAssertTrue(result == 0, @"String %s did not equal %s", actual, expected);
@@ -280,8 +271,7 @@ static NSArray *g_test_strings;
     const char *expected = [string UTF8String];
     int expectedLength = (int)strlen(expected);
     char actual[100];
-    int copied
-        = sentrycrashobjc_copyStringContents((__bridge void *)string, actual, sizeof(actual));
+    int copied = sentrycrashobjc_copyStringContents((__bridge void *)string, actual, sizeof(actual));
     XCTAssertEqual(copied, expectedLength, @"");
     int result = strcmp(actual, expected);
     XCTAssertTrue(result == 0, @"String %s did not equal %s", actual, expected);
@@ -293,8 +283,7 @@ static NSArray *g_test_strings;
     const char *expected = [string UTF8String];
     int expectedLength = (int)string.length;
     char actual[100];
-    int copied
-        = sentrycrashobjc_copyStringContents((__bridge void *)string, actual, sizeof(actual));
+    int copied = sentrycrashobjc_copyStringContents((__bridge void *)string, actual, sizeof(actual));
     XCTAssertEqual(copied, expectedLength, @"");
     int result = strcmp(actual, expected);
     XCTAssertTrue(result == 0, @"String %s did not equal %s", actual, expected);
@@ -309,8 +298,7 @@ static NSArray *g_test_strings;
     const char *expected = [string UTF8String];
     int expectedLength = (int)string.length;
     char actual[2000];
-    int copied
-        = sentrycrashobjc_copyStringContents((__bridge void *)string, actual, sizeof(actual));
+    int copied = sentrycrashobjc_copyStringContents((__bridge void *)string, actual, sizeof(actual));
     XCTAssertEqual(copied, expectedLength, @"");
     int result = strcmp(actual, expected);
     XCTAssertTrue(result == 0, @"String %s did not equal %s", actual, expected);

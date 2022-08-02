@@ -59,8 +59,7 @@ increaseDepth(FixupContext *context, const char *name)
     if (name == NULL) {
         *context->objectPath[context->currentDepth] = '\0';
     } else {
-        strncpy(context->objectPath[context->currentDepth], name,
-            sizeof(context->objectPath[context->currentDepth]));
+        strncpy(context->objectPath[context->currentDepth], name, sizeof(context->objectPath[context->currentDepth]));
     }
     context->currentDepth++;
     return true;
@@ -134,8 +133,7 @@ onIntegerElement(const char *const name, const int64_t value, void *const userDa
         char buffer[21];
         sentrycrashdate_utcStringFromTimestamp((time_t)value, buffer);
 
-        result = sentrycrashjson_addStringElement(
-            context->encodeContext, name, buffer, (int)strlen(buffer));
+        result = sentrycrashjson_addStringElement(context->encodeContext, name, buffer, (int)strlen(buffer));
     } else {
         result = sentrycrashjson_addIntegerElement(context->encodeContext, name, value);
     }
@@ -155,8 +153,7 @@ onStringElement(const char *const name, const char *const value, void *const use
     FixupContext *context = (FixupContext *)userData;
     const char *stringValue = value;
 
-    int result = sentrycrashjson_addStringElement(
-        context->encodeContext, name, stringValue, (int)strlen(stringValue));
+    int result = sentrycrashjson_addStringElement(context->encodeContext, name, stringValue, (int)strlen(stringValue));
 
     return result;
 }
@@ -244,8 +241,7 @@ sentrycrashcrf_fixupCrashReport(const char *crashReport)
     char *fixedReport = malloc((unsigned)fixedReportLength);
     if (fixedReport == NULL) {
         free(stringBuffer);
-        SentryCrashLOG_ERROR(
-            "Failed to allocate fixed report buffer of size %ld", fixedReportLength);
+        SentryCrashLOG_ERROR("Failed to allocate fixed report buffer of size %ld", fixedReportLength);
         return NULL;
     }
     SentryCrashJSONEncodeContext encodeContext;
@@ -259,8 +255,8 @@ sentrycrashcrf_fixupCrashReport(const char *crashReport)
     sentrycrashjson_beginEncode(&encodeContext, true, addJSONData, &fixupContext);
 
     int errorOffset = 0;
-    int result = sentrycrashjson_decode(crashReport, (int)strlen(crashReport), stringBuffer,
-        stringBufferLength, &callbacks, &fixupContext, &errorOffset);
+    int result = sentrycrashjson_decode(crashReport, (int)strlen(crashReport), stringBuffer, stringBufferLength,
+        &callbacks, &fixupContext, &errorOffset);
     *fixupContext.outputPtr = '\0';
     free(stringBuffer);
     if (result != SentryCrashJSON_OK) {

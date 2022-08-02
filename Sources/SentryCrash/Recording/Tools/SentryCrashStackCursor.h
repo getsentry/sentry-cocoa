@@ -105,8 +105,8 @@ typedef struct SentryCrashStackCursor {
  * @param advanceCursor Function to advance the cursor (NULL = default: Do
  * nothing and return false).
  */
-void sentrycrashsc_initCursor(SentryCrashStackCursor *cursor,
-    void (*resetCursor)(SentryCrashStackCursor *), bool (*advanceCursor)(SentryCrashStackCursor *));
+void sentrycrashsc_initCursor(SentryCrashStackCursor *cursor, void (*resetCursor)(SentryCrashStackCursor *),
+    bool (*advanceCursor)(SentryCrashStackCursor *));
 
 /** Reset a cursor.
  *  INTERNAL METHOD. Do not call!
@@ -118,8 +118,7 @@ void sentrycrashsc_resetCursor(SentryCrashStackCursor *cursor);
 /** Chain the optional `async_caller` to the current `cursor`.
  * In case of a valid `async_caller`, this will yield a special marker frame.
  */
-bool sentrycrashsc_tryAsyncChain(
-    SentryCrashStackCursor *cursor, sentrycrash_async_backtrace_t *async_caller);
+bool sentrycrashsc_tryAsyncChain(SentryCrashStackCursor *cursor, sentrycrash_async_backtrace_t *async_caller);
 
 /** Advance the cursor to the next stack entry in a chained async stacktrace. */
 bool sentrycrashsc_advanceAsyncCursor(SentryCrashStackCursor *cursor);

@@ -18,8 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
-    = @"SentryBreadcrumbTrackerSwizzleSendAction";
+static NSString *const SentryBreadcrumbTrackerSwizzleSendAction = @"SentryBreadcrumbTrackerSwizzleSendAction";
 
 @interface
 SentryBreadcrumbTracker ()
@@ -77,21 +76,20 @@ SentryBreadcrumbTracker ()
 
     // not available for macOS
 #if SENTRY_HAS_UIKIT
-    [NSNotificationCenter.defaultCenter
-        addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
-                    object:nil
-                     queue:nil
-                usingBlock:^(NSNotification *notification) {
-                    if (nil != [SentrySDK.currentHub getClient]) {
-                        SentryBreadcrumb *crumb =
-                            [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelWarning
-                                                           category:@"device.event"];
-                        crumb.type = @"system";
-                        crumb.data = @ { @"action" : @"LOW_MEMORY" };
-                        crumb.message = @"Low memory";
-                        [SentrySDK addBreadcrumb:crumb];
-                    }
-                }];
+    [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
+                                                    object:nil
+                                                     queue:nil
+                                                usingBlock:^(NSNotification *notification) {
+                                                    if (nil != [SentrySDK.currentHub getClient]) {
+                                                        SentryBreadcrumb *crumb =
+                                                            [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelWarning
+                                                                                           category:@"device.event"];
+                                                        crumb.type = @"system";
+                                                        crumb.data = @ { @"action" : @"LOW_MEMORY" };
+                                                        crumb.message = @"Low memory";
+                                                        [SentrySDK addBreadcrumb:crumb];
+                                                    }
+                                                }];
 #endif
 
 #if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST
@@ -135,8 +133,7 @@ SentryBreadcrumbTracker ()
 
 - (void)addEnabledCrumb
 {
-    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                                             category:@"started"];
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo category:@"started"];
     crumb.type = @"debug";
     crumb.message = @"Breadcrumb Tracking";
     [SentrySDK addBreadcrumb:crumb];
@@ -159,8 +156,7 @@ SentryBreadcrumbTracker ()
                 }
             }
 
-            SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                                                     category:@"touch"];
+            SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo category:@"touch"];
             crumb.type = @"user";
             crumb.message = action;
             crumb.data = data;
@@ -214,8 +210,7 @@ SentryBreadcrumbTracker ()
 #if SENTRY_HAS_UIKIT
 + (NSDictionary *)extractDataFromView:(UIView *)view
 {
-    NSMutableDictionary *result =
-        @{ @"view" : [NSString stringWithFormat:@"%@", view] }.mutableCopy;
+    NSMutableDictionary *result = @{ @"view" : [NSString stringWithFormat:@"%@", view] }.mutableCopy;
 
     if (view.tag > 0) {
         [result setValue:[NSNumber numberWithInteger:view.tag] forKey:@"tag"];
@@ -239,8 +234,8 @@ SentryBreadcrumbTracker ()
 {
     NSMutableDictionary *info = @{}.mutableCopy;
 
-    info[@"screen"] = [SentryUIViewControllerSanitizer
-        sanitizeViewControllerName:[NSString stringWithFormat:@"%@", controller]];
+    info[@"screen"] =
+        [SentryUIViewControllerSanitizer sanitizeViewControllerName:[NSString stringWithFormat:@"%@", controller]];
 
     if ([controller.navigationItem.title length] != 0) {
         info[@"title"] = controller.navigationItem.title;
@@ -251,20 +246,19 @@ SentryBreadcrumbTracker ()
     info[@"beingPresented"] = controller.beingPresented ? @"true" : @"false";
 
     if (controller.presentingViewController != nil) {
-        info[@"presentingViewController"] = [SentryUIViewControllerSanitizer
-            sanitizeViewControllerName:controller.presentingViewController];
+        info[@"presentingViewController"] =
+            [SentryUIViewControllerSanitizer sanitizeViewControllerName:controller.presentingViewController];
     }
 
     if (controller.parentViewController != nil) {
-        info[@"parentViewController"] = [SentryUIViewControllerSanitizer
-            sanitizeViewControllerName:controller.parentViewController];
+        info[@"parentViewController"] =
+            [SentryUIViewControllerSanitizer sanitizeViewControllerName:controller.parentViewController];
     }
 
     if (controller.view.window != nil) {
         info[@"window"] = controller.view.window.description;
         info[@"window_isKeyWindow"] = controller.view.window.isKeyWindow ? @"true" : @"false";
-        info[@"window_windowLevel"] =
-            [NSString stringWithFormat:@"%f", controller.view.window.windowLevel];
+        info[@"window_windowLevel"] = [NSString stringWithFormat:@"%f", controller.view.window.windowLevel];
         info[@"is_window_rootViewController"]
             = controller.view.window.rootViewController == controller ? @"true" : @"false";
     }

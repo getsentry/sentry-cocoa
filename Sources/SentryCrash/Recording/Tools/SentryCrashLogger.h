@@ -164,16 +164,13 @@ void i_sentrycrashlog_logObjC(
 
 void i_sentrycrashlog_logObjCBasic(CFStringRef fmt, ...);
 
-#        define i_SentryCrashLOG_FULL(LEVEL, FILE, LINE, FUNCTION, FMT, ...)                       \
-            i_sentrycrashlog_logObjC(                                                              \
-                LEVEL, FILE, LINE, FUNCTION, (__bridge CFStringRef)FMT, ##__VA_ARGS__)
-#        define i_SentryCrashLOG_BASIC(FMT, ...)                                                   \
-            i_sentrycrashlog_logObjCBasic((__bridge CFStringRef)FMT, ##__VA_ARGS__)
+#        define i_SentryCrashLOG_FULL(LEVEL, FILE, LINE, FUNCTION, FMT, ...)                                           \
+            i_sentrycrashlog_logObjC(LEVEL, FILE, LINE, FUNCTION, (__bridge CFStringRef)FMT, ##__VA_ARGS__)
+#        define i_SentryCrashLOG_BASIC(FMT, ...) i_sentrycrashlog_logObjCBasic((__bridge CFStringRef)FMT, ##__VA_ARGS__)
 
 #    else // __OBJC__
 
-void i_sentrycrashlog_logC(
-    const char *level, const char *file, int line, const char *function, const char *fmt, ...);
+void i_sentrycrashlog_logC(const char *level, const char *file, int line, const char *function, const char *fmt, ...);
 
 void i_sentrycrashlog_logCBasic(const char *fmt, ...);
 
@@ -230,7 +227,7 @@ void i_sentrycrashlog_logCBasic(const char *fmt, ...);
 #        define SentryCrashLogger_LocalLevel SentryCrashLogger_Level_None
 #    endif
 
-#    define a_SentryCrashLOG_FULL(LEVEL, FMT, ...)                                                 \
+#    define a_SentryCrashLOG_FULL(LEVEL, FMT, ...)                                                                     \
         i_SentryCrashLOG_FULL(LEVEL, __FILE__, __LINE__, __PRETTY_FUNCTION__, FMT, ##__VA_ARGS__)
 
 // ============================================================================
@@ -259,7 +256,7 @@ bool sentrycrashlog_clearLogFile(void);
  *
  * @return TRUE if the logger would print at the specified level.
  */
-#    define SentryCrashLOG_PRINTS_AT_LEVEL(LEVEL)                                                  \
+#    define SentryCrashLOG_PRINTS_AT_LEVEL(LEVEL)                                                                      \
         (SentryCrashLogger_Level >= LEVEL || SentryCrashLogger_LocalLevel >= LEVEL)
 
 /** Log a message regardless of the log settings.

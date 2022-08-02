@@ -132,8 +132,7 @@ installSignalHandler()
         g_signalStack.ss_sp = malloc(g_signalStack.ss_size);
 
         if (g_signalStack.ss_sp == NULL) {
-            SentryCrashLOG_ERROR(
-                "Failed to allocate signal stack area of size %ul", g_signalStack.ss_size);
+            SentryCrashLOG_ERROR("Failed to allocate signal stack area of size %ul", g_signalStack.ss_size);
             goto failed;
         }
     }
@@ -150,8 +149,7 @@ installSignalHandler()
 
     if (g_previousSignalHandlers == NULL) {
         SentryCrashLOG_DEBUG("Allocating memory to store previous signal handlers.");
-        g_previousSignalHandlers
-            = malloc(sizeof(*g_previousSignalHandlers) * (unsigned)fatalSignalsCount);
+        g_previousSignalHandlers = malloc(sizeof(*g_previousSignalHandlers) * (unsigned)fatalSignalsCount);
     }
 
     struct sigaction action = { { 0 } };
@@ -238,8 +236,7 @@ isEnabled()
 static void
 addContextualInfoToEvent(struct SentryCrash_MonitorContext *eventContext)
 {
-    if (!(eventContext->crashType
-            & (SentryCrashMonitorTypeSignal | SentryCrashMonitorTypeMachException))) {
+    if (!(eventContext->crashType & (SentryCrashMonitorTypeSignal | SentryCrashMonitorTypeMachException))) {
         eventContext->signal.signum = SIGABRT;
     }
 }

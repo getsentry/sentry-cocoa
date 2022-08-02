@@ -12,10 +12,10 @@ NS_ASSUME_NONNULL_BEGIN
                                     dsn:(SentryDsn *)dsn
                        didFailWithError:(NSError *_Nullable *_Nullable)error
 {
-    return [[SentryNSURLRequest alloc]
-        initEnvelopeRequestWithDsn:dsn
-                           andData:[SentrySerialization dataWithEnvelope:envelope error:error]
-                  didFailWithError:error];
+    return [[SentryNSURLRequest alloc] initEnvelopeRequestWithDsn:dsn
+                                                          andData:[SentrySerialization dataWithEnvelope:envelope
+                                                                                                  error:error]
+                                                 didFailWithError:error];
 }
 
 @end

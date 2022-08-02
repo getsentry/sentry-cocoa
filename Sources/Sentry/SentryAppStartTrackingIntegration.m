@@ -30,18 +30,15 @@ SentryAppStartTrackingIntegration ()
         return;
     }
 
-    SentryDefaultCurrentDateProvider *currentDateProvider =
-        [SentryDefaultCurrentDateProvider sharedInstance];
+    SentryDefaultCurrentDateProvider *currentDateProvider = [SentryDefaultCurrentDateProvider sharedInstance];
     SentrySysctl *sysctl = [[SentrySysctl alloc] init];
 
-    SentryAppStateManager *appStateManager =
-        [SentryDependencyContainer sharedInstance].appStateManager;
+    SentryAppStateManager *appStateManager = [SentryDependencyContainer sharedInstance].appStateManager;
 
-    self.tracker = [[SentryAppStartTracker alloc]
-        initWithCurrentDateProvider:currentDateProvider
-               dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
-                    appStateManager:appStateManager
-                             sysctl:sysctl];
+    self.tracker = [[SentryAppStartTracker alloc] initWithCurrentDateProvider:currentDateProvider
+                                                         dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
+                                                              appStateManager:appStateManager
+                                                                       sysctl:sysctl];
     [self.tracker start];
 
 #else
@@ -60,17 +57,14 @@ SentryAppStartTrackingIntegration ()
     }
 
     if (!options.enableAutoPerformanceTracking) {
-        [SentryLog logWithMessage:
-                       @"enableAutoPerformanceTracking disabled. Will not track app start up time."
+        [SentryLog logWithMessage:@"enableAutoPerformanceTracking disabled. Will not track app start up time."
                          andLevel:kSentryLevelDebug];
         return NO;
     }
 
     if (!options.isTracingEnabled) {
-        [SentryLog
-            logWithMessage:
-                @"No tracesSampleRate and tracesSampler set. Will not track app start up time."
-                  andLevel:kSentryLevelDebug];
+        [SentryLog logWithMessage:@"No tracesSampleRate and tracesSampler set. Will not track app start up time."
+                         andLevel:kSentryLevelDebug];
         return NO;
     }
 

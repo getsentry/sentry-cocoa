@@ -114,8 +114,7 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
     // mind if this approach crashes.
     if (g_saveScreenShot) {
         char crashScreenshotsPath[SentryCrashCRS_MAX_PATH_LENGTH];
-        sentrycrashcrs_getScreenshotsPath_forReport(
-            g_lastCrashReportFilePath, crashScreenshotsPath);
+        sentrycrashcrs_getScreenshotsPath_forReport(g_lastCrashReportFilePath, crashScreenshotsPath);
         g_saveScreenShot(crashScreenshotsPath);
     }
 }
@@ -222,11 +221,10 @@ sentrycrash_setSaveScreenshots(void (*callback)(const char *))
 }
 
 void
-sentrycrash_reportUserException(const char *name, const char *reason, const char *language,
-    const char *lineOfCode, const char *stackTrace, bool logAllThreads, bool terminateProgram)
+sentrycrash_reportUserException(const char *name, const char *reason, const char *language, const char *lineOfCode,
+    const char *stackTrace, bool logAllThreads, bool terminateProgram)
 {
-    sentrycrashcm_reportUserException(
-        name, reason, language, lineOfCode, stackTrace, logAllThreads, terminateProgram);
+    sentrycrashcm_reportUserException(name, reason, language, lineOfCode, stackTrace, logAllThreads, terminateProgram);
     if (g_shouldAddConsoleLogToReport) {
         sentrycrashlog_clearLogFile();
     }

@@ -50,8 +50,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
     if (activeSpan != nil) {
         newSpan = [activeSpan startChildWithOperation:operation description:name];
     } else {
-        SentryTransactionContext *context =
-            [[SentryTransactionContext alloc] initWithName:name operation:operation];
+        SentryTransactionContext *context = [[SentryTransactionContext alloc] initWithName:name operation:operation];
 
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> span) {
             BOOL bindToScope = true;
@@ -81,17 +80,14 @@ SentryPerformanceTracker () <SentryTracerDelegate>
             self.spans[spanId] = newSpan;
         }
     } else {
-        [SentryLog logWithMessage:@"startSpanWithName:operation: spanId is nil."
-                         andLevel:kSentryLevelError];
+        [SentryLog logWithMessage:@"startSpanWithName:operation: spanId is nil." andLevel:kSentryLevelError];
         return [SentrySpanId empty];
     }
 
     return spanId;
 }
 
-- (void)measureSpanWithDescription:(NSString *)description
-                         operation:(NSString *)operation
-                           inBlock:(void (^)(void))block
+- (void)measureSpanWithDescription:(NSString *)description operation:(NSString *)operation inBlock:(void (^)(void))block
 {
     SentrySpanId *spanId = [self startSpanWithName:description operation:operation];
     [self pushActiveSpan:spanId];
@@ -106,9 +102,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
                            inBlock:(void (^)(void))block
 {
     [self activateSpan:parentSpanId
-           duringBlock:^{
-               [self measureSpanWithDescription:description operation:operation inBlock:block];
-           }];
+           duringBlock:^{ [self measureSpanWithDescription:description operation:operation inBlock:block]; }];
 }
 
 - (void)activateSpan:(SentrySpanId *)spanId duringBlock:(void (^)(void))block

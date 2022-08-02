@@ -71,8 +71,7 @@ getBundleName()
 static NSString *
 getBasePath()
 {
-    NSArray *directories
-        = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    NSArray *directories = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     if ([directories count] == 0) {
         SentryCrashLOG_ERROR(@"Could not locate cache directory path.");
         return nil;
@@ -107,8 +106,7 @@ getBasePath()
 @synthesize printPreviousLog = _printPreviousLog;
 @synthesize maxReportCount = _maxReportCount;
 @synthesize uncaughtExceptionHandler = _uncaughtExceptionHandler;
-@synthesize currentSnapshotUserReportedExceptionHandler
-    = _currentSnapshotUserReportedExceptionHandler;
+@synthesize currentSnapshotUserReportedExceptionHandler = _currentSnapshotUserReportedExceptionHandler;
 
 // ============================================================================
 #pragma mark - Lifecycle -
@@ -209,8 +207,7 @@ getBasePath()
         NSMutableData *data = [NSMutableData dataWithLength:count * sizeof(const char *)];
         const char **classes = data.mutableBytes;
         for (unsigned i = 0; i < count; i++) {
-            classes[i] = [[doNotIntrospectClasses objectAtIndex:i]
-                cStringUsingEncoding:NSUTF8StringEncoding];
+            classes[i] = [[doNotIntrospectClasses objectAtIndex:i] cStringUsingEncoding:NSUTF8StringEncoding];
         }
         sentrycrash_setDoNotIntrospectClasses(classes, (int)count);
     }
@@ -228,8 +225,8 @@ getBasePath()
     sentrycrashcm_system_getAPI()->addContextualInfoToEvent(&fakeEvent);
     NSMutableDictionary *dict = [NSMutableDictionary new];
 
-#define COPY_STRING(A)                                                                             \
-    if (fakeEvent.System.A)                                                                        \
+#define COPY_STRING(A)                                                                                                 \
+    if (fakeEvent.System.A)                                                                                            \
     dict[@ #A] = [NSString stringWithUTF8String:fakeEvent.System.A]
 #define COPY_PRIMITIVE(A) dict[@ #A] = @(fakeEvent.System.A)
     COPY_STRING(systemName);
@@ -354,7 +351,7 @@ getBasePath()
 #pragma mark - Advanced API -
 // ============================================================================
 
-#define SYNTHESIZE_CRASH_STATE_PROPERTY(TYPE, NAME)                                                \
+#define SYNTHESIZE_CRASH_STATE_PROPERTY(TYPE, NAME)                                                                    \
     -(TYPE)NAME { return sentrycrashstate_currentState()->NAME; }
 
 SYNTHESIZE_CRASH_STATE_PROPERTY(NSTimeInterval, activeDurationSinceLastCrash)
@@ -427,13 +424,11 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
 {
     NSMutableDictionary *crashReport = report[@SentryCrashField_Crash];
     if (crashReport != nil) {
-        crashReport[@SentryCrashField_Diagnosis] =
-            [[SentryCrashDoctor doctor] diagnoseCrash:report];
+        crashReport[@SentryCrashField_Diagnosis] = [[SentryCrashDoctor doctor] diagnoseCrash:report];
     }
     crashReport = report[@SentryCrashField_RecrashReport][@SentryCrashField_Crash];
     if (crashReport != nil) {
-        crashReport[@SentryCrashField_Diagnosis] =
-            [[SentryCrashDoctor doctor] diagnoseCrash:report];
+        crashReport[@SentryCrashField_Diagnosis] = [[SentryCrashDoctor doctor] diagnoseCrash:report];
     }
 }
 
@@ -462,16 +457,14 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
     }
 
     NSError *error = nil;
-    NSMutableDictionary *crashReport =
-        [SentryCrashJSONCodec decode:jsonData
-                             options:SentryCrashJSONDecodeOptionIgnoreNullInArray
-                             | SentryCrashJSONDecodeOptionIgnoreNullInObject
-                             | SentryCrashJSONDecodeOptionKeepPartialObject
-                               error:&error];
+    NSMutableDictionary *crashReport = [SentryCrashJSONCodec
+         decode:jsonData
+        options:SentryCrashJSONDecodeOptionIgnoreNullInArray | SentryCrashJSONDecodeOptionIgnoreNullInObject
+        | SentryCrashJSONDecodeOptionKeepPartialObject
+          error:&error];
 
     if (error != nil) {
-        SentryCrashLOG_ERROR(
-            @"Encountered error loading crash report %" PRIx64 ": %@", reportID, error);
+        SentryCrashLOG_ERROR(@"Encountered error loading crash report %" PRIx64 ": %@", reportID, error);
     }
     if (crashReport == nil) {
         SentryCrashLOG_ERROR(@"Could not load crash report");

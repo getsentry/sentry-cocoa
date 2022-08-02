@@ -16,9 +16,7 @@ static NSString *volatile installationString;
         if (nil != installationString) {
             return installationString;
         }
-        NSString *cachePath
-            = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
-                  .firstObject;
+        NSString *cachePath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject;
 
         NSString *installationFilePath = [cachePath stringByAppendingPathComponent:@"INSTALLATION"];
 
@@ -26,15 +24,11 @@ static NSString *volatile installationString;
 
         if (nil == installationData) {
             installationString = [NSUUID UUID].UUIDString;
-            NSData *installationStringData =
-                [installationString dataUsingEncoding:NSUTF8StringEncoding];
+            NSData *installationStringData = [installationString dataUsingEncoding:NSUTF8StringEncoding];
             NSFileManager *fileManager = [NSFileManager defaultManager];
-            [fileManager createFileAtPath:installationFilePath
-                                 contents:installationStringData
-                               attributes:nil];
+            [fileManager createFileAtPath:installationFilePath contents:installationStringData attributes:nil];
         } else {
-            installationString = [[NSString alloc] initWithData:installationData
-                                                       encoding:NSUTF8StringEncoding];
+            installationString = [[NSString alloc] initWithData:installationData encoding:NSUTF8StringEncoding];
         }
 
         return installationString;

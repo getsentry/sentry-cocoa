@@ -34,17 +34,16 @@ SentryBreadcrumbTracker (Private)
         // in this case, we don't care about asserting our hard coded value matches
         // since this will be the app version instead of our SDK version.
         XCTAssert([version isEqualToString:SentryMeta.versionString],
-            @"Version of bundle:%@ not equal to version of SentryMeta:%@", version,
-            SentryMeta.versionString);
+            @"Version of bundle:%@ not equal to version of SentryMeta:%@", version, SentryMeta.versionString);
     }
 }
 
 - (void)testSharedClient
 {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc]
-            initWithDict:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }
-        didFailWithError:&error];
+    SentryOptions *options =
+        [[SentryOptions alloc] initWithDict:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }
+                           didFailWithError:&error];
 
     SentryClient *client = [[SentryClient alloc] initWithOptions:options];
     XCTAssertNil(error);
@@ -65,8 +64,7 @@ SentryBreadcrumbTracker (Private)
 {
     [SentrySDK startWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
 
-    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                                             category:@"testCategory"];
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo category:@"testCategory"];
     crumb.type = @"testType";
     crumb.message = @"testMessage";
     crumb.data = @{ @"testDataKey" : @"testDataVaue" };
@@ -90,10 +88,9 @@ SentryBreadcrumbTracker (Private)
 {
     [SentrySDK startWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
 
-    NSError *error =
-        [NSError errorWithDomain:@"testworld"
-                            code:200
-                        userInfo:@{ NSLocalizedDescriptionKey : @"test ran out of money" }];
+    NSError *error = [NSError errorWithDomain:@"testworld"
+                                         code:200
+                                     userInfo:@{ NSLocalizedDescriptionKey : @"test ran out of money" }];
     [SentrySDK captureError:error];
 }
 
@@ -121,8 +118,7 @@ SentryBreadcrumbTracker (Private)
     NSTimeInterval timeInterval = 1605888590.123;
     NSDate *date = [NSDate dateWithTimeIntervalSince1970:timeInterval];
     XCTAssertEqual(
-        [[NSDate sentry_fromIso8601String:[date sentry_toIso8601String]] timeIntervalSince1970],
-        timeInterval);
+        [[NSDate sentry_fromIso8601String:[date sentry_toIso8601String]] timeIntervalSince1970], timeInterval);
 }
 
 - (void)testDateCategoryPrecision

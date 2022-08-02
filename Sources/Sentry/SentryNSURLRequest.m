@@ -34,21 +34,17 @@ SentryNSURLRequest ()
         if (error) {
             // TODO: We're possibly overriding an error set by the actual
             // code that failed ^
-            *error = NSErrorFromSentryError(
-                kSentryErrorJsonConversionError, @"Event cannot be converted to JSON");
+            *error = NSErrorFromSentryError(kSentryErrorJsonConversionError, @"Event cannot be converted to JSON");
         }
         return nil;
     }
 
     if ([SentrySDK.currentHub getClient].options.debug == YES) {
-        [SentryLog logWithMessage:@"Sending JSON -------------------------------"
-                         andLevel:kSentryLevelDebug];
+        [SentryLog logWithMessage:@"Sending JSON -------------------------------" andLevel:kSentryLevelDebug];
         [SentryLog logWithMessage:[NSString stringWithFormat:@"%@",
-                                            [[NSString alloc] initWithData:jsonData
-                                                                  encoding:NSUTF8StringEncoding]]
+                                            [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]]
                          andLevel:kSentryLevelDebug];
-        [SentryLog logWithMessage:@"--------------------------------------------"
-                         andLevel:kSentryLevelDebug];
+        [SentryLog logWithMessage:@"--------------------------------------------" andLevel:kSentryLevelDebug];
     }
     return [self initStoreRequestWithDsn:dsn andData:jsonData didFailWithError:error];
 }
@@ -108,13 +104,11 @@ newAuthHeader(NSURL *url)
 {
     NSMutableString *string = [NSMutableString stringWithString:@"Sentry "];
     [string appendFormat:@"%@,", newHeaderPart(@"sentry_version", SentryServerVersionString)];
+    [string appendFormat:@"%@,",
+            newHeaderPart(
+                @"sentry_client", [NSString stringWithFormat:@"%@/%@", SentryMeta.sdkName, SentryMeta.versionString])];
     [string
-        appendFormat:@"%@,",
-        newHeaderPart(@"sentry_client",
-            [NSString stringWithFormat:@"%@/%@", SentryMeta.sdkName, SentryMeta.versionString])];
-    [string
-        appendFormat:@"%@,",
-        newHeaderPart(@"sentry_timestamp", @((NSInteger)[[NSDate date] timeIntervalSince1970]))];
+        appendFormat:@"%@,", newHeaderPart(@"sentry_timestamp", @((NSInteger)[[NSDate date] timeIntervalSince1970]))];
     [string appendFormat:@"%@", newHeaderPart(@"sentry_key", url.user)];
     if (nil != url.password) {
         [string appendFormat:@",%@", newHeaderPart(@"sentry_secret", url.password)];

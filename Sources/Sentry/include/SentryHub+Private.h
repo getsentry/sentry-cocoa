@@ -1,7 +1,6 @@
 #import "SentryHub.h"
 
-@class SentryEnvelopeItem, SentryId, SentryScope, SentryTransaction, SentryDispatchQueueWrapper,
-    SentryTracer;
+@class SentryEnvelopeItem, SentryId, SentryScope, SentryTransaction, SentryDispatchQueueWrapper, SentryTracer;
 
 NS_ASSUME_NONNULL_BEGIN
 

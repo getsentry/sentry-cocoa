@@ -83,11 +83,8 @@ parentOfDeepKey(id container, NSArray *deepKey)
     NSArray *parentKey = [deepKey subarrayWithRange:NSMakeRange(0, deepKeyCount - 1)];
     id parent = objectForDeepKey(container, parentKey);
     if (parent == nil) {
-        NSString *reason =
-            [NSString stringWithFormat:@"Parent %@ does not resolve to a valid object", parentKey];
-        @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                       reason:reason
-                                     userInfo:nil];
+        NSString *reason = [NSString stringWithFormat:@"Parent %@ does not resolve to a valid object", parentKey];
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:reason userInfo:nil];
     }
     return parent;
 }
@@ -124,9 +121,7 @@ setObjectForDeepKey(id container, id object, NSArray *deepKey)
 
     NSArray *parentKey = [deepKey subarrayWithRange:NSMakeRange(0, [deepKey count] - 1)];
     NSString *reason = [NSString stringWithFormat:excFormat, parentKey, [parentContainer class]];
-    @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                   reason:reason
-                                 userInfo:nil];
+    @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:reason userInfo:nil];
 }
 
 static void
@@ -160,9 +155,7 @@ removeObjectForDeepKey(id container, NSArray *deepKey)
 
     NSArray *parentKey = [deepKey subarrayWithRange:NSMakeRange(0, [deepKey count] - 1)];
     NSString *reason = [NSString stringWithFormat:excFormat, parentKey, [parentContainer class]];
-    @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                   reason:reason
-                                 userInfo:nil];
+    @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:reason userInfo:nil];
 }
 
 static void

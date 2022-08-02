@@ -41,8 +41,7 @@
     return [[self alloc] init];
 }
 
-- (void)filterReports:(__unused NSArray *)reports
-         onCompletion:(SentryCrashReportFilterCompletion)onCompletion
+- (void)filterReports:(__unused NSArray *)reports onCompletion:(SentryCrashReportFilterCompletion)onCompletion
 {
     onCompletion(nil, YES, nil);
 }
@@ -69,9 +68,7 @@
 @synthesize timer = _timer;
 @synthesize onCompletion = _onCompletion;
 
-+ (SentryCrash_TestFilter *)filterWithDelay:(NSTimeInterval)delay
-                                  completed:(BOOL)completed
-                                      error:(NSError *)error
++ (SentryCrash_TestFilter *)filterWithDelay:(NSTimeInterval)delay completed:(BOOL)completed error:(NSError *)error
 {
     return [[self alloc] initWithDelay:delay completed:completed error:error];
 }
@@ -86,8 +83,7 @@
     return self;
 }
 
-- (void)filterReports:(NSArray *)reports
-         onCompletion:(SentryCrashReportFilterCompletion)onCompletion
+- (void)filterReports:(NSArray *)reports onCompletion:(SentryCrashReportFilterCompletion)onCompletion
 {
     self.reports = reports;
     self.onCompletion = onCompletion;
@@ -121,24 +117,21 @@
     __block NSArray *reports = [NSArray arrayWithObject:@""];
     __weak id weakRef = reports;
 
-    __block SentryCrashReportFilterPassthrough *filter =
-        [SentryCrashReportFilterPassthrough filter];
+    __block SentryCrashReportFilterPassthrough *filter = [SentryCrashReportFilterPassthrough filter];
     [filter filterReports:reports
-             onCompletion:^(__unused NSArray *filteredReports, __unused BOOL completed,
-                 __unused NSError *error) {
+             onCompletion:^(__unused NSArray *filteredReports, __unused BOOL completed, __unused NSError *error) {
                  filter = nil;
                  reports = nil;
-                 dispatch_async(
-                     dispatch_get_main_queue(), ^{ XCTAssertNil(weakRef, @"Object leaked"); });
+                 dispatch_async(dispatch_get_main_queue(), ^{ XCTAssertNil(weakRef, @"Object leaked"); });
              }];
 }
 
 - (void)testPipeline
 {
     NSArray *expected = [NSArray arrayWithObjects:@"1", @"2", @"3", nil];
-    id<SentryCrashReportFilter> filter = [SentryCrashReportFilterPipeline
-        filterWithFilters:[SentryCrashReportFilterPassthrough filter],
-        [SentryCrashReportFilterPassthrough filter], nil];
+    id<SentryCrashReportFilter> filter =
+        [SentryCrashReportFilterPipeline filterWithFilters:[SentryCrashReportFilterPassthrough filter],
+                                         [SentryCrashReportFilterPassthrough filter], nil];
 
     [filter filterReports:expected
              onCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
@@ -152,8 +145,7 @@
 {
     NSArray *expected = [NSArray arrayWithObjects:@"1", @"2", @"3", nil];
     id<SentryCrashReportFilter> filter = [[SentryCrashReportFilterPipeline alloc]
-        initWithFilters:[SentryCrashReportFilterPassthrough filter],
-        [SentryCrashReportFilterPassthrough filter], nil];
+        initWithFilters:[SentryCrashReportFilterPassthrough filter], [SentryCrashReportFilterPassthrough filter], nil];
     filter = filter;
 
     [filter filterReports:expected
@@ -208,18 +200,14 @@
 - (void)testPiplelineLeak1
 {
     __block NSArray *reports = [NSArray arrayWithObjects:@"one", @"two", nil];
-    __block id<SentryCrashReportFilter> filter = [SentryCrash_TestFilter filterWithDelay:0.1
-                                                                               completed:YES
-                                                                                   error:nil];
+    __block id<SentryCrashReportFilter> filter = [SentryCrash_TestFilter filterWithDelay:0.1 completed:YES error:nil];
 
     __weak id weakReports = reports;
     __weak id weakFilter = filter;
 
-    __block SentryCrashReportFilterPipeline *pipeline =
-        [SentryCrashReportFilterPipeline filterWithFilters:filter, nil];
+    __block SentryCrashReportFilterPipeline *pipeline = [SentryCrashReportFilterPipeline filterWithFilters:filter, nil];
     [pipeline filterReports:reports
-               onCompletion:^(__unused NSArray *filteredReports, __unused BOOL completed,
-                   __unused NSError *error) {
+               onCompletion:^(__unused NSArray *filteredReports, __unused BOOL completed, __unused NSError *error) {
                    reports = nil;
                    filter = nil;
                    pipeline = nil;
@@ -234,18 +222,14 @@
 - (void)testPiplelineLeak2
 {
     __block NSArray *reports = [NSArray arrayWithObjects:@"one", @"two", nil];
-    __block id<SentryCrashReportFilter> filter = [SentryCrash_TestFilter filterWithDelay:0.1
-                                                                               completed:NO
-                                                                                   error:nil];
+    __block id<SentryCrashReportFilter> filter = [SentryCrash_TestFilter filterWithDelay:0.1 completed:NO error:nil];
 
     __weak id weakReports = reports;
     __weak id weakFilter = filter;
 
-    __block SentryCrashReportFilterPipeline *pipeline =
-        [SentryCrashReportFilterPipeline filterWithFilters:filter, nil];
+    __block SentryCrashReportFilterPipeline *pipeline = [SentryCrashReportFilterPipeline filterWithFilters:filter, nil];
     [pipeline filterReports:reports
-               onCompletion:^(__unused NSArray *filteredReports, __unused BOOL completed,
-                   __unused NSError *error) {
+               onCompletion:^(__unused NSArray *filteredReports, __unused BOOL completed, __unused NSError *error) {
                    reports = nil;
                    filter = nil;
                    pipeline = nil;
@@ -275,10 +259,9 @@
 - (void)testFilterStringToData
 {
     NSArray *source = [NSArray arrayWithObjects:@"1", @"2", @"3", nil];
-    NSArray *expected =
-        [NSArray arrayWithObjects:(id _Nonnull)[@"1" dataUsingEncoding:NSUTF8StringEncoding],
-                 (id _Nonnull)[@"2" dataUsingEncoding:NSUTF8StringEncoding],
-                 (id _Nonnull)[@"3" dataUsingEncoding:NSUTF8StringEncoding], nil];
+    NSArray *expected = [NSArray arrayWithObjects:(id _Nonnull)[@"1" dataUsingEncoding:NSUTF8StringEncoding],
+                                 (id _Nonnull)[@"2" dataUsingEncoding:NSUTF8StringEncoding],
+                                 (id _Nonnull)[@"3" dataUsingEncoding:NSUTF8StringEncoding], nil];
     id<SentryCrashReportFilter> filter = [SentryCrashReportFilterStringToData filter];
 
     [filter filterReports:source
@@ -291,10 +274,9 @@
 
 - (void)testFilterDataToString
 {
-    NSArray *source =
-        [NSArray arrayWithObjects:(id _Nonnull)[@"1" dataUsingEncoding:NSUTF8StringEncoding],
-                 (id _Nonnull)[@"2" dataUsingEncoding:NSUTF8StringEncoding],
-                 (id _Nonnull)[@"3" dataUsingEncoding:NSUTF8StringEncoding], nil];
+    NSArray *source = [NSArray arrayWithObjects:(id _Nonnull)[@"1" dataUsingEncoding:NSUTF8StringEncoding],
+                               (id _Nonnull)[@"2" dataUsingEncoding:NSUTF8StringEncoding],
+                               (id _Nonnull)[@"3" dataUsingEncoding:NSUTF8StringEncoding], nil];
     NSArray *expected = [NSArray arrayWithObjects:@"1", @"2", @"3", nil];
     id<SentryCrashReportFilter> filter = [SentryCrashReportFilterDataToString filter];
 
@@ -309,9 +291,9 @@
 - (void)testFilterPipeline
 {
     NSArray *expected = [NSArray arrayWithObjects:@"1", @"2", @"3", nil];
-    id<SentryCrashReportFilter> filter = [SentryCrashReportFilterPipeline
-        filterWithFilters:[SentryCrashReportFilterStringToData filter],
-        [SentryCrashReportFilterDataToString filter], nil];
+    id<SentryCrashReportFilter> filter =
+        [SentryCrashReportFilterPipeline filterWithFilters:[SentryCrashReportFilterStringToData filter],
+                                         [SentryCrashReportFilterDataToString filter], nil];
 
     [filter filterReports:expected
              onCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
@@ -324,13 +306,12 @@
 - (void)testFilterCombine
 {
     NSArray *expected1 = [NSArray arrayWithObjects:@"1", @"2", @"3", nil];
-    NSArray *expected2 =
-        [NSArray arrayWithObjects:(id _Nonnull)[@"1" dataUsingEncoding:NSUTF8StringEncoding],
-                 (id _Nonnull)[@"2" dataUsingEncoding:NSUTF8StringEncoding],
-                 (id _Nonnull)[@"3" dataUsingEncoding:NSUTF8StringEncoding], nil];
-    id<SentryCrashReportFilter> filter = [SentryCrashReportFilterCombine
-        filterWithFiltersAndKeys:[SentryCrashReportFilterPassthrough filter], @"normal",
-        [SentryCrashReportFilterStringToData filter], @"data", nil];
+    NSArray *expected2 = [NSArray arrayWithObjects:(id _Nonnull)[@"1" dataUsingEncoding:NSUTF8StringEncoding],
+                                  (id _Nonnull)[@"2" dataUsingEncoding:NSUTF8StringEncoding],
+                                  (id _Nonnull)[@"3" dataUsingEncoding:NSUTF8StringEncoding], nil];
+    id<SentryCrashReportFilter> filter =
+        [SentryCrashReportFilterCombine filterWithFiltersAndKeys:[SentryCrashReportFilterPassthrough filter], @"normal",
+                                        [SentryCrashReportFilterStringToData filter], @"data", nil];
 
     [filter filterReports:expected1
              onCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
@@ -351,13 +332,12 @@
 - (void)testFilterCombineInit
 {
     NSArray *expected1 = [NSArray arrayWithObjects:@"1", @"2", @"3", nil];
-    NSArray *expected2 =
-        [NSArray arrayWithObjects:(id _Nonnull)[@"1" dataUsingEncoding:NSUTF8StringEncoding],
-                 (id _Nonnull)[@"2" dataUsingEncoding:NSUTF8StringEncoding],
-                 (id _Nonnull)[@"3" dataUsingEncoding:NSUTF8StringEncoding], nil];
-    id<SentryCrashReportFilter> filter = [[SentryCrashReportFilterCombine alloc]
-        initWithFiltersAndKeys:[SentryCrashReportFilterPassthrough filter], @"normal",
-        [SentryCrashReportFilterStringToData filter], @"data", nil];
+    NSArray *expected2 = [NSArray arrayWithObjects:(id _Nonnull)[@"1" dataUsingEncoding:NSUTF8StringEncoding],
+                                  (id _Nonnull)[@"2" dataUsingEncoding:NSUTF8StringEncoding],
+                                  (id _Nonnull)[@"3" dataUsingEncoding:NSUTF8StringEncoding], nil];
+    id<SentryCrashReportFilter> filter =
+        [[SentryCrashReportFilterCombine alloc] initWithFiltersAndKeys:[SentryCrashReportFilterPassthrough filter],
+                                                @"normal", [SentryCrashReportFilterStringToData filter], @"data", nil];
     filter = filter;
 
     [filter filterReports:expected1
@@ -379,8 +359,7 @@
 - (void)testFilterCombineNoFilters
 {
     NSArray *expected1 = [NSArray arrayWithObjects:@"1", @"2", @"3", nil];
-    id<SentryCrashReportFilter> filter =
-        [SentryCrashReportFilterCombine filterWithFiltersAndKeys:nil];
+    id<SentryCrashReportFilter> filter = [SentryCrashReportFilterCombine filterWithFiltersAndKeys:nil];
 
     [filter filterReports:expected1
              onCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
@@ -398,8 +377,7 @@
 {
     NSArray *expected1 = [NSArray arrayWithObjects:@"1", @"2", @"3", nil];
     id<SentryCrashReportFilter> filter = [SentryCrashReportFilterCombine
-        filterWithFiltersAndKeys:[SentryCrash_TestFilter filterWithDelay:0 completed:NO error:nil],
-        @"Blah", nil];
+        filterWithFiltersAndKeys:[SentryCrash_TestFilter filterWithDelay:0 completed:NO error:nil], @"Blah", nil];
 
     [filter filterReports:expected1
              onCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
@@ -412,8 +390,8 @@
 - (void)testFilterCombineNilReports
 {
     NSArray *expected1 = [NSArray arrayWithObjects:@"1", @"2", @"3", nil];
-    id<SentryCrashReportFilter> filter = [SentryCrashReportFilterCombine
-        filterWithFiltersAndKeys:[SentryCrash_TestNilFilter filter], @"Blah", nil];
+    id<SentryCrashReportFilter> filter =
+        [SentryCrashReportFilterCombine filterWithFiltersAndKeys:[SentryCrash_TestNilFilter filter], @"Blah", nil];
 
     [filter filterReports:expected1
              onCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
@@ -426,15 +404,12 @@
 - (void)testFilterCombineArray
 {
     NSArray *expected1 = [NSArray arrayWithObjects:@"1", @"2", @"3", nil];
-    NSArray *expected2 =
-        [NSArray arrayWithObjects:(id _Nonnull)[@"1" dataUsingEncoding:NSUTF8StringEncoding],
-                 (id _Nonnull)[@"2" dataUsingEncoding:NSUTF8StringEncoding],
-                 (id _Nonnull)[@"3" dataUsingEncoding:NSUTF8StringEncoding], nil];
+    NSArray *expected2 = [NSArray arrayWithObjects:(id _Nonnull)[@"1" dataUsingEncoding:NSUTF8StringEncoding],
+                                  (id _Nonnull)[@"2" dataUsingEncoding:NSUTF8StringEncoding],
+                                  (id _Nonnull)[@"3" dataUsingEncoding:NSUTF8StringEncoding], nil];
     id<SentryCrashReportFilter> filter = [SentryCrashReportFilterCombine
-        filterWithFiltersAndKeys:[NSArray
-                                     arrayWithObject:[SentryCrashReportFilterPassthrough filter]],
-        @"normal", [NSArray arrayWithObject:[SentryCrashReportFilterStringToData filter]], @"data",
-        nil];
+        filterWithFiltersAndKeys:[NSArray arrayWithObject:[SentryCrashReportFilterPassthrough filter]], @"normal",
+        [NSArray arrayWithObject:[SentryCrashReportFilterStringToData filter]], @"data", nil];
 
     [filter filterReports:expected1
              onCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
@@ -455,11 +430,11 @@
 - (void)testFilterCombineMissingKey
 {
     NSArray *expected1 = [NSArray arrayWithObjects:@"1", @"2", @"3", nil];
-    id<SentryCrashReportFilter> filter = [SentryCrashReportFilterCombine
-        filterWithFiltersAndKeys:[SentryCrashReportFilterPassthrough filter], @"normal",
-        [SentryCrashReportFilterStringToData filter],
-        // Missing key
-        nil];
+    id<SentryCrashReportFilter> filter =
+        [SentryCrashReportFilterCombine filterWithFiltersAndKeys:[SentryCrashReportFilterPassthrough filter], @"normal",
+                                        [SentryCrashReportFilterStringToData filter],
+                                        // Missing key
+                                        nil];
 
     [filter filterReports:expected1
              onCompletion:^(__unused NSArray *filteredReports, BOOL completed, NSError *error) {
@@ -472,11 +447,9 @@
 {
     NSString *key = @"someKey";
     NSString *expected = @"value";
-    NSArray *reports =
-        [NSArray arrayWithObjects:[NSDictionary dictionaryWithObject:expected forKey:key], nil];
+    NSArray *reports = [NSArray arrayWithObjects:[NSDictionary dictionaryWithObject:expected forKey:key], nil];
 
-    id<SentryCrashReportFilter> filter = [SentryCrashReportFilterObjectForKey filterWithKey:key
-                                                                              allowNotFound:NO];
+    id<SentryCrashReportFilter> filter = [SentryCrashReportFilterObjectForKey filterWithKey:key allowNotFound:NO];
 
     [filter filterReports:reports
              onCompletion:^(__unused NSArray *filteredReports, BOOL completed, NSError *error) {
@@ -490,11 +463,9 @@
 {
     id key = [NSNumber numberWithInt:100];
     NSString *expected = @"value";
-    NSArray *reports =
-        [NSArray arrayWithObjects:[NSDictionary dictionaryWithObject:expected forKey:key], nil];
+    NSArray *reports = [NSArray arrayWithObjects:[NSDictionary dictionaryWithObject:expected forKey:key], nil];
 
-    id<SentryCrashReportFilter> filter = [SentryCrashReportFilterObjectForKey filterWithKey:key
-                                                                              allowNotFound:NO];
+    id<SentryCrashReportFilter> filter = [SentryCrashReportFilterObjectForKey filterWithKey:key allowNotFound:NO];
 
     [filter filterReports:reports
              onCompletion:^(__unused NSArray *filteredReports, BOOL completed, NSError *error) {
@@ -508,11 +479,10 @@
 {
     NSString *key = @"someKey";
     NSString *expected = @"value";
-    NSArray *reports =
-        [NSArray arrayWithObjects:[NSDictionary dictionaryWithObject:expected forKey:key], nil];
+    NSArray *reports = [NSArray arrayWithObjects:[NSDictionary dictionaryWithObject:expected forKey:key], nil];
 
-    id<SentryCrashReportFilter> filter =
-        [SentryCrashReportFilterObjectForKey filterWithKey:@"someOtherKey" allowNotFound:YES];
+    id<SentryCrashReportFilter> filter = [SentryCrashReportFilterObjectForKey filterWithKey:@"someOtherKey"
+                                                                              allowNotFound:YES];
 
     [filter filterReports:reports
              onCompletion:^(__unused NSArray *filteredReports, BOOL completed, NSError *error) {
@@ -527,11 +497,10 @@
 {
     NSString *key = @"someKey";
     NSString *expected = @"value";
-    NSArray *reports =
-        [NSArray arrayWithObjects:[NSDictionary dictionaryWithObject:expected forKey:key], nil];
+    NSArray *reports = [NSArray arrayWithObjects:[NSDictionary dictionaryWithObject:expected forKey:key], nil];
 
-    id<SentryCrashReportFilter> filter =
-        [SentryCrashReportFilterObjectForKey filterWithKey:@"someOtherKey" allowNotFound:NO];
+    id<SentryCrashReportFilter> filter = [SentryCrashReportFilterObjectForKey filterWithKey:@"someOtherKey"
+                                                                              allowNotFound:NO];
 
     [filter filterReports:reports
              onCompletion:^(__unused NSArray *filteredReports, BOOL completed, NSError *error) {
@@ -542,13 +511,11 @@
 
 - (void)testConcatenate
 {
-    NSArray *reports = [NSArray arrayWithObjects:[NSDictionary dictionaryWithObjectsAndKeys:@"1",
-                                                               @"first", @"a", @"second", nil],
-                                nil];
+    NSArray *reports = [NSArray
+        arrayWithObjects:[NSDictionary dictionaryWithObjectsAndKeys:@"1", @"first", @"a", @"second", nil], nil];
     NSString *expected = @"1,a";
     id<SentryCrashReportFilter> filter =
-        [SentryCrashReportFilterConcatenate filterWithSeparatorFmt:@","
-                                                              keys:@"first", @"second", nil];
+        [SentryCrashReportFilterConcatenate filterWithSeparatorFmt:@"," keys:@"first", @"second", nil];
 
     [filter filterReports:reports
              onCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
@@ -560,13 +527,11 @@
 
 - (void)testConcatenateInit
 {
-    NSArray *reports = [NSArray arrayWithObjects:[NSDictionary dictionaryWithObjectsAndKeys:@"1",
-                                                               @"first", @"a", @"second", nil],
-                                nil];
+    NSArray *reports = [NSArray
+        arrayWithObjects:[NSDictionary dictionaryWithObjectsAndKeys:@"1", @"first", @"a", @"second", nil], nil];
     NSString *expected = @"1,a";
     id<SentryCrashReportFilter> filter =
-        [[SentryCrashReportFilterConcatenate alloc] initWithSeparatorFmt:@","
-                                                                    keys:@"first", @"second", nil];
+        [[SentryCrashReportFilterConcatenate alloc] initWithSeparatorFmt:@"," keys:@"first", @"second", nil];
     filter = filter;
 
     [filter filterReports:reports
@@ -579,14 +544,11 @@
 
 - (void)testSubset
 {
-    NSArray *reports =
-        [NSArray arrayWithObjects:[NSDictionary dictionaryWithObjectsAndKeys:@"1", @"first", @"a",
-                                                @"second", @"b", @"third", nil],
-                 nil];
-    NSDictionary *expected =
-        [NSDictionary dictionaryWithObjectsAndKeys:@"1", @"first", @"b", @"third", nil];
-    id<SentryCrashReportFilter> filter =
-        [SentryCrashReportFilterSubset filterWithKeys:@"first", @"third", nil];
+    NSArray *reports = [NSArray arrayWithObjects:[NSDictionary dictionaryWithObjectsAndKeys:@"1", @"first", @"a",
+                                                               @"second", @"b", @"third", nil],
+                                nil];
+    NSDictionary *expected = [NSDictionary dictionaryWithObjectsAndKeys:@"1", @"first", @"b", @"third", nil];
+    id<SentryCrashReportFilter> filter = [SentryCrashReportFilterSubset filterWithKeys:@"first", @"third", nil];
 
     [filter filterReports:reports
              onCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
@@ -598,12 +560,10 @@
 
 - (void)testSubsetBadKeyPath
 {
-    NSArray *reports =
-        [NSArray arrayWithObjects:[NSDictionary dictionaryWithObjectsAndKeys:@"1", @"first", @"a",
-                                                @"second", @"b", @"third", nil],
-                 nil];
-    id<SentryCrashReportFilter> filter =
-        [SentryCrashReportFilterSubset filterWithKeys:@"first", @"aaa", nil];
+    NSArray *reports = [NSArray arrayWithObjects:[NSDictionary dictionaryWithObjectsAndKeys:@"1", @"first", @"a",
+                                                               @"second", @"b", @"third", nil],
+                                nil];
+    id<SentryCrashReportFilter> filter = [SentryCrashReportFilterSubset filterWithKeys:@"first", @"aaa", nil];
 
     [filter filterReports:reports
              onCompletion:^(__unused NSArray *filteredReports, BOOL completed, NSError *error) {
@@ -614,14 +574,11 @@
 
 - (void)testSubsetInit
 {
-    NSArray *reports =
-        [NSArray arrayWithObjects:[NSDictionary dictionaryWithObjectsAndKeys:@"1", @"first", @"a",
-                                                @"second", @"b", @"third", nil],
-                 nil];
-    NSDictionary *expected =
-        [NSDictionary dictionaryWithObjectsAndKeys:@"1", @"first", @"b", @"third", nil];
-    id<SentryCrashReportFilter> filter =
-        [[SentryCrashReportFilterSubset alloc] initWithKeys:@"first", @"third", nil];
+    NSArray *reports = [NSArray arrayWithObjects:[NSDictionary dictionaryWithObjectsAndKeys:@"1", @"first", @"a",
+                                                               @"second", @"b", @"third", nil],
+                                nil];
+    NSDictionary *expected = [NSDictionary dictionaryWithObjectsAndKeys:@"1", @"first", @"b", @"third", nil];
+    id<SentryCrashReportFilter> filter = [[SentryCrashReportFilterSubset alloc] initWithKeys:@"first", @"third", nil];
     filter = filter;
 
     [filter filterReports:reports

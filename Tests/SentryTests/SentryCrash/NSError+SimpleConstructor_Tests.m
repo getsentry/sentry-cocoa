@@ -35,9 +35,7 @@
 
 - (void)testSentryErrorWithDomain
 {
-    NSError *error = [NSError sentryErrorWithDomain:@"Domain"
-                                               code:10
-                                        description:@"A description %d", 1];
+    NSError *error = [NSError sentryErrorWithDomain:@"Domain" code:10 description:@"A description %d", 1];
     NSString *expectedDomain = @"Domain";
     NSInteger expectedCode = 10;
     NSString *expectedDescription = @"A description 1";
@@ -49,10 +47,7 @@
 - (void)testSentryFillError
 {
     NSError *error = nil;
-    [NSError sentryFillError:&error
-                  withDomain:@"Domain"
-                        code:10
-                 description:@"A description %d", 1];
+    [NSError sentryFillError:&error withDomain:@"Domain" code:10 description:@"A description %d", 1];
     NSString *expectedDomain = @"Domain";
     NSInteger expectedCode = 10;
     NSString *expectedDescription = @"A description 1";

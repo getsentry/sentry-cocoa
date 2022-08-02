@@ -78,11 +78,9 @@ SentryOutOfMemoryTracker ()
             // Set to empty list so no breadcrumbs of the current scope are added
             event.breadcrumbs = @[];
 
-            SentryException *exception =
-                [[SentryException alloc] initWithValue:SentryOutOfMemoryExceptionValue
-                                                  type:SentryOutOfMemoryExceptionType];
-            SentryMechanism *mechanism =
-                [[SentryMechanism alloc] initWithType:SentryOutOfMemoryMechanismType];
+            SentryException *exception = [[SentryException alloc] initWithValue:SentryOutOfMemoryExceptionValue
+                                                                           type:SentryOutOfMemoryExceptionType];
+            SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:SentryOutOfMemoryMechanismType];
             mechanism.handled = @(NO);
             exception.mechanism = mechanism;
             event.exceptions = @[ exception ];
@@ -96,8 +94,7 @@ SentryOutOfMemoryTracker ()
     }];
 
 #else
-    [SentryLog logWithMessage:@"NO UIKit -> SentryOutOfMemoryTracker will not track OOM."
-                     andLevel:kSentryLevelInfo];
+    [SentryLog logWithMessage:@"NO UIKit -> SentryOutOfMemoryTracker will not track OOM." andLevel:kSentryLevelInfo];
     return;
 #endif
 }
@@ -135,8 +132,7 @@ SentryOutOfMemoryTracker ()
     // The app is terminating so it is fine to do this on the main thread.
     // Furthermore, so users can manually post UIApplicationWillTerminateNotification and then call
     // exit(0), to avoid getting false OOM when using exit(0), see GH-1252.
-    [self.appStateManager
-        updateAppState:^(SentryAppState *appState) { appState.wasTerminated = YES; }];
+    [self.appStateManager updateAppState:^(SentryAppState *appState) { appState.wasTerminated = YES; }];
 }
 
 - (void)updateAppState:(void (^)(SentryAppState *))block

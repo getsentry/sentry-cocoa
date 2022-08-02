@@ -52,9 +52,8 @@
 - (void)testKernReturnCodeName
 {
     NSString *expected = @"KERN_FAILURE";
-    NSString *actual =
-        [NSString stringWithCString:sentrycrashmach_kernelReturnCodeName(KERN_FAILURE)
-                           encoding:NSUTF8StringEncoding];
+    NSString *actual = [NSString stringWithCString:sentrycrashmach_kernelReturnCodeName(KERN_FAILURE)
+                                          encoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(actual, expected, @"");
 }
 

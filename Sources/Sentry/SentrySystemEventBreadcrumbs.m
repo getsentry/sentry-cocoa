@@ -96,8 +96,7 @@ SentrySystemEventBreadcrumbs ()
     NSMutableDictionary<NSString *, id> *batteryData = [self getBatteryStatus:notification.object];
     batteryData[@"action"] = @"BATTERY_STATE_CHANGE";
 
-    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                                             category:@"device.event"];
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo category:@"device.event"];
     crumb.type = @"system";
     crumb.data = batteryData;
     [SentrySDK addBreadcrumb:crumb];
@@ -110,8 +109,7 @@ SentrySystemEventBreadcrumbs ()
     UIDeviceBatteryState currentState = [currentDevice batteryState];
 
     BOOL isPlugged = NO; // UIDeviceBatteryStateUnknown or UIDeviceBatteryStateUnplugged
-    if ((currentState == UIDeviceBatteryStateCharging)
-        || (currentState == UIDeviceBatteryStateFull)) {
+    if ((currentState == UIDeviceBatteryStateCharging) || (currentState == UIDeviceBatteryStateFull)) {
         isPlugged = YES;
     }
     float currentLevel = [currentDevice batteryLevel];
@@ -145,8 +143,7 @@ SentrySystemEventBreadcrumbs ()
 - (void)orientationChanged:(NSNotification *)notification
 {
     UIDevice *currentDevice = notification.object;
-    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                                             category:@"device.orientation"];
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo category:@"device.orientation"];
 
     UIDeviceOrientation currentOrientation = currentDevice.orientation;
 
@@ -183,8 +180,7 @@ SentrySystemEventBreadcrumbs ()
 
 - (void)systemEventTriggered:(NSNotification *)notification
 {
-    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                                             category:@"device.event"];
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo category:@"device.event"];
     crumb.type = @"system";
     crumb.data = @{ @"action" : notification.name };
     [SentrySDK addBreadcrumb:crumb];
@@ -229,8 +225,7 @@ SentrySystemEventBreadcrumbs ()
         storedTimezoneOffset = [self.fileManager readTimezoneOffset];
     }
 
-    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                                             category:@"device.event"];
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo category:@"device.event"];
 
     NSInteger offset = self.currentDateProvider.timezoneOffset;
 

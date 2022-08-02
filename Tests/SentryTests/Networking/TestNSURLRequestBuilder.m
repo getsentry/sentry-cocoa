@@ -24,9 +24,7 @@ TestNSURLRequestBuilder ()
                                     dsn:(SentryDsn *)dsn
                        didFailWithError:(NSError *_Nullable *_Nullable)error
 {
-    NSURLRequest *request = [self.builder createEnvelopeRequest:envelope
-                                                            dsn:dsn
-                                               didFailWithError:error];
+    NSURLRequest *request = [self.builder createEnvelopeRequest:envelope dsn:dsn didFailWithError:error];
     if (self.shouldFailWithError) {
         self.error = [[NSError alloc] initWithDomain:@"TestErrorDomain" code:12 userInfo:nil];
         *error = self.error;

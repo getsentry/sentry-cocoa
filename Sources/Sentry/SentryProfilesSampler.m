@@ -7,8 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryProfilesSamplerDecision
 
-- (instancetype)initWithDecision:(SentrySampleDecision)decision
-                   forSampleRate:(nullable NSNumber *)sampleRate
+- (instancetype)initWithDecision:(SentrySampleDecision)decision forSampleRate:(nullable NSNumber *)sampleRate
 {
     if (self = [super init]) {
         _decision = decision;
@@ -65,24 +64,21 @@ NS_ASSUME_NONNULL_BEGIN
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
         if (_options.enableProfiling) {
-            return [[SentryProfilesSamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
-                                                             forSampleRate:@1.0];
+            return [[SentryProfilesSamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes forSampleRate:@1.0];
         }
 #    pragma clang diagnostic pop
     }
 #endif
 
-    return [[SentryProfilesSamplerDecision alloc] initWithDecision:kSentrySampleDecisionNo
-                                                     forSampleRate:nil];
+    return [[SentryProfilesSamplerDecision alloc] initWithDecision:kSentrySampleDecisionNo forSampleRate:nil];
 }
 
 - (SentryProfilesSamplerDecision *)calcSample:(double)rate
 {
     double r = [self.random nextNumber];
     SentrySampleDecision decision = r <= rate ? kSentrySampleDecisionYes : kSentrySampleDecisionNo;
-    return
-        [[SentryProfilesSamplerDecision alloc] initWithDecision:decision
-                                                  forSampleRate:[NSNumber numberWithDouble:rate]];
+    return [[SentryProfilesSamplerDecision alloc] initWithDecision:decision
+                                                     forSampleRate:[NSNumber numberWithDouble:rate]];
 }
 
 @end

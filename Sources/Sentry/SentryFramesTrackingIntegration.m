@@ -29,10 +29,8 @@ SentryFramesTrackingIntegration ()
     [self.tracker start];
 
 #else
-    [SentryLog
-        logWithMessage:
-            @"NO UIKit -> SentryFramesTrackingIntegration will not track slow and frozen frames."
-              andLevel:kSentryLevelInfo];
+    [SentryLog logWithMessage:@"NO UIKit -> SentryFramesTrackingIntegration will not track slow and frozen frames."
+                     andLevel:kSentryLevelInfo];
 #endif
 }
 
@@ -46,18 +44,14 @@ SentryFramesTrackingIntegration ()
     }
 
     if (!options.enableAutoPerformanceTracking) {
-        [SentryLog
-            logWithMessage:
-                @"enableAutoPerformanceTracking disabled. Will not track slow and frozen frames."
-                  andLevel:kSentryLevelDebug];
+        [SentryLog logWithMessage:@"enableAutoPerformanceTracking disabled. Will not track slow and frozen frames."
+                         andLevel:kSentryLevelDebug];
         return YES;
     }
 
     if (!options.isTracingEnabled) {
-        [SentryLog
-            logWithMessage:
-                @"No tracesSampleRate and tracesSampler set. Will not track slow and frozen frames."
-                  andLevel:kSentryLevelDebug];
+        [SentryLog logWithMessage:@"No tracesSampleRate and tracesSampler set. Will not track slow and frozen frames."
+                         andLevel:kSentryLevelDebug];
         return YES;
     }
 

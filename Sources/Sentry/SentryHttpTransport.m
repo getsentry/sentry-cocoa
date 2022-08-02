@@ -35,8 +35,7 @@ SentryHttpTransport ()
  * We could use nested dictionaries, but instead, we use a dictionary with key
  * `data-category:reason` and value `SentryDiscardedEvent` because it's easier to read and type.
  */
-@property (nonatomic, strong)
-    NSMutableDictionary<NSString *, SentryDiscardedEvent *> *discardedEvents;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, SentryDiscardedEvent *> *discardedEvents;
 
 /**
  * Synching with a dispatch queue to have concurrent reads and writes as barrier blocks is roughly
@@ -79,8 +78,7 @@ SentryHttpTransport ()
     envelope = [self.envelopeRateLimit removeRateLimitedItems:envelope];
 
     if (envelope.items.count == 0) {
-        [SentryLog logWithMessage:@"RateLimit is active for all envelope items."
-                         andLevel:kSentryLevelDebug];
+        [SentryLog logWithMessage:@"RateLimit is active for all envelope items." andLevel:kSentryLevelDebug];
         return;
     }
 
@@ -101,8 +99,8 @@ SentryHttpTransport ()
         return;
     }
 
-    NSString *key = [NSString stringWithFormat:@"%@:%@", SentryDataCategoryNames[category],
-                              SentryDiscardReasonNames[reason]];
+    NSString *key =
+        [NSString stringWithFormat:@"%@:%@", SentryDataCategoryNames[category], SentryDiscardReasonNames[reason]];
 
     @synchronized(self.discardedEvents) {
         SentryDiscardedEvent *event = self.discardedEvents[key];
@@ -111,9 +109,7 @@ SentryHttpTransport ()
             quantity = event.quantity + 1;
         }
 
-        event = [[SentryDiscardedEvent alloc] initWithReason:reason
-                                                    category:category
-                                                    quantity:quantity];
+        event = [[SentryDiscardedEvent alloc] initWithReason:reason category:category quantity:quantity];
 
         self.discardedEvents[key] = event;
     }
@@ -156,11 +152,9 @@ SentryHttpTransport ()
 
     SentryClientReport *clientReport = [[SentryClientReport alloc] initWithDiscardedEvents:events];
 
-    SentryEnvelopeItem *clientReportEnvelopeItem =
-        [[SentryEnvelopeItem alloc] initWithClientReport:clientReport];
+    SentryEnvelopeItem *clientReportEnvelopeItem = [[SentryEnvelopeItem alloc] initWithClientReport:clientReport];
 
-    NSMutableArray<SentryEnvelopeItem *> *currentItems =
-        [[NSMutableArray alloc] initWithArray:envelope.items];
+    NSMutableArray<SentryEnvelopeItem *> *currentItems = [[NSMutableArray alloc] initWithArray:envelope.items];
     [currentItems addObject:clientReportEnvelopeItem];
 
     return [[SentryEnvelope alloc] initWithHeader:envelope.header items:currentItems];
@@ -203,9 +197,7 @@ SentryHttpTransport ()
         [self deleteEnvelopeAndSendNext:envelopeFileContents.path];
         return;
     } else {
-        [self sendEnvelope:rateLimitedEnvelope
-              envelopePath:envelopeFileContents.path
-                   request:request];
+        [self sendEnvelope:rateLimitedEnvelope envelopePath:envelopeFileContents.path request:request];
     }
 }
 
@@ -216,26 +208,23 @@ SentryHttpTransport ()
     [self sendAllCachedEnvelopes];
 }
 
-- (void)sendEnvelope:(SentryEnvelope *)envelope
-        envelopePath:(NSString *)envelopePath
-             request:(NSURLRequest *)request
+- (void)sendEnvelope:(SentryEnvelope *)envelope envelopePath:(NSString *)envelopePath request:(NSURLRequest *)request
 {
     __block SentryHttpTransport *_self = self;
-    [self.requestManager
-               addRequest:request
-        completionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-            // If the response is not nil we had an internet connection.
-            if (error && response.statusCode != 429) {
-                [_self recordLostEventFor:envelope.items];
-            }
+    [self.requestManager addRequest:request
+                  completionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+                      // If the response is not nil we had an internet connection.
+                      if (error && response.statusCode != 429) {
+                          [_self recordLostEventFor:envelope.items];
+                      }
 
-            if (nil != response) {
-                [_self.rateLimits update:response];
-                [_self deleteEnvelopeAndSendNext:envelopePath];
-            } else {
-                _self.isSending = NO;
-            }
-        }];
+                      if (nil != response) {
+                          [_self.rateLimits update:response];
+                          [_self deleteEnvelopeAndSendNext:envelopePath];
+                      } else {
+                          _self.isSending = NO;
+                      }
+                  }];
 }
 
 - (void)recordLostEventFor:(NSArray<SentryEnvelopeItem *> *)items
@@ -247,8 +236,7 @@ SentryHttpTransport ()
         if ([itemType isEqualToString:SentryEnvelopeItemTypeClientReport]) {
             continue;
         }
-        SentryDataCategory category =
-            [SentryDataCategoryMapper mapEnvelopeItemTypeToCategory:itemType];
+        SentryDataCategory category = [SentryDataCategoryMapper mapEnvelopeItemTypeToCategory:itemType];
         [self recordLostEvent:category reason:kSentryDiscardReasonNetworkError];
     }
 }

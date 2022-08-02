@@ -36,13 +36,12 @@
 //#define SentryCrashLogger_LocalLevel TRACE
 #    include "SentryCrashLogger.h"
 
-static const char *g_registerNames[] = { "rax", "rbx", "rcx", "rdx", "rdi", "rsi", "rbp", "rsp",
-    "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15", "rip", "rflags", "cs", "fs", "gs" };
+static const char *g_registerNames[] = { "rax", "rbx", "rcx", "rdx", "rdi", "rsi", "rbp", "rsp", "r8", "r9", "r10",
+    "r11", "r12", "r13", "r14", "r15", "rip", "rflags", "cs", "fs", "gs" };
 static const int g_registerNamesCount = sizeof(g_registerNames) / sizeof(*g_registerNames);
 
 static const char *g_exceptionRegisterNames[] = { "trapno", "err", "faultvaddr" };
-static const int g_exceptionRegisterNamesCount
-    = sizeof(g_exceptionRegisterNames) / sizeof(*g_exceptionRegisterNames);
+static const int g_exceptionRegisterNamesCount = sizeof(g_exceptionRegisterNames) / sizeof(*g_exceptionRegisterNames);
 
 uintptr_t
 sentrycrashcpu_framePointer(const SentryCrashMachineContext *const context)
@@ -74,10 +73,10 @@ sentrycrashcpu_getState(SentryCrashMachineContext *context)
     thread_t thread = context->thisThread;
     STRUCT_MCONTEXT_L *const machineContext = &context->machineContext;
 
-    sentrycrashcpu_i_fillState(thread, (thread_state_t)&machineContext->__ss, x86_THREAD_STATE64,
-        x86_THREAD_STATE64_COUNT);
-    sentrycrashcpu_i_fillState(thread, (thread_state_t)&machineContext->__es, x86_EXCEPTION_STATE64,
-        x86_EXCEPTION_STATE64_COUNT);
+    sentrycrashcpu_i_fillState(
+        thread, (thread_state_t)&machineContext->__ss, x86_THREAD_STATE64, x86_THREAD_STATE64_COUNT);
+    sentrycrashcpu_i_fillState(
+        thread, (thread_state_t)&machineContext->__es, x86_EXCEPTION_STATE64, x86_EXCEPTION_STATE64_COUNT);
 }
 
 int
@@ -164,8 +163,7 @@ sentrycrashcpu_exceptionRegisterName(const int regNumber)
 }
 
 uint64_t
-sentrycrashcpu_exceptionRegisterValue(
-    const SentryCrashMachineContext *const context, const int regNumber)
+sentrycrashcpu_exceptionRegisterValue(const SentryCrashMachineContext *const context, const int regNumber)
 {
     switch (regNumber) {
     case 0:

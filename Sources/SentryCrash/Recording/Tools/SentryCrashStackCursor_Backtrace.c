@@ -36,8 +36,7 @@ advanceCursor(SentryCrashStackCursor *cursor)
         return sentrycrashsc_advanceAsyncCursor(cursor);
     }
 
-    SentryCrashStackCursor_Backtrace_Context *context
-        = (SentryCrashStackCursor_Backtrace_Context *)cursor->context;
+    SentryCrashStackCursor_Backtrace_Context *context = (SentryCrashStackCursor_Backtrace_Context *)cursor->context;
     int endDepth = context->backtraceLength - context->skippedEntries;
     if (cursor->state.currentDepth < endDepth) {
         int currentIndex = cursor->state.currentDepth + context->skippedEntries;
@@ -54,12 +53,11 @@ advanceCursor(SentryCrashStackCursor *cursor)
 }
 
 void
-sentrycrashsc_initWithBacktrace(SentryCrashStackCursor *cursor, const uintptr_t *backtrace,
-    int backtraceLength, int skipEntries)
+sentrycrashsc_initWithBacktrace(
+    SentryCrashStackCursor *cursor, const uintptr_t *backtrace, int backtraceLength, int skipEntries)
 {
     sentrycrashsc_initCursor(cursor, sentrycrashsc_resetCursor, advanceCursor);
-    SentryCrashStackCursor_Backtrace_Context *context
-        = (SentryCrashStackCursor_Backtrace_Context *)cursor->context;
+    SentryCrashStackCursor_Backtrace_Context *context = (SentryCrashStackCursor_Backtrace_Context *)cursor->context;
     context->skippedEntries = skipEntries;
     context->backtraceLength = backtraceLength;
     context->backtrace = backtrace;

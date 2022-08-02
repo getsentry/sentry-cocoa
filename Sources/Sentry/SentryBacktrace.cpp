@@ -36,9 +36,8 @@ constexpr std::size_t kMaxBacktraceDepth = 128;
 namespace sentry {
 namespace profiling {
     NOT_TAIL_CALLED NEVER_INLINE std::size_t
-    backtrace(const ThreadHandle &targetThread, const ThreadHandle &callingThread,
-        std::uintptr_t *addresses, const StackBounds &bounds, bool *reachedEndOfStackPtr,
-        std::size_t maxDepth, std::size_t skip) noexcept
+    backtrace(const ThreadHandle &targetThread, const ThreadHandle &callingThread, std::uintptr_t *addresses,
+        const StackBounds &bounds, bool *reachedEndOfStackPtr, std::size_t maxDepth, std::size_t skip) noexcept
     {
         assert(addresses != nullptr);
         if (UNLIKELY(maxDepth == 0 || !bounds.isValid())) {
@@ -102,8 +101,8 @@ namespace profiling {
     }
 
     void
-    enumerateBacktracesForAllThreads(const std::function<void(const Backtrace &)> &f,
-        const std::shared_ptr<ThreadMetadataCache> &cache)
+    enumerateBacktracesForAllThreads(
+        const std::function<void(const Backtrace &)> &f, const std::shared_ptr<ThreadMetadataCache> &cache)
     {
         const auto pair = ThreadHandle::allExcludingCurrent();
         for (const auto &thread : pair.first) {
@@ -156,8 +155,8 @@ namespace profiling {
 
             bool reachedEndOfStack = false;
             std::uintptr_t addresses[kMaxBacktraceDepth];
-            const auto depth = backtrace(*thread, *pair.second, addresses, stackBounds,
-                &reachedEndOfStack, kMaxBacktraceDepth, 0);
+            const auto depth
+                = backtrace(*thread, *pair.second, addresses, stackBounds, &reachedEndOfStack, kMaxBacktraceDepth, 0);
 
             // Retrieving queue metadata *must* be done after suspending the thread,
             // because otherwise the queue could be deallocated in the middle of us

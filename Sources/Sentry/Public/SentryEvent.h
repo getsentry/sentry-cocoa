@@ -5,8 +5,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryThread, SentryException, SentryStacktrace, SentryUser, SentryDebugMeta, SentryContext,
-    SentryBreadcrumb, SentryId, SentryMessage;
+@class SentryThread, SentryException, SentryStacktrace, SentryUser, SentryDebugMeta, SentryContext, SentryBreadcrumb,
+    SentryId, SentryMessage;
 
 NS_SWIFT_NAME(Event)
 @interface SentryEvent : NSObject <SentrySerializable>
@@ -129,8 +129,7 @@ NS_SWIFT_NAME(Event)
  * This object contains meta information.
  * @warning This is maintained automatically, and shouldn't normally need to be modified.
  */
-@property (nonatomic, strong)
-    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *_Nullable context;
+@property (nonatomic, strong) NSDictionary<NSString *, NSDictionary<NSString *, id> *> *_Nullable context;
 
 /**
  * Contains SentryThread if an crash occurred of it's an user reported exception
