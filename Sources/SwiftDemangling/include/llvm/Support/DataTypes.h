@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===-- llvm/Support/DataTypes.h - Define fixed size types ------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -19,3 +23,4 @@
 #include "llvm-c/DataTypes.h"
 
 #endif // LLVM_SUPPORT_DATATYPES_H
+#    pragma clang diagnostic pop

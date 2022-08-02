@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===- llvm/ADT/STLExtras.h - Useful STL related functions ------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -2548,3 +2552,4 @@ to_address(T *P)
 } // end namespace llvm
 
 #endif // LLVM_ADT_STLEXTRAS_H
+#    pragma clang diagnostic pop

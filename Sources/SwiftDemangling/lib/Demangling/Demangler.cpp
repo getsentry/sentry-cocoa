@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===--- Demangler.cpp - String to Node-Tree Demangling -------------------===//
 //
 // This source file is part of the Swift.org open source project
@@ -3995,3 +3999,4 @@ Demangler::demangleValueWitness()
     addChild(VW, createNode(Node::Kind::Index, unsigned(Kind)));
     return addChild(VW, popNode(Node::Kind::Type));
 }
+#    pragma clang diagnostic pop

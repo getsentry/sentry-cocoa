@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===--- InlineBitfield.h - Inline bitfield macros --------------*- C++ -*-===//
 //
 // This source file is part of the Swift.org open source project
@@ -189,3 +193,4 @@ countBitsUsed(uint64_t arg)
 } // end namespace swift
 
 #endif // SWIFT_INLINE_BITFIELD_H
+#    pragma clang diagnostic pop

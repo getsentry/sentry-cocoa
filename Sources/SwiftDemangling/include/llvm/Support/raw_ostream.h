@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===--- raw_ostream.h - Raw output stream ----------------------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -859,3 +863,4 @@ Error writeToOutput(StringRef OutputFileName, std::function<Error(raw_ostream &)
 } // end namespace llvm
 
 #endif // LLVM_SUPPORT_RAW_OSTREAM_H
+#    pragma clang diagnostic pop

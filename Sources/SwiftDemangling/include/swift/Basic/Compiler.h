@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===--- Compiler.h - Compiler specific definitions -------------*- C++ -*-===//
 //
 // This source file is part of the Swift.org open source project
@@ -163,3 +167,4 @@
 #define SWIFT_ASM_LABEL_WITH_PREFIX(STRING) SWIFT_ASM_LABEL_RAW(SWIFT_SYMBOL_PREFIX_STRING STRING)
 
 #endif // SWIFT_BASIC_COMPILER_H
+#    pragma clang diagnostic pop

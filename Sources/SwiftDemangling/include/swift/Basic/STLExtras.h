@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===--- STLExtras.h - additions to the STL ---------------------*- C++ -*-===//
 //
 // This source file is part of the Swift.org open source project
@@ -868,3 +872,4 @@ erase_if(std::unordered_set<Key, Hash, KeyEqual, Alloc> &c, Pred pred)
 } // end namespace swift
 
 #endif // SWIFT_BASIC_INTERLEAVE_H
+#    pragma clang diagnostic pop

@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 /*===-- include/llvm-c/DataTypes.h - Define fixed size types ------*- C -*-===*\
 |*                                                                            *|
 |* Part of the LLVM Project, under the Apache License v2.0 with LLVM          *|
@@ -78,3 +82,4 @@ typedef signed int ssize_t;
 #endif
 
 #endif /* LLVM_C_DATATYPES_H */
+#    pragma clang diagnostic pop

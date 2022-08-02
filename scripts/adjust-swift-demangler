@@ -1,0 +1,21 @@
+#!/bin/bash
+
+find ../Sources/SwiftDemangling -type f -print0 | xargs -0 sed -i '' '1i\
+#    pragma GCC diagnostic ignored "-Wshadow"
+'
+
+find ../Sources/SwiftDemangling -type f -print0 | xargs -0 sed -i '' '1i\
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+'
+
+find ../Sources/SwiftDemangling -type f -print0 | xargs -0 sed -i '' '1i\
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+'
+
+find ../Sources/SwiftDemangling -type f -print0 | xargs -0 sed -i '' '1i\
+#    pragma clang diagnostic push
+'
+
+find ../Sources/SwiftDemangling -type f -print0 | xargs -0 sed -i '' '$a\
+#    pragma clang diagnostic pop
+'

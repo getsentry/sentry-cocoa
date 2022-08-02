@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===--- NodePrinter.cpp - Swift Demangling Node Printer ------------------===//
 //
 // This source file is part of the Swift.org open source project
@@ -1736,7 +1740,6 @@ NodePrinter::print(NodePointer Node, bool asPrefixContext)
 
         unsigned lastChildIndex = Node->getNumChildren();
         auto lastChild = Node->getChild(lastChildIndex - 1);
-        bool isSerialized = false;
         if (lastChild->getKind() == Node::Kind::IsSerialized) {
             --lastChildIndex;
             lastChild = Node->getChild(lastChildIndex - 1);
@@ -3039,3 +3042,4 @@ Demangle::nodeToString(NodePointer root, const DemangleOptions &options)
 
     return NodePrinter(options).printRoot(root);
 }
+#    pragma clang diagnostic pop

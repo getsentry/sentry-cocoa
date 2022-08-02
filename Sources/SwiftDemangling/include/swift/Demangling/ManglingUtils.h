@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===--- ManglingUtils.h - Utilities for Swift name mangling ----*- C++ -*-===//
 //
 // This source file is part of the Swift.org open source project
@@ -343,3 +347,4 @@ namespace Mangle {
 } // end namespace swift
 
 #endif // SWIFT_DEMANGLING_MANGLINGUTILS_H
+#    pragma clang diagnostic pop

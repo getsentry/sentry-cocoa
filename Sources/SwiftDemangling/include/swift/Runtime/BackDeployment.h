@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===--- BackDeployment.h - Support for running on older OS versions. -----===//
 //
 // This source file is part of the Swift.org open source project
@@ -45,3 +49,4 @@ int _swift_isBackDeploying();
 #endif // defined(__APPLE__) && defined(__MACH__)
 
 #endif // SWIFT_STDLIB_BACKDEPLOYMENT_H
+#    pragma clang diagnostic pop

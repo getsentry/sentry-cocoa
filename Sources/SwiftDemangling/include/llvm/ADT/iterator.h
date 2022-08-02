@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===- iterator.h - Utilities for using and defining iterators --*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -418,3 +422,4 @@ using raw_pointer_iterator = pointer_iterator<pointee_iterator<WrappedIteratorT,
 } // end namespace llvm
 
 #endif // LLVM_ADT_ITERATOR_H
+#    pragma clang diagnostic pop

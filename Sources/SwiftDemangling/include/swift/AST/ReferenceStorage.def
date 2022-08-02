@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===--- ReferenceStorage.def - Non-default reference storage ---*- C++ -*-===//
 //
 // This source file is part of the Swift.org open source project
@@ -200,3 +204,4 @@ REF_STORAGE_RANGE(Weak, Unmanaged)
 #undef NEVER_OR_SOMETIMES_LOADABLE_CHECKED_REF_STORAGE
 #undef LOADABLE_REF_STORAGE
 #undef CHECKED_REF_STORAGE
+#    pragma clang diagnostic pop

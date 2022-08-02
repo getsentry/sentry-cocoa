@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===--- LLVM.h - Import various common LLVM datatypes ----------*- C++ -*-===//
 //
 // This source file is part of the Swift.org open source project
@@ -113,3 +117,4 @@ using llvm::raw_ostream;
 } // end namespace swift
 
 #endif // SWIFT_BASIC_LLVM_H
+#    pragma clang diagnostic pop

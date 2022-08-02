@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===--- Demangle.h - Interface to Swift symbol demangling ------*- C++ -*-===//
 //
 // This source file is part of the Swift.org open source project
@@ -717,3 +721,4 @@ char *swift_demangle(const char *mangledName, size_t mangledNameLength, char *ou
     size_t *outputBufferSize, uint32_t flags);
 
 #endif // SWIFT_DEMANGLING_DEMANGLE_H
+#    pragma clang diagnostic pop

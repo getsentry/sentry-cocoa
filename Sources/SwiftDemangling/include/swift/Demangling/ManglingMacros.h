@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===--- ManglingMacros.h - Macros for Swift symbol mangling ----*- C++ -*-===//
 //
 // This source file is part of the Swift.org open source project
@@ -69,3 +73,4 @@
 #define OBJC_PARTIAL_APPLY_THUNK_SYM MANGLE_SYM(OBJC_PARTIAL_APPLY_THUNK_MANGLING)
 
 #endif // SWIFT_DEMANGLING_MANGLING_MACROS_H
+#    pragma clang diagnostic pop

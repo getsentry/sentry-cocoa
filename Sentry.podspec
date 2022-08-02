@@ -16,6 +16,7 @@ Pod::Spec.new do |s|
   s.requires_arc = true
   s.frameworks = 'Foundation'
   s.libraries = 'z', 'c++'
+  s.compiler_flags = '-Wshorten-64-to-32', '-Wunused-parameter'
   s.pod_target_xcconfig = {
       'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES',
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
@@ -28,10 +29,11 @@ Pod::Spec.new do |s|
 
   s.subspec 'Core' do |sp|
       sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
-        "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}","Sources/SwiftDemangling/**/*.{h,hpp,m,mm,c,cpp,def}"
-        
+        "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}", "Sources/SwiftDemangling/**/*.{h,hpp,m,mm,c,cpp,def}"
+      
       sp.public_header_files =
         "Sources/Sentry/Public/*.h"
       
+      sp.compiler_flags = '-Wshorten-64-to-32', '-Wunused-parameter'
   end
 end

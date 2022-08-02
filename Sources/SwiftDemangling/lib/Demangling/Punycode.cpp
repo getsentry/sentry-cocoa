@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===--- Punycode.cpp - Unicode to Punycode transcoding -------------------===//
 //
 // This source file is part of the Swift.org open source project
@@ -374,3 +378,4 @@ Punycode::encodePunycodeUTF8(StringRef InputUTF8, std::string &OutPunycode, bool
 
     return encodePunycode(InputCodePoints, OutPunycode);
 }
+#    pragma clang diagnostic pop

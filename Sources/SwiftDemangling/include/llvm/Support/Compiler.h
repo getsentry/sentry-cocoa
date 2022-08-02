@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===-- llvm/Support/Compiler.h - Compiler abstraction support --*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -561,3 +565,4 @@ void AnnotateIgnoreWritesEnd(const char *file, int line);
 #endif
 
 #endif
+#    pragma clang diagnostic pop

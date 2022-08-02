@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===- llvm/ADT/SmallVector.h - 'Normally small' vectors --------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -1555,3 +1559,4 @@ swap(llvm::SmallVector<T, N> &LHS, llvm::SmallVector<T, N> &RHS)
 } // end namespace std
 
 #endif // LLVM_ADT_SMALLVECTOR_H
+#    pragma clang diagnostic pop

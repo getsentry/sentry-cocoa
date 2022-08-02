@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===--- Punycode.h - UTF-8 to Punycode transcoding -------------*- C++ -*-===//
 //
 // This source file is part of the Swift.org open source project
@@ -63,3 +67,4 @@ namespace Punycode {
 } // end namespace swift
 
 #endif // SWIFT_DEMANGLING_PUNYCODE_H
+#    pragma clang diagnostic pop

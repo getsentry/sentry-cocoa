@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===- llvm/Support/type_traits.h - Simplfied type traits -------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -172,3 +176,4 @@ template <typename T> class is_trivially_copyable<T *> : public std::true_type {
 } // end namespace llvm
 
 #endif // LLVM_SUPPORT_TYPE_TRAITS_H
+#    pragma clang diagnostic pop

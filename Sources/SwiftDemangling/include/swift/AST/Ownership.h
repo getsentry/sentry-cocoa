@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===--- Ownership.h - Swift ASTs for Ownership ---------------*- C++ -*-===//
 //
 // This source file is part of the Swift.org open source project
@@ -160,3 +164,4 @@ enum : unsigned {
 } // end namespace swift
 
 #endif
+#    pragma clang diagnostic pop

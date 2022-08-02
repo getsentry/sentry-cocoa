@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===--- Demangler.h - String to Node-Tree Demangling -----------*- C++ -*-===//
 //
 // This source file is part of the Swift.org open source project
@@ -216,3 +220,4 @@ namespace Demangle {
 } // end namespace swift
 
 #endif // SWIFT_DEMANGLING_BASEREMANGLER_H
+#    pragma clang diagnostic pop

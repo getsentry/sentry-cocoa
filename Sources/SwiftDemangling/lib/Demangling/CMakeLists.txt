@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 add_swift_host_library(swiftDemangling STATIC
   Demangler.cpp
   Context.cpp
@@ -20,3 +24,4 @@ target_compile_definitions(swiftDemangling PRIVATE
 # Swift standard library, it allows this to happen safely when the binary
 # also links in compiler libraries that may not match exactly with the
 # runtime version.
+#    pragma clang diagnostic pop

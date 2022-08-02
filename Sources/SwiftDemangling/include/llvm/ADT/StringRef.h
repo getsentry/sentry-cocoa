@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===- StringRef.h - Constant String Reference Wrapper ----------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -1138,3 +1142,4 @@ template <> struct DenseMapInfo<StringRef> {
 } // end namespace llvm
 
 #endif // LLVM_ADT_STRINGREF_H
+#    pragma clang diagnostic pop

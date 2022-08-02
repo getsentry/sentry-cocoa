@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===- llvm/Support/ErrorHandling.h - Fatal error handling ------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -130,3 +134,4 @@ void install_out_of_memory_new_handler();
 #endif
 
 #endif
+#    pragma clang diagnostic pop

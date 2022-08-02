@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===- Optional.h - Simple variant for passing optional values --*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -691,3 +695,4 @@ operator<<(raw_ostream &OS, const Optional<T> &O)
 } // end namespace llvm
 
 #endif // LLVM_ADT_OPTIONAL_H
+#    pragma clang diagnostic pop

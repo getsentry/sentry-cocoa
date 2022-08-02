@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===--- NamespaceMacros.h - Macros for inline namespaces -------*- C++ -*-===//
 //
 // This source file is part of the Swift.org open source project
@@ -33,3 +37,4 @@
 #endif
 
 #endif // SWIFT_DEMANGLING_NAMESPACE_MACROS_H
+#    pragma clang diagnostic pop

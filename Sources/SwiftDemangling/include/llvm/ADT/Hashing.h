@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===-- llvm/ADT/Hashing.h - Utilities for hashing --------------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -769,3 +773,4 @@ template <> struct DenseMapInfo<hash_code> {
 } // namespace llvm
 
 #endif
+#    pragma clang diagnostic pop

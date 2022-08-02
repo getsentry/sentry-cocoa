@@ -1,3 +1,7 @@
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#    pragma GCC diagnostic ignored "-Wshadow"
 //===--- NodeDumper.cpp - Swift Demangling Debug Dump Functions -----------===//
 //
 // This source file is part of the Swift.org open source project
@@ -85,3 +89,4 @@ Demangler::dump()
     fprintf(stderr, "Position = %zd:\n%.*s\n%*s\n", Pos, (int)Text.size(), Text.data(),
         (int)Pos + 1, "^");
 }
+#    pragma clang diagnostic pop
