@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===--- StringSwitch.h - Switch-on-literal-string Construct --------------===/
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -14,12 +14,12 @@
 //
 //===----------------------------------------------------------------------===/
 #ifndef LLVM_ADT_STRINGSWITCH_H
-#define LLVM_ADT_STRINGSWITCH_H
+#    define LLVM_ADT_STRINGSWITCH_H
 
-#include "llvm/ADT/StringRef.h"
-#include "llvm/Support/Compiler.h"
-#include <cassert>
-#include <cstring>
+#    include "llvm/ADT/StringRef.h"
+#    include "llvm/Support/Compiler.h"
+#    include <cassert>
+#    include <cstring>
 
 namespace llvm {
 
@@ -234,4 +234,4 @@ public:
 } // end namespace llvm
 
 #endif // LLVM_ADT_STRINGSWITCH_H
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

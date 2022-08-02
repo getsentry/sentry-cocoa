@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===- iterator.h - Utilities for using and defining iterators --*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -11,13 +11,13 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_ADT_ITERATOR_H
-#define LLVM_ADT_ITERATOR_H
+#    define LLVM_ADT_ITERATOR_H
 
-#include "llvm/ADT/iterator_range.h"
-#include <cstddef>
-#include <iterator>
-#include <type_traits>
-#include <utility>
+#    include "llvm/ADT/iterator_range.h"
+#    include <cstddef>
+#    include <iterator>
+#    include <type_traits>
+#    include <utility>
 
 namespace llvm {
 
@@ -183,13 +183,13 @@ public:
         return tmp;
     }
 
-#ifndef __cpp_impl_three_way_comparison
+#    ifndef __cpp_impl_three_way_comparison
     bool
     operator!=(const DerivedT &RHS) const
     {
         return !(static_cast<const DerivedT &>(*this) == RHS);
     }
-#endif
+#    endif
 
     bool
     operator>(const DerivedT &RHS) const
@@ -422,4 +422,4 @@ using raw_pointer_iterator = pointer_iterator<pointee_iterator<WrappedIteratorT,
 } // end namespace llvm
 
 #endif // LLVM_ADT_ITERATOR_H
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===-- None.h - Simple null value for implicit construction ------*- C++ -*-=//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -17,7 +17,7 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_ADT_NONE_H
-#define LLVM_ADT_NONE_H
+#    define LLVM_ADT_NONE_H
 
 namespace llvm {
 /// A simple null object to allow implicit construction of Optional<T>
@@ -28,4 +28,4 @@ const NoneType None = NoneType::None;
 }
 
 #endif
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

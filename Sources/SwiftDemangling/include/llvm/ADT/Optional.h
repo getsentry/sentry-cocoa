@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===- Optional.h - Simple variant for passing optional values --*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -17,17 +17,17 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_ADT_OPTIONAL_H
-#define LLVM_ADT_OPTIONAL_H
+#    define LLVM_ADT_OPTIONAL_H
 
-#include "llvm/ADT/Hashing.h"
-#include "llvm/ADT/None.h"
-#include "llvm/ADT/STLForwardCompat.h"
-#include "llvm/Support/Compiler.h"
-#include "llvm/Support/type_traits.h"
-#include <cassert>
-#include <memory>
-#include <new>
-#include <utility>
+#    include "llvm/ADT/Hashing.h"
+#    include "llvm/ADT/None.h"
+#    include "llvm/ADT/STLForwardCompat.h"
+#    include "llvm/Support/Compiler.h"
+#    include "llvm/Support/type_traits.h"
+#    include <cassert>
+#    include <memory>
+#    include <new>
+#    include <utility>
 
 namespace llvm {
 
@@ -125,14 +125,14 @@ namespace optional_detail {
             assert(hasVal);
             return value;
         }
-#if LLVM_HAS_RVALUE_REFERENCE_THIS
+#    if LLVM_HAS_RVALUE_REFERENCE_THIS
         T &&
         getValue() &&noexcept
         {
             assert(hasVal);
             return std::move(value);
         }
-#endif
+#    endif
 
         template <class... Args>
         void
@@ -254,14 +254,14 @@ namespace optional_detail {
             assert(hasVal);
             return value;
         }
-#if LLVM_HAS_RVALUE_REFERENCE_THIS
+#    if LLVM_HAS_RVALUE_REFERENCE_THIS
         T &&
         getValue() &&noexcept
         {
             assert(hasVal);
             return std::move(value);
         }
-#endif
+#    endif
 
         template <class... Args>
         void
@@ -426,7 +426,7 @@ public:
         return None;
     }
 
-#if LLVM_HAS_RVALUE_REFERENCE_THIS
+#    if LLVM_HAS_RVALUE_REFERENCE_THIS
     T &&
     getValue() &&
     {
@@ -454,7 +454,7 @@ public:
             return F(std::move(*this).getValue());
         return None;
     }
-#endif
+#    endif
 };
 
 template <class T>
@@ -695,4 +695,4 @@ operator<<(raw_ostream &OS, const Optional<T> &O)
 } // end namespace llvm
 
 #endif // LLVM_ADT_OPTIONAL_H
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

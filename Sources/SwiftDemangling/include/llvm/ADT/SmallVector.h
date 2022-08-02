@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===- llvm/ADT/SmallVector.h - 'Normally small' vectors --------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -15,26 +15,26 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_ADT_SMALLVECTOR_H
-#define LLVM_ADT_SMALLVECTOR_H
+#    define LLVM_ADT_SMALLVECTOR_H
 
-#include "llvm/ADT/iterator_range.h"
-#include "llvm/Support/Compiler.h"
-#include "llvm/Support/ErrorHandling.h"
-#include "llvm/Support/MemAlloc.h"
-#include "llvm/Support/type_traits.h"
-#include <algorithm>
-#include <cassert>
-#include <cstddef>
-#include <cstdlib>
-#include <cstring>
-#include <functional>
-#include <initializer_list>
-#include <iterator>
-#include <limits>
-#include <memory>
-#include <new>
-#include <type_traits>
-#include <utility>
+#    include "llvm/ADT/iterator_range.h"
+#    include "llvm/Support/Compiler.h"
+#    include "llvm/Support/ErrorHandling.h"
+#    include "llvm/Support/MemAlloc.h"
+#    include "llvm/Support/type_traits.h"
+#    include <algorithm>
+#    include <cassert>
+#    include <cstddef>
+#    include <cstdlib>
+#    include <cstring>
+#    include <functional>
+#    include <initializer_list>
+#    include <iterator>
+#    include <limits>
+#    include <memory>
+#    include <new>
+#    include <type_traits>
+#    include <utility>
 
 namespace llvm {
 
@@ -1559,4 +1559,4 @@ swap(llvm::SmallVector<T, N> &LHS, llvm::SmallVector<T, N> &RHS)
 } // end namespace std
 
 #endif // LLVM_ADT_SMALLVECTOR_H
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

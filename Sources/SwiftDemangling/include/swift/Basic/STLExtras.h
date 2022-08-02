@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===--- STLExtras.h - additions to the STL ---------------------*- C++ -*-===//
 //
 // This source file is part of the Swift.org open source project
@@ -19,19 +19,19 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef SWIFT_BASIC_INTERLEAVE_H
-#define SWIFT_BASIC_INTERLEAVE_H
+#    define SWIFT_BASIC_INTERLEAVE_H
 
-#include "swift/Basic/LLVM.h"
-#include "llvm/ADT/Optional.h"
-#include "llvm/ADT/STLExtras.h"
-#include "llvm/Support/Casting.h"
-#include <algorithm>
-#include <cassert>
-#include <functional>
-#include <iterator>
-#include <numeric>
-#include <type_traits>
-#include <unordered_set>
+#    include "swift/Basic/LLVM.h"
+#    include "llvm/ADT/Optional.h"
+#    include "llvm/ADT/STLExtras.h"
+#    include "llvm/Support/Casting.h"
+#    include <algorithm>
+#    include <cassert>
+#    include <functional>
+#    include <iterator>
+#    include <numeric>
+#    include <type_traits>
+#    include <unordered_set>
 
 namespace swift {
 
@@ -872,4 +872,4 @@ erase_if(std::unordered_set<Key, Hash, KeyEqual, Alloc> &c, Pred pred)
 } // end namespace swift
 
 #endif // SWIFT_BASIC_INTERLEAVE_H
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

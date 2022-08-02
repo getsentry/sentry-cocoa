@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===--- raw_ostream.h - Raw output stream ----------------------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -15,22 +15,22 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_SUPPORT_RAW_OSTREAM_H
-#define LLVM_SUPPORT_RAW_OSTREAM_H
+#    define LLVM_SUPPORT_RAW_OSTREAM_H
 
-#include "llvm/ADT/SmallVector.h"
-#include "llvm/ADT/StringRef.h"
-#include "llvm/Support/DataTypes.h"
-#include <cassert>
-#include <chrono>
-#include <cstddef>
-#include <cstdint>
-#include <cstring>
-#include <string>
-#if __cplusplus > 201402L
-#    include <string_view>
-#endif
-#include <system_error>
-#include <type_traits>
+#    include "llvm/ADT/SmallVector.h"
+#    include "llvm/ADT/StringRef.h"
+#    include "llvm/Support/DataTypes.h"
+#    include <cassert>
+#    include <chrono>
+#    include <cstddef>
+#    include <cstdint>
+#    include <cstring>
+#    include <string>
+#    if __cplusplus > 201402L
+#        include <string_view>
+#    endif
+#    include <system_error>
+#    include <type_traits>
 
 namespace llvm {
 
@@ -269,13 +269,13 @@ public:
         return write(Str.data(), Str.length());
     }
 
-#if __cplusplus > 201402L
+#    if __cplusplus > 201402L
     raw_ostream &
     operator<<(const std::string_view &Str)
     {
         return write(Str.data(), Str.length());
     }
-#endif
+#    endif
 
     raw_ostream &
     operator<<(const SmallVectorImpl<char> &Str)
@@ -492,13 +492,13 @@ public:
     void
     pwrite(const char *Ptr, size_t Size, uint64_t Offset)
     {
-#ifndef NDEBUG
+#    ifndef NDEBUG
         uint64_t Pos = tell();
         // /dev/null always reports a pos of 0, so we cannot perform this check
         // in that case.
         if (Pos)
             assert(Size + Offset <= Pos && "We don't support extending the stream");
-#endif
+#    endif
         pwrite_impl(Ptr, Size, Offset);
     }
 };
@@ -515,11 +515,11 @@ class raw_fd_ostream : public raw_pwrite_stream {
     bool SupportsSeeking = false;
     mutable Optional<bool> HasColors;
 
-#ifdef _WIN32
+#    ifdef _WIN32
     /// True if this fd refers to a Windows console device. Mintty and other
     /// terminal emulators are TTYs, but they are not consoles.
     bool IsWindowsConsole = false;
-#endif
+#    endif
 
     std::error_code EC;
 
@@ -863,4 +863,4 @@ Error writeToOutput(StringRef OutputFileName, std::function<Error(raw_ostream &)
 } // end namespace llvm
 
 #endif // LLVM_SUPPORT_RAW_OSTREAM_H
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

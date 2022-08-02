@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===- StringRef.h - Constant String Reference Wrapper ----------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -11,28 +11,28 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_ADT_STRINGREF_H
-#define LLVM_ADT_STRINGREF_H
+#    define LLVM_ADT_STRINGREF_H
 
-#include "llvm/ADT/STLExtras.h"
-#include "llvm/ADT/iterator_range.h"
-#include "llvm/Support/Compiler.h"
-#include <algorithm>
-#include <cassert>
-#include <cstddef>
-#include <cstring>
-#include <limits>
-#include <string>
-#if __cplusplus > 201402L
-#    include <string_view>
-#endif
-#include <type_traits>
-#include <utility>
+#    include "llvm/ADT/STLExtras.h"
+#    include "llvm/ADT/iterator_range.h"
+#    include "llvm/Support/Compiler.h"
+#    include <algorithm>
+#    include <cassert>
+#    include <cstddef>
+#    include <cstring>
+#    include <limits>
+#    include <string>
+#    if __cplusplus > 201402L
+#        include <string_view>
+#    endif
+#    include <type_traits>
+#    include <utility>
 
 // Declare the __builtin_strlen intrinsic for MSVC so it can be used in
 // constexpr context.
-#if defined(_MSC_VER)
+#    if defined(_MSC_VER)
 extern "C" size_t __builtin_strlen(const char *);
-#endif
+#    endif
 
 namespace llvm {
 
@@ -87,17 +87,17 @@ private:
     static constexpr size_t
     strLen(const char *Str)
     {
-#if __cplusplus > 201402L
+#    if __cplusplus > 201402L
         return std::char_traits<char>::length(Str);
-#elif __has_builtin(__builtin_strlen) || defined(__GNUC__)                                         \
-    || (defined(_MSC_VER) && _MSC_VER >= 1916)
+#    elif __has_builtin(__builtin_strlen) || defined(__GNUC__)                                     \
+        || (defined(_MSC_VER) && _MSC_VER >= 1916)
         return __builtin_strlen(Str);
-#else
+#    else
         const char *Begin = Str;
         while (*Str != '\0')
             ++Str;
         return Str - Begin;
-#endif
+#    endif
     }
 
 public:
@@ -132,14 +132,14 @@ public:
     {
     }
 
-#if __cplusplus > 201402L
+#    if __cplusplus > 201402L
     /// Construct a string ref from an std::string_view.
     /*implicit*/ constexpr StringRef(std::string_view Str)
         : Data(Str.data())
         , Length(Str.size())
     {
     }
-#endif
+#    endif
 
     /// @}
     /// @name Iterators
@@ -332,9 +332,9 @@ public:
 
     explicit operator std::string() const { return str(); }
 
-#if __cplusplus > 201402L
+#    if __cplusplus > 201402L
     operator std::string_view() const { return std::string_view(data(), size()); }
-#endif
+#    endif
 
     /// @}
     /// @name String Predicates
@@ -1036,12 +1036,12 @@ private:
 public:
     template <size_t N>
     constexpr StringLiteral(const char (&Str)[N])
-#if defined(__clang__) && __has_attribute(enable_if)
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wgcc-compat"
+#    if defined(__clang__) && __has_attribute(enable_if)
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wgcc-compat"
         __attribute((enable_if(__builtin_strlen(Str) == N - 1, "invalid string literal")))
-#    pragma clang diagnostic pop
-#endif
+#        pragma clang diagnostic pop
+#    endif
         : StringRef(Str, N - 1)
     {
     }
@@ -1142,4 +1142,4 @@ template <> struct DenseMapInfo<StringRef> {
 } // end namespace llvm
 
 #endif // LLVM_ADT_STRINGREF_H
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop

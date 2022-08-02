@@ -1,7 +1,7 @@
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#    pragma GCC diagnostic ignored "-Wshadow"
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wshadow"
 //===--- Strings.h - Shared string constants across components --*- C++ -*-===//
 //
 // This source file is part of the Swift.org open source project
@@ -15,10 +15,10 @@
 //===----------------------------------------------------------------------===//
 
 #ifndef SWIFT_STRINGS_H
-#define SWIFT_STRINGS_H
+#    define SWIFT_STRINGS_H
 
-#include "swift/Basic/LLVM.h"
-#include "llvm/ADT/StringRef.h"
+#    include "swift/Basic/LLVM.h"
+#    include "llvm/ADT/StringRef.h"
 
 namespace swift {
 
@@ -134,4 +134,4 @@ constexpr static BuiltinNameStringLiteral BUILTIN_TYPE_NAME_WORD = { "Builtin.Wo
 } // end namespace swift
 
 #endif // SWIFT_STRINGS_H
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop
