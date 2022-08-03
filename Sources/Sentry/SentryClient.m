@@ -710,10 +710,16 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self modifyContext:event
                     key:@"culture"
                   block:^(NSMutableDictionary *culture) {
-                      culture[@"calendar"] = [self.locale
-                          localizedStringForCalendarIdentifier:self.locale.calendarIdentifier];
-                      culture[@"display_name"] = [self.locale
-                          localizedStringForLocaleIdentifier:self.locale.localeIdentifier];
+                      if ([self.locale respondsToSelector:@selector
+                                       (localizedStringForCalendarIdentifier:)]) {
+                          culture[@"calendar"] = [self.locale
+                              localizedStringForCalendarIdentifier:self.locale.calendarIdentifier];
+                      }
+                      if ([self.locale
+                              respondsToSelector:@selector(localizedStringForLocaleIdentifier:)]) {
+                          culture[@"display_name"] = [self.locale
+                              localizedStringForLocaleIdentifier:self.locale.localeIdentifier];
+                      }
                       culture[@"locale"] = self.locale.localeIdentifier;
                       culture[@"is_24_hour_format"] = @(self.locale.timeIs24HourFormat);
                       culture[@"timezone"] = self.timezone.name;
