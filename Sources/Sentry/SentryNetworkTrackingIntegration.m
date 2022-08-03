@@ -15,7 +15,6 @@
         [SentryLog logWithMessage:
                        @"Not going to enable NetworkTracking because enableSwizzling is disabled."
                          andLevel:kSentryLevelDebug];
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
         return NO;
     }
 
