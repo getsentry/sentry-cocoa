@@ -3,7 +3,7 @@
 name: Generate Profiling Test Data
 on:
   schedule:
-    - cron: '0 7 * * *' # every day at 0700 UTC (midnight SF, 0300 NYC, 0900 Paris)
+    - cron: '0 */6 * * *' # every 6 hours = 4x/day
   push:
     branches:
       - master
