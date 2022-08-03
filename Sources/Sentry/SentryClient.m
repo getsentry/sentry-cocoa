@@ -115,8 +115,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                           random:[SentryDependencyContainer sharedInstance].random
                     crashWrapper:[SentryCrashWrapper sharedInstance]
              permissionsObserver:permissionsObserver
-                          locale:[NSLocale currentLocale]
-                        timezone:[NSCalendar currentCalendar].timeZone];
+                          locale:[NSLocale autoupdatingCurrentLocale]
+                        timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone];
 }
 
 - (instancetype)initWithOptions:(SentryOptions *)options
