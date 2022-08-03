@@ -3,7 +3,7 @@ import XCTest
 
 class MyTestIntegration: SentryBaseIntegration {
     override func integrationOptions() -> SentryIntegrationOption {
-        return .integrationOptionAttachScreenshot
+        return .integrationOptionEnableAutoSessionTracking
     }
 }
 
@@ -39,10 +39,10 @@ class SentryBaseIntegrationTests: XCTestCase {
     func testInstall_FailingIntegrationOption() {
         let sut = MyTestIntegration()
         let options = Options()
-        options.attachScreenshot = false
+        options.enableAutoSessionTracking = false
         let result = sut.install(with: options)
         XCTAssertFalse(result)
-        XCTAssertEqual(["Sentry - debug:: Not going to enable SentryTests.MyTestIntegration because attachScreenshot is disabled."], logOutput.loggedMessages)
+        XCTAssertEqual(["Sentry - debug:: Not going to enable SentryTests.MyTestIntegration because enableAutoSessionTracking is disabled."], logOutput.loggedMessages)
     }
 
     class TestLogOutput: SentryLogOutput {

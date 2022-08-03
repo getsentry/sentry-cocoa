@@ -59,6 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
+#if SENTRY_HAS_UIKIT
     if ((integrationOptions & kIntegrationOptionEnableUIViewControllerTracking)
         && !options.enableUIViewControllerTracking) {
         [self logWithOptionName:@"enableUIViewControllerTracking"];
@@ -75,6 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
         [self logWithOptionName:@"enableUserInteractionTracing"];
         return NO;
     }
+#endif
 
     if (integrationOptions & kIntegrationOptionEnableAppHangTracking) {
         if (!options.enableAppHangTracking) {
