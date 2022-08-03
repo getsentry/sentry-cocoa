@@ -22,14 +22,28 @@ SentryOutOfMemoryTrackingIntegration ()
 
 @property (nonatomic, strong) SentryOutOfMemoryTracker *tracker;
 @property (nonatomic, strong) SentryANRTracker *anrTracker;
+@property (nullable, nonatomic, copy) NSString *testConfigurationFilePath;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 
 @end
 
 @implementation SentryOutOfMemoryTrackingIntegration
 
+- (instancetype)init
+{
+    if (self = [super init]) {
+        self.testConfigurationFilePath
+            = NSProcessInfo.processInfo.environment[@"XCTestConfigurationFilePath"];
+    }
+    return self;
+}
+
 - (BOOL)installWithOptions:(SentryOptions *)options
 {
+    if (self.testConfigurationFilePath) {
+        return NO;
+    }
+
     if (![super installWithOptions:options]) {
         return NO;
     }

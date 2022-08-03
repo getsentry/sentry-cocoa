@@ -41,16 +41,10 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-    if (integrationOptions & kIntegrationOptionEnableOutOfMemoryTracking) {
-        if (!options.enableOutOfMemoryTracking) {
-            [self logWithOptionName:@"enableOutOfMemoryTracking"];
-            return NO;
-        }
-
-        if (NSProcessInfo.processInfo.environment[@"XCTestConfigurationFilePath"] != nil) {
-            [self logWithReason:@"because unit tests are running"];
-            return NO;
-        }
+    if ((integrationOptions & kIntegrationOptionEnableOutOfMemoryTracking)
+        && !options.enableOutOfMemoryTracking) {
+        [self logWithOptionName:@"enableOutOfMemoryTracking"];
+        return NO;
     }
 
     if ((integrationOptions & kIntegrationOptionEnableAutoPerformanceTracking)
