@@ -17,21 +17,10 @@ SentryUIEventTrackingIntegration ()
 
 @implementation SentryUIEventTrackingIntegration
 
-- (void)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
-    if (![self shouldBeEnabled:@[
-            [[SentryOptionWithDescription alloc]
-                initWithOption:options.enableAutoPerformanceTracking
-                    optionName:@"enableAutoPerformanceTracking"],
-            [[SentryOptionWithDescription alloc] initWithOption:options.enableSwizzling
-                                                     optionName:@"enableSwizzling"],
-            [[SentryOptionWithDescription alloc] initWithOption:options.isTracingEnabled
-                                                     optionName:@"isTracingEnabled"],
-            [[SentryOptionWithDescription alloc] initWithOption:options.enableUserInteractionTracing
-                                                     optionName:@"enableUserInteractionTracing"],
-        ]]) {
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
-        return;
+    if (![super installWithOptions:options]) {
+        return NO;
     }
 
     SentryDependencyContainer *dependencies = [SentryDependencyContainer sharedInstance];
@@ -41,6 +30,14 @@ SentryUIEventTrackingIntegration ()
                    idleTimeout:options.idleTimeout];
 
     [self.uiEventTracker start];
+
+    return YES;
+}
+
+- (SentryIntegrationOption)integrationOptions
+{
+    return kIntegrationOptionEnableAutoPerformanceTracking | kIntegrationOptionEnableSwizzling
+        | kIntegrationOptionIsTracingEnabled | kIntegrationOptionEnableUserInteractionTracing;
 }
 
 - (void)uninstall

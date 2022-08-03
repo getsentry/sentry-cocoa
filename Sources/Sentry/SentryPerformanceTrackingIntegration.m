@@ -17,27 +17,13 @@ SentryPerformanceTrackingIntegration ()
 
 @implementation SentryPerformanceTrackingIntegration
 
-- (void)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
-    if (![self shouldBeEnabled:@[
-            [[SentryOptionWithDescription alloc]
-                initWithOption:options.enableAutoPerformanceTracking
-                    optionName:@"enableAutoPerformanceTracking"],
 #if SENTRY_HAS_UIKIT
-            [[SentryOptionWithDescription alloc]
-                initWithOption:options.enableUIViewControllerTracking
-                    optionName:@"enableUIViewControllerTracking"],
-#endif
-            [[SentryOptionWithDescription alloc] initWithOption:options.isTracingEnabled
-                                                     optionName:@"isTracingEnabled"],
-            [[SentryOptionWithDescription alloc] initWithOption:options.enableSwizzling
-                                                     optionName:@"enableSwizzling"],
-        ]]) {
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
-        return;
+    if (![super installWithOptions:options]) {
+        return NO;
     }
 
-#if SENTRY_HAS_UIKIT
     dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
         DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_HIGH, 0);
     SentryDispatchQueueWrapper *dispatchQueue =
@@ -55,11 +41,20 @@ SentryPerformanceTrackingIntegration ()
             subClassFinder:subClassFinder];
 
     [self.swizzling start];
+    return YES;
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryPerformanceTrackingIntegration "
                               @"start] does nothing."
                      andLevel:kSentryLevelDebug];
+    return NO;
 #endif
+}
+
+- (SentryIntegrationOption)integrationOptions
+{
+    return kIntegrationOptionEnableAutoPerformanceTracking
+        | kIntegrationOptionEnableUIViewControllerTracking | kIntegrationOptionIsTracingEnabled
+        | kIntegrationOptionEnableSwizzling;
 }
 
 @end

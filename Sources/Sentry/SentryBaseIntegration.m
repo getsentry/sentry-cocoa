@@ -1,27 +1,11 @@
 #import "SentryBaseIntegration.h"
+#import "SentryCrashWrapper.h"
 #import "SentryLog.h"
 #import <Foundation/Foundation.h>
+#import <SentryDependencyContainer.h>
+#import <SentryOptions+Private.h>
 
 NS_ASSUME_NONNULL_BEGIN
-
-@implementation SentryOptionWithDescription
-- (instancetype)initWithOption:(BOOL)option log:(NSString *)log
-{
-    if (self = [super init]) {
-        self.option = option;
-        self.log = log;
-    }
-    return self;
-}
-- (instancetype)initWithOption:(BOOL)option optionName:(NSString *)optionName
-{
-    if (self = [super init]) {
-        self.option = option;
-        self.optionName = optionName;
-    }
-    return self;
-}
-@end
 
 @implementation SentryBaseIntegration
 
@@ -30,43 +14,135 @@ NS_ASSUME_NONNULL_BEGIN
     return NSStringFromClass([self classForCoder]);
 }
 
-- (BOOL)isEnabled:(BOOL)option
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
-    return [self shouldBeEnabled:@[ @(option) ]];
-}
-
-- (BOOL)shouldBeEnabled:(NSArray *)options
-{
-    for (id option in options) {
-        if ([option isKindOfClass:[NSNumber class]]) {
-            NSNumber *castedOption = option;
-            if (![castedOption boolValue]) {
-                [SentryLog logWithMessage:[NSString stringWithFormat:@"Not going to enable %@",
-                                                    [self integrationName]]
-                                 andLevel:kSentryLevelDebug];
-                return NO;
-            }
-        }
-
-        if ([option isKindOfClass:[SentryOptionWithDescription class]]) {
-            SentryOptionWithDescription *castedOption = option;
-            if (!castedOption.option) {
-                if (castedOption.optionName != nil) {
-                    [SentryLog
-                        logWithMessage:
-                            [NSString
-                                stringWithFormat:@"Not going to enable %@ because %@ is disabled",
-                                [self integrationName], castedOption.optionName]
-                              andLevel:kSentryLevelDebug];
-                } else {
-                    [SentryLog logWithMessage:castedOption.log andLevel:kSentryLevelDebug];
-                }
-                return NO;
-            }
-        }
+    if (![self shouldBeEnabledWithOptions:options]) {
+        return NO;
     }
 
     return YES;
+}
+
+- (void)logWithOptionName:(NSString *)optionName
+{
+    [self logWithReason:[NSString stringWithFormat:@"because %@ is disabled", optionName]];
+}
+
+- (void)logWithReason:(NSString *)reason
+{
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"Not going to enable %@ %@.",
+                                        self.integrationName, reason]
+                     andLevel:kSentryLevelDebug];
+}
+
+- (BOOL)shouldBeEnabledWithOptions:(SentryOptions *)options
+{
+    SentryIntegrationOption integrationOptions = [self integrationOptions];
+
+    if ((integrationOptions & kIntegrationOptionEnableAutoSessionTracking)
+        && !options.enableAutoSessionTracking) {
+        [self logWithOptionName:@"enableAutoSessionTracking"];
+        return NO;
+    }
+
+    if (integrationOptions & kIntegrationOptionEnableOutOfMemoryTracking) {
+        if (!options.enableOutOfMemoryTracking) {
+            [self logWithOptionName:@"enableOutOfMemoryTracking"];
+            return NO;
+        }
+
+        if (NSProcessInfo.processInfo.environment[@"XCTestConfigurationFilePath"] != nil) {
+            [self logWithReason:@"because unit tests are running"];
+            return NO;
+        }
+    }
+
+    if ((integrationOptions & kIntegrationOptionEnableAutoPerformanceTracking)
+        && !options.enableAutoPerformanceTracking) {
+        [self logWithOptionName:@"enableAutoPerformanceTracking"];
+        return NO;
+    }
+
+    if ((integrationOptions & kIntegrationOptionEnableUIViewControllerTracking)
+        && !options.enableUIViewControllerTracking) {
+        [self logWithOptionName:@"enableUIViewControllerTracking"];
+        return NO;
+    }
+
+    if ((integrationOptions & kIntegrationOptionAttachScreenshot) && !options.attachScreenshot) {
+        [self logWithOptionName:@"attachScreenshot"];
+        return NO;
+    }
+
+    if ((integrationOptions & kIntegrationOptionEnableUserInteractionTracing)
+        && !options.enableUserInteractionTracing) {
+        [self logWithOptionName:@"enableUserInteractionTracing"];
+        return NO;
+    }
+
+    if (integrationOptions & kIntegrationOptionEnableAppHangTracking) {
+        if (!options.enableAppHangTracking) {
+            [self logWithOptionName:@"enableAppHangTracking"];
+            return NO;
+        }
+
+        if (options.appHangTimeoutInterval == 0) {
+            [self logWithReason:@"because appHangTimeoutInterval is 0"];
+            return NO;
+        }
+
+        if ([SentryDependencyContainer.sharedInstance.crashWrapper isBeingTraced]) {
+            [self logWithReason:@"because the debugger is attached"];
+            return NO;
+        }
+    }
+
+    if ((integrationOptions & kIntegrationOptionEnableNetworkTracking)
+        && !options.enableNetworkTracking) {
+        [self logWithOptionName:@"enableNetworkTracking"];
+        return NO;
+    }
+
+    if ((integrationOptions & kIntegrationOptionEnableFileIOTracking)
+        && !options.enableFileIOTracking) {
+        [self logWithOptionName:@"enableFileIOTracking"];
+        return NO;
+    }
+
+    if ((integrationOptions & kIntegrationOptionEnableNetworkBreadcrumbs)
+        && !options.enableNetworkBreadcrumbs) {
+        [self logWithOptionName:@"enableNetworkBreadcrumbs"];
+        return NO;
+    }
+
+    if ((integrationOptions & kIntegrationOptionEnableCoreDataTracking)
+        && !options.enableCoreDataTracking) {
+        [self logWithOptionName:@"enableCoreDataTracking"];
+        return NO;
+    }
+
+    if ((integrationOptions & kIntegrationOptionEnableSwizzling) && !options.enableSwizzling) {
+        [self logWithOptionName:@"enableSwizzling"];
+        return NO;
+    }
+
+    if ((integrationOptions & kIntegrationOptionEnableAutoBreadcrumbTracking)
+        && !options.enableAutoBreadcrumbTracking) {
+        [self logWithOptionName:@"enableAutoBreadcrumbTracking"];
+        return NO;
+    }
+
+    if ((integrationOptions & kIntegrationOptionIsTracingEnabled) && !options.isTracingEnabled) {
+        [self logWithOptionName:@"isTracingEnabled"];
+        return NO;
+    }
+
+    return YES;
+}
+
+- (SentryIntegrationOption)integrationOptions
+{
+    return kIntegrationOptionNone;
 }
 
 @end

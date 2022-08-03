@@ -9,14 +9,14 @@
 
 @implementation SentryNetworkTrackingIntegration
 
-- (void)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
     if (!options.enableSwizzling) {
         [SentryLog logWithMessage:
                        @"Not going to enable NetworkTracking because enableSwizzling is disabled."
                          andLevel:kSentryLevelDebug];
         [options removeEnabledIntegration:NSStringFromClass([self class])];
-        return;
+        return NO;
     }
 
     BOOL shouldEnableNetworkTracking = YES;
@@ -54,8 +54,9 @@
 
     if (shouldEnableNetworkTracking || options.enableNetworkBreadcrumbs) {
         [SentryNetworkTrackingIntegration swizzleURLSessionTask];
+        return YES;
     } else {
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
+        return NO;
     }
 }
 

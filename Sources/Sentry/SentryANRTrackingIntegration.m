@@ -32,23 +32,10 @@ SentryANRTrackingIntegration ()
 
 @implementation SentryANRTrackingIntegration
 
-- (void)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
-    if (![self shouldBeEnabled:@[
-            [[SentryOptionWithDescription alloc] initWithOption:options.enableAppHangTracking
-                                                     optionName:@"enableAppHangTracking"],
-            [[SentryOptionWithDescription alloc]
-                initWithOption:(options.appHangTimeoutInterval > 0)
-                           log:@"Not going to enable App Hanging integration because "
-                               @"appHangTimeoutInterval is 0."],
-            [[SentryOptionWithDescription alloc]
-                initWithOption:(![SentryDependencyContainer.sharedInstance
-                                       .crashWrapper isBeingTraced])
-                           log:@"Not going to enable App Hanging integration because the debugger "
-                               @"is attached."],
-        ]]) {
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
-        return;
+    if (![super installWithOptions:options]) {
+        return NO;
     }
 
     self.tracker =
@@ -56,6 +43,13 @@ SentryANRTrackingIntegration ()
 
     [self.tracker addListener:self];
     self.options = options;
+
+    return YES;
+}
+
+- (SentryIntegrationOption)integrationOptions
+{
+    return kIntegrationOptionEnableAppHangTracking;
 }
 
 - (void)uninstall

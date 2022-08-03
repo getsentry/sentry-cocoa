@@ -22,32 +22,16 @@ SentryOutOfMemoryTrackingIntegration ()
 
 @property (nonatomic, strong) SentryOutOfMemoryTracker *tracker;
 @property (nonatomic, strong) SentryANRTracker *anrTracker;
-@property (nullable, nonatomic, copy) NSString *testConfigurationFilePath;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 
 @end
 
 @implementation SentryOutOfMemoryTrackingIntegration
 
-- (instancetype)init
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
-    if (self = [super init]) {
-        self.testConfigurationFilePath
-            = NSProcessInfo.processInfo.environment[@"XCTestConfigurationFilePath"];
-    }
-    return self;
-}
-
-- (void)installWithOptions:(SentryOptions *)options
-{
-    if (![self shouldBeEnabled:@[
-            @(options.enableOutOfMemoryTracking),
-            [[SentryOptionWithDescription alloc]
-                initWithOption:self.testConfigurationFilePath == nil
-                           log:@"Won't track OOMs, because detected that unit tests are running."],
-        ]]) {
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
-        return;
+    if (![super installWithOptions:options]) {
+        return NO;
     }
 
     dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
@@ -77,6 +61,13 @@ SentryOutOfMemoryTrackingIntegration ()
     [self.anrTracker addListener:self];
 
     self.appStateManager = appStateManager;
+
+    return YES;
+}
+
+- (SentryIntegrationOption)integrationOptions
+{
+    return kIntegrationOptionEnableOutOfMemoryTracking;
 }
 
 - (void)uninstall

@@ -22,18 +22,12 @@ SentryAppStartTrackingIntegration ()
 
 @implementation SentryAppStartTrackingIntegration
 
-- (void)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
 #if SENTRY_HAS_UIKIT
-    if (![self shouldBeEnabled:@[
-            [[SentryOptionWithDescription alloc]
-                initWithOption:options.enableAutoPerformanceTracking
-                    optionName:@"enableAutoPerformanceTracking"],
-            [[SentryOptionWithDescription alloc] initWithOption:options.isTracingEnabled
-                                                     optionName:@"isTracingEnabled"],
-        ]]) {
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
-        return;
+    if (!PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode
+        && ![super installWithOptions:options]) {
+        return NO;
     }
 
     SentryDefaultCurrentDateProvider *currentDateProvider =
@@ -50,24 +44,19 @@ SentryAppStartTrackingIntegration ()
                              sysctl:sysctl];
     [self.tracker start];
 
+    return YES;
 #else
     [SentryLog logWithMessage:@"NO UIKit -> SentryAppStartTracker will not track app start up time."
                      andLevel:kSentryLevelDebug];
+
+    return NO;
 #endif
 }
 
-#if SENTRY_HAS_UIKIT
-- (BOOL)shouldBeEnabled:(NSArray *)options
+- (SentryIntegrationOption)integrationOptions
 {
-    // If the cocoa SDK is being used by a hybrid SDK,
-    // we install App start tracking and let the hybrid SDK decide what to do.
-    if (PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode) {
-        return YES;
-    }
-
-    return [super shouldBeEnabled:options];
+    return kIntegrationOptionEnableAutoPerformanceTracking | kIntegrationOptionIsTracingEnabled;
 }
-#endif
 
 - (void)uninstall
 {

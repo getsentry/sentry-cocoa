@@ -42,17 +42,23 @@ saveScreenShot(const char *path)
 
 @implementation SentryScreenshotIntegration
 
-- (void)installWithOptions:(nonnull SentryOptions *)options
+- (BOOL)installWithOptions:(nonnull SentryOptions *)options
 {
-    if (![self isEnabled:options.attachScreenshot]) {
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
-        return;
+    if (![super installWithOptions:options]) {
+        return NO;
     }
 
     SentryClient *client = [SentrySDK.currentHub getClient];
     client.attachmentProcessor = self;
 
     sentrycrash_setSaveScreenshots(&saveScreenShot);
+
+    return YES;
+}
+
+- (SentryIntegrationOption)integrationOptions
+{
+    return kIntegrationOptionAttachScreenshot;
 }
 
 - (void)uninstall

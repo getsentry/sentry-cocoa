@@ -15,25 +15,22 @@ SentryCoreDataTrackingIntegration ()
 
 @implementation SentryCoreDataTrackingIntegration
 
-- (void)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
-    if (![self shouldBeEnabled:@[
-            [[SentryOptionWithDescription alloc]
-                initWithOption:options.enableAutoPerformanceTracking
-                    optionName:@"enableAutoPerformanceTracking"],
-            [[SentryOptionWithDescription alloc] initWithOption:options.enableSwizzling
-                                                     optionName:@"enableSwizzling"],
-            [[SentryOptionWithDescription alloc] initWithOption:options.isTracingEnabled
-                                                     optionName:@"isTracingEnabled"],
-            [[SentryOptionWithDescription alloc] initWithOption:options.enableCoreDataTracking
-                                                     optionName:@"enableCoreDataTracking"],
-        ]]) {
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
-        return;
+    if (![super installWithOptions:options]) {
+        return NO;
     }
 
     self.tracker = [[SentryCoreDataTracker alloc] init];
     [SentryCoreDataSwizzling.sharedInstance startWithMiddleware:self.tracker];
+
+    return YES;
+}
+
+- (SentryIntegrationOption)integrationOptions
+{
+    return kIntegrationOptionEnableAutoPerformanceTracking | kIntegrationOptionEnableSwizzling
+        | kIntegrationOptionIsTracingEnabled | kIntegrationOptionEnableCoreDataTracking;
 }
 
 - (void)uninstall

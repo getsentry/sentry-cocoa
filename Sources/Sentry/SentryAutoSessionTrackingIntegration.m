@@ -17,11 +17,10 @@ SentryAutoSessionTrackingIntegration ()
 
 @implementation SentryAutoSessionTrackingIntegration
 
-- (void)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
-    if (![self isEnabled:options.enableAutoSessionTracking]) {
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
-        return;
+    if (![super installWithOptions:options]) {
+        return NO;
     }
 
     SentrySessionTracker *tracker = [[SentrySessionTracker alloc]
@@ -29,6 +28,13 @@ SentryAutoSessionTrackingIntegration ()
         currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]];
     [tracker start];
     self.tracker = tracker;
+
+    return YES;
+}
+
+- (SentryIntegrationOption)integrationOptions
+{
+    return kIntegrationOptionEnableAutoSessionTracking;
 }
 
 - (void)uninstall

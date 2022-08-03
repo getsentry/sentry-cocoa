@@ -20,11 +20,10 @@ SentryAutoBreadcrumbTrackingIntegration ()
 
 @implementation SentryAutoBreadcrumbTrackingIntegration
 
-- (void)installWithOptions:(nonnull SentryOptions *)options
+- (BOOL)installWithOptions:(nonnull SentryOptions *)options
 {
-    if (![self isEnabled:options.enableAutoBreadcrumbTracking]) {
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
-        return;
+    if (![super installWithOptions:options]) {
+        return NO;
     }
 
     [self installWithOptions:options
@@ -36,6 +35,13 @@ SentryAutoBreadcrumbTrackingIntegration ()
                                                               .fileManager
                                    andCurrentDateProvider:[SentryDefaultCurrentDateProvider
                                                               sharedInstance]]];
+
+    return YES;
+}
+
+- (SentryIntegrationOption)integrationOptions
+{
+    return kIntegrationOptionEnableAutoBreadcrumbTracking;
 }
 
 /**

@@ -6,24 +6,21 @@
 
 @implementation SentryFileIOTrackingIntegration
 
-- (void)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
-    if (![self shouldBeEnabled:@[
-            [[SentryOptionWithDescription alloc] initWithOption:options.enableSwizzling
-                                                     optionName:@"enableSwizzling"],
-            [[SentryOptionWithDescription alloc] initWithOption:options.isTracingEnabled
-                                                     optionName:@"isTracingEnabled"],
-            [[SentryOptionWithDescription alloc]
-                initWithOption:options.enableAutoPerformanceTracking
-                    optionName:@"enableAutoPerformanceTracking"],
-            [[SentryOptionWithDescription alloc] initWithOption:options.enableFileIOTracking
-                                                     optionName:@"enableFileIOTracking"],
-        ]]) {
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
-        return;
+    if (![super installWithOptions:options]) {
+        return NO;
     }
 
     [SentryNSDataSwizzling start];
+
+    return YES;
+}
+
+- (SentryIntegrationOption)integrationOptions
+{
+    return kIntegrationOptionEnableSwizzling | kIntegrationOptionIsTracingEnabled
+        | kIntegrationOptionEnableAutoPerformanceTracking | kIntegrationOptionEnableFileIOTracking;
 }
 
 - (void)uninstall
