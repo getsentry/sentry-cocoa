@@ -6,7 +6,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)log:(NSString *)message
 {
+#if defined(TEST)
+    static NSISO8601DateFormatter *df;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        df = [[NSISO8601DateFormatter alloc] init];
+    });
+    printf("%s: %s\n", [df stringFromDate:[NSDate date]].UTF8String, message.UTF8String);
+#else
     NSLog(@"%@", message);
+#endif
 }
 
 @end
