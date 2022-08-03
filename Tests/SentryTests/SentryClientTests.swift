@@ -554,7 +554,7 @@ class SentryClientTest: XCTestCase {
         fixture.getSut().captureCrash(event, with: fixture.scope)
 
         assertLastSentEventWithAttachment { actual in
-            let culture = actual.context?["culture"] as? [String: Any]
+            let culture = actual.context?["culture"]
             XCTAssertEqual(culture?["calendar"] as? String, "Gregorian Calendar")
             XCTAssertEqual(culture?["display_name"] as? String, "English (United States)")
             XCTAssertEqual(culture?["locale"] as? String, "en_US")
