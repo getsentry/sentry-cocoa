@@ -531,7 +531,7 @@ class SentryClientTest: XCTestCase {
         fixture.getSut().captureCrash(event, with: fixture.scope)
 
         assertLastSentEventWithAttachment { actual in
-            let eventAppMemory = actual.context?["device"]?["app_memory"] as? Int
+            let eventAppMemory = actual.context?["app"]?["app_memory"] as? Int
             XCTAssertEqual(eventAppMemory, 123_456)
         }
     }
