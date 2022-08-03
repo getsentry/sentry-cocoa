@@ -5,8 +5,7 @@ extension DebugMeta {
         if  let other = object as? DebugMeta {
             return  uuid == other.uuid &&
                 type == other.type &&
-                name == other.name  &&
-                imageSize == other.imageSize &&
+                name == other.name && imageSize == other.imageSize &&
                 imageAddress == other.imageAddress &&
                 imageVmAddress == other.imageVmAddress
         } else {
