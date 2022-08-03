@@ -2,7 +2,6 @@
 #import "SentryAppStartTracker.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryLog.h"
-#import "SentryOptions+Private.h"
 #import <Foundation/Foundation.h>
 #import <PrivateSentrySDKOnly.h>
 #import <SentryAppStateManager.h>

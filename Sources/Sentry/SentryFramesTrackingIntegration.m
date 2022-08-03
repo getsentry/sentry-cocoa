@@ -2,7 +2,6 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryFramesTracker.h"
 #import "SentryLog.h"
-#import "SentryOptions+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

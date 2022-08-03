@@ -1,7 +1,6 @@
 #import "SentryFileIOTrackingIntegration.h"
 #import "SentryLog.h"
 #import "SentryNSDataSwizzling.h"
-#import "SentryOptions+Private.h"
 #import "SentryOptions.h"
 
 @implementation SentryFileIOTrackingIntegration

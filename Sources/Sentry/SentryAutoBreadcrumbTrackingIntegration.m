@@ -4,7 +4,6 @@
 #import "SentryDependencyContainer.h"
 #import "SentryFileManager.h"
 #import "SentryLog.h"
-#import "SentryOptions+Private.h"
 #import "SentryOptions.h"
 #import "SentrySystemEventBreadcrumbs.h"
 

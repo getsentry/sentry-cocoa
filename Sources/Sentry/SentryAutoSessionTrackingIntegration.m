@@ -1,7 +1,6 @@
 #import "SentryAutoSessionTrackingIntegration.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryLog.h"
-#import "SentryOptions+Private.h"
 #import "SentryOptions.h"
 #import "SentrySDK.h"
 #import "SentrySessionTracker.h"

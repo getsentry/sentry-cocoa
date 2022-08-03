@@ -7,7 +7,6 @@
 #import "SentryEvent.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
-#import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
 
 #if SENTRY_HAS_UIKIT
