@@ -60,6 +60,8 @@ SentryClient ()
 @property (nonatomic, weak) id<SentryClientAttachmentProcessor> attachmentProcessor;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryPermissionsObserver *permissionsObserver;
+@property (nonatomic, strong) NSLocale *locale;
+@property (nonatomic, strong) NSTimeZone *timezone;
 
 @end
 
@@ -112,7 +114,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                  threadInspector:threadInspector
                           random:[SentryDependencyContainer sharedInstance].random
                     crashWrapper:[SentryCrashWrapper sharedInstance]
-             permissionsObserver:permissionsObserver];
+             permissionsObserver:permissionsObserver
+                          locale:[NSLocale currentLocale]
+                        timezone:[NSCalendar currentCalendar].timeZone];
 }
 
 - (instancetype)initWithOptions:(SentryOptions *)options
@@ -122,6 +126,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                          random:(id<SentryRandom>)random
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
             permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
+                         locale:(NSLocale *)locale
+                       timezone:(NSTimeZone *)timezone
 {
     if (self = [super init]) {
         self.options = options;
@@ -132,6 +138,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.crashWrapper = crashWrapper;
         self.permissionsObserver = permissionsObserver;
         self.debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
+        self.locale = locale;
+        self.timezone = timezone;
     }
     return self;
 }
@@ -702,16 +710,13 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self modifyContext:event
                     key:@"culture"
                   block:^(NSMutableDictionary *culture) {
-                      NSLocale *locale = [NSLocale currentLocale];
-                      NSCalendar *calendar = [NSCalendar currentCalendar];
-
-                      culture[@"calendar"] =
-                          [locale localizedStringForCalendarIdentifier:locale.calendarIdentifier];
-                      culture[@"display_name"] =
-                          [locale localizedStringForLocaleIdentifier:locale.localeIdentifier];
-                      culture[@"locale"] = locale.localeIdentifier;
-                      culture[@"is_24_hour_format"] = @(locale.timeIs24HourFormat);
-                      culture[@"timezone"] = calendar.timeZone.name;
+                      culture[@"calendar"] = [self.locale
+                          localizedStringForCalendarIdentifier:self.locale.calendarIdentifier];
+                      culture[@"display_name"] = [self.locale
+                          localizedStringForLocaleIdentifier:self.locale.localeIdentifier];
+                      culture[@"locale"] = self.locale.localeIdentifier;
+                      culture[@"is_24_hour_format"] = @(self.locale.timeIs24HourFormat);
+                      culture[@"timezone"] = self.timezone.name;
                   }];
 }
 

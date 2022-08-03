@@ -29,6 +29,8 @@ class SentryClientTest: XCTestCase {
         let transaction: Transaction
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
         let permissionsObserver = TestSentryPermissionsObserver()
+        let locale = Locale(identifier: "en_US")
+        let timezone = TimeZone(identifier: "Europe/Vienna")!
         
         init() {
             session = SentrySession(releaseName: "release")
@@ -68,7 +70,9 @@ class SentryClientTest: XCTestCase {
                     threadInspector: threadInspector,
                     random: random,
                     crashWrapper: crashWrapper,
-                    permissionsObserver: permissionsObserver
+                    permissionsObserver: permissionsObserver,
+                    locale: locale,
+                    timezone: timezone
                 )
             } catch {
                 XCTFail("Options could not be created")
@@ -539,6 +543,23 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(permissions?["location_access"], "granted")
             XCTAssertEqual(permissions?["media_library"], "granted")
             XCTAssertEqual(permissions?["photo_library"], "granted")
+        }
+    }
+
+    func testCaptureCrash_Culture() {
+        let event = TestData.event
+        event.threads = nil
+        event.debugMeta = nil
+
+        fixture.getSut().captureCrash(event, with: fixture.scope)
+
+        assertLastSentEventWithAttachment { actual in
+            let culture = actual.context?["culture"] as? [String: Any]
+            XCTAssertEqual(culture?["calendar"] as? String, "Gregorian Calendar")
+            XCTAssertEqual(culture?["display_name"] as? String, "English (United States)")
+            XCTAssertEqual(culture?["locale"] as? String, "en_US")
+            XCTAssertEqual(culture?["is_24_hour_format"] as? Bool, false)
+            XCTAssertEqual(culture?["timezone"] as? String, "Europe/Vienna")
         }
     }
 
