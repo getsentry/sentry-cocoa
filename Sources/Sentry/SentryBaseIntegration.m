@@ -16,11 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)installWithOptions:(SentryOptions *)options
 {
-    if (![self shouldBeEnabledWithOptions:options]) {
-        return NO;
-    }
-
-    return YES;
+    return [self shouldBeEnabledWithOptions:options];
 }
 
 - (void)logWithOptionName:(NSString *)optionName
