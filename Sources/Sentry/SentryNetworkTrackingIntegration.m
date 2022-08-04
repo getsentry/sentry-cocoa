@@ -17,29 +17,7 @@
         return NO;
     }
 
-    BOOL shouldEnableNetworkTracking = YES;
-
-    if (!options.isTracingEnabled) {
-        [SentryLog logWithMessage:
-                       @"Not going to enable NetworkTracking because isTracingEnabled is disabled."
-                         andLevel:kSentryLevelDebug];
-        shouldEnableNetworkTracking = NO;
-    }
-
-    if (shouldEnableNetworkTracking && !options.enableAutoPerformanceTracking) {
-        [SentryLog logWithMessage:@"Not going to enable NetworkTracking because "
-                                  @"enableAutoPerformanceTracking is disabled."
-                         andLevel:kSentryLevelDebug];
-        shouldEnableNetworkTracking = NO;
-    }
-
-    if (shouldEnableNetworkTracking && !options.enableNetworkTracking) {
-        [SentryLog
-            logWithMessage:
-                @"Not going to enable NetworkTracking because enableNetworkTracking is disabled."
-                  andLevel:kSentryLevelDebug];
-        shouldEnableNetworkTracking = NO;
-    }
+    BOOL shouldEnableNetworkTracking = [super shouldBeEnabledWithOptions:options];
 
     if (shouldEnableNetworkTracking) {
         [SentryNetworkTracker.sharedInstance enableNetworkTracking];
@@ -56,6 +34,12 @@
     } else {
         return NO;
     }
+}
+
+- (SentryIntegrationOption)integrationOptions
+{
+    return kIntegrationOptionIsTracingEnabled | kIntegrationOptionEnableAutoPerformanceTracking
+        | kIntegrationOptionEnableNetworkTracking;
 }
 
 - (void)uninstall
