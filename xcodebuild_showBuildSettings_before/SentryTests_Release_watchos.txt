@@ -1,9 +1,0 @@
-Command line invocation:
-    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace Sentry.xcworkspace -showBuildSettings -scheme SentryTests -configuration Release -sdk watchos
-
-User defaults from command line:
-    IDEPackageSupportUseBuiltinSCM = YES
-
-Build settings from command line:
-    SDKROOT = watchos8.5
-

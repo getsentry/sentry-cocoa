@@ -1,6 +1,0 @@
-Command line invocation:
-    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace Sentry.xcworkspace -showBuildSettings -scheme ProfileDataGeneratorUITest -configuration Release
-
-User defaults from command line:
-    IDEPackageSupportUseBuiltinSCM = YES
-
