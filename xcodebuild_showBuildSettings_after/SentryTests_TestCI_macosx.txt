@@ -1,8 +1,0 @@
-Command line invocation:
-    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace Sentry.xcworkspace -showBuildSettings -scheme SentryTests -configuration TestCI -sdk macosx
-
-User defaults from command line:
-    IDEPackageSupportUseBuiltinSCM = YES
-
-Build settings from command line:
-    SDKROOT = macosx12.3
