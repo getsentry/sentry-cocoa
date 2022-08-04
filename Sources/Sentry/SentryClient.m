@@ -42,6 +42,7 @@
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
+#import "SentryViewHierarchy.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -521,6 +522,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self applyPermissionsToEvent:event];
     [self applyCultureContextToEvent:event];
 
+    [SentryViewHierarchy fetchViewHierarchy];
+
     // With scope applied, before running callbacks run:
     if (nil == event.environment) {
         // We default to environment 'production' if nothing was set
@@ -560,6 +563,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     return event;
+}
+
+- (void)viewHierachy
+{
+    NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
 }
 
 - (BOOL)isSampled:(NSNumber *)sampleRate

@@ -41,6 +41,8 @@
 		0A2690B72885C2E000E4432D /* TestSentryPermissionsObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AABE2EF2885C2120057ED69 /* TestSentryPermissionsObserver.swift */; };
 		0A2D8D9628997845008720F6 /* NSLocale+Sentry.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D8D9428997845008720F6 /* NSLocale+Sentry.m */; };
 		0A2D8D9828997887008720F6 /* NSLocale+Sentry.h in Headers */ = {isa = PBXBuildFile; fileRef = 0A2D8D9728997887008720F6 /* NSLocale+Sentry.h */; };
+		0A2D8DA8289BC905008720F6 /* SentryViewHierarchy.h in Headers */ = {isa = PBXBuildFile; fileRef = 0A2D8DA6289BC905008720F6 /* SentryViewHierarchy.h */; };
+		0A2D8DA9289BC905008720F6 /* SentryViewHierarchy.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D8DA7289BC905008720F6 /* SentryViewHierarchy.m */; };
 		0A8F0A392886CC70000B15F6 /* SentryPermissionsObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 0AABE2EE288592750057ED69 /* SentryPermissionsObserver.h */; };
 		0AABE2ED2885924A0057ED69 /* SentryPermissionsObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AABE2EC2885924A0057ED69 /* SentryPermissionsObserver.m */; };
 		15360CCF2432777500112302 /* SentrySessionTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 15360CCE2432777400112302 /* SentrySessionTracker.m */; };
@@ -720,6 +722,8 @@
 		0A1C3591287D7107007D01E3 /* SentryMetaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryMetaTests.swift; sourceTree = "<group>"; };
 		0A2D8D9428997845008720F6 /* NSLocale+Sentry.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSLocale+Sentry.m"; sourceTree = "<group>"; };
 		0A2D8D9728997887008720F6 /* NSLocale+Sentry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSLocale+Sentry.h"; path = "include/NSLocale+Sentry.h"; sourceTree = "<group>"; };
+		0A2D8DA6289BC905008720F6 /* SentryViewHierarchy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryViewHierarchy.h; path = include/SentryViewHierarchy.h; sourceTree = "<group>"; };
+		0A2D8DA7289BC905008720F6 /* SentryViewHierarchy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryViewHierarchy.m; sourceTree = "<group>"; };
 		0AABE2EC2885924A0057ED69 /* SentryPermissionsObserver.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryPermissionsObserver.m; sourceTree = "<group>"; };
 		0AABE2EE288592750057ED69 /* SentryPermissionsObserver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryPermissionsObserver.h; path = include/SentryPermissionsObserver.h; sourceTree = "<group>"; };
 		0AABE2EF2885C2120057ED69 /* TestSentryPermissionsObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSentryPermissionsObserver.swift; sourceTree = "<group>"; };
@@ -2630,6 +2634,8 @@
 				D85852B827EDDC5900C6D8AE /* SentryUIApplication.m */,
 				D8F6A24A2885515B00320515 /* SentryPredicateDescriptor.h */,
 				D8F6A2452885512100320515 /* SentryPredicateDescriptor.m */,
+				0A2D8DA6289BC905008720F6 /* SentryViewHierarchy.h */,
+				0A2D8DA7289BC905008720F6 /* SentryViewHierarchy.m */,
 			);
 			name = Tools;
 			sourceTree = "<group>";
@@ -2793,6 +2799,7 @@
 				7B6C5F8126034354007F7DFF /* SentryOutOfMemoryLogic.h in Headers */,
 				63FE708520DA4C1000CDBAE8 /* SentryCrashReportFilter.h in Headers */,
 				D8ACE3CD2762187D00F5A213 /* SentryNSDataSwizzling.h in Headers */,
+				0A2D8DA8289BC905008720F6 /* SentryViewHierarchy.h in Headers */,
 				8EAE980C261E9F530073B6B3 /* SentryUIViewControllerPerformanceTracker.h in Headers */,
 				63FE717D20DA4C1100CDBAE8 /* SentryCrashCachedData.h in Headers */,
 				7BBC826D25DFCFDE005F1ED8 /* SentryInAppLogic.h in Headers */,
@@ -3283,6 +3290,7 @@
 				8E25C95325F836D000DC215B /* SentryRandom.m in Sources */,
 				7BC85231245812EC005A70F0 /* SentryFileContents.m in Sources */,
 				03F84D3527DD4191008FE43F /* SentryThreadHandle.cpp in Sources */,
+				0A2D8DA9289BC905008720F6 /* SentryViewHierarchy.m in Sources */,
 				8EA1ED0B2668F8C400E62B98 /* SentryUIViewControllerSwizzling.m in Sources */,
 				7B98D7CF25FB650F00C5A389 /* SentryOutOfMemoryTrackingIntegration.m in Sources */,
 				8E5D38DD261D4A3E000D363D /* SentryPerformanceTrackingIntegration.m in Sources */,
