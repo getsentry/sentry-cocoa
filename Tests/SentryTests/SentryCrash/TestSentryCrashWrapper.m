@@ -15,6 +15,7 @@
     instance.installAsyncHooksCalled = NO;
     instance.closeCalled = NO;
     instance.internalFreeMemory = 0;
+    instance.internalAppMemory = 0;
     return instance;
 }
 
@@ -61,6 +62,11 @@
 - (uint64_t)freeMemory
 {
     return self.internalFreeMemory;
+}
+
+- (uint64_t)appMemory
+{
+    return self.internalAppMemory;
 }
 
 @end

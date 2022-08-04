@@ -6,8 +6,7 @@ extension Sentry.Thread {
             return  threadId == other.threadId &&
                 name == other.name &&
                 stacktrace == other.stacktrace &&
-                crashed == other.crashed  &&
-                current == other.current
+                crashed == other.crashed && current == other.current
         } else {
             return false
         }
