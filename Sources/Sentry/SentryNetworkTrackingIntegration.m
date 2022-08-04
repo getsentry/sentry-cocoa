@@ -2,46 +2,20 @@
 #import "SentryLog.h"
 #import "SentryNSURLSessionTaskSearch.h"
 #import "SentryNetworkTracker.h"
-#import "SentryOptions+Private.h"
 #import "SentryOptions.h"
 #import "SentrySwizzle.h"
 #import <objc/runtime.h>
 
 @implementation SentryNetworkTrackingIntegration
 
-- (void)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
     if (!options.enableSwizzling) {
-        [SentryLog logWithMessage:
-                       @"Not going to enable NetworkTracking because enableSwizzling is disabled."
-                         andLevel:kSentryLevelDebug];
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
-        return;
+        [self logWithOptionName:@"enableSwizzling"];
+        return NO;
     }
 
-    BOOL shouldEnableNetworkTracking = YES;
-
-    if (!options.isTracingEnabled) {
-        [SentryLog logWithMessage:
-                       @"Not going to enable NetworkTracking because isTracingEnabled is disabled."
-                         andLevel:kSentryLevelDebug];
-        shouldEnableNetworkTracking = NO;
-    }
-
-    if (shouldEnableNetworkTracking && !options.enableAutoPerformanceTracking) {
-        [SentryLog logWithMessage:@"Not going to enable NetworkTracking because "
-                                  @"enableAutoPerformanceTracking is disabled."
-                         andLevel:kSentryLevelDebug];
-        shouldEnableNetworkTracking = NO;
-    }
-
-    if (shouldEnableNetworkTracking && !options.enableNetworkTracking) {
-        [SentryLog
-            logWithMessage:
-                @"Not going to enable NetworkTracking because enableNetworkTracking is disabled."
-                  andLevel:kSentryLevelDebug];
-        shouldEnableNetworkTracking = NO;
-    }
+    BOOL shouldEnableNetworkTracking = [super shouldBeEnabledWithOptions:options];
 
     if (shouldEnableNetworkTracking) {
         [SentryNetworkTracker.sharedInstance enableNetworkTracking];
@@ -54,9 +28,16 @@
 
     if (shouldEnableNetworkTracking || options.enableNetworkBreadcrumbs) {
         [SentryNetworkTrackingIntegration swizzleURLSessionTask];
+        return YES;
     } else {
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
+        return NO;
     }
+}
+
+- (SentryIntegrationOption)integrationOptions
+{
+    return kIntegrationOptionIsTracingEnabled | kIntegrationOptionEnableAutoPerformanceTracking
+        | kIntegrationOptionEnableNetworkTracking;
 }
 
 - (void)uninstall

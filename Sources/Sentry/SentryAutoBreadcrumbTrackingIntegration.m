@@ -4,7 +4,6 @@
 #import "SentryDependencyContainer.h"
 #import "SentryFileManager.h"
 #import "SentryLog.h"
-#import "SentryOptions+Private.h"
 #import "SentryOptions.h"
 #import "SentrySystemEventBreadcrumbs.h"
 
@@ -20,14 +19,10 @@ SentryAutoBreadcrumbTrackingIntegration ()
 
 @implementation SentryAutoBreadcrumbTrackingIntegration
 
-- (void)installWithOptions:(nonnull SentryOptions *)options
+- (BOOL)installWithOptions:(nonnull SentryOptions *)options
 {
-    if (!options.enableAutoBreadcrumbTracking) {
-        [SentryLog logWithMessage:@"Not going to enable BreadcrumbTracking because "
-                                  @"enableAutoBreadcrumbTracking is disabled."
-                         andLevel:kSentryLevelDebug];
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
-        return;
+    if (![super installWithOptions:options]) {
+        return NO;
     }
 
     [self installWithOptions:options
@@ -39,6 +34,13 @@ SentryAutoBreadcrumbTrackingIntegration ()
                                                               .fileManager
                                    andCurrentDateProvider:[SentryDefaultCurrentDateProvider
                                                               sharedInstance]]];
+
+    return YES;
+}
+
+- (SentryIntegrationOption)integrationOptions
+{
+    return kIntegrationOptionEnableAutoBreadcrumbTracking;
 }
 
 /**

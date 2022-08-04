@@ -95,10 +95,9 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
         options.enableOutOfMemoryTracking = false
         
         let sut = SentryOutOfMemoryTrackingIntegration()
-        sut.install(with: options)
+        let result = sut.install(with: options)
         
-        let expexted = Options.defaultIntegrations().filter { !$0.contains("OutOfMemory") }
-        assertArrayEquals(expected: expexted, actual: Array(options.enabledIntegrations))
+        XCTAssertFalse(result)
     }
     
     private func givenInitializedTracker(isBeingTraced: Bool = false) {

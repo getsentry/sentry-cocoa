@@ -42,27 +42,25 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertNotNil(Dynamic(sut).tracker.asAnyObject)
     }
     
-    func test_enableAppHangsTracking_Disabled_RemovesEnabledIntegration() {
+    func test_enableAppHangsTracking_Disabled() {
         let options = Options()
         options.enableAppHangTracking = false
         
         sut = SentryANRTrackingIntegration()
-        sut.install(with: options)
-        
-        let expexted = Options.defaultIntegrations().filter { !$0.contains("ANRTracking") }
-        assertArrayEquals(expected: expexted, actual: Array(options.enabledIntegrations))
+        let result = sut.install(with: options)
+
+        XCTAssertFalse(result)
     }
     
-    func test_appHangsTimeoutInterval_Zero_RemovesEnabledIntegration() {
+    func test_appHangsTimeoutInterval_Zero() {
         let options = Options()
         options.enableAppHangTracking = true
         options.appHangTimeoutInterval = 0
         
         sut = SentryANRTrackingIntegration()
-        sut.install(with: options)
+        let result = sut.install(with: options)
         
-        let expexted = Options.defaultIntegrations().filter { !$0.contains("ANRTracking") }
-        assertArrayEquals(expected: expexted, actual: Array(options.enabledIntegrations))
+        XCTAssertFalse(result)
     }
     
     func testANRDetected_EventCaptured() {

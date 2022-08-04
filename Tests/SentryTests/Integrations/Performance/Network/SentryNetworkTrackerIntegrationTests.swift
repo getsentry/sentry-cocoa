@@ -259,10 +259,9 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     
     private func assertRemovedIntegration(_ options: Options) {
         let sut = SentryNetworkTrackingIntegration()
-        sut.install(with: options)
+        let result = sut.install(with: options)
         
-        let expexted = Options.defaultIntegrations().filter { !$0.contains("NetworkTracking") }
-        assertArrayEquals(expected: expexted, actual: Array(options.enabledIntegrations))
+        XCTAssertFalse(result)
     }
 }
 
