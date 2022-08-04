@@ -37,7 +37,9 @@ extension Tracer {
             options.enableCoreDataTracking = true
             options.profilesSampleRate = 1.0
             options.attachScreenshot = true
-            options.enableUserInteractionTracing = true
+            options.enableUserInteractionTracing = false
+            options.enableUIViewControllerTracking = false
+
         }
 
         SentrySDK.configureScope { scope in
