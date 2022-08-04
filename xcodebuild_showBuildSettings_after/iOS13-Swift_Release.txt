@@ -485,4 +485,3 @@ Build settings for action build and target iOS13-Swift:
     __CODE_SIGNING_ALLOWED_watchos = NO
     arch = arm64
     variant = normal
-

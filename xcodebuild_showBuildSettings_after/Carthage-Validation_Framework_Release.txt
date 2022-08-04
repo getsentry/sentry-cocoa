@@ -479,4 +479,3 @@ Build settings for action build and target Framework:
     __CODE_SIGNING_ALLOWED_watchos = NO
     arch = arm64
     variant = normal
-

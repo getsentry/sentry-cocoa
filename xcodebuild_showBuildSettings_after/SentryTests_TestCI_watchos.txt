@@ -6,4 +6,3 @@ User defaults from command line:
 
 Build settings from command line:
     SDKROOT = watchos8.5
-
