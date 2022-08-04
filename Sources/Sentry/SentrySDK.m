@@ -363,7 +363,7 @@ static NSUInteger startInvocations;
                              andLevel:kSentryLevelDebug];
             [SentrySDK.currentHub.installedIntegrations addObject:integrationInstance];
         } else {
-            [[SentrySDK.currentHub getClient].options removeEnabledIntegration:integrationName];
+            [options removeEnabledIntegration:integrationName];
         }
     }
 }

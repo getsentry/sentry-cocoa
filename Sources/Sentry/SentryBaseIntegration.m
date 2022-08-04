@@ -35,6 +35,10 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentryIntegrationOption integrationOptions = [self integrationOptions];
 
+    if (integrationOptions & kIntegrationOptionNone) {
+        return YES;
+    }
+
     if ((integrationOptions & kIntegrationOptionEnableAutoSessionTracking)
         && !options.enableAutoSessionTracking) {
         [self logWithOptionName:@"enableAutoSessionTracking"];
@@ -82,11 +86,6 @@ NS_ASSUME_NONNULL_BEGIN
             [self logWithReason:@"because appHangTimeoutInterval is 0"];
             return NO;
         }
-
-        if ([SentryDependencyContainer.sharedInstance.crashWrapper isBeingTraced]) {
-            [self logWithReason:@"because the debugger is attached"];
-            return NO;
-        }
     }
 
     if ((integrationOptions & kIntegrationOptionEnableNetworkTracking)
@@ -126,6 +125,12 @@ NS_ASSUME_NONNULL_BEGIN
 
     if ((integrationOptions & kIntegrationOptionIsTracingEnabled) && !options.isTracingEnabled) {
         [self logWithOptionName:@"isTracingEnabled"];
+        return NO;
+    }
+
+    if ((integrationOptions & kIntegrationOptionDebuggerNotAttached) &&
+        [SentryDependencyContainer.sharedInstance.crashWrapper isBeingTraced]) {
+        [self logWithReason:@"because the debugger is attached"];
         return NO;
     }
 

@@ -49,7 +49,7 @@ SentryANRTrackingIntegration ()
 
 - (SentryIntegrationOption)integrationOptions
 {
-    return kIntegrationOptionEnableAppHangTracking;
+    return kIntegrationOptionEnableAppHangTracking | kIntegrationOptionDebuggerNotAttached;
 }
 
 - (void)uninstall

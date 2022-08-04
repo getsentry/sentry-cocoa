@@ -19,6 +19,7 @@ typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
     kIntegrationOptionEnableSwizzling = 1 << 11,
     kIntegrationOptionEnableAutoBreadcrumbTracking = 1 << 12,
     kIntegrationOptionIsTracingEnabled = 1 << 13,
+    kIntegrationOptionDebuggerNotAttached = 1 << 14,
 };
 
 @interface SentryBaseIntegration : NSObject
