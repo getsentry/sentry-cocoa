@@ -1,0 +1,6 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project Sentry.xcodeproj -showBuildSettings -scheme SentryTests_tvOS -configuration Release
+
+User defaults from command line:
+    IDEPackageSupportUseBuiltinSCM = YES
+

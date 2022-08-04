@@ -1,0 +1,6 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project Sentry.xcodeproj -showBuildSettings -scheme iOS15-SwiftUI-Tests -configuration TestCI
+
+User defaults from command line:
+    IDEPackageSupportUseBuiltinSCM = YES
+

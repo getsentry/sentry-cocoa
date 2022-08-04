@@ -1,0 +1,6 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project Sentry.xcodeproj -showBuildSettings -scheme SentryTests_watchOS -configuration TestCI
+
+User defaults from command line:
+    IDEPackageSupportUseBuiltinSCM = YES
+
