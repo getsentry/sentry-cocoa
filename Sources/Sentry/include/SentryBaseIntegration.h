@@ -26,6 +26,8 @@ typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
 
 - (NSString *)integrationName;
 - (BOOL)installWithOptions:(SentryOptions *)options;
+- (void)logWithOptionName:(NSString *)optionName;
+- (void)logWithReason:(NSString *)reason;
 - (BOOL)shouldBeEnabledWithOptions:(SentryOptions *)options;
 - (SentryIntegrationOption)integrationOptions;
 

@@ -11,9 +11,7 @@
 - (BOOL)installWithOptions:(SentryOptions *)options
 {
     if (!options.enableSwizzling) {
-        [SentryLog logWithMessage:
-                       @"Not going to enable NetworkTracking because enableSwizzling is disabled."
-                         andLevel:kSentryLevelDebug];
+        [self logWithOptionName:@"enableSwizzling"];
         return NO;
     }
 
