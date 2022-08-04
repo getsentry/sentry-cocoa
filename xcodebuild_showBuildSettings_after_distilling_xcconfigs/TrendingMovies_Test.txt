@@ -1,6 +1,0 @@
-Command line invocation:
-    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project Sentry.xcodeproj -showBuildSettings -scheme TrendingMovies -configuration Test
-
-User defaults from command line:
-    IDEPackageSupportUseBuiltinSCM = YES
-
