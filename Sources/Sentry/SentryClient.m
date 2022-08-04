@@ -1,5 +1,6 @@
 #import "SentryClient.h"
 #import "NSDictionary+SentrySanitize.h"
+#import "NSLocale+Sentry.h"
 #import "SentryAttachment.h"
 #import "SentryClient+Private.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
@@ -59,6 +60,8 @@ SentryClient ()
 @property (nonatomic, weak) id<SentryClientAttachmentProcessor> attachmentProcessor;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryPermissionsObserver *permissionsObserver;
+@property (nonatomic, strong) NSLocale *locale;
+@property (nonatomic, strong) NSTimeZone *timezone;
 
 @end
 
@@ -111,7 +114,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                  threadInspector:threadInspector
                           random:[SentryDependencyContainer sharedInstance].random
                     crashWrapper:[SentryCrashWrapper sharedInstance]
-             permissionsObserver:permissionsObserver];
+             permissionsObserver:permissionsObserver
+                          locale:[NSLocale autoupdatingCurrentLocale]
+                        timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone];
 }
 
 - (instancetype)initWithOptions:(SentryOptions *)options
@@ -121,6 +126,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                          random:(id<SentryRandom>)random
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
             permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
+                         locale:(NSLocale *)locale
+                       timezone:(NSTimeZone *)timezone
 {
     if (self = [super init]) {
         self.options = options;
@@ -131,6 +138,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.crashWrapper = crashWrapper;
         self.permissionsObserver = permissionsObserver;
         self.debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
+        self.locale = locale;
+        self.timezone = timezone;
     }
     return self;
 }
@@ -510,6 +519,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     [self applyPermissionsToEvent:event];
+    [self applyCultureContextToEvent:event];
 
     // With scope applied, before running callbacks run:
     if (nil == event.environment) {
@@ -693,6 +703,23 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return @"not_granted";
         break;
     }
+}
+
+- (void)applyCultureContextToEvent:(SentryEvent *)event
+{
+    [self modifyContext:event
+                    key:@"culture"
+                  block:^(NSMutableDictionary *culture) {
+                      if (@available(iOS 10, macOS 10.12, watchOS 3, tvOS 10, macCatalyst 13, *)) {
+                          culture[@"calendar"] = [self.locale
+                              localizedStringForCalendarIdentifier:self.locale.calendarIdentifier];
+                          culture[@"display_name"] = [self.locale
+                              localizedStringForLocaleIdentifier:self.locale.localeIdentifier];
+                      }
+                      culture[@"locale"] = self.locale.localeIdentifier;
+                      culture[@"is_24_hour_format"] = @(self.locale.timeIs24HourFormat);
+                      culture[@"timezone"] = self.timezone.name;
+                  }];
 }
 
 - (void)storeFreeMemoryToDeviceContext:(SentryEvent *)event
