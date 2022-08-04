@@ -255,7 +255,8 @@ targets:
     platform: [iOS, macOS, tvOS]
     sources:
       - path: "Tests/SentryTests"
-      - path: "Tests/Resources/fatal-error-binary-images-message2.json"
+      - path: "Tests/Resources"
+        type: folder
     dependencies:
       - target: Sentry_${platform}
     configFiles:
@@ -285,7 +286,8 @@ targets:
     platform: iOS
     sources:
       - path: "Samples/iOS-Swift/iOS-Swift-UITests"
-      - path: "Tests/Resources/fatal-error-binary-images-message2.json"
+      - path: "Tests/Resources"
+        type: folder
     dependencies:
       - target: iOS-Swift
       - target: Sentry_iOS

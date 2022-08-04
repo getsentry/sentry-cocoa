@@ -1,0 +1,116 @@
+{
+    "user": {
+        "context": {
+            "app": {
+                "app_build": "1",
+                "app_id": "38C9F02F-0773-333E-80E2-DED37D06B238",
+                "app_identifier": "io.sentry.sample.iOS-Swift",
+                "app_name": "iOS-Swift",
+                "app_start_time": "2021-07-12T09:17:54Z",
+                "app_version": "7.2.0-beta.3",
+                "build_type": "simulator",
+                "device_app_hash": "4fd983784cfe9cd951a7a0a2b2c3ae341aa05a30"
+            },
+            "device": {
+                "arch": "x86",
+                "boot_time": "2021-06-19T07:43:25Z",
+                "family": "iOS",
+                "free_memory": 383516672,
+                "memory_size": 17179869184,
+                "model": "iPhone10,4",
+                "model_id": "simulator",
+                "simulator": true,
+                "storage_size": 1000240963584,
+                "timezone": "GMT+2",
+                "usable_memory": 15475326976
+            },
+            "os": {
+                "build": "20F71",
+                "kernel_version": "Darwin Kernel Version 20.5.0: Sat May  8 05:10:33 PDT 2021; root:xnu-7195.121.3~9/RELEASE_X86_64",
+                "name": "iOS",
+                "rooted": false,
+                "version": "14.5"
+            }
+        },
+        "release": "io.sentry.sample.iOS-Swift@7.2.0-beta.3+1"
+    },
+    "sentry_sdk_scope": {
+        "user": {
+            "email": "tony1@example.com",
+            "id": "1"
+        },
+        "environment": "debug",
+        "tags": {
+            "language": "swift"
+        },
+        "extra": {
+            "__sentry_transaction": "iOS_Swift.ViewController",
+            "currentViewController": "<iOS_Swift.ViewController: 0x7fe250019a40>"
+        },
+        "breadcrumbs": [
+            {
+                "category": "started",
+                "level": "info",
+                "message": "Breadcrumb Tracking",
+                "timestamp": "2021-07-12T09:17:54.932Z",
+                "type": "debug"
+            },
+            {
+                "category": "device.orientation",
+                "data": {
+                    "position": "portrait"
+                },
+                "level": "info",
+                "timestamp": "2021-07-12T09:17:54.977Z",
+                "type": "navigation"
+            },
+            {
+                "category": "device.orientation",
+                "data": {
+                    "position": "portrait"
+                },
+                "level": "info",
+                "timestamp": "2021-07-12T09:17:54.977Z",
+                "type": "navigation"
+            },
+            {
+                "category": "device.orientation",
+                "data": {
+                    "position": "portrait"
+                },
+                "level": "info",
+                "timestamp": "2021-07-12T09:17:54.977Z",
+                "type": "navigation"
+            },
+            {
+                "category": "app.lifecycle",
+                "data": {
+                    "state": "foreground"
+                },
+                "level": "info",
+                "timestamp": "2021-07-12T09:17:54.978Z",
+                "type": "navigation"
+            },
+            {
+                "category": "ui.lifecycle",
+                "data": {
+                    "screen": "iOS_Swift.ViewController"
+                },
+                "level": "info",
+                "timestamp": "2021-07-12T09:17:55.020Z",
+                "type": "navigation"
+            },
+            {
+                "category": "touch",
+                "data": {
+                    "view": "<UIButton: 0x7fe24e527120; frame = (0 240; 359 30); opaque = NO; autoresize = RM+BM; layer = <CALayer: 0x60000237d620>>"
+                },
+                "level": "info",
+                "message": "crash:",
+                "timestamp": "2021-07-12T09:17:56.284Z",
+                "type": "user"
+            }
+        ]
+    },
+    "debug": {}
+}
