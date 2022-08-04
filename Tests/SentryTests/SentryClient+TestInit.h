@@ -20,7 +20,9 @@ SentryClient (TestInit)
                 threadInspector:(SentryThreadInspector *)threadInspector
                          random:(id<SentryRandom>)random
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
-            permissionsObserver:(SentryPermissionsObserver *)permissionsObserver;
+            permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
+                         locale:(NSLocale *)locale
+                       timezone:(NSTimeZone *)timezone;
 
 @end
 

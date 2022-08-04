@@ -4,7 +4,9 @@
 
 ### Features
 
+- Report App Memory Usage (#2027)
 - Include app permissions with event (#1984)
+- Add culture context to event (#2036)
 
 ## 7.23.0
 
