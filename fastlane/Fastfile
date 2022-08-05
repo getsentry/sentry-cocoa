@@ -135,7 +135,7 @@ platform :ios do
 
     build_app(
       project: "Sentry.xcodeproj",
-      scheme: "iOS-Swift",
+      scheme: "iOS-Swift-UITests",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
       skip_archive: true
