@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)log:(NSString *)message
 {
-#if defined(TEST)
+#if defined(TEST) || defined(TESTCI)
     static NSISO8601DateFormatter *df;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{

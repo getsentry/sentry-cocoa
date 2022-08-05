@@ -6,6 +6,9 @@
 #import "SentryCurrentDate.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryHub.h"
+#import "SentryLog.h"
+#import "SentryLog+TestInit.h"
+#import "SentryLogOutput.h"
 #import "SentryOptions.h"
 #import "SentryScope.h"
 #import "SentrySdk+Private.h"
@@ -15,6 +18,27 @@
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+SentryScope *scope;
+
+@interface SentryBreadcrumbTestLogOutput : SentryLogOutput
+
+@end
+
+@implementation SentryBreadcrumbTestLogOutput
+
+- (void)log:(NSString *)message {
+    [super log:message];
+
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug
+                                                             category:@"test.started"];
+    [crumb setMessage:message];
+    // The tests might have a different time set
+    [crumb setTimestamp:[NSDate new]];
+    [scope addBreadcrumb:crumb];
+}
+
+@end
 
 @interface
 SentryTestObserver ()
@@ -26,7 +50,7 @@ SentryTestObserver ()
 
 @implementation SentryTestObserver
 
-#if TESTCI
+#if defined(TESTCI)
 + (void)load
 {
     [[XCTestObservationCenter sharedTestObservationCenter]
@@ -48,8 +72,8 @@ SentryTestObserver ()
         // once to get the scope data.
         [SentrySDK startWithOptionsObject:options];
 
-        self.scope = [[SentryScope alloc] init];
-        [SentryCrashIntegration enrichScope:self.scope
+        scope = [[SentryScope alloc] init];
+        [SentryCrashIntegration enrichScope:scope
                                crashWrapper:[SentryCrashWrapper sharedInstance]];
 
         self.options = options;
@@ -64,7 +88,11 @@ SentryTestObserver ()
     [crumb setMessage:testCase.name];
     // The tests might have a different time set
     [crumb setTimestamp:[NSDate new]];
-    [self.scope addBreadcrumb:crumb];
+    [scope addBreadcrumb:crumb];
+
+#if defined(TESTCI)
+    [SentryLog setLogOutput:[[SentryBreadcrumbTestLogOutput alloc] init]];
+#endif
 }
 
 - (void)testCase:(XCTestCase *)testCase didRecordIssue:(XCTIssue *)issue
@@ -78,7 +106,7 @@ SentryTestObserver ()
     // hub to make sure the sending works.
     SentryClient *client = [[SentryClient alloc] initWithOptions:self.options];
     // We create our own hub here, because we don't know the state of the SentrySDK.
-    SentryHub *hub = [[SentryHub alloc] initWithClient:client andScope:self.scope];
+    SentryHub *hub = [[SentryHub alloc] initWithClient:client andScope:scope];
     NSException *exception = [[NSException alloc] initWithName:testCase.name
                                                         reason:issue.description
                                                       userInfo:nil];

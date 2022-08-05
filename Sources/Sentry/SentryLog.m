@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Enable per default to log initialization errors.
  */
 static BOOL isDebug = YES;
-#if defined(TEST)
+#if defined(TEST) || defined(TESTCI)
 static SentryLevel diagnosticLevel = kSentryLevelDebug;
 #else
 static SentryLevel diagnosticLevel = kSentryLevelError;
