@@ -60,17 +60,21 @@ jobs:
       # macos-10.15. For now, disable the tests on iOS 12 requiring the test server in
       # xcode-test.sh
       - name: Cache for Test Server
+        id: test_server_cache
         if: ${{ matrix.runs-on == 'macos-11'}}  
         uses: actions/cache@v3
         with:
           path: ./test-server/.build
           key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
 
+      - name: Build Test Server
+        if: steps.cache_test_server.outputs.cache-hit != 'true'
+        run: swift build
+        working-directory: test-server
+
       - name: Run Test Server in Background
         if: ${{ matrix.runs-on == 'macos-11'}}  
-        run: | 
-          swift build
-          swift run &
+        run: swift run &
         working-directory: test-server
 
       # Select Xcode after starting server, because the server needs Xcode 13
@@ -140,11 +144,13 @@ jobs:
 
       - name: Cache for Test Server
         uses: actions/cache@v3
+        id: cache_test_server
         with:
           path: ./test-server/.build
           key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
 
       - run: swift build
+        if: steps.cache_test_server.outputs.cache-hit != 'true'
         working-directory: test-server
 
       - name: Run Test Server in Background

@@ -122,9 +122,11 @@ jobs:
             ${{ runner.os }}-gems-${{ env.ImageVersion }}-${{ env.DEVELOPER_DIR }}-${{ hashFiles('**/Gemfile.lock') }}
 
       - name: Install Gems
+        if: steps.cache_gems.outputs.cache-hit != 'true'
         run: bundle install --jobs 4 --retry 3
 
       - name: Install Pods Release
+        if: steps.cache_pods.outputs.cache-hit != 'true'
         run: bundle exec pod install --repo-update
 
       - name: Run tests
@@ -162,12 +164,14 @@ jobs:
 
       - uses: actions/cache@v3
         name: "Cache: Pods"
+        id: cache-pods
         with:
           path: Pods
           key: >-
             ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
 
       - name: Install Pods
+        if: steps.cache_pods.outputs.cache-hit != 'true'
         run: pod install
 
       - name: Run UI Tests
