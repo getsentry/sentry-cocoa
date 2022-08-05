@@ -63,9 +63,9 @@ if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
 
     env NSUnbufferedIO=YES xcodebuild -project Sentry.xcodeproj -scheme Sentry_$SENTRY_FRAMEWORK_PLATFORM -configuration $CONFIGURATION \
         GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
-        -skip-testing:"SentryTests/SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndTraceHeaderAdded" \
-        -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfAddingBreadcrumbs" \
-        -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfTransactions" \
+        -skip-testing:"SentryTests_$SENTRY_FRAMEWORK_PLATFORM/SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndTraceHeaderAdded" \
+        -skip-testing:"SentryTests_$SENTRY_FRAMEWORK_PLATFORM/SentrySDKTests/testMemoryFootprintOfAddingBreadcrumbs" \
+        -skip-testing:"SentryTests_$SENTRY_FRAMEWORK_PLATFORM/SentrySDKTests/testMemoryFootprintOfTransactions" \
         test | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}
 else 
     env NSUnbufferedIO=YES xcodebuild -project Sentry.xcodeproj -scheme Sentry_$SENTRY_FRAMEWORK_PLATFORM -configuration $CONFIGURATION \
