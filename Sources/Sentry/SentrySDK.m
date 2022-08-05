@@ -8,6 +8,7 @@
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
+#import "SentryOptions+Private.h"
 #import "SentryScope.h"
 
 @interface
@@ -355,11 +356,15 @@ static NSUInteger startInvocations;
             continue;
         }
         id<SentryIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
-        [integrationInstance installWithOptions:options];
-        [SentryLog
-            logWithMessage:[NSString stringWithFormat:@"Integration installed: %@", integrationName]
-                  andLevel:kSentryLevelDebug];
-        [SentrySDK.currentHub.installedIntegrations addObject:integrationInstance];
+        BOOL shouldInstall = [integrationInstance installWithOptions:options];
+        if (shouldInstall) {
+            [SentryLog logWithMessage:[NSString stringWithFormat:@"Integration installed: %@",
+                                                integrationName]
+                             andLevel:kSentryLevelDebug];
+            [SentrySDK.currentHub.installedIntegrations addObject:integrationInstance];
+        } else {
+            [options removeEnabledIntegration:integrationName];
+        }
     }
 }
 
