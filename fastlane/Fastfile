@@ -128,14 +128,14 @@ platform :ios do
       update_project_provisioning(
         xcodeproj: "Sentry.xcodeproj",
         profile: "./signing/Development_io.sentry.iOS-SwiftUITests.xctrunner.mobileprovision",
-        target_filter: "iOS-Swift",
+        target_filter: "iOS-Swift-UITests",
         build_configuration: "Debug"
       )
     end
 
     build_app(
       project: "Sentry.xcodeproj",
-      scheme: "iOS-Swift-UITests",
+      scheme: "iOS-Swift",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
       skip_archive: true
