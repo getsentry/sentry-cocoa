@@ -149,7 +149,7 @@ SentryCrashIntegration ()
     // We need to make sure to set always the scope to KSCrash so we have it in
     // case of a crash
     NSString *integrationName = NSStringFromClass(SentryCrashIntegration.class);
-    if (nil != [SentrySDK.currentHub getIntegration:integrationName]) {
+    if ([SentrySDK.currentHub hasIntegration:integrationName]) {
 
         [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
             [SentryCrashIntegration enrichScope:outerScope crashWrapper:self.crashAdapter];
