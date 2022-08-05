@@ -31,7 +31,7 @@ SentryScope *scope;
     [super log:message];
 
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug
-                                                             category:@"test.started"];
+                                                             category:@"sdk-logs"];
     [crumb setMessage:message];
     // The tests might have a different time set
     [crumb setTimestamp:[NSDate new]];
