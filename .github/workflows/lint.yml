@@ -17,6 +17,7 @@ on:
       - 'test-server/**'
       - 'Samples/**'
       - '.github/workflows/lint.yml'
+      - 'xcconfig/**'
 
 jobs:
   swift-lint:

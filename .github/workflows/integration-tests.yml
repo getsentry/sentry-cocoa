@@ -11,6 +11,7 @@ on:
       - 'scripts/**'
       - '.github/workflows/integration-tests.yml'
       - 'fastlane/**'
+      - 'xcconfig/**'
 
 jobs:
 

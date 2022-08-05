@@ -15,6 +15,7 @@ on:
       - '.github/workflows/saucelabs-UI-tests.yml'
       - 'fastlane/**'
       - '.sauce/config.yml'
+      - 'xcconfig/**'
 
 jobs:
   build-ui-tests:
