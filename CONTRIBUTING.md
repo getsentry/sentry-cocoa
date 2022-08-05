@@ -15,57 +15,7 @@ For feedback in PRs, we use the [LOGAF scale](https://blog.danlew.net/2020/04/15
 * `m`: medium - normal comment. Worth adressing and fixing.
 * `h`: high - Very important. We must not merge this PR without adressing this issue.
 
-## Setting up an Environment
-
-Run `make init` to get started. This will install `pre-commit`, `bundler` and `Homebrew` and their managed dependencies (see `Gemfile` and `Brewfile`).
-
-## Tests
-
-The tests depend on our test server. To run the automated tests, you first need to have the server running locally with
-
-```sh
-make run-test-server
-```
-
-Test guidelines:
-
-* We write our tests in Swift. When touching a test file written in Objective-C consider converting it to Swift and then add your tests.
-* Make use of the fixture pattern for test setup code. For examples, checkout [SentryClientTest](/Tests/SentryTests/SentryClientTest.swift) or [SentryHttpTransportTests](/Tests/SentryTests/SentryHttpTransportTests.swift).
-* Use [TestData](/Tests/SentryTests/Protocol/TestData.swift) when possible to avoid setting up data classes with test values.
-* Name the variable of the class you are testing `sut`, which stands for [system under test](https://en.wikipedia.org/wiki/System_under_test).
-
-Test can either be ran inside from Xcode or via
-
-```sh
-make test
-```
-
-## Code Formatting
-Please follow the convention of removing the copyright code comments at the top of files. We only keep them inside [SentryCrash](/SentryCrash/),
-as the code is based on [KSCrash](https://github.com/kstenerud/KSCrash).
-
-All Objective-C, C and C++ needs to be formatted with [Clang Format](http://clang.llvm.org/docs/ClangFormat.html). The configuration can be found in [`.clang-format`](./.clang-format). Simply run the make task before submitting your changes for review:
-
-```sh
-make format
-```
-
-## Linting
-We use [Swiftlint](https://github.com/realm/SwiftLint) and Clang-Format. For Swiftlint we keep a seperate [config file](/Tests/.swiftlint) for the tests. To run all the linters locally execute:
-
-```sh
-make lint
-```
-
-## Environment
-
-## Public Headers
-
-To make a header public follow these steps:
-
-* Move it into the folder [Public](/Sources/Sentry/Public). Both [CocoaPods](Sentry.podspec) and [Swift Package Manager](Package.swift) make all headers in this folder public.
-* Add it to the Umbrella Header [Sentry.h](/Sources/Sentry/Public/Sentry.h).
-* Set the target membership to public.
+See [develop-docs/README.md](develop-docs/README.md) for more technical information on developing the SDK. 
 
 ## Final Notes
 

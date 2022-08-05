@@ -2,6 +2,14 @@
 
 This page contains internal documentation for development.
 
+## Setup
+
+Run `make init` to get started. This will install `pre-commit`, `bundler` and `Homebrew` and their managed dependencies (see `Gemfile` and `Brewfile`).
+
+`make xcode` will generate Sentry.xcodeproj using [XcodeGen](). This project contains the framework target and most test app targets (exceptions being package manager integration tests for Carthage/SPM).
+
+The Xcode project file is not checked in for tracking in Git, so changes made to the project must use either the XcodeGen spec file (`//project.yml`) or configuration files in `//xcconfig/`.
+
 ## Code Signing
 
 The sample apps use automatic code signing to allow people to easily manage devices, profiles and certificates for their Apple Developer Portal account. By default, `CODE_SIGN_TEAM` is set to Sentry's ADP team; external contributors should change this to their own account when needed.
@@ -10,7 +18,28 @@ Jobs running in CI use a standardized set of certificates and profiles managed b
 
 Reach out to @philipphofmann if you need access to the match git repository.
 
-## Unit Tests with Thread Sanitizer
+## Unit tests
+
+The tests depend on our test server. To run the automated tests, you first need to have the server running locally with
+
+```sh
+make run-test-server
+```
+
+Test guidelines:
+
+* We write our tests in Swift. When touching a test file written in Objective-C consider converting it to Swift and then add your tests.
+* Make use of the fixture pattern for test setup code. For examples, checkout [SentryClientTest](/Tests/SentryTests/SentryClientTest.swift) or [SentryHttpTransportTests](/Tests/SentryTests/SentryHttpTransportTests.swift).
+* Use [TestData](/Tests/SentryTests/Protocol/TestData.swift) when possible to avoid setting up data classes with test values.
+* Name the variable of the class you are testing `sut`, which stands for [system under test](https://en.wikipedia.org/wiki/System_under_test).
+
+Test can either be ran inside from Xcode or via
+
+```sh
+make test
+```
+
+### Thread Sanitizer
 
 CI runs the unit tests for one job with thread sanitizer enabled to detect race conditions.
 The Test scheme of Sentry uses `TSAN_OPTIONS` to specify the [suppression file](../Tests/ThreadSanitizer.sup) to ignore false positives or known issues.
@@ -46,6 +75,31 @@ Once daily and for every PR via [Github action](../.github/workflows/benchmarkin
 - Run the procedure 20 times, then assert that the 90th percentile remains under 5% so we can be alerted via CI if it spikes.
     - Sauce Labs allows relaxing the timeout for a suite of tests and for a `XCTestCase` subclass' collection of test case methods, but each test case in the suite must run in less than 15 minutes. 20 trials takes too long, so we split it up into multiple test cases, each running a subset of the trials. 
     - This is done by dynamically generating test case methods in `SentrySDKPerformanceBenchmarkTests`, which is necessarily written in Objective-C since this is not possible to do in Swift tests. By doing this dynamically, we can easily fine tune how we split up the work to account for changes in the test duration or in constraints on how things run in Sauce Labs etc.
+
+## Code Formatting
+Please follow the convention of removing the copyright code comments at the top of files. We only keep them inside [SentryCrash](/SentryCrash/),
+as the code is based on [KSCrash](https://github.com/kstenerud/KSCrash).
+
+All Objective-C, C and C++ needs to be formatted with [Clang Format](http://clang.llvm.org/docs/ClangFormat.html). The configuration can be found in [`.clang-format`](./.clang-format). Simply run the make task before submitting your changes for review:
+
+```sh
+make format
+```
+
+## Linting
+We use [Swiftlint](https://github.com/realm/SwiftLint) and Clang-Format. For Swiftlint we keep a seperate [config file](/Tests/.swiftlint) for the tests. To run all the linters locally execute:
+
+```sh
+make lint
+```
+
+## Public Headers
+
+To make a header public follow these steps:
+
+* Move it into the folder [Public](/Sources/Sentry/Public). Both [CocoaPods](Sentry.podspec) and [Swift Package Manager](Package.swift) make all headers in this folder public.
+* Add it to the Umbrella Header [Sentry.h](/Sources/Sentry/Public/Sentry.h).
+* Set the target membership to public.
 
 ## Auto UI Performance Class Overview
 
