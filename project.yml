@@ -89,7 +89,6 @@ schemes:
     test:
       targets:
         - iOS-Swift-UITests
-        - PerformanceBenchmarks
 
   iOS-SwiftUI:
     build:
