@@ -123,7 +123,7 @@ jobs:
 
       - name: Install Gems
         if: steps.cache_gems.outputs.cache-hit != 'true'
-        run: bundle install --jobs 4 --retry 3
+        run: bundle install --jobs 4 --retry 3 --path vendor/bundle
 
       - name: Install Pods Release
         if: steps.cache_pods.outputs.cache-hit != 'true'
