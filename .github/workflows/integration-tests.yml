@@ -110,7 +110,7 @@ jobs:
             Tools/MaterialDesignIcons.ttf
             Tools/MaterialDesignIcons.json
           key: >-
-            ${{ runner.os }}-pods-xcode-13.2
+            home-assistant-tests-${{ runner.os }}-pods-xcode-13.2
             ${{ hashFiles('**/Gemfile.lock', '**/Podfile.lock', 'Tools/BuildMaterialDesignIconsFont.sh') }}
 
       - uses: actions/cache@v3
