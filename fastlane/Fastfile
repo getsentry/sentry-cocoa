@@ -108,7 +108,7 @@ platform :ios do
       update_code_signing_settings(
         path: "Sentry.xcodeproj",
         use_automatic_signing: false,
-        code_sign_identity: "iPhone Development"
+        code_sign_identity: "Apple Development"
       )
 
       update_project_provisioning(
@@ -156,7 +156,7 @@ platform :ios do
       update_code_signing_settings(
         path: "Sentry.xcodeproj",
         use_automatic_signing: false,
-        code_sign_identity: "iPhone Development"
+        code_sign_identity: "Apple Development"
       )
 
       update_project_provisioning(
@@ -205,7 +205,7 @@ platform :ios do
       update_code_signing_settings(
         path: "Sentry.xcodeproj",
         use_automatic_signing: false,
-        code_sign_identity: "iPhone Development"
+        code_sign_identity: "Apple Development"
       )
 
       update_project_provisioning(
