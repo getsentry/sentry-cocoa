@@ -27,6 +27,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enableCoreDataTracking = true
             options.profilesSampleRate = 1.0
             options.attachScreenshot = true
+            options.attachViewHierarchy = true
 
             let isBenchmarking = ProcessInfo.processInfo.arguments.contains("--io.sentry.test.benchmarking")
             options.enableAutoPerformanceTracking = !isBenchmarking

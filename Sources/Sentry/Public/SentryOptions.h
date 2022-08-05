@@ -202,6 +202,14 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL attachScreenshot;
 
 /**
+ * Automatically attaches a textual representation of the view hierarchy when capturing an error or
+ * exception.
+ *
+ * Default value is <code>NO</code>
+ */
+@property (nonatomic, assign) BOOL attachViewHierarchy;
+
+/**
  * This feature is EXPERIMENTAL.
  *
  * When enabled, the SDK creates transactions for UI events like buttons clicks, switch toggles,

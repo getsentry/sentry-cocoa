@@ -12,14 +12,17 @@ UIView (Debugging)
 
 @implementation SentryViewHierarchy
 
-+ (void)fetchViewHierarchy
++ (NSArray<NSString *> *)fetchViewHierarchy
 {
     NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
 
-    for (UIWindow *window in windows) {
-        NSString *description = [window recursiveDescription];
-        NSLog(@"%@", description);
-    }
+    NSMutableArray *result = [NSMutableArray arrayWithCapacity:[windows count]];
+
+    [windows enumerateObjectsUsingBlock:^(UIWindow *window, NSUInteger idx, BOOL *stop) {
+        [result addObject:[window recursiveDescription]];
+    }];
+
+    return result;
 }
 
 @end

@@ -59,6 +59,7 @@ SentryOptions ()
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracking = YES;
         self.attachScreenshot = NO;
+        self.attachViewHierarchy = NO;
         self.enableUserInteractionTracing = NO;
         self.idleTimeout = 3.0;
 #endif
@@ -243,6 +244,9 @@ SentryOptions ()
 
     [self setBool:options[@"attachScreenshot"]
             block:^(BOOL value) { self->_attachScreenshot = value; }];
+
+    [self setBool:options[@"attachViewHierarchy"]
+            block:^(BOOL value) { self->_attachViewHierarchy = value; }];
 
     [self setBool:options[@"enableUserInteractionTracing"]
             block:^(BOOL value) { self->_enableUserInteractionTracing = value; }];

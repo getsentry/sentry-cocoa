@@ -522,7 +522,18 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self applyPermissionsToEvent:event];
     [self applyCultureContextToEvent:event];
 
-    [SentryViewHierarchy fetchViewHierarchy];
+    if (self.options.attachViewHierarchy) {
+        NSArray *decriptions = [SentryViewHierarchy fetchViewHierarchy];
+
+        [decriptions
+            enumerateObjectsUsingBlock:^(NSString *decription, NSUInteger idx, BOOL *stop) {
+                SentryAttachment *attachment = [[SentryAttachment alloc]
+                    initWithData:[decription dataUsingEncoding:NSUTF8StringEncoding]
+                        filename:[NSString stringWithFormat:@"view-hierarchy-%lu.txt",
+                                           (unsigned long)idx]];
+                [scope addAttachment:attachment];
+            }];
+    }
 
     // With scope applied, before running callbacks run:
     if (nil == event.environment) {
@@ -563,11 +574,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     return event;
-}
-
-- (void)viewHierachy
-{
-    NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
 }
 
 - (BOOL)isSampled:(NSNumber *)sampleRate
