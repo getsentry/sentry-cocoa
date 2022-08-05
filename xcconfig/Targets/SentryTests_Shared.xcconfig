@@ -1,6 +1,9 @@
 #include "../Testing.xcconfig"
 
 CODE_SIGN_STYLE = Manual
+CODE_SIGN_TEAM =
+CODE_SIGN_IDENTITY =
+PROVISIONING_PROFILE_SPECIFIER =
 INFOPLIST_FILE = $(SRCROOT)/Tests/SentryTests/Info.plist
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests
 PRODUCT_MODULE_NAME = SentryTests
