@@ -9,7 +9,7 @@ phase="$1"
 # | grep -v -e "Information about workspace" -e "Schemes:" -e "Sentry" \
 # | awk '{print "\"" $1 " " $2 " " $3 "\""};' | sed 's/  //'
 
-for scheme in "iOS-ObjectiveC" "iOS-ObjectiveC-UITests" "iOS-Swift" "PerformanceBenchmarks" "iOS-Swift-Clip" "iOS-SwiftUI" "iOS-SwiftUI-UITests" "iOS-Swift-UITests" "iOS13-Swift" "iOS13-Swift-Tests" "iOS15-SwiftUI" "iOS15-SwiftUI-Tests" "iOS15-SwiftUI-UITests" "macOS-Swift" "ProfileDataGenerator" "TrendingMovies" "tvOS-SBSwift" "tvOS-SBSwiftUITests" "tvOS-Swift" "tvOS-Swift-UITests" "watchOS-Swift" "watchOS-Swift WatchKit App" "watchOS-Swift WatchKit Extension" "Sentry_iOS" "SentryTests_OiS" "Sentry_macOS" "SentryTests_macOS" "Sentry_tvOS" "SentryTests_tvOS" "Sentry_watchOS" "SentryTests_watchOS" "Carthage-Validation-Framework" "Carthage-Validation-XCFramework"
+for scheme in "iOS-ObjectiveC" "iOS-ObjectiveC-UITests" "iOS-Swift" "PerformanceBenchmarks" "iOS-Swift-Clip" "iOS-SwiftUI" "iOS-SwiftUI-UITests" "iOS-Swift-UITests" "iOS13-Swift" "iOS13-Swift-Tests" "iOS15-SwiftUI" "iOS15-SwiftUI-Tests" "iOS15-SwiftUI-UITests" "macOS-Swift" "ProfileDataGenerator" "TrendingMovies" "tvOS-SBSwift" "tvOS-SBSwiftUITests" "tvOS-Swift" "tvOS-Swift-UITests" "watchOS-Swift" "watchOS-Swift WatchKit App" "watchOS-Swift WatchKit Extension" "Sentry_iOS" "SentryTests_OiS" "Sentry_macOS" "SentryTests_macOS" "Sentry_tvOS" "SentryTests_tvOS" "Sentry_watchOS" "SentryTests_watchOS"
 do
     for config in "Debug" "Release" "Test" "TestCI"
     do

@@ -65,7 +65,7 @@ build-xcframework:
 build-xcframework-sample:
 	./scripts/create-carthage-json.sh
 	cd Samples/Carthage-Validation/XCFramework/ && carthage update --use-xcframeworks
-	xcodebuild -project "Sentry.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
+	xcodebuild -project "Samples/Carthage-Validation/XCFramework/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
 # Building the .frameworsk.zip only works with Xcode 12, as there is no workaround yet for Xcode 13.
 build-framework:
@@ -76,7 +76,7 @@ build-framework:
 build-framework-sample:
 	./scripts/create-carthage-json.sh
 	cd Samples/Carthage-Validation/Framework/ && carthage update
-	xcodebuild -project "Sentry.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
+	xcodebuild -project "Samples/Carthage-Validation/Framework/Framework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
 # call this like `make bump-version TO=5.0.0-rc.0`
 bump-version: clean-version-bump

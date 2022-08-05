@@ -6,6 +6,8 @@ tmp
 
 # we use XcodeGen, so ignore the generated xcodeproj etc
 *.xcodeproj
+!Samples/Carthage-Validation/XCFramework/XCFramework.xcodeproj
+!Samples/Carthage-Validation/Framework/Framework.xcodeproj
 *.xcscheme
 *.xcworkspace
 
