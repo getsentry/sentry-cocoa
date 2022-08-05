@@ -65,7 +65,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ./test-server/.build
-          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}-Xcode-${{matrix.xcode}}
 
       - name: Build Test Server
         if: steps.cache_test_server.outputs.cache-hit != 'true' && ${{ matrix.runs-on == 'macos-11'}}
