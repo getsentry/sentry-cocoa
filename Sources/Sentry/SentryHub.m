@@ -523,13 +523,10 @@ SentryHub ()
     return NO;
 }
 
-- (nullable id)getIntegration:(NSString *)integrationName
+- (BOOL)hasIntegration:(NSString *)integrationName
 {
     NSArray *integrations = _client.options.integrations;
-    if (![integrations containsObject:integrationName]) {
-        return nil;
-    }
-    return [integrations objectAtIndex:[integrations indexOfObject:integrationName]];
+    return [integrations containsObject:integrationName];
 }
 
 - (void)setUser:(nullable SentryUser *)user
