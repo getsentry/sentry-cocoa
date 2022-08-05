@@ -166,6 +166,8 @@ targets:
     dependencies:
       - sdk: libz.tbd
     sources:
+      - path: "Sources/SentryCrash/Recording/Tools/SentryCrashSysCtl.c"
+        compilerFlags: "-w -Xanalyzer -analyzer-disable-all-checks"
       - path: "Sources/Sentry"
         buildPhase: sources
         includes:
@@ -232,6 +234,12 @@ targets:
       - path: "Tests/SentryTests"
       - path: "Tests/Resources"
         type: folder
+      - path: "Tests/SentryTests"
+        includes:
+          - "Tests/SentryTests/SentryCrash/SentryCrashSysCtl_Tests.m"
+          - "Tests/SentryTests/SentryCrash/SentryCrashReportFilter_Tests.m"
+          - "Tests/SentryTests/SentryCrash/SentryCrashMonitor_AppState_Tests.m"
+        compilerFlags: "-w -Xanalyzer -analyzer-disable-all-checks"
     dependencies:
       - target: Sentry_${platform}
     configFiles:
