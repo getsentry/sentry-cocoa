@@ -4,9 +4,9 @@ This page contains internal documentation for development.
 
 ## Code Signing
 
-This repository follows the [codesiging.guide](https://codesigning.guide/) in combination with [fastlane match](https://docs.fastlane.tools/actions/match/).
-Therefore the sample apps use manual code signing, see [fastlane docs](https://docs.fastlane.tools/codesigning/xcode-project/):
-> In most cases, fastlane will work out of the box with Xcode 9 and up if you selected manual code signing and choose a provisioning profile name for each of your targets.
+The sample apps use automatic code signing to allow people to easily manage devices, profiles and certificates for their Apple Developer Portal account. By default, `CODE_SIGN_TEAM` is set to Sentry's ADP team; external contributors should change this to their own account when needed.
+
+Jobs running in CI use a standardized set of certificates and profiles managed by [Fastlane Match](https://docs.fastlane.tools/actions/match/), with private key material set in the GitHub Action settings.
 
 Reach out to @philipphofmann if you need access to the match git repository.
 
