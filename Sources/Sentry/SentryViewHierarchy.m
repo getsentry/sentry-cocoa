@@ -19,7 +19,12 @@ UIView (Debugging)
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:[windows count]];
 
     [windows enumerateObjectsUsingBlock:^(UIWindow *window, NSUInteger idx, BOOL *stop) {
-        [result addObject:[window recursiveDescription]];
+        if ([NSThread isMainThread]) {
+            [result addObject:[window recursiveDescription]];
+        } else {
+            dispatch_sync(
+                dispatch_get_main_queue(), ^{ [result addObject:[window recursiveDescription]]; });
+        }
     }];
 
     return result;
