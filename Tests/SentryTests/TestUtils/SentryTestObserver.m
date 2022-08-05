@@ -6,8 +6,8 @@
 #import "SentryCurrentDate.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryHub.h"
-#import "SentryLog.h"
 #import "SentryLog+TestInit.h"
+#import "SentryLog.h"
 #import "SentryLogOutput.h"
 #import "SentryOptions.h"
 #import "SentryScope.h"
@@ -27,7 +27,8 @@ SentryScope *scope;
 
 @implementation SentryBreadcrumbTestLogOutput
 
-- (void)log:(NSString *)message {
+- (void)log:(NSString *)message
+{
     [super log:message];
 
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug
@@ -73,8 +74,7 @@ SentryTestObserver ()
         [SentrySDK startWithOptionsObject:options];
 
         scope = [[SentryScope alloc] init];
-        [SentryCrashIntegration enrichScope:scope
-                               crashWrapper:[SentryCrashWrapper sharedInstance]];
+        [SentryCrashIntegration enrichScope:scope crashWrapper:[SentryCrashWrapper sharedInstance]];
 
         self.options = options;
     }
