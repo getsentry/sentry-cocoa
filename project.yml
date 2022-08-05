@@ -412,6 +412,7 @@ targets:
     platform: iOS
     sources:
       - path: "Samples/iOS-SwiftUI/iOS-SwiftUI-UITests"
+      - path: "Tests/SentryTests/Integrations/Performance/IO/SentryFileIOTrackingIntegrationTests.swift"
     dependencies:
       - target: iOS-SwiftUI
     configFiles:
