@@ -128,7 +128,7 @@ platform :ios do
       update_project_provisioning(
         xcodeproj: "Sentry.xcodeproj",
         profile: "./signing/Development_io.sentry.iOS-SwiftUITests.xctrunner.mobileprovision",
-        target_filter: "iOS-Swift-UITests",
+        target_filter: "iOS-Swift",
         build_configuration: "Debug"
       )
     end
