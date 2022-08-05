@@ -156,13 +156,13 @@ schemes:
         targets:
           - PerformanceBenchmarks
 
-# Mark: -
-# Mark: Targets
+targets:
 
-targetTemplates:
-  Sentry_Framework:
+  # Mark: Sentry Framework
+
+  Sentry:
     type: "framework"
-    platform: ${frameworkPlatform}
+    platform: [iOS, macOS, tvOS, watchOS]
     dependencies:
       - sdk: libz.tbd
     sources:
@@ -220,38 +220,10 @@ targetTemplates:
         includes:
           - "*.{h,hpp}"
     configFiles:
-      Debug: xcconfig/Targets/Sentry_${frameworkPlatform}.xcconfig
-      Release: xcconfig/Targets/Sentry_${frameworkPlatform}.xcconfig
-      Test: xcconfig/Targets/Sentry_${frameworkPlatform}.xcconfig
-      TestCI: xcconfig/Targets/Sentry_${frameworkPlatform}.xcconfig
-
-targets:
-
-  # Mark: Sentry Framework
-
-  Sentry_iOS:
-    templates:
-      - Sentry_Framework
-    templateAttributes:
-      frameworkPlatform: iOS
-
-  Sentry_macOS:
-    templates:
-      - Sentry_Framework
-    templateAttributes:
-      frameworkPlatform: macOS
-
-  Sentry_watchOS:
-    templates:
-      - Sentry_Framework
-    templateAttributes:
-      frameworkPlatform: watchOS
-
-  Sentry_tvOS:
-    templates:
-      - Sentry_Framework
-    templateAttributes:
-      frameworkPlatform: tvOS
+      Debug: xcconfig/Targets/Sentry_${platform}.xcconfig
+      Release: xcconfig/Targets/Sentry_${platform}.xcconfig
+      Test: xcconfig/Targets/Sentry_${platform}.xcconfig
+      TestCI: xcconfig/Targets/Sentry_${platform}.xcconfig
 
   SentryTests:
     type: "bundle.unit-test"
