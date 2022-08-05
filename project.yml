@@ -89,6 +89,7 @@ schemes:
     test:
       targets:
         - iOS-Swift-UITests
+        - PerformanceBenchmarks
 
   iOS-SwiftUI:
     build:
@@ -115,6 +116,9 @@ schemes:
     build:
       targets:
         TrendingMovies: all
+    test:
+      targets:
+        ProfileDataGenerator
 
   macOS-Swift:
     build:
