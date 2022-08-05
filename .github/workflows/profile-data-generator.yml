@@ -52,7 +52,7 @@ jobs:
           name: data-generator-build-products
           path: |
             **/Debug-iphoneos/TrendingMovies.app
-            **/Debug-iphoneos/ProfileDataGeneratorUITest-Runner.app
+            **/Debug-iphoneos/ProfileDataGenerator-Runner.app
 
   run-profile-data-generator:
     name: Run profile generation on Sauce Labs
