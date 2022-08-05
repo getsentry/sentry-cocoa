@@ -60,7 +60,7 @@ SentryCrashIntegration ()
     return self;
 }
 
-- (void)installWithOptions:(nonnull SentryOptions *)options
+- (BOOL)installWithOptions:(nonnull SentryOptions *)options
 {
     self.options = options;
 
@@ -80,6 +80,8 @@ SentryCrashIntegration ()
     }
 
     [self configureScope];
+
+    return YES;
 }
 
 - (void)startCrashHandler

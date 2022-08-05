@@ -1,3 +1,4 @@
+#import "SentryBaseIntegration.h"
 #import "SentryIntegrationProtocol.h"
 #import <Foundation/Foundation.h>
 
@@ -10,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
  * enableAutoPerformanceTracking to NO
  * in SentryOptions during SentrySDK initialization.
  */
-@interface SentryPerformanceTrackingIntegration : NSObject <SentryIntegrationProtocol>
+@interface SentryPerformanceTrackingIntegration : SentryBaseIntegration <SentryIntegrationProtocol>
 
 @end
 

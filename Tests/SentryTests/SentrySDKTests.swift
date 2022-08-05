@@ -106,8 +106,13 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(SentryLevel.debug, options?.diagnosticLevel)
         XCTAssertEqual(true, options?.attachStacktrace)
         XCTAssertEqual(true, options?.enableAutoSessionTracking)
-        
-        assertIntegrationsInstalled(integrations: options?.integrations ?? [])
+
+        assertIntegrationsInstalled(integrations: [
+            "SentryCrashIntegration",
+            "SentryAutoBreadcrumbTrackingIntegration",
+            "SentryAutoSessionTrackingIntegration",
+            "SentryNetworkTrackingIntegration"
+        ])
     }
     
     func testStartWithConfigureOptions_NoDsn() throws {
@@ -527,7 +532,7 @@ class SentrySDKTests: XCTestCase {
     private func assertIntegrationsInstalled(integrations: [String]) {
         integrations.forEach { integration in
             if let integrationClass = NSClassFromString(integration) {
-                XCTAssertTrue(SentrySDK.currentHub().isIntegrationInstalled(integrationClass))
+                XCTAssertTrue(SentrySDK.currentHub().isIntegrationInstalled(integrationClass), "\(integration) not installed")
             } else {
                 XCTFail("Integration \(integration) not installed.")
             }

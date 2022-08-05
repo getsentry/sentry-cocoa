@@ -87,13 +87,12 @@ class SentryAppStartTrackingIntegrationTests: XCTestCase {
         XCTAssertNil(SentrySDK.getAppStartMeasurement())
     }
     
-    func test_PerformanceTrackingDisabled_RemovesEnabledIntegration() {
+    func test_PerformanceTrackingDisabled() {
         let options = fixture.options
         options.enableAutoPerformanceTracking = false
-        sut.install(with: options)
+        let result = sut.install(with: options)
         
-        let expexted = Options.defaultIntegrations().filter { !$0.contains("AppStart") }
-        assertArrayEquals(expected: expexted, actual: Array(options.enabledIntegrations))
+        XCTAssertFalse(result)
     }
     
 }

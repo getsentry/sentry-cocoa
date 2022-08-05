@@ -1,3 +1,4 @@
+#import "SentryBaseIntegration.h"
 #import "SentryClient+Private.h"
 #import "SentryIntegrationProtocol.h"
 #import "SentryScreenshot.h"
@@ -6,7 +7,8 @@
 NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_HAS_UIKIT
 
-@interface SentryScreenshotIntegration : NSObject <SentryIntegrationProtocol, SentryClientAttachmentProcessor>
+@interface SentryScreenshotIntegration
+    : SentryBaseIntegration <SentryIntegrationProtocol, SentryClientAttachmentProcessor>
 
 @end
 

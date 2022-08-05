@@ -7,7 +7,6 @@
 #import "SentryEvent.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
-#import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
 
 #if SENTRY_HAS_UIKIT
@@ -41,17 +40,23 @@ saveScreenShot(const char *path)
 
 @implementation SentryScreenshotIntegration
 
-- (void)installWithOptions:(nonnull SentryOptions *)options
+- (BOOL)installWithOptions:(nonnull SentryOptions *)options
 {
-    if ([self shouldBeDisabled:options]) {
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
-        return;
+    if (![super installWithOptions:options]) {
+        return NO;
     }
 
     SentryClient *client = [SentrySDK.currentHub getClient];
     client.attachmentProcessor = self;
 
     sentrycrash_setSaveScreenshots(&saveScreenShot);
+
+    return YES;
+}
+
+- (SentryIntegrationOption)integrationOptions
+{
+    return kIntegrationOptionAttachScreenshot;
 }
 
 - (void)uninstall
@@ -83,16 +88,6 @@ saveScreenShot(const char *path)
     }
 
     return result;
-}
-
-- (BOOL)shouldBeDisabled:(SentryOptions *)options
-{
-    if (!options.attachScreenshot) {
-        [SentryLog logWithMessage:@"Screenshot integration disabled." andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    return NO;
 }
 
 @end

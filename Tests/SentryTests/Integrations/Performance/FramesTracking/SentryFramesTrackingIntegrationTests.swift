@@ -83,14 +83,13 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         XCTAssertNil(fixture.displayLink.selector)
     }
     
-    func test_FramesTrackingDisabled_RemovesEnabledIntegration() {
+    func test_FramesTracking_Disabled() {
         let options = Options()
         options.enableAutoPerformanceTracking = false
         
-        fixture.sut.install(with: options)
+        let result = fixture.sut.install(with: options)
         
-        let expexted = Options.defaultIntegrations().filter { !$0.contains("FramesTracking") }
-        assertArrayEquals(expected: expexted, actual: Array(options.enabledIntegrations))
+        XCTAssertFalse(result)
     }
 }
 #endif

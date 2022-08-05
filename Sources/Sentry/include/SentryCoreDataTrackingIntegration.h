@@ -1,8 +1,9 @@
+#import "SentryBaseIntegration.h"
 #import "SentryIntegrationProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryCoreDataTrackingIntegration : NSObject <SentryIntegrationProtocol>
+@interface SentryCoreDataTrackingIntegration : SentryBaseIntegration <SentryIntegrationProtocol>
 
 @end
 
