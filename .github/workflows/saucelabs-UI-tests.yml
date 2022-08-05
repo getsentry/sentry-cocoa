@@ -47,7 +47,7 @@ jobs:
           name: DerivedData-Xcode-${{matrix.xcode}}
           path: |
             **/Debug-iphoneos/iOS-Swift.app
-            **/Debug-iphoneos/iOS-SwiftUITests-Runner.app
+            **/Debug-iphoneos/iOS-Swift-UITests-Runner.app
 
 
   run-ui-tests-with-sauce:
