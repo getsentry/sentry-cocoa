@@ -61,19 +61,19 @@ jobs:
       # xcode-test.sh
       - name: Cache for Test Server
         id: test_server_cache
-        if: ${{ matrix.runs-on == 'macos-11' }}
+        if: ${{ matrix.runs-on }} == 'macos-11'
         uses: actions/cache@v3
         with:
           path: ./test-server/.build
           key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}-Xcode-${{matrix.xcode}}
 
       - name: Build Test Server
-        if: steps.cache_test_server.outputs.cache-hit != 'true' && ${{ matrix.runs-on == 'macos-11' }}
+        if: steps.cache_test_server.outputs.cache-hit != 'true' && ${{ matrix.runs-on }} == 'macos-11'
         run: swift build
         working-directory: test-server
 
       - name: Run Test Server in Background
-        if: ${{ matrix.runs-on == 'macos-11' }}
+        if: ${{ matrix.runs-on }} == 'macos-11'
         run: swift run &
         working-directory: test-server
 
