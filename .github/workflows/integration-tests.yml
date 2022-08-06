@@ -122,7 +122,9 @@ jobs:
 
       - name: Install Gems
         if: steps.cache_gems.outputs.cache-hit != 'true'
-        run: bundle install --jobs 4 --retry 3 --path vendor/bundle
+        run: |
+          bundle config set --local path 'vendor/bundle'
+          bundle install --jobs 4 --retry 3
 
       - name: Install Pods Release
         if: steps.cache_pods.outputs.cache-hit != 'true'
@@ -130,7 +132,9 @@ jobs:
 
       - name: Run tests
       # Run the tests twice in case they are flaky.
-        run: for i in {1..2}; do bundle exec fastlane test && break ; done
+        run: |
+          bundle config set --local path 'vendor/bundle'
+          for i in {1..2}; do bundle exec fastlane test && break ; done
 
   # We borrow the tests of VLC iOS under the GPLv2 (or later) and the MPLv2: https://github.com/videolan/vlc-ios
   # The following steps checkout VLC and apply a github patch to the project. The patch adds
