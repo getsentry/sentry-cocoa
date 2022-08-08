@@ -111,6 +111,7 @@ typedef NS_ENUM(NSUInteger, SentryLevel) {
 typedef NS_ENUM(NSInteger, SentryPermissionStatus) {
     kSentryPermissionStatusUnknown = 0,
     kSentryPermissionStatusGranted,
+    kSentryPermissionStatusPartial,
     kSentryPermissionStatusDenied
 };
 
