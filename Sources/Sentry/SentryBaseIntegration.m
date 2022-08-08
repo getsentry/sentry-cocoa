@@ -134,11 +134,13 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
+#if SENTRY_HAS_UIKIT
     if ((integrationOptions & kIntegrationOptionAttachViewHierarchy)
         && !options.attachViewHierarchy) {
         [self logWithOptionName:@"attachViewHierarchy"];
         return NO;
     }
+#endif
 
     return YES;
 }
