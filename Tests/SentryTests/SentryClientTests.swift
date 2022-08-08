@@ -264,7 +264,7 @@ class SentryClientTest: XCTestCase {
             return result
         }
         
-        sut.attachmentProcessor = processor
+        sut.add(processor)
         sut.capture(event: event)
         
         let sendedAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
@@ -285,7 +285,7 @@ class SentryClientTest: XCTestCase {
             return result
         }
         
-        sut.attachmentProcessor = processor
+        sut.add(processor)
         sut.captureError(error, with: fixture.session, with: Scope())
         
         let sentAttachments = fixture.transportAdapter.sentEventsWithSessionTraceState.first?.attachments ?? []
@@ -305,7 +305,7 @@ class SentryClientTest: XCTestCase {
             return result
         }
         
-        sut.attachmentProcessor = processor
+        sut.add(processor)
         sut.captureError(error, with: SentrySession(releaseName: ""), with: Scope())
         
         let sendedAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []

@@ -48,7 +48,7 @@ saveScreenShot(const char *path)
     }
 
     SentryClient *client = [SentrySDK.currentHub getClient];
-    client.attachmentProcessor = self;
+    [client addAttachmentProcessor:self];
 
     sentrycrash_setSaveScreenshots(&saveScreenShot);
 
@@ -63,6 +63,9 @@ saveScreenShot(const char *path)
 - (void)uninstall
 {
     sentrycrash_setSaveScreenshots(NULL);
+
+    SentryClient *client = [SentrySDK.currentHub getClient];
+    [client removeAttachmentProcessor:self];
 }
 
 - (NSArray<SentryAttachment *> *)processAttachments:(NSArray<SentryAttachment *> *)attachments

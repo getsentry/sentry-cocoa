@@ -134,6 +134,12 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
+    if ((integrationOptions & kIntegrationOptionAttachViewHierarchy)
+        && !options.attachViewHierarchy) {
+        [self logWithOptionName:@"attachViewHierarchy"];
+        return NO;
+    }
+
     return YES;
 }
 
