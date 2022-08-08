@@ -1,12 +1,7 @@
 #import "SentryViewHierarchyIntegration.h"
 #import "SentryAttachment.h"
-#import "SentryClient+Private.h"
-#import "SentryCrashC.h"
 #import "SentryDependencyContainer.h"
-#import "SentryEvent+Private.h"
-#import "SentryEvent.h"
 #import "SentryHub+Private.h"
-#import "SentryLog.h"
 #import "SentrySDK+Private.h"
 #import "SentryViewHierarchy.h"
 
@@ -41,7 +36,8 @@
                                            forEvent:(nonnull SentryEvent *)event
 {
 
-    NSArray *decriptions = [SentryViewHierarchy fetchViewHierarchy];
+    NSArray *decriptions =
+        [SentryDependencyContainer.sharedInstance.viewHierarchy fetchViewHierarchy];
     NSMutableArray *result =
         [NSMutableArray arrayWithCapacity:attachments.count + decriptions.count];
     [result addObjectsFromArray:attachments];

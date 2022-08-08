@@ -12,7 +12,7 @@ UIView (Debugging)
 
 @implementation SentryViewHierarchy
 
-+ (NSArray<NSString *> *)fetchViewHierarchy
+- (NSArray<NSString *> *)fetchViewHierarchy
 {
     NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
 

@@ -1,12 +1,9 @@
 #import "SentryScreenshotIntegration.h"
 #import "SentryAttachment.h"
-#import "SentryClient+Private.h"
 #import "SentryCrashC.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
-#import "SentryEvent.h"
 #import "SentryHub+Private.h"
-#import "SentryLog.h"
 #import "SentrySDK+Private.h"
 
 #if SENTRY_HAS_UIKIT

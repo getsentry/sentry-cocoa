@@ -4,7 +4,7 @@
 #import <Foundation/Foundation.h>
 
 @class SentryAppStateManager, SentryCrashWrapper, SentryThreadWrapper, SentrySwizzleWrapper,
-    SentryDispatchQueueWrapper, SentryDebugImageProvider, SentryANRTracker;
+    SentryDispatchQueueWrapper, SentryDebugImageProvider, SentryANRTracker, SentryViewHierarchy;
 
 #if SENTRY_HAS_UIKIT
 @class SentryScreenshot, SentryUIApplication;
@@ -34,6 +34,7 @@ SENTRY_NO_INIT
 
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryScreenshot *screenshot;
+@property (nonatomic, strong) SentryViewHierarchy *viewHierarchy;
 @property (nonatomic, strong) SentryUIApplication *application;
 #endif
 
