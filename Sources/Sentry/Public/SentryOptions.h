@@ -1,5 +1,5 @@
-#import "SentryDefines.h"
-#import "SentryProfilingConditionals.h"
+#import <Sentry/SentryDefines.h>
+#import <Sentry/SentryProfilingConditionals.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

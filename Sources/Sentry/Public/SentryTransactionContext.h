@@ -1,5 +1,5 @@
-#import "SentrySampleDecision.h"
-#import "SentrySpanContext.h"
+#import <Sentry/SentrySampleDecision.h>
+#import <Sentry/SentrySpanContext.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
