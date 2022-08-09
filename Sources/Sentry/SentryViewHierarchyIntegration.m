@@ -1,6 +1,7 @@
 #import "SentryViewHierarchyIntegration.h"
 #import "SentryAttachment.h"
 #import "SentryDependencyContainer.h"
+#import "SentryEvent+Private.h"
 #import "SentryHub+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentryViewHierarchy.h"
@@ -35,6 +36,11 @@
 - (NSArray<SentryAttachment *> *)processAttachments:(NSArray<SentryAttachment *> *)attachments
                                            forEvent:(nonnull SentryEvent *)event
 {
+    // We don't attach the view hierarchy if there is no exception/error.
+    // We dont attach the view hierarchy if the event is a crash event.
+    if ((event.exceptions == nil && event.error == nil) || event.isCrashEvent) {
+        return attachments;
+    }
 
     NSArray *decriptions =
         [SentryDependencyContainer.sharedInstance.viewHierarchy fetchViewHierarchy];

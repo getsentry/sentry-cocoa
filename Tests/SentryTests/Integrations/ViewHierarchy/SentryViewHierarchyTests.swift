@@ -49,6 +49,37 @@ class SentryViewHierarchyTests: XCTestCase {
         XCTAssertNil(SentrySDK.currentHub().getClient()?.attachmentProcessors)
     }
 
+    func test_noViewHierarchy_attachment() {
+        let sut = fixture.getSut()
+        let event = Event()
+
+        let newAttachmentList = sut.processAttachments([], for: event)
+
+        XCTAssertEqual(newAttachmentList?.count, 0)
+    }
+
+    func test_noViewHierarchy_CrashEvent() {
+        let sut = fixture.getSut()
+        let event = Event(error: NSError(domain: "", code: -1))
+        event.isCrashEvent = true
+
+        let newAttachmentList = sut.processAttachments([], for: event)
+
+        XCTAssertEqual(newAttachmentList?.count, 0)
+    }
+
+    func test_noViewHierarchy_keepAttachment() {
+        let sut = fixture.getSut()
+        let event = Event()
+
+        let attachment = Attachment(data: Data(), filename: "Some Attachment")
+
+        let newAttachmentList = sut.processAttachments([attachment], for: event)
+
+        XCTAssertEqual(newAttachmentList?.count, 1)
+        XCTAssertEqual(newAttachmentList?.first, attachment)
+    }
+
     func test_attachments() {
         let sut = fixture.getSut()
         let event = Event(error: NSError(domain: "", code: -1))
