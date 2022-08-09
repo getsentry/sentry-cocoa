@@ -516,7 +516,7 @@ SentryHub ()
  */
 - (BOOL)isIntegrationInstalled:(Class)integrationClass
 {
-    for (id<SentryIntegrationProtocol> item in SentrySDK.currentHub.installedIntegrations) {
+    for (id<SentryIntegrationProtocol> item in self.installedIntegrations) {
         if ([item isKindOfClass:integrationClass]) {
             return YES;
         }
@@ -526,8 +526,7 @@ SentryHub ()
 
 - (BOOL)hasIntegration:(NSString *)integrationName
 {
-    NSArray *integrations = SentrySDK.currentHub.installedIntegrationNames;
-    return [integrations containsObject:integrationName];
+    return [self.installedIntegrationNames containsObject:integrationName];
 }
 
 - (void)setUser:(nullable SentryUser *)user
