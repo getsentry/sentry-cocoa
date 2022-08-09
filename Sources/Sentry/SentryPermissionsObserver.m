@@ -84,11 +84,15 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
     case MPMediaLibraryAuthorizationStatusNotDetermined:
         self.mediaLibraryPermissionStatus = kSentryPermissionStatusUnknown;
         break;
+
     case MPMediaLibraryAuthorizationStatusDenied:
         self.mediaLibraryPermissionStatus = kSentryPermissionStatusDenied;
         break;
-    case MPMediaLibraryAuthorizationStatusRestricted: // The app may access some of the content in
-                                                      // the user's media library.
+
+    case MPMediaLibraryAuthorizationStatusRestricted:
+        self.mediaLibraryPermissionStatus = kSentryPermissionStatusPartial;
+        break;
+
     case MPMediaLibraryAuthorizationStatusAuthorized:
         self.mediaLibraryPermissionStatus = kSentryPermissionStatusGranted;
         break;
@@ -104,12 +108,16 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
     case PHAuthorizationStatusNotDetermined:
         self.photoLibraryPermissionStatus = kSentryPermissionStatusUnknown;
         break;
+
     case PHAuthorizationStatusDenied:
-    case PHAuthorizationStatusRestricted: // The app isn’t authorized to access the photo library,
-                                          // and the user can’t grant such permission.
+    case PHAuthorizationStatusRestricted:
         self.photoLibraryPermissionStatus = kSentryPermissionStatusDenied;
         break;
+
     case PHAuthorizationStatusLimited:
+        self.photoLibraryPermissionStatus = kSentryPermissionStatusPartial;
+        break;
+
     case PHAuthorizationStatusAuthorized:
         self.photoLibraryPermissionStatus = kSentryPermissionStatusGranted;
         break;
@@ -128,13 +136,16 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
         break;
 
     case UNAuthorizationStatusAuthorized:
-    case UNAuthorizationStatusProvisional:
         self.pushPermissionStatus = kSentryPermissionStatusGranted;
+        break;
+
+    case UNAuthorizationStatusProvisional:
+        self.pushPermissionStatus = kSentryPermissionStatusPartial;
         break;
 
 #    if TARGET_OS_IOS
     case UNAuthorizationStatusEphemeral:
-        self.pushPermissionStatus = kSentryPermissionStatusGranted;
+        self.pushPermissionStatus = kSentryPermissionStatusPartial;
         break;
 #    endif
     }
@@ -159,7 +170,7 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 
 #if !TARGET_OS_OSX
     case kCLAuthorizationStatusAuthorizedWhenInUse:
-        self.locationPermissionStatus = kSentryPermissionStatusGranted;
+        self.locationPermissionStatus = kSentryPermissionStatusPartial;
         break;
 #endif
     }
