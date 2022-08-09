@@ -44,10 +44,7 @@ SentryOptions ()
         self.debug = NO;
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
         self.maxCacheItems = 30;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        self.integrations = SentryOptions.defaultIntegrations;
-#pragma clang diagnostic pop
+        _integrations = SentryOptions.defaultIntegrations;
         _defaultSampleRate = @1;
         self.sampleRate = _defaultSampleRate;
         self.enableAutoSessionTracking = YES;
@@ -125,6 +122,15 @@ SentryOptions ()
         }
     }
     return self;
+}
+
+- (void)setIntegrations:(NSArray<NSString *> *)integrations
+{
+    [SentryLog logWithMessage:
+                   @"Setting `SentryOptions.integrations` is deprecated. Integrations should be "
+                   @"enabled or disabled using their respective `SentryOptions.enable*` property."
+                     andLevel:kSentryLevelWarning];
+    _integrations = integrations;
 }
 
 - (void)setDsn:(NSString *)dsn

@@ -107,14 +107,12 @@ NS_SWIFT_NAME(Options)
 /**
  * Array of integrations to install.
  */
-@property (nullable, nonatomic, copy) NSArray<NSString *> *integrations DEPRECATED_MSG_ATTRIBUTE(
-    "This property will be removed in a future version of the SDK");
+@property (nullable, nonatomic, copy) NSArray<NSString *> *integrations;
 
 /**
  * Array of default integrations. Will be used if integrations are nil
  */
-+ (NSArray<NSString *> *)defaultIntegrations DEPRECATED_MSG_ATTRIBUTE(
-    "This property will be removed in a future version of the SDK");
++ (NSArray<NSString *> *)defaultIntegrations;
 
 /**
  * Indicates the percentage of events being sent to Sentry. Setting this to 0 discards all

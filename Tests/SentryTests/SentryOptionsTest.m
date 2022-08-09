@@ -327,30 +327,6 @@
         @"Default integrations are not set correctly");
 }
 
-- (void)testEnabledIntegrations_SameAsDefault
-{
-    SentryOptions *options = [self getValidOptions:@{}];
-
-    [self assertArrayEquals:[SentryOptions defaultIntegrations]
-                     actual:options.enabledIntegrations.allObjects];
-}
-
-- (void)testEnabledIntegrations_AddCustomAndRemoveIntegration
-{
-    NSMutableArray<NSString *> *integrations = [SentryOptions defaultIntegrations].mutableCopy;
-    [integrations addObject:@"Custom"];
-
-    SentryOptions *options = [self getValidOptions:@{}];
-    options.integrations = integrations;
-
-    NSString *crashIntegration = @"SentryCrashIntegration";
-    NSMutableArray<NSString *> *expected = integrations.mutableCopy;
-    [expected removeObject:crashIntegration];
-
-    [options removeEnabledIntegration:crashIntegration];
-    [self assertArrayEquals:expected actual:options.enabledIntegrations.allObjects];
-}
-
 - (void)testSampleRateWithDict
 {
     NSNumber *sampleRate = @0.1;
