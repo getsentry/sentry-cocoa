@@ -17,6 +17,7 @@
 #import "SentryException.h"
 #import "SentryFileManager.h"
 #import "SentryGlobalEventProcessor.h"
+#import "SentryHub+Private.h"
 #import "SentryHub.h"
 #import "SentryId.h"
 #import "SentryInAppLogic.h"
