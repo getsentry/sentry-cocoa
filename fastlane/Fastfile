@@ -197,8 +197,8 @@ platform :ios do
     )
   end
 
-  desc "Build iOS-Swift Perf-test app without Sentry"
-  lane :build_ios_swift_perf_test_app_plain do
+  desc "Build Perf-test app without Sentry"
+  lane :build_perf_test_app_plain do
 
     setup_ci
 
@@ -214,15 +214,14 @@ platform :ios do
       include_bitcode: false,
       include_symbols: false,
       export_method: "app-store",
-      output_name: "test-app-plain.ipa"
+      output_name: "Tests/Perf/test-app-plain.ipa"
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
 
-  desc "Build iOS-Swift Perf-test app with Sentry"
-  lane :build_ios_swift_perf_test_app_sentry do
-
+  desc "Build Perf-test app with Sentry"
+  lane :build_perf_test_app_sentry do
     setup_ci
 
     sync_code_signing(
@@ -237,7 +236,7 @@ platform :ios do
       include_bitcode: false,
       include_symbols: false,
       export_method: "app-store",
-      output_name: "test-app-sentry.ipa"
+      output_name: "Tests/Perf/test-app-sentry.ipa"
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci

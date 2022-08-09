@@ -7,6 +7,7 @@
 
 import Sentry
 import SwiftUI
+import Sentry
 
 @main
 struct test_app_sentryApp: App {
