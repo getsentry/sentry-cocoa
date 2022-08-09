@@ -214,10 +214,7 @@ SentryOptions ()
     }
 
     if ([options[@"integrations"] isKindOfClass:[NSArray class]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         self.integrations = [options[@"integrations"] filteredArrayUsingPredicate:isNSString];
-#pragma clang diagnostic pop
     }
 
     if ([options[@"sampleRate"] isKindOfClass:[NSNumber class]]) {
