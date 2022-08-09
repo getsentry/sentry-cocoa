@@ -16,6 +16,7 @@ options:
   bundleIdPrefix: "io.sentry"
   createIntermediateGroups: true
   settingPresets: none
+  groupSortPosition: top
 
 fileGroups:
   - .clang-format
