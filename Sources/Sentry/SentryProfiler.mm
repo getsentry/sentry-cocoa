@@ -253,8 +253,8 @@ isSimulatorBuild()
     profile[@"device_is_emulator"] = @(isSimulatorBuild());
     profile[@"device_physical_memory_bytes"] =
         [@(NSProcessInfo.processInfo.physicalMemory) stringValue];
-    profile[@"environment"] = transaction.environment;
-    profile[@"platform"] = transaction.platform ?: @"production";
+    profile[@"environment"] = transaction.environment ?: @"production";
+    profile[@"platform"] = transaction.platform;
     profile[@"transaction_id"] = transaction.eventId.sentryIdString;
     profile[@"trace_id"] = transaction.trace.context.traceId.sentryIdString;
     profile[@"profile_id"] = [[SentryId alloc] init].sentryIdString;
