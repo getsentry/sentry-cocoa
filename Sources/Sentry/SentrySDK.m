@@ -339,7 +339,10 @@ static NSUInteger startInvocations;
         return;
     }
     SentryOptions *options = [SentrySDK.currentHub getClient].options;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     for (NSString *integrationName in [SentrySDK.currentHub getClient].options.integrations) {
+#pragma clang diagnostic pop
         Class integrationClass = NSClassFromString(integrationName);
         if (nil == integrationClass) {
             NSString *logMessage = [NSString stringWithFormat:@"[SentryHub doInstallIntegrations] "
@@ -362,8 +365,7 @@ static NSUInteger startInvocations;
                                                 integrationName]
                              andLevel:kSentryLevelDebug];
             [SentrySDK.currentHub.installedIntegrations addObject:integrationInstance];
-        } else {
-            [options removeEnabledIntegration:integrationName];
+            [SentrySDK.currentHub.installedIntegrationNames addObject:integrationName];
         }
     }
 }

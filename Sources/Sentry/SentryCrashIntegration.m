@@ -62,6 +62,10 @@ SentryCrashIntegration ()
 
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options
 {
+    if (![super installWithOptions:options]) {
+        return NO;
+    }
+
     self.options = options;
 
     SentryAppStateManager *appStateManager =
@@ -86,6 +90,11 @@ SentryCrashIntegration ()
     [self configureScope];
 
     return YES;
+}
+
+- (SentryIntegrationOption)integrationOptions
+{
+    return kIntegrationOptionEnableCrashHandler;
 }
 
 - (void)startCrashHandler

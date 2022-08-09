@@ -11,7 +11,6 @@ SentryOptions ()
 
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultSampleRate;
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultTracesSampleRate;
-@property (nonatomic, strong) NSMutableSet<NSString *> *disabledIntegrations;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultProfilesSampleRate;
 @property (nonatomic, assign) BOOL enableProfiling_DEPRECATED_TEST_ONLY;
@@ -40,12 +39,15 @@ SentryOptions ()
 {
     if (self = [super init]) {
         self.enabled = YES;
+        self.enableCrashHandler = YES;
         self.diagnosticLevel = kSentryLevelDebug;
         self.debug = NO;
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
         self.maxCacheItems = 30;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         self.integrations = SentryOptions.defaultIntegrations;
-        self.disabledIntegrations = [NSMutableSet new];
+#pragma clang diagnostic pop
         _defaultSampleRate = @1;
         self.sampleRate = _defaultSampleRate;
         self.enableAutoSessionTracking = YES;
@@ -179,6 +181,9 @@ SentryOptions ()
 
     [self setBool:options[@"enabled"] block:^(BOOL value) { self->_enabled = value; }];
 
+    [self setBool:options[@"enableCrashHandler"]
+            block:^(BOOL value) { self->_enableCrashHandler = value; }];
+
     if ([options[@"maxBreadcrumbs"] isKindOfClass:[NSNumber class]]) {
         self.maxBreadcrumbs = [options[@"maxBreadcrumbs"] unsignedIntValue];
     }
@@ -203,7 +208,10 @@ SentryOptions ()
     }
 
     if ([options[@"integrations"] isKindOfClass:[NSArray class]]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         self.integrations = [options[@"integrations"] filteredArrayUsingPredicate:isNSString];
+#pragma clang diagnostic pop
     }
 
     if ([options[@"sampleRate"] isKindOfClass:[NSNumber class]]) {
@@ -450,21 +458,6 @@ SentryOptions ()
     });
 
     return [block isKindOfClass:blockClass];
-}
-
-- (NSSet<NSString *> *)enabledIntegrations
-{
-    NSMutableSet<NSString *> *enabledIntegrations =
-        [[NSMutableSet alloc] initWithArray:self.integrations];
-    for (NSString *integration in self.disabledIntegrations) {
-        [enabledIntegrations removeObject:integration];
-    }
-    return enabledIntegrations;
-}
-
-- (void)removeEnabledIntegration:(NSString *)integration
-{
-    [self.disabledIntegrations addObject:integration];
 }
 
 @end

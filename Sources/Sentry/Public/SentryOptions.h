@@ -60,6 +60,11 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enabled;
 
 /**
+ * When enabled, the SDK sends crashes to Sentry. Default value is YES.
+ */
+@property (nonatomic, assign) BOOL enableCrashHandler;
+
+/**
  * How many breadcrumbs do you want to keep in memory?
  * Default is 100.
  */
@@ -102,12 +107,14 @@ NS_SWIFT_NAME(Options)
 /**
  * Array of integrations to install.
  */
-@property (nullable, nonatomic, copy) NSArray<NSString *> *integrations;
+@property (nullable, nonatomic, copy) NSArray<NSString *> *integrations DEPRECATED_MSG_ATTRIBUTE(
+    "This property will be removed in a future version of the SDK");
 
 /**
  * Array of default integrations. Will be used if integrations are nil
  */
-+ (NSArray<NSString *> *)defaultIntegrations;
++ (NSArray<NSString *> *)defaultIntegrations DEPRECATED_MSG_ATTRIBUTE(
+    "This property will be removed in a future version of the SDK");
 
 /**
  * Indicates the percentage of events being sent to Sentry. Setting this to 0 discards all

@@ -46,6 +46,7 @@ SentryHub ()
         _scope = scope;
         _sessionLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
+        _installedIntegrationNames = [[NSMutableArray alloc] init];
         _crashWrapper = [SentryCrashWrapper sharedInstance];
         _tracesSampler = [[SentryTracesSampler alloc] initWithOptions:client.options];
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -525,7 +526,7 @@ SentryHub ()
 
 - (BOOL)hasIntegration:(NSString *)integrationName
 {
-    NSArray *integrations = _client.options.integrations;
+    NSArray *integrations = SentrySDK.currentHub.installedIntegrationNames;
     return [integrations containsObject:integrationName];
 }
 
