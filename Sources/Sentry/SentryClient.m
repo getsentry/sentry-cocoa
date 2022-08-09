@@ -709,6 +709,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return @"granted";
         break;
 
+    case kSentryPermissionStatusPartial:
+        return @"partial";
+        break;
+
     case kSentryPermissionStatusDenied:
         return @"not_granted";
         break;
