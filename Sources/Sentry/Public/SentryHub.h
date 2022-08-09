@@ -38,11 +38,6 @@ SENTRY_NO_INIT
  */
 - (void)endSessionWithTimestamp:(NSDate *)timestamp;
 
-@property (nonatomic, strong)
-    NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
-
-@property (nonatomic, strong) NSMutableArray<NSString *> *installedIntegrationNames;
-
 /**
  * Captures a manually created event and sends it to Sentry.
  *
