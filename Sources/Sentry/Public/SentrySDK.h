@@ -30,8 +30,7 @@ SENTRY_NO_INIT
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations.
  */
-+ (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict
-    NS_SWIFT_NAME(start(options:));
++ (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict NS_SWIFT_NAME(start(options:));
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations.
@@ -76,8 +75,7 @@ SENTRY_NO_INIT
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
 + (SentryId *)captureEvent:(SentryEvent *)event
-            withScopeBlock:(void (^)(SentryScope *scope))block
-    NS_SWIFT_NAME(capture(event:block:));
+            withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(event:block:));
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
@@ -184,8 +182,7 @@ SENTRY_NO_INIT
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
 + (SentryId *)captureError:(NSError *)error
-            withScopeBlock:(void (^)(SentryScope *scope))block
-    NS_SWIFT_NAME(capture(error:block:));
+            withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(error:block:));
 
 /**
  * Captures an exception event and sends it to Sentry.
