@@ -275,6 +275,23 @@ class SentryTracerTests: XCTestCase {
         
         assertOneTransactionCaptured(sut)
     }
+
+    func testSetSpecificTimestamp_NotOverriddenOnTrace() {
+        let sut = fixture.getSut(idleTimeout: 5.0, dispatchQueueWrapper: fixture.dispatchQueue)
+        let child1 = sut.startChild(operation: fixture.transactionOperation)
+        advanceTime(bySeconds: 1.0)
+        child1.finish()
+
+        advanceTime(bySeconds: 1.0)
+        let customTimestamp = fixture.currentDateProvider.date()
+        sut.timestamp = customTimestamp
+        XCTAssertFalse(sut.isFinished)
+        advanceTime(bySeconds: 1.0)
+        sut.finish()
+
+        XCTAssertTrue(sut.isFinished)
+        XCTAssertEqual(sut.timestamp, customTimestamp)
+    }
     
     func testIdleTimeout_TimesOut_TrimsEndTimestamp() {
         let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)

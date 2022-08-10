@@ -50,6 +50,8 @@ SentryTracer ()
 
 @implementation SentryTracer {
     BOOL _waitForChildren;
+    // YES if the instance has had its `timestamp` value set directly at least once, otherwise NO
+    BOOL _hasSpecificEndTimestamp;
     SentryTraceContext *_traceContext;
     SentryProfilesSamplerDecision *_profilesSamplerDecision;
     NSMutableDictionary<NSString *, id> *_tags;
@@ -281,6 +283,9 @@ static NSLock *profilerLock;
     // Calling canBeFinished on the rootSpan would end up in an endless loop because canBeFinished
     // calls finish on the rootSpan.
     if (finishedSpan != self.rootSpan) {
+        // If this is the last child span to be finished, cache its status in case this trace does
+        // not get finish with a status called directly
+        _finishStatus = finishedSpan.context.status;
         [self canBeFinished];
     }
 }
@@ -298,6 +303,7 @@ static NSLock *profilerLock;
 - (void)setTimestamp:(nullable NSDate *)timestamp
 {
     self.rootSpan.timestamp = timestamp;
+    _hasSpecificEndTimestamp = YES;
 }
 
 - (nullable NSDate *)startTimestamp
@@ -344,7 +350,7 @@ static NSLock *profilerLock;
 
 - (BOOL)isFinished
 {
-    return self.rootSpan.isFinished;
+    return self.rootSpan.isFinished && self.rootSpan.context.status != kSentrySpanStatusUndefined;
 }
 
 - (NSArray<id<SentrySpan>> *)children
@@ -409,7 +415,7 @@ static NSLock *profilerLock;
     // Transaction already finished and captured.
     // Sending another transaction and spans with
     // the same SentryId would be an error.
-    if (self.rootSpan.isFinished)
+    if (self.rootSpan.isFinished && self.rootSpan.context.status != kSentrySpanStatusUndefined)
         return;
 
     BOOL hasChildrenToWaitFor = [self hasChildrenToWaitFor];
@@ -535,6 +541,10 @@ static NSLock *profilerLock;
 
 - (void)trimEndTimestamp
 {
+    // If the timestamp has been directly set at least once, then trust that is the intended value
+    if (_hasSpecificEndTimestamp)
+        return;
+
     NSDate *oldest = self.startTimestamp;
 
     for (id<SentrySpan> childSpan in _children) {
