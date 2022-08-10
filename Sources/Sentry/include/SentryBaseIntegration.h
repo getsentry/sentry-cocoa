@@ -20,6 +20,7 @@ typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
     kIntegrationOptionEnableAutoBreadcrumbTracking = 1 << 12,
     kIntegrationOptionIsTracingEnabled = 1 << 13,
     kIntegrationOptionDebuggerNotAttached = 1 << 14,
+    kIntegrationOptionEnableCrashHandler = 1 << 16,
 };
 
 @interface SentryBaseIntegration : NSObject
