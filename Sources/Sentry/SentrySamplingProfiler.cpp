@@ -10,6 +10,7 @@
 #    include <mach/clock.h>
 #    include <mach/clock_reply.h>
 #    include <mach/clock_types.h>
+#    include <malloc/_malloc.h>
 #    include <pthread.h>
 
 namespace sentry {
