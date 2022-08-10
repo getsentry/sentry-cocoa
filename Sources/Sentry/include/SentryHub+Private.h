@@ -8,6 +8,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryHub (Private)
 
+@property (nonatomic, strong)
+    NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
+@property (nonatomic, strong) NSMutableArray<NSString *> *installedIntegrationNames;
+
 - (SentryClient *_Nullable)client;
 
 - (void)captureCrashEvent:(SentryEvent *)event;

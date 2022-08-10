@@ -21,6 +21,7 @@ typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
     kIntegrationOptionIsTracingEnabled = 1 << 13,
     kIntegrationOptionDebuggerNotAttached = 1 << 14,
     kIntegrationOptionAttachViewHierarchy = 1 << 15,
+    kIntegrationOptionEnableCrashHandler = 1 << 16,
 };
 
 @interface SentryBaseIntegration : NSObject

@@ -60,6 +60,11 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enabled;
 
 /**
+ * When enabled, the SDK sends crashes to Sentry. Default value is YES.
+ */
+@property (nonatomic, assign) BOOL enableCrashHandler;
+
+/**
  * How many breadcrumbs do you want to keep in memory?
  * Default is 100.
  */

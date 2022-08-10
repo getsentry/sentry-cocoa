@@ -142,6 +142,12 @@ NS_ASSUME_NONNULL_BEGIN
     }
 #endif
 
+    if ((integrationOptions & kIntegrationOptionEnableCrashHandler)
+        && !options.enableCrashHandler) {
+        [self logWithOptionName:@"enableCrashHandler"];
+        return NO;
+    }
+
     return YES;
 }
 

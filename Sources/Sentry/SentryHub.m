@@ -31,6 +31,9 @@ SentryHub ()
 @property (nonatomic, strong) SentryTracesSampler *tracesSampler;
 @property (nonatomic, strong) SentryProfilesSampler *profilesSampler;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
+@property (nonatomic, strong)
+    NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
+@property (nonatomic, strong) NSMutableArray<NSString *> *installedIntegrationNames;
 
 @end
 
@@ -46,6 +49,7 @@ SentryHub ()
         _scope = scope;
         _sessionLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
+        _installedIntegrationNames = [[NSMutableArray alloc] init];
         _crashWrapper = [SentryCrashWrapper sharedInstance];
         _tracesSampler = [[SentryTracesSampler alloc] initWithOptions:client.options];
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -515,7 +519,7 @@ SentryHub ()
  */
 - (BOOL)isIntegrationInstalled:(Class)integrationClass
 {
-    for (id<SentryIntegrationProtocol> item in SentrySDK.currentHub.installedIntegrations) {
+    for (id<SentryIntegrationProtocol> item in self.installedIntegrations) {
         if ([item isKindOfClass:integrationClass]) {
             return YES;
         }
@@ -525,8 +529,7 @@ SentryHub ()
 
 - (BOOL)hasIntegration:(NSString *)integrationName
 {
-    NSArray *integrations = _client.options.integrations;
-    return [integrations containsObject:integrationName];
+    return [self.installedIntegrationNames containsObject:integrationName];
 }
 
 - (void)setUser:(nullable SentryUser *)user
