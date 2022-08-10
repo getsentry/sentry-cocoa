@@ -14,6 +14,9 @@
 
 - Add span finish flag (#2059)
 
+### Fixes
+- Fix Swift 5.5 compatibility (#2060)
+
 ## 7.23.0
 
 ### Features
