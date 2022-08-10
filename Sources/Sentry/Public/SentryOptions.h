@@ -209,7 +209,8 @@ NS_SWIFT_NAME(Options)
 /**
  * This feature is EXPERIMENTAL.
  *
- * Automatically attaches a textual representation of the view hierarchy when capturing an error event.
+ * Automatically attaches a textual representation of the view hierarchy when capturing an error
+ * event.
  *
  * Default value is <code>NO</code>
  */
