@@ -128,7 +128,9 @@ jobs:
 
       - name: Install Pods Release
         if: steps.cache_pods.outputs.cache-hit != 'true'
-        run: bundle exec pod install --repo-update
+        run: |
+          bundle config set --local path 'vendor/bundle'
+          bundle exec pod install --repo-update
 
       - name: Run tests
       # Run the tests twice in case they are flaky.
