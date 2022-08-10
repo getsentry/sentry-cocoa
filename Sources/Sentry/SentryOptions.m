@@ -40,7 +40,7 @@ SentryOptions ()
     if (self = [super init]) {
         self.enabled = YES;
         self.enableCrashHandler = YES;
-        self.diagnosticLevel = kSentryLevelDebug;
+        self.diagnosticLevel = SENTRY_DEFAULT_LOG_LEVEL;
         self.debug = NO;
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
         self.maxCacheItems = 30;
@@ -406,6 +406,11 @@ SentryOptions ()
 {
     return (_tracesSampleRate != nil && [_tracesSampleRate doubleValue] > 0)
         || _tracesSampler != nil;
+}
+
+- (void)setDebug:(BOOL)debug {
+    _debug = debug;
+    _diagnosticLevel = debug ? kSentryLevelDebug : SENTRY_DEFAULT_LOG_LEVEL;
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED

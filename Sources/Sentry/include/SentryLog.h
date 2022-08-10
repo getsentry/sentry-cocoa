@@ -3,6 +3,8 @@
 
 @class SentryLogOutput;
 
+#define SENTRY_DEFAULT_LOG_LEVEL kSentryLevelError
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryLog : NSObject
