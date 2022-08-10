@@ -408,7 +408,8 @@ SentryOptions ()
         || _tracesSampler != nil;
 }
 
-- (void)setDebug:(BOOL)debug {
+- (void)setDebug:(BOOL)debug
+{
     _debug = debug;
     _diagnosticLevel = debug ? kSentryLevelDebug : SENTRY_DEFAULT_LOG_LEVEL;
 }
