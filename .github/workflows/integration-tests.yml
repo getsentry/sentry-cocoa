@@ -102,23 +102,23 @@ jobs:
         run: ./apply-patch.sh "${{ github.event.pull_request.head.sha }}" "${{ github.sha }}" add-sentry-to-homekit
 
       - uses: actions/cache@v3
-        name: "Cache: Pods"
-        id: cache_pods
-        with:
-          path: |
-            Pods
-            Tools/MaterialDesignIcons.ttf
-            Tools/MaterialDesignIcons.json
-          key: >-
-            home-assistant-tests-${{ runner.os }}-pods-xcode-13.2
-            ${{ hashFiles('**/Gemfile.lock', '**/Podfile.lock', 'Tools/BuildMaterialDesignIconsFont.sh') }}
-
-      - uses: actions/cache@v3
         name: "Cache: Gems"
         id: cache_gems
         with:
           path: vendor/bundle
           key: home-assistant-integration-gems-${{ runner.os }}-${{ env.ImageVersion }}-${{ env.DEVELOPER_DIR }}-${{ hashFiles('**/Gemfile.lock') }}
+
+      - uses: actions/cache@v3
+        name: "Cache: Pods"
+        id: cache_pods
+        if: steps.cache_gems.outputs.cache-hit == 'true'
+        with:
+          path: |
+            Pods
+            Podfile
+            Podfile.lock
+            Tools/**
+          key: home-assistant-tests-pods-${{ runner.os }}-${{ env.ImageVersion }}-${{ env.DEVELOPER_DIR }}-${{ hashFiles('Podfile', '**/Podfile.lock', 'Tools/**') }}
 
       - name: Install Gems
         if: steps.cache_gems.outputs.cache-hit != 'true'
