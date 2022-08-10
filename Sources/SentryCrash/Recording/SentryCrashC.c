@@ -330,3 +330,9 @@ sentrycrash_hasSaveScreenshotCallback()
 {
     return g_saveScreenShot != NULL;
 }
+
+bool
+sentrycrash_hasSaveViewHierarchyCallback()
+{
+    return g_saveViewHierarchy != NULL;
+}

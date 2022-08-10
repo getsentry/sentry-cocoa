@@ -232,6 +232,12 @@ void sentrycrash_deleteReportWithID(int64_t reportID);
  */
 bool sentrycrash_hasSaveScreenshotCallback(void);
 
+/**
+ * For testing purpose.
+ * Indicates that a callback was registered for view hierarchy.
+ */
+bool sentrycrash_hasSaveViewHierarchyCallback(void);
+
 #ifdef __cplusplus
 }
 #endif
