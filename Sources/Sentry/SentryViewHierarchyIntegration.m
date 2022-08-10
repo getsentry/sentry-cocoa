@@ -63,7 +63,8 @@ saveViewHierarchy(const char *path)
     [decriptions enumerateObjectsUsingBlock:^(NSString *decription, NSUInteger idx, BOOL *stop) {
         SentryAttachment *attachment = [[SentryAttachment alloc]
             initWithData:[decription dataUsingEncoding:NSUTF8StringEncoding]
-                filename:[NSString stringWithFormat:@"view-hierarchy-%lu.txt", (unsigned long)idx]];
+                filename:[NSString stringWithFormat:@"view-hierarchy-%lu.txt", (unsigned long)idx]
+             contentType:@"text/plain"];
         [result addObject:attachment];
     }];
 

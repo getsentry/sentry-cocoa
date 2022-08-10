@@ -91,8 +91,8 @@ class SentryViewHierarchyTests: XCTestCase {
         XCTAssertEqual(newAttachmentList[0].filename, "view-hierarchy-0.txt")
         XCTAssertEqual(newAttachmentList[1].filename, "view-hierarchy-1.txt")
 
-        XCTAssertEqual(newAttachmentList[0].contentType, "application/octet-stream")
-        XCTAssertEqual(newAttachmentList[1].contentType, "application/octet-stream")
+        XCTAssertEqual(newAttachmentList[0].contentType, "text/plain")
+        XCTAssertEqual(newAttachmentList[1].contentType, "text/plain")
 
         XCTAssertEqual(newAttachmentList[0].data?.count, "view hierarchy for window zero".lengthOfBytes(using: .utf8))
         XCTAssertEqual(newAttachmentList[1].data?.count, "view hierarchy for window one".lengthOfBytes(using: .utf8))
