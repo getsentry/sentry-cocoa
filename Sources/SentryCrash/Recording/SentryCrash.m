@@ -401,7 +401,7 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
     return nil;
 }
 
-- (NSArray<NSString *> *)getAttachmentsPaths:(int64_t)reportID
+- (NSArray<NSString *> *)getAttachmentPaths:(int64_t)reportID
 {
     char report_attachments_path[SentryCrashCRS_MAX_PATH_LENGTH];
     sentrycrashcrs_getAttachmentsPath_forReportId(reportID, report_attachments_path);
@@ -478,7 +478,7 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
         return nil;
     }
 
-    NSArray *attachments = [self getAttachmentsPaths:reportID];
+    NSArray *attachments = [self getAttachmentPaths:reportID];
     if (attachments.count > 0) {
         crashReport[SENTRYCRASH_REPORT_SCREENSHOT_ITEM] = attachments;
     }
