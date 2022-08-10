@@ -51,7 +51,7 @@ SentryTestObserver ()
 
 @implementation SentryTestObserver
 
-#if defined(TESTCI)
+#if defined(TESTCI) || defined(TEST)
 + (void)load
 {
     [[XCTestObservationCenter sharedTestObservationCenter]
@@ -90,7 +90,7 @@ SentryTestObserver ()
     [crumb setTimestamp:[NSDate new]];
     [scope addBreadcrumb:crumb];
 
-#if defined(TESTCI)
+#if defined(TESTCI) || defined(TEST)
     [SentryLog setLogOutput:[[SentryBreadcrumbTestLogOutput alloc] init]];
 #endif
 }
