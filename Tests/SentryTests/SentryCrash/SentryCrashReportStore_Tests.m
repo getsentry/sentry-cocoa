@@ -227,7 +227,7 @@
     uint64_t reportId = 84568454541;
 
     char screenshotsPath[SentryCrashCRS_MAX_PATH_LENGTH];
-    sentrycrashcrs_getScreenshotPath_forReportId(reportId, screenshotsPath);
+    sentrycrashcrs_getAttachmentsPath_forReportId(reportId, screenshotsPath);
 
     XCTAssertEqualObjects([NSString stringWithUTF8String:screenshotsPath],
         [self.tempPath stringByAppendingPathComponent:
@@ -245,7 +245,7 @@
     sentrycrashcrs_getCrashReportPathById(reportId, reportPath);
 
     char screenshotPath[SentryCrashCRS_MAX_PATH_LENGTH];
-    sentrycrashcrs_getScreenshotsPath_forReport(reportPath, screenshotPath);
+    sentrycrashcrs_getAttachmentsPath_forReport(reportPath, screenshotPath);
 
     XCTAssertEqualObjects([NSString stringWithUTF8String:screenshotPath],
         [self.tempPath stringByAppendingPathComponent:

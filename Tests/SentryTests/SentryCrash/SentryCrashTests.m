@@ -67,7 +67,7 @@
     sentrycrashcrs_initialize("AppName", reportStorePath.UTF8String);
 
     char reportPathBuffer[500];
-    sentrycrashcrs_getScreenshotPath_forReportId(12, reportPathBuffer);
+    sentrycrashcrs_getAttachmentsPath_forReportId(12, reportPathBuffer);
     NSString *ssDir = [NSString stringWithUTF8String:reportPathBuffer];
     [NSFileManager.defaultManager createDirectoryAtPath:ssDir
                             withIntermediateDirectories:true
