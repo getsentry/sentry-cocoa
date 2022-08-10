@@ -30,6 +30,18 @@ UIView (Debugging)
     return result;
 }
 
+- (void)saveViewHierarchy:(NSString *)path
+{
+    [[self fetchViewHierarchy]
+        enumerateObjectsUsingBlock:^(NSString *description, NSUInteger idx, BOOL *stop) {
+            NSString *fileName =
+                [NSString stringWithFormat:@"view-hierarchy-%lu.txt", (unsigned long)idx];
+            NSString *filePath = [path stringByAppendingPathComponent:fileName];
+            NSData *data = [description dataUsingEncoding:NSUTF8StringEncoding];
+            [data writeToFile:filePath atomically:YES];
+        }];
+}
+
 @end
 
 #endif

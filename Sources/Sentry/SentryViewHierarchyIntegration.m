@@ -1,5 +1,6 @@
 #import "SentryViewHierarchyIntegration.h"
 #import "SentryAttachment.h"
+#import "SentryCrashC.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
 #import "SentryHub+Private.h"
@@ -7,6 +8,13 @@
 #import "SentryViewHierarchy.h"
 
 #if SENTRY_HAS_UIKIT
+
+void
+saveViewHierarchy(const char *path)
+{
+    NSString *reportPath = [NSString stringWithUTF8String:path];
+    [SentryDependencyContainer.sharedInstance.viewHierarchy saveViewHierarchy:reportPath];
+}
 
 @implementation SentryViewHierarchyIntegration
 
@@ -18,6 +26,8 @@
 
     SentryClient *client = [SentrySDK.currentHub getClient];
     [client addAttachmentProcessor:self];
+
+    sentrycrash_setSaveViewHierarchy(&saveViewHierarchy);
 
     return YES;
 }

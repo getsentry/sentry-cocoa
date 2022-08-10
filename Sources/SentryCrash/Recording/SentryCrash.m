@@ -401,11 +401,11 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
     return nil;
 }
 
-- (NSArray<NSString *> *)getScreenshotPaths:(int64_t)reportID
+- (NSArray<NSString *> *)getAttachmentsPaths:(int64_t)reportID
 {
-    char report_screenshot_path[SentryCrashCRS_MAX_PATH_LENGTH];
-    sentrycrashcrs_getScreenshotPath_forReportId(reportID, report_screenshot_path);
-    NSString *path = [NSString stringWithUTF8String:report_screenshot_path];
+    char report_attachments_path[SentryCrashCRS_MAX_PATH_LENGTH];
+    sentrycrashcrs_getAttachmentsPath_forReportId(reportID, report_attachments_path);
+    NSString *path = [NSString stringWithUTF8String:report_attachments_path];
 
     BOOL isDir = false;
     if (![NSFileManager.defaultManager fileExistsAtPath:path isDirectory:&isDir] || !isDir)
@@ -478,9 +478,9 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
         return nil;
     }
 
-    NSArray *screenShots = [self getScreenshotPaths:reportID];
-    if (screenShots.count > 0) {
-        crashReport[SENTRYCRASH_REPORT_SCREENSHOT_ITEM] = screenShots;
+    NSArray *attachments = [self getAttachmentsPaths:reportID];
+    if (attachments.count > 0) {
+        crashReport[SENTRYCRASH_REPORT_SCREENSHOT_ITEM] = attachments;
     }
 
     [self doctorReport:crashReport];
