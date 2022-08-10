@@ -204,7 +204,7 @@ isSimulatorBuild()
                 }
                 [samples addObject:sample];
             },
-            100 /** Sample 100 times per second */);
+            101 /** Sample 101 times per second */);
         _profiler->startSampling();
     }
 }

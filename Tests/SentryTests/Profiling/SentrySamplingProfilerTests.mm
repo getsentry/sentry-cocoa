@@ -24,7 +24,7 @@ using namespace sentry::profiling;
 - (void)testProfiling
 {
     const auto cache = std::make_shared<ThreadMetadataCache>();
-    const std::uint32_t samplingRateHz = 300;
+    const std::uint32_t samplingRateHz = 301;
 
     pthread_t idleThread;
     XCTAssertEqual(pthread_create(&idleThread, nullptr, idleThreadEntry, nullptr), 0);
