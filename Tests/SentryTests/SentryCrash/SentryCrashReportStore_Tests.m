@@ -231,7 +231,7 @@
 
     XCTAssertEqualObjects([NSString stringWithUTF8String:screenshotsPath],
         [self.tempPath stringByAppendingPathComponent:
-                           @"/ReportPath/AppName-report-00000013b0ac358d-screenshots"]);
+                           @"/ReportPath/AppName-report-00000013b0ac358d-attachments"]);
 }
 
 - (void)test_ScreenshotsPath_forReport
@@ -249,7 +249,7 @@
 
     XCTAssertEqualObjects([NSString stringWithUTF8String:screenshotPath],
         [self.tempPath stringByAppendingPathComponent:
-                           @"/ReportPath/AppName-report-00000013b0ac358d-screenshots"]);
+                           @"/ReportPath/AppName-report-00000013b0ac358d-attachments"]);
 }
 
 - (void)test_initializeIDs

@@ -39,6 +39,8 @@ saveViewHierarchy(const char *path)
 
 - (void)uninstall
 {
+    sentrycrash_setSaveViewHierarchy(NULL);
+
     SentryClient *client = [SentrySDK.currentHub getClient];
     [client removeAttachmentProcessor:self];
 }
