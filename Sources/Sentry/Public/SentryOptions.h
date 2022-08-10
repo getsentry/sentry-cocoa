@@ -336,9 +336,6 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign, readonly) BOOL isProfilingEnabled;
 
-/** A code change to force a re-run of all CI jobs, to test that the job step caching works. */
-@property (nonatomic, assign, readonly) BOOL DONOTMERGE;
-
 /**
  * DEPRECATED: Use `profilesSampleRate` instead. Setting `enableProfiling` to YES is the equivalent
  * of setting `profilesSampleRate` to `1.0`. If `profilesSampleRate` is set, it will take precedence
