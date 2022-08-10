@@ -126,11 +126,12 @@ SentryScope ()
         return;
     }
 
-    // since we will create a breadcrumb for each log statement, we won't log breadcrumbs with SentryLog or else we'll end up in an infinite loop. use printf instead so we can still see this in the console.
+    // since we will create a breadcrumb for each log statement, we won't log breadcrumbs with
+    // SentryLog or else we'll end up in an infinite loop. use printf instead so we can still see
+    // this in the console.
     NSString *message = [NSString stringWithFormat:@"Add breadcrumb: %@", crumb];
 #if !defined(TESTCI) && !defined(TEST)
-    [SentryLog logWithMessage:message
-                     andLevel:kSentryLevelDebug];
+    [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
 #else
     static NSISO8601DateFormatter *df;
     static dispatch_once_t onceToken;
