@@ -1,12 +1,9 @@
 #import "SentryScreenshotIntegration.h"
 #import "SentryAttachment.h"
-#import "SentryClient+Private.h"
 #import "SentryCrashC.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
-#import "SentryEvent.h"
 #import "SentryHub+Private.h"
-#import "SentryLog.h"
 #import "SentrySDK+Private.h"
 
 #if SENTRY_HAS_UIKIT
@@ -48,7 +45,7 @@ saveScreenShot(const char *path)
     }
 
     SentryClient *client = [SentrySDK.currentHub getClient];
-    client.attachmentProcessor = self;
+    [client addAttachmentProcessor:self];
 
     sentrycrash_setSaveScreenshots(&saveScreenShot);
 
@@ -63,6 +60,9 @@ saveScreenShot(const char *path)
 - (void)uninstall
 {
     sentrycrash_setSaveScreenshots(NULL);
+
+    SentryClient *client = [SentrySDK.currentHub getClient];
+    [client removeAttachmentProcessor:self];
 }
 
 - (NSArray<SentryAttachment *> *)processAttachments:(NSArray<SentryAttachment *> *)attachments
@@ -71,8 +71,9 @@ saveScreenShot(const char *path)
 
     // We don't take screenshots if there is no exception/error.
     // We dont take screenshots if the event is a crash event.
-    if ((event.exceptions == nil && event.error == nil) || event.isCrashEvent)
+    if ((event.exceptions == nil && event.error == nil) || event.isCrashEvent) {
         return attachments;
+    }
 
     NSArray *screenshot = [SentryDependencyContainer.sharedInstance.screenshot appScreenshots];
 

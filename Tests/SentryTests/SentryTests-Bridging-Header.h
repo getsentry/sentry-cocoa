@@ -156,6 +156,8 @@
 #import "SentryUIViewControllerSwizzling+Test.h"
 #import "SentryUIViewControllerSwizzling.h"
 #import "SentryUserFeedback.h"
+#import "SentryViewHierarchy.h"
+#import "SentryViewHierarchyIntegration.h"
 #import "TestNSURLRequestBuilder.h"
 #import "TestSentryCrashWrapper.h"
 #import "TestSentrySpan.h"
