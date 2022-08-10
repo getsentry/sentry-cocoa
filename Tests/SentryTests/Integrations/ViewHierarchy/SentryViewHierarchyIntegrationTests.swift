@@ -2,7 +2,7 @@ import Sentry
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryViewHierarchyTests: XCTestCase {
+class SentryViewHierarchyIntegrationTests: XCTestCase {
 
     private class Fixture {
         let viewHierarchy: TestSentryViewHierarchy
