@@ -8,6 +8,10 @@
 - Include app permissions with event (#1984)
 - Add culture context to event (#2036)
 
+### Fixes
+
+- Don't override already-set timestamp when finishing Trace (#2056)
+
 ## 7.23.0
 
 ### Features
