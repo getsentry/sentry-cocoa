@@ -37,6 +37,7 @@ extension Tracer {
             options.enableCoreDataTracking = true
             options.profilesSampleRate = 1.0
             options.attachScreenshot = true
+            options.attachViewHierarchy = true
             options.enableUserInteractionTracing = true
         }
 

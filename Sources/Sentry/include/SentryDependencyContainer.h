@@ -4,10 +4,10 @@
 #import <Foundation/Foundation.h>
 
 @class SentryAppStateManager, SentryCrashWrapper, SentryThreadWrapper, SentrySwizzleWrapper,
-    SentryDispatchQueueWrapper, SentryDebugImageProvider, SentryANRTracker, SentryViewHierarchy;
+    SentryDispatchQueueWrapper, SentryDebugImageProvider, SentryANRTracker;
 
 #if SENTRY_HAS_UIKIT
-@class SentryScreenshot, SentryUIApplication;
+@class SentryScreenshot, SentryUIApplication, SentryViewHierarchy;
 #endif
 
 NS_ASSUME_NONNULL_BEGIN

@@ -108,7 +108,8 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
         sentrycrashreport_writeStandardReport(monitorContext, crashReportFilePath);
     }
 
-    // Report is saved to disk, now we try to take screenshots.
+    // Report is saved to disk, now we try to take screenshots
+    // and view hierarchies.
     // Depending on the state of the crash this may not work
     // because we gonna call into non async-signal safe code
     // but since the app is already in a crash state we don't
