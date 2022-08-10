@@ -8,6 +8,10 @@
 - Include app permissions with event (#1984)
 - Add culture context to event (#2036)
 
+### Fix
+
+- Add span finish flag (#2059)
+
 ## 7.23.0
 
 ### Features
