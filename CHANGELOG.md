@@ -10,6 +10,10 @@
 - Attach view hierarchy to events (#2044)
 - Clean up SentryOptions: added `enableCrashHandler` and deprecated `integrations` (#2049)
 
+### Fix
+
+- Add span finish flag (#2059)
+
 ## 7.23.0
 
 ### Features

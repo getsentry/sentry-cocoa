@@ -63,6 +63,28 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(lastEvent.startTimestamp, TestData.timestamp)
         XCTAssertEqual(lastEvent.type, SentryEnvelopeItemTypeTransaction)
     }
+    
+    func testFinish_Custom_Timestamp() {
+        let client = TestClient(options: fixture.options)!
+        let span = fixture.getSut(client: client)
+        
+        let finishDate = Date(timeIntervalSinceNow: 6)
+        
+        span.timestamp = finishDate
+        
+        span.finish()
+        
+        XCTAssertEqual(span.startTimestamp, TestData.timestamp)
+        XCTAssertEqual(span.timestamp, finishDate)
+        XCTAssertTrue(span.isFinished)
+        XCTAssertEqual(span.context.status, .ok)
+        
+        let lastEvent = client.captureEventWithScopeInvocations.invocations[0].event
+        XCTAssertEqual(lastEvent.transaction, fixture.someTransaction)
+        XCTAssertEqual(lastEvent.timestamp, finishDate)
+        XCTAssertEqual(lastEvent.startTimestamp, TestData.timestamp)
+        XCTAssertEqual(lastEvent.type, SentryEnvelopeItemTypeTransaction)
+    }
 
     func testFinishSpanWithDefaultTimestamp() {
         let span = SentrySpan(transaction: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
