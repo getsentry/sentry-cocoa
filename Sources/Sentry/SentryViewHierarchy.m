@@ -24,6 +24,8 @@ UIView (Debugging)
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:[windows count]];
 
     [windows enumerateObjectsUsingBlock:^(UIWindow *window, NSUInteger idx, BOOL *stop) {
+        // In the case of a crash we can't dispatch work to be executed anymore,
+        // so we'll run this on the wrong thread.
         if ([NSThread isMainThread] || preventMoveToMainThread) {
             [result addObject:[window recursiveDescription]];
         } else {
@@ -37,18 +39,14 @@ UIView (Debugging)
 
 - (void)saveViewHierarchy:(NSString *)path
 {
-    NSArray<NSString *> *descriptions = [self fetchViewHierarchyPreventMoveToMainThread:YES];
-
-    if ([descriptions count]) {
-        [descriptions
-            enumerateObjectsUsingBlock:^(NSString *description, NSUInteger idx, BOOL *stop) {
-                NSString *fileName =
-                    [NSString stringWithFormat:@"view-hierarchy-%lu.txt", (unsigned long)idx];
-                NSString *filePath = [path stringByAppendingPathComponent:fileName];
-                NSData *data = [description dataUsingEncoding:NSUTF8StringEncoding];
-                [data writeToFile:filePath atomically:YES];
-            }];
-    }
+    [[self fetchViewHierarchyPreventMoveToMainThread:YES]
+        enumerateObjectsUsingBlock:^(NSString *description, NSUInteger idx, BOOL *stop) {
+            NSString *fileName =
+                [NSString stringWithFormat:@"view-hierarchy-%lu.txt", (unsigned long)idx];
+            NSString *filePath = [path stringByAppendingPathComponent:fileName];
+            NSData *data = [description dataUsingEncoding:NSUTF8StringEncoding];
+            [data writeToFile:filePath atomically:YES];
+        }];
 }
 
 @end
