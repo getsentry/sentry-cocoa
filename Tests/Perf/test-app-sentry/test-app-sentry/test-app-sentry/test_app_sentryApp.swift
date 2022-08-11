@@ -5,8 +5,8 @@
 //  Created by Ivan Dlugos on 09/08/2022.
 //
 
-import SwiftUI
 import Sentry
+import SwiftUI
 
 @main
 struct test_app_sentryApp: App {
