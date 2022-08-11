@@ -130,13 +130,13 @@ SentryScope ()
     // SentryLog or else we'll end up in an infinite loop. use printf instead so we can still see
     // this in the console.
     NSString *message = [NSString stringWithFormat:@"Add breadcrumb: %@", crumb];
-#if !defined(TESTCI) && !defined(TEST)
-    [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
-#else
+#if defined(TESTCI) || defined(TEST)
     static NSISO8601DateFormatter *df;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{ df = [[NSISO8601DateFormatter alloc] init]; });
     printf("%s: %s\n", [df stringFromDate:[NSDate date]].UTF8String, message.UTF8String);
+#else
+    [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
 #endif
 
     @synchronized(_breadcrumbArray) {
