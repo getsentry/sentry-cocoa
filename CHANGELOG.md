@@ -10,12 +10,10 @@
 - Attach view hierarchy to events (#2044)
 - Clean up SentryOptions: added `enableCrashHandler` and deprecated `integrations` (#2049)
 
-### Fix
-
-- Add span finish flag (#2059)
-
 ### Fixes
 - Fix Swift 5.5 compatibility (#2060)
+- Add span finish flag (#2059)
+- SentryUser.userId should be nullable (#2071)
 
 ## 7.23.0
 
