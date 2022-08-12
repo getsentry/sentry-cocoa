@@ -6,8 +6,8 @@
 //
 
 import Sentry
-import SwiftUI
 import Sentry
+import SwiftUI
 
 @main
 struct test_app_sentryApp: App {
