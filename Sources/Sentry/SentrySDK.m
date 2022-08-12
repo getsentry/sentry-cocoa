@@ -137,7 +137,7 @@ static NSUInteger startInvocations;
 {
     startInvocations++;
 
-    [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
+    [SentryLog configureWithDiagnosticLevel:options.diagnosticLevel];
     SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
     // The Hub needs to be initialized with a client so that closing a session
     // can happen.

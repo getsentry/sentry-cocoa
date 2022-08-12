@@ -12,7 +12,7 @@ class SentryBaseIntegrationTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        SentryLog.configure(true, diagnosticLevel: SentryLevel.debug)
+        SentryLog.configure(diagnosticLevel: SentryLevel.debug)
 
         logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
@@ -21,7 +21,7 @@ class SentryBaseIntegrationTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         // Set back to default
-        SentryLog.configure(true, diagnosticLevel: SentryLevel.error)
+        SentryLog.configure(diagnosticLevel: SentryLevel.error)
         SentryLog.setLogOutput(nil)
     }
 

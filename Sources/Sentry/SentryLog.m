@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 static SentryLevel diagnosticLevel = SENTRY_DEFAULT_LOG_LEVEL;
 static SentryLogOutput *logOutput;
 
-+ (void)configure:(BOOL)debug diagnosticLevel:(SentryLevel)level
++ (void)configureWithDiagnosticLevel:(SentryLevel)level
 {
     diagnosticLevel = level;
 }

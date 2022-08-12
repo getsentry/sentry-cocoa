@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryLog : NSObject
 SENTRY_NO_INIT
 
-+ (void)configure:(BOOL)debug diagnosticLevel:(SentryLevel)level;
++ (void)configureWithDiagnosticLevel:(SentryLevel)level NS_SWIFT_NAME(configure(diagnosticLevel:));
 
 + (void)logWithMessage:(NSString *)message andLevel:(SentryLevel)level;
 

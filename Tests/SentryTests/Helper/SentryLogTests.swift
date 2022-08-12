@@ -5,7 +5,7 @@ class SentryLogTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         // Set back to default
-        SentryLog.configure(true, diagnosticLevel: SentryLevel.error)
+        SentryLog.configure(diagnosticLevel: SentryLevel.error)
         SentryLog.setLogOutput(nil)
     }
 
@@ -29,7 +29,7 @@ class SentryLogTests: XCTestCase {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
         
-        SentryLog.configure(false, diagnosticLevel: SentryLevel.none)
+        SentryLog.configure(diagnosticLevel: SentryLevel.none)
         SentryLog.log(withMessage: "0", andLevel: SentryLevel.fatal)
         SentryLog.log(withMessage: "0", andLevel: SentryLevel.error)
         SentryLog.log(withMessage: "0", andLevel: SentryLevel.warning)
@@ -44,7 +44,7 @@ class SentryLogTests: XCTestCase {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
         
-        SentryLog.configure(true, diagnosticLevel: SentryLevel.none)
+        SentryLog.configure(diagnosticLevel: SentryLevel.none)
         SentryLog.log(withMessage: "0", andLevel: SentryLevel.fatal)
         SentryLog.log(withMessage: "1", andLevel: SentryLevel.error)
         SentryLog.log(withMessage: "2", andLevel: SentryLevel.warning)
