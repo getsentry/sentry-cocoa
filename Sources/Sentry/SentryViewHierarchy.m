@@ -1,14 +1,10 @@
 #import "SentryViewHierarchy.h"
 #import "SentryDependencyContainer.h"
 #import "SentryUIApplication.h"
+#import "UIView+Sentry.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
-
-@interface
-UIView (Debugging)
-- (id)recursiveDescription;
-@end
 
 @implementation SentryViewHierarchy
 
@@ -27,10 +23,10 @@ UIView (Debugging)
         // In the case of a crash we can't dispatch work to be executed anymore,
         // so we'll run this on the wrong thread.
         if ([NSThread isMainThread] || preventMoveToMainThread) {
-            [result addObject:[window recursiveDescription]];
+            [result addObject:[window sentry_recursiveViewHierarchyDescription]];
         } else {
-            dispatch_sync(
-                dispatch_get_main_queue(), ^{ [result addObject:[window recursiveDescription]]; });
+            dispatch_sync(dispatch_get_main_queue(),
+                ^{ [result addObject:[window sentry_recursiveViewHierarchyDescription]]; });
         }
     }];
 
