@@ -3,7 +3,7 @@
 @implementation
 NSLocale (Sentry)
 
-- (BOOL)timeIs24HourFormat
+- (BOOL)sentry_timeIs24HourFormat
 {
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     [formatter setDateStyle:NSDateFormatterNoStyle];

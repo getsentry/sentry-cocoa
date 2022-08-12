@@ -3,6 +3,6 @@
 @interface
 NSLocale (Sentry)
 
-- (BOOL)timeIs24HourFormat;
+- (BOOL)sentry_timeIs24HourFormat;
 
 @end

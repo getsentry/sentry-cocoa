@@ -164,7 +164,7 @@ getBasePath()
         if (userInfo != nil) {
             userInfoJSON = [[SentryCrashJSONCodec encode:userInfo
                                                  options:SentryCrashJSONEncodeOptionSorted
-                                                   error:&error] nullTerminated];
+                                                   error:&error] sentry_nullTerminated];
             if (error != NULL) {
                 SentryCrashLOG_ERROR(@"Could not serialize user info: %@", error);
                 return;
