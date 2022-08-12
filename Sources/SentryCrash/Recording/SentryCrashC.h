@@ -123,6 +123,14 @@ void sentrycrash_setMaxReportCount(int maxReportCount);
  */
 void sentrycrash_setSaveScreenshots(void (*callback)(const char *));
 
+/**
+ * Set the callback to be called at the end of a crash to make the app save the view hierarchy
+ * descriptions;
+ *
+ * @param callback function pointer that will be called with a give path.
+ */
+void sentrycrash_setSaveViewHierarchy(void (*callback)(const char *));
+
 /** Report a custom, user defined exception.
  * This can be useful when dealing with scripting languages.
  *
@@ -223,6 +231,12 @@ void sentrycrash_deleteReportWithID(int64_t reportID);
  * Indicates that a callback was registered for screenshot.
  */
 bool sentrycrash_hasSaveScreenshotCallback(void);
+
+/**
+ * For testing purpose.
+ * Indicates that a callback was registered for view hierarchy.
+ */
+bool sentrycrash_hasSaveViewHierarchyCallback(void);
 
 #ifdef __cplusplus
 }

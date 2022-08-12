@@ -2,7 +2,7 @@ import Sentry
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryViewHierarchyTests: XCTestCase {
+class SentryViewHierarchyIntegrationTests: XCTestCase {
 
     private class Fixture {
         let viewHierarchy: TestSentryViewHierarchy
@@ -36,17 +36,20 @@ class SentryViewHierarchyTests: XCTestCase {
     func test_attachViewHierarchy_disabled() {
         SentrySDK.start { $0.attachViewHierarchy = false }
         XCTAssertEqual(SentrySDK.currentHub().getClient()?.attachmentProcessors.count, 0)
+        XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
     }
 
     func test_attachViewHierarchy_enabled() {
         SentrySDK.start { $0.attachViewHierarchy = true }
         XCTAssertEqual(SentrySDK.currentHub().getClient()?.attachmentProcessors.count, 1)
+        XCTAssertTrue(sentrycrash_hasSaveViewHierarchyCallback())
     }
 
     func test_uninstall() {
         SentrySDK.start { $0.attachViewHierarchy = true }
         SentrySDK.close()
         XCTAssertNil(SentrySDK.currentHub().getClient()?.attachmentProcessors)
+        XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
     }
 
     func test_noViewHierarchy_attachment() {
@@ -91,8 +94,8 @@ class SentryViewHierarchyTests: XCTestCase {
         XCTAssertEqual(newAttachmentList[0].filename, "view-hierarchy-0.txt")
         XCTAssertEqual(newAttachmentList[1].filename, "view-hierarchy-1.txt")
 
-        XCTAssertEqual(newAttachmentList[0].contentType, "application/octet-stream")
-        XCTAssertEqual(newAttachmentList[1].contentType, "application/octet-stream")
+        XCTAssertEqual(newAttachmentList[0].contentType, "text/plain")
+        XCTAssertEqual(newAttachmentList[1].contentType, "text/plain")
 
         XCTAssertEqual(newAttachmentList[0].data?.count, "view hierarchy for window zero".lengthOfBytes(using: .utf8))
         XCTAssertEqual(newAttachmentList[1].data?.count, "view hierarchy for window one".lengthOfBytes(using: .utf8))

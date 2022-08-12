@@ -37,8 +37,8 @@ SentryCrashReportSink ()
     [sentReports addObject:report];
     SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDK.currentHub.scope];
 
-    if (report[SENTRYCRASH_REPORT_SCREENSHOT_ITEM]) {
-        for (NSString *ssPath in report[SENTRYCRASH_REPORT_SCREENSHOT_ITEM]) {
+    if (report[SENTRYCRASH_REPORT_ATTACHMENTS_ITEM]) {
+        for (NSString *ssPath in report[SENTRYCRASH_REPORT_ATTACHMENTS_ITEM]) {
             [scope addAttachment:[[SentryAttachment alloc] initWithPath:ssPath]];
         }
     }

@@ -234,16 +234,16 @@ sentrycrashcrs_readReport(int64_t reportID)
 }
 
 void
-sentrycrashcrs_getScreenshotPath_forReportId(int64_t reportID, char *pathBuffer)
+sentrycrashcrs_getAttachmentsPath_forReportId(int64_t reportID, char *pathBuffer)
 {
-    snprintf(pathBuffer, SentryCrashCRS_MAX_PATH_LENGTH, "%s/%s-report-%016llx-screenshots",
+    snprintf(pathBuffer, SentryCrashCRS_MAX_PATH_LENGTH, "%s/%s-report-%016llx-attachments",
         g_reportsPath, g_appName, reportID);
 }
 
 void
-sentrycrashcrs_getScreenshotsPath_forReport(const char *reportPath, char *pathBuffer)
+sentrycrashcrs_getAttachmentsPath_forReport(const char *reportPath, char *pathBuffer)
 {
-    sentrycrashcrs_getScreenshotPath_forReportId(getReportIDFromFilePath(reportPath), pathBuffer);
+    sentrycrashcrs_getAttachmentsPath_forReportId(getReportIDFromFilePath(reportPath), pathBuffer);
 }
 
 int64_t

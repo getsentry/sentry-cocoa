@@ -1,5 +1,6 @@
 #import "SentryViewHierarchyIntegration.h"
 #import "SentryAttachment.h"
+#import "SentryCrashC.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
 #import "SentryHub+Private.h"
@@ -7,6 +8,13 @@
 #import "SentryViewHierarchy.h"
 
 #if SENTRY_HAS_UIKIT
+
+void
+saveViewHierarchy(const char *path)
+{
+    NSString *reportPath = [NSString stringWithUTF8String:path];
+    [SentryDependencyContainer.sharedInstance.viewHierarchy saveViewHierarchy:reportPath];
+}
 
 @implementation SentryViewHierarchyIntegration
 
@@ -19,6 +27,8 @@
     SentryClient *client = [SentrySDK.currentHub getClient];
     [client addAttachmentProcessor:self];
 
+    sentrycrash_setSaveViewHierarchy(&saveViewHierarchy);
+
     return YES;
 }
 
@@ -29,6 +39,8 @@
 
 - (void)uninstall
 {
+    sentrycrash_setSaveViewHierarchy(NULL);
+
     SentryClient *client = [SentrySDK.currentHub getClient];
     [client removeAttachmentProcessor:self];
 }
@@ -51,7 +63,8 @@
     [decriptions enumerateObjectsUsingBlock:^(NSString *decription, NSUInteger idx, BOOL *stop) {
         SentryAttachment *attachment = [[SentryAttachment alloc]
             initWithData:[decription dataUsingEncoding:NSUTF8StringEncoding]
-                filename:[NSString stringWithFormat:@"view-hierarchy-%lu.txt", (unsigned long)idx]];
+                filename:[NSString stringWithFormat:@"view-hierarchy-%lu.txt", (unsigned long)idx]
+             contentType:@"text/plain"];
         [result addObject:attachment];
     }];
 

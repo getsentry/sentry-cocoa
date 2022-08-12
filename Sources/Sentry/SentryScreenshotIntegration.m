@@ -12,27 +12,6 @@ void
 saveScreenShot(const char *path)
 {
     NSString *reportPath = [NSString stringWithUTF8String:path];
-    NSError *error = nil;
-
-    if (![NSFileManager.defaultManager fileExistsAtPath:reportPath]) {
-        [NSFileManager.defaultManager createDirectoryAtPath:reportPath
-                                withIntermediateDirectories:YES
-                                                 attributes:nil
-                                                      error:&error];
-        if (error != nil)
-            return;
-    } else {
-        // We first delete any screenshot that could be from an old crash report
-        NSArray *oldFiles = [NSFileManager.defaultManager contentsOfDirectoryAtPath:reportPath
-                                                                              error:&error];
-
-        if (!error) {
-            [oldFiles enumerateObjectsUsingBlock:^(NSString *obj, NSUInteger idx, BOOL *stop) {
-                [NSFileManager.defaultManager removeItemAtPath:obj error:nil];
-            }];
-        }
-    }
-
     [SentryDependencyContainer.sharedInstance.screenshot saveScreenShots:reportPath];
 }
 

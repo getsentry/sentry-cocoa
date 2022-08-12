@@ -220,21 +220,21 @@
     [self expectReports:@[ @(reportID) ] areStrings:@[ reportContents ]];
 }
 
-- (void)test_ScreenshotsPath_forReportId
+- (void)test_AttachmentsPath_forReportId
 {
     self.appName = @"AppName";
     [self prepareReportStoreWithPathEnd:@"/ReportPath"];
     uint64_t reportId = 84568454541;
 
-    char screenshotsPath[SentryCrashCRS_MAX_PATH_LENGTH];
-    sentrycrashcrs_getScreenshotPath_forReportId(reportId, screenshotsPath);
+    char attachmentsPath[SentryCrashCRS_MAX_PATH_LENGTH];
+    sentrycrashcrs_getAttachmentsPath_forReportId(reportId, attachmentsPath);
 
-    XCTAssertEqualObjects([NSString stringWithUTF8String:screenshotsPath],
+    XCTAssertEqualObjects([NSString stringWithUTF8String:attachmentsPath],
         [self.tempPath stringByAppendingPathComponent:
-                           @"/ReportPath/AppName-report-00000013b0ac358d-screenshots"]);
+                           @"/ReportPath/AppName-report-00000013b0ac358d-attachments"]);
 }
 
-- (void)test_ScreenshotsPath_forReport
+- (void)test_AttachmentsPath_forReport
 {
     self.appName = @"AppName";
     [self prepareReportStoreWithPathEnd:@"/ReportPath"];
@@ -244,12 +244,12 @@
     char reportPath[SentryCrashCRS_MAX_PATH_LENGTH];
     sentrycrashcrs_getCrashReportPathById(reportId, reportPath);
 
-    char screenshotPath[SentryCrashCRS_MAX_PATH_LENGTH];
-    sentrycrashcrs_getScreenshotsPath_forReport(reportPath, screenshotPath);
+    char attachmentsPath[SentryCrashCRS_MAX_PATH_LENGTH];
+    sentrycrashcrs_getAttachmentsPath_forReport(reportPath, attachmentsPath);
 
-    XCTAssertEqualObjects([NSString stringWithUTF8String:screenshotPath],
+    XCTAssertEqualObjects([NSString stringWithUTF8String:attachmentsPath],
         [self.tempPath stringByAppendingPathComponent:
-                           @"/ReportPath/AppName-report-00000013b0ac358d-screenshots"]);
+                           @"/ReportPath/AppName-report-00000013b0ac358d-attachments"]);
 }
 
 - (void)test_initializeIDs
