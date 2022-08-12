@@ -27,6 +27,13 @@ class SentryUserTests: XCTestCase {
         XCTAssertEqual(user.userId, actual["id"] as? String)
         XCTAssertEqual(1, actual.count)
     }
+
+    func testSerializationWithoutId() {
+        let user = User()
+        let actual = user.serialize()
+
+        XCTAssertNil(actual["id"] as? String)
+    }
     
     func testHash() {
         XCTAssertEqual(TestData.user.hash(), TestData.user.hash())
