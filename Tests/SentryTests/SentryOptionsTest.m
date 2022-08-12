@@ -132,8 +132,8 @@
 
 - (void)testInvalidDiagnosticLevel
 {
-    [self testDiagnosticlevelWith:@"fatala" expected:kSentryLevelDebug];
-    [self testDiagnosticlevelWith:@(YES) expected:kSentryLevelDebug];
+    [self testDiagnosticlevelWith:@"fatala" expected:kSentryLevelError];
+    [self testDiagnosticlevelWith:@(YES) expected:kSentryLevelError];
 }
 
 - (void)testDiagnosticlevelWith:(NSObject *)level expected:(SentryLevel)expected
@@ -482,7 +482,7 @@
 {
     XCTAssertEqual(YES, options.enabled);
     XCTAssertEqual(NO, options.debug);
-    XCTAssertEqual(kSentryLevelDebug, options.diagnosticLevel);
+    XCTAssertEqual(kSentryLevelError, options.diagnosticLevel);
     XCTAssertNil(options.environment);
     XCTAssertNil(options.dist);
     XCTAssertEqual(defaultMaxBreadcrumbs, options.maxBreadcrumbs);
