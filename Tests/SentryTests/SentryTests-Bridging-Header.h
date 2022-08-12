@@ -162,6 +162,7 @@
 #import "TestSentryCrashWrapper.h"
 #import "TestSentrySpan.h"
 #import "TestUrlSession.h"
+#import "UIView+Sentry.h"
 #import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"
 
