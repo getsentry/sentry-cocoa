@@ -1,0 +1,14 @@
+apps:
+  - name: io.sentry.cocoa.test-app-plain
+    path: test-app-plain.ipa
+  - name: io.sentry.cocoa.test-app-sentry
+    path: test-app-sentry.ipa
+
+startupTimeTest:
+  runs: 5
+  diffMin: 0
+  diffMax: 150
+
+binarySizeTest:
+  diffMin: 1.8 MiB
+  diffMax: 2.0 MiB
