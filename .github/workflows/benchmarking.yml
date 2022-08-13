@@ -64,6 +64,7 @@ jobs:
         run: saucectl run --select-suite "${{matrix.suite}}" --config .sauce/benchmarking-config.yml --tags benchmark
 
   app-metrics:
+    name: Collect app metrics
     runs-on: ubuntu-latest
     steps:
       - name: Git checkout

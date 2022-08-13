@@ -1,10 +1,3 @@
-//
-//  ContentView.swift
-//  test-app-sentry
-//
-//  Created by Ivan Dlugos on 09/08/2022.
-//
-
 import SwiftUI
 
 struct ContentView: View {

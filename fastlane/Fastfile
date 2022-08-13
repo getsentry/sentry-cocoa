@@ -203,7 +203,7 @@ platform :ios do
     setup_ci
 
     sync_code_signing(
-      type: "appstore",
+      type: "development",
       readonly: true,
       app_identifier: ["io.sentry.cocoa.test-app-plain"]
     )
@@ -213,7 +213,7 @@ platform :ios do
       scheme: "test-app-plain",
       include_bitcode: false,
       include_symbols: false,
-      export_method: "app-store",
+      export_method: "development",
       output_name: "Tests/Perf/test-app-plain.ipa"
     )
 
@@ -225,7 +225,7 @@ platform :ios do
     setup_ci
 
     sync_code_signing(
-      type: "appstore",
+      type: "development",
       readonly: true,
       app_identifier: ["io.sentry.cocoa.test-app-sentry"]
     )
@@ -235,7 +235,7 @@ platform :ios do
       scheme: "test-app-sentry",
       include_bitcode: false,
       include_symbols: false,
-      export_method: "app-store",
+      export_method: "development",
       output_name: "Tests/Perf/test-app-sentry.ipa"
     )
 
