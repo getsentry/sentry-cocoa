@@ -65,7 +65,7 @@ jobs:
 
   app-metrics:
     name: Collect app metrics
-    runs-on: macos-111
+    runs-on: macos-11
     steps:
       - name: Git checkout
         uses: actions/checkout@v3
