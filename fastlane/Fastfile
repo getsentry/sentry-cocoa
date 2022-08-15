@@ -205,7 +205,7 @@ platform :ios do
     sync_code_signing(
       type: "development",
       readonly: true,
-      app_identifier: ["io.sentry.cocoa.test-app-plain"]
+      app_identifier: ["io.sentry.cocoa.perf-test-app-plain"]
     )
 
     build_app(
@@ -227,7 +227,7 @@ platform :ios do
     sync_code_signing(
       type: "development",
       readonly: true,
-      app_identifier: ["io.sentry.cocoa.test-app-sentry"]
+      app_identifier: ["io.sentry.cocoa.perf-test-app-sentry"]
     )
 
     build_app(
