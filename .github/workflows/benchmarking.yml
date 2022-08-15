@@ -65,11 +65,11 @@ jobs:
 
   app-metrics:
     name: Collect app metrics
-    runs-on: ubuntu-latest
+    runs-on: macos-111
     steps:
       - name: Git checkout
         uses: actions/checkout@v3
-
+      - run: ./scripts/ci-select-xcode.sh
       - name: Build test apps
         run: |
           fastlane build_perf_test_app_plain
