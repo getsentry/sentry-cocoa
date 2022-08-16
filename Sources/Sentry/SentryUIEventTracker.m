@@ -75,7 +75,8 @@ SentryUIEventTracker ()
                 currentActiveTransaction = self.activeTransactions.lastObject;
             }
 
-            BOOL sameAction = [currentActiveTransaction.name isEqualToString:transactionName];
+            BOOL sameAction =
+                [currentActiveTransaction.transactionContext.name isEqualToString:transactionName];
             if (sameAction) {
                 [currentActiveTransaction dispatchIdleTimeout];
                 return;

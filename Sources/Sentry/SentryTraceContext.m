@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
                        publicKey:options.parsedDsn.url.user
                      releaseName:options.releaseName
                      environment:options.environment
-                     transaction:tracer.name
+                     transaction:tracer.transactionContext.name
                      userSegment:userSegment
                       sampleRate:sampleRate];
 }

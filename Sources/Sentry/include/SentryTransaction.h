@@ -1,6 +1,7 @@
 #import "SentryEvent.h"
 #import "SentrySpanProtocol.h"
 #import "SentryTracer.h"
+#import "SentryTransactionContext+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -11,6 +12,7 @@ NS_SWIFT_NAME(Transaction)
 SENTRY_NO_INIT
 
 @property (nonatomic, strong) SentryTracer *trace;
+@property (nonatomic) SentryTransactionNameSource nameSource;
 
 - (instancetype)initWithTrace:(SentryTracer *)trace children:(NSArray<id<SentrySpan>> *)children;
 

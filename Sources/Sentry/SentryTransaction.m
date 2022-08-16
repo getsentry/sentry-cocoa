@@ -83,7 +83,28 @@ SentryTransaction ()
         serializedData[@"measurements"] = [self.measurements.copy sentry_sanitize];
     }
 
+    serializedData[@"transaction_info"] =
+        @{ @"source" : [self stringForNameSource:self.nameSource] };
+
     return serializedData;
+}
+
+- (NSString *)stringForNameSource:(SentryTransactionNameSource)source
+{
+    switch (source) {
+    case kSentryTransactionNameSourceCustom:
+        return @"custom";
+    case kSentryTransactionNameSourceUrl:
+        return @"url";
+    case kSentryTransactionNameSourceRoute:
+        return @"route";
+    case kSentryTransactionNameSourceView:
+        return @"view";
+    case kSentryTransactionNameSourceComponent:
+        return @"component";
+    case kSentryTransactionNameSourceTask:
+        return @"task";
+    }
 }
 @end
 
