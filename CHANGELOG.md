@@ -10,7 +10,7 @@
 
 ### Fixes
 
-- Use a prime number for the profiler's sampling rate to reduce the potention for [lock-step](https://stackoverflow.com/a/45471031) issues (#2055).
+- Use a prime number for the profiler's sampling rate to reduce the potential for [lock-step](https://stackoverflow.com/a/45471031) issues (#2055).
 
 ## 7.23.0
 
