@@ -1,5 +1,4 @@
 #import "SentrySDK.h"
-#import "SentryTransactionContext+Private.h"
 
 @class SentryHub, SentryId, SentryAppStartMeasurement, SentryEnvelope;
 

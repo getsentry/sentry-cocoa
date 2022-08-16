@@ -1,18 +1,6 @@
 #import "SentrySampleDecision.h"
 #import "SentrySpanContext.h"
 
-/**
- * Transaction name source
- */
-typedef NS_ENUM(NSInteger, SentryTransactionNameSource) {
-    kSentryTransactionNameSourceCustom = 0,
-    kSentryTransactionNameSourceUrl,
-    kSentryTransactionNameSourceRoute,
-    kSentryTransactionNameSourceView,
-    kSentryTransactionNameSourceComponent,
-    kSentryTransactionNameSourceTask
-};
-
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentrySpanId;
