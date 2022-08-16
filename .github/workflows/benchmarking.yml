@@ -73,8 +73,8 @@ jobs:
       - uses: actions/cache@v3
         id: app-plain-cache
         with:
-          path: Tests_Perf_test-app-plain.ipa
-          key: ${{ github.workflow }}-${{ github.job }}-appplain-${{ hashFiles('Tests/Perf/test-app-plain/**') }}
+          path: Tests/Perf/test-app-plain.ipa
+          key: ${{ github.workflow }}-${{ github.job }}-appplain-${{ hashFiles('fastlane/Fastfile', 'Tests/Perf/test-app-plain/**') }}
       - name: Build test app plain
         if: steps.app-plain-cache.outputs['cache-hit'] != 'true'
         run: fastlane build_perf_test_app_plain
@@ -97,9 +97,8 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       - name: Collect app metrics
-        uses: vaind/app-metrics-action@7c4bb7c513304dc4cc2452d1deaf941b2fc03644
+        uses: getsentry/action-app-sdk-overhead-metrics@v1
         with:
           config: Tests/Perf/metrics-test.yml
           sauce-user: ${{ secrets.SAUCE_USERNAME }}
           sauce-key: ${{ secrets.SAUCE_ACCESS_KEY }}
-

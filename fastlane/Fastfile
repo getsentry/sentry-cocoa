@@ -214,7 +214,8 @@ platform :ios do
       include_bitcode: false,
       include_symbols: false,
       export_method: "development",
-      output_name: "Tests/Perf/test-app-plain.ipa"
+      output_directory: "Tests/Perf/",
+      output_name: "test-app-plain.ipa"
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
@@ -236,7 +237,8 @@ platform :ios do
       include_bitcode: false,
       include_symbols: false,
       export_method: "development",
-      output_name: "Tests/Perf/test-app-sentry.ipa"
+      output_directory: "Tests/Perf/",
+      output_name: "test-app-sentry.ipa"
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci

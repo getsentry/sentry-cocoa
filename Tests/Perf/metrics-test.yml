@@ -1,14 +1,14 @@
 apps:
-  - name: io.sentry.cocoa.test-app-plain
-    path: Tests_Perf_test-app-plain.ipa
-  - name: io.sentry.cocoa.test-app-sentry
-    path: Tests_Perf_test-app-sentry.ipa
+  - name: io.sentry.cocoa.perf-test-app-plain
+    path: test-app-plain.ipa
+  - name: io.sentry.cocoa.perf-test-app-sentry
+    path: test-app-sentry.ipa
 
 startupTimeTest:
-  runs: 5
+  runs: 50
   diffMin: 0
   diffMax: 150
 
 binarySizeTest:
-  diffMin: 1.8 MiB
-  diffMax: 2.0 MiB
+  diffMin: 200 KiB
+  diffMax: 400 KiB
