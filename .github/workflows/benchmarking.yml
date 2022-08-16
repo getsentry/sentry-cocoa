@@ -41,7 +41,7 @@ jobs:
           path: |
             DerivedData/Build/Products/Debug-iphoneos/PerformanceBenchmarks-Runner.app
           key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/PerformanceBenchmarks/**') }}
-      - run: fastlane build_ios_swift
+      - run: fastlane build_ios_swift_for_tests
         if: steps.ios-swift-cache.outputs.cache-hit != 'true'
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}

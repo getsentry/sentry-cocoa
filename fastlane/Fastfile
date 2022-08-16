@@ -73,7 +73,7 @@ platform :ios do
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
 
-  lane :build_ios_swift do
+  lane :build_ios_swift_for_tests do
 
     setup_ci(
       force: true
