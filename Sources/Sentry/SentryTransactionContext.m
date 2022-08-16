@@ -4,11 +4,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryTransactionContext
 
-//- (instancetype)initWithName:(NSString *)name operation:(NSString *)operation
-//{
-//    return [self initWithName:name nameSource:kSentryTransactionNameSourceCustom
-//    operation:operation];
-//}
+- (instancetype)initWithName:(NSString *)name operation:(NSString *)operation
+{
+    return [self initWithName:name
+                   nameSource:kSentryTransactionNameSourceCustom
+                    operation:operation];
+}
 
 - (instancetype)initWithName:(NSString *)name
                   nameSource:(SentryTransactionNameSource)source
@@ -22,13 +23,15 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-//- (instancetype)initWithName:(NSString *)name
-//                   operation:(NSString *)operation
-//                     sampled:(SentrySampleDecision)sampled
-//{
-//    return [self initWithName:name nameSource:kSentryTransactionNameSourceCustom
-//    operation:operation sampled:sampled];
-//}
+- (instancetype)initWithName:(NSString *)name
+                   operation:(NSString *)operation
+                     sampled:(SentrySampleDecision)sampled
+{
+    return [self initWithName:name
+                   nameSource:kSentryTransactionNameSourceCustom
+                    operation:operation
+                      sampled:sampled];
+}
 
 - (instancetype)initWithName:(NSString *)name
                   nameSource:(SentryTransactionNameSource)source
@@ -43,21 +46,21 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-//- (instancetype)initWithName:(NSString *)name
-//                   operation:(nonnull NSString *)operation
-//                     traceId:(SentryId *)traceId
-//                      spanId:(SentrySpanId *)spanId
-//                parentSpanId:(nullable SentrySpanId *)parentSpanId
-//               parentSampled:(SentrySampleDecision)parentSampled
-//{
-//    return [self initWithName:name
-//                   nameSource:kSentryTransactionNameSourceCustom
-//                    operation:operation
-//                      traceId:traceId
-//                       spanId:spanId
-//                 parentSpanId:parentSpanId
-//                parentSampled:parentSampled];
-//}
+- (instancetype)initWithName:(NSString *)name
+                   operation:(nonnull NSString *)operation
+                     traceId:(SentryId *)traceId
+                      spanId:(SentrySpanId *)spanId
+                parentSpanId:(nullable SentrySpanId *)parentSpanId
+               parentSampled:(SentrySampleDecision)parentSampled
+{
+    return [self initWithName:name
+                   nameSource:kSentryTransactionNameSourceCustom
+                    operation:operation
+                      traceId:traceId
+                       spanId:spanId
+                 parentSpanId:parentSpanId
+                parentSampled:parentSampled];
+}
 
 - (instancetype)initWithName:(NSString *)name
                   nameSource:(SentryTransactionNameSource)source
