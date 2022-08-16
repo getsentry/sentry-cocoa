@@ -1,10 +1,10 @@
-#import <XCTest/XCTest.h>
 #import "SentryClient.h"
 #import "SentryDefines.h"
 #import "SentryHub.h"
 #import "SentryOptions.h"
-#import "SentrySDK.h"
 #import "SentrySDK+Private.h"
+#import "SentrySDK.h"
+#import <XCTest/XCTest.h>
 
 @interface SentryDeprecatedSDKAPITests : XCTestCase
 
@@ -17,12 +17,12 @@
  */
 @implementation SentryDeprecatedSDKAPITests
 
-- (void)testStartWithCOnfigureOptionsAndDiagnoticLevel {
+- (void)testStartWithCOnfigureOptionsAndDiagnoticLevel
+{
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [SentrySDK startWithConfigureOptions:^(SentryOptions * _Nonnull options) {
-        options.diagnosticLevel = kSentryLevelDebug;
-    }];
+    [SentrySDK startWithConfigureOptions:^(
+        SentryOptions *_Nonnull options) { options.diagnosticLevel = kSentryLevelDebug; }];
 
     XCTAssertEqual([SentrySDK.currentHub getClient].options.diagnosticLevel, kSentryLevelDebug);
 #pragma clang diagnostic pop

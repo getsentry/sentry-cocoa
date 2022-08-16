@@ -28,14 +28,18 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic, strong) SentryDsn *parsedDsn;
 
 /**
- * Turns debug mode on or off. If debug is enabled, the SDK will print verbose console logs; if it is disabled, it only prints info or higher unless @c diagnosticLevel is set to a different level. Default is disabled.
+ * Turns debug mode on or off. If debug is enabled, the SDK will print verbose console logs; if it
+ * is disabled, it only prints info or higher unless @c diagnosticLevel is set to a different level.
+ * Default is disabled.
  */
 @property (nonatomic, assign) BOOL debug;
 
 /**
  * Minimum LogLevel to be used if debug is disabled. Default is debug.
  */
-@property (nonatomic, assign) SentryLevel diagnosticLevel DEPRECATED_MSG_ATTRIBUTE("This property will be removed in a future version of the SDK. The default log level will be info, or you can set `debug` to `YES` to enable debug logging.");
+@property (nonatomic, assign) SentryLevel diagnosticLevel DEPRECATED_MSG_ATTRIBUTE(
+    "This property will be removed in a future version of the SDK. The default log level will be "
+    "info, or you can set `debug` to `YES` to enable debug logging.");
 
 /**
  * This property will be filled before the event is sent.

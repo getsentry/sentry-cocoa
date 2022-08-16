@@ -158,7 +158,10 @@ SentryOptions ()
     [self setBool:options[@"debug"] block:^(BOOL value) { self->_debug = value; }];
 
     if ([options.allKeys containsObject:@"diagnosticLevel"]) {
-        [SentryLog logWithMessage:@"`diagnosticLevel` is deprecated and will be removed in a future release. Use `debug` to control the log level: if `NO`, then logging is set to info level, and debug level if `YES`." andLevel:kSentryLevelWarning];
+        [SentryLog logWithMessage:@"`diagnosticLevel` is deprecated and will be removed in a "
+                                  @"future release. Use `debug` to control the log level: if `NO`, "
+                                  @"then logging is set to info level, and debug level if `YES`."
+                         andLevel:kSentryLevelWarning];
     }
 
     if ([options[@"diagnosticLevel"] isKindOfClass:[NSString class]]) {

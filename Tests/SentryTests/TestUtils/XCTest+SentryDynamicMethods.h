@@ -2,9 +2,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void(^SentryTestMethodLogic)(XCTestCase *testCase);
+typedef void (^SentryTestMethodLogic)(XCTestCase *testCase);
 
-@interface XCTestCase(SentryDynamicMethods)
+@interface
+XCTestCase (SentryDynamicMethods)
 
 /**
  * Helper method to dynamically add a test method to this @c XCTestCase.

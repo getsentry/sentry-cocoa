@@ -1,10 +1,12 @@
 #import "XCTest+SentryDynamicMethods.h"
 #import <objc/runtime.h>
 
-@implementation XCTestCase(SentryDynamicMethods)
+@implementation
+XCTestCase (SentryDynamicMethods)
 
 + (BOOL)sentry_addInstanceMethodWithSelectorName:(NSString *)selectorName
-                                       testLogic:(SentryTestMethodLogic)testLogic {
+                                       testLogic:(SentryTestMethodLogic)testLogic
+{
     NSParameterAssert(selectorName);
     NSParameterAssert(testLogic);
 
