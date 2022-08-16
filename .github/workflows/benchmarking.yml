@@ -70,10 +70,14 @@ jobs:
       - name: Git checkout
         uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh
-      - name: Build test apps
-        run: |
-          fastlane build_perf_test_app_plain
-          fastlane build_perf_test_app_sentry
+      - uses: actions/cache@v3
+        id: app-plain-cache
+        with:
+          path: Tests_Perf_test-app-plain.ipa
+          key: ${{ github.workflow }}-${{ github.job }}-appplain-${{ hashFiles('Tests/Perf/test-app-plain/**') }}
+      - name: Build test app plain
+        if: steps.app-plain-cache.outputs['cache-hit'] != 'true'
+        run: fastlane build_perf_test_app_plain
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -82,7 +86,16 @@ jobs:
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-
+      - name: Build test app with sentry
+        run: fastlane build_perf_test_app_sentry
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       - name: Collect app metrics
         uses: vaind/app-metrics-action@7c4bb7c513304dc4cc2452d1deaf941b2fc03644
         with:

@@ -1,8 +1,8 @@
 apps:
   - name: io.sentry.cocoa.test-app-plain
-    path: test-app-plain.ipa
+    path: Tests_Perf_test-app-plain.ipa
   - name: io.sentry.cocoa.test-app-sentry
-    path: test-app-sentry.ipa
+    path: Tests_Perf_test-app-sentry.ipa
 
 startupTimeTest:
   runs: 5
