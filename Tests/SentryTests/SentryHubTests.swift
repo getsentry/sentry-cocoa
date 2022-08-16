@@ -220,10 +220,26 @@ class SentryHubTests: XCTestCase {
     }
     
     func testStartTransactionWithContext() {
-        let span = fixture.getSut().startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation))
+        let span = fixture.getSut().startTransaction(transactionContext: TransactionContext(
+            name: fixture.transactionName,
+            operation: fixture.transactionOperation
+        ))
         
         let tracer = Dynamic(span)
         XCTAssertEqual(tracer.transactionContext.name, fixture.transactionName)
+        XCTAssertEqual(span.context.operation, fixture.transactionOperation)
+    }
+
+    func testStartTransactionWithNameSource() {
+        let span = fixture.getSut().startTransaction(transactionContext: TransactionContext(
+            name: fixture.transactionName,
+            nameSource: .url,
+            operation: fixture.transactionOperation
+        ))
+
+        let tracer = Dynamic(span)
+        XCTAssertEqual(tracer.transactionContext.name, fixture.transactionName)
+        XCTAssertEqual(tracer.transactionContext.nameSource, SentryTransactionNameSource.url)
         XCTAssertEqual(span.context.operation, fixture.transactionOperation)
     }
     
