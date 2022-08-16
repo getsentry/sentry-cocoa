@@ -66,9 +66,9 @@ SENTRY_NO_INIT
  *
  * @return The created transaction.
  */
-- (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                 operation:(NSString *)operation
-    NS_SWIFT_NAME(startTransaction(name:operation:));
+//- (id<SentrySpan>)startTransactionWithName:(NSString *)name
+//                                 operation:(NSString *)operation
+//    NS_SWIFT_NAME(startTransaction(name:operation:));
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
@@ -79,10 +79,10 @@ SENTRY_NO_INIT
  *
  * @return The created transaction.
  */
-- (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                 operation:(NSString *)operation
-                               bindToScope:(BOOL)bindToScope
-    NS_SWIFT_NAME(startTransaction(name:operation:bindToScope:));
+//- (id<SentrySpan>)startTransactionWithName:(NSString *)name
+//                                 operation:(NSString *)operation
+//                               bindToScope:(BOOL)bindToScope
+//    NS_SWIFT_NAME(startTransaction(name:operation:bindToScope:));
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.

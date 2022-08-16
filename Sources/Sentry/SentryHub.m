@@ -304,6 +304,16 @@ SentryHub ()
 }
 
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name
+                                nameSource:(SentryTransactionNameSource)source
+                                 operation:(NSString *)operation
+{
+    return [self
+        startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name
+                                                                        nameSource:source
+                                                                         operation:operation]];
+}
+
+- (id<SentrySpan>)startTransactionWithName:(NSString *)name
                                  operation:(NSString *)operation
                                bindToScope:(BOOL)bindToScope
 {
@@ -312,6 +322,18 @@ SentryHub ()
                                                    nameSource:kSentryTransactionNameSourceCustom
                                                     operation:operation]
                                  bindToScope:bindToScope];
+}
+
+- (id<SentrySpan>)startTransactionWithName:(NSString *)name
+                                nameSource:(SentryTransactionNameSource)source
+                                 operation:(NSString *)operation
+                               bindToScope:(BOOL)bindToScope
+{
+    return
+        [self startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name
+                                                                              nameSource:source
+                                                                               operation:operation]
+                              bindToScope:bindToScope];
 }
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext

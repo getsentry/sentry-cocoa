@@ -1,4 +1,5 @@
 #import "SentrySDK.h"
+#import "SentryTransactionContext+Private.h"
 
 @class SentryHub, SentryId, SentryAppStartMeasurement, SentryEnvelope;
 
@@ -35,6 +36,18 @@ SentrySDK (Private)
  * Needed by hybrid SDKs as react-native to synchronously capture an envelope.
  */
 + (void)captureEnvelope:(SentryEnvelope *)envelope;
+
+/**
+ * Start a transaction with a name and a name source.
+ */
++ (id<SentrySpan>)startTransactionWithName:(NSString *)name
+                                nameSource:(SentryTransactionNameSource)source
+                                 operation:(NSString *)operation;
+
++ (id<SentrySpan>)startTransactionWithName:(NSString *)name
+                                nameSource:(SentryTransactionNameSource)source
+                                 operation:(NSString *)operation
+                               bindToScope:(BOOL)bindToScope;
 
 @end
 
