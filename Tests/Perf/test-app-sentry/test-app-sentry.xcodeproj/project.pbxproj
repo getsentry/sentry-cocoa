@@ -20,6 +20,7 @@
 		2C101B6F28A2956900D320BC /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		2C101B7128A2956A00D320BC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2C101B7428A2956A00D320BC /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		2CB1E68428AB8413001DE8EE /* sentry-cocoa */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "sentry-cocoa"; path = ../../..; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +75,7 @@
 		2C101B7B28A2ED8500D320BC /* Packages */ = {
 			isa = PBXGroup;
 			children = (
+				2CB1E68428AB8413001DE8EE /* sentry-cocoa */,
 			);
 			name = Packages;
 			sourceTree = "<group>";
