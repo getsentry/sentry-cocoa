@@ -250,7 +250,7 @@ class SentryUIEventTrackerTests: XCTestCase {
         XCTAssertEqual(1, transactions.count)
         XCTAssertTrue(span === transactions.first)
         
-        XCTAssertEqual(name, span.name)
+        XCTAssertEqual(name, span.transactionContext.name)
         XCTAssertEqual(operation, span.context.operation)
     }
     
