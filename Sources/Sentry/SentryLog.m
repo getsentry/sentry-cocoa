@@ -19,7 +19,7 @@ static SentryLogOutput *logOutput;
         logOutput = [[SentryLogOutput alloc] init];
     }
 
-    if (level != kSentryLevelNone && level >= diagnosticLevel) {
+    if (diagnosticLevel != kSentryLevelNone && level >= diagnosticLevel) {
         [logOutput
             log:[NSString stringWithFormat:@"Sentry - %@:: %@", SentryLevelNames[level], message]];
     }
