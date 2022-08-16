@@ -7,7 +7,7 @@
 #import "SentrySpanId.h"
 #import "SentrySpanProtocol.h"
 #import "SentryTracer.h"
-#import "SentryTransactionContext.h"
+#import "SentryTransactionContext+Private.h"
 #import "SentryUIEventTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -51,7 +51,9 @@ SentryPerformanceTracker () <SentryTracerDelegate>
         newSpan = [activeSpan startChildWithOperation:operation description:name];
     } else {
         SentryTransactionContext *context =
-            [[SentryTransactionContext alloc] initWithName:name operation:operation];
+            [[SentryTransactionContext alloc] initWithName:name
+                                                nameSource:kSentryTransactionNameSourceComponent
+                                                 operation:operation];
 
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> span) {
             BOOL bindToScope = true;
