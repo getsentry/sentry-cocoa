@@ -19,6 +19,7 @@
 #    import "SentrySerialization.h"
 #    import "SentryTime.h"
 #    import "SentryTransaction.h"
+#    import "SentryTransactionContext.h"
 
 #    if defined(DEBUG)
 #        include <execinfo.h>
@@ -258,7 +259,7 @@ isSimulatorBuild()
     profile[@"transaction_id"] = transaction.eventId.sentryIdString;
     profile[@"trace_id"] = transaction.trace.context.traceId.sentryIdString;
     profile[@"profile_id"] = [[SentryId alloc] init].sentryIdString;
-    profile[@"transaction_name"] = transaction.transaction;
+    profile[@"transaction_name"] = transaction.transactionContext.name;
     profile[@"duration_ns"] = [@(getDurationNs(_startTimestamp, getAbsoluteTime())) stringValue];
 
     const auto bundle = NSBundle.mainBundle;

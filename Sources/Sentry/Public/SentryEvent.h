@@ -76,7 +76,10 @@ NS_SWIFT_NAME(Event)
 @property (nonatomic, copy) NSString *_Nullable environment;
 
 /**
- * The current transaction (state) on the crash
+ * The current transaction (state) on the crash.
+ *
+ * This property is deprecated and will be removed in a future version of the SDK.
+ * Use SentryTransaction.transactionContext.name
  */
 @property (nonatomic, copy) NSString *_Nullable transaction;
 

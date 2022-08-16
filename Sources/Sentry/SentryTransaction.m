@@ -1,6 +1,7 @@
 #import "SentryTransaction.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryEnvelopeItemType.h"
+#import "SentryTransactionContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,6 +37,8 @@ SentryTransaction ()
 {
     NSMutableDictionary<NSString *, id> *serializedData =
         [[NSMutableDictionary alloc] initWithDictionary:[super serialize]];
+
+    [serializedData setValue:self.transactionContext.name forKey:@"transaction"];
 
     NSMutableArray *serializedSpans = [[NSMutableArray alloc] init];
     for (id<SentrySpan> span in self.spans) {
@@ -84,7 +87,7 @@ SentryTransaction ()
     }
 
     serializedData[@"transaction_info"] =
-        @{ @"source" : [self stringForNameSource:self.nameSource] };
+        @{ @"source" : [self stringForNameSource:self.transactionContext.nameSource] };
 
     return serializedData;
 }
