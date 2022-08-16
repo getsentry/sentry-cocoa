@@ -1,11 +1,3 @@
-//
-//  SentryLogTests.m
-//  SentryTests
-//
-//  Created by Andrew McKnight on 8/12/22.
-//  Copyright © 2022 Sentry. All rights reserved.
-//
-
 #import <XCTest/XCTest.h>
 #import "SentryLog.h"
 #import "SentryLevelMapper.h"

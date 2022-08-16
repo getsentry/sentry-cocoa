@@ -40,7 +40,6 @@ SentryOptions ()
     if (self = [super init]) {
         self.enabled = YES;
         self.enableCrashHandler = YES;
-        self.diagnosticLevel = SENTRY_DEFAULT_LOG_LEVEL;
         self.debug = NO;
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
         self.maxCacheItems = 30;
@@ -158,10 +157,17 @@ SentryOptions ()
 
     [self setBool:options[@"debug"] block:^(BOOL value) { self->_debug = value; }];
 
+    if ([options.allKeys containsObject:@"diagnosticLevel"]) {
+        [SentryLog logWithMessage:@"`diagnosticLevel` is deprecated and will be removed in a future release. Use `debug` to control the log level: if `NO`, then logging is set to info level, and debug level if `YES`." andLevel:kSentryLevelWarning];
+    }
+
     if ([options[@"diagnosticLevel"] isKindOfClass:[NSString class]]) {
         for (SentryLevel level = 0; level <= kSentryLevelFatal; level++) {
             if ([SentryLevelNames[level] isEqualToString:options[@"diagnosticLevel"]]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                 self.diagnosticLevel = level;
+#pragma clang diagnostic pop
                 break;
             }
         }

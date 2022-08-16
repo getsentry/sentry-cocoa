@@ -139,8 +139,10 @@
 - (void)testDiagnosticlevelWith:(NSObject *)level expected:(SentryLevel)expected
 {
     SentryOptions *options = [self getValidOptions:@{ @"diagnosticLevel" : level }];
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertEqual(expected, options.diagnosticLevel);
+#pragma clang diagnostic pop
 }
 
 - (void)testValidEnabled
@@ -482,7 +484,12 @@
 {
     XCTAssertEqual(YES, options.enabled);
     XCTAssertEqual(NO, options.debug);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertEqual(kSentryLevelError, options.diagnosticLevel);
+#pragma clang diagnostic pop
+
     XCTAssertNil(options.environment);
     XCTAssertNil(options.dist);
     XCTAssertEqual(defaultMaxBreadcrumbs, options.maxBreadcrumbs);

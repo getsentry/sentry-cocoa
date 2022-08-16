@@ -185,7 +185,7 @@ SentryHub ()
     if (nil != session) {
         SentryClient *client = _client;
 
-        if (client.options.diagnosticLevel == kSentryLevelDebug) {
+        if (client.options.debug) {
             NSData *sessionData = [NSJSONSerialization dataWithJSONObject:[session serialize]
                                                                   options:0
                                                                     error:nil];

@@ -91,7 +91,6 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
             options.debug = true
-            options.diagnosticLevel = SentryLevel.debug
             options.attachStacktrace = true
         }
         
@@ -103,7 +102,6 @@ class SentrySDKTests: XCTestCase {
         let options = hub.getClient()?.options
         XCTAssertNotNil(options)
         XCTAssertEqual(SentrySDKTests.dsnAsString, options?.dsn)
-        XCTAssertEqual(SentryLevel.debug, options?.diagnosticLevel)
         XCTAssertEqual(true, options?.attachStacktrace)
         XCTAssertEqual(true, options?.enableAutoSessionTracking)
 

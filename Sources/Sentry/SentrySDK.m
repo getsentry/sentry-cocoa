@@ -137,7 +137,10 @@ static NSUInteger startInvocations;
 {
     startInvocations++;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [SentryLog configureWithDiagnosticLevel:options.diagnosticLevel];
+#pragma clang diagnostic pop
     SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
     // The Hub needs to be initialized with a client so that closing a session
     // can happen.
