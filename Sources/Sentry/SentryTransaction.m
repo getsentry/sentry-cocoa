@@ -38,8 +38,6 @@ SentryTransaction ()
     NSMutableDictionary<NSString *, id> *serializedData =
         [[NSMutableDictionary alloc] initWithDictionary:[super serialize]];
 
-    [serializedData setValue:self.transactionContext.name forKey:@"transaction"];
-
     NSMutableArray *serializedSpans = [[NSMutableArray alloc] init];
     for (id<SentrySpan> span in self.spans) {
         [serializedSpans addObject:[span serialize]];
@@ -86,8 +84,12 @@ SentryTransaction ()
         serializedData[@"measurements"] = [self.measurements.copy sentry_sanitize];
     }
 
-    serializedData[@"transaction_info"] =
-        @{ @"source" : [self stringForNameSource:self.transactionContext.nameSource] };
+    if (self.trace) {
+        [serializedData setValue:self.trace.transactionContext.name forKey:@"transaction"];
+
+        serializedData[@"transaction_info"] =
+            @{ @"source" : [self stringForNameSource:self.trace.transactionContext.nameSource] };
+    }
 
     return serializedData;
 }

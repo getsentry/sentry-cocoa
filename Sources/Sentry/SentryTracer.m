@@ -566,7 +566,6 @@ static NSLock *profilerLock;
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.transactionContext.name;
-    transaction.transactionContext = self.transactionContext;
     [self addMeasurements:transaction appStartMeasurement:appStartMeasurement];
     return transaction;
 }

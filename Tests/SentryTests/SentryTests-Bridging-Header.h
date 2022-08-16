@@ -147,6 +147,7 @@
 #import "SentryTracer.h"
 #import "SentryTransaction+Private.h"
 #import "SentryTransaction.h"
+#import "SentryTransactionContext+Private.h"
 #import "SentryTransport.h"
 #import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"

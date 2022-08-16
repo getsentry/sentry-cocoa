@@ -12,8 +12,6 @@ SENTRY_NO_INIT
 
 @property (nonatomic, strong) SentryTracer *trace;
 
-@property (nonatomic, strong) SentryTransactionContext *transactionContext;
-
 - (instancetype)initWithTrace:(SentryTracer *)trace children:(NSArray<id<SentrySpan>> *)children;
 
 @end
