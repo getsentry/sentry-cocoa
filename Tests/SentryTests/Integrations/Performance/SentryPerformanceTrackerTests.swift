@@ -52,7 +52,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         XCTAssert(scopeSpan === transaction)
         XCTAssertTrue(transaction.waitForChildren)
         XCTAssertEqual(transaction.transactionContext.name, fixture.someTransaction)
-        XCTAssertEqual(transaction.transactionContext.nameSource, .component)
+        XCTAssertEqual(transaction.transactionContext.nameSource, .custom)
     }
     
     func testStartSpan_ScopeAlreadyWithSpan() {
