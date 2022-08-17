@@ -25,6 +25,7 @@ jobs:
         xcode: ["13.2", "12.5.1"]
 
     steps:
+      - run: echo "Hi mom!"
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
       - name: Install SentryCli

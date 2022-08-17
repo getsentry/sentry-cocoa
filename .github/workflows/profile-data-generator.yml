@@ -19,6 +19,7 @@ jobs:
     name: Build app and test runner
     runs-on: macos-12
     steps:
+      - run: echo "Hi mom!"
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh 13.4.1
       - name: Install SentryCli
