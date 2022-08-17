@@ -67,7 +67,7 @@ class SentryUIEventTrackerIntegrationTests: XCTestCase {
         XCTAssertTrue(SentrySwizzleWrapper.hasItens())
     }
     
-    func test_Unistall() {
+    func test_Uninstall() {
         let sut = fixture.getSut()
         sut.install(with: fixture.optionForUIEventTracking())
         XCTAssertNotNil(Dynamic(sut).uiEventTracker as SentryUIEventTracker?)
