@@ -25,6 +25,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh
+      - name: Install SentryCli
+        run: brew install getsentry/tools/sentry-cli
       - run: git apply ./scripts/set-device-tests-environment.patch
       - name: Cache iOS-Swift App and dSYM build products
         id: ios-swift-cache
