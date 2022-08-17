@@ -107,13 +107,8 @@ platform :ios do
       app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-SwiftUITests.xctrunner"]
     )
 
-    build_app(
-      workspace: "Sentry.xcworkspace",
-      scheme: "iOS-SwiftUITests",
-      xcargs: "build-for-testing",
-      derived_data_path: "DerivedData",
-      skip_archive: true
-    )
+    # don't use gym here because it always appends a "build" command which fails, since this is a test target not configured for running
+    sh "set -o pipefail && xcodebuild -workspace ../Sentry.xcworkspace -scheme iOS-SwiftUITests -derivedDataPath ../DerivedData -destination 'generic/platform=iOS' build-for-testing | xcpretty"
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
@@ -155,7 +150,7 @@ platform :ios do
     )
 
     # don't use gym here because it always appends a "build" command which fails, since this is a test target not configured for running
-    sh "xcodebuild -workspace ../Sentry.xcworkspace -scheme ProfileDataGeneratorUITest -derivedDataPath ../DerivedData -destination 'generic/platform=iOS' build-for-testing"
+    sh "set -o pipefail && xcodebuild -workspace ../Sentry.xcworkspace -scheme ProfileDataGeneratorUITest -derivedDataPath ../DerivedData -destination 'generic/platform=iOS' build-for-testing | xcpretty"
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
