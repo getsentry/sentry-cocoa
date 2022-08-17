@@ -38,14 +38,14 @@ jobs:
           path: |
             DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app.dSYM
             DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app
-          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/iOS-Swift/**') }}
+          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/iOS-Swift/**') }}-Xcode-${{ matrix.xcode }}
       - name: Cache iOS-Swift UI Test Runner App build product
         id: ios-swift-uitest-runner-cache
         uses: actions/cache@v3
         with:
           path: |
             DerivedData/Build/Products/Debug-iphoneos/iOS-SwiftUITests-Runner.app
-          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/iOS-SwiftUITests/**') }}
+          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/iOS-SwiftUITests/**') }}-Xcode-${{ matrix.xcode }}
       - run: fastlane build_ios_swift_for_tests
         if: steps.ios-swift-cache.outputs.cache-hit != 'true'
         env:
