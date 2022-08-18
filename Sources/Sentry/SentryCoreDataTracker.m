@@ -71,7 +71,7 @@
                 logWithMessage:
                     [NSString
                         stringWithFormat:@"SentryCoreDataTracker automatically "
-                                         @"created a new span with description: %@, operation: %@",
+                                         @"started a new span with description: %@, operation: %@",
                         fetchSpan.description, SENTRY_COREDATA_FETCH_OPERATION]
                       andLevel:kSentryLevelDebug];
 
