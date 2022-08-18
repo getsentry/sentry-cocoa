@@ -102,7 +102,7 @@ jobs:
         # passed to xcodebuild doesn't ends up in the job name, 
         # because GitHub Actions don't provide an easy way of 
         # manipulating string in expressions.  
-        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME
+        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} ${{matrix.xcode}} $GITHUB_REF_NAME
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@v3

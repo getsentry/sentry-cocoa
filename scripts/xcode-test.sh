@@ -10,9 +10,11 @@ set -euo pipefail
 
 PLATFORM="${1}"
 OS=${2:-latest}
-REF_NAME="${3}"
+XCODE="${3}"
+REF_NAME="${4}"
 DESTINATION=""
 CONFIGURATION=""
+RETRY_FLAGS=""
 
 case $PLATFORM in
 
@@ -38,6 +40,16 @@ case $PLATFORM in
         ;;
 esac
 
+echo "XCODE: $XCODE"
+
+case $XCODE in
+    "13.2.1")
+        RETRY_FLAGS="-retry-tests-on-failure -test-iterations 3"
+        ;;
+    *)
+        RETRY_FLAGS=""
+        ;;
+
 echo "REF_NAME: $REF_NAME"
 
 case $REF_NAME in
@@ -56,7 +68,7 @@ echo "CONFIGURATION: $CONFIGURATION"
 if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
     echo "Skipping tests for iOS 12.4."
 
-    env NSUnbufferedIO=YES xcodebuild -retry-tests-on-failure -test-iterations 3 -workspace Sentry.xcworkspace \
+    env NSUnbufferedIO=YES xcodebuild $RETRY_FLAGS -workspace Sentry.xcworkspace \
         -scheme Sentry -configuration $CONFIGURATION \
         GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
         -skip-testing:"SentryTests/SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndTraceHeaderAdded" \
@@ -64,7 +76,7 @@ if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
         -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfTransactions" \
         test | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}
 else 
-    env NSUnbufferedIO=YES xcodebuild -retry-tests-on-failure -test-iterations 3 -workspace Sentry.xcworkspace \
+    env NSUnbufferedIO=YES xcodebuild $RETRY_FLAGS -workspace Sentry.xcworkspace \
         -scheme Sentry -configuration $CONFIGURATION \
         GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
         test | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}
