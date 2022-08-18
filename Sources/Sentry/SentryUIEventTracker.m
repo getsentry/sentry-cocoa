@@ -116,7 +116,7 @@ SentryUIEventTracker ()
 
                 [SentryLog
                     logWithMessage:[NSString stringWithFormat:@"SentryUIEventTracker automatically "
-                                                              @"created a new transaction with "
+                                                              @"started a new transaction with "
                                                               @"name: %@, bindToScope: %@",
                                              transactionName, bindToScope ? @"YES" : @"NO"]
                           andLevel:kSentryLevelDebug];
