@@ -1,5 +1,6 @@
 #import "SentrySwizzleWrapper.h"
 #import <SentryHub+Private.h>
+#import <SentryLog.h>
 #import <SentrySDK+Private.h>
 #import <SentrySDK.h>
 #import <SentryScope.h>
@@ -84,6 +85,12 @@ SentryUIEventTracker ()
 
             [currentActiveTransaction finish];
 
+            [SentryLog
+                logWithMessage:[NSString
+                                   stringWithFormat:@"SentryUIEventTracker finished transaction %@",
+                                   currentActiveTransaction.transactionContext.name]
+                      andLevel:kSentryLevelDebug];
+
             NSString *operation = [self getOperation:sender];
 
             SentryTransactionContext *context =
@@ -106,6 +113,13 @@ SentryUIEventTracker ()
                                                 customSamplingContext:@{}
                                                           idleTimeout:self.idleTimeout
                                                  dispatchQueueWrapper:self.dispatchQueueWrapper];
+
+                [SentryLog
+                    logWithMessage:[NSString stringWithFormat:@"SentryUIEventTracker automatically "
+                                                              @"started a new transaction with "
+                                                              @"name: %@, bindToScope: %@",
+                                             transactionName, bindToScope ? @"YES" : @"NO"]
+                          andLevel:kSentryLevelDebug];
             }];
 
             if ([[sender class] isSubclassOfClass:[UIView class]]) {

@@ -29,12 +29,25 @@
         fetchSpan = [span startChildWithOperation:SENTRY_COREDATA_FETCH_OPERATION
                                       description:[self descriptionFromRequest:request]];
     }];
+
+    [SentryLog
+        logWithMessage:
+            [NSString stringWithFormat:@"SentryCoreDataTracker automatically "
+                                       @"started a new span with description: %@, operation: %@",
+                      fetchSpan.description, SENTRY_COREDATA_FETCH_OPERATION]
+              andLevel:kSentryLevelDebug];
+
     NSArray *result = original(request, error);
 
     [fetchSpan setDataValue:[NSNumber numberWithInteger:result.count] forKey:@"read_count"];
 
     [fetchSpan
         finishWithStatus:error != nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
+
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"SentryCoreDataTracker automatically "
+                                                         @"finished span with status: %@",
+                                        error == nil ? @"ok" : @"error"]
+                     andLevel:kSentryLevelDebug];
 
     return result;
 }
@@ -54,6 +67,14 @@
                                           description:[self descriptionForOperations:operations
                                                                            inContext:context]];
 
+            [SentryLog
+                logWithMessage:
+                    [NSString
+                        stringWithFormat:@"SentryCoreDataTracker automatically "
+                                         @"started a new span with description: %@, operation: %@",
+                        fetchSpan.description, SENTRY_COREDATA_FETCH_OPERATION]
+                      andLevel:kSentryLevelDebug];
+
             [fetchSpan setDataValue:operations forKey:@"operations"];
         }];
     }
@@ -62,6 +83,11 @@
 
     [fetchSpan
         finishWithStatus:*error != nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
+
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"SentryCoreDataTracker automatically "
+                                                         @"finished span with status: %@",
+                                        *error == nil ? @"ok" : @"error"]
+                     andLevel:kSentryLevelDebug];
 
     return result;
 }
