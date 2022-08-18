@@ -46,7 +46,7 @@ https://github.com/AFNetworking/AFNetworking/blob/4eaec5b586ddd897ebeda896e332a6
     NSURLSessionDataTask *localDataTask = [session dataTaskWithURL:[NSURL URLWithString:@""]];
 
     Class currentClass = [localDataTask class];
-    NSMutableArray *result = [NSMutableArray new];
+    NSMutableArray *result = [[NSMutableArray alloc] init];
 
     SEL setStateSelector = NSSelectorFromString(@"setState:");
 
