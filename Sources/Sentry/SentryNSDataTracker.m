@@ -222,7 +222,7 @@ SentryNSDataTracker ()
     [span finish];
 
     [SentryLog logWithMessage:[NSString stringWithFormat:@"SentryNSDataTracker automatically "
-                                                         @"finshed span %@",
+                                                         @"finished span %@",
                                         span.description]
                      andLevel:kSentryLevelDebug];
 }
