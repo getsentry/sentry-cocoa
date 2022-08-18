@@ -10,6 +10,7 @@
 - Attach view hierarchy to events (#2044)
 - Clean up SentryOptions: added `enableCrashHandler` and deprecated `integrations` (#2049)
 - Integrations send the [transaction name source](https://develop.sentry.dev/sdk/event-payloads/transaction/#transaction-annotations) (#2076)
+- Added extra logs when creating automatic transactions and spans (#2087)
 
 ### Fixes
 - Fix Swift 5.5 compatibility (#2060)
