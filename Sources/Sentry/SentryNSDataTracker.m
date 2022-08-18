@@ -171,7 +171,7 @@ SentryNSDataTracker ()
     [SentryLog
         logWithMessage:
             [NSString stringWithFormat:@"SentryNSDataTracker automatically "
-                                       @"created a new span with description: %@, operation: %@",
+                                       @"started a new span with description: %@, operation: %@",
                       ioSpan.description, operation]
               andLevel:kSentryLevelDebug];
 
