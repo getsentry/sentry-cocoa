@@ -121,7 +121,7 @@ SentryNetworkTracker ()
 
         [SentryLog
             logWithMessage:[NSString stringWithFormat:@"SentryNetworkTracker automatically "
-                                                      @"created HTTP span for sessionTask: %@",
+                                                      @"started HTTP span for sessionTask: %@",
                                      netSpan.description]
                   andLevel:kSentryLevelDebug];
 
