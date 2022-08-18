@@ -49,6 +49,7 @@ case $XCODE in
     *)
         RETRY_FLAGS=""
         ;;
+esac
 
 echo "REF_NAME: $REF_NAME"
 
