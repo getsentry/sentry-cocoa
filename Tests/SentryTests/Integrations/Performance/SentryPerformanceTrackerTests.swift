@@ -51,6 +51,8 @@ class SentryPerformanceTrackerTests: XCTestCase {
         
         XCTAssert(scopeSpan === transaction)
         XCTAssertTrue(transaction.waitForChildren)
+        XCTAssertEqual(transaction.transactionContext.name, fixture.someTransaction)
+        XCTAssertEqual(transaction.transactionContext.nameSource, .custom)
     }
     
     func testStartSpan_ScopeAlreadyWithSpan() {
@@ -66,7 +68,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         XCTAssert(scopeSpan === firstTransaction)
     }
     
-    func testStartSpan_ScopeWithUIActionSpan_FinishesSoan() {
+    func testStartSpan_ScopeWithUIActionSpan_FinishesSpan() {
         let sut = fixture.getSut()
         let firstTransaction = SentrySDK.startTransaction(name: fixture.someTransaction, operation: "ui.action", bindToScope: true)
         let spanId = startSpan(tracker: sut)

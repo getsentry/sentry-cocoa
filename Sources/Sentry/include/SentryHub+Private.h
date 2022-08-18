@@ -22,6 +22,15 @@ SentryHub (Private)
 
 - (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp;
 
+- (id<SentrySpan>)startTransactionWithName:(NSString *)name
+                                nameSource:(SentryTransactionNameSource)source
+                                 operation:(NSString *)operation;
+
+- (id<SentrySpan>)startTransactionWithName:(NSString *)name
+                                nameSource:(SentryTransactionNameSource)source
+                                 operation:(NSString *)operation
+                               bindToScope:(BOOL)bindToScope;
+
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope
                               waitForChildren:(BOOL)waitForChildren

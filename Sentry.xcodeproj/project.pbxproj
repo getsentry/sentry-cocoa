@@ -47,6 +47,7 @@
 		0A2D8DA8289BC905008720F6 /* SentryViewHierarchy.h in Headers */ = {isa = PBXBuildFile; fileRef = 0A2D8DA6289BC905008720F6 /* SentryViewHierarchy.h */; };
 		0A2D8DA9289BC905008720F6 /* SentryViewHierarchy.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D8DA7289BC905008720F6 /* SentryViewHierarchy.m */; };
 		0A5370A128A3EC2400B2DCDE /* SentryViewHierarchyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5370A028A3EC2400B2DCDE /* SentryViewHierarchyTests.swift */; };
+		0A56DA5F28ABA01B00C400D5 /* SentryTransactionContext+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 0A56DA5E28ABA01B00C400D5 /* SentryTransactionContext+Private.h */; };
 		0A6EEADD28A657970076B469 /* UIViewRecursiveDescriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A6EEADC28A657970076B469 /* UIViewRecursiveDescriptionTests.swift */; };
 		0A8F0A392886CC70000B15F6 /* SentryPermissionsObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 0AABE2EE288592750057ED69 /* SentryPermissionsObserver.h */; };
 		0A9BF4E228A114940068D266 /* SentryViewHierarchyIntegration.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A9BF4E128A114940068D266 /* SentryViewHierarchyIntegration.m */; };
@@ -739,6 +740,7 @@
 		0A2D8DA6289BC905008720F6 /* SentryViewHierarchy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryViewHierarchy.h; path = include/SentryViewHierarchy.h; sourceTree = "<group>"; };
 		0A2D8DA7289BC905008720F6 /* SentryViewHierarchy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryViewHierarchy.m; sourceTree = "<group>"; };
 		0A5370A028A3EC2400B2DCDE /* SentryViewHierarchyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryViewHierarchyTests.swift; sourceTree = "<group>"; };
+		0A56DA5E28ABA01B00C400D5 /* SentryTransactionContext+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentryTransactionContext+Private.h"; path = "include/SentryTransactionContext+Private.h"; sourceTree = "<group>"; };
 		0A6EEADC28A657970076B469 /* UIViewRecursiveDescriptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewRecursiveDescriptionTests.swift; sourceTree = "<group>"; };
 		0A9BF4E128A114940068D266 /* SentryViewHierarchyIntegration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryViewHierarchyIntegration.m; sourceTree = "<group>"; };
 		0A9BF4E328A114B50068D266 /* SentryViewHierarchyIntegration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryViewHierarchyIntegration.h; path = include/SentryViewHierarchyIntegration.h; sourceTree = "<group>"; };
@@ -2717,6 +2719,7 @@
 				7B6C5ED0264E5D6C0010D138 /* SentryTransaction+Private.h */,
 				8ECC673B25C23996000E2BF6 /* SentryTransactionContext.h */,
 				8ECC674625C23A20000E2BF6 /* SentryTransactionContext.m */,
+				0A56DA5E28ABA01B00C400D5 /* SentryTransactionContext+Private.h */,
 				8EC4CF4725C38CAF0093DEE9 /* SentrySpanStatus.h */,
 				8E133FA525E72EB400ABD0BF /* SentrySamplingContext.h */,
 				8E133FA025E72DEF00ABD0BF /* SentrySamplingContext.m */,
@@ -2931,6 +2934,7 @@
 				6304360A1EC0595B00C4D3FA /* NSData+SentryCompression.h in Headers */,
 				7BF9EF7C2722B90E00B5BBEF /* SentryDefaultObjCRuntimeWrapper.h in Headers */,
 				63FE718720DA4C1100CDBAE8 /* SentryCrashReportVersion.h in Headers */,
+				0A56DA5F28ABA01B00C400D5 /* SentryTransactionContext+Private.h in Headers */,
 				8E7C98312693E1CC00E6336C /* SentryTraceHeader.h in Headers */,
 				7BBD18912449BE9000427C76 /* SentryDefaultRateLimits.h in Headers */,
 				7B8713AE26415ADF006D6004 /* SentryAppStartTrackingIntegration.h in Headers */,

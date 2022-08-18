@@ -19,6 +19,7 @@
 #    import "SentrySerialization.h"
 #    import "SentryTime.h"
 #    import "SentryTransaction.h"
+#    import "SentryTransactionContext.h"
 
 #    if defined(DEBUG)
 #        include <execinfo.h>

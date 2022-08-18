@@ -9,6 +9,7 @@
 - Add culture context to event (#2036)
 - Attach view hierarchy to events (#2044)
 - Clean up SentryOptions: added `enableCrashHandler` and deprecated `integrations` (#2049)
+- Integrations send the [transaction name source](https://develop.sentry.dev/sdk/event-payloads/transaction/#transaction-annotations) (#2076)
 
 ### Fixes
 - Fix Swift 5.5 compatibility (#2060)

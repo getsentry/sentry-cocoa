@@ -20,10 +20,7 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
 @interface SentryTracer : NSObject <SentrySpan>
 
-/**
- *Span name.
- */
-@property (nonatomic, copy) NSString *name;
+@property (nonatomic, strong) SentryTransactionContext *transactionContext;
 
 /**
  * The context information of the span.

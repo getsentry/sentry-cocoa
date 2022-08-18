@@ -6,7 +6,7 @@
 #import <SentrySpanOperations.h>
 #import <SentrySpanProtocol.h>
 #import <SentryTracer.h>
-#import <SentryTransactionContext.h>
+#import <SentryTransactionContext+Private.h>
 #import <SentryUIEventTracker.h>
 
 #if SENTRY_HAS_UIKIT
@@ -75,7 +75,8 @@ SentryUIEventTracker ()
                 currentActiveTransaction = self.activeTransactions.lastObject;
             }
 
-            BOOL sameAction = [currentActiveTransaction.name isEqualToString:transactionName];
+            BOOL sameAction =
+                [currentActiveTransaction.transactionContext.name isEqualToString:transactionName];
             if (sameAction) {
                 [currentActiveTransaction dispatchIdleTimeout];
                 return;
@@ -86,7 +87,9 @@ SentryUIEventTracker ()
             NSString *operation = [self getOperation:sender];
 
             SentryTransactionContext *context =
-                [[SentryTransactionContext alloc] initWithName:transactionName operation:operation];
+                [[SentryTransactionContext alloc] initWithName:transactionName
+                                                    nameSource:kSentryTransactionNameSourceComponent
+                                                     operation:operation];
 
             __block SentryTracer *transaction;
             [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
