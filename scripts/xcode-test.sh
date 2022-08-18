@@ -56,14 +56,16 @@ echo "CONFIGURATION: $CONFIGURATION"
 if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
     echo "Skipping tests for iOS 12.4."
 
-    env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration $CONFIGURATION \
+    env NSUnbufferedIO=YES xcodebuild -retry-tests-on-failure -test-iterations 3 -workspace Sentry.xcworkspace \
+        -scheme Sentry -configuration $CONFIGURATION \
         GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
         -skip-testing:"SentryTests/SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndTraceHeaderAdded" \
         -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfAddingBreadcrumbs" \
         -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfTransactions" \
         test | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}
 else 
-    env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration $CONFIGURATION \
+    env NSUnbufferedIO=YES xcodebuild -retry-tests-on-failure -test-iterations 3 -workspace Sentry.xcworkspace \
+        -scheme Sentry -configuration $CONFIGURATION \
         GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
         test | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}
 fi
