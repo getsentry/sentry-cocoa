@@ -1,6 +1,8 @@
 import Sentry
 import XCTest
 
+// swiftlint:disable file_length
+
 class SentryHubTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryHubTests")
@@ -1032,3 +1034,5 @@ extension SentryHubTests {
     }
 }
 #endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+
+// swiftlint:enable file_length
