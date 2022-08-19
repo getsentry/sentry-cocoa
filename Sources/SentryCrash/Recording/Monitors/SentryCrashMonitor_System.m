@@ -562,7 +562,7 @@ initialize()
         g_systemData.cpuSubType = sentrycrashsysctl_int32ForName("hw.cpusubtype");
         g_systemData.binaryCPUType = header->cputype;
         g_systemData.binaryCPUSubType = header->cpusubtype;
-        g_systemData.timezone = cString([NSTimeZone localTimeZone].abbreviation);
+        g_systemData.timezone = cString([NSTimeZone localTimeZone].name);
         g_systemData.processName = cString([NSProcessInfo processInfo].processName);
         g_systemData.processID = [NSProcessInfo processInfo].processIdentifier;
         g_systemData.parentProcessID = getppid();
