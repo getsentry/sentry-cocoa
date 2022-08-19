@@ -16,6 +16,7 @@
 - Fix Swift 5.5 compatibility (#2060)
 - Add span finish flag (#2059)
 - SentryUser.userId should be nullable (#2071)
+- Send time zone name, not abbreviation (#2091)
 
 ### Fixes
 
