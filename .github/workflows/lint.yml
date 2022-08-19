@@ -9,6 +9,8 @@ on:
       - 'test-server/**'
       - 'Samples/**'
       - '.github/workflows/lint.yml'
+      - 'scripts/ci-select-xcode.sh'
+      - 'scripts/no-changes-in-high-risk-files.sh'
 
   pull_request:
     paths:
@@ -17,6 +19,8 @@ on:
       - 'test-server/**'
       - 'Samples/**'
       - '.github/workflows/lint.yml'
+      - 'scripts/ci-select-xcode.sh'
+      - 'scripts/no-changes-in-high-risk-files.sh'
 
 jobs:
   swift-lint:
