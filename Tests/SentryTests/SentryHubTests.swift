@@ -26,7 +26,6 @@ class SentryHubTests: XCTestCase {
         init() {
             options = Options()
             options.dsn = SentryHubTests.dsnAsString
-            options.environment = "debug"
             
             scope.add(crumb)
             
@@ -344,98 +343,6 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(.transaction, lostEvent?.category)
         XCTAssertEqual(.sampleRate, lostEvent?.reason)
     }
-
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-    func testStartTransaction_ProfilingDataIsValid() {
-        let options = fixture.options
-        options.profilesSampleRate = 1.0
-        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
-            return 1
-        }
-        let hub = fixture.getSut(options)
-        let profileExpectation = expectation(description: "collects profiling data")
-        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        // Give it time to collect a profile, otherwise there will be no samples.
-        DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
-            span.finish()
-
-            guard let additionalEnvelopeItems = self.fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
-                XCTFail("Expected to capture at least 1 event")
-                return
-            }
-            XCTAssertEqual(1, additionalEnvelopeItems.count)
-            guard let profileItem = additionalEnvelopeItems.first else {
-                XCTFail("Expected at least 1 additional envelope item")
-                return
-            }
-            XCTAssertEqual("profile", profileItem.header.type)
-            self.assertValidProfileData(data: profileItem.data)
-            profileExpectation.fulfill()
-        }
-        
-        // Some busy work to try and get it to show up in the profile.
-        let str = "a"
-        var concatStr = ""
-        for _ in 0..<100_000 {
-            concatStr = concatStr.appending(str)
-        }
-        
-        waitForExpectations(timeout: 5.0) {
-            if let error = $0 {
-                print(error)
-            }
-        }
-    }
-    
-    func testStartTransaction_NotSamplingProfileUsingEnableProfiling() {
-        assertProfilesSampler(expected: .no) { options in
-            options.enableProfiling_DEPRECATED_TEST_ONLY = false
-        }
-    }
-    
-    func testStartTransaction_SamplingProfileUsingEnableProfiling() {
-        assertProfilesSampler(expected: .yes) { options in
-            options.enableProfiling_DEPRECATED_TEST_ONLY = true
-        }
-    }
-    
-    func testStartTransaction_NotSamplingProfileUsingSampleRate() {
-        assertProfilesSampler(expected: .no) { options in
-            options.profilesSampleRate = 0.49
-        }
-    }
-    
-    func testStartTransaction_SamplingProfileUsingSampleRate() {
-        assertProfilesSampler(expected: .yes) { options in
-            options.profilesSampleRate = 0.5
-        }
-    }
-    
-    func testStartTransaction_SamplingProfileUsingProfilesSampler() {
-        assertProfilesSampler(expected: .yes) { options in
-            options.profilesSampler = { _ in return 0.51 }
-        }
-    }
-    
-    func testStartTransaction_WhenProfilesSampleRateAndProfilesSamplerNil() {
-        assertProfilesSampler(expected: .no) { options in
-            options.profilesSampleRate = nil
-            options.profilesSampler = { _ in return nil }
-        }
-    }
-    
-    func testStartTransaction_WhenProfilesSamplerOutOfRange_TooBig() {
-        assertProfilesSampler(expected: .no) { options in
-            options.profilesSampler = { _ in return 1.01 }
-        }
-    }
-    
-    func testStartTransaction_WhenProfilesSamplersOutOfRange_TooSmall() {
-        assertProfilesSampler(expected: .no) { options in
-            options.profilesSampler = { _ in return -0.01 }
-        }
-    }
-#endif
         
     func testCaptureMessageWithScope() {
         fixture.getSut().capture(message: fixture.message, scope: fixture.scope)
@@ -723,7 +630,7 @@ class SentryHubTests: XCTestCase {
         })
     }
 
-    // Altough we only run this test above the below specified versions, we exped the
+    // Altough we only run this test above the below specified versions, we expect the
     // implementation to be thread safe
     @available(tvOS 10.0, *)
     @available(OSX 10.12, *)
@@ -848,7 +755,225 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(0, fixture.client.captureEnvelopeInvocations.count)
     }
     
-    private func assertValidProfileData(data: Data) {
+    func testSampler(expected: SentrySampleDecision, options: (Options) -> Void) {
+        options(fixture.options)
+        
+        let hub = fixture.getSut()
+        Dynamic(hub).tracesSampler.random = fixture.random
+        
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        
+        XCTAssertEqual(expected, span.context.sampled)
+    }
+}
+
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+extension SentryHubTests {
+    func testProfilesSampler(expected: SentrySampleDecision, options: (Options) -> Void) {
+        let fixtureOptions = fixture.options
+        fixtureOptions.tracesSampleRate = 1.0
+        options(fixtureOptions)
+
+        let hub = fixture.getSut()
+        Dynamic(hub).tracesSampler.random = TestRandom(value: 1.0)
+        Dynamic(hub).profilesSampler.random = TestRandom(value: 0.5)
+
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        span.finish()
+
+        guard let additionalEnvelopeItems = fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
+            XCTFail("Expected to capture at least 1 event")
+            return
+        }
+        switch expected {
+        case .undecided, .no:
+            XCTAssertEqual(0, additionalEnvelopeItems.count)
+        case .yes:
+            XCTAssertEqual(1, additionalEnvelopeItems.count)
+        @unknown default:
+            fatalError("Unexpected value for sample decision")
+        }
+    }
+
+    func testStartTransaction_ProfilingDataIsValid() {
+        let options = fixture.options
+        options.profilesSampleRate = 1.0
+        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
+            return 1
+        }
+        let hub = fixture.getSut(options)
+        let profileExpectation = expectation(description: "collects profiling data")
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        // Give it time to collect a profile, otherwise there will be no samples.
+        DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
+            span.finish()
+
+            guard let additionalEnvelopeItems = self.fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
+                XCTFail("Expected to capture at least 1 event")
+                return
+            }
+            XCTAssertEqual(1, additionalEnvelopeItems.count)
+            guard let profileItem = additionalEnvelopeItems.first else {
+                XCTFail("Expected at least 1 additional envelope item")
+                return
+            }
+            XCTAssertEqual("profile", profileItem.header.type)
+            self.assertValidProfileData(data: profileItem.data, customFields: ["environment": kSentryDefaultEnvironment])
+            profileExpectation.fulfill()
+        }
+
+        // Some busy work to try and get it to show up in the profile.
+        let str = "a"
+        var concatStr = ""
+        for _ in 0..<100_000 {
+            concatStr = concatStr.appending(str)
+        }
+
+        waitForExpectations(timeout: 5.0) {
+            if let error = $0 {
+                print(error)
+            }
+        }
+    }
+
+    func testProfilingDataContainsEnvironmentSetFromOptions() {
+        let options = fixture.options
+        options.profilesSampleRate = 1.0
+        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
+            return 1
+        }
+        let expectedEnvironment = "test-environment"
+        options.environment = expectedEnvironment
+        let hub = fixture.getSut(options)
+        let profileExpectation = expectation(description: "collects profiling data")
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        // Give it time to collect a profile, otherwise there will be no samples.
+        DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
+            span.finish()
+
+            guard let additionalEnvelopeItems = self.fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
+                XCTFail("Expected to capture at least 1 event")
+                return
+            }
+            XCTAssertEqual(1, additionalEnvelopeItems.count)
+            guard let profileItem = additionalEnvelopeItems.first else {
+                XCTFail("Expected at least 1 additional envelope item")
+                return
+            }
+            XCTAssertEqual("profile", profileItem.header.type)
+            self.assertValidProfileData(data: profileItem.data, customFields: ["environment": expectedEnvironment])
+            profileExpectation.fulfill()
+        }
+
+        // Some busy work to try and get it to show up in the profile.
+        let str = "a"
+        var concatStr = ""
+        for _ in 0..<100_000 {
+            concatStr = concatStr.appending(str)
+        }
+
+        waitForExpectations(timeout: 5.0) {
+            if let error = $0 {
+                print(error)
+            }
+        }
+    }
+
+    func testProfilingDataContainsEnvironmentSetFromConfigureScope() {
+        let options = fixture.options
+        options.profilesSampleRate = 1.0
+        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
+            return 1
+        }
+        let expectedEnvironment = "test-environment"
+        let hub = fixture.getSut(options)
+        hub.configureScope { scope in
+            scope.setEnvironment(expectedEnvironment)
+        }
+        let profileExpectation = expectation(description: "collects profiling data")
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        // Give it time to collect a profile, otherwise there will be no samples.
+        DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
+            span.finish()
+
+            guard let additionalEnvelopeItems = self.fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
+                XCTFail("Expected to capture at least 1 event")
+                return
+            }
+            XCTAssertEqual(1, additionalEnvelopeItems.count)
+            guard let profileItem = additionalEnvelopeItems.first else {
+                XCTFail("Expected at least 1 additional envelope item")
+                return
+            }
+            XCTAssertEqual("profile", profileItem.header.type)
+            self.assertValidProfileData(data: profileItem.data, customFields: ["environment": expectedEnvironment])
+            profileExpectation.fulfill()
+        }
+
+        // Some busy work to try and get it to show up in the profile.
+        let str = "a"
+        var concatStr = ""
+        for _ in 0..<100_000 {
+            concatStr = concatStr.appending(str)
+        }
+
+        waitForExpectations(timeout: 5.0) {
+            if let error = $0 {
+                print(error)
+            }
+        }
+    }
+
+    func testStartTransaction_NotSamplingProfileUsingEnableProfiling() {
+        testProfilesSampler(expected: .no) { options in
+            options.enableProfiling_DEPRECATED_TEST_ONLY = false
+        }
+    }
+
+    func testStartTransaction_SamplingProfileUsingEnableProfiling() {
+        testProfilesSampler(expected: .yes) { options in
+            options.enableProfiling_DEPRECATED_TEST_ONLY = true
+        }
+    }
+
+    func testStartTransaction_NotSamplingProfileUsingSampleRate() {
+        testProfilesSampler(expected: .no) { options in
+            options.profilesSampleRate = 0.49
+        }
+    }
+
+    func testStartTransaction_SamplingProfileUsingSampleRate() {
+        testProfilesSampler(expected: .yes) { options in
+            options.profilesSampleRate = 0.5
+        }
+    }
+
+    func testStartTransaction_SamplingProfileUsingProfilesSampler() {
+        testProfilesSampler(expected: .yes) { options in
+            options.profilesSampler = { _ in return 0.51 }
+        }
+    }
+
+    func testStartTransaction_WhenProfilesSampleRateAndProfilesSamplerNil() {
+        testProfilesSampler(expected: .no) { options in
+            options.profilesSampleRate = nil
+            options.profilesSampler = { _ in return nil }
+        }
+    }
+
+    func testStartTransaction_WhenProfilesSamplerOutOfRange_TooBig() {
+        testProfilesSampler(expected: .no) { options in
+            options.profilesSampler = { _ in return 1.01 }
+        }
+    }
+
+    func testStartTransaction_WhenProfilesSamplersOutOfRange_TooSmall() {
+        testProfilesSampler(expected: .no) { options in
+            options.profilesSampler = { _ in return -0.01 }
+        }
+    }
+
+    private func assertValidProfileData(data: Data, customFields: [String: String]) {
         let profile = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
         XCTAssertEqual("Apple", profile["device_manufacturer"] as! String)
         XCTAssertEqual("cocoa", profile["platform"] as! String)
@@ -867,11 +992,11 @@ class SentryHubTests: XCTestCase {
 #endif
         XCTAssertFalse((profile["device_physical_memory_bytes"] as! String).isEmpty)
         XCTAssertFalse((profile["version_code"] as! String).isEmpty)
-        
+
         XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["transaction_id"] as! String))
         XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["profile_id"] as! String))
         XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["trace_id"] as! String))
-        
+
         let images = (profile["debug_meta"] as! [String: Any])["images"] as! [[String: Any]]
         XCTAssertFalse(images.isEmpty)
         let firstImage = images[0]
@@ -880,59 +1005,30 @@ class SentryHubTests: XCTestCase {
         XCTAssertFalse((firstImage["image_addr"] as! String).isEmpty)
         XCTAssertGreaterThan((firstImage["image_size"] as! Int), 0)
         XCTAssertEqual(firstImage["type"] as! String, "macho")
-        
+
         let sampledProfile = profile["sampled_profile"] as! [String: Any]
         let threadMetadata = sampledProfile["thread_metadata"] as! [String: [String: Any]]
         let queueMetadata = sampledProfile["queue_metadata"] as! [String: Any]
-        
+
         XCTAssertFalse(threadMetadata.isEmpty)
         XCTAssertFalse(threadMetadata.values.compactMap { $0["priority"] }.filter { ($0 as! Int) > 0 }.isEmpty)
         XCTAssertFalse(threadMetadata.values.filter { $0["is_main_thread"] as? Bool == true }.isEmpty)
         XCTAssertFalse(queueMetadata.isEmpty)
         XCTAssertFalse(((queueMetadata.first?.value as! [String: Any])["label"] as! String).isEmpty)
-        
+
         let samples = sampledProfile["samples"] as! [[String: Any]]
         XCTAssertFalse(samples.isEmpty)
         let frames = samples[0]["frames"] as! [[String: Any]]
         XCTAssertFalse(frames.isEmpty)
         XCTAssertFalse((frames[0]["instruction_addr"] as! String).isEmpty)
         XCTAssertFalse((frames[0]["function"] as! String).isEmpty)
-    }
-    
-    private func assertSampler(expected: SentrySampleDecision, options: (Options) -> Void) {
-        options(fixture.options)
-        
-        let hub = fixture.getSut()
-        Dynamic(hub).tracesSampler.random = fixture.random
-        
-        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        
-        XCTAssertEqual(expected, span.context.sampled)
-    }
-    
-    private func assertProfilesSampler(expected: SentrySampleDecision, options: (Options) -> Void) {
-        let fixtureOptions = fixture.options
-        fixtureOptions.tracesSampleRate = 1.0
-        options(fixtureOptions)
-        
-        let hub = fixture.getSut()
-        Dynamic(hub).tracesSampler.random = TestRandom(value: 1.0)
-        Dynamic(hub).profilesSampler.random = TestRandom(value: 0.5)
-        
-        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        span.finish()
-        
-        guard let additionalEnvelopeItems = fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
-            XCTFail("Expected to capture at least 1 event")
-            return
-        }
-        switch expected {
-        case .undecided, .no:
-            XCTAssertEqual(0, additionalEnvelopeItems.count)
-        case .yes:
-            XCTAssertEqual(1, additionalEnvelopeItems.count)
-        @unknown default:
-            fatalError("Unexpected value for sample decision")
+        for (key, expectedValue) in customFields {
+            guard let actualValue = profile[key] as? String else {
+                XCTFail("Expected value not present in profile")
+                continue
+            }
+            XCTAssertEqual(expectedValue, actualValue)
         }
     }
 }
+#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
