@@ -220,10 +220,11 @@ isSimulatorBuild()
     }
 }
 
-- (SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction
+- (SentryEnvelopeItem *)buildEnvelopeItemForTransactions:(NSArray<SentryTransaction *> *)transactions
                                                     hub:(SentryHub *)hub
                                               frameInfo:(SentryScreenFrames *)frameInfo
 {
+    NSParameterAssert(transactions.count > 0);
     NSMutableDictionary<NSString *, id> *profile = nil;
     @synchronized(self) {
         profile = [_profile mutableCopy];
@@ -256,12 +257,8 @@ isSimulatorBuild()
     profile[@"device_is_emulator"] = @(isSimulatorBuild());
     profile[@"device_physical_memory_bytes"] =
         [@(NSProcessInfo.processInfo.physicalMemory) stringValue];
-    profile[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment ?: kSentryDefaultEnvironment;
-    profile[@"platform"] = transaction.platform;
-    profile[@"transaction_id"] = transaction.eventId.sentryIdString;
-    profile[@"trace_id"] = transaction.trace.context.traceId.sentryIdString;
-    profile[@"profile_id"] = [[SentryId alloc] init].sentryIdString;
-    profile[@"transaction_name"] = transaction.transaction;
+    const auto profileID = [[SentryId alloc] init];
+    profile[@"profile_id"] = profileID.sentryIdString;
     profile[@"duration_ns"] = [@(getDurationNs(_startTimestamp, getAbsoluteTime())) stringValue];
 
     const auto bundle = NSBundle.mainBundle;
@@ -301,6 +298,21 @@ isSimulatorBuild()
     profile[@"screen_frame_rates"] = relativeFrameTimestampsNs;
 #    endif // SENTRY_HAS_UIKIT
 
+    // populate info from all transactions that occurred while profiler was running
+    profile[@"platform"] = transactions.firstObject.platform;
+    auto transactionsInfo = [NSMutableArray array];
+    for (SentryTransaction *transaction in transactions) {
+        [transactionsInfo addObject:@{
+            @"environment" : hub.scope.environmentString ?: hub.getClient.options.environment ?: kSentryDefaultEnvironment,
+            @"id" : transaction.eventId.sentryIdString,
+            @"trace_id" : transaction.trace.context.traceId.sentryIdString,
+            @"name" : transaction.transaction,
+            @"relative_start_ns" : transaction.startTimestamp,
+            @"relative_end_ns" : @"" // TODO: how to compute this? transactions use NSDate, we use mach_absolute_time
+        }];
+    }
+    profile[@"transactions"] = transactionsInfo;
+
     NSError *error = nil;
     const auto JSONData = [SentrySerialization dataWithJSONObject:profile error:&error];
     if (JSONData == nil) {
@@ -313,7 +325,10 @@ isSimulatorBuild()
 
     const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfile
                                                                 length:JSONData.length];
-    return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
+    const auto item = [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
+
+    const auto envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:profileID];
+    return [[SentryEnvelope alloc] initWithHeader:envelopeHeader singleItem:item];
 }
 
 - (BOOL)isRunning

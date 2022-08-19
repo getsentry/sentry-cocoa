@@ -26,7 +26,8 @@ NSString *parseBacktraceSymbolsFunctionName(const char *symbol);
 
 SENTRY_EXTERN_C_END
 
-@class SentryEnvelopeItem, SentryTransaction;
+@class SentryEnvelope;
+@class SentryTransaction;
 
 @interface SentryProfiler : NSObject
 
@@ -42,7 +43,8 @@ SENTRY_EXTERN_C_END
 /**
  * Builds an envelope item using the currently accumulated profile data.
  */
-- (nullable SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction
+- (nullable SentryEnvelope *)
+    buildEnvelopeItemForTransactions:(NSArray<SentryTransaction *> *)transactions
                                                              hub:(SentryHub *)hub
                                                        frameInfo:
                                                            (nullable SentryScreenFrames *)frameInfo;
