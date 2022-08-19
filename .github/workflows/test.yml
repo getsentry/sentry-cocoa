@@ -60,7 +60,7 @@ jobs:
       # macos-10.15. For now, disable the tests on iOS 12 requiring the test server in
       # xcode-test.sh
       - name: Cache for Test Server
-        id: test_server_cache
+        id: cache_test_server
         if: matrix.runs-on == 'macos-11'
         uses: actions/cache@v3
         with:
