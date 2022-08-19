@@ -85,11 +85,13 @@ SentryUIEventTracker ()
 
             [currentActiveTransaction finish];
 
-            [SentryLog
-                logWithMessage:[NSString
-                                   stringWithFormat:@"SentryUIEventTracker finished transaction %@",
-                                   currentActiveTransaction.transactionContext.name]
-                      andLevel:kSentryLevelDebug];
+            if (currentActiveTransaction) {
+                [SentryLog
+                    logWithMessage:
+                        [NSString stringWithFormat:@"SentryUIEventTracker finished transaction %@",
+                                  currentActiveTransaction.transactionContext.name]
+                          andLevel:kSentryLevelDebug];
+            }
 
             NSString *operation = [self getOperation:sender];
 
