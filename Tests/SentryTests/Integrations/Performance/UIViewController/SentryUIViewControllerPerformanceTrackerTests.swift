@@ -93,7 +93,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
     }
 
-    private func testUILifeCycle(finishStatus: SentrySpanStatus, lifecycleEndingMethod: (SentryUIViewControllerPerformanceTracker, UIViewController, SentryPerformanceTracker, XCTestExpectation, Span) -> Void) {
+    func testUILifeCycle(finishStatus: SentrySpanStatus, lifecycleEndingMethod: (SentryUIViewControllerPerformanceTracker, UIViewController, SentryPerformanceTracker, XCTestExpectation, Span) -> Void) {
         let sut = fixture.getSut()
         let viewController = fixture.viewController
         let tracker = fixture.tracker

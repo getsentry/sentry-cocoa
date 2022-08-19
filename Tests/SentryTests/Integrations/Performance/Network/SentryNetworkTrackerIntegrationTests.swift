@@ -229,7 +229,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual("200", networkSpan.tags["http.status_code"])
     }
     
-    private func testNetworkTrackerDisabled(configureOptions: (Options) -> Void) {
+    func testNetworkTrackerDisabled(configureOptions: (Options) -> Void) {
         configureOptions(fixture.options)
         
         startSDK()

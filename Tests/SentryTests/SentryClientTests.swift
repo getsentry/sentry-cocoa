@@ -803,7 +803,7 @@ class SentryClientTest: XCTestCase {
         testSampleRate(sampleRate: 0.50, randomValue: 0.51, isSampled: true)
     }
     
-    private func testSampleRate( sampleRate: NSNumber?, randomValue: Double, isSampled: Bool) {
+    func testSampleRate( sampleRate: NSNumber?, randomValue: Double, isSampled: Bool) {
         fixture.random.value = randomValue
         
         let eventId = fixture.getSut(configureOptions: { options in

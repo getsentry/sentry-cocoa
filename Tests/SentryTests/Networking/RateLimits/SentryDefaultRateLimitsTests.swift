@@ -96,7 +96,7 @@ class SentryDefaultRateLimitsTests: XCTestCase {
         testRetryHeaderWith1Second(value: headerValue)
     }
     
-    private func testRetryHeaderWith1Second(value: String) {
+    func testRetryHeaderWith1Second(value: String) {
         let response = TestResponseFactory.createRetryAfterResponse(headerValue: value)
         sut.update(response)
         XCTAssertTrue(sut.isRateLimitActive(SentryDataCategory.default))

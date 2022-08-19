@@ -899,7 +899,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertFalse((frames[0]["function"] as! String).isEmpty)
     }
     
-    private func testSampler(expected: SentrySampleDecision, options: (Options) -> Void) {
+    func testSampler(expected: SentrySampleDecision, options: (Options) -> Void) {
         options(fixture.options)
         
         let hub = fixture.getSut()
@@ -910,7 +910,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(expected, span.context.sampled)
     }
     
-    private func testProfilesSampler(expected: SentrySampleDecision, options: (Options) -> Void) {
+    func testProfilesSampler(expected: SentrySampleDecision, options: (Options) -> Void) {
         let fixtureOptions = fixture.options
         fixtureOptions.tracesSampleRate = 1.0
         options(fixtureOptions)

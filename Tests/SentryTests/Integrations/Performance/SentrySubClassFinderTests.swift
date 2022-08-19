@@ -68,11 +68,11 @@ class SentrySubClassFinderTests: XCTestCase {
         XCTAssertFalse(SentryInitializeForGettingSubclassesCalled.wasCalled())
     }
     
-    private func testActOnSubclassesOfViewController(expected: [AnyClass]) {
+    func testActOnSubclassesOfViewController(expected: [AnyClass]) {
         testActOnSubclassesOfViewController(expected: expected, imageName: fixture.imageName)
     }
     
-    private func testActOnSubclassesOfViewController(expected: [AnyClass], imageName: String) {
+    func testActOnSubclassesOfViewController(expected: [AnyClass], imageName: String) {
         let expect = expectation(description: "")
         
         if expected.isEmpty {

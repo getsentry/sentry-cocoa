@@ -112,7 +112,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(transaction.children.count, 0)
     }
     
-    private func test_DontInstall(_ confOptions: ((Options) -> Void)) {
+    func test_DontInstall(_ confOptions: ((Options) -> Void)) {
         let sut = fixture.getSut()
         confOptions(fixture.options)
         XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.middleware)
