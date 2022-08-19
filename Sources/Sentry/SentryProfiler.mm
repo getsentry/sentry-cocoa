@@ -3,7 +3,7 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryBacktrace.hpp"
-#import "SentryClient.h"
+#    import "SentryClient.h"
 #    import "SentryDebugImageProvider.h"
 #    import "SentryDebugMeta.h"
 #    import "SentryDefines.h"
@@ -12,12 +12,12 @@
 #    import "SentryEnvelopeItemType.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryHexAddressFormatter.h"
-#import "SentryHub.h"
+#    import "SentryHub.h"
 #    import "SentryId.h"
 #    import "SentryLog.h"
 #    import "SentryProfilingLogging.hpp"
 #    import "SentrySamplingProfiler.hpp"
-#import "SentryScope+Private.h"
+#    import "SentryScope+Private.h"
 #    import "SentryScreenFrames.h"
 #    import "SentrySerialization.h"
 #    import "SentryTime.h"
@@ -222,7 +222,8 @@ isSimulatorBuild()
     }
 }
 
-- (SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction hub:(SentryHub *)hub
+- (SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction
+                                                    hub:(SentryHub *)hub
                                               frameInfo:(SentryScreenFrames *)frameInfo
 {
     NSMutableDictionary<NSString *, id> *profile = nil;

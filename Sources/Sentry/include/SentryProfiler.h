@@ -42,7 +42,8 @@ SENTRY_EXTERN_C_END
 /**
  * Builds an envelope item using the currently accumulated profile data.
  */
-- (nullable SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction hub:(SentryHub *)hub
+- (nullable SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction
+                                                             hub:(SentryHub *)hub
                                                        frameInfo:
                                                            (nullable SentryScreenFrames *)frameInfo;
 
