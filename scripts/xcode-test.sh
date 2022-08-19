@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euox pipefail
+set -uox pipefail
 
 # This is a helper script for GitHub Actions Matrix.
 # If we would specify the destinations in the GitHub Actions
