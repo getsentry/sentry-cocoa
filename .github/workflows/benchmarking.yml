@@ -17,6 +17,8 @@ on:
       - '.github/workflows/benchmarking.yml'
       - '.sauce/benchmarking-config.yml'
       - 'fastlane/**'
+      - 'scripts/ci-select-xcode.sh'
+      - 'scripts/set-device-tests-environment.patch'
 
 jobs:
   build-benchmark-test-target:

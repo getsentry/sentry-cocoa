@@ -12,6 +12,7 @@ on:
       - 'Samples/**'
       - '.github/workflows/build.yml'
       - 'fastlane/**'
+      - 'scripts/ci-select-xcode.sh'
 
 jobs:
   # We had issues that the release build was broken on master.
