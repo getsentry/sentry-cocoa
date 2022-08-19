@@ -30,32 +30,33 @@
                                       description:[self descriptionFromRequest:request]];
     }];
 
-    NSArray *result = original(request, error);
-
-    if (fetchSpan == nil) {
+    if (fetchSpan) {
+        [SentryLog
+            logWithMessage:[NSString stringWithFormat:
+                                         @"SentryCoreDataTracker automatically "
+                                         @"started a new span with description: %@, operation: %@",
+                                     fetchSpan.description, SENTRY_COREDATA_FETCH_OPERATION]
+                  andLevel:kSentryLevelDebug];
+    } else {
         [SentryLog
             logWithMessage:
                 @"managedObjectContext:executeFetchRequest:error:originalImp: fetchSpan is nil."
                   andLevel:kSentryLevelError];
-        return result;
     }
 
-    [SentryLog
-        logWithMessage:
-            [NSString stringWithFormat:@"SentryCoreDataTracker automatically "
-                                       @"started a new span with description: %@, operation: %@",
-                      fetchSpan.description, SENTRY_COREDATA_FETCH_OPERATION]
-              andLevel:kSentryLevelDebug];
+    NSArray *result = original(request, error);
 
-    [fetchSpan setDataValue:[NSNumber numberWithInteger:result.count] forKey:@"read_count"];
+    if (fetchSpan) {
+        [fetchSpan setDataValue:[NSNumber numberWithInteger:result.count] forKey:@"read_count"];
 
-    [fetchSpan
-        finishWithStatus:error != nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
+        [fetchSpan
+            finishWithStatus:error != nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
 
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"SentryCoreDataTracker automatically "
-                                                         @"finished span with status: %@",
-                                        error == nil ? @"ok" : @"error"]
-                     andLevel:kSentryLevelDebug];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"SentryCoreDataTracker automatically "
+                                                             @"finished span with status: %@",
+                                            error == nil ? @"ok" : @"error"]
+                         andLevel:kSentryLevelDebug];
+    }
 
     return result;
 }
