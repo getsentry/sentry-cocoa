@@ -132,7 +132,7 @@ class SentryClientTest: XCTestCase {
         clearTestState()
     }
     
-    func tesCaptureMessage() {
+    func testCaptureMessage() {
         let eventId = fixture.getSut().capture(message: fixture.messageAsString)
 
         eventId.assertIsNotEmpty()
