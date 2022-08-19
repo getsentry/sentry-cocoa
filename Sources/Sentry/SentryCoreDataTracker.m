@@ -76,27 +76,31 @@
                                           description:[self descriptionForOperations:operations
                                                                            inContext:context]];
 
-            [SentryLog
-                logWithMessage:
-                    [NSString
-                        stringWithFormat:@"SentryCoreDataTracker automatically "
-                                         @"started a new span with description: %@, operation: %@",
-                        fetchSpan.description, SENTRY_COREDATA_FETCH_OPERATION]
-                      andLevel:kSentryLevelDebug];
+            if (fetchSpan) {
+                [SentryLog
+                    logWithMessage:[NSString
+                                       stringWithFormat:@"SentryCoreDataTracker automatically "
+                                                        @"started a new span with description: %@, "
+                                                        @"operation: %@",
+                                       fetchSpan.description, SENTRY_COREDATA_FETCH_OPERATION]
+                          andLevel:kSentryLevelDebug];
 
-            [fetchSpan setDataValue:operations forKey:@"operations"];
+                [fetchSpan setDataValue:operations forKey:@"operations"];
+            }
         }];
     }
 
     BOOL result = original(error);
 
-    [fetchSpan
-        finishWithStatus:*error != nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
+    if (fetchSpan) {
+        [fetchSpan
+            finishWithStatus:*error != nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
 
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"SentryCoreDataTracker automatically "
-                                                         @"finished span with status: %@",
-                                        *error == nil ? @"ok" : @"error"]
-                     andLevel:kSentryLevelDebug];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"SentryCoreDataTracker automatically "
+                                                             @"finished span with status: %@",
+                                            *error == nil ? @"ok" : @"error"]
+                         andLevel:kSentryLevelDebug];
+    }
 
     return result;
 }
