@@ -3,7 +3,7 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryBacktrace.hpp"
-#    import "SentryClient.h"
+#    import "SentryClient+Private.h"
 #    import "SentryDebugImageProvider.h"
 #    import "SentryDebugMeta.h"
 #    import "SentryDefines.h"
@@ -258,7 +258,7 @@ isSimulatorBuild()
     profile[@"device_is_emulator"] = @(isSimulatorBuild());
     profile[@"device_physical_memory_bytes"] =
         [@(NSProcessInfo.processInfo.physicalMemory) stringValue];
-    profile[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment ?: @"production";
+    profile[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment ?: kSentryDefaultEnvironment;
     profile[@"platform"] = transaction.platform;
     profile[@"transaction_id"] = transaction.eventId.sentryIdString;
     profile[@"trace_id"] = transaction.trace.context.traceId.sentryIdString;
