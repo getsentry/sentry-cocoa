@@ -54,22 +54,15 @@ esac
 
 echo "CONFIGURATION: $CONFIGURATION"
 
+# There are some tests that are known to flake on Xcode 13.2.1 and 12.5.1 runs. They need to be handled separately due to new API introduced in Xcode 13.
 if [ $XCODE == "13.2.1" ]; then
+    # We can retry flaky tests that fail with the -retry-tests-on-failure option introduced in Xcode 13.
     env NSUnbufferedIO=YES xcodebuild -retry-tests-on-failure -test-iterations 3 -workspace Sentry.xcworkspace \
         -scheme Sentry -configuration $CONFIGURATION \
         GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
         test | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}
-elif [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
-    echo "Skipping some tests that fail on iOS 12.4."
-    env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
-        -scheme Sentry -configuration $CONFIGURATION \
-        GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
-        -skip-testing:"SentryTests/SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndTraceHeaderAdded" \
-        -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfAddingBreadcrumbs" \
-        -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfTransactions" \
-        test | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}
 elif [ $XCODE == "12.5.1" ]; then
-    # There are some known flaky tests on Xcode 12.5.1 runs. Run the suite normally without them, then try the flaky tests up to 3 times. We do this in a bash for loop because xcodebuild didn't get the -retry-tests-on-failure option until version 13.
+    # To retry flaky tests in Xcode <13, Run the suite normally without them, then run the suite with just the known flaky tests up to 3 times in a bash loop because xcodebuild didn't get the -retry-tests-on-failure option until version 13.
     env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
         -scheme Sentry -configuration $CONFIGURATION \
         GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
@@ -99,9 +92,16 @@ elif [ $XCODE == "12.5.1" ]; then
         done
         exit $nonflaky_test_status
     fi
-else
+elif [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
+    # Skip some tests that fail on iOS 12.4.
     env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
         -scheme Sentry -configuration $CONFIGURATION \
         GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
+        -skip-testing:"SentryTests/SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndTraceHeaderAdded" \
+        -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfAddingBreadcrumbs" \
+        -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfTransactions" \
         test | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}
+else
+    # The branches above are exhaustive at the time they were written. If we add new configurations, this will help us catch them.
+    exit 1
 fi
