@@ -517,7 +517,7 @@ static NSLock *profilerLock;
     if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
         [profilerLock lock];
         if (profiler != nil) {
-            SentryEnvelopeItem *profile = [profiler buildEnvelopeItemForTransaction:transaction
+            SentryEnvelopeItem *profile = [profiler buildEnvelopeItemForTransaction:transaction hub:_hub
                                                                           frameInfo:frameInfo];
             if (profile != nil) {
                 [additionalEnvelopeItems addObject:profile];
