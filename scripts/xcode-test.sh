@@ -79,7 +79,7 @@ elif [ $XCODE == "12.5.1" ]; then
     if [ ${PIPESTATUS[0]} -eq 0 ]; then
         exit $nonflaky_test_status
     else
-        for {1..2}; do
+        for i in {1..2}; do
             bash -c 'env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
                 -scheme Sentry -configuration $CONFIGURATION \
                 GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
