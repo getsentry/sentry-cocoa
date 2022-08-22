@@ -55,8 +55,16 @@ echo "CONFIGURATION: $CONFIGURATION"
 
 XCODE_MAJOR_VERSION=$(echo $XCODE | sed -E 's/([0-9]*)\.[0-9]*\.[0-9]*/\1/g')
 
-# There are some tests that are known to flake on Xcode 13.2.1 and 12.5.1 runs. They need to be handled separately due to new API introduced in Xcode 13.
-if [ $XCODE_MAJOR_VERSION == "13" ]; then
+if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
+    # Skip some tests that fail on iOS 12.4.
+    env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
+        -scheme Sentry -configuration $CONFIGURATION \
+        GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
+        -skip-testing:"SentryTests/SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndTraceHeaderAdded" \
+        -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfAddingBreadcrumbs" \
+        -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfTransactions" \
+        test | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}
+elif [ $XCODE_MAJOR_VERSION == "13" ]; then
     # We can retry flaky tests that fail with the -retry-tests-on-failure option introduced in Xcode 13.
     env NSUnbufferedIO=YES xcodebuild -retry-tests-on-failure -test-iterations 3 -workspace Sentry.xcworkspace \
         -scheme Sentry -configuration $CONFIGURATION \
@@ -93,15 +101,6 @@ elif [ $XCODE_MAJOR_VERSION == "12" ]; then
         done
         exit $nonflaky_test_status
     fi
-elif [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
-    # Skip some tests that fail on iOS 12.4.
-    env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
-        -scheme Sentry -configuration $CONFIGURATION \
-        GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
-        -skip-testing:"SentryTests/SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndTraceHeaderAdded" \
-        -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfAddingBreadcrumbs" \
-        -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfTransactions" \
-        test | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}
 else
     # The branches above are exhaustive at the time they were written. This will help us catch unexpected deviations with future changes.
     exit 1
