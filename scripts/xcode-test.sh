@@ -81,11 +81,11 @@ elif [ $XCODE_MAJOR_VERSION == "12" ]; then
         exit $nonflaky_test_status
     else
         for i in {1..2}; do
-            bash -c 'env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
+            bash -c "env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
                 -scheme Sentry -configuration $CONFIGURATION \
-                GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
-                -only-testing:"SentryTests/SentrySessionTrackerTests" \
-                test-without-building | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}'
+                GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination '$DESTINATION' \
+                -only-testing:'SentryTests/SentrySessionTrackerTests' \
+                test-without-building | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}"
             flaky_test_status=$?
             if [ $flaky_test_status -eq 0 ]; then
                 exit $nonflaky_test_status
