@@ -80,8 +80,6 @@ class SentrySessionTrackerTests: XCTestCase {
         
         assertInitSessionSent()
         assertSessionStored()
-
-        XCTFail("Test failure")
     }
     
     func testForeground_And_HybridSdkDidBecomeActive() {
