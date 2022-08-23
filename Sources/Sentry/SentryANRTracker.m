@@ -65,6 +65,12 @@ SentryANRTracker ()
         [self.threadWrapper sleepForTimeInterval:sleepIntervalMs];
 
         if (ticksSinceUiUpdate >= reportTreshold && !reported) {
+            if (![self.crashWrapper isApplicationInForeground]) {
+                [SentryLog logWithMessage:@"Ignoring ANR because the app is in the background"
+                                 andLevel:kSentryLevelDebug];
+                continue;
+            }
+
             [SentryLog logWithMessage:@"ANR detected." andLevel:kSentryLevelWarning];
             [self ANRDetected];
             self->reported = YES;
