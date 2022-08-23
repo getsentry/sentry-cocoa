@@ -52,7 +52,7 @@ SentryANRTracker ()
 
     __block NSInteger ticksSinceUiUpdate = 0;
     NSInteger reportTreshold = 5;
-    double sleepIntervalMs = self.timeoutInterval / reportTreshold;
+    NSTimeInterval sleepInterval = self.timeoutInterval / reportTreshold;
 
     while (![self.thread isCancelled]) {
         ticksSinceUiUpdate++;
@@ -62,9 +62,11 @@ SentryANRTracker ()
             self->reported = NO;
         }];
 
-        [self.threadWrapper sleepForTimeInterval:sleepIntervalMs];
+        [self.threadWrapper sleepForTimeInterval:sleepInterval];
 
         if (ticksSinceUiUpdate >= reportTreshold && !reported) {
+            self->reported = YES;
+
             if (![self.crashWrapper isApplicationInForeground]) {
                 [SentryLog logWithMessage:@"Ignoring ANR because the app is in the background"
                                  andLevel:kSentryLevelDebug];
@@ -73,7 +75,6 @@ SentryANRTracker ()
 
             [SentryLog logWithMessage:@"ANR detected." andLevel:kSentryLevelWarning];
             [self ANRDetected];
-            self->reported = YES;
         }
     }
 }
