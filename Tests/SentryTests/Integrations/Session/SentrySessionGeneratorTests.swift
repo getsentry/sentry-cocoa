@@ -156,14 +156,12 @@ class SentrySessionGeneratorTests: XCTestCase {
     }
     
     private func goToForeground(forSeconds: TimeInterval = 0.2) {
-        TestNotificationCenter.willEnterForeground()
         TestNotificationCenter.didBecomeActive()
         delayNonBlocking(timeout: forSeconds)
     }
     
     private func goToBackground(forSeconds: TimeInterval = 0.2) {
         TestNotificationCenter.willResignActive()
-        TestNotificationCenter.didEnterBackground()
         delayNonBlocking(timeout: forSeconds)
     }
     

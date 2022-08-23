@@ -246,7 +246,9 @@ class SentrySessionTrackerTests: XCTestCase {
         
         // Background task is launched
         advanceTime(bySeconds: 30)
+#if os(tvOS) || os(iOS) || targetEnvironment(macCatalyst)
         TestNotificationCenter.didEnterBackground()
+#endif
         advanceTime(bySeconds: 9)
         
         // user opens app
@@ -263,7 +265,9 @@ class SentrySessionTrackerTests: XCTestCase {
         
         // Background task is launched
         advanceTime(bySeconds: 1)
+#if os(tvOS) || os(iOS) || targetEnvironment(macCatalyst)
         TestNotificationCenter.didEnterBackground()
+#endif
         advanceTime(bySeconds: 1)
         
         // user opens app
@@ -349,11 +353,14 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private func goToForeground() {
-        let _ = expectation(forNotification: UIApplication.willEnterForegroundNotification, object: nil)
-        let _ = expectation(forNotification: UIApplication.didBecomeActiveNotification, object: nil)
+        var expectations = [XCTestExpectation]()
+        expectations.append(expectation(forNotification: TestNotificationCenter.didBecomeActiveNotification, object: nil))
+#if os(tvOS) || os(iOS) || targetEnvironment(macCatalyst)
+        expectations.append(expectation(forNotification: TestNotificationCenter.willEnterForegroundNotification, object: nil))
         TestNotificationCenter.willEnterForeground()
+#endif
         TestNotificationCenter.didBecomeActive()
-        waitForExpectations(timeout: 3)
+        wait(for: expectations, timeout: 3)
     }
     
     private func goToBackground(forSeconds: TimeInterval) {
@@ -363,35 +370,34 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private func goToBackground() {
-        let resignActive = expectation(forNotification: UIApplication.willResignActiveNotification, object: nil)
-        let enterBg = expectation(forNotification: UIApplication.didEnterBackgroundNotification, object: nil)
+        var expectations = [XCTestExpectation]()
+        expectations.append(expectation(forNotification: TestNotificationCenter.willResignActiveNotification, object: nil))
         TestNotificationCenter.willResignActive()
+#if os(tvOS) || os(iOS) || targetEnvironment(macCatalyst)
+        expectations.append(expectation(forNotification: TestNotificationCenter.didEnterBackgroundNotification, object: nil))
         TestNotificationCenter.didEnterBackground()
-        wait(for: [resignActive, enterBg], timeout: 3)
+#endif
+        wait(for: expectations, timeout: 3)
     }
     
     private func terminateApp() {
-        let willTerminate = expectation(forNotification: UIApplication.willTerminateNotification, object: nil)
+        let willTerminate = expectation(forNotification: TestNotificationCenter.willTerminateNotification, object: nil)
         TestNotificationCenter.willTerminate()
         wait(for: [willTerminate], timeout: 3)
         sut.stop()
     }
-    
-    private func resumeAppInBackground() {
-        let enterBg = expectation(forNotification: UIApplication.didEnterBackgroundNotification, object: nil)
-        TestNotificationCenter.didEnterBackground()
-        wait(for: [enterBg], timeout: 3)
-    }
-    
+
     private func launchBackgroundTaskAppNotRunning() {
         sut.stop()
         fixture.setNewHubToSDK()
         sut = fixture.getSut()
-        
+
         sut.start()
-        let enterBg = expectation(forNotification: UIApplication.didEnterBackgroundNotification, object: nil)
+#if os(tvOS) || os(iOS) || targetEnvironment(macCatalyst)
+        let enterBg = expectation(forNotification: TestNotificationCenter.didEnterBackgroundNotification, object: nil)
         TestNotificationCenter.didEnterBackground()
         wait(for: [enterBg], timeout: 3)
+#endif
     }
     
     private func captureError() {
