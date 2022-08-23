@@ -349,8 +349,11 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private func goToForeground() {
+        let _ = expectation(forNotification: UIApplication.willEnterForegroundNotification, object: nil)
+        let _ = expectation(forNotification: UIApplication.didBecomeActiveNotification, object: nil)
         TestNotificationCenter.willEnterForeground()
         TestNotificationCenter.didBecomeActive()
+        waitForExpectations(timeout: 3)
     }
     
     private func goToBackground(forSeconds: TimeInterval) {
@@ -360,17 +363,24 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private func goToBackground() {
+        let resignActive = expectation(forNotification: UIApplication.willResignActiveNotification, object: nil)
+        let enterBg = expectation(forNotification: UIApplication.didEnterBackgroundNotification, object: nil)
         TestNotificationCenter.willResignActive()
         TestNotificationCenter.didEnterBackground()
+        wait(for: [resignActive, enterBg], timeout: 3)
     }
     
     private func terminateApp() {
+        let willTerminate = expectation(forNotification: UIApplication.willTerminateNotification, object: nil)
         TestNotificationCenter.willTerminate()
+        wait(for: [willTerminate], timeout: 3)
         sut.stop()
     }
     
     private func resumeAppInBackground() {
+        let enterBg = expectation(forNotification: UIApplication.didEnterBackgroundNotification, object: nil)
         TestNotificationCenter.didEnterBackground()
+        wait(for: [enterBg], timeout: 3)
     }
     
     private func launchBackgroundTaskAppNotRunning() {
@@ -379,7 +389,9 @@ class SentrySessionTrackerTests: XCTestCase {
         sut = fixture.getSut()
         
         sut.start()
+        let enterBg = expectation(forNotification: UIApplication.didEnterBackgroundNotification, object: nil)
         TestNotificationCenter.didEnterBackground()
+        wait(for: [enterBg], timeout: 3)
     }
     
     private func captureError() {
