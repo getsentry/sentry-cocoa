@@ -1,11 +1,9 @@
 @testable import Sentry
 import XCTest
 
+// This feature only works on iOS
+#if os(iOS)
 class SentrySystemEventBreadcrumbsTest: XCTestCase {
-    
-    // This feature only works on iOS
-    #if os(iOS)
-    
     private class Fixture {
         let options: Options
         let fileManager: SentryFileManager
@@ -298,6 +296,5 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
             }
         }
     }
-    
-    #endif
 }
+#endif

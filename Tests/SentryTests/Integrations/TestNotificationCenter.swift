@@ -20,27 +20,6 @@ class TestNotificationCenter {
     static let didFinishLaunchingNotification = NSApplication.didFinishLaunchingNotification
     #endif
     
-#if os(tvOS) || os(iOS)
-#endif
-    
-#if os(tvOS) || os(iOS) || os(macOS)
-    static func didBecomeActive() {
-        NotificationCenter.default.post(Notification(name: didBecomeActiveNotification))
-    }
-
-    static func willResignActive() {
-        NotificationCenter.default.post(Notification(name: willResignActiveNotification))
-    }
-
-    static func willTerminate() {
-        NotificationCenter.default.post(Notification(name: willTerminateNotification))
-    }
-
-    static func didFinishLaunching() {
-        NotificationCenter.default.post(Notification(name: didFinishLaunchingNotification))
-    }
-#endif
-    
 #if os(tvOS) || os(iOS) || targetEnvironment(macCatalyst)
     static func willEnterForeground() {
         NotificationCenter.default.post(Notification(name: willEnterForegroundNotification))
@@ -61,5 +40,21 @@ class TestNotificationCenter {
     
     static func localeDidChange() {
         NotificationCenter.default.post(Notification(name: NSLocale.currentLocaleDidChangeNotification))
+    }
+
+    static func didBecomeActive() {
+        NotificationCenter.default.post(Notification(name: didBecomeActiveNotification))
+    }
+
+    static func willResignActive() {
+        NotificationCenter.default.post(Notification(name: willResignActiveNotification))
+    }
+
+    static func willTerminate() {
+        NotificationCenter.default.post(Notification(name: willTerminateNotification))
+    }
+
+    static func didFinishLaunching() {
+        NotificationCenter.default.post(Notification(name: didFinishLaunchingNotification))
     }
 }
