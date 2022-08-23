@@ -17,10 +17,8 @@
 - Add span finish flag (#2059)
 - SentryUser.userId should be nullable (#2071)
 - Send time zone name, not abbreviation (#2091)
-
-### Fixes
-
 - Use a prime number for the profiler's sampling rate to reduce the potential for [lock-step](https://stackoverflow.com/a/45471031) issues (#2055).
+- Improve App Hangs detection (#2100)
 
 ## 7.23.0
 
