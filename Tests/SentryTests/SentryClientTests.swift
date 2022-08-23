@@ -788,22 +788,22 @@ class SentryClientTest: XCTestCase {
     }
     
     func testSampleRateNil_EventNotSampled() {
-        testSampleRate(sampleRate: nil, randomValue: 0, isSampled: false)
+        assertSampleRate(sampleRate: nil, randomValue: 0, isSampled: false)
     }
     
     func testSampleRateBiggerRandom_EventNotSampled() {
-        testSampleRate(sampleRate: 0.5, randomValue: 0.49, isSampled: false)
+        assertSampleRate(sampleRate: 0.5, randomValue: 0.49, isSampled: false)
     }
     
     func testSampleRateEqualsRandom_EventNotSampled() {
-        testSampleRate(sampleRate: 0.5, randomValue: 0.5, isSampled: false)
+        assertSampleRate(sampleRate: 0.5, randomValue: 0.5, isSampled: false)
     }
     
     func testSampleRateSmallerRandom_EventSampled() {
-        testSampleRate(sampleRate: 0.50, randomValue: 0.51, isSampled: true)
+        assertSampleRate(sampleRate: 0.50, randomValue: 0.51, isSampled: true)
     }
     
-    func testSampleRate( sampleRate: NSNumber?, randomValue: Double, isSampled: Bool) {
+    private func assertSampleRate( sampleRate: NSNumber?, randomValue: Double, isSampled: Bool) {
         fixture.random.value = randomValue
         
         let eventId = fixture.getSut(configureOptions: { options in

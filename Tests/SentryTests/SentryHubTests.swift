@@ -283,38 +283,38 @@ class SentryHubTests: XCTestCase {
     }
     
     func testStartTransactionNotSamplingUsingSampleRate() {
-        testSampler(expected: .no) { options in
+        assertSampler(expected: .no) { options in
             options.tracesSampleRate = 0.49
         }
     }
     
     func testStartTransactionSamplingUsingSampleRate() {
-        testSampler(expected: .yes) { options in
+        assertSampler(expected: .yes) { options in
             options.tracesSampleRate = 0.50
         }
     }
 
     func testStartTransactionSamplingUsingTracesSampler() {
-        testSampler(expected: .yes) { options in
+        assertSampler(expected: .yes) { options in
             options.tracesSampler = { _ in return 0.51 }
         }
     }
     
     func testStartTransaction_WhenSampleRateAndSamplerNil() {
-        testSampler(expected: .no) { options in
+        assertSampler(expected: .no) { options in
             options.tracesSampleRate = nil
             options.tracesSampler = { _ in return nil }
         }
     }
     
     func testStartTransaction_WhenTracesSamplerOutOfRange_TooBig() {
-        testSampler(expected: .no) { options in
+        assertSampler(expected: .no) { options in
             options.tracesSampler = { _ in return 1.01 }
         }
     }
     
     func testStartTransaction_WhenTracesSamplersOutOfRange_TooSmall() {
-        testSampler(expected: .no) { options in
+        assertSampler(expected: .no) { options in
             options.tracesSampler = { _ in return -0.01 }
         }
         
@@ -388,50 +388,50 @@ class SentryHubTests: XCTestCase {
     }
     
     func testStartTransaction_NotSamplingProfileUsingEnableProfiling() {
-        testProfilesSampler(expected: .no) { options in
+        assertProfilesSampler(expected: .no) { options in
             options.enableProfiling_DEPRECATED_TEST_ONLY = false
         }
     }
     
     func testStartTransaction_SamplingProfileUsingEnableProfiling() {
-        testProfilesSampler(expected: .yes) { options in
+        assertProfilesSampler(expected: .yes) { options in
             options.enableProfiling_DEPRECATED_TEST_ONLY = true
         }
     }
     
     func testStartTransaction_NotSamplingProfileUsingSampleRate() {
-        testProfilesSampler(expected: .no) { options in
+        assertProfilesSampler(expected: .no) { options in
             options.profilesSampleRate = 0.49
         }
     }
     
     func testStartTransaction_SamplingProfileUsingSampleRate() {
-        testProfilesSampler(expected: .yes) { options in
+        assertProfilesSampler(expected: .yes) { options in
             options.profilesSampleRate = 0.5
         }
     }
     
     func testStartTransaction_SamplingProfileUsingProfilesSampler() {
-        testProfilesSampler(expected: .yes) { options in
+        assertProfilesSampler(expected: .yes) { options in
             options.profilesSampler = { _ in return 0.51 }
         }
     }
     
     func testStartTransaction_WhenProfilesSampleRateAndProfilesSamplerNil() {
-        testProfilesSampler(expected: .no) { options in
+        assertProfilesSampler(expected: .no) { options in
             options.profilesSampleRate = nil
             options.profilesSampler = { _ in return nil }
         }
     }
     
     func testStartTransaction_WhenProfilesSamplerOutOfRange_TooBig() {
-        testProfilesSampler(expected: .no) { options in
+        assertProfilesSampler(expected: .no) { options in
             options.profilesSampler = { _ in return 1.01 }
         }
     }
     
     func testStartTransaction_WhenProfilesSamplersOutOfRange_TooSmall() {
-        testProfilesSampler(expected: .no) { options in
+        assertProfilesSampler(expected: .no) { options in
             options.profilesSampler = { _ in return -0.01 }
         }
     }
@@ -899,7 +899,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertFalse((frames[0]["function"] as! String).isEmpty)
     }
     
-    func testSampler(expected: SentrySampleDecision, options: (Options) -> Void) {
+    private func assertSampler(expected: SentrySampleDecision, options: (Options) -> Void) {
         options(fixture.options)
         
         let hub = fixture.getSut()
@@ -910,7 +910,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(expected, span.context.sampled)
     }
     
-    func testProfilesSampler(expected: SentrySampleDecision, options: (Options) -> Void) {
+    private func assertProfilesSampler(expected: SentrySampleDecision, options: (Options) -> Void) {
         let fixtureOptions = fixture.options
         fixtureOptions.tracesSampleRate = 1.0
         options(fixtureOptions)
