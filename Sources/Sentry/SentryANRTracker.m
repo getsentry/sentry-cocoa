@@ -23,6 +23,7 @@ SentryANRTracker ()
 @implementation SentryANRTracker {
     NSObject *threadLock;
     BOOL running;
+    BOOL reported;
 }
 
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
@@ -47,60 +48,27 @@ SentryANRTracker ()
 - (void)detectANRs
 {
     NSThread.currentThread.name = @"io.sentry.app-hang-tracker";
-
     self.thread = NSThread.currentThread;
 
-    BOOL wasPreviousANR = NO;
+    __block NSInteger ticksSinceUiUpdate = 0;
+    NSInteger reportTreshold = 5;
+    double sleepIntervalMs = self.timeoutInterval / reportTreshold;
 
     while (![self.thread isCancelled]) {
+        ticksSinceUiUpdate++;
 
-        NSDate *blockDeadline =
-            [[self.currentDate date] dateByAddingTimeInterval:self.timeoutInterval];
+        [self.dispatchQueueWrapper dispatchOnMainQueue:^{
+            ticksSinceUiUpdate = 0;
+            self->reported = NO;
+        }];
 
-        __block BOOL blockExecutedOnMainThread = NO;
-        [self.dispatchQueueWrapper dispatchOnMainQueue:^{ blockExecutedOnMainThread = YES; }];
+        [self.threadWrapper sleepForTimeInterval:sleepIntervalMs];
 
-        [self.threadWrapper sleepForTimeInterval:self.timeoutInterval];
-
-        if (blockExecutedOnMainThread) {
-            if (wasPreviousANR) {
-                [SentryLog logWithMessage:@"ANR stopped." andLevel:kSentryLevelWarning];
-                [self ANRStopped];
-            }
-
-            wasPreviousANR = NO;
-            continue;
+        if (ticksSinceUiUpdate >= reportTreshold && !reported) {
+            [SentryLog logWithMessage:@"ANR detected." andLevel:kSentryLevelWarning];
+            [self ANRDetected];
+            self->reported = YES;
         }
-
-        if (wasPreviousANR) {
-            [SentryLog logWithMessage:@"Ignoring ANR because ANR is still ongoing."
-                             andLevel:kSentryLevelDebug];
-            continue;
-        }
-
-        // The blockDeadline should be roughly executed after the timeoutInterval even if there is
-        // an ANR. If the app gets suspended this thread could sleep and wake up again. To avoid
-        // false positives, we don't report ANRs if the delta is too big.
-        NSTimeInterval deltaFromNowToBlockDeadline =
-            [[self.currentDate date] timeIntervalSinceDate:blockDeadline];
-
-        if (deltaFromNowToBlockDeadline >= self.timeoutInterval) {
-            NSString *message =
-                [NSString stringWithFormat:@"Ignoring ANR because the delta is too big: %f.",
-                          deltaFromNowToBlockDeadline];
-            [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
-            continue;
-        }
-
-        if (![self.crashWrapper isApplicationInForeground]) {
-            [SentryLog logWithMessage:@"Ignoring ANR because the app is in the background"
-                             andLevel:kSentryLevelDebug];
-            continue;
-        }
-
-        wasPreviousANR = YES;
-        [SentryLog logWithMessage:@"ANR detected." andLevel:kSentryLevelWarning];
-        [self ANRDetected];
     }
 }
 
