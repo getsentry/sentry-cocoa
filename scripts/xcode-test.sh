@@ -63,20 +63,20 @@ if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
         -skip-testing:"SentryTests/SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndTraceHeaderAdded" \
         -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfAddingBreadcrumbs" \
         -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfTransactions" \
-        test | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}
+        test | tee raw-test-output.log && exit ${PIPESTATUS[0]}
 elif [ $XCODE_MAJOR_VERSION == "13" ]; then
     # We can retry flaky tests that fail with the -retry-tests-on-failure option introduced in Xcode 13.
     env NSUnbufferedIO=YES xcodebuild -retry-tests-on-failure -test-iterations 3 -workspace Sentry.xcworkspace \
         -scheme Sentry -configuration $CONFIGURATION \
         GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
-        test | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}
+        test | tee raw-test-output.log && exit ${PIPESTATUS[0]}
 elif [ $XCODE_MAJOR_VERSION == "12" ]; then
     # To retry flaky tests in Xcode <13, Run the suite normally without them, then run the suite with just the known flaky tests up to 3 times in a bash loop because xcodebuild didn't get the -retry-tests-on-failure option until version 13.
     env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
         -scheme Sentry -configuration $CONFIGURATION \
         GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
         -skip-testing:"SentryTests/SentrySessionTrackerTests" \
-        test | tee raw-test-output.log | xcpretty -t
+        test | tee raw-test-output.log
     nonflaky_test_status=${PIPESTATUS[0]}
 
     # try the flaky tests once. if they pass, exit with the combined status of flaky and nonflaky tests.
@@ -86,7 +86,7 @@ elif [ $XCODE_MAJOR_VERSION == "12" ]; then
         -scheme Sentry -configuration $CONFIGURATION \
         GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
         -only-testing:"SentryTests/SentrySessionTrackerTests" \
-        test | tee raw-test-output.log | xcpretty -t
+        test | tee raw-test-output.log
     flaky_test_status=${PIPESTATUS[0]}
     if [ $flaky_test_status -eq 0 ]; then
         exit $nonflaky_test_status
@@ -96,7 +96,7 @@ elif [ $XCODE_MAJOR_VERSION == "12" ]; then
                 -scheme Sentry -configuration $CONFIGURATION \
                 GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination '$DESTINATION' \
                 -only-testing:'SentryTests/SentrySessionTrackerTests' \
-                test-without-building | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}"
+                test-without-building | tee raw-test-output.log && exit ${PIPESTATUS[0]}"
             flaky_test_status=$?
             if [ $flaky_test_status -eq 0 ]; then
                 exit $nonflaky_test_status
