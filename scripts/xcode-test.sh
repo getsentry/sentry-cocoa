@@ -77,15 +77,18 @@ elif [ $XCODE_MAJOR_VERSION == "12" ]; then
         GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
         -skip-testing:"SentryTests/SentrySessionTrackerTests" \
         test | tee raw-test-output.log | xcpretty -t
-
     nonflaky_test_status=${PIPESTATUS[0]}
+
+    # try the flaky tests once. if they pass, exit with the combined status of flaky and nonflaky tests.
+    # if they fail, retry them twice more.
 
     env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
         -scheme Sentry -configuration $CONFIGURATION \
         GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
         -only-testing:"SentryTests/SentrySessionTrackerTests" \
         test | tee raw-test-output.log | xcpretty -t
-    if [ ${PIPESTATUS[0]} -eq 0 ]; then
+    flaky_test_status=${PIPESTATUS[0]}
+    if [ $flaky_test_status -eq 0 ]; then
         exit $nonflaky_test_status
     else
         for i in {1..2}; do
@@ -99,7 +102,11 @@ elif [ $XCODE_MAJOR_VERSION == "12" ]; then
                 exit $nonflaky_test_status
             fi
         done
-        exit $nonflaky_test_status
+
+        # combine flaky/nonflaky statuses for the exit status of this script so that if either have failed, the script will fail
+        all_test_status=$nonflaky_test_status
+        let 'all_test_status|=flaky_test_status'
+        exit $all_test_status
     fi
 else
     # The branches above are exhaustive at the time they were written. This will help us catch unexpected deviations with future changes.
