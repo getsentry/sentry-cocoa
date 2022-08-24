@@ -250,7 +250,6 @@ SentryCrashIntegration ()
     [deviceData setValue:systemInfo[@"memorySize"] forKey:@"memory_size"];
     [deviceData setValue:systemInfo[@"storageSize"] forKey:@"storage_size"];
     [deviceData setValue:systemInfo[@"bootTime"] forKey:@"boot_time"];
-    [deviceData setValue:systemInfo[@"timezone"] forKey:@"timezone"];
 
     NSString *locale = [[NSLocale autoupdatingCurrentLocale] objectForKey:NSLocaleIdentifier];
     [deviceData setValue:locale forKey:LOCALE_KEY];
