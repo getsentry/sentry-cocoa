@@ -23,7 +23,6 @@ SentryANRTracker ()
 @implementation SentryANRTracker {
     NSObject *threadLock;
     BOOL running;
-    BOOL reported;
 }
 
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
@@ -51,27 +50,46 @@ SentryANRTracker ()
     self.thread = NSThread.currentThread;
 
     __block NSInteger ticksSinceUiUpdate = 0;
+    __block BOOL reported = NO;
+
     NSInteger reportTreshold = 5;
     NSTimeInterval sleepInterval = self.timeoutInterval / reportTreshold;
 
     while (![self.thread isCancelled]) {
+        NSDate *blockDeadline =
+            [[self.currentDate date] dateByAddingTimeInterval:self.timeoutInterval];
+
         ticksSinceUiUpdate++;
 
         [self.dispatchQueueWrapper dispatchOnMainQueue:^{
             ticksSinceUiUpdate = 0;
 
-            if (self->reported) {
+            if (reported) {
                 [SentryLog logWithMessage:@"ANR stopped." andLevel:kSentryLevelWarning];
                 [self ANRStopped];
             }
 
-            self->reported = NO;
+            reported = NO;
         }];
 
         [self.threadWrapper sleepForTimeInterval:sleepInterval];
 
+        // The blockDeadline should be roughly executed after the timeoutInterval even if there is
+        // an ANR. If the app gets suspended this thread could sleep and wake up again. To avoid
+        // false positives, we don't report ANRs if the delta is too big.
+        NSTimeInterval deltaFromNowToBlockDeadline =
+            [[self.currentDate date] timeIntervalSinceDate:blockDeadline];
+
+        if (deltaFromNowToBlockDeadline >= self.timeoutInterval) {
+            NSString *message =
+                [NSString stringWithFormat:@"Ignoring ANR because the delta is too big: %f.",
+                          deltaFromNowToBlockDeadline];
+            [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+            continue;
+        }
+
         if (ticksSinceUiUpdate >= reportTreshold && !reported) {
-            self->reported = YES;
+            reported = YES;
 
             if (![self.crashWrapper isApplicationInForeground]) {
                 [SentryLog logWithMessage:@"Ignoring ANR because the app is in the background"
