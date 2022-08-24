@@ -59,6 +59,12 @@ SentryANRTracker ()
 
         [self.dispatchQueueWrapper dispatchOnMainQueue:^{
             ticksSinceUiUpdate = 0;
+
+            if (self->reported) {
+                [SentryLog logWithMessage:@"ANR stopped." andLevel:kSentryLevelWarning];
+                [self ANRStopped];
+            }
+
             self->reported = NO;
         }];
 
