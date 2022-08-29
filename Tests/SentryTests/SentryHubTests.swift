@@ -366,7 +366,7 @@ class SentryHubTests: XCTestCase {
         }
     }
     
-    func testCatpureErrorWithScope() {
+    func testCaptureErrorWithScope() {
         fixture.getSut().capture(error: fixture.error, scope: fixture.scope).assertIsNotEmpty()
         
         XCTAssertEqual(1, fixture.client.captureErrorWithScopeInvocations.count)
@@ -376,7 +376,7 @@ class SentryHubTests: XCTestCase {
         }
     }
     
-    func testCatpureErrorWithSessionWithScope() {
+    func testCaptureErrorWithSessionWithScope() {
         let sut = fixture.getSut()
         sut.startSession()
         sut.capture(error: fixture.error, scope: fixture.scope).assertIsNotEmpty()
@@ -395,7 +395,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
     }
     
-    func testCatpureErrorWithoutScope() {
+    func testCaptureErrorWithoutScope() {
         fixture.getSut(fixture.options, fixture.scope).capture(error: fixture.error).assertIsNotEmpty()
         
         XCTAssertEqual(1, fixture.client.captureErrorWithScopeInvocations.count)
@@ -405,7 +405,7 @@ class SentryHubTests: XCTestCase {
         }
     }
     
-    func testCatpureExceptionWithScope() {
+    func testCaptureExceptionWithScope() {
         fixture.getSut().capture(exception: fixture.exception, scope: fixture.scope).assertIsNotEmpty()
         
         XCTAssertEqual(1, fixture.client.captureExceptionWithScopeInvocations.count)
@@ -415,7 +415,7 @@ class SentryHubTests: XCTestCase {
         }
     }
     
-    func testCatpureExceptionWithoutScope() {
+    func testCaptureExceptionWithoutScope() {
         fixture.getSut(fixture.options, fixture.scope).capture(exception: fixture.exception).assertIsNotEmpty()
         
         XCTAssertEqual(1, fixture.client.captureExceptionWithScopeInvocations.count)
@@ -425,7 +425,7 @@ class SentryHubTests: XCTestCase {
         }
     }
     
-    func testCatpureExceptionWithSessionWithScope() {
+    func testCaptureExceptionWithSessionWithScope() {
         let sut = fixture.getSut()
         sut.startSession()
         sut.capture(exception: fixture.exception, scope: fixture.scope).assertIsNotEmpty()
@@ -447,7 +447,7 @@ class SentryHubTests: XCTestCase {
     @available(tvOS 10.0, *)
     @available(OSX 10.12, *)
     @available(iOS 10.0, *)
-    func testCatpureMultipleExceptionWithSessionInParallel() {
+    func testCaptureMultipleExceptionWithSessionInParallel() {
         let captureCount = 100
         captureConcurrentWithSession(count: captureCount) { sut in
             sut.capture(exception: self.fixture.exception, scope: self.fixture.scope)
@@ -467,7 +467,7 @@ class SentryHubTests: XCTestCase {
     @available(tvOS 10.0, *)
     @available(OSX 10.12, *)
     @available(iOS 10.0, *)
-    func testCatpureMultipleErrorsWithSessionInParallel() {
+    func testCaptureMultipleErrorsWithSessionInParallel() {
         let captureCount = 100
         captureConcurrentWithSession(count: captureCount) { sut in
             sut.capture(error: self.fixture.error, scope: self.fixture.scope)
@@ -526,7 +526,7 @@ class SentryHubTests: XCTestCase {
     /**
      * When autoSessionTracking is just enabled and there is a previous crash on the disk there is no session on the disk.
      */
-    func testCatpureCrashEvent_CrashExistsButNoSessionExists() {
+    func testCaptureCrashEvent_CrashExistsButNoSessionExists() {
         sut.captureCrash(fixture.event)
         
         assertCrashEventSent()
@@ -756,11 +756,22 @@ class SentryHubTests: XCTestCase {
     private func assertNoEnvelopesCaptured() {
         XCTAssertEqual(0, fixture.client.captureEnvelopeInvocations.count)
     }
+
+    private func assertSampler(expected: SentrySampleDecision, options: (Options) -> Void) {
+        options(fixture.options)
+
+        let hub = fixture.getSut()
+        Dynamic(hub).tracesSampler.random = fixture.random
+
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+
+        XCTAssertEqual(expected, span.context.sampled)
+    }
 }
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 extension SentryHubTests {
-    func testProfilesSampler(expected: SentrySampleDecision, options: (Options) -> Void) {
+    func assertProfilesSampler(expectedDecision: SentrySampleDecision, options: (Options) -> Void) {
         let fixtureOptions = fixture.options
         fixtureOptions.tracesSampleRate = 1.0
         options(fixtureOptions)
@@ -776,7 +787,7 @@ extension SentryHubTests {
             XCTFail("Expected to capture at least 1 event")
             return
         }
-        switch expected {
+        switch expectedDecision {
         case .undecided, .no:
             XCTAssertEqual(0, additionalEnvelopeItems.count)
         case .yes:
@@ -916,50 +927,50 @@ extension SentryHubTests {
     }
 
     func testStartTransaction_NotSamplingProfileUsingEnableProfiling() {
-        testProfilesSampler(expected: .no) { options in
+        assertProfilesSampler(expectedDecision: .no) { options in
             options.enableProfiling_DEPRECATED_TEST_ONLY = false
         }
     }
 
     func testStartTransaction_SamplingProfileUsingEnableProfiling() {
-        testProfilesSampler(expected: .yes) { options in
+        assertProfilesSampler(expectedDecision: .yes) { options in
             options.enableProfiling_DEPRECATED_TEST_ONLY = true
         }
     }
 
     func testStartTransaction_NotSamplingProfileUsingSampleRate() {
-        testProfilesSampler(expected: .no) { options in
+        assertProfilesSampler(expectedDecision: .no) { options in
             options.profilesSampleRate = 0.49
         }
     }
 
     func testStartTransaction_SamplingProfileUsingSampleRate() {
-        testProfilesSampler(expected: .yes) { options in
+        assertProfilesSampler(expectedDecision: .yes) { options in
             options.profilesSampleRate = 0.5
         }
     }
 
     func testStartTransaction_SamplingProfileUsingProfilesSampler() {
-        testProfilesSampler(expected: .yes) { options in
+        assertProfilesSampler(expectedDecision: .yes) { options in
             options.profilesSampler = { _ in return 0.51 }
         }
     }
 
     func testStartTransaction_WhenProfilesSampleRateAndProfilesSamplerNil() {
-        testProfilesSampler(expected: .no) { options in
+        assertProfilesSampler(expectedDecision: .no) { options in
             options.profilesSampleRate = nil
             options.profilesSampler = { _ in return nil }
         }
     }
 
     func testStartTransaction_WhenProfilesSamplerOutOfRange_TooBig() {
-        testProfilesSampler(expected: .no) { options in
+        assertProfilesSampler(expectedDecision: .no) { options in
             options.profilesSampler = { _ in return 1.01 }
         }
     }
 
     func testStartTransaction_WhenProfilesSamplersOutOfRange_TooSmall() {
-        testProfilesSampler(expected: .no) { options in
+        assertProfilesSampler(expectedDecision: .no) { options in
             options.profilesSampler = { _ in return -0.01 }
         }
     }
