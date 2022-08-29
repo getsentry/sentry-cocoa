@@ -756,17 +756,6 @@ class SentryHubTests: XCTestCase {
     private func assertNoEnvelopesCaptured() {
         XCTAssertEqual(0, fixture.client.captureEnvelopeInvocations.count)
     }
-    
-    func testSampler(expected: SentrySampleDecision, options: (Options) -> Void) {
-        options(fixture.options)
-        
-        let hub = fixture.getSut()
-        Dynamic(hub).tracesSampler.random = fixture.random
-        
-        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        
-        XCTAssertEqual(expected, span.context.sampled)
-    }
 }
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
