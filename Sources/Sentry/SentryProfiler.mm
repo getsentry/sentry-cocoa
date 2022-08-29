@@ -220,7 +220,7 @@ isSimulatorBuild()
     }
 }
 
-- (SentryEnvelopeItem *)buildEnvelopeItemForTransactions:(NSArray<SentryTransaction *> *)transactions
+- (SentryEnvelope *)buildEnvelopeItemForTransactions:(NSArray<SentryTransaction *> *)transactions
                                                     hub:(SentryHub *)hub
                                               frameInfo:(SentryScreenFrames *)frameInfo
 {
