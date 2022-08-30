@@ -104,7 +104,7 @@ SentrySpanContext () {
     }
 
     if (self.status != kSentrySpanStatusUndefined) {
-        [mutabledictionary setValue:SentrySpanStatusNames[self.status] forKey:@"status"];
+        [mutabledictionary setValue:spanStatusName(self.status) forKey:@"status"];
     }
 
     return mutabledictionary;

@@ -330,4 +330,25 @@ class SentrySpanTests: XCTestCase {
         group.wait()
         XCTAssertEqual(span.data!.count, outerLoop * innerLoop)
     }
+
+    func testSpanStatusNames() {
+        XCTAssertEqual(spanStatusName(.undefined), kSentrySpanStatusNameUndefined)
+        XCTAssertEqual(spanStatusName(.ok), kSentrySpanStatusNameOk)
+        XCTAssertEqual(spanStatusName(.deadlineExceeded), kSentrySpanStatusNameDeadlineExceeded)
+        XCTAssertEqual(spanStatusName(.unauthenticated), kSentrySpanStatusNameUnauthenticated)
+        XCTAssertEqual(spanStatusName(.permissionDenied), kSentrySpanStatusNamePermissionDenied)
+        XCTAssertEqual(spanStatusName(.notFound), kSentrySpanStatusNameNotFound)
+        XCTAssertEqual(spanStatusName(.resourceExhausted), kSentrySpanStatusNameResourceExhausted)
+        XCTAssertEqual(spanStatusName(.invalidArgument), kSentrySpanStatusNameInvalidArgument)
+        XCTAssertEqual(spanStatusName(.unimplemented), kSentrySpanStatusNameUnimplemented)
+        XCTAssertEqual(spanStatusName(.unavailable), kSentrySpanStatusNameUnavailable)
+        XCTAssertEqual(spanStatusName(.internalError), kSentrySpanStatusNameInternalError)
+        XCTAssertEqual(spanStatusName(.unknownError), kSentrySpanStatusNameUnknownError)
+        XCTAssertEqual(spanStatusName(.cancelled), kSentrySpanStatusNameCancelled)
+        XCTAssertEqual(spanStatusName(.alreadyExists), kSentrySpanStatusNameAlreadyExists)
+        XCTAssertEqual(spanStatusName(.failedPrecondition), kSentrySpanStatusNameFailedPrecondition)
+        XCTAssertEqual(spanStatusName(.aborted), kSentrySpanStatusNameAborted)
+        XCTAssertEqual(spanStatusName(.outOfRange), kSentrySpanStatusNameOutOfRange)
+        XCTAssertEqual(spanStatusName(.dataLoss), kSentrySpanStatusNameDataLoss)
+    }
 }
