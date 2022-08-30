@@ -1,4 +1,4 @@
-#import "SentryDiscardReasonMapper.h"
+#import "SentryDiscardReason.h"
 
 NSString *const kSentryDiscardReasonNameBeforeSend = @"before_send";
 NSString *const kSentryDiscardReasonNameEventProcessor = @"event_processor";

@@ -1,5 +1,5 @@
 #import "SentryDiscardedEvent.h"
-#import <Foundation/Foundation.h>
+#import "SentryDiscardReasonMapper.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary<NSString *, id> *)serialize
 {
     return @{
-        @"reason" : SentryDiscardReasonNames[self.reason],
+        @"reason" : discardReasonName(self.reason),
         @"category" : SentryDataCategoryNames[self.category],
         @"quantity" : @(self.quantity)
     };
