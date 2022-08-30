@@ -20,4 +20,12 @@ typedef NS_ENUM(NSUInteger, SentrySampleDecision) {
     kSentrySampleDecisionNo
 };
 
-static NSString *_Nonnull const SentrySampleDecisionNames[] = { @"undecided", @"true", @"false" };
+NS_ASSUME_NONNULL_BEGIN
+
+FOUNDATION_EXPORT NSString *const kSentrySampleDecisionNameUndecided;
+FOUNDATION_EXPORT NSString *const kSentrySampleDecisionNameYes;
+FOUNDATION_EXPORT NSString *const kSentrySampleDecisionNameNo;
+
+NSString *sampleDecisionName(SentrySampleDecision decision);
+
+NS_ASSUME_NONNULL_END

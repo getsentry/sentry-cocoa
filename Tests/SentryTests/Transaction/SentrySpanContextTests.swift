@@ -73,6 +73,12 @@ class SentrySpanContextTests: XCTestCase {
         XCTAssertNil(data["status"])
         XCTAssertNil(data["tags"])
     }
+
+    func testSamplerDecisionNames() {
+        XCTAssertEqual(kSentrySampleDecisionNameUndecided, sampleDecisionName(.undecided))
+        XCTAssertEqual(kSentrySampleDecisionNameNo, sampleDecisionName(.no))
+        XCTAssertEqual(kSentrySampleDecisionNameYes, sampleDecisionName(.yes))
+    }
     
     func testSampledNoSerialization() {
         let id = SentryId()
