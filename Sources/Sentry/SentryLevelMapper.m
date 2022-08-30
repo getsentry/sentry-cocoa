@@ -9,7 +9,8 @@ NSString *const kSentryLevelNameWarning = @"warning";
 NSString *const kSentryLevelNameError = @"error";
 NSString *const kSentryLevelNameFatal = @"fatal";
 
-SentryLevel levelWithString(NSString *string)
+SentryLevel
+levelWithString(NSString *string)
 {
     if ([string isEqualToString:kSentryLevelNameNone]) {
         return kSentryLevelNone;
@@ -34,14 +35,22 @@ SentryLevel levelWithString(NSString *string)
     return kSentryLevelError;
 }
 
-NSString *nameForLevel(SentryLevel level) {
+NSString *
+nameForLevel(SentryLevel level)
+{
     switch (level) {
-        case kSentryLevelNone: return kSentryLevelNameNone;
-        case kSentryLevelDebug: return kSentryLevelNameDebug;
-        case kSentryLevelInfo: return kSentryLevelNameInfo;
-        case kSentryLevelWarning: return kSentryLevelNameWarning;
-        case kSentryLevelError: return kSentryLevelNameError;
-        case kSentryLevelFatal: return kSentryLevelNameFatal;
+    case kSentryLevelNone:
+        return kSentryLevelNameNone;
+    case kSentryLevelDebug:
+        return kSentryLevelNameDebug;
+    case kSentryLevelInfo:
+        return kSentryLevelNameInfo;
+    case kSentryLevelWarning:
+        return kSentryLevelNameWarning;
+    case kSentryLevelError:
+        return kSentryLevelNameError;
+    case kSentryLevelFatal:
+        return kSentryLevelNameFatal;
     }
 }
 

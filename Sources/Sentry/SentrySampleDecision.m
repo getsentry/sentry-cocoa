@@ -4,10 +4,15 @@ NSString *const kSentrySampleDecisionNameUndecided = @"undecided";
 NSString *const kSentrySampleDecisionNameYes = @"true";
 NSString *const kSentrySampleDecisionNameNo = @"false";
 
-NSString *sampleDecisionName(SentrySampleDecision decision) {
+NSString *
+sampleDecisionName(SentrySampleDecision decision)
+{
     switch (decision) {
-        case kSentrySampleDecisionUndecided: return kSentrySampleDecisionNameUndecided;
-        case kSentrySampleDecisionYes: return kSentrySampleDecisionNameYes;
-        case kSentrySampleDecisionNo: return kSentrySampleDecisionNameNo;
+    case kSentrySampleDecisionUndecided:
+        return kSentrySampleDecisionNameUndecided;
+    case kSentrySampleDecisionYes:
+        return kSentrySampleDecisionNameYes;
+    case kSentrySampleDecisionNo:
+        return kSentrySampleDecisionNameNo;
     }
 }

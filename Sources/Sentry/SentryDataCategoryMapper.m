@@ -15,7 +15,9 @@ NSString *const kSentryDataCategoryNameUnknown = @"unknown";
 
 NS_ASSUME_NONNULL_BEGIN
 
-SentryDataCategory categoryForEnvelopItemType(NSString *itemType) {
+SentryDataCategory
+categoryForEnvelopItemType(NSString *itemType)
+{
     if ([itemType isEqualToString:SentryEnvelopeItemTypeEvent]) {
         return kSentryDataCategoryError;
     }
@@ -34,7 +36,9 @@ SentryDataCategory categoryForEnvelopItemType(NSString *itemType) {
     return kSentryDataCategoryDefault;
 }
 
-SentryDataCategory categoryForNSUInteger(NSUInteger value) {
+SentryDataCategory
+categoryForNSUInteger(NSUInteger value)
+{
     if (value < 0 || value > kSentryDataCategoryUnknown) {
         return kSentryDataCategoryUnknown;
     }
@@ -42,7 +46,9 @@ SentryDataCategory categoryForNSUInteger(NSUInteger value) {
     return (SentryDataCategory)value;
 }
 
-SentryDataCategory categoryForString(NSString *value) {
+SentryDataCategory
+categoryForString(NSString *value)
+{
     if ([value isEqualToString:kSentryDataCategoryNameAll]) {
         return kSentryDataCategoryAll;
     }
@@ -71,21 +77,32 @@ SentryDataCategory categoryForString(NSString *value) {
     return kSentryDataCategoryUnknown;
 }
 
-NSString *nameForCategory(SentryDataCategory category) {
+NSString *
+nameForCategory(SentryDataCategory category)
+{
     if (category < kSentryDataCategoryAll && category > kSentryDataCategoryUnknown) {
         return kSentryDataCategoryNameUnknown;
     }
 
     switch (category) {
-        case kSentryDataCategoryAll: return kSentryDataCategoryNameAll;
-        case kSentryDataCategoryDefault: return kSentryDataCategoryNameDefault;
-        case kSentryDataCategoryError: return kSentryDataCategoryNameError;
-        case kSentryDataCategorySession: return kSentryDataCategoryNameSession;
-        case kSentryDataCategoryTransaction: return kSentryDataCategoryNameTransaction;
-        case kSentryDataCategoryAttachment: return kSentryDataCategoryNameAttachment;
-        case kSentryDataCategoryUserFeedback: return kSentryDataCategoryNameUserFeedback;
-        case kSentryDataCategoryProfile: return kSentryDataCategoryNameProfile;
-        case kSentryDataCategoryUnknown: return kSentryDataCategoryNameUnknown;
+    case kSentryDataCategoryAll:
+        return kSentryDataCategoryNameAll;
+    case kSentryDataCategoryDefault:
+        return kSentryDataCategoryNameDefault;
+    case kSentryDataCategoryError:
+        return kSentryDataCategoryNameError;
+    case kSentryDataCategorySession:
+        return kSentryDataCategoryNameSession;
+    case kSentryDataCategoryTransaction:
+        return kSentryDataCategoryNameTransaction;
+    case kSentryDataCategoryAttachment:
+        return kSentryDataCategoryNameAttachment;
+    case kSentryDataCategoryUserFeedback:
+        return kSentryDataCategoryNameUserFeedback;
+    case kSentryDataCategoryProfile:
+        return kSentryDataCategoryNameProfile;
+    case kSentryDataCategoryUnknown:
+        return kSentryDataCategoryNameUnknown;
     }
 }
 

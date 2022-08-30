@@ -1,7 +1,7 @@
 #import "SentryBreadcrumb.h"
-#import "SentryLevelMapper.h"
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
+#import "SentryLevelMapper.h"
 
 @implementation SentryBreadcrumb
 

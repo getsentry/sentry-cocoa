@@ -109,7 +109,8 @@ SentryBreadcrumbTracker (Private)
     XCTAssertEqual(kSentryLevelError, levelWithString(kSentryLevelNameError));
     XCTAssertEqual(kSentryLevelFatal, levelWithString(kSentryLevelNameFatal));
 
-    XCTAssertEqual(kSentryLevelError, levelWithString(@"fdjsafdsa"), @"Failed to map an unexpected string value to the default case.");
+    XCTAssertEqual(kSentryLevelError, levelWithString(@"fdjsafdsa"),
+        @"Failed to map an unexpected string value to the default case.");
 
     XCTAssertEqualObjects(kSentryLevelNameNone, nameForLevel(kSentryLevelNone));
     XCTAssertEqualObjects(kSentryLevelNameDebug, nameForLevel(kSentryLevelDebug));

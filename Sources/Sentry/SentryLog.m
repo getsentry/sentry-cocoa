@@ -1,5 +1,5 @@
-#import "SentryLevelMapper.h"
 #import "SentryLog.h"
+#import "SentryLevelMapper.h"
 #import "SentryLogOutput.h"
 
 NS_ASSUME_NONNULL_BEGIN

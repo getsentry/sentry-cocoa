@@ -1,5 +1,5 @@
-#import "SentryDataCategoryMapper.h"
 #import "SentryDiscardedEvent.h"
+#import "SentryDataCategoryMapper.h"
 #import "SentryDiscardReasonMapper.h"
 
 NS_ASSUME_NONNULL_BEGIN

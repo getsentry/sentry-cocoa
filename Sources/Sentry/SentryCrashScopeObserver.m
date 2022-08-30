@@ -1,10 +1,10 @@
+#import "SentryLevelMapper.h"
 #import <Foundation/Foundation.h>
 #import <NSData+Sentry.h>
 #import <SentryBreadcrumb.h>
 #import <SentryCrashJSONCodec.h>
 #import <SentryCrashJSONCodecObjC.h>
 #import <SentryCrashScopeObserver.h>
-#import "SentryLevelMapper.h"
 #import <SentryLog.h>
 #import <SentryScopeSyncC.h>
 #import <SentryUser.h>
