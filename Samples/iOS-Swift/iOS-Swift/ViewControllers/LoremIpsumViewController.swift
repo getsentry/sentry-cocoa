@@ -18,5 +18,19 @@ class LoremIpsumViewController: UIViewController {
                 }
             }
         }
+        
+        delay(timeout: 0.1)
+    }
+    
+    func delay(timeout: Double = 0.2) {
+        let group = DispatchGroup()
+        group.enter()
+        let queue = DispatchQueue(label: "delay", qos: .background, attributes: [])
+        
+        queue.asyncAfter(deadline: .now() + timeout) {
+            group.leave()
+        }
+        
+        group.wait()
     }
 }
