@@ -1,5 +1,6 @@
 #import "NSDate+SentryExtras.h"
 #import "SentryBreadcrumbTracker.h"
+#import "SentryLevelMapper.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentrySDK+Private.h"
@@ -99,12 +100,21 @@ SentryBreadcrumbTracker (Private)
 
 - (void)testLevelNames
 {
-    XCTAssertEqualObjects(@"none", SentryLevelNames[kSentryLevelNone]);
-    XCTAssertEqualObjects(@"debug", SentryLevelNames[kSentryLevelDebug]);
-    XCTAssertEqualObjects(@"info", SentryLevelNames[kSentryLevelInfo]);
-    XCTAssertEqualObjects(@"warning", SentryLevelNames[kSentryLevelWarning]);
-    XCTAssertEqualObjects(@"error", SentryLevelNames[kSentryLevelError]);
-    XCTAssertEqualObjects(@"fatal", SentryLevelNames[kSentryLevelFatal]);
+    XCTAssertEqual(kSentryLevelNone, levelWithString(kSentryLevelNameNone));
+    XCTAssertEqual(kSentryLevelDebug, levelWithString(kSentryLevelNameDebug));
+    XCTAssertEqual(kSentryLevelInfo, levelWithString(kSentryLevelNameInfo));
+    XCTAssertEqual(kSentryLevelWarning, levelWithString(kSentryLevelNameWarning));
+    XCTAssertEqual(kSentryLevelError, levelWithString(kSentryLevelNameError));
+    XCTAssertEqual(kSentryLevelFatal, levelWithString(kSentryLevelNameFatal));
+
+    XCTAssertEqual(kSentryLevelError, levelWithString(@"fdjsafdsa"), @"Failed to map an unexpected string value to the default case.");
+
+    XCTAssertEqualObjects(kSentryLevelNameNone, nameForLevel(kSentryLevelNone));
+    XCTAssertEqualObjects(kSentryLevelNameDebug, nameForLevel(kSentryLevelDebug));
+    XCTAssertEqualObjects(kSentryLevelNameInfo, nameForLevel(kSentryLevelInfo));
+    XCTAssertEqualObjects(kSentryLevelNameWarning, nameForLevel(kSentryLevelWarning));
+    XCTAssertEqualObjects(kSentryLevelNameError, nameForLevel(kSentryLevelError));
+    XCTAssertEqualObjects(kSentryLevelNameFatal, nameForLevel(kSentryLevelFatal));
 }
 
 - (void)testLevelOrder

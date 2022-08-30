@@ -1,4 +1,5 @@
 #import "SentryBreadcrumb.h"
+#import "SentryLevelMapper.h"
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
 
@@ -24,7 +25,7 @@
 {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
-    [serializedData setValue:SentryLevelNames[self.level] forKey:@"level"];
+    [serializedData setValue:nameForLevel(self.level) forKey:@"level"];
     [serializedData setValue:[self.timestamp sentry_toIso8601String] forKey:@"timestamp"];
     [serializedData setValue:self.category forKey:@"category"];
     [serializedData setValue:self.type forKey:@"type"];

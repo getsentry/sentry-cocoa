@@ -115,18 +115,6 @@ typedef NS_ENUM(NSInteger, SentryPermissionStatus) {
     kSentryPermissionStatusDenied
 };
 
-/**
- * Static internal helper to convert enum to string
- */
-static NSString *_Nonnull const SentryLevelNames[] = {
-    @"none",
-    @"debug",
-    @"info",
-    @"warning",
-    @"error",
-    @"fatal",
-};
-
 static NSUInteger const defaultMaxBreadcrumbs = 100;
 
 /**

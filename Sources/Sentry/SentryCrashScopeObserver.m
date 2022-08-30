@@ -4,6 +4,7 @@
 #import <SentryCrashJSONCodec.h>
 #import <SentryCrashJSONCodecObjC.h>
 #import <SentryCrashScopeObserver.h>
+#import "SentryLevelMapper.h"
 #import <SentryLog.h>
 #import <SentryScopeSyncC.h>
 #import <SentryUser.h>
@@ -83,7 +84,7 @@ SentryCrashScopeObserver ()
         return;
     }
 
-    NSString *levelAsString = SentryLevelNames[level];
+    NSString *levelAsString = nameForLevel(level);
     NSData *json = [self toJSONEncodedCString:levelAsString];
 
     sentrycrash_scopesync_setLevel([json bytes]);

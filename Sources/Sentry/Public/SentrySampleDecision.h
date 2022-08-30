@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+
 /**
  * Trace sample decision flag.
  */
