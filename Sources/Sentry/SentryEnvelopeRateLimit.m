@@ -55,7 +55,7 @@ SentryEnvelopeRateLimit ()
 
     for (SentryEnvelopeItem *item in items) {
         SentryDataCategory rateLimitCategory =
-            [SentryDataCategoryMapper mapEnvelopeItemTypeToCategory:item.header.type];
+            categoryForEnvelopItemType(item.header.type);
         if ([self.rateLimits isRateLimitActive:rateLimitCategory]) {
             [itemsToDrop addObject:item];
             [self.delegate envelopeItemDropped:rateLimitCategory];

@@ -1,3 +1,4 @@
+#import "SentryDataCategoryMapper.h"
 #import "SentryDiscardedEvent.h"
 #import "SentryDiscardReasonMapper.h"
 
@@ -21,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     return @{
         @"reason" : discardReasonName(self.reason),
-        @"category" : SentryDataCategoryNames[self.category],
+        @"category" : nameForCategory(self.category),
         @"quantity" : @(self.quantity)
     };
 }
