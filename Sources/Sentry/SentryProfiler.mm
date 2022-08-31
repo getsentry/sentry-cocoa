@@ -60,6 +60,14 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     return [symbolNSStr substringWithRange:[match rangeAtIndex:1]];
 }
 
+NSString *profilerStopReasonName(SentryProfilerStopReason reason) {
+    switch (reason) {
+        case SentryProfilerStopReasonNormal: return @"normal";
+        case SentryProfilerStopReasonAppMovedToBackground: return @"backgrounded";
+        case SentryProfilerStopReasonTimeout: return @"timeout";
+    }
+}
+
 namespace {
 NSString *
 getDeviceModel()
@@ -223,6 +231,7 @@ isSimulatorBuild()
 - (SentryEnvelope *)buildEnvelopeItemForTransactions:(NSArray<SentryTransaction *> *)transactions
                                                  hub:(SentryHub *)hub
                                            frameInfo:(SentryScreenFrames *)frameInfo
+stopReason:(SentryProfilerStopReason)stopReason
 {
     NSParameterAssert(transactions.count > 0);
     NSMutableDictionary<NSString *, id> *profile = nil;
@@ -259,7 +268,10 @@ isSimulatorBuild()
         [@(NSProcessInfo.processInfo.physicalMemory) stringValue];
     const auto profileID = [[SentryId alloc] init];
     profile[@"profile_id"] = profileID.sentryIdString;
-    profile[@"duration_ns"] = [@(getDurationNs(_startTimestamp, getAbsoluteTime())) stringValue];
+    const auto profileEnd = getAbsoluteTime();
+    const auto profileDuration = getDurationNs(_startTimestamp, profileEnd);
+    profile[@"duration_ns"] = [@(profileDuration) stringValue];
+    profile[@"truncation_reason"] = profilerStopReasonName(stopReason);
 
     const auto bundle = NSBundle.mainBundle;
     profile[@"version_code"] = [bundle objectForInfoDictionaryKey:(NSString *)kCFBundleVersionKey];
@@ -274,9 +286,13 @@ isSimulatorBuild()
             return;
         }
         const auto end = (uint64_t)(obj[@"end_timestamp"].doubleValue * 1e9);
+        const auto relativeEnd = getDurationNs(_startTimestamp, end);
+        if (relativeEnd > profileDuration) {
+            return;
+        }
         [relativeFrameTimestampsNs addObject:@{
             @"start_timestamp_relative_ns" : @(getDurationNs(_startTimestamp, begin)),
-            @"end_timestamp_relative_ns" : @(getDurationNs(_startTimestamp, end)),
+            @"end_timestamp_relative_ns" : @(relativeEnd),
         }];
     }];
     profile[@"adverse_frame_render_timestamps"] = relativeFrameTimestampsNs;

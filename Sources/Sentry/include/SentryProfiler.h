@@ -8,6 +8,12 @@
 @class SentryHub;
 @class SentryScreenFrames;
 
+typedef NS_ENUM(NSUInteger, SentryProfilerStopReason) {
+    SentryProfilerStopReasonNormal,
+    SentryProfilerStopReasonTimeout,
+    SentryProfilerStopReasonAppMovedToBackground,
+};
+
 NS_ASSUME_NONNULL_BEGIN
 
 SENTRY_EXTERN_C_BEGIN
@@ -23,6 +29,8 @@ SENTRY_EXTERN_C_BEGIN
  * If the format does not match the expected format, this returns the input string.
  */
 NSString *parseBacktraceSymbolsFunctionName(const char *symbol);
+
+NSString *profilerStopReasonName(SentryProfilerStopReason reason);
 
 SENTRY_EXTERN_C_END
 
@@ -46,7 +54,8 @@ SENTRY_EXTERN_C_END
 - (nullable SentryEnvelope *)
     buildEnvelopeItemForTransactions:(NSArray<SentryTransaction *> *)transactions
                                  hub:(SentryHub *)hub
-                           frameInfo:(nullable SentryScreenFrames *)frameInfo;
+                           frameInfo:(nullable SentryScreenFrames *)frameInfo
+stopReason:(SentryProfilerStopReason)stopReason;
 
 @end
 
