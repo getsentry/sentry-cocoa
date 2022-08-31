@@ -339,7 +339,8 @@ static NSMutableArray<SentryTransaction *> *_gProfiledTransactions;
 #endif
 }
 
-- (void)setSystemStartTime:(uint64_t)systemStartTime {
+- (void)setSystemStartTime:(uint64_t)systemStartTime
+{
     self.rootSpan.systemStartTime = systemStartTime;
 }
 
@@ -534,18 +535,16 @@ static NSMutableArray<SentryTransaction *> *_gProfiledTransactions;
     if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
         [profilerLock lock];
         if (profiler != nil) {
-            profileEnvelope =
-                [profiler buildEnvelopeItemForTransactions:_gProfiledTransactions
-                                                                                hub:_hub
-                                                                           frameInfo:frameInfo];
+            profileEnvelope = [profiler buildEnvelopeItemForTransactions:_gProfiledTransactions
+                                                                     hub:_hub
+                                                               frameInfo:frameInfo];
             profiler = nil;
         }
         [profilerLock unlock];
     }
 #endif
 
-    [_hub captureTransaction:transaction
-                      withScope:_hub.scope];
+    [_hub captureTransaction:transaction withScope:_hub.scope];
     [_hub.client captureEnvelope:profileEnvelope];
 }
 
@@ -664,7 +663,8 @@ static NSMutableArray<SentryTransaction *> *_gProfiledTransactions;
 
     NSDate *appStartEndTimestamp = [appStartMeasurement.appStartTimestamp
         dateByAddingTimeInterval:appStartMeasurement.duration];
-    uint64_t appStartEndSystemTime = appStartMeasurement.appStartSystemTime + (uint64_t)(appStartMeasurement.duration * (NSTimeInterval)1e9);
+    uint64_t appStartEndSystemTime = appStartMeasurement.appStartSystemTime
+        + (uint64_t)(appStartMeasurement.duration * (NSTimeInterval)1e9);
 
     SentrySpan *appStartSpan = [self buildSpan:_rootSpan.context.spanId
                                      operation:operation

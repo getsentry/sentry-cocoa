@@ -221,8 +221,8 @@ isSimulatorBuild()
 }
 
 - (SentryEnvelope *)buildEnvelopeItemForTransactions:(NSArray<SentryTransaction *> *)transactions
-                                                    hub:(SentryHub *)hub
-                                              frameInfo:(SentryScreenFrames *)frameInfo
+                                                 hub:(SentryHub *)hub
+                                           frameInfo:(SentryScreenFrames *)frameInfo
 {
     NSParameterAssert(transactions.count > 0);
     NSMutableDictionary<NSString *, id> *profile = nil;
