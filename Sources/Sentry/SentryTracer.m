@@ -15,6 +15,7 @@
 #import "SentrySpan.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
+#import "SentryTime.h"
 #import "SentryTraceContext.h"
 #import "SentryTransaction+Private.h"
 #import "SentryTransaction.h"
@@ -305,6 +306,11 @@ static NSMutableArray<SentryTransaction *> *_gProfiledTransactions;
     self.rootSpan.timestamp = timestamp;
 }
 
+- (void)setSystemEndTime:(uint64_t)systemEndTime
+{
+    self.rootSpan.systemEndTime = systemEndTime;
+}
+
 - (nullable NSDate *)startTimestamp
 {
     return self.rootSpan.startTimestamp;
@@ -331,6 +337,10 @@ static NSMutableArray<SentryTransaction *> *_gProfiledTransactions;
 #if SENTRY_HAS_UIKIT
     _startTimeChanged = YES;
 #endif
+}
+
+- (void)setSystemStartTime:(uint64_t)systemStartTime {
+    self.rootSpan.systemStartTime = systemStartTime;
 }
 
 - (nullable NSDictionary<NSString *, id> *)data
@@ -495,6 +505,7 @@ static NSMutableArray<SentryTransaction *> *_gProfiledTransactions;
                 // Unfinished children should have the same
                 // end timestamp as their parent transaction
                 span.timestamp = self.timestamp;
+                span.systemEndTime = self.systemEndTime;
             }
         }
 
@@ -541,15 +552,18 @@ static NSMutableArray<SentryTransaction *> *_gProfiledTransactions;
 - (void)trimEndTimestamp
 {
     NSDate *oldest = self.startTimestamp;
+    uint64_t oldestSystemTime = self.systemStartTime;
 
     for (id<SentrySpan> childSpan in _children) {
         if ([oldest compare:childSpan.timestamp] == NSOrderedAscending) {
             oldest = childSpan.timestamp;
+            oldestSystemTime = childSpan.systemEndTime;
         }
     }
 
     if (oldest) {
         self.timestamp = oldest;
+        self.systemEndTime = oldestSystemTime;
     }
 }
 
@@ -567,6 +581,7 @@ static NSMutableArray<SentryTransaction *> *_gProfiledTransactions;
 
     if (appStartMeasurement != nil) {
         [self setStartTimestamp:appStartMeasurement.appStartTimestamp];
+        [self setSystemStartTime:appStartMeasurement.appStartSystemTime];
     }
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
@@ -649,37 +664,48 @@ static NSMutableArray<SentryTransaction *> *_gProfiledTransactions;
 
     NSDate *appStartEndTimestamp = [appStartMeasurement.appStartTimestamp
         dateByAddingTimeInterval:appStartMeasurement.duration];
+    uint64_t appStartEndSystemTime = appStartMeasurement.appStartSystemTime + (uint64_t)(appStartMeasurement.duration * (NSTimeInterval)1e9);
 
     SentrySpan *appStartSpan = [self buildSpan:_rootSpan.context.spanId
                                      operation:operation
                                    description:type];
     [appStartSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
+    [appStartSpan setSystemStartTime:appStartMeasurement.appStartSystemTime];
 
     SentrySpan *premainSpan = [self buildSpan:appStartSpan.context.spanId
                                     operation:operation
                                   description:@"Pre Runtime Init"];
     [premainSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
     [premainSpan setTimestamp:appStartMeasurement.runtimeInitTimestamp];
+    [premainSpan setSystemStartTime:appStartMeasurement.appStartSystemTime];
+    [premainSpan setSystemEndTime:appStartMeasurement.runtimeInitSystemTime];
 
     SentrySpan *runtimeInitSpan = [self buildSpan:appStartSpan.context.spanId
                                         operation:operation
                                       description:@"Runtime Init to Pre Main Initializers"];
     [runtimeInitSpan setStartTimestamp:appStartMeasurement.runtimeInitTimestamp];
     [runtimeInitSpan setTimestamp:appStartMeasurement.moduleInitializationTimestamp];
+    [runtimeInitSpan setSystemStartTime:appStartMeasurement.runtimeInitSystemTime];
+    [runtimeInitSpan setSystemEndTime:appStartMeasurement.moduleInitializationSystemTime];
 
     SentrySpan *appInitSpan = [self buildSpan:appStartSpan.context.spanId
                                     operation:operation
                                   description:@"UIKit and Application Init"];
     [appInitSpan setStartTimestamp:appStartMeasurement.moduleInitializationTimestamp];
     [appInitSpan setTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
+    [appInitSpan setSystemStartTime:appStartMeasurement.moduleInitializationSystemTime];
+    [appInitSpan setSystemEndTime:appStartMeasurement.didFinishLaunchingSystemTime];
 
     SentrySpan *frameRenderSpan = [self buildSpan:appStartSpan.context.spanId
                                         operation:operation
                                       description:@"Initial Frame Render"];
     [frameRenderSpan setStartTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
     [frameRenderSpan setTimestamp:appStartEndTimestamp];
+    [frameRenderSpan setSystemStartTime:appStartMeasurement.didFinishLaunchingSystemTime];
+    [frameRenderSpan setSystemEndTime:appStartEndSystemTime];
 
     [appStartSpan setTimestamp:appStartEndTimestamp];
+    [appStartSpan setSystemEndTime:appStartEndSystemTime];
 
     return @[ appStartSpan, premainSpan, runtimeInitSpan, appInitSpan, frameRenderSpan ];
 }

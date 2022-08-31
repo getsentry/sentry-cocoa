@@ -307,8 +307,8 @@ isSimulatorBuild()
             @"id" : transaction.eventId.sentryIdString,
             @"trace_id" : transaction.trace.context.traceId.sentryIdString,
             @"name" : transaction.transaction,
-            @"relative_start_ns" : transaction.startTimestamp,
-            @"relative_end_ns" : @"" // TODO: how to compute this? transactions use NSDate, we use mach_absolute_time
+            @"relative_start_ns" : @(getDurationNs(_startTimestamp, transaction.systemStartTime)),
+            @"relative_end_ns" : @(getDurationNs(_startTimestamp, transaction.systemEndTime))
         }];
     }
     profile[@"transactions"] = transactionsInfo;
