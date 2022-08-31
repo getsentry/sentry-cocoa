@@ -30,7 +30,7 @@ class SplitRootViewController: UIViewController {
     }
     
     @IBAction func showSecondary() {
-            splitViewController?.showDetailViewController(SecondarySplitViewController(), sender: nil)
+        splitViewController?.showDetailViewController(SecondarySplitViewController(), sender: nil)
     }
 }
 
@@ -43,9 +43,8 @@ class SecondarySplitViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = UIColor.white
         
-        assertView = AssertView()
+        assertView = AssertView().forAutoLayout()
         assertView.autoHide = false
-        assertView.translatesAutoresizingMaskIntoConstraints = false
         
         view.addSubview(assertView)
         

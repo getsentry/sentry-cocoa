@@ -1,6 +1,7 @@
 #import "SentryTransaction.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryEnvelopeItemType.h"
+#import "SentryTransactionContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -83,7 +84,32 @@ SentryTransaction ()
         serializedData[@"measurements"] = [self.measurements.copy sentry_sanitize];
     }
 
+    if (self.trace) {
+        [serializedData setValue:self.trace.transactionContext.name forKey:@"transaction"];
+
+        serializedData[@"transaction_info"] =
+            @{ @"source" : [self stringForNameSource:self.trace.transactionContext.nameSource] };
+    }
+
     return serializedData;
+}
+
+- (NSString *)stringForNameSource:(SentryTransactionNameSource)source
+{
+    switch (source) {
+    case kSentryTransactionNameSourceCustom:
+        return @"custom";
+    case kSentryTransactionNameSourceUrl:
+        return @"url";
+    case kSentryTransactionNameSourceRoute:
+        return @"route";
+    case kSentryTransactionNameSourceView:
+        return @"view";
+    case kSentryTransactionNameSourceComponent:
+        return @"component";
+    case kSentryTransactionNameSourceTask:
+        return @"task";
+    }
 }
 @end
 

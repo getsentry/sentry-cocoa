@@ -11,7 +11,6 @@ SentryOptions ()
 
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultSampleRate;
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultTracesSampleRate;
-@property (nonatomic, strong) NSMutableSet<NSString *> *disabledIntegrations;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultProfilesSampleRate;
 @property (nonatomic, assign) BOOL enableProfiling_DEPRECATED_TEST_ONLY;
@@ -26,7 +25,7 @@ SentryOptions ()
         @"SentryCrashIntegration",
 #if SENTRY_HAS_UIKIT
         @"SentryANRTrackingIntegration", @"SentryScreenshotIntegration",
-        @"SentryUIEventTrackingIntegration",
+        @"SentryUIEventTrackingIntegration", @"SentryViewHierarchyIntegration",
 #endif
         @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
         @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
@@ -40,12 +39,12 @@ SentryOptions ()
 {
     if (self = [super init]) {
         self.enabled = YES;
+        self.enableCrashHandler = YES;
         self.diagnosticLevel = kSentryLevelDebug;
         self.debug = NO;
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
         self.maxCacheItems = 30;
-        self.integrations = SentryOptions.defaultIntegrations;
-        self.disabledIntegrations = [NSMutableSet new];
+        _integrations = SentryOptions.defaultIntegrations;
         _defaultSampleRate = @1;
         self.sampleRate = _defaultSampleRate;
         self.enableAutoSessionTracking = YES;
@@ -59,6 +58,7 @@ SentryOptions ()
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracking = YES;
         self.attachScreenshot = NO;
+        self.attachViewHierarchy = NO;
         self.enableUserInteractionTracing = NO;
         self.idleTimeout = 3.0;
 #endif
@@ -125,6 +125,15 @@ SentryOptions ()
     return self;
 }
 
+- (void)setIntegrations:(NSArray<NSString *> *)integrations
+{
+    [SentryLog logWithMessage:
+                   @"Setting `SentryOptions.integrations` is deprecated. Integrations should be "
+                   @"enabled or disabled using their respective `SentryOptions.enable*` property."
+                     andLevel:kSentryLevelWarning];
+    _integrations = integrations;
+}
+
 - (void)setDsn:(NSString *)dsn
 {
     NSError *error = nil;
@@ -178,6 +187,9 @@ SentryOptions ()
     }
 
     [self setBool:options[@"enabled"] block:^(BOOL value) { self->_enabled = value; }];
+
+    [self setBool:options[@"enableCrashHandler"]
+            block:^(BOOL value) { self->_enableCrashHandler = value; }];
 
     if ([options[@"maxBreadcrumbs"] isKindOfClass:[NSNumber class]]) {
         self.maxBreadcrumbs = [options[@"maxBreadcrumbs"] unsignedIntValue];
@@ -243,6 +255,9 @@ SentryOptions ()
 
     [self setBool:options[@"attachScreenshot"]
             block:^(BOOL value) { self->_attachScreenshot = value; }];
+
+    [self setBool:options[@"attachViewHierarchy"]
+            block:^(BOOL value) { self->_attachViewHierarchy = value; }];
 
     [self setBool:options[@"enableUserInteractionTracing"]
             block:^(BOOL value) { self->_enableUserInteractionTracing = value; }];
@@ -450,21 +465,6 @@ SentryOptions ()
     });
 
     return [block isKindOfClass:blockClass];
-}
-
-- (NSSet<NSString *> *)enabledIntegrations
-{
-    NSMutableSet<NSString *> *enabledIntegrations =
-        [[NSMutableSet alloc] initWithArray:self.integrations];
-    for (NSString *integration in self.disabledIntegrations) {
-        [enabledIntegrations removeObject:integration];
-    }
-    return enabledIntegrations;
-}
-
-- (void)removeEnabledIntegration:(NSString *)integration
-{
-    [self.disabledIntegrations addObject:integration];
 }
 
 @end

@@ -111,8 +111,19 @@ SentryNetworkTracker ()
 
         // We only create a span if there is a transaction in the scope,
         // otherwise we have nothing else to do here.
-        if (netSpan == nil)
+        if (netSpan == nil) {
+            [SentryLog
+                logWithMessage:@"No transaction bound to scope. Won't track network operation."
+                      andLevel:kSentryLevelDebug];
+
             return;
+        }
+
+        [SentryLog
+            logWithMessage:[NSString stringWithFormat:@"SentryNetworkTracker automatically "
+                                                      @"started HTTP span for sessionTask: %@",
+                                     netSpan.description]
+                  andLevel:kSentryLevelDebug];
 
         objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN, netSpan,
             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -135,13 +146,15 @@ SentryNetworkTracker ()
 
     NSURL *url = [[sessionTask currentRequest] URL];
 
-    if (url == nil)
+    if (url == nil) {
         return;
+    }
 
     // Don't measure requests to Sentry's backend
     NSURL *apiUrl = [NSURL URLWithString:SentrySDK.options.dsn];
-    if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path])
+    if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path]) {
         return;
+    }
 
     id<SentrySpan> netSpan;
     @synchronized(sessionTask) {
@@ -175,7 +188,8 @@ SentryNetworkTracker ()
     [netSpan setDataValue:@"fetch" forKey:@"type"];
 
     [netSpan finishWithStatus:[self statusForSessionTask:sessionTask state:newState]];
-    [SentryLog logWithMessage:@"Finished HTTP span for sessionTask" andLevel:kSentryLevelDebug];
+    [SentryLog logWithMessage:@"SentryNetworkTracker finished HTTP span for sessionTask"
+                     andLevel:kSentryLevelDebug];
 }
 
 - (void)addBreadcrumbForSessionTask:(NSURLSessionTask *)sessionTask

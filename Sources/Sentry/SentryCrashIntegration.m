@@ -60,8 +60,12 @@ SentryCrashIntegration ()
     return self;
 }
 
-- (void)installWithOptions:(nonnull SentryOptions *)options
+- (BOOL)installWithOptions:(nonnull SentryOptions *)options
 {
+    if (![super installWithOptions:options]) {
+        return NO;
+    }
+
     self.options = options;
 
     SentryAppStateManager *appStateManager =
@@ -84,6 +88,13 @@ SentryCrashIntegration ()
     }
 
     [self configureScope];
+
+    return YES;
+}
+
+- (SentryIntegrationOption)integrationOptions
+{
+    return kIntegrationOptionEnableCrashHandler;
 }
 
 - (void)startCrashHandler
@@ -146,28 +157,24 @@ SentryCrashIntegration ()
 {
     // We need to make sure to set always the scope to KSCrash so we have it in
     // case of a crash
-    NSString *integrationName = NSStringFromClass(SentryCrashIntegration.class);
-    if (nil != [SentrySDK.currentHub getIntegration:integrationName]) {
+    [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
+        [SentryCrashIntegration enrichScope:outerScope crashWrapper:self.crashAdapter];
 
-        [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
-            [SentryCrashIntegration enrichScope:outerScope crashWrapper:self.crashAdapter];
+        NSMutableDictionary<NSString *, id> *userInfo =
+            [[NSMutableDictionary alloc] initWithDictionary:[outerScope serialize]];
+        // SentryCrashReportConverter.convertReportToEvent needs the release name and
+        // the dist of the SentryOptions in the UserInfo. When SentryCrash records a
+        // crash it writes the UserInfo into SentryCrashField_User of the report.
+        // SentryCrashReportConverter.initWithReport loads the contents of
+        // SentryCrashField_User into self.userContext and convertReportToEvent can map
+        // the release name and dist to the SentryEvent. Fixes GH-581
+        userInfo[@"release"] = self.options.releaseName;
+        userInfo[@"dist"] = self.options.dist;
 
-            NSMutableDictionary<NSString *, id> *userInfo =
-                [[NSMutableDictionary alloc] initWithDictionary:[outerScope serialize]];
-            // SentryCrashReportConverter.convertReportToEvent needs the release name and
-            // the dist of the SentryOptions in the UserInfo. When SentryCrash records a
-            // crash it writes the UserInfo into SentryCrashField_User of the report.
-            // SentryCrashReportConverter.initWithReport loads the contents of
-            // SentryCrashField_User into self.userContext and convertReportToEvent can map
-            // the release name and dist to the SentryEvent. Fixes GH-581
-            userInfo[@"release"] = self.options.releaseName;
-            userInfo[@"dist"] = self.options.dist;
+        [SentryCrash.sharedInstance setUserInfo:userInfo];
 
-            [SentryCrash.sharedInstance setUserInfo:userInfo];
-
-            [outerScope addObserver:self.scopeObserver];
-        }];
-    }
+        [outerScope addObserver:self.scopeObserver];
+    }];
 
     [NSNotificationCenter.defaultCenter addObserver:self
                                            selector:@selector(currentLocaleDidChange)
@@ -243,7 +250,6 @@ SentryCrashIntegration ()
     [deviceData setValue:systemInfo[@"memorySize"] forKey:@"memory_size"];
     [deviceData setValue:systemInfo[@"storageSize"] forKey:@"storage_size"];
     [deviceData setValue:systemInfo[@"bootTime"] forKey:@"boot_time"];
-    [deviceData setValue:systemInfo[@"timezone"] forKey:@"timezone"];
 
     NSString *locale = [[NSLocale autoupdatingCurrentLocale] objectForKey:NSLocaleIdentifier];
     [deviceData setValue:locale forKey:LOCALE_KEY];

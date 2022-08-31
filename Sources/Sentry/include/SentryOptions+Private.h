@@ -18,10 +18,6 @@ SentryOptions (Private)
 
 - (BOOL)isValidProfilesSampleRate:(NSNumber *)profilesSampleRate;
 
-@property (nonatomic, strong, readonly) NSSet<NSString *> *enabledIntegrations;
-
-- (void)removeEnabledIntegration:(NSString *)integration;
-
 @end
 
 NS_ASSUME_NONNULL_END

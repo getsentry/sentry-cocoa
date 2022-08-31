@@ -1,4 +1,5 @@
 #import "SentryBreadcrumb.h"
+#import "SentryClient+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryScope.h"
 #import "SentryUser.h"
@@ -148,7 +149,7 @@
 - (void)testEnvironmentSerializes
 {
     SentryScope *scope = [[SentryScope alloc] init];
-    NSString *expectedEnvironment = @"production";
+    NSString *expectedEnvironment = kSentryDefaultEnvironment;
     [scope setEnvironment:expectedEnvironment];
     XCTAssertEqualObjects([[scope serialize] objectForKey:@"environment"], expectedEnvironment);
 }

@@ -13,6 +13,9 @@ on:
       - 'Samples/**'
       - '.github/workflows/test.yml'
       - 'fastlane/**'
+      - 'scripts/tests-with-thread-sanitizer.sh'
+      - 'scripts/ci-select-xcode.sh'
+      - 'scripts/xcode-test.sh'
 
 jobs:
   unit-tests:
@@ -60,17 +63,21 @@ jobs:
       # macos-10.15. For now, disable the tests on iOS 12 requiring the test server in
       # xcode-test.sh
       - name: Cache for Test Server
-        if: ${{ matrix.runs-on == 'macos-11'}}  
+        id: cache_test_server
+        if: matrix.runs-on == 'macos-11'
         uses: actions/cache@v3
         with:
           path: ./test-server/.build
-          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}-Xcode-${{matrix.xcode}}
+
+      - name: Build Test Server
+        if: steps.cache_test_server.outputs.cache-hit != 'true' && matrix.runs-on == 'macos-11'
+        run: swift build
+        working-directory: test-server
 
       - name: Run Test Server in Background
-        if: ${{ matrix.runs-on == 'macos-11'}}  
-        run: | 
-          swift build
-          swift run &
+        if: matrix.runs-on == 'macos-11'
+        run: swift run &
         working-directory: test-server
 
       # Select Xcode after starting server, because the server needs Xcode 13
@@ -98,7 +105,7 @@ jobs:
         # passed to xcodebuild doesn't ends up in the job name, 
         # because GitHub Actions don't provide an easy way of 
         # manipulating string in expressions.  
-        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME
+        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} ${{matrix.xcode}} $GITHUB_REF_NAME
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@v3
@@ -140,11 +147,13 @@ jobs:
 
       - name: Cache for Test Server
         uses: actions/cache@v3
+        id: cache_test_server
         with:
           path: ./test-server/.build
           key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
 
       - run: swift build
+        if: steps.cache_test_server.outputs.cache-hit != 'true'
         working-directory: test-server
 
       - name: Run Test Server in Background

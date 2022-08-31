@@ -10,6 +10,7 @@
 #import "SentrySession.h"
 #import "SentrySpan.h"
 #import "SentryTracer.h"
+#import "SentryTransactionContext.h"
 #import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -528,7 +529,7 @@ SentryScope ()
         if (span != nil) {
             if (![event.type isEqualToString:SentryEnvelopeItemTypeTransaction] &&
                 [span isKindOfClass:[SentryTracer class]]) {
-                event.transaction = [(SentryTracer *)span name];
+                event.transaction = [[(SentryTracer *)span transactionContext] name];
             }
             newContext[@"trace"] = [span.context serialize];
         }

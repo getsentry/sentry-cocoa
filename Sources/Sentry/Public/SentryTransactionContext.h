@@ -13,6 +13,7 @@ SENTRY_NO_INIT
  * Transaction name
  */
 @property (nonatomic, readonly) NSString *name;
+@property (nonatomic, readonly) SentryTransactionNameSource nameSource;
 
 /**
  * Parent sampled

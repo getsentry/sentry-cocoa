@@ -6,6 +6,7 @@ excluded:
   - Sources/SentryCrash
   - vendor
   - test-server/.build/
+  - Tests/Perf
 
 only_rules:
   #- attributes

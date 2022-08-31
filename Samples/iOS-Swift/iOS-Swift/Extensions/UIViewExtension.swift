@@ -2,7 +2,6 @@ import Foundation
 import UIKit
 
 extension UIView {
-    
     var safeOrMarginGuide: UILayoutGuide {
         var guide: UILayoutGuide!
         
@@ -14,5 +13,11 @@ extension UIView {
         
         return guide
     }
-    
+
+    /// A shortcut to disable `translatesAutoresizingMaskIntoConstraints`
+    /// - Returns: self
+    func forAutoLayout() -> Self {
+        translatesAutoresizingMaskIntoConstraints = false
+        return self
+    }
 }

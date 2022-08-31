@@ -10,13 +10,13 @@ class SentryFrameRemoverTests: XCTestCase {
         }
         
         var sentryFrame: Frame {
-            return frame(withPackage: "/private/var/containers/Bundle/Application/A722B503-2FA1-4C32-B5A7-E6FB47099C9D/iOS-Swift.app/Frameworks/Sentry.framework/Sentry")
+            return frame(withPackage: "/Users/sentry/private/var/containers/Bundle/Application/A722B503-2FA1-4C32-B5A7-E6FB47099C9D/iOS-Swift.app/Frameworks/Sentry.framework/Sentry")
         }
         
         var nonSentryFrame: Frame {
-            return frame(withPackage: "/private/var/containers/Bundle/Application/F42DD392-77D6-42B4-8092-D1AAE50C5B4B/iOS-Swift.app/iOS-Swift")
+            return frame(withPackage: "/Users/sentry/private/var/containers/Bundle/Application/F42DD392-77D6-42B4-8092-D1AAE50C5B4B/iOS-Swift.app/iOS-Swift")
         }
-        
+
         var sentryFrames: [Frame] {
             var frames: [Frame] = []
             (0...7).forEach { _ in frames.append(sentryFrame) }

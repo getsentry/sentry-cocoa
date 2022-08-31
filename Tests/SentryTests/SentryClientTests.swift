@@ -28,6 +28,9 @@ class SentryClientTest: XCTestCase {
         let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
         let transaction: Transaction
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
+        let permissionsObserver = TestSentryPermissionsObserver()
+        let locale = Locale(identifier: "en_US")
+        let timezone = TimeZone(identifier: "Europe/Vienna")!
         
         init() {
             session = SentrySession(releaseName: "release")
@@ -60,7 +63,17 @@ class SentryClientTest: XCTestCase {
                 ])
                 configureOptions(options)
 
-                client = Client(options: options, transportAdapter: transportAdapter, fileManager: fileManager, threadInspector: threadInspector, random: random, crashWrapper: crashWrapper)
+                client = Client(
+                    options: options,
+                    transportAdapter: transportAdapter,
+                    fileManager: fileManager,
+                    threadInspector: threadInspector,
+                    random: random,
+                    crashWrapper: crashWrapper,
+                    permissionsObserver: permissionsObserver,
+                    locale: locale,
+                    timezone: timezone
+                )
             } catch {
                 XCTFail("Options could not be created")
             }
@@ -119,7 +132,7 @@ class SentryClientTest: XCTestCase {
         clearTestState()
     }
     
-    func tesCaptureMessage() {
+    func testCaptureMessage() {
         let eventId = fixture.getSut().capture(message: fixture.messageAsString)
 
         eventId.assertIsNotEmpty()
@@ -251,7 +264,7 @@ class SentryClientTest: XCTestCase {
             return result
         }
         
-        sut.attachmentProcessor = processor
+        sut.add(processor)
         sut.capture(event: event)
         
         let sendedAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
@@ -272,7 +285,7 @@ class SentryClientTest: XCTestCase {
             return result
         }
         
-        sut.attachmentProcessor = processor
+        sut.add(processor)
         sut.captureError(error, with: fixture.session, with: Scope())
         
         let sentAttachments = fixture.transportAdapter.sentEventsWithSessionTraceState.first?.attachments ?? []
@@ -292,7 +305,7 @@ class SentryClientTest: XCTestCase {
             return result
         }
         
-        sut.attachmentProcessor = processor
+        sut.add(processor)
         sut.captureError(error, with: SentrySession(releaseName: ""), with: Scope())
         
         let sendedAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
@@ -458,6 +471,7 @@ class SentryClientTest: XCTestCase {
         assertLastSentEventWithAttachment { event in
             XCTAssertEqual(oomEvent.eventId, event.eventId)
             XCTAssertNil(event.context?["device"]?["free_memory"])
+            XCTAssertNil(event.context?["device"]?["app_memory"])
         }
     }
     
@@ -509,6 +523,58 @@ class SentryClientTest: XCTestCase {
         assertLastSentEventWithAttachment { actual in
             let eventFreeMemory = actual.context?["device"]?["free_memory"] as? Int
             XCTAssertEqual(eventFreeMemory, 123_456)
+        }
+    }
+
+    func testCaptureCrash_AppMemory() {
+        let event = TestData.event
+        event.threads = nil
+        event.debugMeta = nil
+
+        fixture.crashWrapper.internalAppMemory = 123_456
+        fixture.getSut().captureCrash(event, with: fixture.scope)
+
+        assertLastSentEventWithAttachment { actual in
+            let eventAppMemory = actual.context?["app"]?["app_memory"] as? Int
+            XCTAssertEqual(eventAppMemory, 123_456)
+        }
+    }
+
+    func testCaptureCrash_Permissions() {
+        fixture.permissionsObserver.internalLocationPermissionStatus = SentryPermissionStatus.granted
+        fixture.permissionsObserver.internalPushPermissionStatus = SentryPermissionStatus.granted
+        fixture.permissionsObserver.internalMediaLibraryPermissionStatus = SentryPermissionStatus.denied
+        fixture.permissionsObserver.internalPhotoLibraryPermissionStatus = SentryPermissionStatus.partial
+
+        let event = TestData.event
+        event.threads = nil
+        event.debugMeta = nil
+
+        fixture.getSut().captureCrash(event, with: fixture.scope)
+
+        assertLastSentEventWithAttachment { actual in
+            let permissions = actual.context?["app"]?["permissions"] as? [String: String]
+            XCTAssertEqual(permissions?["push_notifications"], "granted")
+            XCTAssertEqual(permissions?["location_access"], "granted")
+            XCTAssertEqual(permissions?["media_library"], "not_granted")
+            XCTAssertEqual(permissions?["photo_library"], "partial")
+        }
+    }
+
+    func testCaptureCrash_Culture() {
+        let event = TestData.event
+        event.threads = nil
+        event.debugMeta = nil
+
+        fixture.getSut().captureCrash(event, with: fixture.scope)
+
+        assertLastSentEventWithAttachment { actual in
+            let culture = actual.context?["culture"]
+            XCTAssertEqual(culture?["calendar"] as? String, "Gregorian Calendar")
+            XCTAssertEqual(culture?["display_name"] as? String, "English (United States)")
+            XCTAssertEqual(culture?["locale"] as? String, "en_US")
+            XCTAssertEqual(culture?["is_24_hour_format"] as? Bool, false)
+            XCTAssertEqual(culture?["timezone"] as? String, "Europe/Vienna")
         }
     }
 
@@ -722,22 +788,22 @@ class SentryClientTest: XCTestCase {
     }
     
     func testSampleRateNil_EventNotSampled() {
-        testSampleRate(sampleRate: nil, randomValue: 0, isSampled: false)
+        assertSampleRate(sampleRate: nil, randomValue: 0, isSampled: false)
     }
     
     func testSampleRateBiggerRandom_EventNotSampled() {
-        testSampleRate(sampleRate: 0.5, randomValue: 0.49, isSampled: false)
+        assertSampleRate(sampleRate: 0.5, randomValue: 0.49, isSampled: false)
     }
     
     func testSampleRateEqualsRandom_EventNotSampled() {
-        testSampleRate(sampleRate: 0.5, randomValue: 0.5, isSampled: false)
+        assertSampleRate(sampleRate: 0.5, randomValue: 0.5, isSampled: false)
     }
     
     func testSampleRateSmallerRandom_EventSampled() {
-        testSampleRate(sampleRate: 0.50, randomValue: 0.51, isSampled: true)
+        assertSampleRate(sampleRate: 0.50, randomValue: 0.51, isSampled: true)
     }
     
-    private func testSampleRate( sampleRate: NSNumber?, randomValue: Double, isSampled: Bool) {
+    private func assertSampleRate( sampleRate: NSNumber?, randomValue: Double, isSampled: Bool) {
         fixture.random.value = randomValue
         
         let eventId = fixture.getSut(configureOptions: { options in
@@ -874,29 +940,16 @@ class SentryClientTest: XCTestCase {
     }
     
     func testSetSDKIntegrations() {
+        SentrySDK.start(options: Options())
+
         let eventId = fixture.getSut().capture(message: fixture.messageAsString)
-        
-        let expected = shortenIntegrations(Options().integrations)
-        
-        eventId.assertIsNotEmpty()
-        assertLastSentEvent { actual in
-            assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
-        }
-    }
-    
-    func testSetSDKIntegrations_CustomIntegration() {
-        var integrations = Options().integrations
-        integrations?.append("Custom")
-        
-        let eventId = fixture.getSut(configureOptions: { options in
-            options.integrations = integrations
-        }).capture(message: fixture.messageAsString)
-        
-        let expected = shortenIntegrations(integrations)
 
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
-            assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
+            assertArrayEquals(
+                expected: ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking"],
+                actual: actual.sdk?["integrations"] as? [String]
+            )
         }
     }
     
@@ -918,7 +971,7 @@ class SentryClientTest: XCTestCase {
         
         let options = Options()
         options.dsn = SentryClientTest.dsn
-        let client = Client(options: options)
+        let client = Client(options: options, permissionsObserver: TestSentryPermissionsObserver())
         
         XCTAssertNil(client)
         

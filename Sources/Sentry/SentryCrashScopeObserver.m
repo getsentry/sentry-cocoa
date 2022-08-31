@@ -162,7 +162,7 @@ SentryCrashScopeObserver ()
     }
 
     // C strings need to be null terminated
-    return [json nullTerminated];
+    return [json sentry_nullTerminated];
 }
 
 @end

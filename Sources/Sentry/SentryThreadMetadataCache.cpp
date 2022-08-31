@@ -36,23 +36,25 @@ namespace profiling {
             metadata.priority = thread.priority();
 
             // If getting the priority fails (via pthread_getschedparam()), that
-            // means the rest of this is probably going to fail too.
-            if (metadata.priority != -1) {
-                auto threadName = thread.name();
-                if (isSentryOwnedThreadName(threadName)) {
-                    // Don't collect backtraces for Sentry-owned threads.
-                    metadata.priority = 0;
-                    metadata.threadID = 0;
-                    threadMetadataCache_.push_back({ handle, metadata });
-                    return metadata;
-                }
-                if (threadName.size() > kMaxThreadNameLength) {
-                    threadName.resize(kMaxThreadNameLength);
-                }
-
-                metadata.name = threadName;
+            // means the rest of this is probably going to fail too. We also don't
+            // want to cache this result.
+            if (metadata.priority == -1) {
+                return metadata;
             }
 
+            auto threadName = thread.name();
+            if (isSentryOwnedThreadName(threadName)) {
+                // Don't collect backtraces for Sentry-owned threads.
+                metadata.priority = 0;
+                metadata.threadID = 0;
+                threadMetadataCache_.push_back({ handle, metadata });
+                return metadata;
+            }
+            if (threadName.size() > kMaxThreadNameLength) {
+                threadName.resize(kMaxThreadNameLength);
+            }
+
+            metadata.name = threadName;
             threadMetadataCache_.push_back({ handle, metadata });
             return metadata;
         } else {

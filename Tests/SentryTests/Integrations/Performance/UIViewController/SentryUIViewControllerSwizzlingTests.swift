@@ -88,7 +88,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let span = SentrySDK.span
         XCTAssertNotNil(span)
         
-        let transactionName = Dynamic(span).name.asString
+        let transactionName = Dynamic(span).transactionContext.name.asString
         let expectedTransactionName = SentryUIViewControllerSanitizer.sanitizeViewControllerName(controller)
         XCTAssertEqual(expectedTransactionName, transactionName)
     }

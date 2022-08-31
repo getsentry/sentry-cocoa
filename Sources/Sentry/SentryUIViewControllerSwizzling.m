@@ -76,7 +76,7 @@ SentryUIViewControllerSwizzling ()
                   @"notification.";
             [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
 
-            if (@available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)) {
+            if (@available(iOS 13.0, tvOS 13.0, *)) {
                 [NSNotificationCenter.defaultCenter
                     addObserver:self
                        selector:@selector(swizzleRootViewControllerFromSceneDelegateNotification:)
@@ -172,7 +172,7 @@ SentryUIViewControllerSwizzling ()
  */
 - (void)swizzleRootViewControllerFromSceneDelegateNotification:(NSNotification *)notification
 {
-    if (@available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)) {
+    if (@available(iOS 13.0, tvOS 13.0, *)) {
         if (![notification.name isEqualToString:UISceneWillConnectNotification])
             return;
 
@@ -249,7 +249,8 @@ SentryUIViewControllerSwizzling ()
 
 - (void)swizzleRootViewControllerAndDescendant:(UIViewController *)rootViewController
 {
-    NSArray<UIViewController *> *allViewControllers = rootViewController.descendantViewControllers;
+    NSArray<UIViewController *> *allViewControllers
+        = rootViewController.sentry_descendantViewControllers;
 
     for (UIViewController *viewController in allViewControllers) {
         Class viewControllerClass = [viewController class];

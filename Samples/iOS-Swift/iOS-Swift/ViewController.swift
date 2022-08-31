@@ -275,4 +275,10 @@ class ViewController: UIViewController {
         controller.title = "Performance Scenarios"
         navigationController?.pushViewController(controller, animated: false)
     }
+
+    @IBAction func permissions(_ sender: Any) {
+        let controller = PermissionsViewController()
+        controller.title = "Permissions"
+        navigationController?.pushViewController(controller, animated: true)
+    }
 }
