@@ -46,7 +46,6 @@ SENTRY_EXTERN_C_END
 - (nullable SentryEnvelope *)
     buildEnvelopeItemForTransactions:(NSArray<SentryTransaction *> *)transactions
                                                              hub:(SentryHub *)hub
-                                                       frameInfo:
                            frameInfo:(nullable SentryScreenFrames *)frameInfo;
 
 @end
