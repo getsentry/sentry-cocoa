@@ -232,7 +232,7 @@ class SentryUIEventTrackerTests: XCTestCase {
     }
     
     func test_IsUIEventOperation_Unknown() {
-        XCTAssertFalse(SentryUIEventTracker.isUIEventOperation("unkown"))
+        XCTAssertFalse(SentryUIEventTracker.isUIEventOperation("unknown"))
     }
         
     func callExecuteAction(action: String, target: Any?, sender: Any?, event: UIEvent?) {
