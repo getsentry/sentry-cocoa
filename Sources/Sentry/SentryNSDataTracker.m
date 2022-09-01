@@ -168,6 +168,13 @@ SentryNSDataTracker ()
         return nil;
     }
 
+    [SentryLog
+        logWithMessage:
+            [NSString stringWithFormat:@"SentryNSDataTracker automatically "
+                                       @"started a new span with description: %@, operation: %@",
+                      ioSpan.description, operation]
+              andLevel:kSentryLevelDebug];
+
     [ioSpan setDataValue:path forKey:@"file.path"];
 
     return ioSpan;
@@ -213,6 +220,11 @@ SentryNSDataTracker ()
 {
     [span setDataValue:[NSNumber numberWithUnsignedInteger:data.length] forKey:@"file.size"];
     [span finish];
+
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"SentryNSDataTracker automatically "
+                                                         @"finished span %@",
+                                        span.description]
+                     andLevel:kSentryLevelDebug];
 }
 
 - (BOOL)ignoreFile:(NSString *)path

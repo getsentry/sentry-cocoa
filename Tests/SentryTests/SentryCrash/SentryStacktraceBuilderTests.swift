@@ -68,9 +68,9 @@ class SentryStacktraceBuilderTests: XCTestCase {
     }
     
     /**
-     * Disabled in CI for now, because this test is flaky.
+     * Disabled for now, because this test is flaky.
      */
-    func tesAsyncStacktraces() throws {
+    func testAsyncStacktraces() throws {
         SentrySDK.start { options in
             options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
             options.stitchAsyncCode = true

@@ -209,7 +209,6 @@
 #define SentryCrashField_Storage "storage"
 #define SentryCrashField_SystemName "system_name"
 #define SentryCrashField_SystemVersion "system_version"
-#define SentryCrashField_TimeZone "time_zone"
 #define SentryCrashField_BuildType "build_type"
 
 #endif

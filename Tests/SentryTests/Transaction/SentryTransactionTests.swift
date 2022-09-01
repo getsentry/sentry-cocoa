@@ -13,7 +13,7 @@ class SentryTransactionTests: XCTestCase {
         }
         
         func getContext() -> TransactionContext {
-            return TransactionContext(name: transactionName, operation: transactionOperation)
+            return TransactionContext(name: transactionName, nameSource: .component, operation: transactionOperation)
         }
         
         func getTrace() -> SentryTracer {
@@ -61,7 +61,7 @@ class SentryTransactionTests: XCTestCase {
         let actualMeasurements = actual["measurements"] as? [String: [String: Double]]
         XCTAssertEqual(appStart, actualMeasurements?["app_start_cold"] )
     }
-    
+
     func testSerializeMeasurements_GarbageInMeasurements_GarbageSanitized() {
         let transaction = fixture.getTransaction()
         
@@ -150,5 +150,13 @@ class SentryTransactionTests: XCTestCase {
         // then
         XCTAssertEqual(serializedTransactionExtra, [fixture.testKey: fixture.testValue])
     }
-    
+
+    func testSerialize_TransactionInfo() {
+        let scope = Scope()
+        let transaction = fixture.getTransactionWith(scope: scope)
+        let actual = transaction.serialize()
+
+        let actualTransactionInfo = actual["transaction_info"] as? [String: String]
+        XCTAssertEqual(actualTransactionInfo?["source"], "component")
+    }
 }

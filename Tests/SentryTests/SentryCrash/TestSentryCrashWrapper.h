@@ -27,6 +27,8 @@ SENTRY_NO_INIT
 
 @property (nonatomic, assign) uint64_t internalFreeMemory;
 
+@property (nonatomic, assign) uint64_t internalAppMemory;
+
 @end
 
 NS_ASSUME_NONNULL_END

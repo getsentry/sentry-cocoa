@@ -92,7 +92,7 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         fixture.dispatchQueue.blockBeforeMainBlock = {
             self.advanceTime(bySeconds: self.fixture.timeoutInterval)
             let invocations = self.fixture.dispatchQueue.blockOnMainInvocations.count
-            if [0, 2, 3, 5].contains(invocations) {
+            if [0, 10, 15, 25].contains(invocations) {
                 return true
             }
             

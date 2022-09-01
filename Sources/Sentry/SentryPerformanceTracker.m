@@ -7,7 +7,7 @@
 #import "SentrySpanId.h"
 #import "SentrySpanProtocol.h"
 #import "SentryTracer.h"
-#import "SentryTransactionContext.h"
+#import "SentryTransactionContext+Private.h"
 #import "SentryUIEventTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN

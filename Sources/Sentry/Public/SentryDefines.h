@@ -111,6 +111,7 @@ typedef NS_ENUM(NSUInteger, SentryLevel) {
 typedef NS_ENUM(NSInteger, SentryPermissionStatus) {
     kSentryPermissionStatusUnknown = 0,
     kSentryPermissionStatusGranted,
+    kSentryPermissionStatusPartial,
     kSentryPermissionStatusDenied
 };
 
@@ -127,3 +128,15 @@ static NSString *_Nonnull const SentryLevelNames[] = {
 };
 
 static NSUInteger const defaultMaxBreadcrumbs = 100;
+
+/**
+ * Transaction name source
+ */
+typedef NS_ENUM(NSInteger, SentryTransactionNameSource) {
+    kSentryTransactionNameSourceCustom = 0,
+    kSentryTransactionNameSourceUrl,
+    kSentryTransactionNameSourceRoute,
+    kSentryTransactionNameSourceView,
+    kSentryTransactionNameSourceComponent,
+    kSentryTransactionNameSourceTask
+};

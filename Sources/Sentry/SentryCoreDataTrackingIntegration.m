@@ -3,7 +3,6 @@
 #import "SentryCoreDataTracker.h"
 #import "SentryLog.h"
 #import "SentryNSDataSwizzling.h"
-#import "SentryOptions+Private.h"
 #import "SentryOptions.h"
 
 @interface
@@ -15,49 +14,22 @@ SentryCoreDataTrackingIntegration ()
 
 @implementation SentryCoreDataTrackingIntegration
 
-- (void)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
-    if ([self shouldBeDisabled:options]) {
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
-        return;
+    if (![super installWithOptions:options]) {
+        return NO;
     }
 
     self.tracker = [[SentryCoreDataTracker alloc] init];
     [SentryCoreDataSwizzling.sharedInstance startWithMiddleware:self.tracker];
+
+    return YES;
 }
 
-- (BOOL)shouldBeDisabled:(SentryOptions *)options
+- (SentryIntegrationOption)integrationOptions
 {
-    if (!options.enableAutoPerformanceTracking) {
-        [SentryLog logWithMessage:@"Not going to enable CoreData tracking because "
-                                  @"enableAutoPerformanceTracking is disabled."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    if (!options.enableSwizzling) {
-        [SentryLog logWithMessage:
-                       @"Not going to enable CoreData tracking because enableSwizzling is disabled."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    if (!options.isTracingEnabled) {
-        [SentryLog
-            logWithMessage:@"Not going to enable CoreData tracking because tracing is disabled."
-                  andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    if (!options.enableCoreDataTracking) {
-        [SentryLog
-            logWithMessage:
-                @"Not going to enable CoreData tracking because enableCoreDataTracking is disabled."
-                  andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    return NO;
+    return kIntegrationOptionEnableAutoPerformanceTracking | kIntegrationOptionEnableSwizzling
+        | kIntegrationOptionIsTracingEnabled | kIntegrationOptionEnableCoreDataTracking;
 }
 
 - (void)uninstall

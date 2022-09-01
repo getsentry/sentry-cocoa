@@ -71,12 +71,12 @@ SentryUIViewControllerSwizzling ()
         // the lookup can take around 60ms, which is not acceptable.
         if (![self swizzleRootViewControllerFromUIApplication:app]) {
             NSString *message
-                = @"UIViewControllerSwizziling: Fail to find root UIViewController from "
+                = @"UIViewControllerSwizziling: Failed to find root UIViewController from "
                   @"UIApplicationDelegate. Trying to use UISceneWillConnectNotification "
                   @"notification.";
             [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
 
-            if (@available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)) {
+            if (@available(iOS 13.0, tvOS 13.0, *)) {
                 [NSNotificationCenter.defaultCenter
                     addObserver:self
                        selector:@selector(swizzleRootViewControllerFromSceneDelegateNotification:)
@@ -172,7 +172,7 @@ SentryUIViewControllerSwizzling ()
  */
 - (void)swizzleRootViewControllerFromSceneDelegateNotification:(NSNotification *)notification
 {
-    if (@available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)) {
+    if (@available(iOS 13.0, tvOS 13.0, *)) {
         if (![notification.name isEqualToString:UISceneWillConnectNotification])
             return;
 
@@ -183,7 +183,7 @@ SentryUIViewControllerSwizzling ()
         // The object of a UISceneWillConnectNotification should be a NSWindowScene
         if (![notification.object respondsToSelector:@selector(windows)]) {
             NSString *message
-                = @"UIViewControllerSwizziling: Fail to find root UIViewController from "
+                = @"UIViewControllerSwizziling: Failed to find root UIViewController from "
                   @"UISceneWillConnectNotification. Notification object has no windows property";
             [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
             return;
@@ -192,7 +192,7 @@ SentryUIViewControllerSwizzling ()
         id windows = [notification.object performSelector:@selector(windows)];
         if (![windows isKindOfClass:[NSArray class]]) {
             NSString *message
-                = @"UIViewControllerSwizziling: Fail to find root UIViewController from "
+                = @"UIViewControllerSwizziling: Failed to find root UIViewController from "
                   @"UISceneWillConnectNotification. Windows is not an array";
             [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
             return;
@@ -204,6 +204,12 @@ SentryUIViewControllerSwizzling ()
                 && ((UIWindow *)window).rootViewController != nil) {
                 [self
                     swizzleRootViewControllerAndDescendant:((UIWindow *)window).rootViewController];
+            } else {
+                NSString *message
+                    = @"UIViewControllerSwizziling: Failed to find root UIViewController from "
+                      @"UISceneWillConnectNotification. Window is not a UIWindow class or the "
+                      @"rootViewController is nil";
+                [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
             }
         }
     }
@@ -249,7 +255,8 @@ SentryUIViewControllerSwizzling ()
 
 - (void)swizzleRootViewControllerAndDescendant:(UIViewController *)rootViewController
 {
-    NSArray<UIViewController *> *allViewControllers = rootViewController.descendantViewControllers;
+    NSArray<UIViewController *> *allViewControllers
+        = rootViewController.sentry_descendantViewControllers;
 
     for (UIViewController *viewController in allViewControllers) {
         Class viewControllerClass = [viewController class];

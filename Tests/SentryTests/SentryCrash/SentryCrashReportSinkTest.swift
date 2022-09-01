@@ -8,7 +8,7 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         let reportSink = SentryCrashReportSink(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []))
         let expect = expectation(description: "Callback Called")
         
-        let report = ["screenshots": ["file.png"]]
+        let report = ["attachments": ["file.png"]]
         
         reportSink.filterReports([report]) { _, _, _ in
             self.assertCrashEventWithScope { _, scope in

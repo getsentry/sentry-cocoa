@@ -1623,8 +1623,6 @@ writeSystemInfo(const SentryCrashReportWriter *const writer, const char *const k
         writer->addIntegerElement(
             writer, SentryCrashField_BinaryCPUSubType, monitorContext->System.binaryCPUSubType);
         writer->addStringElement(
-            writer, SentryCrashField_TimeZone, monitorContext->System.timezone);
-        writer->addStringElement(
             writer, SentryCrashField_ProcessName, monitorContext->System.processName);
         writer->addIntegerElement(
             writer, SentryCrashField_ProcessID, monitorContext->System.processID);

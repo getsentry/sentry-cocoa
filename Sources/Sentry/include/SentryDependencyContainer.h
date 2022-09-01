@@ -7,7 +7,7 @@
     SentryDispatchQueueWrapper, SentryDebugImageProvider, SentryANRTracker;
 
 #if SENTRY_HAS_UIKIT
-@class SentryScreenshot, SentryUIApplication;
+@class SentryScreenshot, SentryUIApplication, SentryViewHierarchy;
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -34,6 +34,7 @@ SENTRY_NO_INIT
 
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryScreenshot *screenshot;
+@property (nonatomic, strong) SentryViewHierarchy *viewHierarchy;
 @property (nonatomic, strong) SentryUIApplication *application;
 #endif
 

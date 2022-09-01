@@ -145,7 +145,7 @@ static NSLock *profilerLock;
 {
     if (self = [super init]) {
         self.rootSpan = [[SentrySpan alloc] initWithTransaction:self context:transactionContext];
-        self.name = transactionContext.name;
+        self.transactionContext = transactionContext;
         _children = [[NSMutableArray alloc] init];
         self.hub = hub;
         self.isWaitingForChildren = NO;
@@ -518,6 +518,7 @@ static NSLock *profilerLock;
         [profilerLock lock];
         if (profiler != nil) {
             SentryEnvelopeItem *profile = [profiler buildEnvelopeItemForTransaction:transaction
+                                                                                hub:_hub
                                                                           frameInfo:frameInfo];
             if (profile != nil) {
                 [additionalEnvelopeItems addObject:profile];
@@ -565,7 +566,7 @@ static NSLock *profilerLock;
     }
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
-    transaction.transaction = self.name;
+    transaction.transaction = self.transactionContext.name;
     [self addMeasurements:transaction appStartMeasurement:appStartMeasurement];
     return transaction;
 }

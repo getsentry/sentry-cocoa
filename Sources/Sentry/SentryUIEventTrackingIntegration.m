@@ -17,11 +17,10 @@ SentryUIEventTrackingIntegration ()
 
 @implementation SentryUIEventTrackingIntegration
 
-- (void)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
-    if ([self shouldBeDisabled:options]) {
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
-        return;
+    if (![super installWithOptions:options]) {
+        return NO;
     }
 
     SentryDependencyContainer *dependencies = [SentryDependencyContainer sharedInstance];
@@ -31,39 +30,14 @@ SentryUIEventTrackingIntegration ()
                    idleTimeout:options.idleTimeout];
 
     [self.uiEventTracker start];
+
+    return YES;
 }
 
-- (BOOL)shouldBeDisabled:(SentryOptions *)options
+- (SentryIntegrationOption)integrationOptions
 {
-    if (!options.enableAutoPerformanceTracking) {
-        [SentryLog logWithMessage:@"Not going to enable User Interaction tracking because "
-                                  @"enableAutoPerformanceTracking is disabled."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    if (!options.enableSwizzling) {
-        [SentryLog logWithMessage:@"Not going to enable User Interaction tracking because "
-                                  @"enableSwizzling is disabled."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    if (!options.isTracingEnabled) {
-        [SentryLog logWithMessage:
-                       @"Not going to enable User Interaction tracking because tracing is disabled."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    if (!options.enableUserInteractionTracing) {
-        [SentryLog logWithMessage:@"Not going to enable User Interaction tracking because "
-                                  @"enableUserInteractionTracing is disabled."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    return NO;
+    return kIntegrationOptionEnableAutoPerformanceTracking | kIntegrationOptionEnableSwizzling
+        | kIntegrationOptionIsTracingEnabled | kIntegrationOptionEnableUserInteractionTracing;
 }
 
 - (void)uninstall

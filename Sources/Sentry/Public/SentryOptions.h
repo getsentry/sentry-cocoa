@@ -60,6 +60,11 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enabled;
 
 /**
+ * When enabled, the SDK sends crashes to Sentry. Default value is YES.
+ */
+@property (nonatomic, assign) BOOL enableCrashHandler;
+
+/**
  * How many breadcrumbs do you want to keep in memory?
  * Default is 100.
  */
@@ -195,11 +200,23 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableUIViewControllerTracking;
 
 /**
+ * This feature is EXPERIMENTAL.
+ *
  * Automatically attaches a screenshot when capturing an error or exception.
  *
  * Default value is <code>NO</code>
  */
 @property (nonatomic, assign) BOOL attachScreenshot;
+
+/**
+ * This feature is EXPERIMENTAL.
+ *
+ * Automatically attaches a textual representation of the view hierarchy when capturing an error
+ * event.
+ *
+ * Default value is <code>NO</code>
+ */
+@property (nonatomic, assign) BOOL attachViewHierarchy;
 
 /**
  * This feature is EXPERIMENTAL.

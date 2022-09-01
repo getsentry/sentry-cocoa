@@ -424,7 +424,7 @@ class SentrySessionTrackerTests: XCTestCase {
             let session = fixture.client.captureSessionInvocations.invocations[endSessionIndex]
             XCTAssertFalse(session.flagInit?.boolValue ?? false)
             XCTAssertEqual(started, session.started)
-            XCTAssertEqual(SentrySessionStatus.exited, session.status)
+            XCTAssertEqual(SentrySessionStatus.exited, session.status, "Expected session status of \(SentrySessionStatus.exited.rawValue) but got \(session.status.rawValue)")
             XCTAssertEqual(errors, session.errors)
             XCTAssertEqual(started.addingTimeInterval(TimeInterval(truncating: duration)), session.timestamp)
             XCTAssertEqual(duration, session.duration)
@@ -449,7 +449,7 @@ class SentrySessionTrackerTests: XCTestCase {
     private func assertSession(session: SentrySession, started: Date, status: SentrySessionStatus, duration: NSNumber) {
         XCTAssertFalse(session.flagInit?.boolValue ?? false)
         XCTAssertEqual(started, session.started)
-        XCTAssertEqual(status, session.status)
+        XCTAssertEqual(status, session.status, "Expected session status of \(status.rawValue) but got \(session.status.rawValue)")
         XCTAssertEqual(0, session.errors)
         XCTAssertEqual(started.addingTimeInterval(TimeInterval(truncating: duration)), session.timestamp)
         XCTAssertEqual(duration, session.duration)
@@ -464,7 +464,7 @@ class SentrySessionTrackerTests: XCTestCase {
         if let session = fixture.client.captureSessionInvocations.last {
             XCTAssertTrue(session.flagInit?.boolValue ?? false)
             XCTAssertEqual(sessionStarted, session.started)
-            XCTAssertEqual(SentrySessionStatus.ok, session.status)
+            XCTAssertEqual(SentrySessionStatus.ok, session.status, "Expected session status of \(SentrySessionStatus.ok.rawValue) but got \(session.status.rawValue)")
             XCTAssertEqual(0, session.errors)
             XCTAssertNil(session.timestamp)
             XCTAssertNil(session.duration)

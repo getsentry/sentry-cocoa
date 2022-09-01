@@ -7,7 +7,7 @@
 @end
 
 @interface SentryCrash (private)
-- (NSArray *)getScreenshotPaths:(int64_t)reportID;
+- (NSArray *)getAttachmentPaths:(int64_t)reportID;
 @end
 
 @implementation SentryCrashTests
@@ -25,12 +25,12 @@
 
     SentryCrash *sentryCrash = [[SentryCrash alloc]
         initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Reports"]];
-    NSArray *files = [sentryCrash getScreenshotPaths:12];
+    NSArray *files = [sentryCrash getAttachmentPaths:12];
 
     XCTAssertEqual(files.count, 1);
     XCTAssertEqualObjects(files.firstObject,
         [self.tempPath stringByAppendingPathComponent:
-                           @"Reports/AppName-report-000000000000000c-screenshots/0.png"]);
+                           @"Reports/AppName-report-000000000000000c-attachments/0.png"]);
 }
 
 - (void)test_getScreenshots_TwoFiles
@@ -39,7 +39,7 @@
 
     SentryCrash *sentryCrash = [[SentryCrash alloc]
         initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Reports"]];
-    NSArray *files = [sentryCrash getScreenshotPaths:12];
+    NSArray *files = [sentryCrash getAttachmentPaths:12];
     XCTAssertEqual(files.count, 2);
 }
 
@@ -49,7 +49,7 @@
 
     SentryCrash *sentryCrash = [[SentryCrash alloc]
         initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Reports"]];
-    NSArray *files = [sentryCrash getScreenshotPaths:12];
+    NSArray *files = [sentryCrash getAttachmentPaths:12];
     XCTAssertEqual(files.count, 0);
 }
 
@@ -57,7 +57,7 @@
 {
     SentryCrash *sentryCrash = [[SentryCrash alloc]
         initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"ReportsFake"]];
-    NSArray *files = [sentryCrash getScreenshotPaths:12];
+    NSArray *files = [sentryCrash getAttachmentPaths:12];
     XCTAssertEqual(files.count, 0);
 }
 
@@ -67,7 +67,7 @@
     sentrycrashcrs_initialize("AppName", reportStorePath.UTF8String);
 
     char reportPathBuffer[500];
-    sentrycrashcrs_getScreenshotPath_forReportId(12, reportPathBuffer);
+    sentrycrashcrs_getAttachmentsPath_forReportId(12, reportPathBuffer);
     NSString *ssDir = [NSString stringWithUTF8String:reportPathBuffer];
     [NSFileManager.defaultManager createDirectoryAtPath:ssDir
                             withIntermediateDirectories:true

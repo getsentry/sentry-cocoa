@@ -45,25 +45,25 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     }
     
     func testNetworkTrackerDisabled_WhenNetworkTrackingDisabled() {
-        testNetworkTrackerDisabled { options in
+        asserrtNetworkTrackerDisabled { options in
             options.enableNetworkTracking = false
         }
     }
     
     func testNetworkTrackerDisabled_WhenAutoPerformanceTrackingDisabled() {
-        testNetworkTrackerDisabled { options in
+        asserrtNetworkTrackerDisabled { options in
             options.enableAutoPerformanceTracking = false
         }
     }
     
     func testNetworkTrackerDisabled_WhenTracingDisabled() {
-        testNetworkTrackerDisabled { options in
+        asserrtNetworkTrackerDisabled { options in
             options.tracesSampleRate = 0.0
         }
     }
     
     func testNetworkTrackerDisabled_WhenSwizzlingDisabled() {
-        testNetworkTrackerDisabled { options in
+        asserrtNetworkTrackerDisabled { options in
             options.enableSwizzling = false
         }
     }
@@ -229,7 +229,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual("200", networkSpan.tags["http.status_code"])
     }
     
-    private func testNetworkTrackerDisabled(configureOptions: (Options) -> Void) {
+    private func asserrtNetworkTrackerDisabled(configureOptions: (Options) -> Void) {
         configureOptions(fixture.options)
         
         startSDK()
@@ -259,10 +259,9 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     
     private func assertRemovedIntegration(_ options: Options) {
         let sut = SentryNetworkTrackingIntegration()
-        sut.install(with: options)
+        let result = sut.install(with: options)
         
-        let expexted = Options.defaultIntegrations().filter { !$0.contains("NetworkTracking") }
-        assertArrayEquals(expected: expexted, actual: Array(options.enabledIntegrations))
+        XCTAssertFalse(result)
     }
 }
 

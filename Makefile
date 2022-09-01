@@ -1,11 +1,16 @@
+.PHONY: init
 init: setup-git
 	which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	brew bundle
 	rbenv install --skip-existing
 	rbenv exec gem update bundler
 	rbenv exec bundle update
+
+.PHONY: init-samples
+init-samples: init
 	cd Samples/TrendingMovies && carthage update --use-xcframeworks
 
+.PHONY: setup-git
 setup-git:
 ifneq (, $(shell which pre-commit))
 	pre-commit install

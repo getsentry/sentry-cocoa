@@ -3,13 +3,12 @@ import XCTest
 
 class SentryFileIoTrackingUnitTests: XCTestCase {
 
-    func test_FileIOTrackingDisabled_RemovesEnabledIntegration() {
+    func test_FileIOTracking_Disabled() {
         let options = Options()
         options.enableFileIOTracking = false
         let sut = SentryFileIOTrackingIntegration()
-        sut.install(with: options)
+        let result = sut.install(with: options)
         
-        let expexted = Options.defaultIntegrations().filter { !$0.contains("FileIO") }
-        assertArrayEquals(expected: expexted, actual: Array(options.enabledIntegrations))
+        XCTAssertFalse(result)
     }
 }

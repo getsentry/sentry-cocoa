@@ -196,7 +196,6 @@ typedef struct SentryCrash_MonitorContext {
         int cpuSubType;
         int binaryCPUType;
         int binaryCPUSubType;
-        const char *timezone;
         const char *processName;
         int processID;
         int parentProcessID;

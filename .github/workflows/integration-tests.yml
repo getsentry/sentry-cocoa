@@ -102,34 +102,41 @@ jobs:
         run: ./apply-patch.sh "${{ github.event.pull_request.head.sha }}" "${{ github.sha }}" add-sentry-to-homekit
 
       - uses: actions/cache@v3
-        name: "Cache: Pods"
-        id: cache_pods
-        with:
-          path: |
-            Pods
-            Tools/MaterialDesignIcons.ttf
-            Tools/MaterialDesignIcons.json
-          key: >-
-            ${{ runner.os }}-pods-xcode-13.2
-            ${{ hashFiles('**/Gemfile.lock', '**/Podfile.lock', 'Tools/BuildMaterialDesignIconsFont.sh') }}
-
-      - uses: actions/cache@v3
         name: "Cache: Gems"
         id: cache_gems
         with:
           path: vendor/bundle
-          key: >-
-            ${{ runner.os }}-gems-${{ env.ImageVersion }}-${{ env.DEVELOPER_DIR }}-${{ hashFiles('**/Gemfile.lock') }}
+          key: home-assistant-integration-gems-${{ runner.os }}-${{ env.ImageVersion }}-${{ env.DEVELOPER_DIR }}-${{ hashFiles('**/Gemfile.lock') }}
+
+      - uses: actions/cache@v3
+        name: "Cache: Pods"
+        id: cache_pods
+        if: steps.cache_gems.outputs.cache-hit == 'true'
+        with:
+          path: |
+            Pods
+            Podfile
+            Podfile.lock
+            Tools/**
+          key: home-assistant-tests-pods-${{ runner.os }}-${{ env.ImageVersion }}-${{ env.DEVELOPER_DIR }}-${{ hashFiles('Podfile', '**/Podfile.lock', 'Tools/**') }}
 
       - name: Install Gems
-        run: bundle install --jobs 4 --retry 3
+        if: steps.cache_gems.outputs.cache-hit != 'true'
+        run: |
+          bundle config set --local path 'vendor/bundle'
+          bundle install --jobs 4 --retry 3
 
       - name: Install Pods Release
-        run: bundle exec pod install --repo-update
+        if: steps.cache_pods.outputs.cache-hit != 'true'
+        run: |
+          bundle config set --local path 'vendor/bundle'
+          bundle exec pod install --repo-update
 
       - name: Run tests
       # Run the tests twice in case they are flaky.
-        run: for i in {1..2}; do bundle exec fastlane test && break ; done
+        run: |
+          bundle config set --local path 'vendor/bundle'
+          for i in {1..2}; do bundle exec fastlane test && break ; done
 
   # We borrow the tests of VLC iOS under the GPLv2 (or later) and the MPLv2: https://github.com/videolan/vlc-ios
   # The following steps checkout VLC and apply a github patch to the project. The patch adds
@@ -162,12 +169,14 @@ jobs:
 
       - uses: actions/cache@v3
         name: "Cache: Pods"
+        id: cache-pods
         with:
           path: Pods
           key: >-
             ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
 
       - name: Install Pods
+        if: steps.cache_pods.outputs.cache-hit != 'true'
         run: pod install
 
       - name: Run UI Tests

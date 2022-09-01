@@ -18,7 +18,7 @@
 #import "SentryTracer.h"
 #import "SentryTracesSampler.h"
 #import "SentryTransaction.h"
-#import "SentryTransactionContext.h"
+#import "SentryTransactionContext+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,6 +31,9 @@ SentryHub ()
 @property (nonatomic, strong) SentryTracesSampler *tracesSampler;
 @property (nonatomic, strong) SentryProfilesSampler *profilesSampler;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
+@property (nonatomic, strong)
+    NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
+@property (nonatomic, strong) NSMutableArray<NSString *> *installedIntegrationNames;
 
 @end
 
@@ -46,6 +49,7 @@ SentryHub ()
         _scope = scope;
         _sessionLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
+        _installedIntegrationNames = [[NSMutableArray alloc] init];
         _crashWrapper = [SentryCrashWrapper sharedInstance];
         _tracesSampler = [[SentryTracesSampler alloc] initWithOptions:client.options];
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -293,8 +297,19 @@ SentryHub ()
 
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation
 {
+    return [self startTransactionWithContext:[[SentryTransactionContext alloc]
+                                                 initWithName:name
+                                                   nameSource:kSentryTransactionNameSourceCustom
+                                                    operation:operation]];
+}
+
+- (id<SentrySpan>)startTransactionWithName:(NSString *)name
+                                nameSource:(SentryTransactionNameSource)source
+                                 operation:(NSString *)operation
+{
     return [self
         startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name
+                                                                        nameSource:source
                                                                          operation:operation]];
 }
 
@@ -302,8 +317,21 @@ SentryHub ()
                                  operation:(NSString *)operation
                                bindToScope:(BOOL)bindToScope
 {
+    return [self startTransactionWithContext:[[SentryTransactionContext alloc]
+                                                 initWithName:name
+                                                   nameSource:kSentryTransactionNameSourceCustom
+                                                    operation:operation]
+                                 bindToScope:bindToScope];
+}
+
+- (id<SentrySpan>)startTransactionWithName:(NSString *)name
+                                nameSource:(SentryTransactionNameSource)source
+                                 operation:(NSString *)operation
+                               bindToScope:(BOOL)bindToScope
+{
     return
         [self startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name
+                                                                              nameSource:source
                                                                                operation:operation]
                               bindToScope:bindToScope];
 }
@@ -515,7 +543,7 @@ SentryHub ()
  */
 - (BOOL)isIntegrationInstalled:(Class)integrationClass
 {
-    for (id<SentryIntegrationProtocol> item in SentrySDK.currentHub.installedIntegrations) {
+    for (id<SentryIntegrationProtocol> item in self.installedIntegrations) {
         if ([item isKindOfClass:integrationClass]) {
             return YES;
         }
@@ -523,13 +551,9 @@ SentryHub ()
     return NO;
 }
 
-- (nullable id)getIntegration:(NSString *)integrationName
+- (BOOL)hasIntegration:(NSString *)integrationName
 {
-    NSArray *integrations = _client.options.integrations;
-    if (![integrations containsObject:integrationName]) {
-        return nil;
-    }
-    return [integrations objectAtIndex:[integrations indexOfObject:integrationName]];
+    return [self.installedIntegrationNames containsObject:integrationName];
 }
 
 - (void)setUser:(nullable SentryUser *)user
