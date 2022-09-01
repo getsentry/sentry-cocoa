@@ -980,7 +980,7 @@ extension SentryHubTests {
         XCTAssertEqual("Apple", profile["device_manufacturer"] as! String)
         XCTAssertEqual("cocoa", profile["platform"] as! String)
         XCTAssertEqual(fixture.transactionName, profile["transaction_name"] as! String)
-#if os(iOS)
+#if os(iOS) && !targetEnvironment(macCatalyst)
         XCTAssertEqual("iOS", profile["device_os_name"] as! String)
         XCTAssertFalse((profile["device_os_version"] as! String).isEmpty)
 #endif
