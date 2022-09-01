@@ -27,8 +27,12 @@ static SentryAppStartMeasurement *sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
 
 /**
- * @brief We need to keep track of the number of times @c +[startWith...] is called, because our OOM reporting breaks if it's called more than once.
- * @discussion This doesn't just protect from multiple sequential calls to start the SDK, so we can't simply @c dispatch_once the logic inside the start method; there is also a valid workflow where a consumer could start the SDK, then call @c +[close] and then start again, and we want to reenable the integrations.
+ * @brief We need to keep track of the number of times @c +[startWith...] is called, because our OOM
+ * reporting breaks if it's called more than once.
+ * @discussion This doesn't just protect from multiple sequential calls to start the SDK, so we
+ * can't simply @c dispatch_once the logic inside the start method; there is also a valid workflow
+ * where a consumer could start the SDK, then call @c +[close] and then start again, and we want to
+ * reenable the integrations.
  */
 static NSUInteger startInvocations;
 
