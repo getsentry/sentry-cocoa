@@ -24,10 +24,9 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 {
     self = [super init];
     if (self) {
-        // Don't start observing when we're in tests, or in an app extension
+        // Don't start observing when we're in tests
         if (NSBundle.mainBundle.bundleIdentifier != nil
-            && ![NSBundle.mainBundle.bundleIdentifier isEqual:@"com.apple.dt.xctest.tool"]
-            && ![NSBundle.mainBundle.bundlePath hasSuffix:@".appex"]) {
+            && ![NSBundle.mainBundle.bundleIdentifier isEqual:@"com.apple.dt.xctest.tool"]) {
             [self startObserving];
         }
     }

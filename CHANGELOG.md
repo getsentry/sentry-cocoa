@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- App permissions are now also included when running from an app extension (#2106)
+
 ## 7.24.0-beta.0
 
 ### Features
