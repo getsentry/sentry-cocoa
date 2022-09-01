@@ -4,6 +4,12 @@
 
 ### Features
 
+- App permissions are now also included when running from an app extension (#2106)
+
+## 7.24.0-beta.0
+
+### Features
+
 - Report App Memory Usage (#2027)
 - Include app permissions with event (#1984)
 - Add culture context to event (#2036)
@@ -13,12 +19,14 @@
 - Added extra logs when creating automatic transactions and spans (#2087)
 
 ### Fixes
+
 - Fix Swift 5.5 compatibility (#2060)
 - Add span finish flag (#2059)
 - SentryUser.userId should be nullable (#2071)
 - Send time zone name, not abbreviation (#2091)
 - Use a prime number for the profiler's sampling rate to reduce the potential for [lock-step](https://stackoverflow.com/a/45471031) issues (#2055).
 - Improve App Hangs detection (#2100)
+- Send `environment` set from `SentryOptions` or `configureScope` with profiling data (#2095)
 
 ## 7.23.0
 

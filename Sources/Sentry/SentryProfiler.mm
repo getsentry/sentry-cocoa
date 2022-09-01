@@ -3,6 +3,7 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryBacktrace.hpp"
+#    import "SentryClient+Private.h"
 #    import "SentryDebugImageProvider.h"
 #    import "SentryDebugMeta.h"
 #    import "SentryDefines.h"
@@ -11,10 +12,12 @@
 #    import "SentryEnvelopeItemType.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryHexAddressFormatter.h"
+#    import "SentryHub.h"
 #    import "SentryId.h"
 #    import "SentryLog.h"
 #    import "SentryProfilingLogging.hpp"
 #    import "SentrySamplingProfiler.hpp"
+#    import "SentryScope+Private.h"
 #    import "SentryScreenFrames.h"
 #    import "SentrySerialization.h"
 #    import "SentryTime.h"
@@ -220,6 +223,7 @@ isSimulatorBuild()
 }
 
 - (SentryEnvelopeItem *)buildEnvelopeItemForTransaction:(SentryTransaction *)transaction
+                                                    hub:(SentryHub *)hub
                                               frameInfo:(SentryScreenFrames *)frameInfo
 {
     NSMutableDictionary<NSString *, id> *profile = nil;
@@ -254,7 +258,7 @@ isSimulatorBuild()
     profile[@"device_is_emulator"] = @(isSimulatorBuild());
     profile[@"device_physical_memory_bytes"] =
         [@(NSProcessInfo.processInfo.physicalMemory) stringValue];
-    profile[@"environment"] = transaction.environment ?: @"production";
+    profile[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment ?: kSentryDefaultEnvironment;
     profile[@"platform"] = transaction.platform;
     profile[@"transaction_id"] = transaction.eventId.sentryIdString;
     profile[@"trace_id"] = transaction.trace.context.traceId.sentryIdString;
