@@ -74,19 +74,19 @@ jobs:
           # the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
           - runs-on: macos-12
-            platform: "macOS"
+            platform: "Catalyst"
             xcode: "13.4.1"
             test-destination-os: "latest"
 
           # tvOS 4
           - runs-on: macos-11
-            platform: "macOS"
+            platform: "tvOS"
             xcode: "12.5.1"
             test-destination-os: "latest"
 
           # tvOS 15
           - runs-on: macos-12
-            platform: "macOS"
+            platform: "tvOS"
             xcode: "13.4.1"
             test-destination-os: "latest"
 
