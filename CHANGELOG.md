@@ -5,6 +5,7 @@
 ### Fixes
 
 - Properly sanitize the event context and SDK information (#1943)
+- Users can customise the error description shown in the Sentry UI by providing an NSDebugDescriptionErrorKey value in the error user info dictionary. (#1496)
 
 ## 7.20.0
 
