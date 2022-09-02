@@ -21,26 +21,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 SentryScope *scope;
 
-@interface SentryBreadcrumbTestLogOutput : SentryLogOutput
-
-@end
-
-@implementation SentryBreadcrumbTestLogOutput
-
-- (void)log:(NSString *)message
-{
-    [super log:message];
-
-    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug
-                                                             category:@"sdk-logs"];
-    [crumb setMessage:message];
-    // The tests might have a different time set
-    [crumb setTimestamp:[NSDate new]];
-    [scope addBreadcrumb:crumb];
-}
-
-@end
-
 @interface
 SentryTestObserver ()
 
@@ -89,10 +69,6 @@ SentryTestObserver ()
     // The tests might have a different time set
     [crumb setTimestamp:[NSDate new]];
     [scope addBreadcrumb:crumb];
-
-#if defined(TESTCI) || defined(TEST)
-    [SentryLog setLogOutput:[[SentryBreadcrumbTestLogOutput alloc] init]];
-#endif
 }
 
 - (void)testCase:(XCTestCase *)testCase didRecordIssue:(XCTIssue *)issue

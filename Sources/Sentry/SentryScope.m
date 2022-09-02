@@ -125,20 +125,8 @@ SentryScope ()
     if (self.maxBreadcrumbs < 1) {
         return;
     }
-
-    // since we will create a breadcrumb for each log statement, we won't log breadcrumbs with
-    // SentryLog or else we'll end up in an infinite loop. use printf instead so we can still see
-    // this in the console.
-    NSString *message = [NSString stringWithFormat:@"Add breadcrumb: %@", crumb];
-#if defined(TESTCI) || defined(TEST)
-    static NSISO8601DateFormatter *df;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ df = [[NSISO8601DateFormatter alloc] init]; });
-    printf("%s: %s\n", [df stringFromDate:[NSDate date]].UTF8String, message.UTF8String);
-#else
-    [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
-#endif
-
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb]
+                     andLevel:kSentryLevelDebug];
     @synchronized(_breadcrumbArray) {
         [_breadcrumbArray addObject:crumb];
         if ([_breadcrumbArray count] > self.maxBreadcrumbs) {
