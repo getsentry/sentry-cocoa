@@ -18,8 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh
-      - name: Install SentryCli
-        run: brew install getsentry/tools/sentry-cli
 
       # We upload a new version to TestFlight on every commit on Master
       # So we need to bump the bundle version each time
@@ -54,4 +52,3 @@ jobs:
             ${{ github.workspace }}/iOS-Swift.*
             ${{ github.workspace }}/*.dSYM.zip
             ${{ github.workspace }}/dSYMs/
-
