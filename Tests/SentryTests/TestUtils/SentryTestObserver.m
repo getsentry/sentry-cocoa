@@ -49,7 +49,8 @@ SentryTestObserver ()
         [SentrySDK startWithOptionsObject:options];
 
         self.scope = [[SentryScope alloc] init];
-        [SentryCrashIntegration enrichScope:self.scope crashWrapper:[SentryCrashWrapper sharedInstance]];
+        [SentryCrashIntegration enrichScope:self.scope
+                               crashWrapper:[SentryCrashWrapper sharedInstance]];
 
         self.options = options;
     }
