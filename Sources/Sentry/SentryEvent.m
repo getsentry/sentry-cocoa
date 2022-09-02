@@ -11,6 +11,7 @@
 #import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentryStacktrace.h"
+#import "SentryTime.h"
 #import "SentryThread.h"
 #import "SentryUser.h"
 
@@ -54,6 +55,7 @@ SentryEvent ()
     if (nil == self.timestamp) {
         self.timestamp = [SentryCurrentDate date];
     }
+    self.systemEndTime = getAbsoluteTime();
 
     NSMutableDictionary *serializedData = @{
         @"event_id" : self.eventId.sentryIdString,

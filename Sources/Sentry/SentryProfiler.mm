@@ -153,6 +153,8 @@ isSimulatorBuild()
         _profile[@"sampled_profile"] = sampledProfile;
         _startTimestamp = getAbsoluteTime();
 
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Starting profiler at system time %llu.", _startTimestamp] andLevel:kSentryLevelDebug];
+
         __weak const auto weakSelf = self;
         _profiler = std::make_shared<SamplingProfiler>(
             [weakSelf, threadMetadata, queueMetadata, samples, mainThreadID = _mainThreadID](

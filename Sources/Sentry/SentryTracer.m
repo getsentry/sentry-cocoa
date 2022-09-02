@@ -518,8 +518,9 @@ static SentryScreenFrames *_gProfilerFrameInfo;
         self.finishCallback = nil;
     }
 
-    if (_hub == nil)
+    if (_hub == nil) {
         return;
+    }
 
     [self maybeStopProfilerWithReason:SentryProfilerStopReasonNormal];
 
@@ -551,6 +552,10 @@ static SentryScreenFrames *_gProfilerFrameInfo;
     }
 
     SentryTransaction *transaction = [self toTransaction];
+
+    if (_gProfiledTransactions == nil) {
+        _gProfiledTransactions = [NSMutableArray<SentryTransaction *> array];
+    }
     [_gProfiledTransactions addObject:transaction];
 
     [self captureProfilingEnvelopeIfFinished];

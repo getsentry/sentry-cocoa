@@ -1,50 +1,24 @@
 import XCTest
 
-
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-class SentryProfilerTests: XCTestCase {
-
-    private static let dsnAsString = TestConstants.dsnAsString(username: "SentryProfilerTests")
-    private static let dsn = TestConstants.dsn(username: "SentryProfilerTests")
+class SentryProfilerSwiftTests: XCTestCase {
+    private static let dsnAsString = TestConstants.dsnAsString(username: "SentryProfilerSwiftTests")
+    private static let dsn = TestConstants.dsn(username: "SentryProfilerSwiftTests")
 
     private class Fixture {
         let options: Options
-        let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
-        let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User wants to crash", userInfo: nil)
         var client: TestClient!
-        let crumb = Breadcrumb(level: .error, category: "default")
         let scope = Scope()
         let message = "some message"
-        let event: Event
         let currentDateProvider = TestCurrentDateProvider()
         let sentryCrash = TestSentryCrashWrapper.sharedInstance()
-        let fileManager: SentryFileManager
-        let crashedSession: SentrySession
         let transactionName = "Some Transaction"
         let transactionOperation = "Some Operation"
-        let random = TestRandom(value: 0.5)
 
         init() {
             options = Options()
-            options.dsn = SentryProfilerTests.dsnAsString
-
-            scope.add(crumb)
-
-            event = Event()
-            event.message = SentryMessage(formatted: message)
-
-            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider)
-
+            options.dsn = SentryProfilerSwiftTests.dsnAsString
             CurrentDate.setCurrentDateProvider(currentDateProvider)
-
-            crashedSession = SentrySession(releaseName: "1.0.0")
-            crashedSession.endCrashed(withTimestamp: currentDateProvider.date())
-            crashedSession.environment = options.environment
-        }
-
-        func getSut(withMaxBreadcrumbs maxBreadcrumbs: UInt = 100) -> SentryHub {
-            options.maxBreadcrumbs = maxBreadcrumbs
-            return getSut(options)
         }
 
         func getSut(_ options: Options, _ scope: Scope? = nil) -> SentryHub {
@@ -56,30 +30,25 @@ class SentryProfilerTests: XCTestCase {
     }
 
     private var fixture: Fixture!
-    func assertProfilesSampler(expectedDecision: SentrySampleDecision, options: (Options) -> Void) {
-        let fixtureOptions = fixture.options
-        fixtureOptions.tracesSampleRate = 1.0
-        options(fixtureOptions)
 
-        let hub = fixture.getSut()
-        Dynamic(hub).tracesSampler.random = TestRandom(value: 1.0)
-        Dynamic(hub).profilesSampler.random = TestRandom(value: 0.5)
+    override func setUp() {
+        super.setUp()
+        fixture = Fixture()
+        SentryTracer.resetAppStartMeasurmentRead()
+    }
 
-        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        span.finish()
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+        SentryTracer.resetAppStartMeasurmentRead()
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        SentryFramesTracker.sharedInstance().resetFrames()
+        SentryFramesTracker.sharedInstance().stop()
+#endif
+    }
 
-        guard let additionalEnvelopeItems = fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
-            XCTFail("Expected to capture at least 1 event")
-            return
-        }
-        switch expectedDecision {
-        case .undecided, .no:
-            XCTAssertEqual(0, additionalEnvelopeItems.count)
-        case .yes:
-            XCTAssertEqual(1, additionalEnvelopeItems.count)
-        @unknown default:
-            fatalError("Unexpected value for sample decision")
-        }
+    func testConcurrentProfilingTransactions() {
+
     }
 
     func testStartTransaction_ProfilingDataIsValid() {
@@ -259,8 +228,10 @@ class SentryProfilerTests: XCTestCase {
             options.profilesSampler = { _ in return -0.01 }
         }
     }
+}
 
-    private func assertValidProfileData(data: Data, customFields: [String: String]) {
+private extension SentryProfilerSwiftTests {
+    func assertValidProfileData(data: Data, customFields: [String: String]) {
         let profile = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
         XCTAssertEqual("Apple", profile["device_manufacturer"] as! String)
         XCTAssertEqual("cocoa", profile["platform"] as! String)
@@ -315,6 +286,32 @@ class SentryProfilerTests: XCTestCase {
                 continue
             }
             XCTAssertEqual(expectedValue, actualValue)
+        }
+    }
+
+    func assertProfilesSampler(expectedDecision: SentrySampleDecision, options: (Options) -> Void) {
+        let fixtureOptions = fixture.options
+        fixtureOptions.tracesSampleRate = 1.0
+        options(fixtureOptions)
+
+        let hub = fixture.getSut(fixture.options)
+        Dynamic(hub).tracesSampler.random = TestRandom(value: 1.0)
+        Dynamic(hub).profilesSampler.random = TestRandom(value: 0.5)
+
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        span.finish()
+
+        guard let additionalEnvelopeItems = fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
+            XCTFail("Expected to capture at least 1 event")
+            return
+        }
+        switch expectedDecision {
+        case .undecided, .no:
+            XCTAssertEqual(0, additionalEnvelopeItems.count)
+        case .yes:
+            XCTAssertEqual(1, additionalEnvelopeItems.count)
+        @unknown default:
+            fatalError("Unexpected value for sample decision")
         }
     }
 }

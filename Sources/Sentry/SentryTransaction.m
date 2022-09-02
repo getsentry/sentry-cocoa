@@ -20,8 +20,8 @@ SentryTransaction ()
     if (self = [super init]) {
         self.timestamp = trace.timestamp;
         self.startTimestamp = trace.startTimestamp;
-        self.systemStartTime = trace.systemStartTime;
-        self.systemEndTime = trace.systemEndTime;
+        self.systemStartTime = trace.rootSpan.systemStartTime;
+        self.systemEndTime = trace.rootSpan.systemEndTime;
         self.trace = trace;
         self.spans = children;
         self.type = SentryEnvelopeItemTypeTransaction;

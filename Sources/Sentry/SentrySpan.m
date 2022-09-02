@@ -2,7 +2,9 @@
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryCurrentDate.h"
+#import "SentryLog.h"
 #import "SentryNoOpSpan.h"
+#import "SentryTime.h"
 #import "SentryTraceHeader.h"
 #import "SentryTracer.h"
 
@@ -24,6 +26,8 @@ SentrySpan ()
         _tracer = tracer;
         _context = context;
         self.startTimestamp = [SentryCurrentDate date];
+        self.systemStartTime = getAbsoluteTime();
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Starting span at system time %llu", self.systemStartTime] andLevel:kSentryLevelDebug];
         _data = [[NSMutableDictionary alloc] init];
         _tags = [[NSMutableDictionary alloc] init];
         _isFinished = NO;
@@ -112,6 +116,7 @@ SentrySpan ()
     if (self.timestamp == nil) {
         self.timestamp = [SentryCurrentDate date];
     }
+    self.systemEndTime = getAbsoluteTime();
     if (self.tracer != nil) {
         [self.tracer spanFinished:self];
     }
