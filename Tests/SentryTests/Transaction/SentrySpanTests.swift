@@ -64,6 +64,49 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(lastEvent.type, SentryEnvelopeItemTypeTransaction)
     }
     
+    func testFinish_Custom_Timestamp() {
+        let client = TestClient(options: fixture.options)!
+        let span = fixture.getSut(client: client)
+        
+        let finishDate = Date(timeIntervalSinceNow: 6)
+        
+        span.timestamp = finishDate
+        
+        span.finish()
+        
+        XCTAssertEqual(span.startTimestamp, TestData.timestamp)
+        XCTAssertEqual(span.timestamp, finishDate)
+        XCTAssertTrue(span.isFinished)
+        XCTAssertEqual(span.context.status, .ok)
+        
+        let lastEvent = client.captureEventWithScopeInvocations.invocations[0].event
+        XCTAssertEqual(lastEvent.transaction, fixture.someTransaction)
+        XCTAssertEqual(lastEvent.timestamp, finishDate)
+        XCTAssertEqual(lastEvent.startTimestamp, TestData.timestamp)
+        XCTAssertEqual(lastEvent.type, SentryEnvelopeItemTypeTransaction)
+    }
+
+    func testFinishSpanWithDefaultTimestamp() {
+        let span = SentrySpan(transaction: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
+        span.finish()
+
+        XCTAssertEqual(span.startTimestamp, TestData.timestamp)
+        XCTAssertEqual(span.timestamp, TestData.timestamp)
+        XCTAssertTrue(span.isFinished)
+        XCTAssertEqual(span.context.status, .ok)
+    }
+
+    func testFinishSpanWithCustomTimestamp() {
+        let span = SentrySpan(transaction: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
+        span.timestamp = Date(timeIntervalSince1970: 123)
+        span.finish()
+
+        XCTAssertEqual(span.startTimestamp, TestData.timestamp)
+        XCTAssertEqual(span.timestamp, Date(timeIntervalSince1970: 123))
+        XCTAssertTrue(span.isFinished)
+        XCTAssertEqual(span.context.status, .ok)
+    }
+    
     func testFinishWithStatus() {
         let span = fixture.getSut()
         span.finish(status: .cancelled)
@@ -155,6 +198,26 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNotNil(serialization["tags"])
         XCTAssertEqual((serialization["data"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
         XCTAssertEqual((serialization["tags"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
+    }
+
+    func testSanitizeData() {
+        let span = fixture.getSut()
+
+        span.setExtra(value: Date(timeIntervalSince1970: 10), key: "date")
+        span.finish()
+
+        let serialization = span.serialize()
+        XCTAssertEqual((serialization["data"] as! Dictionary)["date"], "1970-01-01T00:00:10.000Z")
+    }
+
+    func testSanitizeDataSpan() {
+        let span = SentrySpan(transaction: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
+
+        span.setExtra(value: Date(timeIntervalSince1970: 10), key: "date")
+        span.finish()
+
+        let serialization = span.serialize()
+        XCTAssertEqual((serialization["data"] as! Dictionary)["date"], "1970-01-01T00:00:10.000Z")
     }
     
     func testSerialization_WithNoDataAndTag() {

@@ -14,6 +14,7 @@
                       publicKey:(NSString *)publicKey
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
+                    transaction:(nullable NSString *)transaction
                     userSegment:(nullable NSString *)userSegment
                      sampleRate:(nullable NSString *)sampleRate
 {
@@ -23,6 +24,7 @@
         _publicKey = publicKey;
         _releaseName = releaseName;
         _environment = environment;
+        _transaction = transaction;
         _userSegment = userSegment;
         _sampleRate = sampleRate;
     }
@@ -32,15 +34,25 @@
 
 - (NSString *)toHTTPHeader
 {
-    NSMutableDictionary *information =
-        @{ @"sentry-trace_id" : _traceId.sentryIdString, @"sentry-public_key" : _publicKey }
-            .mutableCopy;
+    return [self toHTTPHeaderWithOriginalBaggage:nil];
+}
+
+- (NSString *)toHTTPHeaderWithOriginalBaggage:(NSDictionary *_Nullable)originalBaggage
+{
+    NSMutableDictionary *information
+        = originalBaggage.mutableCopy ?: [[NSMutableDictionary alloc] init];
+
+    [information setValue:_traceId.sentryIdString forKey:@"sentry-trace_id"];
+    [information setValue:_publicKey forKey:@"sentry-public_key"];
 
     if (_releaseName != nil)
         [information setValue:_releaseName forKey:@"sentry-release"];
 
     if (_environment != nil)
         [information setValue:_environment forKey:@"sentry-environment"];
+
+    if (_transaction != nil)
+        [information setValue:_transaction forKey:@"sentry-transaction"];
 
     if (_userSegment != nil)
         [information setValue:_userSegment forKey:@"sentry-user_segment"];

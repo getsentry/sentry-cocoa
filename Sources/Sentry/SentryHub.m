@@ -10,6 +10,7 @@
 #import "SentryFileManager.h"
 #import "SentryId.h"
 #import "SentryLog.h"
+#import "SentryProfilesSampler.h"
 #import "SentrySDK+Private.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope.h"
@@ -17,7 +18,7 @@
 #import "SentryTracer.h"
 #import "SentryTracesSampler.h"
 #import "SentryTransaction.h"
-#import "SentryTransactionContext.h"
+#import "SentryTransactionContext+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,8 +28,12 @@ SentryHub ()
 @property (nullable, nonatomic, strong) SentryClient *client;
 @property (nullable, nonatomic, strong) SentryScope *scope;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
-@property (nonatomic, strong) SentryTracesSampler *sampler;
+@property (nonatomic, strong) SentryTracesSampler *tracesSampler;
+@property (nonatomic, strong) SentryProfilesSampler *profilesSampler;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
+@property (nonatomic, strong)
+    NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
+@property (nonatomic, strong) NSMutableArray<NSString *> *installedIntegrationNames;
 
 @end
 
@@ -44,8 +49,14 @@ SentryHub ()
         _scope = scope;
         _sessionLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
+        _installedIntegrationNames = [[NSMutableArray alloc] init];
         _crashWrapper = [SentryCrashWrapper sharedInstance];
-        _sampler = [[SentryTracesSampler alloc] initWithOptions:client.options];
+        _tracesSampler = [[SentryTracesSampler alloc] initWithOptions:client.options];
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+        if (client.options.isProfilingEnabled) {
+            _profilesSampler = [[SentryProfilesSampler alloc] initWithOptions:client.options];
+        }
+#endif
         _currentDateProvider = [SentryDefaultCurrentDateProvider sharedInstance];
     }
     return self;
@@ -286,8 +297,19 @@ SentryHub ()
 
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation
 {
+    return [self startTransactionWithContext:[[SentryTransactionContext alloc]
+                                                 initWithName:name
+                                                   nameSource:kSentryTransactionNameSourceCustom
+                                                    operation:operation]];
+}
+
+- (id<SentrySpan>)startTransactionWithName:(NSString *)name
+                                nameSource:(SentryTransactionNameSource)source
+                                 operation:(NSString *)operation
+{
     return [self
         startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name
+                                                                        nameSource:source
                                                                          operation:operation]];
 }
 
@@ -295,8 +317,21 @@ SentryHub ()
                                  operation:(NSString *)operation
                                bindToScope:(BOOL)bindToScope
 {
+    return [self startTransactionWithContext:[[SentryTransactionContext alloc]
+                                                 initWithName:name
+                                                   nameSource:kSentryTransactionNameSourceCustom
+                                                    operation:operation]
+                                 bindToScope:bindToScope];
+}
+
+- (id<SentrySpan>)startTransactionWithName:(NSString *)name
+                                nameSource:(SentryTransactionNameSource)source
+                                 operation:(NSString *)operation
+                               bindToScope:(BOOL)bindToScope
+{
     return
         [self startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name
+                                                                              nameSource:source
                                                                                operation:operation]
                               bindToScope:bindToScope];
 }
@@ -341,12 +376,16 @@ SentryHub ()
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
                                             customSamplingContext:customSamplingContext];
 
-    SentryTracesSamplerDecision *samplerDecision = [_sampler sample:samplingContext];
+    SentryTracesSamplerDecision *samplerDecision = [_tracesSampler sample:samplingContext];
     transactionContext.sampled = samplerDecision.decision;
     transactionContext.sampleRate = samplerDecision.sampleRate;
 
+    SentryProfilesSamplerDecision *profilesSamplerDecision =
+        [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
+
     id<SentrySpan> tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                          hub:self
+                                                     profilesSamplerDecision:profilesSamplerDecision
                                                              waitForChildren:waitForChildren];
 
     if (bindToScope)
@@ -365,12 +404,16 @@ SentryHub ()
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
                                             customSamplingContext:customSamplingContext];
 
-    SentryTracesSamplerDecision *samplerDecision = [_sampler sample:samplingContext];
+    SentryTracesSamplerDecision *samplerDecision = [_tracesSampler sample:samplingContext];
     transactionContext.sampled = samplerDecision.decision;
     transactionContext.sampleRate = samplerDecision.sampleRate;
 
+    SentryProfilesSamplerDecision *profilesSamplerDecision =
+        [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
+
     SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                         hub:self
+                                                    profilesSamplerDecision:profilesSamplerDecision
                                                                 idleTimeout:idleTimeout
                                                        dispatchQueueWrapper:dispatchQueueWrapper];
     if (bindToScope)
@@ -500,7 +543,7 @@ SentryHub ()
  */
 - (BOOL)isIntegrationInstalled:(Class)integrationClass
 {
-    for (id<SentryIntegrationProtocol> item in SentrySDK.currentHub.installedIntegrations) {
+    for (id<SentryIntegrationProtocol> item in self.installedIntegrations) {
         if ([item isKindOfClass:integrationClass]) {
             return YES;
         }
@@ -508,13 +551,9 @@ SentryHub ()
     return NO;
 }
 
-- (nullable id)getIntegration:(NSString *)integrationName
+- (BOOL)hasIntegration:(NSString *)integrationName
 {
-    NSArray *integrations = _client.options.integrations;
-    if (![integrations containsObject:integrationName]) {
-        return nil;
-    }
-    return [integrations objectAtIndex:[integrations indexOfObject:integrationName]];
+    return [self.installedIntegrationNames containsObject:integrationName];
 }
 
 - (void)setUser:(nullable SentryUser *)user

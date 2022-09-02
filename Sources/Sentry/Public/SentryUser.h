@@ -9,7 +9,7 @@ NS_SWIFT_NAME(User)
 /**
  * Optional: Id of the user
  */
-@property (atomic, copy) NSString *userId;
+@property (atomic, copy) NSString *_Nullable userId;
 
 /**
  * Optional: Email of the user
@@ -39,7 +39,6 @@ NS_SWIFT_NAME(User)
 - (instancetype)initWithUserId:(NSString *)userId;
 
 - (instancetype)init;
-+ (instancetype)new NS_UNAVAILABLE;
 
 - (BOOL)isEqual:(id _Nullable)other;
 

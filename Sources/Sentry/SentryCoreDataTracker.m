@@ -2,11 +2,22 @@
 #import "SentryCoreDataTracker.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
+#import "SentryPredicateDescriptor.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySpanProtocol.h"
 
-@implementation SentryCoreDataTracker
+@implementation SentryCoreDataTracker {
+    SentryPredicateDescriptor *predicateDescriptor;
+}
+
+- (instancetype)init
+{
+    if (self = [super init]) {
+        predicateDescriptor = [[SentryPredicateDescriptor alloc] init];
+    }
+    return self;
+}
 
 - (NSArray *)managedObjectContext:(NSManagedObjectContext *)context
               executeFetchRequest:(NSFetchRequest *)request
@@ -18,12 +29,34 @@
         fetchSpan = [span startChildWithOperation:SENTRY_COREDATA_FETCH_OPERATION
                                       description:[self descriptionFromRequest:request]];
     }];
+
+    if (fetchSpan) {
+        [SentryLog
+            logWithMessage:[NSString stringWithFormat:
+                                         @"SentryCoreDataTracker automatically "
+                                         @"started a new span with description: %@, operation: %@",
+                                     fetchSpan.description, SENTRY_COREDATA_FETCH_OPERATION]
+                  andLevel:kSentryLevelDebug];
+    } else {
+        [SentryLog
+            logWithMessage:
+                @"managedObjectContext:executeFetchRequest:error:originalImp: fetchSpan is nil."
+                  andLevel:kSentryLevelError];
+    }
+
     NSArray *result = original(request, error);
 
-    [fetchSpan setDataValue:[NSNumber numberWithInteger:result.count] forKey:@"read_count"];
+    if (fetchSpan) {
+        [fetchSpan setDataValue:[NSNumber numberWithInteger:result.count] forKey:@"read_count"];
 
-    [fetchSpan
-        finishWithStatus:error != nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
+        [fetchSpan
+            finishWithStatus:error != nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
+
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"SentryCoreDataTracker automatically "
+                                                             @"finished span with status: %@",
+                                            error == nil ? @"ok" : @"error"]
+                         andLevel:kSentryLevelDebug];
+    }
 
     return result;
 }
@@ -43,14 +76,31 @@
                                           description:[self descriptionForOperations:operations
                                                                            inContext:context]];
 
-            [fetchSpan setDataValue:operations forKey:@"operations"];
+            if (fetchSpan) {
+                [SentryLog
+                    logWithMessage:[NSString
+                                       stringWithFormat:@"SentryCoreDataTracker automatically "
+                                                        @"started a new span with description: %@, "
+                                                        @"operation: %@",
+                                       fetchSpan.description, SENTRY_COREDATA_FETCH_OPERATION]
+                          andLevel:kSentryLevelDebug];
+
+                [fetchSpan setDataValue:operations forKey:@"operations"];
+            }
         }];
     }
 
     BOOL result = original(error);
 
-    [fetchSpan
-        finishWithStatus:*error != nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
+    if (fetchSpan) {
+        [fetchSpan
+            finishWithStatus:*error != nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
+
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"SentryCoreDataTracker automatically "
+                                                             @"finished span with status: %@",
+                                            *error == nil ? @"ok" : @"error"]
+                         andLevel:kSentryLevelDebug];
+    }
 
     return result;
 }
@@ -116,7 +166,8 @@
         [[NSMutableString alloc] initWithFormat:@"SELECT '%@'", request.entityName];
 
     if (request.predicate) {
-        [result appendFormat:@" WHERE %@", [self predicateDescription:request.predicate]];
+        [result appendFormat:@" WHERE %@",
+                [predicateDescriptor predicateDescription:request.predicate]];
     }
 
     if (request.sortDescriptors.count > 0) {
@@ -124,11 +175,6 @@
     }
 
     return result;
-}
-
-- (NSString *)predicateDescription:(NSPredicate *)predicate
-{
-    return predicate.predicateFormat;
 }
 
 - (NSString *)sortDescription:(NSArray<NSSortDescriptor *> *)sortList

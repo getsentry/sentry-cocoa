@@ -66,7 +66,6 @@ typedef struct {
     int cpuSubType;
     int binaryCPUType;
     int binaryCPUSubType;
-    const char *timezone;
     const char *processName;
     int processID;
     int parentProcessID;
@@ -197,6 +196,12 @@ freeMemory(void)
         return ((uint64_t)pageSize) * vmStats.free_count;
     }
     return 0;
+}
+
+uint64_t
+sentrycrashcm_system_freememory(void)
+{
+    return freeMemory();
 }
 
 static uint64_t
@@ -349,6 +354,12 @@ isSimulatorBuild()
 #else
     return NO;
 #endif
+}
+
+bool
+sentrycrash_isSimulatorBuild(void)
+{
+    return isSimulatorBuild();
 }
 
 /** The file path for the bundle’s App Store receipt.
@@ -550,7 +561,6 @@ initialize()
         g_systemData.cpuSubType = sentrycrashsysctl_int32ForName("hw.cpusubtype");
         g_systemData.binaryCPUType = header->cputype;
         g_systemData.binaryCPUSubType = header->cpusubtype;
-        g_systemData.timezone = cString([NSTimeZone localTimeZone].abbreviation);
         g_systemData.processName = cString([NSProcessInfo processInfo].processName);
         g_systemData.processID = [NSProcessInfo processInfo].processIdentifier;
         g_systemData.parentProcessID = getppid();
@@ -604,7 +614,6 @@ addContextualInfoToEvent(SentryCrash_MonitorContext *eventContext)
         COPY_REFERENCE(cpuSubType);
         COPY_REFERENCE(binaryCPUType);
         COPY_REFERENCE(binaryCPUSubType);
-        COPY_REFERENCE(timezone);
         COPY_REFERENCE(processName);
         COPY_REFERENCE(processID);
         COPY_REFERENCE(parentProcessID);

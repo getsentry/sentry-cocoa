@@ -33,7 +33,7 @@ index 45e05469..0050ffbc 100644
 +        options.environment = @"integration-tests";
 +        options.tracesSampleRate = @0;
 +        options.enableFileIOTracking = YES;
-+        options.enableProfiling = YES;
++        options.profilesSampleRate = @1.0;
 +    }];
  
      self.orientationLock = UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskLandscape;

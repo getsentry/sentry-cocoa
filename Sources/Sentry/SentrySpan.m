@@ -1,5 +1,6 @@
 #import "SentrySpan.h"
 #import "NSDate+SentryExtras.h"
+#import "NSDictionary+SentrySanitize.h"
 #import "SentryCurrentDate.h"
 #import "SentryNoOpSpan.h"
 #import "SentryTraceHeader.h"
@@ -14,6 +15,7 @@ SentrySpan ()
 @implementation SentrySpan {
     NSMutableDictionary<NSString *, id> *_data;
     NSMutableDictionary<NSString *, id> *_tags;
+    BOOL _isFinished;
 }
 
 - (instancetype)initWithTransaction:(SentryTracer *)transaction context:(SentrySpanContext *)context
@@ -24,6 +26,7 @@ SentrySpan ()
         self.startTimestamp = [SentryCurrentDate date];
         _data = [[NSMutableDictionary alloc] init];
         _tags = [[NSMutableDictionary alloc] init];
+        _isFinished = NO;
     }
     return self;
 }
@@ -94,7 +97,7 @@ SentrySpan ()
 
 - (BOOL)isFinished
 {
-    return self.timestamp != nil;
+    return _isFinished;
 }
 
 - (void)finish
@@ -105,7 +108,10 @@ SentrySpan ()
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
     self.context.status = status;
-    self.timestamp = [SentryCurrentDate date];
+    _isFinished = YES;
+    if (self.timestamp == nil) {
+        self.timestamp = [SentryCurrentDate date];
+    }
     if (self.transaction != nil) {
         [self.transaction spanFinished:self];
     }
@@ -130,7 +136,7 @@ SentrySpan ()
 
     @synchronized(_data) {
         if (_data.count > 0) {
-            mutableDictionary[@"data"] = _data.copy;
+            mutableDictionary[@"data"] = [_data.copy sentry_sanitize];
         }
     }
 

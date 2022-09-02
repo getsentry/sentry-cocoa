@@ -16,6 +16,7 @@
 #import <SentrySwizzleWrapper.h>
 #import <SentrySysctl.h>
 #import <SentryThreadWrapper.h>
+#import <SentryViewHierarchy.h>
 
 @implementation SentryDependencyContainer
 
@@ -129,6 +130,18 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _screenshot;
+}
+
+- (SentryViewHierarchy *)viewHierarchy
+{
+    if (_viewHierarchy == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_viewHierarchy == nil) {
+                _viewHierarchy = [[SentryViewHierarchy alloc] init];
+            }
+        }
+    }
+    return _viewHierarchy;
 }
 
 - (SentryUIApplication *)application

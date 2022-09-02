@@ -4,16 +4,23 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceContext,
-    SentryDispatchQueueWrapper;
+    SentryDispatchQueueWrapper, SentryTracer, SentryProfilesSamplerDecision;
 
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
-@interface SentryTracer : NSObject <SentrySpan>
+@protocol SentryTracerDelegate
 
 /**
- *Span name.
+ * Return the active span of given tracer.
+ * This function is used to determine which span will be used to create a new child.
  */
-@property (nonatomic, copy) NSString *name;
+- (nullable id<SentrySpan>)activeSpanForTracer:(SentryTracer *)tracer;
+
+@end
+
+@interface SentryTracer : NSObject <SentrySpan>
+
+@property (nonatomic, strong) SentryTransactionContext *transactionContext;
 
 /**
  * The context information of the span.
@@ -34,6 +41,11 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  * Whether the span is finished.
  */
 @property (readonly) BOOL isFinished;
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+/** Whether the profiler is currently running. */
+@property (assign, readonly) BOOL isProfiling;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @property (nullable, nonatomic, copy) void (^finishCallback)(SentryTracer *);
 
@@ -58,6 +70,11 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  All the spans that where created with this tracer but rootSpan.
  */
 @property (nonatomic, readonly) NSArray<id<SentrySpan>> *children;
+
+/*
+ * A delegate that provides extra information for the transaction.
+ */
+@property (nullable, nonatomic, weak) id<SentryTracerDelegate> delegate;
 
 /**
  * Init a SentryTracer with given transaction context and hub and set other fields by default
@@ -90,12 +107,32 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  *
  * @param transactionContext Transaction context
  * @param hub A hub to bind this transaction
+ * @param profilesSamplerDecision Whether to sample a profile corresponding to this transaction
+ * @param waitForChildren Whether this tracer should wait all children to finish.
+ *
+ * @return SentryTracer
+ */
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
+                                       hub:(nullable SentryHub *)hub
+                   profilesSamplerDecision:
+                       (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
+                           waitForChildren:(BOOL)waitForChildren;
+
+/**
+ * Init a SentryTracer with given transaction context, hub and whether the tracer should wait
+ * for all children to finish before it finishes.
+ *
+ * @param transactionContext Transaction context
+ * @param hub A hub to bind this transaction
+ * @param profilesSamplerDecision Whether to sample a profile corresponding to this transaction
  * @param idleTimeout The idle time to wait until to finish the transaction.
  *
  * @return SentryTracer
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
+                   profilesSamplerDecision:
+                       (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
                                idleTimeout:(NSTimeInterval)idleTimeout
                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 

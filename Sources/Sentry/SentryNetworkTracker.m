@@ -5,6 +5,7 @@
 #import "SentryLog.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
+#import "SentrySerialization.h"
 #import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
 #import "SentryTracer.h"
@@ -110,8 +111,19 @@ SentryNetworkTracker ()
 
         // We only create a span if there is a transaction in the scope,
         // otherwise we have nothing else to do here.
-        if (netSpan == nil)
+        if (netSpan == nil) {
+            [SentryLog
+                logWithMessage:@"No transaction bound to scope. Won't track network operation."
+                      andLevel:kSentryLevelDebug];
+
             return;
+        }
+
+        [SentryLog
+            logWithMessage:[NSString stringWithFormat:@"SentryNetworkTracker automatically "
+                                                      @"started HTTP span for sessionTask: %@",
+                                     netSpan.description]
+                  andLevel:kSentryLevelDebug];
 
         objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN, netSpan,
             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -134,13 +146,15 @@ SentryNetworkTracker ()
 
     NSURL *url = [[sessionTask currentRequest] URL];
 
-    if (url == nil)
+    if (url == nil) {
         return;
+    }
 
     // Don't measure requests to Sentry's backend
     NSURL *apiUrl = [NSURL URLWithString:SentrySDK.options.dsn];
-    if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path])
+    if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path]) {
         return;
+    }
 
     id<SentrySpan> netSpan;
     @synchronized(sessionTask) {
@@ -174,7 +188,8 @@ SentryNetworkTracker ()
     [netSpan setDataValue:@"fetch" forKey:@"type"];
 
     [netSpan finishWithStatus:[self statusForSessionTask:sessionTask state:newState]];
-    [SentryLog logWithMessage:@"Finished HTTP span for sessionTask" andLevel:kSentryLevelDebug];
+    [SentryLog logWithMessage:@"SentryNetworkTracker finished HTTP span for sessionTask"
+                     andLevel:kSentryLevelDebug];
 }
 
 - (void)addBreadcrumbForSessionTask:(NSURLSessionTask *)sessionTask
@@ -274,6 +289,17 @@ SentryNetworkTracker ()
     return kSentrySpanStatusUndefined;
 }
 
+- (NSString *)removeSentryKeysFromBaggage:(NSString *)baggage
+{
+    NSMutableDictionary *original = [SentrySerialization decodeBaggage:baggage].mutableCopy;
+    NSDictionary *filtered =
+        [original dictionaryWithValuesForKeys:
+                      [original.allKeys
+                          filteredArrayUsingPredicate:
+                              [NSPredicate predicateWithFormat:@"NOT SELF BEGINSWITH 'sentry-'"]]];
+    return [SentrySerialization baggageEncodedDictionary:filtered];
+}
+
 - (nullable NSDictionary *)addTraceHeader:(nullable NSDictionary *)headers
 {
     @synchronized(self) {
@@ -284,7 +310,19 @@ SentryNetworkTracker ()
 
     id<SentrySpan> span = SentrySDK.currentHub.scope.span;
     if (span == nil) {
-        return headers;
+        // Remove the Sentry keys from the cached headers (cached by NSURLSession itself),
+        // because it could contain a completely unrelated trace id from a previous request.
+        NSMutableDictionary *existingHeaders = headers.mutableCopy;
+        [existingHeaders removeObjectForKey:SENTRY_TRACE_HEADER];
+
+        NSString *newBaggageHeader =
+            [self removeSentryKeysFromBaggage:headers[SENTRY_BAGGAGE_HEADER]];
+        if (newBaggageHeader.length > 0) {
+            existingHeaders[SENTRY_BAGGAGE_HEADER] = newBaggageHeader;
+        } else {
+            [existingHeaders removeObjectForKey:SENTRY_BAGGAGE_HEADER];
+        }
+        return [existingHeaders copy];
     }
 
     NSMutableDictionary *result = [[NSMutableDictionary alloc] initWithDictionary:headers];
@@ -292,7 +330,9 @@ SentryNetworkTracker ()
 
     SentryTracer *tracer = [SentryTracer getTracer:span];
     if (tracer != nil) {
-        result[SENTRY_BAGGAGE_HEADER] = [[tracer.traceContext toBaggage] toHTTPHeader];
+        result[SENTRY_BAGGAGE_HEADER] = [[tracer.traceContext toBaggage]
+            toHTTPHeaderWithOriginalBaggage:[SentrySerialization
+                                                decodeBaggage:headers[SENTRY_BAGGAGE_HEADER]]];
     }
 
     return [[NSDictionary alloc] initWithDictionary:result];

@@ -2,7 +2,6 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryFramesTracker.h"
 #import "SentryLog.h"
-#import "SentryOptions+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -17,52 +16,32 @@ SentryFramesTrackingIntegration ()
 
 @implementation SentryFramesTrackingIntegration
 
-- (void)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
 #if SENTRY_HAS_UIKIT
-    if ([self shouldBeDisabled:options]) {
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
-        return;
+    if (!PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode
+        && ![super installWithOptions:options]) {
+        return NO;
     }
 
     self.tracker = [SentryFramesTracker sharedInstance];
     [self.tracker start];
 
+    return YES;
 #else
     [SentryLog
         logWithMessage:
             @"NO UIKit -> SentryFramesTrackingIntegration will not track slow and frozen frames."
               andLevel:kSentryLevelInfo];
-#endif
-}
-
-#if SENTRY_HAS_UIKIT
-- (BOOL)shouldBeDisabled:(SentryOptions *)options
-{
-    // If the cocoa SDK is being used by a hybrid SDK,
-    // we let the hybrid SDK decide whether to track frames or not.
-    if (PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode) {
-        return NO;
-    }
-
-    if (!options.enableAutoPerformanceTracking) {
-        [SentryLog logWithMessage:
-                       @"AutoUIPerformanceTracking disabled. Will not track slow and frozen frames."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    if (!options.isTracingEnabled) {
-        [SentryLog
-            logWithMessage:
-                @"No tracesSampleRate and tracesSampler set. Will not track slow and frozen frames."
-                  andLevel:kSentryLevelDebug];
-        return YES;
-    }
 
     return NO;
-}
 #endif
+}
+
+- (SentryIntegrationOption)integrationOptions
+{
+    return kIntegrationOptionEnableAutoPerformanceTracking | kIntegrationOptionIsTracingEnabled;
+}
 
 - (void)uninstall
 {

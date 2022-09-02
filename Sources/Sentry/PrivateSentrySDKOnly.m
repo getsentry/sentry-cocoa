@@ -1,6 +1,9 @@
 #import "PrivateSentrySDKOnly.h"
+#import "SentryClient.h"
 #import "SentryDebugImageProvider.h"
+#import "SentryHub+Private.h"
 #import "SentryInstallation.h"
+#import "SentryMeta.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 #import <Foundation/Foundation.h>
@@ -45,6 +48,15 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [SentryInstallation id];
 }
 
++ (SentryOptions *)options
+{
+    SentryOptions *options = [[SentrySDK currentHub] client].options;
+    if (options != nil) {
+        return options;
+    }
+    return [[SentryOptions alloc] init];
+}
+
 + (SentryOnAppStartMeasurementAvailable)onAppStartMeasurementAvailable
 {
     return _onAppStartMeasurmentAvailable;
@@ -64,6 +76,12 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (void)setAppStartMeasurementHybridSDKMode:(BOOL)appStartMeasurementHybridSDKMode
 {
     _appStartMeasurementHybridSDKMode = appStartMeasurementHybridSDKMode;
+}
+
++ (void)setSdkName:(NSString *)sdkName andVersionString:(NSString *)versionString
+{
+    SentryMeta.sdkName = sdkName;
+    SentryMeta.versionString = versionString;
 }
 
 #if SENTRY_HAS_UIKIT

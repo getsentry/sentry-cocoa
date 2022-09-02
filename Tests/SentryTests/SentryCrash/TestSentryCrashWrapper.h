@@ -17,11 +17,17 @@ SENTRY_NO_INIT
 
 @property (nonatomic, assign) BOOL internalIsBeingTraced;
 
+@property (nonatomic, assign) BOOL internalIsSimulatorBuild;
+
 @property (nonatomic, assign) BOOL internalIsApplicationInForeground;
 
 @property (nonatomic, assign) BOOL installAsyncHooksCalled;
 
 @property (nonatomic, assign) BOOL closeCalled;
+
+@property (nonatomic, assign) uint64_t internalFreeMemory;
+
+@property (nonatomic, assign) uint64_t internalAppMemory;
 
 @end
 

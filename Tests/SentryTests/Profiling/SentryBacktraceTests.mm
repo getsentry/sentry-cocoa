@@ -109,7 +109,7 @@ indexOfSymbol(const std::uintptr_t *addresses, unsigned long depth, const char *
 }
 
 void *
-threadEntry(__unused void *ptr)
+threadEntry(void *ptr)
 {
     if (pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, nullptr) != 0) {
         return nullptr;

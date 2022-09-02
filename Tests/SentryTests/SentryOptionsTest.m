@@ -178,6 +178,11 @@
     [self testBooleanField:@"enableNetworkBreadcrumbs"];
 }
 
+- (void)testEnableAutoBreadcrumbTracking
+{
+    [self testBooleanField:@"enableAutoBreadcrumbTracking"];
+}
+
 - (void)testEnableCoreDataTracking
 {
     [self testBooleanField:@"enableCoreDataTracking" defaultValue:NO];
@@ -322,30 +327,6 @@
         @"Default integrations are not set correctly");
 }
 
-- (void)testEnabledIntegrations_SameAsDefault
-{
-    SentryOptions *options = [self getValidOptions:@{}];
-
-    [self assertArrayEquals:[SentryOptions defaultIntegrations]
-                     actual:options.enabledIntegrations.allObjects];
-}
-
-- (void)testEnabledIntegrations_AddCustomAndRemoveIntegration
-{
-    NSMutableArray<NSString *> *integrations = [SentryOptions defaultIntegrations].mutableCopy;
-    [integrations addObject:@"Custom"];
-
-    SentryOptions *options = [self getValidOptions:@{}];
-    options.integrations = integrations;
-
-    NSString *crashIntegration = @"SentryCrashIntegration";
-    NSMutableArray<NSString *> *expected = integrations.mutableCopy;
-    [expected removeObject:crashIntegration];
-
-    [options removeEnabledIntegration:crashIntegration];
-    [self assertArrayEquals:expected actual:options.enabledIntegrations.allObjects];
-}
-
 - (void)testSampleRateWithDict
 {
     NSNumber *sampleRate = @0.1;
@@ -480,6 +461,7 @@
         @"enableAppHangTracking" : [NSNull null],
         @"appHangTimeoutInterval" : [NSNull null],
         @"enableNetworkTracking" : [NSNull null],
+        @"enableAutoBreadcrumbTracking" : [NSNull null],
         @"tracesSampleRate" : [NSNull null],
         @"tracesSampler" : [NSNull null],
         @"inAppIncludes" : [NSNull null],
@@ -535,11 +517,21 @@
     XCTAssertNil(options.urlSessionDelegate);
     XCTAssertEqual(YES, options.enableSwizzling);
     XCTAssertEqual(NO, options.enableFileIOTracking);
+    XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertEqual(NO, options.enableProfiling);
+#    pragma clang diagnostic pop
+    XCTAssertNil(options.profilesSampleRate);
+    XCTAssertNil(options.profilesSampler);
 #endif
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name);
     XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version);
+#pragma clang diagnostic pop
 }
 
 - (void)testSetValidDsn
@@ -578,10 +570,12 @@
 
 - (void)testSdkInfo
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     SentryOptions *options = [[SentryOptions alloc] init];
-
     XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name);
     XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version);
+#pragma clang diagnostic pop
 }
 
 - (void)testSetCustomSdkInfo
@@ -594,8 +588,16 @@
                            didFailWithError:&error];
 
     XCTAssertNil(error);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertEqual(dict[@"name"], options.sdkInfo.name);
     XCTAssertEqual(dict[@"version"], options.sdkInfo.version);
+#pragma clang diagnostic pop
+
+    NSDictionary *info = [[NSBundle bundleForClass:[SentryClient class]] infoDictionary];
+    NSString *version = [NSString stringWithFormat:@"%@", info[@"CFBundleShortVersionString"]];
+    SentryMeta.versionString = version;
 }
 
 - (void)testSetCustomSdkName
@@ -608,8 +610,12 @@
                            didFailWithError:&error];
 
     XCTAssertNil(error);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertEqual(dict[@"name"], options.sdkInfo.name);
     XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version); // default version
+#pragma clang diagnostic pop
 }
 
 - (void)testSetCustomSdkVersion
@@ -622,8 +628,16 @@
                            didFailWithError:&error];
 
     XCTAssertNil(error);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name); // default name
     XCTAssertEqual(dict[@"version"], options.sdkInfo.version);
+#pragma clang diagnostic pop
+
+    NSDictionary *info = [[NSBundle bundleForClass:[SentryClient class]] infoDictionary];
+    NSString *version = [NSString stringWithFormat:@"%@", info[@"CFBundleShortVersionString"]];
+    SentryMeta.versionString = version;
 }
 
 - (void)testMaxAttachmentSize
@@ -697,13 +711,6 @@
 {
     [self testBooleanField:@"enableSwizzling"];
 }
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-- (void)testEnableProfiling
-{
-    [self testBooleanField:@"enableProfiling" defaultValue:NO];
-}
-#endif
 
 - (void)testTracesSampleRate
 {
@@ -818,6 +825,136 @@
     XCTAssertTrue(options.isTracingEnabled);
 }
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+- (void)testEnableProfiling
+{
+    [self testBooleanField:@"enableProfiling" defaultValue:NO];
+}
+
+- (void)testProfilesSampleRate
+{
+    SentryOptions *options = [self getValidOptions:@{ @"profilesSampleRate" : @0.1 }];
+
+    XCTAssertEqual(options.profilesSampleRate.doubleValue, 0.1);
+}
+
+- (void)testDefaultProfilesSampleRate
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+
+    XCTAssertNil(options.profilesSampleRate);
+}
+
+- (void)testProfilesSampleRate_SetToNil
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.profilesSampleRate = nil;
+    XCTAssertNil(options.profilesSampleRate);
+}
+
+- (void)testProfilesSampleRateLowerBound
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.profilesSampleRate = @0.5;
+
+    NSNumber *lowerBound = @0;
+    options.profilesSampleRate = lowerBound;
+    XCTAssertEqual(lowerBound, options.profilesSampleRate);
+
+    options.profilesSampleRate = @0.5;
+
+    NSNumber *tooLow = @-0.01;
+    options.profilesSampleRate = tooLow;
+    XCTAssertNil(options.profilesSampleRate);
+}
+
+- (void)testProfilesSampleRateUpperBound
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.profilesSampleRate = @0.5;
+
+    NSNumber *lowerBound = @1;
+    options.profilesSampleRate = lowerBound;
+    XCTAssertEqual(lowerBound, options.profilesSampleRate);
+
+    options.profilesSampleRate = @0.5;
+
+    NSNumber *tooLow = @1.01;
+    options.profilesSampleRate = tooLow;
+    XCTAssertNil(options.profilesSampleRate);
+}
+
+- (void)testIsProfilingEnabled_NothingSet_IsDisabled
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    XCTAssertFalse(options.isProfilingEnabled);
+}
+
+- (void)testIsProfilingEnabled_ProfilesSampleRateSetToZero_IsDisabled
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.profilesSampleRate = @0.00;
+    XCTAssertFalse(options.isProfilingEnabled);
+}
+
+- (void)testIsProfilingEnabled_ProfilesSampleRateSet_IsEnabled
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.profilesSampleRate = @0.01;
+    XCTAssertTrue(options.isProfilingEnabled);
+}
+
+- (void)testIsProfilingEnabled_ProfilesSamplerSet_IsEnabled
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.profilesSampler = ^(SentrySamplingContext *context) {
+        XCTAssertNotNil(context);
+        return @0.0;
+    };
+    XCTAssertTrue(options.isProfilingEnabled);
+}
+
+- (void)testIsProfilingEnabled_EnableProfilingSet_IsEnabled
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    options.enableProfiling = YES;
+#    pragma clang diagnostic pop
+    XCTAssertTrue(options.isProfilingEnabled);
+}
+
+- (double)profilesSamplerCallback:(NSDictionary *)context
+{
+    return 0.1;
+}
+
+- (void)testProfilesSampler
+{
+    SentryTracesSamplerCallback sampler = ^(SentrySamplingContext *context) {
+        XCTAssertNotNil(context);
+        return @1.0;
+    };
+
+    SentryOptions *options = [self getValidOptions:@{ @"profilesSampler" : sampler }];
+
+    SentrySamplingContext *context = [[SentrySamplingContext alloc] init];
+    XCTAssertEqual(options.profilesSampler(context), @1.0);
+}
+
+- (void)testDefaultProfilesSampler
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertNil(options.profilesSampler);
+}
+
+- (void)testGarbageProfilesSampler_ReturnsNil
+{
+    SentryOptions *options = [self getValidOptions:@{ @"profilesSampler" : @"fault" }];
+    XCTAssertNil(options.profilesSampler);
+}
+#endif
+
 - (void)testInAppIncludes
 {
     NSArray<NSString *> *expected = @[ @"iOS-Swift", @"BusinessLogic" ];
@@ -903,6 +1040,19 @@
     SentryOptions *options = [self getValidOptions:@{ @"urlSessionDelegate" : urlSessionDelegate }];
 
     XCTAssertNotNil(options.urlSessionDelegate);
+}
+
+- (void)testSdkInfoChanges
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    SentryMeta.sdkName = @"new name";
+    SentryMeta.versionString = @"0.0.6";
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    XCTAssertEqual(options.sdkInfo.name, SentryMeta.sdkName);
+    XCTAssertEqual(options.sdkInfo.version, SentryMeta.versionString);
+#pragma clang diagnostic pop
 }
 
 - (void)assertArrayEquals:(NSArray<NSString *> *)expected actual:(NSArray<NSString *> *)actual

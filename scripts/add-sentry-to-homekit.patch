@@ -32,7 +32,7 @@ index 8e0e35f4..3d34887d 100644
 +            options.environment = "integration-tests"
 +            options.tracesSampleRate = 1.0
 +            options.enableFileIOTracking = true
-+            options.enableProfiling = true
++            options.profilesSampleRate = 1.0
 +        }
 +        
          if NSClassFromString("XCTest") != nil {

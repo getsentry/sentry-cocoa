@@ -1,0 +1,26 @@
+apiVersion: v1alpha
+kind: xcuitest
+sauce:
+  region: us-west-1
+  concurrency: 2
+
+defaults:
+  timeout: 20m
+
+xcuitest:
+  app: ./DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app
+  testApp: ./DerivedData/Build/Products/Debug-iphoneos/PerformanceBenchmarks-Runner.app
+
+suites:
+  - name: "High-end device"
+    devices:
+      - name: "iPad Pro 12.9 2021"
+        platformVersion: "15.5"
+  - name: "Mid-range device"
+    devices:
+      - name: "iPhone 8"
+        platformVersion: "14.8"
+  - name: "Low-end device"
+    devices:
+      - name: "iPhone 6S"
+        platformVersion: "15.3.1"

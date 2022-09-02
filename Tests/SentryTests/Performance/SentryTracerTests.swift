@@ -2,6 +2,15 @@ import XCTest
 
 class SentryTracerTests: XCTestCase {
     
+    private class TracerDelegate: SentryTracerDelegate {
+        
+        var activeSpan: Span?
+        
+        func activeSpan(for tracer: SentryTracer) -> Span? {
+            return activeSpan
+        }
+    }
+    
     private class Fixture {
         let client: TestClient
         let hub: TestHub
@@ -24,10 +33,10 @@ class SentryTracerTests: XCTestCase {
         
         let idleTimeout: TimeInterval = 1.0
         
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         var displayLinkWrapper: TestDiplayLinkWrapper
-        #endif
-
+#endif
+        
         init() {
             CurrentDate.setCurrentDateProvider(currentDateProvider)
             appStart = currentDateProvider.date()
@@ -41,22 +50,23 @@ class SentryTracerTests: XCTestCase {
             hub = TestHub(client: client, andScope: scope)
             
             CurrentDate.setCurrentDateProvider(currentDateProvider)
-
-            #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+            
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             displayLinkWrapper = TestDiplayLinkWrapper()
-
+            
             SentryFramesTracker.sharedInstance().setDisplayLinkWrapper(displayLinkWrapper)
             SentryFramesTracker.sharedInstance().start()
             displayLinkWrapper.call()
-            #endif
+#endif
         }
         
         func getAppStartMeasurement(type: SentryAppStartType) -> SentryAppStartMeasurement {
             let appStartDuration = 0.5
-            let runtimeInit = appStart.addingTimeInterval(0.2)
+            let main = appStart.addingTimeInterval(0.15)
+            let runtimeInit = appStart.addingTimeInterval(0.05)
             let didFinishLaunching = appStart.addingTimeInterval(0.3)
             
-            return SentryAppStartMeasurement(type: type, appStartTimestamp: appStart, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, didFinishLaunchingTimestamp: didFinishLaunching)
+            return SentryAppStartMeasurement(type: type, appStartTimestamp: appStart, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, didFinishLaunchingTimestamp: didFinishLaunching)
         }
         
         func getSut(waitForChildren: Bool = true) -> SentryTracer {
@@ -75,15 +85,15 @@ class SentryTracerTests: XCTestCase {
         fixture = Fixture()
         SentryTracer.resetAppStartMeasurmentRead()
     }
-
+    
     override func tearDown() {
         super.tearDown()
         clearTestState()
         SentryTracer.resetAppStartMeasurmentRead()
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         SentryFramesTracker.sharedInstance().resetFrames()
         SentryFramesTracker.sharedInstance().stop()
-        #endif
+#endif
     }
     
     func testFinish_WithChildren_WaitsForAllChildren() {
@@ -92,12 +102,12 @@ class SentryTracerTests: XCTestCase {
         sut.finish()
         
         assertTransactionNotCaptured(sut)
-
+        
         let grandChild = child.startChild(operation: fixture.transactionOperation)
         child.finish()
         
         assertTransactionNotCaptured(sut)
-
+        
         let granGrandChild = grandChild.startChild(operation: fixture.transactionOperation)
         
         granGrandChild.finish()
@@ -366,9 +376,56 @@ class SentryTracerTests: XCTestCase {
         let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
         
         XCTAssertEqual(["app_start_cold": ["value": 500]], measurements)
-    
+        
         let transaction = fixture.hub.capturedEventsWithScopes.first!.event as! Transaction
         assertAppStartsSpanAdded(transaction: transaction, startType: "Cold Start", operation: fixture.appStartColdOperation, appStartMeasurement: appStartMeasurement)
+    }
+    
+    func test_startChildWithDelegate() {
+        let delegate = TracerDelegate()
+        
+        let sut = fixture.getSut()
+        sut.delegate = delegate
+        
+        let child = sut.startChild(operation: fixture.transactionOperation)
+        
+        delegate.activeSpan = child
+        
+        let secondChild = sut.startChild(operation: fixture.transactionOperation)
+        
+        XCTAssertEqual(secondChild.context.parentSpanId, child.context.spanId)
+    }
+    
+    func test_startChildWithDelegate_ActiveNotChild() {
+        let delegate = TracerDelegate()
+        
+        let sut = fixture.getSut()
+        sut.delegate = delegate
+        
+        delegate.activeSpan = SentryTracer(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation), hub: nil)
+        
+        let child = sut.startChild(operation: fixture.transactionOperation)
+        
+        let secondChild = sut.startChild(operation: fixture.transactionOperation)
+        
+        XCTAssertEqual(secondChild.context.parentSpanId, sut.context.spanId)
+        XCTAssertEqual(secondChild.context.parentSpanId, child.context.parentSpanId)
+    }
+    
+    func test_startChildWithDelegate_SelfIsActive() {
+        let delegate = TracerDelegate()
+        
+        let sut = fixture.getSut()
+        sut.delegate = delegate
+        
+        delegate.activeSpan = sut
+        
+        let child = sut.startChild(operation: fixture.transactionOperation)
+        
+        let secondChild = sut.startChild(operation: fixture.transactionOperation)
+        
+        XCTAssertEqual(secondChild.context.parentSpanId, sut.context.spanId)
+        XCTAssertEqual(secondChild.context.parentSpanId, child.context.parentSpanId)
     }
     
     func testAddWarmAppStartMeasurement_PutOnNextAutoUITransaction() {
@@ -396,6 +453,7 @@ class SentryTracerTests: XCTestCase {
             appStartTimestamp: fixture.currentDateProvider.date(),
             duration: 0.5,
             runtimeInitTimestamp: fixture.currentDateProvider.date(),
+            moduleInitializationTimestamp: fixture.currentDateProvider.date(),
             didFinishLaunchingTimestamp: fixture.currentDateProvider.date()
         ))
         
@@ -598,39 +656,39 @@ class SentryTracerTests: XCTestCase {
             let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
             return measurements == ["app_start_warm": ["value": 500]]
         }
-
+        
         XCTAssertEqual(1, transactionsWithAppStartMeasrurement.count)
     }
-
-    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-
+    
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    
     func testChangeStartTimeStamp_RemovesFramesMeasurement() {
         let sut = fixture.getSut()
         fixture.displayLinkWrapper.givenFrames(1, 1, 1)
         sut.startTimestamp = sut.startTimestamp?.addingTimeInterval(-1)
-
+        
         sut.finish()
-
+        
         assertNoMeasurementsAdded()
     }
-
+    
     func testAddFramesMeasurement() {
         let sut = fixture.getSut()
-
+        
         let slowFrames = 4
         let frozenFrames = 1
         let normalFrames = 100
         let totalFrames = slowFrames + frozenFrames + normalFrames
         fixture.displayLinkWrapper.givenFrames(slowFrames, frozenFrames, normalFrames)
-
+        
         sut.finish()
-
+        
         fixture.hub.group.wait()
-
+        
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
         let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
-
+        
         XCTAssertEqual([
             "frames_total": ["value": totalFrames],
             "frames_slow": ["value": slowFrames],
@@ -650,7 +708,7 @@ class SentryTracerTests: XCTestCase {
         
         assertNoMeasurementsAdded()
     }
-    #endif
+#endif
     
     func testSetExtra_ForwardsToSetData() {
         let sut = fixture.getSut()
@@ -671,11 +729,11 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(dict, [fixture.testKey: fixture.testValue])
     }
     
-    #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     func testCapturesProfile_whenProfilingEnabled() {
         let scope = Scope()
         let options = Options()
-        options.enableProfiling = true
+        options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
         let client = TestClient(options: options)!
         let hub = TestHub(client: client, andScope: scope)
@@ -690,7 +748,7 @@ class SentryTracerTests: XCTestCase {
     func testDoesNotCapturesProfile_whenProfilingDisabled() {
         let scope = Scope()
         let options = Options()
-        options.enableProfiling = false
+        options.profilesSampleRate = 0.0
         options.tracesSampleRate = 1.0
         let client = TestClient(options: options)!
         let hub = TestHub(client: client, andScope: scope)
@@ -705,7 +763,7 @@ class SentryTracerTests: XCTestCase {
             }
         }
     }
-    #endif
+#endif
     
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(bySeconds))
@@ -735,7 +793,7 @@ class SentryTracerTests: XCTestCase {
     
     private func assertAppStartsSpanAdded(transaction: Transaction, startType: String, operation: String, appStartMeasurement: SentryAppStartMeasurement) {
         let spans: [SentrySpan]? = Dynamic(transaction).spans
-        XCTAssertEqual(4, spans?.count)
+        XCTAssertEqual(5, spans?.count)
         
         let appLaunchSpan = spans?.first { span in
             span.context.spanDescription == startType
@@ -746,29 +804,21 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(appStartMeasurement.appStartTimestamp, appLaunchSpan?.startTimestamp)
         XCTAssertEqual(fixture.appStartEnd, appLaunchSpan?.timestamp)
         
-        let preMainSpan = spans?.first { span in
-            span.context.spanDescription == "Pre main"
+        func assertSpan(_ description: String, _ startTimestamp: Date, _ timestamp: Date) {
+            let span = spans?.first { span in
+                span.context.spanDescription == description
+            }
+            
+            XCTAssertEqual(operation, span?.context.operation)
+            XCTAssertEqual(appLaunchSpan?.context.spanId, span?.context.parentSpanId)
+            XCTAssertEqual(startTimestamp, span?.startTimestamp)
+            XCTAssertEqual(timestamp, span?.timestamp)
         }
-        XCTAssertEqual(operation, preMainSpan?.context.operation)
-        XCTAssertEqual(appLaunchSpan?.context.spanId, preMainSpan?.context.parentSpanId)
-        XCTAssertEqual(appStartMeasurement.appStartTimestamp, preMainSpan?.startTimestamp)
-        XCTAssertEqual(appStartMeasurement.runtimeInitTimestamp, preMainSpan?.timestamp)
         
-        let appInitSpan = spans?.first { span in
-            span.context.spanDescription == "UIKit and Application Init"
-        }
-        XCTAssertEqual(operation, appInitSpan?.context.operation)
-        XCTAssertEqual(appLaunchSpan?.context.spanId, appInitSpan?.context.parentSpanId)
-        XCTAssertEqual(appStartMeasurement.runtimeInitTimestamp, appInitSpan?.startTimestamp)
-        XCTAssertEqual(appStartMeasurement.didFinishLaunchingTimestamp, appInitSpan?.timestamp)
-        
-        let frameRenderSpan = spans?.first { span in
-            span.context.spanDescription == "Initial Frame Render"
-        }
-        XCTAssertEqual(operation, frameRenderSpan?.context.operation)
-        XCTAssertEqual(appLaunchSpan?.context.spanId, frameRenderSpan?.context.parentSpanId)
-        XCTAssertEqual(appStartMeasurement.didFinishLaunchingTimestamp, frameRenderSpan?.startTimestamp)
-        XCTAssertEqual(fixture.appStartEnd, frameRenderSpan?.timestamp)
+        assertSpan("Pre Runtime Init", appStartMeasurement.appStartTimestamp, appStartMeasurement.runtimeInitTimestamp)
+        assertSpan("Runtime Init to Pre Main Initializers", appStartMeasurement.runtimeInitTimestamp, appStartMeasurement.moduleInitializationTimestamp)
+        assertSpan("UIKit and Application Init", appStartMeasurement.moduleInitializationTimestamp, appStartMeasurement.didFinishLaunchingTimestamp)
+        assertSpan("Initial Frame Render", appStartMeasurement.didFinishLaunchingTimestamp, fixture.appStartEnd)
     }
     
     private func assertAppStartMeasurementNotPutOnTransaction() {

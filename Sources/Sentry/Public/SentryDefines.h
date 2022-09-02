@@ -106,6 +106,16 @@ typedef NS_ENUM(NSUInteger, SentryLevel) {
 };
 
 /**
+ * Permission status
+ */
+typedef NS_ENUM(NSInteger, SentryPermissionStatus) {
+    kSentryPermissionStatusUnknown = 0,
+    kSentryPermissionStatusGranted,
+    kSentryPermissionStatusPartial,
+    kSentryPermissionStatusDenied
+};
+
+/**
  * Static internal helper to convert enum to string
  */
 static NSString *_Nonnull const SentryLevelNames[] = {
@@ -118,3 +128,15 @@ static NSString *_Nonnull const SentryLevelNames[] = {
 };
 
 static NSUInteger const defaultMaxBreadcrumbs = 100;
+
+/**
+ * Transaction name source
+ */
+typedef NS_ENUM(NSInteger, SentryTransactionNameSource) {
+    kSentryTransactionNameSourceCustom = 0,
+    kSentryTransactionNameSourceUrl,
+    kSentryTransactionNameSourceRoute,
+    kSentryTransactionNameSourceView,
+    kSentryTransactionNameSourceComponent,
+    kSentryTransactionNameSourceTask
+};

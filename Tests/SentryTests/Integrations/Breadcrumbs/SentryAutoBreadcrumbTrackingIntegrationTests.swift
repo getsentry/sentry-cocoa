@@ -42,6 +42,16 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(1, fixture.tracker.startInvocations.count)
         XCTAssertEqual(0, fixture.tracker.startSwizzleInvocations.count)
     }
+
+    func test_enableAutoBreadcrumbTracking_Disabled() {
+        let options = Options()
+        options.enableAutoBreadcrumbTracking = false
+
+        let sut = SentryAutoBreadcrumbTrackingIntegration()
+        let result = sut.install(with: options)
+
+        XCTAssertFalse(result)
+    }
 }
 
 private class SentryTestBreadcrumbTracker: SentryBreadcrumbTracker {

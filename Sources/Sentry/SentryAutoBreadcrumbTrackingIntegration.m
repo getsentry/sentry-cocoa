@@ -3,6 +3,8 @@
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryFileManager.h"
+#import "SentryLog.h"
+#import "SentryOptions.h"
 #import "SentrySystemEventBreadcrumbs.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -17,8 +19,11 @@ SentryAutoBreadcrumbTrackingIntegration ()
 
 @implementation SentryAutoBreadcrumbTrackingIntegration
 
-- (void)installWithOptions:(nonnull SentryOptions *)options
+- (BOOL)installWithOptions:(nonnull SentryOptions *)options
 {
+    if (![super installWithOptions:options]) {
+        return NO;
+    }
 
     [self installWithOptions:options
              breadcrumbTracker:[[SentryBreadcrumbTracker alloc]
@@ -29,6 +34,13 @@ SentryAutoBreadcrumbTrackingIntegration ()
                                                               .fileManager
                                    andCurrentDateProvider:[SentryDefaultCurrentDateProvider
                                                               sharedInstance]]];
+
+    return YES;
+}
+
+- (SentryIntegrationOption)integrationOptions
+{
+    return kIntegrationOptionEnableAutoBreadcrumbTracking;
 }
 
 /**

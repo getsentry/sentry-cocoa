@@ -60,6 +60,11 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enabled;
 
 /**
+ * When enabled, the SDK sends crashes to Sentry. Default value is YES.
+ */
+@property (nonatomic, assign) BOOL enableCrashHandler;
+
+/**
  * How many breadcrumbs do you want to keep in memory?
  * Default is 100.
  */
@@ -153,8 +158,10 @@ NS_SWIFT_NAME(Options)
 
 /**
  * Describes the Sentry SDK and its configuration used to capture and transmit an event.
+ * This is reserved for internal use, and will be removed in a future version of the SDK.
  */
-@property (nonatomic, readonly, strong) SentrySdkInfo *sdkInfo;
+@property (nonatomic, readonly, strong) SentrySdkInfo *sdkInfo DEPRECATED_MSG_ATTRIBUTE(
+    "This property will be removed in a future version of the SDK");
 
 /**
  * The maximum size for each attachment in bytes. Default is 20 MiB / 20 * 1024 * 1024 bytes.
@@ -193,11 +200,23 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableUIViewControllerTracking;
 
 /**
+ * This feature is EXPERIMENTAL.
+ *
  * Automatically attaches a screenshot when capturing an error or exception.
  *
  * Default value is <code>NO</code>
  */
 @property (nonatomic, assign) BOOL attachScreenshot;
+
+/**
+ * This feature is EXPERIMENTAL.
+ *
+ * Automatically attaches a textual representation of the view hierarchy when capturing an error
+ * event.
+ *
+ * Default value is <code>NO</code>
+ */
+@property (nonatomic, assign) BOOL attachViewHierarchy;
 
 /**
  * This feature is EXPERIMENTAL.
@@ -306,11 +325,46 @@ NS_SWIFT_NAME(Options)
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
+ * This feature is experimental. Profiling is not supported on watchOS or tvOS.
+ *
+ * Indicates the percentage profiles being sampled out of the sampled transactions.
+ *
+ * The default is 0. The value needs to be >= 0.0 and <= 1.0. When setting a value out of range
+ * the SDK sets it to the default of 0.
+ *
+ * This property is dependent on `tracesSampleRate` -- if `tracesSampleRate` is 0 (default),
+ * no profiles will be collected no matter what this property is set to. This property is
+ * used to undersample profiles *relative to* `tracesSampleRate`.
+ */
+@property (nullable, nonatomic, strong) NSNumber *profilesSampleRate;
+
+/**
+ * This feature is experimental. Profiling is not supported on watchOS or tvOS.
+ *
+ * A callback to a user defined profiles sampler function. This is similar to setting
+ * `profilesSampleRate`, but instead of a static value, the callback function will be called to
+ * determine the sample rate.
+ */
+@property (nullable, nonatomic) SentryTracesSamplerCallback profilesSampler;
+
+/**
+ * If profiling should be enabled or not. Returns YES if either a profilesSampleRate > 0 and
+ * <=1 or a profilesSampler is set otherwise NO.
+ */
+@property (nonatomic, assign, readonly) BOOL isProfilingEnabled;
+
+/**
+ * DEPRECATED: Use `profilesSampleRate` instead. Setting `enableProfiling` to YES is the equivalent
+ * of setting `profilesSampleRate` to `1.0`. If `profilesSampleRate` is set, it will take precedence
+ * over this setting.
+ *
  * Whether to enable the sampling profiler. Default is NO.
  * @note This is a beta feature that is currently not available to all Sentry customers. This
  * feature is not supported on watchOS or tvOS.
  */
-@property (nonatomic, assign) BOOL enableProfiling;
+@property (nonatomic, assign) BOOL enableProfiling DEPRECATED_MSG_ATTRIBUTE(
+    "Use profilesSampleRate or profilesSampler instead. This property will be removed in a future "
+    "version of the SDK");
 #endif
 
 /**
@@ -334,6 +388,11 @@ NS_SWIFT_NAME(Options)
  * The default value is 2 seconds.
  */
 @property (nonatomic, assign) NSTimeInterval appHangTimeoutInterval;
+
+/**
+ * When enabled, the SDK adds breadcrumbs for various system events. Default value is YES.
+ */
+@property (nonatomic, assign) BOOL enableAutoBreadcrumbTracking;
 
 @end
 

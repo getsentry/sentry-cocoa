@@ -11,8 +11,10 @@ SentryOptions ()
 
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultSampleRate;
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultTracesSampleRate;
-@property (nonatomic, strong) NSMutableSet<NSString *> *disabledIntegrations;
-
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+@property (nullable, nonatomic, copy, readonly) NSNumber *defaultProfilesSampleRate;
+@property (nonatomic, assign) BOOL enableProfiling_DEPRECATED_TEST_ONLY;
+#endif
 @end
 
 @implementation SentryOptions
@@ -23,7 +25,7 @@ SentryOptions ()
         @"SentryCrashIntegration",
 #if SENTRY_HAS_UIKIT
         @"SentryANRTrackingIntegration", @"SentryScreenshotIntegration",
-        @"SentryUIEventTrackingIntegration",
+        @"SentryUIEventTrackingIntegration", @"SentryViewHierarchyIntegration",
 #endif
         @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
         @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
@@ -37,12 +39,12 @@ SentryOptions ()
 {
     if (self = [super init]) {
         self.enabled = YES;
+        self.enableCrashHandler = YES;
         self.diagnosticLevel = kSentryLevelDebug;
         self.debug = NO;
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
         self.maxCacheItems = 30;
-        self.integrations = SentryOptions.defaultIntegrations;
-        self.disabledIntegrations = [NSMutableSet new];
+        _integrations = SentryOptions.defaultIntegrations;
         _defaultSampleRate = @1;
         self.sampleRate = _defaultSampleRate;
         self.enableAutoSessionTracking = YES;
@@ -56,22 +58,26 @@ SentryOptions ()
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracking = YES;
         self.attachScreenshot = NO;
+        self.attachViewHierarchy = NO;
         self.enableUserInteractionTracing = NO;
         self.idleTimeout = 3.0;
 #endif
         self.enableAppHangTracking = NO;
         self.appHangTimeoutInterval = 2.0;
+        self.enableAutoBreadcrumbTracking = YES;
 
         self.enableNetworkTracking = YES;
         self.enableFileIOTracking = NO;
         self.enableNetworkBreadcrumbs = YES;
         _defaultTracesSampleRate = nil;
         self.tracesSampleRate = _defaultTracesSampleRate;
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+        _enableProfiling = NO;
+        _defaultProfilesSampleRate = nil;
+        self.profilesSampleRate = _defaultProfilesSampleRate;
+#endif
         self.enableCoreDataTracking = NO;
         _enableSwizzling = YES;
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-        self.enableProfiling = NO;
-#endif
         self.sendClientReports = YES;
 
         // Use the name of the bundle’s executable file as inAppInclude, so SentryInAppLogic
@@ -94,8 +100,6 @@ SentryOptions ()
         }
 
         _inAppExcludes = [NSArray new];
-        _sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
-                                            andVersion:SentryMeta.versionString];
 
         // Set default release name
         if (nil != infoDict) {
@@ -119,6 +123,15 @@ SentryOptions ()
         }
     }
     return self;
+}
+
+- (void)setIntegrations:(NSArray<NSString *> *)integrations
+{
+    [SentryLog logWithMessage:
+                   @"Setting `SentryOptions.integrations` is deprecated. Integrations should be "
+                   @"enabled or disabled using their respective `SentryOptions.enable*` property."
+                     andLevel:kSentryLevelWarning];
+    _integrations = integrations;
 }
 
 - (void)setDsn:(NSString *)dsn
@@ -174,6 +187,9 @@ SentryOptions ()
     }
 
     [self setBool:options[@"enabled"] block:^(BOOL value) { self->_enabled = value; }];
+
+    [self setBool:options[@"enableCrashHandler"]
+            block:^(BOOL value) { self->_enableCrashHandler = value; }];
 
     if ([options[@"maxBreadcrumbs"] isKindOfClass:[NSNumber class]]) {
         self.maxBreadcrumbs = [options[@"maxBreadcrumbs"] unsignedIntValue];
@@ -240,13 +256,15 @@ SentryOptions ()
     [self setBool:options[@"attachScreenshot"]
             block:^(BOOL value) { self->_attachScreenshot = value; }];
 
+    [self setBool:options[@"attachViewHierarchy"]
+            block:^(BOOL value) { self->_attachViewHierarchy = value; }];
+
     [self setBool:options[@"enableUserInteractionTracing"]
             block:^(BOOL value) { self->_enableUserInteractionTracing = value; }];
 
     if ([options[@"idleTimeout"] isKindOfClass:[NSNumber class]]) {
         self.idleTimeout = [options[@"idleTimeout"] doubleValue];
     }
-
 #endif
 
     [self setBool:options[@"enableAppHangTracking"]
@@ -291,6 +309,14 @@ SentryOptions ()
             block:^(BOOL value) { self->_enableCoreDataTracking = value; }];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+    if ([options[@"profilesSampleRate"] isKindOfClass:[NSNumber class]]) {
+        self.profilesSampleRate = options[@"profilesSampleRate"];
+    }
+
+    if ([self isBlock:options[@"profilesSampler"]]) {
+        self.profilesSampler = options[@"profilesSampler"];
+    }
+
     [self setBool:options[@"enableProfiling"]
             block:^(BOOL value) { self->_enableProfiling = value; }];
 #endif
@@ -298,10 +324,17 @@ SentryOptions ()
     [self setBool:options[@"sendClientReports"]
             block:^(BOOL value) { self->_sendClientReports = value; }];
 
+    [self setBool:options[@"enableAutoBreadcrumbTracking"]
+            block:^(BOOL value) { self->_enableAutoBreadcrumbTracking = value; }];
+
     // SentrySdkInfo already expects a dictionary with {"sdk": {"name": ..., "value": ...}}
     // so we're passing the whole options object.
+    // Note: we should remove this code once the hybrid SDKs move over to the new
+    // PrivateSentrySDKOnly setter functions.
     if ([options[@"sdk"] isKindOfClass:[NSDictionary class]]) {
-        _sdkInfo = [[SentrySdkInfo alloc] initWithDict:options orDefaults:_sdkInfo];
+        SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithDict:options];
+        SentryMeta.versionString = sdkInfo.version;
+        SentryMeta.sdkName = sdkInfo.name;
     }
 
     if (nil != error && nil != *error) {
@@ -309,6 +342,12 @@ SentryOptions ()
     } else {
         return YES;
     }
+}
+
+- (SentrySdkInfo *)sdkInfo
+{
+    return [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
+                                    andVersion:SentryMeta.versionString];
 }
 
 - (void)setBool:(id)value block:(void (^)(BOOL))block
@@ -369,6 +408,43 @@ SentryOptions ()
         || _tracesSampler != nil;
 }
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+- (BOOL)isValidProfilesSampleRate:(NSNumber *)profilesSampleRate
+{
+    return [self isValidTracesSampleRate:profilesSampleRate];
+}
+
+- (void)setProfilesSampleRate:(NSNumber *)profilesSampleRate
+{
+    if (profilesSampleRate == nil) {
+        _profilesSampleRate = nil;
+    } else if ([self isValidProfilesSampleRate:profilesSampleRate]) {
+        _profilesSampleRate = profilesSampleRate;
+    } else {
+        _profilesSampleRate = _defaultProfilesSampleRate;
+    }
+}
+
+- (BOOL)isProfilingEnabled
+{
+    return (_profilesSampleRate != nil && [_profilesSampleRate doubleValue] > 0)
+        || _profilesSampler != nil || _enableProfiling;
+}
+
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+- (void)setEnableProfiling_DEPRECATED_TEST_ONLY:(BOOL)enableProfiling_DEPRECATED_TEST_ONLY
+{
+    self.enableProfiling = enableProfiling_DEPRECATED_TEST_ONLY;
+}
+
+- (BOOL)enableProfiling_DEPRECATED_TEST_ONLY
+{
+    return self.enableProfiling;
+}
+#    pragma clang diagnostic pop
+#endif
+
 /**
  * Checks if the passed in block is actually of type block. We can't check if the block matches a
  * specific block without some complex objc runtime method calls and therefore we only check if its
@@ -389,21 +465,6 @@ SentryOptions ()
     });
 
     return [block isKindOfClass:blockClass];
-}
-
-- (NSSet<NSString *> *)enabledIntegrations
-{
-    NSMutableSet<NSString *> *enabledIntegrations =
-        [[NSMutableSet alloc] initWithArray:self.integrations];
-    for (NSString *integration in self.disabledIntegrations) {
-        [enabledIntegrations removeObject:integration];
-    }
-    return enabledIntegrations;
-}
-
-- (void)removeEnabledIntegration:(NSString *)integration
-{
-    [self.disabledIntegrations addObject:integration];
 }
 
 @end

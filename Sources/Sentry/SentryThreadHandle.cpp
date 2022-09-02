@@ -117,7 +117,7 @@ namespace profiling {
         if (handle == nullptr) {
             return {};
         }
-        char name[128];
+        char name[MAXTHREADNAMESIZE];
         if (SENTRY_PROF_LOG_ERROR_RETURN(pthread_getname_np(handle, name, sizeof(name))) == 0) {
             return std::string(name);
         }
@@ -240,7 +240,7 @@ namespace profiling {
         if (handle_ == THREAD_NULL) {
             return false;
         }
-        return SENTRY_PROF_LOG_KERN_RETURN(thread_suspend(handle_)) == KERN_SUCCESS;
+        return thread_suspend(handle_) == KERN_SUCCESS;
     }
 
     bool
@@ -249,7 +249,7 @@ namespace profiling {
         if (handle_ == THREAD_NULL) {
             return false;
         }
-        return SENTRY_PROF_LOG_KERN_RETURN(thread_resume(handle_)) == KERN_SUCCESS;
+        return thread_resume(handle_) == KERN_SUCCESS;
     }
 
     bool

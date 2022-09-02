@@ -287,19 +287,25 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     func testSendEventWithRetryAfterResponse() {
+        fixture.requestManager.nextError = NSError(domain: "something", code: 12)
+        
         let response = givenRetryAfterResponse()
 
         sendEvent()
 
         assertRateLimitUpdated(response: response)
+        assertClientReportNotStoredInMemory()
     }
 
     func testSendEventWithRateLimitResponse() {
+        fixture.requestManager.nextError = NSError(domain: "something", code: 12)
+
         let response = givenRateLimitResponse(forCategory: SentryEnvelopeItemTypeSession)
 
         sendEvent()
 
         assertRateLimitUpdated(response: response)
+        assertClientReportStoredInMemory()
     }
 
     func testSendEnvelopeWithRetryAfterResponse() {

@@ -24,9 +24,20 @@ using namespace sentry::profiling;
 - (void)testProfiling
 {
     const auto cache = std::make_shared<ThreadMetadataCache>();
-    const std::uint32_t samplingRateHz = 300;
-    const auto profiler
-        = std::make_shared<SamplingProfiler>([](__unused auto backtrace) {}, samplingRateHz);
+    const std::uint32_t samplingRateHz = 301;
+
+    pthread_t idleThread;
+    XCTAssertEqual(pthread_create(&idleThread, nullptr, idleThreadEntry, nullptr), 0);
+    int numIdleSamples = 0;
+
+    const auto profiler = std::make_shared<SamplingProfiler>(
+        [&](auto &backtrace) {
+            const auto thread = backtrace.threadMetadata.threadID;
+            if (thread == pthread_mach_thread_np(idleThread)) {
+                numIdleSamples++;
+            }
+        },
+        samplingRateHz);
     XCTAssertFalse(profiler->isSampling());
 
     std::uint64_t start = 0;
@@ -42,6 +53,22 @@ using namespace sentry::profiling;
     XCTAssertGreaterThan(start, static_cast<std::uint64_t>(0));
     XCTAssertGreaterThan(std::chrono::duration_cast<std::chrono::seconds>(duration).count(), 0);
     XCTAssertGreaterThan(profiler->numSamples(), static_cast<std::uint64_t>(0));
+    XCTAssertGreaterThan(numIdleSamples, 0);
+}
+
+static void *
+idleThreadEntry(__unused void *ptr)
+{
+    // Wait on a condition variable that will never be signaled to make the thread idle.
+    pthread_cond_t cv;
+    pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+    if (pthread_cond_init(&cv, NULL) != 0) {
+        return nullptr;
+    }
+    if (pthread_cond_wait(&cv, &mutex) != 0) {
+        return nullptr;
+    }
+    return nullptr;
 }
 
 @end

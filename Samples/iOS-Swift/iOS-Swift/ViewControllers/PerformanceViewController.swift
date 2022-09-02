@@ -2,55 +2,30 @@ import Sentry
 import UIKit
 
 class PerformanceViewController: UIViewController {
-    private let startTestButton = UIButton(type: .custom)
-    private let stopTestButton = UIButton(type: .custom)
     private let valueTextField = UITextField(frame: .zero)
 
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
 
-        startTestButton.addTarget(self, action: #selector(startTest), for: .touchUpInside)
-        startTestButton.setTitle("Start test", for: .normal)
-
-        stopTestButton.addTarget(self, action: #selector(stopTest), for: .touchUpInside)
-        stopTestButton.setTitle("Stop test", for: .normal)
-
-        let buttons = [
-            startTestButton,
-            stopTestButton
-        ]
-        buttons.forEach {
-            $0.setTitleColor(.black, for: .normal)
-        }
         valueTextField.accessibilityLabel = "io.sentry.benchmark.value-marshaling-text-field"
-        let stack = UIStackView(arrangedSubviews: buttons + [valueTextField])
-        stack.axis = .vertical
-        stack.alignment = .center
-        stack.distribution = .fillProportionally
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(stack)
+        valueTextField.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(valueTextField)
         NSLayoutConstraint.activate([
-            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            stack.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor),
-            stack.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            valueTextField.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            valueTextField.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -20)
         ])
-
-        if #available(iOS 11.0, *) {
-            NSLayoutConstraint.activate([
-                stack.topAnchor.constraint(greaterThanOrEqualTo: view.safeAreaLayoutGuide.topAnchor)
-            ])
-        } else {
-            NSLayoutConstraint.activate([
-                stack.topAnchor.constraint(greaterThanOrEqualTo: view.topAnchor)
-            ])
-        }
+        valueTextField.isHidden = true
 
         view.backgroundColor = .white
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        startTest()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -68,8 +43,10 @@ class PerformanceViewController: UIViewController {
     private let iterations = 5_000_000
     private let range = 1..<Double.greatestFiniteMagnitude
     private var transaction: Span?
+}
 
-    private func doWork(withNumber a: Double) -> Double {
+private extension PerformanceViewController {
+    func doWork(withNumber a: Double) -> Double {
         var b: Double
         if arc4random() % 2 == 0 {
             b = fmod(a, Double.random(in: range))
@@ -89,29 +66,34 @@ class PerformanceViewController: UIViewController {
         }
     }
 
-    @objc func startTest() {
+    func startTest() {
         SentrySDK.configureScope {
             $0.setTag(value: "performance-benchmark", key: "uitest-type")
         }
         transaction = SentrySDK.startTransaction(name: "io.sentry.benchmark.transaction", operation: "crunch-numbers")
         timer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(doRandomWork), userInfo: nil, repeats: true)
-        SentryBenchmarking.startBenchmarkProfile()
+        SentryBenchmarking.startBenchmark()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
+            self.stopTest()
+        }
     }
 
-    @objc func stopTest() {
-        let value = SentryBenchmarking.retrieveBenchmarks()
-        
+    func stopTest() {
         defer {
             timer?.invalidate()
             transaction?.finish()
             transaction = nil
-            valueTextField.text = "\(value)"
         }
 
-        guard value >= 0 else {
+        guard let value = SentryBenchmarking.stopBenchmark() else {
             SentrySDK.capture(error: NSError(domain: "io.sentry.benchmark.error", code: 1, userInfo: ["description": "Only one CPU sample was taken, can't calculate benchmark deltas."]))
+            valueTextField.text = "nil"
             return
         }
+
+        valueTextField.isHidden = false
+        valueTextField.text = "\(value)"
 
         SentrySDK.configureScope {
             $0.setContext(value: [

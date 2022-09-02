@@ -61,6 +61,7 @@ static char g_consoleLogPath[SentryCrashFU_MAX_PATH_LENGTH];
 static SentryCrashMonitorType g_monitoring = SentryCrashMonitorTypeProductionSafeMinimal;
 static char g_lastCrashReportFilePath[SentryCrashFU_MAX_PATH_LENGTH];
 static void (*g_saveScreenShot)(const char *) = 0;
+static void (*g_saveViewHierarchy)(const char *) = 0;
 
 // ============================================================================
 #pragma mark - Utility -
@@ -107,16 +108,26 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
         sentrycrashreport_writeStandardReport(monitorContext, crashReportFilePath);
     }
 
-    // Report is saved to disk, now we try to take screenshots.
+    // Report is saved to disk, now we try to take screenshots
+    // and view hierarchies.
     // Depending on the state of the crash this may not work
     // because we gonna call into non async-signal safe code
     // but since the app is already in a crash state we don't
     // mind if this approach crashes.
-    if (g_saveScreenShot) {
-        char crashScreenshotsPath[SentryCrashCRS_MAX_PATH_LENGTH];
-        sentrycrashcrs_getScreenshotsPath_forReport(
-            g_lastCrashReportFilePath, crashScreenshotsPath);
-        g_saveScreenShot(crashScreenshotsPath);
+    if (g_saveScreenShot || g_saveViewHierarchy) {
+        char crashAttachmentsPath[SentryCrashCRS_MAX_PATH_LENGTH];
+        sentrycrashcrs_getAttachmentsPath_forReport(
+            g_lastCrashReportFilePath, crashAttachmentsPath);
+
+        if (sentrycrashfu_makePath(crashAttachmentsPath)) {
+            if (g_saveScreenShot) {
+                g_saveScreenShot(crashAttachmentsPath);
+            }
+
+            if (g_saveViewHierarchy) {
+                g_saveViewHierarchy(crashAttachmentsPath);
+            }
+        }
     }
 }
 
@@ -222,6 +233,12 @@ sentrycrash_setSaveScreenshots(void (*callback)(const char *))
 }
 
 void
+sentrycrash_setSaveViewHierarchy(void (*callback)(const char *))
+{
+    g_saveViewHierarchy = callback;
+}
+
+void
 sentrycrash_reportUserException(const char *name, const char *reason, const char *language,
     const char *lineOfCode, const char *stackTrace, bool logAllThreads, bool terminateProgram)
 {
@@ -313,4 +330,10 @@ bool
 sentrycrash_hasSaveScreenshotCallback()
 {
     return g_saveScreenShot != NULL;
+}
+
+bool
+sentrycrash_hasSaveViewHierarchyCallback()
+{
+    return g_saveViewHierarchy != NULL;
 }

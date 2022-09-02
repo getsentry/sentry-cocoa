@@ -2,7 +2,6 @@
 #import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryLog.h"
-#import "SentryOptions+Private.h"
 #import "SentrySubClassFinder.h"
 #import "SentryUIViewControllerSwizzling.h"
 
@@ -17,14 +16,13 @@ SentryPerformanceTrackingIntegration ()
 
 @implementation SentryPerformanceTrackingIntegration
 
-- (void)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
-    if ([self shouldBeDisabled:options]) {
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
-        return;
+#if SENTRY_HAS_UIKIT
+    if (![super installWithOptions:options]) {
+        return NO;
     }
 
-#if SENTRY_HAS_UIKIT
     dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
         DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_HIGH, 0);
     SentryDispatchQueueWrapper *dispatchQueue =
@@ -42,46 +40,20 @@ SentryPerformanceTrackingIntegration ()
             subClassFinder:subClassFinder];
 
     [self.swizzling start];
+    return YES;
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryPerformanceTrackingIntegration "
                               @"start] does nothing."
                      andLevel:kSentryLevelDebug];
+    return NO;
 #endif
 }
 
-- (BOOL)shouldBeDisabled:(SentryOptions *)options
+- (SentryIntegrationOption)integrationOptions
 {
-    if (!options.enableAutoPerformanceTracking) {
-        [SentryLog logWithMessage:@"AutoUIPerformanceTracking disabled. Will not start "
-                                  @"SentryPerformanceTrackingIntegration."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-#if SENTRY_HAS_UIKIT
-    if (!options.enableUIViewControllerTracking) {
-        [SentryLog logWithMessage:@"enableUIViewControllerTracking disabled. Will not start "
-                                  @"SentryPerformanceTrackingIntegration."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-#endif
-
-    if (!options.isTracingEnabled) {
-        [SentryLog logWithMessage:@"No tracesSampleRate and tracesSampler set. Will not start "
-                                  @"SentryPerformanceTrackingIntegration."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    if (!options.enableSwizzling) {
-        [SentryLog logWithMessage:@"enableSwizzling disabled. Will not start "
-                                  @"SentryPerformanceTrackingIntegration."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    return NO;
+    return kIntegrationOptionEnableAutoPerformanceTracking
+        | kIntegrationOptionEnableUIViewControllerTracking | kIntegrationOptionIsTracingEnabled
+        | kIntegrationOptionEnableSwizzling;
 }
 
 @end

@@ -7,6 +7,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+FOUNDATION_EXPORT NSString *const kSentryDefaultEnvironment;
+
 @protocol SentryClientAttachmentProcessor <NSObject>
 
 - (nullable NSArray<SentryAttachment *> *)processAttachments:
@@ -18,7 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryClient (Private)
 
-@property (nonatomic, weak) id<SentryClientAttachmentProcessor> attachmentProcessor;
+@property (nonatomic, strong)
+    NSMutableArray<id<SentryClientAttachmentProcessor>> *attachmentProcessors;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
 
 - (SentryFileManager *)fileManager;
@@ -48,6 +51,9 @@ SentryClient (Private)
 - (void)storeEnvelope:(SentryEnvelope *)envelope;
 
 - (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason;
+
+- (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
+- (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
 
 @end
 

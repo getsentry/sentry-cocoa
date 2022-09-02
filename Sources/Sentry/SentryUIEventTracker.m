@@ -1,12 +1,13 @@
 #import "SentrySwizzleWrapper.h"
 #import <SentryHub+Private.h>
+#import <SentryLog.h>
 #import <SentrySDK+Private.h>
 #import <SentrySDK.h>
 #import <SentryScope.h>
 #import <SentrySpanOperations.h>
 #import <SentrySpanProtocol.h>
 #import <SentryTracer.h>
-#import <SentryTransactionContext.h>
+#import <SentryTransactionContext+Private.h>
 #import <SentryUIEventTracker.h>
 
 #if SENTRY_HAS_UIKIT
@@ -75,7 +76,8 @@ SentryUIEventTracker ()
                 currentActiveTransaction = self.activeTransactions.lastObject;
             }
 
-            BOOL sameAction = [currentActiveTransaction.name isEqualToString:transactionName];
+            BOOL sameAction =
+                [currentActiveTransaction.transactionContext.name isEqualToString:transactionName];
             if (sameAction) {
                 [currentActiveTransaction dispatchIdleTimeout];
                 return;
@@ -83,10 +85,20 @@ SentryUIEventTracker ()
 
             [currentActiveTransaction finish];
 
+            if (currentActiveTransaction) {
+                [SentryLog
+                    logWithMessage:
+                        [NSString stringWithFormat:@"SentryUIEventTracker finished transaction %@",
+                                  currentActiveTransaction.transactionContext.name]
+                          andLevel:kSentryLevelDebug];
+            }
+
             NSString *operation = [self getOperation:sender];
 
             SentryTransactionContext *context =
-                [[SentryTransactionContext alloc] initWithName:transactionName operation:operation];
+                [[SentryTransactionContext alloc] initWithName:transactionName
+                                                    nameSource:kSentryTransactionNameSourceComponent
+                                                     operation:operation];
 
             __block SentryTracer *transaction;
             [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
@@ -103,6 +115,13 @@ SentryUIEventTracker ()
                                                 customSamplingContext:@{}
                                                           idleTimeout:self.idleTimeout
                                                  dispatchQueueWrapper:self.dispatchQueueWrapper];
+
+                [SentryLog
+                    logWithMessage:[NSString stringWithFormat:@"SentryUIEventTracker automatically "
+                                                              @"started a new transaction with "
+                                                              @"name: %@, bindToScope: %@",
+                                             transactionName, bindToScope ? @"YES" : @"NO"]
+                          andLevel:kSentryLevelDebug];
             }];
 
             if ([[sender class] isSubclassOfClass:[UIView class]]) {

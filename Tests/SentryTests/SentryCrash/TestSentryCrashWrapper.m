@@ -10,9 +10,12 @@
     instance.internalActiveDurationSinceLastCrash = NO;
     instance.internalActiveDurationSinceLastCrash = 0;
     instance.internalIsBeingTraced = NO;
+    instance.internalIsSimulatorBuild = NO;
     instance.internalIsApplicationInForeground = YES;
     instance.installAsyncHooksCalled = NO;
     instance.closeCalled = NO;
+    instance.internalFreeMemory = 0;
+    instance.internalAppMemory = 0;
     return instance;
 }
 
@@ -29,6 +32,11 @@
 - (BOOL)isBeingTraced
 {
     return self.internalIsBeingTraced;
+}
+
+- (BOOL)isSimulatorBuild
+{
+    return self.internalIsSimulatorBuild;
 }
 
 - (BOOL)isApplicationInForeground
@@ -49,6 +57,16 @@
 - (NSDictionary *)systemInfo
 {
     return @{};
+}
+
+- (uint64_t)freeMemory
+{
+    return self.internalFreeMemory;
+}
+
+- (uint64_t)appMemory
+{
+    return self.internalAppMemory;
 }
 
 @end
