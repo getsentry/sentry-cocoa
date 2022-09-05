@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Remove Media Library Permission check from permission observer (#2123)
+
 ## 7.24.0
 
 ### Features
