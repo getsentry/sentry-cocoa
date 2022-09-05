@@ -24,13 +24,6 @@ class TestSentryPermissionsObserver: SentryPermissionsObserver {
         set {}
     }
 
-    override var mediaLibraryPermissionStatus: SentryPermissionStatus {
-        get {
-            return internalMediaLibraryPermissionStatus
-        }
-        set {}
-    }
-
     override var photoLibraryPermissionStatus: SentryPermissionStatus {
         get {
             return internalPhotoLibraryPermissionStatus
