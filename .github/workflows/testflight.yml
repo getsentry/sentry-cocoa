@@ -44,7 +44,7 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
           bundle exec fastlane build_ios_swift
-          buncle exec fastlane ios_swift_to_testflight
+          bundle exec fastlane ios_swift_to_testflight
 
       - name: Archiving
         uses: actions/upload-artifact@v3
