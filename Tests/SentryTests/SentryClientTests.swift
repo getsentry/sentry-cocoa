@@ -556,7 +556,6 @@ class SentryClientTest: XCTestCase {
             let permissions = actual.context?["app"]?["permissions"] as? [String: String]
             XCTAssertEqual(permissions?["push_notifications"], "granted")
             XCTAssertEqual(permissions?["location_access"], "granted")
-            XCTAssertEqual(permissions?["media_library"], "not_granted")
             XCTAssertEqual(permissions?["photo_library"], "partial")
         }
     }
