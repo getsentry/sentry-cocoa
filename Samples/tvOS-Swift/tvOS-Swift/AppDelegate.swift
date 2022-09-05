@@ -17,6 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.tracesSampleRate = 1.0
             options.enableFileIOTracking = true
             options.enableUserInteractionTracing = true
+            options.enableAppHangTracking = true
         }
         
         SentrySDK.configureScope { scope in
