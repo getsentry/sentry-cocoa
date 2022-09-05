@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
  * but we had to remove the media permission because it was preventing some developers from
  * publishing their apps. Apple was requiring developers to include NSAppleMusicUsageDescription in
  * their plist files, even when they don't use this feature. More info at
- * https://github.com/getsentry/sentry-cocoa/issues/2065#issuecomment-1237016049
+ * https://github.com//issues/2065
  */
 
 @property (nonatomic) SentryPermissionStatus pushPermissionStatus;
