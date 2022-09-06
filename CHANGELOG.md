@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Can't find app image when swizzling (#2121)
+- Can't find app image when swizzling (#2124)
 - Remove Media Library Permission check from permission observer (#2123)
 
 ## 7.24.0
