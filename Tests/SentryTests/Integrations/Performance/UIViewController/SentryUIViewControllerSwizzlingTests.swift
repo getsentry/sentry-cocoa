@@ -237,6 +237,15 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         
         XCTAssertEqual(1, fixture.subClassFinder.invocations.count)
     }
+    
+    func testSwizzleUIViewControllersOfClassesInImageOf_SameClass_OnceSwizzled() {
+        let sut = fixture.sutWithDefaultObjCRuntimeWrapper
+        
+        sut.swizzleUIViewControllersOfClasses(inImageOf: XCTestCase.self)
+        sut.swizzleUIViewControllersOfClasses(inImageOf: XCTestCase.self)
+        
+        XCTAssertEqual(1, fixture.subClassFinder.invocations.count)
+    }
 }
 
 class MockApplication: NSObject, SentryUIApplicationProtocol {

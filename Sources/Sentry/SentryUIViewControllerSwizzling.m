@@ -32,6 +32,7 @@ SentryUIViewControllerSwizzling ()
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) id<SentryObjCRuntimeWrapper> objcRuntimeWrapper;
 @property (nonatomic, strong) SentrySubClassFinder *subClassFinder;
+@property (nonatomic, strong) NSMutableSet<NSString *> *imagesActedOnSubclassesOfUIViewControllers;
 
 @end
 
@@ -48,6 +49,7 @@ SentryUIViewControllerSwizzling ()
         self.dispatchQueue = dispatchQueue;
         self.objcRuntimeWrapper = objcRuntimeWrapper;
         self.subClassFinder = subClassFinder;
+        self.imagesActedOnSubclassesOfUIViewControllers = [NSMutableSet new];
     }
 
     return self;
@@ -143,9 +145,9 @@ SentryUIViewControllerSwizzling ()
         stringWithFormat:@"UIViewControllerSwizzling: Class to get the image name: %@", class];
     [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
 
-    const char *imageName = [self.objcRuntimeWrapper class_getImageName:class];
+    const char *imageNameAsCharArray = [self.objcRuntimeWrapper class_getImageName:class];
 
-    if (imageName == NULL) {
+    if (imageNameAsCharArray == NULL) {
         NSString *message = [NSString
             stringWithFormat:@"UIViewControllerSwizziling: Wasn't able to get image name of the "
                              @"class: %@. Skipping swizzling of classes in same image.",
@@ -154,22 +156,35 @@ SentryUIViewControllerSwizzling ()
         return;
     }
 
-    NSString *appImage = [NSString stringWithCString:imageName encoding:NSUTF8StringEncoding];
+    NSString *imageName = [NSString stringWithCString:imageNameAsCharArray
+                                             encoding:NSUTF8StringEncoding];
 
-    if (appImage == nil || appImage.length == 0) {
+    if (imageName == nil || imageName.length == 0) {
         NSString *message =
-            [NSString stringWithFormat:@"Wasn't able to get the app image name of the app delegate "
+            [NSString stringWithFormat:@"UIViewControllerSwizziling: Wasn't able to get the app "
+                                       @"image name of the app delegate "
                                        @"class: %@. Skipping swizzling of classes in same image.",
                       class];
         [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
         return;
     }
 
-    if ([appImage containsString:@"UIKitCore"]) {
+    if ([imageName containsString:@"UIKitCore"]) {
         NSString *message = @"UIViewControllerSwizziling: Skipping UIKitCore.";
         [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
         return;
     }
+
+    if ([self.imagesActedOnSubclassesOfUIViewControllers containsObject:imageName]) {
+        NSString *message = [NSString
+            stringWithFormat:
+                @"UIViewControllerSwizziling: Already swizzled UIViewControllers in image: %@.",
+            imageName];
+        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+        return;
+    }
+
+    [self.imagesActedOnSubclassesOfUIViewControllers addObject:imageName];
 
     // Swizzle all custom UIViewControllers. Cause loading all classes can take a few milliseconds,
     // the SubClassFinder does this on a background thread, which should be fine because the SDK
@@ -184,7 +199,7 @@ SentryUIViewControllerSwizzling ()
     // initializer causes problems with the rules for initialization in Swift, see
     // https://docs.swift.org/swift-book/LanguageGuide/Initialization.html#ID216.
     [self.subClassFinder
-        actOnSubclassesOfViewControllerInImage:appImage
+        actOnSubclassesOfViewControllerInImage:imageName
                                          block:^(Class class) {
                                              [self swizzleViewControllerSubClass:class];
                                          }];
