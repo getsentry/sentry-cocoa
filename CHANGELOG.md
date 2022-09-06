@@ -2,7 +2,19 @@
 
 ## Unreleased
 
-- - Users can customise the error description shown in the Sentry UI by providing an NSDebugDescriptionErrorKey value in the error user info dictionary. (#2120)
+### Features
+
+- Users can customise the error description shown in the Sentry UI by providing an NSDebugDescriptionErrorKey value in the error user info dictionary. (#2120)
+
+### Fixes
+
+- Can't find app image when swizzling (#2124)
+
+## 7.24.1
+
+### Fixes
+
+- Remove Media Library Permission check from permission observer (#2123)
 
 ## 7.24.0
 

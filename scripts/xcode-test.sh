@@ -30,7 +30,7 @@ case $PLATFORM in
         ;;
 
     "tvOS")
-        DESTINATION="platform=tvOS Simulator,OS=$OS,name=Apple TV 4K"
+        DESTINATION="platform=tvOS Simulator,OS=$OS,name=Apple TV"
         ;;
     
     *)

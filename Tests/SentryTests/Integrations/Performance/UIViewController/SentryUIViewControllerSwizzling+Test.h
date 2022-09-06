@@ -19,6 +19,8 @@ SentryUIViewControllerSwizzling (Test)
 
 - (void)swizzleAllSubViewControllersInApp:(id<SentryUIApplication>)app;
 
+- (void)swizzleUIViewControllersOfClassesInImageOf:(nullable Class)class;
+
 @end
 
 #endif
