@@ -143,10 +143,10 @@ SentryAppStartTracker ()
         // slide 17) no process exists for cold and warm launches. Since iOS 15, though, the system
         // might decide to pre-warm your app before the user tries to open it.
         // Prewarming can stop at any of the app launch steps. Our findings show that most of
-        // the prewarmed app starts don't call the main method. Therefore we subtract the 
-        // time before the module initialization / main method to calculate the app start 
-        // duration. If the app start stopped during a later launch step, we drop it below with 
-        // checking the SENTRY_APP_START_MAX_DURATION. With this approach, we will 
+        // the prewarmed app starts don't call the main method. Therefore we subtract the
+        // time before the module initialization / main method to calculate the app start
+        // duration. If the app start stopped during a later launch step, we drop it below with
+        // checking the SENTRY_APP_START_MAX_DURATION. With this approach, we will
         // lose some warm app starts, but we accept this tradeoff. Useful resources:
         // https://developer.apple.com/documentation/uikit/app_and_environment/responding_to_the_launch_of_your_app/about_the_app_launch_sequence#3894431
         // https://developer.apple.com/documentation/metrickit/mxapplaunchmetric,
