@@ -691,9 +691,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
                           @"location_access" :
                               [self stringForPermissionStatus:self.permissionsObserver
                                                                   .locationPermissionStatus],
-                          @"media_library" :
-                              [self stringForPermissionStatus:self.permissionsObserver
-                                                                  .mediaLibraryPermissionStatus],
                           @"photo_library" :
                               [self stringForPermissionStatus:self.permissionsObserver
                                                                   .photoLibraryPermissionStatus],
