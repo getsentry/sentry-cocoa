@@ -1,4 +1,5 @@
 import XCTest
+import Sentry
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 class SentryProfilerSwiftTests: XCTestCase {
@@ -58,38 +59,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             return 1
         }
         let hub = fixture.getSut(options)
-        let profileExpectation = expectation(description: "collects profiling data")
-        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        // Give it time to collect a profile, otherwise there will be no samples.
-        DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
-            span.finish()
-
-            guard let additionalEnvelopeItems = self.fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
-                XCTFail("Expected to capture at least 1 event")
-                return
-            }
-            XCTAssertEqual(1, additionalEnvelopeItems.count)
-            guard let profileItem = additionalEnvelopeItems.first else {
-                XCTFail("Expected at least 1 additional envelope item")
-                return
-            }
-            XCTAssertEqual("profile", profileItem.header.type)
-            self.assertValidProfileData(data: profileItem.data, customFields: ["environment": kSentryDefaultEnvironment])
-            profileExpectation.fulfill()
-        }
-
-        // Some busy work to try and get it to show up in the profile.
-        let str = "a"
-        var concatStr = ""
-        for _ in 0..<100_000 {
-            concatStr = concatStr.appending(str)
-        }
-
-        waitForExpectations(timeout: 5.0) {
-            if let error = $0 {
-                print(error)
-            }
-        }
+        performTest(hub: hub)
     }
 
     func testProfilingDataContainsEnvironmentSetFromOptions() {
@@ -100,39 +70,9 @@ class SentryProfilerSwiftTests: XCTestCase {
         }
         let expectedEnvironment = "test-environment"
         options.environment = expectedEnvironment
+
         let hub = fixture.getSut(options)
-        let profileExpectation = expectation(description: "collects profiling data")
-        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        // Give it time to collect a profile, otherwise there will be no samples.
-        DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
-            span.finish()
-
-            guard let additionalEnvelopeItems = self.fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
-                XCTFail("Expected to capture at least 1 event")
-                return
-            }
-            XCTAssertEqual(1, additionalEnvelopeItems.count)
-            guard let profileItem = additionalEnvelopeItems.first else {
-                XCTFail("Expected at least 1 additional envelope item")
-                return
-            }
-            XCTAssertEqual("profile", profileItem.header.type)
-            self.assertValidProfileData(data: profileItem.data, customFields: ["environment": expectedEnvironment])
-            profileExpectation.fulfill()
-        }
-
-        // Some busy work to try and get it to show up in the profile.
-        let str = "a"
-        var concatStr = ""
-        for _ in 0..<100_000 {
-            concatStr = concatStr.appending(str)
-        }
-
-        waitForExpectations(timeout: 5.0) {
-            if let error = $0 {
-                print(error)
-            }
-        }
+        performTest(hub: hub, transactionEnvironment: expectedEnvironment)
     }
 
     func testProfilingDataContainsEnvironmentSetFromConfigureScope() {
@@ -146,38 +86,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         hub.configureScope { scope in
             scope.setEnvironment(expectedEnvironment)
         }
-        let profileExpectation = expectation(description: "collects profiling data")
-        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        // Give it time to collect a profile, otherwise there will be no samples.
-        DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
-            span.finish()
-
-            guard let additionalEnvelopeItems = self.fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
-                XCTFail("Expected to capture at least 1 event")
-                return
-            }
-            XCTAssertEqual(1, additionalEnvelopeItems.count)
-            guard let profileItem = additionalEnvelopeItems.first else {
-                XCTFail("Expected at least 1 additional envelope item")
-                return
-            }
-            XCTAssertEqual("profile", profileItem.header.type)
-            self.assertValidProfileData(data: profileItem.data, customFields: ["environment": expectedEnvironment])
-            profileExpectation.fulfill()
-        }
-
-        // Some busy work to try and get it to show up in the profile.
-        let str = "a"
-        var concatStr = ""
-        for _ in 0..<100_000 {
-            concatStr = concatStr.appending(str)
-        }
-
-        waitForExpectations(timeout: 5.0) {
-            if let error = $0 {
-                print(error)
-            }
-        }
+        performTest(hub: hub, transactionEnvironment: expectedEnvironment)
     }
 
     func testStartTransaction_NotSamplingProfileUsingEnableProfiling() {
@@ -231,11 +140,30 @@ class SentryProfilerSwiftTests: XCTestCase {
 }
 
 private extension SentryProfilerSwiftTests {
-    func assertValidProfileData(data: Data, customFields: [String: String]) {
+    func assertValidProfileData(data: Data, transactionEnvironment: String) {
         let profile = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
         XCTAssertEqual("Apple", profile["device_manufacturer"] as! String)
         XCTAssertEqual("cocoa", profile["platform"] as! String)
-        XCTAssertEqual(fixture.transactionName, profile["transaction_name"] as! String)
+        XCTAssertNotNil(profile["transactions"])
+        if let transactions = profile["transactions"] as? [[String: String]] {
+            for transaction in transactions {
+                XCTAssertEqual(fixture.transactionName, transaction["name"])
+                XCTAssertNotNil(transaction["id"])
+                if let idString = transaction["id"] {
+                    XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: idString))
+                }
+                XCTAssertNotNil(transaction["trace_id"])
+                if let traceIDString = transaction["trace_id"] {
+                    XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: traceIDString))
+                }
+                XCTAssertEqual(transactionEnvironment, transaction["environment"])
+                XCTAssertNotNil(transaction["trace_id"])
+                XCTAssertNotNil(transaction["relative_start_ns"])
+                XCTAssertNotNil(transaction["relative_end_ns"])
+            }
+        } else {
+            XCTFail("Transaction information in profile payload not of expected type.")
+        }
 #if os(iOS)
         XCTAssertEqual("iOS", profile["device_os_name"] as! String)
         XCTAssertFalse((profile["device_os_version"] as! String).isEmpty)
@@ -250,10 +178,7 @@ private extension SentryProfilerSwiftTests {
 #endif
         XCTAssertFalse((profile["device_physical_memory_bytes"] as! String).isEmpty)
         XCTAssertFalse((profile["version_code"] as! String).isEmpty)
-
-        XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["transaction_id"] as! String))
         XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["profile_id"] as! String))
-        XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["trace_id"] as! String))
 
         let images = (profile["debug_meta"] as! [String: Any])["images"] as! [[String: Any]]
         XCTAssertFalse(images.isEmpty)
@@ -280,38 +205,77 @@ private extension SentryProfilerSwiftTests {
         XCTAssertFalse(frames.isEmpty)
         XCTAssertFalse((frames[0]["instruction_addr"] as! String).isEmpty)
         XCTAssertFalse((frames[0]["function"] as! String).isEmpty)
-        for (key, expectedValue) in customFields {
-            guard let actualValue = profile[key] as? String else {
-                XCTFail("Expected value not present in profile")
-                continue
+    }
+
+    func performTest(hub: SentryHub, transactionEnvironment: String = kSentryDefaultEnvironment) {
+        let profileExpectation = expectation(description: "collects profiling data")
+        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        // Give it time to collect a profile, otherwise there will be no samples.
+        DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
+            span.finish()
+
+            guard let envelope = self.fixture.client.captureEnvelopeInvocations.first else {
+                XCTFail("Expected to capture at least 1 event")
+                return
             }
-            XCTAssertEqual(expectedValue, actualValue)
+            XCTAssertEqual(1, envelope.items.count)
+            guard let profileItem = envelope.items.first else {
+                XCTFail("Expected at least 1 additional envelope item")
+                return
+            }
+            XCTAssertEqual("profile", profileItem.header.type)
+            self.assertValidProfileData(data: profileItem.data, transactionEnvironment: transactionEnvironment)
+            profileExpectation.fulfill()
+        }
+
+        // Some busy work to try and get it to show up in the profile.
+        let str = "a"
+        var concatStr = ""
+        for _ in 0..<100_000 {
+            concatStr = concatStr.appending(str)
+        }
+
+        waitForExpectations(timeout: 5.0) {
+            if let error = $0 {
+                print(error)
+            }
         }
     }
 
     func assertProfilesSampler(expectedDecision: SentrySampleDecision, options: (Options) -> Void) {
         let fixtureOptions = fixture.options
         fixtureOptions.tracesSampleRate = 1.0
+        fixtureOptions.profilesSampler = { _ in
+            switch expectedDecision {
+            case .undecided, .no:
+                return NSNumber(value: 0)
+            case .yes:
+                return NSNumber(value: 1)
+            @unknown default:
+                fatalError("Unexpected value for sample decision")
+            }
+        }
         options(fixtureOptions)
 
         let hub = fixture.getSut(fixture.options)
         Dynamic(hub).tracesSampler.random = TestRandom(value: 1.0)
-        Dynamic(hub).profilesSampler.random = TestRandom(value: 0.5)
 
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        span.finish()
+        DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
+            span.finish()
 
-        guard let additionalEnvelopeItems = fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
-            XCTFail("Expected to capture at least 1 event")
-            return
-        }
-        switch expectedDecision {
-        case .undecided, .no:
-            XCTAssertEqual(0, additionalEnvelopeItems.count)
-        case .yes:
-            XCTAssertEqual(1, additionalEnvelopeItems.count)
-        @unknown default:
-            fatalError("Unexpected value for sample decision")
+            switch expectedDecision {
+            case .undecided, .no:
+                XCTAssertEqual(0, self.fixture.client.captureEnvelopeInvocations.count)
+            case .yes:
+                guard let envelope = self.fixture.client.captureEnvelopeInvocations.first else {
+                    XCTFail("Expected to capture at least 1 event")
+                    return
+                }
+                XCTAssertEqual(1, envelope.items.count)
+            @unknown default:
+                fatalError("Unexpected value for sample decision")
+            }
         }
     }
 }

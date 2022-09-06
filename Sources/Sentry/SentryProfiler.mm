@@ -105,6 +105,7 @@ isSimulatorBuild()
 @implementation SentryProfiler {
     NSMutableDictionary<NSString *, id> *_profile;
     uint64_t _startTimestamp;
+    uint64_t _endTimestamp;
     std::shared_ptr<SamplingProfiler> _profiler;
     SentryDebugImageProvider *_debugImageProvider;
     thread::TIDType _mainThreadID;
@@ -226,6 +227,8 @@ isSimulatorBuild()
     @synchronized(self) {
         if (_profiler != nullptr) {
             _profiler->stopSampling();
+            _endTimestamp = getAbsoluteTime();
+            [SentryLog logWithMessage:[NSString stringWithFormat:@"Stopped profiler at system time: %llu.", _endTimestamp] andLevel:kSentryLevelDebug];
         }
     }
 }
@@ -325,8 +328,8 @@ stopReason:(SentryProfilerStopReason)stopReason
             @"id" : transaction.eventId.sentryIdString,
             @"trace_id" : transaction.trace.context.traceId.sentryIdString,
             @"name" : transaction.transaction,
-            @"relative_start_ns" : @(transaction.systemStartTime <= _startTimestamp ? 0 : getDurationNs(_startTimestamp, transaction.systemStartTime)),
-            @"relative_end_ns" : @(transaction.systemEndTime >= _startTimestamp + profileDuration ? profileDuration : getDurationNs(_startTimestamp, transaction.systemEndTime))
+            @"relative_start_ns" : [@(transaction.systemStartTime <= _startTimestamp ? 0 : getDurationNs(_startTimestamp, transaction.systemStartTime)) stringValue],
+            @"relative_end_ns" : [@(transaction.systemEndTime < _startTimestamp + profileDuration ? profileDuration : getDurationNs(_startTimestamp, transaction.systemEndTime)) stringValue]
         }];
     }
     profile[@"transactions"] = transactionsInfo;

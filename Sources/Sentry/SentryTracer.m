@@ -418,7 +418,6 @@ static SentryScreenFrames *_gProfilerFrameInfo;
 
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"Finishing tracer with status: %@ at system time %llu", name] andLevel:<#(SentryLevel)#>]
     self.isWaitingForChildren = YES;
     _finishStatus = status;
 
@@ -502,8 +501,8 @@ static SentryScreenFrames *_gProfilerFrameInfo;
             profiler = nil;
         }
         [profilerLock unlock];
+        [_hub.client captureEnvelope:profileEnvelope];
     }
-    [_hub.client captureEnvelope:profileEnvelope];
 #endif
 }
 

@@ -120,6 +120,7 @@ SentrySpan ()
     if (self.tracer != nil) {
         [self.tracer spanFinished:self];
     }
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"Finishing span with status: %@ at system time %llu", spanStatusName(status), self.systemEndTime] andLevel:kSentryLevelDebug];
 }
 
 - (SentryTraceHeader *)toTraceHeader
