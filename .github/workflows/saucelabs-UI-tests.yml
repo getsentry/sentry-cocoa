@@ -21,10 +21,15 @@ on:
 jobs:
   build-ui-tests:
     name: Build UITests with Xcode ${{matrix.xcode}}
-    runs-on: macos-11
+    runs-on: ${{matrix.runs-on}}
     strategy:      
       matrix:
-        xcode: ["13.2", "12.5.1"]
+        include:
+          - runs-on: macos-11
+            xcode: "12.5.1"
+
+          - runs-on: macos-12
+            xcode: "13.4.1"
 
     steps:
       - uses: actions/checkout@v3
@@ -88,17 +93,17 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - xcode: "13.2"
+          - xcode: "13.4.1"
             suite: "iOS-15"
 
           # We want to test the frame tracker at 120 fps
-          - xcode: "13.2"
+          - xcode: "13.4.1"
             suite: "iPhone-Pro"
 
-          - xcode: "13.2"
+          - xcode: "13.4.1"
             suite: "iOS-14"
 
-          - xcode: "13.2"
+          - xcode: "13.4.1"
             suite: "iOS-13"
 
           # iOS 12 has a failing test that we need to fix https://github.com/getsentry/sentry-cocoa/issues/1566
