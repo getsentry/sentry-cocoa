@@ -404,7 +404,7 @@ class SentryClientTest: XCTestCase {
         assertLastSentEvent { actual in
             do {
                 let exceptions = try XCTUnwrap(actual.exceptions)
-                XCTAssertEqual("Custom error description", try XCTUnwrap(exceptions.first).value)
+                XCTAssertEqual("Custom error description (Code: 999)", try XCTUnwrap(exceptions.first).value)
             } catch {
                 XCTFail("Exception expected but was nil")
             }
