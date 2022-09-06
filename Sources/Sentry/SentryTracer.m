@@ -644,7 +644,7 @@ static NSLock *profilerLock;
         return @[];
     }
 
-    NSMutableArray<SentrySpan *> *appStartSpans = [NSMutableArray new];
+    NSMutableArray<SentrySpan *> *appStartSpans = [NSMutableArray array];
 
     NSDate *appStartEndTimestamp = [appStartMeasurement.appStartTimestamp
         dateByAddingTimeInterval:appStartMeasurement.duration];
