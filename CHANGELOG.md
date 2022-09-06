@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Can't find app image when swizzling (#2124)
+
 ## 7.24.1
 
 ### Fixes

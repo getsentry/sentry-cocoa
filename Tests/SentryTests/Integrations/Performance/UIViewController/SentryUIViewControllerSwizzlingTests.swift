@@ -26,6 +26,10 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
             return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder)
         }
         
+        var sutWithDefaultObjCRuntimeWrapper: SentryUIViewControllerSwizzling {
+            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: SentryDefaultObjCRuntimeWrapper.sharedInstance(), subClassFinder: subClassFinder)
+        }
+        
         var testableSut: TestSentryUIViewControllerSwizzling {
             return TestSentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder)
         }
@@ -210,6 +214,37 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         fixture.sut.swizzleAllSubViewControllers(inApp: MockApplication(delegate))
         
         XCTAssertEqual(0, fixture.subClassFinder.invocations.count)
+    }
+    
+    func testSwizzleUIViewControllersOfClassesInImageOf_ClassIsNull() {
+        fixture.sut.swizzleUIViewControllersOfClasses(inImageOf: nil)
+        
+        XCTAssertEqual(0, fixture.subClassFinder.invocations.count)
+    }
+    
+    func testSwizzleUIViewControllersOfClassesInImageOf_ClassIsFromUIKit_NotSwizzled() {
+        let sut = fixture.sutWithDefaultObjCRuntimeWrapper
+        
+        sut.swizzleUIViewControllersOfClasses(inImageOf: UIViewController.self)
+        
+        XCTAssertEqual(0, fixture.subClassFinder.invocations.count)
+    }
+    
+    func testSwizzleUIViewControllersOfClassesInImageOf_OtherClass_Swizzled() {
+        let sut = fixture.sutWithDefaultObjCRuntimeWrapper
+        
+        sut.swizzleUIViewControllersOfClasses(inImageOf: XCTestCase.self)
+        
+        XCTAssertEqual(1, fixture.subClassFinder.invocations.count)
+    }
+    
+    func testSwizzleUIViewControllersOfClassesInImageOf_SameClass_OnceSwizzled() {
+        let sut = fixture.sutWithDefaultObjCRuntimeWrapper
+        
+        sut.swizzleUIViewControllersOfClasses(inImageOf: XCTestCase.self)
+        sut.swizzleUIViewControllersOfClasses(inImageOf: XCTestCase.self)
+        
+        XCTAssertEqual(1, fixture.subClassFinder.invocations.count)
     }
 }
 
