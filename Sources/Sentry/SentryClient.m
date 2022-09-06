@@ -226,7 +226,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     // If the error has a debug description, use that.
     NSString *customExceptionValue = [[error userInfo] valueForKey:NSDebugDescriptionErrorKey];
     if (customExceptionValue != nil) {
-        exceptionValue = customExceptionValue;
+        exceptionValue = [NSString stringWithFormat:@"%@ (Code: %ld)", customExceptionValue, (long)error.code];
     } else {
         exceptionValue = [NSString stringWithFormat:@"Code: %ld", (long)error.code];
     }
