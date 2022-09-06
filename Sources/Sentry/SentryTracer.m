@@ -471,7 +471,7 @@ static SentryScreenFrames *_gProfilerFrameInfo;
         BOOL shouldStopNormally = reason == SentryProfilerStopReasonNormal && _gProfiledTracers.count == 0;
         BOOL shouldStopAbnormally = reason == SentryProfilerStopReasonTimeout || reason == SentryProfilerStopReasonAppMovedToBackground;
         if (shouldStopNormally || shouldStopAbnormally) {
-            [SentryLog logWithMessage:[NSString stringWithFormat:@"Stopping profiler due to %@.", profilerStopReasonName(reason)] andLevel:kSentryLevelDebug];
+            [SentryLog logWithMessage:[NSString stringWithFormat:@"Stopping profiler due to reason: %@.", profilerStopReasonName(reason)] andLevel:kSentryLevelDebug];
             [profiler stop];
             _gProfilerStopReason = reason;
 #    if SENTRY_HAS_UIKIT
