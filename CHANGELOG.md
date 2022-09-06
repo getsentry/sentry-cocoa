@@ -1,10 +1,15 @@
 # Changelog
 
-## 7.24.1
+## Unreleased
 
 ### Fixes
 
 - Can't find app image when swizzling (#2124)
+
+## 7.24.1
+
+### Fixes
+
 - Remove Media Library Permission check from permission observer (#2123)
 
 ## 7.24.0
