@@ -7,10 +7,6 @@
 #    import <UIKit/UIKit.h>
 #endif
 
-#if TARGET_OS_IOS
-#    import <MediaPlayer/MediaPlayer.h>
-#endif
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
@@ -24,10 +20,9 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 {
     self = [super init];
     if (self) {
-        // Don't start observing when we're in tests, or in an app extension
+        // Don't start observing when we're in tests
         if (NSBundle.mainBundle.bundleIdentifier != nil
-            && ![NSBundle.mainBundle.bundleIdentifier isEqual:@"com.apple.dt.xctest.tool"]
-            && ![NSBundle.mainBundle.bundlePath hasSuffix:@".appex"]) {
+            && ![NSBundle.mainBundle.bundleIdentifier isEqual:@"com.apple.dt.xctest.tool"]) {
             [self startObserving];
         }
     }
@@ -56,12 +51,6 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 
 - (void)refreshPermissions
 {
-#if TARGET_OS_IOS
-    if (@available(iOS 9.3, *)) {
-        [self setMediaLibraryPermissionFromStatus:MPMediaLibrary.authorizationStatus];
-    }
-#endif
-
 #if SENTRY_HAS_UIKIT
     if (@available(iOS 9, tvOS 10, *)) {
         [self setPhotoLibraryPermissionFromStatus:PHPhotoLibrary.authorizationStatus];
@@ -75,30 +64,6 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
     }
 #endif
 }
-
-#if TARGET_OS_IOS
-- (void)setMediaLibraryPermissionFromStatus:(MPMediaLibraryAuthorizationStatus)status
-    API_AVAILABLE(ios(9.3))
-{
-    switch (status) {
-    case MPMediaLibraryAuthorizationStatusNotDetermined:
-        self.mediaLibraryPermissionStatus = kSentryPermissionStatusUnknown;
-        break;
-
-    case MPMediaLibraryAuthorizationStatusDenied:
-        self.mediaLibraryPermissionStatus = kSentryPermissionStatusDenied;
-        break;
-
-    case MPMediaLibraryAuthorizationStatusRestricted:
-        self.mediaLibraryPermissionStatus = kSentryPermissionStatusPartial;
-        break;
-
-    case MPMediaLibraryAuthorizationStatusAuthorized:
-        self.mediaLibraryPermissionStatus = kSentryPermissionStatusGranted;
-        break;
-    }
-}
-#endif
 
 #if SENTRY_HAS_UIKIT
 - (void)setPhotoLibraryPermissionFromStatus:(PHAuthorizationStatus)status
