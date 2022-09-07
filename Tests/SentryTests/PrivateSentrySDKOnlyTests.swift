@@ -29,6 +29,23 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertEqual(envelope, client?.captureEnvelopeInvocations.first)
     }
 
+    func testSetSdkName() {
+        let name = "Some SDK name"
+        PrivateSentrySDKOnly.setSdkName(name)
+        XCTAssertEqual(SentryMeta.sdkName, name)
+        XCTAssertEqual(PrivateSentrySDKOnly.getSdkName(), name)
+    }
+    
+    func testSetSdkNameAndVersion() {
+        let name = "Some SDK name"
+        let version = "1.2.3.4"
+        PrivateSentrySDKOnly.setSdkName(name, andVersionString: version)
+        XCTAssertEqual(SentryMeta.sdkName, name)
+        XCTAssertEqual(SentryMeta.versionString, version)
+        XCTAssertEqual(PrivateSentrySDKOnly.getSdkName(), name)
+        XCTAssertEqual(PrivateSentrySDKOnly.getSdkVersionString(), version)
+    }
+    
     func testEnvelopeWithData() throws {
         let itemData = "{}\n{\"length\":0,\"type\":\"attachment\"}\n".data(using: .utf8)!
         XCTAssertNotNil(PrivateSentrySDKOnly.envelope(with: itemData))
