@@ -4,7 +4,6 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
-        PrivateSentrySDKOnly.setSdkName(name, andVersionString: version)
         clearTestState()
     }
 
