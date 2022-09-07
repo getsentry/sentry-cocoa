@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Users can customise the error description shown in the Sentry UI by providing an NSDebugDescriptionErrorKey value in the error user info dictionary. (#2120)
+
 ### Fixes
 
 - Can't find app image when swizzling (#2124)

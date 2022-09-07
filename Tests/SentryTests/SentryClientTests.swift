@@ -392,6 +392,44 @@ class SentryClientTest: XCTestCase {
         }
     }
 
+    func testCaptureErrorUsesErrorDebugDescriptionWhenSet() {
+        let error = NSError(
+            domain: "com.sentry",
+            code: 999,
+            userInfo: [NSDebugDescriptionErrorKey: "Custom error description"]
+        )
+        let eventId = fixture.getSut().capture(error: error)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            do {
+                let exceptions = try XCTUnwrap(actual.exceptions)
+                XCTAssertEqual("Custom error description (Code: 999)", try XCTUnwrap(exceptions.first).value)
+            } catch {
+                XCTFail("Exception expected but was nil")
+            }
+        }
+    }
+
+    func testCaptureErrorUsesErrorCodeAsDescriptionIfNoCustomDescriptionProvided() {
+        let error = NSError(
+            domain: "com.sentry",
+            code: 999,
+            userInfo: [:]
+        )
+        let eventId = fixture.getSut().capture(error: error)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            do {
+                let exceptions = try XCTUnwrap(actual.exceptions)
+                XCTAssertEqual("Code: 999", try XCTUnwrap(exceptions.first).value)
+            } catch {
+                XCTFail("Exception expected but was nil")
+            }
+        }
+    }
+
     func testCaptureErrorWithComplexUserInfo() {
         let url = URL(string: "https://github.com/getsentry")!
         let error = NSError(domain: "domain", code: 0, userInfo: ["url": url])
