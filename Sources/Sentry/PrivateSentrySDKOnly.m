@@ -84,6 +84,21 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     SentryMeta.versionString = versionString;
 }
 
++ (void)setSdkName:(NSString *)sdkName
+{
+    SentryMeta.sdkName = sdkName;
+}
+
++ (NSString *)getSdkName
+{
+    return SentryMeta.sdkName;
+}
+
++ (NSString *)getSdkVersionString
+{
+    return SentryMeta.versionString;
+}
+
 #if SENTRY_HAS_UIKIT
 
 + (BOOL)framesTrackingMeasurementHybridSDKMode
