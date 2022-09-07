@@ -181,29 +181,10 @@ static SentryScreenFrames *_gProfilerFrameInfo;
             initSlowFrames = currentFrames.slow;
             initFrozenFrames = currentFrames.frozen;
         }
+        [self initializeProfilerForTracerWithFramesTracker:framesTracker];
+#else
+        [self initializeProfilerForTracer];
 #endif // SENTRY_HAS_UIKIT
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-        if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
-            [profilerLock lock];
-            if (profiler == nil) {
-                profiler = [[SentryProfiler alloc] init];
-                SENTRY_LOG_DEBUG(@"Starting profiler.");
-#    if SENTRY_HAS_UIKIT
-                framesTracker.currentTracer = self;
-                [framesTracker resetProfilingTimestamps];
-#    endif // SENTRY_HAS_UIKIT
-                [profiler start];
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 30), dispatch_get_main_queue(), ^{
-                    [self maybeStopProfilerWithReason:SentryProfilerStopReasonTimeout];
-                });
-            }
-            if (_gProfiledTracers == nil) {
-                _gProfiledTracers = [NSMutableArray<SentryTracer *> array];
-            }
-            [_gProfiledTracers addObject:self];
-            [profilerLock unlock];
-        }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
 
     return self;
@@ -450,6 +431,36 @@ static SentryScreenFrames *_gProfilerFrameInfo;
     }
 }
 
+#if SENTRY_HAS_UIKIT
+/** Initialize profiling for the current tracer with a frame renderer tracker for UIKit. */
+- (void)initializeProfilerForTracerWithFramesTracker:(SentryFramesTracker *)framesTracker {
+#else
+/** Initialize profiling for the current tracer. */
+- (void)initializeProfilerForTracer {
+#endif
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+        if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
+            [profilerLock lock];
+            if (profiler == nil) {
+                profiler = [[SentryProfiler alloc] init];
+#    if SENTRY_HAS_UIKIT
+                framesTracker.currentTracer = self;
+                [framesTracker resetProfilingTimestamps];
+#    endif // SENTRY_HAS_UIKIT
+                [profiler start];
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 30), dispatch_get_main_queue(), ^{
+                    [self maybeStopProfilerWithReason:SentryProfilerStopReasonTimeout];
+                });
+            }
+            if (_gProfiledTracers == nil) {
+                _gProfiledTracers = [NSMutableArray<SentryTracer *> array];
+            }
+            [_gProfiledTracers addObject:self];
+            [profilerLock unlock];
+        }
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+}
+
 /**
  * Stop the profiler immediately for an abnormal reason, or in the normal case, if all concurrent transactions have completed.
  */
@@ -487,6 +498,7 @@ static SentryScreenFrames *_gProfilerFrameInfo;
                                                                                 hub:_hub
                                                                           frameInfo:_gProfilerFrameInfo
                                                                          stopReason:_gProfilerStopReason]];
+            [_gProfiledTransactions removeAllObjects];
             profiler = nil;
         }
         [profilerLock unlock];
@@ -540,11 +552,13 @@ static SentryScreenFrames *_gProfilerFrameInfo;
 
     SentryTransaction *transaction = [self toTransaction];
 
+    [profilerLock lock];
     if (_gProfiledTransactions == nil) {
         _gProfiledTransactions = [NSMutableArray<SentryTransaction *> array];
     }
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Adding transaction %@ to list of profiled transactions.", transaction] andLevel:kSentryLevelDebug];
     [_gProfiledTransactions addObject:transaction];
+    [profilerLock unlock];
 
     [self captureProfilingEnvelopeIfFinished];
 

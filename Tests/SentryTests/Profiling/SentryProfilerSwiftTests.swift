@@ -8,7 +8,12 @@ class SentryProfilerSwiftTests: XCTestCase {
 
     private class Fixture {
         let options: Options
-        var client: TestClient!
+        lazy var client: TestClient! = TestClient(options: options)
+        lazy var hub: SentryHub = {
+            let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: sentryCrash, andCurrentDateProvider: currentDateProvider)
+            hub.bindClient(client)
+            return hub
+        }()
         let scope = Scope()
         let message = "some message"
         let currentDateProvider = TestCurrentDateProvider()
@@ -20,13 +25,6 @@ class SentryProfilerSwiftTests: XCTestCase {
             options = Options()
             options.dsn = SentryProfilerSwiftTests.dsnAsString
             CurrentDate.setCurrentDateProvider(currentDateProvider)
-        }
-
-        func getSut(_ options: Options, _ scope: Scope? = nil) -> SentryHub {
-            client = TestClient(options: options)
-            let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: sentryCrash, andCurrentDateProvider: currentDateProvider)
-            hub.bindClient(client)
-            return hub
         }
     }
 
@@ -56,7 +54,6 @@ class SentryProfilerSwiftTests: XCTestCase {
         let options = fixture.options
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
-        let sut = fixture.getSut(options)
 
         let queue = DispatchQueue(label: "SentryProfilerSwiftTests", attributes: [.concurrent, .initiallyInactive])
         let group = DispatchGroup()
@@ -65,7 +62,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         for _ in 0 ..< numberOfTransactions {
             group.enter()
             let exp = expectation(description: "finished span")
-            let span = sut.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+            let span = fixture.hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
 
             // Some busy work to try and get it to show up in the profile.
             let str = "a"
@@ -102,16 +99,14 @@ class SentryProfilerSwiftTests: XCTestCase {
         let options = fixture.options
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
-        let hub = fixture.getSut(options)
-        performTest(hub: hub, duration: 35)
+        performTest(duration: 35)
     }
 
     func testStartTransaction_ProfilingDataIsValid() {
         let options = fixture.options
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
-        let hub = fixture.getSut(options)
-        performTest(hub: hub)
+        performTest()
     }
 
     func testProfilingDataContainsEnvironmentSetFromOptions() {
@@ -120,9 +115,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         options.tracesSampleRate = 1.0
         let expectedEnvironment = "test-environment"
         options.environment = expectedEnvironment
-
-        let hub = fixture.getSut(options)
-        performTest(hub: hub, transactionEnvironment: expectedEnvironment)
+        performTest(transactionEnvironment: expectedEnvironment)
     }
 
     func testProfilingDataContainsEnvironmentSetFromConfigureScope() {
@@ -130,11 +123,10 @@ class SentryProfilerSwiftTests: XCTestCase {
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
         let expectedEnvironment = "test-environment"
-        let hub = fixture.getSut(options)
-        hub.configureScope { scope in
+        fixture.hub.configureScope { scope in
             scope.setEnvironment(expectedEnvironment)
         }
-        performTest(hub: hub, transactionEnvironment: expectedEnvironment)
+        performTest(transactionEnvironment: expectedEnvironment)
     }
 
     func testStartTransaction_NotSamplingProfileUsingEnableProfiling() {
@@ -257,9 +249,9 @@ private extension SentryProfilerSwiftTests {
         customAssertions?(profile)
     }
 
-    func performTest(hub: SentryHub, transactionEnvironment: String = kSentryDefaultEnvironment, duration: TimeInterval = 2.0, numberOfTransactions: Int = 1, customAssertions: (([String: Any]) -> Void)? = nil) {
+    func performTest(transactionEnvironment: String = kSentryDefaultEnvironment, duration: TimeInterval = 2.0, numberOfTransactions: Int = 1, customAssertions: (([String: Any]) -> Void)? = nil) {
         let profileExpectation = expectation(description: "collects profiling data")
-        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        let span = fixture.hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         // Give it time to collect a profile, otherwise there will be no samples.
         DispatchQueue.global().asyncAfter(deadline: .now() + duration) {
             span.finish()
@@ -307,7 +299,7 @@ private extension SentryProfilerSwiftTests {
         }
         options(fixtureOptions)
 
-        let hub = fixture.getSut(fixture.options)
+        let hub = fixture.hub
         Dynamic(hub).tracesSampler.random = TestRandom(value: 1.0)
 
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
