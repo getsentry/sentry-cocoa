@@ -75,9 +75,9 @@ class SentrySpanContextTests: XCTestCase {
     }
 
     func testSamplerDecisionNames() {
-        XCTAssertEqual(kSentrySampleDecisionNameUndecided, sampleDecisionName(.undecided))
-        XCTAssertEqual(kSentrySampleDecisionNameNo, sampleDecisionName(.no))
-        XCTAssertEqual(kSentrySampleDecisionNameYes, sampleDecisionName(.yes))
+        XCTAssertEqual(kSentrySampleDecisionNameUndecided, nameForSentrySampleDecision(.undecided))
+        XCTAssertEqual(kSentrySampleDecisionNameNo, nameForSentrySampleDecision(.no))
+        XCTAssertEqual(kSentrySampleDecisionNameYes, nameForSentrySampleDecision(.yes))
     }
     
     func testSampledNoSerialization() {

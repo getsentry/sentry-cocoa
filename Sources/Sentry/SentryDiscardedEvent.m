@@ -21,8 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary<NSString *, id> *)serialize
 {
     return @{
-        @"reason" : discardReasonName(self.reason),
-        @"category" : nameForCategory(self.category),
+        @"reason" : nameForSentryDiscardReason(self.reason),
+        @"category" : nameForSentryDataCategory(self.category),
         @"quantity" : @(self.quantity)
     };
 }

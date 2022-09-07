@@ -8,7 +8,7 @@ NSString *const kSentryDiscardReasonNameQueueOverflow = @"queue_overflow";
 NSString *const kSentryDiscardReasonNameCacheOverflow = @"cache_overflow";
 NSString *const kSentryDiscardReasonNameRateLimitBackoff = @"ratelimit_backoff";
 
-NSString *_Nonnull discardReasonName(SentryDiscardReason reason)
+NSString *_Nonnull nameForSentryDiscardReason(SentryDiscardReason reason)
 {
     switch (reason) {
     case kSentryDiscardReasonBeforeSend:

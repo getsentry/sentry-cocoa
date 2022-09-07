@@ -25,7 +25,7 @@
 {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
-    [serializedData setValue:nameForLevel(self.level) forKey:@"level"];
+    [serializedData setValue:nameForSentryLevel(self.level) forKey:@"level"];
     [serializedData setValue:[self.timestamp sentry_toIso8601String] forKey:@"timestamp"];
     [serializedData setValue:self.category forKey:@"category"];
     [serializedData setValue:self.type forKey:@"type"];

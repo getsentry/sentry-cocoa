@@ -13,12 +13,12 @@ FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameUserFeedback;
 FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameProfile;
 FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameUnknown;
 
-SentryDataCategory categoryForNSUInteger(NSUInteger value);
+SentryDataCategory sentryDataCategoryForNSUInteger(NSUInteger value);
 
-SentryDataCategory categoryForString(NSString *value);
+SentryDataCategory sentryDataCategoryForString(NSString *value);
 
-SentryDataCategory categoryForEnvelopItemType(NSString *itemType);
+SentryDataCategory sentryDataCategoryForEnvelopItemType(NSString *itemType);
 
-NSString *nameForCategory(SentryDataCategory category);
+NSString *nameForSentryDataCategory(SentryDataCategory category);
 
 NS_ASSUME_NONNULL_END

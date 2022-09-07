@@ -102,7 +102,7 @@ SentryHttpTransport ()
     }
 
     NSString *key =
-        [NSString stringWithFormat:@"%@:%@", nameForCategory(category), discardReasonName(reason)];
+        [NSString stringWithFormat:@"%@:%@", nameForSentryDataCategory(category), nameForSentryDiscardReason(reason)];
 
     @synchronized(self.discardedEvents) {
         SentryDiscardedEvent *event = self.discardedEvents[key];
@@ -247,7 +247,7 @@ SentryHttpTransport ()
         if ([itemType isEqualToString:SentryEnvelopeItemTypeClientReport]) {
             continue;
         }
-        SentryDataCategory category = categoryForEnvelopItemType(itemType);
+        SentryDataCategory category = sentryDataCategoryForEnvelopItemType(itemType);
         [self recordLostEvent:category reason:kSentryDiscardReasonNetworkError];
     }
 }

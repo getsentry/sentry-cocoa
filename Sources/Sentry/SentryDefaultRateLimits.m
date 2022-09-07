@@ -56,7 +56,7 @@ SentryDefaultRateLimits ()
 
         for (NSNumber *categoryAsNumber in limits.allKeys) {
             SentryDataCategory category
-                = categoryForNSUInteger(categoryAsNumber.unsignedIntegerValue);
+                = sentryDataCategoryForNSUInteger(categoryAsNumber.unsignedIntegerValue);
 
             [self updateRateLimit:category withDate:limits[categoryAsNumber]];
         }

@@ -117,6 +117,6 @@ FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameAborted;
 FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameOutOfRange;
 FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameDataLoss;
 
-NSString *spanStatusName(SentrySpanStatus status);
+NSString *nameForSentrySpanStatus(SentrySpanStatus status);
 
 NS_ASSUME_NONNULL_END

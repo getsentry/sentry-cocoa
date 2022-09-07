@@ -161,7 +161,7 @@ SentryOptions ()
 
     if ([options[@"diagnosticLevel"] isKindOfClass:[NSString class]]) {
         for (SentryLevel level = 0; level <= kSentryLevelFatal; level++) {
-            if ([nameForLevel(level) isEqualToString:options[@"diagnosticLevel"]]) {
+            if ([nameForSentryLevel(level) isEqualToString:options[@"diagnosticLevel"]]) {
                 self.diagnosticLevel = level;
                 break;
             }

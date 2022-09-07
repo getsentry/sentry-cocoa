@@ -421,7 +421,7 @@ SentryScope ()
 
     SentryLevel level = self.levelEnum;
     if (level != kSentryLevelNone) {
-        [serializedData setValue:nameForLevel(level) forKey:@"level"];
+        [serializedData setValue:nameForSentryLevel(level) forKey:@"level"];
     }
     NSArray *crumbs = [self serializeBreadcrumbs];
     if (crumbs.count > 0) {

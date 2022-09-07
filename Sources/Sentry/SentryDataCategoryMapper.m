@@ -16,7 +16,7 @@ NSString *const kSentryDataCategoryNameUnknown = @"unknown";
 NS_ASSUME_NONNULL_BEGIN
 
 SentryDataCategory
-categoryForEnvelopItemType(NSString *itemType)
+sentryDataCategoryForEnvelopItemType(NSString *itemType)
 {
     if ([itemType isEqualToString:SentryEnvelopeItemTypeEvent]) {
         return kSentryDataCategoryError;
@@ -37,7 +37,7 @@ categoryForEnvelopItemType(NSString *itemType)
 }
 
 SentryDataCategory
-categoryForNSUInteger(NSUInteger value)
+sentryDataCategoryForNSUInteger(NSUInteger value)
 {
     if (value < 0 || value > kSentryDataCategoryUnknown) {
         return kSentryDataCategoryUnknown;
@@ -47,7 +47,7 @@ categoryForNSUInteger(NSUInteger value)
 }
 
 SentryDataCategory
-categoryForString(NSString *value)
+sentryDataCategoryForString(NSString *value)
 {
     if ([value isEqualToString:kSentryDataCategoryNameAll]) {
         return kSentryDataCategoryAll;
@@ -78,7 +78,7 @@ categoryForString(NSString *value)
 }
 
 NSString *
-nameForCategory(SentryDataCategory category)
+nameForSentryDataCategory(SentryDataCategory category)
 {
     if (category < kSentryDataCategoryAll && category > kSentryDataCategoryUnknown) {
         return kSentryDataCategoryNameUnknown;

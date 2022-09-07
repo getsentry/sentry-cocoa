@@ -11,6 +11,6 @@ FOUNDATION_EXPORT NSString *const kSentryDiscardReasonNameQueueOverflow;
 FOUNDATION_EXPORT NSString *const kSentryDiscardReasonNameCacheOverflow;
 FOUNDATION_EXPORT NSString *const kSentryDiscardReasonNameRateLimitBackoff;
 
-NSString *discardReasonName(SentryDiscardReason reason);
+NSString *nameForSentryDiscardReason(SentryDiscardReason reason);
 
 NS_ASSUME_NONNULL_END

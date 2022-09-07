@@ -20,7 +20,7 @@ NSString *const kSentrySpanStatusNameOutOfRange = @"out_of_range";
 NSString *const kSentrySpanStatusNameDataLoss = @"data_loss";
 
 NSString *
-spanStatusName(SentrySpanStatus status)
+nameForSentrySpanStatus(SentrySpanStatus status)
 {
     switch (status) {
     case kSentrySpanStatusUndefined:

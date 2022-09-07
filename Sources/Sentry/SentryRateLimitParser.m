@@ -64,7 +64,7 @@ SentryRateLimitParser ()
     // category even if this parameter is empty.
     NSMutableArray<NSNumber *> *categories = [NSMutableArray new];
     for (NSString *categoryAsString in [categoriesAsString componentsSeparatedByString:@";"]) {
-        SentryDataCategory category = categoryForString(categoryAsString);
+        SentryDataCategory category = sentryDataCategoryForString(categoryAsString);
 
         // Unknown categories must be ignored. UserFeedback is not listed for rate limits, see
         // https://develop.sentry.dev/sdk/rate-limiting/#definitions

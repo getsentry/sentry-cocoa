@@ -84,7 +84,7 @@ SentryCrashScopeObserver ()
         return;
     }
 
-    NSString *levelAsString = nameForLevel(level);
+    NSString *levelAsString = nameForSentryLevel(level);
     NSData *json = [self toJSONEncodedCString:levelAsString];
 
     sentrycrash_scopesync_setLevel([json bytes]);

@@ -26,6 +26,6 @@ FOUNDATION_EXPORT NSString *const kSentrySampleDecisionNameUndecided;
 FOUNDATION_EXPORT NSString *const kSentrySampleDecisionNameYes;
 FOUNDATION_EXPORT NSString *const kSentrySampleDecisionNameNo;
 
-NSString *sampleDecisionName(SentrySampleDecision decision);
+NSString *nameForSentrySampleDecision(SentrySampleDecision decision);
 
 NS_ASSUME_NONNULL_END

@@ -63,7 +63,7 @@ SentryEvent ()
                                               .mutableCopy;
 
     if (self.level != kSentryLevelNone) {
-        [serializedData setValue:nameForLevel(self.level) forKey:@"level"];
+        [serializedData setValue:nameForSentryLevel(self.level) forKey:@"level"];
     }
 
     [self addSimpleProperties:serializedData];

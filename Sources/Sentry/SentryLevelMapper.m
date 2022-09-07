@@ -36,7 +36,7 @@ levelWithString(NSString *string)
 }
 
 NSString *
-nameForLevel(SentryLevel level)
+nameForSentryLevel(SentryLevel level)
 {
     switch (level) {
     case kSentryLevelNone:

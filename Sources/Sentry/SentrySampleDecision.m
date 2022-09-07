@@ -5,7 +5,7 @@ NSString *const kSentrySampleDecisionNameYes = @"true";
 NSString *const kSentrySampleDecisionNameNo = @"false";
 
 NSString *
-sampleDecisionName(SentrySampleDecision decision)
+nameForSentrySampleDecision(SentrySampleDecision decision)
 {
     switch (decision) {
     case kSentrySampleDecisionUndecided:
