@@ -490,18 +490,16 @@ static SentryScreenFrames *_gProfilerFrameInfo;
  */
 - (void)captureProfilingEnvelopeIfFinished {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    SentryEnvelope *profileEnvelope;
     if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
         [profilerLock lock];
         if (profiler != nil && !profiler.isRunning) {
-            profileEnvelope = [profiler buildEnvelopeItemForTransactions:_gProfiledTransactions
-                                                                     hub:_hub
-                                                               frameInfo:_gProfilerFrameInfo
-                                                              stopReason:_gProfilerStopReason];
+            [_hub.client captureEnvelope:[profiler buildEnvelopeItemForTransactions:_gProfiledTransactions
+                                                                                hub:_hub
+                                                                          frameInfo:_gProfilerFrameInfo
+                                                                         stopReason:_gProfilerStopReason]];
             profiler = nil;
         }
         [profilerLock unlock];
-        [_hub.client captureEnvelope:profileEnvelope];
     }
 #endif
 }
@@ -556,6 +554,7 @@ static SentryScreenFrames *_gProfilerFrameInfo;
     if (_gProfiledTransactions == nil) {
         _gProfiledTransactions = [NSMutableArray<SentryTransaction *> array];
     }
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"Adding transaction %@ to list of profiled transactions.", transaction] andLevel:kSentryLevelDebug];
     [_gProfiledTransactions addObject:transaction];
 
     [self captureProfilingEnvelopeIfFinished];

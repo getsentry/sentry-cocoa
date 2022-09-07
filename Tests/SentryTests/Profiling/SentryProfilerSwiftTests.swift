@@ -48,8 +48,53 @@ class SentryProfilerSwiftTests: XCTestCase {
 #endif
     }
 
+    // This test is only available on newer APIs because of the availability of `DispatchQueue.activate`
+    @available(tvOS 10.0, *)
+    @available(OSX 10.12, *)
+    @available(iOS 10.0, *)
     func testConcurrentProfilingTransactions() {
+        let options = fixture.options
+        options.profilesSampleRate = 1.0
+        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
+            return 1
+        }
+        let sut = fixture.getSut(options)
 
+        let queue = DispatchQueue(label: "SentryProfilerSwiftTests", attributes: [.concurrent, .initiallyInactive])
+        let group = DispatchGroup()
+
+        let numberOfTransactions = 10
+        for _ in 0 ..< numberOfTransactions {
+            group.enter()
+            let span = sut.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+
+            // Some busy work to try and get it to show up in the profile.
+            let str = "a"
+            var concatStr = ""
+            for _ in 0..<100_000 {
+                concatStr = concatStr.appending(str)
+            }
+
+            queue.asyncAfter(deadline: .now() + 2) {
+                span.finish()
+                group.leave()
+            }
+        }
+
+        queue.activate()
+        group.wait()
+
+        guard let envelope = self.fixture.client.captureEnvelopeInvocations.first else {
+            XCTFail("Expected to capture at least 1 event")
+            return
+        }
+        XCTAssertEqual(1, envelope.items.count)
+        guard let profileItem = envelope.items.first else {
+            XCTFail("Expected at least 1 additional envelope item")
+            return
+        }
+        XCTAssertEqual("profile", profileItem.header.type)
+        self.assertValidProfileData(data: profileItem.data, numberOfTransactions: numberOfTransactions)
     }
 
     func testStartTransaction_ProfilingDataIsValid() {
@@ -140,12 +185,13 @@ class SentryProfilerSwiftTests: XCTestCase {
 }
 
 private extension SentryProfilerSwiftTests {
-    func assertValidProfileData(data: Data, transactionEnvironment: String) {
+    func assertValidProfileData(data: Data, transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1) {
         let profile = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
         XCTAssertEqual("Apple", profile["device_manufacturer"] as! String)
         XCTAssertEqual("cocoa", profile["platform"] as! String)
         XCTAssertNotNil(profile["transactions"])
         if let transactions = profile["transactions"] as? [[String: String]] {
+            XCTAssertEqual(transactions.count, numberOfTransactions)
             for transaction in transactions {
                 XCTAssertEqual(fixture.transactionName, transaction["name"])
                 XCTAssertNotNil(transaction["id"])
