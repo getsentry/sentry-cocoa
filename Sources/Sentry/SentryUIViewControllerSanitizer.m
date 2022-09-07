@@ -1,4 +1,5 @@
 #import "SentryUIViewControllerSanitizer.h"
+#import <Sentry/Sentry-Swift.h>
 
 @implementation SentryUIViewControllerSanitizer
 
@@ -15,7 +16,8 @@
 
 + (NSString *)sanitizeViewControllerName:(id)controller
 {
-    NSString *description = [NSString stringWithFormat:@"%@", controller];
+    NSString *description = [SentryDescriptor
+        getDescription:controller]; //[NSString stringWithFormat:@"%@", controller];
 
     NSRange searchedRange = NSMakeRange(0, [description length]);
     NSArray *matches = [[self.class viewControllerRegex] matchesInString:description
