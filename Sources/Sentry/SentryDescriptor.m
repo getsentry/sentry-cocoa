@@ -37,7 +37,6 @@ sentry_setGlobalDescriptor(SentryDescriptor *descriptor)
 + (void)load
 {
     _globalDescriptor = [[SentryDescriptor alloc] init];
-    NSLog(@"%d", TARGET_OS_MACCATALYST);
 }
 #if SENTRY_HAS_UIKIT && TARGET_OS_MACCATALYST == 0
 - (instancetype)init

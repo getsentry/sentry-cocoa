@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#Adds an ignore warning directive for every file in the SentryDemangler folder 
+#in order to work with projects that are configured to fail with warnings.
+
  find ../Sources/SwiftDemangling -type f -print0 | xargs -0 sed -i '' '1i\
  #    pragma GCC diagnostic ignored "-Wshadow"
  '
