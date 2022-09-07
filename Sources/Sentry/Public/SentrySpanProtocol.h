@@ -24,9 +24,6 @@ NS_SWIFT_NAME(Span)
  */
 @property (nullable, nonatomic, strong) NSDate *startTimestamp;
 
-@property (nonatomic, assign) uint64_t systemStartTime;
-@property (nonatomic, assign) uint64_t systemEndTime;
-
 /**
  * An arbitrary mapping of additional metadata of the span.
  */

@@ -55,7 +55,6 @@ SentryEvent ()
     if (nil == self.timestamp) {
         self.timestamp = [SentryCurrentDate date];
     }
-    self.systemEndTime = getAbsoluteTime();
 
     NSMutableDictionary *serializedData = @{
         @"event_id" : self.eventId.sentryIdString,

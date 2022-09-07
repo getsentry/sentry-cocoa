@@ -37,9 +37,6 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  */
 @property (nullable, nonatomic, strong) NSDate *startTimestamp;
 
-@property (nonatomic, assign) uint64_t systemStartTime;
-@property (nonatomic, assign) uint64_t systemEndTime;
-
 /**
  * Whether the span is finished.
  */

@@ -10,8 +10,6 @@
 @synthesize tags;
 @synthesize startTimestamp;
 @synthesize timestamp;
-@synthesize systemEndTime;
-@synthesize systemStartTime;
 
 - (id<SentrySpan>)startChildWithOperation:(NSString *)operation description:(NSString *)description
 {

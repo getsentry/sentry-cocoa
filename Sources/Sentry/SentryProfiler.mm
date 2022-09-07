@@ -105,7 +105,9 @@ isSimulatorBuild()
 @implementation SentryProfiler {
     NSMutableDictionary<NSString *, id> *_profile;
     uint64_t _startTimestamp;
+    NSDate *_startDate;
     uint64_t _endTimestamp;
+    NSDate *_endDate;
     std::shared_ptr<SamplingProfiler> _profiler;
     SentryDebugImageProvider *_debugImageProvider;
     thread::TIDType _mainThreadID;
@@ -153,6 +155,7 @@ isSimulatorBuild()
         sampledProfile[@"queue_metadata"] = queueMetadata;
         _profile[@"sampled_profile"] = sampledProfile;
         _startTimestamp = getAbsoluteTime();
+        _startDate = [NSDate date];
 
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Starting profiler at system time %llu.", _startTimestamp] andLevel:kSentryLevelDebug];
 
@@ -228,6 +231,7 @@ isSimulatorBuild()
         if (_profiler != nullptr) {
             _profiler->stopSampling();
             _endTimestamp = getAbsoluteTime();
+            _endDate = [NSDate date];
             [SentryLog logWithMessage:[NSString stringWithFormat:@"Stopped profiler at system time: %llu.", _endTimestamp] andLevel:kSentryLevelDebug];
         }
     }
@@ -273,8 +277,7 @@ stopReason:(SentryProfilerStopReason)stopReason
         [@(NSProcessInfo.processInfo.physicalMemory) stringValue];
     const auto profileID = [[SentryId alloc] init];
     profile[@"profile_id"] = profileID.sentryIdString;
-    const auto profileEnd = getAbsoluteTime();
-    const auto profileDuration = getDurationNs(_startTimestamp, profileEnd);
+    const auto profileDuration = getDurationNs(_startTimestamp, _endTimestamp);
     profile[@"duration_ns"] = [@(profileDuration) stringValue];
     profile[@"truncation_reason"] = profilerStopReasonName(stopReason);
 
@@ -323,13 +326,15 @@ stopReason:(SentryProfilerStopReason)stopReason
     profile[@"platform"] = transactions.firstObject.platform;
     auto transactionsInfo = [NSMutableArray array];
     for (SentryTransaction *transaction in transactions) {
+        const auto relativeStart = [NSString stringWithFormat:@"%llu", [transaction.startTimestamp compare:_startDate] == NSOrderedAscending ? 0 : (unsigned long long)([transaction.startTimestamp timeIntervalSinceDate:_startDate] * 1e9)];
+        const auto relativeEnd = [NSString stringWithFormat:@"%llu", [transaction.timestamp compare:_endDate] == NSOrderedDescending ? profileDuration : (unsigned long long)([transaction.timestamp timeIntervalSinceDate:_startDate] * 1e9)];
         [transactionsInfo addObject:@{
             @"environment" : hub.scope.environmentString ?: hub.getClient.options.environment ?: kSentryDefaultEnvironment,
             @"id" : transaction.eventId.sentryIdString,
             @"trace_id" : transaction.trace.context.traceId.sentryIdString,
             @"name" : transaction.transaction,
-            @"relative_start_ns" : [@(transaction.systemStartTime <= _startTimestamp ? 0 : getDurationNs(_startTimestamp, transaction.systemStartTime)) stringValue],
-            @"relative_end_ns" : [@(transaction.systemEndTime < _startTimestamp + profileDuration ? profileDuration : getDurationNs(_startTimestamp, transaction.systemEndTime)) stringValue]
+            @"relative_start_ns" : relativeStart,
+            @"relative_end_ns" : relativeEnd
         }];
     }
     profile[@"transactions"] = transactionsInfo;

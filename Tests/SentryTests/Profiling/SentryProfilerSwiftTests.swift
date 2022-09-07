@@ -35,13 +35,13 @@ class SentryProfilerSwiftTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        SentryTracer.resetAppStartMeasurmentRead()
+        SentryTracer.resetAppStartMeasurementRead()
     }
 
     override func tearDown() {
         super.tearDown()
         clearTestState()
-        SentryTracer.resetAppStartMeasurmentRead()
+        SentryTracer.resetAppStartMeasurementRead()
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         SentryFramesTracker.sharedInstance().resetFrames()
         SentryFramesTracker.sharedInstance().stop()
@@ -55,9 +55,7 @@ class SentryProfilerSwiftTests: XCTestCase {
     func testConcurrentProfilingTransactions() {
         let options = fixture.options
         options.profilesSampleRate = 1.0
-        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
-            return 1
-        }
+        options.tracesSampleRate = 1.0
         let sut = fixture.getSut(options)
 
         let queue = DispatchQueue(label: "SentryProfilerSwiftTests", attributes: [.concurrent, .initiallyInactive])
@@ -66,6 +64,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         let numberOfTransactions = 10
         for _ in 0 ..< numberOfTransactions {
             group.enter()
+            let exp = expectation(description: "finished span")
             let span = sut.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
 
             // Some busy work to try and get it to show up in the profile.
@@ -77,12 +76,14 @@ class SentryProfilerSwiftTests: XCTestCase {
 
             queue.asyncAfter(deadline: .now() + 2) {
                 span.finish()
+                exp.fulfill()
                 group.leave()
             }
         }
 
         queue.activate()
         group.wait()
+        waitForExpectations(timeout: 5)
 
         guard let envelope = self.fixture.client.captureEnvelopeInvocations.first else {
             XCTFail("Expected to capture at least 1 event")
@@ -97,12 +98,18 @@ class SentryProfilerSwiftTests: XCTestCase {
         self.assertValidProfileData(data: profileItem.data, numberOfTransactions: numberOfTransactions)
     }
 
+    func testProfileTimeout() {
+        let options = fixture.options
+        options.profilesSampleRate = 1.0
+        options.tracesSampleRate = 1.0
+        let hub = fixture.getSut(options)
+        performTest(hub: hub, duration: 35)
+    }
+
     func testStartTransaction_ProfilingDataIsValid() {
         let options = fixture.options
         options.profilesSampleRate = 1.0
-        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
-            return 1
-        }
+        options.tracesSampleRate = 1.0
         let hub = fixture.getSut(options)
         performTest(hub: hub)
     }
@@ -110,9 +117,7 @@ class SentryProfilerSwiftTests: XCTestCase {
     func testProfilingDataContainsEnvironmentSetFromOptions() {
         let options = fixture.options
         options.profilesSampleRate = 1.0
-        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
-            return 1
-        }
+        options.tracesSampleRate = 1.0
         let expectedEnvironment = "test-environment"
         options.environment = expectedEnvironment
 
@@ -123,9 +128,7 @@ class SentryProfilerSwiftTests: XCTestCase {
     func testProfilingDataContainsEnvironmentSetFromConfigureScope() {
         let options = fixture.options
         options.profilesSampleRate = 1.0
-        options.tracesSampler = {(_: SamplingContext) -> NSNumber in
-            return 1
-        }
+        options.tracesSampleRate = 1.0
         let expectedEnvironment = "test-environment"
         let hub = fixture.getSut(options)
         hub.configureScope { scope in
@@ -185,7 +188,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 }
 
 private extension SentryProfilerSwiftTests {
-    func assertValidProfileData(data: Data, transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1) {
+    func assertValidProfileData(data: Data, transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1, customAssertions: (([String: Any]) -> Void)? = nil) {
         let profile = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
         XCTAssertEqual("Apple", profile["device_manufacturer"] as! String)
         XCTAssertEqual("cocoa", profile["platform"] as! String)
@@ -251,13 +254,14 @@ private extension SentryProfilerSwiftTests {
         XCTAssertFalse(frames.isEmpty)
         XCTAssertFalse((frames[0]["instruction_addr"] as! String).isEmpty)
         XCTAssertFalse((frames[0]["function"] as! String).isEmpty)
+        customAssertions?(profile)
     }
 
-    func performTest(hub: SentryHub, transactionEnvironment: String = kSentryDefaultEnvironment) {
+    func performTest(hub: SentryHub, transactionEnvironment: String = kSentryDefaultEnvironment, duration: TimeInterval = 2.0, numberOfTransactions: Int = 1, customAssertions: (([String: Any]) -> Void)? = nil) {
         let profileExpectation = expectation(description: "collects profiling data")
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         // Give it time to collect a profile, otherwise there will be no samples.
-        DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
+        DispatchQueue.global().asyncAfter(deadline: .now() + duration) {
             span.finish()
 
             guard let envelope = self.fixture.client.captureEnvelopeInvocations.first else {
@@ -270,7 +274,7 @@ private extension SentryProfilerSwiftTests {
                 return
             }
             XCTAssertEqual("profile", profileItem.header.type)
-            self.assertValidProfileData(data: profileItem.data, transactionEnvironment: transactionEnvironment)
+            self.assertValidProfileData(data: profileItem.data, transactionEnvironment: transactionEnvironment, numberOfTransactions: numberOfTransactions, customAssertions: customAssertions)
             profileExpectation.fulfill()
         }
 
@@ -281,7 +285,7 @@ private extension SentryProfilerSwiftTests {
             concatStr = concatStr.appending(str)
         }
 
-        waitForExpectations(timeout: 5.0) {
+        waitForExpectations(timeout: duration + 3.0) {
             if let error = $0 {
                 print(error)
             }

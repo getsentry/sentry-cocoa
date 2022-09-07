@@ -38,9 +38,6 @@ NS_SWIFT_NAME(Event)
  */
 @property (nonatomic, strong) NSDate *_Nullable startTimestamp;
 
-@property (nonatomic, assign) uint64_t systemStartTime;
-@property (nonatomic, assign) uint64_t systemEndTime;
-
 /**
  * SentryLevel of the event
  */
