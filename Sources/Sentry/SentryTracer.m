@@ -1,7 +1,7 @@
 #import "SentryTracer.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "PrivateSentrySDKOnly.h"
-#import "SentryAppStartMeasurement.h"
+#import "SentryAppStartMeasurement-Private.h"
 #import "SentryClient.h"
 #import "SentryCurrentDate.h"
 #import "SentryFramesTracker.h"
