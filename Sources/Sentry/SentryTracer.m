@@ -194,7 +194,7 @@ static SentryScreenFrames *_gProfilerFrameInfo;
 #    endif // SENTRY_HAS_UIKIT
                 [profiler start];
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 30), dispatch_get_main_queue(), ^{
-
+                    [self maybeStopProfilerWithReason:SentryProfilerStopReasonTimeout];
                 });
             }
             if (_gProfiledTracers == nil) {
