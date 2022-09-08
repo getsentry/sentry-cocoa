@@ -102,14 +102,14 @@ SentryBreadcrumbTracker (Private)
 
 - (void)testLevelNames
 {
-    XCTAssertEqual(kSentryLevelNone, levelWithString(kSentryLevelNameNone));
-    XCTAssertEqual(kSentryLevelDebug, levelWithString(kSentryLevelNameDebug));
-    XCTAssertEqual(kSentryLevelInfo, levelWithString(kSentryLevelNameInfo));
-    XCTAssertEqual(kSentryLevelWarning, levelWithString(kSentryLevelNameWarning));
-    XCTAssertEqual(kSentryLevelError, levelWithString(kSentryLevelNameError));
-    XCTAssertEqual(kSentryLevelFatal, levelWithString(kSentryLevelNameFatal));
+    XCTAssertEqual(kSentryLevelNone, sentryLevelForString(kSentryLevelNameNone));
+    XCTAssertEqual(kSentryLevelDebug, sentryLevelForString(kSentryLevelNameDebug));
+    XCTAssertEqual(kSentryLevelInfo, sentryLevelForString(kSentryLevelNameInfo));
+    XCTAssertEqual(kSentryLevelWarning, sentryLevelForString(kSentryLevelNameWarning));
+    XCTAssertEqual(kSentryLevelError, sentryLevelForString(kSentryLevelNameError));
+    XCTAssertEqual(kSentryLevelFatal, sentryLevelForString(kSentryLevelNameFatal));
 
-    XCTAssertEqual(kSentryLevelError, levelWithString(@"fdjsafdsa"),
+    XCTAssertEqual(kSentryLevelError, sentryLevelForString(@"fdjsafdsa"),
         @"Failed to map an unexpected string value to the default case.");
 
     XCTAssertEqualObjects(kSentryLevelNameNone, nameForSentryLevel(kSentryLevelNone));

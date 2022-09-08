@@ -375,7 +375,7 @@ NS_ASSUME_NONNULL_BEGIN
         return kSentryLevelError;
     }
 
-    return levelWithString(eventDictionary[@"level"]);
+    return sentryLevelForString(eventDictionary[@"level"]);
 }
 
 @end

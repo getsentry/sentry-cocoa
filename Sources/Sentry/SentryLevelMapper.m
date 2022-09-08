@@ -10,7 +10,7 @@ NSString *const kSentryLevelNameError = @"error";
 NSString *const kSentryLevelNameFatal = @"fatal";
 
 SentryLevel
-levelWithString(NSString *string)
+sentryLevelForString(NSString *string)
 {
     if ([string isEqualToString:kSentryLevelNameNone]) {
         return kSentryLevelNone;

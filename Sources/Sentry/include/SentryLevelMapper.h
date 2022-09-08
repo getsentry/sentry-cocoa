@@ -14,7 +14,7 @@ FOUNDATION_EXPORT NSString *const kSentryLevelNameFatal;
  * Maps a string to a SentryLevel. If the passed string doesn't match any level this defaults to
  * the 'error' level. See https://develop.sentry.dev/sdk/event-payloads/#optional-attributes
  */
-SentryLevel levelWithString(NSString *string);
+SentryLevel sentryLevelForString(NSString *string);
 
 NSString *nameForSentryLevel(SentryLevel level);
 
