@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- feat: Add more info to touch event breadcrumbs (#1724)
+- feat: Add support for dynamic library (#1726)
 ### Features
 
 - Users can customise the error description shown in the Sentry UI by providing an NSDebugDescriptionErrorKey value in the error user info dictionary. (#2120)
