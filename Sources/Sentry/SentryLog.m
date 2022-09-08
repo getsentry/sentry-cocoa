@@ -26,8 +26,8 @@ static SentryLogOutput *logOutput;
     }
 
     if (isDebug && level != kSentryLevelNone && level >= diagnosticLevel) {
-        [logOutput
-            log:[NSString stringWithFormat:@"Sentry - %@:: %@", nameForSentryLevel(level), message]];
+        [logOutput log:[NSString stringWithFormat:@"Sentry - %@:: %@", nameForSentryLevel(level),
+                                 message]];
     }
 }
 

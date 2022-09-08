@@ -20,7 +20,9 @@ typedef NS_ENUM(NSUInteger, SentrySampleDecision) {
     kSentrySampleDecisionNo
 };
 
-static DEPRECATED_MSG_ATTRIBUTE("Use nameForSentrySampleDecision() instead.") NSString *_Nonnull const SentrySampleDecisionNames[] = { @"undecided", @"true", @"false" };
+static DEPRECATED_MSG_ATTRIBUTE("Use nameForSentrySampleDecision() instead.")
+    NSString *_Nonnull const SentrySampleDecisionNames[]
+    = { @"undecided", @"true", @"false" };
 
 NS_ASSUME_NONNULL_BEGIN
 

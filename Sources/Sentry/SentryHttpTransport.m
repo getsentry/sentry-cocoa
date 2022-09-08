@@ -101,8 +101,8 @@ SentryHttpTransport ()
         return;
     }
 
-    NSString *key =
-        [NSString stringWithFormat:@"%@:%@", nameForSentryDataCategory(category), nameForSentryDiscardReason(reason)];
+    NSString *key = [NSString stringWithFormat:@"%@:%@", nameForSentryDataCategory(category),
+                              nameForSentryDiscardReason(reason)];
 
     @synchronized(self.discardedEvents) {
         SentryDiscardedEvent *event = self.discardedEvents[key];
