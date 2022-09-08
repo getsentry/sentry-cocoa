@@ -4,10 +4,13 @@ import Sentry
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 class SentryProfilerSwiftTests: XCTestCase {
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryProfilerSwiftTests")
-    private static let dsn = TestConstants.dsn(username: "SentryProfilerSwiftTests")
 
     private class Fixture {
-        let options: Options
+        lazy var options: Options = {
+            let options = Options()
+            options.dsn = SentryProfilerSwiftTests.dsnAsString
+            return options
+        }()
         lazy var client: TestClient! = TestClient(options: options)
         lazy var hub: SentryHub = {
             let hub = SentryHub(client: client, andScope: scope)
@@ -18,11 +21,6 @@ class SentryProfilerSwiftTests: XCTestCase {
         let message = "some message"
         let transactionName = "Some Transaction"
         let transactionOperation = "Some Operation"
-
-        init() {
-            options = Options()
-            options.dsn = SentryProfilerSwiftTests.dsnAsString
-        }
     }
 
     private var fixture: Fixture!
@@ -93,32 +91,28 @@ class SentryProfilerSwiftTests: XCTestCase {
     }
 
     func testProfileTimeout() {
-        let options = fixture.options
-        options.profilesSampleRate = 1.0
-        options.tracesSampleRate = 1.0
+        fixture.options.profilesSampleRate = 1.0
+        fixture.options.tracesSampleRate = 1.0
         performTest(duration: 35)
     }
 
     func testStartTransaction_ProfilingDataIsValid() {
-        let options = fixture.options
-        options.profilesSampleRate = 1.0
-        options.tracesSampleRate = 1.0
+        fixture.options.profilesSampleRate = 1.0
+        fixture.options.tracesSampleRate = 1.0
         performTest()
     }
 
     func testProfilingDataContainsEnvironmentSetFromOptions() {
-        let options = fixture.options
-        options.profilesSampleRate = 1.0
-        options.tracesSampleRate = 1.0
+        fixture.options.profilesSampleRate = 1.0
+        fixture.options.tracesSampleRate = 1.0
         let expectedEnvironment = "test-environment"
-        options.environment = expectedEnvironment
+        fixture.options.environment = expectedEnvironment
         performTest(transactionEnvironment: expectedEnvironment)
     }
 
     func testProfilingDataContainsEnvironmentSetFromConfigureScope() {
-        let options = fixture.options
-        options.profilesSampleRate = 1.0
-        options.tracesSampleRate = 1.0
+        fixture.options.profilesSampleRate = 1.0
+        fixture.options.tracesSampleRate = 1.0
         let expectedEnvironment = "test-environment"
         fixture.hub.configureScope { scope in
             scope.setEnvironment(expectedEnvironment)

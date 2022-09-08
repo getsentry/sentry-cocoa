@@ -80,6 +80,7 @@ static NSMutableArray<SentryTracer *> *_gProfiledTracers;
 static NSMutableArray<SentryTransaction *> *_gProfiledTransactions;
 static SentryProfilerStopReason _gProfilerStopReason;
 static SentryScreenFrames *_gProfilerFrameInfo;
+static NSTimer *_gProfilerTimeoutTimer;
 #endif
 
 + (void)initialize
@@ -448,9 +449,9 @@ static SentryScreenFrames *_gProfilerFrameInfo;
                 [framesTracker resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
                 [profiler start];
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 30), dispatch_get_main_queue(), ^{
+                _gProfilerTimeoutTimer = [NSTimer scheduledTimerWithTimeInterval:30 repeats:NO block:^(NSTimer * _Nonnull timer) {
                     [self maybeStopProfilerWithReason:SentryProfilerStopReasonTimeout];
-                });
+                }];
             }
             if (_gProfiledTracers == nil) {
                 _gProfiledTracers = [NSMutableArray<SentryTracer *> array];
@@ -473,6 +474,7 @@ static SentryScreenFrames *_gProfilerFrameInfo;
         BOOL shouldStopAbnormally = reason == SentryProfilerStopReasonTimeout || reason == SentryProfilerStopReasonAppMovedToBackground;
         if (shouldStopNormally || shouldStopAbnormally) {
             [SentryLog logWithMessage:[NSString stringWithFormat:@"Stopping profiler due to reason: %@.", profilerStopReasonName(reason)] andLevel:kSentryLevelDebug];
+            [_gProfilerTimeoutTimer invalidate];
             [profiler stop];
             _gProfilerStopReason = reason;
 #    if SENTRY_HAS_UIKIT
