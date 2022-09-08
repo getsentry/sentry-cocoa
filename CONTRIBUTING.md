@@ -9,11 +9,22 @@
 
 We welcome suggested improvements and bug fixes for `sentry-cocoa`, in the form of pull requests. To get early feedback, we recommend opening up a [draft PR](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests). Please follow our official [Commit Guidelines](https://develop.sentry.dev/code-review/#commit-guidelines) and also prefix the title of your PR according to the [Commit Guidelines](https://develop.sentry.dev/code-review/#commit-guidelines). The guide below will help you get started, but if you have further questions, please feel free to reach out on [Discord](https://discord.gg/Ww9hbqr).
 
+## PR reviews
+
 For feedback in PRs, we use the [LOGAF scale](https://blog.danlew.net/2020/04/15/the-logaf-scale/) to specify how important a comment is:
 
 * `l`: low - nitpick. You may address this comment, but you don't have to.
-* `m`: medium - normal comment. Worth adressing and fixing.
-* `h`: high - Very important. We must not merge this PR without adressing this issue.
+* `m`: medium - normal comment. Worth addressing and fixing.
+* `h`: high - Very important. We must not merge this PR without addressing this issue.
+
+You only need one approval from a maintainer to be able to merge. For some PRs, asking specific or multiple people for review might be adequate.
+
+Our different types of reviews:
+  
+  1. **LGTM without any comments.** You can merge immediately.
+  2. **LGTM with low and medium comments.** The reviewer trusts you to resolve these comments yourself, and you don't need to wait for another approval. 
+  3. **Only comments.** You must address all the comments and need another review until you merge.
+  4. **Request changes.** Only use if something critical is in the PR that absolutely must be addressed. We usually use `h` comments for that. When someone requests changes, the same person must approve the changes to allow merging. Use this sparingly.
 
 ## Setting up an Environment
 
