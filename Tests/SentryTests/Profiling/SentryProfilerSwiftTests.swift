@@ -10,21 +10,18 @@ class SentryProfilerSwiftTests: XCTestCase {
         let options: Options
         lazy var client: TestClient! = TestClient(options: options)
         lazy var hub: SentryHub = {
-            let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: sentryCrash, andCurrentDateProvider: currentDateProvider)
+            let hub = SentryHub(client: client, andScope: scope)
             hub.bindClient(client)
             return hub
         }()
         let scope = Scope()
         let message = "some message"
-        let currentDateProvider = TestCurrentDateProvider()
-        let sentryCrash = TestSentryCrashWrapper.sharedInstance()
         let transactionName = "Some Transaction"
         let transactionOperation = "Some Operation"
 
         init() {
             options = Options()
             options.dsn = SentryProfilerSwiftTests.dsnAsString
-            CurrentDate.setCurrentDateProvider(currentDateProvider)
         }
     }
 

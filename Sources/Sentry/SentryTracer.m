@@ -487,12 +487,18 @@ static SentryScreenFrames *_gProfilerFrameInfo;
 }
 
 /**
- * If the profiler has completed, capture an envelope with the information it has gathered.
+ * If the profiler will complete after the provided transaction, capture an envelope with the information it has gathered.
  */
-- (void)captureProfilingEnvelopeIfFinished {
+- (void)captureProfilingEnvelopeIfFinishedAfterTransaction:(SentryTransaction *)transaction {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+    [profilerLock lock];
+    if (_gProfiledTransactions == nil) {
+        _gProfiledTransactions = [NSMutableArray<SentryTransaction *> array];
+    }
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"Adding transaction %@ to list of profiled transactions.", transaction] andLevel:kSentryLevelDebug];
+    [_gProfiledTransactions addObject:transaction];
+
     if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
-        [profilerLock lock];
         if (profiler != nil && !profiler.isRunning) {
             [_hub.client captureEnvelope:[profiler buildEnvelopeItemForTransactions:_gProfiledTransactions
                                                                                 hub:_hub
@@ -501,8 +507,8 @@ static SentryScreenFrames *_gProfilerFrameInfo;
             [_gProfiledTransactions removeAllObjects];
             profiler = nil;
         }
-        [profilerLock unlock];
     }
+    [profilerLock unlock];
 #endif
 }
 
@@ -552,15 +558,7 @@ static SentryScreenFrames *_gProfilerFrameInfo;
 
     SentryTransaction *transaction = [self toTransaction];
 
-    [profilerLock lock];
-    if (_gProfiledTransactions == nil) {
-        _gProfiledTransactions = [NSMutableArray<SentryTransaction *> array];
-    }
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"Adding transaction %@ to list of profiled transactions.", transaction] andLevel:kSentryLevelDebug];
-    [_gProfiledTransactions addObject:transaction];
-    [profilerLock unlock];
-
-    [self captureProfilingEnvelopeIfFinished];
+    [self captureProfilingEnvelopeIfFinishedAfterTransaction:transaction];
 
     // Prewarming can execute code up to viewDidLoad of a UIViewController, and keep the app in the
     // background. This can lead to auto-generated transactions lasting for minutes or event hours.
