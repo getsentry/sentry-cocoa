@@ -87,7 +87,7 @@ class SentrySpanTests: XCTestCase {
     }
 
     func testFinishSpanWithDefaultTimestamp() {
-        let span = SentrySpan(transaction: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
+        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
         span.finish()
 
         XCTAssertEqual(span.startTimestamp, TestData.timestamp)
@@ -97,7 +97,7 @@ class SentrySpanTests: XCTestCase {
     }
 
     func testFinishSpanWithCustomTimestamp() {
-        let span = SentrySpan(transaction: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
+        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
         span.timestamp = Date(timeIntervalSince1970: 123)
         span.finish()
 
@@ -211,7 +211,7 @@ class SentrySpanTests: XCTestCase {
     }
 
     func testSanitizeDataSpan() {
-        let span = SentrySpan(transaction: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
+        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
 
         span.setExtra(value: Date(timeIntervalSince1970: 10), key: "date")
         span.finish()
@@ -231,7 +231,7 @@ class SentrySpanTests: XCTestCase {
     func testMergeTagsInSerialization() {
         let context = SpanContext(operation: fixture.someOperation)
         context.setTag(value: fixture.someTransaction, key: fixture.extraKey)
-        let span = SentrySpan(transaction: fixture.tracer, context: context)
+        let span = SentrySpan(tracer: fixture.tracer, context: context)
         
         let originalSerialization = span.serialize()
         XCTAssertEqual((originalSerialization["tags"] as! Dictionary)[fixture.extraKey], fixture.someTransaction)
@@ -265,7 +265,7 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testTraceHeaderUndecided() {
-        let span = SentrySpan(transaction: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
+        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
         let header = span.toTraceHeader()
         
         XCTAssertEqual(header.traceId, span.context.traceId)
@@ -275,7 +275,7 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testSetExtra_ForwardsToSetData() {
-        let sut = SentrySpan(transaction: fixture.tracer, context: SpanContext(operation: "test"))
+        let sut = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: "test"))
         sut.setExtra(value: 0, key: "key")
         
         XCTAssertEqual(["key": 0], sut.data as! [String: Int])
@@ -286,7 +286,7 @@ class SentrySpanTests: XCTestCase {
         // to the tracer ARC will deallocate the tracer.
         let sutGenerator : () -> Span = {
             let tracer = SentryTracer()
-            return SentrySpan(transaction: tracer, context: SpanContext(operation: ""))
+            return SentrySpan(tracer: tracer, context: SpanContext(operation: ""))
         }
         
         let sut = sutGenerator()
