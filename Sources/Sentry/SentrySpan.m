@@ -44,8 +44,8 @@ SentrySpan ()
     }
 
     return [self.tracer startChildWithParentId:[self.context spanId]
-                                          operation:operation
-                                        description:description];
+                                     operation:operation
+                                   description:description];
 }
 
 - (void)setDataValue:(nullable id)value forKey:(NSString *)key

@@ -43,8 +43,7 @@ SENTRY_NO_INIT
  *
  * @return SentrySpan
  */
-- (instancetype)initWithTracer:(SentryTracer *)transaction
-                            context:(SentrySpanContext *)context;
+- (instancetype)initWithTracer:(SentryTracer *)transaction context:(SentrySpanContext *)context;
 
 @end
 
