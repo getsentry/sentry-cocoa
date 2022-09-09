@@ -332,8 +332,8 @@ SentryOptions ()
     // Note: we should remove this code once the hybrid SDKs move over to the new
     // PrivateSentrySDKOnly setter functions.
     if ([options[@"sdk"] isKindOfClass:[NSDictionary class]]) {
-        SentrySdkInfo *defaults =[[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
-                                                          andVersion:SentryMeta.versionString];
+        SentrySdkInfo *defaults = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
+                                                           andVersion:SentryMeta.versionString];
         SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithDict:options orDefaults:defaults];
         SentryMeta.versionString = sdkInfo.version;
         SentryMeta.sdkName = sdkInfo.name;

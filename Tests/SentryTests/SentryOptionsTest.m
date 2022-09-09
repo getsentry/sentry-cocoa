@@ -603,7 +603,7 @@
 - (void)testSetCustomSdkName
 {
     NSDictionary *dict = @{ @"name" : @"custom.sdk" };
-    NSString* originalVersion = SentryMeta.versionString;
+    NSString *originalVersion = SentryMeta.versionString;
 
     NSError *error = nil;
     SentryOptions *options =
@@ -624,7 +624,7 @@
 - (void)testSetCustomSdkVersion
 {
     NSDictionary *dict = @{ @"version" : @"1.2.3-alpha.0" };
-    NSString* originalName = SentryMeta.sdkName;
+    NSString *originalName = SentryMeta.sdkName;
 
     NSError *error = nil;
     SentryOptions *options =
