@@ -3,91 +3,107 @@
 #import "SentryEnvelopeItemType.h"
 #import <Foundation/Foundation.h>
 
+NSString *const kSentryDataCategoryNameAll = @"";
+NSString *const kSentryDataCategoryNameDefault = @"default";
+NSString *const kSentryDataCategoryNameError = @"error";
+NSString *const kSentryDataCategoryNameSession = @"session";
+NSString *const kSentryDataCategoryNameTransaction = @"transaction";
+NSString *const kSentryDataCategoryNameAttachment = @"attachment";
+NSString *const kSentryDataCategoryNameUserFeedback = @"user_report";
+NSString *const kSentryDataCategoryNameProfile = @"profile";
+NSString *const kSentryDataCategoryNameUnknown = @"unknown";
+
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryDataCategoryMapper ()
-
-@end
-
-@implementation SentryDataCategoryMapper
-
-+ (SentryDataCategory)mapEventTypeToCategory:(NSString *)eventType
+SentryDataCategory
+sentryDataCategoryForEnvelopItemType(NSString *itemType)
 {
-    // Currently we classify every event type as error.
-    // This is going to change in the future.
-    return kSentryDataCategoryError;
-}
-
-+ (SentryDataCategory)mapEnvelopeItemTypeToCategory:(NSString *)itemType
-{
-    SentryDataCategory category = kSentryDataCategoryDefault;
     if ([itemType isEqualToString:SentryEnvelopeItemTypeEvent]) {
-        category = kSentryDataCategoryError;
+        return kSentryDataCategoryError;
     }
     if ([itemType isEqualToString:SentryEnvelopeItemTypeSession]) {
-        category = kSentryDataCategorySession;
+        return kSentryDataCategorySession;
     }
     if ([itemType isEqualToString:SentryEnvelopeItemTypeTransaction]) {
-        category = kSentryDataCategoryTransaction;
+        return kSentryDataCategoryTransaction;
     }
     if ([itemType isEqualToString:SentryEnvelopeItemTypeAttachment]) {
-        category = kSentryDataCategoryAttachment;
+        return kSentryDataCategoryAttachment;
     }
     if ([itemType isEqualToString:SentryEnvelopeItemTypeProfile]) {
-        category = kSentryDataCategoryProfile;
+        return kSentryDataCategoryProfile;
     }
-    return category;
+    return kSentryDataCategoryDefault;
 }
 
-+ (SentryDataCategory)mapIntegerToCategory:(NSUInteger)value
+SentryDataCategory
+sentryDataCategoryForNSUInteger(NSUInteger value)
 {
-    SentryDataCategory category = kSentryDataCategoryUnknown;
-
-    if (value == kSentryDataCategoryAll) {
-        category = kSentryDataCategoryAll;
-    }
-    if (value == kSentryDataCategoryDefault) {
-        category = kSentryDataCategoryDefault;
-    }
-    if (value == kSentryDataCategoryError) {
-        category = kSentryDataCategoryError;
-    }
-    if (value == kSentryDataCategorySession) {
-        category = kSentryDataCategorySession;
-    }
-    if (value == kSentryDataCategoryTransaction) {
-        category = kSentryDataCategoryTransaction;
-    }
-    if (value == kSentryDataCategoryAttachment) {
-        category = kSentryDataCategoryAttachment;
-    }
-    if (value == kSentryDataCategoryUserFeedback) {
-        category = kSentryDataCategoryUserFeedback;
-    }
-    if (value == kSentryDataCategoryProfile) {
-        category = kSentryDataCategoryProfile;
-    }
-    if (value == kSentryDataCategoryUnknown) {
-        category = kSentryDataCategoryUnknown;
+    if (value < 0 || value > kSentryDataCategoryUnknown) {
+        return kSentryDataCategoryUnknown;
     }
 
-    return category;
+    return (SentryDataCategory)value;
 }
 
-+ (SentryDataCategory)mapStringToCategory:(NSString *)value
+SentryDataCategory
+sentryDataCategoryForString(NSString *value)
 {
-    SentryDataCategory category = kSentryDataCategoryUnknown;
-
-    for (int i = 0; i <= kSentryDataCategoryUnknown; i++) {
-        if ([value isEqualToString:SentryDataCategoryNames[i]]) {
-            return [SentryDataCategoryMapper mapIntegerToCategory:i];
-        }
+    if ([value isEqualToString:kSentryDataCategoryNameAll]) {
+        return kSentryDataCategoryAll;
+    }
+    if ([value isEqualToString:kSentryDataCategoryNameDefault]) {
+        return kSentryDataCategoryDefault;
+    }
+    if ([value isEqualToString:kSentryDataCategoryNameError]) {
+        return kSentryDataCategoryError;
+    }
+    if ([value isEqualToString:kSentryDataCategoryNameSession]) {
+        return kSentryDataCategorySession;
+    }
+    if ([value isEqualToString:kSentryDataCategoryNameTransaction]) {
+        return kSentryDataCategoryTransaction;
+    }
+    if ([value isEqualToString:kSentryDataCategoryNameAttachment]) {
+        return kSentryDataCategoryAttachment;
+    }
+    if ([value isEqualToString:kSentryDataCategoryNameUserFeedback]) {
+        return kSentryDataCategoryUserFeedback;
+    }
+    if ([value isEqualToString:kSentryDataCategoryNameProfile]) {
+        return kSentryDataCategoryProfile;
     }
 
-    return category;
+    return kSentryDataCategoryUnknown;
 }
 
-@end
+NSString *
+nameForSentryDataCategory(SentryDataCategory category)
+{
+    if (category < kSentryDataCategoryAll && category > kSentryDataCategoryUnknown) {
+        return kSentryDataCategoryNameUnknown;
+    }
+
+    switch (category) {
+    case kSentryDataCategoryAll:
+        return kSentryDataCategoryNameAll;
+    case kSentryDataCategoryDefault:
+        return kSentryDataCategoryNameDefault;
+    case kSentryDataCategoryError:
+        return kSentryDataCategoryNameError;
+    case kSentryDataCategorySession:
+        return kSentryDataCategoryNameSession;
+    case kSentryDataCategoryTransaction:
+        return kSentryDataCategoryNameTransaction;
+    case kSentryDataCategoryAttachment:
+        return kSentryDataCategoryNameAttachment;
+    case kSentryDataCategoryUserFeedback:
+        return kSentryDataCategoryNameUserFeedback;
+    case kSentryDataCategoryProfile:
+        return kSentryDataCategoryNameProfile;
+    case kSentryDataCategoryUnknown:
+        return kSentryDataCategoryNameUnknown;
+    }
+}
 
 NS_ASSUME_NONNULL_END
