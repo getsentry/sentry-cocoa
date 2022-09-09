@@ -144,7 +144,7 @@ static NSLock *profilerLock;
           dispatchQueueWrapper:(nullable SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
-        self.rootSpan = [[SentrySpan alloc] initWithTransaction:self context:transactionContext];
+        self.rootSpan = [[SentrySpan alloc] initWithTracer:self context:transactionContext];
         self.transactionContext = transactionContext;
         _children = [[NSMutableArray alloc] init];
         self.hub = hub;
@@ -268,7 +268,7 @@ static NSLock *profilerLock;
                                            sampled:_rootSpan.context.sampled];
     context.spanDescription = description;
 
-    SentrySpan *child = [[SentrySpan alloc] initWithTransaction:self context:context];
+    SentrySpan *child = [[SentrySpan alloc] initWithTracer:self context:context];
     @synchronized(_children) {
         [_children addObject:child];
     }
@@ -739,7 +739,7 @@ static NSLock *profilerLock;
                                            sampled:_rootSpan.context.sampled];
     context.spanDescription = description;
 
-    return [[SentrySpan alloc] initWithTransaction:self context:context];
+    return [[SentrySpan alloc] initWithTracer:self context:context];
 }
 
 - (NSDictionary *)serialize
@@ -791,7 +791,7 @@ static NSLock *profilerLock;
     if ([span isKindOfClass:[SentryTracer class]]) {
         return span;
     } else if ([span isKindOfClass:[SentrySpan class]]) {
-        return [(SentrySpan *)span transaction];
+        return [(SentrySpan *)span tracer];
     }
     return nil;
 }

@@ -18,10 +18,10 @@ SentrySpan ()
     BOOL _isFinished;
 }
 
-- (instancetype)initWithTransaction:(SentryTracer *)transaction context:(SentrySpanContext *)context
+- (instancetype)initWithTracer:(SentryTracer *)tracer context:(SentrySpanContext *)context
 {
     if (self = [super init]) {
-        _transaction = transaction;
+        _tracer = tracer;
         _context = context;
         self.startTimestamp = [SentryCurrentDate date];
         _data = [[NSMutableDictionary alloc] init];
@@ -39,13 +39,13 @@ SentrySpan ()
 - (id<SentrySpan>)startChildWithOperation:(NSString *)operation
                               description:(nullable NSString *)description
 {
-    if (self.transaction == nil) {
+    if (self.tracer == nil) {
         return [SentryNoOpSpan shared];
     }
 
-    return [self.transaction startChildWithParentId:[self.context spanId]
-                                          operation:operation
-                                        description:description];
+    return [self.tracer startChildWithParentId:[self.context spanId]
+                                     operation:operation
+                                   description:description];
 }
 
 - (void)setDataValue:(nullable id)value forKey:(NSString *)key
@@ -112,8 +112,8 @@ SentrySpan ()
     if (self.timestamp == nil) {
         self.timestamp = [SentryCurrentDate date];
     }
-    if (self.transaction != nil) {
-        [self.transaction spanFinished:self];
+    if (self.tracer != nil) {
+        [self.tracer spanFinished:self];
     }
 }
 
