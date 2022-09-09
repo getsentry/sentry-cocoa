@@ -32,12 +32,20 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     func testSetSdkName() {
         let originalName = PrivateSentrySDKOnly.getSdkName()
         let name = "Some SDK name"
+        let originalVersion = SentryMeta.versionString
+        XCTAssertNotEqual(originalVersion, "")
+        
         PrivateSentrySDKOnly.setSdkName(name)
         XCTAssertEqual(SentryMeta.sdkName, name)
+        XCTAssertEqual(SentryMeta.versionString, originalVersion)
         XCTAssertEqual(PrivateSentrySDKOnly.getSdkName(), name)
+        XCTAssertEqual(PrivateSentrySDKOnly.getSdkVersionString(), originalVersion)
+        
         PrivateSentrySDKOnly.setSdkName(originalName)
         XCTAssertEqual(SentryMeta.sdkName, originalName)
+        XCTAssertEqual(SentryMeta.versionString, originalVersion)
         XCTAssertEqual(PrivateSentrySDKOnly.getSdkName(), originalName)
+        XCTAssertEqual(PrivateSentrySDKOnly.getSdkVersionString(), originalVersion)
     }
     
     func testSetSdkNameAndVersion() {
