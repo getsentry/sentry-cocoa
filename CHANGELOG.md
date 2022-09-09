@@ -11,6 +11,7 @@
 
 - Can't find app image when swizzling (#2124)
 - Crash with screenshot is reported twice (#2134)
+- Setting SDK name through `options[sdk][name]` shouldn't clear version (#2139)
 
 ## 7.24.1
 
