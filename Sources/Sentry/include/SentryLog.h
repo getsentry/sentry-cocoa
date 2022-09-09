@@ -15,7 +15,6 @@ SENTRY_NO_INIT
 @end
 
 NS_ASSUME_NONNULL_END
-
 #define SENTRY_LOG_DEBUG(...)                                                                      \
     [SentryLog logWithMessage:[NSString stringWithFormat:__VA_ARGS__] andLevel:kSentryLevelDebug]
 #define SENTRY_LOG_INFO(...)                                                                       \

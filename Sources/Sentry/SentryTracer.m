@@ -153,6 +153,7 @@ static NSTimer *_gProfilerTimeoutTimer;
           dispatchQueueWrapper:(nullable SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
+        SENTRY_LOG_DEBUG(@"Starting tracer");
         self.rootSpan = [[SentrySpan alloc] initWithTracer:self context:transactionContext];
         self.transactionContext = transactionContext;
         _children = [[NSMutableArray alloc] init];
@@ -261,6 +262,7 @@ static NSTimer *_gProfilerTimeoutTimer;
                                            sampled:_rootSpan.context.sampled];
     context.spanDescription = description;
 
+    SENTRY_LOG_DEBUG(@"Starting child span under %@", parentId.sentrySpanIdString);
     SentrySpan *child = [[SentrySpan alloc] initWithTracer:self context:context];
     @synchronized(_children) {
         [_children addObject:child];
