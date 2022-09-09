@@ -294,6 +294,7 @@ private extension SentryProfilerSwiftTests {
         Dynamic(hub).tracesSampler.random = TestRandom(value: 1.0)
 
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        let exp = expectation(description: "Span finishes")
         DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
             span.finish()
 
@@ -309,7 +310,11 @@ private extension SentryProfilerSwiftTests {
             @unknown default:
                 fatalError("Unexpected value for sample decision")
             }
+
+            exp.fulfill()
         }
+
+        waitForExpectations(timeout: 3)
     }
 }
 #endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
