@@ -171,7 +171,42 @@ class SentryProfilerSwiftTests: XCTestCase {
 }
 
 private extension SentryProfilerSwiftTests {
-    func assertValidProfileData(data: Data, transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1, customAssertions: (([String: Any]) -> Void)? = nil) {
+    func performTest(transactionEnvironment: String = kSentryDefaultEnvironment, duration: TimeInterval = 2.0, numberOfTransactions: Int = 1, customAssertions: (([String: Any]) -> Void)? = nil) {
+        let profileExpectation = expectation(description: "collects profiling data")
+        let span = fixture.hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        // Give it time to collect a profile, otherwise there will be no samples.
+        DispatchQueue.global().asyncAfter(deadline: .now() + duration) {
+            span.finish()
+
+            guard let envelope = self.fixture.client.captureEnvelopeInvocations.first else {
+                XCTFail("Expected to capture at least 1 event")
+                return
+            }
+            XCTAssertEqual(1, envelope.items.count)
+            guard let profileItem = envelope.items.first else {
+                XCTFail("Expected at least 1 additional envelope item")
+                return
+            }
+            XCTAssertEqual("profile", profileItem.header.type)
+            self.assertValidProfileData(data: profileItem.data, transactionEnvironment: transactionEnvironment, duration: duration, numberOfTransactions: numberOfTransactions, customAssertions: customAssertions)
+            profileExpectation.fulfill()
+        }
+
+        // Some busy work to try and get it to show up in the profile.
+        let str = "a"
+        var concatStr = ""
+        for _ in 0..<100_000 {
+            concatStr = concatStr.appending(str)
+        }
+
+        waitForExpectations(timeout: duration + 3.0) {
+            if let error = $0 {
+                print(error)
+            }
+        }
+    }
+
+    func assertValidProfileData(data: Data, transactionEnvironment: String = kSentryDefaultEnvironment, duration: TimeInterval = 2.0, numberOfTransactions: Int = 1, customAssertions: (([String: Any]) -> Void)? = nil) {
         let profile = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
         XCTAssertEqual("Apple", profile["device_manufacturer"] as! String)
         XCTAssertEqual("cocoa", profile["platform"] as! String)
@@ -238,41 +273,6 @@ private extension SentryProfilerSwiftTests {
         XCTAssertFalse((frames[0]["instruction_addr"] as! String).isEmpty)
         XCTAssertFalse((frames[0]["function"] as! String).isEmpty)
         customAssertions?(profile)
-    }
-
-    func performTest(transactionEnvironment: String = kSentryDefaultEnvironment, duration: TimeInterval = 2.0, numberOfTransactions: Int = 1, customAssertions: (([String: Any]) -> Void)? = nil) {
-        let profileExpectation = expectation(description: "collects profiling data")
-        let span = fixture.hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        // Give it time to collect a profile, otherwise there will be no samples.
-        DispatchQueue.global().asyncAfter(deadline: .now() + duration) {
-            span.finish()
-
-            guard let envelope = self.fixture.client.captureEnvelopeInvocations.first else {
-                XCTFail("Expected to capture at least 1 event")
-                return
-            }
-            XCTAssertEqual(1, envelope.items.count)
-            guard let profileItem = envelope.items.first else {
-                XCTFail("Expected at least 1 additional envelope item")
-                return
-            }
-            XCTAssertEqual("profile", profileItem.header.type)
-            self.assertValidProfileData(data: profileItem.data, transactionEnvironment: transactionEnvironment, numberOfTransactions: numberOfTransactions, customAssertions: customAssertions)
-            profileExpectation.fulfill()
-        }
-
-        // Some busy work to try and get it to show up in the profile.
-        let str = "a"
-        var concatStr = ""
-        for _ in 0..<100_000 {
-            concatStr = concatStr.appending(str)
-        }
-
-        waitForExpectations(timeout: duration + 3.0) {
-            if let error = $0 {
-                print(error)
-            }
-        }
     }
 
     func assertProfilesSampler(expectedDecision: SentrySampleDecision, options: (Options) -> Void) {
