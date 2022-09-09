@@ -102,6 +102,11 @@ SentryTransportAdapter ()
     [self.transport recordLostEvent:category reason:reason];
 }
 
+- (BOOL)flush:(NSTimeInterval)timeout
+{
+    return [self.transport flush:timeout];
+}
+
 - (NSMutableArray<SentryEnvelopeItem *> *)buildEnvelopeItems:(SentryEvent *)event
                                                  attachments:
                                                      (NSArray<SentryAttachment *> *)attachments

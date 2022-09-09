@@ -1,5 +1,6 @@
 #import "SentryTransportFactory.h"
 #import "SentryDefaultRateLimits.h"
+#import "SentryDispatchGroupWrapper.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryHttpDateParser.h"
@@ -50,13 +51,16 @@ SentryTransportFactory ()
         [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-http-transport"
                                               attributes:attributes];
 
+    SentryDispatchGroupWrapper *dispatchGroup = [[SentryDispatchGroupWrapper alloc] init];
+
     return [[SentryHttpTransport alloc] initWithOptions:options
                                             fileManager:sentryFileManager
                                          requestManager:requestManager
                                          requestBuilder:[[SentryNSURLRequestBuilder alloc] init]
                                              rateLimits:rateLimits
                                       envelopeRateLimit:envelopeRateLimit
-                                   dispatchQueueWrapper:dispatchQueueWrapper];
+                                   dispatchQueueWrapper:dispatchQueueWrapper
+                                   dispatchGroupWrapper:dispatchGroup];
 }
 
 @end

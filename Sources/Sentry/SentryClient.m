@@ -462,6 +462,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
                   isCrashEvent:NO];
 }
 
+- (BOOL)flush:(NSTimeInterval)timeout
+{
+    return [self.transportAdapter flush:timeout];
+}
+
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
                              withScope:(SentryScope *)scope
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace

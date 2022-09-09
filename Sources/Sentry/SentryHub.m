@@ -607,6 +607,15 @@ SentryHub ()
     return NO;
 }
 
+- (BOOL)flush:(NSTimeInterval)timeout
+{
+    SentryClient *client = _client;
+    if (nil != client) {
+        return [client flush:timeout];
+    }
+    return NO;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

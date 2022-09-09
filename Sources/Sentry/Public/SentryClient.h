@@ -113,6 +113,8 @@ SENTRY_NO_INIT
 
 - (void)captureEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(capture(envelope:));
 
+- (BOOL)flush:(NSTimeInterval)timeout NS_SWIFT_NAME(flush(timeout:));
+
 @end
 
 NS_ASSUME_NONNULL_END

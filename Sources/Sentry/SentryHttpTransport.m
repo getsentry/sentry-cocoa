@@ -1,8 +1,10 @@
 #import "SentryHttpTransport.h"
 #import "SentryClientReport.h"
+#import "SentryCurrentDate.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDiscardReasonMapper.h"
 #import "SentryDiscardedEvent.h"
+#import "SentryDispatchGroupWrapper.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope+Private.h"
@@ -28,6 +30,7 @@ SentryHttpTransport ()
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
+@property (nonatomic, strong) SentryDispatchGroupWrapper *dispatchGroup;
 
 /**
  * Relay expects the discarded events split by data category and reason; see
@@ -44,6 +47,8 @@ SentryHttpTransport ()
  */
 @property (atomic) BOOL isSending;
 
+@property (atomic) BOOL isFlushing;
+
 @end
 
 @implementation SentryHttpTransport
@@ -55,6 +60,7 @@ SentryHttpTransport ()
               rateLimits:(id<SentryRateLimits>)rateLimits
        envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+    dispatchGroupWrapper:(SentryDispatchGroupWrapper *)dispatchGroupWrapper
 {
     if (self = [super init]) {
         self.options = options;
@@ -64,7 +70,9 @@ SentryHttpTransport ()
         self.rateLimits = rateLimits;
         self.envelopeRateLimit = envelopeRateLimit;
         self.dispatchQueue = dispatchQueueWrapper;
+        self.dispatchGroup = dispatchGroupWrapper;
         _isSending = NO;
+        _isFlushing = NO;
         self.discardedEvents = [NSMutableDictionary new];
         [self.envelopeRateLimit setDelegate:self];
         [self.fileManager setDelegate:self];
@@ -116,6 +124,46 @@ SentryHttpTransport ()
                                                     quantity:quantity];
 
         self.discardedEvents[key] = event;
+    }
+}
+
+- (BOOL)flush:(NSTimeInterval)timeout
+{
+    @synchronized(self) {
+        if (_isFlushing) {
+            [SentryLog logWithMessage:@"SentryHttpTransport: Already flushing. Doing nothing."
+                             andLevel:kSentryLevelDebug];
+            return NO;
+        }
+
+        [SentryLog logWithMessage:@"SentryHttpTransport: Starting to flush."
+                         andLevel:kSentryLevelDebug];
+
+        _isFlushing = YES;
+        [self.dispatchGroup enter];
+    }
+
+    [self sendAllCachedEnvelopes];
+
+    dispatch_time_t now = [SentryCurrentDate dispatchTimeNow];
+    dispatch_time_t delta = (int64_t)(timeout * NSEC_PER_SEC);
+    dispatch_time_t dispatchTimeout = dispatch_time(now, delta);
+
+    intptr_t result = [self.dispatchGroup waitWithTimeout:dispatchTimeout];
+
+    @synchronized(self) {
+        _isFlushing = NO;
+    }
+
+    if (result == 0) {
+        [SentryLog logWithMessage:@"SentryHttpTransport: Finished flushing."
+                         andLevel:kSentryLevelDebug];
+        return YES;
+    } else {
+        [SentryLog
+            logWithMessage:@"SentryHttpTransport: Didn't finish flushing because timeout occurred."
+                  andLevel:kSentryLevelDebug];
+        return NO;
     }
 }
 
@@ -177,7 +225,9 @@ SentryHttpTransport ()
 
     SentryFileContents *envelopeFileContents = [self.fileManager getOldestEnvelope];
     if (nil == envelopeFileContents) {
-        self.isSending = NO;
+        [SentryLog logWithMessage:@"SentryHttpTransport: No envelopes left to send."
+                         andLevel:kSentryLevelDebug];
+        [self finishedSending];
         return;
     }
 
@@ -211,6 +261,8 @@ SentryHttpTransport ()
 
 - (void)deleteEnvelopeAndSendNext:(NSString *)envelopePath
 {
+    [SentryLog logWithMessage:@"SentryHttpTransport: Deleting envelope and sending next."
+                     andLevel:kSentryLevelDebug];
     [self.fileManager removeFileAtPath:envelopePath];
     self.isSending = NO;
     [self sendAllCachedEnvelopes];
@@ -233,9 +285,22 @@ SentryHttpTransport ()
                 [_self.rateLimits update:response];
                 [_self deleteEnvelopeAndSendNext:envelopePath];
             } else {
-                _self.isSending = NO;
+                [SentryLog logWithMessage:@"SentryHttpTransport: No internet connection."
+                                 andLevel:kSentryLevelDebug];
+                [_self finishedSending];
             }
         }];
+}
+
+- (void)finishedSending
+{
+    [SentryLog logWithMessage:@"SentryHttpTransport: Finished sending." andLevel:kSentryLevelDebug];
+    @synchronized(self) {
+        self.isSending = NO;
+        if (self.isFlushing) {
+            [self.dispatchGroup leave];
+        }
+    }
 }
 
 - (void)recordLostEventFor:(NSArray<SentryEnvelopeItem *> *)items
