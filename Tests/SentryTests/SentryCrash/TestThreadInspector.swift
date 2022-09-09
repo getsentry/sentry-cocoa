@@ -2,7 +2,7 @@ import Foundation
 
 class TestThreadInspector: SentryThreadInspector {
     
-    var allThreads: [Sentry.Thread]?
+    var allThreads: [SentryThread]?
     
     static var instance: TestThreadInspector {
         // We need something to pass to the super initializer, because the empty initializer has been marked unavailable.
@@ -12,11 +12,11 @@ class TestThreadInspector: SentryThreadInspector {
         return TestThreadInspector(stacktraceBuilder: stacktraceBuilder, andMachineContextWrapper: SentryCrashDefaultMachineContextWrapper())
     }
     
-    override func getCurrentThreads() -> [Sentry.Thread] {
+    override func getCurrentThreads() -> [SentryThread] {
         return allThreads ?? [TestData.thread]
     }
 
-    override func getCurrentThreadsWithStackTrace() -> [Sentry.Thread] {
+    override func getCurrentThreadsWithStackTrace() -> [SentryThread] {
         return allThreads ?? [TestData.thread]
     }
 

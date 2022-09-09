@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "SPM-Dynamic",
     products: [
-        .library(name: "SPM-Dynamic", type: .dynamic, targets: ["SPM-Dynamic"]),
+        .library(name: "SPM-Dynamic", type: .dynamic, targets: ["SPM-Dynamic"])
     ],
     dependencies: [
         // branch is replaced in CI to the current sha

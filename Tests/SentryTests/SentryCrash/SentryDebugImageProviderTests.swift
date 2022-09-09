@@ -122,10 +122,10 @@ class SentryDebugImageProviderTests: XCTestCase {
     func testImagesForThreads() {
         let sut = fixture.getSut(images: fixture.getTestImages())
         
-        let thread = Sentry.Thread(threadId: NSNumber(value: 1))
+        let thread = SentryThread(threadId: NSNumber(value: 1))
         let frame = Sentry.Frame()
         frame.imageAddress = "0x0000000105705000"
-        thread.stacktrace = Stacktrace(frames: [frame], registers: [:])
+        thread.stacktrace = SentryStacktrace(frames: [frame], registers: [:])
         
         var actual = sut.getDebugImages(for: [thread])
         
@@ -137,7 +137,7 @@ class SentryDebugImageProviderTests: XCTestCase {
         frame2.imageAddress = "0x00000001410b1a00"
         let frame3 = Sentry.Frame()
         frame3.imageAddress = "0x000000017ca5e400"
-        thread.stacktrace = Stacktrace(frames: [frame2, frame3], registers: [:])
+        thread.stacktrace = SentryStacktrace(frames: [frame2, frame3], registers: [:])
         
         actual = sut.getDebugImages(for: [thread])
         
@@ -151,7 +151,7 @@ class SentryDebugImageProviderTests: XCTestCase {
     
     func test_NoImage_ForThread_WithoutStackTrace() {
         let sut = fixture.getSut(images: fixture.getTestImages())
-        let thread = Sentry.Thread(threadId: NSNumber(value: 1))
+        let thread = SentryThread(threadId: NSNumber(value: 1))
         let actual = sut.getDebugImages(for: [thread])
         
         XCTAssertEqual(actual.count, 0)
