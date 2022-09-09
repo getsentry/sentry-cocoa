@@ -107,7 +107,7 @@ getReportCount()
     }
     struct dirent *ent;
     while ((ent = readdir(dir)) != NULL) {
-        if (getReportIDFromFilename(ent->d_name) > 0) {
+        if (ent->d_type != DT_DIR && getReportIDFromFilename(ent->d_name) > 0) {
             count++;
         }
     }

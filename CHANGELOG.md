@@ -10,6 +10,7 @@
 ### Fixes
 
 - Can't find app image when swizzling (#2124)
+- Crash with screenshot is reported twice (#2134)
 
 ## 7.24.1
 
