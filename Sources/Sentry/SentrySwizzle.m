@@ -20,6 +20,9 @@ SentrySwizzleInfo ()
 - (SentrySwizzleOriginalIMP)getOriginalImplementation
 {
     NSAssert(_impProviderBlock, nil);
+    if (!_impProviderBlock) {
+        return NULL;
+    }
 
 #if TEST
     @synchronized(self) {
@@ -136,8 +139,13 @@ swizzledClassesForKey(const void *key)
                          mode:(SentrySwizzleMode)mode
                           key:(const void *)key
 {
-    NSAssert(!(NULL == key && SentrySwizzleModeAlways != mode),
+    NSAssert(!(key == NULL && mode != SentrySwizzleModeAlways),
         @"Key may not be NULL if mode is not SentrySwizzleModeAlways.");
+
+    if (key == NULL && mode != SentrySwizzleModeAlways) {
+        NSLog(@"Key may not be NULL if mode is not SentrySwizzleModeAlways.");
+        return NO;
+    }
 
     @synchronized(swizzledClassesDictionary()) {
         if (key) {
