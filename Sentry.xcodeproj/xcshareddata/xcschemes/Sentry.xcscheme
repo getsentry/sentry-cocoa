@@ -54,20 +54,6 @@
                BlueprintName = "SentryTests"
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "SentryClientTest/testCaptureMessage()">
-               </Test>
-               <Test
-                  Identifier = "SentrySDKIntegrationTestsBase">
-               </Test>
-               <Test
-                  Identifier = "SentrySessionGeneratorTests/testSendSessions()">
-               </Test>
-               <Test
-                  Identifier = "SentryStacktraceBuilderTests/testAsyncStacktraces()">
-               </Test>
-            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>
