@@ -3,6 +3,7 @@
 import argparse
 import functools
 import math
+import matplotlib.pyplot as plt
 import sys
 
 """A script to parse an XCUITest console log, extract raw benchmark values, and statistically analyze the SDK profiler's CPU overhead."""
@@ -31,8 +32,22 @@ def main():
 
     mean = functools.reduce(lambda res, next: res + float(next), percentages, 0) / len(percentages)
 
+    p0 = percentages[0]
+
     p90_index = math.ceil(len(percentages) * 0.9)
     p90 = percentages[p90_index - 1]
+
+    p99_index = math.ceil(len(percentages) * 0.99)
+    p99 = percentages[p99_index - 1]
+
+    p99_9_index = math.ceil(len(percentages) * 0.999)
+    p99_9 = percentages[p99_9_index - 1]
+
+    p99_999_index = math.ceil(len(percentages) * 0.99999)
+    p99_999 = percentages[p99_999_index - 1]
+
+    p99_99999_index = math.ceil(len(percentages) * 0.9999999)
+    p99_99999 = percentages[p99_99999_index - 1]
 
     print(f'''Benchmark report
 ----------------
@@ -41,9 +56,22 @@ All observations (overhead, %):
 
 Median: {median:.3f}
 Mean: {mean:.3f}
+P0: {p0}
 P90: {p90}
+P99: {p99}
+P99.9: {p99_9}
+P99.999: {p99_999}
+P99.99999: {p99_99999}
     ''')
 
+percentiles = [p0, p90, p99, p99_9, p99_999, p99_99999]
+plt.title("Cpu time increase percentage for " + devClass + " devices")
+plt.plot(percentiles)
+plt.ylabel("Cpu time increase %")
+plt.xlabel("Percentile")
+plt.xticks(ticks=[0, 1, 2, 3, 4, 5], labels=["0%", "90%", "99%", "99.9%", "99.999%", "99.99999%"])
+plt.grid(True)
+plt.show()
 
 if __name__ == '__main__':
     main()
