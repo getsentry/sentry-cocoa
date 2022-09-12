@@ -34,11 +34,11 @@ jobs:
         # doesn't work. 
         
         include:
-          # Test on iOS 12.5.6
-          - runs-on: macos-11
+          # Test on iOS 12.4
+          - runs-on: macos-10.15
             platform: "iOS"
-            xcode: "12.5.1"
-            test-destination-os: "12.5.6"
+            xcode: "12.4"
+            test-destination-os: "12.4"
 
          # Test on iOS 13.7
           - runs-on:  macos-11
