@@ -35,7 +35,7 @@ jobs:
         
         include:
           # Test on iOS 12.5.6
-          - runs-on: macos-10.15
+          - runs-on: macos-11
             platform: "iOS"
             xcode: "12.5.1"
             test-destination-os: "12.5.6"
