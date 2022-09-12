@@ -474,7 +474,7 @@ static NSTimer *_gProfilerTimeoutTimer;
         [_gProfiledTracers removeObject:self];
         BOOL shouldStopNormally = reason == SentryProfilerStopReasonNormal && _gProfiledTracers.count == 0;
         BOOL shouldStopAbnormally = reason == SentryProfilerStopReasonTimeout || reason == SentryProfilerStopReasonAppMovedToBackground;
-        if (shouldStopNormally || shouldStopAbnormally) {
+        if ([profiler isRunning] && (shouldStopNormally || shouldStopAbnormally)) {
             [SentryLog logWithMessage:[NSString stringWithFormat:@"Stopping profiler due to reason: %@.", profilerStopReasonName(reason)] andLevel:kSentryLevelDebug];
             [_gProfilerTimeoutTimer invalidate];
             [profiler stop];

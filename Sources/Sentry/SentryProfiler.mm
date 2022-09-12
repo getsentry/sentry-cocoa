@@ -228,12 +228,14 @@ isSimulatorBuild()
 - (void)stop
 {
     @synchronized(self) {
-        if (_profiler != nullptr) {
-            _profiler->stopSampling();
-            _endTimestamp = getAbsoluteTime();
-            _endDate = [NSDate date];
-            [SentryLog logWithMessage:[NSString stringWithFormat:@"Stopped profiler at system time: %llu.", _endTimestamp] andLevel:kSentryLevelDebug];
+        if (_profiler == nullptr || !_profiler->isSampling()) {
+            return;
         }
+
+        _profiler->stopSampling();
+        _endTimestamp = getAbsoluteTime();
+        _endDate = [NSDate date];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"Stopped profiler at system time: %llu.", _endTimestamp] andLevel:kSentryLevelDebug];
     }
 }
 
