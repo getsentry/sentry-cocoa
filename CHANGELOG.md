@@ -1,5 +1,7 @@
 # Changelog
 
+## Unreleased
+
 ### Fixes
 
 - Prewarmed app start detection (#2151)
