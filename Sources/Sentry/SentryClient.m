@@ -462,9 +462,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
                   isCrashEvent:NO];
 }
 
-- (BOOL)flush:(NSTimeInterval)timeout
+- (void)flush:(NSTimeInterval)timeout
 {
-    return [self.transportAdapter flush:timeout];
+    [self.transportAdapter flush:timeout];
 }
 
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event

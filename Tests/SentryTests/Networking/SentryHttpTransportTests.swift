@@ -28,6 +28,7 @@ class SentryHttpTransportTests: XCTestCase {
         let requestManager: TestRequestManager
         let requestBuilder = TestNSURLRequestBuilder()
         let rateLimits: DefaultRateLimits
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         let dispatchGroupWrapper = TestSentryDispatchGroupWrapper()
         let flushTimeout: TimeInterval = 0.5
 
@@ -100,7 +101,7 @@ class SentryHttpTransportTests: XCTestCase {
                     requestBuilder: requestBuilder,
                     rateLimits: rateLimits,
                     envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
-                    dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                    dispatchQueueWrapper: dispatchQueueWrapper,
                     dispatchGroupWrapper: dispatchGroupWrapper
                 )
             }
@@ -620,7 +621,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertEventIsSentAsEnvelope()
     }
     
-    func testFlush_BlocksCallingThread() {
+    func testFlush_BlocksCallingThread_TimesOut() {
         CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
         
         givenCachedEvents()
@@ -637,18 +638,40 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertFalse(success, "Flush should time out.")
     }
     
-    func testFlush_BlocksCallingThread_ButFinishesWhenSent() {
+    func testFlush_BlocksCallingThread_FinishesFlushingWhenSent() {
+        CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
+        
+        givenCachedEvents()
+        
+        assertFlushBlocksAndFinishesSuccessfully()
+    }
+    
+    func testFlush_CalledSequentially_BlocksTwice() {
         CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
         
         givenCachedEvents()
         
         let beforeFlush = getAbsoluteTime()
-        let success = sut.flush(timeout: fixture.flushTimeout)
+        XCTAssertTrue(sut.flush(timeout: fixture.flushTimeout), "Flush should not time out.")
+        XCTAssertTrue(sut.flush(timeout: fixture.flushTimeout), "Flush should not time out.")
         let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
         
         XCTAssertLessThan(blockingDuration, 0.1)
+    }
+    
+    func testFlush_WhenNoEnvelopes_BlocksAndFinishes() {
+        CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
         
-        XCTAssertTrue(success, "Flush should not time out.")
+        assertFlushBlocksAndFinishesSuccessfully()
+    }
+    
+    func testFlush_WhenNoInternet_BlocksAndFinishes() {
+        CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
+        
+        givenCachedEvents()
+        givenNoInternetConnection()
+        
+        assertFlushBlocksAndFinishesSuccessfully()
     }
     
     func testFlush_CalledMultipleTimes_ImmidiatelyReturnsFalse() {
@@ -662,7 +685,7 @@ class SentryHttpTransportTests: XCTestCase {
         
         let queue = fixture.queue
         let group = DispatchGroup()
-        let count = 10
+        let count = 1_000
         for _ in 0..<count {
             group.enter()
             queue.async {
@@ -800,5 +823,12 @@ class SentryHttpTransportTests: XCTestCase {
         let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
         XCTAssertNotNil(dict)
         XCTAssertEqual(0, dict?.count)
+    }
+    
+    private func assertFlushBlocksAndFinishesSuccessfully() {
+        let beforeFlush = getAbsoluteTime()
+        XCTAssertTrue(sut.flush(timeout: fixture.flushTimeout), "Flush should not time out.")
+        let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+        XCTAssertLessThan(blockingDuration, 0.1)
     }
 }

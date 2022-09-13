@@ -48,7 +48,7 @@ SENTRY_NO_INIT
 
 - (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason;
 
-- (BOOL)flush:(NSTimeInterval)timeout;
+- (void)flush:(NSTimeInterval)timeout;
 
 @end
 

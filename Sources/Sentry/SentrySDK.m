@@ -399,9 +399,9 @@ static NSUInteger startInvocations;
     }
 }
 
-+ (BOOL)flush:(NSTimeInterval)timeout
++ (void)flush:(NSTimeInterval)timeout
 {
-    return [SentrySDK.currentHub flush:timeout];
+    [SentrySDK.currentHub flush:timeout];
 }
 
 /**
