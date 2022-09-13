@@ -64,7 +64,7 @@ if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
         -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfAddingBreadcrumbs" \
         -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfTransactions" \
         test | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}
-elif [ $XCODE_MAJOR_VERSION == "13" ]; then
+elif [ $XCODE_MAJOR_VERSION == "13" ] || [ $XCODE_MAJOR_VERSION == "14" ]; then
     # We can retry flaky tests that fail with the -retry-tests-on-failure option introduced in Xcode 13.
     env NSUnbufferedIO=YES xcodebuild -retry-tests-on-failure -test-iterations 3 -workspace Sentry.xcworkspace \
         -scheme Sentry -configuration $CONFIGURATION \
