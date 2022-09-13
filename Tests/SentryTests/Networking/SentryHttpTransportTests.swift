@@ -627,9 +627,9 @@ class SentryHttpTransportTests: XCTestCase {
         
         fixture.requestManager.responseDelay = fixture.flushTimeout + 0.2
         
-        let beforeFlush = Date()
+        let beforeFlush = getAbsoluteTime()
         let success = sut.flush(timeout: fixture.flushTimeout)
-        let blockingDuration = Date().timeIntervalSince(beforeFlush)
+        let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
         
         XCTAssertGreaterThan(blockingDuration, fixture.flushTimeout)
         XCTAssertLessThan(blockingDuration, fixture.flushTimeout + 0.2)
@@ -642,9 +642,9 @@ class SentryHttpTransportTests: XCTestCase {
         
         givenCachedEvents()
         
-        let beforeflush = Date()
+        let beforeFlush = getAbsoluteTime()
         let success = sut.flush(timeout: fixture.flushTimeout)
-        let blockingDuration = Date().timeIntervalSince(beforeflush)
+        let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
         
         XCTAssertLessThan(blockingDuration, 0.1)
         
@@ -666,9 +666,9 @@ class SentryHttpTransportTests: XCTestCase {
         for _ in 0..<count {
             group.enter()
             queue.async {
-                let beforeFlush = Date()
+                let beforeFlush = getAbsoluteTime()
                 let result = self.sut.flush(timeout: self.fixture.flushTimeout)
-                let blockingDuration = Date().timeIntervalSince(beforeFlush)
+                let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
                 
                 queue.async(flags: .barrier) {
                     blockingDurations.append(blockingDuration)

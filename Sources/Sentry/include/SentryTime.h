@@ -11,7 +11,7 @@ SENTRY_EXTERN_C_BEGIN
  * Returns the absolute timestamp, which has no defined reference point or unit
  * as it is platform dependent.
  */
-uint64_t getAbsoluteTime();
+uint64_t getAbsoluteTime(void);
 
 /**
  * Returns the duration in nanoseconds between two absolute timestamps.
