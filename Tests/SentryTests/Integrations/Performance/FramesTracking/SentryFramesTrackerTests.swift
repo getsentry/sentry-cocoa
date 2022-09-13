@@ -113,7 +113,7 @@ class SentryFramesTrackerTests: XCTestCase {
         XCTAssertEqual(0, sut.currentFrames.frozen)
     }
     
-    private func assertPreviousCountBiggerThanCurrent(_ group: DispatchGroup, count:  @escaping () -> UInt) {
+    private func assertPreviousCountBiggerThanCurrent(_ group: DispatchGroup, count: @escaping () -> UInt) {
         group.enter()
         fixture.queue.async {
             var previousCount: UInt = 0
