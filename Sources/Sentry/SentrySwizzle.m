@@ -19,8 +19,9 @@ SentrySwizzleInfo ()
 
 - (SentrySwizzleOriginalIMP)getOriginalImplementation
 {
-    NSAssert(_impProviderBlock, nil);
+    NSAssert(_impProviderBlock, @"_impProviderBlock can't be missing");
     if (!_impProviderBlock) {
+        NSLog(@"_impProviderBlock can't be missing");
         return NULL;
     }
 
