@@ -307,6 +307,16 @@ SENTRY_NO_INIT
  */
 + (void)crash;
 
+/**
+ * Waits synchronously for the SDK to flush out all queued and cached items and returns if the SDK
+ * doesn't complete the flush before the specified timeout period has elapsed. The SDK doesn't
+ * dispose the client or the hub.
+ *
+ * @param timeout The time to wait for the SDK to complete the flush.
+ *
+ * @return YES if the SDK finished the flush successfully without the timeout period having elapsed.
+ * NO if the SDK didn't finish the flush because the timeout period has elapsed.
+ */
 + (BOOL)flush:(NSTimeInterval)timeout NS_SWIFT_NAME(flush(timeout:));
 
 /**
