@@ -53,7 +53,7 @@ esac
 
 echo "CONFIGURATION: $CONFIGURATION"
 
-XCODE_MAJOR_VERSION=$(echo $XCODE | sed -E 's/([0-9]*)\.[0-9]*\.[0-9]*/\1/g')
+XCODE_MAJOR_VERSION=$(echo $XCODE | sed -E 's/([0-9]*)\.[0-9]*\.?[0-9]+/\1/g')
 
 if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
     # Skip some tests that fail on iOS 12.4.
