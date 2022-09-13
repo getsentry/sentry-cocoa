@@ -473,6 +473,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
                           isCrashEvent:(BOOL)isCrashEvent
 {
     NSParameterAssert(event);
+    if (event == nil) {
+        return nil;
+    }
+
     if ([self isDisabled]) {
         [self logDisabledMessage];
         return nil;
