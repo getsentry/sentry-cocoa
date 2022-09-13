@@ -1,16 +1,7 @@
 name: Benchmarking
 on:
-  schedule:
-    - cron: '0 0 * * *' # every night at midnight UTC
-  push:
-    branches:
-      - master
-
   pull_request:
     paths:
-        # test changes to Sentry SDK sources
-      - 'Sources/**'
-
         # test changes to benchmarking implementation
       - 'Samples/iOS-Swift/iOS-Swift/**'
       - 'Samples/iOS-Swift/PerformanceBenchmarks/**'
