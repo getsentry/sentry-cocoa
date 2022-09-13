@@ -1,5 +1,9 @@
 # Changelog
 
+### Fixes
+
+- Prewarmed app start detection (#2151)
+
 ## 7.25.0
 
 ### Features
