@@ -47,7 +47,8 @@ SentryAppStartTracker ()
     // The OS sets this environment variable if the app start is pre warmed. There are no official
     // docs for this. Found at https://eisel.me/startup. Investigations show that this variable is
     // deleted after UIApplicationDidFinishLaunchingNotification, so we have to check it here.
-    isActivePrewarm = [[NSProcessInfo processInfo].environment[@"ActivePrewarm"] isEqual:@"1"];
+    isActivePrewarm =
+        [[NSProcessInfo processInfo].environment[@"ActivePrewarm"] isEqualToString:@"1"];
 }
 
 - (instancetype)initWithCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
