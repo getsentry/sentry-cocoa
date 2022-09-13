@@ -9,7 +9,7 @@
 #    import "SentryMachLogging.hpp"
 
 uint64_t
-getAbsoluteTime()
+getAbsoluteTime(void)
 {
     if (@available(macOS 10.12, iOS 10.0, *)) {
         return clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
