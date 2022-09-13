@@ -227,8 +227,8 @@ SentryFileManager ()
                                        envelopeFilePaths:envelopePathsCopy];
 
         for (SentryEnvelopeItem *item in envelope.items) {
-            SentryDataCategory rateLimitCategory =
-                [SentryDataCategoryMapper mapEnvelopeItemTypeToCategory:item.header.type];
+            SentryDataCategory rateLimitCategory
+                = sentryDataCategoryForEnvelopItemType(item.header.type);
 
             // When migrating the session init, the envelope to delete still contains the session
             // migrated to another envelope. Therefore, the envelope item is not deleted but

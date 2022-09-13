@@ -149,6 +149,26 @@
     [self expectHasReportCount:1];
 }
 
+- (void)testCrashReportCount1_WithAttachments
+{
+    [self prepareReportStoreWithPathEnd:@"testCrashReportCount1"];
+    NSString *reportContents = @"Testing";
+
+    char crashReportPath[SentryCrashCRS_MAX_PATH_LENGTH];
+    sentrycrashcrs_getNextCrashReportPath(crashReportPath);
+    NSString *pathToCrashReport = [NSString stringWithUTF8String:crashReportPath];
+    NSError *someError;
+    [NSFileManager.defaultManager
+              createDirectoryAtPath:[pathToCrashReport stringByDeletingPathExtension]
+        withIntermediateDirectories:true
+                         attributes:nil
+                              error:&someError];
+    XCTAssertNil(someError);
+
+    [self writeCrashReportWithStringContents:reportContents];
+    [self expectHasReportCount:1];
+}
+
 - (void)testStoresLoadsOneCrashReport
 {
     [self prepareReportStoreWithPathEnd:@"testStoresLoadsOneCrashReport"];

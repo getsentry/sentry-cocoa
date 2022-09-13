@@ -1,6 +1,7 @@
 #import "SentryOptions.h"
 #import "SentryANRTracker.h"
 #import "SentryDsn.h"
+#import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentrySDK.h"
@@ -160,7 +161,7 @@ SentryOptions ()
 
     if ([options[@"diagnosticLevel"] isKindOfClass:[NSString class]]) {
         for (SentryLevel level = 0; level <= kSentryLevelFatal; level++) {
-            if ([SentryLevelNames[level] isEqualToString:options[@"diagnosticLevel"]]) {
+            if ([nameForSentryLevel(level) isEqualToString:options[@"diagnosticLevel"]]) {
                 self.diagnosticLevel = level;
                 break;
             }
@@ -332,7 +333,9 @@ SentryOptions ()
     // Note: we should remove this code once the hybrid SDKs move over to the new
     // PrivateSentrySDKOnly setter functions.
     if ([options[@"sdk"] isKindOfClass:[NSDictionary class]]) {
-        SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithDict:options];
+        SentrySdkInfo *defaults = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
+                                                           andVersion:SentryMeta.versionString];
+        SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithDict:options orDefaults:defaults];
         SentryMeta.versionString = sdkInfo.version;
         SentryMeta.sdkName = sdkInfo.name;
     }

@@ -603,6 +603,7 @@
 - (void)testSetCustomSdkName
 {
     NSDictionary *dict = @{ @"name" : @"custom.sdk" };
+    NSString *originalVersion = SentryMeta.versionString;
 
     NSError *error = nil;
     SentryOptions *options =
@@ -614,13 +615,16 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertEqual(dict[@"name"], options.sdkInfo.name);
-    XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version); // default version
+    // version stays unchanged
+    XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version);
+    XCTAssertEqual(SentryMeta.versionString, originalVersion);
 #pragma clang diagnostic pop
 }
 
 - (void)testSetCustomSdkVersion
 {
     NSDictionary *dict = @{ @"version" : @"1.2.3-alpha.0" };
+    NSString *originalName = SentryMeta.sdkName;
 
     NSError *error = nil;
     SentryOptions *options =
@@ -631,8 +635,10 @@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name); // default name
     XCTAssertEqual(dict[@"version"], options.sdkInfo.version);
+    // name stays unchanged
+    XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name);
+    XCTAssertEqual(SentryMeta.sdkName, originalName);
 #pragma clang diagnostic pop
 
     NSDictionary *info = [[NSBundle bundleForClass:[SentryClient class]] infoDictionary];

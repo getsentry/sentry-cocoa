@@ -7,6 +7,7 @@
 #import "SentryDebugMeta.h"
 #import "SentryException.h"
 #import "SentryId.h"
+#import "SentryLevelMapper.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentryStacktrace.h"
@@ -62,7 +63,7 @@ SentryEvent ()
                                               .mutableCopy;
 
     if (self.level != kSentryLevelNone) {
-        [serializedData setValue:SentryLevelNames[self.level] forKey:@"level"];
+        [serializedData setValue:nameForSentryLevel(self.level) forKey:@"level"];
     }
 
     [self addSimpleProperties:serializedData];

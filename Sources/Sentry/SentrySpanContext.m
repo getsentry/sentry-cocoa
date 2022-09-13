@@ -92,7 +92,7 @@ SentrySpanContext () {
     // Since we guard for 'undecided', we'll
     // either send it if it's 'true' or 'false'.
     if (self.sampled != kSentrySampleDecisionUndecided) {
-        [mutabledictionary setValue:SentrySampleDecisionNames[self.sampled] forKey:@"sampled"];
+        [mutabledictionary setValue:nameForSentrySampleDecision(self.sampled) forKey:@"sampled"];
     }
 
     if (self.spanDescription != nil) {
@@ -104,7 +104,7 @@ SentrySpanContext () {
     }
 
     if (self.status != kSentrySpanStatusUndefined) {
-        [mutabledictionary setValue:SentrySpanStatusNames[self.status] forKey:@"status"];
+        [mutabledictionary setValue:nameForSentrySpanStatus(self.status) forKey:@"status"];
     }
 
     return mutabledictionary;

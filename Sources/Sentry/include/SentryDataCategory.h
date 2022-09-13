@@ -17,14 +17,17 @@ typedef NS_ENUM(NSUInteger, SentryDataCategory) {
     kSentryDataCategoryUnknown = 8
 };
 
-static NSString *_Nonnull const SentryDataCategoryNames[] = {
-    @"", // empty on purpose
-    @"default",
-    @"error",
-    @"session",
-    @"transaction",
-    @"attachment",
-    @"user_report",
-    @"profile",
-    @"unkown",
-};
+static DEPRECATED_MSG_ATTRIBUTE(
+    "Use one of the functions to convert between literals and enum cases in "
+    "SentryDataCategoryMapper instead.") NSString *_Nonnull const SentryDataCategoryNames[]
+    = {
+          @"", // empty on purpose
+          @"default",
+          @"error",
+          @"session",
+          @"transaction",
+          @"attachment",
+          @"user_report",
+          @"profile",
+          @"unkown",
+      };

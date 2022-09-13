@@ -2,50 +2,52 @@
 import XCTest
 
 class SentryDataCategoryMapperTests: XCTestCase {
-
-    func testEventItemType() {
-        XCTAssertEqual(SentryDataCategory.error, mapEventType(eventType: "event"))
-        XCTAssertEqual(SentryDataCategory.error, mapEventType(eventType: "any eventtype"))
-    }
-
     func testEnvelopeItemType() {
-        XCTAssertEqual(SentryDataCategory.error, mapEnvelopeItemType(itemType: "event"))
-        XCTAssertEqual(SentryDataCategory.session, mapEnvelopeItemType(itemType: "session"))
-        XCTAssertEqual(SentryDataCategory.transaction, mapEnvelopeItemType(itemType: "transaction"))
-        XCTAssertEqual(SentryDataCategory.attachment, mapEnvelopeItemType(itemType: "attachment"))
-        XCTAssertEqual(SentryDataCategory.profile, mapEnvelopeItemType(itemType: "profile"))
-        XCTAssertEqual(SentryDataCategory.default, mapEnvelopeItemType(itemType: "unkown item type"))
+        XCTAssertEqual(.error, sentryDataCategoryForEnvelopItemType("event"))
+        XCTAssertEqual(.session, sentryDataCategoryForEnvelopItemType("session"))
+        XCTAssertEqual(.transaction, sentryDataCategoryForEnvelopItemType("transaction"))
+        XCTAssertEqual(.attachment, sentryDataCategoryForEnvelopItemType("attachment"))
+        XCTAssertEqual(.profile, sentryDataCategoryForEnvelopItemType("profile"))
+        XCTAssertEqual(.default, sentryDataCategoryForEnvelopItemType("unknown item type"))
     }
 
     func testMapIntegerToCategory() {
-        XCTAssertEqual(.all, DataCategoryMapper.mapInteger(toCategory: 0))
-        XCTAssertEqual(.default, DataCategoryMapper.mapInteger(toCategory: 1))
-        XCTAssertEqual(.error, DataCategoryMapper.mapInteger(toCategory: 2))
-        XCTAssertEqual(.session, DataCategoryMapper.mapInteger(toCategory: 3))
-        XCTAssertEqual(.transaction, DataCategoryMapper.mapInteger(toCategory: 4))
-        XCTAssertEqual(.attachment, DataCategoryMapper.mapInteger(toCategory: 5))
-        XCTAssertEqual(.userFeedback, DataCategoryMapper.mapInteger(toCategory: 6))
-        XCTAssertEqual(.profile, DataCategoryMapper.mapInteger(toCategory: 7))
-        XCTAssertEqual(.unknown, DataCategoryMapper.mapInteger(toCategory: 8))
+        XCTAssertEqual(.all, sentryDataCategoryForNSUInteger(0))
+        XCTAssertEqual(.default, sentryDataCategoryForNSUInteger(1))
+        XCTAssertEqual(.error, sentryDataCategoryForNSUInteger(2))
+        XCTAssertEqual(.session, sentryDataCategoryForNSUInteger(3))
+        XCTAssertEqual(.transaction, sentryDataCategoryForNSUInteger(4))
+        XCTAssertEqual(.attachment, sentryDataCategoryForNSUInteger(5))
+        XCTAssertEqual(.userFeedback, sentryDataCategoryForNSUInteger(6))
+        XCTAssertEqual(.profile, sentryDataCategoryForNSUInteger(7))
+        XCTAssertEqual(.unknown, sentryDataCategoryForNSUInteger(8))
+
+        XCTAssertEqual(.unknown, sentryDataCategoryForNSUInteger(9), "Failed to map unknown category number to case .unknown")
     }
     
     func testMapStringToCategory() {
-        XCTAssertEqual(.all, DataCategoryMapper.mapString(toCategory: ""))
-        XCTAssertEqual(.default, DataCategoryMapper.mapString(toCategory: "default"))
-        XCTAssertEqual(.error, DataCategoryMapper.mapString(toCategory: "error"))
-        XCTAssertEqual(.session, DataCategoryMapper.mapString(toCategory: "session"))
-        XCTAssertEqual(.transaction, DataCategoryMapper.mapString(toCategory: "transaction"))
-        XCTAssertEqual(.attachment, DataCategoryMapper.mapString(toCategory: "attachment"))
-        XCTAssertEqual(.userFeedback, DataCategoryMapper.mapString(toCategory: "user_report"))
-        XCTAssertEqual(.profile, DataCategoryMapper.mapString(toCategory: "profile"))
-        XCTAssertEqual(.unknown, DataCategoryMapper.mapString(toCategory: "unkown"))
+        XCTAssertEqual(.all, sentryDataCategoryForString(kSentryDataCategoryNameAll))
+        XCTAssertEqual(.default, sentryDataCategoryForString(kSentryDataCategoryNameDefault))
+        XCTAssertEqual(.error, sentryDataCategoryForString(kSentryDataCategoryNameError))
+        XCTAssertEqual(.session, sentryDataCategoryForString(kSentryDataCategoryNameSession))
+        XCTAssertEqual(.transaction, sentryDataCategoryForString(kSentryDataCategoryNameTransaction))
+        XCTAssertEqual(.attachment, sentryDataCategoryForString(kSentryDataCategoryNameAttachment))
+        XCTAssertEqual(.userFeedback, sentryDataCategoryForString(kSentryDataCategoryNameUserFeedback))
+        XCTAssertEqual(.profile, sentryDataCategoryForString(kSentryDataCategoryNameProfile))
+        XCTAssertEqual(.unknown, sentryDataCategoryForString(kSentryDataCategoryNameUnknown))
+
+        XCTAssertEqual(.unknown, sentryDataCategoryForString("gdfagdfsa"), "Failed to map unknown category name to case .unknown")
     }
 
-    private func mapEnvelopeItemType(itemType: String) -> SentryDataCategory {
-        return DataCategoryMapper.mapEnvelopeItemType(toCategory: itemType)
-    }
-
-    private func mapEventType(eventType: String) -> SentryDataCategory {
-        return DataCategoryMapper.mapEventType(toCategory: eventType)
+    func testMapCategoryToString() {
+        XCTAssertEqual(kSentryDataCategoryNameAll, nameForSentryDataCategory(.all))
+        XCTAssertEqual(kSentryDataCategoryNameDefault, nameForSentryDataCategory(.default))
+        XCTAssertEqual(kSentryDataCategoryNameError, nameForSentryDataCategory(.error))
+        XCTAssertEqual(kSentryDataCategoryNameSession, nameForSentryDataCategory(.session))
+        XCTAssertEqual(kSentryDataCategoryNameTransaction, nameForSentryDataCategory(.transaction))
+        XCTAssertEqual(kSentryDataCategoryNameAttachment, nameForSentryDataCategory(.attachment))
+        XCTAssertEqual(kSentryDataCategoryNameUserFeedback, nameForSentryDataCategory(.userFeedback))
+        XCTAssertEqual(kSentryDataCategoryNameProfile, nameForSentryDataCategory(.profile))
+        XCTAssertEqual(kSentryDataCategoryNameUnknown, nameForSentryDataCategory(.unknown))
     }
 }
