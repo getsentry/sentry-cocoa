@@ -5,7 +5,7 @@ class ViewController: UICollectionViewController {
 
     struct Action {
         var title: String
-        var callback : () -> Void
+        var callback: () -> Void
     }
     
     var actions: [Action]!

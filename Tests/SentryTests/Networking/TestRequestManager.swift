@@ -5,7 +5,7 @@ import Foundation
 @available(OSX 10.12, *)
 public class TestRequestManager: NSObject, RequestManager {
     
-    private var nextResponse : () -> HTTPURLResponse? = { return nil }
+    private var nextResponse: () -> HTTPURLResponse? = { return nil }
     var nextError: NSError?
     public var isReady: Bool
     
