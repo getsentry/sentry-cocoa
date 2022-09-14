@@ -38,17 +38,20 @@ static SentryLogOutput *logOutput;
 }
 
 // Internal and only needed for testing.
-+ (SentryLogOutput *)logOutput {
++ (SentryLogOutput *)logOutput
+{
     return logOutput;
 }
 
 // Internal and only needed for testing.
-+ (BOOL)isDebug {
++ (BOOL)isDebug
+{
     return isDebug;
 }
 
 // Internal and only needed for testing.
-+ (SentryLevel)diagnosticLevel {
++ (SentryLevel)diagnosticLevel
+{
     return diagnosticLevel;
 }
 
