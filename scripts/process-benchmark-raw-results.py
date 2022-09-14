@@ -12,6 +12,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('log_file_path', help='Path to the log file to parse.')
     parser.add_argument('device_class', help='The class of device the benchmarks were run on.')
+    parser.add_argument('device_name', help='The name of the actual device the benchmarks were run on.')
     args = parser.parse_args()
 
     def extract_values(line):
@@ -66,7 +67,7 @@ P99.99999: {p99_99999}
     ''')
 
     percentiles = [p0, p90, p99, p99_9, p99_999, p99_99999]
-    plt.title("Cpu time increase percentage for " + args.device_class + " devices")
+    plt.title(f"Cpu time increase percentage for {args.device_class} devices (run on {args.device_name})")
     plt.plot(percentiles, marker='o')
     plt.ylabel("Cpu time increase %")
     plt.xlabel("Percentile")
