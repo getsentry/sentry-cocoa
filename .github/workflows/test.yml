@@ -58,6 +58,12 @@ jobs:
             xcode: "13.4.1"
             test-destination-os: "latest"
 
+          # iOS 16
+          - runs-on: macos-12
+            platform: "iOS"
+            xcode: "14.0"
+            test-destination-os: "latest"
+
           # macOS 11
           - runs-on: macos-11
             platform: "macOS"

@@ -6,6 +6,11 @@
 
 - Add flush (#2140)
 
+## 7.25.1
+
+### Fixes
+
+- Prewarmed app start detection (#2151)
 
 ## 7.25.0
 
