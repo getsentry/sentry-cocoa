@@ -12,7 +12,7 @@
 
 @implementation PrivateSentrySDKOnly
 
-static SentryOnAppStartMeasurementAvailable _onAppStartMeasurmentAvailable;
+static SentryOnAppStartMeasurementAvailable _onAppStartMeasurementAvailable;
 static BOOL _appStartMeasurementHybridSDKMode = NO;
 #if SENTRY_HAS_UIKIT
 static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
@@ -59,13 +59,13 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (SentryOnAppStartMeasurementAvailable)onAppStartMeasurementAvailable
 {
-    return _onAppStartMeasurmentAvailable;
+    return _onAppStartMeasurementAvailable;
 }
 
 + (void)setOnAppStartMeasurementAvailable:
     (SentryOnAppStartMeasurementAvailable)onAppStartMeasurementAvailable
 {
-    _onAppStartMeasurmentAvailable = onAppStartMeasurementAvailable;
+    _onAppStartMeasurementAvailable = onAppStartMeasurementAvailable;
 }
 
 + (BOOL)appStartMeasurementHybridSDKMode
