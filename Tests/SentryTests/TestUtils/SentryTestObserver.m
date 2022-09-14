@@ -10,7 +10,6 @@
 #import "SentryOptions.h"
 #import "SentryScope.h"
 #import "SentrySdk+Private.h"
-#import "SentryTests-Swift.h"
 #import "XCTest/XCTIssue.h"
 #import "XCTest/XCTest.h"
 #import "XCTest/XCTestCase.h"

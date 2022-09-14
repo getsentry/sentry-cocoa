@@ -21,6 +21,7 @@ class SentryLogTests: XCTestCase {
     func testDefault_PrintsFatalAndError() {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
+        SentryLog.configure(true, diagnosticLevel: .error)
         
         SentryLog.log(withMessage: "0", andLevel: SentryLevel.fatal)
         SentryLog.log(withMessage: "1", andLevel: SentryLevel.error)
