@@ -563,7 +563,7 @@ For a detailed explanation  how to upgrade please checkout the [migration guide]
 - ref: SentryEvent.timestamp changed to nullable.
 - ref: Add read-only scope property to Hub (#975)
 - ref: Remove SentryException.userReported (#974)
-- ref: Replace SentryLogLevel with SentryLevel (#978)
+- ref: Replace SentryLogLevel with SentryLevel (#979)
 - fix: Mark frames as inApp (#956)
 
 ### Features
