@@ -1,16 +1,18 @@
 #import "SentryLog.h"
-#import "SentryLogOutput.h"
 #import <Sentry/Sentry.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryLotOutput;
+@class SentryLogOutput;
 
 @interface
 SentryLog (TestInit)
 
 /** Internal and only needed for testing. */
 + (void)setLogOutput:(nullable SentryLogOutput *)output;
+
+/** Internal and only needed for testing. */
++ (SentryLogOutput *)logOutput;
 
 /** Internal and only needed for testing. */
 + (BOOL)isDebug;

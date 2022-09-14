@@ -38,6 +38,11 @@ static SentryLogOutput *logOutput;
 }
 
 // Internal and only needed for testing.
++ (SentryLogOutput *)logOutput {
+    return logOutput;
+}
+
+// Internal and only needed for testing.
 + (BOOL)isDebug {
     return isDebug;
 }

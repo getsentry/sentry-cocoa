@@ -9,9 +9,15 @@ class MyTestIntegration: SentryBaseIntegration {
 
 class SentryBaseIntegrationTests: XCTestCase {
     var logOutput: TestLogOutput!
+    var oldDebug: Bool!
+    var oldLevel: SentryLevel!
+    var oldOutput: SentryLogOutput!
 
     override func setUp() {
         super.setUp()
+        oldDebug = SentryLog.isDebug()
+        oldLevel = SentryLog.diagnosticLevel()
+        oldOutput = SentryLog.logOutput()
         SentryLog.configure(true, diagnosticLevel: SentryLevel.debug)
         logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
@@ -19,8 +25,8 @@ class SentryBaseIntegrationTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
-        SentryLog.configure(true, diagnosticLevel: SentryLevel.error)
-        SentryLog.setLogOutput(nil)
+        SentryLog.configure(oldDebug, diagnosticLevel: oldLevel)
+        SentryLog.setLogOutput(oldOutput)
     }
 
     func testIntegrationName() {
