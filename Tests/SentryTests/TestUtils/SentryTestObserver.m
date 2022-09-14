@@ -6,9 +6,11 @@
 #import "SentryCurrentDate.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryHub.h"
+#import "SentryLog+TestInit.h"
 #import "SentryOptions.h"
 #import "SentryScope.h"
 #import "SentrySdk+Private.h"
+#import "SentryTests-Swift.h"
 #import "XCTest/XCTIssue.h"
 #import "XCTest/XCTest.h"
 #import "XCTest/XCTestCase.h"
@@ -31,6 +33,7 @@ SentryTestObserver ()
 {
     [[XCTestObservationCenter sharedTestObservationCenter]
         addTestObserver:[[SentryTestObserver alloc] init]];
+//    [SentryLog setLogOutput:[[SentryTestLogOutput alloc] init]];
 }
 #endif
 

@@ -2,7 +2,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryLogOutput : NSObject
+@protocol SentryLogOutputProtocol <NSObject>
+
+- (void)log:(NSString *)message;
+
+@end
+
+@interface SentryLogOutput : NSObject <SentryLogOutputProtocol>
 
 - (void)log:(NSString *)message;
 

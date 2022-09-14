@@ -10,12 +10,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Enable per default to log initialization errors.
  */
 static BOOL isDebug = YES;
-#if defined(TEST) || defined(TESTCI)
-static SentryLevel diagnosticLevel = kSentryLevelDebug;
-#else
 static SentryLevel diagnosticLevel = kSentryLevelError;
-#endif
-static SentryLogOutput *logOutput;
+static id<SentryLogOutputProtocol> logOutput;
 
 + (void)configure:(BOOL)debug diagnosticLevel:(SentryLevel)level
 {
@@ -35,10 +31,14 @@ static SentryLogOutput *logOutput;
     }
 }
 
-/**
- * Internal and only needed for testing.
- */
-+ (void)setLogOutput:(nullable SentryLogOutput *)output
+/** Internal and only needed for testing. */
++ (id<SentryLogOutputProtocol>)logOutput
+{
+    return logOutput;
+}
+
+/** Internal and only needed for testing. */
++ (void)setLogOutput:(id<SentryLogOutputProtocol>)output
 {
     logOutput = output;
 }
