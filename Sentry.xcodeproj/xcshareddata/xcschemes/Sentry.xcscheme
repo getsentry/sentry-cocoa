@@ -16,7 +16,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "63AA759A1EB8AEF500D153DE"
                BuildableName = "Sentry.framework"
-               BlueprintName = "Sentry"
+               BlueprintName = "SentryObjc"
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -33,7 +33,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "63AA759A1EB8AEF500D153DE"
             BuildableName = "Sentry.framework"
-            BlueprintName = "Sentry"
+            BlueprintName = "SentryObjc"
             ReferencedContainer = "container:Sentry.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -86,7 +86,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "63AA759A1EB8AEF500D153DE"
             BuildableName = "Sentry.framework"
-            BlueprintName = "Sentry"
+            BlueprintName = "SentryObjc"
             ReferencedContainer = "container:Sentry.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -102,7 +102,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "63AA759A1EB8AEF500D153DE"
             BuildableName = "Sentry.framework"
-            BlueprintName = "Sentry"
+            BlueprintName = "SentryObjc"
             ReferencedContainer = "container:Sentry.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
