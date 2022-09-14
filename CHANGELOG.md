@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.25.1
 
 ### Fixes
 
