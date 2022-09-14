@@ -9,13 +9,11 @@ class MyTestIntegration: SentryBaseIntegration {
 
 class SentryBaseIntegrationTests: XCTestCase {
     var logOutput: TestLogOutput!
-    var oldLogOutput: SentryLogOutputProtocol?
 
     override func setUp() {
         super.setUp()
         SentryLog.configure(true, diagnosticLevel: SentryLevel.debug)
         logOutput = TestLogOutput()
-        oldLogOutput = SentryLog.logOutput()
         SentryLog.setLogOutput(logOutput)
     }
 

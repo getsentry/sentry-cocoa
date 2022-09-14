@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 static BOOL isDebug = YES;
 static SentryLevel diagnosticLevel = kSentryLevelError;
-static id<SentryLogOutputProtocol> logOutput;
+static SentryLogOutput *logOutput;
 
 + (void)configure:(BOOL)debug diagnosticLevel:(SentryLevel)level
 {
@@ -31,16 +31,20 @@ static id<SentryLogOutputProtocol> logOutput;
     }
 }
 
-/** Internal and only needed for testing. */
-+ (id<SentryLogOutputProtocol>)logOutput
-{
-    return logOutput;
-}
-
-/** Internal and only needed for testing. */
-+ (void)setLogOutput:(id<SentryLogOutputProtocol>)output
+// Internal and only needed for testing.
++ (void)setLogOutput:(SentryLogOutput *)output
 {
     logOutput = output;
+}
+
+// Internal and only needed for testing.
++ (BOOL)isDebug {
+    return isDebug;
+}
+
+// Internal and only needed for testing.
++ (SentryLevel)diagnosticLevel {
+    return diagnosticLevel;
 }
 
 @end

@@ -28,12 +28,16 @@ SentryTestObserver ()
 
 @implementation SentryTestObserver
 
-#if defined(TESTCI) || defined(TEST)
+#if defined(TESTCI)
 + (void)load
 {
     [[XCTestObservationCenter sharedTestObservationCenter]
         addTestObserver:[[SentryTestObserver alloc] init]];
-//    [SentryLog setLogOutput:[[SentryTestLogOutput alloc] init]];
+}
+#elif defined(TEST)
++ (void)load
+{
+    [SentryLog configure:YES diagnosticLevel:kSentryLevelDebug];
 }
 #endif
 

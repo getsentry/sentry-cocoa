@@ -4,14 +4,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SentryLotOutput;
+
 @interface
 SentryLog (TestInit)
 
 /** Internal and only needed for testing. */
-+ (id<SentryLogOutputProtocol>)logOutput;
++ (void)setLogOutput:(nullable SentryLogOutput *)output;
 
 /** Internal and only needed for testing. */
-+ (void)setLogOutput:(nullable id<SentryLogOutputProtocol>)output;
++ (BOOL)isDebug;
+
+/** Internal and only needed for testing. */
++ (SentryLevel)diagnosticLevel;
 
 @end
 
