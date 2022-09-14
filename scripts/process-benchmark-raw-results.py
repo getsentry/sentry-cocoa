@@ -67,7 +67,7 @@ P99.99999: {p99_99999}
 
     percentiles = [p0, p90, p99, p99_9, p99_999, p99_99999]
     plt.title("Cpu time increase percentage for " + args.device_class + " devices")
-    plt.plot(percentiles)
+    plt.plot(percentiles, marker='o')
     plt.ylabel("Cpu time increase %")
     plt.xlabel("Percentile")
     plt.xticks(ticks=[0, 1, 2, 3, 4, 5], labels=["0%", "90%", "99%", "99.9%", "99.999%", "99.99999%"])
