@@ -74,8 +74,8 @@ static NSObject *appStartMeasurementLock;
 static BOOL appStartMeasurementRead;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-static SentryProfiler *_Nullable profiler;
-static NSLock *profilerLock;
+static SentryProfiler *_Nullable _gProfiler;
+static NSLock *_gProfilerLock;
 static NSMutableArray<SentryTracer *> *_gProfiledTracers;
 static NSMutableArray<SentryTransaction *> *_gProfiledTransactions;
 static SentryProfilerTruncationReason _gProfilerTruncationReason;
@@ -89,7 +89,7 @@ static NSTimer *_gProfilerTimeoutTimer;
         appStartMeasurementLock = [[NSObject alloc] init];
         appStartMeasurementRead = NO;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        profilerLock = [[NSLock alloc] init];
+        _gProfilerLock = [[NSLock alloc] init];
 #endif
     }
 }
@@ -443,14 +443,14 @@ static NSTimer *_gProfilerTimeoutTimer;
 #endif
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
-            [profilerLock lock];
-            if (profiler == nil) {
-                profiler = [[SentryProfiler alloc] init];
+            [_gProfilerLock lock];
+            if (_gProfiler == nil) {
+                _gProfiler = [[SentryProfiler alloc] init];
 #    if SENTRY_HAS_UIKIT
                 framesTracker.currentTracer = self;
                 [framesTracker resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
-                [profiler start];
+                [_gProfiler start];
                 _gProfilerTimeoutTimer = [NSTimer scheduledTimerWithTimeInterval:30 repeats:NO block:^(NSTimer * _Nonnull timer) {
                     [self maybeStopProfilerWithReason:SentryProfilerTruncationReasonTimeout];
                 }];
@@ -459,7 +459,7 @@ static NSTimer *_gProfilerTimeoutTimer;
                 _gProfiledTracers = [NSMutableArray<SentryTracer *> array];
             }
             [_gProfiledTracers addObject:self];
-            [profilerLock unlock];
+            [_gProfilerLock unlock];
         }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
@@ -470,14 +470,14 @@ static NSTimer *_gProfilerTimeoutTimer;
 - (void)maybeStopProfilerWithReason:(SentryProfilerTruncationReason)reason {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
-        [profilerLock lock];
+        [_gProfilerLock lock];
         [_gProfiledTracers removeObject:self];
         BOOL shouldStopNormally = reason == SentryProfilerTruncationReasonNormal && _gProfiledTracers.count == 0;
         BOOL shouldStopAbnormally = reason == SentryProfilerTruncationReasonTimeout || reason == SentryProfilerTruncationReasonAppMovedToBackground;
-        if ([profiler isRunning] && (shouldStopNormally || shouldStopAbnormally)) {
+        if ([_gProfiler isRunning] && (shouldStopNormally || shouldStopAbnormally)) {
             [SentryLog logWithMessage:[NSString stringWithFormat:@"Stopping profiler due to reason: %@.", profilerTruncationReasonName(reason)] andLevel:kSentryLevelDebug];
             [_gProfilerTimeoutTimer invalidate];
-            [profiler stop];
+            [_gProfiler stop];
             _gProfilerTruncationReason = reason;
 #    if SENTRY_HAS_UIKIT
             _gProfilerFrameInfo = SentryFramesTracker.sharedInstance.currentFrames;
@@ -485,7 +485,7 @@ static NSTimer *_gProfilerTimeoutTimer;
             SentryFramesTracker.sharedInstance.currentTracer = nil;
 #    endif // SENTRY_HAS_UIKIT
         }
-        [profilerLock unlock];
+        [_gProfilerLock unlock];
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
@@ -495,7 +495,7 @@ static NSTimer *_gProfilerTimeoutTimer;
  */
 - (void)captureProfilingEnvelopeIfFinishedAfterTransaction:(SentryTransaction *)transaction {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    [profilerLock lock];
+    [_gProfilerLock lock];
     if (_gProfiledTransactions == nil) {
         _gProfiledTransactions = [NSMutableArray<SentryTransaction *> array];
     }
@@ -503,16 +503,16 @@ static NSTimer *_gProfilerTimeoutTimer;
     [_gProfiledTransactions addObject:transaction];
 
     if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
-        if (profiler != nil && !profiler.isRunning) {
-            [_hub.client captureEnvelope:[profiler buildEnvelopeForTransactions:_gProfiledTransactions
+        if (_gProfiler != nil && !_gProfiler.isRunning) {
+            [_hub.client captureEnvelope:[_gProfiler buildEnvelopeForTransactions:_gProfiledTransactions
                                                                                 hub:_hub
                                                                           frameInfo:_gProfilerFrameInfo
                                                                          truncationReason:_gProfilerTruncationReason]];
             [_gProfiledTransactions removeAllObjects];
-            profiler = nil;
+            _gProfiler = nil;
         }
     }
-    [profilerLock unlock];
+    [_gProfilerLock unlock];
 #endif
 }
 
@@ -841,9 +841,9 @@ static NSTimer *_gProfilerTimeoutTimer;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 - (BOOL)isProfiling
 {
-    [profilerLock lock];
-    BOOL isRunning = profiler.isRunning;
-    [profilerLock unlock];
+    [_gProfilerLock lock];
+    BOOL isRunning = _gProfiler.isRunning;
+    [_gProfilerLock unlock];
     return isRunning;
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
