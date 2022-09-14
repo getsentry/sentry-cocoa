@@ -78,7 +78,7 @@ static SentryProfiler *_Nullable profiler;
 static NSLock *profilerLock;
 static NSMutableArray<SentryTracer *> *_gProfiledTracers;
 static NSMutableArray<SentryTransaction *> *_gProfiledTransactions;
-static SentryProfilerStopReason _gProfilerStopReason;
+static SentryProfilerTruncationReason _gProfilerTruncationReason;
 static SentryScreenFrames *_gProfilerFrameInfo;
 static NSTimer *_gProfilerTimeoutTimer;
 #endif
@@ -452,7 +452,7 @@ static NSTimer *_gProfilerTimeoutTimer;
 #    endif // SENTRY_HAS_UIKIT
                 [profiler start];
                 _gProfilerTimeoutTimer = [NSTimer scheduledTimerWithTimeInterval:30 repeats:NO block:^(NSTimer * _Nonnull timer) {
-                    [self maybeStopProfilerWithReason:SentryProfilerStopReasonTimeout];
+                    [self maybeStopProfilerWithReason:SentryProfilerTruncationReasonTimeout];
                 }];
             }
             if (_gProfiledTracers == nil) {
@@ -467,18 +467,18 @@ static NSTimer *_gProfilerTimeoutTimer;
 /**
  * Stop the profiler immediately for an abnormal reason, or in the normal case, if all concurrent transactions have completed.
  */
-- (void)maybeStopProfilerWithReason:(SentryProfilerStopReason)reason {
+- (void)maybeStopProfilerWithReason:(SentryProfilerTruncationReason)reason {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
         [profilerLock lock];
         [_gProfiledTracers removeObject:self];
-        BOOL shouldStopNormally = reason == SentryProfilerStopReasonNormal && _gProfiledTracers.count == 0;
-        BOOL shouldStopAbnormally = reason == SentryProfilerStopReasonTimeout || reason == SentryProfilerStopReasonAppMovedToBackground;
+        BOOL shouldStopNormally = reason == SentryProfilerTruncationReasonNormal && _gProfiledTracers.count == 0;
+        BOOL shouldStopAbnormally = reason == SentryProfilerTruncationReasonTimeout || reason == SentryProfilerTruncationReasonAppMovedToBackground;
         if ([profiler isRunning] && (shouldStopNormally || shouldStopAbnormally)) {
-            [SentryLog logWithMessage:[NSString stringWithFormat:@"Stopping profiler due to reason: %@.", profilerStopReasonName(reason)] andLevel:kSentryLevelDebug];
+            [SentryLog logWithMessage:[NSString stringWithFormat:@"Stopping profiler due to reason: %@.", profilerTruncationReasonName(reason)] andLevel:kSentryLevelDebug];
             [_gProfilerTimeoutTimer invalidate];
             [profiler stop];
-            _gProfilerStopReason = reason;
+            _gProfilerTruncationReason = reason;
 #    if SENTRY_HAS_UIKIT
             _gProfilerFrameInfo = SentryFramesTracker.sharedInstance.currentFrames;
             [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
@@ -504,10 +504,10 @@ static NSTimer *_gProfilerTimeoutTimer;
 
     if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
         if (profiler != nil && !profiler.isRunning) {
-            [_hub.client captureEnvelope:[profiler buildEnvelopeItemForTransactions:_gProfiledTransactions
+            [_hub.client captureEnvelope:[profiler buildEnvelopeForTransactions:_gProfiledTransactions
                                                                                 hub:_hub
                                                                           frameInfo:_gProfilerFrameInfo
-                                                                         stopReason:_gProfilerStopReason]];
+                                                                         truncationReason:_gProfilerTruncationReason]];
             [_gProfiledTransactions removeAllObjects];
             profiler = nil;
         }
@@ -532,7 +532,7 @@ static NSTimer *_gProfilerTimeoutTimer;
         return;
     }
 
-    [self maybeStopProfilerWithReason:SentryProfilerStopReasonNormal];
+    [self maybeStopProfilerWithReason:SentryProfilerTruncationReasonNormal];
 
     [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
         if (span == self) {

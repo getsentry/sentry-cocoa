@@ -8,10 +8,10 @@
 @class SentryHub;
 @class SentryScreenFrames;
 
-typedef NS_ENUM(NSUInteger, SentryProfilerStopReason) {
-    SentryProfilerStopReasonNormal,
-    SentryProfilerStopReasonTimeout,
-    SentryProfilerStopReasonAppMovedToBackground,
+typedef NS_ENUM(NSUInteger, SentryProfilerTruncationReason) {
+    SentryProfilerTruncationReasonNormal,
+    SentryProfilerTruncationReasonTimeout,
+    SentryProfilerTruncationReasonAppMovedToBackground,
 };
 
 NS_ASSUME_NONNULL_BEGIN
@@ -30,7 +30,7 @@ SENTRY_EXTERN_C_BEGIN
  */
 NSString *parseBacktraceSymbolsFunctionName(const char *symbol);
 
-NSString *profilerStopReasonName(SentryProfilerStopReason reason);
+NSString *profilerTruncationReasonName(SentryProfilerTruncationReason reason);
 
 SENTRY_EXTERN_C_END
 
@@ -52,10 +52,10 @@ SENTRY_EXTERN_C_END
  * Builds an envelope item using the currently accumulated profile data.
  */
 - (nullable SentryEnvelope *)
-    buildEnvelopeItemForTransactions:(NSArray<SentryTransaction *> *)transactions
+    buildEnvelopeForTransactions:(NSArray<SentryTransaction *> *)transactions
                                  hub:(SentryHub *)hub
                            frameInfo:(nullable SentryScreenFrames *)frameInfo
-stopReason:(SentryProfilerStopReason)stopReason;
+truncationReason:(SentryProfilerTruncationReason)truncationReason;
 
 @end
 

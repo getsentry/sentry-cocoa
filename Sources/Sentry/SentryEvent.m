@@ -11,7 +11,6 @@
 #import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentryStacktrace.h"
-#import "SentryTime.h"
 #import "SentryThread.h"
 #import "SentryUser.h"
 

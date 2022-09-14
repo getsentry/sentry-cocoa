@@ -60,11 +60,11 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     return [symbolNSStr substringWithRange:[match rangeAtIndex:1]];
 }
 
-NSString *profilerStopReasonName(SentryProfilerStopReason reason) {
+NSString *profilerTruncationReasonName(SentryProfilerTruncationReason reason) {
     switch (reason) {
-        case SentryProfilerStopReasonNormal: return @"normal";
-        case SentryProfilerStopReasonAppMovedToBackground: return @"backgrounded";
-        case SentryProfilerStopReasonTimeout: return @"timeout";
+        case SentryProfilerTruncationReasonNormal: return @"normal";
+        case SentryProfilerTruncationReasonAppMovedToBackground: return @"backgrounded";
+        case SentryProfilerTruncationReasonTimeout: return @"timeout";
     }
 }
 
@@ -239,10 +239,10 @@ isSimulatorBuild()
     }
 }
 
-- (SentryEnvelope *)buildEnvelopeItemForTransactions:(NSArray<SentryTransaction *> *)transactions
+- (SentryEnvelope *)buildEnvelopeForTransactions:(NSArray<SentryTransaction *> *)transactions
                                                  hub:(SentryHub *)hub
                                            frameInfo:(SentryScreenFrames *)frameInfo
-stopReason:(SentryProfilerStopReason)stopReason
+truncationReason:(SentryProfilerTruncationReason)truncationReason
 {
     NSParameterAssert(transactions.count > 0);
     NSMutableDictionary<NSString *, id> *profile = nil;
@@ -281,7 +281,7 @@ stopReason:(SentryProfilerStopReason)stopReason
     profile[@"profile_id"] = profileID.sentryIdString;
     const auto profileDuration = getDurationNs(_startTimestamp, _endTimestamp);
     profile[@"duration_ns"] = [@(profileDuration) stringValue];
-    profile[@"truncation_reason"] = profilerStopReasonName(stopReason);
+    profile[@"truncation_reason"] = profilerTruncationReasonName(truncationReason);
 
     const auto bundle = NSBundle.mainBundle;
     profile[@"version_code"] = [bundle objectForInfoDictionaryKey:(NSString *)kCFBundleVersionKey];
