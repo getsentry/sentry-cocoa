@@ -452,9 +452,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         let sut = fixture.getSut()
         SentrySDK.currentHub().scope.span = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
         let headers = sut.addTraceHeader([:])
-        XCTAssertEqual(headers?.count, 2)
+        XCTAssertEqual(headers?.count, 1)
         XCTAssertNotNil(headers?["baggage"])
-        XCTAssertNotNil(headers?["sentry-trace"])
 
         let decodedBaggage = SentrySerialization.decodeBaggage(headers?["baggage"] ?? "")
         XCTAssertEqual(decodedBaggage.count, 5)
@@ -464,28 +463,25 @@ class SentryNetworkTrackerTests: XCTestCase {
         let sut = fixture.getSut()
         SentrySDK.currentHub().scope.span = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
         let headers = sut.addTraceHeader(["baggage": "key1=value"])
-        XCTAssertEqual(headers?.count, 2)
+        XCTAssertEqual(headers?.count, 1)
         XCTAssertNotNil(headers?["baggage"])
-        XCTAssertNotNil(headers?["sentry-trace"])
 
         let decodedBaggage = SentrySerialization.decodeBaggage(headers?["baggage"] ?? "")
         XCTAssertEqual(decodedBaggage.count, 6)
     }
 
-    func test_RemoveExistingTraceHeader_WhenNoSpan() {
+    func test_RemoveExistingBaggageHeader_WhenNoSpan() {
         let sut = fixture.getSut()
-        let headers = sut.addTraceHeader(["a": "a", "baggage": "key=value,sentry-trace_id=sentry-trace_id,sentry-release=abc", "sentry-trace": "sentry-trace"])
+        let headers = sut.addTraceHeader(["a": "a", "baggage": "key=value,sentry-trace_id=sentry-trace_id,sentry-release=abc"])
         XCTAssertEqual(headers?.count, 2)
         XCTAssertEqual(headers?["baggage"], "key=value")
-        XCTAssertNil(headers?["sentry-trace"])
     }
 
-    func test_RemoveExistingTraceHeader_WhenNoSpan_NoEmptyBaggage() {
+    func test_RemoveExistingBaggageHeader_WhenNoSpan_NoEmptyBaggage() {
         let sut = fixture.getSut()
-        let headers = sut.addTraceHeader(["a": "a", "baggage": "sentry-trace_id=sentry-trace_id,sentry-release=abc", "sentry-trace": "sentry-trace"])
+        let headers = sut.addTraceHeader(["a": "a", "baggage": "sentry-trace_id=sentry-trace_id,sentry-release=abc"])
         XCTAssertEqual(headers?.count, 1)
         XCTAssertNil(headers?["baggage"])
-        XCTAssertNil(headers?["sentry-trace"])
     }
     
     func test_AddTraceHeader_NoTransaction() {
@@ -609,6 +605,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     private func assertCompletedSpan(_ task: URLSessionDataTaskMock, _ span: Span) {
         XCTAssertNotNil(span)
         XCTAssertFalse(span.isFinished)
+        XCTAssertEqual(task.currentRequest?.value(forHTTPHeaderField: SENTRY_TRACE_HEADER), span.toTraceHeader().value())
         setTaskState(task, state: .completed)
         XCTAssertTrue(span.isFinished)
 

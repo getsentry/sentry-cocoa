@@ -119,6 +119,12 @@ SentryNetworkTracker ()
             return;
         }
 
+        if ([sessionTask.currentRequest isKindOfClass:[NSMutableURLRequest class]]) {
+            NSMutableURLRequest *currentRequest = (NSMutableURLRequest *)sessionTask.currentRequest;
+            [currentRequest setValue:[netSpan toTraceHeader].value
+                  forHTTPHeaderField:SENTRY_TRACE_HEADER];
+        }
+
         [SentryLog
             logWithMessage:[NSString stringWithFormat:@"SentryNetworkTracker automatically "
                                                       @"started HTTP span for sessionTask: %@",
@@ -313,7 +319,6 @@ SentryNetworkTracker ()
         // Remove the Sentry keys from the cached headers (cached by NSURLSession itself),
         // because it could contain a completely unrelated trace id from a previous request.
         NSMutableDictionary *existingHeaders = headers.mutableCopy;
-        [existingHeaders removeObjectForKey:SENTRY_TRACE_HEADER];
 
         NSString *newBaggageHeader =
             [self removeSentryKeysFromBaggage:headers[SENTRY_BAGGAGE_HEADER]];
@@ -326,7 +331,6 @@ SentryNetworkTracker ()
     }
 
     NSMutableDictionary *result = [[NSMutableDictionary alloc] initWithDictionary:headers];
-    result[SENTRY_TRACE_HEADER] = [span toTraceHeader].value;
 
     SentryTracer *tracer = [SentryTracer getTracer:span];
     if (tracer != nil) {

@@ -3,6 +3,7 @@
 
 @implementation URLSessionDataTaskMock {
     NSURLRequest *_request;
+    NSURLRequest *_currentRequest;
     NSURLResponse *_response;
     NSError *_error;
     NSDate *_resumeDate;
@@ -21,7 +22,7 @@
     return _state;
 }
 
-- (NSURLRequest *)currentRequest
+- (NSURLRequest *)originalRequest
 {
     return _request;
 }
@@ -61,6 +62,11 @@
     return DATA_BYTES_RECEIVED;
 }
 
+- (NSURLRequest *)currentRequest
+{
+    return _currentRequest;
+}
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
@@ -74,6 +80,7 @@
 {
     if (self = [super init]) {
         _request = request;
+        _currentRequest = [_request mutableCopy];
     }
     return self;
 }
