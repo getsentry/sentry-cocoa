@@ -1,12 +1,10 @@
 #import "SentryTime.h"
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#import <Foundation/Foundation.h>
+#import <ctime>
+#import <mach/mach_time.h>
 
-#    import <Foundation/Foundation.h>
-#    import <ctime>
-#    import <mach/mach_time.h>
-
-#    import "SentryMachLogging.hpp"
+#import "SentryMachLogging.hpp"
 
 uint64_t
 getAbsoluteTime(void)
@@ -33,5 +31,3 @@ getDurationNs(uint64_t startTimestamp, uint64_t endTimestamp)
     duration /= info.denom;
     return duration;
 }
-
-#endif

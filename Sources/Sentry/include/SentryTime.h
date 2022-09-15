@@ -1,9 +1,6 @@
+#import "SentryCompiler.h"
 #import "SentryProfilingConditionals.h"
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-
-#    import "SentryCompiler.h"
-#    import <stdint.h>
+#import <stdint.h>
 
 SENTRY_EXTERN_C_BEGIN
 
@@ -19,5 +16,3 @@ uint64_t getAbsoluteTime(void);
 uint64_t getDurationNs(uint64_t startTimestamp, uint64_t endTimestamp);
 
 SENTRY_EXTERN_C_END
-
-#endif
