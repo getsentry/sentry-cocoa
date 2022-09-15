@@ -29,7 +29,6 @@ class SentryHttpTransportTests: XCTestCase {
         let requestBuilder = TestNSURLRequestBuilder()
         let rateLimits: DefaultRateLimits
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        let dispatchGroupWrapper = TestSentryDispatchGroupWrapper()
         let flushTimeout: TimeInterval = 0.5
 
         let userFeedback: UserFeedback
@@ -101,8 +100,7 @@ class SentryHttpTransportTests: XCTestCase {
                     requestBuilder: requestBuilder,
                     rateLimits: rateLimits,
                     envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
-                    dispatchQueueWrapper: dispatchQueueWrapper,
-                    dispatchGroupWrapper: dispatchGroupWrapper
+                    dispatchQueueWrapper: dispatchQueueWrapper
                 )
             }
         }

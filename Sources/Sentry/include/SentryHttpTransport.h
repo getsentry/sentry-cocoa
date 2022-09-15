@@ -21,8 +21,7 @@ SENTRY_NO_INIT
           requestBuilder:(SentryNSURLRequestBuilder *)requestBuilder
               rateLimits:(id<SentryRateLimits>)rateLimits
        envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
-    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-    dispatchGroupWrapper:(SentryDispatchGroupWrapper *)dispatchGroupWrapper;
+    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
 @end
 

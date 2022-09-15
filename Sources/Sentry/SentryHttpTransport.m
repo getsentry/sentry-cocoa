@@ -4,7 +4,6 @@
 #import "SentryDataCategoryMapper.h"
 #import "SentryDiscardReasonMapper.h"
 #import "SentryDiscardedEvent.h"
-#import "SentryDispatchGroupWrapper.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope+Private.h"
@@ -30,7 +29,7 @@ SentryHttpTransport ()
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
-@property (nonatomic, strong) SentryDispatchGroupWrapper *dispatchGroup;
+@property (nonatomic, strong) dispatch_group_t dispatchGroup;
 
 /**
  * Relay expects the discarded events split by data category and reason; see
@@ -60,7 +59,6 @@ SentryHttpTransport ()
               rateLimits:(id<SentryRateLimits>)rateLimits
        envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-    dispatchGroupWrapper:(SentryDispatchGroupWrapper *)dispatchGroupWrapper
 {
     if (self = [super init]) {
         self.options = options;
@@ -70,7 +68,7 @@ SentryHttpTransport ()
         self.rateLimits = rateLimits;
         self.envelopeRateLimit = envelopeRateLimit;
         self.dispatchQueue = dispatchQueueWrapper;
-        self.dispatchGroup = dispatchGroupWrapper;
+        self.dispatchGroup = dispatch_group_create();
         _isSending = NO;
         _isFlushing = NO;
         self.discardedEvents = [NSMutableDictionary new];
@@ -140,7 +138,7 @@ SentryHttpTransport ()
                          andLevel:kSentryLevelDebug];
 
         _isFlushing = YES;
-        [self.dispatchGroup enter];
+        dispatch_group_enter(self.dispatchGroup);
     }
 
     [self sendAllCachedEnvelopes];
@@ -148,7 +146,7 @@ SentryHttpTransport ()
     dispatch_time_t delta = (int64_t)(timeout * (NSTimeInterval)NSEC_PER_SEC);
     dispatch_time_t dispatchTimeout = dispatch_time(DISPATCH_TIME_NOW, delta);
 
-    intptr_t result = [self.dispatchGroup waitWithTimeout:dispatchTimeout];
+    intptr_t result = dispatch_group_wait(self.dispatchGroup, dispatchTimeout);
 
     @synchronized(self) {
         self.isFlushing = NO;
@@ -301,7 +299,7 @@ SentryHttpTransport ()
             [SentryLog logWithMessage:@"SentryHttpTransport: Stop flushing."
                              andLevel:kSentryLevelDebug];
             self.isFlushing = NO;
-            [self.dispatchGroup leave];
+            dispatch_group_leave(self.dispatchGroup);
         }
     }
 }
