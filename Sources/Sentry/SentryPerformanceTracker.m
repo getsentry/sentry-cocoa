@@ -115,7 +115,9 @@ SentryPerformanceTracker () <SentryTracerDelegate>
                          operation:(NSString *)operation
                            inBlock:(void (^)(void))block
 {
-    SentrySpanId *spanId = [self startSpanWithName:description operation:operation];
+    SentrySpanId *spanId = [self startSpanWithName:description
+                                        nameSource:source
+                                         operation:operation];
     [self pushActiveSpan:spanId];
     block();
     [self popActiveSpan];
@@ -142,7 +144,10 @@ SentryPerformanceTracker () <SentryTracerDelegate>
 {
     [self activateSpan:parentSpanId
            duringBlock:^{
-               [self measureSpanWithDescription:description operation:operation inBlock:block];
+               [self measureSpanWithDescription:description
+                                     nameSource:source
+                                      operation:operation
+                                        inBlock:block];
            }];
 }
 
