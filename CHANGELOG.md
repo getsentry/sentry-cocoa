@@ -450,7 +450,7 @@ for ViewControllers, HTTP requests, app start and slow and frozen frames.
 - feat: Add breadcrumbs for HTTP requests (#1258)
 - feat: Add clearAttachments to Scope (#1195)
 - feat: Expose tracked screen frames (#1262)
-- feat: Expose AppStartMeasurment for Hybrid SDKs (#1251)
+- feat: Expose AppStartMeasurement for Hybrid SDKs (#1251)
 
 ### Fixes
 
@@ -466,7 +466,7 @@ for ViewControllers, HTTP requests, app start and slow and frozen frames.
 ## 7.2.0-beta.9
 
 - feat: Expose tracked screen frames (#1262)
-- feat: Expose AppStartMeasurment for Hybrid SDKs (#1251)
+- feat: Expose AppStartMeasurement for Hybrid SDKs (#1251)
 - fix: Span serialization HTTP data in wrong place. (#1255)
 - feat: Add tags to Sentry Span (#1243)
 
@@ -569,7 +569,7 @@ For a detailed explanation  how to upgrade please checkout the [migration guide]
 - ref: SentryEvent.timestamp changed to nullable.
 - ref: Add read-only scope property to Hub (#975)
 - ref: Remove SentryException.userReported (#974)
-- ref: Replace SentryLogLevel with SentryLevel (#978)
+- ref: Replace SentryLogLevel with SentryLevel (#979)
 - fix: Mark frames as inApp (#956)
 
 ### Features
