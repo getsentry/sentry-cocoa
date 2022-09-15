@@ -52,10 +52,8 @@
         [fetchSpan
             finishWithStatus:error != nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
 
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"SentryCoreDataTracker automatically "
-                                                             @"finished span with status: %@",
-                                            error == nil ? @"ok" : @"error"]
-                         andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically finished span with status: %@",
+            error == nil ? @"ok" : @"error");
     }
 
     return result;
@@ -96,10 +94,8 @@
         [fetchSpan
             finishWithStatus:*error != nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
 
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"SentryCoreDataTracker automatically "
-                                                             @"finished span with status: %@",
-                                            *error == nil ? @"ok" : @"error"]
-                         andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically finished span with status: %@",
+            *error == nil ? @"ok" : @"error");
     }
 
     return result;

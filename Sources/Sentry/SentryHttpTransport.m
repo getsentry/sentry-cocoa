@@ -79,8 +79,7 @@ SentryHttpTransport ()
     envelope = [self.envelopeRateLimit removeRateLimitedItems:envelope];
 
     if (envelope.items.count == 0) {
-        [SentryLog logWithMessage:@"RateLimit is active for all envelope items."
-                         andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"RateLimit is active for all envelope items.");
         return;
     }
 

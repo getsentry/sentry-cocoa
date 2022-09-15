@@ -65,7 +65,7 @@ SentryANRTracker ()
             ticksSinceUiUpdate = 0;
 
             if (reported) {
-                [SentryLog logWithMessage:@"ANR stopped." andLevel:kSentryLevelWarning];
+                SENTRY_LOG_WARN(@"ANR stopped.");
                 [self ANRStopped];
             }
 
@@ -81,10 +81,8 @@ SentryANRTracker ()
             [[self.currentDate date] timeIntervalSinceDate:blockDeadline];
 
         if (deltaFromNowToBlockDeadline >= self.timeoutInterval) {
-            NSString *message =
-                [NSString stringWithFormat:@"Ignoring ANR because the delta is too big: %f.",
-                          deltaFromNowToBlockDeadline];
-            [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+            SENTRY_LOG_DEBUG(
+                @"Ignoring ANR because the delta is too big: %f.", deltaFromNowToBlockDeadline);
             continue;
         }
 
@@ -92,12 +90,11 @@ SentryANRTracker ()
             reported = YES;
 
             if (![self.crashWrapper isApplicationInForeground]) {
-                [SentryLog logWithMessage:@"Ignoring ANR because the app is in the background"
-                                 andLevel:kSentryLevelDebug];
+                SENTRY_LOG_DEBUG(@"Ignoring ANR because the app is in the background");
                 continue;
             }
 
-            [SentryLog logWithMessage:@"ANR detected." andLevel:kSentryLevelWarning];
+            SENTRY_LOG_WARN(@"ANR detected.");
             [self ANRDetected];
         }
     }
@@ -172,7 +169,7 @@ SentryANRTracker ()
 - (void)stop
 {
     @synchronized(threadLock) {
-        [SentryLog logWithMessage:@"Stopping ANR detection" andLevel:kSentryLevelInfo];
+        SENTRY_LOG_INFO(@"Stopping ANR detection");
         [self.thread cancel];
         running = NO;
     }
