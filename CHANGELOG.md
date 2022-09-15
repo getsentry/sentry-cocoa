@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Use the component name source for SentryPerformanceTracke (#2168)
+
 ## 7.25.1
 
 ### Fixes
