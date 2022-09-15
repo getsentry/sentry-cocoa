@@ -9,6 +9,8 @@ on:
       - 'test-server/**'
       - 'Samples/**'
       - '.github/workflows/lint.yml'
+      - 'scripts/ci-select-xcode.sh'
+      - 'scripts/no-changes-in-high-risk-files.sh'
 
   pull_request:
     paths:
@@ -17,11 +19,13 @@ on:
       - 'test-server/**'
       - 'Samples/**'
       - '.github/workflows/lint.yml'
+      - 'scripts/ci-select-xcode.sh'
+      - 'scripts/no-changes-in-high-risk-files.sh'
 
 jobs:
   swift-lint:
     name: Swift Lint
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
       - name: Run SwiftLint
@@ -29,7 +33,7 @@ jobs:
 
   xcode-analyze:
     name: Xcode Analyze
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh
@@ -38,7 +42,7 @@ jobs:
 
   validate-podspec:
     name: Validate Podspec
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
       - name: Validate Podspec

@@ -15,21 +15,45 @@ on:
       - '.github/workflows/saucelabs-UI-tests.yml'
       - 'fastlane/**'
       - '.sauce/config.yml'
+      - 'scripts/set-device-tests-environment.patch'
+      - 'scripts/ci-select-xcode.sh'
 
 jobs:
   build-ui-tests:
     name: Build UITests with Xcode ${{matrix.xcode}}
-    runs-on: macos-11
+    runs-on: ${{matrix.runs-on}}
     strategy:      
       matrix:
-        xcode: ["13.2", "12.5.1"]
+        include:
+          - runs-on: macos-11
+            xcode: "12.5.1"
+
+          - runs-on: macos-12
+            xcode: "13.4.1"
 
     steps:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+      - name: Install SentryCli
+        run: brew install getsentry/tools/sentry-cli
       - run: git apply ./scripts/set-device-tests-environment.patch
-      
-      - run: fastlane build_ios_swift_ui_test
+      - name: Cache iOS-Swift App and dSYM build products
+        id: ios-swift-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app.dSYM
+            DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app
+          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/iOS-Swift/**') }}-Xcode-${{ matrix.xcode }}
+      - name: Cache iOS-Swift UI Test Runner App build product
+        id: ios-swift-uitest-runner-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            DerivedData/Build/Products/Debug-iphoneos/iOS-SwiftUITests-Runner.app
+          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/iOS-SwiftUITests/**') }}-Xcode-${{ matrix.xcode }}
+      - run: fastlane build_ios_swift_for_tests
+        if: steps.ios-swift-cache.outputs.cache-hit != 'true'
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -38,7 +62,20 @@ jobs:
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-      
+      - run: fastlane build_ios_swift_ui_test
+        if: steps.ios-swift-uitest-runner-cache.outputs.cache-hit != 'true'
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+      - name: Upload dSYMs
+        if: steps.ios-swift-cache.outputs.cache-hit != 'true'
+        run: |
+          sentry-cli --auth-token ${{ secrets.SENTRY_AUTH_TOKEN }} upload-dif --org sentry-sdks --project sentry-cocoa DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app.dSYM
       - name: Archiving DerivedData
         uses: actions/upload-artifact@v3
         with:
@@ -56,17 +93,17 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - xcode: "13.2"
+          - xcode: "13.4.1"
             suite: "iOS-15"
 
           # We want to test the frame tracker at 120 fps
-          - xcode: "13.2"
+          - xcode: "13.4.1"
             suite: "iPhone-Pro"
 
-          - xcode: "13.2"
+          - xcode: "13.4.1"
             suite: "iOS-14"
 
-          - xcode: "13.2"
+          - xcode: "13.4.1"
             suite: "iOS-13"
 
           # iOS 12 has a failing test that we need to fix https://github.com/getsentry/sentry-cocoa/issues/1566

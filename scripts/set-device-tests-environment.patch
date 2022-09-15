@@ -12,3 +12,4 @@ index 25b92eed..8934d90b 100644
              options.enableCoreDataTracking = true
              options.profilesSampleRate = 1.0
              options.attachScreenshot = true
+             options.attachViewHierarchy = true

@@ -144,8 +144,8 @@ static NSLock *profilerLock;
           dispatchQueueWrapper:(nullable SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
-        self.rootSpan = [[SentrySpan alloc] initWithTransaction:self context:transactionContext];
-        self.name = transactionContext.name;
+        self.rootSpan = [[SentrySpan alloc] initWithTracer:self context:transactionContext];
+        self.transactionContext = transactionContext;
         _children = [[NSMutableArray alloc] init];
         self.hub = hub;
         self.isWaitingForChildren = NO;
@@ -268,7 +268,7 @@ static NSLock *profilerLock;
                                            sampled:_rootSpan.context.sampled];
     context.spanDescription = description;
 
-    SentrySpan *child = [[SentrySpan alloc] initWithTransaction:self context:context];
+    SentrySpan *child = [[SentrySpan alloc] initWithTracer:self context:context];
     @synchronized(_children) {
         [_children addObject:child];
     }
@@ -518,6 +518,7 @@ static NSLock *profilerLock;
         [profilerLock lock];
         if (profiler != nil) {
             SentryEnvelopeItem *profile = [profiler buildEnvelopeItemForTransaction:transaction
+                                                                                hub:_hub
                                                                           frameInfo:frameInfo];
             if (profile != nil) {
                 [additionalEnvelopeItems addObject:profile];
@@ -565,7 +566,7 @@ static NSLock *profilerLock;
     }
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
-    transaction.transaction = self.name;
+    transaction.transaction = self.transactionContext.name;
     [self addMeasurements:transaction appStartMeasurement:appStartMeasurement];
     return transaction;
 }
@@ -738,7 +739,7 @@ static NSLock *profilerLock;
                                            sampled:_rootSpan.context.sampled];
     context.spanDescription = description;
 
-    return [[SentrySpan alloc] initWithTransaction:self context:context];
+    return [[SentrySpan alloc] initWithTracer:self context:context];
 }
 
 - (NSDictionary *)serialize
@@ -790,7 +791,7 @@ static NSLock *profilerLock;
     if ([span isKindOfClass:[SentryTracer class]]) {
         return span;
     } else if ([span isKindOfClass:[SentrySpan class]]) {
-        return [(SentrySpan *)span transaction];
+        return [(SentrySpan *)span tracer];
     }
     return nil;
 }

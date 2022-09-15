@@ -1,12 +1,74 @@
 # Changelog
 
-## Unreleased
+## 7.25.1
+
+### Fixes
+
+- Prewarmed app start detection (#2151)
+
+## 7.25.0
+
+### Features
+
+- Users can customise the error description shown in the Sentry UI by providing an NSDebugDescriptionErrorKey value in the error user info dictionary. (#2120)
+- Add support for dynamic library (#1726)
+
+### Fixes
+
+- Can't find app image when swizzling (#2124)
+- Crash with screenshot is reported twice (#2134)
+- Setting SDK name through `options[sdk][name]` shouldn't clear version (#2139)
+
+## 7.24.1
+
+### Fixes
+
+- Remove Media Library Permission check from permission observer (#2123)
+
+## 7.24.0
+
+### Features
+
+- App permissions are now also included when running from an app extension (#2106)
+- Report App Memory Usage (#2027)
+- Include app permissions with event (#1984)
+- Add culture context to event (#2036)
+- Attach view hierarchy to events (#2044)
+- Clean up SentryOptions: added `enableCrashHandler` and deprecated `integrations` (#2049)
+- Integrations send the [transaction name source](https://develop.sentry.dev/sdk/event-payloads/transaction/#transaction-annotations) (#2076)
+- Added extra logs when creating automatic transactions and spans (#2087)
+
+### Fixes
+
+- Fix Swift 5.5 compatibility (#2060)
+- Add span finish flag (#2059)
+- SentryUser.userId should be nullable (#2071)
+- Send time zone name, not abbreviation (#2091)
+- Use a prime number for the profiler's sampling rate to reduce the potential for [lock-step](https://stackoverflow.com/a/45471031) issues (#2055).
+- Improve App Hangs detection (#2100)
+- Send `environment` set from `SentryOptions` or `configureScope` with profiling data (#2095)
+
+## 7.24.0-beta.0
 
 ### Features
 
 - Report App Memory Usage (#2027)
 - Include app permissions with event (#1984)
 - Add culture context to event (#2036)
+- Attach view hierarchy to events (#2044)
+- Clean up SentryOptions: added `enableCrashHandler` and deprecated `integrations` (#2049)
+- Integrations send the [transaction name source](https://develop.sentry.dev/sdk/event-payloads/transaction/#transaction-annotations) (#2076)
+- Added extra logs when creating automatic transactions and spans (#2087)
+
+### Fixes
+
+- Fix Swift 5.5 compatibility (#2060)
+- Add span finish flag (#2059)
+- SentryUser.userId should be nullable (#2071)
+- Send time zone name, not abbreviation (#2091)
+- Use a prime number for the profiler's sampling rate to reduce the potential for [lock-step](https://stackoverflow.com/a/45471031) issues (#2055).
+- Improve App Hangs detection (#2100)
+- Send `environment` set from `SentryOptions` or `configureScope` with profiling data (#2095)
 
 ### Fixes
 
@@ -37,6 +99,7 @@
 
 - Remove Sentry keys from cached HTTP request headers (#1975)
 - Collect samples for idle threads in iOS profiler (#1978)
+- Fix removeNonSdkFrames working incorrectly for os users named sentry(#2002)
 - Don't override already-set timestamp when finishing Span (#1993)
 - Respect existing baggage header instead of overwriting it (#1995)
 
@@ -385,7 +448,7 @@ for ViewControllers, HTTP requests, app start and slow and frozen frames.
 - feat: Add breadcrumbs for HTTP requests (#1258)
 - feat: Add clearAttachments to Scope (#1195)
 - feat: Expose tracked screen frames (#1262)
-- feat: Expose AppStartMeasurment for Hybrid SDKs (#1251)
+- feat: Expose AppStartMeasurement for Hybrid SDKs (#1251)
 
 ### Fixes
 
@@ -401,7 +464,7 @@ for ViewControllers, HTTP requests, app start and slow and frozen frames.
 ## 7.2.0-beta.9
 
 - feat: Expose tracked screen frames (#1262)
-- feat: Expose AppStartMeasurment for Hybrid SDKs (#1251)
+- feat: Expose AppStartMeasurement for Hybrid SDKs (#1251)
 - fix: Span serialization HTTP data in wrong place. (#1255)
 - feat: Add tags to Sentry Span (#1243)
 
@@ -504,7 +567,7 @@ For a detailed explanation  how to upgrade please checkout the [migration guide]
 - ref: SentryEvent.timestamp changed to nullable.
 - ref: Add read-only scope property to Hub (#975)
 - ref: Remove SentryException.userReported (#974)
-- ref: Replace SentryLogLevel with SentryLevel (#978)
+- ref: Replace SentryLogLevel with SentryLevel (#979)
 - fix: Mark frames as inApp (#956)
 
 ### Features

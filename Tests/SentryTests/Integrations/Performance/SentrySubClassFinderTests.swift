@@ -39,22 +39,22 @@ class SentrySubClassFinderTests: XCTestCase {
     }
     
     func testActOnSubclassesOfViewController() {
-        testActOnSubclassesOfViewController(expected: [FirstViewController.self, SecondViewController.self, ViewControllerNumberThree.self, VCAnyNaming.self])
+        assertActOnSubclassesOfViewController(expected: [FirstViewController.self, SecondViewController.self, ViewControllerNumberThree.self, VCAnyNaming.self])
     }
     
     func testActOnSubclassesOfViewController_NoViewController() {
         fixture.runtimeWrapper.classesNames = { _ in [] }
-        testActOnSubclassesOfViewController(expected: [])
+        assertActOnSubclassesOfViewController(expected: [])
     }
     
     func testActOnSubclassesOfViewController_IgnoreFakeViewController() {
         fixture.runtimeWrapper.classesNames = { _ in [NSStringFromClass(FakeViewController.self)] }
-        testActOnSubclassesOfViewController(expected: [])
+        assertActOnSubclassesOfViewController(expected: [])
     }
      
     func testActOnSubclassesOfViewController_WrongImage_NoViewController() {
         fixture.runtimeWrapper.classesNames = nil
-        testActOnSubclassesOfViewController(expected: [], imageName: "OtherImage")
+        assertActOnSubclassesOfViewController(expected: [], imageName: "OtherImage")
     }
   
     func testGettingSublcasses_DoesNotCallInitializer() {
@@ -68,11 +68,11 @@ class SentrySubClassFinderTests: XCTestCase {
         XCTAssertFalse(SentryInitializeForGettingSubclassesCalled.wasCalled())
     }
     
-    private func testActOnSubclassesOfViewController(expected: [AnyClass]) {
-        testActOnSubclassesOfViewController(expected: expected, imageName: fixture.imageName)
+    private func assertActOnSubclassesOfViewController(expected: [AnyClass]) {
+        assertActOnSubclassesOfViewController(expected: expected, imageName: fixture.imageName)
     }
     
-    private func testActOnSubclassesOfViewController(expected: [AnyClass], imageName: String) {
+    private func assertActOnSubclassesOfViewController(expected: [AnyClass], imageName: String) {
         let expect = expectation(description: "")
         
         if expected.isEmpty {

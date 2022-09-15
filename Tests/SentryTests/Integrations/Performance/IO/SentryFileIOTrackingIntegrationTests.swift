@@ -224,7 +224,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
     }
     
-    private func assertSpans( _ spansCount: Int, _ operation: String, _ description: String = "TestFile", _ block : () -> Void) {
+    private func assertSpans( _ spansCount: Int, _ operation: String, _ description: String = "TestFile", _ block: () -> Void) {
         let parentTransaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
         
         block()

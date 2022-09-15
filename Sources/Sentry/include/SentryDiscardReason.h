@@ -14,5 +14,7 @@ typedef NS_ENUM(NSUInteger, SentryDiscardReason) {
     kSentryDiscardReasonRateLimitBackoff = 6
 };
 
-static NSString *_Nonnull const SentryDiscardReasonNames[] = { @"before_send", @"event_processor",
-    @"sample_rate", @"network_error", @"queue_overflow", @"cache_overflow", @"ratelimit_backoff" };
+static DEPRECATED_MSG_ATTRIBUTE(
+    "Use nameForSentryDiscardReason() instead.") NSString *_Nonnull const SentryDiscardReasonNames[]
+    = { @"before_send", @"event_processor", @"sample_rate", @"network_error", @"queue_overflow",
+          @"cache_overflow", @"ratelimit_backoff" };

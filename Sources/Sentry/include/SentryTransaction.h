@@ -4,7 +4,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryTracer;
+@class SentryTracer, SentryTransactionContext;
 
 NS_SWIFT_NAME(Transaction)
 @interface SentryTransaction : SentryEvent

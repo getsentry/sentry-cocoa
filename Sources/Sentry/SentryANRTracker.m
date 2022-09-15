@@ -47,36 +47,32 @@ SentryANRTracker ()
 - (void)detectANRs
 {
     NSThread.currentThread.name = @"io.sentry.app-hang-tracker";
-
     self.thread = NSThread.currentThread;
 
-    BOOL wasPreviousANR = NO;
+    __block NSInteger ticksSinceUiUpdate = 0;
+    __block BOOL reported = NO;
+
+    NSInteger reportTreshold = 5;
+    NSTimeInterval sleepInterval = self.timeoutInterval / reportTreshold;
 
     while (![self.thread isCancelled]) {
-
         NSDate *blockDeadline =
             [[self.currentDate date] dateByAddingTimeInterval:self.timeoutInterval];
 
-        __block BOOL blockExecutedOnMainThread = NO;
-        [self.dispatchQueueWrapper dispatchOnMainQueue:^{ blockExecutedOnMainThread = YES; }];
+        ticksSinceUiUpdate++;
 
-        [self.threadWrapper sleepForTimeInterval:self.timeoutInterval];
+        [self.dispatchQueueWrapper dispatchOnMainQueue:^{
+            ticksSinceUiUpdate = 0;
 
-        if (blockExecutedOnMainThread) {
-            if (wasPreviousANR) {
+            if (reported) {
                 [SentryLog logWithMessage:@"ANR stopped." andLevel:kSentryLevelWarning];
                 [self ANRStopped];
             }
 
-            wasPreviousANR = NO;
-            continue;
-        }
+            reported = NO;
+        }];
 
-        if (wasPreviousANR) {
-            [SentryLog logWithMessage:@"Ignoring ANR because ANR is still ongoing."
-                             andLevel:kSentryLevelDebug];
-            continue;
-        }
+        [self.threadWrapper sleepForTimeInterval:sleepInterval];
 
         // The blockDeadline should be roughly executed after the timeoutInterval even if there is
         // an ANR. If the app gets suspended this thread could sleep and wake up again. To avoid
@@ -92,15 +88,18 @@ SentryANRTracker ()
             continue;
         }
 
-        if (![self.crashWrapper isApplicationInForeground]) {
-            [SentryLog logWithMessage:@"Ignoring ANR because the app is in the background"
-                             andLevel:kSentryLevelDebug];
-            continue;
-        }
+        if (ticksSinceUiUpdate >= reportTreshold && !reported) {
+            reported = YES;
 
-        wasPreviousANR = YES;
-        [SentryLog logWithMessage:@"ANR detected." andLevel:kSentryLevelWarning];
-        [self ANRDetected];
+            if (![self.crashWrapper isApplicationInForeground]) {
+                [SentryLog logWithMessage:@"Ignoring ANR because the app is in the background"
+                                 andLevel:kSentryLevelDebug];
+                continue;
+            }
+
+            [SentryLog logWithMessage:@"ANR detected." andLevel:kSentryLevelWarning];
+            [self ANRDetected];
+        }
     }
 }
 

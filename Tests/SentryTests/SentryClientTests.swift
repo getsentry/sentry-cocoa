@@ -132,7 +132,7 @@ class SentryClientTest: XCTestCase {
         clearTestState()
     }
     
-    func tesCaptureMessage() {
+    func testCaptureMessage() {
         let eventId = fixture.getSut().capture(message: fixture.messageAsString)
 
         eventId.assertIsNotEmpty()
@@ -264,7 +264,7 @@ class SentryClientTest: XCTestCase {
             return result
         }
         
-        sut.attachmentProcessor = processor
+        sut.add(processor)
         sut.capture(event: event)
         
         let sendedAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
@@ -285,7 +285,7 @@ class SentryClientTest: XCTestCase {
             return result
         }
         
-        sut.attachmentProcessor = processor
+        sut.add(processor)
         sut.captureError(error, with: fixture.session, with: Scope())
         
         let sentAttachments = fixture.transportAdapter.sentEventsWithSessionTraceState.first?.attachments ?? []
@@ -305,7 +305,7 @@ class SentryClientTest: XCTestCase {
             return result
         }
         
-        sut.attachmentProcessor = processor
+        sut.add(processor)
         sut.captureError(error, with: SentrySession(releaseName: ""), with: Scope())
         
         let sendedAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
@@ -389,6 +389,44 @@ class SentryClientTest: XCTestCase {
         let error = TestError.invalidTest as NSError
         assertLastSentEvent { actual in
             assertValidErrorEvent(actual, error)
+        }
+    }
+
+    func testCaptureErrorUsesErrorDebugDescriptionWhenSet() {
+        let error = NSError(
+            domain: "com.sentry",
+            code: 999,
+            userInfo: [NSDebugDescriptionErrorKey: "Custom error description"]
+        )
+        let eventId = fixture.getSut().capture(error: error)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            do {
+                let exceptions = try XCTUnwrap(actual.exceptions)
+                XCTAssertEqual("Custom error description (Code: 999)", try XCTUnwrap(exceptions.first).value)
+            } catch {
+                XCTFail("Exception expected but was nil")
+            }
+        }
+    }
+
+    func testCaptureErrorUsesErrorCodeAsDescriptionIfNoCustomDescriptionProvided() {
+        let error = NSError(
+            domain: "com.sentry",
+            code: 999,
+            userInfo: [:]
+        )
+        let eventId = fixture.getSut().capture(error: error)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            do {
+                let exceptions = try XCTUnwrap(actual.exceptions)
+                XCTAssertEqual("Code: 999", try XCTUnwrap(exceptions.first).value)
+            } catch {
+                XCTFail("Exception expected but was nil")
+            }
         }
     }
 
@@ -556,7 +594,6 @@ class SentryClientTest: XCTestCase {
             let permissions = actual.context?["app"]?["permissions"] as? [String: String]
             XCTAssertEqual(permissions?["push_notifications"], "granted")
             XCTAssertEqual(permissions?["location_access"], "granted")
-            XCTAssertEqual(permissions?["media_library"], "not_granted")
             XCTAssertEqual(permissions?["photo_library"], "partial")
         }
     }
@@ -788,22 +825,22 @@ class SentryClientTest: XCTestCase {
     }
     
     func testSampleRateNil_EventNotSampled() {
-        testSampleRate(sampleRate: nil, randomValue: 0, isSampled: false)
+        assertSampleRate(sampleRate: nil, randomValue: 0, isSampled: false)
     }
     
     func testSampleRateBiggerRandom_EventNotSampled() {
-        testSampleRate(sampleRate: 0.5, randomValue: 0.49, isSampled: false)
+        assertSampleRate(sampleRate: 0.5, randomValue: 0.49, isSampled: false)
     }
     
     func testSampleRateEqualsRandom_EventNotSampled() {
-        testSampleRate(sampleRate: 0.5, randomValue: 0.5, isSampled: false)
+        assertSampleRate(sampleRate: 0.5, randomValue: 0.5, isSampled: false)
     }
     
     func testSampleRateSmallerRandom_EventSampled() {
-        testSampleRate(sampleRate: 0.50, randomValue: 0.51, isSampled: true)
+        assertSampleRate(sampleRate: 0.50, randomValue: 0.51, isSampled: true)
     }
     
-    private func testSampleRate( sampleRate: NSNumber?, randomValue: Double, isSampled: Bool) {
+    private func assertSampleRate( sampleRate: NSNumber?, randomValue: Double, isSampled: Bool) {
         fixture.random.value = randomValue
         
         let eventId = fixture.getSut(configureOptions: { options in
@@ -940,29 +977,16 @@ class SentryClientTest: XCTestCase {
     }
     
     func testSetSDKIntegrations() {
+        SentrySDK.start(options: Options())
+
         let eventId = fixture.getSut().capture(message: fixture.messageAsString)
-        
-        let expected = shortenIntegrations(Options().integrations)
-        
-        eventId.assertIsNotEmpty()
-        assertLastSentEvent { actual in
-            assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
-        }
-    }
-    
-    func testSetSDKIntegrations_CustomIntegration() {
-        var integrations = Options().integrations
-        integrations?.append("Custom")
-        
-        let eventId = fixture.getSut(configureOptions: { options in
-            options.integrations = integrations
-        }).capture(message: fixture.messageAsString)
-        
-        let expected = shortenIntegrations(integrations)
 
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
-            assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
+            assertArrayEquals(
+                expected: ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking"],
+                actual: actual.sdk?["integrations"] as? [String]
+            )
         }
     }
     

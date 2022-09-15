@@ -7,12 +7,12 @@ platform :ios do
   lane :bump_bundle_version do
     set_info_plist_value(
       path: ios_swift_infoplist_path,
-      key: "CFBundleVersion", 
+      key: "CFBundleVersion",
       value: ENV["FASTLANE_BUNDLE_VERSION"]
     )
     set_info_plist_value(
       path: ios_swift_clip_infoplist_path,
-      key: "CFBundleVersion", 
+      key: "CFBundleVersion",
       value: ENV["FASTLANE_BUNDLE_VERSION"]
     )
   end
@@ -28,31 +28,31 @@ platform :ios do
 
     set_info_plist_value(
       path: ios_swift_infoplist_path,
-      key: "CFBundleShortVersionString", 
+      key: "CFBundleShortVersionString",
       value: version
     )
     set_info_plist_value(
       path: ios_swift_clip_infoplist_path,
-      key: "CFBundleShortVersionString", 
+      key: "CFBundleShortVersionString",
       value: version
     )
 
     sentryInfoPlistPath = "./Sources/Sentry/Info.plist"
     set_info_plist_value(
-      path: sentryInfoPlistPath, 
-      key: "CFBundleShortVersionString", 
+      path: sentryInfoPlistPath,
+      key: "CFBundleShortVersionString",
       value: version
     )
     set_info_plist_value(
-      path: sentryInfoPlistPath, 
-      key: "CFBundleVersion", 
+      path: sentryInfoPlistPath,
+      key: "CFBundleVersion",
       value: version
     )
   end
 
   desc "Build iOS-Swift with Release"
   lane :build_ios_swift do
-    
+
     setup_ci
 
     sync_code_signing(
@@ -73,6 +73,28 @@ platform :ios do
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
 
+  lane :build_ios_swift_for_tests do
+
+    setup_ci(
+      force: true
+    )
+
+    sync_code_signing(
+      type: "development",
+      readonly: true,
+      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip"]
+    )
+
+    build_app(
+      workspace: "Sentry.xcworkspace",
+      scheme: "iOS-Swift",
+      derived_data_path: "DerivedData",
+      skip_archive: true
+    )
+
+    delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
+  end
+
   lane :build_ios_swift_ui_test do
 
     setup_ci(
@@ -85,13 +107,8 @@ platform :ios do
       app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-SwiftUITests.xctrunner"]
     )
 
-    build_app(
-      workspace: "Sentry.xcworkspace",
-      scheme: "iOS-Swift",
-      xcargs: "build-for-testing",
-      derived_data_path: "DerivedData",
-      skip_archive: true
-    )
+    # don't use gym here because it always appends a "build" command which fails, since this is a test target not configured for running
+    sh "set -o pipefail && xcodebuild -workspace ../Sentry.xcworkspace -scheme iOS-SwiftUITests -derivedDataPath ../DerivedData -destination 'generic/platform=iOS' build-for-testing | xcpretty"
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
@@ -132,10 +149,27 @@ platform :ios do
       app_identifier: ["io.sentry.sample.TrendingMovies", "io.sentry.sample.movies.ProfileDataGeneratorUITest.xctrunner"]
     )
 
+    # don't use gym here because it always appends a "build" command which fails, since this is a test target not configured for running
+    sh "set -o pipefail && xcodebuild -workspace ../Sentry.xcworkspace -scheme ProfileDataGeneratorUITest -derivedDataPath ../DerivedData -destination 'generic/platform=iOS' build-for-testing | xcpretty"
+
+    delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
+  end
+
+  lane :build_trending_movies do
+
+    setup_ci(
+      force: true
+    )
+
+    sync_code_signing(
+      type: "development",
+      readonly: true,
+      app_identifier: ["io.sentry.sample.TrendingMovies"]
+    )
+
     build_app(
       workspace: "Sentry.xcworkspace",
       scheme: "TrendingMovies",
-      xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
       skip_archive: true,
     )
@@ -151,7 +185,7 @@ platform :ios do
       issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
       key_content: ENV["APP_STORE_CONNECT_KEY"]
     )
-    
+
     testflight
 
     download_dsyms(
@@ -185,7 +219,7 @@ platform :ios do
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
-      device: options[:device], 
+      device: options[:device],
       address_sanitizer: options[:address_sanitizer]
     )
   end
@@ -195,6 +229,53 @@ platform :ios do
       workspace: "Sentry.xcworkspace",
       scheme: "tvOS-Swift"
     )
+  end
+
+  desc "Build Perf-test app without Sentry"
+  lane :build_perf_test_app_plain do
+
+    setup_ci
+
+    sync_code_signing(
+      type: "development",
+      readonly: true,
+      app_identifier: ["io.sentry.cocoa.perf-test-app-plain"]
+    )
+
+    build_app(
+      project: "Tests/Perf/test-app-plain/test-app-plain.xcodeproj",
+      scheme: "test-app-plain",
+      include_bitcode: false,
+      include_symbols: false,
+      export_method: "development",
+      output_directory: "Tests/Perf/",
+      output_name: "test-app-plain.ipa"
+    )
+
+    delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
+  end
+
+  desc "Build Perf-test app with Sentry"
+  lane :build_perf_test_app_sentry do
+    setup_ci
+
+    sync_code_signing(
+      type: "development",
+      readonly: true,
+      app_identifier: ["io.sentry.cocoa.perf-test-app-sentry"]
+    )
+
+    build_app(
+      project: "Tests/Perf/test-app-sentry/test-app-sentry.xcodeproj",
+      scheme: "test-app-sentry",
+      include_bitcode: false,
+      include_symbols: false,
+      export_method: "development",
+      output_directory: "Tests/Perf/",
+      output_name: "test-app-sentry.ipa"
+    )
+
+    delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
 
 end

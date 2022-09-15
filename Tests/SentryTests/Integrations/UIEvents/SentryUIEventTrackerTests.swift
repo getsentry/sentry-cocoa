@@ -232,7 +232,7 @@ class SentryUIEventTrackerTests: XCTestCase {
     }
     
     func test_IsUIEventOperation_Unknown() {
-        XCTAssertFalse(SentryUIEventTracker.isUIEventOperation("unkown"))
+        XCTAssertFalse(SentryUIEventTracker.isUIEventOperation("unknown"))
     }
         
     func callExecuteAction(action: String, target: Any?, sender: Any?, event: UIEvent?) {
@@ -243,14 +243,15 @@ class SentryUIEventTrackerTests: XCTestCase {
         return try! XCTUnwrap(Dynamic(sut).activeTransactions.asArray as? [SentryTracer])
     }
     
-    private func assertTransaction(name: String, operation: String) {
+    private func assertTransaction(name: String, operation: String, nameSource: SentryTransactionNameSource = .component) {
         let span = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
         
         let transactions = try! XCTUnwrap(Dynamic(sut).activeTransactions.asArray as? [SentryTracer])
         XCTAssertEqual(1, transactions.count)
         XCTAssertTrue(span === transactions.first)
         
-        XCTAssertEqual(name, span.name)
+        XCTAssertEqual(name, span.transactionContext.name)
+        XCTAssertEqual(nameSource, span.transactionContext.nameSource)
         XCTAssertEqual(operation, span.context.operation)
     }
     

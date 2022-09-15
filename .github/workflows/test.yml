@@ -13,6 +13,9 @@ on:
       - 'Samples/**'
       - '.github/workflows/test.yml'
       - 'fastlane/**'
+      - 'scripts/tests-with-thread-sanitizer.sh'
+      - 'scripts/ci-select-xcode.sh'
+      - 'scripts/xcode-test.sh'
 
 jobs:
   unit-tests:
@@ -23,20 +26,12 @@ jobs:
     strategy:      
       fail-fast: false
       matrix:
-        runs-on: [ macos-11 ]
-        
         # Can't run tests on watchOS because XCTest is not available  
-        platform: ["macOS", "Catalyst", "iOS", "tvOS"]
-        
         # We can't use Xcode 10.3 because our tests contain a reference to MacCatalyst,
         # which is only available since iOS 13 / Xcode 11.
         # We can't use Xcode 11.7 as we use XCTestObservation. When building with Xcode 11.7
         # we get the error 'XCTest/XCTest.h' not found. Setting ENABLE_TESTING_SEARCH_PATH=YES
-        # doesn't work.
-        
-        xcode: ["13.2.1", "12.5.1"]
-
-        test-destination-os: ["latest"]
+        # doesn't work. 
         
         include:
           # Test on iOS 12.4
@@ -51,6 +46,56 @@ jobs:
             xcode: "13.2.1"
             test-destination-os: "13.7"
 
+          # iOS 14
+          - runs-on: macos-11
+            platform: "iOS"
+            xcode: "12.5.1"
+            test-destination-os: "latest"
+
+          # iOS 15
+          - runs-on: macos-12
+            platform: "iOS"
+            xcode: "13.4.1"
+            test-destination-os: "latest"
+
+          # iOS 16
+          - runs-on: macos-12
+            platform: "iOS"
+            xcode: "14.0"
+            test-destination-os: "latest"
+
+          # macOS 11
+          - runs-on: macos-11
+            platform: "macOS"
+            xcode: "12.5.1"
+            test-destination-os: "latest"
+
+          # macOS 12
+          - runs-on: macos-12
+            platform: "macOS"
+            xcode: "13.4.1"
+            test-destination-os: "latest"
+
+          # Catalyst. We only test the latest version, as
+          # the risk something breaking on Catalyst and not
+          # on an older iOS or macOS version is low.
+          - runs-on: macos-12
+            platform: "Catalyst"
+            xcode: "13.4.1"
+            test-destination-os: "latest"
+
+          # tvOS 4
+          - runs-on: macos-11
+            platform: "tvOS"
+            xcode: "12.5.1"
+            test-destination-os: "latest"
+
+          # tvOS 15
+          - runs-on: macos-12
+            platform: "tvOS"
+            xcode: "13.4.1"
+            test-destination-os: "latest"
+
     steps:
       - uses: actions/checkout@v3
 
@@ -60,17 +105,21 @@ jobs:
       # macos-10.15. For now, disable the tests on iOS 12 requiring the test server in
       # xcode-test.sh
       - name: Cache for Test Server
-        if: ${{ matrix.runs-on == 'macos-11'}}  
+        id: cache_test_server
+        if: matrix.runs-on == 'macos-11' ||  matrix.runs-on == 'macos-12'
         uses: actions/cache@v3
         with:
           path: ./test-server/.build
-          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}-Xcode-${{matrix.xcode}}
+
+      - name: Build Test Server
+        if: steps.cache_test_server.outputs.cache-hit != 'true' && ( matrix.runs-on == 'macos-11' ||  matrix.runs-on == 'macos-12' )
+        run: swift build
+        working-directory: test-server
 
       - name: Run Test Server in Background
-        if: ${{ matrix.runs-on == 'macos-11'}}  
-        run: | 
-          swift build
-          swift run &
+        if: matrix.runs-on == 'macos-11' ||  matrix.runs-on == 'macos-12'
+        run: swift run &
         working-directory: test-server
 
       # Select Xcode after starting server, because the server needs Xcode 13
@@ -98,7 +147,7 @@ jobs:
         # passed to xcodebuild doesn't ends up in the job name, 
         # because GitHub Actions don't provide an easy way of 
         # manipulating string in expressions.  
-        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME
+        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} ${{matrix.xcode}} $GITHUB_REF_NAME
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@v3
@@ -131,7 +180,7 @@ jobs:
   # that adds a significant overhead.
   thread-sanitizer:
     name: Unit iOS - Thread Sanitizer
-    runs-on: macos-11 
+    runs-on: macos-12 
     # When there are threading issues the tests sometimes keep hanging
     timeout-minutes: 20
 
@@ -140,11 +189,13 @@ jobs:
 
       - name: Cache for Test Server
         uses: actions/cache@v3
+        id: cache_test_server
         with:
           path: ./test-server/.build
           key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
 
       - run: swift build
+        if: steps.cache_test_server.outputs.cache-hit != 'true'
         working-directory: test-server
 
       - name: Run Test Server in Background
@@ -164,7 +215,7 @@ jobs:
 
   ui-tests:
     name: UI Tests for ${{matrix.target}} on Simulators
-    runs-on: macos-11
+    runs-on: macos-12
     strategy:
       matrix:
         target: ["ios_swift", "ios_objc", "tvos_swift" ]
@@ -181,15 +232,17 @@ jobs:
   # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:
     name: UI Tests for SwiftUI on ${{matrix.device}} Simulator
-    runs-on: macos-11
+    runs-on: ${{matrix.runs-on}}
     strategy:
       fail-fast: false
       matrix:  
         include:
-          - xcode: "13.2.1"
+          - runs-on: macos-12
+            xcode: "13.4.1"
             device: "iPhone 8 (15.2)"
 
-          - xcode: "12.5.1"
+          - runs-on: macos-11
+            xcode: "12.5.1"
             device: "iPhone 8 (14.5)"
             
     steps:

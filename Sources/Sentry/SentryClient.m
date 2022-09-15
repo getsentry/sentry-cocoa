@@ -17,6 +17,8 @@
 #import "SentryException.h"
 #import "SentryFileManager.h"
 #import "SentryGlobalEventProcessor.h"
+#import "SentryHub+Private.h"
+#import "SentryHub.h"
 #import "SentryId.h"
 #import "SentryInAppLogic.h"
 #import "SentryInstallation.h"
@@ -57,7 +59,8 @@ SentryClient ()
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
 @property (nonatomic, strong) id<SentryRandom> random;
-@property (nonatomic, weak) id<SentryClientAttachmentProcessor> attachmentProcessor;
+@property (nonatomic, strong)
+    NSMutableArray<id<SentryClientAttachmentProcessor>> *attachmentProcessors;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryPermissionsObserver *permissionsObserver;
 @property (nonatomic, strong) NSLocale *locale;
@@ -66,6 +69,7 @@ SentryClient ()
 @end
 
 NSString *const DropSessionLogMessage = @"Session has no release name. Won't send it.";
+NSString *const kSentryDefaultEnvironment = @"production";
 
 @implementation SentryClient
 
@@ -140,6 +144,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
         self.locale = locale;
         self.timezone = timezone;
+        self.attachmentProcessors = [[NSMutableArray alloc] init];
     }
     return self;
 }
@@ -216,7 +221,16 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     SentryEvent *event = [[SentryEvent alloc] initWithError:error];
 
-    NSString *exceptionValue = [NSString stringWithFormat:@"Code: %ld", (long)error.code];
+    NSString *exceptionValue;
+
+    // If the error has a debug description, use that.
+    NSString *customExceptionValue = [[error userInfo] valueForKey:NSDebugDescriptionErrorKey];
+    if (customExceptionValue != nil) {
+        exceptionValue =
+            [NSString stringWithFormat:@"%@ (Code: %ld)", customExceptionValue, (long)error.code];
+    } else {
+        exceptionValue = [NSString stringWithFormat:@"Code: %ld", (long)error.code];
+    }
     SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
                                                                    type:error.domain];
 
@@ -333,9 +347,13 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         SentryTraceContext *traceContext = [self getTraceStateWithEvent:event withScope:scope];
 
         NSArray *attachments = scope.attachments;
-        if (self.attachmentProcessor)
-            attachments = [self.attachmentProcessor processAttachments:attachments
-                                                              forEvent:preparedEvent];
+        if (self.attachmentProcessors.count) {
+            for (id<SentryClientAttachmentProcessor> attachmentProcessor in self
+                     .attachmentProcessors) {
+                attachments = [attachmentProcessor processAttachments:attachments
+                                                             forEvent:preparedEvent];
+            }
+        }
 
         [self.transportAdapter sendEvent:preparedEvent
                             traceContext:traceContext
@@ -354,8 +372,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     if (nil != event) {
         NSArray *attachments = scope.attachments;
-        if (self.attachmentProcessor)
-            attachments = [self.attachmentProcessor processAttachments:attachments forEvent:event];
+        if (self.attachmentProcessors.count) {
+            for (id<SentryClientAttachmentProcessor> attachmentProcessor in self
+                     .attachmentProcessors) {
+                attachments = [attachmentProcessor processAttachments:attachments forEvent:event];
+            }
+        }
 
         if (nil == session.releaseName || [session.releaseName length] == 0) {
             SentryTraceContext *traceContext = [self getTraceStateWithEvent:event withScope:scope];
@@ -446,6 +468,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                           isCrashEvent:(BOOL)isCrashEvent
 {
     NSParameterAssert(event);
+    if (event == nil) {
+        return nil;
+    }
+
     if ([self isDisabled]) {
         [self logDisabledMessage];
         return nil;
@@ -524,7 +550,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // With scope applied, before running callbacks run:
     if (nil == event.environment) {
         // We default to environment 'production' if nothing was set
-        event.environment = @"production";
+        event.environment = kSentryDefaultEnvironment;
     }
 
     // Need to do this after the scope is applied cause this sets the user if there is any
@@ -607,7 +633,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     id integrations = event.extra[@"__sentry_sdk_integrations"];
     if (!integrations) {
         integrations = [NSMutableArray new];
-        for (NSString *integration in self.options.enabledIntegrations) {
+        for (NSString *integration in SentrySDK.currentHub.installedIntegrationNames) {
             // Every integration starts with "Sentry" and ends with "Integration". To keep the
             // payload of the event small we remove both.
             NSString *withoutSentry = [integration stringByReplacingOccurrencesOfString:@"Sentry"
@@ -678,9 +704,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                           @"location_access" :
                               [self stringForPermissionStatus:self.permissionsObserver
                                                                   .locationPermissionStatus],
-                          @"media_library" :
-                              [self stringForPermissionStatus:self.permissionsObserver
-                                                                  .mediaLibraryPermissionStatus],
                           @"photo_library" :
                               [self stringForPermissionStatus:self.permissionsObserver
                                                                   .photoLibraryPermissionStatus],
@@ -714,14 +737,23 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self modifyContext:event
                     key:@"culture"
                   block:^(NSMutableDictionary *culture) {
-                      if (@available(iOS 10, macOS 10.12, watchOS 3, tvOS 10, macCatalyst 13, *)) {
+#if TARGET_OS_MACCATALYST
+                      if (@available(macCatalyst 13, *)) {
                           culture[@"calendar"] = [self.locale
                               localizedStringForCalendarIdentifier:self.locale.calendarIdentifier];
                           culture[@"display_name"] = [self.locale
                               localizedStringForLocaleIdentifier:self.locale.localeIdentifier];
                       }
+#else
+            if (@available(iOS 10, macOS 10.12, watchOS 3, tvOS 10, *)) {
+                culture[@"calendar"] = [self.locale
+                    localizedStringForCalendarIdentifier:self.locale.calendarIdentifier];
+                culture[@"display_name"] =
+                    [self.locale localizedStringForLocaleIdentifier:self.locale.localeIdentifier];
+            }
+#endif
                       culture[@"locale"] = self.locale.localeIdentifier;
-                      culture[@"is_24_hour_format"] = @(self.locale.timeIs24HourFormat);
+                      culture[@"is_24_hour_format"] = @(self.locale.sentry_timeIs24HourFormat);
                       culture[@"timezone"] = self.timezone.name;
                   }];
 }
@@ -780,6 +812,16 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     } else {
         [self recordLostEvent:kSentryDataCategoryTransaction reason:reason];
     }
+}
+
+- (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor
+{
+    [self.attachmentProcessors addObject:attachmentProcessor];
+}
+
+- (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor
+{
+    [self.attachmentProcessors removeObject:attachmentProcessor];
 }
 
 @end

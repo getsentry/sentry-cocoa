@@ -163,6 +163,7 @@ NS_ASSUME_NONNULL_BEGIN
     SentryEnvelopeHeader *envelopeHeader = nil;
     const unsigned char *bytes = [data bytes];
     int envelopeHeaderIndex = 0;
+
     for (int i = 0; i < data.length; ++i) {
         if (bytes[i] == '\n') {
             envelopeHeaderIndex = i;
@@ -208,12 +209,19 @@ NS_ASSUME_NONNULL_BEGIN
             break;
         }
     }
+
     if (nil == envelopeHeader) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Invalid envelope. No header found."]
                          andLevel:kSentryLevelError];
         return nil;
     }
+
     NSAssert(envelopeHeaderIndex > 0, @"EnvelopeHeader was parsed, its index is expected.");
+    if (envelopeHeaderIndex == 0) {
+        NSLog(@"EnvelopeHeader was parsed, its index is expected.");
+        return nil;
+    }
+
     // Parse items
     NSInteger itemHeaderStart = envelopeHeaderIndex + 1;
 
@@ -375,7 +383,7 @@ NS_ASSUME_NONNULL_BEGIN
         return kSentryLevelError;
     }
 
-    return [SentryLevelMapper levelWithString:eventDictionary[@"level"]];
+    return sentryLevelForString(eventDictionary[@"level"]);
 }
 
 @end
