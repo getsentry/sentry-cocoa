@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Network request sentry-trace propagation incorrectly assign (#2167)
+
 ## 7.25.1
 
 ### Fixes
