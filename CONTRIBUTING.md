@@ -51,6 +51,10 @@ Test can either be ran inside from Xcode or via
 make test
 ```
 
+### Flaky tests
+
+If you see a test being flaky, you should ideally fix it immediately. If that's not feasible, you can disable the test in the test scheme, add a suffix _disabled to the test, so it's clear when looking at the test that it is disabled, and create a GH issue with the label flaky test. Disabling the test in the scheme has the advantage that the test report will state "X tests passed, Y tests failed, Z tests skipped".
+
 ## Code Formatting
 Please follow the convention of removing the copyright code comments at the top of files. We only keep them inside [SentryCrash](/SentryCrash/),
 as the code is based on [KSCrash](https://github.com/kstenerud/KSCrash).
