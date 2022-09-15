@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Solve the "Double-quoted include" warnings (#2051)
+
 ## 7.25.1
 
 ### Fixes
@@ -69,10 +75,6 @@
 - Use a prime number for the profiler's sampling rate to reduce the potential for [lock-step](https://stackoverflow.com/a/45471031) issues (#2055).
 - Improve App Hangs detection (#2100)
 - Send `environment` set from `SentryOptions` or `configureScope` with profiling data (#2095)
-
-### Fixes
-
-- Solve the "Double-quoted include" warnings (#2051)
 
 ## 7.23.0
 
