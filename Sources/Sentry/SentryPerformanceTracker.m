@@ -51,7 +51,9 @@ SentryPerformanceTracker () <SentryTracerDelegate>
         newSpan = [activeSpan startChildWithOperation:operation description:name];
     } else {
         SentryTransactionContext *context =
-            [[SentryTransactionContext alloc] initWithName:name operation:operation];
+            [[SentryTransactionContext alloc] initWithName:name
+                                                nameSource:kSentryTransactionNameSourceComponent
+                                                 operation:operation];
 
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> span) {
             BOOL bindToScope = true;
