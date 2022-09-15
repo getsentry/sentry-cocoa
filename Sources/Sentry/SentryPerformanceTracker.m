@@ -41,6 +41,15 @@ SentryPerformanceTracker () <SentryTracerDelegate>
 
 - (SentrySpanId *)startSpanWithName:(NSString *)name operation:(NSString *)operation
 {
+    return [self startSpanWithName:name
+                        nameSource:kSentryTransactionNameSourceCustom
+                         operation:operation];
+}
+
+- (SentrySpanId *)startSpanWithName:(NSString *)name
+                         nameSource:(SentryTransactionNameSource)source
+                          operation:(NSString *)operation
+{
     id<SentrySpan> activeSpan;
     @synchronized(self.activeSpanStack) {
         activeSpan = [self.activeSpanStack lastObject];
@@ -52,7 +61,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
     } else {
         SentryTransactionContext *context =
             [[SentryTransactionContext alloc] initWithName:name
-                                                nameSource:kSentryTransactionNameSourceComponent
+                                                nameSource:source
                                                  operation:operation];
 
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> span) {
@@ -95,6 +104,17 @@ SentryPerformanceTracker () <SentryTracerDelegate>
                          operation:(NSString *)operation
                            inBlock:(void (^)(void))block
 {
+    [self measureSpanWithDescription:description
+                          nameSource:kSentryTransactionNameSourceCustom
+                           operation:operation
+                             inBlock:block];
+}
+
+- (void)measureSpanWithDescription:(NSString *)description
+                        nameSource:(SentryTransactionNameSource)source
+                         operation:(NSString *)operation
+                           inBlock:(void (^)(void))block
+{
     SentrySpanId *spanId = [self startSpanWithName:description operation:operation];
     [self pushActiveSpan:spanId];
     block();
@@ -103,6 +123,19 @@ SentryPerformanceTracker () <SentryTracerDelegate>
 }
 
 - (void)measureSpanWithDescription:(NSString *)description
+                         operation:(NSString *)operation
+                      parentSpanId:(SentrySpanId *)parentSpanId
+                           inBlock:(void (^)(void))block
+{
+    [self measureSpanWithDescription:description
+                          nameSource:kSentryTransactionNameSourceCustom
+                           operation:operation
+                        parentSpanId:parentSpanId
+                             inBlock:block];
+}
+
+- (void)measureSpanWithDescription:(NSString *)description
+                        nameSource:(SentryTransactionNameSource)source
                          operation:(NSString *)operation
                       parentSpanId:(SentrySpanId *)parentSpanId
                            inBlock:(void (^)(void))block
