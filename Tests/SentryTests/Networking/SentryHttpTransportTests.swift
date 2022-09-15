@@ -627,7 +627,7 @@ class SentryHttpTransportTests: XCTestCase {
         fixture.requestManager.responseDelay = fixture.flushTimeout + 0.2
         
         let beforeFlush = getAbsoluteTime()
-        let success = sut.flush(timeout: fixture.flushTimeout)
+        let success = sut.flush(fixture.flushTimeout)
         let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
         
         XCTAssertGreaterThan(blockingDuration, fixture.flushTimeout)
@@ -650,8 +650,8 @@ class SentryHttpTransportTests: XCTestCase {
         givenCachedEvents()
         
         let beforeFlush = getAbsoluteTime()
-        XCTAssertTrue(sut.flush(timeout: fixture.flushTimeout), "Flush should not time out.")
-        XCTAssertTrue(sut.flush(timeout: fixture.flushTimeout), "Flush should not time out.")
+        XCTAssertTrue(sut.flush(fixture.flushTimeout), "Flush should not time out.")
+        XCTAssertTrue(sut.flush(fixture.flushTimeout), "Flush should not time out.")
         let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
         
         XCTAssertLessThan(blockingDuration, 0.1)
@@ -688,7 +688,7 @@ class SentryHttpTransportTests: XCTestCase {
             group.enter()
             queue.async {
                 let beforeFlush = getAbsoluteTime()
-                let result = self.sut.flush(timeout: self.fixture.flushTimeout)
+                let result = self.sut.flush(self.fixture.flushTimeout)
                 let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
                 
                 queue.async(flags: .barrier) {
@@ -825,7 +825,7 @@ class SentryHttpTransportTests: XCTestCase {
     
     private func assertFlushBlocksAndFinishesSuccessfully() {
         let beforeFlush = getAbsoluteTime()
-        XCTAssertTrue(sut.flush(timeout: fixture.flushTimeout), "Flush should not time out.")
+        XCTAssertTrue(sut.flush(fixture.flushTimeout), "Flush should not time out.")
         let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
         XCTAssertLessThan(blockingDuration, 0.1)
     }

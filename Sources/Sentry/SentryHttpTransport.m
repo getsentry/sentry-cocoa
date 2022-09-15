@@ -129,13 +129,11 @@ SentryHttpTransport ()
 {
     @synchronized(self) {
         if (_isFlushing) {
-            [SentryLog logWithMessage:@"SentryHttpTransport: Already flushing."
-                             andLevel:kSentryLevelDebug];
+            SENTRY_LOG_DEBUG(@"SentryHttpTransport: Already flushing.");
             return NO;
         }
 
-        [SentryLog logWithMessage:@"SentryHttpTransport: Start flushing."
-                         andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"SentryHttpTransport: Start flushing.");
 
         _isFlushing = YES;
         dispatch_group_enter(self.dispatchGroup);
@@ -153,12 +151,10 @@ SentryHttpTransport ()
     }
 
     if (result == 0) {
-        [SentryLog logWithMessage:@"SentryHttpTransport: Finished flushing."
-                         andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"SentryHttpTransport: Finished flushing.");
         return YES;
     } else {
-        [SentryLog logWithMessage:@"SentryHttpTransport: Flushing timed out."
-                         andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"SentryHttpTransport: Flushing timed out.");
         return NO;
     }
 }
@@ -292,12 +288,11 @@ SentryHttpTransport ()
 
 - (void)finishedSending
 {
-    [SentryLog logWithMessage:@"SentryHttpTransport: Finished sending." andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(@"SentryHttpTransport: Finished sending.");
     @synchronized(self) {
         self.isSending = NO;
         if (self.isFlushing) {
-            [SentryLog logWithMessage:@"SentryHttpTransport: Stop flushing."
-                             andLevel:kSentryLevelDebug];
+            SENTRY_LOG_DEBUG(@"SentryHttpTransport: Stop flushing.");
             self.isFlushing = NO;
             dispatch_group_leave(self.dispatchGroup);
         }

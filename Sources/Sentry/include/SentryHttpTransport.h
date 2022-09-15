@@ -6,8 +6,7 @@
 #import "SentryTransport.h"
 #import <Foundation/Foundation.h>
 
-@class SentryOptions, SentryDispatchQueueWrapper, SentryDispatchGroupWrapper,
-    SentryNSURLRequestBuilder;
+@class SentryOptions, SentryDispatchQueueWrapper, SentryNSURLRequestBuilder;
 
 NS_ASSUME_NONNULL_BEGIN
 
