@@ -13,8 +13,9 @@ public class TestTransport: NSObject, Transport {
         recordLostEvents.record((category, reason))
     }
     
+    var flushInvocations = Invocations<TimeInterval>()
     public func flush(timeout: TimeInterval) -> Bool {
+        flushInvocations.record(timeout)
         return true
     }
-    
 }

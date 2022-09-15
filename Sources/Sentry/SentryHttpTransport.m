@@ -145,9 +145,8 @@ SentryHttpTransport ()
 
     [self sendAllCachedEnvelopes];
 
-    dispatch_time_t now = [SentryCurrentDate dispatchTimeNow];
-    dispatch_time_t delta = (int64_t)(timeout * NSEC_PER_SEC);
-    dispatch_time_t dispatchTimeout = dispatch_time(now, delta);
+    dispatch_time_t delta = (int64_t)(timeout * (NSTimeInterval)NSEC_PER_SEC);
+    dispatch_time_t dispatchTimeout = dispatch_time(DISPATCH_TIME_NOW, delta);
 
     intptr_t result = [self.dispatchGroup waitWithTimeout:dispatchTimeout];
 

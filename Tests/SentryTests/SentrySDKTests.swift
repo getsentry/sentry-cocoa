@@ -482,6 +482,46 @@ class SentrySDKTests: XCTestCase {
         XCTAssertNotEqual(first, second)
     }
     
+    func testFlush_CallsFlushCorrectlyOnTransport() {
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+        }
+        
+        let transport = TestTransport()
+        let client = Client(options: fixture.options)
+        Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
+        SentrySDK.currentHub().bindClient(client)
+        
+        let flushTimeout = 10.0
+        SentrySDK.flush(timeout: flushTimeout)
+        
+        XCTAssertEqual(flushTimeout, transport.flushInvocations.first)
+    }
+    
+    func testFlush_BlocksCallingThread() {
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+        }
+        
+        var isFlushing = true
+        let queue = DispatchQueue(label: "SentrySDKTests")
+        queue.async {
+            while isFlushing {
+                SentrySDK.capture(message: "FlushTest")
+            }
+        }
+        
+        let flushTimeout = 0.5
+        
+        let beforeFlush = getAbsoluteTime()
+        SentrySDK.flush(timeout: flushTimeout)
+        isFlushing = false
+        let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+        
+        XCTAssertGreaterThan(blockingDuration, flushTimeout)
+        XCTAssertLessThan(blockingDuration, flushTimeout + 0.2)
+    }
+    
     // Altough we only run this test above the below specified versions, we exped the
     // implementation to be thread safe
     @available(tvOS 10.0, *)
