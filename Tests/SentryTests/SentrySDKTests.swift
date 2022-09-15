@@ -498,28 +498,36 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(flushTimeout, transport.flushInvocations.first)
     }
     
+    @available(tvOS 10.0, *)
+    @available(OSX 10.12, *)
+    @available(iOS 10.0, *)
     func testFlush_BlocksCallingThread() {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
         }
         
-        var isFlushing = true
-        let queue = DispatchQueue(label: "SentrySDKTests")
-        queue.async {
-            while isFlushing {
-                SentrySDK.capture(message: "FlushTest")
-            }
-        }
-        
         let flushTimeout = 0.5
         
+        // Set test request manager for a fixed delay
+        let requestManager = TestRequestManager(session: URLSession(configuration: URLSessionConfiguration.default))
+        requestManager.returnResponse(response: HTTPURLResponse())
+        requestManager.responseDelay = 10.0
+        let client = SentrySDK.currentHub().client()
+        let transportAdapter = Dynamic(client).transportAdapter as SentryTransportAdapter?
+        let transport = Dynamic(transportAdapter).transport as SentryHttpTransport?
+        Dynamic(transport).setRequestManager(requestManager)
+        
+        for _ in 0..<10 {
+            SentrySDK.capture(message: "FlushTest")
+        }
+    
         let beforeFlush = getAbsoluteTime()
         SentrySDK.flush(timeout: flushTimeout)
-        isFlushing = false
         let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
         
-        XCTAssertGreaterThan(blockingDuration, flushTimeout)
-        XCTAssertLessThan(blockingDuration, flushTimeout + 0.2)
+        let delta = 0.2
+        XCTAssertGreaterThan(blockingDuration, flushTimeout - delta)
+        XCTAssertLessThan(blockingDuration, flushTimeout + delta)
     }
     
     // Altough we only run this test above the below specified versions, we exped the
