@@ -81,8 +81,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
             self.spans[spanId] = newSpan;
         }
     } else {
-        [SentryLog logWithMessage:@"startSpanWithName:operation: spanId is nil."
-                         andLevel:kSentryLevelError];
+        SENTRY_LOG_ERROR(@"startSpanWithName:operation: spanId is nil.");
         return [SentrySpanId empty];
     }
 

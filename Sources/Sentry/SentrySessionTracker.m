@@ -61,9 +61,7 @@ SentrySessionTracker ()
     NSNotificationName willResignActiveNotificationName = NSApplicationWillResignActiveNotification;
     NSNotificationName willTerminateNotificationName = NSApplicationWillTerminateNotification;
 #else
-    [SentryLog logWithMessage:@"NO UIKit -> SentrySessionTracker will not "
-                              @"track sessions automatically."
-                     andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(@"NO UIKit -> SentrySessionTracker will not track sessions automatically.");
 #endif
 
 #if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST
