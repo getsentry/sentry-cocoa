@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Sentry-trace header incorrectly assign in http requests (#2167)
+- Sentry-trace header incorrectly assigned to http requests (#2167)
 
 ## 7.25.1
 
