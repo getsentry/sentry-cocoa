@@ -92,6 +92,42 @@ class SentryProfilerSwiftTests: XCTestCase {
         self.assertValidProfileData(data: profileItem.data, numberOfTransactions: numberOfTransactions)
     }
 
+    func testConcurrentSpansWithTimeout() {
+        let options = fixture.options
+        options.profilesSampleRate = 1.0
+        options.tracesSampleRate = 1.0
+
+        let expA = expectation(description: "Span A finishes")
+        let spanA = fixture.hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 40) {
+            spanA.finish()
+            expA.fulfill()
+        }
+
+        let expB = expectation(description: "Span B finishes")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 35) {
+            let spanB = self.fixture.hub.startTransaction(name: self.fixture.transactionName, operation: self.fixture.transactionOperation)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                spanB.finish()
+                expB.fulfill()
+            }
+        }
+
+        waitForExpectations(timeout: 45)
+
+        guard let envelope = self.fixture.client.captureEnvelopeInvocations.first else {
+            XCTFail("Expected to capture at least 1 event")
+            return
+        }
+        XCTAssertEqual(1, envelope.items.count)
+        guard let profileItem = envelope.items.first else {
+            XCTFail("Expected at least 1 additional envelope item")
+            return
+        }
+        XCTAssertEqual("profile", profileItem.header.type)
+        self.assertValidProfileData(data: profileItem.data)
+    }
+
     func testProfileTimeout() {
         fixture.options.profilesSampleRate = 1.0
         fixture.options.tracesSampleRate = 1.0

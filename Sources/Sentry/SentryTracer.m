@@ -436,11 +436,12 @@ static NSTimer *_gProfilerTimeoutTimer;
 
 #if SENTRY_HAS_UIKIT
 /** Initialize profiling for the current tracer with a frame renderer tracker for UIKit. */
-- (void)initializeProfilerForTracerWithFramesTracker:(SentryFramesTracker *)framesTracker {
+- (void)initializeProfilerForTracerWithFramesTracker:(SentryFramesTracker *)framesTracker
 #else
 /** Initialize profiling for the current tracer. */
-- (void)initializeProfilerForTracer {
+- (void)initializeProfilerForTracer
 #endif
+    {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
             [_gProfilerLock lock];
