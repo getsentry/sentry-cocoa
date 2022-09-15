@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Use the component name source for SentryPerformanceTracke (#2168)
+- Use the `component` name source for SentryPerformanceTracker (#2168)
 
 ## 7.25.1
 
