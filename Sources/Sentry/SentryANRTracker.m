@@ -52,8 +52,8 @@ SentryANRTracker ()
     __block NSInteger ticksSinceUiUpdate = 0;
     __block BOOL reported = NO;
 
-    NSInteger reportTreshold = 5;
-    NSTimeInterval sleepInterval = self.timeoutInterval / reportTreshold;
+    NSInteger reportThreshold = 5;
+    NSTimeInterval sleepInterval = self.timeoutInterval / reportThreshold;
 
     while (![self.thread isCancelled]) {
         NSDate *blockDeadline =
@@ -86,7 +86,7 @@ SentryANRTracker ()
             continue;
         }
 
-        if (ticksSinceUiUpdate >= reportTreshold && !reported) {
+        if (ticksSinceUiUpdate >= reportThreshold && !reported) {
             reported = YES;
 
             if (![self.crashWrapper isApplicationInForeground]) {
