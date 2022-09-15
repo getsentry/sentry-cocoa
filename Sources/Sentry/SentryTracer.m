@@ -46,10 +46,6 @@ SentryTracer ()
 @property (nonatomic) NSTimeInterval idleTimeout;
 @property (nonatomic, nullable, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-@property (nonatomic, assign, readwrite) BOOL isProfiling;
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
 @end
 
 @implementation SentryTracer {
@@ -838,16 +834,6 @@ static NSTimer *_gProfilerTimeoutTimer;
     }
     return nil;
 }
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-- (BOOL)isProfiling
-{
-    [_gProfilerLock lock];
-    BOOL isRunning = _gProfiler.isRunning;
-    [_gProfilerLock unlock];
-    return isRunning;
-}
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
 
