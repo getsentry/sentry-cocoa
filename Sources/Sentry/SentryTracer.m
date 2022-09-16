@@ -166,9 +166,11 @@ static BOOL appStartMeasurementRead;
         }
 #endif // SENTRY_HAS_UIKIT
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
         if (profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
             [SentryProfiler startForSpanID:transactionContext.spanId];
         }
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
 
     return self;
@@ -458,12 +460,16 @@ static BOOL appStartMeasurementRead;
         }
     }
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
     [SentryProfiler maybeStopProfilerForSpanID:self.rootSpan.context.spanId
                                         reason:SentryProfilerTruncationReasonNormal];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     SentryTransaction *transaction = [self toTransaction];
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
     [SentryProfiler captureProfilingEnvelopeIfFinishedAfterTransaction:transaction hub:_hub];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     // Prewarming can execute code up to viewDidLoad of a UIViewController, and keep the app in the
     // background. This can lead to auto-generated transactions lasting for minutes or event hours.
