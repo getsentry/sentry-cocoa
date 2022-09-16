@@ -4,33 +4,11 @@ platform :ios do
   ios_swift_infoplist_path = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
   ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
 
-  lane :bump_bundle_version do
-    set_info_plist_value(
-      path: ios_swift_infoplist_path,
-      key: "CFBundleVersion",
-      value: ENV["FASTLANE_BUNDLE_VERSION"]
+  lane :bump_build_number do
+    increment_build_number(
+      build_number: ENV["FASTLANE_BUILD_NUMBER"],
+      xcodeproj: "./Samples/iOS-Swift/iOS-Swift.xcodeproj"
     )
-    set_info_plist_value(
-      path: ios_swift_clip_infoplist_path,
-      key: "CFBundleVersion",
-      value: ENV["FASTLANE_BUNDLE_VERSION"]
-    )
-
-    putBundleVersions
-  end
-
-  lane :putBundleVersions do
-    swift_bundle_version = get_info_plist_value(
-      path: ios_swift_infoplist_path,
-      key: "CFBundleVersion"
-    )
-    puts("iOS-Swift CFBundleVersion: " + swift_bundle_version)
-
-    swift_clip_bundle_version = get_info_plist_value(
-      path: ios_swift_clip_infoplist_path,
-      key: "CFBundleVersion"
-    )
-    puts("SwiftClip CFBundleVersion: " + swift_clip_bundle_version)
   end
 
   # The version for all Info.plist must be a period-separated list of at most three non-negative integers
@@ -64,8 +42,6 @@ platform :ios do
       key: "CFBundleVersion",
       value: version
     )
-
-    putBundleVersions
   end
 
   desc "Build iOS-Swift with Release"

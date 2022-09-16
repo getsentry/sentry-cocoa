@@ -22,11 +22,11 @@ jobs:
       - run: bundle install
 
       # We upload a new version to TestFlight on every commit on Master
-      # So we need to bump the bundle version each time
-      - name: Bump Bundle Version
+      # So we need to bump the build number each time
+      - name: Bump Build Version
         env: 
-          FASTLANE_BUNDLE_VERSION: ${{ github.run_number }}
-        run: bundle exec fastlane bump_bundle_version
+          FASTLANE_BUILD_NUMBER: ${{ github.run_number }}
+        run: bundle exec fastlane bump_build_number
 
       - name: Remove preview version suffixes
         run: bundle exec fastlane remove_preview_version_suffixes
