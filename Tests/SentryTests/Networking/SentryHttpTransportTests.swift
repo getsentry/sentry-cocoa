@@ -1,7 +1,7 @@
 import Sentry
 import XCTest
 
-// Altough we only run this test above the below specified versions, we exped the
+// Although we only run this test above the below specified versions, we expect the
 // implementation to be thread safe
 @available(tvOS 10.0, *)
 @available(OSX 10.12, *)

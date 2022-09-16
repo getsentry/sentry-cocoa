@@ -771,7 +771,7 @@ static NSLock *profilerLock;
 /**
  * Internal. Only needed for testing.
  */
-+ (void)resetAppStartMeasurmentRead
++ (void)resetAppStartMeasurementRead
 {
     @synchronized(appStartMeasurementLock) {
         appStartMeasurementRead = NO;
