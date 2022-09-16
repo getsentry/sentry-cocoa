@@ -1,4 +1,3 @@
-#import "SentryDefines.h"
 #import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
 
