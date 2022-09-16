@@ -163,7 +163,9 @@ SentryProfiler *_Nullable _gCurrentProfiler;
 
     if (_gCurrentProfiler == nil) {
         _gCurrentProfiler = [[SentryProfiler alloc] init];
+#if SENTRY_HAS_UIKIT
         [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
+#endif // SENTRY_HAS_UIKIT
         [_gCurrentProfiler start];
         _gCurrentProfiler->_timeoutTimer = [NSTimer
             scheduledTimerWithTimeInterval:30
