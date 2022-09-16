@@ -95,6 +95,11 @@ class SentryTracerTests: XCTestCase {
         SentryFramesTracker.sharedInstance().stop()
 #endif
     }
+
+    /// Only added to trip the unit test CI trigger.
+    func testSuccess() {
+        XCTAssertTrue(true)
+    }
     
     func testFinish_WithChildren_WaitsForAllChildren() {
         let sut = fixture.getSut()
