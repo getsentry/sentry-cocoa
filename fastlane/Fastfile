@@ -16,11 +16,20 @@ platform :ios do
       value: ENV["FASTLANE_BUNDLE_VERSION"]
     )
 
+    putBundleVersions
+  end
+
+  lane :putBundleVersions do
+    swift_bundle_version = get_info_plist_value(
+      path: ios_swift_infoplist_path,
+      key: "CFBundleVersion"
+    )
+    puts("iOS-Swift CFBundleVersion: " + swift_bundle_version)
+
     swift_clip_bundle_version = get_info_plist_value(
       path: ios_swift_clip_infoplist_path,
       key: "CFBundleVersion"
     )
-
     puts("SwiftClip CFBundleVersion: " + swift_clip_bundle_version)
   end
 
@@ -55,6 +64,8 @@ platform :ios do
       key: "CFBundleVersion",
       value: version
     )
+
+    putBundleVersions
   end
 
   desc "Build iOS-Swift with Release"
