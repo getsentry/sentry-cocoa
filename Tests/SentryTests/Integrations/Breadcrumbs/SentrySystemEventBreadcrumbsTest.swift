@@ -252,7 +252,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         }
     }
 
-    func testTimezoneChangeNoticiationBreadcrumb() {
+    func testTimezoneChangeNotificationBreadcrumb() {
         let scope = Scope()
         sut = fixture.getSut(scope: scope, currentDevice: nil)
 

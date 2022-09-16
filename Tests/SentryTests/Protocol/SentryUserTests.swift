@@ -84,7 +84,7 @@ class SentryUserTests: XCTestCase {
         XCTAssertEqual(TestData.user, copiedUser)
     }
     
-    // Altough we only run this test above the below specified versions, we exped the
+    // Although we only run this test above the below specified versions, we expect the
     // implementation to be thread safe
     // With this test we test if modifications from multiple threads don't lead to a crash.
     @available(tvOS 10.0, *)

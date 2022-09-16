@@ -29,7 +29,7 @@ NS_SWIFT_NAME(Event)
 @property (nonatomic, copy) NSError *_Nullable error;
 
 /**
- * NSDate of when the event occured
+ * NSDate of when the event occurred
  */
 @property (nonatomic, strong) NSDate *_Nullable timestamp;
 
