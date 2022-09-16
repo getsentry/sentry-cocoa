@@ -24,7 +24,8 @@ SentrySpan ()
 - (instancetype)initWithTracer:(SentryTracer *)tracer context:(SentrySpanContext *)context
 {
     if (self = [super init]) {
-        SENTRY_LOG_DEBUG(@"Starting span %@ with tracer %@", context.spanId.sentrySpanIdString, tracer);
+        SENTRY_LOG_DEBUG(
+            @"Starting span %@ with tracer %@", context.spanId.sentrySpanIdString, tracer);
         _tracer = tracer;
         _context = context;
         self.startTimestamp = [SentryCurrentDate date];

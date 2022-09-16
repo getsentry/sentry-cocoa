@@ -1,5 +1,5 @@
-import XCTest
 import Sentry
+import XCTest
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 class SentryProfilerSwiftTests: XCTestCase {

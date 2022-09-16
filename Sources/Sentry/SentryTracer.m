@@ -458,7 +458,8 @@ static BOOL appStartMeasurementRead;
         }
     }
 
-    [SentryProfiler maybeStopProfilerForSpanID:self.rootSpan.context.spanId reason:SentryProfilerTruncationReasonNormal];
+    [SentryProfiler maybeStopProfilerForSpanID:self.rootSpan.context.spanId
+                                        reason:SentryProfilerTruncationReasonNormal];
 
     SentryTransaction *transaction = [self toTransaction];
 

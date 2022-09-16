@@ -1,14 +1,14 @@
-#import "SentryProfilingConditionals.h"
 #import "SentryDefines.h"
+#import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryCompiler.h"
 
-#if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT
 @class SentryFramesTracker;
-#endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT
 @class SentryHub;
 @class SentryProfilesSamplerDecision;
 @class SentryScreenFrames;
@@ -47,19 +47,23 @@ SENTRY_EXTERN_C_END
 @interface SentryProfiler : NSObject
 
 /**
- * Start the profiler, if it isn't already running, for the span with the provided ID. If it's already running, it will track the new span as well.
+ * Start the profiler, if it isn't already running, for the span with the provided ID. If it's
+ * already running, it will track the new span as well.
  */
 + (void)startForSpanID:(SentrySpanId *)spanID;
 
 /**
  * Stop the profiler, if appropriate, depending on the reason provided.
  */
-+ (void)maybeStopProfilerForSpanID:(nullable SentrySpanId *)spanID reason:(SentryProfilerTruncationReason)reason;
++ (void)maybeStopProfilerForSpanID:(nullable SentrySpanId *)spanID
+                            reason:(SentryProfilerTruncationReason)reason;
 
 /**
- * If the provided transaction is the last needed for the profile, package its information and capture in an envelope.
+ * If the provided transaction is the last needed for the profile, package its information and
+ * capture in an envelope.
  */
-+ (void)captureProfilingEnvelopeIfFinishedAfterTransaction:(SentryTransaction *)transaction hub:(SentryHub *)hub;
++ (void)captureProfilingEnvelopeIfFinishedAfterTransaction:(SentryTransaction *)transaction
+                                                       hub:(SentryHub *)hub;
 
 + (BOOL)isRunning;
 
