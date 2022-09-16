@@ -203,8 +203,7 @@ NSURLSessionTask ()
     [netSpan setDataValue:@"fetch" forKey:@"type"];
 
     [netSpan finishWithStatus:[self statusForSessionTask:sessionTask state:newState]];
-    [SentryLog logWithMessage:@"SentryNetworkTracker finished HTTP span for sessionTask"
-                     andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(@"SentryNetworkTracker finished HTTP span for sessionTask");
 }
 
 - (void)addBreadcrumbForSessionTask:(NSURLSessionTask *)sessionTask

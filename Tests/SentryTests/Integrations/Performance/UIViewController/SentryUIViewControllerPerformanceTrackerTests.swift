@@ -113,7 +113,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             callbackExpectation.fulfill()
         }
         XCTAssertEqual((transactionSpan as! SentryTracer?)!.transactionContext.name, fixture.viewControllerName)
-        XCTAssertEqual((transactionSpan as! SentryTracer?)!.transactionContext.nameSource, .custom)
+        XCTAssertEqual((transactionSpan as! SentryTracer?)!.transactionContext.nameSource, .component)
         XCTAssertFalse(transactionSpan.isFinished)
 
         sut.viewControllerViewDidLoad(viewController) {
