@@ -2,7 +2,7 @@
 
 ## 7.25.1
 
-### Fixes
+### Performance Improvements
 
 - Prewarmed app start detection (#2151)
 
