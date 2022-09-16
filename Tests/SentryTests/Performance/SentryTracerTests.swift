@@ -83,13 +83,13 @@ class SentryTracerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        SentryTracer.resetAppStartMeasurmentRead()
+        SentryTracer.resetAppStartMeasurementRead()
     }
     
     override func tearDown() {
         super.tearDown()
         clearTestState()
-        SentryTracer.resetAppStartMeasurmentRead()
+        SentryTracer.resetAppStartMeasurementRead()
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         SentryFramesTracker.sharedInstance().resetFrames()
         SentryFramesTracker.sharedInstance().stop()
@@ -697,7 +697,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertNil(SentrySDK.getAppStartMeasurement())
     }
     
-    func testNegativeFramesAmount_NoMeasurmentAdded() {
+    func testNegativeFramesAmount_NoMeasurementAdded() {
         fixture.displayLinkWrapper.givenFrames(10, 10, 10)
         
         let sut = fixture.getSut()

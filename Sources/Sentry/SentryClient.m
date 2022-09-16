@@ -89,7 +89,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
                             andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
                                              error:&error];
     if (nil != error) {
-        [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLevelError];
+        SENTRY_LOG_ERROR(@"%@", error.localizedDescription);
         return nil;
     }
 
@@ -382,7 +382,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         if (nil == session.releaseName || [session.releaseName length] == 0) {
             SentryTraceContext *traceContext = [self getTraceStateWithEvent:event withScope:scope];
 
-            [SentryLog logWithMessage:DropSessionLogMessage andLevel:kSentryLevelDebug];
+            SENTRY_LOG_DEBUG(DropSessionLogMessage);
 
             [self.transportAdapter sendEvent:event
                                 traceContext:traceContext
@@ -402,7 +402,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 - (void)captureSession:(SentrySession *)session
 {
     if (nil == session.releaseName || [session.releaseName length] == 0) {
-        [SentryLog logWithMessage:DropSessionLogMessage andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(DropSessionLogMessage);
         return;
     }
 
@@ -434,8 +434,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     }
 
     if ([SentryId.empty isEqual:userFeedback.eventId]) {
-        [SentryLog logWithMessage:@"Capturing UserFeedback with an empty event id. Won't send it."
-                         andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"Capturing UserFeedback with an empty event id. Won't send it.");
         return;
     }
 
@@ -482,8 +481,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     // Transactions have their own sampleRate
     if (eventIsNotATransaction && [self isSampled:self.options.sampleRate]) {
-        [SentryLog logWithMessage:@"Event got sampled, will not send the event"
-                         andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"Event got sampled, will not send the event");
         [self recordLostEvent:kSentryDataCategoryError reason:kSentryDiscardReasonSampleRate];
         return nil;
     }
@@ -604,8 +602,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 - (void)logDisabledMessage
 {
-    [SentryLog logWithMessage:@"SDK disabled or no DSN set. Won't do anyting."
-                     andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(@"SDK disabled or no DSN set. Won't do anyting.");
 }
 
 - (SentryEvent *_Nullable)callEventProcessors:(SentryEvent *)event
@@ -615,9 +612,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
     for (SentryEventProcessor processor in SentryGlobalEventProcessor.shared.processors) {
         newEvent = processor(newEvent);
         if (nil == newEvent) {
-            [SentryLog logWithMessage:@"SentryScope callEventProcessors: An event "
-                                      @"processor decided to remove this event."
-                             andLevel:kSentryLevelDebug];
+            SENTRY_LOG_DEBUG(@"SentryScope callEventProcessors: An event processor decided to "
+                             @"remove this event.");
             break;
         }
     }

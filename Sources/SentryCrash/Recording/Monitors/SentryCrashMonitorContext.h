@@ -121,7 +121,7 @@ typedef struct SentryCrash_MonitorContext {
         /** The exception name. */
         const char *name;
 
-        /** The language the exception occured in. */
+        /** The language the exception occurred in. */
         const char *language;
 
         /** The line of code where the exception occurred. Can be NULL. */

@@ -30,8 +30,7 @@ SentrySubClassFinder ()
     [self.dispatchQueue dispatchAsyncWithBlock:^{
         Class viewControllerClass = NSClassFromString(@"UIViewController");
         if (viewControllerClass == nil) {
-            [SentryLog logWithMessage:@"UIViewController class not found."
-                             andLevel:kSentryLevelDebug];
+            SENTRY_LOG_DEBUG(@"UIViewController class not found.");
             return;
         }
 
