@@ -56,9 +56,6 @@
             </BuildableReference>
             <SkippedTests>
                <Test
-                  Identifier = "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout()">
-               </Test>
-               <Test
                   Identifier = "SentrySDKIntegrationTestsBase">
                </Test>
                <Test

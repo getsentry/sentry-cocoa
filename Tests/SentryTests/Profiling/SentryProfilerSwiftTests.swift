@@ -99,6 +99,14 @@ class SentryProfilerSwiftTests: XCTestCase {
 
         let expA = expectation(description: "Span A finishes")
         let spanA = fixture.hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+
+        // Some busy work to try and get it to show up in the profile.
+        let str = "a"
+        var concatStr = ""
+        for _ in 0..<100_000 {
+            concatStr = concatStr.appending(str)
+        }
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 45) {
             spanA.finish()
             expA.fulfill()
@@ -107,6 +115,14 @@ class SentryProfilerSwiftTests: XCTestCase {
         let expB = expectation(description: "Span B finishes")
         DispatchQueue.main.asyncAfter(deadline: .now() + 35) {
             let spanB = self.fixture.hub.startTransaction(name: self.fixture.transactionName, operation: self.fixture.transactionOperation)
+
+            // Some busy work to try and get it to show up in the profile.
+            let str = "a"
+            var concatStr = ""
+            for _ in 0..<100_000 {
+                concatStr = concatStr.appending(str)
+            }
+            
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                 spanB.finish()
                 expB.fulfill()
@@ -115,17 +131,16 @@ class SentryProfilerSwiftTests: XCTestCase {
 
         waitForExpectations(timeout: 50)
 
-        guard let envelope = self.fixture.client.captureEnvelopeInvocations.first else {
-            XCTFail("Expected to capture at least 1 event")
-            return
+        XCTAssertEqual(self.fixture.client.captureEnvelopeInvocations.count, 2)
+        for envelope in self.fixture.client.captureEnvelopeInvocations.invocations {
+            XCTAssertEqual(1, envelope.items.count)
+            guard let profileItem = envelope.items.first else {
+                XCTFail("Expected at least 1 additional envelope item")
+                return
+            }
+            XCTAssertEqual("profile", profileItem.header.type)
+            self.assertValidProfileData(data: profileItem.data)
         }
-        XCTAssertEqual(1, envelope.items.count)
-        guard let profileItem = envelope.items.first else {
-            XCTFail("Expected at least 1 additional envelope item")
-            return
-        }
-        XCTAssertEqual("profile", profileItem.header.type)
-        self.assertValidProfileData(data: profileItem.data)
     }
 
     func testProfileTimeout() {

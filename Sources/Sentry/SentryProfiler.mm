@@ -160,7 +160,7 @@ SentryProfiler *_Nullable _gCurrentProfiler;
         [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
         [_gCurrentProfiler start];
         _gCurrentProfiler->_timeoutTimer = [NSTimer scheduledTimerWithTimeInterval:30 repeats:NO block:^(NSTimer * _Nonnull timer) {
-            SENTRY_LOG_DEBUG(@"Profiler timed out.");
+            SENTRY_LOG_DEBUG(@"Profiler %@ timed out.", _gCurrentProfiler);
             [[self class] maybeStopProfilerForSpanID:spanID reason:SentryProfilerTruncationReasonTimeout];
         }];
     }
@@ -199,13 +199,14 @@ SentryProfiler *_Nullable _gCurrentProfiler;
 
     SentryProfiler *profiler = _gCurrentProfiler;
     if (profiler == nil) {
-        SENTRY_LOG_DEBUG(@"No current profiler, checking for any that timed out while waiting for this transaction.");
+        SENTRY_LOG_DEBUG(@"No current profiler, checking for any that timed out while waiting for span with ID %@.", transaction.trace.context.spanId.sentrySpanIdString);
         const auto spanID = transaction.trace.context.spanId;
         profiler = _gTimedOutProfilers[spanID];
         if (profiler == nil) {
             SENTRY_LOG_DEBUG(@"No profilers waiting for this transaction.");
             return;
         }
+        SENTRY_LOG_DEBUG(@"Found profiler waiting for span with ID %@: %@", transaction.trace.context.spanId.sentrySpanIdString, profiler);
         [profiler addTransaction:transaction];
         if (profiler->_spansInFlight.count > 0) {
             SENTRY_LOG_DEBUG(@"Profiler %@ is timed out and waiting on more spans to finish.", profiler);
@@ -263,7 +264,7 @@ SentryProfiler *_Nullable _gCurrentProfiler;
         _startTimestamp = getAbsoluteTime();
         _startDate = [NSDate date];
 
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"Starting profiler at system time %llu.", _startTimestamp] andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"Starting profiler %@ at system time %llu.", self, _startTimestamp);
 
         __weak const auto weakSelf = self;
         _profiler = std::make_shared<SamplingProfiler>(
@@ -352,7 +353,7 @@ SentryProfiler *_Nullable _gCurrentProfiler;
         _profiler->stopSampling();
         _endTimestamp = getAbsoluteTime();
         _endDate = [NSDate date];
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"Stopped profiler at system time: %llu.", _endTimestamp] andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"Stopped profiler %@ at system time: %llu.", self, _endTimestamp);
     }
 }
 
