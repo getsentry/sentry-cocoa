@@ -15,6 +15,13 @@ platform :ios do
       key: "CFBundleVersion",
       value: ENV["FASTLANE_BUNDLE_VERSION"]
     )
+
+    swift_clip_bundle_version = get_info_plist_value(
+      path: ios_swift_clip_infoplist_path,
+      key: "CFBundleVersion"
+    )
+
+    puts("SwiftClip CFBundleVersion: " + swift_clip_bundle_version)
   end
 
   # The version for all Info.plist must be a period-separated list of at most three non-negative integers

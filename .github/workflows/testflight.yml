@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - ci/fastlane-fixes # TODO: Remove
     paths:
       - 'Sources/**'
       - 'Samples/iOS-Swift/**'
@@ -25,10 +26,10 @@ jobs:
       - name: Bump Bundle Version
         env: 
           FASTLANE_BUNDLE_VERSION: ${{ github.run_number }}
-        run: fastlane bump_bundle_version
+        run: bundle fastlane bump_bundle_version
 
       - name: Remove preview version suffixes
-        run: fastlane remove_preview_version_suffixes
+        run: bundle fastlane remove_preview_version_suffixes
 
       - name: Run Fastlane
         env:
