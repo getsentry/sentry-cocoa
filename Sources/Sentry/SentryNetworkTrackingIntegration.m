@@ -90,9 +90,8 @@
     Method method = class_getInstanceMethod(classToSwizzle, selector);
 
     if (method == nil) {
-        [SentryLog logWithMessage:@"SentryNetworkSwizzling: Didn't find HTTPAdditionalHeaders on "
-                                  @"NSURLSessionConfiguration. Won't add Sentry Trace HTTP headers."
-                         andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"SentryNetworkSwizzling: Didn't find HTTPAdditionalHeaders on "
+                         @"NSURLSessionConfiguration. Won't add Sentry Trace HTTP headers.");
         return;
     }
 

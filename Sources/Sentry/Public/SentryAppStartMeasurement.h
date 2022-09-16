@@ -45,7 +45,7 @@ SENTRY_NO_INIT
 @property (readonly, nonatomic, assign) NSTimeInterval duration;
 
 /**
- * The timestamp when the app started, which is is the proces start timestamp.
+ * The timestamp when the app started, which is the process start timestamp.
  */
 @property (readonly, nonatomic, strong) NSDate *appStartTimestamp;
 

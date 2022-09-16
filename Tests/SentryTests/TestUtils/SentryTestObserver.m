@@ -6,6 +6,7 @@
 #import "SentryCurrentDate.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryHub.h"
+#import "SentryLog+TestInit.h"
 #import "SentryOptions.h"
 #import "SentryScope.h"
 #import "SentrySdk+Private.h"
@@ -26,11 +27,16 @@ SentryTestObserver ()
 
 @implementation SentryTestObserver
 
-#if TESTCI
+#if defined(TESTCI)
 + (void)load
 {
     [[XCTestObservationCenter sharedTestObservationCenter]
         addTestObserver:[[SentryTestObserver alloc] init]];
+}
+#elif defined(TEST)
++ (void)load
+{
+    [SentryLog configure:YES diagnosticLevel:kSentryLevelDebug];
 }
 #endif
 

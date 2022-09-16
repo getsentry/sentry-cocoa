@@ -96,8 +96,7 @@ SentryOutOfMemoryTracker ()
     }];
 
 #else
-    [SentryLog logWithMessage:@"NO UIKit -> SentryOutOfMemoryTracker will not track OOM."
-                     andLevel:kSentryLevelInfo];
+    SENTRY_LOG_INFO(@"NO UIKit -> SentryOutOfMemoryTracker will not track OOM.");
     return;
 #endif
 }
