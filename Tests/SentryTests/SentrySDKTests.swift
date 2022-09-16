@@ -530,12 +530,12 @@ class SentrySDKTests: XCTestCase {
         XCTAssertLessThan(blockingDuration, flushTimeout + delta)
     }
     
-    // Altough we only run this test above the below specified versions, we exped the
+    // Although we only run this test above the below specified versions, we expect the
     // implementation to be thread safe
     @available(tvOS 10.0, *)
     @available(OSX 10.12, *)
     @available(iOS 10.0, *)
-    func testSetpAppStartMeasurmentConcurrently_() {
+    func testSetpAppStartMeasurementConcurrently_() {
         func setAppStartMeasurement(_ queue: DispatchQueue, _ i: Int) {
             group.enter()
             queue.async {

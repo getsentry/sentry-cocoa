@@ -70,9 +70,8 @@ SentryBreadcrumbTracker ()
     // UIApplicationDidEnterBackgroundNotification
     NSNotificationName backgroundNotificationName = NSApplicationWillResignActiveNotification;
 #else
-    [SentryLog logWithMessage:@"NO UIKit, OSX and Catalyst -> [SentryBreadcrumbTracker "
-                              @"trackApplicationUIKitNotifications] does nothing."
-                     andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(@"NO UIKit, OSX and Catalyst -> [SentryBreadcrumbTracker "
+                     @"trackApplicationUIKitNotifications] does nothing.");
 #endif
 
     // not available for macOS
@@ -169,9 +168,7 @@ SentryBreadcrumbTracker ()
                    forKey:SentryBreadcrumbTrackerSwizzleSendAction];
 
 #else
-    [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
-                              @"swizzleSendAction] does nothing."
-                     andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(@"NO UIKit -> [SentryBreadcrumbTracker swizzleSendAction] does nothing.");
 #endif
 }
 
@@ -205,9 +202,7 @@ SentryBreadcrumbTracker ()
         SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewDidAppearKey);
 #    pragma clang diagnostic pop
 #else
-    [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
-                              @"swizzleViewDidAppear] does nothing."
-                     andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(@"NO UIKit -> [SentryBreadcrumbTracker swizzleViewDidAppear] does nothing.");
 #endif
 }
 

@@ -4,16 +4,10 @@ platform :ios do
   ios_swift_infoplist_path = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
   ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
 
-  lane :bump_bundle_version do
-    set_info_plist_value(
-      path: ios_swift_infoplist_path,
-      key: "CFBundleVersion",
-      value: ENV["FASTLANE_BUNDLE_VERSION"]
-    )
-    set_info_plist_value(
-      path: ios_swift_clip_infoplist_path,
-      key: "CFBundleVersion",
-      value: ENV["FASTLANE_BUNDLE_VERSION"]
+  lane :bump_build_number do
+    increment_build_number(
+      build_number: ENV["FASTLANE_BUILD_NUMBER"],
+      xcodeproj: "./Samples/iOS-Swift/iOS-Swift.xcodeproj"
     )
   end
 

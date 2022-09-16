@@ -32,7 +32,7 @@ typedef void (^SentryRequestFinished)(NSError *_Nullable error);
 
 /**
  * Block used for request operation finished, shouldDiscardEvent is YES if event
- * should be deleted regardless if an error ocured or not
+ * should be deleted regardless if an error occurred or not
  */
 typedef void (^SentryRequestOperationFinished)(
     NSHTTPURLResponse *_Nullable response, NSError *_Nullable error);

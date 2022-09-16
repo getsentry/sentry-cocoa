@@ -128,10 +128,9 @@ SentryOptions ()
 
 - (void)setIntegrations:(NSArray<NSString *> *)integrations
 {
-    [SentryLog logWithMessage:
-                   @"Setting `SentryOptions.integrations` is deprecated. Integrations should be "
-                   @"enabled or disabled using their respective `SentryOptions.enable*` property."
-                     andLevel:kSentryLevelWarning];
+    SENTRY_LOG_WARN(
+        @"Setting `SentryOptions.integrations` is deprecated. Integrations should be enabled or "
+        @"disabled using their respective `SentryOptions.enable*` property.");
     _integrations = integrations;
 }
 
@@ -143,8 +142,7 @@ SentryOptions ()
     if (nil == error) {
         _dsn = dsn;
     } else {
-        NSString *errorMessage = [NSString stringWithFormat:@"Could not parse the DSN: %@.", error];
-        [SentryLog logWithMessage:errorMessage andLevel:kSentryLevelError];
+        SENTRY_LOG_ERROR(@"Could not parse the DSN: %@.", error);
     }
 }
 

@@ -125,8 +125,7 @@ SentryScope ()
     if (self.maxBreadcrumbs < 1) {
         return;
     }
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb]
-                     andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(@"Add breadcrumb: %@", crumb);
     @synchronized(_breadcrumbArray) {
         [_breadcrumbArray addObject:crumb];
         if ([_breadcrumbArray count] > self.maxBreadcrumbs) {

@@ -105,8 +105,7 @@ isSimulatorBuild()
 - (instancetype)init
 {
     if (![NSThread isMainThread]) {
-        [SentryLog logWithMessage:@"SentryProfiler must be initialized on the main thread"
-                         andLevel:kSentryLevelError];
+        SENTRY_LOG_ERROR(@"SentryProfiler must be initialized on the main thread");
         return nil;
     }
     if (self = [super init]) {
@@ -123,8 +122,7 @@ isSimulatorBuild()
 // https://github.com/envoyproxy/envoy/issues/2561
 #    if defined(__has_feature)
 #        if __has_feature(thread_sanitizer)
-    [SentryLog logWithMessage:@"Disabling profiling when running with TSAN"
-                     andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(@"Disabling profiling when running with TSAN");
     return;
 #            pragma clang diagnostic push
 #            pragma clang diagnostic ignored "-Wunreachable-code"

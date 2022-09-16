@@ -10,6 +10,12 @@
 
 ### Fixes
 
+- Use the `component` name source for SentryPerformanceTracker (#2168)
+
+## 7.25.1
+
+### Performance Improvements
+
 - Prewarmed app start detection (#2151)
 
 ## 7.25.0
