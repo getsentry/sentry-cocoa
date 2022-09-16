@@ -6,6 +6,9 @@
 
 - Add flush (#2140)
 - Add more device context (#2190)
+- Profile concurrent transactions (#2105)
+
+## 7.25.1
 
 ### Fixes
 
@@ -25,7 +28,6 @@
 
 - Users can [customize the error description](https://docs.sentry.io/platforms/apple/usage/#customizing-error-descriptions) shown in the Sentry UI by providing an NSDebugDescriptionErrorKey value in the error user info dictionary. (#2120)
 - Add support for dynamic library (#1726)
-- Profile concurrent transactions (#2105)
 
 ### Fixes
 
