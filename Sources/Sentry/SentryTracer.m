@@ -51,7 +51,6 @@ SentryTracer ()
 @implementation SentryTracer {
     BOOL _waitForChildren;
     SentryTraceContext *_traceContext;
-    SentryProfilesSamplerDecision *_profilesSamplerDecision;
     NSMutableDictionary<NSString *, id> *_tags;
     NSMutableDictionary<NSString *, id> *_data;
     dispatch_block_t _idleTimeoutBlock;
@@ -69,24 +68,11 @@ SentryTracer ()
 static NSObject *appStartMeasurementLock;
 static BOOL appStartMeasurementRead;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-static SentryProfiler *_Nullable _gProfiler;
-static NSLock *_gProfilerLock;
-static NSMutableArray<SentryTracer *> *_gProfiledTracers;
-static NSMutableArray<SentryTransaction *> *_gProfiledTransactions;
-static SentryProfilerTruncationReason _gProfilerTruncationReason;
-static SentryScreenFrames *_gProfilerFrameInfo;
-static NSTimer *_gProfilerTimeoutTimer;
-#endif
-
 + (void)initialize
 {
     if (self == [SentryTracer class]) {
         appStartMeasurementLock = [[NSObject alloc] init];
         appStartMeasurementRead = NO;
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-        _gProfilerLock = [[NSLock alloc] init];
-#endif
     }
 }
 
@@ -155,7 +141,6 @@ static NSTimer *_gProfilerTimeoutTimer;
         _children = [[NSMutableArray alloc] init];
         self.hub = hub;
         self.isWaitingForChildren = NO;
-        _profilesSamplerDecision = profilesSamplerDecision;
         _waitForChildren = waitForChildren;
         _tags = [[NSMutableDictionary alloc] init];
         _data = [[NSMutableDictionary alloc] init];
@@ -179,10 +164,11 @@ static NSTimer *_gProfilerTimeoutTimer;
             initSlowFrames = currentFrames.slow;
             initFrozenFrames = currentFrames.frozen;
         }
-        [self initializeProfilerForTracerWithFramesTracker:framesTracker];
-#else
-        [self initializeProfilerForTracer];
 #endif // SENTRY_HAS_UIKIT
+
+        if (profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
+            [SentryProfiler startForSpanID:transactionContext.spanId];
+        }
     }
 
     return self;
@@ -430,89 +416,6 @@ static NSTimer *_gProfilerTimeoutTimer;
     }
 }
 
-#if SENTRY_HAS_UIKIT
-/** Initialize profiling for the current tracer with a frame renderer tracker for UIKit. */
-- (void)initializeProfilerForTracerWithFramesTracker:(SentryFramesTracker *)framesTracker
-#else
-/** Initialize profiling for the current tracer. */
-- (void)initializeProfilerForTracer
-#endif
-    {
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-        if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
-            [_gProfilerLock lock];
-            if (_gProfiler == nil) {
-                _gProfiler = [[SentryProfiler alloc] init];
-#    if SENTRY_HAS_UIKIT
-                framesTracker.currentTracer = self;
-                [framesTracker resetProfilingTimestamps];
-#    endif // SENTRY_HAS_UIKIT
-                [_gProfiler start];
-                _gProfilerTimeoutTimer = [NSTimer scheduledTimerWithTimeInterval:30 repeats:NO block:^(NSTimer * _Nonnull timer) {
-                    [self maybeStopProfilerWithReason:SentryProfilerTruncationReasonTimeout];
-                }];
-            }
-            if (_gProfiledTracers == nil) {
-                _gProfiledTracers = [NSMutableArray<SentryTracer *> array];
-            }
-            [_gProfiledTracers addObject:self];
-            [_gProfilerLock unlock];
-        }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
-}
-
-/**
- * Stop the profiler immediately for an abnormal reason, or in the normal case, if all concurrent transactions have completed.
- */
-- (void)maybeStopProfilerWithReason:(SentryProfilerTruncationReason)reason {
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-    if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
-        [_gProfilerLock lock];
-        [_gProfiledTracers removeObject:self];
-        BOOL shouldStopNormally = reason == SentryProfilerTruncationReasonNormal && _gProfiledTracers.count == 0;
-        BOOL shouldStopAbnormally = reason == SentryProfilerTruncationReasonTimeout || reason == SentryProfilerTruncationReasonAppMovedToBackground;
-        if ([_gProfiler isRunning] && (shouldStopNormally || shouldStopAbnormally)) {
-            [SentryLog logWithMessage:[NSString stringWithFormat:@"Stopping profiler due to reason: %@.", profilerTruncationReasonName(reason)] andLevel:kSentryLevelDebug];
-            [_gProfilerTimeoutTimer invalidate];
-            [_gProfiler stop];
-            _gProfilerTruncationReason = reason;
-#    if SENTRY_HAS_UIKIT
-            _gProfilerFrameInfo = SentryFramesTracker.sharedInstance.currentFrames;
-            [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
-            SentryFramesTracker.sharedInstance.currentTracer = nil;
-#    endif // SENTRY_HAS_UIKIT
-        }
-        [_gProfilerLock unlock];
-    }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
-}
-
-/**
- * If the profiler will complete after the provided transaction, capture an envelope with the information it has gathered.
- */
-- (void)captureProfilingEnvelopeIfFinishedAfterTransaction:(SentryTransaction *)transaction {
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-    [_gProfilerLock lock];
-    if (_gProfiledTransactions == nil) {
-        _gProfiledTransactions = [NSMutableArray<SentryTransaction *> array];
-    }
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"Adding transaction %@ to list of profiled transactions.", transaction] andLevel:kSentryLevelDebug];
-    [_gProfiledTransactions addObject:transaction];
-
-    if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
-        if (_gProfiler != nil && !_gProfiler.isRunning) {
-            [_hub.client captureEnvelope:[_gProfiler buildEnvelopeForTransactions:_gProfiledTransactions
-                                                                                hub:_hub
-                                                                          frameInfo:_gProfilerFrameInfo
-                                                                         truncationReason:_gProfilerTruncationReason]];
-            [_gProfiledTransactions removeAllObjects];
-            _gProfiler = nil;
-        }
-    }
-    [_gProfilerLock unlock];
-#endif
-}
-
 - (void)finishInternal
 {
     [_rootSpan finishWithStatus:_finishStatus];
@@ -528,8 +431,6 @@ static NSTimer *_gProfilerTimeoutTimer;
     if (_hub == nil) {
         return;
     }
-
-    [self maybeStopProfilerWithReason:SentryProfilerTruncationReasonNormal];
 
     [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
         if (span == self) {
@@ -557,9 +458,11 @@ static NSTimer *_gProfilerTimeoutTimer;
         }
     }
 
+    [SentryProfiler maybeStopProfilerForSpanID:self.rootSpan.context.spanId reason:SentryProfilerTruncationReasonNormal];
+
     SentryTransaction *transaction = [self toTransaction];
 
-    [self captureProfilingEnvelopeIfFinishedAfterTransaction:transaction];
+    [SentryProfiler captureProfilingEnvelopeIfFinishedAfterTransaction:transaction hub:_hub];
 
     // Prewarming can execute code up to viewDidLoad of a UIViewController, and keep the app in the
     // background. This can lead to auto-generated transactions lasting for minutes or event hours.

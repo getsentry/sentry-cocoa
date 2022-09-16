@@ -1,7 +1,6 @@
 #import "SentryProfiler.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-
 #    import "SentryBacktrace.hpp"
 #    import "SentryClient+Private.h"
 #    import "SentryDebugImageProvider.h"
@@ -12,15 +11,17 @@
 #    import "SentryEnvelopeItemType.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryHexAddressFormatter.h"
-#    import "SentryHub.h"
+#import "SentryHub+Private.h"
 #    import "SentryId.h"
 #    import "SentryLog.h"
+#import "SentryProfilesSampler.h"
 #    import "SentryProfilingLogging.hpp"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryScope+Private.h"
 #    import "SentryScreenFrames.h"
 #    import "SentrySerialization.h"
 #    import "SentryTime.h"
+#import "SentrySpanId.h"
 #    import "SentryTransaction.h"
 #    import "SentryTransactionContext.h"
 
@@ -30,6 +31,7 @@
 
 #    import <cstdint>
 #    import <memory>
+#import <mutex>
 #    import <sys/sysctl.h>
 #    import <sys/utsname.h>
 
@@ -100,6 +102,10 @@ isSimulatorBuild()
     return false;
 #    endif
 }
+
+std::mutex _gProfilerLock;
+NSMutableDictionary<SentrySpanId *, SentryProfiler *> *_gTimedOutProfilers;
+SentryProfiler *_Nullable _gCurrentProfiler;
 } // namespace
 
 @implementation SentryProfiler {
@@ -111,6 +117,18 @@ isSimulatorBuild()
     std::shared_ptr<SamplingProfiler> _profiler;
     SentryDebugImageProvider *_debugImageProvider;
     thread::TIDType _mainThreadID;
+
+    NSMutableArray<SentrySpanId *> *_spansInFlight;
+    NSMutableArray<SentryTransaction *> *_transactions;
+    SentryProfilerTruncationReason _truncationReason;
+    SentryScreenFrames *_frameInfo;
+    NSTimer *_timeoutTimer;
+}
+
++ (void)initialize {
+    if (self == [SentryProfiler class]) {
+        _gTimedOutProfilers = [NSMutableDictionary<SentrySpanId *, SentryProfiler *> dictionary];
+    }
 }
 
 - (instancetype)init
@@ -119,12 +137,100 @@ isSimulatorBuild()
         SENTRY_LOG_ERROR(@"SentryProfiler must be initialized on the main thread");
         return nil;
     }
-    if (self = [super init]) {
-        _debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
-        _mainThreadID = ThreadHandle::current()->tid();
+
+    if (!(self = [super init])) {
+        return nil;
     }
+
+    _debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
+    _mainThreadID = ThreadHandle::current()->tid();
+    _spansInFlight = [NSMutableArray<SentrySpanId *> array];
+    _transactions = [NSMutableArray<SentryTransaction *> array];
     return self;
 }
+
+#pragma mark - Public
+
++ (void)startForSpanID:(SentrySpanId *)spanID
+{
+    std::lock_guard<std::mutex> l(_gProfilerLock);
+
+    if (_gCurrentProfiler == nil) {
+        _gCurrentProfiler = [[SentryProfiler alloc] init];
+        [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
+        [_gCurrentProfiler start];
+        _gCurrentProfiler->_timeoutTimer = [NSTimer scheduledTimerWithTimeInterval:30 repeats:NO block:^(NSTimer * _Nonnull timer) {
+            SENTRY_LOG_DEBUG(@"Profiler timed out.");
+            [[self class] maybeStopProfilerForSpanID:spanID reason:SentryProfilerTruncationReasonTimeout];
+        }];
+    }
+    [_gCurrentProfiler->_spansInFlight addObject:spanID];
+}
+
++ (void)maybeStopProfilerForSpanID:(SentrySpanId *)spanID reason:(SentryProfilerTruncationReason)reason {
+    std::lock_guard<std::mutex> l(_gProfilerLock);
+
+    if (_gCurrentProfiler == nil) {
+        SENTRY_LOG_DEBUG(@"No current profiler to stop.");
+        return;
+    }
+
+    [_gCurrentProfiler->_spansInFlight removeObject:spanID];
+    BOOL shouldStopNormally = reason == SentryProfilerTruncationReasonNormal && _gCurrentProfiler->_spansInFlight.count == 0;
+    BOOL shouldStopAbnormally = reason == SentryProfilerTruncationReasonTimeout || reason == SentryProfilerTruncationReasonAppMovedToBackground;
+    if ([_gCurrentProfiler isRunning] && (shouldStopNormally || shouldStopAbnormally)) {
+        SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to reason: %@.", _gCurrentProfiler, profilerTruncationReasonName(reason));
+        [_gCurrentProfiler->_timeoutTimer invalidate];
+        [_gCurrentProfiler stop];
+        _gCurrentProfiler->_truncationReason = reason;
+#    if SENTRY_HAS_UIKIT
+        _gCurrentProfiler->_frameInfo = SentryFramesTracker.sharedInstance.currentFrames;
+        [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
+#    endif // SENTRY_HAS_UIKIT
+        if (reason == SentryProfilerTruncationReasonTimeout) {
+            _gTimedOutProfilers[spanID] = _gCurrentProfiler;
+            _gCurrentProfiler = nil;
+        }
+    }
+}
+
++ (void)captureProfilingEnvelopeIfFinishedAfterTransaction:(SentryTransaction *)transaction hub:(SentryHub *)hub {
+    std::lock_guard<std::mutex> l(_gProfilerLock);
+
+    SentryProfiler *profiler = _gCurrentProfiler;
+    if (profiler == nil) {
+        SENTRY_LOG_DEBUG(@"No current profiler, checking for any that timed out while waiting for this transaction.");
+        const auto spanID = transaction.trace.context.spanId;
+        profiler = _gTimedOutProfilers[spanID];
+        if (profiler == nil) {
+            SENTRY_LOG_DEBUG(@"No profilers waiting for this transaction.");
+            return;
+        }
+        [profiler addTransaction:transaction];
+        if (profiler->_spansInFlight.count > 0) {
+            SENTRY_LOG_DEBUG(@"Profiler %@ is timed out and waiting on more spans to finish.", profiler);
+            return;
+        }
+        [_gTimedOutProfilers removeObjectForKey:spanID];
+    } else  {
+        [profiler addTransaction:transaction];
+        if (profiler.isRunning) {
+            SENTRY_LOG_DEBUG(@"Profiler %@ is running and waiting on more spans to finish.", profiler);
+            return;
+        }
+        _gCurrentProfiler = nil;
+    }
+
+    [hub.client captureEnvelope:[profiler buildEnvelopeWithHub:hub]];
+    [profiler->_transactions removeAllObjects];
+}
+
++ (BOOL)isRunning {
+    std::lock_guard<std::mutex> l(_gProfilerLock);
+    return [_gCurrentProfiler isRunning];
+}
+
+#pragma mark - Private
 
 - (void)start
 {
@@ -225,6 +331,17 @@ isSimulatorBuild()
     }
 }
 
+- (void)addTransaction:(SentryTransaction *)transaction {
+    if (transaction == nil) {
+        return;
+    }
+    SENTRY_LOG_DEBUG(@"Adding transaction %@ to list of profiled transactions for profiler %@.", transaction, self);
+    if (_transactions == nil) {
+        _transactions = [NSMutableArray<SentryTransaction *> array];
+    }
+    [_transactions addObject:transaction];
+}
+
 - (void)stop
 {
     @synchronized(self) {
@@ -239,12 +356,8 @@ isSimulatorBuild()
     }
 }
 
-- (SentryEnvelope *)buildEnvelopeForTransactions:(NSArray<SentryTransaction *> *)transactions
-                                                 hub:(SentryHub *)hub
-                                           frameInfo:(SentryScreenFrames *)frameInfo
-truncationReason:(SentryProfilerTruncationReason)truncationReason
+- (nullable SentryEnvelope *)buildEnvelopeWithHub:(SentryHub *)hub
 {
-    NSParameterAssert(transactions.count > 0);
     NSMutableDictionary<NSString *, id> *profile = nil;
     @synchronized(self) {
         profile = [_profile mutableCopy];
@@ -281,7 +394,7 @@ truncationReason:(SentryProfilerTruncationReason)truncationReason
     profile[@"profile_id"] = profileID.sentryIdString;
     const auto profileDuration = getDurationNs(_startTimestamp, _endTimestamp);
     profile[@"duration_ns"] = [@(profileDuration) stringValue];
-    profile[@"truncation_reason"] = profilerTruncationReasonName(truncationReason);
+    profile[@"truncation_reason"] = profilerTruncationReasonName(_truncationReason);
 
     const auto bundle = NSBundle.mainBundle;
     profile[@"version_code"] = [bundle objectForInfoDictionaryKey:(NSString *)kCFBundleVersionKey];
@@ -289,7 +402,7 @@ truncationReason:(SentryProfilerTruncationReason)truncationReason
 
 #    if SENTRY_HAS_UIKIT
     auto relativeFrameTimestampsNs = [NSMutableArray array];
-    [frameInfo.frameTimestamps enumerateObjectsUsingBlock:^(
+    [_frameInfo.frameTimestamps enumerateObjectsUsingBlock:^(
         NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
         const auto begin = (uint64_t)(obj[@"start_timestamp"].doubleValue * 1e9);
         if (begin < _startTimestamp) {
@@ -308,7 +421,7 @@ truncationReason:(SentryProfilerTruncationReason)truncationReason
     profile[@"adverse_frame_render_timestamps"] = relativeFrameTimestampsNs;
 
     relativeFrameTimestampsNs = [NSMutableArray array];
-    [frameInfo.frameRateTimestamps enumerateObjectsUsingBlock:^(
+    [_frameInfo.frameRateTimestamps enumerateObjectsUsingBlock:^(
         NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
         const auto timestamp = (uint64_t)(obj[@"timestamp"].doubleValue * 1e9);
         const auto refreshRate = obj[@"frame_rate"];
@@ -325,9 +438,9 @@ truncationReason:(SentryProfilerTruncationReason)truncationReason
 #    endif // SENTRY_HAS_UIKIT
 
     // populate info from all transactions that occurred while profiler was running
-    profile[@"platform"] = transactions.firstObject.platform;
+    profile[@"platform"] = _transactions.firstObject.platform;
     auto transactionsInfo = [NSMutableArray array];
-    for (SentryTransaction *transaction in transactions) {
+    for (SentryTransaction *transaction in _transactions) {
         const auto relativeStart = [NSString stringWithFormat:@"%llu", [transaction.startTimestamp compare:_startDate] == NSOrderedAscending ? 0 : (unsigned long long)([transaction.startTimestamp timeIntervalSinceDate:_startDate] * 1e9)];
         const auto relativeEnd = [NSString stringWithFormat:@"%llu", [transaction.timestamp compare:_endDate] == NSOrderedDescending ? profileDuration : (unsigned long long)([transaction.timestamp timeIntervalSinceDate:_startDate] * 1e9)];
         [transactionsInfo addObject:@{

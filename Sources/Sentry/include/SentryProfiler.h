@@ -1,11 +1,16 @@
 #import "SentryProfilingConditionals.h"
+#import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryCompiler.h"
 
+#if SENTRY_HAS_UIKIT
+@class SentryFramesTracker;
+#endif // SENTRY_HAS_UIKIT
 @class SentryHub;
+@class SentryProfilesSamplerDecision;
 @class SentryScreenFrames;
 
 typedef NS_ENUM(NSUInteger, SentryProfilerTruncationReason) {
@@ -35,27 +40,28 @@ NSString *profilerTruncationReasonName(SentryProfilerTruncationReason reason);
 SENTRY_EXTERN_C_END
 
 @class SentryEnvelope;
+@class SentryHub;
+@class SentrySpanId;
 @class SentryTransaction;
 
 @interface SentryProfiler : NSObject
 
-/** Clears all accumulated profiling data and starts profiling. */
-- (void)start;
-
-/** Stops profiling. */
-- (void)stop;
-
-/** Whether or not the sampling profiler is currently running. */
-- (BOOL)isRunning;
+/**
+ * Start the profiler, if it isn't already running, for the span with the provided ID. If it's already running, it will track the new span as well.
+ */
++ (void)startForSpanID:(SentrySpanId *)spanID;
 
 /**
- * Builds an envelope item using the currently accumulated profile data.
+ * Stop the profiler, if appropriate, depending on the reason provided.
  */
-- (nullable SentryEnvelope *)
-    buildEnvelopeForTransactions:(NSArray<SentryTransaction *> *)transactions
-                                 hub:(SentryHub *)hub
-                           frameInfo:(nullable SentryScreenFrames *)frameInfo
-truncationReason:(SentryProfilerTruncationReason)truncationReason;
++ (void)maybeStopProfilerForSpanID:(nullable SentrySpanId *)spanID reason:(SentryProfilerTruncationReason)reason;
+
+/**
+ * If the provided transaction is the last needed for the profile, package its information and capture in an envelope.
+ */
++ (void)captureProfilingEnvelopeIfFinishedAfterTransaction:(SentryTransaction *)transaction hub:(SentryHub *)hub;
+
++ (BOOL)isRunning;
 
 @end
 

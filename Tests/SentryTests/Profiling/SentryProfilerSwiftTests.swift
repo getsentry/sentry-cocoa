@@ -99,7 +99,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 
         let expA = expectation(description: "Span A finishes")
         let spanA = fixture.hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 40) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 45) {
             spanA.finish()
             expA.fulfill()
         }
@@ -113,7 +113,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             }
         }
 
-        waitForExpectations(timeout: 45)
+        waitForExpectations(timeout: 50)
 
         guard let envelope = self.fixture.client.captureEnvelopeInvocations.first else {
             XCTFail("Expected to capture at least 1 event")
