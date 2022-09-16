@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - master
-      - ci/fastlane-fixes # TODO: Remove
     paths:
       - 'Sources/**'
       - 'Samples/iOS-Swift/**'
