@@ -26,10 +26,10 @@ jobs:
       - name: Bump Bundle Version
         env: 
           FASTLANE_BUNDLE_VERSION: ${{ github.run_number }}
-        run: bundle fastlane bump_bundle_version
+        run: bundle exec fastlane bump_bundle_version
 
       - name: Remove preview version suffixes
-        run: bundle fastlane remove_preview_version_suffixes
+        run: bundle exec fastlane remove_preview_version_suffixes
 
       - name: Run Fastlane
         env:
