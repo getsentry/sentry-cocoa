@@ -391,6 +391,11 @@ static NSUInteger startInvocations;
     }
 }
 
++ (void)flush:(NSTimeInterval)timeout
+{
+    [SentrySDK.currentHub flush:timeout];
+}
+
 /**
  * Closes the SDK and uninstalls all the integrations.
  */

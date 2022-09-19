@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add flush (#2140)
+
 ### Fixes
 
 - Use the `component` name source for SentryPerformanceTracker (#2168)
