@@ -114,6 +114,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         [[SentryThreadInspector alloc] initWithStacktraceBuilder:stacktraceBuilder
                                         andMachineContextWrapper:machineContextWrapper];
 
+#if TARGET_OS_IOS
     // Needed to read the device orientation on demand
     if (!UIDevice.currentDevice.isGeneratingDeviceOrientationNotifications) {
         self.cleanupDeviceOrientationNotifications = YES;
@@ -125,6 +126,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.cleanupBatteryMonitoring = YES;
         UIDevice.currentDevice.batteryMonitoringEnabled = YES;
     }
+#endif
 
     return [self initWithOptions:options
                 transportAdapter:transportAdapter
@@ -165,12 +167,14 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 - (void)dealloc
 {
+#if TARGET_OS_IOS
     if (self.cleanupDeviceOrientationNotifications) {
         [UIDevice.currentDevice endGeneratingDeviceOrientationNotifications];
     }
     if (self.cleanupBatteryMonitoring) {
         UIDevice.currentDevice.batteryMonitoringEnabled = NO;
     }
+#endif
 }
 
 - (SentryFileManager *)fileManager
@@ -789,13 +793,15 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self modifyContext:event
                     key:@"device"
                   block:^(NSMutableDictionary *device) {
+                      device[@"screen_height_pixels"] = @(UIScreen.mainScreen.bounds.size.height);
+                      device[@"screen_width_pixels"] = @(UIScreen.mainScreen.bounds.size.width);
+                      device[@"free_storage"] = @(self.crashWrapper.freeStorage);
+
+#if TARGET_OS_IOS
                       device[@"orientation"]
                           = UIDeviceOrientationIsPortrait(UIDevice.currentDevice.orientation)
                           ? @"portrait"
                           : @"landscape";
-                      device[@"screen_height_pixels"] = @(UIScreen.mainScreen.bounds.size.height);
-                      device[@"screen_width_pixels"] = @(UIScreen.mainScreen.bounds.size.width);
-                      device[@"free_storage"] = @(self.crashWrapper.freeStorage);
 
                       if (UIDevice.currentDevice.isBatteryMonitoringEnabled) {
                           device[@"charging"]
@@ -804,6 +810,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
                               : @(NO);
                           device[@"battery_level"] = @(UIDevice.currentDevice.batteryLevel * 100);
                       }
+#endif
                   }];
 }
 
