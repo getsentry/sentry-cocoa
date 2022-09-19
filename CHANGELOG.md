@@ -5,6 +5,7 @@
 ### Features
 
 - Add flush (#2140)
+- Add a bunch more device context properties (#2190)
 
 ### Fixes
 
