@@ -9,7 +9,7 @@
 uint64_t
 getAbsoluteTime(void)
 {
-    if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, *)) {
+    if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)) {
         return clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
     }
     return mach_absolute_time();
@@ -20,7 +20,7 @@ getDurationNs(uint64_t startTimestamp, uint64_t endTimestamp)
 {
     assert(endTimestamp >= startTimestamp);
     uint64_t duration = endTimestamp - startTimestamp;
-    if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, *)) {
+    if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)) {
         return duration;
     }
 
