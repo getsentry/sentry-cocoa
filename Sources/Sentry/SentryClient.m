@@ -65,6 +65,8 @@ SentryClient ()
 @property (nonatomic, strong) SentryPermissionsObserver *permissionsObserver;
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
+@property (nonatomic) BOOL cleanupDeviceOrientationNotifications;
+@property (nonatomic) BOOL cleanupBatteryMonitoring;
 
 @end
 
@@ -112,6 +114,18 @@ NSString *const kSentryDefaultEnvironment = @"production";
         [[SentryThreadInspector alloc] initWithStacktraceBuilder:stacktraceBuilder
                                         andMachineContextWrapper:machineContextWrapper];
 
+    // Needed to read the device orientation on demand
+    if (!UIDevice.currentDevice.isGeneratingDeviceOrientationNotifications) {
+        self.cleanupDeviceOrientationNotifications = YES;
+        [UIDevice.currentDevice beginGeneratingDeviceOrientationNotifications];
+    }
+
+    // Needed so we can read the battery level
+    if (!UIDevice.currentDevice.isBatteryMonitoringEnabled) {
+        self.cleanupBatteryMonitoring = YES;
+        UIDevice.currentDevice.batteryMonitoringEnabled = YES;
+    }
+
     return [self initWithOptions:options
                 transportAdapter:transportAdapter
                      fileManager:fileManager
@@ -147,6 +161,16 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.attachmentProcessors = [[NSMutableArray alloc] init];
     }
     return self;
+}
+
+- (void)dealloc
+{
+    if (self.cleanupDeviceOrientationNotifications) {
+        [UIDevice.currentDevice endGeneratingDeviceOrientationNotifications];
+    }
+    if (self.cleanupBatteryMonitoring) {
+        UIDevice.currentDevice.batteryMonitoringEnabled = NO;
+    }
 }
 
 - (SentryFileManager *)fileManager
@@ -544,6 +568,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     [self applyPermissionsToEvent:event];
     [self applyCultureContextToEvent:event];
+    [self applyExtraDeviceContextToEvent:event];
 
     // With scope applied, before running callbacks run:
     if (nil == event.environment) {
@@ -751,6 +776,29 @@ NSString *const kSentryDefaultEnvironment = @"production";
                       culture[@"locale"] = self.locale.localeIdentifier;
                       culture[@"is_24_hour_format"] = @(self.locale.sentry_timeIs24HourFormat);
                       culture[@"timezone"] = self.timezone.name;
+                  }];
+}
+
+- (void)applyExtraDeviceContextToEvent:(SentryEvent *)event
+{
+    [self modifyContext:event
+                    key:@"device"
+                  block:^(NSMutableDictionary *device) {
+                      device[@"orientation"]
+                          = UIDeviceOrientationIsPortrait(UIDevice.currentDevice.orientation)
+                          ? @"portrait"
+                          : @"landscape";
+                      device[@"screen_height_pixels"] = @(UIScreen.mainScreen.bounds.size.height);
+                      device[@"screen_width_pixels"] = @(UIScreen.mainScreen.bounds.size.width);
+                      device[@"free_storage"] = @(self.crashWrapper.freeStorage);
+
+                      if (UIDevice.currentDevice.isBatteryMonitoringEnabled) {
+                          device[@"charging"]
+                              = UIDevice.currentDevice.batteryState == UIDeviceBatteryStateCharging
+                              ? @(YES)
+                              : @(NO);
+                          device[@"battery_level"] = @(UIDevice.currentDevice.batteryLevel * 100);
+                      }
                   }];
 }
 

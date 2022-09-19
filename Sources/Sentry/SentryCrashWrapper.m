@@ -76,6 +76,11 @@ NS_ASSUME_NONNULL_BEGIN
     return sentrycrashcm_system_freememory();
 }
 
+- (uint64_t)freeStorage
+{
+    return sentrycrashcm_system_freestorage();
+}
+
 - (uint64_t)appMemory
 {
     task_vm_info_data_t info;

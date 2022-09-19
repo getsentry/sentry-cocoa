@@ -231,6 +231,8 @@ SentryCrashIntegration ()
 
 #if TARGET_OS_SIMULATOR
     [deviceData setValue:@(YES) forKey:@"simulator"];
+#else
+    [deviceData setValue:@(NO) forKey:@"simulator"];
 #endif
 
     NSString *family = [[systemInfo[@"systemName"]
@@ -248,7 +250,8 @@ SentryCrashIntegration ()
     [deviceData setValue:systemInfo[@"freeMemory"] forKey:SentryDeviceContextFreeMemoryKey];
     [deviceData setValue:systemInfo[@"usableMemory"] forKey:@"usable_memory"];
     [deviceData setValue:systemInfo[@"memorySize"] forKey:@"memory_size"];
-    [deviceData setValue:systemInfo[@"storageSize"] forKey:@"storage_size"];
+    [deviceData setValue:systemInfo[@"totalStorageSize"] forKey:@"storage_size"];
+    [deviceData setValue:systemInfo[@"freeStorageSize"] forKey:@"free_storage"];
     [deviceData setValue:systemInfo[@"bootTime"] forKey:@"boot_time"];
 
     NSString *locale = [[NSLocale autoupdatingCurrentLocale] objectForKey:NSLocaleIdentifier];

@@ -34,6 +34,8 @@ SENTRY_NO_INIT
 
 - (uint64_t)appMemory;
 
+- (uint64_t)freeStorage;
+
 @end
 
 NS_ASSUME_NONNULL_END
