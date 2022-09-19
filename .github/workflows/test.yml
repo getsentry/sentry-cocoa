@@ -132,7 +132,8 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: test-server
-      - run: chmod +x ./test-server-exec
+      - name: Allow test-server to run
+        run: chmod +x ./test-server-exec
       - run: ./test-server-exec &
 
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
