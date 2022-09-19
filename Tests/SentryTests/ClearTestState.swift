@@ -1,5 +1,5 @@
 import Foundation
-import Sentry
+import SentryObjc
 
 func clearTestState() {
     SentrySDK.close()

@@ -1,5 +1,4 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-import Sentry
 import UIKit
 #endif
 
@@ -118,8 +117,8 @@ class TestData {
         return mechanismMeta
     }
     
-    static var thread: Sentry.Thread {
-        let thread = Sentry.Thread(threadId: 10)
+    static var thread: SentryThread {
+        let thread = SentryThread(threadId: 10)
         thread.crashed = false
         thread.current = true
         thread.name = "main"

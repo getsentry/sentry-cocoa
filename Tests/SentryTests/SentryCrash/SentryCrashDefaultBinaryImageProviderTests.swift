@@ -1,4 +1,4 @@
-@testable import Sentry
+@testable import SentryObjc
 import XCTest
 
 /** The tests are basically a duplication of the implementation of the actual class.

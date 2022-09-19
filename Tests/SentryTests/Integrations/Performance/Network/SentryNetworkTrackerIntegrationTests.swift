@@ -1,4 +1,4 @@
-import Sentry
+import SentryObjc
 import SwiftUI
 import XCTest
 

@@ -2,7 +2,7 @@
 #import "SentryCrashReportConverter.h"
 #import "SentryInAppLogic.h"
 #import "SentryMechanismMeta.h"
-#import <Sentry/Sentry.h>
+#import <SentryObjC/Sentry.h>
 #import <XCTest/XCTest.h>
 
 @interface SentryCrashReportConverterTests : XCTestCase

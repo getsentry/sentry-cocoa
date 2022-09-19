@@ -1,4 +1,4 @@
-@testable import Sentry
+@testable import SentryObjc
 import XCTest
 
 class SentryCurrentDateTests: XCTestCase {

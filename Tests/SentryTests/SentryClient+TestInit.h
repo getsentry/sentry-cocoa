@@ -1,7 +1,6 @@
 #import "SentryPermissionsObserver.h"
 #import "SentryRandom.h"
 #import "SentryTransport.h"
-#import <Sentry/Sentry.h>
 
 @class SentryCrashWrapper, SentryThreadInspector, SentryTransportAdapter;
 

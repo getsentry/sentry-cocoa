@@ -1,4 +1,4 @@
-import Sentry
+import SentryObjc
 import XCTest
 
 // Even if we don't run this test below OSX 10.12 we expect the actual

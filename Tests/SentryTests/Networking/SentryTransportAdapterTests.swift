@@ -1,4 +1,4 @@
-import Sentry
+import SentryObjc
 import XCTest
 
 class SentryTransportAdapterTests: XCTestCase {
