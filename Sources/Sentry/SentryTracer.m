@@ -196,16 +196,12 @@ static NSLock *profilerLock;
 
 - (void)dispatchIdleTimeout
 {
-    dispatch_time_t now = [SentryCurrentDate dispatchTimeNow];
-    dispatch_time_t delta = (int64_t)(self.idleTimeout * NSEC_PER_SEC);
-    dispatch_time_t when = dispatch_time(now, delta);
-
     if (_idleTimeoutBlock != nil) {
         [self.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
     }
     __block SentryTracer *_self = self;
     _idleTimeoutBlock = dispatch_block_create(0, ^{ [_self finishInternal]; });
-    [self.dispatchQueueWrapper dispatchAfter:when block:_idleTimeoutBlock];
+    [self.dispatchQueueWrapper dispatchAfter:self.idleTimeout block:_idleTimeoutBlock];
 }
 
 - (BOOL)hasIdleTimeout
