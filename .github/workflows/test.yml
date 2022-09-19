@@ -39,14 +39,14 @@ jobs:
 
       - name: Copy exec
         working-directory: test-server
-        run: cp $(swift build --show-bin-path -c release)/Run exec
+        run: cp $(swift build --show-bin-path -c release)/Run test-server-exec
 
       - name: Archiving DerivedData
         uses: actions/upload-artifact@v3
         with:
           name: test-server
           path: |
-            ./test-server/exec
+            ./test-server/test-server-exec
 
   unit-tests:
     name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}} - OS ${{matrix.test-destination-os}}
@@ -132,7 +132,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: test-server
-      - run: ./test-server/exec &
+      - run: ./test-server-exec &
 
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
