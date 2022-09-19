@@ -26,7 +26,6 @@ public typealias SentryNSError = SentryObjc.SentryNSError
 public typealias Options = SentryObjc.Options
 public typealias SentrySampleDecision = SentryObjc.SentrySampleDecision
 public typealias SamplingContext = SentryObjc.SamplingContext
-public typealias SentryScreenFrames = SentryObjc.SentryScreenFrames
 public typealias SentrySdkInfo = SentryObjc.SentrySdkInfo
 public typealias SentrySerializable = SentryObjc.SentrySerializable
 public typealias SentrySession = SentryObjc.SentrySession
