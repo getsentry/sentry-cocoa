@@ -5,6 +5,7 @@
 ### Fixes
 
 - Use the `component` name source for SentryPerformanceTracker (#2168)
+- Support for arm64 architecture (#2185)
 
 ## 7.25.1
 
