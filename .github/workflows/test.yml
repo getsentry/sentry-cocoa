@@ -18,6 +18,30 @@ on:
       - 'scripts/xcode-test.sh'
 
 jobs:
+  build-test-server:
+    name: Build test server
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v3
+      - name: Cache for Test Server
+        id: cache_test_server
+        uses: actions/cache@v3
+        with:
+          path: ./test-server/.build
+          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}-Xcode-${{matrix.xcode}}
+
+      - name: Build Test Server
+        if: steps.cache_test_server.outputs.cache-hit != 'true'
+        run: swift build
+        working-directory: test-server
+
+      - name: Archiving DerivedData
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-server
+          path: |
+            ./test-server/.build/**/release/Run
+
   unit-tests:
     name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}} - OS ${{matrix.test-destination-os}}
     runs-on: ${{matrix.runs-on}}
@@ -98,31 +122,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-
-      # As we use swift-tools-version:5.5 the test server only compiles with Xcode 13.
-      # macos-10.15 doesn't have Xcode 13 and macos-11 doesn't have a simulator with
-      # iOS 12. Ideally, we would compile the test-server on macos-11 and use it on
-      # macos-10.15. For now, disable the tests on iOS 12 requiring the test server in
-      # xcode-test.sh
-      - name: Cache for Test Server
-        id: cache_test_server
-        if: matrix.runs-on == 'macos-11' ||  matrix.runs-on == 'macos-12'
-        uses: actions/cache@v3
+      - uses: actions/download-artifact@v3
         with:
-          path: ./test-server/.build
-          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}-Xcode-${{matrix.xcode}}
+          name: test-server
+      - run: ./Run &
 
-      - name: Build Test Server
-        if: steps.cache_test_server.outputs.cache-hit != 'true' && ( matrix.runs-on == 'macos-11' ||  matrix.runs-on == 'macos-12' )
-        run: swift build
-        working-directory: test-server
-
-      - name: Run Test Server in Background
-        if: matrix.runs-on == 'macos-11' ||  matrix.runs-on == 'macos-12'
-        run: swift run &
-        working-directory: test-server
-
-      # Select Xcode after starting server, because the server needs Xcode 13
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
       # Only Xcode 10.3 has an iOS 12.4 simulator. As we have a reference to MacCatalyst in our unit tests
