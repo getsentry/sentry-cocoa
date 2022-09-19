@@ -33,10 +33,14 @@ jobs:
 
       - name: Build Test Server
         if: steps.cache_test_server.outputs.cache-hit != 'true'
+        working-directory: test-server
         run: >-
           swift build -c release
           cp $(swift build --show-bin-path -c release)/Run exec
+
+      - name: Copy exec
         working-directory: test-server
+        run: cp $(swift build --show-bin-path -c release)/Run exec
 
       - name: Archiving DerivedData
         uses: actions/upload-artifact@v3
