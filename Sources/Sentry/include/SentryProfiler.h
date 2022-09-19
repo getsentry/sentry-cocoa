@@ -61,7 +61,7 @@ SENTRY_EXTERN_C_END
  * If the provided transaction is the last needed for the profile, package its information and
  * capture in an envelope.
  */
-+ (void)captureProfilingEnvelopeIfFinishedAfterTransaction:(SentryTransaction *)transaction
++ (void)registerTransactionAndCaptureEnvelopeIfFinished:(SentryTransaction *)transaction
                                                        hub:(SentryHub *)hub;
 
 + (BOOL)isRunning;

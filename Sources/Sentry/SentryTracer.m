@@ -468,7 +468,7 @@ static BOOL appStartMeasurementRead;
     SentryTransaction *transaction = [self toTransaction];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    [SentryProfiler captureProfilingEnvelopeIfFinishedAfterTransaction:transaction hub:_hub];
+    [SentryProfiler registerTransactionAndCaptureEnvelopeIfFinished:transaction hub:_hub];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     // Prewarming can execute code up to viewDidLoad of a UIViewController, and keep the app in the

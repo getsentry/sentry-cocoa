@@ -215,7 +215,7 @@ SentryProfiler *_Nullable _gCurrentProfiler;
     }
 }
 
-+ (void)captureProfilingEnvelopeIfFinishedAfterTransaction:(SentryTransaction *)transaction
++ (void)registerTransactionAndCaptureEnvelopeIfFinished:(SentryTransaction *)transaction
                                                        hub:(SentryHub *)hub
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
