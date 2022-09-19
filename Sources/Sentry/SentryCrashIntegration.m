@@ -253,8 +253,11 @@ SentryCrashIntegration ()
     [deviceData setValue:systemInfo[@"totalStorageSize"] forKey:@"storage_size"];
     [deviceData setValue:systemInfo[@"freeStorageSize"] forKey:@"free_storage"];
     [deviceData setValue:systemInfo[@"bootTime"] forKey:@"boot_time"];
+
+#if SENTRY_HAS_UIDEVICE
     [deviceData setValue:@(UIScreen.mainScreen.bounds.size.height) forKey:@"screen_height_pixels"];
     [deviceData setValue:@(UIScreen.mainScreen.bounds.size.width) forKey:@"screen_width_pixels"];
+#endif
 
     [scope setContextValue:deviceData forKey:DEVICE_KEY];
 
