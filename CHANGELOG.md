@@ -4,7 +4,6 @@
 
 ### Fixes
 
-
 - Sentry-trace header incorrectly assigned to http requests (#2167)
 - Use the `component` name source for SentryPerformanceTracker (#2168)
 
