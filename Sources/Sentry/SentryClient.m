@@ -567,17 +567,17 @@ NSString *const kSentryDefaultEnvironment = @"production";
     event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
 
     if ([self isOOM:event isCrashEvent:isCrashEvent]) {
-        // Remove free_memory if OOM as free_memory stems from the current run and not of
-        // the time of the OOM.
-        [self removeFreeMemoryFromDeviceContext:event];
+        // Remove some mutable properties from the device/app contexts which are no longer
+        // applicable
+        [self removeExtraDeviceContextContext:event];
     } else {
-        // Store the actual free memory at the time of this event
-        [self storeFreeMemoryToDeviceContext:event];
+        // Store the current free memory, free storage, battery level and more mutable properties,
+        // at the time of this event
+        [self applyExtraDeviceContextToEvent:event];
     }
 
     [self applyPermissionsToEvent:event];
     [self applyCultureContextToEvent:event];
-    [self applyExtraDeviceContextToEvent:event];
 
     // With scope applied, before running callbacks run:
     if (nil == event.environment) {
@@ -793,8 +793,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self modifyContext:event
                     key:@"device"
                   block:^(NSMutableDictionary *device) {
-                      device[@"screen_height_pixels"] = @(UIScreen.mainScreen.bounds.size.height);
-                      device[@"screen_width_pixels"] = @(UIScreen.mainScreen.bounds.size.width);
+                      device[SentryDeviceContextFreeMemoryKey] = @(self.crashWrapper.freeMemory);
                       device[@"free_storage"] = @(self.crashWrapper.freeStorage);
 
 #if TARGET_OS_IOS
@@ -812,15 +811,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
                       }
 #endif
                   }];
-}
-
-- (void)storeFreeMemoryToDeviceContext:(SentryEvent *)event
-{
-    [self modifyContext:event
-                    key:@"device"
-                  block:^(NSMutableDictionary *device) {
-                      device[SentryDeviceContextFreeMemoryKey] = @(self.crashWrapper.freeMemory);
-                  }];
 
     [self modifyContext:event
                     key:@"app"
@@ -829,12 +819,16 @@ NSString *const kSentryDefaultEnvironment = @"production";
                   }];
 }
 
-- (void)removeFreeMemoryFromDeviceContext:(SentryEvent *)event
+- (void)removeExtraDeviceContextContext:(SentryEvent *)event
 {
     [self modifyContext:event
                     key:@"device"
                   block:^(NSMutableDictionary *device) {
                       [device removeObjectForKey:SentryDeviceContextFreeMemoryKey];
+                      [device removeObjectForKey:@"free_storage"];
+                      [device removeObjectForKey:@"orientation"];
+                      [device removeObjectForKey:@"charging"];
+                      [device removeObjectForKey:@"battery_level"];
                   }];
 
     [self modifyContext:event
