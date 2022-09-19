@@ -11,23 +11,8 @@
 		7B51664E2758C6F000C0A720 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B51664D2758C6F000C0A720 /* ContentView.swift */; };
 		7B5166502758C6F400C0A720 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B51664F2758C6F400C0A720 /* Assets.xcassets */; };
 		7B5166532758C6F400C0A720 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B5166522758C6F400C0A720 /* Preview Assets.xcassets */; };
-		7B5166772758C72600C0A720 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B5166762758C72600C0A720 /* Sentry.framework */; };
-		7B5166782758C72600C0A720 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7B5166762758C72600C0A720 /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D8C5645628D89A6F0018E2FB /* Sentry.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D8C5645528D89A6F0018E2FB /* Sentry.a */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		7B5166792758C72600C0A720 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				7B5166782758C72600C0A720 /* Sentry.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		7B5166482758C6F000C0A720 /* iOS15-SwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS15-SwiftUI.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -36,6 +21,7 @@
 		7B51664F2758C6F400C0A720 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7B5166522758C6F400C0A720 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		7B5166762758C72600C0A720 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8C5645528D89A6F0018E2FB /* Sentry.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = Sentry.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,7 +29,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7B5166772758C72600C0A720 /* Sentry.framework in Frameworks */,
+				D8C5645628D89A6F0018E2FB /* Sentry.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -89,6 +75,7 @@
 		7B5166752758C72600C0A720 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D8C5645528D89A6F0018E2FB /* Sentry.a */,
 				7B5166762758C72600C0A720 /* Sentry.framework */,
 			);
 			name = Frameworks;
@@ -104,7 +91,6 @@
 				7B5166442758C6F000C0A720 /* Sources */,
 				7B5166452758C6F000C0A720 /* Frameworks */,
 				7B5166462758C6F000C0A720 /* Resources */,
-				7B5166792758C72600C0A720 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);

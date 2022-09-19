@@ -39,3 +39,4 @@ public typealias Thread = SentryObjc.Thread
 public typealias TraceHeader = SentryObjc.TraceHeader
 public typealias TransactionContext = SentryObjc.TransactionContext
 public typealias User = SentryObjc.User
+public typealias PrivateSentrySDKOnly = SentryObjc.PrivateSentrySDKOnly
