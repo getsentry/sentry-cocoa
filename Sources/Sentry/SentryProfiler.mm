@@ -109,7 +109,7 @@ isSimulatorBuild()
 }
 
 std::mutex _gProfilerLock;
-NSMutableDictionary<SentrySpanId *, SentryProfiler *> *_gTimedOutProfilers;
+NSMutableDictionary<SentrySpanId *, SentryProfiler *> *_gProfilersPerSpanID;
 SentryProfiler *_Nullable _gCurrentProfiler;
 } // namespace
 
@@ -133,7 +133,7 @@ SentryProfiler *_Nullable _gCurrentProfiler;
 + (void)initialize
 {
     if (self == [SentryProfiler class]) {
-        _gTimedOutProfilers = [NSMutableDictionary<SentrySpanId *, SentryProfiler *> dictionary];
+        _gProfilersPerSpanID = [NSMutableDictionary<SentrySpanId *, SentryProfiler *> dictionary];
     }
 }
 
@@ -148,6 +148,7 @@ SentryProfiler *_Nullable _gCurrentProfiler;
         return nil;
     }
 
+    SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
     _debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
     _mainThreadID = ThreadHandle::current()->tid();
     _spansInFlight = [NSMutableArray<SentrySpanId *> array];
@@ -179,7 +180,10 @@ SentryProfiler *_Nullable _gCurrentProfiler;
                                                                    SentryProfilerTruncationReasonTimeout];
                                      }];
     }
+
+    SENTRY_LOG_DEBUG(@"Tracking span with ID %@ with profiler %@", spanID.sentrySpanIdString, _gCurrentProfiler);
     [_gCurrentProfiler->_spansInFlight addObject:spanID];
+    _gProfilersPerSpanID[spanID] = _gCurrentProfiler;
 }
 
 + (void)maybeStopProfilerForSpanID:(SentrySpanId *)spanID
@@ -207,10 +211,7 @@ SentryProfiler *_Nullable _gCurrentProfiler;
         _gCurrentProfiler->_frameInfo = SentryFramesTracker.sharedInstance.currentFrames;
         [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
-        if (reason == SentryProfilerTruncationReasonTimeout) {
-            _gTimedOutProfilers[spanID] = _gCurrentProfiler;
-            _gCurrentProfiler = nil;
-        }
+        _gCurrentProfiler = nil;
     }
 }
 
@@ -219,35 +220,23 @@ SentryProfiler *_Nullable _gCurrentProfiler;
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
-    SentryProfiler *profiler = _gCurrentProfiler;
+    const auto spanID = transaction.trace.context.spanId;
+    SentryProfiler *profiler = _gProfilersPerSpanID[spanID];
     if (profiler == nil) {
-        SENTRY_LOG_DEBUG(@"No current profiler, checking for any that timed out while waiting for "
-                         @"span with ID %@.",
-            transaction.trace.context.spanId.sentrySpanIdString);
-        const auto spanID = transaction.trace.context.spanId;
-        profiler = _gTimedOutProfilers[spanID];
-        if (profiler == nil) {
-            SENTRY_LOG_DEBUG(@"No profilers waiting for this transaction.");
-            return;
-        }
-        SENTRY_LOG_DEBUG(@"Found profiler waiting for span with ID %@: %@",
-            transaction.trace.context.spanId.sentrySpanIdString, profiler);
-        [profiler addTransaction:transaction];
-        if (profiler->_spansInFlight.count > 0) {
-            SENTRY_LOG_DEBUG(
-                @"Profiler %@ is timed out and waiting on more spans to finish.", profiler);
-            return;
-        }
-        [_gTimedOutProfilers removeObjectForKey:spanID];
-    } else {
-        [profiler addTransaction:transaction];
-        if (profiler.isRunning) {
-            SENTRY_LOG_DEBUG(
-                @"Profiler %@ is running and waiting on more spans to finish.", profiler);
-            return;
-        }
-        _gCurrentProfiler = nil;
+        SENTRY_LOG_DEBUG(@"No profilers waiting for this transaction.");
+        return;
     }
+
+    SENTRY_LOG_DEBUG(@"Found profiler waiting for span with ID %@: %@",
+        transaction.trace.context.spanId.sentrySpanIdString, profiler);
+    [profiler addTransaction:transaction];
+    if (profiler->_spansInFlight.count > 0) {
+        SENTRY_LOG_DEBUG(
+            @"Profiler %@ is waiting on more spans to finish.", profiler);
+        return;
+    }
+
+    [_gProfilersPerSpanID removeObjectForKey:spanID];
 
     [hub.client captureEnvelope:[profiler buildEnvelopeWithHub:hub]];
     [profiler->_transactions removeAllObjects];
