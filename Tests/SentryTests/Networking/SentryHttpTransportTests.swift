@@ -28,6 +28,8 @@ class SentryHttpTransportTests: XCTestCase {
         let requestManager: TestRequestManager
         let requestBuilder = TestNSURLRequestBuilder()
         let rateLimits: DefaultRateLimits
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let flushTimeout: TimeInterval = 0.5
 
         let userFeedback: UserFeedback
         let userFeedbackRequest: SentryNSURLRequest
@@ -35,6 +37,8 @@ class SentryHttpTransportTests: XCTestCase {
         let clientReport: SentryClientReport
         let clientReportEnvelope: SentryEnvelope
         let clientReportRequest: SentryNSURLRequest
+        
+        let queue = DispatchQueue(label: "SentryHttpTransportTests", qos: .utility, attributes: [.concurrent, .initiallyInactive])
 
         init() {
             currentDateProvider = TestCurrentDateProvider()
@@ -96,7 +100,7 @@ class SentryHttpTransportTests: XCTestCase {
                     requestBuilder: requestBuilder,
                     rateLimits: rateLimits,
                     envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
-                    dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+                    dispatchQueueWrapper: dispatchQueueWrapper
                 )
             }
         }
@@ -512,7 +516,7 @@ class SentryHttpTransportTests: XCTestCase {
         self.measure {
             fixture.requestManager.responseDelay = 0.000_1
 
-            let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent, .initiallyInactive])
+            let queue = fixture.queue
 
             let group = DispatchGroup()
             for _ in 0...20 {
@@ -614,6 +618,94 @@ class SentryHttpTransportTests: XCTestCase {
         
         assertEventIsSentAsEnvelope()
     }
+    
+    func testFlush_BlocksCallingThread_TimesOut() {
+        CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
+        
+        givenCachedEvents()
+        
+        fixture.requestManager.responseDelay = fixture.flushTimeout + 0.2
+        
+        let beforeFlush = getAbsoluteTime()
+        let success = sut.flush(fixture.flushTimeout)
+        let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+        
+        XCTAssertGreaterThan(blockingDuration, fixture.flushTimeout)
+        XCTAssertLessThan(blockingDuration, fixture.flushTimeout + 0.2)
+        
+        XCTAssertFalse(success, "Flush should time out.")
+    }
+    
+    func testFlush_BlocksCallingThread_FinishesFlushingWhenSent() {
+        CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
+        
+        givenCachedEvents()
+        
+        assertFlushBlocksAndFinishesSuccessfully()
+    }
+    
+    func testFlush_CalledSequentially_BlocksTwice() {
+        CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
+        
+        givenCachedEvents()
+        
+        let beforeFlush = getAbsoluteTime()
+        XCTAssertTrue(sut.flush(fixture.flushTimeout), "Flush should not time out.")
+        XCTAssertTrue(sut.flush(fixture.flushTimeout), "Flush should not time out.")
+        let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+        
+        XCTAssertLessThan(blockingDuration, 0.1)
+    }
+    
+    func testFlush_WhenNoEnvelopes_BlocksAndFinishes() {
+        CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
+        
+        assertFlushBlocksAndFinishesSuccessfully()
+    }
+    
+    func testFlush_WhenNoInternet_BlocksAndFinishes() {
+        CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
+        
+        givenCachedEvents()
+        givenNoInternetConnection()
+        
+        assertFlushBlocksAndFinishesSuccessfully()
+    }
+    
+    func testFlush_CalledMultipleTimes_ImmidiatelyReturnsFalse() {
+        CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
+        
+        givenCachedEvents()
+        fixture.requestManager.responseDelay = fixture.flushTimeout + 0.1
+        
+        var blockingDurations: [TimeInterval] = []
+        var flushResults: [Bool] = []
+        
+        let queue = fixture.queue
+        let group = DispatchGroup()
+        let count = 1_000
+        for _ in 0..<count {
+            group.enter()
+            queue.async {
+                let beforeFlush = getAbsoluteTime()
+                let result = self.sut.flush(self.fixture.flushTimeout)
+                let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+                
+                queue.async(flags: .barrier) {
+                    blockingDurations.append(blockingDuration)
+                    flushResults.append(result)
+                    group.leave()
+                }
+            }
+        }
+
+        queue.activate()
+        group.waitWithTimeout()
+        
+        // Only one call should block. The others should return immidiately
+        XCTAssertEqual(count - 1, blockingDurations.filter { $0 < 0.01 }.count)
+        XCTAssertEqual(count, flushResults.filter { $0 == false }.count, "All flush results should be false.")
+    }
 
     private func givenRetryAfterResponse() -> HTTPURLResponse {
         let response = TestResponseFactory.createRetryAfterResponse(headerValue: "1")
@@ -633,6 +725,15 @@ class SentryHttpTransportTests: XCTestCase {
 
     private func givenOkResponse() {
         fixture.requestManager.returnResponse(response: HTTPURLResponse())
+    }
+    
+    private func givenCachedEvents() {
+        givenNoInternetConnection()
+        
+        sendEvent()
+        sendEvent()
+        
+        givenOkResponse()
     }
     
     private func givenErrorResponse() {
@@ -720,5 +821,12 @@ class SentryHttpTransportTests: XCTestCase {
         let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
         XCTAssertNotNil(dict)
         XCTAssertEqual(0, dict?.count)
+    }
+    
+    private func assertFlushBlocksAndFinishesSuccessfully() {
+        let beforeFlush = getAbsoluteTime()
+        XCTAssertTrue(sut.flush(fixture.flushTimeout), "Flush should not time out.")
+        let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+        XCTAssertLessThan(blockingDuration, 0.1)
     }
 }

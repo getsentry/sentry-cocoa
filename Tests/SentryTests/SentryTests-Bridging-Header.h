@@ -142,6 +142,7 @@
 #import "SentryThread.h"
 #import "SentryThreadInspector.h"
 #import "SentryThreadWrapper.h"
+#import "SentryTime.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer+Test.h"
 #import "SentryTracer.h"

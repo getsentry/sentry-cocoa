@@ -298,6 +298,9 @@ getCPUArchForCPUType(cpu_type_t cpuType, cpu_subtype_t subType)
         }
         break;
     }
+    case CPU_TYPE_ARM64: {
+        return "arm64";
+    }
     case CPU_TYPE_X86:
         return "x86";
     case CPU_TYPE_X86_64:
