@@ -61,9 +61,6 @@
                <Test
                   Identifier = "SentrySessionGeneratorTests/testSendSessions()">
                </Test>
-               <Test
-                  Identifier = "SentryStacktraceBuilderTests/testAsyncStacktraces()">
-               </Test>
             </SkippedTests>
          </TestableReference>
       </Testables>
