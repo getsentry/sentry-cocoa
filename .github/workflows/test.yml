@@ -29,10 +29,10 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ./test-server/.build
-          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
+          key: test-server-${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
 
       - name: Build Test Server
-        # if: steps.cache_test_server.outputs.cache-hit != 'true'
+        if: steps.cache_test_server.outputs.cache-hit != 'true'
         working-directory: test-server
         run: >-
           swift build -c release
