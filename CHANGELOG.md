@@ -6,8 +6,6 @@
 
 - Add flush (#2140)
 
-## 7.25.1
-
 ### Fixes
 
 - Use the `component` name source for SentryPerformanceTracker (#2168)
