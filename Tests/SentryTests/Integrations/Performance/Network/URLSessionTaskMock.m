@@ -67,6 +67,11 @@
     return _currentRequest;
 }
 
+- (void)setCurrentRequest:(NSURLRequest *)request
+{
+    _currentRequest = request;
+}
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 

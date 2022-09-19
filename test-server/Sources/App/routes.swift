@@ -25,6 +25,6 @@ func routes(_ app: Application) throws {
             return sentryTraceHeader
         }
         
-        return ""
+        return "(NO-HEADER)"
     }
 }

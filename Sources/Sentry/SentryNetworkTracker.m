@@ -19,13 +19,6 @@ SentryNetworkTracker ()
 
 @end
 
-@interface
-NSURLSessionTask ()
-
-- (void)setCurrentRequest:(NSURLRequest *)request;
-
-@end
-
 @implementation SentryNetworkTracker
 
 + (SentryNetworkTracker *)sharedInstance
@@ -127,11 +120,16 @@ NSURLSessionTask ()
             return;
         }
 
-        if ([sessionTask currentRequest]) {
+        SEL setCurrentRequestSelector = NSSelectorFromString(@"setCurrentRequest:");
+        if ([sessionTask currentRequest] &&
+            [sessionTask respondsToSelector:setCurrentRequestSelector]) {
             NSMutableURLRequest *currentRequest = sessionTask.currentRequest.mutableCopy;
             [currentRequest setValue:[netSpan toTraceHeader].value
                   forHTTPHeaderField:SENTRY_TRACE_HEADER];
-            [sessionTask setCurrentRequest:currentRequest];
+
+            IMP imp = [sessionTask methodForSelector:setCurrentRequestSelector];
+            void (*func)(id, SEL, id param) = (void *)imp;
+            func(sessionTask, setCurrentRequestSelector, currentRequest);
         }
 
         [SentryLog
