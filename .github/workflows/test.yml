@@ -33,7 +33,7 @@ jobs:
 
       - name: Build Test Server
         if: steps.cache_test_server.outputs.cache-hit != 'true'
-        run: swift build
+        run: swift build -c release
         working-directory: test-server
 
       - name: Archiving DerivedData
