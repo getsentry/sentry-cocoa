@@ -85,7 +85,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         }
         XCTAssertEqual(1, envelope.items.count)
         guard let profileItem = envelope.items.first else {
-            XCTFail("Expected at least 1 additional envelope item")
+            XCTFail("Expected an envelope item")
             return
         }
         XCTAssertEqual("profile", profileItem.header.type)
@@ -135,7 +135,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         for envelope in self.fixture.client.captureEnvelopeInvocations.invocations {
             XCTAssertEqual(1, envelope.items.count)
             guard let profileItem = envelope.items.first else {
-                XCTFail("Expected at least 1 additional envelope item")
+                XCTFail("Expected an envelope item")
                 return
             }
             XCTAssertEqual("profile", profileItem.header.type)
@@ -237,7 +237,7 @@ private extension SentryProfilerSwiftTests {
             }
             XCTAssertEqual(1, envelope.items.count)
             guard let profileItem = envelope.items.first else {
-                XCTFail("Expected at least 1 additional envelope item")
+                XCTFail("Expected an envelope item")
                 return
             }
             XCTAssertEqual("profile", profileItem.header.type)
