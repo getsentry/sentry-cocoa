@@ -8,6 +8,7 @@
 
 ### Fixes
 
+- Sentry-trace header incorrectly assigned to http requests (#2167)
 - Use the `component` name source for SentryPerformanceTracker (#2168)
 - Add support for arm64 architecture to the device context (#2185)
 

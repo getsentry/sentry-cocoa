@@ -62,6 +62,7 @@ SentryNetworkTracker ()
 
 - (void)urlSessionTaskResume:(NSURLSessionTask *)sessionTask
 {
+
     @synchronized(self) {
         if (!self.isNetworkTrackingEnabled) {
             return;
@@ -117,6 +118,35 @@ SentryNetworkTracker ()
                       andLevel:kSentryLevelDebug];
 
             return;
+        }
+
+        if ([sessionTask currentRequest]) {
+            NSMutableURLRequest *newRequest = nil;
+
+            // First we check if the current request is mutable, so we could easily add a new
+            // header. Otherwise we try to change the current request for a new one with the extra
+            // header.
+            if ([sessionTask.currentRequest isKindOfClass:[NSMutableURLRequest class]]) {
+                newRequest = (NSMutableURLRequest *)sessionTask.currentRequest;
+                [newRequest setValue:[netSpan toTraceHeader].value
+                    forHTTPHeaderField:SENTRY_TRACE_HEADER];
+            } else {
+                // Even though NSURLSessionTask doesn't have 'setCurrentRequest', some subclasses
+                // do. For those subclasses we replace the currentRequest with a mutable one with
+                // the additional trace header. Since NSURLSessionTask is a public class and can be
+                // override, we believe this is not considered a private api.
+                SEL setCurrentRequestSelector = NSSelectorFromString(@"setCurrentRequest:");
+                if ([sessionTask respondsToSelector:setCurrentRequestSelector]) {
+                    newRequest = [sessionTask.currentRequest mutableCopy];
+
+                    [newRequest setValue:[netSpan toTraceHeader].value
+                        forHTTPHeaderField:SENTRY_TRACE_HEADER];
+
+                    void (*func)(id, SEL, id param)
+                        = (void *)[sessionTask methodForSelector:setCurrentRequestSelector];
+                    func(sessionTask, setCurrentRequestSelector, newRequest);
+                }
+            }
         }
 
         [SentryLog
@@ -312,7 +342,6 @@ SentryNetworkTracker ()
         // Remove the Sentry keys from the cached headers (cached by NSURLSession itself),
         // because it could contain a completely unrelated trace id from a previous request.
         NSMutableDictionary *existingHeaders = headers.mutableCopy;
-        [existingHeaders removeObjectForKey:SENTRY_TRACE_HEADER];
 
         NSString *newBaggageHeader =
             [self removeSentryKeysFromBaggage:headers[SENTRY_BAGGAGE_HEADER]];
@@ -325,7 +354,6 @@ SentryNetworkTracker ()
     }
 
     NSMutableDictionary *result = [[NSMutableDictionary alloc] initWithDictionary:headers];
-    result[SENTRY_TRACE_HEADER] = [span toTraceHeader].value;
 
     SentryTracer *tracer = [SentryTracer getTracer:span];
     if (tracer != nil) {
