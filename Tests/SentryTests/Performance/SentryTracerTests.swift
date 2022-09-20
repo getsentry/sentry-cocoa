@@ -83,13 +83,13 @@ class SentryTracerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        SentryTracer.resetAppStartMeasurmentRead()
+        SentryTracer.resetAppStartMeasurementRead()
     }
     
     override func tearDown() {
         super.tearDown()
         clearTestState()
-        SentryTracer.resetAppStartMeasurmentRead()
+        SentryTracer.resetAppStartMeasurementRead()
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         SentryFramesTracker.sharedInstance().resetFrames()
         SentryFramesTracker.sharedInstance().stop()
@@ -210,8 +210,7 @@ class SentryTracerTests: XCTestCase {
         
         fixture.dispatchQueue.invokeLastDispatchAfter()
         
-        let expectedWhen = fixture.currentDateProvider.dispatchTimeNow() + UInt64(fixture.idleTimeout) * NSEC_PER_SEC
-        XCTAssertEqual(expectedWhen, fixture.dispatchQueue.dispatchAfterInvocations.invocations.first?.when)
+        XCTAssertEqual(fixture.idleTimeout, fixture.dispatchQueue.dispatchAfterInvocations.invocations.first?.interval)
     }
     
     func testIdleTimeout_SpanAdded_IdleTimeoutCancelled() {
@@ -697,7 +696,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertNil(SentrySDK.getAppStartMeasurement())
     }
     
-    func testNegativeFramesAmount_NoMeasurmentAdded() {
+    func testNegativeFramesAmount_NoMeasurementAdded() {
         fixture.displayLinkWrapper.givenFrames(10, 10, 10)
         
         let sut = fixture.getSut()

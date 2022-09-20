@@ -1,17 +1,27 @@
 import XCTest
 
 class SentryLogTests: XCTestCase {
-    
+    var oldDebug: Bool!
+    var oldLevel: SentryLevel!
+    var oldOutput: SentryLogOutput!
+
+    override func setUp() {
+        super.setUp()
+        oldDebug = SentryLog.isDebug()
+        oldLevel = SentryLog.diagnosticLevel()
+        oldOutput = SentryLog.logOutput()
+    }
+
     override func tearDown() {
         super.tearDown()
-        // Set back to default
-        SentryLog.configure(true, diagnosticLevel: SentryLevel.error)
-        SentryLog.setLogOutput(nil)
+        SentryLog.configure(oldDebug, diagnosticLevel: oldLevel)
+        SentryLog.setLogOutput(oldOutput)
     }
 
     func testDefault_PrintsFatalAndError() {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
+        SentryLog.configure(true, diagnosticLevel: .error)
         
         SentryLog.log(withMessage: "0", andLevel: SentryLevel.fatal)
         SentryLog.log(withMessage: "1", andLevel: SentryLevel.error)
@@ -60,7 +70,7 @@ class SentryLogTests: XCTestCase {
     }
     
     class TestLogOutput: SentryLogOutput {
-        
+
         var loggedMessages: [String] = []
         override func log(_ message: String) {
             loggedMessages.append(message)

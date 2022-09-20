@@ -47,7 +47,8 @@ SentryAppStartTracker ()
     // The OS sets this environment variable if the app start is pre warmed. There are no official
     // docs for this. Found at https://eisel.me/startup. Investigations show that this variable is
     // deleted after UIApplicationDidFinishLaunchingNotification, so we have to check it here.
-    isActivePrewarm = [[NSProcessInfo processInfo].environment[@"ActivePrewarm"] isEqual:@"1"];
+    isActivePrewarm =
+        [[NSProcessInfo processInfo].environment[@"ActivePrewarm"] isEqualToString:@"1"];
 }
 
 - (instancetype)initWithCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
@@ -119,24 +120,21 @@ SentryAppStartTracker ()
         // Check if prewarm is available. Just to be safe to not drop app start data on earlier OS
         // verions.
         if ([self isActivePrewarmAvailable] && isActivePrewarm) {
-            [SentryLog logWithMessage:@"The app was prewarmed. Not measuring app start."
-                             andLevel:kSentryLevelInfo];
+            SENTRY_LOG_INFO(@"The app was prewarmed. Not measuring app start.");
             return;
         }
 
         SentryAppStartType appStartType = [self getStartType];
 
         if (appStartType == SentryAppStartTypeUnknown) {
-            [SentryLog logWithMessage:@"Unknown start type. Not measuring app start."
-                             andLevel:kSentryLevelWarning];
+            SENTRY_LOG_WARN(@"Unknown start type. Not measuring app start.");
             return;
         }
 
         if (self.wasInBackground) {
             // If the app was already running in the background it's not a cold or warm
             // start.
-            [SentryLog logWithMessage:@"App was in background. Not measuring app start."
-                             andLevel:kSentryLevelInfo];
+            SENTRY_LOG_INFO(@"App was in background. Not measuring app start.");
             return;
         }
 
@@ -156,12 +154,9 @@ SentryAppStartTracker ()
 
         // Safety check to not report app starts that are completely off.
         if (appStartDuration >= SENTRY_APP_START_MAX_DURATION) {
-            NSString *message = [NSString
-                stringWithFormat:
-                    @"The app start exceeded the max duration of %f seconds. Not measuring app "
-                    @"start.",
-                SENTRY_APP_START_MAX_DURATION];
-            [SentryLog logWithMessage:message andLevel:kSentryLevelInfo];
+            SENTRY_LOG_INFO(
+                @"The app start exceeded the max duration of %f seconds. Not measuring app start.",
+                SENTRY_APP_START_MAX_DURATION);
             return;
         }
 
@@ -251,6 +246,26 @@ SentryAppStartTracker ()
 
 - (void)stop
 {
+    // Remove the observers with the most specific detail possible, see
+    // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:UIApplicationDidFinishLaunchingNotification
+                                                object:nil];
+
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:UIWindowDidBecomeVisibleNotification
+                                                object:nil];
+
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:UIApplicationDidEnterBackgroundNotification
+                                                object:nil];
+}
+
+- (void)dealloc
+{
+    [self stop];
+    // In dealloc it's safe to unsubscribe for all, see
+    // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
     [NSNotificationCenter.defaultCenter removeObserver:self];
 }
 

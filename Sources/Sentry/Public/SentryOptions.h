@@ -71,8 +71,12 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) NSUInteger maxBreadcrumbs;
 
 /**
- * When enabled, the SDK adds breadcrumbs for each network request. Default value is YES.
- * As this feature uses swizzling, disabling enableSwizzling also disables this feature.
+ * When enabled, the SDK adds breadcrumbs for each network request. Default value is
+ * <code>YES</code>. As this feature uses swizzling, disabling <code>enableSwizzling</code> also
+ * disables this feature.
+ *
+ * @discussion If you want to enable or disable network tracking for performance monitoring, please
+ * use <code>enableNetworkTracking</code> instead.
  */
 @property (nonatomic, assign) BOOL enableNetworkBreadcrumbs;
 
@@ -235,9 +239,11 @@ NS_SWIFT_NAME(Options)
 #endif
 
 /**
- * When enabled, the SDK adds breadcrumbs for HTTP requests and tracks performance for HTTP
- * requests if auto performance tracking and enableSwizzling are enabled. The default is
- * <code>YES</code>.
+ * When enabled, the SDK tracks performance for HTTP requests if auto performance tracking and
+ * enableSwizzling are enabled. The default is <code>YES</code>.
+ *
+ * @discussion If you want to enable or disable network breadcrumbs, please use
+ * <code>enableNetworkBreadcrumbs</code> instead.
  */
 @property (nonatomic, assign) BOOL enableNetworkTracking;
 

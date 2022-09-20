@@ -150,7 +150,9 @@ SentryCrashIntegration ()
         installationToken = 0;
     }
 
-    [NSNotificationCenter.defaultCenter removeObserver:self];
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:NSCurrentLocaleDidChangeNotification
+                                                object:nil];
 }
 
 - (void)configureScope

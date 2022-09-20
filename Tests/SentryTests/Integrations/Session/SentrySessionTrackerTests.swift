@@ -1,7 +1,7 @@
 @testable import SentryObjc
 import XCTest
 
-class SentrySessionTrackerTests: XCTestCase {
+class SentrySessionTrackerTests: NotificationCenterTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySessionTrackerTests")
     private static let dsn = TestConstants.dsn(username: "SentrySessionTrackerTests")
@@ -60,10 +60,10 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     override func tearDown() {
-        super.tearDown()
         sut.stop()
-        
         clearTestState()
+        
+        super.tearDown()
     }
     
     func testOnlyForeground() {
@@ -76,7 +76,7 @@ class SentrySessionTrackerTests: XCTestCase {
     
     func testOnlyHybridSdkDidBecomeActive() {
         sut.start()
-        TestNotificationCenter.hybridSdkDidBecomeActive()
+        hybridSdkDidBecomeActive()
         
         assertInitSessionSent()
         assertSessionStored()
@@ -85,7 +85,7 @@ class SentrySessionTrackerTests: XCTestCase {
     func testForeground_And_HybridSdkDidBecomeActive() {
         sut.start()
         goToForeground()
-        TestNotificationCenter.hybridSdkDidBecomeActive()
+        hybridSdkDidBecomeActive()
         
         assertInitSessionSent()
         assertSessionStored()
@@ -93,7 +93,7 @@ class SentrySessionTrackerTests: XCTestCase {
     
     func testHybridSdkDidBecomeActive_and_Foreground() {
         sut.start()
-        TestNotificationCenter.hybridSdkDidBecomeActive()
+        hybridSdkDidBecomeActive()
         
         goToForeground()
         
@@ -246,7 +246,7 @@ class SentrySessionTrackerTests: XCTestCase {
         
         // Background task is launched
         advanceTime(bySeconds: 30)
-        TestNotificationCenter.didEnterBackground()
+        didEnterBackground()
         advanceTime(bySeconds: 9)
         
         // user opens app
@@ -263,7 +263,7 @@ class SentrySessionTrackerTests: XCTestCase {
         
         // Background task is launched
         advanceTime(bySeconds: 1)
-        TestNotificationCenter.didEnterBackground()
+        didEnterBackground()
         advanceTime(bySeconds: 1)
         
         // user opens app
@@ -348,29 +348,19 @@ class SentrySessionTrackerTests: XCTestCase {
         fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(bySeconds))
     }
     
-    private func goToForeground() {
-        TestNotificationCenter.willEnterForeground()
-        TestNotificationCenter.didBecomeActive()
-    }
-    
     private func goToBackground(forSeconds: TimeInterval) {
         goToBackground()
         advanceTime(bySeconds: forSeconds)
         goToForeground()
     }
     
-    private func goToBackground() {
-        TestNotificationCenter.willResignActive()
-        TestNotificationCenter.didEnterBackground()
-    }
-    
-    private func terminateApp() {
-        TestNotificationCenter.willTerminate()
+    internal override func terminateApp() {
+        super.terminateApp()
         sut.stop()
     }
     
     private func resumeAppInBackground() {
-        TestNotificationCenter.didEnterBackground()
+        didEnterBackground()
     }
     
     private func launchBackgroundTaskAppNotRunning() {
@@ -379,7 +369,7 @@ class SentrySessionTrackerTests: XCTestCase {
         sut = fixture.getSut()
         
         sut.start()
-        TestNotificationCenter.didEnterBackground()
+        didEnterBackground()
     }
     
     private func captureError() {

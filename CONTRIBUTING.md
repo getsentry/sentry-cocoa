@@ -51,7 +51,12 @@ Test can either be ran inside from Xcode or via
 make test
 ```
 
+### Flaky tests
+
+If you see a test being flaky, you should ideally fix it immediately. If that's not feasible, you can disable the test in the test scheme, add a suffix _disabled to the test, so it's clear when looking at the test that it is disabled, and create a GH issue with the label flaky test. Disabling the test in the scheme has the advantage that the test report will state "X tests passed, Y tests failed, Z tests skipped".
+
 ## Code Formatting
+
 Please follow the convention of removing the copyright code comments at the top of files. We only keep them inside [SentryCrash](/SentryCrash/),
 as the code is based on [KSCrash](https://github.com/kstenerud/KSCrash).
 
@@ -62,6 +67,7 @@ make format
 ```
 
 ## Linting
+
 We use [Swiftlint](https://github.com/realm/SwiftLint) and Clang-Format. For Swiftlint we keep a seperate [config file](/Tests/.swiftlint) for the tests. To run all the linters locally execute:
 
 ```sh
@@ -84,5 +90,5 @@ To make a header public follow these steps:
 
 When contributing to the codebase, please make note of the following:
 
-- Non-trivial PRs will not be accepted without tests (see above).
-- Please do not bump version numbers yourself.
+* Non-trivial PRs will not be accepted without tests (see above).
+* Please do not bump version numbers yourself.

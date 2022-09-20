@@ -1,7 +1,7 @@
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryOutOfMemoryTrackerTests: XCTestCase {
+class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryOutOfMemoryTrackerTests")
     private static let dsn = TestConstants.dsn(username: "SentryOutOfMemoryTrackerTests")
@@ -207,7 +207,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     
     func testAppOOM_WithOnlyHybridSdkDidBecomeActive() {
         sut.start()
-        TestNotificationCenter.hybridSdkDidBecomeActive()
+        hybridSdkDidBecomeActive()
         
         sut.start()
         assertOOMEventSent()
@@ -216,7 +216,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     func testAppOOM_Foreground_And_HybridSdkDidBecomeActive() {
         sut.start()
         goToForeground()
-        TestNotificationCenter.hybridSdkDidBecomeActive()
+        hybridSdkDidBecomeActive()
         
         sut.start()
         assertOOMEventSent()
@@ -224,7 +224,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     
     func testAppOOM_HybridSdkDidBecomeActive_and_Foreground() {
         sut.start()
-        TestNotificationCenter.hybridSdkDidBecomeActive()
+        hybridSdkDidBecomeActive()
         goToForeground()
         
         sut.start()
@@ -234,7 +234,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     func testTerminateApp_RunsOnMainThread() {
         sut.start()
         
-        TestNotificationCenter.willTerminate()
+        willTerminate()
         
         // 1 for start
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAsyncCalled)
@@ -257,7 +257,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         sut.start()
         sut.stop()
         
-        TestNotificationCenter.hybridSdkDidBecomeActive()
+        hybridSdkDidBecomeActive()
         goToForeground()
         terminateApp()
         
@@ -273,20 +273,6 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
             appState(currentAppState)
             fixture.fileManager.store(currentAppState)
         }
-    }
-    
-    private func goToForeground() {
-        TestNotificationCenter.willEnterForeground()
-        TestNotificationCenter.didBecomeActive()
-    }
-    
-    private func goToBackground() {
-        TestNotificationCenter.willResignActive()
-        TestNotificationCenter.didEnterBackground()
-    }
-    
-    private func terminateApp() {
-        TestNotificationCenter.willTerminate()
     }
     
     private func assertOOMEventSent() {

@@ -1,6 +1,6 @@
 import XCTest
 
-class SentryCrashIntegrationTests: XCTestCase {
+class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryCrashIntegrationTests")
     private static let dsn = TestConstants.dsn(username: "SentryCrashIntegrationTests")
@@ -226,7 +226,7 @@ class SentryCrashIntegrationTests: XCTestCase {
         
         sut.uninstall()
         
-        TestNotificationCenter.localeDidChange()
+        localeDidChange()
         
         assertLocaleOnHub(locale: locale, hub: hub)
     }
@@ -248,7 +248,7 @@ class SentryCrashIntegrationTests: XCTestCase {
             scope.removeContext(key: "device")
         }
         
-        TestNotificationCenter.localeDidChange()
+        localeDidChange()
         
         assertLocaleOnHub(locale: Locale.autoupdatingCurrent.identifier, hub: hub)
     }
@@ -260,7 +260,7 @@ class SentryCrashIntegrationTests: XCTestCase {
         
         setLocaleToGlobalScope(locale: "garbage")
         
-        TestNotificationCenter.localeDidChange()
+        localeDidChange()
         
         assertLocaleOnHub(locale: Locale.autoupdatingCurrent.identifier, hub: hub)
     }

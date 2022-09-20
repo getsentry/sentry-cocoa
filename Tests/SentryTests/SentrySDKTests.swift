@@ -482,12 +482,28 @@ class SentrySDKTests: XCTestCase {
         XCTAssertNotEqual(first, second)
     }
     
-    // Altough we only run this test above the below specified versions, we exped the
+    func testFlush_CallsFlushCorrectlyOnTransport() {
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+        }
+        
+        let transport = TestTransport()
+        let client = Client(options: fixture.options)
+        Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
+        SentrySDK.currentHub().bindClient(client)
+        
+        let flushTimeout = 10.0
+        SentrySDK.flush(timeout: flushTimeout)
+        
+        XCTAssertEqual(flushTimeout, transport.flushInvocations.first)
+    }
+    
+    // Although we only run this test above the below specified versions, we expect the
     // implementation to be thread safe
     @available(tvOS 10.0, *)
     @available(OSX 10.12, *)
     @available(iOS 10.0, *)
-    func testSetpAppStartMeasurmentConcurrently_() {
+    func testSetpAppStartMeasurementConcurrently_() {
         func setAppStartMeasurement(_ queue: DispatchQueue, _ i: Int) {
             group.enter()
             queue.async {

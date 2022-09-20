@@ -1,7 +1,7 @@
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryAppStartTrackingIntegrationTests: XCTestCase {
+class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
     
     private class Fixture {
         let options = Options()
@@ -37,7 +37,7 @@ class SentryAppStartTrackingIntegrationTests: XCTestCase {
     func testAppStartMeasuringEnabledAndSampleRate_DoesUpdatesAppState() {
         sut.install(with: fixture.options)
         
-        TestNotificationCenter.uiWindowDidBecomeVisible()
+        uiWindowDidBecomeVisible()
         
         XCTAssertNotNil(SentrySDK.getAppStartMeasurement())
     }
@@ -48,7 +48,7 @@ class SentryAppStartTrackingIntegrationTests: XCTestCase {
         options.tracesSampler = nil
         sut.install(with: options)
         
-        TestNotificationCenter.uiWindowDidBecomeVisible()
+        uiWindowDidBecomeVisible()
         
         XCTAssertNil(SentrySDK.getAppStartMeasurement())
     }
@@ -61,7 +61,7 @@ class SentryAppStartTrackingIntegrationTests: XCTestCase {
         options.tracesSampler = nil
         sut.install(with: options)
         
-        TestNotificationCenter.uiWindowDidBecomeVisible()
+        uiWindowDidBecomeVisible()
         
         XCTAssertNotNil(SentrySDK.getAppStartMeasurement())
     }
@@ -72,7 +72,7 @@ class SentryAppStartTrackingIntegrationTests: XCTestCase {
         options.tracesSampler = nil
         sut.install(with: options)
         
-        TestNotificationCenter.uiWindowDidBecomeVisible()
+        uiWindowDidBecomeVisible()
         
         XCTAssertNil(SentrySDK.getAppStartMeasurement())
     }
@@ -82,7 +82,7 @@ class SentryAppStartTrackingIntegrationTests: XCTestCase {
         options.enableAutoPerformanceTracking = false
         sut.install(with: options)
         
-        TestNotificationCenter.uiWindowDidBecomeVisible()
+        uiWindowDidBecomeVisible()
         
         XCTAssertNil(SentrySDK.getAppStartMeasurement())
     }

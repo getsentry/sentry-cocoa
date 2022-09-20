@@ -5,7 +5,7 @@ import XCTest
 * This isn't an actual test. It sends Sessions to the Sentry, but doesn't verify if they arrive there.
 */
 @available(OSX 10.10, *)
-class SentrySessionGeneratorTests: XCTestCase {
+class SentrySessionGeneratorTests: NotificationCenterTestCase {
     
     struct Sessions {
         var healthy = 0
@@ -156,18 +156,14 @@ class SentrySessionGeneratorTests: XCTestCase {
     }
     
     private func goToForeground(forSeconds: TimeInterval = 0.2) {
-        TestNotificationCenter.willEnterForeground()
-        TestNotificationCenter.didBecomeActive()
+        willEnterForeground()
+        didBecomeActive()
         delayNonBlocking(timeout: forSeconds)
     }
     
     private func goToBackground(forSeconds: TimeInterval = 0.2) {
-        TestNotificationCenter.willResignActive()
-        TestNotificationCenter.didEnterBackground()
+        willResignActive()
+        didEnterBackground()
         delayNonBlocking(timeout: forSeconds)
-    }
-    
-    private func terminateApp() {
-        TestNotificationCenter.willTerminate()
     }
 }

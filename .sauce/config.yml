@@ -21,7 +21,7 @@ suites:
   - name: "iPhone-Pro"
     devices:
       - name: "iPhone 13 Pro.*"
-        platformVersion: "15.6"
+        platformVersion: "15"
         
   - name: "iOS-14"
     devices:

@@ -62,13 +62,11 @@ SentryCrashReportSink ()
                     [self handleConvertedEvent:event report:report sentReports:sentReports];
                 }
             } else {
-                [SentryLog logWithMessage:@"Crash reports were found but no "
-                                          @"[SentrySDK.currentHub getClient] is set. Cannot send "
-                                          @"crash reports to Sentry. This is probably a "
-                                          @"misconfiguration, make sure you set the client with "
-                                          @"[SentrySDK.currentHub bindClient] before calling "
-                                          @"startCrashHandlerWithError:."
-                                 andLevel:kSentryLevelError];
+                SENTRY_LOG_ERROR(
+                    @"Crash reports were found but no [SentrySDK.currentHub getClient] is set. "
+                    @"Cannot send crash reports to Sentry. This is probably a misconfiguration, "
+                    @"make sure you set the client with [SentrySDK.currentHub bindClient] before "
+                    @"calling startCrashHandlerWithError:.");
             }
         }
         if (onCompletion) {

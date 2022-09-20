@@ -156,8 +156,7 @@ SentryCrashScopeObserver ()
                                     options:SentryCrashJSONEncodeOptionSorted
                                       error:&error];
         if (error != nil) {
-            NSString *message = [NSString stringWithFormat:@"Could not serialize %@", error];
-            [SentryLog logWithMessage:message andLevel:kSentryLevelError];
+            SENTRY_LOG_ERROR(@"Could not serialize %@", error);
             return nil;
         }
     }

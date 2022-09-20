@@ -2,11 +2,6 @@
 
 name: Generate Profiling Test Data
 on:
-  schedule:
-    - cron: '0 */6 * * *' # every 6 hours = 4x/day
-  push:
-    branches:
-      - master
   pull_request:
     paths:
       - '.github/workflows/profile-data-generator.yml'
@@ -92,7 +87,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: data-generator-build-products
-      - run: npm install -g saucectl@0.99.4
+      - run: npm install -g saucectl@0.107.2
       - name: Run Tests in Sauce Labs
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}

@@ -281,4 +281,9 @@ class ViewController: UIViewController {
         controller.title = "Permissions"
         navigationController?.pushViewController(controller, animated: true)
     }
+    
+    @IBAction func flush(_ sender: Any) {
+        SentrySDK.flush(timeout: 5)
+    }
+    
 }

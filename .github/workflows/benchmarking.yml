@@ -1,16 +1,7 @@
 name: Benchmarking
 on:
-  schedule:
-    - cron: '0 0 * * *' # every night at midnight UTC
-  push:
-    branches:
-      - master
-
   pull_request:
     paths:
-        # test changes to Sentry SDK sources
-      - 'Sources/**'
-
         # test changes to benchmarking implementation
       - 'Samples/iOS-Swift/iOS-Swift/**'
       - 'Samples/iOS-Swift/PerformanceBenchmarks/**'
@@ -90,7 +81,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: DerivedData-Xcode
-      - run: npm install -g saucectl@0.99.4
+      - run: npm install -g saucectl@0.107.2
       - name: Run Benchmarks in SauceLab
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
