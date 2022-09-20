@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 // The size of Documents & Data. This gets updated periodically.
 // A value of -1 means the size wasn't calculated (yet).
-@property (nonatomic) NSInteger appDataSize;
+@property (nonatomic) long long appDataSize;
 
 @end
 

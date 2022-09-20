@@ -36,7 +36,7 @@ SentryAppDataSizeObserver ()
 }
 
 // Code from https://github.com/NikolaiRuhe/NRFoundation/blob/master/NRFoundation/NRFileManager.m
-- (NSInteger)readAppDataSize
+- (long long)readAppDataSize
 {
     // We'll sum up content size here:
     unsigned long long accumulatedSize = 0;
