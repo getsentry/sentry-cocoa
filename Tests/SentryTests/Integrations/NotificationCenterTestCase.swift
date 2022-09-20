@@ -15,10 +15,10 @@ class NotificationCenterTestCase: XCTestCase {
     let willTerminateNotification = UIApplication.willTerminateNotification
     let didFinishLaunchingNotification = UIApplication.didFinishLaunchingNotification
     #elseif os(macOS)
-    static let didBecomeActiveNotification = NSApplication.didBecomeActiveNotification
-    static let willResignActiveNotification = NSApplication.willResignActiveNotification
-    static let willTerminateNotification = NSApplication.willTerminateNotification
-    static let didFinishLaunchingNotification = NSApplication.didFinishLaunchingNotification
+    let didBecomeActiveNotification = NSApplication.didBecomeActiveNotification
+    let willResignActiveNotification = NSApplication.willResignActiveNotification
+    let willTerminateNotification = NSApplication.willTerminateNotification
+    let didFinishLaunchingNotification = NSApplication.didFinishLaunchingNotification
     #endif
     
     func goToForeground() {
