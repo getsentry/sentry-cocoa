@@ -1,6 +1,7 @@
 import Sentry
 
 class TestSentryUIDeviceWrapper: SentryUIDeviceWrapper {
+#if TARGET_OS_IOS
     var internalOrientation = UIDeviceOrientation.portrait
     var internalIsBatteryMonitoringEnabled = true
     var internalBatteryLevel: Float = 0.6
@@ -21,4 +22,5 @@ class TestSentryUIDeviceWrapper: SentryUIDeviceWrapper {
     override func batteryState() -> UIDevice.BatteryState {
         return interalBatteryState
     }
+#endif
 }
