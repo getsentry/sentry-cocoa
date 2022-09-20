@@ -3,7 +3,8 @@
 #import "SentryTransport.h"
 #import <Sentry/Sentry.h>
 
-@class SentryCrashWrapper, SentryThreadInspector, SentryTransportAdapter, SentryUIDeviceWrapper;
+@class SentryCrashWrapper, SentryThreadInspector, SentryTransportAdapter, SentryUIDeviceWrapper,
+    SentryAppDataSizeObserver;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -22,6 +23,7 @@ SentryClient (TestInit)
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
             permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
                   deviceWrapper:(SentryUIDeviceWrapper *)deviceWrapper
+            appDataSizeObserver:(SentryAppDataSizeObserver *)appDataSizeObserver
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone;
 

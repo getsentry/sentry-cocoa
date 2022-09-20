@@ -73,6 +73,7 @@ class SentryClientTest: XCTestCase {
                     crashWrapper: crashWrapper,
                     permissionsObserver: permissionsObserver,
                     deviceWrapper: deviceWrapper,
+                    appDataSizeObserver: SentryAppDataSizeObserver(),
                     locale: locale,
                     timezone: timezone
                 )

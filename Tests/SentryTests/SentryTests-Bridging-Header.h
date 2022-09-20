@@ -9,6 +9,7 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryANRTracker.h"
 #import "SentryANRTrackingIntegration.h"
+#import "SentryAppDataSizeObserver.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryAppStartTracker.h"
 #import "SentryAppStartTrackingIntegration.h"

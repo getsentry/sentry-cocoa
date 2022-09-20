@@ -6,6 +6,7 @@
 
 - Add flush (#2140)
 - Add a bunch more device context properties (#2190)
+- Send app data size in app context (#2197)
 
 ### Fixes
 
