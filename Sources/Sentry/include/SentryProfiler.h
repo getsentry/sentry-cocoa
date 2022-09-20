@@ -4,7 +4,7 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryCompiler.h"
-#import "SentrySpan.h"
+#    import "SentrySpan.h"
 
 #    if SENTRY_HAS_UIKIT
 @class SentryFramesTracker;
@@ -21,7 +21,6 @@ typedef NS_ENUM(NSUInteger, SentryProfilerTruncationReason) {
     SentryProfilerTruncationReasonTimeout,
     SentryProfilerTruncationReasonAppMovedToBackground,
 };
-
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -57,17 +56,23 @@ SENTRY_EXTERN_C_END
 + (void)startForSpanID:(SentrySpanId *)spanID hub:(SentryHub *)hub;
 
 /**
- * Report that a span ended to the profiler so it can update bookkeeping and if it was the last concurrent span being profiled, stops the profiler.
+ * Report that a span ended to the profiler so it can update bookkeeping and if it was the last
+ * concurrent span being profiled, stops the profiler.
  */
 + (void)stopProfilingSpan:(id<SentrySpan>)span;
 
 /**
- * Certain transactions may be dropped by the SDK at the time they are ended, when we've already been tracking them for profiling. This allows them to be removed from bookkeeping and finish profile if necessary.
+ * Certain transactions may be dropped by the SDK at the time they are ended, when we've already
+ * been tracking them for profiling. This allows them to be removed from bookkeeping and finish
+ * profile if necessary.
  */
-+ (void)dropTransaction:(SentryTransaction *)transaction;;
++ (void)dropTransaction:(SentryTransaction *)transaction;
+;
 
 /**
- * After the SDK creates a transaction for a span, link it to this profile. If it was the last concurrent span being profiled, capture an envelope with the profile data and clean up the profiler.
+ * After the SDK creates a transaction for a span, link it to this profile. If it was the last
+ * concurrent span being profiled, capture an envelope with the profile data and clean up the
+ * profiler.
  */
 + (void)linkTransaction:(SentryTransaction *)transaction;
 

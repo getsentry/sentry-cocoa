@@ -1,6 +1,7 @@
 #import "SentryProfiler.h"
 
-@interface SentryProfiler (SentryTest)
+@interface
+SentryProfiler (SentryTest)
 
 + (void)timeoutAbort;
 

@@ -136,14 +136,14 @@ SentryProfiler *_Nullable _gCurrentProfiler;
 
 + (void)initialize
 {
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
     if (self == [SentryProfiler class]) {
         _gProfilersPerSpanID = [NSMutableDictionary<SentrySpanId *, SentryProfiler *> dictionary];
     }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
 - (instancetype)init
 {
     if (![NSThread isMainThread]) {
@@ -162,59 +162,62 @@ SentryProfiler *_Nullable _gCurrentProfiler;
     _transactions = [NSMutableArray<SentryTransaction *> array];
     return self;
 }
-#endif
+#    endif
 
 #    pragma mark - Public
 
 + (void)startForSpanID:(SentrySpanId *)spanID hub:(SentryHub *)hub
 {
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
     if (_gCurrentProfiler == nil) {
         _gCurrentProfiler = [[SentryProfiler alloc] init];
-#if SENTRY_HAS_UIKIT
+#        if SENTRY_HAS_UIKIT
         [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
-#endif // SENTRY_HAS_UIKIT
+#        endif // SENTRY_HAS_UIKIT
         [_gCurrentProfiler start];
-        _gCurrentProfiler->_timeoutTimer = [NSTimer
-            scheduledTimerWithTimeInterval:30
-                                   repeats:NO
-                                     block:^(NSTimer *_Nonnull timer) {
-                                         SENTRY_LOG_DEBUG(
-                                             @"Profiler %@ timed out.", _gCurrentProfiler);
-                                         [[self class] timeoutAbort];
-                                     }];
+        _gCurrentProfiler->_timeoutTimer =
+            [NSTimer scheduledTimerWithTimeInterval:30
+                                            repeats:NO
+                                              block:^(NSTimer *_Nonnull timer) {
+                                                  SENTRY_LOG_DEBUG(
+                                                      @"Profiler %@ timed out.", _gCurrentProfiler);
+                                                  [[self class] timeoutAbort];
+                                              }];
         _gCurrentProfiler->_hub = hub;
     }
 
-    SENTRY_LOG_DEBUG(@"Tracking span with ID %@ with profiler %@", spanID.sentrySpanIdString, _gCurrentProfiler);
+    SENTRY_LOG_DEBUG(
+        @"Tracking span with ID %@ with profiler %@", spanID.sentrySpanIdString, _gCurrentProfiler);
     [_gCurrentProfiler->_spansInFlight addObject:spanID];
     _gProfilersPerSpanID[spanID] = _gCurrentProfiler;
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 + (void)stopProfilingSpan:(id<SentrySpan>)span
 {
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
     if (_gCurrentProfiler == nil) {
-        SENTRY_LOG_DEBUG(@"No profiler tracking span with id %@", span.context.spanId.sentrySpanIdString);
+        SENTRY_LOG_DEBUG(
+            @"No profiler tracking span with id %@", span.context.spanId.sentrySpanIdString);
         return;
     }
 
     [_gCurrentProfiler->_spansInFlight removeObject:span.context.spanId];
     if (_gCurrentProfiler->_spansInFlight.count == 0) {
-        SENTRY_LOG_DEBUG(@"Stopping profiler %@ because span with id %@ was last being profiled.", _gCurrentProfiler, span.context.spanId.sentrySpanIdString);
+        SENTRY_LOG_DEBUG(@"Stopping profiler %@ because span with id %@ was last being profiled.",
+            _gCurrentProfiler, span.context.spanId.sentrySpanIdString);
         [self stopProfilerForReason:SentryProfilerTruncationReasonNormal];
     }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 + (void)dropTransaction:(SentryTransaction *)transaction
 {
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
     const auto spanID = transaction.trace.context.spanId;
@@ -225,12 +228,12 @@ SentryProfiler *_Nullable _gCurrentProfiler;
     }
 
     [self captureEnvelopeIfFinished:profiler spanID:spanID];
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 + (void)linkTransaction:(SentryTransaction *)transaction
 {
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
     const auto spanID = transaction.trace.context.spanId;
@@ -245,20 +248,21 @@ SentryProfiler *_Nullable _gCurrentProfiler;
     [profiler addTransaction:transaction];
 
     [self captureEnvelopeIfFinished:profiler spanID:spanID];
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 + (BOOL)isRunning
 {
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
     std::lock_guard<std::mutex> l(_gProfilerLock);
     return [_gCurrentProfiler isRunning];
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 #    pragma mark - Private
 
-+ (void)captureEnvelopeIfFinished:(SentryProfiler *)profiler spanID:(SentrySpanId *)spanID {
++ (void)captureEnvelopeIfFinished:(SentryProfiler *)profiler spanID:(SentrySpanId *)spanID
+{
     [_gProfilersPerSpanID removeObjectForKey:spanID];
     [profiler->_spansInFlight removeObject:spanID];
     if (profiler->_spansInFlight.count == 0) {
@@ -269,7 +273,8 @@ SentryProfiler *_Nullable _gCurrentProfiler;
     }
 }
 
-+ (void)timeoutAbort {
++ (void)timeoutAbort
+{
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
     if (_gCurrentProfiler == nil) {
@@ -281,7 +286,8 @@ SentryProfiler *_Nullable _gCurrentProfiler;
     [self stopProfilerForReason:SentryProfilerTruncationReasonTimeout];
 }
 
-+ (void)stopProfilerForReason:(SentryProfilerTruncationReason)reason {
++ (void)stopProfilerForReason:(SentryProfilerTruncationReason)reason
+{
     [_gCurrentProfiler->_timeoutTimer invalidate];
     [_gCurrentProfiler stop];
     _gCurrentProfiler->_truncationReason = reason;
@@ -386,7 +392,7 @@ SentryProfiler *_Nullable _gCurrentProfiler;
                 }
                 [samples addObject:sample];
             },
-           kSentryProfilerFrequencyHz);
+            kSentryProfilerFrequencyHz);
         _profiler->startSampling();
     }
 }
