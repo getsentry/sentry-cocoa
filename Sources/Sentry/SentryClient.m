@@ -42,6 +42,7 @@
 #import "SentryTransport.h"
 #import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
+#import "SentryUIDeviceWrapper.h"
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
 
@@ -63,10 +64,9 @@ SentryClient ()
     NSMutableArray<id<SentryClientAttachmentProcessor>> *attachmentProcessors;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryPermissionsObserver *permissionsObserver;
+@property (nonatomic, strong) SentryUIDeviceWrapper *deviceWrapper;
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
-@property (nonatomic) BOOL cleanupDeviceOrientationNotifications;
-@property (nonatomic) BOOL cleanupBatteryMonitoring;
 
 @end
 
@@ -113,20 +113,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     SentryThreadInspector *threadInspector =
         [[SentryThreadInspector alloc] initWithStacktraceBuilder:stacktraceBuilder
                                         andMachineContextWrapper:machineContextWrapper];
-
-#if TARGET_OS_IOS
-    // Needed to read the device orientation on demand
-    if (!UIDevice.currentDevice.isGeneratingDeviceOrientationNotifications) {
-        self.cleanupDeviceOrientationNotifications = YES;
-        [UIDevice.currentDevice beginGeneratingDeviceOrientationNotifications];
-    }
-
-    // Needed so we can read the battery level
-    if (!UIDevice.currentDevice.isBatteryMonitoringEnabled) {
-        self.cleanupBatteryMonitoring = YES;
-        UIDevice.currentDevice.batteryMonitoringEnabled = YES;
-    }
-#endif
+    SentryUIDeviceWrapper *deviceWrapper = [[SentryUIDeviceWrapper alloc] init];
 
     return [self initWithOptions:options
                 transportAdapter:transportAdapter
@@ -135,6 +122,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
                           random:[SentryDependencyContainer sharedInstance].random
                     crashWrapper:[SentryCrashWrapper sharedInstance]
              permissionsObserver:permissionsObserver
+                   deviceWrapper:deviceWrapper
                           locale:[NSLocale autoupdatingCurrentLocale]
                         timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone];
 }
@@ -146,6 +134,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
                          random:(id<SentryRandom>)random
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
             permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
+                  deviceWrapper:(SentryUIDeviceWrapper *)deviceWrapper
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone
 {
@@ -161,20 +150,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.locale = locale;
         self.timezone = timezone;
         self.attachmentProcessors = [[NSMutableArray alloc] init];
+        self.deviceWrapper = deviceWrapper;
     }
     return self;
-}
-
-- (void)dealloc
-{
-#if TARGET_OS_IOS
-    if (self.cleanupDeviceOrientationNotifications) {
-        [UIDevice.currentDevice endGeneratingDeviceOrientationNotifications];
-    }
-    if (self.cleanupBatteryMonitoring) {
-        UIDevice.currentDevice.batteryMonitoringEnabled = NO;
-    }
-#endif
 }
 
 - (SentryFileManager *)fileManager
@@ -797,17 +775,20 @@ NSString *const kSentryDefaultEnvironment = @"production";
                       device[@"free_storage"] = @(self.crashWrapper.freeStorage);
 
 #if TARGET_OS_IOS
-                      device[@"orientation"]
-                          = UIDeviceOrientationIsPortrait(UIDevice.currentDevice.orientation)
-                          ? @"portrait"
-                          : @"landscape";
+                      if (self.deviceWrapper.orientation != UIDeviceOrientationUnknown) {
+                          device[@"orientation"]
+                              = UIDeviceOrientationIsPortrait(self.deviceWrapper.orientation)
+                              ? @"portrait"
+                              : @"landscape";
+                      }
 
-                      if (UIDevice.currentDevice.isBatteryMonitoringEnabled) {
+                      if (self.deviceWrapper.isBatteryMonitoringEnabled) {
                           device[@"charging"]
-                              = UIDevice.currentDevice.batteryState == UIDeviceBatteryStateCharging
+                              = self.deviceWrapper.batteryState == UIDeviceBatteryStateCharging
                               ? @(YES)
                               : @(NO);
-                          device[@"battery_level"] = @(UIDevice.currentDevice.batteryLevel * 100);
+                          device[@"battery_level"] =
+                              @((int)(self.deviceWrapper.batteryLevel * 100));
                       }
 #endif
                   }];

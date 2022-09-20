@@ -16,6 +16,7 @@
     instance.closeCalled = NO;
     instance.internalFreeMemory = 0;
     instance.internalAppMemory = 0;
+    instance.internalFreeStorage = 0;
     return instance;
 }
 
@@ -67,6 +68,11 @@
 - (uint64_t)appMemory
 {
     return self.internalAppMemory;
+}
+
+- (uint64_t)freeStorage
+{
+    return self.internalFreeStorage;
 }
 
 @end
