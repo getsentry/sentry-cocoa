@@ -29,9 +29,8 @@
 #    endif
 
 #    import <cstdint>
-#import <mach-o/arch.h>
-#include <sys/types.h>
-#include <mach/machine.h>
+#    import <mach-o/arch.h>
+#    include <mach/machine.h>
 #    import <memory>
 
 #    if TARGET_OS_IOS
@@ -212,19 +211,19 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     }
 
     profile[@"os"] = @{
-        @"name": getOSName(),
-        @"version": getOSVersion(),
-        @"build_number": getOSBuildNumber()
+        @"name" : getOSName(),
+        @"version" : getOSVersion(),
+        @"build_number" : getOSBuildNumber()
     };
 
     const auto isEmulated = sentry_isSimulatorBuild();
     profile[@"device"] = @{
-        @"architecture": sentry_getCPUArchitecture(),
-        @"is_emulator": @(isEmulated),
-        @"locale": NSLocale.currentLocale.localeIdentifier,
-        @"manufacturer": @"Apple",
-    profile[@"device_os_name"] = sentry_getOSName();
-        @"model": isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel()
+        @"architecture" : sentry_getCPUArchitecture(),
+        @"is_emulator" : @(isEmulated),
+        @"locale" : NSLocale.currentLocale.localeIdentifier,
+        @"manufacturer" : @"Apple",
+        @"model" : isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel(),
+		@"os_name" : sentry_getOSName()
     };
     profile[@"device_physical_memory_bytes"] =
         [@(NSProcessInfo.processInfo.physicalMemory) stringValue];
@@ -238,7 +237,10 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     profile[@"duration_ns"] = [@(getDurationNs(_startTimestamp, getAbsoluteTime())) stringValue];
 
     const auto bundle = NSBundle.mainBundle;
-    profile[@"release"] = [NSString stringWithFormat:@"%@ (%@)", [bundle objectForInfoDictionaryKey:(NSString *)kCFBundleVersionKey], [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
+    profile[@"release"] =
+        [NSString stringWithFormat:@"%@ (%@)",
+                  [bundle objectForInfoDictionaryKey:(NSString *)kCFBundleVersionKey],
+                  [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
 
 #    if SENTRY_HAS_UIKIT
     auto relativeFrameTimestampsNs = [NSMutableArray array];
