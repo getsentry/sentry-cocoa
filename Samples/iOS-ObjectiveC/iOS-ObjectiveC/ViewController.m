@@ -1,6 +1,5 @@
 #import "ViewController.h"
-
-@import Sentry;
+@import SentryObjc;
 
 @interface
 ViewController ()
