@@ -120,16 +120,29 @@ SentryNetworkTracker ()
             return;
         }
 
-        SEL setCurrentRequestSelector = NSSelectorFromString(@"setCurrentRequest:");
-        if ([sessionTask currentRequest] &&
-            [sessionTask respondsToSelector:setCurrentRequestSelector]) {
-            NSMutableURLRequest *currentRequest = sessionTask.currentRequest.mutableCopy;
-            [currentRequest setValue:[netSpan toTraceHeader].value
-                  forHTTPHeaderField:SENTRY_TRACE_HEADER];
+        if ([sessionTask currentRequest]) {
+            NSMutableURLRequest *newRequest = nil;
+            if ([sessionTask.currentRequest isKindOfClass:[NSMutableURLRequest class]]) {
+                newRequest = (NSMutableURLRequest *)sessionTask.currentRequest;
+            } else {
+                // Even though NSURLSessionTask doesn't have 'setCurrentRequest', some subclasses
+                // do. For those subclasses we replace the currentRequest with a mutable one with
+                // the additional trace header. Since NSURLSessionTask is a public class and can be
+                // override, we believe this is not considered a private api.
+                SEL setCurrentRequestSelector = NSSelectorFromString(@"setCurrentRequest:");
+                if ([sessionTask respondsToSelector:setCurrentRequestSelector]) {
+                    newRequest = [sessionTask.currentRequest mutableCopy];
 
-            IMP imp = [sessionTask methodForSelector:setCurrentRequestSelector];
-            void (*func)(id, SEL, id param) = (void *)imp;
-            func(sessionTask, setCurrentRequestSelector, currentRequest);
+                    void (*func)(id, SEL, id param)
+                        = (void *)[sessionTask methodForSelector:setCurrentRequestSelector];
+                    func(sessionTask, setCurrentRequestSelector, newRequest);
+                }
+            }
+
+            if (newRequest) {
+                [newRequest setValue:[netSpan toTraceHeader].value
+                    forHTTPHeaderField:SENTRY_TRACE_HEADER];
+            }
         }
 
         [SentryLog
