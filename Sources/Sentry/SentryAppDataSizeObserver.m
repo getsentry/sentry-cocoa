@@ -13,6 +13,7 @@ SentryAppDataSizeObserver ()
     if (self) {
         self.appDataSize = -1;
 
+#if TARGET_OS_IOS
         self.updateTimer = [NSTimer scheduledTimerWithTimeInterval:60
                                                             target:self
                                                           selector:@selector(updateAppDataSize)
@@ -20,6 +21,7 @@ SentryAppDataSizeObserver ()
                                                            repeats:YES];
         // Kick off the calculation immediately
         [self.updateTimer fire];
+#endif
     }
     return self;
 }

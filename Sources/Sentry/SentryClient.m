@@ -804,7 +804,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
                   block:^(NSMutableDictionary *app) {
                       app[SentryDeviceContextAppMemoryKey] = @(self.crashWrapper.appMemory);
 
-                      NSInteger dataStorage = self.appDataSizeObserver.appDataSize;
+                      long long dataStorage = self.appDataSizeObserver.appDataSize;
                       if (dataStorage != -1) {
                           app[@"data_storage"] = @(dataStorage);
                       }
