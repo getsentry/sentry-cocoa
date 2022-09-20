@@ -1,5 +1,4 @@
 #import "SentryNSNotificationCenterWrapper.h"
-#import "SentryThreadWrapper.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -7,34 +6,42 @@
 #    import <Cocoa/Cocoa.h>
 #endif
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation SentryNSNotificationCenterWrapper
 
+#if SENTRY_HAS_UIKIT
 + (NSNotificationName)didBecomeActiveNotificationName
 {
-#if SENTRY_HAS_UIKIT
     return UIApplicationDidBecomeActiveNotification;
-#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
-    return NSApplicationDidBecomeActiveNotification;
-#endif
 }
 
 + (NSNotificationName)willResignActiveNotificationName
 {
-#if SENTRY_HAS_UIKIT
     return UIApplicationWillResignActiveNotification;
-#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
-    return NSApplicationWillResignActiveNotification;
-#endif
 }
 
 + (NSNotificationName)willTerminateNotificationName
 {
-#if SENTRY_HAS_UIKIT
     return UIApplicationWillTerminateNotification;
-#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
-    return NSApplicationWillTerminateNotification;
-#endif
 }
+
+#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
++ (NSNotificationName)didBecomeActiveNotificationName
+{
+    return NSApplicationDidBecomeActiveNotification;
+}
+
++ (NSNotificationName)willResignActiveNotificationName
+{
+    return NSApplicationWillResignActiveNotification;
+}
+
++ (NSNotificationName)willTerminateNotificationName
+{
+    return NSApplicationWillTerminateNotification;
+}
+#endif
 
 - (void)addObserver:(id)observer selector:(SEL)aSelector name:(NSNotificationName)aName
 {
@@ -55,3 +62,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
