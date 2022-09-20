@@ -39,6 +39,9 @@
 #        import <UIKit/UIKit.h>
 #    endif
 
+const int kSentryProfilerFrequencyHz = 101;
+NSString *const kTestStringConst = @"test";
+
 using namespace sentry::profiling;
 
 NSString *
@@ -128,15 +131,19 @@ SentryProfiler *_Nullable _gCurrentProfiler;
     SentryProfilerTruncationReason _truncationReason;
     SentryScreenFrames *_frameInfo;
     NSTimer *_timeoutTimer;
+    SentryHub *__weak _hub;
 }
 
 + (void)initialize
 {
+#if SENTRY_TARGET_PROFILING_SUPPORTED
     if (self == [SentryProfiler class]) {
         _gProfilersPerSpanID = [NSMutableDictionary<SentrySpanId *, SentryProfiler *> dictionary];
     }
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
 - (instancetype)init
 {
     if (![NSThread isMainThread]) {
@@ -155,11 +162,13 @@ SentryProfiler *_Nullable _gCurrentProfiler;
     _transactions = [NSMutableArray<SentryTransaction *> array];
     return self;
 }
+#endif
 
 #    pragma mark - Public
 
-+ (void)startForSpanID:(SentrySpanId *)spanID
++ (void)startForSpanID:(SentrySpanId *)spanID hub:(SentryHub *)hub
 {
+#if SENTRY_TARGET_PROFILING_SUPPORTED
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
     if (_gCurrentProfiler == nil) {
@@ -174,21 +183,93 @@ SentryProfiler *_Nullable _gCurrentProfiler;
                                      block:^(NSTimer *_Nonnull timer) {
                                          SENTRY_LOG_DEBUG(
                                              @"Profiler %@ timed out.", _gCurrentProfiler);
-                                         [[self class
-                                         ] maybeStopProfilerForSpanID:spanID
-                                                               reason:
-                                                                   SentryProfilerTruncationReasonTimeout];
+                                         [[self class] timeoutAbort];
                                      }];
+        _gCurrentProfiler->_hub = hub;
     }
 
     SENTRY_LOG_DEBUG(@"Tracking span with ID %@ with profiler %@", spanID.sentrySpanIdString, _gCurrentProfiler);
     [_gCurrentProfiler->_spansInFlight addObject:spanID];
     _gProfilersPerSpanID[spanID] = _gCurrentProfiler;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
-+ (void)maybeStopProfilerForSpanID:(SentrySpanId *)spanID
-                            reason:(SentryProfilerTruncationReason)reason
++ (void)stopProfilingSpan:(id<SentrySpan>)span
 {
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    std::lock_guard<std::mutex> l(_gProfilerLock);
+
+    if (_gCurrentProfiler == nil) {
+        SENTRY_LOG_DEBUG(@"No profiler tracking span with id %@", span.context.spanId.sentrySpanIdString);
+        return;
+    }
+
+    [_gCurrentProfiler->_spansInFlight removeObject:span.context.spanId];
+    if (_gCurrentProfiler->_spansInFlight.count == 0) {
+        SENTRY_LOG_DEBUG(@"Stopping profiler %@ because span with id %@ was last being profiled.", _gCurrentProfiler, span.context.spanId.sentrySpanIdString);
+        [self stopProfilerForReason:SentryProfilerTruncationReasonNormal];
+    }
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+}
+
++ (void)dropTransaction:(SentryTransaction *)transaction
+{
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    std::lock_guard<std::mutex> l(_gProfilerLock);
+
+    const auto spanID = transaction.trace.context.spanId;
+    const auto profiler = _gProfilersPerSpanID[spanID];
+    if (profiler == nil) {
+        SENTRY_LOG_DEBUG(@"No profiler tracking span with id %@", spanID.sentrySpanIdString);
+        return;
+    }
+
+    [self captureEnvelopeIfFinished:profiler spanID:spanID];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+}
+
++ (void)linkTransaction:(SentryTransaction *)transaction
+{
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    std::lock_guard<std::mutex> l(_gProfilerLock);
+
+    const auto spanID = transaction.trace.context.spanId;
+    SentryProfiler *profiler = _gProfilersPerSpanID[spanID];
+    if (profiler == nil) {
+        SENTRY_LOG_DEBUG(@"No profiler tracking span with id %@", spanID.sentrySpanIdString);
+        return;
+    }
+
+    SENTRY_LOG_DEBUG(@"Found profiler waiting for span with ID %@: %@",
+        transaction.trace.context.spanId.sentrySpanIdString, profiler);
+    [profiler addTransaction:transaction];
+
+    [self captureEnvelopeIfFinished:profiler spanID:spanID];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+}
+
++ (BOOL)isRunning
+{
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    std::lock_guard<std::mutex> l(_gProfilerLock);
+    return [_gCurrentProfiler isRunning];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+}
+
+#    pragma mark - Private
+
++ (void)captureEnvelopeIfFinished:(SentryProfiler *)profiler spanID:(SentrySpanId *)spanID {
+    [_gProfilersPerSpanID removeObjectForKey:spanID];
+    [profiler->_spansInFlight removeObject:spanID];
+    if (profiler->_spansInFlight.count == 0) {
+        [profiler captureEnvelope];
+        [profiler->_transactions removeAllObjects];
+    } else {
+        SENTRY_LOG_DEBUG(@"Profiler %@ is waiting for more spans to complete.", profiler);
+    }
+}
+
++ (void)timeoutAbort {
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
     if (_gCurrentProfiler == nil) {
@@ -196,59 +277,20 @@ SentryProfiler *_Nullable _gCurrentProfiler;
         return;
     }
 
-    [_gCurrentProfiler->_spansInFlight removeObject:spanID];
-    BOOL shouldStopNormally = reason == SentryProfilerTruncationReasonNormal
-        && _gCurrentProfiler->_spansInFlight.count == 0;
-    BOOL shouldStopAbnormally = reason == SentryProfilerTruncationReasonTimeout
-        || reason == SentryProfilerTruncationReasonAppMovedToBackground;
-    if ([_gCurrentProfiler isRunning] && (shouldStopNormally || shouldStopAbnormally)) {
-        SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to reason: %@.", _gCurrentProfiler,
-            profilerTruncationReasonName(reason));
-        [_gCurrentProfiler->_timeoutTimer invalidate];
-        [_gCurrentProfiler stop];
-        _gCurrentProfiler->_truncationReason = reason;
+    SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", _gCurrentProfiler);
+    [self stopProfilerForReason:SentryProfilerTruncationReasonTimeout];
+}
+
++ (void)stopProfilerForReason:(SentryProfilerTruncationReason)reason {
+    [_gCurrentProfiler->_timeoutTimer invalidate];
+    [_gCurrentProfiler stop];
+    _gCurrentProfiler->_truncationReason = reason;
 #    if SENTRY_HAS_UIKIT
-        _gCurrentProfiler->_frameInfo = SentryFramesTracker.sharedInstance.currentFrames;
-        [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
+    _gCurrentProfiler->_frameInfo = SentryFramesTracker.sharedInstance.currentFrames;
+    [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
-        _gCurrentProfiler = nil;
-    }
+    _gCurrentProfiler = nil;
 }
-
-+ (void)registerTransactionAndCaptureEnvelopeIfFinished:(SentryTransaction *)transaction
-                                                       hub:(SentryHub *)hub
-{
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-
-    const auto spanID = transaction.trace.context.spanId;
-    SentryProfiler *profiler = _gProfilersPerSpanID[spanID];
-    if (profiler == nil) {
-        SENTRY_LOG_DEBUG(@"No profilers waiting for this transaction.");
-        return;
-    }
-
-    SENTRY_LOG_DEBUG(@"Found profiler waiting for span with ID %@: %@",
-        transaction.trace.context.spanId.sentrySpanIdString, profiler);
-    [profiler addTransaction:transaction];
-    if (profiler->_spansInFlight.count > 0) {
-        SENTRY_LOG_DEBUG(
-            @"Profiler %@ is waiting on more spans to finish.", profiler);
-        return;
-    }
-
-    [_gProfilersPerSpanID removeObjectForKey:spanID];
-
-    [hub.client captureEnvelope:[profiler buildEnvelopeWithHub:hub]];
-    [profiler->_transactions removeAllObjects];
-}
-
-+ (BOOL)isRunning
-{
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-    return [_gCurrentProfiler isRunning];
-}
-
-#    pragma mark - Private
 
 - (void)start
 {
@@ -344,16 +386,19 @@ SentryProfiler *_Nullable _gCurrentProfiler;
                 }
                 [samples addObject:sample];
             },
-            101 /** Sample 101 times per second */);
+           kSentryProfilerFrequencyHz);
         _profiler->startSampling();
     }
 }
 
-- (void)addTransaction:(SentryTransaction *)transaction
+- (void)addTransaction:(nonnull SentryTransaction *)transaction
 {
+    NSParameterAssert(transaction);
     if (transaction == nil) {
+        SENTRY_LOG_WARN(@"Received nil transaction!");
         return;
     }
+
     SENTRY_LOG_DEBUG(@"Adding transaction %@ to list of profiled transactions for profiler %@.",
         transaction, self);
     if (_transactions == nil) {
@@ -376,7 +421,7 @@ SentryProfiler *_Nullable _gCurrentProfiler;
     }
 }
 
-- (nullable SentryEnvelope *)buildEnvelopeWithHub:(SentryHub *)hub
+- (void)captureEnvelope
 {
     NSMutableDictionary<NSString *, id> *profile = nil;
     @synchronized(self) {
@@ -474,7 +519,7 @@ SentryProfiler *_Nullable _gCurrentProfiler;
                           : (unsigned long long)(
                               [transaction.timestamp timeIntervalSinceDate:_startDate] * 1e9)];
         [transactionsInfo addObject:@{
-            @"environment" : hub.scope.environmentString ?: hub.getClient.options.environment ?: kSentryDefaultEnvironment,
+            @"environment" : _hub.scope.environmentString ?: _hub.getClient.options.environment ?: kSentryDefaultEnvironment,
             @"id" : transaction.eventId.sentryIdString,
             @"trace_id" : transaction.trace.context.traceId.sentryIdString,
             @"name" : transaction.transaction,
@@ -491,15 +536,15 @@ SentryProfiler *_Nullable _gCurrentProfiler;
             logWithMessage:[NSString
                                stringWithFormat:@"Failed to encode profile to JSON: %@", error]
                   andLevel:kSentryLevelError];
-        return nil;
+        return;
     }
 
     const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfile
                                                                 length:JSONData.length];
     const auto item = [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
-
     const auto envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:profileID];
-    return [[SentryEnvelope alloc] initWithHeader:envelopeHeader singleItem:item];
+    const auto envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader singleItem:item];
+    [_hub captureEnvelope:envelope];
 }
 
 - (BOOL)isRunning

@@ -135,7 +135,6 @@ static BOOL appStartMeasurementRead;
           dispatchQueueWrapper:(nullable SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
-        SENTRY_LOG_DEBUG(@"Starting tracer");
         self.rootSpan = [[SentrySpan alloc] initWithTracer:self context:transactionContext];
         self.transactionContext = transactionContext;
         _children = [[NSMutableArray alloc] init];
@@ -168,7 +167,7 @@ static BOOL appStartMeasurementRead;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         if (profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
-            [SentryProfiler startForSpanID:transactionContext.spanId];
+            [SentryProfiler startForSpanID:transactionContext.spanId hub:hub];
         }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
@@ -460,21 +459,9 @@ static BOOL appStartMeasurementRead;
         }
     }
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-    // we try stopping the profiler here, before converting the span into a transaction and before trying to capture the profile envelope, for several reasons:
-    //   - it's the earliest time we can stop the profiler and we don't want it to run any longer than necessary
-    //   - there is another entry point into maybeStopProfilerForSpanID, from the profiler timeout timer, so the stoppage logic must be available from another location besides this, where the logic in registerTransactionAndCaptureEnvelopeIfFinished isn't yet applicable
-    //   - their end results–stopping profiler and uploading profile payload–don't necessarily happen in the same call to finishInternal that we're in now
-    [SentryProfiler maybeStopProfilerForSpanID:self.rootSpan.context.spanId
-                                        reason:SentryProfilerTruncationReasonNormal];
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+    [SentryProfiler stopProfilingSpan:self.rootSpan];
 
     SentryTransaction *transaction = [self toTransaction];
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-    // now that there's a transaction for the span being profiled, we can try to package the profile information for upload, if the profiler has indeed stopped. it may still be running if it's still tracking other spans than the one this tracer is managing, in which case we'll just update bookkeeping and wait for calls to finishInternal for those spans.
-    [SentryProfiler registerTransactionAndCaptureEnvelopeIfFinished:transaction hub:_hub];
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     // Prewarming can execute code up to viewDidLoad of a UIViewController, and keep the app in the
     // background. This can lead to auto-generated transactions lasting for minutes or event hours.
@@ -485,9 +472,12 @@ static BOOL appStartMeasurementRead;
         SENTRY_LOG_INFO(@"Auto generated transaction exceeded the max duration of %f seconds. Not "
                         @"capturing transaction.",
             SENTRY_AUTO_TRANSACTION_MAX_DURATION);
+        [SentryProfiler dropTransaction:transaction];
         return;
     }
     [_hub captureTransaction:transaction withScope:_hub.scope];
+
+    [SentryProfiler linkTransaction:transaction];
 }
 
 - (void)trimEndTimestamp

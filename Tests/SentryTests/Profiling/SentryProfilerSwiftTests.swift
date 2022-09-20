@@ -52,35 +52,18 @@ class SentryProfilerSwiftTests: XCTestCase {
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
 
-        let queue = DispatchQueue(label: "SentryProfilerSwiftTests", attributes: [.concurrent, .initiallyInactive])
-        let group = DispatchGroup()
-
         let numberOfTransactions = 10
+        var spans = [Span]()
         for _ in 0 ..< numberOfTransactions {
-            group.enter()
-            let exp = expectation(description: "finished span")
-            let span = fixture.hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-
-            // Some busy work to try and get it to show up in the profile.
-            let str = "a"
-            var concatStr = ""
-            for _ in 0..<100_000 {
-                concatStr = concatStr.appending(str)
-            }
-
-            queue.asyncAfter(deadline: .now() + 2) {
-                span.finish()
-                exp.fulfill()
-                group.leave()
-            }
+            spans.append(fixture.hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation))
         }
 
-        queue.activate()
-        group.wait()
-        waitForExpectations(timeout: 5)
+        forceProfilerSample()
+
+        spans.forEach { $0.finish() }
 
         guard let envelope = self.fixture.client.captureEnvelopeInvocations.first else {
-            XCTFail("Expected to capture at least 1 event")
+            XCTFail("Expected to capture 1 event")
             return
         }
         XCTAssertEqual(1, envelope.items.count)
@@ -92,44 +75,31 @@ class SentryProfilerSwiftTests: XCTestCase {
         self.assertValidProfileData(data: profileItem.data, numberOfTransactions: numberOfTransactions)
     }
 
+    /// Test a situation where a long-running span starts the profiler, which winds up timing out, and then another span starts that begins a new profile, then finishes, and then the long-running span finishes; both profiles should be separately captured in envelopes.
+    /// ```
+    ///    time                0s                         30s     40s     50s     60s
+    ///    transaction A       |---------------------------------------------------|
+    ///    profiler A          |---------------------------x  <- timeout
+    ///    transaction B                                           |-------|
+    ///    profiler B                                              |-------|  <- normal finish
+    ///   ```
     func testConcurrentSpansWithTimeout() {
         let options = fixture.options
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
 
-        let expA = expectation(description: "Span A finishes")
         let spanA = fixture.hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
 
-        // Some busy work to try and get it to show up in the profile.
-        let str = "a"
-        var concatStr = ""
-        for _ in 0..<100_000 {
-            concatStr = concatStr.appending(str)
-        }
+        forceProfilerSample()
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 45) {
-            spanA.finish()
-            expA.fulfill()
-        }
+        SentryProfiler.timeoutAbort()
 
-        let expB = expectation(description: "Span B finishes")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 35) {
-            let spanB = self.fixture.hub.startTransaction(name: self.fixture.transactionName, operation: self.fixture.transactionOperation)
+        let spanB = self.fixture.hub.startTransaction(name: self.fixture.transactionName, operation: self.fixture.transactionOperation)
 
-            // Some busy work to try and get it to show up in the profile.
-            let str = "a"
-            var concatStr = ""
-            for _ in 0..<100_000 {
-                concatStr = concatStr.appending(str)
-            }
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                spanB.finish()
-                expB.fulfill()
-            }
-        }
+        forceProfilerSample()
 
-        waitForExpectations(timeout: 50)
+        spanB.finish()
+        spanA.finish()
 
         XCTAssertEqual(self.fixture.client.captureEnvelopeInvocations.count, 2)
         for envelope in self.fixture.client.captureEnvelopeInvocations.invocations {
@@ -146,7 +116,7 @@ class SentryProfilerSwiftTests: XCTestCase {
     func testProfileTimeout() {
         fixture.options.profilesSampleRate = 1.0
         fixture.options.tracesSampleRate = 1.0
-        performTest(duration: 35)
+        performTest(shouldTimeOut: true)
     }
 
     func testStartTransaction_ProfilingDataIsValid() {
@@ -224,26 +194,12 @@ class SentryProfilerSwiftTests: XCTestCase {
 }
 
 private extension SentryProfilerSwiftTests {
-    func performTest(transactionEnvironment: String = kSentryDefaultEnvironment, duration: TimeInterval = 2.0, numberOfTransactions: Int = 1, customAssertions: (([String: Any]) -> Void)? = nil) {
-        let profileExpectation = expectation(description: "collects profiling data")
-        let span = fixture.hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        // Give it time to collect a profile, otherwise there will be no samples.
-        DispatchQueue.global().asyncAfter(deadline: .now() + duration) {
-            span.finish()
+    /// Keep a thread busy over a long enough period of time (long enough for 3 samples) for the sampler to pick it up.
+    func forceProfilerSample() {
+        let queue = DispatchQueue(label: "SentryProfilerSwiftTests")
+        let group = DispatchGroup()
 
-            guard let envelope = self.fixture.client.captureEnvelopeInvocations.first else {
-                XCTFail("Expected to capture at least 1 event")
-                return
-            }
-            XCTAssertEqual(1, envelope.items.count)
-            guard let profileItem = envelope.items.first else {
-                XCTFail("Expected an envelope item")
-                return
-            }
-            XCTAssertEqual("profile", profileItem.header.type)
-            self.assertValidProfileData(data: profileItem.data, transactionEnvironment: transactionEnvironment, duration: duration, numberOfTransactions: numberOfTransactions, customAssertions: customAssertions)
-            profileExpectation.fulfill()
-        }
+        group.enter()
 
         // Some busy work to try and get it to show up in the profile.
         let str = "a"
@@ -252,14 +208,40 @@ private extension SentryProfilerSwiftTests {
             concatStr = concatStr.appending(str)
         }
 
-        waitForExpectations(timeout: duration + 3.0) {
-            if let error = $0 {
-                print(error)
-            }
+        queue.asyncAfter(deadline: .now() + (1 / Double(kSentryProfilerFrequencyHz)) * 3.1) {
+            group.leave()
         }
+
+        group.wait()
     }
 
-    func assertValidProfileData(data: Data, transactionEnvironment: String = kSentryDefaultEnvironment, duration: TimeInterval = 2.0, numberOfTransactions: Int = 1, customAssertions: (([String: Any]) -> Void)? = nil) {
+    // This is only available on newer APIs because of the availability of `DispatchQueue.activate`
+    func performTest(transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1, shouldTimeOut: Bool = false) {
+        let span = fixture.hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+
+        forceProfilerSample()
+
+        if shouldTimeOut {
+            SentryProfiler.timeoutAbort()
+        }
+
+        span.finish()
+
+        guard let envelope = self.fixture.client.captureEnvelopeInvocations.first else {
+            XCTFail("Expected to capture at least 1 event")
+            return
+        }
+        XCTAssertEqual(1, envelope.items.count)
+        guard let profileItem = envelope.items.first else {
+            XCTFail("Expected an envelope item")
+            return
+        }
+        XCTAssertEqual("profile", profileItem.header.type)
+        self.assertValidProfileData(data: profileItem.data, transactionEnvironment: transactionEnvironment, numberOfTransactions: numberOfTransactions)
+
+    }
+
+    func assertValidProfileData(data: Data, transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1) {
         let profile = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
         XCTAssertEqual("Apple", profile["device_manufacturer"] as! String)
         XCTAssertEqual("cocoa", profile["platform"] as! String)
@@ -325,7 +307,6 @@ private extension SentryProfilerSwiftTests {
         XCTAssertFalse(frames.isEmpty)
         XCTAssertFalse((frames[0]["instruction_addr"] as! String).isEmpty)
         XCTAssertFalse((frames[0]["function"] as! String).isEmpty)
-        customAssertions?(profile)
     }
 
     func assertProfilesSampler(expectedDecision: SentrySampleDecision, options: (Options) -> Void) {
