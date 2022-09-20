@@ -28,7 +28,10 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ./test-server/.build
-          key: test-server-${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}
+          key: test-server-${{ hashFiles('./test-server') }}
+          restore-keys: |
+            test-server-${{ hashFiles('./test-server') }}
+            test-server-
 
       - name: Build Test Server
         if: steps.cache_test_server.outputs.cache-hit != 'true'

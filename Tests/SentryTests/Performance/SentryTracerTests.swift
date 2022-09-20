@@ -210,8 +210,7 @@ class SentryTracerTests: XCTestCase {
         
         fixture.dispatchQueue.invokeLastDispatchAfter()
         
-        let expectedWhen = fixture.currentDateProvider.dispatchTimeNow() + UInt64(fixture.idleTimeout) * NSEC_PER_SEC
-        XCTAssertEqual(expectedWhen, fixture.dispatchQueue.dispatchAfterInvocations.invocations.first?.when)
+        XCTAssertEqual(fixture.idleTimeout, fixture.dispatchQueue.dispatchAfterInvocations.invocations.first?.interval)
     }
     
     func testIdleTimeout_SpanAdded_IdleTimeoutCancelled() {

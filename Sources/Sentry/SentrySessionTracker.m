@@ -20,6 +20,17 @@ SentrySessionTracker ()
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 @property (atomic, strong) NSDate *lastInForeground;
 @property (nonatomic, assign) BOOL wasDidBecomeActiveCalled;
+@property (nonatomic, assign) BOOL subscribedToNotifications;
+
+#if SENTRY_HAS_UIKIT
+@property (nonatomic, copy) NSNotificationName didBecomeActiveNotificationName;
+@property (nonatomic, copy) NSNotificationName willResignActiveNotificationName;
+@property (nonatomic, copy) NSNotificationName willTerminateNotificationName;
+#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
+@property (nonatomic, copy) NSNotificationName didBecomeActiveNotificationName;
+@property (nonatomic, copy) NSNotificationName willResignActiveNotificationName;
+@property (nonatomic, copy) NSNotificationName willTerminateNotificationName;
+#endif
 
 @end
 
@@ -32,6 +43,16 @@ SentrySessionTracker ()
         self.options = options;
         self.currentDateProvider = currentDateProvider;
         self.wasDidBecomeActiveCalled = NO;
+
+#if SENTRY_HAS_UIKIT
+        self.didBecomeActiveNotificationName = UIApplicationDidBecomeActiveNotification;
+        self.willResignActiveNotificationName = UIApplicationWillResignActiveNotification;
+        self.willTerminateNotificationName = UIApplicationWillTerminateNotification;
+#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
+        self.didBecomeActiveNotificationName = NSApplicationDidBecomeActiveNotification;
+        self.willResignActiveNotificationName = NSApplicationWillResignActiveNotification;
+        self.willTerminateNotificationName = NSApplicationWillTerminateNotification;
+#endif
     }
     return self;
 }
@@ -52,18 +73,6 @@ SentrySessionTracker ()
     // WillTerminate is called no matter if started from the background or launched into the
     // foreground.
 
-#if SENTRY_HAS_UIKIT
-    NSNotificationName didBecomeActiveNotificationName = UIApplicationDidBecomeActiveNotification;
-    NSNotificationName willResignActiveNotificationName = UIApplicationWillResignActiveNotification;
-    NSNotificationName willTerminateNotificationName = UIApplicationWillTerminateNotification;
-#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
-    NSNotificationName didBecomeActiveNotificationName = NSApplicationDidBecomeActiveNotification;
-    NSNotificationName willResignActiveNotificationName = NSApplicationWillResignActiveNotification;
-    NSNotificationName willTerminateNotificationName = NSApplicationWillTerminateNotification;
-#else
-    SENTRY_LOG_DEBUG(@"NO UIKit -> SentrySessionTracker will not track sessions automatically.");
-#endif
-
 #if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST
 
     // Call before subscribing to the notifications to avoid that didBecomeActive gets called before
@@ -72,7 +81,7 @@ SentrySessionTracker ()
 
     [NSNotificationCenter.defaultCenter addObserver:self
                                            selector:@selector(didBecomeActive)
-                                               name:didBecomeActiveNotificationName
+                                               name:self.didBecomeActiveNotificationName
                                              object:nil];
 
     [NSNotificationCenter.defaultCenter addObserver:self
@@ -82,21 +91,45 @@ SentrySessionTracker ()
 
     [NSNotificationCenter.defaultCenter addObserver:self
                                            selector:@selector(willResignActive)
-                                               name:willResignActiveNotificationName
+                                               name:self.willResignActiveNotificationName
                                              object:nil];
 
     [NSNotificationCenter.defaultCenter addObserver:self
                                            selector:@selector(willTerminate)
-                                               name:willTerminateNotificationName
+                                               name:self.willTerminateNotificationName
                                              object:nil];
+#else
+    SENTRY_LOG_DEBUG(@"NO UIKit -> SentrySessionTracker will not track sessions automatically.");
 #endif
 }
 
 - (void)stop
 {
 #if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST
-    [NSNotificationCenter.defaultCenter removeObserver:self];
+    // Remove the observers with the most specific detail possible, see
+    // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:self.didBecomeActiveNotificationName
+                                                object:nil];
+    [NSNotificationCenter.defaultCenter
+        removeObserver:self
+                  name:SentryHybridSdkDidBecomeActiveNotificationName
+                object:nil];
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:self.willResignActiveNotificationName
+                                                object:nil];
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:self.willTerminateNotificationName
+                                                object:nil];
 #endif
+}
+
+- (void)dealloc
+{
+    [self stop];
+    // In dealloc it's safe to unsubscribe for all, see
+    // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
+    [NSNotificationCenter.defaultCenter removeObserver:self];
 }
 
 /**

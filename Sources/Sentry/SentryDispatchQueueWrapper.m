@@ -47,8 +47,10 @@ NS_ASSUME_NONNULL_BEGIN
     });
 }
 
-- (void)dispatchAfter:(dispatch_time_t)when block:(dispatch_block_t)block
+- (void)dispatchAfter:(NSTimeInterval)interval block:(dispatch_block_t)block
 {
+    dispatch_time_t delta = (int64_t)(interval * NSEC_PER_SEC);
+    dispatch_time_t when = dispatch_time(DISPATCH_TIME_NOW, delta);
     dispatch_after(when, queue, ^{
         @autoreleasepool {
             block();

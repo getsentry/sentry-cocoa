@@ -246,6 +246,26 @@ SentryAppStartTracker ()
 
 - (void)stop
 {
+    // Remove the observers with the most specific detail possible, see
+    // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:UIApplicationDidFinishLaunchingNotification
+                                                object:nil];
+
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:UIWindowDidBecomeVisibleNotification
+                                                object:nil];
+
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:UIApplicationDidEnterBackgroundNotification
+                                                object:nil];
+}
+
+- (void)dealloc
+{
+    [self stop];
+    // In dealloc it's safe to unsubscribe for all, see
+    // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
     [NSNotificationCenter.defaultCenter removeObserver:self];
 }
 
