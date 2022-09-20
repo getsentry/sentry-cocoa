@@ -122,8 +122,14 @@ SentryNetworkTracker ()
 
         if ([sessionTask currentRequest]) {
             NSMutableURLRequest *newRequest = nil;
+
+            // First we check if the current request is mutable, so we could easily add a new
+            // header. Otherwise we try to change the current request for a new one with the extra
+            // header.
             if ([sessionTask.currentRequest isKindOfClass:[NSMutableURLRequest class]]) {
                 newRequest = (NSMutableURLRequest *)sessionTask.currentRequest;
+                [newRequest setValue:[netSpan toTraceHeader].value
+                    forHTTPHeaderField:SENTRY_TRACE_HEADER];
             } else {
                 // Even though NSURLSessionTask doesn't have 'setCurrentRequest', some subclasses
                 // do. For those subclasses we replace the currentRequest with a mutable one with
@@ -133,15 +139,13 @@ SentryNetworkTracker ()
                 if ([sessionTask respondsToSelector:setCurrentRequestSelector]) {
                     newRequest = [sessionTask.currentRequest mutableCopy];
 
+                    [newRequest setValue:[netSpan toTraceHeader].value
+                        forHTTPHeaderField:SENTRY_TRACE_HEADER];
+
                     void (*func)(id, SEL, id param)
                         = (void *)[sessionTask methodForSelector:setCurrentRequestSelector];
                     func(sessionTask, setCurrentRequestSelector, newRequest);
                 }
-            }
-
-            if (newRequest) {
-                [newRequest setValue:[netSpan toTraceHeader].value
-                    forHTTPHeaderField:SENTRY_TRACE_HEADER];
             }
         }
 
