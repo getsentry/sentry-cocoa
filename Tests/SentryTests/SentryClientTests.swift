@@ -578,6 +578,7 @@ class SentryClientTest: XCTestCase {
         }
     }
 
+#if TARGET_OS_IOS
     func testCaptureCrash_DeviceProperties() {
         let event = TestData.event
         event.threads = nil
@@ -596,6 +597,7 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(batteryLevel, 60)
         }
     }
+#endif
 
     func testCaptureCrash_Permissions() {
         fixture.permissionsObserver.internalLocationPermissionStatus = SentryPermissionStatus.granted
