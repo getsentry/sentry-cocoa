@@ -104,12 +104,36 @@ SentryOutOfMemoryTracker ()
 - (void)stop
 {
 #if SENTRY_HAS_UIKIT
-    [NSNotificationCenter.defaultCenter removeObserver:self];
+    // Remove the observers with the most specific detail possible, see
+    // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:UIApplicationDidBecomeActiveNotification
+                                                object:nil];
+
+    [NSNotificationCenter.defaultCenter
+        removeObserver:self
+                  name:SentryHybridSdkDidBecomeActiveNotificationName
+                object:nil];
+
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:UIApplicationWillResignActiveNotification
+                                                object:nil];
+
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:UIApplicationWillTerminateNotification
+                                                object:nil];
     [self.appStateManager removeCurrentAppState];
 #endif
 }
 
 #if SENTRY_HAS_UIKIT
+- (void)dealloc
+{
+    [self stop];
+    // In dealloc it's safe to unsubscribe for all, see
+    // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
+    [NSNotificationCenter.defaultCenter removeObserver:self];
+}
 
 /**
  * It is called when an App. is receiving events / It is in the foreground and when we receive a
