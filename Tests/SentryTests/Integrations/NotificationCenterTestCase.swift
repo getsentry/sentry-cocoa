@@ -43,13 +43,13 @@ class NotificationCenterTestCase: XCTestCase {
     }
     
     func didBecomeActive() {
-        #if os(tvOS) || os(iOS)
+        #if os(tvOS) || os(iOS) || os(macOS)
         post(name: didBecomeActiveNotification)
         #endif
     }
     
     func willResignActive() {
-        #if os(tvOS) || os(iOS)
+        #if os(tvOS) || os(iOS) || os(macOS)
         post(name: willResignActiveNotification)
         #endif
     }
@@ -61,7 +61,7 @@ class NotificationCenterTestCase: XCTestCase {
     }
 
     func willTerminate() {
-        #if os(tvOS) || os(iOS)
+        #if os(tvOS) || os(iOS) || os(macOS)
         post(name: willTerminateNotification)
         #endif
     }
@@ -71,7 +71,7 @@ class NotificationCenterTestCase: XCTestCase {
     }
     
     func didFinishLaunching() {
-        #if os(tvOS) || os(iOS)
+        #if os(tvOS) || os(iOS) || os(macOS)
         post(name: didFinishLaunchingNotification)
         #endif
     }
