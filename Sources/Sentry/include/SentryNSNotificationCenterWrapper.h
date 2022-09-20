@@ -4,6 +4,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * A wrapper around NSNotificationCenter functions for testability.
+ *
+ * Testing with NSNotificationCenter in CI leads to flaky tests for some classes. Therefore, we can
+ * use a wrapper around NSNotificationCenter to not depend on it. Instead, we call the methods
+ * NSNotificationCenter would call with Dynamic and ensure that sut properly subscribes to
+ * NSNotificationCenter.
  */
 @interface SentryNSNotificationCenterWrapper : NSObject
 

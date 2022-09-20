@@ -12,12 +12,7 @@ class SentrySessionTrackerTests: XCTestCase {
         let currentDateProvider = TestCurrentDateProvider()
         let client: TestClient!
         let sentryCrash: TestSentryCrashWrapper
-        
-        // Testing with NSNotificationCenter in CI leads to flaky tests
-        // Therefore, we use a wrapper around NSNotificationCenter to not
-        // depend on it. Instead we call the methods NSNotificationCenter
-        // would call with Dynamic and ensure that sut properly subscribes
-        // to NSNotificationCenter.
+
         let notificationCenter = TestNSNotificationCenterWrapper()
         
         init() {
