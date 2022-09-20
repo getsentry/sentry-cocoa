@@ -65,6 +65,9 @@ jobs:
         # We can't use Xcode 11.7 as we use XCTestObservation. When building with Xcode 11.7
         # we get the error 'XCTest/XCTest.h' not found. Setting ENABLE_TESTING_SEARCH_PATH=YES
         # doesn't work. 
+
+        extra: [1,2,3,4,5]
+        another: [1,2,3,4,5]
         
         include:
           # Test on iOS 12.4

@@ -1,7 +1,7 @@
 @testable import Sentry
 import XCTest
 
-class SentrySessionTrackerTests: NotificationCenterTestCase {
+class SentrySessionTrackerTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySessionTrackerTests")
     private static let dsn = TestConstants.dsn(username: "SentrySessionTrackerTests")
@@ -12,6 +12,7 @@ class SentrySessionTrackerTests: NotificationCenterTestCase {
         let currentDateProvider = TestCurrentDateProvider()
         let client: TestClient!
         let sentryCrash: TestSentryCrashWrapper
+        let notificationCenter = TestNSNotificationCenterWrapper()
         
         init() {
             options = Options()
@@ -26,7 +27,7 @@ class SentrySessionTrackerTests: NotificationCenterTestCase {
         }
         
         func getSut() -> SessionTracker {
-            return SessionTracker(options: options, currentDateProvider: currentDateProvider)
+            return SessionTracker(options: options, currentDateProvider: currentDateProvider, notificationCenter: notificationCenter)
         }
         
         func setNewHubToSDK() {
@@ -348,14 +349,39 @@ class SentrySessionTrackerTests: NotificationCenterTestCase {
         fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(bySeconds))
     }
     
+    private func goToForeground() {
+        Dynamic(sut).didBecomeActive()
+    }
+    
+    private func goToBackground() {
+        willResignActive()
+        didEnterBackground()
+    }
+    
+    private func willResignActive() {
+        Dynamic(sut).willResignActive()
+    }
+    
+    private func didEnterBackground() {
+        
+    }
+    
+    private func hybridSdkDidBecomeActive() {
+        Dynamic(sut).didBecomeActive()
+    }
+    
     private func goToBackground(forSeconds: TimeInterval) {
         goToBackground()
         advanceTime(bySeconds: forSeconds)
         goToForeground()
     }
     
-    internal override func terminateApp() {
-        super.terminateApp()
+    private  func willTerminate() {
+        Dynamic(sut).willTerminate()
+    }
+    
+    private func terminateApp() {
+        willTerminate()
         sut.stop()
     }
     

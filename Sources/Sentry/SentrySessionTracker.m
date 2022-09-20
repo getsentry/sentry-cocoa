@@ -5,6 +5,7 @@
 #import "SentryHub+Private.h"
 #import "SentryInternalNotificationNames.h"
 #import "SentryLog.h"
+#import "SentryNSNotificationCenterWrapper.h"
 #import "SentrySDK+Private.h"
 
 #if SENTRY_HAS_UIKIT
@@ -21,6 +22,7 @@ SentrySessionTracker ()
 @property (atomic, strong) NSDate *lastInForeground;
 @property (nonatomic, assign) BOOL wasDidBecomeActiveCalled;
 @property (nonatomic, assign) BOOL subscribedToNotifications;
+@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenter;
 
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, copy) NSNotificationName didBecomeActiveNotificationName;
@@ -38,11 +40,13 @@ SentrySessionTracker ()
 
 - (instancetype)initWithOptions:(SentryOptions *)options
             currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+             notificationCenter:(SentryNSNotificationCenterWrapper *)notificationCenter;
 {
     if (self = [super init]) {
         self.options = options;
         self.currentDateProvider = currentDateProvider;
         self.wasDidBecomeActiveCalled = NO;
+        self.notificationCenter = notificationCenter;
 
 #if SENTRY_HAS_UIKIT
         self.didBecomeActiveNotificationName = UIApplicationDidBecomeActiveNotification;
@@ -79,25 +83,21 @@ SentrySessionTracker ()
     // ending the cached session.
     [self endCachedSession];
 
-    [NSNotificationCenter.defaultCenter addObserver:self
-                                           selector:@selector(didBecomeActive)
-                                               name:self.didBecomeActiveNotificationName
-                                             object:nil];
+    [self.notificationCenter addObserver:self
+                                selector:@selector(didBecomeActive)
+                                    name:self.didBecomeActiveNotificationName];
 
-    [NSNotificationCenter.defaultCenter addObserver:self
-                                           selector:@selector(didBecomeActive)
-                                               name:SentryHybridSdkDidBecomeActiveNotificationName
-                                             object:nil];
+    [self.notificationCenter addObserver:self
+                                selector:@selector(didBecomeActive)
+                                    name:SentryHybridSdkDidBecomeActiveNotificationName];
 
-    [NSNotificationCenter.defaultCenter addObserver:self
-                                           selector:@selector(willResignActive)
-                                               name:self.willResignActiveNotificationName
-                                             object:nil];
+    [self.notificationCenter addObserver:self
+                                selector:@selector(willResignActive)
+                                    name:self.willResignActiveNotificationName];
 
-    [NSNotificationCenter.defaultCenter addObserver:self
-                                           selector:@selector(willTerminate)
-                                               name:self.willTerminateNotificationName
-                                             object:nil];
+    [self.notificationCenter addObserver:self
+                                selector:@selector(willTerminate)
+                                    name:self.willTerminateNotificationName];
 #else
     SENTRY_LOG_DEBUG(@"NO UIKit -> SentrySessionTracker will not track sessions automatically.");
 #endif
@@ -108,19 +108,11 @@ SentrySessionTracker ()
 #if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST
     // Remove the observers with the most specific detail possible, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-    [NSNotificationCenter.defaultCenter removeObserver:self
-                                                  name:self.didBecomeActiveNotificationName
-                                                object:nil];
-    [NSNotificationCenter.defaultCenter
-        removeObserver:self
-                  name:SentryHybridSdkDidBecomeActiveNotificationName
-                object:nil];
-    [NSNotificationCenter.defaultCenter removeObserver:self
-                                                  name:self.willResignActiveNotificationName
-                                                object:nil];
-    [NSNotificationCenter.defaultCenter removeObserver:self
-                                                  name:self.willTerminateNotificationName
-                                                object:nil];
+    [self.notificationCenter removeObserver:self name:self.didBecomeActiveNotificationName];
+    [self.notificationCenter removeObserver:self
+                                       name:SentryHybridSdkDidBecomeActiveNotificationName];
+    [self.notificationCenter removeObserver:self name:self.willResignActiveNotificationName];
+    [self.notificationCenter removeObserver:self name:self.willTerminateNotificationName];
 #endif
 }
 
@@ -129,7 +121,7 @@ SentrySessionTracker ()
     [self stop];
     // In dealloc it's safe to unsubscribe for all, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-    [NSNotificationCenter.defaultCenter removeObserver:self];
+    [self.notificationCenter removeObserver:self];
 }
 
 /**

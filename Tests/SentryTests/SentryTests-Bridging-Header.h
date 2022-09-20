@@ -98,6 +98,7 @@
 #import "SentryMigrateSessionInit.h"
 #import "SentryNSDataTracker.h"
 #import "SentryNSError.h"
+#import "SentryNSNotificationCenterWrapper.h"
 #import "SentryNSURLRequest.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryNSURLSessionTaskSearch.h"
