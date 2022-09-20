@@ -547,7 +547,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     if ([self isOOM:event isCrashEvent:isCrashEvent]) {
         // Remove some mutable properties from the device/app contexts which are no longer
         // applicable
-        [self removeExtraDeviceContextContext:event];
+        [self removeExtraDeviceContextFromEvent:event];
     } else {
         // Store the current free memory, free storage, battery level and more mutable properties,
         // at the time of this event
@@ -800,7 +800,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
                   }];
 }
 
-- (void)removeExtraDeviceContextContext:(SentryEvent *)event
+- (void)removeExtraDeviceContextFromEvent:(SentryEvent *)event
 {
     [self modifyContext:event
                     key:@"device"
