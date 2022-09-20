@@ -1,6 +1,7 @@
 #import "SentryClient.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "NSLocale+Sentry.h"
+#import "SentryAppDataSizeObserver.h"
 #import "SentryAttachment.h"
 #import "SentryClient+Private.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
@@ -65,6 +66,7 @@ SentryClient ()
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryPermissionsObserver *permissionsObserver;
 @property (nonatomic, strong) SentryUIDeviceWrapper *deviceWrapper;
+@property (nonatomic, strong) SentryAppDataSizeObserver *appDataSizeObserver;
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
 
@@ -114,6 +116,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         [[SentryThreadInspector alloc] initWithStacktraceBuilder:stacktraceBuilder
                                         andMachineContextWrapper:machineContextWrapper];
     SentryUIDeviceWrapper *deviceWrapper = [[SentryUIDeviceWrapper alloc] init];
+    SentryAppDataSizeObserver *appDataSizeObserver = [[SentryAppDataSizeObserver alloc] init];
 
     return [self initWithOptions:options
                 transportAdapter:transportAdapter
@@ -123,6 +126,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
                     crashWrapper:[SentryCrashWrapper sharedInstance]
              permissionsObserver:permissionsObserver
                    deviceWrapper:deviceWrapper
+             appDataSizeObserver:appDataSizeObserver
                           locale:[NSLocale autoupdatingCurrentLocale]
                         timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone];
 }
@@ -135,6 +139,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
             permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
                   deviceWrapper:(SentryUIDeviceWrapper *)deviceWrapper
+            appDataSizeObserver:(SentryAppDataSizeObserver *)appDataSizeObserver
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone
 {
@@ -151,6 +156,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.timezone = timezone;
         self.attachmentProcessors = [[NSMutableArray alloc] init];
         self.deviceWrapper = deviceWrapper;
+        self.appDataSizeObserver = appDataSizeObserver;
     }
     return self;
 }
@@ -797,6 +803,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
                     key:@"app"
                   block:^(NSMutableDictionary *app) {
                       app[SentryDeviceContextAppMemoryKey] = @(self.crashWrapper.appMemory);
+
+                      NSInteger dataStorage = self.appDataSizeObserver.appDataSize;
+                      if (dataStorage != -1) {
+                          app[@"data_storage"] = @(dataStorage);
+                      }
                   }];
 }
 
