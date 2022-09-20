@@ -12,6 +12,12 @@ class SentrySessionTrackerTests: XCTestCase {
         let currentDateProvider = TestCurrentDateProvider()
         let client: TestClient!
         let sentryCrash: TestSentryCrashWrapper
+        
+        // Testing with NSNotificationCenter in CI leads to flaky tests
+        // Therefore, we use a wrapper around NSNotificationCenter to not
+        // depend on it. Instead we call the methods NSNotificationCenter
+        // would call with Dynamic and ensure that sut properly subscribes
+        // to NSNotificationCenter.
         let notificationCenter = TestNSNotificationCenterWrapper()
         
         init() {
@@ -247,8 +253,6 @@ class SentrySessionTrackerTests: XCTestCase {
         
         // Background task is launched
         advanceTime(bySeconds: 30)
-        didEnterBackground()
-        advanceTime(bySeconds: 9)
         
         // user opens app
         goToForeground()
@@ -263,9 +267,7 @@ class SentrySessionTrackerTests: XCTestCase {
         goToBackground()
         
         // Background task is launched
-        advanceTime(bySeconds: 1)
-        didEnterBackground()
-        advanceTime(bySeconds: 1)
+        advanceTime(bySeconds: 2)
         
         // user opens app
         goToForeground()
@@ -345,6 +347,24 @@ class SentrySessionTrackerTests: XCTestCase {
         assertSessionsSent(count: 2)
     }
     
+    func testStart_AddsObservers() {
+        sut.start()
+        
+        let invocations = fixture.notificationCenter.addObserverInvocations
+        let notificationNames = invocations.invocations.map { $0.name }
+        
+        assertNotificationNames(notificationNames)
+    }
+    
+    func testStop_RemovesObservers() {
+        sut.stop()
+        
+        let invocations = fixture.notificationCenter.addObserverWithNotificationInvocations
+        let notificationNames = invocations.invocations.map { $0.name }
+        
+        assertNotificationNames(notificationNames)
+    }
+    
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(bySeconds))
     }
@@ -355,15 +375,10 @@ class SentrySessionTrackerTests: XCTestCase {
     
     private func goToBackground() {
         willResignActive()
-        didEnterBackground()
     }
     
     private func willResignActive() {
         Dynamic(sut).willResignActive()
-    }
-    
-    private func didEnterBackground() {
-        
     }
     
     private func hybridSdkDidBecomeActive() {
@@ -385,17 +400,12 @@ class SentrySessionTrackerTests: XCTestCase {
         sut.stop()
     }
     
-    private func resumeAppInBackground() {
-        didEnterBackground()
-    }
-    
     private func launchBackgroundTaskAppNotRunning() {
         sut.stop()
         fixture.setNewHubToSDK()
         sut = fixture.getSut()
         
         sut.start()
-        didEnterBackground()
     }
     
     private func captureError() {
@@ -551,5 +561,16 @@ class SentrySessionTrackerTests: XCTestCase {
         } else {
             XCTFail("No session sent with event.")
         }
+    }
+    
+    private func assertNotificationNames(_ notificationNames: [NSNotification.Name]) {
+        XCTAssertEqual(4, notificationNames.count)
+        
+        XCTAssertEqual([
+            SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName,
+            NSNotification.Name(rawValue: SentryHybridSdkDidBecomeActiveNotificationName),
+            SentryNSNotificationCenterWrapper.willResignActiveNotificationName,
+            SentryNSNotificationCenterWrapper.willTerminateNotificationName
+        ], notificationNames)
     }
 }

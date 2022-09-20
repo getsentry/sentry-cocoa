@@ -24,16 +24,6 @@ SentrySessionTracker ()
 @property (nonatomic, assign) BOOL subscribedToNotifications;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenter;
 
-#if SENTRY_HAS_UIKIT
-@property (nonatomic, copy) NSNotificationName didBecomeActiveNotificationName;
-@property (nonatomic, copy) NSNotificationName willResignActiveNotificationName;
-@property (nonatomic, copy) NSNotificationName willTerminateNotificationName;
-#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
-@property (nonatomic, copy) NSNotificationName didBecomeActiveNotificationName;
-@property (nonatomic, copy) NSNotificationName willResignActiveNotificationName;
-@property (nonatomic, copy) NSNotificationName willTerminateNotificationName;
-#endif
-
 @end
 
 @implementation SentrySessionTracker
@@ -47,16 +37,6 @@ SentrySessionTracker ()
         self.currentDateProvider = currentDateProvider;
         self.wasDidBecomeActiveCalled = NO;
         self.notificationCenter = notificationCenter;
-
-#if SENTRY_HAS_UIKIT
-        self.didBecomeActiveNotificationName = UIApplicationDidBecomeActiveNotification;
-        self.willResignActiveNotificationName = UIApplicationWillResignActiveNotification;
-        self.willTerminateNotificationName = UIApplicationWillTerminateNotification;
-#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
-        self.didBecomeActiveNotificationName = NSApplicationDidBecomeActiveNotification;
-        self.willResignActiveNotificationName = NSApplicationWillResignActiveNotification;
-        self.willTerminateNotificationName = NSApplicationWillTerminateNotification;
-#endif
     }
     return self;
 }
@@ -83,21 +63,24 @@ SentrySessionTracker ()
     // ending the cached session.
     [self endCachedSession];
 
-    [self.notificationCenter addObserver:self
-                                selector:@selector(didBecomeActive)
-                                    name:self.didBecomeActiveNotificationName];
+    [self.notificationCenter
+        addObserver:self
+           selector:@selector(didBecomeActive)
+               name:SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName];
 
     [self.notificationCenter addObserver:self
                                 selector:@selector(didBecomeActive)
                                     name:SentryHybridSdkDidBecomeActiveNotificationName];
 
-    [self.notificationCenter addObserver:self
-                                selector:@selector(willResignActive)
-                                    name:self.willResignActiveNotificationName];
+    [self.notificationCenter
+        addObserver:self
+           selector:@selector(willResignActive)
+               name:SentryNSNotificationCenterWrapper.willResignActiveNotificationName];
 
-    [self.notificationCenter addObserver:self
-                                selector:@selector(willTerminate)
-                                    name:self.willTerminateNotificationName];
+    [self.notificationCenter
+        addObserver:self
+           selector:@selector(willTerminate)
+               name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
 #else
     SENTRY_LOG_DEBUG(@"NO UIKit -> SentrySessionTracker will not track sessions automatically.");
 #endif
@@ -108,11 +91,17 @@ SentrySessionTracker ()
 #if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST
     // Remove the observers with the most specific detail possible, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-    [self.notificationCenter removeObserver:self name:self.didBecomeActiveNotificationName];
+    [self.notificationCenter
+        removeObserver:self
+                  name:SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName];
     [self.notificationCenter removeObserver:self
                                        name:SentryHybridSdkDidBecomeActiveNotificationName];
-    [self.notificationCenter removeObserver:self name:self.willResignActiveNotificationName];
-    [self.notificationCenter removeObserver:self name:self.willTerminateNotificationName];
+    [self.notificationCenter
+        removeObserver:self
+                  name:SentryNSNotificationCenterWrapper.willResignActiveNotificationName];
+    [self.notificationCenter
+        removeObserver:self
+                  name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
 #endif
 }
 
