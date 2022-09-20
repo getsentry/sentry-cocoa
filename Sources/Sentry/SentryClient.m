@@ -827,6 +827,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
                     key:@"app"
                   block:^(NSMutableDictionary *app) {
                       [app removeObjectForKey:SentryDeviceContextAppMemoryKey];
+                      [app removeObjectForKey:@"data_storage"];
                   }];
 }
 
