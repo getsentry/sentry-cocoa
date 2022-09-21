@@ -62,13 +62,134 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 
 namespace {
 NSString *
+getCPUArchitecture()
+{
+    size_t size;
+    cpu_type_t type;
+    cpu_subtype_t subtype;
+    size = sizeof(type);
+    const auto nameStr = [NSMutableString string];
+    if (sysctlbyname("hw.cputype", &type, &size, NULL, 0) == 0) {
+        switch (type) {
+        case CPU_TYPE_I386:
+            [nameStr appendString:@"i386"];
+            break;
+        case CPU_TYPE_X86_64:
+            [nameStr appendString:@"x86_64"];
+            break;
+        case CPU_TYPE_ARM:
+            [nameStr appendString:@"arm"];
+            break;
+        case CPU_TYPE_ARM64:
+            [nameStr appendString:@"arm64"];
+            break;
+        case CPU_TYPE_ARM64_32:
+            [nameStr appendString:@"arm64_32"];
+            break;
+        default:
+            [nameStr appendFormat:@"unknown type (%d)", type];
+            break;
+        }
+    }
+
+    size = sizeof(subtype);
+    if (sysctlbyname("hw.cpusubtype", &subtype, &size, NULL, 0) == 0) {
+        switch (subtype) {
+        case CPU_SUBTYPE_ARM_V6:
+            [nameStr appendString:@"v6"];
+            break;
+        case CPU_SUBTYPE_ARM_V7:
+            [nameStr appendString:@"v7"];
+            break;
+        case CPU_SUBTYPE_ARM_V7S:
+            [nameStr appendString:@"v7s"];
+            break;
+        case CPU_SUBTYPE_ARM_V7K:
+            [nameStr appendString:@"v7k"];
+            break;
+        case CPU_SUBTYPE_ARM64_V8:
+            // this also catches CPU_SUBTYPE_ARM64_32_V8 since they are both defined as
+            // ((cpu_subtype_t) 1)
+            [nameStr appendString:@"v8"];
+            break;
+        case CPU_SUBTYPE_ARM64E:
+            [nameStr appendString:@"e"];
+            break;
+        }
+    }
+
+    return nameStr;
+}
+
+NSString *
+getOSName()
+{
+#    if SENTRY_HAS_UIKIT
+    return UIDevice.currentDevice.systemName;
+#    else
+    return @"macOS";
+#    endif // SENTRY_HAS_UIKIT
+}
+
+NSString *
+getOSVersion()
+{
+#    if SENTRY_HAS_UIKIT
+    return UIDevice.currentDevice.systemVersion;
+#    else
+    // based off of
+    // https://github.com/lmirosevic/GBDeviceInfo/blob/98dd3c75bb0e1f87f3e0fd909e52dcf0da4aa47d/GBDeviceInfo/GBDeviceInfo_OSX.m#L107-L133
+    if ([[NSProcessInfo processInfo] respondsToSelector:@selector(operatingSystemVersion)]) {
+        const auto version = [[NSProcessInfo processInfo] operatingSystemVersion];
+        return [NSString stringWithFormat:@"%ld.%ld.%ld", (long)version.majorVersion,
+                         (long)version.minorVersion, (long)version.patchVersion];
+    } else {
+        SInt32 major, minor, patch;
+
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        Gestalt(gestaltSystemVersionMajor, &major);
+        Gestalt(gestaltSystemVersionMinor, &minor);
+        Gestalt(gestaltSystemVersionBugFix, &patch);
+#        pragma clang diagnostic pop
+
+        return [NSString stringWithFormat:@"%d.%d.%d", major, minor, patch];
+    }
+#    endif // SENTRY_HAS_UIKIT
+}
+
+NSString *
+getHardwareDescription(int type)
+{
+    int mib[2];
+    char name[128];
+    size_t len;
+
+    mib[0] = CTL_HW;
+    mib[1] = type;
+    len = sizeof(name);
+    if (sysctl(mib, 2, &name, &len, NULL, 0) != 0) {
+        return @"";
+    }
+    return [NSString stringWithUTF8String:name];
+}
+
+NSString *
 getDeviceModel()
 {
+    const auto machine = getHardwareDescription(HW_MACHINE);
+    const auto machine_arch = getHardwareDescription(HW_MACHINE_ARCH);
+    const auto model = getHardwareDescription(HW_MODEL);
+    NSLog(@"machine: %@, machine_arch: %@, model: %@", machine, machine_arch, model);
+#    if SENTRY_HAS_UIKIT
     utsname info;
     if (SENTRY_PROF_LOG_ERRNO(uname(&info)) == 0) {
         return [NSString stringWithUTF8String:info.machine];
     }
     return @"";
+#    else
+    return model;
+#    endif // SENTRY_HAS_UIKIT
 }
 
 NSString *
