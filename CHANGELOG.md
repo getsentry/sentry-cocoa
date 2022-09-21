@@ -5,6 +5,7 @@
 ### Features
 
 - Add flush (#2140)
+- Create Sentry swift module (#2162)
 
 ### Fixes
 
