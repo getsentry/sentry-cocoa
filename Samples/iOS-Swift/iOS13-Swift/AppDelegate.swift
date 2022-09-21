@@ -21,6 +21,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 // Sampling 100% - In Production you probably want to adjust this
                 options.tracesSampleRate = 1.0
                 options.sessionTrackingIntervalMillis = 5_000
+                if ProcessInfo.processInfo.arguments.contains("--io.sentry.profiling.enable") {
+                    options.profilesSampleRate = 1
+                }
             }
         
         return true
