@@ -14,6 +14,20 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "63AA759A1EB8AEF500D153DE"
+               BuildableName = "SentryObjc.framework"
+               BlueprintName = "SentryObjc"
+               ReferencedContainer = "container:Sentry.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "D804D4C828DAF226005CECD1"
                BuildableName = "Sentry.framework"
                BlueprintName = "Sentry"
@@ -73,6 +87,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "D804D4C828DAF226005CECD1"
+            BuildableName = "Sentry.framework"
+            BlueprintName = "Sentry"
+            ReferencedContainer = "container:Sentry.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
