@@ -12,8 +12,7 @@ SentryUIDeviceWrapper ()
 
 - (instancetype)init
 {
-    self = [super init];
-    if (self) {
+    if (self = [super init]) {
 #if TARGET_OS_IOS
         // Needed to read the device orientation on demand
         if (!UIDevice.currentDevice.isGeneratingDeviceOrientationNotifications) {
