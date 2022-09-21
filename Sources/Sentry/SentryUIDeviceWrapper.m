@@ -10,10 +10,11 @@ SentryUIDeviceWrapper ()
 
 @implementation SentryUIDeviceWrapper
 
+#if TARGET_OS_IOS
+
 - (instancetype)init
 {
     if (self = [super init]) {
-#if TARGET_OS_IOS
         // Needed to read the device orientation on demand
         if (!UIDevice.currentDevice.isGeneratingDeviceOrientationNotifications) {
             self.cleanupDeviceOrientationNotifications = YES;
@@ -25,24 +26,20 @@ SentryUIDeviceWrapper ()
             self.cleanupBatteryMonitoring = YES;
             UIDevice.currentDevice.batteryMonitoringEnabled = YES;
         }
-#endif
     }
     return self;
 }
 
 - (void)dealloc
 {
-#if TARGET_OS_IOS
     if (self.cleanupDeviceOrientationNotifications) {
         [UIDevice.currentDevice endGeneratingDeviceOrientationNotifications];
     }
     if (self.cleanupBatteryMonitoring) {
         UIDevice.currentDevice.batteryMonitoringEnabled = NO;
     }
-#endif
 }
 
-#if TARGET_OS_IOS
 - (UIDeviceOrientation)orientation
 {
     return UIDevice.currentDevice.orientation;
@@ -62,6 +59,7 @@ SentryUIDeviceWrapper ()
 {
     return UIDevice.currentDevice.batteryLevel;
 }
+
 #endif
 
 @end
