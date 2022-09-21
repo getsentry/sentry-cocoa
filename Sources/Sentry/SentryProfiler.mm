@@ -104,33 +104,34 @@ getCPUArchitecture()
     cpu_type_t type;
     cpu_subtype_t subtype;
     size = sizeof(type);
-    const auto nameStr = [NSMutableString string];
+    NSMutableString *nameStr;
     if (sysctlbyname("hw.cputype", &type, &size, NULL, 0) == 0) {
         switch (type) {
-        case CPU_TYPE_I386:
-            [nameStr appendString:@"i386"];
-            break;
-        case CPU_TYPE_X86_64:
-            [nameStr appendString:@"x86_64"];
+        case CPU_TYPE_X86:
+            if (LIKELY((type & CPU_ARCH_ABI64) == CPU_ARCH_ABI64)) {
+                nameStr = [NSMutableString stringWithString:@"_64"];
+            } else {
+                nameStr = [NSMutableString stringWithString:@"x86"];
+            }
             break;
         case CPU_TYPE_ARM:
-            [nameStr appendString:@"arm"];
+            nameStr = [NSMutableString stringWithString:@"arm"];
             break;
         case CPU_TYPE_ARM64:
-            [nameStr appendString:@"arm64"];
+            nameStr = [NSMutableString stringWithString:@"arm64"];
             break;
         case CPU_TYPE_ARM64_32:
-            [nameStr appendString:@"arm64_32"];
+            nameStr = [NSMutableString stringWithString:@"arm64_32"];
             break;
         default:
-            [nameStr appendFormat:@"unknown type (%d)", type];
-            break;
+            return [NSMutableString stringWithFormat:@"unknown CPU type (%d)", type];
         }
     }
 
     size = sizeof(subtype);
     if (sysctlbyname("hw.cpusubtype", &subtype, &size, NULL, 0) == 0) {
         switch (subtype) {
+        default: break;
         case CPU_SUBTYPE_ARM_V6:
             [nameStr appendString:@"v6"];
             break;
