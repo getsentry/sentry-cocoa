@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "63AA759A1EB8AEF500D153DE"
-               BuildableName = "SentryObjc.framework"
-               BlueprintName = "SentryObjc"
+               BlueprintIdentifier = "D804D4C828DAF226005CECD1"
+               BuildableName = "Sentry.framework"
+               BlueprintName = "Sentry"
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -28,15 +28,6 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "NO"
       codeCoverageEnabled = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "63AA759A1EB8AEF500D153DE"
-            BuildableName = "SentryObjc.framework"
-            BlueprintName = "SentryObjc"
-            ReferencedContainer = "container:Sentry.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "TSAN_OPTIONS"
@@ -75,15 +66,6 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "63AA759A1EB8AEF500D153DE"
-            BuildableName = "SentryObjc.framework"
-            BlueprintName = "SentryObjc"
-            ReferencedContainer = "container:Sentry.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -91,15 +73,6 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "63AA759A1EB8AEF500D153DE"
-            BuildableName = "SentryObjc.framework"
-            BlueprintName = "SentryObjc"
-            ReferencedContainer = "container:Sentry.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
