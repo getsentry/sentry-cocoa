@@ -61,9 +61,41 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 }
 
 namespace {
+/**
+ * @brief Get the hardware description of the device.
+ * @discussion The values returned are different between iOS and macOS. Some examples of values returned on different devices:
+ * @code
+ * | device                        | machine    | model          |
+ * ---------------------------------------------------------------
+ * | m1 mbp                        | arm64      | MacBookPro18,3 |
+ * | iphone 13 mini                | iPhone14,4 | D16AP          |
+ * | intel imac                    | x86_64     | iMac20,1       |
+ * | iphone simulator on m1 mac    | arm64      | MacBookPro18,3 |
+ * | iphone simulator on intel mac | x86_64     | iMac20,1       |
+ * @endcode
+ * @seealso See https://www.cocoawithlove.com/blog/2016/03/08/swift-wrapper-for-sysctl.html#looking-for-the-source for more info.
+ * @return @c sysctl value for the combination of @c CTL_HW and the provided other flag in the @c type parameter.
+ */
+NSString *
+getHardwareDescription(int type)
+{
+    int mib[2];
+    char name[128];
+    size_t len;
+
+    mib[0] = CTL_HW;
+    mib[1] = type;
+    len = sizeof(name);
+    if (sysctl(mib, 2, &name, &len, NULL, 0) != 0) {
+        return @"";
+    }
+    return [NSString stringWithUTF8String:name];
+}
+
 NSString *
 getCPUArchitecture()
 {
+#if SENTRY_HAS_UIKIT
     size_t size;
     cpu_type_t type;
     cpu_subtype_t subtype;
@@ -119,6 +151,9 @@ getCPUArchitecture()
     }
 
     return nameStr;
+#else
+    return getHardwareDescription(HW_MACHINE);
+#endif // SENTRY_HAS_UIKIT
 }
 
 NSString *
@@ -159,37 +194,17 @@ getOSVersion()
 }
 
 NSString *
-getHardwareDescription(int type)
-{
-    int mib[2];
-    char name[128];
-    size_t len;
-
-    mib[0] = CTL_HW;
-    mib[1] = type;
-    len = sizeof(name);
-    if (sysctl(mib, 2, &name, &len, NULL, 0) != 0) {
-        return @"";
-    }
-    return [NSString stringWithUTF8String:name];
-}
-
-NSString *
 getDeviceModel()
 {
-    const auto machine = getHardwareDescription(HW_MACHINE);
-    const auto machine_arch = getHardwareDescription(HW_MACHINE_ARCH);
-    const auto model = getHardwareDescription(HW_MODEL);
-    NSLog(@"machine: %@, machine_arch: %@, model: %@", machine, machine_arch, model);
-#    if SENTRY_HAS_UIKIT
-    utsname info;
-    if (SENTRY_PROF_LOG_ERRNO(uname(&info)) == 0) {
-        return [NSString stringWithUTF8String:info.machine];
-    }
-    return @"";
-#    else
-    return model;
-#    endif // SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT
+#if TARGET_OS_SIMULATOR
+    return getHardwareDescription(HW_MODEL);
+#else
+    return getHardwareDescription(HW_MACHINE);
+#endif // TARGET_OS_SIMULATOR
+#else
+    return getHardwareDescription(HW_MODEL);
+#endif // SENTRY_HAS_UIKIT
 }
 
 NSString *
