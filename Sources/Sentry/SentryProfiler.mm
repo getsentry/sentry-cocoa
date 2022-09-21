@@ -380,15 +380,13 @@ isSimulatorBuild()
         profile[@"debug_meta"] = @{ @"images" : debugImages };
     }
 
+    profile[@"device_architecture"] = getCPUArchitecture();
     profile[@"device_locale"] = NSLocale.currentLocale.localeIdentifier;
     profile[@"device_manufacturer"] = @"Apple";
-    const auto model = getDeviceModel();
-    profile[@"device_model"] = model;
+    profile[@"device_model"] = getDeviceModel();
     profile[@"device_os_build_number"] = getOSBuildNumber();
-#    if TARGET_OS_IOS
-    profile[@"device_os_name"] = UIDevice.currentDevice.systemName;
-    profile[@"device_os_version"] = UIDevice.currentDevice.systemVersion;
-#    endif
+    profile[@"device_os_name"] = getOSName();
+    profile[@"device_os_version"] = getOSVersion();
     profile[@"device_is_emulator"] = @(isSimulatorBuild());
     profile[@"device_physical_memory_bytes"] =
         [@(NSProcessInfo.processInfo.physicalMemory) stringValue];
