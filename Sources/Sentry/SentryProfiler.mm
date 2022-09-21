@@ -105,7 +105,11 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
         const auto threadMetadata =
             [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
         const auto queueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
+        const auto stacks = [NSMutableArray<NSMutableArray<NSNumber *> *> array];
+        const auto frames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
         sampledProfile[@"samples"] = samples;
+        sampledProfile[@"stacks"] = stacks;
+        sampledProfile[@"frames"] = frames;
         sampledProfile[@"thread_metadata"] = threadMetadata;
         sampledProfile[@"queue_metadata"] = queueMetadata;
         _profile[@"sampled_profile"] = sampledProfile;
@@ -113,7 +117,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 
         __weak const auto weakSelf = self;
         _profiler = std::make_shared<SamplingProfiler>(
-            [weakSelf, threadMetadata, queueMetadata, samples, mainThreadID = _mainThreadID](
+                                                       [weakSelf, threadMetadata, queueMetadata, samples, mainThreadID = _mainThreadID, frames, stacks](
                 auto &backtrace) {
                 const auto strongSelf = weakSelf;
                 if (strongSelf == nil) {
@@ -151,18 +155,27 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
                     = backtrace_symbols(reinterpret_cast<void *const *>(backtrace.addresses.data()),
                         static_cast<int>(backtrace.addresses.size()));
 #    endif
-                const auto frames = [NSMutableArray<NSDictionary<NSString *, id> *> new];
+
+                const auto stack = [NSMutableArray<NSNumber *> array];
                 for (std::vector<uintptr_t>::size_type i = 0; i < backtrace.addresses.size(); i++) {
-                    const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
-                    frame[@"instruction_addr"] = sentry_formatHexAddress(@(backtrace.addresses[i]));
-#    if defined(DEBUG)
-                    frame[@"function"] = parseBacktraceSymbolsFunctionName(symbols[i]);
-#    endif
-                    [frames addObject:frame];
+                    const auto instructionAddress = sentry_formatHexAddress(@(backtrace.addresses[i]));
+                    const auto frameIndex = [frames indexOfObjectPassingTest:^BOOL(NSDictionary<NSString *,id> * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                        return [obj[@"instruction_addr"] isEqualToString:instructionAddress];
+                    }];
+                    if (frameIndex == NSNotFound) {
+                        const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
+                        frame[@"instruction_addr"] = instructionAddress;
+    #    if defined(DEBUG)
+                        frame[@"function"] = parseBacktraceSymbolsFunctionName(symbols[i]);
+    #    endif
+                        [stack addObject:@(frames.count)];
+                        [frames addObject:frame];
+                    } else {
+                        [stack addObject:@(frameIndex)];
+                    }
                 }
 
                 const auto sample = [NSMutableDictionary<NSString *, id> dictionary];
-                sample[@"frames"] = frames;
                 sample[@"relative_timestamp_ns"] =
                     [@(getDurationNs(strongSelf->_startTimestamp, backtrace.absoluteTimestamp))
                         stringValue];
@@ -170,6 +183,15 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
                 if (queueAddress != nil) {
                     sample[@"queue_address"] = queueAddress;
                 }
+
+                const auto stackIndex = [stacks indexOfObject:stack];
+                if (stackIndex != NSNotFound) {
+                    sample[@"stack_id"] = @(stackIndex);
+                } else {
+                    sample[@"stack_id"] = @(stacks.count);
+                    [stacks addObject:stack];
+                }
+
                 [samples addObject:sample];
             },
             101 /** Sample 101 times per second */);
