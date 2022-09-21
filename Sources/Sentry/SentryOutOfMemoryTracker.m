@@ -11,6 +11,7 @@
 #import <SentryLog.h>
 #import <SentryMechanism.h>
 #import <SentryMessage.h>
+#import <SentryNSNotificationCenterWrapper.h>
 #import <SentryOptions.h>
 #import <SentryOutOfMemoryLogic.h>
 #import <SentryOutOfMemoryTracker.h>
@@ -52,25 +53,28 @@ SentryOutOfMemoryTracker ()
 - (void)start
 {
 #if SENTRY_HAS_UIKIT
-    [NSNotificationCenter.defaultCenter addObserver:self
-                                           selector:@selector(didBecomeActive)
-                                               name:UIApplicationDidBecomeActiveNotification
-                                             object:nil];
+    [NSNotificationCenter.defaultCenter
+        addObserver:self
+           selector:@selector(didBecomeActive)
+               name:SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName
+             object:nil];
 
     [NSNotificationCenter.defaultCenter addObserver:self
                                            selector:@selector(didBecomeActive)
                                                name:SentryHybridSdkDidBecomeActiveNotificationName
                                              object:nil];
 
-    [NSNotificationCenter.defaultCenter addObserver:self
-                                           selector:@selector(willResignActive)
-                                               name:UIApplicationWillResignActiveNotification
-                                             object:nil];
+    [NSNotificationCenter.defaultCenter
+        addObserver:self
+           selector:@selector(willResignActive)
+               name:SentryNSNotificationCenterWrapper.willResignActiveNotificationName
+             object:nil];
 
-    [NSNotificationCenter.defaultCenter addObserver:self
-                                           selector:@selector(willTerminate)
-                                               name:UIApplicationWillTerminateNotification
-                                             object:nil];
+    [NSNotificationCenter.defaultCenter
+        addObserver:self
+           selector:@selector(willTerminate)
+               name:SentryNSNotificationCenterWrapper.willTerminateNotificationName
+             object:nil];
 
     [self.dispatchQueue dispatchAsyncWithBlock:^{
         if ([self.outOfMemoryLogic isOOM]) {
@@ -106,22 +110,25 @@ SentryOutOfMemoryTracker ()
 #if SENTRY_HAS_UIKIT
     // Remove the observers with the most specific detail possible, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-    [NSNotificationCenter.defaultCenter removeObserver:self
-                                                  name:UIApplicationDidBecomeActiveNotification
-                                                object:nil];
+    [NSNotificationCenter.defaultCenter
+        removeObserver:self
+                  name:SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName
+                object:nil];
 
     [NSNotificationCenter.defaultCenter
         removeObserver:self
                   name:SentryHybridSdkDidBecomeActiveNotificationName
                 object:nil];
 
-    [NSNotificationCenter.defaultCenter removeObserver:self
-                                                  name:UIApplicationWillResignActiveNotification
-                                                object:nil];
+    [NSNotificationCenter.defaultCenter
+        removeObserver:self
+                  name:SentryNSNotificationCenterWrapper.willResignActiveNotificationName
+                object:nil];
 
-    [NSNotificationCenter.defaultCenter removeObserver:self
-                                                  name:UIApplicationWillTerminateNotification
-                                                object:nil];
+    [NSNotificationCenter.defaultCenter
+        removeObserver:self
+                  name:SentryNSNotificationCenterWrapper.willTerminateNotificationName
+                object:nil];
     [self.appStateManager removeCurrentAppState];
 #endif
 }

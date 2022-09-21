@@ -1,7 +1,7 @@
 @testable import Sentry
 import XCTest
 
-class SentrySessionTrackerTests: NotificationCenterTestCase {
+class SentrySessionTrackerTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySessionTrackerTests")
     private static let dsn = TestConstants.dsn(username: "SentrySessionTrackerTests")
@@ -12,6 +12,8 @@ class SentrySessionTrackerTests: NotificationCenterTestCase {
         let currentDateProvider = TestCurrentDateProvider()
         let client: TestClient!
         let sentryCrash: TestSentryCrashWrapper
+
+        let notificationCenter = TestNSNotificationCenterWrapper()
         
         init() {
             options = Options()
@@ -26,7 +28,7 @@ class SentrySessionTrackerTests: NotificationCenterTestCase {
         }
         
         func getSut() -> SessionTracker {
-            return SessionTracker(options: options, currentDateProvider: currentDateProvider)
+            return SessionTracker(options: options, currentDateProvider: currentDateProvider, notificationCenter: notificationCenter)
         }
         
         func setNewHubToSDK() {
@@ -246,8 +248,6 @@ class SentrySessionTrackerTests: NotificationCenterTestCase {
         
         // Background task is launched
         advanceTime(bySeconds: 30)
-        didEnterBackground()
-        advanceTime(bySeconds: 9)
         
         // user opens app
         goToForeground()
@@ -262,9 +262,7 @@ class SentrySessionTrackerTests: NotificationCenterTestCase {
         goToBackground()
         
         // Background task is launched
-        advanceTime(bySeconds: 1)
-        didEnterBackground()
-        advanceTime(bySeconds: 1)
+        advanceTime(bySeconds: 2)
         
         // user opens app
         goToForeground()
@@ -344,8 +342,42 @@ class SentrySessionTrackerTests: NotificationCenterTestCase {
         assertSessionsSent(count: 2)
     }
     
+    func testStart_AddsObservers() {
+        sut.start()
+        
+        let invocations = fixture.notificationCenter.addObserverInvocations
+        let notificationNames = invocations.invocations.map { $0.name }
+        
+        assertNotificationNames(notificationNames)
+    }
+    
+    func testStop_RemovesObservers() {
+        sut.stop()
+        
+        let invocations = fixture.notificationCenter.addObserverWithNotificationInvocations
+        let notificationNames = invocations.invocations.map { $0.name }
+        
+        assertNotificationNames(notificationNames)
+    }
+    
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(bySeconds))
+    }
+    
+    private func goToForeground() {
+        Dynamic(sut).didBecomeActive()
+    }
+    
+    private func goToBackground() {
+        willResignActive()
+    }
+    
+    private func willResignActive() {
+        Dynamic(sut).willResignActive()
+    }
+    
+    private func hybridSdkDidBecomeActive() {
+        Dynamic(sut).didBecomeActive()
     }
     
     private func goToBackground(forSeconds: TimeInterval) {
@@ -354,13 +386,13 @@ class SentrySessionTrackerTests: NotificationCenterTestCase {
         goToForeground()
     }
     
-    internal override func terminateApp() {
-        super.terminateApp()
-        sut.stop()
+    private  func willTerminate() {
+        Dynamic(sut).willTerminate()
     }
     
-    private func resumeAppInBackground() {
-        didEnterBackground()
+    private func terminateApp() {
+        willTerminate()
+        sut.stop()
     }
     
     private func launchBackgroundTaskAppNotRunning() {
@@ -369,7 +401,6 @@ class SentrySessionTrackerTests: NotificationCenterTestCase {
         sut = fixture.getSut()
         
         sut.start()
-        didEnterBackground()
     }
     
     private func captureError() {
@@ -525,5 +556,16 @@ class SentrySessionTrackerTests: NotificationCenterTestCase {
         } else {
             XCTFail("No session sent with event.")
         }
+    }
+    
+    private func assertNotificationNames(_ notificationNames: [NSNotification.Name]) {
+        XCTAssertEqual(4, notificationNames.count)
+        
+        XCTAssertEqual([
+            SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName,
+            NSNotification.Name(rawValue: SentryHybridSdkDidBecomeActiveNotificationName),
+            SentryNSNotificationCenterWrapper.willResignActiveNotificationName,
+            SentryNSNotificationCenterWrapper.willTerminateNotificationName
+        ], notificationNames)
     }
 }

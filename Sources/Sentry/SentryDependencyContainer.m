@@ -11,6 +11,7 @@
 #import <SentryDependencyContainer.h>
 #import <SentryDispatchQueueWrapper.h>
 #import <SentryHub.h>
+#import <SentryNSNotificationCenterWrapper.h>
 #import <SentrySDK+Private.h>
 #import <SentryScreenshot.h>
 #import <SentrySwizzleWrapper.h>
@@ -104,6 +105,16 @@ static NSObject *sentryDependencyContainerLock;
             _dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
         }
         return _dispatchQueueWrapper;
+    }
+}
+
+- (SentryNSNotificationCenterWrapper *)notificationCenterWrapper
+{
+    @synchronized(sentryDependencyContainerLock) {
+        if (_notificationCenterWrapper == nil) {
+            _notificationCenterWrapper = [[SentryNSNotificationCenterWrapper alloc] init];
+        }
+        return _notificationCenterWrapper;
     }
 }
 
