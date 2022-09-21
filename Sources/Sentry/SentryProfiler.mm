@@ -63,7 +63,8 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 namespace {
 /**
  * @brief Get the hardware description of the device.
- * @discussion The values returned are different between iOS and macOS. Some examples of values returned on different devices:
+ * @discussion The values returned are different between iOS and macOS. Some examples of values
+ * returned on different devices:
  * @code
  * | device                        | machine    | model          |
  * ---------------------------------------------------------------
@@ -73,8 +74,11 @@ namespace {
  * | iphone simulator on m1 mac    | arm64      | MacBookPro18,3 |
  * | iphone simulator on intel mac | x86_64     | iMac20,1       |
  * @endcode
- * @seealso See https://www.cocoawithlove.com/blog/2016/03/08/swift-wrapper-for-sysctl.html#looking-for-the-source for more info.
- * @return @c sysctl value for the combination of @c CTL_HW and the provided other flag in the @c type parameter.
+ * @seealso See
+ * https://www.cocoawithlove.com/blog/2016/03/08/swift-wrapper-for-sysctl.html#looking-for-the-source
+ * for more info.
+ * @return @c sysctl value for the combination of @c CTL_HW and the provided other flag in the @c
+ * type parameter.
  */
 NSString *
 getHardwareDescription(int type)
@@ -95,7 +99,7 @@ getHardwareDescription(int type)
 NSString *
 getCPUArchitecture()
 {
-#if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT
     size_t size;
     cpu_type_t type;
     cpu_subtype_t subtype;
@@ -151,9 +155,9 @@ getCPUArchitecture()
     }
 
     return nameStr;
-#else
+#    else
     return getHardwareDescription(HW_MACHINE);
-#endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT
 }
 
 NSString *
@@ -196,15 +200,15 @@ getOSVersion()
 NSString *
 getDeviceModel()
 {
-#if SENTRY_HAS_UIKIT
-#if TARGET_OS_SIMULATOR
+#    if SENTRY_HAS_UIKIT
+#        if TARGET_OS_SIMULATOR
     return getHardwareDescription(HW_MODEL);
-#else
+#        else
     return getHardwareDescription(HW_MACHINE);
-#endif // TARGET_OS_SIMULATOR
-#else
+#        endif // TARGET_OS_SIMULATOR
+#    else
     return getHardwareDescription(HW_MODEL);
-#endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT
 }
 
 NSString *
