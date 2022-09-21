@@ -13,6 +13,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // Sampling 100% - In Production you probably want to adjust this
             options.tracesSampleRate = 1.0
             options.enableFileIOTracking = true
+            if ProcessInfo.processInfo.arguments.contains("--io.sentry.profiling.enable") {
+                options.profilesSampleRate = 1
+            }
         }
         
         SentrySDK.configureScope { scope in

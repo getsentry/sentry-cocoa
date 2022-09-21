@@ -24,6 +24,9 @@ AppDelegate ()
         options.attachScreenshot = YES;
         options.attachViewHierarchy = YES;
         options.enableUserInteractionTracing = YES;
+        if ([NSProcessInfo.processInfo.arguments containsObject:@"--io.sentry.profiling.enable"]) {
+            options.profilesSampleRate = @1;
+        }
     }];
 
     return YES;
