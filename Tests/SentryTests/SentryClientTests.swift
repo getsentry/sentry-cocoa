@@ -578,8 +578,8 @@ class SentryClientTest: XCTestCase {
         }
     }
 
-#if TARGET_OS_IOS
     func testCaptureCrash_DeviceProperties() {
+#if os(iOS)
         let event = TestData.event
         event.threads = nil
         event.debugMeta = nil
@@ -596,8 +596,29 @@ class SentryClientTest: XCTestCase {
             let batteryLevel = actual.context?["device"]?["battery_level"] as? Int
             XCTAssertEqual(batteryLevel, 60)
         }
-    }
 #endif
+    }
+
+    func testCaptureCrash_DeviceProperties_OtherValues() {
+#if os(iOS)
+        let event = TestData.event
+        event.threads = nil
+        event.debugMeta = nil
+
+        fixture.deviceWrapper.internalOrientation = .landscapeLeft
+        fixture.deviceWrapper.interalBatteryState = .full
+
+        fixture.getSut().captureCrash(event, with: fixture.scope)
+
+        assertLastSentEventWithAttachment { actual in
+            let orientation = actual.context?["device"]?["orientation"] as? String
+            XCTAssertEqual(orientation, "landscape")
+
+            let charging = actual.context?["device"]?["charging"] as? Bool
+            XCTAssertEqual(charging, false)
+        }
+#endif
+    }
 
     func testCaptureCrash_Permissions() {
         fixture.permissionsObserver.internalLocationPermissionStatus = SentryPermissionStatus.granted
