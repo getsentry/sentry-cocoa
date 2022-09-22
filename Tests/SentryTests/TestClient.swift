@@ -11,7 +11,7 @@ class TestClient: Client {
 
     // Without this override we get a fatal error: use of unimplemented initializer
     // see https://stackoverflow.com/questions/28187261/ios-swift-fatal-error-use-of-unimplemented-initializer-init
-    override init(options: Options, transportAdapter: SentryTransportAdapter, fileManager: SentryFileManager, threadInspector: SentryThreadInspector, random: SentryRandomProtocol, crashWrapper: SentryCrashWrapper, permissionsObserver: SentryPermissionsObserver, locale: Locale, timezone: TimeZone) {
+    override init(options: Options, transportAdapter: SentryTransportAdapter, fileManager: SentryFileManager, threadInspector: SentryThreadInspector, random: SentryRandomProtocol, crashWrapper: SentryCrashWrapper, permissionsObserver: SentryPermissionsObserver, deviceWrapper: SentryUIDeviceWrapper, locale: Locale, timezone: TimeZone) {
         sentryFileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
         super.init(
             options: options,
@@ -21,6 +21,7 @@ class TestClient: Client {
             random: random,
             crashWrapper: crashWrapper,
             permissionsObserver: permissionsObserver,
+            deviceWrapper: deviceWrapper,
             locale: locale,
             timezone: timezone
         )
