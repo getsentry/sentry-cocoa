@@ -1,8 +1,5 @@
 #import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-
 #    import "SentryCompiler.h"
 #    import "SentrySpan.h"
 
@@ -15,6 +12,8 @@
 @class SentryEnvelope;
 @class SentrySpanId;
 @class SentryTransaction;
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
 
 typedef NS_ENUM(NSUInteger, SentryProfilerTruncationReason) {
     SentryProfilerTruncationReasonNormal,
