@@ -492,6 +492,8 @@ SentryProfiler *_Nullable _gCurrentProfiler;
         const auto end = (uint64_t)(obj[@"end_timestamp"].doubleValue * 1e9);
         const auto relativeEnd = getDurationNs(_startTimestamp, end);
         if (relativeEnd > profileDuration) {
+            SENTRY_LOG_DEBUG(@"The last slow/frozen frame extended past the end of the profile, will not report it.");
+            *stop = YES;
             return;
         }
         [relativeFrameTimestampsNs addObject:@{

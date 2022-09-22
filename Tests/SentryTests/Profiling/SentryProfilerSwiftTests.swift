@@ -204,6 +204,7 @@ private extension SentryProfilerSwiftTests {
             concatStr = concatStr.appending(str)
         }
 
+        // wait for enough time for several profiler samples to be made, so that this codepath shows up in the profile sample's frames instead of that property being empty when we go to check the validity of data in its payload
         queue.asyncAfter(deadline: .now() + (1 / Double(kSentryProfilerFrequencyHz)) * 3.1) {
             group.leave()
         }
