@@ -1,1 +1,2 @@
 $(SRCROOT)/Carthage/Build/iOS/Sentry.framework
+$(SRCROOT)/Carthage/Build/iOS/SentryObjc.framework
