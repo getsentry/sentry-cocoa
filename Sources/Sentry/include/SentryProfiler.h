@@ -45,8 +45,6 @@ NSString *profilerTruncationReasonName(SentryProfilerTruncationReason reason);
 
 SENTRY_EXTERN_C_END
 
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
 @interface SentryProfiler : NSObject
 
 /**
@@ -81,3 +79,5 @@ SENTRY_EXTERN_C_END
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
