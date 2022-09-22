@@ -2,26 +2,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *
-getCPUArchitecture(void);
+NSString *getCPUArchitecture(void);
 
+NSString *getOSName(void);
 
-NSString *
-getOSName(void);
+NSString *getOSVersion(void);
 
-NSString *
-getOSVersion(void);
+NSString *getDeviceModel(void);
 
-NSString *
-getDeviceModel(void)
-;
+NSString *getOSBuildNumber(void);
 
-NSString *
-getOSBuildNumber(void)
-;
-
-BOOL
-isSimulatorBuild(void)
-;
+BOOL isSimulatorBuild(void);
 
 NS_ASSUME_NONNULL_END

@@ -8,7 +8,7 @@
 #    import "SentryDebugMeta.h"
 #    import "SentryDefines.h"
 #    import "SentryDependencyContainer.h"
-#import "SentryDevice.h"
+#    import "SentryDevice.h"
 #    import "SentryEnvelope.h"
 #    import "SentryEnvelopeItemType.h"
 #    import "SentryFramesTracker.h"

@@ -1,6 +1,6 @@
-#import <XCTest/XCTest.h>
 #import "SentryDefines.h"
 #import "SentryDevice.h"
+#import <XCTest/XCTest.h>
 
 @interface SentryDeviceTests : XCTestCase
 
@@ -8,19 +8,21 @@
 
 @implementation SentryDeviceTests
 
-- (void)testCPUArchitecture {
+- (void)testCPUArchitecture
+{
 #if SENTRY_HAS_UIKIT
-#if TARGET_OS_SIMULATOR
+#    if TARGET_OS_SIMULATOR
     [self assertMacCPU:getCPUArchitecture()];
-#else
+#    else
     XCTAssert([getCPUArchitecture() containsString:@"arm"]);
-#endif
+#    endif
 #else
     [self assertMacCPU:getCPUArchitecture()];
 #endif
 }
 
-- (void)assertMacCPU:(NSString *)arch {
+- (void)assertMacCPU:(NSString *)arch
+{
 #if TARGET_CPU_X86_64
     XCTAssertEqual(arch, @"x86_64");
 #elif TARGET_CPU_ARM64

@@ -30,12 +30,12 @@ NS_ASSUME_NONNULL_END
  * Logs the error code returned by executing `statement`, and returns the
  * error code (i.e. returns the return value of `statement`).
  */
-#define SENTRY_LOG_ERRNO_RETURN(statement)                                                    \
+#define SENTRY_LOG_ERRNO_RETURN(statement)                                                         \
     ({                                                                                             \
         const int __log_errnum = statement;                                                        \
         if (__log_errnum != 0) {                                                                   \
-            SENTRY_LOG_ERROR(@"%s failed with code: %d, description: %s", #statement,          \
-                __log_errnum, strerror(__log_errnum));                                        \
+            SENTRY_LOG_ERROR(@"%s failed with code: %d, description: %s", #statement,              \
+                __log_errnum, strerror(__log_errnum));                                             \
         }                                                                                          \
         __log_errnum;                                                                              \
     })
@@ -45,14 +45,14 @@ NS_ASSUME_NONNULL_END
  * the error value is logged, and the original return value of `statement` is
  * returned.
  */
-#define SENTRY_LOG_ERRNO(statement)                                                           \
+#define SENTRY_LOG_ERRNO(statement)                                                                \
     ({                                                                                             \
         errno = 0;                                                                                 \
         const auto __log_rv = (statement);                                                         \
         const int __log_errnum = errno;                                                            \
         if (__log_errnum != 0) {                                                                   \
-            SENTRY_LOG_ERROR(@"%s failed with code: %d, description: %s", #statement,          \
-                __log_errnum, strerror(__log_errnum));                                        \
+            SENTRY_LOG_ERROR(@"%s failed with code: %d, description: %s", #statement,              \
+                __log_errnum, strerror(__log_errnum));                                             \
         }                                                                                          \
         __log_rv;                                                                                  \
     })
