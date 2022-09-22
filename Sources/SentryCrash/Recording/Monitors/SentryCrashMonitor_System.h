@@ -32,8 +32,7 @@ extern "C" {
 #endif
 
 #include "SentryCrashMonitor.h"
-
-typedef uint64_t bytes;
+#import "SentryInternalDefines.h"
 
 /** Access the Monitor API.
  */
