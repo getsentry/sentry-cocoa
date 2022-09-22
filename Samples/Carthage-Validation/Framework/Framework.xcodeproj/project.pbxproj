@@ -15,22 +15,7 @@
 		7BA13E63267B851D00DEE308 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7BA13E61267B851D00DEE308 /* LaunchScreen.storyboard */; };
 		7BA13E74267B85A300DEE308 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA13E71267B859500DEE308 /* Sentry.framework */; };
 		D8145C2C28DCBE4100494277 /* SentryObjc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8145C2B28DCBE4100494277 /* SentryObjc.framework */; };
-		D8145C2D28DCBE4100494277 /* SentryObjc.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D8145C2B28DCBE4100494277 /* SentryObjc.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		D8145C2E28DCBE4100494277 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				D8145C2D28DCBE4100494277 /* SentryObjc.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		7BA13E53267B851B00DEE308 /* Framework.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Framework.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -136,7 +121,6 @@
 				7BA13E4F267B851B00DEE308 /* Sources */,
 				7BA13E50267B851B00DEE308 /* Frameworks */,
 				7BA13E51267B851B00DEE308 /* Resources */,
-				D8145C2E28DCBE4100494277 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
