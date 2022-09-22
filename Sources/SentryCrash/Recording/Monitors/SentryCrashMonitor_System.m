@@ -71,7 +71,8 @@ typedef struct {
     int parentProcessID;
     const char *deviceAppHash;
     const char *buildType;
-    uint64_t storageSize;
+    uint64_t totalStorageSize;
+    uint64_t freeStorageSize;
     uint64_t memorySize;
 } SystemData;
 
@@ -486,12 +487,27 @@ getBuildType()
 }
 
 static uint64_t
-getStorageSize()
+getTotalStorageSize()
 {
     NSNumber *storageSize = [[[NSFileManager defaultManager]
         attributesOfFileSystemForPath:NSHomeDirectory()
                                 error:nil] objectForKey:NSFileSystemSize];
     return storageSize.unsignedLongLongValue;
+}
+
+static uint64_t
+getFreeStorageSize()
+{
+    NSNumber *storageSize = [[[NSFileManager defaultManager]
+        attributesOfFileSystemForPath:NSHomeDirectory()
+                                error:nil] objectForKey:NSFileSystemFreeSize];
+    return storageSize.unsignedLongLongValue;
+}
+
+uint64_t
+sentrycrashcm_system_freestorage(void)
+{
+    return getFreeStorageSize();
 }
 
 // ============================================================================
@@ -569,7 +585,8 @@ initialize()
         g_systemData.parentProcessID = getppid();
         g_systemData.deviceAppHash = getDeviceAndAppHash();
         g_systemData.buildType = getBuildType();
-        g_systemData.storageSize = getStorageSize();
+        g_systemData.totalStorageSize = getTotalStorageSize();
+        g_systemData.freeStorageSize = getFreeStorageSize();
         g_systemData.memorySize = sentrycrashsysctl_uint64ForName("hw.memsize");
     }
 }
@@ -622,7 +639,8 @@ addContextualInfoToEvent(SentryCrash_MonitorContext *eventContext)
         COPY_REFERENCE(parentProcessID);
         COPY_REFERENCE(deviceAppHash);
         COPY_REFERENCE(buildType);
-        COPY_REFERENCE(storageSize);
+        COPY_REFERENCE(totalStorageSize);
+        COPY_REFERENCE(freeStorageSize);
         COPY_REFERENCE(memorySize);
         eventContext->System.freeMemory = freeMemory();
         eventContext->System.usableMemory = usableMemory();
