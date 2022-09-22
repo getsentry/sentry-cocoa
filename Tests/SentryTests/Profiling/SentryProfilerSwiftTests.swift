@@ -192,24 +192,11 @@ class SentryProfilerSwiftTests: XCTestCase {
 private extension SentryProfilerSwiftTests {
     /// Keep a thread busy over a long enough period of time (long enough for 3 samples) for the sampler to pick it up.
     func forceProfilerSample() {
-        let queue = DispatchQueue(label: "SentryProfilerSwiftTests")
-        let group = DispatchGroup()
-
-        group.enter()
-
-        // Some busy work to try and get it to show up in the profile.
         let str = "a"
         var concatStr = ""
         for _ in 0..<100_000 {
             concatStr = concatStr.appending(str)
         }
-
-        // wait for enough time for several profiler samples to be made, so that this codepath shows up in the profile sample's frames instead of that property being empty when we go to check the validity of data in its payload
-        queue.asyncAfter(deadline: .now() + (1 / Double(kSentryProfilerFrequencyHz)) * 3.1) {
-            group.leave()
-        }
-
-        group.wait()
     }
 
     func performTest(transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1, shouldTimeOut: Bool = false) {
