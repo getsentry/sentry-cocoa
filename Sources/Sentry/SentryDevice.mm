@@ -1,5 +1,14 @@
-#import "SentryDevice.h"
+// This file is also compiled into iOS-SwiftUITests and doesn't have access to private Sentry API there, so we fix up a few things here.
+#if !defined(SENTRY_HAS_UIKIT)
+#define SENTRY_HAS_UIKIT (TARGET_OS_IOS || TARGET_OS_TV)
+#endif
+#if defined(SENTRY_LOG_ERRNO)
 #import "SentryLog.h"
+#else
+#define SENTRY_LOG_ERRNO(statement) statement
+#endif
+
+#import "SentryDevice.h"
 #import <sys/sysctl.h>
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
