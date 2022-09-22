@@ -63,7 +63,7 @@ build-xcframework-sample:
 build-framework:
 	@echo "--> Carthage: creating Sentry framework"
 	./scripts/carthage-xcode12-workaround.sh build --no-skip-current
-	./scripts/carthage-xcode12-workaround.sh archive Sentry --output Sentry.framework.zip
+	./scripts/carthage-xcode12-workaround.sh archive Sentry SentryObjc --output Sentry.framework.zip
 
 build-framework-sample:
 	./scripts/create-carthage-json.sh
