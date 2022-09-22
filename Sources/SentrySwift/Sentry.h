@@ -1,13 +1,4 @@
-//
-//  Sentry.h
-//  Sentry
-//
-//  Created by Dhiogo Brustolin on 21.09.22.
-//  Copyright © 2022 Sentry. All rights reserved.
-//
-
 #import <Foundation/Foundation.h>
-@import SentryObjc;
 
 //! Project version number for Sentry.
 FOUNDATION_EXPORT double SentryVersionNumber;

@@ -13,18 +13,21 @@
 		7BA13E38267B3F5400DEE308 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7BA13E37267B3F5400DEE308 /* Assets.xcassets */; };
 		7BA13E3B267B3F5400DEE308 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7BA13E3A267B3F5400DEE308 /* Preview Assets.xcassets */; };
 		7BA13E3E267B3F5400DEE308 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7BA13E3C267B3F5400DEE308 /* LaunchScreen.storyboard */; };
-		7BA13E47267B4A2D00DEE308 /* Sentry.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA13E46267B4A2D00DEE308 /* Sentry.xcframework */; };
-		7BA13E48267B4A2D00DEE308 /* Sentry.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA13E46267B4A2D00DEE308 /* Sentry.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D8145C1A28DC9C8A00494277 /* Sentry.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA13E46267B4A2D00DEE308 /* Sentry.xcframework */; };
+		D8145C1B28DC9C8A00494277 /* Sentry.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA13E46267B4A2D00DEE308 /* Sentry.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D8145C2528DCB4E300494277 /* SentryObjc.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8145C2428DCB4E200494277 /* SentryObjc.xcframework */; };
+		D8145C2628DCB4E300494277 /* SentryObjc.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D8145C2428DCB4E200494277 /* SentryObjc.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		7BA13E49267B4A2D00DEE308 /* Embed Frameworks */ = {
+		D8145C1C28DC9C8A00494277 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				7BA13E48267B4A2D00DEE308 /* Sentry.xcframework in Embed Frameworks */,
+				D8145C2628DCB4E300494277 /* SentryObjc.xcframework in Embed Frameworks */,
+				D8145C1B28DC9C8A00494277 /* Sentry.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -41,6 +44,7 @@
 		7BA13E3D267B3F5400DEE308 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7BA13E3F267B3F5400DEE308 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7BA13E46267B4A2D00DEE308 /* Sentry.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Sentry.xcframework; path = Carthage/Build/Sentry.xcframework; sourceTree = "<group>"; };
+		D8145C2428DCB4E200494277 /* SentryObjc.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SentryObjc.xcframework; path = Carthage/Build/SentryObjc.xcframework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,7 +52,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7BA13E47267B4A2D00DEE308 /* Sentry.xcframework in Frameworks */,
+				D8145C2528DCB4E300494277 /* SentryObjc.xcframework in Frameworks */,
+				D8145C1A28DC9C8A00494277 /* Sentry.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,6 +102,7 @@
 		7BA13E45267B4A2D00DEE308 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D8145C2428DCB4E200494277 /* SentryObjc.xcframework */,
 				7BA13E46267B4A2D00DEE308 /* Sentry.xcframework */,
 			);
 			name = Frameworks;
@@ -112,7 +118,7 @@
 				7BA13E2A267B3F5200DEE308 /* Sources */,
 				7BA13E2B267B3F5200DEE308 /* Frameworks */,
 				7BA13E2C267B3F5200DEE308 /* Resources */,
-				7BA13E49267B4A2D00DEE308 /* Embed Frameworks */,
+				D8145C1C28DC9C8A00494277 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -318,10 +324,12 @@
 				DEVELOPMENT_ASSET_PATHS = "\"XCFramework/Preview Content\"";
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				ENABLE_PREVIEWS = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
 				INFOPLIST_FILE = XCFramework/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+					"$(PROJECT_DIR)/Carthage/Build/",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.carthage.XCFramework;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -339,10 +347,12 @@
 				DEVELOPMENT_ASSET_PATHS = "\"XCFramework/Preview Content\"";
 				DEVELOPMENT_TEAM = 97JCY7859U;
 				ENABLE_PREVIEWS = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
 				INFOPLIST_FILE = XCFramework/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+					"$(PROJECT_DIR)/Carthage/Build/",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.carthage.XCFramework;
 				PRODUCT_NAME = "$(TARGET_NAME)";
