@@ -459,7 +459,9 @@ static BOOL appStartMeasurementRead;
         }
     }
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
     [SentryProfiler stopProfilingSpan:self.rootSpan];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     SentryTransaction *transaction = [self toTransaction];
 
@@ -472,12 +474,16 @@ static BOOL appStartMeasurementRead;
         SENTRY_LOG_INFO(@"Auto generated transaction exceeded the max duration of %f seconds. Not "
                         @"capturing transaction.",
             SENTRY_AUTO_TRANSACTION_MAX_DURATION);
+#if SENTRY_TARGET_PROFILING_SUPPORTED
         [SentryProfiler dropTransaction:transaction];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
         return;
     }
     [_hub captureTransaction:transaction withScope:_hub.scope];
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
     [SentryProfiler linkTransaction:transaction];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 - (void)trimEndTimestamp
