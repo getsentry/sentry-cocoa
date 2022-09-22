@@ -73,17 +73,12 @@ platform :ios do
       force: true
     )
 
-    sync_code_signing(
-      type: "development",
-      readonly: true,
-      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip"]
-    )
-
     build_app(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
       derived_data_path: "DerivedData",
-      skip_archive: true
+      skip_archive: true,
+      skip_codesigning: true
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci

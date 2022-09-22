@@ -6,6 +6,7 @@
 
 - Add flush (#2140)
 - Create Sentry swift module (#2162)
+- Add more device context (#2190)
 
 ### Fixes
 

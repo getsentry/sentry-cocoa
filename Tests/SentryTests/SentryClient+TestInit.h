@@ -2,7 +2,7 @@
 #import "SentryRandom.h"
 #import "SentryTransport.h"
 
-@class SentryCrashWrapper, SentryThreadInspector, SentryTransportAdapter;
+@class SentryCrashWrapper, SentryThreadInspector, SentryTransportAdapter, SentryUIDeviceWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -20,6 +20,7 @@ SentryClient (TestInit)
                          random:(id<SentryRandom>)random
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
             permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
+                  deviceWrapper:(SentryUIDeviceWrapper *)deviceWrapper
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone;
 

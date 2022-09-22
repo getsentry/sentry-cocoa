@@ -42,6 +42,7 @@
 #import "SentryTransport.h"
 #import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
+#import "SentryUIDeviceWrapper.h"
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
 
@@ -63,6 +64,7 @@ SentryClient ()
     NSMutableArray<id<SentryClientAttachmentProcessor>> *attachmentProcessors;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryPermissionsObserver *permissionsObserver;
+@property (nonatomic, strong) SentryUIDeviceWrapper *deviceWrapper;
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
 
@@ -111,6 +113,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     SentryThreadInspector *threadInspector =
         [[SentryThreadInspector alloc] initWithStacktraceBuilder:stacktraceBuilder
                                         andMachineContextWrapper:machineContextWrapper];
+    SentryUIDeviceWrapper *deviceWrapper = [[SentryUIDeviceWrapper alloc] init];
 
     return [self initWithOptions:options
                 transportAdapter:transportAdapter
@@ -119,6 +122,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
                           random:[SentryDependencyContainer sharedInstance].random
                     crashWrapper:[SentryCrashWrapper sharedInstance]
              permissionsObserver:permissionsObserver
+                   deviceWrapper:deviceWrapper
                           locale:[NSLocale autoupdatingCurrentLocale]
                         timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone];
 }
@@ -130,6 +134,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
                          random:(id<SentryRandom>)random
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
             permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
+                  deviceWrapper:(SentryUIDeviceWrapper *)deviceWrapper
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone
 {
@@ -145,6 +150,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.locale = locale;
         self.timezone = timezone;
         self.attachmentProcessors = [[NSMutableArray alloc] init];
+        self.deviceWrapper = deviceWrapper;
     }
     return self;
 }
@@ -539,12 +545,13 @@ NSString *const kSentryDefaultEnvironment = @"production";
     event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
 
     if ([self isOOM:event isCrashEvent:isCrashEvent]) {
-        // Remove free_memory if OOM as free_memory stems from the current run and not of
-        // the time of the OOM.
-        [self removeFreeMemoryFromDeviceContext:event];
+        // Remove some mutable properties from the device/app contexts which are no longer
+        // applicable
+        [self removeExtraDeviceContextFromEvent:event];
     } else {
-        // Store the actual free memory at the time of this event
-        [self storeFreeMemoryToDeviceContext:event];
+        // Store the current free memory, free storage, battery level and more mutable properties,
+        // at the time of this event
+        [self applyExtraDeviceContextToEvent:event];
     }
 
     [self applyPermissionsToEvent:event];
@@ -759,12 +766,31 @@ NSString *const kSentryDefaultEnvironment = @"production";
                   }];
 }
 
-- (void)storeFreeMemoryToDeviceContext:(SentryEvent *)event
+- (void)applyExtraDeviceContextToEvent:(SentryEvent *)event
 {
     [self modifyContext:event
                     key:@"device"
                   block:^(NSMutableDictionary *device) {
                       device[SentryDeviceContextFreeMemoryKey] = @(self.crashWrapper.freeMemory);
+                      device[@"free_storage"] = @(self.crashWrapper.freeStorage);
+
+#if TARGET_OS_IOS
+                      if (self.deviceWrapper.orientation != UIDeviceOrientationUnknown) {
+                          device[@"orientation"]
+                              = UIDeviceOrientationIsPortrait(self.deviceWrapper.orientation)
+                              ? @"portrait"
+                              : @"landscape";
+                      }
+
+                      if (self.deviceWrapper.isBatteryMonitoringEnabled) {
+                          device[@"charging"]
+                              = self.deviceWrapper.batteryState == UIDeviceBatteryStateCharging
+                              ? @(YES)
+                              : @(NO);
+                          device[@"battery_level"] =
+                              @((int)(self.deviceWrapper.batteryLevel * 100));
+                      }
+#endif
                   }];
 
     [self modifyContext:event
@@ -774,12 +800,16 @@ NSString *const kSentryDefaultEnvironment = @"production";
                   }];
 }
 
-- (void)removeFreeMemoryFromDeviceContext:(SentryEvent *)event
+- (void)removeExtraDeviceContextFromEvent:(SentryEvent *)event
 {
     [self modifyContext:event
                     key:@"device"
                   block:^(NSMutableDictionary *device) {
                       [device removeObjectForKey:SentryDeviceContextFreeMemoryKey];
+                      [device removeObjectForKey:@"free_storage"];
+                      [device removeObjectForKey:@"orientation"];
+                      [device removeObjectForKey:@"charging"];
+                      [device removeObjectForKey:@"battery_level"];
                   }];
 
     [self modifyContext:event
