@@ -33,14 +33,16 @@ extern "C" {
 
 #include "SentryCrashMonitor.h"
 
+typedef uint64_t bytes;
+
 /** Access the Monitor API.
  */
 SentryCrashMonitorAPI *sentrycrashcm_system_getAPI(void);
 
 bool sentrycrash_isSimulatorBuild(void);
 
-uint64_t sentrycrashcm_system_freememory(void);
-uint64_t sentrycrashcm_system_freestorage(void);
+bytes sentrycrashcm_system_freememory(void);
+bytes sentrycrashcm_system_freestorage(void);
 
 #ifdef __cplusplus
 }

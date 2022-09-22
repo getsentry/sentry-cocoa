@@ -188,7 +188,7 @@ VMStats(vm_statistics_data_t *const vmStats, vm_size_t *const pageSize)
     return true;
 }
 
-static uint64_t
+static bytes
 freeMemory(void)
 {
     vm_statistics_data_t vmStats;
@@ -199,13 +199,13 @@ freeMemory(void)
     return 0;
 }
 
-uint64_t
+bytes
 sentrycrashcm_system_freememory(void)
 {
     return freeMemory();
 }
 
-static uint64_t
+static bytes
 usableMemory(void)
 {
     vm_statistics_data_t vmStats;
@@ -486,7 +486,7 @@ getBuildType()
     return "unknown";
 }
 
-static uint64_t
+static bytes
 getTotalStorageSize()
 {
     NSNumber *storageSize = [[[NSFileManager defaultManager]
@@ -495,7 +495,7 @@ getTotalStorageSize()
     return storageSize.unsignedLongLongValue;
 }
 
-static uint64_t
+static bytes
 getFreeStorageSize()
 {
     NSNumber *storageSize = [[[NSFileManager defaultManager]
