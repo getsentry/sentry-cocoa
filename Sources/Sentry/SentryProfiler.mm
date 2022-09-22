@@ -169,6 +169,16 @@ SentryProfiler *_Nullable _gCurrentProfiler;
 + (void)startForSpanID:(SentrySpanId *)spanID hub:(SentryHub *)hub
 {
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
+    NSTimeInterval timeoutInterval = 30;
+#if defined(TEST) || defined(TESTCI)
+    timeoutInterval = 1;
+#endif
+    [self startForSpanID:spanID hub:hub timeoutInterval:timeoutInterval];
+#endif
+}
+
++ (void)startForSpanID:(SentrySpanId *)spanID hub:(SentryHub *)hub timeoutInterval:(NSTimeInterval)timeoutInterval {
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
     if (_gCurrentProfiler == nil) {
@@ -178,13 +188,13 @@ SentryProfiler *_Nullable _gCurrentProfiler;
 #        endif // SENTRY_HAS_UIKIT
         [_gCurrentProfiler start];
         _gCurrentProfiler->_timeoutTimer =
-            [NSTimer scheduledTimerWithTimeInterval:30
-                                            repeats:NO
-                                              block:^(NSTimer *_Nonnull timer) {
-                                                  SENTRY_LOG_DEBUG(
-                                                      @"Profiler %@ timed out.", _gCurrentProfiler);
-                                                  [[self class] timeoutAbort];
-                                              }];
+        [NSTimer scheduledTimerWithTimeInterval:timeoutInterval
+                                        repeats:NO
+                                          block:^(NSTimer *_Nonnull timer) {
+            SENTRY_LOG_DEBUG(
+                             @"Profiler %@ timed out.", _gCurrentProfiler);
+            [[self class] timeoutAbort];
+        }];
         _gCurrentProfiler->_hub = hub;
     }
 

@@ -43,10 +43,6 @@ class SentryProfilerSwiftTests: XCTestCase {
 #endif
     }
 
-    // This test is only available on newer APIs because of the availability of `DispatchQueue.activate`
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
     func testConcurrentProfilingTransactions() {
         let options = fixture.options
         options.profilesSampleRate = 1.0
@@ -113,7 +109,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         }
     }
 
-    func testProfileTimeout() {
+    func testProfileTimeoutTimer() {
         fixture.options.profilesSampleRate = 1.0
         fixture.options.tracesSampleRate = 1.0
         performTest(shouldTimeOut: true)
@@ -215,17 +211,23 @@ private extension SentryProfilerSwiftTests {
         group.wait()
     }
 
-    // This is only available on newer APIs because of the availability of `DispatchQueue.activate`
     func performTest(transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1, shouldTimeOut: Bool = false) {
         let span = fixture.hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
 
         forceProfilerSample()
 
+        let exp = expectation(description: "profiler should finish")
         if shouldTimeOut {
-            SentryProfiler.timeoutAbort()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                span.finish()
+                exp.fulfill()
+            }
+        } else {
+            span.finish()
+            exp.fulfill()
         }
 
-        span.finish()
+        waitForExpectations(timeout: 10)
 
         guard let envelope = self.fixture.client.captureEnvelopeInvocations.first else {
             XCTFail("Expected to capture at least 1 event")
@@ -237,11 +239,11 @@ private extension SentryProfilerSwiftTests {
             return
         }
         XCTAssertEqual("profile", profileItem.header.type)
-        self.assertValidProfileData(data: profileItem.data, transactionEnvironment: transactionEnvironment, numberOfTransactions: numberOfTransactions)
+        self.assertValidProfileData(data: profileItem.data, transactionEnvironment: transactionEnvironment, numberOfTransactions: numberOfTransactions, shouldTimeout: shouldTimeOut)
 
     }
 
-    func assertValidProfileData(data: Data, transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1) {
+    func assertValidProfileData(data: Data, transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1, shouldTimeout: Bool = false) {
         let profile = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
         XCTAssertEqual("Apple", profile["device_manufacturer"] as! String)
         XCTAssertEqual("cocoa", profile["platform"] as! String)
@@ -307,6 +309,9 @@ private extension SentryProfilerSwiftTests {
         XCTAssertFalse(frames.isEmpty)
         XCTAssertFalse((frames[0]["instruction_addr"] as! String).isEmpty)
         XCTAssertFalse((frames[0]["function"] as! String).isEmpty)
+        if shouldTimeout {
+            XCTAssertEqual(profile["truncation_reason"] as! String, profilerTruncationReasonName(.timeout))
+        }
     }
 
     func assertProfilesSampler(expectedDecision: SentrySampleDecision, options: (Options) -> Void) {
