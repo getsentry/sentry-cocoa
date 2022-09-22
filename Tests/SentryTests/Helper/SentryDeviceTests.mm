@@ -13,7 +13,8 @@
 #    if TARGET_OS_SIMULATOR
     [self assertMacCPU:getCPUArchitecture()];
 #    else
-    // We must test this branch in iOS-SwiftUITests since it must run on device, which SentryTests cannot.
+    // We must test this branch in iOS-SwiftUITests since it must run on device, which SentryTests
+    // cannot.
     NSString *arch = getCPUArchitecture();
     XCTAssert([arch containsString:@"arm"], @"Expected an arm architecture but got '%@'", arch);
 #    endif
