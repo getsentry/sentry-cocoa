@@ -1,11 +1,11 @@
+#import "SentryCompiler.h"
 #import "SentryProfilingConditionals.h"
+#import "SentrySpan.h"
 #import <Foundation/Foundation.h>
-#    import "SentryCompiler.h"
-#    import "SentrySpan.h"
 
-#    if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT
 @class SentryFramesTracker;
-#    endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT
 @class SentryHub;
 @class SentryProfilesSamplerDecision;
 @class SentryScreenFrames;
