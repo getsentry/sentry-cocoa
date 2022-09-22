@@ -4,6 +4,7 @@
 
 ### Features
 
+- [Core Data Tracking](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/#core-data-tracking) GA (#2213)
 - Add flush (#2140)
 - Add more device context (#2190)
 
