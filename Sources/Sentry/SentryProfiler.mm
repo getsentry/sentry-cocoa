@@ -170,14 +170,17 @@ SentryProfiler *_Nullable _gCurrentProfiler;
 {
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
     NSTimeInterval timeoutInterval = 30;
-#if defined(TEST) || defined(TESTCI)
+#        if defined(TEST) || defined(TESTCI)
     timeoutInterval = 1;
-#endif
+#        endif
     [self startForSpanID:spanID hub:hub timeoutInterval:timeoutInterval];
-#endif
+#    endif
 }
 
-+ (void)startForSpanID:(SentrySpanId *)spanID hub:(SentryHub *)hub timeoutInterval:(NSTimeInterval)timeoutInterval {
++ (void)startForSpanID:(SentrySpanId *)spanID
+                   hub:(SentryHub *)hub
+       timeoutInterval:(NSTimeInterval)timeoutInterval
+{
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
@@ -188,13 +191,13 @@ SentryProfiler *_Nullable _gCurrentProfiler;
 #        endif // SENTRY_HAS_UIKIT
         [_gCurrentProfiler start];
         _gCurrentProfiler->_timeoutTimer =
-        [NSTimer scheduledTimerWithTimeInterval:timeoutInterval
-                                        repeats:NO
-                                          block:^(NSTimer *_Nonnull timer) {
-            SENTRY_LOG_DEBUG(
-                             @"Profiler %@ timed out.", _gCurrentProfiler);
-            [[self class] timeoutAbort];
-        }];
+            [NSTimer scheduledTimerWithTimeInterval:timeoutInterval
+                                            repeats:NO
+                                              block:^(NSTimer *_Nonnull timer) {
+                                                  SENTRY_LOG_DEBUG(
+                                                      @"Profiler %@ timed out.", _gCurrentProfiler);
+                                                  [[self class] timeoutAbort];
+                                              }];
         _gCurrentProfiler->_hub = hub;
     }
 
@@ -492,7 +495,8 @@ SentryProfiler *_Nullable _gCurrentProfiler;
         const auto end = (uint64_t)(obj[@"end_timestamp"].doubleValue * 1e9);
         const auto relativeEnd = getDurationNs(_startTimestamp, end);
         if (relativeEnd > profileDuration) {
-            SENTRY_LOG_DEBUG(@"The last slow/frozen frame extended past the end of the profile, will not report it.");
+            SENTRY_LOG_DEBUG(@"The last slow/frozen frame extended past the end of the profile, "
+                             @"will not report it.");
             return;
         }
         [relativeFrameTimestampsNs addObject:@{
