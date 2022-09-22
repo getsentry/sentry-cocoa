@@ -83,7 +83,8 @@ platform :ios do
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
       derived_data_path: "DerivedData",
-      skip_archive: true
+      skip_archive: true,
+      skip_codesigning: true
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
