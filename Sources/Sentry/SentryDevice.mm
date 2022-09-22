@@ -7,8 +7,9 @@
 
 namespace {
 /**
- * @brief Get the hardware description of the device.
- * @discussion The values returned are different between iOS and macOS. Some examples of values
+ * @brief Get an iOS hardware model name, or for mac devices, either the hardware model name or CPU architecture of the device, depending on the option provided.
+ * @note For an iOS CPU architecture name, `getArchitectureName` must be used.
+ * @discussion The values returned are different between iOS and macOS depending on which option is provided. Some examples of values
  * returned on different devices:
  * @code
  * | device                        | machine    | model          |
@@ -41,89 +42,68 @@ getHardwareDescription(int type)
     return [NSString stringWithUTF8String:name];
 }
 
-#if SENTRY_HAS_UIKIT && !TARGET_OS_SIMULATOR
-NSString *
-getArchitectureName_sysctlbyname()
-{
-    size_t size;
+NSString *getCPUType(NSNumber *_Nullable subtype) {
     cpu_type_t type;
-    cpu_subtype_t subtype;
-    size = sizeof(type);
-    NSMutableString *nameStr;
-    if (SENTRY_LOG_ERRNO(sysctlbyname("hw.cputype", &type, &size, NULL, 0)) == 0) {
-        switch (type) {
+    size_t typeSize = sizeof(type);
+    if (SENTRY_LOG_ERRNO(sysctlbyname("hw.cputype", &type, &typeSize, NULL, 0)) != 0) {
+        if (subtype != nil) {
+            return [NSString stringWithFormat:@"no CPU type for unknown subtype %d", subtype.intValue];
+        }
+        return @"no CPU type or subtype";
+    }
+    switch (type) {
+        default:
+            if (subtype != nil) {
+                return [NSMutableString stringWithFormat:@"unknown CPU type (%d) and subtype (%d)", type, subtype.intValue];
+            }
+            return [NSMutableString stringWithFormat:@"unknown CPU type (%d)", type];
         case CPU_TYPE_X86_64:
             // I haven't observed this branch being taken for 64-bit x86 architectures. Rather, the
-            // x86 branch below is taken, and then the subtype retrieved below reports the 64-bit
+            // x86 branch is taken, and then the subtype is reported as the 64-bit
             // subtype. Tested on a 2020 iMac. (armcknight 21 Sep 2022)
+            return @"x86_64";
         case CPU_TYPE_X86:
-            nameStr = [NSMutableString stringWithString:@"x86"];
-            break;
+            return @"x86";
         case CPU_TYPE_ARM:
-            nameStr = [NSMutableString stringWithString:@"arm"];
-            break;
+            return @"arm";
         case CPU_TYPE_ARM64:
-            nameStr = [NSMutableString stringWithString:@"arm64"];
-            break;
+            return @"arm64";
         case CPU_TYPE_ARM64_32:
-            nameStr = [NSMutableString stringWithString:@"arm64_32"];
-            break;
-        default:
-            return [NSMutableString stringWithFormat:@"unknown CPU type (%d)", type];
-        }
+            return @"arm64_32";
     }
-
-    size = sizeof(subtype);
-    if (SENTRY_LOG_ERRNO(sysctlbyname("hw.cpusubtype", &subtype, &size, NULL, 0)) == 0) {
-        switch (subtype) {
-        default:
-            break;
-        case CPU_SUBTYPE_X86_64_H:
-            [nameStr appendString:@"_64H"];
-            break;
-        case CPU_SUBTYPE_X86_64_ALL:
-            [nameStr appendString:@"_64"];
-            break;
-        case CPU_SUBTYPE_ARM_V6:
-            [nameStr appendString:@"v6"];
-            break;
-        case CPU_SUBTYPE_ARM_V7:
-            [nameStr appendString:@"v7"];
-            break;
-        case CPU_SUBTYPE_ARM_V7S:
-            [nameStr appendString:@"v7s"];
-            break;
-        case CPU_SUBTYPE_ARM_V7K:
-            [nameStr appendString:@"v7k"];
-            break;
-        case CPU_SUBTYPE_ARM64_V8:
-            // this also catches CPU_SUBTYPE_ARM64_32_V8 since they are both defined as
-            // ((cpu_subtype_t) 1)
-            [nameStr appendString:@"v8"];
-            break;
-        case CPU_SUBTYPE_ARM64E:
-            [nameStr appendString:@"e"];
-            break;
-        }
-    }
-
-    return nameStr;
 }
-#endif // SENTRY_HAS_UIKIT && !TARGET_OS_SIMULATOR
 } // namespace
 
 NSString *
 getCPUArchitecture(void)
 {
-#if SENTRY_HAS_UIKIT
-#    if TARGET_OS_SIMULATOR
-    return getHardwareDescription(HW_MACHINE);
-#    else
-    return getArchitectureName_sysctlbyname();
-#    endif // TARGET_OS_SIMULATOR
-#else
-    return getHardwareDescription(HW_MACHINE);
-#endif // SENTRY_HAS_UIKIT
+    cpu_subtype_t subtype;
+    size_t subtypeSize = sizeof(subtype);
+    if (SENTRY_LOG_ERRNO(sysctlbyname("hw.cpusubtype", &subtype, &subtypeSize, NULL, 0)) != 0) {
+        return getCPUType(nil);
+    }
+    switch (subtype) {
+        default:
+            return getCPUType(@(subtype));
+        case CPU_SUBTYPE_X86_64_H:
+            return @"x86_64H";
+        case CPU_SUBTYPE_X86_64_ALL:
+            return @"x86_64";
+        case CPU_SUBTYPE_ARM_V6:
+            return @"armv6";
+        case CPU_SUBTYPE_ARM_V7:
+            return @"armv7";
+        case CPU_SUBTYPE_ARM_V7S:
+            return @"armv7s";
+        case CPU_SUBTYPE_ARM_V7K:
+            return @"armv7k";
+        case CPU_SUBTYPE_ARM64_V8:
+            // this also catches CPU_SUBTYPE_ARM64_32_V8 since they are both defined as
+            // ((cpu_subtype_t) 1)
+            return @"armv8";
+        case CPU_SUBTYPE_ARM64E:
+            return @"arm64e";
+    }
 }
 
 NSString *
@@ -166,14 +146,20 @@ getOSVersion(void)
 NSString *
 getDeviceModel(void)
 {
+#if defined(HW_PRODUCT)
+    if(@available(iOS 14, macOS 11, *)) {
+        return getHardwareDescription(HW_PRODUCT);
+    }
+#endif // defined(HW_PRODUCT)
+
 #if SENTRY_HAS_UIKIT
 #    if TARGET_OS_SIMULATOR
-    return getHardwareDescription(HW_MODEL);
+        return getHardwareDescription(HW_MODEL);
 #    else
-    return getHardwareDescription(HW_MACHINE);
+        return getHardwareDescription(HW_MACHINE);
 #    endif // TARGET_OS_SIMULATOR
 #else
-    return getHardwareDescription(HW_MODEL);
+        return getHardwareDescription(HW_MODEL);
 #endif // SENTRY_HAS_UIKIT
 }
 
