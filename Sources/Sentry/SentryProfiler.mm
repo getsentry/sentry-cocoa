@@ -213,9 +213,11 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     profile[@"device_manufacturer"] = @"Apple";
     profile[@"device_model"] = getDeviceModel();
     profile[@"device_os_build_number"] = getOSBuildNumber();
-#    if SENTRY_HAS_UIKIT && TARGET_OS_SIMULATOR
-    profile[@"simulated_device"]
-        = NSProcessInfo.processInfo.environment[@"SIMULATOR_MODEL_IDENTIFIER"];
+#    if TARGET_OS_SIMULATOR
+    const auto simulatedDevice = NSProcessInfo.processInfo.environment[@"SIMULATOR_MODEL_IDENTIFIER"];
+    if (simulatedDevice != nil) {
+        profile[@"simulated_device"] = simulatedDevice;
+    }
 #    endif
     profile[@"device_os_name"] = getOSName();
     profile[@"device_os_version"] = getOSVersion();

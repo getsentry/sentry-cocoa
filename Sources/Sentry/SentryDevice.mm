@@ -40,6 +40,9 @@ namespace {
 NSString *
 getHardwareDescription(int type)
 {
+#if SENTRY_HAS_UIKIT && !TARGET_OS_SIMULATOR
+    NSCAssert(type != HW_MODEL, @"Don't call this method with HW_MODEL for (non-simulator) iOS devices");
+#endif
     int mib[2];
     char name[128];
     size_t len;
