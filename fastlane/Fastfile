@@ -73,12 +73,6 @@ platform :ios do
       force: true
     )
 
-    #sync_code_signing(
-    #  type: "development",
-    #  readonly: true,
-    #  app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip"]
-    #)
-
     build_app(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
