@@ -216,7 +216,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 #    if TARGET_OS_SIMULATOR
     const auto simulatedDevice = NSProcessInfo.processInfo.environment[@"SIMULATOR_MODEL_IDENTIFIER"];
     if (simulatedDevice != nil) {
-        profile[@"simulated_device"] = simulatedDevice;
+        profile[@"simulated_device_model"] = simulatedDevice;
     }
 #    endif
     profile[@"device_os_name"] = getOSName();
