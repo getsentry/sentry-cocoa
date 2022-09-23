@@ -62,7 +62,24 @@ SentryNetworkTracker ()
 
 - (BOOL)addHeadersForRequestWithURL:(NSURL *)URL
 {
-    return YES;
+    for (id targetCheck in SentrySDK.options.tracePropagationTargets) {
+        if ([targetCheck isKindOfClass:[NSRegularExpression class]]) {
+            NSString *string = URL.absoluteString;
+            NSUInteger numberOfMatches =
+                [targetCheck numberOfMatchesInString:string
+                                             options:0
+                                               range:NSMakeRange(0, [string length])];
+            if (numberOfMatches > 0) {
+                return YES;
+            }
+        } else if ([targetCheck isKindOfClass:[NSString class]]) {
+            if ([URL.host isEqualToString:targetCheck]) {
+                return YES;
+            }
+        }
+    }
+
+    return NO;
 }
 
 - (void)urlSessionTaskResume:(NSURLSessionTask *)sessionTask

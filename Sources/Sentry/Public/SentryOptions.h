@@ -397,6 +397,19 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableAutoBreadcrumbTracking;
 
+/**
+ * An array of hosts or regexes that determines if outgoing HTTP requests will get
+ * extra `trace_id` and `baggage` headers added.
+ *
+ * This array can contain instances of NSString which should match the URL's hostname,
+ * and instances of NSRegularExpression, which will be used to check the whole URL.
+ *
+ * The default value adds the header to all outgoing requests.
+ *
+ * @see https://develop.sentry.dev/sdk/performance/#tracepropagationtargets
+ */
+@property (nonatomic, retain) NSArray *tracePropagationTargets;
+
 @end
 
 NS_ASSUME_NONNULL_END

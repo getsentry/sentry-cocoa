@@ -66,7 +66,6 @@ SentryOptions ()
         self.enableAppHangTracking = NO;
         self.appHangTimeoutInterval = 2.0;
         self.enableAutoBreadcrumbTracking = YES;
-
         self.enableNetworkTracking = YES;
         self.enableFileIOTracking = NO;
         self.enableNetworkBreadcrumbs = YES;
@@ -108,6 +107,12 @@ SentryOptions ()
                 [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"],
                           infoDict[@"CFBundleShortVersionString"], infoDict[@"CFBundleVersion"]];
         }
+
+        NSRegularExpression *everythingAllowedRegex =
+            [NSRegularExpression regularExpressionWithPattern:@".*"
+                                                      options:NSRegularExpressionCaseInsensitive
+                                                        error:NULL];
+        self.tracePropagationTargets = @[ everythingAllowedRegex ];
     }
     return self;
 }
