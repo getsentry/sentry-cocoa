@@ -189,8 +189,8 @@ SentryNetworkTracker ()
                 }
             }
         } else {
-            SENTRY_LOG_DEBUG(
-                @"Not adding trace_id and baggage headers for %@", sessionTask.currentRequest.URL);
+            SENTRY_LOG_DEBUG(@"Not adding trace_id and baggage headers for %@",
+                sessionTask.currentRequest.URL.absoluteString);
         }
 
         SENTRY_LOG_DEBUG(
