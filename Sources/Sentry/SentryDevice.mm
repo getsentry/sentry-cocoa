@@ -41,7 +41,8 @@ NSString *
 getHardwareDescription(int type)
 {
 #if SENTRY_HAS_UIKIT && !TARGET_OS_SIMULATOR
-    NSCAssert(type != HW_MODEL, @"Don't call this method with HW_MODEL for (non-simulator) iOS devices");
+    NSCAssert(
+        type != HW_MODEL, @"Don't call this method with HW_MODEL for (non-simulator) iOS devices");
 #endif
     int mib[2];
     char name[128];
@@ -57,7 +58,8 @@ getHardwareDescription(int type)
 }
 
 /**
- * Provided as a fallback in case @c sysctlbyname fails in @c getCPUArchitecture using the @c hw.cpusubtype option.
+ * Provided as a fallback in case @c sysctlbyname fails in @c getCPUArchitecture using the @c
+ * hw.cpusubtype option.
  * @note I've not observed a device that has needed this (armcknight 22 Sep 2022). Tested on:
  * @code
  *   - 2015 MBP (x86_64H)
