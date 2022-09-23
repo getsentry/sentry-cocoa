@@ -93,6 +93,7 @@ SentryNetworkTracker ()
             return;
         }
 
+        __block id<SentrySpan> span;
         __block id<SentrySpan> netSpan;
         netSpan = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN);
 
@@ -101,8 +102,9 @@ SentryNetworkTracker ()
             return;
         }
 
-        [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+        [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable innerSpan) {
             if (span != nil) {
+                span = innerSpan;
                 netSpan = [span
                     startChildWithOperation:SENTRY_NETWORK_REQUEST_OPERATION
                                 description:[NSString stringWithFormat:@"%@ %@",
@@ -120,8 +122,23 @@ SentryNetworkTracker ()
             return;
         }
 
+        // HERE
+
+        // sessionTask.currentRequest.URL
+
         if ([sessionTask currentRequest]) {
             NSMutableURLRequest *newRequest = nil;
+
+            NSString *baggageHeader = @"";
+
+            SentryTracer *tracer = [SentryTracer getTracer:span];
+            if (tracer != nil) {
+                baggageHeader = [[tracer.traceContext toBaggage]
+                    toHTTPHeaderWithOriginalBaggage:
+                        [SentrySerialization
+                            decodeBaggage:sessionTask.currentRequest
+                                              .allHTTPHeaderFields[SENTRY_BAGGAGE_HEADER]]];
+            }
 
             // First we check if the current request is mutable, so we could easily add a new
             // header. Otherwise we try to change the current request for a new one with the extra
@@ -130,6 +147,8 @@ SentryNetworkTracker ()
                 newRequest = (NSMutableURLRequest *)sessionTask.currentRequest;
                 [newRequest setValue:[netSpan toTraceHeader].value
                     forHTTPHeaderField:SENTRY_TRACE_HEADER];
+
+                [newRequest setValue:baggageHeader forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
             } else {
                 // Even though NSURLSessionTask doesn't have 'setCurrentRequest', some subclasses
                 // do. For those subclasses we replace the currentRequest with a mutable one with
@@ -141,6 +160,8 @@ SentryNetworkTracker ()
 
                     [newRequest setValue:[netSpan toTraceHeader].value
                         forHTTPHeaderField:SENTRY_TRACE_HEADER];
+
+                    [newRequest setValue:baggageHeader forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
 
                     void (*func)(id, SEL, id param)
                         = (void *)[sessionTask methodForSelector:setCurrentRequestSelector];
