@@ -41,6 +41,7 @@
 - Use the `component` name source for SentryPerformanceTracker (#2168)
 - Add support for arm64 architecture to the device context (#2185)
 - Align core data span operations (#2222)
+- Fix device info reporting for profiling (#2205)
 
 ## 7.25.1
 
