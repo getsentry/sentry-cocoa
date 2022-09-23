@@ -4,7 +4,7 @@
 
 ### Features
 
-- [File I/O Tracking](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/#file-io-tracking) GA (#2212)
+- [File I/O Tracking](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/#file-io-tracking) is stable (#2212)
 - Add flush (#2140)
 - Add more device context (#2190)
 
