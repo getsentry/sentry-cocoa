@@ -73,7 +73,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 
     /// Test a situation where a long-running span starts the profiler, which winds up timing out, and then another span starts that begins a new profile, then finishes, and then the long-running span finishes; both profiles should be separately captured in envelopes.
     /// ```
-    ///    time                0s                         30s     40s     50s     60s
+    ///    time                0s                         1s     2s     2.5s     3s  (these times are adjusted to the 1s profile timeout for testing only)
     ///    transaction A       |---------------------------------------------------|
     ///    profiler A          |---------------------------x  <- timeout
     ///    transaction B                                           |-------|
@@ -88,9 +88,12 @@ class SentryProfilerSwiftTests: XCTestCase {
 
         forceProfilerSample()
 
-        #if SENTRY_TARGET_PROFILING_SUPPORTED
-        SentryProfiler.timeoutAbort()
-        #endif
+        // cause spanA profiler to time out
+        let exp = expectation(description: "spanA times out")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            exp.fulfill()
+        }
+        waitForExpectations(timeout: 3)
 
         let spanB = self.fixture.hub.startTransaction(name: self.fixture.transactionName, operation: self.fixture.transactionOperation)
 
@@ -100,6 +103,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         spanA.finish()
 
         XCTAssertEqual(self.fixture.client.captureEnvelopeInvocations.count, 2)
+        var currentEnvelope = 0
         for envelope in self.fixture.client.captureEnvelopeInvocations.invocations {
             XCTAssertEqual(1, envelope.items.count)
             guard let profileItem = envelope.items.first else {
@@ -107,7 +111,8 @@ class SentryProfilerSwiftTests: XCTestCase {
                 return
             }
             XCTAssertEqual("profile", profileItem.header.type)
-            self.assertValidProfileData(data: profileItem.data)
+            self.assertValidProfileData(data: profileItem.data, shouldTimeout: currentEnvelope == 1)
+            currentEnvelope += 1
         }
     }
 
