@@ -26,7 +26,7 @@
 - (void)assertMacCPU:(NSString *)arch
 {
 #if TARGET_CPU_X86_64
-    XCTAssert([arch isEqualToString:@"x86_64"], @"Expected 'x86_64' but got '%@'", arch);
+    XCTAssert([arch containsString:@"x86"], @"Expected an x86 arch but got '%@'", arch);
 #elif TARGET_CPU_ARM64
     XCTAssert([arch containsString:@"arm64"], @"Expected an arm64 arch but got '%@'", arch);
 #else
