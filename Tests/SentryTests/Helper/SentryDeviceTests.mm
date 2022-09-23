@@ -23,7 +23,11 @@
     SENTRY_ASSERT_CONTAINS(arch, @"arm64");
 #endif
 #elif TARGET_OS_MACCATALYST
+#if TARGET_CPU_X86_64
     SENTRY_ASSERT_CONTAINS(arch, @"x86");
+#else
+    SENTRY_ASSERT_CONTAINS(arch, @"arm64");
+#endif
 #elif TARGET_OS_IOS
     // We must test this branch in iOS-SwiftUITests since it must run on device, which SentryTests
     // cannot.
@@ -55,7 +59,7 @@
 #if TARGET_OS_OSX
     SENTRY_ASSERT_EQUAL(osName, @"macOS");
 #elif TARGET_OS_MACCATALYST
-    SENTRY_ASSERT_EQUAL(osName, @"macOS");
+    SENTRY_ASSERT_EQUAL(osName, @"iPadOS");
 #elif TARGET_OS_IOS
     // We must test this branch in iOS-SwiftUITests since it must run on device, which SentryTests
     // cannot.
@@ -124,9 +128,30 @@
 - (void)testSimulatedDeviceModel {
 #if !TARGET_OS_SIMULATOR
     XCTSkip(@"Should only run on simulators.");
+#else
+    const auto modelName = getSimulatorDeviceModel();
+    XCTAssertNotEqual(modelName.length, 0U);
+#if TARGET_OS_IOS
+    // We must test this branch in iOS-SwiftUITests since it must run on device, which SentryTests
+    // cannot.
+    if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
+        SENTRY_ASSERT_CONTAINS(modelName, @"iPad");
+    } else if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
+        SENTRY_ASSERT_CONTAINS(modelName, @"iPhone");
+    } else {
+        XCTFail(@"Unsupported iOS UI idiom.");
+    }
+#elif TARGET_OS_TV
+    // We must test this branch in tvOS-SwiftUITests since it must run on device, which SentryTests
+    // cannot.
+    SENTRY_ASSERT_CONTAINS(modelName, @"TV");
+#elif TARGET_OS_WATCH
+    // TODO: create a watch UI test target to test this branch as it cannot run on the watch simulator
+    SENTRY_ASSERT_CONTAINS(modelName, @"Watch");
+#else
+    XCTFail(@"Unexpected device OS");
 #endif
-
-    const auto name = getSimulatorDeviceModel();
+#endif
 }
 
 @end
