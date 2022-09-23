@@ -831,7 +831,7 @@ Breaking changes:
 
 Features and fixes:
 
-- fix: Make public isEqual \_Nullable #751
+- fix: Make public isEqual _Nullable #751
 - feat: Use error domain and code for event message #750
 - feat: Remove SDK frames when attaching stacktrace #739
 - fix: captureException crates a event type=error #746
