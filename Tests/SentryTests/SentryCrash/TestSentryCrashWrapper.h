@@ -25,11 +25,11 @@ SENTRY_NO_INIT
 
 @property (nonatomic, assign) BOOL closeCalled;
 
-@property (nonatomic, assign) uint64_t internalFreeMemory;
+@property (nonatomic, assign) uint64_t internalFreeMemorySize;
 
-@property (nonatomic, assign) uint64_t internalAppMemory;
+@property (nonatomic, assign) uint64_t internalAppMemorySize;
 
-@property (nonatomic, assign) uint64_t internalFreeStorage;
+@property (nonatomic, assign) uint64_t internalFreeStorageSize;
 
 @end
 

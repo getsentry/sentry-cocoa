@@ -71,9 +71,9 @@ typedef struct {
     int parentProcessID;
     const char *deviceAppHash;
     const char *buildType;
-    uint64_t totalStorageSize;
-    uint64_t freeStorageSize;
-    uint64_t memorySize;
+    bytes totalStorageSize;
+    bytes freeStorageSize;
+    bytes memorySize;
 } SystemData;
 
 static SystemData g_systemData;
@@ -189,29 +189,29 @@ VMStats(vm_statistics_data_t *const vmStats, vm_size_t *const pageSize)
 }
 
 static bytes
-freeMemory(void)
+freeMemorySize(void)
 {
     vm_statistics_data_t vmStats;
     vm_size_t pageSize;
     if (VMStats(&vmStats, &pageSize)) {
-        return ((uint64_t)pageSize) * vmStats.free_count;
+        return ((bytes)pageSize) * vmStats.free_count;
     }
     return 0;
 }
 
 bytes
-sentrycrashcm_system_freememory(void)
+sentrycrashcm_system_freememory_size(void)
 {
-    return freeMemory();
+    return freeMemorySize();
 }
 
 static bytes
-usableMemory(void)
+usableMemorySize(void)
 {
     vm_statistics_data_t vmStats;
     vm_size_t pageSize;
     if (VMStats(&vmStats, &pageSize)) {
-        return ((uint64_t)pageSize)
+        return ((bytes)pageSize)
             * (vmStats.active_count + vmStats.inactive_count + vmStats.wire_count
                 + vmStats.free_count);
     }
@@ -504,8 +504,8 @@ getFreeStorageSize()
     return storageSize.unsignedLongLongValue;
 }
 
-uint64_t
-sentrycrashcm_system_freestorage(void)
+bytes
+sentrycrashcm_system_freestorage_size(void)
 {
     return getFreeStorageSize();
 }
@@ -642,8 +642,8 @@ addContextualInfoToEvent(SentryCrash_MonitorContext *eventContext)
         COPY_REFERENCE(totalStorageSize);
         COPY_REFERENCE(freeStorageSize);
         COPY_REFERENCE(memorySize);
-        eventContext->System.freeMemory = freeMemory();
-        eventContext->System.usableMemory = usableMemory();
+        eventContext->System.freeMemorySize = freeMemorySize();
+        eventContext->System.usableMemorySize = usableMemorySize();
     }
 }
 

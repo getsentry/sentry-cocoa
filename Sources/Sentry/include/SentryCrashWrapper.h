@@ -33,11 +33,11 @@ SENTRY_NO_INIT
 
 - (NSDictionary *)systemInfo;
 
-- (bytes)freeMemory;
+- (bytes)freeMemorySize;
 
-- (bytes)appMemory;
+- (bytes)appMemorySize;
 
-- (bytes)freeStorage;
+- (bytes)freeStorageSize;
 
 @end
 
