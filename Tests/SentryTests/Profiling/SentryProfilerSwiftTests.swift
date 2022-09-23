@@ -258,7 +258,10 @@ private extension SentryProfilerSwiftTests {
         } else {
             XCTFail("Transaction information in profile payload not of expected type.")
         }
-#if os(iOS)
+#if targetEnvironment(macCatalyst)
+        XCTAssertEqual("iPadOS", profile["device_os_name"] as! String)
+        XCTAssertFalse((profile["device_os_version"] as! String).isEmpty)
+#elseif os(iOS)
         XCTAssertEqual("iOS", profile["device_os_name"] as! String)
         XCTAssertFalse((profile["device_os_version"] as! String).isEmpty)
 #endif
