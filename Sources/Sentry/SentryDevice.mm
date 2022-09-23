@@ -56,6 +56,18 @@ getHardwareDescription(int type)
     return [NSString stringWithUTF8String:name];
 }
 
+/**
+ * Provided as a fallback in case @c sysctlbyname fails in @c getCPUArchitecture using the @c hw.cpusubtype option.
+ * @note I've not observed a device that has needed this (armcknight 22 Sep 2022). Tested on:
+ * @code
+ *   - 2015 MBP (x86_64H)
+ *   - 2020 iMac (x86_64H)
+ *   - 2021 MBP (M1 reported as arm64e)
+ *   - iPhone simulators on all of those macs
+ *   - iPhone 13 mini (arm64e)
+ *   - iPod Touch (6th gen) (armv8)
+ * @endcode
+ */
 NSString *
 getCPUType(NSNumber *_Nullable subtype)
 {
@@ -78,7 +90,7 @@ getCPUType(NSNumber *_Nullable subtype)
     case CPU_TYPE_X86_64:
         // I haven't observed this branch being taken for 64-bit x86 architectures. Rather, the
         // x86 branch is taken, and then the subtype is reported as the 64-bit
-        // subtype. Tested on a 2020 iMac. (armcknight 21 Sep 2022)
+        // subtype. Tested on a 2020 Intel-based iMac and 2015 MBP. (armcknight 21 Sep 2022)
         return @"x86_64";
     case CPU_TYPE_X86:
         return @"x86";
