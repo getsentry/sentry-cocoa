@@ -88,7 +88,9 @@ class SentryProfilerSwiftTests: XCTestCase {
 
         forceProfilerSample()
 
+        #if SENTRY_TARGET_PROFILING_SUPPORTED
         SentryProfiler.timeoutAbort()
+        #endif
 
         let spanB = self.fixture.hub.startTransaction(name: self.fixture.transactionName, operation: self.fixture.transactionOperation)
 
