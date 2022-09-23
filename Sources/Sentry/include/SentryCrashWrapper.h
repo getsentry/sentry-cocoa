@@ -4,8 +4,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef uint64_t bytes;
-
 /** A wrapper around SentryCrash for testability.
  */
 @interface SentryCrashWrapper : NSObject
