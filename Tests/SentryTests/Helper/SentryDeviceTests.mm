@@ -18,33 +18,27 @@
     const auto arch = getCPUArchitecture();
 #if TARGET_OS_OSX
 #if TARGET_CPU_X86_64
-    SENTRY_ASSERT_CONTAINS(arch, @"x86");
+    // I observed this branch still being taken when running unit tests for macOS in Xcode 13.4.1 on an Apple Silicon MBP (armcknight 23 Sep 2022)
+    SENTRY_ASSERT_CONTAINS(arch, @"x86"); // Macs with Intel CPUs
 #else
-    SENTRY_ASSERT_CONTAINS(arch, @"arm64");
+    SENTRY_ASSERT_CONTAINS(arch, @"arm64"); // Macs with Apple Silicon
 #endif
 #elif TARGET_OS_MACCATALYST
 #if TARGET_CPU_X86_64
-    SENTRY_ASSERT_CONTAINS(arch, @"x86");
+    // I observed this branch still being taken when running unit tests for mac catalyst in Xcode 13.4.1 on an Apple Silicon MBP (armcknight 23 Sep 2022)
+    SENTRY_ASSERT_CONTAINS(arch, @"x86"); // Macs with Intel CPUs
 #else
-    SENTRY_ASSERT_CONTAINS(arch, @"arm64");
+    SENTRY_ASSERT_CONTAINS(arch, @"arm64"); // Macs with Apple Silicon
 #endif
 #elif TARGET_OS_IOS
-    // We must test this branch in iOS-SwiftUITests since it must run on device, which SentryTests
-    // cannot.
-    if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
-        SENTRY_ASSERT_CONTAINS(arch, @"arm");
-    } else if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
-        SENTRY_ASSERT_CONTAINS(arch, @"arm");
-    } else {
-        XCTFail(@"Unsupported iOS UI idiom.");
-    }
+    SENTRY_ASSERT_CONTAINS(arch, @"arm"); // Real iPads and iPhones
 #elif TARGET_OS_TV
     // We must test this branch in tvOS-SwiftUITests since it must run on device, which SentryTests
     // cannot.
-    XCTAssert([arch containsString:@"arm"], @"Expected %@ to contain %@", arch, @"arm");
+    SENTRY_ASSERT_CONTAINS(arch, @"arm"); // Real TVs
 #elif TARGET_OS_WATCH
     // TODO: create a watch UI test target to test this branch as it cannot run on the watch simulator
-    XCTAssert([arch containsString:@"arm"], @"Expected %@ to contain %@", arch, @"arm");
+    SENTRY_ASSERT_CONTAINS(arch, @"arm"); // Real Watches
 #else
     XCTFail(@"Unexpected device OS");
 #endif
