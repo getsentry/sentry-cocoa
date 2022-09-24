@@ -190,14 +190,7 @@ SentryProfiler *_Nullable _gCurrentProfiler;
         [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
 #        endif // SENTRY_HAS_UIKIT
         [_gCurrentProfiler start];
-        _gCurrentProfiler->_timeoutTimer =
-            [NSTimer scheduledTimerWithTimeInterval:timeoutInterval
-                                            repeats:NO
-                                              block:^(NSTimer *_Nonnull timer) {
-                                                  SENTRY_LOG_DEBUG(
-                                                      @"Profiler %@ timed out.", _gCurrentProfiler);
-                                                  [[self class] timeoutAbort];
-                                              }];
+        _gCurrentProfiler->_timeoutTimer = [NSTimer scheduledTimerWithTimeInterval:timeoutInterval target:self selector:@selector(timeoutAbort) userInfo:nil repeats:NO];
         _gCurrentProfiler->_hub = hub;
     }
 
