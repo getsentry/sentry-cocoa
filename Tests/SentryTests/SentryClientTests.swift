@@ -561,9 +561,9 @@ class SentryClientTest: XCTestCase {
         event.threads = nil
         event.debugMeta = nil
 
-        fixture.crashWrapper.internalFreeMemory = 123_456
-        fixture.crashWrapper.internalAppMemory = 234_567
-        fixture.crashWrapper.internalFreeStorage = 345_678
+        fixture.crashWrapper.internalFreeMemorySize = 123_456
+        fixture.crashWrapper.internalAppMemorySize = 234_567
+        fixture.crashWrapper.internalFreeStorageSize = 345_678
         fixture.getSut().captureCrash(event, with: fixture.scope)
 
         assertLastSentEventWithAttachment { actual in

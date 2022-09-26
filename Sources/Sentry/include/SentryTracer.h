@@ -42,11 +42,6 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  */
 @property (readonly) BOOL isFinished;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-/** Whether the profiler is currently running. */
-@property (assign, readonly) BOOL isProfiling;
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
 @property (nullable, nonatomic, copy) void (^finishCallback)(SentryTracer *);
 
 /**
