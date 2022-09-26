@@ -66,6 +66,10 @@ typedef struct {
     /** If true, the application crashed on the previous launch. */
     bool crashedLastLaunch;
 
+    /** Total time in seconds from the crash state init to the last crash. Only contains a value
+     * bigger than zero if crashedLastLaunch is true. */
+    double durationFromCrashStateInitToLastCrash;
+
     // Live data
 
     /** If true, the application crashed on this launch. */

@@ -2,6 +2,7 @@
 #import "SentryAttachment.h"
 #import "SentryClient.h"
 #import "SentryCrash.h"
+#include "SentryCrashMonitor_AppState.h"
 #import "SentryCrashReportConverter.h"
 #import "SentryDefines.h"
 #import "SentryEvent.h"
@@ -50,29 +51,42 @@ SentryCrashReportSink ()
          onCompletion:(SentryCrashReportFilterCompletion)onCompletion
 {
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul);
-    dispatch_async(queue, ^{
-        NSMutableArray *sentReports = [NSMutableArray new];
-        for (NSDictionary *report in reports) {
-            SentryCrashReportConverter *reportConverter =
-                [[SentryCrashReportConverter alloc] initWithReport:report
-                                                        inAppLogic:self.inAppLogic];
-            if (nil != [SentrySDK.currentHub getClient]) {
-                SentryEvent *event = [reportConverter convertReportToEvent];
-                if (nil != event) {
-                    [self handleConvertedEvent:event report:report sentReports:sentReports];
-                }
-            } else {
-                SENTRY_LOG_ERROR(
-                    @"Crash reports were found but no [SentrySDK.currentHub getClient] is set. "
-                    @"Cannot send crash reports to Sentry. This is probably a misconfiguration, "
-                    @"make sure you set the client with [SentrySDK.currentHub bindClient] before "
-                    @"calling startCrashHandlerWithError:.");
+
+    float value = sentrycrashstate_currentState()->durationFromCrashStateInitToLastCrash;
+    if (value != 0 && value <= 5.0) {
+        SENTRY_LOG_DEBUG(@"Startup crash: detected.");
+        [self sendReports:reports onCompletion:onCompletion];
+
+        [SentrySDK flush:5.0];
+        SENTRY_LOG_DEBUG(@"Startup crash: Finished flushing.");
+
+    } else {
+        dispatch_async(queue, ^{ [self sendReports:reports onCompletion:onCompletion]; });
+    }
+}
+
+- (void)sendReports:(NSArray *)reports onCompletion:(SentryCrashReportFilterCompletion)onCompletion
+{
+    NSMutableArray *sentReports = [NSMutableArray new];
+    for (NSDictionary *report in reports) {
+        SentryCrashReportConverter *reportConverter =
+            [[SentryCrashReportConverter alloc] initWithReport:report inAppLogic:self.inAppLogic];
+        if (nil != [SentrySDK.currentHub getClient]) {
+            SentryEvent *event = [reportConverter convertReportToEvent];
+            if (nil != event) {
+                [self handleConvertedEvent:event report:report sentReports:sentReports];
             }
+        } else {
+            SENTRY_LOG_ERROR(
+                @"Crash reports were found but no [SentrySDK.currentHub getClient] is set. "
+                @"Cannot send crash reports to Sentry. This is probably a misconfiguration, "
+                @"make sure you set the client with [SentrySDK.currentHub bindClient] before "
+                @"calling startCrashHandlerWithError:.");
         }
-        if (onCompletion) {
-            onCompletion(sentReports, TRUE, nil);
-        }
-    });
+    }
+    if (onCompletion) {
+        onCompletion(sentReports, TRUE, nil);
+    }
 }
 
 @end

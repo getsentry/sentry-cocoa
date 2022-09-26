@@ -49,6 +49,7 @@
 
 #define kKeyFormatVersion "version"
 #define kKeyCrashedLastLaunch "crashedLastLaunch"
+#define kKeyDurationFromCrashStateInitToLastCrash "durationFromCrashStateInitToLastCrash"
 #define kKeyActiveDurationSinceLastCrash "activeDurationSinceLastCrash"
 #define kKeyBackgroundDurationSinceLastCrash "backgroundDurationSinceLastCrash"
 #define kKeyLaunchesSinceLastCrash "launchesSinceLastCrash"
@@ -64,6 +65,8 @@ static const char *g_stateFilePath;
 
 /** Current state. */
 static SentryCrash_AppState g_state;
+
+static double g_crashstate_initialize_time;
 
 static volatile bool g_isEnabled = false;
 
@@ -94,6 +97,10 @@ onFloatingPointElement(const char *const name, const double value, void *const u
 
     if (name == NULL) {
         return SentryCrashJSON_ERROR_INVALID_DATA;
+    }
+
+    if (strcmp(name, kKeyDurationFromCrashStateInitToLastCrash) == 0) {
+        state->durationFromCrashStateInitToLastCrash = value;
     }
 
     if (strcmp(name, kKeyActiveDurationSinceLastCrash) == 0) {
@@ -277,6 +284,18 @@ saveState(const char *const path)
         != SentryCrashJSON_OK) {
         goto done;
     }
+
+    // Follow the pattern of crashedLastLaunch to only store the calculated value if the app
+    // crashed.
+    double durationFromCrashStateInitToLastCrash = 0;
+    if (g_state.crashedThisLaunch) {
+        durationFromCrashStateInitToLastCrash = timeSince(g_crashstate_initialize_time);
+    }
+    if ((result = sentrycrashjson_addFloatingPointElement(&JSONContext,
+             kKeyDurationFromCrashStateInitToLastCrash, durationFromCrashStateInitToLastCrash))
+        != SentryCrashJSON_OK) {
+        goto done;
+    }
     if ((result = sentrycrashjson_addFloatingPointElement(
              &JSONContext, kKeyActiveDurationSinceLastCrash, g_state.activeDurationSinceLastCrash))
         != SentryCrashJSON_OK) {
@@ -315,6 +334,7 @@ done:
 void
 sentrycrashstate_initialize(const char *const stateFilePath)
 {
+    g_crashstate_initialize_time = getCurentTime();
     g_stateFilePath = strdup(stateFilePath);
     memset(&g_state, 0, sizeof(g_state));
     loadState(g_stateFilePath);

@@ -46,6 +46,8 @@ SentryFileManager ()
             = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
                   .firstObject;
 
+        SENTRY_LOG_DEBUG(@"SentryFileManager.cachePath: %@", cachePath);
+
         self.sentryPath = [cachePath stringByAppendingPathComponent:@"io.sentry"];
         self.sentryPath =
             [self.sentryPath stringByAppendingPathComponent:[options.parsedDsn getHash]];
