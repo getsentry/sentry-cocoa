@@ -4,9 +4,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const SENTRY_COREDATA_FETCH_OPERATION = @"db.query";
-
-static NSString *const SENTRY_COREDATA_SAVE_OPERATION = @"db.transaction";
+static NSString *const SENTRY_COREDATA_FETCH_OPERATION = @"db.sql.query";
+static NSString *const SENTRY_COREDATA_SAVE_OPERATION = @"db.sql.transaction";
 
 @interface SentryCoreDataTracker : NSObject <SentryCoreDataMiddleware>
 

@@ -31,9 +31,8 @@ class SentryCoreDataTrackerTests: XCTestCase {
     
     func testConstants() {
         //Test constants to make sure we don't accidentally change it
-        XCTAssertEqual(SENTRY_COREDATA_FETCH_OPERATION, "db.query")
-        XCTAssertEqual(SENTRY_COREDATA_SAVE_OPERATION, "db.transaction")
-        
+        XCTAssertEqual(SENTRY_COREDATA_FETCH_OPERATION, "db.sql.query")
+        XCTAssertEqual(SENTRY_COREDATA_SAVE_OPERATION, "db.sql.transaction")
     }
     
     func testFetchRequest() {
