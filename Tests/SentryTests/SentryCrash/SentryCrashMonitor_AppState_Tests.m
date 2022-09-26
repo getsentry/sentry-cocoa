@@ -142,6 +142,7 @@
     XCTAssertFalse(context.crashedThisLaunch);
     XCTAssertTrue(context.crashedLastLaunch);
     XCTAssertGreaterThan(context.durationFromCrashStateInitToLastCrash, 0.0);
+    XCTAssertLessThan(context.durationFromCrashStateInitToLastCrash, 1.0);
 }
 
 - (void)testInitWithWrongCrashState
@@ -290,6 +291,7 @@
     XCTAssertFalse(context.crashedThisLaunch);
     XCTAssertTrue(context.crashedLastLaunch);
     XCTAssertGreaterThan(context.durationFromCrashStateInitToLastCrash, 0.0);
+    XCTAssertLessThan(context.durationFromCrashStateInitToLastCrash, 1.0);
 }
 
 - (void)testActDeactRelaunch
@@ -400,6 +402,7 @@
     XCTAssertFalse(context.crashedThisLaunch);
     XCTAssertTrue(context.crashedLastLaunch);
     XCTAssertGreaterThan(context.durationFromCrashStateInitToLastCrash, 0.0);
+    XCTAssertLessThan(context.durationFromCrashStateInitToLastCrash, 1.0);
 }
 
 - (void)testActDeactBGRelaunch
@@ -547,6 +550,7 @@
     XCTAssertFalse(context.crashedThisLaunch);
     XCTAssertTrue(context.crashedLastLaunch);
     XCTAssertGreaterThan(context.durationFromCrashStateInitToLastCrash, 0.0);
+    XCTAssertLessThan(context.durationFromCrashStateInitToLastCrash, 1.0);
 }
 
 - (void)testActDeactBGFGRelaunch
@@ -665,6 +669,7 @@
     XCTAssertFalse(context.crashedThisLaunch);
     XCTAssertTrue(context.crashedLastLaunch);
     XCTAssertGreaterThan(context.durationFromCrashStateInitToLastCrash, 0.0);
+    XCTAssertLessThan(context.durationFromCrashStateInitToLastCrash, 1.0);
 }
 
 @end
