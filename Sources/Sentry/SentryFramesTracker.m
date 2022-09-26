@@ -1,6 +1,5 @@
 #import "SentryFramesTracker.h"
 #import "SentryDisplayLinkWrapper.h"
-#import "SentryProfiler.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryTracer.h"
 #import <SentryScreenFrames.h>
@@ -124,7 +123,7 @@ SentryFramesTracker ()
     }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-    if ([SentryProfiler isRunning]
+    if (self.currentTracer.isProfiling
         && (self.frameRateTimestamps.count == 0
             || self.frameRateTimestamps.lastObject[@"frame_rate"].doubleValue
                 != actualFramesPerSecond)) {
@@ -162,7 +161,7 @@ SentryFramesTracker ()
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 - (void)recordTimestampStart:(NSNumber *)start end:(NSNumber *)end
 {
-    if ([SentryProfiler isRunning]) {
+    if (self.currentTracer.isProfiling) {
         [self.frameTimestamps addObject:@{ @"start_timestamp" : start, @"end_timestamp" : end }];
     }
 }
