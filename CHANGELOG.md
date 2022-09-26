@@ -10,8 +10,6 @@
 - Add more device context (#2190)
 - Profile concurrent transactions (#2105)
 
-## 7.25.1
-
 ### Fixes
 
 - Sentry-trace header incorrectly assigned to http requests (#2167)
