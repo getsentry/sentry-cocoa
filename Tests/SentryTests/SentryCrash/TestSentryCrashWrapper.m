@@ -8,6 +8,7 @@
 {
     TestSentryCrashWrapper *instance = [[self alloc] init];
     instance.internalActiveDurationSinceLastCrash = NO;
+    instance.internalDurationFromCrashStateInitToLastCrash = 0;
     instance.internalActiveDurationSinceLastCrash = 0;
     instance.internalIsBeingTraced = NO;
     instance.internalIsSimulatorBuild = NO;
@@ -23,6 +24,11 @@
 - (BOOL)crashedLastLaunch
 {
     return self.internalCrashedLastLaunch;
+}
+
+- (NSTimeInterval)durationFromCrashStateInitToLastCrash
+{
+    return self.internalDurationFromCrashStateInitToLastCrash;
 }
 
 - (NSTimeInterval)activeDurationSinceLastCrash

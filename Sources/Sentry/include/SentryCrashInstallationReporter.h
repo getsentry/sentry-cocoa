@@ -3,7 +3,7 @@
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
-@class SentryInAppLogic, SentryCrashWrapper;
+@class SentryInAppLogic, SentryCrashWrapper, SentryDispatchQueueWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -11,7 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 - (instancetype)initWithInAppLogic:(SentryInAppLogic *)inAppLogic
-                      crashWrapper:(SentryCrashWrapper *)crashWrapper;
+                      crashWrapper:(SentryCrashWrapper *)crashWrapper
+                     dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
 
 - (void)sendAllReports;
 
