@@ -58,7 +58,7 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
     }
     
     func testAppStartCrash_UpperBound_CallsFlush() {
-        fixture.crashWrapper.internalDurationFromCrashStateInitToLastCrash = 3.0
+        fixture.crashWrapper.internalDurationFromCrashStateInitToLastCrash = 4.0
         
         filterReportWithAttachment()
         
@@ -68,8 +68,28 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(0, fixture.dispatchQueue.dispatchAsyncCalled)
     }
     
+    func testAppStartCrash_DurationTooSmall_DoesNotCallFlush() {
+        fixture.crashWrapper.internalDurationFromCrashStateInitToLastCrash = 0
+        
+        filterReportWithAttachment()
+        
+        let client = getTestClient()
+        XCTAssertEqual(0, client.flushInvoctions.count)
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchAsyncCalled)
+    }
+    
+    func testAppStartCrash_DurationNegative_DoesNotCallFlush() {
+        fixture.crashWrapper.internalDurationFromCrashStateInitToLastCrash = -0.001
+        
+        filterReportWithAttachment()
+        
+        let client = getTestClient()
+        XCTAssertEqual(0, client.flushInvoctions.count)
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchAsyncCalled)
+    }
+    
     func testAppStartCrash_DurationTooBig_DoesNotCallFlush() {
-        fixture.crashWrapper.internalDurationFromCrashStateInitToLastCrash = 3.000_01
+        fixture.crashWrapper.internalDurationFromCrashStateInitToLastCrash = 4.000_01
         
         filterReportWithAttachment()
         

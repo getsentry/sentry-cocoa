@@ -16,6 +16,9 @@
 #import "SentryScope.h"
 #import "SentryThread.h"
 
+static const NSTimeInterval SENTRY_APP_START_CRASH_DURATION_THRESHOLD = 4.0;
+static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
+
 @interface
 SentryCrashReportSink ()
 
@@ -42,12 +45,14 @@ SentryCrashReportSink ()
 - (void)filterReports:(NSArray *)reports
          onCompletion:(SentryCrashReportFilterCompletion)onCompletion
 {
-    NSTimeInterval value = self.crashWrapper.durationFromCrashStateInitToLastCrash;
-    if (value != 0 && value <= 3.0) {
-        SENTRY_LOG_DEBUG(@"Startup crash: detected.");
+    NSTimeInterval durationFromCrashStateInitToLastCrash
+        = self.crashWrapper.durationFromCrashStateInitToLastCrash;
+    if (durationFromCrashStateInitToLastCrash > 0
+        && durationFromCrashStateInitToLastCrash <= SENTRY_APP_START_CRASH_DURATION_THRESHOLD) {
+        SENTRY_LOG_WARN(@"Startup crash: detected.");
         [self sendReports:reports onCompletion:onCompletion];
 
-        [SentrySDK flush:2.0];
+        [SentrySDK flush:SENTRY_APP_START_CRASH_FLUSH_DURATION];
         SENTRY_LOG_DEBUG(@"Startup crash: Finished flushing.");
 
     } else {
