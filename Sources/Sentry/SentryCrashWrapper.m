@@ -1,7 +1,6 @@
 #import "SentryCrashWrapper.h"
 #import "SentryCrash.h"
 #import "SentryCrashMonitor_AppState.h"
-#include "SentryCrashMonitor_AppState.h"
 #import "SentryCrashMonitor_System.h"
 #import "SentryHook.h"
 #import <Foundation/Foundation.h>
