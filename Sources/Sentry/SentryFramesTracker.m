@@ -102,10 +102,10 @@ SentryFramesTracker ()
 
 - (void)displayLinkCallback
 {
-    CFTimeInterval lastFrameTimestamp = self.displayLinkWrapper.timestamp;
+    CFTimeInterval renderedFrameTimestamp = self.displayLinkWrapper.timestamp;
 
     if (self.previousFrameTimestamp == SentryPreviousFrameInitialValue) {
-        self.previousFrameTimestamp = lastFrameTimestamp;
+        self.previousFrameTimestamp = renderedFrameTimestamp;
         return;
     }
 
@@ -134,28 +134,26 @@ SentryFramesTracker ()
     }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-    // Most frames take just a few microseconds longer than the optimal caculated duration.
-    // Therefore we substract one, because otherwise almost all frames would be slow.
+    // Most frames take just a few microseconds longer than the optimal calculated duration.
+    // Therefore we subtract one, because otherwise almost all frames would be slow.
     CFTimeInterval slowFrameThreshold = 1 / (actualFramesPerSecond - 1);
 
-    CFTimeInterval frameDuration = lastFrameTimestamp - self.previousFrameTimestamp;
-    self.previousFrameTimestamp = lastFrameTimestamp;
+    CFTimeInterval frameDuration = renderedFrameTimestamp - self.previousFrameTimestamp;
 
     if (frameDuration > slowFrameThreshold && frameDuration <= SentryFrozenFrameThreshold) {
         atomic_fetch_add_explicit(&_slowFrames, 1, SentryFramesMemoryOrder);
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        [self recordTimestampStart:@(self.previousFrameTimestamp) end:@(lastFrameTimestamp)];
+        [self recordTimestampStart:@(self.previousFrameTimestamp) end:@(renderedFrameTimestamp)];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
     } else if (frameDuration > SentryFrozenFrameThreshold) {
         atomic_fetch_add_explicit(&_frozenFrames, 1, SentryFramesMemoryOrder);
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        [self recordTimestampStart:@(self.previousFrameTimestamp) end:@(lastFrameTimestamp)];
+        [self recordTimestampStart:@(self.previousFrameTimestamp) end:@(renderedFrameTimestamp)];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
 
     atomic_fetch_add_explicit(&_totalFrames, 1, SentryFramesMemoryOrder);
-
-    self.previousFrameTimestamp = lastFrameTimestamp;
+    self.previousFrameTimestamp = renderedFrameTimestamp;
 }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
