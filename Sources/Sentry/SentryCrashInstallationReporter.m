@@ -11,22 +11,26 @@ NS_ASSUME_NONNULL_BEGIN
 SentryCrashInstallationReporter ()
 
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
+@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 
 @end
 
 @implementation SentryCrashInstallationReporter
 
 - (instancetype)initWithInAppLogic:(SentryInAppLogic *)inAppLogic
+                      crashWrapper:(SentryCrashWrapper *)crashWrapper
 {
     if (self = [super initWithRequiredProperties:[NSArray new]]) {
         self.inAppLogic = inAppLogic;
+        self.crashWrapper = crashWrapper;
     }
     return self;
 }
 
 - (id<SentryCrashReportFilter>)sink
 {
-    return [[SentryCrashReportSink alloc] initWithInAppLogic:self.inAppLogic];
+    return [[SentryCrashReportSink alloc] initWithInAppLogic:self.inAppLogic
+                                                crashWrapper:self.crashWrapper];
 }
 
 - (void)sendAllReports

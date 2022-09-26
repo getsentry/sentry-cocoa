@@ -106,7 +106,9 @@ SentryCrashIntegration ()
                 [[SentryInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes
                                                   inAppExcludes:self.options.inAppExcludes];
 
-            installation = [[SentryCrashInstallationReporter alloc] initWithInAppLogic:inAppLogic];
+            installation =
+                [[SentryCrashInstallationReporter alloc] initWithInAppLogic:inAppLogic
+                                                               crashWrapper:self.crashAdapter];
 
             canSendReports = YES;
         }

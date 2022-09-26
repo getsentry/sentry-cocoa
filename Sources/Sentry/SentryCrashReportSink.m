@@ -4,6 +4,7 @@
 #import "SentryCrash.h"
 #include "SentryCrashMonitor_AppState.h"
 #import "SentryCrashReportConverter.h"
+#import "SentryCrashWrapper.h"
 #import "SentryDefines.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
@@ -18,15 +19,18 @@
 SentryCrashReportSink ()
 
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
+@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 
 @end
 
 @implementation SentryCrashReportSink
 
 - (instancetype)initWithInAppLogic:(SentryInAppLogic *)inAppLogic
+                      crashWrapper:(SentryCrashWrapper *)crashWrapper
 {
     if (self = [super init]) {
         self.inAppLogic = inAppLogic;
+        self.crashWrapper = crashWrapper;
     }
     return self;
 }
@@ -52,7 +56,7 @@ SentryCrashReportSink ()
 {
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul);
 
-    float value = sentrycrashstate_currentState()->durationFromCrashStateInitToLastCrash;
+    NSTimeInterval value = self.crashWrapper.durationFromCrashStateInitToLastCrash;
     if (value != 0 && value <= 5.0) {
         SENTRY_LOG_DEBUG(@"Startup crash: detected.");
         [self sendReports:reports onCompletion:onCompletion];

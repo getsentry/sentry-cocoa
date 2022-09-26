@@ -5,7 +5,7 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
     func testFilterReports_withScreenShots() {
         givenSdkWithHub()
         
-        let reportSink = SentryCrashReportSink(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []))
+        let reportSink = SentryCrashReportSink(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []), crashWrapper: TestSentryCrashWrapper.sharedInstance())
         let expect = expectation(description: "Callback Called")
         
         let report = ["attachments": ["file.png"]]
@@ -24,7 +24,7 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         givenSdkWithHub()
         SentrySDK.currentHub().scope.setEnvironment("testFilterReports_CopyHubScope")
         
-        let reportSink = SentryCrashReportSink(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []))
+        let reportSink = SentryCrashReportSink(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []), crashWrapper: TestSentryCrashWrapper.sharedInstance())
         let expect = expectation(description: "Callback Called")
         
         let report = [String: Any]()
