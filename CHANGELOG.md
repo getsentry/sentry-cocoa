@@ -9,6 +9,7 @@
 - Add flush (#2140)
 - Add more device context (#2190)
 - Profile concurrent transactions (#2105)
+- Report start up crashes (#2220)
 
 ## 7.25.1
 
