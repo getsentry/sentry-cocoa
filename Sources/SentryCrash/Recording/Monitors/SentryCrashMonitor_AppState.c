@@ -285,8 +285,12 @@ saveState(const char *const path)
         goto done;
     }
 
-    // Follow the pattern of crashedLastLaunch to only store the calculated value if the app
-    // crashed.
+    // SentryCrash resets the app state when enabling it in setEnabled. To keep the value alive for
+    // the application's lifetime, we don't modify the g_state. Instead, we only save the value to
+    // the crash state file without setting it to g_state. When initializing the app state, the code
+    // reads the value from the file and keeps it in memory. The code uses the same pattern for
+    // CrashedLastLaunch. Ideally, we would refactor this, but we must be aware of possible side
+    // effects.
     double durationFromCrashStateInitToLastCrash = 0;
     if (g_state.crashedThisLaunch) {
         durationFromCrashStateInitToLastCrash = timeSince(g_crashstate_initialize_time);
