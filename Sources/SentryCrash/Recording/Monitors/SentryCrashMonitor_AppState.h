@@ -97,6 +97,8 @@ void sentrycrashstate_initialize(const char *stateFilePath);
  */
 bool sentrycrashstate_reset(void);
 
+const char *sentrycrashstate_filePath(void);
+
 /** Notify the crash reporter of the application active state.
  *
  * @param isActive true if the application is active, otherwise false.

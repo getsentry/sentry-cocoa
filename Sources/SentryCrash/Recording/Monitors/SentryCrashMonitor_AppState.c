@@ -369,6 +369,12 @@ sentrycrashstate_reset()
     return false;
 }
 
+const char *
+sentrycrashstate_filePath(void)
+{
+    return g_stateFilePath;
+}
+
 void
 sentrycrashstate_notifyAppActive(const bool isActive)
 {

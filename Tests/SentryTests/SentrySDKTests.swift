@@ -498,30 +498,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(flushTimeout, transport.flushInvocations.first)
     }
     
-    func testStartUpCrash_CallsFlush() {
-        SentrySDK.start { options in
-            options.dsn = SentrySDKTests.dsnAsString
-        }
-        
-        let transport = TestTransport()
-        let client = Client(options: fixture.options)
-        Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
-        SentrySDK.currentHub().bindClient(client)
-        
-        sentrycrashstate_notifyAppCrash()
-        
-        // Store crash report to disk
-        let bundle = Bundle(for: type(of: self))
-        let path = bundle.path(forResource: "Resources/crash-report-1", ofType: "json")!
-        let data = NSData(contentsOfFile: path)!
-        sentrycrashcrs_addUserReport(data.bytes, Int32(data.count))
-        
-        // Force sending all reports, because the crash reports are only sent once after SDK init.
-        SentryCrashIntegration.sendAllSentryCrashReports()
-        
-        XCTAssertEqual(5.0, transport.flushInvocations.first)
-    }
-    
     // Although we only run this test above the below specified versions, we expect the
     // implementation to be thread safe
     @available(tvOS 10.0, *)
