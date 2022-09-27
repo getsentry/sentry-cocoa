@@ -41,7 +41,8 @@ SentryTracer ()
 @property (nonatomic, strong) SentrySpan *rootSpan;
 @property (nonatomic, strong) SentryHub *hub;
 @property (nonatomic) SentrySpanStatus finishStatus;
-@property (nonatomic) BOOL isWaitingForChildren;
+/** If the tracer is waiting for child spans to finish. */
+@property (nonatomic) BOOL isWaitingForChildSpansToFinish;
 @property (nonatomic) NSTimeInterval idleTimeout;
 @property (nonatomic, nullable, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, assign, readwrite) BOOL isProfiling;
@@ -49,6 +50,7 @@ SentryTracer ()
 @end
 
 @implementation SentryTracer {
+    /** Wether the tracer should wait for child spans to finish before finishing itself. */
     BOOL _waitForChildren;
     SentryTraceContext *_traceContext;
     SentryProfilesSamplerDecision *_profilesSamplerDecision;
@@ -148,7 +150,7 @@ static NSLock *profilerLock;
         self.transactionContext = transactionContext;
         _children = [[NSMutableArray alloc] init];
         self.hub = hub;
-        self.isWaitingForChildren = NO;
+        self.isWaitingForChildSpansToFinish = NO;
         _profilesSamplerDecision = profilesSamplerDecision;
         _waitForChildren = waitForChildren;
         _tags = [[NSMutableDictionary alloc] init];
@@ -393,7 +395,7 @@ static NSLock *profilerLock;
 
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
-    self.isWaitingForChildren = YES;
+    self.isWaitingForChildSpansToFinish = YES;
     _finishStatus = status;
 
     [self cancelIdleTimeout];
@@ -408,19 +410,20 @@ static NSLock *profilerLock;
     if (self.rootSpan.isFinished)
         return;
 
-    BOOL hasChildrenToWaitFor = [self hasChildrenToWaitFor];
-    if (self.isWaitingForChildren == NO && !hasChildrenToWaitFor && [self hasIdleTimeout]) {
+    BOOL hasChildSpansToWaitFor = [self hasUnfinishedChildSpansAndNeedToWaitUntilTheyAreFinished];
+    if (self.isWaitingForChildSpansToFinish == NO && !hasChildSpansToWaitFor &&
+        [self hasIdleTimeout]) {
         [self dispatchIdleTimeout];
         return;
     }
 
-    if (!self.isWaitingForChildren || hasChildrenToWaitFor)
+    if (!self.isWaitingForChildSpansToFinish || hasChildSpansToWaitFor)
         return;
 
     [self finishInternal];
 }
 
-- (BOOL)hasChildrenToWaitFor
+- (BOOL)hasUnfinishedChildSpansAndNeedToWaitUntilTheyAreFinished
 {
     if (!_waitForChildren) {
         return NO;
