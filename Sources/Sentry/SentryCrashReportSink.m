@@ -16,7 +16,7 @@
 #import "SentryScope.h"
 #import "SentryThread.h"
 
-static const NSTimeInterval SENTRY_APP_START_CRASH_DURATION_THRESHOLD = 4.0;
+static const NSTimeInterval SENTRY_APP_START_CRASH_DURATION_THRESHOLD = 2.0;
 static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
 
 @interface
