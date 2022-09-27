@@ -8,7 +8,6 @@
 - [File I/O Tracking](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/#file-io-tracking) is stable (#2212)
 - Add flush (#2140)
 - Add more device context (#2190)
-- Profile concurrent transactions (#2105)
 
 ### Fixes
 
