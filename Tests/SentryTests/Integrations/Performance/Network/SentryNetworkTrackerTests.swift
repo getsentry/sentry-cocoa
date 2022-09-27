@@ -235,7 +235,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         setTaskState(task, state: .completed)
         XCTAssertTrue(spans!.first!.isFinished)
     }
-    
+
     func testTaskWithoutCurrentRequest() {
         let request = URLRequest(url: SentryNetworkTrackerTests.testURL)
         let task = URLSessionUnsupportedTaskMock(request: request)
@@ -508,6 +508,28 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertTrue(span.isFinished)
         //Test if it has observers. Nil means no observers
         XCTAssertNil(task.observationInfo)
+    }
+
+    func testBaggageHeader() {
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        let transaction = startTransaction() as! SentryTracer
+        sut.urlSessionTaskResume(task)
+
+        let expectedBaggageHeader = transaction.traceContext.toBaggage().toHTTPHeader()
+        XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
+    }
+
+    func testTraceHeader() {
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        let transaction = startTransaction() as! SentryTracer
+        sut.urlSessionTaskResume(task)
+
+        let children = Dynamic(transaction).children as [SentrySpan]?
+        let networkSpan = children![0]
+        let expectedTraceHeader = networkSpan.toTraceHeader().value()
+        XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
     }
 
     func testAddHeadersForRequestWithURL() {
