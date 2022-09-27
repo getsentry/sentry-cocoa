@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Support tracePropagationTargets (#2217)
+
 ## 7.26.0
 
 ### Features
@@ -8,7 +14,6 @@
 - [File I/O Tracking](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/#file-io-tracking) is stable (#2212)
 - Add flush (#2140)
 - Add more device context (#2190)
-- Support tracePropagationTargets (#2217)
 
 ### Fixes
 
