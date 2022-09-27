@@ -413,13 +413,13 @@ static NSLock *profilerLock;
     if (self.rootSpan.isFinished)
         return;
 
-    BOOL hasChildSpansToWaitFor = [self hasUnfinishedChildSpansToWaitFor];
+    BOOL hasUnfinishedChildSpansToWaitFor = [self hasUnfinishedChildSpansToWaitFor];
     if (!self.wasFinishCalled && !hasChildSpansToWaitFor && [self hasIdleTimeout]) {
         [self dispatchIdleTimeout];
         return;
     }
 
-    if (!self.wasFinishCalled || hasChildSpansToWaitFor)
+    if (!self.wasFinishCalled || hasUnfinishedChildSpansToWaitFor)
         return;
 
     [self finishInternal];
