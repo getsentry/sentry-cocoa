@@ -435,7 +435,7 @@ sentrycrashstate_notifyAppCrash(void)
     }
 }
 
-const SentryCrash_AppState *const
+const SentryCrash_AppState *
 sentrycrashstate_currentState(void)
 {
     return &g_state;

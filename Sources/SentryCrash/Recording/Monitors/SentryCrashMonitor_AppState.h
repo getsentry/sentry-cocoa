@@ -120,7 +120,7 @@ void sentrycrashstate_notifyAppCrash(void);
 
 /** Read-only access into the current state.
  */
-const SentryCrash_AppState *const sentrycrashstate_currentState(void);
+const SentryCrash_AppState *sentrycrashstate_currentState(void);
 
 /** Access the Monitor API.
  */

@@ -140,10 +140,18 @@ SentryCrashIntegration ()
         // just not call sendAllReports as it doesn't make sense to call it twice as described
         // above.
         if (canSendReports) {
-            [installation sendAllReports];
+            [SentryCrashIntegration sendAllSentryCrashReports];
         }
     };
     [self.dispatchQueueWrapper dispatchOnce:&installationToken block:block];
+}
+
+/**
+ * Internal, only needed for testing.
+ */
++ (void)sendAllSentryCrashReports
+{
+    [installation sendAllReports];
 }
 
 - (void)uninstall
