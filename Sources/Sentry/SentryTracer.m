@@ -414,7 +414,7 @@ static NSLock *profilerLock;
         return;
 
     BOOL hasUnfinishedChildSpansToWaitFor = [self hasUnfinishedChildSpansToWaitFor];
-    if (!self.wasFinishCalled && !hasChildSpansToWaitFor && [self hasIdleTimeout]) {
+    if (!self.wasFinishCalled && !hasUnfinishedChildSpansToWaitFor && [self hasIdleTimeout]) {
         [self dispatchIdleTimeout];
         return;
     }
