@@ -41,8 +41,11 @@ SentryTracer ()
 @property (nonatomic, strong) SentrySpan *rootSpan;
 @property (nonatomic, strong) SentryHub *hub;
 @property (nonatomic) SentrySpanStatus finishStatus;
-/** If the tracer is waiting for child spans to finish. */
-@property (nonatomic) BOOL isWaitingForChildSpansToFinish;
+/** This property is different from isFinished. While isFinished states if the tracer is actually
+ * finished, this property tells you if finish was called on the tracer. Calling finish doesn't
+ * necessarily lead to finishing the tracer, because it could still wait for child spans to finish
+ * if waitForChildren is <code>YES</code>. */
+@property (nonatomic) BOOL wasFinishCalled;
 @property (nonatomic) NSTimeInterval idleTimeout;
 @property (nonatomic, nullable, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, assign, readwrite) BOOL isProfiling;
@@ -150,7 +153,7 @@ static NSLock *profilerLock;
         self.transactionContext = transactionContext;
         _children = [[NSMutableArray alloc] init];
         self.hub = hub;
-        self.isWaitingForChildSpansToFinish = NO;
+        self.wasFinishCalled = NO;
         _profilesSamplerDecision = profilesSamplerDecision;
         _waitForChildren = waitForChildren;
         _tags = [[NSMutableDictionary alloc] init];
@@ -395,7 +398,7 @@ static NSLock *profilerLock;
 
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
-    self.isWaitingForChildSpansToFinish = YES;
+    self.wasFinishCalled = YES;
     _finishStatus = status;
 
     [self cancelIdleTimeout];
@@ -411,13 +414,12 @@ static NSLock *profilerLock;
         return;
 
     BOOL hasChildSpansToWaitFor = [self hasUnfinishedChildSpansAndNeedToWaitUntilTheyAreFinished];
-    if (self.isWaitingForChildSpansToFinish == NO && !hasChildSpansToWaitFor &&
-        [self hasIdleTimeout]) {
+    if (self.wasFinishCalled == NO && !hasChildSpansToWaitFor && [self hasIdleTimeout]) {
         [self dispatchIdleTimeout];
         return;
     }
 
-    if (!self.isWaitingForChildSpansToFinish || hasChildSpansToWaitFor)
+    if (!self.wasFinishCalled || hasChildSpansToWaitFor)
         return;
 
     [self finishInternal];
