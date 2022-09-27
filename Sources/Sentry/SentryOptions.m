@@ -331,6 +331,10 @@ SentryOptions ()
     [self setBool:options[@"enableAutoBreadcrumbTracking"]
             block:^(BOOL value) { self->_enableAutoBreadcrumbTracking = value; }];
 
+    if ([options[@"tracePropagationTargets"] isKindOfClass:[NSArray class]]) {
+        self.tracePropagationTargets = options[@"tracePropagationTargets"];
+    }
+
     // SentrySdkInfo already expects a dictionary with {"sdk": {"name": ..., "value": ...}}
     // so we're passing the whole options object.
     // Note: we should remove this code once the hybrid SDKs move over to the new
