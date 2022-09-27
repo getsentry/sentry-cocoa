@@ -140,8 +140,6 @@ SentryNetworkTracker ()
             return;
         }
 
-        // HERE
-
         // sessionTask.currentRequest.URL
 
         if ([sessionTask currentRequest] &&
