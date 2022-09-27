@@ -186,6 +186,48 @@
     XCTAssertEqual(context.sessionsSinceLastCrash, 1);
 }
 
+- (void)testInitWithCrashStateLegacy
+{
+    NSString *stateFile = [self.tempPath stringByAppendingPathComponent:@"state.json"];
+    NSString *jsonPath =
+        [[NSBundle bundleForClass:self.class] pathForResource:@"Resources/CrashState_legacy_1"
+                                                       ofType:@"json"];
+    NSData *jsonData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:jsonPath]];
+    [jsonData writeToFile:stateFile atomically:true];
+
+    [self initializeCrashState];
+    SentryCrash_AppState context = *sentrycrashstate_currentState();
+
+    XCTAssertTrue(context.applicationIsInForeground);
+    XCTAssertFalse(context.applicationIsActive);
+
+    XCTAssertEqual(context.activeDurationSinceLastCrash, 2.5);
+    XCTAssertEqual(context.backgroundDurationSinceLastCrash, 5.0);
+    XCTAssertEqual(context.launchesSinceLastCrash, 11);
+    XCTAssertEqual(context.sessionsSinceLastCrash, 11);
+
+    XCTAssertEqual(context.activeDurationSinceLaunch, 0.0);
+    XCTAssertEqual(context.backgroundDurationSinceLaunch, 0.0);
+    XCTAssertEqual(context.sessionsSinceLaunch, 1);
+
+    XCTAssertFalse(context.crashedThisLaunch);
+    XCTAssertFalse(context.crashedLastLaunch);
+    XCTAssertEqual(context.durationFromCrashStateInitToLastCrash, 0.0);
+
+    [self initializeCrashState];
+    context = *sentrycrashstate_currentState();
+    XCTAssertEqual(context.launchesSinceLastCrash, 12);
+    XCTAssertEqual(context.sessionsSinceLastCrash, 12);
+
+    [jsonData writeToFile:stateFile atomically:true];
+
+    [self initializeCrashState];
+    context = *sentrycrashstate_currentState();
+    XCTAssertEqual(context.launchesSinceLastCrash, 11);
+    XCTAssertEqual(context.sessionsSinceLastCrash, 11);
+    XCTAssertEqual(context.durationFromCrashStateInitToLastCrash, 0.0);
+}
+
 - (void)testActRelaunch
 {
     [self initializeCrashState];
