@@ -140,8 +140,6 @@ SentryNetworkTracker ()
             return;
         }
 
-        // sessionTask.currentRequest.URL
-
         if ([sessionTask currentRequest] &&
             [self addHeadersForRequestWithURL:sessionTask.currentRequest.URL]) {
             NSMutableURLRequest *newRequest = nil;
