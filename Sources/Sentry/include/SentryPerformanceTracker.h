@@ -1,10 +1,11 @@
-#import "SentryDefines.h"
-#import "SentrySpanStatus.h"
+
+//#import "SentrySpanStatus.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentrySpanId;
+typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 /**
  * Tracks performance synchronizing span with its childs.
@@ -15,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * A static instance of performance tracker.
  */
-+ (instancetype)shared;
+@property (nonatomic, class, readonly) SentryPerformanceTracker *shared;
 
 /**
  * Starts a new span if no span is active,
@@ -28,6 +29,21 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The span id.
  */
 - (SentrySpanId *)startSpanWithName:(NSString *)name operation:(NSString *)operation;
+
+/**
+ * Starts a new span if no span is active,
+ * then bind it to the scope if no span is binded.
+ * If there`s an active span, starts a child of the active span.
+ *
+ * @param name Span name.
+ * @param source The source of the transaction name to be used for dynamic sampling.
+ * @param operation Span operation.
+ *
+ * @return The span id.
+ */
+- (SentrySpanId *)startSpanWithName:(NSString *)name
+                         nameSource:(SentryTransactionNameSource)source
+                          operation:(NSString *)operation;
 
 /**
  * Activate the span with `spanId`
@@ -108,6 +124,10 @@ NS_ASSUME_NONNULL_BEGIN
  * @return SentrySpan
  */
 - (nullable id<SentrySpan>)getSpan:(SentrySpanId *)spanId;
+
+- (BOOL)pushActiveSpan:(SentrySpanId *)spanId;
+
+- (void)popActiveSpan;
 
 @end
 

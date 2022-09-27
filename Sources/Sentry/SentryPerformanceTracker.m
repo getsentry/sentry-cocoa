@@ -1,4 +1,5 @@
 #import "SentryPerformanceTracker.h"
+#import "SentryDefines.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentrySDK+Private.h"
@@ -22,7 +23,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
 
 @implementation SentryPerformanceTracker
 
-+ (instancetype)shared
++ (SentryPerformanceTracker *)shared
 {
     static SentryPerformanceTracker *instance = nil;
     static dispatch_once_t onceToken;
