@@ -84,7 +84,6 @@ SentryNetworkTracker ()
 
 - (void)urlSessionTaskResume:(NSURLSessionTask *)sessionTask
 {
-
     @synchronized(self) {
         if (!self.isNetworkTrackingEnabled) {
             return;
