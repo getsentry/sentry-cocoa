@@ -69,6 +69,7 @@
 
     XCTAssertFalse(context.crashedThisLaunch);
     XCTAssertFalse(context.crashedLastLaunch);
+    XCTAssertEqual(context.durationFromCrashStateInitToLastCrash, 0.0);
 
     [self initializeCrashState];
     context = *sentrycrashstate_currentState();
@@ -87,6 +88,7 @@
 
     XCTAssertFalse(context.crashedThisLaunch);
     XCTAssertFalse(context.crashedLastLaunch);
+    XCTAssertEqual(context.durationFromCrashStateInitToLastCrash, 0.0);
 }
 
 - (void)testInitCrash
@@ -119,6 +121,8 @@
 
     XCTAssertTrue(checkpointC.crashedThisLaunch);
     XCTAssertFalse(checkpointC.crashedLastLaunch);
+    XCTAssertEqual(checkpoint0.durationFromCrashStateInitToLastCrash,
+        checkpointC.durationFromCrashStateInitToLastCrash);
 
     [self initializeCrashState];
     context = *sentrycrashstate_currentState();
@@ -137,6 +141,8 @@
 
     XCTAssertFalse(context.crashedThisLaunch);
     XCTAssertTrue(context.crashedLastLaunch);
+    XCTAssertGreaterThan(context.durationFromCrashStateInitToLastCrash, 0.0);
+    XCTAssertLessThan(context.durationFromCrashStateInitToLastCrash, 1.0);
 }
 
 - (void)testInitWithWrongCrashState
@@ -165,6 +171,7 @@
 
     XCTAssertFalse(context.crashedThisLaunch);
     XCTAssertFalse(context.crashedLastLaunch);
+    XCTAssertEqual(context.durationFromCrashStateInitToLastCrash, 0.0);
 
     [self initializeCrashState];
     context = *sentrycrashstate_currentState();
@@ -211,6 +218,7 @@
 
     XCTAssertFalse(checkpoint1.crashedThisLaunch);
     XCTAssertFalse(checkpoint1.crashedLastLaunch);
+    XCTAssertEqual(context.durationFromCrashStateInitToLastCrash, 0.0);
 
     usleep(1);
     [self initializeCrashState];
@@ -230,6 +238,7 @@
 
     XCTAssertFalse(context.crashedThisLaunch);
     XCTAssertFalse(context.crashedLastLaunch);
+    XCTAssertEqual(context.durationFromCrashStateInitToLastCrash, 0.0);
 }
 
 - (void)testActCrash
@@ -262,6 +271,7 @@
 
     XCTAssertTrue(checkpointC.crashedThisLaunch);
     XCTAssertFalse(checkpointC.crashedLastLaunch);
+    XCTAssertEqual(checkpointC.durationFromCrashStateInitToLastCrash, 0.0);
 
     [self initializeCrashState];
     SentryCrash_AppState context = *sentrycrashstate_currentState();
@@ -280,6 +290,8 @@
 
     XCTAssertFalse(context.crashedThisLaunch);
     XCTAssertTrue(context.crashedLastLaunch);
+    XCTAssertGreaterThan(context.durationFromCrashStateInitToLastCrash, 0.0);
+    XCTAssertLessThan(context.durationFromCrashStateInitToLastCrash, 1.0);
 }
 
 - (void)testActDeactRelaunch
@@ -313,6 +325,7 @@
 
     XCTAssertFalse(checkpoint1.crashedThisLaunch);
     XCTAssertFalse(checkpoint1.crashedLastLaunch);
+    XCTAssertEqual(checkpoint1.durationFromCrashStateInitToLastCrash, 0.0);
 
     usleep(1);
     [self initializeCrashState];
@@ -333,6 +346,7 @@
 
     XCTAssertFalse(checkpointR.crashedThisLaunch);
     XCTAssertFalse(checkpointR.crashedLastLaunch);
+    XCTAssertEqual(checkpointR.durationFromCrashStateInitToLastCrash, 0.0);
 }
 
 - (void)testActDeactCrash
@@ -368,6 +382,7 @@
 
     XCTAssertTrue(checkpointC.crashedThisLaunch);
     XCTAssertFalse(checkpointC.crashedLastLaunch);
+    XCTAssertEqual(checkpointC.durationFromCrashStateInitToLastCrash, 0.0);
 
     [self initializeCrashState];
     context = *sentrycrashstate_currentState();
@@ -386,6 +401,8 @@
 
     XCTAssertFalse(context.crashedThisLaunch);
     XCTAssertTrue(context.crashedLastLaunch);
+    XCTAssertGreaterThan(context.durationFromCrashStateInitToLastCrash, 0.0);
+    XCTAssertLessThan(context.durationFromCrashStateInitToLastCrash, 1.0);
 }
 
 - (void)testActDeactBGRelaunch
@@ -421,6 +438,7 @@
 
     XCTAssertFalse(checkpoint1.crashedThisLaunch);
     XCTAssertFalse(checkpoint1.crashedLastLaunch);
+    XCTAssertEqual(checkpoint1.durationFromCrashStateInitToLastCrash, 0.0);
 
     usleep(1);
     [self initializeCrashState];
@@ -440,6 +458,7 @@
 
     XCTAssertFalse(checkpointR.crashedThisLaunch);
     XCTAssertFalse(checkpointR.crashedLastLaunch);
+    XCTAssertEqual(checkpointR.durationFromCrashStateInitToLastCrash, 0.0);
 }
 
 - (void)testActDeactBGTerminate
@@ -474,6 +493,7 @@
 
     XCTAssertFalse(checkpointR.crashedThisLaunch);
     XCTAssertFalse(checkpointR.crashedLastLaunch);
+    XCTAssertEqual(checkpointR.durationFromCrashStateInitToLastCrash, 0.0);
 }
 
 - (void)testActDeactBGCrash
@@ -510,6 +530,7 @@
 
     XCTAssertTrue(checkpointC.crashedThisLaunch);
     XCTAssertFalse(checkpointC.crashedLastLaunch);
+    XCTAssertEqual(checkpointC.durationFromCrashStateInitToLastCrash, 0.0);
 
     [self initializeCrashState];
     context = *sentrycrashstate_currentState();
@@ -528,6 +549,8 @@
 
     XCTAssertFalse(context.crashedThisLaunch);
     XCTAssertTrue(context.crashedLastLaunch);
+    XCTAssertGreaterThan(context.durationFromCrashStateInitToLastCrash, 0.0);
+    XCTAssertLessThan(context.durationFromCrashStateInitToLastCrash, 1.0);
 }
 
 - (void)testActDeactBGFGRelaunch
@@ -565,6 +588,7 @@
 
     XCTAssertFalse(checkpoint1.crashedThisLaunch);
     XCTAssertFalse(checkpoint1.crashedLastLaunch);
+    XCTAssertEqual(checkpoint1.durationFromCrashStateInitToLastCrash, 0.0);
 
     usleep(1);
     [self initializeCrashState];
@@ -585,6 +609,7 @@
 
     XCTAssertFalse(checkpointR.crashedThisLaunch);
     XCTAssertFalse(checkpointR.crashedLastLaunch);
+    XCTAssertEqual(checkpointR.durationFromCrashStateInitToLastCrash, 0.0);
 }
 
 - (void)testActDeactBGFGCrash
@@ -624,6 +649,7 @@
 
     XCTAssertTrue(checkpointC.crashedThisLaunch);
     XCTAssertFalse(checkpointC.crashedLastLaunch);
+    XCTAssertEqual(checkpointC.durationFromCrashStateInitToLastCrash, 0.0);
 
     [self initializeCrashState];
     context = *sentrycrashstate_currentState();
@@ -642,6 +668,8 @@
 
     XCTAssertFalse(context.crashedThisLaunch);
     XCTAssertTrue(context.crashedLastLaunch);
+    XCTAssertGreaterThan(context.durationFromCrashStateInitToLastCrash, 0.0);
+    XCTAssertLessThan(context.durationFromCrashStateInitToLastCrash, 1.0);
 }
 
 @end
