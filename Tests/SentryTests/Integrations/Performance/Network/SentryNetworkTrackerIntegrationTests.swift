@@ -158,13 +158,9 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testBaggageURL) { (data, _, _) in
             let response = String(data: data ?? Data(), encoding: .utf8) ?? ""
             
-            if self.canHeaderBeAdded() {
-                let expectedBaggageHeader = transaction.traceContext.toBaggage().toHTTPHeader()
-                XCTAssertEqual(expectedBaggageHeader, response)
-            } else {
-                XCTAssertEqual("(NO-HEADER)", response)
-            }
-            
+            let expectedBaggageHeader = transaction.traceContext.toBaggage().toHTTPHeader()
+            XCTAssertEqual(expectedBaggageHeader, response)
+
             expect.fulfill()
         }
         
@@ -215,16 +211,6 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertNil(configuration.httpAdditionalHeaders)
     }
         
-    /**
-     * The header can only be added when we can swizzle URLSessionConfiguration. For more details see
-     * SentryNetworkTrackingIntegration#swizzleNSURLSessionConfiguration.
-     */
-    private func canHeaderBeAdded() -> Bool {
-        let selector = NSSelectorFromString("HTTPAdditionalHeaders")
-        let classToSwizzle = URLSessionConfiguration.self
-        return class_getInstanceMethod(classToSwizzle, selector) != nil
-    }
-    
     private func startSDK() {
         SentrySDK.start(options: self.fixture.options)
     }
