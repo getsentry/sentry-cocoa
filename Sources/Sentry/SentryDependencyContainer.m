@@ -19,7 +19,9 @@
 #import <SentryThreadWrapper.h>
 #import <SentryViewHierarchy.h>
 
-@implementation SentryDependencyContainer
+@implementation SentryDependencyContainer {
+    NSMutableDictionary<NSString *, id (^)(void)> *_callbacks;
+}
 
 static SentryDependencyContainer *instance;
 static NSObject *sentryDependencyContainerLock;
@@ -46,6 +48,34 @@ static NSObject *sentryDependencyContainerLock;
     @synchronized(sentryDependencyContainerLock) {
         instance = nil;
     }
+}
+
+- (instancetype)init
+{
+    if (self = [super init]) {
+        _callbacks = [[NSMutableDictionary alloc] init];
+    }
+    return self;
+}
+
+- (void)registerProtocol:(Protocol *)proto withImplementation:(id (^)(void))callback
+{
+    @synchronized(sentryDependencyContainerLock) {
+        NSString *name = NSStringFromProtocol(proto);
+        if (name) {
+            _callbacks[name] = callback;
+        }
+    }
+}
+
+- (nullable id)implementationForProtocol:(Protocol *)proto
+{
+    NSString *name = NSStringFromProtocol(proto);
+    id (^imp)(void) = _callbacks[name];
+    if (!imp) {
+        return nil;
+    }
+    return imp();
 }
 
 - (SentryFileManager *)fileManager
