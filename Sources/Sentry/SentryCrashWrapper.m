@@ -71,17 +71,17 @@ NS_ASSUME_NONNULL_BEGIN
     return sharedInfo;
 }
 
-- (uint64_t)freeMemory
+- (bytes)freeMemorySize
 {
-    return sentrycrashcm_system_freememory();
+    return sentrycrashcm_system_freememory_size();
 }
 
-- (uint64_t)freeStorage
+- (bytes)freeStorageSize
 {
-    return sentrycrashcm_system_freestorage();
+    return sentrycrashcm_system_freestorage_size();
 }
 
-- (uint64_t)appMemory
+- (bytes)appMemorySize
 {
     task_vm_info_data_t info;
     mach_msg_type_number_t size = TASK_VM_INFO_COUNT;

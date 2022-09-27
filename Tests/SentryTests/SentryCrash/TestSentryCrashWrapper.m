@@ -14,9 +14,9 @@
     instance.internalIsApplicationInForeground = YES;
     instance.installAsyncHooksCalled = NO;
     instance.closeCalled = NO;
-    instance.internalFreeMemory = 0;
-    instance.internalAppMemory = 0;
-    instance.internalFreeStorage = 0;
+    instance.internalFreeMemorySize = 0;
+    instance.internalAppMemorySize = 0;
+    instance.internalFreeStorageSize = 0;
     return instance;
 }
 
@@ -60,19 +60,19 @@
     return @{};
 }
 
-- (uint64_t)freeMemory
+- (bytes)freeMemorySize
 {
-    return self.internalFreeMemory;
+    return self.internalFreeMemorySize;
 }
 
-- (uint64_t)appMemory
+- (bytes)appMemorySize
 {
-    return self.internalAppMemory;
+    return self.internalAppMemorySize;
 }
 
-- (uint64_t)freeStorage
+- (bytes)freeStorageSize
 {
-    return self.internalFreeStorage;
+    return self.internalFreeStorageSize;
 }
 
 @end
