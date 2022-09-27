@@ -509,6 +509,38 @@ class SentryNetworkTrackerTests: XCTestCase {
         //Test if it has observers. Nil means no observers
         XCTAssertNil(task.observationInfo)
     }
+
+    func testAddHeadersForRequestWithURL() {
+        // Default: all urls
+        let sut = fixture.getSut()
+        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://localhost")!))
+        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/api/projects")!))
+
+        // Strings: hostname
+        fixture.options.tracePropagationTargets = ["localhost"]
+        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://localhost")!))
+        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://localhost-but-not-really")!))
+        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/api/projects")!))
+
+        fixture.options.tracePropagationTargets = ["www.example.com"]
+        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://localhost")!))
+        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/api/projects")!))
+        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://api.example.com/api/projects")!))
+        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://www.example.com.evil.com/api/projects")!))
+
+        // Test regex
+        let regex = try! NSRegularExpression(pattern: "http://www.example.com/api/.*")
+        fixture.options.tracePropagationTargets = [regex]
+        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://localhost")!))
+        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/url")!))
+        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/api/projects")!))
+
+        // Regex and string
+        fixture.options.tracePropagationTargets = ["localhost", regex]
+        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://localhost")!))
+        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/url")!))
+        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/api/projects")!))
+    }
     
     func setTaskState(_ task: URLSessionTaskMock, state: URLSessionTask.State) {
         fixture.getSut().urlSessionTask(task as! URLSessionTask, setState: state)

@@ -103,6 +103,7 @@
 #import "SentryNSURLRequest.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryNSURLSessionTaskSearch.h"
+#import "SentryNetworkTracker+Private.h"
 #import "SentryNetworkTracker.h"
 #import "SentryNetworkTrackingIntegration.h"
 #import "SentryNoOpSpan.h"
