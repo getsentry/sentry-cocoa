@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- feat: Add segment property to user (#2234)
+
 ## 7.26.0
 
 ### Features

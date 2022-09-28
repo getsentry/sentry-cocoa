@@ -29,7 +29,7 @@ class SentryTraceContextTests: XCTestCase {
             
             scope = Scope()
             scope.setUser(User(userId: userId))
-            scope.userObject?.data = ["segment": "Test Segment"]
+            scope.userObject?.segment = userSegment
             scope.span = tracer
             
             traceId = tracer.context.traceId
@@ -78,13 +78,24 @@ class SentryTraceContextTests: XCTestCase {
         XCTAssertNil(traceContext)
     }
     
-    func testUserSegment_wrongData() {
-        var traceContext = SentryTraceContext(scope: fixture.scope, options: fixture.options)
+    func testUserSegmentInData_wrongData() {
+        let scope = fixture.scope
+        scope.userObject?.segment = nil
+        scope.userObject?.data = ["segment": fixture.userSegment]
+        var traceContext = SentryTraceContext(scope: scope, options: fixture.options)
         XCTAssertNotNil(traceContext?.userSegment)
-        XCTAssertEqual(traceContext?.userSegment, "Test Segment")
-        fixture.scope.userObject?.data = ["segment": 5]
-        traceContext = SentryTraceContext(scope: fixture.scope, options: fixture.options)
+        XCTAssertEqual(traceContext?.userSegment, fixture.userSegment)
+        
+        scope.userObject?.data = ["segment": 5]
+        traceContext = SentryTraceContext(scope: scope, options: fixture.options)
         XCTAssertNil(traceContext?.userSegment)
+    }
+    
+    func testUserSegmentInDataAndUser_TakeFromUser() {
+        let scope = fixture.scope
+        scope.userObject?.data = ["segment": "Wrong segment"]
+        let traceContext = SentryTraceContext(scope: scope, options: fixture.options)
+        XCTAssertEqual(traceContext?.userSegment, fixture.userSegment)
     }
     
     func test_toBaggage() {
