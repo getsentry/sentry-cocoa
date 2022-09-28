@@ -406,7 +406,7 @@ NS_SWIFT_NAME(Options)
  *
  * The default value adds the header to all outgoing requests.
  *
- * @see https://develop.sentry.dev/sdk/performance/#tracepropagationtargets
+ * @see https://docs.sentry.io/platforms/node/configuration/options/#trace-propagation-targets
  */
 @property (nonatomic, retain) NSArray *tracePropagationTargets;
 
