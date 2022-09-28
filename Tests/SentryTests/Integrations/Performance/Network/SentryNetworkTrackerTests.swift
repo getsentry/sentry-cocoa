@@ -540,8 +540,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         _ = startTransaction() as! SentryTracer
         sut.urlSessionTaskResume(task)
 
-        XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", "")
-        XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", "")
+        XCTAssertNil(task.currentRequest?.allHTTPHeaderFields?["baggage"])
+        XCTAssertNil(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"])
     }
 
     func testAddHeadersForRequestWithURL() {

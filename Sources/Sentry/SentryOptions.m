@@ -131,6 +131,19 @@ SentryOptions ()
     return self;
 }
 
+- (void)setTracePropagationTargets:(NSArray *)tracePropagationTargets
+{
+    for (id targetCheck in tracePropagationTargets) {
+        if (![targetCheck isKindOfClass:[NSRegularExpression class]]
+            && ![targetCheck isKindOfClass:[NSString class]]) {
+            SENTRY_LOG_WARN(@"Only instances of NSString and NSRegularExpression are supported "
+                            @"inside tracePropagationTargets.");
+        }
+    }
+
+    _tracePropagationTargets = tracePropagationTargets;
+}
+
 - (void)setIntegrations:(NSArray<NSString *> *)integrations
 {
     SENTRY_LOG_WARN(
