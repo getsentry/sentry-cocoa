@@ -661,6 +661,7 @@
 		D8370B6C273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h in Headers */ = {isa = PBXBuildFile; fileRef = D8370B6B273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h */; };
 		D84793262788737D00BE8E99 /* SentryByteCountFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = D84793242788737D00BE8E99 /* SentryByteCountFormatter.m */; };
 		D8479328278873A100BE8E99 /* SentryByteCountFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = D8479327278873A100BE8E99 /* SentryByteCountFormatter.h */; };
+		D847D34628E49F1B006795F9 /* SentryDescriptorIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = D847D34428E49E9A006795F9 /* SentryDescriptorIntegration.swift */; };
 		D85596F3280580F10041FF8B /* SentryScreenshotIntegration.m in Sources */ = {isa = PBXBuildFile; fileRef = D85596F1280580F10041FF8B /* SentryScreenshotIntegration.m */; };
 		D855AD62286ED6A4002573E1 /* SentryCrashTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D855AD61286ED6A4002573E1 /* SentryCrashTests.m */; };
 		D855B3E827D652AF00BCED76 /* SentryCoreDataTrackingIntegrationTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D855B3E727D652AF00BCED76 /* SentryCoreDataTrackingIntegrationTest.swift */; };
@@ -1456,6 +1457,7 @@
 		D8370B6B273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryNSURLSessionTaskSearch.h; path = include/SentryNSURLSessionTaskSearch.h; sourceTree = "<group>"; };
 		D84793242788737D00BE8E99 /* SentryByteCountFormatter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryByteCountFormatter.m; sourceTree = "<group>"; };
 		D8479327278873A100BE8E99 /* SentryByteCountFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryByteCountFormatter.h; path = include/SentryByteCountFormatter.h; sourceTree = "<group>"; };
+		D847D34428E49E9A006795F9 /* SentryDescriptorIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryDescriptorIntegration.swift; sourceTree = "<group>"; };
 		D85596F1280580F10041FF8B /* SentryScreenshotIntegration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryScreenshotIntegration.m; sourceTree = "<group>"; };
 		D855AD61286ED6A4002573E1 /* SentryCrashTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryCrashTests.m; sourceTree = "<group>"; };
 		D855B3E727D652AF00BCED76 /* SentryCoreDataTrackingIntegrationTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCoreDataTrackingIntegrationTest.swift; sourceTree = "<group>"; };
@@ -2833,6 +2835,22 @@
 			name = Tools;
 			sourceTree = "<group>";
 		};
+		D847D34228E49E7D006795F9 /* Helper */ = {
+			isa = PBXGroup;
+			children = (
+				D8A5764C28E2DDCE00420BB1 /* SwiftDescriptor.swift */,
+			);
+			path = Helper;
+			sourceTree = "<group>";
+		};
+		D847D34328E49E84006795F9 /* Integration */ = {
+			isa = PBXGroup;
+			children = (
+				D847D34428E49E9A006795F9 /* SentryDescriptorIntegration.swift */,
+			);
+			path = Integration;
+			sourceTree = "<group>";
+		};
 		D85596EF280580BE0041FF8B /* Screenshot */ = {
 			isa = PBXGroup;
 			children = (
@@ -2880,10 +2898,11 @@
 		D894689728D1D9940006C83D /* SentrySwift */ = {
 			isa = PBXGroup;
 			children = (
+				D847D34228E49E7D006795F9 /* Helper */,
+				D847D34328E49E84006795F9 /* Integration */,
 				D804D4CB28DAF226005CECD1 /* Sentry.h */,
 				D89468AD28D223440006C83D /* TypeAlias.swift */,
 				D8145C3028DDABF300494277 /* SentryPerformanceView.swift */,
-				D8A5764C28E2DDCE00420BB1 /* SwiftDescriptor.swift */,
 			);
 			path = SentrySwift;
 			sourceTree = "<group>";
@@ -3765,6 +3784,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D847D34628E49F1B006795F9 /* SentryDescriptorIntegration.swift in Sources */,
 				D8145C3128DDABF300494277 /* SentryPerformanceView.swift in Sources */,
 				D8145C2228DCA03F00494277 /* TypeAlias.swift in Sources */,
 				D8A5764E28E2EE1F00420BB1 /* SwiftDescriptor.swift in Sources */,
