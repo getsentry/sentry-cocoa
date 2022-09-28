@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Correctly attribute enterprise builds (#2235)
+
 ## 7.26.0
 
 ### Features
