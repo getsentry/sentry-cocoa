@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryDependencyContainer : NSObject
 SENTRY_NO_INIT
 
-+ (instancetype)sharedInstance;
+@property (nonatomic, class, readonly) SentryDependencyContainer *sharedInstance;
 
 /**
  * Set all dependencies to nil for testing purposes.
