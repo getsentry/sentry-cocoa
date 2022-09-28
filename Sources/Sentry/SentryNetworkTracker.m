@@ -73,7 +73,7 @@ SentryNetworkTracker ()
                 return YES;
             }
         } else if ([targetCheck isKindOfClass:[NSString class]]) {
-            if ([URL.host isEqualToString:targetCheck]) {
+            if ([URL.absoluteString containsString:targetCheck]) {
                 return YES;
             }
         }
