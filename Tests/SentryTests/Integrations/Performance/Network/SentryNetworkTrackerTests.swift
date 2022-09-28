@@ -553,14 +553,14 @@ class SentryNetworkTrackerTests: XCTestCase {
         // Strings: hostname
         fixture.options.tracePropagationTargets = ["localhost"]
         XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://localhost")!))
-        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://localhost-but-not-really")!))
+        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://localhost-but-not-really")!)) // works because of `contains`
         XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/api/projects")!))
 
         fixture.options.tracePropagationTargets = ["www.example.com"]
         XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://localhost")!))
         XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/api/projects")!))
         XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://api.example.com/api/projects")!))
-        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://www.example.com.evil.com/api/projects")!))
+        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://www.example.com.evil.com/api/projects")!)) // works because of `contains`
 
         // Test regex
         let regex = try! NSRegularExpression(pattern: "http://www.example.com/api/.*")

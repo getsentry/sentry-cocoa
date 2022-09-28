@@ -401,7 +401,7 @@ NS_SWIFT_NAME(Options)
  * An array of hosts or regexes that determines if outgoing HTTP requests will get
  * extra `trace_id` and `baggage` headers added.
  *
- * This array can contain instances of NSString which should match the URL's hostname,
+ * This array can contain instances of NSString which should match the URL (using `contains`),
  * and instances of NSRegularExpression, which will be used to check the whole URL.
  *
  * The default value adds the header to all outgoing requests.
