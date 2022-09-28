@@ -153,6 +153,17 @@ NS_ASSUME_NONNULL_BEGIN
     return decoded.copy;
 }
 
++ (NSString *)removeSentryKeysFromBaggage:(NSString *)baggage
+{
+    NSMutableDictionary *original = [SentrySerialization decodeBaggage:baggage].mutableCopy;
+    NSDictionary *filtered =
+        [original dictionaryWithValuesForKeys:
+                      [original.allKeys
+                          filteredArrayUsingPredicate:
+                              [NSPredicate predicateWithFormat:@"NOT SELF BEGINSWITH 'sentry-'"]]];
+    return [SentrySerialization baggageEncodedDictionary:filtered];
+}
+
 + (SentryEnvelope *_Nullable)envelopeWithData:(NSData *)data
 {
     SentryEnvelopeHeader *envelopeHeader = nil;

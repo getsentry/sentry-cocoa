@@ -167,6 +167,16 @@ SentryNetworkTracker ()
                 if (baggageHeader.length > 0) {
                     [currentRequest setValue:baggageHeader
                           forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
+                } else {
+                    NSString *newBaggageHeader = [SentrySerialization
+                        removeSentryKeysFromBaggage:currentRequest.allHTTPHeaderFields
+                                                        [SENTRY_BAGGAGE_HEADER]];
+                    if (newBaggageHeader.length > 0) {
+                        [currentRequest setValue:newBaggageHeader
+                              forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
+                    } else {
+                        [currentRequest setValue:nil forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
+                    }
                 }
             } else {
                 // Even though NSURLSessionTask doesn't have 'setCurrentRequest', some subclasses
@@ -183,6 +193,16 @@ SentryNetworkTracker ()
                     if (baggageHeader.length > 0) {
                         [newRequest setValue:baggageHeader
                             forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
+                    } else {
+                        NSString *newBaggageHeader = [SentrySerialization
+                            removeSentryKeysFromBaggage:newRequest.allHTTPHeaderFields
+                                                            [SENTRY_BAGGAGE_HEADER]];
+                        if (newBaggageHeader.length > 0) {
+                            [newRequest setValue:newBaggageHeader
+                                forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
+                        } else {
+                            [newRequest setValue:nil forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
+                        }
                     }
 
                     void (*func)(id, SEL, id param)
