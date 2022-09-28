@@ -15,6 +15,7 @@ static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN = @"SENTRY_NETWORK_RE
 - (void)urlSessionTask:(NSURLSessionTask *)sessionTask setState:(NSURLSessionTaskState)newState;
 - (void)enableNetworkTracking;
 - (void)enableNetworkBreadcrumbs;
+- (BOOL)addHeadersForRequestWithURL:(NSURL *)URL;
 - (void)disable;
 
 @property (nonatomic, readonly) BOOL isNetworkTrackingEnabled;
