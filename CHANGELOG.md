@@ -4,7 +4,7 @@
 
 ### Features
 
-- feat: Add segment property to user (#2234)
+- Add segment property to user (#2234)
 
 ## 7.26.0
 
