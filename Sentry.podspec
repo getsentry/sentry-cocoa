@@ -22,14 +22,21 @@ Pod::Spec.new do |s|
       'CLANG_CXX_LIBRARY' => 'libc++'
 }
 
-  s.default_subspecs = ['Core']
+  s.default_subspecs = ['Sentry', 'SentryObjc']
 
-  s.subspec 'Core' do |sp|
+  s.subspec 'Sentry' do |sp|
+      sp.source_files = "Sources/SentrySwift/**/*.{swift}",
+      sp.public_header_files =
+        "Sources/SentrySwift/*.h"
+  end
+  
+  s.subspec 'SentryObjc' do |sp|
       sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
         "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}"
         
       sp.public_header_files =
         "Sources/Sentry/Public/*.h"
-      
   end
+  
+  
 end
