@@ -10,6 +10,7 @@
 ### Fixes
 
 - Correctly attribute enterprise builds (#2235)
+- Return SentryNoOpSpan when starting a child on a finished transaction (#2239)
 
 ## 7.26.0
 
