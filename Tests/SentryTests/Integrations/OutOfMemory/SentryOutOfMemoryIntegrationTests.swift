@@ -15,7 +15,7 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
             client = TestClient(options: options)
             
             crashWrapper = TestSentryCrashWrapper.sharedInstance()
-            SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
+            SentryDependencyContainer.sharedInstance.crashWrapper = crashWrapper
 
             let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andCurrentDateProvider: currentDate)
             SentrySDK.setCurrentHub(hub)

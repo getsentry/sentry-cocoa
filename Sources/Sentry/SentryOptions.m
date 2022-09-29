@@ -23,6 +23,7 @@ SentryOptions ()
 + (NSArray<NSString *> *)defaultIntegrations
 {
     return @[
+        @"_TtC6Sentry27SentryDescriptorIntegration",
         @"SentryCrashIntegration",
 #if SENTRY_HAS_UIKIT
         @"SentryANRTrackingIntegration",

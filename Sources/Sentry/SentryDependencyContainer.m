@@ -240,4 +240,17 @@ static NSObject *sentryDependencyContainerLock;
     return _anrTracker;
 }
 
+- (id<SentryDescriptor>)descriptor
+{
+    id<SentryDescriptor> result = [self implementationForProtocol:@protocol(SentryDescriptor)];
+    if (!result) {
+        @synchronized(sentryDependencyContainerLock) {
+            result = SentryDescriptor.shared;
+            [self registerProtocol:@protocol(SentryDescriptor)
+                withImplementation:^id { return [SentryDescriptor shared]; }];
+        }
+    }
+    return result;
+}
+
 @end

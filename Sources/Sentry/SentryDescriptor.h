@@ -11,6 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryDescriptor : NSObject <SentryDescriptor>
 
+@property (nonatomic, class, readonly) SentryDescriptor *shared;
+
 @end
 
 NS_ASSUME_NONNULL_END

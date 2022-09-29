@@ -1,4 +1,6 @@
 #import "SentryDefines.h"
+#import "SentryDependencyContainer-Injection.h"
+#import "SentryDescriptor.h"
 #import "SentryFileManager.h"
 #import "SentryRandom.h"
 #import <Foundation/Foundation.h>
@@ -13,10 +15,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryDependencyContainer : NSObject
+@interface
+SentryDependencyContainer ()
 SENTRY_NO_INIT
-
-@property (nonatomic, class, readonly) SentryDependencyContainer *sharedInstance;
 
 /**
  * Set all dependencies to nil for testing purposes.
@@ -33,6 +34,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 @property (nonatomic, strong) SentryANRTracker *anrTracker;
+@property (nonatomic, strong) id<SentryDescriptor> descriptor;
 
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryScreenshot *screenshot;

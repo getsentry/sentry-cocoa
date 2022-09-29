@@ -1,14 +1,14 @@
-//
-//  SentryDescriptor.m
-//  SentryObjc
-//
-//  Created by Dhiogo Brustolin on 28.09.22.
-//  Copyright © 2022 Sentry. All rights reserved.
-//
-
 #import "SentryDescriptor.h"
 
 @implementation SentryDescriptor
+
++ (SentryDescriptor *)shared
+{
+    static SentryDescriptor *instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ instance = [[self alloc] init]; });
+    return instance;
+}
 
 - (NSString *)getDescription:(id)object
 {

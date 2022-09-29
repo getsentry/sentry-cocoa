@@ -1,10 +1,8 @@
 import Foundation
+import SentryObjc
 import UIKit
 
-open class SwiftDescriptor {
-
-    public init() {
-    }
+class SwiftDescriptor: NSObject, SentryDescriptorProtocol {
     
     public func hostViewControllerRootViewName(_ controller: UIViewController) -> String? {
         if let host = Mirror(reflecting: controller).descendant("host"),
@@ -17,8 +15,8 @@ open class SwiftDescriptor {
         
         return nil
     }
-    
-    func objectDescription(_ object: Any) -> String {
+        
+    public func getDescription(_ object: Any) -> String {
         return String(describing: object)
     }
 }
