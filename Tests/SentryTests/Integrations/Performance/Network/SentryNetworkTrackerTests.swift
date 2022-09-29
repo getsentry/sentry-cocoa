@@ -595,6 +595,10 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://localhost")!))
         XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/url")!))
         XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/api/projects")!))
+
+        // String and integer (which isn't valid, make sure it doesn't crash)
+        fixture.options.tracePropagationTargets = ["localhost", 123]
+        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://localhost")!))
     }
     
     func setTaskState(_ task: URLSessionTaskMock, state: URLSessionTask.State) {

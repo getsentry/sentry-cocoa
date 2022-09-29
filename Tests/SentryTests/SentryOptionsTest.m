@@ -275,6 +275,23 @@
     XCTAssertNil(options.beforeBreadcrumb);
 }
 
+- (void)testTracePropagationTargets
+{
+    SentryOptions *options =
+        [self getValidOptions:@{ @"tracePropagationTargets" : @[ @"localhost" ] }];
+
+    XCTAssertEqual(options.tracePropagationTargets.count, 1);
+    XCTAssertEqual(options.tracePropagationTargets[0], @"localhost");
+}
+
+- (void)testTracePropagationTargetsInvalidInstanceDoesntCrash
+{
+    SentryOptions *options = [self getValidOptions:@{ @"tracePropagationTargets" : @[ @YES ] }];
+
+    XCTAssertEqual(options.tracePropagationTargets.count, 1);
+    XCTAssertEqual(options.tracePropagationTargets[0], @YES);
+}
+
 - (void)testGarbageBeforeBreadcrumb_ReturnsNil
 {
     SentryOptions *options = [self getValidOptions:@{ @"beforeBreadcrumb" : @"fault" }];
