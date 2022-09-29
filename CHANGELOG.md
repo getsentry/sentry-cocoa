@@ -7,6 +7,10 @@
 - Report start up crashes (#2220)
 - Add segment property to user (#2234)
 
+### Fixes
+
+- Correctly attribute enterprise builds (#2235)
+
 ## 7.26.0
 
 ### Features
