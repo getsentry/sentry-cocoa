@@ -4,7 +4,7 @@
 
 ### Features
 
-- Report start up crashes (#2220)
+- Report [start up crashes](https://docs.sentry.io/platforms/apple/guides/ios/) (#2220)
 - Add segment property to user (#2234)
 - Support tracePropagationTargets (#2217)
 
