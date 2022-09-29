@@ -62,7 +62,7 @@ if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
         -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfTransactions" \
         test | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}
 else
-    env NSUnbufferedIO=YES xcodebuild -retry-tests-on-failure -workspace Sentry.xcworkspace \
+    env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
         -scheme Sentry -configuration $CONFIGURATION \
         GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
         test | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}
