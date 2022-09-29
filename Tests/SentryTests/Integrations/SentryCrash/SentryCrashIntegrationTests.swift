@@ -265,7 +265,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         assertLocaleOnHub(locale: Locale.autoupdatingCurrent.identifier, hub: hub)
     }
     
-    func testStartUpCrash_CallsFlush() {
+    func testStartUpCrash_CallsFlush() throws {
         let (sut, hub) = givenSutWithGlobalHubAndCrashWrapper()
         sut.install(with: Options())
         
@@ -285,11 +285,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         // Manually simulate a crash
         sentrycrashstate_notifyAppCrash()
         
-        // Store crash report to disk
-        let bundle = Bundle(for: type(of: self))
-        let path = bundle.path(forResource: "Resources/crash-report-1", ofType: "json")!
-        let data = NSData(contentsOfFile: path)!
-        sentrycrashcrs_addUserReport(data.bytes, Int32(data.count))
+        try givenStoredSentryCrashReport(resource: "Resources/crash-report-1")
         
         // Force reloading of crash state
         sentrycrashstate_initialize(sentrycrashstate_filePath())
