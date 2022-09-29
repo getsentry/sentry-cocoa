@@ -148,7 +148,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           repository: 'videolan/vlc-ios'
-          ref: '68a1882c042c9a588e408a8eb745932513a324a8'
+          ref: '71bbe6a13b116815fdbfd269758ad621f14c62d9'
 
       # Use github.event.pull_request.head.sha instead of github.sha when available as 
       # the github.sha is the pre merge commit id for PRs.
