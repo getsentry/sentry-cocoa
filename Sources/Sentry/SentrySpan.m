@@ -2,6 +2,7 @@
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryCurrentDate.h"
+#import "SentryLog.h"
 #import "SentryNoOpSpan.h"
 #import "SentryTraceHeader.h"
 #import "SentryTracer.h"
@@ -33,12 +34,23 @@ SentrySpan ()
 
 - (id<SentrySpan>)startChildWithOperation:(NSString *)operation
 {
+    if (self.isFinished) {
+        SENTRY_LOG_WARN(
+            @"Starting a child on a finished span is not supported; it won't be sent to Sentry.");
+        return [SentryNoOpSpan shared];
+    }
     return [self startChildWithOperation:operation description:nil];
 }
 
 - (id<SentrySpan>)startChildWithOperation:(NSString *)operation
                               description:(nullable NSString *)description
 {
+    if (self.isFinished) {
+        SENTRY_LOG_WARN(
+            @"Starting a child on a finished span is not supported; it won't be sent to Sentry.");
+        return [SentryNoOpSpan shared];
+    }
+
     if (self.tracer == nil) {
         return [SentryNoOpSpan shared];
     }
