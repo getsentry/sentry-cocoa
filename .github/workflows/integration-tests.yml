@@ -143,12 +143,12 @@ jobs:
   # Sentry to the app with auto performance monitoring enabled. We then run the UI tests to make sure
   # adding our SDK doesn't cause any major issues.
   vlc-tests:
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
         with:
           repository: 'videolan/vlc-ios'
-          ref: '5d2b5505edc3387cad43deca14c0bd0b19e3f133'
+          ref: '68a1882c042c9a588e408a8eb745932513a324a8'
 
       # Use github.event.pull_request.head.sha instead of github.sha when available as 
       # the github.sha is the pre merge commit id for PRs.
@@ -181,4 +181,4 @@ jobs:
 
       - name: Run UI Tests
       # Run the tests twice in case they are flaky.
-        run: for i in {1..2} ; do set -o pipefail && env NSUnbufferedIO=YES xcodebuild -workspace "VLC.xcworkspace" -scheme "VLC-iOS-UITests" -destination "OS=15.2,name=iPhone 13 Pro" test | xcpretty && break ; done
+        run: for i in {1..2} ; do set -o pipefail && env NSUnbufferedIO=YES xcodebuild -workspace "VLC.xcworkspace" -scheme "VLC-iOS-UITests" -destination "OS=16.0,name=iPhone 13 Pro" test | xcpretty && break ; done
