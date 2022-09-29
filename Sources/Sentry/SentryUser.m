@@ -29,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
             copy.email = self.email;
             copy.username = self.username;
             copy.ipAddress = self.ipAddress;
+            copy.segment = self.segment;
             copy.data = self.data.copy;
         }
     }
@@ -45,6 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
         [serializedData setValue:self.email forKey:@"email"];
         [serializedData setValue:self.username forKey:@"username"];
         [serializedData setValue:self.ipAddress forKey:@"ip_address"];
+        [serializedData setValue:self.segment forKey:@"segment"];
         [serializedData setValue:[self.data sentry_sanitize] forKey:@"data"];
     }
 
@@ -98,6 +100,11 @@ NS_ASSUME_NONNULL_BEGIN
             return NO;
         }
 
+        NSString *otherSegment = user.segment;
+        if (self.segment != otherSegment && ![self.segment isEqualToString:otherSegment]) {
+            return NO;
+        }
+
         NSDictionary<NSString *, id> *otherUserData = user.data;
         if (self.data != otherUserData && ![self.data isEqualToDictionary:otherUserData]) {
             return NO;
@@ -116,6 +123,7 @@ NS_ASSUME_NONNULL_BEGIN
         hash = hash * 23 + [self.email hash];
         hash = hash * 23 + [self.username hash];
         hash = hash * 23 + [self.ipAddress hash];
+        hash = hash * 23 + [self.segment hash];
         hash = hash * 23 + [self.data hash];
 
         return hash;

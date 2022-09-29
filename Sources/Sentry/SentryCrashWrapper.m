@@ -26,6 +26,11 @@ NS_ASSUME_NONNULL_BEGIN
     return SentryCrash.sharedInstance.crashedLastLaunch;
 }
 
+- (NSTimeInterval)durationFromCrashStateInitToLastCrash
+{
+    return sentrycrashstate_currentState()->durationFromCrashStateInitToLastCrash;
+}
+
 - (NSTimeInterval)activeDurationSinceLastCrash
 {
     return SentryCrash.sharedInstance.activeDurationSinceLastCrash;
