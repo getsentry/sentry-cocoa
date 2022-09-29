@@ -68,13 +68,4 @@ class SentryLogTests: XCTestCase {
                         "Sentry - info:: 3",
                         "Sentry - debug:: 4"], logOutput.loggedMessages)
     }
-    
-    class TestLogOutput: SentryLogOutput {
-
-        var loggedMessages: [String] = []
-        override func log(_ message: String) {
-            loggedMessages.append(message)
-        }
-    }
-
 }
