@@ -13,6 +13,8 @@ SENTRY_NO_INIT
 
 @property (nonatomic, assign) BOOL internalCrashedLastLaunch;
 
+@property (nonatomic, assign) NSTimeInterval internalDurationFromCrashStateInitToLastCrash;
+
 @property (nonatomic, assign) NSTimeInterval internalActiveDurationSinceLastCrash;
 
 @property (nonatomic, assign) BOOL internalIsBeingTraced;

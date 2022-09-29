@@ -59,6 +59,7 @@ class TestData {
         user.email = "user@sentry.io"
         user.username = "user123"
         user.ipAddress = "127.0.0.1"
+        user.segment = "segmentA"
         user.data = ["some": ["data": "data", "date": timestamp]]
         
         return user

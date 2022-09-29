@@ -467,7 +467,6 @@
         @"inAppIncludes" : [NSNull null],
         @"inAppExcludes" : [NSNull null],
         @"urlSessionDelegate" : [NSNull null],
-        @"experimentalEnableTraceSampling" : [NSNull null],
         @"enableSwizzling" : [NSNull null],
         @"enableIOTracking" : [NSNull null],
         @"sdk" : [NSNull null]
