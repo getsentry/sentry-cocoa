@@ -204,8 +204,8 @@ typedef struct SentryCrash_MonitorContext {
         uint64_t totalStorageSize;
         uint64_t freeStorageSize;
         uint64_t memorySize;
-        uint64_t freeMemory;
-        uint64_t usableMemory;
+        uint64_t freeMemorySize;
+        uint64_t usableMemorySize;
     } System;
 
     struct {

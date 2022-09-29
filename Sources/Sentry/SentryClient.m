@@ -768,35 +768,35 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 - (void)applyExtraDeviceContextToEvent:(SentryEvent *)event
 {
-    [self modifyContext:event
-                    key:@"device"
-                  block:^(NSMutableDictionary *device) {
-                      device[SentryDeviceContextFreeMemoryKey] = @(self.crashWrapper.freeMemory);
-                      device[@"free_storage"] = @(self.crashWrapper.freeStorage);
+    [self
+        modifyContext:event
+                  key:@"device"
+                block:^(NSMutableDictionary *device) {
+                    device[SentryDeviceContextFreeMemoryKey] = @(self.crashWrapper.freeMemorySize);
+                    device[@"free_storage"] = @(self.crashWrapper.freeStorageSize);
 
 #if TARGET_OS_IOS
-                      if (self.deviceWrapper.orientation != UIDeviceOrientationUnknown) {
-                          device[@"orientation"]
-                              = UIDeviceOrientationIsPortrait(self.deviceWrapper.orientation)
-                              ? @"portrait"
-                              : @"landscape";
-                      }
+                    if (self.deviceWrapper.orientation != UIDeviceOrientationUnknown) {
+                        device[@"orientation"]
+                            = UIDeviceOrientationIsPortrait(self.deviceWrapper.orientation)
+                            ? @"portrait"
+                            : @"landscape";
+                    }
 
-                      if (self.deviceWrapper.isBatteryMonitoringEnabled) {
-                          device[@"charging"]
-                              = self.deviceWrapper.batteryState == UIDeviceBatteryStateCharging
-                              ? @(YES)
-                              : @(NO);
-                          device[@"battery_level"] =
-                              @((int)(self.deviceWrapper.batteryLevel * 100));
-                      }
+                    if (self.deviceWrapper.isBatteryMonitoringEnabled) {
+                        device[@"charging"]
+                            = self.deviceWrapper.batteryState == UIDeviceBatteryStateCharging
+                            ? @(YES)
+                            : @(NO);
+                        device[@"battery_level"] = @((int)(self.deviceWrapper.batteryLevel * 100));
+                    }
 #endif
-                  }];
+                }];
 
     [self modifyContext:event
                     key:@"app"
                   block:^(NSMutableDictionary *app) {
-                      app[SentryDeviceContextAppMemoryKey] = @(self.crashWrapper.appMemory);
+                      app[SentryDeviceContextAppMemoryKey] = @(self.crashWrapper.appMemorySize);
                   }];
 }
 

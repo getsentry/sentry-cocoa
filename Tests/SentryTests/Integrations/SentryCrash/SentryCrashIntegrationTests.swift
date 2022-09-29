@@ -265,6 +265,41 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         assertLocaleOnHub(locale: Locale.autoupdatingCurrent.identifier, hub: hub)
     }
     
+    func testStartUpCrash_CallsFlush() throws {
+        let (sut, hub) = givenSutWithGlobalHubAndCrashWrapper()
+        sut.install(with: Options())
+        
+        // Manually reset and enable the crash state because tearing down the global state in SentryCrash to achieve the same is complicated and doesn't really work.
+        let crashStatePath = String(cString: sentrycrashstate_filePath())
+        let api = sentrycrashcm_appstate_getAPI()
+        sentrycrashstate_initialize(crashStatePath)
+        api?.pointee.setEnabled(true)
+        
+        let transport = TestTransport()
+        let client = Client(options: fixture.options)
+        Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
+        hub.bindClient(client)
+        
+        delayNonBlocking(timeout: 0.01)
+        
+        // Manually simulate a crash
+        sentrycrashstate_notifyAppCrash()
+        
+        try givenStoredSentryCrashReport(resource: "Resources/crash-report-1")
+        
+        // Force reloading of crash state
+        sentrycrashstate_initialize(sentrycrashstate_filePath())
+        // Force sending all reports, because the crash reports are only sent once after first init.
+        SentryCrashIntegration.sendAllSentryCrashReports()
+        
+        XCTAssertEqual(1, transport.flushInvocations.count)
+        XCTAssertEqual(5.0, transport.flushInvocations.first)
+        
+        // Reset and disable crash state
+        sentrycrashstate_reset()
+        api?.pointee.setEnabled(false)
+    }
+    
     private func givenCurrentSession() -> SentrySession {
         // serialize sets the timestamp
         let session = SentrySession(jsonObject: fixture.session.serialize())!
