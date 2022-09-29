@@ -6,6 +6,7 @@
 
 - Report start up crashes (#2220)
 - Add segment property to user (#2234)
+- Support tracePropagationTargets (#2217)
 
 ### Fixes
 
@@ -197,7 +198,6 @@
 - Stop reporting pre warmed app starts (#1896)
 
 ## 7.16.1
-
 
 ### Fixes
 
@@ -576,7 +576,7 @@ ref: Prefix TracesSampler with Sentry (#1091)
 ## 7.0.0
 
 This is a major bump with the [Performance Monitoring API](https://docs.sentry.io/platforms/apple/performance/) and [Out of Memory Tracking](https://docs.sentry.io/platforms/apple/configuration/out-of-memory/), many improvements and a few breaking changes.
-For a detailed explanation  how to upgrade please checkout the [migration guide](https://docs.sentry.io/platforms/apple/migration/).
+For a detailed explanation how to upgrade please checkout the [migration guide](https://docs.sentry.io/platforms/apple/migration/).
 
 ### Breaking Changes
 
@@ -685,6 +685,7 @@ Features and fixes:
 - ref: Add read-only scope property to Hub #975
 - ref: Remove SentryException.userReported #974
 - ref: Replace SentryLogLevel with SentryLevel #978
+
 ## 7.0.0-alpha.0
 
 **Breaking Change**: This version introduces a change to the grouping of issues. The SDK now sets the `inApp`
@@ -795,6 +796,7 @@ to group by domain only.
 - feat: Manually capturing User Feedback #804
 
 ## 6.0.4
+
 - fix: Sanitize UserInfo of NSError and NSException #770
 - fix: Xcode 12 warnings for Cocoapods #791
 
@@ -821,7 +823,7 @@ to group by domain only.
 ## 6.0.0
 
 This is a major bump with lots of internal improvements and a few breaking changes.
-For a detailed explanation  how to updgrade please checkout the [migration guide](https://docs.sentry.io/platforms/apple/migration/).
+For a detailed explanation how to updgrade please checkout the [migration guide](https://docs.sentry.io/platforms/apple/migration/).
 
 Breaking changes:
 
@@ -867,6 +869,7 @@ Breaking changes:
 - fix: Public Headers #735
 
 Fix:
+
 - fix: Setting environment for Sessions #734
 
 ## 6.0.0-beta.1

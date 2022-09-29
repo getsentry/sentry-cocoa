@@ -3,7 +3,6 @@ import Sentry
 import XCTest
 
 class SentryBaggageTests: XCTestCase {
-    
     func test_baggageToHeader() {
         let header = SentryBaggage(trace: SentryId.empty, publicKey: "publicKey", releaseName: "release name", environment: "teste", transaction: "transaction", userSegment: "test user", sampleRate: "0.49").toHTTPHeader()
         
