@@ -534,6 +534,8 @@
     XCTAssertEqual(YES, options.enableSwizzling);
     XCTAssertEqual(NO, options.enableFileIOTracking);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
+    NSRegularExpression *regex = options.tracePropagationTargets[0];
+    XCTAssertTrue([regex.pattern isEqualToString:@".*"]);
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
