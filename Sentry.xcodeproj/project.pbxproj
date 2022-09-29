@@ -410,6 +410,7 @@
 		7B9657252683104C00C66E25 /* NSData+Sentry.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B9657232683104C00C66E25 /* NSData+Sentry.h */; };
 		7B9657262683104C00C66E25 /* NSData+Sentry.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B9657242683104C00C66E25 /* NSData+Sentry.m */; };
 		7B965728268321CD00C66E25 /* SentryCrashScopeObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B965727268321CD00C66E25 /* SentryCrashScopeObserverTests.swift */; };
+		7B984A9F28E572AF001F4BEE /* CrashReportWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B984A9E28E572AF001F4BEE /* CrashReportWriter.swift */; };
 		7B98D7BC25FB607300C5A389 /* SentryOutOfMemoryTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B98D7BB25FB607300C5A389 /* SentryOutOfMemoryTracker.h */; };
 		7B98D7CB25FB64EC00C5A389 /* SentryOutOfMemoryTrackingIntegration.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B98D7CA25FB64EC00C5A389 /* SentryOutOfMemoryTrackingIntegration.h */; };
 		7B98D7CF25FB650F00C5A389 /* SentryOutOfMemoryTrackingIntegration.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B98D7CE25FB650F00C5A389 /* SentryOutOfMemoryTrackingIntegration.m */; };
@@ -1138,6 +1139,7 @@
 		7B9657242683104C00C66E25 /* NSData+Sentry.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+Sentry.m"; sourceTree = "<group>"; };
 		7B965727268321CD00C66E25 /* SentryCrashScopeObserverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCrashScopeObserverTests.swift; sourceTree = "<group>"; };
 		7B9660B12783500E0014A767 /* ThreadSanitizer.sup */ = {isa = PBXFileReference; lastKnownFileType = text; path = ThreadSanitizer.sup; sourceTree = "<group>"; };
+		7B984A9E28E572AF001F4BEE /* CrashReportWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashReportWriter.swift; sourceTree = "<group>"; };
 		7B98D7BB25FB607300C5A389 /* SentryOutOfMemoryTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryOutOfMemoryTracker.h; path = include/SentryOutOfMemoryTracker.h; sourceTree = "<group>"; };
 		7B98D7CA25FB64EC00C5A389 /* SentryOutOfMemoryTrackingIntegration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryOutOfMemoryTrackingIntegration.h; path = include/SentryOutOfMemoryTrackingIntegration.h; sourceTree = "<group>"; };
 		7B98D7CE25FB650F00C5A389 /* SentryOutOfMemoryTrackingIntegration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryOutOfMemoryTrackingIntegration.m; sourceTree = "<group>"; };
@@ -2175,6 +2177,7 @@
 				7BED3575266F7BFF00EAA70D /* TestSentryCrashWrapper.m */,
 				0AABE2EF2885C2120057ED69 /* TestSentryPermissionsObserver.swift */,
 				0ADC33EF28D9BE690078D980 /* TestSentryUIDeviceWrapper.swift */,
+				7B984A9E28E572AF001F4BEE /* CrashReportWriter.swift */,
 			);
 			path = SentryCrash;
 			sourceTree = "<group>";
@@ -3558,6 +3561,7 @@
 				D88817DD26D72BA500BF2251 /* SentryTraceStateTests.swift in Sources */,
 				8E25C97525F8511A00DC215B /* TestRandom.swift in Sources */,
 				7B26BBFB24C0A66D00A79CCC /* SentrySdkInfoNilTests.m in Sources */,
+				7B984A9F28E572AF001F4BEE /* CrashReportWriter.swift in Sources */,
 				7BAF3DD7243DD4A1008A5414 /* TestConstants.swift in Sources */,
 				035E73CC27D575B3005EEB11 /* SentrySamplingProfilerTests.mm in Sources */,
 				7BED3576266F7BFF00EAA70D /* TestSentryCrashWrapper.m in Sources */,

@@ -41,6 +41,7 @@
 #import "SentryCrashMachineContext.h"
 #import "SentryCrashMonitor.h"
 #import "SentryCrashMonitorContext.h"
+#import "SentryCrashMonitor_AppState.h"
 #import "SentryCrashMonitor_System.h"
 #import "SentryCrashReport.h"
 #import "SentryCrashReportSink.h"
