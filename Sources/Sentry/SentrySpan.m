@@ -34,11 +34,6 @@ SentrySpan ()
 
 - (id<SentrySpan>)startChildWithOperation:(NSString *)operation
 {
-    if (self.isFinished) {
-        SENTRY_LOG_WARN(
-            @"Starting a child on a finished span is not supported; it won't be sent to Sentry.");
-        return [SentryNoOpSpan shared];
-    }
     return [self startChildWithOperation:operation description:nil];
 }
 
