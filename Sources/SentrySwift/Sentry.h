@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+
 @import SentryObjc;
 
 //! Project version number for Sentry.

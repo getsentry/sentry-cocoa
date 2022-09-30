@@ -14,6 +14,7 @@ Pod::Spec.new do |s|
   s.watchos.deployment_target = "2.0"
   s.module_name  = "Sentry"
   s.requires_arc = true
+  s.swift_versions = "5.0"
   s.frameworks = 'Foundation'
   s.libraries = 'z', 'c++'
   s.pod_target_xcconfig = {
@@ -21,14 +22,12 @@ Pod::Spec.new do |s|
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
       'CLANG_CXX_LIBRARY' => 'libc++'
 }
-  s.module_map = "Sources/SentrySwift/Sentry.modulemap"
-
+  
   s.default_subspecs = ['Sentry', 'SentryObjc']
 
   s.subspec 'Sentry' do |sp|
-      sp.source_files = "Sources/SentrySwift/**/*.{swift}",
-      sp.public_header_files =
-        "Sources/SentrySwift/*.h"
+      sp.source_files = "Sources/SentrySwift/**/*.{swift}"
+      sp.exclude_files = "Sources/SentrySwift/TypeAlias.swift"
   end
   
   s.subspec 'SentryObjc' do |sp|
