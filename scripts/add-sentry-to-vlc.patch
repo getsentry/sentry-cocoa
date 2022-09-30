@@ -18,7 +18,7 @@ index 2c1fc802..21495fd7 100644
  
  #import "VLCAppDelegate.h"
  #import "VLC-Swift.h"
-+#import <Sentry/Sentry.h>
++@import Sentry;
  
  @interface VLCAppDelegate ()
  {

@@ -5,7 +5,7 @@
 #import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentrySDK+Private.h"
-#import <SentryObjC/Sentry.h>
+#import <SentryObjC/SentryObjc.h>
 #import <XCTest/XCTest.h>
 
 @interface
