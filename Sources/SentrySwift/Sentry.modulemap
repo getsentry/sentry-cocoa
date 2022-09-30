@@ -1,0 +1,10 @@
+framework module Sentry {
+    export *
+}
+
+framework module SentryObjc {
+    umbrella header "SentryObjc.h"
+
+    export *
+    module * { export * }
+}

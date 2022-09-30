@@ -21,6 +21,7 @@ Pod::Spec.new do |s|
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
       'CLANG_CXX_LIBRARY' => 'libc++'
 }
+  s.module_map = "Sources/SentrySwift/Sentry.modulemap"
 
   s.default_subspecs = ['Sentry', 'SentryObjc']
 
@@ -31,11 +32,11 @@ Pod::Spec.new do |s|
   end
   
   s.subspec 'SentryObjc' do |sp|
-      sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
-        "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}"
+      sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}", "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}"
         
       sp.public_header_files =
         "Sources/Sentry/Public/*.h"
+    
   end
   
   

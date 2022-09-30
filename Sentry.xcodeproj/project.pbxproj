@@ -130,7 +130,7 @@
 		63AA766A1EB8CB2F00D153DE /* SentryObjc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63AA759B1EB8AEF500D153DE /* SentryObjc.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		63AA76701EB8CB4B00D153DE /* SentryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63AA75951EB8AEDB00D153DE /* SentryTests.m */; };
 		63AA767A1EB8D20500D153DE /* SentryLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 63AA76781EB8D20500D153DE /* SentryLog.m */; };
-		63AA76971EB9C1C200D153DE /* Sentry.h in Headers */ = {isa = PBXBuildFile; fileRef = 63AA76931EB9C1C200D153DE /* Sentry.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		63AA76971EB9C1C200D153DE /* SentryObjc.h in Headers */ = {isa = PBXBuildFile; fileRef = 63AA76931EB9C1C200D153DE /* SentryObjc.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		63AA76981EB9C1C200D153DE /* SentryClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 63AA76941EB9C1C200D153DE /* SentryClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		63AA76991EB9C1C200D153DE /* SentryDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = 63AA76951EB9C1C200D153DE /* SentryDefines.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		63AA769A1EB9C1C200D153DE /* SentryLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 63AA76961EB9C1C200D153DE /* SentryLog.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -869,7 +869,7 @@
 		63AA75ED1EB8B3C400D153DE /* SentryClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryClient.m; sourceTree = "<group>"; };
 		63AA76651EB8CB2F00D153DE /* SentryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SentryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		63AA76781EB8D20500D153DE /* SentryLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryLog.m; sourceTree = "<group>"; };
-		63AA76931EB9C1C200D153DE /* Sentry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sentry.h; path = Public/Sentry.h; sourceTree = "<group>"; };
+		63AA76931EB9C1C200D153DE /* SentryObjc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryObjc.h; path = Public/SentryObjc.h; sourceTree = "<group>"; };
 		63AA76941EB9C1C200D153DE /* SentryClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryClient.h; path = Public/SentryClient.h; sourceTree = "<group>"; };
 		63AA76951EB9C1C200D153DE /* SentryDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryDefines.h; path = Public/SentryDefines.h; sourceTree = "<group>"; };
 		63AA76961EB9C1C200D153DE /* SentryLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryLog.h; path = include/SentryLog.h; sourceTree = "<group>"; };
@@ -1457,6 +1457,8 @@
 		D8370B6B273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryNSURLSessionTaskSearch.h; path = include/SentryNSURLSessionTaskSearch.h; sourceTree = "<group>"; };
 		D84793242788737D00BE8E99 /* SentryByteCountFormatter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryByteCountFormatter.m; sourceTree = "<group>"; };
 		D8479327278873A100BE8E99 /* SentryByteCountFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryByteCountFormatter.h; path = include/SentryByteCountFormatter.h; sourceTree = "<group>"; };
+		D847D37528E6D9D5006795F9 /* SentryObjc.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = SentryObjc.modulemap; sourceTree = "<group>"; };
+		D847D37628E6E046006795F9 /* Sentry.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = Sentry.modulemap; sourceTree = "<group>"; };
 		D85596F1280580F10041FF8B /* SentryScreenshotIntegration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryScreenshotIntegration.m; sourceTree = "<group>"; };
 		D855AD61286ED6A4002573E1 /* SentryCrashTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryCrashTests.m; sourceTree = "<group>"; };
 		D855B3E727D652AF00BCED76 /* SentryCoreDataTrackingIntegrationTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCoreDataTrackingIntegrationTest.swift; sourceTree = "<group>"; };
@@ -1951,7 +1953,8 @@
 				630436011EBCB8CA00C4D3FA /* Protocol */,
 				8ECC673625C23936000E2BF6 /* Transaction */,
 				8E25C94F25F836AB00DC215B /* Tools */,
-				63AA76931EB9C1C200D153DE /* Sentry.h */,
+				63AA76931EB9C1C200D153DE /* SentryObjc.h */,
+				D847D37528E6D9D5006795F9 /* SentryObjc.modulemap */,
 				7B6D125E265F778500C9BE4B /* PrivateSentrySDKOnly.h */,
 				7B6D1260265F784000C9BE4B /* PrivateSentrySDKOnly.m */,
 				63AA76941EB9C1C200D153DE /* SentryClient.h */,
@@ -2882,6 +2885,7 @@
 			children = (
 				D804D4CB28DAF226005CECD1 /* Sentry.h */,
 				D89468AD28D223440006C83D /* TypeAlias.swift */,
+				D847D37628E6E046006795F9 /* Sentry.modulemap */,
 			);
 			path = SentrySwift;
 			sourceTree = "<group>";
@@ -3011,7 +3015,7 @@
 				63FE710320DA4C1000CDBAE8 /* SentryCrashMachineContext_Apple.h in Headers */,
 				D8479328278873A100BE8E99 /* SentryByteCountFormatter.h in Headers */,
 				63AA76981EB9C1C200D153DE /* SentryClient.h in Headers */,
-				63AA76971EB9C1C200D153DE /* Sentry.h in Headers */,
+				63AA76971EB9C1C200D153DE /* SentryObjc.h in Headers */,
 				0A9E917128DC7E7000FB4182 /* SentryInternalDefines.h in Headers */,
 				63FE711F20DA4C1000CDBAE8 /* SentryCrashObjC.h in Headers */,
 				7BC3936825B1AB3E004F03D3 /* SentryLevelMapper.h in Headers */,
@@ -3256,7 +3260,7 @@
 					63AA759A1EB8AEF500D153DE = {
 						CreatedOnToolsVersion = 8.3.2;
 						LastSwiftMigration = 1400;
-						ProvisioningStyle = Manual;
+						ProvisioningStyle = Automatic;
 					};
 					63AA76641EB8CB2F00D153DE = {
 						CreatedOnToolsVersion = 8.3.2;
@@ -3943,6 +3947,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MACH_O_TYPE = mh_dylib;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MODULEMAP_FILE = "$(SRCROOT)/Sources/Sentry/SentryObjc.modulemap";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryObjc;
@@ -3984,6 +3989,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MACH_O_TYPE = mh_dylib;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MODULEMAP_FILE = "$(SRCROOT)/Sources/Sentry/SentryObjc.modulemap";
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryObjc;
@@ -4153,6 +4159,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MACH_O_TYPE = mh_dylib;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MODULEMAP_FILE = "$(SRCROOT)/Sources/Sentry/SentryObjc.modulemap";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryObjc;
@@ -4448,6 +4455,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MACH_O_TYPE = mh_dylib;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MODULEMAP_FILE = "$(SRCROOT)/Sources/Sentry/SentryObjc.modulemap";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryObjc;
