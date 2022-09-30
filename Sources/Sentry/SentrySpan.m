@@ -40,7 +40,7 @@ SentrySpan ()
 - (id<SentrySpan>)startChildWithOperation:(NSString *)operation
                               description:(nullable NSString *)description
 {
-    if (self.isFinished) {
+    if (self.tracer.isFinished) {
         SENTRY_LOG_WARN(
             @"Starting a child on a finished span is not supported; it won't be sent to Sentry.");
         return [SentryNoOpSpan shared];
