@@ -261,8 +261,8 @@ getBasePath()
     COPY_PRIMITIVE(totalStorageSize);
     COPY_PRIMITIVE(freeStorageSize);
     COPY_PRIMITIVE(memorySize);
-    COPY_PRIMITIVE(freeMemory);
-    COPY_PRIMITIVE(usableMemory);
+    COPY_PRIMITIVE(freeMemorySize);
+    COPY_PRIMITIVE(usableMemorySize);
 
     return dict;
 }

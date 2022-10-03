@@ -1,6 +1,6 @@
 framework module SentryObjc {
-    umbrella header "Sentry.h"
-    
+    umbrella header "SentryObjc.h"
+
     export *
     module * { export * }
 }

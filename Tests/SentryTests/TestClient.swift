@@ -128,6 +128,11 @@ class TestClient: Client {
     override func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason) {
         recordLostEvents.record((category, reason))
     }
+    
+    var flushInvoctions = Invocations<TimeInterval>()
+    override func flush(timeout: TimeInterval) {
+        flushInvoctions.record(timeout)
+    }
 }
 
 class TestFileManager: SentryFileManager {

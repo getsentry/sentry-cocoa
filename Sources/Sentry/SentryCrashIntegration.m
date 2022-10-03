@@ -106,7 +106,10 @@ SentryCrashIntegration ()
                 [[SentryInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes
                                                   inAppExcludes:self.options.inAppExcludes];
 
-            installation = [[SentryCrashInstallationReporter alloc] initWithInAppLogic:inAppLogic];
+            installation = [[SentryCrashInstallationReporter alloc]
+                initWithInAppLogic:inAppLogic
+                      crashWrapper:self.crashAdapter
+                     dispatchQueue:self.dispatchQueueWrapper];
 
             canSendReports = YES;
         }
@@ -137,10 +140,18 @@ SentryCrashIntegration ()
         // just not call sendAllReports as it doesn't make sense to call it twice as described
         // above.
         if (canSendReports) {
-            [installation sendAllReports];
+            [SentryCrashIntegration sendAllSentryCrashReports];
         }
     };
     [self.dispatchQueueWrapper dispatchOnce:&installationToken block:block];
+}
+
+/**
+ * Internal, only needed for testing.
+ */
++ (void)sendAllSentryCrashReports
+{
+    [installation sendAllReports];
 }
 
 - (void)uninstall
@@ -249,8 +260,8 @@ SentryCrashIntegration ()
     [deviceData setValue:systemInfo[@"cpuArchitecture"] forKey:@"arch"];
     [deviceData setValue:systemInfo[@"machine"] forKey:@"model"];
     [deviceData setValue:systemInfo[@"model"] forKey:@"model_id"];
-    [deviceData setValue:systemInfo[@"freeMemory"] forKey:SentryDeviceContextFreeMemoryKey];
-    [deviceData setValue:systemInfo[@"usableMemory"] forKey:@"usable_memory"];
+    [deviceData setValue:systemInfo[@"freeMemorySize"] forKey:SentryDeviceContextFreeMemoryKey];
+    [deviceData setValue:systemInfo[@"usableMemorySize"] forKey:@"usable_memory"];
     [deviceData setValue:systemInfo[@"memorySize"] forKey:@"memory_size"];
     [deviceData setValue:systemInfo[@"totalStorageSize"] forKey:@"storage_size"];
     [deviceData setValue:systemInfo[@"freeStorageSize"] forKey:@"free_storage"];

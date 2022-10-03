@@ -2,7 +2,7 @@
 #import "SentryError.h"
 #import "SentryMeta.h"
 #import "SentryNSURLRequest.h"
-#import <SentryObjC/Sentry.h>
+#import <SentryObjC/SentryObjc.h>
 #import <XCTest/XCTest.h>
 
 @interface SentryDsnTests : XCTestCase
