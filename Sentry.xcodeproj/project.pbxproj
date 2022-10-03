@@ -1357,7 +1357,7 @@
 		844DA7F6282435CD00E6B62E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		844DA80328246D5000E6B62E /* .oclint */ = {isa = PBXFileReference; lastKnownFileType = text; path = .oclint; sourceTree = "<group>"; };
 		844DA80428246D5000E6B62E /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
-		844DA80528246D5000E6B62E /* Sentry.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = Sentry.podspec; sourceTree = "<group>"; };
+		844DA80528246D5000E6B62E /* Sentry.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = Sentry.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		844DA80628246D5000E6B62E /* .craft.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .craft.yml; sourceTree = "<group>"; };
 		844DA80728246D5000E6B62E /* Gemfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = Gemfile; sourceTree = "<group>"; };
 		844DA80828246D5000E6B62E /* .gitmodules */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitmodules; sourceTree = "<group>"; };
@@ -1469,6 +1469,7 @@
 		D859696D27BECDA20036A46E /* SentryCoreDataTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryCoreDataTracker.m; sourceTree = "<group>"; };
 		D859697127BECDD20036A46E /* SentryCoreDataSwizzling.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryCoreDataSwizzling.m; sourceTree = "<group>"; };
 		D85D3BE9278DF63D001B2889 /* SentryByteCountFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryByteCountFormatterTests.swift; sourceTree = "<group>"; };
+		D85F8AAA28EAD7BC00503E1A /* Sentry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Sentry.h; sourceTree = "<group>"; };
 		D8603DD4284F8497000E1227 /* SentryBaggage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryBaggage.m; sourceTree = "<group>"; };
 		D8603DD7284F894C000E1227 /* SentryBaggage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryBaggage.h; path = include/SentryBaggage.h; sourceTree = "<group>"; };
 		D867063A27C3BC2400048851 /* SentryCoreDataTrackingIntegration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryCoreDataTrackingIntegration.h; path = include/SentryCoreDataTrackingIntegration.h; sourceTree = "<group>"; };
@@ -1933,6 +1934,7 @@
 		63AA75A31EB8AFDF00D153DE /* Configuration */ = {
 			isa = PBXGroup;
 			children = (
+				D85F8AA928EAD7A300503E1A /* CocoaPodHeader */,
 				63AA75C51EB8B00100D153DE /* SentryObjc.xcconfig */,
 				D8145C1928DC616D00494277 /* Sentry.xcconfig */,
 			);
@@ -2856,6 +2858,14 @@
 				D859696D27BECDA20036A46E /* SentryCoreDataTracker.m */,
 			);
 			name = CoreData;
+			sourceTree = "<group>";
+		};
+		D85F8AA928EAD7A300503E1A /* CocoaPodHeader */ = {
+			isa = PBXGroup;
+			children = (
+				D85F8AAA28EAD7BC00503E1A /* Sentry.h */,
+			);
+			path = CocoaPodHeader;
 			sourceTree = "<group>";
 		};
 		D875ED09276CC83200422FAC /* IO */ = {

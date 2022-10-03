@@ -24,7 +24,8 @@ Pod::Spec.new do |s|
 }
   
   s.default_subspecs = ['Sentry', 'SentryObjc']
-
+  s.public_header_files = "Sources/Configuration/CocoaPodHeader/Sentry.h"
+  
   s.subspec 'Sentry' do |sp|
       sp.source_files = "Sources/SentrySwift/**/*.{swift}"
       sp.exclude_files = "Sources/SentrySwift/TypeAlias.swift"
