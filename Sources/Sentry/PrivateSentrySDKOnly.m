@@ -6,7 +6,6 @@
 #import "SentryMeta.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
-#import <Foundation/Foundation.h>
 #import <SentryDependencyContainer.h>
 #import <SentryFramesTracker.h>
 
