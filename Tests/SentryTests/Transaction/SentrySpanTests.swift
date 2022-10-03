@@ -2,7 +2,9 @@ import Sentry
 import XCTest
 
 class SentrySpanTests: XCTestCase {
-    
+    private var logOutput: TestLogOutput!
+    private var fixture: Fixture!
+
     private class Fixture {
         let someTransaction = "Some Transaction"
         let someOperation = "Some Operation"
@@ -12,7 +14,7 @@ class SentrySpanTests: XCTestCase {
         let options: Options
         let currentDateProvider = TestCurrentDateProvider()
         let tracer = SentryTracer()
-         
+
         init() {
             options = Options()
             options.tracesSampleRate = 1
@@ -32,9 +34,13 @@ class SentrySpanTests: XCTestCase {
         
     }
     
-    private var fixture: Fixture!
     override func setUp() {
         super.setUp()
+
+        logOutput = TestLogOutput()
+        SentryLog.configure(true, diagnosticLevel: SentryLevel.debug)
+        SentryLog.setLogOutput(logOutput)
+
         fixture = Fixture()
         CurrentDate.setCurrentDateProvider(fixture.currentDateProvider)
     }
@@ -152,6 +158,31 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(childSpan.context.parentSpanId, span.context.spanId)
         XCTAssertEqual(childSpan.context.operation, fixture.someOperation)
         XCTAssertEqual(childSpan.context.spanDescription, fixture.someDescription)
+    }
+
+    func testStartChildOnFinishedSpan() {
+        let span = fixture.getSut()
+        span.finish()
+
+        let childSpan = span.startChild(operation: fixture.someOperation, description: fixture.someDescription)
+
+        XCTAssertNil(childSpan.context.parentSpanId)
+        XCTAssertEqual(childSpan.context.operation, "")
+        XCTAssertNil(childSpan.context.spanDescription)
+        XCTAssertTrue(logOutput.loggedMessages.contains("Sentry - warning:: Starting a child on a finished span is not supported; it won\'t be sent to Sentry."))
+    }
+
+    func testStartGrandChildOnFinishedSpan() {
+        let span = fixture.getSut()
+        let childSpan = span.startChild(operation: fixture.someOperation)
+        childSpan.finish()
+        span.finish()
+
+        let grandChild = childSpan.startChild(operation: fixture.someOperation, description: fixture.someDescription)
+        XCTAssertNil(grandChild.context.parentSpanId)
+        XCTAssertEqual(grandChild.context.operation, "")
+        XCTAssertNil(grandChild.context.spanDescription)
+        XCTAssertTrue(logOutput.loggedMessages.contains("Sentry - warning:: Starting a child on a finished span is not supported; it won\'t be sent to Sentry."))
     }
     
     func testAddAndRemoveExtras() {

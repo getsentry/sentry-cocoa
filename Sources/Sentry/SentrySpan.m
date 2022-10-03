@@ -2,6 +2,7 @@
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryCurrentDate.h"
+#import "SentryLog.h"
 #import "SentryNoOpSpan.h"
 #import "SentryTraceHeader.h"
 #import "SentryTracer.h"
