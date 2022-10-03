@@ -16,7 +16,6 @@
 #import "SentryThreadWrapper.h"
 #import <Foundation/Foundation.h>
 #import <SentryAppState.h>
-#import <SentryAppStateManager.h>
 #import <SentryDependencyContainer.h>
 #import <SentryOptions+Private.h>
 
