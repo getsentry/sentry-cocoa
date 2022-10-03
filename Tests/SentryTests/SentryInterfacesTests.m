@@ -3,7 +3,7 @@
 #import "SentryFileManager.h"
 #import "SentryId.h"
 #import "SentryMeta.h"
-#import <SentryObjC/SentryObjc.h>
+#import <SentryObjC/Sentry.h>
 #import <XCTest/XCTest.h>
 
 @interface SentryInterfacesTests : XCTestCase
