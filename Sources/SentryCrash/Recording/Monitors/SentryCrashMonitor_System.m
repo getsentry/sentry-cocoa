@@ -37,6 +37,7 @@
 #import "SentryCrashLogger.h"
 
 #import <CommonCrypto/CommonDigest.h>
+#import <Foundation/Foundation.h>
 #if SentryCrashCRASH_HAS_UIKIT
 #    import <UIKit/UIKit.h>
 #endif
