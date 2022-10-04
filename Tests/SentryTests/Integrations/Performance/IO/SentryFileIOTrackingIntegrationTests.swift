@@ -205,7 +205,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(randomValue, readValue)
     }
     
-    func test_DataConsistency_readPath() {
+    func test_DataConsistency_readPath_disabled() {
         SentrySDK.start(options: fixture.getOptions())
         
         let randomValue = UUID().uuidString
