@@ -3,6 +3,7 @@ default_platform(:ios)
 platform :ios do
   ios_swift_infoplist_path = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
   ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
+  configuration = 'TestCI' if is_ci else 'Test'
 
   lane :bump_build_number do
     increment_build_number(
@@ -198,14 +199,16 @@ platform :ios do
   lane :ui_tests_ios_swiftui do
     run_tests(
       workspace: "Sentry.xcworkspace",
-      scheme: "iOS-SwiftUI"
+      scheme: "iOS-SwiftUI",
+      configuration: configuration
     )
   end
 
   lane :ui_tests_ios_objc do
     run_tests(
       workspace: "Sentry.xcworkspace",
-      scheme: "iOS-ObjectiveC"
+      scheme: "iOS-ObjectiveC",
+      configuration: configuration
     )
   end
 
@@ -214,14 +217,16 @@ platform :ios do
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
       device: options[:device],
-      address_sanitizer: options[:address_sanitizer]
+      address_sanitizer: options[:address_sanitizer],
+      configuration: configuration
     )
   end
 
   lane :ui_tests_tvos_swift do
     run_tests(
       workspace: "Sentry.xcworkspace",
-      scheme: "tvOS-Swift"
+      scheme: "tvOS-Swift",
+      configuration: configuration
     )
   end
 
