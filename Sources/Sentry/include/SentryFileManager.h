@@ -60,7 +60,9 @@ SENTRY_NO_INIT
 - (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path;
 
 - (void)storeAppState:(SentryAppState *)appState;
+- (void)moveAppStateToPreviousAppState;
 - (SentryAppState *_Nullable)readAppState;
+- (SentryAppState *_Nullable)readPreviousAppState;
 - (void)deleteAppState;
 
 - (NSNumber *_Nullable)readTimezoneOffset;
