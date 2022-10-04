@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 /**
- * @seealso TargetConditionals.h has explanations and diagrams that show the relationships between different @c TARGET_OS_... and @c TARGET_CPU_... macros.
+ * @seealso TargetConditionals.h has explanations and diagrams that show the relationships between
+ * different @c TARGET_OS_... and @c TARGET_CPU_... macros.
  */
 
 NS_ASSUME_NONNULL_BEGIN
@@ -16,7 +17,8 @@ NSString *getCPUArchitecture(void);
 NSString *getOSName(void);
 
 /**
- * @return The OS version with up to three period-delimited numbers, like @c 14 , @c 14.0 or @c 14.0.1 .
+ * @return The OS version with up to three period-delimited numbers, like @c 14 , @c 14.0 or
+ * @c 14.0.1 .
  */
 NSString *getOSVersion(void);
 
@@ -29,13 +31,15 @@ NSString *getDeviceModel(void);
 
 #if TARGET_OS_SIMULATOR
 /**
- * @return The Apple hardware descriptor of the simulated device, such as @c iPhone14,4 or @c MacBookPro10,8 .
+ * @return The Apple hardware descriptor of the simulated device, such as @c iPhone14,4 or @c
+ * MacBookPro10,8 .
  */
 NSString *_Nullable getSimulatorDeviceModel(void);
 #endif // TARGET_OS_SIMULATOR
 
 /**
- * @return A string describing the OS version's specific build, with alphanumeric characters, like @c 21G115 .
+ * @return A string describing the OS version's specific build, with alphanumeric characters, like
+ * @c 21G115 .
  */
 NSString *getOSBuildNumber(void);
 

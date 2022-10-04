@@ -196,7 +196,9 @@ getDeviceModel(void)
 }
 
 #if TARGET_OS_SIMULATOR
-NSString *getSimulatorDeviceModel(void) {
+NSString *
+getSimulatorDeviceModel(void)
+{
     return NSProcessInfo.processInfo.environment[@"SIMULATOR_MODEL_IDENTIFIER"];
 }
 #endif // TARGET_OS_SIMULATOR
