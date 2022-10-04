@@ -180,4 +180,4 @@ jobs:
 
       - name: Run UI Tests
         # Run the tests twice in case they are flaky.
-        run: for i in {1..2} ; do set -o pipefail && env NSUnbufferedIO=YES xcodebuild -workspace "VLC.xcworkspace" -scheme "VLC-iOS-UITests" -destination "OS=15.5,name=iPhone 13 Pro" test | xcpretty && break ; done
+        run: for i in {1..2} ; do set -o pipefail && env NSUnbufferedIO=YES xcodebuild -workspace "VLC.xcworkspace" -scheme "VLC-iOS-UITests" -destination "platform=iOS Simulator,OS=16.0,name=iPhone 13 Pro" test | xcpretty && break ; done
