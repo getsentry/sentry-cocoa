@@ -13,6 +13,7 @@
 - Add app start measurement to first finished transaction (#2252)
 - Return SentryNoOpSpan when starting a child on a finished transaction (#2239)
 - Fix profiling timestamps for slow/frozen frames (#2226)
+- Fix device info reporting for profiling (#2205)
 
 ## 7.27.0
 
@@ -41,7 +42,6 @@
 - Use the `component` name source for SentryPerformanceTracker (#2168)
 - Add support for arm64 architecture to the device context (#2185)
 - Align core data span operations (#2222)
-- Fix device info reporting for profiling (#2205)
 
 ## 7.25.1
 
