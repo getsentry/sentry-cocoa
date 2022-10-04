@@ -439,6 +439,15 @@ class SentryFileManagerTests: XCTestCase {
         sut.deleteAppState()
         XCTAssertNil(sut.readAppState())
     }
+
+    func testDeletePreviousAppState() {
+        sut.store(TestData.appState)
+        sut.moveAppStateToPreviousAppState()
+        sut.deleteAppState()
+
+        XCTAssertNil(sut.readAppState())
+        XCTAssertNil(sut.readPreviousAppState())
+    }
     
     func testStore_WhenFileImmutable_AppStateIsNotOverwritten() {
         sut.store(TestData.appState)

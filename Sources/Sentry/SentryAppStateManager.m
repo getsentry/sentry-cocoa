@@ -72,7 +72,7 @@ SentryAppStateManager ()
     [self.fileManager storeAppState:[self buildCurrentAppState]];
 }
 
-- (void)removeCurrentAppState
+- (void)removeAppState
 {
     [self.fileManager deleteAppState];
 }

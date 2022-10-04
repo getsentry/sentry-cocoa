@@ -445,17 +445,24 @@ SentryFileManager ()
 
 - (void)deleteAppState
 {
+    @synchronized(self.appStateFilePath) {
+        [self deleteAppStateFrom:self.appStateFilePath];
+        [self deleteAppStateFrom:self.previousAppStateFilePath];
+    }
+}
+
+- (void)deleteAppStateFrom:(NSString *)path
+{
     NSError *error = nil;
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    @synchronized(self.appStateFilePath) {
-        [fileManager removeItemAtPath:self.appStateFilePath error:&error];
+    [fileManager removeItemAtPath:path error:&error];
 
-        // We don't want to log an error if the file doesn't exist.
-        if (nil != error && error.code != NSFileNoSuchFileError) {
-            [SentryLog
-                logWithMessage:[NSString stringWithFormat:@"Failed to delete app state %@", error]
-                      andLevel:kSentryLevelError];
-        }
+    // We don't want to log an error if the file doesn't exist.
+    if (nil != error && error.code != NSFileNoSuchFileError) {
+        [SentryLog
+            logWithMessage:[NSString stringWithFormat:@"Failed to delete app state from %@: %@",
+                                     path, error]
+                  andLevel:kSentryLevelError];
     }
 }
 
