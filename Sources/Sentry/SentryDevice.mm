@@ -7,6 +7,7 @@
 #    import "SentryLog.h"
 #else
 #    define SENTRY_LOG_ERRNO(statement) statement
+#    define SENTRY_LOG_DEBUG(...) NSLog(__VA_ARGS__)
 #endif
 
 #import "SentryDevice.h"
@@ -182,7 +183,12 @@ getDeviceModel(void)
 {
 #if defined(HW_PRODUCT)
     if (@available(iOS 14, macOS 11, *)) {
-        return getHardwareDescription(HW_PRODUCT);
+        const auto model = getHardwareDescription(HW_PRODUCT);
+        if (model.length > 0) {
+            return model;
+        } else {
+            SENTRY_LOG_DEBUG(@"Model name from HW_PRODUCT was empty.");
+        }
     }
 #endif // defined(HW_PRODUCT)
 
