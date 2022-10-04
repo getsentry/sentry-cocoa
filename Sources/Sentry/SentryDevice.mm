@@ -151,7 +151,9 @@ getOSName(void)
 NSString *
 getOSVersion(void)
 {
-#if SENTRY_HAS_UIKIT
+#if TARGET_OS_WATCH
+    return WKInterfaceDevice.currentDevice.systemVersion;
+#elif SENTRY_HAS_UIKIT
     return UIDevice.currentDevice.systemVersion;
 #else
     // based off of
