@@ -4,7 +4,6 @@
 #import "SentryLog.h"
 #import "SentrySerialization.h"
 #import "SentrySession+Private.h"
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
