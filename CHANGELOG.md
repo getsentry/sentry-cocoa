@@ -6,6 +6,7 @@
 
 - Add app start to first finished transaction (#2252)
 - Return SentryNoOpSpan when starting a child on a finished transaction (#2239)
+- Fix profiling timestamps for slow/frozen frames (#2226)
 
 ## 7.27.0
 
