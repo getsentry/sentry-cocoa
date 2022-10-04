@@ -1,4 +1,5 @@
 #import "SentryFramesTracker.h"
+#import "SentryCompiler.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryTracer.h"
@@ -118,15 +119,23 @@ SentryFramesTracker ()
     // 60 fps.
     double actualFramesPerSecond = 60.0;
     if (@available(iOS 10.0, tvOS 10.0, *)) {
-        actualFramesPerSecond
-            = 1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp);
+        if (UNLIKELY((self.displayLinkWrapper.targetTimestamp == self.displayLinkWrapper.timestamp))) {
+            actualFramesPerSecond = 60.0;
+        } else {
+            actualFramesPerSecond = 1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp);
+        }
     }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-    if (self.currentTracer.isProfiling
-        && (self.frameRateTimestamps.count == 0
-            || self.frameRateTimestamps.lastObject[@"frame_rate"].doubleValue
-                != actualFramesPerSecond)) {
+#if defined(TEST) || defined(TESTCI)
+    BOOL shouldRecordFrameRates = YES;
+#else
+    BOOL shouldRecordFrameRates = self.currentTracer.isProfiling;
+#endif // defined(TEST) || defined(TESTCI)
+    BOOL hasNoFrameRatesYet = self.frameRateTimestamps.count == 0;
+    BOOL frameRateSignificantlyChanged = fabs(self.frameRateTimestamps.lastObject[@"frame_rate"].doubleValue - actualFramesPerSecond) > 1e-10f; // these may be a small fraction off of a whole number of frames per second, so allow some small epsilon difference
+    BOOL shouldRecordNewFrameRate = shouldRecordFrameRates && (hasNoFrameRatesYet || frameRateSignificantlyChanged);
+    if (shouldRecordNewFrameRate) {
         [self.frameRateTimestamps addObject:@{
             @"timestamp" : @(self.displayLinkWrapper.timestamp),
             @"frame_rate" : @(actualFramesPerSecond),
@@ -159,7 +168,11 @@ SentryFramesTracker ()
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 - (void)recordTimestampStart:(NSNumber *)start end:(NSNumber *)end
 {
-    if (self.currentTracer.isProfiling) {
+    BOOL shouldRecord = self.currentTracer.isProfiling;
+#if defined(TEST) || defined(TESTCI)
+    shouldRecord = YES;
+#endif
+    if (shouldRecord) {
         [self.frameTimestamps addObject:@{ @"start_timestamp" : start, @"end_timestamp" : end }];
     }
 }
