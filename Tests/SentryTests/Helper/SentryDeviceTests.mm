@@ -38,17 +38,17 @@
     SENTRY_ASSERT_CONTAINS(arch, @"arm64"); // Macs with Apple Silicon
 #    endif
 #elif TARGET_OS_IOS
-#if TARGET_OS_SIMULATOR
-#if TARGET_CPU_ARM64
+#    if TARGET_OS_SIMULATOR
+#        if TARGET_CPU_ARM64
     SENTRY_ASSERT_CONTAINS(arch, @"arm"); // iPhone simulator on M1 macs
-#elif TARGET_CPU_X86_64
+#        elif TARGET_CPU_X86_64
     SENTRY_ASSERT_CONTAINS(arch, @"x86"); // iPhone simulator on Intel macs
-#else
+#        else
     XCTFail(@"Unexpected CPU type on test host.");
-#endif // TARGET_CPU_ARM64
-#else
+#        endif // TARGET_CPU_ARM64
+#    else
     SENTRY_ASSERT_CONTAINS(arch, @"arm"); // Real iPads and iPhones
-#endif
+#    endif
 #elif TARGET_OS_TV
     // We must test this branch in tvOS-SwiftUITests since it must run on device, which SentryTests
     // cannot.
@@ -112,11 +112,11 @@
     const auto modelName = getDeviceModel();
     XCTAssertNotEqual(modelName.length, 0U);
 #if TARGET_OS_SIMULATOR
-#if defined(TESTCI)
+#    if defined(TESTCI)
     SENTRY_ASSERT_CONTAINS(modelName, @"VMware");
-#else
+#    else
     SENTRY_ASSERT_CONTAINS(modelName, @"Mac");
-#endif
+#    endif
 #elif TARGET_OS_OSX
     SENTRY_ASSERT_CONTAINS(modelName, @"Mac");
 #elif TARGET_OS_MACCATALYST
