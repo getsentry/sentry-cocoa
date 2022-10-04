@@ -471,6 +471,14 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNotNil(sut.readAppState())
     }
 
+    func testMoveAppStateAndReadPreviousAppState() {
+        sut.store(TestData.appState)
+        sut.moveAppStateToPreviousAppState()
+
+        let actual = sut.readPreviousAppState()
+        XCTAssertEqual(TestData.appState, actual)
+    }
+
     func testStoreAndReadTimezoneOffset() {
         sut.storeTimezoneOffset(7_200)
         XCTAssertEqual(sut.readTimezoneOffset(), 7_200)
@@ -600,7 +608,6 @@ class SentryFileManagerTests: XCTestCase {
     private func assertValidAppStateStored() {
         let actual = sut.readAppState()
         XCTAssertEqual(TestData.appState, actual)
-        
     }
 
     private func advanceTime(bySeconds: TimeInterval) {
