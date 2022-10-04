@@ -11,7 +11,6 @@ on:
       - 'scripts/ci-select-xcode.sh'
 
 jobs:
-
   upload_to_testflight:
     name: Build and Upload iOS-Swift to Testflight
     runs-on: macos-12
@@ -23,7 +22,7 @@ jobs:
       # We upload a new version to TestFlight on every commit on Master
       # So we need to bump the build number each time
       - name: Bump Build Version
-        env: 
+        env:
           FASTLANE_BUILD_NUMBER: ${{ github.run_number }}
         run: bundle exec fastlane bump_build_number
 
@@ -48,7 +47,7 @@ jobs:
       - name: Archiving
         uses: actions/upload-artifact@v3
         with:
-          name: dSYMs 
+          name: dSYMs
           path: |
             ${{ github.workspace }}/iOS-Swift.*
             ${{ github.workspace }}/*.dSYM.zip
