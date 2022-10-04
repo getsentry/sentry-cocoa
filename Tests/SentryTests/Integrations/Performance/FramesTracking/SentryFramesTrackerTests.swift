@@ -78,9 +78,9 @@ class SentryFramesTrackerTests: XCTestCase {
         let group = DispatchGroup()
         
         var currentFrames = sut.currentFrames
-        assertPreviousCountBiggerThanCurrent(group) { return currentFrames.frozen }
-        assertPreviousCountBiggerThanCurrent(group) { return currentFrames.slow }
-        assertPreviousCountBiggerThanCurrent(group) { return currentFrames.total }
+        assertPreviousCountLesserThanCurrent(group) { return currentFrames.frozen }
+        assertPreviousCountLesserThanCurrent(group) { return currentFrames.slow }
+        assertPreviousCountLesserThanCurrent(group) { return currentFrames.total }
         
         fixture.displayLinkWrapper.call()
         
@@ -113,7 +113,7 @@ class SentryFramesTrackerTests: XCTestCase {
         XCTAssertEqual(0, sut.currentFrames.frozen)
     }
     
-    private func assertPreviousCountBiggerThanCurrent(_ group: DispatchGroup, count: @escaping () -> UInt) {
+    private func assertPreviousCountLesserThanCurrent(_ group: DispatchGroup, count: @escaping () -> UInt) {
         group.enter()
         fixture.queue.async {
             var previousCount: UInt = 0
