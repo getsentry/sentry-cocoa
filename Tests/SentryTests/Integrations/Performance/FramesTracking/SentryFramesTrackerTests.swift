@@ -116,12 +116,13 @@ private extension SentryFramesTrackerTests {
         if let frozen {
             XCTAssertEqual(frozen, currentFrames.frozen)
         }
-        if slow != nil || frozen != nil {
-            for timestamp in currentFrames.frameTimestamps {
-//                XCTAssert(timestamp.)
-                NSLog("%@", timestamp)
+        if ((slow ?? 0) + (frozen ?? 0)) > 0 {
+            XCTAssertGreaterThan(currentFrames.frameTimestamps.count, 0)
+            for frame in currentFrames.frameTimestamps {
+                XCTAssertFalse(frame["start_timestamp"] == frame["end_timestamp"])
             }
         }
+        XCTAssertGreaterThan(currentFrames.frameRateTimestamps.count, 0)
     }
 
     private func assertPreviousCountLesserThanCurrent(_ group: DispatchGroup, count: @escaping () -> UInt) {
