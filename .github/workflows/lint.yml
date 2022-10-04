@@ -45,7 +45,7 @@ jobs:
     runs-on: macos-12
     strategy:
       matrix:
-        platform: ['iOS', 'macOS', 'tvOS', 'watchOS']
+        platform: ['ios', 'macos', 'tvos', 'watchos']
 
     steps:
       - uses: actions/checkout@v3
