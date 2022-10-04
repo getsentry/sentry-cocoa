@@ -35,7 +35,17 @@
 #elif TARGET_OS_TV
     // We must test this branch in tvOS-SwiftUITests since it must run on device, which SentryTests
     // cannot.
+#if TARGET_OS_SIMULATOR
+#if TARGET_CPU_ARM64
+    SENTRY_ASSERT_CONTAINS(arch, @"arm"); // TV simulator on M1 macs
+#elif TARGET_CPU_X86_64
+    SENTRY_ASSERT_EQUAL(arch, @"x86_64"); // TV simulator on Intel macs
+#else
+    XCTFail(@"Unexpected CPU type on test host.");
+#endif // TARGET_CPU_ARM64
+#else
     SENTRY_ASSERT_CONTAINS(arch, @"arm"); // Real TVs
+#endif
 #elif TARGET_OS_WATCH
     // TODO: create a watch UI test target to test this branch as it cannot run on the watch simulator
     SENTRY_ASSERT_CONTAINS(arch, @"arm"); // Real Watches
