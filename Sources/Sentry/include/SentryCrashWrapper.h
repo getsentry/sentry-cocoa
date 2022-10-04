@@ -13,6 +13,8 @@ SENTRY_NO_INIT
 
 - (BOOL)crashedLastLaunch;
 
+- (NSTimeInterval)durationFromCrashStateInitToLastCrash;
+
 - (NSTimeInterval)activeDurationSinceLastCrash;
 
 - (BOOL)isBeingTraced;

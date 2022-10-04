@@ -48,11 +48,4 @@ class SentryBaseIntegrationTests: XCTestCase {
         XCTAssertFalse(result)
         XCTAssertEqual(["Sentry - debug:: Not going to enable SentryTests.MyTestIntegration because enableAutoSessionTracking is disabled."], logOutput.loggedMessages)
     }
-
-    class TestLogOutput: SentryLogOutput {
-        var loggedMessages: [String] = []
-        override func log(_ message: String) {
-            loggedMessages.append(message)
-        }
-    }
 }

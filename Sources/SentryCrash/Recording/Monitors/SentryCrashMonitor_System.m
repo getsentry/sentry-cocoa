@@ -368,26 +368,15 @@ sentrycrash_isSimulatorBuild(void)
 
 /** The file path for the bundle’s App Store receipt.
  *
- * @return App Store receipt for iOS 7+, nil otherwise.
+ * @return App Store receipt for iOS, nil otherwise.
  */
 static NSString *
 getReceiptUrlPath()
 {
-    NSString *path = nil;
 #if SentryCrashCRASH_HOST_IOS
-    // For iOS 6 compatibility
-#    ifdef __IPHONE_11_0
-    if (@available(iOS 7, *)) {
-#    else
-    if ([[UIDevice currentDevice].systemVersion compare:@"7" options:NSNumericSearch]
-        != NSOrderedAscending) {
-#    endif
+    return [NSBundle mainBundle].appStoreReceiptURL.path;
 #endif
-        path = [NSBundle mainBundle].appStoreReceiptURL.path;
-#if SentryCrashCRASH_HOST_IOS
-    }
-#endif
-    return path;
+    return nil;
 }
 
 /** Generate a 20 byte SHA1 hash that remains unique across a single device and
@@ -468,6 +457,15 @@ hasAppStoreReceipt()
     return isAppStoreReceipt && receiptExists;
 }
 
+/**
+ * Check if the app has an embdded.mobileprovision file in the bundle.
+ */
+static bool
+hasEmbeddedMobileProvision()
+{
+    return [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"] != nil;
+}
+
 static const char *
 getBuildType()
 {
@@ -476,6 +474,9 @@ getBuildType()
     }
     if (isDebugBuild()) {
         return "debug";
+    }
+    if (hasEmbeddedMobileProvision()) {
+        return "enterprise";
     }
     if (isTestBuild()) {
         return "test";

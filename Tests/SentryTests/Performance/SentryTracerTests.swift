@@ -262,7 +262,8 @@ class SentryTracerTests: XCTestCase {
         
         child.finish()
         XCTAssertEqual(2, fixture.dispatchQueue.dispatchAfterInvocations.count)
-        
+
+        // The grandchild is a NoOp span
         let grandChild = child.startChild(operation: fixture.transactionOperation)
         XCTAssertEqual(3, fixture.dispatchQueue.dispatchCancelInvocations.count)
         

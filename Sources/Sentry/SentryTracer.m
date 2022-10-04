@@ -7,6 +7,7 @@
 #import "SentryFramesTracker.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
+#import "SentryNoOpSpan.h"
 #import "SentryProfiler.h"
 #import "SentryProfilesSampler.h"
 #import "SentryProfilingConditionals.h"
@@ -41,7 +42,11 @@ SentryTracer ()
 @property (nonatomic, strong) SentrySpan *rootSpan;
 @property (nonatomic, strong) SentryHub *hub;
 @property (nonatomic) SentrySpanStatus finishStatus;
-@property (nonatomic) BOOL isWaitingForChildren;
+/** This property is different from isFinished. While isFinished states if the tracer is actually
+ * finished, this property tells you if finish was called on the tracer. Calling finish doesn't
+ * necessarily lead to finishing the tracer, because it could still wait for child spans to finish
+ * if waitForChildren is <code>YES</code>. */
+@property (nonatomic) BOOL wasFinishCalled;
 @property (nonatomic) NSTimeInterval idleTimeout;
 @property (nonatomic, nullable, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, assign, readwrite) BOOL isProfiling;
@@ -49,6 +54,7 @@ SentryTracer ()
 @end
 
 @implementation SentryTracer {
+    /** Wether the tracer should wait for child spans to finish before finishing itself. */
     BOOL _waitForChildren;
     SentryTraceContext *_traceContext;
     SentryProfilesSamplerDecision *_profilesSamplerDecision;
@@ -148,7 +154,7 @@ static NSLock *profilerLock;
         self.transactionContext = transactionContext;
         _children = [[NSMutableArray alloc] init];
         self.hub = hub;
-        self.isWaitingForChildren = NO;
+        self.wasFinishCalled = NO;
         _profilesSamplerDecision = profilesSamplerDecision;
         _waitForChildren = waitForChildren;
         _tags = [[NSMutableDictionary alloc] init];
@@ -255,6 +261,12 @@ static NSLock *profilerLock;
                              description:(nullable NSString *)description
 {
     [self cancelIdleTimeout];
+
+    if (self.isFinished) {
+        SENTRY_LOG_WARN(
+            @"Starting a child on a finished span is not supported; it won't be sent to Sentry.");
+        return [SentryNoOpSpan shared];
+    }
 
     SentrySpanContext *context =
         [[SentrySpanContext alloc] initWithTraceId:_rootSpan.context.traceId
@@ -393,7 +405,7 @@ static NSLock *profilerLock;
 
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
-    self.isWaitingForChildren = YES;
+    self.wasFinishCalled = YES;
     _finishStatus = status;
 
     [self cancelIdleTimeout];
@@ -408,19 +420,19 @@ static NSLock *profilerLock;
     if (self.rootSpan.isFinished)
         return;
 
-    BOOL hasChildrenToWaitFor = [self hasChildrenToWaitFor];
-    if (self.isWaitingForChildren == NO && !hasChildrenToWaitFor && [self hasIdleTimeout]) {
+    BOOL hasUnfinishedChildSpansToWaitFor = [self hasUnfinishedChildSpansToWaitFor];
+    if (!self.wasFinishCalled && !hasUnfinishedChildSpansToWaitFor && [self hasIdleTimeout]) {
         [self dispatchIdleTimeout];
         return;
     }
 
-    if (!self.isWaitingForChildren || hasChildrenToWaitFor)
+    if (!self.wasFinishCalled || hasUnfinishedChildSpansToWaitFor)
         return;
 
     [self finishInternal];
 }
 
-- (BOOL)hasChildrenToWaitFor
+- (BOOL)hasUnfinishedChildSpansToWaitFor
 {
     if (!_waitForChildren) {
         return NO;

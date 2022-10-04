@@ -66,7 +66,6 @@ SentryOptions ()
         self.enableAppHangTracking = NO;
         self.appHangTimeoutInterval = 2.0;
         self.enableAutoBreadcrumbTracking = YES;
-
         self.enableNetworkTracking = YES;
         self.enableFileIOTracking = NO;
         self.enableNetworkBreadcrumbs = YES;
@@ -108,6 +107,12 @@ SentryOptions ()
                 [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"],
                           infoDict[@"CFBundleShortVersionString"], infoDict[@"CFBundleVersion"]];
         }
+
+        NSRegularExpression *everythingAllowedRegex =
+            [NSRegularExpression regularExpressionWithPattern:@".*"
+                                                      options:NSRegularExpressionCaseInsensitive
+                                                        error:NULL];
+        self.tracePropagationTargets = @[ everythingAllowedRegex ];
     }
     return self;
 }
@@ -124,6 +129,19 @@ SentryOptions ()
         }
     }
     return self;
+}
+
+- (void)setTracePropagationTargets:(NSArray *)tracePropagationTargets
+{
+    for (id targetCheck in tracePropagationTargets) {
+        if (![targetCheck isKindOfClass:[NSRegularExpression class]]
+            && ![targetCheck isKindOfClass:[NSString class]]) {
+            SENTRY_LOG_WARN(@"Only instances of NSString and NSRegularExpression are supported "
+                            @"inside tracePropagationTargets.");
+        }
+    }
+
+    _tracePropagationTargets = tracePropagationTargets;
 }
 
 - (void)setIntegrations:(NSArray<NSString *> *)integrations
@@ -325,6 +343,10 @@ SentryOptions ()
 
     [self setBool:options[@"enableAutoBreadcrumbTracking"]
             block:^(BOOL value) { self->_enableAutoBreadcrumbTracking = value; }];
+
+    if ([options[@"tracePropagationTargets"] isKindOfClass:[NSArray class]]) {
+        self.tracePropagationTargets = options[@"tracePropagationTargets"];
+    }
 
     // SentrySdkInfo already expects a dictionary with {"sdk": {"name": ..., "value": ...}}
     // so we're passing the whole options object.

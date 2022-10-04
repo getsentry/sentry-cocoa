@@ -1,5 +1,3 @@
-#import <Foundation/Foundation.h>
-
 #import "SentryCurrentDateProvider.h"
 #import "SentryDataCategory.h"
 #import "SentryDefines.h"

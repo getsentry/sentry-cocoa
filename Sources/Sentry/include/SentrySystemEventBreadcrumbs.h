@@ -1,5 +1,5 @@
-#import "SentryAppStateManager.h"
 #import "SentryCurrentDateProvider.h"
+#import "SentryFileManager.h"
 #import <Foundation/Foundation.h>
 
 #if TARGET_OS_IOS
