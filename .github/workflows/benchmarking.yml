@@ -8,10 +8,10 @@ on:
 
   pull_request:
     paths:
-        # test changes to Sentry SDK sources
+      # test changes to Sentry SDK sources
       - 'Sources/**'
 
-        # test changes to benchmarking implementation
+      # test changes to benchmarking implementation
       - 'Samples/iOS-Swift/iOS-Swift/**'
       - 'Samples/iOS-Swift/PerformanceBenchmarks/**'
       - '.github/workflows/benchmarking.yml'
@@ -81,7 +81,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: ["High-end device", "Mid-range device", "Low-end device"]
+        suite: ['High-end device', 'Mid-range device', 'Low-end device']
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
