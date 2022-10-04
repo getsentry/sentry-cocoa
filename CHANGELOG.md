@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Add app start to first finished transaction (#2252)
 - Return SentryNoOpSpan when starting a child on a finished transaction (#2239)
 
 ## 7.27.0
