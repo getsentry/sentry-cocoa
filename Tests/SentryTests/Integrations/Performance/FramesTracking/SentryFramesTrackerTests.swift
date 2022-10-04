@@ -107,13 +107,13 @@ class SentryFramesTrackerTests: XCTestCase {
 private extension SentryFramesTrackerTests {
     func assert(slow: UInt? = nil, frozen: UInt? = nil, total: UInt? = nil) {
         let currentFrames = fixture.sut.currentFrames
-        if let total {
+        if let total = total {
             XCTAssertEqual(total, currentFrames.total)
         }
-        if let slow {
+        if let slow = slow {
             XCTAssertEqual(slow, currentFrames.slow)
         }
-        if let frozen {
+        if let frozen = frozen {
             XCTAssertEqual(frozen, currentFrames.frozen)
         }
         if ((slow ?? 0) + (frozen ?? 0)) > 0 {
