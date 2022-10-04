@@ -16,7 +16,7 @@
 - Use the `component` name source for SentryPerformanceTracker (#2168)
 - Add support for arm64 architecture to the device context (#2185)
 - Align core data span operations (#2222)
-- Fix profiling timestamps for slow/frozen frames (#2225)
+- Fix profiling timestamps for slow/frozen frames (#2226)
 
 ## 7.25.1
 
