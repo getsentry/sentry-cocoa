@@ -13,6 +13,7 @@ on:
       - '.github/workflows/build.yml'
       - 'fastlane/**'
       - 'scripts/ci-select-xcode.sh'
+      - Sentry.xcworkspace
 
 jobs:
   # We had issues that the release build was broken on master.
@@ -42,7 +43,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        beforeXcode: ['']
         # other sample projects are built in ui-tests
         scheme:
           - macOS-Swift
@@ -51,12 +51,10 @@ jobs:
         # WatchOS needs Sentry as a XCFramework
         include:
           - scheme: watchOS-Swift WatchKit App
-            beforeXcode: 'make build-for-watchos'
 
     steps:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh
-      - run: ${{matrix.beforeXcode}}
 
       # Disable code signing. We just want to make sure these compile.
       - run: >-
@@ -64,6 +62,23 @@ jobs:
           xcodebuild
           -workspace Sentry.xcworkspace
           -scheme '${{matrix.scheme}}'
+          -configuration Debug
+          CODE_SIGNING_ALLOWED="NO"
+          build
+
+  build-watch-os-sample:
+    name: Sample WatchOS
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./scripts/ci-select-xcode.sh
+      - run: make build-for-watchos
+
+      # Disable code signing. We just want to make sure these compile.
+      - run: >-
+          env NSUnbufferedIO=YES
+          xcodebuild
+          -project Samples/watchOS-Swift/watchOS-Swift.xcodeproj
           -configuration Debug
           CODE_SIGNING_ALLOWED="NO"
           build
