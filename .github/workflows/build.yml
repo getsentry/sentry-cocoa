@@ -48,10 +48,6 @@ jobs:
           - macOS-Swift
           - iOS13-Swift
 
-        # WatchOS needs Sentry as a XCFramework
-        include:
-          - scheme: watchOS-Swift WatchKit App
-
     steps:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh
