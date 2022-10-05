@@ -1803,6 +1803,8 @@
 				7BD729972463E93500EA3610 /* SentryDateUtil.m */,
 				7B98D7E325FB7A7200C5A389 /* SentryAppState.h */,
 				7B98D7E725FB7BCD00C5A389 /* SentryAppState.m */,
+				7B8ECBF926498906005FE2EF /* SentryAppStateManager.h */,
+				7B8ECBFB26498958005FE2EF /* SentryAppStateManager.m */,
 				7BD86EC4264A63F6005439DB /* SentrySysctl.h */,
 				7BD86EC6264A641D005439DB /* SentrySysctl.m */,
 				7BF9EF832722D07B00B5BBEF /* SentryObjCRuntimeWrapper.h */,
@@ -2470,8 +2472,6 @@
 				7B8713AF26415B22006D6004 /* SentryAppStartTrackingIntegration.m */,
 				7B8713B126415B7A006D6004 /* SentryAppStartTracker.h */,
 				7B8713B326415BAA006D6004 /* SentryAppStartTracker.m */,
-				7B8ECBF926498906005FE2EF /* SentryAppStateManager.h */,
-				7B8ECBFB26498958005FE2EF /* SentryAppStateManager.m */,
 				7BD86ECE264A7C77005439DB /* SentryAppStartMeasurement.h */,
 				7BD86ED0264A7CF6005439DB /* SentryAppStartMeasurement.m */,
 			);
