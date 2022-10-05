@@ -258,7 +258,7 @@ SentryHttpTransport ()
                      andLevel:kSentryLevelDebug];
     [self.fileManager removeFileAtPath:envelopePath];
     self.isSending = NO;
-    [self sendAllCachedEnvelopes];
+    [self.dispatchQueue dispatchAfter:0.1 block:^{ [self sendAllCachedEnvelopes]; }];
 }
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
