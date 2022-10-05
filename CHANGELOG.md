@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Offline caching improvements (#2263)
+
 ## 7.27.1
 
 ### Fixes
