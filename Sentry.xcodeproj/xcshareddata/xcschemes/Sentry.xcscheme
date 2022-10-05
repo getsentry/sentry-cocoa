@@ -56,10 +56,22 @@
             </BuildableReference>
             <SkippedTests>
                <Test
+                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readPath_disabled()">
+               </Test>
+               <Test
+                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl()">
+               </Test>
+               <Test
+                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl_disabled()">
+               </Test>
+               <Test
                   Identifier = "SentrySDKIntegrationTestsBase">
                </Test>
                <Test
                   Identifier = "SentrySessionGeneratorTests/testSendSessions()">
+               </Test>
+               <Test
+                  Identifier = "SentryStacktraceBuilderTests/testAsyncStacktraces_disabled()">
                </Test>
                <Test
                   Identifier = "SentrySystemEventBreadcrumbsTest/testTimezoneChangeNotificationBreadcrumb_disabled()">
