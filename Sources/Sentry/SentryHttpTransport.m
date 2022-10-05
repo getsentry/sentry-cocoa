@@ -17,6 +17,7 @@
 #import "SentryNSURLRequest.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
+#import "SentryReachability.h"
 #import "SentrySerialization.h"
 
 @interface
@@ -30,6 +31,7 @@ SentryHttpTransport ()
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) dispatch_group_t dispatchGroup;
+@property (nonatomic) BOOL wasOffline;
 
 /**
  * Relay expects the discarded events split by data category and reason; see
@@ -74,8 +76,27 @@ SentryHttpTransport ()
         self.discardedEvents = [NSMutableDictionary new];
         [self.envelopeRateLimit setDelegate:self];
         [self.fileManager setDelegate:self];
+        self.wasOffline = NO;
 
         [self sendAllCachedEnvelopes];
+
+        SentryReachability *reach = [SentryReachability reachabilityWithHostname:@"sentry.io"];
+        reach.reachableBlock = ^(SentryReachability *_reach) {
+            if (self.wasOffline) {
+                SENTRY_LOG_DEBUG(@"Internet connection is back.");
+                self.wasOffline = NO;
+                [self sendAllCachedEnvelopes];
+            }
+        };
+
+        reach.unreachableBlock = ^(SentryReachability *_reach) {
+            if (!self.wasOffline) {
+                SENTRY_LOG_DEBUG(@"Lost internet connection.");
+                self.wasOffline = YES;
+            }
+        };
+
+        [reach startNotifier];
     }
     return self;
 }
