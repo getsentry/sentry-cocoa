@@ -129,7 +129,7 @@ SentryOutOfMemoryTracker ()
         removeObserver:self
                   name:SentryNSNotificationCenterWrapper.willTerminateNotificationName
                 object:nil];
-    [self.appStateManager removeCurrentAppState];
+    [self.appStateManager deleteAppState];
 #endif
 }
 

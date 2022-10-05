@@ -57,6 +57,11 @@ SentryAppStateManager ()
                                    systemBootTimestamp:self.sysctl.systemBootTimestamp];
 }
 
+- (SentryAppState *)loadPreviousAppState
+{
+    return [self.fileManager readPreviousAppState];
+}
+
 - (SentryAppState *)loadCurrentAppState
 {
     return [self.fileManager readAppState];
@@ -67,7 +72,7 @@ SentryAppStateManager ()
     [self.fileManager storeAppState:[self buildCurrentAppState]];
 }
 
-- (void)removeCurrentAppState
+- (void)deleteAppState
 {
     [self.fileManager deleteAppState];
 }

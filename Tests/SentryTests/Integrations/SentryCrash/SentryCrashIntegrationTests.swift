@@ -319,6 +319,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: UIDevice.current.identifierForVendor?.uuidString ?? "", isDebugging: false, systemBootTimestamp: fixture.currentDateProvider.date())
         appState.isActive = true
         fixture.fileManager.store(appState)
+        fixture.fileManager.moveAppStateToPreviousAppState()
     }
     #endif
     

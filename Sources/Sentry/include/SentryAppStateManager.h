@@ -26,11 +26,13 @@ SENTRY_NO_INIT
  */
 - (SentryAppState *)buildCurrentAppState;
 
+- (SentryAppState *)loadPreviousAppState;
+
 - (SentryAppState *)loadCurrentAppState;
 
 - (void)storeCurrentAppState;
 
-- (void)removeCurrentAppState;
+- (void)deleteAppState;
 
 - (void)updateAppState:(void (^)(SentryAppState *))block;
 

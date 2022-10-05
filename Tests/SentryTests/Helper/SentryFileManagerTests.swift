@@ -439,6 +439,15 @@ class SentryFileManagerTests: XCTestCase {
         sut.deleteAppState()
         XCTAssertNil(sut.readAppState())
     }
+
+    func testDeletePreviousAppState() {
+        sut.store(TestData.appState)
+        sut.moveAppStateToPreviousAppState()
+        sut.deleteAppState()
+
+        XCTAssertNil(sut.readAppState())
+        XCTAssertNil(sut.readPreviousAppState())
+    }
     
     func testStore_WhenFileImmutable_AppStateIsNotOverwritten() {
         sut.store(TestData.appState)
@@ -469,6 +478,14 @@ class SentryFileManagerTests: XCTestCase {
         
         sut.deleteAppState()
         XCTAssertNotNil(sut.readAppState())
+    }
+
+    func testMoveAppStateAndReadPreviousAppState() {
+        sut.store(TestData.appState)
+        sut.moveAppStateToPreviousAppState()
+
+        let actual = sut.readPreviousAppState()
+        XCTAssertEqual(TestData.appState, actual)
     }
 
     func testStoreAndReadTimezoneOffset() {
@@ -600,7 +617,6 @@ class SentryFileManagerTests: XCTestCase {
     private func assertValidAppStateStored() {
         let actual = sut.readAppState()
         XCTAssertEqual(TestData.appState, actual)
-        
     }
 
     private func advanceTime(bySeconds: TimeInterval) {
