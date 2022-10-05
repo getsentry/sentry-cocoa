@@ -1,14 +1,18 @@
 // This file is also compiled into iOS-SwiftUITests and doesn't have access to private Sentry API
-// there, so we fix up a few things here.
-#if !defined(SENTRY_HAS_UIKIT)
+// there, so we add a few polyfills:
+#if __has_include("SentryDefines.h")
+#import "SentryDefines.h"
+#else
 #    define SENTRY_HAS_UIKIT (TARGET_OS_IOS || TARGET_OS_TV)
 #endif
-#if defined(SENTRY_LOG_ERRNO)
+
+#if __has_include("SentryLog.h")
 #    import "SentryLog.h"
 #else
 #    define SENTRY_LOG_ERRNO(statement) statement
 #    define SENTRY_LOG_DEBUG(...) NSLog(__VA_ARGS__)
 #endif
+// </polyfills>
 
 #import "SentryDevice.h"
 #import <sys/sysctl.h>
@@ -55,7 +59,19 @@ getHardwareDescription(int type)
     if (SENTRY_LOG_ERRNO(sysctl(mib, 2, &name, &len, NULL, 0)) != 0) {
         return @"";
     }
-    return [NSString stringWithUTF8String:name];
+
+    const auto nameNSString = [NSString stringWithUTF8String:name];
+
+    NSString *argName;
+    switch (type) {
+        case HW_PRODUCT: argName = @"HW_PRODUCT"; break;
+        case HW_MACHINE: argName = @"HW_MACHINE"; break;
+        case HW_MODEL: argName = @"HW_MODEL"; break;
+        default: NSCAssert(NO, @"Illegal argument");
+    }
+
+    SENTRY_LOG_DEBUG(@"Model name using %@: %@", argName, nameNSString);
+    return nameNSString;
 }
 
 /**
@@ -185,6 +201,7 @@ getDeviceModel(void)
     if (@available(iOS 14, macOS 11, *)) {
         const auto model = getHardwareDescription(HW_PRODUCT);
         if (model.length > 0) {
+            SENTRY_LOG_DEBUG(@"Model name using HW_PRODUCT: %@", model);
             return model;
         } else {
             SENTRY_LOG_DEBUG(@"Model name from HW_PRODUCT was empty.");
@@ -194,11 +211,14 @@ getDeviceModel(void)
 
 #if SENTRY_HAS_UIKIT
 #    if TARGET_OS_SIMULATOR
+    // iPhone/iPad or TV simulators
     return getHardwareDescription(HW_MODEL);
 #    else
+    // iPhone/iPad or TV devices
     return getHardwareDescription(HW_MACHINE);
 #    endif // TARGET_OS_SIMULATOR
 #else
+    // macs and watch devices TODO: test on watch devices, may need to separate that with TARGET_OS_WATCH
     return getHardwareDescription(HW_MODEL);
 #endif // SENTRY_HAS_UIKIT
 }
