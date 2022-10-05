@@ -63,7 +63,7 @@ jobs:
           build
 
   build-watch-os-sample:
-    name: Sample WatchOS
+    name: Sample watchOS
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
