@@ -35,7 +35,7 @@
 #    import <netinet6/in6.h>
 #    import <sys/socket.h>
 
-NSString *const kReachabilityChangedNotification = @"kReachabilityChangedNotification";
+NSString *const kSentryReachabilityChangedNotification = @"kSentryReachabilityChangedNotification";
 
 @interface
 SentryReachability ()
@@ -459,8 +459,9 @@ TMReachabilityCallback(
 
     // this makes sure the change notification happens on the MAIN THREAD
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[NSNotificationCenter defaultCenter] postNotificationName:kReachabilityChangedNotification
-                                                            object:self];
+        [[NSNotificationCenter defaultCenter]
+            postNotificationName:kSentryReachabilityChangedNotification
+                          object:self];
     });
 }
 
