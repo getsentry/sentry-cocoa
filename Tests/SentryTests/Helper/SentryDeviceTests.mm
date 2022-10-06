@@ -113,7 +113,7 @@
     XCTAssertNotEqual(modelName.length, 0U);
 #if TARGET_OS_OSX || TARGET_OS_MACCATALYST
 #    if defined(TESTCI) || defined(TEST)
-    SENTRY_ASSERT_CONTAINS(modelName, @"VMWare");
+    SENTRY_ASSERT_CONTAINS(modelName, @"VMware");
 #    else
     SENTRY_ASSERT_CONTAINS(modelName, @"Mac");
 #    endif // defined(TESTCI)
