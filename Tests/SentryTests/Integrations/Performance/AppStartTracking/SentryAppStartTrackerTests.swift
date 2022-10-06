@@ -134,7 +134,8 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         setenv("ActivePrewarm", "1", 1)
         SentryAppStartTracker.load()
         givenSystemNotRebooted()
-        
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
         startApp()
         
 #if os(iOS)
