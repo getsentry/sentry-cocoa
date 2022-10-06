@@ -25,8 +25,9 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#import <Foundation/Foundation.h>
+
 #if !TARGET_OS_WATCH
-#    import <Foundation/Foundation.h>
 #    import <SystemConfiguration/SystemConfiguration.h>
 
 //! Project version number for MacOSReachability.

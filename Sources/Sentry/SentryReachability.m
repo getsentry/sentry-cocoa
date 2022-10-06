@@ -25,9 +25,9 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !TARGET_OS_WATCH
-#    import "SentryReachability.h"
+#import "SentryReachability.h"
 
+#if !TARGET_OS_WATCH
 #    import <arpa/inet.h>
 #    import <ifaddrs.h>
 #    import <netdb.h>
