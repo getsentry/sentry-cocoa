@@ -197,6 +197,12 @@ getOSVersion(void)
 NSString *
 getDeviceModel(void)
 {
+#if TARGET_OS_SIMULATOR
+    // iPhone/iPad, Watch and TV simulators
+    const auto simulatedDeviceModelName = getSimulatorDeviceModel();
+    SENTRY_LOG_DEBUG(@"Got simulated device model name %@ (running on %@)", simulatedDeviceModelName, getHardwareDescription(HW_MODEL));
+    return simulatedDeviceModelName;
+#else
 #if defined(HW_PRODUCT)
     if (@available(iOS 14, macOS 11, *)) {
         const auto model = getHardwareDescription(HW_PRODUCT);
@@ -210,17 +216,13 @@ getDeviceModel(void)
 #endif // defined(HW_PRODUCT)
 
 #if SENTRY_HAS_UIKIT
-#    if TARGET_OS_SIMULATOR
-    // iPhone/iPad or TV simulators
-    return getHardwareDescription(HW_MODEL);
-#    else
     // iPhone/iPad or TV devices
     return getHardwareDescription(HW_MACHINE);
-#    endif // TARGET_OS_SIMULATOR
 #else
-    // macs and watch devices TODO: test on watch devices, may need to separate that with TARGET_OS_WATCH
+    // macs and watch devices TODO: test on watch devices, may need to separate TARGET_OS_WATCH
     return getHardwareDescription(HW_MODEL);
 #endif // SENTRY_HAS_UIKIT
+#endif // TARGET_OS_SIMULATOR
 }
 
 #if TARGET_OS_SIMULATOR

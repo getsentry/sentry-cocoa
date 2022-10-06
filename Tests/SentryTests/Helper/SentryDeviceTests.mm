@@ -111,13 +111,7 @@
 {
     const auto modelName = getDeviceModel();
     XCTAssertNotEqual(modelName.length, 0U);
-#if TARGET_OS_SIMULATOR
-#    if defined(TESTCI)
-    SENTRY_ASSERT_CONTAINS(modelName, @"VMware");
-#    else
-    SENTRY_ASSERT_CONTAINS(modelName, @"Mac");
-#    endif
-#elif TARGET_OS_OSX
+#if TARGET_OS_OSX
     SENTRY_ASSERT_CONTAINS(modelName, @"Mac");
 #elif TARGET_OS_MACCATALYST
     SENTRY_ASSERT_CONTAINS(modelName, @"Mac");
