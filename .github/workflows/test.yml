@@ -240,6 +240,10 @@ jobs:
       - name: Run Fastlane
         run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} && break ; done
         shell: sh
+      - name: Archive Test Logs
+        uses: actions/upload-artifact@v3
+        with:
+          path: ~/Library/Logs/scan/**
 
   # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:
