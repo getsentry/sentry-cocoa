@@ -111,10 +111,12 @@
 {
     const auto modelName = getDeviceModel();
     XCTAssertNotEqual(modelName.length, 0U);
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#if defined(TESTCI)
+    SENTRY_ASSERT_CONTAINS(modelName, @"VMWare");
+#else
     SENTRY_ASSERT_CONTAINS(modelName, @"Mac");
-#elif TARGET_OS_MACCATALYST
-    SENTRY_ASSERT_CONTAINS(modelName, @"Mac");
+#endif // defined(TESTCI)
 #elif TARGET_OS_IOS
     // We must test this branch in iOS-SwiftUITests since it must run on device, which SentryTests
     // cannot.
@@ -134,7 +136,7 @@
     // simulator
     SENTRY_ASSERT_CONTAINS(modelName, @"Watch");
 #else
-    XCTFail(@"Unexpected device OS");
+    XCTFail(@"Unexpected target OS");
 #endif
 }
 
