@@ -17,8 +17,11 @@
 #import "SentryNSURLRequest.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
-#import "SentryReachability.h"
 #import "SentrySerialization.h"
+
+#if !TARGET_OS_WATCH
+#    import "SentryReachability.h"
+#endif
 
 @interface
 SentryHttpTransport ()
@@ -31,7 +34,6 @@ SentryHttpTransport ()
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) dispatch_group_t dispatchGroup;
-@property (nonatomic) BOOL wasOffline;
 
 /**
  * Relay expects the discarded events split by data category and reason; see
@@ -76,27 +78,30 @@ SentryHttpTransport ()
         self.discardedEvents = [NSMutableDictionary new];
         [self.envelopeRateLimit setDelegate:self];
         [self.fileManager setDelegate:self];
-        self.wasOffline = NO;
 
         [self sendAllCachedEnvelopes];
 
+#if !TARGET_OS_WATCH
+        __block BOOL wasOffline = NO;
+
         SentryReachability *reach = [SentryReachability reachabilityWithHostname:@"sentry.io"];
         reach.reachableBlock = ^(SentryReachability *_reach) {
-            if (self.wasOffline) {
+            if (wasOffline) {
                 SENTRY_LOG_DEBUG(@"SentryHttpTransport: Internet connection is back.");
-                self.wasOffline = NO;
+                wasOffline = NO;
                 [self sendAllCachedEnvelopes];
             }
         };
 
         reach.unreachableBlock = ^(SentryReachability *_reach) {
-            if (!self.wasOffline) {
+            if (!wasOffline) {
                 SENTRY_LOG_DEBUG(@"SentryHttpTransport: Lost internet connection.");
-                self.wasOffline = YES;
+                wasOffline = YES;
             }
         };
 
         [reach startNotifier];
+#endif
     }
     return self;
 }
