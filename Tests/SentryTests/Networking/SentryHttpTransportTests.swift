@@ -89,6 +89,8 @@ class SentryHttpTransportTests: XCTestCase {
             ]
             clientReportEnvelope = SentryEnvelope(id: event.eventId, items: clientReportEnvelopeItems)
             clientReportRequest = buildRequest(clientReportEnvelope)
+
+            dispatchQueueWrapper.dispatchAfterExecutesBlock = true
         }
 
         var sut: SentryHttpTransport {
