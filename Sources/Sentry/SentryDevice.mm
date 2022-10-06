@@ -79,8 +79,8 @@ getHardwareDescription(int type)
  * @c hw.cpusubtype option.
  * @note I've not observed a device that has needed this (armcknight 22 Sep 2022). Tested on:
  * @code
- *   - 2015 MBP (x86_64H)
- *   - 2020 iMac (x86_64H)
+ *   - 2015 MBP (x86_64h)
+ *   - 2020 iMac (x86_64h)
  *   - 2021 MBP (M1 reported as arm64e)
  *   - iPhone simulators on all of those macs
  *   - iPhone 13 mini (arm64e)
@@ -135,7 +135,7 @@ getCPUArchitecture(void)
     default:
         return getCPUType(@(subtype));
     case CPU_SUBTYPE_X86_64_H:
-        return @"x86_64H";
+        return @"x86_64h";
     case CPU_SUBTYPE_X86_64_ALL:
         return @"x86_64";
     case CPU_SUBTYPE_ARM_V6:
