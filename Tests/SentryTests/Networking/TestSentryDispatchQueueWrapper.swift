@@ -22,6 +22,7 @@ class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
     var dispatchAfterInvocations = Invocations<(interval: TimeInterval, block: () -> Void)>()
     override func dispatch(after interval: TimeInterval, block: @escaping () -> Void) {
         dispatchAfterInvocations.record((interval, block))
+        block()
     }
     
     func invokeLastDispatchAfter() {
