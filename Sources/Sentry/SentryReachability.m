@@ -25,14 +25,15 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "SentryReachability.h"
+#if !TARGET_OS_WATCH
+#    import "SentryReachability.h"
 
-#import <arpa/inet.h>
-#import <ifaddrs.h>
-#import <netdb.h>
-#import <netinet/in.h>
-#import <netinet6/in6.h>
-#import <sys/socket.h>
+#    import <arpa/inet.h>
+#    import <ifaddrs.h>
+#    import <netdb.h>
+#    import <netinet/in.h>
+#    import <netinet6/in6.h>
+#    import <sys/socket.h>
 
 NSString *const kReachabilityChangedNotification = @"kReachabilityChangedNotification";
 
@@ -52,11 +53,11 @@ static NSString *
 reachabilityFlags(SCNetworkReachabilityFlags flags)
 {
     return [NSString stringWithFormat:@"%c%c %c%c%c%c%c%c%c",
-#if TARGET_OS_IPHONE
+#    if TARGET_OS_IPHONE
                      (flags & kSCNetworkReachabilityFlagsIsWWAN) ? 'W' : '-',
-#else
+#    else
                      'X',
-#endif
+#    endif
                      (flags & kSCNetworkReachabilityFlagsReachable) ? 'R' : '-',
                      (flags & kSCNetworkReachabilityFlagsConnectionRequired) ? 'c' : '-',
                      (flags & kSCNetworkReachabilityFlagsTransientConnection) ? 't' : '-',
@@ -72,7 +73,7 @@ static void
 TMReachabilityCallback(
     SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info)
 {
-#pragma unused(target)
+#    pragma unused(target)
 
     SentryReachability *reachability = ((__bridge SentryReachability *)info);
 
@@ -85,7 +86,7 @@ TMReachabilityCallback(
 
 @implementation SentryReachability
 
-#pragma mark - Class Constructor Methods
+#    pragma mark - Class Constructor Methods
 
 + (instancetype)reachabilityWithHostName:(NSString *)hostname
 {
@@ -202,7 +203,7 @@ TMReachabilityCallback(
     self.reachabilitySerialQueue = nil;
 }
 
-#pragma mark - Notifier Methods
+#    pragma mark - Notifier Methods
 
 // Notifier
 // NOTE: This uses GCD to trigger the blocks - they *WILL NOT* be called on THE MAIN THREAD
@@ -229,17 +230,17 @@ TMReachabilityCallback(
             self.reachabilityObject = self;
             return YES;
         } else {
-#ifdef DEBUG
+#    ifdef DEBUG
             NSLog(@"SCNetworkReachabilitySetDispatchQueue() failed: %s", SCErrorString(SCError()));
-#endif
+#    endif
 
             // UH OH - FAILURE - stop any callbacks!
             SCNetworkReachabilitySetCallback(self.reachabilityRef, NULL, NULL);
         }
     } else {
-#ifdef DEBUG
+#    ifdef DEBUG
         NSLog(@"SCNetworkReachabilitySetCallback() failed: %s", SCErrorString(SCError()));
-#endif
+#    endif
     }
 
     // if we get here we fail at the internet
@@ -258,7 +259,7 @@ TMReachabilityCallback(
     self.reachabilityObject = nil;
 }
 
-#pragma mark - reachability tests
+#    pragma mark - reachability tests
 
 // This is for the case where you flick the airplane mode;
 // you end up getting something like this:
@@ -268,8 +269,9 @@ TMReachabilityCallback(
 // Reachability: -- -------
 // We treat this as 4 UNREACHABLE triggers - really apple should do better than this
 
-#define testcase                                                                                   \
-    (kSCNetworkReachabilityFlagsConnectionRequired | kSCNetworkReachabilityFlagsTransientConnection)
+#    define testcase                                                                               \
+        (kSCNetworkReachabilityFlagsConnectionRequired                                             \
+            | kSCNetworkReachabilityFlagsTransientConnection)
 
 - (BOOL)isReachableWithFlags:(SCNetworkReachabilityFlags)flags
 {
@@ -281,7 +283,7 @@ TMReachabilityCallback(
     if ((flags & testcase) == testcase)
         connectionUP = NO;
 
-#if TARGET_OS_IPHONE
+#    if TARGET_OS_IPHONE
     if (flags & kSCNetworkReachabilityFlagsIsWWAN) {
         // We're on 3G.
         if (!self.reachableOnWWAN) {
@@ -289,7 +291,7 @@ TMReachabilityCallback(
             connectionUP = NO;
         }
     }
-#endif
+#    endif
 
     return connectionUP;
 }
@@ -306,7 +308,7 @@ TMReachabilityCallback(
 
 - (BOOL)isReachableViaWWAN
 {
-#if TARGET_OS_IPHONE
+#    if TARGET_OS_IPHONE
 
     SCNetworkReachabilityFlags flags = 0;
 
@@ -319,7 +321,7 @@ TMReachabilityCallback(
             }
         }
     }
-#endif
+#    endif
 
     return NO;
 }
@@ -331,12 +333,12 @@ TMReachabilityCallback(
     if (SCNetworkReachabilityGetFlags(self.reachabilityRef, &flags)) {
         // Check we're reachable
         if ((flags & kSCNetworkReachabilityFlagsReachable)) {
-#if TARGET_OS_IPHONE
+#    if TARGET_OS_IPHONE
             // Check we're NOT on WWAN
             if ((flags & kSCNetworkReachabilityFlagsIsWWAN)) {
                 return NO;
             }
-#endif
+#    endif
             return YES;
         }
     }
@@ -390,7 +392,7 @@ TMReachabilityCallback(
     return NO;
 }
 
-#pragma mark - reachability status stuff
+#    pragma mark - reachability status stuff
 
 - (NetworkStatus)currentReachabilityStatus
 {
@@ -398,9 +400,9 @@ TMReachabilityCallback(
         if ([self isReachableViaWiFi])
             return ReachableViaWiFi;
 
-#if TARGET_OS_IPHONE
+#    if TARGET_OS_IPHONE
         return ReachableViaWWAN;
-#endif
+#    endif
     }
 
     return NotReachable;
@@ -437,7 +439,7 @@ TMReachabilityCallback(
     return reachabilityFlags([self reachabilityFlags]);
 }
 
-#pragma mark - Callback function calls this method
+#    pragma mark - Callback function calls this method
 
 - (void)reachabilityChanged:(SCNetworkReachabilityFlags)flags
 {
@@ -462,7 +464,7 @@ TMReachabilityCallback(
     });
 }
 
-#pragma mark - Debug Description
+#    pragma mark - Debug Description
 
 - (NSString *)description
 {
@@ -473,3 +475,4 @@ TMReachabilityCallback(
 }
 
 @end
+#endif

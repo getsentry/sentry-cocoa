@@ -25,8 +25,9 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import <Foundation/Foundation.h>
-#import <SystemConfiguration/SystemConfiguration.h>
+#if !TARGET_OS_WATCH
+#    import <Foundation/Foundation.h>
+#    import <SystemConfiguration/SystemConfiguration.h>
 
 //! Project version number for MacOSReachability.
 FOUNDATION_EXPORT double ReachabilityVersionNumber;
@@ -39,11 +40,11 @@ FOUNDATION_EXPORT const unsigned char ReachabilityVersionString[];
  *
  * @see http://nshipster.com/ns_enum-ns_options/
  **/
-#ifndef NS_ENUM
-#    define NS_ENUM(_type, _name)                                                                  \
-        enum _name : _type _name;                                                                  \
-        enum _name : _type
-#endif
+#    ifndef NS_ENUM
+#        define NS_ENUM(_type, _name)                                                              \
+            enum _name : _type _name;                                                              \
+            enum _name : _type
+#    endif
 
 extern NSString *const kReachabilityChangedNotification;
 
@@ -102,3 +103,4 @@ typedef void (^NetworkReachability)(
 - (NSString *)currentReachabilityFlags;
 
 @end
+#endif
