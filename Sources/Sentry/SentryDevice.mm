@@ -18,6 +18,8 @@
 #import <sys/sysctl.h>
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
+#elif TARGET_OS_WATCH
+#import <WatchKit/WatchKit.h>
 #endif
 
 namespace {
