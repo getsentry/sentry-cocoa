@@ -235,13 +235,11 @@ getDeviceModel(void)
 #endif // TARGET_OS_SIMULATOR
 }
 
-#if TARGET_OS_SIMULATOR
 NSString *
 getSimulatorDeviceModel(void)
 {
     return NSProcessInfo.processInfo.environment[@"SIMULATOR_MODEL_IDENTIFIER"];
 }
-#endif // TARGET_OS_SIMULATOR
 
 NSString *
 getOSBuildNumber(void)

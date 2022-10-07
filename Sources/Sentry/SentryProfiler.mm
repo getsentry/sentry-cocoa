@@ -211,17 +211,12 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     profile[@"device_architecture"] = getCPUArchitecture();
     profile[@"device_locale"] = NSLocale.currentLocale.localeIdentifier;
     profile[@"device_manufacturer"] = @"Apple";
-    profile[@"device_model"] = getDeviceModel();
+    const auto isEmulated = isSimulatorBuild();
+    profile[@"device_model"] = isEmulated ? getSimulatorDeviceModel() : getDeviceModel();
     profile[@"device_os_build_number"] = getOSBuildNumber();
-#    if TARGET_OS_SIMULATOR
-    const auto simulatedDevice = getSimulatorDeviceModel();
-    if (simulatedDevice != nil) {
-        profile[@"simulated_device_model"] = simulatedDevice;
-    }
-#    endif
     profile[@"device_os_name"] = getOSName();
     profile[@"device_os_version"] = getOSVersion();
-    profile[@"device_is_emulator"] = @(isSimulatorBuild());
+    profile[@"device_is_emulator"] = @(isEmulated);
     profile[@"device_physical_memory_bytes"] =
         [@(NSProcessInfo.processInfo.physicalMemory) stringValue];
     profile[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment ?: kSentryDefaultEnvironment;

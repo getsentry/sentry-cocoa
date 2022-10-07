@@ -24,18 +24,15 @@ NSString *getOSVersion(void);
 
 /**
  * @return The Apple hardware descriptor, such as @c iPhone14,4 or @c MacBookPro10,8 .
- * @note If running on a simulator, this will be the model of the mac running the simulator.
- * @seealso See @c getSimulatorDeviceModel() for retrieving the model of the simulator.
+ * @note If running on a simulator, this will be the model of the simulated device.
  */
 NSString *getDeviceModel(void);
 
-#if TARGET_OS_SIMULATOR
 /**
  * @return The Apple hardware descriptor of the simulated device, such as @c iPhone14,4 or @c
  * MacBookPro10,8 .
  */
 NSString *_Nullable getSimulatorDeviceModel(void);
-#endif // TARGET_OS_SIMULATOR
 
 /**
  * @return A string describing the OS version's specific build, with alphanumeric characters, like
