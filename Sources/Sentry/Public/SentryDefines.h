@@ -142,3 +142,84 @@ typedef NS_ENUM(NSInteger, SentryTransactionNameSource) {
     kSentryTransactionNameSourceComponent,
     kSentryTransactionNameSourceTask
 };
+
+/**
+ * A time duration.
+ */
+typedef NS_ENUM(NSInteger, SentryDurationUnit) {
+    /** Nanosecond (`"nanosecond"`), 10^-9 seconds. */
+    kSentryDurationUnitNanoSecond = 0,
+    /** Microsecond (`"microsecond"`), 10^-6 seconds. */
+    kSentryDurationUnitMicroSecond,
+    /** Millisecond (`"millisecond"`), 10^-3 seconds. */
+    kSentryDurationUnitMilliSecond,
+    /** Full second (`"second"`). */
+    kSentryDurationUnitSecond,
+    /** Minute (`"minute"`), 60 seconds. */
+    kSentryDurationUnitMinute,
+    /** Hour (`"hour"`), 3600 seconds. */
+    kSentryDurationUnitHour,
+    /** Day (`"day"`), 86,400 seconds. */
+    kSentryDurationUnitDay,
+    /** Week (`"week"`), 604,800 seconds. */
+    kSentryDurationUnitWeek
+} NS_SWIFT_NAME(DurationUnit);
+
+/**
+ * Size of information derived from bytes.
+ */
+typedef NS_ENUM(NSInteger, SentryInformationUnit) {
+    /** Bit (`"bit"`), corresponding to 1/8 of a byte. */
+    kSentryInformationUnitBit,
+
+    /** Byte (`"byte"`). */
+    kSentryInformationUnitByte,
+
+    /** Kilobyte (`"kilobyte"`), 10^3 bytes. */
+    kSentryInformationUnitKilobyte,
+
+    /** Kibibyte (`"kibibyte"`), 2^10 bytes. */
+    kSentryInformationUnitKibibyte,
+
+    /** Megabyte (`"megabyte"`), 10^6 bytes. */
+    kSentryInformationUnitMegabyte,
+
+    /** Mebibyte (`"mebibyte"`), 2^20 bytes. */
+    kSentryInformationUnitMebibyte,
+
+    /** Gigabyte (`"gigabyte"`), 10^9 bytes. */
+    kSentryInformationUnitGigabyte,
+
+    /** Gibibyte (`"gibibyte"`), 2^30 bytes. */
+    kSentryInformationUnitGibibyte,
+
+    /** Terabyte (`"terabyte"`), 10^12 bytes. */
+    kSentryInformationUnitTerabyte,
+
+    /** Tebibyte (`"tebibyte"`), 2^40 bytes. */
+    kSentryInformationUnitTebibyte,
+
+    /** Petabyte (`"petabyte"`), 10^15 bytes. */
+    kSentryInformationUnitPetabyte,
+
+    /** Pebibyte (`"pebibyte"`), 2^50 bytes. */
+    kSentryInformationUnitPebibyte,
+
+    /** Exabyte (`"exabyte"`), 10^18 bytes. */
+    kSentryInformationUnitExabyte,
+
+    /** Exbibyte (`"exbibyte"`), 2^60 bytes. */
+    kSentryInformationUnitExbibyte
+} NS_SWIFT_NAME(InformationUnit);
+
+/**
+ * Fractions such as percentages.
+ */
+typedef NS_ENUM(NSInteger, SentryFractionUnit) {
+
+    /** Floating point fraction of `1`. */
+    kSentryFractionUnitRatio = 0,
+
+    /** Ratio expressed as a fraction of `100`. `100%` equals a ratio of `1.0`. */
+    kSentryFractionUnitPercent
+} NS_SWIFT_NAME(FractionUnit);

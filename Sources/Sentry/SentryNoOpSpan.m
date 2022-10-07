@@ -64,6 +64,32 @@ NS_ASSUME_NONNULL_BEGIN
 {
 }
 
+- (void)setMeasurement:(NSString *)name value:(NSNumber *)value
+{
+}
+
+- (void)setMeasurement:(NSString *)name
+                 value:(NSNumber *)value
+          durationUnit:(SentryDurationUnit)durationUnit
+{
+}
+
+- (void)setMeasurement:(NSString *)name
+                 value:(NSNumber *)value
+       informationUnit:(SentryInformationUnit)informationUnit
+{
+}
+
+- (void)setMeasurement:(NSString *)name
+                 value:(NSNumber *)value
+          fractionUnit:(SentryFractionUnit)fractionUnit
+{
+}
+
+- (void)setMeasurement:(NSString *)name value:(NSNumber *)value customUnit:(NSString *)customUnit
+{
+}
+
 - (NSDictionary<NSString *, id> *)tags
 {
     return @{};

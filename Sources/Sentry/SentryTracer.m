@@ -61,6 +61,7 @@ SentryTracer ()
     SentryAppStartMeasurement *appStartMeasurement;
     NSMutableDictionary<NSString *, id> *_tags;
     NSMutableDictionary<NSString *, id> *_data;
+    NSMutableDictionary<NSString *, id> *_measurements;
     dispatch_block_t _idleTimeoutBlock;
     NSMutableArray<id<SentrySpan>> *_children;
 
@@ -160,6 +161,7 @@ static NSLock *profilerLock;
         _waitForChildren = waitForChildren;
         _tags = [[NSMutableDictionary alloc] init];
         _data = [[NSMutableDictionary alloc] init];
+        _measurements = [[NSMutableDictionary alloc] init];
         self.finishStatus = kSentrySpanStatusUndefined;
         self.idleTimeout = idleTimeout;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
@@ -392,6 +394,106 @@ static NSLock *profilerLock;
 {
     @synchronized(_tags) {
         [_tags removeObjectForKey:key];
+    }
+}
+
+- (void)setMeasurement:(NSString *)name value:(NSNumber *)value
+{
+    _measurements[name] = @{ @"value" : value, @"unit" : @"none" };
+}
+
+- (void)setMeasurement:(NSString *)name
+                 value:(NSNumber *)value
+          durationUnit:(SentryDurationUnit)durationUnit
+{
+    _measurements[name] =
+        @{ @"value" : value, @"unit" : [self stringForDurationUnit:durationUnit] };
+}
+
+- (void)setMeasurement:(NSString *)name
+                 value:(NSNumber *)value
+       informationUnit:(SentryInformationUnit)informationUnit
+{
+    _measurements[name] =
+        @{ @"value" : value, @"unit" : [self stringForInformationUnit:informationUnit] };
+}
+
+- (void)setMeasurement:(NSString *)name
+                 value:(NSNumber *)value
+          fractionUnit:(SentryFractionUnit)fractionUnit
+{
+    _measurements[name] =
+        @{ @"value" : value, @"unit" : [self stringForFractionUnit:fractionUnit] };
+}
+
+- (void)setMeasurement:(NSString *)name value:(NSNumber *)value customUnit:(NSString *)customUnit
+{
+    _measurements[name] = @{ @"value" : value, @"unit" : customUnit };
+}
+
+- (NSString *)stringForDurationUnit:(SentryDurationUnit)duration
+{
+    switch (duration) {
+    case kSentryDurationUnitNanoSecond:
+        return @"nanosecond";
+    case kSentryDurationUnitMicroSecond:
+        return @"microsecond";
+    case kSentryDurationUnitMilliSecond:
+        return @"millisecond";
+    case kSentryDurationUnitSecond:
+        return @"second";
+    case kSentryDurationUnitMinute:
+        return @"minute";
+    case kSentryDurationUnitHour:
+        return @"hour";
+    case kSentryDurationUnitDay:
+        return @"day";
+    case kSentryDurationUnitWeek:
+        return @"week";
+    }
+}
+
+- (NSString *)stringForInformationUnit:(SentryInformationUnit)informationUnit
+{
+    switch (informationUnit) {
+    case kSentryInformationUnitBit:
+        return @"bit";
+    case kSentryInformationUnitByte:
+        return @"byte";
+    case kSentryInformationUnitKilobyte:
+        return @"kilobyte";
+    case kSentryInformationUnitKibibyte:
+        return @"kibibyte";
+    case kSentryInformationUnitMegabyte:
+        return @"megabyte";
+    case kSentryInformationUnitMebibyte:
+        return @"mebibyte";
+    case kSentryInformationUnitGigabyte:
+        return @"gigabyte";
+    case kSentryInformationUnitGibibyte:
+        return @"gibibyte";
+    case kSentryInformationUnitTerabyte:
+        return @"terabyte";
+    case kSentryInformationUnitTebibyte:
+        return @"tebibyte";
+    case kSentryInformationUnitPetabyte:
+        return @"petabyte";
+    case kSentryInformationUnitPebibyte:
+        return @"pebibyte";
+    case kSentryInformationUnitExabyte:
+        return @"exabyte";
+    case kSentryInformationUnitExbibyte:
+        return @"exbibyte";
+    }
+}
+
+- (NSString *)stringForFractionUnit:(SentryFractionUnit)fraction
+{
+    switch (fraction) {
+    case kSentryFractionUnitRatio:
+        return @"ratio";
+    case kSentryFractionUnitPercent:
+        return @"percent";
     }
 }
 
@@ -727,6 +829,10 @@ static NSLock *profilerLock;
         }
     }
 #endif
+
+    for (NSString *key in _measurements) {
+        [transaction setMeasurementValue:_measurements[key] forKey:key];
+    }
 }
 
 - (id<SentrySpan>)buildSpan:(SentrySpanId *)parentId

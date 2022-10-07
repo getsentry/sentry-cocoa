@@ -141,6 +141,13 @@ class ViewController: UIViewController {
     
     @IBAction func captureTransaction(_ sender: Any) {
         let transaction = SentrySDK.startTransaction(name: "Some Transaction", operation: "Some Operation")
+        
+        transaction.setMeasurement(name: "custom", value: 44, customUnit: "custom-unit")
+        transaction.setMeasurement(name: "none", value: 55)
+        transaction.setMeasurement(name: "duration", value: 1.23, durationUnit: .milliSecond)
+        transaction.setMeasurement(name: "information", value: 134.3, informationUnit: .gigabyte)
+        transaction.setMeasurement(name: "fraction", value: 9.3, fractionUnit: .percent)
+        
         let span = transaction.startChild(operation: "user", description: "calls out")
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
