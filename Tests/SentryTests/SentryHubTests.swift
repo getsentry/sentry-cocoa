@@ -983,6 +983,7 @@ extension SentryHubTests {
         XCTAssertEqual("Apple", device!["manufacturer"] as! String)
         XCTAssertFalse((device!["locale"] as! String).isEmpty)
         XCTAssertFalse((device!["model"] as! String).isEmpty)
+        XCTAssertFalse((device!["physical_memory_bytes"] as! String).isEmpty)
 #if targetEnvironment(simulator)
         XCTAssertTrue(device!["is_emulator"] as! Bool)
 #else
@@ -1001,7 +1002,6 @@ extension SentryHubTests {
 
         XCTAssertEqual("cocoa", profile["platform"] as! String)
         XCTAssertEqual(fixture.transactionName, profile["transaction_name"] as! String)
-        XCTAssertFalse((profile["device_physical_memory_bytes"] as! String).isEmpty)
         XCTAssertFalse((profile["release"] as! String).isEmpty)
 
         XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["transaction_id"] as! String))

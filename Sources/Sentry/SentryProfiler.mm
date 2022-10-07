@@ -275,10 +275,9 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
         @"locale" : NSLocale.currentLocale.localeIdentifier,
         @"manufacturer" : @"Apple",
         @"model" : isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel(),
-		@"os_name" : sentry_getOSName()
+		@"os_name" : sentry_getOSName(),
+        @"physical_memory_bytes" : [@(NSProcessInfo.processInfo.physicalMemory) stringValue]
     };
-    profile[@"device_physical_memory_bytes"] =
-        [@(NSProcessInfo.processInfo.physicalMemory) stringValue];
 
     profile[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment ?: kSentryDefaultEnvironment;
     profile[@"platform"] = transaction.platform;
