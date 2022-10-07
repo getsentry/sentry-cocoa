@@ -74,7 +74,8 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     
     func testSecondStart_SystemNotRebooted_IsWarmStart() {
         givenSystemNotRebooted()
-        
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
         startApp()
         
         assertValidStart(type: .warm)
@@ -109,7 +110,8 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         
         let appState = SentryAppState(releaseName: "1.0.0", osVersion: "14.4.1", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: self.fixture.currentDate.date())
         givenPreviousAppState(appState: appState)
-        
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
         startApp()
         
         assertValidStart(type: .warm)
@@ -121,7 +123,8 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     func testAppLaunches_PreviousBootTimeInFuture_NoAppStartUp() {
         let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.currentDate.date().addingTimeInterval(1))
         givenPreviousAppState(appState: appState)
-        
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
         startApp()
         
         assertNoAppStartUp()
@@ -131,7 +134,8 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         setenv("ActivePrewarm", "1", 1)
         SentryAppStartTracker.load()
         givenSystemNotRebooted()
-        
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
         startApp()
         
 #if os(iOS)
@@ -149,7 +153,8 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         setenv("ActivePrewarm", "0", 1)
         SentryAppStartTracker.load()
         givenSystemNotRebooted()
-        
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
         startApp()
         
         assertValidStart(type: .warm)
@@ -220,7 +225,8 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     
     func testHybridSDKs_SecondStart_SystemNotRebooted_IsWarmStart() {
         givenSystemNotRebooted()
-        
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
         hybridAppStart()
         
         assertValidHybridStart(type: .warm)

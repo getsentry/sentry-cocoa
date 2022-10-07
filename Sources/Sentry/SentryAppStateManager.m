@@ -62,11 +62,6 @@ SentryAppStateManager ()
     return [self.fileManager readPreviousAppState];
 }
 
-- (SentryAppState *)loadCurrentAppState
-{
-    return [self.fileManager readAppState];
-}
-
 - (void)storeCurrentAppState
 {
     [self.fileManager storeAppState:[self buildCurrentAppState]];

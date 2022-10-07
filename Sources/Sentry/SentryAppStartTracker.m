@@ -61,7 +61,7 @@ SentryAppStartTracker ()
         self.dispatchQueue = dispatchQueueWrapper;
         self.appStateManager = appStateManager;
         self.sysctl = sysctl;
-        self.previousAppState = [self.appStateManager loadCurrentAppState];
+        self.previousAppState = [self.appStateManager loadPreviousAppState];
         self.wasInBackground = NO;
         self.didFinishLaunchingTimestamp = [currentDateProvider date];
     }
