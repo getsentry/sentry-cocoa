@@ -5,12 +5,17 @@ import SwiftUI
 @available(iOS 13, macOS 10.15, *)
 public struct SentryPerformanceView<Content: View>: View {
     
-    @ViewBuilder let content : () -> Content
-    let name: String?
+    let content : () -> Content
+    let name: String
+    let id: SpanId
     
-    public init(name: String? = nil, @ViewBuilder content : @escaping () -> Content) {
+    public init(_ name: String? = nil, content : @escaping () -> Content) {
         self.content = content
-        self.name = name
+        self.name = name ?? String(describing: Content.self)
+        id = SentryPerformanceTracker.shared.startSpan(withName: self.name,
+                                                       nameSource: name == nil ? .component : .custom,
+                                                       operation: "ui")
+        print("### Init of \(self.name)")
     }
     
     static func extractName(content: Any) -> String {
@@ -25,16 +30,17 @@ public struct SentryPerformanceView<Content: View>: View {
     
     public var body: some View {
         
-        let name = self.name ?? String(describing: Content.self)
         print("### Body of \(name)")
         
-        let id = SentryPerformanceTracker.shared.startSpan(withName: name, nameSource: .component, operation: "ui")
         SentryPerformanceTracker.shared.pushActiveSpan(id)
         
-        let result = self.content()
+        let result = self.content().onAppear {
+            print("### \(name) Appeared")
+            SentryPerformanceTracker.shared.finishSpan(id)
+        }
         
         SentryPerformanceTracker.shared.popActiveSpan()
-        SentryPerformanceTracker.shared.finishSpan(id)
+        
         print("### end of \(name)")
         return result
         
@@ -44,7 +50,7 @@ public struct SentryPerformanceView<Content: View>: View {
 @available(iOS 13, macOS 10.15, *)
 public extension View {
     func sentryTransaction(_ transactionName: String? = nil) -> some View {
-        return SentryPerformanceView (name: transactionName) {
+        return SentryPerformanceView (transactionName) {
             return self
         }
     }

@@ -234,8 +234,7 @@ SentryBreadcrumbTracker ()
 {
     NSMutableDictionary *info = @{}.mutableCopy;
 
-    info[@"screen"] = [SentryUIViewControllerSanitizer
-        sanitizeViewControllerName:[NSString stringWithFormat:@"%@", controller]];
+    info[@"screen"] = [SentryUIViewControllerSanitizer sanitizeViewControllerName:controller];
 
     if ([controller.navigationItem.title length] != 0) {
         info[@"title"] = controller.navigationItem.title;
