@@ -80,16 +80,6 @@ struct ContentView: View {
         SentryPerformanceView("Content View Body") {
             NavigationView {
                 VStack(alignment: HorizontalAlignment.center, spacing: 16) {
-                    if #available(iOS 15.0, *) {
-                        SentryPerformanceView("Sentry Logo") {
-                            AsyncImage(url: URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png")) { image in
-                                image.resizable()
-                                    .aspectRatio(contentMode: .fit)
-                            } placeholder: {
-                                ProgressView()
-                            }
-                        }
-                    }
                     Button(action: addBreadcrumbAction) {
                         Text("Add Breadcrumb")
                     }
