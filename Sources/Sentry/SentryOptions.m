@@ -20,6 +20,10 @@ SentryOptions ()
 
 @implementation SentryOptions
 
+- (void)setMeasurement:(SentryMeasurement *)measurement
+{
+}
+
 + (NSArray<NSString *> *)defaultIntegrations
 {
     return @[

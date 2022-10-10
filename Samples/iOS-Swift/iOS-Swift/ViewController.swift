@@ -142,11 +142,8 @@ class ViewController: UIViewController {
     @IBAction func captureTransaction(_ sender: Any) {
         let transaction = SentrySDK.startTransaction(name: "Some Transaction", operation: "Some Operation")
         
-        transaction.setMeasurement(name: "custom", value: 44, customUnit: "custom-unit")
-        transaction.setMeasurement(name: "none", value: 55)
-        transaction.setMeasurement(name: "duration", value: 1.23, durationUnit: .milliSecond)
-        transaction.setMeasurement(name: "information", value: 134.3, informationUnit: .gigabyte)
-        transaction.setMeasurement(name: "fraction", value: 9.3, fractionUnit: .percent)
+        transaction.setMeasurement(SentryMeasurement(name: "duration", value: 44, unit: SentryUnitDuration.nanoseconds))
+        transaction.setMeasurement(SentryMeasurement(name: "duration-custom", value: 22, unit: SentryUnit(symbol: "custom")))
         
         let span = transaction.startChild(operation: "user", description: "calls out")
         
