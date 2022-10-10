@@ -77,57 +77,69 @@ struct ContentView: View {
     }
 
     var body: some View {
-        NavigationView {
-            VStack(alignment: HorizontalAlignment.center, spacing: 16) {
-                Button(action: addBreadcrumbAction) {
-                    Text("Add Breadcrumb")
-                }
-
-                Button(action: captureMessageAction) {
-                    Text("Capture Message")
-                }
-
-                Button(action: captureUserFeedbackAction) {
-                    Text("Capture User Feedback")
-                }
-
-                Button(action: captureErrorAction) {
-                    Text("Capture Error")
-                }
-
-                Button(action: captureNSExceptionAction) {
-                    Text("Capture NSException")
-                }
-
-                Button(action: captureTransactionAction) {
-                    Text("Capture Transaction")
-                }
-
-                Button(action: {
-                    SentrySDK.crash()
-                }) {
-                    Text("Crash")
-                }
-
-                Button(action: {
-                    DispatchQueue.main.async {
-                        self.asyncCrash1()
+        SentryPerformanceView("Content View Body") {
+            NavigationView {
+                VStack(alignment: HorizontalAlignment.center, spacing: 16) {
+                    if #available(iOS 15.0, *) {
+                        SentryPerformanceView("Sentry Logo") {
+                            AsyncImage(url: URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png")) { image in
+                                image.resizable()
+                                    .aspectRatio(contentMode: .fit)
+                            } placeholder: {
+                                ProgressView()
+                            }
+                        }
                     }
-                }) {
-                    Text("Async Crash")
-                }
-
-                Button(action: oomCrashAction) {
-                    Text("OOM Crash")
-                }
-
-                VStack(spacing: 16) {
-                    NavigationLink(destination: SecondView()) {
-                        Text("Show Detail View 1")
+                    Button(action: addBreadcrumbAction) {
+                        Text("Add Breadcrumb")
                     }
-
-                    NavigationLink(destination: LoremIpsumView()) {
-                        Text("Lorem Ipsum")
+                    
+                    Button(action: captureMessageAction) {
+                        Text("Capture Message")
+                    }
+                    
+                    Button(action: captureUserFeedbackAction) {
+                        Text("Capture User Feedback")
+                    }
+                    
+                    Button(action: captureErrorAction) {
+                        Text("Capture Error")
+                    }
+                    
+                    Button(action: captureNSExceptionAction) {
+                        Text("Capture NSException")
+                    }
+                    
+                    Button(action: captureTransactionAction) {
+                        Text("Capture Transaction")
+                    }
+                    
+                    Button(action: {
+                        SentrySDK.crash()
+                    }) {
+                        Text("Crash")
+                    }
+                    
+                    Button(action: {
+                        DispatchQueue.main.async {
+                            self.asyncCrash1()
+                        }
+                    }) {
+                        Text("Async Crash")
+                    }
+                    
+                    VStack(spacing: 16) {
+                        Button(action: oomCrashAction) {
+                            Text("OOM Crash")
+                        }
+                        
+                        NavigationLink(destination: SecondView()) {
+                            Text("Show Detail View 1")
+                        }
+                        
+                        NavigationLink(destination: LoremIpsumView()) {
+                            Text("Lorem Ipsum")
+                        }
                     }
                 }
             }
