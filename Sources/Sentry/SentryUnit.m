@@ -4,17 +4,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryUnit
 
-- (instancetype)initWithSymbol:(NSString *)symbol
+- (instancetype)initWithUnit:(NSString *)unit
 {
     if (self = [super init]) {
-        _symbol = symbol;
+        _unit = unit;
     }
     return self;
 }
 
 - (id)copyWithZone:(nullable NSZone *)zone
 {
-    return [[[self class] allocWithZone:zone] initWithSymbol:self.symbol];
+    return [[[self class] allocWithZone:zone] initWithSymbol:self.unit];
 }
 
 @end
@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (SentryUnitDuration *)nanoseconds
 {
-    return [[SentryUnitDuration alloc] initWithSymbol:@"nanoseconds"];
+    return [[SentryUnitDuration alloc] initWithUnit:@"nanoseconds"];
 }
 
 @end
@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (SentryUnitDuration *)bit
 {
-    return [[SentryUnitDuration alloc] initWithSymbol:@"bit"];
+    return [[SentryUnitDuration alloc] initWithUnit:@"bit"];
 }
 
 @end
@@ -41,12 +41,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (SentryUnitFraction *)ratio
 {
-    return [[SentryUnitFraction alloc] initWithSymbol:@"ratio"];
+    return [[SentryUnitFraction alloc] initWithUnit:@"ratio"];
 }
 
 + (SentryUnitFraction *)percent
 {
-    return [[SentryUnitFraction alloc] initWithSymbol:@"percent"];
+    return [[SentryUnitFraction alloc] initWithUnit:@"percent"];
 }
 
 @end

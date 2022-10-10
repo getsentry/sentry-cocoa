@@ -5,9 +5,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryUnit : NSObject <NSCopying>
 SENTRY_NO_INIT
 
-- (instancetype)initWithSymbol:(NSString *)symbol;
+- (instancetype)initWithUnit:(NSString *)unit;
 
-@property (readonly, copy) NSString *symbol;
+@property (readonly, copy) NSString *unit;
 
 @end
 

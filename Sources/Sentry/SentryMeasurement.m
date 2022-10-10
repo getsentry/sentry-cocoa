@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary<NSString *, id> *)serialize
 {
-    return @{ @"name" : self.name, @"value" : self.value, @"unit" : self.unit.symbol };
+    return @{ @"name" : self.name, @"value" : self.value, @"unit" : self.unit.unit };
 }
 
 @end

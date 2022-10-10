@@ -143,7 +143,9 @@ class ViewController: UIViewController {
         let transaction = SentrySDK.startTransaction(name: "Some Transaction", operation: "Some Operation")
         
         transaction.setMeasurement(SentryMeasurement(name: "duration", value: 44, unit: SentryUnitDuration.nanoseconds))
-        transaction.setMeasurement(SentryMeasurement(name: "duration-custom", value: 22, unit: SentryUnit(symbol: "custom")))
+        transaction.setMeasurement(SentryMeasurement(name: "information", value: 44, unit: SentryUnitInformation.bit))
+        transaction.setMeasurement(SentryMeasurement(name: "duration-custom", value: 22, unit: SentryUnit(unit: "custom")))
+        transaction.setMeasurement(SentryMeasurement(name: "duration-custom", value: 22, unit: SentryUnit(unit: "custom")))
         
         let span = transaction.startChild(operation: "user", description: "calls out")
         

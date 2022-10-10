@@ -738,7 +738,7 @@ static NSLock *profilerLock;
 
     for (SentryMeasurement *measurement in _measurements) {
         [transaction
-            setMeasurementValue:@{ @"value" : measurement.value, @"unit" : measurement.unit.symbol }
+            setMeasurementValue:@{ @"value" : measurement.value, @"unit" : measurement.unit.unit }
                          forKey:measurement.name];
     }
 }
