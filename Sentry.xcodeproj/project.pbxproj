@@ -679,6 +679,7 @@
 		D8603DD6284F8497000E1227 /* SentryBaggage.m in Sources */ = {isa = PBXBuildFile; fileRef = D8603DD4284F8497000E1227 /* SentryBaggage.m */; };
 		D8603DD8284F894C000E1227 /* SentryBaggage.h in Headers */ = {isa = PBXBuildFile; fileRef = D8603DD7284F894C000E1227 /* SentryBaggage.h */; };
 		D862339328F453E6009BBE0D /* SentryDescriptor.h in Headers */ = {isa = PBXBuildFile; fileRef = D862339228F453E5009BBE0D /* SentryDescriptor.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D862339628F4615C009BBE0D /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D804D4C928DAF226005CECD1 /* Sentry.framework */; };
 		D867063D27C3BC2400048851 /* SentryCoreDataTrackingIntegration.h in Headers */ = {isa = PBXBuildFile; fileRef = D867063A27C3BC2400048851 /* SentryCoreDataTrackingIntegration.h */; };
 		D867063E27C3BC2400048851 /* SentryCoreDataSwizzling.h in Headers */ = {isa = PBXBuildFile; fileRef = D867063B27C3BC2400048851 /* SentryCoreDataSwizzling.h */; };
 		D867063F27C3BC2400048851 /* SentryCoreDataTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = D867063C27C3BC2400048851 /* SentryCoreDataTracker.h */; };
@@ -727,6 +728,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
 			remoteInfo = SentryObjc;
+		};
+		D862339428F46155009BBE0D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D804D4C828DAF226005CECD1;
+			remoteInfo = Sentry;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -1532,6 +1540,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D862339628F4615C009BBE0D /* Sentry.framework in Frameworks */,
 				63AA766A1EB8CB2F00D153DE /* SentryObjc.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3269,6 +3278,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D862339528F46155009BBE0D /* PBXTargetDependency */,
 				63AA766C1EB8CB2F00D153DE /* PBXTargetDependency */,
 			);
 			name = SentryTests;
@@ -3839,6 +3849,11 @@
 			isa = PBXTargetDependency;
 			target = 63AA759A1EB8AEF500D153DE /* SentryObjc */;
 			targetProxy = D804D4D428DAF242005CECD1 /* PBXContainerItemProxy */;
+		};
+		D862339528F46155009BBE0D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D804D4C828DAF226005CECD1 /* Sentry */;
+			targetProxy = D862339428F46155009BBE0D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

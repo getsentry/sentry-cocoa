@@ -1,6 +1,11 @@
+import Sentry
 import XCTest
 
+#if os(iOS)
 class SentryUIViewControllerSanitizerTests: XCTestCase {
+    
+    private class PrivateViewController: UIViewController {
+    }
     
     func testSanitizeViewControllerNameWithBaseObject() {
         let object = NSObject()
@@ -17,21 +22,25 @@ class SentryUIViewControllerSanitizerTests: XCTestCase {
     }
     
     func testSanitizeViewControllerNameWithStrings() {
-        XCTAssertEqual(
-            "sentry_ios_cocoapods.ViewController", sanitize("<sentry_ios_cocoapods.ViewController: 0x7fd9201253c0>")
-        )
+        let viewController = UIViewController()
+        let privateViewController = PrivateViewController()
         
         XCTAssertEqual(
-            "sentry_ios_cocoapodsViewController: 0x7fd9201253c0", sanitize("sentry_ios_cocoapodsViewController: 0x7fd9201253c0")
+            "UIViewController", sanitize(viewController)
         )
+        
+        let swiftDescriptor = SwiftDescriptor()
+        SentryDependencyContainer.sharedInstance.register(SentryDescriptorProtocol.self) {
+            return swiftDescriptor
+        }
         
         XCTAssertEqual(
-            "sentry_ios_cocoapods.ViewController.miau", sanitize("<sentry_ios_cocoapods.ViewController.miau: 0x7fd9201253c0>")
+            "PrivateViewController", sanitize(privateViewController)
         )
-        
     }
     
     private func sanitize(_ name: Any) -> String {
         return SentryUIViewControllerSanitizer.sanitizeViewControllerName(name)
     }
 }
+#endif
