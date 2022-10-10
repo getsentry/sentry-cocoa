@@ -15,7 +15,6 @@ public struct SentryPerformanceView<Content: View>: View {
         id = SentryPerformanceTracker.shared.startSpan(withName: self.name,
                                                        nameSource: name == nil ? .component : .custom,
                                                        operation: "ui")
-        print("### Init of \(self.name)")
     }
     
     static func extractName(content: Any) -> String {
@@ -29,21 +28,14 @@ public struct SentryPerformanceView<Content: View>: View {
     }
     
     public var body: some View {
-        
-        print("### Body of \(name)")
-        
         SentryPerformanceTracker.shared.pushActiveSpan(id)
         
         let result = self.content().onAppear {
-            print("### \(name) Appeared")
             SentryPerformanceTracker.shared.finishSpan(id)
         }
         
         SentryPerformanceTracker.shared.popActiveSpan()
-        
-        print("### end of \(name)")
         return result
-        
     }
 }
 
