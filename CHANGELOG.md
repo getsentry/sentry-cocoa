@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Return SentryNoOpSpan when starting a child on a finished transaction (#2239)
+
 ## 7.27.0
 
 ### Features

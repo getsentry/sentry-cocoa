@@ -31,7 +31,6 @@
     }
 
     XCTAssertNotNil(child);
-    XCTAssertNil(child.tracer);
     [child finish];
 }
 

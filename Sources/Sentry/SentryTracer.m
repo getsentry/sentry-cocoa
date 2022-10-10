@@ -7,6 +7,7 @@
 #import "SentryFramesTracker.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
+#import "SentryNoOpSpan.h"
 #import "SentryProfiler.h"
 #import "SentryProfilesSampler.h"
 #import "SentryProfilingConditionals.h"
@@ -260,6 +261,12 @@ static NSLock *profilerLock;
                              description:(nullable NSString *)description
 {
     [self cancelIdleTimeout];
+
+    if (self.isFinished) {
+        SENTRY_LOG_WARN(
+            @"Starting a child on a finished span is not supported; it won't be sent to Sentry.");
+        return [SentryNoOpSpan shared];
+    }
 
     SentrySpanContext *context =
         [[SentrySpanContext alloc] initWithTraceId:_rootSpan.context.traceId
