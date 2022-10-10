@@ -2,7 +2,7 @@ import Foundation
 import SentryObjc
 import SwiftUI
 
-@available(iOS 13, macOS 10.15, *)
+@available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 public struct SentryPerformanceView<Content: View>: View {
     
     let content : () -> Content
@@ -39,7 +39,7 @@ public struct SentryPerformanceView<Content: View>: View {
     }
 }
 
-@available(iOS 13, macOS 10.15, *)
+@available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 public extension View {
     func sentryTransaction(_ transactionName: String? = nil) -> some View {
         return SentryPerformanceView (transactionName) {
