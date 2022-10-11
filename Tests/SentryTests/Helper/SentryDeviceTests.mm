@@ -83,7 +83,7 @@
 #if TARGET_OS_OSX
     SENTRY_ASSERT_EQUAL(osName, @"macOS");
 #elif TARGET_OS_MACCATALYST
-    SENTRY_ASSERT_EQUAL(osName, @"iPadOS");
+    SENTRY_ASSERT_EQUAL(osName, @"iOS");
 #elif TARGET_OS_IOS
     // We must test this branch in iOS-SwiftUITests since it must run on device, which SentryTests
     // cannot.
