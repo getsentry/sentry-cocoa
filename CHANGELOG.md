@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Custom measurements API (#2268)
+
 ## 7.27.1
 
 ### Fixes
