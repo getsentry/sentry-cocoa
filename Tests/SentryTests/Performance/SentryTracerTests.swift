@@ -565,7 +565,7 @@ class SentryTracerTests: XCTestCase {
         let measurements = serializedTransaction?["measurements"] as? [String: [String: Any]]
         XCTAssertEqual(1, measurements?.count)
         
-        let measurement = measurements?[name] as? [String: Any]
+        let measurement = measurements?[name]
         XCTAssertNotNil(measurement)
         XCTAssertEqual(value, measurement?["value"] as! NSNumber)
         XCTAssertEqual(unit.unit, measurement?["unit"] as! String)
