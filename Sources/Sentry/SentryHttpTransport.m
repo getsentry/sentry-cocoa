@@ -82,18 +82,14 @@ SentryHttpTransport ()
         [self sendAllCachedEnvelopes];
 
 #if !TARGET_OS_WATCH
-        __block BOOL wasConnected = YES;
-
         [SentryReachability
                monitorURL:[NSURL URLWithString:@"https://sentry.io"]
             usingCallback:^(BOOL connected, NSString *_Nonnull typeDescription) {
-                if (connected && !wasConnected) {
+                if (connected) {
                     SENTRY_LOG_DEBUG(@"SentryHttpTransport: Internet connection is back.");
-                    wasConnected = YES;
                     [self sendAllCachedEnvelopes];
-                } else if (!connected && wasConnected) {
+                } else {
                     SENTRY_LOG_DEBUG(@"SentryHttpTransport: Lost internet connection.");
-                    wasConnected = NO;
                 }
             }];
 #endif
