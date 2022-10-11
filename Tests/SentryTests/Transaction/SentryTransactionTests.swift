@@ -65,7 +65,7 @@ class SentryTransactionTests: XCTestCase {
         let actualMeasurements = actual["measurements"] as? [String: [String: Any]]
         XCTAssertNotNil(actualMeasurements)
         
-        let coldStartMeasurement = actualMeasurements?[name] as? [String: Any]
+        let coldStartMeasurement = actualMeasurements?[name]
         XCTAssertEqual(value, coldStartMeasurement?["value"] as! NSNumber)
         XCTAssertEqual(unit.unit, coldStartMeasurement?["unit"] as! String)
     }
@@ -88,11 +88,11 @@ class SentryTransactionTests: XCTestCase {
         let actualMeasurements = actual["measurements"] as? [String: [String: Any]]
         XCTAssertNotNil(actualMeasurements)
         
-        let frameMeasurement = actualMeasurements?[frameName] as? [String: Any]
+        let frameMeasurement = actualMeasurements?[frameName]
         XCTAssertEqual(frameValue, frameMeasurement?["value"] as! NSNumber)
         XCTAssertNil(frameMeasurement?["unit"])
         
-        let customMeasurement = actualMeasurements?[customName] as? [String: Any]
+        let customMeasurement = actualMeasurements?[customName]
         XCTAssertEqual(customValue, customMeasurement?["value"] as! NSNumber)
         XCTAssertEqual(customUnit.unit, customMeasurement?["unit"] as! String)
     }
