@@ -105,6 +105,15 @@ jobs:
           if-no-files-found: error
           path: |
             ${{ github.workspace }}/*.zip
+
+      - name: Archiving Build Log
+        if: success() || failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-framework.log
+          path: |
+            ${{ github.workspace }}/carthage.log
+    
  
 # Use github.event.pull_request.head.sha instead of github.sha when available as 
 # the github.sha is be the pre merge commit id for PRs.
