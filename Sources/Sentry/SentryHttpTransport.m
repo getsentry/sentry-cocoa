@@ -281,7 +281,7 @@ SentryHttpTransport ()
     SENTRY_LOG_DEBUG(@"SentryHttpTransport: Deleting envelope and sending next.");
     [self.fileManager removeFileAtPath:envelopePath];
     self.isSending = NO;
-    [self.dispatchQueue dispatchAfter:cachedEnvelopSendDelay
+    [self.dispatchQueue dispatchAfter:cachedEnvelopeSendDelay
                                 block:^{ [self sendAllCachedEnvelopes]; }];
 }
 
