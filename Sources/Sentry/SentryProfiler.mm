@@ -212,7 +212,8 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     profile[@"device_locale"] = NSLocale.currentLocale.localeIdentifier;
     profile[@"device_manufacturer"] = @"Apple";
     const auto isEmulated = sentry_isSimulatorBuild();
-    profile[@"device_model"] = isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel();
+    profile[@"device_model"]
+        = isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel();
     profile[@"device_os_build_number"] = sentry_getOSBuildNumber();
     profile[@"device_os_name"] = sentry_getOSName();
     profile[@"device_os_version"] = sentry_getOSVersion();
