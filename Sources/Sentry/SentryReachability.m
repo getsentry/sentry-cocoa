@@ -111,7 +111,7 @@ SentryConnectivityCallback(
     static dispatch_queue_t reachabilityQueue;
     dispatch_once(&once_t, ^{
         reachabilityQueue
-            = dispatch_queue_create("is.sentry.cocoa.connectivity", DISPATCH_QUEUE_SERIAL);
+            = dispatch_queue_create("io.sentry.cocoa.connectivity", DISPATCH_QUEUE_SERIAL);
     });
 
     sentry_reachability_change_block = block;
