@@ -36,38 +36,27 @@ FOUNDATION_EXPORT double ReachabilityVersionNumber;
 //! Project version string for MacOSReachability.
 FOUNDATION_EXPORT const unsigned char ReachabilityVersionString[];
 
-/**
- * Create NS_ENUM macro if it does not exist on the targeted version of iOS or OS X.
- *
- * @see http://nshipster.com/ns_enum-ns_options/
- **/
-#    ifndef NS_ENUM
-#        define NS_ENUM(_type, _name)                                                              \
-            enum _name : _type _name;                                                              \
-            enum _name : _type
-#    endif
-
 extern NSString *const kSentryReachabilityChangedNotification;
 
-typedef NS_ENUM(NSInteger, NetworkStatus) {
+typedef NS_ENUM(NSInteger, SentryNetworkStatus) {
     // Apple NetworkStatus Compatible Names.
-    NotReachable = 0,
-    ReachableViaWiFi = 2,
-    ReachableViaWWAN = 1
+    kSentryNotReachable = 0,
+    kSentryReachableViaWiFi = 2,
+    kSentryReachableViaWWAN = 1
 };
 
 @class SentryReachability;
 
-typedef void (^NetworkReachable)(SentryReachability *reachability);
-typedef void (^NetworkUnreachable)(SentryReachability *reachability);
-typedef void (^NetworkReachability)(
+typedef void (^SentryNetworkReachable)(SentryReachability *reachability);
+typedef void (^SentryNetworkUnreachable)(SentryReachability *reachability);
+typedef void (^SentryNetworkReachability)(
     SentryReachability *reachability, SCNetworkConnectionFlags flags);
 
 @interface SentryReachability : NSObject
 
-@property (nonatomic, copy) NetworkReachable reachableBlock;
-@property (nonatomic, copy) NetworkUnreachable unreachableBlock;
-@property (nonatomic, copy) NetworkReachability reachabilityBlock;
+@property (nonatomic, copy) SentryNetworkReachable reachableBlock;
+@property (nonatomic, copy) SentryNetworkUnreachable unreachableBlock;
+@property (nonatomic, copy) SentryNetworkReachability reachabilityBlock;
 
 @property (nonatomic, assign) BOOL reachableOnWWAN;
 
@@ -98,7 +87,7 @@ typedef void (^NetworkReachability)(
 // Is user intervention required?
 - (BOOL)isInterventionRequired;
 
-- (NetworkStatus)currentReachabilityStatus;
+- (SentryNetworkStatus)currentReachabilityStatus;
 - (SCNetworkReachabilityFlags)reachabilityFlags;
 - (NSString *)currentReachabilityString;
 - (NSString *)currentReachabilityFlags;
