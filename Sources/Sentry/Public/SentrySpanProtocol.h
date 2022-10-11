@@ -4,7 +4,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentrySpanId, SentryId, SentryTraceHeader, SentryMeasurement;
+@class SentrySpanId, SentryId, SentryTraceHeader, SentryUnit;
 
 NS_SWIFT_NAME(Span)
 @protocol SentrySpan <SentrySerializable>
@@ -87,7 +87,9 @@ NS_SWIFT_NAME(Span)
  */
 - (void)removeTagForKey:(NSString *)key NS_SWIFT_NAME(removeTag(key:));
 
-- (void)setMeasurement:(SentryMeasurement *)measurement;
+- (void)setMeasurement:(NSString *)name
+                 value:(NSNumber *)value
+                  unit:(SentryUnit *)unit NS_SWIFT_NAME(setMeasurement(name:value:unit:));
 
 /**
  * Finishes the span by setting the end time.

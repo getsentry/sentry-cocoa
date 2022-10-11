@@ -26,6 +26,20 @@
 			remoteGlobalIDString = 7BB6224826A56C4E00D0E75E;
 			remoteInfo = "iOS-SwiftUI";
 		};
+		7BF01DB528F536BC00302035 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84D4FEA828ECD52700EDAAFE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 63AA759B1EB8AEF500D153DE;
+			remoteInfo = Sentry;
+		};
+		7BF01DB728F536BC00302035 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84D4FEA828ECD52700EDAAFE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 63AA76651EB8CB2F00D153DE;
+			remoteInfo = SentryTests;
+		};
 		84D4FEAD28ECD52E00EDAAFE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 84D4FEAA28ECD52E00EDAAFE /* Sentry.xcodeproj */;
@@ -163,6 +177,15 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		7BF01DB128F536BC00302035 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7BF01DB628F536BC00302035 /* Sentry.framework */,
+				7BF01DB828F536BC00302035 /* SentryTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		84D4FEAB28ECD52E00EDAAFE /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -243,6 +266,10 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
+					ProductGroup = 7BF01DB128F536BC00302035 /* Products */;
+					ProjectRef = 84D4FEA828ECD52700EDAAFE /* Sentry.xcodeproj */;
+				},
+				{
 					ProductGroup = 84D4FEAB28ECD52E00EDAAFE /* Products */;
 					ProjectRef = 84D4FEAA28ECD52E00EDAAFE /* Sentry.xcodeproj */;
 				},
@@ -256,6 +283,20 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		7BF01DB628F536BC00302035 /* Sentry.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = Sentry.framework;
+			remoteRef = 7BF01DB528F536BC00302035 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		7BF01DB828F536BC00302035 /* SentryTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = SentryTests.xctest;
+			remoteRef = 7BF01DB728F536BC00302035 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		84D4FEB228ECD52E00EDAAFE /* Sentry.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;

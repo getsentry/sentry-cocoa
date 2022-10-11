@@ -398,8 +398,11 @@ static NSLock *profilerLock;
     }
 }
 
-- (void)setMeasurement:(SentryMeasurement *)measurement
+- (void)setMeasurement:(NSString *)name value:(NSNumber *)value unit:(SentryUnit *)unit
 {
+    SentryMeasurement *measurement = [[SentryMeasurement alloc] initWithName:name
+                                                                       value:value
+                                                                        unit:unit];
     [_measurements addObject:measurement];
 }
 
