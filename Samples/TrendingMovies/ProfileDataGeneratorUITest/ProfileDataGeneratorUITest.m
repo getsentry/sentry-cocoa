@@ -53,7 +53,7 @@ generateProfileData(NSUInteger nCellsPerTab, BOOL clearState, BOOL efficiently)
     }
     if (efficiently) {
         [launchArguments
-            addObject:@"--io.sentry.sample.trending-movies.launch-arg.blur-images-on-main-thread"];
+            addObject:@"--io.sentry.sample.trending-movies.launch-arg.blur-images-on-bg-thread"];
     }
     app.launchArguments = launchArguments;
     [app launch];

@@ -62,7 +62,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "--io.sentry.sample.trending-movies.blur-images-on-main-thread"
+            argument = "--io.sentry.sample.trending-movies.blur-images-on-bg-thread"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
