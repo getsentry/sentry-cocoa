@@ -1,7 +1,7 @@
 #import "SentryTransaction.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryEnvelopeItemType.h"
-#import "SentryMeasurement.h"
+#import "SentryMeasurementValue.h"
 #import "SentryTransactionContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -76,15 +76,9 @@ SentryTransaction ()
 
     if (self.trace.measurements.count > 0) {
         NSMutableDictionary<NSString *, id> *measurements = [NSMutableDictionary dictionary];
-        for (SentryMeasurement *measurement in self.trace.measurements.allValues) {
-            NSDictionary *value;
-            if (measurement.unit != nil) {
-                value = @{ @"value" : measurement.value, @"unit" : measurement.unit.unit };
-            } else {
-                value = @{ @"value" : measurement.value };
-            }
 
-            measurements[measurement.name] = value;
+        for (NSString *measurementName in self.trace.measurements.allKeys) {
+            measurements[measurementName] = [self.trace.measurements[measurementName] serialize];
         }
 
         serializedData[@"measurements"] = measurements;

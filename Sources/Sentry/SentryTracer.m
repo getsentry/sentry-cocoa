@@ -21,7 +21,7 @@
 #import "SentryTransactionContext.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
 #import <SentryDispatchQueueWrapper.h>
-#import <SentryMeasurement.h>
+#import <SentryMeasurementValue.h>
 #import <SentryScreenFrames.h>
 #import <SentrySpanOperations.h>
 
@@ -61,7 +61,7 @@ SentryTracer ()
     SentryAppStartMeasurement *appStartMeasurement;
     NSMutableDictionary<NSString *, id> *_tags;
     NSMutableDictionary<NSString *, id> *_data;
-    NSMutableDictionary<NSString *, SentryMeasurement *> *_measurements;
+    NSMutableDictionary<NSString *, SentryMeasurementValue *> *_measurements;
     dispatch_block_t _idleTimeoutBlock;
     NSMutableArray<id<SentrySpan>> *_children;
 
@@ -399,15 +399,14 @@ static NSLock *profilerLock;
 
 - (void)setMeasurement:(NSString *)name value:(NSNumber *)value
 {
-    SentryMeasurement *measurement = [[SentryMeasurement alloc] initWithName:name value:value];
+    SentryMeasurementValue *measurement = [[SentryMeasurementValue alloc] initWithValue:value];
     _measurements[name] = measurement;
 }
 
 - (void)setMeasurement:(NSString *)name value:(NSNumber *)value unit:(SentryMeasurementUnit *)unit
 {
-    SentryMeasurement *measurement = [[SentryMeasurement alloc] initWithName:name
-                                                                       value:value
-                                                                        unit:unit];
+    SentryMeasurementValue *measurement = [[SentryMeasurementValue alloc] initWithValue:value
+                                                                                   unit:unit];
     _measurements[name] = measurement;
 }
 

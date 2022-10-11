@@ -20,7 +20,7 @@ SentryOptions ()
 
 @implementation SentryOptions
 
-- (void)setMeasurement:(SentryMeasurement *)measurement
+- (void)setMeasurement:(SentryMeasurementValue *)measurement
 {
 }
 

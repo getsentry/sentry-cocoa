@@ -3,7 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryDsn, SentrySdkInfo, SentryMeasurement;
+@class SentryDsn, SentrySdkInfo, SentryMeasurementValue;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -196,7 +196,7 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableAutoPerformanceTracking;
 
-- (void)setMeasurement:(SentryMeasurement *)measurement;
+- (void)setMeasurement:(SentryMeasurementValue *)measurement;
 
 #if SENTRY_HAS_UIKIT
 /**
