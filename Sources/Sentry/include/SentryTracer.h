@@ -19,7 +19,6 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 @end
 
 @interface SentryTracer : NSObject <SentrySpan>
-SENTRY_NO_INIT
 
 @property (nonatomic, strong) SentryTransactionContext *transactionContext;
 

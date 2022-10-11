@@ -145,7 +145,6 @@ class ViewController: UIViewController {
         transaction.setMeasurement(name: "duration", value: 44, unit: MeasurementUnitDuration.nanosecond)
         transaction.setMeasurement(name: "information", value: 44, unit: MeasurementUnitInformation.bit)
         transaction.setMeasurement(name: "duration-custom", value: 22, unit: MeasurementUnit(unit: "custom"))
-        transaction.setMeasurement(name: "duration-custom", value: 22, unit: MeasurementUnit(unit: "custom"))
         
         let span = transaction.startChild(operation: "user", description: "calls out")
         
