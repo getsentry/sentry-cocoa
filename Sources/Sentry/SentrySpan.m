@@ -90,7 +90,7 @@ SentrySpan ()
     }
 }
 
-- (void)setMeasurement:(NSString *)name value:(NSNumber *)value unit:(SentryUnit *)unit
+- (void)setMeasurement:(NSString *)name value:(NSNumber *)value unit:(SentryMeasurementUnit *)unit
 {
     [self.tracer setMeasurement:name value:value unit:unit];
 }

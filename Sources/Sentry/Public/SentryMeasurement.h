@@ -1,10 +1,10 @@
 #import "SentryDefines.h"
+#import "SentryMeasurementUnit.h"
 #import "SentrySerializable.h"
-#import "SentryUnit.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryMeasurement<UnitType : SentryUnit *> : NSObject <SentrySerializable>
+@interface SentryMeasurement<UnitType : SentryMeasurementUnit *> : NSObject <SentrySerializable>
 SENTRY_NO_INIT
 
 - (instancetype)initWithName:(NSString *)name value:(NSNumber *)value unit:(UnitType)unit;

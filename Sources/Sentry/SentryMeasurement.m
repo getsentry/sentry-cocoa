@@ -4,7 +4,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryMeasurement
 
-- (instancetype)initWithName:(NSString *)name value:(NSNumber *)value unit:(SentryUnit *)unit
+- (instancetype)initWithName:(NSString *)name
+                       value:(NSNumber *)value
+                        unit:(SentryMeasurementUnit *)unit
 {
     if (self = [super init]) {
         _name = name;
