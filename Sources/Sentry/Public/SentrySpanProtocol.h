@@ -88,6 +88,9 @@ NS_SWIFT_NAME(Span)
 - (void)removeTagForKey:(NSString *)key NS_SWIFT_NAME(removeTag(key:));
 
 - (void)setMeasurement:(NSString *)name
+                 value:(NSNumber *)value NS_SWIFT_NAME(setMeasurement(name:value:));
+
+- (void)setMeasurement:(NSString *)name
                  value:(NSNumber *)value
                   unit:(SentryMeasurementUnit *)unit
     NS_SWIFT_NAME(setMeasurement(name:value:unit:));

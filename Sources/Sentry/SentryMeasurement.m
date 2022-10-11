@@ -4,6 +4,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryMeasurement
 
+- (instancetype)initWithName:(NSString *)name value:(NSNumber *)value
+{
+    if (self = [super init]) {
+        _name = name;
+        _value = value;
+    }
+    return self;
+}
+
 - (instancetype)initWithName:(NSString *)name
                        value:(NSNumber *)value
                         unit:(SentryMeasurementUnit *)unit
@@ -14,11 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
         _unit = unit;
     }
     return self;
-}
-
-- (NSDictionary<NSString *, id> *)serialize
-{
-    return @{ @"name" : self.name, @"value" : self.value, @"unit" : self.unit.unit };
 }
 
 @end

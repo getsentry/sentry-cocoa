@@ -1209,7 +1209,7 @@ class SentryClientTest: XCTestCase {
         let event = Event(level: SentryLevel.warning)
         event.message = fixture.message
         let scope = Scope()
-        scope.span = SentryTracer()
+        scope.span = SentryTracer(transactionContext: TransactionContext(operation: "operation"), hub: TestHub(client: nil, andScope: nil))
         
         let client = fixture.getSut()
         client.capture(event: event, scope: scope)

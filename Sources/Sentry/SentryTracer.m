@@ -17,7 +17,6 @@
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
 #import "SentryTraceContext.h"
-#import "SentryTransaction+Private.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
@@ -62,7 +61,7 @@ SentryTracer ()
     SentryAppStartMeasurement *appStartMeasurement;
     NSMutableDictionary<NSString *, id> *_tags;
     NSMutableDictionary<NSString *, id> *_data;
-    NSMutableArray<SentryMeasurement *> *_measurements;
+    NSMutableDictionary<NSString *, SentryMeasurement *> *_measurements;
     dispatch_block_t _idleTimeoutBlock;
     NSMutableArray<id<SentrySpan>> *_children;
 
@@ -162,7 +161,7 @@ static NSLock *profilerLock;
         _waitForChildren = waitForChildren;
         _tags = [[NSMutableDictionary alloc] init];
         _data = [[NSMutableDictionary alloc] init];
-        _measurements = [[NSMutableArray alloc] init];
+        _measurements = [[NSMutableDictionary alloc] init];
         self.finishStatus = kSentrySpanStatusUndefined;
         self.idleTimeout = idleTimeout;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
@@ -398,12 +397,18 @@ static NSLock *profilerLock;
     }
 }
 
+- (void)setMeasurement:(NSString *)name value:(NSNumber *)value
+{
+    SentryMeasurement *measurement = [[SentryMeasurement alloc] initWithName:name value:value];
+    _measurements[name] = measurement;
+}
+
 - (void)setMeasurement:(NSString *)name value:(NSNumber *)value unit:(SentryMeasurementUnit *)unit
 {
     SentryMeasurement *measurement = [[SentryMeasurement alloc] initWithName:name
                                                                        value:value
                                                                         unit:unit];
-    [_measurements addObject:measurement];
+    _measurements[name] = measurement;
 }
 
 - (SentryTraceHeader *)toTraceHeader
@@ -698,8 +703,6 @@ static NSLock *profilerLock;
 
 - (void)addMeasurements:(SentryTransaction *)transaction
 {
-    NSString *valueKey = @"value";
-
     if (appStartMeasurement != nil && appStartMeasurement.type != SentryAppStartTypeUnknown) {
         NSString *type = nil;
         if (appStartMeasurement.type == SentryAppStartTypeCold) {
@@ -709,8 +712,9 @@ static NSLock *profilerLock;
         }
 
         if (type != nil) {
-            [transaction setMeasurementValue:@{ valueKey : @(appStartMeasurement.duration * 1000) }
-                                      forKey:type];
+            [self setMeasurement:type
+                           value:@(appStartMeasurement.duration * 1000)
+                            unit:SentryMeasurementUnitDuration.millisecond];
         }
     }
 
@@ -728,22 +732,15 @@ static NSLock *profilerLock;
         BOOL oneBiggerThanZero = totalFrames > 0 || slowFrames > 0 || frozenFrames > 0;
 
         if (allBiggerThanZero && oneBiggerThanZero) {
-            [transaction setMeasurementValue:@{ valueKey : @(totalFrames) } forKey:@"frames_total"];
-            [transaction setMeasurementValue:@{ valueKey : @(slowFrames) } forKey:@"frames_slow"];
-            [transaction setMeasurementValue:@{ valueKey : @(frozenFrames) }
-                                      forKey:@"frames_frozen"];
+            [self setMeasurement:@"frames_total" value:@(totalFrames)];
+            [self setMeasurement:@"frames_slow" value:@(slowFrames)];
+            [self setMeasurement:@"frames_frozen" value:@(frozenFrames)];
 
             SENTRY_LOG_DEBUG(@"Frames for transaction \"%@\" Total:%ld Slow:%ld Frozen:%ld",
                 self.context.operation, (long)totalFrames, (long)slowFrames, (long)frozenFrames);
         }
     }
 #endif
-
-    for (SentryMeasurement *measurement in _measurements) {
-        [transaction
-            setMeasurementValue:@{ @"value" : measurement.value, @"unit" : measurement.unit.unit }
-                         forKey:measurement.name];
-    }
 }
 
 - (id<SentrySpan>)buildSpan:(SentrySpanId *)parentId

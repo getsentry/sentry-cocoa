@@ -4,7 +4,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceContext,
-    SentryDispatchQueueWrapper, SentryTracer, SentryProfilesSamplerDecision;
+    SentryDispatchQueueWrapper, SentryTracer, SentryProfilesSamplerDecision, SentryMeasurement;
 
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
@@ -19,6 +19,7 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 @end
 
 @interface SentryTracer : NSObject <SentrySpan>
+SENTRY_NO_INIT
 
 @property (nonatomic, strong) SentryTransactionContext *transactionContext;
 
@@ -75,6 +76,8 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  * A delegate that provides extra information for the transaction.
  */
 @property (nullable, nonatomic, weak) id<SentryTracerDelegate> delegate;
+
+@property (nonatomic, readonly) NSDictionary<NSString *, SentryMeasurement *> *measurements;
 
 /**
  * Init a SentryTracer with given transaction context and hub and set other fields by default

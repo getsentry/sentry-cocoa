@@ -12,6 +12,11 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
++ (SentryMeasurementUnit *)none
+{
+    return [[SentryMeasurementUnitDuration alloc] initWithUnit:@""];
+}
+
 - (id)copyWithZone:(nullable NSZone *)zone
 {
     return [[[self class] allocWithZone:zone] initWithSymbol:self.unit];
@@ -136,7 +141,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @end
-;
 
 @implementation SentryUnitFraction
 

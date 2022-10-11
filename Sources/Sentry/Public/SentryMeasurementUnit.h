@@ -10,6 +10,9 @@ SENTRY_NO_INIT
 
 @property (readonly, copy) NSString *unit;
 
+/** Untyped value without a unit. */
+@property (class, readonly, copy) SentryMeasurementUnit *none;
+
 @end
 
 NS_SWIFT_NAME(MeasurementUnitDuration)

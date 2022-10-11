@@ -1,6 +1,7 @@
 #import "SentryTransaction.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryEnvelopeItemType.h"
+#import "SentryMeasurement.h"
 #import "SentryTransactionContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -9,7 +10,6 @@ NS_ASSUME_NONNULL_BEGIN
 SentryTransaction ()
 
 @property (nonatomic, strong) NSArray<id<SentrySpan>> *spans;
-@property (nonatomic, strong) NSMutableDictionary<NSString *, id> *measurements;
 
 @end
 
@@ -23,14 +23,8 @@ SentryTransaction ()
         self.trace = trace;
         self.spans = children;
         self.type = SentryEnvelopeItemTypeTransaction;
-        self.measurements = [NSMutableDictionary new];
     }
     return self;
-}
-
-- (void)setMeasurementValue:(id)value forKey:(NSString *)key
-{
-    self.measurements[key] = value;
 }
 
 - (NSDictionary<NSString *, id> *)serialize
@@ -80,8 +74,20 @@ SentryTransaction ()
         serializedData[@"extra"] = traceData;
     }
 
-    if (self.measurements.count > 0) {
-        serializedData[@"measurements"] = [self.measurements.copy sentry_sanitize];
+    if (self.trace.measurements.count > 0) {
+        NSMutableDictionary<NSString *, id> *measurements = [NSMutableDictionary dictionary];
+        for (SentryMeasurement *measurement in self.trace.measurements.allValues) {
+            NSDictionary *value;
+            if (measurement.unit != nil) {
+                value = @{ @"value" : measurement.value, @"unit" : measurement.unit.unit };
+            } else {
+                value = @{ @"value" : measurement.value };
+            }
+
+            measurements[measurement.name] = value;
+        }
+
+        serializedData[@"measurements"] = measurements;
     }
 
     if (self.trace) {
