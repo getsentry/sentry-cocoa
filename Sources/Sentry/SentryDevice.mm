@@ -167,7 +167,9 @@ getCPUArchitecture(void)
 NSString *
 getOSName(void)
 {
-#if SENTRY_HAS_UIKIT
+#if TARGET_OS_MACCATALYST
+    return @"Catalyst";
+#elif SENTRY_HAS_UIKIT
     return UIDevice.currentDevice.systemName;
 #else
     return @"macOS";
