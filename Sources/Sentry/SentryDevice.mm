@@ -84,7 +84,7 @@ getHardwareDescription(int type)
 }
 
 /**
- * Provided as a fallback in case @c sysctlbyname fails in @c getCPUArchitecture using the
+ * Provided as a fallback in case @c sysctlbyname fails in @c sentry_getCPUArchitecture using the
  * @c hw.cpusubtype option.
  * @note I've not observed a device that has needed this (armcknight 22 Sep 2022). Tested on:
  * @code
@@ -133,7 +133,7 @@ getCPUType(NSNumber *_Nullable subtype)
 } // namespace
 
 NSString *
-getCPUArchitecture(void)
+sentry_getCPUArchitecture(void)
 {
     cpu_subtype_t subtype;
     size_t subtypeSize = sizeof(subtype);
@@ -165,7 +165,7 @@ getCPUArchitecture(void)
 }
 
 NSString *
-getOSName(void)
+sentry_getOSName(void)
 {
 #if TARGET_OS_MACCATALYST
     return @"Catalyst";
@@ -177,7 +177,7 @@ getOSName(void)
 }
 
 NSString *
-getOSVersion(void)
+sentry_getOSVersion(void)
 {
 #if TARGET_OS_WATCH
     return WKInterfaceDevice.currentDevice.systemVersion;
@@ -206,11 +206,11 @@ getOSVersion(void)
 }
 
 NSString *
-getDeviceModel(void)
+sentry_getDeviceModel(void)
 {
 #if TARGET_OS_SIMULATOR
     // iPhone/iPad, Watch and TV simulators
-    const auto simulatedDeviceModelName = getSimulatorDeviceModel();
+    const auto simulatedDeviceModelName = sentry_getSimulatorDeviceModel();
     SENTRY_LOG_DEBUG(@"Got simulated device model name %@ (running on %@)",
         simulatedDeviceModelName, getHardwareDescription(HW_MODEL));
     return simulatedDeviceModelName;
@@ -238,13 +238,13 @@ getDeviceModel(void)
 }
 
 NSString *
-getSimulatorDeviceModel(void)
+sentry_getSimulatorDeviceModel(void)
 {
     return NSProcessInfo.processInfo.environment[@"SIMULATOR_MODEL_IDENTIFIER"];
 }
 
 NSString *
-getOSBuildNumber(void)
+sentry_getOSBuildNumber(void)
 {
     char str[32];
     size_t size = sizeof(str);
@@ -256,7 +256,7 @@ getOSBuildNumber(void)
 }
 
 BOOL
-isSimulatorBuild(void)
+sentry_isSimulatorBuild(void)
 {
 #if TARGET_OS_SIMULATOR
     return true;

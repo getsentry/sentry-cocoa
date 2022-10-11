@@ -9,40 +9,40 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @return The CPU architecture name, such as @c armv7, @c arm64 or @c x86_64.
  */
-NSString *getCPUArchitecture(void);
+NSString *sentry_getCPUArchitecture(void);
 
 /**
  * @return The name of the operating system, such as @c iOS or @c macOS.
  */
-NSString *getOSName(void);
+NSString *sentry_getOSName(void);
 
 /**
  * @return The OS version with up to three period-delimited numbers, like @c 14 , @c 14.0 or
  * @c 14.0.1 .
  */
-NSString *getOSVersion(void);
+NSString *sentry_getOSVersion(void);
 
 /**
  * @return The Apple hardware descriptor, such as @c iPhone14,4 or @c MacBookPro10,8 .
  * @note If running on a simulator, this will be the model of the simulated device.
  */
-NSString *getDeviceModel(void);
+NSString *sentry_getDeviceModel(void);
 
 /**
- * @return The Apple hardware descriptor of the simulated device, such as @c iPhone14,4 or @c
- * MacBookPro10,8 .
+ * @return The Apple hardware descriptor of the simulated device, such as @c iPhone14,4 or
+ * @c MacBookPro10,8 .
  */
-NSString *_Nullable getSimulatorDeviceModel(void);
+NSString *_Nullable sentry_getSimulatorDeviceModel(void);
 
 /**
  * @return A string describing the OS version's specific build, with alphanumeric characters, like
  * @c 21G115 .
  */
-NSString *getOSBuildNumber(void);
+NSString *sentry_getOSBuildNumber(void);
 
 /**
  * @return @c YES if built and running in a simulator on a mac device, @c NO if running on a device.
  */
-BOOL isSimulatorBuild(void);
+BOOL sentry_isSimulatorBuild(void);
 
 NS_ASSUME_NONNULL_END

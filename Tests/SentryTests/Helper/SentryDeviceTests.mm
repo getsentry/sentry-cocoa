@@ -20,7 +20,7 @@
 
 - (void)testCPUArchitecture
 {
-    const auto arch = getCPUArchitecture();
+    const auto arch = sentry_getCPUArchitecture();
 #if TARGET_OS_OSX
 #    if TARGET_CPU_X86_64
     // I observed this branch still being taken when running unit tests for macOS in Xcode 13.4.1 on
@@ -74,12 +74,12 @@
 
 - (void)testOSVersion
 {
-    XCTAssertNotEqual(getOSVersion().length, 0U);
+    XCTAssertNotEqual(sentry_getOSVersion().length, 0U);
 }
 
 - (void)testOSName
 {
-    const auto osName = getOSName();
+    const auto osName = sentry_getOSName();
 #if TARGET_OS_OSX
     SENTRY_ASSERT_EQUAL(osName, @"macOS");
 #elif TARGET_OS_MACCATALYST
@@ -109,7 +109,7 @@
 
 - (void)testDeviceModel
 {
-    const auto modelName = getDeviceModel();
+    const auto modelName = sentry_getDeviceModel();
     XCTAssertNotEqual(modelName.length, 0U);
 #if TARGET_OS_OSX || TARGET_OS_MACCATALYST
 #    if defined(TESTCI) || defined(TEST)
@@ -142,15 +142,15 @@
 
 - (void)testOSBuildNumber
 {
-    XCTAssertNotEqual(getOSBuildNumber().length, 0U);
+    XCTAssertNotEqual(sentry_getOSBuildNumber().length, 0U);
 }
 
 - (void)testIsSimulator
 {
 #if TARGET_OS_SIMULATOR
-    XCTAssertTrue(isSimulatorBuild());
+    XCTAssertTrue(sentry_isSimulatorBuild());
 #else
-    XCTAssertFalse(isSimulatorBuild());
+    XCTAssertFalse(sentry_isSimulatorBuild());
 #endif
 }
 
@@ -159,7 +159,7 @@
 #if !TARGET_OS_SIMULATOR
     XCTSkip(@"Should only run on simulators.");
 #else
-    const auto modelName = getSimulatorDeviceModel();
+    const auto modelName = sentry_getSimulatorDeviceModel();
     XCTAssertNotEqual(modelName.length, 0U);
 #    if TARGET_OS_IOS
     // We must test this branch in iOS-SwiftUITests since it must run on device, which SentryTests

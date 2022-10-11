@@ -208,14 +208,14 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
         profile[@"debug_meta"] = @{ @"images" : debugImages };
     }
 
-    profile[@"device_architecture"] = getCPUArchitecture();
+    profile[@"device_architecture"] = sentry_getCPUArchitecture();
     profile[@"device_locale"] = NSLocale.currentLocale.localeIdentifier;
     profile[@"device_manufacturer"] = @"Apple";
-    const auto isEmulated = isSimulatorBuild();
-    profile[@"device_model"] = isEmulated ? getSimulatorDeviceModel() : getDeviceModel();
-    profile[@"device_os_build_number"] = getOSBuildNumber();
-    profile[@"device_os_name"] = getOSName();
-    profile[@"device_os_version"] = getOSVersion();
+    const auto isEmulated = sentry_isSimulatorBuild();
+    profile[@"device_model"] = isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel();
+    profile[@"device_os_build_number"] = sentry_getOSBuildNumber();
+    profile[@"device_os_name"] = sentry_getOSName();
+    profile[@"device_os_version"] = sentry_getOSVersion();
     profile[@"device_is_emulator"] = @(isEmulated);
     profile[@"device_physical_memory_bytes"] =
         [@(NSProcessInfo.processInfo.physicalMemory) stringValue];
