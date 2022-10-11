@@ -82,28 +82,30 @@ SentryHttpTransport ()
         [self sendAllCachedEnvelopes];
 
 #if !TARGET_OS_WATCH
-        __block BOOL wasOffline = NO;
+        __block BOOL wasConnected = YES;
 
-        SentryReachability *reach = [SentryReachability reachabilityWithHostname:@"sentry.io"];
-        reach.reachableBlock = ^(SentryReachability *_reach) {
-            if (wasOffline) {
-                SENTRY_LOG_DEBUG(@"SentryHttpTransport: Internet connection is back.");
-                wasOffline = NO;
-                [self sendAllCachedEnvelopes];
-            }
-        };
-
-        reach.unreachableBlock = ^(SentryReachability *_reach) {
-            if (!wasOffline) {
-                SENTRY_LOG_DEBUG(@"SentryHttpTransport: Lost internet connection.");
-                wasOffline = YES;
-            }
-        };
-
-        [reach startNotifier];
+        [SentryReachability
+               monitorURL:[NSURL URLWithString:@"https://sentry.io"]
+            usingCallback:^(BOOL connected, NSString *_Nonnull typeDescription) {
+                if (connected && !wasConnected) {
+                    SENTRY_LOG_DEBUG(@"SentryHttpTransport: Internet connection is back.");
+                    wasConnected = YES;
+                    [self sendAllCachedEnvelopes];
+                } else if (!connected && wasConnected) {
+                    SENTRY_LOG_DEBUG(@"SentryHttpTransport: Lost internet connection.");
+                    wasConnected = NO;
+                }
+            }];
 #endif
     }
     return self;
+}
+
+- (void)dealloc
+{
+#if !TARGET_OS_WATCH
+    [SentryReachability stopMonitoring];
+#endif
 }
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope

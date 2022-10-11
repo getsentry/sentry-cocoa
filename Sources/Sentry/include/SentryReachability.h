@@ -1,96 +1,76 @@
-/*
- Copyright (c) 2011, Tony Million.
- All rights reserved.
-
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions are met:
-
- 1. Redistributions of source code must retain the above copyright notice, this
- list of conditions and the following disclaimer.
-
- 2. Redistributions in binary form must reproduce the above copyright notice,
- this list of conditions and the following disclaimer in the documentation
- and/or other materials provided with the distribution.
-
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- POSSIBILITY OF SUCH DAMAGE.
- */
+//
+//  SentryReachability.h
+//
+//  Created by Jamie Lynch on 2017-09-04.
+//
+//  Copyright (c) 2017 Bugsnag, Inc. All rights reserved.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall remain in place
+// in this source code.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
 
 #import <Foundation/Foundation.h>
 
 #if !TARGET_OS_WATCH
+
 #    import <SystemConfiguration/SystemConfiguration.h>
 
-//! Project version number for MacOSReachability.
-FOUNDATION_EXPORT double ReachabilityVersionNumber;
+NS_ASSUME_NONNULL_BEGIN
 
-//! Project version string for MacOSReachability.
-FOUNDATION_EXPORT const unsigned char ReachabilityVersionString[];
+/**
+ * Function signature to connectivity monitoring callback of SentryReachability
+ *
+ * @param connected YES if the monitored URL is reachable
+ * @param typeDescription a textual representation of the connection type
+ */
+typedef void (^SentryConnectivityChangeBlock)(BOOL connected, NSString *typeDescription);
 
-extern NSString *const kSentryReachabilityChangedNotification;
-
-typedef NS_ENUM(NSInteger, SentryNetworkStatus) {
-    // Apple NetworkStatus Compatible Names.
-    kSentryNotReachable = 0,
-    kSentryReachableViaWiFi = 2,
-    kSentryReachableViaWWAN = 1
-};
-
-@class SentryReachability;
-
-typedef void (^SentryNetworkReachable)(SentryReachability *reachability);
-typedef void (^SentryNetworkUnreachable)(SentryReachability *reachability);
-typedef void (^SentryNetworkReachability)(
-    SentryReachability *reachability, SCNetworkConnectionFlags flags);
-
+/**
+ * Monitors network connectivity using SCNetworkReachability callbacks,
+ * providing a customizable callback block invoked when connectivity changes.
+ */
 @interface SentryReachability : NSObject
 
-@property (nonatomic, copy) SentryNetworkReachable reachableBlock;
-@property (nonatomic, copy) SentryNetworkUnreachable unreachableBlock;
-@property (nonatomic, copy) SentryNetworkReachability reachabilityBlock;
+/**
+ * Invoke a block each time network connectivity changes
+ *
+ * @param URL   The URL monitored for changes. Should be equivalent to
+ *              BugsnagConfiguration.notifyURL
+ * @param block The block called when connectivity changes
+ */
++ (void)monitorURL:(NSURL *)URL usingCallback:(SentryConnectivityChangeBlock)block;
 
-@property (nonatomic, assign) BOOL reachableOnWWAN;
+/**
+ * Stop monitoring the URL previously configured with monitorURL:usingCallback:
+ */
++ (void)stopMonitoring;
 
-+ (instancetype)reachabilityWithHostname:(NSString *)hostname;
-// This is identical to the function above, but is here to maintain
-// compatibility with Apples original code. (see .m)
-+ (instancetype)reachabilityWithHostName:(NSString *)hostname;
-+ (instancetype)reachabilityForInternetConnection;
-+ (instancetype)reachabilityWithAddress:(void *)hostAddress;
-+ (instancetype)reachabilityForLocalWiFi;
-+ (instancetype)reachabilityWithURL:(NSURL *)url;
-
-- (instancetype)initWithReachabilityRef:(SCNetworkReachabilityRef)ref;
-
-- (BOOL)startNotifier;
-- (void)stopNotifier;
-
-- (BOOL)isReachable;
-- (BOOL)isReachableViaWWAN;
-- (BOOL)isReachableViaWiFi;
-
-// WWAN may be available, but not active until a connection has been established.
-// WiFi may require a connection for VPN on Demand.
-- (BOOL)isConnectionRequired; // Identical DDG variant.
-- (BOOL)connectionRequired; // Apple's routine.
-// Dynamic, on demand connection?
-- (BOOL)isConnectionOnDemand;
-// Is user intervention required?
-- (BOOL)isInterventionRequired;
-
-- (SentryNetworkStatus)currentReachabilityStatus;
-- (SCNetworkReachabilityFlags)reachabilityFlags;
-- (NSString *)currentReachabilityString;
-- (NSString *)currentReachabilityFlags;
++ (BOOL)isValidHostname:(nullable NSString *)host;
 
 @end
+
+void SentryConnectivityCallback(
+    SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *_Nullable);
+
+NSString *SentryConnectivityFlagRepresentation(SCNetworkReachabilityFlags flags);
+
+BOOL SentryConnectivityShouldReportChange(SCNetworkReachabilityFlags flags);
+
+NS_ASSUME_NONNULL_END
+
 #endif
