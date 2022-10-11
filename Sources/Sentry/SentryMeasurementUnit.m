@@ -142,16 +142,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@implementation SentryUnitFraction
+@implementation SentryMeasurementUnitFraction
 
-+ (SentryUnitFraction *)ratio
++ (SentryMeasurementUnitFraction *)ratio
 {
-    return [[SentryUnitFraction alloc] initWithUnit:@"ratio"];
+    return [[SentryMeasurementUnitFraction alloc] initWithUnit:@"ratio"];
 }
 
-+ (SentryUnitFraction *)percent
++ (SentryMeasurementUnitFraction *)percent
 {
-    return [[SentryUnitFraction alloc] initWithUnit:@"percent"];
+    return [[SentryMeasurementUnitFraction alloc] initWithUnit:@"percent"];
 }
 
 @end

@@ -93,14 +93,15 @@ SENTRY_NO_INIT
 
 @end
 
-@interface SentryUnitFraction : SentryMeasurementUnit
+NS_SWIFT_NAME(MeasurementUnitFraction)
+@interface SentryMeasurementUnitFraction : SentryMeasurementUnit
 SENTRY_NO_INIT
 
 /** Floating point fraction of `1`. */
-@property (class, readonly, copy) SentryUnitFraction *ratio;
+@property (class, readonly, copy) SentryMeasurementUnitFraction *ratio;
 
 /** Ratio expressed as a fraction of `100`. `100%` equals a ratio of `1.0`. */
-@property (class, readonly, copy) SentryUnitFraction *percent;
+@property (class, readonly, copy) SentryMeasurementUnitFraction *percent;
 
 @end
 

@@ -711,9 +711,7 @@ static NSLock *profilerLock;
         }
 
         if (type != nil) {
-            [self setMeasurement:type
-                           value:@(appStartMeasurement.duration * 1000)
-                            unit:SentryMeasurementUnitDuration.millisecond];
+            [self setMeasurement:type value:@(appStartMeasurement.duration * 1000)];
         }
     }
 

@@ -51,8 +51,8 @@ class SentryTransactionTests: XCTestCase {
         XCTAssertNil(actual["measurements"])
     }
     
-    func testSerializeMeasurements_AppStartMeasurement() {
-        let name = "app_start_cold"
+    func testSerializeMeasurements_DurationMeasurement() {
+        let name = "some_duration"
         let value: NSNumber = 15_000.0
         let unit = MeasurementUnitDuration.millisecond
         

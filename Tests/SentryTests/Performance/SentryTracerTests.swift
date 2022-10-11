@@ -546,6 +546,31 @@ class SentryTracerTests: XCTestCase {
         assertAppStartMeasurementNotPutOnTransaction()
     }
     
+    func testMeasurementOnChildSpan_SetTwice_OverwritesMeasurement() {
+        let name = "something"
+        let value: NSNumber = -12.34
+        let unit = MeasurementUnitFraction.percent
+        
+        let sut = fixture.getSut()
+        let childSpan = sut.startChild(operation: "operation")
+        sut.setMeasurement(name: name, value: 12.0, unit: unit)
+        childSpan.setMeasurement(name: name, value: value, unit: unit)
+        childSpan.finish()
+        sut.finish()
+        fixture.hub.group.wait()
+        
+        XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
+        let serializedTransaction = fixture.hub.capturedEventsWithScopes.first?.event.serialize()
+        
+        let measurements = serializedTransaction?["measurements"] as? [String: [String: Any]]
+        XCTAssertEqual(1, measurements?.count)
+        
+        let measurement = measurements?[name] as? [String: Any]
+        XCTAssertNotNil(measurement)
+        XCTAssertEqual(value, measurement?["value"] as! NSNumber)
+        XCTAssertEqual(unit.unit, measurement?["unit"] as! String)
+    }
+    
     func testFinish_WithUnfinishedChildren() {
         CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
         let sut = fixture.getSut(waitForChildren: false)
