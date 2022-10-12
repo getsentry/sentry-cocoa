@@ -196,8 +196,6 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableAutoPerformanceTracking;
 
-- (void)setMeasurement:(SentryMeasurementValue *)measurement;
-
 #if SENTRY_HAS_UIKIT
 /**
  * When enabled, the SDK tracks performance for UIViewController subclasses. The default is
