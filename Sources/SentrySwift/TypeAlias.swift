@@ -41,3 +41,4 @@ public typealias User = SentryObjc.User
 public typealias PrivateSentrySDKOnly = SentryObjc.PrivateSentrySDKOnly
 public typealias SentryDescriptorProtocol = SentryObjc.SentryDescriptorProtocol
 public typealias SentryDependencyContainer = SentryObjc.SentryDependencyContainer
+public typealias SentryPerformanceTracker = SentryObjc.SentryPerformanceTracker

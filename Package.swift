@@ -13,9 +13,8 @@ let package = Package(
                  dependencies: ["SentryObjc"],
                  path: "Sources",
                  sources: [
-                    "SentrySwift"
+                    "SentrySwift/"
                  ],
-                 publicHeadersPath: "SentrySwift"
                ),
         .target(
             name: "SentryObjc",
