@@ -14,7 +14,7 @@ let package = Package(
                  path: "Sources",
                  sources: [
                     "SentrySwift/"
-                 ],
+                 ]
                ),
         .target(
             name: "SentryObjc",
