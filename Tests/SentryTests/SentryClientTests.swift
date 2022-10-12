@@ -1026,7 +1026,7 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             assertArrayEquals(
-                expected: ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking"],
+                expected: ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking", "_TtC627Descriptor"],
                 actual: actual.sdk?["integrations"] as? [String]
             )
         }
