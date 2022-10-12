@@ -1,5 +1,6 @@
 import XCTest
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryAppStateManagerTests: XCTestCase {
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryOutOfMemoryTrackerTests")
     private static let dsn = TestConstants.dsn(username: "SentryOutOfMemoryTrackerTests")
@@ -96,3 +97,4 @@ class SentryAppStateManagerTests: XCTestCase {
         XCTAssertEqual(fixture.fileManager.readAppState()!.wasTerminated, true)
     }
 }
+#endif
