@@ -14,6 +14,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let fileManager: SentryFileManager
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
         let appStateManager: SentryAppStateManager
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
         
         let appStartDuration: TimeInterval = 0.4
         var runtimeInitTimestamp: Date
@@ -26,7 +27,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
             
             fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
             
-            appStateManager = SentryAppStateManager(options: options, crashWrapper: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl)
+            appStateManager = SentryAppStateManager(options: options, crashWrapper: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl, dispatchQueueWrapper: dispatchQueue)
             
             runtimeInitTimestamp = currentDate.date().addingTimeInterval(0.2)
             didFinishLaunchingTimestamp = currentDate.date().addingTimeInterval(0.3)

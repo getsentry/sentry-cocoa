@@ -63,11 +63,12 @@ static NSObject *sentryDependencyContainerLock;
         if (_appStateManager == nil) {
             SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
             _appStateManager = [[SentryAppStateManager alloc]
-                    initWithOptions:options
-                       crashWrapper:self.crashWrapper
-                        fileManager:self.fileManager
-                currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-                             sysctl:[[SentrySysctl alloc] init]];
+                     initWithOptions:options
+                        crashWrapper:self.crashWrapper
+                         fileManager:self.fileManager
+                 currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                              sysctl:[[SentrySysctl alloc] init]
+                dispatchQueueWrapper:self.dispatchQueueWrapper];
         }
         return _appStateManager;
     }
