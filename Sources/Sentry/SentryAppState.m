@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
         NSTimeInterval interval = round(systemBootTimestamp.timeIntervalSince1970);
         _systemBootTimestamp = [[NSDate alloc] initWithTimeIntervalSince1970:interval];
 
-        _isActive = YES;
+        _isActive = NO;
         _wasTerminated = NO;
         _isANROngoing = NO;
     }
