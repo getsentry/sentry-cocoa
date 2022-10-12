@@ -56,7 +56,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         fixture.fileManager.deleteAllFolders()
         clearTestState()
     }
-    
+
     func testFirstStart_IsColdStart() {
         startApp()
         

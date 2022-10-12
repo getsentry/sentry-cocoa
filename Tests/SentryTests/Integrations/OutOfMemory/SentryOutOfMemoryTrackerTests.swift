@@ -62,6 +62,8 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     }
 
     func testStart_StoresAppState() {
+        XCTAssertNil(fixture.fileManager.readAppState())
+
         sut.start()
         
         let actual = fixture.fileManager.readAppState()

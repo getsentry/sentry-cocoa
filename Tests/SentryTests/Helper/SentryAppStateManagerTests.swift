@@ -41,12 +41,21 @@ class SentryAppStateManagerTests: XCTestCase {
         sut = fixture.getSut()
     }
 
+    override func tearDown() {
+        super.tearDown()
+        fixture.fileManager.deleteAppState()
+    }
+
     func testStartStoresAppState() {
+        XCTAssertNil(fixture.fileManager.readAppState())
+
         sut.start()
         XCTAssertNotNil(fixture.fileManager.readAppState())
     }
 
     func testStartOnlyRunsLogicWhenStartCountBecomesOne() {
+        XCTAssertNil(fixture.fileManager.readAppState())
+
         sut.start()
         XCTAssertNotNil(fixture.fileManager.readAppState())
 
@@ -57,6 +66,8 @@ class SentryAppStateManagerTests: XCTestCase {
     }
 
     func testStopDeletesAppState() {
+        XCTAssertNil(fixture.fileManager.readAppState())
+
         sut.start()
         XCTAssertNotNil(fixture.fileManager.readAppState())
 
@@ -65,6 +76,8 @@ class SentryAppStateManagerTests: XCTestCase {
     }
 
     func testStopOnlyRunsLogicWhenStartCountBecomesZero() {
+        XCTAssertNil(fixture.fileManager.readAppState())
+
         sut.start()
         XCTAssertNotNil(fixture.fileManager.readAppState())
 
@@ -78,6 +91,8 @@ class SentryAppStateManagerTests: XCTestCase {
     }
 
     func testStoreAndDeleteAppState() {
+        XCTAssertNil(fixture.fileManager.readAppState())
+
         sut.storeCurrentAppState()
         XCTAssertNotNil(fixture.fileManager.readAppState())
 
