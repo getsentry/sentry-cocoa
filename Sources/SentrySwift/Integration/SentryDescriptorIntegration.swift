@@ -1,5 +1,4 @@
 import Foundation
-import SentryObjc
 
 @objc
 public class SentryDescriptorIntegration: NSObject, SentryIntegrationProtocol {
