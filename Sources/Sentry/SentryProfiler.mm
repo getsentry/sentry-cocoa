@@ -103,7 +103,13 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
         const auto sampledProfile = [NSMutableDictionary<NSString *, id> dictionary];
 
         /*
-         * Maintain an index of unique frames to avoid duplicating large amounts of data. Every unique frame is stored in an array, and every time a stack trace is captured for a sample, the stack is stored as an array of integers indexing into the array of frames. Stacks are thusly also stored as unique elements in their own index, an array of arrays of frame indices, and each sample references a stack by index, to deduplicate common stacks between samples, such as when the same deep function call runs across multiple samples.
+         * Maintain an index of unique frames to avoid duplicating large amounts of data. Every
+         * unique frame is stored in an array, and every time a stack trace is captured for a
+         * sample, the stack is stored as an array of integers indexing into the array of frames.
+         * Stacks are thusly also stored as unique elements in their own index, an array of arrays
+         * of frame indices, and each sample references a stack by index, to deduplicate common
+         * stacks between samples, such as when the same deep function call runs across multiple
+         * samples.
          *
          * E.g. if we have the following samples in the following function call stacks:
          *
@@ -147,8 +153,8 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 
         __weak const auto weakSelf = self;
         _profiler = std::make_shared<SamplingProfiler>(
-                                                       [weakSelf, threadMetadata, queueMetadata, samples, mainThreadID = _mainThreadID, frames, stacks](
-                auto &backtrace) {
+            [weakSelf, threadMetadata, queueMetadata, samples, mainThreadID = _mainThreadID, frames,
+                stacks](auto &backtrace) {
                 const auto strongSelf = weakSelf;
                 if (strongSelf == nil) {
                     return;
@@ -188,16 +194,19 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 
                 const auto stack = [NSMutableArray<NSNumber *> array];
                 for (std::vector<uintptr_t>::size_type i = 0; i < backtrace.addresses.size(); i++) {
-                    const auto instructionAddress = sentry_formatHexAddress(@(backtrace.addresses[i]));
-                    const auto frameIndex = [frames indexOfObjectPassingTest:^BOOL(NSDictionary<NSString *,id> * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                        return [obj[@"instruction_addr"] isEqualToString:instructionAddress];
-                    }];
+                    const auto instructionAddress
+                        = sentry_formatHexAddress(@(backtrace.addresses[i]));
+                    const auto frameIndex = [frames
+                        indexOfObjectPassingTest:^BOOL(NSDictionary<NSString *, id> *_Nonnull obj,
+                            NSUInteger idx, BOOL *_Nonnull stop) {
+                            return [obj[@"instruction_addr"] isEqualToString:instructionAddress];
+                        }];
                     if (frameIndex == NSNotFound) {
                         const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
                         frame[@"instruction_addr"] = instructionAddress;
-    #    if defined(DEBUG)
+#    if defined(DEBUG)
                         frame[@"function"] = parseBacktraceSymbolsFunctionName(symbols[i]);
-    #    endif
+#    endif
                         [stack addObject:@(frames.count)];
                         [frames addObject:frame];
                     } else {
@@ -263,9 +272,9 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     }
 
     profile[@"os"] = @{
-        @"name" : getOSName(),
-        @"version" : getOSVersion(),
-        @"build_number" : getOSBuildNumber()
+        @"name" : sentry_getOSName(),
+        @"version" : sentry_getOSVersion(),
+        @"build_number" : sentry_getOSBuildNumber()
     };
 
     const auto isEmulated = sentry_isSimulatorBuild();
@@ -275,7 +284,6 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
         @"locale" : NSLocale.currentLocale.localeIdentifier,
         @"manufacturer" : @"Apple",
         @"model" : isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel(),
-		@"os_name" : sentry_getOSName(),
         @"physical_memory_bytes" : [@(NSProcessInfo.processInfo.physicalMemory) stringValue]
     };
 
