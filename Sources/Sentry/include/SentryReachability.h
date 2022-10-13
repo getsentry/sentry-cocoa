@@ -73,4 +73,6 @@ typedef void (^SentryConnectivityChangeBlock)(BOOL connected, NSString *typeDesc
 
 @end
 
+#if !TARGET_OS_WATCH
 NS_ASSUME_NONNULL_END
+#endif
