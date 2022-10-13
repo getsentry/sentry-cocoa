@@ -56,6 +56,9 @@
             </BuildableReference>
             <SkippedTests>
                <Test
+                  Identifier = "SentryCrashIntegrationTests/testStartUpCrash_CallsFlush()">
+               </Test>
+               <Test
                   Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readPath_disabled()">
                </Test>
                <Test
