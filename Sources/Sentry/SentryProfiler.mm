@@ -29,8 +29,6 @@
 #    endif
 
 #    import <cstdint>
-#    import <mach-o/arch.h>
-#    include <mach/machine.h>
 #    import <memory>
 
 #    if TARGET_OS_IOS
