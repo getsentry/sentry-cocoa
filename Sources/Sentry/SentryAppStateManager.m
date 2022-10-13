@@ -128,8 +128,12 @@ SentryAppStateManager ()
 }
 
 /**
- * It is called when an App. is receiving events / It is in the foreground and when we receive a
+ * It is called when an app is receiving events / it is in the foreground and when we receive a
  * SentryHybridSdkDidBecomeActiveNotification.
+ *
+ * This also works when using SwiftUI or Scenes, as UIKit posts a didBecomeActiveNotification
+ * regardless of whether your app uses scenes, see
+ * https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622956-applicationdidbecomeactive.
  */
 - (void)didBecomeActive
 {
