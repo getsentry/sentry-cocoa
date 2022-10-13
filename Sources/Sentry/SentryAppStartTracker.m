@@ -109,6 +109,10 @@ SentryAppStartTracker ()
     if (PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode) {
         [self buildAppStartMeasurement];
     }
+
+#    if SENTRY_HAS_UIKIT
+    [self.appStateManager start];
+#    endif
 }
 
 - (void)buildAppStartMeasurement
@@ -259,6 +263,10 @@ SentryAppStartTracker ()
     [NSNotificationCenter.defaultCenter removeObserver:self
                                                   name:UIApplicationDidEnterBackgroundNotification
                                                 object:nil];
+
+#    if SENTRY_HAS_UIKIT
+    [self.appStateManager stop];
+#    endif
 }
 
 - (void)dealloc
