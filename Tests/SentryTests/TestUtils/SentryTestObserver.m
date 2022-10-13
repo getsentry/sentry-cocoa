@@ -95,8 +95,7 @@ SentryTestObserver ()
 
 - (void)testBundleDidFinish:(NSBundle *)testBundle
 {
-    // Wait for events to flush out.
-    [NSThread sleepForTimeInterval:3.0];
+    [SentrySDK flush:5.0];
 }
 
 @end
