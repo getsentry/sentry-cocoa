@@ -68,6 +68,12 @@
                   Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl_disabled()">
                </Test>
                <Test
+                  Identifier = "SentryHttpTransportTests/testFlush_CalledSequentially_BlocksTwice()">
+               </Test>
+               <Test
+                  Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndBaggageHeaderAdded()">
+               </Test>
+               <Test
                   Identifier = "SentrySDKIntegrationTestsBase">
                </Test>
                <Test
