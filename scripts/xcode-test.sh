@@ -47,7 +47,7 @@ case $REF_NAME in
         ;;
     
     *)
-        CONFIGURATION="Test"
+        CONFIGURATION="TestCI"
         ;;
 esac
 
