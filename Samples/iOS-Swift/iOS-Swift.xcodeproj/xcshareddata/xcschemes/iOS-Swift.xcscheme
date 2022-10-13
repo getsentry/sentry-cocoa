@@ -41,6 +41,9 @@
                <Test
                   Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readPath_disabled()">
                </Test>
+               <Test
+                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl_disabled()">
+               </Test>
             </SkippedTests>
          </TestableReference>
       </Testables>
