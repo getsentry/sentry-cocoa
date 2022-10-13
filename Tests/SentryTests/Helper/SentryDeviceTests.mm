@@ -7,6 +7,18 @@
 #define SENTRY_ASSERT_CONTAINS(parentString, childString)                                          \
     XCTAssert([parentString containsString:childString], @"Expected %@ to contain %@",             \
         parentString, childString)
+#define SENTRY_ASSERT_PREFIX(reportedVersion, ...)                                                 \
+    const auto acceptableVersions = @[ __VA_ARGS__ ];                                              \
+    auto foundPrefix = NO;                                                                         \
+    for (NSString * prefix in acceptableVersions) {                                                \
+        if ([osVersion hasPrefix:prefix]) {                                                        \
+            foundPrefix = YES;                                                                     \
+            break;                                                                                 \
+        }                                                                                          \
+    }                                                                                              \
+    XCTAssertTrue(foundPrefix,                                                                     \
+        @"Expected major version to be one of %@. Actual version reported was %@",                 \
+        acceptableVersions, reportedVersion);
 
 /**
  * @seealso TargetConditionals.h has explanations and diagrams that show the relationships between
@@ -74,7 +86,19 @@
 
 - (void)testOSVersion
 {
-    XCTAssertNotEqual(sentry_getOSVersion().length, 0U);
+    const auto osVersion = sentry_getOSVersion();
+    XCTAssertNotEqual(osVersion.length, 0U);
+#if TARGET_OS_OSX || TARGET_OS_MACCATALYST
+    SENTRY_ASSERT_PREFIX(osVersion, @"10.", @"11.", @"12.", @"13.");
+#elif TARGET_OS_IOS
+    SENTRY_ASSERT_PREFIX(osVersion, @"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.");
+#elif TARGET_OS_TV
+    SENTRY_ASSERT_PREFIX(osVersion, @"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.");
+#elif TARGET_OS_WATCH
+    SENTRY_ASSERT_PREFIX(osVersion, @"2.", @"3.", @"4.", @"5.", @"6.", @"7.", @"8.", @"9.");
+#else
+    XCTFail(@"Unexpected OS.");
+#endif
 }
 
 - (void)testOSName
