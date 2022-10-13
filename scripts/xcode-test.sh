@@ -47,8 +47,7 @@ case $REF_NAME in
         ;;
     
     *)
-    # TODO remove
-        CONFIGURATION="TestCI"
+        CONFIGURATION="Test"
         ;;
 esac
 
