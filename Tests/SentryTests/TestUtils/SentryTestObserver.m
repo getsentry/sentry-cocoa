@@ -54,7 +54,7 @@ SentryTestObserver ()
         // once to get the scope data.
 
         // When running the SentryTestObserver the code gets stuck when accessing the
-        // UIScreen.mainScreen In SentryCrashIntegration. We disable adding extra context for now.
+        // UIScreen.mainScreen in SentryCrashIntegration. We disable adding extra context for now.
         // Ideally we somehow check here if we can access UIScreen.mainScreen, see
         // https://github.com/getsentry/sentry-cocoa/issues/2284
         //        [SentrySDK startWithOptionsObject:options];
