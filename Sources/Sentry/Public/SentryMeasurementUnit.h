@@ -2,12 +2,31 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * The unit of measurement of a metric value.
+ *
+ * Units augment metric values by giving them a magnitude and semantics. There are certain types
+ * of units that are subdivided in their precision, such as the ``SentryMeasurementUnitDuration``
+ * for time measurements. The following unit types are available: ``SentryMeasurementUnitDuration``,
+ * ``SentryMeasurementUnitInformation``,  and``SentryMeasurementUnitFraction``.
+ *
+ * When using the units to custom measurements, Sentry will apply formatting to display
+ * measurement values in the UI.
+ */
 NS_SWIFT_NAME(MeasurementUnit)
 @interface SentryMeasurementUnit : NSObject <NSCopying>
 SENTRY_NO_INIT
 
+/**
+ * Returns an initialized SentryMeasurementUnit with a custom measurement unit.
+ *
+ * @param unit Your own custom unit without built-in conversion in Sentry.
+ */
 - (instancetype)initWithUnit:(NSString *)unit;
 
+/**
+ * The NSString representation of the measurement unit.
+ */
 @property (readonly, copy) NSString *unit;
 
 /** Untyped value without a unit. */
@@ -15,6 +34,9 @@ SENTRY_NO_INIT
 
 @end
 
+/**
+ * Time duration units.
+ */
 NS_SWIFT_NAME(MeasurementUnitDuration)
 @interface SentryMeasurementUnitDuration : SentryMeasurementUnit
 SENTRY_NO_INIT
@@ -45,6 +67,11 @@ SENTRY_NO_INIT
 
 @end
 
+/**
+ * Size of information units derived from bytes.
+ *
+ * See also [Units of information](https://en.wikipedia.org/wiki/Units_of_information)
+ */
 NS_SWIFT_NAME(MeasurementUnitInformation)
 @interface SentryMeasurementUnitInformation : SentryMeasurementUnit
 SENTRY_NO_INIT
@@ -93,6 +120,9 @@ SENTRY_NO_INIT
 
 @end
 
+/**
+ * Units of fraction.
+ */
 NS_SWIFT_NAME(MeasurementUnitFraction)
 @interface SentryMeasurementUnitFraction : SentryMeasurementUnit
 SENTRY_NO_INIT

@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)copyWithZone:(nullable NSZone *)zone
 {
-    return [[[self class] allocWithZone:zone] initWithSymbol:self.unit];
+    return [[[self class] allocWithZone:zone] initWithUnit:self.unit];
 }
 
 @end
@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (SentryMeasurementUnitDuration *)nanosecond
 {
-    return [[SentryMeasurementUnitDuration alloc] initWithUnit:@"nanoseconds"];
+    return [[SentryMeasurementUnitDuration alloc] initWithUnit:@"nanosecond"];
 }
 
 + (SentryMeasurementUnitDuration *)microsecond
