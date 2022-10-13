@@ -1,4 +1,4 @@
-import SentryObjc
+import Sentry
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -157,7 +157,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     func testSwizzle_fromApplication_noDelegate() {
         XCTAssertFalse(fixture.sut.swizzleRootViewController(from: MockApplication()))
     }
-    /*
+    
     func testSwizzle_fromApplication_noWindowMethod() {
         let mockApplicationDelegate = MockApplication.MockApplicationDelegateNoWindow()
         let mockApplication = MockApplication(mockApplicationDelegate)
@@ -175,7 +175,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let mockApplication = MockApplication(mockApplicationDelegate)
         XCTAssertFalse(fixture.sut.swizzleRootViewController(from: mockApplication))
     }
-    */
+    
     func testSwizzle_fromApplication() {
         // We must keep one strong reference to the delegate. The mock has only a weak.
         let delegate = fixture.delegate

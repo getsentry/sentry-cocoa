@@ -1,4 +1,4 @@
-import SentryObjc
+import Sentry
 import XCTest
 
 // swiftlint:disable file_length
@@ -1245,7 +1245,7 @@ class SentryClientTest: XCTestCase {
     
     private func givenEventWithThreads() -> Event {
         let event = Event(level: SentryLevel.fatal)
-        let thread = SentryThread(threadId: 1)
+        let thread = Sentry.Thread(threadId: 1)
         thread.crashed = true
         let threads = [thread]
         event.threads = threads
@@ -1344,13 +1344,13 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    private func assertValidDebugMeta(actual: [DebugMeta]?, forThreads threads: [SentryThread]?) {
+    private func assertValidDebugMeta(actual: [DebugMeta]?, forThreads threads: [Sentry.Thread]?) {
         let debugMetas = fixture.debugImageBuilder.getDebugImages(for: threads ?? [])
         
         XCTAssertEqual(debugMetas, actual ?? [])
     }
     
-    private func assertValidThreads(actual: [SentryThread]?) {
+    private func assertValidThreads(actual: [Sentry.Thread]?) {
         let expected = fixture.threadInspector.getCurrentThreads()
         XCTAssertEqual(expected.count, actual?.count)
         XCTAssertEqual(expected, actual)

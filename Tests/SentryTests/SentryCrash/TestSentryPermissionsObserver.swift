@@ -1,4 +1,4 @@
-import SentryObjc
+import Sentry
 
 class TestSentryPermissionsObserver: SentryPermissionsObserver {
     var internalPushPermissionStatus = SentryPermissionStatus.unknown

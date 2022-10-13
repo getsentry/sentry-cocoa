@@ -1,5 +1,3 @@
-#import <Foundation/Foundation.h>
-
 #import "SentryCurrentDateProvider.h"
 #import "SentryDataCategory.h"
 #import "SentryDefines.h"
@@ -62,7 +60,9 @@ SENTRY_NO_INIT
 - (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path;
 
 - (void)storeAppState:(SentryAppState *)appState;
+- (void)moveAppStateToPreviousAppState;
 - (SentryAppState *_Nullable)readAppState;
+- (SentryAppState *_Nullable)readPreviousAppState;
 - (void)deleteAppState;
 
 - (NSNumber *_Nullable)readTimezoneOffset;

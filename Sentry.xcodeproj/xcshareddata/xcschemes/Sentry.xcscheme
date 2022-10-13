@@ -15,20 +15,6 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "63AA759A1EB8AEF500D153DE"
-               BuildableName = "SentryObjc.framework"
-               BlueprintName = "SentryObjc"
-               ReferencedContainer = "container:Sentry.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D804D4C828DAF226005CECD1"
                BuildableName = "Sentry.framework"
                BlueprintName = "Sentry"
                ReferencedContainer = "container:Sentry.xcodeproj">
@@ -42,6 +28,15 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "NO"
       codeCoverageEnabled = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "63AA759A1EB8AEF500D153DE"
+            BuildableName = "Sentry.framework"
+            BlueprintName = "Sentry"
+            ReferencedContainer = "container:Sentry.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "TSAN_OPTIONS"
@@ -61,10 +56,28 @@
             </BuildableReference>
             <SkippedTests>
                <Test
+                  Identifier = "SentryCrashIntegrationTests/testStartUpCrash_CallsFlush()">
+               </Test>
+               <Test
+                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readPath_disabled()">
+               </Test>
+               <Test
+                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl()">
+               </Test>
+               <Test
+                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl_disabled()">
+               </Test>
+               <Test
                   Identifier = "SentrySDKIntegrationTestsBase">
                </Test>
                <Test
                   Identifier = "SentrySessionGeneratorTests/testSendSessions()">
+               </Test>
+               <Test
+                  Identifier = "SentryStacktraceBuilderTests/testAsyncStacktraces_disabled()">
+               </Test>
+               <Test
+                  Identifier = "SentrySystemEventBreadcrumbsTest/testTimezoneChangeNotificationBreadcrumb_disabled()">
                </Test>
             </SkippedTests>
          </TestableReference>
@@ -80,6 +93,15 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "63AA759A1EB8AEF500D153DE"
+            BuildableName = "Sentry.framework"
+            BlueprintName = "Sentry"
+            ReferencedContainer = "container:Sentry.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -90,7 +112,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D804D4C828DAF226005CECD1"
+            BlueprintIdentifier = "63AA759A1EB8AEF500D153DE"
             BuildableName = "Sentry.framework"
             BlueprintName = "Sentry"
             ReferencedContainer = "container:Sentry.xcodeproj">

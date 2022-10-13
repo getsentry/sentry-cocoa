@@ -1,4 +1,4 @@
-import SentryObjc
+import Sentry
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

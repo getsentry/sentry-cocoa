@@ -1,5 +1,3 @@
-#import <Foundation/Foundation.h>
-
 #import "SentryDefines.h"
 
 @class SentryEnvelope, SentryDebugMeta, SentryAppStartMeasurement, SentryScreenFrames,

@@ -61,7 +61,7 @@ SentryAppStartTracker ()
         self.dispatchQueue = dispatchQueueWrapper;
         self.appStateManager = appStateManager;
         self.sysctl = sysctl;
-        self.previousAppState = [self.appStateManager loadCurrentAppState];
+        self.previousAppState = [self.appStateManager loadPreviousAppState];
         self.wasInBackground = NO;
         self.didFinishLaunchingTimestamp = [currentDateProvider date];
     }
@@ -109,6 +109,10 @@ SentryAppStartTracker ()
     if (PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode) {
         [self buildAppStartMeasurement];
     }
+
+#    if SENTRY_HAS_UIKIT
+    [self.appStateManager start];
+#    endif
 }
 
 - (void)buildAppStartMeasurement
@@ -259,6 +263,10 @@ SentryAppStartTracker ()
     [NSNotificationCenter.defaultCenter removeObserver:self
                                                   name:UIApplicationDidEnterBackgroundNotification
                                                 object:nil];
+
+#    if SENTRY_HAS_UIKIT
+    [self.appStateManager stop];
+#    endif
 }
 
 - (void)dealloc

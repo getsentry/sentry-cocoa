@@ -1,4 +1,4 @@
-import SentryObjc
+import Sentry
 import XCTest
 
 // Although we only run this test above the below specified versions, we expect the

@@ -1,7 +1,8 @@
 #import "SentryCurrentDateProvider.h"
 #import "SentryDefines.h"
 
-@class SentryOptions, SentryCrashWrapper, SentryAppState, SentryFileManager, SentrySysctl;
+@class SentryOptions, SentryCrashWrapper, SentryAppState, SentryFileManager, SentrySysctl,
+    SentryDispatchQueueWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12,9 +13,13 @@ SENTRY_NO_INIT
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
                     fileManager:(SentryFileManager *)fileManager
             currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                         sysctl:(SentrySysctl *)sysctl;
+                         sysctl:(SentrySysctl *)sysctl
+           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
 #if SENTRY_HAS_UIKIT
+
+- (void)start;
+- (void)stop;
 
 /**
  * Builds the current app state.
@@ -26,11 +31,11 @@ SENTRY_NO_INIT
  */
 - (SentryAppState *)buildCurrentAppState;
 
-- (SentryAppState *)loadCurrentAppState;
+- (SentryAppState *)loadPreviousAppState;
 
 - (void)storeCurrentAppState;
 
-- (void)removeCurrentAppState;
+- (void)deleteAppState;
 
 - (void)updateAppState:(void (^)(SentryAppState *))block;
 

@@ -58,6 +58,7 @@ SentryTracer ()
     BOOL _waitForChildren;
     SentryTraceContext *_traceContext;
     SentryProfilesSamplerDecision *_profilesSamplerDecision;
+    SentryAppStartMeasurement *appStartMeasurement;
     NSMutableDictionary<NSString *, id> *_tags;
     NSMutableDictionary<NSString *, id> *_data;
     dispatch_block_t _idleTimeoutBlock;
@@ -162,6 +163,7 @@ static NSLock *profilerLock;
         self.finishStatus = kSentrySpanStatusUndefined;
         self.idleTimeout = idleTimeout;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
+        appStartMeasurement = [self getAppStartMeasurement];
 
         if ([self hasIdleTimeout]) {
             [self dispatchIdleTimeout];
@@ -557,9 +559,7 @@ static NSLock *profilerLock;
 
 - (SentryTransaction *)toTransaction
 {
-    SentryAppStartMeasurement *appStartMeasurement = [self getAppStartMeasurement];
-
-    NSArray<id<SentrySpan>> *appStartSpans = [self buildAppStartSpans:appStartMeasurement];
+    NSArray<id<SentrySpan>> *appStartSpans = [self buildAppStartSpans];
 
     NSArray<id<SentrySpan>> *spans;
     @synchronized(_children) {
@@ -573,7 +573,7 @@ static NSLock *profilerLock;
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.transactionContext.name;
-    [self addMeasurements:transaction appStartMeasurement:appStartMeasurement];
+    [self addMeasurements:transaction];
     return transaction;
 }
 
@@ -626,8 +626,7 @@ static NSLock *profilerLock;
     return measurement;
 }
 
-- (NSArray<SentrySpan *> *)buildAppStartSpans:
-    (nullable SentryAppStartMeasurement *)appStartMeasurement
+- (NSArray<SentrySpan *> *)buildAppStartSpans
 {
     if (appStartMeasurement == nil) {
         return @[];
@@ -687,7 +686,6 @@ static NSLock *profilerLock;
 }
 
 - (void)addMeasurements:(SentryTransaction *)transaction
-    appStartMeasurement:(nullable SentryAppStartMeasurement *)appStartMeasurement
 {
     NSString *valueKey = @"value";
 

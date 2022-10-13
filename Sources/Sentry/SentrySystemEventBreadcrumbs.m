@@ -1,6 +1,4 @@
 #import "SentrySystemEventBreadcrumbs.h"
-#import "SentryAppState.h"
-#import "SentryAppStateManager.h"
 #import "SentryBreadcrumb.h"
 #import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
