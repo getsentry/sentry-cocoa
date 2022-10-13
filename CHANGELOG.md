@@ -4,7 +4,7 @@
 
 ### Features
 
-- Custom measurements API (#2268)
+- [Custom measurements API](https://docs.sentry.io/platforms/apple/performance/instrumentation/custom-instrumentation/) (#2268)
 
 ## 7.27.1
 
