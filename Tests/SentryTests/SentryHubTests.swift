@@ -992,11 +992,7 @@ extension SentryHubTests {
 
         let os = profile["os"] as? [String: Any?]
         XCTAssertNotNil(os)
-#if os(iOS) && !targetEnvironment(macCatalyst)
-        XCTAssertEqual("iOS", os!["name"] as! String)
-#else
-        XCTAssertEqual("macOS", os!["name"] as! String)
-#endif
+        XCTAssertNotNil(os?["name"] as? String)
         XCTAssertFalse((os!["version"] as! String).isEmpty)
         XCTAssertFalse((os!["build_number"] as! String).isEmpty)
 
