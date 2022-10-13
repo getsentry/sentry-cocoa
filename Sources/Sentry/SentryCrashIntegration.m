@@ -270,11 +270,7 @@ SentryCrashIntegration ()
     NSString *locale = [[NSLocale autoupdatingCurrentLocale] objectForKey:NSLocaleIdentifier];
     [deviceData setValue:locale forKey:LOCALE_KEY];
 
-    // When running the SentryTestObserver the code gets stuck when accessing the
-    // UIScreen.mainScreen. We disable adding pixel height and width for now when the test
-    // configuration is TEST_CI. Ideally we somehow check here if we can access UIScreen.mainScreen,
-    // see https://github.com/getsentry/sentry-cocoa/issues/2284
-#if SENTRY_HAS_UIDEVICE && !defined(TEST_CI)
+#if SENTRY_HAS_UIDEVICE
     [deviceData setValue:@(UIScreen.mainScreen.bounds.size.height) forKey:@"screen_height_pixels"];
     [deviceData setValue:@(UIScreen.mainScreen.bounds.size.width) forKey:@"screen_width_pixels"];
 #endif
