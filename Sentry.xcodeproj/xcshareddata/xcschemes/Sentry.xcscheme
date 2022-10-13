@@ -56,31 +56,34 @@
             </BuildableReference>
             <SkippedTests>
                <Test
-                  Identifier = "SentryCrashIntegrationTests/testStartUpCrash_CallsFlush()">
+                  Identifier = "SentryCrashIntegrationTests/testStartUpCrash_CallsFlush_disabled()">
                </Test>
                <Test
                   Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readPath_disabled()">
                </Test>
                <Test
-                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl()">
+                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl_disabled()">
                </Test>
                <Test
                   Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl_disabled()">
                </Test>
                <Test
-                  Identifier = "SentryHttpTransportTests/testFlush_CalledSequentially_BlocksTwice()">
+                  Identifier = "SentryHttpTransportTests/testFlush_CalledSequentially_BlocksTwice_disabled()">
                </Test>
                <Test
-                  Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndBaggageHeaderAdded()">
+                  Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndBaggageHeaderAdded_disabled()">
                </Test>
                <Test
-                  Identifier = "SentryOutOfMemoryIntegrationTests/testANRDetected_UpdatesAppStateToTrue()">
+                  Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndBaggageHeaderAdded_disabled()">
+               </Test>
+               <Test
+                  Identifier = "SentryOutOfMemoryIntegrationTests/testANRDetected_UpdatesAppStateToTrue_disabled()">
                </Test>
                <Test
                   Identifier = "SentrySDKIntegrationTestsBase">
                </Test>
                <Test
-                  Identifier = "SentrySessionGeneratorTests/testSendSessions()">
+                  Identifier = "SentrySessionGeneratorTests/testSendSessions_disabled()">
                </Test>
                <Test
                   Identifier = "SentryStacktraceBuilderTests/testAsyncStacktraces_disabled()">
