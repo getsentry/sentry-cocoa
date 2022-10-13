@@ -1,0 +1,115 @@
+import XCTest
+
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+class SentryAppStateManagerTests: XCTestCase {
+    private static let dsnAsString = TestConstants.dsnAsString(username: "SentryOutOfMemoryTrackerTests")
+    private static let dsn = TestConstants.dsn(username: "SentryOutOfMemoryTrackerTests")
+
+    private class Fixture {
+
+        let options: Options
+        let fileManager: SentryFileManager
+        let currentDate = TestCurrentDateProvider()
+
+        init() {
+            options = Options()
+            options.dsn = SentryAppStateManagerTests.dsnAsString
+            options.releaseName = TestData.appState.releaseName
+
+            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
+        }
+
+        func getSut() -> SentryAppStateManager {
+            return SentryAppStateManager(
+                options: options,
+                crashWrapper: TestSentryCrashWrapper.sharedInstance(),
+                fileManager: fileManager,
+                currentDateProvider: currentDate,
+                sysctl: TestSysctl(),
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+            )
+        }
+    }
+
+    private var fixture: Fixture!
+    private var sut: SentryAppStateManager!
+
+    override func setUp() {
+        super.setUp()
+
+        fixture = Fixture()
+        sut = fixture.getSut()
+    }
+
+    override func tearDown() {
+        super.tearDown()
+        fixture.fileManager.deleteAppState()
+    }
+
+    func testStartStoresAppState() {
+        XCTAssertNil(fixture.fileManager.readAppState())
+
+        sut.start()
+        XCTAssertNotNil(fixture.fileManager.readAppState())
+    }
+
+    func testStartOnlyRunsLogicWhenStartCountBecomesOne() {
+        XCTAssertNil(fixture.fileManager.readAppState())
+
+        sut.start()
+        XCTAssertNotNil(fixture.fileManager.readAppState())
+
+        fixture.fileManager.deleteAppState()
+
+        sut.start()
+        XCTAssertNil(fixture.fileManager.readAppState())
+    }
+
+    func testStopDeletesAppState() {
+        XCTAssertNil(fixture.fileManager.readAppState())
+
+        sut.start()
+        XCTAssertNotNil(fixture.fileManager.readAppState())
+
+        sut.stop()
+        XCTAssertNil(fixture.fileManager.readAppState())
+    }
+
+    func testStopOnlyRunsLogicWhenStartCountBecomesZero() {
+        XCTAssertNil(fixture.fileManager.readAppState())
+
+        sut.start()
+        XCTAssertNotNil(fixture.fileManager.readAppState())
+
+        sut.start()
+
+        sut.stop()
+        XCTAssertNotNil(fixture.fileManager.readAppState())
+
+        sut.stop()
+        XCTAssertNil(fixture.fileManager.readAppState())
+    }
+
+    func testStoreAndDeleteAppState() {
+        XCTAssertNil(fixture.fileManager.readAppState())
+
+        sut.storeCurrentAppState()
+        XCTAssertNotNil(fixture.fileManager.readAppState())
+
+        sut.deleteAppState()
+        XCTAssertNil(fixture.fileManager.readAppState())
+    }
+
+    func testUpdateAppState() {
+        sut.storeCurrentAppState()
+
+        XCTAssertEqual(fixture.fileManager.readAppState()!.wasTerminated, false)
+
+        sut.updateAppState { state in
+            state.wasTerminated = true
+        }
+
+        XCTAssertEqual(fixture.fileManager.readAppState()!.wasTerminated, true)
+    }
+}
+#endif

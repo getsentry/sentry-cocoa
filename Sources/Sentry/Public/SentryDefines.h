@@ -130,7 +130,6 @@ static DEPRECATED_MSG_ATTRIBUTE(
       };
 
 static NSUInteger const defaultMaxBreadcrumbs = 100;
-static NSTimeInterval const cachedEnvelopeSendDelay = 0.1;
 
 /**
  * Transaction name source

@@ -103,7 +103,11 @@ SentryConnectivityCallback(
     }
 }
 
+#endif
+
 @implementation SentryReachability
+
+#if !TARGET_OS_WATCH
 
 + (void)monitorURL:(NSURL *)URL usingCallback:(SentryConnectivityChangeBlock)block
 {
@@ -117,7 +121,7 @@ SentryConnectivityCallback(
     sentry_reachability_change_block = block;
 
     const char *nodename = URL.host.UTF8String;
-    if (!nodename || ![self isValidHostname:@(nodename)]) {
+    if (!nodename) {
         return;
     }
 
@@ -126,18 +130,6 @@ SentryConnectivityCallback(
         SCNetworkReachabilitySetCallback(sentry_reachability_ref, SentryConnectivityCallback, NULL);
         SCNetworkReachabilitySetDispatchQueue(sentry_reachability_ref, reachabilityQueue);
     }
-}
-
-/**
- * Check if the host is valid and not equivalent to localhost, from which we can
- * never truly disconnect. 🏡
- * There are also system handlers for localhost which we don't want to catch
- * inadvertently.
- */
-+ (BOOL)isValidHostname:(NSString *)host
-{
-    return host.length > 0 && ![host isEqualToString:@"localhost"] && ![host isEqualToString:@"::1"]
-        && ![host isEqualToString:@"127.0.0.1"];
 }
 
 + (void)stopMonitoring
@@ -150,6 +142,6 @@ SentryConnectivityCallback(
     sentry_current_reachability_state = kSCNetworkReachabilityFlagsUninitialized;
 }
 
-@end
-
 #endif
+
+@end

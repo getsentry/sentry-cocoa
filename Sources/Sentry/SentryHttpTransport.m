@@ -17,11 +17,10 @@
 #import "SentryNSURLRequest.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
+#import "SentryReachability.h"
 #import "SentrySerialization.h"
 
-#if !TARGET_OS_WATCH
-#    import "SentryReachability.h"
-#endif
+static NSTimeInterval const cachedEnvelopeSendDelay = 0.1;
 
 @interface
 SentryHttpTransport ()

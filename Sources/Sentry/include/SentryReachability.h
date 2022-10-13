@@ -27,10 +27,18 @@
 #import <Foundation/Foundation.h>
 
 #if !TARGET_OS_WATCH
-
 #    import <SystemConfiguration/SystemConfiguration.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+void SentryConnectivityCallback(
+    SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *_Nullable);
+
+NSString *SentryConnectivityFlagRepresentation(SCNetworkReachabilityFlags flags);
+
+BOOL SentryConnectivityShouldReportChange(SCNetworkReachabilityFlags flags);
+
+#endif
 
 /**
  * Function signature to connectivity monitoring callback of SentryReachability
@@ -46,6 +54,7 @@ typedef void (^SentryConnectivityChangeBlock)(BOOL connected, NSString *typeDesc
  */
 @interface SentryReachability : NSObject
 
+#if !TARGET_OS_WATCH
 /**
  * Invoke a block each time network connectivity changes
  *
@@ -60,17 +69,8 @@ typedef void (^SentryConnectivityChangeBlock)(BOOL connected, NSString *typeDesc
  */
 + (void)stopMonitoring;
 
-+ (BOOL)isValidHostname:(nullable NSString *)host;
+#endif
 
 @end
 
-void SentryConnectivityCallback(
-    SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *_Nullable);
-
-NSString *SentryConnectivityFlagRepresentation(SCNetworkReachabilityFlags flags);
-
-BOOL SentryConnectivityShouldReportChange(SCNetworkReachabilityFlags flags);
-
 NS_ASSUME_NONNULL_END
-
-#endif
