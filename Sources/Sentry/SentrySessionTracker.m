@@ -133,7 +133,10 @@ SentrySessionTracker ()
 /**
  * It is called when an App. is receiving events / It is in the foreground and when we receive a
  * SentryHybridSdkDidBecomeActiveNotification. There is no guarantee that this method is called once
- * or twice. We need to ensure that we execute it only once.
+ * or twice. We need to ensure that we execute it only once. This also works when using SwiftUI or
+ * Scenes, as UIKit posts a didBecomeActiveNotification regardless of whether your app uses scenes,
+ * see [Apple
+ * Docs](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622956-applicationdidbecomeactive).
  *
  * We can't start the session in this method because we don't know if a background task or a hybrid
  * SDK initialized the SDK. Hybrid SDKs must only post this notification if they are running in the
