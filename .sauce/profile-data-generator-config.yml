@@ -14,8 +14,7 @@ xcuitest:
 suites:
   - name: "High-end device"
     devices:
-      - name: "iPhone 13 Pro Max"
-        platformVersion: "15"
+      - name: "iPhone .* Pro .*"
   - name: "Mid-range device"
     devices:
       - name: "iPhone 8"
