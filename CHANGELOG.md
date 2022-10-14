@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.28.0
 
 ### Features
 
