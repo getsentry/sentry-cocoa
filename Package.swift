@@ -9,8 +9,16 @@ let package = Package(
         .library(name: "Sentry-Dynamic", type: .dynamic, targets: ["Sentry"])
     ],
     targets: [
+        .target( name: "SentrySwift",
+                 path: "Sources",
+                 sources: [
+                    "SentrySwift"
+                 ],
+                 publicHeadersPath: "SentrySwift"
+               ),
         .target(
             name: "Sentry",
+            dependencies: ["SentrySwift"],
             path: "Sources",
             sources: [
                 "Sentry/",
@@ -21,6 +29,7 @@ let package = Package(
                 .define("GCC_ENABLE_CPP_EXCEPTIONS", to: "YES"),
                 .headerSearchPath("Sentry/include"),
                 .headerSearchPath("Sentry/Public"),
+                .headerSearchPath("Sentry/BridgingHeaders/SPM"),
                 .headerSearchPath("SentryCrash/Installations"),
                 .headerSearchPath("SentryCrash/Recording"),
                 .headerSearchPath("SentryCrash/Recording/Monitors"),
