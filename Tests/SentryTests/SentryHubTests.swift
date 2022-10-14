@@ -983,7 +983,6 @@ extension SentryHubTests {
         XCTAssertEqual("Apple", device!["manufacturer"] as! String)
         XCTAssertFalse((device!["locale"] as! String).isEmpty)
         XCTAssertFalse((device!["model"] as! String).isEmpty)
-        XCTAssertFalse((device!["physical_memory_bytes"] as! String).isEmpty)
 #if targetEnvironment(simulator)
         XCTAssertTrue(device!["is_emulator"] as! Bool)
 #else
