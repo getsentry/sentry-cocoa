@@ -6,6 +6,11 @@
 
 - [Custom measurements API](https://docs.sentry.io/platforms/apple/performance/instrumentation/custom-instrumentation/) (#2268)
 
+
+### Performance Improvements
+
+- Use double-checked lock for flush (#2290)
+
 ## 7.27.1
 
 ### Fixes

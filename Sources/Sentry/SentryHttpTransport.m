@@ -126,6 +126,12 @@ SentryHttpTransport ()
 
 - (BOOL)flush:(NSTimeInterval)timeout
 {
+    // Double-Checked Locking to avoid acquiring unnecessary locks.
+    if (_isFlushing) {
+        SENTRY_LOG_DEBUG(@"SentryHttpTransport: Already flushing.");
+        return NO;
+    }
+
     @synchronized(self) {
         if (_isFlushing) {
             SENTRY_LOG_DEBUG(@"SentryHttpTransport: Already flushing.");
