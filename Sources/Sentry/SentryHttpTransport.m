@@ -33,6 +33,7 @@ SentryHttpTransport ()
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) dispatch_group_t dispatchGroup;
+@property (nonatomic, strong) SentryReachability *reachability;
 
 /**
  * Relay expects the discarded events split by data category and reason; see
@@ -77,11 +78,12 @@ SentryHttpTransport ()
         self.discardedEvents = [NSMutableDictionary new];
         [self.envelopeRateLimit setDelegate:self];
         [self.fileManager setDelegate:self];
+        self.reachability = [[SentryReachability alloc] init];
 
         [self sendAllCachedEnvelopes];
 
 #if !TARGET_OS_WATCH
-        [SentryReachability
+        [self.reachability
                monitorURL:[NSURL URLWithString:@"https://sentry.io"]
             usingCallback:^(BOOL connected, NSString *_Nonnull typeDescription) {
                 if (connected) {
@@ -99,7 +101,7 @@ SentryHttpTransport ()
 - (void)dealloc
 {
 #if !TARGET_OS_WATCH
-    [SentryReachability stopMonitoring];
+    [self.reachability stopMonitoring];
 #endif
 }
 

@@ -62,12 +62,12 @@ typedef void (^SentryConnectivityChangeBlock)(BOOL connected, NSString *typeDesc
  *              BugsnagConfiguration.notifyURL
  * @param block The block called when connectivity changes
  */
-+ (void)monitorURL:(NSURL *)URL usingCallback:(SentryConnectivityChangeBlock)block;
+- (void)monitorURL:(NSURL *)URL usingCallback:(SentryConnectivityChangeBlock)block;
 
 /**
  * Stop monitoring the URL previously configured with monitorURL:usingCallback:
  */
-+ (void)stopMonitoring;
+- (void)stopMonitoring;
 
 #endif
 

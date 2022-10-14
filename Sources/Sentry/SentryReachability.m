@@ -31,7 +31,8 @@
 static const SCNetworkReachabilityFlags kSCNetworkReachabilityFlagsUninitialized = UINT32_MAX;
 
 static SCNetworkReachabilityRef sentry_reachability_ref;
-static SentryConnectivityChangeBlock sentry_reachability_change_block;
+static NSMutableDictionary<NSString *, SentryConnectivityChangeBlock>
+    *sentry_reachability_change_blocks;
 static SCNetworkReachabilityFlags sentry_current_reachability_state
     = kSCNetworkReachabilityFlagsUninitialized;
 
@@ -97,9 +98,12 @@ void
 SentryConnectivityCallback(
     __unused SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, __unused void *info)
 {
-    if (sentry_reachability_change_block && SentryConnectivityShouldReportChange(flags)) {
+    if (sentry_reachability_change_blocks && SentryConnectivityShouldReportChange(flags)) {
         BOOL connected = (flags & kSCNetworkReachabilityFlagsReachable) != 0;
-        sentry_reachability_change_block(connected, SentryConnectivityFlagRepresentation(flags));
+
+        for (SentryConnectivityChangeBlock block in sentry_reachability_change_blocks.allValues) {
+            block(connected, SentryConnectivityFlagRepresentation(flags));
+        }
     }
 }
 
@@ -109,7 +113,14 @@ SentryConnectivityCallback(
 
 #if !TARGET_OS_WATCH
 
-+ (void)monitorURL:(NSURL *)URL usingCallback:(SentryConnectivityChangeBlock)block
++ (void)initialize
+{
+    if (self == [SentryReachability class]) {
+        sentry_reachability_change_blocks = [NSMutableDictionary new];
+    }
+}
+
+- (void)monitorURL:(NSURL *)URL usingCallback:(SentryConnectivityChangeBlock)block
 {
     static dispatch_once_t once_t;
     static dispatch_queue_t reachabilityQueue;
@@ -118,7 +129,7 @@ SentryConnectivityCallback(
             = dispatch_queue_create("io.sentry.cocoa.connectivity", DISPATCH_QUEUE_SERIAL);
     });
 
-    sentry_reachability_change_block = block;
+    sentry_reachability_change_blocks[[self keyForInstance]] = block;
 
     const char *nodename = URL.host.UTF8String;
     if (!nodename) {
@@ -132,14 +143,19 @@ SentryConnectivityCallback(
     }
 }
 
-+ (void)stopMonitoring
+- (void)stopMonitoring
 {
-    sentry_reachability_change_block = nil;
+    [sentry_reachability_change_blocks removeObjectForKey:[self keyForInstance]];
     if (sentry_reachability_ref) {
         SCNetworkReachabilitySetCallback(sentry_reachability_ref, NULL, NULL);
         SCNetworkReachabilitySetDispatchQueue(sentry_reachability_ref, NULL);
     }
     sentry_current_reachability_state = kSCNetworkReachabilityFlagsUninitialized;
+}
+
+- (NSString *)keyForInstance
+{
+    return [self description];
 }
 
 #endif
