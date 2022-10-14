@@ -3194,9 +3194,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 63AA75A01EB8AEF500D153DE /* Build configuration list for PBXNativeTarget "Sentry" */;
 			buildPhases = (
+				63AA75981EB8AEF500D153DE /* Headers */,
 				63AA75961EB8AEF500D153DE /* Sources */,
 				63AA75971EB8AEF500D153DE /* Frameworks */,
-				63AA75981EB8AEF500D153DE /* Headers */,
 				63AA75991EB8AEF500D153DE /* Resources */,
 			);
 			buildRules = (
