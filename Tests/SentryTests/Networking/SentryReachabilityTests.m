@@ -2,15 +2,19 @@
 #import <XCTest/XCTest.h>
 
 @interface SentryConnectivityTest : XCTestCase
+@property (strong, nonatomic) SentryReachability *reachability;
 @end
 
 @implementation SentryConnectivityTest
 
+- (void)setUp
+{
+    self.reachability = [[SentryReachability alloc] init];
+}
+
 - (void)tearDown
 {
-    // Reset connectivity state cache
-    SentryConnectivityShouldReportChange(0);
-    [SentryReachability stopMonitoring];
+    self.reachability = nil;
 }
 
 - (void)testConnectivityRepresentations
@@ -33,9 +37,12 @@
             kSCNetworkReachabilityFlagsReachable | kSCNetworkReachabilityFlagsIsDirect));
 }
 
-- (void)mockMonitorURLWithCallback:(SentryConnectivityChangeBlock)block
+- (void)testUniqueKeyForInstances
 {
-    [SentryReachability monitorURL:[NSURL URLWithString:@""] usingCallback:block];
+    SentryReachability *anotherReachability = [[SentryReachability alloc] init];
+    XCTAssertNotEqualObjects(
+        [self.reachability keyForInstance], [anotherReachability keyForInstance]);
+    XCTAssertEqualObjects([self.reachability keyForInstance], [self.reachability keyForInstance]);
 }
 
 @end

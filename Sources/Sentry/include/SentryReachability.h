@@ -69,6 +69,8 @@ typedef void (^SentryConnectivityChangeBlock)(BOOL connected, NSString *typeDesc
  */
 - (void)stopMonitoring;
 
+- (NSString *)keyForInstance;
+
 #endif
 
 @end

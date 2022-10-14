@@ -120,6 +120,11 @@ SentryConnectivityCallback(
     }
 }
 
+- (void)dealloc
+{
+    [self stopMonitoring];
+}
+
 - (void)monitorURL:(NSURL *)URL usingCallback:(SentryConnectivityChangeBlock)block
 {
     static dispatch_once_t once_t;
