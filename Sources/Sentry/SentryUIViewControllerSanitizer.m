@@ -5,9 +5,7 @@
 
 + (NSString *)sanitizeViewControllerName:(id)controller
 {
-    NSString *description = [NSString stringWithFormat:@"%@", controller];
-
-    return [SwiftDescriptor getDescription:description];
+    return [SwiftDescriptor getDescription:controller];
 }
 
 @end

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Sentry Swift framework (#2162)
+
 ## 7.27.1
 
 ### Fixes
