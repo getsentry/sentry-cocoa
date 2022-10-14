@@ -5,6 +5,11 @@
 ### Features
 
 - Sentry Swift framework (#2162)
+- [Custom measurements API](https://docs.sentry.io/platforms/apple/performance/instrumentation/custom-instrumentation/) (#2268)
+
+### Fixes
+
+- Device info details for profiling (#2205)
 
 ## 7.27.1
 

@@ -51,6 +51,8 @@ LD_RUNPATH_SEARCH_PATHS[sdk=iphone*] = $(inherited) @executable_path/Frameworks 
 LD_RUNPATH_SEARCH_PATHS[sdk=watch*] = $(inherited) @executable_path/Frameworks @loader_path/Frameworks;
 LD_RUNPATH_SEARCH_PATHS[sdk=appletv*] = $(inherited) @executable_path/Frameworks @loader_path/Frameworks;
 
+OTHER_LDFLAGS[sdk=watch*] = $(inherited) -framework WatchKit
+
 MODULEMAP_FILE = $(SRCROOT)/Sources/Sentry/Sentry.modulemap
 //SWIFT_INCLUDE_PATHS = $(SRCROOT)/Sources/Sentry
 

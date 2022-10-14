@@ -4,16 +4,6 @@ name: Generate Profiling Test Data
 on:
   schedule:
     - cron: '0 */6 * * *' # every 6 hours = 4x/day
-  push:
-    branches:
-      - master
-  pull_request:
-    paths:
-      - '.github/workflows/profile-data-generator.yml'
-      - 'fastlane/**'
-      - 'Samples/TrendingMovies/**'
-      - '.sauce/profile-data-generator-config.yml'
-      - 'scripts/ci-select-xcode.sh'
 
 jobs:
   build-profile-data-generator-targets:
