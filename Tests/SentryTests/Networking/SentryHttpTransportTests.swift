@@ -29,6 +29,7 @@ class SentryHttpTransportTests: XCTestCase {
         let requestBuilder = TestNSURLRequestBuilder()
         let rateLimits: DefaultRateLimits
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let reachability = TestSentryReachability()
         let flushTimeout: TimeInterval = 0.5
 
         let userFeedback: UserFeedback
@@ -102,7 +103,8 @@ class SentryHttpTransportTests: XCTestCase {
                     requestBuilder: requestBuilder,
                     rateLimits: rateLimits,
                     envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
-                    dispatchQueueWrapper: dispatchQueueWrapper
+                    dispatchQueueWrapper: dispatchQueueWrapper,
+                    reachability: reachability
                 )
             }
         }
@@ -712,6 +714,20 @@ class SentryHttpTransportTests: XCTestCase {
         // Only one call should block. The others should return immidiately
         XCTAssertEqual(count - 1, blockingDurations.filter { $0 < 0.01 }.count)
         XCTAssertEqual(count, flushResults.filter { $0 == false }.count, "All flush results should be false.")
+    }
+
+    func testSendsWhenNetworkComesBack() {
+        givenNoInternetConnection()
+
+        sendEvent()
+
+        XCTAssertEqual(1, fixture.requestManager.requests.count)
+        assertEnvelopesStored(envelopeCount: 1)
+
+        givenOkResponse()
+        fixture.reachability.triggerNetworkReachable()
+
+        XCTAssertEqual(2, fixture.requestManager.requests.count)
     }
 
     private func givenRetryAfterResponse() -> HTTPURLResponse {

@@ -63,6 +63,7 @@ SentryHttpTransport ()
               rateLimits:(id<SentryRateLimits>)rateLimits
        envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+            reachability:(SentryReachability *)reachability
 {
     if (self = [super init]) {
         self.options = options;
@@ -78,7 +79,7 @@ SentryHttpTransport ()
         self.discardedEvents = [NSMutableDictionary new];
         [self.envelopeRateLimit setDelegate:self];
         [self.fileManager setDelegate:self];
-        self.reachability = [[SentryReachability alloc] init];
+        self.reachability = reachability;
 
         [self sendAllCachedEnvelopes];
 
