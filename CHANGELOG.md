@@ -10,6 +10,9 @@
 ### Performance Improvements
 
 - Use double-checked lock for flush (#2290)
+### Fixes
+
+- Device info details for profiling (#2205)
 
 ## 7.27.1
 

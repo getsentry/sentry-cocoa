@@ -8,6 +8,7 @@
 #    import "SentryDebugMeta.h"
 #    import "SentryDefines.h"
 #    import "SentryDependencyContainer.h"
+#    import "SentryDevice.h"
 #    import "SentryEnvelope.h"
 #    import "SentryEnvelopeItemType.h"
 #    import "SentryFramesTracker.h"
@@ -15,7 +16,6 @@
 #    import "SentryHub.h"
 #    import "SentryId.h"
 #    import "SentryLog.h"
-#    import "SentryProfilingLogging.hpp"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryScope+Private.h"
 #    import "SentryScreenFrames.h"
@@ -30,8 +30,6 @@
 
 #    import <cstdint>
 #    import <memory>
-#    import <sys/sysctl.h>
-#    import <sys/utsname.h>
 
 #    if TARGET_OS_IOS
 #        import <UIKit/UIKit.h>
@@ -59,40 +57,6 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     }
     return [symbolNSStr substringWithRange:[match rangeAtIndex:1]];
 }
-
-namespace {
-NSString *
-getDeviceModel()
-{
-    utsname info;
-    if (SENTRY_PROF_LOG_ERRNO(uname(&info)) == 0) {
-        return [NSString stringWithUTF8String:info.machine];
-    }
-    return @"";
-}
-
-NSString *
-getOSBuildNumber()
-{
-    char str[32];
-    size_t size = sizeof(str);
-    int cmd[2] = { CTL_KERN, KERN_OSVERSION };
-    if (SENTRY_PROF_LOG_ERRNO(sysctl(cmd, sizeof(cmd) / sizeof(*cmd), str, &size, NULL, 0)) == 0) {
-        return [NSString stringWithUTF8String:str];
-    }
-    return @"";
-}
-
-bool
-isSimulatorBuild()
-{
-#    if TARGET_OS_SIMULATOR
-    return true;
-#    else
-    return false;
-#    endif
-}
-} // namespace
 
 @implementation SentryProfiler {
     NSMutableDictionary<NSString *, id> *_profile;
@@ -244,16 +208,16 @@ isSimulatorBuild()
         profile[@"debug_meta"] = @{ @"images" : debugImages };
     }
 
+    profile[@"device_architecture"] = sentry_getCPUArchitecture();
     profile[@"device_locale"] = NSLocale.currentLocale.localeIdentifier;
     profile[@"device_manufacturer"] = @"Apple";
-    const auto model = getDeviceModel();
-    profile[@"device_model"] = model;
-    profile[@"device_os_build_number"] = getOSBuildNumber();
-#    if TARGET_OS_IOS
-    profile[@"device_os_name"] = UIDevice.currentDevice.systemName;
-    profile[@"device_os_version"] = UIDevice.currentDevice.systemVersion;
-#    endif
-    profile[@"device_is_emulator"] = @(isSimulatorBuild());
+    const auto isEmulated = sentry_isSimulatorBuild();
+    profile[@"device_model"]
+        = isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel();
+    profile[@"device_os_build_number"] = sentry_getOSBuildNumber();
+    profile[@"device_os_name"] = sentry_getOSName();
+    profile[@"device_os_version"] = sentry_getOSVersion();
+    profile[@"device_is_emulator"] = @(isEmulated);
     profile[@"device_physical_memory_bytes"] =
         [@(NSProcessInfo.processInfo.physicalMemory) stringValue];
     profile[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment ?: kSentryDefaultEnvironment;
