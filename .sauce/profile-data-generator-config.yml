@@ -5,7 +5,7 @@ sauce:
   concurrency: 2
 
 defaults:
-  timeout: 20m
+  timeout: 10m
 
 xcuitest:
   app: ./DerivedData/Build/Products/Debug-iphoneos/TrendingMovies.app
