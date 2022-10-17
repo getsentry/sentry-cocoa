@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   s.requires_arc = true
   s.frameworks = 'Foundation'
   s.libraries = 'z', 'c++'
-  s.static_framework = false
+  s.static_framework = true
   s.swift_versions = "5.0"
   s.pod_target_xcconfig = {
       'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES',
