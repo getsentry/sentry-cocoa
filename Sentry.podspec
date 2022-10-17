@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/getsentry/sentry-cocoa.git",
                      :tag => s.version.to_s }
 
-  s.ios.deployment_target = "11.0"
+  s.ios.deployment_target = "9.0"
   s.osx.deployment_target = "10.10"
   s.tvos.deployment_target = "9.0"
   s.watchos.deployment_target = "2.0"
@@ -32,7 +32,6 @@ Pod::Spec.new do |s|
   s.subspec 'Core' do |sp|
       sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
         "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}", "Sources/SentrySwift/**/*.{swift}"
-      sp.exclude_files = 'Sources/Sentry/BridgingHeaders/SPM/*'
       sp.public_header_files =
         "Sources/Sentry/Public/*.h"
   end

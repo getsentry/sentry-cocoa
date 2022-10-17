@@ -13,8 +13,7 @@ let package = Package(
                  path: "Sources",
                  sources: [
                     "SentrySwift"
-                 ],
-                 publicHeadersPath: "SentrySwift"
+                 ]
                ),
         .target(
             name: "Sentry",
@@ -29,7 +28,6 @@ let package = Package(
                 .define("GCC_ENABLE_CPP_EXCEPTIONS", to: "YES"),
                 .headerSearchPath("Sentry/include"),
                 .headerSearchPath("Sentry/Public"),
-                .headerSearchPath("Sentry/BridgingHeaders/SPM"),
                 .headerSearchPath("SentryCrash/Installations"),
                 .headerSearchPath("SentryCrash/Recording"),
                 .headerSearchPath("SentryCrash/Recording/Monitors"),
