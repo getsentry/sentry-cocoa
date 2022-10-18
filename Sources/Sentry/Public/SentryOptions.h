@@ -44,7 +44,11 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic, copy) NSString *releaseName;
 
 /**
- * This property will be filled before the event is sent.
+ * The distribution of the application.
+ *
+ * @discussion Distributions are used to disambiguate build or deployment variants of the same
+ * release of an application. For example, the dist can be the build number of an Xcode build.
+ *
  */
 @property (nullable, nonatomic, copy) NSString *dist;
 
