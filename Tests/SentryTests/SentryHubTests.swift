@@ -797,7 +797,7 @@ extension SentryHubTests {
         }
     }
 
-    func testStartTransaction_ProfilingDataIsValid() {
+    func testStartTransaction_ProfilingDataIsValid_disabled() {
         let options = fixture.options
         options.profilesSampleRate = 1.0
         options.tracesSampler = {(_: SamplingContext) -> NSNumber in
