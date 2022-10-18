@@ -43,10 +43,15 @@ jobs:
   validate-podspec:
     name: Validate Podspec
     runs-on: macos-12
+    strategy:
+      matrix:
+        platform: ['ios', 'macos', 'tvos', 'watchos']
+
     steps:
       - uses: actions/checkout@v3
+      - run: ./scripts/ci-select-xcode.sh
       - name: Validate Podspec
-        run: pod lib lint --verbose
+        run: pod lib lint --verbose --platforms=${{ matrix.platform }}
         shell: sh
 
   validate-high-risk-files:

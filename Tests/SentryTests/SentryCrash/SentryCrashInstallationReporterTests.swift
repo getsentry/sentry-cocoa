@@ -1,4 +1,4 @@
-@testable import SentryObjc
+@testable import Sentry
 import XCTest
 
 @available(OSX 10.10, *)

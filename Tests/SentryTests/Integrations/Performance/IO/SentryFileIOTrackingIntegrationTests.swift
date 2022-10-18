@@ -1,5 +1,5 @@
 import Foundation
-import SentryObjc
+import Sentry
 import XCTest
  
 // This test is also executed under iOS-SwiftUITests, because
@@ -191,7 +191,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         ?? bundle.path(forResource: "fatal-error-binary-images-message2", ofType: "json")
     }
     
-    func test_DataConsistency_readUrl() {
+    func test_DataConsistency_readUrl_disabled() {
         SentrySDK.start(options: fixture.getOptions())
         
         let randomValue = UUID().uuidString
@@ -205,7 +205,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(randomValue, readValue)
     }
     
-    func test_DataConsistency_readPath() {
+    func test_DataConsistency_readPath_disabled() {
         SentrySDK.start(options: fixture.getOptions())
         
         let randomValue = UUID().uuidString

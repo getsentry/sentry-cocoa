@@ -1,4 +1,4 @@
-@testable import SentryObjc
+@testable import Sentry
 import XCTest
 
 class SentryDataCategoryMapperTests: XCTestCase {

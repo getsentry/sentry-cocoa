@@ -64,8 +64,9 @@
 		844A3579282B4B6500C6D1DF /* Kingfisher.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 844A3572282B4B6500C6D1DF /* Kingfisher.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		844A357A282B4B6500C6D1DF /* KingfisherSwiftUI.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 844A3573282B4B6500C6D1DF /* KingfisherSwiftUI.xcframework */; };
 		844A357B282B4B6500C6D1DF /* KingfisherSwiftUI.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 844A3573282B4B6500C6D1DF /* KingfisherSwiftUI.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		844A359C282DAA6100C6D1DF /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 844A356B282B3E4500C6D1DF /* Sentry.framework */; };
+		844A359D282DAA6100C6D1DF /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 844A356B282B3E4500C6D1DF /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		847EA5542852F7E800F65FE4 /* ProfileDataGeneratorUITest.m in Sources */ = {isa = PBXBuildFile; fileRef = 847EA5532852F7E800F65FE4 /* ProfileDataGeneratorUITest.m */; };
-		D8C5645C28D89A880018E2FB /* Sentry.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D8C5645B28D89A830018E2FB /* Sentry.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -90,13 +91,6 @@
 			remoteGlobalIDString = 844A34D4282B2B6100C6D1DF;
 			remoteInfo = TrendingMovies;
 		};
-		D8C5645A28D89A830018E2FB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 844A3565282B3E4500C6D1DF /* Sentry.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D894688728D1D67C0006C83D;
-			remoteInfo = Sentry;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -109,6 +103,7 @@
 				844A3579282B4B6500C6D1DF /* Kingfisher.xcframework in Embed Frameworks */,
 				844A357B282B4B6500C6D1DF /* KingfisherSwiftUI.xcframework in Embed Frameworks */,
 				844A3575282B4B6500C6D1DF /* TUSafariActivity.xcframework in Embed Frameworks */,
+				844A359D282DAA6100C6D1DF /* Sentry.framework in Embed Frameworks */,
 				844A3577282B4B6500C6D1DF /* FaceAware.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -187,8 +182,8 @@
 				844A3578282B4B6500C6D1DF /* Kingfisher.xcframework in Frameworks */,
 				844A357A282B4B6500C6D1DF /* KingfisherSwiftUI.xcframework in Frameworks */,
 				844A3574282B4B6500C6D1DF /* TUSafariActivity.xcframework in Frameworks */,
+				844A359C282DAA6100C6D1DF /* Sentry.framework in Frameworks */,
 				844A3576282B4B6500C6D1DF /* FaceAware.xcframework in Frameworks */,
-				D8C5645C28D89A880018E2FB /* Sentry.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -395,7 +390,6 @@
 			children = (
 				844A356B282B3E4500C6D1DF /* Sentry.framework */,
 				844A356D282B3E4500C6D1DF /* SentryTests.xctest */,
-				D8C5645B28D89A830018E2FB /* Sentry.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -516,13 +510,6 @@
 			fileType = wrapper.cfbundle;
 			path = SentryTests.xctest;
 			remoteRef = 844A356C282B3E4500C6D1DF /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		D8C5645B28D89A830018E2FB /* Sentry.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = Sentry.a;
-			remoteRef = D8C5645A28D89A830018E2FB /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */

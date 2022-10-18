@@ -1,4 +1,0 @@
-framework module Sentry {
-header "Sentry.h"
-export *
-}

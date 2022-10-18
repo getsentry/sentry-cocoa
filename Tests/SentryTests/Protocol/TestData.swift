@@ -1,4 +1,5 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+import Sentry
 import UIKit
 #endif
 
@@ -128,8 +129,8 @@ class TestData {
         return thread
     }
     
-    static var stacktrace: Stacktrace {
-        let stacktrace = Stacktrace(frames: [frame], registers: ["register": "one"])
+    static var stacktrace: SentryStacktrace {
+        let stacktrace = SentryStacktrace(frames: [frame], registers: ["register": "one"])
         return stacktrace
     }
     

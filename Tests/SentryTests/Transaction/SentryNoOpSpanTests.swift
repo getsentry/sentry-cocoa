@@ -1,4 +1,4 @@
-import SentryObjc
+import Sentry
 import XCTest
 
 class SentryNoOpSpanTests: XCTestCase {

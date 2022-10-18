@@ -2,10 +2,23 @@
 
 ## Unreleased
 
+### Features
+
+- Sentry Swift framework (#2162)
+- [Custom measurements API](https://docs.sentry.io/platforms/apple/performance/instrumentation/custom-instrumentation/) (#2268)
+
 ### Fixes
 
+- Device info details for profiling (#2205)
+
+## 7.27.1
+
+### Fixes
+
+- Add app start measurement to first finished transaction (#2252)
 - Return SentryNoOpSpan when starting a child on a finished transaction (#2239)
 - Add SwiftUI performance tracking (#2271)
+- Fix profiling timestamps for slow/frozen frames (#2226)
 
 ## 7.27.0
 
@@ -26,7 +39,6 @@
 - [Core Data Tracking](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/#core-data-tracking) is stable (#2213)
 - [File I/O Tracking](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/#file-io-tracking) is stable (#2212)
 - Add flush (#2140)
-- Create Sentry swift module (#2162)
 - Add more device context (#2190)
 
 ### Fixes

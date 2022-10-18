@@ -1,12 +1,13 @@
 #import "NSDate+SentryExtras.h"
 #import "SentryBreadcrumbTracker.h"
-#import "SentryDataCategory.h"
 #import "SentryLevelMapper.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentrySDK+Private.h"
-#import <SentryObjC/SentryObjc.h>
+#import <Sentry/Sentry.h>
 #import <XCTest/XCTest.h>
+
+#import "SentryDataCategory.h"
 
 @interface
 SentryBreadcrumbTracker (Private)

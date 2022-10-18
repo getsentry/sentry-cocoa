@@ -9,15 +9,15 @@ let package = Package(
         .library(name: "Sentry-Dynamic", type: .dynamic, targets: ["Sentry"])
     ],
     targets: [
-        .target( name: "Sentry",
-                 dependencies: ["SentryObjc"],
+        .target( name: "SentrySwift",
                  path: "Sources",
                  sources: [
-                    "SentrySwift/"
+                    "SentrySwift"
                  ]
                ),
         .target(
-            name: "SentryObjc",
+            name: "Sentry",
+            dependencies: ["SentrySwift"],
             path: "Sources",
             sources: [
                 "Sentry/",

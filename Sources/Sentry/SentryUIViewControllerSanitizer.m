@@ -1,18 +1,11 @@
 #import "SentryUIViewControllerSanitizer.h"
-#import "SentryDependencyContainer.h"
-#if SENTRY_HAS_UIKIT
-#    import <UIKit/UIKit.h>
-#endif
+#import "SentrySwift.h"
 
 @implementation SentryUIViewControllerSanitizer
 
 + (NSString *)sanitizeViewControllerName:(id)controller
 {
-    if ([controller isKindOfClass:[NSObject class]]) {
-        controller = [(NSObject *)controller class];
-    }
-
-    return [SentryDependencyContainer.sharedInstance.descriptor getDescription:controller];
+    return [SwiftDescriptor getDescription:controller];
 }
 
 @end

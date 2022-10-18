@@ -23,6 +23,7 @@ SentryFileManager ()
 @property (nonatomic, copy) NSString *currentSessionFilePath;
 @property (nonatomic, copy) NSString *crashedSessionFilePath;
 @property (nonatomic, copy) NSString *lastInForegroundFilePath;
+@property (nonatomic, copy) NSString *previousAppStateFilePath;
 @property (nonatomic, copy) NSString *appStateFilePath;
 @property (nonatomic, copy) NSString *timezoneOffsetFilePath;
 @property (nonatomic, assign) NSUInteger currentFileCounter;
@@ -65,6 +66,8 @@ SentryFileManager ()
         self.lastInForegroundFilePath =
             [self.sentryPath stringByAppendingPathComponent:@"lastInForeground.timestamp"];
 
+        self.previousAppStateFilePath =
+            [self.sentryPath stringByAppendingPathComponent:@"previous.app.state"];
         self.appStateFilePath = [self.sentryPath stringByAppendingPathComponent:@"app.state"];
         self.timezoneOffsetFilePath =
             [self.sentryPath stringByAppendingPathComponent:@"timezone.offset"];
@@ -395,32 +398,71 @@ SentryFileManager ()
     }
 }
 
+- (void)moveAppStateToPreviousAppState
+{
+    @synchronized(self.appStateFilePath) {
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        NSError *error = nil;
+        [fileManager moveItemAtPath:self.appStateFilePath
+                             toPath:self.previousAppStateFilePath
+                              error:&error];
+
+        // We don't want to log an error if the file doesn't exist.
+        if (nil != error && error.code != NSFileNoSuchFileError) {
+            [SentryLog
+                logWithMessage:[NSString
+                                   stringWithFormat:
+                                       @"Failed to move app state to previous app state: %@", error]
+                      andLevel:kSentryLevelError];
+        }
+    }
+}
+
 - (SentryAppState *_Nullable)readAppState
+{
+    @synchronized(self.appStateFilePath) {
+        return [self readAppStateFrom:self.appStateFilePath];
+    }
+}
+
+- (SentryAppState *_Nullable)readPreviousAppState
+{
+    @synchronized(self.previousAppStateFilePath) {
+        return [self readAppStateFrom:self.previousAppStateFilePath];
+    }
+}
+
+- (SentryAppState *_Nullable)readAppStateFrom:(NSString *)path
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSData *currentData = nil;
-    @synchronized(self.appStateFilePath) {
-        currentData = [fileManager contentsAtPath:self.appStateFilePath];
-        if (nil == currentData) {
-            return nil;
-        }
+    currentData = [fileManager contentsAtPath:path];
+    if (nil == currentData) {
+        return nil;
     }
     return [SentrySerialization appStateWithData:currentData];
 }
 
 - (void)deleteAppState
 {
+    @synchronized(self.appStateFilePath) {
+        [self deleteAppStateFrom:self.appStateFilePath];
+        [self deleteAppStateFrom:self.previousAppStateFilePath];
+    }
+}
+
+- (void)deleteAppStateFrom:(NSString *)path
+{
     NSError *error = nil;
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    @synchronized(self.appStateFilePath) {
-        [fileManager removeItemAtPath:self.appStateFilePath error:&error];
+    [fileManager removeItemAtPath:path error:&error];
 
-        // We don't want to log an error if the file doesn't exist.
-        if (nil != error && error.code != NSFileNoSuchFileError) {
-            [SentryLog
-                logWithMessage:[NSString stringWithFormat:@"Failed to delete app state %@", error]
-                      andLevel:kSentryLevelError];
-        }
+    // We don't want to log an error if the file doesn't exist.
+    if (nil != error && error.code != NSFileNoSuchFileError) {
+        [SentryLog
+            logWithMessage:[NSString stringWithFormat:@"Failed to delete app state from %@: %@",
+                                     path, error]
+                  andLevel:kSentryLevelError];
     }
 }
 

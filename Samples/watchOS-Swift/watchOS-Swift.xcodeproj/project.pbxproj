@@ -19,8 +19,8 @@
 		7B82C4A024C98A95002CA6D1 /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B82C49F24C98A95002CA6D1 /* NotificationView.swift */; };
 		7B82C4A224C98A96002CA6D1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B82C4A124C98A96002CA6D1 /* Assets.xcassets */; };
 		7B82C4A524C98A96002CA6D1 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B82C4A424C98A96002CA6D1 /* Preview Assets.xcassets */; };
-		D8145BFB28DB4DC600494277 /* Sentry.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8145BFA28DB4DC600494277 /* Sentry.xcframework */; };
-		D8145BFE28DB548600494277 /* SentryObjc.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8145BFD28DB548500494277 /* SentryObjc.xcframework */; };
+		7B82C4C624C993E6002CA6D1 /* Sentry.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82C4BA24C98CFC002CA6D1 /* Sentry.xcframework */; };
+		7B82C4C724C993E6002CA6D1 /* Sentry.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82C4BA24C98CFC002CA6D1 /* Sentry.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,6 +63,17 @@
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7B82C4C824C993E6002CA6D1 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				7B82C4C724C993E6002CA6D1 /* Sentry.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -82,10 +93,10 @@
 		7B82C4A424C98A96002CA6D1 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		7B82C4A624C98A96002CA6D1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7B82C4A724C98A96002CA6D1 /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = "<group>"; };
-		D8145BFA28DB4DC600494277 /* Sentry.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Sentry.xcframework; path = libs/Sentry.xcframework; sourceTree = "<group>"; };
-		D8145BFD28DB548500494277 /* SentryObjc.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SentryObjc.xcframework; path = libs/SentryObjc.xcframework; sourceTree = "<group>"; };
-		D8C5645D28D8A1810018E2FB /* Sentry.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = Sentry.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		D8C5645F28D8A1FA0018E2FB /* SentryObjc.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SentryObjc.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		7B82C4B624C98AF4002CA6D1 /* Sentry.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Sentry.xcframework; path = ../../tmp/Sentry.xcframework; sourceTree = "<group>"; };
+		7B82C4BA24C98CFC002CA6D1 /* Sentry.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Sentry.xcframework; path = libs/Sentry.xcframework; sourceTree = "<group>"; };
+		7B82C4BF24C99340002CA6D1 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		7B82C4C224C9939A002CA6D1 /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,8 +104,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8145BFE28DB548600494277 /* SentryObjc.xcframework in Frameworks */,
-				D8145BFB28DB4DC600494277 /* Sentry.xcframework in Frameworks */,
+				7B82C4C624C993E6002CA6D1 /* Sentry.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -159,10 +169,10 @@
 		7B82C4B524C98AF4002CA6D1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				D8145BFD28DB548500494277 /* SentryObjc.xcframework */,
-				D8145BFA28DB4DC600494277 /* Sentry.xcframework */,
-				D8C5645F28D8A1FA0018E2FB /* SentryObjc.framework */,
-				D8C5645D28D8A1810018E2FB /* Sentry.a */,
+				7B82C4C224C9939A002CA6D1 /* Sentry.framework */,
+				7B82C4BF24C99340002CA6D1 /* Sentry.framework */,
+				7B82C4BA24C98CFC002CA6D1 /* Sentry.xcframework */,
+				7B82C4B624C98AF4002CA6D1 /* Sentry.xcframework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -211,6 +221,7 @@
 				7B82C48E24C98A95002CA6D1 /* Sources */,
 				7B82C48F24C98A95002CA6D1 /* Frameworks */,
 				7B82C49024C98A95002CA6D1 /* Resources */,
+				7B82C4C824C993E6002CA6D1 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);

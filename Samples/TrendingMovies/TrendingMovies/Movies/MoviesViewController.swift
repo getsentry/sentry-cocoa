@@ -35,6 +35,8 @@ class MoviesViewController: UICollectionViewController, UICollectionViewDelegate
         }
     }
 
+    private var scrollingSpan: Tracer.SpanHandle?
+
     init(subtitleStyle: MovieCellConfigurator.SubtitleStyle = .genre, enableStartupTimeLogging: Bool, sortFunction: SortFunction? = nil, dataFetchingFunction: @escaping DataFetchingFunction) {
         let layout = UICollectionViewFlowLayout()
         layout.minimumInteritemSpacing = 0.0
@@ -167,9 +169,17 @@ class MoviesViewController: UICollectionViewController, UICollectionViewDelegate
     // MARK: UIScrollViewDelegate
 
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if scrollingSpan == nil {
+            let efficiently = ProcessInfo.processInfo.arguments.contains("--io.sentry.sample.trending-movies.launch-arg.efficient-implementation")
+            scrollingSpan = Tracer.startSpan(name: "movie-list-scroll-\(efficiently ? "efficiently" : "inefficiently")")
+        }
         if scrollView.contentSize.height - (scrollView.contentOffset.y + scrollView.bounds.height) <= 300.0 {
             fetchNextPage()
         }
+    }
+
+    override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        scrollingSpan?.end()
     }
 
     // MARK: Data

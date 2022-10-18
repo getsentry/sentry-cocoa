@@ -1,3 +1,4 @@
+@testable import Sentry
 import XCTest
 
 /**
@@ -122,9 +123,9 @@ class SentryDebugImageProviderTests: XCTestCase {
         let sut = fixture.getSut(images: fixture.getTestImages())
         
         let thread = SentryThread(threadId: NSNumber(value: 1))
-        let frame = Frame()
+        let frame = Sentry.Frame()
         frame.imageAddress = "0x0000000105705000"
-        thread.stacktrace = Stacktrace(frames: [frame], registers: [:])
+        thread.stacktrace = SentryStacktrace(frames: [frame], registers: [:])
         
         var actual = sut.getDebugImages(for: [thread])
         
@@ -132,11 +133,11 @@ class SentryDebugImageProviderTests: XCTestCase {
         XCTAssertEqual(actual[0].name, "dyld_sim")
         XCTAssertEqual(actual[0].imageAddress, "0x0000000105705000")
         
-        let frame2 = Frame()
+        let frame2 = Sentry.Frame()
         frame2.imageAddress = "0x00000001410b1a00"
-        let frame3 = Frame()
+        let frame3 = Sentry.Frame()
         frame3.imageAddress = "0x000000017ca5e400"
-        thread.stacktrace = Stacktrace(frames: [frame2, frame3], registers: [:])
+        thread.stacktrace = SentryStacktrace(frames: [frame2, frame3], registers: [:])
         
         actual = sut.getDebugImages(for: [thread])
         

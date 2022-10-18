@@ -43,6 +43,7 @@ extension Tracer {
 
         SentrySDK.configureScope { scope in
             scope.setTag(value: setUpInDidFinishLaunching ? "didFinishLaunching" : "willFinishLaunching", key: "launch-method")
+            scope.setTag(value: "\(ProcessInfo.processInfo.arguments.contains("--io.sentry.sample.trending-movies.launch-arg.efficient-implementation"))", key: "efficient-implementation")
         }
     }
 }

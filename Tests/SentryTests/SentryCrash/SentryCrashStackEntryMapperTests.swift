@@ -1,4 +1,4 @@
-@testable import SentryObjc
+@testable import Sentry
 import XCTest
 
 /** Some of the test parameters are copied during debbuging a working implementation.
