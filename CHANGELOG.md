@@ -6,6 +6,20 @@
 
 - Report usage of stitchAsyncCode (#2281)
 
+## 7.28.0
+
+### Features
+
+- [Custom measurements API](https://docs.sentry.io/platforms/apple/performance/instrumentation/custom-instrumentation/) (#2268)
+
+### Fixes
+
+- Device info details for profiling (#2205)
+
+### Performance Improvements
+
+- Use double-checked lock for flush (#2290)
+
 ## 7.27.1
 
 ### Fixes
