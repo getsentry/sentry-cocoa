@@ -191,15 +191,15 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 #    endif
 
                 const auto stack = [NSMutableArray<NSNumber *> array];
+                const auto frameIndexLookup =
+                    [NSMutableDictionary<NSString *, NSNumber *> dictionary];
                 for (std::vector<uintptr_t>::size_type i = 0; i < backtrace.addresses.size(); i++) {
                     const auto instructionAddress
                         = sentry_formatHexAddress(@(backtrace.addresses[i]));
-                    const auto frameIndex = [frames
-                        indexOfObjectPassingTest:^BOOL(NSDictionary<NSString *, id> *_Nonnull obj,
-                            NSUInteger idx, BOOL *_Nonnull stop) {
-                            return [obj[@"instruction_addr"] isEqualToString:instructionAddress];
-                        }];
-                    if (frameIndex == NSNotFound) {
+
+                    const auto frameIndex = frameIndexLookup[instructionAddress];
+
+                    if (frameIndex == nil) {
                         const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
                         frame[@"instruction_addr"] = instructionAddress;
 #    if defined(DEBUG)
@@ -207,8 +207,9 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 #    endif
                         [stack addObject:@(frames.count)];
                         [frames addObject:frame];
+                        frameIndexLookup[instructionAddress] = @(stack.count);
                     } else {
-                        [stack addObject:@(frameIndex)];
+                        [stack addObject:frameIndex];
                     }
                 }
 
