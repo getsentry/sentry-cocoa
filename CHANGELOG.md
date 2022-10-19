@@ -5,6 +5,7 @@
 ### Features
 
 - Sentry Swift framework (#2162)
+- SwiftUI performance tracking (#2271)
 - [Custom measurements API](https://docs.sentry.io/platforms/apple/performance/instrumentation/custom-instrumentation/) (#2268)
 
 ### Fixes
@@ -17,7 +18,6 @@
 
 - Add app start measurement to first finished transaction (#2252)
 - Return SentryNoOpSpan when starting a child on a finished transaction (#2239)
-- Add SwiftUI performance tracking (#2271)
 - Fix profiling timestamps for slow/frozen frames (#2226)
 
 ## 7.27.0
