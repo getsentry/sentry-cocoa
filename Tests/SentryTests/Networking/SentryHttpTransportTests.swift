@@ -29,6 +29,7 @@ class SentryHttpTransportTests: XCTestCase {
         let requestBuilder = TestNSURLRequestBuilder()
         let rateLimits: DefaultRateLimits
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let reachability = TestSentryReachability()
         let flushTimeout: TimeInterval = 0.5
 
         let userFeedback: UserFeedback
@@ -89,6 +90,8 @@ class SentryHttpTransportTests: XCTestCase {
             ]
             clientReportEnvelope = SentryEnvelope(id: event.eventId, items: clientReportEnvelopeItems)
             clientReportRequest = buildRequest(clientReportEnvelope)
+
+            dispatchQueueWrapper.dispatchAfterExecutesBlock = true
         }
 
         var sut: SentryHttpTransport {
@@ -100,7 +103,8 @@ class SentryHttpTransportTests: XCTestCase {
                     requestBuilder: requestBuilder,
                     rateLimits: rateLimits,
                     envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
-                    dispatchQueueWrapper: dispatchQueueWrapper
+                    dispatchQueueWrapper: dispatchQueueWrapper,
+                    reachability: reachability
                 )
             }
         }
@@ -384,6 +388,11 @@ class SentryHttpTransportTests: XCTestCase {
 
         assertRequestsSent(requestCount: 3)
         assertEnvelopesStored(envelopeCount: 0)
+
+        // Make sure that the next calls to sendAllCachedEnvelopes go via
+        // dispatchQueue.dispatchAfter, and doesn't just execute it immediately
+        XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAfterInvocations.count, 2)
+        XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAfterInvocations.first?.interval, 0.1)
     }
 
     func testActiveRateLimitForSomeCachedEnvelopeItems() {
@@ -726,6 +735,20 @@ class SentryHttpTransportTests: XCTestCase {
 
         initiallyInactiveQueue.activate()
         allFlushCallsGroup.waitWithTimeout()
+    }
+
+    func testSendsWhenNetworkComesBack() {
+        givenNoInternetConnection()
+
+        sendEvent()
+
+        XCTAssertEqual(1, fixture.requestManager.requests.count)
+        assertEnvelopesStored(envelopeCount: 1)
+
+        givenOkResponse()
+        fixture.reachability.triggerNetworkReachable()
+
+        XCTAssertEqual(2, fixture.requestManager.requests.count)
     }
 
     private func givenRetryAfterResponse() -> HTTPURLResponse {

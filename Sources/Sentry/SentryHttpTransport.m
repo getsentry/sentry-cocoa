@@ -17,7 +17,10 @@
 #import "SentryNSURLRequest.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
+#import "SentryReachability.h"
 #import "SentrySerialization.h"
+
+static NSTimeInterval const cachedEnvelopeSendDelay = 0.1;
 
 @interface
 SentryHttpTransport ()
@@ -30,6 +33,7 @@ SentryHttpTransport ()
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) dispatch_group_t dispatchGroup;
+@property (nonatomic, strong) SentryReachability *reachability;
 
 /**
  * Relay expects the discarded events split by data category and reason; see
@@ -59,6 +63,7 @@ SentryHttpTransport ()
               rateLimits:(id<SentryRateLimits>)rateLimits
        envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+            reachability:(SentryReachability *)reachability
 {
     if (self = [super init]) {
         self.options = options;
@@ -74,10 +79,31 @@ SentryHttpTransport ()
         self.discardedEvents = [NSMutableDictionary new];
         [self.envelopeRateLimit setDelegate:self];
         [self.fileManager setDelegate:self];
+        self.reachability = reachability;
 
         [self sendAllCachedEnvelopes];
+
+#if !TARGET_OS_WATCH
+        [self.reachability
+               monitorURL:[NSURL URLWithString:@"https://sentry.io"]
+            usingCallback:^(BOOL connected, NSString *_Nonnull typeDescription) {
+                if (connected) {
+                    SENTRY_LOG_DEBUG(@"SentryHttpTransport: Internet connection is back.");
+                    [self sendAllCachedEnvelopes];
+                } else {
+                    SENTRY_LOG_DEBUG(@"SentryHttpTransport: Lost internet connection.");
+                }
+            }];
+#endif
     }
     return self;
+}
+
+- (void)dealloc
+{
+#if !TARGET_OS_WATCH
+    [self.reachability stopMonitoring];
+#endif
 }
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
@@ -85,7 +111,7 @@ SentryHttpTransport ()
     envelope = [self.envelopeRateLimit removeRateLimitedItems:envelope];
 
     if (envelope.items.count == 0) {
-        SENTRY_LOG_DEBUG(@"RateLimit is active for all envelope items.");
+        SENTRY_LOG_DEBUG(@"SentryHttpTransport: RateLimit is active for all envelope items.");
         return;
     }
 
@@ -213,10 +239,11 @@ SentryHttpTransport ()
 
 - (void)sendAllCachedEnvelopes
 {
+    SENTRY_LOG_DEBUG(@"SentryHttpTransport: sendAllCachedEnvelopes start.");
+
     @synchronized(self) {
         if (self.isSending || ![self.requestManager isReady]) {
-            [SentryLog logWithMessage:@"SentryHttpTransport: Already sending."
-                             andLevel:kSentryLevelDebug];
+            SENTRY_LOG_DEBUG(@"SentryHttpTransport: Already sending.");
             return;
         }
         self.isSending = YES;
@@ -224,8 +251,7 @@ SentryHttpTransport ()
 
     SentryFileContents *envelopeFileContents = [self.fileManager getOldestEnvelope];
     if (nil == envelopeFileContents) {
-        [SentryLog logWithMessage:@"SentryHttpTransport: No envelopes left to send."
-                         andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"SentryHttpTransport: No envelopes left to send.");
         [self finishedSending];
         return;
     }
@@ -260,11 +286,11 @@ SentryHttpTransport ()
 
 - (void)deleteEnvelopeAndSendNext:(NSString *)envelopePath
 {
-    [SentryLog logWithMessage:@"SentryHttpTransport: Deleting envelope and sending next."
-                     andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(@"SentryHttpTransport: Deleting envelope and sending next.");
     [self.fileManager removeFileAtPath:envelopePath];
     self.isSending = NO;
-    [self sendAllCachedEnvelopes];
+    [self.dispatchQueue dispatchAfter:cachedEnvelopeSendDelay
+                                block:^{ [self sendAllCachedEnvelopes]; }];
 }
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
@@ -284,8 +310,7 @@ SentryHttpTransport ()
                 [_self.rateLimits update:response];
                 [_self deleteEnvelopeAndSendNext:envelopePath];
             } else {
-                [SentryLog logWithMessage:@"SentryHttpTransport: No internet connection."
-                                 andLevel:kSentryLevelDebug];
+                SENTRY_LOG_DEBUG(@"SentryHttpTransport: No internet connection.");
                 [_self finishedSending];
             }
         }];
