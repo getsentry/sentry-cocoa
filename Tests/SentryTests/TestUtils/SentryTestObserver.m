@@ -63,6 +63,8 @@ SentryTestObserver ()
     return self;
 }
 
+#pragma mark - XCTestObservation
+
 - (void)testCaseWillStart:(XCTestCase *)testCase
 {
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug
@@ -71,6 +73,11 @@ SentryTestObserver ()
     // The tests might have a different time set
     [crumb setTimestamp:[NSDate new]];
     [self.scope addBreadcrumb:crumb];
+}
+
+- (void)testBundleDidFinish:(NSBundle *)testBundle
+{
+    [SentrySDK flush:5.0];
 }
 
 - (void)testCase:(XCTestCase *)testCase didRecordIssue:(XCTIssue *)issue
@@ -91,12 +98,6 @@ SentryTestObserver ()
     [hub captureException:exception withScope:hub.scope];
 
     [SentryCurrentDate setCurrentDateProvider:currentDateProvider];
-}
-
-- (void)testBundleDidFinish:(NSBundle *)testBundle
-{
-    // Wait for events to flush out.
-    [NSThread sleepForTimeInterval:3.0];
 }
 
 @end

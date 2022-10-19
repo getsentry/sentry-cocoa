@@ -39,7 +39,7 @@ class SentryHttpTransportTests: XCTestCase {
         let clientReportEnvelope: SentryEnvelope
         let clientReportRequest: SentryNSURLRequest
         
-        let queue = DispatchQueue(label: "SentryHttpTransportTests", qos: .utility, attributes: [.concurrent, .initiallyInactive])
+        let queue = DispatchQueue(label: "SentryHttpTransportTests", qos: .userInitiated, attributes: [.concurrent, .initiallyInactive])
 
         init() {
             currentDateProvider = TestCurrentDateProvider()
@@ -653,7 +653,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertFlushBlocksAndFinishesSuccessfully()
     }
     
-    func testFlush_CalledSequentially_BlocksTwice() {
+    func testFlush_CalledSequentially_BlocksTwice_disabled() {
         CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
         
         givenCachedEvents()
@@ -681,39 +681,60 @@ class SentryHttpTransportTests: XCTestCase {
         assertFlushBlocksAndFinishesSuccessfully()
     }
     
-    func testFlush_CalledMultipleTimes_ImmidiatelyReturnsFalse() {
+    func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() {
         CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
         
         givenCachedEvents()
-        fixture.requestManager.responseDelay = fixture.flushTimeout + 0.1
+        fixture.requestManager.responseDelay = fixture.flushTimeout * 2
         
-        var blockingDurations: [TimeInterval] = []
-        var flushResults: [Bool] = []
+        let allFlushCallsGroup = DispatchGroup()
+        let ensureFlushingGroup = DispatchGroup()
+        let ensureFlushingQueue = DispatchQueue(label: "First flushing")
         
-        let queue = fixture.queue
-        let group = DispatchGroup()
-        let count = 1_000
+        allFlushCallsGroup.enter()
+        ensureFlushingGroup.enter()
+        ensureFlushingQueue.async {
+            ensureFlushingGroup.leave()
+            let beforeFlush = getAbsoluteTime()
+            let result = self.sut.flush(self.fixture.flushTimeout)
+            let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+            
+            XCTAssertFalse(result)
+            XCTAssertLessThan(self.fixture.flushTimeout, blockingDuration)
+            
+            allFlushCallsGroup.leave()
+        }
+        
+        // Ensure transport is flushing.
+        ensureFlushingGroup.waitWithTimeout()
+        
+        // Even when the dispatch group above waited successfully, there is not guarantee
+        // that the transport is already flushing. The queue above could stop it's execution,
+        // and the main thread could continue here. With the blocking call we give the
+        // queue some time to call the blocking flushing method.
+        delayNonBlocking(timeout: 0.1)
+        
+        // Now the transport should also have left the synchronized block, and the
+        // double-checked lock, should return immediately.
+        
+        let initiallyInactiveQueue = fixture.queue
+        let count = 100
         for _ in 0..<count {
-            group.enter()
-            queue.async {
+            allFlushCallsGroup.enter()
+            initiallyInactiveQueue.async {
                 let beforeFlush = getAbsoluteTime()
                 let result = self.sut.flush(self.fixture.flushTimeout)
                 let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
                 
-                queue.async(flags: .barrier) {
-                    blockingDurations.append(blockingDuration)
-                    flushResults.append(result)
-                    group.leave()
-                }
+                XCTAssertGreaterThan(0.1, blockingDuration, "The flush call should have returned immediately.")
+                XCTAssertFalse(result)
+
+                allFlushCallsGroup.leave()
             }
         }
 
-        queue.activate()
-        group.waitWithTimeout()
-        
-        // Only one call should block. The others should return immidiately
-        XCTAssertEqual(count - 1, blockingDurations.filter { $0 < 0.01 }.count)
-        XCTAssertEqual(count, flushResults.filter { $0 == false }.count, "All flush results should be false.")
+        initiallyInactiveQueue.activate()
+        allFlushCallsGroup.waitWithTimeout()
     }
 
     func testSendsWhenNetworkComesBack() {

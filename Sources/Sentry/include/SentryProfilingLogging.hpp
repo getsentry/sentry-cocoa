@@ -39,20 +39,3 @@ namespace profiling {
         }                                                                                          \
         __log_errnum;                                                                              \
     })
-
-/**
- * If `errno` is set to a non-zero value after `statement` finishes executing,
- * the error value is logged, and the original return value of `statement` is
- * returned.
- */
-#define SENTRY_PROF_LOG_ERRNO(statement)                                                           \
-    ({                                                                                             \
-        errno = 0;                                                                                 \
-        const auto __log_rv = (statement);                                                         \
-        const int __log_errnum = errno;                                                            \
-        if (__log_errnum != 0) {                                                                   \
-            SENTRY_PROF_LOG_ERROR("%s failed with code: %s, description: %s", #statement,          \
-                __log_errnum, std::strerror(__log_errnum));                                        \
-        }                                                                                          \
-        __log_rv;                                                                                  \
-    })

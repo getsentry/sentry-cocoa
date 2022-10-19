@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Sentry"
-  s.version      = "7.27.1"
+  s.version      = "7.28.0"
   s.summary      = "Sentry client for cocoa"
   s.homepage     = "https://github.com/getsentry/sentry-cocoa"
   s.license      = "mit"
@@ -20,7 +20,10 @@ Pod::Spec.new do |s|
       'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES',
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
       'CLANG_CXX_LIBRARY' => 'libc++'
-}
+  }
+  s.watchos.pod_target_xcconfig = {
+      'OTHER_LDFLAGS' => '$(inherited) -framework WatchKit'
+  }
 
   s.default_subspecs = ['Core']
 
