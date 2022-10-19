@@ -38,6 +38,7 @@ Pod::Spec.new do |s|
   
   s.subspec 'UI' do |sp|
       sp.source_files = "Sources/SentryUI/**/*.{swift,h}"
+      sp.platform = :ios
       sp.dependency 'Sentry/Core'
   end
 end
