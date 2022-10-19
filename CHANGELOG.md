@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Report usage of stitchAsyncCode (#2281)
+
 ## 7.28.0
 
 ### Features
