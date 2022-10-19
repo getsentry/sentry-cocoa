@@ -1039,12 +1039,12 @@ extension SentryHubTests {
         XCTAssertFalse(stacks.isEmpty)
         for stack in stacks {
             guard !stack.isEmpty else { continue }
-            foundAtLeastOneNonemptySample = true
+            foundAtLeastOneNonEmptySample = true
             for frameIdx in stack {
                 XCTAssertNotNil(frames[frameIdx])
             }
         }
-        XCTAssert(foundAtLeastOneNonemptySample)
+        XCTAssert(foundAtLeastOneNonEmptySample)
 
         for sample in samples {
             XCTAssertNotNil(stacks[sample["stack_id"] as! Int])
