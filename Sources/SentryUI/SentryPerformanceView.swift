@@ -1,5 +1,11 @@
 import Foundation
 import SwiftUI
+#if !COCOAPODS
+import Sentry
+#endif
+#if SWIFT_PACKAGE
+import PrivateSentry
+#endif
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 public struct SentryPerformanceView<Content: View>: View {

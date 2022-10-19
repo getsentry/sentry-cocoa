@@ -6,15 +6,25 @@ let package = Package(
     platforms: [.iOS(.v9), .macOS(.v10_10), .tvOS(.v9), .watchOS(.v2)],
     products: [
         .library(name: "Sentry", targets: ["Sentry"]),
-        .library(name: "Sentry-Dynamic", type: .dynamic, targets: ["Sentry"])
+        .library(name: "Sentry-Dynamic", type: .dynamic, targets: ["Sentry"]),
+        .library(name: "SentryUI", targets: ["SentryUI"])
     ],
     targets: [
-        .target( name: "SentrySwift",
+        .target ( name: "SentryUI",
+                  dependencies: ["Sentry", "PrivateSentry"],
+                  path: "Sources",
+                  sources: [
+                    "SentryUI"
+                  ]
+        ),
+        .target( name: "PrivateSentry",
+                 dependencies: ["Sentry"],
                  path: "Sources",
                  sources: [
-                    "SentrySwift"
-                 ]
-               ),
+                  "PrivateSentry/"
+                 ],
+                 publicHeadersPath: "PrivateSentry/"
+        ),
         .target(
             name: "Sentry",
             dependencies: ["SentrySwift"],
@@ -40,7 +50,13 @@ let package = Package(
                 .linkedLibrary("z"),
                 .linkedLibrary("c++")
             ]
-        )
+        ),
+        .target( name: "SentrySwift",
+                 path: "Sources",
+                 sources: [
+                    "SentrySwift"
+                 ]
+               )
     ],
     cxxLanguageStandard: .cxx14
 )

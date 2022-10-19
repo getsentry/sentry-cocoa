@@ -35,4 +35,9 @@ Pod::Spec.new do |s|
       sp.public_header_files =
         "Sources/Sentry/Public/*.h"
   end
+  
+  s.subspec 'UI' do |sp|
+      sp.source_files = "Sources/SentryUI/**/*.{swift,h}"
+      sp.dependency 'Sentry/Core'
+  end
 end
