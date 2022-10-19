@@ -981,7 +981,7 @@ extension SentryHubTests {
         let device = profile["device"] as? [String: Any?]
         XCTAssertNotNil(device)
         XCTAssertEqual("Apple", device!["manufacturer"] as! String)
-        XCTAssertFalse((device!["locale"] as! String).isEmpty)
+        XCTAssertEqual(device!["locale"] as! String, (NSLocale.current as NSLocale).localeIdentifier)
         XCTAssertFalse((device!["model"] as! String).isEmpty)
 #if targetEnvironment(simulator)
         XCTAssertTrue(device!["is_emulator"] as! Bool)
@@ -997,7 +997,11 @@ extension SentryHubTests {
 
         XCTAssertEqual("cocoa", profile["platform"] as! String)
         XCTAssertEqual(fixture.transactionName, profile["transaction_name"] as! String)
-        XCTAssertFalse((profile["release"] as! String).isEmpty)
+
+        let version = Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String)!
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString")!
+        let releaseString = "\(version) (\(build))"
+        XCTAssertEqual(profile["release"] as! String, releaseString)
 
         XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["transaction_id"] as! String))
         XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["profile_id"] as! String))
