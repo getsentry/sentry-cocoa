@@ -1031,7 +1031,7 @@ extension SentryHubTests {
         XCTAssertFalse((frames[0]["function"] as! String).isEmpty)
 
         let stacks = sampledProfile["stacks"] as! [[Int]]
-        var foundAtLeastOneNonemptySample = false
+        var foundAtLeastOneNonEmptySample = false
         XCTAssertFalse(stacks.isEmpty)
         for stack in stacks {
             guard !stack.isEmpty else { continue }
