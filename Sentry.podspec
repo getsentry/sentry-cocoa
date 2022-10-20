@@ -16,7 +16,6 @@ Pod::Spec.new do |s|
   s.requires_arc = true
   s.frameworks = 'Foundation'
   s.libraries = 'z', 'c++'
-  s.static_framework = true
   s.swift_versions = "5.0"
   s.pod_target_xcconfig = {
       'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES',
@@ -35,9 +34,5 @@ Pod::Spec.new do |s|
       sp.public_header_files =
         "Sources/Sentry/Public/*.h"
   end
-  
-  s.subspec 'UI' do |sp|
-      sp.source_files = "Sources/SentryUI/**/*.{swift,h}"
-      sp.dependency 'Sentry/Core'
-  end
+
 end

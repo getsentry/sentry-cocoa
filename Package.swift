@@ -7,14 +7,14 @@ let package = Package(
     products: [
         .library(name: "Sentry", targets: ["Sentry"]),
         .library(name: "Sentry-Dynamic", type: .dynamic, targets: ["Sentry"]),
-        .library(name: "SentryUI", targets: ["SentryUI"])
+        .library(name: "SentrySwiftUI", targets: ["SentrySwiftUI"])
     ],
     targets: [
-        .target ( name: "SentryUI",
+        .target ( name: "SentrySwiftUI",
                   dependencies: ["Sentry", "PrivateSentry"],
                   path: "Sources",
                   sources: [
-                    "SentryUI"
+                    "SentrySwiftUI"
                   ]
         ),
         .target( name: "PrivateSentry",

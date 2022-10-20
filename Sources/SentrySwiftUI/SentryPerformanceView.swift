@@ -1,8 +1,6 @@
 import Foundation
-import SwiftUI
-#if !COCOAPODS
 import Sentry
-#endif
+import SwiftUI
 #if SWIFT_PACKAGE
 import PrivateSentry
 #endif

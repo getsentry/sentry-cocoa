@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D8BBD35828FEF61B0011F850"
-               BuildableName = "SentryUI.framework"
-               BlueprintName = "SentryUI"
+               BuildableName = "SentrySwiftUI.framework"
+               BlueprintName = "SentrySwiftUI"
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -51,8 +51,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D8BBD35828FEF61B0011F850"
-            BuildableName = "SentryUI.framework"
-            BlueprintName = "SentryUI"
+            BuildableName = "SentrySwiftUI.framework"
+            BlueprintName = "SentrySwiftUI"
             ReferencedContainer = "container:Sentry.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
