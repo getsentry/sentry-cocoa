@@ -55,7 +55,7 @@ jobs:
     name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}} - OS ${{matrix.test-destination-os}}
     runs-on: ${{matrix.runs-on}}
     timeout-minutes: 15
-    # needs: build-test-server
+    needs: build-test-server
 
     strategy:
       fail-fast: false
