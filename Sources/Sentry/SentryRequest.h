@@ -43,11 +43,6 @@ NS_SWIFT_NAME(Request)
  */
 @property (atomic, copy) NSString *_Nullable url;
 
-///**
-// * Optional: HTTP status code.
-// */
-//@property (atomic, copy) NSNumber *_Nullable statusCode;
-
 - (instancetype)init;
 
 @end
