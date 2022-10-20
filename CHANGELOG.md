@@ -6,11 +6,26 @@
 
 - Sentry Swift framework (#2162)
 - SwiftUI performance tracking (#2271)
+- Offline caching improvements (#2263)
+- Report usage of stitchAsyncCode (#2281)
+
+### Fixes
+
+- Enable bitcode (#2307)
+
+## 7.28.0
+
+### Features
+
 - [Custom measurements API](https://docs.sentry.io/platforms/apple/performance/instrumentation/custom-instrumentation/) (#2268)
 
 ### Fixes
 
 - Device info details for profiling (#2205)
+
+### Performance Improvements
+
+- Use double-checked lock for flush (#2290)
 
 ## 7.27.1
 

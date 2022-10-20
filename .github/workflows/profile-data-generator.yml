@@ -70,6 +70,7 @@ jobs:
             **/Debug-iphoneos/ProfileDataGeneratorUITest-Runner.app
 
   run-profile-data-generator:
+    timeout-minutes: 10
     name: Run profile generation on Sauce Labs
     runs-on: ubuntu-latest
     needs: build-profile-data-generator-targets
@@ -87,4 +88,5 @@ jobs:
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        run: saucectl run --select-suite "${{ matrix.suite }}" --config .sauce/profile-data-generator-config.yml --retries 5
+        run: |
+          saucectl run --select-suite "${{ matrix.suite }}" --config .sauce/profile-data-generator-config.yml ||:
