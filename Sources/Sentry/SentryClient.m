@@ -650,10 +650,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
                                                                          withString:@""];
             [integrations addObject:trimmed];
         }
-
-        if (self.options.stitchAsyncCode) {
-            [integrations addObject:@"StitchAsyncCode"];
-        }
     }
 
     event.sdk = @{

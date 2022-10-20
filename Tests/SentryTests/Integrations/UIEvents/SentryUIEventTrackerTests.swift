@@ -191,7 +191,7 @@ class SentryUIEventTrackerTests: XCTestCase {
         assertFinishesTransaction(firstTransaction, operationClick)
     }
     
-    func testFinishedTransaction_DoesntFinishImmediately_KeepsTransactionInMemory() {
+    func testFinishedTransaction_DoesntFinishImmidiately_KeepsTransactionInMemory() {
         
         // We want firstTransaction to be deallocated by ARC
         func startChild() -> Span {

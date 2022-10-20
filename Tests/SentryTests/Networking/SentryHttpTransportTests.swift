@@ -29,7 +29,6 @@ class SentryHttpTransportTests: XCTestCase {
         let requestBuilder = TestNSURLRequestBuilder()
         let rateLimits: DefaultRateLimits
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        let reachability = TestSentryReachability()
         let flushTimeout: TimeInterval = 0.5
 
         let userFeedback: UserFeedback
@@ -39,7 +38,7 @@ class SentryHttpTransportTests: XCTestCase {
         let clientReportEnvelope: SentryEnvelope
         let clientReportRequest: SentryNSURLRequest
         
-        let queue = DispatchQueue(label: "SentryHttpTransportTests", qos: .userInitiated, attributes: [.concurrent, .initiallyInactive])
+        let queue = DispatchQueue(label: "SentryHttpTransportTests", qos: .utility, attributes: [.concurrent, .initiallyInactive])
 
         init() {
             currentDateProvider = TestCurrentDateProvider()
@@ -90,8 +89,6 @@ class SentryHttpTransportTests: XCTestCase {
             ]
             clientReportEnvelope = SentryEnvelope(id: event.eventId, items: clientReportEnvelopeItems)
             clientReportRequest = buildRequest(clientReportEnvelope)
-
-            dispatchQueueWrapper.dispatchAfterExecutesBlock = true
         }
 
         var sut: SentryHttpTransport {
@@ -103,8 +100,7 @@ class SentryHttpTransportTests: XCTestCase {
                     requestBuilder: requestBuilder,
                     rateLimits: rateLimits,
                     envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
-                    dispatchQueueWrapper: dispatchQueueWrapper,
-                    reachability: reachability
+                    dispatchQueueWrapper: dispatchQueueWrapper
                 )
             }
         }
@@ -388,11 +384,6 @@ class SentryHttpTransportTests: XCTestCase {
 
         assertRequestsSent(requestCount: 3)
         assertEnvelopesStored(envelopeCount: 0)
-
-        // Make sure that the next calls to sendAllCachedEnvelopes go via
-        // dispatchQueue.dispatchAfter, and doesn't just execute it immediately
-        XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAfterInvocations.count, 2)
-        XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAfterInvocations.first?.interval, 0.1)
     }
 
     func testActiveRateLimitForSomeCachedEnvelopeItems() {
@@ -653,7 +644,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertFlushBlocksAndFinishesSuccessfully()
     }
     
-    func testFlush_CalledSequentially_BlocksTwice_disabled() {
+    func testFlush_CalledSequentially_BlocksTwice() {
         CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
         
         givenCachedEvents()
@@ -681,74 +672,39 @@ class SentryHttpTransportTests: XCTestCase {
         assertFlushBlocksAndFinishesSuccessfully()
     }
     
-    func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() {
+    func testFlush_CalledMultipleTimes_ImmidiatelyReturnsFalse() {
         CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
         
         givenCachedEvents()
-        fixture.requestManager.responseDelay = fixture.flushTimeout * 2
+        fixture.requestManager.responseDelay = fixture.flushTimeout + 0.1
         
-        let allFlushCallsGroup = DispatchGroup()
-        let ensureFlushingGroup = DispatchGroup()
-        let ensureFlushingQueue = DispatchQueue(label: "First flushing")
+        var blockingDurations: [TimeInterval] = []
+        var flushResults: [Bool] = []
         
-        allFlushCallsGroup.enter()
-        ensureFlushingGroup.enter()
-        ensureFlushingQueue.async {
-            ensureFlushingGroup.leave()
-            let beforeFlush = getAbsoluteTime()
-            let result = self.sut.flush(self.fixture.flushTimeout)
-            let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
-            
-            XCTAssertFalse(result)
-            XCTAssertLessThan(self.fixture.flushTimeout, blockingDuration)
-            
-            allFlushCallsGroup.leave()
-        }
-        
-        // Ensure transport is flushing.
-        ensureFlushingGroup.waitWithTimeout()
-        
-        // Even when the dispatch group above waited successfully, there is not guarantee
-        // that the transport is already flushing. The queue above could stop it's execution,
-        // and the main thread could continue here. With the blocking call we give the
-        // queue some time to call the blocking flushing method.
-        delayNonBlocking(timeout: 0.1)
-        
-        // Now the transport should also have left the synchronized block, and the
-        // double-checked lock, should return immediately.
-        
-        let initiallyInactiveQueue = fixture.queue
-        let count = 100
+        let queue = fixture.queue
+        let group = DispatchGroup()
+        let count = 1_000
         for _ in 0..<count {
-            allFlushCallsGroup.enter()
-            initiallyInactiveQueue.async {
+            group.enter()
+            queue.async {
                 let beforeFlush = getAbsoluteTime()
                 let result = self.sut.flush(self.fixture.flushTimeout)
                 let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
                 
-                XCTAssertGreaterThan(0.1, blockingDuration, "The flush call should have returned immediately.")
-                XCTAssertFalse(result)
-
-                allFlushCallsGroup.leave()
+                queue.async(flags: .barrier) {
+                    blockingDurations.append(blockingDuration)
+                    flushResults.append(result)
+                    group.leave()
+                }
             }
         }
 
-        initiallyInactiveQueue.activate()
-        allFlushCallsGroup.waitWithTimeout()
-    }
-
-    func testSendsWhenNetworkComesBack() {
-        givenNoInternetConnection()
-
-        sendEvent()
-
-        XCTAssertEqual(1, fixture.requestManager.requests.count)
-        assertEnvelopesStored(envelopeCount: 1)
-
-        givenOkResponse()
-        fixture.reachability.triggerNetworkReachable()
-
-        XCTAssertEqual(2, fixture.requestManager.requests.count)
+        queue.activate()
+        group.waitWithTimeout()
+        
+        // Only one call should block. The others should return immidiately
+        XCTAssertEqual(count - 1, blockingDurations.filter { $0 < 0.01 }.count)
+        XCTAssertEqual(count, flushResults.filter { $0 == false }.count, "All flush results should be false.")
     }
 
     private func givenRetryAfterResponse() -> HTTPURLResponse {
