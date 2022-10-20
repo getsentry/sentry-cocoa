@@ -9,7 +9,7 @@
 
 ### Fixes
 
-- Enable bitcode
+- Enable bitcode (#2307)
 
 ## 7.28.0
 
