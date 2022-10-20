@@ -136,12 +136,9 @@ jobs:
       #     name: test-server
       # - name: Allow test-server to run
       #   run: chmod +x ./test-server-exec
-      - run: ./test-server-exec &
+      # - run: ./test-server-exec &
 
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
-
-      - run: gem install xcode-install
-      - run: xcversion simulators --install='iOS 13.7'
 
       # Only Xcode 10.3 has an iOS 12.4 simulator. As we have a reference to MacCatalyst in our unit tests
       # we can't run the tests with Xcode 10.3. Therefore we use a workaround with a symlink pointed out in:
