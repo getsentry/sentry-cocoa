@@ -60,6 +60,7 @@ SentryOptions ()
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
         self.enableAutoPerformanceTracking = YES;
+        self.enableCaptureFailedRequests = NO;
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracking = YES;
         self.attachScreenshot = NO;
@@ -269,6 +270,9 @@ SentryOptions ()
 
     [self setBool:options[@"enableAutoPerformanceTracking"]
             block:^(BOOL value) { self->_enableAutoPerformanceTracking = value; }];
+    
+    [self setBool:options[@"enableCaptureFailedRequests"]
+            block:^(BOOL value) { self->_enableCaptureFailedRequests = value; }];
 
 #if SENTRY_HAS_UIKIT
     [self setBool:options[@"enableUIViewControllerTracking"]

@@ -40,6 +40,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // because we run CPU for 15 seconds at full throttle, we trigger ANR issues being sent. disable such during benchmarks.
             options.enableAppHangTracking = !isBenchmarking
             options.appHangTimeoutInterval = 2
+            options.enableCaptureFailedRequests = true
         }
         
         return true

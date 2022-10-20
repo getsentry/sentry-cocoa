@@ -2,6 +2,7 @@
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryBreadcrumb.h"
+#import "SentryRequest.h"
 #import "SentryClient.h"
 #import "SentryCurrentDate.h"
 #import "SentryDebugMeta.h"
@@ -156,6 +157,10 @@ SentryEvent ()
             [serializedData setValue:@(self.timestamp.timeIntervalSince1970)
                               forKey:@"start_timestamp"];
         }
+    }
+    
+    if (nil != self.request) {
+        [serializedData setValue:[self.request serialize] forKey:@"request"];
     }
 }
 
