@@ -34,5 +34,4 @@ Pod::Spec.new do |s|
       sp.public_header_files =
         "Sources/Sentry/Public/*.h"
   end
-
 end
