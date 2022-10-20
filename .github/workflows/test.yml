@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - release/**
+      - ci/install-xcode-simulator
 
   pull_request:
     paths:
@@ -54,7 +55,7 @@ jobs:
     name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}} - OS ${{matrix.test-destination-os}}
     runs-on: ${{matrix.runs-on}}
     timeout-minutes: 15
-    needs: build-test-server
+    # needs: build-test-server
 
     strategy:
       fail-fast: false
@@ -130,14 +131,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
-        with:
-          name: test-server
-      - name: Allow test-server to run
-        run: chmod +x ./test-server-exec
+      # - uses: actions/download-artifact@v3
+      #   with:
+      #     name: test-server
+      # - name: Allow test-server to run
+      #   run: chmod +x ./test-server-exec
       - run: ./test-server-exec &
 
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+
+      - run: gem install xcode-install
+      - run: xcversion simulators --install='iOS 13.7'
 
       # Only Xcode 10.3 has an iOS 12.4 simulator. As we have a reference to MacCatalyst in our unit tests
       # we can't run the tests with Xcode 10.3. Therefore we use a workaround with a symlink pointed out in:
