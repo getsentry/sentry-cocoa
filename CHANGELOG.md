@@ -6,6 +6,7 @@
 
 - Offline caching improvements (#2263)
 - Report usage of stitchAsyncCode (#2281)
+- HTTP Client errors for OkHttp (#2308)
 
 ### Fixes
 
