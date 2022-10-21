@@ -44,7 +44,7 @@ SentryTestObserver ()
 {
     if (self = [super init]) {
         SentryOptions *options = [[SentryOptions alloc] init];
-        options.dsn = @"https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557";
+        options.dsn = @"https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557";
         options.environment = @"unit-tests";
         options.debug = YES;
         options.enableAutoSessionTracking = NO;

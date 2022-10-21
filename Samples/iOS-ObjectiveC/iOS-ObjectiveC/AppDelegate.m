@@ -15,7 +15,7 @@ AppDelegate ()
     // Override point for customization after application launch.
 
     [SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
-        options.dsn = @"https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557";
+        options.dsn = @"https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557";
         options.debug = YES;
         options.sessionTrackingIntervalMillis = 5000UL;
         // Sampling 100% - In Production you probably want to adjust this
