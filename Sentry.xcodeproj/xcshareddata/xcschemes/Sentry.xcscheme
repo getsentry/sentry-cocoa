@@ -68,6 +68,9 @@
                   Identifier = "SentryHttpTransportTests/testFlush_CalledSequentially_BlocksTwice_disabled()">
                </Test>
                <Test
+                  Identifier = "SentryHubTests/testProfilingDataContainsEnvironmentSetFromConfigureScope_disabled()">
+               </Test>
+               <Test
                   Identifier = "SentryHubTests/testStartTransaction_ProfilingDataIsValid_disabled()">
                </Test>
                <Test
