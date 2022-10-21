@@ -1,19 +1,19 @@
 #import "SentryNetworkTracker.h"
 #import "SentryBaggage.h"
 #import "SentryBreadcrumb.h"
+#import "SentryClient+Private.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
+#import "SentryHub+Private.h"
+#import "SentryLog.h"
 #import "SentryMechanism.h"
 #import "SentryRequest.h"
-#import "SentryStacktrace.h"
-#import "SentryThread.h"
-#import "SentryHub+Private.h"
-#import "SentryClient+Private.h"
-#import "SentryThreadInspector.h"
-#import "SentryLog.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
+#import "SentryStacktrace.h"
+#import "SentryThread.h"
+#import "SentryThreadInspector.h"
 #import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
 #import "SentryTracer.h"
@@ -224,7 +224,8 @@ SentryNetworkTracker ()
 
 - (void)urlSessionTask:(NSURLSessionTask *)sessionTask setState:(NSURLSessionTaskState)newState
 {
-    if (!self.isNetworkTrackingEnabled && !self.isNetworkBreadcrumbEnabled && !self.isCaptureFailedRequests) {
+    if (!self.isNetworkTrackingEnabled && !self.isNetworkBreadcrumbEnabled
+        && !self.isCaptureFailedRequests) {
         return;
     }
 
@@ -258,7 +259,7 @@ SentryNetworkTracker ()
 
     if (sessionTask.state == NSURLSessionTaskStateRunning) {
         [self captureEvent:sessionTask];
-        
+
         [self addBreadcrumbForSessionTask:sessionTask];
 
         NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
@@ -288,29 +289,28 @@ SentryNetworkTracker ()
 - (void)captureEvent:(NSURLSessionTask *)sessionTask
 {
     NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
-    
+
     // TODO: check the string contains and regex
     if (!self.isCaptureFailedRequests) {
         return;
     }
-    
+
     // TODO: check the range
     if (responseStatusCode == 201) {
         return;
     }
-    
-    NSString *message = [NSString stringWithFormat:@"HTTP Client Error with status code: %li",
-                                  (long)(responseStatusCode)];
+
+    NSString *message = [NSString
+        stringWithFormat:@"HTTP Client Error with status code: %li", (long)(responseStatusCode)];
 
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    
+
     SentryThreadInspector *threadInspector = SentrySDK.currentHub.getClient.threadInspector;
     NSArray<SentryThread *> *threads = [threadInspector getCurrentThreadsWithStackTrace];
-    
+
     SentryException *sentryException = [[SentryException alloc] initWithValue:message
                                                                          type:@"HTTP-ClientError"];
     sentryException.mechanism = [[SentryMechanism alloc] initWithType:@"SentryNetworkTrackingIntegration"];
-    
     
     if (threads.count > 0) {
         SentryStacktrace *sentryStacktrace = [threads[0] stacktrace];
@@ -321,14 +321,14 @@ SentryNetworkTracker ()
         //    [threads enumerateObjectsUsingBlock:^(SentryThread *_Nonnull obj, NSUInteger idx,
         //        BOOL *_Nonnull stop) { obj.current = [NSNumber numberWithBool:idx == 0]; }];
     }
-    
+
     SentryRequest *request = [[SentryRequest alloc] init];
 
     NSURLRequest *myRequest = (NSURLRequest *)sessionTask.currentRequest;
 
     NSURL *url = [[sessionTask currentRequest] URL];
     request.url = url.absoluteString;
-    
+
     request.fragment = url.fragment;
     request.queryString = url.query;
     request.method = myRequest.HTTPMethod;
@@ -343,7 +343,7 @@ SentryNetworkTracker ()
 
     event.exceptions = @[ sentryException ];
     event.request = request;
-    
+
     NSHTTPURLResponse *myResponse = (NSHTTPURLResponse *)sessionTask.response;
 
     NSMutableDictionary<NSString *, id> *context = [[NSMutableDictionary alloc] init];;

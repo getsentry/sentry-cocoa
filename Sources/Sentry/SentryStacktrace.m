@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
         [serializedData setValue:self.registers forKey:@"registers"];
     }
     [serializedData setValue:self.snapshot forKey:@"snapshot"];
-    
+
     return serializedData;
 }
 

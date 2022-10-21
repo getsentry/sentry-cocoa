@@ -414,7 +414,6 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, retain) NSArray *tracePropagationTargets;
 
-
 /**
  * When enabled, the SDK captures HTTP Client errors. Default value is NO.
  */

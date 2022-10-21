@@ -270,7 +270,7 @@ SentryOptions ()
 
     [self setBool:options[@"enableAutoPerformanceTracking"]
             block:^(BOOL value) { self->_enableAutoPerformanceTracking = value; }];
-    
+
     [self setBool:options[@"enableCaptureFailedRequests"]
             block:^(BOOL value) { self->_enableCaptureFailedRequests = value; }];
 

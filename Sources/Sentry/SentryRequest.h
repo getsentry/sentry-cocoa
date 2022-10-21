@@ -19,8 +19,8 @@ NS_SWIFT_NAME(Request)
 @property (atomic, copy) NSString *_Nullable cookies;
 
 /**
-* Optional: A dictionary of submitted headers.
-*/
+ * Optional: A dictionary of submitted headers.
+ */
 @property (nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable headers;
 
 /**

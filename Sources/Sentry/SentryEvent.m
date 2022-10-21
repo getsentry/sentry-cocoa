@@ -2,7 +2,6 @@
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryBreadcrumb.h"
-#import "SentryRequest.h"
 #import "SentryClient.h"
 #import "SentryCurrentDate.h"
 #import "SentryDebugMeta.h"
@@ -11,6 +10,7 @@
 #import "SentryLevelMapper.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
+#import "SentryRequest.h"
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
 #import "SentryUser.h"
@@ -158,7 +158,7 @@ SentryEvent ()
                               forKey:@"start_timestamp"];
         }
     }
-    
+
     if (nil != self.request) {
         [serializedData setValue:[self.request serialize] forKey:@"request"];
     }
