@@ -881,7 +881,7 @@ extension SentryHubTests {
         }
     }
 
-    func testProfilingDataContainsEnvironmentSetFromConfigureScope() {
+    func testProfilingDataContainsEnvironmentSetFromConfigureScope_disabled() {
         let options = fixture.options
         options.profilesSampleRate = 1.0
         options.tracesSampler = {(_: SamplingContext) -> NSNumber in
