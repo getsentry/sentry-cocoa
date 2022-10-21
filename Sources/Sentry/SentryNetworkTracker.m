@@ -312,13 +312,15 @@ SentryNetworkTracker ()
     sentryException.mechanism = [[SentryMechanism alloc] initWithType:@"SentryNetworkTrackingIntegration"];
     
     
-    SentryStacktrace *sentryStacktrace = [threads[0] stacktrace];
-    sentryStacktrace.snapshot = @(YES);
-    
-    sentryException.stacktrace = sentryStacktrace;
-    // TODO: do I need this?
-//    [threads enumerateObjectsUsingBlock:^(SentryThread *_Nonnull obj, NSUInteger idx,
-//        BOOL *_Nonnull stop) { obj.current = [NSNumber numberWithBool:idx == 0]; }];
+    if (threads.count > 0) {
+        SentryStacktrace *sentryStacktrace = [threads[0] stacktrace];
+        sentryStacktrace.snapshot = @(YES);
+        
+        sentryException.stacktrace = sentryStacktrace;
+        // TODO: do I need this?
+        //    [threads enumerateObjectsUsingBlock:^(SentryThread *_Nonnull obj, NSUInteger idx,
+        //        BOOL *_Nonnull stop) { obj.current = [NSNumber numberWithBool:idx == 0]; }];
+    }
     
     SentryRequest *request = [[SentryRequest alloc] init];
 
@@ -330,29 +332,35 @@ SentryNetworkTracker ()
     request.fragment = url.fragment;
     request.queryString = url.query;
     request.method = myRequest.HTTPMethod;
-    request.bodySize = [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
-    request.headers = myRequest.allHTTPHeaderFields.copy;
-    request.cookies = myRequest.allHTTPHeaderFields[@"Cookie"];
+    if (sessionTask.countOfBytesSent != 0) {
+        request.bodySize = [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
+    }
+    if (nil != myRequest.allHTTPHeaderFields) {
+        NSDictionary<NSString *, NSString *> *headers = myRequest.allHTTPHeaderFields.copy;
+        request.headers = headers;
+        request.cookies = headers[@"Cookie"];
+    }
 
     event.exceptions = @[ sentryException ];
     event.request = request;
     
     NSHTTPURLResponse *myResponse = (NSHTTPURLResponse *)sessionTask.response;
 
-    NSMutableDictionary *newContext;
-    if (nil == event.context) {
-        newContext = [[NSMutableDictionary alloc] init];
-    } else {
-        newContext = event.context.mutableCopy;
-    }
-    NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary<NSString *, id> *context = [[NSMutableDictionary alloc] init];;
+    NSMutableDictionary<NSString *, id> *response = [[NSMutableDictionary alloc] init];
+
     [response setValue:[NSNumber numberWithLongLong:responseStatusCode] forKey:@"status_code"];
-    [response setValue:myResponse.allHeaderFields.copy forKey:@"headers"];
-    [response setValue:myResponse.allHeaderFields[@"Cookie"] forKey:@"cookies"];
-    [response setValue:[NSNumber numberWithLongLong:sessionTask.countOfBytesReceived] forKey:@"body_size"];
+    if (nil != myResponse.allHeaderFields) {
+        NSDictionary<NSString *, NSString *> *headers = myResponse.allHeaderFields.copy;
+        [response setValue:headers forKey:@"headers"];
+        [response setValue:headers[@"Cookie"] forKey:@"cookies"];
+    }
+    if (sessionTask.countOfBytesReceived != 0) {
+        [response setValue:[NSNumber numberWithLongLong:sessionTask.countOfBytesReceived] forKey:@"body_size"];
+    }
     
-    newContext[@"response"] = response;
-    event.context = newContext;
+    context[@"response"] = response;
+    event.context = context;
 
     [SentrySDK captureEvent:event];
 }
