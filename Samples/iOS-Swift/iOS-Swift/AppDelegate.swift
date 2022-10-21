@@ -62,6 +62,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if _metricKit == nil {
             _metricKit = MetricKitManager()
         }
+        
+        // We know the type so it's fine to force cast.
+        // swiftlint:disable force_cast
         return _metricKit as! MetricKitManager
+        // swiftlint:enable force_cast
     }
 }
