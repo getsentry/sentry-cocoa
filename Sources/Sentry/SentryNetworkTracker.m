@@ -310,12 +310,13 @@ SentryNetworkTracker ()
 
     SentryException *sentryException = [[SentryException alloc] initWithValue:message
                                                                          type:@"HTTP-ClientError"];
-    sentryException.mechanism = [[SentryMechanism alloc] initWithType:@"SentryNetworkTrackingIntegration"];
-    
+    sentryException.mechanism =
+        [[SentryMechanism alloc] initWithType:@"SentryNetworkTrackingIntegration"];
+
     if (threads.count > 0) {
         SentryStacktrace *sentryStacktrace = [threads[0] stacktrace];
         sentryStacktrace.snapshot = @(YES);
-        
+
         sentryException.stacktrace = sentryStacktrace;
         // TODO: do I need this?
         //    [threads enumerateObjectsUsingBlock:^(SentryThread *_Nonnull obj, NSUInteger idx,
@@ -346,7 +347,8 @@ SentryNetworkTracker ()
 
     NSHTTPURLResponse *myResponse = (NSHTTPURLResponse *)sessionTask.response;
 
-    NSMutableDictionary<NSString *, id> *context = [[NSMutableDictionary alloc] init];;
+    NSMutableDictionary<NSString *, id> *context = [[NSMutableDictionary alloc] init];
+    ;
     NSMutableDictionary<NSString *, id> *response = [[NSMutableDictionary alloc] init];
 
     [response setValue:[NSNumber numberWithLongLong:responseStatusCode] forKey:@"status_code"];
@@ -356,9 +358,10 @@ SentryNetworkTracker ()
         [response setValue:headers[@"Cookie"] forKey:@"cookies"];
     }
     if (sessionTask.countOfBytesReceived != 0) {
-        [response setValue:[NSNumber numberWithLongLong:sessionTask.countOfBytesReceived] forKey:@"body_size"];
+        [response setValue:[NSNumber numberWithLongLong:sessionTask.countOfBytesReceived]
+                    forKey:@"body_size"];
     }
-    
+
     context[@"response"] = response;
     event.context = context;
 
