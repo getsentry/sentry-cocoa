@@ -420,14 +420,16 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableCaptureFailedRequests;
 
 /**
- * The SDK will only capture HTTP Client errors if the HTTP Response status code is within the defined range.
+ * The SDK will only capture HTTP Client errors if the HTTP Response status code is within the
+ * defined range.
  *
  * Defaults to 500 - 599.
  */
 @property (nonatomic, assign) NSArray<SentryHttpStatusCodeRange *> *failedRequestStatusCodes;
 
 /**
- * An array of hosts or regexes that determines if HTTP Client errors will be automatically captured.
+ * An array of hosts or regexes that determines if HTTP Client errors will be automatically
+ * captured.
  *
  * This array can contain instances of NSString which should match the URL (using `contains`),
  * and instances of NSRegularExpression, which will be used to check the whole URL.
