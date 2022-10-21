@@ -294,21 +294,22 @@ SentryNetworkTracker ()
     NSHTTPURLResponse *myResponse = (NSHTTPURLResponse *)sessionTask.response;
     NSNumber *responseStatusCode = [NSNumber numberWithLongLong:myResponse.statusCode];
 
-    if (!self.isCaptureFailedRequests || ![self containsStatusCode:responseStatusCode]) {
+    if (!self.isCaptureFailedRequests || ![self containsStatusCode:myResponse.statusCode]) {
         return;
     }
     
     if (![self isTargetMatch:sessionTask.currentRequest.URL withTargets:SentrySDK.options.failedRequestTargets]) {
         return;
     }
-
+    
     NSString *message = [NSString
-        stringWithFormat:@"HTTP Client Error with status code: %li", (long)(responseStatusCode)];
+        stringWithFormat:@"HTTP Client Error with status code: %ld", (long)myResponse.statusCode];
 
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
 
     SentryThreadInspector *threadInspector = SentrySDK.currentHub.getClient.threadInspector;
-    NSArray<SentryThread *> *threads = [threadInspector getCurrentThreads];
+    // TODO: getCurrentThreads does not return stack traces
+    NSArray<SentryThread *> *threads = [threadInspector getCurrentThreadsWithStackTrace];
 
     SentryException *sentryException = [[SentryException alloc] initWithValue:message
                                                                          type:@"HTTP-ClientError"];
@@ -369,9 +370,9 @@ SentryNetworkTracker ()
     [SentrySDK captureEvent:event];
 }
 
-- (BOOL)containsStatusCode:(NSNumber *)statusCode {
-    for (SentryHttpStatusCodeRange *targetCheck in SentrySDK.options.failedRequestStatusCodes) {
-        if ([targetCheck isInRange:statusCode]) {
+- (BOOL)containsStatusCode:(NSInteger)statusCode {
+    for (SentryHttpStatusCodeRange *range in SentrySDK.options.failedRequestStatusCodes) {
+        if ([range isInRange:statusCode]) {
             return YES;
         }
     }

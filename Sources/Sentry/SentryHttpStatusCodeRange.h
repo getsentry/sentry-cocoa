@@ -5,15 +5,15 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(HttpStatusCodeRange)
 @interface SentryHttpStatusCodeRange : NSObject
 
-@property (nonatomic, copy) NSNumber *min;
+@property (nonatomic) NSInteger min;
 
-@property (nonatomic, copy) NSNumber *max;
+@property (nonatomic) NSInteger max;
 
-- (instancetype)initWithMin:(NSNumber *)min andMax:(NSNumber *)max;
+- (instancetype)initWithMin:(NSInteger)min andMax:(NSInteger)max;
 
-- (instancetype)initWithStatusCode:(NSNumber *)statusCode;
+- (instancetype)initWithStatusCode:(NSInteger)statusCode;
 
-- (BOOL)isInRange:(NSNumber *)statusCode;
+- (BOOL)isInRange:(NSInteger)statusCode;
 
 @end
 

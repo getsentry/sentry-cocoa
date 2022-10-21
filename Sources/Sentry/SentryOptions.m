@@ -13,7 +13,7 @@ SentryOptions ()
 
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultSampleRate;
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultTracesSampleRate;
-@property (nullable, nonatomic, copy, readonly) SentryHttpStatusCodeRange *defaultHttpStatusCodeRange;
+//@property (nullable, nonatomic, copy, readonly) SentryHttpStatusCodeRange *defaultHttpStatusCodeRange;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultProfilesSampleRate;
 @property (nonatomic, assign) BOOL enableProfiling_DEPRECATED_TEST_ONLY;
@@ -120,12 +120,13 @@ SentryOptions ()
                                                       options:NSRegularExpressionCaseInsensitive
                                                         error:NULL];
         self.tracePropagationTargets = @[ everythingAllowedRegex ];
-        
-        // defaults to 500 to 599
-        _defaultHttpStatusCodeRange = [[SentryHttpStatusCodeRange alloc] initWithMin:[NSNumber numberWithInt:500] andMax:[NSNumber numberWithInt:599]];
-        self.failedRequestStatusCodes = @[ _defaultHttpStatusCodeRange ];
-        
         self.failedRequestTargets = @[ everythingAllowedRegex ];
+        
+        // TODO: revert 200
+        // defaults to 500 to 599
+        SentryHttpStatusCodeRange *defaultHttpStatusCodeRange =
+        [[SentryHttpStatusCodeRange alloc] initWithMin:200 andMax:599];
+        self.failedRequestStatusCodes = @[ defaultHttpStatusCodeRange ];
     }
     return self;
 }

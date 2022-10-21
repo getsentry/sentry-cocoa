@@ -424,7 +424,7 @@ NS_SWIFT_NAME(Options)
  *
  * Defaults to 500 - 599.
  */
-@property (nonatomic, assign) NSArray<SentryHttpStatusCodeRange *> *failedRequestStatusCodes;
+@property (nonatomic, strong) NSArray<SentryHttpStatusCodeRange *> *failedRequestStatusCodes;
 
 /**
  * An array of hosts or regexes that determines if HTTP Client errors will be automatically captured.
@@ -434,7 +434,7 @@ NS_SWIFT_NAME(Options)
  *
  * The default value automatically captures HTTP Client errors of all outgoing requests.
  */
-@property (nonatomic, retain) NSArray *failedRequestTargets;
+@property (nonatomic, strong) NSArray *failedRequestTargets;
 
 @end
 
