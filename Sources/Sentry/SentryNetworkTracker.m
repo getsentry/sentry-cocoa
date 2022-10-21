@@ -321,21 +321,27 @@ SentryNetworkTracker ()
         sentryStacktrace.snapshot = @(YES);
 
         sentryException.stacktrace = sentryStacktrace;
-        // TODO: do I need this?
-        //    [threads enumerateObjectsUsingBlock:^(SentryThread *_Nonnull obj, NSUInteger idx,
-        //        BOOL *_Nonnull stop) { obj.current = [NSNumber numberWithBool:idx == 0]; }];
     }
 
     SentryRequest *request = [[SentryRequest alloc] init];
 
     NSURLRequest *myRequest = (NSURLRequest *)sessionTask.currentRequest;
 
-    // TODO: strip query string and fragment from url
     NSURL *url = [[sessionTask currentRequest] URL];
-    request.url = url.absoluteString;
 
-    request.fragment = url.fragment;
-    request.queryString = url.query;
+    NSString *urlString = url.absoluteString;
+
+    if (nil != url.fragment) {
+        request.fragment = url.fragment;
+        urlString = [urlString stringByReplacingOccurrencesOfString:[@"#" stringByAppendingString:url.fragment] withString:@""];
+    }
+    
+    if (nil != url.query) {
+        request.queryString = url.query;
+        urlString = [urlString stringByReplacingOccurrencesOfString:[@"?" stringByAppendingString:url.query] withString:@""];
+    }
+
+    request.url = urlString;
     request.method = myRequest.HTTPMethod;
     if (sessionTask.countOfBytesSent != 0) {
         request.bodySize = [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];

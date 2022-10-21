@@ -91,10 +91,12 @@ class ViewController: UIViewController {
                 _ = FileManager.default.contents(atPath: path)
             }
         }
-        
-        guard let imgUrl = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png") else {
+        guard let imgUrl = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png?myQuery=test#myFragment") else {
             return
         }
+//        print("query: \(imgUrl.query)")
+//        print("fragment: \(imgUrl.fragment)")
+//        print("full url: \(imgUrl.absoluteString)")
         let session = URLSession(configuration: URLSessionConfiguration.default)
         let dataTask = session.dataTask(with: imgUrl) { (_, _, _) in }
         dataTask.resume()

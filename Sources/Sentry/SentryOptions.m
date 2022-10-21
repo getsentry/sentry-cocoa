@@ -383,8 +383,6 @@ SentryOptions ()
         self.tracePropagationTargets = options[@"tracePropagationTargets"];
     }
 
-    // TODO: do I have to check the instance type of the items?
-    // or can I do in the signature?
     if ([options[@"failedRequestStatusCodes"] isKindOfClass:[NSArray class]]) {
         self.failedRequestStatusCodes = options[@"failedRequestStatusCodes"];
     }
