@@ -333,12 +333,16 @@ SentryNetworkTracker ()
 
     if (nil != url.fragment) {
         request.fragment = url.fragment;
-        urlString = [urlString stringByReplacingOccurrencesOfString:[@"#" stringByAppendingString:url.fragment] withString:@""];
+        urlString = [urlString
+            stringByReplacingOccurrencesOfString:[@"#" stringByAppendingString:url.fragment]
+                                      withString:@""];
     }
-    
+
     if (nil != url.query) {
         request.queryString = url.query;
-        urlString = [urlString stringByReplacingOccurrencesOfString:[@"?" stringByAppendingString:url.query] withString:@""];
+        urlString =
+            [urlString stringByReplacingOccurrencesOfString:[@"?" stringByAppendingString:url.query]
+                                                 withString:@""];
     }
 
     request.url = urlString;
