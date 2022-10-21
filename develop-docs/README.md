@@ -113,3 +113,5 @@ We could create the crash report first, write it to disk and then call Objective
 Related links:
 
 - https://github.com/getsentry/sentry-cocoa/pull/1751
+
+###

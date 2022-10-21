@@ -1858,7 +1858,7 @@
 		63AA756E1EB8AEDB00D153DE /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				D800942328F82E8D005D3943 /* SentrySwift */,
+				D800942328F82E8D005D3943 /* Swift */,
 				63AA75A31EB8AFDF00D153DE /* Configuration */,
 				63FE6FB920DA4C1000CDBAE8 /* SentryCrash */,
 				63AA75C61EB8B06100D153DE /* Sentry */,
@@ -2819,12 +2819,12 @@
 			name = Transaction;
 			sourceTree = "<group>";
 		};
-		D800942328F82E8D005D3943 /* SentrySwift */ = {
+		D800942328F82E8D005D3943 /* Swift */ = {
 			isa = PBXGroup;
 			children = (
 				D800942628F82F3A005D3943 /* SwiftDescriptor.swift */,
 			);
-			path = SentrySwift;
+			path = Swift;
 			sourceTree = "<group>";
 		};
 		D808FB85281AB2EF009A2A33 /* UIEvents */ = {

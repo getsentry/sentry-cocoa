@@ -12,7 +12,7 @@ let package = Package(
         .target( name: "SentrySwift",
                  path: "Sources",
                  sources: [
-                    "SentrySwift"
+                    "Swift"
                  ]
                ),
         .target(
