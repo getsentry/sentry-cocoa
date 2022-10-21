@@ -27,7 +27,7 @@ index 2c1fc802..21495fd7 100644
  - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
  {
 +    [SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
-+        options.dsn = @"https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557";
++        options.dsn = @"https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557";
 +        options.environment = @"integration-tests";
 +        options.tracesSampleRate = @1.0;
 +        options.enableFileIOTracking = YES;
