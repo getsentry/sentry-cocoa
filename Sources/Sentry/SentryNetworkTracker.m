@@ -226,8 +226,6 @@ SentryNetworkTracker ()
 
 - (void)urlSessionTask:(NSURLSessionTask *)sessionTask setState:(NSURLSessionTaskState)newState
 {
-    // TODO: Can I actually read isCaptureFailedRequests directly from the options?
-    // Why do we have them here and in the options?
     if (!self.isNetworkTrackingEnabled && !self.isNetworkBreadcrumbEnabled
         && !self.isCaptureFailedRequests) {
         return;
