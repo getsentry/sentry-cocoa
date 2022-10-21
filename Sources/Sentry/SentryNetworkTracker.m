@@ -316,7 +316,7 @@ SentryNetworkTracker ()
         [[SentryMechanism alloc] initWithType:@"SentryNetworkTrackingIntegration"];
 
     if (threads.count > 0) {
-        for(SentryThread *thread in threads) {
+        for (SentryThread *thread in threads) {
             if (nil != thread.current && [thread.current boolValue]) {
                 SentryStacktrace *sentryStacktrace = [thread stacktrace];
                 sentryStacktrace.snapshot = @(YES);
