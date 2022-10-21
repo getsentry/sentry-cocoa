@@ -5,7 +5,7 @@ struct TestConstants {
     /**
      * Real dsn for integration tests.
      */
-    static let realDSN: String = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
+    static let realDSN: String = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
     
     static func dsnAsString(username: String) -> String {
         return "https://\(username):password@app.getsentry.com/12345"

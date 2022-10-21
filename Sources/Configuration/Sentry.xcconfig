@@ -20,7 +20,7 @@ SDKROOT__CARTHAGE_ = iphoneos
 SUPPORTED_PLATFORMS = macosx iphoneos iphonesimulator watchos watchsimulator appletvos appletvsimulator
 TARGETED_DEVICE_FAMILY = 1,2,3,4
 SKIP_INSTALL = YES
-
+ENABLE_BITCODE = YES
 DEFINES_MODULE = YES
 DYLIB_COMPATIBILITY_VERSION = 1
 DYLIB_CURRENT_VERSION = 1

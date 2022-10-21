@@ -181,6 +181,11 @@ platform :ios do
       key_content: ENV["APP_STORE_CONNECT_KEY"]
     )
 
+    # Workaround for https://github.com/fastlane/fastlane/issues/20741
+    environment_variable(set: {
+      'ITMSTRANSPORTER_FORCE_ITMS_PACKAGE_UPLOAD' => 'true'
+    })
+
     testflight
 
     download_dsyms(

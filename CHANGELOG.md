@@ -7,6 +7,10 @@
 - Offline caching improvements (#2263)
 - Report usage of stitchAsyncCode (#2281)
 
+### Fixes
+
+- Enable bitcode (#2307)
+
 ## 7.28.0
 
 ### Features
