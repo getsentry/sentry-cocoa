@@ -4,7 +4,6 @@ on:
     branches:
       - master
       - release/**
-      - ci/install-xcode-simulator
 
   pull_request:
     paths:
@@ -284,7 +283,7 @@ jobs:
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} device:"$iPhone 8 (12.4)" address_sanitizer:false && break ; done
+        run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} device:"iPhone 8 (12.4)" address_sanitizer:false && break ; done
         shell: sh
 
   ui-tests-address-sanitizer:
