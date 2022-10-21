@@ -308,8 +308,7 @@ SentryNetworkTracker ()
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
 
     SentryThreadInspector *threadInspector = SentrySDK.currentHub.getClient.threadInspector;
-    // TODO: getCurrentThreads does not return stack traces
-    NSArray<SentryThread *> *threads = [threadInspector getCurrentThreadsWithStackTrace];
+    NSArray<SentryThread *> *threads = [threadInspector getCurrentThreads];
 
     SentryException *sentryException = [[SentryException alloc] initWithValue:message
                                                                          type:@"HTTP-ClientError"];
@@ -317,10 +316,16 @@ SentryNetworkTracker ()
         [[SentryMechanism alloc] initWithType:@"SentryNetworkTrackingIntegration"];
 
     if (threads.count > 0) {
-        SentryStacktrace *sentryStacktrace = [threads[0] stacktrace];
-        sentryStacktrace.snapshot = @(YES);
+        for(SentryThread *thread in threads) {
+            if (nil != thread.current && [thread.current boolValue]) {
+                SentryStacktrace *sentryStacktrace = [thread stacktrace];
+                sentryStacktrace.snapshot = @(YES);
 
-        sentryException.stacktrace = sentryStacktrace;
+                sentryException.stacktrace = sentryStacktrace;
+
+                break;
+            }
+        }
     }
 
     SentryRequest *request = [[SentryRequest alloc] init];
