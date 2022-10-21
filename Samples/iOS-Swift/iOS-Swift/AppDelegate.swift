@@ -42,6 +42,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.appHangTimeoutInterval = 2
         }
         
+        if #available(iOS 14.0, *) {
+            metricKit.receiveReports()
+        }
+        
         return true
+    }
+    
+    func applicationWillTerminate(_ application: UIApplication) {
+        if #available(iOS 14.0, *) {
+            metricKit.pauseReports()
+        }
+    }
+    
+    // Workaround for 'Stored properties cannot be marked potentially unavailable with '@available''
+    private var _metricKit: Any?
+    @available(iOS 14.0, *)
+    fileprivate var metricKit: MetricKitManager {
+        if _metricKit == nil {
+            _metricKit = MetricKitManager()
+        }
+        
+        // We know the type so it's fine to force cast.
+        // swiftlint:disable force_cast
+        return _metricKit as! MetricKitManager
+        // swiftlint:enable force_cast
     }
 }
