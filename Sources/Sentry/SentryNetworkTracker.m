@@ -4,6 +4,7 @@
 #import "SentryClient+Private.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
+#import "SentryHttpStatusCodeRange.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryMechanism.h"
@@ -12,7 +13,6 @@
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
 #import "SentryStacktrace.h"
-#import "SentryHttpStatusCodeRange.h"
 #import "SentryThread.h"
 #import "SentryThreadInspector.h"
 #import "SentryTraceContext.h"
@@ -162,7 +162,8 @@ SentryNetworkTracker ()
         }
 
         if ([sessionTask currentRequest] &&
-            [self isTargetMatch:sessionTask.currentRequest.URL withTargets:SentrySDK.options.tracePropagationTargets]) {
+            [self isTargetMatch:sessionTask.currentRequest.URL
+                    withTargets:SentrySDK.options.tracePropagationTargets]) {
             NSString *baggageHeader = @"";
 
             SentryTracer *tracer = [SentryTracer getTracer:span];
@@ -297,8 +298,9 @@ SentryNetworkTracker ()
     if (!self.isCaptureFailedRequests || ![self containsStatusCode:myResponse.statusCode]) {
         return;
     }
-    
-    if (![self isTargetMatch:sessionTask.currentRequest.URL withTargets:SentrySDK.options.failedRequestTargets]) {
+
+    if (![self isTargetMatch:sessionTask.currentRequest.URL
+                 withTargets:SentrySDK.options.failedRequestTargets]) {
         return;
     }
     
@@ -370,13 +372,14 @@ SentryNetworkTracker ()
     [SentrySDK captureEvent:event];
 }
 
-- (BOOL)containsStatusCode:(NSInteger)statusCode {
+- (BOOL)containsStatusCode:(NSInteger)statusCode
+{
     for (SentryHttpStatusCodeRange *range in SentrySDK.options.failedRequestStatusCodes) {
         if ([range isInRange:statusCode]) {
             return YES;
         }
     }
-    
+
     return NO;
 }
 

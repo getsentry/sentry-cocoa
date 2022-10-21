@@ -1,19 +1,19 @@
 #import "SentryOptions.h"
 #import "SentryANRTracker.h"
 #import "SentryDsn.h"
+#import "SentryHttpStatusCodeRange.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentrySDK.h"
 #import "SentrySdkInfo.h"
-#import "SentryHttpStatusCodeRange.h"
 
 @interface
 SentryOptions ()
 
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultSampleRate;
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultTracesSampleRate;
-//@property (nullable, nonatomic, copy, readonly) SentryHttpStatusCodeRange *defaultHttpStatusCodeRange;
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultProfilesSampleRate;
 @property (nonatomic, assign) BOOL enableProfiling_DEPRECATED_TEST_ONLY;
@@ -121,7 +121,7 @@ SentryOptions ()
                                                         error:NULL];
         self.tracePropagationTargets = @[ everythingAllowedRegex ];
         self.failedRequestTargets = @[ everythingAllowedRegex ];
-        
+
         // TODO: revert 200
         // defaults to 500 to 599
         SentryHttpStatusCodeRange *defaultHttpStatusCodeRange =
@@ -382,13 +382,13 @@ SentryOptions ()
     if ([options[@"tracePropagationTargets"] isKindOfClass:[NSArray class]]) {
         self.tracePropagationTargets = options[@"tracePropagationTargets"];
     }
-    
+
     // TODO: do I have to check the instance type of the items?
     // or can I do in the signature?
     if ([options[@"failedRequestStatusCodes"] isKindOfClass:[NSArray class]]) {
         self.failedRequestStatusCodes = options[@"failedRequestStatusCodes"];
     }
-    
+
     if ([options[@"failedRequestTargets"] isKindOfClass:[NSArray class]]) {
         self.failedRequestTargets = options[@"failedRequestTargets"];
     }

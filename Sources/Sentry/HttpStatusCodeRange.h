@@ -9,5 +9,4 @@
 #ifndef HttpStatusCodeRange_h
 #define HttpStatusCodeRange_h
 
-
 #endif /* HttpStatusCodeRange_h */
