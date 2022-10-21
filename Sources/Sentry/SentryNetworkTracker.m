@@ -303,7 +303,7 @@ SentryNetworkTracker ()
                  withTargets:SentrySDK.options.failedRequestTargets]) {
         return;
     }
-    
+
     NSString *message = [NSString
         stringWithFormat:@"HTTP Client Error with status code: %ld", (long)myResponse.statusCode];
 
