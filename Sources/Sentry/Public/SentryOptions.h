@@ -3,7 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryDsn, SentrySdkInfo, SentryMeasurementValue;
+@class SentryDsn, SentrySdkInfo, SentryMeasurementValue, SentryHttpStatusCodeRange;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -418,6 +418,23 @@ NS_SWIFT_NAME(Options)
  * When enabled, the SDK captures HTTP Client errors. Default value is NO.
  */
 @property (nonatomic, assign) BOOL enableCaptureFailedRequests;
+
+/**
+ * The SDK will only capture HTTP Client errors if the HTTP Response status code is within the defined range.
+ *
+ * Defaults to 500 - 599.
+ */
+@property (nonatomic, assign) NSArray<SentryHttpStatusCodeRange *> *failedRequestStatusCodes;
+
+/**
+ * An array of hosts or regexes that determines if HTTP Client errors will be automatically captured.
+ *
+ * This array can contain instances of NSString which should match the URL (using `contains`),
+ * and instances of NSRegularExpression, which will be used to check the whole URL.
+ *
+ * The default value automatically captures HTTP Client errors of all outgoing requests.
+ */
+@property (nonatomic, retain) NSArray *failedRequestTargets;
 
 @end
 

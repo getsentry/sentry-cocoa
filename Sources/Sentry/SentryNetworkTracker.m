@@ -12,6 +12,7 @@
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
 #import "SentryStacktrace.h"
+#import "SentryHttpStatusCodeRange.h"
 #import "SentryThread.h"
 #import "SentryThreadInspector.h"
 #import "SentryTraceContext.h"
@@ -78,9 +79,9 @@ SentryNetworkTracker ()
     }
 }
 
-- (BOOL)addHeadersForRequestWithURL:(NSURL *)URL
+- (BOOL)isTargetMatch:(NSURL *)URL withTargets:(NSArray *)targets
 {
-    for (id targetCheck in SentrySDK.options.tracePropagationTargets) {
+    for (id targetCheck in targets) {
         if ([targetCheck isKindOfClass:[NSRegularExpression class]]) {
             NSString *string = URL.absoluteString;
             NSUInteger numberOfMatches =
@@ -161,7 +162,7 @@ SentryNetworkTracker ()
         }
 
         if ([sessionTask currentRequest] &&
-            [self addHeadersForRequestWithURL:sessionTask.currentRequest.URL]) {
+            [self isTargetMatch:sessionTask.currentRequest.URL withTargets:SentrySDK.options.tracePropagationTargets]) {
             NSString *baggageHeader = @"";
 
             SentryTracer *tracer = [SentryTracer getTracer:span];
@@ -224,6 +225,8 @@ SentryNetworkTracker ()
 
 - (void)urlSessionTask:(NSURLSessionTask *)sessionTask setState:(NSURLSessionTaskState)newState
 {
+    // TODO: Can I actually read isCaptureFailedRequests directly from the options?
+    // Why do we have them here and in the options?
     if (!self.isNetworkTrackingEnabled && !self.isNetworkBreadcrumbEnabled
         && !self.isCaptureFailedRequests) {
         return;
@@ -288,15 +291,14 @@ SentryNetworkTracker ()
 
 - (void)captureEvent:(NSURLSessionTask *)sessionTask
 {
-    NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
+    NSHTTPURLResponse *myResponse = (NSHTTPURLResponse *)sessionTask.response;
+    NSNumber *responseStatusCode = [NSNumber numberWithLongLong:myResponse.statusCode];
 
-    // TODO: check the string contains and regex
-    if (!self.isCaptureFailedRequests) {
+    if (!self.isCaptureFailedRequests || ![self containsStatusCode:responseStatusCode]) {
         return;
     }
-
-    // TODO: check the range
-    if (responseStatusCode == 201) {
+    
+    if (![self isTargetMatch:sessionTask.currentRequest.URL withTargets:SentrySDK.options.failedRequestTargets]) {
         return;
     }
 
@@ -306,7 +308,7 @@ SentryNetworkTracker ()
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
 
     SentryThreadInspector *threadInspector = SentrySDK.currentHub.getClient.threadInspector;
-    NSArray<SentryThread *> *threads = [threadInspector getCurrentThreadsWithStackTrace];
+    NSArray<SentryThread *> *threads = [threadInspector getCurrentThreads];
 
     SentryException *sentryException = [[SentryException alloc] initWithValue:message
                                                                          type:@"HTTP-ClientError"];
@@ -327,6 +329,7 @@ SentryNetworkTracker ()
 
     NSURLRequest *myRequest = (NSURLRequest *)sessionTask.currentRequest;
 
+    // TODO: strip query string and fragment from url
     NSURL *url = [[sessionTask currentRequest] URL];
     request.url = url.absoluteString;
 
@@ -345,13 +348,11 @@ SentryNetworkTracker ()
     event.exceptions = @[ sentryException ];
     event.request = request;
 
-    NSHTTPURLResponse *myResponse = (NSHTTPURLResponse *)sessionTask.response;
-
     NSMutableDictionary<NSString *, id> *context = [[NSMutableDictionary alloc] init];
     ;
     NSMutableDictionary<NSString *, id> *response = [[NSMutableDictionary alloc] init];
 
-    [response setValue:[NSNumber numberWithLongLong:responseStatusCode] forKey:@"status_code"];
+    [response setValue:responseStatusCode forKey:@"status_code"];
     if (nil != myResponse.allHeaderFields) {
         NSDictionary<NSString *, NSString *> *headers = myResponse.allHeaderFields.copy;
         [response setValue:headers forKey:@"headers"];
@@ -366,6 +367,16 @@ SentryNetworkTracker ()
     event.context = context;
 
     [SentrySDK captureEvent:event];
+}
+
+- (BOOL)containsStatusCode:(NSNumber *)statusCode {
+    for (SentryHttpStatusCodeRange *targetCheck in SentrySDK.options.failedRequestStatusCodes) {
+        if ([targetCheck isInRange:statusCode]) {
+            return YES;
+        }
+    }
+    
+    return NO;
 }
 
 - (void)addBreadcrumbForSessionTask:(NSURLSessionTask *)sessionTask

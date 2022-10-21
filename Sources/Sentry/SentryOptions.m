@@ -6,12 +6,14 @@
 #import "SentryMeta.h"
 #import "SentrySDK.h"
 #import "SentrySdkInfo.h"
+#import "SentryHttpStatusCodeRange.h"
 
 @interface
 SentryOptions ()
 
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultSampleRate;
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultTracesSampleRate;
+@property (nullable, nonatomic, copy, readonly) SentryHttpStatusCodeRange *defaultHttpStatusCodeRange;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultProfilesSampleRate;
 @property (nonatomic, assign) BOOL enableProfiling_DEPRECATED_TEST_ONLY;
@@ -118,6 +120,12 @@ SentryOptions ()
                                                       options:NSRegularExpressionCaseInsensitive
                                                         error:NULL];
         self.tracePropagationTargets = @[ everythingAllowedRegex ];
+        
+        // defaults to 500 to 599
+        _defaultHttpStatusCodeRange = [[SentryHttpStatusCodeRange alloc] initWithMin:[NSNumber numberWithInt:500] andMax:[NSNumber numberWithInt:599]];
+        self.failedRequestStatusCodes = @[ _defaultHttpStatusCodeRange ];
+        
+        self.failedRequestTargets = @[ everythingAllowedRegex ];
     }
     return self;
 }
@@ -147,6 +155,24 @@ SentryOptions ()
     }
 
     _tracePropagationTargets = tracePropagationTargets;
+}
+
+- (void)setFailedRequestStatusCodes:(NSArray<SentryHttpStatusCodeRange *> *)failedRequestStatusCodes
+{
+    _failedRequestStatusCodes = failedRequestStatusCodes;
+}
+
+- (void)setFailedRequestTargets:(NSArray *)failedRequestTargets
+{
+    for (id targetCheck in failedRequestTargets) {
+        if (![targetCheck isKindOfClass:[NSRegularExpression class]]
+            && ![targetCheck isKindOfClass:[NSString class]]) {
+            SENTRY_LOG_WARN(@"Only instances of NSString and NSRegularExpression are supported "
+                            @"inside failedRequestTargets.");
+        }
+    }
+
+    _failedRequestTargets = failedRequestTargets;
 }
 
 - (void)setIntegrations:(NSArray<NSString *> *)integrations
@@ -354,6 +380,16 @@ SentryOptions ()
 
     if ([options[@"tracePropagationTargets"] isKindOfClass:[NSArray class]]) {
         self.tracePropagationTargets = options[@"tracePropagationTargets"];
+    }
+    
+    // TODO: do I have to check the instance type of the items?
+    // or can I do in the signature?
+    if ([options[@"failedRequestStatusCodes"] isKindOfClass:[NSArray class]]) {
+        self.failedRequestStatusCodes = options[@"failedRequestStatusCodes"];
+    }
+    
+    if ([options[@"failedRequestTargets"] isKindOfClass:[NSArray class]]) {
+        self.failedRequestTargets = options[@"failedRequestTargets"];
     }
 
     // SentrySdkInfo already expects a dictionary with {"sdk": {"name": ..., "value": ...}}

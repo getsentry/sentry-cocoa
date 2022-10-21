@@ -16,7 +16,8 @@ static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN = @"SENTRY_NETWORK_RE
 - (void)enableNetworkTracking;
 - (void)enableNetworkBreadcrumbs;
 - (void)enableCaptureFailedRequests;
-- (BOOL)addHeadersForRequestWithURL:(NSURL *)URL;
+- (BOOL)isTargetMatch:(NSURL *)URL withTargets:(NSArray *)targets;
+- (BOOL)containsStatusCode:(NSNumber *)statusCode;
 - (void)disable;
 
 @property (nonatomic, readonly) BOOL isNetworkTrackingEnabled;
