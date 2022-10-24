@@ -1357,7 +1357,7 @@
 		844DA7F6282435CD00E6B62E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		844DA80328246D5000E6B62E /* .oclint */ = {isa = PBXFileReference; lastKnownFileType = text; path = .oclint; sourceTree = "<group>"; };
 		844DA80428246D5000E6B62E /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
-		844DA80528246D5000E6B62E /* Sentry.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = Sentry.podspec; sourceTree = "<group>"; };
+		844DA80528246D5000E6B62E /* Sentry.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = Sentry.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		844DA80628246D5000E6B62E /* .craft.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .craft.yml; sourceTree = "<group>"; };
 		844DA80728246D5000E6B62E /* Gemfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = Gemfile; sourceTree = "<group>"; };
 		844DA80828246D5000E6B62E /* .gitmodules */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitmodules; sourceTree = "<group>"; };
