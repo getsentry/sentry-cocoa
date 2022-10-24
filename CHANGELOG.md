@@ -5,7 +5,7 @@
 ### Features
 
 - Properly demangle Swift class name (#2162)
-  From now on, Sentry SDK has a dependency on Swift framework
+  - From now on, Sentry SDK has a dependency on Swift framework
 - Offline caching improvements (#2263)
 - Report usage of stitchAsyncCode (#2281)
 
