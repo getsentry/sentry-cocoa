@@ -114,11 +114,28 @@ Related links:
 
 - https://github.com/getsentry/sentry-cocoa/pull/1751
 
+### Manually installing iOS 12 simulators
+
+Date: October 21st 2022
+Contributors: @philipphofmann
+
+GH actions will remove the macOS-10.15 image, which contains an iOS 12 simulator on 12/1/22; see https://github.com/actions/runner-images/issues/5583.
+Neither the[ macOS-11](https://github.com/actions/runner-images/blob/main/images/macos/macos-11-Readme.md#installed-sdks) nor the
+[macOS-12](https://github.com/actions/runner-images/blob/main/images/macos/macos-12-Readme.md#installed-sdks) image contains an iOS 12 simulator. GH
+[concluded](https://github.com/actions/runner-images/issues/551#issuecomment-788822538) to not add more pre-installed simulators. SauceLabs doesn't
+support running unit tests and adding another cloud solution as Firebase TestLab would increase the complexity of CI. Not running the unit tests on
+iOS 12 opens a risk of introducing bugs, which has already happened in the past, especially with swizzling. Therefore, we give manually installing
+the iOS 12 simulator a try.
+
+Related to [GH-2218](https://github.com/getsentry/sentry-cocoa/issues/2218)
+
 ### Adding Swift code in the project
 
 Date: October 1st 2022
+Contributors: @brustolin
 
 A Sentry SDK started to be [written in Swift once,](https://github.com/getsentry/raven-swift) but due to ABI not being stable at that time, it got dropped. Since then Swift 5.1 landed and we got ABI stability. We’ve considered adding Swift to our sentry.cocoa SDK since then, but because of some of the trade offs, we’ve postponed that decision.
 This changed with our goal to better support SwiftUI. It’s growing in popularity and we need to write code in Swift in order to support it.
 SwiftUI support will be available through an adicional library, but in order to support it we need to be able to demangle Swift class names in Sentry SDK, which can be done by using Swift API.
 Since we support SPM, and SPM don't support multi language projects, we need to create two different targets, one with Swift and another with Objective-c code, because of that our Swift code in SPM resides in a different module, which requires a different import in projects, and for now, this is the reason we should avoid writing public API in Swift. But, everything written in Swift will be public if users import Sentry via CocoaPods or Carthage.
+
