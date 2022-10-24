@@ -290,8 +290,17 @@ SentryNetworkTracker ()
 
 - (void)captureFailedRequests:(NSURLSessionTask *)sessionTask
 {
-    NSURLRequest *myRequest = sessionTask.currentRequest;
+    // if request or response are null, we can't raise the event
+    if (sessionTask.currentRequest == nil || sessionTask.response == nil) {
+        return;
+    }
+    // some properties are only available if the response is of the NSHTTPURLResponse type
+    // bail if not
+    if (![sessionTask.response isKindOfClass:[NSHTTPURLResponse class]]) {
+        return;
+    }
     NSHTTPURLResponse *myResponse = (NSHTTPURLResponse *)sessionTask.response;
+    NSURLRequest *myRequest = sessionTask.currentRequest;
     NSNumber *responseStatusCode = @(myResponse.statusCode);
 
     if (!self.isCaptureFailedRequestsEnabled || ![self containsStatusCode:myResponse.statusCode]) {
@@ -301,6 +310,9 @@ SentryNetworkTracker ()
     if (![self isTargetMatch:myRequest.URL withTargets:SentrySDK.options.failedRequestTargets]) {
         return;
     }
+    
+// TODO: how would I conver the error to sentry's error? thsi could be useful in case something goes wrong
+//    sessionTask.error
 
     NSString *message = [NSString
         stringWithFormat:@"HTTP Client Error with status code: %ld", (long)myResponse.statusCode];
