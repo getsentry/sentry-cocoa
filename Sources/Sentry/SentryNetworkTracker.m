@@ -298,8 +298,7 @@ SentryNetworkTracker ()
         return;
     }
 
-    if (![self isTargetMatch:myRequest.URL
-                 withTargets:SentrySDK.options.failedRequestTargets]) {
+    if (![self isTargetMatch:myRequest.URL withTargets:SentrySDK.options.failedRequestTargets]) {
         return;
     }
 
@@ -313,8 +312,7 @@ SentryNetworkTracker ()
 
     SentryException *sentryException = [[SentryException alloc] initWithValue:message
                                                                          type:@"HTTP-ClientError"];
-    sentryException.mechanism =
-        [[SentryMechanism alloc] initWithType:@"HTTPClientError"];
+    sentryException.mechanism = [[SentryMechanism alloc] initWithType:@"HTTPClientError"];
 
     for (SentryThread *thread in threads) {
         if ([thread.current boolValue]) {

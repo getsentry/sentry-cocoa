@@ -22,6 +22,7 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryFrame.h"
+#import "SentryHttpStatusCodeRange.h"
 #import "SentryHub.h"
 #import "SentryId.h"
 #import "SentryIntegrationProtocol.h"
@@ -49,4 +50,3 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #import "SentryTransactionContext.h"
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
-#import "SentryHttpStatusCodeRange.h"
