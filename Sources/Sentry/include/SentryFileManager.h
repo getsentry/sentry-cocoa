@@ -36,8 +36,8 @@ SENTRY_NO_INIT
 
 + (BOOL)createDirectoryAtPath:(NSString *)path withError:(NSError **)error;
 
+- (void)deleteOldEnvelopesFromAllSentryPaths;
 - (void)deleteAllEnvelopes;
-
 - (void)deleteAllFolders;
 
 /**

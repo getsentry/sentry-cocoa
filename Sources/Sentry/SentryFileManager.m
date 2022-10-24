@@ -100,44 +100,6 @@ SentryFileManager ()
     [fileManager removeItemAtPath:self.sentryPath error:nil];
 }
 
-// Delete every envelope in self.basePath older than 90 days
-- (void)deleteOldEnvelopesFromAllSentryPaths
-{
-    // First we find all directories in the base path, these are all the various hashed DSN paths
-    for (NSString *path in [self allFilesInFolder:self.basePath]) {
-        NSString *fullPath = [self.basePath stringByAppendingPathComponent:path];
-        NSDictionary *dict = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath
-                                                                              error:nil];
-        if (!dict || dict[NSFileType] != NSFileTypeDirectory) {
-            continue;
-        }
-
-        // Then we will remove all old items from the envelopes subdirectory
-        [self deleteOldEnvelopesFromPath:[fullPath stringByAppendingPathComponent:@"envelopes"]];
-    }
-}
-
-- (void)deleteOldEnvelopesFromPath:(NSString *)envelopesPath
-{
-    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
-
-    for (NSString *path in [self allFilesInFolder:envelopesPath]) {
-        NSString *fullPath = [envelopesPath stringByAppendingPathComponent:path];
-        NSDictionary *dict = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath
-                                                                              error:nil];
-        if (!dict || !dict[NSFileCreationDate]) {
-            continue;
-        }
-
-        NSTimeInterval age = now - [dict[NSFileCreationDate] timeIntervalSince1970];
-        if (age > 90 * 24 * 60 * 60) {
-            [self removeFileAtPath:fullPath];
-            SENTRY_LOG_DEBUG(
-                @"Removed envelope at path %@ becuase it was older than 90 days", fullPath);
-        }
-    }
-}
-
 - (NSString *)uniqueAcendingJsonName
 {
     // %f = double
@@ -196,6 +158,44 @@ SentryFileManager ()
         return [[SentryFileContents alloc] initWithPath:finalPath andContents:content];
     } else {
         return nil;
+    }
+}
+
+// Delete every envelope in self.basePath older than 90 days
+- (void)deleteOldEnvelopesFromAllSentryPaths
+{
+    // First we find all directories in the base path, these are all the various hashed DSN paths
+    for (NSString *path in [self allFilesInFolder:self.basePath]) {
+        NSString *fullPath = [self.basePath stringByAppendingPathComponent:path];
+        NSDictionary *dict = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath
+                                                                              error:nil];
+        if (!dict || dict[NSFileType] != NSFileTypeDirectory) {
+            continue;
+        }
+
+        // Then we will remove all old items from the envelopes subdirectory
+        [self deleteOldEnvelopesFromPath:[fullPath stringByAppendingPathComponent:@"envelopes"]];
+    }
+}
+
+- (void)deleteOldEnvelopesFromPath:(NSString *)envelopesPath
+{
+    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+
+    for (NSString *path in [self allFilesInFolder:envelopesPath]) {
+        NSString *fullPath = [envelopesPath stringByAppendingPathComponent:path];
+        NSDictionary *dict = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath
+                                                                              error:nil];
+        if (!dict || !dict[NSFileCreationDate]) {
+            continue;
+        }
+
+        NSTimeInterval age = now - [dict[NSFileCreationDate] timeIntervalSince1970];
+        if (age > 90 * 24 * 60 * 60) {
+            [self removeFileAtPath:fullPath];
+            SENTRY_LOG_DEBUG(
+                @"Removed envelope at path %@ becuase it was older than 90 days", fullPath);
+        }
     }
 }
 

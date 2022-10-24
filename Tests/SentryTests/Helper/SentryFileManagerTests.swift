@@ -126,7 +126,7 @@ class SentryFileManagerTests: XCTestCase {
     func testInitDoesntCreateEventsFolder() {
         assertEventFolderDoesntExist()
     }
-    
+
     func testStoreEnvelope() throws {
         let envelope = TestConstants.envelope
         sut.store(envelope)
@@ -138,6 +138,19 @@ class SentryFileManagerTests: XCTestCase {
         
         let actualData = envelopes[0].contents
         XCTAssertEqual(expectedData, actualData as Data)
+    }
+
+    func testDeleteOldEnvelopes() throws {
+        let envelope = TestConstants.envelope
+        let path = sut.store(envelope)
+
+        try FileManager.default.setAttributes([FileAttributeKey.creationDate: Date(timeIntervalSince1970: 0)], ofItemAtPath: path)
+
+        XCTAssertEqual(sut.getAllEnvelopes().count, 1)
+
+        sut.deleteOldEnvelopesFromAllSentryPaths()
+
+        XCTAssertEqual(sut.getAllEnvelopes().count, 0)
     }
     
     func testCreateDirDoesNotThrow() throws {
