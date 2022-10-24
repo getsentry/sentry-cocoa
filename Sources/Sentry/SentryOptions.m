@@ -158,11 +158,6 @@ SentryOptions ()
     _tracePropagationTargets = tracePropagationTargets;
 }
 
-- (void)setFailedRequestStatusCodes:(NSArray<SentryHttpStatusCodeRange *> *)failedRequestStatusCodes
-{
-    _failedRequestStatusCodes = failedRequestStatusCodes;
-}
-
 - (void)setFailedRequestTargets:(NSArray *)failedRequestTargets
 {
     for (id targetCheck in failedRequestTargets) {

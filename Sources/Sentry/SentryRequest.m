@@ -18,7 +18,9 @@ NS_ASSUME_NONNULL_BEGIN
         [serializedData setValue:self.bodySize forKey:@"body_size"];
         [serializedData setValue:self.cookies forKey:@"cookies"];
         [serializedData setValue:self.fragment forKey:@"fragment"];
-        [serializedData setValue:[self.headers sentry_sanitize] forKey:@"headers"];
+        if (nil != self.headers) {
+            [serializedData setValue:[self.headers sentry_sanitize] forKey:@"headers"];
+        }
         [serializedData setValue:self.method forKey:@"method"];
         [serializedData setValue:self.queryString forKey:@"query_string"];
         [serializedData setValue:self.url forKey:@"url"];
