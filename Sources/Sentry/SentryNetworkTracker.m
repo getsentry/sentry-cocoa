@@ -313,8 +313,8 @@ SentryNetworkTracker ()
 
     // TODO: how would I conver the error to sentry's error? thsi could be useful in case something
     // goes wrong
-//    if (nil != sessionTask.error) {
-//    }
+    //    if (nil != sessionTask.error) {
+    //    }
 
     NSString *message = [NSString
         stringWithFormat:@"HTTP Client Error with status code: %ld", (long)myResponse.statusCode];
