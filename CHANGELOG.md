@@ -10,6 +10,7 @@
 ### Fixes
 
 - Enable bitcode (#2307)
+- Clean up old envelopes (#2322)
 
 ## 7.28.0
 
