@@ -113,3 +113,10 @@ We could create the crash report first, write it to disk and then call Objective
 Related links:
 
 - https://github.com/getsentry/sentry-cocoa/pull/1751
+
+### Custom SentryHttpStatusCodeRange type instead of NSRange
+
+Date: October 24th 2022
+Contributors: @marandaneto, @brustolin and @philipphofmann
+
+We decided not using the `NSRange` type for the `failedRequestStatusCodes` property of the `SentryNetworkTracker` class because it's not compatible with the Specification, which requires the type to be a range of `from` -> `to` integers. The `NSRange` type is a range of `location` -> `length` integers. We decided to use a custom type instead of `NSRange` to avoid confusion, the custom type is called `SentryHttpStatusCodeRange`.
