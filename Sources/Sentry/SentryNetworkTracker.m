@@ -325,7 +325,7 @@ SentryNetworkTracker ()
     NSArray<SentryThread *> *threads = [threadInspector getCurrentThreads];
 
     SentryException *sentryException = [[SentryException alloc] initWithValue:message
-                                                                         type:@"HTTP-ClientError"];
+                                                                         type:@"HTTPClientError"];
     sentryException.mechanism = [[SentryMechanism alloc] initWithType:@"HTTPClientError"];
 
     for (SentryThread *thread in threads) {
