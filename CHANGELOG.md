@@ -11,6 +11,7 @@
 
 - Enable bitcode (#2307)
 - Clean up old envelopes (#2322)
+- Fix moving app state to previous app state (#2321)
 
 ## 7.28.0
 

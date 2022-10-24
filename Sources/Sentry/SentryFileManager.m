@@ -440,6 +440,11 @@ SentryFileManager ()
 {
     @synchronized(self.appStateFilePath) {
         NSFileManager *fileManager = [NSFileManager defaultManager];
+
+        // We first need to remove the old previous app state file,
+        // or we can't move the current app state file to it.
+        [self removeFileAtPath:self.previousAppStateFilePath];
+
         NSError *error = nil;
         [fileManager moveItemAtPath:self.appStateFilePath
                              toPath:self.previousAppStateFilePath

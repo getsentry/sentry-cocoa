@@ -113,3 +113,18 @@ We could create the crash report first, write it to disk and then call Objective
 Related links:
 
 - https://github.com/getsentry/sentry-cocoa/pull/1751
+
+### Manually installing iOS 12 simulators
+
+Date: October 21st 2022
+Contributors: @philipphofmann
+
+GH actions will remove the macOS-10.15 image, which contains an iOS 12 simulator on 12/1/22; see https://github.com/actions/runner-images/issues/5583.
+Neither the[ macOS-11](https://github.com/actions/runner-images/blob/main/images/macos/macos-11-Readme.md#installed-sdks) nor the
+[macOS-12](https://github.com/actions/runner-images/blob/main/images/macos/macos-12-Readme.md#installed-sdks) image contains an iOS 12 simulator. GH
+[concluded](https://github.com/actions/runner-images/issues/551#issuecomment-788822538) to not add more pre-installed simulators. SauceLabs doesn't
+support running unit tests and adding another cloud solution as Firebase TestLab would increase the complexity of CI. Not running the unit tests on
+iOS 12 opens a risk of introducing bugs, which has already happened in the past, especially with swizzling. Therefore, we give manually installing
+the iOS 12 simulator a try.
+
+Related to [GH-2218](https://github.com/getsentry/sentry-cocoa/issues/2218)
