@@ -4,44 +4,44 @@
 NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(Request)
-@interface SentryRequest : NSObject <SentrySerializable, NSCopying>
+@interface SentryRequest : NSObject <SentrySerializable>
 
 // TODO: data, env
 
 /**
  * Optional: HTTP response body size.
  */
-@property (atomic, copy) NSNumber *_Nullable bodySize;
+@property (nonatomic, copy, nullable) NSNumber *bodySize;
 
 /**
  * Optional: The cookie values.
  */
-@property (atomic, copy) NSString *_Nullable cookies;
+@property (nonatomic, copy, nullable) NSString *cookies;
 
 /**
  * Optional: A dictionary of submitted headers.
  */
-@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable headers;
+@property (nonatomic, strong, nullable) NSDictionary<NSString *, NSString *> *headers;
 
 /**
  * Optional: The fragment of the request URL.
  */
-@property (atomic, copy) NSString *_Nullable fragment;
+@property (nonatomic, copy, nullable) NSString *fragment;
 
 /**
  * Optional: HTTP request method.
  */
-@property (atomic, copy) NSString *_Nullable method;
+@property (nonatomic, copy, nullable) NSString *method;
 
 /**
  * Optional: The query string component of the URL.
  */
-@property (atomic, copy) NSString *_Nullable queryString;
+@property (nonatomic, copy, nullable) NSString *queryString;
 
 /**
  * Optional: The URL of the request if available.
  */
-@property (atomic, copy) NSString *_Nullable url;
+@property (nonatomic, copy, nullable) NSString *url;
 
 - (instancetype)init;
 

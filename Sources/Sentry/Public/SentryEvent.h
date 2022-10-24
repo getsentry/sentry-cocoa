@@ -162,7 +162,7 @@ NS_SWIFT_NAME(Event)
 /**
  * Set the Http request information.
  */
-@property (nonatomic, strong) SentryRequest *_Nullable request;
+@property (nonatomic, strong, nullable) SentryRequest *request;
 
 /**
  * Init an SentryEvent will set all needed fields by default

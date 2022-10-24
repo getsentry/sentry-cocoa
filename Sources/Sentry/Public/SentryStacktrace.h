@@ -24,7 +24,7 @@ SENTRY_NO_INIT
 /**
  * Indicates that this stack trace is a snapshot triggered by an external signal.
  */
-@property (nonatomic, copy) NSNumber *_Nullable snapshot;
+@property (nonatomic, copy, nullable) NSNumber *snapshot;
 
 /**
  * Initialize a SentryStacktrace with frames and registers

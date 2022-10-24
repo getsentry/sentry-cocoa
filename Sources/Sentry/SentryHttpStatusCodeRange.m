@@ -4,7 +4,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryHttpStatusCodeRange
 
-- (instancetype)initWithMin:(NSInteger)min andMax:(NSInteger)max
+- (instancetype)initWithMin:(NSInteger)min max:(NSInteger)max
 {
     if (self = [super init]) {
         _min = min;

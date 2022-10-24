@@ -125,7 +125,7 @@ SentryOptions ()
         // TODO: revert 200
         // defaults to 500 to 599
         SentryHttpStatusCodeRange *defaultHttpStatusCodeRange =
-            [[SentryHttpStatusCodeRange alloc] initWithMin:200 andMax:599];
+            [[SentryHttpStatusCodeRange alloc] initWithMin:200 max:599];
         self.failedRequestStatusCodes = @[ defaultHttpStatusCodeRange ];
     }
     return self;
