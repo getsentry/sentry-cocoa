@@ -83,7 +83,9 @@ SentryFileManager ()
         self.currentFileCounter = 0;
         self.maxEnvelopes = options.maxCacheItems;
 
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0),
+        dispatch_time_t delta = (int64_t)(10 * NSEC_PER_SEC);
+        dispatch_time_t when = dispatch_time(DISPATCH_TIME_NOW, delta);
+        dispatch_after(when, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0),
             ^{ [self deleteOldEnvelopesFromAllSentryPaths]; });
     }
     return self;
