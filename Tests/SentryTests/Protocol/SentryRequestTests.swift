@@ -1,6 +1,6 @@
 import XCTest
 
-class SentryRequestTests : XCTestCase {
+class SentryRequestTests: XCTestCase {
     func testSerialize() {
         let request = TestData.request
         

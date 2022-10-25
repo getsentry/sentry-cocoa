@@ -573,16 +573,16 @@
 
     NSRegularExpression *regexTrace = options.tracePropagationTargets[0];
     XCTAssertTrue([regexTrace.pattern isEqualToString:@".*"]);
-    
+
     NSRegularExpression *regexRequests = options.failedRequestTargets[0];
     XCTAssertTrue([regexRequests.pattern isEqualToString:@".*"]);
-    
+
     XCTAssertEqual(NO, options.enableCaptureFailedRequests);
-    
+
     SentryHttpStatusCodeRange *range = options.failedRequestStatusCodes[0];
     XCTAssertEqual(500, range.min);
     XCTAssertEqual(599, range.max);
-    
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
