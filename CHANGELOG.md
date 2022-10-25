@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.29.0
 
 ### Features
 
@@ -11,6 +11,7 @@
 ### Fixes
 
 - Enable bitcode (#2307)
+- Fix moving app state to previous app state (#2321)
 
 ## 7.28.0
 

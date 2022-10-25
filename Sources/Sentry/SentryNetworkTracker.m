@@ -311,11 +311,6 @@ SentryNetworkTracker ()
         return;
     }
 
-    // TODO: how would I conver the error to sentry's error? thsi could be useful in case something
-    // goes wrong
-    //    if (nil != sessionTask.error) {
-    //    }
-
     NSString *message = [NSString
         stringWithFormat:@"HTTP Client Error with status code: %ld", (long)myResponse.statusCode];
 
@@ -324,6 +319,8 @@ SentryNetworkTracker ()
     SentryThreadInspector *threadInspector = SentrySDK.currentHub.getClient.threadInspector;
     NSArray<SentryThread *> *threads = [threadInspector getCurrentThreads];
 
+    // sessionTask.error isn't used because it's not about network errors but rather
+    // requests that are considered failed depending on the HTTP status code
     SentryException *sentryException = [[SentryException alloc] initWithValue:message
                                                                          type:@"HTTPClientError"];
     sentryException.mechanism = [[SentryMechanism alloc] initWithType:@"HTTPClientError"];
@@ -347,6 +344,8 @@ SentryNetworkTracker ()
 
     request.url = urlString;
     request.method = myRequest.HTTPMethod;
+    request.fragment = url.fragment;
+    request.queryString = url.query;
     if (sessionTask.countOfBytesSent != 0) {
         request.bodySize = [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
     }

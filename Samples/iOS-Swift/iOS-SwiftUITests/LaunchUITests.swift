@@ -67,8 +67,8 @@ class LaunchUITests: XCTestCase {
         let app = XCUIApplication()
         app.navigationBars["iOS_Swift.SecondarySplitView"].buttons["Root ViewController"].waitForExistence("SplitView not loaded.")
         
-        // This validation is currently not working on iOS 10.
-        if #available(iOS 11.0, *) {
+        // This validation is currently not working on iOS 12 and iOS 10.
+        if #available(iOS 13.0, *) {
             assertApp()
         }
     }
