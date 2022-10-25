@@ -1,12 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Feature
+
+- HTTP Client errors (#2308)
+
 ## 7.29.0
 
 ### Features
 
 - Offline caching improvements (#2263)
 - Report usage of stitchAsyncCode (#2281)
-- HTTP Client errors (#2308)
 
 ### Fixes
 

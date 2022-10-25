@@ -122,10 +122,9 @@ SentryOptions ()
         self.tracePropagationTargets = @[ everythingAllowedRegex ];
         self.failedRequestTargets = @[ everythingAllowedRegex ];
 
-        // TODO: revert 200
         // defaults to 500 to 599
         SentryHttpStatusCodeRange *defaultHttpStatusCodeRange =
-            [[SentryHttpStatusCodeRange alloc] initWithMin:200 max:599];
+            [[SentryHttpStatusCodeRange alloc] initWithMin:500 max:599];
         self.failedRequestStatusCodes = @[ defaultHttpStatusCodeRange ];
     }
     return self;

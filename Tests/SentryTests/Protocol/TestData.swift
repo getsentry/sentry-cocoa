@@ -132,6 +132,7 @@ class TestData {
     
     static var stacktrace: Stacktrace {
         let stacktrace = Stacktrace(frames: [frame], registers: ["register": "one"])
+        stacktrace.snapshot = true
         return stacktrace
     }
     
