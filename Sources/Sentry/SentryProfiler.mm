@@ -158,10 +158,12 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
                                            selector:@selector(timeoutAbort)
                                            userInfo:nil
                                             repeats:NO];
+#        if SENTRY_HAS_UIKIT
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(backgroundAbort)
                                                      name:UIApplicationWillResignActiveNotification
                                                    object:nil];
+#        endif // SENTRY_HAS_UIKIT
         _gCurrentProfiler->_hub = hub;
     }
 
@@ -286,10 +288,6 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
     _gCurrentProfiler = nil;
-
-    // this is done automatically starting on iOS 9 and macOS 10.11, but since we still target
-    // macOS 10.10, we'll just always deregister to cover all cases
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)start
