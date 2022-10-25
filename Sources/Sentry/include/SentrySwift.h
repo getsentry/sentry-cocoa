@@ -2,15 +2,15 @@
 #define SentrySwift_h
 
 /*
- * This is a header to expose Swift code to Objective-c
+ * This is a header to expose Swift code to Objective-C.
  *
  * Because we use three different package managers
- * we need to target the swift module in different ways.
+ * we need to target the Swift module in different ways.
  *
- * If the project is being used through SPM, Swift and Objective-c are compiled into separated
+ * If the project is being used through SPM, Swift and Objective-C are compiled into separated
  * targets, then we use "@import SentrySwift".
  *
- * Cocoapods combines everything into one target, if the user enable USE_FRAMEWORKS,
+ * CocoaPods combines everything into one target, if the user enables USE_FRAMEWORKS,
  * Swift will be available through "#import <Sentry/Sentry-Swift.h>" otherwise "#import
  * "Sentry-Swift.h"".
  */
