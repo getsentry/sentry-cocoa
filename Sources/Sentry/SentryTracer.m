@@ -16,6 +16,7 @@
 #import "SentrySpan.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
+#import "SentryTime.h"
 #import "SentryTraceContext.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
@@ -49,7 +50,6 @@ SentryTracer ()
 @property (nonatomic) BOOL wasFinishCalled;
 @property (nonatomic) NSTimeInterval idleTimeout;
 @property (nonatomic, nullable, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
-@property (nonatomic, assign, readwrite) BOOL isProfiling;
 
 @end
 
@@ -57,7 +57,6 @@ SentryTracer ()
     /** Wether the tracer should wait for child spans to finish before finishing itself. */
     BOOL _waitForChildren;
     SentryTraceContext *_traceContext;
-    SentryProfilesSamplerDecision *_profilesSamplerDecision;
     SentryAppStartMeasurement *appStartMeasurement;
     NSMutableDictionary<NSString *, id> *_tags;
     NSMutableDictionary<NSString *, id> *_data;
@@ -77,19 +76,11 @@ SentryTracer ()
 static NSObject *appStartMeasurementLock;
 static BOOL appStartMeasurementRead;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-static SentryProfiler *_Nullable profiler;
-static NSLock *profilerLock;
-#endif
-
 + (void)initialize
 {
     if (self == [SentryTracer class]) {
         appStartMeasurementLock = [[NSObject alloc] init];
         appStartMeasurementRead = NO;
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-        profilerLock = [[NSLock alloc] init];
-#endif
     }
 }
 
@@ -157,7 +148,6 @@ static NSLock *profilerLock;
         _children = [[NSMutableArray alloc] init];
         self.hub = hub;
         self.wasFinishCalled = NO;
-        _profilesSamplerDecision = profilesSamplerDecision;
         _waitForChildren = waitForChildren;
         _tags = [[NSMutableDictionary alloc] init];
         _data = [[NSMutableDictionary alloc] init];
@@ -184,19 +174,10 @@ static NSLock *profilerLock;
             initFrozenFrames = currentFrames.frozen;
         }
 #endif // SENTRY_HAS_UIKIT
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
-            [profilerLock lock];
-            if (profiler == nil) {
-                profiler = [[SentryProfiler alloc] init];
-                SENTRY_LOG_DEBUG(@"Starting profiler.");
-#    if SENTRY_HAS_UIKIT
-                framesTracker.currentTracer = self;
-                [framesTracker resetProfilingTimestamps];
-#    endif // SENTRY_HAS_UIKIT
-                [profiler start];
-            }
-            [profilerLock unlock];
+        if (profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
+            [SentryProfiler startForSpanID:transactionContext.spanId hub:hub];
         }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
@@ -280,6 +261,7 @@ static NSLock *profilerLock;
                                            sampled:_rootSpan.context.sampled];
     context.spanDescription = description;
 
+    SENTRY_LOG_DEBUG(@"Starting child span under %@", parentId.sentrySpanIdString);
     SentrySpan *child = [[SentrySpan alloc] initWithTracer:self context:context];
     @synchronized(_children) {
         [_children addObject:child];
@@ -476,23 +458,9 @@ static NSLock *profilerLock;
         self.finishCallback = nil;
     }
 
-    if (_hub == nil)
+    if (_hub == nil) {
         return;
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-    SentryScreenFrames *frameInfo;
-    if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
-        SENTRY_LOG_DEBUG(@"Stopping profiler.");
-        [profilerLock lock];
-        [profiler stop];
-#    if SENTRY_HAS_UIKIT
-        frameInfo = SentryFramesTracker.sharedInstance.currentFrames;
-        [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
-        SentryFramesTracker.sharedInstance.currentTracer = nil;
-#    endif // SENTRY_HAS_UIKIT
-        [profilerLock unlock];
     }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
         if (span == self) {
@@ -520,6 +488,10 @@ static NSLock *profilerLock;
         }
     }
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    [SentryProfiler stopProfilingSpan:self.rootSpan];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
     SentryTransaction *transaction = [self toTransaction];
 
     // Prewarming can execute code up to viewDidLoad of a UIViewController, and keep the app in the
@@ -531,30 +503,17 @@ static NSLock *profilerLock;
         SENTRY_LOG_INFO(@"Auto generated transaction exceeded the max duration of %f seconds. Not "
                         @"capturing transaction.",
             SENTRY_AUTO_TRANSACTION_MAX_DURATION);
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+        [SentryProfiler dropTransaction:transaction];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
         return;
     }
 
-    NSMutableArray<SentryEnvelopeItem *> *additionalEnvelopeItems = [NSMutableArray array];
+    [_hub captureTransaction:transaction withScope:_hub.scope];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    if (_profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
-        [profilerLock lock];
-        if (profiler != nil) {
-            SentryEnvelopeItem *profile = [profiler buildEnvelopeItemForTransaction:transaction
-                                                                                hub:_hub
-                                                                          frameInfo:frameInfo];
-            if (profile != nil) {
-                [additionalEnvelopeItems addObject:profile];
-            }
-            profiler = nil;
-        }
-        [profilerLock unlock];
-    }
-#endif
-
-    [_hub captureTransaction:transaction
-                      withScope:_hub.scope
-        additionalEnvelopeItems:additionalEnvelopeItems];
+    [SentryProfiler linkTransaction:transaction];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 - (void)trimEndTimestamp
@@ -808,16 +767,6 @@ static NSLock *profilerLock;
     }
     return nil;
 }
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-- (BOOL)isProfiling
-{
-    [profilerLock lock];
-    BOOL isRunning = profiler.isRunning;
-    [profilerLock unlock];
-    return isRunning;
-}
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
 

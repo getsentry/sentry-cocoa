@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Profile concurrent transactions (#2227)
+
 ## 7.29.0
 
 ### Features
