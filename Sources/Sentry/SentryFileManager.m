@@ -2,6 +2,7 @@
 #import "NSDate+SentryExtras.h"
 #import "SentryAppState.h"
 #import "SentryDataCategoryMapper.h"
+#import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
@@ -35,6 +36,16 @@ SentryFileManager ()
 @end
 
 @implementation SentryFileManager
+
+- (nullable instancetype)initWithOptions:(SentryOptions *)options
+                  andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+                                   error:(NSError **)error
+{
+    return [self initWithOptions:options
+          andCurrentDateProvider:currentDateProvider
+            dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+                           error:error];
+}
 
 - (nullable instancetype)initWithOptions:(SentryOptions *)options
                   andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider

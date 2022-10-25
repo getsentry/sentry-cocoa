@@ -86,11 +86,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
                       permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
 {
     NSError *error = nil;
-    SentryFileManager *fileManager = [[SentryFileManager alloc]
-               initWithOptions:options
-        andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-          dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
-                         error:&error];
+    SentryFileManager *fileManager =
+        [[SentryFileManager alloc] initWithOptions:options
+                            andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                                             error:&error];
     if (nil != error) {
         SENTRY_LOG_ERROR(@"%@", error.localizedDescription);
         return nil;
