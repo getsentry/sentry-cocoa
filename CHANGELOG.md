@@ -11,6 +11,7 @@
 
 - Enable bitcode (#2307)
 - Fix moving app state to previous app state (#2321)
+- Use CoreData entity names instead of "NSManagedObject" (#2329)
 
 ## 7.28.0
 
