@@ -5,12 +5,20 @@ import Foundation
 public class TestEntity: NSManagedObject {
     var field1: String?
     var field2: Int?
+
+    public override init(entity: NSEntityDescription, insertInto context: NSManagedObjectContext?) {
+        super.init(entity: entity, insertInto: context)
+    }
 }
 
 @objc(SecondTestEntity)
 public class SecondTestEntity: NSManagedObject {
     var field1: String?
     var field2: Int?
+
+    public override init(entity: NSEntityDescription, insertInto context: NSManagedObjectContext?) {
+        super.init(entity: entity, insertInto: context)
+    }
 }
 
 class TestCoreDataStack {
