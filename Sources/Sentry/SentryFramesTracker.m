@@ -133,7 +133,7 @@ SentryFramesTracker ()
 #        if defined(TEST) || defined(TESTCI)
     BOOL shouldRecordFrameRates = YES;
 #        else
-    BOOL shouldRecordFrameRates = self.currentTracer.isProfiling;
+    BOOL shouldRecordFrameRates = [SentryProfiler isRunning];
 #        endif // defined(TEST) || defined(TESTCI)
     BOOL hasNoFrameRatesYet = self.frameRateTimestamps.count == 0;
     BOOL frameRateSignificantlyChanged
@@ -176,7 +176,7 @@ SentryFramesTracker ()
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 - (void)recordTimestampStart:(NSNumber *)start end:(NSNumber *)end
 {
-    BOOL shouldRecord = self.currentTracer.isProfiling;
+    BOOL shouldRecord = [SentryProfiler isRunning];
 #        if defined(TEST) || defined(TESTCI)
     shouldRecord = YES;
 #        endif

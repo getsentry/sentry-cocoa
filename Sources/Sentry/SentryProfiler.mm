@@ -64,7 +64,19 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 std::mutex _gProfilerLock;
 NSMutableDictionary<SentrySpanId *, SentryProfiler *> *_gProfilersPerSpanID;
 SentryProfiler *_Nullable _gCurrentProfiler;
-} // namespace
+
+NSString *
+profilerTruncationReasonName(SentryProfilerTruncationReason reason)
+{
+    switch (reason) {
+    case SentryProfilerTruncationReasonNormal:
+        return @"normal";
+    case SentryProfilerTruncationReasonAppMovedToBackground:
+        return @"backgrounded";
+    case SentryProfilerTruncationReasonTimeout:
+        return @"timeout";
+    }
+}
 
 @implementation SentryProfiler {
     NSMutableDictionary<NSString *, id> *_profile;
