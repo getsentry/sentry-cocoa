@@ -168,7 +168,7 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(sut.getAllEnvelopes().count, 1)
     }
 
-    func testDontDeleteYoungFromOldFolder() throws {
+    func testDontDeleteYoungEnvelopesFromOldEnvelopesFolder() throws {
         let envelope = TestConstants.envelope
         sut.store(envelope)
 
