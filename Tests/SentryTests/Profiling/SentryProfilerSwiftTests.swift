@@ -259,8 +259,8 @@ private extension SentryProfilerSwiftTests {
 
         XCTAssertEqual("cocoa", profile["platform"] as! String)
 
-        let version = Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) ?? "no version"
-        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "no build"
+        let version = Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) ?? "(null)"
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "(null)"
         let releaseString = "\(version) (\(build))"
         XCTAssertEqual(profile["release"] as! String, releaseString)
 
