@@ -158,6 +158,10 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
                                            selector:@selector(timeoutAbort)
                                            userInfo:nil
                                             repeats:NO];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(backgroundAbort)
+                                                     name:UIApplicationWillResignActiveNotification
+                                                   object:nil];
         _gCurrentProfiler->_hub = hub;
     }
 
@@ -259,6 +263,19 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     [self stopProfilerForReason:SentryProfilerTruncationReasonTimeout];
 }
 
++ (void)backgroundAbort
+{
+    std::lock_guard<std::mutex> l(_gProfilerLock);
+
+    if (_gCurrentProfiler == nil) {
+        SENTRY_LOG_DEBUG(@"No current profiler to stop.");
+        return;
+    }
+
+    SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", _gCurrentProfiler);
+    [self stopProfilerForReason:SentryProfilerTruncationReasonAppMovedToBackground];
+}
+
 + (void)stopProfilerForReason:(SentryProfilerTruncationReason)reason
 {
     [_gCurrentProfiler->_timeoutTimer invalidate];
@@ -269,6 +286,10 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
     _gCurrentProfiler = nil;
+
+    // this is done automatically starting on iOS 9 and macOS 10.11, but since we still target
+    // macOS 10.10, we'll just always deregister to cover all cases
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)start
