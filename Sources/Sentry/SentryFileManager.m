@@ -2,6 +2,7 @@
 #import "NSDate+SentryExtras.h"
 #import "SentryAppState.h"
 #import "SentryDataCategoryMapper.h"
+#import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
 #import "SentryEvent.h"
@@ -37,6 +38,7 @@ SentryFileManager ()
 
 - (nullable instancetype)initWithOptions:(SentryOptions *)options
                   andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                                    error:(NSError **)error
 {
     self = [super init];
@@ -83,10 +85,8 @@ SentryFileManager ()
         self.currentFileCounter = 0;
         self.maxEnvelopes = options.maxCacheItems;
 
-        dispatch_time_t delta = (int64_t)(10 * NSEC_PER_SEC);
-        dispatch_time_t when = dispatch_time(DISPATCH_TIME_NOW, delta);
-        dispatch_after(when, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0),
-            ^{ [self deleteOldEnvelopesFromAllSentryPaths]; });
+        [dispatchQueueWrapper dispatchAfter:10
+                                      block:^{ [self deleteOldEnvelopesFromAllSentryPaths]; }];
     }
     return self;
 }

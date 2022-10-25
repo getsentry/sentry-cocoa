@@ -14,6 +14,7 @@ class SentryFileManagerTests: XCTestCase {
         let eventIds: [SentryId]
         
         let currentDateProvider: TestCurrentDateProvider!
+        let dispatchQueueWrapper: TestSentryDispatchQueueWrapper!
         
         let options: Options
 
@@ -33,6 +34,7 @@ class SentryFileManagerTests: XCTestCase {
         
         init() {
             currentDateProvider = TestCurrentDateProvider()
+            dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
             
             eventIds = (0...(maxCacheItems + 10)).map { _ in SentryId() }
             
@@ -60,14 +62,14 @@ class SentryFileManagerTests: XCTestCase {
         }
         
         func getSut() throws -> SentryFileManager {
-            let sut = try SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider)
+            let sut = try SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper)
             sut.setDelegate(delegate)
             return sut
         }
         
         func getSut(maxCacheItems: UInt) throws -> SentryFileManager {
             options.maxCacheItems = maxCacheItems
-            let sut = try SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider)
+            let sut = try SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper)
             sut.setDelegate(delegate)
             return sut
         }
@@ -107,8 +109,8 @@ class SentryFileManagerTests: XCTestCase {
         sut.storeCurrentSession(SentrySession(releaseName: "1.0.0"))
         sut.storeTimestampLast(inForeground: Date())
 
-        _ = try SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
-        let fileManager = try SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
+        _ = try SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        let fileManager = try SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
 
         XCTAssertEqual(1, fileManager.getAllEnvelopes().count)
         XCTAssertNotNil(fileManager.readCurrentSession())
@@ -118,7 +120,7 @@ class SentryFileManagerTests: XCTestCase {
     func testInitDeletesEventsFolder() throws {
         storeEvent()
         
-        _ = try SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
+        _ = try SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
         
         assertEventFolderDoesntExist()
     }
@@ -150,7 +152,7 @@ class SentryFileManagerTests: XCTestCase {
 
         XCTAssertEqual(sut.getAllEnvelopes().count, 1)
 
-        sut.deleteOldEnvelopesFromAllSentryPaths()
+        sut = try fixture.getSut()
 
         XCTAssertEqual(sut.getAllEnvelopes().count, 0)
     }
@@ -165,7 +167,7 @@ class SentryFileManagerTests: XCTestCase {
 
         XCTAssertEqual(sut.getAllEnvelopes().count, 1)
 
-        sut.deleteOldEnvelopesFromAllSentryPaths()
+        sut = try fixture.getSut()
 
         XCTAssertEqual(sut.getAllEnvelopes().count, 1)
     }
@@ -180,7 +182,7 @@ class SentryFileManagerTests: XCTestCase {
 
         XCTAssertEqual(sut.getAllEnvelopes().count, 1)
 
-        sut.deleteOldEnvelopesFromAllSentryPaths()
+        sut = try fixture.getSut()
 
         XCTAssertEqual(sut.getAllEnvelopes().count, 1)
     }
