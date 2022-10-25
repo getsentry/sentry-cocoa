@@ -240,48 +240,31 @@ private extension SentryProfilerSwiftTests {
 
     func assertValidProfileData(data: Data, transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1, shouldTimeout: Bool = false) {
         let profile = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
-        XCTAssertEqual("Apple", profile["device_manufacturer"] as! String)
-        XCTAssertEqual("cocoa", profile["platform"] as! String)
-        XCTAssertNotNil(profile["transactions"])
-        if let transactions = profile["transactions"] as? [[String: String]] {
-            XCTAssertEqual(transactions.count, numberOfTransactions)
-            for transaction in transactions {
-                XCTAssertEqual(fixture.transactionName, transaction["name"])
-                XCTAssertNotNil(transaction["id"])
-                if let idString = transaction["id"] {
-                    XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: idString))
-                }
-                XCTAssertNotNil(transaction["trace_id"])
-                if let traceIDString = transaction["trace_id"] {
-                    XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: traceIDString))
-                }
-                XCTAssertEqual(transactionEnvironment, transaction["environment"])
-                XCTAssertNotNil(transaction["trace_id"])
-                XCTAssertNotNil(transaction["relative_start_ns"])
-                XCTAssertNotNil(transaction["relative_end_ns"])
-            }
-        } else {
-            XCTFail("Transaction information in profile payload not of expected type.")
-        }
-#if targetEnvironment(macCatalyst)
-        XCTAssertEqual("iPadOS", profile["device_os_name"] as! String)
-        XCTAssertFalse((profile["device_os_version"] as! String).isEmpty)
-#elseif os(iOS)
-        XCTAssertEqual("iOS", profile["device_os_name"] as! String)
-        XCTAssertFalse((profile["device_os_version"] as! String).isEmpty)
-#endif
-        XCTAssertFalse((profile["device_os_build_number"] as! String).isEmpty)
-        XCTAssertFalse((profile["device_locale"] as! String).isEmpty)
-        XCTAssertFalse((profile["device_model"] as! String).isEmpty)
-#if os(iOS) && !targetEnvironment(macCatalyst)
-        XCTAssertTrue(profile["device_is_emulator"] as! Bool)
+        let device = profile["device"] as? [String: Any?]
+        XCTAssertNotNil(device)
+        XCTAssertEqual("Apple", device!["manufacturer"] as! String)
+        XCTAssertEqual(device!["locale"] as! String, (NSLocale.current as NSLocale).localeIdentifier)
+        XCTAssertFalse((device!["model"] as! String).isEmpty)
+#if targetEnvironment(simulator)
+        XCTAssertTrue(device!["is_emulator"] as! Bool)
 #else
-        XCTAssertFalse(profile["device_is_emulator"] as! Bool)
+        XCTAssertFalse(device!["is_emulator"] as! Bool)
 #endif
-        XCTAssertFalse((profile["device_physical_memory_bytes"] as! String).isEmpty)
-        XCTAssertFalse((profile["version_code"] as! String).isEmpty)
-        XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["profile_id"] as! String))
 
+        let os = profile["os"] as? [String: Any?]
+        XCTAssertNotNil(os)
+        XCTAssertNotNil(os?["name"] as? String)
+        XCTAssertFalse((os!["version"] as! String).isEmpty)
+        XCTAssertFalse((os!["build_number"] as! String).isEmpty)
+
+        XCTAssertEqual("cocoa", profile["platform"] as! String)
+
+        let version = Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String)!
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString")!
+        let releaseString = "\(version) (\(build))"
+        XCTAssertEqual(profile["release"] as! String, releaseString)
+
+        XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["profile_id"] as! String))
         let images = (profile["debug_meta"] as! [String: Any])["images"] as! [[String: Any]]
         XCTAssertFalse(images.isEmpty)
         let firstImage = images[0]
@@ -290,11 +273,9 @@ private extension SentryProfilerSwiftTests {
         XCTAssertFalse((firstImage["image_addr"] as! String).isEmpty)
         XCTAssertGreaterThan((firstImage["image_size"] as! Int), 0)
         XCTAssertEqual(firstImage["type"] as! String, "macho")
-
         let sampledProfile = profile["sampled_profile"] as! [String: Any]
         let threadMetadata = sampledProfile["thread_metadata"] as! [String: [String: Any]]
         let queueMetadata = sampledProfile["queue_metadata"] as! [String: Any]
-
         XCTAssertFalse(threadMetadata.isEmpty)
         XCTAssertFalse(threadMetadata.values.compactMap { $0["priority"] }.filter { ($0 as! Int) > 0 }.isEmpty)
         XCTAssertFalse(threadMetadata.values.filter { $0["is_main_thread"] as? Bool == true }.isEmpty)
@@ -303,10 +284,46 @@ private extension SentryProfilerSwiftTests {
 
         let samples = sampledProfile["samples"] as! [[String: Any]]
         XCTAssertFalse(samples.isEmpty)
-        let frames = samples[0]["frames"] as! [[String: Any]]
+
+        let frames = sampledProfile["frames"] as! [[String: Any]]
         XCTAssertFalse(frames.isEmpty)
         XCTAssertFalse((frames[0]["instruction_addr"] as! String).isEmpty)
         XCTAssertFalse((frames[0]["function"] as! String).isEmpty)
+
+        let stacks = sampledProfile["stacks"] as! [[Int]]
+        var foundAtLeastOneNonEmptySample = false
+        XCTAssertFalse(stacks.isEmpty)
+        for stack in stacks {
+            guard !stack.isEmpty else { continue }
+            foundAtLeastOneNonEmptySample = true
+            for frameIdx in stack {
+                XCTAssertNotNil(frames[frameIdx])
+            }
+        }
+        XCTAssert(foundAtLeastOneNonEmptySample)
+
+        let transactions = profile["transactions"] as? [[String: String]]
+        XCTAssertEqual(transactions!.count, numberOfTransactions)
+        for transaction in transactions! {
+            XCTAssertEqual(fixture.transactionName, transaction["name"])
+            XCTAssertNotNil(transaction["id"])
+            if let idString = transaction["id"] {
+                XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: idString))
+            }
+            XCTAssertNotNil(transaction["trace_id"])
+            if let traceIDString = transaction["trace_id"] {
+                XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: traceIDString))
+            }
+            XCTAssertEqual(transactionEnvironment, transaction["environment"])
+            XCTAssertNotNil(transaction["trace_id"])
+            XCTAssertNotNil(transaction["relative_start_ns"])
+            XCTAssertNotNil(transaction["relative_end_ns"])
+        }
+
+        for sample in samples {
+            XCTAssertNotNil(stacks[sample["stack_id"] as! Int])
+        }
+
         if shouldTimeout {
             XCTAssertEqual(profile["truncation_reason"] as! String, profilerTruncationReasonName(.timeout))
         }
