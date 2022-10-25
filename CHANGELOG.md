@@ -6,6 +6,7 @@
 
 - Offline caching improvements (#2263)
 - Report usage of stitchAsyncCode (#2281)
+- Profile concurrent transactions (#2227)
 
 ### Fixes
 
