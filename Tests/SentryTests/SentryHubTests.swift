@@ -977,23 +977,31 @@ extension SentryHubTests {
 
     private func assertValidProfileData(data: Data, customFields: [String: String]) {
         let profile = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
-        XCTAssertEqual("Apple", profile["device_manufacturer"] as! String)
+
+        let device = profile["device"] as? [String: Any?]
+        XCTAssertNotNil(device)
+        XCTAssertEqual("Apple", device!["manufacturer"] as! String)
+        XCTAssertEqual(device!["locale"] as! String, (NSLocale.current as NSLocale).localeIdentifier)
+        XCTAssertFalse((device!["model"] as! String).isEmpty)
+#if targetEnvironment(simulator)
+        XCTAssertTrue(device!["is_emulator"] as! Bool)
+#else
+        XCTAssertFalse(device!["is_emulator"] as! Bool)
+#endif
+
+        let os = profile["os"] as? [String: Any?]
+        XCTAssertNotNil(os)
+        XCTAssertNotNil(os?["name"] as? String)
+        XCTAssertFalse((os!["version"] as! String).isEmpty)
+        XCTAssertFalse((os!["build_number"] as! String).isEmpty)
+
         XCTAssertEqual("cocoa", profile["platform"] as! String)
         XCTAssertEqual(fixture.transactionName, profile["transaction_name"] as! String)
-#if os(iOS) && !targetEnvironment(macCatalyst)
-        XCTAssertEqual("iOS", profile["device_os_name"] as! String)
-        XCTAssertFalse((profile["device_os_version"] as! String).isEmpty)
-#endif
-        XCTAssertFalse((profile["device_os_build_number"] as! String).isEmpty)
-        XCTAssertFalse((profile["device_locale"] as! String).isEmpty)
-        XCTAssertFalse((profile["device_model"] as! String).isEmpty)
-#if os(iOS) && !targetEnvironment(macCatalyst)
-        XCTAssertTrue(profile["device_is_emulator"] as! Bool)
-#else
-        XCTAssertFalse(profile["device_is_emulator"] as! Bool)
-#endif
-        XCTAssertFalse((profile["device_physical_memory_bytes"] as! String).isEmpty)
-        XCTAssertFalse((profile["version_code"] as! String).isEmpty)
+
+        let version = Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String)!
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString")!
+        let releaseString = "\(version) (\(build))"
+        XCTAssertEqual(profile["release"] as! String, releaseString)
 
         XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["transaction_id"] as! String))
         XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["profile_id"] as! String))
@@ -1020,10 +1028,28 @@ extension SentryHubTests {
 
         let samples = sampledProfile["samples"] as! [[String: Any]]
         XCTAssertFalse(samples.isEmpty)
-        let frames = samples[0]["frames"] as! [[String: Any]]
+
+        let frames = sampledProfile["frames"] as! [[String: Any]]
         XCTAssertFalse(frames.isEmpty)
         XCTAssertFalse((frames[0]["instruction_addr"] as! String).isEmpty)
         XCTAssertFalse((frames[0]["function"] as! String).isEmpty)
+
+        let stacks = sampledProfile["stacks"] as! [[Int]]
+        var foundAtLeastOneNonEmptySample = false
+        XCTAssertFalse(stacks.isEmpty)
+        for stack in stacks {
+            guard !stack.isEmpty else { continue }
+            foundAtLeastOneNonEmptySample = true
+            for frameIdx in stack {
+                XCTAssertNotNil(frames[frameIdx])
+            }
+        }
+        XCTAssert(foundAtLeastOneNonEmptySample)
+
+        for sample in samples {
+            XCTAssertNotNil(stacks[sample["stack_id"] as! Int])
+        }
+
         for (key, expectedValue) in customFields {
             guard let actualValue = profile[key] as? String else {
                 XCTFail("Expected value not present in profile")

@@ -99,11 +99,51 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
         }
         _profile = [NSMutableDictionary<NSString *, id> dictionary];
         const auto sampledProfile = [NSMutableDictionary<NSString *, id> dictionary];
+
+        /*
+         * Maintain an index of unique frames to avoid duplicating large amounts of data. Every
+         * unique frame is stored in an array, and every time a stack trace is captured for a
+         * sample, the stack is stored as an array of integers indexing into the array of frames.
+         * Stacks are thusly also stored as unique elements in their own index, an array of arrays
+         * of frame indices, and each sample references a stack by index, to deduplicate common
+         * stacks between samples, such as when the same deep function call runs across multiple
+         * samples.
+         *
+         * E.g. if we have the following samples in the following function call stacks:
+         *
+         *              v sample1    v sample2               v sample3    v sample4
+         * |-foo--------|------------|-----|    |-abc--------|------------|-----|
+         *    |-bar-----|------------|--|          |-def-----|------------|--|
+         *      |-baz---|------------|-|             |-ghi---|------------|-|
+         *
+         * Then we'd wind up with the following structures:
+         *
+         * frames: [
+         *   { function: foo, instruction_addr: ... },
+         *   { function: bar, instruction_addr: ... },
+         *   { function: baz, instruction_addr: ... },
+         *   { function: abc, instruction_addr: ... },
+         *   { function: def, instruction_addr: ... },
+         *   { function: ghi, instruction_addr: ... }
+         * ]
+         * stacks: [ [0, 1, 2], [3, 4, 5] ]
+         * samples: [
+         *   { stack_id: 0, ... },
+         *   { stack_id: 0, ... },
+         *   { stack_id: 1, ... },
+         *   { stack_id: 1, ... }
+         * ]
+         */
         const auto samples = [NSMutableArray<NSDictionary<NSString *, id> *> array];
+        const auto stacks = [NSMutableArray<NSMutableArray<NSNumber *> *> array];
+        const auto frames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
+        sampledProfile[@"samples"] = samples;
+        sampledProfile[@"stacks"] = stacks;
+        sampledProfile[@"frames"] = frames;
+
         const auto threadMetadata =
             [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
         const auto queueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
-        sampledProfile[@"samples"] = samples;
         sampledProfile[@"thread_metadata"] = threadMetadata;
         sampledProfile[@"queue_metadata"] = queueMetadata;
         _profile[@"sampled_profile"] = sampledProfile;
@@ -111,8 +151,8 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 
         __weak const auto weakSelf = self;
         _profiler = std::make_shared<SamplingProfiler>(
-            [weakSelf, threadMetadata, queueMetadata, samples, mainThreadID = _mainThreadID](
-                auto &backtrace) {
+            [weakSelf, threadMetadata, queueMetadata, samples, mainThreadID = _mainThreadID, frames,
+                stacks](auto &backtrace) {
                 const auto strongSelf = weakSelf;
                 if (strongSelf == nil) {
                     return;
@@ -149,18 +189,31 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
                     = backtrace_symbols(reinterpret_cast<void *const *>(backtrace.addresses.data()),
                         static_cast<int>(backtrace.addresses.size()));
 #    endif
-                const auto frames = [NSMutableArray<NSDictionary<NSString *, id> *> new];
+
+                const auto stack = [NSMutableArray<NSNumber *> array];
+                const auto frameIndexLookup =
+                    [NSMutableDictionary<NSString *, NSNumber *> dictionary];
                 for (std::vector<uintptr_t>::size_type i = 0; i < backtrace.addresses.size(); i++) {
-                    const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
-                    frame[@"instruction_addr"] = sentry_formatHexAddress(@(backtrace.addresses[i]));
+                    const auto instructionAddress
+                        = sentry_formatHexAddress(@(backtrace.addresses[i]));
+
+                    const auto frameIndex = frameIndexLookup[instructionAddress];
+
+                    if (frameIndex == nil) {
+                        const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
+                        frame[@"instruction_addr"] = instructionAddress;
 #    if defined(DEBUG)
-                    frame[@"function"] = parseBacktraceSymbolsFunctionName(symbols[i]);
+                        frame[@"function"] = parseBacktraceSymbolsFunctionName(symbols[i]);
 #    endif
-                    [frames addObject:frame];
+                        [stack addObject:@(frames.count)];
+                        [frames addObject:frame];
+                        frameIndexLookup[instructionAddress] = @(stack.count);
+                    } else {
+                        [stack addObject:frameIndex];
+                    }
                 }
 
                 const auto sample = [NSMutableDictionary<NSString *, id> dictionary];
-                sample[@"frames"] = frames;
                 sample[@"relative_timestamp_ns"] =
                     [@(getDurationNs(strongSelf->_startTimestamp, backtrace.absoluteTimestamp))
                         stringValue];
@@ -168,6 +221,15 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
                 if (queueAddress != nil) {
                     sample[@"queue_address"] = queueAddress;
                 }
+
+                const auto stackIndex = [stacks indexOfObject:stack];
+                if (stackIndex != NSNotFound) {
+                    sample[@"stack_id"] = @(stackIndex);
+                } else {
+                    sample[@"stack_id"] = @(stacks.count);
+                    [stacks addObject:stack];
+                }
+
                 [samples addObject:sample];
             },
             101 /** Sample 101 times per second */);
@@ -208,18 +270,21 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
         profile[@"debug_meta"] = @{ @"images" : debugImages };
     }
 
-    profile[@"device_architecture"] = sentry_getCPUArchitecture();
-    profile[@"device_locale"] = NSLocale.currentLocale.localeIdentifier;
-    profile[@"device_manufacturer"] = @"Apple";
+    profile[@"os"] = @{
+        @"name" : sentry_getOSName(),
+        @"version" : sentry_getOSVersion(),
+        @"build_number" : sentry_getOSBuildNumber()
+    };
+
     const auto isEmulated = sentry_isSimulatorBuild();
-    profile[@"device_model"]
-        = isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel();
-    profile[@"device_os_build_number"] = sentry_getOSBuildNumber();
-    profile[@"device_os_name"] = sentry_getOSName();
-    profile[@"device_os_version"] = sentry_getOSVersion();
-    profile[@"device_is_emulator"] = @(isEmulated);
-    profile[@"device_physical_memory_bytes"] =
-        [@(NSProcessInfo.processInfo.physicalMemory) stringValue];
+    profile[@"device"] = @{
+        @"architecture" : sentry_getCPUArchitecture(),
+        @"is_emulator" : @(isEmulated),
+        @"locale" : NSLocale.currentLocale.localeIdentifier,
+        @"manufacturer" : @"Apple",
+        @"model" : isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel()
+    };
+
     profile[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment ?: kSentryDefaultEnvironment;
     profile[@"platform"] = transaction.platform;
     profile[@"transaction_id"] = transaction.eventId.sentryIdString;
@@ -229,8 +294,10 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     profile[@"duration_ns"] = [@(getDurationNs(_startTimestamp, getAbsoluteTime())) stringValue];
 
     const auto bundle = NSBundle.mainBundle;
-    profile[@"version_code"] = [bundle objectForInfoDictionaryKey:(NSString *)kCFBundleVersionKey];
-    profile[@"version_name"] = [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+    profile[@"release"] =
+        [NSString stringWithFormat:@"%@ (%@)",
+                  [bundle objectForInfoDictionaryKey:(NSString *)kCFBundleVersionKey],
+                  [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
 
 #    if SENTRY_HAS_UIKIT
     auto relativeFrameTimestampsNs = [NSMutableArray array];
