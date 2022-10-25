@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.29.0
 
 This version introduces a dependency on Swift, which only impacts you if you don't use Swift. If your project uses Swift already, this change will not affect you.
 
@@ -13,6 +13,7 @@ This version introduces a dependency on Swift, which only impacts you if you don
 ### Fixes
 
 - Enable bitcode (#2307)
+- Fix moving app state to previous app state (#2321)
 
 ## 7.28.0
 
