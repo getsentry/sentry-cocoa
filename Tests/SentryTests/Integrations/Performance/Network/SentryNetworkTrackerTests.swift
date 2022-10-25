@@ -568,37 +568,37 @@ class SentryNetworkTrackerTests: XCTestCase {
     func testAddHeadersForRequestWithURL() {
         // Default: all urls
         let sut = fixture.getSut()
-        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://localhost")!))
-        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/api/projects")!))
+        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://localhost")!, withTargets: fixture.options.tracePropagationTargets))
+        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://www.example.com/api/projects")!, withTargets: fixture.options.tracePropagationTargets))
 
         // Strings: hostname
         fixture.options.tracePropagationTargets = ["localhost"]
-        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://localhost")!))
-        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://localhost-but-not-really")!)) // works because of `contains`
-        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/api/projects")!))
+        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://localhost")!, withTargets: fixture.options.tracePropagationTargets))
+        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://localhost-but-not-really")!, withTargets: fixture.options.tracePropagationTargets)) // works because of `contains`
+        XCTAssertFalse(sut.isTargetMatch(URL(string: "http://www.example.com/api/projects")!, withTargets: fixture.options.tracePropagationTargets))
 
         fixture.options.tracePropagationTargets = ["www.example.com"]
-        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://localhost")!))
-        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/api/projects")!))
-        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://api.example.com/api/projects")!))
-        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://www.example.com.evil.com/api/projects")!)) // works because of `contains`
+        XCTAssertFalse(sut.isTargetMatch(URL(string: "http://localhost")!, withTargets: fixture.options.tracePropagationTargets))
+        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://www.example.com/api/projects")!, withTargets: fixture.options.tracePropagationTargets))
+        XCTAssertFalse(sut.isTargetMatch(URL(string: "http://api.example.com/api/projects")!, withTargets: fixture.options.tracePropagationTargets))
+        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://www.example.com.evil.com/api/projects")!, withTargets: fixture.options.tracePropagationTargets)) // works because of `contains`
 
         // Test regex
         let regex = try! NSRegularExpression(pattern: "http://www.example.com/api/.*")
         fixture.options.tracePropagationTargets = [regex]
-        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://localhost")!))
-        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/url")!))
-        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/api/projects")!))
+        XCTAssertFalse(sut.isTargetMatch(URL(string: "http://localhost")!, withTargets: fixture.options.tracePropagationTargets))
+        XCTAssertFalse(sut.isTargetMatch(URL(string: "http://www.example.com/url")!, withTargets: fixture.options.tracePropagationTargets))
+        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://www.example.com/api/projects")!, withTargets: fixture.options.tracePropagationTargets))
 
         // Regex and string
         fixture.options.tracePropagationTargets = ["localhost", regex]
-        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://localhost")!))
-        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/url")!))
-        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/api/projects")!))
+        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://localhost")!, withTargets: fixture.options.tracePropagationTargets))
+        XCTAssertFalse(sut.isTargetMatch(URL(string: "http://www.example.com/url")!, withTargets: fixture.options.tracePropagationTargets))
+        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://www.example.com/api/projects")!, withTargets: fixture.options.tracePropagationTargets))
 
         // String and integer (which isn't valid, make sure it doesn't crash)
         fixture.options.tracePropagationTargets = ["localhost", 123]
-        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://localhost")!))
+        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://localhost")!, withTargets: fixture.options.tracePropagationTargets))
     }
     
     func setTaskState(_ task: URLSessionTaskMock, state: URLSessionTask.State) {
