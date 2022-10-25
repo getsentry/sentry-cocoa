@@ -222,7 +222,7 @@ class TestData {
     }
     
     static var request: Request {
-        let request = Request();
+        let request = Request()
         request.url = "https://sentry.io"
         request.fragment = "fragment"
         request.bodySize = 10
