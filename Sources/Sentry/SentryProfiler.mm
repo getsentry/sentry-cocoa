@@ -499,10 +499,6 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
         @"model" : isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel()
     };
 
-    profile[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment ?: kSentryDefaultEnvironment;
-    profile[@"platform"] = transaction.platform;
-    profile[@"transaction_id"] = transaction.eventId.sentryIdString;
-    profile[@"trace_id"] = transaction.trace.context.traceId.sentryIdString;
     const auto profileID = [[SentryId alloc] init];
     profile[@"profile_id"] = profileID.sentryIdString;
     const auto profileDuration = getDurationNs(_startTimestamp, _endTimestamp);
