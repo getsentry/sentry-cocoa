@@ -144,7 +144,8 @@ class SentryFileManagerTests: XCTestCase {
         let envelope = TestConstants.envelope
         let path = sut.store(envelope)
 
-        let date = Date(timeIntervalSinceNow: -90 * 24 * 60 * 60)
+        let timeIntervalSince1970 = fixture.currentDateProvider.date().timeIntervalSince1970 - (90 * 24 * 60 * 60)
+        let date = Date(timeIntervalSince1970: timeIntervalSince1970 - 1)
         try FileManager.default.setAttributes([FileAttributeKey.creationDate: date], ofItemAtPath: path)
 
         XCTAssertEqual(sut.getAllEnvelopes().count, 1)
@@ -158,7 +159,8 @@ class SentryFileManagerTests: XCTestCase {
         let envelope = TestConstants.envelope
         let path = sut.store(envelope)
 
-        let date = Date(timeIntervalSinceNow: (-90 * 24 * 60 * 60) + 1)
+        let timeIntervalSince1970 = fixture.currentDateProvider.date().timeIntervalSince1970 - (90 * 24 * 60 * 60)
+        let date = Date(timeIntervalSince1970: timeIntervalSince1970)
         try FileManager.default.setAttributes([FileAttributeKey.creationDate: date], ofItemAtPath: path)
 
         XCTAssertEqual(sut.getAllEnvelopes().count, 1)
@@ -172,7 +174,8 @@ class SentryFileManagerTests: XCTestCase {
         let envelope = TestConstants.envelope
         sut.store(envelope)
 
-        let date = Date(timeIntervalSinceNow: -90 * 24 * 60 * 60)
+        let timeIntervalSince1970 = fixture.currentDateProvider.date().timeIntervalSince1970 - (90 * 24 * 60 * 60)
+        let date = Date(timeIntervalSince1970: timeIntervalSince1970)
         try FileManager.default.setAttributes([FileAttributeKey.creationDate: date], ofItemAtPath: sut.envelopesPath)
 
         XCTAssertEqual(sut.getAllEnvelopes().count, 1)

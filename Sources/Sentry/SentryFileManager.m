@@ -182,7 +182,7 @@ SentryFileManager ()
 
 - (void)deleteOldEnvelopesFromPath:(NSString *)envelopesPath
 {
-    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+    NSTimeInterval now = [[self.currentDateProvider date] timeIntervalSince1970];
 
     for (NSString *path in [self allFilesInFolder:envelopesPath]) {
         NSString *fullPath = [envelopesPath stringByAppendingPathComponent:path];
