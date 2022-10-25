@@ -144,7 +144,8 @@ class SentryFileManagerTests: XCTestCase {
         let envelope = TestConstants.envelope
         let path = sut.store(envelope)
 
-        try FileManager.default.setAttributes([FileAttributeKey.creationDate: Date(timeIntervalSince1970: 0)], ofItemAtPath: path)
+        let date = Date(timeIntervalSinceNow: -90 * 24 * 60 * 60)
+        try FileManager.default.setAttributes([FileAttributeKey.creationDate: date], ofItemAtPath: path)
 
         XCTAssertEqual(sut.getAllEnvelopes().count, 1)
 
@@ -152,7 +153,35 @@ class SentryFileManagerTests: XCTestCase {
 
         XCTAssertEqual(sut.getAllEnvelopes().count, 0)
     }
-    
+
+    func testDontDeleteYoungEnvelopes() throws {
+        let envelope = TestConstants.envelope
+        let path = sut.store(envelope)
+
+        let date = Date(timeIntervalSinceNow: (-90 * 24 * 60 * 60) + 1)
+        try FileManager.default.setAttributes([FileAttributeKey.creationDate: date], ofItemAtPath: path)
+
+        XCTAssertEqual(sut.getAllEnvelopes().count, 1)
+
+        sut.deleteOldEnvelopesFromAllSentryPaths()
+
+        XCTAssertEqual(sut.getAllEnvelopes().count, 1)
+    }
+
+    func testDontDeleteYoungFromOldFolder() throws {
+        let envelope = TestConstants.envelope
+        sut.store(envelope)
+
+        let date = Date(timeIntervalSinceNow: -90 * 24 * 60 * 60)
+        try FileManager.default.setAttributes([FileAttributeKey.creationDate: date], ofItemAtPath: sut.envelopesPath)
+
+        XCTAssertEqual(sut.getAllEnvelopes().count, 1)
+
+        sut.deleteOldEnvelopesFromAllSentryPaths()
+
+        XCTAssertEqual(sut.getAllEnvelopes().count, 1)
+    }
+
     func testCreateDirDoesNotThrow() throws {
         try SentryFileManager.createDirectory(atPath: "a")
     }
