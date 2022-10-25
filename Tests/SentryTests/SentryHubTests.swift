@@ -797,7 +797,7 @@ extension SentryHubTests {
         }
     }
 
-    func testStartTransaction_ProfilingDataIsValid_disabled() {
+    func testStartTransaction_ProfilingDataIsValid() {
         let options = fixture.options
         options.profilesSampleRate = 1.0
         options.tracesSampler = {(_: SamplingContext) -> NSNumber in
@@ -807,7 +807,7 @@ extension SentryHubTests {
         let profileExpectation = expectation(description: "collects profiling data")
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         // Give it time to collect a profile, otherwise there will be no samples.
-        DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
+        DispatchQueue.global().asyncAfter(deadline: .now() + 3.0) {
             span.finish()
 
             guard let additionalEnvelopeItems = self.fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
@@ -827,7 +827,7 @@ extension SentryHubTests {
         // Some busy work to try and get it to show up in the profile.
         let str = "a"
         var concatStr = ""
-        for _ in 0..<100_000 {
+        for _ in 0..<400_000 {
             concatStr = concatStr.appending(str)
         }
 
@@ -850,7 +850,7 @@ extension SentryHubTests {
         let profileExpectation = expectation(description: "collects profiling data")
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         // Give it time to collect a profile, otherwise there will be no samples.
-        DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
+        DispatchQueue.global().asyncAfter(deadline: .now() + 3.0) {
             span.finish()
 
             guard let additionalEnvelopeItems = self.fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
@@ -870,7 +870,7 @@ extension SentryHubTests {
         // Some busy work to try and get it to show up in the profile.
         let str = "a"
         var concatStr = ""
-        for _ in 0..<100_000 {
+        for _ in 0..<400_000 {
             concatStr = concatStr.appending(str)
         }
 
@@ -881,7 +881,7 @@ extension SentryHubTests {
         }
     }
 
-    func testProfilingDataContainsEnvironmentSetFromConfigureScope_disabled() {
+    func testProfilingDataContainsEnvironmentSetFromConfigureScope() {
         let options = fixture.options
         options.profilesSampleRate = 1.0
         options.tracesSampler = {(_: SamplingContext) -> NSNumber in
@@ -895,7 +895,7 @@ extension SentryHubTests {
         let profileExpectation = expectation(description: "collects profiling data")
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         // Give it time to collect a profile, otherwise there will be no samples.
-        DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
+        DispatchQueue.global().asyncAfter(deadline: .now() + 3.0) {
             span.finish()
 
             guard let additionalEnvelopeItems = self.fixture.client.captureEventWithScopeInvocations.first?.additionalEnvelopeItems else {
@@ -915,7 +915,7 @@ extension SentryHubTests {
         // Some busy work to try and get it to show up in the profile.
         let str = "a"
         var concatStr = ""
-        for _ in 0..<100_000 {
+        for _ in 0..<400_000 {
             concatStr = concatStr.appending(str)
         }
 
