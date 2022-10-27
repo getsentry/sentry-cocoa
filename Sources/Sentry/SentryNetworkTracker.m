@@ -292,10 +292,11 @@ SentryNetworkTracker ()
 {
     // bail out if disabled
     if (!self.isCaptureFailedRequestsEnabled) {
-        SENTRY_LOG_DEBUG(@"captureFailedRequestsEnabled is disabled, not capturing HTTP Client errors.");
+        SENTRY_LOG_DEBUG(
+            @"captureFailedRequestsEnabled is disabled, not capturing HTTP Client errors.");
         return;
     }
-    
+
     // if request or response are null, we can't raise the event
     if (sessionTask.currentRequest == nil || sessionTask.response == nil) {
         SENTRY_LOG_DEBUG(@"Request or Response are null, not capturing HTTP Client errors.");
@@ -312,12 +313,14 @@ SentryNetworkTracker ()
     NSNumber *responseStatusCode = @(myResponse.statusCode);
 
     if (![self containsStatusCode:myResponse.statusCode]) {
-        SENTRY_LOG_DEBUG(@"Response status code isn't within the allowed ranges, not capturing HTTP Client errors.");
+        SENTRY_LOG_DEBUG(@"Response status code isn't within the allowed ranges, not capturing "
+                         @"HTTP Client errors.");
         return;
     }
 
     if (![self isTargetMatch:myRequest.URL withTargets:SentrySDK.options.failedRequestTargets]) {
-        SENTRY_LOG_DEBUG(@"Request url isn't within the request targets, not capturing HTTP Client errors.");
+        SENTRY_LOG_DEBUG(
+            @"Request url isn't within the request targets, not capturing HTTP Client errors.");
         return;
     }
 
