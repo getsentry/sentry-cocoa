@@ -2,12 +2,10 @@
 
 ## Unreleased
 
-### Feature
-
-- HTTP Client errors (#2308)
 ### Features
 
 - Profile concurrent transactions (#2227)
+- HTTP Client errors (#2308)
 
 ## 7.29.0
 
