@@ -650,7 +650,7 @@ class SentryNetworkTrackerTests: XCTestCase {
             XCTFail("Expected to capture 1 event")
             return
         }
-        let sentryResponse = envelope.event.context?["response"] as? [String: Any]
+        let sentryResponse = envelope.event.context?["response"]
 
         XCTAssertEqual(sentryResponse?["status_code"] as? NSNumber, 500)
         XCTAssertEqual(sentryResponse?["headers"] as? [String: String], headers)
