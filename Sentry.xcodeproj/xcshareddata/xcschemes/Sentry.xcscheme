@@ -82,9 +82,6 @@
                <Test
                   Identifier = "SentryStacktraceBuilderTests/testAsyncStacktraces_disabled()">
                </Test>
-               <Test
-                  Identifier = "SentrySystemEventBreadcrumbsTest/testTimezoneChangeNotificationBreadcrumb_disabled()">
-               </Test>
             </SkippedTests>
          </TestableReference>
       </Testables>
