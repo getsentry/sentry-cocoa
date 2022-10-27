@@ -290,24 +290,34 @@ SentryNetworkTracker ()
 
 - (void)captureFailedRequests:(NSURLSessionTask *)sessionTask
 {
+    // bail out if disabled
+    if (!self.isCaptureFailedRequestsEnabled) {
+        SENTRY_LOG_DEBUG(@"captureFailedRequestsEnabled is disabled, not capturing HTTP Client errors.");
+        return;
+    }
+    
     // if request or response are null, we can't raise the event
     if (sessionTask.currentRequest == nil || sessionTask.response == nil) {
+        SENTRY_LOG_DEBUG(@"Request or Response are null, not capturing HTTP Client errors.");
         return;
     }
     // some properties are only available if the response is of the NSHTTPURLResponse type
     // bail if not
     if (![sessionTask.response isKindOfClass:[NSHTTPURLResponse class]]) {
+        SENTRY_LOG_DEBUG(@"Response isn't a known type, not capturing HTTP Client errors.");
         return;
     }
     NSHTTPURLResponse *myResponse = (NSHTTPURLResponse *)sessionTask.response;
     NSURLRequest *myRequest = sessionTask.currentRequest;
     NSNumber *responseStatusCode = @(myResponse.statusCode);
 
-    if (!self.isCaptureFailedRequestsEnabled || ![self containsStatusCode:myResponse.statusCode]) {
+    if (![self containsStatusCode:myResponse.statusCode]) {
+        SENTRY_LOG_DEBUG(@"Response status code isn't within the allowed ranges, not capturing HTTP Client errors.");
         return;
     }
 
     if (![self isTargetMatch:myRequest.URL withTargets:SentrySDK.options.failedRequestTargets]) {
+        SENTRY_LOG_DEBUG(@"Request url isn't within the request targets, not capturing HTTP Client errors.");
         return;
     }
 
@@ -375,6 +385,7 @@ SentryNetworkTracker ()
     context[@"response"] = response;
     event.context = context;
 
+    // TODO: do we need to pass the SentrySDK.currentHub.scope here?
     [SentrySDK captureEvent:event];
 }
 
