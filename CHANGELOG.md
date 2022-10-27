@@ -5,6 +5,9 @@
 ### Feature
 
 - HTTP Client errors (#2308)
+### Features
+
+- Profile concurrent transactions (#2227)
 
 ## 7.29.0
 
