@@ -603,7 +603,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertTrue(sut.isTargetMatch(URL(string: "http://localhost")!, withTargets: ["localhost", 123]))
     }
     
-    func testHTTPClientErrorRequest() {
+    func testCaptureHTTPClientErrorRequest() {
         let sut = fixture.getSut()
         
         let url = URL(string: "https://www.domain.com/api?query=myQuery#myFragment")!
@@ -632,7 +632,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(sentryRequest.queryString, "query=myQuery")
     }
     
-    func testHTTPClientErrorResponse() {
+    func testCaptureHTTPClientErrorResponse() {
         let sut = fixture.getSut()
         let task = createDataTask()
 
@@ -658,7 +658,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(sentryResponse?["body_size"] as? NSNumber, 256)
     }
     
-    func testHTTPClientErrorException() {
+    func testCaptureHTTPClientErrorException() {
         let sut = fixture.getSut()
         let task = createDataTask()
         task.setResponse(createResponse(code: 500))
@@ -677,6 +677,42 @@ class SentryNetworkTrackerTests: XCTestCase {
         let stackTrace = exception.stacktrace!
         XCTAssertTrue(stackTrace.snapshot!.boolValue)
         XCTAssertNotNil(stackTrace.frames)
+    }
+    
+    func testDoesNotCaptureHTTPClientErrorIfDisabled() {
+        let sut = fixture.getSut()
+        sut.disable()
+        sut.enableNetworkTracking()
+        sut.enableNetworkBreadcrumbs()
+
+        let task = createDataTask()
+        task.setResponse(createResponse(code: 500))
+        
+        sut.urlSessionTask(task, setState: .completed)
+
+        XCTAssertNil(fixture.hub.capturedEventsWithScopes.first)
+    }
+    
+    func testDoesNotCaptureHTTPClientErrorIfNotStatusCodeRange() {
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        task.setResponse(createResponse(code: 200))
+        
+        sut.urlSessionTask(task, setState: .completed)
+
+        XCTAssertNil(fixture.hub.capturedEventsWithScopes.first)
+    }
+    
+    func testDoesNotCaptureHTTPClientErrorIfNotTarget() {
+        fixture.options.failedRequestTargets = ["www.example.com"]
+
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        task.setResponse(createResponse(code: 500))
+        
+        sut.urlSessionTask(task, setState: .completed)
+
+        XCTAssertNil(fixture.hub.capturedEventsWithScopes.first)
     }
     
     func setTaskState(_ task: URLSessionTaskMock, state: URLSessionTask.State) {
