@@ -16,15 +16,35 @@ SENTRY_NO_INIT
 NS_ASSUME_NONNULL_END
 
 #define SENTRY_LOG_DEBUG(...)                                                                      \
-    [SentryLog logWithMessage:[NSString stringWithFormat:__VA_ARGS__] andLevel:kSentryLevelDebug]
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"[%@] %@",                               \
+                                        [[[NSString stringWithUTF8String:__FILE__]                 \
+                                            lastPathComponent] stringByDeletingPathExtension],     \
+                                        [NSString stringWithFormat:__VA_ARGS__]]                   \
+                     andLevel:kSentryLevelDebug]
 #define SENTRY_LOG_INFO(...)                                                                       \
-    [SentryLog logWithMessage:[NSString stringWithFormat:__VA_ARGS__] andLevel:kSentryLevelInfo]
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"[%@] %@",                               \
+                                        [[[NSString stringWithUTF8String:__FILE__]                 \
+                                            lastPathComponent] stringByDeletingPathExtension],     \
+                                        [NSString stringWithFormat:__VA_ARGS__]]                   \
+                     andLevel:kSentryLevelInfo]
 #define SENTRY_LOG_WARN(...)                                                                       \
-    [SentryLog logWithMessage:[NSString stringWithFormat:__VA_ARGS__] andLevel:kSentryLevelWarning]
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"[%@] %@",                               \
+                                        [[[NSString stringWithUTF8String:__FILE__]                 \
+                                            lastPathComponent] stringByDeletingPathExtension],     \
+                                        [NSString stringWithFormat:__VA_ARGS__]]                   \
+                     andLevel:kSentryLevelWarning]
 #define SENTRY_LOG_ERROR(...)                                                                      \
-    [SentryLog logWithMessage:[NSString stringWithFormat:__VA_ARGS__] andLevel:kSentryLevelError]
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"[%@] %@",                               \
+                                        [[[NSString stringWithUTF8String:__FILE__]                 \
+                                            lastPathComponent] stringByDeletingPathExtension],     \
+                                        [NSString stringWithFormat:__VA_ARGS__]]                   \
+                     andLevel:kSentryLevelError]
 #define SENTRY_LOG_CRITICAL(...)                                                                   \
-    [SentryLog logWithMessage:[NSString stringWithFormat:__VA_ARGS__] andLevel:kSentryLevelCritical]
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"[%@] %@",                               \
+                                        [[[NSString stringWithUTF8String:__FILE__]                 \
+                                            lastPathComponent] stringByDeletingPathExtension],     \
+                                        [NSString stringWithFormat:__VA_ARGS__]]                   \
+                     andLevel:kSentryLevelCritical]
 
 /**
  * If `errno` is set to a non-zero value after `statement` finishes executing,
