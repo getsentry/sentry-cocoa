@@ -46,6 +46,6 @@ class SentryBaseIntegrationTests: XCTestCase {
         options.enableAutoSessionTracking = false
         let result = sut.install(with: options)
         XCTAssertFalse(result)
-        XCTAssertEqual(["Sentry - debug:: Not going to enable SentryTests.MyTestIntegration because enableAutoSessionTracking is disabled."], logOutput.loggedMessages)
+        XCTAssertEqual(["[Sentry] [debug] [SentryBaseIntegration] Not going to enable SentryTests.MyTestIntegration because enableAutoSessionTracking is disabled."], logOutput.loggedMessages)
     }
 }
