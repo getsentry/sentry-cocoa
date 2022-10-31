@@ -29,7 +29,7 @@ AppDelegate ()
         }
         options.enableCaptureFailedRequests = YES;
         SentryHttpStatusCodeRange *httpStatusCodeRange =
-                    [[SentryHttpStatusCodeRange alloc] initWithMin:400 max:599];
+            [[SentryHttpStatusCodeRange alloc] initWithMin:400 max:599];
         options.failedRequestStatusCodes = @[ httpStatusCodeRange ];
     }];
 
