@@ -37,3 +37,9 @@ let package = Package(
     ],
     cxxLanguageStandard: .cxx14
 )
+
+#if swift(>=5.6)
+package.dependencies += [
+    .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0")
+]
+#endif
