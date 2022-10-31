@@ -291,7 +291,6 @@ SentryNetworkTracker ()
 
 - (void)captureFailedRequests:(NSURLSessionTask *)sessionTask
 {
-    // bail out if disabled
     if (!self.isCaptureFailedRequestsEnabled) {
         SENTRY_LOG_DEBUG(
             @"captureFailedRequestsEnabled is disabled, not capturing HTTP Client errors.");
@@ -389,7 +388,6 @@ SentryNetworkTracker ()
     context[@"response"] = response;
     event.context = context;
 
-    // TODO: do we need to pass the SentrySDK.currentHub.scope here?
     [SentrySDK captureEvent:event];
 }
 

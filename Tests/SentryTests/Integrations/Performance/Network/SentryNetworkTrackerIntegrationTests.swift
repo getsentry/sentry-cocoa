@@ -177,30 +177,29 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         
         XCTAssertEqual("200", networkSpan.tags["http.status_code"])
     }
-    
-// TODO: fix me
-//    func testGetRequest_CompareSentryTraceHeader() {
-//        startSDK()
-//        let transaction = SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as! SentryTracer
-//        let expect = expectation(description: "Request completed")
-//        let session = URLSession(configuration: URLSessionConfiguration.default)
-//        var response: String?
-//        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testTraceURL) { (data, _, _) in
-//            response = String(data: data ?? Data(), encoding: .utf8) ?? ""
-//            expect.fulfill()
-//        }
-//
-//        dataTask.resume()
-//        wait(for: [expect], timeout: 5)
-//
-//        let children = Dynamic(transaction).children as [SentrySpan]?
-//
-//        XCTAssertEqual(children?.count, 1) //Span was created in task resume swizzle.
-//        let networkSpan = children![0]
-//
-//        let expectedTraceHeader = networkSpan.toTraceHeader().value()
-//        XCTAssertEqual(expectedTraceHeader, response)
-//    }
+
+    func testGetRequest_CompareSentryTraceHeader() {
+        startSDK()
+        let transaction = SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as! SentryTracer
+        let expect = expectation(description: "Request completed")
+        let session = URLSession(configuration: URLSessionConfiguration.default)
+        var response: String?
+        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testTraceURL) { (data, _, _) in
+            response = String(data: data ?? Data(), encoding: .utf8) ?? ""
+            expect.fulfill()
+        }
+
+        dataTask.resume()
+        wait(for: [expect], timeout: 5)
+
+        let children = Dynamic(transaction).children as [SentrySpan]?
+
+        XCTAssertEqual(children?.count, 1) //Span was created in task resume swizzle.
+        let networkSpan = children![0]
+
+        let expectedTraceHeader = networkSpan.toTraceHeader().value()
+        XCTAssertEqual(expectedTraceHeader, response)
+    }
     
     func testCaptureFailedRequestsDisabled_WhenSwizzlingDisabled() {
         fixture.options.enableSwizzling = false

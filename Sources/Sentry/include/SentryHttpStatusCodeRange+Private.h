@@ -1,5 +1,5 @@
-#import <SentryDefines.h>
-#import <SentryHttpStatusCodeRange.h>
+#import "SentryDefines.h"
+#import "SentryHttpStatusCodeRange.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

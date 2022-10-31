@@ -669,6 +669,7 @@ class SentryNetworkTrackerTests: XCTestCase {
             XCTFail("Expected to capture 1 event")
             return
         }
+        XCTAssertEqual(envelope.event.exceptions!.count, 1)
         let exception = envelope.event.exceptions!.first!
 
         XCTAssertEqual(exception.type, "HTTPClientError")
