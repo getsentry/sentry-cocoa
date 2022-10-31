@@ -6,6 +6,7 @@
 
 - Profile concurrent transactions (#2227)
 - HTTP Client errors (#2308)
+- Disable bitcode for Carthage distribution (#2341)
 
 ### Fixes
 
