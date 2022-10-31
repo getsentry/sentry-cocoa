@@ -4,6 +4,7 @@
 #import "SentryClient+Private.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
+#import "SentryHttpStatusCodeRange+Private.h"
 #import "SentryHttpStatusCodeRange.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"

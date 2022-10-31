@@ -32,9 +32,6 @@ SENTRY_NO_INIT
  */
 - (instancetype)initWithStatusCode:(NSInteger)statusCode;
 
-// TODO: make it private
-- (BOOL)isInRange:(NSInteger)statusCode;
-
 @end
 
 NS_ASSUME_NONNULL_END
