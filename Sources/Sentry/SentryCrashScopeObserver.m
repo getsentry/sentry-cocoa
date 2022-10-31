@@ -9,11 +9,6 @@
 #import <SentryScopeSyncC.h>
 #import <SentryUser.h>
 
-@interface
-SentryCrashScopeObserver ()
-
-@end
-
 @implementation SentryCrashScopeObserver
 
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs

@@ -1,4 +1,5 @@
 #import "SentryDefines.h"
+#import "SentryScope+Private.h"
 #import <SentryAppState.h>
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
@@ -8,6 +9,7 @@
 #import <SentryHub.h>
 #import <SentryOptions+Private.h>
 #import <SentryOutOfMemoryLogic.h>
+#import <SentryOutOfMemoryScopeObserver.h>
 #import <SentryOutOfMemoryTracker.h>
 #import <SentryOutOfMemoryTrackingIntegration.h>
 #import <SentrySDK+Private.h>
@@ -72,6 +74,15 @@ SentryOutOfMemoryTrackingIntegration ()
     [self.anrTracker addListener:self];
 
     self.appStateManager = appStateManager;
+
+    [fileManager moveBreadcrumbsToPreviousBreadcrumbs];
+
+    SentryOutOfMemoryScopeObserver *scopeObserver = [[SentryOutOfMemoryScopeObserver alloc]
+        initWithMaxBreadcrumbs:options.maxBreadcrumbs
+                   fileManager:[[[SentrySDK currentHub] getClient] fileManager]];
+
+    [SentrySDK.currentHub configureScope:^(
+        SentryScope *_Nonnull outerScope) { [outerScope addObserver:scopeObserver]; }];
 
     return YES;
 }

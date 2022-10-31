@@ -15,6 +15,7 @@ NS_SWIFT_NAME(SentryFileManager)
 SENTRY_NO_INIT
 
 @property (nonatomic, readonly) NSString *sentryPath;
+@property (nonatomic, readonly) NSString *breadcrumbsFilePath;
 
 - (nullable instancetype)initWithOptions:(SentryOptions *)options
                   andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
@@ -69,6 +70,8 @@ SENTRY_NO_INIT
 - (SentryAppState *_Nullable)readAppState;
 - (SentryAppState *_Nullable)readPreviousAppState;
 - (void)deleteAppState;
+
+- (void)moveBreadcrumbsToPreviousBreadcrumbs;
 
 - (NSNumber *_Nullable)readTimezoneOffset;
 - (void)storeTimezoneOffset:(NSInteger)offset;

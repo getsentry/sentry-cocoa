@@ -28,6 +28,8 @@ SentryFileManager ()
 @property (nonatomic, copy) NSString *lastInForegroundFilePath;
 @property (nonatomic, copy) NSString *previousAppStateFilePath;
 @property (nonatomic, copy) NSString *appStateFilePath;
+@property (nonatomic, copy) NSString *previousBreadcrumbsFilePath;
+@property (nonatomic, copy) NSString *breadcrumbsFilePath;
 @property (nonatomic, copy) NSString *timezoneOffsetFilePath;
 @property (nonatomic, assign) NSUInteger currentFileCounter;
 @property (nonatomic, assign) NSUInteger maxEnvelopes;
@@ -83,6 +85,10 @@ SentryFileManager ()
         self.previousAppStateFilePath =
             [self.sentryPath stringByAppendingPathComponent:@"previous.app.state"];
         self.appStateFilePath = [self.sentryPath stringByAppendingPathComponent:@"app.state"];
+        self.previousBreadcrumbsFilePath =
+            [self.sentryPath stringByAppendingPathComponent:@"previous.breadcrumbs.state"];
+        self.breadcrumbsFilePath =
+            [self.sentryPath stringByAppendingPathComponent:@"breadcrumbs.state"];
         self.timezoneOffsetFilePath =
             [self.sentryPath stringByAppendingPathComponent:@"timezone.offset"];
 
@@ -240,7 +246,9 @@ SentryFileManager ()
     NSError *error = nil;
     @synchronized(self) {
         [fileManager removeItemAtPath:path error:&error];
-        if (nil != error) {
+
+        // We don't want to log an error if the file doesn't exist.
+        if (nil != error && error.code != NSFileNoSuchFileError) {
             SENTRY_LOG_ERROR(@"Couldn't delete file %@: %@", path, error);
             return NO;
         }
@@ -455,25 +463,31 @@ SentryFileManager ()
 - (void)moveAppStateToPreviousAppState
 {
     @synchronized(self.appStateFilePath) {
-        NSFileManager *fileManager = [NSFileManager defaultManager];
+        [self moveState:self.appStateFilePath toPreviousState:self.previousAppStateFilePath];
+    }
+}
 
-        // We first need to remove the old previous app state file,
-        // or we can't move the current app state file to it.
-        [self removeFileAtPath:self.previousAppStateFilePath];
+- (void)moveBreadcrumbsToPreviousBreadcrumbs
+{
+    @synchronized(self.breadcrumbsFilePath) {
+        [self moveState:self.breadcrumbsFilePath toPreviousState:self.previousBreadcrumbsFilePath];
+    }
+}
 
-        NSError *error = nil;
-        [fileManager moveItemAtPath:self.appStateFilePath
-                             toPath:self.previousAppStateFilePath
-                              error:&error];
+- (void)moveState:(NSString *)stateFilePath toPreviousState:(NSString *)previousStateFilePath
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
 
-        // We don't want to log an error if the file doesn't exist.
-        if (nil != error && error.code != NSFileNoSuchFileError) {
-            [SentryLog
-                logWithMessage:[NSString
-                                   stringWithFormat:
-                                       @"Failed to move app state to previous app state: %@", error]
-                      andLevel:kSentryLevelError];
-        }
+    // We first need to remove the old previous state file,
+    // or we can't move the current state file to it.
+    [self removeFileAtPath:previousStateFilePath];
+
+    NSError *error = nil;
+    [fileManager moveItemAtPath:stateFilePath toPath:previousStateFilePath error:&error];
+
+    // We don't want to log an error if the file doesn't exist.
+    if (nil != error && error.code != NSFileNoSuchFileError) {
+        SENTRY_LOG_ERROR(@"Failed to move %@ to previous state file: %@", stateFilePath, error);
     }
 }
 
