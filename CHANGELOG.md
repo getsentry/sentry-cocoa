@@ -5,6 +5,7 @@
 ### Features
 
 - Profile concurrent transactions (#2227)
+- Disable bitcode for Carthage distribution (#2341)
 
 ### Fixes
 
