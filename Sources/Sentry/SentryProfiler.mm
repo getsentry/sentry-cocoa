@@ -108,11 +108,6 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 - (instancetype)init
 {
-    if (![NSThread isMainThread]) {
-        SENTRY_LOG_ERROR(@"SentryProfiler must be initialized on the main thread");
-        return nil;
-    }
-
     if (!(self = [super init])) {
         return nil;
     }
@@ -148,6 +143,10 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 
     if (_gCurrentProfiler == nil) {
         _gCurrentProfiler = [[SentryProfiler alloc] init];
+        if (_gCurrentProfiler == nil) {
+            SENTRY_LOG_WARN(@"Profiler was not initialized, will not proceed.");
+            return;
+        }
 #        if SENTRY_HAS_UIKIT
         [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
 #        endif // SENTRY_HAS_UIKIT
