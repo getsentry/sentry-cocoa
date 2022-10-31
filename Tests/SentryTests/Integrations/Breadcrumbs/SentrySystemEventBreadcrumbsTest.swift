@@ -258,9 +258,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
 
         fixture.currentDateProvider.timezoneOffsetValue = 7_200
 
-        NotificationCenter.default.post(Notification(name: NSNotification.Name.NSSystemTimeZoneDidChange))
-
-        Thread.sleep(forTimeInterval: 0.1)
+        sut.timezoneEventTriggered()
 
         assertBreadcrumbAction(scope: scope, action: "TIMEZONE_CHANGE") { data in
             XCTAssertEqual(data["previous_seconds_from_gmt"] as? Int, 0)
