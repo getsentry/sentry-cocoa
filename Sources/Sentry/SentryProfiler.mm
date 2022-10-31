@@ -598,10 +598,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     NSError *error = nil;
     const auto JSONData = [SentrySerialization dataWithJSONObject:profile error:&error];
     if (JSONData == nil) {
-        [SentryLog
-            logWithMessage:[NSString
-                               stringWithFormat:@"Failed to encode profile to JSON: %@", error]
-                  andLevel:kSentryLevelError];
+        SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON: %@", error);
         return;
     }
 
