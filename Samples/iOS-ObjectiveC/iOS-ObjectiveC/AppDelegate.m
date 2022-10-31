@@ -28,6 +28,9 @@ AppDelegate ()
             options.profilesSampleRate = @1;
         }
         options.enableCaptureFailedRequests = YES;
+        SentryHttpStatusCodeRange *httpStatusCodeRange =
+                    [[SentryHttpStatusCodeRange alloc] initWithMin:400 max:599];
+        options.failedRequestStatusCodes = @[ httpStatusCodeRange ];
     }];
 
     return YES;
