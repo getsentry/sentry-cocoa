@@ -7,6 +7,11 @@
 - Profile concurrent transactions (#2227)
 - HTTP Client errors (#2308)
 
+### Fixes
+
+- Stop profiler when app moves to background (#2331)
+- Clean up old envelopes (#2322)
+
 ## 7.29.0
 
 ### Features

@@ -158,6 +158,12 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
                                            selector:@selector(timeoutAbort)
                                            userInfo:nil
                                             repeats:NO];
+#        if SENTRY_HAS_UIKIT
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(backgroundAbort)
+                                                     name:UIApplicationWillResignActiveNotification
+                                                   object:nil];
+#        endif // SENTRY_HAS_UIKIT
         _gCurrentProfiler->_hub = hub;
     }
 
@@ -257,6 +263,19 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 
     SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", _gCurrentProfiler);
     [self stopProfilerForReason:SentryProfilerTruncationReasonTimeout];
+}
+
++ (void)backgroundAbort
+{
+    std::lock_guard<std::mutex> l(_gProfilerLock);
+
+    if (_gCurrentProfiler == nil) {
+        SENTRY_LOG_DEBUG(@"No current profiler to stop.");
+        return;
+    }
+
+    SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", _gCurrentProfiler);
+    [self stopProfilerForReason:SentryProfilerTruncationReasonAppMovedToBackground];
 }
 
 + (void)stopProfilerForReason:(SentryProfilerTruncationReason)reason
