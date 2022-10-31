@@ -41,7 +41,7 @@ ViewController ()
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
     NSURL *url = [[NSURL alloc]
-        initWithString:@"https://sentry-brand.storage.googleapis.com/test/sentry-logo-black.png"];
+        initWithString:@"https://sentry-brand.storage.googleapis.com/sentry-logo-black.png"];
     NSURLSessionDataTask *task = [session dataTaskWithURL:url];
     [task resume];
 }
