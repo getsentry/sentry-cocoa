@@ -28,7 +28,7 @@ class SentryUIViewControllerSanitizerTests: XCTestCase {
         XCTAssertEqual(name, "InnerClass")
     }
     
-    private func sanitize(_ name: Any) -> String {
-        return SentryUIViewControllerSanitizer.sanitizeViewControllerName(name)
+    private func sanitize(_ name: AnyObject) -> String {
+        return SwiftDescriptor.getObjectClassName(name)
     }
 }

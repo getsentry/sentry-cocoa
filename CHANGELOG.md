@@ -1,16 +1,24 @@
 # Changelog
 
-## Unreleased
+## Unreleased 
+
+This version introduces a dependency on Swift, which only impacts you if you don't use Swift. If your project uses Swift already, this change will not affect you.
 
 ### Features
 
-- Sentry Swift framework (#2162)
+- Properly demangle Swift class name (#2162)
+
+## 7.29.0
+
+### Features
+
 - Offline caching improvements (#2263)
 - Report usage of stitchAsyncCode (#2281)
 
 ### Fixes
 
 - Enable bitcode (#2307)
+- Fix moving app state to previous app state (#2321)
 
 ## 7.28.0
 
