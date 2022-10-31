@@ -40,7 +40,8 @@ ViewController ()
     // Load an image just for HTTP swizzling
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
-    NSURL *url = [[NSURL alloc] initWithString:@"https://sentry-brand.storage.googleapis.com/test/sentry-logo-black.png"];
+    NSURL *url = [[NSURL alloc]
+        initWithString:@"https://sentry-brand.storage.googleapis.com/test/sentry-logo-black.png"];
     NSURLSessionDataTask *task = [session dataTaskWithURL:url];
     [task resume];
 }
