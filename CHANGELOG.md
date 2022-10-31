@@ -9,6 +9,7 @@
 ### Fixes
 
 - Stop profiler when app moves to background (#2331)
+- Clean up old envelopes (#2322)
 
 ## 7.29.0
 
