@@ -67,6 +67,7 @@ SentryOutOfMemoryTrackingIntegration ()
                                                      appStateManager:appStateManager
                                                 dispatchQueueWrapper:dispatchQueueWrapper
                                                          fileManager:fileManager];
+
     [self.tracker start];
 
     self.anrTracker =
@@ -74,8 +75,6 @@ SentryOutOfMemoryTrackingIntegration ()
     [self.anrTracker addListener:self];
 
     self.appStateManager = appStateManager;
-
-    [fileManager moveBreadcrumbsToPreviousBreadcrumbs];
 
     SentryOutOfMemoryScopeObserver *scopeObserver = [[SentryOutOfMemoryScopeObserver alloc]
         initWithMaxBreadcrumbs:options.maxBreadcrumbs

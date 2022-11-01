@@ -6,6 +6,7 @@
 @interface
 SentryOutOfMemoryScopeObserver ()
 
+@property (strong, nonatomic) SentryFileManager *fileManager;
 @property (strong, nonatomic) NSFileHandle *fileHandle;
 
 @end
@@ -16,17 +17,8 @@ SentryOutOfMemoryScopeObserver ()
                            fileManager:(SentryFileManager *)fileManager
 {
     if (self = [super init]) {
-        if (![[NSFileManager defaultManager] fileExistsAtPath:fileManager.breadcrumbsFilePath]) {
-            [[NSFileManager defaultManager] createFileAtPath:fileManager.breadcrumbsFilePath
-                                                    contents:nil
-                                                  attributes:nil];
-        }
-
-        self.fileHandle = [NSFileHandle fileHandleForWritingAtPath:fileManager.breadcrumbsFilePath];
-
-        if (!self.fileHandle) {
-            SENTRY_LOG_ERROR(@"Couldn't open file handle for %@", fileManager.breadcrumbsFilePath);
-        }
+        self.fileManager = fileManager;
+        [self createFile];
     }
 
     return self;
@@ -37,12 +29,44 @@ SentryOutOfMemoryScopeObserver ()
     [self.fileHandle closeFile];
 }
 
+// PRAGMA MARK: - Helper methods
+
+- (void)deleteFile
+{
+    if ([[NSFileManager defaultManager] fileExistsAtPath:self.fileManager.breadcrumbsFilePath]) {
+        NSError *error;
+        [[NSFileManager defaultManager] removeItemAtPath:self.fileManager.breadcrumbsFilePath
+                                                   error:&error];
+        if (error) {
+            SENTRY_LOG_ERROR(@"Couldn't delete file %@", self.fileManager.breadcrumbsFilePath);
+        }
+    }
+}
+
+- (void)createFile
+{
+    if (![[NSFileManager defaultManager] fileExistsAtPath:self.fileManager.breadcrumbsFilePath]) {
+        [[NSFileManager defaultManager] createFileAtPath:self.fileManager.breadcrumbsFilePath
+                                                contents:nil
+                                              attributes:nil];
+    }
+
+    self.fileHandle =
+        [NSFileHandle fileHandleForWritingAtPath:self.fileManager.breadcrumbsFilePath];
+
+    if (!self.fileHandle) {
+        SENTRY_LOG_ERROR(@"Couldn't open file handle for %@", self.fileManager.breadcrumbsFilePath);
+    }
+}
+
 - (void)store:(NSData *)data
 {
     [self.fileHandle seekToEndOfFile];
     [self.fileHandle writeData:[@"\n" dataUsingEncoding:NSASCIIStringEncoding]];
     [self.fileHandle writeData:data];
 }
+
+// PRAGMA MARK: - SentryScopeObserver
 
 - (void)addBreadcrumb:(nonnull SentryBreadcrumb *)crumb
 {
@@ -60,12 +84,13 @@ SentryOutOfMemoryScopeObserver ()
 
 - (void)clear
 {
-    SENTRY_LOG_DEBUG(@"clear");
+    [self clearBreadcrumbs];
 }
 
 - (void)clearBreadcrumbs
 {
-    SENTRY_LOG_DEBUG(@"clearBreadcrumbs");
+    [self deleteFile];
+    [self createFile];
 }
 
 - (void)setContext:(nullable NSDictionary<NSString *, id> *)context

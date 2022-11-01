@@ -16,6 +16,7 @@ SENTRY_NO_INIT
 
 @property (nonatomic, readonly) NSString *sentryPath;
 @property (nonatomic, readonly) NSString *breadcrumbsFilePath;
+@property (nonatomic, readonly) NSString *previousBreadcrumbsFilePath;
 
 - (nullable instancetype)initWithOptions:(SentryOptions *)options
                   andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider

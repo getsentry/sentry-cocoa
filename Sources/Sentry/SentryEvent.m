@@ -5,6 +5,7 @@
 #import "SentryClient.h"
 #import "SentryCurrentDate.h"
 #import "SentryDebugMeta.h"
+#import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryId.h"
 #import "SentryLevelMapper.h"
@@ -138,6 +139,10 @@ SentryEvent ()
     [serializedData setValue:[self.stacktrace serialize] forKey:@"stacktrace"];
 
     [serializedData setValue:[self serializeBreadcrumbs] forKey:@"breadcrumbs"];
+
+    if (self.serializedBreadcrumbs.count > 0) {
+        [serializedData setValue:self.serializedBreadcrumbs forKey:@"breadcrumbs"];
+    }
 
     [serializedData setValue:[self.context sentry_sanitize] forKey:@"contexts"];
 

@@ -1,10 +1,10 @@
+#import "SentryEvent+Private.h"
 #import "SentryFileManager.h"
 #import <Foundation/Foundation.h>
 #import <SentryAppState.h>
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
 #import <SentryDispatchQueueWrapper.h>
-#import <SentryEvent.h>
 #import <SentryException.h>
 #import <SentryHub.h>
 #import <SentryLog.h>
@@ -48,16 +48,58 @@ SentryOutOfMemoryTracker ()
     return self;
 }
 
+- (NSArray *)loadBreadcrumbs
+{
+    if ([[NSFileManager defaultManager]
+            fileExistsAtPath:self.fileManager.previousBreadcrumbsFilePath]) {
+        NSMutableArray *breadcrumbs = [NSMutableArray array];
+
+        FILE *file = fopen([self.fileManager.previousBreadcrumbsFilePath UTF8String], "r");
+
+        char buffer[4096];
+        while (fgets(buffer, 4096, file) != NULL) {
+            NSString *result = [[NSString stringWithUTF8String:buffer]
+                stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+            if (result.length == 0) {
+                continue;
+            }
+
+            NSData *line = [result dataUsingEncoding:NSUTF8StringEncoding];
+
+            NSError *error;
+            NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:line
+                                                                 options:0
+                                                                   error:&error];
+
+            if (error) {
+                SENTRY_LOG_ERROR(@"Error deserializing breadcrumb: %@", error);
+            } else {
+                [breadcrumbs addObject:dict];
+            }
+        }
+
+        return breadcrumbs;
+    }
+
+    SENTRY_LOG_ERROR(@"File not found: %@", self.fileManager.previousBreadcrumbsFilePath);
+    return [[NSArray alloc] init];
+}
+
 - (void)start
 {
 #if SENTRY_HAS_UIKIT
     [self.appStateManager start];
 
     [self.dispatchQueue dispatchAsyncWithBlock:^{
+        [self loadBreadcrumbs];
+
         if ([self.outOfMemoryLogic isOOM]) {
             SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
             // Set to empty list so no breadcrumbs of the current scope are added
             event.breadcrumbs = @[];
+
+            // Load the previous breascrumbs from disk, which are already serialized
+            event.serializedBreadcrumbs = [self loadBreadcrumbs];
 
             SentryException *exception =
                 [[SentryException alloc] initWithValue:SentryOutOfMemoryExceptionValue

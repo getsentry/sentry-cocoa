@@ -508,8 +508,7 @@ SentryFileManager ()
 - (SentryAppState *_Nullable)readAppStateFrom:(NSString *)path
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSData *currentData = nil;
-    currentData = [fileManager contentsAtPath:path];
+    NSData *currentData = [fileManager contentsAtPath:path];
     if (nil == currentData) {
         return nil;
     }
