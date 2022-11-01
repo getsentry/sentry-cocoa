@@ -91,8 +91,6 @@ SentryOutOfMemoryTracker ()
     [self.appStateManager start];
 
     [self.dispatchQueue dispatchAsyncWithBlock:^{
-        [self loadBreadcrumbs];
-
         if ([self.outOfMemoryLogic isOOM]) {
             SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
             // Set to empty list so no breadcrumbs of the current scope are added
