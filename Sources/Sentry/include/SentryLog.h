@@ -14,17 +14,17 @@ SENTRY_NO_INIT
 @end
 
 NS_ASSUME_NONNULL_END
-
-#define SENTRY_LOG_DEBUG(...)                                                                      \
-    [SentryLog logWithMessage:[NSString stringWithFormat:__VA_ARGS__] andLevel:kSentryLevelDebug]
-#define SENTRY_LOG_INFO(...)                                                                       \
-    [SentryLog logWithMessage:[NSString stringWithFormat:__VA_ARGS__] andLevel:kSentryLevelInfo]
-#define SENTRY_LOG_WARN(...)                                                                       \
-    [SentryLog logWithMessage:[NSString stringWithFormat:__VA_ARGS__] andLevel:kSentryLevelWarning]
-#define SENTRY_LOG_ERROR(...)                                                                      \
-    [SentryLog logWithMessage:[NSString stringWithFormat:__VA_ARGS__] andLevel:kSentryLevelError]
-#define SENTRY_LOG_CRITICAL(...)                                                                   \
-    [SentryLog logWithMessage:[NSString stringWithFormat:__VA_ARGS__] andLevel:kSentryLevelCritical]
+#define SENTRY_LOG(_SENTRY_LOG_LEVEL, ...)                                                         \
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"[%@:%d] %@",                            \
+                                        [[[NSString stringWithUTF8String:__FILE__]                 \
+                                            lastPathComponent] stringByDeletingPathExtension],     \
+                                        __LINE__, [NSString stringWithFormat:__VA_ARGS__]]         \
+                     andLevel:_SENTRY_LOG_LEVEL]
+#define SENTRY_LOG_DEBUG(...) SENTRY_LOG(kSentryLevelDebug, __VA_ARGS__)
+#define SENTRY_LOG_INFO(...) SENTRY_LOG(kSentryLevelInfo, __VA_ARGS__)
+#define SENTRY_LOG_WARN(...) SENTRY_LOG(kSentryLevelWarning, __VA_ARGS__)
+#define SENTRY_LOG_ERROR(...) SENTRY_LOG(kSentryLevelError, __VA_ARGS__)
+#define SENTRY_LOG_FATAL(...) SENTRY_LOG(kSentryLevelFatal, __VA_ARGS__)
 
 /**
  * If `errno` is set to a non-zero value after `statement` finishes executing,
