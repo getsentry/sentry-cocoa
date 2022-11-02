@@ -376,7 +376,7 @@ SentryNetworkTracker ()
     if (nil != myResponse.allHeaderFields) {
         NSDictionary<NSString *, NSString *> *headers = myResponse.allHeaderFields.copy;
         [response setValue:headers forKey:@"headers"];
-        [response setValue:headers[@"Cookie"] forKey:@"cookies"];
+        [response setValue:headers[@"Set-Cookie"] forKey:@"cookies"];
     }
     if (sessionTask.countOfBytesReceived != 0) {
         [response setValue:[NSNumber numberWithLongLong:sessionTask.countOfBytesReceived]

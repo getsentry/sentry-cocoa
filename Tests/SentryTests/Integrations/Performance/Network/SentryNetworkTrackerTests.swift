@@ -609,7 +609,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let url = URL(string: "https://www.domain.com/api?query=myQuery#myFragment")!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        let headers = ["test": "test", "Cookie": "myCookie"]
+        let headers = ["test": "test", "Cookie": "myCookie", "Set-Cookie": "myCookie"]
         request.allHTTPHeaderFields = headers
         
         let task = URLSessionDataTaskMock(request: request)
@@ -636,7 +636,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let sut = fixture.getSut()
         let task = createDataTask()
 
-        let headers = ["test": "test", "Cookie": "myCookie"]
+        let headers = ["test": "test", "Cookie": "myCookie", "Set-Cookie": "myCookie"]
         let response = HTTPURLResponse(
             url: SentryNetworkTrackerTests.testURL,
             statusCode: 500,
