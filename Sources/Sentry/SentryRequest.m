@@ -16,7 +16,9 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableDictionary *serializedData = [[NSMutableDictionary alloc] init];
 
     @synchronized(self) {
-        [serializedData setValue:self.bodySize forKey:@"body_size"];
+        if (nil != self.bodySize && self.bodySize.intValue != 0) {
+            [serializedData setValue:self.bodySize forKey:@"body_size"];
+        }
         [serializedData setValue:self.cookies forKey:@"cookies"];
         [serializedData setValue:self.fragment forKey:@"fragment"];
         if (nil != self.headers) {

@@ -24,4 +24,13 @@ class SentryRequestTests: XCTestCase {
         
         XCTAssertNil(actual["headers"])
     }
+    
+    func testNoBodySize() {
+        let request = TestData.request
+        request.bodySize = 0
+        
+        let actual = request.serialize()
+        
+        XCTAssertNil(actual["body_size"])
+    }
 }

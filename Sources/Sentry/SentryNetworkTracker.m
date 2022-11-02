@@ -359,9 +359,7 @@ SentryNetworkTracker ()
     request.method = myRequest.HTTPMethod;
     request.fragment = url.fragment;
     request.queryString = url.query;
-    if (sessionTask.countOfBytesSent != 0) {
-        request.bodySize = [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
-    }
+    request.bodySize = [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
     if (nil != myRequest.allHTTPHeaderFields) {
         NSDictionary<NSString *, NSString *> *headers = myRequest.allHTTPHeaderFields.copy;
         request.headers = headers;

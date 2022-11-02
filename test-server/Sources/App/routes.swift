@@ -22,4 +22,8 @@ func routes(_ app: Application) throws {
         
         return "(NO-HEADER)"
     }
+
+    app.get("http-client-error") { request -> String in
+        throw Abort(.badRequest)
+    }
 }

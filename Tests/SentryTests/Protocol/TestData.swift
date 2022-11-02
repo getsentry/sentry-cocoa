@@ -221,8 +221,8 @@ class TestData {
         scope.setContext(value: TestData.context["context"]!, key: "context")
     }
     
-    static var request: Request {
-        let request = Request()
+    static var request: SentryRequest {
+        let request = SentryRequest()
         request.url = "https://sentry.io"
         request.fragment = "fragment"
         request.bodySize = 10

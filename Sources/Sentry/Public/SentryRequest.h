@@ -3,7 +3,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_SWIFT_NAME(Request)
 @interface SentryRequest : NSObject <SentrySerializable>
 
 // TODO: data, env
