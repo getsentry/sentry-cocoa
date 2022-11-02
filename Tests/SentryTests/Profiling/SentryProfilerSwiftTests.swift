@@ -242,7 +242,11 @@ private extension SentryProfilerSwiftTests {
         let profile = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
 
         XCTAssertNotNil(profile["version"])
-        XCTAssertNotNil(profile["timestamp"] as? String)
+        if let timestampString = profile["timestamp"] as? String {
+            XCTAssertNotNil(NSDate.sentry_from(iso8601String: timestampString))
+        } else {
+            XCTFail("Expected a top-level timestamp")
+        }
 
         let device = profile["device"] as? [String: Any?]
         XCTAssertNotNil(device)
