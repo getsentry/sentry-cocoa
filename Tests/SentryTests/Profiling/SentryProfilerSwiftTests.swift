@@ -240,6 +240,9 @@ private extension SentryProfilerSwiftTests {
 
     func assertValidProfileData(data: Data, transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1, shouldTimeout: Bool = false) {
         let profile = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
+
+        XCTAssertNotNil(profile["version"])
+
         let device = profile["device"] as? [String: Any?]
         XCTAssertNotNil(device)
         XCTAssertEqual("Apple", device!["manufacturer"] as! String)
