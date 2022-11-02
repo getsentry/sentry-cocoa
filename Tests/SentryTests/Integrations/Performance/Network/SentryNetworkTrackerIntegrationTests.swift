@@ -248,7 +248,6 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertNotNil(sentryEvent)
         XCTAssertNotNil(sentryEvent!.request)
         
-        
         let sentryResponse = sentryEvent!.context?["response"]
 
         XCTAssertEqual(sentryResponse?["status_code"] as? NSNumber, 400)
