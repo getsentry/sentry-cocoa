@@ -1,8 +1,10 @@
 #import "SentryProfiler.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "NSDate+SentryExtras.h"
 #    import "SentryBacktrace.hpp"
 #    import "SentryClient+Private.h"
+#    import "SentryCurrentDate.h"
 #    import "SentryDebugImageProvider.h"
 #    import "SentryDebugMeta.h"
 #    import "SentryDefines.h"
@@ -356,9 +358,9 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
         const auto queueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
         sampledProfile[@"thread_metadata"] = threadMetadata;
         sampledProfile[@"queue_metadata"] = queueMetadata;
-        _profile[@"sampled_profile"] = sampledProfile;
+        _profile[@"profile"] = sampledProfile;
         _startTimestamp = getAbsoluteTime();
-        _startDate = [NSDate date];
+        _startDate = [SentryCurrentDate date];
 
         SENTRY_LOG_DEBUG(@"Starting profiler %@ at system time %llu.", self, _startTimestamp);
 
@@ -378,9 +380,6 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
                 NSMutableDictionary<NSString *, id> *metadata = threadMetadata[threadID];
                 if (metadata == nil) {
                     metadata = [NSMutableDictionary<NSString *, id> dictionary];
-                    if (backtrace.threadMetadata.threadID == mainThreadID) {
-                        metadata[@"is_main_thread"] = @YES;
-                    }
                     threadMetadata[threadID] = metadata;
                 }
                 if (!backtrace.threadMetadata.name.empty() && metadata[@"name"] == nil) {
@@ -427,7 +426,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
                 }
 
                 const auto sample = [NSMutableDictionary<NSString *, id> dictionary];
-                sample[@"relative_timestamp_ns"] =
+                sample[@"elapsed_since_start_ns"] =
                     [@(getDurationNs(strongSelf->_startTimestamp, backtrace.absoluteTimestamp))
                         stringValue];
                 sample[@"thread_id"] = threadID;
@@ -475,7 +474,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 
         _profiler->stopSampling();
         _endTimestamp = getAbsoluteTime();
-        _endDate = [NSDate date];
+        _endDate = [SentryCurrentDate date];
         SENTRY_LOG_DEBUG(@"Stopped profiler %@ at system time: %llu.", self, _endTimestamp);
     }
 }
@@ -486,6 +485,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     @synchronized(self) {
         profile = [_profile mutableCopy];
     }
+    profile[@"version"] = @"1";
     const auto debugImages = [NSMutableArray<NSDictionary<NSString *, id> *> new];
     const auto debugMeta = [_debugImageProvider getDebugImages];
     for (SentryDebugMeta *debugImage in debugMeta) {
@@ -522,6 +522,9 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     const auto profileDuration = getDurationNs(_startTimestamp, _endTimestamp);
     profile[@"duration_ns"] = [@(profileDuration) stringValue];
     profile[@"truncation_reason"] = profilerTruncationReasonName(_truncationReason);
+    profile[@"platform"] = _transactions.firstObject.platform;
+    profile[@"environment"] = _hub.scope.environmentString ?: _hub.getClient.options.environment ?: kSentryDefaultEnvironment;
+    profile[@"timestamp"] = [[SentryCurrentDate date] sentry_toIso8601String];
 
     const auto bundle = NSBundle.mainBundle;
     profile[@"release"] =
@@ -569,8 +572,8 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 #    endif // SENTRY_HAS_UIKIT
 
     // populate info from all transactions that occurred while profiler was running
-    profile[@"platform"] = _transactions.firstObject.platform;
     auto transactionsInfo = [NSMutableArray array];
+    NSString *mainThreadID = [profile[@"profile"][@"samples"] firstObject][@"thread_id"];
     for (SentryTransaction *transaction in _transactions) {
         const auto relativeStart =
             [NSString stringWithFormat:@"%llu",
@@ -585,12 +588,15 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
                           : (unsigned long long)(
                               [transaction.timestamp timeIntervalSinceDate:_startDate] * 1e9)];
         [transactionsInfo addObject:@{
-            @"environment" : _hub.scope.environmentString ?: _hub.getClient.options.environment ?: kSentryDefaultEnvironment,
             @"id" : transaction.eventId.sentryIdString,
             @"trace_id" : transaction.trace.context.traceId.sentryIdString,
             @"name" : transaction.transaction,
             @"relative_start_ns" : relativeStart,
-            @"relative_end_ns" : relativeEnd
+            @"relative_end_ns" : relativeEnd,
+            @"active_thread_id" :
+                mainThreadID // TODO: we are just using the main thread ID for all transactions to
+                             // fix a backend validation error, but this needs to be gathered from
+                             // transaction starts in their contexts and carried forward to here
         }];
     }
     profile[@"transactions"] = transactionsInfo;
