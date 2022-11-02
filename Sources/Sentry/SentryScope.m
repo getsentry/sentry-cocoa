@@ -133,7 +133,7 @@ SentryScope ()
         }
 
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer addBreadcrumb:crumb];
+            [observer addSerializedBreadcrumb:[crumb serialize]];
         }
     }
 }

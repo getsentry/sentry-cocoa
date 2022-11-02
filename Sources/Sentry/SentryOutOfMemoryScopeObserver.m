@@ -70,12 +70,10 @@ SentryOutOfMemoryScopeObserver ()
 
 // PRAGMA MARK: - SentryScopeObserver
 
-- (void)addBreadcrumb:(nonnull SentryBreadcrumb *)crumb
+- (void)addSerializedBreadcrumb:(NSDictionary *)crumb
 {
     NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:[crumb serialize]
-                                                       options:0
-                                                         error:&error];
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:crumb options:0 error:&error];
 
     if (error) {
         SENTRY_LOG_ERROR(@"Error serializing breadcrumb: %@", error);

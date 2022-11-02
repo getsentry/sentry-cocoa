@@ -85,10 +85,9 @@
     sentrycrash_scopesync_setLevel([json bytes]);
 }
 
-- (void)addBreadcrumb:(SentryBreadcrumb *)crumb
+- (void)addSerializedBreadcrumb:(NSDictionary *)crumb
 {
-    NSDictionary *serialized = [crumb serialize];
-    NSData *json = [self toJSONEncodedCString:serialized];
+    NSData *json = [self toJSONEncodedCString:crumb];
     if (json == nil) {
         return;
     }
