@@ -82,6 +82,7 @@ SentryOutOfMemoryScopeObserver ()
 
     if (self.breadcrumbCounter >= self.maxBreadcrumbs) {
         [self switchFileHandle];
+        self.breadcrumbCounter = 0;
     }
 }
 
