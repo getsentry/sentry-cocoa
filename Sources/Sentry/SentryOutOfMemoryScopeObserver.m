@@ -33,6 +33,8 @@ SentryOutOfMemoryScopeObserver ()
 
 - (void)deleteFile
 {
+    [self.fileHandle closeFile];
+
     if ([[NSFileManager defaultManager] fileExistsAtPath:self.fileManager.breadcrumbsFilePath]) {
         NSError *error;
         [[NSFileManager defaultManager] removeItemAtPath:self.fileManager.breadcrumbsFilePath
