@@ -486,6 +486,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     @synchronized(self) {
         profile = [_profile mutableCopy];
     }
+    profile[@"version"] = @"1";
     const auto debugImages = [NSMutableArray<NSDictionary<NSString *, id> *> new];
     const auto debugMeta = [_debugImageProvider getDebugImages];
     for (SentryDebugMeta *debugImage in debugMeta) {
