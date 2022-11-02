@@ -28,8 +28,10 @@ SentryFileManager ()
 @property (nonatomic, copy) NSString *lastInForegroundFilePath;
 @property (nonatomic, copy) NSString *previousAppStateFilePath;
 @property (nonatomic, copy) NSString *appStateFilePath;
-@property (nonatomic, copy) NSString *previousBreadcrumbsFilePath;
-@property (nonatomic, copy) NSString *breadcrumbsFilePath;
+@property (nonatomic, copy) NSString *previousBreadcrumbsFilePathOne;
+@property (nonatomic, copy) NSString *previousBreadcrumbsFilePathTwo;
+@property (nonatomic, copy) NSString *breadcrumbsFilePathOne;
+@property (nonatomic, copy) NSString *breadcrumbsFilePathTwo;
 @property (nonatomic, copy) NSString *timezoneOffsetFilePath;
 @property (nonatomic, assign) NSUInteger currentFileCounter;
 @property (nonatomic, assign) NSUInteger maxEnvelopes;
@@ -85,10 +87,14 @@ SentryFileManager ()
         self.previousAppStateFilePath =
             [self.sentryPath stringByAppendingPathComponent:@"previous.app.state"];
         self.appStateFilePath = [self.sentryPath stringByAppendingPathComponent:@"app.state"];
-        self.previousBreadcrumbsFilePath =
-            [self.sentryPath stringByAppendingPathComponent:@"previous.breadcrumbs.state"];
-        self.breadcrumbsFilePath =
-            [self.sentryPath stringByAppendingPathComponent:@"breadcrumbs.state"];
+        self.previousBreadcrumbsFilePathOne =
+            [self.sentryPath stringByAppendingPathComponent:@"previous.breadcrumbs.1.state"];
+        self.previousBreadcrumbsFilePathTwo =
+            [self.sentryPath stringByAppendingPathComponent:@"previous.breadcrumbs.2.state"];
+        self.breadcrumbsFilePathOne =
+            [self.sentryPath stringByAppendingPathComponent:@"breadcrumbs.1.state"];
+        self.breadcrumbsFilePathTwo =
+            [self.sentryPath stringByAppendingPathComponent:@"breadcrumbs.2.state"];
         self.timezoneOffsetFilePath =
             [self.sentryPath stringByAppendingPathComponent:@"timezone.offset"];
 
@@ -471,8 +477,11 @@ SentryFileManager ()
 
 - (void)moveBreadcrumbsToPreviousBreadcrumbs
 {
-    @synchronized(self.breadcrumbsFilePath) {
-        [self moveState:self.breadcrumbsFilePath toPreviousState:self.previousBreadcrumbsFilePath];
+    @synchronized(self.breadcrumbsFilePathOne) {
+        [self moveState:self.breadcrumbsFilePathOne
+            toPreviousState:self.previousBreadcrumbsFilePathOne];
+        [self moveState:self.breadcrumbsFilePathTwo
+            toPreviousState:self.previousBreadcrumbsFilePathTwo];
     }
 }
 

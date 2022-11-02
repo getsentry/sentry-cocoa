@@ -50,24 +50,37 @@ SentryOutOfMemoryTracker ()
 
 - (NSArray *)loadBreadcrumbs
 {
+    NSMutableString *combinedFilesContents = [[NSMutableString alloc] init];
+
     if ([[NSFileManager defaultManager]
-            fileExistsAtPath:self.fileManager.previousBreadcrumbsFilePath]) {
-        NSMutableArray *breadcrumbs = [NSMutableArray array];
+            fileExistsAtPath:self.fileManager.previousBreadcrumbsFilePathOne]) {
+        NSString *fileContents =
+            [NSString stringWithContentsOfFile:self.fileManager.previousBreadcrumbsFilePathOne
+                                      encoding:NSUTF8StringEncoding
+                                         error:nil];
+        [combinedFilesContents appendString:fileContents];
+    }
 
-        FILE *file = fopen([self.fileManager.previousBreadcrumbsFilePath UTF8String], "r");
+    if ([[NSFileManager defaultManager]
+            fileExistsAtPath:self.fileManager.previousBreadcrumbsFilePathTwo]) {
+        NSString *fileContents =
+            [NSString stringWithContentsOfFile:self.fileManager.previousBreadcrumbsFilePathTwo
+                                      encoding:NSUTF8StringEncoding
+                                         error:nil];
+        [combinedFilesContents appendString:fileContents];
+    }
 
-        char buffer[4096];
-        while (fgets(buffer, 4096, file) != NULL) {
-            NSString *result = [[NSString stringWithUTF8String:buffer]
-                stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-            if (result.length == 0) {
-                continue;
-            }
+    NSMutableArray *breadcrumbs = [NSMutableArray array];
 
-            NSData *line = [result dataUsingEncoding:NSUTF8StringEncoding];
+    if (combinedFilesContents.length > 0) {
+        NSArray *lines = [combinedFilesContents
+            componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+
+        for (NSString *line in lines) {
+            NSData *data = [line dataUsingEncoding:NSUTF8StringEncoding];
 
             NSError *error;
-            NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:line
+            NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data
                                                                  options:0
                                                                    error:&error];
 
@@ -77,12 +90,9 @@ SentryOutOfMemoryTracker ()
                 [breadcrumbs addObject:dict];
             }
         }
-
-        return breadcrumbs;
     }
 
-    SENTRY_LOG_ERROR(@"File not found: %@", self.fileManager.previousBreadcrumbsFilePath);
-    return [[NSArray alloc] init];
+    return breadcrumbs;
 }
 
 - (void)start
