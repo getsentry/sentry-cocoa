@@ -681,7 +681,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertFlushBlocksAndFinishesSuccessfully()
     }
     
-    func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() {
+    func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse_disabled() {
         CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
         
         givenCachedEvents()
