@@ -242,6 +242,7 @@ private extension SentryProfilerSwiftTests {
         let profile = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
 
         XCTAssertNotNil(profile["version"])
+        XCTAssertNotNil(profile["timestamp"] as? String)
 
         let device = profile["device"] as? [String: Any?]
         XCTAssertNotNil(device)
@@ -280,7 +281,7 @@ private extension SentryProfilerSwiftTests {
         XCTAssertGreaterThan((firstImage["image_size"] as! Int), 0)
         XCTAssertEqual(firstImage["type"] as! String, "macho")
 
-        let sampledProfile = profile["sampled_profile"] as! [String: Any]
+        let sampledProfile = profile["profile"] as! [String: Any]
         let threadMetadata = sampledProfile["thread_metadata"] as! [String: [String: Any]]
         let queueMetadata = sampledProfile["queue_metadata"] as! [String: Any]
         XCTAssertFalse(threadMetadata.isEmpty)
