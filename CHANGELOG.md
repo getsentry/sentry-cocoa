@@ -11,6 +11,7 @@
 
 - Stop profiler when app moves to background (#2331)
 - Clean up old envelopes (#2322)
+- SentryCrash writing nan for invalid number (#2348)
 
 ## 7.29.0
 
