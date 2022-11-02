@@ -378,9 +378,6 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
                 NSMutableDictionary<NSString *, id> *metadata = threadMetadata[threadID];
                 if (metadata == nil) {
                     metadata = [NSMutableDictionary<NSString *, id> dictionary];
-                    if (backtrace.threadMetadata.threadID == mainThreadID) {
-                        metadata[@"is_main_thread"] = @YES;
-                    }
                     threadMetadata[threadID] = metadata;
                 }
                 if (!backtrace.threadMetadata.name.empty() && metadata[@"name"] == nil) {
@@ -427,7 +424,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
                 }
 
                 const auto sample = [NSMutableDictionary<NSString *, id> dictionary];
-                sample[@"relative_timestamp_ns"] =
+                sample[@"elapsed_since_start_ns"] =
                     [@(getDurationNs(strongSelf->_startTimestamp, backtrace.absoluteTimestamp))
                         stringValue];
                 sample[@"thread_id"] = threadID;
@@ -571,7 +568,9 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 
     // populate info from all transactions that occurred while profiler was running
     profile[@"platform"] = _transactions.firstObject.platform;
+    profile[@"environment"] = _hub.scope.environmentString ?: _hub.getClient.options.environment ?: kSentryDefaultEnvironment;
     auto transactionsInfo = [NSMutableArray array];
+    NSString *mainThreadID = [profile[@"sampled_profile"][@"samples"] firstObject][@"thread_id"];
     for (SentryTransaction *transaction in _transactions) {
         const auto relativeStart =
             [NSString stringWithFormat:@"%llu",
@@ -586,12 +585,15 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
                           : (unsigned long long)(
                               [transaction.timestamp timeIntervalSinceDate:_startDate] * 1e9)];
         [transactionsInfo addObject:@{
-            @"environment" : _hub.scope.environmentString ?: _hub.getClient.options.environment ?: kSentryDefaultEnvironment,
             @"id" : transaction.eventId.sentryIdString,
             @"trace_id" : transaction.trace.context.traceId.sentryIdString,
             @"name" : transaction.transaction,
             @"relative_start_ns" : relativeStart,
-            @"relative_end_ns" : relativeEnd
+            @"relative_end_ns" : relativeEnd,
+            @"active_thread_id" :
+                mainThreadID // TODO: we are just using the main thread ID for all transactions to
+                             // fix a backend validation error, but this needs to be gathered from
+                             // transaction starts in their contexts and carried forward to here
         }];
     }
     profile[@"transactions"] = transactionsInfo;
