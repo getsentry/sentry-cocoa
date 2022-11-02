@@ -35,4 +35,13 @@ Pod::Spec.new do |s|
         "Sources/Sentry/Public/*.h"
       
   end
+  
+  s.subspec 'HybridSDK' do |sp|
+      sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
+        "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}"
+        
+      sp.public_header_files =
+        "Sources/Sentry/Public/*.h"
+  end
+  
 end
