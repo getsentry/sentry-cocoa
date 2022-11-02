@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 SentryEvent ()
 
 @property (nonatomic) BOOL isCrashEvent;
+@property (nonatomic, strong) NSArray *serializedBreadcrumbs;
 
 @end
 
