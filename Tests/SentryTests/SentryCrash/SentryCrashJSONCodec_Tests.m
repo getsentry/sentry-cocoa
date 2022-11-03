@@ -25,6 +25,7 @@
 //
 
 #import <XCTest/XCTest.h>
+#import <math.h>
 
 #import "FileBasedTestCase.h"
 #import "SentryCrashJSONCodec.h"
@@ -798,6 +799,24 @@ toString(NSData *data)
         [[result objectAtIndex:0] floatValue] == [[original objectAtIndex:0] floatValue], @"");
 }
 
+- (void)testSerializeDeserializeNanFloat
+{
+    NSError *error = (NSError *)self;
+    NSString *expected = @"[null]";
+    float nanValue = nanf("");
+    id original = [NSArray arrayWithObjects:[NSNumber numberWithFloat:nanValue], nil];
+    NSString *jsonString = toString([SentryCrashJSONCodec encode:original
+                                                         options:SentryCrashJSONEncodeOptionSorted
+                                                           error:&error]);
+    XCTAssertNotNil(jsonString, @"");
+    XCTAssertNil(error, @"");
+    XCTAssertEqualObjects(jsonString, expected, @"");
+    id result = [SentryCrashJSONCodec decode:toData(jsonString) options:0 error:&error];
+    XCTAssertNotNil(result, @"");
+    XCTAssertNil(error, @"");
+    XCTAssertTrue([[result objectAtIndex:0] isKindOfClass:[NSNull class]]);
+}
+
 - (void)testSerializeDeserializeDouble
 {
     NSError *error = (NSError *)self;
@@ -814,6 +833,25 @@ toString(NSData *data)
     XCTAssertNil(error, @"");
     XCTAssertTrue(
         [[result objectAtIndex:0] floatValue] == [[original objectAtIndex:0] floatValue], @"");
+}
+
+- (void)testSerializeDeserializeNANDouble
+{
+    NSError *error = (NSError *)self;
+    NSString *expected = @"[null]";
+    double nanValue = nan("");
+    id original = [NSArray arrayWithObjects:[NSNumber numberWithDouble:nanValue], nil];
+
+    NSString *jsonString = toString([SentryCrashJSONCodec encode:original
+                                                         options:SentryCrashJSONEncodeOptionSorted
+                                                           error:&error]);
+    XCTAssertNotNil(jsonString, @"");
+    XCTAssertNil(error, @"");
+    XCTAssertEqualObjects(jsonString, expected, @"");
+    id result = [SentryCrashJSONCodec decode:toData(jsonString) options:0 error:&error];
+    XCTAssertNotNil(result, @"");
+    XCTAssertNil(error, @"");
+    XCTAssertTrue([[result objectAtIndex:0] isKindOfClass:[NSNull class]]);
 }
 
 - (void)testSerializeDeserializeChar
