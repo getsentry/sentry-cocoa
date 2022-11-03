@@ -14,6 +14,7 @@ SENTRY_NO_INIT
  */
 @property (nonatomic, readonly) NSString *name;
 @property (nonatomic, readonly) SentryTransactionNameSource nameSource;
+@property (nonatomic, copy, readonly) SentryThread *threadInfo;
 
 /**
  * Parent sampled

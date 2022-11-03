@@ -1,4 +1,5 @@
 #import "SentryTransactionContext.h"
+#include "SentryThreadHandle.hpp"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -19,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
         _name = [NSString stringWithString:name];
         _nameSource = source;
         self.parentSampled = false;
+        const auto threadInfo = ThreadHandle::current()->tid();
+        NSLog(@"%@", threadInfo);
     }
     return self;
 }
