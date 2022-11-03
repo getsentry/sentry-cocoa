@@ -114,6 +114,13 @@ Related links:
 
 - https://github.com/getsentry/sentry-cocoa/pull/1751
 
+### Custom SentryHttpStatusCodeRange type instead of NSRange
+
+Date: October 24th 2022
+Contributors: @marandaneto, @brustolin and @philipphofmann
+
+We decided not to use the `NSRange` type for the `failedRequestStatusCodes` property of the `SentryNetworkTracker` class because it's not compatible with the specification, which requires the type to be a range of `from` -> `to` integers. The `NSRange` type is a range of `location` -> `length` integers. We decided to use a custom type instead of `NSRange` to avoid confusion. The custom type is called `SentryHttpStatusCodeRange`.
+
 ### Manually installing iOS 12 simulators
 
 Date: October 21st 2022

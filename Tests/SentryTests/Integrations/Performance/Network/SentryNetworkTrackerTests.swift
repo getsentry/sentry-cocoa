@@ -15,18 +15,23 @@ class SentryNetworkTrackerTests: XCTestCase {
         let options: Options
         let scope: Scope
         let nsUrlRequest = NSURLRequest(url: SentryNetworkTrackerTests.testURL)
+        let client: TestClient!
+        let hub: TestHub!
         
         init() {
             options = Options()
             options.dsn = SentryNetworkTrackerTests.dsnAsString
             sentryTask = URLSessionDataTaskMock(request: URLRequest(url: URL(string: options.dsn!)!))
             scope = Scope()
+            client = TestClient(options: options)
+            hub = TestHub(client: client, andScope: scope)
         }
         
         func getSut() -> SentryNetworkTracker {
             let result = SentryNetworkTracker.sharedInstance
             result.enableNetworkTracking()
             result.enableNetworkBreadcrumbs()
+            result.enableCaptureFailedRequests()
             return result
         }
     }
@@ -36,7 +41,8 @@ class SentryNetworkTrackerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        SentrySDK.setCurrentHub(TestHub(client: TestClient(options: fixture.options), andScope: fixture.scope))
+        
+        SentrySDK.setCurrentHub(fixture.hub)
         CurrentDate.setCurrentDateProvider(fixture.dateProvider)
     }
     
@@ -565,40 +571,155 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNil(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"])
     }
 
-    func testAddHeadersForRequestWithURL() {
+    func testIsTargetMatch() {
         // Default: all urls
+        let defaultRegex = try! NSRegularExpression(pattern: ".*")
         let sut = fixture.getSut()
-        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://localhost")!))
-        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/api/projects")!))
+        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://localhost")!, withTargets: [ defaultRegex ]))
+        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://www.example.com/api/projects")!, withTargets: [ defaultRegex ]))
 
         // Strings: hostname
-        fixture.options.tracePropagationTargets = ["localhost"]
-        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://localhost")!))
-        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://localhost-but-not-really")!)) // works because of `contains`
-        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/api/projects")!))
+        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://localhost")!, withTargets: ["localhost"]))
+        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://localhost-but-not-really")!, withTargets: ["localhost"])) // works because of `contains`
+        XCTAssertFalse(sut.isTargetMatch(URL(string: "http://www.example.com/api/projects")!, withTargets: ["localhost"]))
 
-        fixture.options.tracePropagationTargets = ["www.example.com"]
-        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://localhost")!))
-        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/api/projects")!))
-        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://api.example.com/api/projects")!))
-        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://www.example.com.evil.com/api/projects")!)) // works because of `contains`
+        XCTAssertFalse(sut.isTargetMatch(URL(string: "http://localhost")!, withTargets: ["www.example.com"]))
+        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://www.example.com/api/projects")!, withTargets: ["www.example.com"]))
+        XCTAssertFalse(sut.isTargetMatch(URL(string: "http://api.example.com/api/projects")!, withTargets: ["www.example.com"]))
+        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://www.example.com.evil.com/api/projects")!, withTargets: ["www.example.com"])) // works because of `contains`
 
         // Test regex
         let regex = try! NSRegularExpression(pattern: "http://www.example.com/api/.*")
-        fixture.options.tracePropagationTargets = [regex]
-        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://localhost")!))
-        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/url")!))
-        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/api/projects")!))
+        XCTAssertFalse(sut.isTargetMatch(URL(string: "http://localhost")!, withTargets: [regex]))
+        XCTAssertFalse(sut.isTargetMatch(URL(string: "http://www.example.com/url")!, withTargets: [regex]))
+        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://www.example.com/api/projects")!, withTargets: [regex]))
 
         // Regex and string
-        fixture.options.tracePropagationTargets = ["localhost", regex]
-        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://localhost")!))
-        XCTAssertFalse(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/url")!))
-        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://www.example.com/api/projects")!))
+        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://localhost")!, withTargets: ["localhost", regex]))
+        XCTAssertFalse(sut.isTargetMatch(URL(string: "http://www.example.com/url")!, withTargets: ["localhost", regex]))
+        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://www.example.com/api/projects")!, withTargets: ["localhost", regex]))
 
         // String and integer (which isn't valid, make sure it doesn't crash)
-        fixture.options.tracePropagationTargets = ["localhost", 123]
-        XCTAssertTrue(sut.addHeadersForRequest(with: URL(string: "http://localhost")!))
+        XCTAssertTrue(sut.isTargetMatch(URL(string: "http://localhost")!, withTargets: ["localhost", 123]))
+    }
+    
+    func testCaptureHTTPClientErrorRequest() {
+        let sut = fixture.getSut()
+        
+        let url = URL(string: "https://www.domain.com/api?query=myQuery#myFragment")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        let headers = ["test": "test", "Cookie": "myCookie", "Set-Cookie": "myCookie"]
+        request.allHTTPHeaderFields = headers
+        
+        let task = URLSessionDataTaskMock(request: request)
+        task.setResponse(createResponse(code: 500))
+        
+        sut.urlSessionTask(task, setState: .completed)
+        
+        fixture.hub.group.wait()
+        
+        guard let envelope = self.fixture.hub.capturedEventsWithScopes.first else {
+            XCTFail("Expected to capture 1 event")
+            return
+        }
+        let sentryRequest = envelope.event.request!
+        
+        XCTAssertEqual(sentryRequest.url, "https://www.domain.com/api")
+        XCTAssertEqual(sentryRequest.method, "GET")
+        XCTAssertEqual(sentryRequest.bodySize, 652)
+        XCTAssertEqual(sentryRequest.cookies, "myCookie")
+        XCTAssertEqual(sentryRequest.headers, headers)
+        XCTAssertEqual(sentryRequest.fragment, "myFragment")
+        XCTAssertEqual(sentryRequest.queryString, "query=myQuery")
+    }
+    
+    func testCaptureHTTPClientErrorResponse() {
+        let sut = fixture.getSut()
+        let task = createDataTask()
+
+        let headers = ["test": "test", "Cookie": "myCookie", "Set-Cookie": "myCookie"]
+        let response = HTTPURLResponse(
+            url: SentryNetworkTrackerTests.testURL,
+            statusCode: 500,
+            httpVersion: "1.1",
+            headerFields: headers)!
+        task.setResponse(response)
+        
+        sut.urlSessionTask(task, setState: .completed)
+        
+        fixture.hub.group.wait()
+        
+        guard let envelope = self.fixture.hub.capturedEventsWithScopes.first else {
+            XCTFail("Expected to capture 1 event")
+            return
+        }
+        let sentryResponse = envelope.event.context?["response"]
+
+        XCTAssertEqual(sentryResponse?["status_code"] as? NSNumber, 500)
+        XCTAssertEqual(sentryResponse?["headers"] as? [String: String], headers)
+        XCTAssertEqual(sentryResponse?["cookies"] as? String, "myCookie")
+        XCTAssertEqual(sentryResponse?["body_size"] as? NSNumber, 256)
+    }
+    
+    func testCaptureHTTPClientErrorException() {
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        task.setResponse(createResponse(code: 500))
+        
+        sut.urlSessionTask(task, setState: .completed)
+        
+        fixture.hub.group.wait()
+        
+        guard let envelope = self.fixture.hub.capturedEventsWithScopes.first else {
+            XCTFail("Expected to capture 1 event")
+            return
+        }
+        XCTAssertEqual(envelope.event.exceptions!.count, 1)
+        let exception = envelope.event.exceptions!.first!
+
+        XCTAssertEqual(exception.type, "HTTPClientError")
+        XCTAssertEqual(exception.value, "HTTP Client Error with status code: 500")
+        
+        let stackTrace = exception.stacktrace!
+        XCTAssertTrue(stackTrace.snapshot!.boolValue)
+        XCTAssertNotNil(stackTrace.frames)
+    }
+    
+    func testDoesNotCaptureHTTPClientErrorIfDisabled() {
+        let sut = fixture.getSut()
+        sut.disable()
+        sut.enableNetworkTracking()
+        sut.enableNetworkBreadcrumbs()
+
+        let task = createDataTask()
+        task.setResponse(createResponse(code: 500))
+        
+        sut.urlSessionTask(task, setState: .completed)
+
+        XCTAssertNil(fixture.hub.capturedEventsWithScopes.first)
+    }
+    
+    func testDoesNotCaptureHTTPClientErrorIfNotStatusCodeRange() {
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        task.setResponse(createResponse(code: 200))
+        
+        sut.urlSessionTask(task, setState: .completed)
+
+        XCTAssertNil(fixture.hub.capturedEventsWithScopes.first)
+    }
+    
+    func testDoesNotCaptureHTTPClientErrorIfNotTarget() {
+        fixture.options.failedRequestTargets = ["www.example.com"]
+
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        task.setResponse(createResponse(code: 500))
+        
+        sut.urlSessionTask(task, setState: .completed)
+
+        XCTAssertNil(fixture.hub.capturedEventsWithScopes.first)
     }
     
     func setTaskState(_ task: URLSessionTaskMock, state: URLSessionTask.State) {

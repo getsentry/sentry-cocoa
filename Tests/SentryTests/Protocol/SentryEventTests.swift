@@ -41,6 +41,7 @@ class SentryEventTests: XCTestCase {
         XCTAssertNotNil(actual["user"] as? [String: Any])
         XCTAssertEqual(TestData.event.modules, actual["modules"] as? [String: String])
         XCTAssertNotNil(actual["stacktrace"] as? [String: Any])
+        XCTAssertNotNil(actual["request"] as? [String: Any])
         
         let crumbs = actual["breadcrumbs"] as? [[String: Any]]
         XCTAssertNotNil(crumbs)
