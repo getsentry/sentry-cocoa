@@ -33,8 +33,10 @@ NS_ASSUME_NONNULL_BEGIN
         data = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:error];
 #if defined(DEBUG) || defined(TEST) || defined(TESTCI)
     } @catch (NSException *exception) {
-        SENTRY_HANDLE_ERROR(NSErrorFromSentryErrorWithException(
-            kSentryErrorJsonConversionError, @"Event cannot be converted to JSON", exception));
+        if (error) {
+            SENTRY_HANDLE_ERROR(NSErrorFromSentryErrorWithException(
+                kSentryErrorJsonConversionError, @"Event cannot be converted to JSON", exception));
+        }
     }
 #else
     } else if (error) {
