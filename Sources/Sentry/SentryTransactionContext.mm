@@ -23,8 +23,7 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
         _name = [NSString stringWithString:name];
         _nameSource = source;
         self.parentSampled = kSentryDefaultSamplingDecision;
-        const auto threadID = sentry::profiling::ThreadHandle::current()->tid();
-        _threadInfo = [[SentryThread alloc] initWithThreadId:@(threadID)];
+        [self addThreadInfo];
     }
     return self;
 }
@@ -48,6 +47,7 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
         _name = [NSString stringWithString:name];
         _nameSource = source;
         self.parentSampled = kSentryDefaultSamplingDecision;
+        [self addThreadInfo];
     }
     return self;
 }
@@ -84,8 +84,17 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
         _name = [NSString stringWithString:name];
         _nameSource = source;
         self.parentSampled = parentSampled;
+        [self addThreadInfo];
     }
     return self;
+}
+
+- (void)addThreadInfo
+{
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    const auto threadID = sentry::profiling::ThreadHandle::current()->tid();
+    _threadInfo = [[SentryThread alloc] initWithThreadId:@(threadID)];
+#endif
 }
 
 @end
