@@ -22,6 +22,7 @@
 #    import "SentryScreenFrames.h"
 #    import "SentrySerialization.h"
 #    import "SentrySpanId.h"
+#    import "SentryThread.h"
 #    import "SentryTime.h"
 #    import "SentryTransaction.h"
 #    import "SentryTransactionContext.h"
@@ -573,7 +574,6 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 
     // populate info from all transactions that occurred while profiler was running
     auto transactionsInfo = [NSMutableArray array];
-    NSString *mainThreadID = [profile[@"profile"][@"samples"] firstObject][@"thread_id"];
     for (SentryTransaction *transaction in _transactions) {
         const auto relativeStart =
             [NSString stringWithFormat:@"%llu",
@@ -593,10 +593,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
             @"name" : transaction.transaction,
             @"relative_start_ns" : relativeStart,
             @"relative_end_ns" : relativeEnd,
-            @"active_thread_id" :
-                mainThreadID // TODO: we are just using the main thread ID for all transactions to
-                             // fix a backend validation error, but this needs to be gathered from
-                             // transaction starts in their contexts and carried forward to here
+            @"active_thread_id" : transaction.trace.transactionContext.threadInfo.threadId
         }];
     }
     profile[@"transactions"] = transactionsInfo;

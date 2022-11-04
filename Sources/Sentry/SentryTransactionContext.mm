@@ -1,7 +1,10 @@
 #import "SentryTransactionContext.h"
+#import "SentryThread.h"
 #include "SentryThreadHandle.hpp"
 
 NS_ASSUME_NONNULL_BEGIN
+
+static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecided;
 
 @implementation SentryTransactionContext
 
@@ -19,9 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
     if (self = [super initWithOperation:operation]) {
         _name = [NSString stringWithString:name];
         _nameSource = source;
-        self.parentSampled = false;
-        const auto threadInfo = ThreadHandle::current()->tid();
-        NSLog(@"%@", threadInfo);
+        self.parentSampled = kSentryDefaultSamplingDecision;
+        const auto threadID = sentry::profiling::ThreadHandle::current()->tid();
+        _threadInfo = [[SentryThread alloc] initWithThreadId:@(threadID)];
     }
     return self;
 }
@@ -44,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (self = [super initWithOperation:operation sampled:sampled]) {
         _name = [NSString stringWithString:name];
         _nameSource = source;
-        self.parentSampled = false;
+        self.parentSampled = kSentryDefaultSamplingDecision;
     }
     return self;
 }
@@ -77,7 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
                                spanId:spanId
                              parentId:parentSpanId
                             operation:operation
-                              sampled:false]) {
+                              sampled:kSentryDefaultSamplingDecision]) {
         _name = [NSString stringWithString:name];
         _nameSource = source;
         self.parentSampled = parentSampled;
