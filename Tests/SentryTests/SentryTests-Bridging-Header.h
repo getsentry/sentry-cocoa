@@ -157,7 +157,6 @@
 #import "SentryUIApplication.h"
 #import "SentryUIDeviceWrapper.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
-#import "SentryUIViewControllerSanitizer.h"
 #import "SentryUIViewControllerSwizzling+Test.h"
 #import "SentryUIViewControllerSwizzling.h"
 #import "SentryUserFeedback.h"

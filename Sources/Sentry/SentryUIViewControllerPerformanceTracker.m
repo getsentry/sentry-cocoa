@@ -6,7 +6,7 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope.h"
 #import "SentrySpanId.h"
-#import "SentryUIViewControllerSanitizer.h"
+#import "SentrySwift.h"
 #import <SentryInAppLogic.h>
 #import <SentrySpanOperations.h>
 #import <objc/runtime.h>
@@ -89,7 +89,7 @@ SentryUIViewControllerPerformanceTracker ()
     // If the user manually calls loadView outside the lifecycle we don't start a new transaction
     // and override the previous id stored.
     if (spanId == nil) {
-        NSString *name = [SentryUIViewControllerSanitizer sanitizeViewControllerName:controller];
+        NSString *name = [SwiftDescriptor getObjectClassName:controller];
         spanId = [self.tracker startSpanWithName:name
                                       nameSource:kSentryTransactionNameSourceComponent
                                        operation:SentrySpanOperationUILoad];

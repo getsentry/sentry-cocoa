@@ -60,19 +60,17 @@ jobs:
       fail-fast: false
       matrix:
         # Can't run tests on watchOS because XCTest is not available
-        # We can't use Xcode 10.3 because our tests contain a reference to MacCatalyst,
-        # which is only available since iOS 13 / Xcode 11.
         # We can't use Xcode 11.7 as we use XCTestObservation. When building with Xcode 11.7
         # we get the error 'XCTest/XCTest.h' not found. Setting ENABLE_TESTING_SEARCH_PATH=YES
         # doesn't work.
         include:
-          # Test on iOS 12.4
-          - runs-on: macos-10.15
+          # iOS 12.4
+          - runs-on: macos-11
             platform: 'iOS'
-            xcode: '12.4'
+            xcode: '13.2.1'
             test-destination-os: '12.4'
 
-          # Test on iOS 13.7
+          # iOS 13.7
           - runs-on: macos-11
             platform: 'iOS'
             xcode: '13.2.1'
@@ -116,7 +114,7 @@ jobs:
             xcode: '13.4.1'
             test-destination-os: 'latest'
 
-          # tvOS 4
+          # tvOS 14
           - runs-on: macos-11
             platform: 'tvOS'
             xcode: '12.5.1'
@@ -139,16 +137,15 @@ jobs:
 
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
-      # Only Xcode 10.3 has an iOS 12.4 simulator. As we have a reference to MacCatalyst in our unit tests
-      # we can't run the tests with Xcode 10.3. Therefore we use a workaround with a symlink pointed out in:
-      # https://github.com/actions/virtual-environments/issues/551#issuecomment-637344435
-      - name: Prepare iOS 12.4 simulator
+      # GH action images don't have an iOS 12.4 simulator. Therefore we have to download and install the simulator manually.
+      - name: Install iOS 12.4 simulator
         if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '12.4'}}
         run: |
-          sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
-          sudo ln -s /Applications/Xcode_10.3.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 12.4.simruntime
+          gem install xcode-install
+          xcversion simulators --install='iOS 12.4'
           xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-12-4"
 
+      # Workaround with a symlink pointed out in: https://github.com/actions/virtual-environments/issues/551#issuecomment-637344435
       - name: Prepare iOS 13.7 simulator
         if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '13.7'}}
         run: |
@@ -269,7 +266,7 @@ jobs:
   # macos-11 doesn't have a simulator for iOS 12
   ui-tests-swift-ios-12:
     name: UI Tests on iOS 12 Simulator
-    runs-on: macos-10.15
+    runs-on: macos-11
     strategy:
       matrix:
         target: ['ios_swift', 'ios_objc', 'tvos_swift']
@@ -277,9 +274,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      # GH action images don't have an iOS 12.4 simulator. Therefore we have to download and install the simulator manually.
+      - name: Install iOS 12.4 simulator
+        run: |
+          gem install xcode-install
+          xcversion simulators --install='iOS 12.4'
+          xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-12-4"
+
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} device:"$iPhone 8 (12.4)" address_sanitizer:false && break ; done
+        run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} device:"iPhone 8 (12.4)" address_sanitizer:false && break ; done
         shell: sh
 
   ui-tests-address-sanitizer:
