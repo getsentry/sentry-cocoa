@@ -16,7 +16,7 @@ struct ContentView: View {
     
     var captureUserFeedbackAction: () -> Void = {
         let error = NSError(domain: "UserFeedbackErrorDomain", code: 0, userInfo: [NSLocalizedDescriptionKey: "This never happens."])
-
+        
         let eventId = SentrySDK.capture(error: error) { scope in
             scope.setLevel(.fatal)
         }
@@ -48,25 +48,25 @@ struct ContentView: View {
             transaction.finish()
         })
     }
-
+    
     func asyncCrash1() {
         DispatchQueue.main.async {
             self.asyncCrash2()
         }
     }
-
+    
     func asyncCrash2() {
         DispatchQueue.main.async {
             SentrySDK.crash()
         }
     }
-
+    
     var oomCrashAction: () -> Void = {
         DispatchQueue.main.async {
             let megaByte = 1_024 * 1_024
             let memoryPageSize = NSPageSize()
             let memoryPages = megaByte / memoryPageSize
-
+            
             while true {
                 // Allocate one MB and set one element of each memory page to something.
                 let ptr = UnsafeMutablePointer<Int8>.allocate(capacity: megaByte)
@@ -76,11 +76,40 @@ struct ContentView: View {
             }
         }
     }
-
+    
+    func getCurrentTracer() -> SentryTracer? {
+        return SentrySDK.span as? SentryTracer
+    }
+    
+    func getCurrentSpan() -> Span? {
+        let tracker = SentryPerformanceTracker.shared
+        guard let currentSpanId = tracker.activeSpanId() else {
+            return nil
+        }
+        
+        let span = tracker.getSpan(currentSpanId)
+        
+        return span
+    }
+    
     var body: some View {
         SentryPerformanceView("Content View Body") {
             NavigationView {
                 VStack(alignment: HorizontalAlignment.center, spacing: 16) {
+                    Text(getCurrentTracer()?.transactionContext.name ?? "NO SPAN")
+                        .accessibilityIdentifier("TRANSACTION_NAME")
+                    Text(getCurrentTracer()?.transactionContext.spanId.sentrySpanIdString ?? "NO ID")
+                        .accessibilityIdentifier("TRANSACTION_ID")
+                    
+                    SentryPerformanceView("Child Span") {
+                        VStack {
+                            Text(getCurrentSpan()?.context.spanDescription ?? "NO SPAN")
+                                .accessibilityIdentifier("CHILD_NAME")
+                            Text(getCurrentSpan()?.context.parentSpanId?.sentrySpanIdString ?? "NO SPAN")
+                                .accessibilityIdentifier("CHILD_PARENT_SPANID")
+                        }
+                    }
+                    
                     Button(action: addBreadcrumbAction) {
                         Text("Add Breadcrumb")
                     }
@@ -105,21 +134,21 @@ struct ContentView: View {
                         Text("Capture Transaction")
                     }
                     
-                    Button(action: {
-                        SentrySDK.crash()
-                    }) {
-                        Text("Crash")
-                    }
-                    
-                    Button(action: {
-                        DispatchQueue.main.async {
-                            self.asyncCrash1()
-                        }
-                    }) {
-                        Text("Async Crash")
-                    }
-                    
                     VStack(spacing: 16) {
+                        Button(action: {
+                            SentrySDK.crash()
+                        }) {
+                            Text("Crash")
+                        }
+                        
+                        Button(action: {
+                            DispatchQueue.main.async {
+                                self.asyncCrash1()
+                            }
+                        }) {
+                            Text("Async Crash")
+                        }
+                        
                         Button(action: oomCrashAction) {
                             Text("OOM Crash")
                         }
@@ -140,8 +169,8 @@ struct ContentView: View {
 
 struct SecondView: View {
     var body: some View {
-            Text("This is the detail view 1")
-        }
+        Text("This is the detail view 1")
+    }
 }
 
 struct ContentView_Previews: PreviewProvider {
