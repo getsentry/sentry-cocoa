@@ -5,7 +5,6 @@
 #import "SentryClient.h"
 #import "SentryCurrentDate.h"
 #import "SentryDebugMeta.h"
-#import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryId.h"
 #import "SentryLevelMapper.h"
