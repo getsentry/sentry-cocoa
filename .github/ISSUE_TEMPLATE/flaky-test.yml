@@ -1,0 +1,35 @@
+name: Flaky Test
+description: For reporting a flaky test.
+labels: ["Platform: Cocoa", "Type: Flaky Test"]
+body:
+  - type: input
+    id: GitHubActionRunLink
+    attributes:
+      label: GitHub action Run Link
+      description: The link to the failing GitHub action run
+    validations:
+      required: true
+
+  - type: input
+    id: DisablePRLink
+    attributes:
+      label: Disabling PR
+      description: The link to PR disabling the flaky test
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Please add further details as log output here.
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |-
+        ## Thanks 🙏
+        Check our [triage docs](https://open.sentry.io/triage/) for what to expect next.
+    validations:
+      required: false

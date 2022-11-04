@@ -25,7 +25,12 @@
         [SentryNetworkTracker.sharedInstance enableNetworkBreadcrumbs];
     }
 
-    if (shouldEnableNetworkTracking || options.enableNetworkBreadcrumbs) {
+    if (options.enableCaptureFailedRequests) {
+        [SentryNetworkTracker.sharedInstance enableCaptureFailedRequests];
+    }
+
+    if (shouldEnableNetworkTracking || options.enableNetworkBreadcrumbs
+        || options.enableCaptureFailedRequests) {
         [SentryNetworkTrackingIntegration swizzleURLSessionTask];
         return YES;
     } else {

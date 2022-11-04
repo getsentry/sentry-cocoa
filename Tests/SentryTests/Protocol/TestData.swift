@@ -50,6 +50,7 @@ class TestData {
         event.transaction = "transaction"
         event.type = "type"
         event.user = user
+        event.request = request
         
         return event
     }
@@ -131,6 +132,7 @@ class TestData {
     
     static var stacktrace: SentryStacktrace {
         let stacktrace = SentryStacktrace(frames: [frame], registers: ["register": "one"])
+        stacktrace.snapshot = true
         return stacktrace
     }
     
@@ -217,6 +219,19 @@ class TestData {
     
     static func setContext(_ scope: Scope) {
         scope.setContext(value: TestData.context["context"]!, key: "context")
+    }
+    
+    static var request: SentryRequest {
+        let request = SentryRequest()
+        request.url = "https://sentry.io"
+        request.fragment = "fragment"
+        request.bodySize = 10
+        request.queryString = "query"
+        request.cookies = "cookies"
+        request.method = "GET"
+        request.headers = ["header": "value"]
+        
+        return request
     }
     
     static func getAppStartMeasurement(type: SentryAppStartType, appStartTimestamp: Date = TestData.timestamp) -> SentryAppStartMeasurement {

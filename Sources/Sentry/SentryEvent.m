@@ -10,6 +10,7 @@
 #import "SentryLevelMapper.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
+#import "SentryRequest.h"
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
 #import "SentryUser.h"
@@ -156,6 +157,10 @@ SentryEvent ()
             [serializedData setValue:@(self.timestamp.timeIntervalSince1970)
                               forKey:@"start_timestamp"];
         }
+    }
+
+    if (nil != self.request) {
+        [serializedData setValue:[self.request serialize] forKey:@"request"];
     }
 }
 

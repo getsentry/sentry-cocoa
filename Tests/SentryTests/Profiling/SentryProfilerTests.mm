@@ -38,11 +38,11 @@
     XCTAssertNotNil([[SentryProfiler alloc] init]);
 }
 
-- (void)testProfilerCannotBeInitializedOffMainThread
+- (void)testProfilerCanBeInitializedOffMainThread
 {
     const auto expectation = [self expectationWithDescription:@"background initializing profiler"];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul), ^{
-        XCTAssertNil([[SentryProfiler alloc] init]);
+        XCTAssertNotNil([[SentryProfiler alloc] init]);
         [expectation fulfill];
     });
     [self waitForExpectationsWithTimeout:1.0

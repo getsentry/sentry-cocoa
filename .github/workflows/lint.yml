@@ -37,8 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh
-      - name: Run analyze
-        run: xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer | xcpretty -t && [[ -z `find analyzer -name "*.html"` ]]
+      - run: make analyze
 
   validate-podspec:
     name: Validate Podspec
