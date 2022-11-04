@@ -244,7 +244,7 @@ jobs:
   ui-tests:
     name: UI Tests for ${{matrix.target}} on Simulators
     runs-on: macos-12
-    strategy:
+    strategy: 
       matrix:
         target: ['ios_swift', 'ios_objc', 'tvos_swift']
 

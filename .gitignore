@@ -77,3 +77,6 @@ Package.resolved
 
 # Visual Studio Code
 .vscode/
+
+Cartfile.resolved
+*.log

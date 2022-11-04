@@ -44,8 +44,9 @@ run-test-server:
 	cd ./test-server && swift run &
 .PHONY: run-test-server
 
-test-all: run-test-server
-	rbenv exec bundle exec tmuxinator start
+.PHONY: test-all
+test-all:
+	./scripts/test-all.sh
 
 analyze:
 	rm -rf analyzer
@@ -56,7 +57,7 @@ analyze:
 # For more info check out: https://github.com/Carthage/Carthage/releases/tag/0.38.0
 build-xcframework:
 	@echo "--> Carthage: creating Sentry xcframework"
-	carthage build --use-xcframeworks --no-skip-current
+	carthage build --use-xcframeworks --no-skip-current --project-directory .
 # use ditto here to avoid clobbering symlinks which exist in macOS frameworks
 	ditto -c -k -X --rsrc --keepParent Carthage Sentry.xcframework.zip
 

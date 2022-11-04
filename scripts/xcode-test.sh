@@ -1,5 +1,5 @@
 #!/bin/bash
-set -uox pipefail
+set -uo pipefail
 
 # This is a helper script for GitHub Actions Matrix.
 # If we would specify the destinations in the GitHub Actions
@@ -11,6 +11,7 @@ set -uox pipefail
 PLATFORM="${1}"
 OS=${2:-latest}
 REF_NAME="${3}"
+IS_LOCAL_BUILD="${4:-ci}"
 DESTINATION=""
 CONFIGURATION=""
 
@@ -38,8 +39,6 @@ case $PLATFORM in
         ;;
 esac
 
-echo "REF_NAME: $REF_NAME"
-
 case $REF_NAME in
     "master")
         CONFIGURATION="TestCI"
@@ -50,7 +49,14 @@ case $REF_NAME in
         ;;
 esac
 
-echo "CONFIGURATION: $CONFIGURATION"
+case $IS_LOCAL_BUILD in
+    "ci")
+        RUBY_ENV_ARGS=""
+        ;;
+    *)
+        RUBY_ENV_ARGS="rbenv exec bundle exec"
+        ;;
+esac
 
 if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
     # Skip some tests that fail on iOS 12.4.
@@ -59,10 +65,10 @@ if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
         GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
         -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfAddingBreadcrumbs" \
         -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfTransactions" \
-        test | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}
+        test | tee raw-test-output.log | $RUBY_ENV_ARGS xcpretty -t && exit ${PIPESTATUS[0]}
 else
     env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
         -scheme Sentry -configuration $CONFIGURATION \
         GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
-        test | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}
+        test | tee raw-test-output.log | $RUBY_ENV_ARGS xcpretty -t && exit ${PIPESTATUS[0]}
 fi

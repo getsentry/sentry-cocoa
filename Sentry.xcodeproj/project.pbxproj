@@ -1402,7 +1402,6 @@
 		84A8891B28DBD28900C51DFD /* SentryDevice.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryDevice.mm; sourceTree = "<group>"; };
 		84A8892028DBD8D600C51DFD /* SentryDeviceTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryDeviceTests.mm; sourceTree = "<group>"; };
 		84E4F5692914F020004C7358 /* Brewfile */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = text; path = Brewfile; sourceTree = "<group>"; tabWidth = 2; };
-		84E4F56B2914F599004C7358 /* tmuxinator.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = tmuxinator.yml; sourceTree = "<group>"; };
 		861265F72404EC1500C4AFDE /* NSArray+SentrySanitize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSArray+SentrySanitize.h"; path = "include/NSArray+SentrySanitize.h"; sourceTree = "<group>"; };
 		861265F82404EC1500C4AFDE /* NSArray+SentrySanitize.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSArray+SentrySanitize.m"; sourceTree = "<group>"; };
 		8E0551DF26A7A63C00400526 /* TestProtocolClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestProtocolClient.swift; sourceTree = "<group>"; };
@@ -1720,7 +1719,6 @@
 				844DA81628246D5000E6B62E /* .gitignore */,
 				844DA80828246D5000E6B62E /* .gitmodules */,
 				844DA80328246D5000E6B62E /* .oclint */,
-				84E4F56B2914F599004C7358 /* tmuxinator.yml */,
 				84E4F5692914F020004C7358 /* Brewfile */,
 				844A3563282B3C9F00C6D1DF /* .sauce */,
 				844DA80B28246D5000E6B62E /* Brewfile */,
