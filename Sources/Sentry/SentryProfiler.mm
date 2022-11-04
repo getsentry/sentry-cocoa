@@ -581,6 +581,8 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
                           ? 0
                           : (unsigned long long)(
                               [transaction.startTimestamp timeIntervalSinceDate:_startDate] * 1e9)];
+        SENTRY_LOG_DEBUG(@"Transaction %@ end timestamp: %@", transaction.trace.context.traceId,
+            transaction.timestamp);
         const auto relativeEnd =
             [NSString stringWithFormat:@"%llu",
                       [transaction.timestamp compare:_endDate] == NSOrderedDescending
