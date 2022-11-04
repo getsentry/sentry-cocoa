@@ -128,7 +128,8 @@ SentrySpan ()
     _isFinished = YES;
     if (self.timestamp == nil) {
         self.timestamp = [SentryCurrentDate date];
-        SENTRY_LOG_DEBUG(@"Setting span timestamp: %@", self.timestamp);
+        SENTRY_LOG_DEBUG(@"Setting span timestamp: %@ at system time %llu", self.timestamp,
+            (unsigned long long)getAbsoluteTime());
     }
     if (self.tracer != nil) {
         [self.tracer spanFinished:self];
