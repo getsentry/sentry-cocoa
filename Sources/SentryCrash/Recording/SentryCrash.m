@@ -38,7 +38,7 @@
 #import "SentryCrashSystemCapabilities.h"
 #import <NSData+Sentry.h>
 
-//#define SentryCrashLogger_LocalLevel TRACE
+// #define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
 
 #include <inttypes.h>
