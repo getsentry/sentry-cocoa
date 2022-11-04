@@ -233,7 +233,8 @@ platform :ios do
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-SwiftUI",
-      configuration: configuration
+      configuration: configuration,
+      
     )
   end
 

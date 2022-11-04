@@ -10,8 +10,7 @@ set -uox pipefail
 
 PLATFORM="${1}"
 OS=${2:-latest}
-XCODE="${3}"
-REF_NAME="${4}"
+REF_NAME="${3}"
 DESTINATION=""
 CONFIGURATION=""
 
