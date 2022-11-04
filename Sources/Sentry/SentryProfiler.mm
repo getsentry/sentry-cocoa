@@ -593,7 +593,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
             @"name" : transaction.transaction,
             @"relative_start_ns" : relativeStart,
             @"relative_end_ns" : relativeEnd,
-            @"active_thread_id" : transaction.trace.transactionContext.threadInfo.threadId
+            @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
         }];
     }
     profile[@"transactions"] = transactionsInfo;

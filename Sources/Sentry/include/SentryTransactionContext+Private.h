@@ -6,10 +6,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryTransactionContext (Private)
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-@property (nonatomic, strong) SentryThread *threadInfo;
-#endif
-
 - (instancetype)initWithName:(NSString *)name
                   nameSource:(SentryTransactionNameSource)source
                    operation:(NSString *)operation;
@@ -26,6 +22,10 @@ SentryTransactionContext (Private)
                       spanId:(SentrySpanId *)spanId
                 parentSpanId:(nullable SentrySpanId *)parentSpanId
                parentSampled:(SentrySampleDecision)parentSampled;
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+- (SentryThread *)sentry_threadInfo;
+#endif
 
 @end
 

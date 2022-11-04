@@ -8,6 +8,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecided;
 
+@interface
+SentryTransactionContext ()
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+@property (nonatomic, strong) SentryThread *threadInfo;
+#endif
+
+@end
+
 @implementation SentryTransactionContext
 
 - (instancetype)initWithName:(NSString *)name operation:(NSString *)operation
@@ -25,7 +34,7 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
         _name = [NSString stringWithString:name];
         _nameSource = source;
         self.parentSampled = kSentryDefaultSamplingDecision;
-        [self addThreadInfo];
+        [self getThreadInfo];
     }
     return self;
 }
@@ -49,7 +58,7 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
         _name = [NSString stringWithString:name];
         _nameSource = source;
         self.parentSampled = kSentryDefaultSamplingDecision;
-        [self addThreadInfo];
+        [self getThreadInfo];
     }
     return self;
 }
@@ -86,18 +95,25 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
         _name = [NSString stringWithString:name];
         _nameSource = source;
         self.parentSampled = parentSampled;
-        [self addThreadInfo];
+        [self getThreadInfo];
     }
     return self;
 }
 
-- (void)addThreadInfo
+- (void)getThreadInfo
 {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     const auto threadID = sentry::profiling::ThreadHandle::current()->tid();
     self.threadInfo = [[SentryThread alloc] initWithThreadId:@(threadID)];
 #endif
 }
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+- (SentryThread *)sentry_threadInfo
+{
+    return self.threadInfo;
+}
+#endif
 
 @end
 
