@@ -7,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 SentryTransactionContext (Private)
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-@property (nonatomic, copy, readonly) SentryThread *threadInfo;
+@property (nonatomic, strong) SentryThread *threadInfo;
 #endif
 
 - (instancetype)initWithName:(NSString *)name

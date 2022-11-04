@@ -2,6 +2,7 @@
 #include "SentryProfilingConditionals.h"
 #import "SentryThread.h"
 #include "SentryThreadHandle.hpp"
+#import "SentryTransactionContext+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -94,7 +95,7 @@ static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecide
 {
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     const auto threadID = sentry::profiling::ThreadHandle::current()->tid();
-    _threadInfo = [[SentryThread alloc] initWithThreadId:@(threadID)];
+    self.threadInfo = [[SentryThread alloc] initWithThreadId:@(threadID)];
 #endif
 }
 

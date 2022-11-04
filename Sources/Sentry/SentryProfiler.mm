@@ -25,7 +25,7 @@
 #    import "SentryThread.h"
 #    import "SentryTime.h"
 #    import "SentryTransaction.h"
-#    import "SentryTransactionContext.h"
+#    import "SentryTransactionContext+Private.h"
 
 #    if defined(DEBUG)
 #        include <execinfo.h>
