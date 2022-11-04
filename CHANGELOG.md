@@ -4,8 +4,6 @@
 
 ### Fixes
 
-- Fix issue with invalid profiles uploading (#2358)
-- Fix issue with invalid profiles uploading (#2357 and #2358)
 - Fix issue with invalid profiles uploading (#2358 and #2359)
 
 ## 7.30.0
