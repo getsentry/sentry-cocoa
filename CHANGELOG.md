@@ -7,6 +7,20 @@ This version introduces a dependency on Swift, which only impacts you if you don
 ### Features
 
 - Properly demangle Swift class name (#2162)
+## 7.30.0
+
+### Features
+
+- Profile concurrent transactions (#2227)
+- HTTP Client errors (#2308)
+- Disable bitcode for Carthage distribution (#2341)
+
+### Fixes
+
+- Stop profiler when app moves to background (#2331)
+- Clean up old envelopes (#2322)
+- Crash when starting a profile from a non-main thread (#2345)
+- SentryCrash writing nan for invalid number (#2348)
 
 ## 7.29.0
 
@@ -21,6 +35,7 @@ This version introduces a dependency on Swift, which only impacts you if you don
 
 - Enable bitcode (#2307)
 - Fix moving app state to previous app state (#2321)
+- Use CoreData entity names instead of "NSManagedObject" (#2329)
 
 ## 7.28.0
 

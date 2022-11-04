@@ -91,7 +91,7 @@ class ViewController: UIViewController {
                 _ = FileManager.default.contents(atPath: path)
             }
         }
-        
+
         guard let imgUrl = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png") else {
             return
         }

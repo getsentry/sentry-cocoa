@@ -76,6 +76,18 @@ SentryHttpTransport ()
         [self.fileManager setDelegate:self];
 
         [self sendAllCachedEnvelopes];
+
+#if !TARGET_OS_WATCH
+        [self.reachability monitorURL:[NSURL URLWithString:@"https://sentry.io"]
+                        usingCallback:^(BOOL connected, NSString *_Nonnull typeDescription) {
+                            if (connected) {
+                                SENTRY_LOG_DEBUG(@"Internet connection is back.");
+                                [self sendAllCachedEnvelopes];
+                            } else {
+                                SENTRY_LOG_DEBUG(@"Lost internet connection.");
+                            }
+                        }];
+#endif
     }
     return self;
 }
@@ -126,13 +138,19 @@ SentryHttpTransport ()
 
 - (BOOL)flush:(NSTimeInterval)timeout
 {
+    // Double-Checked Locking to avoid acquiring unnecessary locks.
+    if (_isFlushing) {
+        SENTRY_LOG_DEBUG(@"Already flushing.");
+        return NO;
+    }
+
     @synchronized(self) {
         if (_isFlushing) {
-            SENTRY_LOG_DEBUG(@"SentryHttpTransport: Already flushing.");
+            SENTRY_LOG_DEBUG(@"Already flushing.");
             return NO;
         }
 
-        SENTRY_LOG_DEBUG(@"SentryHttpTransport: Start flushing.");
+        SENTRY_LOG_DEBUG(@"Start flushing.");
 
         _isFlushing = YES;
         dispatch_group_enter(self.dispatchGroup);
@@ -150,10 +168,10 @@ SentryHttpTransport ()
     }
 
     if (result == 0) {
-        SENTRY_LOG_DEBUG(@"SentryHttpTransport: Finished flushing.");
+        SENTRY_LOG_DEBUG(@"Finished flushing.");
         return YES;
     } else {
-        SENTRY_LOG_DEBUG(@"SentryHttpTransport: Flushing timed out.");
+        SENTRY_LOG_DEBUG(@"Flushing timed out.");
         return NO;
     }
 }
@@ -207,10 +225,11 @@ SentryHttpTransport ()
 
 - (void)sendAllCachedEnvelopes
 {
+    SENTRY_LOG_DEBUG(@"sendAllCachedEnvelopes start.");
+
     @synchronized(self) {
         if (self.isSending || ![self.requestManager isReady]) {
-            [SentryLog logWithMessage:@"SentryHttpTransport: Already sending."
-                             andLevel:kSentryLevelDebug];
+            SENTRY_LOG_DEBUG(@"Already sending.");
             return;
         }
         self.isSending = YES;
@@ -218,8 +237,7 @@ SentryHttpTransport ()
 
     SentryFileContents *envelopeFileContents = [self.fileManager getOldestEnvelope];
     if (nil == envelopeFileContents) {
-        [SentryLog logWithMessage:@"SentryHttpTransport: No envelopes left to send."
-                         andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"No envelopes left to send.");
         [self finishedSending];
         return;
     }
@@ -254,8 +272,7 @@ SentryHttpTransport ()
 
 - (void)deleteEnvelopeAndSendNext:(NSString *)envelopePath
 {
-    [SentryLog logWithMessage:@"SentryHttpTransport: Deleting envelope and sending next."
-                     andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(@"Deleting envelope and sending next.");
     [self.fileManager removeFileAtPath:envelopePath];
     self.isSending = NO;
     [self sendAllCachedEnvelopes];
@@ -278,8 +295,7 @@ SentryHttpTransport ()
                 [_self.rateLimits update:response];
                 [_self deleteEnvelopeAndSendNext:envelopePath];
             } else {
-                [SentryLog logWithMessage:@"SentryHttpTransport: No internet connection."
-                                 andLevel:kSentryLevelDebug];
+                SENTRY_LOG_DEBUG(@"No internet connection.");
                 [_self finishedSending];
             }
         }];
@@ -287,11 +303,11 @@ SentryHttpTransport ()
 
 - (void)finishedSending
 {
-    SENTRY_LOG_DEBUG(@"SentryHttpTransport: Finished sending.");
+    SENTRY_LOG_DEBUG(@"Finished sending.");
     @synchronized(self) {
         self.isSending = NO;
         if (self.isFlushing) {
-            SENTRY_LOG_DEBUG(@"SentryHttpTransport: Stop flushing.");
+            SENTRY_LOG_DEBUG(@"Stop flushing.");
             self.isFlushing = NO;
             dispatch_group_leave(self.dispatchGroup);
         }
