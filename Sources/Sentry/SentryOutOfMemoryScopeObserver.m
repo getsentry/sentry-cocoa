@@ -42,6 +42,7 @@ SentryOutOfMemoryScopeObserver ()
     [self.fileHandle closeFile];
     self.fileHandle = nil;
     self.activeFilePath = nil;
+    self.breadcrumbCounter = 0;
 
     [self.fileManager removeFileAtPath:self.fileManager.breadcrumbsFilePathOne];
     [self.fileManager removeFileAtPath:self.fileManager.breadcrumbsFilePathTwo];
