@@ -1,9 +1,14 @@
+#include "SentryProfilingConditionals.h"
 #import "SentryTransactionContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
 SentryTransactionContext (Private)
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+@property (nonatomic, copy, readonly) SentryThread *threadInfo;
+#endif
 
 - (instancetype)initWithName:(NSString *)name
                   nameSource:(SentryTransactionNameSource)source

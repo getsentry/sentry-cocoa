@@ -1,4 +1,5 @@
 #import "SentryTransactionContext.h"
+#include "SentryProfilingConditionals.h"
 #import "SentryThread.h"
 #include "SentryThreadHandle.hpp"
 
