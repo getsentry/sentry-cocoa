@@ -416,7 +416,7 @@ NS_SWIFT_NAME(Options)
 
 /**
  * When enabled, the SDK captures HTTP Client errors. Default value is NO.
- * This feature requires enableSwizzling enabled as well, Default value is YES.
+ * This feature requires enableSwizzling enabled as well, default value is YES.
  */
 @property (nonatomic, assign) BOOL enableCaptureFailedRequests;
 
