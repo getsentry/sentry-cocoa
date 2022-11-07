@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Report usage of enableCaptureFailedRequests (#2368)
+
 ### Fixes
 
 - Fix issue with invalid profiles uploading (#2358 and #2359)
