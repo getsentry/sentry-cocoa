@@ -139,11 +139,11 @@ SentryEvent ()
 
     [serializedData setValue:[self.stacktrace serialize] forKey:@"stacktrace"];
 
-    [serializedData setValue:[self serializeBreadcrumbs] forKey:@"breadcrumbs"];
-
+    NSMutableArray *breadcrumbs = [self serializeBreadcrumbs];
     if (self.serializedBreadcrumbs.count > 0) {
-        [serializedData setValue:self.serializedBreadcrumbs forKey:@"breadcrumbs"];
+        [breadcrumbs addObjectsFromArray:self.serializedBreadcrumbs];
     }
+    [serializedData setValue:breadcrumbs forKey:@"breadcrumbs"];
 
     [serializedData setValue:[self.context sentry_sanitize] forKey:@"contexts"];
 
@@ -169,14 +169,11 @@ SentryEvent ()
     }
 }
 
-- (NSArray *_Nullable)serializeBreadcrumbs
+- (NSMutableArray *)serializeBreadcrumbs
 {
     NSMutableArray *crumbs = [NSMutableArray new];
     for (SentryBreadcrumb *crumb in self.breadcrumbs) {
         [crumbs addObject:[crumb serialize]];
-    }
-    if (crumbs.count <= 0) {
-        return nil;
     }
     return crumbs;
 }
