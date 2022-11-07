@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install Clang-Format
-        run: brew install clang-format@14.0.6
+        run: brew install clang-format 14.0.6
       - name: Format Code
         run: make format
 
