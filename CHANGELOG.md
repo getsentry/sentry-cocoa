@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Store breadcrumbs to disk for OOM events (#2347)
+
 ### Fixes
 
 - Fix issue with invalid profiles uploading (#2358 and #2359)
@@ -13,7 +17,6 @@
 - Profile concurrent transactions (#2227)
 - HTTP Client errors (#2308)
 - Disable bitcode for Carthage distribution (#2341)
-- Store breadcrumbs to disk for OOM events (#2347)
 
 ### Fixes
 
