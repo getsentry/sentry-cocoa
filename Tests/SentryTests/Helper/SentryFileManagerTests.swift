@@ -578,6 +578,29 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNotNil(sut.readTimezoneOffset())
     }
 
+    func testReadPreviousBreadcrumbs() {
+        let observer = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
+
+        let breadcrumb = Breadcrumb()
+        breadcrumb.level = SentryLevel.info
+        breadcrumb.timestamp = Date(timeIntervalSince1970: 10)
+        breadcrumb.category = "category"
+        breadcrumb.type = "user"
+        breadcrumb.message = "Click something"
+
+        let serializedBreadcrumb = breadcrumb.serialize()
+
+        var count = 0
+        while count < 3 {
+            observer.addSerializedBreadcrumb(serializedBreadcrumb)
+            count += 1
+        }
+
+        sut.moveBreadcrumbsToPreviousBreadcrumbs()
+        let result = sut.readPreviousBreadcrumbs()
+        XCTAssertEqual(result.count, 3)
+    }
+
     func testReadGarbageTimezoneOffset() throws {
         try "garbage".write(to: URL(fileURLWithPath: sut.timezoneOffsetFilePath), atomically: true, encoding: .utf8)
         XCTAssertNil(sut.readTimezoneOffset())
