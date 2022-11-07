@@ -13,7 +13,7 @@ class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
     var blockOnMainInvocations = Invocations<() -> Void>()
     var blockBeforeMainBlock: () -> Bool = { true }
     
-    override func dispatch(onMainQueue block: @escaping () -> Void) {
+    override func dispatchAsync(onMainQueue block: @escaping () -> Void) {
         blockOnMainInvocations.record(block)
         if blockBeforeMainBlock() {
             block()
