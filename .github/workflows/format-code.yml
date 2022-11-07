@@ -13,11 +13,11 @@ jobs:
   # if necessary
   format-code:
     name: Format Code
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
-      - name: Install Clang-Format
-        run: brew install clang-format
+      - name: Use Clang-Format 14 
+        run: $(brew --prefix llvm@14)/bin/clang
       - name: Format Code
         run: make format
 
