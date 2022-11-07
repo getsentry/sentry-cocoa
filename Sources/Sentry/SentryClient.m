@@ -656,7 +656,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         }
 
         if (self.options.enableCaptureFailedRequests) {
-            [integrations addObject:@"HTTPClientErrors"];
+            [integrations addObject:@"CaptureFailedRequests"];
         }
     }
 
