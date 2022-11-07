@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1200"
+   LastUpgradeVersion = "1400"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -84,9 +84,6 @@
                </Test>
                <Test
                   Identifier = "SentryStacktraceBuilderTests/testAsyncStacktraces_disabled()">
-               </Test>
-               <Test
-                  Identifier = "SentrySystemEventBreadcrumbsTest/testTimezoneChangeNotificationBreadcrumb_disabled()">
                </Test>
             </SkippedTests>
          </TestableReference>

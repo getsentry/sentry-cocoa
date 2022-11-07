@@ -55,6 +55,8 @@ NS_ASSUME_NONNULL_BEGIN
     if (self.registers.count > 0) {
         [serializedData setValue:self.registers forKey:@"registers"];
     }
+    [serializedData setValue:self.snapshot forKey:@"snapshot"];
+
     return serializedData;
 }
 

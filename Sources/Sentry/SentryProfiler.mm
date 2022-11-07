@@ -1,8 +1,10 @@
 #import "SentryProfiler.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "NSDate+SentryExtras.h"
 #    import "SentryBacktrace.hpp"
 #    import "SentryClient+Private.h"
+#    import "SentryCurrentDate.h"
 #    import "SentryDebugImageProvider.h"
 #    import "SentryDebugMeta.h"
 #    import "SentryDefines.h"
@@ -20,9 +22,10 @@
 #    import "SentryScreenFrames.h"
 #    import "SentrySerialization.h"
 #    import "SentrySpanId.h"
+#    import "SentryThread.h"
 #    import "SentryTime.h"
 #    import "SentryTransaction.h"
-#    import "SentryTransactionContext.h"
+#    import "SentryTransactionContext+Private.h"
 
 #    if defined(DEBUG)
 #        include <execinfo.h>
@@ -356,9 +359,9 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
         const auto queueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
         sampledProfile[@"thread_metadata"] = threadMetadata;
         sampledProfile[@"queue_metadata"] = queueMetadata;
-        _profile[@"sampled_profile"] = sampledProfile;
+        _profile[@"profile"] = sampledProfile;
         _startTimestamp = getAbsoluteTime();
-        _startDate = [NSDate date];
+        _startDate = [SentryCurrentDate date];
 
         SENTRY_LOG_DEBUG(@"Starting profiler %@ at system time %llu.", self, _startTimestamp);
 
@@ -378,9 +381,6 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
                 NSMutableDictionary<NSString *, id> *metadata = threadMetadata[threadID];
                 if (metadata == nil) {
                     metadata = [NSMutableDictionary<NSString *, id> dictionary];
-                    if (backtrace.threadMetadata.threadID == mainThreadID) {
-                        metadata[@"is_main_thread"] = @YES;
-                    }
                     threadMetadata[threadID] = metadata;
                 }
                 if (!backtrace.threadMetadata.name.empty() && metadata[@"name"] == nil) {
@@ -427,7 +427,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
                 }
 
                 const auto sample = [NSMutableDictionary<NSString *, id> dictionary];
-                sample[@"relative_timestamp_ns"] =
+                sample[@"elapsed_since_start_ns"] =
                     [@(getDurationNs(strongSelf->_startTimestamp, backtrace.absoluteTimestamp))
                         stringValue];
                 sample[@"thread_id"] = threadID;
@@ -475,7 +475,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 
         _profiler->stopSampling();
         _endTimestamp = getAbsoluteTime();
-        _endDate = [NSDate date];
+        _endDate = [SentryCurrentDate date];
         SENTRY_LOG_DEBUG(@"Stopped profiler %@ at system time: %llu.", self, _endTimestamp);
     }
 }
@@ -486,6 +486,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     @synchronized(self) {
         profile = [_profile mutableCopy];
     }
+    profile[@"version"] = @"1";
     const auto debugImages = [NSMutableArray<NSDictionary<NSString *, id> *> new];
     const auto debugMeta = [_debugImageProvider getDebugImages];
     for (SentryDebugMeta *debugImage in debugMeta) {
@@ -522,6 +523,9 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     const auto profileDuration = getDurationNs(_startTimestamp, _endTimestamp);
     profile[@"duration_ns"] = [@(profileDuration) stringValue];
     profile[@"truncation_reason"] = profilerTruncationReasonName(_truncationReason);
+    profile[@"platform"] = _transactions.firstObject.platform;
+    profile[@"environment"] = _hub.scope.environmentString ?: _hub.getClient.options.environment ?: kSentryDefaultEnvironment;
+    profile[@"timestamp"] = [[SentryCurrentDate date] sentry_toIso8601String];
 
     const auto bundle = NSBundle.mainBundle;
     profile[@"release"] =
@@ -569,29 +573,52 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 #    endif // SENTRY_HAS_UIKIT
 
     // populate info from all transactions that occurred while profiler was running
-    profile[@"platform"] = _transactions.firstObject.platform;
     auto transactionsInfo = [NSMutableArray array];
+    SENTRY_LOG_DEBUG(@"Profile start timestamp: %@ absolute time: %llu", _startDate,
+        (unsigned long long)_startTimestamp);
+    SENTRY_LOG_DEBUG(@"Profile end timestamp: %@ absolute time: %llu", _endDate,
+        (unsigned long long)_endTimestamp);
     for (SentryTransaction *transaction in _transactions) {
+        SENTRY_LOG_DEBUG(@"Transaction %@ start timestamp: %@", transaction.trace.context.traceId,
+            transaction.startTimestamp);
+        SENTRY_LOG_DEBUG(@"Transaction %@ end timestamp: %@", transaction.trace.context.traceId,
+            transaction.timestamp);
         const auto relativeStart =
             [NSString stringWithFormat:@"%llu",
                       [transaction.startTimestamp compare:_startDate] == NSOrderedAscending
                           ? 0
                           : (unsigned long long)(
                               [transaction.startTimestamp timeIntervalSinceDate:_startDate] * 1e9)];
-        const auto relativeEnd =
-            [NSString stringWithFormat:@"%llu",
-                      [transaction.timestamp compare:_endDate] == NSOrderedDescending
-                          ? profileDuration
-                          : (unsigned long long)(
-                              [transaction.timestamp timeIntervalSinceDate:_startDate] * 1e9)];
+
+        NSString *relativeEnd;
+        if ([transaction.timestamp compare:_endDate] == NSOrderedDescending) {
+            relativeEnd = [NSString stringWithFormat:@"%llu", profileDuration];
+        } else {
+            const auto profileStartToTransactionEnd_ns =
+                [transaction.timestamp timeIntervalSinceDate:_startDate] * 1e9;
+            if (profileStartToTransactionEnd_ns < 0) {
+                SENTRY_LOG_DEBUG(@"Transaction %@ ended before the profiler started, won't "
+                                 @"associate it with this profile.",
+                    transaction.trace.context.traceId.sentryIdString);
+                continue;
+            } else {
+                relativeEnd = [NSString
+                    stringWithFormat:@"%llu", (unsigned long long)profileStartToTransactionEnd_ns];
+            }
+        }
         [transactionsInfo addObject:@{
-            @"environment" : _hub.scope.environmentString ?: _hub.getClient.options.environment ?: kSentryDefaultEnvironment,
             @"id" : transaction.eventId.sentryIdString,
             @"trace_id" : transaction.trace.context.traceId.sentryIdString,
             @"name" : transaction.transaction,
             @"relative_start_ns" : relativeStart,
-            @"relative_end_ns" : relativeEnd
+            @"relative_end_ns" : relativeEnd,
+            @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
         }];
+    }
+
+    if (transactionsInfo.count == 0) {
+        SENTRY_LOG_DEBUG(@"No transactions to associate with this profile, will not upload.");
+        return;
     }
     profile[@"transactions"] = transactionsInfo;
 
@@ -607,6 +634,8 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     const auto item = [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
     const auto envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:profileID];
     const auto envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader singleItem:item];
+
+    SENTRY_LOG_DEBUG(@"Capturing profile envelope.");
     [_hub captureEnvelope:envelope];
 }
 
