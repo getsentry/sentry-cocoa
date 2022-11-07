@@ -48,53 +48,6 @@ SentryOutOfMemoryTracker ()
     return self;
 }
 
-- (NSArray *)loadBreadcrumbs
-{
-    NSMutableString *combinedFilesContents = [[NSMutableString alloc] init];
-
-    if ([[NSFileManager defaultManager]
-            fileExistsAtPath:self.fileManager.previousBreadcrumbsFilePathOne]) {
-        NSString *fileContents =
-            [NSString stringWithContentsOfFile:self.fileManager.previousBreadcrumbsFilePathOne
-                                      encoding:NSUTF8StringEncoding
-                                         error:nil];
-        [combinedFilesContents appendString:fileContents];
-    }
-
-    if ([[NSFileManager defaultManager]
-            fileExistsAtPath:self.fileManager.previousBreadcrumbsFilePathTwo]) {
-        NSString *fileContents =
-            [NSString stringWithContentsOfFile:self.fileManager.previousBreadcrumbsFilePathTwo
-                                      encoding:NSUTF8StringEncoding
-                                         error:nil];
-        [combinedFilesContents appendString:fileContents];
-    }
-
-    NSMutableArray *breadcrumbs = [NSMutableArray array];
-
-    if (combinedFilesContents.length > 0) {
-        NSArray *lines = [combinedFilesContents
-            componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-
-        for (NSString *line in lines) {
-            NSData *data = [line dataUsingEncoding:NSUTF8StringEncoding];
-
-            NSError *error;
-            NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data
-                                                                 options:0
-                                                                   error:&error];
-
-            if (error) {
-                SENTRY_LOG_ERROR(@"Error deserializing breadcrumb: %@", error);
-            } else {
-                [breadcrumbs addObject:dict];
-            }
-        }
-    }
-
-    return breadcrumbs;
-}
-
 - (void)start
 {
 #if SENTRY_HAS_UIKIT
@@ -107,7 +60,7 @@ SentryOutOfMemoryTracker ()
             event.breadcrumbs = @[];
 
             // Load the previous breascrumbs from disk, which are already serialized
-            event.serializedBreadcrumbs = [self loadBreadcrumbs];
+            event.serializedBreadcrumbs = [self.fileManager readPreviousBreadcrumbs];
 
             SentryException *exception =
                 [[SentryException alloc] initWithValue:SentryOutOfMemoryExceptionValue

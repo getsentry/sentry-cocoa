@@ -75,6 +75,7 @@ SENTRY_NO_INIT
 - (void)deleteAppState;
 
 - (void)moveBreadcrumbsToPreviousBreadcrumbs;
+- (NSArray *)readPreviousBreadcrumbs;
 
 - (NSNumber *_Nullable)readTimezoneOffset;
 - (void)storeTimezoneOffset:(NSInteger)offset;
