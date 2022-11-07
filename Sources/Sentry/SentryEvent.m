@@ -143,7 +143,9 @@ SentryEvent ()
     if (self.serializedBreadcrumbs.count > 0) {
         [breadcrumbs addObjectsFromArray:self.serializedBreadcrumbs];
     }
-    [serializedData setValue:breadcrumbs forKey:@"breadcrumbs"];
+    if (breadcrumbs.count > 0) {
+        [serializedData setValue:breadcrumbs forKey:@"breadcrumbs"];
+    }
 
     [serializedData setValue:[self.context sentry_sanitize] forKey:@"contexts"];
 
