@@ -16,8 +16,8 @@ jobs:
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
-      - name: Use Clang-Format 14 
-        run: $(brew --prefix llvm@14)/bin/clang
+      - name: Install Clang-Format
+        run: brew install clang-format@14.0.6
       - name: Format Code
         run: make format
 
