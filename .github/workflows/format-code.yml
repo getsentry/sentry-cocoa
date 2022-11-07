@@ -16,6 +16,8 @@ jobs:
     runs-on: macos-11
     steps:
       - uses: actions/checkout@v3
+      ## Update internal list of formulae to the latest
+      - run: brew update
       - name: Install Clang-Format
         run: brew install clang-format
       - name: Format Code
