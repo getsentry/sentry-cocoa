@@ -22,9 +22,10 @@
 #    import "SentryScreenFrames.h"
 #    import "SentrySerialization.h"
 #    import "SentrySpanId.h"
+#    import "SentryThread.h"
 #    import "SentryTime.h"
 #    import "SentryTransaction.h"
-#    import "SentryTransactionContext.h"
+#    import "SentryTransactionContext+Private.h"
 
 #    if defined(DEBUG)
 #        include <execinfo.h>
@@ -573,31 +574,51 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 
     // populate info from all transactions that occurred while profiler was running
     auto transactionsInfo = [NSMutableArray array];
-    NSString *mainThreadID = [profile[@"profile"][@"samples"] firstObject][@"thread_id"];
+    SENTRY_LOG_DEBUG(@"Profile start timestamp: %@ absolute time: %llu", _startDate,
+        (unsigned long long)_startTimestamp);
+    SENTRY_LOG_DEBUG(@"Profile end timestamp: %@ absolute time: %llu", _endDate,
+        (unsigned long long)_endTimestamp);
     for (SentryTransaction *transaction in _transactions) {
+        SENTRY_LOG_DEBUG(@"Transaction %@ start timestamp: %@", transaction.trace.context.traceId,
+            transaction.startTimestamp);
+        SENTRY_LOG_DEBUG(@"Transaction %@ end timestamp: %@", transaction.trace.context.traceId,
+            transaction.timestamp);
         const auto relativeStart =
             [NSString stringWithFormat:@"%llu",
                       [transaction.startTimestamp compare:_startDate] == NSOrderedAscending
                           ? 0
                           : (unsigned long long)(
                               [transaction.startTimestamp timeIntervalSinceDate:_startDate] * 1e9)];
-        const auto relativeEnd =
-            [NSString stringWithFormat:@"%llu",
-                      [transaction.timestamp compare:_endDate] == NSOrderedDescending
-                          ? profileDuration
-                          : (unsigned long long)(
-                              [transaction.timestamp timeIntervalSinceDate:_startDate] * 1e9)];
+
+        NSString *relativeEnd;
+        if ([transaction.timestamp compare:_endDate] == NSOrderedDescending) {
+            relativeEnd = [NSString stringWithFormat:@"%llu", profileDuration];
+        } else {
+            const auto profileStartToTransactionEnd_ns =
+                [transaction.timestamp timeIntervalSinceDate:_startDate] * 1e9;
+            if (profileStartToTransactionEnd_ns < 0) {
+                SENTRY_LOG_DEBUG(@"Transaction %@ ended before the profiler started, won't "
+                                 @"associate it with this profile.",
+                    transaction.trace.context.traceId.sentryIdString);
+                continue;
+            } else {
+                relativeEnd = [NSString
+                    stringWithFormat:@"%llu", (unsigned long long)profileStartToTransactionEnd_ns];
+            }
+        }
         [transactionsInfo addObject:@{
             @"id" : transaction.eventId.sentryIdString,
             @"trace_id" : transaction.trace.context.traceId.sentryIdString,
             @"name" : transaction.transaction,
             @"relative_start_ns" : relativeStart,
             @"relative_end_ns" : relativeEnd,
-            @"active_thread_id" :
-                mainThreadID // TODO: we are just using the main thread ID for all transactions to
-                             // fix a backend validation error, but this needs to be gathered from
-                             // transaction starts in their contexts and carried forward to here
+            @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
         }];
+    }
+
+    if (transactionsInfo.count == 0) {
+        SENTRY_LOG_DEBUG(@"No transactions to associate with this profile, will not upload.");
+        return;
     }
     profile[@"transactions"] = transactionsInfo;
 
@@ -613,6 +634,8 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     const auto item = [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
     const auto envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:profileID];
     const auto envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader singleItem:item];
+
+    SENTRY_LOG_DEBUG(@"Capturing profile envelope.");
     [_hub captureEnvelope:envelope];
 }
 

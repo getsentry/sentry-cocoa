@@ -33,5 +33,16 @@ Pod::Spec.new do |s|
         "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}", "Sources/Swift/**/*.{swift}"
       sp.public_header_files =
         "Sources/Sentry/Public/*.h"
+        
+      sp.public_header_files = "Sources/Sentry/Public/*.h"
   end
+  
+  s.subspec 'HybridSDK' do |sp|
+      sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
+        "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}", "Sources/Swift/**/*.{swift}"
+        
+      sp.public_header_files =
+        "Sources/Sentry/Public/*.h", "Sources/Sentry/include/PrivateSentrySDKOnly.h"
+  end
+  
 end

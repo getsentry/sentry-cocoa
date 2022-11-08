@@ -4,6 +4,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentrySpanId;
+@class SentryThread;
 
 NS_SWIFT_NAME(TransactionContext)
 @interface SentryTransactionContext : SentrySpanContext
