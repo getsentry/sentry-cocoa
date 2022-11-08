@@ -443,6 +443,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
                     [stacks addObject:stack];
                 }
 
+                SENTRY_LOG_DEBUG(@"Adding sample.");
                 [samples addObject:sample];
             },
             kSentryProfilerFrequencyHz);
@@ -621,6 +622,11 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
         return;
     }
     profile[@"transactions"] = transactionsInfo;
+
+    if ([((NSArray *)profile[@"profile"][@"samples"]) count] == 0) {
+        SENTRY_LOG_DEBUG(@"No samples located in profile");
+        return;
+    }
 
     NSError *error = nil;
     const auto JSONData = [SentrySerialization dataWithJSONObject:profile error:&error];
