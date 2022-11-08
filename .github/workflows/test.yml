@@ -59,6 +59,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Dummy matrix for testing.
+        # TODO: Remove before merging
+        a: [1,2,3,4,5,6,7,8,9,10]
+
         # Can't run tests on watchOS because XCTest is not available
         # We can't use Xcode 11.7 as we use XCTestObservation. When building with Xcode 11.7
         # we get the error 'XCTest/XCTest.h' not found. Setting ENABLE_TESTING_SEARCH_PATH=YES

@@ -631,7 +631,7 @@ class SentryHttpTransportTests: XCTestCase {
     func testFlush_BlocksCallingThread_TimesOut() {
         CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
         
-        givenCachedEvents()
+        givenCachedEvents(amount: 30)
         
         fixture.requestManager.responseDelay = fixture.flushTimeout + 0.2
         
@@ -640,7 +640,7 @@ class SentryHttpTransportTests: XCTestCase {
         let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
         
         XCTAssertGreaterThan(blockingDuration, fixture.flushTimeout)
-        XCTAssertLessThan(blockingDuration, fixture.flushTimeout + 0.2)
+        XCTAssertLessThan(blockingDuration, fixture.flushTimeout + 0.1)
         
         XCTAssertFalse(success, "Flush should time out.")
     }
@@ -681,7 +681,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertFlushBlocksAndFinishesSuccessfully()
     }
     
-    func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse_disabled() {
+    func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() {
         CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
         
         givenCachedEvents()
@@ -771,11 +771,12 @@ class SentryHttpTransportTests: XCTestCase {
         fixture.requestManager.returnResponse(response: HTTPURLResponse())
     }
     
-    private func givenCachedEvents() {
+    private func givenCachedEvents(amount: Int = 2) {
         givenNoInternetConnection()
         
-        sendEvent()
-        sendEvent()
+        for _ in 0..<amount {
+            sendEvent()
+        }
         
         givenOkResponse()
     }
