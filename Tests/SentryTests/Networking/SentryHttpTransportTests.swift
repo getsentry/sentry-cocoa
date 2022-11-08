@@ -648,9 +648,12 @@ class SentryHttpTransportTests: XCTestCase {
     func testFlush_BlocksCallingThread_FinishesFlushingWhenSent() {
         CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
         
-        givenCachedEvents()
+        givenCachedEvents(amount: 1)
         
-        assertFlushBlocksAndFinishesSuccessfully()
+        let beforeFlush = getAbsoluteTime()
+        XCTAssertTrue(sut.flush(fixture.flushTimeout), "Flush should not time out.")
+        let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+        XCTAssertLessThan(blockingDuration, fixture.flushTimeout)
     }
     
     func testFlush_CalledSequentially_BlocksTwice() {
