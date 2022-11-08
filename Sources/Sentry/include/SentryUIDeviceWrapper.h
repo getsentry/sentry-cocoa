@@ -6,7 +6,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SentryDispatchQueueWrapper;
+
 @interface SentryUIDeviceWrapper : NSObject
+
+- (instancetype)init;
+- (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
+- (void)stop;
 
 #if TARGET_OS_IOS
 - (UIDeviceOrientation)orientation;

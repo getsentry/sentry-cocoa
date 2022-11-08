@@ -17,8 +17,14 @@ SentryUIDeviceWrapper ()
 
 - (instancetype)init
 {
+    return [self initWithDispatchQueueWrapper:[SentryDependencyContainer sharedInstance]
+                                                  .dispatchQueueWrapper];
+}
+
+- (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+{
     if (self = [super init]) {
-        self.dispatchQueueWrapper = [SentryDependencyContainer sharedInstance].dispatchQueueWrapper;
+        self.dispatchQueueWrapper = dispatchQueueWrapper;
         [self.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
             // Needed to read the device orientation on demand
             if (!UIDevice.currentDevice.isGeneratingDeviceOrientationNotifications) {
@@ -36,7 +42,7 @@ SentryUIDeviceWrapper ()
     return self;
 }
 
-- (void)dealloc
+- (void)stop
 {
     [self.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
         if (self.cleanupDeviceOrientationNotifications) {
@@ -46,6 +52,11 @@ SentryUIDeviceWrapper ()
             UIDevice.currentDevice.batteryMonitoringEnabled = NO;
         }
     }];
+}
+
+- (void)dealloc
+{
+    [self stop];
 }
 
 - (UIDeviceOrientation)orientation
