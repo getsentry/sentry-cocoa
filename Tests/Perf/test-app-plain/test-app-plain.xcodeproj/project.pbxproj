@@ -211,6 +211,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"test-app-plain/Preview Content\"";
 				DEVELOPMENT_TEAM = 97JCY7859U;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 97JCY7859U;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -226,6 +227,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.cocoa.perf-test-app-plain";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.cocoa.perf-test-app-plain";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.cocoa.perf-test-app-plain";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

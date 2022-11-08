@@ -757,7 +757,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.TrendingMovies;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.TrendingMovies";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Test-ProvisioningProfile";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.sample.TrendingMovies";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "TrendingMovies-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -789,7 +789,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.TrendingMovies;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Test-ProvisioningProfile";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.sample.TrendingMovies";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "TrendingMovies-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -812,7 +812,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.movies.ProfileDataGeneratorUITest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.movies.ProfileDataGeneratorUITest.xctrunner";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Test-ProvisioningProfile";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.sample.movies.ProfileDataGeneratorUITest";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -835,7 +835,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.movies.ProfileDataGeneratorUITest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Test-ProvisioningProfile";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.sample.movies.ProfileDataGeneratorUITest";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";

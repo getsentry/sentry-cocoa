@@ -1101,7 +1101,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.iOS-Swift";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.sample.iOS-Swift 1667917860";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.sample.iOS-Swift";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "iOS-Swift/Tools/iOS-Swift-Bridging-Header.h";
@@ -1117,10 +1117,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "iOS-Swift/iOS-Swift.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 97JCY7859U;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-Swift/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1131,6 +1133,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.sample.iOS-Swift";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "iOS-Swift/Tools/iOS-Swift-Bridging-Header.h";
@@ -1157,7 +1160,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-SwiftUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.iOS-SwiftUITests.xctrunner";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Test-ProvisioningProfile";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.*";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1169,9 +1172,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 97JCY7859U;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-SwiftUITests/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1182,6 +1187,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-SwiftUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.iOS-SwiftUITests.xctrunner";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.*";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1208,7 +1214,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Benchmarking";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.iOS-Benchmarking.xctrunner";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Test-ProvisioningProfile";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.*";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -1222,9 +1228,11 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 97JCY7859U;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 97JCY7859U;
 				INFOPLIST_FILE = "PerformanceBenchmarks/PerformanceBenchmarks-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1234,6 +1242,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Benchmarking";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.*";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1305,10 +1314,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "iOS-Swift/iOS-Swift.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 97JCY7859U;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-Swift/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1319,6 +1330,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.sample.iOS-Swift";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "iOS-Swift/Tools/iOS-Swift-Bridging-Header.h";
@@ -1331,9 +1343,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 97JCY7859U;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-SwiftUITests/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1344,6 +1358,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-SwiftUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.iOS-SwiftUITests.xctrunner";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.*";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1356,9 +1371,11 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 97JCY7859U;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 97JCY7859U;
 				INFOPLIST_FILE = "PerformanceBenchmarks/PerformanceBenchmarks-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1368,6 +1385,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Benchmarking";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.*";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1382,9 +1400,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "iOS-SwiftClip/iOS_SwiftClip.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 97JCY7859U;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 97JCY7859U;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS-SwiftClip/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "iOS-Swift";
@@ -1404,6 +1424,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift.Clip";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.sample.iOS-Swift.Clip";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1528,10 +1549,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "iOS-Swift/iOS-Swift.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 97JCY7859U;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-Swift/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1542,6 +1565,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.sample.iOS-Swift";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "iOS-Swift/Tools/iOS-Swift-Bridging-Header.h";
@@ -1554,9 +1578,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 97JCY7859U;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 97JCY7859U;
 				INFOPLIST_FILE = "iOS-SwiftUITests/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1567,6 +1593,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-SwiftUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.iOS-SwiftUITests.xctrunner";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.*";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1579,9 +1606,11 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 97JCY7859U;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 97JCY7859U;
 				INFOPLIST_FILE = "PerformanceBenchmarks/PerformanceBenchmarks-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1591,6 +1620,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Benchmarking";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.*";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1605,9 +1635,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "iOS-SwiftClip/iOS_SwiftClip.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 97JCY7859U;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 97JCY7859U;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS-SwiftClip/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "iOS-Swift";
@@ -1627,6 +1659,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift.Clip";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.sample.iOS-Swift.Clip";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1781,7 +1814,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.iOS-Swift.Clip";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.sample.iOS-Swift.Clip 1667917871";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.sample.iOS-Swift.Clip";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1795,9 +1828,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "iOS-SwiftClip/iOS_SwiftClip.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 97JCY7859U;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 97JCY7859U;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS-SwiftClip/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "iOS-Swift";
@@ -1817,6 +1852,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift.Clip";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.sample.iOS-Swift.Clip";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
