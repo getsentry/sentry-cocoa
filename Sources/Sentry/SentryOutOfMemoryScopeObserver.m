@@ -112,44 +112,4 @@ SentryOutOfMemoryScopeObserver ()
     [self switchFileHandle];
 }
 
-- (void)setContext:(nullable NSDictionary<NSString *, id> *)context
-{
-    // Left blank on purpose
-}
-
-- (void)setDist:(nullable NSString *)dist
-{
-    // Left blank on purpose
-}
-
-- (void)setEnvironment:(nullable NSString *)environment
-{
-    // Left blank on purpose
-}
-
-- (void)setExtras:(nullable NSDictionary<NSString *, id> *)extras
-{
-    // Left blank on purpose
-}
-
-- (void)setFingerprint:(nullable NSArray<NSString *> *)fingerprint
-{
-    // Left blank on purpose
-}
-
-- (void)setLevel:(enum SentryLevel)level
-{
-    // Left blank on purpose
-}
-
-- (void)setTags:(nullable NSDictionary<NSString *, NSString *> *)tags
-{
-    // Left blank on purpose
-}
-
-- (void)setUser:(nullable SentryUser *)user
-{
-    // Left blank on purpose
-}
-
 @end
