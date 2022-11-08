@@ -7,6 +7,24 @@ class SentrySerializationTests: XCTestCase {
         static var traceContext = SentryTraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: "some segment", sampleRate: "0.25")
     }
 
+    func testSerializationFailsWithInvalidJSONObject() {
+        let json: [String: Any] = [
+            "valid object": "hi, i'm a valid object",
+            "invalid object": NSDate()
+        ]
+
+        var data: Data?
+        let exp = expectation(description: "Should throw error")
+        do {
+            data = try SentrySerialization.data(withJSONObject: json)
+        } catch {
+            exp.fulfill()
+            XCTAssertEqual(error.localizedDescription, "Event cannot be converted to JSON (Invalid type in JSON write (__NSTaggedDate))")
+        }
+        waitForExpectations(timeout: 1)
+        XCTAssertNil(data)
+    }
+
     func testSentryEnvelopeSerializer_WithSingleEvent() {
         // Arrange
         let event = Event()
