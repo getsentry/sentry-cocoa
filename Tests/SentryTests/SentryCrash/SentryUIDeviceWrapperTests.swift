@@ -1,5 +1,6 @@
 import XCTest
 
+#if os(iOS)
 class SentryUIDeviceWrapperTests: XCTestCase {
     func testExecutesLogicViaDispatchQueue() {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
@@ -10,3 +11,4 @@ class SentryUIDeviceWrapperTests: XCTestCase {
         XCTAssertEqual(dispatchQueue.blockOnMainInvocations.count, 2)
     }
 }
+#endif
