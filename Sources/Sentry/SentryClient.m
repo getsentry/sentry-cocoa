@@ -654,10 +654,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
         if (self.options.stitchAsyncCode) {
             [integrations addObject:@"StitchAsyncCode"];
         }
-
-        if (self.options.enableCaptureFailedRequests) {
-            [integrations addObject:@"CaptureFailedRequests"];
-        }
     }
 
     event.sdk = @{
