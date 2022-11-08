@@ -1157,7 +1157,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-SwiftUITests.xctrunner";
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-SwiftUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.iOS-SwiftUITests.xctrunner";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.iOS-SwiftUITests.xctrunner";
@@ -1184,7 +1184,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-SwiftUITests.xctrunner";
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-SwiftUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.iOS-SwiftUITests.xctrunner";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.iOS-SwiftUITests.xctrunner";
@@ -1211,7 +1211,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Benchmarking.xctrunner";
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Benchmarking";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.iOS-Benchmarking.xctrunner";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.iOS-Benchmarking.xctrunner";
@@ -1240,7 +1240,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Benchmarking.xctrunner";
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Benchmarking";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.iOS-Benchmarking.xctrunner";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
@@ -1355,7 +1355,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-SwiftUITests.xctrunner";
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-SwiftUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.iOS-SwiftUITests.xctrunner";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.iOS-SwiftUITests.xctrunner";
@@ -1383,7 +1383,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Benchmarking.xctrunner";
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Benchmarking";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.iOS-Benchmarking.xctrunner";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
@@ -1590,7 +1590,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-SwiftUITests.xctrunner";
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-SwiftUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.iOS-SwiftUITests.xctrunner";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.iOS-SwiftUITests.xctrunner";
@@ -1618,7 +1618,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Benchmarking.xctrunner";
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-Benchmarking";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.sentry.iOS-Benchmarking.xctrunner";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
