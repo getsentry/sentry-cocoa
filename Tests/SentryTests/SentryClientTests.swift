@@ -1047,6 +1047,22 @@ class SentryClientTest: XCTestCase {
             )
         }
     }
+
+    func testTrackEnableCaptureFailedRequests() {
+        SentrySDK.start(options: Options())
+
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.enableCaptureFailedRequests = true
+        }).capture(message: fixture.messageAsString)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            assertArrayEquals(
+                expected: ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking", "CaptureFailedRequests"],
+                actual: actual.sdk?["integrations"] as? [String]
+            )
+        }
+    }
     
     func testSetSDKIntegrations_NoIntegrations() {
         let expected: [String] = []
