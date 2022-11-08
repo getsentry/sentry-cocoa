@@ -10,11 +10,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryUIDeviceWrapper : NSObject
 
+#if TARGET_OS_IOS
 - (instancetype)init;
 - (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 - (void)stop;
-
-#if TARGET_OS_IOS
 - (UIDeviceOrientation)orientation;
 - (BOOL)isBatteryMonitoringEnabled;
 - (UIDeviceBatteryState)batteryState;
