@@ -1,5 +1,6 @@
 #import "SentryScreenshot.h"
 #import "SentryDependencyContainer.h"
+#import "SentryDispatchQueueWrapper.h"
 #import "SentryUIApplication.h"
 
 #if SENTRY_HAS_UIKIT
@@ -13,11 +14,8 @@
 
     void (^takeScreenShot)(void) = ^{ result = [self takeScreenshots]; };
 
-    if ([NSThread isMainThread]) {
-        takeScreenShot();
-    } else {
-        dispatch_sync(dispatch_get_main_queue(), takeScreenShot);
-    }
+    [[SentryDependencyContainer sharedInstance].dispatchQueueWrapper
+        dispatchSyncOnMainQueue:takeScreenShot];
 
     return result;
 }
