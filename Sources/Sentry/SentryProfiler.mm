@@ -116,10 +116,7 @@ processBacktrace(const Backtrace &backtrace,
             [stack addObject:@(frames.count)];
             frameIndexLookup[instructionAddress] = @(frames.count);
             [frames addObject:frame];
-            SENTRY_LOG_DEBUG(@"No tracked frame for %@; storing in frame index at location %@",
-                instructionAddress, frameIndexLookup[instructionAddress]);
         } else {
-            SENTRY_LOG_DEBUG(@"Found index %@ for frame %@", frameIndex, instructionAddress);
             [stack addObject:frameIndex];
         }
     }
@@ -132,7 +129,8 @@ processBacktrace(const Backtrace &backtrace,
         sample[@"queue_address"] = queueAddress;
     }
 
-    const auto stackIndex =
+    const auto stackIndex = NSNotFound;
+    if (stack.count > 0) {
         [stacks indexOfObjectPassingTest:^BOOL(NSMutableArray<NSNumber *> *_Nonnull nextStack,
             NSUInteger nextStackIdx, BOOL *_Nonnull stopStackEnumeration) {
             __block BOOL found = YES;
@@ -148,17 +146,14 @@ processBacktrace(const Backtrace &backtrace,
             }
             return found;
         }];
+    }
     if (stackIndex != NSNotFound) {
         sample[@"stack_id"] = @(stackIndex);
-        SENTRY_LOG_DEBUG(@"Found previous copy of stack at index %lu", stackIndex);
     } else {
         sample[@"stack_id"] = @(stacks.count);
         [stacks addObject:stack];
-        SENTRY_LOG_DEBUG(
-            @"No previous copy of stack %@, storing at index %@", stack, sample[@"stack_id"]);
     }
 
-    SENTRY_LOG_DEBUG(@"Adding sample.");
     [samples addObject:sample];
 }
 
