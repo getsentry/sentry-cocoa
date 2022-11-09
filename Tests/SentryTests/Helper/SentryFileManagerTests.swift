@@ -589,10 +589,8 @@ class SentryFileManagerTests: XCTestCase {
 
         let serializedBreadcrumb = breadcrumb.serialize()
 
-        var count = 0
-        while count < 3 {
+        for _ in 0..<3 {
             observer.addSerializedBreadcrumb(serializedBreadcrumb)
-            count += 1
         }
 
         sut.moveBreadcrumbsToPreviousBreadcrumbs()

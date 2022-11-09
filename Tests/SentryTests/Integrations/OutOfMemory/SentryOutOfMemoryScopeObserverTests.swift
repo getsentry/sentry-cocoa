@@ -59,15 +59,13 @@ class SentryOutOfMemoryScopeObserverTests: XCTestCase {
     func testStoreInMultipleFiles() throws {
         let breadcrumb = fixture.breadcrumb.serialize()
 
-        var count = 0
-        while count < 9 {
+        for _ in 0..<9 {
             sut.addSerializedBreadcrumb(breadcrumb)
-            count += 1
         }
 
         var fileOneContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
-        var fileOnelines = fileOneContents.split(separator: "\n")
-        XCTAssertEqual(fileOnelines.count, 9)
+        var fileOneLines = fileOneContents.split(separator: "\n")
+        XCTAssertEqual(fileOneLines.count, 9)
 
         XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.breadcrumbsFilePathTwo))
 
@@ -75,8 +73,8 @@ class SentryOutOfMemoryScopeObserverTests: XCTestCase {
         sut.addSerializedBreadcrumb(breadcrumb)
 
         fileOneContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
-        fileOnelines = fileOneContents.split(separator: "\n")
-        XCTAssertEqual(fileOnelines.count, 10)
+        fileOneLines = fileOneContents.split(separator: "\n")
+        XCTAssertEqual(fileOneLines.count, 10)
 
         var fileTwoContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathTwo)
         XCTAssertEqual(fileTwoContents, "")
@@ -85,34 +83,30 @@ class SentryOutOfMemoryScopeObserverTests: XCTestCase {
         sut.addSerializedBreadcrumb(breadcrumb)
 
         fileTwoContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathTwo)
-        var fileTwolines = fileTwoContents.split(separator: "\n")
+        var fileTwoLines = fileTwoContents.split(separator: "\n")
 
-        XCTAssertEqual(fileOnelines.count, 10)
-        XCTAssertEqual(fileTwolines.count, 1)
+        XCTAssertEqual(fileOneLines.count, 10)
+        XCTAssertEqual(fileTwoLines.count, 1)
 
         // Store 10 more
-        count = 0
-        while count < 10 {
+        for _ in 0..<10 {
             sut.addSerializedBreadcrumb(breadcrumb)
-            count += 1
         }
 
         fileOneContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
-        fileOnelines = fileOneContents.split(separator: "\n")
-        XCTAssertEqual(fileOnelines.count, 1)
+        fileOneLines = fileOneContents.split(separator: "\n")
+        XCTAssertEqual(fileOneLines.count, 1)
 
         fileTwoContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathTwo)
-        fileTwolines = fileTwoContents.split(separator: "\n")
-        XCTAssertEqual(fileTwolines.count, 10)
+        fileTwoLines = fileTwoContents.split(separator: "\n")
+        XCTAssertEqual(fileTwoLines.count, 10)
     }
 
     func testClearBreadcrumbs() throws {
         let breadcrumb = fixture.breadcrumb.serialize()
 
-        var count = 0
-        while count < 15 {
+        for _ in 0..<15 {
             sut.addSerializedBreadcrumb(breadcrumb)
-            count += 1
         }
 
         var fileOneContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
