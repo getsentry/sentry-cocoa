@@ -438,7 +438,7 @@ SentryHub ()
 
 - (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
 {
-    SentrySession *currentSession = [self incrementSessionErrors];
+    SentrySession *currentSession = _session;
     SentryClient *client = _client;
     if (nil != client) {
         if (nil != currentSession) {

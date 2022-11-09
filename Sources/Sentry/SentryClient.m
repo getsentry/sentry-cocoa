@@ -220,6 +220,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
 {
     SentryEvent *event = [self buildErrorEvent:error];
     event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
+
+    if (event != nil) {
+        session = [SentrySDK.currentHub incrementSessionErrors];
+    }
+
     return [self sendEvent:event withSession:session withScope:scope];
 }
 
