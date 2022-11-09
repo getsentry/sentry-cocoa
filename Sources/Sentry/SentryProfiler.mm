@@ -515,7 +515,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
         profile = [_profile mutableCopy];
     }
 
-    if ([((NSArray *)profile[@"profile"][@"samples"]) count] == 0) {
+    if ([((NSArray *)profile[@"profile"][@"samples"]) count] < 2) {
         SENTRY_LOG_DEBUG(@"No samples located in profile");
         return;
     }
