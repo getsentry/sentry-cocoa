@@ -38,13 +38,22 @@ NS_ASSUME_NONNULL_BEGIN
     });
 }
 
-- (void)dispatchOnMainQueue:(void (^)(void))block
+- (void)dispatchAsyncOnMainQueue:(void (^)(void))block
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         @autoreleasepool {
             block();
         }
     });
+}
+
+- (void)dispatchSyncOnMainQueue:(void (^)(void))block
+{
+    if ([NSThread isMainThread]) {
+        block();
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), block);
+    }
 }
 
 - (void)dispatchAfter:(NSTimeInterval)interval block:(dispatch_block_t)block

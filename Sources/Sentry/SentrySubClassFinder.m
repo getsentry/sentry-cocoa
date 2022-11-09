@@ -60,7 +60,7 @@ SentrySubClassFinder ()
         }
 
         free(classes);
-        [self.dispatchQueue dispatchOnMainQueue:^{
+        [self.dispatchQueue dispatchAsyncOnMainQueue:^{
             for (NSString *className in classesToSwizzle) {
                 block(NSClassFromString(className));
             }

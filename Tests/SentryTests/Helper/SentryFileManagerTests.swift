@@ -35,7 +35,6 @@ class SentryFileManagerTests: XCTestCase {
         init() {
             currentDateProvider = TestCurrentDateProvider()
             dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-            dispatchQueueWrapper.dispatchAfterExecutesBlock = true
             
             eventIds = (0...(maxCacheItems + 10)).map { _ in SentryId() }
             

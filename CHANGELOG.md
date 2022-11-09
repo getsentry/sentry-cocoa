@@ -9,6 +9,7 @@
 ### Fixes
 
 - Fix issue with invalid profiles uploading (#2358 and #2359)
+- Call UIDevice methods on the main thread (#2369)
 
 ## 7.30.0
 
