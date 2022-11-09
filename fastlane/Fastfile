@@ -45,6 +45,34 @@ platform :ios do
     )
   end
 
+  desc "Run match for local development"
+    lane :match_local do
+     match(
+       type: "development",
+       app_identifier: ["io.sentry.sample.iOS-Swift",
+         "io.sentry.sample.iOS-Swift.Clip",
+         "io.sentry.iOS-SwiftUITests.xctrunner",
+         "io.sentry.sample.movies.ProfileDataGeneratorUITest",
+         "io.sentry.sample.TrendingMovies",
+         "io.sentry.cocoa.perf-test-app-plain",
+         "io.sentry.*",
+         "io.sentry.iOS-Benchmarking.xctrunner",
+         "io.sentry.cocoa.perf-test-app-sentry"]
+     )
+     match(
+       type: "appstore",
+       app_identifier: ["io.sentry.sample.iOS-Swift",
+         "io.sentry.sample.iOS-Swift.Clip",
+         "io.sentry.iOS-SwiftUITests.xctrunner",
+         "io.sentry.sample.movies.ProfileDataGeneratorUITest",
+         "io.sentry.sample.TrendingMovies",
+         "io.sentry.cocoa.perf-test-app-plain",
+         "io.sentry.*",
+         "io.sentry.iOS-Benchmarking.xctrunner",
+         "io.sentry.cocoa.perf-test-app-sentry"]
+     )
+  end
+
   desc "Build iOS-Swift with Release"
   lane :build_ios_swift do
 
