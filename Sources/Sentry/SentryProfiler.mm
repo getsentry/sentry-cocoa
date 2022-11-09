@@ -350,6 +350,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
         const auto samples = [NSMutableArray<NSDictionary<NSString *, id> *> array];
         const auto stacks = [NSMutableArray<NSMutableArray<NSNumber *> *> array];
         const auto frames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
+        const auto frameIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
         sampledProfile[@"samples"] = samples;
         sampledProfile[@"stacks"] = stacks;
         sampledProfile[@"frames"] = frames;
@@ -368,7 +369,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
         __weak const auto weakSelf = self;
         _profiler = std::make_shared<SamplingProfiler>(
             [weakSelf, threadMetadata, queueMetadata, samples, mainThreadID = _mainThreadID, frames,
-                stacks](auto &backtrace) {
+                frameIndexLookup, stacks](auto &backtrace) {
                 const auto strongSelf = weakSelf;
                 if (strongSelf == nil) {
                     return;
@@ -404,24 +405,28 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 #    endif
 
                 const auto stack = [NSMutableArray<NSNumber *> array];
-                const auto frameIndexLookup =
-                    [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-                for (std::vector<uintptr_t>::size_type i = 0; i < backtrace.addresses.size(); i++) {
+                for (std::vector<uintptr_t>::size_type backtraceAddressIdx = 0;
+                     backtraceAddressIdx < backtrace.addresses.size(); backtraceAddressIdx++) {
                     const auto instructionAddress
-                        = sentry_formatHexAddress(@(backtrace.addresses[i]));
+                        = sentry_formatHexAddress(@(backtrace.addresses[backtraceAddressIdx]));
 
                     const auto frameIndex = frameIndexLookup[instructionAddress];
-
                     if (frameIndex == nil) {
                         const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
                         frame[@"instruction_addr"] = instructionAddress;
 #    if defined(DEBUG)
-                        frame[@"function"] = parseBacktraceSymbolsFunctionName(symbols[i]);
+                        frame[@"function"]
+                            = parseBacktraceSymbolsFunctionName(symbols[backtraceAddressIdx]);
 #    endif
                         [stack addObject:@(frames.count)];
+                        frameIndexLookup[instructionAddress] = @(frames.count);
                         [frames addObject:frame];
-                        frameIndexLookup[instructionAddress] = @(stack.count);
+                        SENTRY_LOG_DEBUG(
+                            @"No tracked frame for %@; storing in frame index at location %@",
+                            instructionAddress, frameIndexLookup[instructionAddress]);
                     } else {
+                        SENTRY_LOG_DEBUG(
+                            @"Found index %@ for frame %@", frameIndex, instructionAddress);
                         [stack addObject:frameIndex];
                     }
                 }
@@ -435,12 +440,30 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
                     sample[@"queue_address"] = queueAddress;
                 }
 
-                const auto stackIndex = [stacks indexOfObject:stack];
+                const auto stackIndex = [stacks
+                    indexOfObjectPassingTest:^BOOL(NSMutableArray<NSNumber *> *_Nonnull nextStack,
+                        NSUInteger nextStackIdx, BOOL *_Nonnull stopStackEnumeration) {
+                        __block BOOL found = YES;
+                        [nextStack enumerateObjectsUsingBlock:^(NSNumber *_Nonnull nextStackFrame,
+                            NSUInteger nextStackFrameIdx, BOOL *_Nonnull stopFrameEnumeration) {
+                            if (![nextStackFrame isEqualToNumber:stack[nextStackFrameIdx]]) {
+                                *stopFrameEnumeration = YES;
+                                found = NO;
+                            }
+                        }];
+                        if (found) {
+                            *stopStackEnumeration = YES;
+                        }
+                        return found;
+                    }];
                 if (stackIndex != NSNotFound) {
                     sample[@"stack_id"] = @(stackIndex);
+                    SENTRY_LOG_DEBUG(@"Found previous copy of stack at index %lu", stackIndex);
                 } else {
                     sample[@"stack_id"] = @(stacks.count);
                     [stacks addObject:stack];
+                    SENTRY_LOG_DEBUG(@"No previous copy of stack %@, storing at index %@", stack,
+                        sample[@"stack_id"]);
                 }
 
                 SENTRY_LOG_DEBUG(@"Adding sample.");
