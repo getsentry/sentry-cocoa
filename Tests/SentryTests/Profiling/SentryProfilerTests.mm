@@ -61,8 +61,7 @@ using namespace sentry::profiling;
     const auto resolvedSamples = [NSMutableArray<NSDictionary<NSString *, id> *> array];
     const auto resolvedFrames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
     const auto frameIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-    const auto stackIndexLookup =
-        [NSMutableDictionary<NSArray<NSNumber *> *, NSNumber *> dictionary];
+    const auto stackIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
     const auto profileStartTimestamp = 0;
 
     // record an initial backtrace

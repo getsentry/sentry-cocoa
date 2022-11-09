@@ -72,7 +72,7 @@ processBacktrace(const Backtrace &backtrace,
     NSMutableArray<NSMutableArray<NSNumber *> *> *stacks,
     NSMutableArray<NSDictionary<NSString *, id> *> *frames,
     NSMutableDictionary<NSString *, NSNumber *> *frameIndexLookup, uint64_t startTimestamp,
-    NSMutableDictionary<NSArray<NSNumber *> *, NSNumber *> *stackIndexLookup)
+    NSMutableDictionary<NSString *, NSNumber *> *stackIndexLookup)
 {
     const auto threadID = [@(backtrace.threadMetadata.threadID) stringValue];
     NSString *queueAddress = nil;
@@ -130,13 +130,14 @@ processBacktrace(const Backtrace &backtrace,
         sample[@"queue_address"] = queueAddress;
     }
 
-    const auto stackIndex = stackIndexLookup[stack];
+    const auto stackKey = [stack componentsJoinedByString:@"|"];
+    const auto stackIndex = stackIndexLookup[stackKey];
     if (stackIndex) {
         sample[@"stack_id"] = stackIndex;
     } else {
         const auto nextStackIndex = @(stacks.count);
         sample[@"stack_id"] = nextStackIndex;
-        stackIndexLookup[stack] = nextStackIndex;
+        stackIndexLookup[stackKey] = nextStackIndex;
         [stacks addObject:stack];
     }
 
@@ -430,8 +431,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
         const auto stacks = [NSMutableArray<NSMutableArray<NSNumber *> *> array];
         const auto frames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
         const auto frameIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-        const auto stackIndexLookup =
-            [NSMutableDictionary<NSArray<NSNumber *> *, NSNumber *> dictionary];
+        const auto stackIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
         sampledProfile[@"samples"] = samples;
         sampledProfile[@"stacks"] = stacks;
         sampledProfile[@"frames"] = frames;

@@ -9,4 +9,4 @@ void processBacktrace(const sentry::profiling::Backtrace &backtrace,
     NSMutableArray<NSMutableArray<NSNumber *> *> *stacks,
     NSMutableArray<NSDictionary<NSString *, id> *> *frames,
     NSMutableDictionary<NSString *, NSNumber *> *frameIndexLookup, uint64_t startTimestamp,
-    NSMutableDictionary<NSArray<NSNumber *> *, NSNumber *> *stackIndexLookup);
+    NSMutableDictionary<NSString *, NSNumber *> *stackIndexLookup);
