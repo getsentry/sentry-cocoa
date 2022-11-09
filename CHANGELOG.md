@@ -6,6 +6,7 @@
 
 - Fix issue with invalid profiles uploading (#2358 and #2359)
 - Call UIDevice methods on the main thread (#2369)
+- Don't increase session's error count for dropped events (#2374)
 
 ## 7.30.0
 
