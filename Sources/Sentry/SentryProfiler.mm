@@ -514,6 +514,12 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     @synchronized(self) {
         profile = [_profile mutableCopy];
     }
+
+    if ([((NSArray *)profile[@"profile"][@"samples"]) count] == 0) {
+        SENTRY_LOG_DEBUG(@"No samples located in profile");
+        return;
+    }
+
     profile[@"version"] = @"1";
     const auto debugImages = [NSMutableArray<NSDictionary<NSString *, id> *> new];
     const auto debugMeta = [_debugImageProvider getDebugImages];
@@ -649,11 +655,6 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
         return;
     }
     profile[@"transactions"] = transactionsInfo;
-
-    if ([((NSArray *)profile[@"profile"][@"samples"]) count] == 0) {
-        SENTRY_LOG_DEBUG(@"No samples located in profile");
-        return;
-    }
 
     NSError *error = nil;
     const auto JSONData = [SentrySerialization dataWithJSONObject:profile error:&error];
