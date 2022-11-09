@@ -580,14 +580,7 @@ class SentryFileManagerTests: XCTestCase {
     func testReadPreviousBreadcrumbs() {
         let observer = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
 
-        let breadcrumb = Breadcrumb()
-        breadcrumb.level = SentryLevel.info
-        breadcrumb.timestamp = Date(timeIntervalSince1970: 10)
-        breadcrumb.category = "category"
-        breadcrumb.type = "user"
-        breadcrumb.message = "Click something"
-
-        let serializedBreadcrumb = breadcrumb.serialize()
+        let serializedBreadcrumb = TestData.crumb.serialize()
 
         for _ in 0..<3 {
             observer.addSerializedBreadcrumb(serializedBreadcrumb)
