@@ -71,7 +71,8 @@ processBacktrace(const Backtrace &backtrace,
     NSMutableArray<NSDictionary<NSString *, id> *> *samples,
     NSMutableArray<NSMutableArray<NSNumber *> *> *stacks,
     NSMutableArray<NSDictionary<NSString *, id> *> *frames,
-    NSMutableDictionary<NSString *, NSNumber *> *frameIndexLookup, uint64_t startTimestamp)
+    NSMutableDictionary<NSString *, NSNumber *> *frameIndexLookup, uint64_t startTimestamp,
+    NSMutableDictionary<NSArray<NSNumber *> *, NSNumber *> *stackIndexLookup)
 {
     const auto threadID = [@(backtrace.threadMetadata.threadID) stringValue];
     NSString *queueAddress = nil;
@@ -129,29 +130,13 @@ processBacktrace(const Backtrace &backtrace,
         sample[@"queue_address"] = queueAddress;
     }
 
-    auto stackIndex = NSNotFound;
-    if (stack.count > 0) {
-        stackIndex =
-            [stacks indexOfObjectPassingTest:^BOOL(NSMutableArray<NSNumber *> *_Nonnull nextStack,
-                NSUInteger nextStackIdx, BOOL *_Nonnull stopStackEnumeration) {
-                __block BOOL found = YES;
-                [nextStack enumerateObjectsUsingBlock:^(NSNumber *_Nonnull nextStackFrame,
-                    NSUInteger nextStackFrameIdx, BOOL *_Nonnull stopFrameEnumeration) {
-                    if (![nextStackFrame isEqualToNumber:stack[nextStackFrameIdx]]) {
-                        *stopFrameEnumeration = YES;
-                        found = NO;
-                    }
-                }];
-                if (found) {
-                    *stopStackEnumeration = YES;
-                }
-                return found;
-            }];
-    }
-    if (stackIndex != NSNotFound) {
-        sample[@"stack_id"] = @(stackIndex);
+    const auto stackIndex = stackIndexLookup[stack];
+    if (stackIndex) {
+        sample[@"stack_id"] = stackIndex;
     } else {
-        sample[@"stack_id"] = @(stacks.count);
+        const auto nextStackIndex = @(stacks.count);
+        sample[@"stack_id"] = nextStackIndex;
+        stackIndexLookup[stack] = nextStackIndex;
         [stacks addObject:stack];
     }
 
@@ -445,6 +430,8 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
         const auto stacks = [NSMutableArray<NSMutableArray<NSNumber *> *> array];
         const auto frames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
         const auto frameIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+        const auto stackIndexLookup =
+            [NSMutableDictionary<NSArray<NSNumber *> *, NSNumber *> dictionary];
         sampledProfile[@"samples"] = samples;
         sampledProfile[@"stacks"] = stacks;
         sampledProfile[@"frames"] = frames;
@@ -463,7 +450,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
         __weak const auto weakSelf = self;
         _profiler = std::make_shared<SamplingProfiler>(
             [weakSelf, threadMetadata, queueMetadata, samples, mainThreadID = _mainThreadID, frames,
-                frameIndexLookup, stacks](auto &backtrace) {
+                frameIndexLookup, stacks, stackIndexLookup](auto &backtrace) {
                 const auto strongSelf = weakSelf;
                 if (strongSelf == nil) {
                     SENTRY_LOG_WARN(
@@ -471,7 +458,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
                     return;
                 }
                 processBacktrace(backtrace, threadMetadata, queueMetadata, samples, stacks, frames,
-                    frameIndexLookup, strongSelf->_startTimestamp);
+                    frameIndexLookup, strongSelf->_startTimestamp, stackIndexLookup);
             },
             kSentryProfilerFrequencyHz);
         _profiler->startSampling();
