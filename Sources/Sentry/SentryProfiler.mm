@@ -64,6 +64,104 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     return [symbolNSStr substringWithRange:[match rangeAtIndex:1]];
 }
 
+void
+processBacktrace(const Backtrace &backtrace,
+    NSMutableDictionary<NSString *, NSMutableDictionary *> *threadMetadata,
+    NSMutableDictionary<NSString *, NSDictionary *> *queueMetadata,
+    NSMutableArray<NSDictionary<NSString *, id> *> *samples,
+    NSMutableArray<NSMutableArray<NSNumber *> *> *stacks,
+    NSMutableArray<NSDictionary<NSString *, id> *> *frames,
+    NSMutableDictionary<NSString *, NSNumber *> *frameIndexLookup, uint64_t startTimestamp)
+{
+    const auto threadID = [@(backtrace.threadMetadata.threadID) stringValue];
+    NSString *queueAddress = nil;
+    if (backtrace.queueMetadata.address != 0) {
+        queueAddress = sentry_formatHexAddress(@(backtrace.queueMetadata.address));
+    }
+    NSMutableDictionary<NSString *, id> *metadata = threadMetadata[threadID];
+    if (metadata == nil) {
+        metadata = [NSMutableDictionary<NSString *, id> dictionary];
+        threadMetadata[threadID] = metadata;
+    }
+    if (!backtrace.threadMetadata.name.empty() && metadata[@"name"] == nil) {
+        metadata[@"name"] = [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
+    }
+    if (backtrace.threadMetadata.priority != -1 && metadata[@"priority"] == nil) {
+        metadata[@"priority"] = @(backtrace.threadMetadata.priority);
+    }
+    if (queueAddress != nil && queueMetadata[queueAddress] == nil
+        && backtrace.queueMetadata.label != nullptr) {
+        queueMetadata[queueAddress] =
+            @ { @"label" : [NSString stringWithUTF8String:backtrace.queueMetadata.label->c_str()] };
+    }
+#    if defined(DEBUG)
+    const auto symbols
+        = backtrace_symbols(reinterpret_cast<void *const *>(backtrace.addresses.data()),
+            static_cast<int>(backtrace.addresses.size()));
+#    endif
+
+    const auto stack = [NSMutableArray<NSNumber *> array];
+    for (std::vector<uintptr_t>::size_type backtraceAddressIdx = 0;
+         backtraceAddressIdx < backtrace.addresses.size(); backtraceAddressIdx++) {
+        const auto instructionAddress
+            = sentry_formatHexAddress(@(backtrace.addresses[backtraceAddressIdx]));
+
+        const auto frameIndex = frameIndexLookup[instructionAddress];
+        if (frameIndex == nil) {
+            const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
+            frame[@"instruction_addr"] = instructionAddress;
+#    if defined(DEBUG)
+            frame[@"function"] = parseBacktraceSymbolsFunctionName(symbols[backtraceAddressIdx]);
+#    endif
+            [stack addObject:@(frames.count)];
+            frameIndexLookup[instructionAddress] = @(frames.count);
+            [frames addObject:frame];
+            SENTRY_LOG_DEBUG(@"No tracked frame for %@; storing in frame index at location %@",
+                instructionAddress, frameIndexLookup[instructionAddress]);
+        } else {
+            SENTRY_LOG_DEBUG(@"Found index %@ for frame %@", frameIndex, instructionAddress);
+            [stack addObject:frameIndex];
+        }
+    }
+
+    const auto sample = [NSMutableDictionary<NSString *, id> dictionary];
+    sample[@"elapsed_since_start_ns"] =
+        [@(getDurationNs(startTimestamp, backtrace.absoluteTimestamp)) stringValue];
+    sample[@"thread_id"] = threadID;
+    if (queueAddress != nil) {
+        sample[@"queue_address"] = queueAddress;
+    }
+
+    const auto stackIndex =
+        [stacks indexOfObjectPassingTest:^BOOL(NSMutableArray<NSNumber *> *_Nonnull nextStack,
+            NSUInteger nextStackIdx, BOOL *_Nonnull stopStackEnumeration) {
+            __block BOOL found = YES;
+            [nextStack enumerateObjectsUsingBlock:^(NSNumber *_Nonnull nextStackFrame,
+                NSUInteger nextStackFrameIdx, BOOL *_Nonnull stopFrameEnumeration) {
+                if (![nextStackFrame isEqualToNumber:stack[nextStackFrameIdx]]) {
+                    *stopFrameEnumeration = YES;
+                    found = NO;
+                }
+            }];
+            if (found) {
+                *stopStackEnumeration = YES;
+            }
+            return found;
+        }];
+    if (stackIndex != NSNotFound) {
+        sample[@"stack_id"] = @(stackIndex);
+        SENTRY_LOG_DEBUG(@"Found previous copy of stack at index %lu", stackIndex);
+    } else {
+        sample[@"stack_id"] = @(stacks.count);
+        [stacks addObject:stack];
+        SENTRY_LOG_DEBUG(
+            @"No previous copy of stack %@, storing at index %@", stack, sample[@"stack_id"]);
+    }
+
+    SENTRY_LOG_DEBUG(@"Adding sample.");
+    [samples addObject:sample];
+}
+
 std::mutex _gProfilerLock;
 NSMutableDictionary<SentrySpanId *, SentryProfiler *> *_gProfilersPerSpanID;
 SentryProfiler *_Nullable _gCurrentProfiler;
@@ -372,102 +470,12 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
                 frameIndexLookup, stacks](auto &backtrace) {
                 const auto strongSelf = weakSelf;
                 if (strongSelf == nil) {
+                    SENTRY_LOG_WARN(
+                        @"Profiler instance no longer exists, cannot process next sample.");
                     return;
                 }
-                const auto threadID = [@(backtrace.threadMetadata.threadID) stringValue];
-                NSString *queueAddress = nil;
-                if (backtrace.queueMetadata.address != 0) {
-                    queueAddress = sentry_formatHexAddress(@(backtrace.queueMetadata.address));
-                }
-                NSMutableDictionary<NSString *, id> *metadata = threadMetadata[threadID];
-                if (metadata == nil) {
-                    metadata = [NSMutableDictionary<NSString *, id> dictionary];
-                    threadMetadata[threadID] = metadata;
-                }
-                if (!backtrace.threadMetadata.name.empty() && metadata[@"name"] == nil) {
-                    metadata[@"name"] =
-                        [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
-                }
-                if (backtrace.threadMetadata.priority != -1 && metadata[@"priority"] == nil) {
-                    metadata[@"priority"] = @(backtrace.threadMetadata.priority);
-                }
-                if (queueAddress != nil && queueMetadata[queueAddress] == nil
-                    && backtrace.queueMetadata.label != nullptr) {
-                    queueMetadata[queueAddress] = @{
-                        @"label" :
-                            [NSString stringWithUTF8String:backtrace.queueMetadata.label->c_str()]
-                    };
-                }
-#    if defined(DEBUG)
-                const auto symbols
-                    = backtrace_symbols(reinterpret_cast<void *const *>(backtrace.addresses.data()),
-                        static_cast<int>(backtrace.addresses.size()));
-#    endif
-
-                const auto stack = [NSMutableArray<NSNumber *> array];
-                for (std::vector<uintptr_t>::size_type backtraceAddressIdx = 0;
-                     backtraceAddressIdx < backtrace.addresses.size(); backtraceAddressIdx++) {
-                    const auto instructionAddress
-                        = sentry_formatHexAddress(@(backtrace.addresses[backtraceAddressIdx]));
-
-                    const auto frameIndex = frameIndexLookup[instructionAddress];
-                    if (frameIndex == nil) {
-                        const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
-                        frame[@"instruction_addr"] = instructionAddress;
-#    if defined(DEBUG)
-                        frame[@"function"]
-                            = parseBacktraceSymbolsFunctionName(symbols[backtraceAddressIdx]);
-#    endif
-                        [stack addObject:@(frames.count)];
-                        frameIndexLookup[instructionAddress] = @(frames.count);
-                        [frames addObject:frame];
-                        SENTRY_LOG_DEBUG(
-                            @"No tracked frame for %@; storing in frame index at location %@",
-                            instructionAddress, frameIndexLookup[instructionAddress]);
-                    } else {
-                        SENTRY_LOG_DEBUG(
-                            @"Found index %@ for frame %@", frameIndex, instructionAddress);
-                        [stack addObject:frameIndex];
-                    }
-                }
-
-                const auto sample = [NSMutableDictionary<NSString *, id> dictionary];
-                sample[@"elapsed_since_start_ns"] =
-                    [@(getDurationNs(strongSelf->_startTimestamp, backtrace.absoluteTimestamp))
-                        stringValue];
-                sample[@"thread_id"] = threadID;
-                if (queueAddress != nil) {
-                    sample[@"queue_address"] = queueAddress;
-                }
-
-                const auto stackIndex = [stacks
-                    indexOfObjectPassingTest:^BOOL(NSMutableArray<NSNumber *> *_Nonnull nextStack,
-                        NSUInteger nextStackIdx, BOOL *_Nonnull stopStackEnumeration) {
-                        __block BOOL found = YES;
-                        [nextStack enumerateObjectsUsingBlock:^(NSNumber *_Nonnull nextStackFrame,
-                            NSUInteger nextStackFrameIdx, BOOL *_Nonnull stopFrameEnumeration) {
-                            if (![nextStackFrame isEqualToNumber:stack[nextStackFrameIdx]]) {
-                                *stopFrameEnumeration = YES;
-                                found = NO;
-                            }
-                        }];
-                        if (found) {
-                            *stopStackEnumeration = YES;
-                        }
-                        return found;
-                    }];
-                if (stackIndex != NSNotFound) {
-                    sample[@"stack_id"] = @(stackIndex);
-                    SENTRY_LOG_DEBUG(@"Found previous copy of stack at index %lu", stackIndex);
-                } else {
-                    sample[@"stack_id"] = @(stacks.count);
-                    [stacks addObject:stack];
-                    SENTRY_LOG_DEBUG(@"No previous copy of stack %@, storing at index %@", stack,
-                        sample[@"stack_id"]);
-                }
-
-                SENTRY_LOG_DEBUG(@"Adding sample.");
-                [samples addObject:sample];
+                processBacktrace(backtrace, threadMetadata, queueMetadata, samples, stacks, frames,
+                    frameIndexLookup, strongSelf->_startTimestamp);
             },
             kSentryProfilerFrequencyHz);
         _profiler->startSampling();
