@@ -1,9 +1,9 @@
 #import "SentryProfiler+Test.h"
 #import "SentryProfilingConditionals.h"
 
-using namespace sentry::profiling;
-
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+
+using namespace sentry::profiling;
 
 #    import "SentryProfiler.h"
 #    import <XCTest/XCTest.h>
