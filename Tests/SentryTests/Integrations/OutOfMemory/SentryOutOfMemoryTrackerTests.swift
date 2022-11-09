@@ -209,12 +209,7 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     }
 
     func testAppOOM_WithBreadcrumbs() {
-        let breadcrumb = Breadcrumb()
-        breadcrumb.level = SentryLevel.info
-        breadcrumb.timestamp = Date(timeIntervalSince1970: 10)
-        breadcrumb.category = "category"
-        breadcrumb.type = "user"
-        breadcrumb.message = "Click something"
+        let breadcrumb = TestData.crumb
 
         let sentryOutOfMemoryScopeObserver = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: 10, fileManager: fixture.fileManager)
         sentryOutOfMemoryScopeObserver.addSerializedBreadcrumb(breadcrumb.serialize())
