@@ -9,8 +9,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol SentryScopeObserver <NSObject>
 
-@optional
-
 - (void)setUser:(nullable SentryUser *)user;
 
 - (void)setTags:(nullable NSDictionary<NSString *, NSString *> *)tags;
