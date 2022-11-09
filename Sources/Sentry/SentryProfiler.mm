@@ -129,23 +129,24 @@ processBacktrace(const Backtrace &backtrace,
         sample[@"queue_address"] = queueAddress;
     }
 
-    const auto stackIndex = NSNotFound;
+    auto stackIndex = NSNotFound;
     if (stack.count > 0) {
-        [stacks indexOfObjectPassingTest:^BOOL(NSMutableArray<NSNumber *> *_Nonnull nextStack,
-            NSUInteger nextStackIdx, BOOL *_Nonnull stopStackEnumeration) {
-            __block BOOL found = YES;
-            [nextStack enumerateObjectsUsingBlock:^(NSNumber *_Nonnull nextStackFrame,
-                NSUInteger nextStackFrameIdx, BOOL *_Nonnull stopFrameEnumeration) {
-                if (![nextStackFrame isEqualToNumber:stack[nextStackFrameIdx]]) {
-                    *stopFrameEnumeration = YES;
-                    found = NO;
+        stackIndex =
+            [stacks indexOfObjectPassingTest:^BOOL(NSMutableArray<NSNumber *> *_Nonnull nextStack,
+                NSUInteger nextStackIdx, BOOL *_Nonnull stopStackEnumeration) {
+                __block BOOL found = YES;
+                [nextStack enumerateObjectsUsingBlock:^(NSNumber *_Nonnull nextStackFrame,
+                    NSUInteger nextStackFrameIdx, BOOL *_Nonnull stopFrameEnumeration) {
+                    if (![nextStackFrame isEqualToNumber:stack[nextStackFrameIdx]]) {
+                        *stopFrameEnumeration = YES;
+                        found = NO;
+                    }
+                }];
+                if (found) {
+                    *stopStackEnumeration = YES;
                 }
+                return found;
             }];
-            if (found) {
-                *stopStackEnumeration = YES;
-            }
-            return found;
-        }];
     }
     if (stackIndex != NSNotFound) {
         sample[@"stack_id"] = @(stackIndex);
