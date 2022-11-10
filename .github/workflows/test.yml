@@ -59,81 +59,72 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Dummy matrix for testing.
-        # TODO: Remove before merging
-        a: [1,2,3,4]
-        b: [1,2,3,4]
-        runs-on: ['macos-12']
-        platform: ['iOS']
-        xcode: ['14.0', '13.4.1']
-        test-destination-os: ['latest']
+        # Can't run tests on watchOS because XCTest is not available
+        # We can't use Xcode 11.7 as we use XCTestObservation. When building with Xcode 11.7
+        # we get the error 'XCTest/XCTest.h' not found. Setting ENABLE_TESTING_SEARCH_PATH=YES
+        # doesn't work.
+        include:
+          # iOS 12.4
+          - runs-on: macos-11
+            platform: 'iOS'
+            xcode: '13.2.1'
+            test-destination-os: '12.4'
 
-        # # Can't run tests on watchOS because XCTest is not available
-        # # We can't use Xcode 11.7 as we use XCTestObservation. When building with Xcode 11.7
-        # # we get the error 'XCTest/XCTest.h' not found. Setting ENABLE_TESTING_SEARCH_PATH=YES
-        # # doesn't work.
-        # include:
-        #   # iOS 12.4
-        #   - runs-on: macos-11
-        #     platform: 'iOS'
-        #     xcode: '13.2.1'
-        #     test-destination-os: '12.4'
+          # iOS 13.7
+          - runs-on: macos-11
+            platform: 'iOS'
+            xcode: '13.2.1'
+            test-destination-os: '13.7'
 
-        #   # iOS 13.7
-        #   - runs-on: macos-11
-        #     platform: 'iOS'
-        #     xcode: '13.2.1'
-        #     test-destination-os: '13.7'
+          # iOS 14
+          - runs-on: macos-11
+            platform: 'iOS'
+            xcode: '12.5.1'
+            test-destination-os: 'latest'
 
-        #   # iOS 14
-        #   - runs-on: macos-11
-        #     platform: 'iOS'
-        #     xcode: '12.5.1'
-        #     test-destination-os: 'latest'
+          # iOS 15
+          - runs-on: macos-12
+            platform: 'iOS'
+            xcode: '13.4.1'
+            test-destination-os: 'latest'
 
-        #   # iOS 15
-        #   - runs-on: macos-12
-        #     platform: 'iOS'
-        #     xcode: '13.4.1'
-        #     test-destination-os: 'latest'
+          # iOS 16
+          - runs-on: macos-12
+            platform: 'iOS'
+            xcode: '14.0'
+            test-destination-os: 'latest'
 
-        #   # iOS 16
-        #   - runs-on: macos-12
-        #     platform: 'iOS'
-        #     xcode: '14.0'
-        #     test-destination-os: 'latest'
+          # macOS 11
+          - runs-on: macos-11
+            platform: 'macOS'
+            xcode: '12.5.1'
+            test-destination-os: 'latest'
 
-        #   # macOS 11
-        #   - runs-on: macos-11
-        #     platform: 'macOS'
-        #     xcode: '12.5.1'
-        #     test-destination-os: 'latest'
+          # macOS 12
+          - runs-on: macos-12
+            platform: 'macOS'
+            xcode: '13.4.1'
+            test-destination-os: 'latest'
 
-        #   # macOS 12
-        #   - runs-on: macos-12
-        #     platform: 'macOS'
-        #     xcode: '13.4.1'
-        #     test-destination-os: 'latest'
+          # Catalyst. We only test the latest version, as
+          # the risk something breaking on Catalyst and not
+          # on an older iOS or macOS version is low.
+          - runs-on: macos-12
+            platform: 'Catalyst'
+            xcode: '13.4.1'
+            test-destination-os: 'latest'
 
-        #   # Catalyst. We only test the latest version, as
-        #   # the risk something breaking on Catalyst and not
-        #   # on an older iOS or macOS version is low.
-        #   - runs-on: macos-12
-        #     platform: 'Catalyst'
-        #     xcode: '13.4.1'
-        #     test-destination-os: 'latest'
+          # tvOS 14
+          - runs-on: macos-11
+            platform: 'tvOS'
+            xcode: '12.5.1'
+            test-destination-os: 'latest'
 
-        #   # tvOS 14
-        #   - runs-on: macos-11
-        #     platform: 'tvOS'
-        #     xcode: '12.5.1'
-        #     test-destination-os: 'latest'
-
-        #   # tvOS 15
-        #   - runs-on: macos-12
-        #     platform: 'tvOS'
-        #     xcode: '13.4.1'
-        #     test-destination-os: 'latest'
+          # tvOS 15
+          - runs-on: macos-12
+            platform: 'tvOS'
+            xcode: '13.4.1'
+            test-destination-os: 'latest'
 
     steps:
       - uses: actions/checkout@v3
