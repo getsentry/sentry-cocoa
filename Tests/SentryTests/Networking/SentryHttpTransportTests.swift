@@ -685,7 +685,7 @@ class SentryHttpTransportTests: XCTestCase {
     func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() {
         CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
         
-        givenCachedEvents()
+        givenCachedEvents(amount: 30)
         fixture.requestManager.responseDelay = fixture.flushTimeout * 2
         
         let allFlushCallsGroup = DispatchGroup()
