@@ -15,13 +15,6 @@
  * "Sentry-Swift.h"".
  */
 
-#if SWIFT_PACKAGE // For SWIFT PACKAGE MANAGER
-@import SentrySwift;
-#else
-#    if __has_include(<Sentry/Sentry-Swift.h>) //COCOAPODS with USE_FRAMEWORKS
-#        import <Sentry/Sentry-Swift.h>
-#    else
-#        import "Sentry-Swift.h" //Everything else
-#    endif
-#endif
+@import SentryPrivate;
+
 #endif

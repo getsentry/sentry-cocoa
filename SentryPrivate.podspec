@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
-  s.name         = "Sentry"
+  s.name         = "SentryPrivate"
   s.version      = "7.30.0"
-  s.summary      = "Sentry client for cocoa"
+  s.summary      = "Sentry Private Library. Do not target this directly"
   s.homepage     = "https://github.com/getsentry/sentry-cocoa"
   s.license      = "mit"
   s.authors      = "Sentry"
@@ -12,10 +12,10 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = "10.10"
   s.tvos.deployment_target = "9.0"
   s.watchos.deployment_target = "2.0"
-  s.module_name  = "Sentry"
+  s.module_name  = "SentryPrivate"
   s.requires_arc = true
   s.frameworks = 'Foundation'
-  s.libraries = 'z', 'c++'
+  s.libraries = 'c++'
   s.swift_versions = "5.5"
   s.pod_target_xcconfig = {
       'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES',
@@ -27,21 +27,9 @@ Pod::Spec.new do |s|
   }
 
   s.default_subspecs = ['Core']
-  s.dependency "SentryPrivate"
-
-  s.subspec 'Core' do |sp|
-      sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
-        "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}", "Sources/Swift/Sentry.swift"
-      sp.public_header_files =
-        "Sources/Sentry/Public/*.h"
-  end
   
-  s.subspec 'HybridSDK' do |sp|
-      sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
-        "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}", "Sources/Swift/Sentry.swift"
-        
-      sp.public_header_files =
-        "Sources/Sentry/Public/*.h", "Sources/Sentry/include/PrivateSentrySDKOnly.h"
+  s.subspec 'Core' do |sp|
+      sp.source_files = "Sources/Swift/**/*.{swift}"
   end
   
 end

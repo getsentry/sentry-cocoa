@@ -9,7 +9,7 @@ let package = Package(
         .library(name: "Sentry-Dynamic", type: .dynamic, targets: ["Sentry"])
     ],
     targets: [
-        .target( name: "SentrySwift",
+        .target( name: "SentryPrivate",
                  path: "Sources",
                  sources: [
                     "Swift"
@@ -17,7 +17,7 @@ let package = Package(
                ),
         .target(
             name: "Sentry",
-            dependencies: ["SentrySwift"],
+            dependencies: ["SentryPrivate"],
             path: "Sources",
             sources: [
                 "Sentry/",
