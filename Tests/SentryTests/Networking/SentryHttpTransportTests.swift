@@ -720,15 +720,17 @@ class SentryHttpTransportTests: XCTestCase {
         // double-checked lock, should return immediately.
         
         let initiallyInactiveQueue = fixture.queue
-        for _ in 0..<10 {
+        for _ in 0..<2 {
             allFlushCallsGroup.enter()
             initiallyInactiveQueue.async {
-                let beforeFlush = getAbsoluteTime()
-                let result = self.sut.flush(self.fixture.flushTimeout)
-                let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
-                
-                XCTAssertGreaterThan(0.1, blockingDuration, "The flush call should have returned immediately.")
-                XCTAssertFalse(result)
+                for _ in 0..<10 {
+                    let beforeFlush = getAbsoluteTime()
+                    let result = self.sut.flush(self.fixture.flushTimeout)
+                    let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
+                    
+                    XCTAssertGreaterThan(0.1, blockingDuration, "The flush call should have returned immediately.")
+                    XCTAssertFalse(result)
+                }
 
                 allFlushCallsGroup.leave()
             }
