@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 7.30.2
 
 ### Fixes
 
