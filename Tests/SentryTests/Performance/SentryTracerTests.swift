@@ -38,6 +38,8 @@ class SentryTracerTests: XCTestCase {
 #endif
         
         init() {
+            dispatchQueue.blockBeforeMainBlock = { false }
+
             CurrentDate.setCurrentDateProvider(currentDateProvider)
             appStart = currentDateProvider.date()
             appStartEnd = appStart.addingTimeInterval(0.5)

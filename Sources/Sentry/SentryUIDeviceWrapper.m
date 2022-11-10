@@ -1,4 +1,6 @@
 #import "SentryUIDeviceWrapper.h"
+#import "SentryDependencyContainer.h"
+#import "SentryDispatchQueueWrapper.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -6,6 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 SentryUIDeviceWrapper ()
 @property (nonatomic) BOOL cleanupDeviceOrientationNotifications;
 @property (nonatomic) BOOL cleanupBatteryMonitoring;
+@property (strong, nonatomic) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @end
 
 @implementation SentryUIDeviceWrapper
@@ -14,30 +17,46 @@ SentryUIDeviceWrapper ()
 
 - (instancetype)init
 {
-    if (self = [super init]) {
-        // Needed to read the device orientation on demand
-        if (!UIDevice.currentDevice.isGeneratingDeviceOrientationNotifications) {
-            self.cleanupDeviceOrientationNotifications = YES;
-            [UIDevice.currentDevice beginGeneratingDeviceOrientationNotifications];
-        }
+    return [self initWithDispatchQueueWrapper:[SentryDependencyContainer sharedInstance]
+                                                  .dispatchQueueWrapper];
+}
 
-        // Needed so we can read the battery level
-        if (!UIDevice.currentDevice.isBatteryMonitoringEnabled) {
-            self.cleanupBatteryMonitoring = YES;
-            UIDevice.currentDevice.batteryMonitoringEnabled = YES;
-        }
+- (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+{
+    if (self = [super init]) {
+        self.dispatchQueueWrapper = dispatchQueueWrapper;
+        [self.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
+            // Needed to read the device orientation on demand
+            if (!UIDevice.currentDevice.isGeneratingDeviceOrientationNotifications) {
+                self.cleanupDeviceOrientationNotifications = YES;
+                [UIDevice.currentDevice beginGeneratingDeviceOrientationNotifications];
+            }
+
+            // Needed so we can read the battery level
+            if (!UIDevice.currentDevice.isBatteryMonitoringEnabled) {
+                self.cleanupBatteryMonitoring = YES;
+                UIDevice.currentDevice.batteryMonitoringEnabled = YES;
+            }
+        }];
     }
     return self;
 }
 
+- (void)stop
+{
+    [self.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
+        if (self.cleanupDeviceOrientationNotifications) {
+            [UIDevice.currentDevice endGeneratingDeviceOrientationNotifications];
+        }
+        if (self.cleanupBatteryMonitoring) {
+            UIDevice.currentDevice.batteryMonitoringEnabled = NO;
+        }
+    }];
+}
+
 - (void)dealloc
 {
-    if (self.cleanupDeviceOrientationNotifications) {
-        [UIDevice.currentDevice endGeneratingDeviceOrientationNotifications];
-    }
-    if (self.cleanupBatteryMonitoring) {
-        UIDevice.currentDevice.batteryMonitoringEnabled = NO;
-    }
+    [self stop];
 }
 
 - (UIDeviceOrientation)orientation

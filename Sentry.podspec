@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Sentry"
-  s.version      = "7.30.0"
+  s.version      = "7.30.2"
   s.summary      = "Sentry client for cocoa"
   s.homepage     = "https://github.com/getsentry/sentry-cocoa"
   s.license      = "mit"
@@ -31,8 +31,15 @@ Pod::Spec.new do |s|
       sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
         "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}"
         
-      sp.public_header_files =
-        "Sources/Sentry/Public/*.h"
-      
+      sp.public_header_files = "Sources/Sentry/Public/*.h"
   end
+  
+  s.subspec 'HybridSDK' do |sp|
+      sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
+        "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}"
+        
+      sp.public_header_files =
+        "Sources/Sentry/Public/*.h", "Sources/Sentry/include/PrivateSentrySDKOnly.h"
+  end
+  
 end
