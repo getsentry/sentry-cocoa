@@ -664,7 +664,7 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertTrue(sut.flush(fixture.flushTimeout), "Flush should not time out.")
         let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
         
-        XCTAssertLessThan(blockingDuration, fixture.flushTimeout * 2,
+        XCTAssertLessThan(blockingDuration, fixture.flushTimeout * 2.2,
                           "The blocking duration must not exceed the sum of the maximum flush duration.")
     }
     
