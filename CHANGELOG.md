@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Too long flush duration (#2370)
+
 ## 7.30.2
 
 ### Fixes
