@@ -8,12 +8,8 @@ class SentryOutOfMemoryScopeObserverTests: XCTestCase {
         let currentDate = TestCurrentDateProvider()
 
         init() {
-            breadcrumb = Breadcrumb()
-            breadcrumb.level = SentryLevel.info
-            breadcrumb.timestamp = Date(timeIntervalSince1970: 10)
-            breadcrumb.category = "category"
-            breadcrumb.type = "user"
-            breadcrumb.message = "Click something"
+            breadcrumb = TestData.crumb
+            breadcrumb.data = nil
 
             options = Options()
             fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
@@ -110,10 +106,10 @@ class SentryOutOfMemoryScopeObserverTests: XCTestCase {
         }
 
         var fileOneContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
-        XCTAssertEqual(fileOneContents.count, 1_200)
+        XCTAssertEqual(fileOneContents.count, 1_210)
 
         let fileTwoContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathTwo)
-        XCTAssertEqual(fileTwoContents.count, 600)
+        XCTAssertEqual(fileTwoContents.count, 605)
 
         sut.clearBreadcrumbs()
 
