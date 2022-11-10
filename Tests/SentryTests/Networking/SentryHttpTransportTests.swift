@@ -664,7 +664,8 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertTrue(sut.flush(fixture.flushTimeout), "Flush should not time out.")
         let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
         
-        XCTAssertLessThan(blockingDuration, 0.1)
+        XCTAssertLessThan(blockingDuration, fixture.flushTimeout * 2,
+                          "The blocking duration must not exceed the sum of the maximum flush duration.")
     }
     
     func testFlush_WhenNoEnvelopes_BlocksAndFinishes() {
@@ -719,8 +720,7 @@ class SentryHttpTransportTests: XCTestCase {
         // double-checked lock, should return immediately.
         
         let initiallyInactiveQueue = fixture.queue
-        let count = 100
-        for _ in 0..<count {
+        for _ in 0..<10 {
             allFlushCallsGroup.enter()
             initiallyInactiveQueue.async {
                 let beforeFlush = getAbsoluteTime()
