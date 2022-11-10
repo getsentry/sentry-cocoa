@@ -64,6 +64,86 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     return [symbolNSStr substringWithRange:[match rangeAtIndex:1]];
 }
 
+void
+processBacktrace(const Backtrace &backtrace,
+    NSMutableDictionary<NSString *, NSMutableDictionary *> *threadMetadata,
+    NSMutableDictionary<NSString *, NSDictionary *> *queueMetadata,
+    NSMutableArray<NSDictionary<NSString *, id> *> *samples,
+    NSMutableArray<NSMutableArray<NSNumber *> *> *stacks,
+    NSMutableArray<NSDictionary<NSString *, id> *> *frames,
+    NSMutableDictionary<NSString *, NSNumber *> *frameIndexLookup, uint64_t startTimestamp,
+    NSMutableDictionary<NSString *, NSNumber *> *stackIndexLookup)
+{
+    const auto threadID = [@(backtrace.threadMetadata.threadID) stringValue];
+    NSString *queueAddress = nil;
+    if (backtrace.queueMetadata.address != 0) {
+        queueAddress = sentry_formatHexAddress(@(backtrace.queueMetadata.address));
+    }
+    NSMutableDictionary<NSString *, id> *metadata = threadMetadata[threadID];
+    if (metadata == nil) {
+        metadata = [NSMutableDictionary<NSString *, id> dictionary];
+        threadMetadata[threadID] = metadata;
+    }
+    if (!backtrace.threadMetadata.name.empty() && metadata[@"name"] == nil) {
+        metadata[@"name"] = [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
+    }
+    if (backtrace.threadMetadata.priority != -1 && metadata[@"priority"] == nil) {
+        metadata[@"priority"] = @(backtrace.threadMetadata.priority);
+    }
+    if (queueAddress != nil && queueMetadata[queueAddress] == nil
+        && backtrace.queueMetadata.label != nullptr) {
+        queueMetadata[queueAddress] =
+            @ { @"label" : [NSString stringWithUTF8String:backtrace.queueMetadata.label->c_str()] };
+    }
+#    if defined(DEBUG)
+    const auto symbols
+        = backtrace_symbols(reinterpret_cast<void *const *>(backtrace.addresses.data()),
+            static_cast<int>(backtrace.addresses.size()));
+#    endif
+
+    const auto stack = [NSMutableArray<NSNumber *> array];
+    for (std::vector<uintptr_t>::size_type backtraceAddressIdx = 0;
+         backtraceAddressIdx < backtrace.addresses.size(); backtraceAddressIdx++) {
+        const auto instructionAddress
+            = sentry_formatHexAddress(@(backtrace.addresses[backtraceAddressIdx]));
+
+        const auto frameIndex = frameIndexLookup[instructionAddress];
+        if (frameIndex == nil) {
+            const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
+            frame[@"instruction_addr"] = instructionAddress;
+#    if defined(DEBUG)
+            frame[@"function"] = parseBacktraceSymbolsFunctionName(symbols[backtraceAddressIdx]);
+#    endif
+            [stack addObject:@(frames.count)];
+            frameIndexLookup[instructionAddress] = @(frames.count);
+            [frames addObject:frame];
+        } else {
+            [stack addObject:frameIndex];
+        }
+    }
+
+    const auto sample = [NSMutableDictionary<NSString *, id> dictionary];
+    sample[@"elapsed_since_start_ns"] =
+        [@(getDurationNs(startTimestamp, backtrace.absoluteTimestamp)) stringValue];
+    sample[@"thread_id"] = threadID;
+    if (queueAddress != nil) {
+        sample[@"queue_address"] = queueAddress;
+    }
+
+    const auto stackKey = [stack componentsJoinedByString:@"|"];
+    const auto stackIndex = stackIndexLookup[stackKey];
+    if (stackIndex) {
+        sample[@"stack_id"] = stackIndex;
+    } else {
+        const auto nextStackIndex = @(stacks.count);
+        sample[@"stack_id"] = nextStackIndex;
+        stackIndexLookup[stackKey] = nextStackIndex;
+        [stacks addObject:stack];
+    }
+
+    [samples addObject:sample];
+}
+
 std::mutex _gProfilerLock;
 NSMutableDictionary<SentrySpanId *, SentryProfiler *> *_gProfilersPerSpanID;
 SentryProfiler *_Nullable _gCurrentProfiler;
@@ -350,6 +430,8 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
         const auto samples = [NSMutableArray<NSDictionary<NSString *, id> *> array];
         const auto stacks = [NSMutableArray<NSMutableArray<NSNumber *> *> array];
         const auto frames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
+        const auto frameIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+        const auto stackIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
         sampledProfile[@"samples"] = samples;
         sampledProfile[@"stacks"] = stacks;
         sampledProfile[@"frames"] = frames;
@@ -368,82 +450,15 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
         __weak const auto weakSelf = self;
         _profiler = std::make_shared<SamplingProfiler>(
             [weakSelf, threadMetadata, queueMetadata, samples, mainThreadID = _mainThreadID, frames,
-                stacks](auto &backtrace) {
+                frameIndexLookup, stacks, stackIndexLookup](auto &backtrace) {
                 const auto strongSelf = weakSelf;
                 if (strongSelf == nil) {
+                    SENTRY_LOG_WARN(
+                        @"Profiler instance no longer exists, cannot process next sample.");
                     return;
                 }
-                const auto threadID = [@(backtrace.threadMetadata.threadID) stringValue];
-                NSString *queueAddress = nil;
-                if (backtrace.queueMetadata.address != 0) {
-                    queueAddress = sentry_formatHexAddress(@(backtrace.queueMetadata.address));
-                }
-                NSMutableDictionary<NSString *, id> *metadata = threadMetadata[threadID];
-                if (metadata == nil) {
-                    metadata = [NSMutableDictionary<NSString *, id> dictionary];
-                    threadMetadata[threadID] = metadata;
-                }
-                if (!backtrace.threadMetadata.name.empty() && metadata[@"name"] == nil) {
-                    metadata[@"name"] =
-                        [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
-                }
-                if (backtrace.threadMetadata.priority != -1 && metadata[@"priority"] == nil) {
-                    metadata[@"priority"] = @(backtrace.threadMetadata.priority);
-                }
-                if (queueAddress != nil && queueMetadata[queueAddress] == nil
-                    && backtrace.queueMetadata.label != nullptr) {
-                    queueMetadata[queueAddress] = @{
-                        @"label" :
-                            [NSString stringWithUTF8String:backtrace.queueMetadata.label->c_str()]
-                    };
-                }
-#    if defined(DEBUG)
-                const auto symbols
-                    = backtrace_symbols(reinterpret_cast<void *const *>(backtrace.addresses.data()),
-                        static_cast<int>(backtrace.addresses.size()));
-#    endif
-
-                const auto stack = [NSMutableArray<NSNumber *> array];
-                const auto frameIndexLookup =
-                    [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-                for (std::vector<uintptr_t>::size_type i = 0; i < backtrace.addresses.size(); i++) {
-                    const auto instructionAddress
-                        = sentry_formatHexAddress(@(backtrace.addresses[i]));
-
-                    const auto frameIndex = frameIndexLookup[instructionAddress];
-
-                    if (frameIndex == nil) {
-                        const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
-                        frame[@"instruction_addr"] = instructionAddress;
-#    if defined(DEBUG)
-                        frame[@"function"] = parseBacktraceSymbolsFunctionName(symbols[i]);
-#    endif
-                        [stack addObject:@(frames.count)];
-                        [frames addObject:frame];
-                        frameIndexLookup[instructionAddress] = @(stack.count);
-                    } else {
-                        [stack addObject:frameIndex];
-                    }
-                }
-
-                const auto sample = [NSMutableDictionary<NSString *, id> dictionary];
-                sample[@"elapsed_since_start_ns"] =
-                    [@(getDurationNs(strongSelf->_startTimestamp, backtrace.absoluteTimestamp))
-                        stringValue];
-                sample[@"thread_id"] = threadID;
-                if (queueAddress != nil) {
-                    sample[@"queue_address"] = queueAddress;
-                }
-
-                const auto stackIndex = [stacks indexOfObject:stack];
-                if (stackIndex != NSNotFound) {
-                    sample[@"stack_id"] = @(stackIndex);
-                } else {
-                    sample[@"stack_id"] = @(stacks.count);
-                    [stacks addObject:stack];
-                }
-
-                [samples addObject:sample];
+                processBacktrace(backtrace, threadMetadata, queueMetadata, samples, stacks, frames,
+                    frameIndexLookup, strongSelf->_startTimestamp, stackIndexLookup);
             },
             kSentryProfilerFrequencyHz);
         _profiler->startSampling();
@@ -486,6 +501,12 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     @synchronized(self) {
         profile = [_profile mutableCopy];
     }
+
+    if ([((NSArray *)profile[@"profile"][@"samples"]) count] < 2) {
+        SENTRY_LOG_DEBUG(@"No samples located in profile");
+        return;
+    }
+
     profile[@"version"] = @"1";
     const auto debugImages = [NSMutableArray<NSDictionary<NSString *, id> *> new];
     const auto debugMeta = [_debugImageProvider getDebugImages];
