@@ -143,6 +143,8 @@ static BOOL appStartMeasurementRead;
           dispatchQueueWrapper:(nullable SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
+        SENTRY_LOG_DEBUG(
+            @"Starting transaction at system time %llu", (unsigned long long)getAbsoluteTime());
         self.rootSpan = [[SentrySpan alloc] initWithTracer:self context:transactionContext];
         self.transactionContext = transactionContext;
         _children = [[NSMutableArray alloc] init];
@@ -399,6 +401,8 @@ static BOOL appStartMeasurementRead;
 
 - (void)finish
 {
+    SENTRY_LOG_DEBUG(
+        @"-[SentryTracer finish] for trace ID %@", _traceContext.traceId.sentryIdString);
     [self finishWithStatus:kSentrySpanStatusOk];
 }
 

@@ -68,12 +68,6 @@
                   Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl_disabled()">
                </Test>
                <Test
-                  Identifier = "SentryHttpTransportTests/testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse_disabled()">
-               </Test>
-               <Test
-                  Identifier = "SentryHttpTransportTests/testFlush_CalledSequentially_BlocksTwice_disabled()">
-               </Test>
-               <Test
                   Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndBaggageHeaderAdded_disabled()">
                </Test>
                <Test

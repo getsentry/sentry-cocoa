@@ -12,7 +12,14 @@ class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
     var blockOnMainInvocations = Invocations<() -> Void>()
     var blockBeforeMainBlock: () -> Bool = { true }
     
-    override func dispatch(onMainQueue block: @escaping () -> Void) {
+    override func dispatchAsync(onMainQueue block: @escaping () -> Void) {
+        blockOnMainInvocations.record(block)
+        if blockBeforeMainBlock() {
+            block()
+        }
+    }
+
+    override func dispatchSync(onMainQueue block: @escaping () -> Void) {
         blockOnMainInvocations.record(block)
         if blockBeforeMainBlock() {
             block()
@@ -22,6 +29,9 @@ class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
     var dispatchAfterInvocations = Invocations<(interval: TimeInterval, block: () -> Void)>()
     override func dispatch(after interval: TimeInterval, block: @escaping () -> Void) {
         dispatchAfterInvocations.record((interval, block))
+        if blockBeforeMainBlock() {
+            block()
+        }
     }
     
     func invokeLastDispatchAfter() {

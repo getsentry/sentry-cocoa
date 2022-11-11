@@ -43,25 +43,25 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     }
     
     func testNetworkTrackerDisabled_WhenNetworkTrackingDisabled() {
-        asserrtNetworkTrackerDisabled { options in
+        assertNetworkTrackerDisabled { options in
             options.enableNetworkTracking = false
         }
     }
     
     func testNetworkTrackerDisabled_WhenAutoPerformanceTrackingDisabled() {
-        asserrtNetworkTrackerDisabled { options in
+        assertNetworkTrackerDisabled { options in
             options.enableAutoPerformanceTracking = false
         }
     }
     
     func testNetworkTrackerDisabled_WhenTracingDisabled() {
-        asserrtNetworkTrackerDisabled { options in
+        assertNetworkTrackerDisabled { options in
             options.tracesSampleRate = 0.0
         }
     }
     
     func testNetworkTrackerDisabled_WhenSwizzlingDisabled() {
-        asserrtNetworkTrackerDisabled { options in
+        assertNetworkTrackerDisabled { options in
             options.enableSwizzling = false
         }
     }
@@ -246,14 +246,14 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         wait(for: [expect], timeout: 5)
         
         XCTAssertNotNil(sentryEvent)
-        XCTAssertNotNil(sentryEvent!.request)
+        XCTAssertNotNil(sentryEvent?.request)
         
-        let sentryResponse = sentryEvent!.context?["response"]
+        let sentryResponse = sentryEvent?.context?["response"]
 
         XCTAssertEqual(sentryResponse?["status_code"] as? NSNumber, 400)
     }
     
-    private func asserrtNetworkTrackerDisabled(configureOptions: (Options) -> Void) {
+    private func assertNetworkTrackerDisabled(configureOptions: (Options) -> Void) {
         configureOptions(fixture.options)
         
         startSDK()

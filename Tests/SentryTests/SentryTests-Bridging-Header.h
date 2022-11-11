@@ -116,7 +116,7 @@
 #import "SentryPerformanceTracker.h"
 #import "SentryPerformanceTrackingIntegration.h"
 #import "SentryPredicateDescriptor.h"
-#import "SentryProfiler+Test.h"
+#import "SentryProfiler.h"
 #import "SentryQueueableRequestManager.h"
 #import "SentryRandom.h"
 #import "SentryRateLimitParser.h"

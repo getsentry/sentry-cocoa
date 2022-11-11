@@ -10,6 +10,10 @@ class SentryUIEventTrackerTests: XCTestCase {
         let hub = SentryHub(client: TestClient(options: Options()), andScope: nil)
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         let button = UIButton()
+
+        init () {
+            dispatchQueue.blockBeforeMainBlock = { false }
+        }
         
         func getSut() -> SentryUIEventTracker {
             return SentryUIEventTracker(swizzleWrapper: swizzleWrapper, dispatchQueueWrapper: dispatchQueue, idleTimeout: 3.0)

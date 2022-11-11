@@ -33,7 +33,7 @@
 #import "SentryCrashSysCtl.h"
 #import "SentryCrashSystemCapabilities.h"
 
-//#define SentryCrashLogger_LocalLevel TRACE
+// #define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
 
 #import <CommonCrypto/CommonDigest.h>

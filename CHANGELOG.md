@@ -7,6 +7,20 @@ This version introduces a dependency on Swift, which only impacts you if you don
 ### Features
 
 - Properly demangle Swift class name (#2162)
+## Unreleased
+
+### Fixes
+
+- Too long flush duration (#2370)
+
+## 7.30.2
+
+### Fixes
+
+- Fix issue with invalid profiles uploading (#2358 and #2359)
+- Call UIDevice methods on the main thread (#2369)
+- Avoid sending profiles with 0 samples or incorrectly deduplicated backtrace elements (#2375)
+
 ## 7.30.0
 
 ### Features
