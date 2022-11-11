@@ -27,8 +27,8 @@ Pod::Spec.new do |s|
   }
 
   s.default_subspecs = ['Core']
-
-  s.dependency = "SentryPrivate"
+  
+  s.dependency "SentryPrivate"
 
   s.subspec 'Core' do |sp|
       sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",

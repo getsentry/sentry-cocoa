@@ -11,14 +11,13 @@ let package = Package(
     ],
     targets: [
         .target ( name: "SentrySwiftUI",
-                  dependencies: ["Sentry", "PrivateSentry"],
+                  dependencies: ["Sentry", "SentryInternal"],
                   path: "Sources",
                   sources: [
                     "SentrySwiftUI"
                   ]
         ),
-        .target( name: "PrivateSentry",
-                 dependencies: ["Sentry"],
+        .target( name: "SentryInternal",
                  path: "Sources",
                  sources: [
                   "PrivateSentry/"
@@ -27,7 +26,7 @@ let package = Package(
         ),
         .target(
             name: "Sentry",
-            dependencies: ["SentrySwift"],
+            dependencies: ["SentryPrivate"],
             path: "Sources",
             sources: [
                 "Sentry/",
@@ -51,10 +50,10 @@ let package = Package(
                 .linkedLibrary("c++")
             ]
         ),
-        .target( name: "SentrySwift",
+        .target( name: "SentryPrivate",
                  path: "Sources",
                  sources: [
-                    "SentrySwift"
+                    "Swift"
                  ]
                )
     ],
