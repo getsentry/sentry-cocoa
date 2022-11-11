@@ -1031,6 +1031,22 @@ class SentryClientTest: XCTestCase {
             )
         }
     }
+
+    func testTrackStitchAsyncCode() {
+        SentrySDK.start(options: Options())
+
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.stitchAsyncCode = true
+        }).capture(message: fixture.messageAsString)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            assertArrayEquals(
+                expected: ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking", "StitchAsyncCode"],
+                actual: actual.sdk?["integrations"] as? [String]
+            )
+        }
+    }
     
     func testSetSDKIntegrations_NoIntegrations() {
         let expected: [String] = []

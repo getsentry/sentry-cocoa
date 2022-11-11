@@ -5,7 +5,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentrySpanId;
-typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 /**
  * Tracks performance synchronizing span with its childs.
@@ -29,21 +28,6 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
  * @return The span id.
  */
 - (SentrySpanId *)startSpanWithName:(NSString *)name operation:(NSString *)operation;
-
-/**
- * Starts a new span if no span is active,
- * then bind it to the scope if no span is binded.
- * If there`s an active span, starts a child of the active span.
- *
- * @param name Span name.
- * @param source The source of the transaction name to be used for dynamic sampling.
- * @param operation Span operation.
- *
- * @return The span id.
- */
-- (SentrySpanId *)startSpanWithName:(NSString *)name
-                         nameSource:(SentryTransactionNameSource)source
-                          operation:(NSString *)operation;
 
 /**
  * Activate the span with `spanId`
@@ -124,10 +108,6 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
  * @return SentrySpan
  */
 - (nullable id<SentrySpan>)getSpan:(SentrySpanId *)spanId;
-
-- (BOOL)pushActiveSpan:(SentrySpanId *)spanId;
-
-- (void)popActiveSpan;
 
 @end
 

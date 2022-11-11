@@ -25,7 +25,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         super.setUp()
         fixture = Fixture()
 
-        SentryDependencyContainer.sharedInstance.viewHierarchy = fixture.viewHierarchy
+        SentryDependencyContainer.sharedInstance().viewHierarchy = fixture.viewHierarchy
     }
 
     override func tearDown() {

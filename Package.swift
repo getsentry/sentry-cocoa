@@ -10,20 +10,6 @@ let package = Package(
         .library(name: "SentrySwiftUI", targets: ["SentrySwiftUI"])
     ],
     targets: [
-        .target ( name: "SentrySwiftUI",
-                  dependencies: ["Sentry", "SentryInternal"],
-                  path: "Sources",
-                  sources: [
-                    "SentrySwiftUI"
-                  ]
-        ),
-        .target( name: "SentryInternal",
-                 path: "Sources",
-                 sources: [
-                  "PrivateSentry/"
-                 ],
-                 publicHeadersPath: "PrivateSentry/"
-        ),
         .target(
             name: "Sentry",
             dependencies: ["SentryPrivate"],
@@ -55,6 +41,20 @@ let package = Package(
                  sources: [
                     "Swift"
                  ]
+               ),
+        .target ( name: "SentrySwiftUI",
+                  dependencies: ["Sentry", "SentryInternal"],
+                  path: "Sources",
+                  sources: [
+                    "SentrySwiftUI"
+                  ]
+                ),
+        .target( name: "SentryInternal",
+                 path: "Sources",
+                 sources: [
+                    "SentryInternal/"
+                 ],
+                 publicHeadersPath: "SentryInternal/"
                )
     ],
     cxxLanguageStandard: .cxx14

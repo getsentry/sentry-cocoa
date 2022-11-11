@@ -23,7 +23,7 @@ Pod::Spec.new do |s|
   s.default_subspecs = ['Core']
   
   s.subspec 'Core' do |sp|
-      sp.source_files = "Sources/SentrySwiftUI/**/*.{swift}","Sources/PrivateSentry/**/*.{h}"
+      sp.source_files = "Sources/SentrySwiftUI/**/*.{swift}","Sources/SentryInternal/**/*.{h}"
       sp.dependency 'Sentry'
   end
 end

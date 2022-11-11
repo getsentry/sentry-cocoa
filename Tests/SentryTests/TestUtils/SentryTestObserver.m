@@ -48,21 +48,18 @@ SentryTestObserver ()
 
         // The SentryCrashIntegration enriches the scope. We need to install the integration
         // once to get the scope data.
+        [SentrySDK startWithOptionsObject:options];
 
-        // When running the SentryTestObserver the code gets stuck when accessing the
-        // UIScreen.mainScreen in SentryCrashIntegration. We disable adding extra context for now.
-        // Ideally we somehow check here if we can access UIScreen.mainScreen, see
-        // https://github.com/getsentry/sentry-cocoa/issues/2284
-        //        [SentrySDK startWithOptionsObject:options];
-        //
-        //        self.scope = [[SentryScope alloc] init];
-        //        [SentryCrashIntegration enrichScope:self.scope
-        //                               crashWrapper:[SentryCrashWrapper sharedInstance]];
+        self.scope = [[SentryScope alloc] init];
+        [SentryCrashIntegration enrichScope:self.scope
+                               crashWrapper:[SentryCrashWrapper sharedInstance]];
 
         self.options = options;
     }
     return self;
 }
+
+#pragma mark - XCTestObservation
 
 - (void)testCaseWillStart:(XCTestCase *)testCase
 {
@@ -72,6 +69,11 @@ SentryTestObserver ()
     // The tests might have a different time set
     [crumb setTimestamp:[NSDate new]];
     [self.scope addBreadcrumb:crumb];
+}
+
+- (void)testBundleDidFinish:(NSBundle *)testBundle
+{
+    [SentrySDK flush:5.0];
 }
 
 - (void)testCase:(XCTestCase *)testCase didRecordIssue:(XCTIssue *)issue
@@ -92,12 +94,6 @@ SentryTestObserver ()
     [hub captureException:exception withScope:hub.scope];
 
     [SentryCurrentDate setCurrentDateProvider:currentDateProvider];
-}
-
-- (void)testBundleDidFinish:(NSBundle *)testBundle
-{
-    // Wait for events to flush out.
-    [NSThread sleepForTimeInterval:3.0];
 }
 
 @end

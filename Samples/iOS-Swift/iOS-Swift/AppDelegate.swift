@@ -1,5 +1,4 @@
 import Sentry
-import SwiftUI
 import UIKit
 
 @UIApplicationMain

@@ -121,6 +121,7 @@
 #import "SentryRandom.h"
 #import "SentryRateLimitParser.h"
 #import "SentryRateLimits.h"
+#import "SentryReachability.h"
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentrySDK+Private.h"
 #import "SentrySDK+Tests.h"
@@ -171,6 +172,7 @@
 #import "UIView+Sentry.h"
 #import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"
+@import SentryPrivate;
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIEventTracker.h"

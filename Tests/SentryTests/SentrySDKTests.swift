@@ -473,11 +473,11 @@ class SentrySDKTests: XCTestCase {
             options.dsn = SentrySDKTests.dsnAsString
         }
         
-        let first = SentryDependencyContainer.sharedInstance
+        let first = SentryDependencyContainer.sharedInstance()
         
         SentrySDK.close()
         
-        let second = SentryDependencyContainer.sharedInstance
+        let second = SentryDependencyContainer.sharedInstance()
         
         XCTAssertNotEqual(first, second)
     }

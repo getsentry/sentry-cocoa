@@ -2,7 +2,7 @@ import Foundation
 import Sentry
 import SwiftUI
 #if SWIFT_PACKAGE
-import PrivateSentry
+import SentryInternal
 #endif
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)

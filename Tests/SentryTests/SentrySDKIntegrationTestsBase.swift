@@ -13,7 +13,7 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
     override func setUp() {
         super.setUp()
         crashWrapper = TestSentryCrashWrapper.sharedInstance()
-        SentryDependencyContainer.sharedInstance.crashWrapper = crashWrapper
+        SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
         currentDate = TestCurrentDateProvider()
     }
     

@@ -29,6 +29,7 @@ class SentryHttpTransportTests: XCTestCase {
         let requestBuilder = TestNSURLRequestBuilder()
         let rateLimits: DefaultRateLimits
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let reachability = TestSentryReachability()
         let flushTimeout: TimeInterval = 0.5
 
         let userFeedback: UserFeedback
@@ -38,7 +39,7 @@ class SentryHttpTransportTests: XCTestCase {
         let clientReportEnvelope: SentryEnvelope
         let clientReportRequest: SentryNSURLRequest
         
-        let queue = DispatchQueue(label: "SentryHttpTransportTests", qos: .utility, attributes: [.concurrent, .initiallyInactive])
+        let queue = DispatchQueue(label: "SentryHttpTransportTests", qos: .userInitiated, attributes: [.concurrent, .initiallyInactive])
 
         init() {
             currentDateProvider = TestCurrentDateProvider()
@@ -100,7 +101,8 @@ class SentryHttpTransportTests: XCTestCase {
                     requestBuilder: requestBuilder,
                     rateLimits: rateLimits,
                     envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
-                    dispatchQueueWrapper: dispatchQueueWrapper
+                    dispatchQueueWrapper: dispatchQueueWrapper,
+                    reachability: reachability
                 )
             }
         }
@@ -384,6 +386,11 @@ class SentryHttpTransportTests: XCTestCase {
 
         assertRequestsSent(requestCount: 3)
         assertEnvelopesStored(envelopeCount: 0)
+
+        // Make sure that the next calls to sendAllCachedEnvelopes go via
+        // dispatchQueue.dispatchAfter, and doesn't just execute it immediately
+        XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAfterInvocations.count, 2)
+        XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAfterInvocations.first?.interval, 0.1)
     }
 
     func testActiveRateLimitForSomeCachedEnvelopeItems() {
@@ -682,8 +689,9 @@ class SentryHttpTransportTests: XCTestCase {
         givenCachedEvents(amount: 30)
         fixture.requestManager.responseDelay = fixture.flushTimeout * 2
         
-        var blockingDurations: [TimeInterval] = []
-        var flushResults: [Bool] = []
+        let allFlushCallsGroup = DispatchGroup()
+        let ensureFlushingGroup = DispatchGroup()
+        let ensureFlushingQueue = DispatchQueue(label: "First flushing")
         
         allFlushCallsGroup.enter()
         ensureFlushingGroup.enter()
@@ -728,12 +736,22 @@ class SentryHttpTransportTests: XCTestCase {
             }
         }
 
-        queue.activate()
-        group.waitWithTimeout()
-        
-        // Only one call should block. The others should return immidiately
-        XCTAssertEqual(count - 1, blockingDurations.filter { $0 < 0.01 }.count)
-        XCTAssertEqual(count, flushResults.filter { $0 == false }.count, "All flush results should be false.")
+        initiallyInactiveQueue.activate()
+        allFlushCallsGroup.waitWithTimeout()
+    }
+
+    func testSendsWhenNetworkComesBack() {
+        givenNoInternetConnection()
+
+        sendEvent()
+
+        XCTAssertEqual(1, fixture.requestManager.requests.count)
+        assertEnvelopesStored(envelopeCount: 1)
+
+        givenOkResponse()
+        fixture.reachability.triggerNetworkReachable()
+
+        XCTAssertEqual(2, fixture.requestManager.requests.count)
     }
 
     private func givenRetryAfterResponse() -> HTTPURLResponse {

@@ -25,7 +25,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         super.setUp()
         fixture = Fixture()
         
-        SentryDependencyContainer.sharedInstance.screenshot = fixture.screenshot
+        SentryDependencyContainer.sharedInstance().screenshot = fixture.screenshot
     }
     
     override func tearDown() {

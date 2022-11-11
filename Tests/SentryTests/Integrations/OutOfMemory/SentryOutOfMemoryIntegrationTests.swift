@@ -15,7 +15,7 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
             client = TestClient(options: options)
             
             crashWrapper = TestSentryCrashWrapper.sharedInstance()
-            SentryDependencyContainer.sharedInstance.crashWrapper = crashWrapper
+            SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
 
             let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andCurrentDateProvider: currentDate)
             SentrySDK.setCurrentHub(hub)
@@ -63,7 +63,7 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
     }
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    func testANRDetected_UpdatesAppStateToTrue() {
+    func testANRDetected_UpdatesAppStateToTrue_disabled() {
         givenInitializedTracker()
         
         Dynamic(sut).anrDetected()

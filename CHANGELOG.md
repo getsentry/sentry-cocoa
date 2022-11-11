@@ -40,7 +40,6 @@ This version introduces a dependency on Swift, which only impacts you if you don
 ### Features
 
 - Sentry Swift framework (#2162)
-- SwiftUI performance tracking (#2271)
 - Offline caching improvements (#2263)
 - Report usage of stitchAsyncCode (#2281)
 
@@ -59,6 +58,10 @@ This version introduces a dependency on Swift, which only impacts you if you don
 ### Fixes
 
 - Device info details for profiling (#2205)
+
+### Performance Improvements
+
+- Use double-checked lock for flush (#2290)
 
 ## 7.27.1
 

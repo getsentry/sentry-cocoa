@@ -254,7 +254,7 @@ class SentrySessionTrackerTests: XCTestCase {
         assertEndSessionSent(started: sessionStarted, duration: 1)
     }
     
-    func testAppRunning_LaunchBackgroundTaskImmidiately_UserResumesApp() {
+    func testAppRunning_LaunchBackgroundTaskImmediately_UserResumesApp() {
         let sessionStarted = fixture.currentDateProvider.date()
         sut.start()
         goToForeground()

@@ -29,24 +29,16 @@ SentryOptions ()
 + (NSArray<NSString *> *)defaultIntegrations
 {
     return @[
-        @"_TtC6Sentry27SentryDescriptorIntegration",
         @"SentryCrashIntegration",
 #if SENTRY_HAS_UIKIT
-        @"SentryANRTrackingIntegration",
-        @"SentryScreenshotIntegration",
-        @"SentryUIEventTrackingIntegration",
-        @"SentryViewHierarchyIntegration",
+        @"SentryANRTrackingIntegration", @"SentryScreenshotIntegration",
+        @"SentryUIEventTrackingIntegration", @"SentryViewHierarchyIntegration",
 #endif
-        @"SentryFramesTrackingIntegration",
-        @"SentryAutoBreadcrumbTrackingIntegration",
-        @"SentryAutoSessionTrackingIntegration",
-        @"SentryAppStartTrackingIntegration",
-        @"SentryOutOfMemoryTrackingIntegration",
-        @"SentryPerformanceTrackingIntegration",
-        @"SentryNetworkTrackingIntegration",
-        @"SentryFileIOTrackingIntegration",
-        @"SentryCoreDataTrackingIntegration",
-
+        @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
+        @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
+        @"SentryOutOfMemoryTrackingIntegration", @"SentryPerformanceTrackingIntegration",
+        @"SentryNetworkTrackingIntegration", @"SentryFileIOTrackingIntegration",
+        @"SentryCoreDataTrackingIntegration"
     ];
 }
 

@@ -381,10 +381,10 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 #        if __has_feature(thread_sanitizer)
     SENTRY_LOG_DEBUG(@"Disabling profiling when running with TSAN");
     return;
+#            pragma clang diagnostic push
+#            pragma clang diagnostic ignored "-Wunreachable-code"
 #        endif
 #    endif
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wunreachable-code"
     @synchronized(self) {
 #    pragma clang diagnostic pop
         if (_profiler != nullptr) {

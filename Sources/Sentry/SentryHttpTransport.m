@@ -17,7 +17,10 @@
 #import "SentryNSURLRequest.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
+#import "SentryReachability.h"
 #import "SentrySerialization.h"
+
+static NSTimeInterval const cachedEnvelopeSendDelay = 0.1;
 
 @interface
 SentryHttpTransport ()
@@ -30,6 +33,7 @@ SentryHttpTransport ()
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) dispatch_group_t dispatchGroup;
+@property (nonatomic, strong) SentryReachability *reachability;
 
 /**
  * Relay expects the discarded events split by data category and reason; see
@@ -59,6 +63,7 @@ SentryHttpTransport ()
               rateLimits:(id<SentryRateLimits>)rateLimits
        envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+            reachability:(SentryReachability *)reachability
 {
     if (self = [super init]) {
         self.options = options;
@@ -74,6 +79,7 @@ SentryHttpTransport ()
         self.discardedEvents = [NSMutableDictionary new];
         [self.envelopeRateLimit setDelegate:self];
         [self.fileManager setDelegate:self];
+        self.reachability = reachability;
 
         [self sendAllCachedEnvelopes];
 
@@ -90,6 +96,13 @@ SentryHttpTransport ()
 #endif
     }
     return self;
+}
+
+- (void)dealloc
+{
+#if !TARGET_OS_WATCH
+    [self.reachability stopMonitoring];
+#endif
 }
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
@@ -278,7 +291,8 @@ SentryHttpTransport ()
     SENTRY_LOG_DEBUG(@"Deleting envelope and sending next.");
     [self.fileManager removeFileAtPath:envelopePath];
     self.isSending = NO;
-    [self sendAllCachedEnvelopes];
+    [self.dispatchQueue dispatchAfter:cachedEnvelopeSendDelay
+                                block:^{ [self sendAllCachedEnvelopes]; }];
 }
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
