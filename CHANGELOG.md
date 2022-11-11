@@ -40,7 +40,6 @@ This version introduces a dependency on Swift, which only impacts you if you don
 
 ### Features
 
-- Sentry Swift framework (#2162)
 - Offline caching improvements (#2263)
 - Report usage of stitchAsyncCode (#2281)
 
