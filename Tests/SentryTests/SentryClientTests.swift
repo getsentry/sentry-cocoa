@@ -1037,12 +1037,14 @@ class SentryClientTest: XCTestCase {
             $0.stitchAsyncCode = true
         }
     }
-    
+
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testTrackPreWarmedAppStartTracking() {
         testFeatureTrackingAsIntegration(integrationName: "PreWarmedAppStartTracking") {
             $0.enablePreWarmedAppStartTracking = true
         }
     }
+#endif
     
     private func testFeatureTrackingAsIntegration(integrationName: String, configureOptions: (Options) -> Void) {
         SentrySDK.start(options: Options())
