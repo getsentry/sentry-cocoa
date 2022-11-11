@@ -152,7 +152,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
 #endif
     }
     
-    func testAppLaunches_OSPrewarmedProcess_FeatureDisabled_AppStartUpShortened() {
+    func testAppLaunches_OSPrewarmedProcess_FeatureDisabled_NoAppStartUp() {
         fixture.enablePreWarmedAppStartTracking = false
         
         setenv("ActivePrewarm", "1", 1)
@@ -160,7 +160,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         givenSystemNotRebooted()
 
         fixture.fileManager.moveAppStateToPreviousAppState()
-        startApp(processStartTimeStamp: fixture.currentDate.date().addingTimeInterval(-60 * 60 * 4))
+        startApp()
 #if os(iOS)
         if #available(iOS 14.0, *) {
             assertNoAppStartUp()
