@@ -7,6 +7,7 @@ This version introduces a dependency on Swift, which only impacts you if you don
 ### Features
 
 - Properly demangle Swift class name (#2162)
+- SwiftUI performance tracking (#2271)
 
 ### Fixes
 
