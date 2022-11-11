@@ -1,5 +1,5 @@
-#import "SentryAppStateManager.h"
 #import "SentryCurrentDateProvider.h"
+#import "SentryFileManager.h"
 #import <Foundation/Foundation.h>
 
 #if TARGET_OS_IOS
@@ -16,6 +16,7 @@ SENTRY_NO_INIT
 
 #if TARGET_OS_IOS
 - (void)start:(UIDevice *)currentDevice;
+- (void)timezoneEventTriggered;
 #endif
 
 - (void)stop;

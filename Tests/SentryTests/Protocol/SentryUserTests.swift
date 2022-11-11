@@ -11,12 +11,14 @@ class SentryUserTests: XCTestCase {
         user.email = ""
         user.username = ""
         user.ipAddress = ""
+        user.segment = ""
         user.data?.removeAll()
         
         XCTAssertEqual(TestData.user.userId, actual["id"] as? String)
         XCTAssertEqual(TestData.user.email, actual["email"] as? String)
         XCTAssertEqual(TestData.user.username, actual["username"] as? String)
         XCTAssertEqual(TestData.user.ipAddress, actual["ip_address"] as? String)
+        XCTAssertEqual(TestData.user.segment, actual["segment"] as? String)
         XCTAssertEqual(["some": ["data": "data", "date": TestData.timestampAs8601String]], actual["data"] as? Dictionary)
     }
     
@@ -61,6 +63,7 @@ class SentryUserTests: XCTestCase {
         testIsNotEqual { user in user.email = "" }
         testIsNotEqual { user in user.username = "" }
         testIsNotEqual { user in user.ipAddress = "" }
+        testIsNotEqual { user in user.segment = "" }
         testIsNotEqual { user in user.data?.removeAll() }
     }
     
@@ -79,12 +82,13 @@ class SentryUserTests: XCTestCase {
         user.email = ""
         user.username = ""
         user.ipAddress = ""
+        user.segment = ""
         user.data = [:]
         
         XCTAssertEqual(TestData.user, copiedUser)
     }
     
-    // Altough we only run this test above the below specified versions, we exped the
+    // Although we only run this test above the below specified versions, we expect the
     // implementation to be thread safe
     // With this test we test if modifications from multiple threads don't lead to a crash.
     @available(tvOS 10.0, *)
@@ -117,6 +121,7 @@ class SentryUserTests: XCTestCase {
                     user.email = "john@example.com"
                     user.username = "\(i)"
                     user.ipAddress = "\(i)"
+                    user.segment = "\(i)"
                     
                     user.data?["\(i)"] = "\(i)"
                     

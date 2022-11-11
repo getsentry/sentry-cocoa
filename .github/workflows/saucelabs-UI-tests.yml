@@ -21,10 +21,15 @@ on:
 jobs:
   build-ui-tests:
     name: Build UITests with Xcode ${{matrix.xcode}}
-    runs-on: macos-11
-    strategy:      
+    runs-on: ${{matrix.runs-on}}
+    strategy:
       matrix:
-        xcode: ["13.2", "12.5.1"]
+        include:
+          - runs-on: macos-11
+            xcode: '12.5.1'
+
+          - runs-on: macos-12
+            xcode: '13.4.1'
 
     steps:
       - uses: actions/checkout@v3
@@ -48,7 +53,6 @@ jobs:
             DerivedData/Build/Products/Debug-iphoneos/iOS-SwiftUITests-Runner.app
           key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/iOS-SwiftUITests/**') }}-Xcode-${{ matrix.xcode }}
       - run: fastlane build_ios_swift_for_tests
-        if: steps.ios-swift-cache.outputs.cache-hit != 'true'
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -58,7 +62,6 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       - run: fastlane build_ios_swift_ui_test
-        if: steps.ios-swift-uitest-runner-cache.outputs.cache-hit != 'true'
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -68,7 +71,6 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       - name: Upload dSYMs
-        if: steps.ios-swift-cache.outputs.cache-hit != 'true'
         run: |
           sentry-cli --auth-token ${{ secrets.SENTRY_AUTH_TOKEN }} upload-dif --org sentry-sdks --project sentry-cocoa DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app.dSYM
       - name: Archiving DerivedData
@@ -79,33 +81,31 @@ jobs:
             **/Debug-iphoneos/iOS-Swift.app
             **/Debug-iphoneos/iOS-SwiftUITests-Runner.app
 
-
   run-ui-tests-with-sauce:
     name: Run UI Tests for iOS ${{ matrix.suite }} on Sauce Labs
     runs-on: ubuntu-latest
     needs: build-ui-tests
-    strategy:      
+    strategy:
       fail-fast: false
       matrix:
         include:
-          - xcode: "13.2"
-            suite: "iOS-15"
+          - xcode: '13.4.1'
+            suite: 'iOS-15'
 
           # We want to test the frame tracker at 120 fps
-          - xcode: "13.2"
-            suite: "iPhone-Pro"
+          - xcode: '13.4.1'
+            suite: 'iPhone-Pro'
 
-          - xcode: "13.2"
-            suite: "iOS-14"
+          - xcode: '13.4.1'
+            suite: 'iOS-14'
 
-          - xcode: "13.2"
-            suite: "iOS-13"
+          - xcode: '13.4.1'
+            suite: 'iOS-13'
 
           # iOS 12 has a failing test that we need to fix https://github.com/getsentry/sentry-cocoa/issues/1566
           # iOS 11 keeps timing out and we don't know how to fix it.
-
-          - xcode: "12.5.1"
-            suite: "iOS-10"
+          - xcode: '12.5.1'
+            suite: 'iOS-10'
 
     steps:
       - uses: actions/checkout@v3
@@ -114,11 +114,11 @@ jobs:
         with:
           name: DerivedData-Xcode-${{matrix.xcode}}
 
-      - run: npm install -g saucectl@0.99.4
+      - run: npm install -g saucectl@0.107.2
 
       # As Sauce Labs is a bit flaky we retry 5 times
       - name: Run Tests in SauceLab
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        run: for i in {1..5}; do saucectl run --select-suite ${{ matrix.suite }} && break ; done     
+        run: for i in {1..5}; do saucectl run --select-suite ${{ matrix.suite }} && break ; done

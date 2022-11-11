@@ -1,5 +1,4 @@
 #import "SentryDefines.h"
-#import <Foundation/Foundation.h>
 
 @class SentryEnvelope;
 

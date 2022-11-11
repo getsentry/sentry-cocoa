@@ -51,9 +51,10 @@ NS_ASSUME_NONNULL_BEGIN
         return nil;
 
     NSString *userSegment;
-    if (scope.userObject.data[@"segment"] &&
-        [scope.userObject.data[@"segment"] isKindOfClass:[NSString class]])
-        userSegment = scope.userObject.data[@"segment"];
+
+    if (scope.userObject.segment) {
+        userSegment = scope.userObject.segment;
+    }
 
     NSString *sampleRate = nil;
     if ([tracer.context isKindOfClass:[SentryTransactionContext class]]) {
@@ -112,20 +113,25 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableDictionary *result =
         @{ @"trace_id" : _traceId.sentryIdString, @"public_key" : _publicKey }.mutableCopy;
 
-    if (_releaseName != nil)
+    if (_releaseName != nil) {
         [result setValue:_releaseName forKey:@"release"];
+    }
 
-    if (_environment != nil)
+    if (_environment != nil) {
         [result setValue:_environment forKey:@"environment"];
+    }
 
-    if (_transaction != nil)
+    if (_transaction != nil) {
         [result setValue:_transaction forKey:@"transaction"];
+    }
 
-    if (_userSegment != nil)
+    if (_userSegment != nil) {
         [result setValue:_userSegment forKey:@"user_segment"];
+    }
 
-    if (_sampleRate != nil)
+    if (_sampleRate != nil) {
         [result setValue:_sampleRate forKey:@"sample_rate"];
+    }
 
     return result;
 }

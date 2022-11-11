@@ -1,6 +1,11 @@
-#import <Foundation/Foundation.h>
-
-#import "SentryDefines.h"
+// We need this because if Sentry library is added as a Framework
+// the reference should be in the form of <module/header>.
+// Otherwise, the reference is direct.
+#if __has_include(<Sentry/SentryDefines.h>)
+#    import <Sentry/SentryDefines.h>
+#else
+#    import "SentryDefines.h"
+#endif
 
 @class SentryEnvelope, SentryDebugMeta, SentryAppStartMeasurement, SentryScreenFrames,
     SentryOptions;
@@ -46,6 +51,21 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  * Override SDK information.
  */
 + (void)setSdkName:(NSString *)sdkName andVersionString:(NSString *)versionString;
+
+/**
+ * Override SDK information.
+ */
++ (void)setSdkName:(NSString *)sdkName;
+
+/**
+ * Retrieves the SDK name
+ */
++ (NSString *)getSdkName;
+
+/**
+ * Retrieves the SDK version string
+ */
++ (NSString *)getSdkVersionString;
 
 @property (class, nullable, nonatomic, copy)
     SentryOnAppStartMeasurementAvailable onAppStartMeasurementAvailable;

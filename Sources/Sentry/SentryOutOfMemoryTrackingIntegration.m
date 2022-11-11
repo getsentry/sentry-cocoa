@@ -1,14 +1,11 @@
 #import "SentryDefines.h"
-#import <Foundation/Foundation.h>
 #import <SentryAppState.h>
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
 #import <SentryCrashWrapper.h>
-#import <SentryDefaultCurrentDateProvider.h>
 #import <SentryDependencyContainer.h>
 #import <SentryDispatchQueueWrapper.h>
 #import <SentryHub.h>
-#import <SentryLog.h>
 #import <SentryOptions+Private.h>
 #import <SentryOutOfMemoryLogic.h>
 #import <SentryOutOfMemoryTracker.h>

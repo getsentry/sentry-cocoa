@@ -18,93 +18,146 @@ on:
       - 'scripts/xcode-test.sh'
 
 jobs:
-  unit-tests:
-    name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}} - OS ${{matrix.test-destination-os}}
-    runs-on: ${{matrix.runs-on}}
-    timeout-minutes: 20
-    
-    strategy:      
-      fail-fast: false
-      matrix:
-        runs-on: [ macos-11 ]
-        
-        # Can't run tests on watchOS because XCTest is not available  
-        platform: ["macOS", "Catalyst", "iOS", "tvOS"]
-        
-        # We can't use Xcode 10.3 because our tests contain a reference to MacCatalyst,
-        # which is only available since iOS 13 / Xcode 11.
-        # We can't use Xcode 11.7 as we use XCTestObservation. When building with Xcode 11.7
-        # we get the error 'XCTest/XCTest.h' not found. Setting ENABLE_TESTING_SEARCH_PATH=YES
-        # doesn't work.
-        
-        xcode: ["13.2.1", "12.5.1"]
-
-        test-destination-os: ["latest"]
-        
-        include:
-          # Test on iOS 12.4
-          - runs-on: macos-10.15
-            platform: "iOS"
-            xcode: "12.4"
-            test-destination-os: "12.4"
-
-         # Test on iOS 13.7
-          - runs-on:  macos-11
-            platform: "iOS"
-            xcode: "13.2.1"
-            test-destination-os: "13.7"
-
+  build-test-server:
+    name: Build test server
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
-
-      # As we use swift-tools-version:5.5 the test server only compiles with Xcode 13.
-      # macos-10.15 doesn't have Xcode 13 and macos-11 doesn't have a simulator with
-      # iOS 12. Ideally, we would compile the test-server on macos-11 and use it on
-      # macos-10.15. For now, disable the tests on iOS 12 requiring the test server in
-      # xcode-test.sh
       - name: Cache for Test Server
         id: cache_test_server
-        if: matrix.runs-on == 'macos-11'
         uses: actions/cache@v3
         with:
           path: ./test-server/.build
-          key: ${{ runner.os }}-spm-${{ hashFiles('./test-server/Package.resolved') }}-Xcode-${{matrix.xcode}}
+          key: test-server-${{ hashFiles('./test-server') }}
+          restore-keys: |
+            test-server-${{ hashFiles('./test-server') }}
+            test-server-
 
       - name: Build Test Server
-        if: steps.cache_test_server.outputs.cache-hit != 'true' && matrix.runs-on == 'macos-11'
-        run: swift build
+        if: steps.cache_test_server.outputs.cache-hit != 'true'
         working-directory: test-server
+        run: >-
+          swift build -c release
 
-      - name: Run Test Server in Background
-        if: matrix.runs-on == 'macos-11'
-        run: swift run &
+      - name: Copy exec
         working-directory: test-server
+        run: cp $(swift build --show-bin-path -c release)/Run test-server-exec
 
-      # Select Xcode after starting server, because the server needs Xcode 13
+      - name: Archiving DerivedData
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-server
+          path: |
+            ./test-server/test-server-exec
+
+  unit-tests:
+    name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}} - OS ${{matrix.test-destination-os}}
+    runs-on: ${{matrix.runs-on}}
+    timeout-minutes: 15
+    needs: build-test-server
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Can't run tests on watchOS because XCTest is not available
+        # We can't use Xcode 11.7 as we use XCTestObservation. When building with Xcode 11.7
+        # we get the error 'XCTest/XCTest.h' not found. Setting ENABLE_TESTING_SEARCH_PATH=YES
+        # doesn't work.
+        include:
+          # iOS 12.4
+          - runs-on: macos-11
+            platform: 'iOS'
+            xcode: '13.2.1'
+            test-destination-os: '12.4'
+
+          # iOS 13.7
+          - runs-on: macos-11
+            platform: 'iOS'
+            xcode: '13.2.1'
+            test-destination-os: '13.7'
+
+          # iOS 14
+          - runs-on: macos-11
+            platform: 'iOS'
+            xcode: '12.5.1'
+            test-destination-os: 'latest'
+
+          # iOS 15
+          - runs-on: macos-12
+            platform: 'iOS'
+            xcode: '13.4.1'
+            test-destination-os: 'latest'
+
+          # iOS 16
+          - runs-on: macos-12
+            platform: 'iOS'
+            xcode: '14.0'
+            test-destination-os: 'latest'
+
+          # macOS 11
+          - runs-on: macos-11
+            platform: 'macOS'
+            xcode: '12.5.1'
+            test-destination-os: 'latest'
+
+          # macOS 12
+          - runs-on: macos-12
+            platform: 'macOS'
+            xcode: '13.4.1'
+            test-destination-os: 'latest'
+
+          # Catalyst. We only test the latest version, as
+          # the risk something breaking on Catalyst and not
+          # on an older iOS or macOS version is low.
+          - runs-on: macos-12
+            platform: 'Catalyst'
+            xcode: '13.4.1'
+            test-destination-os: 'latest'
+
+          # tvOS 14
+          - runs-on: macos-11
+            platform: 'tvOS'
+            xcode: '12.5.1'
+            test-destination-os: 'latest'
+
+          # tvOS 15
+          - runs-on: macos-12
+            platform: 'tvOS'
+            xcode: '13.4.1'
+            test-destination-os: 'latest'
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: test-server
+      - name: Allow test-server to run
+        run: chmod +x ./test-server-exec
+      - run: ./test-server-exec &
+
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
-      # Only Xcode 10.3 has an iOS 12.4 simulator. As we have a reference to MacCatalyst in our unit tests
-      # we can't run the tests with Xcode 10.3. Therefore we use a workaround with a symlink pointed out in:
-      # https://github.com/actions/virtual-environments/issues/551#issuecomment-637344435
-      - name: Prepare iOS 12.4 simulator
-        if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '12.4'}}  
+      # GH action images don't have an iOS 12.4 simulator. Therefore we have to download and install the simulator manually.
+      - name: Install iOS 12.4 simulator
+        if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '12.4'}}
         run: |
-          sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
-          sudo ln -s /Applications/Xcode_10.3.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 12.4.simruntime
+          gem install xcode-install
+          xcversion simulators --install='iOS 12.4'
           xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-12-4"
 
+      # Workaround with a symlink pointed out in: https://github.com/actions/virtual-environments/issues/551#issuecomment-637344435
       - name: Prepare iOS 13.7 simulator
-        if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '13.7'}}  
+        if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '13.7'}}
         run: |
           sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
           sudo ln -s /Applications/Xcode_11.7.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 13.7.simruntime
-          xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-13-7"   
+          xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-13-7"
 
       - name: Running tests
         # We call a script with the platform so the destination
-        # passed to xcodebuild doesn't ends up in the job name, 
-        # because GitHub Actions don't provide an easy way of 
-        # manipulating string in expressions.  
+        # passed to xcodebuild doesn't end up in the job name,
+        # because GitHub Actions don't provide an easy way of
+        # manipulating string in expressions.
         run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} ${{matrix.xcode}} $GITHUB_REF_NAME
 
       - name: Archiving DerivedData Logs
@@ -122,23 +175,22 @@ jobs:
           name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
           path: |
             raw-test-output.log
-      
 
       # We can upload all coverage reports, because codecov merges them.
       # See https://docs.codecov.io/docs/merging-reports
       # Checkout .codecov.yml to see the config of Codecov
       - name: Push code coverage to codecov
-        uses: codecov/codecov-action@v3
-        
+        uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3
+
         # SentrySystemEventsBreadcrumbsTest only run on Catalyst and iOS
         # so the coverage report shows a reduced coverage.
-        if: ${{ contains(matrix.platform, 'Mac Catalyst') || contains(matrix.platform, 'iOS') }}  
+        if: ${{ contains(matrix.platform, 'Mac Catalyst') || contains(matrix.platform, 'iOS') }}
 
   # We don't run all unit tests with Thread Sanitizer enabled because
   # that adds a significant overhead.
   thread-sanitizer:
     name: Unit iOS - Thread Sanitizer
-    runs-on: macos-11 
+    runs-on: macos-12
     # When there are threading issues the tests sometimes keep hanging
     timeout-minutes: 20
 
@@ -164,23 +216,22 @@ jobs:
 
       - name: Running tests with ThreadSanitizer
         run: ./scripts/tests-with-thread-sanitizer.sh
-      
+
       - name: Archiving Test Logs
         uses: actions/upload-artifact@v3
         with:
           path: thread-sanitizer.log
 
-
   ui-tests:
     name: UI Tests for ${{matrix.target}} on Simulators
-    runs-on: macos-11
+    runs-on: macos-12
     strategy:
       matrix:
-        target: ["ios_swift", "ios_objc", "tvos_swift" ]
+        target: ['ios_swift', 'ios_objc', 'tvos_swift']
 
     steps:
       - uses: actions/checkout@v3
-      - run: ./scripts/ci-select-xcode.sh 
+      - run: ./scripts/ci-select-xcode.sh
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
@@ -190,17 +241,19 @@ jobs:
   # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:
     name: UI Tests for SwiftUI on ${{matrix.device}} Simulator
-    runs-on: macos-11
+    runs-on: ${{matrix.runs-on}}
     strategy:
       fail-fast: false
-      matrix:  
+      matrix:
         include:
-          - xcode: "13.2.1"
-            device: "iPhone 8 (15.2)"
+          - runs-on: macos-12
+            xcode: '13.4.1'
+            device: 'iPhone 8 (15.2)'
 
-          - xcode: "12.5.1"
-            device: "iPhone 8 (14.5)"
-            
+          - runs-on: macos-11
+            xcode: '12.5.1'
+            device: 'iPhone 8 (14.5)'
+
     steps:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
@@ -213,17 +266,24 @@ jobs:
   # macos-11 doesn't have a simulator for iOS 12
   ui-tests-swift-ios-12:
     name: UI Tests on iOS 12 Simulator
-    runs-on: macos-10.15
+    runs-on: macos-11
     strategy:
       matrix:
-        target: ["ios_swift", "ios_objc", "tvos_swift" ]
+        target: ['ios_swift', 'ios_objc', 'tvos_swift']
 
     steps:
       - uses: actions/checkout@v3
 
+      # GH action images don't have an iOS 12.4 simulator. Therefore we have to download and install the simulator manually.
+      - name: Install iOS 12.4 simulator
+        run: |
+          gem install xcode-install
+          xcversion simulators --install='iOS 12.4'
+          xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-12-4"
+
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} device:"$iPhone 8 (12.4)" address_sanitizer:false && break ; done
+        run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} device:"iPhone 8 (12.4)" address_sanitizer:false && break ; done
         shell: sh
 
   ui-tests-address-sanitizer:

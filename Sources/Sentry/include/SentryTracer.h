@@ -4,7 +4,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceContext,
-    SentryDispatchQueueWrapper, SentryTracer, SentryProfilesSamplerDecision;
+    SentryDispatchQueueWrapper, SentryTracer, SentryProfilesSamplerDecision, SentryMeasurementValue;
 
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
@@ -42,11 +42,6 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  */
 @property (readonly) BOOL isFinished;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-/** Whether the profiler is currently running. */
-@property (assign, readonly) BOOL isProfiling;
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
 @property (nullable, nonatomic, copy) void (^finishCallback)(SentryTracer *);
 
 /**
@@ -75,6 +70,8 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  * A delegate that provides extra information for the transaction.
  */
 @property (nullable, nonatomic, weak) id<SentryTracerDelegate> delegate;
+
+@property (nonatomic, readonly) NSDictionary<NSString *, SentryMeasurementValue *> *measurements;
 
 /**
  * Init a SentryTracer with given transaction context and hub and set other fields by default

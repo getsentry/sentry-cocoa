@@ -55,8 +55,8 @@ SentryDefaultRateLimits ()
         NSDictionary<NSNumber *, NSDate *> *limits = [self.rateLimitParser parse:rateLimitsHeader];
 
         for (NSNumber *categoryAsNumber in limits.allKeys) {
-            SentryDataCategory category = [SentryDataCategoryMapper
-                mapIntegerToCategory:(NSUInteger)[categoryAsNumber integerValue]];
+            SentryDataCategory category
+                = sentryDataCategoryForNSUInteger(categoryAsNumber.unsignedIntegerValue);
 
             [self updateRateLimit:category withDate:limits[categoryAsNumber]];
         }

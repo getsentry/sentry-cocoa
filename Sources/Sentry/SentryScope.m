@@ -5,6 +5,7 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
 #import "SentryGlobalEventProcessor.h"
+#import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryScopeObserver.h"
 #import "SentrySession.h"
@@ -125,8 +126,7 @@ SentryScope ()
     if (self.maxBreadcrumbs < 1) {
         return;
     }
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb]
-                     andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(@"Add breadcrumb: %@", crumb);
     @synchronized(_breadcrumbArray) {
         [_breadcrumbArray addObject:crumb];
         if ([_breadcrumbArray count] > self.maxBreadcrumbs) {
@@ -421,7 +421,7 @@ SentryScope ()
 
     SentryLevel level = self.levelEnum;
     if (level != kSentryLevelNone) {
-        [serializedData setValue:SentryLevelNames[level] forKey:@"level"];
+        [serializedData setValue:nameForSentryLevel(level) forKey:@"level"];
     }
     NSArray *crumbs = [self serializeBreadcrumbs];
     if (crumbs.count > 0) {

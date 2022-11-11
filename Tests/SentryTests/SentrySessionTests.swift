@@ -98,3 +98,9 @@ class SentrySessionTestsSwift: XCTestCase {
         XCTAssertNil(SentrySession(jsonObject: serialized))
     }
 }
+
+extension SentrySessionStatus {
+    var description: String {
+        return nameForSentrySessionStatus(self)
+    }
+}

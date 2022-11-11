@@ -1,24 +1,34 @@
 import XCTest
 
 class SentryLogTests: XCTestCase {
-    
+    var oldDebug: Bool!
+    var oldLevel: SentryLevel!
+    var oldOutput: SentryLogOutput!
+
+    override func setUp() {
+        super.setUp()
+        oldDebug = SentryLog.isDebug()
+        oldLevel = SentryLog.diagnosticLevel()
+        oldOutput = SentryLog.logOutput()
+    }
+
     override func tearDown() {
         super.tearDown()
-        // Set back to default
-        SentryLog.configure(true, diagnosticLevel: SentryLevel.error)
-        SentryLog.setLogOutput(nil)
+        SentryLog.configure(oldDebug, diagnosticLevel: oldLevel)
+        SentryLog.setLogOutput(oldOutput)
     }
 
     func testDefault_PrintsFatalAndError() {
         let logOutput = TestLogOutput()
         SentryLog.setLogOutput(logOutput)
+        SentryLog.configure(true, diagnosticLevel: .error)
         
         SentryLog.log(withMessage: "0", andLevel: SentryLevel.fatal)
         SentryLog.log(withMessage: "1", andLevel: SentryLevel.error)
         SentryLog.log(withMessage: "2", andLevel: SentryLevel.warning)
         SentryLog.log(withMessage: "3", andLevel: SentryLevel.none)
         
-        XCTAssertEqual(["Sentry - fatal:: 0", "Sentry - error:: 1"], logOutput.loggedMessages)
+        XCTAssertEqual(["[Sentry] [fatal] 0", "[Sentry] [error] 1"], logOutput.loggedMessages)
     }
     
     func testDefaultInitOfLogoutPut() {
@@ -52,19 +62,10 @@ class SentryLogTests: XCTestCase {
         SentryLog.log(withMessage: "4", andLevel: SentryLevel.debug)
         SentryLog.log(withMessage: "5", andLevel: SentryLevel.none)
         
-        XCTAssertEqual(["Sentry - fatal:: 0",
-                        "Sentry - error:: 1",
-                        "Sentry - warning:: 2",
-                        "Sentry - info:: 3",
-                        "Sentry - debug:: 4"], logOutput.loggedMessages)
+        XCTAssertEqual(["[Sentry] [fatal] 0",
+                        "[Sentry] [error] 1",
+                        "[Sentry] [warning] 2",
+                        "[Sentry] [info] 3",
+                        "[Sentry] [debug] 4"], logOutput.loggedMessages)
     }
-    
-    class TestLogOutput: SentryLogOutput {
-        
-        var loggedMessages: [String] = []
-        override func log(_ message: String) {
-            loggedMessages.append(message)
-        }
-    }
-
 }

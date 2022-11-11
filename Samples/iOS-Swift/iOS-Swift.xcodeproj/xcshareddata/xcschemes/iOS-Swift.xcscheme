@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1200"
+   LastUpgradeVersion = "1400"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -37,6 +37,14 @@
                BlueprintName = "iOS-SwiftUITests"
                ReferencedContainer = "container:iOS-Swift.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readPath_disabled()">
+               </Test>
+               <Test
+                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl_disabled()">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>

@@ -1,34 +1,29 @@
 #import "SentryDiscardReasonMapper.h"
-#import <Foundation/Foundation.h>
 
-NS_ASSUME_NONNULL_BEGIN
+NSString *const kSentryDiscardReasonNameBeforeSend = @"before_send";
+NSString *const kSentryDiscardReasonNameEventProcessor = @"event_processor";
+NSString *const kSentryDiscardReasonNameSampleRate = @"sample_rate";
+NSString *const kSentryDiscardReasonNameNetworkError = @"network_error";
+NSString *const kSentryDiscardReasonNameQueueOverflow = @"queue_overflow";
+NSString *const kSentryDiscardReasonNameCacheOverflow = @"cache_overflow";
+NSString *const kSentryDiscardReasonNameRateLimitBackoff = @"ratelimit_backoff";
 
-@implementation SentryDiscardReasonMapper
-
-+ (SentryDiscardReason)mapStringToReason:(NSString *)value
+NSString *_Nonnull nameForSentryDiscardReason(SentryDiscardReason reason)
 {
-    SentryDiscardReason reason = kSentryDiscardReasonBeforeSend;
-
-    for (int i = 0; i <= kSentryDiscardReasonRateLimitBackoff; i++) {
-        if ([value isEqualToString:SentryDiscardReasonNames[i]]) {
-            return [SentryDiscardReasonMapper mapIntegerToReason:i];
-        }
+    switch (reason) {
+    case kSentryDiscardReasonBeforeSend:
+        return kSentryDiscardReasonNameBeforeSend;
+    case kSentryDiscardReasonEventProcessor:
+        return kSentryDiscardReasonNameEventProcessor;
+    case kSentryDiscardReasonSampleRate:
+        return kSentryDiscardReasonNameSampleRate;
+    case kSentryDiscardReasonNetworkError:
+        return kSentryDiscardReasonNameNetworkError;
+    case kSentryDiscardReasonQueueOverflow:
+        return kSentryDiscardReasonNameQueueOverflow;
+    case kSentryDiscardReasonCacheOverflow:
+        return kSentryDiscardReasonNameCacheOverflow;
+    case kSentryDiscardReasonRateLimitBackoff:
+        return kSentryDiscardReasonNameRateLimitBackoff;
     }
-
-    return reason;
 }
-
-+ (SentryDiscardReason)mapIntegerToReason:(NSUInteger)value
-{
-    SentryDiscardReason reason = kSentryDiscardReasonBeforeSend;
-
-    if (value <= kSentryDiscardReasonRateLimitBackoff) {
-        reason = (SentryDiscardReason)value;
-    }
-
-    return reason;
-}
-
-@end
-
-NS_ASSUME_NONNULL_END

@@ -91,7 +91,7 @@ class ViewController: UIViewController {
                 _ = FileManager.default.contents(atPath: path)
             }
         }
-        
+
         guard let imgUrl = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png") else {
             return
         }
@@ -141,6 +141,11 @@ class ViewController: UIViewController {
     
     @IBAction func captureTransaction(_ sender: Any) {
         let transaction = SentrySDK.startTransaction(name: "Some Transaction", operation: "Some Operation")
+        
+        transaction.setMeasurement(name: "duration", value: 44, unit: MeasurementUnitDuration.nanosecond)
+        transaction.setMeasurement(name: "information", value: 44, unit: MeasurementUnitInformation.bit)
+        transaction.setMeasurement(name: "duration-custom", value: 22, unit: MeasurementUnit(unit: "custom"))
+        
         let span = transaction.startChild(operation: "user", description: "calls out")
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
@@ -281,4 +286,9 @@ class ViewController: UIViewController {
         controller.title = "Permissions"
         navigationController?.pushViewController(controller, animated: true)
     }
+    
+    @IBAction func flush(_ sender: Any) {
+        SentrySDK.flush(timeout: 5)
+    }
+    
 }

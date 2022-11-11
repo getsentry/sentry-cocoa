@@ -19,9 +19,6 @@
 using namespace sentry::profiling;
 using namespace sentry::profiling::thread;
 
-#    define LIKELY(x) __builtin_expect(!!(x), 1)
-#    define UNLIKELY(x) __builtin_expect(!!(x), 0)
-
 namespace {
 ALWAYS_INLINE bool
 isValidFrame(std::uintptr_t frame, const StackBounds &bounds)

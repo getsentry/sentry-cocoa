@@ -3,19 +3,22 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_SWIFT_NAME(DataCategoryMapper)
-@interface SentryDataCategoryMapper : NSObject
+FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameAll;
+FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameDefault;
+FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameError;
+FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameSession;
+FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameTransaction;
+FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameAttachment;
+FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameUserFeedback;
+FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameProfile;
+FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameUnknown;
 
-/** Maps an event type to the category for rate limiting.
- */
-+ (SentryDataCategory)mapEventTypeToCategory:(NSString *)eventType;
+SentryDataCategory sentryDataCategoryForNSUInteger(NSUInteger value);
 
-+ (SentryDataCategory)mapEnvelopeItemTypeToCategory:(NSString *)itemType;
+SentryDataCategory sentryDataCategoryForString(NSString *value);
 
-+ (SentryDataCategory)mapIntegerToCategory:(NSUInteger)value;
+SentryDataCategory sentryDataCategoryForEnvelopItemType(NSString *itemType);
 
-+ (SentryDataCategory)mapStringToCategory:(NSString *)value;
-
-@end
+NSString *nameForSentryDataCategory(SentryDataCategory category);
 
 NS_ASSUME_NONNULL_END

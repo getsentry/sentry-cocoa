@@ -42,15 +42,34 @@ class MovieCellConfigurator {
             case let .success(url):
                 if let url = url {
                     print("[TrendingMovies] got poster image URL for movie: \(movie.id) (\(movie.title)): \(url)")
-                    cell.downloadTask = KingfisherManager.shared.retrieveImage(with: url) { [weak cell] imageResult in
-                        switch imageResult {
-                        case let .success(image):
-                            print("[TrendingMovies] set poster image for movie: \(movie.id) (\(movie.title))")
-                            cell?.posterImage = image.image
-                        case let .failure(error):
-                            print(error)
-                            cell?.posterImage = nil
+                    if ProcessInfo.processInfo.arguments.contains("--io.sentry.sample.trending-movies.launch-arg.efficient-implementation") {
+                        cell.downloadTask = KingfisherManager.shared.retrieveImage(with: url) { [weak cell] imageResult in
+                            switch imageResult {
+                            case let .success(image):
+                                print("[TrendingMovies] set poster image for movie: \(movie.id) (\(movie.title))")
+                                cell?.posterImage = image.image
+                            case let .failure(error):
+                                print(error)
+                                cell?.posterImage = nil
+                            }
                         }
+                    } else {
+                        cell.uncachedDownloadTask = cell.uncachedURLSession.downloadTask(with: URLRequest(url: url), completionHandler: { [weak cell] downloadedURL, _, error in
+                            if error != nil || downloadedURL == nil {
+                                cell?.posterImage = nil
+                                return
+                            }
+
+                            guard let downloadedURLString = downloadedURL?.relativePath else {
+                                cell?.posterImage = nil
+                                return
+                            }
+
+                            DispatchQueue.main.async {
+                                cell?.posterImage = UIImage(contentsOfFile: downloadedURLString)
+                            }
+                        })
+                        cell.uncachedDownloadTask?.resume()
                     }
                 } else {
                     cell.posterImage = nil

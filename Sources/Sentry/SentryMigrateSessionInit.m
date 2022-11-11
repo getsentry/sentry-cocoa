@@ -4,7 +4,6 @@
 #import "SentryLog.h"
 #import "SentrySerialization.h"
 #import "SentrySession+Private.h"
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -47,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
         NSString *envelopePath = [envelopesDirPath stringByAppendingPathComponent:envelopeFilePath];
         NSData *envelopeData = [fileManager contentsAtPath:envelopePath];
 
-        // Some error occured while getting the envelopeData
+        // Some error occurred while getting the envelopeData
         if (nil == envelopeData) {
             continue;
         }

@@ -1,6 +1,8 @@
 #import "SentryOptions.h"
 #import "SentryANRTracker.h"
 #import "SentryDsn.h"
+#import "SentryHttpStatusCodeRange.h"
+#import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentrySDK.h"
@@ -11,6 +13,7 @@ SentryOptions ()
 
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultSampleRate;
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultTracesSampleRate;
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultProfilesSampleRate;
 @property (nonatomic, assign) BOOL enableProfiling_DEPRECATED_TEST_ONLY;
@@ -18,6 +21,10 @@ SentryOptions ()
 @end
 
 @implementation SentryOptions
+
+- (void)setMeasurement:(SentryMeasurementValue *)measurement
+{
+}
 
 + (NSArray<NSString *> *)defaultIntegrations
 {
@@ -55,6 +62,7 @@ SentryOptions ()
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
         self.enableAutoPerformanceTracking = YES;
+        self.enableCaptureFailedRequests = NO;
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracking = YES;
         self.attachScreenshot = NO;
@@ -65,7 +73,6 @@ SentryOptions ()
         self.enableAppHangTracking = NO;
         self.appHangTimeoutInterval = 2.0;
         self.enableAutoBreadcrumbTracking = YES;
-
         self.enableNetworkTracking = YES;
         self.enableFileIOTracking = NO;
         self.enableNetworkBreadcrumbs = YES;
@@ -107,6 +114,18 @@ SentryOptions ()
                 [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"],
                           infoDict[@"CFBundleShortVersionString"], infoDict[@"CFBundleVersion"]];
         }
+
+        NSRegularExpression *everythingAllowedRegex =
+            [NSRegularExpression regularExpressionWithPattern:@".*"
+                                                      options:NSRegularExpressionCaseInsensitive
+                                                        error:NULL];
+        self.tracePropagationTargets = @[ everythingAllowedRegex ];
+        self.failedRequestTargets = @[ everythingAllowedRegex ];
+
+        // defaults to 500 to 599
+        SentryHttpStatusCodeRange *defaultHttpStatusCodeRange =
+            [[SentryHttpStatusCodeRange alloc] initWithMin:500 max:599];
+        self.failedRequestStatusCodes = @[ defaultHttpStatusCodeRange ];
     }
     return self;
 }
@@ -125,12 +144,37 @@ SentryOptions ()
     return self;
 }
 
+- (void)setTracePropagationTargets:(NSArray *)tracePropagationTargets
+{
+    for (id targetCheck in tracePropagationTargets) {
+        if (![targetCheck isKindOfClass:[NSRegularExpression class]]
+            && ![targetCheck isKindOfClass:[NSString class]]) {
+            SENTRY_LOG_WARN(@"Only instances of NSString and NSRegularExpression are supported "
+                            @"inside tracePropagationTargets.");
+        }
+    }
+
+    _tracePropagationTargets = tracePropagationTargets;
+}
+
+- (void)setFailedRequestTargets:(NSArray *)failedRequestTargets
+{
+    for (id targetCheck in failedRequestTargets) {
+        if (![targetCheck isKindOfClass:[NSRegularExpression class]]
+            && ![targetCheck isKindOfClass:[NSString class]]) {
+            SENTRY_LOG_WARN(@"Only instances of NSString and NSRegularExpression are supported "
+                            @"inside failedRequestTargets.");
+        }
+    }
+
+    _failedRequestTargets = failedRequestTargets;
+}
+
 - (void)setIntegrations:(NSArray<NSString *> *)integrations
 {
-    [SentryLog logWithMessage:
-                   @"Setting `SentryOptions.integrations` is deprecated. Integrations should be "
-                   @"enabled or disabled using their respective `SentryOptions.enable*` property."
-                     andLevel:kSentryLevelWarning];
+    SENTRY_LOG_WARN(
+        @"Setting `SentryOptions.integrations` is deprecated. Integrations should be enabled or "
+        @"disabled using their respective `SentryOptions.enable*` property.");
     _integrations = integrations;
 }
 
@@ -142,8 +186,7 @@ SentryOptions ()
     if (nil == error) {
         _dsn = dsn;
     } else {
-        NSString *errorMessage = [NSString stringWithFormat:@"Could not parse the DSN: %@.", error];
-        [SentryLog logWithMessage:errorMessage andLevel:kSentryLevelError];
+        SENTRY_LOG_ERROR(@"Could not parse the DSN: %@.", error);
     }
 }
 
@@ -160,7 +203,7 @@ SentryOptions ()
 
     if ([options[@"diagnosticLevel"] isKindOfClass:[NSString class]]) {
         for (SentryLevel level = 0; level <= kSentryLevelFatal; level++) {
-            if ([SentryLevelNames[level] isEqualToString:options[@"diagnosticLevel"]]) {
+            if ([nameForSentryLevel(level) isEqualToString:options[@"diagnosticLevel"]]) {
                 self.diagnosticLevel = level;
                 break;
             }
@@ -249,6 +292,9 @@ SentryOptions ()
     [self setBool:options[@"enableAutoPerformanceTracking"]
             block:^(BOOL value) { self->_enableAutoPerformanceTracking = value; }];
 
+    [self setBool:options[@"enableCaptureFailedRequests"]
+            block:^(BOOL value) { self->_enableCaptureFailedRequests = value; }];
+
 #if SENTRY_HAS_UIKIT
     [self setBool:options[@"enableUIViewControllerTracking"]
             block:^(BOOL value) { self->_enableUIViewControllerTracking = value; }];
@@ -327,12 +373,26 @@ SentryOptions ()
     [self setBool:options[@"enableAutoBreadcrumbTracking"]
             block:^(BOOL value) { self->_enableAutoBreadcrumbTracking = value; }];
 
+    if ([options[@"tracePropagationTargets"] isKindOfClass:[NSArray class]]) {
+        self.tracePropagationTargets = options[@"tracePropagationTargets"];
+    }
+
+    if ([options[@"failedRequestStatusCodes"] isKindOfClass:[NSArray class]]) {
+        self.failedRequestStatusCodes = options[@"failedRequestStatusCodes"];
+    }
+
+    if ([options[@"failedRequestTargets"] isKindOfClass:[NSArray class]]) {
+        self.failedRequestTargets = options[@"failedRequestTargets"];
+    }
+
     // SentrySdkInfo already expects a dictionary with {"sdk": {"name": ..., "value": ...}}
     // so we're passing the whole options object.
     // Note: we should remove this code once the hybrid SDKs move over to the new
     // PrivateSentrySDKOnly setter functions.
     if ([options[@"sdk"] isKindOfClass:[NSDictionary class]]) {
-        SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithDict:options];
+        SentrySdkInfo *defaults = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
+                                                           andVersion:SentryMeta.versionString];
+        SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithDict:options orDefaults:defaults];
         SentryMeta.versionString = sdkInfo.version;
         SentryMeta.sdkName = sdkInfo.name;
     }

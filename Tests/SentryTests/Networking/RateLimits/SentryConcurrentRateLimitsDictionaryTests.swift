@@ -30,7 +30,7 @@ class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
         sut.addRateLimit(SentryDataCategory.attachment, validUntil: dateB)
         XCTAssertEqual(dateB, self.sut.getRateLimit(for: SentryDataCategory.attachment))
     }
-    // Altough we only run this test above the below specified versions, we exped the
+    // Although we only run this test above the below specified versions, we expect the
     // implementation to be thread safe
     @available(tvOS 10.0, *)
     @available(OSX 10.12, *)

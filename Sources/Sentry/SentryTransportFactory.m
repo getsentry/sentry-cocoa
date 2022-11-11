@@ -9,6 +9,7 @@
 #import "SentryQueueableRequestManager.h"
 #import "SentryRateLimitParser.h"
 #import "SentryRateLimits.h"
+#import "SentryReachability.h"
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentryTransport.h"
 #import <Foundation/Foundation.h>
@@ -56,7 +57,8 @@ SentryTransportFactory ()
                                          requestBuilder:[[SentryNSURLRequestBuilder alloc] init]
                                              rateLimits:rateLimits
                                       envelopeRateLimit:envelopeRateLimit
-                                   dispatchQueueWrapper:dispatchQueueWrapper];
+                                   dispatchQueueWrapper:dispatchQueueWrapper
+                                           reachability:[[SentryReachability alloc] init]];
 }
 
 @end

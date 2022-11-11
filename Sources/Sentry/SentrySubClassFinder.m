@@ -30,8 +30,7 @@ SentrySubClassFinder ()
     [self.dispatchQueue dispatchAsyncWithBlock:^{
         Class viewControllerClass = NSClassFromString(@"UIViewController");
         if (viewControllerClass == nil) {
-            [SentryLog logWithMessage:@"UIViewController class not found."
-                             andLevel:kSentryLevelDebug];
+            SENTRY_LOG_DEBUG(@"UIViewController class not found.");
             return;
         }
 
@@ -61,7 +60,7 @@ SentrySubClassFinder ()
         }
 
         free(classes);
-        [self.dispatchQueue dispatchOnMainQueue:^{
+        [self.dispatchQueue dispatchAsyncOnMainQueue:^{
             for (NSString *className in classesToSwizzle) {
                 block(NSClassFromString(className));
             }

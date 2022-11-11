@@ -8,15 +8,11 @@
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryHub+Private.h"
-#import "SentryLog.h"
 #import "SentryMechanism.h"
 #import "SentrySDK+Private.h"
 #import "SentryThread.h"
 #import "SentryThreadInspector.h"
 #import "SentryThreadWrapper.h"
-#import <Foundation/Foundation.h>
-#import <SentryAppState.h>
-#import <SentryAppStateManager.h>
 #import <SentryDependencyContainer.h>
 #import <SentryOptions+Private.h>
 

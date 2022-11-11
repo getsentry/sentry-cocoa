@@ -52,10 +52,8 @@
         [fetchSpan
             finishWithStatus:error != nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
 
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"SentryCoreDataTracker automatically "
-                                                             @"finished span with status: %@",
-                                            error == nil ? @"ok" : @"error"]
-                         andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically finished span with status: %@",
+            error == nil ? @"ok" : @"error");
     }
 
     return result;
@@ -96,10 +94,8 @@
         [fetchSpan
             finishWithStatus:*error != nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
 
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"SentryCoreDataTracker automatically "
-                                                             @"finished span with status: %@",
-                                            *error == nil ? @"ok" : @"error"]
-                         andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically finished span with status: %@",
+            *error == nil ? @"ok" : @"error");
     }
 
     return result;
@@ -112,11 +108,11 @@
     __block NSMutableArray *resultParts = [NSMutableArray new];
 
     void (^operationInfo)(NSUInteger, NSString *) = ^void(NSUInteger total, NSString *op) {
-        NSDictionary *itens = operations[op];
-        if (itens && itens.count > 0) {
-            if (itens.count == 1) {
+        NSDictionary *items = operations[op];
+        if (items && items.count > 0) {
+            if (items.count == 1) {
                 [resultParts addObject:[NSString stringWithFormat:@"%@ %@ '%@'", op,
-                                                 itens.allValues[0], itens.allKeys[0]]];
+                                                 items.allValues[0], items.allKeys[0]]];
             } else {
                 [resultParts addObject:[NSString stringWithFormat:@"%@ %lu items", op,
                                                  (unsigned long)total]];
@@ -151,8 +147,8 @@
 {
     NSMutableDictionary<NSString *, NSNumber *> *result = [NSMutableDictionary new];
 
-    for (id item in entities) {
-        NSString *cl = NSStringFromClass([item class]);
+    for (NSManagedObject *item in entities) {
+        NSString *cl = item.entity.name;
         NSNumber *count = result[cl];
         result[cl] = [NSNumber numberWithInt:count.intValue + 1];
     }

@@ -29,7 +29,7 @@ class SentryTraceContextTests: XCTestCase {
             
             scope = Scope()
             scope.setUser(User(userId: userId))
-            scope.userObject?.data = ["segment": "Test Segment"]
+            scope.userObject?.segment = userSegment
             scope.span = tracer
             
             traceId = tracer.context.traceId
@@ -76,15 +76,6 @@ class SentryTraceContextTests: XCTestCase {
         fixture.scope.span = nil
         let traceContext = SentryTraceContext(scope: fixture.scope, options: fixture.options)
         XCTAssertNil(traceContext)
-    }
-    
-    func testUserSegment_wrongData() {
-        var traceContext = SentryTraceContext(scope: fixture.scope, options: fixture.options)
-        XCTAssertNotNil(traceContext?.userSegment)
-        XCTAssertEqual(traceContext?.userSegment, "Test Segment")
-        fixture.scope.userObject?.data = ["segment": 5]
-        traceContext = SentryTraceContext(scope: fixture.scope, options: fixture.options)
-        XCTAssertNil(traceContext?.userSegment)
     }
     
     func test_toBaggage() {

@@ -20,12 +20,14 @@ static NSTimeInterval const kWaitForElementTimeout = 5.0;
 {
     CFTimeInterval const startTime = CACurrentMediaTime();
     CFTimeInterval const runDuration_seconds = 3.0 * 60.0;
-    generateProfileData(5 /* nCellsPerTab */, YES /* clearState */);
+    BOOL efficiently = NO;
+    generateProfileData(5 /* nCellsPerTab */, YES /* clearState */, efficiently);
     while (true) {
         if ((CACurrentMediaTime() - startTime) >= runDuration_seconds) {
             break;
         }
-        if (!generateProfileData(5 /* nCellsPerTab */, NO /* clearState */)) {
+        efficiently = !efficiently;
+        if (!generateProfileData(5 /* nCellsPerTab */, NO /* clearState */, efficiently)) {
             break;
         }
     }
@@ -36,15 +38,24 @@ static NSTimeInterval const kWaitForElementTimeout = 5.0;
  * Sentry transaction with profiling enabled.
  * @param nCellsPerTab The number of cells to tap on, per tab.
  * @param clearState Whether to clear filesystem state when the app starts.
+ * @param efficiently Whether to perform certain operations in TrendingMovies using an efficient
+ * method or not, to help us demonstrate how to identify such issues in the profiling areas of the
+ * Sentry dashboard.
  * @return Whether the operation was successful or not.
  */
 BOOL
-generateProfileData(NSUInteger nCellsPerTab, BOOL clearState)
+generateProfileData(NSUInteger nCellsPerTab, BOOL clearState, BOOL efficiently)
 {
     XCUIApplication *app = [[XCUIApplication alloc] init];
+    NSMutableArray *launchArguments = app.launchArguments.mutableCopy;
     if (clearState) {
-        app.launchArguments = @[ @"--clear" ];
+        [launchArguments addObject:@"--clear"];
     }
+    if (efficiently) {
+        [launchArguments
+            addObject:@"--io.sentry.sample.trending-movies.launch-arg.efficient-implementation"];
+    }
+    app.launchArguments = launchArguments;
     [app launch];
     if (![app waitForState:XCUIApplicationStateRunningForeground timeout:kWaitForAppStateTimeout]) {
         XCTFail("App failed to transition to Foreground state");

@@ -1,17 +1,15 @@
 #import "SentryTime.h"
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#import <Foundation/Foundation.h>
+#import <ctime>
+#import <mach/mach_time.h>
 
-#    import <Foundation/Foundation.h>
-#    import <ctime>
-#    import <mach/mach_time.h>
-
-#    import "SentryMachLogging.hpp"
+#import "SentryMachLogging.hpp"
 
 uint64_t
-getAbsoluteTime()
+getAbsoluteTime(void)
 {
-    if (@available(macOS 10.12, iOS 10.0, *)) {
+    if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)) {
         return clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
     }
     return mach_absolute_time();
@@ -22,7 +20,7 @@ getDurationNs(uint64_t startTimestamp, uint64_t endTimestamp)
 {
     assert(endTimestamp >= startTimestamp);
     uint64_t duration = endTimestamp - startTimestamp;
-    if (@available(macOS 10.12, iOS 10.0, *)) {
+    if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)) {
         return duration;
     }
 
@@ -33,5 +31,3 @@ getDurationNs(uint64_t startTimestamp, uint64_t endTimestamp)
     duration /= info.denom;
     return duration;
 }
-
-#endif

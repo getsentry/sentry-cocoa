@@ -1,7 +1,7 @@
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryAppStartTrackerTests: XCTestCase {
+class SentryAppStartTrackerTests: NotificationCenterTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryAppStartTrackerTests")
     private static let dsn = TestConstants.dsn(username: "SentryAppStartTrackerTests")
@@ -14,7 +14,8 @@ class SentryAppStartTrackerTests: XCTestCase {
         let fileManager: SentryFileManager
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
         let appStateManager: SentryAppStateManager
-        
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
+
         let appStartDuration: TimeInterval = 0.4
         var runtimeInitTimestamp: Date
         var moduleInitializationTimestamp: Date
@@ -27,7 +28,7 @@ class SentryAppStartTrackerTests: XCTestCase {
             
             fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
             
-            appStateManager = SentryAppStateManager(options: options, crashWrapper: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl)
+            appStateManager = SentryAppStateManager(options: options, crashWrapper: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl, dispatchQueueWrapper: dispatchQueue)
             
             runtimeInitTimestamp = currentDate.date().addingTimeInterval(0.2)
             moduleInitializationTimestamp = currentDate.date().addingTimeInterval(0.1)
@@ -57,7 +58,7 @@ class SentryAppStartTrackerTests: XCTestCase {
         fixture.fileManager.deleteAllFolders()
         clearTestState()
     }
-    
+
     func testFirstStart_IsColdStart() {
         startApp()
         
@@ -76,7 +77,8 @@ class SentryAppStartTrackerTests: XCTestCase {
     
     func testSecondStart_SystemNotRebooted_IsWarmStart() {
         givenSystemNotRebooted()
-        
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
         startApp()
         
         assertValidStart(type: .warm)
@@ -111,7 +113,8 @@ class SentryAppStartTrackerTests: XCTestCase {
         
         let appState = SentryAppState(releaseName: "1.0.0", osVersion: "14.4.1", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: self.fixture.currentDate.date())
         givenPreviousAppState(appState: appState)
-        
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
         startApp()
         
         assertValidStart(type: .warm)
@@ -123,7 +126,8 @@ class SentryAppStartTrackerTests: XCTestCase {
     func testAppLaunches_PreviousBootTimeInFuture_NoAppStartUp() {
         let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.currentDate.date().addingTimeInterval(1))
         givenPreviousAppState(appState: appState)
-        
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
         startApp()
         
         assertNoAppStartUp()
@@ -133,9 +137,9 @@ class SentryAppStartTrackerTests: XCTestCase {
         setenv("ActivePrewarm", "1", 1)
         SentryAppStartTracker.load()
         givenSystemNotRebooted()
-        
-        startApp(processStartTimeStamp: fixture.currentDate.date().addingTimeInterval(-60 * 60 * 4))
 
+        fixture.fileManager.moveAppStateToPreviousAppState()
+        startApp(processStartTimeStamp: fixture.currentDate.date().addingTimeInterval(-60 * 60 * 4))
 #if os(iOS)
         if #available(iOS 14.0, *) {
             assertValidStart(type: .warm, expectedDuration: 0.3, preWarmed: true)
@@ -152,22 +156,23 @@ class SentryAppStartTrackerTests: XCTestCase {
         SentryAppStartTracker.load()
         givenSystemNotRebooted()
         givenModuleInitializationTimestamp(timestamp: fixture.currentDate.date().addingTimeInterval(-200))
-        
+
         let currentDate = fixture.currentDate.date()
         startApp(
             processStartTimeStamp: currentDate.addingTimeInterval(-200.5),
             runtimeInitTimestamp: currentDate.addingTimeInterval(-200.4),
             moduleInitializationTimestamp: currentDate.addingTimeInterval(-200)
         )
-        
+
         assertNoAppStartUp()
     }
-    
+
     func testAppLaunches_WrongEnvValue_AppStartUp() {
         setenv("ActivePrewarm", "0", 1)
         SentryAppStartTracker.load()
         givenSystemNotRebooted()
-        
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
         startApp()
         
         assertValidStart(type: .warm)
@@ -191,7 +196,7 @@ class SentryAppStartTrackerTests: XCTestCase {
         sut = fixture.sut
         sut.start()
         
-        TestNotificationCenter.didEnterBackground()
+        didEnterBackground()
         
         assertNoAppStartUp()
     }
@@ -199,7 +204,7 @@ class SentryAppStartTrackerTests: XCTestCase {
     func testAppLaunchesBackgroundTask_GoesToForeground_NoAppStartUp() {
         sut = fixture.sut
         sut.start()
-        TestNotificationCenter.didEnterBackground()
+        didEnterBackground()
         
         goToForeground()
         
@@ -215,17 +220,17 @@ class SentryAppStartTrackerTests: XCTestCase {
         sut = fixture.sut
         givenRuntimeInitTimestamp(sut: sut)
         
-        TestNotificationCenter.willEnterForeground()
+        willEnterForeground()
         
         givenDidFinishLaunchingTimestamp()
         
-        TestNotificationCenter.didFinishLaunching()
+        didFinishLaunching()
         
         sut.start()
         
         advanceTime(bySeconds: 0.1)
-        TestNotificationCenter.uiWindowDidBecomeVisible()
-        TestNotificationCenter.didBecomeActive()
+        uiWindowDidBecomeVisible()
+        didBecomeActive()
         
         assertValidStart(type: .cold)
     }
@@ -238,7 +243,8 @@ class SentryAppStartTrackerTests: XCTestCase {
     
     func testHybridSDKs_SecondStart_SystemNotRebooted_IsWarmStart() {
         givenSystemNotRebooted()
-        
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
         hybridAppStart()
         
         assertValidHybridStart(type: .warm)
@@ -267,7 +273,7 @@ class SentryAppStartTrackerTests: XCTestCase {
     private func givenModuleInitializationTimestamp(timestamp: Date? = nil) {
         fixture.sysctl.setModuleInitializationTimestamp(value: timestamp ?? fixture.moduleInitializationTimestamp)
     }
-    
+
     private func givenDidFinishLaunchingTimestamp() {
         fixture.didFinishLaunchingTimestamp = fixture.currentDate.date().addingTimeInterval(0.3)
         advanceTime(bySeconds: 0.3)
@@ -281,14 +287,14 @@ class SentryAppStartTrackerTests: XCTestCase {
         givenModuleInitializationTimestamp(timestamp: moduleInitializationTimestamp)
         sut.start()
         
-        TestNotificationCenter.willEnterForeground()
+        willEnterForeground()
         
         givenDidFinishLaunchingTimestamp()
         
-        TestNotificationCenter.didFinishLaunching()
+        didFinishLaunching()
         advanceTime(bySeconds: 0.1)
-        TestNotificationCenter.uiWindowDidBecomeVisible()
-        TestNotificationCenter.didBecomeActive()
+        uiWindowDidBecomeVisible()
+        didBecomeActive()
     }
     
     private func hybridAppStart() {
@@ -299,7 +305,7 @@ class SentryAppStartTrackerTests: XCTestCase {
         advanceTime(bySeconds: 0.2)
         fixture.runtimeInitTimestamp = fixture.currentDate.date()
         
-        TestNotificationCenter.willEnterForeground()
+        willEnterForeground()
         
         advanceTime(bySeconds: 0.3)
         fixture.didFinishLaunchingTimestamp = fixture.currentDate.date()
@@ -307,31 +313,20 @@ class SentryAppStartTrackerTests: XCTestCase {
         sut = fixture.sut
         Dynamic(sut).setRuntimeInit(fixture.runtimeInitTimestamp)
         givenModuleInitializationTimestamp()
-        
-        TestNotificationCenter.didFinishLaunching()
+
+        didFinishLaunching()
         
         advanceTime(bySeconds: 0.1)
-        TestNotificationCenter.uiWindowDidBecomeVisible()
-        TestNotificationCenter.didBecomeActive()
+        uiWindowDidBecomeVisible()
+        didBecomeActive()
         
         // The Hybrid SDKs call start after all the notifications are posted,
         // because they init the SentrySDK when the hybrid engine is ready.
         sut.start()
     }
     
-    private func goToForeground() {
-        TestNotificationCenter.willEnterForeground()
-        TestNotificationCenter.uiWindowDidBecomeVisible()
-        TestNotificationCenter.didBecomeActive()
-    }
-    
-    private func goToBackground() {
-        TestNotificationCenter.willResignActive()
-        TestNotificationCenter.didEnterBackground()
-    }
-    
-    private func terminateApp() {
-        TestNotificationCenter.willTerminate()
+    internal override func terminateApp() {
+        super.terminateApp()
         sut.stop()
     }
     
@@ -359,7 +354,7 @@ class SentryAppStartTrackerTests: XCTestCase {
         } else {
             XCTAssertEqual(fixture.sysctl.processStartTimestamp, appStartMeasurement.appStartTimestamp)
         }
-        
+
         XCTAssertEqual(fixture.sysctl.moduleInitializationTimestamp, appStartMeasurement.moduleInitializationTimestamp)
         XCTAssertEqual(fixture.runtimeInitTimestamp, appStartMeasurement.runtimeInitTimestamp)
         XCTAssertEqual(fixture.didFinishLaunchingTimestamp, appStartMeasurement.didFinishLaunchingTimestamp)

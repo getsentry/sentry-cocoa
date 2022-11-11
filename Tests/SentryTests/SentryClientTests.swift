@@ -29,6 +29,7 @@ class SentryClientTest: XCTestCase {
         let transaction: Transaction
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
         let permissionsObserver = TestSentryPermissionsObserver()
+        let deviceWrapper = TestSentryUIDeviceWrapper()
         let locale = Locale(identifier: "en_US")
         let timezone = TimeZone(identifier: "Europe/Vienna")!
         
@@ -71,6 +72,7 @@ class SentryClientTest: XCTestCase {
                     random: random,
                     crashWrapper: crashWrapper,
                     permissionsObserver: permissionsObserver,
+                    deviceWrapper: deviceWrapper,
                     locale: locale,
                     timezone: timezone
                 )
@@ -145,7 +147,7 @@ class SentryClientTest: XCTestCase {
         }
     }
 
-    func testCaptureMessageWithOutStacktrace() {
+    func testCaptureMessageWithoutStacktrace() {
         let eventId = fixture.getSut(configureOptions: { options in
             options.attachStacktrace = false
         }).capture(message: fixture.messageAsString)
@@ -392,6 +394,44 @@ class SentryClientTest: XCTestCase {
         }
     }
 
+    func testCaptureErrorUsesErrorDebugDescriptionWhenSet() {
+        let error = NSError(
+            domain: "com.sentry",
+            code: 999,
+            userInfo: [NSDebugDescriptionErrorKey: "Custom error description"]
+        )
+        let eventId = fixture.getSut().capture(error: error)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            do {
+                let exceptions = try XCTUnwrap(actual.exceptions)
+                XCTAssertEqual("Custom error description (Code: 999)", try XCTUnwrap(exceptions.first).value)
+            } catch {
+                XCTFail("Exception expected but was nil")
+            }
+        }
+    }
+
+    func testCaptureErrorUsesErrorCodeAsDescriptionIfNoCustomDescriptionProvided() {
+        let error = NSError(
+            domain: "com.sentry",
+            code: 999,
+            userInfo: [:]
+        )
+        let eventId = fixture.getSut().capture(error: error)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            do {
+                let exceptions = try XCTUnwrap(actual.exceptions)
+                XCTAssertEqual("Code: 999", try XCTUnwrap(exceptions.first).value)
+            } catch {
+                XCTFail("Exception expected but was nil")
+            }
+        }
+    }
+
     func testCaptureErrorWithComplexUserInfo() {
         let url = URL(string: "https://github.com/getsentry")!
         let error = NSError(domain: "domain", code: 0, userInfo: ["url": url])
@@ -463,7 +503,7 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    func testCaptureOOMEvent_RemovesFreeMemoryFromContext() {
+    func testCaptureOOMEvent_RemovesMutableInfoFromDeviceContext() {
         let oomEvent = TestData.oomEvent
         
         _ = fixture.getSut().captureCrash(oomEvent, with: fixture.scope)
@@ -471,7 +511,11 @@ class SentryClientTest: XCTestCase {
         assertLastSentEventWithAttachment { event in
             XCTAssertEqual(oomEvent.eventId, event.eventId)
             XCTAssertNil(event.context?["device"]?["free_memory"])
-            XCTAssertNil(event.context?["device"]?["app_memory"])
+            XCTAssertNil(event.context?["device"]?["free_storage"])
+            XCTAssertNil(event.context?["device"]?["orientation"])
+            XCTAssertNil(event.context?["device"]?["charging"])
+            XCTAssertNil(event.context?["device"]?["battery_level"])
+            XCTAssertNil(event.context?["app"]?["app_memory"])
         }
     }
     
@@ -512,32 +556,68 @@ class SentryClientTest: XCTestCase {
         }
     }
 
-    func testCaptureCrash_FreeMemory() {
+    func testCaptureCrash_CrashWrapper_MemoryAndStorage() {
         let event = TestData.event
         event.threads = nil
         event.debugMeta = nil
 
-        fixture.crashWrapper.internalFreeMemory = 123_456
+        fixture.crashWrapper.internalFreeMemorySize = 123_456
+        fixture.crashWrapper.internalAppMemorySize = 234_567
+        fixture.crashWrapper.internalFreeStorageSize = 345_678
         fixture.getSut().captureCrash(event, with: fixture.scope)
 
         assertLastSentEventWithAttachment { actual in
             let eventFreeMemory = actual.context?["device"]?["free_memory"] as? Int
             XCTAssertEqual(eventFreeMemory, 123_456)
+
+            let eventAppMemory = actual.context?["app"]?["app_memory"] as? Int
+            XCTAssertEqual(eventAppMemory, 234_567)
+
+            let eventFreeStorage = actual.context?["device"]?["free_storage"] as? Int
+            XCTAssertEqual(eventFreeStorage, 345_678)
         }
     }
 
-    func testCaptureCrash_AppMemory() {
+    func testCaptureCrash_DeviceProperties() {
+#if os(iOS)
         let event = TestData.event
         event.threads = nil
         event.debugMeta = nil
 
-        fixture.crashWrapper.internalAppMemory = 123_456
         fixture.getSut().captureCrash(event, with: fixture.scope)
 
         assertLastSentEventWithAttachment { actual in
-            let eventAppMemory = actual.context?["app"]?["app_memory"] as? Int
-            XCTAssertEqual(eventAppMemory, 123_456)
+            let orientation = actual.context?["device"]?["orientation"] as? String
+            XCTAssertEqual(orientation, "portrait")
+
+            let charging = actual.context?["device"]?["charging"] as? Bool
+            XCTAssertEqual(charging, true)
+
+            let batteryLevel = actual.context?["device"]?["battery_level"] as? Int
+            XCTAssertEqual(batteryLevel, 60)
         }
+#endif
+    }
+
+    func testCaptureCrash_DeviceProperties_OtherValues() {
+#if os(iOS)
+        let event = TestData.event
+        event.threads = nil
+        event.debugMeta = nil
+
+        fixture.deviceWrapper.internalOrientation = .landscapeLeft
+        fixture.deviceWrapper.interalBatteryState = .full
+
+        fixture.getSut().captureCrash(event, with: fixture.scope)
+
+        assertLastSentEventWithAttachment { actual in
+            let orientation = actual.context?["device"]?["orientation"] as? String
+            XCTAssertEqual(orientation, "landscape")
+
+            let charging = actual.context?["device"]?["charging"] as? Bool
+            XCTAssertEqual(charging, false)
+        }
+#endif
     }
 
     func testCaptureCrash_Permissions() {
@@ -947,6 +1027,22 @@ class SentryClientTest: XCTestCase {
         assertLastSentEvent { actual in
             assertArrayEquals(
                 expected: ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking"],
+                actual: actual.sdk?["integrations"] as? [String]
+            )
+        }
+    }
+
+    func testTrackStitchAsyncCode() {
+        SentrySDK.start(options: Options())
+
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.stitchAsyncCode = true
+        }).capture(message: fixture.messageAsString)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            assertArrayEquals(
+                expected: ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking", "StitchAsyncCode"],
                 actual: actual.sdk?["integrations"] as? [String]
             )
         }

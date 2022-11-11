@@ -3,10 +3,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryDiscardReasonMapper : NSObject
+FOUNDATION_EXPORT NSString *const kSentryDiscardReasonNameBeforeSend;
+FOUNDATION_EXPORT NSString *const kSentryDiscardReasonNameEventProcessor;
+FOUNDATION_EXPORT NSString *const kSentryDiscardReasonNameSampleRate;
+FOUNDATION_EXPORT NSString *const kSentryDiscardReasonNameNetworkError;
+FOUNDATION_EXPORT NSString *const kSentryDiscardReasonNameQueueOverflow;
+FOUNDATION_EXPORT NSString *const kSentryDiscardReasonNameCacheOverflow;
+FOUNDATION_EXPORT NSString *const kSentryDiscardReasonNameRateLimitBackoff;
 
-+ (SentryDiscardReason)mapStringToReason:(NSString *)value;
-
-@end
+NSString *nameForSentryDiscardReason(SentryDiscardReason reason);
 
 NS_ASSUME_NONNULL_END

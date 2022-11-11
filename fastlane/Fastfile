@@ -3,17 +3,12 @@ default_platform(:ios)
 platform :ios do
   ios_swift_infoplist_path = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
   ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
+  configuration = if is_ci then 'TestCI' else 'Test' end
 
-  lane :bump_bundle_version do
-    set_info_plist_value(
-      path: ios_swift_infoplist_path,
-      key: "CFBundleVersion",
-      value: ENV["FASTLANE_BUNDLE_VERSION"]
-    )
-    set_info_plist_value(
-      path: ios_swift_clip_infoplist_path,
-      key: "CFBundleVersion",
-      value: ENV["FASTLANE_BUNDLE_VERSION"]
+  lane :bump_build_number do
+    increment_build_number(
+      build_number: ENV["FASTLANE_BUILD_NUMBER"],
+      xcodeproj: "./Samples/iOS-Swift/iOS-Swift.xcodeproj"
     )
   end
 
@@ -48,6 +43,34 @@ platform :ios do
       key: "CFBundleVersion",
       value: version
     )
+  end
+
+  desc "Run match for local development"
+    lane :match_local do
+     match(
+       type: "development",
+       app_identifier: ["io.sentry.sample.iOS-Swift",
+         "io.sentry.sample.iOS-Swift.Clip",
+         "io.sentry.iOS-SwiftUITests.xctrunner",
+         "io.sentry.sample.movies.ProfileDataGeneratorUITest",
+         "io.sentry.sample.TrendingMovies",
+         "io.sentry.cocoa.perf-test-app-plain",
+         "io.sentry.*",
+         "io.sentry.iOS-Benchmarking.xctrunner",
+         "io.sentry.cocoa.perf-test-app-sentry"]
+     )
+     match(
+       type: "appstore",
+       app_identifier: ["io.sentry.sample.iOS-Swift",
+         "io.sentry.sample.iOS-Swift.Clip",
+         "io.sentry.iOS-SwiftUITests.xctrunner",
+         "io.sentry.sample.movies.ProfileDataGeneratorUITest",
+         "io.sentry.sample.TrendingMovies",
+         "io.sentry.cocoa.perf-test-app-plain",
+         "io.sentry.*",
+         "io.sentry.iOS-Benchmarking.xctrunner",
+         "io.sentry.cocoa.perf-test-app-sentry"]
+     )
   end
 
   desc "Build iOS-Swift with Release"
@@ -186,6 +209,11 @@ platform :ios do
       key_content: ENV["APP_STORE_CONNECT_KEY"]
     )
 
+    # Workaround for https://github.com/fastlane/fastlane/issues/20741
+    environment_variable(set: {
+      'ITMSTRANSPORTER_FORCE_ITMS_PACKAGE_UPLOAD' => 'true'
+    })
+
     testflight
 
     download_dsyms(
@@ -204,14 +232,16 @@ platform :ios do
   lane :ui_tests_ios_swiftui do
     run_tests(
       workspace: "Sentry.xcworkspace",
-      scheme: "iOS-SwiftUI"
+      scheme: "iOS-SwiftUI",
+      configuration: configuration
     )
   end
 
   lane :ui_tests_ios_objc do
     run_tests(
       workspace: "Sentry.xcworkspace",
-      scheme: "iOS-ObjectiveC"
+      scheme: "iOS-ObjectiveC",
+      configuration: configuration
     )
   end
 
@@ -220,14 +250,16 @@ platform :ios do
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
       device: options[:device],
-      address_sanitizer: options[:address_sanitizer]
+      address_sanitizer: options[:address_sanitizer],
+      configuration: configuration
     )
   end
 
   lane :ui_tests_tvos_swift do
     run_tests(
       workspace: "Sentry.xcworkspace",
-      scheme: "tvOS-Swift"
+      scheme: "tvOS-Swift",
+      configuration: configuration
     )
   end
 

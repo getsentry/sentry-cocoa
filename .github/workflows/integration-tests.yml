@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - master
-  
+
   pull_request:
     paths:
       - 'Sources/**'
@@ -13,11 +13,10 @@ on:
       - 'fastlane/**'
 
 jobs:
-
   # Ensure the swizzling of network classes doesn't break the normal functionality of web requests.
   # We borrow the tests of Alamofire under the MIT license: https://github.com/Alamofire/Alamofire.
   # The following steps checkout Alamofire and apply a github patch to the project. The patch adds
-  # Sentry to the tests with auto performance monitoring enabled. While the tests are running a 
+  # Sentry to the tests with auto performance monitoring enabled. While the tests are running a
   # transaction is bound to the scope, so the Sentry SDK adds spans to the transaction. This doesn't
   # validate if the Sentry SDK adds proper spans. It only validates that the swizzling logic
   # doesn't break web requests.
@@ -30,8 +29,8 @@ jobs:
         with:
           repository: 'Alamofire/Alamofire'
           ref: 'f82c23a8a7ef8dc1a49a8bfc6a96883e79121864'
-     
-      # Use github.event.pull_request.head.sha instead of github.sha when available as 
+
+      # Use github.event.pull_request.head.sha instead of github.sha when available as
       # the github.sha is the pre merge commit id for PRs.
       # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
       - name: Download Apply Patch Script
@@ -41,7 +40,7 @@ jobs:
           else
             curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.sha }}/scripts/apply-patch.sh --output apply-patch.sh
           fi
-          
+
           chmod +x apply-patch.sh
         shell: bash
 
@@ -53,7 +52,7 @@ jobs:
 
       - name: Start Firewalk
         run: firewalk &
- 
+
       - name: Validate Firewalk is running
         run: curl http://localhost:8080/
 
@@ -83,8 +82,8 @@ jobs:
         with:
           repository: 'home-assistant/iOS'
           ref: '6d6606aed63a778c5a2bd64f8981823433a7f2fa'
-      
-      # Use github.event.pull_request.head.sha instead of github.sha when available as 
+
+      # Use github.event.pull_request.head.sha instead of github.sha when available as
       # the github.sha is the pre merge commit id for PRs.
       # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
       - name: Download Apply Patch Script
@@ -102,14 +101,14 @@ jobs:
         run: ./apply-patch.sh "${{ github.event.pull_request.head.sha }}" "${{ github.sha }}" add-sentry-to-homekit
 
       - uses: actions/cache@v3
-        name: "Cache: Gems"
+        name: 'Cache: Gems'
         id: cache_gems
         with:
           path: vendor/bundle
           key: home-assistant-integration-gems-${{ runner.os }}-${{ env.ImageVersion }}-${{ env.DEVELOPER_DIR }}-${{ hashFiles('**/Gemfile.lock') }}
 
       - uses: actions/cache@v3
-        name: "Cache: Pods"
+        name: 'Cache: Pods'
         id: cache_pods
         if: steps.cache_gems.outputs.cache-hit == 'true'
         with:
@@ -133,7 +132,7 @@ jobs:
           bundle exec pod install --repo-update
 
       - name: Run tests
-      # Run the tests twice in case they are flaky.
+        # Run the tests twice in case they are flaky.
         run: |
           bundle config set --local path 'vendor/bundle'
           for i in {1..2}; do bundle exec fastlane test && break ; done
@@ -143,14 +142,15 @@ jobs:
   # Sentry to the app with auto performance monitoring enabled. We then run the UI tests to make sure
   # adding our SDK doesn't cause any major issues.
   vlc-tests:
-    runs-on: macos-11
+    runs-on: macos-12
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v3
         with:
           repository: 'videolan/vlc-ios'
-          ref: 'f2d4a28031509f263255457c91703b6d2f388b65'
+          ref: '5d2b5505edc3387cad43deca14c0bd0b19e3f133'
 
-      # Use github.event.pull_request.head.sha instead of github.sha when available as 
+      # Use github.event.pull_request.head.sha instead of github.sha when available as
       # the github.sha is the pre merge commit id for PRs.
       # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
       - name: Download Apply Patch Script
@@ -168,7 +168,7 @@ jobs:
         run: ./apply-patch.sh "${{ github.event.pull_request.head.sha }}" "${{ github.sha }}" add-sentry-to-vlc
 
       - uses: actions/cache@v3
-        name: "Cache: Pods"
+        name: 'Cache: Pods'
         id: cache-pods
         with:
           path: Pods
@@ -180,5 +180,5 @@ jobs:
         run: pod install
 
       - name: Run UI Tests
-      # Run the tests twice in case they are flaky.
-        run: for i in {1..2} ; do set -o pipefail && env NSUnbufferedIO=YES xcodebuild -workspace "VLC.xcworkspace" -scheme "VLC-iOS-UITests" -destination "OS=15.2,name=iPhone 13 Pro" test | xcpretty && break ; done
+        # Run the tests twice in case they are flaky.
+        run: for i in {1..2} ; do set -o pipefail && env NSUnbufferedIO=YES xcodebuild -workspace "VLC.xcworkspace" -scheme "VLC-iOS-UITests" -destination "platform=iOS Simulator,OS=16.0,name=iPhone 13 Pro" test | xcpretty && break ; done

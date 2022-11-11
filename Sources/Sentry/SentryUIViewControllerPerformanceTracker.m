@@ -1,6 +1,7 @@
 #import "SentryUIViewControllerPerformanceTracker.h"
 #import "SentryHub.h"
 #import "SentryLog.h"
+#import "SentryPerformanceTracker+Private.h"
 #import "SentryPerformanceTracker.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope.h"
@@ -89,7 +90,9 @@ SentryUIViewControllerPerformanceTracker ()
     // and override the previous id stored.
     if (spanId == nil) {
         NSString *name = [SentryUIViewControllerSanitizer sanitizeViewControllerName:controller];
-        spanId = [self.tracker startSpanWithName:name operation:SentrySpanOperationUILoad];
+        spanId = [self.tracker startSpanWithName:name
+                                      nameSource:kSentryTransactionNameSourceComponent
+                                       operation:SentrySpanOperationUILoad];
 
         // Use the target itself to store the spanId to avoid using a global mapper.
         objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, spanId,
@@ -113,11 +116,13 @@ SentryUIViewControllerPerformanceTracker ()
 
         void (^duringBlock)(void) = ^{
             [self.tracker measureSpanWithDescription:@"viewWillAppear"
+                                          nameSource:kSentryTransactionNameSourceComponent
                                            operation:SentrySpanOperationUILoad
                                              inBlock:callbackToOrigin];
 
             SentrySpanId *viewAppearingId =
                 [self.tracker startSpanWithName:@"viewAppearing"
+                                     nameSource:kSentryTransactionNameSourceComponent
                                       operation:SentrySpanOperationUILoad];
 
             objc_setAssociatedObject(controller,
@@ -190,6 +195,7 @@ SentryUIViewControllerPerformanceTracker ()
             }
 
             [self.tracker measureSpanWithDescription:lifecycleMethod
+                                          nameSource:kSentryTransactionNameSourceComponent
                                            operation:SentrySpanOperationUILoad
                                              inBlock:callbackToOrigin];
         };
@@ -224,11 +230,13 @@ SentryUIViewControllerPerformanceTracker ()
 
         void (^duringBlock)(void) = ^{
             [self.tracker measureSpanWithDescription:@"viewWillLayoutSubviews"
+                                          nameSource:kSentryTransactionNameSourceComponent
                                            operation:SentrySpanOperationUILoad
                                              inBlock:callbackToOrigin];
 
             SentrySpanId *layoutSubViewId =
                 [self.tracker startSpanWithName:@"layoutSubViews"
+                                     nameSource:kSentryTransactionNameSourceComponent
                                       operation:SentrySpanOperationUILoad];
 
             objc_setAssociatedObject(controller,
@@ -267,6 +275,7 @@ SentryUIViewControllerPerformanceTracker ()
             }
 
             [self.tracker measureSpanWithDescription:@"viewDidLayoutSubviews"
+                                          nameSource:kSentryTransactionNameSourceComponent
                                            operation:SentrySpanOperationUILoad
                                              inBlock:callbackToOrigin];
 
@@ -327,6 +336,7 @@ SentryUIViewControllerPerformanceTracker ()
         callbackToOrigin();
     } else {
         [self.tracker measureSpanWithDescription:description
+                                      nameSource:kSentryTransactionNameSourceComponent
                                        operation:SentrySpanOperationUILoad
                                     parentSpanId:spanId
                                          inBlock:callbackToOrigin];

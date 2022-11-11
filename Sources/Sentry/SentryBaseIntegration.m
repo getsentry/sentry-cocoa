@@ -26,9 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)logWithReason:(NSString *)reason
 {
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"Not going to enable %@ %@.",
-                                        self.integrationName, reason]
-                     andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(@"Not going to enable %@ %@.", self.integrationName, reason);
 }
 
 - (BOOL)shouldBeEnabledWithOptions:(SentryOptions *)options

@@ -30,9 +30,8 @@
 #include "SentryCrashMonitorContext.h"
 #import "SentryCrashStackCursor_Backtrace.h"
 #include "SentryCrashThread.h"
-#import <Foundation/Foundation.h>
 
-//#define SentryCrashLogger_LocalLevel TRACE
+// #define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
 
 // ============================================================================

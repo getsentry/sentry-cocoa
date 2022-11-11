@@ -1,8 +1,8 @@
-name: "CodeQL"
+name: 'CodeQL'
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
   schedule:
     - cron: '40 4 * * 6'
@@ -15,24 +15,24 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'cpp' ]
+        language: ['cpp']
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
-      with:
-        languages: ${{ matrix.language }}
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@c3b6fce4ee2ca25bc1066aa3bf73962fda0e8898 # pin@v2
+        with:
+          languages: ${{ matrix.language }}
 
-    - run: >-
-        env NSUnbufferedIO=YES
-        xcodebuild 
-        -workspace Sentry.xcworkspace 
-        -scheme Sentry 
-        -configuration Release 
-        -destination platform="iOS Simulator,OS=latest,name=iPhone 11 Pro"
+      - run: >-
+          env NSUnbufferedIO=YES
+          xcodebuild
+          -workspace Sentry.xcworkspace
+          -scheme Sentry
+          -configuration Release
+          -destination platform="iOS Simulator,OS=latest,name=iPhone 11 Pro"
 
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@c3b6fce4ee2ca25bc1066aa3bf73962fda0e8898 # pin@v2

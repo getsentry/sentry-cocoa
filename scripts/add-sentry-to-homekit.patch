@@ -1,3 +1,15 @@
+git diff HomeAssistant.xcconfig
+diff --git a/Configuration/HomeAssistant.xcconfig b/Configuration/HomeAssistant.xcconfig
+index 2b1cdd31..962ec867 100644
+--- a/Configuration/HomeAssistant.xcconfig
++++ b/Configuration/HomeAssistant.xcconfig
+@@ -92,3 +92,5 @@ CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES
+ CLANG_ANALYZER_NONNULL = YES
+ CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES
+ GCC_NO_COMMON_BLOCKS = YES
++
++OTHER_LDFLAGS[sdk=watch*] = $(inherited) -framework WatchKit
+
 diff --git a/Podfile b/Podfile
 index d2d83b14..6756f31b 100644
 --- a/Podfile
@@ -28,7 +40,7 @@ index 8e0e35f4..3d34887d 100644
          didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
      ) -> Bool {
 +        SentrySDK.start { options in
-+            options.dsn = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
++            options.dsn = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
 +            options.environment = "integration-tests"
 +            options.tracesSampleRate = 1.0
 +            options.enableFileIOTracking = true

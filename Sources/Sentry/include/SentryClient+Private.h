@@ -1,7 +1,6 @@
 #import "SentryClient.h"
 #import "SentryDataCategory.h"
 #import "SentryDiscardReason.h"
-#import <Foundation/Foundation.h>
 
 @class SentryEnvelopeItem, SentryId, SentryAttachment, SentryThreadInspector;
 

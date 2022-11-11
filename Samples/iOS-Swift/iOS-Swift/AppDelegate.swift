@@ -6,7 +6,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
 
-    static let defaultDSN = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
+    static let defaultDSN = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
@@ -40,8 +40,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // because we run CPU for 15 seconds at full throttle, we trigger ANR issues being sent. disable such during benchmarks.
             options.enableAppHangTracking = !isBenchmarking
             options.appHangTimeoutInterval = 2
+            options.enableCaptureFailedRequests = true
+            let httpStatusCodeRange = HttpStatusCodeRange(min: 400, max: 599)
+            options.failedRequestStatusCodes = [ httpStatusCodeRange ]
+        }
+        
+        if #available(iOS 14.0, *) {
+            metricKit.receiveReports()
         }
         
         return true
+    }
+    
+    func applicationWillTerminate(_ application: UIApplication) {
+        if #available(iOS 14.0, *) {
+            metricKit.pauseReports()
+        }
+    }
+    
+    // Workaround for 'Stored properties cannot be marked potentially unavailable with '@available''
+    private var _metricKit: Any?
+    @available(iOS 14.0, *)
+    fileprivate var metricKit: MetricKitManager {
+        if _metricKit == nil {
+            _metricKit = MetricKitManager()
+        }
+        
+        // We know the type so it's fine to force cast.
+        // swiftlint:disable force_cast
+        return _metricKit as! MetricKitManager
+        // swiftlint:enable force_cast
     }
 }

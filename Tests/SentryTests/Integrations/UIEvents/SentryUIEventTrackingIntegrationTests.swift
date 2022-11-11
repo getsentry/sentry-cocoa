@@ -32,50 +32,50 @@ class SentryUIEventTrackerIntegrationTests: XCTestCase {
         clearTestState()
     }
     
-    func test_noInstallion_SwizzlingDisabled() {
+    func test_noInstallation_SwizzlingDisabled() {
         let sut = fixture.getSut()
         sut.install(with: fixture.optionForUIEventTracking(enableSwizzling: false))
         assertNoInstallation(sut)
-        XCTAssertFalse(SentrySwizzleWrapper.hasItens())
+        XCTAssertFalse(SentrySwizzleWrapper.hasItems())
     }
     
     func test_noInstallation_AutoPerformanceDisabled() {
         let sut = fixture.getSut()
         sut.install(with: fixture.optionForUIEventTracking(enableAutoPerformanceTracking: false))
         assertNoInstallation(sut)
-        XCTAssertFalse(SentrySwizzleWrapper.hasItens())
+        XCTAssertFalse(SentrySwizzleWrapper.hasItems())
     }
     
-    func test_noInstallation_UserInterationDisabled() {
+    func test_noInstallation_UserInteractionDisabled() {
         let sut = fixture.getSut()
         sut.install(with: fixture.optionForUIEventTracking(enableUserInteractionTracing: false))
         assertNoInstallation(sut)
-        XCTAssertFalse(SentrySwizzleWrapper.hasItens())
+        XCTAssertFalse(SentrySwizzleWrapper.hasItems())
     }
     
     func test_noInstallation_NoSampleRate() {
         let sut = fixture.getSut()
         sut.install(with: fixture.optionForUIEventTracking(tracesSampleRate: 0))
         assertNoInstallation(sut)
-        XCTAssertFalse(SentrySwizzleWrapper.hasItens())
+        XCTAssertFalse(SentrySwizzleWrapper.hasItems())
     }
     
     func test_Installation() {
         let sut = fixture.getSut()
         sut.install(with: fixture.optionForUIEventTracking())
         XCTAssertNotNil(Dynamic(sut).uiEventTracker as SentryUIEventTracker?)
-        XCTAssertTrue(SentrySwizzleWrapper.hasItens())
+        XCTAssertTrue(SentrySwizzleWrapper.hasItems())
     }
     
     func test_Uninstall() {
         let sut = fixture.getSut()
         sut.install(with: fixture.optionForUIEventTracking())
         XCTAssertNotNil(Dynamic(sut).uiEventTracker as SentryUIEventTracker?)
-        XCTAssertTrue(SentrySwizzleWrapper.hasItens())
+        XCTAssertTrue(SentrySwizzleWrapper.hasItems())
         
         sut.uninstall()
         
-        XCTAssertFalse(SentrySwizzleWrapper.hasItens())
+        XCTAssertFalse(SentrySwizzleWrapper.hasItems())
     }
     
     func assertNoInstallation(_ integration: SentryUIEventTrackingIntegration) {

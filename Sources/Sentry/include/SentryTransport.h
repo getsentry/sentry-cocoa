@@ -13,6 +13,8 @@ NS_SWIFT_NAME(Transport)
 
 - (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason;
 
+- (BOOL)flush:(NSTimeInterval)timeout;
+
 @end
 
 NS_ASSUME_NONNULL_END

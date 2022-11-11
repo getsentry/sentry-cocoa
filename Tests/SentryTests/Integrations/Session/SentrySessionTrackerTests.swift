@@ -12,6 +12,8 @@ class SentrySessionTrackerTests: XCTestCase {
         let currentDateProvider = TestCurrentDateProvider()
         let client: TestClient!
         let sentryCrash: TestSentryCrashWrapper
+
+        let notificationCenter = TestNSNotificationCenterWrapper()
         
         init() {
             options = Options()
@@ -26,7 +28,7 @@ class SentrySessionTrackerTests: XCTestCase {
         }
         
         func getSut() -> SessionTracker {
-            return SessionTracker(options: options, currentDateProvider: currentDateProvider)
+            return SessionTracker(options: options, currentDateProvider: currentDateProvider, notificationCenter: notificationCenter)
         }
         
         func setNewHubToSDK() {
@@ -60,10 +62,10 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     override func tearDown() {
-        super.tearDown()
         sut.stop()
-        
         clearTestState()
+        
+        super.tearDown()
     }
     
     func testOnlyForeground() {
@@ -76,7 +78,7 @@ class SentrySessionTrackerTests: XCTestCase {
     
     func testOnlyHybridSdkDidBecomeActive() {
         sut.start()
-        TestNotificationCenter.hybridSdkDidBecomeActive()
+        hybridSdkDidBecomeActive()
         
         assertInitSessionSent()
         assertSessionStored()
@@ -85,7 +87,7 @@ class SentrySessionTrackerTests: XCTestCase {
     func testForeground_And_HybridSdkDidBecomeActive() {
         sut.start()
         goToForeground()
-        TestNotificationCenter.hybridSdkDidBecomeActive()
+        hybridSdkDidBecomeActive()
         
         assertInitSessionSent()
         assertSessionStored()
@@ -93,7 +95,7 @@ class SentrySessionTrackerTests: XCTestCase {
     
     func testHybridSdkDidBecomeActive_and_Foreground() {
         sut.start()
-        TestNotificationCenter.hybridSdkDidBecomeActive()
+        hybridSdkDidBecomeActive()
         
         goToForeground()
         
@@ -246,15 +248,13 @@ class SentrySessionTrackerTests: XCTestCase {
         
         // Background task is launched
         advanceTime(bySeconds: 30)
-        TestNotificationCenter.didEnterBackground()
-        advanceTime(bySeconds: 9)
         
         // user opens app
         goToForeground()
         assertEndSessionSent(started: sessionStarted, duration: 1)
     }
     
-    func testAppRunning_LaunchBackgroundTaskImmidiately_UserResumesApp() {
+    func testAppRunning_LaunchBackgroundTaskImmediately_UserResumesApp() {
         let sessionStarted = fixture.currentDateProvider.date()
         sut.start()
         goToForeground()
@@ -262,9 +262,7 @@ class SentrySessionTrackerTests: XCTestCase {
         goToBackground()
         
         // Background task is launched
-        advanceTime(bySeconds: 1)
-        TestNotificationCenter.didEnterBackground()
-        advanceTime(bySeconds: 1)
+        advanceTime(bySeconds: 2)
         
         // user opens app
         goToForeground()
@@ -344,13 +342,42 @@ class SentrySessionTrackerTests: XCTestCase {
         assertSessionsSent(count: 2)
     }
     
+    func testStart_AddsObservers() {
+        sut.start()
+        
+        let invocations = fixture.notificationCenter.addObserverInvocations
+        let notificationNames = invocations.invocations.map { $0.name }
+        
+        assertNotificationNames(notificationNames)
+    }
+    
+    func testStop_RemovesObservers() {
+        sut.stop()
+        
+        let invocations = fixture.notificationCenter.addObserverWithNotificationInvocations
+        let notificationNames = invocations.invocations.map { $0.name }
+        
+        assertNotificationNames(notificationNames)
+    }
+    
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(bySeconds))
     }
     
     private func goToForeground() {
-        TestNotificationCenter.willEnterForeground()
-        TestNotificationCenter.didBecomeActive()
+        Dynamic(sut).didBecomeActive()
+    }
+    
+    private func goToBackground() {
+        willResignActive()
+    }
+    
+    private func willResignActive() {
+        Dynamic(sut).willResignActive()
+    }
+    
+    private func hybridSdkDidBecomeActive() {
+        Dynamic(sut).didBecomeActive()
     }
     
     private func goToBackground(forSeconds: TimeInterval) {
@@ -359,18 +386,13 @@ class SentrySessionTrackerTests: XCTestCase {
         goToForeground()
     }
     
-    private func goToBackground() {
-        TestNotificationCenter.willResignActive()
-        TestNotificationCenter.didEnterBackground()
+    private  func willTerminate() {
+        Dynamic(sut).willTerminate()
     }
     
     private func terminateApp() {
-        TestNotificationCenter.willTerminate()
+        willTerminate()
         sut.stop()
-    }
-    
-    private func resumeAppInBackground() {
-        TestNotificationCenter.didEnterBackground()
     }
     
     private func launchBackgroundTaskAppNotRunning() {
@@ -379,7 +401,6 @@ class SentrySessionTrackerTests: XCTestCase {
         sut = fixture.getSut()
         
         sut.start()
-        TestNotificationCenter.didEnterBackground()
     }
     
     private func captureError() {
@@ -424,7 +445,7 @@ class SentrySessionTrackerTests: XCTestCase {
             let session = fixture.client.captureSessionInvocations.invocations[endSessionIndex]
             XCTAssertFalse(session.flagInit?.boolValue ?? false)
             XCTAssertEqual(started, session.started)
-            XCTAssertEqual(SentrySessionStatus.exited, session.status, "Expected session status of \(SentrySessionStatus.exited.rawValue) but got \(session.status.rawValue)")
+            XCTAssertEqual(SentrySessionStatus.exited.description, session.status.description)
             XCTAssertEqual(errors, session.errors)
             XCTAssertEqual(started.addingTimeInterval(TimeInterval(truncating: duration)), session.timestamp)
             XCTAssertEqual(duration, session.duration)
@@ -449,7 +470,7 @@ class SentrySessionTrackerTests: XCTestCase {
     private func assertSession(session: SentrySession, started: Date, status: SentrySessionStatus, duration: NSNumber) {
         XCTAssertFalse(session.flagInit?.boolValue ?? false)
         XCTAssertEqual(started, session.started)
-        XCTAssertEqual(status, session.status, "Expected session status of \(status.rawValue) but got \(session.status.rawValue)")
+        XCTAssertEqual(status.description, session.status.description)
         XCTAssertEqual(0, session.errors)
         XCTAssertEqual(started.addingTimeInterval(TimeInterval(truncating: duration)), session.timestamp)
         XCTAssertEqual(duration, session.duration)
@@ -464,7 +485,7 @@ class SentrySessionTrackerTests: XCTestCase {
         if let session = fixture.client.captureSessionInvocations.last {
             XCTAssertTrue(session.flagInit?.boolValue ?? false)
             XCTAssertEqual(sessionStarted, session.started)
-            XCTAssertEqual(SentrySessionStatus.ok, session.status, "Expected session status of \(SentrySessionStatus.ok.rawValue) but got \(session.status.rawValue)")
+            XCTAssertEqual(SentrySessionStatus.ok.description, session.status.description)
             XCTAssertEqual(0, session.errors)
             XCTAssertNil(session.timestamp)
             XCTAssertNil(session.duration)
@@ -535,5 +556,16 @@ class SentrySessionTrackerTests: XCTestCase {
         } else {
             XCTFail("No session sent with event.")
         }
+    }
+    
+    private func assertNotificationNames(_ notificationNames: [NSNotification.Name]) {
+        XCTAssertEqual(4, notificationNames.count)
+        
+        XCTAssertEqual([
+            SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName,
+            NSNotification.Name(rawValue: SentryHybridSdkDidBecomeActiveNotificationName),
+            SentryNSNotificationCenterWrapper.willResignActiveNotificationName,
+            SentryNSNotificationCenterWrapper.willTerminateNotificationName
+        ], notificationNames)
     }
 }

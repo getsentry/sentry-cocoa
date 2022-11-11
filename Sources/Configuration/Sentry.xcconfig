@@ -20,7 +20,6 @@ SDKROOT__CARTHAGE_ = iphoneos
 SUPPORTED_PLATFORMS = macosx iphoneos iphonesimulator watchos watchsimulator appletvos appletvsimulator
 TARGETED_DEVICE_FAMILY = 1,2,3,4
 SKIP_INSTALL = YES
-
 DEFINES_MODULE = YES
 DYLIB_COMPATIBILITY_VERSION = 1
 DYLIB_CURRENT_VERSION = 1
@@ -29,7 +28,7 @@ MACH_O_TYPE = mh_dylib
 FRAMEWORK_VERSION = A
 
 PRODUCT_NAME = Sentry
-CURRENT_PROJECT_VERSION = 7.24.1
+CURRENT_PROJECT_VERSION = 7.30.2
 INFOPLIST_FILE = Sources/Sentry/Info.plist
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry
 ALWAYS_SEARCH_USER_PATHS = NO
@@ -50,6 +49,8 @@ LD_RUNPATH_SEARCH_PATHS[sdk=macosx*] = $(inherited) @executable_path/../Framewor
 LD_RUNPATH_SEARCH_PATHS[sdk=iphone*] = $(inherited) @executable_path/Frameworks @loader_path/Frameworks;
 LD_RUNPATH_SEARCH_PATHS[sdk=watch*] = $(inherited) @executable_path/Frameworks @loader_path/Frameworks;
 LD_RUNPATH_SEARCH_PATHS[sdk=appletv*] = $(inherited) @executable_path/Frameworks @loader_path/Frameworks;
+
+OTHER_LDFLAGS[sdk=watch*] = $(inherited) -framework WatchKit
 
 MODULEMAP_FILE = $(SRCROOT)/Sources/Sentry/Sentry.modulemap
 //SWIFT_INCLUDE_PATHS = $(SRCROOT)/Sources/Sentry

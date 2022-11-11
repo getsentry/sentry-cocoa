@@ -1,7 +1,7 @@
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryOutOfMemoryTrackerTests: XCTestCase {
+class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryOutOfMemoryTrackerTests")
     private static let dsn = TestConstants.dsn(username: "SentryOutOfMemoryTrackerTests")
@@ -36,7 +36,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         }
         
         func getSut(fileManager: SentryFileManager) -> SentryOutOfMemoryTracker {
-            let appStateManager = SentryAppStateManager(options: options, crashWrapper: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl)
+            let appStateManager = SentryAppStateManager(options: options, crashWrapper: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl, dispatchQueueWrapper: self.dispatchQueue)
             let logic = SentryOutOfMemoryLogic(options: options, crashAdapter: crashWrapper, appStateManager: appStateManager)
             return SentryOutOfMemoryTracker(options: options, outOfMemoryLogic: logic, appStateManager: appStateManager, dispatchQueueWrapper: dispatchQueue, fileManager: fileManager)
         }
@@ -62,6 +62,8 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     }
 
     func testStart_StoresAppState() {
+        XCTAssertNil(fixture.fileManager.readAppState())
+
         sut.start()
         
         let actual = fixture.fileManager.readAppState()
@@ -189,6 +191,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
         sut.start()
         goToForeground()
 
+        fixture.fileManager.moveAppStateToPreviousAppState()
         sut.start()
         assertOOMEventSent()
     }
@@ -207,8 +210,9 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     
     func testAppOOM_WithOnlyHybridSdkDidBecomeActive() {
         sut.start()
-        TestNotificationCenter.hybridSdkDidBecomeActive()
-        
+        hybridSdkDidBecomeActive()
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
         sut.start()
         assertOOMEventSent()
     }
@@ -216,17 +220,19 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     func testAppOOM_Foreground_And_HybridSdkDidBecomeActive() {
         sut.start()
         goToForeground()
-        TestNotificationCenter.hybridSdkDidBecomeActive()
-        
+        hybridSdkDidBecomeActive()
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
         sut.start()
         assertOOMEventSent()
     }
     
     func testAppOOM_HybridSdkDidBecomeActive_and_Foreground() {
         sut.start()
-        TestNotificationCenter.hybridSdkDidBecomeActive()
+        hybridSdkDidBecomeActive()
         goToForeground()
-        
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
         sut.start()
         assertOOMEventSent()
     }
@@ -234,7 +240,7 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     func testTerminateApp_RunsOnMainThread() {
         sut.start()
         
-        TestNotificationCenter.willTerminate()
+        willTerminate()
         
         // 1 for start
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAsyncCalled)
@@ -253,15 +259,15 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
     func testStop_StopsObserving_NoMoreFileManagerInvocations() throws {
         let fileManager = try TestFileManager(options: Options(), andCurrentDateProvider: TestCurrentDateProvider())
         sut = fixture.getSut(fileManager: fileManager)
-        
+
         sut.start()
         sut.stop()
         
-        TestNotificationCenter.hybridSdkDidBecomeActive()
+        hybridSdkDidBecomeActive()
         goToForeground()
         terminateApp()
         
-        XCTAssertEqual(1, fileManager.readAppStateInvocations.count)
+        XCTAssertEqual(1, fileManager.readPreviousAppStateInvocations.count)
     }
     
     private func givenPreviousAppState(appState: SentryAppState) {
@@ -273,20 +279,6 @@ class SentryOutOfMemoryTrackerTests: XCTestCase {
             appState(currentAppState)
             fixture.fileManager.store(currentAppState)
         }
-    }
-    
-    private func goToForeground() {
-        TestNotificationCenter.willEnterForeground()
-        TestNotificationCenter.didBecomeActive()
-    }
-    
-    private func goToBackground() {
-        TestNotificationCenter.willResignActive()
-        TestNotificationCenter.didEnterBackground()
-    }
-    
-    private func terminateApp() {
-        TestNotificationCenter.willTerminate()
     }
     
     private func assertOOMEventSent() {

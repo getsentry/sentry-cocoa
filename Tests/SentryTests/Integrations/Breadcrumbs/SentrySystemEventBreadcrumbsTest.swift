@@ -252,13 +252,14 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         }
     }
 
-    func testTimezoneChangeNoticiationBreadcrumb() {
+    func testTimezoneChangeNotificationBreadcrumb() {
         let scope = Scope()
         sut = fixture.getSut(scope: scope, currentDevice: nil)
 
         fixture.currentDateProvider.timezoneOffsetValue = 7_200
 
-        NotificationCenter.default.post(Notification(name: NSNotification.Name.NSSystemTimeZoneDidChange))
+        sut.timezoneEventTriggered()
+
         assertBreadcrumbAction(scope: scope, action: "TIMEZONE_CHANGE") { data in
             XCTAssertEqual(data["previous_seconds_from_gmt"] as? Int, 0)
             XCTAssertEqual(data["current_seconds_from_gmt"] as? Int, 7_200)

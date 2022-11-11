@@ -42,9 +42,7 @@ SentryPerformanceTrackingIntegration ()
     [self.swizzling start];
     return YES;
 #else
-    [SentryLog logWithMessage:@"NO UIKit -> [SentryPerformanceTrackingIntegration "
-                              @"start] does nothing."
-                     andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(@"NO UIKit -> [SentryPerformanceTrackingIntegration start] does nothing.");
     return NO;
 #endif
 }

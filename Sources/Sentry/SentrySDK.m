@@ -134,9 +134,8 @@ static NSUInteger startInvocations;
     SentryOptions *options = [[SentryOptions alloc] initWithDict:optionsDict
                                                 didFailWithError:&error];
     if (nil != error) {
-        [SentryLog logWithMessage:@"Error while initializing the SDK" andLevel:kSentryLevelError];
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"%@", error]
-                         andLevel:kSentryLevelError];
+        SENTRY_LOG_ERROR(@"Error while initializing the SDK");
+        SENTRY_LOG_ERROR(@"%@", error);
     } else {
         [SentrySDK startWithOptionsObject:options];
     }
@@ -147,13 +146,14 @@ static NSUInteger startInvocations;
     startInvocations++;
 
     [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
+
     SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
+    [newClient.fileManager moveAppStateToPreviousAppState];
+
     // The Hub needs to be initialized with a client so that closing a session
     // can happen.
     [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:nil]];
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"SDK initialized! Version: %@",
-                                        SentryMeta.versionString]
-                     andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
     [SentrySDK installIntegrations];
 }
 
@@ -374,29 +374,29 @@ static NSUInteger startInvocations;
     for (NSString *integrationName in [SentrySDK.currentHub getClient].options.integrations) {
         Class integrationClass = NSClassFromString(integrationName);
         if (nil == integrationClass) {
-            NSString *logMessage = [NSString stringWithFormat:@"[SentryHub doInstallIntegrations] "
-                                                              @"couldn't find \"%@\" -> skipping.",
-                                             integrationName];
-            [SentryLog logWithMessage:logMessage andLevel:kSentryLevelError];
+            SENTRY_LOG_ERROR(@"[SentryHub doInstallIntegrations] "
+                             @"couldn't find \"%@\" -> skipping.",
+                integrationName);
             continue;
         } else if ([SentrySDK.currentHub isIntegrationInstalled:integrationClass]) {
-            NSString *logMessage =
-                [NSString stringWithFormat:@"[SentryHub doInstallIntegrations] already "
-                                           @"installed \"%@\" -> skipping.",
-                          integrationName];
-            [SentryLog logWithMessage:logMessage andLevel:kSentryLevelError];
+            SENTRY_LOG_ERROR(
+                @"[SentryHub doInstallIntegrations] already installed \"%@\" -> skipping.",
+                integrationName);
             continue;
         }
         id<SentryIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
         BOOL shouldInstall = [integrationInstance installWithOptions:options];
         if (shouldInstall) {
-            [SentryLog logWithMessage:[NSString stringWithFormat:@"Integration installed: %@",
-                                                integrationName]
-                             andLevel:kSentryLevelDebug];
+            SENTRY_LOG_DEBUG(@"Integration installed: %@", integrationName);
             [SentrySDK.currentHub.installedIntegrations addObject:integrationInstance];
             [SentrySDK.currentHub.installedIntegrationNames addObject:integrationName];
         }
     }
+}
+
++ (void)flush:(NSTimeInterval)timeout
+{
+    [SentrySDK.currentHub flush:timeout];
 }
 
 /**
@@ -423,7 +423,7 @@ static NSUInteger startInvocations;
 
     [SentryDependencyContainer reset];
 
-    [SentryLog logWithMessage:@"SDK closed!" andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(@"SDK closed!");
 }
 
 #ifndef __clang_analyzer__

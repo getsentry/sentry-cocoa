@@ -6,13 +6,12 @@
 #import "SentryMeta.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
-#import <Foundation/Foundation.h>
 #import <SentryDependencyContainer.h>
 #import <SentryFramesTracker.h>
 
 @implementation PrivateSentrySDKOnly
 
-static SentryOnAppStartMeasurementAvailable _onAppStartMeasurmentAvailable;
+static SentryOnAppStartMeasurementAvailable _onAppStartMeasurementAvailable;
 static BOOL _appStartMeasurementHybridSDKMode = NO;
 #if SENTRY_HAS_UIKIT
 static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
@@ -59,13 +58,13 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (SentryOnAppStartMeasurementAvailable)onAppStartMeasurementAvailable
 {
-    return _onAppStartMeasurmentAvailable;
+    return _onAppStartMeasurementAvailable;
 }
 
 + (void)setOnAppStartMeasurementAvailable:
     (SentryOnAppStartMeasurementAvailable)onAppStartMeasurementAvailable
 {
-    _onAppStartMeasurmentAvailable = onAppStartMeasurementAvailable;
+    _onAppStartMeasurementAvailable = onAppStartMeasurementAvailable;
 }
 
 + (BOOL)appStartMeasurementHybridSDKMode
@@ -82,6 +81,21 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 {
     SentryMeta.sdkName = sdkName;
     SentryMeta.versionString = versionString;
+}
+
++ (void)setSdkName:(NSString *)sdkName
+{
+    SentryMeta.sdkName = sdkName;
+}
+
++ (NSString *)getSdkName
+{
+    return SentryMeta.sdkName;
+}
+
++ (NSString *)getSdkVersionString
+{
+    return SentryMeta.versionString;
 }
 
 #if SENTRY_HAS_UIKIT

@@ -21,12 +21,6 @@ SENTRY_NO_INIT
 @property (nonatomic, assign, readonly) BOOL isRunning;
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-/**
- * The tracer that is currently using this frame tracker. Provided so that the frame tracker can
- * query for whether a profiler is currently running.
- */
-@property (nullable, nonatomic, weak) SentryTracer *currentTracer;
-
 /** Remove previously recorded timestamps in preparation for a later profiled transaction. */
 - (void)resetProfilingTimestamps;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED

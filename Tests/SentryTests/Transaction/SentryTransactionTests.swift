@@ -8,8 +8,8 @@ class SentryTransactionTests: XCTestCase {
         let testKey = "extra_key"
         let testValue = "extra_value"
         
-        func getTransaction() -> Transaction {
-            return Transaction(trace: SentryTracer(), children: [])
+        func getTransaction(trace: SentryTracer = SentryTracer(transactionContext: TransactionContext(operation: "operation"), hub: TestHub(client: nil, andScope: nil))) -> Transaction {
+            return Transaction(trace: trace, children: [])
         }
         
         func getContext() -> TransactionContext {
@@ -51,26 +51,50 @@ class SentryTransactionTests: XCTestCase {
         XCTAssertNil(actual["measurements"])
     }
     
-    func testSerializeMeasurements_Measurements() {
-        let transaction = fixture.getTransaction()
+    func testSerializeMeasurements_DurationMeasurement() {
+        let name = "some_duration"
+        let value: NSNumber = 15_000.0
+        let unit = MeasurementUnitDuration.millisecond
         
-        let appStart = ["value": 15_000.0]
-        transaction.setMeasurementValue(appStart, forKey: "app_start_cold")
-        let actual = transaction.serialize()
-        
-        let actualMeasurements = actual["measurements"] as? [String: [String: Double]]
-        XCTAssertEqual(appStart, actualMeasurements?["app_start_cold"] )
-    }
+        let trace = SentryTracer(transactionContext: TransactionContext(operation: "operation"), hub: TestHub(client: nil, andScope: nil))
+        trace.setMeasurement(name: name, value: value, unit: unit)
+        let transaction = fixture.getTransaction(trace: trace)
 
-    func testSerializeMeasurements_GarbageInMeasurements_GarbageSanitized() {
-        let transaction = fixture.getTransaction()
-        
-        let appStart = ["value": self]
-        transaction.setMeasurementValue(appStart, forKey: "app_start_cold")
         let actual = transaction.serialize()
         
-        let actualMeasurements = actual["measurements"] as? [String: [String: String]]
-        XCTAssertEqual(["value": self.description], actualMeasurements?["app_start_cold"] )
+        let actualMeasurements = actual["measurements"] as? [String: [String: Any]]
+        XCTAssertNotNil(actualMeasurements)
+        
+        let coldStartMeasurement = actualMeasurements?[name]
+        XCTAssertEqual(value, coldStartMeasurement?["value"] as! NSNumber)
+        XCTAssertEqual(unit.unit, coldStartMeasurement?["unit"] as! String)
+    }
+    
+    func testSerializeMeasurements_MultipleMeasurements() {
+        let frameName = "frames_total"
+        let frameValue: NSNumber = 60
+        
+        let customName = "custom-name"
+        let customValue: NSNumber = 20.1
+        let customUnit = MeasurementUnit(unit: "custom")
+        
+        let trace = SentryTracer(transactionContext: TransactionContext(operation: "operation"), hub: TestHub(client: nil, andScope: nil))
+        trace.setMeasurement(name: frameName, value: frameValue)
+        trace.setMeasurement(name: customName, value: customValue, unit: customUnit)
+        let transaction = fixture.getTransaction(trace: trace)
+        
+        let actual = transaction.serialize()
+        
+        let actualMeasurements = actual["measurements"] as? [String: [String: Any]]
+        XCTAssertNotNil(actualMeasurements)
+        
+        let frameMeasurement = actualMeasurements?[frameName]
+        XCTAssertEqual(frameValue, frameMeasurement?["value"] as! NSNumber)
+        XCTAssertNil(frameMeasurement?["unit"])
+        
+        let customMeasurement = actualMeasurements?[customName]
+        XCTAssertEqual(customValue, customMeasurement?["value"] as! NSNumber)
+        XCTAssertEqual(customUnit.unit, customMeasurement?["unit"] as! String)
     }
     
     func testSerialize_Tags() {

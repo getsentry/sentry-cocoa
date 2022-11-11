@@ -4,16 +4,6 @@ name: Generate Profiling Test Data
 on:
   schedule:
     - cron: '0 */6 * * *' # every 6 hours = 4x/day
-  push:
-    branches:
-      - master
-  pull_request:
-    paths:
-      - '.github/workflows/profile-data-generator.yml'
-      - 'fastlane/**'
-      - 'Samples/TrendingMovies/**'
-      - '.sauce/profile-data-generator-config.yml'
-      - 'scripts/ci-select-xcode.sh'
 
 jobs:
   build-profile-data-generator-targets:
@@ -80,21 +70,23 @@ jobs:
             **/Debug-iphoneos/ProfileDataGeneratorUITest-Runner.app
 
   run-profile-data-generator:
+    timeout-minutes: 10
     name: Run profile generation on Sauce Labs
     runs-on: ubuntu-latest
     needs: build-profile-data-generator-targets
     strategy:
       fail-fast: false
       matrix:
-        suite: ["High-end device", "Mid-range device"]
+        suite: ['High-end device', 'Mid-range device']
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with:
           name: data-generator-build-products
-      - run: npm install -g saucectl@0.99.4
+      - run: npm install -g saucectl@0.107.2
       - name: Run Tests in Sauce Labs
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        run: saucectl run --select-suite "${{ matrix.suite }}" --config .sauce/profile-data-generator-config.yml --retries 5
+        run: |
+          saucectl run --select-suite "${{ matrix.suite }}" --config .sauce/profile-data-generator-config.yml ||:

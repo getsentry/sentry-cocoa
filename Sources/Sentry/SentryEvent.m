@@ -7,8 +7,10 @@
 #import "SentryDebugMeta.h"
 #import "SentryException.h"
 #import "SentryId.h"
+#import "SentryLevelMapper.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
+#import "SentryRequest.h"
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
 #import "SentryUser.h"
@@ -62,7 +64,7 @@ SentryEvent ()
                                               .mutableCopy;
 
     if (self.level != kSentryLevelNone) {
-        [serializedData setValue:SentryLevelNames[self.level] forKey:@"level"];
+        [serializedData setValue:nameForSentryLevel(self.level) forKey:@"level"];
     }
 
     [self addSimpleProperties:serializedData];
@@ -155,6 +157,10 @@ SentryEvent ()
             [serializedData setValue:@(self.timestamp.timeIntervalSince1970)
                               forKey:@"start_timestamp"];
         }
+    }
+
+    if (nil != self.request) {
+        [serializedData setValue:[self.request serialize] forKey:@"request"];
     }
 }
 

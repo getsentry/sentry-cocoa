@@ -8,10 +8,10 @@ on:
 
   pull_request:
     paths:
-        # test changes to Sentry SDK sources
+      # test changes to Sentry SDK sources
       - 'Sources/**'
 
-        # test changes to benchmarking implementation
+      # test changes to benchmarking implementation
       - 'Samples/iOS-Swift/iOS-Swift/**'
       - 'Samples/iOS-Swift/PerformanceBenchmarks/**'
       - '.github/workflows/benchmarking.yml'
@@ -23,7 +23,7 @@ on:
 jobs:
   build-benchmark-test-target:
     name: Build app and test runner
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh
@@ -46,7 +46,6 @@ jobs:
             DerivedData/Build/Products/Debug-iphoneos/PerformanceBenchmarks-Runner.app
           key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/PerformanceBenchmarks/**') }}
       - run: fastlane build_ios_swift_for_tests
-        if: steps.ios-swift-cache.outputs.cache-hit != 'true'
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -56,7 +55,6 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       - run: fastlane build_ios_benchmark_test
-        if: steps.ios-swift-benchmark-runner-cache.outputs.cache-hit != 'true'
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -66,7 +64,6 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       - name: Upload dSYMs
-        if: steps.ios-swift-cache.outputs.cache-hit != 'true'
         run: |
           sentry-cli --auth-token ${{ secrets.SENTRY_AUTH_TOKEN }} upload-dif --org sentry-sdks --project sentry-cocoa DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app.dSYM
       - name: Archiving DerivedData
@@ -84,13 +81,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: ["High-end device", "Mid-range device", "Low-end device"]
+        suite: ['High-end device', 'Mid-range device', 'Low-end device']
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with:
           name: DerivedData-Xcode
-      - run: npm install -g saucectl@0.99.4
+      - run: npm install -g saucectl@0.107.2
       - name: Run Benchmarks in SauceLab
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
@@ -99,7 +96,7 @@ jobs:
 
   app-metrics:
     name: Collect app metrics
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
       - name: Git checkout
         uses: actions/checkout@v3

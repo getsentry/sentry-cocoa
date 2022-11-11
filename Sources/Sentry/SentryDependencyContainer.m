@@ -2,7 +2,6 @@
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryUIApplication.h"
-#import <Foundation/Foundation.h>
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
 #import <SentryCrashWrapper.h>
@@ -11,6 +10,7 @@
 #import <SentryDependencyContainer.h>
 #import <SentryDispatchQueueWrapper.h>
 #import <SentryHub.h>
+#import <SentryNSNotificationCenterWrapper.h>
 #import <SentrySDK+Private.h>
 #import <SentryScreenshot.h>
 #import <SentrySwizzleWrapper.h>
@@ -63,11 +63,12 @@ static NSObject *sentryDependencyContainerLock;
         if (_appStateManager == nil) {
             SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
             _appStateManager = [[SentryAppStateManager alloc]
-                    initWithOptions:options
-                       crashWrapper:self.crashWrapper
-                        fileManager:self.fileManager
-                currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-                             sysctl:[[SentrySysctl alloc] init]];
+                     initWithOptions:options
+                        crashWrapper:self.crashWrapper
+                         fileManager:self.fileManager
+                 currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                              sysctl:[[SentrySysctl alloc] init]
+                dispatchQueueWrapper:self.dispatchQueueWrapper];
         }
         return _appStateManager;
     }
@@ -104,6 +105,16 @@ static NSObject *sentryDependencyContainerLock;
             _dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
         }
         return _dispatchQueueWrapper;
+    }
+}
+
+- (SentryNSNotificationCenterWrapper *)notificationCenterWrapper
+{
+    @synchronized(sentryDependencyContainerLock) {
+        if (_notificationCenterWrapper == nil) {
+            _notificationCenterWrapper = [[SentryNSNotificationCenterWrapper alloc] init];
+        }
+        return _notificationCenterWrapper;
     }
 }
 

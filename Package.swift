@@ -5,10 +5,8 @@ let package = Package(
     name: "Sentry",
     platforms: [.iOS(.v9), .macOS(.v10_10), .tvOS(.v9), .watchOS(.v2)],
     products: [
-        .library(
-            name: "Sentry",
-            targets: ["Sentry"]
-        )
+        .library(name: "Sentry", targets: ["Sentry"]),
+        .library(name: "Sentry-Dynamic", type: .dynamic, targets: ["Sentry"])
     ],
     targets: [
         .target(

@@ -45,9 +45,7 @@ SentryAppStartTrackingIntegration ()
 
     return YES;
 #else
-    [SentryLog logWithMessage:@"NO UIKit -> SentryAppStartTracker will not track app start up time."
-                     andLevel:kSentryLevelDebug];
-
+    SENTRY_LOG_DEBUG(@"NO UIKit -> SentryAppStartTracker will not track app start up time.");
     return NO;
 #endif
 }

@@ -163,17 +163,13 @@ SentryNSDataTracker ()
     }];
 
     if (ioSpan == nil) {
-        [SentryLog logWithMessage:@"No transaction bound to scope. Won't track file IO operation."
-                         andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"No transaction bound to scope. Won't track file IO operation.");
         return nil;
     }
 
-    [SentryLog
-        logWithMessage:
-            [NSString stringWithFormat:@"SentryNSDataTracker automatically "
-                                       @"started a new span with description: %@, operation: %@",
-                      ioSpan.description, operation]
-              andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(
+        @"SentryNSDataTracker automatically started a new span with description: %@, operation: %@",
+        ioSpan.description, operation);
 
     [ioSpan setDataValue:path forKey:@"file.path"];
 
@@ -221,10 +217,7 @@ SentryNSDataTracker ()
     [span setDataValue:[NSNumber numberWithUnsignedInteger:data.length] forKey:@"file.size"];
     [span finish];
 
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"SentryNSDataTracker automatically "
-                                                         @"finished span %@",
-                                        span.description]
-                     andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(@"SentryNSDataTracker automatically finished span %@", span.description);
 }
 
 - (BOOL)ignoreFile:(NSString *)path

@@ -4,6 +4,7 @@ import UIKit
 class MovieCollectionViewCell: UICollectionViewCell {
     static let reuseIdentifier = "MovieCollectionViewCell"
     static let placeholderImageName = "MoviePosterPlaceholder"
+    static let blurWorkQueue = DispatchQueue(label: "io.sentry.sample.trending-movies.queue.blur", qos: .utility, attributes: [.concurrent])
 
     private struct Layout {
         static let imageWidth: CGFloat = 170
@@ -50,6 +51,8 @@ class MovieCollectionViewCell: UICollectionViewCell {
     }
 
     var downloadTask: DownloadTask?
+    var uncachedDownloadTask: URLSessionDownloadTask?
+    let uncachedURLSession = URLSession(configuration: .ephemeral)
 
     private let posterImageView: UIImageView = {
         let imageView = UIImageView()
@@ -150,6 +153,22 @@ class MovieCollectionViewCell: UICollectionViewCell {
 }
 
 private func blurPosterImage(_ image: UIImage, completion: @escaping (UIImage?) -> Void) {
-    let blurredImage = ImageEffects.createBlurredBackdrop(image: image, downsamplingFactor: 1.0, blurRadius: 20.0, tintColor: nil, saturationDeltaFactor: 2.0)
-    completion(blurredImage)
+    let efficiently = ProcessInfo.processInfo.arguments.contains("--io.sentry.sample.trending-movies.launch-arg.efficient-implementation")
+    func performBlur() {
+        let blurredImage = ImageEffects.createBlurredBackdrop(image: image, downsamplingFactor: 1.0, blurRadius: 20.0, tintColor: nil, saturationDeltaFactor: 2.0)
+        if efficiently {
+            DispatchQueue.main.async {
+                completion(blurredImage)
+            }
+        } else {
+            completion(blurredImage)
+        }
+    }
+    if efficiently {
+        MovieCollectionViewCell.blurWorkQueue.async {
+            performBlur()
+        }
+    } else {
+        performBlur()
+    }
 }

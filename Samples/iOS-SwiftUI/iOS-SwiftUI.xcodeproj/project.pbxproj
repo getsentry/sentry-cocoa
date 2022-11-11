@@ -14,17 +14,66 @@
 		7BB6224F26A56C4E00D0E75E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB6224E26A56C4E00D0E75E /* ContentView.swift */; };
 		7BB6225126A56C5000D0E75E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7BB6225026A56C5000D0E75E /* Assets.xcassets */; };
 		7BB6225426A56C5000D0E75E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7BB6225326A56C5000D0E75E /* Preview Assets.xcassets */; };
-		7BB6225D26A56CB600D0E75E /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BB6225C26A56CB600D0E75E /* Sentry.framework */; };
 		7BB6225E26A56CB600D0E75E /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7BB6225C26A56CB600D0E75E /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		84D4FEB528ECD53500EDAAFE /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D4FEB228ECD52E00EDAAFE /* Sentry.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		0A94157D28F6B893006A5DD1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84D4FEA828ECD52700EDAAFE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 63AA759B1EB8AEF500D153DE;
+			remoteInfo = Sentry;
+		};
+		0A94157F28F6B893006A5DD1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84D4FEA828ECD52700EDAAFE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 63AA76651EB8CB2F00D153DE;
+			remoteInfo = SentryTests;
+		};
 		7B64385C26A6C0A6000D0F65 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7BB6224126A56C4E00D0E75E /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 7BB6224826A56C4E00D0E75E;
 			remoteInfo = "iOS-SwiftUI";
+		};
+		7BF01DB528F536BC00302035 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84D4FEA828ECD52700EDAAFE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 63AA759B1EB8AEF500D153DE;
+			remoteInfo = Sentry;
+		};
+		7BF01DB728F536BC00302035 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84D4FEA828ECD52700EDAAFE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 63AA76651EB8CB2F00D153DE;
+			remoteInfo = SentryTests;
+		};
+		84D4FEAD28ECD52E00EDAAFE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84D4FEAA28ECD52E00EDAAFE /* Sentry.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
+			remoteInfo = Sentry;
+		};
+		84D4FEB128ECD52E00EDAAFE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84D4FEAA28ECD52E00EDAAFE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 63AA759B1EB8AEF500D153DE;
+			remoteInfo = Sentry;
+		};
+		84D4FEB328ECD52E00EDAAFE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84D4FEAA28ECD52E00EDAAFE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 63AA76651EB8CB2F00D153DE;
+			remoteInfo = SentryTests;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -56,6 +105,9 @@
 		7BB6225526A56C5000D0E75E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7BB6225C26A56CB600D0E75E /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7BB6226026A56E1E00D0E75E /* iOS-SwiftUI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "iOS-SwiftUI.entitlements"; sourceTree = "<group>"; };
+		84D4FEA628ECD51800EDAAFE /* Sentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		84D4FEA828ECD52700EDAAFE /* Sentry.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sentry.xcodeproj; path = ../../Sentry.xcodeproj; sourceTree = "<group>"; };
+		84D4FEAA28ECD52E00EDAAFE /* Sentry.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sentry.xcodeproj; path = "/Users/andrewmcknight/Code/organization/getsentry/repos/public/sentry-cocoa/Sentry.xcodeproj"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,13 +122,22 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7BB6225D26A56CB600D0E75E /* Sentry.framework in Frameworks */,
+				84D4FEB528ECD53500EDAAFE /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0A94157928F6B893006A5DD1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0A94157E28F6B893006A5DD1 /* Sentry.framework */,
+				0A94158028F6B893006A5DD1 /* SentryTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		7B64385826A6C0A6000D0F65 /* iOS-SwiftUI-UITests */ = {
 			isa = PBXGroup;
 			children = (
@@ -93,6 +154,7 @@
 				7B64385826A6C0A6000D0F65 /* iOS-SwiftUI-UITests */,
 				7BB6224A26A56C4E00D0E75E /* Products */,
 				7BB6225B26A56CB600D0E75E /* Frameworks */,
+				84D4FEAA28ECD52E00EDAAFE /* Sentry.xcodeproj */,
 			);
 			sourceTree = "<group>";
 		};
@@ -131,9 +193,29 @@
 		7BB6225B26A56CB600D0E75E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				84D4FEA628ECD51800EDAAFE /* Sentry.framework */,
+				84D4FEA828ECD52700EDAAFE /* Sentry.xcodeproj */,
 				7BB6225C26A56CB600D0E75E /* Sentry.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		7BF01DB128F536BC00302035 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7BF01DB628F536BC00302035 /* Sentry.framework */,
+				7BF01DB828F536BC00302035 /* SentryTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		84D4FEAB28ECD52E00EDAAFE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				84D4FEB228ECD52E00EDAAFE /* Sentry.framework */,
+				84D4FEB428ECD52E00EDAAFE /* SentryTests.xctest */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -169,6 +251,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				84D4FEAE28ECD52E00EDAAFE /* PBXTargetDependency */,
 			);
 			name = "iOS-SwiftUI";
 			productName = "iOS-SwiftUI";
@@ -204,6 +287,16 @@
 			mainGroup = 7BB6224026A56C4E00D0E75E;
 			productRefGroup = 7BB6224A26A56C4E00D0E75E /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 0A94157928F6B893006A5DD1 /* Products */;
+					ProjectRef = 84D4FEA828ECD52700EDAAFE /* Sentry.xcodeproj */;
+				},
+				{
+					ProductGroup = 84D4FEAB28ECD52E00EDAAFE /* Products */;
+					ProjectRef = 84D4FEAA28ECD52E00EDAAFE /* Sentry.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				7BB6224826A56C4E00D0E75E /* iOS-SwiftUI */,
@@ -211,6 +304,37 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		0A94157E28F6B893006A5DD1 /* Sentry.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = Sentry.framework;
+			remoteRef = 0A94157D28F6B893006A5DD1 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		0A94158028F6B893006A5DD1 /* SentryTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = SentryTests.xctest;
+			remoteRef = 0A94157F28F6B893006A5DD1 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		84D4FEB228ECD52E00EDAAFE /* Sentry.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = Sentry.framework;
+			remoteRef = 84D4FEB128ECD52E00EDAAFE /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		84D4FEB428ECD52E00EDAAFE /* SentryTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = SentryTests.xctest;
+			remoteRef = 84D4FEB328ECD52E00EDAAFE /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		7B64385526A6C0A6000D0F65 /* Resources */ = {
@@ -258,6 +382,11 @@
 			isa = PBXTargetDependency;
 			target = 7BB6224826A56C4E00D0E75E /* iOS-SwiftUI */;
 			targetProxy = 7B64385C26A6C0A6000D0F65 /* PBXContainerItemProxy */;
+		};
+		84D4FEAE28ECD52E00EDAAFE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Sentry;
+			targetProxy = 84D4FEAD28ECD52E00EDAAFE /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -468,6 +597,210 @@
 			};
 			name = Release;
 		};
+		84D4FEA028ECD23400EDAAFE /* Test */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "TEST=1";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Test;
+		};
+		84D4FEA128ECD23400EDAAFE /* Test */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "iOS-SwiftUI/iOS-SwiftUI.entitlements";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_ASSET_PATHS = "\"iOS-SwiftUI/Preview Content\"";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = "iOS-SwiftUI/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-SwiftUI";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
+				SUPPORTS_MACCATALYST = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Test;
+		};
+		84D4FEA228ECD23400EDAAFE /* Test */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 97JCY7859U;
+				INFOPLIST_FILE = "iOS-SwiftUI-UITests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-SwiftUI-UITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "iOS-SwiftUI";
+			};
+			name = Test;
+		};
+		84D4FEA328ECD23800EDAAFE /* TestCI */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "TESTCI=1";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = TestCI;
+		};
+		84D4FEA428ECD23800EDAAFE /* TestCI */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "iOS-SwiftUI/iOS-SwiftUI.entitlements";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_ASSET_PATHS = "\"iOS-SwiftUI/Preview Content\"";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = "iOS-SwiftUI/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-SwiftUI";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
+				SUPPORTS_MACCATALYST = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = TestCI;
+		};
+		84D4FEA528ECD23800EDAAFE /* TestCI */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 97JCY7859U;
+				INFOPLIST_FILE = "iOS-SwiftUI-UITests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.iOS-SwiftUI-UITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "iOS-SwiftUI";
+			};
+			name = TestCI;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -476,6 +809,8 @@
 			buildConfigurations = (
 				7B64385E26A6C0A6000D0F65 /* Debug */,
 				7B64385F26A6C0A6000D0F65 /* Release */,
+				84D4FEA528ECD23800EDAAFE /* TestCI */,
+				84D4FEA228ECD23400EDAAFE /* Test */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -485,6 +820,8 @@
 			buildConfigurations = (
 				7BB6225626A56C5000D0E75E /* Debug */,
 				7BB6225726A56C5000D0E75E /* Release */,
+				84D4FEA328ECD23800EDAAFE /* TestCI */,
+				84D4FEA028ECD23400EDAAFE /* Test */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -494,6 +831,8 @@
 			buildConfigurations = (
 				7BB6225926A56C5000D0E75E /* Debug */,
 				7BB6225A26A56C5000D0E75E /* Release */,
+				84D4FEA428ECD23800EDAAFE /* TestCI */,
+				84D4FEA128ECD23400EDAAFE /* Test */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

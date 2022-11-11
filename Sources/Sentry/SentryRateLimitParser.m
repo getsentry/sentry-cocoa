@@ -57,38 +57,6 @@ SentryRateLimitParser ()
     return [numberFormatter numberFromString:string];
 }
 
-- (SentryDataCategory)mapStringToCategory:(NSString *)category
-{
-    SentryDataCategory result = kSentryDataCategoryUnknown;
-
-    if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategoryAll]]) {
-        result = kSentryDataCategoryAll;
-    }
-    if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategoryDefault]]) {
-        result = kSentryDataCategoryDefault;
-    }
-    if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategoryError]]) {
-        result = kSentryDataCategoryError;
-    }
-    if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategorySession]]) {
-        result = kSentryDataCategorySession;
-    }
-    if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategoryTransaction]]) {
-        result = kSentryDataCategoryTransaction;
-    }
-    if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategoryAttachment]]) {
-        result = kSentryDataCategoryAttachment;
-    }
-    if ([category isEqualToString:SentryDataCategoryNames[kSentryDataCategoryProfile]]) {
-        result = kSentryDataCategoryProfile;
-    }
-
-    // UserFeedback is not listed for rate limits
-    // https://develop.sentry.dev/sdk/rate-limiting/#definitions
-
-    return result;
-}
-
 - (NSArray<NSNumber *> *)parseCategories:(NSString *)categoriesAsString
 {
     // The categories are a semicolon separated list. If this parameter is empty
@@ -96,10 +64,11 @@ SentryRateLimitParser ()
     // category even if this parameter is empty.
     NSMutableArray<NSNumber *> *categories = [NSMutableArray new];
     for (NSString *categoryAsString in [categoriesAsString componentsSeparatedByString:@";"]) {
-        SentryDataCategory category = [self mapStringToCategory:categoryAsString];
+        SentryDataCategory category = sentryDataCategoryForString(categoryAsString);
 
-        // Unknown categories must be ignored
-        if (category != kSentryDataCategoryUnknown) {
+        // Unknown categories must be ignored. UserFeedback is not listed for rate limits, see
+        // https://develop.sentry.dev/sdk/rate-limiting/#definitions
+        if (category != kSentryDataCategoryUnknown && category != kSentryDataCategoryUserFeedback) {
             [categories addObject:@(category)];
         }
     }

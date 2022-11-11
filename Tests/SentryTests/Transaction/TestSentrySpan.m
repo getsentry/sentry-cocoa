@@ -59,4 +59,12 @@
 {
 }
 
+- (void)setMeasurement:(nonnull NSString *)name value:(nonnull NSNumber *)value
+{
+}
+
+- (void)setMeasurement:(NSString *)name value:(NSNumber *)value unit:(SentryMeasurementUnit *)unit
+{
+}
+
 @end

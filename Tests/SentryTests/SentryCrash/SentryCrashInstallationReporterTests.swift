@@ -11,7 +11,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        sut = SentryCrashInstallationReporter(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []))
+        sut = SentryCrashInstallationReporter(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []), crashWrapper: TestSentryCrashWrapper.sharedInstance(), dispatchQueue: TestSentryDispatchQueueWrapper())
         sut.install()
         // Works only if SentryCrash is installed
         sentrycrash_deleteAllReports()
@@ -25,7 +25,8 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     
     func testFaultyReportIsNotSentAndDeleted() throws {
         sdkStarted()
-        sentryCrashHasFaultyCrashReport()
+        
+        try givenStoredSentryCrashReport(resource: "Resources/Crash-faulty-report")
 
         sut.sendAllReports()
         
@@ -48,19 +49,6 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         testClient = TestClient(options: options)!
         let hub = SentryHub(client: testClient, andScope: nil)
         SentrySDK.setCurrentHub(hub)
-    }
-
-    private func sentryCrashHasFaultyCrashReport() {
-        do {
-            let jsonPath = Bundle(for: type(of: self)).path(forResource: "Resources/Crash-faulty-report", ofType: "json")
-            let jsonData = try Data(contentsOf: URL(fileURLWithPath: jsonPath ?? ""))
-            jsonData.withUnsafeBytes { ( bytes: UnsafeRawBufferPointer) -> Void in
-                let pointer = bytes.bindMemory(to: Int8.self)
-                sentrycrashcrs_addUserReport(pointer.baseAddress, Int32(jsonData.count))
-            }
-        } catch {
-            XCTFail("Failed to store faulty crash report in SentryCrash.")
-        }
     }
     
     private func assertNoEventsSent() {

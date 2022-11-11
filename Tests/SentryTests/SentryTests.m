@@ -1,10 +1,13 @@
 #import "NSDate+SentryExtras.h"
 #import "SentryBreadcrumbTracker.h"
+#import "SentryLevelMapper.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentrySDK+Private.h"
 #import <Sentry/Sentry.h>
 #import <XCTest/XCTest.h>
+
+#import "SentryDataCategory.h"
 
 @interface
 SentryBreadcrumbTracker (Private)
@@ -99,12 +102,22 @@ SentryBreadcrumbTracker (Private)
 
 - (void)testLevelNames
 {
-    XCTAssertEqualObjects(@"none", SentryLevelNames[kSentryLevelNone]);
-    XCTAssertEqualObjects(@"debug", SentryLevelNames[kSentryLevelDebug]);
-    XCTAssertEqualObjects(@"info", SentryLevelNames[kSentryLevelInfo]);
-    XCTAssertEqualObjects(@"warning", SentryLevelNames[kSentryLevelWarning]);
-    XCTAssertEqualObjects(@"error", SentryLevelNames[kSentryLevelError]);
-    XCTAssertEqualObjects(@"fatal", SentryLevelNames[kSentryLevelFatal]);
+    XCTAssertEqual(kSentryLevelNone, sentryLevelForString(kSentryLevelNameNone));
+    XCTAssertEqual(kSentryLevelDebug, sentryLevelForString(kSentryLevelNameDebug));
+    XCTAssertEqual(kSentryLevelInfo, sentryLevelForString(kSentryLevelNameInfo));
+    XCTAssertEqual(kSentryLevelWarning, sentryLevelForString(kSentryLevelNameWarning));
+    XCTAssertEqual(kSentryLevelError, sentryLevelForString(kSentryLevelNameError));
+    XCTAssertEqual(kSentryLevelFatal, sentryLevelForString(kSentryLevelNameFatal));
+
+    XCTAssertEqual(kSentryLevelError, sentryLevelForString(@"fdjsafdsa"),
+        @"Failed to map an unexpected string value to the default case.");
+
+    XCTAssertEqualObjects(kSentryLevelNameNone, nameForSentryLevel(kSentryLevelNone));
+    XCTAssertEqualObjects(kSentryLevelNameDebug, nameForSentryLevel(kSentryLevelDebug));
+    XCTAssertEqualObjects(kSentryLevelNameInfo, nameForSentryLevel(kSentryLevelInfo));
+    XCTAssertEqualObjects(kSentryLevelNameWarning, nameForSentryLevel(kSentryLevelWarning));
+    XCTAssertEqualObjects(kSentryLevelNameError, nameForSentryLevel(kSentryLevelError));
+    XCTAssertEqualObjects(kSentryLevelNameFatal, nameForSentryLevel(kSentryLevelFatal));
 }
 
 - (void)testLevelOrder

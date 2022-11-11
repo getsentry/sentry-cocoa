@@ -47,7 +47,7 @@
 #include "SentryCrashUUIDConversion.h"
 #include "SentryScopeSyncC.h"
 
-//#define SentryCrashLogger_LocalLevel TRACE
+// #define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
 #include <errno.h>
@@ -1252,9 +1252,9 @@ writeMemoryInfo(const SentryCrashReportWriter *const writer, const char *const k
         writer->addUIntegerElement(
             writer, SentryCrashField_Size, monitorContext->System.memorySize);
         writer->addUIntegerElement(
-            writer, SentryCrashField_Usable, monitorContext->System.usableMemory);
+            writer, SentryCrashField_Usable, monitorContext->System.usableMemorySize);
         writer->addUIntegerElement(
-            writer, SentryCrashField_Free, monitorContext->System.freeMemory);
+            writer, SentryCrashField_Free, monitorContext->System.freeMemorySize);
     }
     writer->endContainer(writer);
 }
@@ -1632,8 +1632,10 @@ writeSystemInfo(const SentryCrashReportWriter *const writer, const char *const k
             writer, SentryCrashField_DeviceAppHash, monitorContext->System.deviceAppHash);
         writer->addStringElement(
             writer, SentryCrashField_BuildType, monitorContext->System.buildType);
+        writer->addIntegerElement(writer, SentryCrashField_Total_Storage,
+            (int64_t)monitorContext->System.totalStorageSize);
         writer->addIntegerElement(
-            writer, SentryCrashField_Storage, (int64_t)monitorContext->System.storageSize);
+            writer, SentryCrashField_Free_Storage, (int64_t)monitorContext->System.freeStorageSize);
 
         writeMemoryInfo(writer, SentryCrashField_Memory, monitorContext);
         writeAppStats(writer, SentryCrashField_AppStats, monitorContext);

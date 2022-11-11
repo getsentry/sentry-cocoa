@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1200"
+   LastUpgradeVersion = "1400"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -56,16 +56,28 @@
             </BuildableReference>
             <SkippedTests>
                <Test
-                  Identifier = "SentryClientTest/testCaptureMessage()">
+                  Identifier = "SentryCrashIntegrationTests/testStartUpCrash_CallsFlush_disabled()">
+               </Test>
+               <Test
+                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readPath_disabled()">
+               </Test>
+               <Test
+                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl_disabled()">
+               </Test>
+               <Test
+                  Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndBaggageHeaderAdded_disabled()">
+               </Test>
+               <Test
+                  Identifier = "SentryOutOfMemoryIntegrationTests/testANRDetected_UpdatesAppStateToTrue_disabled()">
                </Test>
                <Test
                   Identifier = "SentrySDKIntegrationTestsBase">
                </Test>
                <Test
-                  Identifier = "SentrySessionGeneratorTests/testSendSessions()">
+                  Identifier = "SentrySessionGeneratorTests/testSendSessions_disabled()">
                </Test>
                <Test
-                  Identifier = "SentryStacktraceBuilderTests/testAsyncStacktraces()">
+                  Identifier = "SentryStacktraceBuilderTests/testAsyncStacktraces_disabled()">
                </Test>
             </SkippedTests>
          </TestableReference>

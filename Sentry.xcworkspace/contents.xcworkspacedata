@@ -17,9 +17,6 @@
          location = "group:Samples/iOS-SwiftUI/iOS-SwiftUI.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Samples/watchOS-Swift/watchOS-Swift.xcodeproj">
-      </FileRef>
-      <FileRef
          location = "group:Samples/tvOS-Swift/tvOS-Swift.xcodeproj">
       </FileRef>
       <FileRef

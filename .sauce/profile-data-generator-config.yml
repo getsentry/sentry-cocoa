@@ -5,7 +5,7 @@ sauce:
   concurrency: 2
 
 defaults:
-  timeout: 20m
+  timeout: 10m
 
 xcuitest:
   app: ./DerivedData/Build/Products/Debug-iphoneos/TrendingMovies.app
@@ -14,8 +14,7 @@ xcuitest:
 suites:
   - name: "High-end device"
     devices:
-      - name: "iPhone 13 Pro Max"
-        platformVersion: "15.6"
+      - name: "iPhone .* Pro .*"
   - name: "Mid-range device"
     devices:
       - name: "iPhone 8"

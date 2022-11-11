@@ -3,7 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryDsn, SentrySdkInfo;
+@class SentryDsn, SentrySdkInfo, SentryMeasurementValue, SentryHttpStatusCodeRange;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -44,7 +44,11 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic, copy) NSString *releaseName;
 
 /**
- * This property will be filled before the event is sent.
+ * The distribution of the application.
+ *
+ * @discussion Distributions are used to disambiguate build or deployment variants of the same
+ * release of an application. For example, the dist can be the build number of an Xcode build.
+ *
  */
 @property (nullable, nonatomic, copy) NSString *dist;
 
@@ -71,8 +75,12 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) NSUInteger maxBreadcrumbs;
 
 /**
- * When enabled, the SDK adds breadcrumbs for each network request. Default value is YES.
- * As this feature uses swizzling, disabling enableSwizzling also disables this feature.
+ * When enabled, the SDK adds breadcrumbs for each network request. Default value is
+ * <code>YES</code>. As this feature uses swizzling, disabling <code>enableSwizzling</code> also
+ * disables this feature.
+ *
+ * @discussion If you want to enable or disable network tracking for performance monitoring, please
+ * use <code>enableNetworkTracking</code> instead.
  */
 @property (nonatomic, assign) BOOL enableNetworkBreadcrumbs;
 
@@ -235,15 +243,15 @@ NS_SWIFT_NAME(Options)
 #endif
 
 /**
- * When enabled, the SDK adds breadcrumbs for HTTP requests and tracks performance for HTTP
- * requests if auto performance tracking and enableSwizzling are enabled. The default is
- * <code>YES</code>.
+ * When enabled, the SDK tracks performance for HTTP requests if auto performance tracking and
+ * enableSwizzling are enabled. The default is <code>YES</code>.
+ *
+ * @discussion If you want to enable or disable network breadcrumbs, please use
+ * <code>enableNetworkBreadcrumbs</code> instead.
  */
 @property (nonatomic, assign) BOOL enableNetworkTracking;
 
 /**
- * This feature is EXPERIMENTAL.
- *
  * When enabled, the SDK tracks performance for file IO reads and writes with NSData if auto
  * performance tracking and enableSwizzling are enabled. The default is <code>NO</code>.
  */
@@ -315,8 +323,6 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableSwizzling;
 
 /**
- * This feature is experimental.
- *
  * When enabled, the SDK tracks the performance of Core Data operations. It requires enabling
  * performance monitoring. The default is <code>NO</code>.
  * @see <https://docs.sentry.io/platforms/apple/performance/>
@@ -394,6 +400,44 @@ NS_SWIFT_NAME(Options)
  * When enabled, the SDK adds breadcrumbs for various system events. Default value is YES.
  */
 @property (nonatomic, assign) BOOL enableAutoBreadcrumbTracking;
+
+/**
+ * An array of hosts or regexes that determines if outgoing HTTP requests will get
+ * extra `trace_id` and `baggage` headers added.
+ *
+ * This array can contain instances of NSString which should match the URL (using `contains`),
+ * and instances of NSRegularExpression, which will be used to check the whole URL.
+ *
+ * The default value adds the header to all outgoing requests.
+ *
+ * @see https://docs.sentry.io/platforms/apple/configuration/options/#trace-propagation-targets
+ */
+@property (nonatomic, retain) NSArray *tracePropagationTargets;
+
+/**
+ * When enabled, the SDK captures HTTP Client errors. Default value is NO.
+ * This feature requires enableSwizzling enabled as well, Default value is YES.
+ */
+@property (nonatomic, assign) BOOL enableCaptureFailedRequests;
+
+/**
+ * The SDK will only capture HTTP Client errors if the HTTP Response status code is within the
+ * defined range.
+ *
+ * Defaults to 500 - 599.
+ */
+@property (nonatomic, strong) NSArray<SentryHttpStatusCodeRange *> *failedRequestStatusCodes;
+
+/**
+ * An array of hosts or regexes that determines if HTTP Client errors will be automatically
+ * captured.
+ *
+ * This array can contain instances of NSString which should match the URL (using `contains`),
+ * and instances of NSRegularExpression, which will be used to check the whole URL.
+ *
+ * The default value automatically captures HTTP Client errors of all outgoing requests.
+ */
+@property (nonatomic, strong) NSArray *failedRequestTargets;
 
 @end
 

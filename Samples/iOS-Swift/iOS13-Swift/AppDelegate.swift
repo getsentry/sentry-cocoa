@@ -4,7 +4,7 @@ import UIKit
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-    static let defaultDSN = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
+    static let defaultDSN = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
                    
@@ -21,6 +21,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 // Sampling 100% - In Production you probably want to adjust this
                 options.tracesSampleRate = 1.0
                 options.sessionTrackingIntervalMillis = 5_000
+                if ProcessInfo.processInfo.arguments.contains("--io.sentry.profiling.enable") {
+                    options.profilesSampleRate = 1
+                }
             }
         
         return true

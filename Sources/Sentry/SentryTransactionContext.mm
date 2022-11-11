@@ -1,6 +1,21 @@
 #import "SentryTransactionContext.h"
+#include "SentryProfilingConditionals.h"
+#import "SentryThread.h"
+#include "SentryThreadHandle.hpp"
+#import "SentryTransactionContext+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecided;
+
+@interface
+SentryTransactionContext ()
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+@property (nonatomic, strong) SentryThread *threadInfo;
+#endif
+
+@end
 
 @implementation SentryTransactionContext
 
@@ -18,7 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
     if (self = [super initWithOperation:operation]) {
         _name = [NSString stringWithString:name];
         _nameSource = source;
-        self.parentSampled = false;
+        self.parentSampled = kSentryDefaultSamplingDecision;
+        [self getThreadInfo];
     }
     return self;
 }
@@ -41,7 +57,8 @@ NS_ASSUME_NONNULL_BEGIN
     if (self = [super initWithOperation:operation sampled:sampled]) {
         _name = [NSString stringWithString:name];
         _nameSource = source;
-        self.parentSampled = false;
+        self.parentSampled = kSentryDefaultSamplingDecision;
+        [self getThreadInfo];
     }
     return self;
 }
@@ -74,13 +91,29 @@ NS_ASSUME_NONNULL_BEGIN
                                spanId:spanId
                              parentId:parentSpanId
                             operation:operation
-                              sampled:false]) {
+                              sampled:kSentryDefaultSamplingDecision]) {
         _name = [NSString stringWithString:name];
         _nameSource = source;
         self.parentSampled = parentSampled;
+        [self getThreadInfo];
     }
     return self;
 }
+
+- (void)getThreadInfo
+{
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    const auto threadID = sentry::profiling::ThreadHandle::current()->tid();
+    self.threadInfo = [[SentryThread alloc] initWithThreadId:@(threadID)];
+#endif
+}
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+- (SentryThread *)sentry_threadInfo
+{
+    return self.threadInfo;
+}
+#endif
 
 @end
 

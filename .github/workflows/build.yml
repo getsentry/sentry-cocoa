@@ -13,16 +13,17 @@ on:
       - '.github/workflows/build.yml'
       - 'fastlane/**'
       - 'scripts/ci-select-xcode.sh'
+      - Sentry.xcworkspace
 
 jobs:
   # We had issues that the release build was broken on master.
   # With this we catch potential issues already in the PR.
   ios-swift-release:
     name: Release Build of iOS Swift
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
-      - run: ./scripts/ci-select-xcode.sh 
+      - run: ./scripts/ci-select-xcode.sh
 
       - name: Run Fastlane
         env:
@@ -38,26 +39,19 @@ jobs:
 
   build-sample:
     name: Sample ${{ matrix.scheme }}
-    runs-on: macos-11
+    runs-on: macos-12
     strategy:
       fail-fast: false
       matrix:
-        beforeXcode: ['']
+        # other sample projects are built in ui-tests
         scheme:
           - macOS-Swift
           - iOS13-Swift
-        # other sample projects are built in ui-tests
-
-        # WatchOS needs Sentry as a XCFramework  
-        include:
-          - scheme: watchOS-Swift WatchKit App
-            beforeXcode: 'make build-for-watchos'
 
     steps:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh
-      - run: ${{matrix.beforeXcode}}
-      
+
       # Disable code signing. We just want to make sure these compile.
       - run: >-
           env NSUnbufferedIO=YES
@@ -68,9 +62,26 @@ jobs:
           CODE_SIGNING_ALLOWED="NO"
           build
 
+  build-watch-os-sample:
+    name: Sample watchOS
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./scripts/ci-select-xcode.sh
+      - run: make build-for-watchos
+
+      # Disable code signing. We just want to make sure these compile.
+      - run: >-
+          env NSUnbufferedIO=YES
+          xcodebuild
+          -project Samples/watchOS-Swift/watchOS-Swift.xcodeproj
+          -configuration Debug
+          CODE_SIGNING_ALLOWED="NO"
+          build
+
   build-xcframework:
     name: Build & Validate XCFramework
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
       - run: make build-xcframework
@@ -86,7 +97,7 @@ jobs:
           path: |
             ${{ github.workspace }}/*.zip
 
-  # The framework requires Xcode 12          
+  # The framework requires Xcode 12
   build-framework:
     name: Build & Validate Framework
     runs-on: macos-11
@@ -105,13 +116,13 @@ jobs:
           if-no-files-found: error
           path: |
             ${{ github.workspace }}/*.zip
- 
-# Use github.event.pull_request.head.sha instead of github.sha when available as 
-# the github.sha is be the pre merge commit id for PRs.
-# See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
+
+  # Use github.event.pull_request.head.sha instead of github.sha when available as
+  # the github.sha is be the pre merge commit id for PRs.
+  # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
   validate-spm:
     name: Validate Swift Package Manager
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
       - name: Set SPM revision to current git commit
@@ -120,15 +131,32 @@ jobs:
             sed -i '' 's/.branch("master")/.revision("${{ github.event.pull_request.head.sha }}")/g' Samples/macOS-SPM-CommandLine/Package.swift
           else
             sed -i '' 's/.branch("master")/.revision("${{ github.sha }}")/g' Samples/macOS-SPM-CommandLine/Package.swift
-          fi  
+          fi
         shell: bash
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
         shell: sh
 
+  validate-spm-dynamic:
+    name: Validate Swift Package Manager Dynamic
+    runs-on: macos-11
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set SPM revision to current git commit
+        run: >-
+          if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
+            sed -i '' 's/.branch("master")/.revision("${{ github.event.pull_request.head.sha }}")/g' Samples/SPM-Dynamic/Package.swift
+          else
+            sed -i '' 's/.branch("master")/.revision("${{ github.sha }}")/g' Samples/SPM-Dynamic/Package.swift
+          fi
+        shell: bash
+      - run: swift build
+        working-directory: Samples/SPM-Dynamic
+        shell: sh
+
   swift-build:
     name: Build with Swift
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
       - run: swift build

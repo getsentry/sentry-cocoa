@@ -63,7 +63,7 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
     }
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    func testANRDetected_UpdatesAppStateToTrue() {
+    func testANRDetected_UpdatesAppStateToTrue_disabled() {
         givenInitializedTracker()
         
         Dynamic(sut).anrDetected()

@@ -275,6 +275,57 @@
     XCTAssertNil(options.beforeBreadcrumb);
 }
 
+- (void)testTracePropagationTargets
+{
+    SentryOptions *options =
+        [self getValidOptions:@{ @"tracePropagationTargets" : @[ @"localhost" ] }];
+
+    XCTAssertEqual(options.tracePropagationTargets.count, 1);
+    XCTAssertEqual(options.tracePropagationTargets[0], @"localhost");
+}
+
+- (void)testTracePropagationTargetsInvalidInstanceDoesntCrash
+{
+    SentryOptions *options = [self getValidOptions:@{ @"tracePropagationTargets" : @[ @YES ] }];
+
+    XCTAssertEqual(options.tracePropagationTargets.count, 1);
+    XCTAssertEqual(options.tracePropagationTargets[0], @YES);
+}
+
+- (void)testFailedRequestTargets
+{
+    SentryOptions *options =
+        [self getValidOptions:@{ @"failedRequestTargets" : @[ @"localhost" ] }];
+
+    XCTAssertEqual(options.failedRequestTargets.count, 1);
+    XCTAssertEqual(options.failedRequestTargets[0], @"localhost");
+}
+
+- (void)testFailedRequestTargetsInvalidInstanceDoesntCrash
+{
+    SentryOptions *options = [self getValidOptions:@{ @"failedRequestTargets" : @[ @YES ] }];
+
+    XCTAssertEqual(options.failedRequestTargets.count, 1);
+    XCTAssertEqual(options.failedRequestTargets[0], @YES);
+}
+
+- (void)testEnableCaptureFailedRequests
+{
+    [self testBooleanField:@"enableCaptureFailedRequests" defaultValue:NO];
+}
+
+- (void)testFailedRequestStatusCodes
+{
+    SentryHttpStatusCodeRange *httpStatusCodeRange =
+        [[SentryHttpStatusCodeRange alloc] initWithMin:400 max:599];
+    SentryOptions *options =
+        [self getValidOptions:@{ @"failedRequestStatusCodes" : @[ httpStatusCodeRange ] }];
+
+    XCTAssertEqual(options.failedRequestStatusCodes.count, 1);
+    XCTAssertEqual(options.failedRequestStatusCodes[0].min, 400);
+    XCTAssertEqual(options.failedRequestStatusCodes[0].max, 599);
+}
+
 - (void)testGarbageBeforeBreadcrumb_ReturnsNil
 {
     SentryOptions *options = [self getValidOptions:@{ @"beforeBreadcrumb" : @"fault" }];
@@ -467,10 +518,11 @@
         @"inAppIncludes" : [NSNull null],
         @"inAppExcludes" : [NSNull null],
         @"urlSessionDelegate" : [NSNull null],
-        @"experimentalEnableTraceSampling" : [NSNull null],
         @"enableSwizzling" : [NSNull null],
         @"enableIOTracking" : [NSNull null],
-        @"sdk" : [NSNull null]
+        @"sdk" : [NSNull null],
+        @"enableCaptureFailedRequests" : [NSNull null],
+        @"failedRequestStatusCodes" : [NSNull null],
     }
                                                 didFailWithError:nil];
 
@@ -518,6 +570,19 @@
     XCTAssertEqual(YES, options.enableSwizzling);
     XCTAssertEqual(NO, options.enableFileIOTracking);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
+
+    NSRegularExpression *regexTrace = options.tracePropagationTargets[0];
+    XCTAssertTrue([regexTrace.pattern isEqualToString:@".*"]);
+
+    NSRegularExpression *regexRequests = options.failedRequestTargets[0];
+    XCTAssertTrue([regexRequests.pattern isEqualToString:@".*"]);
+
+    XCTAssertEqual(NO, options.enableCaptureFailedRequests);
+
+    SentryHttpStatusCodeRange *range = options.failedRequestStatusCodes[0];
+    XCTAssertEqual(500, range.min);
+    XCTAssertEqual(599, range.max);
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -603,6 +668,7 @@
 - (void)testSetCustomSdkName
 {
     NSDictionary *dict = @{ @"name" : @"custom.sdk" };
+    NSString *originalVersion = SentryMeta.versionString;
 
     NSError *error = nil;
     SentryOptions *options =
@@ -614,13 +680,16 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertEqual(dict[@"name"], options.sdkInfo.name);
-    XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version); // default version
+    // version stays unchanged
+    XCTAssertEqual(SentryMeta.versionString, options.sdkInfo.version);
+    XCTAssertEqual(SentryMeta.versionString, originalVersion);
 #pragma clang diagnostic pop
 }
 
 - (void)testSetCustomSdkVersion
 {
     NSDictionary *dict = @{ @"version" : @"1.2.3-alpha.0" };
+    NSString *originalName = SentryMeta.sdkName;
 
     NSError *error = nil;
     SentryOptions *options =
@@ -631,8 +700,10 @@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name); // default name
     XCTAssertEqual(dict[@"version"], options.sdkInfo.version);
+    // name stays unchanged
+    XCTAssertEqual(SentryMeta.sdkName, options.sdkInfo.name);
+    XCTAssertEqual(SentryMeta.sdkName, originalName);
 #pragma clang diagnostic pop
 
     NSDictionary *info = [[NSBundle bundleForClass:[SentryClient class]] infoDictionary];

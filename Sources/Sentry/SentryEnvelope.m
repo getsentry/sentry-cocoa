@@ -140,7 +140,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                      error:&error];
 
     if (nil != error) {
-        [SentryLog logWithMessage:@"Couldn't serialize user feedback." andLevel:kSentryLevelError];
+        SENTRY_LOG_ERROR(@"Couldn't serialize user feedback.");
         json = [NSData new];
     }
 
@@ -158,7 +158,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                      error:&error];
 
     if (nil != error) {
-        [SentryLog logWithMessage:@"Couldn't serialize client report." andLevel:kSentryLevelError];
+        SENTRY_LOG_ERROR(@"Couldn't serialize client report.");
         json = [NSData new];
     }
 
@@ -174,14 +174,11 @@ NS_ASSUME_NONNULL_BEGIN
     NSData *data = nil;
     if (nil != attachment.data) {
         if (attachment.data.length > maxAttachmentSize) {
-            NSString *message =
-                [NSString stringWithFormat:@"Dropping attachment with filename '%@', because the "
-                                           @"size of the passed data with %lu bytes is bigger than "
-                                           @"the maximum allowed attachment size of %lu bytes.",
-                          attachment.filename, (unsigned long)attachment.data.length,
-                          (unsigned long)maxAttachmentSize];
-            [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
-
+            SENTRY_LOG_DEBUG(
+                @"Dropping attachment with filename '%@', because the size of the passed data with "
+                @"%lu bytes is bigger than the maximum allowed attachment size of %lu bytes.",
+                attachment.filename, (unsigned long)attachment.data.length,
+                (unsigned long)maxAttachmentSize);
             return nil;
         }
 
@@ -194,10 +191,8 @@ NS_ASSUME_NONNULL_BEGIN
             [fileManager attributesOfItemAtPath:attachment.path error:&error];
 
         if (nil != error) {
-            NSString *message = [NSString
-                stringWithFormat:@"Couldn't check file size of attachment with path: %@. Error: %@",
-                attachment.path, error.localizedDescription];
-            [SentryLog logWithMessage:message andLevel:kSentryLevelError];
+            SENTRY_LOG_ERROR(@"Couldn't check file size of attachment with path: %@. Error: %@",
+                attachment.path, error.localizedDescription);
 
             return nil;
         }
@@ -205,12 +200,10 @@ NS_ASSUME_NONNULL_BEGIN
         unsigned long long fileSize = [attr fileSize];
 
         if (fileSize > maxAttachmentSize) {
-            NSString *message = [NSString
-                stringWithFormat:
-                    @"Dropping attachment, because the size of the it located at '%@' with %llu "
-                    @"bytes is bigger than the maximum allowed attachment size of %lu bytes.",
-                attachment.path, fileSize, (unsigned long)maxAttachmentSize];
-            [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+            SENTRY_LOG_DEBUG(
+                @"Dropping attachment, because the size of the it located at '%@' with %llu bytes "
+                @"is bigger than the maximum allowed attachment size of %lu bytes.",
+                attachment.path, fileSize, (unsigned long)maxAttachmentSize);
             return nil;
         }
 
@@ -218,7 +211,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     if (nil == data) {
-        [SentryLog logWithMessage:@"Couldn't init Attachment." andLevel:kSentryLevelError];
+        SENTRY_LOG_ERROR(@"Couldn't init Attachment.");
         return nil;
     }
 

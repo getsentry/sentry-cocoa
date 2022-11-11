@@ -11,9 +11,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)dispatchAsyncWithBlock:(void (^)(void))block;
 
-- (void)dispatchOnMainQueue:(void (^)(void))block;
+- (void)dispatchAsyncOnMainQueue:(void (^)(void))block;
 
-- (void)dispatchAfter:(dispatch_time_t)when block:(dispatch_block_t)block;
+- (void)dispatchSyncOnMainQueue:(void (^)(void))block;
+
+- (void)dispatchAfter:(NSTimeInterval)interval block:(dispatch_block_t)block;
 
 - (void)dispatchCancel:(dispatch_block_t)block;
 
