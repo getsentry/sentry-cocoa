@@ -506,7 +506,6 @@ SentryFileManager ()
 {
     NSArray *fileOneLines = @[];
     NSArray *fileTwoLines = @[];
-    NSArray *combinedLines = @[];
 
     if ([[NSFileManager defaultManager] fileExistsAtPath:self.previousBreadcrumbsFilePathOne]) {
         NSString *fileContents =
@@ -529,6 +528,8 @@ SentryFileManager ()
     NSMutableArray *breadcrumbs = [NSMutableArray array];
 
     if (fileOneLines.count > 0 || fileTwoLines.count > 0) {
+        NSArray *combinedLines = @[];
+
         if (fileOneLines.count > fileTwoLines.count) {
             // If file one has more lines than file two, then file one contains the older crumbs,
             // and thus needs to come first.
