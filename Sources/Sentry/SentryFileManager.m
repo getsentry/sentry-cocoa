@@ -528,7 +528,7 @@ SentryFileManager ()
     NSMutableArray *breadcrumbs = [NSMutableArray array];
 
     if (fileOneLines.count > 0 || fileTwoLines.count > 0) {
-        NSArray *combinedLines = @[];
+        NSArray *combinedLines;
 
         if (fileOneLines.count > fileTwoLines.count) {
             // If file one has more lines than file two, then file one contains the older crumbs,
