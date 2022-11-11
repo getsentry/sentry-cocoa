@@ -735,6 +735,13 @@
 			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
 			remoteInfo = "Sentry-iOS";
 		};
+		D80C4A4E291E5068000A472C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D81A3487291D0AC0005A27A9;
+			remoteInfo = SentryPrivate;
+		};
 		D81A3494291D0AD5005A27A9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
@@ -3299,6 +3306,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D80C4A4F291E5068000A472C /* PBXTargetDependency */,
 				63AA766C1EB8CB2F00D153DE /* PBXTargetDependency */,
 			);
 			name = SentryTests;
@@ -3872,6 +3880,11 @@
 			isa = PBXTargetDependency;
 			target = 63AA759A1EB8AEF500D153DE /* Sentry */;
 			targetProxy = 63AA766B1EB8CB2F00D153DE /* PBXContainerItemProxy */;
+		};
+		D80C4A4F291E5068000A472C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D81A3487291D0AC0005A27A9 /* SentryPrivate */;
+			targetProxy = D80C4A4E291E5068000A472C /* PBXContainerItemProxy */;
 		};
 		D81A3495291D0AD5005A27A9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
