@@ -34,6 +34,7 @@ SentryAppStartTracker ()
 @property (nonatomic, strong) SentrySysctl *sysctl;
 @property (nonatomic, assign) BOOL wasInBackground;
 @property (nonatomic, strong) NSDate *didFinishLaunchingTimestamp;
+@property (nonatomic, assign) BOOL enablePreWarmedAppStartTracking;
 
 @end
 
@@ -55,6 +56,7 @@ SentryAppStartTracker ()
                        dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                             appStateManager:(SentryAppStateManager *)appStateManager
                                      sysctl:(SentrySysctl *)sysctl
+            enablePreWarmedAppStartTracking:(BOOL)enablePreWarmedAppStartTracking
 {
     if (self = [super init]) {
         self.currentDate = currentDateProvider;
@@ -64,6 +66,7 @@ SentryAppStartTracker ()
         self.previousAppState = [self.appStateManager loadPreviousAppState];
         self.wasInBackground = NO;
         self.didFinishLaunchingTimestamp = [currentDateProvider date];
+        self.enablePreWarmedAppStartTracking = enablePreWarmedAppStartTracking;
     }
     return self;
 }
@@ -120,6 +123,19 @@ SentryAppStartTracker ()
     void (^block)(void) = ^(void) {
         [self stop];
 
+        BOOL isPreWarmed = NO;
+        if ([self isActivePrewarmAvailable] && isActivePrewarm) {
+            SENTRY_LOG_INFO(@"The app was prewarmed.");
+
+            if (self.enablePreWarmedAppStartTracking) {
+                isPreWarmed = YES;
+            } else {
+                SENTRY_LOG_INFO(
+                    @"EnablePreWarmedAppStartTracking disabled. Not measuring app start.");
+                return;
+            }
+        }
+
         SentryAppStartType appStartType = [self getStartType];
 
         if (appStartType == SentryAppStartTypeUnknown) {
@@ -132,13 +148,6 @@ SentryAppStartTracker ()
             // start.
             SENTRY_LOG_INFO(@"App was in background. Not measuring app start.");
             return;
-        }
-
-        BOOL isPreWarmed = NO;
-        if ([self isActivePrewarmAvailable] && isActivePrewarm) {
-            [SentryLog logWithMessage:@"The app was prewarmed." andLevel:kSentryLevelInfo];
-
-            isPreWarmed = YES;
         }
 
         // According to a talk at WWDC about optimizing app launch

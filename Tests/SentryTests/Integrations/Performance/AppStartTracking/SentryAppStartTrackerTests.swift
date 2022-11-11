@@ -15,6 +15,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
         let appStateManager: SentryAppStateManager
         let dispatchQueue = TestSentryDispatchQueueWrapper()
+        var enablePreWarmedAppStartTracking = true
 
         let appStartDuration: TimeInterval = 0.4
         var runtimeInitTimestamp: Date
@@ -36,7 +37,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         }
         
         var sut: SentryAppStartTracker {
-            let sut = SentryAppStartTracker(currentDateProvider: currentDate, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), appStateManager: appStateManager, sysctl: sysctl)
+            let sut = SentryAppStartTracker(currentDateProvider: currentDate, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), appStateManager: appStateManager, sysctl: sysctl, enablePreWarmedAppStartTracking: enablePreWarmedAppStartTracking)
             return sut
         }
     }
@@ -148,6 +149,26 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         }
 #else
         assertNoAppStartUp()
+#endif
+    }
+    
+    func testAppLaunches_OSPrewarmedProcess_FeatureDisabled_AppStartUpShortened() {
+        fixture.enablePreWarmedAppStartTracking = false
+        
+        setenv("ActivePrewarm", "1", 1)
+        SentryAppStartTracker.load()
+        givenSystemNotRebooted()
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
+        startApp(processStartTimeStamp: fixture.currentDate.date().addingTimeInterval(-60 * 60 * 4))
+#if os(iOS)
+        if #available(iOS 14.0, *) {
+            assertNoAppStartUp()
+        } else {
+            assertValidStart(type: .warm)
+        }
+#else
+        assertValidStart(type: .warm)
 #endif
     }
     
