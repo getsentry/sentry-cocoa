@@ -250,8 +250,12 @@ class SentryScopeSwiftTests: XCTestCase {
             "second": ["0": "1" ]
         ]
         
+        // The existing values from the scope get overwritten by the values of the event
+        // "a": [12:1] will be overwritten with "a": "b"
+        // "c": "c" will be overwritten with "c": "d"
+        // "e": "f" gets added from the scope to the event
         let scope = fixture.scope
-        scope.setContext(value: ["e": "f"], key: "first")
+        scope.setContext(value: ["a": [12: 1], "c": "c", "e": "f"], key: "first")
         scope.setContext(value: ["0": "1"], key: "second")
         
         let actual = scope.apply(to: event, maxBreadcrumb: 10)
