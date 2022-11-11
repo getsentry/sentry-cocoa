@@ -504,14 +504,17 @@ SentryFileManager ()
 
 - (NSArray *)readPreviousBreadcrumbs
 {
-    NSMutableString *combinedFilesContents = [[NSMutableString alloc] init];
+    NSArray *fileOneLines = @[];
+    NSArray *fileTwoLines = @[];
+    NSArray *combinedLines = @[];
 
     if ([[NSFileManager defaultManager] fileExistsAtPath:self.previousBreadcrumbsFilePathOne]) {
         NSString *fileContents =
             [NSString stringWithContentsOfFile:self.previousBreadcrumbsFilePathOne
                                       encoding:NSUTF8StringEncoding
                                          error:nil];
-        [combinedFilesContents appendString:fileContents];
+        fileOneLines = [fileContents
+            componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
     }
 
     if ([[NSFileManager defaultManager] fileExistsAtPath:self.previousBreadcrumbsFilePathTwo]) {
@@ -519,16 +522,22 @@ SentryFileManager ()
             [NSString stringWithContentsOfFile:self.previousBreadcrumbsFilePathTwo
                                       encoding:NSUTF8StringEncoding
                                          error:nil];
-        [combinedFilesContents appendString:fileContents];
+        fileTwoLines = [fileContents
+            componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
     }
 
     NSMutableArray *breadcrumbs = [NSMutableArray array];
 
-    if (combinedFilesContents.length > 0) {
-        NSArray *lines = [combinedFilesContents
-            componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+    if (fileOneLines.count > 0 || fileTwoLines.count > 0) {
+        if (fileOneLines.count > fileTwoLines.count) {
+            // If file one has more lines than file two, then file one contains the older crumbs,
+            // and thus needs to come first.
+            combinedLines = [fileOneLines arrayByAddingObjectsFromArray:fileTwoLines];
+        } else {
+            combinedLines = [fileTwoLines arrayByAddingObjectsFromArray:fileOneLines];
+        }
 
-        for (NSString *line in lines) {
+        for (NSString *line in combinedLines) {
             NSData *data = [line dataUsingEncoding:NSUTF8StringEncoding];
 
             NSError *error;

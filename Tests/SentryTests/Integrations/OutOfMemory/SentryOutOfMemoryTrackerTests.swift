@@ -18,6 +18,7 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         
         init() {
             options = Options()
+            options.maxBreadcrumbs = 2
             options.dsn = SentryOutOfMemoryTrackerTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
             
@@ -211,8 +212,11 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     func testAppOOM_WithBreadcrumbs() {
         let breadcrumb = TestData.crumb
 
-        let sentryOutOfMemoryScopeObserver = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: 10, fileManager: fixture.fileManager)
-        sentryOutOfMemoryScopeObserver.addSerializedBreadcrumb(breadcrumb.serialize())
+        let sentryOutOfMemoryScopeObserver = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: Int(fixture.options.maxBreadcrumbs), fileManager: fixture.fileManager)
+
+        for _ in 0..<3 {
+            sentryOutOfMemoryScopeObserver.addSerializedBreadcrumb(breadcrumb.serialize())
+        }
 
         sut.start()
         goToForeground()
@@ -220,7 +224,7 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         fixture.fileManager.moveAppStateToPreviousAppState()
         fixture.fileManager.moveBreadcrumbsToPreviousBreadcrumbs()
         sut.start()
-        assertOOMEventSent(expectedBreadcrumbs: 1)
+        assertOOMEventSent(expectedBreadcrumbs: 2)
     }
 
     func testAppOOM_WithOnlyHybridSdkDidBecomeActive() {

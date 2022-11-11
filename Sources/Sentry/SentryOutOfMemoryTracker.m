@@ -61,6 +61,12 @@ SentryOutOfMemoryTracker ()
 
             // Load the previous breascrumbs from disk, which are already serialized
             event.serializedBreadcrumbs = [self.fileManager readPreviousBreadcrumbs];
+            if (event.serializedBreadcrumbs.count > self.options.maxBreadcrumbs) {
+                event.serializedBreadcrumbs = [event.serializedBreadcrumbs
+                    subarrayWithRange:NSMakeRange(event.serializedBreadcrumbs.count
+                                              - self.options.maxBreadcrumbs,
+                                          self.options.maxBreadcrumbs)];
+            }
 
             SentryException *exception =
                 [[SentryException alloc] initWithValue:SentryOutOfMemoryExceptionValue
