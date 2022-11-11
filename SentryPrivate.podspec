@@ -1,12 +1,12 @@
 Pod::Spec.new do |s|
   s.name         = "SentryPrivate"
-  s.version      = "0.1.0"
+  s.version      = "7.30.2"
   s.summary      = "Sentry Private Library."
   s.homepage     = "https://github.com/getsentry/sentry-cocoa"
   s.license      = "mit"
   s.authors      = "Sentry"
   s.source       = { :git => "https://github.com/getsentry/sentry-cocoa.git",
-                     :tag => "alpha-" + s.version.to_s }
+                     :tag => s.version.to_s }
   s.social_media_url = 'https://getsentry.com/'
 
   s.description      = <<-DESC
