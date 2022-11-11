@@ -1032,17 +1032,29 @@ class SentryClientTest: XCTestCase {
         }
     }
 
-    func testTrackStitchAsyncCode() {
+    func testTrackStitchAsyncCode() {        
+        testFeatureTrackingAsIntegration(integrationName: "StitchAsyncCode") {
+            $0.stitchAsyncCode = true
+        }
+    }
+    
+    func testTrackPreWarmedAppStartTracking() {
+        testFeatureTrackingAsIntegration(integrationName: "PreWarmedAppStartTracking") {
+            $0.enablePreWarmedAppStartTracking = true
+        }
+    }
+    
+    private func testFeatureTrackingAsIntegration(integrationName: String, configureOptions: (Options) -> Void) {
         SentrySDK.start(options: Options())
 
         let eventId = fixture.getSut(configureOptions: { options in
-            options.stitchAsyncCode = true
+            configureOptions(options)
         }).capture(message: fixture.messageAsString)
 
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             assertArrayEquals(
-                expected: ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking", "StitchAsyncCode"],
+                expected: ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking", integrationName],
                 actual: actual.sdk?["integrations"] as? [String]
             )
         }
