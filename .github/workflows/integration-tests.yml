@@ -143,6 +143,7 @@ jobs:
   # adding our SDK doesn't cause any major issues.
   vlc-tests:
     runs-on: macos-12
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v3
         with:
