@@ -240,6 +240,20 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) NSTimeInterval idleTimeout;
 
+/**
+ * This feature is EXPERIMENTAL.
+ *
+ * Report pre-warmed app starts by dropping the first app start spans if pre-warming paused during
+ * these steps. This approach will shorten the app start duration, but it represents the duration a
+ * user has to wait after clicking the app icon until the app is responsive.
+ *
+ * You can filter for different app start types in Discover with app_start_type:cold.prewarmed,
+ * app_start_type:warm.prewarmed, app_start_type:cold, and app_start_type:warm.
+ *
+ * Default value is <code>NO</code>
+ */
+@property (nonatomic, assign) BOOL enablePreWarmedAppStartTracking;
+
 #endif
 
 /**
