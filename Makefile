@@ -24,13 +24,13 @@ lint:
 
 format: format-clang format-swift
 
-# Format all h, c, cpp, mm, and m files
+# Format ObjC, ObjC++, C, and C++
 format-clang:
 	@find . -type f \( -name "*.h" -or -name "*.hpp" -or -name "*.c" -or -name "*.cpp" -or -name "*.m" -or -name "*.mm" \) -and \
 		! \( -path "**.build/*" -or -path "**Build/*" -or -path "**/Carthage/Checkouts/*"  -or -path "**/libs/**" \) \
 		| xargs clang-format -i -style=file
 
-# Format all h, c, cpp, mm, and m files
+# Format Swift
 format-swift:
 	swiftlint --fix
 

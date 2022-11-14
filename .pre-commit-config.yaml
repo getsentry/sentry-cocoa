@@ -17,7 +17,7 @@ repos:
   - repo: local
     hooks:
       - id: format-clang
-        name: Format ObjC, C, and C++
+        name: Format ObjC, ObjC++, C, and C++
         entry: make
         language: system
         types_or: ["objective-c", "objective-c++", "c", "c++"]
