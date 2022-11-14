@@ -10,7 +10,7 @@
 ### Fixes
 
 - Too long flush duration (#2370)
-- Do not delete the app state when OOM tracking is disabled (#2382)
+- Do not delete the app state when OOM tracking is disabled. The app state is needed to determine the app start type on the next app start. (#2382)
 
 ## 7.30.2
 
