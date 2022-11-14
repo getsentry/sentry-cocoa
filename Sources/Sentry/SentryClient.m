@@ -659,6 +659,12 @@ NSString *const kSentryDefaultEnvironment = @"production";
         if (self.options.stitchAsyncCode) {
             [integrations addObject:@"StitchAsyncCode"];
         }
+
+#if SENTRY_HAS_UIKIT
+        if (self.options.enablePreWarmedAppStartTracking) {
+            [integrations addObject:@"PreWarmedAppStartTracking"];
+        }
+#endif
     }
 
     event.sdk = @{

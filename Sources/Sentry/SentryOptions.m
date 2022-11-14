@@ -69,6 +69,7 @@ SentryOptions ()
         self.attachViewHierarchy = NO;
         self.enableUserInteractionTracing = NO;
         self.idleTimeout = 3.0;
+        self.enablePreWarmedAppStartTracking = NO;
 #endif
         self.enableAppHangTracking = NO;
         self.appHangTimeoutInterval = 2.0;
@@ -311,6 +312,9 @@ SentryOptions ()
     if ([options[@"idleTimeout"] isKindOfClass:[NSNumber class]]) {
         self.idleTimeout = [options[@"idleTimeout"] doubleValue];
     }
+
+    [self setBool:options[@"enablePreWarmedAppStartTracking"]
+            block:^(BOOL value) { self->_enablePreWarmedAppStartTracking = value; }];
 #endif
 
     [self setBool:options[@"enableAppHangTracking"]
