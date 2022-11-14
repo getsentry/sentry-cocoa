@@ -14,16 +14,24 @@ diff --git a/Podfile b/Podfile
 index d2d83b14..6756f31b 100644
 --- a/Podfile
 +++ b/Podfile
-@@ -30,7 +30,8 @@ pod 'ObjectMapper', git: 'https://github.com/tristanhimmelman/ObjectMapper.git',
+@@ -30,6 +30,8 @@ pod 'ObjectMapper', git: 'https://github.com/tristanhimmelman/ObjectMapper.git',
  pod 'PromiseKit'
  
  pod 'RealmSwift'
--pod 'Sentry'
 +pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :commit => '__GITHUB_REVISION_PLACEHOLDER__'
 +pod 'SentryPrivate', :git => 'https://github.com/getsentry/sentry-cocoa.git', :commit => '__GITHUB_REVISION_PLACEHOLDER__'
  pod 'UIColor_Hex_Swift'
  pod 'Version'
  pod 'XCGLogger'
+@@ -113,7 +115,7 @@ post_install do |installer|
+       config.build_settings['WATCHOS_DEPLOYMENT_TARGET'] = '5.0'
+       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+ 
+-      config.build_settings['SWIFT_INSTALL_OBJC_HEADER'] = 'NO' unless target.name.include? 'Firebase'
++      config.build_settings['SWIFT_INSTALL_OBJC_HEADER'] = 'NO' unless target.name.include? 'Firebase' or target.name.include? 'Sentry'
+ 
+       # disabled arch to stay under the 75 MB limit imposed by apple
+       config.build_settings['EXCLUDED_ARCHS[sdk=watchos*]'] = 'arm64'
 diff --git a/Sources/App/AppDelegate.swift b/Sources/App/AppDelegate.swift
 index 8e0e35f4..3d34887d 100644
 --- a/Sources/App/AppDelegate.swift
