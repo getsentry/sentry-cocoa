@@ -8,6 +8,7 @@
 #import "SentrySerialization.h"
 #import <SentryDependencyContainer.h>
 #import <SentryFramesTracker.h>
+#import <SentryScreenshot.h>
 
 @implementation PrivateSentrySDKOnly
 
@@ -122,7 +123,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (NSArray<NSData *> *)captureScreenshots
 {
-    return [[SentryDependencyContainer sharedInstance].screenshot takeScreenshots];
+    return [SentryDependencyContainer.sharedInstance.screenshot takeScreenshots];
 }
 
 #endif
