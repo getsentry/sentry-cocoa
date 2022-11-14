@@ -581,29 +581,6 @@ SentryFileManager ()
     return [SentrySerialization appStateWithData:currentData];
 }
 
-- (void)deleteAppState
-{
-    @synchronized(self.appStateFilePath) {
-        [self deleteAppStateFrom:self.appStateFilePath];
-        [self deleteAppStateFrom:self.previousAppStateFilePath];
-    }
-}
-
-- (void)deleteAppStateFrom:(NSString *)path
-{
-    NSError *error = nil;
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    [fileManager removeItemAtPath:path error:&error];
-
-    // We don't want to log an error if the file doesn't exist.
-    if (nil != error && error.code != NSFileNoSuchFileError) {
-        [SentryLog
-            logWithMessage:[NSString stringWithFormat:@"Failed to delete app state from %@: %@",
-                                     path, error]
-                  andLevel:kSentryLevelError];
-    }
-}
-
 - (NSNumber *_Nullable)readTimezoneOffset
 {
     SENTRY_LOG_DEBUG(@"Reading timezone offset");

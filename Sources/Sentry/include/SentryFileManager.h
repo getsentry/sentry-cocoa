@@ -72,7 +72,6 @@ SENTRY_NO_INIT
 - (void)moveAppStateToPreviousAppState;
 - (SentryAppState *_Nullable)readAppState;
 - (SentryAppState *_Nullable)readPreviousAppState;
-- (void)deleteAppState;
 
 - (void)moveBreadcrumbsToPreviousBreadcrumbs;
 - (NSArray *)readPreviousBreadcrumbs;
