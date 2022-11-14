@@ -44,7 +44,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enableCaptureFailedRequests = true
             let httpStatusCodeRange = HttpStatusCodeRange(min: 400, max: 599)
             options.failedRequestStatusCodes = [ httpStatusCodeRange ]
-            
         }
         
         if #available(iOS 14.0, *) {
