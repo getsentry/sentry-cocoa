@@ -65,39 +65,14 @@ class SentryAppStateManagerTests: XCTestCase {
         XCTAssertNil(fixture.fileManager.readAppState())
     }
 
-    func testStopDeletesAppState() {
+    func testStopDoesNotDeleteAppState() {
         XCTAssertNil(fixture.fileManager.readAppState())
 
         sut.start()
         XCTAssertNotNil(fixture.fileManager.readAppState())
 
         sut.stop()
-        XCTAssertNil(fixture.fileManager.readAppState())
-    }
-
-    func testStopOnlyRunsLogicWhenStartCountBecomesZero() {
-        XCTAssertNil(fixture.fileManager.readAppState())
-
-        sut.start()
         XCTAssertNotNil(fixture.fileManager.readAppState())
-
-        sut.start()
-
-        sut.stop()
-        XCTAssertNotNil(fixture.fileManager.readAppState())
-
-        sut.stop()
-        XCTAssertNil(fixture.fileManager.readAppState())
-    }
-
-    func testStoreAndDeleteAppState() {
-        XCTAssertNil(fixture.fileManager.readAppState())
-
-        sut.storeCurrentAppState()
-        XCTAssertNotNil(fixture.fileManager.readAppState())
-
-        sut.deleteAppState()
-        XCTAssertNil(fixture.fileManager.readAppState())
     }
 
     func testUpdateAppState() {

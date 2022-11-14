@@ -285,10 +285,6 @@ SentryAppStartTracker ()
     [NSNotificationCenter.defaultCenter removeObserver:self
                                                   name:UIApplicationDidEnterBackgroundNotification
                                                 object:nil];
-
-#    if SENTRY_HAS_UIKIT
-    [self.appStateManager stop];
-#    endif
 }
 
 - (void)dealloc
