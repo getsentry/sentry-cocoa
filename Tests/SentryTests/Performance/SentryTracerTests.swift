@@ -896,7 +896,8 @@ class SentryTracerTests: XCTestCase {
         let serializedTransaction = transaction.serialize()
         let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
 
-        XCTAssertEqual(["app_start_warm": ["value": 500]], measurements)
+        let appStartDurationInMillis = Int(fixture.appStartDuration * 1_000)
+        XCTAssertEqual(["app_start_warm": ["value": appStartDurationInMillis]], measurements)
 
         assertAppStartsSpanAdded(transaction: transaction, startType: "Warm Start", operation: fixture.appStartWarmOperation, appStartMeasurement: appStartMeasurement)
     }
