@@ -23,6 +23,7 @@ repos:
         types_or: ["objective-c", "objective-c++", "c", "c++"]
         args:
           - "format-clang"
+          
       - id: format-swift
         name: Format Swift
         entry: make
