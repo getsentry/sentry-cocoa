@@ -1,27 +1,40 @@
+git diff HomeAssistant.xcconfig
+diff --git a/Configuration/HomeAssistant.xcconfig b/Configuration/HomeAssistant.xcconfig
+index 2b1cdd31..962ec867 100644
+--- a/Configuration/HomeAssistant.xcconfig
++++ b/Configuration/HomeAssistant.xcconfig
+@@ -92,3 +92,5 @@ CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES
+ CLANG_ANALYZER_NONNULL = YES
+ CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES
+ GCC_NO_COMMON_BLOCKS = YES
++
++OTHER_LDFLAGS[sdk=watch*] = $(inherited) -framework WatchKit
+
 diff --git a/Podfile b/Podfile
-index 6d1a5f78..9a1d70d6 100644
+index d2d83b14..6756f31b 100644
 --- a/Podfile
 +++ b/Podfile
-@@ -30,6 +30,8 @@ pod 'ObjectMapper', git: 'https://github.com/tristanhimmelman/ObjectMapper.git',
+@@ -30,7 +30,8 @@ pod 'ObjectMapper', git: 'https://github.com/tristanhimmelman/ObjectMapper.git',
  pod 'PromiseKit'
  
  pod 'RealmSwift'
+-pod 'Sentry'
 +pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :commit => '__GITHUB_REVISION_PLACEHOLDER__'
 +pod 'SentryPrivate', :git => 'https://github.com/getsentry/sentry-cocoa.git', :commit => '__GITHUB_REVISION_PLACEHOLDER__'
  pod 'UIColor_Hex_Swift'
  pod 'Version'
  pod 'XCGLogger'
-@@ -113,7 +115,7 @@ post_install do |installer|
+@@ -111,7 +112,7 @@ post_install do |installer|
+     target.build_configurations.each do |config|
        config.build_settings['WATCHOS_DEPLOYMENT_TARGET'] = '5.0'
        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+-      config.build_settings['SWIFT_INSTALL_OBJC_HEADER'] = 'NO'
++      config.build_settings['SWIFT_INSTALL_OBJC_HEADER'] = 'NO' unless target.name.include? 'Sentry'
+     end
  
--      config.build_settings['SWIFT_INSTALL_OBJC_HEADER'] = 'NO' unless target.name.include? 'Firebase'
-+      config.build_settings['SWIFT_INSTALL_OBJC_HEADER'] = 'NO' unless target.name.include? 'Firebase' or target.name.include? 'Sentry'
- 
-       # disabled arch to stay under the 75 MB limit imposed by apple
-       config.build_settings['EXCLUDED_ARCHS[sdk=watchos*]'] = 'arm64'
+     # Fix bundle targets' 'Signing Certificate' to 'Sign to Run Locally'
 diff --git a/Sources/App/AppDelegate.swift b/Sources/App/AppDelegate.swift
-index edc1510b..ba09893c 100644
+index 8e0e35f4..3d34887d 100644
 --- a/Sources/App/AppDelegate.swift
 +++ b/Sources/App/AppDelegate.swift
 @@ -13,6 +13,7 @@ import SafariServices
@@ -43,7 +56,46 @@ index edc1510b..ba09893c 100644
 +            options.enableFileIOTracking = true
 +            options.profilesSampleRate = 1.0
 +        }
-+
++        
          if NSClassFromString("XCTest") != nil {
              return true
          }
+diff --git a/Sources/Shared/Environment/CrashReporter.swift b/Sources/Shared/Environment/CrashReporter.swift
+index b8eb37f0..046e7851 100644
+--- a/Sources/Shared/Environment/CrashReporter.swift
++++ b/Sources/Shared/Environment/CrashReporter.swift
+@@ -20,34 +20,6 @@ public class CrashReporterImpl: CrashReporter {
+         Current.Log.add(destination: with(SentryLogDestination()) {
+             $0.outputLevel = .warning
+         })
+-
+-        SentrySDK.start { options in
+-            options.dsn = "https://762c198b86594fa2b6bedf87028db34d@o427061.ingest.sentry.io/5372775"
+-            options.debug = Current.appConfiguration == .Debug
+-            options.enableAutoSessionTracking = Current.settingsStore.privacy.analytics
+-            options.maxBreadcrumbs = 1000
+-
+-            var integrations = type(of: options).defaultIntegrations()
+-
+-            let analyticsIntegrations = Set([
+-                "SentryAutoBreadcrumbTrackingIntegration",
+-                "SentryAutoSessionTrackingIntegration",
+-            ])
+-
+-            let crashesIntegrations = Set([
+-                "SentryCrashIntegration",
+-            ])
+-
+-            if !Current.settingsStore.privacy.crashes {
+-                integrations.removeAll(where: { crashesIntegrations.contains($0) })
+-            }
+-
+-            if !Current.settingsStore.privacy.analytics {
+-                integrations.removeAll(where: { analyticsIntegrations.contains($0) })
+-            }
+-
+-            options.integrations = integrations
+-        }
+     }
+ 
+     public func setUserProperty(value: String?, name: String) {
