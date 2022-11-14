@@ -8,6 +8,8 @@ This version introduces a dependency on Swift, which only impacts you if you don
 
 - Properly demangle Swift class name (#2162)
 
+## 7.31.0
+
 ### Features
 
 - Store breadcrumbs to disk for OOM events (#2347)
@@ -16,6 +18,7 @@ This version introduces a dependency on Swift, which only impacts you if you don
 ### Fixes
 
 - Too long flush duration (#2370)
+- Do not delete the app state when OOM tracking is disabled. The app state is needed to determine the app start type on the next app start. (#2382)
 
 ## 7.30.2
 

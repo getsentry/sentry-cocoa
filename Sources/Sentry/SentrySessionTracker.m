@@ -139,10 +139,11 @@ SentrySessionTracker ()
  * regardless of whether your app uses scenes, see
  * https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622956-applicationdidbecomeactive.
  *
- * We can't start the session in this method because we don't know if a background task or a hybrid
- * SDK initialized the SDK. Hybrid SDKs must only post this notification if they are running in the
- * foreground because the auto session tracking logic doesn't support background tasks. Posting the
- * notification from the background would mess up the session stats.
+ * Hybrid SDKs must only post this notification if they are running in the foreground because the
+ * auto session tracking logic doesn't support background tasks. Posting the notification from the
+ * background would mess up the session stats. Hybrid SDKs must only post this notification if they
+ * are running in the foreground because the auto session tracking logic doesn't support background
+ * tasks. Posting the notification from the background would mess up the session stats.
  */
 - (void)didBecomeActive
 {

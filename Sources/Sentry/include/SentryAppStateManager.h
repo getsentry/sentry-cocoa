@@ -35,8 +35,6 @@ SENTRY_NO_INIT
 
 - (void)storeCurrentAppState;
 
-- (void)deleteAppState;
-
 - (void)updateAppState:(void (^)(SentryAppState *))block;
 
 #endif
