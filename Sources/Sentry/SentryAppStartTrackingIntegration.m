@@ -37,10 +37,11 @@ SentryAppStartTrackingIntegration ()
         [SentryDependencyContainer sharedInstance].appStateManager;
 
     self.tracker = [[SentryAppStartTracker alloc]
-        initWithCurrentDateProvider:currentDateProvider
-               dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
-                    appStateManager:appStateManager
-                             sysctl:sysctl];
+            initWithCurrentDateProvider:currentDateProvider
+                   dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
+                        appStateManager:appStateManager
+                                 sysctl:sysctl
+        enablePreWarmedAppStartTracking:options.enablePreWarmedAppStartTracking];
     [self.tracker start];
 
     return YES;

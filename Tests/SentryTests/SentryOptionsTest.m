@@ -760,6 +760,11 @@
     XCTAssertEqual([idleTimeout doubleValue], options.idleTimeout);
 }
 
+- (void)testEnablePreWarmedAppStartTracking
+{
+    [self testBooleanField:@"enablePreWarmedAppStartTracking" defaultValue:NO];
+}
+
 #endif
 
 - (void)testEnableAppHangTracking

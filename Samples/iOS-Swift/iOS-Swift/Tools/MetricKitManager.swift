@@ -17,7 +17,7 @@ class MetricKitManager: NSObject, MXMetricManagerSubscriber {
     func didReceive(_ payloads: [MXMetricPayload]) {
         var attachments: [Attachment] = []
         for payload in payloads {
-            let attachment = Attachment(data: payload.jsonRepresentation(), filename: "MXDiagnosticPayload.json")
+            let attachment = Attachment(data: payload.jsonRepresentation(), filename: "MXMetricPayload.json")
             attachments.append(attachment)
         }
         
