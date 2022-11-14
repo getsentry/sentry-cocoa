@@ -69,7 +69,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     func testSecondStart_AfterSystemReboot_IsColdStart() {
         let previousBootTime = fixture.currentDate.date().addingTimeInterval(-1)
         let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: previousBootTime)
-        givenPreviousAppState(appState: appState)
+        store(appState: appState)
         
         startApp()
         
@@ -84,10 +84,25 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         
         assertValidStart(type: .warm)
     }
+
+    // Test for situation described in https://github.com/getsentry/sentry-cocoa/issues/2376
+    func testSecondStart_SystemNotRebooted_OOM_disabled_IsWarmStart() {
+        givenSystemNotRebooted()
+
+        fixture.options.enableOutOfMemoryTracking = false
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
+        startApp()
+        assertValidStart(type: .warm)
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
+        startApp()
+        assertValidStart(type: .warm)
+    }
     
     func testAppUpgrade_IsColdStart() {
         let appState = SentryAppState(releaseName: "0.9.0", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.currentDate.date())
-        givenPreviousAppState(appState: appState)
+        store(appState: appState)
         
         startApp()
         
@@ -95,7 +110,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     }
     
     func testAppWasInBackground_NoAppStartUp() {
-        givenPreviousAppState(appState: TestData.appState)
+        store(appState: TestData.appState)
         
         startApp()
         
@@ -113,7 +128,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         terminateApp()
         
         let appState = SentryAppState(releaseName: "1.0.0", osVersion: "14.4.1", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: self.fixture.currentDate.date())
-        givenPreviousAppState(appState: appState)
+        store(appState: appState)
 
         fixture.fileManager.moveAppStateToPreviousAppState()
         startApp()
@@ -126,7 +141,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
      */
     func testAppLaunches_PreviousBootTimeInFuture_NoAppStartUp() {
         let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.currentDate.date().addingTimeInterval(1))
-        givenPreviousAppState(appState: appState)
+        store(appState: appState)
 
         fixture.fileManager.moveAppStateToPreviousAppState()
         startApp()
@@ -271,7 +286,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         assertValidHybridStart(type: .warm)
     }
     
-    private func givenPreviousAppState(appState: SentryAppState) {
+    private func store(appState: SentryAppState) {
         fixture.fileManager.store(appState)
     }
     
@@ -279,7 +294,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let systemBootTimestamp = fixture.currentDate.date()
         fixture.sysctl.setProcessStartTimestamp(value: fixture.currentDate.date())
         let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: systemBootTimestamp)
-        givenPreviousAppState(appState: appState)
+        store(appState: appState)
     }
     
     private func givenProcessStartTimestamp(processStartTimestamp: Date? = nil) {
