@@ -2,10 +2,13 @@
 
 ## Unreleased
 
+### Features
+
+- Report pre-warmed app starts (#1969)
+
 ### Fixes
 
 - Too long flush duration (#2370)
-- Report pre-warmed app starts (#1969)
 
 ## 7.30.2
 
