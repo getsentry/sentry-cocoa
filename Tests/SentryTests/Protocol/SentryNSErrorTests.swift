@@ -18,7 +18,8 @@ class SentryNSErrorTests: XCTestCase {
         let actualError = NSErrorFromSentryErrorWithUnderlyingError(SentryError.unknownError, inputDescription, inputUnderlyingError)
 
         XCTAssertEqual(actualError?.localizedDescription, inputDescription)
-        guard let actualUnderlyingError = (actualError as? NSError)?.userInfo[NSUnderlyingErrorKey] as? NSError else {
+        
+        guard let error = actualError, let actualUnderlyingError = (error as NSError).userInfo[NSUnderlyingErrorKey] as? NSError else {
             XCTFail("Expected an underlying error in the returned error's info dict")
             return
         }
