@@ -10,6 +10,7 @@
 ### Fixes
 
 - Too long flush duration (#2370)
+- Do not delete the app state when OOM tracking is disabled (#2382)
 
 ## 7.30.2
 
