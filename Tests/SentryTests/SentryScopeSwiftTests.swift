@@ -484,7 +484,10 @@ class SentryScopeSwiftTests: XCTestCase {
         sut.add(crumb)
         sut.add(crumb)
         
-        XCTAssertEqual([crumb, crumb], observer.crumbs)
+        XCTAssertEqual(
+            [crumb.serialize() as! [String: AnyHashable], crumb.serialize() as! [String: AnyHashable]],
+            observer.crumbs
+        )
     }
     
     func testScopeObserver_clearBreadcrumb() {
@@ -545,11 +548,11 @@ class SentryScopeSwiftTests: XCTestCase {
             self.level = level
         }
         
-        var crumbs: [Breadcrumb] = []
-        func add(_ crumb: Breadcrumb) {
-            crumbs.append(crumb)
+        var crumbs: [[String: AnyHashable]] = []
+        func addSerializedBreadcrumb(_ crumb: [String: Any]) {
+            crumbs.append(crumb as! [String: AnyHashable])
         }
-        
+
         var clearBreadcrumbInvocations = 0
         func clearBreadcrumbs() {
             clearBreadcrumbInvocations += 1

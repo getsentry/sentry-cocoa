@@ -127,7 +127,7 @@ Date: October 21st 2022
 Contributors: @philipphofmann
 
 GH actions will remove the macOS-10.15 image, which contains an iOS 12 simulator on 12/1/22; see https://github.com/actions/runner-images/issues/5583.
-Neither the[ macOS-11](https://github.com/actions/runner-images/blob/main/images/macos/macos-11-Readme.md#installed-sdks) nor the
+Neither the [macOS-11](https://github.com/actions/runner-images/blob/main/images/macos/macos-11-Readme.md#installed-sdks) nor the
 [macOS-12](https://github.com/actions/runner-images/blob/main/images/macos/macos-12-Readme.md#installed-sdks) image contains an iOS 12 simulator. GH
 [concluded](https://github.com/actions/runner-images/issues/551#issuecomment-788822538) to not add more pre-installed simulators. SauceLabs doesn't
 support running unit tests and adding another cloud solution as Firebase TestLab would increase the complexity of CI. Not running the unit tests on
@@ -135,3 +135,10 @@ iOS 12 opens a risk of introducing bugs, which has already happened in the past,
 the iOS 12 simulator a try.
 
 Related to [GH-2218](https://github.com/getsentry/sentry-cocoa/issues/2218)
+
+### Writing breadcrumbs to disk in the main thread
+
+Date November 15, 2022
+Contributors: @kevinrenskers, @brustolin and @philipphofmann
+
+For the benefit of OOM crashes, we write breadcrumbs to disk; see https://github.com/getsentry/sentry-cocoa/pull/2347. We have decided to do this in the main thread to ensure we're not missing out on any breadcrumbs. It's mainly the last breadcrumb(s) that are important to figure out what is causing an OOM. And since we're only appending to an open file stream, the overhead is acceptable compared to the benefit of having accurate breadcrumbs.

@@ -112,6 +112,7 @@
 #import "SentryObjCRuntimeWrapper.h"
 #import "SentryOptions+Private.h"
 #import "SentryOutOfMemoryLogic.h"
+#import "SentryOutOfMemoryScopeObserver.h"
 #import "SentryOutOfMemoryTracker.h"
 #import "SentryOutOfMemoryTrackingIntegration.h"
 #import "SentryPerformanceTracker.h"

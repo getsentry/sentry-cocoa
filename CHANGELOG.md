@@ -4,6 +4,7 @@
 
 ### Features
 
+- Store breadcrumbs to disk for OOM events (#2347)
 - Report pre-warmed app starts (#1969)
 
 ### Fixes
