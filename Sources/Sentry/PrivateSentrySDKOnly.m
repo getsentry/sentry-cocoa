@@ -120,6 +120,11 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [SentryFramesTracker sharedInstance].currentFrames;
 }
 
++ (NSArray<NSData *> *)captureScreenshots
+{
+    return [[SentryDependencyContainer sharedInstance].screenshot takeScreenshots];
+}
+
 #endif
 
 @end
