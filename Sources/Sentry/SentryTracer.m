@@ -21,6 +21,7 @@
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
+#import <NSMutableDictionary+Sentry.h>
 #import <SentryDispatchQueueWrapper.h>
 #import <SentryMeasurementValue.h>
 #import <SentryScreenFrames.h>
@@ -626,6 +627,8 @@ static BOOL appStartMeasurementRead;
         return @[];
     }
 
+    NSMutableArray<SentrySpan *> *appStartSpans = [NSMutableArray array];
+
     NSDate *appStartEndTimestamp = [appStartMeasurement.appStartTimestamp
         dateByAddingTimeInterval:appStartMeasurement.duration];
 
@@ -633,48 +636,67 @@ static BOOL appStartMeasurementRead;
                                      operation:operation
                                    description:type];
     [appStartSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
+    [appStartSpan setTimestamp:appStartEndTimestamp];
 
-    SentrySpan *premainSpan = [self buildSpan:appStartSpan.context.spanId
-                                    operation:operation
-                                  description:@"Pre Runtime Init"];
-    [premainSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
-    [premainSpan setTimestamp:appStartMeasurement.runtimeInitTimestamp];
+    [appStartSpans addObject:appStartSpan];
 
-    SentrySpan *runtimeInitSpan = [self buildSpan:appStartSpan.context.spanId
+    if (!appStartMeasurement.isPreWarmed) {
+        SentrySpan *premainSpan = [self buildSpan:appStartSpan.context.spanId
                                         operation:operation
-                                      description:@"Runtime Init to Pre Main Initializers"];
-    [runtimeInitSpan setStartTimestamp:appStartMeasurement.runtimeInitTimestamp];
-    [runtimeInitSpan setTimestamp:appStartMeasurement.moduleInitializationTimestamp];
+                                      description:@"Pre Runtime Init"];
+        [premainSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
+        [premainSpan setTimestamp:appStartMeasurement.runtimeInitTimestamp];
+        [appStartSpans addObject:premainSpan];
+
+        SentrySpan *runtimeInitSpan = [self buildSpan:appStartSpan.context.spanId
+                                            operation:operation
+                                          description:@"Runtime Init to Pre Main Initializers"];
+        [runtimeInitSpan setStartTimestamp:appStartMeasurement.runtimeInitTimestamp];
+        [runtimeInitSpan setTimestamp:appStartMeasurement.moduleInitializationTimestamp];
+        [appStartSpans addObject:runtimeInitSpan];
+    }
 
     SentrySpan *appInitSpan = [self buildSpan:appStartSpan.context.spanId
                                     operation:operation
                                   description:@"UIKit and Application Init"];
     [appInitSpan setStartTimestamp:appStartMeasurement.moduleInitializationTimestamp];
     [appInitSpan setTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
+    [appStartSpans addObject:appInitSpan];
 
     SentrySpan *frameRenderSpan = [self buildSpan:appStartSpan.context.spanId
                                         operation:operation
                                       description:@"Initial Frame Render"];
     [frameRenderSpan setStartTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
     [frameRenderSpan setTimestamp:appStartEndTimestamp];
+    [appStartSpans addObject:frameRenderSpan];
 
-    [appStartSpan setTimestamp:appStartEndTimestamp];
-
-    return @[ appStartSpan, premainSpan, runtimeInitSpan, appInitSpan, frameRenderSpan ];
+    return appStartSpans;
 }
 
 - (void)addMeasurements:(SentryTransaction *)transaction
 {
     if (appStartMeasurement != nil && appStartMeasurement.type != SentryAppStartTypeUnknown) {
         NSString *type = nil;
+        NSString *appContextType = nil;
         if (appStartMeasurement.type == SentryAppStartTypeCold) {
             type = @"app_start_cold";
+            appContextType = @"cold";
         } else if (appStartMeasurement.type == SentryAppStartTypeWarm) {
             type = @"app_start_warm";
+            appContextType = @"warm";
         }
 
-        if (type != nil) {
+        if (type != nil && appContextType != nil) {
             [self setMeasurement:type value:@(appStartMeasurement.duration * 1000)];
+
+            NSString *appStartType = appStartMeasurement.isPreWarmed
+                ? [NSString stringWithFormat:@"%@.prewarmed", appContextType]
+                : appContextType;
+            NSMutableDictionary *context =
+                [[NSMutableDictionary alloc] initWithDictionary:[transaction context]];
+            NSDictionary *appContext = @{ @"app" : @ { @"start_type" : appStartType } };
+            [context mergeEntriesFromDictionary:appContext];
+            [transaction setContext:context];
         }
     }
 

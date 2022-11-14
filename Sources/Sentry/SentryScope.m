@@ -1,4 +1,5 @@
 #import "SentryScope.h"
+#import "NSMutableDictionary+Sentry.h"
 #import "SentryAttachment.h"
 #import "SentryBreadcrumb.h"
 #import "SentryEnvelopeItemType.h"
@@ -513,13 +514,9 @@ SentryScope ()
         event.level = level;
     }
 
-    NSMutableDictionary *newContext;
-    if (nil == event.context) {
-        newContext = [self context].mutableCopy;
-    } else {
-        newContext = [NSMutableDictionary new];
-        [newContext addEntriesFromDictionary:[self context]];
-        [newContext addEntriesFromDictionary:event.context];
+    NSMutableDictionary *newContext = [self context].mutableCopy;
+    if (event.context != nil) {
+        [newContext mergeEntriesFromDictionary:event.context];
     }
 
     if (self.span != nil) {
