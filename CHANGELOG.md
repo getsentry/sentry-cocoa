@@ -8,6 +8,11 @@ This version introduces a dependency on Swift, which only impacts you if you don
 
 - Properly demangle Swift class name (#2162)
 
+### Features
+
+- Store breadcrumbs to disk for OOM events (#2347)
+- Report pre-warmed app starts (#1969)
+
 ### Fixes
 
 - Too long flush duration (#2370)

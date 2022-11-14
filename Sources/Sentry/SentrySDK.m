@@ -149,6 +149,7 @@ static NSUInteger startInvocations;
 
     SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
     [newClient.fileManager moveAppStateToPreviousAppState];
+    [newClient.fileManager moveBreadcrumbsToPreviousBreadcrumbs];
 
     // The Hub needs to be initialized with a client so that closing a session
     // can happen.
