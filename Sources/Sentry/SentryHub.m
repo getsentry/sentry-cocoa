@@ -442,7 +442,15 @@ SentryHub ()
     SentryClient *client = _client;
     if (nil != client) {
         if (nil != currentSession) {
-            return [client captureError:error withSession:currentSession withScope:scope];
+            return [client captureError:error
+                              withScope:scope
+                            withSession:^(BOOL withErrorIncremented) {
+                                if (withErrorIncremented) {
+                                    return [self incrementSessionErrors];
+                                } else {
+                                    return currentSession;
+                                }
+                            }];
         } else {
             return [client captureError:error withScope:scope];
         }
@@ -461,7 +469,15 @@ SentryHub ()
     SentryClient *client = _client;
     if (nil != client) {
         if (nil != currentSession) {
-            return [client captureException:exception withSession:currentSession withScope:scope];
+            return [client captureException:exception
+                                  withScope:scope
+                                withSession:^(BOOL withErrorIncremented) {
+                                    if (withErrorIncremented) {
+                                        return [self incrementSessionErrors];
+                                    } else {
+                                        return currentSession;
+                                    }
+                                }];
         } else {
             return [client captureException:exception withScope:scope];
         }

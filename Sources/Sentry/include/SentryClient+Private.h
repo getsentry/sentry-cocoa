@@ -26,12 +26,12 @@ SentryClient (Private)
 - (SentryFileManager *)fileManager;
 
 - (SentryId *)captureError:(NSError *)error
-               withSession:(SentrySession *)session
-                 withScope:(SentryScope *)scope;
+                 withScope:(SentryScope *)scope
+               withSession:(SentrySession * (^)(BOOL withErrorIncremented))sessionBlock;
 
 - (SentryId *)captureException:(NSException *)exception
-                   withSession:(SentrySession *)session
-                     withScope:(SentryScope *)scope;
+                     withScope:(SentryScope *)scope
+                   withSession:(SentrySession * (^)(BOOL withErrorIncremented))sessionBlock;
 
 - (SentryId *)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 

@@ -184,15 +184,13 @@ NSString *const kSentryDefaultEnvironment = @"production";
 }
 
 - (SentryId *)captureException:(NSException *)exception
-                   withSession:(SentrySession *)session
                      withScope:(SentryScope *)scope
+                   withSession:(SentrySession * (^)(BOOL withErrorIncremented))sessionBlock
 {
     SentryEvent *event = [self buildExceptionEvent:exception];
     event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
 
-    if (event != nil) {
-        session = [SentrySDK.currentHub incrementSessionErrors];
-    }
+    SentrySession *session = sessionBlock(event != nil);
 
     return [self sendEvent:event withSession:session withScope:scope];
 }
@@ -220,15 +218,13 @@ NSString *const kSentryDefaultEnvironment = @"production";
 }
 
 - (SentryId *)captureError:(NSError *)error
-               withSession:(SentrySession *)session
                  withScope:(SentryScope *)scope
+               withSession:(SentrySession * (^)(BOOL withErrorIncremented))sessionBlock
 {
     SentryEvent *event = [self buildErrorEvent:error];
     event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
 
-    if (event != nil) {
-        session = [SentrySDK.currentHub incrementSessionErrors];
-    }
+    SentrySession *session = sessionBlock(event != nil);
 
     return [self sendEvent:event withSession:session withScope:scope];
 }
@@ -409,10 +405,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
         [self.transportAdapter sendEvent:event session:session attachments:attachments];
 
         return event.eventId;
-    } else {
-        [self captureSession:session];
-        return SentryId.empty;
     }
+
+    return SentryId.empty;
 }
 
 - (void)captureSession:(SentrySession *)session
