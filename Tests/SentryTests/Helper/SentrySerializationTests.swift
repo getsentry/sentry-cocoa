@@ -19,7 +19,9 @@ class SentrySerializationTests: XCTestCase {
             data = try SentrySerialization.data(withJSONObject: json)
         } catch {
             exp.fulfill()
-            XCTAssertEqual(error.localizedDescription, "Event cannot be converted to JSON (Invalid type in JSON write (__NSTaggedDate))")
+            //Depending of the iOS version, the underlying type of NSDate may change.
+            //Knowing that we have an error is enough.
+            XCTAssertTrue(error.localizedDescription.starts(with: "Event cannot be converted to JSON (Invalid type in JSON write"))
         }
         waitForExpectations(timeout: 1)
         XCTAssertNil(data)
