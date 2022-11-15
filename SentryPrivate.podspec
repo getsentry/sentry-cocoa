@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SentryPrivate"
-  s.version      = "7.30.2"
+  s.version      = "7.31.0"
   s.summary      = "Sentry Private Library."
   s.homepage     = "https://github.com/getsentry/sentry-cocoa"
   s.license      = "mit"

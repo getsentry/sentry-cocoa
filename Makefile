@@ -109,3 +109,4 @@ git-commit-add:
 release-pod:
 	pod trunk push Sentry.podspec
 	pod trunk push SentryPrivate.podspec
+	pod trunk push SentrySwiftUI.podspec

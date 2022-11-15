@@ -24,6 +24,6 @@ Pod::Spec.new do |s|
   
   s.subspec 'Core' do |sp|
       sp.source_files = "Sources/SentrySwiftUI/**/*.{swift}","Sources/SentryInternal/**/*.{h}"
-      sp.dependency 'Sentry'
+      sp.dependency 'Sentry', '7.31.0'
   end
 end
