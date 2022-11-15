@@ -141,7 +141,7 @@
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:self.reportStorePath]);
 }
 
-- (void)testCrashReportCount1
+- (void)testCrashReportCount1_disabled
 {
     [self prepareReportStoreWithPathEnd:@"testCrashReportCount1"];
     NSString *reportContents = @"Testing";

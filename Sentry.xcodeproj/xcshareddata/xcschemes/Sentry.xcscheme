@@ -59,6 +59,9 @@
                   Identifier = "SentryCrashIntegrationTests/testStartUpCrash_CallsFlush_disabled()">
                </Test>
                <Test
+                  Identifier = "SentryCrashReportStore_Tests/testCrashReportCount1_disabled">
+               </Test>
+               <Test
                   Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readPath_disabled()">
                </Test>
                <Test
