@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Fixes
+
+- Don't increase session's error count for dropped events (#2374)
+
+## 7.31.0
+
 ### Features
 
 - Store breadcrumbs to disk for OOM events (#2347)
@@ -10,7 +16,7 @@
 ### Fixes
 
 - Too long flush duration (#2370)
-- Don't increase session's error count for dropped events (#2374)
+- Do not delete the app state when OOM tracking is disabled. The app state is needed to determine the app start type on the next app start. (#2382)
 
 ## 7.30.2
 

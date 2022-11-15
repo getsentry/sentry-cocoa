@@ -114,8 +114,6 @@ SentryAppStateManager ()
             removeObserver:self
                       name:SentryNSNotificationCenterWrapper.willTerminateNotificationName
                     object:nil];
-
-        [self deleteAppState];
     }
 }
 
@@ -124,7 +122,6 @@ SentryAppStateManager ()
     // In dealloc it's safe to unsubscribe for all, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
     [NSNotificationCenter.defaultCenter removeObserver:self];
-    [self deleteAppState];
 }
 
 /**
@@ -197,11 +194,6 @@ SentryAppStateManager ()
 - (void)storeCurrentAppState
 {
     [self.fileManager storeAppState:[self buildCurrentAppState]];
-}
-
-- (void)deleteAppState
-{
-    [self.fileManager deleteAppState];
 }
 
 #endif
