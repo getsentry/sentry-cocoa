@@ -84,15 +84,16 @@ class TestClient: Client {
         return SentryId()
     }
 
+    var sessionIncrementsErrorCount = true
     var captureErrorWithSessionInvocations = Invocations<(error: Error, session: SentrySession, scope: Scope)>()
     override func captureError(_ error: Error, with scope: Scope, withSession sessionBlock: @escaping (Bool) -> SentrySession) -> SentryId {
-        captureErrorWithSessionInvocations.record((error, sessionBlock(true), scope))
+        captureErrorWithSessionInvocations.record((error, sessionBlock(sessionIncrementsErrorCount), scope))
         return SentryId()
     }
     
     var captureExceptionWithSessionInvocations = Invocations<(exception: NSException, session: SentrySession, scope: Scope)>()
     override func capture(_ exception: NSException, with scope: Scope, withSession sessionBlock: @escaping (Bool) -> SentrySession) -> SentryId {
-        captureExceptionWithSessionInvocations.record((exception, sessionBlock(true), scope))
+        captureExceptionWithSessionInvocations.record((exception, sessionBlock(sessionIncrementsErrorCount), scope))
         return SentryId()
     }
     

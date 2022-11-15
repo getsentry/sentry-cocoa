@@ -449,8 +449,9 @@ class SentryClientTest: XCTestCase {
     }
 
     func testCaptureErrorWithSession() {
-        let eventId = fixture.getSut().captureError(error, with: Scope()) { _ in
-            self.fixture.session
+        let eventId = fixture.getSut().captureError(error, with: Scope()) { increaseErrorCount in
+            XCTAssertTrue(increaseErrorCount)
+            return self.fixture.session
         }
 
         eventId.assertIsNotEmpty()
@@ -464,8 +465,9 @@ class SentryClientTest: XCTestCase {
     func testCaptureErrorWithSession_WithBeforeSendReturnsNil() {
         let eventId = fixture.getSut(configureOptions: { options in
             options.beforeSend = { _ in return nil }
-        }).captureError(error, with: Scope()) { _ in
-            self.fixture.session
+        }).captureError(error, with: Scope()) { increaseErrorCount in
+            XCTAssertFalse(increaseErrorCount)
+            return self.fixture.session
         }
         
         eventId.assertIsEmpty()

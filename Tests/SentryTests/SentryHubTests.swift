@@ -392,6 +392,26 @@ class SentryHubTests: XCTestCase {
         // only session init is sent
         XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
     }
+
+    func testCaptureWithoutIncreasingErrorCount() {
+        let sut = fixture.getSut()
+        sut.startSession()
+        fixture.client.sessionIncrementsErrorCount = false
+        sut.capture(error: fixture.error, scope: fixture.scope).assertIsNotEmpty()
+
+        XCTAssertEqual(1, fixture.client.captureErrorWithSessionInvocations.count)
+        if let errorArguments = fixture.client.captureErrorWithSessionInvocations.first {
+            XCTAssertEqual(fixture.error, errorArguments.error as NSError)
+
+            XCTAssertEqual(errorArguments.session.errors, 0)
+            XCTAssertEqual(SentrySessionStatus.ok, errorArguments.session.status)
+
+            XCTAssertEqual(fixture.scope, errorArguments.scope)
+        }
+
+        // only session init is sent
+        XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
+    }
     
     func testCaptureErrorWithoutScope() {
         fixture.getSut(fixture.options, fixture.scope).capture(error: fixture.error).assertIsNotEmpty()
@@ -438,6 +458,26 @@ class SentryHubTests: XCTestCase {
             XCTAssertEqual(fixture.scope, exceptionArguments.scope)
         }
         
+        // only session init is sent
+        XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
+    }
+
+    func testCaptureExceptionWithoutIncreasingErrorCount() {
+        let sut = fixture.getSut()
+        sut.startSession()
+        fixture.client.sessionIncrementsErrorCount = false
+        sut.capture(exception: fixture.exception, scope: fixture.scope).assertIsNotEmpty()
+
+        XCTAssertEqual(1, fixture.client.captureExceptionWithSessionInvocations.count)
+        if let exceptionArguments = fixture.client.captureExceptionWithSessionInvocations.first {
+            XCTAssertEqual(fixture.exception, exceptionArguments.exception)
+
+            XCTAssertEqual(exceptionArguments.session.errors, 0)
+            XCTAssertEqual(SentrySessionStatus.ok, exceptionArguments.session.status)
+
+            XCTAssertEqual(fixture.scope, exceptionArguments.scope)
+        }
+
         // only session init is sent
         XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
     }
