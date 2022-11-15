@@ -65,6 +65,9 @@
                   Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl_disabled()">
                </Test>
                <Test
+                  Identifier = "SentryNSErrorTests/testSerializeWithUnderlyingNSException_disabled()">
+               </Test>
+               <Test
                   Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndBaggageHeaderAdded_disabled()">
                </Test>
                <Test
