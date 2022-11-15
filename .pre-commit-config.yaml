@@ -16,10 +16,18 @@ repos:
 
   - repo: local
     hooks:
-      - id: clang-format
-        name: Clang Format
+      - id: format-clang
+        name: Format ObjC, ObjC++, C, and C++
         entry: make
         language: system
-        types_or: ["objective-c", "objective-c++", "c", "c++", "swift" ]
+        types_or: ["objective-c", "objective-c++", "c", "c++"]
         args:
-          - "format"
+          - "format-clang"
+          
+      - id: format-swift
+        name: Format Swift
+        entry: make
+        language: system
+        types_or: ["swift" ]
+        args:
+          - "format-swift"

@@ -15,9 +15,11 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
         let appStateManager: SentryAppStateManager
         let dispatchQueue = TestSentryDispatchQueueWrapper()
-        
+        var enablePreWarmedAppStartTracking = true
+
         let appStartDuration: TimeInterval = 0.4
         var runtimeInitTimestamp: Date
+        var moduleInitializationTimestamp: Date
         var didFinishLaunchingTimestamp: Date
         
         init() {
@@ -30,11 +32,12 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
             appStateManager = SentryAppStateManager(options: options, crashWrapper: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl, dispatchQueueWrapper: dispatchQueue)
             
             runtimeInitTimestamp = currentDate.date().addingTimeInterval(0.2)
+            moduleInitializationTimestamp = currentDate.date().addingTimeInterval(0.1)
             didFinishLaunchingTimestamp = currentDate.date().addingTimeInterval(0.3)
         }
         
         var sut: SentryAppStartTracker {
-            let sut = SentryAppStartTracker(currentDateProvider: currentDate, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), appStateManager: appStateManager, sysctl: sysctl)
+            let sut = SentryAppStartTracker(currentDateProvider: currentDate, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), appStateManager: appStateManager, sysctl: sysctl, enablePreWarmedAppStartTracking: enablePreWarmedAppStartTracking)
             return sut
         }
     }
@@ -66,7 +69,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     func testSecondStart_AfterSystemReboot_IsColdStart() {
         let previousBootTime = fixture.currentDate.date().addingTimeInterval(-1)
         let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: previousBootTime)
-        givenPreviousAppState(appState: appState)
+        store(appState: appState)
         
         startApp()
         
@@ -81,10 +84,25 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         
         assertValidStart(type: .warm)
     }
+
+    // Test for situation described in https://github.com/getsentry/sentry-cocoa/issues/2376
+    func testSecondStart_SystemNotRebooted_OOM_disabled_IsWarmStart() {
+        givenSystemNotRebooted()
+
+        fixture.options.enableOutOfMemoryTracking = false
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
+        startApp()
+        assertValidStart(type: .warm)
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
+        startApp()
+        assertValidStart(type: .warm)
+    }
     
     func testAppUpgrade_IsColdStart() {
         let appState = SentryAppState(releaseName: "0.9.0", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.currentDate.date())
-        givenPreviousAppState(appState: appState)
+        store(appState: appState)
         
         startApp()
         
@@ -92,7 +110,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     }
     
     func testAppWasInBackground_NoAppStartUp() {
-        givenPreviousAppState(appState: TestData.appState)
+        store(appState: TestData.appState)
         
         startApp()
         
@@ -110,7 +128,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         terminateApp()
         
         let appState = SentryAppState(releaseName: "1.0.0", osVersion: "14.4.1", vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: self.fixture.currentDate.date())
-        givenPreviousAppState(appState: appState)
+        store(appState: appState)
 
         fixture.fileManager.moveAppStateToPreviousAppState()
         startApp()
@@ -123,7 +141,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
      */
     func testAppLaunches_PreviousBootTimeInFuture_NoAppStartUp() {
         let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.currentDate.date().addingTimeInterval(1))
-        givenPreviousAppState(appState: appState)
+        store(appState: appState)
 
         fixture.fileManager.moveAppStateToPreviousAppState()
         startApp()
@@ -131,14 +149,33 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         assertNoAppStartUp()
     }
     
-    func testAppLaunches_OSPrewarmedProcess_NoAppStartUp() {
+    func testAppLaunches_OSPrewarmedProcess_AppStartUpShortened() {
+        setenv("ActivePrewarm", "1", 1)
+        SentryAppStartTracker.load()
+        givenSystemNotRebooted()
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
+        startApp(processStartTimeStamp: fixture.currentDate.date().addingTimeInterval(-60 * 60 * 4))
+#if os(iOS)
+        if #available(iOS 14.0, *) {
+            assertValidStart(type: .warm, expectedDuration: 0.3, preWarmed: true)
+        } else {
+            assertNoAppStartUp()
+        }
+#else
+        assertNoAppStartUp()
+#endif
+    }
+    
+    func testAppLaunches_OSPrewarmedProcess_FeatureDisabled_NoAppStartUp() {
+        fixture.enablePreWarmedAppStartTracking = false
+        
         setenv("ActivePrewarm", "1", 1)
         SentryAppStartTracker.load()
         givenSystemNotRebooted()
 
         fixture.fileManager.moveAppStateToPreviousAppState()
         startApp()
-        
 #if os(iOS)
         if #available(iOS 14.0, *) {
             assertNoAppStartUp()
@@ -150,6 +187,22 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
 #endif
     }
     
+    func testAppLaunches_OSStopsAtLaterAppLaunchStep_NoAppStartUp() {
+        setenv("ActivePrewarm", "1", 1)
+        SentryAppStartTracker.load()
+        givenSystemNotRebooted()
+        givenModuleInitializationTimestamp(timestamp: fixture.currentDate.date().addingTimeInterval(-200))
+
+        let currentDate = fixture.currentDate.date()
+        startApp(
+            processStartTimeStamp: currentDate.addingTimeInterval(-200.5),
+            runtimeInitTimestamp: currentDate.addingTimeInterval(-200.4),
+            moduleInitializationTimestamp: currentDate.addingTimeInterval(-200)
+        )
+
+        assertNoAppStartUp()
+    }
+
     func testAppLaunches_WrongEnvValue_AppStartUp() {
         setenv("ActivePrewarm", "0", 1)
         SentryAppStartTracker.load()
@@ -233,7 +286,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         assertValidHybridStart(type: .warm)
     }
     
-    private func givenPreviousAppState(appState: SentryAppState) {
+    private func store(appState: SentryAppState) {
         fixture.fileManager.store(appState)
     }
     
@@ -241,28 +294,33 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let systemBootTimestamp = fixture.currentDate.date()
         fixture.sysctl.setProcessStartTimestamp(value: fixture.currentDate.date())
         let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: systemBootTimestamp)
-        givenPreviousAppState(appState: appState)
+        store(appState: appState)
     }
     
-    private func givenProcessStartTimestamp(processStartTimeStamp: Date? = nil) {
-        fixture.sysctl.setProcessStartTimestamp(value: processStartTimeStamp ?? fixture.currentDate.date())
+    private func givenProcessStartTimestamp(processStartTimestamp: Date? = nil) {
+        fixture.sysctl.setProcessStartTimestamp(value: processStartTimestamp ?? fixture.currentDate.date())
     }
     
-    private func givenRuntimeInitTimestamp(sut: SentryAppStartTracker) {
-        fixture.runtimeInitTimestamp = fixture.currentDate.date().addingTimeInterval(0.2)
+    private func givenRuntimeInitTimestamp(sut: SentryAppStartTracker, timestamp: Date? = nil) {
+        fixture.runtimeInitTimestamp = timestamp ?? fixture.currentDate.date().addingTimeInterval(0.2)
         Dynamic(sut).setRuntimeInit(fixture.runtimeInitTimestamp)
     }
     
+    private func givenModuleInitializationTimestamp(timestamp: Date? = nil) {
+        fixture.sysctl.setModuleInitializationTimestamp(value: timestamp ?? fixture.moduleInitializationTimestamp)
+    }
+
     private func givenDidFinishLaunchingTimestamp() {
         fixture.didFinishLaunchingTimestamp = fixture.currentDate.date().addingTimeInterval(0.3)
         advanceTime(bySeconds: 0.3)
     }
     
-    private func startApp(processStartTimeStamp: Date? = nil) {
-        givenProcessStartTimestamp(processStartTimeStamp: processStartTimeStamp)
+    private func startApp(processStartTimeStamp: Date? = nil, runtimeInitTimestamp: Date? = nil, moduleInitializationTimestamp: Date? = nil) {
+        givenProcessStartTimestamp(processStartTimestamp: processStartTimeStamp)
         
         sut = fixture.sut
-        givenRuntimeInitTimestamp(sut: sut)
+        givenRuntimeInitTimestamp(sut: sut, timestamp: runtimeInitTimestamp)
+        givenModuleInitializationTimestamp(timestamp: moduleInitializationTimestamp)
         sut.start()
         
         willEnterForeground()
@@ -290,7 +348,8 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         
         sut = fixture.sut
         Dynamic(sut).setRuntimeInit(fixture.runtimeInitTimestamp)
-        
+        givenModuleInitializationTimestamp()
+
         didFinishLaunching()
         
         advanceTime(bySeconds: 0.1)
@@ -314,7 +373,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         SentrySDK.setAppStartMeasurement(nil)
     }
     
-    private func assertValidStart(type: SentryAppStartType, expectedDuration: TimeInterval? = nil) {
+    private func assertValidStart(type: SentryAppStartType, expectedDuration: TimeInterval? = nil, preWarmed: Bool = false) {
         guard let appStartMeasurement = SentrySDK.getAppStartMeasurement() else {
             XCTFail("AppStartMeasurement must not be nil")
             return
@@ -326,10 +385,16 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let actualAppStartDuration = appStartMeasurement.duration
         XCTAssertEqual(expectedAppStartDuration, actualAppStartDuration, accuracy: 0.000_1)
         
-        XCTAssertEqual(fixture.sysctl.processStartTimestamp, appStartMeasurement.appStartTimestamp)
+        if preWarmed {
+            XCTAssertEqual(fixture.moduleInitializationTimestamp, appStartMeasurement.appStartTimestamp)
+        } else {
+            XCTAssertEqual(fixture.sysctl.processStartTimestamp, appStartMeasurement.appStartTimestamp)
+        }
+
         XCTAssertEqual(fixture.sysctl.moduleInitializationTimestamp, appStartMeasurement.moduleInitializationTimestamp)
         XCTAssertEqual(fixture.runtimeInitTimestamp, appStartMeasurement.runtimeInitTimestamp)
         XCTAssertEqual(fixture.didFinishLaunchingTimestamp, appStartMeasurement.didFinishLaunchingTimestamp)
+        XCTAssertEqual(preWarmed, appStartMeasurement.isPreWarmed)
     }
     
     private func assertValidHybridStart(type: SentryAppStartType) {

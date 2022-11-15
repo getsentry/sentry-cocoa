@@ -22,6 +22,14 @@ SentryEvent ()
 
 @property (nonatomic) BOOL isCrashEvent;
 
+// We're storing serialized breadcrumbs to disk in JSON, and when we're reading them back (in
+// the case of OOM), we end up with the serialized breadcrumbs again. Instead of turning those
+// dictionaries into proper SentryBreadcrumb instances which then need to be serialized again in
+// SentryEvent, we use this serializedBreadcrumbs property to set the pre-serialized
+// breadcrumbs. It saves a LOT of work - especially turning an NSDictionary into a SentryBreadcrumb
+// is silly when we're just going to do the opposite right after.
+@property (nonatomic, strong) NSArray *serializedBreadcrumbs;
+
 @end
 
 @implementation SentryEvent
@@ -138,7 +146,13 @@ SentryEvent ()
 
     [serializedData setValue:[self.stacktrace serialize] forKey:@"stacktrace"];
 
-    [serializedData setValue:[self serializeBreadcrumbs] forKey:@"breadcrumbs"];
+    NSMutableArray *breadcrumbs = [self serializeBreadcrumbs];
+    if (self.serializedBreadcrumbs.count > 0) {
+        [breadcrumbs addObjectsFromArray:self.serializedBreadcrumbs];
+    }
+    if (breadcrumbs.count > 0) {
+        [serializedData setValue:breadcrumbs forKey:@"breadcrumbs"];
+    }
 
     [serializedData setValue:[self.context sentry_sanitize] forKey:@"contexts"];
 
@@ -164,14 +178,11 @@ SentryEvent ()
     }
 }
 
-- (NSArray *_Nullable)serializeBreadcrumbs
+- (NSMutableArray *)serializeBreadcrumbs
 {
     NSMutableArray *crumbs = [NSMutableArray new];
     for (SentryBreadcrumb *crumb in self.breadcrumbs) {
         [crumbs addObject:[crumb serialize]];
-    }
-    if (crumbs.count <= 0) {
-        return nil;
     }
     return crumbs;
 }
