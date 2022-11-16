@@ -185,14 +185,17 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 - (SentryId *)captureException:(NSException *)exception
                      withScope:(SentryScope *)scope
-                   withSession:(SentrySession * (^)(BOOL withErrorIncremented))sessionBlock
+        incrementSessionErrors:(SentrySession * (^)(void))sessionBlock
 {
     SentryEvent *event = [self buildExceptionEvent:exception];
     event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
 
-    SentrySession *session = sessionBlock(event != nil);
+    if (event != nil) {
+        SentrySession *session = sessionBlock();
+        return [self sendEvent:event withSession:session withScope:scope];
+    }
 
-    return [self sendEvent:event withSession:session withScope:scope];
+    return SentryId.empty;
 }
 
 - (SentryEvent *)buildExceptionEvent:(NSException *)exception
@@ -219,14 +222,17 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 - (SentryId *)captureError:(NSError *)error
                  withScope:(SentryScope *)scope
-               withSession:(SentrySession * (^)(BOOL withErrorIncremented))sessionBlock
+    incrementSessionErrors:(SentrySession * (^)(void))sessionBlock
 {
     SentryEvent *event = [self buildErrorEvent:error];
     event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
 
-    SentrySession *session = sessionBlock(event != nil);
+    if (event != nil) {
+        SentrySession *session = sessionBlock();
+        return [self sendEvent:event withSession:session withScope:scope];
+    }
 
-    return [self sendEvent:event withSession:session withScope:scope];
+    return SentryId.empty;
 }
 
 - (SentryEvent *)buildErrorEvent:(NSError *)error

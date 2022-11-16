@@ -444,10 +444,7 @@ SentryHub ()
         if (nil != currentSession) {
             return [client captureError:error
                               withScope:scope
-                            withSession:^(BOOL withErrorIncremented) {
-                                return withErrorIncremented ? [self incrementSessionErrors]
-                                                            : currentSession;
-                            }];
+                 incrementSessionErrors:^(void) { return [self incrementSessionErrors]; }];
         } else {
             return [client captureError:error withScope:scope];
         }
@@ -468,10 +465,7 @@ SentryHub ()
         if (nil != currentSession) {
             return [client captureException:exception
                                   withScope:scope
-                                withSession:^(BOOL withErrorIncremented) {
-                                    return withErrorIncremented ? [self incrementSessionErrors]
-                                                                : currentSession;
-                                }];
+                     incrementSessionErrors:^(void) { return [self incrementSessionErrors]; }];
         } else {
             return [client captureException:exception withScope:scope];
         }

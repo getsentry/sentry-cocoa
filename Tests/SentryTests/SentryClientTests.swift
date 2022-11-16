@@ -288,7 +288,7 @@ class SentryClientTest: XCTestCase {
         }
 
         sut.add(processor)
-        sut.captureError(error, with: Scope()) { _ in
+        sut.captureError(error, with: Scope()) {
             self.fixture.session
         }
 
@@ -310,7 +310,7 @@ class SentryClientTest: XCTestCase {
         }
         
         sut.add(processor)
-        sut.captureError(error, with: Scope()) { _ in
+        sut.captureError(error, with: Scope()) {
             return SentrySession(releaseName: "")
         }
         
@@ -450,8 +450,7 @@ class SentryClientTest: XCTestCase {
 
     func testCaptureErrorWithSession() {
         let sessionBlockExpectation = expectation(description: "session block gets called")
-        let eventId = fixture.getSut().captureError(error, with: Scope()) { increaseErrorCount in
-            XCTAssertTrue(increaseErrorCount)
+        let eventId = fixture.getSut().captureError(error, with: Scope()) {
             sessionBlockExpectation.fulfill()
             return self.fixture.session
         }
@@ -466,11 +465,13 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureErrorWithSession_WithBeforeSendReturnsNil() {
-        let sessionBlockExpectation = expectation(description: "session block gets called")
+        let sessionBlockExpectation = expectation(description: "session block does not get called")
+        sessionBlockExpectation.isInverted = true
+
         let eventId = fixture.getSut(configureOptions: { options in
             options.beforeSend = { _ in return nil }
-        }).captureError(error, with: Scope()) { increaseErrorCount in
-            XCTAssertFalse(increaseErrorCount)
+        }).captureError(error, with: Scope()) {
+            // This should NOT be called
             sessionBlockExpectation.fulfill()
             return self.fixture.session
         }
@@ -696,7 +697,7 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureExceptionWithSession() {
-        let eventId = fixture.getSut().capture(exception, with: fixture.scope) { _ in
+        let eventId = fixture.getSut().capture(exception, with: fixture.scope) {
             self.fixture.session
         }
 
@@ -712,7 +713,7 @@ class SentryClientTest: XCTestCase {
     func testCaptureExceptionWithSession_WithBeforeSendReturnsNil() {
         let eventId = fixture.getSut(configureOptions: { options in
             options.beforeSend = { _ in return nil }
-        }).capture(exception, with: fixture.scope) { _ in
+        }).capture(exception, with: fixture.scope) {
             self.fixture.session
         }
         
@@ -751,7 +752,7 @@ class SentryClientTest: XCTestCase {
         let session = SentrySession(releaseName: "")
         
         fixture.getSut().capture(session: session)
-        fixture.getSut().capture(exception, with: Scope()) { _ in
+        fixture.getSut().capture(exception, with: Scope()) {
             session
         }
             .assertIsNotEmpty()
@@ -872,7 +873,7 @@ class SentryClientTest: XCTestCase {
         _ = SentryEnvelope(event: Event())
         let eventId = fixture.getSut(configureOptions: { options in
             options.dsn = nil
-        }).capture(self.exception, with: fixture.scope) { _ in
+        }).capture(self.exception, with: fixture.scope) {
             self.fixture.session
         }
 
@@ -884,7 +885,7 @@ class SentryClientTest: XCTestCase {
         _ = SentryEnvelope(event: Event())
         let eventId = fixture.getSut(configureOptions: { options in
             options.dsn = nil
-        }).captureError(self.error, with: fixture.scope) { _ in
+        }).captureError(self.error, with: fixture.scope) {
             self.fixture.session
         }
 

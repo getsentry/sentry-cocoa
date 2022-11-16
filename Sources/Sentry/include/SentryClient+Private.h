@@ -27,11 +27,11 @@ SentryClient (Private)
 
 - (SentryId *)captureError:(NSError *)error
                  withScope:(SentryScope *)scope
-               withSession:(SentrySession * (^)(BOOL withErrorIncremented))sessionBlock;
+    incrementSessionErrors:(SentrySession * (^)(void))sessionBlock;
 
 - (SentryId *)captureException:(NSException *)exception
                      withScope:(SentryScope *)scope
-                   withSession:(SentrySession * (^)(BOOL withErrorIncremented))sessionBlock;
+        incrementSessionErrors:(SentrySession * (^)(void))sessionBlock;
 
 - (SentryId *)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 

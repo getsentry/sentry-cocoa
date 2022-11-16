@@ -383,8 +383,8 @@ class SentryHubTests: XCTestCase {
         if let errorArguments = fixture.client.captureErrorWithSessionInvocations.first {
             XCTAssertEqual(fixture.error, errorArguments.error as NSError)
             
-            XCTAssertEqual(1, errorArguments.session.errors)
-            XCTAssertEqual(SentrySessionStatus.ok, errorArguments.session.status)
+            XCTAssertEqual(1, errorArguments.session?.errors)
+            XCTAssertEqual(SentrySessionStatus.ok, errorArguments.session?.status)
             
             XCTAssertEqual(fixture.scope, errorArguments.scope)
         }
@@ -396,16 +396,13 @@ class SentryHubTests: XCTestCase {
     func testCaptureWithoutIncreasingErrorCount() {
         let sut = fixture.getSut()
         sut.startSession()
-        fixture.client.sessionIncrementsErrorCount = false
+        fixture.client.callSessionBlockWithIncrementSessionErrors = false
         sut.capture(error: fixture.error, scope: fixture.scope).assertIsNotEmpty()
 
         XCTAssertEqual(1, fixture.client.captureErrorWithSessionInvocations.count)
         if let errorArguments = fixture.client.captureErrorWithSessionInvocations.first {
             XCTAssertEqual(fixture.error, errorArguments.error as NSError)
-
-            XCTAssertEqual(errorArguments.session.errors, 0)
-            XCTAssertEqual(SentrySessionStatus.ok, errorArguments.session.status)
-
+            XCTAssertNil(errorArguments.session)
             XCTAssertEqual(fixture.scope, errorArguments.scope)
         }
 
@@ -452,8 +449,8 @@ class SentryHubTests: XCTestCase {
         if let exceptionArguments = fixture.client.captureExceptionWithSessionInvocations.first {
             XCTAssertEqual(fixture.exception, exceptionArguments.exception)
             
-            XCTAssertEqual(1, exceptionArguments.session.errors)
-            XCTAssertEqual(SentrySessionStatus.ok, exceptionArguments.session.status)
+            XCTAssertEqual(1, exceptionArguments.session?.errors)
+            XCTAssertEqual(SentrySessionStatus.ok, exceptionArguments.session?.status)
             
             XCTAssertEqual(fixture.scope, exceptionArguments.scope)
         }
@@ -465,16 +462,13 @@ class SentryHubTests: XCTestCase {
     func testCaptureExceptionWithoutIncreasingErrorCount() {
         let sut = fixture.getSut()
         sut.startSession()
-        fixture.client.sessionIncrementsErrorCount = false
+        fixture.client.callSessionBlockWithIncrementSessionErrors = false
         sut.capture(exception: fixture.exception, scope: fixture.scope).assertIsNotEmpty()
 
         XCTAssertEqual(1, fixture.client.captureExceptionWithSessionInvocations.count)
         if let exceptionArguments = fixture.client.captureExceptionWithSessionInvocations.first {
             XCTAssertEqual(fixture.exception, exceptionArguments.exception)
-
-            XCTAssertEqual(exceptionArguments.session.errors, 0)
-            XCTAssertEqual(SentrySessionStatus.ok, exceptionArguments.session.status)
-
+            XCTAssertNil(exceptionArguments.session)
             XCTAssertEqual(fixture.scope, exceptionArguments.scope)
         }
 
@@ -496,7 +490,7 @@ class SentryHubTests: XCTestCase {
         for i in 1...captureCount {
             // The session error count must not be in order as we use a concurrent DispatchQueue
             XCTAssertTrue(
-                invocations.contains { $0.session.errors == i },
+                invocations.contains { $0.session!.errors == i },
                 "No session captured with \(i) amount of errors."
             )
         }
@@ -516,7 +510,7 @@ class SentryHubTests: XCTestCase {
         for i in 1..<captureCount {
             // The session error count must not be in order as we use a concurrent DispatchQueue
             XCTAssertTrue(
-                invocations.contains { $0.session.errors == i },
+                invocations.contains { $0.session!.errors == i },
                 "No session captured with \(i) amount of errors."
             )
         }
