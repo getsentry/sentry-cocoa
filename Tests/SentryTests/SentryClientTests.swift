@@ -466,12 +466,15 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureErrorWithSession_WithBeforeSendReturnsNil() {
+        let sessionBlockExpectation = expectation(description: "session block gets called")
         let eventId = fixture.getSut(configureOptions: { options in
             options.beforeSend = { _ in return nil }
         }).captureError(error, with: Scope()) { increaseErrorCount in
             XCTAssertFalse(increaseErrorCount)
+            sessionBlockExpectation.fulfill()
             return self.fixture.session
         }
+        wait(for: [sessionBlockExpectation], timeout: 0.2)
         
         eventId.assertIsEmpty()
         assertLastSentEnvelopeIsASession()
