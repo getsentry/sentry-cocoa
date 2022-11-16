@@ -472,6 +472,11 @@
     [self testBooleanField:@"enableFileIOTracking" defaultValue:NO];
 }
 
+- (void)testEnableMetricKit API_AVAILABLE(ios(14.0), macos(12.0), macCatalyst(14.0))
+{
+    [self testBooleanField:@"enableMetricKit" defaultValue:NO];
+}
+
 - (void)testEmptyConstructorSetsDefaultValues
 {
     SentryOptions *options = [[SentryOptions alloc] init];
@@ -570,6 +575,9 @@
     XCTAssertEqual(YES, options.enableSwizzling);
     XCTAssertEqual(NO, options.enableFileIOTracking);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
+    if (@available(iOS 13.0, macOS 12.0, macCatalyst 13.1, *)) {
+        XCTAssertEqual(NO, options.enableMetricKit);
+    }
 
     NSRegularExpression *regexTrace = options.tracePropagationTargets[0];
     XCTAssertTrue([regexTrace.pattern isEqualToString:@".*"]);

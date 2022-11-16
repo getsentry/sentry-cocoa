@@ -7,6 +7,7 @@
 #import "SentryMeta.h"
 #import "SentrySDK.h"
 #import "SentrySdkInfo.h"
+#import <MetricKit/MetricKit.h>
 
 @interface
 SentryOptions ()
@@ -38,7 +39,7 @@ SentryOptions ()
         @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
         @"SentryOutOfMemoryTrackingIntegration", @"SentryPerformanceTrackingIntegration",
         @"SentryNetworkTrackingIntegration", @"SentryFileIOTrackingIntegration",
-        @"SentryCoreDataTrackingIntegration"
+        @"SentryCoreDataTrackingIntegration", @"SentryMetricKitIntegration"
     ];
 }
 
@@ -127,6 +128,10 @@ SentryOptions ()
         SentryHttpStatusCodeRange *defaultHttpStatusCodeRange =
             [[SentryHttpStatusCodeRange alloc] initWithMin:500 max:599];
         self.failedRequestStatusCodes = @[ defaultHttpStatusCodeRange ];
+
+        if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
+            self.enableMetricKit = NO;
+        }
     }
     return self;
 }
@@ -387,6 +392,11 @@ SentryOptions ()
 
     if ([options[@"failedRequestTargets"] isKindOfClass:[NSArray class]]) {
         self.failedRequestTargets = options[@"failedRequestTargets"];
+    }
+
+    if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
+        [self setBool:options[@"enableMetricKit"]
+                block:^(BOOL value) { self->_enableMetricKit = value; }];
     }
 
     // SentrySdkInfo already expects a dictionary with {"sdk": {"name": ..., "value": ...}}
