@@ -22,9 +22,14 @@
 
 ### Fixes
 
-- Fix issue with invalid profiles uploading (#2358 and #2359)
 - Call UIDevice methods on the main thread (#2369)
 - Avoid sending profiles with 0 samples or incorrectly deduplicated backtrace elements (#2375)
+
+## 7.30.1
+
+### Fixes
+
+- Fix issue with invalid profiles uploading (#2358 and #2359)
 
 ## 7.30.0
 
