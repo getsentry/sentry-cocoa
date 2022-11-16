@@ -1,3 +1,4 @@
+#import "NSDate+SentryExtras.h"
 #import "SentryEvent+Private.h"
 #import "SentryFileManager.h"
 #import <Foundation/Foundation.h>
@@ -66,6 +67,12 @@ SentryOutOfMemoryTracker ()
                     subarrayWithRange:NSMakeRange(event.serializedBreadcrumbs.count
                                               - self.options.maxBreadcrumbs,
                                           self.options.maxBreadcrumbs)];
+            }
+
+            NSDictionary *lastBreadcrumb = event.serializedBreadcrumbs.lastObject;
+            if (lastBreadcrumb && [lastBreadcrumb objectForKey:@"timestamp"]) {
+                NSString *timestampIso8601String = [lastBreadcrumb objectForKey:@"timestamp"];
+                event.timestamp = [NSDate sentry_fromIso8601String:timestampIso8601String];
             }
 
             SentryException *exception =
