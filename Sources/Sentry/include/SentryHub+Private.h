@@ -53,8 +53,6 @@ SentryHub (Private)
                        withScope:(SentryScope *)scope
          additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems;
 
-- (nullable SentrySession *)incrementSessionErrors;
-
 @end
 
 NS_ASSUME_NONNULL_END
