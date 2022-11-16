@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Set the correct OOM event timestamp (#2394)
+
 ## 7.31.0
 
 ### Features
