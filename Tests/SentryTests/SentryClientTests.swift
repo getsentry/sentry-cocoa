@@ -449,10 +449,13 @@ class SentryClientTest: XCTestCase {
     }
 
     func testCaptureErrorWithSession() {
+        let sessionBlockExpectation = expectation(description: "session block gets called")
         let eventId = fixture.getSut().captureError(error, with: Scope()) { increaseErrorCount in
             XCTAssertTrue(increaseErrorCount)
+            sessionBlockExpectation.fulfill()
             return self.fixture.session
         }
+        wait(for: [sessionBlockExpectation], timeout: 0.2)
 
         eventId.assertIsNotEmpty()
         XCTAssertNotNil(fixture.transportAdapter.sentEventsWithSessionTraceState.last)
