@@ -225,6 +225,9 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         fixture.fileManager.moveBreadcrumbsToPreviousBreadcrumbs()
         sut.start()
         assertOOMEventSent(expectedBreadcrumbs: 2)
+
+        let crashEvent = fixture.client.captureCrashEventInvocations.first?.event
+        XCTAssertEqual(crashEvent?.timestamp, breadcrumb.timestamp)
     }
 
     func testAppOOM_WithOnlyHybridSdkDidBecomeActive() {
