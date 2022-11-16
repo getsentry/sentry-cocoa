@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <SentryDependencyContainer.h>
 #import <SentryMetricKitIntegration.h>
-#import <SentryMetricKitManager.h>
+#import <SentrySwift.h>
 
 @interface
 SentryMetricKitIntegration ()

@@ -10,10 +10,10 @@
 #import <SentryDependencyContainer.h>
 #import <SentryDispatchQueueWrapper.h>
 #import <SentryHub.h>
-#import <SentryMetricKitManager.h>
 #import <SentryNSNotificationCenterWrapper.h>
 #import <SentrySDK+Private.h>
 #import <SentryScreenshot.h>
+#import <SentrySwift.h>
 #import <SentrySwizzleWrapper.h>
 #import <SentrySysctl.h>
 #import <SentryThreadWrapper.h>
