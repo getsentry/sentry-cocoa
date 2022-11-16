@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Crash in Client when reading integrations (#2397)
+- Crash in Client when reading integrations (#2398)
 
 ## 7.31.1
 
