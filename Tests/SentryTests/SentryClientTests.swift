@@ -1264,6 +1264,29 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(item, fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.additionalEnvelopeItems.first)
     }
     
+    @available(iOS 13.0, tvOS 13.0, OSX 10.15, * )
+    func testConcurrentlyAddingInstalledIntegrations_WhileSendingEvents() async {
+        let sut = fixture.getSut()
+        
+        let hub = SentryHub(client: sut, andScope: nil)
+        SentrySDK.setCurrentHub(hub)
+        
+        // Run this in a loop to ensure that add while iterating over the integrations
+        // Running it once doesn't guaranty failure
+        for _ in 0..<100 {
+            let install = Task {
+                for i in 0..<10_000 {
+                    hub.installedIntegrationNames.add("Integration\(i)")
+                }
+            }
+            
+            sut.capture(event: fixture.event)
+            install.cancel()
+            await install.value
+            hub.installedIntegrationNames.removeAllObjects()
+        }
+    }
+    
     private func givenEventWithDebugMeta() -> Event {
         let event = Event(level: SentryLevel.fatal)
         let debugMeta = DebugMeta()

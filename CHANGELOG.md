@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Crash in Client when reading integrations (#2397)
+
 ## 7.31.1
 
 ### Fixes

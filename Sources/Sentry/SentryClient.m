@@ -641,7 +641,13 @@ NSString *const kSentryDefaultEnvironment = @"production";
     id integrations = event.extra[@"__sentry_sdk_integrations"];
     if (!integrations) {
         integrations = [NSMutableArray new];
-        for (NSString *integration in SentrySDK.currentHub.installedIntegrationNames) {
+
+        // The SDK can send an event before it installs all integrations, which add to this list. To
+        // avoid an exception while iterating over a list while items get added to it, we copy it.
+        // With that approach, we might not have the complete integration list. To fix this, the SDK
+        // would need to ask all integrations first if they should be installed before actually
+        // installing them, which would be quite a bit a of a refactoring.
+        for (NSString *integration in SentrySDK.currentHub.installedIntegrationNames.copy) {
             // Every integration starts with "Sentry" and ends with "Integration". To keep the
             // payload of the event small we remove both.
             NSString *withoutSentry = [integration stringByReplacingOccurrencesOfString:@"Sentry"
