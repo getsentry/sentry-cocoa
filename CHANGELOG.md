@@ -5,6 +5,7 @@
 ### Fixes
 
 - Don't increase session's error count for dropped events (#2374)
+- Set the correct OOM event timestamp (#2394)
 
 ## 7.31.0
 
