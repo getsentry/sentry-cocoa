@@ -3,7 +3,7 @@ import XCTest
 class SentryUserTests: XCTestCase {
 
     func testSerializationWithAllProperties() {
-        let user = TestData.user.copy() as! User
+        let user = TestData.user.copy() as! SentryUser
         let actual = user.serialize()
 
         // Changing the original doesn't modify the serialized
@@ -23,7 +23,7 @@ class SentryUserTests: XCTestCase {
     }
     
     func testSerializationWithOnlyId() {
-        let user = User(userId: "someid")
+        let user = SentryUser(userId: "someid")
         let actual = user.serialize()
         
         XCTAssertEqual(user.userId, actual["id"] as? String)
@@ -31,7 +31,7 @@ class SentryUserTests: XCTestCase {
     }
 
     func testSerializationWithoutId() {
-        let user = User()
+        let user = SentryUser()
         let actual = user.serialize()
 
         XCTAssertNil(actual["id"] as? String)
@@ -55,7 +55,7 @@ class SentryUserTests: XCTestCase {
     }
     
     func testIsEqualToCopy() {
-        XCTAssertEqual(TestData.user, TestData.user.copy() as! User)
+        XCTAssertEqual(TestData.user, TestData.user.copy() as! SentryUser)
     }
     
     func testNotIsEqual() {
@@ -67,15 +67,15 @@ class SentryUserTests: XCTestCase {
         testIsNotEqual { user in user.data?.removeAll() }
     }
     
-    func testIsNotEqual(block: (User) -> Void ) {
-        let user = TestData.user.copy() as! User
+    func testIsNotEqual(block: (SentryUser) -> Void ) {
+        let user = TestData.user.copy() as! SentryUser
         block(user)
         XCTAssertNotEqual(TestData.user, user)
     }
     
     func testCopyWithZone_CopiesDeepCopy() {
         let user = TestData.user
-        let copiedUser = user.copy() as! User
+        let copiedUser = user.copy() as! SentryUser
         
         // Modifying the original does not change the copy
         user.userId = ""
@@ -98,7 +98,7 @@ class SentryUserTests: XCTestCase {
         let queue = DispatchQueue(label: "SentryScopeTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
         let group = DispatchGroup()
         
-        let user = TestData.user.copy() as! User
+        let user = TestData.user.copy() as! SentryUser
         
         for i in 0...20 {
             group.enter()

@@ -177,10 +177,10 @@ class SentryHubTests: XCTestCase {
     }
     
     func testAddUserToTheScope() {
-        let client = Client(options: fixture.options)
+        let client = SentryClient(options: fixture.options)
         let hub = SentryHub(client: client, andScope: Scope())
 
-        let user = User()
+        let user = SentryUser()
         user.userId = "123"
         hub.setUser(user)
 

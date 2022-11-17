@@ -1,6 +1,6 @@
 import Foundation
 
-class TestClient: Client {
+class TestClient: SentryClient {
     let sentryFileManager: SentryFileManager
     let queue = DispatchQueue(label: "TestClient", attributes: .concurrent)
 

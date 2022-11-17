@@ -7,6 +7,7 @@ This version introduces a dependency on Swift, which only impacts you if you don
 ### Features
 
 - Properly demangle Swift class name (#2162)
+- Renaming Client and User to SentryClient and SentryUser (#)
 
 ## 7.31.0
 

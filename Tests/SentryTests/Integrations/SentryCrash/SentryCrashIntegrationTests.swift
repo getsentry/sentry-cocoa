@@ -22,7 +22,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             options.dsn = SentryCrashIntegrationTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
             
-            let client = Client(options: options, permissionsObserver: TestSentryPermissionsObserver())
+            let client = SentryClient(options: options, permissionsObserver: TestSentryPermissionsObserver())
             hub = TestHub(client: client, andScope: nil)
         }
         
@@ -277,7 +277,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         api?.pointee.setEnabled(true)
         
         let transport = TestTransport()
-        let client = Client(options: fixture.options)
+        let client = SentryClient(options: fixture.options)
         Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
         hub.bindClient(client)
         

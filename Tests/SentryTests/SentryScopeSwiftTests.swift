@@ -3,7 +3,7 @@ import XCTest
 class SentryScopeSwiftTests: XCTestCase {
 
     private class Fixture {
-        let user: User
+        let user: SentryUser
         let breadcrumb: Breadcrumb
         let scope: Scope
         let date: Date
@@ -25,7 +25,7 @@ class SentryScopeSwiftTests: XCTestCase {
         init() {
             date = Date(timeIntervalSince1970: 10)
             
-            user = User(userId: "id")
+            user = SentryUser(userId: "id")
             user.email = "user@sentry.io"
             user.username = "user123"
             user.ipAddress = ipAddress
@@ -85,7 +85,7 @@ class SentryScopeSwiftTests: XCTestCase {
         scope.setTag(value: "another", key: "another")
         scope.setExtra(value: "another", key: "another")
         scope.setContext(value: ["": 1], key: "another")
-        scope.setUser(User())
+        scope.setUser(SentryUser())
         scope.setDist("")
         scope.setEnvironment("")
         scope.setFingerprint([])
@@ -563,8 +563,8 @@ class SentryScopeSwiftTests: XCTestCase {
             clearInvocations += 1
         }
         
-        var user: User?
-        func setUser(_ user: User?) {
+        var user: SentryUser?
+        func setUser(_ user: SentryUser?) {
             self.user = user
         }
     }

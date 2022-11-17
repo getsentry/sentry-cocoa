@@ -488,7 +488,7 @@ class SentrySDKTests: XCTestCase {
         }
         
         let transport = TestTransport()
-        let client = Client(options: fixture.options)
+        let client = SentryClient(options: fixture.options)
         Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
         SentrySDK.currentHub().bindClient(client)
         

@@ -21,7 +21,7 @@ class SentryClientTest: XCTestCase {
         let messageAsString = "message"
         let message: SentryMessage
         
-        let user: User
+        let user: SentryUser
         let fileManager: SentryFileManager
         let random = TestRandom(value: 1.0)
         
@@ -42,7 +42,7 @@ class SentryClientTest: XCTestCase {
             event = Event()
             event.message = message
             
-            user = User()
+            user = SentryUser()
             user.email = "someone@sentry.io"
             user.ipAddress = "127.0.0.1"
             
@@ -56,15 +56,15 @@ class SentryClientTest: XCTestCase {
             transportAdapter = TestTransportAdapter(transport: transport, options: options)
         }
 
-        func getSut(configureOptions: (Options) -> Void = { _ in }) -> Client {
-            var client: Client!
+        func getSut(configureOptions: (Options) -> Void = { _ in }) -> SentryClient {
+            var client: SentryClient!
             do {
                 let options = try Options(dict: [
                     "dsn": SentryClientTest.dsn
                 ])
                 configureOptions(options)
 
-                client = Client(
+                client = SentryClient(
                     options: options,
                     transportAdapter: transportAdapter,
                     fileManager: fileManager,
@@ -83,13 +83,13 @@ class SentryClientTest: XCTestCase {
             return client
         }
 
-        func getSutWithNoDsn() -> Client {
+        func getSutWithNoDsn() -> SentryClient {
             getSut(configureOptions: { options in
                 options.parsedDsn = nil
             })
         }
         
-        func getSutDisabledSdk() -> Client {
+        func getSutDisabledSdk() -> SentryClient {
             getSut(configureOptions: { options in
                 options.enabled = false
             })
@@ -1080,7 +1080,7 @@ class SentryClientTest: XCTestCase {
         
         let options = Options()
         options.dsn = SentryClientTest.dsn
-        let client = Client(options: options, permissionsObserver: TestSentryPermissionsObserver())
+        let client = SentryClient(options: options, permissionsObserver: TestSentryPermissionsObserver())
         
         XCTAssertNil(client)
         
@@ -1282,7 +1282,7 @@ class SentryClientTest: XCTestCase {
         return event
     }
     
-    private func beforeSendReturnsNil(capture: (Client) -> Void) {
+    private func beforeSendReturnsNil(capture: (SentryClient) -> Void) {
         capture(fixture.getSut(configureOptions: { options in
             options.beforeSend = { _ in
                 nil
