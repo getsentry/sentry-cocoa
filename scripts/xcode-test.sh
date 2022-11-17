@@ -1,5 +1,5 @@
 #!/bin/bash
-set -uo pipefail
+set -uox pipefail
 
 # This is a helper script for GitHub Actions Matrix.
 # If we would specify the destinations in the GitHub Actions
@@ -11,8 +11,8 @@ set -uo pipefail
 PLATFORM="${1}"
 OS=${2:-latest}
 REF_NAME="${3}"
-IS_LOCAL_BUILD="${4:-ci}"
-DEVICE_OVERRIDE="${5:-}"
+DEVICE_OVERRIDE="${4:-}"
+IS_LOCAL_BUILD="${5:-ci}"
 DESTINATION=""
 IOS_DEVICE="iPhone 8"
 CONFIGURATION=""
