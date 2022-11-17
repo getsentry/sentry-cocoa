@@ -653,6 +653,54 @@ class SentryHubTests: XCTestCase {
         group.waitWithTimeout()
     }
     
+    @available(iOS 13.0, tvOS 15.0, OSX 12.0, * )
+    func testModifyIntegrationsConcurrently() async {
+        let sut = fixture.getSut()
+        
+        let outerLoopAmount = 10
+        let innerLoopAmount = 100
+        
+        await withTaskGroup(of: Void.self) { group in
+            for i in 0..<outerLoopAmount {
+                group.addTask {
+                    for j in 0..<innerLoopAmount {
+                        let integrationName = "Integration\(i)\(j)"
+                        sut.addInstalledIntegration(EmptyIntegration(), name: integrationName)
+                        XCTAssertTrue(sut.hasIntegration(integrationName))
+                    }
+                }
+            }
+        }
+        
+        XCTAssertEqual(innerLoopAmount * outerLoopAmount, sut.installedIntegrations.count)
+        XCTAssertEqual(innerLoopAmount * outerLoopAmount, sut.installedIntegrationNames.count)
+    }
+    
+    /**
+     * This test only ensures concurrent modifications don't crash.
+     */
+    @available(iOS 13.0, tvOS 15.0, OSX 12.0, * )
+    func testModifyIntegrationsConcurrently_NoCrash() {
+        let sut = fixture.getSut()
+        
+        for i in 0..<1_000 {
+            Task {
+                for j in 0..<10 {
+                    let integrationName = "Integration\(i)\(j)"
+                    sut.addInstalledIntegration(EmptyIntegration(), name: integrationName)
+                    sut.hasIntegration(integrationName)
+                    sut.isIntegrationInstalled(EmptyIntegration.self)
+                }
+                XCTAssertLessThanOrEqual(0, sut.installedIntegrations.count)
+                sut.installedIntegrations.forEach { XCTAssertNotNil($0) }
+                
+                XCTAssertLessThanOrEqual(0, sut.installedIntegrationNames.count)
+                sut.installedIntegrationNames.forEach { XCTAssertNotNil($0) }
+                sut.removeAllIntegrations()
+            }
+        }
+    }
+    
     private func captureEventEnvelope(level: SentryLevel) {
         let event = TestData.event
         event.level = level

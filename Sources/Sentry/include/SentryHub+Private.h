@@ -8,9 +8,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryHub (Private)
 
-@property (nonatomic, strong)
-    NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
-@property (nonatomic, strong) NSMutableArray<NSString *> *installedIntegrationNames;
+@property (nonatomic, strong) NSArray<id<SentryIntegrationProtocol>> *installedIntegrations;
+@property (nonatomic, strong) NSSet<NSString *> *installedIntegrationNames;
+
+- (void)addInstalledIntegration:(id<SentryIntegrationProtocol>)integration name:(NSString *)name;
+- (void)removeAllIntegrations;
 
 - (SentryClient *_Nullable)client;
 

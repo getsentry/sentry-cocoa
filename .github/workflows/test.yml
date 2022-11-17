@@ -82,8 +82,8 @@ jobs:
           # iOS 14
           - runs-on: macos-11
             platform: 'iOS'
-            xcode: '12.5.1'
-            test-destination-os: 'latest'
+            xcode: '13.2.1'
+            test-destination-os: '14.5'
             timeout-minutes: 15
 
           # iOS 15
@@ -163,6 +163,13 @@ jobs:
           sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
           sudo ln -s /Applications/Xcode_11.7.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 13.7.simruntime
           xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-13-7"
+
+      - name: Prepare iOS 14.5 simulator
+        if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '14.5'}}
+        run: |
+          sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
+          sudo ln -s /Applications/Xcode_12.5.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 14.5.simruntime
+          xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-14-5"
 
       - name: Running tests
         # We call a script with the platform so the destination
