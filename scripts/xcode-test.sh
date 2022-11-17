@@ -12,7 +12,9 @@ PLATFORM="${1}"
 OS=${2:-latest}
 REF_NAME="${3}"
 IS_LOCAL_BUILD="${4:-ci}"
+DEVICE_OVERRIDE="${5:-}"
 DESTINATION=""
+IOS_DEVICE="iPhone 8"
 CONFIGURATION=""
 
 case $PLATFORM in
@@ -26,15 +28,18 @@ case $PLATFORM in
         ;;
 
     "iOS")
-        DESTINATION="platform=iOS Simulator,OS=$OS,name=iPhone 8"
+        if [[ -n $DEVICE_OVERRIDE ]]; then
+            IOS_DEVICE=$DEVICE_OVERRIDE
+        fi
+        DESTINATION="platform=iOS Simulator,OS=$OS,name=$IOS_DEVICE"
         ;;
 
     "tvOS")
         DESTINATION="platform=tvOS Simulator,OS=$OS,name=Apple TV"
         ;;
-    
+
     *)
-        echo "Xcode Test: Can't find destination for platform '$PLATFORM'"; 
+        echo "Xcode Test: Can't find destination for platform '$PLATFORM'";
         exit 1;
         ;;
 esac
