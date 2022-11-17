@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Don't update session for dropped events (#2374)
+
 ## 7.31.1
 
 ### Fixes

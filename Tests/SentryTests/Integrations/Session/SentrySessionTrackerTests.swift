@@ -217,16 +217,16 @@ class SentrySessionTrackerTests: XCTestCase {
         let startTime = fixture.currentDateProvider.date()
         sut.start()
         goToForeground()
-        
+
         advanceTime(bySeconds: 1)
         captureError()
         advanceTime(bySeconds: 1)
-        
+
         goToBackground()
         captureError()
         advanceTime(bySeconds: 10)
         goToForeground()
-        
+
         assertEndSessionSent(started: startTime, duration: 2, errors: 2)
     }
     
@@ -509,10 +509,10 @@ class SentrySessionTrackerTests: XCTestCase {
         
         var sessions = fixture.client.captureSessionInvocations.invocations + eventWithSessions + errorWithSessions + exceptionWithSessions
         
-        sessions.sort { first, second in return first.started < second.started }
+        sessions.sort { first, second in return first!.started < second!.started }
         
         if let session = sessions.last {
-            XCTAssertFalse(session.flagInit?.boolValue ?? false)
+            XCTAssertFalse(session?.flagInit?.boolValue ?? false)
         }
     }
     
