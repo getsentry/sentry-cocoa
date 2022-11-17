@@ -5,6 +5,7 @@
 ### Fixes
 
 - Crash in Client when reading integrations (#2398)
+- Don't update session for dropped events (#2374)
 
 ## 7.31.1
 

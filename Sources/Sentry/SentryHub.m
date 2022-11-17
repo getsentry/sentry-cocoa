@@ -439,11 +439,13 @@ SentryHub ()
 
 - (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
 {
-    SentrySession *currentSession = [self incrementSessionErrors];
+    SentrySession *currentSession = _session;
     SentryClient *client = _client;
     if (nil != client) {
         if (nil != currentSession) {
-            return [client captureError:error withSession:currentSession withScope:scope];
+            return [client captureError:error
+                              withScope:scope
+                 incrementSessionErrors:^(void) { return [self incrementSessionErrors]; }];
         } else {
             return [client captureError:error withScope:scope];
         }
@@ -458,12 +460,13 @@ SentryHub ()
 
 - (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope
 {
-    SentrySession *currentSession = [self incrementSessionErrors];
-
+    SentrySession *currentSession = _session;
     SentryClient *client = _client;
     if (nil != client) {
         if (nil != currentSession) {
-            return [client captureException:exception withSession:currentSession withScope:scope];
+            return [client captureException:exception
+                                  withScope:scope
+                     incrementSessionErrors:^(void) { return [self incrementSessionErrors]; }];
         } else {
             return [client captureException:exception withScope:scope];
         }
