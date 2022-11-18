@@ -184,12 +184,18 @@ NSString *const kSentryDefaultEnvironment = @"production";
 }
 
 - (SentryId *)captureException:(NSException *)exception
-                   withSession:(SentrySession *)session
                      withScope:(SentryScope *)scope
+        incrementSessionErrors:(SentrySession * (^)(void))sessionBlock
 {
     SentryEvent *event = [self buildExceptionEvent:exception];
     event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
-    return [self sendEvent:event withSession:session withScope:scope];
+
+    if (event != nil) {
+        SentrySession *session = sessionBlock();
+        return [self sendEvent:event withSession:session withScope:scope];
+    }
+
+    return SentryId.empty;
 }
 
 - (SentryEvent *)buildExceptionEvent:(NSException *)exception
@@ -215,12 +221,18 @@ NSString *const kSentryDefaultEnvironment = @"production";
 }
 
 - (SentryId *)captureError:(NSError *)error
-               withSession:(SentrySession *)session
                  withScope:(SentryScope *)scope
+    incrementSessionErrors:(SentrySession * (^)(void))sessionBlock
 {
     SentryEvent *event = [self buildErrorEvent:error];
     event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
-    return [self sendEvent:event withSession:session withScope:scope];
+
+    if (event != nil) {
+        SentrySession *session = sessionBlock();
+        return [self sendEvent:event withSession:session withScope:scope];
+    }
+
+    return SentryId.empty;
 }
 
 - (SentryEvent *)buildErrorEvent:(NSError *)error
@@ -399,10 +411,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
         [self.transportAdapter sendEvent:event session:session attachments:attachments];
 
         return event.eventId;
-    } else {
-        [self captureSession:session];
-        return SentryId.empty;
     }
+
+    return SentryId.empty;
 }
 
 - (void)captureSession:(SentrySession *)session
@@ -641,6 +652,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     id integrations = event.extra[@"__sentry_sdk_integrations"];
     if (!integrations) {
         integrations = [NSMutableArray new];
+
         for (NSString *integration in SentrySDK.currentHub.installedIntegrationNames) {
             // Every integration starts with "Sentry" and ends with "Integration". To keep the
             // payload of the event small we remove both.

@@ -8,6 +8,11 @@ This version introduces a dependency on Swift, which only impacts you if you don
 
 - Properly demangle Swift class name (#2162)
 
+### Fixes
+
+- Crash in Client when reading integrations (#2398)
+- Don't update session for dropped events (#2374)
+
 ## 7.31.1
 
 ### Fixes
