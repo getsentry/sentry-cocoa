@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Breaking Changes
+
+- Removed `- [SentryOptions initWithDict:didFailWithError:]` (#2404)
+- Removed `- [SentrySDK startWithOptions:]` (#2404)
+- Removed deprecated `- [SentryOptions sdkInfo]` (#2404)
+
 ### Fixes
 
 - Crash in Client when reading integrations (#2398)
