@@ -10,9 +10,8 @@ set -uox pipefail
 
 PLATFORM="${1}"
 OS=${2:-latest}
-REF_NAME="${3}"
-DEVICE_OVERRIDE="${4:-}"
-IS_LOCAL_BUILD="${5:-ci}"
+REF_NAME="${3-HEAD}"
+IS_LOCAL_BUILD="${4:-ci}"
 DESTINATION=""
 IOS_DEVICE="iPhone 8"
 CONFIGURATION=""
@@ -28,10 +27,7 @@ case $PLATFORM in
         ;;
 
     "iOS")
-        if [[ -n $DEVICE_OVERRIDE ]]; then
-            IOS_DEVICE=$DEVICE_OVERRIDE
-        fi
-        DESTINATION="platform=iOS Simulator,OS=$OS,name=$IOS_DEVICE"
+        DESTINATION="platform=iOS Simulator,OS=$OS,name=iPhone 8"
         ;;
 
     "tvOS")
