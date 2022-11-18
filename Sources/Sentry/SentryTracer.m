@@ -325,7 +325,7 @@ static BOOL appStartMeasurementRead;
 #endif
 }
 
-- (nullable NSDictionary<NSString *, id> *)data
+- (NSDictionary<NSString *, id> *)data
 {
     @synchronized(_data) {
         return [_data copy];

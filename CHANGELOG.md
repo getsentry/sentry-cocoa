@@ -4,6 +4,10 @@
 
 This version introduces a dependency on Swift, which only impacts you if you don't use Swift. If your project uses Swift already, this change will not affect you.
 
+### Breaking Changes
+
+- Make SpanProtocol.data non nullable (#)
+
 ### Features
 
 - Properly demangle Swift class name (#2162)

@@ -27,7 +27,7 @@ NS_SWIFT_NAME(Span)
 /**
  * An arbitrary mapping of additional metadata of the span.
  */
-@property (nullable, readonly) NSDictionary<NSString *, id> *data;
+@property (readonly) NSDictionary<NSString *, id> *data;
 
 /**
  * key-value pairs holding additional data about the span.
