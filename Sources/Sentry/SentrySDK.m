@@ -128,19 +128,6 @@ static NSUInteger startInvocations;
     startInvocations = value;
 }
 
-+ (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict
-{
-    NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:optionsDict
-                                                didFailWithError:&error];
-    if (nil != error) {
-        SENTRY_LOG_ERROR(@"Error while initializing the SDK");
-        SENTRY_LOG_ERROR(@"%@", error);
-    } else {
-        [SentrySDK startWithOptionsObject:options];
-    }
-}
-
 + (void)startWithOptionsObject:(SentryOptions *)options
 {
     startInvocations++;

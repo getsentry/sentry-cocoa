@@ -8,13 +8,8 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
 
-/**
- * Init SentryOptions.
- * @param options Options dictionary
- * @return SentryOptions
- */
-- (_Nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)options
-                      didFailWithError:(NSError *_Nullable *_Nullable)error;
+- (_Nullable instancetype)initWithDsn:(NSString *)dsn
+                     didFailWithError:(NSError *_Nullable *_Nullable)error;
 
 /**
  * The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
@@ -163,13 +158,6 @@ NS_SWIFT_NAME(Options)
  * This feature is disabled by default.
  */
 @property (nonatomic, assign) BOOL stitchAsyncCode;
-
-/**
- * Describes the Sentry SDK and its configuration used to capture and transmit an event.
- * This is reserved for internal use, and will be removed in a future version of the SDK.
- */
-@property (nonatomic, readonly, strong) SentrySdkInfo *sdkInfo DEPRECATED_MSG_ATTRIBUTE(
-    "This property will be removed in a future version of the SDK");
 
 /**
  * The maximum size for each attachment in bytes. Default is 20 MiB / 20 * 1024 * 1024 bytes.
