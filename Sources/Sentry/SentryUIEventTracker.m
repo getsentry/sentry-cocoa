@@ -102,11 +102,11 @@ SentryUIEventTracker ()
 
             __block SentryTracer *transaction;
             [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-                BOOL ongoingScreenLoadTransaction = span != nil &&
-                    [span.context.operation isEqualToString:SentrySpanOperationUILoad];
+                BOOL ongoingScreenLoadTransaction
+                    = span != nil && [span.operation isEqualToString:SentrySpanOperationUILoad];
                 BOOL ongoingManualTransaction = span != nil
-                    && ![span.context.operation isEqualToString:SentrySpanOperationUILoad]
-                    && ![span.context.operation containsString:SentrySpanOperationUIAction];
+                    && ![span.operation isEqualToString:SentrySpanOperationUILoad]
+                    && ![span.operation containsString:SentrySpanOperationUIAction];
 
                 BOOL bindToScope = !ongoingScreenLoadTransaction && !ongoingManualTransaction;
                 transaction =

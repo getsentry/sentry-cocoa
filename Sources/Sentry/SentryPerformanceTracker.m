@@ -67,7 +67,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> span) {
             BOOL bindToScope = true;
             if (span != nil) {
-                if ([SentryUIEventTracker isUIEventOperation:span.context.operation]) {
+                if ([SentryUIEventTracker isUIEventOperation:span.operation]) {
                     [span finishWithStatus:kSentrySpanStatusCancelled];
                 } else {
                     bindToScope = false;
@@ -85,7 +85,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
         }];
     }
 
-    SentrySpanId *spanId = newSpan.context.spanId;
+    SentrySpanId *spanId = newSpan.spanId;
 
     if (spanId != nil) {
         @synchronized(self.spans) {
@@ -164,7 +164,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
 - (nullable SentrySpanId *)activeSpanId
 {
     @synchronized(self.activeSpanStack) {
-        return [self.activeSpanStack lastObject].context.spanId;
+        return [self.activeSpanStack lastObject].spanId;
     }
 }
 

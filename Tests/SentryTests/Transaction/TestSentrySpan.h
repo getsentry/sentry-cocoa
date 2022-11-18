@@ -1,8 +1,11 @@
+#import "SentrySpan.h"
 #import "SentrySpanProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface TestSentrySpan : NSObject <SentrySpan>
+@interface TestSentrySpan : SentrySpan
+
+- (instancetype)init;
 
 @end
 

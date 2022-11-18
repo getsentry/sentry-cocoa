@@ -211,19 +211,19 @@
     XCTAssertEqual(parentTransaction.children.count, 1);
     XCTAssertEqual([ioSpan.data[@"file.size"] unsignedIntValue], someData.length);
     XCTAssertEqualObjects(ioSpan.data[@"file.path"], filePath);
-    XCTAssertEqualObjects(operation, ioSpan.context.operation);
+    XCTAssertEqualObjects(operation, ioSpan.operation);
 
     NSString *filename = filePath.lastPathComponent;
 
     if ([operation isEqualToString:SENTRY_FILE_READ_OPERATION]) {
-        XCTAssertEqualObjects(ioSpan.context.spanDescription, filename);
+        XCTAssertEqualObjects(ioSpan.spanDescription, filename);
     } else {
         NSString *expectedString = [NSString
             stringWithFormat:@"%@ (%@)", filename,
             [NSByteCountFormatter stringFromByteCount:someData.length
                                            countStyle:NSByteCountFormatterCountStyleBinary]];
 
-        XCTAssertEqualObjects(ioSpan.context.spanDescription, expectedString);
+        XCTAssertEqualObjects(ioSpan.spanDescription, expectedString);
     }
 }
 

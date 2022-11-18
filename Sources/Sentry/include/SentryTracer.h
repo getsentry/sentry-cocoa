@@ -23,9 +23,40 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 @property (nonatomic, strong) SentryTransactionContext *transactionContext;
 
 /**
- * The context information of the span.
+ * Determines which trace the Span belongs to.
  */
-@property (nonatomic, readonly) SentrySpanContext *context;
+@property (nonatomic) SentryId *traceId;
+
+/**
+ * Span id.
+ */
+@property (nonatomic) SentrySpanId *spanId;
+
+/**
+ * Id of a parent span.
+ */
+@property (nullable, nonatomic) SentrySpanId *parentSpanId;
+
+/**
+ * If trace is sampled.
+ */
+@property (nonatomic) SentrySampleDecision sampled;
+
+/**
+ * Short code identifying the type of operation the span is measuring.
+ */
+@property (nonatomic, copy) NSString *operation;
+
+/**
+ * Longer description of the span's operation, which uniquely identifies the span but is
+ * consistent across instances of the span.
+ */
+@property (nullable, nonatomic, copy) NSString *spanDescription;
+
+/**
+ * Describes the status of the Transaction.
+ */
+@property (nonatomic) SentrySpanStatus status;
 
 /**
  * The timestamp of which the span ended.

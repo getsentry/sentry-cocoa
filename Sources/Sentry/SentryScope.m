@@ -531,7 +531,7 @@ SentryScope ()
                 [span isKindOfClass:[SentryTracer class]]) {
                 event.transaction = [[(SentryTracer *)span transactionContext] name];
             }
-            newContext[@"trace"] = [span.context serialize];
+            newContext[@"trace"] = [span serialize];
         }
     }
     event.context = newContext;
