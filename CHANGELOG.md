@@ -6,7 +6,7 @@ This version introduces a dependency on Swift, which only impacts you if you don
 
 ### Breaking Changes
 
-- Make SpanContext immutable (#)
+- Make SpanContext immutable (#2408)
     - Remove tags from SpanContext 
     - Remove context property from SentrySpan
 
