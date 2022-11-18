@@ -384,7 +384,7 @@ class SentryHubTests: XCTestCase {
         if let errorArguments = fixture.client.captureErrorWithSessionInvocations.first {
             XCTAssertEqual(fixture.error, errorArguments.error as NSError)
             
-            XCTAssertEqual(1, errorArguments.session?.errors)
+            XCTAssertEqual(true, errorArguments.session?.errors)
             XCTAssertEqual(SentrySessionStatus.ok, errorArguments.session?.status)
             
             XCTAssertEqual(fixture.scope, errorArguments.scope)
@@ -450,7 +450,7 @@ class SentryHubTests: XCTestCase {
         if let exceptionArguments = fixture.client.captureExceptionWithSessionInvocations.first {
             XCTAssertEqual(fixture.exception, exceptionArguments.exception)
             
-            XCTAssertEqual(1, exceptionArguments.session?.errors)
+            XCTAssertEqual(true, exceptionArguments.session?.errors)
             XCTAssertEqual(SentrySessionStatus.ok, exceptionArguments.session?.status)
             
             XCTAssertEqual(fixture.scope, exceptionArguments.scope)
@@ -475,46 +475,6 @@ class SentryHubTests: XCTestCase {
 
         // only session init is sent
         XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
-    }
-    
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
-    func testCaptureMultipleExceptionWithSessionInParallel() {
-        let captureCount = 100
-        captureConcurrentWithSession(count: captureCount) { sut in
-            sut.capture(exception: self.fixture.exception, scope: self.fixture.scope)
-        }
-        
-        let invocations = fixture.client.captureExceptionWithSessionInvocations.invocations
-        XCTAssertEqual(captureCount, invocations.count)
-        for i in 1...captureCount {
-            // The session error count must not be in order as we use a concurrent DispatchQueue
-            XCTAssertTrue(
-                invocations.contains { $0.session!.errors == i },
-                "No session captured with \(i) amount of errors."
-            )
-        }
-    }
-    
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
-    func testCaptureMultipleErrorsWithSessionInParallel() {
-        let captureCount = 100
-        captureConcurrentWithSession(count: captureCount) { sut in
-            sut.capture(error: self.fixture.error, scope: self.fixture.scope)
-        }
-        
-        let invocations = fixture.client.captureErrorWithSessionInvocations.invocations
-        XCTAssertEqual(captureCount, invocations.count)
-        for i in 1..<captureCount {
-            // The session error count must not be in order as we use a concurrent DispatchQueue
-            XCTAssertTrue(
-                invocations.contains { $0.session!.errors == i },
-                "No session captured with \(i) amount of errors."
-            )
-        }
     }
     
     func testCaptureClientIsNil_ReturnsEmptySentryId() {
@@ -665,28 +625,6 @@ class SentryHubTests: XCTestCase {
         })
     }
 
-    // Although we only run this test above the below specified versions, we expect the
-    // implementation to be thread safe
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
-    private func captureConcurrentWithSession(count: Int, _ capture: @escaping (SentryHub) -> Void) {
-        let sut = fixture.getSut()
-        sut.startSession()
-
-        let queue = fixture.queue
-        let group = DispatchGroup()
-        for _ in 0..<count {
-            group.enter()
-            queue.async {
-                capture(sut)
-                group.leave()
-            }
-        }
-
-        group.waitWithTimeout()
-    }
-    
     @available(iOS 10.0, tvOS 10.0, OSX 10.12, *)
     func testModifyIntegrationsConcurrently() {
         
@@ -839,7 +777,7 @@ class SentryHubTests: XCTestCase {
         let envelope = fixture.client.captureEnvelopeInvocations.first!
         XCTAssertEqual(2, envelope.items.count)
         let session = SentrySerialization.session(with: envelope.items[1].data)
-        XCTAssertEqual(1, session?.errors)
+        XCTAssertEqual(true, session?.errors)
     }
     
     private func assertNoSessionAddedToCapturedEnvelope() {

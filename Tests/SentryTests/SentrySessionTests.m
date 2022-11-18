@@ -12,7 +12,7 @@
     SentrySession *session = [[SentrySession alloc] initWithReleaseName:@"1.0.0"];
     XCTAssertNotNil(session.sessionId);
     XCTAssertEqual(1, session.sequence);
-    XCTAssertEqual(0, session.errors);
+    XCTAssertEqual(NO, session.errors);
     XCTAssertTrue(session.flagInit);
     XCTAssertNotNil(session.started);
     XCTAssertEqual(kSentrySessionStatusOk, session.status);

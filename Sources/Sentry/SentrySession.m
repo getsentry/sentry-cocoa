@@ -37,7 +37,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
         _started = [SentryCurrentDate date];
         _status = kSentrySessionStatusOk;
         _sequence = 1;
-        _errors = 0;
+        _errors = NO;
         _distinctId = [SentryInstallation id];
     }
 
@@ -97,7 +97,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
         id errors = [jsonObject valueForKey:@"errors"];
         if (errors == nil || ![errors isKindOfClass:[NSNumber class]])
             return nil;
-        _errors = [errors unsignedIntegerValue];
+        _errors = [errors boolValue];
 
         id did = [jsonObject valueForKey:@"did"];
         if (did == nil || ![did isKindOfClass:[NSString class]])
@@ -186,8 +186,10 @@ nameForSentrySessionStatus(SentrySessionStatus status)
 - (void)incrementErrors
 {
     @synchronized(self) {
-        [self changed];
-        _errors++;
+        if (!_errors) {
+            [self changed];
+            _errors = YES;
+        }
     }
 }
 

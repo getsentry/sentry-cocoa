@@ -401,7 +401,7 @@ class SentrySDKTests: XCTestCase {
         let actual = fixture.client.captureSessionInvocations.invocations[1]
         
         XCTAssertNil(actual.flagInit)
-        XCTAssertEqual(0, actual.errors)
+        XCTAssertEqual(false, actual.errors)
         XCTAssertEqual(2, actual.sequence)
         XCTAssertEqual(SentrySessionStatus.exited, actual.status)
         XCTAssertEqual(fixture.options.releaseName ?? "", actual.releaseName)
