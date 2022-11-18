@@ -191,14 +191,6 @@ SentryOptions ()
     }
 }
 
-- (void)setBool:(id)value block:(void (^)(BOOL))block
-{
-    // Entries in the dictionary can be NSNull. Especially, on React-Native, this can happen.
-    if (value != nil && ![value isEqual:[NSNull null]]) {
-        block([value boolValue]);
-    }
-}
-
 - (void)addInAppInclude:(NSString *)inAppInclude
 {
     _inAppIncludes = [self.inAppIncludes arrayByAddingObject:inAppInclude];
