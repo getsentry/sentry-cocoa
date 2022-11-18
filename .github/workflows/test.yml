@@ -257,14 +257,14 @@ jobs:
         run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} && break ; done
         shell: sh
 
-# TODO: adapt matrix parameters and figure out where logs go from fastlane
-#      - name: Archiving Raw Test Logs
-#        uses: actions/upload-artifact@v3
-#        if: ${{  failure() || cancelled() }}
-#        with:
-#          name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
-#          path: |
-#            raw-test-output.log
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@v3
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            ~/Library/Logs/scan/*.log
+            ./fastlane/test_output/**
 
   # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:
@@ -291,14 +291,14 @@ jobs:
         run: for i in {1..2}; do fastlane ui_tests_ios_swiftui device:"${{matrix.device}}" && break ; done
         shell: sh
 
-# TODO: adapt matrix parameters and figure out where logs go from fastlane
-#      - name: Archiving Raw Test Logs
-#        uses: actions/upload-artifact@v3
-#        if: ${{  failure() || cancelled() }}
-#        with:
-#          name: raw-swiftui-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
-#          path: |
-#            raw-test-output.log
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@v3
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: raw-swiftui-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            ~/Library/Logs/scan/*.log
+            ./fastlane/test_output/**
 
   # macos-11 doesn't have a simulator for iOS 12
   ui-tests-swift-ios-12:
@@ -323,14 +323,14 @@ jobs:
         run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} device:"iPhone 8 (12.4)" address_sanitizer:false && break ; done
         shell: sh
 
-# TODO: adapt matrix parameters and figure out where logs go from fastlane
-#      - name: Archiving Raw Test Logs
-#        uses: actions/upload-artifact@v3
-#        if: ${{  failure() || cancelled() }}
-#        with:
-#          name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
-#          path: |
-#            raw-test-output.log
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@v3
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            ~/Library/Logs/scan/*.log
+            ./fastlane/test_output/**
 
   ui-tests-address-sanitizer:
     name: UI Tests with Address Sanitizer
@@ -345,11 +345,11 @@ jobs:
         run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"$iPhone 8 (15.5)" address_sanitizer:true && break ; done
         shell: sh
 
-# TODO: adapt matrix parameters and figure out where logs go from fastlane
-#      - name: Archiving Raw Test Logs
-#        uses: actions/upload-artifact@v3
-#        if: ${{  failure() || cancelled() }}
-#        with:
-#          name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
-#          path: |
-#            raw-test-output.log
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@v3
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            ~/Library/Logs/scan/*.log
+            ./fastlane/test_output/**
