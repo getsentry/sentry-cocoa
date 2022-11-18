@@ -22,6 +22,7 @@ class SentryHubTests: XCTestCase {
         let transactionName = "Some Transaction"
         let transactionOperation = "Some Operation"
         let random = TestRandom(value: 0.5)
+        let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
         
         init() {
             options = Options()
@@ -673,8 +674,7 @@ class SentryHubTests: XCTestCase {
         let sut = fixture.getSut()
         sut.startSession()
 
-        let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
-
+        let queue = fixture.queue
         let group = DispatchGroup()
         for _ in 0..<count {
             group.enter()
@@ -685,6 +685,69 @@ class SentryHubTests: XCTestCase {
         }
 
         group.waitWithTimeout()
+    }
+    
+    @available(iOS 10.0, tvOS 10.0, OSX 10.12, *)
+    func testModifyIntegrationsConcurrently() {
+        
+        let sut = fixture.getSut()
+        
+        let outerLoopAmount = 10
+        let innerLoopAmount = 100
+        
+        let queue = fixture.queue
+        let group = DispatchGroup()
+    
+        for i in 0..<outerLoopAmount {
+            group.enter()
+            queue.async {
+                for j in 0..<innerLoopAmount {
+                    let integrationName = "Integration\(i)\(j)"
+                    sut.addInstalledIntegration(EmptyIntegration(), name: integrationName)
+                    XCTAssertTrue(sut.hasIntegration(integrationName))
+                }
+                group.leave()
+            }
+        }
+        
+        group.waitWithTimeout()
+        
+        XCTAssertEqual(innerLoopAmount * outerLoopAmount, sut.installedIntegrations.count)
+        XCTAssertEqual(innerLoopAmount * outerLoopAmount, sut.installedIntegrationNames.count)
+        
+    }
+    
+    /**
+     * This test only ensures concurrent modifications don't crash.
+     */
+    @available(iOS 10.0, tvOS 10.0, OSX 10.12, *)
+    func testModifyIntegrationsConcurrently_NoCrash() {
+        let sut = fixture.getSut()
+        
+        let queue = fixture.queue
+        let group = DispatchGroup()
+        
+        for i in 0..<1_000 {
+            group.enter()
+            queue.async {
+                for j in 0..<10 {
+                    let integrationName = "Integration\(i)\(j)"
+                    sut.addInstalledIntegration(EmptyIntegration(), name: integrationName)
+                    sut.hasIntegration(integrationName)
+                    sut.isIntegrationInstalled(EmptyIntegration.self)
+                }
+                XCTAssertLessThanOrEqual(0, sut.installedIntegrations.count)
+                sut.installedIntegrations.forEach { XCTAssertNotNil($0) }
+                
+                XCTAssertLessThanOrEqual(0, sut.installedIntegrationNames.count)
+                sut.installedIntegrationNames.forEach { XCTAssertNotNil($0) }
+                sut.removeAllIntegrations()
+                
+                group.leave()
+            }
+        }
+        
+        group.wait()
     }
     
     private func captureEventEnvelope(level: SentryLevel) {

@@ -387,10 +387,10 @@ static NSUInteger startInvocations;
         }
         id<SentryIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
         BOOL shouldInstall = [integrationInstance installWithOptions:options];
+
         if (shouldInstall) {
             SENTRY_LOG_DEBUG(@"Integration installed: %@", integrationName);
-            [SentrySDK.currentHub.installedIntegrations addObject:integrationInstance];
-            [SentrySDK.currentHub.installedIntegrationNames addObject:integrationName];
+            [SentrySDK.currentHub addInstalledIntegration:integrationInstance name:integrationName];
         }
     }
 }
@@ -407,7 +407,6 @@ static NSUInteger startInvocations;
 {
     // pop the hub and unset
     SentryHub *hub = SentrySDK.currentHub;
-    [SentrySDK setCurrentHub:nil];
 
     // uninstall all the integrations
     for (NSObject<SentryIntegrationProtocol> *integration in hub.installedIntegrations) {
@@ -415,12 +414,14 @@ static NSUInteger startInvocations;
             [integration uninstall];
         }
     }
-    [hub.installedIntegrations removeAllObjects];
+    [hub removeAllIntegrations];
 
     // close the client
     SentryClient *client = [hub getClient];
     client.options.enabled = NO;
     [hub bindClient:nil];
+
+    [SentrySDK setCurrentHub:nil];
 
     [SentryDependencyContainer reset];
 

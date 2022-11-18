@@ -32,6 +32,7 @@ class SentryClientTest: XCTestCase {
         let deviceWrapper = TestSentryUIDeviceWrapper()
         let locale = Locale(identifier: "en_US")
         let timezone = TimeZone(identifier: "Europe/Vienna")!
+        let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
         
         init() {
             session = SentrySession(releaseName: "release")
@@ -1289,6 +1290,41 @@ class SentryClientTest: XCTestCase {
         client.capture(event: event, scope: Scope(), additionalEnvelopeItems: [item])
         
         XCTAssertEqual(item, fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.additionalEnvelopeItems.first)
+    }
+    
+    @available(iOS 10.0, tvOS 10.0, OSX 10.12, *)
+    func testConcurrentlyAddingInstalledIntegrations_WhileSendingEvents() {
+        let sut = fixture.getSut()
+        
+        let hub = SentryHub(client: sut, andScope: nil)
+        SentrySDK.setCurrentHub(hub)
+        
+        func addIntegrations(amount: Int) {
+            let emptyIntegration = EmptyIntegration()
+            for i in 0..<amount {
+                hub.addInstalledIntegration(emptyIntegration, name: "Integration\(i)")
+            }
+        }
+        
+        // So that the loop in Client.setSDK overlaps with addingIntegrations
+        addIntegrations(amount: 1_000)
+        
+        let queue = fixture.queue
+        let group = DispatchGroup()
+        
+        // Run this in a loop to ensure that add while iterating over the integrations
+        // Running it once doesn't guaranty failure
+        for _ in 0..<10 {
+            group.enter()
+            queue.async {
+                addIntegrations(amount: 1_000)
+                group.leave()
+            }
+            
+            sut.capture(event: Event())
+            group.waitWithTimeout()
+            hub.removeAllIntegrations()
+        }
     }
     
     private func givenEventWithDebugMeta() -> Event {
