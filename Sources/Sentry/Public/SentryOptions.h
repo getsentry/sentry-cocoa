@@ -3,7 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryDsn, SentrySdkInfo, SentryMeasurementValue, SentryHttpStatusCodeRange;
+@class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject

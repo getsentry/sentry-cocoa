@@ -6,7 +6,6 @@
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentrySDK.h"
-#import "SentrySdkInfo.h"
 
 @interface
 SentryOptions ()
