@@ -53,7 +53,7 @@ analyze:
 # For more info check out: https://github.com/Carthage/Carthage/releases/tag/0.38.0
 build-xcframework:
 	@echo "--> Carthage: creating Sentry xcframework"
-	carthage build --use-xcframeworks --no-skip-current --project-directory .
+	carthage build --use-xcframeworks --no-skip-current
 # use ditto here to avoid clobbering symlinks which exist in macOS frameworks
 	ditto -c -k -X --rsrc --keepParent Carthage Sentry.xcframework.zip
 

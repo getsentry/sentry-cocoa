@@ -13,7 +13,6 @@ OS=${2:-latest}
 REF_NAME="${3-HEAD}"
 IS_LOCAL_BUILD="${4:-ci}"
 DESTINATION=""
-IOS_DEVICE="iPhone 8"
 CONFIGURATION=""
 
 case $PLATFORM in
