@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Breaking changes
+
+- `SentrySession.errors` is now a boolean (#2410)
+
 ### Fixes
 
 - Crash in Client when reading integrations (#2398)
