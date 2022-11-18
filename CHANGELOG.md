@@ -5,8 +5,8 @@
 ### Breaking Changes
 
 - Removed `- [SentryOptions initWithDict:didFailWithError:]` (#2404)
-- Removed `- [SentrySDK startWithOptions:]` (#2404)
-- Removed deprecated `- [SentryOptions sdkInfo]` (#2404)
+- Renamed `- [SentrySDK startWithOptionsObject:]` to `- [SentrySDK startWithOptions:]` (#2404)
+- Removed `- [SentryOptions sdkInfo]` (#2404)
 
 ### Fixes
 

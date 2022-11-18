@@ -128,7 +128,7 @@ static NSUInteger startInvocations;
     startInvocations = value;
 }
 
-+ (void)startWithOptionsObject:(SentryOptions *)options
++ (void)startWithOptions:(SentryOptions *)options
 {
     startInvocations++;
 
@@ -149,7 +149,7 @@ static NSUInteger startInvocations;
 {
     SentryOptions *options = [[SentryOptions alloc] init];
     configureOptions(options);
-    [SentrySDK startWithOptionsObject:options];
+    [SentrySDK startWithOptions:options];
 }
 
 + (void)captureCrashEvent:(SentryEvent *)event
