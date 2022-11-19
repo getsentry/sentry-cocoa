@@ -14,7 +14,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
 
         init() {
             scope = Scope()
-            client = TestClient(options: Options())!
+            client = TestClient(options: Options())
             hub = TestHub(client: client, andScope: scope)
         }
         

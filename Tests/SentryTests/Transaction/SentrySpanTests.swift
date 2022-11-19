@@ -24,7 +24,7 @@ class SentrySpanTests: XCTestCase {
         }
         
         func getSut() -> Span {
-            return getSut(client: TestClient(options: options)!)
+            return getSut(client: TestClient(options: options))
         }
         
         func getSut(client: Client) -> Span {
@@ -53,7 +53,7 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testFinish() {
-        let client = TestClient(options: fixture.options)!
+        let client = TestClient(options: fixture.options)
         let span = fixture.getSut(client: client)
         
         span.finish()
@@ -71,7 +71,7 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testFinish_Custom_Timestamp() {
-        let client = TestClient(options: fixture.options)!
+        let client = TestClient(options: fixture.options)
         let span = fixture.getSut(client: client)
         
         let finishDate = Date(timeIntervalSinceNow: 6)
@@ -124,7 +124,7 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testFinishWithChild() {
-        let client = TestClient(options: fixture.options)!
+        let client = TestClient(options: fixture.options)
         let span = fixture.getSut(client: client)
         let childSpan = span.startChild(operation: fixture.someOperation)
         
