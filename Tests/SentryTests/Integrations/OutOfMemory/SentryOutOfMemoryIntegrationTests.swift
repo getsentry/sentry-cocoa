@@ -4,7 +4,7 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
 
     private class Fixture {
         let options: Options
-        let client: TestClient!
+        let client: TestClient
         let crashWrapper: TestSentryCrashWrapper
         let currentDate = TestCurrentDateProvider()
         let fileManager: SentryFileManager

@@ -10,7 +10,7 @@ class SentrySessionTrackerTests: XCTestCase {
         
         let options: Options
         let currentDateProvider = TestCurrentDateProvider()
-        let client: TestClient!
+        let client: TestClient
         let sentryCrash: TestSentryCrashWrapper
 
         let notificationCenter = TestNSNotificationCenterWrapper()

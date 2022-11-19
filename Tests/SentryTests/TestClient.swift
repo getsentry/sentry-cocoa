@@ -1,17 +1,11 @@
 import Foundation
 
 class TestClient: SentryClient {
-    let sentryFileManager: SentryFileManager
-
-    override init?(options: Options) {
-        sentryFileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
-        super.init(options: options, permissionsObserver: TestSentryPermissionsObserver())
+    override init(options: Options) {
+        super.init(options: options, permissionsObserver: TestSentryPermissionsObserver(), fileManager: try! TestFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider()))
     }
 
-    // Without this override we get a fatal error: use of unimplemented initializer
-    // see https://stackoverflow.com/questions/28187261/ios-swift-fatal-error-use-of-unimplemented-initializer-init
     override init(options: Options, transportAdapter: SentryTransportAdapter, fileManager: SentryFileManager, threadInspector: SentryThreadInspector, random: SentryRandomProtocol, crashWrapper: SentryCrashWrapper, permissionsObserver: SentryPermissionsObserver, deviceWrapper: SentryUIDeviceWrapper, locale: Locale, timezone: TimeZone) {
-        sentryFileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
         super.init(
             options: options,
             transportAdapter: transportAdapter,
@@ -24,10 +18,6 @@ class TestClient: SentryClient {
             locale: locale,
             timezone: timezone
         )
-    }
-
-    override func fileManager() -> SentryFileManager {
-        sentryFileManager
     }
     
     var captureSessionInvocations = Invocations<SentrySession>()

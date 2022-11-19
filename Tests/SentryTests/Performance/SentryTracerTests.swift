@@ -47,7 +47,7 @@ class SentryTracerTests: XCTestCase {
             transactionContext = TransactionContext(name: transactionName, operation: transactionOperation)
             
             scope = Scope()
-            client = TestClient(options: Options())!
+            client = TestClient(options: Options())
             client.options.tracesSampleRate = 1
             hub = TestHub(client: client, andScope: scope)
             

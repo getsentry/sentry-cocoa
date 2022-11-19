@@ -1103,13 +1103,13 @@ class SentryClientTest: XCTestCase {
     
     func testFileManagerCantBeInit() {
         SentryFileManager.prepareInitError()
-        
+
         let options = Options()
         options.dsn = SentryClientTest.dsn
-        let client = SentryClient(options: options, permissionsObserver: TestSentryPermissionsObserver())
-        
+        let client = Client(options: options)
+
         XCTAssertNil(client)
-        
+
         SentryFileManager.tearDownInitError()
     }
     

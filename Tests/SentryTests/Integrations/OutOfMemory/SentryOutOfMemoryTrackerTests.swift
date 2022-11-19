@@ -9,9 +9,9 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     private class Fixture {
         
         let options: Options
-        let client: TestClient!
+        let client: TestClient
         let crashWrapper: TestSentryCrashWrapper
-        let fileManager: SentryFileManager
+        var fileManager: SentryFileManager
         let currentDate = TestCurrentDateProvider()
         let sysctl = TestSysctl()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
@@ -29,7 +29,7 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
             let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andCurrentDateProvider: currentDate)
             SentrySDK.setCurrentHub(hub)
             
-            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
+            fileManager = try! TestFileManager(options: options, andCurrentDateProvider: currentDate)
         }
         
         func getSut() -> SentryOutOfMemoryTracker {
@@ -63,6 +63,9 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     }
 
     func testStart_StoresAppState() {
+        fixture.fileManager = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
+        sut = fixture.getSut()
+
         XCTAssertNil(fixture.fileManager.readAppState())
 
         sut.start()
@@ -76,6 +79,9 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     }
     
     func testGoToForeground_SetsIsActive() {
+        fixture.fileManager = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
+        sut = fixture.getSut()
+
         sut.start()
         
         goToForeground()
@@ -189,6 +195,9 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     }
     
     func testAppWasInForeground_OOM() {
+        fixture.fileManager = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
+        sut = fixture.getSut()
+
         sut.start()
         goToForeground()
 
@@ -210,6 +219,9 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     }
 
     func testAppOOM_WithBreadcrumbs() {
+        fixture.fileManager = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
+        sut = fixture.getSut()
+
         let breadcrumb = TestData.crumb
 
         let sentryOutOfMemoryScopeObserver = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: Int(fixture.options.maxBreadcrumbs), fileManager: fixture.fileManager)
@@ -231,6 +243,9 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     }
 
     func testAppOOM_WithOnlyHybridSdkDidBecomeActive() {
+        fixture.fileManager = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
+        sut = fixture.getSut()
+
         sut.start()
         hybridSdkDidBecomeActive()
 
@@ -240,6 +255,9 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     }
     
     func testAppOOM_Foreground_And_HybridSdkDidBecomeActive() {
+        fixture.fileManager = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
+        sut = fixture.getSut()
+
         sut.start()
         goToForeground()
         hybridSdkDidBecomeActive()
@@ -250,6 +268,9 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     }
     
     func testAppOOM_HybridSdkDidBecomeActive_and_Foreground() {
+        fixture.fileManager = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
+        sut = fixture.getSut()
+        
         sut.start()
         hybridSdkDidBecomeActive()
         goToForeground()
