@@ -1,5 +1,6 @@
 #import "SentrySpanContext.h"
 #import "SentryId.h"
+#import "SentryLog.h"
 #import "SentrySpanId.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -41,6 +42,10 @@ SentrySpanContext () {
         self.operation = operation;
         self.status = kSentrySpanStatusUndefined;
         _tags = [[NSMutableDictionary alloc] init];
+        SENTRY_LOG_DEBUG(
+            @"Created span context with trace ID %@; span ID %@; parent span ID %@; operation %@",
+            traceId.sentryIdString, spanId.sentrySpanIdString, parentId.sentrySpanIdString,
+            operation);
     }
     return self;
 }

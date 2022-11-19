@@ -29,6 +29,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
                 cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
                 encoding: .utf8)! as NSString
             options.add(inAppInclude: imageName.lastPathComponent)
+            options.debug = true
             return options
         }
         
