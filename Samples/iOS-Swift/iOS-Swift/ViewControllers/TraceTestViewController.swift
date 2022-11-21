@@ -67,7 +67,7 @@ class TraceTestViewController: UIViewController {
                 return
             }
 
-            guard let child = children.first(where: { $0.context.operation == "http.client" }) else {
+            guard let child = children.first(where: { $0.operation == "http.client" }) else {
                 UIAssert.fail("Did not found http request child")
                 return
             }
