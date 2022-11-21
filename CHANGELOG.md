@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased 
+
+This version introduces a dependency on Swift, which only impacts you if you don't use Swift. If your project uses Swift already, this change will not affect you.
+
+### Features
+
+- Properly demangle Swift class name (#2162)
+
 ## 7.31.2
 
 ### Fixes

@@ -173,9 +173,9 @@ import XCTest
 
 private class TestSentryStacktraceBuilder: SentryStacktraceBuilder {
     
-    var stackTraces = [SentryCrashThread: Stacktrace]()
-    override func buildStacktrace(forThread thread: SentryCrashThread, context: OpaquePointer) -> Stacktrace {
-        return stackTraces[thread] ?? Stacktrace(frames: [], registers: [:])
+    var stackTraces = [SentryCrashThread: SentryStacktrace]()
+    override func buildStacktrace(forThread thread: SentryCrashThread, context: OpaquePointer) -> SentryStacktrace {
+        return stackTraces[thread] ?? SentryStacktrace(frames: [], registers: [:])
     }
         
 }

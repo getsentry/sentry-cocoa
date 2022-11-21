@@ -1,8 +1,8 @@
 import Foundation
 
-extension Sentry.Thread {
+extension SentryThread {
     open override func isEqual(_ object: Any?) -> Bool {
-        if  let other = object as? Sentry.Thread {
+        if  let other = object as? SentryThread {
             return  threadId == other.threadId &&
                 name == other.name &&
                 stacktrace == other.stacktrace &&
@@ -17,9 +17,9 @@ extension Sentry.Thread {
     }
 }
 
-extension Sentry.Stacktrace {
+extension SentryStacktrace {
     open override func isEqual(_ object: Any?) -> Bool {
-        if  let other = object as? Sentry.Stacktrace {
+        if  let other = object as? SentryStacktrace {
             return frames == other.frames &&
                 registers == other.registers
         } else {

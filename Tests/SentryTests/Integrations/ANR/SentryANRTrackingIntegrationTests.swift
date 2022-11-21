@@ -111,15 +111,15 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         let frame1 = Sentry.Frame()
         frame1.function = "Second_frame_function"
         
-        let thread1 = Sentry.Thread(threadId: 0)
-        thread1.stacktrace = Stacktrace(frames: [frame1], registers: [:])
+        let thread1 = SentryThread(threadId: 0)
+        thread1.stacktrace = SentryStacktrace(frames: [frame1], registers: [:])
         thread1.current = true
         
         let frame2 = Sentry.Frame()
         frame2.function = "main"
         
-        let thread2 = Sentry.Thread(threadId: 1)
-        thread2.stacktrace = Stacktrace(frames: [frame2], registers: [:])
+        let thread2 = SentryThread(threadId: 1)
+        thread2.stacktrace = SentryStacktrace(frames: [frame2], registers: [:])
         thread2.current = false
         
         threadInspector.allThreads = [
