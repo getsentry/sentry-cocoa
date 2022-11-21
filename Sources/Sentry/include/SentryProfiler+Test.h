@@ -1,3 +1,6 @@
+// This header extension contains C++ symbols so cannot be included in a Swift bridging header. To
+// export things to Swift, see SwntryProfiler+SwiftTest.h.
+
 #include "SentryBacktrace.hpp"
 #import "SentryProfiler.h"
 #import "SentryProfilingConditionals.h"

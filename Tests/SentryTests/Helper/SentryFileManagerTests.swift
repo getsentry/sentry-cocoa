@@ -143,6 +143,7 @@ class SentryFileManagerTests: XCTestCase {
     }
 
     func testDeleteOldEnvelopes() throws {
+        fixture.dispatchQueueWrapper.dispatchAfterExecutesBlock = true
         let envelope = TestConstants.envelope
         let path = sut.store(envelope)
 

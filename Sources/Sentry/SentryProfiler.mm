@@ -40,6 +40,7 @@
 
 const int kSentryProfilerFrequencyHz = 101;
 NSString *const kTestStringConst = @"test";
+NSTimeInterval kSentryProfilerTimeoutInterval = 30;
 
 using namespace sentry::profiling;
 
@@ -209,19 +210,6 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 + (void)startForSpanID:(SentrySpanId *)spanID hub:(SentryHub *)hub
 {
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-    NSTimeInterval timeoutInterval = 30;
-#        if defined(TEST) || defined(TESTCI)
-    timeoutInterval = 1;
-#        endif
-    [self startForSpanID:spanID hub:hub timeoutInterval:timeoutInterval];
-#    endif
-}
-
-+ (void)startForSpanID:(SentrySpanId *)spanID
-                   hub:(SentryHub *)hub
-       timeoutInterval:(NSTimeInterval)timeoutInterval
-{
-#    if SENTRY_TARGET_PROFILING_SUPPORTED
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
     if (_gCurrentProfiler == nil) {
@@ -235,7 +223,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 #        endif // SENTRY_HAS_UIKIT
         [_gCurrentProfiler start];
         _gCurrentProfiler->_timeoutTimer =
-            [NSTimer scheduledTimerWithTimeInterval:timeoutInterval
+            [NSTimer scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
                                              target:self
                                            selector:@selector(timeoutAbort)
                                            userInfo:nil
@@ -276,19 +264,18 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
-+ (void)dropTransaction:(SentryTransaction *)transaction
++ (void)dropTransactionWithID:(SentrySpanId *)transactionID
 {
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
-    const auto spanID = transaction.trace.context.spanId;
-    const auto profiler = _gProfilersPerSpanID[spanID];
+    const auto profiler = _gProfilersPerSpanID[transactionID];
     if (profiler == nil) {
-        SENTRY_LOG_DEBUG(@"No profiler tracking span with id %@", spanID.sentrySpanIdString);
+        SENTRY_LOG_DEBUG(@"No profiler tracking span with id %@", transactionID.sentrySpanIdString);
         return;
     }
 
-    [self captureEnvelopeIfFinished:profiler spanID:spanID];
+    [self captureEnvelopeIfFinished:profiler spanID:transactionID];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
@@ -345,6 +332,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 
     SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", _gCurrentProfiler);
     [self stopProfilerForReason:SentryProfilerTruncationReasonTimeout];
+    [_gCurrentProfiler captureEnvelope];
 }
 
 + (void)backgroundAbort
@@ -358,6 +346,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 
     SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", _gCurrentProfiler);
     [self stopProfilerForReason:SentryProfilerTruncationReasonAppMovedToBackground];
+    [_gCurrentProfiler captureEnvelope];
 }
 
 + (void)stopProfilerForReason:(SentryProfilerTruncationReason)reason
@@ -497,6 +486,11 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 
 - (void)captureEnvelope
 {
+    if (_transactions.count == 0) {
+        SENTRY_LOG_DEBUG(@"No linked transactions, won't send profile.");
+        return;
+    }
+
     NSMutableDictionary<NSString *, id> *profile = nil;
     @synchronized(self) {
         profile = [_profile mutableCopy];

@@ -21,8 +21,28 @@ class SentryProfilerSwiftTests: SentryBaseUnitTest {
         }()
         let scope = Scope()
         let message = "some message"
-        let transactionName = "Some Transaction"
+        var transactionName = "Some Transaction"
         let transactionOperation = "Some Operation"
+
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        // fixture properties to test that profiler works correctly with the UI event tracker
+        let swizzleWrapper = TestSentrySwizzleWrapper()
+        let target = FirstViewController()
+        let button = UIButton()
+        let operation = "ui.action"
+        let operationClick = "ui.action.click"
+        let action = "SomeAction:"
+        let expectedAction = "SomeAction"
+        lazy var dispatchQueue: TestSentryDispatchQueueWrapper = {
+            let dq = TestSentryDispatchQueueWrapper()
+            dq.dispatchAfterExecutesBlock = true
+            dq.delayDispatches = true
+            return dq
+        }()
+        lazy var eventTracker = SentryUIEventTracker(swizzleWrapper: swizzleWrapper, dispatchQueueWrapper: dispatchQueue, idleTimeout: 0.5)
+
+        class TestUIEvent: UIEvent {}
+#endif
     }
 
     private var fixture: Fixture!
@@ -31,6 +51,99 @@ class SentryProfilerSwiftTests: SentryBaseUnitTest {
         super.setUp()
         fixture = Fixture()
     }
+
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    // adapted from SentryUIViewControllerPerformanceTrackerTests.testUILifeCycle_ViewDidAppear
+    func testUILifeCycle_ViewDidAppear() {
+        fixture.options.profilesSampleRate = 1.0
+        fixture.options.tracesSampleRate = 1.0
+        SentrySDK.setCurrentHub(fixture.hub)
+        let viewController = TestViewController()
+        let _ = SentryUIViewControllerSanitizer.sanitizeViewControllerName(viewController)
+        let tracker = SentryUIViewControllerPerformanceTracker.shared
+
+        let callbackExpectation = expectation(description: "Callback Expectation")
+        callbackExpectation.expectedFulfillmentCount = 6
+
+        tracker.viewControllerLoadView(viewController) {
+            callbackExpectation.fulfill()
+        }
+
+        tracker.viewControllerViewDidLoad(viewController) {
+            self.forceProfilerSample()
+            callbackExpectation.fulfill()
+        }
+
+        tracker.viewControllerViewWillLayoutSubViews(viewController) {
+            callbackExpectation.fulfill()
+        }
+
+        tracker.viewControllerViewDidLayoutSubViews(viewController) {
+            callbackExpectation.fulfill()
+        }
+
+        tracker.viewControllerViewWillAppear(viewController) {
+            callbackExpectation.fulfill()
+        }
+
+        tracker.viewControllerViewDidAppear(viewController) {
+            callbackExpectation.fulfill()
+        }
+
+        wait(for: [callbackExpectation], timeout: 3)
+
+        let assertionExp = expectation(description: "performed assertions")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: .init(block: {
+            guard let envelope = self.fixture.client.captureEnvelopeInvocations.first else {
+                XCTFail("Expected to capture 1 event")
+                return
+            }
+            XCTAssertEqual(1, envelope.items.count)
+            guard let profileItem = envelope.items.first else {
+                XCTFail("Expected an envelope item")
+                return
+            }
+            XCTAssertEqual("profile", profileItem.header.type)
+            self.fixture.transactionName = "SentryTests.TestViewController"
+            self.assertValidProfileData(data: profileItem.data, numberOfTransactions: 1)
+
+            assertionExp.fulfill()
+        }))
+
+        waitForExpectations(timeout: 3)
+    }
+
+    func testButtonClickAloneDoesNotUploadProfile() {
+        fixture.options.profilesSampleRate = 1.0
+        fixture.options.tracesSampleRate = 1.0
+        fixture.eventTracker.start()
+        SentrySDK.setCurrentHub(fixture.hub)
+
+        let exp = expectation(description: "send action finishes")
+        fixture.swizzleWrapper.swizzleSendAction({ _, _, _, _ in
+            exp.fulfill()
+        }, forKey: "first")
+
+        // based on SentryUIEventTrackerTests.test_SubclassOfUIButton_CreatesTransaction
+        fixture.swizzleWrapper.execute(action: fixture.action, target: fixture.target, sender: fixture.button, event: Fixture.TestUIEvent())
+
+        waitForExpectations(timeout: 3)
+
+        let assertionExp = expectation(description: "performed assertions")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: .init(block: {
+            XCTAssertEqual(self.fixture.client.captureEnvelopeInvocations.count, 0)
+
+            self.fixture.eventTracker.stop()
+            self.fixture.swizzleWrapper.removeAllCallbacks()
+
+            assertionExp.fulfill()
+        }))
+
+        forceProfilerSample()
+
+        waitForExpectations(timeout: 3)
+    }
+#endif
 
     func testConcurrentProfilingTransactions() {
         let options = fixture.options
@@ -72,6 +185,8 @@ class SentryProfilerSwiftTests: SentryBaseUnitTest {
         let options = fixture.options
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
+
+        kSentryProfilerTimeoutInterval = 1
 
         let spanA = fixture.hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
 
@@ -196,6 +311,10 @@ private extension SentryProfilerSwiftTests {
     }
 
     func performTest(transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1, shouldTimeOut: Bool = false) {
+        if shouldTimeOut {
+            kSentryProfilerTimeoutInterval = 1
+        }
+        
         let span = fixture.hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
 
         forceProfilerSample()
@@ -254,7 +373,11 @@ private extension SentryProfilerSwiftTests {
         XCTAssertFalse((os!["version"] as! String).isEmpty)
         XCTAssertFalse((os!["build_number"] as! String).isEmpty)
 
-        XCTAssertEqual("cocoa", profile["platform"] as! String)
+        if let platform = profile["platform"] as? String {
+            XCTAssertEqual("cocoa", platform)
+        } else {
+            XCTFail("Expected a platform")
+        }
 
         XCTAssertEqual(transactionEnvironment, profile["environment"] as! String)
 
@@ -280,15 +403,23 @@ private extension SentryProfilerSwiftTests {
         XCTAssertFalse(threadMetadata.isEmpty)
         XCTAssertFalse(threadMetadata.values.compactMap { $0["priority"] }.filter { ($0 as! Int) > 0 }.isEmpty)
         XCTAssertFalse(queueMetadata.isEmpty)
-        XCTAssertFalse(((queueMetadata.first?.value as! [String: Any])["label"] as! String).isEmpty)
+        if let first = queueMetadata.first?.value as? [String: Any],
+           let label = first["label"] as? String {
+            XCTAssertFalse(label.isEmpty)
+        } else {
+            XCTFail("Expected a nonempty queue label")
+        }
 
         let samples = sampledProfile["samples"] as! [[String: Any]]
         XCTAssertFalse(samples.isEmpty)
 
         let frames = sampledProfile["frames"] as! [[String: Any]]
-        XCTAssertFalse(frames.isEmpty)
-        XCTAssertFalse((frames[0]["instruction_addr"] as! String).isEmpty)
-        XCTAssertFalse((frames[0]["function"] as! String).isEmpty)
+        if !frames.isEmpty {
+            XCTAssertFalse((frames[0]["instruction_addr"] as! String).isEmpty)
+            XCTAssertFalse((frames[0]["function"] as! String).isEmpty)
+        } else {
+            XCTFail("Expected frames in the profile")
+        }
 
         let stacks = sampledProfile["stacks"] as! [[Int]]
         var foundAtLeastOneNonEmptySample = false

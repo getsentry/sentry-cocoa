@@ -28,7 +28,11 @@ class SentryHttpTransportTests: SentryBaseUnitTest {
         let requestManager: TestRequestManager
         let requestBuilder = TestNSURLRequestBuilder()
         let rateLimits: DefaultRateLimits
-        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        var dispatchQueueWrapper: TestSentryDispatchQueueWrapper = {
+            let dqw = TestSentryDispatchQueueWrapper()
+            dqw.dispatchAfterExecutesBlock = true
+            return dqw
+        }()
         let reachability = TestSentryReachability()
         let flushTimeout: TimeInterval = 0.5
 

@@ -83,10 +83,8 @@ SentryUIEventTracker ()
                 return;
             }
 
-            [currentActiveTransaction finish];
-
             if (currentActiveTransaction) {
-                [SentryLog
+                [currentActiveTransaction finish];
                     logWithMessage:
                         [NSString stringWithFormat:@"SentryUIEventTracker finished transaction %@",
                                   currentActiveTransaction.transactionContext.name]

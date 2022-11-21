@@ -33,7 +33,11 @@ class SentryClientTest: SentryBaseUnitTest {
         let locale = Locale(identifier: "en_US")
         let timezone = TimeZone(identifier: "Europe/Vienna")!
         let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
-        let dispatchQueue = TestSentryDispatchQueueWrapper()
+        let dispatchQueue: TestSentryDispatchQueueWrapper = {
+            let dqw = TestSentryDispatchQueueWrapper()
+            dqw.dispatchAfterExecutesBlock = true
+            return dqw
+        }()
         
         init() {
             session = SentrySession(releaseName: "release")

@@ -61,10 +61,9 @@ SENTRY_EXTERN_C_END
 /**
  * Certain transactions may be dropped by the SDK at the time they are ended, when we've already
  * been tracking them for profiling. This allows them to be removed from bookkeeping and finish
- * profile if necessary.
+ * the profile if necessary.
  */
-+ (void)dropTransaction:(SentryTransaction *)transaction;
-;
++ (void)dropTransactionWithID:(SentrySpanId *)transactionID;
 
 /**
  * After the SDK creates a transaction for a span, link it to this profile. If it was the last

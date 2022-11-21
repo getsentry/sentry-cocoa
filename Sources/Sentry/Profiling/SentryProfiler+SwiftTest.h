@@ -1,0 +1,1 @@
+FOUNDATION_EXPORT NSTimeInterval kSentryProfilerTimeoutInterval;
