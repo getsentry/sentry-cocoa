@@ -1,12 +1,6 @@
 import XCTest
 
-class PrivateSentrySDKOnlyTests: XCTestCase {
-    
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
-    }
-
+class PrivateSentrySDKOnlyTests: SentryBaseUnitTest {
     func testStoreEnvelope() {
         let client = TestClient(options: Options())
         SentrySDK.setCurrentHub(TestHub(client: client, andScope: nil))

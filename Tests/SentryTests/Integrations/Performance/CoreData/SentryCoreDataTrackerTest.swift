@@ -1,7 +1,7 @@
 import CoreData
 import XCTest
 
-class SentryCoreDataTrackerTests: XCTestCase {
+class SentryCoreDataTrackerTests: SentryBaseUnitTest {
     
     private class Fixture {
         let context = TestNSManagedObjectContext()
@@ -28,11 +28,6 @@ class SentryCoreDataTrackerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
     }
     
     func testConstants() {

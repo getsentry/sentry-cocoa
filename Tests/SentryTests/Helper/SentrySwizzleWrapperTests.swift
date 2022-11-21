@@ -12,7 +12,7 @@ extension SentrySwizzleWrapper {
     
 }
 
-class SentrySwizzleWrapperTests: XCTestCase {
+class SentrySwizzleWrapperTests: SentryBaseUnitTest {
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
@@ -31,16 +31,10 @@ class SentrySwizzleWrapperTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        
         fixture = Fixture()
         sut = SentrySwizzleWrapper.sharedInstance
     }
-    
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
-    }
-    
+
     func testSendAction_RegisterCallbacks_CallbacksCalled() {
         let firstExpectation = expectation(description: "first")
         sut.swizzleSendAction({ actualAction, _, _, actualEvent in

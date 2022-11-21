@@ -49,6 +49,27 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     private lazy var fixture = Fixture()
     
+<<<<<<< HEAD
+    override func setUp() {
+        super.setUp()
+        CurrentDate.setCurrentDateProvider(TestCurrentDateProvider())
+        
+        fixture.client.fileManager.deleteCurrentSession()
+        fixture.client.fileManager.deleteCrashedSession()
+        fixture.client.fileManager.deleteAppState()
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+        fixture.client.fileManager.deleteCurrentSession()
+        fixture.client.fileManager.deleteCrashedSession()
+        fixture.client.fileManager.deleteAppState()
+        
+        clearTestState()
+    }
+    
+=======
+>>>>>>> 9642b9f9 (test: refactor app state cleanup into a base unit test superclass)
     // Test for GH-581
     func testReleaseNamePassedToSentryCrash() {
         let releaseName = "1.0.0"

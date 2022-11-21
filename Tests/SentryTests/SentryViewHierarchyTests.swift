@@ -1,7 +1,7 @@
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryViewHierarchyTests: XCTestCase {
+class SentryViewHierarchyTests: SentryBaseUnitTest {
     private class Fixture {
 
         let uiApplication = TestSentryUIApplication()
@@ -17,11 +17,6 @@ class SentryViewHierarchyTests: XCTestCase {
         super.setUp()
         fixture = Fixture()
         SentryDependencyContainer.sharedInstance().application = fixture.uiApplication
-    }
-
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
     }
 
     func test_Draw_Each_Window() {

@@ -6,7 +6,7 @@ import XCTest
 // GitHub Actions doesn't have simulators for iOS 11 and 10.
 // That's why we need to keep it generic, without access
 // to any private part of the SDK.
-class SentryFileIOTrackingIntegrationTests: XCTestCase {
+class SentryFileIOTrackingIntegrationTests: SentryBaseUnitTest {
 
     private class Fixture {
         let data = "SOME DATA".data(using: .utf8) ?? Data()
@@ -52,7 +52,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         if deleteFileDirectory {
             try? FileManager.default.removeItem(at: fixture.fileDirectory)
         }
-        clearTestState()
     }
     
     func test_WritingTrackingDisabled_forIOOption() {

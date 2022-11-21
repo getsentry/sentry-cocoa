@@ -5,7 +5,7 @@ import XCTest
 import UIKit
 #endif
 
-class NotificationCenterTestCase: XCTestCase {
+class NotificationCenterTestCase: SentryBaseUnitTest {
 
     #if os(tvOS) || os(iOS) 
     let willEnterForegroundNotification = UIApplication.willEnterForegroundNotification

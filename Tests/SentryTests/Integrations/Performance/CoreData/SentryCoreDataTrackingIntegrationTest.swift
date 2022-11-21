@@ -1,7 +1,7 @@
 import CoreData
 import XCTest
 
-class SentryCoreDataTrackingIntegrationTests: XCTestCase {
+class SentryCoreDataTrackingIntegrationTests: SentryBaseUnitTest {
 
     private class Fixture {
         let context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
@@ -29,7 +29,6 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         fixture.coreDataStack.reset()
-        clearTestState()
     }
     
     func test_InstallAndUninstall() {

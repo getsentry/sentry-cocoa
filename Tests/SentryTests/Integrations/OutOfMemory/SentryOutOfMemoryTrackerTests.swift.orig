@@ -56,6 +56,12 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     override func tearDown() {
         super.tearDown()
         sut.stop()
+<<<<<<< HEAD
+        fixture.client.fileManager.deleteAllFolders()
+        
+        clearTestState()
+=======
+>>>>>>> 9642b9f9 (test: refactor app state cleanup into a base unit test superclass)
     }
 
     func testStart_StoresAppState() {

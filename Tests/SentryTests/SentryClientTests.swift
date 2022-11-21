@@ -4,7 +4,7 @@ import XCTest
 // swiftlint:disable file_length
 // We are aware that the client has a lot of logic and we should maybe
 // move some of it to other classes.
-class SentryClientTest: XCTestCase {
+class SentryClientTest: SentryBaseUnitTest {
     
     private static let dsn = TestConstants.dsnAsString(username: "SentryClientTest")
 
@@ -33,7 +33,11 @@ class SentryClientTest: XCTestCase {
         let locale = Locale(identifier: "en_US")
         let timezone = TimeZone(identifier: "Europe/Vienna")!
         let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
-        let dispatchQueue = TestSentryDispatchQueueWrapper()
+        let dispatchQueue: TestSentryDispatchQueueWrapper = {
+            let dqw = TestSentryDispatchQueueWrapper()
+            dqw.dispatchAfterExecutesBlock = true
+            return dqw
+        }()
         
         init() {
             session = SentrySession(releaseName: "release")
@@ -50,7 +54,7 @@ class SentryClientTest: XCTestCase {
             
             let options = Options()
             options.dsn = SentryClientTest.dsn
-            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
+            fileManager = try! TestFileManager(options: options)
             
             transaction = Transaction(trace: trace, children: [])
             
@@ -128,12 +132,6 @@ class SentryClientTest: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        fixture.fileManager.deleteAllEnvelopes()
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
     }
     
     func testCaptureMessage() {
@@ -1109,7 +1107,7 @@ class SentryClientTest: XCTestCase {
 
         let options = Options()
         options.dsn = SentryClientTest.dsn
-        let client = Client(options: options)
+        let client = Client(options: options, dispatchQueue: fixture.dispatchQueue)
 
         XCTAssertNil(client)
 

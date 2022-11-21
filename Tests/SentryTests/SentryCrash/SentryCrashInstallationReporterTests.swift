@@ -2,7 +2,7 @@
 import XCTest
 
 @available(OSX 10.10, *)
-class SentryCrashInstallationReporterTests: XCTestCase {
+class SentryCrashInstallationReporterTests: SentryBaseUnitTest {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryCrashInstallationReporterTests")
     
@@ -13,14 +13,6 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         super.setUp()
         sut = SentryCrashInstallationReporter(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []), crashWrapper: TestSentryCrashWrapper.sharedInstance(), dispatchQueue: TestSentryDispatchQueueWrapper())
         sut.install()
-        // Works only if SentryCrash is installed
-        sentrycrash_deleteAllReports()
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-        sentrycrash_deleteAllReports()
-        clearTestState()
     }
     
     func testFaultyReportIsNotSentAndDeleted() throws {

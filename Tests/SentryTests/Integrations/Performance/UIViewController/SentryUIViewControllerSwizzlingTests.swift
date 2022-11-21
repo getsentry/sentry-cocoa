@@ -2,7 +2,7 @@ import Sentry
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryUIViewControllerSwizzlingTests: XCTestCase {
+class SentryUIViewControllerSwizzlingTests: SentryBaseUnitTest {
     
     private class Fixture {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
@@ -47,11 +47,6 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         super.setUp()
         fixture = Fixture()
         SentrySDK.start(options: fixture.options)
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
     }
 
     func testShouldSwizzle_TestViewController() {

@@ -1,6 +1,6 @@
 import XCTest
 
-class SentryPerformanceTrackerTests: XCTestCase {
+class SentryPerformanceTrackerTests: SentryBaseUnitTest {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryPerformanceTrackerTests")
     
@@ -31,12 +31,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         fixture = Fixture()
         SentrySDK.setCurrentHub(fixture.hub)
     }
-    
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
-    }
-    
+
     func testSingleton() {
         XCTAssertEqual(SentryPerformanceTracker.shared(), SentryPerformanceTracker.shared())
     }

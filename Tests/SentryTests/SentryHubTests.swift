@@ -1,7 +1,7 @@
 import Sentry
 import XCTest
 
-class SentryHubTests: XCTestCase {
+class SentryHubTests: SentryBaseUnitTest {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryHubTests")
     private static let dsn = TestConstants.dsn(username: "SentryHubTests")
@@ -60,22 +60,7 @@ class SentryHubTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        fixture.fileManager.deleteCurrentSession()
-        fixture.fileManager.deleteCrashedSession()
-        fixture.fileManager.deleteAppState()
-        fixture.fileManager.deleteTimestampLastInForeground()
-        fixture.fileManager.deleteAllEnvelopes()
-        
         sut = fixture.getSut()
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-        fixture.fileManager.deleteCurrentSession()
-        fixture.fileManager.deleteCrashedSession()
-        fixture.fileManager.deleteAppState()
-        fixture.fileManager.deleteTimestampLastInForeground()
-        fixture.fileManager.deleteAllEnvelopes()
     }
 
     func testBeforeBreadcrumbWithoutCallbackStoresBreadcrumb() {

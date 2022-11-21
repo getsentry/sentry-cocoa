@@ -1,6 +1,6 @@
 import XCTest
 
-class SentryTracerTests: XCTestCase {
+class SentryTracerTests: SentryBaseUnitTest {
     
     private class TracerDelegate: SentryTracerDelegate {
 
@@ -90,17 +90,6 @@ class SentryTracerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        SentryTracer.resetAppStartMeasurementRead()
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
-        SentryTracer.resetAppStartMeasurementRead()
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        SentryFramesTracker.sharedInstance().resetFrames()
-        SentryFramesTracker.sharedInstance().stop()
-#endif
     }
     
     func testFinish_WithChildren_WaitsForAllChildren() {

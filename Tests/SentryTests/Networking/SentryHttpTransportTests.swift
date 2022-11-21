@@ -6,7 +6,7 @@ import XCTest
 @available(tvOS 10.0, *)
 @available(OSX 10.12, *)
 @available(iOS 10.0, *)
-class SentryHttpTransportTests: XCTestCase {
+class SentryHttpTransportTests: SentryBaseUnitTest {
 
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryHttpTransportTests")
     private static let dsn = TestConstants.dsn(username: "SentryHttpTransportTests")
@@ -119,15 +119,12 @@ class SentryHttpTransportTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        fixture.fileManager.deleteAllEnvelopes()
         fixture.requestManager.returnResponse(response: HTTPURLResponse())
-
         sut = fixture.sut
     }
 
     override func tearDown() {
         super.tearDown()
-        fixture.fileManager.deleteAllEnvelopes()
         fixture.requestManager.waitForAllRequests()
     }
 

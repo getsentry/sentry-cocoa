@@ -2,7 +2,7 @@ import Sentry
 import XCTest
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-class SentryProfilerSwiftTests: XCTestCase {
+class SentryProfilerSwiftTests: SentryBaseUnitTest {
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryProfilerSwiftTests")
 
     private class Fixture {
@@ -30,17 +30,6 @@ class SentryProfilerSwiftTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        SentryTracer.resetAppStartMeasurementRead()
-    }
-
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
-        SentryTracer.resetAppStartMeasurementRead()
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        SentryFramesTracker.sharedInstance().resetFrames()
-        SentryFramesTracker.sharedInstance().stop()
-#endif
     }
 
     func testConcurrentProfilingTransactions() {

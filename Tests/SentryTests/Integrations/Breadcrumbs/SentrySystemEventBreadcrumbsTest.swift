@@ -1,7 +1,7 @@
 @testable import Sentry
 import XCTest
 
-class SentrySystemEventBreadcrumbsTest: XCTestCase {
+class SentrySystemEventBreadcrumbsTest: SentryBaseUnitTest {
     
     // This feature only works on iOS
     #if os(iOS)
@@ -59,8 +59,6 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
-        clearTestState()
-        fixture.fileManager.deleteTimezoneOffset()
         sut.stop()
     }
     

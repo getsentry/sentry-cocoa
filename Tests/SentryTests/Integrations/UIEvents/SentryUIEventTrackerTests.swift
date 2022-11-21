@@ -2,7 +2,7 @@ import Sentry
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryUIEventTrackerTests: XCTestCase {
+class SentryUIEventTrackerTests: SentryBaseUnitTest {
 
     private class Fixture {
         let swizzleWrapper = TestSentrySwizzleWrapper()
@@ -41,7 +41,6 @@ class SentryUIEventTrackerTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         fixture.swizzleWrapper.removeAllCallbacks()
-        clearTestState()
     }
     
     func test_NSSender_NoTransaction() {

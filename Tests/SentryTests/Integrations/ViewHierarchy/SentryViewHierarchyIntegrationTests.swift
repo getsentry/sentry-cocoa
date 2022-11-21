@@ -2,7 +2,7 @@ import Sentry
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryViewHierarchyIntegrationTests: XCTestCase {
+class SentryViewHierarchyIntegrationTests: SentryBaseUnitTest {
 
     private class Fixture {
         let viewHierarchy: TestSentryViewHierarchy
@@ -26,11 +26,6 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         fixture = Fixture()
 
         SentryDependencyContainer.sharedInstance().viewHierarchy = fixture.viewHierarchy
-    }
-
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
     }
 
     func test_attachViewHierarchy_disabled() {

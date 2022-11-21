@@ -394,6 +394,10 @@ sentrycrashfu_removeFile(const char *path, bool mustExist)
 bool
 sentrycrashfu_deleteContentsOfPath(const char *path)
 {
+    if (path == NULL) {
+        return false;
+    }
+
     if (!canDeletePath(path)) {
         return false;
     }
