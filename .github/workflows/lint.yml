@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - 8.0.0
     paths:
       - 'Sources/**'
       - 'Tests/**'
