@@ -10,9 +10,9 @@ This version adds a dependency on Swift.
 
 ### Breaking Changes
 
-- Removed `- [SentryOptions initWithDict:didFailWithError:]` (#2404)
-- Renamed `- [SentrySDK startWithOptionsObject:]` to `- [SentrySDK startWithOptions:]` (#2404)
-- Removed `- [SentryOptions sdkInfo]` (#2404)
+- Remove `- [SentryOptions initWithDict:didFailWithError:]` (#2404)
+- Rename `- [SentrySDK startWithOptionsObject:]` to `- [SentrySDK startWithOptions:]` (#2404)
+- Remove `- [SentryOptions sdkInfo]` (#2404)
 
 ## 7.31.2
 
