@@ -198,7 +198,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
     @synchronized(self) {
         NSMutableDictionary *serializedData = @{
             @"sid" : _sessionId.UUIDString,
-            @"errors" : @([@(_hasErrors) boolValue]),
+            @"errors" : @(_hasErrors),
             @"started" : [_started sentry_toIso8601String],
         }
                                                   .mutableCopy;
