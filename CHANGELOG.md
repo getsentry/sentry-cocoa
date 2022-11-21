@@ -6,7 +6,7 @@ This version introduces a dependency on Swift, which only impacts you if you don
 
 ### Breaking Changes
 
-- Make SpanProtocol.data non nullable (#)
+- Make SpanProtocol.data non nullable (#2409)
 
 ### Features
 
