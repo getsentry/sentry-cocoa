@@ -11,7 +11,8 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         let options: Options
         let client: TestClient
         let crashWrapper: TestSentryCrashWrapper
-        var fileManager: SentryFileManager
+        lazy var mockFileManager = try! TestFileManager(options: options, andCurrentDateProvider: currentDate)
+        lazy var realFileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate, dispatchQueueWrapper: dispatchQueue)
         let currentDate = TestCurrentDateProvider()
         let sysctl = TestSysctl()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
@@ -28,12 +29,10 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
             
             let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andCurrentDateProvider: currentDate)
             SentrySDK.setCurrentHub(hub)
-            
-            fileManager = try! TestFileManager(options: options, andCurrentDateProvider: currentDate)
         }
         
-        func getSut() -> SentryOutOfMemoryTracker {
-            return getSut(fileManager: self.fileManager)
+        func getSut(usingRealFileManager: Bool) -> SentryOutOfMemoryTracker {
+            return getSut(fileManager: usingRealFileManager ? realFileManager : mockFileManager)
         }
         
         func getSut(fileManager: SentryFileManager) -> SentryOutOfMemoryTracker {
@@ -50,7 +49,7 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         super.setUp()
         
         fixture = Fixture()
-        sut = fixture.getSut()
+        sut = fixture.getSut(usingRealFileManager: false)
         SentrySDK.startInvocations = 1
     }
     
@@ -63,14 +62,13 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     }
 
     func testStart_StoresAppState() {
-        fixture.fileManager = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
-        sut = fixture.getSut()
+        sut = fixture.getSut(usingRealFileManager: true)
 
-        XCTAssertNil(fixture.fileManager.readAppState())
+        XCTAssertNil(fixture.mockFileManager.readAppState())
 
         sut.start()
         
-        let actual = fixture.fileManager.readAppState()
+        let actual = fixture.mockFileManager.readAppState()
         
         let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.sysctl.systemBootTimestamp)
         
@@ -79,27 +77,26 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     }
     
     func testGoToForeground_SetsIsActive() {
-        fixture.fileManager = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
-        sut = fixture.getSut()
+        sut = fixture.getSut(usingRealFileManager: true)
 
         sut.start()
         
         goToForeground()
         
-        XCTAssertTrue(fixture.fileManager.readAppState()?.isActive ?? false)
+        XCTAssertTrue(fixture.mockFileManager.readAppState()?.isActive ?? false)
         
         goToBackground()
         
-        XCTAssertFalse(fixture.fileManager.readAppState()?.isActive ?? true)
+        XCTAssertFalse(fixture.mockFileManager.readAppState()?.isActive ?? true)
         XCTAssertEqual(3, fixture.dispatchQueue.dispatchAsyncCalled)
     }
     
     func testGoToForeground_WhenAppStateNil_NothingIsStored() {
         sut.start()
-        fixture.fileManager.deleteAppState()
+        fixture.mockFileManager.deleteAppState()
         goToForeground()
         
-        XCTAssertNil(fixture.fileManager.readAppState())
+        XCTAssertNil(fixture.mockFileManager.readAppState())
     }
 
     func testDifferentAppVersions_NoOOM() {
@@ -195,13 +192,12 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     }
     
     func testAppWasInForeground_OOM() {
-        fixture.fileManager = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
-        sut = fixture.getSut()
+        sut = fixture.getSut(usingRealFileManager: true)
 
         sut.start()
         goToForeground()
 
-        fixture.fileManager.moveAppStateToPreviousAppState()
+        fixture.mockFileManager.moveAppStateToPreviousAppState()
         sut.start()
         assertOOMEventSent()
     }
@@ -219,12 +215,11 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     }
 
     func testAppOOM_WithBreadcrumbs() {
-        fixture.fileManager = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
-        sut = fixture.getSut()
+        sut = fixture.getSut(usingRealFileManager: true)
 
         let breadcrumb = TestData.crumb
 
-        let sentryOutOfMemoryScopeObserver = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: Int(fixture.options.maxBreadcrumbs), fileManager: fixture.fileManager)
+        let sentryOutOfMemoryScopeObserver = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: Int(fixture.options.maxBreadcrumbs), fileManager: fixture.mockFileManager)
 
         for _ in 0..<3 {
             sentryOutOfMemoryScopeObserver.addSerializedBreadcrumb(breadcrumb.serialize())
@@ -233,8 +228,8 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         sut.start()
         goToForeground()
 
-        fixture.fileManager.moveAppStateToPreviousAppState()
-        fixture.fileManager.moveBreadcrumbsToPreviousBreadcrumbs()
+        fixture.mockFileManager.moveAppStateToPreviousAppState()
+        fixture.mockFileManager.moveBreadcrumbsToPreviousBreadcrumbs()
         sut.start()
         assertOOMEventSent(expectedBreadcrumbs: 2)
 
@@ -243,39 +238,36 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     }
 
     func testAppOOM_WithOnlyHybridSdkDidBecomeActive() {
-        fixture.fileManager = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
-        sut = fixture.getSut()
+        sut = fixture.getSut(usingRealFileManager: true)
 
         sut.start()
         hybridSdkDidBecomeActive()
 
-        fixture.fileManager.moveAppStateToPreviousAppState()
+        fixture.mockFileManager.moveAppStateToPreviousAppState()
         sut.start()
         assertOOMEventSent()
     }
     
     func testAppOOM_Foreground_And_HybridSdkDidBecomeActive() {
-        fixture.fileManager = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
-        sut = fixture.getSut()
+        sut = fixture.getSut(usingRealFileManager: true)
 
         sut.start()
         goToForeground()
         hybridSdkDidBecomeActive()
 
-        fixture.fileManager.moveAppStateToPreviousAppState()
+        fixture.mockFileManager.moveAppStateToPreviousAppState()
         sut.start()
         assertOOMEventSent()
     }
     
     func testAppOOM_HybridSdkDidBecomeActive_and_Foreground() {
-        fixture.fileManager = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
-        sut = fixture.getSut()
+        sut = fixture.getSut(usingRealFileManager: true)
         
         sut.start()
         hybridSdkDidBecomeActive()
         goToForeground()
 
-        fixture.fileManager.moveAppStateToPreviousAppState()
+        fixture.mockFileManager.moveAppStateToPreviousAppState()
         sut.start()
         assertOOMEventSent()
     }
@@ -314,13 +306,13 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     }
     
     private func givenPreviousAppState(appState: SentryAppState) {
-        fixture.fileManager.store(appState)
+        fixture.mockFileManager.store(appState)
     }
     
     private func update(appState: (SentryAppState) -> Void) {
-        if let currentAppState = fixture.fileManager.readAppState() {
+        if let currentAppState = fixture.mockFileManager.readAppState() {
             appState(currentAppState)
-            fixture.fileManager.store(currentAppState)
+            fixture.mockFileManager.store(currentAppState)
         }
     }
     

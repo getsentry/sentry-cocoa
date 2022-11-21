@@ -10,13 +10,14 @@ class SentryAppStateManagerTests: XCTestCase {
         let options: Options
         let fileManager: SentryFileManager
         let currentDate = TestCurrentDateProvider()
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
 
         init() {
             options = Options()
             options.dsn = SentryAppStateManagerTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
 
-            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
+            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate, dispatchQueueWrapper: dispatchQueue)
         }
 
         func getSut() -> SentryAppStateManager {

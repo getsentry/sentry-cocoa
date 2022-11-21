@@ -552,8 +552,8 @@ class SentrySDKTests: XCTestCase {
         let options = Options()
         options.dsn = SentrySDKTests.dsnAsString
 
-        let filemanager = try SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
-        let observer = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: 10, fileManager: filemanager)
+        let fileManager = try TestFileManager(options: options)
+        let observer = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: 10, fileManager: fileManager)
         let serializedBreadcrumb = TestData.crumb.serialize()
 
         for _ in 0..<3 {
@@ -562,7 +562,7 @@ class SentrySDKTests: XCTestCase {
 
         SentrySDK.start(options: options)
 
-        let result = filemanager.readPreviousBreadcrumbs()
+        let result = fileManager.readPreviousBreadcrumbs()
         XCTAssertEqual(result.count, 3)
     }
     

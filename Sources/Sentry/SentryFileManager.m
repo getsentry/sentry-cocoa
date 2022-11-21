@@ -51,6 +51,17 @@ SentryFileManager ()
                            error:error];
 }
 
+- (void)ensureSentryPath
+{
+    if (![[NSFileManager defaultManager] fileExistsAtPath:self.sentryPath]) {
+        SENTRY_LOG_DEBUG(@"Creating sentry folder at %@", self.sentryPath);
+        NSError *error;
+        if (![self.class createDirectoryAtPath:self.sentryPath withError:&error]) {
+            SENTRY_LOG_ERROR(@"Failed to (re)create the sentry directory: %@", error);
+        }
+    }
+}
+
 - (nullable instancetype)initWithOptions:(SentryOptions *)options
                   andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
                     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
@@ -71,9 +82,7 @@ SentryFileManager ()
         self.sentryPath =
             [self.basePath stringByAppendingPathComponent:[options.parsedDsn getHash]];
 
-        if (![fileManager fileExistsAtPath:self.sentryPath]) {
-            [self.class createDirectoryAtPath:self.sentryPath withError:error];
-        }
+        [self ensureSentryPath];
 
         self.currentSessionFilePath =
             [self.sentryPath stringByAppendingPathComponent:@"session.current"];
@@ -125,7 +134,7 @@ SentryFileManager ()
     [fileManager removeItemAtPath:self.sentryPath error:nil];
 }
 
-- (NSString *)uniqueAcendingJsonName
+- (NSString *)uniqueAscendingJsonName
 {
     // %f = double
     // %05lu = unsigned with always 5 digits and leading zeros if number is too small. We
@@ -268,7 +277,7 @@ SentryFileManager ()
 {
     @synchronized(self) {
         NSString *result = [self storeData:[SentrySerialization dataWithEnvelope:envelope error:nil]
-                                    toPath:self.envelopesPath];
+                          toUniqueJSONPath:self.envelopesPath];
         [self handleEnvelopesLimit];
         return result;
     }
@@ -335,7 +344,9 @@ SentryFileManager ()
     NSData *sessionData = [SentrySerialization dataWithSession:session error:nil];
     SENTRY_LOG_DEBUG(@"Writing session: %@", sessionFilePath);
     @synchronized(self.currentSessionFilePath) {
-        [sessionData writeToFile:sessionFilePath options:NSDataWritingAtomic error:nil];
+        if (![self writeData:sessionData toPath:sessionFilePath]) {
+            SENTRY_LOG_WARN(@"Failed to write session data.");
+        }
     }
 }
 
@@ -395,10 +406,10 @@ SentryFileManager ()
     NSString *timestampString = [timestamp sentry_toIso8601String];
     SENTRY_LOG_DEBUG(@"Persisting lastInForeground: %@", timestampString);
     @synchronized(self.lastInForegroundFilePath) {
-        [[timestampString dataUsingEncoding:NSUTF8StringEncoding]
-            writeToFile:self.lastInForegroundFilePath
-                options:NSDataWritingAtomic
-                  error:nil];
+        if (![self writeData:[timestampString dataUsingEncoding:NSUTF8StringEncoding]
+                      toPath:self.lastInForegroundFilePath]) {
+            SENTRY_LOG_WARN(@"Failed to store timestamp of last foreground event.");
+        }
     }
 }
 
@@ -429,20 +440,33 @@ SentryFileManager ()
     return [NSDate sentry_fromIso8601String:timestampString];
 }
 
-- (NSString *)storeData:(NSData *)data toPath:(NSString *)path
+- (NSString *)storeData:(NSData *)data toUniqueJSONPath:(NSString *)path
 {
     @synchronized(self) {
-        NSString *finalPath = [path stringByAppendingPathComponent:[self uniqueAcendingJsonName]];
+        NSString *finalPath = [path stringByAppendingPathComponent:[self uniqueAscendingJsonName]];
         SENTRY_LOG_DEBUG(@"Writing to file: %@", finalPath);
-        [data writeToFile:finalPath options:NSDataWritingAtomic error:nil];
+        if (![self writeData:data toPath:finalPath]) {
+            SENTRY_LOG_WARN(@"Failed to store data.");
+        }
         return finalPath;
     }
+}
+
+- (BOOL)writeData:(NSData *)data toPath:(NSString *)path
+{
+    [self ensureSentryPath];
+    NSError *error;
+    if (![data writeToFile:path options:NSDataWritingAtomic error:&error]) {
+        SENTRY_LOG_ERROR(@"Failed to write data to path %@: %@", path, error);
+        return NO;
+    }
+    return YES;
 }
 
 - (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path
 {
     NSData *saveData = [SentrySerialization dataWithJSONObject:dictionary error:nil];
-    return nil != saveData ? [self storeData:saveData toPath:path]
+    return nil != saveData ? [self storeData:saveData toUniqueJSONPath:path]
                            : path; // TODO: Should we return null instead? Whoever is using this
                                    // return value is being tricked.
 }
@@ -459,11 +483,8 @@ SentryFileManager ()
     }
 
     @synchronized(self.appStateFilePath) {
-        [data writeToFile:self.appStateFilePath options:NSDataWritingAtomic error:&error];
-        if (nil != error) {
-            [SentryLog
-                logWithMessage:[NSString stringWithFormat:@"Failed to store app state %@", error]
-                      andLevel:kSentryLevelError];
+        if (![self writeData:data toPath:self.appStateFilePath]) {
+            SENTRY_LOG_WARN(@"Failed to store app state.");
         }
     }
 }
@@ -487,12 +508,12 @@ SentryFileManager ()
 
 - (void)moveState:(NSString *)stateFilePath toPreviousState:(NSString *)previousStateFilePath
 {
+    SENTRY_LOG_DEBUG(@"Moving current app state to previous app state.");
     NSFileManager *fileManager = [NSFileManager defaultManager];
 
     // We first need to remove the old previous state file,
     // or we can't move the current state file to it.
     [self removeFileAtPath:previousStateFilePath];
-
     NSError *error = nil;
     [fileManager moveItemAtPath:stateFilePath toPath:previousStateFilePath error:&error];
 
@@ -627,17 +648,12 @@ SentryFileManager ()
 
 - (void)storeTimezoneOffset:(NSInteger)offset
 {
-    NSError *error = nil;
     NSString *timezoneOffsetString = [NSString stringWithFormat:@"%zd", offset];
     SENTRY_LOG_DEBUG(@"Persisting timezone offset: %@", timezoneOffsetString);
     @synchronized(self.timezoneOffsetFilePath) {
-        [[timezoneOffsetString dataUsingEncoding:NSUTF8StringEncoding]
-            writeToFile:self.timezoneOffsetFilePath
-                options:NSDataWritingAtomic
-                  error:&error];
-
-        if (error != nil) {
-            SENTRY_LOG_ERROR(@"Failed to store timezone offset: %@", error);
+        if (![self writeData:[timezoneOffsetString dataUsingEncoding:NSUTF8StringEncoding]
+                      toPath:self.timezoneOffsetFilePath]) {
+            SENTRY_LOG_WARN(@"Failed to store timezone offset.");
         }
     }
 }

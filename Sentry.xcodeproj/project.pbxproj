@@ -1081,7 +1081,7 @@
 		7B42C47F27E08F33009B58C2 /* SentryDependencyContainer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryDependencyContainer.h; path = include/SentryDependencyContainer.h; sourceTree = "<group>"; };
 		7B42C48127E08F4B009B58C2 /* SentryDependencyContainer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryDependencyContainer.m; sourceTree = "<group>"; };
 		7B451483263ABAB7008AFFEB /* SentryDebugImageProvider+TestInit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryDebugImageProvider+TestInit.h"; sourceTree = "<group>"; };
-		7B4C817124D1BC2B0076ACE4 /* SentryFileManager+TestProperties.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryFileManager+TestProperties.h"; sourceTree = "<group>"; };
+		7B4C817124D1BC2B0076ACE4 /* SentryFileManager+Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryFileManager+Test.h"; sourceTree = "<group>"; };
 		7B4D308926FC616B00C94DE9 /* SentryHttpTransportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryHttpTransportTests.swift; sourceTree = "<group>"; };
 		7B4E23AE2519E13800060D68 /* SentryCrashIntegration+TestInit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryCrashIntegration+TestInit.h"; sourceTree = "<group>"; };
 		7B4E23B5251A07BD00060D68 /* SentryDispatchQueueWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryDispatchQueueWrapperTests.swift; sourceTree = "<group>"; };
@@ -2474,7 +2474,7 @@
 				7BE3C7762445E50A00A38442 /* TestCurrentDateProvider.swift */,
 				7BD729992463EA4A00EA3610 /* SentryDateUtilTests.swift */,
 				7B85BD8D24C5C3A6000A4225 /* SentryFileManagerTestExtension.swift */,
-				7B4C817124D1BC2B0076ACE4 /* SentryFileManager+TestProperties.h */,
+				7B4C817124D1BC2B0076ACE4 /* SentryFileManager+Test.h */,
 				7B98D7EB25FB7C4900C5A389 /* SentryAppStateTests.swift */,
 				0A94158128F6C4C2006A5DD1 /* SentryAppStateManagerTests.swift */,
 				69BEE6F62620729E006DF9DF /* UrlSessionDelegateSpy.swift */,

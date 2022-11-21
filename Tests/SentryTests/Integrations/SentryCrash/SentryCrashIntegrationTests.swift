@@ -6,9 +6,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     private static let dsn = TestConstants.dsn(username: "SentryCrashIntegrationTests")
     
     private class Fixture {
-        
-        let currentDateProvider = TestCurrentDateProvider()
-        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let dispatchQueueWrapper: TestSentryDispatchQueueWrapper = {
+            let dqw = TestSentryDispatchQueueWrapper()
+            dqw.dispatchAfterExecutesBlock = true
+            return dqw
+        }()
         let hub: SentryHub
         let client: TestClient
         let options: Options
@@ -23,7 +25,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             options.dsn = SentryCrashIntegrationTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
             
-            client = TestClient(options: options)
+            client = TestClient(options: options, fileManager: try! SentryFileManager(options: options, andCurrentDateProvider: CurrentDate.getProvider()!, dispatchQueueWrapper: dispatchQueueWrapper))
             hub = TestHub(client: client, andScope: nil)
         }
         
@@ -49,7 +51,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         }
     }
     
-    private let fixture = Fixture()
+    private lazy var fixture = Fixture()
     
     override func setUp() {
         super.setUp()
@@ -123,7 +125,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testEndSessionAsCrashed_WhenOOM_WithCurrentSession() {
-        fixture.client.fileManager = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider())
         givenOOMAppState()
         SentrySDK.startInvocations = 1
         
@@ -308,14 +309,14 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     private func givenCrashedSession() -> SentrySession {
         let session = givenCurrentSession()
-        session.endCrashed(withTimestamp: fixture.currentDateProvider.date().addingTimeInterval(5))
+        session.endCrashed(withTimestamp: CurrentDate.date().addingTimeInterval(5))
         
         return session
     }
     
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     private func givenOOMAppState() {
-        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: UIDevice.current.identifierForVendor?.uuidString ?? "", isDebugging: false, systemBootTimestamp: fixture.currentDateProvider.date())
+        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: UIDevice.current.identifierForVendor?.uuidString ?? "", isDebugging: false, systemBootTimestamp: CurrentDate.date())
         appState.isActive = true
         fixture.client.fileManager.store(appState)
         fixture.client.fileManager.moveAppStateToPreviousAppState()
@@ -407,6 +408,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
     
     private func advanceTime(bySeconds: TimeInterval) {
-        fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(bySeconds))
+        (CurrentDate.getProvider() as! TestCurrentDateProvider).setDate(date: CurrentDate.date().addingTimeInterval(bySeconds))
     }
 }
