@@ -1,7 +1,7 @@
 @testable import Sentry
 import XCTest
 
-class SentryStacktraceBuilderTests: XCTestCase {
+class SentryStacktraceBuilderTests: SentryBaseUnitTest {
     
     private class Fixture {
         let queue = DispatchQueue(label: "SentryStacktraceBuilderTests")
@@ -16,12 +16,6 @@ class SentryStacktraceBuilderTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        clearTestState()
-    }
-
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
     }
     
     func testEnoughFrames() {

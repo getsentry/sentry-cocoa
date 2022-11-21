@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 
-class SentrySDKIntegrationTestsBase: XCTestCase {
+class SentrySDKIntegrationTestsBase: SentryBaseUnitTest {
     
     var currentDate = TestCurrentDateProvider()
     var crashWrapper: TestSentryCrashWrapper!
@@ -15,11 +15,6 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
         crashWrapper = TestSentryCrashWrapper.sharedInstance()
         SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
         currentDate = TestCurrentDateProvider()
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
     }
     
     func givenSdkWithHub(_ options: Options? = nil) {

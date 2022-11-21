@@ -2,7 +2,7 @@ import Sentry
 import SwiftUI
 import XCTest
 
-class SentryNetworkTrackerIntegrationTests: XCTestCase {
+class SentryNetworkTrackerIntegrationTests: SentryBaseUnitTest {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryNetworkTrackerIntegrationTests")
     private static let testBaggageURL = URL(string: "http://localhost:8080/echo-baggage-header")!
@@ -27,11 +27,6 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-    }
-
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
     }
     
     func testNSURLSessionConfiguration_NoActiveSpan_NoHeadersAdded() {

@@ -2,7 +2,7 @@ import Sentry
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryScreenshotIntegrationTests: XCTestCase {
+class SentryScreenshotIntegrationTests: SentryBaseUnitTest {
     
     private class Fixture {
         let screenshot: TestSentryScreenshot
@@ -24,13 +24,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        
         SentryDependencyContainer.sharedInstance().screenshot = fixture.screenshot
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
     }
 
     func test_attachScreenshot_disabled() {

@@ -2,7 +2,7 @@ import Sentry
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryUIEventTrackerIntegrationTests: XCTestCase {
+class SentryUIEventTrackerIntegrationTests: SentryBaseUnitTest {
     
     private class Fixture {
           
@@ -25,11 +25,6 @@ class SentryUIEventTrackerIntegrationTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
     }
     
     func test_noInstallation_SwizzlingDisabled() {

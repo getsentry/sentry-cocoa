@@ -1,7 +1,7 @@
 @testable import Sentry
 import XCTest
 
-class SentrySDKTests: XCTestCase {
+class SentrySDKTests: SentryBaseUnitTest {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySDKTests")
     private static let dsn = TestConstants.dsn(username: "SentrySDKTests")
@@ -71,8 +71,6 @@ class SentrySDKTests: XCTestCase {
         }) as? SentryAutoSessionTrackingIntegration {
             autoSessionTracking.stop()
         }
-        
-        clearTestState()
     }
     
     // Repro for: https://github.com/getsentry/sentry-cocoa/issues/1325

@@ -1,6 +1,6 @@
 import XCTest
 
-class SentryBreadcrumbTrackerTests: XCTestCase {
+class SentryBreadcrumbTrackerTests: SentryBaseUnitTest {
     
     private var scope: Scope!
     
@@ -12,12 +12,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let hub = TestHub(client: client, andScope: scope)
         SentrySDK.setCurrentHub(hub)
     }
-    
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
-    }
-    
+
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
     func testStopRemovesSwizzleSendAction() {

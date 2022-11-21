@@ -8,7 +8,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     private class Fixture {
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         let hub: SentryHub
-        let client: TestClient!
+        let client: TestClient
         let options: Options
         let sentryCrash: TestSentryCrashWrapper
         
@@ -49,16 +49,36 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     private lazy var fixture = Fixture()
     
+<<<<<<< HEAD
+    override func setUp() {
+        super.setUp()
+        CurrentDate.setCurrentDateProvider(TestCurrentDateProvider())
+        
+        fixture.client.fileManager.deleteCurrentSession()
+        fixture.client.fileManager.deleteCrashedSession()
+        fixture.client.fileManager.deleteAppState()
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+        fixture.client.fileManager.deleteCurrentSession()
+        fixture.client.fileManager.deleteCrashedSession()
+        fixture.client.fileManager.deleteAppState()
+        
+        clearTestState()
+    }
+    
+=======
+>>>>>>> 9642b9f9 (test: refactor app state cleanup into a base unit test superclass)
     // Test for GH-581
     func testReleaseNamePassedToSentryCrash() {
         let releaseName = "1.0.0"
         let dist = "14G60"
         // The start of the SDK installs all integrations
-        SentrySDK.start { options in
-            options.dsn = SentryCrashIntegrationTests.dsnAsString
-            options.releaseName = releaseName
-            options.dist = dist
-        }
+        SentrySDK.start(options: ["dsn": SentryCrashIntegrationTests.dsnAsString,
+                                  "release": releaseName,
+                                  "dist": dist]
+        )
         
         // To test this properly we need SentryCrash and SentryCrashIntegration installed and registered on the current hub of the SDK.
         
@@ -255,7 +275,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         api?.pointee.setEnabled(true)
         
         let transport = TestTransport()
-        let client = SentryClient(options: fixture.options)
+        let client = Client(options: fixture.options)
         Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
         hub.bindClient(client)
         

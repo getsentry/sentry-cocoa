@@ -1,6 +1,6 @@
 import XCTest
 
-class SentryNSDataTrackerTests: XCTestCase {
+class SentryNSDataTrackerTests: SentryBaseUnitTest {
 
     private class Fixture {
         
@@ -24,11 +24,6 @@ class SentryNSDataTrackerTests: XCTestCase {
         fixture = Fixture()
         fixture.getSut().enable()
         SentrySDK.start { $0.enableFileIOTracking = true }
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
     }
     
     func testConstants() {

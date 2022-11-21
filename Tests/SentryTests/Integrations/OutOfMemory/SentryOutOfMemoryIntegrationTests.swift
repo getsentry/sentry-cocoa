@@ -1,6 +1,6 @@
 import XCTest
 
-class SentryOutOfMemoryIntegrationTests: XCTestCase {
+class SentryOutOfMemoryIntegrationTests: SentryBaseUnitTest {
 
     private class Fixture {
         let options: Options
@@ -37,8 +37,6 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
     
     override func tearDown() {
         sut?.uninstall()
-        fixture.fileManager.deleteAllFolders()
-        clearTestState()
         super.tearDown()
     }
     

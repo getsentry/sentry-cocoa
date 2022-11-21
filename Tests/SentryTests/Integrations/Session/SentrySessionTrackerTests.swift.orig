@@ -10,7 +10,7 @@ class SentrySessionTrackerTests: SentryBaseUnitTest {
         
         let options: Options
         let currentDateProvider = TestCurrentDateProvider()
-        let client: TestClient!
+        let client: TestClient
         let sentryCrash: TestSentryCrashWrapper
 
         let notificationCenter = TestNSNotificationCenterWrapper()
@@ -45,6 +45,16 @@ class SentrySessionTrackerTests: SentryBaseUnitTest {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
+<<<<<<< HEAD
+        
+        CurrentDate.setCurrentDateProvider(fixture.currentDateProvider)
+
+        fixture.fileManager.deleteCurrentSession()
+        fixture.fileManager.deleteCrashedSession()
+        fixture.fileManager.deleteTimestampLastInForeground()
+        
+=======
+>>>>>>> 9642b9f9 (test: refactor app state cleanup into a base unit test superclass)
         fixture.setNewHubToSDK()
         sut = fixture.getSut()
     }

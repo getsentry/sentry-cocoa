@@ -6,7 +6,7 @@ import XCTest
 class TestViewController: UIViewController {
 }
 
-class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
+class SentryUIViewControllerPerformanceTrackerTests: SentryBaseUnitTest {
 
     let loadView = "loadView"
     let viewWillLoad = "viewWillLoad"
@@ -57,11 +57,6 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         super.setUp()
         fixture = Fixture()
         SentrySDK.start(options: fixture.options)
-    }
-
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
     }
     
     func testUILifeCycle_ViewDidAppear() throws {

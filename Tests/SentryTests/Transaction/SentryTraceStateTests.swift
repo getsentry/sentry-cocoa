@@ -1,6 +1,6 @@
 import XCTest
 
-class SentryTraceContextTests: XCTestCase {
+class SentryTraceContextTests: SentryBaseUnitTest {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySessionTrackerTests")
     
@@ -41,11 +41,6 @@ class SentryTraceContextTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
     }
     
     func testInit() {

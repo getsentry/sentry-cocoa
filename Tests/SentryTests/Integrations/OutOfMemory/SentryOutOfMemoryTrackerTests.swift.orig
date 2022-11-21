@@ -9,7 +9,7 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     private class Fixture {
         
         let options: Options
-        let client: TestClient!
+        let client: TestClient
         let crashWrapper: TestSentryCrashWrapper
         lazy var mockFileManager = try! TestFileManager(options: options, andCurrentDateProvider: currentDate)
         lazy var realFileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate, dispatchQueueWrapper: dispatchQueue)
@@ -56,16 +56,22 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     override func tearDown() {
         super.tearDown()
         sut.stop()
+<<<<<<< HEAD
+        fixture.client.fileManager.deleteAllFolders()
+        
+        clearTestState()
+=======
+>>>>>>> 9642b9f9 (test: refactor app state cleanup into a base unit test superclass)
     }
 
     func testStart_StoresAppState() {
         sut = fixture.getSut(usingRealFileManager: true)
 
-        XCTAssertNil(fixture.realFileManager.readAppState())
+        XCTAssertNil(fixture.mockFileManager.readAppState())
 
         sut.start()
         
-        let actual = fixture.realFileManager.readAppState()
+        let actual = fixture.mockFileManager.readAppState()
         
         let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.sysctl.systemBootTimestamp)
         
@@ -80,11 +86,11 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         
         goToForeground()
         
-        XCTAssertTrue(fixture.realFileManager.readAppState()?.isActive ?? false)
+        XCTAssertTrue(fixture.mockFileManager.readAppState()?.isActive ?? false)
         
         goToBackground()
         
-        XCTAssertFalse(fixture.realFileManager.readAppState()?.isActive ?? true)
+        XCTAssertFalse(fixture.mockFileManager.readAppState()?.isActive ?? true)
         XCTAssertEqual(3, fixture.dispatchQueue.dispatchAsyncCalled)
     }
     
@@ -288,8 +294,8 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         assertNoOOMSent()
     }
     
-    func testStop_StopsObserving_NoMoreFileManagerInvocations() {
-        let fileManager = try! TestFileManager(options: Options(), andCurrentDateProvider: TestCurrentDateProvider())
+    func testStop_StopsObserving_NoMoreFileManagerInvocations() throws {
+        let fileManager = try TestFileManager(options: Options(), andCurrentDateProvider: TestCurrentDateProvider())
         sut = fixture.getSut(fileManager: fileManager)
 
         sut.start()

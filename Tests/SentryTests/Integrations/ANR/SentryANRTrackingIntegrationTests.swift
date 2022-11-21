@@ -28,7 +28,6 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     
     override func tearDown() {
         sut.uninstall()
-        clearTestState()
         super.tearDown()
     }
 
