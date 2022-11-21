@@ -4,7 +4,8 @@
 
 ### Breaking changes
 
-- `SentrySession.errors` is now a boolean (#2410)
+- Renamed `SentrySession.errors` to `SentrySession.hasErrors`, and changed to be a boolean (#2410)
+- Renamed `- [SentrySession incrementErrors]` to `- [SentrySession encounteredError]`
 
 ### Fixes
 

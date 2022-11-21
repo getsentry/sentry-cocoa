@@ -36,7 +36,7 @@ class SentryClientTest: XCTestCase {
         
         init() {
             session = SentrySession(releaseName: "release")
-            session.incrementErrors()
+            session.encounteredError()
 
             message = SentryMessage(formatted: messageAsString)
 

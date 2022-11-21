@@ -26,7 +26,7 @@ SentrySession (Equality)
         return NO;
     if (self.status != session.status)
         return NO;
-    if (self.errors != session.errors)
+    if (self.hasErrors != session.hasErrors)
         return NO;
     if (self.sequence != session.sequence)
         return NO;
@@ -57,7 +57,7 @@ SentrySession (Equality)
     hash = hash * 23 + [self.sessionId hash];
     hash = hash * 23 + [self.started hash];
     hash = hash * 23 + self.status;
-    hash = hash * 23 + self.errors;
+    hash = hash * 23 + self.hasErrors;
     hash = hash * 23 + self.sequence;
     hash = hash * 23 + [self.distinctId hash];
     hash = hash * 23 + [self.flagInit hash];

@@ -184,8 +184,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
 }
 
 - (SentryId *)captureException:(NSException *)exception
-                     withScope:(SentryScope *)scope
-        incrementSessionErrors:(SentrySession * (^)(void))sessionBlock
+                      withScope:(SentryScope *)scope
+    sessionWithEncounteredError:(SentrySession * (^)(void))sessionBlock
 {
     SentryEvent *event = [self buildExceptionEvent:exception];
     event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
@@ -221,8 +221,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
 }
 
 - (SentryId *)captureError:(NSError *)error
-                 withScope:(SentryScope *)scope
-    incrementSessionErrors:(SentrySession * (^)(void))sessionBlock
+                      withScope:(SentryScope *)scope
+    sessionWithEncounteredError:(SentrySession * (^)(void))sessionBlock
 {
     SentryEvent *event = [self buildErrorEvent:error];
     event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];

@@ -384,7 +384,7 @@ class SentryHubTests: XCTestCase {
         if let errorArguments = fixture.client.captureErrorWithSessionInvocations.first {
             XCTAssertEqual(fixture.error, errorArguments.error as NSError)
             
-            XCTAssertEqual(true, errorArguments.session?.errors)
+            XCTAssertEqual(true, errorArguments.session?.hasErrors)
             XCTAssertEqual(SentrySessionStatus.ok, errorArguments.session?.status)
             
             XCTAssertEqual(fixture.scope, errorArguments.scope)
@@ -450,7 +450,7 @@ class SentryHubTests: XCTestCase {
         if let exceptionArguments = fixture.client.captureExceptionWithSessionInvocations.first {
             XCTAssertEqual(fixture.exception, exceptionArguments.exception)
             
-            XCTAssertEqual(true, exceptionArguments.session?.errors)
+            XCTAssertEqual(true, exceptionArguments.session?.hasErrors)
             XCTAssertEqual(SentrySessionStatus.ok, exceptionArguments.session?.status)
             
             XCTAssertEqual(fixture.scope, exceptionArguments.scope)
@@ -777,7 +777,7 @@ class SentryHubTests: XCTestCase {
         let envelope = fixture.client.captureEnvelopeInvocations.first!
         XCTAssertEqual(2, envelope.items.count)
         let session = SentrySerialization.session(with: envelope.items[1].data)
-        XCTAssertEqual(true, session?.errors)
+        XCTAssertEqual(true, session?.hasErrors)
     }
     
     private func assertNoSessionAddedToCapturedEnvelope() {

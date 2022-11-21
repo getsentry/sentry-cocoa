@@ -37,7 +37,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
         _started = [SentryCurrentDate date];
         _status = kSentrySessionStatusOk;
         _sequence = 1;
-        _errors = NO;
+        _hasErrors = NO;
         _distinctId = [SentryInstallation id];
     }
 
@@ -97,7 +97,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
         id errors = [jsonObject valueForKey:@"errors"];
         if (errors == nil || ![errors isKindOfClass:[NSNumber class]])
             return nil;
-        _errors = [errors boolValue];
+        _hasErrors = [errors boolValue];
 
         id did = [jsonObject valueForKey:@"did"];
         if (did == nil || ![did isKindOfClass:[NSString class]])
@@ -183,12 +183,12 @@ nameForSentrySessionStatus(SentrySessionStatus status)
     _sequence++;
 }
 
-- (void)incrementErrors
+- (void)encounteredError
 {
     @synchronized(self) {
-        if (!_errors) {
+        if (!_hasErrors) {
             [self changed];
-            _errors = YES;
+            _hasErrors = YES;
         }
     }
 }
@@ -198,7 +198,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
     @synchronized(self) {
         NSMutableDictionary *serializedData = @{
             @"sid" : _sessionId.UUIDString,
-            @"errors" : @(_errors),
+            @"errors" : @([@(_hasErrors) boolValue]),
             @"started" : [_started sentry_toIso8601String],
         }
                                                   .mutableCopy;
@@ -252,7 +252,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
         copy->_sessionId = _sessionId;
         copy->_started = _started;
         copy->_status = _status;
-        copy->_errors = _errors;
+        copy->_hasErrors = _hasErrors;
         copy->_sequence = _sequence;
         copy->_distinctId = _distinctId;
         copy->_timestamp = _timestamp;

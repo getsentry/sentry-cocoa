@@ -196,12 +196,12 @@ SentryHub ()
     }
 }
 
-- (nullable SentrySession *)incrementSessionErrors
+- (nullable SentrySession *)sessionWithEncounteredError
 {
     SentrySession *sessionCopy = nil;
     @synchronized(_sessionLock) {
         if (nil != _session) {
-            [_session incrementErrors];
+            [_session encounteredError];
             [self storeCurrentSession:_session];
             sessionCopy = [_session copy];
         }
@@ -444,8 +444,8 @@ SentryHub ()
     if (nil != client) {
         if (nil != currentSession) {
             return [client captureError:error
-                              withScope:scope
-                 incrementSessionErrors:^(void) { return [self incrementSessionErrors]; }];
+                                  withScope:scope
+                sessionWithEncounteredError:^(void) { return [self sessionWithEncounteredError]; }];
         } else {
             return [client captureError:error withScope:scope];
         }
@@ -466,7 +466,7 @@ SentryHub ()
         if (nil != currentSession) {
             return [client captureException:exception
                                   withScope:scope
-                     incrementSessionErrors:^(void) { return [self incrementSessionErrors]; }];
+                sessionWithEncounteredError:^(void) { return [self sessionWithEncounteredError]; }];
         } else {
             return [client captureException:exception withScope:scope];
         }
@@ -610,7 +610,7 @@ SentryHub ()
 - (SentryEnvelope *)updateSessionState:(SentryEnvelope *)envelope
 {
     if ([self envelopeContainsEventWithErrorOrHigher:envelope.items]) {
-        SentrySession *currentSession = [self incrementSessionErrors];
+        SentrySession *currentSession = [self sessionWithEncounteredError];
 
         if (nil != currentSession) {
             // Create a new envelope with the session update

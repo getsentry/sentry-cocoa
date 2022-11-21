@@ -33,12 +33,12 @@ SENTRY_NO_INIT
 - (void)endSessionCrashedWithTimestamp:(NSDate *)timestamp;
 - (void)endSessionAbnormalWithTimestamp:(NSDate *)timestamp;
 
-- (void)incrementErrors;
+- (void)encounteredError;
 
 @property (nonatomic, readonly, strong) NSUUID *sessionId;
 @property (nonatomic, readonly, strong) NSDate *started;
 @property (nonatomic, readonly) enum SentrySessionStatus status;
-@property (nonatomic, readonly) BOOL errors;
+@property (nonatomic, readonly) BOOL hasErrors;
 @property (nonatomic, readonly) NSUInteger sequence;
 @property (nonatomic, readonly, strong) NSString *distinctId;
 /**

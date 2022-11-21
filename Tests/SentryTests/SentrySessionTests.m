@@ -12,7 +12,7 @@
     SentrySession *session = [[SentrySession alloc] initWithReleaseName:@"1.0.0"];
     XCTAssertNotNil(session.sessionId);
     XCTAssertEqual(1, session.sequence);
-    XCTAssertEqual(NO, session.errors);
+    XCTAssertEqual(NO, session.hasErrors);
     XCTAssertTrue(session.flagInit);
     XCTAssertNotNil(session.started);
     XCTAssertEqual(kSentrySessionStatusOk, session.status);
@@ -32,7 +32,7 @@
 
     XCTAssertTrue([expected.sessionId isEqual:actual.sessionId]);
     XCTAssertEqual(expected.sequence, actual.sequence);
-    XCTAssertEqual(expected.errors, actual.errors);
+    XCTAssertEqual(expected.hasErrors, actual.hasErrors);
     // TODO: get XCT happy XCTAssertEqual(expected.init, actual.init);
     XCTAssertEqualWithAccuracy([expected.started timeIntervalSinceReferenceDate],
         [actual.started timeIntervalSinceReferenceDate], 1);
@@ -60,7 +60,7 @@
 
     XCTAssertTrue([expected.sessionId isEqual:actual.sessionId]);
     XCTAssertEqual(expected.sequence, actual.sequence);
-    XCTAssertEqual(expected.errors, actual.errors);
+    XCTAssertEqual(expected.hasErrors, actual.hasErrors);
     // TODO: get XCT happy XCTAssertEqual(expected.init, actual.init);
     XCTAssertEqualWithAccuracy([expected.started timeIntervalSinceReferenceDate],
         [actual.started timeIntervalSinceReferenceDate], 1);
@@ -78,14 +78,14 @@
 - (void)testSerializeErrorIncremented
 {
     SentrySession *expected = [[SentrySession alloc] initWithReleaseName:@""];
-    [expected incrementErrors];
+    [expected encounteredError];
     [expected endSessionExitedWithTimestamp:[NSDate date]];
     NSDictionary<NSString *, id> *json = [expected serialize];
     SentrySession *actual = [[SentrySession alloc] initWithJSONObject:json];
 
     XCTAssertTrue([expected.sessionId isEqual:actual.sessionId]);
     XCTAssertEqual(expected.sequence, actual.sequence);
-    XCTAssertEqual(expected.errors, actual.errors);
+    XCTAssertEqual(expected.hasErrors, actual.hasErrors);
     // TODO: get XCT happy XCTAssertEqual(expected.init, actual.init);
     XCTAssertEqualWithAccuracy([expected.started timeIntervalSinceReferenceDate],
         [actual.started timeIntervalSinceReferenceDate], 1);
@@ -101,15 +101,15 @@
 - (void)testAbnormalSession
 {
     SentrySession *expected = [[SentrySession alloc] initWithReleaseName:@""];
-    XCTAssertEqual(0, expected.errors);
+    XCTAssertFalse(expected.hasErrors);
     XCTAssertEqual(kSentrySessionStatusOk, expected.status);
     XCTAssertEqual(1, expected.sequence);
-    [expected incrementErrors];
-    XCTAssertEqual(1, expected.errors);
+    [expected encounteredError];
+    XCTAssertTrue(expected.hasErrors);
     XCTAssertEqual(kSentrySessionStatusOk, expected.status);
     XCTAssertEqual(2, expected.sequence);
     [expected endSessionAbnormalWithTimestamp:[NSDate date]];
-    XCTAssertEqual(1, expected.errors);
+    XCTAssertTrue(expected.hasErrors);
     XCTAssertEqual(kSentrySessionStatusAbnormal, expected.status);
     XCTAssertEqual(3, expected.sequence);
 }
@@ -127,11 +127,11 @@
 - (void)testExitedSession
 {
     SentrySession *expected = [[SentrySession alloc] initWithReleaseName:@""];
-    XCTAssertEqual(0, expected.errors);
+    XCTAssertFalse(expected.hasErrors);
     XCTAssertEqual(kSentrySessionStatusOk, expected.status);
     XCTAssertEqual(1, expected.sequence);
     [expected endSessionExitedWithTimestamp:[NSDate date]];
-    XCTAssertEqual(0, expected.errors);
+    XCTAssertFalse(expected.hasErrors);
     XCTAssertEqual(kSentrySessionStatusExited, expected.status);
     XCTAssertEqual(2, expected.sequence);
 }

@@ -44,7 +44,7 @@ class SentryFileManagerTests: XCTestCase {
             sessionEnvelope = SentryEnvelope(session: session)
 
             let sessionCopy = session.copy() as! SentrySession
-            sessionCopy.incrementErrors()
+            sessionCopy.encounteredError()
             // We need to serialize in order to set the timestamp and the duration
             sessionUpdate = SentrySession(jsonObject: sessionCopy.serialize())!
 

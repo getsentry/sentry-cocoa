@@ -28,7 +28,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         
         var session: SentrySession {
             let session = SentrySession(releaseName: "1.0.0")
-            session.incrementErrors()
+            session.encounteredError()
             
             return session
         }

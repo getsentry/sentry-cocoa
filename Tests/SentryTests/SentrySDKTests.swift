@@ -380,7 +380,7 @@ class SentrySDKTests: XCTestCase {
         let expected = SentrySession(releaseName: fixture.options.releaseName ?? "")
         
         XCTAssertEqual(expected.flagInit, actual?.flagInit)
-        XCTAssertEqual(expected.errors, actual?.errors)
+        XCTAssertEqual(expected.hasErrors, actual?.hasErrors)
         XCTAssertEqual(expected.sequence, actual?.sequence)
         XCTAssertEqual(expected.releaseName, actual?.releaseName)
         XCTAssertEqual(fixture.currentDate.date(), actual?.started)
@@ -401,7 +401,7 @@ class SentrySDKTests: XCTestCase {
         let actual = fixture.client.captureSessionInvocations.invocations[1]
         
         XCTAssertNil(actual.flagInit)
-        XCTAssertEqual(false, actual.errors)
+        XCTAssertFalse(actual.hasErrors)
         XCTAssertEqual(2, actual.sequence)
         XCTAssertEqual(SentrySessionStatus.exited, actual.status)
         XCTAssertEqual(fixture.options.releaseName ?? "", actual.releaseName)

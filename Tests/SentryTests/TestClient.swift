@@ -86,13 +86,13 @@ class TestClient: Client {
 
     var callSessionBlockWithIncrementSessionErrors = true
     var captureErrorWithSessionInvocations = Invocations<(error: Error, session: SentrySession?, scope: Scope)>()
-    override func captureError(_ error: Error, with scope: Scope, incrementSessionErrors sessionBlock: @escaping () -> SentrySession) -> SentryId {
+    override func captureError(_ error: Error, with scope: Scope, sessionWithEncounteredError sessionBlock: @escaping () -> SentrySession) -> SentryId {
         captureErrorWithSessionInvocations.record((error, callSessionBlockWithIncrementSessionErrors ? sessionBlock() : nil, scope))
         return SentryId()
     }
     
     var captureExceptionWithSessionInvocations = Invocations<(exception: NSException, session: SentrySession?, scope: Scope)>()
-    override func capture(_ exception: NSException, with scope: Scope, incrementSessionErrors sessionBlock: @escaping () -> SentrySession) -> SentryId {
+    override func capture(_ exception: NSException, with scope: Scope, sessionWithEncounteredError sessionBlock: @escaping () -> SentrySession) -> SentryId {
         captureExceptionWithSessionInvocations.record((exception, callSessionBlockWithIncrementSessionErrors ? sessionBlock() : nil, scope))
         return SentryId()
     }
