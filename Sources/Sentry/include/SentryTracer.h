@@ -143,6 +143,8 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  */
 - (void)spanFinished:(id<SentrySpan>)finishedSpan;
 
+- (void)setExtraValue:(nullable id)value forKey:(NSString *)key DEPRECATED_ATTRIBUTE;
+
 /**
  * Get the tracer from a span.
  */
