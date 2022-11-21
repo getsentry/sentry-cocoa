@@ -49,9 +49,9 @@ class SentryScopeSwiftTests: XCTestCase {
 
             scope.setContext(value: context["context"] ?? ["": ""], key: "context")
             scope.setLevel(level)
-            scope.add(breadcrumb)
+            scope.addBreadcrumb(breadcrumb)
             
-            scope.add(TestData.fileAttachment)
+            scope.addAttachment(TestData.fileAttachment)
             
             event = Event()
             event.message = SentryMessage(formatted: "message")
@@ -91,7 +91,7 @@ class SentryScopeSwiftTests: XCTestCase {
         scope.setFingerprint([])
         scope.setLevel(SentryLevel.debug)
         scope.clearBreadcrumbs()
-        scope.add(TestData.fileAttachment)
+        scope.addAttachment(TestData.fileAttachment)
         scope.span = fixture.transaction
         
         XCTAssertEqual(["key": "value"], actual["tags"] as? [String: String])
@@ -110,7 +110,7 @@ class SentryScopeSwiftTests: XCTestCase {
     }
     
     func testApplyToEvent() {
-        let actual = fixture.scope.apply(to: fixture.event, maxBreadcrumb: 10)
+        let actual = fixture.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
         
         XCTAssertEqual(fixture.tags, actual?.tags)
         XCTAssertEqual(fixture.extra, actual?.extra as? [String: String])
@@ -128,7 +128,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let event = fixture.event
         event.tags = tags as? [String: String]
         
-        let actual = fixture.scope.apply(to: event, maxBreadcrumb: 10)
+        let actual = fixture.scope.applyTo(event: event, maxBreadcrumbs: 10)
         
         tags.addEntries(from: fixture.tags)
         XCTAssertEqual(tags as? [String: String], actual?.tags)
@@ -139,7 +139,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let event = fixture.event
         event.extra = extra as? [String: String]
         
-        let actual = fixture.scope.apply(to: event, maxBreadcrumb: 10)
+        let actual = fixture.scope.applyTo(event: event, maxBreadcrumbs: 10)
         
         extra.addEntries(from: fixture.extra)
         XCTAssertEqual(extra as? [String: String], actual?.extra as? [String: String])
@@ -152,7 +152,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let event = fixture.event
         event.user = fixture.user
         
-        let actual = scope.apply(to: fixture.event, maxBreadcrumb: 10)
+        let actual = scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
         
         XCTAssertEqual(fixture.user, actual?.user)
     }
@@ -164,7 +164,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let event = fixture.event
         event.dist = "myDist"
         
-        let actual = scope.apply(to: fixture.event, maxBreadcrumb: 10)
+        let actual = scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
         
         XCTAssertEqual(event.dist, actual?.dist)
     }
@@ -173,7 +173,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let scope = fixture.scope
         scope.span = fixture.transaction
         
-        let actual = scope.apply(to: fixture.event, maxBreadcrumb: 10)
+        let actual = scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
         let trace = fixture.event.context?["trace"]
               
         XCTAssertEqual(actual?.transaction, fixture.transactionName)
@@ -186,7 +186,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let event = fixture.event
         event.dist = "myDist"
         
-        let actual = fixture.scope.apply(to: fixture.event, maxBreadcrumb: 10)
+        let actual = fixture.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
         
         XCTAssertEqual(event.dist, actual?.dist)
     }
@@ -198,7 +198,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let event = fixture.event
         event.environment = "myEnvironment"
         
-        let actual = scope.apply(to: fixture.event, maxBreadcrumb: 10)
+        let actual = scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
         
         XCTAssertEqual(event.environment, actual?.environment)
     }
@@ -207,7 +207,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let event = fixture.event
         event.environment = "myEnvironment"
         
-        let actual = fixture.scope.apply(to: fixture.event, maxBreadcrumb: 10)
+        let actual = fixture.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
         
         XCTAssertEqual(event.environment, actual?.environment)
     }
@@ -232,7 +232,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let event = fixture.event
         event.context = context as? [String: [String: String]]
         
-        let actual = fixture.scope.apply(to: event, maxBreadcrumb: 10)
+        let actual = fixture.scope.applyTo(event: event, maxBreadcrumbs: 10)
         
         context.addEntries(from: fixture.context)
         XCTAssertEqual(context as? [String: [String: String]],
@@ -258,7 +258,7 @@ class SentryScopeSwiftTests: XCTestCase {
         scope.setContext(value: ["a": [12: 1], "c": "c", "e": "f"], key: "first")
         scope.setContext(value: ["0": "1"], key: "second")
         
-        let actual = scope.apply(to: event, maxBreadcrumb: 10)
+        let actual = scope.applyTo(event: event, maxBreadcrumbs: 10)
         let actualContext = actual?.context as? [String: [String: String]]
         
         context.addEntries(from: fixture.context)
@@ -281,14 +281,14 @@ class SentryScopeSwiftTests: XCTestCase {
         let scope = fixture.scope
         
         let attachments = scope.attachments
-        scope.add(TestData.fileAttachment)
+        scope.addAttachment(TestData.fileAttachment)
         
         XCTAssertEqual(1, attachments.count)
     }
     
     func testClearAttachments() {
         let scope = fixture.scope
-        scope.add(TestData.fileAttachment)
+        scope.addAttachment(TestData.fileAttachment)
         
         scope.clearAttachments()
         
@@ -311,7 +311,7 @@ class SentryScopeSwiftTests: XCTestCase {
         modifyScope(scope: scope)
         
         self.measure {
-            scope.add(self.fixture.breadcrumb)
+            scope.addBreadcrumb(self.fixture.breadcrumb)
         }
     }
     
@@ -481,8 +481,8 @@ class SentryScopeSwiftTests: XCTestCase {
         sut.add(observer)
         
         let crumb = TestData.crumb
-        sut.add(crumb)
-        sut.add(crumb)
+        sut.addBreadcrumb(crumb)
+        sut.addBreadcrumb(crumb)
         
         XCTAssertEqual(
             [crumb.serialize() as! [String: AnyHashable], crumb.serialize() as! [String: AnyHashable]],
@@ -575,14 +575,14 @@ class SentryScopeSwiftTests: XCTestCase {
         _ = Scope(scope: scope)
         
         for _ in 0...100 {
-            scope.add(self.fixture.breadcrumb)
+            scope.addBreadcrumb(self.fixture.breadcrumb)
         }
         
         scope.serialize()
         scope.clearBreadcrumbs()
-        scope.add(self.fixture.breadcrumb)
+        scope.addBreadcrumb(self.fixture.breadcrumb)
         
-        scope.apply(to: SentrySession(releaseName: "1.0.0"))
+        scope.applyTo(session: SentrySession(releaseName: "1.0.0"))
         
         scope.setFingerprint(nil)
         scope.setFingerprint(["finger", "print"])
@@ -594,18 +594,18 @@ class SentryScopeSwiftTests: XCTestCase {
         scope.removeExtra(key: key)
         scope.setExtras(["value": "1", "value2": "2"])
         
-        scope.apply(to: TestData.event, maxBreadcrumb: 5)
+        scope.applyTo(event: TestData.event, maxBreadcrumbs: 5)
         
         scope.setTag(value: "value", key: key)
         scope.removeTag(key: key)
         scope.setTags(["tag1": "hello", "tag2": "hello"])
         
-        scope.add(TestData.fileAttachment)
+        scope.addAttachment(TestData.fileAttachment)
         scope.clearAttachments()
-        scope.add(TestData.fileAttachment)
+        scope.addAttachment(TestData.fileAttachment)
         
         for _ in 0...10 {
-            scope.add(self.fixture.breadcrumb)
+            scope.addBreadcrumb(self.fixture.breadcrumb)
         }
         scope.serialize()
         
@@ -614,8 +614,8 @@ class SentryScopeSwiftTests: XCTestCase {
         scope.setEnvironment("env")
         scope.setLevel(SentryLevel.debug)
         
-        scope.apply(to: SentrySession(releaseName: "1.0.0"))
-        scope.apply(to: TestData.event, maxBreadcrumb: 5)
+        scope.applyTo(session: SentrySession(releaseName: "1.0.0"))
+        scope.applyTo(event: TestData.event, maxBreadcrumbs: 5)
         
         scope.serialize()
     }

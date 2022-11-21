@@ -4,6 +4,15 @@
 
 This version adds a dependency on Swift.
 
+### Breaking Changes
+
+- Make public APIs Swift friendly (#)
+    - Renamed `SentrySDK.addBreadcrumb(crumb:)` to `SentrySDK.addBreadcrumb(_ crumb:)`
+    - Renamed `SentryClient.add(_ crumb:)` to `SentryClient.addBreadcrumb(_ crumb:)`
+    - Renamed `SentryClient.add(_ attachment:)` to `SentryClient.addAttachment(_ attachment:)`
+    - Renamed `SentryClient.apply(to:)` to `SentryClient.applyTo(session:)`
+    - Renamed `SentryClient.apply(to:maxBreadcrumb:)` to `SentryClient.applyTo(event:maxBreadcrumbs:)`
+
 ### Features
 
 - Properly demangle Swift class name (#2162)

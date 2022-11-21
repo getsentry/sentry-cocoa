@@ -25,10 +25,10 @@ class ViewController: UIViewController {
             scope.setUser(user)
             
             if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
-                scope.add(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
+                scope.addAttachment(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
             }
             if let data = "hello".data(using: .utf8) {
-                scope.add(Attachment(data: data, filename: "log.txt"))
+                scope.addAttachment(Attachment(data: data, filename: "log.txt"))
             }
         }
 
@@ -75,7 +75,7 @@ class ViewController: UIViewController {
         let crumb = Breadcrumb(level: SentryLevel.info, category: "Debug")
         crumb.message = "tapped addBreadcrumb"
         crumb.type = "user"
-        SentrySDK.addBreadcrumb(crumb: crumb)
+        SentrySDK.addBreadcrumb(crumb)
     }
     
     @IBAction func captureMessage(_ sender: Any) {

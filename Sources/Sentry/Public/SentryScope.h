@@ -88,7 +88,8 @@ NS_SWIFT_NAME(Scope)
 /**
  * Add a breadcrumb to the scope
  */
-- (void)addBreadcrumb:(SentryBreadcrumb *)crumb;
+- (void)addBreadcrumb:(SentryBreadcrumb *)crumb NS_SWIFT_NAME(addBreadcrumb(_:));
+;
 
 /**
  * Clears all breadcrumbs in the scope
@@ -103,10 +104,11 @@ NS_SWIFT_NAME(Scope)
 /**
  * Adds the Scope to the event
  */
-- (SentryEvent *__nullable)applyToEvent:(SentryEvent *)event
-                          maxBreadcrumb:(NSUInteger)maxBreadcrumbs;
+- (nullable SentryEvent *)applyToEvent:(SentryEvent *)event
+                         maxBreadcrumb:(NSUInteger)maxBreadcrumbs
+    NS_SWIFT_NAME(applyTo(event:maxBreadcrumbs:));
 
-- (void)applyToSession:(SentrySession *)session;
+- (void)applyToSession:(SentrySession *)session NS_SWIFT_NAME(applyTo(session:));
 
 /**
  * Sets context values which will overwrite SentryEvent.context when event is
@@ -126,7 +128,7 @@ NS_SWIFT_NAME(Scope)
  *
  * @param attachment The attachment to add to the Scope's list of attachments.
  */
-- (void)addAttachment:(SentryAttachment *)attachment;
+- (void)addAttachment:(SentryAttachment *)attachment NS_SWIFT_NAME(addAttachment(_:));
 
 /**
  * Clears all attachments in the scope.

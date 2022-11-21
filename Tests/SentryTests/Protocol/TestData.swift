@@ -200,11 +200,11 @@ class TestData {
         
         let crumb1 = TestData.crumb
         crumb1.message = "Crumb 1"
-        scope.add(crumb1)
+        scope.addBreadcrumb(crumb1)
         
         let crumb2 = TestData.crumb
         crumb2.message = "Crumb 2"
-        scope.add(crumb2)
+        scope.addBreadcrumb(crumb2)
         
         return scope
     }
