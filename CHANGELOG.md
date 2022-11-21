@@ -8,6 +8,10 @@ This version introduces a dependency on Swift, which only impacts you if you don
 
 - Properly demangle Swift class name (#2162)
 
+### Breaking changes
+
+- Bump minimum supported OS versions: macOS 10.13, iOS 11, tvOS 11, and watchOS 4 are now supported (#2414)
+
 ## 7.31.2
 
 ### Fixes
