@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - master
+      - 8.0.0
 
   pull_request:
     paths:
@@ -44,7 +45,7 @@ jobs:
           path: |
             DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app.dSYM
             DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app
-          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/iOS-Swift/**') }}-Xcode-${{ matrix.xcode }}
+          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/iOS-Swift/**') }}-Xcode-${{ matrix.xcode }}-${{ hashFiles('Sentry/Sources/**') }}
       - name: Cache iOS-Swift UI Test Runner App build product
         id: ios-swift-uitest-runner-cache
         uses: actions/cache@v3
