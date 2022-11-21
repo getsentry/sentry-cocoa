@@ -32,6 +32,7 @@ SentryMetricKitIntegration ()
 - (void)uninstall
 {
     [self.metricKitManager pauseReports];
+    self.metricKitManager = nil;
 }
 
 @end

@@ -575,7 +575,7 @@
     XCTAssertEqual(YES, options.enableSwizzling);
     XCTAssertEqual(NO, options.enableFileIOTracking);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
-    if (@available(iOS 13.0, macOS 12.0, macCatalyst 13.1, *)) {
+    if (@available(iOS 14.0, macOS 12.0, macCatalyst 13.1, *)) {
         XCTAssertEqual(NO, options.enableMetricKit);
     }
 

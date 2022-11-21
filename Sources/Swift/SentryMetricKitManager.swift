@@ -15,6 +15,11 @@ import MetricKit
     }
     
     public func didReceive(_ payloads: [MXDiagnosticPayload]) {
-
+        for payload in payloads {
+            payload.diskWriteExceptionDiagnostics?.forEach {
+                let json = $0.callStackTree.jsonRepresentation()
+                _ = try! CallStackTree.from(data: json)
+            }
+        }
     }
 }

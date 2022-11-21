@@ -7,7 +7,6 @@
 #import "SentryMeta.h"
 #import "SentrySDK.h"
 #import "SentrySdkInfo.h"
-#import <MetricKit/MetricKit.h>
 
 @interface
 SentryOptions ()
@@ -29,18 +28,26 @@ SentryOptions ()
 
 + (NSArray<NSString *> *)defaultIntegrations
 {
-    return @[
-        @"SentryCrashIntegration",
+    NSMutableArray<NSString *> *defaultIntegrations =
+        @[
+            @"SentryCrashIntegration",
 #if SENTRY_HAS_UIKIT
-        @"SentryANRTrackingIntegration", @"SentryScreenshotIntegration",
-        @"SentryUIEventTrackingIntegration", @"SentryViewHierarchyIntegration",
+            @"SentryANRTrackingIntegration", @"SentryScreenshotIntegration",
+            @"SentryUIEventTrackingIntegration", @"SentryViewHierarchyIntegration",
 #endif
-        @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
-        @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
-        @"SentryOutOfMemoryTrackingIntegration", @"SentryPerformanceTrackingIntegration",
-        @"SentryNetworkTrackingIntegration", @"SentryFileIOTrackingIntegration",
-        @"SentryCoreDataTrackingIntegration", @"SentryMetricKitIntegration"
-    ];
+            @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
+            @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
+            @"SentryOutOfMemoryTrackingIntegration", @"SentryPerformanceTrackingIntegration",
+            @"SentryNetworkTrackingIntegration", @"SentryFileIOTrackingIntegration",
+            @"SentryCoreDataTrackingIntegration"
+        ]
+            .mutableCopy;
+
+    if (@available(iOS 14.0, macCatalyst 14.0, macOS 12.0, *)) {
+        [defaultIntegrations addObject:@"SentryMetricKitIntegration"];
+    }
+
+    return defaultIntegrations;
 }
 
 - (instancetype)init
