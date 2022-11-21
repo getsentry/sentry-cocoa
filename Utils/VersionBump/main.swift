@@ -6,6 +6,7 @@ let fromVersionFile = "./Sentry.podspec"
 
 let files = [
     "./Sentry.podspec",
+    "./SentryPrivate.podspec",
     "./Sources/Sentry/SentryMeta.m",
     "./Sources/Configuration/Sentry.xcconfig",
     "./Samples/iOS-Swift/iOS-Swift.xcodeproj/project.pbxproj"

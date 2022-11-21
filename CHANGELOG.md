@@ -1,12 +1,20 @@
 # Changelog
 
-## Unreleased
+## Unreleased 
+
+This version adds a dependency on Swift.
+
+### Features
+
+- Properly demangle Swift class name (#2162)
 
 ### Breaking Changes
 
 - Removed `- [SentryOptions initWithDict:didFailWithError:]` (#2404)
 - Renamed `- [SentrySDK startWithOptionsObject:]` to `- [SentrySDK startWithOptions:]` (#2404)
 - Removed `- [SentryOptions sdkInfo]` (#2404)
+
+## 7.31.2
 
 ### Fixes
 

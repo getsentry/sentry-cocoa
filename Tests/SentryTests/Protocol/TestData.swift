@@ -120,8 +120,8 @@ class TestData {
         return mechanismMeta
     }
     
-    static var thread: Sentry.Thread {
-        let thread = Sentry.Thread(threadId: 10)
+    static var thread: SentryThread {
+        let thread = SentryThread(threadId: 10)
         thread.crashed = false
         thread.current = true
         thread.name = "main"
@@ -130,8 +130,8 @@ class TestData {
         return thread
     }
     
-    static var stacktrace: Stacktrace {
-        let stacktrace = Stacktrace(frames: [frame], registers: ["register": "one"])
+    static var stacktrace: SentryStacktrace {
+        let stacktrace = SentryStacktrace(frames: [frame], registers: ["register": "one"])
         stacktrace.snapshot = true
         return stacktrace
     }

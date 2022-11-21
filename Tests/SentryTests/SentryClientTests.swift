@@ -1336,7 +1336,7 @@ class SentryClientTest: XCTestCase {
     
     private func givenEventWithThreads() -> Event {
         let event = Event(level: SentryLevel.fatal)
-        let thread = Sentry.Thread(threadId: 1)
+        let thread = SentryThread(threadId: 1)
         thread.crashed = true
         let threads = [thread]
         event.threads = threads
@@ -1435,13 +1435,13 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    private func assertValidDebugMeta(actual: [DebugMeta]?, forThreads threads: [Sentry.Thread]?) {
+    private func assertValidDebugMeta(actual: [DebugMeta]?, forThreads threads: [SentryThread]?) {
         let debugMetas = fixture.debugImageBuilder.getDebugImages(for: threads ?? [])
         
         XCTAssertEqual(debugMetas, actual ?? [])
     }
     
-    private func assertValidThreads(actual: [Sentry.Thread]?) {
+    private func assertValidThreads(actual: [SentryThread]?) {
         let expected = fixture.threadInspector.getCurrentThreads()
         XCTAssertEqual(expected.count, actual?.count)
         XCTAssertEqual(expected, actual)

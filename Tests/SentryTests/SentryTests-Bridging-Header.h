@@ -162,7 +162,6 @@
 #import "SentryUIApplication.h"
 #import "SentryUIDeviceWrapper.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
-#import "SentryUIViewControllerSanitizer.h"
 #import "SentryUIViewControllerSwizzling+Test.h"
 #import "SentryUIViewControllerSwizzling.h"
 #import "SentryUserFeedback.h"
@@ -175,6 +174,7 @@
 #import "UIView+Sentry.h"
 #import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"
+@import SentryPrivate;
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIEventTracker.h"
