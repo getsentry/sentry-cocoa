@@ -1,11 +1,6 @@
 import Sentry
 import XCTest
 
-// Although we only run this test above the below specified versions, we expect the
-// implementation to be thread safe
-@available(tvOS 10.0, *)
-@available(OSX 10.12, *)
-@available(iOS 10.0, *)
 class SentryHttpTransportTests: XCTestCase {
 
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryHttpTransportTests")

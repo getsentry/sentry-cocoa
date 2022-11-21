@@ -1292,7 +1292,6 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(item, fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.additionalEnvelopeItems.first)
     }
     
-    @available(iOS 10.0, tvOS 10.0, OSX 10.12, *)
     func testConcurrentlyAddingInstalledIntegrations_WhileSendingEvents() {
         let sut = fixture.getSut()
         

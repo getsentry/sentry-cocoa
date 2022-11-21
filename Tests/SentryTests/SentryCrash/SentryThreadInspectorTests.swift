@@ -38,18 +38,15 @@ import XCTest
         XCTAssertTrue(30 < stacktrace?.frames.count ?? 0, "Not enough stacktrace frames.")
     }
     
-    @available(macOS 10.12, iOS 10.0, tvOS 10.0, *)
     func testStacktraceHasFrames_forEveryThread_withStitchAsyncOn() {
         SentrySDK.start { $0.stitchAsyncCode = true }
         assertStackForEveryThread()
     }
     
-    @available(macOS 10.12, iOS 10.0, tvOS 10.0, *)
     func testStacktraceHasFrames_forEveryThread() {
         assertStackForEveryThread()
     }
     
-    @available(macOS 10.12, iOS 10.0, tvOS 10.0, *)
     func assertStackForEveryThread() {
         
         let queue = DispatchQueue(label: "defaultphil", attributes: [.concurrent, .initiallyInactive])
