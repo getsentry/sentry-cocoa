@@ -810,6 +810,14 @@ class SentryTracerTests: XCTestCase {
     }
 #endif
     
+    @available(*, deprecated)
+    func testSetExtra_ForwardsToSetData() {
+        let sut = fixture.getSut()
+        sut.setExtra(value: 0, key: "key")
+        
+        XCTAssertEqual(["key": 0], sut.data as! [String: Int])
+    }
+    
     func testTagsFromContext_shouldBeSerialized() {
         // given
         fixture.transactionContext.setTag(value: fixture.testValue, key: fixture.testKey)
