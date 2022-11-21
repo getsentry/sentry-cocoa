@@ -13,7 +13,7 @@ class SentryTransportInitializerTests: XCTestCase {
         do {
             let options = Options()
             options.dsn = SentryTransportInitializerTests.dsnAsString
-            fileManager = try SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
+            fileManager = try SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
         } catch {
             XCTFail("SentryDsn could not be created")
         }

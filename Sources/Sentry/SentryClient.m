@@ -10,12 +10,13 @@
 #import "SentryDebugImageProvider.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
+#import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
-#import "SentryFileManager.h"
+#import "SentryFileManager+Test.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryHub+Private.h"
 #import "SentryHub.h"
@@ -72,10 +73,18 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
 {
+    return [self initWithOptions:options dispatchQueue:[[SentryDispatchQueueWrapper alloc] init]];
+}
+
+/** Internal constructor for testing purposes. */
+- (_Nullable instancetype)initWithOptions:(SentryOptions *)options
+                            dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+{
     NSError *error = nil;
     SentryFileManager *fileManager =
         [[SentryFileManager alloc] initWithOptions:options
                             andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                              dispatchQueueWrapper:dispatchQueue
                                              error:&error];
     if (nil != error) {
         SENTRY_LOG_ERROR(@"%@", error.localizedDescription);
@@ -87,7 +96,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
                      fileManager:fileManager];
 }
 
-/** Internal constructors for testing */
+/** Internal constructor for testing purposes. */
 - (instancetype)initWithOptions:(SentryOptions *)options
             permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
                     fileManager:(SentryFileManager *)fileManager

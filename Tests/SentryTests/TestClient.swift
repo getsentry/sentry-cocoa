@@ -2,7 +2,11 @@ import Foundation
 
 class TestClient: SentryClient {
     override init(options: Options) {
-        super.init(options: options, permissionsObserver: TestSentryPermissionsObserver(), fileManager: try! TestFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider()))
+        super.init(options: options, permissionsObserver: TestSentryPermissionsObserver(), fileManager: try! TestFileManager(options: options))
+    }
+
+    init(options: Options, fileManager: SentryFileManager) {
+        super.init(options: options, permissionsObserver: TestSentryPermissionsObserver(), fileManager: fileManager)
     }
 
     override init(options: Options, transportAdapter: SentryTransportAdapter, fileManager: SentryFileManager, threadInspector: SentryThreadInspector, random: SentryRandomProtocol, crashWrapper: SentryCrashWrapper, permissionsObserver: SentryPermissionsObserver, deviceWrapper: SentryUIDeviceWrapper, locale: Locale, timezone: TimeZone) {
@@ -130,6 +134,14 @@ class TestFileManager: SentryFileManager {
     var readTimestampLastInForegroundInvocations: Int = 0
     var storeTimestampLastInForegroundInvocations: Int = 0
     var deleteTimestampLastInForegroundInvocations: Int = 0
+
+    init(options: Options) throws {
+        try! super.init(options: options, andCurrentDateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+    }
+
+    override init(options: Options, andCurrentDateProvider currentDateProvider: CurrentDateProvider) throws {
+        try! super.init(options: options, andCurrentDateProvider: currentDateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+    }
 
     override func readTimestampLastInForeground() -> Date? {
         readTimestampLastInForegroundInvocations += 1
