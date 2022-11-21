@@ -8,6 +8,8 @@ This version introduces a dependency on Swift, which only impacts you if you don
 
 - Properly demangle Swift class name (#2162)
 
+## 7.31.2
+
 ### Fixes
 
 - Crash in Client when reading integrations (#2398)
