@@ -6,7 +6,8 @@ This version introduces a dependency on Swift, which only impacts you if you don
 
 ### Breaking Changes
 
-- Renaming Client and User to SentryClient and SentryUser (#2403)
+- Renaming Client to SentryClient for Swift (#2403)
+- Renaming User to SentryUser for Swift (#2403)
 
 ### Features
 
