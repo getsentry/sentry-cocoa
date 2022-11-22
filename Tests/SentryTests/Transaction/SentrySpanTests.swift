@@ -218,9 +218,18 @@ class SentrySpanTests: XCTestCase {
         span.setTag(value: fixture.extraValue, key: fixture.extraKey)
         span.finish()
         
+        //Faking extra info to test serialization
+        span.parentSpanId = SpanId()
+        span.spanDescription = "Span Description"
+        
         let serialization = span.serialize()
         XCTAssertEqual(serialization["span_id"] as? String, span.spanId.sentrySpanIdString)
+        XCTAssertEqual(serialization["parent_span_id"] as? String, span.parentSpanId?.sentrySpanIdString)
         XCTAssertEqual(serialization["trace_id"] as? String, span.traceId.sentryIdString)
+        XCTAssertEqual(serialization["op"] as? String, span.operation)
+        XCTAssertEqual(serialization["description"] as? String, span.spanDescription)
+        XCTAssertEqual(serialization["status"] as? String, nameForSentrySpanStatus(span.status))
+        XCTAssertEqual(serialization["sampled"] as? String, nameForSentrySampleDecision(span.sampled))
         XCTAssertEqual(serialization["timestamp"] as? TimeInterval, TestData.timestamp.timeIntervalSince1970)
         XCTAssertEqual(serialization["start_timestamp"] as? TimeInterval, TestData.timestamp.timeIntervalSince1970)
         XCTAssertEqual(serialization["type"] as? String, SpanContext.type)
