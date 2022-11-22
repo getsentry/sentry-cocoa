@@ -2,13 +2,6 @@
 
 ## Unreleased 
 
-This version introduces a dependency on Swift, which only impacts you if you don't use Swift. If your project uses Swift already, this change will not affect you.
-
-### Breaking Changes
-
-- Make SpanContext immutable (#2408)
-    - Remove tags from SpanContext 
-    - Remove context property from SentrySpan
 This version adds a dependency on Swift.
 
 ### Features
@@ -21,6 +14,9 @@ This version adds a dependency on Swift.
 - Rename `- [SentrySDK startWithOptionsObject:]` to `- [SentrySDK startWithOptions:]` (#2404)
 - Remove `- [SentryOptions sdkInfo]` (#2404)
 - Mark `- [SpanProtocol setExtraValue:forKey:]` as deprecated (#2413)
+- Make SpanContext immutable (#2408)
+    - Remove tags from SpanContext 
+    - Remove context property from SentrySpan
 
 ## 7.31.2
 
