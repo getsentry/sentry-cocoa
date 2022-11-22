@@ -8,10 +8,10 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/getsentry/sentry-cocoa.git",
                      :tag => s.version.to_s }
 
-  s.ios.deployment_target = "9.0"
-  s.osx.deployment_target = "10.10"
-  s.tvos.deployment_target = "9.0"
-  s.watchos.deployment_target = "2.0"
+  s.ios.deployment_target = "11.0"
+  s.osx.deployment_target = "10.13"
+  s.tvos.deployment_target = "11.0"
+  s.watchos.deployment_target = "4.0"
   s.module_name  = "Sentry"
   s.requires_arc = true
   s.frameworks = 'Foundation'

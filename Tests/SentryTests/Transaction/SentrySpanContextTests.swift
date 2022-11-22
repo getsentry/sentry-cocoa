@@ -132,9 +132,6 @@ class SentrySpanContextTests: XCTestCase {
         XCTAssertNil(spanContext.tags[tagKey])
     }
     
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
     func testModifyingTagsFromMultipleThreads() {
         let queue = DispatchQueue(label: "SentrySpanTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
         let group = DispatchGroup()

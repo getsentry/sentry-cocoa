@@ -33,10 +33,8 @@ class PermissionsViewController: UIViewController {
 
         locationManager.delegate = self
 
-        if #available(iOS 10.0, *) {
-            UNUserNotificationCenter.current().getNotificationSettings { settings in
-                print("Initial push permission status: \(settings.authorizationStatus)")
-            }
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            print("Initial push permission status: \(settings.authorizationStatus)")
         }
 
         print("Initial location permission status: \(CLLocationManager.authorizationStatus())")
@@ -60,15 +58,13 @@ class PermissionsViewController: UIViewController {
     }
 
     @objc func requestPushPermission() {
-        if #available(iOS 10.0, *) {
-            UNUserNotificationCenter.current()
-                .requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-                    if let error = error {
-                        print(error)
-                    }
-                    print(granted)
+        UNUserNotificationCenter.current()
+            .requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+                if let error = error {
+                    print(error)
                 }
-        }
+                print(granted)
+            }
     }
 }
 

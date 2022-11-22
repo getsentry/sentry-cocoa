@@ -277,9 +277,6 @@ class SentryPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual(spanId, SpanId.empty)
     }
         
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
     func testStartSpanAsync() {
         let sut = fixture.getSut()
         let spanId = startSpan(tracker: sut)
@@ -303,9 +300,6 @@ class SentryPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual(spans.count, 5_001)
     }
     
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
     func testStackAsync() {
         let sut = fixture.getSut()
         let spanId = startSpan(tracker: sut)

@@ -42,11 +42,6 @@ suites:
     devices:
       - name: "iPhone.*"
         platformVersion: "11.4.1"
-
-  - name: "iOS-10"
-    devices:
-      - name: "iPhone.*"
-        platformVersion: "10.3.2"
       
 artifacts:
   download:
