@@ -7,10 +7,13 @@ This version introduces a dependency on Swift, which only impacts you if you don
 ### Breaking Changes
 
 - Make SpanProtocol.data non nullable (#2409)
+This version adds a dependency on Swift.
 
 ### Features
 
 - Properly demangle Swift class name (#2162)
+
+## 7.31.2
 
 ### Fixes
 

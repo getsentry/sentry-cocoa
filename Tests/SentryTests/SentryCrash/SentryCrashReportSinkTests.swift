@@ -52,8 +52,8 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         filterReportWithAttachment()
         
         let client = getTestClient()
-        XCTAssertEqual(1, client.flushInvoctions.count)
-        XCTAssertEqual(5, client.flushInvoctions.first)
+        XCTAssertEqual(1, client.flushInvocations.count)
+        XCTAssertEqual(5, client.flushInvocations.first)
         XCTAssertEqual(0, fixture.dispatchQueue.dispatchAsyncCalled)
     }
     
@@ -63,8 +63,8 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         filterReportWithAttachment()
         
         let client = getTestClient()
-        XCTAssertEqual(1, client.flushInvoctions.count)
-        XCTAssertEqual(5, client.flushInvoctions.first)
+        XCTAssertEqual(1, client.flushInvocations.count)
+        XCTAssertEqual(5, client.flushInvocations.first)
         XCTAssertEqual(0, fixture.dispatchQueue.dispatchAsyncCalled)
     }
     
@@ -74,7 +74,7 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         filterReportWithAttachment()
         
         let client = getTestClient()
-        XCTAssertEqual(0, client.flushInvoctions.count)
+        XCTAssertEqual(0, client.flushInvocations.count)
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAsyncCalled)
     }
     
@@ -84,7 +84,7 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         filterReportWithAttachment()
         
         let client = getTestClient()
-        XCTAssertEqual(0, client.flushInvoctions.count)
+        XCTAssertEqual(0, client.flushInvocations.count)
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAsyncCalled)
     }
     
@@ -94,7 +94,7 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         filterReportWithAttachment()
         
         let client = getTestClient()
-        XCTAssertEqual(0, client.flushInvoctions.count)
+        XCTAssertEqual(0, client.flushInvocations.count)
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAsyncCalled)
     }
     
