@@ -1,4 +1,5 @@
 #import "SentrySwizzleWrapper.h"
+#import "SentryLog.h"
 #import "SentrySwizzle.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -32,6 +33,7 @@ static NSMutableDictionary<NSString *, SentrySwizzleSendActionCallback>
 {
     // We need to make a copy of the block to avoid ARC of autoreleasing it.
     sentrySwizzleSendActionCallbacks[key] = [callback copy];
+    SENTRY_LOG_DEBUG(@"Swizzling sendAction for %@", key);
 
     if (sentrySwizzleSendActionCallbacks.count != 1) {
         return;

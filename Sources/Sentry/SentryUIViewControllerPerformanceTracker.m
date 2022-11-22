@@ -47,9 +47,9 @@ SentryUIViewControllerPerformanceTracker ()
 - (void)viewControllerLoadView:(UIViewController *)controller
               callbackToOrigin:(void (^)(void))callbackToOrigin
 {
-    // Since this will be executed for every ViewController,
-    // we should not create transactions for classes that should no be swizzled.
     if (![self.inAppLogic isClassInApp:[controller class]]) {
+        SENTRY_LOG_DEBUG(
+            @"Won't track view controller that is not part of the app bundle: %@.", controller);
         callbackToOrigin();
         return;
     }
@@ -58,8 +58,8 @@ SentryUIViewControllerPerformanceTracker ()
                   target:controller
         callbackToOrigin:callbackToOrigin
                    block:^{
+                       SENTRY_LOG_DEBUG(@"Tracking loadView");
                        [self createTransaction:controller];
-
                        [self measurePerformance:@"loadView"
                                          target:controller
                                callbackToOrigin:callbackToOrigin];
@@ -73,8 +73,8 @@ SentryUIViewControllerPerformanceTracker ()
                   target:controller
         callbackToOrigin:callbackToOrigin
                    block:^{
+                       SENTRY_LOG_DEBUG(@"Tracking viewDidLoad");
                        [self createTransaction:controller];
-
                        [self measurePerformance:@"viewDidLoad"
                                          target:controller
                                callbackToOrigin:callbackToOrigin];
@@ -93,6 +93,8 @@ SentryUIViewControllerPerformanceTracker ()
         spanId = [self.tracker startSpanWithName:name
                                       nameSource:kSentryTransactionNameSourceComponent
                                        operation:SentrySpanOperationUILoad];
+        SENTRY_LOG_DEBUG(@"Started span with id %@ to track view controller %@.",
+            spanId.sentrySpanIdString, name);
 
         // Use the target itself to store the spanId to avoid using a global mapper.
         objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, spanId,
@@ -115,6 +117,7 @@ SentryUIViewControllerPerformanceTracker ()
         }
 
         void (^duringBlock)(void) = ^{
+            SENTRY_LOG_DEBUG(@"Tracking UIViewController.viewWillAppear");
             [self.tracker measureSpanWithDescription:@"viewWillAppear"
                                           nameSource:kSentryTransactionNameSourceComponent
                                            operation:SentrySpanOperationUILoad
@@ -142,6 +145,7 @@ SentryUIViewControllerPerformanceTracker ()
 - (void)viewControllerViewDidAppear:(UIViewController *)controller
                    callbackToOrigin:(void (^)(void))callbackToOrigin
 {
+    SENTRY_LOG_DEBUG(@"Tracking UIViewController.viewDidAppear");
     [self finishTransaction:controller
                      status:kSentrySpanStatusOk
             lifecycleMethod:@"viewDidAppear"
@@ -332,7 +336,7 @@ SentryUIViewControllerPerformanceTracker ()
         = objc_getAssociatedObject(viewController, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
 
     if (spanId == nil) {
-        // We are no longer tracking this UIViewController, just call the base method.
+        SENTRY_LOG_DEBUG(@"No longer tracking UIViewController %@", viewController);
         callbackToOrigin();
     } else {
         [self.tracker measureSpanWithDescription:description

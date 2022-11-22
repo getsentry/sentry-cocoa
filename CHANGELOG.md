@@ -2,16 +2,35 @@
 
 ## Unreleased 
 
-This version introduces a dependency on Swift, which only impacts you if you don't use Swift. If your project uses Swift already, this change will not affect you.
-
-### Breaking Changes
-
-- Renaming Client to SentryClient for Swift (#2403)
-- Renaming User to SentryUser for Swift (#2403)
+This version adds a dependency on Swift.
 
 ### Features
 
 - Properly demangle Swift class name (#2162)
+
+### Breaking Changes
+
+- Remove `- [SentryOptions initWithDict:didFailWithError:]` (#2404)
+- Rename `- [SentrySDK startWithOptionsObject:]` to `- [SentrySDK startWithOptions:]` (#2404)
+- Remove `- [SentryOptions sdkInfo]` (#2404)
+- Make `SpanProtocol.data` non nullable (#2409)
+- Mark `- [SpanProtocol setExtraValue:forKey:]` as deprecated (#2413)
+- Bump minimum supported OS versions to macOS 10.13, iOS 11, tvOS 11, and watchOS 4 (#2414)
+- Renaming Client to SentryClient for Swift (#2403)
+- Renaming User to SentryUser for Swift (#2403)
+
+## 7.31.2
+
+### Fixes
+
+- Crash in Client when reading integrations (#2398)
+- Don't update session for dropped events (#2374)
+
+## 7.31.1
+
+### Fixes
+
+- Set the correct OOM event timestamp (#2394)
 
 ## 7.31.0
 
@@ -29,9 +48,14 @@ This version introduces a dependency on Swift, which only impacts you if you don
 
 ### Fixes
 
-- Fix issue with invalid profiles uploading (#2358 and #2359)
 - Call UIDevice methods on the main thread (#2369)
 - Avoid sending profiles with 0 samples or incorrectly deduplicated backtrace elements (#2375)
+
+## 7.30.1
+
+### Fixes
+
+- Fix issue with invalid profiles uploading (#2358 and #2359)
 
 ## 7.30.0
 

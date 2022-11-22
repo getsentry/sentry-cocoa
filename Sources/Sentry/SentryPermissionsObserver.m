@@ -52,22 +52,17 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
 - (void)refreshPermissions
 {
 #if SENTRY_HAS_UIKIT
-    if (@available(iOS 9, tvOS 10, *)) {
-        [self setPhotoLibraryPermissionFromStatus:PHPhotoLibrary.authorizationStatus];
-    }
+    [self setPhotoLibraryPermissionFromStatus:PHPhotoLibrary.authorizationStatus];
 
-    if (@available(iOS 10, tvOS 10, *)) {
-        [[UNUserNotificationCenter currentNotificationCenter]
-            getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
-                [self setPushPermissionFromStatus:settings.authorizationStatus];
-            }];
-    }
+    [[UNUserNotificationCenter currentNotificationCenter]
+        getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
+            [self setPushPermissionFromStatus:settings.authorizationStatus];
+        }];
 #endif
 }
 
 #if SENTRY_HAS_UIKIT
 - (void)setPhotoLibraryPermissionFromStatus:(PHAuthorizationStatus)status
-    API_AVAILABLE(ios(9), tvos(10))
 {
     switch (status) {
     case PHAuthorizationStatusNotDetermined:
@@ -89,7 +84,7 @@ SentryPermissionsObserver () <CLLocationManagerDelegate>
     }
 }
 
-- (void)setPushPermissionFromStatus:(UNAuthorizationStatus)status API_AVAILABLE(ios(10), tvos(10))
+- (void)setPushPermissionFromStatus:(UNAuthorizationStatus)status
 {
     switch (status) {
     case UNAuthorizationStatusNotDetermined:

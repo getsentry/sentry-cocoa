@@ -353,7 +353,7 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.start(options: options)
         
         assertIntegrationsInstalled(integrations: ["SentryTestIntegration"])
-        let integration = SentrySDK.currentHub().installedIntegrations.firstObject
+        let integration = SentrySDK.currentHub().installedIntegrations.first
         XCTAssertTrue(integration is SentryTestIntegration)
         if let testIntegration = integration as? SentryTestIntegration {
             XCTAssertEqual(options.dsn, testIntegration.options.dsn)
@@ -482,6 +482,17 @@ class SentrySDKTests: XCTestCase {
         XCTAssertNotEqual(first, second)
     }
     
+    func testClose_ClearsIntegrations() {
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+        }
+        
+        let hub = SentrySDK.currentHub()
+        SentrySDK.close()
+        XCTAssertEqual(0, hub.installedIntegrations.count)
+        assertIntegrationsInstalled(integrations: [])
+    }
+    
     func testFlush_CallsFlushCorrectlyOnTransport() {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
@@ -498,11 +509,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(flushTimeout, transport.flushInvocations.first)
     }
     
-    // Although we only run this test above the below specified versions, we expect the
-    // implementation to be thread safe
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
     func testSetpAppStartMeasurementConcurrently_() {
         func setAppStartMeasurement(_ queue: DispatchQueue, _ i: Int) {
             group.enter()
@@ -564,6 +570,7 @@ class SentrySDKTests: XCTestCase {
     }
     
     private func assertIntegrationsInstalled(integrations: [String]) {
+        XCTAssertEqual(integrations.count, SentrySDK.currentHub().installedIntegrations.count)
         integrations.forEach { integration in
             if let integrationClass = NSClassFromString(integration) {
                 XCTAssertTrue(SentrySDK.currentHub().isIntegrationInstalled(integrationClass), "\(integration) not installed")

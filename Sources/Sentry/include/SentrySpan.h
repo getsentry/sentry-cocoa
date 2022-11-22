@@ -45,6 +45,7 @@ SENTRY_NO_INIT
  */
 - (instancetype)initWithTracer:(SentryTracer *)transaction context:(SentrySpanContext *)context;
 
+- (void)setExtraValue:(nullable id)value forKey:(NSString *)key DEPRECATED_ATTRIBUTE;
 @end
 
 NS_ASSUME_NONNULL_END

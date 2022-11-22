@@ -119,14 +119,11 @@ SentryFramesTracker ()
     // targetTimestamp is only available on iOS 10.0 and tvOS 10.0 and above. We use a fallback of
     // 60 fps.
     double actualFramesPerSecond = 60.0;
-    if (@available(iOS 10.0, tvOS 10.0, *)) {
-        if (UNLIKELY(
-                (self.displayLinkWrapper.targetTimestamp == self.displayLinkWrapper.timestamp))) {
-            actualFramesPerSecond = 60.0;
-        } else {
-            actualFramesPerSecond
-                = 1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp);
-        }
+    if (UNLIKELY((self.displayLinkWrapper.targetTimestamp == self.displayLinkWrapper.timestamp))) {
+        actualFramesPerSecond = 60.0;
+    } else {
+        actualFramesPerSecond
+            = 1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp);
     }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED

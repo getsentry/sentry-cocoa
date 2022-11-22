@@ -74,7 +74,7 @@ SentrySpan ()
     }
 }
 
-- (nullable NSDictionary<NSString *, id> *)data
+- (NSDictionary<NSString *, id> *)data
 {
     @synchronized(_data) {
         return [_data copy];
@@ -119,6 +119,7 @@ SentrySpan ()
 
 - (void)finish
 {
+    SENTRY_LOG_DEBUG(@"Attempting to finish span with id %@", _context.spanId.sentrySpanIdString);
     [self finishWithStatus:kSentrySpanStatusOk];
 }
 
@@ -131,9 +132,12 @@ SentrySpan ()
         SENTRY_LOG_DEBUG(@"Setting span timestamp: %@ at system time %llu", self.timestamp,
             (unsigned long long)getAbsoluteTime());
     }
-    if (self.tracer != nil) {
-        [self.tracer spanFinished:self];
+    if (self.tracer == nil) {
+        SENTRY_LOG_DEBUG(
+            @"No tracer associated with span with id %@", _context.spanId.sentrySpanIdString);
+        return;
     }
+    [self.tracer spanFinished:self];
 }
 
 - (SentryTraceHeader *)toTraceHeader
