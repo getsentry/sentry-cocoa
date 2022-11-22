@@ -15,6 +15,7 @@
 #import "SentrySamplingContext.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
+#import "SentrySession+Private.h"
 #import "SentryTracer.h"
 #import "SentryTracesSampler.h"
 #import "SentryTransaction.h"
@@ -33,6 +34,7 @@ SentryHub ()
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 @property (nonatomic, strong) NSMutableArray<id<SentryIntegrationProtocol>> *installedIntegrations;
 @property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
+@property (nonatomic) NSUInteger errorsBeforeSession;
 
 @end
 
@@ -53,6 +55,7 @@ SentryHub ()
         _installedIntegrationNames = [[NSMutableSet alloc] init];
         _crashWrapper = [SentryCrashWrapper sharedInstance];
         _tracesSampler = [[SentryTracesSampler alloc] initWithOptions:client.options];
+        _errorsBeforeSession = 0;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         if (client.options.isProfilingEnabled) {
             _profilesSampler = [[SentryProfilesSampler alloc] initWithOptions:client.options];
@@ -92,6 +95,11 @@ SentryHub ()
             lastSession = _session;
         }
         _session = [[SentrySession alloc] initWithReleaseName:options.releaseName];
+
+        if (_errorsBeforeSession > 0) {
+            _session.errors = _errorsBeforeSession;
+            _errorsBeforeSession = 0;
+        }
 
         NSString *environment = options.environment;
         if (nil != environment) {
@@ -200,7 +208,7 @@ SentryHub ()
 {
     SentrySession *sessionCopy = nil;
     @synchronized(_sessionLock) {
-        if (nil != _session) {
+        if (_session != nil) {
             [_session incrementErrors];
             [self storeCurrentSession:_session];
             sessionCopy = [_session copy];
@@ -447,6 +455,7 @@ SentryHub ()
                               withScope:scope
                  incrementSessionErrors:^(void) { return [self incrementSessionErrors]; }];
         } else {
+            _errorsBeforeSession++;
             return [client captureError:error withScope:scope];
         }
     }
@@ -468,6 +477,7 @@ SentryHub ()
                                   withScope:scope
                      incrementSessionErrors:^(void) { return [self incrementSessionErrors]; }];
         } else {
+            _errorsBeforeSession++;
             return [client captureException:exception withScope:scope];
         }
     }

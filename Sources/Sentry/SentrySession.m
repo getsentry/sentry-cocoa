@@ -22,6 +22,11 @@ nameForSentrySessionStatus(SentrySessionStatus status)
     }
 }
 
+@interface
+SentrySession ()
+@property (nonatomic) NSUInteger errors;
+@end
+
 @implementation SentrySession
 
 @synthesize flagInit = _init;

@@ -8,6 +8,8 @@ NSString *nameForSentrySessionStatus(SentrySessionStatus status);
 @interface
 SentrySession (Private)
 
+@property (nonatomic) NSUInteger errors;
+
 - (void)setFlagInit;
 
 @end
