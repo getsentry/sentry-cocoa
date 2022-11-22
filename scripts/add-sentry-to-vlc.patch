@@ -2,20 +2,23 @@ diff --git a/Podfile b/Podfile
 index b9205a9f..3156735b 100644
 --- a/Podfile
 +++ b/Podfile
-@@ -9,6 +9,8 @@ def shared_pods
+@@ -9,13 +9,15 @@
    pod 'CocoaHTTPServer', :git => 'https://github.com/fkuehne/CocoaHTTPServer.git' # has our fixes
    pod 'xmlrpc', :git => 'https://github.com/fkuehne/xmlrpc.git', :commit => '3f8ce3a8' #fix case-sensitive FS
    pod 'AFNetworking', '~>4.0'
 +  pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa', :commit => '__GITHUB_REVISION_PLACEHOLDER__'
 +  pod 'SentryPrivate', :git => 'https://github.com/getsentry/sentry-cocoa', :commit => '__GITHUB_REVISION_PLACEHOLDER__'
- 
+
    # debug
    pod 'SwiftLint', '~> 0.47.1', :configurations => ['Debug']
  end
 
-target 'VLC-iOS' do
-- platform :ios, '9.0'
-+ platform :ios, '11.0'
+ target 'VLC-iOS' do
+-  platform :ios, '9.0'
++  platform :ios, '11.0'
+   shared_pods
+   pod 'OBSlider', '1.1.0'
+   pod 'InAppSettingsKit', :git => 'https://github.com/Mikanbu/InAppSettingsKit.git', :commit => 'a429840' #tvOS fix
 diff --git a/Sources/App/iOS/VLCAppDelegate.m b/Sources/App/iOS/VLCAppDelegate.m
 index 2c1fc802..21495fd7 100644
 --- a/Sources/App/iOS/VLCAppDelegate.m
