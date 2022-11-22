@@ -13,7 +13,7 @@
 #import "SentryProfilesSampler.h"
 #import "SentrySDK+Private.h"
 #import "SentrySamplingContext.h"
-#import "SentryScope.h"
+#import "SentryScope+Private.h"
 #import "SentrySerialization.h"
 #import "SentryTracer.h"
 #import "SentryTracesSampler.h"

@@ -8,10 +8,11 @@ This version adds a dependency on Swift.
 
 - Make public APIs Swift friendly (#2416)
     - Rename `SentrySDK.addBreadcrumb(crumb:)` to `SentrySDK.addBreadcrumb(_ crumb:)`
-    - Rename `SentryClient.add(_ crumb:)` to `SentryClient.addBreadcrumb(_ crumb:)`
-    - Rename `SentryClient.add(_ attachment:)` to `SentryClient.addAttachment(_ attachment:)`
-    - Rename `SentryClient.apply(to:)` to `SentryClient.applyTo(session:)`
-    - Rename `SentryClient.apply(to:maxBreadcrumb:)` to `SentryClient.applyTo(event:maxBreadcrumbs:)`
+    - Rename `SentryScope.add(_ crumb:)` to `SentryScope.addBreadcrumb(_ crumb:)`
+    - Rename `SentryScope.add(_ attachment:)` to `SentryScope.addAttachment(_ attachment:)`
+- Remove public APIs (#2416)
+    - Remove `SentryScope.apply(to:)` 
+    - remove `SentryScope.apply(to:maxBreadcrumb:)`
 
 ### Features
 

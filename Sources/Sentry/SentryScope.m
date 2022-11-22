@@ -121,6 +121,11 @@ SentryScope ()
 
 #pragma mark Global properties
 
+- (void)add:(SentryBreadcrumb *)crumb
+{
+    [self addBreadcrumb:crumb];
+}
+
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
     if (self.maxBreadcrumbs < 1) {
@@ -377,6 +382,11 @@ SentryScope ()
     for (id<SentryScopeObserver> observer in self.observers) {
         [observer setLevel:level];
     }
+}
+
+- (void)includeAttachment:(SentryAttachment *)attachment
+{
+    [self addAttachment:attachment];
 }
 
 - (void)addAttachment:(SentryAttachment *)attachment
