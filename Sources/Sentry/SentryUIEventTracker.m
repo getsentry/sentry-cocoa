@@ -85,7 +85,7 @@ SentryUIEventTracker ()
 
             if (currentActiveTransaction) {
                 [currentActiveTransaction finish];
-                    logWithMessage:
+            logWithMessage:
                         [NSString stringWithFormat:@"SentryUIEventTracker finished transaction %@",
                                   currentActiveTransaction.transactionContext.name]
                           andLevel:kSentryLevelDebug];
@@ -123,11 +123,11 @@ SentryUIEventTracker ()
             }];
 
             if ([[sender class] isSubclassOfClass:[UIView class]]) {
-                UIView *view = sender;
-                if (view.accessibilityIdentifier) {
-                    [transaction setTagValue:view.accessibilityIdentifier
-                                      forKey:@"accessibilityIdentifier"];
-                }
+                        UIView *view = sender;
+                        if (view.accessibilityIdentifier) {
+                            [transaction setTagValue:view.accessibilityIdentifier
+                                              forKey:@"accessibilityIdentifier"];
+                        }
             }
 
             transaction.finishCallback = ^(SentryTracer *tracer) {
@@ -136,7 +136,7 @@ SentryUIEventTracker ()
                 }
             };
             @synchronized(self.activeTransactions) {
-                [self.activeTransactions addObject:transaction];
+                        [self.activeTransactions addObject:transaction];
             }
         }
                    forKey:SentryUIEventTrackerSwizzleSendAction];
