@@ -4,16 +4,6 @@
 
 This version adds a dependency on Swift.
 
-### Breaking Changes
-
-- Make public APIs Swift friendly (#2416)
-    - Rename `SentrySDK.addBreadcrumb(crumb:)` to `SentrySDK.addBreadcrumb(_ crumb:)`
-    - Rename `SentryScope.add(_ crumb:)` to `SentryScope.addBreadcrumb(_ crumb:)`
-    - Rename `SentryScope.add(_ attachment:)` to `SentryScope.addAttachment(_ attachment:)`
-- Remove public APIs (#2416)
-    - Remove `SentryScope.apply(to:)` 
-    - remove `SentryScope.apply(to:maxBreadcrumb:)`
-
 ### Features
 
 - Properly demangle Swift class name (#2162)
@@ -25,6 +15,13 @@ This version adds a dependency on Swift.
 - Remove `- [SentryOptions sdkInfo]` (#2404)
 - Mark `- [SpanProtocol setExtraValue:forKey:]` as deprecated (#2413)
 - Bump minimum supported OS versions to macOS 10.13, iOS 11, tvOS 11, and watchOS 4 (#2414)
+- Make public APIs Swift friendly (#2416)
+    - Rename `SentrySDK.addBreadcrumb(crumb:)` to `SentrySDK.addBreadcrumb(_ crumb:)`
+    - Rename `SentryScope.add(_ crumb:)` to `SentryScope.addBreadcrumb(_ crumb:)`
+    - Rename `SentryScope.add(_ attachment:)` to `SentryScope.addAttachment(_ attachment:)`
+- Remove public APIs (#2416)
+    - Remove `SentryScope.apply(to:)` 
+    - remove `SentryScope.apply(to:maxBreadcrumb:)`
 
 ## 7.31.2
 
