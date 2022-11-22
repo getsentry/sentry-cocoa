@@ -190,12 +190,12 @@ class SentrySpanTests: XCTestCase {
 
         span.setData(value: fixture.extraValue, key: fixture.extraKey)
         
-        XCTAssertEqual(span.data!.count, 1)
-        XCTAssertEqual(span.data![fixture.extraKey] as! String, fixture.extraValue)
+        XCTAssertEqual(span.data.count, 1)
+        XCTAssertEqual(span.data[fixture.extraKey] as! String, fixture.extraValue)
         
         span.removeData(key: fixture.extraKey)
-        XCTAssertEqual(span.data!.count, 0)
-        XCTAssertNil(span.data![fixture.extraKey])
+        XCTAssertEqual(span.data.count, 0)
+        XCTAssertNil(span.data[fixture.extraKey])
     }
     
     func testAddAndRemoveTags() {
@@ -325,9 +325,6 @@ class SentrySpanTests: XCTestCase {
         XCTAssertTrue(SentryNoOpSpan.shared() === actualWithDescription)
     }
     
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
     func testModifyingExtraFromMultipleThreads() {
         let queue = DispatchQueue(label: "SentrySpanTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
         let group = DispatchGroup()
@@ -355,7 +352,7 @@ class SentrySpanTests: XCTestCase {
         
         queue.activate()
         group.wait()
-        XCTAssertEqual(span.data!.count, outerLoop * innerLoop)
+        XCTAssertEqual(span.data.count, outerLoop * innerLoop)
     }
 
     func testSpanStatusNames() {

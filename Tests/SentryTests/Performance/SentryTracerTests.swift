@@ -688,9 +688,6 @@ class SentryTracerTests: XCTestCase {
     
     // Although we only run this test above the below specified versions, we expect the
     // implementation to be thread safe
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
     func testFinishAsync() {
         let sut = fixture.getSut()
         let child = sut.startChild(operation: fixture.transactionOperation)
@@ -729,9 +726,6 @@ class SentryTracerTests: XCTestCase {
     
     // Although we only run this test above the below specified versions, we expect the
     // implementation to be thread safe
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
     func testConcurrentTransactions_OnlyOneGetsMeasurement() {
         SentrySDK.setAppStartMeasurement(fixture.getAppStartMeasurement(type: .warm))
         

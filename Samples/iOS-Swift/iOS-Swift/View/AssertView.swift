@@ -58,7 +58,7 @@ class AssertView: UIView {
         errorLabel.numberOfLines = 0
         addSubview(errorLabel)
         
-        let guide = self.safeOrMarginGuide
+        let guide = self.safeAreaLayoutGuide
         
         let constraints = [
             assertLabel.topAnchor.constraint(equalTo: guide.topAnchor, constant: 16),

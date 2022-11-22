@@ -328,8 +328,10 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     if (profiler->_spansInFlight.count == 0) {
         [profiler captureEnvelope];
         [profiler->_transactions removeAllObjects];
+        SENTRY_LOG_DEBUG(@"Span %@ was last being tracked.", spanID.sentrySpanIdString);
     } else {
-        SENTRY_LOG_DEBUG(@"Profiler %@ is waiting for more spans to complete.", profiler);
+        SENTRY_LOG_DEBUG(@"Profiler %@ is waiting for more spans to complete: %@.", profiler,
+            profiler->_spansInFlight);
     }
 }
 
