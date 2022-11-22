@@ -1,11 +1,6 @@
 import Sentry
 import XCTest
 
-// Even if we don't run this test below OSX 10.12 we expect the actual
-// implementation to be thread safe.
-@available(OSX 10.12, *)
-@available(iOS 10.0, *)
-@available(tvOS 10.0, *)
 class SentryFileManagerTests: XCTestCase {
     
     private class Fixture {

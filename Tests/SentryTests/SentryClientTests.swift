@@ -60,9 +60,7 @@ class SentryClientTest: XCTestCase {
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> Client {
             var client: Client!
             do {
-                let options = try Options(dict: [
-                    "dsn": SentryClientTest.dsn
-                ])
+                let options = try Options(dsn: SentryClientTest.dsn)
                 configureOptions(options)
 
                 client = Client(
@@ -1292,7 +1290,6 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(item, fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.additionalEnvelopeItems.first)
     }
     
-    @available(iOS 10.0, tvOS 10.0, OSX 10.12, *)
     func testConcurrentlyAddingInstalledIntegrations_WhileSendingEvents() {
         let sut = fixture.getSut()
         

@@ -45,9 +45,9 @@ SentryBreadcrumbTracker (Private)
 - (void)testSharedClient
 {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc]
-            initWithDict:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }
-        didFailWithError:&error];
+    SentryOptions *options =
+        [[SentryOptions alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345"
+                          didFailWithError:&error];
 
     SentryClient *client = [[SentryClient alloc] initWithOptions:options];
     XCTAssertNil(error);
@@ -59,14 +59,18 @@ SentryBreadcrumbTracker (Private)
 
 - (void)testSDKDefaultHub
 {
-    [SentrySDK startWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
+    [SentrySDK startWithConfigureOptions:^(SentryOptions *_Nonnull options) {
+        options.dsn = @"https://username:password@app.getsentry.com/12345";
+    }];
     XCTAssertNotNil([SentrySDK.currentHub getClient]);
     [SentrySDK.currentHub bindClient:nil];
 }
 
 - (void)testSDKBreadCrumbAdd
 {
-    [SentrySDK startWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
+    [SentrySDK startWithConfigureOptions:^(SentryOptions *_Nonnull options) {
+        options.dsn = @"https://username:password@app.getsentry.com/12345";
+    }];
 
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
                                                              category:@"testCategory"];
@@ -79,7 +83,9 @@ SentryBreadcrumbTracker (Private)
 
 - (void)testSDKCaptureEvent
 {
-    [SentrySDK startWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
+    [SentrySDK startWithConfigureOptions:^(SentryOptions *_Nonnull options) {
+        options.dsn = @"https://username:password@app.getsentry.com/12345";
+    }];
 
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
 
@@ -91,7 +97,9 @@ SentryBreadcrumbTracker (Private)
 
 - (void)testSDKCaptureError
 {
-    [SentrySDK startWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
+    [SentrySDK startWithConfigureOptions:^(SentryOptions *_Nonnull options) {
+        options.dsn = @"https://username:password@app.getsentry.com/12345";
+    }];
 
     NSError *error =
         [NSError errorWithDomain:@"testworld"

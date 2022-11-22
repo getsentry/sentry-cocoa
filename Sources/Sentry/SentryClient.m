@@ -33,7 +33,6 @@
 #import "SentryPermissionsObserver.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
-#import "SentrySdkInfo.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThreadInspector.h"
 #import "SentryTraceContext.h"
