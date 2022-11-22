@@ -2,7 +2,6 @@ import Foundation
 
 class TestClient: Client {
     let sentryFileManager: SentryFileManager
-    let queue = DispatchQueue(label: "TestClient", attributes: .concurrent)
 
     override init?(options: Options) {
         sentryFileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
