@@ -398,7 +398,10 @@ class SentrySDKTests: XCTestCase {
         
         XCTAssertEqual(2, fixture.client.captureSessionInvocations.count)
         
-        let actual = fixture.client.captureSessionInvocations.invocations[1]
+        guard let actual = fixture.client.captureSessionInvocations.invocations.last else {
+            XCTFail("Expected a captured session")
+            return
+        }
         
         XCTAssertNil(actual.flagInit)
         XCTAssertEqual(0, actual.errors)
