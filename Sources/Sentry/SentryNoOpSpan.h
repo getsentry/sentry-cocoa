@@ -17,6 +17,7 @@ SENTRY_NO_INIT
 @property (nullable, readonly) NSDictionary<NSString *, id> *data;
 @property (readonly) NSDictionary<NSString *, NSString *> *tags;
 
+- (void)setExtraValue:(nullable id)value forKey:(NSString *)key DEPRECATED_ATTRIBUTE;
 @end
 
 NS_ASSUME_NONNULL_END
