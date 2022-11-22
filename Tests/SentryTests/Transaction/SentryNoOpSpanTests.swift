@@ -27,7 +27,6 @@ class SentryNoOpSpanTests: XCTestCase {
         let sut = SentryNoOpSpan.shared()
         XCTAssertNil(sut.data)
         sut.setData(value: "tet", key: "key")
-        sut.setExtra(value: "tet", key: "key")
         sut.removeData(key: "any")
         XCTAssertNil(sut.data)
     }

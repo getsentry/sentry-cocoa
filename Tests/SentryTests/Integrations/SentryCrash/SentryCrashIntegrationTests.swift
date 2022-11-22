@@ -77,10 +77,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let releaseName = "1.0.0"
         let dist = "14G60"
         // The start of the SDK installs all integrations
-        SentrySDK.start(options: ["dsn": SentryCrashIntegrationTests.dsnAsString,
-                                  "release": releaseName,
-                                  "dist": dist]
-        )
+        SentrySDK.start { options in
+            options.dsn = SentryCrashIntegrationTests.dsnAsString
+            options.releaseName = releaseName
+            options.dist = dist
+        }
         
         // To test this properly we need SentryCrash and SentryCrashIntegration installed and registered on the current hub of the SDK.
         
