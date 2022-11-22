@@ -20,12 +20,12 @@ NS_SWIFT_NAME(Span)
 @property (nonatomic) SentrySpanId *spanId;
 
 /**
- * Id of a parent span.
+ * The id of the parent span.
  */
 @property (nullable, nonatomic) SentrySpanId *parentSpanId;
 
 /**
- * If trace is sampled.
+ * The sampling decision of the trace.
  */
 @property (nonatomic) SentrySampleDecision sampled;
 
