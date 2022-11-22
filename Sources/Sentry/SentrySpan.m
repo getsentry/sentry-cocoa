@@ -127,7 +127,7 @@ SentrySpan ()
 
 - (void)finish
 {
-    SENTRY_LOG_DEBUG(@"Attempting to finish span with id %@", _context.spanId.sentrySpanIdString);
+    SENTRY_LOG_DEBUG(@"Attempting to finish span with id %@", self.spanId.sentrySpanIdString);
     [self finishWithStatus:kSentrySpanStatusOk];
 }
 
@@ -142,7 +142,7 @@ SentrySpan ()
     }
     if (self.tracer == nil) {
         SENTRY_LOG_DEBUG(
-            @"No tracer associated with span with id %@", _context.spanId.sentrySpanIdString);
+            @"No tracer associated with span with id %@", self.spanId.sentrySpanIdString);
         return;
     }
     [self.tracer spanFinished:self];

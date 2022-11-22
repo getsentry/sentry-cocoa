@@ -267,7 +267,7 @@ static BOOL appStartMeasurementRead;
                                            sampled:_rootSpan.sampled];
 
     SentrySpan *child = [[SentrySpan alloc] initWithTracer:self context:context];
-    SENTRY_LOG_DEBUG(@"Started child span %@ under %@", child.context.spanId.sentrySpanIdString,
+    SENTRY_LOG_DEBUG(@"Started child span %@ under %@", child.spanId.sentrySpanIdString,
         parentId.sentrySpanIdString);
     @synchronized(_children) {
         [_children addObject:child];
@@ -278,12 +278,12 @@ static BOOL appStartMeasurementRead;
 
 - (void)spanFinished:(id<SentrySpan>)finishedSpan
 {
-    SENTRY_LOG_DEBUG(@"Finished span %@", finishedSpan.context.spanId.sentrySpanIdString);
+    SENTRY_LOG_DEBUG(@"Finished span %@", finishedSpan.spanId.sentrySpanIdString);
     // Calling canBeFinished on the rootSpan would end up in an endless loop because canBeFinished
     // calls finish on the rootSpan.
     if (finishedSpan == self.rootSpan) {
-        SENTRY_LOG_DEBUG(@"Cannot call finish on root span with id %@",
-            finishedSpan.context.spanId.sentrySpanIdString);
+        SENTRY_LOG_DEBUG(
+            @"Cannot call finish on root span with id %@", finishedSpan.spanId.sentrySpanIdString);
         return;
     }
     [self canBeFinished];
@@ -494,8 +494,8 @@ static BOOL appStartMeasurementRead;
     // Sending another transaction and spans with
     // the same SentryId would be an error.
     if (self.rootSpan.isFinished) {
-        SENTRY_LOG_DEBUG(@"Root span with id %@ is already finished",
-            self.rootSpan.context.spanId.sentrySpanIdString);
+        SENTRY_LOG_DEBUG(
+            @"Root span with id %@ is already finished", self.rootSpan.spanId.sentrySpanIdString);
         return;
     }
 
@@ -503,14 +503,14 @@ static BOOL appStartMeasurementRead;
     if (!self.wasFinishCalled && !hasUnfinishedChildSpansToWaitFor && [self hasIdleTimeout]) {
         SENTRY_LOG_DEBUG(
             @"Root span with id %@ isn't waiting on children and needs idle timeout dispatched.",
-            self.rootSpan.context.spanId.sentrySpanIdString);
+            self.rootSpan.spanId.sentrySpanIdString);
         [self dispatchIdleTimeout];
         return;
     }
 
     if (!self.wasFinishCalled || hasUnfinishedChildSpansToWaitFor) {
         SENTRY_LOG_DEBUG(@"Root span with id %@ has children but isn't waiting for them right now.",
-            self.rootSpan.context.spanId.sentrySpanIdString);
+            self.rootSpan.spanId.sentrySpanIdString);
         return;
     }
 

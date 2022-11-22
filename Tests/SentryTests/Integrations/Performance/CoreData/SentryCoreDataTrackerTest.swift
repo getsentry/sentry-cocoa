@@ -230,7 +230,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         XCTAssertEqual(transaction.children.count, 1)
         XCTAssertEqual(transaction.children[0].operation, SENTRY_COREDATA_FETCH_OPERATION)
         XCTAssertEqual(transaction.children[0].spanDescription, expectedDescription)
-        XCTAssertEqual(transaction.children[0].data!["read_count"] as? Int, 1)
+        XCTAssertEqual(transaction.children[0].data["read_count"] as? Int, 1)
     }
     
     private func startTransaction() -> SentryTracer {
