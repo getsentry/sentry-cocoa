@@ -19,7 +19,7 @@ public struct CallStack: Codable {
     public var threadAttributed: Bool?
     public var callStackRootFrames: [MXFrame]
     
-    public var rootFrames: [MXFrame] {
+    public var flattenedRootFrames: [MXFrame] {
         return callStackRootFrames.flatMap { [$0] + $0.frames }
     }
 
