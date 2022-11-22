@@ -1531,7 +1531,6 @@
 		D88817D926D72AB800BF2251 /* SentryTraceContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryTraceContext.h; path = include/SentryTraceContext.h; sourceTree = "<group>"; };
 		D88817DB26D72B7B00BF2251 /* SentryTraceStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryTraceStateTests.swift; sourceTree = "<group>"; };
 		D8918B212849FA6D00701F9A /* SentrySDKIntegrationTestsBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentrySDKIntegrationTestsBase.swift; sourceTree = "<group>"; };
-		D8A22A6829140081006907D9 /* PrivateSentrySDKOnly.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PrivateSentrySDKOnly.h; path = include/PrivateSentrySDKOnly.h; sourceTree = "<group>"; };
 		D8AB40DA2806EC1900E5E9F7 /* SentryScreenshotIntegration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryScreenshotIntegration.h; path = include/SentryScreenshotIntegration.h; sourceTree = "<group>"; };
 		D8ACE3C42762187200F5A213 /* SentryNSDataSwizzling.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryNSDataSwizzling.m; sourceTree = "<group>"; };
 		D8ACE3C52762187200F5A213 /* SentryNSDataTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryNSDataTracker.m; sourceTree = "<group>"; };
@@ -1773,7 +1772,6 @@
 				63AA756E1EB8AEDB00D153DE /* Sources */,
 				63AA75921EB8AEDB00D153DE /* Tests */,
 				7D826E3C2390840E00EED93D /* Utils */,
-				D81A346A291AEC23005A27A9 /* Recovered References */,
 			);
 			indentWidth = 4;
 			sourceTree = "<group>";
@@ -2909,14 +2907,6 @@
 				D808FB90281BF6E9009A2A33 /* SentryUIEventTrackingIntegrationTests.swift */,
 			);
 			path = UIEvents;
-			sourceTree = "<group>";
-		};
-		D81A346A291AEC23005A27A9 /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				D8A22A6829140081006907D9 /* PrivateSentrySDKOnly.h */,
-			);
-			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 		D81FDF0F280E9FEC0045E0E4 /* Tools */ = {
