@@ -687,9 +687,6 @@ class SentryTracerTests: XCTestCase {
     
     // Although we only run this test above the below specified versions, we expect the
     // implementation to be thread safe
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
     func testFinishAsync() {
         let sut = fixture.getSut()
         let child = sut.startChild(operation: fixture.transactionOperation)
@@ -697,12 +694,14 @@ class SentryTracerTests: XCTestCase {
         
         let queue = DispatchQueue(label: "SentryTracerTests", attributes: [.concurrent, .initiallyInactive])
         let group = DispatchGroup()
-        
-        for _ in 0 ..< 5_000 {
+
+        let children = 5
+        let grandchildren = 10
+        for _ in 0 ..< children {
             group.enter()
             queue.async {
                 let grandChild = child.startChild(operation: self.fixture.transactionOperation)
-                for _ in 0 ..< 9 {
+                for _ in 0 ..< grandchildren {
                     let grandGrandChild = grandChild.startChild(operation: self.fixture.transactionOperation)
                     grandGrandChild.finish()
                 }
@@ -721,21 +720,18 @@ class SentryTracerTests: XCTestCase {
         assertOneTransactionCaptured(sut)
         
         let spans = getSerializedTransaction()["spans"]! as! [[String: Any]]
-        XCTAssertEqual(spans.count, 50_001)
+        XCTAssertEqual(spans.count, children * (grandchildren + 1) + 1)
     }
     
     // Although we only run this test above the below specified versions, we expect the
     // implementation to be thread safe
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
     func testConcurrentTransactions_OnlyOneGetsMeasurement() {
         SentrySDK.setAppStartMeasurement(fixture.getAppStartMeasurement(type: .warm))
         
         let queue = DispatchQueue(label: "", qos: .background, attributes: [.concurrent, .initiallyInactive] )
         let group = DispatchGroup()
         
-        let transactions = 10_000
+        let transactions = 5
         for _ in 0..<transactions {
             group.enter()
             queue.async {
@@ -810,6 +806,7 @@ class SentryTracerTests: XCTestCase {
     }
 #endif
     
+    @available(*, deprecated)
     func testSetExtra_ForwardsToSetData() {
         let sut = fixture.getSut()
         sut.setExtra(value: 0, key: "key")

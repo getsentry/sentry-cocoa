@@ -477,9 +477,6 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
     }
     
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
     func testCaptureMultipleExceptionWithSessionInParallel() {
         let captureCount = 100
         captureConcurrentWithSession(count: captureCount) { sut in
@@ -497,9 +494,6 @@ class SentryHubTests: XCTestCase {
         }
     }
     
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
     func testCaptureMultipleErrorsWithSessionInParallel() {
         let captureCount = 100
         captureConcurrentWithSession(count: captureCount) { sut in
@@ -665,11 +659,6 @@ class SentryHubTests: XCTestCase {
         })
     }
 
-    // Although we only run this test above the below specified versions, we expect the
-    // implementation to be thread safe
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
     private func captureConcurrentWithSession(count: Int, _ capture: @escaping (SentryHub) -> Void) {
         let sut = fixture.getSut()
         sut.startSession()
@@ -687,7 +676,6 @@ class SentryHubTests: XCTestCase {
         group.waitWithTimeout()
     }
     
-    @available(iOS 10.0, tvOS 10.0, OSX 10.12, *)
     func testModifyIntegrationsConcurrently() {
         
         let sut = fixture.getSut()
@@ -720,7 +708,6 @@ class SentryHubTests: XCTestCase {
     /**
      * This test only ensures concurrent modifications don't crash.
      */
-    @available(iOS 10.0, tvOS 10.0, OSX 10.12, *)
     func testModifyIntegrationsConcurrently_NoCrash() {
         let sut = fixture.getSut()
         
