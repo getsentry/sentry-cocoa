@@ -56,7 +56,7 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     override func tearDown() {
         super.tearDown()
         sut.stop()
-        fixture.fileManager.deleteAllFolders()
+        fixture.client.fileManager.deleteAllFolders()
         
         clearTestState()
     }

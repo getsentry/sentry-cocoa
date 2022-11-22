@@ -16,7 +16,7 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
-#import "SentryFileManager+Test.h"
+#import "SentryFileManager+TestProperties.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryHub+Private.h"
 #import "SentryHub.h"

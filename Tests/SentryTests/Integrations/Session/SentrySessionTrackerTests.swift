@@ -50,11 +50,10 @@ class SentrySessionTrackerTests: XCTestCase {
         fixture = Fixture()
         
         CurrentDate.setCurrentDateProvider(fixture.currentDateProvider)
-        
-        fileManager = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: fixture.currentDateProvider)
-        fileManager.deleteCurrentSession()
-        fileManager.deleteCrashedSession()
-        fileManager.deleteTimestampLastInForeground()
+
+        fixture.fileManager.deleteCurrentSession()
+        fixture.fileManager.deleteCrashedSession()
+        fixture.fileManager.deleteTimestampLastInForeground()
         
         fixture.setNewHubToSDK()
         
