@@ -331,9 +331,9 @@ class SentryScopeSwiftTests: XCTestCase {
             group.enter()
             queue.async {
                 
-                // The number is kept small for the CI to not take to long.
+                // The number is kept small for the CI to not take too long.
                 // If you really want to test this increase to 100_000 or so.
-                for _ in 0...1_000 {
+                for _ in 0...10 {
                     // Simulate some real world modifications of the user
                     self.modifyScope(scope: scope)
                 }
