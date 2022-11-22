@@ -1,6 +1,7 @@
 import Foundation
 
-public struct CallStackTree: Codable {
+@objc
+public class CallStackTree: NSObject, Codable {
     
     public let callStacks: [CallStack]
     public let callStackPerThread: Bool
@@ -15,7 +16,8 @@ public struct CallStackTree: Codable {
     }
 }
 
-public struct CallStack: Codable {
+@objc
+public class CallStack: NSObject, Codable {
     public var threadAttributed: Bool?
     public var callStackRootFrames: [MXFrame]
     
@@ -29,7 +31,8 @@ public struct CallStack: Codable {
     }
 }
 
-public struct MXFrame: Codable, Hashable {
+@objc
+public class MXFrame: NSObject, Codable {
     public var binaryUUID: UUID?
     public var offsetIntoBinaryTextSegment: Int?
     public var sampleCount: Int?

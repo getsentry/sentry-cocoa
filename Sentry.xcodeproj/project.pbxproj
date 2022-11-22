@@ -2810,6 +2810,7 @@
 		7BF65060292B8EFE00BBA5A8 /* MetricKit */ = {
 			isa = PBXGroup;
 			children = (
+				7BD9509E2924E3E1009EA8EB /* SentryMetricKitManager.swift */,
 				7BF65061292B8F1C00BBA5A8 /* CallStackTree.swift */,
 			);
 			path = MetricKit;
@@ -2939,7 +2940,6 @@
 				7BF65060292B8EFE00BBA5A8 /* MetricKit */,
 				D81A349B291D0C0B005A27A9 /* Sentry.swift */,
 				D800942628F82F3A005D3943 /* SwiftDescriptor.swift */,
-				7BD9509E2924E3E1009EA8EB /* SentryMetricKitManager.swift */,
 			);
 			path = Swift;
 			sourceTree = "<group>";
