@@ -11,6 +11,11 @@ index b9205a9f..3156735b 100644
  
    # debug
    pod 'SwiftLint', '~> 0.47.1', :configurations => ['Debug']
+ end
+
+target 'VLC-iOS' do
+- platform :ios, '9.0'
++ platform :ios, '11.0'
 diff --git a/Sources/App/iOS/VLCAppDelegate.m b/Sources/App/iOS/VLCAppDelegate.m
 index 2c1fc802..21495fd7 100644
 --- a/Sources/App/iOS/VLCAppDelegate.m
