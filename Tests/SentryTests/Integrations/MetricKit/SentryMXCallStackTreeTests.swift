@@ -1,25 +1,25 @@
 import XCTest
 
 @available(iOS 14.0, macCatalyst 14.0, macOS 12.0, *)
-final class CallStackTreeTests: XCTestCase {
+final class SentryMXCallStackTreeTests: XCTestCase {
     
     func testDecodeCallStackTree_Simple() throws {
         let contents = try contentsOfResource("metric-kit-callstack-tree-simple")
-        let callStackTree = try CallStackTree.from(data: contents)
+        let callStackTree = try SentryMXCallStackTree.from(data: contents)
         
         try assertSimpleCallStackTree(callStackTree)
     }
     
     func testDecodeCallStackTree_UnknownFieldsPayload() throws {
         let contents = try contentsOfResource("metric-kit-callstack-tree-unknown-fields")
-        let callStackTree = try CallStackTree.from(data: contents)
+        let callStackTree = try SentryMXCallStackTree.from(data: contents)
         
         try assertSimpleCallStackTree(callStackTree)
     }
     
     func testDecodeCallStackTree_RealPayload() throws {
         let contents = try contentsOfResource("metric-kit-callstack-tree-real")
-        let callStackTree = try CallStackTree.from(data: contents)
+        let callStackTree = try SentryMXCallStackTree.from(data: contents)
         
         XCTAssertNotNil(callStackTree)
         
@@ -31,10 +31,10 @@ final class CallStackTreeTests: XCTestCase {
     
     func testDecodeCallStackTree_GarbagePayload() throws {
         let contents = try contentsOfResource("metric-kit-callstack-tree-garbage")
-        XCTAssertThrowsError(try CallStackTree.from(data: contents))
+        XCTAssertThrowsError(try SentryMXCallStackTree.from(data: contents))
     }
     
-    private func assertSimpleCallStackTree(_ callStackTree: CallStackTree) throws {
+    private func assertSimpleCallStackTree(_ callStackTree: SentryMXCallStackTree) throws {
         XCTAssertNotNil(callStackTree)
         XCTAssertTrue(callStackTree.callStackPerThread)
         

@@ -441,6 +441,11 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, strong) NSArray *failedRequestTargets;
 
+/**
+ * ATTENTION: This is an experimental feature.
+ *
+ * This feature is disabled by default.
+ */
 @property (nonatomic, assign)
     BOOL enableMetricKit API_AVAILABLE(ios(14.0), macos(12.0), macCatalyst(14.0));
 
