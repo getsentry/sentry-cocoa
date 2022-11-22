@@ -2,15 +2,19 @@
 
 ## Unreleased 
 
-This version introduces a dependency on Swift, which only impacts you if you don't use Swift. If your project uses Swift already, this change will not affect you.
+This version adds a dependency on Swift.
 
 ### Features
 
 - Properly demangle Swift class name (#2162)
 
-### Breaking changes
+### Breaking Changes
 
-- Bump minimum supported OS versions: macOS 10.13, iOS 11, tvOS 11, and watchOS 4 are now supported (#2414)
+- Remove `- [SentryOptions initWithDict:didFailWithError:]` (#2404)
+- Rename `- [SentrySDK startWithOptionsObject:]` to `- [SentrySDK startWithOptions:]` (#2404)
+- Remove `- [SentryOptions sdkInfo]` (#2404)
+- Mark `- [SpanProtocol setExtraValue:forKey:]` as deprecated (#2413)
+- Bump minimum supported OS versions to macOS 10.13, iOS 11, tvOS 11, and watchOS 4 (#2414)
 
 ## 7.31.2
 

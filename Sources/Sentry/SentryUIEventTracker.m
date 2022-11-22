@@ -169,13 +169,13 @@ SentryUIEventTracker ()
  */
 - (NSString *)getTransactionName:(NSString *)action target:(NSString *)target
 {
-    NSArray<NSString *> *componens = [action componentsSeparatedByString:@":"];
-    if (componens.count > 2) {
+    NSArray<NSString *> *components = [action componentsSeparatedByString:@":"];
+    if (components.count > 2) {
         NSMutableString *result =
-            [[NSMutableString alloc] initWithFormat:@"%@.%@(", target, componens.firstObject];
+            [[NSMutableString alloc] initWithFormat:@"%@.%@(", target, components.firstObject];
 
-        for (int i = 1; i < (componens.count - 1); i++) {
-            [result appendFormat:@"%@:", componens[i]];
+        for (int i = 1; i < (components.count - 1); i++) {
+            [result appendFormat:@"%@:", components[i]];
         }
 
         [result appendFormat:@")"];
@@ -183,7 +183,7 @@ SentryUIEventTracker ()
         return result;
     }
 
-    return [NSString stringWithFormat:@"%@.%@", target, componens.firstObject];
+    return [NSString stringWithFormat:@"%@.%@", target, components.firstObject];
 }
 
 NS_ASSUME_NONNULL_END
