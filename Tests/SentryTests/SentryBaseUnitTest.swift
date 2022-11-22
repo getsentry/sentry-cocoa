@@ -20,16 +20,6 @@ class SentryBaseUnitTest: XCTestCase {
         }
         super.tearDown()
     }
-
-    override func setUp() async throws {
-        try await super.setUp()
-        try clearTestState()
-    }
-
-    override func tearDown() async throws {
-        try clearTestState()
-        try await super.tearDown()
-    }
 }
 
 private extension SentryBaseUnitTest {
