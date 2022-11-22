@@ -30,7 +30,7 @@ jobs:
           path: |
             DerivedData/Build/Products/Debug-iphoneos/TrendingMovies.app
             DerivedData/Build/Products/Debug-iphoneos/TrendingMovies.app.dSYM
-          key: trendingmovies-app-cache-key-${{ hashFiles('Samples/TrendingMovies/TrendingMovies/**') }}
+          key: trendingmovies-app-cache-key-${{ hashFiles('Samples/TrendingMovies/TrendingMovies/**') }}-${{ hashFiles('Sentry/Sources/**') }}
       - name: Cache ProfileDataGenerator UI Test Runner App build product
         id: cache-profiledatagenerator-test-runner-app
         uses: actions/cache@v3

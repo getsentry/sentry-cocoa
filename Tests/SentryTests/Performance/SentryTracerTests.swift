@@ -752,13 +752,13 @@ class SentryTracerTests: XCTestCase {
         
         XCTAssertEqual(transactions, fixture.hub.capturedEventsWithScopes.count)
         
-        let transactionsWithAppStartMeasrurement = fixture.hub.capturedEventsWithScopes.filter { pair in
+        let transactionsWithAppStartMeasurement = fixture.hub.capturedEventsWithScopes.filter { pair in
             let serializedTransaction = pair.event.serialize()
             let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
             return measurements == ["app_start_warm": ["value": 500]]
         }
         
-        XCTAssertEqual(1, transactionsWithAppStartMeasrurement.count)
+        XCTAssertEqual(1, transactionsWithAppStartMeasurement.count)
     }
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
