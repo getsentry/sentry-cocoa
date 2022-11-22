@@ -141,7 +141,7 @@ class TestFileManager: SentryFileManager {
         try! super.init(options: options, andCurrentDateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
     }
 
-    override init(options: Options, andCurrentDateProvider currentDateProvider: CurrentDateProvider) throws {
+    init(options: Options, andCurrentDateProvider currentDateProvider: CurrentDateProvider) throws {
         try! super.init(options: options, andCurrentDateProvider: currentDateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
     }
 
