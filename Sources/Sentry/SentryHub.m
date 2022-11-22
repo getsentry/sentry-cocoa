@@ -208,7 +208,7 @@ SentryHub ()
 {
     SentrySession *sessionCopy = nil;
     @synchronized(_sessionLock) {
-        if (_session != nil) {
+        if (nil != _session) {
             [_session incrementErrors];
             [self storeCurrentSession:_session];
             sessionCopy = [_session copy];
