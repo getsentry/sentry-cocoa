@@ -6,7 +6,7 @@ This version introduces a dependency on Swift, which only impacts you if you don
 
 ### Breaking Changes
 
-- Mark [SpanProtocol setExtraValue:forKey] as deprecated (#2413)
+- Mark `- [SpanProtocol setExtraValue:forKey:]` as deprecated (#2413)
 
 ### Features
 
