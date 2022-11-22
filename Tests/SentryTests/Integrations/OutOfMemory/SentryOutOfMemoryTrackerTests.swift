@@ -64,11 +64,11 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     func testStart_StoresAppState() {
         sut = fixture.getSut(usingRealFileManager: true)
 
-        XCTAssertNil(fixture.mockFileManager.readAppState())
+        XCTAssertNil(fixture.realFileManager.readAppState())
 
         sut.start()
         
-        let actual = fixture.mockFileManager.readAppState()
+        let actual = fixture.realFileManager.readAppState()
         
         let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.sysctl.systemBootTimestamp)
         
@@ -83,11 +83,11 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         
         goToForeground()
         
-        XCTAssertTrue(fixture.mockFileManager.readAppState()?.isActive ?? false)
+        XCTAssertTrue(fixture.realFileManager.readAppState()?.isActive ?? false)
         
         goToBackground()
         
-        XCTAssertFalse(fixture.mockFileManager.readAppState()?.isActive ?? true)
+        XCTAssertFalse(fixture.realFileManager.readAppState()?.isActive ?? true)
         XCTAssertEqual(3, fixture.dispatchQueue.dispatchAsyncCalled)
     }
     
