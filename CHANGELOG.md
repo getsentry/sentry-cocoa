@@ -2,12 +2,11 @@
 
 ## Unreleased 
 
-This version introduces a dependency on Swift, which only impacts you if you don't use Swift. If your project uses Swift already, this change will not affect you.
+This version adds a dependency on Swift.
 
 ### Breaking Changes
 
 - Make SpanProtocol.data non nullable (#2409)
-This version adds a dependency on Swift.
 
 ### Features
 
