@@ -130,9 +130,9 @@ class TestClient: Client {
         recordLostEvents.record((category, reason))
     }
     
-    var flushInvoctions = Invocations<TimeInterval>()
+    var flushInvocations = Invocations<TimeInterval>()
     override func flush(timeout: TimeInterval) {
-        flushInvoctions.record(timeout)
+        flushInvocations.record(timeout)
     }
 }
 
