@@ -151,7 +151,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         
         XCTAssertEqual(transaction.children.count, 1)
         
-        guard let operations = transaction.children[0].data?["operations"] as? [String: Any?] else {
+        guard let operations = transaction.children[0].data["operations"] as? [String: Any?] else {
             XCTFail("Transaction has no `operations` extra")
             return
         }
@@ -230,7 +230,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         XCTAssertEqual(transaction.children.count, 1)
         XCTAssertEqual(transaction.children[0].context.operation, SENTRY_COREDATA_FETCH_OPERATION)
         XCTAssertEqual(transaction.children[0].context.spanDescription, expectedDescription)
-        XCTAssertEqual(transaction.children[0].data!["read_count"] as? Int, 1)
+        XCTAssertEqual(transaction.children[0].data["read_count"] as? Int, 1)
     }
     
     private func startTransaction() -> SentryTracer {

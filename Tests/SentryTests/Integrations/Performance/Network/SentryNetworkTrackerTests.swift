@@ -746,9 +746,9 @@ class SentryNetworkTrackerTests: XCTestCase {
             XCTAssertNil(httpStatusCode)
         }
         
-        let path = span.data!["url"] as? String
-        let method = span.data!["method"] as? String
-        let requestType = span.data!["type"] as? String
+        let path = span.data["url"] as? String
+        let method = span.data["method"] as? String
+        let requestType = span.data["type"] as? String
         
         XCTAssertEqual(path, task.currentRequest!.url!.path)
         XCTAssertEqual(method, task.currentRequest!.httpMethod)
