@@ -36,17 +36,13 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         options.integrations = Options.defaultIntegrations().filter { (name) -> Bool in
             return name != "SentryAutoSessionTrackingIntegration"
         }
+
+        fileManager = SentryFileManager(options: options, andCurrentDateProvider: DefaultCurrentDateProvider.sharedInstance())
         
-        do {
-            fileManager = try SentryFileManager(options: options, andCurrentDateProvider: DefaultCurrentDateProvider.sharedInstance())
-            
-            fileManager.deleteCurrentSession()
-            fileManager.deleteCrashedSession()
-            fileManager.deleteTimestampLastInForeground()
-            fileManager.deleteAppState()
-        } catch {
-            XCTFail("Could not delete session data")
-        }
+        fileManager.deleteCurrentSession()
+        fileManager.deleteCrashedSession()
+        fileManager.deleteTimestampLastInForeground()
+        fileManager.deleteAppState()
     }
     
     override func tearDown() {

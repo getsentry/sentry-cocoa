@@ -77,20 +77,13 @@ NSString *const kSentryDefaultEnvironment = @"production";
 }
 
 /** Internal constructor for testing purposes. */
-- (_Nullable instancetype)initWithOptions:(SentryOptions *)options
-                            dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+- (instancetype)initWithOptions:(SentryOptions *)options
+                  dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
 {
-    NSError *error = nil;
     SentryFileManager *fileManager =
         [[SentryFileManager alloc] initWithOptions:options
                             andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-                              dispatchQueueWrapper:dispatchQueue
-                                             error:&error];
-    if (nil != error) {
-        SENTRY_LOG_ERROR(@"%@", error.localizedDescription);
-        return nil;
-    }
-
+                              dispatchQueueWrapper:dispatchQueue];
     return [self initWithOptions:options
              permissionsObserver:[[SentryPermissionsObserver alloc] init]
                      fileManager:fileManager];

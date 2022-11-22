@@ -20,14 +20,13 @@ SENTRY_NO_INIT
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathOne;
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathTwo;
 
-- (nullable instancetype)initWithOptions:(SentryOptions *)options
-                  andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                                   error:(NSError **)error;
+- (instancetype)initWithOptions:(SentryOptions *)options
+         andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider;
 
-- (nullable instancetype)initWithOptions:(SentryOptions *)options
-                  andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                                   error:(NSError **)error NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithOptions:(SentryOptions *)options
+         andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+    NS_DESIGNATED_INITIALIZER;
 
 - (void)setDelegate:(id<SentryFileManagerDelegate>)delegate;
 

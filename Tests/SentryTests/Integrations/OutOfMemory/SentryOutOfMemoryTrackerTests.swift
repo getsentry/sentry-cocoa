@@ -11,8 +11,8 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         let options: Options
         let client: TestClient
         let crashWrapper: TestSentryCrashWrapper
-        lazy var mockFileManager = try! TestFileManager(options: options, andCurrentDateProvider: currentDate)
-        lazy var realFileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate, dispatchQueueWrapper: dispatchQueue)
+        lazy var mockFileManager = TestFileManager(options: options, andCurrentDateProvider: currentDate)
+        lazy var realFileManager = SentryFileManager(options: options, andCurrentDateProvider: currentDate, dispatchQueueWrapper: dispatchQueue)
         let currentDate = TestCurrentDateProvider()
         let sysctl = TestSysctl()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
@@ -291,8 +291,8 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         assertNoOOMSent()
     }
     
-    func testStop_StopsObserving_NoMoreFileManagerInvocations() throws {
-        let fileManager = try TestFileManager(options: Options(), andCurrentDateProvider: TestCurrentDateProvider())
+    func testStop_StopsObserving_NoMoreFileManagerInvocations() {
+        let fileManager = TestFileManager(options: Options(), andCurrentDateProvider: TestCurrentDateProvider())
         sut = fixture.getSut(fileManager: fileManager)
 
         sut.start()

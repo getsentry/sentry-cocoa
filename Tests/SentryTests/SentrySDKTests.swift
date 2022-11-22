@@ -543,11 +543,11 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(timestamp, SentrySDK.getAppStartMeasurement()?.appStartTimestamp)
     }
 
-    func testMovesBreadcrumbsToPreviousBreadcrumbs() throws {
+    func testMovesBreadcrumbsToPreviousBreadcrumbs() {
         let options = Options()
         options.dsn = SentrySDKTests.dsnAsString
 
-        let fileManager = try TestFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
+        let fileManager = TestFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
         let observer = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: 10, fileManager: fileManager)
         let serializedBreadcrumb = TestData.crumb.serialize()
 

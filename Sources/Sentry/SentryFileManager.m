@@ -41,78 +41,35 @@ SentryFileManager ()
 
 @implementation SentryFileManager
 
-- (nullable instancetype)initWithOptions:(SentryOptions *)options
-                  andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                                   error:(NSError **)error
+- (instancetype)initWithOptions:(SentryOptions *)options
+         andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
 {
     return [self initWithOptions:options
           andCurrentDateProvider:currentDateProvider
-            dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
-                           error:error];
+            dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper];
 }
 
-- (void)ensureSentryPath
-{
-    if (![[NSFileManager defaultManager] fileExistsAtPath:self.sentryPath]) {
-        SENTRY_LOG_DEBUG(@"Creating sentry folder at %@", self.sentryPath);
-        NSError *error;
-        if (![self.class createDirectoryAtPath:self.sentryPath withError:&error]) {
-            SENTRY_LOG_ERROR(@"Failed to (re)create the sentry directory: %@", error);
-        }
-    }
-}
-
-- (nullable instancetype)initWithOptions:(SentryOptions *)options
-                  andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                                   error:(NSError **)error
+- (instancetype)initWithOptions:(SentryOptions *)options
+         andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     self = [super init];
     if (self) {
         self.currentDateProvider = currentDateProvider;
 
         NSFileManager *fileManager = [NSFileManager defaultManager];
-        NSString *cachePath
-            = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
-                  .firstObject;
 
-        SENTRY_LOG_DEBUG(@"SentryFileManager.cachePath: %@", cachePath);
-
-        self.basePath = [cachePath stringByAppendingPathComponent:@"io.sentry"];
-        self.sentryPath =
-            [self.basePath stringByAppendingPathComponent:[options.parsedDsn getHash]];
-
-        [self ensureSentryPath];
-
-        self.currentSessionFilePath =
-            [self.sentryPath stringByAppendingPathComponent:@"session.current"];
-
-        self.crashedSessionFilePath =
-            [self.sentryPath stringByAppendingPathComponent:@"session.crashed"];
-
-        self.lastInForegroundFilePath =
-            [self.sentryPath stringByAppendingPathComponent:@"lastInForeground.timestamp"];
-
-        self.previousAppStateFilePath =
-            [self.sentryPath stringByAppendingPathComponent:@"previous.app.state"];
-        self.appStateFilePath = [self.sentryPath stringByAppendingPathComponent:@"app.state"];
-        self.previousBreadcrumbsFilePathOne =
-            [self.sentryPath stringByAppendingPathComponent:@"previous.breadcrumbs.1.state"];
-        self.previousBreadcrumbsFilePathTwo =
-            [self.sentryPath stringByAppendingPathComponent:@"previous.breadcrumbs.2.state"];
-        self.breadcrumbsFilePathOne =
-            [self.sentryPath stringByAppendingPathComponent:@"breadcrumbs.1.state"];
-        self.breadcrumbsFilePathTwo =
-            [self.sentryPath stringByAppendingPathComponent:@"breadcrumbs.2.state"];
-        self.timezoneOffsetFilePath =
-            [self.sentryPath stringByAppendingPathComponent:@"timezone.offset"];
+        [self createPathsWithOptions:options];
 
         // Remove old cached events for versions before 6.0.0
         self.eventsPath = [self.sentryPath stringByAppendingPathComponent:@"events"];
-        [fileManager removeItemAtPath:self.eventsPath error:nil];
+        NSError *eventRemovalError;
+        if (![fileManager removeItemAtPath:self.eventsPath error:&eventRemovalError]) {
+            SENTRY_LOG_ERROR(@"Failed to remove old cached events: %@", eventRemovalError);
+        }
 
-        self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:@"envelopes"];
-        [self createDirectoryIfNotExists:self.envelopesPath didFailWithError:error];
+        [self ensureSentryPath];
+        [self createDirectoryIfNotExists:self.envelopesPath];
 
         self.currentFileCounter = 0;
         self.maxEnvelopes = options.maxCacheItems;
@@ -692,12 +649,61 @@ SentryFileManager ()
 
 #pragma mark private methods
 
-- (BOOL)createDirectoryIfNotExists:(NSString *)path didFailWithError:(NSError **)error
+- (void)createPathsWithOptions:(SentryOptions *_Nonnull)options
 {
-    return [[NSFileManager defaultManager] createDirectoryAtPath:path
-                                     withIntermediateDirectories:YES
-                                                      attributes:nil
-                                                           error:error];
+    NSString *cachePath
+        = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject;
+
+    SENTRY_LOG_DEBUG(@"SentryFileManager.cachePath: %@", cachePath);
+
+    self.basePath = [cachePath stringByAppendingPathComponent:@"io.sentry"];
+    self.sentryPath = [self.basePath stringByAppendingPathComponent:[options.parsedDsn getHash]];
+    self.currentSessionFilePath =
+        [self.sentryPath stringByAppendingPathComponent:@"session.current"];
+    self.crashedSessionFilePath =
+        [self.sentryPath stringByAppendingPathComponent:@"session.crashed"];
+    self.lastInForegroundFilePath =
+        [self.sentryPath stringByAppendingPathComponent:@"lastInForeground.timestamp"];
+    self.previousAppStateFilePath =
+        [self.sentryPath stringByAppendingPathComponent:@"previous.app.state"];
+    self.appStateFilePath = [self.sentryPath stringByAppendingPathComponent:@"app.state"];
+    self.previousBreadcrumbsFilePathOne =
+        [self.sentryPath stringByAppendingPathComponent:@"previous.breadcrumbs.1.state"];
+    self.previousBreadcrumbsFilePathTwo =
+        [self.sentryPath stringByAppendingPathComponent:@"previous.breadcrumbs.2.state"];
+    self.breadcrumbsFilePathOne =
+        [self.sentryPath stringByAppendingPathComponent:@"breadcrumbs.1.state"];
+    self.breadcrumbsFilePathTwo =
+        [self.sentryPath stringByAppendingPathComponent:@"breadcrumbs.2.state"];
+    self.timezoneOffsetFilePath =
+        [self.sentryPath stringByAppendingPathComponent:@"timezone.offset"];
+    self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:@"envelopes"];
+}
+
+- (BOOL)createDirectoryIfNotExists:(NSString *)path
+{
+    NSError *error;
+    if (![[NSFileManager defaultManager] createDirectoryAtPath:path
+                                   withIntermediateDirectories:YES
+                                                    attributes:nil
+                                                         error:&error]) {
+        SENTRY_LOG_ERROR(@"Failed creating directory at %@: %@", path, error);
+        return NO;
+    }
+    return YES;
+}
+
+- (BOOL)ensureSentryPath
+{
+    if (![[NSFileManager defaultManager] fileExistsAtPath:self.sentryPath]) {
+        SENTRY_LOG_DEBUG(@"Creating sentry folder at %@", self.sentryPath);
+        NSError *error;
+        if (![self.class createDirectoryAtPath:self.sentryPath withError:&error]) {
+            SENTRY_LOG_ERROR(@"Failed to (re)create the sentry directory: %@", error);
+            return NO;
+        }
+    }
+    return YES;
 }
 
 @end
