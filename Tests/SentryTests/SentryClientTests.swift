@@ -60,9 +60,7 @@ class SentryClientTest: XCTestCase {
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> Client {
             var client: Client!
             do {
-                let options = try Options(dict: [
-                    "dsn": SentryClientTest.dsn
-                ])
+                let options = try Options(dsn: SentryClientTest.dsn)
                 configureOptions(options)
 
                 client = Client(
