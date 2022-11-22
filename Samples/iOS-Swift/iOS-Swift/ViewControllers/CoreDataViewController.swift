@@ -115,7 +115,7 @@ class CoreDataViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let fetchRequest = Person.fetchRequest()
+        let fetchRequest = NSFetchRequest<Person>(entityName: "Person")
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
         do {
             people = try managedObjectContext.fetch(fetchRequest)
