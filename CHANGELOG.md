@@ -2,11 +2,18 @@
 
 ## Unreleased 
 
-This version introduces a dependency on Swift, which only impacts you if you don't use Swift. If your project uses Swift already, this change will not affect you.
+This version adds a dependency on Swift.
 
 ### Features
 
 - Properly demangle Swift class name (#2162)
+
+### Breaking Changes
+
+- Remove `- [SentryOptions initWithDict:didFailWithError:]` (#2404)
+- Rename `- [SentrySDK startWithOptionsObject:]` to `- [SentrySDK startWithOptions:]` (#2404)
+- Remove `- [SentryOptions sdkInfo]` (#2404)
+- Mark `- [SpanProtocol setExtraValue:forKey:]` as deprecated (#2413)
 
 ## 7.31.2
 
