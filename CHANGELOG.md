@@ -14,6 +14,7 @@ This version adds a dependency on Swift.
 - Rename `- [SentrySDK startWithOptionsObject:]` to `- [SentrySDK startWithOptions:]` (#2404)
 - Remove `- [SentryOptions sdkInfo]` (#2404)
 - Mark `- [SpanProtocol setExtraValue:forKey:]` as deprecated (#2413)
+- Bump minimum supported OS versions to macOS 10.13, iOS 11, tvOS 11, and watchOS 4 (#2414)
 
 ## 7.31.2
 

@@ -1,4 +1,5 @@
 #import "SentryTransactionContext.h"
+#import "SentryLog.h"
 #include "SentryProfilingConditionals.h"
 #import "SentryThread.h"
 #include "SentryThreadHandle.hpp"
@@ -31,10 +32,7 @@ SentryTransactionContext ()
                    operation:(NSString *)operation
 {
     if (self = [super initWithOperation:operation]) {
-        _name = [NSString stringWithString:name];
-        _nameSource = source;
-        self.parentSampled = kSentryDefaultSamplingDecision;
-        [self getThreadInfo];
+        [self commonInitWithName:name source:source parentSampled:kSentryDefaultSamplingDecision];
     }
     return self;
 }
@@ -55,10 +53,7 @@ SentryTransactionContext ()
                      sampled:(SentrySampleDecision)sampled
 {
     if (self = [super initWithOperation:operation sampled:sampled]) {
-        _name = [NSString stringWithString:name];
-        _nameSource = source;
-        self.parentSampled = kSentryDefaultSamplingDecision;
-        [self getThreadInfo];
+        [self commonInitWithName:name source:source parentSampled:kSentryDefaultSamplingDecision];
     }
     return self;
 }
@@ -92,10 +87,7 @@ SentryTransactionContext ()
                              parentId:parentSpanId
                             operation:operation
                               sampled:kSentryDefaultSamplingDecision]) {
-        _name = [NSString stringWithString:name];
-        _nameSource = source;
-        self.parentSampled = parentSampled;
-        [self getThreadInfo];
+        [self commonInitWithName:name source:source parentSampled:parentSampled];
     }
     return self;
 }
@@ -114,6 +106,17 @@ SentryTransactionContext ()
     return self.threadInfo;
 }
 #endif
+
+- (void)commonInitWithName:(NSString *)name
+                    source:(SentryTransactionNameSource)source
+             parentSampled:(SentrySampleDecision)parentSampled
+{
+    _name = [NSString stringWithString:name];
+    _nameSource = source;
+    self.parentSampled = parentSampled;
+    [self getThreadInfo];
+    SENTRY_LOG_DEBUG(@"Created transaction context with name %@", name);
+}
 
 @end
 

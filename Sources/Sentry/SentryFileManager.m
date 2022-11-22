@@ -108,8 +108,13 @@ SentryFileManager ()
         self.currentFileCounter = 0;
         self.maxEnvelopes = options.maxCacheItems;
 
-        [dispatchQueueWrapper dispatchAfter:10
-                                      block:^{ [self deleteOldEnvelopesFromAllSentryPaths]; }];
+        SENTRY_LOG_DEBUG(@"Dispatching deletion of old envelopes from %@", self);
+        [dispatchQueueWrapper
+            dispatchAfter:10
+                    block:^{
+                        SENTRY_LOG_DEBUG(@"Dispatched deletion of old envelopes from %@", self);
+                        [self deleteOldEnvelopesFromAllSentryPaths];
+                    }];
     }
     return self;
 }
@@ -196,7 +201,7 @@ SentryFileManager ()
         NSDictionary *dict = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath
                                                                               error:nil];
         if (!dict || dict[NSFileType] != NSFileTypeDirectory) {
-            SENTRY_LOG_DEBUG(@"Could not get NSFileTypeDirectory from %@", fullPath);
+            SENTRY_LOG_WARN(@"Could not get NSFileTypeDirectory from %@", fullPath);
             continue;
         }
 
@@ -214,7 +219,7 @@ SentryFileManager ()
         NSDictionary *dict = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath
                                                                               error:nil];
         if (!dict || !dict[NSFileCreationDate]) {
-            SENTRY_LOG_DEBUG(@"Could not get NSFileCreationDate from %@", fullPath);
+            SENTRY_LOG_WARN(@"Could not get NSFileCreationDate from %@", fullPath);
             continue;
         }
 
@@ -251,6 +256,7 @@ SentryFileManager ()
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error = nil;
     @synchronized(self) {
+        SENTRY_LOG_DEBUG(@"Deleting %@", path);
         [fileManager removeItemAtPath:path error:&error];
 
         if (nil != error) {
