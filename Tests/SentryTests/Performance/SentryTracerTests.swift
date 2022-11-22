@@ -697,12 +697,14 @@ class SentryTracerTests: XCTestCase {
         
         let queue = DispatchQueue(label: "SentryTracerTests", attributes: [.concurrent, .initiallyInactive])
         let group = DispatchGroup()
-        
-        for _ in 0 ..< 5_000 {
+
+        let children = 5
+        let grandchildren = 10
+        for _ in 0 ..< children {
             group.enter()
             queue.async {
                 let grandChild = child.startChild(operation: self.fixture.transactionOperation)
-                for _ in 0 ..< 9 {
+                for _ in 0 ..< grandchildren {
                     let grandGrandChild = grandChild.startChild(operation: self.fixture.transactionOperation)
                     grandGrandChild.finish()
                 }
@@ -721,7 +723,7 @@ class SentryTracerTests: XCTestCase {
         assertOneTransactionCaptured(sut)
         
         let spans = getSerializedTransaction()["spans"]! as! [[String: Any]]
-        XCTAssertEqual(spans.count, 50_001)
+        XCTAssertEqual(spans.count, children * (grandchildren + 1) + 1)
     }
     
     // Although we only run this test above the below specified versions, we expect the
@@ -735,7 +737,7 @@ class SentryTracerTests: XCTestCase {
         let queue = DispatchQueue(label: "", qos: .background, attributes: [.concurrent, .initiallyInactive] )
         let group = DispatchGroup()
         
-        let transactions = 10_000
+        let transactions = 5
         for _ in 0..<transactions {
             group.enter()
             queue.async {
