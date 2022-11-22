@@ -212,12 +212,12 @@ static NSObject *sentryDependencyContainerLock;
     return _anrTracker;
 }
 
-- (SentryMetricKitManager *)metricKitManager
+- (SentryMXManager *)metricKitManager
 {
     if (_metricKitManager == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_metricKitManager == nil) {
-                _metricKitManager = [[SentryMetricKitManager alloc] init];
+                _metricKitManager = [[SentryMXManager alloc] init];
             }
         }
     }

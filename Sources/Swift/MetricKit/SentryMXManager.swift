@@ -3,11 +3,11 @@ import MetricKit
 
 @available(iOS 14.0, macCatalyst 14.0, macOS 12.0, *)
 @objc public protocol SentryMXManagerDelegate: AnyObject {
-    func didReceiveCrashDiagnostic(crashDiagnostic: MXCrashDiagnostic, callStackTree: SentryMXCallStackTree)
+    func didReceiveCrashDiagnostic(_ crashDiagnostic: MXCrashDiagnostic, callStackTree: SentryMXCallStackTree)
 }
 
 @available(iOS 14.0, macCatalyst 14.0, macOS 12.0, *)
-@objc public class SentryMetricKitManager: NSObject, MXMetricManagerSubscriber {
+@objc public class SentryMXManager: NSObject, MXMetricManagerSubscriber {
 
     @objc public weak var delegate: SentryMXManagerDelegate?
     
@@ -27,7 +27,7 @@ import MetricKit
                 let json = $0.callStackTree.jsonRepresentation()
                 let callStackTree = try! SentryMXCallStackTree.from(data: json)
                 
-                delegate?.didReceiveCrashDiagnostic(crashDiagnostic: $0, callStackTree: callStackTree)
+                delegate?.didReceiveCrashDiagnostic($0, callStackTree: callStackTree)
             }
             
             payload.diskWriteExceptionDiagnostics?.forEach {

@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryMetricKitIntegration ()
 
-@property (nonatomic, strong) SentryMetricKitManager *metricKitManager;
+@property (nonatomic, strong, nullable) SentryMXManager *metricKitManager;
 
 @end
 
@@ -45,6 +45,7 @@ SentryMetricKitIntegration ()
 {
     [self.metricKitManager pauseReports];
     self.metricKitManager.delegate = nil;
+    self.metricKitManager = nil;
 }
 
 /**
@@ -52,8 +53,8 @@ SentryMetricKitIntegration ()
  * this. We easily get MXCrashDiagnostic and so we can use them for validating symbolication. We
  * don't plan on releasing this. Instead, we are going to remove this code before releasing.
  */
-- (void)didReceiveCrashDiagnosticWithCrashDiagnostic:(MXCrashDiagnostic *)crashDiagnostic
-                                       callStackTree:(SentryMXCallStackTree *)callStackTree
+- (void)didReceiveCrashDiagnostic:(MXCrashDiagnostic *)crashDiagnostic
+                    callStackTree:(SentryMXCallStackTree *)callStackTree
 {
 
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
@@ -95,6 +96,8 @@ SentryMetricKitIntegration ()
 
     event.threads = threads;
 
+    // The crash event can be way from the past. We don't want to impact the current session.
+    // Therefore we don't call captureCrashEvent.
     [SentrySDK captureEvent:event];
 }
 
