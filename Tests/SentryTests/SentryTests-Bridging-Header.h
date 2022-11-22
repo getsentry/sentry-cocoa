@@ -74,7 +74,7 @@
 #import "SentryEvent+Private.h"
 #import "SentryFileContents.h"
 #import "SentryFileIOTrackingIntegration.h"
-#import "SentryFileManager+Test.h"
+#import "SentryFileManager+TestProperties.h"
 #import "SentryFileManager.h"
 #import "SentryFrame.h"
 #import "SentryFrameRemover.h"

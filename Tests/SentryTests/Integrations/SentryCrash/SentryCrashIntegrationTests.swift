@@ -6,11 +6,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     private static let dsn = TestConstants.dsn(username: "SentryCrashIntegrationTests")
     
     private class Fixture {
-        let dispatchQueueWrapper: TestSentryDispatchQueueWrapper = {
-            let dqw = TestSentryDispatchQueueWrapper()
-            dqw.dispatchAfterExecutesBlock = true
-            return dqw
-        }()
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         let hub: SentryHub
         let client: TestClient
         let options: Options
@@ -55,7 +51,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     override func setUp() {
         super.setUp()
-        CurrentDate.setCurrentDateProvider(fixture.currentDateProvider)
+        CurrentDate.setCurrentDateProvider(TestCurrentDateProvider())
         
         fixture.client.fileManager.deleteCurrentSession()
         fixture.client.fileManager.deleteCrashedSession()
