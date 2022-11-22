@@ -1,67 +1,7 @@
-SDKROOT = $(SDKROOT__CARTHAGE_$(CARTHAGE)) //  basically, iphoneos (unless «CARTHAGE» == «YES»)
-// Carthage relies on this assumption, years standing — that SDKROOT is default or explicitly
-// set to `macosx` (or equivalent) under the ‘single target, multiple platform’ paradigm
-// because of a xcodebuild bug involving the sdk flag and implicit dependency: see «Carthage/Carthage#347».
-SDKROOT__CARTHAGE_YES = macosx
-// Importantly, the below two lines appease «Xcode.app», and get the UI to show Mac Catalyst destinations.
-SDKROOT__CARTHAGE_NO = iphoneos
-SDKROOT__CARTHAGE_ = iphoneos
-// …in order for ‘single target, multiple platform’ extrapolations to hold true,
-// all the above relies on the ability of Xcode GUI, xcodebuild, and Carthage via xcodebuild to
-// override «SDKROOT» based on selected destination (particularly for appletv* and watchos* platforms.)
-// …if the override behavior ever breaks, expect weird output and the probable need to migrate away from
-// the ‘single target, multiple platform’ paradigm.
-
-// …`SUPPORTED_PLATFORMS`, in service of ‘single target, multiple platform’ extrapolation, must never
-// engage in dollar-parentheses syntax — unless that dollar-parentheses basis is
-// entirely non-platform–derived, e.g. based upon `XCODE_VERSION_MAJOR`.
-// Note: Carthage, unfortunately, as current of v0.34.0 queries rather harshly on the platform values below
-// ⋯ quite early in the process, queried values not compiled into Carthage will cause hard errors.
-SUPPORTED_PLATFORMS = macosx iphoneos iphonesimulator watchos watchsimulator appletvos appletvsimulator
-TARGETED_DEVICE_FAMILY = 1,2,3,4
-SKIP_INSTALL = YES
-DEFINES_MODULE = YES
-DYLIB_COMPATIBILITY_VERSION = 1
-DYLIB_CURRENT_VERSION = 1
-DYLIB_INSTALL_NAME_BASE = @rpath
-MACH_O_TYPE = mh_dylib
-FRAMEWORK_VERSION = A
-
 PRODUCT_NAME = Sentry
 CURRENT_PROJECT_VERSION = 7.31.2
 INFOPLIST_FILE = Sources/Sentry/Info.plist
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry
-ALWAYS_SEARCH_USER_PATHS = NO
-CLANG_ENABLE_OBJC_ARC = YES
-CLANG_ENABLE_MODULES = YES
 //OTHER_CFLAGS = -Wall -Wextra -Wpedantic -Wno-gnu-conditional-omitted-operand
 
-ONLY_ACTIVE_ARCH[config=Debug] = YES
-GCC_OPTIMIZATION_LEVEL[config=Debug] = 0
-COPY_PHASE_STRIP[config=Debug] = NO
-
-MACOSX_DEPLOYMENT_TARGET = 10.9
-IPHONEOS_DEPLOYMENT_TARGET = 9.0
-WATCHOS_DEPLOYMENT_TARGET = 2.0
-TVOS_DEPLOYMENT_TARGET = 9.0
-
-LD_RUNPATH_SEARCH_PATHS[sdk=macosx*] = $(inherited) @executable_path/../Frameworks @loader_path/../Frameworks;
-LD_RUNPATH_SEARCH_PATHS[sdk=iphone*] = $(inherited) @executable_path/Frameworks @loader_path/Frameworks;
-LD_RUNPATH_SEARCH_PATHS[sdk=watch*] = $(inherited) @executable_path/Frameworks @loader_path/Frameworks;
-LD_RUNPATH_SEARCH_PATHS[sdk=appletv*] = $(inherited) @executable_path/Frameworks @loader_path/Frameworks;
-
-OTHER_LDFLAGS[sdk=watch*] = $(inherited) -framework WatchKit
-
 MODULEMAP_FILE = $(SRCROOT)/Sources/Sentry/Sentry.modulemap
-//SWIFT_INCLUDE_PATHS = $(SRCROOT)/Sources/Sentry
-
-// SWIFT_VERSION is only recognized by Xcode 8 and higher.
-// Prior versions of Xcode support only one Swift version.
-// SWIFT_VERSION = 3.1
-
-// Although `YES` is the default for iOS targets, command-line output via `xcodebuild -showBuildSettings`
-// will not emit this value unless it is explicitly set.
-SUPPORTS_MACCATALYST = YES
-
-CLANG_CXX_LANGUAGE_STANDARD = c++14
-CLANG_CXX_LIBRARY = libc++
