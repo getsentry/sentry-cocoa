@@ -1,6 +1,6 @@
 import Foundation
 
-class TestClient: Client {
+class TestClient: SentryClient {
     let sentryFileManager: SentryFileManager
 
     override init?(options: Options) {

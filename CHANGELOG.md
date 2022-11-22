@@ -16,6 +16,8 @@ This version adds a dependency on Swift.
 - Make `SpanProtocol.data` non nullable (#2409)
 - Mark `- [SpanProtocol setExtraValue:forKey:]` as deprecated (#2413)
 - Bump minimum supported OS versions to macOS 10.13, iOS 11, tvOS 11, and watchOS 4 (#2414)
+- Renaming Client to SentryClient for Swift (#2403)
+- Renaming User to SentryUser for Swift (#2403)
 
 ## 7.31.2
 
