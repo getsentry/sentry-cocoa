@@ -314,7 +314,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
             let queue = DispatchQueue(label: "SentryPerformanceTrackerTests", attributes: [.concurrent, .initiallyInactive])
             let group = DispatchGroup()
             
-            for _ in 0 ..< 50 {
+            for _ in 0 ..< 50_000 {
                 group.enter()
                 queue.async {
                     let childId = self.startSpan(tracker: sut)
