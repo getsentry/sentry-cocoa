@@ -27,7 +27,7 @@ SENTRY_NO_INIT
 - (nullable instancetype)initWithOptions:(SentryOptions *)options
                   andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
                     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                                   error:(NSError **)error;
+                                   error:(NSError **)error NS_DESIGNATED_INITIALIZER;
 
 - (void)setDelegate:(id<SentryFileManagerDelegate>)delegate;
 

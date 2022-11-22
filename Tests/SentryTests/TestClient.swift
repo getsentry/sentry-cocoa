@@ -8,7 +8,9 @@ class TestClient: SentryClient {
     init(options: Options, fileManager: SentryFileManager) {
         super.init(options: options, permissionsObserver: TestSentryPermissionsObserver(), fileManager: fileManager)
     }
-
+    
+    // Without this override we get a fatal error: use of unimplemented initializer
+    // see https://stackoverflow.com/questions/28187261/ios-swift-fatal-error-use-of-unimplemented-initializer-init
     override init(options: Options, transportAdapter: SentryTransportAdapter, fileManager: SentryFileManager, threadInspector: SentryThreadInspector, random: SentryRandomProtocol, crashWrapper: SentryCrashWrapper, permissionsObserver: SentryPermissionsObserver, deviceWrapper: SentryUIDeviceWrapper, locale: Locale, timezone: TimeZone) {
         super.init(
             options: options,
