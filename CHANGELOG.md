@@ -4,6 +4,10 @@
 
 This version adds a dependency on Swift.
 
+### Breaking Changes
+
+- Mark `- [SpanProtocol setExtraValue:forKey:]` as deprecated (#2413)
+
 ### Features
 
 - Properly demangle Swift class name (#2162)

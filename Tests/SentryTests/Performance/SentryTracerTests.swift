@@ -810,6 +810,7 @@ class SentryTracerTests: XCTestCase {
     }
 #endif
     
+    @available(*, deprecated)
     func testSetExtra_ForwardsToSetData() {
         let sut = fixture.getSut()
         sut.setExtra(value: 0, key: "key")
