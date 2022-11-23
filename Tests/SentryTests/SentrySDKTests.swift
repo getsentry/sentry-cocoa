@@ -389,7 +389,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertNil(actual?.duration)
     }
     
-    func testEndSession() {
+    func testEndSession() throws {
         givenSdkWithHub()
         
         SentrySDK.startSession()
@@ -398,7 +398,7 @@ class SentrySDKTests: XCTestCase {
         
         XCTAssertEqual(2, fixture.client.captureSessionInvocations.count)
         
-        let actual = fixture.client.captureSessionInvocations.invocations[1]
+        let actual = try XCTUnwrap(fixture.client.captureSessionInvocations.invocations.last)
         
         XCTAssertNil(actual.flagInit)
         XCTAssertEqual(0, actual.errors)
