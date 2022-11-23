@@ -188,7 +188,10 @@ class SentryFileManagerTests: XCTestCase {
     }
     
     func testDeleteFileNotExists() {
-        XCTAssertFalse(sut.removeFile(atPath: "x"))
+        let logOutput = TestLogOutput()
+        SentryLog.setLogOutput(logOutput)
+        sut.removeFile(atPath: "x")
+        XCTAssertFalse(logOutput.loggedMessages.contains(where: { $0.contains("[error]") }))
     }
     
     func testFailingStoreDictionary() {

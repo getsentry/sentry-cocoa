@@ -57,16 +57,11 @@ SentryFileManager ()
     if (self) {
         self.currentDateProvider = currentDateProvider;
 
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-
         [self createPathsWithOptions:options];
 
         // Remove old cached events for versions before 6.0.0
         self.eventsPath = [self.sentryPath stringByAppendingPathComponent:@"events"];
-        NSError *eventRemovalError;
-        if (![fileManager removeItemAtPath:self.eventsPath error:&eventRemovalError]) {
-            SENTRY_LOG_ERROR(@"Failed to remove old cached events: %@", eventRemovalError);
-        }
+        [self removeFileAtPath:self.eventsPath];
 
         [self ensureSentryPath];
         [self createDirectoryIfNotExists:self.envelopesPath];
@@ -92,8 +87,7 @@ SentryFileManager ()
 
 - (void)deleteAllFolders
 {
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    [fileManager removeItemAtPath:self.sentryPath error:nil];
+    [self removeFileAtPath:self.sentryPath];
 }
 
 - (NSString *)uniqueAscendingJsonName
@@ -217,23 +211,20 @@ SentryFileManager ()
     return [storedFiles sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
 }
 
-- (BOOL)removeFileAtPath:(NSString *)path
+- (void)removeFileAtPath:(NSString *)path
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error = nil;
     @synchronized(self) {
         SENTRY_LOG_DEBUG(@"Deleting %@", path);
-        [fileManager removeItemAtPath:path error:&error];
 
-        if (nil != error) {
+        if (![fileManager removeItemAtPath:path error:&error]) {
             // We don't want to log an error if the file doesn't exist.
             if (error.code != NSFileNoSuchFileError) {
                 SENTRY_LOG_ERROR(@"Couldn't delete file %@: %@", path, error);
             }
-            return NO;
         }
     }
-    return YES;
 }
 
 - (NSString *)storeEnvelope:(SentryEnvelope *)envelope
@@ -326,9 +317,8 @@ SentryFileManager ()
 - (void)deleteSession:(NSString *)sessionFilePath
 {
     SENTRY_LOG_DEBUG(@"Deleting session: %@", sessionFilePath);
-    NSFileManager *fileManager = [NSFileManager defaultManager];
     @synchronized(self.currentSessionFilePath) {
-        [fileManager removeItemAtPath:sessionFilePath error:nil];
+        [self removeFileAtPath:sessionFilePath];
     }
 }
 
@@ -379,9 +369,8 @@ SentryFileManager ()
 - (void)deleteTimestampLastInForeground
 {
     SENTRY_LOG_DEBUG(@"Deleting LastInForeground at: %@", self.lastInForegroundFilePath);
-    NSFileManager *fileManager = [NSFileManager defaultManager];
     @synchronized(self.lastInForegroundFilePath) {
-        [fileManager removeItemAtPath:self.lastInForegroundFilePath error:nil];
+        [self removeFileAtPath:self.lastInForegroundFilePath];
     }
 }
 
@@ -575,17 +564,7 @@ SentryFileManager ()
 
 - (void)deleteAppStateFrom:(NSString *)path
 {
-    NSError *error = nil;
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    [fileManager removeItemAtPath:path error:&error];
-
-    // We don't want to log an error if the file doesn't exist.
-    if (nil != error && error.code != NSFileNoSuchFileError) {
-        [SentryLog
-            logWithMessage:[NSString stringWithFormat:@"Failed to delete app state from %@: %@",
-                                     path, error]
-                  andLevel:kSentryLevelError];
-    }
+    [self removeFileAtPath:path];
 }
 
 - (NSNumber *_Nullable)readTimezoneOffset
@@ -623,18 +602,8 @@ SentryFileManager ()
 
 - (void)deleteTimezoneOffset
 {
-    NSError *error = nil;
-    NSFileManager *fileManager = [NSFileManager defaultManager];
     @synchronized(self.timezoneOffsetFilePath) {
-        [fileManager removeItemAtPath:self.timezoneOffsetFilePath error:&error];
-
-        // We don't want to log an error if the file doesn't exist.
-        if (nil != error && error.code != NSFileNoSuchFileError) {
-            [SentryLog
-                logWithMessage:[NSString
-                                   stringWithFormat:@"Failed to delete timezone offset %@", error]
-                      andLevel:kSentryLevelError];
-        }
+        [self removeFileAtPath:self.timezoneOffsetFilePath];
     }
 }
 

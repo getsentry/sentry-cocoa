@@ -61,7 +61,7 @@ SENTRY_NO_INIT
  */
 - (SentryFileContents *_Nullable)getOldestEnvelope;
 
-- (BOOL)removeFileAtPath:(NSString *)path;
+- (void)removeFileAtPath:(NSString *)path;
 
 - (NSArray<NSString *> *)allFilesInFolder:(NSString *)path;
 
