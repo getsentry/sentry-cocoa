@@ -77,15 +77,40 @@ NSString *const kSentryDefaultEnvironment = @"production";
 }
 
 /** Internal constructor for testing purposes. */
-- (instancetype)initWithOptions:(SentryOptions *)options
-                  dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+- (nullable instancetype)initWithOptions:(SentryOptions *)options
+                           dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
 {
+    NSError *error;
     SentryFileManager *fileManager =
         [[SentryFileManager alloc] initWithOptions:options
                             andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-                              dispatchQueueWrapper:dispatchQueue];
+                              dispatchQueueWrapper:dispatchQueue
+                                             error:&error];
+    if (error != nil) {
+        SENTRY_LOG_ERROR(@"Cannot init filesystem.");
+        return nil;
+    }
     return [self initWithOptions:options
              permissionsObserver:[[SentryPermissionsObserver alloc] init]
+                     fileManager:fileManager];
+}
+
+- (nullable instancetype)initWithOptions:(SentryOptions *)options
+                     permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
+                           dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+{
+    NSError *error;
+    SentryFileManager *fileManager =
+        [[SentryFileManager alloc] initWithOptions:options
+                            andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                              dispatchQueueWrapper:dispatchQueue
+                                             error:&error];
+    if (error != nil) {
+        SENTRY_LOG_ERROR(@"Cannot init filesystem.");
+        return nil;
+    }
+    return [self initWithOptions:options
+             permissionsObserver:permissionsObserver
                      fileManager:fileManager];
 }
 

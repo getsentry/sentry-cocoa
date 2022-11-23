@@ -27,7 +27,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
             options.dsn = SentryAppStartTrackerTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
             
-            fileManager = SentryFileManager(options: options, andCurrentDateProvider: currentDate, dispatchQueueWrapper: dispatchQueue)
+            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate, dispatchQueueWrapper: dispatchQueue)
             
             appStateManager = SentryAppStateManager(options: options, crashWrapper: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl, dispatchQueueWrapper: dispatchQueue)
             

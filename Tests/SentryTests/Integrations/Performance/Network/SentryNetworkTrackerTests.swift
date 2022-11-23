@@ -15,7 +15,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let options: Options
         let scope: Scope
         let nsUrlRequest = NSURLRequest(url: SentryNetworkTrackerTests.testURL)
-        let client: TestClient
+        let client: TestClient!
         let hub: TestHub!
         
         init() {

@@ -10,12 +10,12 @@ class SentrySessionTrackerTests: XCTestCase {
         
         let options: Options
         let currentDateProvider = TestCurrentDateProvider()
-        let client: TestClient
+        let client: TestClient!
         let sentryCrash: TestSentryCrashWrapper
 
         let notificationCenter = TestNSNotificationCenterWrapper()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
-        lazy var fileManager = SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueue)
+        lazy var fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueue)
         
         init() {
             options = Options()

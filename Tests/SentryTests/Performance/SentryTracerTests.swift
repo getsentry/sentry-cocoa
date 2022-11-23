@@ -12,7 +12,7 @@ class SentryTracerTests: XCTestCase {
     }
 
     private class Fixture {
-        let client: TestClient
+        let client: TestClient!
         let hub: TestHub
         let scope: Scope
         let dispatchQueue = TestSentryDispatchQueueWrapper()

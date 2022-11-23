@@ -14,8 +14,8 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         let envelope = TestConstants.envelope
         PrivateSentrySDKOnly.store(envelope)
         
-        XCTAssertEqual(1, client.storedEnvelopeInvocations.count)
-        XCTAssertEqual(envelope, client.storedEnvelopeInvocations.first)
+        XCTAssertEqual(1, client?.storedEnvelopeInvocations.count)
+        XCTAssertEqual(envelope, client?.storedEnvelopeInvocations.first)
     }
     
     func testCaptureEnvelope() {
@@ -25,8 +25,8 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         let envelope = TestConstants.envelope
         PrivateSentrySDKOnly.capture(envelope)
         
-        XCTAssertEqual(1, client.captureEnvelopeInvocations.count)
-        XCTAssertEqual(envelope, client.captureEnvelopeInvocations.first)
+        XCTAssertEqual(1, client?.captureEnvelopeInvocations.count)
+        XCTAssertEqual(envelope, client?.captureEnvelopeInvocations.first)
     }
 
     func testSetSdkName() {

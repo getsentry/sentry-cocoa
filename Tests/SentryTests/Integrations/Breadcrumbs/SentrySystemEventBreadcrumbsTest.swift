@@ -18,7 +18,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
             options.sessionTrackingIntervalMillis = 10_000
             options.environment = "debug"
 
-            fileManager = TestFileManager(options: options, andCurrentDateProvider: currentDateProvider)
+            fileManager = try! TestFileManager(options: options, andCurrentDateProvider: currentDateProvider)
         }
 
         func getSut(scope: Scope, currentDevice: UIDevice? = UIDevice.current) -> SentrySystemEventBreadcrumbs {

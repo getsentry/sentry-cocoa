@@ -4,7 +4,7 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
 
     private class Fixture {
         let options: Options
-        let client: TestClient
+        let client: TestClient!
         let crashWrapper: TestSentryCrashWrapper
         let currentDate = TestCurrentDateProvider()
         let fileManager: SentryFileManager
@@ -21,7 +21,7 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
             let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andCurrentDateProvider: currentDate)
             SentrySDK.setCurrentHub(hub)
             
-            fileManager = SentryFileManager(options: options, andCurrentDateProvider: currentDate, dispatchQueueWrapper: dispatchQueue)
+            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate, dispatchQueueWrapper: dispatchQueue)
         }
     }
     

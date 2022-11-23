@@ -10,7 +10,7 @@ class SentryHubTests: XCTestCase {
         let options: Options
         let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
         let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User wants to crash", userInfo: nil)
-        lazy var client = TestClient(options: options)
+        lazy var client = TestClient(options: options)!
         let crumb = Breadcrumb(level: .error, category: "default")
         let scope = Scope()
         let message = "some message"
@@ -33,7 +33,7 @@ class SentryHubTests: XCTestCase {
             event = Event()
             event.message = SentryMessage(formatted: message)
             
-            fileManager = SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider)
+            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider)
             
             CurrentDate.setCurrentDateProvider(currentDateProvider)
             

@@ -44,7 +44,7 @@ class SentrySDKTests: XCTestCase {
             options = Options()
             options.dsn = SentrySDKTests.dsnAsString
             options.releaseName = "1.0.0"
-            client = TestClient(options: options)
+            client = TestClient(options: options)!
             hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andCurrentDateProvider: currentDate)
             
             userFeedback = UserFeedback(eventId: SentryId())
@@ -547,7 +547,7 @@ class SentrySDKTests: XCTestCase {
         let options = Options()
         options.dsn = SentrySDKTests.dsnAsString
 
-        let fileManager = TestFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
+        let fileManager = try! TestFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
         let observer = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: 10, fileManager: fileManager)
         let serializedBreadcrumb = TestData.crumb.serialize()
 

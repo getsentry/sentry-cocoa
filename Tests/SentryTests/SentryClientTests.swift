@@ -50,7 +50,7 @@ class SentryClientTest: XCTestCase {
             
             let options = Options()
             options.dsn = SentryClientTest.dsn
-            fileManager = SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
+            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
             
             transaction = Transaction(trace: trace, children: [])
             
@@ -1100,6 +1100,18 @@ class SentryClientTest: XCTestCase {
         assertLastSentEvent { actual in
             assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
         }
+    }
+
+    func testFileManagerCantBeInit() {
+        SentryFileManager.prepareInitError()
+
+        let options = Options()
+        options.dsn = SentryClientTest.dsn
+        let client = SentryClient(options: options, permissionsObserver: TestSentryPermissionsObserver(), dispatchQueue: TestSentryDispatchQueueWrapper())
+
+        XCTAssertNil(client)
+
+        SentryFileManager.tearDownInitError()
     }
     
     func testInstallationIdSetWhenNoUserId() {

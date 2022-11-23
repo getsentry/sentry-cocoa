@@ -37,7 +37,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
             return name != "SentryAutoSessionTrackingIntegration"
         }
 
-        fileManager = SentryFileManager(options: options, andCurrentDateProvider: DefaultCurrentDateProvider.sharedInstance())
+        fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: DefaultCurrentDateProvider.sharedInstance())
         
         fileManager.deleteCurrentSession()
         fileManager.deleteCrashedSession()

@@ -6,6 +6,7 @@
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
+#import "SentryError.h"
 #import "SentryEvent.h"
 #import "SentryFileContents.h"
 #import "SentryLog.h"
@@ -41,17 +42,20 @@ SentryFileManager ()
 
 @implementation SentryFileManager
 
-- (instancetype)initWithOptions:(SentryOptions *)options
-         andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+- (nullable instancetype)initWithOptions:(SentryOptions *)options
+                  andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+                                   error:(NSError **)error
 {
     return [self initWithOptions:options
           andCurrentDateProvider:currentDateProvider
-            dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper];
+            dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+                           error:error];
 }
 
-- (instancetype)initWithOptions:(SentryOptions *)options
-         andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+- (nullable instancetype)initWithOptions:(SentryOptions *)options
+                  andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+                                   error:(NSError **)error
 {
     self = [super init];
     if (self) {
@@ -63,8 +67,12 @@ SentryFileManager ()
         self.eventsPath = [self.sentryPath stringByAppendingPathComponent:@"events"];
         [self removeFileAtPath:self.eventsPath];
 
-        [self ensureSentryPath];
-        [self createDirectoryIfNotExists:self.envelopesPath];
+        if (![self createDirectoryIfNotExists:self.sentryPath error:error]) {
+            return nil;
+        }
+        if (![self createDirectoryIfNotExists:self.envelopesPath error:error]) {
+            return nil;
+        }
 
         self.currentFileCounter = 0;
         self.maxEnvelopes = options.maxCacheItems;
@@ -407,8 +415,11 @@ SentryFileManager ()
 
 - (BOOL)writeData:(NSData *)data toPath:(NSString *)path
 {
-    [self ensureSentryPath];
     NSError *error;
+    if (![self createDirectoryIfNotExists:self.sentryPath error:&error]) {
+        SENTRY_LOG_ERROR(@"File I/O not available at path %@: %@", path, error);
+        return NO;
+    }
     if (![data writeToFile:path options:NSDataWritingAtomic error:&error]) {
         SENTRY_LOG_ERROR(@"Failed to write data to path %@: %@", path, error);
         return NO;
@@ -656,28 +667,16 @@ SentryFileManager ()
     self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:@"envelopes"];
 }
 
-- (BOOL)createDirectoryIfNotExists:(NSString *)path
+- (BOOL)createDirectoryIfNotExists:(NSString *)path error:(NSError **)error
 {
-    NSError *error;
     if (![[NSFileManager defaultManager] createDirectoryAtPath:path
                                    withIntermediateDirectories:YES
                                                     attributes:nil
-                                                         error:&error]) {
-        SENTRY_LOG_ERROR(@"Failed creating directory at %@: %@", path, error);
+                                                         error:error]) {
+        *error = NSErrorFromSentryErrorWithUnderlyingError(kSentryErrorFileIO,
+            [NSString stringWithFormat:@"Failed to create the directory at path %@.", path],
+            *error);
         return NO;
-    }
-    return YES;
-}
-
-- (BOOL)ensureSentryPath
-{
-    if (![[NSFileManager defaultManager] fileExistsAtPath:self.sentryPath]) {
-        SENTRY_LOG_DEBUG(@"Creating sentry folder at %@", self.sentryPath);
-        NSError *error;
-        if (![self.class createDirectoryAtPath:self.sentryPath withError:&error]) {
-            SENTRY_LOG_ERROR(@"Failed to (re)create the sentry directory: %@", error);
-            return NO;
-        }
     }
     return YES;
 }

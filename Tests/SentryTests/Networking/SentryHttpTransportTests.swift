@@ -64,7 +64,7 @@ class SentryHttpTransportTests: XCTestCase {
 
             options = Options()
             options.dsn = SentryHttpTransportTests.dsnAsString
-            fileManager = TestFileManager(options: options, andCurrentDateProvider: currentDateProvider)
+            fileManager = try! TestFileManager(options: options, andCurrentDateProvider: currentDateProvider)
 
             requestManager = TestRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
             rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser()), andRateLimitParser: RateLimitParser())

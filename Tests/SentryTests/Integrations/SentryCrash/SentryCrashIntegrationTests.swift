@@ -8,7 +8,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     private class Fixture {
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         let hub: SentryHub
-        let client: TestClient
+        let client: TestClient!
         let options: Options
         let sentryCrash: TestSentryCrashWrapper
         
@@ -21,7 +21,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             options.dsn = SentryCrashIntegrationTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
             
-            client = TestClient(options: options, fileManager: SentryFileManager(options: options, andCurrentDateProvider: CurrentDate.getProvider()!, dispatchQueueWrapper: dispatchQueueWrapper))
+            client = TestClient(options: options, fileManager: try! SentryFileManager(options: options, andCurrentDateProvider: CurrentDate.getProvider()!, dispatchQueueWrapper: dispatchQueueWrapper))
             hub = TestHub(client: client, andScope: nil)
         }
         

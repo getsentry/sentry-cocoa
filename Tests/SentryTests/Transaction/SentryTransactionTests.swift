@@ -22,13 +22,13 @@ class SentryTransactionTests: XCTestCase {
         
         func getHub() -> SentryHub {
             let scope = Scope()
-            let client = TestClient(options: Options())
+            let client = TestClient(options: Options())!
             client.options.tracesSampleRate = 1
             return TestHub(client: client, andScope: scope)
         }
         
         func getTransactionWith(scope: Scope) -> Transaction {
-            let client = TestClient(options: Options())
+            let client = TestClient(options: Options())!
             client.options.tracesSampleRate = 1
             
             let hub = TestHub(client: client, andScope: scope)

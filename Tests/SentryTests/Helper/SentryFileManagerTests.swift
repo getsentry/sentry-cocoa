@@ -58,14 +58,14 @@ class SentryFileManagerTests: XCTestCase {
         }
         
         func getSut() -> SentryFileManager {
-            let sut = SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper)
+            let sut = try! SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper)
             sut.setDelegate(delegate)
             return sut
         }
         
         func getSut(maxCacheItems: UInt) -> SentryFileManager {
             options.maxCacheItems = maxCacheItems
-            let sut = SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper)
+            let sut = try! SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper)
             sut.setDelegate(delegate)
             return sut
         }
@@ -101,8 +101,8 @@ class SentryFileManagerTests: XCTestCase {
         sut.storeCurrentSession(SentrySession(releaseName: "1.0.0"))
         sut.storeTimestampLast(inForeground: Date())
 
-        _ = SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
-        let fileManager = SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        _ = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        let fileManager = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
 
         XCTAssertEqual(1, fileManager.getAllEnvelopes().count)
         XCTAssertNotNil(fileManager.readCurrentSession())
@@ -112,7 +112,7 @@ class SentryFileManagerTests: XCTestCase {
     func testInitDeletesEventsFolder() {
         storeEvent()
         
-        _ = SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        _ = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
         
         assertEventFolderDoesntExist()
     }

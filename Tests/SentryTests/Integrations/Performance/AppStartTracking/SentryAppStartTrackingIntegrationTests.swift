@@ -12,7 +12,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
             options.tracesSampler = { _ in return 0 } 
             options.dsn = TestConstants.dsnAsString(username: "SentryAppStartTrackingIntegrationTests")
             
-            fileManager = TestFileManager(options: options)
+            fileManager = try! TestFileManager(options: options)
         }
     }
     

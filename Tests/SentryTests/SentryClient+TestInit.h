@@ -10,12 +10,16 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryClient ()
 
-- (instancetype)initWithOptions:(SentryOptions *)options
-                  dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
+- (_Nullable instancetype)initWithOptions:(SentryOptions *)options
+                            dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
 
-- (instancetype)initWithOptions:(SentryOptions *)options
-            permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
-                    fileManager:(SentryFileManager *)fileManager;
+- (nullable instancetype)initWithOptions:(SentryOptions *)options
+                     permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
+                           dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
+
+- (_Nullable instancetype)initWithOptions:(SentryOptions *)options
+                      permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
+                              fileManager:(SentryFileManager *)fileManager;
 
 - (instancetype)initWithOptions:(SentryOptions *)options
                transportAdapter:(SentryTransportAdapter *)transportAdapter
