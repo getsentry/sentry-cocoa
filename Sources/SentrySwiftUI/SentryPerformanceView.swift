@@ -14,14 +14,14 @@ public struct SentryPerformanceView<Content: View>: View {
     
     public init(_ name: String? = nil, content : @escaping () -> Content) {
         self.content = content
-        self.name = name ?? String(describing: Content.self)
+        self.name = name ?? SentryPerformanceView.extractName(content: Content.self)
         id = SentryPerformanceTracker.shared.startSpan(withName: self.name,
                                                        nameSource: name == nil ? .component : .custom,
                                                        operation: "ui")
     }
     
-    static func extractName(content: Any) -> String {
-        var result = String(describing: type(of: content))
+    private static func extractName(content: Any) -> String {
+        var result = String(describing: content)
         
         if let index = result.firstIndex(of: "<") {
             result = String(result[result.startIndex ..< index])
