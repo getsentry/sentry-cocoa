@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Core data span status with error (#2439)
+
 ## 7.31.2
 
 ### Fixes
