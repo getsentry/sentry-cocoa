@@ -232,7 +232,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(serialization["sampled"] as? String, nameForSentrySampleDecision(span.sampled))
         XCTAssertEqual(serialization["timestamp"] as? TimeInterval, TestData.timestamp.timeIntervalSince1970)
         XCTAssertEqual(serialization["start_timestamp"] as? TimeInterval, TestData.timestamp.timeIntervalSince1970)
-        XCTAssertEqual(serialization["type"] as? String, SpanContext.type)
+        XCTAssertEqual(serialization["type"] as? String, SENTRY_TRACE_TYPE)
         XCTAssertEqual(serialization["sampled"] as? String, "true")
         XCTAssertNotNil(serialization["data"])
         XCTAssertNotNil(serialization["tags"])

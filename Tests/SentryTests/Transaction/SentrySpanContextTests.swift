@@ -49,7 +49,7 @@ class SentrySpanContextTests: XCTestCase {
         
         XCTAssertEqual(data["span_id"] as? String, spanId.sentrySpanIdString)
         XCTAssertEqual(data["trace_id"] as? String, id.sentryIdString)
-        XCTAssertEqual(data["type"] as? String, SpanContext.type)
+        XCTAssertEqual(data["type"] as? String, SENTRY_TRACE_TYPE)
         XCTAssertEqual(data["op"] as? String, someOperation)
         XCTAssertEqual(data["description"] as? String, spanContext.spanDescription)
         XCTAssertEqual(data["sampled"] as? String, "true")
@@ -97,7 +97,4 @@ class SentrySpanContextTests: XCTestCase {
         XCTAssertNil(data["sampled"] )
     }
     
-    func testSpanContextTraceTypeValue() {
-        XCTAssertEqual(SpanContext.type, "trace")
-    }
 }
