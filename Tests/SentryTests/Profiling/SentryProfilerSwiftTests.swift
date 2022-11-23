@@ -31,6 +31,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         super.setUp()
         fixture = Fixture()
         SentryTracer.resetAppStartMeasurementRead()
+        SentryLog.configure(true, diagnosticLevel: .debug)
     }
 
     override func tearDown() {

@@ -22,7 +22,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             options.dsn = SentryCrashIntegrationTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
             
-            let client = Client(options: options, permissionsObserver: TestSentryPermissionsObserver())
+            let client = SentryClient(options: options, permissionsObserver: TestSentryPermissionsObserver())
             hub = TestHub(client: client, andScope: nil)
         }
         
@@ -77,10 +77,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let releaseName = "1.0.0"
         let dist = "14G60"
         // The start of the SDK installs all integrations
-        SentrySDK.start(options: ["dsn": SentryCrashIntegrationTests.dsnAsString,
-                                  "release": releaseName,
-                                  "dist": dist]
-        )
+        SentrySDK.start { options in
+            options.dsn = SentryCrashIntegrationTests.dsnAsString
+            options.releaseName = releaseName
+            options.dist = dist
+        }
         
         // To test this properly we need SentryCrash and SentryCrashIntegration installed and registered on the current hub of the SDK.
         
@@ -277,7 +278,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         api?.pointee.setEnabled(true)
         
         let transport = TestTransport()
-        let client = Client(options: fixture.options)
+        let client = SentryClient(options: fixture.options)
         Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
         hub.bindClient(client)
         

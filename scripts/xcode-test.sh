@@ -10,8 +10,8 @@ set -uox pipefail
 
 PLATFORM="${1}"
 OS=${2:-latest}
-XCODE="${3}"
-REF_NAME="${4}"
+REF_NAME="${3-HEAD}"
+IS_LOCAL_BUILD="${4:-ci}"
 DESTINATION=""
 CONFIGURATION=""
 
@@ -32,14 +32,12 @@ case $PLATFORM in
     "tvOS")
         DESTINATION="platform=tvOS Simulator,OS=$OS,name=Apple TV"
         ;;
-    
+
     *)
-        echo "Xcode Test: Can't find destination for platform '$PLATFORM'"; 
+        echo "Xcode Test: Can't find destination for platform '$PLATFORM'";
         exit 1;
         ;;
 esac
-
-echo "REF_NAME: $REF_NAME"
 
 case $REF_NAME in
     "master")
@@ -51,7 +49,14 @@ case $REF_NAME in
         ;;
 esac
 
-echo "CONFIGURATION: $CONFIGURATION"
+case $IS_LOCAL_BUILD in
+    "ci")
+        RUBY_ENV_ARGS=""
+        ;;
+    *)
+        RUBY_ENV_ARGS="rbenv exec bundle exec"
+        ;;
+esac
 
 if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
     # Skip some tests that fail on iOS 12.4.
@@ -60,10 +65,10 @@ if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
         GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
         -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfAddingBreadcrumbs" \
         -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfTransactions" \
-        test | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}
+        test | tee raw-test-output.log | $RUBY_ENV_ARGS xcpretty -t && exit ${PIPESTATUS[0]}
 else
     env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
         -scheme Sentry -configuration $CONFIGURATION \
         GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -destination "$DESTINATION" \
-        test | tee raw-test-output.log | xcpretty -t && exit ${PIPESTATUS[0]}
+        test | tee raw-test-output.log | $RUBY_ENV_ARGS xcpretty -t && exit ${PIPESTATUS[0]}
 fi

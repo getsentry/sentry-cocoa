@@ -27,7 +27,7 @@ NS_SWIFT_NAME(Span)
 /**
  * An arbitrary mapping of additional metadata of the span.
  */
-@property (nullable, readonly) NSDictionary<NSString *, id> *data;
+@property (readonly) NSDictionary<NSString *, id> *data;
 
 /**
  * key-value pairs holding additional data about the span.
@@ -68,9 +68,10 @@ NS_SWIFT_NAME(Span)
 
 /**
  * Use setDataValue instead. This method calls setDataValue, was added by mistake, and will be
- * deprecated in a future version.
+ * removed in a future version.
  */
-- (void)setExtraValue:(nullable id)value forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
+- (void)setExtraValue:(nullable id)value
+               forKey:(NSString *)key DEPRECATED_ATTRIBUTE NS_SWIFT_NAME(setExtra(value:key:));
 
 /**
  * Removes a data value.

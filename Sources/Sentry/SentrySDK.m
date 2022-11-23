@@ -128,20 +128,7 @@ static NSUInteger startInvocations;
     startInvocations = value;
 }
 
-+ (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict
-{
-    NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:optionsDict
-                                                didFailWithError:&error];
-    if (nil != error) {
-        SENTRY_LOG_ERROR(@"Error while initializing the SDK");
-        SENTRY_LOG_ERROR(@"%@", error);
-    } else {
-        [SentrySDK startWithOptionsObject:options];
-    }
-}
-
-+ (void)startWithOptionsObject:(SentryOptions *)options
++ (void)startWithOptions:(SentryOptions *)options
 {
     startInvocations++;
 
@@ -162,7 +149,7 @@ static NSUInteger startInvocations;
 {
     SentryOptions *options = [[SentryOptions alloc] init];
     configureOptions(options);
-    [SentrySDK startWithOptionsObject:options];
+    [SentrySDK startWithOptions:options];
 }
 
 + (void)captureCrashEvent:(SentryEvent *)event
@@ -387,10 +374,10 @@ static NSUInteger startInvocations;
         }
         id<SentryIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
         BOOL shouldInstall = [integrationInstance installWithOptions:options];
+
         if (shouldInstall) {
             SENTRY_LOG_DEBUG(@"Integration installed: %@", integrationName);
-            [SentrySDK.currentHub.installedIntegrations addObject:integrationInstance];
-            [SentrySDK.currentHub.installedIntegrationNames addObject:integrationName];
+            [SentrySDK.currentHub addInstalledIntegration:integrationInstance name:integrationName];
         }
     }
 }
@@ -407,7 +394,6 @@ static NSUInteger startInvocations;
 {
     // pop the hub and unset
     SentryHub *hub = SentrySDK.currentHub;
-    [SentrySDK setCurrentHub:nil];
 
     // uninstall all the integrations
     for (NSObject<SentryIntegrationProtocol> *integration in hub.installedIntegrations) {
@@ -415,12 +401,14 @@ static NSUInteger startInvocations;
             [integration uninstall];
         }
     }
-    [hub.installedIntegrations removeAllObjects];
+    [hub removeAllIntegrations];
 
     // close the client
     SentryClient *client = [hub getClient];
     client.options.enabled = NO;
     [hub bindClient:nil];
+
+    [SentrySDK setCurrentHub:nil];
 
     [SentryDependencyContainer reset];
 

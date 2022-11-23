@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - 8.0.0
       - release/**
 
   pull_request:
@@ -37,7 +38,7 @@ jobs:
         if: steps.cache_test_server.outputs.cache-hit != 'true'
         working-directory: test-server
         run: >-
-          swift build -c release
+          swift build -c release 2>&1 | tee test-server-build.log
 
       - name: Copy exec
         working-directory: test-server
@@ -49,6 +50,14 @@ jobs:
           name: test-server
           path: |
             ./test-server/test-server-exec
+
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@v3
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: test-server-build-log-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            raw-test-output.log
 
   unit-tests:
     name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}} - OS ${{matrix.test-destination-os}}
@@ -169,7 +178,7 @@ jobs:
         # passed to xcodebuild doesn't end up in the job name,
         # because GitHub Actions don't provide an easy way of
         # manipulating string in expressions.
-        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} ${{matrix.xcode}} $GITHUB_REF_NAME
+        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@v3
@@ -236,7 +245,7 @@ jobs:
   ui-tests:
     name: UI Tests for ${{matrix.target}} on Simulators
     runs-on: macos-12
-    strategy:
+    strategy: 
       matrix:
         target: ['ios_swift', 'ios_objc', 'tvos_swift']
 
@@ -248,6 +257,15 @@ jobs:
       - name: Run Fastlane
         run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} && break ; done
         shell: sh
+
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@v3
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            ~/Library/Logs/scan/*.log
+            ./fastlane/test_output/**
 
   # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:
@@ -274,6 +292,15 @@ jobs:
         run: for i in {1..2}; do fastlane ui_tests_ios_swiftui device:"${{matrix.device}}" && break ; done
         shell: sh
 
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@v3
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: raw-swiftui-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            ~/Library/Logs/scan/*.log
+            ./fastlane/test_output/**
+
   # macos-11 doesn't have a simulator for iOS 12
   ui-tests-swift-ios-12:
     name: UI Tests on iOS 12 Simulator
@@ -297,6 +324,15 @@ jobs:
         run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} device:"iPhone 8 (12.4)" address_sanitizer:false && break ; done
         shell: sh
 
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@v3
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            ~/Library/Logs/scan/*.log
+            ./fastlane/test_output/**
+
   ui-tests-address-sanitizer:
     name: UI Tests with Address Sanitizer
     runs-on: macos-12
@@ -309,3 +345,12 @@ jobs:
       - name: Run Fastlane
         run: for i in {1..2}; do fastlane ui_tests_ios_swift device:"$iPhone 8 (15.5)" address_sanitizer:true && break ; done
         shell: sh
+
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@v3
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            ~/Library/Logs/scan/*.log
+            ./fastlane/test_output/**

@@ -27,7 +27,7 @@ class SentrySpanTests: XCTestCase {
             return getSut(client: TestClient(options: options)!)
         }
         
-        func getSut(client: Client) -> Span {
+        func getSut(client: SentryClient) -> Span {
             let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andCurrentDateProvider: currentDateProvider)
             return hub.startTransaction(name: someTransaction, operation: someOperation)
         }
@@ -185,17 +185,17 @@ class SentrySpanTests: XCTestCase {
         XCTAssertFalse(logOutput.loggedMessages.filter({ $0.contains(" Starting a child on a finished span is not supported; it won\'t be sent to Sentry.") }).isEmpty)
     }
     
-    func testAddAndRemoveExtras() {
+    func testAddAndRemoveData() {
         let span = fixture.getSut()
 
-        span.setExtra(value: fixture.extraValue, key: fixture.extraKey)
+        span.setData(value: fixture.extraValue, key: fixture.extraKey)
         
-        XCTAssertEqual(span.data!.count, 1)
-        XCTAssertEqual(span.data![fixture.extraKey] as! String, fixture.extraValue)
+        XCTAssertEqual(span.data.count, 1)
+        XCTAssertEqual(span.data[fixture.extraKey] as! String, fixture.extraValue)
         
         span.removeData(key: fixture.extraKey)
-        XCTAssertEqual(span.data!.count, 0)
-        XCTAssertNil(span.data![fixture.extraKey])
+        XCTAssertEqual(span.data.count, 0)
+        XCTAssertNil(span.data[fixture.extraKey])
     }
     
     func testAddAndRemoveTags() {
@@ -214,7 +214,7 @@ class SentrySpanTests: XCTestCase {
     func testSerialization() {
         let span = fixture.getSut()
         
-        span.setExtra(value: fixture.extraValue, key: fixture.extraKey)
+        span.setData(value: fixture.extraValue, key: fixture.extraKey)
         span.setTag(value: fixture.extraValue, key: fixture.extraKey)
         span.finish()
         
@@ -234,7 +234,7 @@ class SentrySpanTests: XCTestCase {
     func testSanitizeData() {
         let span = fixture.getSut()
 
-        span.setExtra(value: Date(timeIntervalSince1970: 10), key: "date")
+        span.setData(value: Date(timeIntervalSince1970: 10), key: "date")
         span.finish()
 
         let serialization = span.serialize()
@@ -244,7 +244,7 @@ class SentrySpanTests: XCTestCase {
     func testSanitizeDataSpan() {
         let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
 
-        span.setExtra(value: Date(timeIntervalSince1970: 10), key: "date")
+        span.setData(value: Date(timeIntervalSince1970: 10), key: "date")
         span.finish()
 
         let serialization = span.serialize()
@@ -305,13 +305,14 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(header.value(), "\(span.context.traceId)-\(span.context.spanId)")
     }
     
+    @available(*, deprecated)
     func testSetExtra_ForwardsToSetData() {
         let sut = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: "test"))
         sut.setExtra(value: 0, key: "key")
         
         XCTAssertEqual(["key": 0], sut.data as! [String: Int])
     }
-    
+         
     func testSpanWithoutTracer_StartChild_ReturnsNoOpSpan() {
         // Span has a weak reference to tracer. If we don't keep a reference
         // to the tracer ARC will deallocate the tracer.
@@ -329,9 +330,6 @@ class SentrySpanTests: XCTestCase {
         XCTAssertTrue(SentryNoOpSpan.shared() === actualWithDescription)
     }
     
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
     func testModifyingExtraFromMultipleThreads() {
         let queue = DispatchQueue(label: "SentrySpanTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
         let group = DispatchGroup()
@@ -349,7 +347,7 @@ class SentrySpanTests: XCTestCase {
             queue.async {
                 
                 for j in 0..<innerLoop {
-                    span.setExtra(value: value, key: "\(i)-\(j)")
+                    span.setData(value: value, key: "\(i)-\(j)")
                     span.setTag(value: value, key: "\(i)-\(j)")
                 }
                 
@@ -359,7 +357,7 @@ class SentrySpanTests: XCTestCase {
         
         queue.activate()
         group.wait()
-        XCTAssertEqual(span.data!.count, outerLoop * innerLoop)
+        XCTAssertEqual(span.data.count, outerLoop * innerLoop)
     }
 
     func testSpanStatusNames() {
