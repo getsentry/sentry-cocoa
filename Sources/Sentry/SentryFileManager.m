@@ -342,6 +342,7 @@ SentryFileManager ()
     @synchronized(self.currentSessionFilePath) {
         currentData = [fileManager contentsAtPath:sessionFilePath];
         if (nil == currentData) {
+            SENTRY_LOG_WARN(@"No data found at %@", sessionFilePath);
             return nil;
         }
     }
@@ -467,11 +468,11 @@ SentryFileManager ()
     // or we can't move the current state file to it.
     [self removeFileAtPath:previousStateFilePath];
     NSError *error = nil;
-    [fileManager moveItemAtPath:stateFilePath toPath:previousStateFilePath error:&error];
-
-    // We don't want to log an error if the file doesn't exist.
-    if (nil != error && error.code != NSFileNoSuchFileError) {
-        SENTRY_LOG_ERROR(@"Failed to move %@ to previous state file: %@", stateFilePath, error);
+    if (![fileManager moveItemAtPath:stateFilePath toPath:previousStateFilePath error:&error]) {
+        // We don't want to log an error if the file doesn't exist.
+        if (nil != error && error.code != NSFileNoSuchFileError) {
+            SENTRY_LOG_ERROR(@"Failed to move %@ to previous state file: %@", stateFilePath, error);
+        }
     }
 }
 
@@ -549,6 +550,7 @@ SentryFileManager ()
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSData *currentData = [fileManager contentsAtPath:path];
     if (nil == currentData) {
+        SENTRY_LOG_WARN(@"No app state data found at %@", path);
         return nil;
     }
     return [SentrySerialization appStateWithData:currentData];
