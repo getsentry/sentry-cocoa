@@ -133,7 +133,7 @@ class SentryTransactionTests: XCTestCase {
         scope.setTag(value: fixture.testValue, key: fixture.testKey)
         let transaction = fixture.getTransactionWith(scope: scope)
         
-        let sut = try! XCTUnwrap(scope.apply(to: transaction, maxBreadcrumb: 0))
+        let sut = try! XCTUnwrap(scope.applyTo(event: transaction, maxBreadcrumbs: 0))
 
         // when
         let serializedTransaction = sut.serialize()
@@ -165,7 +165,7 @@ class SentryTransactionTests: XCTestCase {
         
         let transaction = fixture.getTransactionWith(scope: scope)
         
-        let sut = try! XCTUnwrap(scope.apply(to: transaction, maxBreadcrumb: 0))
+        let sut = try! XCTUnwrap(scope.applyTo(event: transaction, maxBreadcrumbs: 0))
 
         // when
         let serializedTransaction = sut.serialize()

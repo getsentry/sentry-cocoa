@@ -10,14 +10,21 @@ This version adds a dependency on Swift.
 
 ### Breaking Changes
 
-- Remove `- [SentryOptions initWithDict:didFailWithError:]` (#2404)
 - Rename `- [SentrySDK startWithOptionsObject:]` to `- [SentrySDK startWithOptions:]` (#2404)
-- Remove `- [SentryOptions sdkInfo]` (#2404)
 - Make `SpanProtocol.data` non nullable (#2409)
 - Mark `- [SpanProtocol setExtraValue:forKey:]` as deprecated (#2413)
 - Bump minimum supported OS versions to macOS 10.13, iOS 11, tvOS 11, and watchOS 4 (#2414)
-- Renaming Client to SentryClient for Swift (#2403)
-- Renaming User to SentryUser for Swift (#2403)
+- Make public APIs Swift friendly
+    - Rename `SentrySDK.addBreadcrumb(crumb:)` to `SentrySDK.addBreadcrumb(_ crumb:)` (#2416)
+    - Rename `SentryScope.add(_ crumb:)` to `SentryScope.addBreadcrumb(_ crumb:)` (#2416)
+    - Rename `SentryScope.add(_ attachment:)` to `SentryScope.addAttachment(_ attachment:)` (#2416)
+    - Rename `Client` to `SentryClient` (#2403)
+    - Rename `User` to `SentryUser` (#2403)
+- Remove public APIs
+    - Remove `SentryScope.apply(to:)` (#2416)
+    - Remove `SentryScope.apply(to:maxBreadcrumb:)` (#2416)
+    - Remove `- [SentryOptions initWithDict:didFailWithError:]` (#2404)
+    - Remove `- [SentryOptions sdkInfo]` (#2404)
 
 ## 7.31.2
 

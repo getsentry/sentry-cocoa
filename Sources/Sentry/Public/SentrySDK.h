@@ -260,7 +260,7 @@ SENTRY_NO_INIT
  *
  * @param crumb The Breadcrumb to add to the current Scope of the current Hub.
  */
-+ (void)addBreadcrumb:(SentryBreadcrumb *)crumb NS_SWIFT_NAME(addBreadcrumb(crumb:));
++ (void)addBreadcrumb:(SentryBreadcrumb *)crumb NS_SWIFT_NAME(addBreadcrumb(_:));
 
 /**
  * Use this method to modify the current Scope of the current Hub. The SDK uses the Scope to attach
@@ -280,7 +280,7 @@ SENTRY_NO_INIT
  *
  * @param user The user to set to the current Scope.
  */
-+ (void)setUser:(SentryUser *_Nullable)user;
++ (void)setUser:(nullable SentryUser *)user;
 
 /**
  * Starts a new SentrySession. If there's a running SentrySession, it ends it before starting the

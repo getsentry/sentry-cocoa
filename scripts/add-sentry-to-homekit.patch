@@ -56,7 +56,7 @@ index 8e0e35f4..3d34887d 100644
 +            options.enableFileIOTracking = true
 +            options.profilesSampleRate = 1.0
 +        }
-+        
++
          if NSClassFromString("XCTest") != nil {
              return true
          }
@@ -99,3 +99,16 @@ index b8eb37f0..046e7851 100644
      }
  
      public func setUserProperty(value: String?, name: String) {
+diff --git a/Sources/Shared/Environment/SentryLogDestination.swift b/Sources/Shared/Environment/SentryLogDestination.swift
+index fb0d965b..d7c9924a 100644
+--- a/Sources/Shared/Environment/SentryLogDestination.swift
++++ b/Sources/Shared/Environment/SentryLogDestination.swift
+@@ -10,7 +10,7 @@ open class SentryLogDestination: BaseQueuedDestination {
+ 
+         let breadcrumb = Breadcrumb(level: .init(xcgLogLevel: logDetails.level), category: "log")
+         breadcrumb.message = message
+-        SentrySDK.addBreadcrumb(crumb: breadcrumb)
++        SentrySDK.addBreadcrumb(breadcrumb)
+     }
+ }
+ 

@@ -28,7 +28,7 @@ class SentryHubTests: XCTestCase {
             options = Options()
             options.dsn = SentryHubTests.dsnAsString
             
-            scope.add(crumb)
+            scope.addBreadcrumb(crumb)
             
             event = Event()
             event.message = SentryMessage(formatted: message)
@@ -655,7 +655,7 @@ class SentryHubTests: XCTestCase {
 
     private func addBreadcrumbThroughConfigureScope(_ hub: SentryHub) {
         hub.configureScope({ scope in
-            scope.add(self.fixture.crumb)
+            scope.addBreadcrumb(self.fixture.crumb)
         })
     }
 
