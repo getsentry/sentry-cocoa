@@ -180,7 +180,6 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertTrue(tracer.isFinished)
         XCTAssertEqual(finishStatus.rawValue, tracer.status.rawValue)
 
-
         wait(for: [callbackExpectation], timeout: 0)
 
         assertTrackerIsEmpty(tracker)
