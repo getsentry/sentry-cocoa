@@ -1,8 +1,8 @@
-#import "SentrySession.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryCurrentDate.h"
 #import "SentryInstallation.h"
 #import "SentryLog.h"
+#import "SentrySession+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
