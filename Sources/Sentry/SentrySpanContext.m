@@ -58,18 +58,10 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-+ (NSString *)type
-{
-    static NSString *type;
-    if (type == nil)
-        type = @"trace";
-    return type;
-}
-
 - (NSDictionary<NSString *, id> *)serialize
 {
     NSMutableDictionary *mutabledictionary = @{
-        @"type" : SentrySpanContext.type,
+        @"type" : SENTRY_TRACE_TYPE,
         @"span_id" : self.spanId.sentrySpanIdString,
         @"trace_id" : self.traceId.sentryIdString,
         @"op" : self.operation

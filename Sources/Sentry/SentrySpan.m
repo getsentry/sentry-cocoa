@@ -158,7 +158,7 @@ SentrySpan ()
 - (NSDictionary *)serialize
 {
     NSMutableDictionary *mutableDictionary = @{
-        @"type" : SentrySpanContext.type,
+        @"type" : SENTRY_TRACE_TYPE,
         @"span_id" : self.spanId.sentrySpanIdString,
         @"trace_id" : self.traceId.sentryIdString,
         @"op" : self.operation

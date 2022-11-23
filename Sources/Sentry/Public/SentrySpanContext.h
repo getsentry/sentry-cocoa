@@ -7,6 +7,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryId, SentrySpanId;
 
+static NSString const *SENTRY_TRACE_TYPE = @"trace";
+
 NS_SWIFT_NAME(SpanContext)
 @interface SentrySpanContext : NSObject <SentrySerializable>
 SENTRY_NO_INIT
@@ -98,8 +100,6 @@ SENTRY_NO_INIT
                       operation:(NSString *)operation
                 spanDescription:(nullable NSString *)description
                         sampled:(SentrySampleDecision)sampled;
-
-@property (class, nonatomic, readonly, copy) NSString *type;
 
 @end
 
