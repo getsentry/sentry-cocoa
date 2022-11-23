@@ -33,6 +33,7 @@ class SentryClientTest: XCTestCase {
         let locale = Locale(identifier: "en_US")
         let timezone = TimeZone(identifier: "Europe/Vienna")!
         let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
         
         init() {
             session = SentrySession(releaseName: "release")
@@ -1100,16 +1101,16 @@ class SentryClientTest: XCTestCase {
             assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
         }
     }
-    
+
     func testFileManagerCantBeInit() {
         SentryFileManager.prepareInitError()
-        
+
         let options = Options()
         options.dsn = SentryClientTest.dsn
-        let client = SentryClient(options: options, permissionsObserver: TestSentryPermissionsObserver())
-        
+        let client = SentryClient(options: options, permissionsObserver: TestSentryPermissionsObserver(), dispatchQueue: TestSentryDispatchQueueWrapper())
+
         XCTAssertNil(client)
-        
+
         SentryFileManager.tearDownInitError()
     }
     

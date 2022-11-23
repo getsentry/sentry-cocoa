@@ -12,7 +12,7 @@ class SentryTracerTests: XCTestCase {
     }
 
     private class Fixture {
-        let client: TestClient
+        let client: TestClient!
         let hub: TestHub
         let scope: Scope
         let dispatchQueue = TestSentryDispatchQueueWrapper()
@@ -47,7 +47,7 @@ class SentryTracerTests: XCTestCase {
             transactionContext = TransactionContext(name: transactionName, operation: transactionOperation)
             
             scope = Scope()
-            client = TestClient(options: Options())!
+            client = TestClient(options: Options())
             client.options.tracesSampleRate = 1
             hub = TestHub(client: client, andScope: scope)
             

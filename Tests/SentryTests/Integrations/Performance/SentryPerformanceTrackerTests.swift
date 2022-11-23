@@ -8,13 +8,13 @@ class SentryPerformanceTrackerTests: XCTestCase {
 
         let someTransaction = "Some Transaction"
         let someOperation = "Some Operation"
-        let client: TestClient
+        let client: TestClient!
         let hub: TestHub
         let scope: Scope
 
         init() {
             scope = Scope()
-            client = TestClient(options: Options())!
+            client = TestClient(options: Options())
             hub = TestHub(client: client, andScope: scope)
         }
         

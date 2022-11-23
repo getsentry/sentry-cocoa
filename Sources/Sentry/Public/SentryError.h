@@ -12,6 +12,7 @@ typedef NS_ENUM(NSInteger, SentryError) {
     kSentryErrorCouldNotFindDirectory = 105,
     kSentryErrorRequestError = 106,
     kSentryErrorEventNotSent = 107,
+    kSentryErrorFileIO = 108,
 };
 
 SENTRY_EXTERN NSError *_Nullable NSErrorFromSentryError(SentryError error, NSString *description);

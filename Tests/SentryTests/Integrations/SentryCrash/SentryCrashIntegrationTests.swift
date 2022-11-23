@@ -6,10 +6,9 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     private static let dsn = TestConstants.dsn(username: "SentryCrashIntegrationTests")
     
     private class Fixture {
-        
-        let currentDateProvider = TestCurrentDateProvider()
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         let hub: SentryHub
+        let client: TestClient!
         let options: Options
         let sentryCrash: TestSentryCrashWrapper
         
@@ -22,7 +21,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             options.dsn = SentryCrashIntegrationTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
             
-            let client = SentryClient(options: options, permissionsObserver: TestSentryPermissionsObserver())
+            client = TestClient(options: options, fileManager: try! SentryFileManager(options: options, andCurrentDateProvider: CurrentDate.getProvider()!, dispatchQueueWrapper: dispatchQueueWrapper))
             hub = TestHub(client: client, andScope: nil)
         }
         
@@ -31,10 +30,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             session.incrementErrors()
             
             return session
-        }
-        
-        var fileManager: SentryFileManager {
-            return try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
         }
         
         func getSut() -> SentryCrashIntegration {
@@ -52,22 +47,22 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         }
     }
     
-    private let fixture = Fixture()
+    private lazy var fixture = Fixture()
     
     override func setUp() {
         super.setUp()
-        CurrentDate.setCurrentDateProvider(fixture.currentDateProvider)
+        CurrentDate.setCurrentDateProvider(TestCurrentDateProvider())
         
-        fixture.fileManager.deleteCurrentSession()
-        fixture.fileManager.deleteCrashedSession()
-        fixture.fileManager.deleteAppState()
+        fixture.client.fileManager.deleteCurrentSession()
+        fixture.client.fileManager.deleteCrashedSession()
+        fixture.client.fileManager.deleteAppState()
     }
     
     override func tearDown() {
         super.tearDown()
-        fixture.fileManager.deleteCurrentSession()
-        fixture.fileManager.deleteCrashedSession()
-        fixture.fileManager.deleteAppState()
+        fixture.client.fileManager.deleteCurrentSession()
+        fixture.client.fileManager.deleteCrashedSession()
+        fixture.client.fileManager.deleteAppState()
         
         clearTestState()
     }
@@ -151,7 +146,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         options.enableOutOfMemoryTracking = false
         sut.install(with: options)
         
-        let fileManager = fixture.fileManager
+        let fileManager = fixture.client.fileManager
         XCTAssertEqual(session, fileManager.readCurrentSession())
         XCTAssertNil(fileManager.readCrashedSession())
     }
@@ -163,7 +158,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         
         sut.install(with: Options())
         
-        let fileManager = fixture.fileManager
+        let fileManager = fixture.client.fileManager
         XCTAssertNil(fileManager.readCurrentSession())
         XCTAssertNil(fileManager.readCrashedSession())
     }
@@ -176,7 +171,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
         sut.install(with: Options())
         
-        let fileManager = fixture.fileManager
+        let fileManager = fixture.client.fileManager
         XCTAssertEqual(session, fileManager.readCurrentSession())
         XCTAssertNil(fileManager.readCrashedSession())
     }
@@ -186,7 +181,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         
         sut.install(with: Options())
         
-        let fileManager = fixture.fileManager
+        let fileManager = fixture.client.fileManager
         XCTAssertNil(fileManager.readCurrentSession())
         XCTAssertNil(fileManager.readCrashedSession())
     }
@@ -305,23 +300,23 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     private func givenCurrentSession() -> SentrySession {
         // serialize sets the timestamp
         let session = SentrySession(jsonObject: fixture.session.serialize())!
-        fixture.fileManager.storeCurrentSession(session)
+        fixture.client.fileManager.storeCurrentSession(session)
         return session
     }
     
     private func givenCrashedSession() -> SentrySession {
         let session = givenCurrentSession()
-        session.endCrashed(withTimestamp: fixture.currentDateProvider.date().addingTimeInterval(5))
+        session.endCrashed(withTimestamp: CurrentDate.date().addingTimeInterval(5))
         
         return session
     }
     
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     private func givenOOMAppState() {
-        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: UIDevice.current.identifierForVendor?.uuidString ?? "", isDebugging: false, systemBootTimestamp: fixture.currentDateProvider.date())
+        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: UIDevice.current.identifierForVendor?.uuidString ?? "", isDebugging: false, systemBootTimestamp: CurrentDate.date())
         appState.isActive = true
-        fixture.fileManager.store(appState)
-        fixture.fileManager.moveAppStateToPreviousAppState()
+        fixture.client.fileManager.store(appState)
+        fixture.client.fileManager.moveAppStateToPreviousAppState()
     }
     #endif
     
@@ -362,10 +357,10 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
     
     private func assertCrashedSessionStored(expected: SentrySession) {
-        let crashedSession = fixture.fileManager.readCrashedSession()
+        let crashedSession = fixture.client.fileManager.readCrashedSession()
         XCTAssertEqual(SentrySessionStatus.crashed, crashedSession?.status)
         XCTAssertEqual(expected, crashedSession)
-        XCTAssertNil(fixture.fileManager.readCurrentSession())
+        XCTAssertNil(fixture.client.fileManager.readCurrentSession())
     }
     
     private func assertContext(context: [String: Any]?) {
@@ -410,6 +405,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
     
     private func advanceTime(bySeconds: TimeInterval) {
-        fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(bySeconds))
+        (CurrentDate.getProvider() as! TestCurrentDateProvider).setDate(date: CurrentDate.date().addingTimeInterval(bySeconds))
     }
 }
