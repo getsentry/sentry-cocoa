@@ -185,7 +185,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertFalse(logOutput.loggedMessages.filter({ $0.contains(" Starting a child on a finished span is not supported; it won\'t be sent to Sentry.") }).isEmpty)
     }
     
-    func testAddAndRemoveData() {
+    func testAddAndRemoveData_disabled() {
         let span = fixture.getSut()
 
         span.setData(value: fixture.extraValue, key: fixture.extraKey)
