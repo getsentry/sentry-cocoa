@@ -515,6 +515,11 @@ SentryFileManager ()
         for (NSString *line in combinedLines) {
             NSData *data = [line dataUsingEncoding:NSUTF8StringEncoding];
 
+            if (data == nil) {
+                SENTRY_LOG_WARN(@"Received nil data from breadcrumb file.");
+                continue;
+            }
+
             NSError *error;
             NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data
                                                                  options:0
