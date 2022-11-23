@@ -60,12 +60,10 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentryCrash *handler = [SentryCrash sharedInstance];
     @synchronized(handler) {
-        [handler setMonitoring:SentryCrashMonitorTypeNone];
-        handler.onCrash = NULL;
+        [handler uninstall];
     }
 
     sentrycrash_deactivate_async_hooks();
-    sentrycrashccd_close();
 }
 
 - (NSDictionary *)systemInfo

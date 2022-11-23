@@ -48,6 +48,8 @@ extern "C" {
  */
 SentryCrashMonitorType sentrycrash_install(const char *appName, const char *const installPath);
 
+void sentrycrash_uninstall(void);
+
 /** Set the crash types that will be handled.
  * Some crash types may not be enabled depending on circumstances (e.g. running
  * in a debugger).

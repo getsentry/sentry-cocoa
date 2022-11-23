@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Reporting crashes when restarting the SDK (#2440)
+
 ## 7.31.2
 
 ### Fixes

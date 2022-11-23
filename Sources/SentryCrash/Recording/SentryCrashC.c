@@ -171,6 +171,12 @@ sentrycrash_install(const char *appName, const char *const installPath)
     return monitors;
 }
 
+void
+sentrycrash_uninstall(void)
+{
+    sentrycrashccd_close();
+}
+
 SentryCrashMonitorType
 sentrycrash_setMonitoring(SentryCrashMonitorType monitors)
 {

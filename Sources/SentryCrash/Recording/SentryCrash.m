@@ -55,6 +55,7 @@ SentryCrash ()
 
 @property (nonatomic, readwrite, retain) NSString *bundleName;
 @property (nonatomic, readwrite, retain) NSString *basePath;
+@property (nonatomic, readwrite, assign) SentryCrashMonitorType monitoringWhenUninstalled;
 
 @end
 
@@ -269,6 +270,11 @@ getBasePath()
 
 - (BOOL)install
 {
+    // Restore previous monitors when uninstall was called previously
+    if (self.monitoringWhenUninstalled) {
+        [self setMonitoring:self.monitoringWhenUninstalled];
+    }
+
     _monitoring = sentrycrash_install(self.bundleName.UTF8String, self.basePath.UTF8String);
     if (self.monitoring == 0) {
         return false;
@@ -318,6 +324,14 @@ getBasePath()
 #endif
 
     return true;
+}
+
+- (void)uninstall
+{
+    self.monitoringWhenUninstalled = self.monitoring;
+    [self setMonitoring:SentryCrashMonitorTypeNone];
+    self.onCrash = NULL;
+    sentrycrash_uninstall();
 }
 
 - (void)sendAllReportsWithCompletion:(SentryCrashReportFilterCompletion)onCompletion
