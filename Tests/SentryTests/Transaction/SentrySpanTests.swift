@@ -27,7 +27,7 @@ class SentrySpanTests: XCTestCase {
             return getSut(client: TestClient(options: options)!)
         }
         
-        func getSut(client: Client) -> Span {
+        func getSut(client: SentryClient) -> Span {
             let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andCurrentDateProvider: currentDateProvider)
             return hub.startTransaction(name: someTransaction, operation: someOperation)
         }
@@ -190,12 +190,12 @@ class SentrySpanTests: XCTestCase {
 
         span.setData(value: fixture.extraValue, key: fixture.extraKey)
         
-        XCTAssertEqual(span.data!.count, 1)
-        XCTAssertEqual(span.data![fixture.extraKey] as! String, fixture.extraValue)
+        XCTAssertEqual(span.data.count, 1)
+        XCTAssertEqual(span.data[fixture.extraKey] as! String, fixture.extraValue)
         
         span.removeData(key: fixture.extraKey)
-        XCTAssertEqual(span.data!.count, 0)
-        XCTAssertNil(span.data![fixture.extraKey])
+        XCTAssertEqual(span.data.count, 0)
+        XCTAssertNil(span.data[fixture.extraKey])
     }
     
     func testAddAndRemoveTags() {
@@ -357,7 +357,7 @@ class SentrySpanTests: XCTestCase {
         
         queue.activate()
         group.wait()
-        XCTAssertEqual(span.data!.count, outerLoop * innerLoop)
+        XCTAssertEqual(span.data.count, outerLoop * innerLoop)
     }
 
     func testSpanStatusNames() {

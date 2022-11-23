@@ -22,7 +22,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         }
 
         func getSut(scope: Scope, currentDevice: UIDevice? = UIDevice.current) -> SentrySystemEventBreadcrumbs {
-            let client = Client(options: self.options)
+            let client = SentryClient(options: self.options)
             let hub = SentryHub(client: client, andScope: scope)
             SentrySDK.setCurrentHub(hub)
 

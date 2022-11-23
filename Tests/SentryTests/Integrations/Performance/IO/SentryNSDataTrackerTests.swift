@@ -224,8 +224,8 @@ class SentryNSDataTrackerTests: XCTestCase {
         XCTAssertNotNil(span)
         XCTAssertEqual(span?.context.operation, operation)
         XCTAssertTrue(span?.isFinished ?? false)
-        XCTAssertEqual(span?.data?["file.size"] as? Int, size)
-        XCTAssertEqual(span?.data?["file.path"] as? String, path)
+        XCTAssertEqual(span?.data["file.size"] as? Int, size)
+        XCTAssertEqual(span?.data["file.path"] as? String, path)
         
         let lastComponent = (path as NSString).lastPathComponent
         

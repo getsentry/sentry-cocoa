@@ -145,7 +145,9 @@ static BOOL appStartMeasurementRead;
 {
     if (self = [super init]) {
         SENTRY_LOG_DEBUG(
-            @"Starting transaction at system time %llu", (unsigned long long)getAbsoluteTime());
+            @"Starting transaction ID %@ and name %@ for span ID %@ at system time %llu",
+            transactionContext.traceId.sentryIdString, transactionContext.name,
+            transactionContext.spanId.sentrySpanIdString, (unsigned long long)getAbsoluteTime());
         self.rootSpan = [[SentrySpan alloc] initWithTracer:self context:transactionContext];
         self.transactionContext = transactionContext;
         _children = [[NSMutableArray alloc] init];
@@ -264,8 +266,9 @@ static BOOL appStartMeasurementRead;
                                            sampled:_rootSpan.context.sampled];
     context.spanDescription = description;
 
-    SENTRY_LOG_DEBUG(@"Starting child span under %@", parentId.sentrySpanIdString);
     SentrySpan *child = [[SentrySpan alloc] initWithTracer:self context:context];
+    SENTRY_LOG_DEBUG(@"Started child span %@ under %@", child.context.spanId.sentrySpanIdString,
+        parentId.sentrySpanIdString);
     @synchronized(_children) {
         [_children addObject:child];
     }
@@ -275,11 +278,15 @@ static BOOL appStartMeasurementRead;
 
 - (void)spanFinished:(id<SentrySpan>)finishedSpan
 {
+    SENTRY_LOG_DEBUG(@"Finished span %@", finishedSpan.context.spanId.sentrySpanIdString);
     // Calling canBeFinished on the rootSpan would end up in an endless loop because canBeFinished
     // calls finish on the rootSpan.
-    if (finishedSpan != self.rootSpan) {
-        [self canBeFinished];
+    if (finishedSpan == self.rootSpan) {
+        SENTRY_LOG_DEBUG(@"Cannot call finish on root span with id %@",
+            finishedSpan.context.spanId.sentrySpanIdString);
+        return;
     }
+    [self canBeFinished];
 }
 
 - (SentrySpanContext *)context
@@ -325,7 +332,7 @@ static BOOL appStartMeasurementRead;
 #endif
 }
 
-- (nullable NSDictionary<NSString *, id> *)data
+- (NSDictionary<NSString *, id> *)data
 {
     @synchronized(_data) {
         return [_data copy];
@@ -409,9 +416,9 @@ static BOOL appStartMeasurementRead;
 
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
+    SENTRY_LOG_DEBUG(@"Finished trace %@", self.traceContext.traceId.sentryIdString);
     self.wasFinishCalled = YES;
     _finishStatus = status;
-
     [self cancelIdleTimeout];
     [self canBeFinished];
 }
@@ -421,17 +428,26 @@ static BOOL appStartMeasurementRead;
     // Transaction already finished and captured.
     // Sending another transaction and spans with
     // the same SentryId would be an error.
-    if (self.rootSpan.isFinished)
+    if (self.rootSpan.isFinished) {
+        SENTRY_LOG_DEBUG(@"Root span with id %@ is already finished",
+            self.rootSpan.context.spanId.sentrySpanIdString);
         return;
+    }
 
     BOOL hasUnfinishedChildSpansToWaitFor = [self hasUnfinishedChildSpansToWaitFor];
     if (!self.wasFinishCalled && !hasUnfinishedChildSpansToWaitFor && [self hasIdleTimeout]) {
+        SENTRY_LOG_DEBUG(
+            @"Root span with id %@ isn't waiting on children and needs idle timeout dispatched.",
+            self.rootSpan.context.spanId.sentrySpanIdString);
         [self dispatchIdleTimeout];
         return;
     }
 
-    if (!self.wasFinishCalled || hasUnfinishedChildSpansToWaitFor)
+    if (!self.wasFinishCalled || hasUnfinishedChildSpansToWaitFor) {
+        SENTRY_LOG_DEBUG(@"Root span with id %@ has children but isn't waiting for them right now.",
+            self.rootSpan.context.spanId.sentrySpanIdString);
         return;
+    }
 
     [self finishInternal];
 }
@@ -475,6 +491,8 @@ static BOOL appStartMeasurementRead;
 
     @synchronized(_children) {
         if (self.idleTimeout > 0.0 && _children.count == 0) {
+            SENTRY_LOG_DEBUG(@"Was waiting for timeout for UI event trace but it had no children, "
+                             @"will not keep transaction.");
             return;
         }
 

@@ -55,8 +55,8 @@ class TestData {
         return event
     }
     
-    static var user: User {
-        let user = User(userId: "id")
+    static var user: SentryUser {
+        let user = SentryUser(userId: "id")
         user.email = "user@sentry.io"
         user.username = "user123"
         user.ipAddress = "127.0.0.1"

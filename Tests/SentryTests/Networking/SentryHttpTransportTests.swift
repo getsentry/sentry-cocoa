@@ -405,7 +405,11 @@ class SentryHttpTransportTests: XCTestCase {
         let sessionData = try! SentrySerialization.data(with: sessionEnvelope)
         let sessionRequest = try! SentryNSURLRequest(envelopeRequestWith: SentryHttpTransportTests.dsn, andData: sessionData)
 
-        XCTAssertEqual(sessionRequest.httpBody, fixture.requestManager.requests.invocations[3].httpBody, "Envelope with only session item should be sent.")
+        if fixture.requestManager.requests.invocations.count > 3 {
+            XCTAssertEqual(sessionRequest.httpBody, fixture.requestManager.requests.invocations[3].httpBody, "Envelope with only session item should be sent.")
+        } else {
+            XCTFail("Expected a fourth invocation")
+        }
     }
 
     func testAllCachedEnvelopesCantDeserializeEnvelope() throws {
@@ -430,7 +434,11 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(3, fixture.requestManager.requests.count)
         XCTAssertEqual(fixture.eventWithAttachmentRequest.httpBody, fixture.requestManager.requests.invocations[1].httpBody, "Cached envelope was not sent first.")
 
-        XCTAssertEqual(fixture.sessionRequest.httpBody, fixture.requestManager.requests.invocations[2].httpBody, "Cached envelope was not sent first.")
+        if fixture.requestManager.requests.invocations.count > 2 {
+            XCTAssertEqual(fixture.sessionRequest.httpBody, fixture.requestManager.requests.invocations[2].httpBody, "Cached envelope was not sent first.")
+        } else {
+            XCTFail("Expected a third invocation")
+        }
     }
     
     func testRecordLostEvent_SendingEvent_AttachesClientReport() {

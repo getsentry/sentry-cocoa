@@ -33,7 +33,6 @@ SentryTestObserver ()
     [[XCTestObservationCenter sharedTestObservationCenter]
         addTestObserver:[[SentryTestObserver alloc] init]];
 #endif
-    [SentryLog configure:YES diagnosticLevel:kSentryLevelDebug];
 }
 
 - (instancetype)init
