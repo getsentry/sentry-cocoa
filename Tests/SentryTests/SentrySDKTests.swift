@@ -82,7 +82,7 @@ class SentrySDKTests: XCTestCase {
             options.maxBreadcrumbs = 0
         }
 
-        SentrySDK.addBreadcrumb(crumb: Breadcrumb(level: SentryLevel.warning, category: "test"))
+        SentrySDK.addBreadcrumb(Breadcrumb(level: SentryLevel.warning, category: "test"))
         let breadcrumbs = Dynamic(SentrySDK.currentHub().scope).breadcrumbArray as [Breadcrumb]?
         XCTAssertEqual(0, breadcrumbs?.count)
     }
@@ -332,7 +332,7 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.setUser(user)
         
         let actualScope = SentrySDK.currentHub().scope
-        let event = actualScope.apply(to: fixture.event, maxBreadcrumb: 10)
+        let event = actualScope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
         XCTAssertEqual(event?.user, user)
     }
     
@@ -389,7 +389,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertNil(actual?.duration)
     }
     
-    func testEndSession() {
+    func testEndSession() throws {
         givenSdkWithHub()
         
         SentrySDK.startSession()
@@ -398,7 +398,7 @@ class SentrySDKTests: XCTestCase {
         
         XCTAssertEqual(2, fixture.client.captureSessionInvocations.count)
         
-        let actual = fixture.client.captureSessionInvocations.invocations[1]
+        let actual = try XCTUnwrap(fixture.client.captureSessionInvocations.invocations.last)
         
         XCTAssertNil(actual.flagInit)
         XCTAssertEqual(0, actual.errors)
@@ -499,7 +499,7 @@ class SentrySDKTests: XCTestCase {
         }
         
         let transport = TestTransport()
-        let client = Client(options: fixture.options)
+        let client = SentryClient(options: fixture.options)
         Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
         SentrySDK.currentHub().bindClient(client)
         

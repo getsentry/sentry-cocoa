@@ -83,6 +83,9 @@
                   Identifier = "SentrySessionGeneratorTests/testSendSessions_disabled()">
                </Test>
                <Test
+                  Identifier = "SentrySpanTests/testAddAndRemoveData_disabled()">
+               </Test>
+               <Test
                   Identifier = "SentryStacktraceBuilderTests/testAsyncStacktraces_disabled()">
                </Test>
             </SkippedTests>

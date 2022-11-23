@@ -88,7 +88,10 @@ NS_SWIFT_NAME(Scope)
 /**
  * Add a breadcrumb to the scope
  */
-- (void)addBreadcrumb:(SentryBreadcrumb *)crumb;
+- (void)addBreadcrumb:(SentryBreadcrumb *)crumb NS_SWIFT_NAME(addBreadcrumb(_:));
+
+- (void)add:(SentryBreadcrumb *)crumb DEPRECATED_MSG_ATTRIBUTE("use `addBreadcrumb` instead")
+                NS_SWIFT_NAME(add(_:));
 
 /**
  * Clears all breadcrumbs in the scope
@@ -99,14 +102,6 @@ NS_SWIFT_NAME(Scope)
  * Serializes the Scope to JSON
  */
 - (NSDictionary<NSString *, id> *)serialize;
-
-/**
- * Adds the Scope to the event
- */
-- (SentryEvent *__nullable)applyToEvent:(SentryEvent *)event
-                          maxBreadcrumb:(NSUInteger)maxBreadcrumbs;
-
-- (void)applyToSession:(SentrySession *)session;
 
 /**
  * Sets context values which will overwrite SentryEvent.context when event is
@@ -126,7 +121,12 @@ NS_SWIFT_NAME(Scope)
  *
  * @param attachment The attachment to add to the Scope's list of attachments.
  */
-- (void)addAttachment:(SentryAttachment *)attachment;
+- (void)addAttachment:(SentryAttachment *)attachment NS_SWIFT_NAME(addAttachment(_:));
+
+// We want to keep the old Swift `add(_ attachment:)` function as deprecated, but we cant have
+// another objc `add` method
+- (void)includeAttachment:(SentryAttachment *)attachment
+    DEPRECATED_MSG_ATTRIBUTE("use `addAttachment` instead")NS_SWIFT_NAME(add(_:));
 
 /**
  * Clears all attachments in the scope.

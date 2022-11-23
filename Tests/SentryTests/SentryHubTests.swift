@@ -28,7 +28,7 @@ class SentryHubTests: XCTestCase {
             options = Options()
             options.dsn = SentryHubTests.dsnAsString
             
-            scope.add(crumb)
+            scope.addBreadcrumb(crumb)
             
             event = Event()
             event.message = SentryMessage(formatted: message)
@@ -178,10 +178,10 @@ class SentryHubTests: XCTestCase {
     }
     
     func testAddUserToTheScope() {
-        let client = Client(options: fixture.options)
+        let client = SentryClient(options: fixture.options)
         let hub = SentryHub(client: client, andScope: Scope())
 
-        let user = User()
+        let user = SentryUser()
         user.userId = "123"
         hub.setUser(user)
 
@@ -392,6 +392,33 @@ class SentryHubTests: XCTestCase {
         
         // only session init is sent
         XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
+    }
+
+    func testCaptureErrorBeforeSessionStart() {
+        let sut = fixture.getSut()
+        sut.capture(error: fixture.error, scope: fixture.scope).assertIsNotEmpty()
+        sut.startSession()
+
+        XCTAssertEqual(fixture.client.captureErrorWithScopeInvocations.count, 1)
+        XCTAssertEqual(fixture.client.captureSessionInvocations.count, 1)
+
+        if let session = fixture.client.captureSessionInvocations.first {
+            XCTAssertEqual(session.errors, 1)
+        }
+    }
+
+    func testCaptureErrorBeforeSessionStart_DisabledAutoSessionTracking() {
+        fixture.options.enableAutoSessionTracking = false
+        let sut = fixture.getSut()
+        sut.capture(error: fixture.error, scope: fixture.scope).assertIsNotEmpty()
+        sut.startSession()
+
+        XCTAssertEqual(fixture.client.captureErrorWithScopeInvocations.count, 1)
+        XCTAssertEqual(fixture.client.captureSessionInvocations.count, 1)
+
+        if let session = fixture.client.captureSessionInvocations.first {
+            XCTAssertEqual(session.errors, 0)
+        }
     }
 
     func testCaptureWithoutIncreasingErrorCount() {
@@ -655,7 +682,7 @@ class SentryHubTests: XCTestCase {
 
     private func addBreadcrumbThroughConfigureScope(_ hub: SentryHub) {
         hub.configureScope({ scope in
-            scope.add(self.fixture.crumb)
+            scope.addBreadcrumb(self.fixture.crumb)
         })
     }
 

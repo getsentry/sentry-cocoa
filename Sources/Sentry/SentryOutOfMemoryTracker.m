@@ -60,7 +60,7 @@ SentryOutOfMemoryTracker ()
             // Set to empty list so no breadcrumbs of the current scope are added
             event.breadcrumbs = @[];
 
-            // Load the previous breascrumbs from disk, which are already serialized
+            // Load the previous breadcrumbs from disk, which are already serialized
             event.serializedBreadcrumbs = [self.fileManager readPreviousBreadcrumbs];
             if (event.serializedBreadcrumbs.count > self.options.maxBreadcrumbs) {
                 event.serializedBreadcrumbs = [event.serializedBreadcrumbs
@@ -84,7 +84,7 @@ SentryOutOfMemoryTracker ()
             exception.mechanism = mechanism;
             event.exceptions = @[ exception ];
 
-            // We don't need to upate the releaseName of the event to the previous app state as we
+            // We don't need to update the releaseName of the event to the previous app state as we
             // assume it's not an OOM when the releaseName changed between app starts.
             [SentrySDK captureCrashEvent:event];
         }

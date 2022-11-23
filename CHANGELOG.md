@@ -8,17 +8,30 @@ This version adds a dependency on Swift.
 
 - Properly demangle Swift class name (#2162)
 
+### Fixes
+
+- Errors shortly after SentrySDK.init now affect the session (#2430)
+
 ### Breaking Changes
 
-- Remove `- [SentryOptions initWithDict:didFailWithError:]` (#2404)
 - Rename `- [SentrySDK startWithOptionsObject:]` to `- [SentrySDK startWithOptions:]` (#2404)
-- Remove `- [SentryOptions sdkInfo]` (#2404)
 - Make `SpanProtocol.data` non nullable (#2409)
 - Mark `- [SpanProtocol setExtraValue:forKey:]` as deprecated (#2413)
 - Make SpanContext immutable (#2408)
     - Remove tags from SpanContext 
     - Remove context property from SentrySpan
 - Bump minimum supported OS versions to macOS 10.13, iOS 11, tvOS 11, and watchOS 4 (#2414)
+- Make public APIs Swift friendly
+    - Rename `SentrySDK.addBreadcrumb(crumb:)` to `SentrySDK.addBreadcrumb(_ crumb:)` (#2416)
+    - Rename `SentryScope.add(_ crumb:)` to `SentryScope.addBreadcrumb(_ crumb:)` (#2416)
+    - Rename `SentryScope.add(_ attachment:)` to `SentryScope.addAttachment(_ attachment:)` (#2416)
+    - Rename `Client` to `SentryClient` (#2403)
+    - Rename `User` to `SentryUser` (#2403)
+- Remove public APIs
+    - Remove `SentryScope.apply(to:)` (#2416)
+    - Remove `SentryScope.apply(to:maxBreadcrumb:)` (#2416)
+    - Remove `- [SentryOptions initWithDict:didFailWithError:]` (#2404)
+    - Remove `- [SentryOptions sdkInfo]` (#2404)
 
 ## 7.31.2
 
