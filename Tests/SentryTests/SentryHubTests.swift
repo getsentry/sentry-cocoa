@@ -394,7 +394,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
     }
 
-    func testCaptureErrorBeforeSession() {
+    func testCaptureErrorBeforeSessionStart() {
         let sut = fixture.getSut()
         sut.capture(error: fixture.error, scope: fixture.scope).assertIsNotEmpty()
         sut.startSession()
@@ -404,6 +404,20 @@ class SentryHubTests: XCTestCase {
 
         if let session = fixture.client.captureSessionInvocations.first {
             XCTAssertEqual(session.errors, 1)
+        }
+    }
+
+    func testCaptureErrorBeforeSessionStart_DisabledAutoSessionTracking() {
+        fixture.options.enableAutoSessionTracking = false
+        let sut = fixture.getSut()
+        sut.capture(error: fixture.error, scope: fixture.scope).assertIsNotEmpty()
+        sut.startSession()
+
+        XCTAssertEqual(fixture.client.captureErrorWithScopeInvocations.count, 1)
+        XCTAssertEqual(fixture.client.captureSessionInvocations.count, 1)
+
+        if let session = fixture.client.captureSessionInvocations.first {
+            XCTAssertEqual(session.errors, 0)
         }
     }
 
