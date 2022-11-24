@@ -50,7 +50,7 @@ class SentryClientTest: SentryBaseUnitTest {
             
             let options = Options()
             options.dsn = SentryClientTest.dsn
-            fileManager = TestFileManager(options: options)
+            fileManager = try! TestFileManager(options: options)
             
             transaction = Transaction(trace: trace, children: [])
             

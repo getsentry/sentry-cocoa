@@ -55,7 +55,7 @@ private extension SentryBaseUnitTest {
         sentrycrash_deleteAllReports()
 
         let dqw = TestSentryDispatchQueueWrapper()
-        let fileManager = SentryFileManager(options: Options(), andCurrentDateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: dqw)
+        let fileManager = try! SentryFileManager(options: Options(), andCurrentDateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: dqw)
         fileManager.deleteCurrentSession()
         fileManager.deleteCrashedSession()
         fileManager.deleteTimestampLastInForeground()
