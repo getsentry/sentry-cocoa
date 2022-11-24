@@ -14,8 +14,8 @@ class SentryNoOpSpanTests: XCTestCase {
         let sut = SentryNoOpSpan.shared()
         
         let child = sut.startChild(operation: "operation")
-        XCTAssertNil(child.context.spanDescription)
-        XCTAssertEqual("", child.context.operation)
+        XCTAssertNil(child.spanDescription)
+        XCTAssertEqual("", child.operation)
         XCTAssertTrue(sut === child)
         
         let childWithDescription = sut.startChild(operation: "", description: "descr")
@@ -61,7 +61,7 @@ class SentryNoOpSpanTests: XCTestCase {
     }
     
     func testContext() {
-        let actual = SentryNoOpSpan.shared().context
+        let actual = SentryNoOpSpan.shared()
         
         XCTAssertEqual(SentryId.empty, actual.traceId)
         XCTAssertEqual(SpanId.empty, actual.spanId)

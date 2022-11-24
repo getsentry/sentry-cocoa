@@ -112,21 +112,6 @@ class SentryTransactionTests: XCTestCase {
         XCTAssertEqual(serializedTransactionTags, [fixture.testKey: fixture.testValue])
     }
     
-    func testSerialize_shouldPreserveTagsFromContext() {
-        // given
-        let context = TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation)
-        context.setTag(value: fixture.testValue, key: fixture.testKey)
-        let trace = SentryTracer(transactionContext: context, hub: fixture.getHub())
-        let sut = Transaction(trace: trace, children: [])
-        
-        // when
-        let serializedTransaction = sut.serialize()
-        let serializedTransactionTags = try! XCTUnwrap(serializedTransaction["tags"] as? [String: String])
-        
-        // then
-        XCTAssertEqual(serializedTransactionTags, [fixture.testKey: fixture.testValue])
-    }
-    
     func testSerialize_shouldPreserveTagsFromScope() {
         // given
         let scope = Scope()

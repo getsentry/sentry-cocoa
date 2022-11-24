@@ -265,7 +265,7 @@ SentryHub ()
                        withScope:(SentryScope *)scope
          additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
-    SentrySampleDecision decision = transaction.trace.context.sampled;
+    SentrySampleDecision decision = transaction.trace.sampled;
     if (decision != kSentrySampleDecisionYes) {
         [self.client recordLostEvent:kSentryDataCategoryTransaction
                               reason:kSentryDiscardReasonSampleRate];
@@ -372,6 +372,20 @@ SentryHub ()
                        customSamplingContext:customSamplingContext];
 }
 
+- (SentryTransactionContext *)transactionContext:(SentryTransactionContext *)context
+                                     withSampled:(SentrySampleDecision)sampleDecision
+{
+
+    return [[SentryTransactionContext alloc] initWithName:context.name
+                                               nameSource:context.nameSource
+                                                operation:context.operation
+                                                  traceId:context.traceId
+                                                   spanId:context.spanId
+                                             parentSpanId:context.parentSpanId
+                                                  sampled:sampleDecision
+                                            parentSampled:context.parentSampled];
+}
+
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope
                               waitForChildren:(BOOL)waitForChildren
@@ -382,7 +396,8 @@ SentryHub ()
                                             customSamplingContext:customSamplingContext];
 
     SentryTracesSamplerDecision *samplerDecision = [_tracesSampler sample:samplingContext];
-    transactionContext.sampled = samplerDecision.decision;
+    transactionContext = [self transactionContext:transactionContext
+                                      withSampled:samplerDecision.decision];
     transactionContext.sampleRate = samplerDecision.sampleRate;
 
     SentryProfilesSamplerDecision *profilesSamplerDecision =
@@ -410,7 +425,8 @@ SentryHub ()
                                             customSamplingContext:customSamplingContext];
 
     SentryTracesSamplerDecision *samplerDecision = [_tracesSampler sample:samplingContext];
-    transactionContext.sampled = samplerDecision.decision;
+    transactionContext = [self transactionContext:transactionContext
+                                      withSampled:samplerDecision.decision];
     transactionContext.sampleRate = samplerDecision.sampleRate;
 
     SentryProfilesSamplerDecision *profilesSamplerDecision =

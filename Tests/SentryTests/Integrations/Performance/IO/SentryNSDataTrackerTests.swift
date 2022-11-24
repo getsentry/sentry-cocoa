@@ -222,7 +222,7 @@ class SentryNSDataTrackerTests: XCTestCase {
     
     private func assertDataSpan(_ span: Span?, path: String, operation: String, size: Int ) {
         XCTAssertNotNil(span)
-        XCTAssertEqual(span?.context.operation, operation)
+        XCTAssertEqual(span?.operation, operation)
         XCTAssertTrue(span?.isFinished ?? false)
         XCTAssertEqual(span?.data["file.size"] as? Int, size)
         XCTAssertEqual(span?.data["file.path"] as? String, path)
@@ -230,10 +230,10 @@ class SentryNSDataTrackerTests: XCTestCase {
         let lastComponent = (path as NSString).lastPathComponent
         
         if operation == SENTRY_FILE_READ_OPERATION {
-            XCTAssertEqual(span?.context.spanDescription, lastComponent)
+            XCTAssertEqual(span?.spanDescription, lastComponent)
         } else {
             let bytesDescription = ByteCountFormatter.string(fromByteCount: Int64(size), countStyle: .binary)
-            XCTAssertEqual(span?.context.spanDescription ?? "", "\(lastComponent) (\(bytesDescription))")
+            XCTAssertEqual(span?.spanDescription ?? "", "\(lastComponent) (\(bytesDescription))")
         }
     }
     

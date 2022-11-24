@@ -92,7 +92,7 @@ SentryUIEventTracker ()
                 [currentActiveTransaction.transactionContext.name isEqualToString:transactionName];
             if (sameAction) {
                 SENTRY_LOG_DEBUG(@"Dispatching idle timeout for transaction with span id %@",
-                    currentActiveTransaction.context.spanId.sentrySpanIdString);
+                    currentActiveTransaction.spanId.sentrySpanIdString);
                 [currentActiveTransaction dispatchIdleTimeout];
                 return;
             }
@@ -102,7 +102,7 @@ SentryUIEventTracker ()
             if (currentActiveTransaction) {
                 SENTRY_LOG_DEBUG(@"SentryUIEventTracker finished transaction %@ (span ID %@)",
                     currentActiveTransaction.transactionContext.name,
-                    currentActiveTransaction.context.spanId.sentrySpanIdString);
+                    currentActiveTransaction.spanId.sentrySpanIdString);
             }
 
             NSString *operation = [self getOperation:sender];
@@ -114,11 +114,11 @@ SentryUIEventTracker ()
 
             __block SentryTracer *transaction;
             [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-                BOOL ongoingScreenLoadTransaction = span != nil &&
-                    [span.context.operation isEqualToString:SentrySpanOperationUILoad];
+                BOOL ongoingScreenLoadTransaction
+                    = span != nil && [span.operation isEqualToString:SentrySpanOperationUILoad];
                 BOOL ongoingManualTransaction = span != nil
-                    && ![span.context.operation isEqualToString:SentrySpanOperationUILoad]
-                    && ![span.context.operation containsString:SentrySpanOperationUIAction];
+                    && ![span.operation isEqualToString:SentrySpanOperationUILoad]
+                    && ![span.operation containsString:SentrySpanOperationUIAction];
 
                 BOOL bindToScope = !ongoingScreenLoadTransaction && !ongoingManualTransaction;
                 transaction =
@@ -146,13 +146,13 @@ SentryUIEventTracker ()
                     [self.activeTransactions removeObject:tracer];
                     SENTRY_LOG_DEBUG(
                         @"Active transactions after removing tracer for span ID %@: %@",
-                        tracer.context.spanId.sentrySpanIdString, self.activeTransactions);
+                        tracer.spanId.sentrySpanIdString, self.activeTransactions);
                 }
             };
             @synchronized(self.activeTransactions) {
                 SENTRY_LOG_DEBUG(
                     @"Adding transaction %@ to list of active transactions (currently %@)",
-                    transaction.context.spanId.sentrySpanIdString, self.activeTransactions);
+                    transaction.spanId.sentrySpanIdString, self.activeTransactions);
                 [self.activeTransactions addObject:transaction];
             }
         }
