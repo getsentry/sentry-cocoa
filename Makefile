@@ -112,4 +112,4 @@ release-pod:
 docc:
 	# Pretty print DocC JSON output so that it can be consistently diffed between commits
 	export DOCC_JSON_PRETTYPRINT="YES"
-	xcodebuild docbuild -scheme Sentry OTHER_DOCC_FLAGS="--transform-for-static-hosting --output-path docs --hosting-base-path Sentry"
+	xcodebuild docbuild -scheme Sentry OTHER_DOCC_FLAGS="--enable-inherited-docs --transform-for-static-hosting --output-path docs --hosting-base-path Sentry"
