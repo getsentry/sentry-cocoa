@@ -1,5 +1,8 @@
-// This is a dummy copy of SentryBaseUnitTest to be used by SentryFileIOTrackingIntegrationTests when compiled into iOS-SwiftUITests
-
 import XCTest
 
-class SentryBaseUnitTest: XCTestCase {}
+class SentryBaseUnitTest: XCTestCase {
+    override func tearDown() {
+        clearTestState()
+        super.tearDown()
+    }
+}
