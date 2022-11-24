@@ -12,7 +12,7 @@ class SentryNetworkTrackerIntegrationTests: SentryBaseUnitTest {
     private static let transactionOperation = "Test"
     
     private class Fixture {
-        let dateProvider = TestCurrentDateProvider()
+        let dateProvider = CurrentDate.getProvider()! as! TestCurrentDateProvider
         let options: Options
         
         init() {

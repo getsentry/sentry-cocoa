@@ -9,8 +9,8 @@ class SentrySessionTrackerTests: SentryBaseUnitTest {
     private class Fixture {
         
         let options: Options
-        let currentDateProvider = TestCurrentDateProvider()
-        let client: TestClient!
+        let currentDateProvider = CurrentDate.getProvider()! as! TestCurrentDateProvider
+        lazy var client = TestClient(options: options, fileManager: fileManager)!
         let sentryCrash: TestSentryCrashWrapper
 
         let notificationCenter = TestNSNotificationCenterWrapper()
@@ -23,8 +23,6 @@ class SentrySessionTrackerTests: SentryBaseUnitTest {
             options.releaseName = "SentrySessionTrackerIntegrationTests"
             options.sessionTrackingIntervalMillis = 10_000
             options.environment = "debug"
-            
-            client = TestClient(options: options)
             
             sentryCrash = TestSentryCrashWrapper.sharedInstance()
         }

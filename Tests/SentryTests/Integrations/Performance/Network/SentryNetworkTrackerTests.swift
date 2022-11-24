@@ -1,7 +1,7 @@
 import ObjectiveC
 import XCTest
 
-class SentryNetworkTrackerTests: XCTestCase {
+class SentryNetworkTrackerTests: SentryBaseUnitTest {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySessionTrackerTests")
     private static let testURL = URL(string: "https://www.domain.com/api")!
@@ -11,7 +11,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     private class Fixture {
         static let url = ""
         let sentryTask: URLSessionDataTaskMock
-        let dateProvider = TestCurrentDateProvider()
+        let dateProvider = CurrentDate.getProvider()! as! TestCurrentDateProvider
         let options: Options
         let scope: Scope
         let nsUrlRequest = NSURLRequest(url: SentryNetworkTrackerTests.testURL)
