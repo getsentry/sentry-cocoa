@@ -49,6 +49,9 @@
  */
 - (void)install;
 
+/**
+ * Call this instead of `-[SentryCrash uninstall]`.
+ */
 - (void)uninstall;
 
 /** Convenience method to call -[SentryCrash sendAllReportsWithCompletion:].
