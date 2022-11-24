@@ -29,6 +29,7 @@ This version adds a dependency on Swift.
     - Remove `SentryScope.apply(to:maxBreadcrumb:)` (#2416)
     - Remove `- [SentryOptions initWithDict:didFailWithError:]` (#2404)
     - Remove `- [SentryOptions sdkInfo]` (#2404)
+- Remove default attachment content type (#2443)
 
 ## 7.31.2
 
