@@ -34,7 +34,7 @@ This version adds a dependency on Swift.
     - Remove `- [SentryOptions initWithDict:didFailWithError:]` (#2404)
     - Remove `- [SentryOptions sdkInfo]` (#2404)
 - Marks App hang's event stacktrace snapshot as true (#2441) 
-- Change the default value for `SentryOptions.enableUIViewControllerTracking` to YES (#2442)
+- Enable user interaction tracing per default (#2442)
 
 ## 7.31.2
 
