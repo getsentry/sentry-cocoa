@@ -7,7 +7,7 @@ This version adds a dependency on Swift.
 ### Features
 
 - Properly demangle Swift class name (#2162)
-- Marks App hang's event stacktrace snapshot as true (#) 
+- Marks App hang's event stacktrace snapshot as true (#2441) 
 
 ### Fixes
 
