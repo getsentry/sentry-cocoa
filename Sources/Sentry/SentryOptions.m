@@ -66,7 +66,7 @@ SentryOptions ()
         self.enableUIViewControllerTracking = YES;
         self.attachScreenshot = NO;
         self.attachViewHierarchy = NO;
-        self.enableUserInteractionTracing = NO;
+        self.enableUserInteractionTracing = YES;
         self.idleTimeout = 3.0;
         self.enablePreWarmedAppStartTracking = NO;
 #endif

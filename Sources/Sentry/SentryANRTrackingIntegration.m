@@ -10,6 +10,7 @@
 #import "SentryHub+Private.h"
 #import "SentryMechanism.h"
 #import "SentrySDK+Private.h"
+#import "SentryStacktrace.h"
 #import "SentryThread.h"
 #import "SentryThreadInspector.h"
 #import "SentryThreadWrapper.h"
@@ -65,8 +66,11 @@ SentryANRTrackingIntegration ()
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     SentryException *sentryException = [[SentryException alloc] initWithValue:message
                                                                          type:@"App Hanging"];
+
     sentryException.mechanism = [[SentryMechanism alloc] initWithType:@"AppHang"];
     sentryException.stacktrace = [threads[0] stacktrace];
+    sentryException.stacktrace.snapshot = @(YES);
+
     [threads enumerateObjectsUsingBlock:^(SentryThread *_Nonnull obj, NSUInteger idx,
         BOOL *_Nonnull stop) { obj.current = [NSNumber numberWithBool:idx == 0]; }];
 

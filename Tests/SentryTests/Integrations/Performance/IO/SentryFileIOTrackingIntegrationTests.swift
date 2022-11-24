@@ -238,7 +238,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         
         XCTAssertEqual(children.count, spansCount)
         if let first = children.first {
-            XCTAssertEqual(first.context.operation, operation)         
+            XCTAssertEqual(first.operation, operation)         
         }
     }
 }

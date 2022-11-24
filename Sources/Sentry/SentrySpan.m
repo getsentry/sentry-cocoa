@@ -2,6 +2,7 @@
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryCurrentDate.h"
+#import "SentryId.h"
 #import "SentryLog.h"
 #import "SentryMeasurementValue.h"
 #import "SentryNoOpSpan.h"
@@ -25,14 +26,21 @@ SentrySpan ()
 - (instancetype)initWithTracer:(SentryTracer *)tracer context:(SentrySpanContext *)context
 {
     if (self = [super init]) {
-        SENTRY_LOG_DEBUG(@"Created span %@ for trace ID %@", context.spanId.sentrySpanIdString,
-            tracer.context.traceId);
+        SENTRY_LOG_DEBUG(
+            @"Created span %@ for trace ID %@", context.spanId.sentrySpanIdString, tracer.traceId);
         _tracer = tracer;
-        _context = context;
         self.startTimestamp = [SentryCurrentDate date];
         _data = [[NSMutableDictionary alloc] init];
         _tags = [[NSMutableDictionary alloc] init];
         _isFinished = NO;
+
+        _status = kSentrySpanStatusUndefined;
+        _parentSpanId = context.parentSpanId;
+        _traceId = context.traceId;
+        _operation = context.operation;
+        _spanDescription = context.spanDescription;
+        _spanId = context.spanId;
+        _sampled = context.sampled;
     }
     return self;
 }
@@ -50,7 +58,7 @@ SentrySpan ()
         return [SentryNoOpSpan shared];
     }
 
-    return [self.tracer startChildWithParentId:[self.context spanId]
+    return [self.tracer startChildWithParentId:self.spanId
                                      operation:operation
                                    description:description];
 }
@@ -119,13 +127,13 @@ SentrySpan ()
 
 - (void)finish
 {
-    SENTRY_LOG_DEBUG(@"Attempting to finish span with id %@", _context.spanId.sentrySpanIdString);
+    SENTRY_LOG_DEBUG(@"Attempting to finish span with id %@", self.spanId.sentrySpanIdString);
     [self finishWithStatus:kSentrySpanStatusOk];
 }
 
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
-    self.context.status = status;
+    self.status = status;
     _isFinished = YES;
     if (self.timestamp == nil) {
         self.timestamp = [SentryCurrentDate date];
@@ -134,7 +142,7 @@ SentrySpan ()
     }
     if (self.tracer == nil) {
         SENTRY_LOG_DEBUG(
-            @"No tracer associated with span with id %@", _context.spanId.sentrySpanIdString);
+            @"No tracer associated with span with id %@", self.spanId.sentrySpanIdString);
         return;
     }
     [self.tracer spanFinished:self];
@@ -142,15 +150,44 @@ SentrySpan ()
 
 - (SentryTraceHeader *)toTraceHeader
 {
-    return [[SentryTraceHeader alloc] initWithTraceId:self.context.traceId
-                                               spanId:self.context.spanId
-                                              sampled:self.context.sampled];
+    return [[SentryTraceHeader alloc] initWithTraceId:self.traceId
+                                               spanId:self.spanId
+                                              sampled:self.sampled];
 }
 
 - (NSDictionary *)serialize
 {
-    NSMutableDictionary<NSString *, id> *mutableDictionary =
-        [[NSMutableDictionary alloc] initWithDictionary:[self.context serialize]];
+    NSMutableDictionary *mutableDictionary = @{
+        @"type" : SENTRY_TRACE_TYPE,
+        @"span_id" : self.spanId.sentrySpanIdString,
+        @"trace_id" : self.traceId.sentryIdString,
+        @"op" : self.operation
+    }
+                                                 .mutableCopy;
+
+    @synchronized(_tags) {
+        if (_tags.count > 0) {
+            mutableDictionary[@"tags"] = _tags.copy;
+        }
+    }
+
+    // Since we guard for 'undecided', we'll
+    // either send it if it's 'true' or 'false'.
+    if (self.sampled != kSentrySampleDecisionUndecided) {
+        [mutableDictionary setValue:nameForSentrySampleDecision(self.sampled) forKey:@"sampled"];
+    }
+
+    if (self.spanDescription != nil) {
+        [mutableDictionary setValue:self.spanDescription forKey:@"description"];
+    }
+
+    if (self.parentSpanId != nil) {
+        [mutableDictionary setValue:self.parentSpanId.sentrySpanIdString forKey:@"parent_span_id"];
+    }
+
+    if (self.status != kSentrySpanStatusUndefined) {
+        [mutableDictionary setValue:nameForSentrySpanStatus(self.status) forKey:@"status"];
+    }
 
     [mutableDictionary setValue:@(self.timestamp.timeIntervalSince1970) forKey:@"timestamp"];
 
@@ -165,9 +202,7 @@ SentrySpan ()
 
     @synchronized(_tags) {
         if (_tags.count > 0) {
-            NSMutableDictionary *tags = _context.tags.mutableCopy;
-            [tags addEntriesFromDictionary:_tags.copy];
-            mutableDictionary[@"tags"] = tags;
+            mutableDictionary[@"tags"] = _tags.copy;
         }
     }
 

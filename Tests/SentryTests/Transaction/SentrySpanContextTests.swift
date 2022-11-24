@@ -9,7 +9,6 @@ class SentrySpanContextTests: XCTestCase {
         XCTAssertNil(spanContext.parentSpanId)
         XCTAssertEqual(spanContext.operation, someOperation)
         XCTAssertNil(spanContext.spanDescription)
-        XCTAssertEqual(spanContext.tags.count, 0)
         XCTAssertEqual(spanContext.traceId.sentryIdString.count, 32)
         XCTAssertEqual(spanContext.spanId.sentrySpanIdString.count, 16)
     }
@@ -20,7 +19,6 @@ class SentrySpanContextTests: XCTestCase {
         XCTAssertEqual(spanContext.operation, someOperation)
         XCTAssertNil(spanContext.parentSpanId)
         XCTAssertNil(spanContext.spanDescription)
-        XCTAssertEqual(spanContext.tags.count, 0)
         XCTAssertEqual(spanContext.traceId.sentryIdString.count, 32)
         XCTAssertEqual(spanContext.spanId.sentrySpanIdString.count, 16)
     }
@@ -37,7 +35,6 @@ class SentrySpanContextTests: XCTestCase {
         XCTAssertEqual(parentId, spanContext.parentSpanId)
         XCTAssertEqual(spanContext.sampled, .yes)
         XCTAssertNil(spanContext.spanDescription)
-        XCTAssertEqual(spanContext.tags.count, 0)
         XCTAssertEqual(spanContext.operation, someOperation)
     }
     
@@ -46,20 +43,17 @@ class SentrySpanContextTests: XCTestCase {
         let spanId = SpanId()
         let parentId = SpanId()
         
-        let spanContext = SpanContext(trace: id, spanId: spanId, parentId: parentId, operation: someOperation, sampled: .yes)
-        spanContext.status = .ok
-        spanContext.spanDescription = "description"
+        let spanContext = SpanContext(trace: id, spanId: spanId, parentId: parentId, operation: someOperation, spanDescription: "description", sampled: .yes)
         
         let data = spanContext.serialize()
         
         XCTAssertEqual(data["span_id"] as? String, spanId.sentrySpanIdString)
         XCTAssertEqual(data["trace_id"] as? String, id.sentryIdString)
-        XCTAssertEqual(data["type"] as? String, SpanContext.type)
+        XCTAssertEqual(data["type"] as? String, SENTRY_TRACE_TYPE)
         XCTAssertEqual(data["op"] as? String, someOperation)
         XCTAssertEqual(data["description"] as? String, spanContext.spanDescription)
         XCTAssertEqual(data["sampled"] as? String, "true")
         XCTAssertEqual(data["parent_span_id"] as? String, parentId.sentrySpanIdString)
-        XCTAssertEqual(data["status"] as? String, "ok")
     }
     
     func testSerialization_NotSettingProperties_PropertiesNotSerialized() {
@@ -70,7 +64,6 @@ class SentrySpanContextTests: XCTestCase {
         XCTAssertNil(data["description"])
         XCTAssertNil(data["sampled"])
         XCTAssertNil(data["parent_span_id"])
-        XCTAssertNil(data["status"])
         XCTAssertNil(data["tags"])
     }
 
@@ -86,7 +79,6 @@ class SentrySpanContextTests: XCTestCase {
         let parentId = SpanId()
         
         let spanContext = SpanContext(trace: id, spanId: spanId, parentId: parentId, operation: someOperation, sampled: .no)
-        spanContext.status = .ok
         
         let data = spanContext.serialize()
         
@@ -99,67 +91,10 @@ class SentrySpanContextTests: XCTestCase {
         let parentId = SpanId()
         
         let spanContext = SpanContext(trace: id, spanId: spanId, parentId: parentId, operation: someOperation, sampled: .undecided)
-        spanContext.status = .ok
         
         let data = spanContext.serialize()
         
         XCTAssertNil(data["sampled"] )
-    }
-    
-    func testSpanContextTraceTypeValue() {
-        XCTAssertEqual(SpanContext.type, "trace")
-    }
-    
-    func testSetTags() {
-        let tagKey = "tag_key"
-        let tagValue = "tag_value"
-        
-        let spanContext = SpanContext(operation: someOperation)
-        spanContext.setTag(value: tagValue, key: tagKey)
-        XCTAssertEqual(spanContext.tags.count, 1)
-        XCTAssertEqual(spanContext.tags[tagKey], tagValue)
-    }
-    
-    func testUnsetTags() {
-        let tagKey = "tag_key"
-        let tagValue = "tag_value"
-        
-        let spanContext = SpanContext(operation: someOperation)
-        spanContext.setTag(value: tagValue, key: tagKey)
-        XCTAssertEqual(spanContext.tags.count, 1)
-        spanContext.removeTag(key: tagKey)
-        XCTAssertEqual(spanContext.tags.count, 0)
-        XCTAssertNil(spanContext.tags[tagKey])
-    }
-    
-    func testModifyingTagsFromMultipleThreads() {
-        let queue = DispatchQueue(label: "SentrySpanTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
-        let group = DispatchGroup()
-        
-        let tagValue = "tag_value"
-        
-        let spanContext = SpanContext(operation: someOperation)
-        
-        // The number is kept small for the CI to not take to long.
-        // If you really want to test this increase to 100_000 or so.
-        let innerLoop = 1_000
-        let outerLoop = 20
-        
-        for i in 0..<outerLoop {
-            group.enter()
-            queue.async {
-                
-                for j in 0..<innerLoop {
-                    spanContext.setTag(value: tagValue, key: "\(i)-\(j)")
-                }
-                
-                group.leave()
-            }
-        }
-        
-        queue.activate()
-        group.wait()
-        XCTAssertEqual(spanContext.tags.count, outerLoop * innerLoop)
     }
     
 }
