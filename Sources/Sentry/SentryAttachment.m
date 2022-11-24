@@ -3,18 +3,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const DefaultContentType = @"application/octet-stream";
-
 @implementation SentryAttachment
 
 - (instancetype)initWithData:(NSData *)data filename:(NSString *)filename
 {
-    return [self initWithData:data filename:filename contentType:DefaultContentType];
+    return [self initWithData:data filename:filename contentType:nil];
 }
 
 - (instancetype)initWithData:(NSData *)data
                     filename:(NSString *)filename
-                 contentType:(NSString *)contentType
+                 contentType:(nullable NSString *)contentType
 {
 
     if (self = [super init]) {
@@ -32,12 +30,12 @@ NSString *const DefaultContentType = @"application/octet-stream";
 
 - (instancetype)initWithPath:(NSString *)path filename:(NSString *)filename
 {
-    return [self initWithPath:path filename:filename contentType:DefaultContentType];
+    return [self initWithPath:path filename:filename contentType:nil];
 }
 
 - (instancetype)initWithPath:(NSString *)path
                     filename:(NSString *)filename
-                 contentType:(NSString *)contentType
+                 contentType:(nullable NSString *)contentType
 {
     if (self = [super init]) {
         _path = path;

@@ -284,7 +284,7 @@ NS_ASSUME_NONNULL_BEGIN
             NSString *_Nullable contentType = [headerDictionary valueForKey:@"content_type"];
 
             SentryEnvelopeItemHeader *itemHeader;
-            if (nil != filename && nil != contentType) {
+            if (nil != filename) {
                 itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:type
                                                                      length:bodyLength
                                                                   filenname:filename

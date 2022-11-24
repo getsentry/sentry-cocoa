@@ -27,7 +27,7 @@ class SentryAttachmentTests: XCTestCase {
         
         XCTAssertEqual(fixture.data, attachment.data)
         XCTAssertEqual(fixture.filename, attachment.filename)
-        XCTAssertEqual(fixture.defaultContentType, attachment.contentType)
+        XCTAssertNil(attachment.contentType)
         XCTAssertNil(attachment.path)
     }
     
@@ -45,7 +45,7 @@ class SentryAttachmentTests: XCTestCase {
     
         XCTAssertEqual(fixture.path, attachment.path)
         XCTAssertEqual(fixture.filename, attachment.filename)
-        XCTAssertEqual(fixture.defaultContentType, attachment.contentType)
+        XCTAssertNil(attachment.contentType)
         XCTAssertNil(attachment.data)
     }
     
@@ -54,7 +54,7 @@ class SentryAttachmentTests: XCTestCase {
         
         XCTAssertEqual("", attachment.path)
         XCTAssertEqual("", attachment.filename)
-        XCTAssertEqual(fixture.defaultContentType, attachment.contentType)
+        XCTAssertNil(attachment.contentType)
         XCTAssertNil(attachment.data)
     }
     
@@ -87,7 +87,7 @@ class SentryAttachmentTests: XCTestCase {
     
         XCTAssertEqual(fixture.path, attachment.path)
         XCTAssertEqual(filename, attachment.filename)
-        XCTAssertEqual(fixture.defaultContentType, attachment.contentType)
+        XCTAssertNil(attachment.contentType)
         XCTAssertNil(attachment.data)
     }
     
