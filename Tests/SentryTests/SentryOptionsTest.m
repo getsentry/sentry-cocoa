@@ -103,6 +103,9 @@
     XCTAssertTrue(options.enableUIViewControllerTracking);
     XCTAssertFalse(options.attachScreenshot);
     XCTAssertEqual(3.0, options.idleTimeout);
+    XCTAssertEqual(options.enableUserInteractionTracing, YES);
+    XCTAssertEqual(options.enablePreWarmedAppStartTracking, NO);
+    XCTAssertEqual(options.attachViewHierarchy, NO);
 #endif
     XCTAssertFalse(options.enableAppHangTracking);
     XCTAssertEqual(options.appHangTimeoutInterval, 2);
