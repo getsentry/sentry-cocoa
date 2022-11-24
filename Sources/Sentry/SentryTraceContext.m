@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
                                   scope:(nullable SentryScope *)scope
                                 options:(SentryOptions *)options
 {
-    if (tracer.context.traceId == nil || options.parsedDsn == nil)
+    if (tracer.traceId == nil || options.parsedDsn == nil)
         return nil;
 
     NSString *userSegment;
@@ -57,12 +57,12 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     NSString *sampleRate = nil;
-    if ([tracer.context isKindOfClass:[SentryTransactionContext class]]) {
-        sampleRate = [NSString
-            stringWithFormat:@"%@", [(SentryTransactionContext *)tracer.context sampleRate]];
+    if ([tracer isKindOfClass:[SentryTransactionContext class]]) {
+        sampleRate =
+            [NSString stringWithFormat:@"%@", [(SentryTransactionContext *)tracer sampleRate]];
     }
 
-    return [self initWithTraceId:tracer.context.traceId
+    return [self initWithTraceId:tracer.traceId
                        publicKey:options.parsedDsn.url.user
                      releaseName:options.releaseName
                      environment:options.environment

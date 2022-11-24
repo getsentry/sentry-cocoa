@@ -23,6 +23,15 @@ SentryTransactionContext (Private)
                 parentSpanId:(nullable SentrySpanId *)parentSpanId
                parentSampled:(SentrySampleDecision)parentSampled;
 
+- (instancetype)initWithName:(NSString *)name
+                  nameSource:(SentryTransactionNameSource)source
+                   operation:(NSString *)operation
+                     traceId:(SentryId *)traceId
+                      spanId:(SentrySpanId *)spanId
+                parentSpanId:(nullable SentrySpanId *)parentSpanId
+                     sampled:(SentrySampleDecision)sampled
+               parentSampled:(SentrySampleDecision)parentSampled;
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 - (SentryThread *)sentry_threadInfo;
 #endif

@@ -140,7 +140,8 @@ class SentryTracerTests: XCTestCase {
     func testFinish_CheckDefaultStatus() {
         let sut = fixture.getSut()
         sut.finish()
-        XCTAssertEqual(sut.context.status, .ok)
+        XCTAssertEqual(sut.status, .ok)
+        XCTAssertEqual(sut.status, .ok)
     }
     
     func testFinish_WithoutHub_DoesntCaptureTransaction() {
@@ -393,7 +394,7 @@ class SentryTracerTests: XCTestCase {
 
         let secondChild = sut.startChild(operation: fixture.transactionOperation)
 
-        XCTAssertEqual(secondChild.context.parentSpanId, child.context.spanId)
+        XCTAssertEqual(secondChild.parentSpanId, child.spanId)
     }
 
     func test_startChildWithDelegate_ActiveNotChild() {
@@ -408,8 +409,8 @@ class SentryTracerTests: XCTestCase {
 
         let secondChild = sut.startChild(operation: fixture.transactionOperation)
 
-        XCTAssertEqual(secondChild.context.parentSpanId, sut.context.spanId)
-        XCTAssertEqual(secondChild.context.parentSpanId, child.context.parentSpanId)
+        XCTAssertEqual(secondChild.parentSpanId, sut.spanId)
+        XCTAssertEqual(secondChild.parentSpanId, child.parentSpanId)
     }
 
     func test_startChildWithDelegate_SelfIsActive() {
@@ -424,8 +425,8 @@ class SentryTracerTests: XCTestCase {
 
         let secondChild = sut.startChild(operation: fixture.transactionOperation)
 
-        XCTAssertEqual(secondChild.context.parentSpanId, sut.context.spanId)
-        XCTAssertEqual(secondChild.context.parentSpanId, child.context.parentSpanId)
+        XCTAssertEqual(secondChild.parentSpanId, sut.spanId)
+        XCTAssertEqual(secondChild.parentSpanId, child.parentSpanId)
     }
 
     func testAddPreWarmedAppStartMeasurement_PutOnNextAutoUITransaction() {
@@ -636,15 +637,15 @@ class SentryTracerTests: XCTestCase {
         sut.finish()
         
         XCTAssertTrue(child1.isFinished)
-        XCTAssertEqual(child1.context.status, .deadlineExceeded)
+        XCTAssertEqual(child1.status, .deadlineExceeded)
         XCTAssertEqual(sut.timestamp, child1.timestamp)
         
         XCTAssertTrue(child2.isFinished)
-        XCTAssertEqual(child2.context.status, .ok)
+        XCTAssertEqual(child2.status, .ok)
         XCTAssertNotEqual(sut.timestamp, child2.timestamp)
         
         XCTAssertTrue(child3.isFinished)
-        XCTAssertEqual(child3.context.status, .deadlineExceeded)
+        XCTAssertEqual(child3.status, .deadlineExceeded)
         XCTAssertEqual(sut.timestamp, child3.timestamp)
     }
     
@@ -813,18 +814,6 @@ class SentryTracerTests: XCTestCase {
         
         XCTAssertEqual(["key": 0], sut.data as! [String: Int])
     }
-    
-    func testTagsFromContext_shouldBeSerialized() {
-        // given
-        fixture.transactionContext.setTag(value: fixture.testValue, key: fixture.testKey)
-        let transaction = fixture.getSut()
-        
-        // when
-        let dict = try! XCTUnwrap(transaction.serialize()["tags"] as? [String: String])
-        
-        // then
-        XCTAssertEqual(dict, [fixture.testKey: fixture.testValue])
-    }
 
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(bySeconds))
@@ -864,21 +853,21 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(5, spans?.count)
         
         let appLaunchSpan = spans?.first { span in
-            span.context.spanDescription == startType
+            span.spanDescription == startType
         }
         let trace: SentryTracer? = Dynamic(transaction).trace
-        XCTAssertEqual(operation, appLaunchSpan?.context.operation)
-        XCTAssertEqual(trace?.context.spanId, appLaunchSpan?.context.parentSpanId)
+        XCTAssertEqual(operation, appLaunchSpan?.operation)
+        XCTAssertEqual(trace?.spanId, appLaunchSpan?.parentSpanId)
         XCTAssertEqual(appStartMeasurement.appStartTimestamp, appLaunchSpan?.startTimestamp)
         XCTAssertEqual(fixture.appStartEnd, appLaunchSpan?.timestamp)
         
         func assertSpan(_ description: String, _ startTimestamp: Date, _ timestamp: Date) {
             let span = spans?.first { span in
-                span.context.spanDescription == description
+                span.spanDescription == description
             }
             
-            XCTAssertEqual(operation, span?.context.operation)
-            XCTAssertEqual(appLaunchSpan?.context.spanId, span?.context.parentSpanId)
+            XCTAssertEqual(operation, span?.operation)
+            XCTAssertEqual(appLaunchSpan?.spanId, span?.parentSpanId)
             XCTAssertEqual(startTimestamp, span?.startTimestamp)
             XCTAssertEqual(timestamp, span?.timestamp)
         }
@@ -904,21 +893,21 @@ class SentryTracerTests: XCTestCase {
             XCTAssertEqual(3, spans?.count)
 
             let appLaunchSpan = spans?.first { span in
-                span.context.spanDescription == startType
+                span.spanDescription == startType
             }
             let trace: SentryTracer? = Dynamic(transaction).trace
-            XCTAssertEqual(operation, appLaunchSpan?.context.operation)
-            XCTAssertEqual(trace?.context.spanId, appLaunchSpan?.context.parentSpanId)
+            XCTAssertEqual(operation, appLaunchSpan?.operation)
+            XCTAssertEqual(trace?.spanId, appLaunchSpan?.parentSpanId)
             XCTAssertEqual(appStartMeasurement.appStartTimestamp, appLaunchSpan?.startTimestamp)
             XCTAssertEqual(fixture.appStartEnd.timeIntervalSince1970, appLaunchSpan?.timestamp?.timeIntervalSince1970)
 
             func assertSpan(_ description: String, _ startTimestamp: Date, _ timestamp: Date) {
                 let span = spans?.first { span in
-                    span.context.spanDescription == description
+                    span.spanDescription == description
                 }
 
-                XCTAssertEqual(operation, span?.context.operation)
-                XCTAssertEqual(appLaunchSpan?.context.spanId, span?.context.parentSpanId)
+                XCTAssertEqual(operation, span?.operation)
+                XCTAssertEqual(appLaunchSpan?.spanId, span?.parentSpanId)
                 XCTAssertEqual(startTimestamp, span?.startTimestamp)
                 XCTAssertEqual(timestamp, span?.timestamp)
             }

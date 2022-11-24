@@ -10,9 +10,40 @@ NS_SWIFT_NAME(Span)
 @protocol SentrySpan <SentrySerializable>
 
 /**
- * The context information of the span.
+ * Determines which trace the Span belongs to.
  */
-@property (nonatomic, readonly) SentrySpanContext *context;
+@property (nonatomic) SentryId *traceId;
+
+/**
+ * Span id.
+ */
+@property (nonatomic) SentrySpanId *spanId;
+
+/**
+ * The id of the parent span.
+ */
+@property (nullable, nonatomic) SentrySpanId *parentSpanId;
+
+/**
+ * The sampling decision of the trace.
+ */
+@property (nonatomic) SentrySampleDecision sampled;
+
+/**
+ * Short code identifying the type of operation the span is measuring.
+ */
+@property (nonatomic, copy) NSString *operation;
+
+/**
+ * Longer description of the span's operation, which uniquely identifies the span but is
+ * consistent across instances of the span.
+ */
+@property (nullable, nonatomic, copy) NSString *spanDescription;
+
+/**
+ * Describes the status of the Transaction.
+ */
+@property (nonatomic) SentrySpanStatus status;
 
 /**
  * The timestamp of which the span ended.
