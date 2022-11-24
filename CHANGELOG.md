@@ -7,7 +7,7 @@ This version adds a dependency on Swift.
 ### Features
 
 - Properly demangle Swift class name (#2162)
-- Marks App hang's event stacktrace snapshot as true (#2441) 
+
 
 ### Fixes
 
@@ -30,6 +30,7 @@ This version adds a dependency on Swift.
     - Remove `SentryScope.apply(to:maxBreadcrumb:)` (#2416)
     - Remove `- [SentryOptions initWithDict:didFailWithError:]` (#2404)
     - Remove `- [SentryOptions sdkInfo]` (#2404)
+- Marks App hang's event stacktrace snapshot as true (#2441) 
 
 ## 7.31.2
 
