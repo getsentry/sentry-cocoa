@@ -240,6 +240,14 @@ private extension SentryProfilerSwiftTests {
 
     func assertValidProfileData(data: Data, transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1, shouldTimeout: Bool = false) {
         let profile = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
+
+        XCTAssertNotNil(profile["version"])
+        if let timestampString = profile["timestamp"] as? String {
+            XCTAssertNotNil(NSDate.sentry_from(iso8601String: timestampString))
+        } else {
+            XCTFail("Expected a top-level timestamp")
+        }
+
         let device = profile["device"] as? [String: Any?]
         XCTAssertNotNil(device)
         XCTAssertEqual("Apple", device!["manufacturer"] as! String)
@@ -259,6 +267,8 @@ private extension SentryProfilerSwiftTests {
 
         XCTAssertEqual("cocoa", profile["platform"] as! String)
 
+        XCTAssertEqual(transactionEnvironment, profile["environment"] as! String)
+
         let version = Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) ?? "(null)"
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "(null)"
         let releaseString = "\(version) (\(build))"
@@ -275,12 +285,11 @@ private extension SentryProfilerSwiftTests {
         XCTAssertGreaterThan((firstImage["image_size"] as! Int), 0)
         XCTAssertEqual(firstImage["type"] as! String, "macho")
 
-        let sampledProfile = profile["sampled_profile"] as! [String: Any]
+        let sampledProfile = profile["profile"] as! [String: Any]
         let threadMetadata = sampledProfile["thread_metadata"] as! [String: [String: Any]]
         let queueMetadata = sampledProfile["queue_metadata"] as! [String: Any]
         XCTAssertFalse(threadMetadata.isEmpty)
         XCTAssertFalse(threadMetadata.values.compactMap { $0["priority"] }.filter { ($0 as! Int) > 0 }.isEmpty)
-        XCTAssertFalse(threadMetadata.values.filter { $0["is_main_thread"] as? Bool == true }.isEmpty)
         XCTAssertFalse(queueMetadata.isEmpty)
         XCTAssertFalse(((queueMetadata.first?.value as! [String: Any])["label"] as! String).isEmpty)
 
@@ -304,25 +313,27 @@ private extension SentryProfilerSwiftTests {
         }
         XCTAssert(foundAtLeastOneNonEmptySample)
 
-        let transactions = profile["transactions"] as? [[String: String]]
+        let transactions = profile["transactions"] as? [[String: Any]]
         XCTAssertEqual(transactions!.count, numberOfTransactions)
         for transaction in transactions! {
-            XCTAssertEqual(fixture.transactionName, transaction["name"])
+            XCTAssertEqual(fixture.transactionName, transaction["name"] as! String)
             XCTAssertNotNil(transaction["id"])
             if let idString = transaction["id"] {
-                XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: idString))
+                XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: idString as! String))
             }
             XCTAssertNotNil(transaction["trace_id"])
             if let traceIDString = transaction["trace_id"] {
-                XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: traceIDString))
+                XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: traceIDString as! String))
             }
-            XCTAssertEqual(transactionEnvironment, transaction["environment"])
             XCTAssertNotNil(transaction["trace_id"])
             XCTAssertNotNil(transaction["relative_start_ns"])
-            XCTAssertNotNil(transaction["relative_end_ns"])
+            XCTAssertFalse((transaction["relative_end_ns"] as! NSString).isEqual(to: "0"))
+            XCTAssertNotNil(transaction["active_thread_id"])
         }
 
         for sample in samples {
+            XCTAssertNotNil(sample["elapsed_since_start_ns"] as! String)
+            XCTAssertNotNil(sample["thread_id"])
             XCTAssertNotNil(stacks[sample["stack_id"] as! Int])
         }
 

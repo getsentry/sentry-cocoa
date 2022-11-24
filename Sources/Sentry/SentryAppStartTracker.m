@@ -34,6 +34,7 @@ SentryAppStartTracker ()
 @property (nonatomic, strong) SentrySysctl *sysctl;
 @property (nonatomic, assign) BOOL wasInBackground;
 @property (nonatomic, strong) NSDate *didFinishLaunchingTimestamp;
+@property (nonatomic, assign) BOOL enablePreWarmedAppStartTracking;
 
 @end
 
@@ -55,6 +56,7 @@ SentryAppStartTracker ()
                        dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                             appStateManager:(SentryAppStateManager *)appStateManager
                                      sysctl:(SentrySysctl *)sysctl
+            enablePreWarmedAppStartTracking:(BOOL)enablePreWarmedAppStartTracking
 {
     if (self = [super init]) {
         self.currentDate = currentDateProvider;
@@ -64,6 +66,7 @@ SentryAppStartTracker ()
         self.previousAppState = [self.appStateManager loadPreviousAppState];
         self.wasInBackground = NO;
         self.didFinishLaunchingTimestamp = [currentDateProvider date];
+        self.enablePreWarmedAppStartTracking = enablePreWarmedAppStartTracking;
     }
     return self;
 }
@@ -120,12 +123,17 @@ SentryAppStartTracker ()
     void (^block)(void) = ^(void) {
         [self stop];
 
-        // Don't (yet) report pre warmed app starts.
-        // Check if prewarm is available. Just to be safe to not drop app start data on earlier OS
-        // verions.
+        BOOL isPreWarmed = NO;
         if ([self isActivePrewarmAvailable] && isActivePrewarm) {
-            SENTRY_LOG_INFO(@"The app was prewarmed. Not measuring app start.");
-            return;
+            SENTRY_LOG_INFO(@"The app was prewarmed.");
+
+            if (self.enablePreWarmedAppStartTracking) {
+                isPreWarmed = YES;
+            } else {
+                SENTRY_LOG_INFO(
+                    @"EnablePreWarmedAppStartTracking disabled. Not measuring app start.");
+                return;
+            }
         }
 
         SentryAppStartType appStartType = [self getStartType];
@@ -145,16 +153,29 @@ SentryAppStartTracker ()
         // According to a talk at WWDC about optimizing app launch
         // (https://devstreaming-cdn.apple.com/videos/wwdc/2019/423lzf3qsjedrzivc7/423/423_optimizing_app_launch.pdf?dl=1
         // slide 17) no process exists for cold and warm launches. Since iOS 15, though, the system
-        // might decide to pre-warm your app before the user tries to open it. The process start
-        // time returned valid values when testing with real devices if the app start is not
-        // prewarmed. See:
+        // might decide to pre-warm your app before the user tries to open it.
+        // Prewarming can stop at any of the app launch steps. Our findings show that most of
+        // the prewarmed app starts don't call the main method. Therefore we subtract the
+        // time before the module initialization / main method to calculate the app start
+        // duration. If the app start stopped during a later launch step, we drop it below with
+        // checking the SENTRY_APP_START_MAX_DURATION. With this approach, we will
+        // lose some warm app starts, but we accept this tradeoff. Useful resources:
         // https://developer.apple.com/documentation/uikit/app_and_environment/responding_to_the_launch_of_your_app/about_the_app_launch_sequence#3894431
         // https://developer.apple.com/documentation/metrickit/mxapplaunchmetric,
         // https://twitter.com/steipete/status/1466013492180312068,
         // https://github.com/MobileNativeFoundation/discussions/discussions/146
-
-        NSTimeInterval appStartDuration =
-            [[self.currentDate date] timeIntervalSinceDate:self.sysctl.processStartTimestamp];
+        // https://eisel.me/startup
+        NSTimeInterval appStartDuration = 0.0;
+        NSDate *appStartTimestamp;
+        if (isPreWarmed) {
+            appStartDuration = [[self.currentDate date]
+                timeIntervalSinceDate:self.sysctl.moduleInitializationTimestamp];
+            appStartTimestamp = self.sysctl.moduleInitializationTimestamp;
+        } else {
+            appStartDuration =
+                [[self.currentDate date] timeIntervalSinceDate:self.sysctl.processStartTimestamp];
+            appStartTimestamp = self.sysctl.processStartTimestamp;
+        }
 
         // Safety check to not report app starts that are completely off.
         if (appStartDuration >= SENTRY_APP_START_MAX_DURATION) {
@@ -177,7 +198,8 @@ SentryAppStartTracker ()
 
         SentryAppStartMeasurement *appStartMeasurement = [[SentryAppStartMeasurement alloc]
                              initWithType:appStartType
-                        appStartTimestamp:self.sysctl.processStartTimestamp
+                              isPreWarmed:isPreWarmed
+                        appStartTimestamp:appStartTimestamp
                                  duration:appStartDuration
                      runtimeInitTimestamp:runtimeInit
             moduleInitializationTimestamp:self.sysctl.moduleInitializationTimestamp
@@ -263,10 +285,6 @@ SentryAppStartTracker ()
     [NSNotificationCenter.defaultCenter removeObserver:self
                                                   name:UIApplicationDidEnterBackgroundNotification
                                                 object:nil];
-
-#    if SENTRY_HAS_UIKIT
-    [self.appStateManager stop];
-#    endif
 }
 
 - (void)dealloc

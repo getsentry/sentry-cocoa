@@ -22,14 +22,17 @@ lint:
 	swiftlint
 .PHONY: lint
 
-# Format all h,c,cpp and m files
-format:
+format: format-clang format-swift
+
+# Format ObjC, ObjC++, C, and C++
+format-clang:
 	@find . -type f \( -name "*.h" -or -name "*.hpp" -or -name "*.c" -or -name "*.cpp" -or -name "*.m" -or -name "*.mm" \) -and \
 		! \( -path "**.build/*" -or -path "**Build/*" -or -path "**/Carthage/Checkouts/*"  -or -path "**/libs/**" \) \
 		| xargs clang-format -i -style=file
 
+# Format Swift
+format-swift:
 	swiftlint --fix
-.PHONY: format
 
 test:
 	@echo "--> Running all tests"
@@ -42,8 +45,8 @@ run-test-server:
 .PHONY: run-test-server
 
 analyze:
-	rm -r analyzer
-	xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer | rbenv exec bundle exec xcpretty -t
+	rm -rf analyzer
+	xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer -destination "platform=iOS Simulator,OS=latest,name=iPhone 11"  CODE_SIGNING_ALLOWED="NO" | xcpretty -t && [[ -z `find analyzer -name "*.html"` ]]
 
 # Since Carthage 0.38.0 we need to create separate .framework.zip and .xcframework.zip archives.
 # After creating the zips we create a JSON to be able to test Carthage locally.

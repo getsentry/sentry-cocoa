@@ -17,12 +17,6 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         func getSut() -> SentryCoreDataTrackingIntegration {
             return SentryCoreDataTrackingIntegration()
         }
-        
-        func testEntity() -> TestEntity {
-            let entityDescription = NSEntityDescription()
-            entityDescription.name = "TestEntity"
-            return TestEntity(entity: entityDescription, insertInto: nil)
-        }
     }
     
     private var fixture: Fixture!

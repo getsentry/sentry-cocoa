@@ -7,10 +7,6 @@ class TestSentryUIDeviceWrapper: SentryUIDeviceWrapper {
     var internalBatteryLevel: Float = 0.6
     var interalBatteryState = UIDevice.BatteryState.charging
 
-    override init() {
-        // Do nothing
-    }
-
     override func orientation() -> UIDeviceOrientation {
         return internalOrientation
     }

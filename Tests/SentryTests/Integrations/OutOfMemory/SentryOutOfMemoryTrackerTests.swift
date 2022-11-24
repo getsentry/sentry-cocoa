@@ -18,6 +18,7 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         
         init() {
             options = Options()
+            options.maxBreadcrumbs = 2
             options.dsn = SentryOutOfMemoryTrackerTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
             
@@ -195,7 +196,7 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         sut.start()
         assertOOMEventSent()
     }
-    
+
     func testANR_NoOOM() {
         sut.start()
         goToForeground()
@@ -207,7 +208,28 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         sut.start()
         assertNoOOMSent()
     }
-    
+
+    func testAppOOM_WithBreadcrumbs() {
+        let breadcrumb = TestData.crumb
+
+        let sentryOutOfMemoryScopeObserver = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: Int(fixture.options.maxBreadcrumbs), fileManager: fixture.fileManager)
+
+        for _ in 0..<3 {
+            sentryOutOfMemoryScopeObserver.addSerializedBreadcrumb(breadcrumb.serialize())
+        }
+
+        sut.start()
+        goToForeground()
+
+        fixture.fileManager.moveAppStateToPreviousAppState()
+        fixture.fileManager.moveBreadcrumbsToPreviousBreadcrumbs()
+        sut.start()
+        assertOOMEventSent(expectedBreadcrumbs: 2)
+
+        let crashEvent = fixture.client.captureCrashEventInvocations.first?.event
+        XCTAssertEqual(crashEvent?.timestamp, breadcrumb.timestamp)
+    }
+
     func testAppOOM_WithOnlyHybridSdkDidBecomeActive() {
         sut.start()
         hybridSdkDidBecomeActive()
@@ -281,12 +303,13 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         }
     }
     
-    private func assertOOMEventSent() {
+    private func assertOOMEventSent(expectedBreadcrumbs: Int = 0) {
         XCTAssertEqual(1, fixture.client.captureCrashEventInvocations.count)
         let crashEvent = fixture.client.captureCrashEventInvocations.first?.event
         
         XCTAssertEqual(SentryLevel.fatal, crashEvent?.level)
-        XCTAssertEqual([], crashEvent?.breadcrumbs)
+        XCTAssertEqual(crashEvent?.breadcrumbs?.count, 0)
+        XCTAssertEqual(crashEvent?.serializedBreadcrumbs?.count, expectedBreadcrumbs)
         
         XCTAssertEqual(1, crashEvent?.exceptions?.count)
         
@@ -298,7 +321,7 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         XCTAssertEqual(false, exception?.mechanism?.handled)
         XCTAssertEqual("out_of_memory", exception?.mechanism?.type)
     }
-    
+
     private func assertNoOOMSent() {
         XCTAssertEqual(0, fixture.client.captureCrashEventInvocations.count)
     }

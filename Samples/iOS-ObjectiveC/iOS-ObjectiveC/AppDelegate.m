@@ -27,6 +27,10 @@ AppDelegate ()
         if ([NSProcessInfo.processInfo.arguments containsObject:@"--io.sentry.profiling.enable"]) {
             options.profilesSampleRate = @1;
         }
+        options.enableCaptureFailedRequests = YES;
+        SentryHttpStatusCodeRange *httpStatusCodeRange =
+            [[SentryHttpStatusCodeRange alloc] initWithMin:400 max:599];
+        options.failedRequestStatusCodes = @[ httpStatusCodeRange ];
     }];
 
     return YES;

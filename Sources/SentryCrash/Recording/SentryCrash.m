@@ -38,7 +38,7 @@
 #import "SentryCrashSystemCapabilities.h"
 #import <NSData+Sentry.h>
 
-//#define SentryCrashLogger_LocalLevel TRACE
+// #define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
 
 #include <inttypes.h>
@@ -355,7 +355,10 @@ getBasePath()
 // ============================================================================
 
 #define SYNTHESIZE_CRASH_STATE_PROPERTY(TYPE, NAME)                                                \
-    -(TYPE)NAME { return sentrycrashstate_currentState()->NAME; }
+    -(TYPE)NAME                                                                                    \
+    {                                                                                              \
+        return sentrycrashstate_currentState()->NAME;                                              \
+    }
 
 SYNTHESIZE_CRASH_STATE_PROPERTY(NSTimeInterval, activeDurationSinceLastCrash)
 SYNTHESIZE_CRASH_STATE_PROPERTY(NSTimeInterval, backgroundDurationSinceLastCrash)

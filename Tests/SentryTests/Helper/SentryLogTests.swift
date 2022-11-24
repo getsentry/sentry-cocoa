@@ -28,7 +28,7 @@ class SentryLogTests: XCTestCase {
         SentryLog.log(withMessage: "2", andLevel: SentryLevel.warning)
         SentryLog.log(withMessage: "3", andLevel: SentryLevel.none)
         
-        XCTAssertEqual(["Sentry - fatal:: 0", "Sentry - error:: 1"], logOutput.loggedMessages)
+        XCTAssertEqual(["[Sentry] [fatal] 0", "[Sentry] [error] 1"], logOutput.loggedMessages)
     }
     
     func testDefaultInitOfLogoutPut() {
@@ -62,10 +62,10 @@ class SentryLogTests: XCTestCase {
         SentryLog.log(withMessage: "4", andLevel: SentryLevel.debug)
         SentryLog.log(withMessage: "5", andLevel: SentryLevel.none)
         
-        XCTAssertEqual(["Sentry - fatal:: 0",
-                        "Sentry - error:: 1",
-                        "Sentry - warning:: 2",
-                        "Sentry - info:: 3",
-                        "Sentry - debug:: 4"], logOutput.loggedMessages)
+        XCTAssertEqual(["[Sentry] [fatal] 0",
+                        "[Sentry] [error] 1",
+                        "[Sentry] [warning] 2",
+                        "[Sentry] [info] 3",
+                        "[Sentry] [debug] 4"], logOutput.loggedMessages)
     }
 }

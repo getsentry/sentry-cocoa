@@ -147,8 +147,8 @@
 {
     NSMutableDictionary<NSString *, NSNumber *> *result = [NSMutableDictionary new];
 
-    for (id item in entities) {
-        NSString *cl = NSStringFromClass([item class]);
+    for (NSManagedObject *item in entities) {
+        NSString *cl = item.entity.name;
         NSNumber *count = result[cl];
         result[cl] = [NSNumber numberWithInt:count.intValue + 1];
     }

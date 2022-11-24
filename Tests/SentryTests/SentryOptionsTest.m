@@ -292,6 +292,40 @@
     XCTAssertEqual(options.tracePropagationTargets[0], @YES);
 }
 
+- (void)testFailedRequestTargets
+{
+    SentryOptions *options =
+        [self getValidOptions:@{ @"failedRequestTargets" : @[ @"localhost" ] }];
+
+    XCTAssertEqual(options.failedRequestTargets.count, 1);
+    XCTAssertEqual(options.failedRequestTargets[0], @"localhost");
+}
+
+- (void)testFailedRequestTargetsInvalidInstanceDoesntCrash
+{
+    SentryOptions *options = [self getValidOptions:@{ @"failedRequestTargets" : @[ @YES ] }];
+
+    XCTAssertEqual(options.failedRequestTargets.count, 1);
+    XCTAssertEqual(options.failedRequestTargets[0], @YES);
+}
+
+- (void)testEnableCaptureFailedRequests
+{
+    [self testBooleanField:@"enableCaptureFailedRequests" defaultValue:NO];
+}
+
+- (void)testFailedRequestStatusCodes
+{
+    SentryHttpStatusCodeRange *httpStatusCodeRange =
+        [[SentryHttpStatusCodeRange alloc] initWithMin:400 max:599];
+    SentryOptions *options =
+        [self getValidOptions:@{ @"failedRequestStatusCodes" : @[ httpStatusCodeRange ] }];
+
+    XCTAssertEqual(options.failedRequestStatusCodes.count, 1);
+    XCTAssertEqual(options.failedRequestStatusCodes[0].min, 400);
+    XCTAssertEqual(options.failedRequestStatusCodes[0].max, 599);
+}
+
 - (void)testGarbageBeforeBreadcrumb_ReturnsNil
 {
     SentryOptions *options = [self getValidOptions:@{ @"beforeBreadcrumb" : @"fault" }];
@@ -486,7 +520,9 @@
         @"urlSessionDelegate" : [NSNull null],
         @"enableSwizzling" : [NSNull null],
         @"enableIOTracking" : [NSNull null],
-        @"sdk" : [NSNull null]
+        @"sdk" : [NSNull null],
+        @"enableCaptureFailedRequests" : [NSNull null],
+        @"failedRequestStatusCodes" : [NSNull null],
     }
                                                 didFailWithError:nil];
 
@@ -534,8 +570,19 @@
     XCTAssertEqual(YES, options.enableSwizzling);
     XCTAssertEqual(NO, options.enableFileIOTracking);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
-    NSRegularExpression *regex = options.tracePropagationTargets[0];
-    XCTAssertTrue([regex.pattern isEqualToString:@".*"]);
+
+    NSRegularExpression *regexTrace = options.tracePropagationTargets[0];
+    XCTAssertTrue([regexTrace.pattern isEqualToString:@".*"]);
+
+    NSRegularExpression *regexRequests = options.failedRequestTargets[0];
+    XCTAssertTrue([regexRequests.pattern isEqualToString:@".*"]);
+
+    XCTAssertEqual(NO, options.enableCaptureFailedRequests);
+
+    SentryHttpStatusCodeRange *range = options.failedRequestStatusCodes[0];
+    XCTAssertEqual(500, range.min);
+    XCTAssertEqual(599, range.max);
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -711,6 +758,11 @@
     SentryOptions *options = [self getValidOptions:@{ @"idleTimeout" : idleTimeout }];
 
     XCTAssertEqual([idleTimeout doubleValue], options.idleTimeout);
+}
+
+- (void)testEnablePreWarmedAppStartTracking
+{
+    [self testBooleanField:@"enablePreWarmedAppStartTracking" defaultValue:NO];
 }
 
 #endif

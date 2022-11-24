@@ -50,6 +50,7 @@ class TestData {
         event.transaction = "transaction"
         event.type = "type"
         event.user = user
+        event.request = request
         
         return event
     }
@@ -131,6 +132,7 @@ class TestData {
     
     static var stacktrace: Stacktrace {
         let stacktrace = Stacktrace(frames: [frame], registers: ["register": "one"])
+        stacktrace.snapshot = true
         return stacktrace
     }
     
@@ -219,12 +221,25 @@ class TestData {
         scope.setContext(value: TestData.context["context"]!, key: "context")
     }
     
+    static var request: SentryRequest {
+        let request = SentryRequest()
+        request.url = "https://sentry.io"
+        request.fragment = "fragment"
+        request.bodySize = 10
+        request.queryString = "query"
+        request.cookies = "cookies"
+        request.method = "GET"
+        request.headers = ["header": "value"]
+        
+        return request
+    }
+    
     static func getAppStartMeasurement(type: SentryAppStartType, appStartTimestamp: Date = TestData.timestamp) -> SentryAppStartMeasurement {
         let appStartDuration = 0.5
         let main = appStartTimestamp.addingTimeInterval(0.15)
         let runtimeInit = appStartTimestamp.addingTimeInterval(0.05)
         let didFinishLaunching = appStartTimestamp.addingTimeInterval(0.3)
         
-        return SentryAppStartMeasurement(type: type, appStartTimestamp: appStartTimestamp, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, didFinishLaunchingTimestamp: didFinishLaunching)
+        return SentryAppStartMeasurement(type: type, isPreWarmed: false, appStartTimestamp: appStartTimestamp, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, didFinishLaunchingTimestamp: didFinishLaunching)
     }
 }

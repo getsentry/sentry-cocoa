@@ -5,8 +5,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryThread, SentryException, SentryStacktrace, SentryUser, SentryDebugMeta,
-    SentryBreadcrumb, SentryId, SentryMessage;
+@class SentryThread, SentryException, SentryStacktrace, SentryUser, SentryDebugMeta, SentryContext,
+    SentryBreadcrumb, SentryId, SentryMessage, SentryRequest;
 
 NS_SWIFT_NAME(Event)
 @interface SentryEvent : NSObject <SentrySerializable>
@@ -158,6 +158,11 @@ NS_SWIFT_NAME(Event)
  * occurred/will be sent
  */
 @property (nonatomic, strong) NSArray<SentryBreadcrumb *> *_Nullable breadcrumbs;
+
+/**
+ * Set the Http request information.
+ */
+@property (nonatomic, strong, nullable) SentryRequest *request;
 
 /**
  * Init an SentryEvent will set all needed fields by default

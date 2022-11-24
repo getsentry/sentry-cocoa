@@ -1,15 +1,57 @@
 # Changelog
 
-## Unreleased
+## 7.31.2
+
+### Fixes
+
+- Crash in Client when reading integrations (#2398)
+- Don't update session for dropped events (#2374)
+
+## 7.31.1
+
+### Fixes
+
+- Set the correct OOM event timestamp (#2394)
+
+## 7.31.0
+
+### Features
+
+- Store breadcrumbs to disk for OOM events (#2347)
+- Report pre-warmed app starts (#1969)
+
+### Fixes
+
+- Too long flush duration (#2370)
+- Do not delete the app state when OOM tracking is disabled. The app state is needed to determine the app start type on the next app start. (#2382)
+
+## 7.30.2
+
+### Fixes
+
+- Call UIDevice methods on the main thread (#2369)
+- Avoid sending profiles with 0 samples or incorrectly deduplicated backtrace elements (#2375)
+
+## 7.30.1
+
+### Fixes
+
+- Fix issue with invalid profiles uploading (#2358 and #2359)
+
+## 7.30.0
 
 ### Features
 
 - Profile concurrent transactions (#2227)
+- HTTP Client errors (#2308)
+- Disable bitcode for Carthage distribution (#2341)
 
 ### Fixes
 
 - Stop profiler when app moves to background (#2331)
 - Clean up old envelopes (#2322)
+- Crash when starting a profile from a non-main thread (#2345)
+- SentryCrash writing nan for invalid number (#2348)
 
 ## 7.29.0
 
@@ -22,6 +64,7 @@
 
 - Enable bitcode (#2307)
 - Fix moving app state to previous app state (#2321)
+- Use CoreData entity names instead of "NSManagedObject" (#2329)
 
 ## 7.28.0
 

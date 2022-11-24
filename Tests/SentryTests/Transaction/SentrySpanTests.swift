@@ -169,7 +169,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNil(childSpan.context.parentSpanId)
         XCTAssertEqual(childSpan.context.operation, "")
         XCTAssertNil(childSpan.context.spanDescription)
-        XCTAssertTrue(logOutput.loggedMessages.contains("Sentry - warning:: Starting a child on a finished span is not supported; it won\'t be sent to Sentry."))
+        XCTAssertFalse(logOutput.loggedMessages.filter({ $0.contains(" Starting a child on a finished span is not supported; it won\'t be sent to Sentry.") }).isEmpty)
     }
 
     func testStartGrandChildOnFinishedSpan() {
@@ -182,7 +182,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNil(grandChild.context.parentSpanId)
         XCTAssertEqual(grandChild.context.operation, "")
         XCTAssertNil(grandChild.context.spanDescription)
-        XCTAssertTrue(logOutput.loggedMessages.contains("Sentry - warning:: Starting a child on a finished span is not supported; it won\'t be sent to Sentry."))
+        XCTAssertFalse(logOutput.loggedMessages.filter({ $0.contains(" Starting a child on a finished span is not supported; it won\'t be sent to Sentry.") }).isEmpty)
     }
     
     func testAddAndRemoveExtras() {

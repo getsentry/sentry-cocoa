@@ -35,7 +35,6 @@ class SentryFileManagerTests: XCTestCase {
         init() {
             currentDateProvider = TestCurrentDateProvider()
             dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-            dispatchQueueWrapper.dispatchAfterExecutesBlock = true
             
             eventIds = (0...(maxCacheItems + 10)).map { _ in SentryId() }
             
@@ -576,6 +575,44 @@ class SentryFileManagerTests: XCTestCase {
 
         sut.deleteTimezoneOffset()
         XCTAssertNotNil(sut.readTimezoneOffset())
+    }
+
+    func testReadPreviousBreadcrumbs() {
+        let observer = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
+
+        for count in 0..<3 {
+            let crumb = TestData.crumb
+            crumb.message = "\(count)"
+            let serializedBreadcrumb = crumb.serialize()
+
+            observer.addSerializedBreadcrumb(serializedBreadcrumb)
+        }
+
+        sut.moveBreadcrumbsToPreviousBreadcrumbs()
+        let result = sut.readPreviousBreadcrumbs()
+        XCTAssertEqual(result.count, 3)
+        XCTAssertEqual((result[0] as! NSDictionary)["message"] as! String, "0")
+        XCTAssertEqual((result[1] as! NSDictionary)["message"] as! String, "1")
+        XCTAssertEqual((result[2] as! NSDictionary)["message"] as! String, "2")
+    }
+
+    func testReadPreviousBreadcrumbsCorrectOrderWhenFileTwoHasMoreCrumbs() {
+        let observer = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
+
+        for count in 0..<5 {
+            let crumb = TestData.crumb
+            crumb.message = "\(count)"
+            let serializedBreadcrumb = crumb.serialize()
+
+            observer.addSerializedBreadcrumb(serializedBreadcrumb)
+        }
+
+        sut.moveBreadcrumbsToPreviousBreadcrumbs()
+        let result = sut.readPreviousBreadcrumbs()
+        XCTAssertEqual(result.count, 3)
+        XCTAssertEqual((result[0] as! NSDictionary)["message"] as! String, "2")
+        XCTAssertEqual((result[1] as! NSDictionary)["message"] as! String, "3")
+        XCTAssertEqual((result[2] as! NSDictionary)["message"] as! String, "4")
     }
 
     func testReadGarbageTimezoneOffset() throws {

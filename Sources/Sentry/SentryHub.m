@@ -31,14 +31,14 @@ SentryHub ()
 @property (nonatomic, strong) SentryTracesSampler *tracesSampler;
 @property (nonatomic, strong) SentryProfilesSampler *profilesSampler;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
-@property (nonatomic, strong)
-    NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
-@property (nonatomic, strong) NSMutableArray<NSString *> *installedIntegrationNames;
+@property (nonatomic, strong) NSMutableArray<id<SentryIntegrationProtocol>> *installedIntegrations;
+@property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
 
 @end
 
 @implementation SentryHub {
     NSObject *_sessionLock;
+    NSObject *_integrationsLock;
 }
 
 - (instancetype)initWithClient:(nullable SentryClient *)client
@@ -48,8 +48,9 @@ SentryHub ()
         _client = client;
         _scope = scope;
         _sessionLock = [[NSObject alloc] init];
+        _integrationsLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
-        _installedIntegrationNames = [[NSMutableArray alloc] init];
+        _installedIntegrationNames = [[NSMutableSet alloc] init];
         _crashWrapper = [SentryCrashWrapper sharedInstance];
         _tracesSampler = [[SentryTracesSampler alloc] initWithOptions:client.options];
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -438,11 +439,13 @@ SentryHub ()
 
 - (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
 {
-    SentrySession *currentSession = [self incrementSessionErrors];
+    SentrySession *currentSession = _session;
     SentryClient *client = _client;
     if (nil != client) {
         if (nil != currentSession) {
-            return [client captureError:error withSession:currentSession withScope:scope];
+            return [client captureError:error
+                              withScope:scope
+                 incrementSessionErrors:^(void) { return [self incrementSessionErrors]; }];
         } else {
             return [client captureError:error withScope:scope];
         }
@@ -457,12 +460,13 @@ SentryHub ()
 
 - (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope
 {
-    SentrySession *currentSession = [self incrementSessionErrors];
-
+    SentrySession *currentSession = _session;
     SentryClient *client = _client;
     if (nil != client) {
         if (nil != currentSession) {
-            return [client captureException:exception withSession:currentSession withScope:scope];
+            return [client captureException:exception
+                                  withScope:scope
+                     incrementSessionErrors:^(void) { return [self incrementSessionErrors]; }];
         } else {
             return [client captureException:exception withScope:scope];
         }
@@ -536,17 +540,53 @@ SentryHub ()
  */
 - (BOOL)isIntegrationInstalled:(Class)integrationClass
 {
-    for (id<SentryIntegrationProtocol> item in self.installedIntegrations) {
-        if ([item isKindOfClass:integrationClass]) {
-            return YES;
+    @synchronized(_integrationsLock) {
+        for (id<SentryIntegrationProtocol> item in _installedIntegrations) {
+            if ([item isKindOfClass:integrationClass]) {
+                return YES;
+            }
         }
+        return NO;
     }
-    return NO;
 }
 
 - (BOOL)hasIntegration:(NSString *)integrationName
 {
-    return [self.installedIntegrationNames containsObject:integrationName];
+    // installedIntegrations and installedIntegrationNames share the same lock.
+    // Instead of creating an extra lock object, we use _installedIntegrations.
+    @synchronized(_integrationsLock) {
+        return [_installedIntegrationNames containsObject:integrationName];
+    }
+}
+
+- (void)addInstalledIntegration:(id<SentryIntegrationProtocol>)integration name:(NSString *)name
+{
+    @synchronized(_integrationsLock) {
+        [_installedIntegrations addObject:integration];
+        [_installedIntegrationNames addObject:name];
+    }
+}
+
+- (void)removeAllIntegrations
+{
+    @synchronized(_integrationsLock) {
+        [_installedIntegrations removeAllObjects];
+        [_installedIntegrationNames removeAllObjects];
+    }
+}
+
+- (NSArray<id<SentryIntegrationProtocol>> *)installedIntegrations
+{
+    @synchronized(_integrationsLock) {
+        return _installedIntegrations.copy;
+    }
+}
+
+- (NSSet<NSString *> *)installedIntegrationNames
+{
+    @synchronized(_integrationsLock) {
+        return _installedIntegrationNames.copy;
+    }
 }
 
 - (void)setUser:(nullable SentryUser *)user

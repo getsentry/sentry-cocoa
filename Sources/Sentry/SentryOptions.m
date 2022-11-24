@@ -1,6 +1,7 @@
 #import "SentryOptions.h"
 #import "SentryANRTracker.h"
 #import "SentryDsn.h"
+#import "SentryHttpStatusCodeRange.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
@@ -12,6 +13,7 @@ SentryOptions ()
 
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultSampleRate;
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultTracesSampleRate;
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultProfilesSampleRate;
 @property (nonatomic, assign) BOOL enableProfiling_DEPRECATED_TEST_ONLY;
@@ -60,12 +62,14 @@ SentryOptions ()
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
         self.enableAutoPerformanceTracking = YES;
+        self.enableCaptureFailedRequests = NO;
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracking = YES;
         self.attachScreenshot = NO;
         self.attachViewHierarchy = NO;
         self.enableUserInteractionTracing = NO;
         self.idleTimeout = 3.0;
+        self.enablePreWarmedAppStartTracking = NO;
 #endif
         self.enableAppHangTracking = NO;
         self.appHangTimeoutInterval = 2.0;
@@ -117,6 +121,12 @@ SentryOptions ()
                                                       options:NSRegularExpressionCaseInsensitive
                                                         error:NULL];
         self.tracePropagationTargets = @[ everythingAllowedRegex ];
+        self.failedRequestTargets = @[ everythingAllowedRegex ];
+
+        // defaults to 500 to 599
+        SentryHttpStatusCodeRange *defaultHttpStatusCodeRange =
+            [[SentryHttpStatusCodeRange alloc] initWithMin:500 max:599];
+        self.failedRequestStatusCodes = @[ defaultHttpStatusCodeRange ];
     }
     return self;
 }
@@ -146,6 +156,19 @@ SentryOptions ()
     }
 
     _tracePropagationTargets = tracePropagationTargets;
+}
+
+- (void)setFailedRequestTargets:(NSArray *)failedRequestTargets
+{
+    for (id targetCheck in failedRequestTargets) {
+        if (![targetCheck isKindOfClass:[NSRegularExpression class]]
+            && ![targetCheck isKindOfClass:[NSString class]]) {
+            SENTRY_LOG_WARN(@"Only instances of NSString and NSRegularExpression are supported "
+                            @"inside failedRequestTargets.");
+        }
+    }
+
+    _failedRequestTargets = failedRequestTargets;
 }
 
 - (void)setIntegrations:(NSArray<NSString *> *)integrations
@@ -270,6 +293,9 @@ SentryOptions ()
     [self setBool:options[@"enableAutoPerformanceTracking"]
             block:^(BOOL value) { self->_enableAutoPerformanceTracking = value; }];
 
+    [self setBool:options[@"enableCaptureFailedRequests"]
+            block:^(BOOL value) { self->_enableCaptureFailedRequests = value; }];
+
 #if SENTRY_HAS_UIKIT
     [self setBool:options[@"enableUIViewControllerTracking"]
             block:^(BOOL value) { self->_enableUIViewControllerTracking = value; }];
@@ -286,6 +312,9 @@ SentryOptions ()
     if ([options[@"idleTimeout"] isKindOfClass:[NSNumber class]]) {
         self.idleTimeout = [options[@"idleTimeout"] doubleValue];
     }
+
+    [self setBool:options[@"enablePreWarmedAppStartTracking"]
+            block:^(BOOL value) { self->_enablePreWarmedAppStartTracking = value; }];
 #endif
 
     [self setBool:options[@"enableAppHangTracking"]
@@ -350,6 +379,14 @@ SentryOptions ()
 
     if ([options[@"tracePropagationTargets"] isKindOfClass:[NSArray class]]) {
         self.tracePropagationTargets = options[@"tracePropagationTargets"];
+    }
+
+    if ([options[@"failedRequestStatusCodes"] isKindOfClass:[NSArray class]]) {
+        self.failedRequestStatusCodes = options[@"failedRequestStatusCodes"];
+    }
+
+    if ([options[@"failedRequestTargets"] isKindOfClass:[NSArray class]]) {
+        self.failedRequestTargets = options[@"failedRequestTargets"];
     }
 
     // SentrySdkInfo already expects a dictionary with {"sdk": {"name": ..., "value": ...}}

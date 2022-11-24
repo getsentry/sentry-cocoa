@@ -1,3 +1,4 @@
+#include "SentryProfilingConditionals.h"
 #import "SentryTransactionContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -21,6 +22,10 @@ SentryTransactionContext (Private)
                       spanId:(SentrySpanId *)spanId
                 parentSpanId:(nullable SentrySpanId *)parentSpanId
                parentSampled:(SentrySampleDecision)parentSampled;
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+- (SentryThread *)sentry_threadInfo;
+#endif
 
 @end
 

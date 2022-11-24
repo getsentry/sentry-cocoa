@@ -353,7 +353,7 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.start(options: options)
         
         assertIntegrationsInstalled(integrations: ["SentryTestIntegration"])
-        let integration = SentrySDK.currentHub().installedIntegrations.firstObject
+        let integration = SentrySDK.currentHub().installedIntegrations.first
         XCTAssertTrue(integration is SentryTestIntegration)
         if let testIntegration = integration as? SentryTestIntegration {
             XCTAssertEqual(options.dsn, testIntegration.options.dsn)
@@ -482,6 +482,17 @@ class SentrySDKTests: XCTestCase {
         XCTAssertNotEqual(first, second)
     }
     
+    func testClose_ClearsIntegrations() {
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+        }
+        
+        let hub = SentrySDK.currentHub()
+        SentrySDK.close()
+        XCTAssertEqual(0, hub.installedIntegrations.count)
+        assertIntegrationsInstalled(integrations: [])
+    }
+    
     func testFlush_CallsFlushCorrectlyOnTransport() {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
@@ -536,6 +547,24 @@ class SentrySDKTests: XCTestCase {
         let timestamp = self.fixture.currentDate.date().addingTimeInterval(TimeInterval(amount))
         XCTAssertEqual(timestamp, SentrySDK.getAppStartMeasurement()?.appStartTimestamp)
     }
+
+    func testMovesBreadcrumbsToPreviousBreadcrumbs() throws {
+        let options = Options()
+        options.dsn = SentrySDKTests.dsnAsString
+
+        let filemanager = try SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
+        let observer = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: 10, fileManager: filemanager)
+        let serializedBreadcrumb = TestData.crumb.serialize()
+
+        for _ in 0..<3 {
+            observer.addSerializedBreadcrumb(serializedBreadcrumb)
+        }
+
+        SentrySDK.start(options: options)
+
+        let result = filemanager.readPreviousBreadcrumbs()
+        XCTAssertEqual(result.count, 3)
+    }
     
     private func givenSdkWithHub() {
         SentrySDK.setCurrentHub(fixture.hub)
@@ -546,6 +575,7 @@ class SentrySDKTests: XCTestCase {
     }
     
     private func assertIntegrationsInstalled(integrations: [String]) {
+        XCTAssertEqual(integrations.count, SentrySDK.currentHub().installedIntegrations.count)
         integrations.forEach { integration in
             if let integrationClass = NSClassFromString(integration) {
                 XCTAssertTrue(SentrySDK.currentHub().isIntegrationInstalled(integrationClass), "\(integration) not installed")

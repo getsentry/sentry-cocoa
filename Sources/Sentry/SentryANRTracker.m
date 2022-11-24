@@ -61,7 +61,7 @@ SentryANRTracker ()
 
         ticksSinceUiUpdate++;
 
-        [self.dispatchQueueWrapper dispatchOnMainQueue:^{
+        [self.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
             ticksSinceUiUpdate = 0;
 
             if (reported) {
