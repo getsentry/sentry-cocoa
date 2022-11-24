@@ -174,6 +174,8 @@ sentrycrash_install(const char *appName, const char *const installPath)
 void
 sentrycrash_uninstall(void)
 {
+    sentrycrashcm_setEventCallback(NULL);
+    g_installed = 0;
     sentrycrashccd_close();
 }
 

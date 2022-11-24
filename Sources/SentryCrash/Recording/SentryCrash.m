@@ -271,8 +271,9 @@ getBasePath()
 - (BOOL)install
 {
     // Restore previous monitors when uninstall was called previously
-    if (self.monitoringWhenUninstalled) {
+    if (self.monitoringWhenUninstalled != SentryCrashMonitorTypeNone) {
         [self setMonitoring:self.monitoringWhenUninstalled];
+        self.monitoringWhenUninstalled = SentryCrashMonitorTypeNone;
     }
 
     _monitoring = sentrycrash_install(self.bundleName.UTF8String, self.basePath.UTF8String);
