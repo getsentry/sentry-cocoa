@@ -8,6 +8,7 @@ This version adds a dependency on Swift.
 
 - Properly demangle Swift class name (#2162)
 
+
 ### Fixes
 
 - Errors shortly after SentrySDK.init now affect the session (#2430)
@@ -32,6 +33,7 @@ This version adds a dependency on Swift.
     - Remove `SentryScope.apply(to:maxBreadcrumb:)` (#2416)
     - Remove `- [SentryOptions initWithDict:didFailWithError:]` (#2404)
     - Remove `- [SentryOptions sdkInfo]` (#2404)
+- Marks App hang's event stacktrace snapshot as true (#2441) 
 
 ## 7.31.2
 

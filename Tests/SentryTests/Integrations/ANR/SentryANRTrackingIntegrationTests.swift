@@ -81,6 +81,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(ex.value, "App hanging for at least 4500 ms.")
             XCTAssertNotNil(ex.stacktrace)
             XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
+            XCTAssertTrue(ex.stacktrace?.snapshot?.boolValue ?? false)
             XCTAssertTrue(event?.threads?[0].current?.boolValue ?? false)
             
             guard let threads = event?.threads else {
