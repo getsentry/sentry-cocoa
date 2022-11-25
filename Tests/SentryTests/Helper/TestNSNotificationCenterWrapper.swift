@@ -8,6 +8,10 @@ import Foundation
     }
     
     var addObserverWithNotificationInvocations = Invocations<(observer: Any, name: NSNotification.Name)>()
+    @objc public var removeWithNotificationInvocationsCount: Int {
+        return addObserverWithNotificationInvocations.count
+    }
+    
     public override func removeObserver(_ observer: Any, name aName: NSNotification.Name) {
         addObserverWithNotificationInvocations.record((observer, aName))
     }

@@ -26,6 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryCrashInstallationTests : XCTestCase
 
+@property (nonatomic, strong) TestNSNotificationCenterWrapper *notificationCenter;
+
 @end
 
 @implementation SentryCrashInstallationTests
@@ -34,8 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentryCrashTestInstallation *installation =
         [[SentryCrashTestInstallation alloc] initForTesting];
-    TestNSNotificationCenterWrapper *wrapper = [[TestNSNotificationCenterWrapper alloc] init];
-    [[SentryCrash sharedInstance] setSentryNSNotificationCenterWrapper:wrapper];
+    self.notificationCenter = [[TestNSNotificationCenterWrapper alloc] init];
+    [[SentryCrash sharedInstance] setSentryNSNotificationCenterWrapper:self.notificationCenter];
     return installation;
 }
 
@@ -47,6 +49,18 @@ NS_ASSUME_NONNULL_BEGIN
     [installation uninstall];
 
     [self assertUninstalled:installation];
+}
+
+- (void)testUninstall_CallsRemoveObservers
+{
+    SentryCrashTestInstallation *installation = [self getSut];
+
+    [installation install];
+    [installation uninstall];
+
+#if SentryCrashCRASH_HAS_UIAPPLICATION
+    XCTAssertEqual(4, self.notificationCenter.removeWithNotificationInvocationsCount);
+#endif
 }
 
 - (void)testUninstall_BeforeInstall
