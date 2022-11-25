@@ -395,6 +395,8 @@ uninstallExceptionHandler()
         g_secondaryPThread = 0;
     }
 
+    sentrycrashmc_clearReservedThreads();
+
     g_exceptionPort = MACH_PORT_NULL;
     SentryCrashLOG_DEBUG("Mach exception handlers uninstalled.");
 }

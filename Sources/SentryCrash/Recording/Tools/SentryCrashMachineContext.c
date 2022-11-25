@@ -158,6 +158,15 @@ sentrycrashmc_addReservedThread(SentryCrashThread thread)
     g_reservedThreads[g_reservedThreadsCount++] = thread;
 }
 
+void
+sentrycrashmc_clearReservedThreads(void)
+{
+    for (int i = 0; i < g_reservedThreadsCount; i++) {
+        g_reservedThreads[i] = 0;
+    }
+    g_reservedThreadsCount = 0;
+}
+
 #if SentryCrashCRASH_HAS_THREADS_API
 static inline bool
 isThreadInList(thread_t thread, SentryCrashThread *list, int listCount)

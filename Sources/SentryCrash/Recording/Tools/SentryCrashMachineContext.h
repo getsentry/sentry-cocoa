@@ -145,6 +145,10 @@ bool sentrycrashmc_hasValidExceptionRegisters(
  */
 void sentrycrashmc_addReservedThread(SentryCrashThread thread);
 
+/** Clears the list of reserved threads.
+ */
+void sentrycrashmc_clearReservedThreads(void);
+
 #ifdef __cplusplus
 }
 #endif
