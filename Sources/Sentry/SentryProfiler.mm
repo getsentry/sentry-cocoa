@@ -546,7 +546,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     profile[@"duration_ns"] = [@(profileDuration) stringValue];
     profile[@"truncation_reason"] = profilerTruncationReasonName(_truncationReason);
     profile[@"platform"] = _transactions.firstObject.platform;
-    profile[@"environment"] = _hub.scope.environmentString ?: _hub.getClient.options.environment ?: kSentryDefaultEnvironment;
+    profile[@"environment"] = _hub.scope.environmentString ?: _hub.getClient.options.environment;
     profile[@"timestamp"] = [[SentryCurrentDate date] sentry_toIso8601String];
 
     const auto bundle = NSBundle.mainBundle;

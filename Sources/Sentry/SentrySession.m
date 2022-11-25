@@ -115,11 +115,6 @@ nameForSentrySessionStatus(SentrySessionStatus status)
             if ([releaseName isKindOfClass:[NSString class]]) {
                 _releaseName = releaseName;
             }
-
-            id environment = [attrs valueForKey:@"environment"];
-            if ([environment isKindOfClass:[NSString class]]) {
-                _environment = environment;
-            }
         }
 
         id timestamp = [jsonObject valueForKey:@"timestamp"];
@@ -201,22 +196,22 @@ nameForSentrySessionStatus(SentrySessionStatus status)
         }
                                                   .mutableCopy;
 
-        if (nil != _init) {
+        if (_init != nil) {
             [serializedData setValue:_init forKey:@"init"];
         }
 
         NSString *statusString = nameForSentrySessionStatus(_status);
 
-        if (nil != statusString) {
+        if (statusString != nil) {
             [serializedData setValue:statusString forKey:@"status"];
         }
 
         NSDate *timestamp = nil != _timestamp ? _timestamp : [SentryCurrentDate date];
         [serializedData setValue:[timestamp sentry_toIso8601String] forKey:@"timestamp"];
 
-        if (nil != _duration) {
+        if (_duration != nil) {
             [serializedData setValue:_duration forKey:@"duration"];
-        } else if (nil == _init) {
+        } else if (_init == nil) {
             NSTimeInterval secondsBetween = [_timestamp timeIntervalSinceDate:_started];
             [serializedData setValue:[NSNumber numberWithDouble:secondsBetween] forKey:@"duration"];
         }
@@ -224,13 +219,13 @@ nameForSentrySessionStatus(SentrySessionStatus status)
         // TODO: seq to be just unix time in mills?
         [serializedData setValue:@(_sequence) forKey:@"seq"];
 
-        if (nil != _releaseName || nil != _environment) {
+        if (_releaseName != nil || _environment != nil) {
             NSMutableDictionary *attrs = [[NSMutableDictionary alloc] init];
-            if (nil != _releaseName) {
+            if (_releaseName != nil) {
                 [attrs setValue:_releaseName forKey:@"release"];
             }
 
-            if (nil != _environment) {
+            if (_environment != nil) {
                 [attrs setValue:_environment forKey:@"environment"];
             }
             [serializedData setValue:attrs forKey:@"attrs"];
@@ -256,7 +251,6 @@ nameForSentrySessionStatus(SentrySessionStatus status)
         copy->_timestamp = _timestamp;
         copy->_duration = _duration;
         copy->_releaseName = _releaseName;
-        copy.environment = self.environment;
         copy.user = self.user;
         copy->_init = _init;
     }

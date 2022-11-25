@@ -19,6 +19,8 @@ SentryOptions ()
 #endif
 @end
 
+NSString *const kSentryDefaultEnvironment = @"production";
+
 @implementation SentryOptions
 
 - (void)setMeasurement:(SentryMeasurementValue *)measurement
@@ -62,6 +64,7 @@ SentryOptions ()
         self.sendDefaultPii = NO;
         self.enableAutoPerformanceTracking = YES;
         self.enableCaptureFailedRequests = NO;
+        self.environment = kSentryDefaultEnvironment;
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracking = YES;
         self.attachScreenshot = NO;

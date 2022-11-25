@@ -67,7 +67,6 @@ SentryClient ()
 @end
 
 NSString *const DropSessionLogMessage = @"Session has no release name. Won't send it.";
-NSString *const kSentryDefaultEnvironment = @"production";
 
 @implementation SentryClient
 
@@ -546,10 +545,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
         event.dist = dist;
     }
 
-    NSString *environment = self.options.environment;
-    if (nil != environment && nil == event.environment) {
+    if (event.environment == nil) {
         // Set the environment from option to the event before Scope is applied
-        event.environment = environment;
+        event.environment = self.options.environment;
     }
 
     [self setSdk:event];
@@ -590,7 +588,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     // With scope applied, before running callbacks run:
     if (nil == event.environment) {
         // We default to environment 'production' if nothing was set
-        event.environment = kSentryDefaultEnvironment;
+        event.environment = self.options.environment;
     }
 
     // Need to do this after the scope is applied cause this sets the user if there is any

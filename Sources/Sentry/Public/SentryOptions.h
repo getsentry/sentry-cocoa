@@ -48,9 +48,9 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic, copy) NSString *dist;
 
 /**
- * The environment used for this event
+ * The environment used for this event. Default value is "production".
  */
-@property (nullable, nonatomic, copy) NSString *environment;
+@property (nonatomic, copy) NSString *environment;
 
 /**
  * Specifies wether this SDK should send events to Sentry. If set to NO events will be
