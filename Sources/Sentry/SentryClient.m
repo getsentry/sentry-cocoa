@@ -586,7 +586,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self applyCultureContextToEvent:event];
 
     // With scope applied, before running callbacks run:
-    if (nil == event.environment) {
+    if (event.environment == nil) {
         // We default to environment 'production' if nothing was set
         event.environment = self.options.environment;
     }
@@ -628,7 +628,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (BOOL)isSampled:(NSNumber *)sampleRate
 {
-    if (nil == sampleRate) {
+    if (sampleRate == nil) {
         return NO;
     }
 
@@ -651,7 +651,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     for (SentryEventProcessor processor in SentryGlobalEventProcessor.shared.processors) {
         newEvent = processor(newEvent);
-        if (nil == newEvent) {
+        if (newEvent == nil) {
             SENTRY_LOG_DEBUG(@"SentryScope callEventProcessors: An event processor decided to "
                              @"remove this event.");
             break;
@@ -702,7 +702,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     if (nil != event && nil != userInfo && userInfo.count > 0) {
         NSMutableDictionary *context;
-        if (nil == event.context) {
+        if (event.context == nil) {
             context = [[NSMutableDictionary alloc] init];
             event.context = context;
         } else {
@@ -717,7 +717,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     // We only want to set the id if the customer didn't set a user so we at least set something to
     // identify the user.
-    if (nil == event.user) {
+    if (event.user == nil) {
         SentryUser *user = [[SentryUser alloc] init];
         user.userId = [SentryInstallation id];
         event.user = user;
@@ -730,12 +730,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return NO;
     }
 
-    if (nil == event.exceptions || event.exceptions.count != 1) {
+    if (event.exceptions == nil || event.exceptions.count != 1) {
         return NO;
     }
 
     SentryException *exception = event.exceptions[0];
-    return nil != exception.mechanism &&
+    return exception.mechanism != nil &&
         [exception.mechanism.type isEqualToString:SentryOutOfMemoryMechanismType];
 }
 
@@ -862,7 +862,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                   key:(NSString *)key
                 block:(void (^)(NSMutableDictionary *))block
 {
-    if (nil == event.context || event.context.count == 0) {
+    if (event.context == nil || event.context.count == 0) {
         return;
     }
 
