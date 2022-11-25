@@ -82,7 +82,7 @@ class SentrySDKTests: XCTestCase {
             options.maxBreadcrumbs = 0
         }
 
-        SentrySDK.addBreadcrumb(crumb: Breadcrumb(level: SentryLevel.warning, category: "test"))
+        SentrySDK.addBreadcrumb(Breadcrumb(level: SentryLevel.warning, category: "test"))
         let breadcrumbs = Dynamic(SentrySDK.currentHub().scope).breadcrumbArray as [Breadcrumb]?
         XCTAssertEqual(0, breadcrumbs?.count)
     }
@@ -332,7 +332,7 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.setUser(user)
         
         let actualScope = SentrySDK.currentHub().scope
-        let event = actualScope.apply(to: fixture.event, maxBreadcrumb: 10)
+        let event = actualScope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
         XCTAssertEqual(event?.user, user)
     }
     
@@ -389,7 +389,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertNil(actual?.duration)
     }
     
-    func testEndSession() {
+    func testEndSession() throws {
         givenSdkWithHub()
         
         SentrySDK.startSession()
@@ -398,7 +398,7 @@ class SentrySDKTests: XCTestCase {
         
         XCTAssertEqual(2, fixture.client.captureSessionInvocations.count)
         
-        let actual = fixture.client.captureSessionInvocations.invocations[1]
+        let actual = try XCTUnwrap(fixture.client.captureSessionInvocations.invocations.last)
         
         XCTAssertNil(actual.flagInit)
         XCTAssertEqual(0, actual.errors)
@@ -499,7 +499,7 @@ class SentrySDKTests: XCTestCase {
         }
         
         let transport = TestTransport()
-        let client = Client(options: fixture.options)
+        let client = SentryClient(options: fixture.options)
         Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
         SentrySDK.currentHub().bindClient(client)
         
@@ -509,11 +509,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(flushTimeout, transport.flushInvocations.first)
     }
     
-    // Although we only run this test above the below specified versions, we expect the
-    // implementation to be thread safe
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
     func testSetpAppStartMeasurementConcurrently_() {
         func setAppStartMeasurement(_ queue: DispatchQueue, _ i: Int) {
             group.enter()
@@ -548,12 +543,12 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(timestamp, SentrySDK.getAppStartMeasurement()?.appStartTimestamp)
     }
 
-    func testMovesBreadcrumbsToPreviousBreadcrumbs() throws {
+    func testMovesBreadcrumbsToPreviousBreadcrumbs() {
         let options = Options()
         options.dsn = SentrySDKTests.dsnAsString
 
-        let filemanager = try SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
-        let observer = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: 10, fileManager: filemanager)
+        let fileManager = try! TestFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
+        let observer = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: 10, fileManager: fileManager)
         let serializedBreadcrumb = TestData.crumb.serialize()
 
         for _ in 0..<3 {
@@ -562,7 +557,7 @@ class SentrySDKTests: XCTestCase {
 
         SentrySDK.start(options: options)
 
-        let result = filemanager.readPreviousBreadcrumbs()
+        let result = fileManager.readPreviousBreadcrumbs()
         XCTAssertEqual(result.count, 3)
     }
     

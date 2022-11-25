@@ -5,15 +5,46 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryTracer;
+@class SentryTracer, SentryId, SentrySpanId;
 
 @interface SentrySpan : NSObject <SentrySpan, SentrySerializable>
 SENTRY_NO_INIT
 
 /**
- * The context information of the span.
+ * Determines which trace the Span belongs to.
  */
-@property (nonatomic, readonly) SentrySpanContext *context;
+@property (nonatomic) SentryId *traceId;
+
+/**
+ * Span id.
+ */
+@property (nonatomic) SentrySpanId *spanId;
+
+/**
+ * Id of a parent span.
+ */
+@property (nullable, nonatomic) SentrySpanId *parentSpanId;
+
+/**
+ * If trace is sampled.
+ */
+@property (nonatomic) SentrySampleDecision sampled;
+
+/**
+ * Short code identifying the type of operation the span is measuring.
+ */
+@property (nonatomic, copy) NSString *operation;
+
+/**
+ * Longer description of the span's operation, which uniquely identifies the span but is
+ * consistent across instances of the span.
+ */
+@property (nullable, nonatomic, copy) NSString *spanDescription;
+
+/**
+ * Describes the status of the Transaction.
+ */
+@property (nonatomic) SentrySpanStatus status;
 
 /**
  * The timestamp of which the span ended.
@@ -45,6 +76,7 @@ SENTRY_NO_INIT
  */
 - (instancetype)initWithTracer:(SentryTracer *)transaction context:(SentrySpanContext *)context;
 
+- (void)setExtraValue:(nullable id)value forKey:(NSString *)key DEPRECATED_ATTRIBUTE;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -10,6 +10,7 @@
 #import "SentryDebugImageProvider.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
+#import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
@@ -33,7 +34,6 @@
 #import "SentryPermissionsObserver.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
-#import "SentrySdkInfo.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThreadInspector.h"
 #import "SentryTraceContext.h"
@@ -56,12 +56,8 @@ NS_ASSUME_NONNULL_BEGIN
 SentryClient ()
 
 @property (nonatomic, strong) SentryTransportAdapter *transportAdapter;
-@property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
-@property (nonatomic, strong) SentryThreadInspector *threadInspector;
 @property (nonatomic, strong) id<SentryRandom> random;
-@property (nonatomic, strong)
-    NSMutableArray<id<SentryClientAttachmentProcessor>> *attachmentProcessors;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryPermissionsObserver *permissionsObserver;
 @property (nonatomic, strong) SentryUIDeviceWrapper *deviceWrapper;
@@ -77,24 +73,52 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
 {
-    return [self initWithOptions:options
-             permissionsObserver:[[SentryPermissionsObserver alloc] init]];
+    return [self initWithOptions:options dispatchQueue:[[SentryDispatchQueueWrapper alloc] init]];
 }
 
-/** Internal constructors for testing */
-- (_Nullable instancetype)initWithOptions:(SentryOptions *)options
-                      permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
+/** Internal constructor for testing purposes. */
+- (nullable instancetype)initWithOptions:(SentryOptions *)options
+                           dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
 {
-    NSError *error = nil;
+    NSError *error;
     SentryFileManager *fileManager =
         [[SentryFileManager alloc] initWithOptions:options
                             andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                              dispatchQueueWrapper:dispatchQueue
                                              error:&error];
-    if (nil != error) {
-        SENTRY_LOG_ERROR(@"%@", error.localizedDescription);
+    if (error != nil) {
+        SENTRY_LOG_ERROR(@"Cannot init filesystem.");
         return nil;
     }
+    return [self initWithOptions:options
+             permissionsObserver:[[SentryPermissionsObserver alloc] init]
+                     fileManager:fileManager];
+}
 
+- (nullable instancetype)initWithOptions:(SentryOptions *)options
+                     permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
+                           dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+{
+    NSError *error;
+    SentryFileManager *fileManager =
+        [[SentryFileManager alloc] initWithOptions:options
+                            andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                              dispatchQueueWrapper:dispatchQueue
+                                             error:&error];
+    if (error != nil) {
+        SENTRY_LOG_ERROR(@"Cannot init filesystem.");
+        return nil;
+    }
+    return [self initWithOptions:options
+             permissionsObserver:permissionsObserver
+                     fileManager:fileManager];
+}
+
+/** Internal constructor for testing purposes. */
+- (instancetype)initWithOptions:(SentryOptions *)options
+            permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
+                    fileManager:(SentryFileManager *)fileManager
+{
     id<SentryTransport> transport = [SentryTransportFactory initTransport:options
                                                         sentryFileManager:fileManager];
 
@@ -153,11 +177,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.deviceWrapper = deviceWrapper;
     }
     return self;
-}
-
-- (SentryFileManager *)fileManager
-{
-    return _fileManager;
 }
 
 - (SentryId *)captureMessage:(NSString *)message

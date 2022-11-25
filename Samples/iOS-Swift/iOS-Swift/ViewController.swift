@@ -20,20 +20,20 @@ class ViewController: UIViewController {
             scope.setTag(value: "swift", key: "language")
             scope.setExtra(value: String(describing: self), key: "currentViewController")
 
-            let user = Sentry.User(userId: "1")
+            let user = SentryUser(userId: "1")
             user.email = "tony@example.com"
             scope.setUser(user)
             
             if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
-                scope.add(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
+                scope.addAttachment(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
             }
             if let data = "hello".data(using: .utf8) {
-                scope.add(Attachment(data: data, filename: "log.txt"))
+                scope.addAttachment(Attachment(data: data, filename: "log.txt"))
             }
         }
 
         // Also works
-        let user = Sentry.User(userId: "1")
+        let user = SentryUser(userId: "1")
         user.email = "tony1@example.com"
         SentrySDK.setUser(user)
         
@@ -50,10 +50,8 @@ class ViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        if #available(iOS 10.0, *) {
-            Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
-                self.framesLabel?.text = "Frames Total:\(PrivateSentrySDKOnly.currentScreenFrames.total) Slow:\(PrivateSentrySDKOnly.currentScreenFrames.slow) Frozen:\(PrivateSentrySDKOnly.currentScreenFrames.frozen)"
-            }
+        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
+            self.framesLabel?.text = "Frames Total:\(PrivateSentrySDKOnly.currentScreenFrames.total) Slow:\(PrivateSentrySDKOnly.currentScreenFrames.slow) Frozen:\(PrivateSentrySDKOnly.currentScreenFrames.frozen)"
         }
 
         SentrySDK.configureScope { (scope) in
@@ -75,7 +73,7 @@ class ViewController: UIViewController {
         let crumb = Breadcrumb(level: SentryLevel.info, category: "Debug")
         crumb.message = "tapped addBreadcrumb"
         crumb.type = "user"
-        SentrySDK.addBreadcrumb(crumb: crumb)
+        SentrySDK.addBreadcrumb(crumb)
     }
     
     @IBAction func captureMessage(_ sender: Any) {

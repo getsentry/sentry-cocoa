@@ -11,7 +11,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             options.dsn = SentryProfilerSwiftTests.dsnAsString
             return options
         }()
-        lazy var client: TestClient! = TestClient(options: options)
+        lazy var client: TestClient = TestClient(options: options)!
         lazy var hub: SentryHub = {
             let hub = SentryHub(client: client, andScope: scope)
             hub.bindClient(client)
@@ -31,6 +31,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         super.setUp()
         fixture = Fixture()
         SentryTracer.resetAppStartMeasurementRead()
+        SentryLog.configure(true, diagnosticLevel: .debug)
     }
 
     override func tearDown() {

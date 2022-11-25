@@ -121,6 +121,11 @@ SentryScope ()
 
 #pragma mark Global properties
 
+- (void)add:(SentryBreadcrumb *)crumb
+{
+    [self addBreadcrumb:crumb];
+}
+
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
     if (self.maxBreadcrumbs < 1) {
@@ -379,6 +384,11 @@ SentryScope ()
     }
 }
 
+- (void)includeAttachment:(SentryAttachment *)attachment
+{
+    [self addAttachment:attachment];
+}
+
 - (void)addAttachment:(SentryAttachment *)attachment
 {
     @synchronized(_attachmentArray) {
@@ -531,7 +541,7 @@ SentryScope ()
                 [span isKindOfClass:[SentryTracer class]]) {
                 event.transaction = [[(SentryTracer *)span transactionContext] name];
             }
-            newContext[@"trace"] = [span.context serialize];
+            newContext[@"trace"] = [span serialize];
         }
     }
     event.context = newContext;

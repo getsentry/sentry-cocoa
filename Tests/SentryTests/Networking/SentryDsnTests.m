@@ -14,8 +14,8 @@
 - (void)testMissingUsernamePassword
 {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{ @"dsn" : @"https://sentry.io" }
-                                                didFailWithError:&error];
+    SentryOptions *options = [[SentryOptions alloc] initWithDsn:@"https://sentry.io"
+                                               didFailWithError:&error];
     XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
     XCTAssertNil(options);
 }
@@ -62,8 +62,8 @@
 - (void)testMissingScheme
 {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{ @"dsn" : @"sentry.io" }
-                                                didFailWithError:&error];
+    SentryOptions *options = [[SentryOptions alloc] initWithDsn:@"sentry.io"
+                                               didFailWithError:&error];
     XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
     XCTAssertNil(options);
 }
@@ -71,8 +71,8 @@
 - (void)testMissingHost
 {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{ @"dsn" : @"http:///1" }
-                                                didFailWithError:&error];
+    SentryOptions *options = [[SentryOptions alloc] initWithDsn:@"http:///1"
+                                               didFailWithError:&error];
     XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
     XCTAssertNil(options);
 }
@@ -80,8 +80,8 @@
 - (void)testUnsupportedProtocol
 {
     NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{ @"dsn" : @"ftp://sentry.io/1" }
-                                                didFailWithError:&error];
+    SentryOptions *options = [[SentryOptions alloc] initWithDsn:@"ftp://sentry.io/1"
+                                               didFailWithError:&error];
     XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
     XCTAssertNil(options);
 }

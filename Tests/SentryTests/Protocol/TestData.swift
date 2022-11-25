@@ -55,8 +55,8 @@ class TestData {
         return event
     }
     
-    static var user: User {
-        let user = User(userId: "id")
+    static var user: SentryUser {
+        let user = SentryUser(userId: "id")
         user.email = "user@sentry.io"
         user.username = "user123"
         user.ipAddress = "127.0.0.1"
@@ -120,8 +120,8 @@ class TestData {
         return mechanismMeta
     }
     
-    static var thread: Sentry.Thread {
-        let thread = Sentry.Thread(threadId: 10)
+    static var thread: SentryThread {
+        let thread = SentryThread(threadId: 10)
         thread.crashed = false
         thread.current = true
         thread.name = "main"
@@ -130,8 +130,8 @@ class TestData {
         return thread
     }
     
-    static var stacktrace: Stacktrace {
-        let stacktrace = Stacktrace(frames: [frame], registers: ["register": "one"])
+    static var stacktrace: SentryStacktrace {
+        let stacktrace = SentryStacktrace(frames: [frame], registers: ["register": "one"])
         stacktrace.snapshot = true
         return stacktrace
     }
@@ -200,11 +200,11 @@ class TestData {
         
         let crumb1 = TestData.crumb
         crumb1.message = "Crumb 1"
-        scope.add(crumb1)
+        scope.addBreadcrumb(crumb1)
         
         let crumb2 = TestData.crumb
         crumb2.message = "Crumb 2"
-        scope.add(crumb2)
+        scope.addBreadcrumb(crumb2)
         
         return scope
     }

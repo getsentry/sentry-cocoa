@@ -38,7 +38,7 @@ class SentrySessionTestsSwift: XCTestCase {
     }
 
     func testCopySession() {
-        let user = User()
+        let user = SentryUser()
         user.email = "someone@sentry.io"
 
         let session = SentrySession(releaseName: "1.0.0")

@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - master
+      - 8.0.0
 
   pull_request:
     paths:
@@ -101,11 +102,6 @@ jobs:
 
           - xcode: '13.4.1'
             suite: 'iOS-13'
-
-          # iOS 12 has a failing test that we need to fix https://github.com/getsentry/sentry-cocoa/issues/1566
-          # iOS 11 keeps timing out and we don't know how to fix it.
-          - xcode: '12.5.1'
-            suite: 'iOS-10'
 
     steps:
       - uses: actions/checkout@v3

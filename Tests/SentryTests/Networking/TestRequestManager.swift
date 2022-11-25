@@ -1,8 +1,5 @@
 import Foundation
 
-// Even if we don't run this test below OSX 10.12 we expect the actual
-// implementation to be thread safe.
-@available(OSX 10.12, *)
 public class TestRequestManager: NSObject, RequestManager {
     
     private var nextResponse: () -> HTTPURLResponse? = { return nil }

@@ -136,6 +136,19 @@ the iOS 12 simulator a try.
 
 Related to [GH-2218](https://github.com/getsentry/sentry-cocoa/issues/2218)
 
+### Adding Swift code in the project
+
+Date: October 1st 2022
+Contributors: @brustolin
+
+A Sentry SDK started to be [written in Swift once,](https://github.com/getsentry/raven-swift) but due to ABI not being stable at that time, it got dropped. Since then Swift 5.0 landed and we got ABI stability. We’ve considered adding Swift to our sentry.cocoa SDK since then, but because of some of the trade offs, we’ve postponed that decision.
+This changed with our goal to better support SwiftUI. It’s growing in popularity and we need to write code in Swift in order to support it.
+SwiftUI support will be available through an additional library, but to support it, we need to be able to demangle Swift class names in Sentry SDK, which can be done by using Swift API.
+Since we support SPM, and SPM doesn't support multi-language projects, we need to create two different targets, one with Swift and another with Objective-C code. Because of that, our swift code needs to be public, so we're creating a second module called SentryPrivate, where all swift code will be, and we need an extra cocoapod library. 
+With this approach, classes from SentryPrivate will not be available when users import Sentry.
+We don't mind breaking changes in SentryPrivate, because this is not meant to be use by the user, we going to point this out in the docs.
+
+
 ### Writing breadcrumbs to disk in the main thread
 
 Date November 15, 2022

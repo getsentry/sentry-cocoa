@@ -28,11 +28,11 @@ class SentryTraceContextTests: XCTestCase {
             tracer = SentryTracer(transactionContext: TransactionContext(name: transactionName, operation: transactionOperation), hub: nil)
             
             scope = Scope()
-            scope.setUser(User(userId: userId))
+            scope.setUser(SentryUser(userId: userId))
             scope.userObject?.segment = userSegment
             scope.span = tracer
             
-            traceId = tracer.context.traceId
+            traceId = tracer.traceId
         }
     }
     

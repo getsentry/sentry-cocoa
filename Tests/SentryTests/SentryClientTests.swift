@@ -21,7 +21,7 @@ class SentryClientTest: XCTestCase {
         let messageAsString = "message"
         let message: SentryMessage
         
-        let user: User
+        let user: SentryUser
         let fileManager: SentryFileManager
         let random = TestRandom(value: 1.0)
         
@@ -33,6 +33,7 @@ class SentryClientTest: XCTestCase {
         let locale = Locale(identifier: "en_US")
         let timezone = TimeZone(identifier: "Europe/Vienna")!
         let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
         
         init() {
             session = SentrySession(releaseName: "release")
@@ -43,7 +44,7 @@ class SentryClientTest: XCTestCase {
             event = Event()
             event.message = message
             
-            user = User()
+            user = SentryUser()
             user.email = "someone@sentry.io"
             user.ipAddress = "127.0.0.1"
             
@@ -57,15 +58,13 @@ class SentryClientTest: XCTestCase {
             transportAdapter = TestTransportAdapter(transport: transport, options: options)
         }
 
-        func getSut(configureOptions: (Options) -> Void = { _ in }) -> Client {
-            var client: Client!
+        func getSut(configureOptions: (Options) -> Void = { _ in }) -> SentryClient {
+            var client: SentryClient!
             do {
-                let options = try Options(dict: [
-                    "dsn": SentryClientTest.dsn
-                ])
+                let options = try Options(dsn: SentryClientTest.dsn)
                 configureOptions(options)
 
-                client = Client(
+                client = SentryClient(
                     options: options,
                     transportAdapter: transportAdapter,
                     fileManager: fileManager,
@@ -84,13 +83,13 @@ class SentryClientTest: XCTestCase {
             return client
         }
 
-        func getSutWithNoDsn() -> Client {
+        func getSutWithNoDsn() -> SentryClient {
             getSut(configureOptions: { options in
                 options.parsedDsn = nil
             })
         }
         
-        func getSutDisabledSdk() -> Client {
+        func getSutDisabledSdk() -> SentryClient {
             getSut(configureOptions: { options in
                 options.enabled = false
             })
@@ -101,7 +100,7 @@ class SentryClientTest: XCTestCase {
                 let scope = Scope()
                 scope.setEnvironment(environment)
                 scope.setTag(value: "value", key: "key")
-                scope.add(TestData.dataAttachment)
+                scope.addAttachment(TestData.dataAttachment)
                 scope.setContext(value: [SentryDeviceContextFreeMemoryKey: 2_000], key: "device")
                 return scope
             }
@@ -1102,16 +1101,16 @@ class SentryClientTest: XCTestCase {
             assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
         }
     }
-    
+
     func testFileManagerCantBeInit() {
         SentryFileManager.prepareInitError()
-        
+
         let options = Options()
         options.dsn = SentryClientTest.dsn
-        let client = Client(options: options, permissionsObserver: TestSentryPermissionsObserver())
-        
+        let client = SentryClient(options: options, permissionsObserver: TestSentryPermissionsObserver(), dispatchQueue: TestSentryDispatchQueueWrapper())
+
         XCTAssertNil(client)
-        
+
         SentryFileManager.tearDownInitError()
     }
     
@@ -1292,7 +1291,6 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(item, fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.additionalEnvelopeItems.first)
     }
     
-    @available(iOS 10.0, tvOS 10.0, OSX 10.12, *)
     func testConcurrentlyAddingInstalledIntegrations_WhileSendingEvents() {
         let sut = fixture.getSut()
         
@@ -1338,14 +1336,14 @@ class SentryClientTest: XCTestCase {
     
     private func givenEventWithThreads() -> Event {
         let event = Event(level: SentryLevel.fatal)
-        let thread = Sentry.Thread(threadId: 1)
+        let thread = SentryThread(threadId: 1)
         thread.crashed = true
         let threads = [thread]
         event.threads = threads
         return event
     }
     
-    private func beforeSendReturnsNil(capture: (Client) -> Void) {
+    private func beforeSendReturnsNil(capture: (SentryClient) -> Void) {
         capture(fixture.getSut(configureOptions: { options in
             options.beforeSend = { _ in
                 nil
@@ -1437,13 +1435,13 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    private func assertValidDebugMeta(actual: [DebugMeta]?, forThreads threads: [Sentry.Thread]?) {
+    private func assertValidDebugMeta(actual: [DebugMeta]?, forThreads threads: [SentryThread]?) {
         let debugMetas = fixture.debugImageBuilder.getDebugImages(for: threads ?? [])
         
         XCTAssertEqual(debugMetas, actual ?? [])
     }
     
-    private func assertValidThreads(actual: [Sentry.Thread]?) {
+    private func assertValidThreads(actual: [SentryThread]?) {
         let expected = fixture.threadInspector.getCurrentThreads()
         XCTAssertEqual(expected.count, actual?.count)
         XCTAssertEqual(expected, actual)

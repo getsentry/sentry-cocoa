@@ -3,14 +3,21 @@ import PackageDescription
 
 let package = Package(
     name: "Sentry",
-    platforms: [.iOS(.v9), .macOS(.v10_10), .tvOS(.v9), .watchOS(.v2)],
+    platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4)],
     products: [
         .library(name: "Sentry", targets: ["Sentry"]),
         .library(name: "Sentry-Dynamic", type: .dynamic, targets: ["Sentry"])
     ],
     targets: [
+        .target( name: "SentryPrivate",
+                 path: "Sources",
+                 sources: [
+                    "Swift"
+                 ]
+               ),
         .target(
             name: "Sentry",
+            dependencies: ["SentryPrivate"],
             path: "Sources",
             sources: [
                 "Sentry/",
