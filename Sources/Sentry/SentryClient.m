@@ -545,11 +545,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         event.dist = dist;
     }
 
-    if (event.environment == nil) {
-        // Set the environment from option to the event before Scope is applied
-        event.environment = self.options.environment;
-    }
-
     [self setSdk:event];
 
     // We don't want to attach debug meta and stacktraces for transactions;
