@@ -251,6 +251,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
         copy->_timestamp = _timestamp;
         copy->_duration = _duration;
         copy->_releaseName = _releaseName;
+        copy.environment = self.environment;
         copy.user = self.user;
         copy->_init = _init;
     }
