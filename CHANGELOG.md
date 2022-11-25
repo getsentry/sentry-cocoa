@@ -8,10 +8,10 @@ This version adds a dependency on Swift.
 
 - Properly demangle Swift class name (#2162)
 
-
 ### Fixes
 
 - Errors shortly after SentrySDK.init now affect the session (#2430)
+- Use the same default environment for events and sessions (#2447)
 
 ### Breaking Changes
 
