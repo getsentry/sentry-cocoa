@@ -4,6 +4,8 @@
 #import "SentryCrashInstallation.h"
 #import "SentryCrashMachineContext.h"
 #import "SentryCrashMonitor.h"
+#import "SentryNSNotificationCenterWrapper.h"
+#import "SentryTests-Swift.h"
 #import <XCTest/XCTest.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -28,10 +30,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryCrashInstallationTests
 
-- (void)testUninstall
+- (SentryCrashTestInstallation *)getSut
 {
     SentryCrashTestInstallation *installation =
         [[SentryCrashTestInstallation alloc] initForTesting];
+    TestNSNotificationCenterWrapper *wrapper = [[TestNSNotificationCenterWrapper alloc] init];
+    [[SentryCrash sharedInstance] setSentryNSNotificationCenterWrapper:wrapper];
+    return installation;
+}
+
+- (void)testUninstall
+{
+    SentryCrashTestInstallation *installation = [self getSut];
 
     [installation install];
     [installation uninstall];
@@ -41,8 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testUninstall_BeforeInstall
 {
-    SentryCrashTestInstallation *installation =
-        [[SentryCrashTestInstallation alloc] initForTesting];
+    SentryCrashTestInstallation *installation = [self getSut];
     [installation uninstall];
 
     [self assertUninstalled:installation];
@@ -50,8 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testUninstall_Install
 {
-    SentryCrashTestInstallation *installation =
-        [[SentryCrashTestInstallation alloc] initForTesting];
+    SentryCrashTestInstallation *installation = [self getSut];
 
     [installation install];
 
