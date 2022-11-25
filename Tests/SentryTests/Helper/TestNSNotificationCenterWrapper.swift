@@ -3,6 +3,10 @@ import Foundation
 @objc public class TestNSNotificationCenterWrapper: SentryNSNotificationCenterWrapper {
     
     var addObserverInvocations = Invocations<(observer: Any, selector: Selector, name: NSNotification.Name)>()
+    @objc public var addObserverInvocationsCount: Int {
+        return addObserverInvocations.count
+    }
+    
     public override func addObserver(_ observer: Any, selector aSelector: Selector, name aName: NSNotification.Name) {
         addObserverInvocations.record((observer, aSelector, aName))
     }

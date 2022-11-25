@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
     return installation;
 }
 
-- (void)tesUninstall
+- (void)testUninstall
 {
     SentryCrashTestInstallation *installation = [self getSut];
 
@@ -51,19 +51,19 @@ NS_ASSUME_NONNULL_BEGIN
     [self assertUninstalled:installation];
 }
 
-- (void)tesUninstall_CallsRemoveObservers
+- (void)testUninstall_CallsRemoveObservers
 {
     SentryCrashTestInstallation *installation = [self getSut];
 
     [installation install];
     [installation uninstall];
 
-#if SentryCrashCRASH_HAS_UIAPPLICATION
-    XCTAssertEqual(4, self.notificationCenter.removeWithNotificationInvocationsCount);
-#endif
+    if (@available(iOS 1, tvOS 1, *)) {
+        XCTAssertEqual(5, self.notificationCenter.removeWithNotificationInvocationsCount);
+    }
 }
 
-- (void)tesUninstall_BeforeInstall
+- (void)testUninstall_BeforeInstall
 {
     SentryCrashTestInstallation *installation = [self getSut];
     [installation uninstall];
@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self assertUninstalled:installation];
 }
 
-- (void)tesUninstall_Install
+- (void)testUninstall_Install
 {
     SentryCrashTestInstallation *installation = [self getSut];
 
@@ -98,6 +98,10 @@ NS_ASSUME_NONNULL_BEGIN
     [self assertReinstalled:installation
                 monitorsAfterInstall:monitorsAfterInstall
         crashHandlerDataAfterInstall:crashHandlerDataAfterInstall];
+
+    if (@available(iOS 1, tvOS 1, *)) {
+        XCTAssertEqual(55, self.notificationCenter.removeWithNotificationInvocationsCount);
+    }
 }
 
 - (void)assertReinstalled:(SentryCrashTestInstallation *)installation
