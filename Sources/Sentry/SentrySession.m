@@ -115,6 +115,11 @@ nameForSentrySessionStatus(SentrySessionStatus status)
             if ([releaseName isKindOfClass:[NSString class]]) {
                 _releaseName = releaseName;
             }
+
+            id environment = [attrs valueForKey:@"environment"];
+            if ([environment isKindOfClass:[NSString class]]) {
+                _environment = environment;
+            }
         }
 
         id timestamp = [jsonObject valueForKey:@"timestamp"];
