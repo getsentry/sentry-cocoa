@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
     return installation;
 }
 
-- (void)testUninstall
+- (void)tesUninstall
 {
     SentryCrashTestInstallation *installation = [self getSut];
 
@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self assertUninstalled:installation];
 }
 
-- (void)testUninstall_CallsRemoveObservers
+- (void)tesUninstall_CallsRemoveObservers
 {
     SentryCrashTestInstallation *installation = [self getSut];
 
@@ -63,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 }
 
-- (void)testUninstall_BeforeInstall
+- (void)tesUninstall_BeforeInstall
 {
     SentryCrashTestInstallation *installation = [self getSut];
     [installation uninstall];
@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self assertUninstalled:installation];
 }
 
-- (void)testUninstall_Install
+- (void)tesUninstall_Install
 {
     SentryCrashTestInstallation *installation = [self getSut];
 
@@ -82,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
     CrashHandlerData *crashHandlerDataAfterInstall = [installation g_crashHandlerData];
 
     // To ensure multiple calls in a row work
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 10; i++) {
         [installation uninstall];
         [installation install];
     }

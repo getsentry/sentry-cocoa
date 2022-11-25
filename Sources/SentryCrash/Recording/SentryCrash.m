@@ -282,7 +282,7 @@ getBasePath()
 {
     // Restore previous monitors when uninstall was called previously
     if (self.monitoringWhenUninstalled != SentryCrashMonitorTypeNone) {
-        [self setMonitoring:self.monitoringWhenUninstalled];
+        //        [self setMonitoring:self.monitoringWhenUninstalled];
         self.monitoringWhenUninstalled = SentryCrashMonitorTypeNone;
     }
 
