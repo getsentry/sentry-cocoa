@@ -333,6 +333,22 @@ getBasePath()
     [self setMonitoring:SentryCrashMonitorTypeNone];
     self.onCrash = NULL;
     sentrycrash_uninstall();
+
+#if SentryCrashCRASH_HAS_UIAPPLICATION
+    NSNotificationCenter *nCenter = [NSNotificationCenter defaultCenter];
+    [nCenter removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
+    [nCenter removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
+    [nCenter removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [nCenter removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
+    [nCenter removeObserver:self name:UIApplicationWillTerminateNotification object:nil];
+#endif
+#if SentryCrashCRASH_HAS_NSEXTENSION
+    NSNotificationCenter *nCenter = [NSNotificationCenter defaultCenter];
+    [nCenter removeObserver:self name:NSExtensionHostDidBecomeActiveNotification object:nil];
+    [nCenter removeObserver:self name:NSExtensionHostWillResignActiveNotification object:nil];
+    [nCenter removeObserver:self name:NSExtensionHostDidEnterBackgroundNotification object:nil];
+    [nCenter removeObserver:self name:NSExtensionHostWillEnterForegroundNotification object:nil];
+#endif
 }
 
 - (void)sendAllReportsWithCompletion:(SentryCrashReportFilterCompletion)onCompletion

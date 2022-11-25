@@ -60,8 +60,11 @@ NS_ASSUME_NONNULL_BEGIN
     CrashHandlerData *crashHandlerDataAfterInstall = [installation g_crashHandlerData];
 
     // To ensure multiple calls in a row work
-    [installation uninstall];
-    [installation install];
+    for (int i = 0; i < 20; i++) {
+        [installation uninstall];
+        [installation install];
+    }
+
     [self assertReinstalled:installation
                 monitorsAfterInstall:monitorsAfterInstall
         crashHandlerDataAfterInstall:crashHandlerDataAfterInstall];
