@@ -420,6 +420,31 @@ class SentryHubTests: XCTestCase {
         }
     }
 
+    func testCaptureError_SessionWithDefaultEnvironment() {
+        let sut = fixture.getSut()
+        sut.startSession()
+        sut.capture(error: fixture.error, scope: fixture.scope).assertIsNotEmpty()
+
+        XCTAssertEqual(fixture.client.captureSessionInvocations.count, 1)
+
+        if let session = fixture.client.captureSessionInvocations.first {
+            XCTAssertEqual(session.environment, "production")
+        }
+    }
+
+    func testCaptureError_SessionWithEnvironmentFromOptions() {
+        fixture.options.environment = "test-env"
+        let sut = fixture.getSut()
+        sut.startSession()
+        sut.capture(error: fixture.error, scope: fixture.scope).assertIsNotEmpty()
+
+        XCTAssertEqual(fixture.client.captureSessionInvocations.count, 1)
+
+        if let session = fixture.client.captureSessionInvocations.first {
+            XCTAssertEqual(session.environment, "test-env")
+        }
+    }
+
     func testCaptureWithoutIncreasingErrorCount() {
         let sut = fixture.getSut()
         sut.startSession()
