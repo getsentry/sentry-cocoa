@@ -149,6 +149,10 @@ void sentrycrashmc_addReservedThread(SentryCrashThread thread);
  */
 void sentrycrashmc_clearReservedThreads(void);
 
+/** Check if the reserved threads array is empty.
+ */
+bool sentrycrashmc_isReservedThreadsEmpty(void);
+
 #ifdef __cplusplus
 }
 #endif

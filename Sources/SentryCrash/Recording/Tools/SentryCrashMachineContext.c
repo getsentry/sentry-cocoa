@@ -161,10 +161,18 @@ sentrycrashmc_addReservedThread(SentryCrashThread thread)
 void
 sentrycrashmc_clearReservedThreads(void)
 {
-    for (int i = 0; i < g_reservedThreadsCount; i++) {
-        g_reservedThreads[i] = 0;
-    }
+    memset(g_reservedThreads, 0, sizeof(g_reservedThreads));
     g_reservedThreadsCount = 0;
+}
+
+bool
+sentrycrashmc_isReservedThreadsEmpty(void)
+{
+    bool allZero = true;
+    for (int i = 0; i <= g_reservedThreadsMaxIndex; i++) {
+        allZero &= g_reservedThreads[i] == 0;
+    }
+    return g_reservedThreadsCount == 0 && allZero;
 }
 
 #if SentryCrashCRASH_HAS_THREADS_API

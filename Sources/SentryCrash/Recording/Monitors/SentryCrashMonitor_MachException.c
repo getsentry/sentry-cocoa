@@ -395,6 +395,8 @@ uninstallExceptionHandler()
         g_secondaryPThread = 0;
     }
 
+    // Only this file is calling sentrycrashmc_addReservedThread, so it's fine to clear the list
+    // instead of removing the threads this file added.
     sentrycrashmc_clearReservedThreads();
 
     g_exceptionPort = MACH_PORT_NULL;
