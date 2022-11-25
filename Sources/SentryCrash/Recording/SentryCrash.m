@@ -58,6 +58,7 @@ SentryCrash ()
 @property (nonatomic, readwrite, retain) NSString *bundleName;
 @property (nonatomic, readwrite, retain) NSString *basePath;
 @property (nonatomic, readwrite, assign) SentryCrashMonitorType monitoringWhenUninstalled;
+@property (nonatomic, readwrite, assign) BOOL monitoringFromUninstalledToRestore;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenter;
 
 @end
@@ -147,6 +148,7 @@ getBasePath()
         self.catchZombies = NO;
         self.maxReportCount = 5;
         self.monitoring = SentryCrashMonitorTypeProductionSafeMinimal;
+        self.monitoringFromUninstalledToRestore = NO;
         self.notificationCenter =
             [SentryDependencyContainer sharedInstance].notificationCenterWrapper;
     }
@@ -281,9 +283,11 @@ getBasePath()
 - (BOOL)install
 {
     // Restore previous monitors when uninstall was called previously
-    if (self.monitoringWhenUninstalled != SentryCrashMonitorTypeNone) {
+    if (self.monitoringFromUninstalledToRestore
+        && self.monitoringWhenUninstalled != SentryCrashMonitorTypeNone) {
         [self setMonitoring:self.monitoringWhenUninstalled];
         self.monitoringWhenUninstalled = SentryCrashMonitorTypeNone;
+        self.monitoringFromUninstalledToRestore = NO;
     }
 
     _monitoring = sentrycrash_install(self.bundleName.UTF8String, self.basePath.UTF8String);
@@ -330,6 +334,7 @@ getBasePath()
 {
     self.monitoringWhenUninstalled = self.monitoring;
     [self setMonitoring:SentryCrashMonitorTypeNone];
+    self.monitoringFromUninstalledToRestore = NO;
     self.onCrash = NULL;
     sentrycrash_uninstall();
 
