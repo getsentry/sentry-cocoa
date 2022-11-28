@@ -30,6 +30,9 @@ class SentryProfilerSwiftTests: SentryBaseUnitTest {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
+        SentrySDK.start(options: self.fixture.options)
+        SentryLog.configure(true, diagnosticLevel: .debug)
+        CurrentDate.setCurrentDateProvider(nil)
     }
 
     func testConcurrentProfilingTransactions() {
