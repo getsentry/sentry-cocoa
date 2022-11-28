@@ -182,7 +182,6 @@ getBasePath()
 - (void)setOnCrash:(SentryCrashReportWriteCallback)onCrash
 {
     _onCrash = onCrash;
-    sentrycrash_setCrashNotifyCallback(onCrash);
 }
 
 - (void)setIntrospectMemory:(BOOL)introspectMemory

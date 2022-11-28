@@ -201,12 +201,6 @@ sentrycrash_setDoNotIntrospectClasses(const char **doNotIntrospectClasses, int l
 }
 
 void
-sentrycrash_setCrashNotifyCallback(const SentryCrashReportWriteCallback onCrashNotify)
-{
-    sentrycrashreport_setUserSectionWriteCallback(onCrashNotify);
-}
-
-void
 sentrycrash_setAddConsoleLogToReport(bool shouldAddConsoleLogToReport)
 {
     g_shouldAddConsoleLogToReport = shouldAddConsoleLogToReport;
