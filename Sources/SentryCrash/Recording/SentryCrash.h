@@ -156,11 +156,6 @@ static NSString *const SENTRYCRASH_REPORT_ATTACHMENTS_ITEM = @"attachments";
  * debugger is running. **/
 @property (nonatomic, assign) NSUncaughtExceptionHandler *uncaughtExceptionHandler;
 
-/** Exposes the currentSnapshotUserReportedExceptionHandler if set from
- * SentryCrash. Is nil if debugger is running. **/
-@property (nonatomic, assign)
-    NSUncaughtExceptionHandler *currentSnapshotUserReportedExceptionHandler;
-
 #pragma mark - Information -
 
 /** Total active time elapsed since the last crash. */

@@ -31,7 +31,6 @@
 #include "SentryCrashMonitorContext.h"
 #include "SentryCrashMonitor_AppState.h"
 #include "SentryCrashMonitor_System.h"
-#include "SentryCrashMonitor_User.h"
 #include "SentryCrashMonitor_Zombie.h"
 #include "SentryCrashObjC.h"
 #include "SentryCrashReport.h"
@@ -93,10 +92,9 @@ printPreviousLog(const char *filePath)
 static void
 onCrash(struct SentryCrash_MonitorContext *monitorContext)
 {
-    if (monitorContext->currentSnapshotUserReported == false) {
-        SentryCrashLOG_DEBUG("Updating application state to note crash.");
-        sentrycrashstate_notifyAppCrash();
-    }
+    SentryCrashLOG_DEBUG("Updating application state to note crash.");
+    sentrycrashstate_notifyAppCrash();
+
     monitorContext->consoleLogPath = g_shouldAddConsoleLogToReport ? g_consoleLogPath : NULL;
 
     if (monitorContext->crashedDuringCrashHandling) {
@@ -203,12 +201,6 @@ sentrycrash_setDoNotIntrospectClasses(const char **doNotIntrospectClasses, int l
 }
 
 void
-sentrycrash_setCrashNotifyCallback(const SentryCrashReportWriteCallback onCrashNotify)
-{
-    sentrycrashreport_setUserSectionWriteCallback(onCrashNotify);
-}
-
-void
 sentrycrash_setAddConsoleLogToReport(bool shouldAddConsoleLogToReport)
 {
     g_shouldAddConsoleLogToReport = shouldAddConsoleLogToReport;
@@ -236,17 +228,6 @@ void
 sentrycrash_setSaveViewHierarchy(void (*callback)(const char *))
 {
     g_saveViewHierarchy = callback;
-}
-
-void
-sentrycrash_reportUserException(const char *name, const char *reason, const char *language,
-    const char *lineOfCode, const char *stackTrace, bool logAllThreads, bool terminateProgram)
-{
-    sentrycrashcm_reportUserException(
-        name, reason, language, lineOfCode, stackTrace, logAllThreads, terminateProgram);
-    if (g_shouldAddConsoleLogToReport) {
-        sentrycrashlog_clearLogFile();
-    }
 }
 
 void
