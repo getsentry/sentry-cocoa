@@ -6,8 +6,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-FOUNDATION_EXPORT NSString *const kSentryDefaultEnvironment;
-
 @protocol SentryClientAttachmentProcessor <NSObject>
 
 - (nullable NSArray<SentryAttachment *> *)processAttachments:

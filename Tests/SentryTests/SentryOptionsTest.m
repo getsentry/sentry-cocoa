@@ -80,7 +80,7 @@
     XCTAssertEqual(YES, options.enabled);
     XCTAssertEqual(NO, options.debug);
     XCTAssertEqual(kSentryLevelDebug, options.diagnosticLevel);
-    XCTAssertNil(options.environment);
+    XCTAssertEqual(options.environment, kSentryDefaultEnvironment);
     XCTAssertNil(options.dist);
     XCTAssertEqual(defaultMaxBreadcrumbs, options.maxBreadcrumbs);
     XCTAssertTrue(options.enableNetworkBreadcrumbs);

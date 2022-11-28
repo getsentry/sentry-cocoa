@@ -101,10 +101,7 @@ SentryHub ()
             _errorsBeforeSession = 0;
         }
 
-        NSString *environment = options.environment;
-        if (environment != nil) {
-            _session.environment = environment;
-        }
+        _session.environment = options.environment;
 
         [scope applyToSession:_session];
 

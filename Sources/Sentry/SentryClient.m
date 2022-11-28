@@ -67,7 +67,6 @@ SentryClient ()
 @end
 
 NSString *const DropSessionLogMessage = @"Session has no release name. Won't send it.";
-NSString *const kSentryDefaultEnvironment = @"production";
 
 @implementation SentryClient
 
@@ -546,12 +545,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
         event.dist = dist;
     }
 
-    NSString *environment = self.options.environment;
-    if (nil != environment && nil == event.environment) {
-        // Set the environment from option to the event before Scope is applied
-        event.environment = environment;
-    }
-
     [self setSdk:event];
 
     // We don't want to attach debug meta and stacktraces for transactions;
@@ -588,9 +581,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self applyCultureContextToEvent:event];
 
     // With scope applied, before running callbacks run:
-    if (nil == event.environment) {
+    if (event.environment == nil) {
         // We default to environment 'production' if nothing was set
-        event.environment = kSentryDefaultEnvironment;
+        event.environment = self.options.environment;
     }
 
     // Need to do this after the scope is applied cause this sets the user if there is any
@@ -630,7 +623,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 - (BOOL)isSampled:(NSNumber *)sampleRate
 {
-    if (nil == sampleRate) {
+    if (sampleRate == nil) {
         return NO;
     }
 
@@ -653,7 +646,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     for (SentryEventProcessor processor in SentryGlobalEventProcessor.shared.processors) {
         newEvent = processor(newEvent);
-        if (nil == newEvent) {
+        if (newEvent == nil) {
             SENTRY_LOG_DEBUG(@"SentryScope callEventProcessors: An event processor decided to "
                              @"remove this event.");
             break;
@@ -704,7 +697,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 {
     if (nil != event && nil != userInfo && userInfo.count > 0) {
         NSMutableDictionary *context;
-        if (nil == event.context) {
+        if (event.context == nil) {
             context = [[NSMutableDictionary alloc] init];
             event.context = context;
         } else {
@@ -719,7 +712,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 {
     // We only want to set the id if the customer didn't set a user so we at least set something to
     // identify the user.
-    if (nil == event.user) {
+    if (event.user == nil) {
         SentryUser *user = [[SentryUser alloc] init];
         user.userId = [SentryInstallation id];
         event.user = user;
@@ -732,12 +725,12 @@ NSString *const kSentryDefaultEnvironment = @"production";
         return NO;
     }
 
-    if (nil == event.exceptions || event.exceptions.count != 1) {
+    if (event.exceptions == nil || event.exceptions.count != 1) {
         return NO;
     }
 
     SentryException *exception = event.exceptions[0];
-    return nil != exception.mechanism &&
+    return exception.mechanism != nil &&
         [exception.mechanism.type isEqualToString:SentryOutOfMemoryMechanismType];
 }
 
@@ -864,7 +857,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
                   key:(NSString *)key
                 block:(void (^)(NSMutableDictionary *))block
 {
-    if (nil == event.context || event.context.count == 0) {
+    if (event.context == nil || event.context.count == 0) {
         return;
     }
 
