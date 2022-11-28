@@ -489,10 +489,6 @@ failed:
 static void
 setEnabled(bool isEnabled)
 {
-    bool yes = true;
-    if (yes)
-        return;
-
     if (isEnabled != g_isEnabled) {
         g_isEnabled = isEnabled;
         if (isEnabled) {
