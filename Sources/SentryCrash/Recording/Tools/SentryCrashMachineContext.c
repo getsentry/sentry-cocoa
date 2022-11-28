@@ -44,8 +44,8 @@ typedef ucontext64_t SignalUserContext;
 typedef ucontext_t SignalUserContext;
 #endif
 
-#define NUMBER_OF_RESERVED_THREADS 10
-static SentryCrashThread g_reservedThreads[NUMBER_OF_RESERVED_THREADS];
+static SentryCrashThread g_reservedThreads[10];
+static int g_reservedThreadsMaxIndex = sizeof(g_reservedThreads) / sizeof(g_reservedThreads[0]) - 1;
 static int g_reservedThreadsCount = 0;
 
 static inline bool
@@ -150,9 +150,9 @@ void
 sentrycrashmc_addReservedThread(SentryCrashThread thread)
 {
     int nextIndex = g_reservedThreadsCount;
-    if (nextIndex > NUMBER_OF_RESERVED_THREADS) {
+    if (nextIndex > g_reservedThreadsMaxIndex) {
         SentryCrashLOG_ERROR(
-            "Too many reserved threads (%d). Max is %d", nextIndex, NUMBER_OF_RESERVED_THREADS);
+            "Too many reserved threads (%d). Max is %d", nextIndex, g_reservedThreadsMaxIndex);
         return;
     }
     g_reservedThreads[g_reservedThreadsCount++] = thread;
@@ -161,7 +161,7 @@ sentrycrashmc_addReservedThread(SentryCrashThread thread)
 void
 sentrycrashmc_clearReservedThreads(void)
 {
-    SentryCrashThread reservedThreads[NUMBER_OF_RESERVED_THREADS];
+    SentryCrashThread reservedThreads[g_reservedThreadsMaxIndex];
     memcpy(reservedThreads, g_reservedThreads, sizeof(g_reservedThreads));
     g_reservedThreadsCount = 0;
 }
@@ -170,7 +170,7 @@ bool
 sentrycrashmc_isReservedThreadsEmpty(void)
 {
     bool allZero = true;
-    for (int i = 0; i <= NUMBER_OF_RESERVED_THREADS; i++) {
+    for (int i = 0; i <= g_reservedThreadsMaxIndex; i++) {
         allZero &= g_reservedThreads[i] == 0;
     }
     return g_reservedThreadsCount == 0 && allZero;
