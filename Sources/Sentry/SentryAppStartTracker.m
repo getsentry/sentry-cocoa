@@ -131,7 +131,7 @@ SentryAppStartTracker ()
                 isPreWarmed = YES;
             } else {
                 SENTRY_LOG_INFO(
-                    @"EnablePreWarmedAppStartTracking disabled. Not measuring app start.");
+                    @"EnablePreWarmedAppStartTracing disabled. Not measuring app start.");
                 return;
             }
         }

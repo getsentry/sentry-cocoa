@@ -39,7 +39,7 @@ index 2c1fc802..21495fd7 100644
 +        options.dsn = @"https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557";
 +        options.environment = @"integration-tests";
 +        options.tracesSampleRate = @1.0;
-+        options.enableFileIOTracking = YES;
++        options.enableFileIOTracing = YES;
 +        options.attachScreenshot = YES;
 +        options.attachViewHierarchy = YES;
 +        options.enableUserInteractionTracing = YES;
