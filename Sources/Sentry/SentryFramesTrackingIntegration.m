@@ -40,7 +40,7 @@ SentryFramesTrackingIntegration ()
 
 - (SentryIntegrationOption)integrationOptions
 {
-    return kIntegrationOptionEnableAutoPerformanceTracking | kIntegrationOptionIsTracingEnabled;
+    return kIntegrationOptionEnableAutoPerformanceTracing | kIntegrationOptionIsTracingEnabled;
 }
 
 - (void)uninstall
