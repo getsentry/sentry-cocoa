@@ -418,7 +418,6 @@ static NSUInteger startInvocations;
 
     // close the client
     SentryClient *client = [hub getClient];
-    client.options.enabled = NO;
     [hub bindClient:nil];
 
     [SentrySDK setCurrentHub:nil];
