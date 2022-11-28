@@ -37,7 +37,6 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #import "SentrySamplingContext.h"
 #import "SentryScope.h"
 #import "SentryScreenFrames.h"
-#import "SentrySdkInfo.h"
 #import "SentrySerializable.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"

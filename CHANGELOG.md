@@ -36,7 +36,7 @@ This version adds a dependency on Swift.
 - Marks App hang's event stacktrace snapshot as true (#2441) 
 - Enable user interaction tracing by default (#2442)
 - Remove default attachment content type (#2443)
-- Make SentrySession internal (#2451)
+- Make SentrySession and SentrySDKInfo internal (#2451)
 
 ## 7.31.2
 
