@@ -58,9 +58,9 @@ NS_ASSUME_NONNULL_BEGIN
     [installation install];
     [installation uninstall];
 
-    if (@available(iOS 1, tvOS 1, *)) {
-        XCTAssertEqual(5, self.notificationCenter.removeWithNotificationInvocationsCount);
-    }
+#if SentryCrashCRASH_HAS_UIAPPLICATION
+    XCTAssertEqual(5, self.notificationCenter.removeWithNotificationInvocationsCount);
+#endif
 }
 
 - (void)testUninstall_BeforeInstall
@@ -99,9 +99,9 @@ NS_ASSUME_NONNULL_BEGIN
                 monitorsAfterInstall:monitorsAfterInstall
         crashHandlerDataAfterInstall:crashHandlerDataAfterInstall];
 
-    if (@available(iOS 1, tvOS 1, *)) {
-        XCTAssertEqual(55, self.notificationCenter.removeWithNotificationInvocationsCount);
-    }
+#if SentryCrashCRASH_HAS_UIAPPLICATION
+    XCTAssertEqual(55, self.notificationCenter.removeWithNotificationInvocationsCount);
+#endif
 }
 
 - (void)assertReinstalled:(SentryCrashTestInstallation *)installation
