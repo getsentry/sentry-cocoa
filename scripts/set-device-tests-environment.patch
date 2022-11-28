@@ -5,11 +5,11 @@ index 25b92eed..8934d90b 100644
 @@ -24,6 +24,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
              options.tracesSampleRate = 1.0
              options.sessionTrackingIntervalMillis = 5_000
-             options.enableFileIOTracking = true
+             options.enableFileIOTracing = true
 +            options.environment = "device-tests"
 +            // The UI tests generate false OOMs
 +            options.enableOutOfMemoryTracking = false
-             options.enableCoreDataTracking = true
+             options.enableCoreDataTracing = true
              options.profilesSampleRate = 1.0
              options.attachScreenshot = true
              options.attachViewHierarchy = true

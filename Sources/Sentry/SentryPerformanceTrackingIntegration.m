@@ -49,8 +49,8 @@ SentryPerformanceTrackingIntegration ()
 
 - (SentryIntegrationOption)integrationOptions
 {
-    return kIntegrationOptionEnableAutoPerformanceTracking
-        | kIntegrationOptionEnableUIViewControllerTracking | kIntegrationOptionIsTracingEnabled
+    return kIntegrationOptionEnableAutoPerformanceTracing
+        | kIntegrationOptionEnableUIViewControllerTracing | kIntegrationOptionIsTracingEnabled
         | kIntegrationOptionEnableSwizzling;
 }
 

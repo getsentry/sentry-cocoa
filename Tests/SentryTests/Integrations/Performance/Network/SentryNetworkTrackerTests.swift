@@ -374,7 +374,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     }
     
     func testBreadcrumbWithError_AndPerformanceTrackingNotEnabled() {
-        fixture.options.enableAutoPerformanceTracking = false
+        fixture.options.enableAutoPerformanceTracing = false
         
         let task = createDataTask()
         let _ = spanForTask(task: task)!

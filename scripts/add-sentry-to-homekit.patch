@@ -53,7 +53,7 @@ index 8e0e35f4..3d34887d 100644
 +            options.dsn = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
 +            options.environment = "integration-tests"
 +            options.tracesSampleRate = 1.0
-+            options.enableFileIOTracking = true
++            options.enableFileIOTracing = true
 +            options.profilesSampleRate = 1.0
 +        }
 +

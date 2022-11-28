@@ -680,8 +680,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         }
 
 #if SENTRY_HAS_UIKIT
-        if (self.options.enablePreWarmedAppStartTracking) {
-            [integrations addObject:@"PreWarmedAppStartTracking"];
+        if (self.options.enablePreWarmedAppStartTracing) {
+            [integrations addObject:@"PreWarmedAppStartTracing"];
         }
 #endif
     }
