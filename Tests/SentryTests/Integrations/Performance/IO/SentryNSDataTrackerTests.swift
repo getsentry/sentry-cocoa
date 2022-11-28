@@ -23,7 +23,7 @@ class SentryNSDataTrackerTests: XCTestCase {
         super.setUp()
         fixture = Fixture()
         fixture.getSut().enable()
-        SentrySDK.start { $0.enableFileIOTracking = true }
+        SentrySDK.start { $0.enableFileIOTracing = true }
     }
     
     override func tearDown() {

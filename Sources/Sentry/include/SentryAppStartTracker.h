@@ -20,7 +20,7 @@ SENTRY_NO_INIT
                        dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                             appStateManager:(SentryAppStateManager *)appStateManager
                                      sysctl:(SentrySysctl *)sysctl
-            enablePreWarmedAppStartTracking:(BOOL)enablePreWarmedAppStartTracking;
+             enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing;
 
 - (void)start;
 - (void)stop;

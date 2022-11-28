@@ -1067,8 +1067,8 @@ class SentryClientTest: XCTestCase {
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testTrackPreWarmedAppStartTracking() {
-        testFeatureTrackingAsIntegration(integrationName: "PreWarmedAppStartTracking") {
-            $0.enablePreWarmedAppStartTracking = true
+        testFeatureTrackingAsIntegration(integrationName: "PreWarmedAppStartTracing") {
+            $0.enablePreWarmedAppStartTracing = true
         }
     }
 #endif

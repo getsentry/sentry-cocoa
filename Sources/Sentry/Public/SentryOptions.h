@@ -186,14 +186,14 @@ NS_SWIFT_NAME(Options)
  * <code>YES</code>. Note: Performance Monitoring must be enabled for this flag to take effect. See:
  * https://docs.sentry.io/platforms/apple/performance/
  */
-@property (nonatomic, assign) BOOL enableAutoPerformanceTracking;
+@property (nonatomic, assign) BOOL enableAutoPerformanceTracing;
 
 #if SENTRY_HAS_UIKIT
 /**
  * When enabled, the SDK tracks performance for UIViewController subclasses. The default is
  * <code>YES</code>.
  */
-@property (nonatomic, assign) BOOL enableUIViewControllerTracking;
+@property (nonatomic, assign) BOOL enableUIViewControllerTracing;
 
 /**
  * This feature is EXPERIMENTAL.
@@ -240,7 +240,7 @@ NS_SWIFT_NAME(Options)
  *
  * Default value is <code>NO</code>
  */
-@property (nonatomic, assign) BOOL enablePreWarmedAppStartTracking;
+@property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
 
 #endif
 
@@ -257,7 +257,7 @@ NS_SWIFT_NAME(Options)
  * When enabled, the SDK tracks performance for file IO reads and writes with NSData if auto
  * performance tracking and enableSwizzling are enabled. The default is <code>NO</code>.
  */
-@property (nonatomic, assign) BOOL enableFileIOTracking;
+@property (nonatomic, assign) BOOL enableFileIOTracing;
 
 /**
  * Indicates the percentage of the tracing data that is collected. Setting this to 0 or NIL discards
@@ -329,7 +329,7 @@ NS_SWIFT_NAME(Options)
  * performance monitoring. The default is <code>NO</code>.
  * @see <https://docs.sentry.io/platforms/apple/performance/>
  */
-@property (nonatomic, assign) BOOL enableCoreDataTracking;
+@property (nonatomic, assign) BOOL enableCoreDataTracing;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**

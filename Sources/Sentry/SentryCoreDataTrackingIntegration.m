@@ -28,8 +28,8 @@ SentryCoreDataTrackingIntegration ()
 
 - (SentryIntegrationOption)integrationOptions
 {
-    return kIntegrationOptionEnableAutoPerformanceTracking | kIntegrationOptionEnableSwizzling
-        | kIntegrationOptionIsTracingEnabled | kIntegrationOptionEnableCoreDataTracking;
+    return kIntegrationOptionEnableAutoPerformanceTracing | kIntegrationOptionEnableSwizzling
+        | kIntegrationOptionIsTracingEnabled | kIntegrationOptionEnableCoreDataTracing;
 }
 
 - (void)uninstall

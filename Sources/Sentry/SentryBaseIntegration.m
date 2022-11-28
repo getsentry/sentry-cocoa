@@ -49,15 +49,15 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-    if ((integrationOptions & kIntegrationOptionEnableAutoPerformanceTracking)
-        && !options.enableAutoPerformanceTracking) {
+    if ((integrationOptions & kIntegrationOptionEnableAutoPerformanceTracing)
+        && !options.enableAutoPerformanceTracing) {
         [self logWithOptionName:@"enableAutoPerformanceTracking"];
         return NO;
     }
 
 #if SENTRY_HAS_UIKIT
-    if ((integrationOptions & kIntegrationOptionEnableUIViewControllerTracking)
-        && !options.enableUIViewControllerTracking) {
+    if ((integrationOptions & kIntegrationOptionEnableUIViewControllerTracing)
+        && !options.enableUIViewControllerTracing) {
         [self logWithOptionName:@"enableUIViewControllerTracking"];
         return NO;
     }
@@ -92,8 +92,8 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-    if ((integrationOptions & kIntegrationOptionEnableFileIOTracking)
-        && !options.enableFileIOTracking) {
+    if ((integrationOptions & kIntegrationOptionEnableFileIOTracing)
+        && !options.enableFileIOTracing) {
         [self logWithOptionName:@"enableFileIOTracking"];
         return NO;
     }
@@ -104,8 +104,8 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-    if ((integrationOptions & kIntegrationOptionEnableCoreDataTracking)
-        && !options.enableCoreDataTracking) {
+    if ((integrationOptions & kIntegrationOptionEnableCoreDataTracing)
+        && !options.enableCoreDataTracing) {
         [self logWithOptionName:@"enableCoreDataTracking"];
         return NO;
     }
