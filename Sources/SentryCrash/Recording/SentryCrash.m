@@ -108,8 +108,6 @@ getBasePath()
 @synthesize catchZombies = _catchZombies;
 @synthesize doNotIntrospectClasses = _doNotIntrospectClasses;
 @synthesize demangleLanguages = _demangleLanguages;
-@synthesize addConsoleLogToReport = _addConsoleLogToReport;
-@synthesize printPreviousLog = _printPreviousLog;
 @synthesize maxReportCount = _maxReportCount;
 @synthesize uncaughtExceptionHandler = _uncaughtExceptionHandler;
 @synthesize currentSnapshotUserReportedExceptionHandler
@@ -543,16 +541,9 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
     return reports;
 }
 
-- (void)setAddConsoleLogToReport:(BOOL)shouldAddConsoleLogToReport
-{
-    _addConsoleLogToReport = shouldAddConsoleLogToReport;
-    sentrycrash_setAddConsoleLogToReport(shouldAddConsoleLogToReport);
-}
-
 - (void)setPrintPreviousLog:(BOOL)shouldPrintPreviousLog
 {
     _printPreviousLog = shouldPrintPreviousLog;
-    sentrycrash_setPrintPreviousLog(shouldPrintPreviousLog);
 }
 
 // ============================================================================

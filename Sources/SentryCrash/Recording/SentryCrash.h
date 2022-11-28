@@ -141,10 +141,6 @@ static NSString *const SENTRYCRASH_REPORT_ATTACHMENTS_ITEM = @"attachments";
  */
 @property (nonatomic, readwrite, assign) SentryCrashReportWriteCallback onCrash;
 
-/** Add a copy of SentryCrash's console log messages to the crash report.
- */
-@property (nonatomic, readwrite, assign) BOOL addConsoleLogToReport;
-
 /** Print the previous app run log to the console when installing SentryCrash.
  *  This is primarily for debugging purposes.
  */

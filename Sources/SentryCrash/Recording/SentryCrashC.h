@@ -100,16 +100,9 @@ void sentrycrash_setDoNotIntrospectClasses(const char **doNotIntrospectClasses, 
  */
 void sentrycrash_setCrashNotifyCallback(const SentryCrashReportWriteCallback onCrashNotify);
 
-/** Set if SentryCrashLOG console messages should be appended to the report.
- *
- * @param shouldAddConsoleLogToReport If true, add the log to the report.
- */
-void sentrycrash_setAddConsoleLogToReport(bool shouldAddConsoleLogToReport);
-
 /** Set if SentryCrash should print the previous log to the console on startup.
  *  This is for debugging purposes.
  */
-void sentrycrash_setPrintPreviousLog(bool shouldPrintPreviousLog);
 
 /** Set the maximum number of reports allowed on disk before old ones get
  * deleted.
