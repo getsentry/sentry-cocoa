@@ -1351,27 +1351,6 @@ writeError(const SentryCrashReportWriter *const writer, const char *const key,
             writer->addStringElement(writer, SentryCrashField_Type, SentryCrashExcType_Signal);
             break;
 
-        case SentryCrashMonitorTypeUserReported: {
-            writer->addStringElement(writer, SentryCrashField_Type, SentryCrashExcType_User);
-            writer->beginObject(writer, SentryCrashField_UserReported);
-            {
-                writer->addStringElement(writer, SentryCrashField_Name, crash->userException.name);
-                if (crash->userException.language != NULL) {
-                    writer->addStringElement(
-                        writer, SentryCrashField_Language, crash->userException.language);
-                }
-                if (crash->userException.lineOfCode != NULL) {
-                    writer->addStringElement(
-                        writer, SentryCrashField_LineOfCode, crash->userException.lineOfCode);
-                }
-                if (crash->userException.customStackTrace != NULL) {
-                    writer->addJSONElement(writer, SentryCrashField_Backtrace,
-                        crash->userException.customStackTrace, true);
-                }
-            }
-            writer->endContainer(writer);
-            break;
-        }
         case SentryCrashMonitorTypeSystem:
         case SentryCrashMonitorTypeApplicationState:
         case SentryCrashMonitorTypeZombie:

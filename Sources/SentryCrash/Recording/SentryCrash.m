@@ -107,8 +107,6 @@ getBasePath()
 @synthesize printPreviousLog = _printPreviousLog;
 @synthesize maxReportCount = _maxReportCount;
 @synthesize uncaughtExceptionHandler = _uncaughtExceptionHandler;
-@synthesize currentSnapshotUserReportedExceptionHandler
-    = _currentSnapshotUserReportedExceptionHandler;
 
 // ============================================================================
 #pragma mark - Lifecycle -
