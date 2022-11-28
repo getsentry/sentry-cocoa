@@ -134,6 +134,10 @@ class SentryClientTest: XCTestCase {
         clearTestState()
     }
     
+    func testClientIsEnabled() {
+        XCTAssertTrue(fixture.getSut().isEnabled)
+    }
+    
     func testCaptureMessage() {
         let eventId = fixture.getSut().capture(message: fixture.messageAsString)
 

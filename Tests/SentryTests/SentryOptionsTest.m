@@ -78,6 +78,7 @@
 - (void)assertDefaultValues:(SentryOptions *)options
 {
     XCTAssertEqual(YES, options.enabled);
+    XCTAssertEqual(2.0, options.shutdownTimeInterval);
     XCTAssertEqual(NO, options.debug);
     XCTAssertEqual(kSentryLevelDebug, options.diagnosticLevel);
     XCTAssertEqual(options.environment, kSentryDefaultEnvironment);

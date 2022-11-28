@@ -311,7 +311,8 @@ SENTRY_NO_INIT
 + (void)flush:(NSTimeInterval)timeout NS_SWIFT_NAME(flush(timeout:));
 
 /**
- * Closes the SDK and uninstalls all the integrations.
+ * Closes the SDK, uninstalls all the integrations, and calls flush with
+ * ``SentryOptions/shutdownTimeInterval``.
  */
 + (void)close;
 

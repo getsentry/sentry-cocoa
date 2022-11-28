@@ -493,6 +493,41 @@ class SentrySDKTests: XCTestCase {
         assertIntegrationsInstalled(integrations: [])
     }
     
+    func testClose_SetsClientToNil() {
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+        }
+        
+        SentrySDK.close()
+        
+        XCTAssertNil(SentrySDK.currentHub().client())
+    }
+    
+    func testClose_ClosesClient() {
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+        }
+        
+        let client = SentrySDK.currentHub().client()
+        SentrySDK.close()
+        
+        XCTAssertFalse(client?.isEnabled ?? true)
+    }
+    
+    func testClose_CallsFlushCorrectlyOnTransport() {
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+        }
+        
+        let transport = TestTransport()
+        let client = SentryClient(options: fixture.options)
+        Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
+        SentrySDK.currentHub().bindClient(client)
+        SentrySDK.close()
+        
+        XCTAssertEqual(Options().shutdownTimeInterval, transport.flushInvocations.first)
+    }
+    
     func testFlush_CallsFlushCorrectlyOnTransport() {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString

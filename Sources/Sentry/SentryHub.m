@@ -672,6 +672,14 @@ SentryHub ()
     }
 }
 
+- (void)close
+{
+    SentryClient *client = _client;
+    if (client != nil) {
+        [client close];
+    }
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
