@@ -415,7 +415,10 @@ static NSUInteger startInvocations;
         }
     }
     [hub removeAllIntegrations];
-    [hub bindClient:nil];
+
+    // close the client
+    SentryClient *client = [hub getClient];
+    client.options.enabled = NO;
     [SentrySDK setCurrentHub:nil];
 
     [SentryDependencyContainer reset];
