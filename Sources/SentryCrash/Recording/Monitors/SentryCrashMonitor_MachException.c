@@ -259,7 +259,7 @@ handleExceptions(void *const userData)
         eventID = g_secondaryEventID;
     }
 
-    for (;;) {
+    while (g_isEnabled) {
         SentryCrashLOG_DEBUG("Waiting for mach exception");
 
         // Wait for a message.
@@ -490,15 +490,13 @@ static void
 setEnabled(bool isEnabled)
 {
     if (isEnabled != g_isEnabled) {
-        g_isEnabled = isEnabled;
         if (isEnabled) {
             sentrycrashid_generate(g_primaryEventID);
             sentrycrashid_generate(g_secondaryEventID);
-            if (!installExceptionHandler()) {
-                return;
-            }
+            g_isEnabled = installExceptionHandler();
         } else {
             uninstallExceptionHandler();
+            g_isEnabled = false;
         }
     }
 }
