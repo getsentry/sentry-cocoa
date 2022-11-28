@@ -44,7 +44,7 @@ typedef ucontext64_t SignalUserContext;
 typedef ucontext_t SignalUserContext;
 #endif
 
-static SentryCrashThread g_reservedThreads[10];
+static SentryCrashThread g_reservedThreads[2];
 static int g_reservedThreadsMaxIndex = sizeof(g_reservedThreads) / sizeof(g_reservedThreads[0]) - 1;
 static int g_reservedThreadsCount = 0;
 
@@ -161,7 +161,8 @@ sentrycrashmc_addReservedThread(SentryCrashThread thread)
 void
 sentrycrashmc_clearReservedThreads(void)
 {
-    memset(g_reservedThreads, 0, sizeof(g_reservedThreads));
+    SentryCrashThread reservedThreads[2];
+    memcpy(reservedThreads, g_reservedThreads, sizeof(g_reservedThreads));
     g_reservedThreadsCount = 0;
 }
 
