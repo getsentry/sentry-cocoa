@@ -49,8 +49,8 @@
     [someData writeToFile:filePath atomically:true];
 
     [SentrySDK startWithConfigureOptions:^(SentryOptions *_Nonnull options) {
-        options.enableAutoPerformanceTracking = YES;
-        options.enableFileIOTracking = YES;
+        options.enableAutoPerformanceTracing = YES;
+        options.enableFileIOTracing = YES;
         options.tracesSampleRate = @1;
     }];
 }

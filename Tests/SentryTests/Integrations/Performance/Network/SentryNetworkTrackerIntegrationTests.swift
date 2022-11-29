@@ -50,7 +50,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     
     func testNetworkTrackerDisabled_WhenAutoPerformanceTrackingDisabled() {
         assertNetworkTrackerDisabled { options in
-            options.enableAutoPerformanceTracking = false
+            options.enableAutoPerformanceTracing = false
         }
     }
     
@@ -264,6 +264,8 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     }
         
     private func startSDK() {
+        // Closing the SDK sets enabled to false
+        fixture.options.enabled = true
         SentrySDK.start(options: self.fixture.options)
     }
     

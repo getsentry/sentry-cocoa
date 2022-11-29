@@ -21,7 +21,7 @@ class SentryClientTest: XCTestCase {
         let messageAsString = "message"
         let message: SentryMessage
         
-        let user: SentryUser
+        let user: User
         let fileManager: SentryFileManager
         let random = TestRandom(value: 1.0)
         
@@ -44,7 +44,7 @@ class SentryClientTest: XCTestCase {
             event = Event()
             event.message = message
             
-            user = SentryUser()
+            user = User()
             user.email = "someone@sentry.io"
             user.ipAddress = "127.0.0.1"
             
@@ -1067,8 +1067,8 @@ class SentryClientTest: XCTestCase {
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testTrackPreWarmedAppStartTracking() {
-        testFeatureTrackingAsIntegration(integrationName: "PreWarmedAppStartTracking") {
-            $0.enablePreWarmedAppStartTracking = true
+        testFeatureTrackingAsIntegration(integrationName: "PreWarmedAppStartTracing") {
+            $0.enablePreWarmedAppStartTracing = true
         }
     }
 #endif

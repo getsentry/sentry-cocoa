@@ -98,13 +98,13 @@
     XCTAssertEqual(NO, options.stitchAsyncCode);
     XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);
     XCTAssertEqual(NO, options.sendDefaultPii);
-    XCTAssertTrue(options.enableAutoPerformanceTracking);
+    XCTAssertTrue(options.enableAutoPerformanceTracing);
 #if SENTRY_HAS_UIKIT
-    XCTAssertTrue(options.enableUIViewControllerTracking);
+    XCTAssertTrue(options.enableUIViewControllerTracing);
     XCTAssertFalse(options.attachScreenshot);
     XCTAssertEqual(3.0, options.idleTimeout);
     XCTAssertEqual(options.enableUserInteractionTracing, YES);
-    XCTAssertEqual(options.enablePreWarmedAppStartTracking, NO);
+    XCTAssertEqual(options.enablePreWarmedAppStartTracing, NO);
     XCTAssertEqual(options.attachViewHierarchy, NO);
 #endif
     XCTAssertFalse(options.enableAppHangTracking);
@@ -116,7 +116,7 @@
     XCTAssertEqual(@[], options.inAppExcludes);
     XCTAssertNil(options.urlSessionDelegate);
     XCTAssertEqual(YES, options.enableSwizzling);
-    XCTAssertEqual(NO, options.enableFileIOTracking);
+    XCTAssertEqual(NO, options.enableFileIOTracing);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
 
     NSRegularExpression *regexTrace = options.tracePropagationTargets[0];

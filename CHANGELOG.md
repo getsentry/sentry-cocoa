@@ -27,7 +27,6 @@ This version adds a dependency on Swift.
     - Rename `SentryScope.add(_ crumb:)` to `SentryScope.addBreadcrumb(_ crumb:)` (#2416)
     - Rename `SentryScope.add(_ attachment:)` to `SentryScope.addAttachment(_ attachment:)` (#2416)
     - Rename `Client` to `SentryClient` (#2403)
-    - Rename `User` to `SentryUser` (#2403)
 - Remove public APIs
     - Remove `SentryScope.apply(to:)` (#2416)
     - Remove `SentryScope.apply(to:maxBreadcrumb:)` (#2416)
@@ -37,6 +36,19 @@ This version adds a dependency on Swift.
 - Enable user interaction tracing by default (#2442)
 - Remove default attachment content type (#2443)
 - Make SentrySession and SentrySDKInfo internal (#2451)
+- Rename APM tracking feature flags to tracing (#2450)
+    - Rename `SentryOptions.enableAutoPerformanceTracking` to `enableAutoPerformanceTracing`
+    - Rename `SentryOptions.enableUIViewControllerTracking` to `enableUIViewControllerTracing`
+    - Rename `SentryOptions.enablePreWarmedAppStartTracking` to `enablePreWarmedAppStartTracing`
+    - Rename `SentryOptions.enableFileIOTracking` to `enableFileIOTracing`
+    - Rename `SentryOptions.enableCoreDataTracking` to `enableCoreDataTracing`
+    
+## 7.31.3
+
+### Fixes
+
+- Reporting crashes when restarting the SDK (#2440)
+- Core data span status with error (#2439)
 
 ## 7.31.2
 
