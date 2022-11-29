@@ -291,4 +291,11 @@ class ViewController: UIViewController {
         SentrySDK.flush(timeout: 5)
     }
     
+    @IBAction func close(_ sender: Any) {
+        SentrySDK.close()
+    }
+    
+    @IBAction func startSDK(_ sender: Any) {
+        AppDelegate.startSentry()
+    }
 }

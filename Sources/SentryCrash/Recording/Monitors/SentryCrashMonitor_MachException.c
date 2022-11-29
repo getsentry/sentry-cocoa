@@ -109,6 +109,7 @@ typedef struct {
 // ============================================================================
 
 static volatile bool g_isEnabled = false;
+static volatile bool g_isInstalled = false;
 
 static SentryCrash_MonitorContext g_monitorContext;
 static SentryCrashStackCursor g_stackCursor;
@@ -235,6 +236,42 @@ machExceptionForSignal(int sigNum)
     }
     return 0;
 }
+
+// ============================================================================
+#    pragma mark - Reserved threads -
+// ============================================================================
+/**
+ * We only have reserved threads if SentryCrashCRASH_HAS_MACH.
+ */
+
+bool
+sentrycrashcm_isReservedThread(thread_t thread)
+{
+    return thread == g_primaryMachThread || thread == g_secondaryMachThread;
+}
+
+bool
+sentrycrashcm_hasReservedThreads(void)
+{
+    return g_primaryMachThread != 0 && g_secondaryMachThread != 0;
+}
+
+#else
+bool
+sentrycrashcm_isReservedThread(thread_t thread)
+{
+    return false;
+}
+
+bool
+sentrycrashcm_hasReservedThreads(void)
+{
+    return false;
+}
+
+#endif
+
+#if SentryCrashCRASH_HAS_MACH
 
 // ============================================================================
 #    pragma mark - Handler -
@@ -458,7 +495,6 @@ installExceptionHandler()
         goto failed;
     }
     g_secondaryMachThread = pthread_mach_thread_np(g_secondaryPThread);
-    sentrycrashmc_addReservedThread(g_secondaryMachThread);
 
     SentryCrashLOG_DEBUG("Creating primary exception thread.");
     error = pthread_create(&g_primaryPThread, &attr, &handleExceptions, kThreadPrimary);
@@ -468,9 +504,9 @@ installExceptionHandler()
     }
     pthread_attr_destroy(&attr);
     g_primaryMachThread = pthread_mach_thread_np(g_primaryPThread);
-    sentrycrashmc_addReservedThread(g_primaryMachThread);
 
     SentryCrashLOG_DEBUG("Mach exception handler installed.");
+    g_isInstalled = true;
     return true;
 
 failed:
@@ -485,18 +521,18 @@ failed:
 static void
 setEnabled(bool isEnabled)
 {
-    if (isEnabled != g_isEnabled) {
-        g_isEnabled = isEnabled;
-        if (isEnabled) {
-            sentrycrashid_generate(g_primaryEventID);
-            sentrycrashid_generate(g_secondaryEventID);
-            if (!installExceptionHandler()) {
-                return;
-            }
-        } else {
-            uninstallExceptionHandler();
-        }
+    g_isEnabled = isEnabled;
+    if (g_isEnabled && !g_isInstalled) {
+        sentrycrashid_generate(g_primaryEventID);
+        sentrycrashid_generate(g_secondaryEventID);
+        g_isEnabled = installExceptionHandler();
     }
+
+    // We don't call uninstallExceptionHandler by intention. Instead of canceling the exception
+    // handler threads and restarting them, we let them run. They won't do anything in
+    // handleExceptions when g_isEnabled is false. Trying to clean them up lead to weird crashes in
+    // tests cause sentrycrashmc_suspendEnvironment and sentrycrashmc_resumeEnvironment call
+    // sentrycrashcm_isReservedThread. Instead of fixing that, we let them run.
 }
 
 static bool

@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Reporting crashes when restarting the SDK (#2440)
 - Core data span status with error (#2439)
 
 ## 7.31.2
