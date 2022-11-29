@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Don't capture zero size screenshots
+- Don't capture zero size screenshots ([#2459](https://github.com/getsentry/sentry-cocoa/pull/2459))
 
 ## 7.31.2
 
