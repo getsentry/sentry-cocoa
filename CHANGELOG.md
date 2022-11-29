@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Don't capture zero size screenshots
+
 ## 7.31.2
 
 ### Fixes

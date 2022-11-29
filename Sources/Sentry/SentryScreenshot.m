@@ -47,7 +47,9 @@
 
         if ([window drawViewHierarchyInRect:window.bounds afterScreenUpdates:false]) {
             UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
-            [result addObject:UIImagePNGRepresentation(img)];
+            if (img.size.width > 0 && img.size.height > 0) {
+                [result addObject:UIImagePNGRepresentation(img)];
+            }
         }
 
         UIGraphicsEndImageContext();
