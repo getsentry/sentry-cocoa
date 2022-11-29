@@ -1,6 +1,6 @@
 import XCTest
 
-    class SentryThreadInspectorTests: XCTestCase {
+class SentryThreadInspectorTests: XCTestCase {
     
     private class Fixture {
         var testMachineContextWrapper = TestMachineContextWrapper()

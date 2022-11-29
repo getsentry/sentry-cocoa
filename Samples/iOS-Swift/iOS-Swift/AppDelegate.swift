@@ -7,9 +7,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     static let defaultDSN = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
-
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        
+    
+    static func startSentry() {
         // For testing purposes, we want to be able to change the DSN and store it to disk. In a real app, you shouldn't need this behavior.
         let dsn = DSNStorage.shared.getDSN() ?? AppDelegate.defaultDSN
         DSNStorage.shared.saveDSN(dsn: dsn)
@@ -45,6 +44,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let httpStatusCodeRange = HttpStatusCodeRange(min: 400, max: 599)
             options.failedRequestStatusCodes = [ httpStatusCodeRange ]
         }
+    }
+
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        
+        AppDelegate.startSentry()
         
         if #available(iOS 14.0, *) {
             metricKit.receiveReports()

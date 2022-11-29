@@ -174,6 +174,12 @@ sentrycrashccd_close()
     }
 }
 
+bool
+sentrycrashccd_hasThreadStarted(void)
+{
+    return g_hasThreadStarted;
+}
+
 void
 sentrycrashccd_freeze()
 {
