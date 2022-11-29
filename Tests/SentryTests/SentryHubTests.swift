@@ -180,7 +180,7 @@ class SentryHubTests: XCTestCase {
         let client = SentryClient(options: fixture.options)
         let hub = SentryHub(client: client, andScope: Scope())
 
-        let user = SentryUser()
+        let user = User()
         user.userId = "123"
         hub.setUser(user)
 

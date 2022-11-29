@@ -20,7 +20,7 @@ class ViewController: UIViewController {
             scope.setTag(value: "swift", key: "language")
             scope.setExtra(value: String(describing: self), key: "currentViewController")
 
-            let user = SentryUser(userId: "1")
+            let user = User(userId: "1")
             user.email = "tony@example.com"
             scope.setUser(user)
             
@@ -33,7 +33,7 @@ class ViewController: UIViewController {
         }
 
         // Also works
-        let user = SentryUser(userId: "1")
+        let user = User(userId: "1")
         user.email = "tony1@example.com"
         SentrySDK.setUser(user)
         

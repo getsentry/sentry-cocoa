@@ -27,7 +27,6 @@ This version adds a dependency on Swift.
     - Rename `SentryScope.add(_ crumb:)` to `SentryScope.addBreadcrumb(_ crumb:)` (#2416)
     - Rename `SentryScope.add(_ attachment:)` to `SentryScope.addAttachment(_ attachment:)` (#2416)
     - Rename `Client` to `SentryClient` (#2403)
-    - Rename `User` to `SentryUser` (#2403)
 - Remove public APIs
     - Remove `SentryScope.apply(to:)` (#2416)
     - Remove `SentryScope.apply(to:maxBreadcrumb:)` (#2416)
