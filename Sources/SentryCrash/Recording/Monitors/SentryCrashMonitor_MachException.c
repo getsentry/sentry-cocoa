@@ -259,7 +259,7 @@ sentrycrashcm_hasReservedThreads(void)
 bool
 sentrycrashcm_isReservedThread(thread_t thread)
 {
-    return false
+    return false;
 }
 
 bool
