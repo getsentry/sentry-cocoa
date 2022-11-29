@@ -29,7 +29,15 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
             
             fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate, dispatchQueueWrapper: dispatchQueue)
             
-            appStateManager = SentryAppStateManager(options: options, crashWrapper: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl, dispatchQueueWrapper: dispatchQueue)
+            appStateManager = SentryAppStateManager(
+                options: options,
+                crashWrapper: crashWrapper,
+                fileManager: fileManager,
+                currentDateProvider: currentDate,
+                sysctl: sysctl,
+                dispatchQueueWrapper: dispatchQueue,
+                notificationCenterWrapper: SentryNSNotificationCenterWrapper()
+            )
             
             runtimeInitTimestamp = currentDate.date().addingTimeInterval(0.2)
             moduleInitializationTimestamp = currentDate.date().addingTimeInterval(0.1)
@@ -37,7 +45,13 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         }
         
         var sut: SentryAppStartTracker {
-            let sut = SentryAppStartTracker(currentDateProvider: currentDate, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), appStateManager: appStateManager, sysctl: sysctl, enablePreWarmedAppStartTracing: enablePreWarmedAppStartTracing)
+            let sut = SentryAppStartTracker(
+                currentDateProvider: currentDate,
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                appStateManager: appStateManager,
+                sysctl: sysctl,
+                enablePreWarmedAppStartTracing: enablePreWarmedAppStartTracing
+            )
             return sut
         }
     }

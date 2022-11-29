@@ -94,29 +94,4 @@
     SentryCrashLOGBASIC_ALWAYS(str);
 }
 
-- (void)testSetLogFilename
-{
-    NSString *expected = @"TEST";
-    NSString *logFileName = [self.tempDir stringByAppendingPathComponent:@"log.txt"];
-    sentrycrashlog_setLogFilename([logFileName UTF8String], true);
-    SentryCrashLOGBASIC_ALWAYS(expected);
-    sentrycrashlog_setLogFilename(nil, true);
-
-    NSError *error = nil;
-    NSString *result = [NSString stringWithContentsOfFile:logFileName
-                                                 encoding:NSUTF8StringEncoding
-                                                    error:&error];
-    XCTAssertNil(error, @"");
-    result = [[result componentsSeparatedByString:@"\x0a"] objectAtIndex:0];
-    XCTAssertEqualObjects(result, expected, @"");
-
-    SentryCrashLOGBASIC_ALWAYS(@"blah blah");
-    result = [NSString stringWithContentsOfFile:logFileName
-                                       encoding:NSUTF8StringEncoding
-                                          error:&error];
-    result = [[result componentsSeparatedByString:@"\x0a"] objectAtIndex:0];
-    XCTAssertNil(error, @"");
-    XCTAssertEqualObjects(result, expected, @"");
-}
-
 @end

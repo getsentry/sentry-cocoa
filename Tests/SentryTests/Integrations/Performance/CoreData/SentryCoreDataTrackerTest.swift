@@ -188,6 +188,34 @@ class SentryCoreDataTrackerTests: XCTestCase {
         XCTAssertEqual(updated["SecondTestEntity"] as? Int, 2)
     }
     
+    func test_Request_with_Error() {
+        let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
+        
+        let transaction = startTransaction()
+        let sut = fixture.getSut()
+        
+        let context = fixture.context
+        
+        let _ = try?  sut.fetchManagedObjectContext(context, request: fetch) { _, _ in
+            return nil
+        }
+        
+        XCTAssertEqual(transaction.children.count, 1)
+        XCTAssertEqual(transaction.children[0].status, .internalError)
+    }
+    
+    func test_save_with_Error() {
+        let transaction = startTransaction()
+        let sut = fixture.getSut()
+        fixture.context.inserted = [fixture.testEntity()]
+        try? sut.saveManagedObjectContext(fixture.context) { _ in
+            return false
+        }
+        
+        XCTAssertEqual(transaction.children.count, 1)
+        XCTAssertEqual(transaction.children[0].status, .internalError)
+    }
+    
     func test_Save_NoChanges() {
         let sut = fixture.getSut()
         

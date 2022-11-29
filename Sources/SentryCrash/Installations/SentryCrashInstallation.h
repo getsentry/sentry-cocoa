@@ -49,6 +49,11 @@
  */
 - (void)install;
 
+/**
+ * Call this instead of `-[SentryCrash uninstall]`.
+ */
+- (void)uninstall;
+
 /** Convenience method to call -[SentryCrash sendAllReportsWithCompletion:].
  * This method will set the SentryCrash sink and then send all outstanding
  * reports.

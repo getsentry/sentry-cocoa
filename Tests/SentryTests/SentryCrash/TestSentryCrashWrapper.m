@@ -14,7 +14,7 @@
     instance.internalIsSimulatorBuild = NO;
     instance.internalIsApplicationInForeground = YES;
     instance.installAsyncHooksCalled = NO;
-    instance.closeCalled = NO;
+    instance.uninstallAsyncHooksCalled = NO;
     instance.internalFreeMemorySize = 0;
     instance.internalAppMemorySize = 0;
     instance.internalFreeStorageSize = 0;
@@ -56,9 +56,9 @@
     self.installAsyncHooksCalled = YES;
 }
 
-- (void)close
+- (void)uninstallAsyncHooks
 {
-    self.closeCalled = YES;
+    self.uninstallAsyncHooksCalled = YES;
 }
 
 - (NSDictionary *)systemInfo

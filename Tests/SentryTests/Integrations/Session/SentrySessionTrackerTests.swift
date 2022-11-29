@@ -353,7 +353,7 @@ class SentrySessionTrackerTests: XCTestCase {
     func testStop_RemovesObservers() {
         sut.stop()
         
-        let invocations = fixture.notificationCenter.addObserverWithNotificationInvocations
+        let invocations = fixture.notificationCenter.removeObserverWithNameInvocations
         let notificationNames = invocations.invocations.map { $0.name }
         
         assertNotificationNames(notificationNames)
