@@ -46,9 +46,12 @@ NS_ASSUME_NONNULL_BEGIN
     SentryCrashTestInstallation *installation = [self getSut];
 
     [installation install];
+
+    SentryCrashMonitorType monitorsAfterInstall = [SentryCrash sharedInstance].monitoring;
+
     [installation uninstall];
 
-    [self assertUninstalled:installation];
+    [self assertUninstalled:installation monitorsAfterInstall:monitorsAfterInstall];
 }
 
 - (void)testUninstall_CallsRemoveObservers
@@ -61,14 +64,6 @@ NS_ASSUME_NONNULL_BEGIN
 #if SentryCrashCRASH_HAS_UIAPPLICATION
     XCTAssertEqual(5, self.notificationCenter.removeWithNotificationInvocationsCount);
 #endif
-}
-
-- (void)testUninstall_BeforeInstall
-{
-    SentryCrashTestInstallation *installation = [self getSut];
-    [installation uninstall];
-
-    [self assertUninstalled:installation];
 }
 
 - (void)testUninstall_Install
@@ -92,7 +87,7 @@ NS_ASSUME_NONNULL_BEGIN
         crashHandlerDataAfterInstall:crashHandlerDataAfterInstall];
 
     [installation uninstall];
-    [self assertUninstalled:installation];
+    [self assertUninstalled:installation monitorsAfterInstall:monitorsAfterInstall];
 
     [installation install];
     [self assertReinstalled:installation
@@ -117,16 +112,11 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertNotEqual(NULL, sentrycrashcm_getEventCallback());
     XCTAssertTrue(sentrycrashccd_hasThreadStarted());
 
-    // SentryCrash only fills the reserved threads list if the mach exception monitor is enabled.
-    SentryCrashMonitorType type = sentrycrashcm_getActiveMonitors();
-    if (type & SentryCrashMonitorTypeMachException) {
-        XCTAssertTrue(sentrycrashcm_hasReservedThreads());
-    } else {
-        XCTAssertFalse(sentrycrashcm_hasReservedThreads());
-    }
+    [self assertReservedThreads:monitorsAfterInstall];
 }
 
 - (void)assertUninstalled:(SentryCrashTestInstallation *)installation
+     monitorsAfterInstall:(SentryCrashMonitorType)monitorsAfterInstall
 {
     SentryCrash *sentryCrash = [SentryCrash sharedInstance];
     XCTAssertEqual(NULL, [installation g_crashHandlerData]);
@@ -135,7 +125,20 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqual(NULL, sentryCrash.onCrash);
     XCTAssertEqual(NULL, sentrycrashcm_getEventCallback());
     XCTAssertFalse(sentrycrashccd_hasThreadStarted());
-    XCTAssertFalse(sentrycrashcm_hasReservedThreads());
+
+    [self assertReservedThreads:monitorsAfterInstall];
+}
+
+/**
+ * SentryCrash only fills the reserved threads list if the mach exception monitor is enabled.
+ */
+- (void)assertReservedThreads:(SentryCrashMonitorType)monitorsAfterInstall
+{
+    if (monitorsAfterInstall & SentryCrashMonitorTypeMachException) {
+        XCTAssertTrue(sentrycrashcm_hasReservedThreads());
+    } else {
+        XCTAssertFalse(sentrycrashcm_hasReservedThreads());
+    }
 }
 
 @end

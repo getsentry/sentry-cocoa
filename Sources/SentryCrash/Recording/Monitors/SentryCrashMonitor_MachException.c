@@ -109,6 +109,7 @@ typedef struct {
 // ============================================================================
 
 static volatile bool g_isEnabled = false;
+static volatile bool g_isInstalled = false;
 
 static SentryCrash_MonitorContext g_monitorContext;
 static SentryCrashStackCursor g_stackCursor;
@@ -505,6 +506,7 @@ installExceptionHandler()
     g_primaryMachThread = pthread_mach_thread_np(g_primaryPThread);
 
     SentryCrashLOG_DEBUG("Mach exception handler installed.");
+    g_isInstalled = true;
     return true;
 
 failed:
@@ -519,17 +521,11 @@ failed:
 static void
 setEnabled(bool isEnabled)
 {
-    if (isEnabled != g_isEnabled) {
-        g_isEnabled = isEnabled;
-        if (isEnabled) {
-            sentrycrashid_generate(g_primaryEventID);
-            sentrycrashid_generate(g_secondaryEventID);
-            if (!installExceptionHandler()) {
-                return;
-            }
-        } else {
-            uninstallExceptionHandler();
-        }
+    g_isEnabled = isEnabled;
+    if (g_isEnabled && !g_isInstalled) {
+        sentrycrashid_generate(g_primaryEventID);
+        sentrycrashid_generate(g_secondaryEventID);
+        g_isEnabled = installExceptionHandler();
     }
 }
 
