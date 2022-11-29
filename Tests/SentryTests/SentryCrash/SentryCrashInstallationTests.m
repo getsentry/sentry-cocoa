@@ -62,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
     [installation uninstall];
 
 #if SentryCrashCRASH_HAS_UIAPPLICATION
-    XCTAssertEqual(5, self.notificationCenter.removeWithNotificationInvocationsCount);
+    XCTAssertEqual(5, self.notificationCenter.removeObserverWithNameInvocations.count);
 #endif
 }
 
@@ -95,7 +95,7 @@ NS_ASSUME_NONNULL_BEGIN
         crashHandlerDataAfterInstall:crashHandlerDataAfterInstall];
 
 #if SentryCrashCRASH_HAS_UIAPPLICATION
-    XCTAssertEqual(55, self.notificationCenter.removeWithNotificationInvocationsCount);
+    XCTAssertEqual(55, self.notificationCenter.removeObserverWithNameInvocations.count);
 #endif
 }
 
