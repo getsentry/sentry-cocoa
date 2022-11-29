@@ -407,7 +407,7 @@ static NSUInteger startInvocations;
 #if SENTRY_HAS_UIKIT
     // force the AppStateManager to unsubscribe, see
     // https://github.com/getsentry/sentry-cocoa/issues/2455
-    [[SentryDependencyContainer sharedInstance].appStateManager stop:YES];
+    [[SentryDependencyContainer sharedInstance].appStateManager stopWithForce:YES];
 #endif
 
     // close the client

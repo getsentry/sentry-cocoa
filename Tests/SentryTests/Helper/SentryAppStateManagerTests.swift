@@ -88,7 +88,7 @@ class SentryAppStateManagerTests: XCTestCase {
         sut.stop()
         XCTAssertEqual(sut.startCount, 2)
 
-        sut.stop(true)
+        sut.stop(withForce: true)
         XCTAssertEqual(sut.startCount, 0)
 
         XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameInvocations.count, 4)

@@ -23,7 +23,7 @@ SENTRY_NO_INIT
 
 - (void)start;
 - (void)stop;
-- (void)stop:(BOOL)forceStop;
+- (void)stopWithForce:(BOOL)forceStop;
 
 /**
  * Builds the current app state.

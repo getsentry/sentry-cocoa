@@ -85,10 +85,10 @@ SentryAppStateManager ()
 
 - (void)stop
 {
-    [self stop:NO];
+    [self stopWithForce:NO];
 }
 
-- (void)stop:(BOOL)forceStop
+- (void)stopWithForce:(BOOL)forceStop
 {
     if (self.startCount <= 0) {
         return;
