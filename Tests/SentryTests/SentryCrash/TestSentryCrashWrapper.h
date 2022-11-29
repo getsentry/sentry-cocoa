@@ -25,7 +25,7 @@ SENTRY_NO_INIT
 
 @property (nonatomic, assign) BOOL installAsyncHooksCalled;
 
-@property (nonatomic, assign) BOOL closeCalled;
+@property (nonatomic, assign) BOOL uninstallAsyncHooksCalled;
 
 @property (nonatomic, assign) uint64_t internalFreeMemorySize;
 

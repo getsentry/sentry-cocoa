@@ -157,9 +157,11 @@ SentryCrashIntegration ()
 - (void)uninstall
 {
     if (nil != installation) {
-        [self.crashAdapter close];
+        [installation uninstall];
         installationToken = 0;
     }
+
+    [self.crashAdapter uninstallAsyncHooks];
 
     [NSNotificationCenter.defaultCenter removeObserver:self
                                                   name:NSCurrentLocaleDidChangeNotification
