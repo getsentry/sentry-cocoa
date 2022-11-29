@@ -7,9 +7,9 @@ class TestNSNotificationCenterWrapper: SentryNSNotificationCenterWrapper {
         addObserverInvocations.record((observer, aSelector, aName))
     }
     
-    var addObserverWithNotificationInvocations = Invocations<(observer: Any, name: NSNotification.Name)>()
+    var removeObserverWithNameInvocations = Invocations<(observer: Any, name: NSNotification.Name)>()
     override func removeObserver(_ observer: Any, name aName: NSNotification.Name) {
-        addObserverWithNotificationInvocations.record((observer, aName))
+        removeObserverWithNameInvocations.record((observer, aName))
     }
     
     var removeObserverInvocations = Invocations<Any>()

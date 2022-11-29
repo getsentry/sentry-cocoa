@@ -11,6 +11,7 @@ class SentryAppStateManagerTests: XCTestCase {
         let fileManager: SentryFileManager
         let currentDate = TestCurrentDateProvider()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
+        let notificationCenterWrapper = TestNSNotificationCenterWrapper()
 
         init() {
             options = Options()
@@ -27,7 +28,8 @@ class SentryAppStateManagerTests: XCTestCase {
                 fileManager: fileManager,
                 currentDateProvider: currentDate,
                 sysctl: TestSysctl(),
-                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                notificationCenterWrapper: notificationCenterWrapper
             )
         }
     }
@@ -82,13 +84,14 @@ class SentryAppStateManagerTests: XCTestCase {
         sut.start()
         sut.start()
         sut.start()
-        sut.start()
 
         sut.stop()
-        XCTAssertEqual(sut.startCount, 3)
+        XCTAssertEqual(sut.startCount, 2)
 
         sut.stop(true)
         XCTAssertEqual(sut.startCount, 0)
+
+        XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameInvocations.count, 4)
     }
 
     func testUpdateAppState() {

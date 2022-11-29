@@ -492,6 +492,27 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(0, hub.installedIntegrations.count)
         assertIntegrationsInstalled(integrations: [])
     }
+
+    func testClose_StopsAppStateManager() {
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+            options.tracesSampleRate = 1
+        }
+
+        let appStateManager = SentryDependencyContainer.sharedInstance().appStateManager
+        XCTAssertEqual(appStateManager.startCount, 1)
+
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+            options.tracesSampleRate = 1
+        }
+
+        XCTAssertEqual(appStateManager.startCount, 2)
+
+        SentrySDK.close()
+
+        XCTAssertEqual(appStateManager.startCount, 0)
+    }
     
     func testFlush_CallsFlushCorrectlyOnTransport() {
         SentrySDK.start { options in
