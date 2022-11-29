@@ -47,8 +47,11 @@
 
         if ([window drawViewHierarchyInRect:window.bounds afterScreenUpdates:false]) {
             UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
-            if (img.size.width > 0 && img.size.height > 0) {
-                [result addObject:UIImagePNGRepresentation(img)];
+            if (img.size.width > 0 || img.size.height > 0) {
+                NSData* bytes = UIImagePNGRepresentation(img);
+                if (bytes && bytes.length > 0) {
+                   [result addObject:bytes];
+                }
             }
         }
 
