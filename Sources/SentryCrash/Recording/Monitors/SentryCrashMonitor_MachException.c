@@ -520,13 +520,15 @@ static void
 setEnabled(bool isEnabled)
 {
     if (isEnabled != g_isEnabled) {
+        g_isEnabled = isEnabled;
         if (isEnabled) {
             sentrycrashid_generate(g_primaryEventID);
             sentrycrashid_generate(g_secondaryEventID);
-            g_isEnabled = installExceptionHandler();
+            if (!installExceptionHandler()) {
+                return;
+            }
         } else {
             uninstallExceptionHandler();
-            g_isEnabled = false;
         }
     }
 }
