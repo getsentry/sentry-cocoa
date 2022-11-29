@@ -9,6 +9,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryAppStateManager : NSObject
 SENTRY_NO_INIT
 
+@property (nonatomic, readonly) NSInteger startCount;
+
 - (instancetype)initWithOptions:(SentryOptions *)options
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
                     fileManager:(SentryFileManager *)fileManager
@@ -20,6 +22,7 @@ SENTRY_NO_INIT
 
 - (void)start;
 - (void)stop;
+- (void)stop:(BOOL)forceStop;
 
 /**
  * Builds the current app state.

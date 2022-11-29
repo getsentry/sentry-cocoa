@@ -1,6 +1,7 @@
 #import "SentrySDK.h"
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
+#import "SentryAppStateManager.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
@@ -402,6 +403,10 @@ static NSUInteger startInvocations;
         }
     }
     [hub removeAllIntegrations];
+
+    // force the AppStateManager to unsubscribe, see
+    // https://github.com/getsentry/sentry-cocoa/issues/2455
+    [[SentryDependencyContainer sharedInstance].appStateManager stop:YES];
 
     // close the client
     SentryClient *client = [hub getClient];

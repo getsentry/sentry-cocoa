@@ -86,11 +86,20 @@ SentryAppStateManager ()
 
 - (void)stop
 {
+    [self stop:NO];
+}
+
+- (void)stop:(BOOL)forceStop
+{
     if (self.startCount <= 0) {
         return;
     }
 
-    self.startCount -= 1;
+    if (forceStop) {
+        self.startCount = 0;
+    } else {
+        self.startCount -= 1;
+    }
 
     if (self.startCount == 0) {
         // Remove the observers with the most specific detail possible, see

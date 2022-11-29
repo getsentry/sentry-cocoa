@@ -76,6 +76,21 @@ class SentryAppStateManagerTests: XCTestCase {
         XCTAssertNotNil(fixture.fileManager.readAppState())
     }
 
+    func testForcedStop() {
+        XCTAssertNil(fixture.fileManager.readAppState())
+
+        sut.start()
+        sut.start()
+        sut.start()
+        sut.start()
+
+        sut.stop()
+        XCTAssertEqual(sut.startCount, 3)
+
+        sut.stop(true)
+        XCTAssertEqual(sut.startCount, 0)
+    }
+
     func testUpdateAppState() {
         sut.storeCurrentAppState()
 
