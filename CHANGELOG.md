@@ -5,6 +5,7 @@
 ### Fixes
 
 - Don't capture zero size screenshots ([#2459](https://github.com/getsentry/sentry-cocoa/pull/2459))
+- Core data span status with error (#2439)
 
 ## 7.31.2
 
