@@ -139,20 +139,6 @@ bool sentrycrashmc_canHaveCPUState(const struct SentryCrashMachineContext *const
 bool sentrycrashmc_hasValidExceptionRegisters(
     const struct SentryCrashMachineContext *const context);
 
-/** Add a thread to the reserved threads list.
- *
- * @param thread The thread to add to the list.
- */
-void sentrycrashmc_addReservedThread(SentryCrashThread thread);
-
-/** Clears the list of reserved threads.
- */
-void sentrycrashmc_clearReservedThreads(void);
-
-/** Check if the reserved threads array is empty.
- */
-bool sentrycrashmc_isReservedThreadsEmpty(void);
-
 #ifdef __cplusplus
 }
 #endif

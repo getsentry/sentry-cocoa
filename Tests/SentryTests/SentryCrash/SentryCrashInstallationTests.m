@@ -2,8 +2,8 @@
 #import "SentryCrashCachedData.h"
 #import "SentryCrashInstallation+Private.h"
 #import "SentryCrashInstallation.h"
-#import "SentryCrashMachineContext.h"
 #import "SentryCrashMonitor.h"
+#import "SentryCrashMonitor_MachException.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import "SentryTests-Swift.h"
 #import <XCTest/XCTest.h>
@@ -120,9 +120,9 @@ NS_ASSUME_NONNULL_BEGIN
     // SentryCrash only fills the reserved threads list if the mach exception monitor is enabled.
     SentryCrashMonitorType type = sentrycrashcm_getActiveMonitors();
     if (type & SentryCrashMonitorTypeMachException) {
-        XCTAssertFalse(sentrycrashmc_isReservedThreadsEmpty());
+        XCTAssertFalse(sentrycrashcm_hasReservedThreads());
     } else {
-        XCTAssertTrue(sentrycrashmc_isReservedThreadsEmpty());
+        XCTAssertTrue(sentrycrashcm_hasReservedThreads());
     }
 }
 
@@ -135,7 +135,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqual(NULL, sentryCrash.onCrash);
     XCTAssertEqual(NULL, sentrycrashcm_getEventCallback());
     XCTAssertFalse(sentrycrashccd_hasThreadStarted());
-    XCTAssertTrue(sentrycrashmc_isReservedThreadsEmpty());
+    XCTAssertTrue(sentrycrashcm_hasReservedThreads());
 }
 
 @end

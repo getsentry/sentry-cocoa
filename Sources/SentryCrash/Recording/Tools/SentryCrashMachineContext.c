@@ -28,6 +28,7 @@
 #include "SentryCrashCPU.h"
 #include "SentryCrashCPU_Apple.h"
 #include "SentryCrashMachineContext_Apple.h"
+#include "SentryCrashMonitor_MachException.h"
 #include "SentryCrashStackCursor_MachineContext.h"
 #include "SentryCrashSystemCapabilities.h"
 
@@ -43,10 +44,6 @@ typedef ucontext64_t SignalUserContext;
 #    define UC_MCONTEXT uc_mcontext
 typedef ucontext_t SignalUserContext;
 #endif
-
-static SentryCrashThread g_reservedThreads[10];
-static int g_reservedThreadsMaxIndex = sizeof(g_reservedThreads) / sizeof(g_reservedThreads[0]) - 1;
-static int g_reservedThreadsCount = 0;
 
 static inline bool
 isStackOverflow(const SentryCrashMachineContext *const context)
@@ -147,48 +144,6 @@ sentrycrashmc_getContextForSignal(
 }
 
 void
-sentrycrashmc_addReservedThread(SentryCrashThread thread)
-{
-    int nextIndex = g_reservedThreadsCount;
-    if (nextIndex > g_reservedThreadsMaxIndex) {
-        SentryCrashLOG_ERROR(
-            "Too many reserved threads (%d). Max is %d", nextIndex, g_reservedThreadsMaxIndex);
-        return;
-    }
-    g_reservedThreads[g_reservedThreadsCount++] = thread;
-}
-
-void
-sentrycrashmc_clearReservedThreads(void)
-{
-    memset(g_reservedThreads, 0, sizeof(g_reservedThreads));
-    g_reservedThreadsCount = 0;
-}
-
-bool
-sentrycrashmc_isReservedThreadsEmpty(void)
-{
-    bool allZero = true;
-    for (int i = 0; i < g_reservedThreadsMaxIndex; i++) {
-        allZero &= g_reservedThreads[i] == 0;
-    }
-    return g_reservedThreadsCount == 0 && allZero;
-}
-
-#if SentryCrashCRASH_HAS_THREADS_API
-static inline bool
-isThreadInList(thread_t thread, SentryCrashThread *list, int listCount)
-{
-    for (int i = 0; i < listCount; i++) {
-        if (list[i] == (SentryCrashThread)thread) {
-            return true;
-        }
-    }
-    return false;
-}
-#endif
-
-void
 sentrycrashmc_suspendEnvironment(
     thread_act_array_t *suspendedThreads, mach_msg_type_number_t *numSuspendedThreads)
 {
@@ -205,8 +160,7 @@ sentrycrashmc_suspendEnvironment(
 
     for (mach_msg_type_number_t i = 0; i < *numSuspendedThreads; i++) {
         thread_t thread = (*suspendedThreads)[i];
-        if (thread != thisThread
-            && !isThreadInList(thread, g_reservedThreads, g_reservedThreadsCount)) {
+        if (thread != thisThread && !sentrycrashcm_isReservedThread(thread)) {
             if ((kr = thread_suspend(thread)) != KERN_SUCCESS) {
                 // Record the error and keep going.
                 SentryCrashLOG_ERROR("thread_suspend (%08x): %s", thread, mach_error_string(kr));
@@ -235,8 +189,7 @@ sentrycrashmc_resumeEnvironment(
 
     for (mach_msg_type_number_t i = 0; i < numThreads; i++) {
         thread_t thread = threads[i];
-        if (thread != thisThread
-            && !isThreadInList(thread, g_reservedThreads, g_reservedThreadsCount)) {
+        if (thread != thisThread && !sentrycrashcm_isReservedThread(thread)) {
             if ((kr = thread_resume(thread)) != KERN_SUCCESS) {
                 // Record the error and keep going.
                 SentryCrashLOG_ERROR("thread_resume (%08x): %s", thread, mach_error_string(kr));

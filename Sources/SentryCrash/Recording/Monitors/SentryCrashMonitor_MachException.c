@@ -236,6 +236,18 @@ machExceptionForSignal(int sigNum)
     return 0;
 }
 
+bool
+sentrycrashcm_isReservedThread(thread_t thread)
+{
+    return thread == g_primaryMachThread || thread == g_secondaryMachThread;
+}
+
+bool
+sentrycrashcm_hasReservedThreads(void)
+{
+    return g_primaryMachThread == 0 && g_secondaryMachThread == 0;
+}
+
 // ============================================================================
 #    pragma mark - Handler -
 // ============================================================================
@@ -395,10 +407,6 @@ uninstallExceptionHandler()
         g_secondaryPThread = 0;
     }
 
-    // Only this file is calling sentrycrashmc_addReservedThread, so it's fine to clear the list
-    // instead of removing the threads this file added.
-    sentrycrashmc_clearReservedThreads();
-
     g_exceptionPort = MACH_PORT_NULL;
     SentryCrashLOG_DEBUG("Mach exception handlers uninstalled.");
 }
@@ -462,7 +470,6 @@ installExceptionHandler()
         goto failed;
     }
     g_secondaryMachThread = pthread_mach_thread_np(g_secondaryPThread);
-    sentrycrashmc_addReservedThread(g_secondaryMachThread);
 
     SentryCrashLOG_DEBUG("Creating primary exception thread.");
     error = pthread_create(&g_primaryPThread, &attr, &handleExceptions, kThreadPrimary);
@@ -472,7 +479,6 @@ installExceptionHandler()
     }
     pthread_attr_destroy(&attr);
     g_primaryMachThread = pthread_mach_thread_np(g_primaryPThread);
-    sentrycrashmc_addReservedThread(g_primaryMachThread);
 
     SentryCrashLOG_DEBUG("Mach exception handler installed.");
     return true;
