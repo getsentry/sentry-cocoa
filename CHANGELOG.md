@@ -41,6 +41,13 @@ This version adds a dependency on Swift.
     - Rename `SentryOptions.enablePreWarmedAppStartTracking` to `enablePreWarmedAppStartTracing`
     - Rename `SentryOptions.enableFileIOTracking` to `enableFileIOTracing`
     - Rename `SentryOptions.enableCoreDataTracking` to `enableCoreDataTracing`
+    
+## 7.31.3
+
+### Fixes
+
+- Reporting crashes when restarting the SDK (#2440)
+- Core data span status with error (#2439)
 
 ## 7.31.2
 

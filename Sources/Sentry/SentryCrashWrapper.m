@@ -56,16 +56,9 @@ NS_ASSUME_NONNULL_BEGIN
     sentrycrash_install_async_hooks();
 }
 
-- (void)close
+- (void)uninstallAsyncHooks
 {
-    SentryCrash *handler = [SentryCrash sharedInstance];
-    @synchronized(handler) {
-        [handler setMonitoring:SentryCrashMonitorTypeNone];
-        handler.onCrash = NULL;
-    }
-
     sentrycrash_deactivate_async_hooks();
-    sentrycrashccd_close();
 }
 
 - (NSDictionary *)systemInfo
