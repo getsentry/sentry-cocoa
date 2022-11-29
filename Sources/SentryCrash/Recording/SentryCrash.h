@@ -208,7 +208,9 @@ static NSString *const SENTRYCRASH_REPORT_ATTACHMENTS_ITEM = @"attachments";
 /**
  * It's not really possible to completely uninstall SentryCrash. The best we can do is to deactivate
  * all the monitors, keep track of the already installed monitors to install them again if someone
- * calls install, clear the `onCrash` callback, and stop the SentryCrashCachedData.
+ * calls install, clear the `onCrash` callback, and stop the SentryCrashCachedData. For the
+ * ``SentryCrashMonitorTypeMachException`` we let the exception threads running, but they don't
+ * report anything.
  */
 - (void)uninstall;
 

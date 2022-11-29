@@ -527,6 +527,12 @@ setEnabled(bool isEnabled)
         sentrycrashid_generate(g_secondaryEventID);
         g_isEnabled = installExceptionHandler();
     }
+
+    // We don't call uninstallExceptionHandler by intention. Instead of canceling the exception
+    // handler threads and restarting them, we let them run. They won't do anything in
+    // handleExceptions when g_isEnabled is false. Trying to clean them up lead to weird crashes in
+    // tests cause sentrycrashmc_suspendEnvironment and sentrycrashmc_resumeEnvironment call
+    // sentrycrashcm_isReservedThread. Instead of fixing that, we let them run.
 }
 
 static bool
