@@ -493,6 +493,7 @@ class SentrySDKTests: XCTestCase {
         assertIntegrationsInstalled(integrations: [])
     }
 
+#if SENTRY_HAS_UIKIT
     func testClose_StopsAppStateManager() {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
@@ -513,6 +514,7 @@ class SentrySDKTests: XCTestCase {
 
         XCTAssertEqual(appStateManager.startCount, 0)
     }
+#endif
     
     func testFlush_CallsFlushCorrectlyOnTransport() {
         SentrySDK.start { options in

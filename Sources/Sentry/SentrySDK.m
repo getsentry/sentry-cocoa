@@ -404,9 +404,11 @@ static NSUInteger startInvocations;
     }
     [hub removeAllIntegrations];
 
+#if SENTRY_HAS_UIKIT
     // force the AppStateManager to unsubscribe, see
     // https://github.com/getsentry/sentry-cocoa/issues/2455
     [[SentryDependencyContainer sharedInstance].appStateManager stop:YES];
+#endif
 
     // close the client
     SentryClient *client = [hub getClient];
