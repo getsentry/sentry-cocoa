@@ -1,5 +1,5 @@
+#import "PrivatesHeader.h"
 #import "SentryAppStartMeasurement.h"
-#import "SentryDefines-Private.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryScreenFrames.h"

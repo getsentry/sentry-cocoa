@@ -1,4 +1,4 @@
-#import "SentryDefines-Private.h"
+#import "PrivatesHeader.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

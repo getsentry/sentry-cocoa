@@ -1,4 +1,4 @@
-#import "SentryDefines-Private.h"
+#import "PrivatesHeader.h"
 #import <Foundation/Foundation.h>
 
 @class SentryEvent, SentrySession, SentrySdkInfo, SentryId, SentryUserFeedback, SentryAttachment,

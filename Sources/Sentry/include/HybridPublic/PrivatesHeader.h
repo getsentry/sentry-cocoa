@@ -6,3 +6,9 @@
 #else
 #    import "SentryDefines.h"
 #endif
+
+#if __has_include(<Sentry/SentryProfilingConditionals.h>)
+#    import <Sentry/SentryProfilingConditionals.h>
+#else
+#    import "SentryProfilingConditionals.hh"
+#endif
