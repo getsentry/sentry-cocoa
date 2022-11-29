@@ -236,6 +236,13 @@ machExceptionForSignal(int sigNum)
     return 0;
 }
 
+// ============================================================================
+#    pragma mark - Reserved threads -
+// ============================================================================
+/**
+ * We only have reserved threads if SentryCrashCRASH_HAS_MACH.
+ */
+
 bool
 sentrycrashcm_isReservedThread(thread_t thread)
 {
@@ -245,8 +252,25 @@ sentrycrashcm_isReservedThread(thread_t thread)
 bool
 sentrycrashcm_hasReservedThreads(void)
 {
-    return g_primaryMachThread == 0 && g_secondaryMachThread == 0;
+    return g_primaryMachThread != 0 && g_secondaryMachThread != 0;
 }
+
+#else
+bool
+sentrycrashcm_isReservedThread(thread_t thread)
+{
+    return false
+}
+
+bool
+sentrycrashcm_hasReservedThreads(void)
+{
+    return false;
+}
+
+#endif
+
+#if SentryCrashCRASH_HAS_MACH
 
 // ============================================================================
 #    pragma mark - Handler -

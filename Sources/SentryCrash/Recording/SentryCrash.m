@@ -332,7 +332,7 @@ getBasePath()
 {
     self.monitoringWhenUninstalled = self.monitoring;
     [self setMonitoring:SentryCrashMonitorTypeNone];
-    self.monitoringFromUninstalledToRestore = NO;
+    self.monitoringFromUninstalledToRestore = YES;
     self.onCrash = NULL;
     sentrycrash_uninstall();
 

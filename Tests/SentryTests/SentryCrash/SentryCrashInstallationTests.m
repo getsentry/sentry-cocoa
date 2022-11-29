@@ -120,9 +120,9 @@ NS_ASSUME_NONNULL_BEGIN
     // SentryCrash only fills the reserved threads list if the mach exception monitor is enabled.
     SentryCrashMonitorType type = sentrycrashcm_getActiveMonitors();
     if (type & SentryCrashMonitorTypeMachException) {
-        XCTAssertFalse(sentrycrashcm_hasReservedThreads());
-    } else {
         XCTAssertTrue(sentrycrashcm_hasReservedThreads());
+    } else {
+        XCTAssertFalse(sentrycrashcm_hasReservedThreads());
     }
 }
 
@@ -135,7 +135,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqual(NULL, sentryCrash.onCrash);
     XCTAssertEqual(NULL, sentrycrashcm_getEventCallback());
     XCTAssertFalse(sentrycrashccd_hasThreadStarted());
-    XCTAssertTrue(sentrycrashcm_hasReservedThreads());
+    XCTAssertFalse(sentrycrashcm_hasReservedThreads());
 }
 
 @end
