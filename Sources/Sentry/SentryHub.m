@@ -674,10 +674,7 @@ SentryHub ()
 
 - (void)close
 {
-    SentryClient *client = _client;
-    if (client != nil) {
-        [client close];
-    }
+    [_client close];
 }
 
 @end
