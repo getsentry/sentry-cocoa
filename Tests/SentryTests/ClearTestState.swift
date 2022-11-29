@@ -12,7 +12,6 @@ class TestCleanup: NSObject {
         SentrySDK.setCurrentHub(nil)
         SentrySDK.crashedLastRunCalled = false
         SentrySDK.startInvocations = 0
-
         PrivateSentrySDKOnly.onAppStartMeasurementAvailable = nil
         PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = false
         SentrySDK.setAppStartMeasurement(nil)
