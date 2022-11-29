@@ -295,7 +295,7 @@ handleExceptions(void *const userData)
         eventID = g_secondaryEventID;
     }
 
-    while (g_isEnabled) {
+    for (;;) {
         SentryCrashLOG_DEBUG("Waiting for mach exception");
 
         // Wait for a message.
