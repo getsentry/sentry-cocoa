@@ -5,6 +5,32 @@ import SwiftUI
 import SentryInternal
 #endif
 
+/// A control to measure performance of you views and send the result as transaction to Sentry.io.
+///
+/// You create a transaction by wrapping your views with this.
+///
+///     SentryPerformanceView {
+///         VStack {
+///             //The part of your content you want to measure
+///         }
+///     }
+///
+/// By default the transaction name will be the first root view, in the case above `VStack`,
+/// you can give your transaction a custom name by providing the name parameter.
+///
+///     SentryPerformanceView("My Awesome Screen") {
+///         VStack {
+///             //The part of your content you want to measure
+///         }
+///     }
+///
+/// Alternatively you can use the view extension:
+///
+///     VStack {
+///         //The part of your content you want to measure
+///     }.sentryTransaction("My Awesome Screen")
+///
+///
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 public struct SentryPerformanceView<Content: View>: View {
     
@@ -12,11 +38,11 @@ public struct SentryPerformanceView<Content: View>: View {
     let name: String
     let id: SpanId
     
-    public init(_ name: String? = nil, content : @escaping () -> Content) {
+    public init(_ transactionName: String? = nil, content : @escaping () -> Content) {
         self.content = content
-        self.name = name ?? SentryPerformanceView.extractName(content: Content.self)
+        self.name = transactionName ?? SentryPerformanceView.extractName(content: Content.self)
         id = SentryPerformanceTracker.shared.startSpan(withName: self.name,
-                                                       nameSource: name == nil ? .component : .custom,
+                                                       nameSource: transactionName == nil ? .component : .custom,
                                                        operation: "ui")
     }
     
