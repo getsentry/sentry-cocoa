@@ -16,8 +16,8 @@
 		7BB6225426A56C5000D0E75E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7BB6225326A56C5000D0E75E /* Preview Assets.xcassets */; };
 		7BB6225E26A56CB600D0E75E /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7BB6225C26A56CB600D0E75E /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		84D4FEB528ECD53500EDAAFE /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D4FEB228ECD52E00EDAAFE /* Sentry.framework */; };
-		D8BBD38C2901AE450011F850 /* SentrySwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BBD38B2901AE400011F850 /* SentrySwiftUI.framework */; };
-		D8BBD38D2901AE450011F850 /* SentrySwiftUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D8BBD38B2901AE400011F850 /* SentrySwiftUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D8199DCD29376FD90074249E /* SentrySwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BBD38B2901AE400011F850 /* SentrySwiftUI.framework */; };
+		D8199DCE29376FD90074249E /* SentrySwiftUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D8BBD38B2901AE400011F850 /* SentrySwiftUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,12 +56,12 @@
 			remoteGlobalIDString = 63AA76651EB8CB2F00D153DE;
 			remoteInfo = SentryTests;
 		};
-		D8BBD36628FEF6E20011F850 /* PBXContainerItemProxy */ = {
+		D8199DCB29376FD30074249E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 84D4FEA828ECD52700EDAAFE /* Sentry.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D8BBD35828FEF61B0011F850;
-			remoteInfo = SentryUI;
+			proxyType = 2;
+			remoteGlobalIDString = D81A3488291D0AC0005A27A9;
+			remoteInfo = SentryPrivate;
 		};
 		D8BBD38A2901AE400011F850 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -80,7 +80,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				7BB6225E26A56CB600D0E75E /* Sentry.framework in Embed Frameworks */,
-				D8BBD38D2901AE450011F850 /* SentrySwiftUI.framework in Embed Frameworks */,
+				D8199DCE29376FD90074249E /* SentrySwiftUI.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -125,7 +125,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				84D4FEB528ECD53500EDAAFE /* Sentry.framework in Frameworks */,
-				D8BBD38C2901AE450011F850 /* SentrySwiftUI.framework in Frameworks */,
+				D8199DCD29376FD90074249E /* SentrySwiftUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -137,6 +137,7 @@
 			children = (
 				0A94157E28F6B893006A5DD1 /* Sentry.framework */,
 				0A94158028F6B893006A5DD1 /* SentryTests.xctest */,
+				D8199DCC29376FD30074249E /* SentryPrivate.framework */,
 				D8BBD38B2901AE400011F850 /* SentrySwiftUI.framework */,
 			);
 			name = Products;
@@ -260,7 +261,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D8BBD36728FEF6E20011F850 /* PBXTargetDependency */,
 			);
 			name = "iOS-SwiftUI";
 			productName = "iOS-SwiftUI";
@@ -343,6 +343,13 @@
 			remoteRef = 84D4FEB328ECD52E00EDAAFE /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		D8199DCC29376FD30074249E /* SentryPrivate.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SentryPrivate.framework;
+			remoteRef = D8199DCB29376FD30074249E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		D8BBD38B2901AE400011F850 /* SentrySwiftUI.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
@@ -398,11 +405,6 @@
 			isa = PBXTargetDependency;
 			target = 7BB6224826A56C4E00D0E75E /* iOS-SwiftUI */;
 			targetProxy = 7B64385C26A6C0A6000D0F65 /* PBXContainerItemProxy */;
-		};
-		D8BBD36728FEF6E20011F850 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = SentryUI;
-			targetProxy = D8BBD36628FEF6E20011F850 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

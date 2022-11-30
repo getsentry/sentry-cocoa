@@ -103,9 +103,9 @@ struct ContentView: View {
                     
                     SentryPerformanceView("Child Span") {
                         VStack {
-                            Text(getCurrentSpan()?.context.spanDescription ?? "NO SPAN")
+                            Text(getCurrentSpan()?.spanDescription ?? "NO SPAN")
                                 .accessibilityIdentifier("CHILD_NAME")
-                            Text(getCurrentSpan()?.context.parentSpanId?.sentrySpanIdString ?? "NO SPAN")
+                            Text(getCurrentSpan()?.parentSpanId?.sentrySpanIdString ?? "NO SPAN")
                                 .accessibilityIdentifier("CHILD_PARENT_SPANID")
                         }
                     }
