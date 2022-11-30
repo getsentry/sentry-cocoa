@@ -44,7 +44,7 @@ SentryOutOfMemoryLogic ()
     SentryAppState *currentAppState = [self.appStateManager buildCurrentAppState];
 
     // If there is no previous app state, we can't do anything.
-    if (nil == previousAppState) {
+    if (previousAppState == nil) {
         return NO;
     }
 
@@ -81,6 +81,11 @@ SentryOutOfMemoryLogic ()
 
     // The app crashed on the previous run. No OOM.
     if (self.crashAdapter.crashedLastLaunch) {
+        return NO;
+    }
+
+    // The SDK wasn't running, so *any* crash after the SDK got closed would be seen as OOM.
+    if (previousAppState.isSDKRunning) {
         return NO;
     }
 
