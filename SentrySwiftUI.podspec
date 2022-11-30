@@ -9,8 +9,8 @@ Pod::Spec.new do |s|
                      :tag => s.version.to_s }
 
   s.ios.deployment_target = "13.0"
-  s.osx.deployment_target = "11.10"
-  s.tvos.deployment_target = "10.0"
+  s.osx.deployment_target = "10.15"
+  s.tvos.deployment_target = "13.0"
   s.watchos.deployment_target = "6.0"
   s.module_name  = "SentrySwiftUI"
   s.requires_arc = true
@@ -23,7 +23,7 @@ Pod::Spec.new do |s|
   s.default_subspecs = ['Core']
   
   s.subspec 'Core' do |sp|
-      sp.source_files = "Sources/SentrySwiftUI/**/*.{swift}","Sources/SentryInternal/**/*.{h}"
-      sp.dependency 'Sentry', '7.31.0'
+      sp.source_files = "Sources/SentrySwiftUI/**/*.{swift,h,m}"
+      sp.dependency 'Sentry', '7.31.3'
   end
 end
