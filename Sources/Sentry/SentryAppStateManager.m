@@ -88,6 +88,7 @@ SentryAppStateManager ()
     [self stopWithForce:NO];
 }
 
+// forceStop is YES when the SDK gets closed
 - (void)stopWithForce:(BOOL)forceStop
 {
     if (self.startCount <= 0) {
@@ -95,15 +96,15 @@ SentryAppStateManager ()
     }
 
     if (forceStop) {
+        [self
+            updateAppStateInBackground:^(SentryAppState *appState) { appState.isSDKRunning = NO; }];
+
         self.startCount = 0;
     } else {
         self.startCount -= 1;
     }
 
     if (self.startCount == 0) {
-        [self
-            updateAppStateInBackground:^(SentryAppState *appState) { appState.isSDKRunning = NO; }];
-
         // Remove the observers with the most specific detail possible, see
         // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
         [self.notificationCenterWrapper
