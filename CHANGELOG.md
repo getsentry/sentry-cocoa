@@ -12,6 +12,7 @@ This version adds a dependency on Swift.
 
 - Errors shortly after `SentrySDK.init` now affect the session (#2430)
 - Use the same default environment for events and sessions (#2447)
+- Increase `SentryCrashMAX_STRINGBUFFERSIZE` to reduce the instances where we're dropping a crash due to size limit (#2465)
 - `SentryAppStateManager` correctly unsubscribes from `NSNotificationCenter` when closing the SDK (#2460)
 
 ### Breaking Changes
