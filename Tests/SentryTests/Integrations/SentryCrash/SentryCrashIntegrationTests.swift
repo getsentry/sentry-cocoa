@@ -202,14 +202,14 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertFalse(fixture.sentryCrash.installAsyncHooksCalled)
     }
 
-    func testUninstall_CallsClose() {
+    func testUninstall_CallsUninstallAsyncHooks() {
         let sut = fixture.getSut()
 
         sut.install(with: Options())
 
         sut.uninstall()
 
-        XCTAssertTrue(fixture.sentryCrash.closeCalled)
+        XCTAssertTrue(fixture.sentryCrash.uninstallAsyncHooksCalled)
     }
     
     func testUninstall_DoesNotUpdateLocale_OnLocaleDidChangeNotification() {

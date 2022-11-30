@@ -10,8 +10,10 @@ This version adds a dependency on Swift.
 
 ### Fixes
 
-- Errors shortly after SentrySDK.init now affect the session (#2430)
+- Errors shortly after `SentrySDK.init` now affect the session (#2430)
 - Use the same default environment for events and sessions (#2447)
+- Increase `SentryCrashMAX_STRINGBUFFERSIZE` to reduce the instances where we're dropping a crash due to size limit (#2465)
+- `SentryAppStateManager` correctly unsubscribes from `NSNotificationCenter` when closing the SDK (#2460)
 
 ### Breaking Changes
 
@@ -27,7 +29,6 @@ This version adds a dependency on Swift.
     - Rename `SentryScope.add(_ crumb:)` to `SentryScope.addBreadcrumb(_ crumb:)` (#2416)
     - Rename `SentryScope.add(_ attachment:)` to `SentryScope.addAttachment(_ attachment:)` (#2416)
     - Rename `Client` to `SentryClient` (#2403)
-    - Rename `User` to `SentryUser` (#2403)
 - Remove public APIs
     - Remove `SentryScope.apply(to:)` (#2416)
     - Remove `SentryScope.apply(to:maxBreadcrumb:)` (#2416)
@@ -43,6 +44,13 @@ This version adds a dependency on Swift.
     - Rename `SentryOptions.enableFileIOTracking` to `enableFileIOTracing`
     - Rename `SentryOptions.enableCoreDataTracking` to `enableCoreDataTracing`
 - SentrySDK.close calls flush (#2453)
+    
+## 7.31.3
+
+### Fixes
+
+- Reporting crashes when restarting the SDK (#2440)
+- Core data span status with error (#2439)
 
 ## 7.31.2
 

@@ -54,9 +54,6 @@
 /** True if SentryCrash has been installed. */
 static volatile bool g_installed = 0;
 
-static bool g_shouldAddConsoleLogToReport = false;
-static bool g_shouldPrintPreviousLog = false;
-static char g_consoleLogPath[SentryCrashFU_MAX_PATH_LENGTH];
 static SentryCrashMonitorType g_monitoring = SentryCrashMonitorTypeProductionSafeMinimal;
 static char g_lastCrashReportFilePath[SentryCrashFU_MAX_PATH_LENGTH];
 static void (*g_saveScreenShot)(const char *) = 0;
@@ -65,21 +62,6 @@ static void (*g_saveViewHierarchy)(const char *) = 0;
 // ============================================================================
 #pragma mark - Utility -
 // ============================================================================
-
-static void
-printPreviousLog(const char *filePath)
-{
-    char *data;
-    int length;
-    if (sentrycrashfu_readEntireFile(filePath, &data, &length, 0)) {
-        printf("\nvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv Previous Log "
-               "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\n\n");
-        printf("%s\n", data);
-        printf("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
-               "^^^^^^^^^^^^^^^^^^^^^\n\n");
-        fflush(stdout);
-    }
-}
 
 // ============================================================================
 #pragma mark - Callbacks -
@@ -94,8 +76,6 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
 {
     SentryCrashLOG_DEBUG("Updating application state to note crash.");
     sentrycrashstate_notifyAppCrash();
-
-    monitorContext->consoleLogPath = g_shouldAddConsoleLogToReport ? g_consoleLogPath : NULL;
 
     if (monitorContext->crashedDuringCrashHandling) {
         sentrycrashreport_writeRecrashReport(monitorContext, g_lastCrashReportFilePath);
@@ -154,12 +134,6 @@ sentrycrash_install(const char *appName, const char *const installPath)
     snprintf(path, sizeof(path), "%s/Data/CrashState.json", installPath);
     sentrycrashstate_initialize(path);
 
-    snprintf(g_consoleLogPath, sizeof(g_consoleLogPath), "%s/Data/ConsoleLog.txt", installPath);
-    if (g_shouldPrintPreviousLog) {
-        printPreviousLog(g_consoleLogPath);
-    }
-    sentrycrashlog_setLogFilename(g_consoleLogPath, true);
-
     sentrycrashccd_init(60);
 
     sentrycrashcm_setEventCallback(onCrash);
@@ -167,6 +141,14 @@ sentrycrash_install(const char *appName, const char *const installPath)
 
     SentryCrashLOG_DEBUG("Installation complete.");
     return monitors;
+}
+
+void
+sentrycrash_uninstall(void)
+{
+    sentrycrashcm_setEventCallback(NULL);
+    g_installed = 0;
+    sentrycrashccd_close();
 }
 
 SentryCrashMonitorType
@@ -198,18 +180,6 @@ void
 sentrycrash_setDoNotIntrospectClasses(const char **doNotIntrospectClasses, int length)
 {
     sentrycrashreport_setDoNotIntrospectClasses(doNotIntrospectClasses, length);
-}
-
-void
-sentrycrash_setAddConsoleLogToReport(bool shouldAddConsoleLogToReport)
-{
-    g_shouldAddConsoleLogToReport = shouldAddConsoleLogToReport;
-}
-
-void
-sentrycrash_setPrintPreviousLog(bool shouldPrintPreviousLog)
-{
-    g_shouldPrintPreviousLog = shouldPrintPreviousLog;
 }
 
 void

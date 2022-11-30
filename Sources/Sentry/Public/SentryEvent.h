@@ -76,7 +76,7 @@ NS_SWIFT_NAME(Event)
 @property (nonatomic, copy) NSString *_Nullable environment;
 
 /**
- * The current transaction (state) on the crash
+ * The name of the transaction which caused this event.
  */
 @property (nonatomic, copy) NSString *_Nullable transaction;
 
