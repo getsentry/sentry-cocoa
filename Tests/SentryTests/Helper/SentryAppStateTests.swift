@@ -14,6 +14,7 @@ class SentryAppStateTests: XCTestCase {
         XCTAssertEqual(appState.isActive, actual["is_active"] as? Bool)
         XCTAssertEqual(appState.wasTerminated, actual["was_terminated"] as? Bool)
         XCTAssertEqual(appState.isANROngoing, actual["is_anr_ongoing"] as? Bool)
+        XCTAssertEqual(appState.isSDKRunning, actual["is_sdk_running"] as? Bool)
     }
     
     func testInitWithJSON_AllFields() {
@@ -26,7 +27,8 @@ class SentryAppStateTests: XCTestCase {
             "system_boot_timestamp": (appState.systemBootTimestamp as NSDate).sentry_toIso8601String(),
             "is_active": appState.isActive,
             "was_terminated": appState.wasTerminated,
-            "is_anr_ongoing": appState.isANROngoing
+            "is_anr_ongoing": appState.isANROngoing,
+            "is_sdk_running": appState.isSDKRunning
         ] as [String: Any]
         
         let actual = SentryAppState(jsonObject: dict)
