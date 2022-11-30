@@ -42,13 +42,17 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         let contents = try contentsOfResource("metric-kit-callstack-tree-simple")
         let callStackTree = try SentryMXCallStackTree.from(data: contents)
         
-        Dynamic(sut).didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTree)
+        Dynamic(sut).didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTree, timeStampBegin: currentDate.date(), timeStampEnd: currentDate.date())
         
-        assertEventWithScopeCaptured { event, _, _ in
-            XCTAssertNotNil(event)
-            XCTAssertEqual(callStackTree.callStacks.count, event?.threads?.count)
+        assertEventWithScopeCaptured { e, _, _ in
+            let event = try! XCTUnwrap(e)
+            XCTAssertEqual(callStackTree.callStacks.count, event.threads?.count)
             
-            //TODO more assertions
+            XCTAssertEqual(1, event.exceptions?.count)
+            let exception = try! XCTUnwrap(event.exceptions?.first)
+            
+            XCTAssertEqual("MXCrashDiagnostic", exception.type)
+            XCTAssertEqual("MachException Type:(null) Code:(null) Signal:(null)", exception.value)
         }
     }
 }
