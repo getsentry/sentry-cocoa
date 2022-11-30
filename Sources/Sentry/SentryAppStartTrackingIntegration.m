@@ -37,11 +37,11 @@ SentryAppStartTrackingIntegration ()
         [SentryDependencyContainer sharedInstance].appStateManager;
 
     self.tracker = [[SentryAppStartTracker alloc]
-            initWithCurrentDateProvider:currentDateProvider
-                   dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
-                        appStateManager:appStateManager
-                                 sysctl:sysctl
-        enablePreWarmedAppStartTracking:options.enablePreWarmedAppStartTracking];
+           initWithCurrentDateProvider:currentDateProvider
+                  dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
+                       appStateManager:appStateManager
+                                sysctl:sysctl
+        enablePreWarmedAppStartTracing:options.enablePreWarmedAppStartTracing];
     [self.tracker start];
 
     return YES;
@@ -53,7 +53,7 @@ SentryAppStartTrackingIntegration ()
 
 - (SentryIntegrationOption)integrationOptions
 {
-    return kIntegrationOptionEnableAutoPerformanceTracking | kIntegrationOptionIsTracingEnabled;
+    return kIntegrationOptionEnableAutoPerformanceTracing | kIntegrationOptionIsTracingEnabled;
 }
 
 - (void)uninstall

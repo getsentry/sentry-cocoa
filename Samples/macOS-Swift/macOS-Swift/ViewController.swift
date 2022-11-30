@@ -7,7 +7,7 @@ class ViewController: NSViewController {
         let crumb = Breadcrumb(level: SentryLevel.info, category: "Debug")
         crumb.message = "tapped addBreadcrumb"
         crumb.type = "user"
-        SentrySDK.addBreadcrumb(crumb: crumb)
+        SentrySDK.addBreadcrumb(crumb)
     }
     
     @IBAction func captureMessage(_ sender: Any) {    

@@ -21,7 +21,7 @@ class SentryClientTest: XCTestCase {
         let messageAsString = "message"
         let message: SentryMessage
         
-        let user: SentryUser
+        let user: User
         let fileManager: SentryFileManager
         let random = TestRandom(value: 1.0)
         
@@ -33,6 +33,7 @@ class SentryClientTest: XCTestCase {
         let locale = Locale(identifier: "en_US")
         let timezone = TimeZone(identifier: "Europe/Vienna")!
         let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
         
         init() {
             session = SentrySession(releaseName: "release")
@@ -43,7 +44,7 @@ class SentryClientTest: XCTestCase {
             event = Event()
             event.message = message
             
-            user = SentryUser()
+            user = User()
             user.email = "someone@sentry.io"
             user.ipAddress = "127.0.0.1"
             
@@ -99,7 +100,7 @@ class SentryClientTest: XCTestCase {
                 let scope = Scope()
                 scope.setEnvironment(environment)
                 scope.setTag(value: "value", key: "key")
-                scope.add(TestData.dataAttachment)
+                scope.addAttachment(TestData.dataAttachment)
                 scope.setContext(value: [SentryDeviceContextFreeMemoryKey: 2_000], key: "device")
                 return scope
             }
@@ -1066,8 +1067,8 @@ class SentryClientTest: XCTestCase {
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testTrackPreWarmedAppStartTracking() {
-        testFeatureTrackingAsIntegration(integrationName: "PreWarmedAppStartTracking") {
-            $0.enablePreWarmedAppStartTracking = true
+        testFeatureTrackingAsIntegration(integrationName: "PreWarmedAppStartTracing") {
+            $0.enablePreWarmedAppStartTracing = true
         }
     }
 #endif
@@ -1100,16 +1101,16 @@ class SentryClientTest: XCTestCase {
             assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
         }
     }
-    
+
     func testFileManagerCantBeInit() {
         SentryFileManager.prepareInitError()
-        
+
         let options = Options()
         options.dsn = SentryClientTest.dsn
-        let client = SentryClient(options: options, permissionsObserver: TestSentryPermissionsObserver())
-        
+        let client = SentryClient(options: options, permissionsObserver: TestSentryPermissionsObserver(), dispatchQueue: TestSentryDispatchQueueWrapper())
+
         XCTAssertNil(client)
-        
+
         SentryFileManager.tearDownInitError()
     }
     

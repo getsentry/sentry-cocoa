@@ -1,5 +1,7 @@
 import Foundation
 
+// swiftlint:disable type_body_length
+
 class TMDbClient: NSObject, URLSessionDataDelegate, URLSessionTaskDelegate {
     enum TMDbClientError: Swift.Error {
         case URLConstructionFailed
@@ -608,3 +610,5 @@ private func getRegionQueryItem(locale: Locale) -> URLQueryItem? {
     }
     return nil
 }
+
+// swiftlint:enable type_body_length

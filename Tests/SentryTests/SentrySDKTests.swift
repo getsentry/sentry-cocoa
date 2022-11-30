@@ -82,7 +82,7 @@ class SentrySDKTests: XCTestCase {
             options.maxBreadcrumbs = 0
         }
 
-        SentrySDK.addBreadcrumb(crumb: Breadcrumb(level: SentryLevel.warning, category: "test"))
+        SentrySDK.addBreadcrumb(Breadcrumb(level: SentryLevel.warning, category: "test"))
         let breadcrumbs = Dynamic(SentrySDK.currentHub().scope).breadcrumbArray as [Breadcrumb]?
         XCTAssertEqual(0, breadcrumbs?.count)
     }
@@ -332,7 +332,7 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.setUser(user)
         
         let actualScope = SentrySDK.currentHub().scope
-        let event = actualScope.apply(to: fixture.event, maxBreadcrumb: 10)
+        let event = actualScope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
         XCTAssertEqual(event?.user, user)
     }
     
@@ -492,6 +492,29 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(0, hub.installedIntegrations.count)
         assertIntegrationsInstalled(integrations: [])
     }
+
+#if SENTRY_HAS_UIKIT
+    func testClose_StopsAppStateManager() {
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+            options.tracesSampleRate = 1
+        }
+
+        let appStateManager = SentryDependencyContainer.sharedInstance().appStateManager
+        XCTAssertEqual(appStateManager.startCount, 1)
+
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+            options.tracesSampleRate = 1
+        }
+
+        XCTAssertEqual(appStateManager.startCount, 2)
+
+        SentrySDK.close()
+
+        XCTAssertEqual(appStateManager.startCount, 0)
+    }
+#endif
     
     func testFlush_CallsFlushCorrectlyOnTransport() {
         SentrySDK.start { options in
@@ -543,12 +566,12 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(timestamp, SentrySDK.getAppStartMeasurement()?.appStartTimestamp)
     }
 
-    func testMovesBreadcrumbsToPreviousBreadcrumbs() throws {
+    func testMovesBreadcrumbsToPreviousBreadcrumbs() {
         let options = Options()
         options.dsn = SentrySDKTests.dsnAsString
 
-        let filemanager = try SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
-        let observer = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: 10, fileManager: filemanager)
+        let fileManager = try! TestFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
+        let observer = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: 10, fileManager: fileManager)
         let serializedBreadcrumb = TestData.crumb.serialize()
 
         for _ in 0..<3 {
@@ -557,7 +580,7 @@ class SentrySDKTests: XCTestCase {
 
         SentrySDK.start(options: options)
 
-        let result = filemanager.readPreviousBreadcrumbs()
+        let result = fileManager.readPreviousBreadcrumbs()
         XCTAssertEqual(result.count, 3)
     }
     

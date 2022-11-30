@@ -55,8 +55,8 @@ class TestData {
         return event
     }
     
-    static var user: SentryUser {
-        let user = SentryUser(userId: "id")
+    static var user: User {
+        let user = User(userId: "id")
         user.email = "user@sentry.io"
         user.username = "user123"
         user.ipAddress = "127.0.0.1"
@@ -200,11 +200,11 @@ class TestData {
         
         let crumb1 = TestData.crumb
         crumb1.message = "Crumb 1"
-        scope.add(crumb1)
+        scope.addBreadcrumb(crumb1)
         
         let crumb2 = TestData.crumb
         crumb2.message = "Crumb 2"
-        scope.add(crumb2)
+        scope.addBreadcrumb(crumb2)
         
         return scope
     }

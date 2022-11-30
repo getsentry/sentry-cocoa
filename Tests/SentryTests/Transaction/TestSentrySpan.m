@@ -4,12 +4,10 @@
 
 @implementation TestSentrySpan
 
-@synthesize context;
-@synthesize data;
-@synthesize isFinished;
-@synthesize tags;
-@synthesize startTimestamp;
-@synthesize timestamp;
+- (instancetype)init
+{
+    return self;
+}
 
 - (id<SentrySpan>)startChildWithOperation:(NSString *)operation description:(NSString *)description
 {

@@ -12,7 +12,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
             options.tracesSampler = { _ in return 0 } 
             options.dsn = TestConstants.dsnAsString(username: "SentryAppStartTrackingIntegrationTests")
             
-            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
+            fileManager = try! TestFileManager(options: options)
         }
     }
     
@@ -79,7 +79,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
     
     func testAutoPerformanceTrackingDisabled_DoesNotUpdatesAppState() {
         let options = fixture.options
-        options.enableAutoPerformanceTracking = false
+        options.enableAutoPerformanceTracing = false
         sut.install(with: options)
         
         uiWindowDidBecomeVisible()
@@ -89,7 +89,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
     
     func test_PerformanceTrackingDisabled() {
         let options = fixture.options
-        options.enableAutoPerformanceTracking = false
+        options.enableAutoPerformanceTracing = false
         let result = sut.install(with: options)
         
         XCTAssertFalse(result)

@@ -92,6 +92,28 @@ SentryTransactionContext ()
     return self;
 }
 
+- (instancetype)initWithName:(NSString *)name
+                  nameSource:(SentryTransactionNameSource)source
+                   operation:(NSString *)operation
+                     traceId:(SentryId *)traceId
+                      spanId:(SentrySpanId *)spanId
+                parentSpanId:(nullable SentrySpanId *)parentSpanId
+                     sampled:(SentrySampleDecision)sampled
+               parentSampled:(SentrySampleDecision)parentSampled
+{
+    if (self = [super initWithTraceId:traceId
+                               spanId:spanId
+                             parentId:parentSpanId
+                            operation:operation
+                              sampled:sampled]) {
+        _name = [NSString stringWithString:name];
+        _nameSource = source;
+        self.parentSampled = parentSampled;
+        [self getThreadInfo];
+    }
+    return self;
+}
+
 - (void)getThreadInfo
 {
 #if SENTRY_TARGET_PROFILING_SUPPORTED

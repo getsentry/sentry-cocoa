@@ -26,7 +26,7 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
         
         let options = Options()
         options.tracesSampleRate = 0.1
-        options.enableAutoPerformanceTracking = false
+        options.enableAutoPerformanceTracing = false
         sut.install(with: options)
 
         XCTAssertNil(Dynamic(sut).swizzling.asObject)
@@ -45,14 +45,14 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
     
     func testAutoPerformanceDisabled() {
         let options = Options()
-        options.enableAutoPerformanceTracking = false
+        options.enableAutoPerformanceTracing = false
         
         disablesIntegration(options)
     }
     
     func testUIViewControllerDisabled() {
         let options = Options()
-        options.enableUIViewControllerTracking = false
+        options.enableUIViewControllerTracing = false
         
         disablesIntegration(options)
     }

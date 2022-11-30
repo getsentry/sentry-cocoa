@@ -7,12 +7,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** Expose the internal test init for testing. */
 @interface
-SentryClient (TestInit)
+SentryClient ()
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
-                      permissionsObserver:(SentryPermissionsObserver *)permissionsObserver;
+                            dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
+
+- (nullable instancetype)initWithOptions:(SentryOptions *)options
+                     permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
+                           dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
+
+- (_Nullable instancetype)initWithOptions:(SentryOptions *)options
+                      permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
+                              fileManager:(SentryFileManager *)fileManager;
 
 - (instancetype)initWithOptions:(SentryOptions *)options
                transportAdapter:(SentryTransportAdapter *)transportAdapter

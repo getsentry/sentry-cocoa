@@ -15,7 +15,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
         let appStateManager: SentryAppStateManager
         let dispatchQueue = TestSentryDispatchQueueWrapper()
-        var enablePreWarmedAppStartTracking = true
+        var enablePreWarmedAppStartTracing = true
 
         let appStartDuration: TimeInterval = 0.4
         var runtimeInitTimestamp: Date
@@ -27,9 +27,17 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
             options.dsn = SentryAppStartTrackerTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
             
-            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
+            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate, dispatchQueueWrapper: dispatchQueue)
             
-            appStateManager = SentryAppStateManager(options: options, crashWrapper: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl, dispatchQueueWrapper: dispatchQueue)
+            appStateManager = SentryAppStateManager(
+                options: options,
+                crashWrapper: crashWrapper,
+                fileManager: fileManager,
+                currentDateProvider: currentDate,
+                sysctl: sysctl,
+                dispatchQueueWrapper: dispatchQueue,
+                notificationCenterWrapper: SentryNSNotificationCenterWrapper()
+            )
             
             runtimeInitTimestamp = currentDate.date().addingTimeInterval(0.2)
             moduleInitializationTimestamp = currentDate.date().addingTimeInterval(0.1)
@@ -37,7 +45,13 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         }
         
         var sut: SentryAppStartTracker {
-            let sut = SentryAppStartTracker(currentDateProvider: currentDate, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), appStateManager: appStateManager, sysctl: sysctl, enablePreWarmedAppStartTracking: enablePreWarmedAppStartTracking)
+            let sut = SentryAppStartTracker(
+                currentDateProvider: currentDate,
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                appStateManager: appStateManager,
+                sysctl: sysctl,
+                enablePreWarmedAppStartTracing: enablePreWarmedAppStartTracing
+            )
             return sut
         }
     }
@@ -168,7 +182,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     }
     
     func testAppLaunches_OSPrewarmedProcess_FeatureDisabled_NoAppStartUp() {
-        fixture.enablePreWarmedAppStartTracking = false
+        fixture.enablePreWarmedAppStartTracing = false
         
         setenv("ActivePrewarm", "1", 1)
         SentryAppStartTracker.load()
