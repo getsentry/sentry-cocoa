@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -52,13 +52,6 @@
 		D83A30DC279F16BA00372D0A /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		D83A30E1279F1F5C00372D0A /* fatal-error-binary-images-message2.json in Resources */ = {isa = PBXBuildFile; fileRef = D83A30DF279F1F5C00372D0A /* fatal-error-binary-images-message2.json */; };
 		D83A30E6279FE21F00372D0A /* SentryFileIOTrackingIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83A30E5279FE21F00372D0A /* SentryFileIOTrackingIntegrationTests.swift */; };
-		D840D523273A07F400CDF142 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D840D522273A07F400CDF142 /* AppDelegate.swift */; };
-		D840D525273A07F400CDF142 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D840D524273A07F400CDF142 /* SceneDelegate.swift */; };
-		D840D527273A07F400CDF142 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D840D526273A07F400CDF142 /* ViewController.swift */; };
-		D840D52A273A07F400CDF142 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D840D528273A07F400CDF142 /* Main.storyboard */; };
-		D840D52F273A07F600CDF142 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D840D52D273A07F600CDF142 /* LaunchScreen.storyboard */; };
-		D840D534273A07F600CDF142 /* iOS-SwiftClip.app in Embed App Clips */ = {isa = PBXBuildFile; fileRef = D840D520273A07F400CDF142 /* iOS-SwiftClip.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		D840D53C273A08F100CDF142 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D840D53B273A08F100CDF142 /* Assets.xcassets */; };
 		D8444E4C275E38090042F4DE /* UIViewControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8444E4B275E38090042F4DE /* UIViewControllerExtension.swift */; };
 		D8444E51275F79240042F4DE /* AssertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F3D05E274E6A8B00B56F8C /* AssertView.swift */; };
 		D8444E53275F792A0042F4DE /* UIAssert.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB492750067900044146 /* UIAssert.swift */; };
@@ -71,8 +64,6 @@
 		D88E666828732AE000153425 /* PerformanceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB811F283EEDB900F3A94A /* PerformanceViewController.swift */; };
 		D890CD3C26CEE2FA001246CF /* NibViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D890CD3B26CEE2FA001246CF /* NibViewController.xib */; };
 		D890CD3F26CEE31B001246CF /* NibViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D890CD3E26CEE31B001246CF /* NibViewController.swift */; };
-		D8B56CF0273A8D97004DF238 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; };
-		D8B56CF1273A8D97004DF238 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8D7BB4A2750067900044146 /* UIAssert.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB492750067900044146 /* UIAssert.swift */; };
 		D8D7BB4C2750095800044146 /* UIViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB4B2750095800044146 /* UIViewExtension.swift */; };
 		D8D7BB4E27501B9400044146 /* SpanObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB4D27501B9400044146 /* SpanObserver.swift */; };
@@ -139,13 +130,6 @@
 			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
 			remoteInfo = Sentry;
 		};
-		D840D532273A07F600CDF142 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 637AFD9E243B02760034958B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D840D51F273A07F400CDF142;
-			remoteInfo = "iOS-SwiftClip";
-		};
 		D85DAA4F274C244F004DF43C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 637AFD9E243B02760034958B /* Project object */;
@@ -206,20 +190,8 @@
 			dstPath = "$(CONTENTS_FOLDER_PATH)/AppClips";
 			dstSubfolderSpec = 16;
 			files = (
-				D840D534273A07F600CDF142 /* iOS-SwiftClip.app in Embed App Clips */,
 			);
 			name = "Embed App Clips";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		D8B56CF2273A8D97004DF238 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				D8B56CF1273A8D97004DF238 /* Sentry.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -265,7 +237,6 @@
 		D83A30C7279EFD6E00372D0A /* ClearTestState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearTestState.swift; sourceTree = "<group>"; };
 		D83A30DF279F1F5C00372D0A /* fatal-error-binary-images-message2.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "fatal-error-binary-images-message2.json"; path = "../../../Tests/Resources/fatal-error-binary-images-message2.json"; sourceTree = "<group>"; };
 		D83A30E5279FE21F00372D0A /* SentryFileIOTrackingIntegrationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SentryFileIOTrackingIntegrationTests.swift; path = ../../../Tests/SentryTests/Integrations/Performance/IO/SentryFileIOTrackingIntegrationTests.swift; sourceTree = "<group>"; };
-		D840D520273A07F400CDF142 /* iOS-SwiftClip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS-SwiftClip.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D840D522273A07F400CDF142 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D840D524273A07F400CDF142 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		D840D526273A07F400CDF142 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -327,14 +298,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		D840D51D273A07F400CDF142 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				D8B56CF0273A8D97004DF238 /* Sentry.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		D85DAA46274C244F004DF43C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -383,7 +346,6 @@
 			children = (
 				637AFDA6243B02760034958B /* iOS-Swift.app */,
 				7B64386826A6C544000D0F65 /* iOS-SwiftUITests.xctest */,
-				D840D520273A07F400CDF142 /* iOS-SwiftClip.app */,
 				D8269A39274C095E00BD5BD5 /* iOS13-Swift.app */,
 				D85DAA49274C244F004DF43C /* iOS13-SwiftTests.xctest */,
 				848A2573286E3351008A8858 /* PerformanceBenchmarks.xctest */,
@@ -542,7 +504,6 @@
 			);
 			dependencies = (
 				630853522440C60800DDE4CE /* PBXTargetDependency */,
-				D840D533273A07F600CDF142 /* PBXTargetDependency */,
 			);
 			name = "iOS-Swift";
 			productName = "iOS-Swift";
@@ -607,24 +568,6 @@
 			productReference = D8269A39274C095E00BD5BD5 /* iOS13-Swift.app */;
 			productType = "com.apple.product-type.application";
 		};
-		D840D51F273A07F400CDF142 /* iOS-SwiftClip */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = D840D539273A07F600CDF142 /* Build configuration list for PBXNativeTarget "iOS-SwiftClip" */;
-			buildPhases = (
-				D840D51C273A07F400CDF142 /* Sources */,
-				D840D51D273A07F400CDF142 /* Frameworks */,
-				D840D51E273A07F400CDF142 /* Resources */,
-				D8B56CF2273A8D97004DF238 /* Embed Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "iOS-SwiftClip";
-			productName = "iOS-SwiftClip";
-			productReference = D840D520273A07F400CDF142 /* iOS-SwiftClip.app */;
-			productType = "com.apple.product-type.application.on-demand-install-capable";
-		};
 		D85DAA48274C244F004DF43C /* iOS13-SwiftTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D85DAA51274C244F004DF43C /* Build configuration list for PBXNativeTarget "iOS13-SwiftTests" */;
@@ -667,9 +610,6 @@
 					D8269A38274C095E00BD5BD5 = {
 						CreatedOnToolsVersion = 13.1;
 					};
-					D840D51F273A07F400CDF142 = {
-						CreatedOnToolsVersion = 13.1;
-					};
 					D85DAA48274C244F004DF43C = {
 						CreatedOnToolsVersion = 13.1;
 						TestTargetID = D8269A38274C095E00BD5BD5;
@@ -698,7 +638,6 @@
 				637AFDA5243B02760034958B /* iOS-Swift */,
 				7B64386726A6C544000D0F65 /* iOS-SwiftUITests */,
 				848A2560286E3351008A8858 /* PerformanceBenchmarks */,
-				D840D51F273A07F400CDF142 /* iOS-SwiftClip */,
 				D8269A38274C095E00BD5BD5 /* iOS13-Swift */,
 				D85DAA48274C244F004DF43C /* iOS13-SwiftTests */,
 			);
@@ -761,16 +700,6 @@
 				D8269A52274C0F7200BD5BD5 /* Tongariro.jpg in Resources */,
 				D8269A50274C0F6800BD5BD5 /* Assets.xcassets in Resources */,
 				D8269A43274C095F00BD5BD5 /* Main.storyboard in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		D840D51E273A07F400CDF142 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				D840D52F273A07F600CDF142 /* LaunchScreen.storyboard in Resources */,
-				D840D53C273A08F100CDF142 /* Assets.xcassets in Resources */,
-				D840D52A273A07F400CDF142 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -861,16 +790,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		D840D51C273A07F400CDF142 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				D840D527273A07F400CDF142 /* ViewController.swift in Sources */,
-				D840D523273A07F400CDF142 /* AppDelegate.swift in Sources */,
-				D840D525273A07F400CDF142 /* SceneDelegate.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		D85DAA45274C244F004DF43C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -906,11 +825,6 @@
 			isa = PBXTargetDependency;
 			name = Sentry;
 			targetProxy = D83A30CA279F075800372D0A /* PBXContainerItemProxy */;
-		};
-		D840D533273A07F600CDF142 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D840D51F273A07F400CDF142 /* iOS-SwiftClip */;
-			targetProxy = D840D532273A07F600CDF142 /* PBXContainerItemProxy */;
 		};
 		D85DAA50274C244F004DF43C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1085,11 +999,10 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "iOS-Swift/iOS-Swift.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 97JCY7859U;
+				DEVELOPMENT_TEAM = D56285PYR5;
 				INFOPLIST_FILE = "iOS-Swift/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1097,10 +1010,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 7.31.2;
-				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift-leo";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.iOS-Swift";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "iOS-Swift/Tools/iOS-Swift-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -1369,41 +1281,6 @@
 			};
 			name = Test;
 		};
-		84D4FE8428ECD1EA00EDAAFE /* Test */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "iOS-SwiftClip/iOS_SwiftClip.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 97JCY7859U;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "iOS-SwiftClip/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "iOS-Swift";
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UIRequiresFullScreen = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 7.27.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift.Clip";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Test;
-		};
 		84D4FE8528ECD1EA00EDAAFE /* Test */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1592,41 +1469,6 @@
 			};
 			name = TestCI;
 		};
-		84D4FE8C28ECD1ED00EDAAFE /* TestCI */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "iOS-SwiftClip/iOS_SwiftClip.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 97JCY7859U;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "iOS-SwiftClip/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "iOS-Swift";
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UIRequiresFullScreen = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 7.27.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift.Clip";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = TestCI;
-		};
 		84D4FE8D28ECD1ED00EDAAFE /* TestCI */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1745,76 +1587,6 @@
 			};
 			name = Release;
 		};
-		D840D536273A07F600CDF142 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "iOS-SwiftClip/iOS_SwiftClip.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 97JCY7859U;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "iOS-SwiftClip/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "iOS-Swift";
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UIRequiresFullScreen = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 7.31.2;
-				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.iOS-Swift.Clip";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		D840D537273A07F600CDF142 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "iOS-SwiftClip/iOS_SwiftClip.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 97JCY7859U;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "iOS-SwiftClip/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "iOS-Swift";
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UIRequiresFullScreen = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 7.31.2;
-				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift.Clip";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 		D85DAA52274C244F004DF43C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1913,17 +1685,6 @@
 				D8269A4B274C096000BD5BD5 /* Release */,
 				84D4FE8D28ECD1ED00EDAAFE /* TestCI */,
 				84D4FE8528ECD1EA00EDAAFE /* Test */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		D840D539273A07F600CDF142 /* Build configuration list for PBXNativeTarget "iOS-SwiftClip" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				D840D536273A07F600CDF142 /* Debug */,
-				D840D537273A07F600CDF142 /* Release */,
-				84D4FE8C28ECD1ED00EDAAFE /* TestCI */,
-				84D4FE8428ECD1EA00EDAAFE /* Test */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

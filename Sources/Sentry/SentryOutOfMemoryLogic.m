@@ -33,6 +33,25 @@ SentryOutOfMemoryLogic ()
     return self;
 }
 
+- (BOOL)isOOMExceptLowBattery {
+    if (![self isOOM]) {
+        return NO;
+    }
+  
+#if SENTRY_HAS_UIKIT
+    if (!self.options.batteryMonitoringEnabled || !self.options.enableOutOfMemoryTrackingExceptLowBattery) {
+        return NO;
+    }
+    
+    SentryAppState *previousAppState = [self.appStateManager loadPreviousAppState];
+    float batteryLevel = previousAppState.batteryLevel;
+    // less than 0.1, be judged as low battery
+    return batteryLevel > 0.1;
+    
+#endif
+    return NO;
+}
+
 - (BOOL)isOOM
 {
     if (!self.options.enableOutOfMemoryTracking) {

@@ -7,7 +7,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const SentryOutOfMemoryExceptionType = @"OutOfMemory";
 static NSString *const SentryOutOfMemoryExceptionValue
-    = @"The OS most likely terminated your app because it overused RAM.";
+    = @"The OS most likely terminated your app because it overused RAM";
+static NSString *const SentryOutOfMemoryExceptLowBatterytionValue
+    = @"The OS most likely terminated your app because it overused RAM except low battery";
 static NSString *const SentryOutOfMemoryMechanismType = @"out_of_memory";
 
 /**

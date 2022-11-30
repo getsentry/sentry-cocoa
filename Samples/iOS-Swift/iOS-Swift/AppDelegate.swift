@@ -6,8 +6,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
 
-    static let defaultDSN = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
-
+    static let defaultDSN = "https://49962454dbc3404890bacf3133c30b09@crash.uu.163.com/2"
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         // For testing purposes, we want to be able to change the DSN and store it to disk. In a real app, you shouldn't need this behavior.
@@ -29,7 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.attachScreenshot = true
             options.attachViewHierarchy = true
             options.environment = "test-app"
-
+            options.batteryMonitoringEnabled = true
             let isBenchmarking = ProcessInfo.processInfo.arguments.contains("--io.sentry.test.benchmarking")
             options.enableAutoPerformanceTracking = !isBenchmarking
 

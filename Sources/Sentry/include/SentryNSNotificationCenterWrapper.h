@@ -16,6 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly, copy, class) NSNotificationName didBecomeActiveNotificationName;
 @property (nonatomic, readonly, copy, class) NSNotificationName willResignActiveNotificationName;
 @property (nonatomic, readonly, copy, class) NSNotificationName willTerminateNotificationName;
+@property (nonatomic, readonly, copy, class) NSNotificationName batteryLevelDidChangeNotificationName;
+@property (nonatomic, readonly, copy, class) NSNotificationName didReceiveMemoryWarningNotification;
 #endif
 
 - (void)addObserver:(id)observer selector:(SEL)aSelector name:(NSNotificationName)aName;

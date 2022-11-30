@@ -254,6 +254,15 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracking;
 
+/**
+ *  Defaults NO
+ */
+@property (nonatomic, assign) BOOL batteryMonitoringEnabled;
+/**
+ *  Default NO, If Set YES, enableOutOfMemoryTracking, batteryMonitoringEnabled must set YES
+ */
+@property (nonatomic, assign) BOOL enableOutOfMemoryTrackingExceptLowBattery;
+
 #endif
 
 /**

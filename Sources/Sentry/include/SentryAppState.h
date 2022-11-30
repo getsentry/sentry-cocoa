@@ -42,6 +42,10 @@ SENTRY_NO_INIT
 
 @property (nonatomic, assign) BOOL isANROngoing;
 
+@property (nonatomic, assign) BOOL receiveMemoryWorning;
+
+@property (nonatomic, assign) CGFloat batteryLevel;
+
 @end
 
 NS_ASSUME_NONNULL_END

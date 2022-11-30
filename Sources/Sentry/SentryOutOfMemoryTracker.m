@@ -15,6 +15,8 @@
 #import <SentryOutOfMemoryLogic.h>
 #import <SentryOutOfMemoryTracker.h>
 #import <SentrySDK+Private.h>
+#import <SentryScope.h>
+#import <SentryBreadcrumb.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -53,46 +55,56 @@ SentryOutOfMemoryTracker ()
 {
 #if SENTRY_HAS_UIKIT
     [self.appStateManager start];
-
+    __weak typeof(self) weakSelf = self;
     [self.dispatchQueue dispatchAsyncWithBlock:^{
-        if ([self.outOfMemoryLogic isOOM]) {
-            SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
-            // Set to empty list so no breadcrumbs of the current scope are added
-            event.breadcrumbs = @[];
-
-            // Load the previous breascrumbs from disk, which are already serialized
-            event.serializedBreadcrumbs = [self.fileManager readPreviousBreadcrumbs];
-            if (event.serializedBreadcrumbs.count > self.options.maxBreadcrumbs) {
-                event.serializedBreadcrumbs = [event.serializedBreadcrumbs
-                    subarrayWithRange:NSMakeRange(event.serializedBreadcrumbs.count
-                                              - self.options.maxBreadcrumbs,
-                                          self.options.maxBreadcrumbs)];
-            }
-
-            NSDictionary *lastBreadcrumb = event.serializedBreadcrumbs.lastObject;
-            if (lastBreadcrumb && [lastBreadcrumb objectForKey:@"timestamp"]) {
-                NSString *timestampIso8601String = [lastBreadcrumb objectForKey:@"timestamp"];
-                event.timestamp = [NSDate sentry_fromIso8601String:timestampIso8601String];
-            }
-
-            SentryException *exception =
-                [[SentryException alloc] initWithValue:SentryOutOfMemoryExceptionValue
-                                                  type:SentryOutOfMemoryExceptionType];
-            SentryMechanism *mechanism =
-                [[SentryMechanism alloc] initWithType:SentryOutOfMemoryMechanismType];
-            mechanism.handled = @(NO);
-            exception.mechanism = mechanism;
-            event.exceptions = @[ exception ];
-
-            // We don't need to upate the releaseName of the event to the previous app state as we
-            // assume it's not an OOM when the releaseName changed between app starts.
-            [SentrySDK captureCrashEvent:event];
+        if ([weakSelf.outOfMemoryLogic isOOM]) {
+            [weakSelf sendOOMEventWithValue:SentryOutOfMemoryExceptionValue];
+        }
+        if ([weakSelf.outOfMemoryLogic isOOMExceptLowBattery]) {
+            [weakSelf sendOOMEventWithValue:SentryOutOfMemoryExceptLowBatterytionValue];
         }
     }];
 #else
     SENTRY_LOG_INFO(@"NO UIKit -> SentryOutOfMemoryTracker will not track OOM.");
     return;
 #endif
+}
+
+- (void)sendOOMEventWithValue:(NSString *)exceptionValue {
+    SentryAppState *preAppState = [self.appStateManager loadPreviousAppState];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
+    NSString *batteryLevel = [NSString stringWithFormat:@"%.3f", preAppState.batteryLevel];
+    NSDictionary *appStateTags = @{@"batteryLevel":batteryLevel, @"is_memory_worning": @(preAppState.receiveMemoryWorning), @"is_background": @(preAppState.isActive)};
+    [event setTags:appStateTags];
+    // Set to empty list so no breadcrumbs of the current scope are added
+    event.breadcrumbs = @[];
+    // Load the previous breascrumbs from disk, which are already serialized
+    event.serializedBreadcrumbs = [self.fileManager readPreviousBreadcrumbs];
+    if (event.serializedBreadcrumbs.count > self.options.maxBreadcrumbs) {
+        event.serializedBreadcrumbs = [event.serializedBreadcrumbs
+            subarrayWithRange:NSMakeRange(event.serializedBreadcrumbs.count
+                                      - self.options.maxBreadcrumbs,
+                                  self.options.maxBreadcrumbs)];
+    }
+
+    NSDictionary *lastBreadcrumb = event.serializedBreadcrumbs.lastObject;
+    if (lastBreadcrumb && [lastBreadcrumb objectForKey:@"timestamp"]) {
+        NSString *timestampIso8601String = [lastBreadcrumb objectForKey:@"timestamp"];
+        event.timestamp = [NSDate sentry_fromIso8601String:timestampIso8601String];
+    }
+
+    SentryException *exception =
+        [[SentryException alloc] initWithValue:exceptionValue
+                                          type:SentryOutOfMemoryExceptionType];
+    SentryMechanism *mechanism =
+        [[SentryMechanism alloc] initWithType:SentryOutOfMemoryMechanismType];
+    mechanism.handled = @(NO);
+    exception.mechanism = mechanism;
+    event.exceptions = @[ exception ];
+
+    // We don't need to upate the releaseName of the event to the previous app state as we
+    // assume it's not an OOM when the releaseName changed between app starts.
+    [SentrySDK captureCrashEvent:event];
 }
 
 - (void)stop

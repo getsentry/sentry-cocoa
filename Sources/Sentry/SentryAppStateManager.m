@@ -53,6 +53,8 @@ SentryAppStateManager ()
 
 - (void)start
 {
+    [UIDevice currentDevice].batteryMonitoringEnabled = self.options.batteryMonitoringEnabled;
+    
     if (self.startCount == 0) {
         [NSNotificationCenter.defaultCenter
             addObserver:self
@@ -78,6 +80,19 @@ SentryAppStateManager ()
                    name:SentryNSNotificationCenterWrapper.willTerminateNotificationName
                  object:nil];
 
+        [NSNotificationCenter.defaultCenter
+            addObserver:self
+               selector:@selector(batteryLevelDidChange)
+                   name:SentryNSNotificationCenterWrapper.batteryLevelDidChangeNotificationName
+                 object:nil];
+
+        
+        [NSNotificationCenter.defaultCenter
+            addObserver:self
+               selector:@selector(didReceiveMemoryWarning)
+                   name:SentryNSNotificationCenterWrapper.didReceiveMemoryWarningNotification
+                 object:nil];
+        
         [self storeCurrentAppState];
     }
 
@@ -114,6 +129,12 @@ SentryAppStateManager ()
             removeObserver:self
                       name:SentryNSNotificationCenterWrapper.willTerminateNotificationName
                     object:nil];
+        
+        [NSNotificationCenter.defaultCenter
+            removeObserver:self
+                      name:SentryNSNotificationCenterWrapper.batteryLevelDidChangeNotificationName
+                    object:nil];
+
     }
 }
 
@@ -194,6 +215,22 @@ SentryAppStateManager ()
 - (void)storeCurrentAppState
 {
     [self.fileManager storeAppState:[self buildCurrentAppState]];
+}
+
+- (void)batteryLevelDidChange
+{
+    if (!self.options.batteryMonitoringEnabled) return;
+    
+    [self updateAppState:^(SentryAppState *state) {
+        state.batteryLevel = [UIDevice currentDevice].batteryLevel;
+    }];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [self updateAppStateInBackground:^(SentryAppState *state) {
+        state.receiveMemoryWorning = YES;
+    }];
 }
 
 #endif

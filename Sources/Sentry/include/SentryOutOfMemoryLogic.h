@@ -13,6 +13,7 @@ SENTRY_NO_INIT
 
 - (BOOL)isOOM;
 
+- (BOOL)isOOMExceptLowBattery;
 @end
 
 NS_ASSUME_NONNULL_END

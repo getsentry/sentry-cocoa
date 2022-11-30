@@ -1,5 +1,8 @@
 #import <NSDate+SentryExtras.h>
 #import <SentryAppState.h>
+#if SENTRY_HAS_UIKIT
+#import <UIKit/UIKit.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,6 +28,10 @@ NS_ASSUME_NONNULL_BEGIN
         _isActive = NO;
         _wasTerminated = NO;
         _isANROngoing = NO;
+        _batteryLevel = -1;
+#if SENTRY_HAS_UIKIT
+        _batteryLevel = [UIDevice currentDevice].batteryLevel;
+#endif
     }
     return self;
 }
@@ -89,6 +96,21 @@ NS_ASSUME_NONNULL_BEGIN
         } else {
             _isANROngoing = [isANROngoing boolValue];
         }
+        
+        id receiveMemoryWorning = [jsonObject valueForKey:@"memory_worning"];
+        if (receiveMemoryWorning == nil || ![receiveMemoryWorning isKindOfClass:[NSNumber class]]) {
+            return nil;
+        } else {
+            _receiveMemoryWorning = [receiveMemoryWorning boolValue];
+        }
+        
+        id batteryLevel = [jsonObject valueForKey:@"battle_level"];
+        if (batteryLevel == nil || ![batteryLevel isKindOfClass:[NSNumber class]]) {
+            return nil;
+        } else {
+            _batteryLevel = [batteryLevel floatValue];
+        }
+
     }
     return self;
 }
@@ -106,7 +128,8 @@ NS_ASSUME_NONNULL_BEGIN
     [data setValue:@(self.isActive) forKey:@"is_active"];
     [data setValue:@(self.wasTerminated) forKey:@"was_terminated"];
     [data setValue:@(self.isANROngoing) forKey:@"is_anr_ongoing"];
-
+    [data setValue:@(self.receiveMemoryWorning) forKey:@"memory_worning"];
+    [data setValue:@(self.batteryLevel) forKey:@"battle_level"];
     return data;
 }
 

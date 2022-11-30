@@ -26,6 +26,16 @@ NS_ASSUME_NONNULL_BEGIN
     return UIApplicationWillTerminateNotification;
 }
 
++ (NSNotificationName)batteryLevelDidChangeNotificationName
+{
+    return UIDeviceBatteryLevelDidChangeNotification;
+}
+
++ (NSNotificationName)didReceiveMemoryWarningNotification
+{
+    return UIApplicationDidReceiveMemoryWarningNotification;
+}
+
 #elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
 + (NSNotificationName)didBecomeActiveNotificationName
 {
@@ -41,6 +51,16 @@ NS_ASSUME_NONNULL_BEGIN
 {
     return NSApplicationWillTerminateNotification;
 }
+
++ (NSNotificationName)batteryLevelDidChangeNotificationName {
+    return @"";
+}
+
++ (NSNotificationName)didReceiveMemoryWarningNotification
+{
+    return @"";
+}
+
 #endif
 
 - (void)addObserver:(id)observer selector:(SEL)aSelector name:(NSNotificationName)aName
