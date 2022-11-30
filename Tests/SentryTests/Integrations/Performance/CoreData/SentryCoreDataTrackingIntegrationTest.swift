@@ -10,7 +10,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         
         init() {
             options = Options()
-            options.enableCoreDataTracking = true
+            options.enableCoreDataTracing = true
             options.tracesSampleRate = 1
         }
         
@@ -47,11 +47,11 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
     }
     
     func test_Install_autoPerformanceDisabled() {
-        assert_DontInstall { $0.enableAutoPerformanceTracking = false }
+        assert_DontInstall { $0.enableAutoPerformanceTracing = false }
     }
     
     func test_Install_coreDataTrackingDisabled() {
-        assert_DontInstall { $0.enableCoreDataTracking = false }
+        assert_DontInstall { $0.enableCoreDataTracing = false }
     }
     
     func test_Fetch() {
@@ -72,7 +72,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         try? stack.managedObjectContext.save()
         
         XCTAssertEqual(transaction.children.count, 1)
-        XCTAssertEqual(transaction.children[0].context.operation, "db.sql.transaction")
+        XCTAssertEqual(transaction.children[0].operation, "db.sql.transaction")
     }
     
     func test_Save_noChanges() {

@@ -6,13 +6,14 @@ class SentryOutOfMemoryScopeObserverTests: XCTestCase {
         let options: Options
         let fileManager: SentryFileManager
         let currentDate = TestCurrentDateProvider()
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
 
         init() {
             breadcrumb = TestData.crumb
             breadcrumb.data = nil
 
             options = Options()
-            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
+            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate, dispatchQueueWrapper: dispatchQueue)
         }
 
         func getSut() -> SentryOutOfMemoryScopeObserver {

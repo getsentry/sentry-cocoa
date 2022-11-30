@@ -188,21 +188,21 @@ class SentryNetworkTrackerTests: XCTestCase {
         task.setError(NSError(domain: "Some Error", code: 1, userInfo: nil))
         setTaskState(task, state: .completed)
         
-        XCTAssertEqual(span.context.status, .unknownError)
+        XCTAssertEqual(span.status, .unknownError)
     }
     
     func testSpanDescriptionNameWithGet() {
         let task = createDataTask()
         let span = spanForTask(task: task)!
         
-        XCTAssertEqual(span.context.spanDescription, "GET \(SentryNetworkTrackerTests.testURL)")
+        XCTAssertEqual(span.spanDescription, "GET \(SentryNetworkTrackerTests.testURL)")
     }
     
     func testSpanDescriptionNameWithPost() {
         let task = createDataTask(method: "POST")
         let span = spanForTask(task: task)!
         
-        XCTAssertEqual(span.context.spanDescription, "POST \(SentryNetworkTrackerTests.testURL)")
+        XCTAssertEqual(span.spanDescription, "POST \(SentryNetworkTrackerTests.testURL)")
     }
     
     func testStatusForTaskRunning() {
@@ -374,7 +374,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     }
     
     func testBreadcrumbWithError_AndPerformanceTrackingNotEnabled() {
-        fixture.options.enableAutoPerformanceTracking = false
+        fixture.options.enableAutoPerformanceTracing = false
         
         let task = createDataTask()
         let _ = spanForTask(task: task)!
@@ -746,15 +746,15 @@ class SentryNetworkTrackerTests: XCTestCase {
             XCTAssertNil(httpStatusCode)
         }
         
-        let path = span.data!["url"] as? String
-        let method = span.data!["method"] as? String
-        let requestType = span.data!["type"] as? String
+        let path = span.data["url"] as? String
+        let method = span.data["method"] as? String
+        let requestType = span.data["type"] as? String
         
         XCTAssertEqual(path, task.currentRequest!.url!.path)
         XCTAssertEqual(method, task.currentRequest!.httpMethod)
         XCTAssertEqual(requestType, "fetch")
                 
-        XCTAssertEqual(span.context.status, status)
+        XCTAssertEqual(span.status, status)
         XCTAssertNil(task.observationInfo)
     }
     

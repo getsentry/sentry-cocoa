@@ -67,12 +67,12 @@ class TraceTestViewController: UIViewController {
                 return
             }
 
-            guard let child = children.first(where: { $0.context.operation == "http.client" }) else {
+            guard let child = children.first(where: { $0.operation == "http.client" }) else {
                 UIAssert.fail("Did not found http request child")
                 return
             }
 
-            UIAssert.isEqual(child.data?["url"] as? String, "/sentry-logo-black.png", "Could not read url data value")
+            UIAssert.isEqual(child.data["url"] as? String, "/sentry-logo-black.png", "Could not read url data value")
 
             UIAssert.isEqual(child.tags["http.status_code"], "200", "Could not read status_code tag value")
 

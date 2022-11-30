@@ -19,6 +19,8 @@ SentryOptions ()
 #endif
 @end
 
+NSString *const kSentryDefaultEnvironment = @"production";
+
 @implementation SentryOptions
 
 - (void)setMeasurement:(SentryMeasurementValue *)measurement
@@ -68,21 +70,22 @@ SentryOptions ()
         self.stitchAsyncCode = NO;
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
-        self.enableAutoPerformanceTracking = YES;
+        self.enableAutoPerformanceTracing = YES;
         self.enableCaptureFailedRequests = NO;
+        self.environment = kSentryDefaultEnvironment;
 #if SENTRY_HAS_UIKIT
-        self.enableUIViewControllerTracking = YES;
+        self.enableUIViewControllerTracing = YES;
         self.attachScreenshot = NO;
         self.attachViewHierarchy = NO;
-        self.enableUserInteractionTracing = NO;
+        self.enableUserInteractionTracing = YES;
         self.idleTimeout = 3.0;
-        self.enablePreWarmedAppStartTracking = NO;
+        self.enablePreWarmedAppStartTracing = NO;
 #endif
         self.enableAppHangTracking = NO;
         self.appHangTimeoutInterval = 2.0;
         self.enableAutoBreadcrumbTracking = YES;
         self.enableNetworkTracking = YES;
-        self.enableFileIOTracking = NO;
+        self.enableFileIOTracing = NO;
         self.enableNetworkBreadcrumbs = YES;
         _defaultTracesSampleRate = nil;
         self.tracesSampleRate = _defaultTracesSampleRate;
@@ -91,7 +94,7 @@ SentryOptions ()
         _defaultProfilesSampleRate = nil;
         self.profilesSampleRate = _defaultProfilesSampleRate;
 #endif
-        self.enableCoreDataTracking = NO;
+        self.enableCoreDataTracing = NO;
         _enableSwizzling = YES;
         self.sendClientReports = YES;
 

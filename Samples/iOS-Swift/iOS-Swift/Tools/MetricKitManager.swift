@@ -22,7 +22,7 @@ class MetricKitManager: NSObject, MXMetricManagerSubscriber {
         }
         
         SentrySDK.capture(message: "MetricKit received MXMetricPayload.") { scope in
-            attachments.forEach { scope.add($0) }
+            attachments.forEach { scope.addAttachment($0) }
         }
     }
     
@@ -34,7 +34,7 @@ class MetricKitManager: NSObject, MXMetricManagerSubscriber {
         }
         
         SentrySDK.capture(message: "MetricKit received MXDiagnosticPayload.") { scope in
-            attachments.forEach { scope.add($0) }
+            attachments.forEach { scope.addAttachment($0) }
         }
     }
 }

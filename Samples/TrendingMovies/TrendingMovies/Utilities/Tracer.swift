@@ -33,8 +33,8 @@ extension Tracer {
             options.sessionTrackingIntervalMillis = 5_000
             // Sampling 100% - In Production you probably want to adjust this
             options.tracesSampleRate = 1.0
-            options.enableFileIOTracking = true
-            options.enableCoreDataTracking = true
+            options.enableFileIOTracing = true
+            options.enableCoreDataTracing = true
             options.profilesSampleRate = 1.0
             options.attachScreenshot = true
             options.attachViewHierarchy = true

@@ -33,6 +33,7 @@ class SentryClientTest: XCTestCase {
         let locale = Locale(identifier: "en_US")
         let timezone = TimeZone(identifier: "Europe/Vienna")!
         let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
         
         init() {
             session = SentrySession(releaseName: "release")
@@ -57,13 +58,13 @@ class SentryClientTest: XCTestCase {
             transportAdapter = TestTransportAdapter(transport: transport, options: options)
         }
 
-        func getSut(configureOptions: (Options) -> Void = { _ in }) -> Client {
-            var client: Client!
+        func getSut(configureOptions: (Options) -> Void = { _ in }) -> SentryClient {
+            var client: SentryClient!
             do {
                 let options = try Options(dsn: SentryClientTest.dsn)
                 configureOptions(options)
 
-                client = Client(
+                client = SentryClient(
                     options: options,
                     transportAdapter: transportAdapter,
                     fileManager: fileManager,
@@ -82,13 +83,13 @@ class SentryClientTest: XCTestCase {
             return client
         }
 
-        func getSutWithNoDsn() -> Client {
+        func getSutWithNoDsn() -> SentryClient {
             getSut(configureOptions: { options in
                 options.parsedDsn = nil
             })
         }
         
-        func getSutDisabledSdk() -> Client {
+        func getSutDisabledSdk() -> SentryClient {
             getSut(configureOptions: { options in
                 options.enabled = false
             })
@@ -99,7 +100,7 @@ class SentryClientTest: XCTestCase {
                 let scope = Scope()
                 scope.setEnvironment(environment)
                 scope.setTag(value: "value", key: "key")
-                scope.add(TestData.dataAttachment)
+                scope.addAttachment(TestData.dataAttachment)
                 scope.setContext(value: [SentryDeviceContextFreeMemoryKey: 2_000], key: "device")
                 return scope
             }
@@ -1066,8 +1067,8 @@ class SentryClientTest: XCTestCase {
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testTrackPreWarmedAppStartTracking() {
-        testFeatureTrackingAsIntegration(integrationName: "PreWarmedAppStartTracking") {
-            $0.enablePreWarmedAppStartTracking = true
+        testFeatureTrackingAsIntegration(integrationName: "PreWarmedAppStartTracing") {
+            $0.enablePreWarmedAppStartTracing = true
         }
     }
 #endif
@@ -1100,16 +1101,16 @@ class SentryClientTest: XCTestCase {
             assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
         }
     }
-    
+
     func testFileManagerCantBeInit() {
         SentryFileManager.prepareInitError()
-        
+
         let options = Options()
         options.dsn = SentryClientTest.dsn
-        let client = Client(options: options, permissionsObserver: TestSentryPermissionsObserver())
-        
+        let client = SentryClient(options: options, permissionsObserver: TestSentryPermissionsObserver(), dispatchQueue: TestSentryDispatchQueueWrapper())
+
         XCTAssertNil(client)
-        
+
         SentryFileManager.tearDownInitError()
     }
     
@@ -1342,7 +1343,7 @@ class SentryClientTest: XCTestCase {
         return event
     }
     
-    private func beforeSendReturnsNil(capture: (Client) -> Void) {
+    private func beforeSendReturnsNil(capture: (SentryClient) -> Void) {
         capture(fixture.getSut(configureOptions: { options in
             options.beforeSend = { _ in
                 nil

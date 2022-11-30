@@ -8,7 +8,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
     
     private class Fixture {
         let options: Options
-        let fileManager: SentryFileManager
+        let fileManager: TestFileManager
         var currentDateProvider = TestCurrentDateProvider()
 
         init() {
@@ -18,11 +18,11 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
             options.sessionTrackingIntervalMillis = 10_000
             options.environment = "debug"
 
-            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider)
+            fileManager = try! TestFileManager(options: options, andCurrentDateProvider: currentDateProvider)
         }
 
         func getSut(scope: Scope, currentDevice: UIDevice? = UIDevice.current) -> SentrySystemEventBreadcrumbs {
-            let client = Client(options: self.options)
+            let client = SentryClient(options: self.options)
             let hub = SentryHub(client: client, andScope: scope)
             SentrySDK.setCurrentHub(hub)
 

@@ -8,13 +8,13 @@ class SentryPerformanceTrackerTests: XCTestCase {
 
         let someTransaction = "Some Transaction"
         let someOperation = "Some Operation"
-        let client: TestClient
+        let client: TestClient!
         let hub: TestHub
         let scope: Scope
 
         init() {
             scope = Scope()
-            client = TestClient(options: Options())!
+            client = TestClient(options: Options())
             hub = TestHub(client: client, andScope: scope)
         }
         
@@ -79,7 +79,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         XCTAssert(scopeSpan === transaction)
         XCTAssert(scopeSpan !== firstTransaction)
         XCTAssertTrue(firstTransaction.isFinished)
-        XCTAssertEqual(.cancelled, firstTransaction.context.status)
+        XCTAssertEqual(.cancelled, firstTransaction.status)
     }
     
     func testStartSpan_WithActiveSpan() {
@@ -99,7 +99,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
             
             XCTAssertEqual(1, children?.count)
             XCTAssert(children!.first === childSpan)
-            XCTAssertEqual(spanId, childSpan?.context.parentSpanId)
+            XCTAssertEqual(spanId, childSpan?.parentSpanId)
         }
         XCTAssertTrue(blockCalled)
     }
@@ -148,8 +148,8 @@ class SentryPerformanceTrackerTests: XCTestCase {
                 grandchild = sut.getSpan(grandChildSpanId)
             }
         }
-        XCTAssertEqual(root!.context.spanId, child.context.parentSpanId)
-        XCTAssertEqual(child!.context.spanId, grandchild.context.parentSpanId)
+        XCTAssertEqual(root!.spanId, child.parentSpanId)
+        XCTAssertEqual(child!.spanId, grandchild.parentSpanId)
     }
     
     func testMeasureSpanWithBlock() {
@@ -192,7 +192,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         let spanId = sut.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
         let span = sut.getSpan(spanId)
         
-        XCTAssertEqual(span!.context.sampled, .no)
+        XCTAssertEqual(span!.sampled, .no)
     }
     
     func testSampled() {
@@ -201,7 +201,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         let spanId = sut.startSpan(withName: fixture.someTransaction, operation: fixture.someOperation)
         let span = sut.getSpan(spanId)
         
-        XCTAssertEqual(span!.context.sampled, .yes)
+        XCTAssertEqual(span!.sampled, .yes)
     }
     
     func testFinishSpan() {
