@@ -3,7 +3,11 @@ import MetricKit
 
 @available(iOS 14.0, macCatalyst 14.0, macOS 12.0, *)
 @objc public protocol SentryMXManagerDelegate: AnyObject {
-    func didReceiveCrashDiagnostic(_ crashDiagnostic: MXCrashDiagnostic, callStackTree: SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)
+    func didReceiveCrashDiagnostic(_ diagnostic: MXCrashDiagnostic, callStackTree: SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)
+    
+    func didReceiveDiskWriteExceptionDiagnostic(_ diagnostic: MXDiskWriteExceptionDiagnostic, callStackTree: SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)
+    
+    func didReceiveCpuExceptionDiagnostic(_ diagnostic: MXCPUExceptionDiagnostic, callStackTree: SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)
 }
 
 @available(iOS 14.0, macCatalyst 14.0, macOS 12.0, *)
@@ -22,27 +26,31 @@ import MetricKit
     }
     
     public func didReceive(_ payloads: [MXDiagnosticPayload]) {
+        func actOn(callStackTree: MXCallStackTree, action: (SentryMXCallStackTree) -> Void) {
+            guard let callStackTree = try? SentryMXCallStackTree.from(data: callStackTree.jsonRepresentation()) else {
+                return
+            }
+            
+            action(callStackTree)
+        }
+        
         payloads.forEach { payload in
-            payload.crashDiagnostics?.forEach {
-                let json = $0.callStackTree.jsonRepresentation()
-                let callStackTree = try! SentryMXCallStackTree.from(data: json)
-                
-                delegate?.didReceiveCrashDiagnostic($0, callStackTree: callStackTree, timeStampBegin: payload.timeStampBegin, timeStampEnd: payload.timeStampEnd)
+            payload.crashDiagnostics?.forEach { diagnostic in
+                actOn(callStackTree: diagnostic.callStackTree) { callStackTree in
+                    delegate?.didReceiveCrashDiagnostic(diagnostic, callStackTree: callStackTree, timeStampBegin: payload.timeStampBegin, timeStampEnd: payload.timeStampEnd)
+                }
             }
             
-            payload.diskWriteExceptionDiagnostics?.forEach {
-                let json = $0.callStackTree.jsonRepresentation()
-                _ = try! SentryMXCallStackTree.from(data: json)
+            payload.diskWriteExceptionDiagnostics?.forEach { diagnostic in
+                actOn(callStackTree: diagnostic.callStackTree) { callStackTree in
+                    delegate?.didReceiveDiskWriteExceptionDiagnostic(diagnostic, callStackTree: callStackTree, timeStampBegin: payload.timeStampBegin, timeStampEnd: payload.timeStampEnd)
+                }
             }
             
-            payload.hangDiagnostics?.forEach {
-                let json = $0.callStackTree.jsonRepresentation()
-                _ = try! SentryMXCallStackTree.from(data: json)
-            }
-            
-            payload.cpuExceptionDiagnostics?.forEach {
-                let json = $0.callStackTree.jsonRepresentation()
-                _ = try! SentryMXCallStackTree.from(data: json)
+            payload.cpuExceptionDiagnostics?.forEach { diagnostic in
+                actOn(callStackTree: diagnostic.callStackTree) { callStackTree in
+                    delegate?.didReceiveCpuExceptionDiagnostic(diagnostic, callStackTree: callStackTree, timeStampBegin: payload.timeStampBegin, timeStampEnd: payload.timeStampEnd)
+                }
             }
         }
     }
