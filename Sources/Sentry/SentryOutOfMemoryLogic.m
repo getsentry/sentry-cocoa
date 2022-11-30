@@ -85,7 +85,7 @@ SentryOutOfMemoryLogic ()
     }
 
     // The SDK wasn't running, so *any* crash after the SDK got closed would be seen as OOM.
-    if (previousAppState.isSDKRunning) {
+    if (!previousAppState.isSDKRunning) {
         return NO;
     }
 
