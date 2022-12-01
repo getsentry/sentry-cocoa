@@ -268,6 +268,11 @@ SENTRY_NO_INIT
  */
 - (void)flush:(NSTimeInterval)timeout NS_SWIFT_NAME(flush(timeout:));
 
+/**
+ * Calls flush with ``SentryOptions/shutdownTimeInterval``.
+ */
+- (void)close;
+
 @end
 
 NS_ASSUME_NONNULL_END

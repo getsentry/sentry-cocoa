@@ -159,11 +159,13 @@ class ViewController: UIViewController {
         SentrySDK.crash()
     }
 
+    // swiftlint:disable force_unwrapping
     @IBAction func unwrapCrash(_ sender: Any) {
         let a: String! = nil
         let b: String = a!
         print(b)
     }
+    // swiftlint:enable force_unwrapping
 
     @IBAction func asyncCrash(_ sender: Any) {
         DispatchQueue.main.async {
