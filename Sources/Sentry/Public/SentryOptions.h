@@ -59,6 +59,11 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enabled;
 
 /**
+ * Controls the flush duration when calling ``SentrySDK/close``.
+ */
+@property (nonatomic, assign) NSTimeInterval shutdownTimeInterval;
+
+/**
  * When enabled, the SDK sends crashes to Sentry. Default value is YES.
  */
 @property (nonatomic, assign) BOOL enableCrashHandler;

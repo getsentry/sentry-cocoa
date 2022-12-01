@@ -35,6 +35,7 @@ This version adds a dependency on Swift.
     - Remove `SentryScope.apply(to:maxBreadcrumb:)` (#2416)
     - Remove `- [SentryOptions initWithDict:didFailWithError:]` (#2404)
     - Remove `- [SentryOptions sdkInfo]` (#2404)
+    - Make SentrySession and SentrySDKInfo internal (#2451)  
 - Marks App hang's event stacktrace snapshot as true (#2441) 
 - Enable user interaction tracing by default (#2442)
 - Remove default attachment content type (#2443)
@@ -44,6 +45,7 @@ This version adds a dependency on Swift.
     - Rename `SentryOptions.enablePreWarmedAppStartTracking` to `enablePreWarmedAppStartTracing`
     - Rename `SentryOptions.enableFileIOTracking` to `enableFileIOTracing`
     - Rename `SentryOptions.enableCoreDataTracking` to `enableCoreDataTracing`
+- SentrySDK.close calls flush, which is a blocking call (#2453)
     
 ## 7.31.3
 
