@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased 
+## 8.0.0-beta.2
 
 This version adds a dependency on Swift.
 
@@ -46,7 +46,7 @@ This version adds a dependency on Swift.
     - Rename `SentryOptions.enableFileIOTracking` to `enableFileIOTracing`
     - Rename `SentryOptions.enableCoreDataTracking` to `enableCoreDataTracing`
 - SentrySDK.close calls flush, which is a blocking call (#2453)
-    
+
 ## 7.31.3
 
 ### Fixes
