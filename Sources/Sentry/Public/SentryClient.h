@@ -8,6 +8,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryClient : NSObject
 SENTRY_NO_INIT
 
+@property (nonatomic, assign, readonly) BOOL isEnabled;
+
 @property (nonatomic, strong) SentryOptions *options;
 
 /**
@@ -118,6 +120,11 @@ SENTRY_NO_INIT
  * @param timeout The time to wait for the SDK to complete the flush.
  */
 - (void)flush:(NSTimeInterval)timeout NS_SWIFT_NAME(flush(timeout:));
+
+/**
+ * Disables the client and calls flush with ``SentryOptions/shutdownTimeInterval``.
+ */
+- (void)close;
 
 @end
 

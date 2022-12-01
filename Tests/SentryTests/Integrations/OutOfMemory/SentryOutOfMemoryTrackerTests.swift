@@ -36,9 +36,27 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         }
         
         func getSut(fileManager: SentryFileManager) -> SentryOutOfMemoryTracker {
-            let appStateManager = SentryAppStateManager(options: options, crashWrapper: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl, dispatchQueueWrapper: self.dispatchQueue)
-            let logic = SentryOutOfMemoryLogic(options: options, crashAdapter: crashWrapper, appStateManager: appStateManager)
-            return SentryOutOfMemoryTracker(options: options, outOfMemoryLogic: logic, appStateManager: appStateManager, dispatchQueueWrapper: dispatchQueue, fileManager: fileManager)
+            let appStateManager = SentryAppStateManager(
+                options: options,
+                crashWrapper: crashWrapper,
+                fileManager: fileManager,
+                currentDateProvider: currentDate,
+                sysctl: sysctl,
+                dispatchQueueWrapper: self.dispatchQueue,
+                notificationCenterWrapper: SentryNSNotificationCenterWrapper()
+            )
+            let logic = SentryOutOfMemoryLogic(
+                options: options,
+                crashAdapter: crashWrapper,
+                appStateManager: appStateManager
+            )
+            return SentryOutOfMemoryTracker(
+                options: options,
+                outOfMemoryLogic: logic,
+                appStateManager: appStateManager,
+                dispatchQueueWrapper: dispatchQueue,
+                fileManager: fileManager
+            )
         }
     }
     
@@ -169,7 +187,16 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         
         assertNoOOMSent()
     }
-    
+
+    func testSDKWasClosed_NoOOM() {
+        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.currentDate.date())
+        appState.isSDKRunning = false
+
+        givenPreviousAppState(appState: appState)
+        sut.start()
+        assertNoOOMSent()
+    }
+
     func testAppWasInBackground_NoOOM() {
         sut.start()
         goToForeground()

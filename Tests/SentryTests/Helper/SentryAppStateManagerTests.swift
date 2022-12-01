@@ -11,6 +11,7 @@ class SentryAppStateManagerTests: XCTestCase {
         let fileManager: SentryFileManager
         let currentDate = TestCurrentDateProvider()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
+        let notificationCenterWrapper = TestNSNotificationCenterWrapper()
 
         init() {
             options = Options()
@@ -27,7 +28,8 @@ class SentryAppStateManagerTests: XCTestCase {
                 fileManager: fileManager,
                 currentDateProvider: currentDate,
                 sysctl: TestSysctl(),
-                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                notificationCenterWrapper: notificationCenterWrapper
             )
         }
     }
@@ -74,6 +76,34 @@ class SentryAppStateManagerTests: XCTestCase {
 
         sut.stop()
         XCTAssertNotNil(fixture.fileManager.readAppState())
+    }
+
+    func testStopUpdatesAppState() {
+        sut.start()
+
+        let stateBeforeStop = fixture.fileManager.readAppState()
+        XCTAssertTrue(stateBeforeStop!.isSDKRunning)
+
+        sut.stop(withForce: true)
+
+        let stateAfterStop = fixture.fileManager.readAppState()
+        XCTAssertFalse(stateAfterStop!.isSDKRunning)
+    }
+
+    func testForcedStop() {
+        XCTAssertNil(fixture.fileManager.readAppState())
+
+        sut.start()
+        sut.start()
+        sut.start()
+
+        sut.stop()
+        XCTAssertEqual(sut.startCount, 2)
+
+        sut.stop(withForce: true)
+        XCTAssertEqual(sut.startCount, 0)
+
+        XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameInvocations.count, 4)
     }
 
     func testUpdateAppState() {
