@@ -72,3 +72,6 @@ else
         GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -enableCodeCoverage YES -destination "$DESTINATION" \
         test | tee raw-test-output.log | $RUBY_ENV_ARGS xcpretty -t && exit ${PIPESTATUS[0]}
 fi
+
+## Needed for Codecov
+slather coverage -x --output-directory slather/ --scheme Sentry --workspace Sentry.xcworkspace Sentry.xcodeproj --configuration $CONFIGURATION
