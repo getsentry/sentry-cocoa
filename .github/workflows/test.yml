@@ -184,7 +184,7 @@ jobs:
         if: success()
         run: | 
           gem install slather
-          bundle exec slather coverage -x --output-directory slather/ --scheme Sentry --workspace Sentry.xcworkspace Sentry.xcodeproj
+          slather coverage -x --output-directory slather/ --scheme Sentry --workspace Sentry.xcworkspace Sentry.xcodeproj
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@v3
