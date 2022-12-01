@@ -270,9 +270,9 @@ private extension SentryProfilerSwiftTests {
 
         XCTAssertEqual(transactionEnvironment, profile["environment"] as! String)
 
-        let bundleID = Bundle.main.object(forInfoDictionaryKey: kCFBundleIdentifierKey as String) ?? "null"
-        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "null"
-        let build = Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) ?? "null"
+        let bundleID = Bundle.main.object(forInfoDictionaryKey: kCFBundleIdentifierKey as String) ?? "(null)"
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "(null)"
+        let build = Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) ?? "(null)"
         let releaseString = "\(bundleID)@\(version)+\(build)"
         XCTAssertEqual(profile["release"] as! String, releaseString)
 
