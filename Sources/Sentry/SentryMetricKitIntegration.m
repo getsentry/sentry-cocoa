@@ -63,32 +63,22 @@ SentryMetricKitIntegration ()
                    timeStampBegin:(NSDate *)timeStampBegin
                      timeStampEnd:(NSDate *)timeStampEnd
 {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
-
     NSString *exceptionValue =
         [NSString stringWithFormat:@"MachException Type:%@ Code:%@ Signal:%@",
                   diagnostic.exceptionType, diagnostic.exceptionCode, diagnostic.signal];
-    SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
-                                                                   type:@"MXCrashDiagnostic"];
-    SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:@"MXCrashDiagnostic"];
-    mechanism.handled = @(NO);
-    exception.mechanism = mechanism;
-    event.exceptions = @[ exception ];
 
-    event.threads = [self convertToSentryThreads:callStackTree.callStacks];
-
-    // The crash event can be way from the past. We don't want to impact the current session.
-    // Therefore we don't call captureCrashEvent.
-    [SentrySDK captureEvent:event
-             withScopeBlock:^(SentryScope *_Nonnull scope) {
-                 [scope clearBreadcrumbs];
-                 if (diagnostic.virtualMemoryRegionInfo) {
-                     [scope setContextValue:@ {
-                         @"virtualMemoryRegionInfo" : diagnostic.virtualMemoryRegionInfo
-                     }
-                                     forKey:@"MetricKit"];
-                 }
-             }];
+    [self captureMXEvent:callStackTree
+          exceptionValue:exceptionValue
+           exceptionType:@"MXCrashDiagnostic"
+          withScopeBlock:^(SentryScope *_Nonnull scope) {
+              [scope clearBreadcrumbs];
+              if (diagnostic.virtualMemoryRegionInfo) {
+                  [scope setContextValue:@ {
+                      @"virtualMemoryRegionInfo" : diagnostic.virtualMemoryRegionInfo
+                  }
+                                  forKey:@"MetricKit"];
+              }
+          }];
 }
 
 - (void)didReceiveCpuExceptionDiagnostic:(MXCPUExceptionDiagnostic *)diagnostic
@@ -96,30 +86,19 @@ SentryMetricKitIntegration ()
                           timeStampBegin:(NSDate *)timeStampBegin
                             timeStampEnd:(NSDate *)timeStampEnd
 {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
-
     NSString *totalCPUTime =
         [self.measurementFormatter stringFromMeasurement:diagnostic.totalCPUTime];
-
     NSString *totalSampledTime =
         [self.measurementFormatter stringFromMeasurement:diagnostic.totalSampledTime];
 
     NSString *exceptionValue =
         [NSString stringWithFormat:@"MXCPUException totalCPUTime:%@ totalSampledTime:%@",
                   totalCPUTime, totalSampledTime];
-    SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
-                                                                   type:@"MXCPUException"];
-    SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:@"MXCPUException"];
-    mechanism.handled = @(NO);
-    exception.mechanism = mechanism;
-    event.exceptions = @[ exception ];
 
-    event.threads = [self convertToSentryThreads:callStackTree.callStacks];
-
-    // The crash event can be way from the past. We don't want to impact the current session.
-    // Therefore we don't call captureCrashEvent.
-    [SentrySDK captureEvent:event
-             withScopeBlock:^(SentryScope *_Nonnull scope) { [scope clearBreadcrumbs]; }];
+    [self captureMXEvent:callStackTree
+          exceptionValue:exceptionValue
+           exceptionType:@"MXCPUException"
+          withScopeBlock:^(SentryScope *_Nonnull scope) { [scope clearBreadcrumbs]; }];
 }
 
 - (void)didReceiveDiskWriteExceptionDiagnostic:(MXDiskWriteExceptionDiagnostic *)diagnostic
@@ -127,16 +106,28 @@ SentryMetricKitIntegration ()
                                 timeStampBegin:(NSDate *)timeStampBegin
                                   timeStampEnd:(NSDate *)timeStampEnd
 {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
-
     NSString *totalWritesCaused =
         [self.measurementFormatter stringFromMeasurement:diagnostic.totalWritesCaused];
 
     NSString *exceptionValue =
         [NSString stringWithFormat:@"MXDiskWriteException totalWritesCaused:%@", totalWritesCaused];
+
+    [self captureMXEvent:callStackTree
+          exceptionValue:exceptionValue
+           exceptionType:@"MXDiskWriteException"
+          withScopeBlock:^(SentryScope *_Nonnull scope) { [scope clearBreadcrumbs]; }];
+}
+
+- (void)captureMXEvent:(SentryMXCallStackTree *)callStackTree
+        exceptionValue:(NSString *)exceptionValue
+         exceptionType:(NSString *)exceptionType
+        withScopeBlock:(void (^)(SentryScope *))block
+{
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
+
     SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
-                                                                   type:@"MXDiskWriteException"];
-    SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:@"MXDiskWriteException"];
+                                                                   type:exceptionType];
+    SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:exceptionType];
     mechanism.handled = @(NO);
     exception.mechanism = mechanism;
     event.exceptions = @[ exception ];
@@ -145,8 +136,7 @@ SentryMetricKitIntegration ()
 
     // The crash event can be way from the past. We don't want to impact the current session.
     // Therefore we don't call captureCrashEvent.
-    [SentrySDK captureEvent:event
-             withScopeBlock:^(SentryScope *_Nonnull scope) { [scope clearBreadcrumbs]; }];
+    [SentrySDK captureEvent:event withScopeBlock:block];
 }
 
 - (NSArray<SentryThread *> *)convertToSentryThreads:(NSArray<SentryMXCallStack *> *)callStacks
