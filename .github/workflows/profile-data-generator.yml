@@ -27,6 +27,14 @@ jobs:
       - name: Install Carthage deps
         if: steps.trendingmovies-carthage-cache.outputs.cache-hit != 'true'
         run: cd Samples/TrendingMovies && carthage update --use-xcframeworks
+      - name: Cache TrendingMovies App and dSYM build products
+        id: cache-trending-movies-app
+        uses: actions/cache@v3
+        with:
+          path: |
+            DerivedData/Build/Products/Debug-iphoneos/TrendingMovies.app
+            DerivedData/Build/Products/Debug-iphoneos/TrendingMovies.app.dSYM
+          key: trendingmovies-app-cache-key-${{ hashFiles('Samples/TrendingMovies/TrendingMovies/**') }}-${{ hashFiles('Sources/Sentry/**') }}
       - name: Cache ProfileDataGenerator UI Test Runner App build product
         id: cache-profiledatagenerator-test-runner-app
         uses: actions/cache@v3
@@ -35,6 +43,7 @@ jobs:
             DerivedData/Build/Products/Debug-iphoneos/ProfileDataGeneratorUITest-Runner.app
           key: profiledatagenerator-test-runner-app-cache-key-${{ hashFiles('Samples/TrendingMovies/ProfileDataGeneratorUITest/**') }}
       - run: fastlane build_trending_movies
+        if: steps.cache-trending-movies-app.outputs.cache-hit != 'true'
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
