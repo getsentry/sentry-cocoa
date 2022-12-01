@@ -548,12 +548,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     profile[@"platform"] = _transactions.firstObject.platform;
     profile[@"environment"] = _hub.scope.environmentString ?: _hub.getClient.options.environment;
     profile[@"timestamp"] = [[SentryCurrentDate date] sentry_toIso8601String];
-
-    const auto bundle = NSBundle.mainBundle;
-    profile[@"release"] =
-        [NSString stringWithFormat:@"%@ (%@)",
-                  [bundle objectForInfoDictionaryKey:(NSString *)kCFBundleVersionKey],
-                  [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
+    profile[@"release"] = _hub.getClient.options.releaseName;
 
 #    if SENTRY_HAS_UIKIT
     auto relativeFrameTimestampsNs = [NSMutableArray array];
