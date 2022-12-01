@@ -8,7 +8,8 @@ let files = [
     "./Sentry.podspec",
     "./SentryPrivate.podspec",
     "./Sources/Sentry/SentryMeta.m",
-    "./Sources/Configuration/SDK.xcconfig",
+    "./Sources/Configuration/Sentry.xcconfig",
+    "./Sources/Configuration/SentryPrivate.xcconfig",
     "./Samples/iOS-Swift/iOS-Swift.xcodeproj/project.pbxproj"
 ]
 
