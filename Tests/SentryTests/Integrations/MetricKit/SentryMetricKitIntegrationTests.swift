@@ -8,7 +8,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     var callStackTree: SentryMXCallStackTree!
     
     override func setUpWithError() throws {
-        super.setUpWithError()
+        try super.setUpWithError()
         
         let contents = try contentsOfResource("metric-kit-callstack-tree-simple")
         callStackTree = try SentryMXCallStackTree.from(data: contents)
