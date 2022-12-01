@@ -1,5 +1,8 @@
 import Foundation
 
+/**
+ * JSON specification of MXCallStackTree can be found here https://developer.apple.com/documentation/metrickit/mxcallstacktree/3552293-jsonrepresentation.
+ */
 @objc
 public class SentryMXCallStackTree: NSObject, Codable {
     

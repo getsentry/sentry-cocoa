@@ -444,7 +444,7 @@ NS_SWIFT_NAME(Options)
 /**
  * ATTENTION: This is an experimental feature.
  *
- * This feature is disabled by default. When enabled the SDK sends ``MXDiagnosticPayload`` data to
+ * This feature is disabled by default. When enabled, the SDK sends ``MXDiagnosticPayload`` data to
  * Sentry.
  */
 @property (nonatomic, assign)

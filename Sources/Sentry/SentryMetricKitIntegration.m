@@ -95,6 +95,8 @@ SentryMetricKitIntegration ()
         [NSString stringWithFormat:@"MXCPUException totalCPUTime:%@ totalSampledTime:%@",
                   totalCPUTime, totalSampledTime];
 
+    // Still need to figure out proper exception values and types.
+    // This code is currently only there for testing with Testflight.
     [self captureMXEvent:callStackTree
           exceptionValue:exceptionValue
            exceptionType:@"MXCPUException"
@@ -112,6 +114,8 @@ SentryMetricKitIntegration ()
     NSString *exceptionValue =
         [NSString stringWithFormat:@"MXDiskWriteException totalWritesCaused:%@", totalWritesCaused];
 
+    // Still need to figure out proper exception values and types.
+    // This code is currently only there for testing with Testflight.
     [self captureMXEvent:callStackTree
           exceptionValue:exceptionValue
            exceptionType:@"MXDiskWriteException"

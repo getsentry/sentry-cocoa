@@ -2,8 +2,8 @@ import Foundation
 import Sentry
 
 /**
- * The system throws an exception and generates a report when the disk writes from your app exceed a certain threshold in a 24-hour period. See https://developer.apple.com/documentation/xcode/reducing-disk-writes
- *
+ * The system throws an exception and generates a report when the disk writes from your app exceed a certain threshold in a 24-hour period.
+ * See https://developer.apple.com/documentation/xcode/reducing-disk-write.
  * Therefore we write plenty of data to disk on a background thread to hopefully trigger a DiskWriteException.
  */
 class DiskWriteException {

@@ -197,7 +197,7 @@ class ViewController: UIViewController {
     @IBAction func diskWriteException(_ sender: Any) {
         diskWriteException.continuouslyWriteToDisk()
         
-        // As we writing to disk continuously we would keep adding spans to this UIEventTransaction.
+        // As we are writing to disk continuously we would keep adding spans to this UIEventTransaction.
         SentrySDK.span?.finish()
     }
     
