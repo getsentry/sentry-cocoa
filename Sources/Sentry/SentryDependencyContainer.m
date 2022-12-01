@@ -213,6 +213,7 @@ static NSObject *sentryDependencyContainerLock;
     return _anrTracker;
 }
 
+#if SENTRY_HAS_METRIC_KIT
 - (SentryMXManager *)metricKitManager
 {
     if (_metricKitManager == nil) {
@@ -225,5 +226,7 @@ static NSObject *sentryDependencyContainerLock;
 
     return _metricKitManager;
 }
+
+#endif
 
 @end

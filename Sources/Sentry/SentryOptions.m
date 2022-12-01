@@ -139,9 +139,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
             [[SentryHttpStatusCodeRange alloc] initWithMin:500 max:599];
         self.failedRequestStatusCodes = @[ defaultHttpStatusCodeRange ];
 
+#if SENTRY_HAS_METRIC_KIT
         if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
             self.enableMetricKit = NO;
         }
+#endif
     }
     return self;
 }

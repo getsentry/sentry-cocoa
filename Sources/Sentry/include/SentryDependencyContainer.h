@@ -41,8 +41,10 @@ SENTRY_NO_INIT
 
 - (SentryANRTracker *)getANRTracker:(NSTimeInterval)timeout;
 
+#if SENTRY_HAS_METRIC_KIT
 @property (nonatomic, strong)
     SentryMXManager *metricKitManager API_AVAILABLE(ios(14.0), macos(12.0), macCatalyst(14.0));
+#endif
 
 @end
 

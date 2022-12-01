@@ -1,6 +1,5 @@
 #import "SentryScope.h"
 #import <Foundation/Foundation.h>
-#import <MetricKit/MetricKit.h>
 #import <SentryDependencyContainer.h>
 #import <SentryEvent.h>
 #import <SentryException.h>
@@ -14,6 +13,10 @@
 #import <SentryThread.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+#if SENTRY_HAS_METRIC_KIT
+
+#    import <MetricKit/MetricKit.h>
 
 @interface
 SentryMetricKitIntegration ()
@@ -176,5 +179,7 @@ SentryMetricKitIntegration ()
 }
 
 @end
+
+#endif
 
 NS_ASSUME_NONNULL_END
