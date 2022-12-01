@@ -180,6 +180,12 @@ jobs:
         # manipulating string in expressions.
         run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME
 
+      - name: Run Slather
+        if: success()
+        run: | 
+          gem install slather
+          slather coverage -x --output-directory slather/ --scheme Sentry --workspace Sentry.xcworkspace Sentry.xcodeproj
+
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@v3
         if: failure()
@@ -200,11 +206,14 @@ jobs:
       # See https://docs.codecov.io/docs/merging-reports
       # Checkout .codecov.yml to see the config of Codecov
       - name: Push code coverage to codecov
-        uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3
+        uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3.1.1
 
         # SentrySystemEventsBreadcrumbsTest only run on Catalyst and iOS
         # so the coverage report shows a reduced coverage.
         if: ${{ contains(matrix.platform, 'Mac Catalyst') || contains(matrix.platform, 'iOS') }}
+        with:
+          fail_ci_if_error: true
+          verbose: true
 
   # We don't run all unit tests with Thread Sanitizer enabled because
   # that adds a significant overhead.
