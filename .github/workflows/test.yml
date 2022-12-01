@@ -207,6 +207,7 @@ jobs:
         if: ${{ contains(matrix.platform, 'Mac Catalyst') || contains(matrix.platform, 'iOS') }}
         with:
           fail_ci_if_error: true
+          directory: /Users/runner/Library/Developer/Xcode/DerivedData/
           verbose: true
 
   # We don't run all unit tests with Thread Sanitizer enabled because
