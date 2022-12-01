@@ -27,6 +27,7 @@ let package = Package(
             cxxSettings: [
                 .define("GCC_ENABLE_CPP_EXCEPTIONS", to: "YES"),
                 .headerSearchPath("Sentry/include"),
+                .headerSearchPath("Sentry/include/HybridPublic"),
                 .headerSearchPath("Sentry/Public"),
                 .headerSearchPath("SentryCrash/Installations"),
                 .headerSearchPath("SentryCrash/Recording"),

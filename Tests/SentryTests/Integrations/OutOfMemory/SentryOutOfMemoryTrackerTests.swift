@@ -187,7 +187,16 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         
         assertNoOOMSent()
     }
-    
+
+    func testSDKWasClosed_NoOOM() {
+        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.currentDate.date())
+        appState.isSDKRunning = false
+
+        givenPreviousAppState(appState: appState)
+        sut.start()
+        assertNoOOMSent()
+    }
+
     func testAppWasInBackground_NoOOM() {
         sut.start()
         goToForeground()

@@ -158,7 +158,13 @@ class ViewController: UIViewController {
     @IBAction func crash(_ sender: Any) {
         SentrySDK.crash()
     }
-    
+
+    @IBAction func unwrapCrash(_ sender: Any) {
+        let a: String! = nil
+        let b: String = a!
+        print(b)
+    }
+
     @IBAction func asyncCrash(_ sender: Any) {
         DispatchQueue.main.async {
             self.asyncCrash1()

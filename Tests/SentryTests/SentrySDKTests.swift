@@ -513,6 +513,9 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.close()
 
         XCTAssertEqual(appStateManager.startCount, 0)
+
+        let stateAfterStop = fixture.fileManager.readAppState()
+        XCTAssertFalse(stateAfterStop!.isSDKRunning)
     }
 #endif
     
