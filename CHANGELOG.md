@@ -14,6 +14,7 @@ This version adds a dependency on Swift.
 - Use the same default environment for events and sessions (#2447)
 - Increase `SentryCrashMAX_STRINGBUFFERSIZE` to reduce the instances where we're dropping a crash due to size limit (#2465)
 - `SentryAppStateManager` correctly unsubscribes from `NSNotificationCenter` when closing the SDK (#2460)
+- The SDK no longer reports an OOM when a crash happens after closing the SDK (#2468)
 
 ### Breaking Changes
 
@@ -34,6 +35,7 @@ This version adds a dependency on Swift.
     - Remove `SentryScope.apply(to:maxBreadcrumb:)` (#2416)
     - Remove `- [SentryOptions initWithDict:didFailWithError:]` (#2404)
     - Remove `- [SentryOptions sdkInfo]` (#2404)
+    - Make SentrySession and SentrySDKInfo internal (#2451)  
 - Marks App hang's event stacktrace snapshot as true (#2441) 
 - Enable user interaction tracing by default (#2442)
 - Remove default attachment content type (#2443)
@@ -43,6 +45,7 @@ This version adds a dependency on Swift.
     - Rename `SentryOptions.enablePreWarmedAppStartTracking` to `enablePreWarmedAppStartTracing`
     - Rename `SentryOptions.enableFileIOTracking` to `enableFileIOTracing`
     - Rename `SentryOptions.enableCoreDataTracking` to `enableCoreDataTracing`
+- SentrySDK.close calls flush, which is a blocking call (#2453)
     
 ## 7.31.3
 

@@ -88,6 +88,7 @@ SentryAppStateManager ()
     [self stopWithForce:NO];
 }
 
+// forceStop is YES when the SDK gets closed
 - (void)stopWithForce:(BOOL)forceStop
 {
     if (self.startCount <= 0) {
@@ -95,6 +96,9 @@ SentryAppStateManager ()
     }
 
     if (forceStop) {
+        [self
+            updateAppStateInBackground:^(SentryAppState *appState) { appState.isSDKRunning = NO; }];
+
         self.startCount = 0;
     } else {
         self.startCount -= 1;

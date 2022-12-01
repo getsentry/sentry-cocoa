@@ -55,6 +55,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 {
     if (self = [super init]) {
         self.enabled = YES;
+        self.shutdownTimeInterval = 2.0;
         self.enableCrashHandler = YES;
         self.diagnosticLevel = kSentryLevelDebug;
         self.debug = NO;
