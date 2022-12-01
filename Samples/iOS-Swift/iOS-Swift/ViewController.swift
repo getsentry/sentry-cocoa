@@ -9,7 +9,8 @@ class ViewController: UIViewController {
     @IBOutlet weak var framesLabel: UILabel!
     @IBOutlet weak var breadcrumbLabel: UILabel!
     
-    private let dispatchQueue = DispatchQueue(label: "ViewController")
+    private let dispatchQueue = DispatchQueue(label: "ViewController", attributes: .concurrent)
+    private let diskWriteException = DiskWriteException()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -191,6 +192,38 @@ class ViewController: UIViewController {
                 }
             }
         }
+    }
+    
+    @IBAction func diskWriteException(_ sender: Any) {
+        diskWriteException.continuouslyWriteToDisk()
+        
+        // As we writing to disk continuously we would keep adding spans to this UIEventTransaction.
+        SentrySDK.span?.finish()
+    }
+    
+    @IBAction func highCPULoad(_ sender: Any) {
+        dispatchQueue.async {
+            while true {
+                _ = self.calcPi()
+            }
+        }
+    }
+    
+    private func calcPi() -> Double {
+        var denominator = 1.0
+        var pi = 0.0
+     
+        for i in 0..<10_000_000 {
+            if i % 2 == 0 {
+                pi += 4 / denominator
+            } else {
+                pi -= 4 / denominator
+            }
+            
+            denominator += 2
+        }
+        
+        return pi
     }
 
     @IBAction func anrFullyBlocking(_ sender: Any) {
