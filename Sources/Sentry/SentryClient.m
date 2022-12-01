@@ -10,6 +10,7 @@
 #import "SentryDebugImageProvider.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
+#import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
@@ -33,7 +34,6 @@
 #import "SentryPermissionsObserver.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
-#import "SentrySdkInfo.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThreadInspector.h"
 #import "SentryTraceContext.h"
@@ -56,12 +56,8 @@ NS_ASSUME_NONNULL_BEGIN
 SentryClient ()
 
 @property (nonatomic, strong) SentryTransportAdapter *transportAdapter;
-@property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
-@property (nonatomic, strong) SentryThreadInspector *threadInspector;
 @property (nonatomic, strong) id<SentryRandom> random;
-@property (nonatomic, strong)
-    NSMutableArray<id<SentryClientAttachmentProcessor>> *attachmentProcessors;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryPermissionsObserver *permissionsObserver;
 @property (nonatomic, strong) SentryUIDeviceWrapper *deviceWrapper;
@@ -71,30 +67,57 @@ SentryClient ()
 @end
 
 NSString *const DropSessionLogMessage = @"Session has no release name. Won't send it.";
-NSString *const kSentryDefaultEnvironment = @"production";
 
 @implementation SentryClient
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
 {
-    return [self initWithOptions:options
-             permissionsObserver:[[SentryPermissionsObserver alloc] init]];
+    return [self initWithOptions:options dispatchQueue:[[SentryDispatchQueueWrapper alloc] init]];
 }
 
-/** Internal constructors for testing */
-- (_Nullable instancetype)initWithOptions:(SentryOptions *)options
-                      permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
+/** Internal constructor for testing purposes. */
+- (nullable instancetype)initWithOptions:(SentryOptions *)options
+                           dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
 {
-    NSError *error = nil;
+    NSError *error;
     SentryFileManager *fileManager =
         [[SentryFileManager alloc] initWithOptions:options
                             andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                              dispatchQueueWrapper:dispatchQueue
                                              error:&error];
-    if (nil != error) {
-        SENTRY_LOG_ERROR(@"%@", error.localizedDescription);
+    if (error != nil) {
+        SENTRY_LOG_ERROR(@"Cannot init filesystem.");
         return nil;
     }
+    return [self initWithOptions:options
+             permissionsObserver:[[SentryPermissionsObserver alloc] init]
+                     fileManager:fileManager];
+}
 
+- (nullable instancetype)initWithOptions:(SentryOptions *)options
+                     permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
+                           dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+{
+    NSError *error;
+    SentryFileManager *fileManager =
+        [[SentryFileManager alloc] initWithOptions:options
+                            andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                              dispatchQueueWrapper:dispatchQueue
+                                             error:&error];
+    if (error != nil) {
+        SENTRY_LOG_ERROR(@"Cannot init filesystem.");
+        return nil;
+    }
+    return [self initWithOptions:options
+             permissionsObserver:permissionsObserver
+                     fileManager:fileManager];
+}
+
+/** Internal constructor for testing purposes. */
+- (instancetype)initWithOptions:(SentryOptions *)options
+            permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
+                    fileManager:(SentryFileManager *)fileManager
+{
     id<SentryTransport> transport = [SentryTransportFactory initTransport:options
                                                         sentryFileManager:fileManager];
 
@@ -139,6 +162,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
                        timezone:(NSTimeZone *)timezone
 {
     if (self = [super init]) {
+        _isEnabled = YES;
         self.options = options;
         self.transportAdapter = transportAdapter;
         self.fileManager = fileManager;
@@ -153,11 +177,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.deviceWrapper = deviceWrapper;
     }
     return self;
-}
-
-- (SentryFileManager *)fileManager
-{
-    return _fileManager;
 }
 
 - (SentryId *)captureMessage:(NSString *)message
@@ -483,6 +502,12 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self.transportAdapter flush:timeout];
 }
 
+- (void)close
+{
+    _isEnabled = NO;
+    [self flush:self.options.shutdownTimeInterval];
+}
+
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
                              withScope:(SentryScope *)scope
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
@@ -527,12 +552,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
         event.dist = dist;
     }
 
-    NSString *environment = self.options.environment;
-    if (nil != environment && nil == event.environment) {
-        // Set the environment from option to the event before Scope is applied
-        event.environment = environment;
-    }
-
     [self setSdk:event];
 
     // We don't want to attach debug meta and stacktraces for transactions;
@@ -569,9 +588,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self applyCultureContextToEvent:event];
 
     // With scope applied, before running callbacks run:
-    if (nil == event.environment) {
+    if (event.environment == nil) {
         // We default to environment 'production' if nothing was set
-        event.environment = kSentryDefaultEnvironment;
+        event.environment = self.options.environment;
     }
 
     // Need to do this after the scope is applied cause this sets the user if there is any
@@ -611,7 +630,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 - (BOOL)isSampled:(NSNumber *)sampleRate
 {
-    if (nil == sampleRate) {
+    if (sampleRate == nil) {
         return NO;
     }
 
@@ -620,7 +639,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 - (BOOL)isDisabled
 {
-    return !self.options.enabled || nil == self.options.parsedDsn;
+    return !_isEnabled || !self.options.enabled || nil == self.options.parsedDsn;
 }
 
 - (void)logDisabledMessage
@@ -634,7 +653,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     for (SentryEventProcessor processor in SentryGlobalEventProcessor.shared.processors) {
         newEvent = processor(newEvent);
-        if (nil == newEvent) {
+        if (newEvent == nil) {
             SENTRY_LOG_DEBUG(@"SentryScope callEventProcessors: An event processor decided to "
                              @"remove this event.");
             break;
@@ -668,8 +687,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
         }
 
 #if SENTRY_HAS_UIKIT
-        if (self.options.enablePreWarmedAppStartTracking) {
-            [integrations addObject:@"PreWarmedAppStartTracking"];
+        if (self.options.enablePreWarmedAppStartTracing) {
+            [integrations addObject:@"PreWarmedAppStartTracing"];
         }
 #endif
     }
@@ -685,7 +704,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 {
     if (nil != event && nil != userInfo && userInfo.count > 0) {
         NSMutableDictionary *context;
-        if (nil == event.context) {
+        if (event.context == nil) {
             context = [[NSMutableDictionary alloc] init];
             event.context = context;
         } else {
@@ -700,7 +719,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 {
     // We only want to set the id if the customer didn't set a user so we at least set something to
     // identify the user.
-    if (nil == event.user) {
+    if (event.user == nil) {
         SentryUser *user = [[SentryUser alloc] init];
         user.userId = [SentryInstallation id];
         event.user = user;
@@ -713,12 +732,12 @@ NSString *const kSentryDefaultEnvironment = @"production";
         return NO;
     }
 
-    if (nil == event.exceptions || event.exceptions.count != 1) {
+    if (event.exceptions == nil || event.exceptions.count != 1) {
         return NO;
     }
 
     SentryException *exception = event.exceptions[0];
-    return nil != exception.mechanism &&
+    return exception.mechanism != nil &&
         [exception.mechanism.type isEqualToString:SentryOutOfMemoryMechanismType];
 }
 
@@ -845,7 +864,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
                   key:(NSString *)key
                 block:(void (^)(NSMutableDictionary *))block
 {
-    if (nil == event.context || event.context.count == 0) {
+    if (event.context == nil || event.context.count == 0) {
         return;
     }
 

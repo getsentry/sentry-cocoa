@@ -42,7 +42,7 @@ extern "C" {
  */
 #define SentryCrashJSON_SIZE_AUTOMATIC -1
 
-#define SentryCrashMAX_STRINGBUFFERSIZE 100000
+#define SentryCrashMAX_STRINGBUFFERSIZE 150000
 
 enum {
     /** Encoding or decoding: Everything completed without error */

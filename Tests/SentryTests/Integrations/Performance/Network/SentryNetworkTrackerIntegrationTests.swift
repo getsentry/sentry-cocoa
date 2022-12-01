@@ -50,7 +50,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     
     func testNetworkTrackerDisabled_WhenAutoPerformanceTrackingDisabled() {
         assertNetworkTrackerDisabled { options in
-            options.enableAutoPerformanceTracking = false
+            options.enableAutoPerformanceTracing = false
         }
     }
     
@@ -173,8 +173,8 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual(children?.count, 1) //Span was created in task resume swizzle.
         let networkSpan = children![0]
         XCTAssertTrue(networkSpan.isFinished) //Span was finished in task setState swizzle.
-        XCTAssertEqual(SENTRY_NETWORK_REQUEST_OPERATION, networkSpan.context.operation)
-        XCTAssertEqual("GET \(SentryNetworkTrackerIntegrationTests.testBaggageURL)", networkSpan.context.spanDescription)
+        XCTAssertEqual(SENTRY_NETWORK_REQUEST_OPERATION, networkSpan.operation)
+        XCTAssertEqual("GET \(SentryNetworkTrackerIntegrationTests.testBaggageURL)", networkSpan.spanDescription)
         
         XCTAssertEqual("200", networkSpan.tags["http.status_code"])
     }

@@ -11,7 +11,8 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         let options: Options
         let client: TestClient!
         let crashWrapper: TestSentryCrashWrapper
-        let fileManager: SentryFileManager
+        lazy var mockFileManager = try! TestFileManager(options: options, andCurrentDateProvider: currentDate)
+        lazy var realFileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate, dispatchQueueWrapper: dispatchQueue)
         let currentDate = TestCurrentDateProvider()
         let sysctl = TestSysctl()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
@@ -28,18 +29,34 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
             
             let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andCurrentDateProvider: currentDate)
             SentrySDK.setCurrentHub(hub)
-            
-            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
         }
         
-        func getSut() -> SentryOutOfMemoryTracker {
-            return getSut(fileManager: self.fileManager)
+        func getSut(usingRealFileManager: Bool) -> SentryOutOfMemoryTracker {
+            return getSut(fileManager: usingRealFileManager ? realFileManager : mockFileManager)
         }
         
         func getSut(fileManager: SentryFileManager) -> SentryOutOfMemoryTracker {
-            let appStateManager = SentryAppStateManager(options: options, crashWrapper: crashWrapper, fileManager: fileManager, currentDateProvider: currentDate, sysctl: sysctl, dispatchQueueWrapper: self.dispatchQueue)
-            let logic = SentryOutOfMemoryLogic(options: options, crashAdapter: crashWrapper, appStateManager: appStateManager)
-            return SentryOutOfMemoryTracker(options: options, outOfMemoryLogic: logic, appStateManager: appStateManager, dispatchQueueWrapper: dispatchQueue, fileManager: fileManager)
+            let appStateManager = SentryAppStateManager(
+                options: options,
+                crashWrapper: crashWrapper,
+                fileManager: fileManager,
+                currentDateProvider: currentDate,
+                sysctl: sysctl,
+                dispatchQueueWrapper: self.dispatchQueue,
+                notificationCenterWrapper: SentryNSNotificationCenterWrapper()
+            )
+            let logic = SentryOutOfMemoryLogic(
+                options: options,
+                crashAdapter: crashWrapper,
+                appStateManager: appStateManager
+            )
+            return SentryOutOfMemoryTracker(
+                options: options,
+                outOfMemoryLogic: logic,
+                appStateManager: appStateManager,
+                dispatchQueueWrapper: dispatchQueue,
+                fileManager: fileManager
+            )
         }
     }
     
@@ -50,24 +67,26 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         super.setUp()
         
         fixture = Fixture()
-        sut = fixture.getSut()
+        sut = fixture.getSut(usingRealFileManager: false)
         SentrySDK.startInvocations = 1
     }
     
     override func tearDown() {
         super.tearDown()
         sut.stop()
-        fixture.fileManager.deleteAllFolders()
+        fixture.client.fileManager.deleteAllFolders()
         
         clearTestState()
     }
 
     func testStart_StoresAppState() {
-        XCTAssertNil(fixture.fileManager.readAppState())
+        sut = fixture.getSut(usingRealFileManager: true)
+
+        XCTAssertNil(fixture.realFileManager.readAppState())
 
         sut.start()
         
-        let actual = fixture.fileManager.readAppState()
+        let actual = fixture.realFileManager.readAppState()
         
         let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.sysctl.systemBootTimestamp)
         
@@ -76,24 +95,26 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     }
     
     func testGoToForeground_SetsIsActive() {
+        sut = fixture.getSut(usingRealFileManager: true)
+
         sut.start()
         
         goToForeground()
         
-        XCTAssertTrue(fixture.fileManager.readAppState()?.isActive ?? false)
+        XCTAssertTrue(fixture.realFileManager.readAppState()?.isActive ?? false)
         
         goToBackground()
         
-        XCTAssertFalse(fixture.fileManager.readAppState()?.isActive ?? true)
+        XCTAssertFalse(fixture.realFileManager.readAppState()?.isActive ?? true)
         XCTAssertEqual(3, fixture.dispatchQueue.dispatchAsyncCalled)
     }
     
     func testGoToForeground_WhenAppStateNil_NothingIsStored() {
         sut.start()
-        fixture.fileManager.deleteAppState()
+        fixture.mockFileManager.deleteAppState()
         goToForeground()
         
-        XCTAssertNil(fixture.fileManager.readAppState())
+        XCTAssertNil(fixture.mockFileManager.readAppState())
     }
 
     func testDifferentAppVersions_NoOOM() {
@@ -166,7 +187,16 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         
         assertNoOOMSent()
     }
-    
+
+    func testSDKWasClosed_NoOOM() {
+        let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.currentDate.date())
+        appState.isSDKRunning = false
+
+        givenPreviousAppState(appState: appState)
+        sut.start()
+        assertNoOOMSent()
+    }
+
     func testAppWasInBackground_NoOOM() {
         sut.start()
         goToForeground()
@@ -189,10 +219,12 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     }
     
     func testAppWasInForeground_OOM() {
+        sut = fixture.getSut(usingRealFileManager: true)
+
         sut.start()
         goToForeground()
 
-        fixture.fileManager.moveAppStateToPreviousAppState()
+        fixture.mockFileManager.moveAppStateToPreviousAppState()
         sut.start()
         assertOOMEventSent()
     }
@@ -210,9 +242,11 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     }
 
     func testAppOOM_WithBreadcrumbs() {
+        sut = fixture.getSut(usingRealFileManager: true)
+
         let breadcrumb = TestData.crumb
 
-        let sentryOutOfMemoryScopeObserver = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: Int(fixture.options.maxBreadcrumbs), fileManager: fixture.fileManager)
+        let sentryOutOfMemoryScopeObserver = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: Int(fixture.options.maxBreadcrumbs), fileManager: fixture.mockFileManager)
 
         for _ in 0..<3 {
             sentryOutOfMemoryScopeObserver.addSerializedBreadcrumb(breadcrumb.serialize())
@@ -221,8 +255,8 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         sut.start()
         goToForeground()
 
-        fixture.fileManager.moveAppStateToPreviousAppState()
-        fixture.fileManager.moveBreadcrumbsToPreviousBreadcrumbs()
+        fixture.mockFileManager.moveAppStateToPreviousAppState()
+        fixture.mockFileManager.moveBreadcrumbsToPreviousBreadcrumbs()
         sut.start()
         assertOOMEventSent(expectedBreadcrumbs: 2)
 
@@ -231,30 +265,36 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     }
 
     func testAppOOM_WithOnlyHybridSdkDidBecomeActive() {
+        sut = fixture.getSut(usingRealFileManager: true)
+
         sut.start()
         hybridSdkDidBecomeActive()
 
-        fixture.fileManager.moveAppStateToPreviousAppState()
+        fixture.mockFileManager.moveAppStateToPreviousAppState()
         sut.start()
         assertOOMEventSent()
     }
     
     func testAppOOM_Foreground_And_HybridSdkDidBecomeActive() {
+        sut = fixture.getSut(usingRealFileManager: true)
+
         sut.start()
         goToForeground()
         hybridSdkDidBecomeActive()
 
-        fixture.fileManager.moveAppStateToPreviousAppState()
+        fixture.mockFileManager.moveAppStateToPreviousAppState()
         sut.start()
         assertOOMEventSent()
     }
     
     func testAppOOM_HybridSdkDidBecomeActive_and_Foreground() {
+        sut = fixture.getSut(usingRealFileManager: true)
+        
         sut.start()
         hybridSdkDidBecomeActive()
         goToForeground()
 
-        fixture.fileManager.moveAppStateToPreviousAppState()
+        fixture.mockFileManager.moveAppStateToPreviousAppState()
         sut.start()
         assertOOMEventSent()
     }
@@ -278,8 +318,8 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
         assertNoOOMSent()
     }
     
-    func testStop_StopsObserving_NoMoreFileManagerInvocations() throws {
-        let fileManager = try TestFileManager(options: Options(), andCurrentDateProvider: TestCurrentDateProvider())
+    func testStop_StopsObserving_NoMoreFileManagerInvocations() {
+        let fileManager = try! TestFileManager(options: Options(), andCurrentDateProvider: TestCurrentDateProvider())
         sut = fixture.getSut(fileManager: fileManager)
 
         sut.start()
@@ -293,13 +333,13 @@ class SentryOutOfMemoryTrackerTests: NotificationCenterTestCase {
     }
     
     private func givenPreviousAppState(appState: SentryAppState) {
-        fixture.fileManager.store(appState)
+        fixture.mockFileManager.store(appState)
     }
     
     private func update(appState: (SentryAppState) -> Void) {
-        if let currentAppState = fixture.fileManager.readAppState() {
+        if let currentAppState = fixture.mockFileManager.readAppState() {
             appState(currentAppState)
-            fixture.fileManager.store(currentAppState)
+            fixture.mockFileManager.store(currentAppState)
         }
     }
     

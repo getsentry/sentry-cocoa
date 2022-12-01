@@ -1,6 +1,10 @@
 import XCTest
 
 class SentryUIViewControllerSanitizerTests: XCTestCase {
+
+    private class InnerClass: NSObject {
+        
+    }
     
     func testSanitizeViewControllerNameWithBaseObject() {
         let object = NSObject()
@@ -16,22 +20,15 @@ class SentryUIViewControllerSanitizerTests: XCTestCase {
         XCTAssertEqual(name, "SentryOptions")
     }
     
-    func testSanitizeViewControllerNameWithStrings() {
-        XCTAssertEqual(
-            "sentry_ios_cocoapods.ViewController", sanitize("<sentry_ios_cocoapods.ViewController: 0x7fd9201253c0>")
-        )
+    func testSanitizeViewControllerNameWithPrivateSwiftClass() {
+        let object = InnerClass()
+        let name = sanitize(object)
         
-        XCTAssertEqual(
-            "sentry_ios_cocoapodsViewController: 0x7fd9201253c0", sanitize("sentry_ios_cocoapodsViewController: 0x7fd9201253c0")
-        )
-        
-        XCTAssertEqual(
-            "sentry_ios_cocoapods.ViewController.miau", sanitize("<sentry_ios_cocoapods.ViewController.miau: 0x7fd9201253c0>")
-        )
-        
+        XCTAssertNotEqual(name, object.description)
+        XCTAssertEqual(name, "InnerClass")
     }
     
-    private func sanitize(_ name: Any) -> String {
-        return SentryUIViewControllerSanitizer.sanitizeViewControllerName(name)
+    private func sanitize(_ name: AnyObject) -> String {
+        return SwiftDescriptor.getObjectClassName(name)
     }
 }

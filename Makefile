@@ -107,4 +107,5 @@ git-commit-add:
 	git push --tags
 
 release-pod:
+	pod trunk push SentryPrivate.podspec
 	pod trunk push Sentry.podspec

@@ -1,11 +1,8 @@
-// We need this because if Sentry library is added as a Framework
-// the reference should be in the form of <module/header>.
-// Otherwise, the reference is direct.
-#if __has_include(<Sentry/SentryDefines.h>)
-#    import <Sentry/SentryDefines.h>
-#else
-#    import "SentryDefines.h"
-#endif
+#import "PrivatesHeader.h"
+#import "SentryAppStartMeasurement.h"
+#import "SentryEnvelope.h"
+#import "SentryEnvelopeItemType.h"
+#import "SentryScreenFrames.h"
 
 @class SentryEnvelope, SentryDebugMeta, SentryAppStartMeasurement, SentryScreenFrames,
     SentryOptions;
@@ -78,7 +75,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 /**
  * If enabled, the SDK won't send the app start measurement with the first transaction. Instead, if
- * enableAutoPerformanceTracking is enabled, the SDK measures the app start and then calls
+ * enableAutoPerformanceTracing is enabled, the SDK measures the app start and then calls
  * onAppStartMeasurementAvailable. Furthermore, the SDK doesn't set all values for the app start
  * measurement because the HybridSDKs initialize the Cocoa SDK too late to receive all
  * notifications. Instead, the SDK sets the appStartDuration to 0 and the

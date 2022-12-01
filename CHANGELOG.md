@@ -1,6 +1,53 @@
 # Changelog
 
-## Unreleased
+## Unreleased 
+
+This version adds a dependency on Swift.
+
+### Features
+
+- Properly demangle Swift class name (#2162)
+
+### Fixes
+
+- Errors shortly after `SentrySDK.init` now affect the session (#2430)
+- Use the same default environment for events and sessions (#2447)
+- Increase `SentryCrashMAX_STRINGBUFFERSIZE` to reduce the instances where we're dropping a crash due to size limit (#2465)
+- `SentryAppStateManager` correctly unsubscribes from `NSNotificationCenter` when closing the SDK (#2460)
+- The SDK no longer reports an OOM when a crash happens after closing the SDK (#2468)
+
+### Breaking Changes
+
+- Rename `- [SentrySDK startWithOptionsObject:]` to `- [SentrySDK startWithOptions:]` (#2404)
+- Make `SpanProtocol.data` non nullable (#2409)
+- Mark `- [SpanProtocol setExtraValue:forKey:]` as deprecated (#2413)
+- Make SpanContext immutable (#2408)
+    - Remove tags from SpanContext 
+    - Remove context property from SentrySpan
+- Bump minimum supported OS versions to macOS 10.13, iOS 11, tvOS 11, and watchOS 4 (#2414)
+- Make public APIs Swift friendly
+    - Rename `SentrySDK.addBreadcrumb(crumb:)` to `SentrySDK.addBreadcrumb(_ crumb:)` (#2416)
+    - Rename `SentryScope.add(_ crumb:)` to `SentryScope.addBreadcrumb(_ crumb:)` (#2416)
+    - Rename `SentryScope.add(_ attachment:)` to `SentryScope.addAttachment(_ attachment:)` (#2416)
+    - Rename `Client` to `SentryClient` (#2403)
+- Remove public APIs
+    - Remove `SentryScope.apply(to:)` (#2416)
+    - Remove `SentryScope.apply(to:maxBreadcrumb:)` (#2416)
+    - Remove `- [SentryOptions initWithDict:didFailWithError:]` (#2404)
+    - Remove `- [SentryOptions sdkInfo]` (#2404)
+    - Make SentrySession and SentrySDKInfo internal (#2451)  
+- Marks App hang's event stacktrace snapshot as true (#2441) 
+- Enable user interaction tracing by default (#2442)
+- Remove default attachment content type (#2443)
+- Rename APM tracking feature flags to tracing (#2450)
+    - Rename `SentryOptions.enableAutoPerformanceTracking` to `enableAutoPerformanceTracing`
+    - Rename `SentryOptions.enableUIViewControllerTracking` to `enableUIViewControllerTracing`
+    - Rename `SentryOptions.enablePreWarmedAppStartTracking` to `enablePreWarmedAppStartTracing`
+    - Rename `SentryOptions.enableFileIOTracking` to `enableFileIOTracing`
+    - Rename `SentryOptions.enableCoreDataTracking` to `enableCoreDataTracing`
+- SentrySDK.close calls flush, which is a blocking call (#2453)
+    
+## 7.31.3
 
 ### Fixes
 

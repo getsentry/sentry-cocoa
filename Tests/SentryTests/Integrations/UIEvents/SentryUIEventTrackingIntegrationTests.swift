@@ -10,10 +10,10 @@ class SentryUIEventTrackerIntegrationTests: XCTestCase {
             return SentryUIEventTrackingIntegration()
         }
         
-        func optionForUIEventTracking(enableSwizzling: Bool = true, enableAutoPerformanceTracking: Bool = true, enableUserInteractionTracing: Bool = true, tracesSampleRate: Double = 1.0) -> Options {
+        func optionForUIEventTracking(enableSwizzling: Bool = true, enableAutoPerformanceTracing: Bool = true, enableUserInteractionTracing: Bool = true, tracesSampleRate: Double = 1.0) -> Options {
             let res = Options()
             res.enableSwizzling = enableSwizzling
-            res.enableAutoPerformanceTracking = enableAutoPerformanceTracking
+            res.enableAutoPerformanceTracing = enableAutoPerformanceTracing
             res.enableUserInteractionTracing = enableUserInteractionTracing
             res.tracesSampleRate = NSNumber(value: tracesSampleRate)
             return res
@@ -41,7 +41,7 @@ class SentryUIEventTrackerIntegrationTests: XCTestCase {
     
     func test_noInstallation_AutoPerformanceDisabled() {
         let sut = fixture.getSut()
-        sut.install(with: fixture.optionForUIEventTracking(enableAutoPerformanceTracking: false))
+        sut.install(with: fixture.optionForUIEventTracking(enableAutoPerformanceTracing: false))
         assertNoInstallation(sut)
         XCTAssertFalse(SentrySwizzleWrapper.hasItems())
     }

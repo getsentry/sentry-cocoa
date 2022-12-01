@@ -21,6 +21,12 @@ SentryScope (Private)
 
 - (void)addObserver:(id<SentryScopeObserver>)observer;
 
+- (nullable SentryEvent *)applyToEvent:(SentryEvent *)event
+                         maxBreadcrumb:(NSUInteger)maxBreadcrumbs
+    NS_SWIFT_NAME(applyTo(event:maxBreadcrumbs:));
+
+- (void)applyToSession:(SentrySession *)session NS_SWIFT_NAME(applyTo(session:));
+
 @end
 
 NS_ASSUME_NONNULL_END

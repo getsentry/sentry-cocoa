@@ -13,16 +13,16 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             }
             options.debug = true
             options.sessionTrackingIntervalMillis = 5_000
-            options.enableFileIOTracking = true
+            options.enableFileIOTracing = true
         }
         
         SentrySDK.configureScope { scope in
             if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
-                scope.add(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
+                scope.addAttachment(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
             }
             
             if let data = "hello".data(using: .utf8) {
-                scope.add(Attachment(data: data, filename: "log.txt"))
+                scope.addAttachment(Attachment(data: data, filename: "log.txt"))
             }
         }
     }

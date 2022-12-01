@@ -31,7 +31,6 @@
 #include "SentryCrashMonitorContext.h"
 #include "SentryCrashMonitor_AppState.h"
 #include "SentryCrashMonitor_System.h"
-#include "SentryCrashMonitor_User.h"
 #include "SentryCrashMonitor_Zombie.h"
 #include "SentryCrashObjC.h"
 #include "SentryCrashReport.h"
@@ -75,10 +74,8 @@ static void (*g_saveViewHierarchy)(const char *) = 0;
 static void
 onCrash(struct SentryCrash_MonitorContext *monitorContext)
 {
-    if (monitorContext->currentSnapshotUserReported == false) {
-        SentryCrashLOG_DEBUG("Updating application state to note crash.");
-        sentrycrashstate_notifyAppCrash();
-    }
+    SentryCrashLOG_DEBUG("Updating application state to note crash.");
+    sentrycrashstate_notifyAppCrash();
 
     if (monitorContext->crashedDuringCrashHandling) {
         sentrycrashreport_writeRecrashReport(monitorContext, g_lastCrashReportFilePath);
@@ -186,12 +183,6 @@ sentrycrash_setDoNotIntrospectClasses(const char **doNotIntrospectClasses, int l
 }
 
 void
-sentrycrash_setCrashNotifyCallback(const SentryCrashReportWriteCallback onCrashNotify)
-{
-    sentrycrashreport_setUserSectionWriteCallback(onCrashNotify);
-}
-
-void
 sentrycrash_setMaxReportCount(int maxReportCount)
 {
     sentrycrashcrs_setMaxReportCount(maxReportCount);
@@ -207,14 +198,6 @@ void
 sentrycrash_setSaveViewHierarchy(void (*callback)(const char *))
 {
     g_saveViewHierarchy = callback;
-}
-
-void
-sentrycrash_reportUserException(const char *name, const char *reason, const char *language,
-    const char *lineOfCode, const char *stackTrace, bool logAllThreads, bool terminateProgram)
-{
-    sentrycrashcm_reportUserException(
-        name, reason, language, lineOfCode, stackTrace, logAllThreads, terminateProgram);
 }
 
 void

@@ -83,6 +83,7 @@ only_rules:
   - vertical_whitespace
   - void_return
   - weak_delegate
+  - yoda_condition
 identifier_name:
   allowed_symbols:
     - i
