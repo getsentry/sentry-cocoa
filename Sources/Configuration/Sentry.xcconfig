@@ -1,5 +1,4 @@
 PRODUCT_NAME = Sentry
-CURRENT_PROJECT_VERSION = 7.31.3
 INFOPLIST_FILE = Sources/Sentry/Info.plist
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry
 
