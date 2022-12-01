@@ -43,7 +43,7 @@ This version adds a dependency on Swift.
     - Rename `SentryOptions.enablePreWarmedAppStartTracking` to `enablePreWarmedAppStartTracing`
     - Rename `SentryOptions.enableFileIOTracking` to `enableFileIOTracing`
     - Rename `SentryOptions.enableCoreDataTracking` to `enableCoreDataTracing`
-- SentrySDK.close calls flush (#2453)
+- SentrySDK.close calls flush, which is a blocking call (#2453)
     
 ## 7.31.3
 
