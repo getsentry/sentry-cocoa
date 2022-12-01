@@ -181,7 +181,10 @@ jobs:
         run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME
 
       - name: Run Slather
-        run: slather coverage -x --output-directory slather/ --scheme Sentry --workspace Sentry.xcworkspace Sentry.xcodeproj
+        if: success()
+        run: | 
+          gem install slather
+          bundle exec slather coverage -x --output-directory slather/ --scheme Sentry --workspace Sentry.xcworkspace Sentry.xcodeproj
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@v3
