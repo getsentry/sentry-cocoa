@@ -74,4 +74,4 @@ else
 fi
 
 ## Needed for Codecov
-slather coverage -x --output-directory slather/ --scheme Sentry --workspace Sentry.xcworkspace Sentry.xcodeproj --configuration $CONFIGURATION
+$RUBY_ENV_ARGS slather coverage -x --output-directory slather/ --scheme Sentry --workspace Sentry.xcworkspace Sentry.xcodeproj --configuration $CONFIGURATION
