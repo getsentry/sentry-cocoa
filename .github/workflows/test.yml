@@ -112,7 +112,7 @@ jobs:
           # macOS 11
           - runs-on: macos-11
             platform: 'macOS'
-            xcode: '12.5.1'
+            xcode: '13.2.1'
             test-destination-os: 'latest'
             timeout-minutes: 15
 
