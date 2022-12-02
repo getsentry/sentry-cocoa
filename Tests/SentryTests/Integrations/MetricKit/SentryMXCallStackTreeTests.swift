@@ -1,4 +1,4 @@
-#if canImport(MetricKit)
+#if os(iOS) || os(macOS)
 import MetricKit
 import XCTest
 
