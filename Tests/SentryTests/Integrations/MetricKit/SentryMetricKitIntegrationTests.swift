@@ -1,3 +1,4 @@
+#if canImport(MetricKit)
 import MetricKit
 import Sentry
 import XCTest
@@ -110,3 +111,5 @@ class TestMXDiskWriteExceptionDiagnostic: MXDiskWriteExceptionDiagnostic {
         return Measurement(value: 5.5, unit: .mebibits)
     }
 }
+
+#endif

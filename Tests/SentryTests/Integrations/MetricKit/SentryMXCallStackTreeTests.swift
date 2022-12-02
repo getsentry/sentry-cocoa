@@ -1,3 +1,5 @@
+#if canImport(MetricKit)
+import MetricKit
 import XCTest
 
 @available(iOS 14.0, macCatalyst 14.0, macOS 12.0, *)
@@ -64,3 +66,5 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(firstFrame.subFrames?[0]), secondFrame)
     }
 }
+
+#endif

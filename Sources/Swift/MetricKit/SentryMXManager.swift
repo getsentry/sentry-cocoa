@@ -1,5 +1,5 @@
-#if os(iOS) || os(macOS)
 import Foundation
+#if canImport(MetricKit)
 import MetricKit
 
 @available(iOS 14.0, macCatalyst 14.0, macOS 12.0, *)

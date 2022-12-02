@@ -1,4 +1,6 @@
 import Foundation
+#if canImport(MetricKit)
+import MetricKit
 
 /**
  * JSON specification of MXCallStackTree can be found here https://developer.apple.com/documentation/metrickit/mxcallstacktree/3552293-jsonrepresentation.
@@ -57,3 +59,5 @@ public class SentryMXFrame: NSObject, Codable {
         return subFrames?.flatMap { [$0] + $0.frames } ?? []
     }
 }
+
+#endif
