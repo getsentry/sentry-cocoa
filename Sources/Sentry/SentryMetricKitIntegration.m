@@ -13,7 +13,9 @@
 
 #if SENTRY_HAS_METRIC_KIT
 
-#    import <MetricKit/MetricKit.h>
+#    if __has_include(<MetricKit/MetricKit.h>)
+#        import <MetricKit/MetricKit.h>
+#    endif
 
 NS_ASSUME_NONNULL_BEGIN
 
