@@ -1,7 +1,9 @@
+import Sentry
+import SentryPrivate
+import XCTest
+
 #if os(iOS) || os(macOS)
 import MetricKit
-import Sentry
-import XCTest
 
 final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     

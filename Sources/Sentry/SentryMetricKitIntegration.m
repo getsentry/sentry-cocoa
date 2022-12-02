@@ -9,7 +9,6 @@
 #import <SentryMetricKitIntegration.h>
 #import <SentrySDK+Private.h>
 #import <SentryStacktrace.h>
-#import <SentrySwift.h>
 #import <SentryThread.h>
 
 #if SENTRY_HAS_METRIC_KIT

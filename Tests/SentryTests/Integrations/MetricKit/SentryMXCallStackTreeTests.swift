@@ -1,5 +1,6 @@
 #if os(iOS) || os(macOS)
 import MetricKit
+import SentryPrivate
 import XCTest
 
 final class SentryMXCallStackTreeTests: XCTestCase {
