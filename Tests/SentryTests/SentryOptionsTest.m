@@ -119,9 +119,12 @@
     XCTAssertEqual(YES, options.enableSwizzling);
     XCTAssertEqual(NO, options.enableFileIOTracing);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
-    if (@available(iOS 14.0, macOS 12.0, macCatalyst 13.1, *)) {
+
+#if SENTRY_HAS_METRIC_KIT
+    if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
         XCTAssertEqual(NO, options.enableMetricKit);
     }
+#endif
 
     NSRegularExpression *regexTrace = options.tracePropagationTargets[0];
     XCTAssertTrue([regexTrace.pattern isEqualToString:@".*"]);
