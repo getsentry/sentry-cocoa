@@ -30,7 +30,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.profilesSampleRate = 1.0
             options.attachScreenshot = true
             options.attachViewHierarchy = true
-            if #available(iOS 14.0, macCatalyst 14.0, *) {
+            if #available(iOS 14.0, *) {
                 options.enableMetricKit = true
             }
             options.environment = "test-app"
