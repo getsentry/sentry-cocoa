@@ -288,9 +288,9 @@ jobs:
             xcode: '13.4.1'
             device: 'iPhone 8 (15.2)'
 
-          - runs-on: macos-11
-            xcode: '12.5.1'
-            device: 'iPhone 8 (14.5)'
+          - runs-on: macos-12
+            xcode: '14.1'
+            device: 'iPhone 8 (16.1)'
 
     steps:
       - uses: actions/checkout@v3
