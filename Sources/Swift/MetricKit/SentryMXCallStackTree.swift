@@ -1,8 +1,6 @@
 import Foundation
 
 #if os(iOS) || os(macOS)
-import MetricKit
-
 /**
  * JSON specification of MXCallStackTree can be found here https://developer.apple.com/documentation/metrickit/mxcallstacktree/3552293-jsonrepresentation.
  */

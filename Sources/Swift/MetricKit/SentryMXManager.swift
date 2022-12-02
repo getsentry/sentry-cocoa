@@ -4,6 +4,7 @@ import Foundation
 import MetricKit
 
 @available(iOS 14.0, macCatalyst 14.0, macOS 12.0, *)
+@available(tvOS, unavailable)
 @objc public protocol SentryMXManagerDelegate: AnyObject {
     
     func didReceiveCrashDiagnostic(_ diagnostic: MXCrashDiagnostic, callStackTree: SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)
@@ -14,6 +15,7 @@ import MetricKit
 }
 
 @available(iOS 14.0, macCatalyst 14.0, macOS 12.0, *)
+@available(tvOS, unavailable)
 @objc public class SentryMXManager: NSObject, MXMetricManagerSubscriber {
 
     @objc public weak var delegate: SentryMXManagerDelegate?

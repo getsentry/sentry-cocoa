@@ -2,7 +2,6 @@
 import MetricKit
 import XCTest
 
-@available(iOS 14.0, macCatalyst 14.0, macOS 12.0, *)
 final class SentryMXCallStackTreeTests: XCTestCase {
     
     func testDecodeCallStackTree_Simple() throws {
