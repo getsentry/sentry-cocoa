@@ -1,7 +1,10 @@
 #if os(iOS) || os(macOS)
-import MetricKit
 import SentryPrivate
 import XCTest
+
+#if canImport(MetricKit)
+import MetricKit
+#endif
 
 final class SentryMXCallStackTreeTests: XCTestCase {
     

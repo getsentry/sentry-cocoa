@@ -1,7 +1,10 @@
 import Foundation
 
 #if os(iOS) || os(macOS)
+
+#if canImport(MetricKit)
 import MetricKit
+#endif
 
 @available(iOS 14.0, macOS 12.0, *)
 @available(tvOS, unavailable)
