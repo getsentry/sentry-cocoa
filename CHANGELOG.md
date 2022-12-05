@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased 
+## 8.0.0-beta.4
 
 This version adds a dependency on Swift.
 
@@ -48,7 +48,7 @@ This version adds a dependency on Swift.
     - Rename `SentryOptions.enableCoreDataTracking` to `enableCoreDataTracing`
 - SentrySDK.close calls flush, which is a blocking call (#2453)
 - Bump minimum Xcode version to 13 (#2483)
-    
+
 ## 7.31.3
 
 ### Fixes
