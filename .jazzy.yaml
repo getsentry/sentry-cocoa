@@ -1,0 +1,9 @@
+author: Sentry
+author_url: https://sentry.io/
+github_url: https://github.com/getsentry/sentry-cocoa
+module: Sentry
+output: docs
+theme: fullwidth
+objc: true
+framework_root: . 
+umbrella_header: Sources/Sentry/Public/Sentry.h

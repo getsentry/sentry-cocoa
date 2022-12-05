@@ -80,3 +80,5 @@ Package.resolved
 
 Cartfile.resolved
 *.log
+
+docs
