@@ -91,6 +91,9 @@
                <Test
                   Identifier = "SentryStacktraceBuilderTests/testAsyncStacktraces_disabled()">
                </Test>
+               <Test
+                  Identifier = "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout_disabled()">
+               </Test>
             </SkippedTests>
          </TestableReference>
       </Testables>
