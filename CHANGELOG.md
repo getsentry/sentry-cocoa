@@ -7,6 +7,7 @@ This version adds a dependency on Swift.
 ### Features
 
 - Properly demangle Swift class name (#2162)
+- Update view hierarchy attachment format (#2491)
 
 ### Fixes
 
