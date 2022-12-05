@@ -62,17 +62,6 @@ build-xcframework-sample:
 	cd Samples/Carthage-Validation/XCFramework/ && carthage update --use-xcframeworks
 	xcodebuild -project "Samples/Carthage-Validation/XCFramework/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
-# Building the .frameworsk.zip only works with Xcode 12, as there is no workaround yet for Xcode 13.
-build-framework:
-	@echo "--> Carthage: creating Sentry framework"
-	./scripts/carthage-xcode12-workaround.sh build --no-skip-current
-	./scripts/carthage-xcode12-workaround.sh archive Sentry --output Sentry.framework.zip
-
-build-framework-sample:
-	./scripts/create-carthage-json.sh
-	cd Samples/Carthage-Validation/Framework/ && carthage update
-	xcodebuild -project "Samples/Carthage-Validation/Framework/Framework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
-
 ## Build Sentry as a XCFramework that can be used with watchOS and save it to
 ## the watchOS sample.
 watchOSLibPath = ./Samples/watchOS-Swift/libs
