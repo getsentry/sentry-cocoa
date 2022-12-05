@@ -39,7 +39,7 @@ class SentryViewHierarchyTests: XCTestCase {
 
     func test_ViewHierarchy_fetch() {
         var window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
-        window.accessibilityIdentifier = "WindowId";
+        window.accessibilityIdentifier = "WindowId"
 
         fixture.uiApplication.windows = [window]
 
@@ -48,7 +48,7 @@ class SentryViewHierarchyTests: XCTestCase {
         XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"WindowId\",\"width\":10,\"height\":10,\"x\":0,\"y\":0,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
 
         window = UIWindow(frame: CGRect(x: 1, y: 2, width: 20, height: 30))
-        window.accessibilityIdentifier = "IdWindow";
+        window.accessibilityIdentifier = "IdWindow"
 
         fixture.uiApplication.windows = [window]
 
@@ -56,7 +56,6 @@ class SentryViewHierarchyTests: XCTestCase {
 
         XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"IdWindow\",\"width\":20,\"height\":30,\"x\":1,\"y\":2,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
     }
-
 
     func test_Window_with_children() {
         let firstWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
@@ -81,7 +80,7 @@ class SentryViewHierarchyTests: XCTestCase {
 
     func test_ViewHierarchy_save() {
         let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
-        window.accessibilityIdentifier = "WindowId";
+        window.accessibilityIdentifier = "WindowId"
 
         fixture.uiApplication.windows = [window]
 

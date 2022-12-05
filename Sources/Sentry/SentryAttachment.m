@@ -7,14 +7,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithData:(NSData *)data filename:(NSString *)filename
 {
-    return [self initWithData:data filename:filename contentType:nil attachmentType:kSentryAttachmentTypeEventAttachment];
+    return [self initWithData:data
+                     filename:filename
+                  contentType:nil
+               attachmentType:kSentryAttachmentTypeEventAttachment];
 }
 
 - (instancetype)initWithData:(NSData *)data
                     filename:(NSString *)filename
                  contentType:(nullable NSString *)contentType
 {
-    return [self initWithData:data filename:filename contentType:contentType attachmentType:kSentryAttachmentTypeEventAttachment];
+    return [self initWithData:data
+                     filename:filename
+                  contentType:contentType
+               attachmentType:kSentryAttachmentTypeEventAttachment];
 }
 
 - (instancetype)initWithData:(NSData *)data
@@ -32,7 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-
 - (instancetype)initWithPath:(NSString *)path
 {
     return [self initWithPath:path filename:[path lastPathComponent]];
@@ -47,7 +52,10 @@ NS_ASSUME_NONNULL_BEGIN
                     filename:(NSString *)filename
                  contentType:(nullable NSString *)contentType
 {
-    return [self initWithPath:path filename:filename contentType:contentType attachmentType:kSentryAttachmentTypeEventAttachment];
+    return [self initWithPath:path
+                     filename:filename
+                  contentType:contentType
+               attachmentType:kSentryAttachmentTypeEventAttachment];
 }
 
 - (instancetype)initWithPath:(NSString *)path
