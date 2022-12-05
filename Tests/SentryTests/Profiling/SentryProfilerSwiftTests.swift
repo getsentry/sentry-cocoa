@@ -117,7 +117,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         }
     }
 
-    func testProfileTimeoutTimer() {
+    func testProfileTimeoutTimer_disabled() {
         fixture.options.profilesSampleRate = 1.0
         fixture.options.tracesSampleRate = 1.0
         performTest(shouldTimeOut: true)
