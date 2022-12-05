@@ -16,6 +16,7 @@ This version adds a dependency on Swift.
 - `SentryAppStateManager` correctly unsubscribes from `NSNotificationCenter` when closing the SDK (#2460)
 - The SDK no longer reports an OOM when a crash happens after closing the SDK (#2468)
 - Don't capture zero size screenshots ([#2459](https://github.com/getsentry/sentry-cocoa/pull/2459))
+- Use the preexisting app release version format for profiles (#2470)
 
 ### Breaking Changes
 
@@ -47,6 +48,7 @@ This version adds a dependency on Swift.
     - Rename `SentryOptions.enableFileIOTracking` to `enableFileIOTracing`
     - Rename `SentryOptions.enableCoreDataTracking` to `enableCoreDataTracing`
 - SentrySDK.close calls flush, which is a blocking call (#2453)
+- Bump minimum Xcode version to 13 (#2483)
     
 ## 7.31.3
 
