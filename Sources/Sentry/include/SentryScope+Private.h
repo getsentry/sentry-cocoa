@@ -27,6 +27,8 @@ SentryScope (Private)
 
 - (void)applyToSession:(SentrySession *)session NS_SWIFT_NAME(applyTo(session:));
 
+- (void)addCrashReportAttachmentInPath:(NSString *)filePath;
+
 @end
 
 NS_ASSUME_NONNULL_END

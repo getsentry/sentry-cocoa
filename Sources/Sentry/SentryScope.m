@@ -396,6 +396,18 @@ SentryScope ()
     }
 }
 
+- (void)addCrashReportAttachmentInPath:(NSString *)filePath {
+    if ([filePath.lastPathComponent isEqualToString:@"view-hierarchy.json"]) {
+        [self addAttachment:[[SentryAttachment alloc]
+                              initWithPath:filePath
+                              filename:@"view-hierarchy.json"
+                              contentType:@"application/json"
+                              attachmentType:kSentryAttachmentTypeViewHierarchy]];
+    } else {
+        [self addAttachment:[[SentryAttachment alloc] initWithPath:filePath]];
+    }
+}
+
 - (void)clearAttachments
 {
     @synchronized(_attachmentArray) {
