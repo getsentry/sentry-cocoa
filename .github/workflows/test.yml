@@ -220,6 +220,9 @@ jobs:
         uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3.1.1
         if: ${{ contains(matrix.platform, 'iOS') }}
         with:
+          # Although public repos should have to specify a token there seems to be a bug with the Codecov GH action, which can
+          # be solved by specifying the token, see https://github.com/codecov/codecov-action/issues/557#issuecomment-1224970469
+          token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           verbose: true
 
