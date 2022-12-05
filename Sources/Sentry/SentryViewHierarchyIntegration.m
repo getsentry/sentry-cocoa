@@ -6,7 +6,6 @@
 #import "SentryHub+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentryViewHierarchy.h"
-#import "SentryDependencyContainer.h"
 
 #if SENTRY_HAS_UIKIT
 
@@ -55,14 +54,15 @@ saveViewHierarchy(const char *path)
         return attachments;
     }
 
-    NSMutableArray<SentryAttachment *> * result = [NSMutableArray arrayWithArray:attachments];
+    NSMutableArray<SentryAttachment *> *result = [NSMutableArray arrayWithArray:attachments];
 
-    NSData *viewHierarchy =        [SentryDependencyContainer.sharedInstance.viewHierarchy fetchViewHierarchy];
-    SentryAttachment *attachment = [[SentryAttachment alloc]
-                                    initWithData:viewHierarchy
-                                    filename:@"view-hierarchy.json"
-                                    contentType:@"application/json"
-                                    attachmentType:kSentryAttachmentTypeViewHierarchy];
+    NSData *viewHierarchy =
+        [SentryDependencyContainer.sharedInstance.viewHierarchy fetchViewHierarchy];
+    SentryAttachment *attachment =
+        [[SentryAttachment alloc] initWithData:viewHierarchy
+                                      filename:@"view-hierarchy.json"
+                                   contentType:@"application/json"
+                                attachmentType:kSentryAttachmentTypeViewHierarchy];
 
     [result addObject:attachment];
     return result;
