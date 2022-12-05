@@ -30,8 +30,7 @@ class SentryFileManagerTests: XCTestCase {
         init() {
             currentDateProvider = TestCurrentDateProvider()
             dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-            dispatchQueueWrapper.dispatchAfterExecutesBlock = true
-            
+
             eventIds = (0...(maxCacheItems + 10)).map { _ in SentryId() }
             
             options = Options()
@@ -135,6 +134,8 @@ class SentryFileManagerTests: XCTestCase {
     }
 
     func testDeleteOldEnvelopes() throws {
+        fixture.dispatchQueueWrapper.dispatchAfterExecutesBlock = true
+
         let envelope = TestConstants.envelope
         let path = sut.store(envelope)
 
@@ -147,6 +148,8 @@ class SentryFileManagerTests: XCTestCase {
         sut = fixture.getSut()
 
         XCTAssertEqual(sut.getAllEnvelopes().count, 0)
+
+        fixture.dispatchQueueWrapper.dispatchAfterExecutesBlock = false
     }
 
     func testDontDeleteYoungEnvelopes() throws {
