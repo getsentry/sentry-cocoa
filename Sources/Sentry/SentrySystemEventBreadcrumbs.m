@@ -3,6 +3,7 @@
 #import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryLog.h"
+#import "SentryNSNotificationCenterWrapper.h"
 #import "SentrySDK.h"
 
 // all those notifications are not available for tvOS
@@ -14,16 +15,19 @@
 SentrySystemEventBreadcrumbs ()
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
+@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
 @end
 
 @implementation SentrySystemEventBreadcrumbs
 
 - (instancetype)initWithFileManager:(SentryFileManager *)fileManager
              andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+       andNotificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper
 {
     if (self = [super init]) {
         _fileManager = fileManager;
         _currentDateProvider = currentDateProvider;
+        _notificationCenterWrapper = notificationCenterWrapper;
     }
     return self;
 }
@@ -43,16 +47,18 @@ SentrySystemEventBreadcrumbs ()
 #if TARGET_OS_IOS
     // Remove the observers with the most specific detail possible, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-    NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
-    [defaultCenter removeObserver:self name:UIKeyboardDidShowNotification object:nil];
-    [defaultCenter removeObserver:self name:UIKeyboardDidHideNotification object:nil];
-    [defaultCenter removeObserver:self
-                             name:UIApplicationUserDidTakeScreenshotNotification
-                           object:nil];
-    [defaultCenter removeObserver:self name:UIDeviceBatteryLevelDidChangeNotification object:nil];
-    [defaultCenter removeObserver:self name:UIDeviceBatteryStateDidChangeNotification object:nil];
-    [defaultCenter removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
-    [defaultCenter removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
+    [self.notificationCenterWrapper removeObserver:self name:UIKeyboardDidShowNotification];
+    [self.notificationCenterWrapper removeObserver:self name:UIKeyboardDidHideNotification];
+    [self.notificationCenterWrapper removeObserver:self
+                                              name:UIApplicationUserDidTakeScreenshotNotification];
+    [self.notificationCenterWrapper removeObserver:self
+                                              name:UIDeviceBatteryLevelDidChangeNotification];
+    [self.notificationCenterWrapper removeObserver:self
+                                              name:UIDeviceBatteryStateDidChangeNotification];
+    [self.notificationCenterWrapper removeObserver:self
+                                              name:UIDeviceOrientationDidChangeNotification];
+    [self.notificationCenterWrapper removeObserver:self
+                                              name:UIDeviceOrientationDidChangeNotification];
 #endif
 }
 
@@ -60,7 +66,7 @@ SentrySystemEventBreadcrumbs ()
 {
     // In dealloc it's safe to unsubscribe for all, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-    [NSNotificationCenter.defaultCenter removeObserver:self];
+    [self.notificationCenterWrapper removeObserver:self];
 }
 
 #if TARGET_OS_IOS
