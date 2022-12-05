@@ -16,6 +16,7 @@ This version adds a dependency on Swift.
 - `SentryAppStateManager` correctly unsubscribes from `NSNotificationCenter` when closing the SDK (#2460)
 - The SDK no longer reports an OOM when a crash happens after closing the SDK (#2468)
 - Use the preexisting app release version format for profiles (#2470)
+- Remove `SentrySystemEventBreadcrumbs` observers with the most specific detail possible (#2489)
 
 ### Breaking Changes
 
