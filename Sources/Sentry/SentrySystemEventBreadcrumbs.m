@@ -41,9 +41,26 @@ SentrySystemEventBreadcrumbs ()
 - (void)stop
 {
 #if TARGET_OS_IOS
+    // Remove the observers with the most specific detail possible, see
+    // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
     NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
-    [defaultCenter removeObserver:self];
+    [defaultCenter removeObserver:self name:UIKeyboardDidShowNotification object:nil];
+    [defaultCenter removeObserver:self name:UIKeyboardDidHideNotification object:nil];
+    [defaultCenter removeObserver:self
+                             name:UIApplicationUserDidTakeScreenshotNotification
+                           object:nil];
+    [defaultCenter removeObserver:self name:UIDeviceBatteryLevelDidChangeNotification object:nil];
+    [defaultCenter removeObserver:self name:UIDeviceBatteryStateDidChangeNotification object:nil];
+    [defaultCenter removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
+    [defaultCenter removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
 #endif
+}
+
+- (void)dealloc
+{
+    // In dealloc it's safe to unsubscribe for all, see
+    // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
+    [NSNotificationCenter.defaultCenter removeObserver:self];
 }
 
 #if TARGET_OS_IOS
