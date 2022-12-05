@@ -91,8 +91,8 @@ jobs:
           # iOS 14
           - runs-on: macos-11
             platform: 'iOS'
-            xcode: '12.5.1'
-            test-destination-os: 'latest'
+            xcode: '13.2.1'
+            test-destination-os: '14.5'
             timeout-minutes: 15
 
           # iOS 15
@@ -112,7 +112,7 @@ jobs:
           # macOS 11
           - runs-on: macos-11
             platform: 'macOS'
-            xcode: '12.5.1'
+            xcode: '13.2.1'
             test-destination-os: 'latest'
             timeout-minutes: 15
 
@@ -132,6 +132,8 @@ jobs:
             test-destination-os: 'latest'
             timeout-minutes: 15
 
+          # MetricKit doesn't exist for tvOS, so we can still run unit tests with
+          # Xcode 12 for it.
           # tvOS 14
           - runs-on: macos-11
             platform: 'tvOS'
@@ -173,18 +175,20 @@ jobs:
           sudo ln -s /Applications/Xcode_11.7.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 13.7.simruntime
           xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-13-7"
 
+      # Workaround with a symlink pointed out in: https://github.com/actions/virtual-environments/issues/551#issuecomment-637344435
+      - name: Prepare iOS 14.5 simulator
+        if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '14.5'}}
+        run: |
+          sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
+          sudo ln -s /Applications/Xcode_12.5.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 14.5.simruntime
+          xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-14-5"
+
       - name: Running tests
         # We call a script with the platform so the destination
         # passed to xcodebuild doesn't end up in the job name,
         # because GitHub Actions don't provide an easy way of
         # manipulating string in expressions.
         run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME
-
-      - name: Run Slather
-        if: success()
-        run: | 
-          gem install slather
-          slather coverage -x --output-directory slather/ --scheme Sentry --workspace Sentry.xcworkspace Sentry.xcodeproj
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@v3
@@ -202,15 +206,19 @@ jobs:
           path: |
             raw-test-output.log
 
+      # Some tests run only on iOS so we only collect code coverage there.
+      - name: Run Slather
+        if: success() && ${{ contains(matrix.platform, 'iOS') }}
+        run: | 
+          gem install slather
+          slather coverage -x --output-directory slather/ --scheme Sentry --workspace Sentry.xcworkspace Sentry.xcodeproj
+
       # We can upload all coverage reports, because codecov merges them.
       # See https://docs.codecov.io/docs/merging-reports
       # Checkout .codecov.yml to see the config of Codecov
       - name: Push code coverage to codecov
         uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3.1.1
-
-        # SentrySystemEventsBreadcrumbsTest only run on Catalyst and iOS
-        # so the coverage report shows a reduced coverage.
-        if: ${{ contains(matrix.platform, 'Mac Catalyst') || contains(matrix.platform, 'iOS') }}
+        if: ${{ contains(matrix.platform, 'iOS') }}
         with:
           fail_ci_if_error: true
           verbose: true
@@ -288,9 +296,9 @@ jobs:
             xcode: '13.4.1'
             device: 'iPhone 8 (15.2)'
 
-          - runs-on: macos-11
-            xcode: '12.5.1'
-            device: 'iPhone 8 (14.5)'
+          - runs-on: macos-12
+            xcode: '14.1'
+            device: 'iPhone 8 (16.1)'
 
     steps:
       - uses: actions/checkout@v3
