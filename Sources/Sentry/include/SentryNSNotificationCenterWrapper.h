@@ -20,6 +20,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addObserver:(id)observer selector:(SEL)aSelector name:(NSNotificationName)aName;
 
+- (void)addObserver:(id)observer
+           selector:(SEL)aSelector
+               name:(NSNotificationName)aName
+             object:(id)anObject;
+
 - (void)removeObserver:(id)observer name:(NSNotificationName)aName;
 
 - (void)removeObserver:(id)observer;

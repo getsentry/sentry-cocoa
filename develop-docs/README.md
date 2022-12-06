@@ -155,3 +155,15 @@ Date November 15, 2022
 Contributors: @kevinrenskers, @brustolin and @philipphofmann
 
 For the benefit of OOM crashes, we write breadcrumbs to disk; see https://github.com/getsentry/sentry-cocoa/pull/2347. We have decided to do this in the main thread to ensure we're not missing out on any breadcrumbs. It's mainly the last breadcrumb(s) that are important to figure out what is causing an OOM. And since we're only appending to an open file stream, the overhead is acceptable compared to the benefit of having accurate breadcrumbs.
+
+### Bump min Xcode version to 13
+
+With adding the [MetricKit integration](https://github.com/getsentry/sentry-cocoa/issues/1661), we need to bump the min Xcode version to 13,
+as MetricKit is unavailable on previous Xcode versions. As Xcode 12 doesn't run on macOS 12, and the current Xcode version is 14, we are OK
+with that change. With that change, we also have to drop support for
+[building platform-specific framework bundles](https://github.com/Carthage/Carthage/tree/a91d086ceaffef65c4a4a761108f3f32c519940c#building-platform-specific-framework-bundles-default-for-xcode-11-and-below)
+with Carthage, which was the default for Xcode 11 and below, because the
+[workaround](https://github.com/Carthage/Carthage/blob/a91d086ceaffef65c4a4a761108f3f32c519940c/Documentation/Xcode12Workaround.md) for creating a
+platform-specific framework bundles only works with Xcode 12.
+Carthage has encouraged its users [to use XCFrameworks](https://github.com/Carthage/Carthage/tree/a91d086ceaffef65c4a4a761108f3f32c519940c#getting-started)
+since version 0.37.0, released in January 2021. Therefore, it's acceptable to use XCFrameworks for Carthage users.

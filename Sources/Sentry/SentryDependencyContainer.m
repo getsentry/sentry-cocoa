@@ -13,6 +13,7 @@
 #import <SentryNSNotificationCenterWrapper.h>
 #import <SentrySDK+Private.h>
 #import <SentryScreenshot.h>
+#import <SentrySwift.h>
 #import <SentrySwizzleWrapper.h>
 #import <SentrySysctl.h>
 #import <SentryThreadWrapper.h>
@@ -208,7 +209,24 @@ static NSObject *sentryDependencyContainerLock;
             }
         }
     }
+
     return _anrTracker;
 }
+
+#if SENTRY_HAS_METRIC_KIT
+- (SentryMXManager *)metricKitManager
+{
+    if (_metricKitManager == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_metricKitManager == nil) {
+                _metricKitManager = [[SentryMXManager alloc] init];
+            }
+        }
+    }
+
+    return _metricKitManager;
+}
+
+#endif
 
 @end

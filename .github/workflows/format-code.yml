@@ -13,13 +13,14 @@ jobs:
   # if necessary
   format-code:
     name: Format Code
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
       ## Update internal list of formulae to the latest
       - run: brew update
       - name: Install Clang-Format
         run: brew install clang-format
+      - run: swiftlint --version
       - name: Format Code
         run: make format
 

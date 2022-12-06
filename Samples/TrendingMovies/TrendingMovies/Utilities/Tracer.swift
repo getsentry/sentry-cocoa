@@ -75,12 +75,12 @@ extension Tracer {
         var span: Span
 
         func annotate(key: String, value: String) {
-            print("[TrendingMovies] annotating span \(span.context.spanId.sentrySpanIdString), key \(key) and value \(value)")
-            span.context.setTag(value: value, key: key)
+            print("[TrendingMovies] annotating span \(span.spanId.sentrySpanIdString), key \(key) and value \(value)")
+            span.setTag(value: value, key: key)
         }
 
         func end() {
-            print("[TrendingMovies] ending span \(span.context.spanId.sentrySpanIdString)")
+            print("[TrendingMovies] ending span \(span.spanId.sentrySpanIdString)")
             span.finish()
         }
     }

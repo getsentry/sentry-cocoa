@@ -9,9 +9,6 @@ class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
     /// - SeeAlso: `delayDispatches`, which controls whether the block should execute immediately or with the requested delay.
     var dispatchAfterExecutesBlock = false
 
-    /// If `true`, delay dispatched block execution by the specified duration. Be sure to set expectations in test code that relies on delayed dispatches.
-    var delayDispatches = false
-
     override func dispatchAsync(_ block: @escaping () -> Void) {
         dispatchAsyncCalled += 1
         block()
@@ -39,11 +36,7 @@ class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
         dispatchAfterInvocations.record((interval, block))
         if blockBeforeMainBlock() {
             if dispatchAfterExecutesBlock {
-                if delayDispatches {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + interval, execute: .init(block: block))
-                } else {
-                    block()
-                }
+                block()
             }
         }
     }
