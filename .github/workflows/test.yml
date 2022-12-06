@@ -213,6 +213,14 @@ jobs:
           gem install slather
           slather coverage -x --output-directory slather/ --scheme Sentry --workspace Sentry.xcworkspace Sentry.xcodeproj
 
+      - name: Archiving Slather Report
+        uses: actions/upload-artifact@v3
+        if: success() && ${{ contains(matrix.platform, 'iOS') }}
+        with:
+          name: slather-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            slather/**
+
       # We can upload all coverage reports, because codecov merges them.
       # See https://docs.codecov.io/docs/merging-reports
       # Checkout .codecov.yml to see the config of Codecov
