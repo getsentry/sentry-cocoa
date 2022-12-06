@@ -183,6 +183,9 @@ jobs:
           sudo ln -s /Applications/Xcode_12.5.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 14.5.simruntime
           xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-14-5"
 
+      - name: Install Slather
+        run: gem install slather
+      
       - name: Running tests
         # We call a script with the platform so the destination
         # passed to xcodebuild doesn't end up in the job name,
@@ -205,13 +208,6 @@ jobs:
           name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
           path: |
             raw-test-output.log
-
-      # Some tests run only on iOS so we only collect code coverage there.
-      - name: Run Slather
-        if: success() && ${{ contains(matrix.platform, 'iOS') }}
-        run: | 
-          gem install slather
-          slather coverage -x --output-directory slather/ --scheme Sentry --workspace Sentry.xcworkspace Sentry.xcodeproj
 
       # We can upload all coverage reports, because codecov merges them.
       # See https://docs.codecov.io/docs/merging-reports

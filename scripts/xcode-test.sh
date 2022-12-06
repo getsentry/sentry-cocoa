@@ -62,13 +62,13 @@ if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
     # Skip some tests that fail on iOS 12.4.
     env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
         -scheme Sentry -configuration $CONFIGURATION \
-        GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -enableCodeCoverage YES -destination "$DESTINATION" \
+        -destination "$DESTINATION" \
         -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfAddingBreadcrumbs" \
         -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfTransactions" \
-        test | tee raw-test-output.log | $RUBY_ENV_ARGS xcpretty -t && exit ${PIPESTATUS[0]}
+        test | tee raw-test-output.log | $RUBY_ENV_ARGS xcpretty -t && slather coverage --configuration $CONFIGURATION && exit ${PIPESTATUS[0]}
 else
     env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
         -scheme Sentry -configuration $CONFIGURATION \
-        GCC_GENERATE_TEST_COVERAGE_FILES=YES GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES -enableCodeCoverage YES -destination "$DESTINATION" \
-        test | tee raw-test-output.log | $RUBY_ENV_ARGS xcpretty -t && exit ${PIPESTATUS[0]}
+        -destination "$DESTINATION" \
+        test | tee raw-test-output.log | $RUBY_ENV_ARGS xcpretty -t && slather coverage --configuration $CONFIGURATION && exit ${PIPESTATUS[0]}
 fi
