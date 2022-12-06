@@ -185,7 +185,6 @@ jobs:
 
       # Some tests run only on iOS so we only collect code coverage there.
       - name: Install Slather
-        if: ${{ contains(matrix.platform, 'iOS') }}
         run: gem install slather
       
       - name: Running tests
@@ -194,6 +193,14 @@ jobs:
         # because GitHub Actions don't provide an easy way of
         # manipulating string in expressions.
         run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME
+
+      - name: Archiving Slather Report
+        uses: actions/upload-artifact@v3
+        if: ${{ contains(matrix.platform, 'iOS') }}
+        with:
+          name: slather-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            slather/**
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@v3
@@ -210,14 +217,6 @@ jobs:
           name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
           path: |
             raw-test-output.log
-
-      - name: Archiving Slather Report
-        uses: actions/upload-artifact@v3
-        if: ${{ contains(matrix.platform, 'iOS') }}
-        with:
-          name: slather-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
-          path: |
-            slather/**
 
       # We can upload all coverage reports, because codecov merges them.
       # See https://docs.codecov.io/docs/merging-reports

@@ -4,5 +4,5 @@ coverage_service: cobertura_xml
 xcodeproj: Sentry.xcodeproj
 workspace: Sentry.xcworkspace
 scheme: Sentry
-source_directory: 'Sources/**'
+source_directory: Sources
 output_directory: slather
