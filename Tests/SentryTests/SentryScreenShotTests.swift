@@ -80,7 +80,18 @@ class SentryScreenShotTests: XCTestCase {
         
         XCTAssertEqual(image?.size.width, 10)
         XCTAssertEqual(image?.size.height, 10)
+    }
+    
+    func test_ZeroSizeScreenShot_GetsDiscarded() {
+        let testWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
+        fixture.uiApplication.windows = [testWindow]
         
+        guard let data = self.fixture.sut.appScreenshots() else {
+            XCTFail("Could not make window screenshot")
+            return
+        }
+        
+        XCTAssertEqual(0, data.count, "No screenshot should be taken, cause the image has zero size.")
     }
     
     class TestSentryUIApplication: SentryUIApplication {
