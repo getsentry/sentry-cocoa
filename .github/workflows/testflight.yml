@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - 8.0.0
+      - ci/fastlane-xcode-14
     paths:
       - 'Sources/**'
       - 'Samples/iOS-Swift/**'
@@ -17,7 +18,7 @@ jobs:
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh 14.1
       - run: bundle install
 
       # We upload a new version to TestFlight on every commit on Master
