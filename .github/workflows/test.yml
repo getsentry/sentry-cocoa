@@ -206,13 +206,6 @@ jobs:
           path: |
             raw-test-output.log
 
-      # Some tests run only on iOS so we only collect code coverage there.
-      - name: Run Slather
-        if: ${{ contains(matrix.platform, 'iOS') }}
-        run: | 
-          gem install slather
-          slather coverage --configuration Test
-
       - name: Archiving Slather Report
         uses: actions/upload-artifact@v3
         if: ${{ contains(matrix.platform, 'iOS') }}

@@ -34,9 +34,12 @@ format-clang:
 format-swift:
 	swiftlint --fix
 
+
+GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
+
 test:
 	@echo "--> Running all tests"
-	xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -enableCodeCoverage YES -destination "platform=macOS" test | rbenv exec bundle exec xcpretty -t
+	./scripts/xcode-test.sh iOS latest $(GIT-REF) YES
 .PHONY: test
 
 run-test-server:
