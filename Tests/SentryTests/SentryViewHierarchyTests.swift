@@ -30,7 +30,11 @@ class SentryViewHierarchyTests: XCTestCase {
 
         fixture.uiApplication.windows = [firstWindow, secondWindow]
 
-        let descriptions = self.fixture.sut.fetch()
+        guard let descriptions = self.fixture.sut.fetch() else {
+            XCTFail("Could not serialize view hierarchy")
+            return
+        }
+
         let object = try? JSONSerialization.jsonObject(with: descriptions) as? NSDictionary
         let windows = object?["windows"] as? NSArray
         XCTAssertNotNil(windows)
@@ -42,8 +46,12 @@ class SentryViewHierarchyTests: XCTestCase {
         window.accessibilityIdentifier = "WindowId"
 
         fixture.uiApplication.windows = [window]
-
-        var descriptions = String(data: self.fixture.sut.fetch(), encoding: .utf8) ?? ""
+        guard let data = self.fixture.sut.fetch()
+        else {
+            XCTFail("Could not serialize view hierarchy")
+            return
+        }
+        var descriptions = String(data: data, encoding: .utf8) ?? ""
 
         XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"WindowId\",\"width\":10,\"height\":10,\"x\":0,\"y\":0,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
 
@@ -52,7 +60,12 @@ class SentryViewHierarchyTests: XCTestCase {
 
         fixture.uiApplication.windows = [window]
 
-        descriptions = String(data: self.fixture.sut.fetch(), encoding: .utf8) ?? ""
+        guard let data = self.fixture.sut.fetch()
+        else {
+            XCTFail("Could not serialize view hierarchy")
+            return
+        }
+        descriptions = String(data: data, encoding: .utf8) ?? ""
 
         XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"IdWindow\",\"width\":20,\"height\":30,\"x\":1,\"y\":2,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
     }
@@ -67,7 +80,12 @@ class SentryViewHierarchyTests: XCTestCase {
 
         fixture.uiApplication.windows = [firstWindow]
 
-        let descriptions = self.fixture.sut.fetch()
+        guard let descriptions = self.fixture.sut.fetch()
+        else {
+            XCTFail("Could not serialize view hierarchy")
+            return
+        }
+
         let object = try? JSONSerialization.jsonObject(with: descriptions) as? NSDictionary
         let window = (object?["windows"] as? NSArray)?.firstObject as? NSDictionary
         let children = window?["children"] as? NSArray
@@ -90,6 +108,45 @@ class SentryViewHierarchyTests: XCTestCase {
         let descriptions = (try? String(contentsOfFile: path)) ?? ""
 
         XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"WindowId\",\"width\":10,\"height\":10,\"x\":0,\"y\":0,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
+    }
+
+    func test_invalidFilePath() {
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        window.accessibilityIdentifier = "WindowId"
+
+        fixture.uiApplication.windows = [window]
+
+        XCTAssertFalse(self.fixture.sut.save(""))
+    }
+
+    func test_invalidSerialization() {
+        let sut = TestSentryViewHierarchy()
+        sut.viewHierarchyResult = -1
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        window.accessibilityIdentifier = "WindowId"
+
+        fixture.uiApplication.windows = [window]
+        let result = sut.fetch()
+        XCTAssertNil(result)
+    }
+
+    func test_fetchFromBackgroundTest() {
+        let sut = TestSentryViewHierarchy()
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        fixture.uiApplication.windows = [window]
+
+        let ex = expectation(description: "Running on Main Thread")
+        sut.processViewHierarchyCallback = {
+            ex.fulfill()
+            XCTAssertTrue(Thread.isMainThread)
+        }
+        
+        let dispatch = DispatchQueue(label: "background")
+        dispatch.async {
+            let _ = sut.fetch()
+        }
+
+        wait(for: [ex], timeout: 1)
     }
 
     class TestSentryUIApplication: SentryUIApplication {

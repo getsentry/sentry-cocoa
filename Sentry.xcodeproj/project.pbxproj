@@ -1519,6 +1519,7 @@
 		D867063A27C3BC2400048851 /* SentryCoreDataTrackingIntegration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryCoreDataTrackingIntegration.h; path = include/SentryCoreDataTrackingIntegration.h; sourceTree = "<group>"; };
 		D867063B27C3BC2400048851 /* SentryCoreDataSwizzling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryCoreDataSwizzling.h; path = include/SentryCoreDataSwizzling.h; sourceTree = "<group>"; };
 		D867063C27C3BC2400048851 /* SentryCoreDataTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryCoreDataTracker.h; path = include/SentryCoreDataTracker.h; sourceTree = "<group>"; };
+		D86B6820293F39E000B8B1FC /* TestSentryViewHierarchy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestSentryViewHierarchy.h; sourceTree = "<group>"; };
 		D86F419727C8FEFA00490520 /* SentryCoreDataMiddleware+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SentryCoreDataMiddleware+Extension.swift"; sourceTree = "<group>"; };
 		D8751FA4274743710032F4DE /* SentryNSURLSessionTaskSearchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryNSURLSessionTaskSearchTests.swift; sourceTree = "<group>"; };
 		D875ED0A276CC84700422FAC /* SentryNSDataTrackerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SentryNSDataTrackerTests.swift; sourceTree = "<group>"; };
@@ -1606,6 +1607,7 @@
 			children = (
 				0A9BF4EA28A127120068D266 /* SentryViewHierarchyIntegrationTests.swift */,
 				0A9BF4E628A123270068D266 /* TestSentryViewHierarchy.swift */,
+				D86B6820293F39E000B8B1FC /* TestSentryViewHierarchy.h */,
 			);
 			path = ViewHierarchy;
 			sourceTree = "<group>";

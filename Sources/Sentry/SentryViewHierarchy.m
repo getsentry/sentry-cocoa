@@ -29,11 +29,6 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 
 @implementation SentryViewHierarchy
 
-- (NSData *)fetchViewHierarchy
-{
-    return [self fetchViewHierarchyPreventMoveToMainThread:NO];
-}
-
 - (BOOL)saveViewHierarchy:(NSString *)filePath
 {
     NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
@@ -51,7 +46,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     return result;
 }
 
-- (NSData *)fetchViewHierarchyPreventMoveToMainThread:(BOOL)preventMoveToMainThread
+- (NSData *)fetchViewHierarchy
 {
     NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
 
@@ -67,7 +62,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 
     // In the case of a crash we can't dispatch work to be executed anymore,
     // so we'll run this on the wrong thread.
-    if ([NSThread isMainThread] || preventMoveToMainThread) {
+    if ([NSThread isMainThread]) {
         save();
     } else {
         dispatch_sync(dispatch_get_main_queue(), save);
@@ -96,7 +91,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     tryJson(sentrycrashjson_beginArray(&JSONContext, "windows"));
 
     for (UIView *window in windows) {
-        [self viewHierarchyFromView:window intoContext:&JSONContext];
+        tryJson([self viewHierarchyFromView:window intoContext:&JSONContext]);
     }
 
     tryJson(sentrycrashjson_endContainer(&JSONContext));
@@ -134,7 +129,7 @@ done:
 
     tryJson(sentrycrashjson_beginArray(context, "children"));
     for (UIView *child in view.subviews) {
-        result = [self viewHierarchyFromView:child intoContext:context];
+        tryJson([self viewHierarchyFromView:child intoContext:context]);
     }
     tryJson(sentrycrashjson_endContainer(context));
     tryJson(sentrycrashjson_endContainer(context));

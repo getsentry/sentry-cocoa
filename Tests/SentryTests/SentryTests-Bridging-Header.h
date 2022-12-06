@@ -175,6 +175,7 @@
 #import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"
 @import SentryPrivate;
+#import "TestSentryViewHierarchy.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIEventTracker.h"
