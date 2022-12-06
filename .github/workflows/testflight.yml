@@ -18,7 +18,8 @@ jobs:
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
-      - run: ./scripts/ci-select-xcode.sh 14.1
+      # Xcode 14.1 has a bug with fastlane see https://github.com/fastlane/fastlane/issues/20910
+      - run: ./scripts/ci-select-xcode.sh 14.0.1
       - run: bundle install
 
       # We upload a new version to TestFlight on every commit on Master
