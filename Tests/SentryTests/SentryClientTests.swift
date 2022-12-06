@@ -1286,7 +1286,7 @@ class SentryClientTest: XCTestCase {
         let tempFile = FileManager.default.temporaryDirectory.appendingPathComponent("view-hierarchy.json")
         try? "data".data(using: .utf8)?.write(to: tempFile)
 
-        scope.addCrashReportAttachment(inPath:  tempFile.path)
+        scope.addCrashReportAttachment(inPath: tempFile.path)
 
         XCTAssertEqual(scope.attachments.count, 1)
         XCTAssertEqual(scope.attachments.first?.filename, "view-hierarchy.json")
