@@ -7,6 +7,7 @@ This version adds a dependency on Swift.
 ### Features
 
 - Properly demangle Swift class name (#2162)
+- Gather profiling timeseries metrics for CPU usage and memory footprint, and thermal and memory pressure events (#2493)
 
 ### Fixes
 
