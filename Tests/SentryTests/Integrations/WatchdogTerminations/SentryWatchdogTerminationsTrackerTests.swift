@@ -354,12 +354,12 @@ class SentryWatchdogTerminationsTrackerTests: NotificationCenterTestCase {
         XCTAssertEqual(1, crashEvent?.exceptions?.count)
         
         let exception = crashEvent?.exceptions?.first
-        XCTAssertEqual("The OS most likely terminated your app because it overused RAM.", exception?.value)
-        XCTAssertEqual("OutOfMemory", exception?.type)
+        XCTAssertEqual("The OS terminated your app, possibly because it overused RAM.", exception?.value)
+        XCTAssertEqual("WatchdogTermination", exception?.type)
         
         XCTAssertNotNil(exception?.mechanism)
         XCTAssertEqual(false, exception?.mechanism?.handled)
-        XCTAssertEqual("out_of_memory", exception?.mechanism?.type)
+        XCTAssertEqual("watchdog_termination", exception?.mechanism?.type)
     }
 
     private func assertNoOOMSent() {
