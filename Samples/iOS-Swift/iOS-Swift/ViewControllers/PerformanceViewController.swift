@@ -37,7 +37,7 @@ class PerformanceViewController: UIViewController {
     // refresh rate of 60 hz is 0.0167
     // 120 hz is 0.0083
     // 240 hz is 0.004167
-    private let interval = 0.00000005
+    private let interval = 0.000_000_05
 
     private var timer: Timer?
     private let iterations = 5_000_000
