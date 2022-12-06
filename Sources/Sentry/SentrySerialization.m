@@ -81,26 +81,8 @@ NS_ASSUME_NONNULL_BEGIN
 
     for (int i = 0; i < envelope.items.count; ++i) {
         [envelopeData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
-        NSMutableDictionary *serializedItemHeaderData = [NSMutableDictionary new];
-        if (nil != envelope.items[i].header) {
-            if (nil != envelope.items[i].header.type) {
-                [serializedItemHeaderData setValue:envelope.items[i].header.type forKey:@"type"];
-            }
+        NSDictionary *serializedItemHeaderData = [envelope.items[i].header serialize];
 
-            NSString *filename = envelope.items[i].header.filename;
-            if (nil != filename) {
-                [serializedItemHeaderData setValue:filename forKey:@"filename"];
-            }
-
-            NSString *contentType = envelope.items[i].header.contentType;
-            if (nil != contentType) {
-                [serializedItemHeaderData setValue:contentType forKey:@"content_type"];
-            }
-
-            [serializedItemHeaderData
-                setValue:[NSNumber numberWithUnsignedInteger:envelope.items[i].header.length]
-                  forKey:@"length"];
-        }
         NSData *itemHeader = [SentrySerialization dataWithJSONObject:serializedItemHeaderData
                                                                error:error];
         if (nil == itemHeader) {

@@ -3,9 +3,9 @@ import Foundation
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class TestSentryViewHierarchy: SentryViewHierarchy {
 
-    var result: Data? = nil
-    var viewHierarchyResult : Int32 = 0
-    var processViewHierarchyCallback : (()->())?
+    var result: Data?
+    var viewHierarchyResult: Int32 = 0
+    var processViewHierarchyCallback : (() -> Void)?
 
     override func fetch() -> Data? {
         guard let result = self.result

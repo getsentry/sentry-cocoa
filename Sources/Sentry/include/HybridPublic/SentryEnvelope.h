@@ -75,6 +75,8 @@ SENTRY_NO_INIT
 @property (nonatomic, readonly, copy) NSString *_Nullable filename;
 @property (nonatomic, readonly, copy) NSString *_Nullable contentType;
 
+- (NSDictionary *)serialize;
+
 @end
 
 @interface SentryEnvelopeItem : NSObject

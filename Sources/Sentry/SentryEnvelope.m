@@ -1,7 +1,7 @@
-#import "SentryEnvelope.h"
 #import "SentryAttachment.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClientReport.h"
+#import "SentryEnvelope+Private.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
 #import "SentryLog.h"
@@ -69,6 +69,67 @@ NS_ASSUME_NONNULL_BEGIN
         _contentType = contentType;
     }
     return self;
+}
+
+- (NSDictionary *)serialize
+{
+
+    NSMutableDictionary *target = [[NSMutableDictionary alloc] init];
+    if (self.type) {
+        [target setValue:self.type forKey:@"type"];
+    }
+
+    if (self.filename) {
+        [target setValue:self.filename forKey:@"filename"];
+    }
+
+    if (self.contentType) {
+        [target setValue:self.contentType forKey:@"content_type"];
+    }
+
+    [target setValue:[NSNumber numberWithUnsignedInteger:self.length] forKey:@"length"];
+
+    return target;
+}
+
+@end
+
+@implementation SentryEnvelopeAttachmentHeader
+
+- (instancetype)initWithType:(NSString *)type length:(NSUInteger)length
+{
+    if (self = [super initWithType:type length:length]) {
+        _attachmentType = kSentryAttachmentTypeEventAttachment;
+    }
+    return self;
+}
+
+- (instancetype)initWithType:(NSString *)type
+                      length:(NSUInteger)length
+                    filename:(NSString *)filename
+                 contentType:(NSString *)contentType
+              attachmentType:(SentryAttachmentType)attachmentType
+{
+
+    if (self = [self initWithType:type length:length filenname:filename contentType:contentType]) {
+        _attachmentType = attachmentType;
+    }
+    return self;
+}
+
+- (NSDictionary *)serialize
+{
+    NSMutableDictionary *result =
+        [[NSMutableDictionary alloc] initWithDictionary:[super serialize]];
+    switch (self.attachmentType) {
+    case kSentryAttachmentTypeViewHierarchy:
+        [result setObject:@"event.view_hierarchy" forKey:@"attachment_type"];
+        break;
+    default:
+        [result setObject:@"event.attachment" forKey:@"attachment_type"];
+        break;
+    }
+    return result;
 }
 
 @end
@@ -210,16 +271,17 @@ NS_ASSUME_NONNULL_BEGIN
         data = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
     }
 
-    if (nil == data) {
+    if (data == nil) {
         SENTRY_LOG_ERROR(@"Couldn't init Attachment.");
         return nil;
     }
 
     SentryEnvelopeItemHeader *itemHeader =
-        [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeAttachment
-                                                length:data.length
-                                             filenname:attachment.filename
-                                           contentType:attachment.contentType];
+        [[SentryEnvelopeAttachmentHeader alloc] initWithType:SentryEnvelopeItemTypeAttachment
+                                                      length:data.length
+                                                    filename:attachment.filename
+                                                 contentType:attachment.contentType
+                                              attachmentType:attachment.attachmentType];
 
     return [self initWithHeader:itemHeader data:data];
 }
