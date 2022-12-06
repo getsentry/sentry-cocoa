@@ -4,6 +4,7 @@ platform :ios do
   ios_swift_infoplist_path = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
   ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
   configuration = if is_ci then 'TestCI' else 'Test' end
+  ios_swift_output_name = "iOS-Swift.ipa"
 
   lane :bump_build_number do
     increment_build_number(
@@ -90,7 +91,8 @@ platform :ios do
       include_bitcode: false,
       include_symbols: false,
       export_method: "app-store",
-      archive_path: "iOS-Swift"
+      archive_path: "iOS-Swift",
+      output_name: ios_swift_output_name
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
@@ -214,7 +216,9 @@ platform :ios do
       'ITMSTRANSPORTER_FORCE_ITMS_PACKAGE_UPLOAD' => 'true'
     })
 
-    testflight
+    testflight(
+      ipa: ios_swift_output_name
+    )
 
     sentry_upload_dif(
       auth_token: ENV["SENTRY_AUTH_TOKEN"],
