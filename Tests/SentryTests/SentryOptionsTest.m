@@ -117,7 +117,7 @@
     XCTAssertEqual(@[], options.inAppExcludes);
     XCTAssertNil(options.urlSessionDelegate);
     XCTAssertEqual(YES, options.enableSwizzling);
-    XCTAssertEqual(NO, options.enableFileIOTracing);
+    XCTAssertEqual(YES, options.enableFileIOTracing);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
 
 #if SENTRY_HAS_METRIC_KIT
