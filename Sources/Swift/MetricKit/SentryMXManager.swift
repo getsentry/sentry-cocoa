@@ -21,16 +21,16 @@ import MetricKit
 @available(iOS 14.0, macOS 12.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
-@objc public class SentryMXManager: NSObject, MXMetricManagerSubscriber {
+@objcMembers public class SentryMXManager: NSObject, MXMetricManagerSubscriber {
 
-    @objc public weak var delegate: SentryMXManagerDelegate?
+    public weak var delegate: SentryMXManagerDelegate?
     
-    @objc public func receiveReports() {
+    public func receiveReports() {
         let shared = MXMetricManager.shared
         shared.add(self)
     }
     
-    @objc public func pauseReports() {
+    public func pauseReports() {
         let shared = MXMetricManager.shared
         shared.remove(self)
     }

@@ -37,11 +37,11 @@ public class SentryMXCallStack: NSObject, Codable {
 
 @objc
 public class SentryMXFrame: NSObject, Codable {
-    @objc public var binaryUUID: UUID
+    public var binaryUUID: UUID
     @objc public var offsetIntoBinaryTextSegment: Int
     @objc public var binaryName: String?
     @objc public var address: UInt64
-    @objc public var subFrames: [SentryMXFrame]?
+    public var subFrames: [SentryMXFrame]?
     
     public var sampleCount: Int?
     
