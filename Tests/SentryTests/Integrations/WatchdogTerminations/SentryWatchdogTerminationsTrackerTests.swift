@@ -354,7 +354,7 @@ class SentryWatchdogTerminationsTrackerTests: NotificationCenterTestCase {
         XCTAssertEqual(1, crashEvent?.exceptions?.count)
         
         let exception = crashEvent?.exceptions?.first
-        XCTAssertEqual("The OS terminated your app, possibly because it overused RAM.", exception?.value)
+        XCTAssertEqual("The OS watchdog terminated your app, possibly because it overused RAM.", exception?.value)
         XCTAssertEqual("WatchdogTermination", exception?.type)
         
         XCTAssertNotNil(exception?.mechanism)

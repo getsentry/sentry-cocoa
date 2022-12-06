@@ -7,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const SentryWatchdogTerminationExceptionType = @"WatchdogTermination";
 static NSString *const SentryWatchdogTerminationExceptionValue
-    = @"The OS terminated your app, possibly because it overused RAM.";
+    = @"The OS watchdog terminated your app, possibly because it overused RAM.";
 static NSString *const SentryWatchdogTerminationMechanismType = @"watchdog_termination";
 
 /**
