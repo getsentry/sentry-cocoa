@@ -18,12 +18,9 @@ jobs:
       - uses: actions/checkout@v3
       ## Update internal list of formulae to the latest
       - run: brew update
-      - run: swiftlint --version
       - name: Install Clang-Format
         run: brew install clang-format
-      - name: Install SwiftLint
-        run: brew install swiftlint
-      - run: brew link --overwrite swiftlint
+      - run: swiftlint --version
       - name: Format Code
         run: make format
 
