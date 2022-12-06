@@ -4,7 +4,6 @@ on:
     branches:
       - master
       - 8.0.0
-      - ci/fastlane-xcode-14
     paths:
       - 'Sources/**'
       - 'Samples/iOS-Swift/**'
