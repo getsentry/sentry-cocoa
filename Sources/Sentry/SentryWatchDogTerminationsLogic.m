@@ -3,15 +3,15 @@
 #import <SentryAppStateManager.h>
 #import <SentryCrashWrapper.h>
 #import <SentryOptions.h>
-#import <SentryOutOfMemoryLogic.h>
 #import <SentrySDK+Private.h>
+#import <SentryWatchDogTerminationsLogic.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
 #endif
 
 @interface
-SentryOutOfMemoryLogic ()
+SentryWatchDogTerminationsLogic ()
 
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryCrashWrapper *crashAdapter;
@@ -19,7 +19,7 @@ SentryOutOfMemoryLogic ()
 
 @end
 
-@implementation SentryOutOfMemoryLogic
+@implementation SentryWatchDogTerminationsLogic
 
 - (instancetype)initWithOptions:(SentryOptions *)options
                    crashAdapter:(SentryCrashWrapper *)crashAdapter
@@ -33,9 +33,9 @@ SentryOutOfMemoryLogic ()
     return self;
 }
 
-- (BOOL)isOOM
+- (BOOL)isWatchdogTermination
 {
-    if (!self.options.enableOutOfMemoryTracking) {
+    if (!self.options.enableWatchDogTerminationsTracking) {
         return NO;
     }
 
@@ -79,18 +79,19 @@ SentryOutOfMemoryLogic ()
         return NO;
     }
 
-    // The app crashed on the previous run. No OOM.
+    // The app crashed on the previous run. No Watchdog Termination.
     if (self.crashAdapter.crashedLastLaunch) {
         return NO;
     }
 
-    // The SDK wasn't running, so *any* crash after the SDK got closed would be seen as OOM.
+    // The SDK wasn't running, so *any* crash after the SDK got closed would be seen as a Watchdog
+    // Termination.
     if (!previousAppState.isSDKRunning) {
         return NO;
     }
 
     // Was the app in foreground/active ?
-    // If the app was in background we can't reliably tell if it was an OOM or not.
+    // If the app was in background we can't reliably tell if it was a Watchdog Termination or not.
     if (!previousAppState.isActive) {
         return NO;
     }
@@ -99,16 +100,16 @@ SentryOutOfMemoryLogic ()
         return NO;
     }
 
-    // When calling SentrySDK.start twice we would wrongly report an OOM. We can only
-    // report an OOM when the SDK is started the first time.
+    // When calling SentrySDK.start twice we would wrongly report a Watchdog Termination. We can
+    // only report a Watchdog Termination when the SDK is started the first time.
     if (SentrySDK.startInvocations != 1) {
         return NO;
     }
 
     return YES;
 #else
-    // We can only track OOMs for iOS, tvOS and macCatalyst. Therefore we return NO for other
-    // platforms.
+    // We can only track Watchdog Terminations for iOS, tvOS and macCatalyst. Therefore we return NO
+    // for other platforms.
     return NO;
 #endif
 }

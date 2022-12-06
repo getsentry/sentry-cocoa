@@ -1,11 +1,11 @@
 #import <Foundation/Foundation.h>
 
-@class SentryCrashWrapper, SentryDispatchQueueWrapper, SentryOutOfMemoryLogic;
+@class SentryCrashWrapper, SentryDispatchQueueWrapper, SentryWatchDogTerminationsLogic;
 
 @interface SentrySessionCrashedHandler : NSObject
 
 - (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
-                    outOfMemoryLogic:(SentryOutOfMemoryLogic *)outOfMemoryLogic;
+           watchDogTerminationsLogic:(SentryWatchDogTerminationsLogic *)watchDogTerminationsLogic;
 
 /**
  * When a crash happened the current session is ended as crashed, stored at a different
