@@ -9,6 +9,7 @@
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryMechanism.h"
+#import "SentryNoOpSpan.h"
 #import "SentryRequest.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
@@ -146,7 +147,7 @@ SentryNetworkTracker ()
         }
 
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable innerSpan) {
-            if (innerSpan != nil) {
+            if (innerSpan != nil && ![innerSpan isKindOfClass:[SentryNoOpSpan class]]) {
                 span = innerSpan;
                 netSpan = [span
                     startChildWithOperation:SENTRY_NETWORK_REQUEST_OPERATION
