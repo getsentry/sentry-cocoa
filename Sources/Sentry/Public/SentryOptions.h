@@ -260,7 +260,7 @@ NS_SWIFT_NAME(Options)
 
 /**
  * When enabled, the SDK tracks performance for file IO reads and writes with NSData if auto
- * performance tracking and enableSwizzling are enabled. The default is <code>NO</code>.
+ * performance tracking and enableSwizzling are enabled. The default is <code>YES</code>.
  */
 @property (nonatomic, assign) BOOL enableFileIOTracing;
 
