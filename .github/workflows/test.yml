@@ -208,14 +208,14 @@ jobs:
 
       # Some tests run only on iOS so we only collect code coverage there.
       - name: Run Slather
-        if: success() && ${{ contains(matrix.platform, 'iOS') }}
+        if: ${{ contains(matrix.platform, 'iOS') }}
         run: | 
           gem install slather
-          slather coverage -x --output-directory slather/ --scheme Sentry --workspace Sentry.xcworkspace Sentry.xcodeproj
+          slather coverage --configuration Test
 
       - name: Archiving Slather Report
         uses: actions/upload-artifact@v3
-        if: success() && ${{ contains(matrix.platform, 'iOS') }}
+        if: ${{ contains(matrix.platform, 'iOS') }}
         with:
           name: slather-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
           path: |
