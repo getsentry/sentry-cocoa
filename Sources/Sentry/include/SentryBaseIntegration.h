@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
     kIntegrationOptionNone = 0,
     kIntegrationOptionEnableAutoSessionTracking = 1 << 0,
-    kIntegrationOptionEnableWatchDogTerminationsTracking = 1 << 1,
+    kIntegrationOptionEnableWatchdogTerminationsTracking = 1 << 1,
     kIntegrationOptionEnableAutoPerformanceTracing = 1 << 2,
     kIntegrationOptionEnableUIViewControllerTracing = 1 << 3,
     kIntegrationOptionAttachScreenshot = 1 << 4,

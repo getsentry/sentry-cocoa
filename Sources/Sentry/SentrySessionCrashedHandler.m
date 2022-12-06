@@ -5,24 +5,24 @@
 #import "SentryFileManager.h"
 #import "SentryHub.h"
 #import "SentrySDK+Private.h"
-#import "SentryWatchDogTerminationsLogic.h"
+#import "SentryWatchdogTerminationsLogic.h"
 
 @interface
 SentrySessionCrashedHandler ()
 
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
-@property (nonatomic, strong) SentryWatchDogTerminationsLogic *watchDogTerminationsLogic;
+@property (nonatomic, strong) SentryWatchdogTerminationsLogic *watchdogTerminationsLogic;
 
 @end
 
 @implementation SentrySessionCrashedHandler
 
 - (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
-           watchDogTerminationsLogic:(SentryWatchDogTerminationsLogic *)watchDogTerminationsLogic;
+           watchdogTerminationsLogic:(SentryWatchdogTerminationsLogic *)watchdogTerminationsLogic;
 {
     self = [self init];
     self.crashWrapper = crashWrapper;
-    self.watchDogTerminationsLogic = watchDogTerminationsLogic;
+    self.watchdogTerminationsLogic = watchdogTerminationsLogic;
 
     return self;
 }
@@ -30,7 +30,7 @@ SentrySessionCrashedHandler ()
 - (void)endCurrentSessionAsCrashedWhenCrashOrOOM
 {
     if (self.crashWrapper.crashedLastLaunch ||
-        [self.watchDogTerminationsLogic isWatchdogTermination]) {
+        [self.watchdogTerminationsLogic isWatchdogTermination]) {
         SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
 
         if (nil == fileManager) {

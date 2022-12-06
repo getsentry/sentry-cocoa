@@ -4,7 +4,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryWatchDogTerminationsLogic : NSObject
+@interface SentryWatchdogTerminationsLogic : NSObject
 SENTRY_NO_INIT
 
 - (instancetype)initWithOptions:(SentryOptions *)options

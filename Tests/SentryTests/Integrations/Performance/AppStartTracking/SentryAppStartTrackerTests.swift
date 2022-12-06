@@ -103,7 +103,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     func testSecondStart_SystemNotRebooted_OOM_disabled_IsWarmStart() {
         givenSystemNotRebooted()
 
-        fixture.options.enableOutOfMemoryTracking = false
+        fixture.options.enableWatchdogTerminationsTracking = false
 
         fixture.fileManager.moveAppStateToPreviousAppState()
         startApp()
@@ -397,7 +397,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         
         let expectedAppStartDuration = expectedDuration ?? fixture.appStartDuration
         let actualAppStartDuration = appStartMeasurement.duration
-        XCTAssertEqual(expectedAppStartDuration, actualAppStartDuration, accuracy: 0.000_1)
+        XCTAssertEqual(expectedAppStartDuration, actualAppStartDuration, accuracy: 0.0001)
         
         if preWarmed {
             XCTAssertEqual(fixture.moduleInitializationTimestamp, appStartMeasurement.appStartTimestamp)
@@ -420,7 +420,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         XCTAssertEqual(type.rawValue, appStartMeasurement.type.rawValue)
         
         let actualAppStartDuration = appStartMeasurement.duration
-        XCTAssertEqual(0.0, actualAppStartDuration, accuracy: 0.000_1)
+        XCTAssertEqual(0.0, actualAppStartDuration, accuracy: 0.0001)
         
         XCTAssertEqual(fixture.sysctl.processStartTimestamp, appStartMeasurement.appStartTimestamp)
         XCTAssertEqual(fixture.runtimeInitTimestamp, appStartMeasurement.runtimeInitTimestamp)

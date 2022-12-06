@@ -138,7 +138,7 @@ NS_SWIFT_NAME(Options)
 /**
  * Whether to enable Watchdog Terminations tracking or not. Default is YES.
  */
-@property (nonatomic, assign) BOOL enableWatchDogTerminationsTracking;
+@property (nonatomic, assign) BOOL enableWatchdogTerminationsTracking;
 
 /**
  * The interval to end a session if the App goes to the background.

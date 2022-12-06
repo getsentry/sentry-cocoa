@@ -7,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// This scope observer is used by the Watchdog Terminations integration to write breadcrumbs to
 /// disk. The overhead is ~0.015 seconds for 1000 breadcrumbs.
-@interface SentryWatchDogTerminationsScopeObserver : NSObject <SentryScopeObserver>
+@interface SentryWatchdogTerminationsScopeObserver : NSObject <SentryScopeObserver>
 SENTRY_NO_INIT
 
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs

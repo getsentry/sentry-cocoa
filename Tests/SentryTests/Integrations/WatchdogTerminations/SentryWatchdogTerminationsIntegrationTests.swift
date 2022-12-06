@@ -1,6 +1,6 @@
 import XCTest
 
-class SentryOutOfMemoryIntegrationTests: XCTestCase {
+class SentryWatchdogTerminationsIntegrationTests: XCTestCase {
 
     private class Fixture {
         let options: Options
@@ -26,7 +26,7 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
     }
     
     private var fixture: Fixture!
-    private var sut: SentryOutOfMemoryTrackingIntegration!
+    private var sut: SentryWatchdogTerminationsTrackingIntegration!
     
     override func setUp() {
         super.setUp()
@@ -43,14 +43,14 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
     }
     
     func testWhenUnitTests_TrackerNotInitialized() {
-        let sut = SentryOutOfMemoryTrackingIntegration()
+        let sut = SentryWatchdogTerminationsTrackingIntegration()
         sut.install(with: Options())
         
         XCTAssertNil(Dynamic(sut).tracker.asAnyObject)
     }
     
     func testWhenNoUnitTests_TrackerInitialized() {
-        let sut = SentryOutOfMemoryTrackingIntegration()
+        let sut = SentryWatchdogTerminationsTrackingIntegration()
         Dynamic(sut).setTestConfigurationFilePath(nil)
         sut.install(with: Options())
         
@@ -58,7 +58,7 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
     }
     
     func testTestConfigurationFilePath() {
-        let sut = SentryOutOfMemoryTrackingIntegration()
+        let sut = SentryWatchdogTerminationsTrackingIntegration()
         let path = Dynamic(sut).testConfigurationFilePath.asString
         XCTAssertEqual(path, ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"])
     }
@@ -93,9 +93,9 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
     func test_OOMDisabled_RemovesEnabledIntegration() {
         givenInitializedTracker()
         let options = Options()
-        options.enableOutOfMemoryTracking = false
+        options.enableWatchdogTerminationsTracking = false
         
-        let sut = SentryOutOfMemoryTrackingIntegration()
+        let sut = SentryWatchdogTerminationsTrackingIntegration()
         let result = sut.install(with: options)
         
         XCTAssertFalse(result)
@@ -103,7 +103,7 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
     
     private func givenInitializedTracker(isBeingTraced: Bool = false) {
         fixture.crashWrapper.internalIsBeingTraced = isBeingTraced
-        sut = SentryOutOfMemoryTrackingIntegration()
+        sut = SentryWatchdogTerminationsTrackingIntegration()
         let options = Options()
         Dynamic(sut).setTestConfigurationFilePath(nil)
         sut.install(with: options)
