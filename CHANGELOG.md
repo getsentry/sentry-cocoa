@@ -7,6 +7,7 @@ This version adds a dependency on Swift.
 ### Features
 
 - Properly demangle Swift class name (#2162)
+- Enable File I/O APM per default (#2497)
 
 ### Fixes
 
