@@ -16,7 +16,7 @@ static id<SentryCurrentDateProvider> currentDateProvider;
 
 + (NSDate *)date
 {
-    if (nil == currentDateProvider) {
+    if (currentDateProvider == nil) {
         currentDateProvider = [SentryDefaultCurrentDateProvider sharedInstance];
     }
     return [currentDateProvider date];
@@ -24,7 +24,7 @@ static id<SentryCurrentDateProvider> currentDateProvider;
 
 + (dispatch_time_t)dispatchTimeNow
 {
-    if (nil == currentDateProvider) {
+    if (currentDateProvider == nil) {
         currentDateProvider = [SentryDefaultCurrentDateProvider sharedInstance];
     }
     return [currentDateProvider dispatchTimeNow];
