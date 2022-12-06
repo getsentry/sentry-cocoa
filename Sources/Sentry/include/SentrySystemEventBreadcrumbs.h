@@ -6,11 +6,14 @@
 #    import <UIKit/UIKit.h>
 #endif
 
+@class SentryNSNotificationCenterWrapper;
+
 @interface SentrySystemEventBreadcrumbs : NSObject
 SENTRY_NO_INIT
 
 - (instancetype)initWithFileManager:(SentryFileManager *)fileManager
-             andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider;
+             andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+       andNotificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper;
 
 - (void)start;
 
