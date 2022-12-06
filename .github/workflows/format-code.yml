@@ -20,6 +20,8 @@ jobs:
       - run: brew update
       - name: Install Clang-Format
         run: brew install clang-format
+      - name: Install SwiftLint
+        run: brew install swiftlint
       - name: Format Code
         run: make format
 
