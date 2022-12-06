@@ -22,6 +22,7 @@ jobs:
         run: brew install clang-format
       - name: Install SwiftLint
         run: brew install swiftlint
+      - run: brew link --overwrite swiftlint
       - name: Format Code
         run: make format
 
