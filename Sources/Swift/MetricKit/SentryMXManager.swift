@@ -2,6 +2,9 @@ import Foundation
 
 #if os(iOS) || os(macOS)
 
+/**
+ * We need to check if MetricKit is available for compatibility on iOS 12 and below. As there are no compiler directives for iOS versions we use canImport.
+ */
 #if canImport(MetricKit)
 import MetricKit
 #endif

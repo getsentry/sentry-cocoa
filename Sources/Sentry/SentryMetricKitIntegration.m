@@ -13,6 +13,10 @@
 
 #if SENTRY_HAS_METRIC_KIT
 
+/**
+ * We need to check if MetricKit is available for compatibility on iOS 12 and below. As there are no
+ * compiler directives for iOS versions we use __has_include.
+ */
 #    if __has_include(<MetricKit/MetricKit.h>)
 #        import <MetricKit/MetricKit.h>
 #    endif
