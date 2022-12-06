@@ -14,6 +14,7 @@ const NSTimeInterval kSentryMetricProfilerInterval = 0.1; // 10 Hz
     NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_cpuTimeSeries;
     NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_memoryFootprintTimeSeries;
     NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_thermalStateChanges;
+    NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_powerLevelStateChanges;
     NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_memoryPressureStateChanges;
     uint64_t _profileStartTime;
 }
@@ -26,8 +27,10 @@ const NSTimeInterval kSentryMetricProfilerInterval = 0.1; // 10 Hz
         _cpuTimeSeries = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
         _memoryFootprintTimeSeries = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
         _thermalStateChanges = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
+        _powerLevelStateChanges = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
         _memoryPressureStateChanges =
             [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
+
         _notificationCenter = notificationCenterWrapper;
         _profileStartTime = profileStartTime;
     }
@@ -43,7 +46,8 @@ const NSTimeInterval kSentryMetricProfilerInterval = 0.1; // 10 Hz
 
 - (void)start
 {
-    [self registerTimeSeriesHandler];
+    [self registerSampler];
+    [self registerStateChangeNotifications];
     [self registerMemoryPressureWarningHandler];
 }
 
@@ -51,7 +55,12 @@ const NSTimeInterval kSentryMetricProfilerInterval = 0.1; // 10 Hz
 {
     [_timer invalidate];
     dispatch_source_cancel(_memoryWarningSource);
-    [_notificationCenter removeObserver:self name:NSProcessInfoThermalStateDidChangeNotification];
+    [_notificationCenter removeObserver:self
+                                   name:NSProcessInfoThermalStateDidChangeNotification
+                                 object:NSProcessInfo.processInfo];
+    [_notificationCenter removeObserver:self
+                                   name:NSProcessInfoPowerStateDidChangeNotification
+                                 object:NSProcessInfo.processInfo];
 }
 
 - (NSData *)serialize
@@ -62,7 +71,7 @@ const NSTimeInterval kSentryMetricProfilerInterval = 0.1; // 10 Hz
 
 #pragma mark - Private
 
-- (void)registerTimeSeriesHandler
+- (void)registerSampler
 {
     _timer = [NSTimer scheduledTimerWithTimeInterval:kSentryMetricProfilerInterval
                                              repeats:YES
@@ -100,10 +109,19 @@ const NSTimeInterval kSentryMetricProfilerInterval = 0.1; // 10 Hz
     // https://developer.apple.com/documentation/foundation/nsprocessinfothermalstatedidchangenotification/)
     [self recordThermalState];
 
-    // According to Apple docs: "This notification is posted on the global dispatch queue."
+    // According to Apple docs: "This notification is posted on the global dispatch queue. The
+    // object associated with the notification is NSProcessInfo.processInfo."
     [_notificationCenter addObserver:self
                             selector:@selector(handleThermalStateChangeNotification:)
-                                name:NSProcessInfoThermalStateDidChangeNotification];
+                                name:NSProcessInfoThermalStateDidChangeNotification
+                              object:NSProcessInfo.processInfo];
+
+    // According to Apple docs: "This notification is posted on the global dispatch queue. The
+    // object associated with the notification is NSProcessInfo.processInfo."
+    [_notificationCenter addObserver:self
+                            selector:@selector(handleThermalStateChangeNotification:)
+                                name:NSProcessInfoPowerStateDidChangeNotification
+                              object:NSProcessInfo.processInfo];
 }
 
 - (void)handleThermalStateChangeNotification:(NSNotification *)note
@@ -111,10 +129,21 @@ const NSTimeInterval kSentryMetricProfilerInterval = 0.1; // 10 Hz
     [self recordThermalState];
 }
 
+- (void)handlePowerLevelStateChangeNotification:(NSNotification *)note
+{
+    [self recordPowerLevelState];
+}
+
 - (void)recordThermalState
 {
     [_thermalStateChanges
         addObject:[self metricEntryForValue:@(NSProcessInfo.processInfo.thermalState)]];
+}
+
+- (void)recordPowerLevelState
+{
+    [_powerLevelStateChanges
+        addObject:[self metricEntryForValue:@(NSProcessInfo.processInfo.lowPowerModeEnabled)]];
 }
 
 - (void)recordMemoryPressureState:(uintptr_t)memoryPressureState
