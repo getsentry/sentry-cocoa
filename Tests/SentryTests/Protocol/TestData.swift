@@ -94,6 +94,7 @@ class TestData {
         mechanism.data = ["something": ["date": currentDateProvider.date()]]
         mechanism.desc = "desc"
         mechanism.handled = true
+        mechanism.synthetic = false
         mechanism.helpLink = "https://www.sentry.io"
         mechanism.meta = mechanismMeta
         
