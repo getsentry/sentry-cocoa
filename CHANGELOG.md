@@ -8,7 +8,7 @@ This version adds a dependency on Swift.
 
 - Properly demangle Swift class name (#2162)
 - Enable File I/O APM by default (#2497)
-- feat: Add synthetic for mechanism (#2501)
+- Add synthetic for mechanism (#2501)
 
 ### Fixes
 
