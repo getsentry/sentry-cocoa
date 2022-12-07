@@ -106,26 +106,32 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     private func assertMXEvent(exceptionType: String, exceptionValue: String) {
-        
-        assertEventWithScopeCaptured { e, _, _ in
-            let event = try! XCTUnwrap(e)
-            XCTAssertEqual(callStackTree.callStacks.count, event.threads?.count)
+        assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertEqual(callStackTree.callStacks.count, event?.threads?.count)
             
-            let mxFramesReversed = try! XCTUnwrap(callStackTree.callStacks.first?.flattenedRootFrames).reversed()
-            let sentryFrames = try! XCTUnwrap(event.threads?.first?.stacktrace?.frames)
-            XCTAssertEqual(mxFramesReversed.count, sentryFrames.count)
+            guard var flattenedRootFrames = callStackTree.callStacks.first?.flattenedRootFrames else {
+                XCTFail("CallStackTree has no call stack.")
+                return
+            }
+            flattenedRootFrames.reverse()
             
-            for i in 0..<mxFramesReversed.count {
-                let mxFrame = mxFramesReversed[i]
+            guard let sentryFrames = event?.threads?.first?.stacktrace?.frames else {
+                XCTFail("Event has no frames.")
+                return
+            }
+            XCTAssertEqual(flattenedRootFrames.count, sentryFrames.count)
+            
+            for i in 0..<flattenedRootFrames.count {
+                let mxFrame = flattenedRootFrames[i]
                 let sentryFrame = sentryFrames[i]
                 assertFrame(mxFrame: mxFrame, sentryFrame: sentryFrame)
             }
             
-            XCTAssertEqual(1, event.exceptions?.count)
-            let exception = try! XCTUnwrap(event.exceptions?.first)
+            XCTAssertEqual(1, event?.exceptions?.count)
+            let exception = event?.exceptions?.first
             
-            XCTAssertEqual(exceptionType, exception.type)
-            XCTAssertEqual(exceptionValue, exception.value)
+            XCTAssertEqual(exceptionType, exception?.type)
+            XCTAssertEqual(exceptionValue, exception?.value)
         }
     }
     
