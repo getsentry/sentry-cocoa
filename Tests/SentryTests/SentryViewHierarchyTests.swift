@@ -96,6 +96,29 @@ class SentryViewHierarchyTests: XCTestCase {
         XCTAssertEqual(firstChild?["type"] as? String, "UIView")
     }
 
+    func test_ViewHierarchy_with_ViewController(){
+        let firstWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        let viewController = UIViewController()
+        firstWindow.rootViewController = viewController
+        firstWindow.addSubview(viewController.view)
+
+        fixture.uiApplication.windows = [firstWindow]
+
+        guard let descriptions = self.fixture.sut.fetch()
+        else {
+            XCTFail("Could not serialize view hierarchy")
+            return
+        }
+
+        let object = try? JSONSerialization.jsonObject(with: descriptions) as? NSDictionary
+        let window = (object?["windows"] as? NSArray)?.firstObject as? NSDictionary
+        let children = window?["children"] as? NSArray
+
+        let firstChild = children?.firstObject as? NSDictionary
+
+        XCTAssertEqual(firstChild?["view_controller"] as? String, "UIViewController")
+    }
+
     func test_ViewHierarchy_save() {
         let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         window.accessibilityIdentifier = "WindowId"

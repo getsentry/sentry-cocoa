@@ -56,6 +56,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
         if (![self processViewHierarchy:windows
                             addFunction:writeJSONDataToMemory
                                userData:(__bridge void *)(result)]) {
+
             result = nil;
         }
     };
@@ -71,32 +72,34 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 
 #    define tryJson(code)                                                                          \
         if ((result = (code)) != SentryCrashJSON_OK)                                               \
-        goto done
+            return result;
 
 - (BOOL)processViewHierarchy:(NSArray<UIView *> *)windows
                  addFunction:(SentryCrashJSONAddDataFunc)addJSONDataFunc
                     userData:(void *const)userData
 {
 
-    SentryCrashJSONEncodeContext JSONContext;
+    __block SentryCrashJSONEncodeContext JSONContext;
     sentrycrashjson_beginEncode(&JSONContext, false, addJSONDataFunc, userData);
 
-    int result;
+    int (^serializeJson)(void) = ^int() {
+        int result;
+        tryJson(sentrycrashjson_beginObject(&JSONContext, NULL));
+        tryJson(sentrycrashjson_addStringElement(
+            &JSONContext, "rendering_system", "UIKIT", SentryCrashJSON_SIZE_AUTOMATIC));
+        tryJson(sentrycrashjson_beginArray(&JSONContext, "windows"));
 
-    tryJson(sentrycrashjson_beginObject(&JSONContext, NULL));
-    tryJson(sentrycrashjson_addStringElement(
-        &JSONContext, "rendering_system", "UIKIT", SentryCrashJSON_SIZE_AUTOMATIC));
-    tryJson(sentrycrashjson_beginArray(&JSONContext, "windows"));
+        for (UIView *window in windows) {
+            tryJson([self viewHierarchyFromView:window intoContext:&JSONContext]);
+        }
 
-    for (UIView *window in windows) {
-        tryJson([self viewHierarchyFromView:window intoContext:&JSONContext]);
-    }
+        tryJson(sentrycrashjson_endContainer(&JSONContext));
 
-    tryJson(sentrycrashjson_endContainer(&JSONContext));
+        result = sentrycrashjson_endEncode(&JSONContext);
+        return result;
+    };
 
-    result = sentrycrashjson_endEncode(&JSONContext);
-
-done:
+    int result = serializeJson();
     if (result != SentryCrashJSON_OK) {
         SENTRY_LOG_DEBUG(
             @"Could not create view hierarchy json: %s", sentrycrashjson_stringForError(result));
@@ -125,13 +128,21 @@ done:
     tryJson(sentrycrashjson_addFloatingPointElement(context, "alpha", view.alpha));
     tryJson(sentrycrashjson_addBooleanElement(context, "visible", !view.hidden));
 
+    if ([view.nextResponder isKindOfClass:[UIViewController self]]) {
+        UIViewController* vc = (UIViewController *)view.nextResponder;
+        if (vc.view == view) {
+            const char *viewControllerClassName = [[SwiftDescriptor getObjectClassName:vc] UTF8String];
+            tryJson(sentrycrashjson_addStringElement(context, "view_controller",
+                viewControllerClassName, SentryCrashJSON_SIZE_AUTOMATIC));
+        }
+    }
+
     tryJson(sentrycrashjson_beginArray(context, "children"));
     for (UIView *child in view.subviews) {
         tryJson([self viewHierarchyFromView:child intoContext:context]);
     }
     tryJson(sentrycrashjson_endContainer(context));
     tryJson(sentrycrashjson_endContainer(context));
-done:
     return result;
 }
 
