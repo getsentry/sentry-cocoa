@@ -106,9 +106,20 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     private func assertMXEvent(exceptionType: String, exceptionValue: String) {
+        
         assertEventWithScopeCaptured { e, _, _ in
             let event = try! XCTUnwrap(e)
             XCTAssertEqual(callStackTree.callStacks.count, event.threads?.count)
+            
+            let mxFramesReversed = try! XCTUnwrap(callStackTree.callStacks.first?.flattenedRootFrames).reversed()
+            let sentryFrames = try! XCTUnwrap(event.threads?.first?.stacktrace?.frames)
+            XCTAssertEqual(mxFramesReversed.count, sentryFrames.count)
+            
+            for i in 0..<mxFramesReversed.count {
+                let mxFrame = mxFramesReversed[i]
+                let sentryFrame = sentryFrames[i]
+                assertFrame(mxFrame: mxFrame, sentryFrame: sentryFrame)
+            }
             
             XCTAssertEqual(1, event.exceptions?.count)
             let exception = try! XCTUnwrap(event.exceptions?.first)
@@ -116,6 +127,20 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(exceptionType, exception.type)
             XCTAssertEqual(exceptionValue, exception.value)
         }
+    }
+    
+    @available(iOS 14, macOS 12, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    private func assertFrame(mxFrame: SentryMXFrame, sentryFrame: Frame) {
+        XCTAssertEqual(mxFrame.binaryName, sentryFrame.package)
+        
+        let lastRootFrameAddress = formatHexAddress(value: mxFrame.address)
+        XCTAssertEqual(lastRootFrameAddress, sentryFrame.instructionAddress)
+        
+        XCTAssertEqual(mxFrame.binaryName, sentryFrame.package)
+        let lastRootFrameImageAddress = formatHexAddress(value: mxFrame.address - UInt64(mxFrame.offsetIntoBinaryTextSegment))
+        XCTAssertEqual(lastRootFrameImageAddress, sentryFrame.imageAddress)
     }
 }
 
