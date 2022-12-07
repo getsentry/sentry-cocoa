@@ -1,6 +1,6 @@
 #import "SentrySerialization.h"
 #import "SentryAppState.h"
-#import "SentryEnvelope.h"
+#import "SentryEnvelope+Private.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryError.h"
 #import "SentryId.h"
@@ -152,6 +152,13 @@ NS_ASSUME_NONNULL_BEGIN
     return decoded.copy;
 }
 
+{
+    if ([string isEqualToString:@"event.view_hierarchy"]) {
+        return kSentryAttachmentTypeViewHierarchy;
+    }
+    return kSentryAttachmentTypeEventAttachment;
+}
+
 + (SentryEnvelope *_Nullable)envelopeWithData:(NSData *)data
 {
     SentryEnvelopeHeader *envelopeHeader = nil;
@@ -262,15 +269,18 @@ NS_ASSUME_NONNULL_BEGIN
                 break;
             }
 
-            NSString *_Nullable filename = [headerDictionary valueForKey:@"filename"];
-            NSString *_Nullable contentType = [headerDictionary valueForKey:@"content_type"];
+            NSString *filename = [headerDictionary valueForKey:@"filename"];
+            NSString *contentType = [headerDictionary valueForKey:@"content_type"];
+            NSString *attachmentType = [headerDictionary valueForKey:@"attachment_type"];
 
             SentryEnvelopeItemHeader *itemHeader;
             if (nil != filename) {
-                itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:type
-                                                                     length:bodyLength
-                                                                  filenname:filename
-                                                                contentType:contentType];
+                itemHeader = [[SentryEnvelopeAttachmentHeader alloc]
+                      initWithType:type
+                            length:bodyLength
+                          filename:filename
+                       contentType:contentType
+                    attachmentType:[SentrySerialization attachmentTypeForString:attachmentType]];
             } else {
                 itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:type length:bodyLength];
             }
