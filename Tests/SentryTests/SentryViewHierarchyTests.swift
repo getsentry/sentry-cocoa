@@ -96,7 +96,7 @@ class SentryViewHierarchyTests: XCTestCase {
         XCTAssertEqual(firstChild?["type"] as? String, "UIView")
     }
 
-    func test_ViewHierarchy_with_ViewController(){
+    func test_ViewHierarchy_with_ViewController() {
         let firstWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         let viewController = UIViewController()
         firstWindow.rootViewController = viewController
