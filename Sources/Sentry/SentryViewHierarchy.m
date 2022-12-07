@@ -60,8 +60,6 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
         }
     };
 
-    // In the case of a crash we can't dispatch work to be executed anymore,
-    // so we'll run this on the wrong thread.
     if ([NSThread isMainThread]) {
         save();
     } else {
