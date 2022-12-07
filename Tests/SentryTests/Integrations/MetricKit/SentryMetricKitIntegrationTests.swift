@@ -106,16 +106,47 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     private func assertMXEvent(exceptionType: String, exceptionValue: String) {
-        assertEventWithScopeCaptured { e, _, _ in
-            let event = try! XCTUnwrap(e)
-            XCTAssertEqual(callStackTree.callStacks.count, event.threads?.count)
+        assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertEqual(callStackTree.callStacks.count, event?.threads?.count)
             
-            XCTAssertEqual(1, event.exceptions?.count)
-            let exception = try! XCTUnwrap(event.exceptions?.first)
+            guard var flattenedRootFrames = callStackTree.callStacks.first?.flattenedRootFrames else {
+                XCTFail("CallStackTree has no call stack.")
+                return
+            }
+            flattenedRootFrames.reverse()
             
-            XCTAssertEqual(exceptionType, exception.type)
-            XCTAssertEqual(exceptionValue, exception.value)
+            guard let sentryFrames = event?.threads?.first?.stacktrace?.frames else {
+                XCTFail("Event has no frames.")
+                return
+            }
+            XCTAssertEqual(flattenedRootFrames.count, sentryFrames.count)
+            
+            for i in 0..<flattenedRootFrames.count {
+                let mxFrame = flattenedRootFrames[i]
+                let sentryFrame = sentryFrames[i]
+                assertFrame(mxFrame: mxFrame, sentryFrame: sentryFrame)
+            }
+            
+            XCTAssertEqual(1, event?.exceptions?.count)
+            let exception = event?.exceptions?.first
+            
+            XCTAssertEqual(exceptionType, exception?.type)
+            XCTAssertEqual(exceptionValue, exception?.value)
         }
+    }
+    
+    @available(iOS 14, macOS 12, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    private func assertFrame(mxFrame: SentryMXFrame, sentryFrame: Frame) {
+        XCTAssertEqual(mxFrame.binaryName, sentryFrame.package)
+        
+        let lastRootFrameAddress = formatHexAddress(value: mxFrame.address)
+        XCTAssertEqual(lastRootFrameAddress, sentryFrame.instructionAddress)
+        
+        XCTAssertEqual(mxFrame.binaryName, sentryFrame.package)
+        let lastRootFrameImageAddress = formatHexAddress(value: mxFrame.address - UInt64(mxFrame.offsetIntoBinaryTextSegment))
+        XCTAssertEqual(lastRootFrameImageAddress, sentryFrame.imageAddress)
     }
 }
 

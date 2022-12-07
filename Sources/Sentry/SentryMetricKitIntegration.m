@@ -158,7 +158,9 @@ SentryMetricKitIntegration ()
     for (SentryMXCallStack *callStack in callStacks) {
 
         NSMutableArray<SentryFrame *> *frames = [NSMutableArray array];
-        for (SentryMXFrame *mxFrame in callStack.flattenedRootFrames) {
+
+        // The MXFrames are in reversed order compared to how we order them in Sentry.
+        for (SentryMXFrame *mxFrame in [callStack.flattenedRootFrames reverseObjectEnumerator]) {
 
             SentryFrame *frame = [[SentryFrame alloc] init];
             frame.package = mxFrame.binaryName;
