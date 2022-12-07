@@ -77,6 +77,9 @@
                   Identifier = "SentryOutOfMemoryIntegrationTests/testANRDetected_UpdatesAppStateToTrue_disabled()">
                </Test>
                <Test
+                  Identifier = "SentryProfilerSwiftTests/testProfileTimeoutTimer_disabled()">
+               </Test>
+               <Test
                   Identifier = "SentrySDKIntegrationTestsBase">
                </Test>
                <Test
@@ -87,6 +90,9 @@
                </Test>
                <Test
                   Identifier = "SentryStacktraceBuilderTests/testAsyncStacktraces_disabled()">
+               </Test>
+               <Test
+                  Identifier = "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout_disabled()">
                </Test>
             </SkippedTests>
          </TestableReference>
