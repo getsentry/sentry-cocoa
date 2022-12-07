@@ -98,26 +98,6 @@ jobs:
           path: |
             ${{ github.workspace }}/*.zip
 
-  # The framework requires Xcode 12
-  build-framework:
-    name: Build & Validate Framework
-    runs-on: macos-11
-    steps:
-      - uses: actions/checkout@v3
-      - run: ./scripts/ci-select-xcode.sh 12.5.1
-      - run: make build-framework
-        shell: sh
-      - run: make build-framework-sample
-        shell: sh
-
-      - name: Archiving Framework.zip
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ github.sha }}
-          if-no-files-found: error
-          path: |
-            ${{ github.workspace }}/*.zip
-
   # Use github.event.pull_request.head.sha instead of github.sha when available as
   # the github.sha is be the pre merge commit id for PRs.
   # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.

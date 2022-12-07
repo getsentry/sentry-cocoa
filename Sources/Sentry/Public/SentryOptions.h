@@ -59,6 +59,11 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enabled;
 
 /**
+ * Controls the flush duration when calling ``SentrySDK/close``.
+ */
+@property (nonatomic, assign) NSTimeInterval shutdownTimeInterval;
+
+/**
  * When enabled, the SDK sends crashes to Sentry. Default value is YES.
  */
 @property (nonatomic, assign) BOOL enableCrashHandler;
@@ -255,7 +260,7 @@ NS_SWIFT_NAME(Options)
 
 /**
  * When enabled, the SDK tracks performance for file IO reads and writes with NSData if auto
- * performance tracking and enableSwizzling are enabled. The default is <code>NO</code>.
+ * performance tracking and enableSwizzling are enabled. The default is <code>YES</code>.
  */
 @property (nonatomic, assign) BOOL enableFileIOTracing;
 
@@ -440,6 +445,19 @@ NS_SWIFT_NAME(Options)
  * The default value automatically captures HTTP Client errors of all outgoing requests.
  */
 @property (nonatomic, strong) NSArray *failedRequestTargets;
+
+#if SENTRY_HAS_METRIC_KIT
+
+/**
+ * ATTENTION: This is an experimental feature.
+ *
+ * This feature is disabled by default. When enabled, the SDK sends ``MXDiagnosticPayload`` data to
+ * Sentry.
+ */
+@property (nonatomic, assign) BOOL enableMetricKit API_AVAILABLE(
+    ios(14.0), macos(12.0), macCatalyst(14.0)) API_UNAVAILABLE(tvos, watchos);
+
+#endif
 
 @end
 

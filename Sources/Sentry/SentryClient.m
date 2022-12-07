@@ -162,6 +162,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                        timezone:(NSTimeZone *)timezone
 {
     if (self = [super init]) {
+        _isEnabled = YES;
         self.options = options;
         self.transportAdapter = transportAdapter;
         self.fileManager = fileManager;
@@ -501,6 +502,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self.transportAdapter flush:timeout];
 }
 
+- (void)close
+{
+    _isEnabled = NO;
+    [self flush:self.options.shutdownTimeInterval];
+}
+
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
                              withScope:(SentryScope *)scope
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
@@ -632,7 +639,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (BOOL)isDisabled
 {
-    return !self.options.enabled || nil == self.options.parsedDsn;
+    return !_isEnabled || !self.options.enabled || nil == self.options.parsedDsn;
 }
 
 - (void)logDisabledMessage

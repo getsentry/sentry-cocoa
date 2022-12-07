@@ -78,6 +78,18 @@ class SentryAppStateManagerTests: XCTestCase {
         XCTAssertNotNil(fixture.fileManager.readAppState())
     }
 
+    func testStopUpdatesAppState() {
+        sut.start()
+
+        let stateBeforeStop = fixture.fileManager.readAppState()
+        XCTAssertTrue(stateBeforeStop!.isSDKRunning)
+
+        sut.stop(withForce: true)
+
+        let stateAfterStop = fixture.fileManager.readAppState()
+        XCTAssertFalse(stateAfterStop!.isSDKRunning)
+    }
+
     func testForcedStop() {
         XCTAssertNil(fixture.fileManager.readAppState())
 

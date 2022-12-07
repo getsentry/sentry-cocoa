@@ -78,6 +78,7 @@
 - (void)assertDefaultValues:(SentryOptions *)options
 {
     XCTAssertEqual(YES, options.enabled);
+    XCTAssertEqual(2.0, options.shutdownTimeInterval);
     XCTAssertEqual(NO, options.debug);
     XCTAssertEqual(kSentryLevelDebug, options.diagnosticLevel);
     XCTAssertEqual(options.environment, kSentryDefaultEnvironment);
@@ -116,8 +117,14 @@
     XCTAssertEqual(@[], options.inAppExcludes);
     XCTAssertNil(options.urlSessionDelegate);
     XCTAssertEqual(YES, options.enableSwizzling);
-    XCTAssertEqual(NO, options.enableFileIOTracing);
+    XCTAssertEqual(YES, options.enableFileIOTracing);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
+
+#if SENTRY_HAS_METRIC_KIT
+    if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
+        XCTAssertEqual(NO, options.enableMetricKit);
+    }
+#endif
 
     NSRegularExpression *regexTrace = options.tracePropagationTargets[0];
     XCTAssertTrue([regexTrace.pattern isEqualToString:@".*"]);

@@ -29,11 +29,12 @@ SentryAutoBreadcrumbTrackingIntegration ()
              breadcrumbTracker:[[SentryBreadcrumbTracker alloc]
                                    initWithSwizzleWrapper:[SentryDependencyContainer sharedInstance]
                                                               .swizzleWrapper]
-        systemEventBreadcrumbs:[[SentrySystemEventBreadcrumbs alloc]
-                                      initWithFileManager:[SentryDependencyContainer sharedInstance]
-                                                              .fileManager
-                                   andCurrentDateProvider:[SentryDefaultCurrentDateProvider
-                                                              sharedInstance]]];
+        systemEventBreadcrumbs:
+            [[SentrySystemEventBreadcrumbs alloc]
+                         initWithFileManager:[SentryDependencyContainer sharedInstance].fileManager
+                      andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                andNotificationCenterWrapper:[SentryDependencyContainer sharedInstance]
+                                                 .notificationCenterWrapper]];
 
     return YES;
 }

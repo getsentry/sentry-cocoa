@@ -77,7 +77,6 @@ SentryFileManager ()
         self.currentFileCounter = 0;
         self.maxEnvelopes = options.maxCacheItems;
 
-        SENTRY_LOG_DEBUG(@"Dispatching deletion of old envelopes from %@", self);
         [dispatchQueueWrapper
             dispatchAfter:10
                     block:^{
