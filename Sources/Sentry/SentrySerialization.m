@@ -152,7 +152,7 @@ NS_ASSUME_NONNULL_BEGIN
     return decoded.copy;
 }
 
-+ (SentryAttachmentType)attachmentTypeForString:(NSString *)string 
++ (SentryAttachmentType)attachmentTypeForString:(NSString *)string
 {
     if ([string isEqualToString:@"event.view_hierarchy"]) {
         return kSentryAttachmentTypeViewHierarchy;
