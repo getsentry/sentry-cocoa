@@ -23,6 +23,12 @@ class SentryProfilerSwiftTests: XCTestCase {
         let message = "some message"
         let transactionName = "Some Transaction"
         let transactionOperation = "Some Operation"
+        lazy var systemWrapper = TestSentrySystemWrapper()
+        lazy var processInfoWrapper = TestSentryNSProcessInfoWrapper()
+
+        func newTransaction() -> Span {
+            hub.startTransaction(name: transactionName, operation: transactionOperation)
+        }
     }
 
     private var fixture: Fixture!
@@ -44,7 +50,41 @@ class SentryProfilerSwiftTests: XCTestCase {
 #endif
     }
 
-    func testConcurrentProfilingTransactions() {
+    func testMetricProfiler() {
+        SentryProfiler.useSystemWrapper(fixture.systemWrapper)
+        SentryProfiler.useProcessInfoWrapper(fixture.processInfoWrapper)
+
+        let cpuUsages = [12.4, 63.5, 1.4, 4.6]
+        fixture.systemWrapper.overrides.cpuUsagePerCore = cpuUsages.map { NSNumber(value: $0) }
+
+        let memoryFootprint: mach_vm_size_t = 123_455
+        fixture.systemWrapper.overrides.memoryFootprintBytes = memoryFootprint
+
+        let span = fixture.newTransaction()
+        forceProfilerSample()
+
+        fixture.processInfoWrapper.overrides.isLowPowerModeEnabled = true
+        fixture.processInfoWrapper.sendThermalStateChangeNotification()
+        fixture.processInfoWrapper.overrides.isLowPowerModeEnabled = false
+        fixture.processInfoWrapper.sendThermalStateChangeNotification()
+
+        fixture.processInfoWrapper.overrides.thermalState = .critical
+        fixture.processInfoWrapper.sendPowerStateChangeNotification()
+        fixture.processInfoWrapper.overrides.thermalState = .serious
+        fixture.processInfoWrapper.sendPowerStateChangeNotification()
+        fixture.processInfoWrapper.overrides.thermalState = .fair
+        fixture.processInfoWrapper.sendPowerStateChangeNotification()
+        fixture.processInfoWrapper.overrides.thermalState = .nominal
+        fixture.processInfoWrapper.sendPowerStateChangeNotification()
+
+        try DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            span.finish()
+
+            let profileData = try getProfileData()
+        }
+    }
+
+    func testConcurrentProfilingTransactions() throws {
         let options = fixture.options
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
@@ -52,24 +92,15 @@ class SentryProfilerSwiftTests: XCTestCase {
         let numberOfTransactions = 10
         var spans = [Span]()
         for _ in 0 ..< numberOfTransactions {
-            spans.append(fixture.hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation))
+            spans.append(fixture.newTransaction())
         }
 
         forceProfilerSample()
 
         spans.forEach { $0.finish() }
 
-        guard let envelope = self.fixture.client.captureEnvelopeInvocations.first else {
-            XCTFail("Expected to capture 1 event")
-            return
-        }
-        XCTAssertEqual(1, envelope.items.count)
-        guard let profileItem = envelope.items.first else {
-            XCTFail("Expected an envelope item")
-            return
-        }
-        XCTAssertEqual("profile", profileItem.header.type)
-        self.assertValidProfileData(data: profileItem.data, numberOfTransactions: numberOfTransactions)
+        let profileData = try getProfileData()
+        self.assertValidProfileData(data: profileData, numberOfTransactions: numberOfTransactions)
     }
 
     /// Test a situation where a long-running span starts the profiler, which winds up timing out, and then another span starts that begins a new profile, then finishes, and then the long-running span finishes; both profiles should be separately captured in envelopes.
@@ -85,7 +116,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
 
-        let spanA = fixture.hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        let spanA = fixture.newTransaction()
 
         forceProfilerSample()
 
@@ -96,7 +127,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         }
         waitForExpectations(timeout: 3)
 
-        let spanB = self.fixture.hub.startTransaction(name: self.fixture.transactionName, operation: self.fixture.transactionOperation)
+        let spanB = fixture.newTransaction()
 
         forceProfilerSample()
 
@@ -198,6 +229,25 @@ class SentryProfilerSwiftTests: XCTestCase {
 }
 
 private extension SentryProfilerSwiftTests {
+    enum TestError: String, Error {
+        case noEnvelopeCaptured = "Expected to capture 1 event"
+        case noProfileEnvelopeItem = "Expected an envelope item"
+    }
+
+    func getProfileData() throws -> Data {
+        guard let envelope = self.fixture.client.captureEnvelopeInvocations.first else {
+            throw(TestError.noEnvelopeCaptured)
+        }
+
+        XCTAssertEqual(1, envelope.items.count)
+        guard let profileItem = envelope.items.first else {
+            throw(TestError.noProfileEnvelopeItem)
+        }
+
+        XCTAssertEqual("profile", profileItem.header.type)
+        return profileItem.data
+    }
+
     /// Keep a thread busy over a long enough period of time (long enough for 3 samples) for the sampler to pick it up.
     func forceProfilerSample() {
         let str = "a"
@@ -208,7 +258,7 @@ private extension SentryProfilerSwiftTests {
     }
 
     func performTest(transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1, shouldTimeOut: Bool = false) {
-        let span = fixture.hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        let span = fixture.newTransaction()
 
         forceProfilerSample()
 
@@ -225,17 +275,8 @@ private extension SentryProfilerSwiftTests {
 
         waitForExpectations(timeout: 10)
 
-        guard let envelope = self.fixture.client.captureEnvelopeInvocations.first else {
-            XCTFail("Expected to capture at least 1 event")
-            return
-        }
-        XCTAssertEqual(1, envelope.items.count)
-        guard let profileItem = envelope.items.first else {
-            XCTFail("Expected an envelope item")
-            return
-        }
-        XCTAssertEqual("profile", profileItem.header.type)
-        self.assertValidProfileData(data: profileItem.data, transactionEnvironment: transactionEnvironment, numberOfTransactions: numberOfTransactions, shouldTimeout: shouldTimeOut)
+        let profileData = try getProfileData()
+        self.assertValidProfileData(data: profileData, transactionEnvironment: transactionEnvironment, numberOfTransactions: numberOfTransactions, shouldTimeout: shouldTimeOut)
 
     }
 
@@ -362,7 +403,7 @@ private extension SentryProfilerSwiftTests {
         let hub = fixture.hub
         Dynamic(hub).tracesSampler.random = TestRandom(value: 1.0)
 
-        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        let span = fixture.newTransaction()
         let exp = expectation(description: "Span finishes")
         DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
             span.finish()

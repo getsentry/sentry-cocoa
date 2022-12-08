@@ -85,17 +85,29 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
 
 - (NSMutableDictionary<NSString *, id> *)serialize
 {
-    const auto dict = [NSMutableDictionary<NSString *, id>
-        dictionaryWithObjectsAndKeys:serializedValues(
-                                         _memoryPressureState, @"memory-pressure-enum"),
-        @"memory-pressure", serializedValues(_powerLevelState, @"bool"), @"is-low-power-mode",
-        serializedValues(_memoryFootprint, @"bytes"), @"memory-footprint",
-        serializedValues(_thermalState, @"thermal-state-enum"), @"thermal-state", nil];
+    const auto dict = [NSMutableDictionary<NSString *, id> dictionary];
+
+    if (_memoryFootprint.count > 0) {
+        dict[@"memory-footprint"] = serializedValues(_memoryFootprint, @"bytes");
+    }
+    if (_memoryPressureState.count > 0) {
+        dict[@"memory-pressure"] = serializedValues(_memoryPressureState, @"memory-pressure-enum");
+    }
+    if (_powerLevelState.count > 0) {
+        dict[@"is-low-power-mode"] = serializedValues(_powerLevelState, @"bool");
+    }
+    if (_thermalState.count > 0) {
+        dict[@"thermal-state"] = serializedValues(_thermalState, @"thermal-state-enum");
+    }
+
     [_cpuUsage enumerateKeysAndObjectsUsingBlock:^(NSNumber *_Nonnull core,
         NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_Nonnull readings,
         BOOL *_Nonnull stop) {
-        dict[[NSString stringWithFormat:@"cpu-usage-%d", core.intValue]] = readings;
+        if (readings.count > 0) {
+            dict[[NSString stringWithFormat:@"cpu-usage-%d", core.intValue]] = readings;
+        }
     }];
+
     return dict;
 }
 
