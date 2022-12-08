@@ -1,37 +1,62 @@
 #import "SentryMetricProfiler.h"
+#import "SentryDependencyContainer.h"
+#import "SentryLog.h"
 #import "SentryMachLogging.hpp"
 #import "SentryNSNotificationCenterWrapper.h"
+#import "SentryNSProcessInfoWrapper.h"
+#import "SentrySystemWrapper.h"
 #import "SentryTime.h"
-#include <mach/mach.h>
 
-const NSTimeInterval kSentryMetricProfilerInterval = 0.1; // 10 Hz
+const NSTimeInterval kSentryMetricProfilerTimeseriesInterval = 0.1; // 10 Hz
+
+namespace {
+NSDictionary<NSString *, id> *
+serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSString *unit)
+{
+    return @ { @"unit" : unit, @"values" : values };
+}
+} // namespace
 
 @implementation SentryMetricProfiler {
     NSTimer *_timer;
-    SentryNSNotificationCenterWrapper *_notificationCenter;
     dispatch_source_t _memoryWarningSource;
     dispatch_queue_t _memoryWarningQueue;
-    NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_cpuTimeSeries;
-    NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_memoryFootprintTimeSeries;
-    NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_thermalStateChanges;
-    NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_powerLevelStateChanges;
-    NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_memoryPressureStateChanges;
+
+    SentryNSProcessInfoWrapper *_processInfoWrapper;
+    SentrySystemWrapper *_systemWrapper;
+
+    /// arrays of readings keyed on NSNumbers representing the core number for the set of readings
+    NSMutableDictionary<NSNumber *, NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *>
+        *_cpuUsage;
+
+    NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_memoryFootprint;
+    NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_thermalState;
+    NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_powerLevelState;
+    NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_memoryPressureState;
     uint64_t _profileStartTime;
 }
 
-- (instancetype)initWithNotificationCenterWrapper:
-                    (SentryNSNotificationCenterWrapper *)notificationCenterWrapper
-                                 profileStartTime:(uint64_t)profileStartTime
+- (instancetype)initWithProfileStartTime:(uint64_t)profileStartTime
+                      processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
+                           systemWrapper:(SentrySystemWrapper *)systemWrapper
 {
     if (self = [super init]) {
-        _cpuTimeSeries = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
-        _memoryFootprintTimeSeries = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
-        _thermalStateChanges = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
-        _powerLevelStateChanges = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
-        _memoryPressureStateChanges =
-            [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
+        _cpuUsage = [NSMutableDictionary<NSNumber *,
+            NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *>
+            dictionary];
+        const auto processorCount = NSProcessInfo.processInfo.processorCount;
+        for (NSUInteger core = 0; core < processorCount; core++) {
+            _cpuUsage[@(core)] = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
+        }
 
-        _notificationCenter = notificationCenterWrapper;
+        _systemWrapper = systemWrapper;
+        _processInfoWrapper = processInfoWrapper;
+
+        _memoryFootprint = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
+        _thermalState = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
+        _powerLevelState = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
+        _memoryPressureState = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
+
         _profileStartTime = profileStartTime;
     }
     return self;
@@ -55,29 +80,35 @@ const NSTimeInterval kSentryMetricProfilerInterval = 0.1; // 10 Hz
 {
     [_timer invalidate];
     dispatch_source_cancel(_memoryWarningSource);
-    [_notificationCenter removeObserver:self
-                                   name:NSProcessInfoThermalStateDidChangeNotification
-                                 object:NSProcessInfo.processInfo];
-    [_notificationCenter removeObserver:self
-                                   name:NSProcessInfoPowerStateDidChangeNotification
-                                 object:NSProcessInfo.processInfo];
+    [_processInfoWrapper stopMonitoring:self];
 }
 
-- (NSData *)serialize
+- (NSMutableDictionary<NSString *, id> *)serialize
 {
-    // TODO: implement
-    return [[NSData alloc] init];
+    const auto dict = [NSMutableDictionary<NSString *, id>
+        dictionaryWithObjectsAndKeys:serializedValues(
+                                         _memoryPressureState, @"memory-pressure-enum"),
+        @"memory-pressure", serializedValues(_powerLevelState, @"bool"), @"is-low-power-mode",
+        serializedValues(_memoryFootprint, @"bytes"), @"memory-footprint",
+        serializedValues(_thermalState, @"thermal-state-enum"), @"thermal-state", nil];
+    [_cpuUsage enumerateKeysAndObjectsUsingBlock:^(NSNumber *_Nonnull core,
+        NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_Nonnull readings,
+        BOOL *_Nonnull stop) {
+        dict[[NSString stringWithFormat:@"cpu-usage-%d", core.intValue]] = readings;
+    }];
+    return dict;
 }
 
 #pragma mark - Private
 
 - (void)registerSampler
 {
-    _timer = [NSTimer scheduledTimerWithTimeInterval:kSentryMetricProfilerInterval
+    __weak auto weakSelf = self;
+    _timer = [NSTimer scheduledTimerWithTimeInterval:kSentryMetricProfilerTimeseriesInterval
                                              repeats:YES
                                                block:^(NSTimer *_Nonnull timer) {
-                                                   [self recordCPUPercentage];
-                                                   [self recordMemoryFootprint];
+                                                   [weakSelf recordCPUPercentagePerCore];
+                                                   [weakSelf recordMemoryFootprint];
                                                }];
 }
 
@@ -89,17 +120,15 @@ const NSTimeInterval kSentryMetricProfilerInterval = 0.1; // 10 Hz
  */
 - (void)registerMemoryPressureWarningHandler
 {
-    const auto queueAttributes
-        = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, 0);
-    _memoryWarningQueue = dispatch_queue_create("io.sentry.queue.memory-warnings", queueAttributes);
-    _memoryWarningSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_MEMORYPRESSURE, 0,
-        DISPATCH_MEMORYPRESSURE_NORMAL | DISPATCH_MEMORYPRESSURE_WARN
-            | DISPATCH_MEMORYPRESSURE_CRITICAL,
-        _memoryWarningQueue);
-    dispatch_source_set_event_handler(_memoryWarningSource, ^{
-        [self recordMemoryPressureState:dispatch_source_get_data(self->_memoryWarningSource)];
-    });
-    dispatch_resume(_memoryWarningSource);
+    __weak auto weakSelf = self;
+    [_systemWrapper registerMemoryPressureNotifications:^(uintptr_t memoryPressureState) {
+        const auto strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        [strongSelf->_memoryPressureState
+            addObject:[strongSelf metricEntryForValue:@(memoryPressureState)]];
+    }];
 }
 
 - (void)registerStateChangeNotifications
@@ -109,69 +138,47 @@ const NSTimeInterval kSentryMetricProfilerInterval = 0.1; // 10 Hz
     // https://developer.apple.com/documentation/foundation/nsprocessinfothermalstatedidchangenotification/)
     [self recordThermalState];
 
-    // According to Apple docs: "This notification is posted on the global dispatch queue. The
-    // object associated with the notification is NSProcessInfo.processInfo."
-    [_notificationCenter addObserver:self
-                            selector:@selector(handleThermalStateChangeNotification:)
-                                name:NSProcessInfoThermalStateDidChangeNotification
-                              object:NSProcessInfo.processInfo];
-
-    // According to Apple docs: "This notification is posted on the global dispatch queue. The
-    // object associated with the notification is NSProcessInfo.processInfo."
-    [_notificationCenter addObserver:self
-                            selector:@selector(handleThermalStateChangeNotification:)
-                                name:NSProcessInfoPowerStateDidChangeNotification
-                              object:NSProcessInfo.processInfo];
-}
-
-- (void)handleThermalStateChangeNotification:(NSNotification *)note
-{
-    [self recordThermalState];
-}
-
-- (void)handlePowerLevelStateChangeNotification:(NSNotification *)note
-{
-    [self recordPowerLevelState];
+    [_processInfoWrapper monitorForThermalStateChanges:self callback:@selector(recordThermalState)];
+    [_processInfoWrapper monitorForPowerStateChanges:self
+                                            callback:@selector(recordPowerLevelState)];
 }
 
 - (void)recordThermalState
 {
-    [_thermalStateChanges
-        addObject:[self metricEntryForValue:@(NSProcessInfo.processInfo.thermalState)]];
+    [_thermalState addObject:[self metricEntryForValue:@(_processInfoWrapper.thermalState)]];
 }
 
 - (void)recordPowerLevelState
 {
-    [_powerLevelStateChanges
-        addObject:[self metricEntryForValue:@(NSProcessInfo.processInfo.lowPowerModeEnabled)]];
-}
-
-- (void)recordMemoryPressureState:(uintptr_t)memoryPressureState
-{
-    [_memoryPressureStateChanges addObject:[self metricEntryForValue:@(memoryPressureState)]];
+    [_powerLevelState
+        addObject:[self metricEntryForValue:@(_processInfoWrapper.isLowPowerModeEnabled)]];
 }
 
 - (void)recordMemoryFootprint
 {
-    task_vm_info_data_t info;
-    mach_msg_type_number_t count = TASK_VM_INFO_COUNT;
-    if (SENTRY_PROF_LOG_KERN_RETURN(
-            task_info(mach_task_self(), TASK_VM_INFO, (task_info_t)&info, &count))
-        == KERN_SUCCESS) {
-        mach_vm_size_t footprintBytes;
-        if (count >= TASK_VM_INFO_REV1_COUNT) {
-            footprintBytes = info.phys_footprint;
-        } else {
-            footprintBytes = info.resident_size;
-        }
+    NSError *error;
+    const auto footprintBytes = [_systemWrapper memoryFootprintBytes:&error];
 
-        [_memoryFootprintTimeSeries addObject:[self metricEntryForValue:@(footprintBytes)]];
+    if (error) {
+        SENTRY_LOG_ERROR(@"Failed to read memory footprint: %@", error);
+        return;
     }
+
+    [_memoryFootprint addObject:[self metricEntryForValue:@(footprintBytes)]];
 }
 
-- (void)recordCPUPercentage
+- (void)recordCPUPercentagePerCore
 {
-    // TODO: implement
+    NSError *error;
+    const auto result = [_systemWrapper cpuUsagePerCore:&error];
+
+    if (error) {
+        SENTRY_LOG_ERROR(@"Failed to read CPU usages: %@", error);
+        return;
+    }
+
+    [result enumerateObjectsUsingBlock:^(NSNumber *_Nonnull usage, NSUInteger core,
+        BOOL *_Nonnull stop) { [_cpuUsage[@(core)] addObject:[self metricEntryForValue:usage]]; }];
 }
 
 - (NSDictionary<NSString *, NSNumber *> *)metricEntryForValue:(NSNumber *)value

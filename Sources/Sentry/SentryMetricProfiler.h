@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 
-@class SentryNSNotificationCenterWrapper;
+@class SentryNSProcessInfoWrapper;
+@class SentrySystemWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -10,14 +11,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryMetricProfiler : NSObject
 
-- (instancetype)initWithNotificationCenterWrapper:
-                    (SentryNSNotificationCenterWrapper *)notificationCenterWrapper
-                                 profileStartTime:(uint64_t)profileStartTime;
+- (instancetype)initWithProfileStartTime:(uint64_t)profileStartTime
+                      processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
+                           systemWrapper:(SentrySystemWrapper *)systemWrapper;
 - (void)start;
 - (void)stop;
 
 /** @return All data gathered during the profiling run. */
-- (NSData *)serialize;
+- (NSMutableDictionary<NSString *, id> *)serialize;
 
 @end
 

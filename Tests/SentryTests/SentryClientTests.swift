@@ -627,7 +627,7 @@ class SentryClientTest: XCTestCase {
         event.debugMeta = nil
 
         fixture.deviceWrapper.internalOrientation = .landscapeLeft
-        fixture.deviceWrapper.interalBatteryState = .full
+        fixture.deviceWrapper.internalBatteryState = .full
 
         fixture.getSut().captureCrash(event, with: fixture.scope)
 

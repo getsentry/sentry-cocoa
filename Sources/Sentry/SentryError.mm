@@ -1,4 +1,5 @@
 #import "SentryError.h"
+#import "SentryMachLogging.hpp"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -22,6 +23,15 @@ NSError *_Nullable NSErrorFromSentryErrorWithException(
     return _SentryError(error, @ {
         NSLocalizedDescriptionKey :
             [NSString stringWithFormat:@"%@ (%@)", description, exception.reason],
+    });
+}
+
+SENTRY_EXTERN NSError *_Nullable NSErrorFromSentryErrorWithKernelError(
+    SentryError error, NSString *description, kern_return_t kernelErrorCode)
+{
+    return _SentryError(error, @ {
+        NSLocalizedDescriptionKey : [NSString stringWithFormat:@"%@ (%s)", description,
+                                              sentry::kernelReturnCodeDescription(kernelErrorCode)],
     });
 }
 

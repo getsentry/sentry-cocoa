@@ -31,6 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)removeObserver:(id)observer;
 
+- (void)postNotificationName:(NSNotificationName)aName object:(id)anObject;
+
 NS_ASSUME_NONNULL_END
 
 @end

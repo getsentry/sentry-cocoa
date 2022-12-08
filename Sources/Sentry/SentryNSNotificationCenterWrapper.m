@@ -77,6 +77,11 @@ NS_ASSUME_NONNULL_BEGIN
     [NSNotificationCenter.defaultCenter removeObserver:observer];
 }
 
+- (void)postNotificationName:(NSNotificationName)aName object:(id)anObject
+{
+    [NSNotificationCenter.defaultCenter postNotificationName:aName object:anObject];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

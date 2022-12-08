@@ -17,11 +17,14 @@
 #    import "SentryHub+Private.h"
 #    import "SentryId.h"
 #    import "SentryLog.h"
+#    import "SentryMetricProfiler.h"
+#    import "SentryNSProcessInfoWrapper.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryScope+Private.h"
 #    import "SentryScreenFrames.h"
 #    import "SentrySerialization.h"
 #    import "SentrySpanId.h"
+#    import "SentrySystemWrapper.h"
 #    import "SentryThread.h"
 #    import "SentryTime.h"
 #    import "SentryTransaction.h"
@@ -168,6 +171,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     uint64_t _endTimestamp;
     NSDate *_endDate;
     std::shared_ptr<SamplingProfiler> _profiler;
+    SentryMetricProfiler *_metricProfiler;
     SentryDebugImageProvider *_debugImageProvider;
     thread::TIDType _mainThreadID;
 
@@ -177,6 +181,9 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     SentryScreenFrames *_frameInfo;
     NSTimer *_timeoutTimer;
     SentryHub *__weak _hub;
+
+    SentryNSProcessInfoWrapper *_processInfoWrapper;
+    SentrySystemWrapper *_systemWrapper;
 }
 
 + (void)initialize
@@ -317,6 +324,20 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     std::lock_guard<std::mutex> l(_gProfilerLock);
     return [_gCurrentProfiler isRunning];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
+}
+
+#    pragma mark - Testing
+
++ (void)useSystemWrapper:(SentrySystemWrapper *)systemWrapper
+{
+    std::lock_guard<std::mutex> l(_gProfilerLock);
+    _gCurrentProfiler->_systemWrapper = systemWrapper;
+}
+
++ (void)useProcessInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
+{
+    std::lock_guard<std::mutex> l(_gProfilerLock);
+    _gCurrentProfiler->_processInfoWrapper = processInfoWrapper;
 }
 
 #    pragma mark - Private
@@ -463,6 +484,17 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
             },
             kSentryProfilerFrequencyHz);
         _profiler->startSampling();
+
+        if (_systemWrapper == nil) {
+            _systemWrapper = [[SentrySystemWrapper alloc] init];
+        }
+        if (_processInfoWrapper == nil) {
+            _processInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
+        }
+        _metricProfiler = [[SentryMetricProfiler alloc] initWithProfileStartTime:_startTimestamp
+                                                              processInfoWrapper:_processInfoWrapper
+                                                                   systemWrapper:_systemWrapper];
+        [_metricProfiler start];
     }
 }
 
@@ -492,6 +524,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
         _profiler->stopSampling();
         _endTimestamp = getAbsoluteTime();
         _endDate = [SentryCurrentDate date];
+        [_metricProfiler stop];
         SENTRY_LOG_DEBUG(@"Stopped profiler %@ at system time: %llu.", self, _endTimestamp);
     }
 }
@@ -499,8 +532,10 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 - (void)captureEnvelope
 {
     NSMutableDictionary<NSString *, id> *profile = nil;
+    NSMutableDictionary<NSString *, id> *metrics;
     @synchronized(self) {
         profile = [_profile mutableCopy];
+        metrics = [_metricProfiler serialize];
     }
 
     if ([((NSArray *)profile[@"profile"][@"samples"]) count] < 2) {
@@ -550,6 +585,8 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     profile[@"timestamp"] = [[SentryCurrentDate date] sentry_toIso8601String];
     profile[@"release"] = _hub.getClient.options.releaseName;
 
+    profile[@"measurements"] = metrics;
+
 #    if SENTRY_HAS_UIKIT
     auto relativeFrameTimestampsNs = [NSMutableArray array];
     [_frameInfo.frameTimestamps enumerateObjectsUsingBlock:^(
@@ -565,12 +602,15 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
                              @"will not report it.");
             return;
         }
+        const auto relativeStart = getDurationNs(_startTimestamp, begin);
+        const auto frameDuration = relativeEnd - relativeStart;
         [relativeFrameTimestampsNs addObject:@{
-            @"start_timestamp_relative_ns" : @(getDurationNs(_startTimestamp, begin)),
-            @"end_timestamp_relative_ns" : @(relativeEnd),
+            @"elapsed_since_start_ns" : @(relativeStart),
+            @"value" : @(frameDuration),
         }];
     }];
-    profile[@"adverse_frame_render_timestamps"] = relativeFrameTimestampsNs;
+    metrics[@"slow_frame_renders"] =
+        @{ @"unit" : @"nanoseconds", @"values" : relativeFrameTimestampsNs };
 
     relativeFrameTimestampsNs = [NSMutableArray array];
     [_frameInfo.frameRateTimestamps enumerateObjectsUsingBlock:^(
@@ -582,11 +622,11 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
             relativeTimestamp = getDurationNs(_startTimestamp, timestamp);
         }
         [relativeFrameTimestampsNs addObject:@{
-            @"start_timestamp_relative_ns" : @(relativeTimestamp),
-            @"frame_rate" : refreshRate,
+            @"elapsed_since_start_ns" : @(relativeTimestamp),
+            @"value" : refreshRate,
         }];
     }];
-    profile[@"screen_frame_rates"] = relativeFrameTimestampsNs;
+    metrics[@"screen_frame_rates"] = @{ @"unit" : @"hz", @"values" : relativeFrameTimestampsNs };
 #    endif // SENTRY_HAS_UIKIT
 
     // populate info from all transactions that occurred while profiler was running

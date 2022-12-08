@@ -7,10 +7,12 @@
 @class SentryFramesTracker;
 #endif // SENTRY_HAS_UIKIT
 @class SentryHub;
+@class SentryNSProcessInfoWrapper;
 @class SentryProfilesSamplerDecision;
 @class SentryScreenFrames;
 @class SentryEnvelope;
 @class SentrySpanId;
+@class SentrySystemWrapper;
 @class SentryTransaction;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
