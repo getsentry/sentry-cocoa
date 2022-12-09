@@ -9,6 +9,7 @@
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryMechanism.h"
+#import "SentryNoOpSpan.h"
 #import "SentryRequest.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
@@ -157,7 +158,7 @@ SentryNetworkTracker ()
 
         // We only create a span if there is a transaction in the scope,
         // otherwise we have nothing else to do here.
-        if (netSpan == nil) {
+        if (netSpan == nil || [netSpan isKindOfClass:[SentryNoOpSpan class]]) {
             SENTRY_LOG_DEBUG(@"No transaction bound to scope. Won't track network operation.");
             return;
         }
