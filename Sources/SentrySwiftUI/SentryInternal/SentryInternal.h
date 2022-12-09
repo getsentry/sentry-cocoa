@@ -1,3 +1,10 @@
+/**
+ * SentrySwiftUI needs a class from Sentry that is not public.
+ * The easiest way do expose this class is by copying it interface.
+ * We could just add the original header file to SwntrySwiftUI project,
+ * but the original file has reference to other header that we don't need here.
+ */
+
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN

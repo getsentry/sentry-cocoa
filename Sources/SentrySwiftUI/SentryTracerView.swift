@@ -9,7 +9,7 @@ import SentryInternal
 ///
 /// You create a transaction by wrapping your views with this.
 ///
-///     SentryPerformanceView {
+///     SentryTracerView {
 ///         VStack {
 ///             // The part of your content you want to measure
 ///         }
@@ -18,7 +18,7 @@ import SentryInternal
 /// By default, the transaction name will be the first root view, in the case above `VStack`.
 /// You can give your transaction a custom name by providing the name parameter.
 ///
-///     SentryPerformanceView("My Awesome Screen") {
+///     sentryTrace("My Awesome Screen") {
 ///         VStack {
 ///             // The part of your content you want to measure
 ///         }
@@ -32,15 +32,15 @@ import SentryInternal
 ///
 ///
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
-public struct SentryPerformanceView<Content: View>: View {
+public struct SentryTracerView<Content: View>: View {
     
-    let content : () -> Content
+    let content: () -> Content
     let name: String
     let id: SpanId
     
-    public init(_ transactionName: String? = nil, content : @escaping () -> Content) {
+    public init(_ transactionName: String? = nil, content: @escaping () -> Content) {
         self.content = content
-        self.name = transactionName ?? SentryPerformanceView.extractName(content: Content.self)
+        self.name = transactionName ?? SentryTracerView.extractName(content: Content.self)
         id = SentryPerformanceTracker.shared.startSpan(withName: self.name,
                                                        nameSource: transactionName == nil ? .component : .custom,
                                                        operation: "ui.load")
@@ -70,8 +70,8 @@ public struct SentryPerformanceView<Content: View>: View {
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 public extension View {
-    func sentryTransaction(_ transactionName: String? = nil) -> some View {
-        return SentryPerformanceView (transactionName) {
+    func sentryTrace(_ transactionName: String? = nil) -> some View {
+        return SentryTracerView(transactionName) {
             return self
         }
     }

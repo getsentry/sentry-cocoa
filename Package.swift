@@ -51,6 +51,7 @@ let package = Package(
                     "SentrySwiftUI"
                   ]
                 ),
+        //SentryInternal is how we expose some internal Sentry SDK classes to SentrySwiftUI.
         .target( name: "SentryInternal",
                  path: "Sources",
                  sources: [
