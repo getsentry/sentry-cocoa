@@ -20,6 +20,7 @@ typedef void (^SentryMemoryPressureNotification)(uintptr_t);
 - (nullable NSArray<NSNumber *> *)cpuUsagePerCore:(NSError **)error;
 
 - (void)registerMemoryPressureNotifications:(SentryMemoryPressureNotification)handler;
+- (void)deregisterMemoryPressureNotifications;
 
 @end
 

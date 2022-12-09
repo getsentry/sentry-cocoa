@@ -150,6 +150,8 @@ processBacktrace(const Backtrace &backtrace,
 std::mutex _gProfilerLock;
 NSMutableDictionary<SentrySpanId *, SentryProfiler *> *_gProfilersPerSpanID;
 SentryProfiler *_Nullable _gCurrentProfiler;
+SentryNSProcessInfoWrapper *_gCurrentProcessInfoWrapper;
+SentrySystemWrapper *_gCurrentSystemWrapper;
 
 NSString *
 profilerTruncationReasonName(SentryProfilerTruncationReason reason)
@@ -181,9 +183,6 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     SentryScreenFrames *_frameInfo;
     NSTimer *_timeoutTimer;
     SentryHub *__weak _hub;
-
-    SentryNSProcessInfoWrapper *_processInfoWrapper;
-    SentrySystemWrapper *_systemWrapper;
 }
 
 + (void)initialize
@@ -331,13 +330,13 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 + (void)useSystemWrapper:(SentrySystemWrapper *)systemWrapper
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
-    _gCurrentProfiler->_systemWrapper = systemWrapper;
+    _gCurrentSystemWrapper = systemWrapper;
 }
 
 + (void)useProcessInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
-    _gCurrentProfiler->_processInfoWrapper = processInfoWrapper;
+    _gCurrentProcessInfoWrapper = processInfoWrapper;
 }
 
 #    pragma mark - Private
@@ -485,15 +484,16 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
             kSentryProfilerFrequencyHz);
         _profiler->startSampling();
 
-        if (_systemWrapper == nil) {
-            _systemWrapper = [[SentrySystemWrapper alloc] init];
+        if (_gCurrentSystemWrapper == nil) {
+            _gCurrentSystemWrapper = [[SentrySystemWrapper alloc] init];
         }
-        if (_processInfoWrapper == nil) {
-            _processInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
+        if (_gCurrentProcessInfoWrapper == nil) {
+            _gCurrentProcessInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
         }
-        _metricProfiler = [[SentryMetricProfiler alloc] initWithProfileStartTime:_startTimestamp
-                                                              processInfoWrapper:_processInfoWrapper
-                                                                   systemWrapper:_systemWrapper];
+        _metricProfiler =
+            [[SentryMetricProfiler alloc] initWithProfileStartTime:_startTimestamp
+                                                processInfoWrapper:_gCurrentProcessInfoWrapper
+                                                     systemWrapper:_gCurrentSystemWrapper];
         [_metricProfiler start];
     }
 }

@@ -88,4 +88,9 @@
     dispatch_resume(_memoryWarningSource);
 }
 
+- (void)deregisterMemoryPressureNotifications
+{
+    dispatch_source_cancel(_memoryWarningSource);
+}
+
 @end

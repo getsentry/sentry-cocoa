@@ -7,7 +7,19 @@
 #import "SentrySystemWrapper.h"
 #import "SentryTime.h"
 
-const NSTimeInterval kSentryMetricProfilerTimeseriesInterval = 0.1; // 10 Hz
+static const NSTimeInterval kSentryMetricProfilerTimeseriesInterval = 0.1; // 10 Hz
+
+NSString *const kSentryMetricProfilerSerializationKeyMemoryFootprint = @"memory-footprint";
+NSString *const kSentryMetricProfilerSerializationKeyMemoryPressure = @"memory-pressure";
+NSString *const kSentryMetricProfilerSerializationKeyPowerState = @"is-low-power-mode";
+NSString *const kSentryMetricProfilerSerializationKeyThermalState = @"thermal-state";
+NSString *const kSentryMetricProfilerSerializationKeyCPUUsageFormat = @"cpu-usage-%d";
+
+NSString *const kSentryMetricProfilerSerializationUnitBytes = @"bytes";
+NSString *const kSentryMetricProfilerSerializationUnitBoolean = @"bool";
+NSString *const kSentryMetricProfilerSerializationUnitMemoryPressureEnum = @"memory-pressure-enum";
+NSString *const kSentryMetricProfilerSerializationUnitThermalStateEnum = @"thermal-state-enum";
+NSString *const kSentryMetricProfilerSerializationUnitPercentage = @"percent";
 
 namespace {
 NSDictionary<NSString *, id> *
@@ -19,8 +31,6 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
 
 @implementation SentryMetricProfiler {
     NSTimer *_timer;
-    dispatch_source_t _memoryWarningSource;
-    dispatch_queue_t _memoryWarningQueue;
 
     SentryNSProcessInfoWrapper *_processInfoWrapper;
     SentrySystemWrapper *_systemWrapper;
@@ -79,7 +89,7 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
 - (void)stop
 {
     [_timer invalidate];
-    dispatch_source_cancel(_memoryWarningSource);
+    [_systemWrapper deregisterMemoryPressureNotifications];
     [_processInfoWrapper stopMonitoring:self];
 }
 
@@ -88,23 +98,29 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
     const auto dict = [NSMutableDictionary<NSString *, id> dictionary];
 
     if (_memoryFootprint.count > 0) {
-        dict[@"memory-footprint"] = serializedValues(_memoryFootprint, @"bytes");
+        dict[kSentryMetricProfilerSerializationKeyMemoryFootprint]
+            = serializedValues(_memoryFootprint, kSentryMetricProfilerSerializationUnitBytes);
     }
     if (_memoryPressureState.count > 0) {
-        dict[@"memory-pressure"] = serializedValues(_memoryPressureState, @"memory-pressure-enum");
+        dict[kSentryMetricProfilerSerializationKeyMemoryPressure] = serializedValues(
+            _memoryPressureState, kSentryMetricProfilerSerializationUnitMemoryPressureEnum);
     }
     if (_powerLevelState.count > 0) {
-        dict[@"is-low-power-mode"] = serializedValues(_powerLevelState, @"bool");
+        dict[kSentryMetricProfilerSerializationKeyPowerState]
+            = serializedValues(_powerLevelState, kSentryMetricProfilerSerializationUnitBoolean);
     }
     if (_thermalState.count > 0) {
-        dict[@"thermal-state"] = serializedValues(_thermalState, @"thermal-state-enum");
+        dict[kSentryMetricProfilerSerializationKeyThermalState] = serializedValues(
+            _thermalState, kSentryMetricProfilerSerializationUnitThermalStateEnum);
     }
 
     [_cpuUsage enumerateKeysAndObjectsUsingBlock:^(NSNumber *_Nonnull core,
         NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_Nonnull readings,
         BOOL *_Nonnull stop) {
         if (readings.count > 0) {
-            dict[[NSString stringWithFormat:@"cpu-usage-%d", core.intValue]] = readings;
+            dict[[NSString stringWithFormat:kSentryMetricProfilerSerializationKeyCPUUsageFormat,
+                           core.intValue]]
+                = serializedValues(readings, kSentryMetricProfilerSerializationUnitPercentage);
         }
     }];
 

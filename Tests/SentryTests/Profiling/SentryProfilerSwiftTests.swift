@@ -51,6 +51,9 @@ class SentryProfilerSwiftTests: XCTestCase {
     }
 
     func testMetricProfiler() {
+        let options = fixture.options
+        options.profilesSampleRate = 1.0
+        options.tracesSampleRate = 1.0
         SentryProfiler.useSystemWrapper(fixture.systemWrapper)
         SentryProfiler.useProcessInfoWrapper(fixture.processInfoWrapper)
 
@@ -63,25 +66,28 @@ class SentryProfilerSwiftTests: XCTestCase {
         let span = fixture.newTransaction()
         forceProfilerSample()
 
-        fixture.processInfoWrapper.overrides.isLowPowerModeEnabled = true
-        fixture.processInfoWrapper.sendThermalStateChangeNotification()
-        fixture.processInfoWrapper.overrides.isLowPowerModeEnabled = false
-        fixture.processInfoWrapper.sendThermalStateChangeNotification()
+        [true, false].forEach {
+            fixture.processInfoWrapper.overrides.isLowPowerModeEnabled = $0
+            fixture.processInfoWrapper.sendPowerStateChangeNotification()
+        }
 
-        fixture.processInfoWrapper.overrides.thermalState = .critical
-        fixture.processInfoWrapper.sendPowerStateChangeNotification()
-        fixture.processInfoWrapper.overrides.thermalState = .serious
-        fixture.processInfoWrapper.sendPowerStateChangeNotification()
-        fixture.processInfoWrapper.overrides.thermalState = .fair
-        fixture.processInfoWrapper.sendPowerStateChangeNotification()
-        fixture.processInfoWrapper.overrides.thermalState = .nominal
-        fixture.processInfoWrapper.sendPowerStateChangeNotification()
+        [ProcessInfo.ThermalState.critical, .serious, .fair, .nominal].forEach {
+            fixture.processInfoWrapper.overrides.thermalState = $0
+            fixture.processInfoWrapper.sendThermalStateChangeNotification()
+        }
 
-        try DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        let exp = expectation(description: "Receives profile payload")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             span.finish()
 
-            let profileData = try getProfileData()
+            do {
+                try self.assertMetricsPayload(thermalStateNotifications: 4, powerStateNotifications: 2, expectedCPUUsages: cpuUsages)
+                exp.fulfill()
+            } catch {
+                XCTFail("Encountered error: \(error)")
+            }
         }
+        waitForExpectations(timeout: 3)
     }
 
     func testConcurrentProfilingTransactions() throws {
@@ -111,7 +117,7 @@ class SentryProfilerSwiftTests: XCTestCase {
     ///    transaction B                                           |-------|
     ///    profiler B                                              |-------|  <- normal finish
     ///   ```
-    func testConcurrentSpansWithTimeout_disabled() {
+    func testConcurrentSpansWithTimeout_disabled() throws {
         let options = fixture.options
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
@@ -139,8 +145,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         for envelope in self.fixture.client.captureEnvelopeInvocations.invocations {
             XCTAssertEqual(1, envelope.items.count)
             guard let profileItem = envelope.items.first else {
-                XCTFail("Expected an envelope item")
-                return
+                throw TestError.noProfileEnvelopeItem
             }
             XCTAssertEqual("profile", profileItem.header.type)
             self.assertValidProfileData(data: profileItem.data, shouldTimeout: currentEnvelope == 1)
@@ -148,34 +153,34 @@ class SentryProfilerSwiftTests: XCTestCase {
         }
     }
 
-    func testProfileTimeoutTimer_disabled() {
+    func testProfileTimeoutTimer_disabled() throws {
         fixture.options.profilesSampleRate = 1.0
         fixture.options.tracesSampleRate = 1.0
-        performTest(shouldTimeOut: true)
+        try performTest(shouldTimeOut: true)
     }
 
-    func testStartTransaction_ProfilingDataIsValid() {
+    func testStartTransaction_ProfilingDataIsValid() throws {
         fixture.options.profilesSampleRate = 1.0
         fixture.options.tracesSampleRate = 1.0
-        performTest()
+        try performTest()
     }
 
-    func testProfilingDataContainsEnvironmentSetFromOptions() {
+    func testProfilingDataContainsEnvironmentSetFromOptions() throws {
         fixture.options.profilesSampleRate = 1.0
         fixture.options.tracesSampleRate = 1.0
         let expectedEnvironment = "test-environment"
         fixture.options.environment = expectedEnvironment
-        performTest(transactionEnvironment: expectedEnvironment)
+        try performTest(transactionEnvironment: expectedEnvironment)
     }
 
-    func testProfilingDataContainsEnvironmentSetFromConfigureScope() {
+    func testProfilingDataContainsEnvironmentSetFromConfigureScope() throws {
         fixture.options.profilesSampleRate = 1.0
         fixture.options.tracesSampleRate = 1.0
         let expectedEnvironment = "test-environment"
         fixture.hub.configureScope { scope in
             scope.setEnvironment(expectedEnvironment)
         }
-        performTest(transactionEnvironment: expectedEnvironment)
+        try performTest(transactionEnvironment: expectedEnvironment)
     }
 
     func testStartTransaction_NotSamplingProfileUsingEnableProfiling() {
@@ -229,9 +234,16 @@ class SentryProfilerSwiftTests: XCTestCase {
 }
 
 private extension SentryProfilerSwiftTests {
-    enum TestError: String, Error {
-        case noEnvelopeCaptured = "Expected to capture 1 event"
-        case noProfileEnvelopeItem = "Expected an envelope item"
+    enum TestError: Error {
+        case unexpectedProfileDeserializationType
+        case unexpectedMeasurementsDeserializationType
+        case noEnvelopeCaptured
+        case noProfileEnvelopeItem
+        case noPowerStateEvents
+        case noThermalStateEvents
+        case malformedMetricValueEntry
+        case noCPUUsageEvents
+        case noCPUUsageReported
     }
 
     func getProfileData() throws -> Data {
@@ -257,7 +269,7 @@ private extension SentryProfilerSwiftTests {
         }
     }
 
-    func performTest(transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1, shouldTimeOut: Bool = false) {
+    func performTest(transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1, shouldTimeOut: Bool = false) throws {
         let span = fixture.newTransaction()
 
         forceProfilerSample()
@@ -277,7 +289,43 @@ private extension SentryProfilerSwiftTests {
 
         let profileData = try getProfileData()
         self.assertValidProfileData(data: profileData, transactionEnvironment: transactionEnvironment, numberOfTransactions: numberOfTransactions, shouldTimeout: shouldTimeOut)
+    }
 
+    func assertMetricsPayload(thermalStateNotifications: Int, powerStateNotifications: Int, expectedCPUUsages: [Double]) throws {
+        let profileData = try self.getProfileData()
+        guard let profile = try JSONSerialization.jsonObject(with: profileData) as? [String: Any] else {
+            throw TestError.unexpectedProfileDeserializationType
+        }
+        guard let measurements = profile["measurements"] as? [String: Any] else {
+            throw TestError.unexpectedMeasurementsDeserializationType
+        }
+
+        guard let powerStateEntry = measurements[kSentryMetricProfilerSerializationKeyPowerState] as? [String: Any], let powerState = powerStateEntry["values"] as? [[String: Any]] else {
+            throw TestError.noPowerStateEvents
+        }
+
+        XCTAssertEqual(powerState.count, powerStateNotifications)
+
+        guard let thermalStateEntry = measurements[kSentryMetricProfilerSerializationKeyThermalState] as? [String: Any], let thermalState = thermalStateEntry["values"] as? [[String: Any]] else {
+            throw TestError.noThermalStateEvents
+        }
+
+        // one initial reading per API spec, then all the actual notifications sent
+        XCTAssertEqual(thermalState.count, thermalStateNotifications + 1)
+
+        for (i, expectedUsage) in expectedCPUUsages.enumerated() {
+            guard let cpuUsage = measurements[NSString(format: kSentryMetricProfilerSerializationKeyCPUUsageFormat as NSString, i) as String] as? [String: Any] else {
+                throw TestError.noCPUUsageEvents
+            }
+            guard let values = cpuUsage["values"] as? [[String: Any]] else {
+                throw TestError.malformedMetricValueEntry
+            }
+            guard let firstReport = values[0]["value"] as? Double else {
+                throw TestError.noCPUUsageReported
+            }
+
+            XCTAssertEqual(firstReport, expectedUsage)
+        }
     }
 
     func assertValidProfileData(data: Data, transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1, shouldTimeout: Bool = false) {
