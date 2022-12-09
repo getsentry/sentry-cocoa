@@ -72,7 +72,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
         self.enableAutoPerformanceTracing = YES;
-        self.enableCaptureFailedRequests = NO;
+        self.enableCaptureFailedRequests = YES;
         self.environment = kSentryDefaultEnvironment;
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracing = YES;

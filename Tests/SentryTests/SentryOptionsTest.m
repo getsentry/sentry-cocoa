@@ -132,7 +132,7 @@
     NSRegularExpression *regexRequests = options.failedRequestTargets[0];
     XCTAssertTrue([regexRequests.pattern isEqualToString:@".*"]);
 
-    XCTAssertEqual(NO, options.enableCaptureFailedRequests);
+    XCTAssertEqual(YES, options.enableCaptureFailedRequests);
 
     SentryHttpStatusCodeRange *range = options.failedRequestStatusCodes[0];
     XCTAssertEqual(500, range.min);

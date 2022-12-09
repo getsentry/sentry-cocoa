@@ -420,7 +420,7 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, retain) NSArray *tracePropagationTargets;
 
 /**
- * When enabled, the SDK captures HTTP Client errors. Default value is NO.
+ * When enabled, the SDK captures HTTP Client errors.
  * This feature requires enableSwizzling enabled as well, Default value is YES.
  */
 @property (nonatomic, assign) BOOL enableCaptureFailedRequests;

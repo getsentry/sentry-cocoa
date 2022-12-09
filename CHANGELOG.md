@@ -11,6 +11,7 @@ This version adds a dependency on Swift.
 - [User Interaction Tracing](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/#user-interaction-tracing) is stable (#2503)
 - Enable File I/O APM by default (#2497)
 - Add synthetic for mechanism (#2501)
+- Enable CaptureFailedRequests by default (#2507)
 
 ### Fixes
 
