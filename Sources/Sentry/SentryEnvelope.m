@@ -75,9 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
 
     NSMutableDictionary *target = [[NSMutableDictionary alloc] init];
-    if (self.type) {
-        [target setValue:self.type forKey:@"type"];
-    }
+    [target setValue:self.type forKey:@"type"];
 
     if (self.filename) {
         [target setValue:self.filename forKey:@"filename"];
@@ -87,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
         [target setValue:self.contentType forKey:@"content_type"];
     }
 
-    [target setValue:[NSNumber numberWithUnsignedInteger:self.length] forKey:@"length"];
+    [target setValue:@(self.length) forKey:@"length"];
 
     return target;
 }
