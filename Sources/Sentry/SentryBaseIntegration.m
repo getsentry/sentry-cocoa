@@ -146,6 +146,15 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
+#if SENTRY_HAS_METRIC_KIT
+    if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
+        if ((integrationOptions & kIntegrationOptionEnableMetricKit) && !options.enableMetricKit) {
+            [self logWithOptionName:@"enableMetricKit"];
+            return NO;
+        }
+    }
+#endif
+
     return YES;
 }
 

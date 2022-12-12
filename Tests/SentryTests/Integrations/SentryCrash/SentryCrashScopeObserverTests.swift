@@ -297,7 +297,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         return jsonPointer!.pointee
     }
     
-    private func getScopeJson(getField: (SentryCrashScope)-> UnsafeMutablePointer<CChar>?) -> String? {
+    private func getScopeJson(getField: (SentryCrashScope) -> UnsafeMutablePointer<CChar>?) -> String? {
         guard let scopePointer = sentrycrash_scopesync_getScope() else {
             return nil
         }

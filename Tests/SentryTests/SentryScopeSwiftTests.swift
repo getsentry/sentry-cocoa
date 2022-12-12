@@ -221,7 +221,7 @@ class SentryScopeSwiftTests: XCTestCase {
     
     func testUseSpanForClear() {
         fixture.scope.span = fixture.transaction
-        fixture.scope.useSpan { (span) in
+        fixture.scope.useSpan { (_) in
             self.fixture.scope.span = nil
         }
         XCTAssertNil(fixture.scope.span)

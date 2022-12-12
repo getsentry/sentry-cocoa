@@ -87,7 +87,7 @@ platform :ios do
     build_app(
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
-      include_bitcode: true,
+      include_bitcode: false,
       include_symbols: false,
       export_method: "app-store",
       archive_path: "iOS-Swift"
@@ -209,23 +209,12 @@ platform :ios do
       key_content: ENV["APP_STORE_CONNECT_KEY"]
     )
 
-    # Workaround for https://github.com/fastlane/fastlane/issues/20741
-    environment_variable(set: {
-      'ITMSTRANSPORTER_FORCE_ITMS_PACKAGE_UPLOAD' => 'true'
-    })
-
     testflight
-
-    download_dsyms(
-      wait_for_dsym_processing: true,
-      build_number: ENV["FASTLANE_BUNDLE_VERSION"]
-    )
 
     sentry_upload_dif(
       auth_token: ENV["SENTRY_AUTH_TOKEN"],
       org_slug: 'sentry-sdks',
-      project_slug: 'sentry-cocoa',
-      symbol_maps: 'iOS-Swift.xcarchive/BCSymbolMaps/'
+      project_slug: 'sentry-cocoa'
     )
   end
 

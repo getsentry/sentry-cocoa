@@ -29,18 +29,26 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 + (NSArray<NSString *> *)defaultIntegrations
 {
-    return @[
-        @"SentryCrashIntegration",
+    NSMutableArray<NSString *> *defaultIntegrations =
+        @[
+            @"SentryCrashIntegration",
 #if SENTRY_HAS_UIKIT
-        @"SentryANRTrackingIntegration", @"SentryScreenshotIntegration",
-        @"SentryUIEventTrackingIntegration", @"SentryViewHierarchyIntegration",
+            @"SentryANRTrackingIntegration", @"SentryScreenshotIntegration",
+            @"SentryUIEventTrackingIntegration", @"SentryViewHierarchyIntegration",
 #endif
-        @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
-        @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
-        @"SentryOutOfMemoryTrackingIntegration", @"SentryPerformanceTrackingIntegration",
-        @"SentryNetworkTrackingIntegration", @"SentryFileIOTrackingIntegration",
-        @"SentryCoreDataTrackingIntegration"
-    ];
+            @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
+            @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
+            @"SentryOutOfMemoryTrackingIntegration", @"SentryPerformanceTrackingIntegration",
+            @"SentryNetworkTrackingIntegration", @"SentryFileIOTrackingIntegration",
+            @"SentryCoreDataTrackingIntegration"
+        ]
+            .mutableCopy;
+
+    if (@available(iOS 14.0, macCatalyst 14.0, macOS 12.0, *)) {
+        [defaultIntegrations addObject:@"SentryMetricKitIntegration"];
+    }
+
+    return defaultIntegrations;
 }
 
 - (instancetype)init
@@ -78,7 +86,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.appHangTimeoutInterval = 2.0;
         self.enableAutoBreadcrumbTracking = YES;
         self.enableNetworkTracking = YES;
-        self.enableFileIOTracing = NO;
+        self.enableFileIOTracing = YES;
         self.enableNetworkBreadcrumbs = YES;
         _defaultTracesSampleRate = nil;
         self.tracesSampleRate = _defaultTracesSampleRate;
@@ -130,6 +138,12 @@ NSString *const kSentryDefaultEnvironment = @"production";
         SentryHttpStatusCodeRange *defaultHttpStatusCodeRange =
             [[SentryHttpStatusCodeRange alloc] initWithMin:500 max:599];
         self.failedRequestStatusCodes = @[ defaultHttpStatusCodeRange ];
+
+#if SENTRY_HAS_METRIC_KIT
+        if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
+            self.enableMetricKit = NO;
+        }
+#endif
     }
     return self;
 }

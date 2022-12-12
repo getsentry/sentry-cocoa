@@ -40,6 +40,13 @@
 			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
 			remoteInfo = Sentry;
 		};
+		7B0AC1772939FBC700EFD958 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6308533E2440C45A00DDE4CE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D81A3488291D0AC0005A27A9;
+			remoteInfo = SentryPrivate;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -91,6 +98,7 @@
 			children = (
 				630853442440C45A00DDE4CE /* Sentry.framework */,
 				630853462440C45A00DDE4CE /* SentryTests.xctest */,
+				7B0AC1782939FBC700EFD958 /* SentryPrivate.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -215,6 +223,13 @@
 			fileType = wrapper.cfbundle;
 			path = SentryTests.xctest;
 			remoteRef = 630853452440C45A00DDE4CE /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		7B0AC1782939FBC700EFD958 /* SentryPrivate.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SentryPrivate.framework;
+			remoteRef = 7B0AC1772939FBC700EFD958 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */

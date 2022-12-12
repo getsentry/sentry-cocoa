@@ -99,6 +99,7 @@
 #import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
 #import "SentryMeta.h"
+#import "SentryMetricKitIntegration.h"
 #import "SentryMetricProfiler.h"
 #import "SentryMigrateSessionInit.h"
 #import "SentryNSDataTracker.h"
