@@ -70,6 +70,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let options = Options()
         options.tracesSampleRate = 0.0
         options.enableNetworkBreadcrumbs = false
+        options.enableCaptureFailedRequests = false
                 
         assertRemovedIntegration(options)
     }
@@ -210,17 +211,17 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertFalse(SentryNetworkTracker.sharedInstance.isCaptureFailedRequestsEnabled)
     }
     
-    func testCaptureFailedRequestsDisabled() {
-        startSDK()
-
-        XCTAssertFalse(SentryNetworkTracker.sharedInstance.isCaptureFailedRequestsEnabled)
-    }
-    
     func testCaptureFailedRequestsEnabled() {
-        fixture.options.enableCaptureFailedRequests = true
         startSDK()
 
         XCTAssertTrue(SentryNetworkTracker.sharedInstance.isCaptureFailedRequestsEnabled)
+    }
+    
+    func testCaptureFailedRequestsDisabled() {
+        fixture.options.enableCaptureFailedRequests = false
+        startSDK()
+
+        XCTAssertFalse(SentryNetworkTracker.sharedInstance.isCaptureFailedRequestsEnabled)
     }
     
     func testGetCaptureFailedRequestsEnabled() {
