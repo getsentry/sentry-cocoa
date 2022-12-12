@@ -47,9 +47,6 @@
         return nil;
     }
 
-    const auto cpuUsageLock = [[NSLock alloc] init];
-    [cpuUsageLock lock];
-
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:numCPUs];
     for (natural_t core = 0U; core < numCPUs; ++core) {
         const auto indexBase = CPU_STATE_MAX * core;
@@ -62,8 +59,6 @@
         const auto usagePercent = inUse / total * 100.f;
         [result addObject:@(usagePercent)];
     }
-
-    [cpuUsageLock unlock];
 
     return result;
 }
