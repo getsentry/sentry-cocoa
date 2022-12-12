@@ -1,6 +1,6 @@
 import XCTest
 
-class SentryWatchdogTerminationsIntegrationTests: XCTestCase {
+class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
     private class Fixture {
         let options: Options
@@ -26,7 +26,7 @@ class SentryWatchdogTerminationsIntegrationTests: XCTestCase {
     }
     
     private var fixture: Fixture!
-    private var sut: SentryWatchdogTerminationsTrackingIntegration!
+    private var sut: SentryWatchdogTerminationTrackingIntegration!
     
     override func setUp() {
         super.setUp()
@@ -43,14 +43,14 @@ class SentryWatchdogTerminationsIntegrationTests: XCTestCase {
     }
     
     func testWhenUnitTests_TrackerNotInitialized() {
-        let sut = SentryWatchdogTerminationsTrackingIntegration()
+        let sut = SentryWatchdogTerminationTrackingIntegration()
         sut.install(with: Options())
         
         XCTAssertNil(Dynamic(sut).tracker.asAnyObject)
     }
     
     func testWhenNoUnitTests_TrackerInitialized() {
-        let sut = SentryWatchdogTerminationsTrackingIntegration()
+        let sut = SentryWatchdogTerminationTrackingIntegration()
         Dynamic(sut).setTestConfigurationFilePath(nil)
         sut.install(with: Options())
         
@@ -58,7 +58,7 @@ class SentryWatchdogTerminationsIntegrationTests: XCTestCase {
     }
     
     func testTestConfigurationFilePath() {
-        let sut = SentryWatchdogTerminationsTrackingIntegration()
+        let sut = SentryWatchdogTerminationTrackingIntegration()
         let path = Dynamic(sut).testConfigurationFilePath.asString
         XCTAssertEqual(path, ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"])
     }
@@ -95,7 +95,7 @@ class SentryWatchdogTerminationsIntegrationTests: XCTestCase {
         let options = Options()
         options.enableWatchdogTerminationTracking = false
         
-        let sut = SentryWatchdogTerminationsTrackingIntegration()
+        let sut = SentryWatchdogTerminationTrackingIntegration()
         let result = sut.install(with: options)
         
         XCTAssertFalse(result)
@@ -103,7 +103,7 @@ class SentryWatchdogTerminationsIntegrationTests: XCTestCase {
     
     private func givenInitializedTracker(isBeingTraced: Bool = false) {
         fixture.crashWrapper.internalIsBeingTraced = isBeingTraced
-        sut = SentryWatchdogTerminationsTrackingIntegration()
+        sut = SentryWatchdogTerminationTrackingIntegration()
         let options = Options()
         Dynamic(sut).setTestConfigurationFilePath(nil)
         sut.install(with: options)

@@ -38,7 +38,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 #endif
             @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
             @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
-            @"SentryWatchdogTerminationsTrackingIntegration",
+            @"SentryWatchdogTerminationTrackingIntegration",
             @"SentryPerformanceTrackingIntegration", @"SentryNetworkTrackingIntegration",
             @"SentryFileIOTrackingIntegration", @"SentryCoreDataTrackingIntegration"
         ]

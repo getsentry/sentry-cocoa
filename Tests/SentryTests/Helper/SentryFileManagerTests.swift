@@ -576,7 +576,7 @@ class SentryFileManagerTests: XCTestCase {
     }
 
     func testReadPreviousBreadcrumbs() {
-        let observer = SentryWatchdogTerminationsScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
+        let observer = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
 
         for count in 0..<3 {
             let crumb = TestData.crumb
@@ -595,7 +595,7 @@ class SentryFileManagerTests: XCTestCase {
     }
 
     func testReadPreviousBreadcrumbsCorrectOrderWhenFileTwoHasMoreCrumbs() {
-        let observer = SentryWatchdogTerminationsScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
+        let observer = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
 
         for count in 0..<5 {
             let crumb = TestData.crumb
