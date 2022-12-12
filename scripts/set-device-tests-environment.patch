@@ -8,7 +8,7 @@ index 25b92eed..8934d90b 100644
              options.enableFileIOTracing = true
 +            options.environment = "device-tests"
 +            // The UI tests generate false OOMs
-+            options.enableWatchdogTerminationsTracking = false
++            options.enableWatchdogTerminationTracking = false
              options.enableCoreDataTracing = true
              options.profilesSampleRate = 1.0
              options.attachScreenshot = true

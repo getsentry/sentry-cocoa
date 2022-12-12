@@ -1,7 +1,7 @@
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryWatchdogTerminationsTrackerTests: NotificationCenterTestCase {
+class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryOutOfMemoryTrackerTests")
     private static let dsn = TestConstants.dsn(username: "SentryOutOfMemoryTrackerTests")
@@ -20,7 +20,7 @@ class SentryWatchdogTerminationsTrackerTests: NotificationCenterTestCase {
         init() {
             options = Options()
             options.maxBreadcrumbs = 2
-            options.dsn = SentryWatchdogTerminationsTrackerTests.dsnAsString
+            options.dsn = SentryWatchdogTerminationTrackerTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
             
             client = TestClient(options: options)
@@ -31,11 +31,11 @@ class SentryWatchdogTerminationsTrackerTests: NotificationCenterTestCase {
             SentrySDK.setCurrentHub(hub)
         }
         
-        func getSut(usingRealFileManager: Bool) -> SentryWatchdogTerminationsTracker {
+        func getSut(usingRealFileManager: Bool) -> SentryWatchdogTerminationTracker {
             return getSut(fileManager: usingRealFileManager ? realFileManager : mockFileManager)
         }
         
-        func getSut(fileManager: SentryFileManager) -> SentryWatchdogTerminationsTracker {
+        func getSut(fileManager: SentryFileManager) -> SentryWatchdogTerminationTracker {
             let appStateManager = SentryAppStateManager(
                 options: options,
                 crashWrapper: crashWrapper,
@@ -45,14 +45,14 @@ class SentryWatchdogTerminationsTrackerTests: NotificationCenterTestCase {
                 dispatchQueueWrapper: self.dispatchQueue,
                 notificationCenterWrapper: SentryNSNotificationCenterWrapper()
             )
-            let logic = SentryWatchdogTerminationsLogic(
+            let logic = SentryWatchdogTerminationLogic(
                 options: options,
                 crashAdapter: crashWrapper,
                 appStateManager: appStateManager
             )
-            return SentryWatchdogTerminationsTracker(
+            return SentryWatchdogTerminationTracker(
                 options: options,
-                watchdogTerminationsLogic: logic,
+                watchdogTerminationLogic: logic,
                 appStateManager: appStateManager,
                 dispatchQueueWrapper: dispatchQueue,
                 fileManager: fileManager
@@ -61,7 +61,7 @@ class SentryWatchdogTerminationsTrackerTests: NotificationCenterTestCase {
     }
     
     private var fixture: Fixture!
-    private var sut: SentryWatchdogTerminationsTracker!
+    private var sut: SentryWatchdogTerminationTracker!
     
     override func setUp() {
         super.setUp()
@@ -246,10 +246,10 @@ class SentryWatchdogTerminationsTrackerTests: NotificationCenterTestCase {
 
         let breadcrumb = TestData.crumb
 
-        let sentryWatchdogTerminationsScopeObserver = SentryWatchdogTerminationsScopeObserver(maxBreadcrumbs: Int(fixture.options.maxBreadcrumbs), fileManager: fixture.mockFileManager)
+        let sentryWatchdogTerminationScopeObserver = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: Int(fixture.options.maxBreadcrumbs), fileManager: fixture.mockFileManager)
 
         for _ in 0..<3 {
-            sentryWatchdogTerminationsScopeObserver.addSerializedBreadcrumb(breadcrumb.serialize())
+            sentryWatchdogTerminationScopeObserver.addSerializedBreadcrumb(breadcrumb.serialize())
         }
 
         sut.start()

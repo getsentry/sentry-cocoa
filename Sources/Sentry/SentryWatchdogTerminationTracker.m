@@ -13,35 +13,35 @@
 #import <SentryMessage.h>
 #import <SentryOptions.h>
 #import <SentrySDK+Private.h>
-#import <SentryWatchdogTerminationsLogic.h>
-#import <SentryWatchdogTerminationsTracker.h>
+#import <SentryWatchdogTerminationLogic.h>
+#import <SentryWatchdogTerminationTracker.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
 #endif
 
 @interface
-SentryWatchdogTerminationsTracker ()
+SentryWatchdogTerminationTracker ()
 
 @property (nonatomic, strong) SentryOptions *options;
-@property (nonatomic, strong) SentryWatchdogTerminationsLogic *watchdogTerminationsLogic;
+@property (nonatomic, strong) SentryWatchdogTerminationLogic *watchdogTerminationLogic;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 
 @end
 
-@implementation SentryWatchdogTerminationsTracker
+@implementation SentryWatchdogTerminationTracker
 
 - (instancetype)initWithOptions:(SentryOptions *)options
-      watchdogTerminationsLogic:(SentryWatchdogTerminationsLogic *)watchdogTerminationsLogic
+       watchdogTerminationLogic:(SentryWatchdogTerminationLogic *)watchdogTerminationLogic
                 appStateManager:(SentryAppStateManager *)appStateManager
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                     fileManager:(SentryFileManager *)fileManager
 {
     if (self = [super init]) {
         self.options = options;
-        self.watchdogTerminationsLogic = watchdogTerminationsLogic;
+        self.watchdogTerminationLogic = watchdogTerminationLogic;
         self.appStateManager = appStateManager;
         self.dispatchQueue = dispatchQueueWrapper;
         self.fileManager = fileManager;
@@ -55,7 +55,7 @@ SentryWatchdogTerminationsTracker ()
     [self.appStateManager start];
 
     [self.dispatchQueue dispatchAsyncWithBlock:^{
-        if ([self.watchdogTerminationsLogic isWatchdogTermination]) {
+        if ([self.watchdogTerminationLogic isWatchdogTermination]) {
             SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
             // Set to empty list so no breadcrumbs of the current scope are added
             event.breadcrumbs = @[];
@@ -91,7 +91,7 @@ SentryWatchdogTerminationsTracker ()
     }];
 #else
     SENTRY_LOG_INFO(
-        @"NO UIKit -> SentryWatchdogTerminationsTracker will not track Watchdog Terminations.");
+        @"NO UIKit -> SentryWatchdogTerminationTracker will not track Watchdog Terminations.");
     return;
 #endif
 }
