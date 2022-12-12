@@ -1,6 +1,6 @@
 #import "SentryScope.h"
 #import "NSMutableDictionary+Sentry.h"
-#import "SentryAttachment.h"
+#import "SentryAttachment+Private.h"
 #import "SentryBreadcrumb.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"

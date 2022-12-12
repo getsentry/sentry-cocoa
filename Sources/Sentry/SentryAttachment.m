@@ -1,4 +1,4 @@
-#import "SentryAttachment.h"
+#import "SentryAttachment+Private.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -73,5 +73,19 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @end
+
+NSString *const kSentryAttachmentTypeNameEventAttachment = @"event.attachment";
+NSString *const kSentryAttachmentTypeNameViewHierarchy = @"event.view_hierarchy";
+
+NSString *
+nameForSentryAttachmentType(SentryAttachmentType attachmentType)
+{
+    switch (attachmentType) {
+    case kSentryAttachmentTypeViewHierarchy:
+        return kSentryAttachmentTypeNameViewHierarchy;
+    default:
+        return kSentryAttachmentTypeNameEventAttachment;
+    }
+}
 
 NS_ASSUME_NONNULL_END

@@ -1,5 +1,5 @@
 #import "SentryViewHierarchyIntegration.h"
-#import "SentryAttachment.h"
+#import "SentryAttachment+Private.h"
 #import "SentryCrashC.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"

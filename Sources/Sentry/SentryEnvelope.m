@@ -2,6 +2,8 @@
 #import "SentryBreadcrumb.h"
 #import "SentryClientReport.h"
 #import "SentryEnvelope+Private.h"
+#import "SentryEnvelopeAttachmentHeader.h"
+#import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
 #import "SentryLog.h"
@@ -44,92 +46,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return self;
-}
-
-@end
-
-@implementation SentryEnvelopeItemHeader
-
-- (instancetype)initWithType:(NSString *)type length:(NSUInteger)length
-{
-    if (self = [super init]) {
-        _type = type;
-        _length = length;
-    }
-    return self;
-}
-
-- (instancetype)initWithType:(NSString *)type
-                      length:(NSUInteger)length
-                   filenname:(NSString *)filename
-                 contentType:(NSString *)contentType
-{
-    if (self = [self initWithType:type length:length]) {
-        _filename = filename;
-        _contentType = contentType;
-    }
-    return self;
-}
-
-- (NSDictionary *)serialize
-{
-
-    NSMutableDictionary *target = [[NSMutableDictionary alloc] init];
-    if (self.type) {
-        [target setValue:self.type forKey:@"type"];
-    }
-
-    if (self.filename) {
-        [target setValue:self.filename forKey:@"filename"];
-    }
-
-    if (self.contentType) {
-        [target setValue:self.contentType forKey:@"content_type"];
-    }
-
-    [target setValue:[NSNumber numberWithUnsignedInteger:self.length] forKey:@"length"];
-
-    return target;
-}
-
-@end
-
-@implementation SentryEnvelopeAttachmentHeader
-
-- (instancetype)initWithType:(NSString *)type length:(NSUInteger)length
-{
-    if (self = [super initWithType:type length:length]) {
-        _attachmentType = kSentryAttachmentTypeEventAttachment;
-    }
-    return self;
-}
-
-- (instancetype)initWithType:(NSString *)type
-                      length:(NSUInteger)length
-                    filename:(NSString *)filename
-                 contentType:(NSString *)contentType
-              attachmentType:(SentryAttachmentType)attachmentType
-{
-
-    if (self = [self initWithType:type length:length filenname:filename contentType:contentType]) {
-        _attachmentType = attachmentType;
-    }
-    return self;
-}
-
-- (NSDictionary *)serialize
-{
-    NSMutableDictionary *result =
-        [[NSMutableDictionary alloc] initWithDictionary:[super serialize]];
-    switch (self.attachmentType) {
-    case kSentryAttachmentTypeViewHierarchy:
-        [result setObject:@"event.view_hierarchy" forKey:@"attachment_type"];
-        break;
-    default:
-        [result setObject:@"event.attachment" forKey:@"attachment_type"];
-        break;
-    }
-    return result;
 }
 
 @end
