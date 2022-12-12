@@ -122,15 +122,6 @@ SentryUIViewControllerPerformanceTracker ()
                                           nameSource:kSentryTransactionNameSourceComponent
                                            operation:SentrySpanOperationUILoad
                                              inBlock:callbackToOrigin];
-
-            SentrySpanId *viewAppearingId =
-                [self.tracker startSpanWithName:@"viewAppearing"
-                                     nameSource:kSentryTransactionNameSourceComponent
-                                      operation:SentrySpanOperationUILoad];
-
-            objc_setAssociatedObject(controller,
-                &SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID, viewAppearingId,
-                OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         };
 
         [self.tracker activateSpan:spanId duringBlock:duringBlock];
@@ -189,15 +180,6 @@ SentryUIViewControllerPerformanceTracker ()
         }
 
         void (^duringBlock)(void) = ^{
-            SentrySpanId *viewAppearingId = objc_getAssociatedObject(
-                controller, &SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID);
-            if (viewAppearingId != nil) {
-                [self.tracker finishSpan:viewAppearingId withStatus:status];
-                objc_setAssociatedObject(controller,
-                    &SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID, nil,
-                    OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-            }
-
             [self.tracker measureSpanWithDescription:lifecycleMethod
                                           nameSource:kSentryTransactionNameSourceComponent
                                            operation:SentrySpanOperationUILoad
