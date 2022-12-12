@@ -4,7 +4,7 @@
 
 #if SENTRY_HAS_UIKIT
 @interface
-SentryViewHierarchy (test)
+SentryViewHierarchy (Test)
 - (int)viewHierarchyFromView:(UIView *)view intoContext:(SentryCrashJSONEncodeContext *)context;
 - (BOOL)processViewHierarchy:(NSArray<UIView *> *)windows
                  addFunction:(SentryCrashJSONAddDataFunc)addJSONDataFunc
