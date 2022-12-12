@@ -8,7 +8,7 @@
     dispatch_queue_t _memoryWarningQueue;
 }
 
-- (mach_vm_size_t)memoryFootprintBytes:(NSError *__autoreleasing _Nullable *)error
+- (SentryRAMBytes)memoryFootprintBytes:(NSError *__autoreleasing _Nullable *)error
 {
     task_vm_info_data_t info;
     mach_msg_type_number_t count = TASK_VM_INFO_COUNT;
@@ -22,7 +22,7 @@
         return 0;
     }
 
-    mach_vm_size_t footprintBytes;
+    SentryRAMBytes footprintBytes;
     if (count >= TASK_VM_INFO_REV1_COUNT) {
         footprintBytes = info.phys_footprint;
     } else {

@@ -60,7 +60,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         let cpuUsages = [12.4, 63.5, 1.4, 4.6]
         fixture.systemWrapper.overrides.cpuUsagePerCore = cpuUsages.map { NSNumber(value: $0) }
 
-        let memoryFootprint: mach_vm_size_t = 123_455
+        let memoryFootprint: SentryRAMBytes = 123_455
         fixture.systemWrapper.overrides.memoryFootprintBytes = memoryFootprint
 
         let span = fixture.newTransaction()

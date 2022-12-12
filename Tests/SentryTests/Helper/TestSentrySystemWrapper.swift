@@ -3,7 +3,7 @@ import Sentry
 class TestSentrySystemWrapper: SentrySystemWrapper {
     struct Override {
         var memoryFootprintError: NSError?
-        var memoryFootprintBytes: mach_vm_size_t?
+        var memoryFootprintBytes: SentryRAMBytes?
 
         var cpuUsageError: NSError?
         var cpuUsagePerCore: [NSNumber]?
@@ -11,7 +11,7 @@ class TestSentrySystemWrapper: SentrySystemWrapper {
 
     var overrides = Override()
 
-    override func memoryFootprintBytes(_ error: NSErrorPointer) -> mach_vm_size_t {
+    override func memoryFootprintBytes(_ error: NSErrorPointer) -> SentryRAMBytes {
         if let errorOverride = overrides.memoryFootprintError {
             error?.pointee = errorOverride
             return 0
