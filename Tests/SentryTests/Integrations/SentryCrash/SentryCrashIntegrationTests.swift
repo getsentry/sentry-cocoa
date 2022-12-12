@@ -143,7 +143,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         
         let sut = fixture.sutWithoutCrash
         let options = fixture.options
-        options.enableWatchdogTerminationsTracking = false
+        options.enableWatchdogTerminationTracking = false
         sut.install(with: options)
         
         let fileManager = fixture.client.fileManager

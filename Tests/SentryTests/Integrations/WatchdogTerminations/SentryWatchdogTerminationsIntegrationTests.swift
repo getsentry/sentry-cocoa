@@ -93,7 +93,7 @@ class SentryWatchdogTerminationsIntegrationTests: XCTestCase {
     func test_OOMDisabled_RemovesEnabledIntegration() {
         givenInitializedTracker()
         let options = Options()
-        options.enableWatchdogTerminationsTracking = false
+        options.enableWatchdogTerminationTracking = false
         
         let sut = SentryWatchdogTerminationsTrackingIntegration()
         let result = sut.install(with: options)

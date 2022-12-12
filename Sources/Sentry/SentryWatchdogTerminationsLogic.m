@@ -35,7 +35,7 @@ SentryWatchdogTerminationsLogic ()
 
 - (BOOL)isWatchdogTermination
 {
-    if (!self.options.enableWatchdogTerminationsTracking) {
+    if (!self.options.enableWatchdogTerminationTracking) {
         return NO;
     }
 

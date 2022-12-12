@@ -89,7 +89,7 @@ SentryWatchdogTerminationsTrackingIntegration ()
 
 - (SentryIntegrationOption)integrationOptions
 {
-    return kIntegrationOptionEnableWatchdogTerminationsTracking;
+    return kIntegrationOptionEnableWatchdogTerminationTracking;
 }
 
 - (void)uninstall

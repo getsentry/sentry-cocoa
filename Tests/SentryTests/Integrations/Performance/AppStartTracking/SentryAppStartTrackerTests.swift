@@ -103,7 +103,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     func testSecondStart_SystemNotRebooted_OOM_disabled_IsWarmStart() {
         givenSystemNotRebooted()
 
-        fixture.options.enableWatchdogTerminationsTracking = false
+        fixture.options.enableWatchdogTerminationTracking = false
 
         fixture.fileManager.moveAppStateToPreviousAppState()
         startApp()
