@@ -6,6 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (readonly) NSProcessInfoThermalState thermalState;
 @property (readonly, getter=isLowPowerModeEnabled) BOOL lowPowerModeEnabled;
+@property (readonly) NSUInteger processorCount;
 
 - (void)monitorForPowerStateChanges:(id)target callback:(SEL)callback;
 - (void)monitorForThermalStateChanges:(id)target callback:(SEL)callback;

@@ -54,7 +54,7 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
         _cpuUsage = [NSMutableDictionary<NSNumber *,
             NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *>
             dictionary];
-        const auto processorCount = NSProcessInfo.processInfo.processorCount;
+        const auto processorCount = processInfoWrapper.processorCount;
         for (NSUInteger core = 0; core < processorCount; core++) {
             _cpuUsage[@(core)] = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
         }

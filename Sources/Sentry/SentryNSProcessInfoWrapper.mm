@@ -14,6 +14,11 @@
     return NSProcessInfo.processInfo.isLowPowerModeEnabled;
 }
 
+- (NSUInteger)processorCount
+{
+    return NSProcessInfo.processInfo.processorCount;
+}
+
 - (void)monitorForPowerStateChanges:(id)target callback:(SEL)callback
 {
     // According to Apple docs: "This notification is posted on the global dispatch queue. The
