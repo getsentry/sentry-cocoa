@@ -109,7 +109,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
     func test_noScreenShot_CrashEvent() {
         let sut = fixture.getSut()
         let event = Event(error: NSError(domain: "", code: -1))
-        event.isCrashEvent = true
+        event.eventOptions = .addNoScreenshots
         
         let newAttachmentList = sut.processAttachments([], for: event)
         

@@ -349,7 +349,7 @@ class SentryWatchdogTerminationsTrackerTests: NotificationCenterTestCase {
         
         XCTAssertEqual(SentryLevel.fatal, crashEvent?.level)
         XCTAssertEqual(crashEvent?.breadcrumbs?.count, 0)
-        XCTAssertEqual(crashEvent?.serializedBreadcrumbs?.count, expectedBreadcrumbs)
+        XCTAssertEqual(crashEvent?.serializedBreadcrumbs.count, expectedBreadcrumbs)
         
         XCTAssertEqual(1, crashEvent?.exceptions?.count)
         

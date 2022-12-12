@@ -1,13 +1,22 @@
+#import "SentryDefines.h"
 #import "SentryEvent.h"
 #import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef NS_OPTIONS(NSUInteger, SentryEventOptions) {
+    kSentryEventOptionsNone = 0,
+    kSentryEventOptionsAddNoScreenshots = 1 << 0,
+    kSentryEventOptionsAddNoViewHierarchy = 1 << 1,
+};
 
 @interface
 SentryEvent (Private)
 
-/**
- * This indicates whether this event is a result of a crash.
- */
-@property (nonatomic) BOOL isCrashEvent;
+@property (nonatomic) SentryEventOptions eventOptions;
+
 @property (nonatomic, strong) NSArray *serializedBreadcrumbs;
 
 @end
+
+NS_ASSUME_NONNULL_END

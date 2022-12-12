@@ -5,6 +5,7 @@
 #import "SentryClient.h"
 #import "SentryCurrentDate.h"
 #import "SentryDebugMeta.h"
+#import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryId.h"
 #import "SentryLevelMapper.h"
@@ -20,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryEvent ()
 
-@property (nonatomic) BOOL isCrashEvent;
+@property (nonatomic, assign) SentryEventOptions eventOptions;
 
 // We're storing serialized breadcrumbs to disk in JSON, and when we're reading them back (in
 // the case of OOM), we end up with the serialized breadcrumbs again. Instead of turning those
@@ -47,6 +48,7 @@ SentryEvent ()
         self.level = level;
         self.platform = @"cocoa";
         self.timestamp = [SentryCurrentDate date];
+        self.eventOptions = kSentryEventOptionsNone;
     }
     return self;
 }

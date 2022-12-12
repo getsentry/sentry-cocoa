@@ -49,8 +49,8 @@ saveViewHierarchy(const char *path)
                                            forEvent:(nonnull SentryEvent *)event
 {
     // We don't attach the view hierarchy if there is no exception/error.
-    // We dont attach the view hierarchy if the event is a crash event.
-    if ((event.exceptions == nil && event.error == nil) || event.isCrashEvent) {
+    if ((event.exceptions == nil && event.error == nil)
+        || event.eventOptions & kSentryEventOptionsAddNoViewHierarchy) {
         return attachments;
     }
 

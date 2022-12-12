@@ -12,6 +12,7 @@ class SentryEventTests: XCTestCase {
         XCTAssertEqual(event.platform, "cocoa")
         XCTAssertEqual(event.level, .debug)
         XCTAssertEqual(event.timestamp, dateProvider.date())
+        XCTAssertEqual([], event.eventOptions)
     }
     
     func testSerialize() {

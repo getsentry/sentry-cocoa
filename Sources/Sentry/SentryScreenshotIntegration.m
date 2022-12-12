@@ -49,8 +49,8 @@ saveScreenShot(const char *path)
 {
 
     // We don't take screenshots if there is no exception/error.
-    // We dont take screenshots if the event is a crash event.
-    if ((event.exceptions == nil && event.error == nil) || event.isCrashEvent) {
+    if ((event.exceptions == nil && event.error == nil)
+        || event.eventOptions & kSentryEventOptionsAddNoScreenshots) {
         return attachments;
     }
 

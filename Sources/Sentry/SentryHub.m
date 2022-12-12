@@ -229,7 +229,8 @@ SentryHub ()
  */
 - (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
-    event.isCrashEvent = YES;
+    event.eventOptions
+        = kSentryEventOptionsAddNoScreenshots | kSentryEventOptionsAddNoViewHierarchy;
 
     SentryClient *client = _client;
     if (client == nil) {
