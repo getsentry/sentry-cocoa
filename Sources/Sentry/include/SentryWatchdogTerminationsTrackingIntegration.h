@@ -5,7 +5,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryOutOfMemoryTrackingIntegration
+@interface SentryWatchdogTerminationsTrackingIntegration
     : SentryBaseIntegration <SentryIntegrationProtocol, SentryANRTrackerDelegate>
 
 @end

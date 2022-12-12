@@ -12,36 +12,36 @@
 #import <SentryMechanism.h>
 #import <SentryMessage.h>
 #import <SentryOptions.h>
-#import <SentryOutOfMemoryLogic.h>
-#import <SentryOutOfMemoryTracker.h>
 #import <SentrySDK+Private.h>
+#import <SentryWatchdogTerminationsLogic.h>
+#import <SentryWatchdogTerminationsTracker.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
 #endif
 
 @interface
-SentryOutOfMemoryTracker ()
+SentryWatchdogTerminationsTracker ()
 
 @property (nonatomic, strong) SentryOptions *options;
-@property (nonatomic, strong) SentryOutOfMemoryLogic *outOfMemoryLogic;
+@property (nonatomic, strong) SentryWatchdogTerminationsLogic *watchdogTerminationsLogic;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 
 @end
 
-@implementation SentryOutOfMemoryTracker
+@implementation SentryWatchdogTerminationsTracker
 
 - (instancetype)initWithOptions:(SentryOptions *)options
-               outOfMemoryLogic:(SentryOutOfMemoryLogic *)outOfMemoryLogic
+      watchdogTerminationsLogic:(SentryWatchdogTerminationsLogic *)watchdogTerminationsLogic
                 appStateManager:(SentryAppStateManager *)appStateManager
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                     fileManager:(SentryFileManager *)fileManager
 {
     if (self = [super init]) {
         self.options = options;
-        self.outOfMemoryLogic = outOfMemoryLogic;
+        self.watchdogTerminationsLogic = watchdogTerminationsLogic;
         self.appStateManager = appStateManager;
         self.dispatchQueue = dispatchQueueWrapper;
         self.fileManager = fileManager;
@@ -55,7 +55,7 @@ SentryOutOfMemoryTracker ()
     [self.appStateManager start];
 
     [self.dispatchQueue dispatchAsyncWithBlock:^{
-        if ([self.outOfMemoryLogic isOOM]) {
+        if ([self.watchdogTerminationsLogic isWatchdogTermination]) {
             SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
             // Set to empty list so no breadcrumbs of the current scope are added
             event.breadcrumbs = @[];
@@ -76,10 +76,10 @@ SentryOutOfMemoryTracker ()
             }
 
             SentryException *exception =
-                [[SentryException alloc] initWithValue:SentryOutOfMemoryExceptionValue
-                                                  type:SentryOutOfMemoryExceptionType];
+                [[SentryException alloc] initWithValue:SentryWatchdogTerminationExceptionValue
+                                                  type:SentryWatchdogTerminationExceptionType];
             SentryMechanism *mechanism =
-                [[SentryMechanism alloc] initWithType:SentryOutOfMemoryMechanismType];
+                [[SentryMechanism alloc] initWithType:SentryWatchdogTerminationMechanismType];
             mechanism.handled = @(NO);
             exception.mechanism = mechanism;
             event.exceptions = @[ exception ];
@@ -90,7 +90,8 @@ SentryOutOfMemoryTracker ()
         }
     }];
 #else
-    SENTRY_LOG_INFO(@"NO UIKit -> SentryOutOfMemoryTracker will not track OOM.");
+    SENTRY_LOG_INFO(
+        @"NO UIKit -> SentryWatchdogTerminationsTracker will not track Watchdog Terminations.");
     return;
 #endif
 }

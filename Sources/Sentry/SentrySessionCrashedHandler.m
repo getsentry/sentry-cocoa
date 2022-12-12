@@ -4,32 +4,33 @@
 #import "SentryCurrentDate.h"
 #import "SentryFileManager.h"
 #import "SentryHub.h"
-#import "SentryOutOfMemoryLogic.h"
 #import "SentrySDK+Private.h"
+#import "SentryWatchdogTerminationsLogic.h"
 
 @interface
 SentrySessionCrashedHandler ()
 
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
-@property (nonatomic, strong) SentryOutOfMemoryLogic *outOfMemoryLogic;
+@property (nonatomic, strong) SentryWatchdogTerminationsLogic *watchdogTerminationsLogic;
 
 @end
 
 @implementation SentrySessionCrashedHandler
 
 - (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
-                    outOfMemoryLogic:(SentryOutOfMemoryLogic *)outOfMemoryLogic;
+           watchdogTerminationsLogic:(SentryWatchdogTerminationsLogic *)watchdogTerminationsLogic;
 {
     self = [self init];
     self.crashWrapper = crashWrapper;
-    self.outOfMemoryLogic = outOfMemoryLogic;
+    self.watchdogTerminationsLogic = watchdogTerminationsLogic;
 
     return self;
 }
 
 - (void)endCurrentSessionAsCrashedWhenCrashOrOOM
 {
-    if (self.crashWrapper.crashedLastLaunch || [self.outOfMemoryLogic isOOM]) {
+    if (self.crashWrapper.crashedLastLaunch ||
+        [self.watchdogTerminationsLogic isWatchdogTermination]) {
         SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
 
         if (nil == fileManager) {

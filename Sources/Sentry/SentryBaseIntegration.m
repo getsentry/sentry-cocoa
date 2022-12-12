@@ -43,9 +43,9 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-    if ((integrationOptions & kIntegrationOptionEnableOutOfMemoryTracking)
-        && !options.enableOutOfMemoryTracking) {
-        [self logWithOptionName:@"enableOutOfMemoryTracking"];
+    if ((integrationOptions & kIntegrationOptionEnableWatchdogTerminationsTracking)
+        && !options.enableWatchdogTerminationsTracking) {
+        [self logWithOptionName:@"enableWatchdogTerminationsTracking"];
         return NO;
     }
 
