@@ -9,7 +9,6 @@ This version adds a dependency on Swift.
 - Properly demangle Swift class name (#2162)
 - Enable [File I/O Tracking](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/#file-io-tracking) by default (#2497)
 - [User Interaction Tracing](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/#user-interaction-tracing) is stable and enabled by default(#2503)
-- Enable File I/O APM by default (#2497)
 - Add synthetic for mechanism (#2501)
 
 ### Fixes
