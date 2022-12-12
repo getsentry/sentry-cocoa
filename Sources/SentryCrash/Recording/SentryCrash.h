@@ -58,6 +58,11 @@ static NSString *const SENTRYCRASH_REPORT_ATTACHMENTS_ITEM = @"attachments";
 /** Init SentryCrash instance with custom base path. */
 - (id)initWithBasePath:(NSString *)basePath;
 
+/** Optional, custom cache directory. Use when default one can not be accessed, e.g. in security environment.
+ * Default: null
+ */
+@property (nonatomic, readwrite, retain) NSString *basePath;
+
 /** A dictionary containing any info you'd like to appear in crash reports. Must
  * contain only JSON-safe data: NSString for keys, and NSDictionary, NSArray,
  * NSString, NSDate, and NSNumber for values.
