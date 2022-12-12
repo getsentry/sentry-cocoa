@@ -88,4 +88,13 @@ nameForSentryAttachmentType(SentryAttachmentType attachmentType)
     }
 }
 
+SentryAttachmentType
+typeForSentryAttachmentName(NSString *name)
+{
+    if ([name isEqualToString:kSentryAttachmentTypeNameViewHierarchy]) {
+        return kSentryAttachmentTypeViewHierarchy;
+    }
+    return kSentryAttachmentTypeEventAttachment;
+}
+
 NS_ASSUME_NONNULL_END

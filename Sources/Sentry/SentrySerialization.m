@@ -153,14 +153,6 @@ NS_ASSUME_NONNULL_BEGIN
     return decoded.copy;
 }
 
-+ (SentryAttachmentType)attachmentTypeForString:(NSString *)string
-{
-    if ([string isEqualToString:@"event.view_hierarchy"]) {
-        return kSentryAttachmentTypeViewHierarchy;
-    }
-    return kSentryAttachmentTypeEventAttachment;
-}
-
 + (SentryEnvelope *_Nullable)envelopeWithData:(NSData *)data
 {
     SentryEnvelopeHeader *envelopeHeader = nil;
@@ -282,7 +274,7 @@ NS_ASSUME_NONNULL_BEGIN
                             length:bodyLength
                           filename:filename
                        contentType:contentType
-                    attachmentType:[SentrySerialization attachmentTypeForString:attachmentType]];
+                    attachmentType:typeForSentryAttachmentName(attachmentType)];
             } else {
                 itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:type length:bodyLength];
             }

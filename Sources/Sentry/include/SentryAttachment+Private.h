@@ -4,6 +4,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+FOUNDATION_EXPORT NSString *const kSentryAttachmentTypeNameEventAttachment;
+FOUNDATION_EXPORT NSString *const kSentryAttachmentTypeNameViewHierarchy;
+
 /**
  * Attachment Type
  */
@@ -11,6 +14,10 @@ typedef NS_ENUM(NSInteger, SentryAttachmentType) {
     kSentryAttachmentTypeEventAttachment,
     kSentryAttachmentTypeViewHierarchy
 };
+
+NSString *nameForSentryAttachmentType(SentryAttachmentType attachmentType);
+
+SentryAttachmentType typeForSentryAttachmentName(NSString *name);
 
 @interface
 SentryAttachment ()
@@ -48,10 +55,5 @@ SENTRY_NO_INIT
 @property (readonly, nonatomic) SentryAttachmentType attachmentType;
 
 @end
-
-FOUNDATION_EXPORT NSString *const kSentryAttachmentTypeNameEventAttachment;
-FOUNDATION_EXPORT NSString *const kSentryAttachmentTypeNameViewHierarchy;
-
-NSString *nameForSentryAttachmentType(SentryAttachmentType attachmentType);
 
 NS_ASSUME_NONNULL_END
