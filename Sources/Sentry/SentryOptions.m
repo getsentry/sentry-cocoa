@@ -38,7 +38,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 #endif
             @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
             @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
-            @"SentryWatchdogTerminationsTrackingIntegration",
+            @"SentryWatchdogTerminationTrackingIntegration",
             @"SentryPerformanceTrackingIntegration", @"SentryNetworkTrackingIntegration",
             @"SentryFileIOTrackingIntegration", @"SentryCoreDataTrackingIntegration"
         ]
@@ -65,7 +65,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         _defaultSampleRate = @1;
         self.sampleRate = _defaultSampleRate;
         self.enableAutoSessionTracking = YES;
-        self.enableWatchdogTerminationsTracking = YES;
+        self.enableWatchdogTerminationTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
         self.stitchAsyncCode = NO;

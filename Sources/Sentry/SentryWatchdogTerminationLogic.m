@@ -4,14 +4,14 @@
 #import <SentryCrashWrapper.h>
 #import <SentryOptions.h>
 #import <SentrySDK+Private.h>
-#import <SentryWatchdogTerminationsLogic.h>
+#import <SentryWatchdogTerminationLogic.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
 #endif
 
 @interface
-SentryWatchdogTerminationsLogic ()
+SentryWatchdogTerminationLogic ()
 
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryCrashWrapper *crashAdapter;
@@ -19,7 +19,7 @@ SentryWatchdogTerminationsLogic ()
 
 @end
 
-@implementation SentryWatchdogTerminationsLogic
+@implementation SentryWatchdogTerminationLogic
 
 - (instancetype)initWithOptions:(SentryOptions *)options
                    crashAdapter:(SentryCrashWrapper *)crashAdapter
@@ -35,7 +35,7 @@ SentryWatchdogTerminationsLogic ()
 
 - (BOOL)isWatchdogTermination
 {
-    if (!self.options.enableWatchdogTerminationsTracking) {
+    if (!self.options.enableWatchdogTerminationTracking) {
         return NO;
     }
 

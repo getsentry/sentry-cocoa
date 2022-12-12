@@ -1,6 +1,6 @@
 #import "SentryDefines.h"
 
-@class SentryOptions, SentryWatchdogTerminationsLogic, SentryDispatchQueueWrapper,
+@class SentryOptions, SentryWatchdogTerminationLogic, SentryDispatchQueueWrapper,
     SentryAppStateManager, SentryFileManager;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -15,11 +15,11 @@ static NSString *const SentryWatchdogTerminationMechanismType = @"watchdog_termi
  * https://engineering.fb.com/2015/08/24/ios/reducing-fooms-in-the-facebook-ios-app/ If a OOM is
  * detected, the SDK sends it as crash event. Only works for iOS, tvOS and macCatalyst.
  */
-@interface SentryWatchdogTerminationsTracker : NSObject
+@interface SentryWatchdogTerminationTracker : NSObject
 SENTRY_NO_INIT
 
 - (instancetype)initWithOptions:(SentryOptions *)options
-      watchdogTerminationsLogic:(SentryWatchdogTerminationsLogic *)watchdogTerminationsLogic
+       watchdogTerminationLogic:(SentryWatchdogTerminationLogic *)watchdogTerminationLogic
                 appStateManager:(SentryAppStateManager *)appStateManager
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                     fileManager:(SentryFileManager *)fileManager;

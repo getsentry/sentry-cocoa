@@ -9,24 +9,24 @@
 #import <SentryHub.h>
 #import <SentryOptions+Private.h>
 #import <SentrySDK+Private.h>
-#import <SentryWatchdogTerminationsLogic.h>
-#import <SentryWatchdogTerminationsScopeObserver.h>
-#import <SentryWatchdogTerminationsTracker.h>
-#import <SentryWatchdogTerminationsTrackingIntegration.h>
+#import <SentryWatchdogTerminationLogic.h>
+#import <SentryWatchdogTerminationScopeObserver.h>
+#import <SentryWatchdogTerminationTracker.h>
+#import <SentryWatchdogTerminationTrackingIntegration.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
-SentryWatchdogTerminationsTrackingIntegration ()
+SentryWatchdogTerminationTrackingIntegration ()
 
-@property (nonatomic, strong) SentryWatchdogTerminationsTracker *tracker;
+@property (nonatomic, strong) SentryWatchdogTerminationTracker *tracker;
 @property (nonatomic, strong) SentryANRTracker *anrTracker;
 @property (nullable, nonatomic, copy) NSString *testConfigurationFilePath;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 
 @end
 
-@implementation SentryWatchdogTerminationsTrackingIntegration
+@implementation SentryWatchdogTerminationTrackingIntegration
 
 - (instancetype)init
 {
@@ -57,16 +57,16 @@ SentryWatchdogTerminationsTrackingIntegration ()
     SentryAppStateManager *appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
     SentryCrashWrapper *crashWrapper = [SentryDependencyContainer sharedInstance].crashWrapper;
-    SentryWatchdogTerminationsLogic *logic =
-        [[SentryWatchdogTerminationsLogic alloc] initWithOptions:options
-                                                    crashAdapter:crashWrapper
-                                                 appStateManager:appStateManager];
+    SentryWatchdogTerminationLogic *logic =
+        [[SentryWatchdogTerminationLogic alloc] initWithOptions:options
+                                                   crashAdapter:crashWrapper
+                                                appStateManager:appStateManager];
 
-    self.tracker = [[SentryWatchdogTerminationsTracker alloc] initWithOptions:options
-                                                    watchdogTerminationsLogic:logic
-                                                              appStateManager:appStateManager
-                                                         dispatchQueueWrapper:dispatchQueueWrapper
-                                                                  fileManager:fileManager];
+    self.tracker = [[SentryWatchdogTerminationTracker alloc] initWithOptions:options
+                                                    watchdogTerminationLogic:logic
+                                                             appStateManager:appStateManager
+                                                        dispatchQueueWrapper:dispatchQueueWrapper
+                                                                 fileManager:fileManager];
 
     [self.tracker start];
 
@@ -76,8 +76,8 @@ SentryWatchdogTerminationsTrackingIntegration ()
 
     self.appStateManager = appStateManager;
 
-    SentryWatchdogTerminationsScopeObserver *scopeObserver =
-        [[SentryWatchdogTerminationsScopeObserver alloc]
+    SentryWatchdogTerminationScopeObserver *scopeObserver =
+        [[SentryWatchdogTerminationScopeObserver alloc]
             initWithMaxBreadcrumbs:options.maxBreadcrumbs
                        fileManager:[[[SentrySDK currentHub] getClient] fileManager]];
 
@@ -89,7 +89,7 @@ SentryWatchdogTerminationsTrackingIntegration ()
 
 - (SentryIntegrationOption)integrationOptions
 {
-    return kIntegrationOptionEnableWatchdogTerminationsTracking;
+    return kIntegrationOptionEnableWatchdogTerminationTracking;
 }
 
 - (void)uninstall

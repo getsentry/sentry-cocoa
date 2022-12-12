@@ -1,10 +1,10 @@
-#import "SentryWatchdogTerminationsScopeObserver.h"
+#import "SentryWatchdogTerminationScopeObserver.h"
 #import <SentryBreadcrumb.h>
 #import <SentryFileManager.h>
 #import <SentryLog.h>
 
 @interface
-SentryWatchdogTerminationsScopeObserver ()
+SentryWatchdogTerminationScopeObserver ()
 
 @property (strong, nonatomic) SentryFileManager *fileManager;
 @property (strong, nonatomic) NSFileHandle *fileHandle;
@@ -14,7 +14,7 @@ SentryWatchdogTerminationsScopeObserver ()
 
 @end
 
-@implementation SentryWatchdogTerminationsScopeObserver
+@implementation SentryWatchdogTerminationScopeObserver
 
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
                            fileManager:(SentryFileManager *)fileManager

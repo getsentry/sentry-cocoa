@@ -43,9 +43,9 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-    if ((integrationOptions & kIntegrationOptionEnableWatchdogTerminationsTracking)
-        && !options.enableWatchdogTerminationsTracking) {
-        [self logWithOptionName:@"enableWatchdogTerminationsTracking"];
+    if ((integrationOptions & kIntegrationOptionEnableWatchdogTerminationTracking)
+        && !options.enableWatchdogTerminationTracking) {
+        [self logWithOptionName:@"enableWatchdogTerminationTracking"];
         return NO;
     }
 
