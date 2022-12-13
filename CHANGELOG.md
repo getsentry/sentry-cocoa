@@ -56,6 +56,7 @@ This version adds a dependency on Swift.
 - Bump minimum Xcode version to 13 (#2483)
 - Rename `SentryOptions.enableOutOfMemoryTracking` to `SentryOptions.enableWatchdogTerminationTracking` (#2499)
 - Remove the automatic `viewAppearing` span for UIViewController APM (#2511)
+- Remove the permission context for events (#2529)
 
 ## 8.0.0-beta.4
 
