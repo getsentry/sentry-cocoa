@@ -74,7 +74,7 @@
                   Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndBaggageHeaderAdded_disabled()">
                </Test>
                <Test
-                  Identifier = "SentryOutOfMemoryIntegrationTests/testANRDetected_UpdatesAppStateToTrue_disabled()">
+                  Identifier = "SentryWatchdogTerminationIntegrationTests/testANRDetected_UpdatesAppStateToTrue_disabled()">
                </Test>
                <Test
                   Identifier = "SentryProfilerSwiftTests/testProfileTimeoutTimer_disabled()">

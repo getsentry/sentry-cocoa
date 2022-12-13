@@ -30,7 +30,6 @@
 #import "SentryMeta.h"
 #import "SentryNSError.h"
 #import "SentryOptions+Private.h"
-#import "SentryOutOfMemoryTracker.h"
 #import "SentryPermissionsObserver.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
@@ -45,6 +44,7 @@
 #import "SentryUIDeviceWrapper.h"
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
+#import "SentryWatchdogTerminationTracker.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -574,7 +574,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
 
-    if ([self isOOM:event isCrashEvent:isCrashEvent]) {
+    if ([self isWatchdogTermination:event isCrashEvent:isCrashEvent]) {
         // Remove some mutable properties from the device/app contexts which are no longer
         // applicable
         [self removeExtraDeviceContextFromEvent:event];
@@ -726,7 +726,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 }
 
-- (BOOL)isOOM:(SentryEvent *)event isCrashEvent:(BOOL)isCrashEvent
+- (BOOL)isWatchdogTermination:(SentryEvent *)event isCrashEvent:(BOOL)isCrashEvent
 {
     if (!isCrashEvent) {
         return NO;
@@ -738,7 +738,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     SentryException *exception = event.exceptions[0];
     return exception.mechanism != nil &&
-        [exception.mechanism.type isEqualToString:SentryOutOfMemoryMechanismType];
+        [exception.mechanism.type isEqualToString:SentryWatchdogTerminationMechanismType];
 }
 
 - (void)applyPermissionsToEvent:(SentryEvent *)event
