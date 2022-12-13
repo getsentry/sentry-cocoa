@@ -8,6 +8,8 @@
 #import "SentrySystemWrapper.h"
 #import "SentryTime.h"
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
 static const NSTimeInterval kSentryMetricProfilerTimeseriesInterval = 0.1; // 10 Hz
 
 NSString *const kSentryMetricProfilerSerializationKeyMemoryFootprint = @"memory-footprint";
@@ -81,7 +83,7 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
     [self stop];
 }
 
-#pragma mark - Public
+#    pragma mark - Public
 
 - (void)start
 {
@@ -131,7 +133,7 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
     return dict;
 }
 
-#pragma mark - Private
+#    pragma mark - Private
 
 - (void)registerSampler
 {
@@ -227,3 +229,5 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
 }
 
 @end
+
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED

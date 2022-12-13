@@ -1,6 +1,8 @@
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
 @class SentryNSProcessInfoWrapper;
 @class SentryNSTimerWrapper;
 @class SentrySystemWrapper;
@@ -38,3 +40,5 @@ SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationUnitPercentage;
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED

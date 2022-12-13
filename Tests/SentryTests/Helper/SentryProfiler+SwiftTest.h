@@ -3,6 +3,8 @@
 
 #include "SentryProfiler.h"
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
 @interface
 SentryProfiler ()
 
@@ -22,3 +24,5 @@ SentryProfiler ()
 + (void)useTimerWrapper:(SentryNSTimerWrapper *)timerWrapper NS_SWIFT_NAME(useTimerWrapper(_:));
 
 @end
+
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
