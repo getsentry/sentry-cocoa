@@ -48,7 +48,7 @@
  * install with everything needed for your particular backend.
  * If you wish to use default cache directory, pass null
  */
-- (void)install:(NSString *)customCacheDirectory;
+- (void)install;
 
 /**
  * Call this instead of `-[SentryCrash uninstall]`.

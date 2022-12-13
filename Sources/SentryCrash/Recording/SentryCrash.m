@@ -39,6 +39,9 @@
 #import "SentryDependencyContainer.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import <NSData+Sentry.h>
+#import "SentrySDK+Private.h"
+#import <SentryHub.h>
+#import <SentryClient+Private.h>
 
 // #define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
@@ -56,6 +59,7 @@
 SentryCrash ()
 
 @property (nonatomic, readwrite, retain) NSString *bundleName;
+@property (nonatomic, readwrite, retain) NSString *basePath;
 @property (nonatomic, readwrite, assign) SentryCrashMonitorType monitoringWhenUninstalled;
 @property (nonatomic, readwrite, assign) BOOL monitoringFromUninstalledToRestore;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenter;
@@ -86,6 +90,14 @@ getBasePath()
         SentryCrashLOG_ERROR(@"Could not locate cache directory path.");
         return nil;
     }
+
+    SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
+    NSString *customCacheDirectory = options.customCacheDirectory;
+
+    if (customCacheDirectory != NULL) {
+        return customCacheDirectory;
+    }
+
     NSString *pathEnd = [@"SentryCrash" stringByAppendingPathComponent:getBundleName()];
     return [cachePath stringByAppendingPathComponent:pathEnd];
 }
@@ -102,7 +114,6 @@ getBasePath()
 @synthesize monitoring = _monitoring;
 @synthesize onCrash = _onCrash;
 @synthesize bundleName = _bundleName;
-@synthesize basePath = _basePath;
 @synthesize introspectMemory = _introspectMemory;
 @synthesize catchZombies = _catchZombies;
 @synthesize doNotIntrospectClasses = _doNotIntrospectClasses;
