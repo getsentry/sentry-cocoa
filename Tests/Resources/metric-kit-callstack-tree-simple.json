@@ -13,7 +13,16 @@
               "offsetIntoBinaryTextSegment": 46380,
               "sampleCount": 1,
               "binaryName": "iOS-Swift",
-              "address": 4310988076
+              "address": 4310988076,
+              "subFrames": [
+                {
+                  "binaryUUID": "CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF",
+                  "offsetIntoBinaryTextSegment": 46370,
+                  "sampleCount": 1,
+                  "binaryName": "iOS-Swift",
+                  "address": 4310988026
+                }
+              ]
             }
           ],
           "binaryName": "Sentry",
