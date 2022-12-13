@@ -136,9 +136,9 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableAutoSessionTracking;
 
 /**
- * Whether to enable out of memory tracking or not. Default is YES.
+ * Whether to enable Watchdog Termination tracking or not. Default is YES.
  */
-@property (nonatomic, assign) BOOL enableOutOfMemoryTracking;
+@property (nonatomic, assign) BOOL enableWatchdogTerminationTracking;
 
 /**
  * The interval to end a session if the App goes to the background.
@@ -220,8 +220,6 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL attachViewHierarchy;
 
 /**
- * This feature is EXPERIMENTAL.
- *
  * When enabled, the SDK creates transactions for UI events like buttons clicks, switch toggles,
  * and other ui elements that uses UIControl `sendAction:to:forEvent:`.
  */
@@ -422,7 +420,7 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, retain) NSArray *tracePropagationTargets;
 
 /**
- * When enabled, the SDK captures HTTP Client errors. Default value is NO.
+ * When enabled, the SDK captures HTTP Client errors.
  * This feature requires enableSwizzling enabled as well, Default value is YES.
  */
 @property (nonatomic, assign) BOOL enableCaptureFailedRequests;

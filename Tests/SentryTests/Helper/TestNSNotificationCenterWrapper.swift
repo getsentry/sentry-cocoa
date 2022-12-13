@@ -1,8 +1,8 @@
 import Foundation
 
-@objc public class TestNSNotificationCenterWrapper: SentryNSNotificationCenterWrapper {
+@objcMembers public class TestNSNotificationCenterWrapper: SentryNSNotificationCenterWrapper {
     var addObserverInvocations = Invocations<(observer: Any, selector: Selector, name: NSNotification.Name)>()
-    @objc public var addObserverInvocationsCount: Int {
+    public var addObserverInvocationsCount: Int {
         return addObserverInvocations.count
     }
 
@@ -12,12 +12,18 @@ import Foundation
     }
 
     var removeObserverWithNameInvocations = Invocations<(observer: Any, name: NSNotification.Name)>()
+    public var removeObserverWithNameInvocationsCount: Int {
+        return removeObserverWithNameInvocations.count
+    }
     public override func removeObserver(_ observer: Any, name aName: NSNotification.Name) {
         removeObserverWithNameInvocations.record((observer, aName))
         NotificationCenter.default.removeObserver(observer, name: aName, object: nil)
     }
 
     var removeObserverInvocations = Invocations<Any>()
+    public var removeObserverInvocationsCount: Int {
+        return removeObserverInvocations.count
+    }
     public override func removeObserver(_ observer: Any) {
         removeObserverInvocations.record(observer)
         NotificationCenter.default.removeObserver(observer)
