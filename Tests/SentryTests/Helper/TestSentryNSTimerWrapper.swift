@@ -1,7 +1,11 @@
 import Foundation
 import Sentry
 
-class TestTimer: Timer {}
+class TestTimer: Timer {
+    override func invalidate() {
+        // no-op as this timer doesn't actually schedule anything on a runloop
+    }
+}
 
 class TestSentryNSTimerWrapper: SentryNSTimerWrapper {
     struct Overrides {

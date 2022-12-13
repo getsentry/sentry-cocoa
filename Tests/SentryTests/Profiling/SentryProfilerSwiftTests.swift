@@ -78,16 +78,15 @@ class SentryProfilerSwiftTests: XCTestCase {
             fixture.processInfoWrapper.sendThermalStateChangeNotification()
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            self.fixture.timerWrapper.fire()
-        }
+        self.fixture.timerWrapper.fire()
+        self.fixture.timerWrapper.fire()
 
         let exp = expectation(description: "Receives profile payload")
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             span.finish()
 
             do {
-                try self.assertMetricsPayload(thermalStateNotifications: 4, powerStateNotifications: 2, expectedCPUUsages: cpuUsages)
+                try self.assertMetricsPayload(thermalStateNotifications: 4, powerStateNotifications: 2, expectedCPUUsages: cpuUsages, cpuReadings: 2)
                 exp.fulfill()
             } catch {
                 XCTFail("Encountered error: \(error)")
@@ -297,7 +296,7 @@ private extension SentryProfilerSwiftTests {
         self.assertValidProfileData(data: profileData, transactionEnvironment: transactionEnvironment, numberOfTransactions: numberOfTransactions, shouldTimeout: shouldTimeOut)
     }
 
-    func assertMetricsPayload(thermalStateNotifications: Int, powerStateNotifications: Int, expectedCPUUsages: [Double]) throws {
+    func assertMetricsPayload(thermalStateNotifications: Int, powerStateNotifications: Int, expectedCPUUsages: [Double], cpuReadings: Int) throws {
         let profileData = try self.getProfileData()
         guard let profile = try JSONSerialization.jsonObject(with: profileData) as? [String: Any] else {
             throw TestError.unexpectedProfileDeserializationType
@@ -326,6 +325,7 @@ private extension SentryProfilerSwiftTests {
             guard let values = cpuUsage["values"] as? [[String: Any]] else {
                 throw TestError.malformedMetricValueEntry
             }
+            XCTAssertEqual(values.count, cpuReadings)
             guard let firstReport = values[0]["value"] as? Double else {
                 throw TestError.noCPUUsageReported
             }
