@@ -41,7 +41,7 @@ public struct SentryTraceView<Content: View>: View {
     
     public init(_ transactionName: String? = nil, content: @escaping () -> Content) {
         self.content = content
-        self.name = transactionName ?? SentryTracerView.extractName(content: Content.self)
+        self.name = transactionName ?? SentryTraceView.extractName(content: Content.self)
         id = SentryPerformanceTracker.shared.startSpan(withName: self.name,
                                                        nameSource: transactionName == nil ? .component : .custom,
                                                        operation: "ui.load")
@@ -72,7 +72,7 @@ public struct SentryTraceView<Content: View>: View {
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 public extension View {
     func sentryTrace(_ transactionName: String? = nil) -> some View {
-        return SentryTracerView(transactionName) {
+        return SentryTraceView(transactionName) {
             return self
         }
     }
