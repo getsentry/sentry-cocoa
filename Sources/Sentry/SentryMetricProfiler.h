@@ -2,6 +2,7 @@
 #import <Foundation/Foundation.h>
 
 @class SentryNSProcessInfoWrapper;
+@class SentryNSTimerWrapper;
 @class SentrySystemWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -26,7 +27,8 @@ SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationUnitPercentage;
 
 - (instancetype)initWithProfileStartTime:(uint64_t)profileStartTime
                       processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
-                           systemWrapper:(SentrySystemWrapper *)systemWrapper;
+                           systemWrapper:(SentrySystemWrapper *)systemWrapper
+                            timerWrapper:(SentryNSTimerWrapper *)timerWrapper;
 - (void)start;
 - (void)stop;
 

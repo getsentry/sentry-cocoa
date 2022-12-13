@@ -19,6 +19,7 @@
 #    import "SentryLog.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryNSProcessInfoWrapper.h"
+#    import "SentryNSTimerWrapper.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryScope+Private.h"
 #    import "SentryScreenFrames.h"
@@ -152,6 +153,7 @@ NSMutableDictionary<SentrySpanId *, SentryProfiler *> *_gProfilersPerSpanID;
 SentryProfiler *_Nullable _gCurrentProfiler;
 SentryNSProcessInfoWrapper *_gCurrentProcessInfoWrapper;
 SentrySystemWrapper *_gCurrentSystemWrapper;
+SentryNSTimerWrapper *_gCurrentTimerWrapper;
 
 NSString *
 profilerTruncationReasonName(SentryProfilerTruncationReason reason)
@@ -339,6 +341,12 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     _gCurrentProcessInfoWrapper = processInfoWrapper;
 }
 
++ (void)useTimerWrapper:(SentryNSTimerWrapper *)timerWrapper
+{
+    std::lock_guard<std::mutex> l(_gProfilerLock);
+    _gCurrentTimerWrapper = timerWrapper;
+}
+
 #    pragma mark - Private
 
 + (void)captureEnvelopeIfFinished:(SentryProfiler *)profiler spanID:(SentrySpanId *)spanID
@@ -493,7 +501,8 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
         _metricProfiler =
             [[SentryMetricProfiler alloc] initWithProfileStartTime:_startTimestamp
                                                 processInfoWrapper:_gCurrentProcessInfoWrapper
-                                                     systemWrapper:_gCurrentSystemWrapper];
+                                                     systemWrapper:_gCurrentSystemWrapper
+                                                      timerWrapper:_gCurrentTimerWrapper];
         [_metricProfiler start];
     }
 }

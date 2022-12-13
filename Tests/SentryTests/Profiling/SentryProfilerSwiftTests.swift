@@ -25,6 +25,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         let transactionOperation = "Some Operation"
         lazy var systemWrapper = TestSentrySystemWrapper()
         lazy var processInfoWrapper = TestSentryNSProcessInfoWrapper()
+        lazy var timerWrapper = TestSentryNSTimerWrapper()
 
         func newTransaction() -> Span {
             hub.startTransaction(name: transactionName, operation: transactionOperation)
@@ -56,6 +57,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         options.tracesSampleRate = 1.0
         SentryProfiler.useSystemWrapper(fixture.systemWrapper)
         SentryProfiler.useProcessInfoWrapper(fixture.processInfoWrapper)
+        SentryProfiler.useTimerWrapper(fixture.timerWrapper)
 
         let cpuUsages = [12.4, 63.5, 1.4, 4.6]
         fixture.systemWrapper.overrides.cpuUsagePerCore = cpuUsages.map { NSNumber(value: $0) }
@@ -74,6 +76,10 @@ class SentryProfilerSwiftTests: XCTestCase {
         [ProcessInfo.ThermalState.critical, .serious, .fair, .nominal].forEach {
             fixture.processInfoWrapper.overrides.thermalState = $0
             fixture.processInfoWrapper.sendThermalStateChangeNotification()
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            self.fixture.timerWrapper.fire()
         }
 
         let exp = expectation(description: "Receives profile payload")

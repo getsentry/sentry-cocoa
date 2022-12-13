@@ -4,6 +4,7 @@
 #import "SentryMachLogging.hpp"
 #import "SentryNSNotificationCenterWrapper.h"
 #import "SentryNSProcessInfoWrapper.h"
+#import "SentryNSTimerWrapper.h"
 #import "SentrySystemWrapper.h"
 #import "SentryTime.h"
 
@@ -34,6 +35,7 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
 
     SentryNSProcessInfoWrapper *_processInfoWrapper;
     SentrySystemWrapper *_systemWrapper;
+    SentryNSTimerWrapper *_timerWrapper;
 
     /// arrays of readings keyed on NSNumbers representing the core number for the set of readings
     NSMutableDictionary<NSNumber *, NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *>
@@ -49,6 +51,7 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
 - (instancetype)initWithProfileStartTime:(uint64_t)profileStartTime
                       processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
                            systemWrapper:(SentrySystemWrapper *)systemWrapper
+                            timerWrapper:(SentryNSTimerWrapper *)timerWrapper
 {
     if (self = [super init]) {
         _cpuUsage = [NSMutableDictionary<NSNumber *,
@@ -61,6 +64,7 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
 
         _systemWrapper = systemWrapper;
         _processInfoWrapper = processInfoWrapper;
+        _timerWrapper = timerWrapper;
 
         _memoryFootprint = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
         _thermalState = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
@@ -132,12 +136,12 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
 - (void)registerSampler
 {
     __weak auto weakSelf = self;
-    _timer = [NSTimer scheduledTimerWithTimeInterval:kSentryMetricProfilerTimeseriesInterval
-                                             repeats:YES
-                                               block:^(NSTimer *_Nonnull timer) {
-                                                   [weakSelf recordCPUPercentagePerCore];
-                                                   [weakSelf recordMemoryFootprint];
-                                               }];
+    _timer = [_timerWrapper scheduledTimerWithTimeInterval:kSentryMetricProfilerTimeseriesInterval
+                                                   repeats:YES
+                                                     block:^(NSTimer *_Nonnull timer) {
+                                                         [weakSelf recordCPUPercentagePerCore];
+                                                         [weakSelf recordMemoryFootprint];
+                                                     }];
 }
 
 /**

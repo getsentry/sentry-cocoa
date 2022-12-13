@@ -19,4 +19,6 @@ SentryProfiler ()
 + (void)useProcessInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
     NS_SWIFT_NAME(useProcessInfoWrapper(_:));
 
++ (void)useTimerWrapper:(SentryNSTimerWrapper *)timerWrapper NS_SWIFT_NAME(useTimerWrapper(_:));
+
 @end
