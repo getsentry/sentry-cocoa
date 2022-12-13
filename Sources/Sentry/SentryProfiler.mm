@@ -189,14 +189,11 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 
 + (void)initialize
 {
-#    if SENTRY_TARGET_PROFILING_SUPPORTED
     if (self == [SentryProfiler class]) {
         _gProfilersPerSpanID = [NSMutableDictionary<SentrySpanId *, SentryProfiler *> dictionary];
     }
-#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
-#    if SENTRY_TARGET_PROFILING_SUPPORTED
 - (instancetype)init
 {
     if (!(self = [super init])) {
@@ -210,26 +207,22 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     _transactions = [NSMutableArray<SentryTransaction *> array];
     return self;
 }
-#    endif
 
 #    pragma mark - Public
 
 + (void)startForSpanID:(SentrySpanId *)spanID hub:(SentryHub *)hub
 {
-#    if SENTRY_TARGET_PROFILING_SUPPORTED
     NSTimeInterval timeoutInterval = 30;
-#        if defined(TEST) || defined(TESTCI)
+#    if defined(TEST) || defined(TESTCI)
     timeoutInterval = 1;
-#        endif
-    [self startForSpanID:spanID hub:hub timeoutInterval:timeoutInterval];
 #    endif
+    [self startForSpanID:spanID hub:hub timeoutInterval:timeoutInterval];
 }
 
 + (void)startForSpanID:(SentrySpanId *)spanID
                    hub:(SentryHub *)hub
        timeoutInterval:(NSTimeInterval)timeoutInterval
 {
-#    if SENTRY_TARGET_PROFILING_SUPPORTED
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
     if (_gCurrentProfiler == nil) {
@@ -238,9 +231,9 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
             SENTRY_LOG_WARN(@"Profiler was not initialized, will not proceed.");
             return;
         }
-#        if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT
         [SentryFramesTracker.sharedInstance resetProfilingTimestamps];
-#        endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT
         [_gCurrentProfiler start];
         _gCurrentProfiler->_timeoutTimer =
             [NSTimer scheduledTimerWithTimeInterval:timeoutInterval
@@ -248,12 +241,12 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
                                            selector:@selector(timeoutAbort)
                                            userInfo:nil
                                             repeats:NO];
-#        if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(backgroundAbort)
                                                      name:UIApplicationWillResignActiveNotification
                                                    object:nil];
-#        endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT
         _gCurrentProfiler->_hub = hub;
     }
 
@@ -261,12 +254,10 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
         @"Tracking span with ID %@ with profiler %@", spanID.sentrySpanIdString, _gCurrentProfiler);
     [_gCurrentProfiler->_spansInFlight addObject:spanID];
     _gProfilersPerSpanID[spanID] = _gCurrentProfiler;
-#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 + (void)stopProfilingSpan:(id<SentrySpan>)span
 {
-#    if SENTRY_TARGET_PROFILING_SUPPORTED
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
     if (_gCurrentProfiler == nil) {
@@ -280,12 +271,10 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
             _gCurrentProfiler, span.spanId.sentrySpanIdString);
         [self stopProfilerForReason:SentryProfilerTruncationReasonNormal];
     }
-#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 + (void)dropTransaction:(SentryTransaction *)transaction
 {
-#    if SENTRY_TARGET_PROFILING_SUPPORTED
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
     const auto spanID = transaction.trace.spanId;
@@ -296,12 +285,10 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     }
 
     [self captureEnvelopeIfFinished:profiler spanID:spanID];
-#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 + (void)linkTransaction:(SentryTransaction *)transaction
 {
-#    if SENTRY_TARGET_PROFILING_SUPPORTED
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
     const auto spanID = transaction.trace.spanId;
@@ -316,15 +303,12 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     [profiler addTransaction:transaction];
 
     [self captureEnvelopeIfFinished:profiler spanID:spanID];
-#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 + (BOOL)isRunning
 {
-#    if SENTRY_TARGET_PROFILING_SUPPORTED
     std::lock_guard<std::mutex> l(_gProfilerLock);
     return [_gCurrentProfiler isRunning];
-#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 #    pragma mark - Testing

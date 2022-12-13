@@ -1,22 +1,24 @@
 #import "SentryMetricProfiler.h"
-#import "SentryDependencyContainer.h"
-#import "SentryLog.h"
-#import "SentryMachLogging.hpp"
-#import "SentryNSNotificationCenterWrapper.h"
-#import "SentryNSProcessInfoWrapper.h"
-#import "SentryNSTimerWrapper.h"
-#import "SentrySystemWrapper.h"
-#import "SentryTime.h"
+
+NSString *const kSentryMetricProfilerSerializationKeyPowerState = @"is-low-power-mode";
+NSString *const kSentryMetricProfilerSerializationKeyThermalState = @"thermal-state";
+NSString *const kSentryMetricProfilerSerializationKeyCPUUsageFormat = @"cpu-usage-%d";
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+
+#    import "SentryDependencyContainer.h"
+#    import "SentryLog.h"
+#    import "SentryMachLogging.hpp"
+#    import "SentryNSNotificationCenterWrapper.h"
+#    import "SentryNSProcessInfoWrapper.h"
+#    import "SentryNSTimerWrapper.h"
+#    import "SentrySystemWrapper.h"
+#    import "SentryTime.h"
 
 static const NSTimeInterval kSentryMetricProfilerTimeseriesInterval = 0.1; // 10 Hz
 
 NSString *const kSentryMetricProfilerSerializationKeyMemoryFootprint = @"memory-footprint";
 NSString *const kSentryMetricProfilerSerializationKeyMemoryPressure = @"memory-pressure";
-NSString *const kSentryMetricProfilerSerializationKeyPowerState = @"is-low-power-mode";
-NSString *const kSentryMetricProfilerSerializationKeyThermalState = @"thermal-state";
-NSString *const kSentryMetricProfilerSerializationKeyCPUUsageFormat = @"cpu-usage-%d";
 
 NSString *const kSentryMetricProfilerSerializationUnitBytes = @"bytes";
 NSString *const kSentryMetricProfilerSerializationUnitBoolean = @"bool";
@@ -228,6 +230,16 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
     };
 }
 
+@end
+
+#else
+
+// if we don't have this implementation, we wind up with a linker error: "Undefined symbol:
+// _OBJC_CLASS_$_SentryMetricProfiler" referenced from SentryProfiler. Even though both are
+// completely covered by #if SENTRY_TARGET_PROFILING_SUPPORTED. Not sure what's going on there
+// (armcknight 13 Dec 2022)
+
+@implementation SentryMetricProfiler
 @end
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

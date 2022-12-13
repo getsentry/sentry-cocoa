@@ -16,6 +16,7 @@ class TestSentryNSProcessInfoWrapper: SentryNSProcessInfoWrapper {
         overrides.isLowPowerModeEnabled ?? super.isLowPowerModeEnabled
     }
 
+    @available(iOS 9.0, macOS 12.0, *)
     func sendPowerStateChangeNotification() {
         SentryDependencyContainer.sharedInstance().notificationCenterWrapper.postNotificationName(NSNotification.Name.NSProcessInfoPowerStateDidChange, object: ProcessInfo.processInfo)
     }

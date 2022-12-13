@@ -70,7 +70,9 @@ class SentryProfilerSwiftTests: XCTestCase {
 
         [true, false].forEach {
             fixture.processInfoWrapper.overrides.isLowPowerModeEnabled = $0
-            fixture.processInfoWrapper.sendPowerStateChangeNotification()
+            if #available(macOS 12.0, *) {
+                fixture.processInfoWrapper.sendPowerStateChangeNotification()
+            }
         }
 
         [ProcessInfo.ThermalState.critical, .serious, .fair, .nominal].forEach {
@@ -305,11 +307,13 @@ private extension SentryProfilerSwiftTests {
             throw TestError.unexpectedMeasurementsDeserializationType
         }
 
-        guard let powerStateEntry = measurements[kSentryMetricProfilerSerializationKeyPowerState] as? [String: Any], let powerState = powerStateEntry["values"] as? [[String: Any]] else {
-            throw TestError.noPowerStateEvents
+        if #available(macOS 12.0, *) {
+            guard let powerStateEntry = measurements[kSentryMetricProfilerSerializationKeyPowerState] as? [String: Any], let powerState = powerStateEntry["values"] as? [[String: Any]] else {
+                throw TestError.noPowerStateEvents
+            }
+            
+            XCTAssertEqual(powerState.count, powerStateNotifications)
         }
-
-        XCTAssertEqual(powerState.count, powerStateNotifications)
 
         guard let thermalStateEntry = measurements[kSentryMetricProfilerSerializationKeyThermalState] as? [String: Any], let thermalState = thermalStateEntry["values"] as? [[String: Any]] else {
             throw TestError.noThermalStateEvents
