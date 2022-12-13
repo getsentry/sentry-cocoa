@@ -173,7 +173,7 @@ SentryAppStateManager ()
 {
     @synchronized(self) {
         SentryAppState *appState = [self.fileManager readAppState];
-        if (nil != appState) {
+        if (appState != nil) {
             block(appState);
             [self.fileManager storeAppState:appState];
         }

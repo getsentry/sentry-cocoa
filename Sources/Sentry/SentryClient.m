@@ -547,17 +547,17 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
 
-    if ([self isOOM:event isCrashEvent:isCrashEvent]) {
+    if ([self isWatchdogTermination:event isCrashEvent:isCrashEvent]) {
         // Remove some mutable properties from the device/app contexts which are no longer
         // applicable
         [self removeExtraDeviceContextFromEvent:event];
-    } else {
+    } else if (!isCrashEvent) {
         // Store the current free memory, free storage, battery level and more mutable properties,
-        // at the time of this event
+        // at the time of this event, but not for crashes as the current data isn't guaranteed to be
+        // the same as when the app crashed.
         [self applyExtraDeviceContextToEvent:event];
+        [self applyCultureContextToEvent:event];
     }
-
-    [self applyCultureContextToEvent:event];
 
     // With scope applied, before running callbacks run:
     if (event.environment == nil) {
@@ -698,7 +698,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 }
 
-- (BOOL)isOOM:(SentryEvent *)event isCrashEvent:(BOOL)isCrashEvent
+- (BOOL)isWatchdogTermination:(SentryEvent *)event isCrashEvent:(BOOL)isCrashEvent
 {
     if (!isCrashEvent) {
         return NO;

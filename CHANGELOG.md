@@ -21,6 +21,7 @@ This version adds a dependency on Swift.
 - The SDK no longer reports an OOM when a crash happens after closing the SDK (#2468)
 - Don't capture zero size screenshots ([#2459](https://github.com/getsentry/sentry-cocoa/pull/2459))
 - Use the preexisting app release version format for profiles (#2470)
+- Don't add out of date context for crashes (#2523)
 
 ### Breaking Changes
 
@@ -54,6 +55,7 @@ This version adds a dependency on Swift.
 - SentrySDK.close calls flush, which is a blocking call (#2453)
 - Bump minimum Xcode version to 13 (#2483)
 - Rename `SentryOptions.enableOutOfMemoryTracking` to `SentryOptions.enableWatchdogTerminationTracking` (#2499)
+- Remove the automatic `viewAppearing` span for UIViewController APM (#2511)
 
 ## 8.0.0-beta.4
 

@@ -12,7 +12,6 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     let viewWillLoad = "viewWillLoad"
     let viewDidLoad = "viewDidLoad"
     let viewWillAppear = "viewWillAppear"
-    let viewAppearing = "viewAppearing"
     let viewDidAppear = "viewDidAppear"
     let viewWillDisappear = "viewWillDisappear"
     let viewWillLayoutSubviews = "viewWillLayoutSubviews"
@@ -168,15 +167,9 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
         XCTAssertFalse(tracer.isFinished)
         
-        let viewAppearingSpan = (Dynamic(transactionSpan).children as [Span]?)!.last!
-        XCTAssertEqual(viewAppearingSpan.parentSpanId, tracer.spanId)
-        XCTAssertEqual(viewAppearingSpan.spanDescription, self.viewAppearing)
-        
         lifecycleEndingMethod(sut, viewController, tracker, callbackExpectation, tracer)
 
-        XCTAssertEqual(finishStatus.rawValue, viewAppearingSpan.status.rawValue)
-
-        XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 8)
+        XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 7)
         XCTAssertTrue(tracer.isFinished)
         XCTAssertEqual(finishStatus.rawValue, tracer.status.rawValue)
 
@@ -237,7 +230,6 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
         try assertSpanDuration(span: lastSpan, expectedDuration: 1)
         
-        let viewAppearingSpan = try XCTUnwrap((Dynamic(transactionSpan).children as [Span]?)?.last)
         advanceTime(bySeconds: 4)
 
         sut.viewControllerViewDidAppear(viewController) {
@@ -246,8 +238,6 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             callbackExpectation.fulfill()
         }
         try assertSpanDuration(span: lastSpan, expectedDuration: 5)
-        try assertSpanDuration(span: viewAppearingSpan, expectedDuration: 4)
-        
         try assertSpanDuration(span: transactionSpan, expectedDuration: 22)
         
         wait(for: [callbackExpectation], timeout: 0)
@@ -292,7 +282,6 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
         try assertSpanDuration(span: lastSpan, expectedDuration: 1)
         
-        let viewAppearingSpan = try XCTUnwrap((Dynamic(transactionSpan).children as [Span]?)?.last)
         advanceTime(bySeconds: 4)
         
         sut.viewControllerViewDidAppear(viewController) {
@@ -300,8 +289,6 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             self.advanceTime(bySeconds: 5)
         }
         try assertSpanDuration(span: lastSpan, expectedDuration: 5)
-        try assertSpanDuration(span: viewAppearingSpan, expectedDuration: 4)
-        
         try assertSpanDuration(span: transactionSpan, expectedDuration: 21)
 
         assertTrackerIsEmpty(tracker)
@@ -339,7 +326,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertTrue(unwrappedTransactionSpan.isFinished)
 
         let children = try XCTUnwrap(Dynamic(unwrappedTransactionSpan).children.asArray)
-        XCTAssertEqual(children.count, 5)
+        XCTAssertEqual(children.count, 4)
 
         assertTrackerIsEmpty(tracker)
     }
@@ -376,7 +363,6 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     func testSpanAssociatedConstants() {
         XCTAssertEqual(SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, "SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID")
         XCTAssertEqual(SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID, "SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID")
-        XCTAssertEqual(SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID, "SENTRY_UI_PERFORMANCE_TRACKER_VIEWAPPEARING_SPAN_ID")
     }
     
     func testOverloadCall() throws {
@@ -515,13 +501,13 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
 
         firstSpanChildren = Dynamic(firstTransaction).children as [Span]?
-        XCTAssertEqual(firstSpanChildren?.count, 7)
+        XCTAssertEqual(firstSpanChildren?.count, 6)
 
         sut.viewControllerViewDidAppear(secondController) {
         }
 
         secondSpanChildren = Dynamic(secondTransaction).children as [Span]?
-        XCTAssertEqual(secondSpanChildren?.count, 7)
+        XCTAssertEqual(secondSpanChildren?.count, 6)
     }
 
     private func assertSpanDuration(span: Span?, expectedDuration: TimeInterval) throws {
