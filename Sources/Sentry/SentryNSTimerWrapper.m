@@ -4,7 +4,7 @@
 
 - (NSTimer *)scheduledTimerWithTimeInterval:(NSTimeInterval)interval
                                     repeats:(BOOL)repeats
-                                      block:(void(NS_SWIFT_SENDABLE ^)(NSTimer *timer))block
+                                      block:(void (^)(NSTimer *timer))block
 {
     return [NSTimer scheduledTimerWithTimeInterval:interval repeats:repeats block:block];
 }
