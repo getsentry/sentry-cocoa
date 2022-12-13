@@ -8,9 +8,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly, getter=isLowPowerModeEnabled) BOOL lowPowerModeEnabled;
 @property (readonly) NSUInteger processorCount;
 
-- (void)monitorForPowerStateChanges:(id)target callback:(SEL)callback;
-- (void)monitorForThermalStateChanges:(id)target callback:(SEL)callback;
-- (void)stopMonitoring:(id)target;
+- (void)monitorForPowerStateChanges:(id)observer callback:(SEL)callback;
+- (void)monitorForThermalStateChanges:(id)observer callback:(SEL)callback;
+- (void)stopMonitoring:(id)observer;
 
 @end
 

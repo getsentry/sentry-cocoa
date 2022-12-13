@@ -19,35 +19,35 @@
     return NSProcessInfo.processInfo.processorCount;
 }
 
-- (void)monitorForPowerStateChanges:(id)target callback:(SEL)callback
+- (void)monitorForPowerStateChanges:(id)observer callback:(SEL)callback
 {
     // According to Apple docs: "This notification is posted on the global dispatch queue. The
     // object associated with the notification is NSProcessInfo.processInfo."
     [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-        addObserver:target
+        addObserver:observer
            selector:callback
                name:NSProcessInfoPowerStateDidChangeNotification
              object:NSProcessInfo.processInfo];
 }
 
-- (void)monitorForThermalStateChanges:(id)target callback:(SEL)callback
+- (void)monitorForThermalStateChanges:(id)observer callback:(SEL)callback
 {
     // According to Apple docs: "This notification is posted on the global dispatch queue. The
     // object associated with the notification is NSProcessInfo.processInfo."
     [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-        addObserver:target
+        addObserver:observer
            selector:callback
                name:NSProcessInfoThermalStateDidChangeNotification
              object:NSProcessInfo.processInfo];
 }
 
-- (void)stopMonitoring:(id)target
+- (void)stopMonitoring:(id)observer
 {
     const auto notifier = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
-    [notifier removeObserver:target
+    [notifier removeObserver:observer
                         name:NSProcessInfoThermalStateDidChangeNotification
                       object:NSProcessInfo.processInfo];
-    [notifier removeObserver:target
+    [notifier removeObserver:observer
                         name:NSProcessInfoPowerStateDidChangeNotification
                       object:NSProcessInfo.processInfo];
 }
