@@ -21,6 +21,7 @@ This version adds a dependency on Swift.
 - The SDK no longer reports an OOM when a crash happens after closing the SDK (#2468)
 - Don't capture zero size screenshots ([#2459](https://github.com/getsentry/sentry-cocoa/pull/2459))
 - Use the preexisting app release version format for profiles (#2470)
+- Don't add out of date context for crashes (#2523)
 
 ### Breaking Changes
 
