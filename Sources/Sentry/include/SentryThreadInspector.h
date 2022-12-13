@@ -12,6 +12,8 @@ SENTRY_NO_INIT
 - (id)initWithStacktraceBuilder:(SentryStacktraceBuilder *)stacktraceBuilder
        andMachineContextWrapper:(id<SentryCrashMachineContextWrapper>)machineContextWrapper;
 
+- (SentryThread *) getCurrentThreadInAppFrames;
+
 /**
  * Gets current threads with the stacktrace only for the current thread. Frames from the SentrySDK
  * are not included. For more details checkout SentryStacktraceBuilder.

@@ -58,6 +58,24 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
     return self;
 }
 
+- (SentryThread *) getCurrentThreadInAppFrames {
+    SentryCrashMC_NEW_CONTEXT(context);
+    SentryCrashThread thread = sentrycrashthread_self();
+
+    [self.machineContextWrapper fillContextForCurrentThread:context];
+
+    SentryThread *sentryThread = [[SentryThread alloc] initWithThreadId:@(0)];
+
+    sentryThread.name = [self getThreadName:thread];
+
+    sentryThread.crashed = @NO;
+    sentryThread.current = @YES;
+
+    sentryThread.stacktrace = [self.stacktraceBuilder buildStacktraceForCurrentThread];
+
+    return sentryThread;
+}
+
 - (NSArray<SentryThread *> *)getCurrentThreads
 {
     NSMutableArray<SentryThread *> *threads = [NSMutableArray new];
