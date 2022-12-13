@@ -11,7 +11,11 @@
 
 - (BOOL)isLowPowerModeEnabled
 {
-    return NSProcessInfo.processInfo.isLowPowerModeEnabled;
+    if (@available(macOS 12.0, *)) {
+        return NSProcessInfo.processInfo.isLowPowerModeEnabled;
+    } else {
+        return NO;
+    }
 }
 
 - (NSUInteger)processorCount
@@ -24,11 +28,13 @@
     // According to Apple docs: "This notification is posted on the global dispatch queue. The
     // object associated with the notification is NSProcessInfo.processInfo." See the declaration
     // for NSProcessInfoPowerStateDidChangeNotification in NSProcessInfo.h for more information.
-    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-        addObserver:observer
-           selector:callback
-               name:NSProcessInfoPowerStateDidChangeNotification
-             object:NSProcessInfo.processInfo];
+    if (@available(macOS 12.0, *)) {
+        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+            addObserver:observer
+               selector:callback
+                   name:NSProcessInfoPowerStateDidChangeNotification
+                 object:NSProcessInfo.processInfo];
+    }
 }
 
 - (void)monitorForThermalStateChanges:(id)observer callback:(SEL)callback
@@ -49,9 +55,11 @@
     [notifier removeObserver:observer
                         name:NSProcessInfoThermalStateDidChangeNotification
                       object:NSProcessInfo.processInfo];
-    [notifier removeObserver:observer
-                        name:NSProcessInfoPowerStateDidChangeNotification
-                      object:NSProcessInfo.processInfo];
+    if (@available(macOS 12.0, *)) {
+        [notifier removeObserver:observer
+                            name:NSProcessInfoPowerStateDidChangeNotification
+                          object:NSProcessInfo.processInfo];
+    }
 }
 
 @end

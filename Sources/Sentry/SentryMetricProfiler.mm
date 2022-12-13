@@ -171,8 +171,11 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
     [self recordThermalState];
 
     [_processInfoWrapper monitorForThermalStateChanges:self callback:@selector(recordThermalState)];
-    [_processInfoWrapper monitorForPowerStateChanges:self
-                                            callback:@selector(recordPowerLevelState)];
+
+    if (@available(macOS 12.0, *)) {
+        [_processInfoWrapper monitorForPowerStateChanges:self
+                                                callback:@selector(recordPowerLevelState)];
+    }
 }
 
 - (void)recordThermalState
@@ -182,8 +185,10 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
 
 - (void)recordPowerLevelState
 {
-    [_powerLevelState
-        addObject:[self metricEntryForValue:@(_processInfoWrapper.isLowPowerModeEnabled)]];
+    if (@available(macOS 12.0, *)) {
+        [_powerLevelState
+            addObject:[self metricEntryForValue:@(_processInfoWrapper.isLowPowerModeEnabled)]];
+    }
 }
 
 - (void)recordMemoryFootprint
