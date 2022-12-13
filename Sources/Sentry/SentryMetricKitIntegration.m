@@ -1,5 +1,6 @@
 #import "SentryScope.h"
 #import <Foundation/Foundation.h>
+#import <SentryDebugMeta.h>
 #import <SentryDependencyContainer.h>
 #import <SentryEvent.h>
 #import <SentryException.h>
@@ -104,7 +105,7 @@ SentryMetricKitIntegration ()
                   totalCPUTime, totalSampledTime];
 
     // Still need to figure out proper exception values and types.
-    // This code is currently only there for testing with Testflight.
+    // This code is currently only there for testing with TestFlight.
     [self captureMXEvent:callStackTree
           exceptionValue:exceptionValue
            exceptionType:@"MXCPUException"
@@ -123,7 +124,7 @@ SentryMetricKitIntegration ()
         [NSString stringWithFormat:@"MXDiskWriteException totalWritesCaused:%@", totalWritesCaused];
 
     // Still need to figure out proper exception values and types.
-    // This code is currently only there for testing with Testflight.
+    // This code is currently only there for testing with TestFlight.
     [self captureMXEvent:callStackTree
           exceptionValue:exceptionValue
            exceptionType:@"MXDiskWriteException"
@@ -145,6 +146,7 @@ SentryMetricKitIntegration ()
     event.exceptions = @[ exception ];
 
     event.threads = [self convertToSentryThreads:callStackTree.callStacks];
+    event.debugMeta = [self extractDebugMeta:callStackTree.callStacks];
 
     // The crash event can be way from the past. We don't want to impact the current session.
     // Therefore we don't call captureCrashEvent.
@@ -183,6 +185,38 @@ SentryMetricKitIntegration ()
     }
 
     return threads;
+}
+
+/**
+ * We must extract the debug images from the MetricKit stacktraces as the image addresses change
+ * when you restart the app.
+ */
+- (NSArray<SentryDebugMeta *> *)extractDebugMeta:(NSArray<SentryMXCallStack *> *)callStacks
+{
+    NSMutableDictionary<NSString *, SentryDebugMeta *> *debugMetas =
+        [NSMutableDictionary dictionary];
+    for (SentryMXCallStack *callStack in callStacks) {
+
+        for (SentryMXFrame *mxFrame in callStack.flattenedRootFrames) {
+
+            NSString *binaryUUID = [mxFrame.binaryUUID UUIDString];
+            if (debugMetas[binaryUUID]) {
+                continue;
+            }
+
+            SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
+            debugMeta.type = @"apple";
+            debugMeta.uuid = binaryUUID;
+            debugMeta.name = mxFrame.binaryName;
+
+            NSNumber *imageAddress = @(mxFrame.address - mxFrame.offsetIntoBinaryTextSegment);
+            debugMeta.imageAddress = sentry_formatHexAddress(imageAddress);
+
+            debugMetas[debugMeta.uuid] = debugMeta;
+        }
+    }
+
+    return [debugMetas allValues];
 }
 
 @end

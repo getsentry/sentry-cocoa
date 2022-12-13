@@ -132,6 +132,22 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             
             XCTAssertEqual(exceptionType, exception?.type)
             XCTAssertEqual(exceptionValue, exception?.value)
+            
+            XCTAssertEqual(2, event?.debugMeta?.count)
+            guard let debugMeta = event?.debugMeta else {
+                XCTFail("Event has no debugMeta.")
+                return
+            }
+            
+            XCTAssertEqual("apple", debugMeta[0].type)
+            XCTAssertEqual("9E8D8DE6-EEC1-3199-8720-9ED68EE3F967", debugMeta[0].uuid)
+            XCTAssertEqual("0x000000010109c000", debugMeta[0].imageAddress)
+            XCTAssertEqual("Sentry", debugMeta[0].name)
+            
+            XCTAssertEqual("apple", debugMeta[1].type)
+            XCTAssertEqual("CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF", debugMeta[1].uuid)
+            XCTAssertEqual("0x0000000100f3c000", debugMeta[1].imageAddress)
+            XCTAssertEqual("iOS-Swift", debugMeta[1].name)
         }
     }
     
@@ -148,6 +164,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         let lastRootFrameImageAddress = formatHexAddress(value: mxFrame.address - UInt64(mxFrame.offsetIntoBinaryTextSegment))
         XCTAssertEqual(lastRootFrameImageAddress, sentryFrame.imageAddress)
     }
+  
 }
 
 @available(iOS 14, macOS 12, *)
