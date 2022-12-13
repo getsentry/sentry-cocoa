@@ -1,6 +1,6 @@
 import XCTest
 
-class SentryOutOfMemoryScopeObserverTests: XCTestCase {
+class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
     private class Fixture {
         let breadcrumb: Breadcrumb
         let options: Options
@@ -16,17 +16,17 @@ class SentryOutOfMemoryScopeObserverTests: XCTestCase {
             fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate, dispatchQueueWrapper: dispatchQueue)
         }
 
-        func getSut() -> SentryOutOfMemoryScopeObserver {
+        func getSut() -> SentryWatchdogTerminationScopeObserver {
             return getSut(fileManager: self.fileManager)
         }
 
-        func getSut(fileManager: SentryFileManager) -> SentryOutOfMemoryScopeObserver {
-            return SentryOutOfMemoryScopeObserver(maxBreadcrumbs: 10, fileManager: fileManager)
+        func getSut(fileManager: SentryFileManager) -> SentryWatchdogTerminationScopeObserver {
+            return SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 10, fileManager: fileManager)
         }
     }
 
     private var fixture: Fixture!
-    private var sut: SentryOutOfMemoryScopeObserver!
+    private var sut: SentryWatchdogTerminationScopeObserver!
 
     override func setUp() {
         super.setUp()

@@ -38,9 +38,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
 #endif
             @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
             @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
-            @"SentryOutOfMemoryTrackingIntegration", @"SentryPerformanceTrackingIntegration",
-            @"SentryNetworkTrackingIntegration", @"SentryFileIOTrackingIntegration",
-            @"SentryCoreDataTrackingIntegration"
+            @"SentryWatchdogTerminationTrackingIntegration",
+            @"SentryPerformanceTrackingIntegration", @"SentryNetworkTrackingIntegration",
+            @"SentryFileIOTrackingIntegration", @"SentryCoreDataTrackingIntegration"
         ]
             .mutableCopy;
 
@@ -65,14 +65,14 @@ NSString *const kSentryDefaultEnvironment = @"production";
         _defaultSampleRate = @1;
         self.sampleRate = _defaultSampleRate;
         self.enableAutoSessionTracking = YES;
-        self.enableOutOfMemoryTracking = YES;
+        self.enableWatchdogTerminationTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
         self.stitchAsyncCode = NO;
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
         self.enableAutoPerformanceTracing = YES;
-        self.enableCaptureFailedRequests = NO;
+        self.enableCaptureFailedRequests = YES;
         self.environment = kSentryDefaultEnvironment;
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracing = YES;

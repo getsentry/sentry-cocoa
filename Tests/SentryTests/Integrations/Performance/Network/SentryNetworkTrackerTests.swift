@@ -148,6 +148,24 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(spans!.count, 0)
     }
 
+    func testFinishedSpan() {
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        let tracer = SentryTracer(transactionContext: TransactionContext(name: SentryNetworkTrackerTests.transactionName,
+                                                                         operation: SentryNetworkTrackerTests.transactionOperation),
+                                  hub: nil,
+                                  waitForChildren: true)
+
+        tracer.finish()
+
+        fixture.scope.span = tracer
+
+        sut.urlSessionTaskResume(task)
+
+        let spans = Dynamic(tracer).children as [Span]?
+        XCTAssertEqual(spans?.count, 0)
+    }
+
     func testCaptureRequestDuration() {
         let sut = fixture.getSut()
         let task = createDataTask()

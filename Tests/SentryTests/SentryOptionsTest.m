@@ -93,7 +93,7 @@
         @"Default integrations are not set correctly");
     XCTAssertEqual(@1, options.sampleRate);
     XCTAssertEqual(YES, options.enableAutoSessionTracking);
-    XCTAssertEqual(YES, options.enableOutOfMemoryTracking);
+    XCTAssertEqual(YES, options.enableWatchdogTerminationTracking);
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
     XCTAssertEqual(YES, options.attachStacktrace);
     XCTAssertEqual(NO, options.stitchAsyncCode);
@@ -132,7 +132,7 @@
     NSRegularExpression *regexRequests = options.failedRequestTargets[0];
     XCTAssertTrue([regexRequests.pattern isEqualToString:@".*"]);
 
-    XCTAssertEqual(NO, options.enableCaptureFailedRequests);
+    XCTAssertEqual(YES, options.enableCaptureFailedRequests);
 
     SentryHttpStatusCodeRange *range = options.failedRequestStatusCodes[0];
     XCTAssertEqual(500, range.min);
