@@ -22,7 +22,8 @@
 - (void)monitorForPowerStateChanges:(id)observer callback:(SEL)callback
 {
     // According to Apple docs: "This notification is posted on the global dispatch queue. The
-    // object associated with the notification is NSProcessInfo.processInfo."
+    // object associated with the notification is NSProcessInfo.processInfo." See the declaration
+    // for NSProcessInfoPowerStateDidChangeNotification in NSProcessInfo.h for more information.
     [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
         addObserver:observer
            selector:callback
@@ -33,7 +34,8 @@
 - (void)monitorForThermalStateChanges:(id)observer callback:(SEL)callback
 {
     // According to Apple docs: "This notification is posted on the global dispatch queue. The
-    // object associated with the notification is NSProcessInfo.processInfo."
+    // object associated with the notification is NSProcessInfo.processInfo." See the declaration
+    // for NSProcessInfoThermalStateDidChangeNotification in NSProcessInfo.h for more information.
     [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
         addObserver:observer
            selector:callback
