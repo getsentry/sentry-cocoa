@@ -51,7 +51,7 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         let callStack = try XCTUnwrap(callStackTree.callStacks.first)
         XCTAssertTrue(callStack.threadAttributed ?? false)
         
-        XCTAssertEqual(2, callStack.flattenedRootFrames.count)
+        XCTAssertEqual(3, callStack.flattenedRootFrames.count)
         
         let firstFrame = try XCTUnwrap(callStack.flattenedRootFrames[0])
         XCTAssertEqual(UUID(uuidString: "9E8D8DE6-EEC1-3199-8720-9ED68EE3F967"), firstFrame.binaryUUID)
@@ -67,7 +67,15 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         XCTAssertEqual(1, secondFrame.sampleCount)
         XCTAssertEqual("iOS-Swift", secondFrame.binaryName)
         XCTAssertEqual(4_310_988_076, secondFrame.address)
-        XCTAssertNil(secondFrame.subFrames)
+        XCTAssertEqual(1, secondFrame.subFrames?.count)
+        
+        let thirdFrame = try XCTUnwrap(callStack.flattenedRootFrames[2])
+        XCTAssertEqual(UUID(uuidString: "CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF"), thirdFrame.binaryUUID)
+        XCTAssertEqual(46_370, thirdFrame.offsetIntoBinaryTextSegment)
+        XCTAssertEqual(1, thirdFrame.sampleCount)
+        XCTAssertEqual("iOS-Swift", thirdFrame.binaryName)
+        XCTAssertEqual(4_310_988_026, thirdFrame.address)
+        XCTAssertNil(thirdFrame.subFrames)
         
         XCTAssertEqual(try XCTUnwrap(firstFrame.subFrames?[0]), secondFrame)
     }
