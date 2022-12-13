@@ -80,11 +80,17 @@ class SentryProfilerSwiftTests: XCTestCase {
             fixture.processInfoWrapper.sendThermalStateChangeNotification()
         }
 
-        self.fixture.timerWrapper.fire()
-        self.fixture.timerWrapper.fire()
+        for _ in 0..<2 {
+            let cpuExp = expectation(description: "first set of cpu measurements are gathered")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.fixture.timerWrapper.fire()
+                cpuExp.fulfill()
+            }
+            waitForExpectations(timeout: 1)
+        }
 
         let exp = expectation(description: "Receives profile payload")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             span.finish()
 
             do {
