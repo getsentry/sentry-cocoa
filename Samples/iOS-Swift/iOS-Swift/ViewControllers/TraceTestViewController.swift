@@ -35,7 +35,6 @@ class TraceTestViewController: UIViewController {
         dataTask.resume()
         spanObserver = createTransactionObserver(forCallback: assertTransaction)
         appendLifeCycleStep("viewWillAppear")
-        appendLifeCycleStep("viewAppearing")
     }
     
     override func viewDidAppear(_ animated: Bool) {
