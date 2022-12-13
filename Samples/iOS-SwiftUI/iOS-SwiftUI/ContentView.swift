@@ -93,7 +93,7 @@ struct ContentView: View {
     }
     
     var body: some View {
-        SentryTracerView("Content View Body") {
+        SentryTraceView("Content View Body") {
             NavigationView {
                 VStack(alignment: HorizontalAlignment.center, spacing: 16) {
                     Text(getCurrentTracer()?.transactionContext.name ?? "NO SPAN")
@@ -101,7 +101,7 @@ struct ContentView: View {
                     Text(getCurrentTracer()?.transactionContext.spanId.sentrySpanIdString ?? "NO ID")
                         .accessibilityIdentifier("TRANSACTION_ID")
                     
-                    SentryTracerView("Child Span") {
+                    SentryTraceView("Child Span") {
                         VStack {
                             Text(getCurrentSpan()?.spanDescription ?? "NO SPAN")
                                 .accessibilityIdentifier("CHILD_NAME")

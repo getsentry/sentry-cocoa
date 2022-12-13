@@ -19,7 +19,7 @@ import SentryInternal
 /// By default, the transaction name will be the first root view, in the case above `VStack`.
 /// You can give your transaction a custom name by providing the name parameter.
 ///
-///     sentryTrace("My Awesome Screen") {
+///     SentryTraceView("My Awesome Screen") {
 ///         VStack {
 ///             // The part of your content you want to measure
 ///         }
@@ -29,11 +29,11 @@ import SentryInternal
 ///
 ///     VStack {
 ///         //The part of your content you want to measure
-///     }.sentryTransaction("My Awesome Screen")
+///     }.sentryTrace("My Awesome Screen")
 ///
 ///
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
-public struct SentryTracerView<Content: View>: View {
+public struct SentryTraceView<Content: View>: View {
     
     let content: () -> Content
     let name: String
