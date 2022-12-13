@@ -439,7 +439,7 @@ SentryFileManager ()
     NSError *error = nil;
     NSData *data = [SentrySerialization dataWithJSONObject:[appState serialize] error:&error];
 
-    if (nil != error) {
+    if (error != nil) {
         SENTRY_LOG_ERROR(
             @"Failed to store app state, because of an error in serialization: %@", error);
         return;
