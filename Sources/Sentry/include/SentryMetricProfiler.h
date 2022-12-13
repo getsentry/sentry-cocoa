@@ -1,11 +1,6 @@
 #import "SentryDefines.h"
+#import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
-
-NS_ASSUME_NONNULL_BEGIN
-SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationKeyPowerState;
-SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationKeyThermalState;
-SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationKeyCPUUsageFormat;
-NS_ASSUME_NONNULL_END
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -17,6 +12,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationKeyMemoryFootprint;
 SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationKeyMemoryPressure;
+SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationKeyPowerState;
+SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationKeyThermalState;
+SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationKeyCPUUsageFormat;
 
 SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationUnitBytes;
 SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationUnitBoolean;
@@ -43,15 +41,5 @@ SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationUnitPercentage;
 @end
 
 NS_ASSUME_NONNULL_END
-
-#else
-
-// if we don't have this declaration, we wind up with a linker error: "Undefined symbol:
-// _OBJC_CLASS_$_SentryMetricProfiler" referenced from SentryProfiler. Even though both are
-// completely covered by #if SENTRY_TARGET_PROFILING_SUPPORTED. Not sure what's going on there
-// (armcknight 13 Dec 2022)
-
-@interface SentryMetricProfiler : NSObject
-@end
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
