@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSTimer *)scheduledTimerWithTimeInterval:(NSTimeInterval)interval
                                     repeats:(BOOL)repeats
-                                      block:(void(NS_SWIFT_SENDABLE ^)(NSTimer *timer))block;
+                                      block:(void (^)(NSTimer *timer))block;
 
 @end
 
