@@ -64,15 +64,12 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     }
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    func testANRDetected_UpdatesAppStateToTrue_disabled() {
+    func testANRDetected_UpdatesAppStateToTrue() throws {
         givenInitializedTracker()
         
         Dynamic(sut).anrDetected()
-        
-        guard let appState = fixture.fileManager.readAppState() else {
-            XCTFail("appState must not be nil")
-            return
-        }
+
+        let appState = try XCTUnwrap(fixture.fileManager.readAppState())
         
         XCTAssertTrue(appState.isANROngoing)
     }
