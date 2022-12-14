@@ -7,7 +7,9 @@ This version adds a dependency on Swift.
 ### Features
 
 - Properly demangle Swift class name (#2162)
+- SwiftUI performance tracking (#2271)
 - Enable [File I/O Tracking](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/#file-io-tracking) by default (#2497)
+- Add synthetic for mechanism (#2501)
 - [User Interaction Tracing](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/#user-interaction-tracing) is stable and enabled by default(#2503)
 - Add synthetic for mechanism (#2501)
 - Enable CaptureFailedRequests by default (#2507)
