@@ -62,16 +62,13 @@
                   Identifier = "SentryCrashReportStore_Tests/testCrashReportCount1_disabled">
                </Test>
                <Test
-                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readPath_disabled()">
-               </Test>
-               <Test
-                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl_disabled()">
-               </Test>
-               <Test
                   Identifier = "SentryNSErrorTests/testSerializeWithUnderlyingNSException_disabled()">
                </Test>
                <Test
                   Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndBaggageHeaderAdded_disabled()">
+               </Test>
+               <Test
+                  Identifier = "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout_disabled()">
                </Test>
                <Test
                   Identifier = "SentryProfilerSwiftTests/testProfileTimeoutTimer_disabled()">
@@ -88,10 +85,17 @@
                <Test
                   Identifier = "SentryStacktraceBuilderTests/testAsyncStacktraces_disabled()">
                </Test>
-               <Test
-                  Identifier = "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout_disabled()">
-               </Test>
             </SkippedTests>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "7B64386726A6C544000D0F65"
+               BuildableName = "iOS-SwiftUITests.xctest"
+               BlueprintName = "iOS-SwiftUITests"
+               ReferencedContainer = "container:Samples/iOS-Swift/iOS-Swift.xcodeproj">
+            </BuildableReference>
          </TestableReference>
       </Testables>
    </TestAction>
