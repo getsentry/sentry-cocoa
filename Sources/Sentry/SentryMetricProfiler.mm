@@ -217,6 +217,8 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
         return;
     }
 
+    SENTRY_LOG_DEBUG(@"Reporting CPU usages: %@", result);
+
     [result enumerateObjectsUsingBlock:^(NSNumber *_Nonnull usage, NSUInteger core,
         BOOL *_Nonnull stop) { [_cpuUsage[@(core)] addObject:[self metricEntryForValue:usage]]; }];
 }
