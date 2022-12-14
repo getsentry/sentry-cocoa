@@ -686,6 +686,12 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     const auto envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader singleItem:item];
 
     SENTRY_LOG_DEBUG(@"Capturing profile envelope.");
+    SENTRY_LOG_DEBUG(@"Payload: %@",
+        [[NSString alloc]
+            initWithData:[NSJSONSerialization dataWithJSONObject:profile
+                                                         options:NSJSONWritingPrettyPrinted
+                                                           error:nil]
+                encoding:NSUTF8StringEncoding]);
     [_hub captureEnvelope:envelope];
 }
 
