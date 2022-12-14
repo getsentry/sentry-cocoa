@@ -4,7 +4,7 @@ class TestSentryNSProcessInfoWrapper: SentryNSProcessInfoWrapper {
     struct Override {
         var isLowPowerModeEnabled: Bool?
         var thermalState: ProcessInfo.ThermalState?
-        var processorCount: UInt
+        var processorCount: UInt?
     }
 
     var overrides = Override()
