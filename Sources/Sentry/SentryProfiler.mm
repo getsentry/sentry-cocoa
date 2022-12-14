@@ -687,11 +687,10 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 
     SENTRY_LOG_DEBUG(@"Capturing profile envelope.");
     SENTRY_LOG_DEBUG(@"Payload: %@",
-        [[NSString alloc]
-            initWithData:[NSJSONSerialization dataWithJSONObject:profile
-                                                         options:NSJSONWritingPrettyPrinted
-                                                           error:nil]
-                encoding:NSUTF8StringEncoding]);
+        [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:profile
+                                                                       options:0
+                                                                         error:nil]
+                              encoding:NSUTF8StringEncoding]);
     [_hub captureEnvelope:envelope];
 }
 
