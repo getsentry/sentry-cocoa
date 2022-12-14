@@ -61,7 +61,8 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
             NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *>
             dictionary];
         const auto processorCount = processInfoWrapper.processorCount;
-        SENTRY_LOG_DEBUG(@"Preparing %d arrays for CPU core usage readings", processorCount);
+        SENTRY_LOG_DEBUG(
+            @"Preparing %lu arrays for CPU core usage readings", (long unsigned)processorCount);
         for (NSUInteger core = 0; core < processorCount; core++) {
             _cpuUsage[@(core)] = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
         }
@@ -223,7 +224,7 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
 
     [result enumerateObjectsUsingBlock:^(
         NSNumber *_Nonnull usage, NSUInteger core, BOOL *_Nonnull stop) {
-        SENTRY_LOG_DEBUG(@"Adding cpu usage %@ for core %d", usage, core);
+        SENTRY_LOG_DEBUG(@"Adding cpu usage %@ for core %lu", usage, (long unsigned)core);
         [_cpuUsage[@(core)] addObject:[self metricEntryForValue:usage]];
     }];
 }
