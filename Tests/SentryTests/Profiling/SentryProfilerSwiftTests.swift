@@ -332,7 +332,6 @@ private extension SentryProfilerSwiftTests {
         for (i, expectedUsage) in expectedCPUUsages.enumerated() {
             let key = NSString(format: kSentryMetricProfilerSerializationKeyCPUUsageFormat as NSString, i) as String
             guard let cpuUsage = measurements[key] as? [String: Any] else {
-                print("no key \(key) in measurements payload: \(measurements)")
                 throw TestError.noCPUUsageEvents
             }
             guard let values = cpuUsage["values"] as? [[String: Any]] else {

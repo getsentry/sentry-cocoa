@@ -126,15 +126,12 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
     [_cpuUsage enumerateKeysAndObjectsUsingBlock:^(NSNumber *_Nonnull core,
         NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_Nonnull readings,
         BOOL *_Nonnull stop) {
-        SENTRY_LOG_DEBUG(@"Serializing CPU usages for core %@: %@", core, readings);
         if (readings.count > 0) {
             dict[[NSString stringWithFormat:kSentryMetricProfilerSerializationKeyCPUUsageFormat,
                            core.intValue]]
                 = serializedValues(readings, kSentryMetricProfilerSerializationUnitPercentage);
         }
     }];
-
-    SENTRY_LOG_DEBUG(@"Returning serialized metrics: %@", dict);
 
     return dict;
 }
@@ -222,13 +219,8 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
         return;
     }
 
-    SENTRY_LOG_DEBUG(@"Reporting CPU usages: %@", result);
-
-    [result enumerateObjectsUsingBlock:^(
-        NSNumber *_Nonnull usage, NSUInteger core, BOOL *_Nonnull stop) {
-        SENTRY_LOG_DEBUG(@"Adding cpu usage %@ for core %lu", usage, (long unsigned)core);
-        [_cpuUsage[@(core)] addObject:[self metricEntryForValue:usage]];
-    }];
+    [result enumerateObjectsUsingBlock:^(NSNumber *_Nonnull usage, NSUInteger core,
+        BOOL *_Nonnull stop) { [_cpuUsage[@(core)] addObject:[self metricEntryForValue:usage]]; }];
 }
 
 - (NSDictionary<NSString *, NSNumber *> *)metricEntryForValue:(NSNumber *)value
