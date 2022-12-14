@@ -329,7 +329,9 @@ private extension SentryProfilerSwiftTests {
         XCTAssertEqual(thermalState.count, thermalStateNotifications + 1)
 
         for (i, expectedUsage) in expectedCPUUsages.enumerated() {
-            guard let cpuUsage = measurements[NSString(format: kSentryMetricProfilerSerializationKeyCPUUsageFormat as NSString, i) as String] as? [String: Any] else {
+            let key = NSString(format: kSentryMetricProfilerSerializationKeyCPUUsageFormat as NSString, i) as String
+            guard let cpuUsage = measurements[key] as? [String: Any] else {
+                print("no key \(key) in measurements payload: \(measurements)")
                 throw TestError.noCPUUsageEvents
             }
             guard let values = cpuUsage["values"] as? [[String: Any]] else {
