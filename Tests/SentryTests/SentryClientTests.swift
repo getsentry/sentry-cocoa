@@ -28,7 +28,6 @@ class SentryClientTest: XCTestCase {
         let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
         let transaction: Transaction
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
-        let permissionsObserver = TestSentryPermissionsObserver()
         let deviceWrapper = TestSentryUIDeviceWrapper()
         let locale = Locale(identifier: "en_US")
         let timezone = TimeZone(identifier: "Europe/Vienna")!
@@ -75,7 +74,6 @@ class SentryClientTest: XCTestCase {
                     threadInspector: threadInspector,
                     random: random,
                     crashWrapper: crashWrapper,
-                    permissionsObserver: permissionsObserver,
                     deviceWrapper: deviceWrapper,
                     locale: locale,
                     timezone: timezone
@@ -647,22 +645,6 @@ class SentryClientTest: XCTestCase {
 #endif
     }
 
-    func testCaptureEvent_AddCurrentPermissions() {
-        fixture.permissionsObserver.internalLocationPermissionStatus = SentryPermissionStatus.granted
-        fixture.permissionsObserver.internalPushPermissionStatus = SentryPermissionStatus.granted
-        fixture.permissionsObserver.internalMediaLibraryPermissionStatus = SentryPermissionStatus.denied
-        fixture.permissionsObserver.internalPhotoLibraryPermissionStatus = SentryPermissionStatus.partial
-
-        fixture.getSut().capture(event: TestData.event)
-
-        assertLastSentEvent { actual in
-            let permissions = actual.context?["app"]?["permissions"] as? [String: String]
-            XCTAssertEqual(permissions?["push_notifications"], "granted")
-            XCTAssertEqual(permissions?["location_access"], "granted")
-            XCTAssertEqual(permissions?["photo_library"], "partial")
-        }
-    }
-
     func testCaptureEvent_AddCurrentCulture() {
         fixture.getSut().capture(event: TestData.event)
 
@@ -1109,7 +1091,7 @@ class SentryClientTest: XCTestCase {
 
         let options = Options()
         options.dsn = SentryClientTest.dsn
-        let client = SentryClient(options: options, permissionsObserver: TestSentryPermissionsObserver(), dispatchQueue: TestSentryDispatchQueueWrapper())
+        let client = SentryClient(options: options, dispatchQueue: TestSentryDispatchQueueWrapper())
 
         XCTAssertNil(client)
 
