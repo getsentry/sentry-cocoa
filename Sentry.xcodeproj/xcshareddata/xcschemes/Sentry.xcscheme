@@ -87,16 +87,6 @@
                </Test>
             </SkippedTests>
          </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "7B64386726A6C544000D0F65"
-               BuildableName = "iOS-SwiftUITests.xctest"
-               BlueprintName = "iOS-SwiftUITests"
-               ReferencedContainer = "container:Samples/iOS-Swift/iOS-Swift.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
