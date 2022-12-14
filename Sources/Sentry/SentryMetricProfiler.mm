@@ -134,6 +134,8 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
         }
     }];
 
+    SENTRY_LOG_DEBUG(@"Returning serialized metrics: %@", dict);
+
     return dict;
 }
 
