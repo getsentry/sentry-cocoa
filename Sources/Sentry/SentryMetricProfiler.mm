@@ -61,6 +61,7 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
             NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *>
             dictionary];
         const auto processorCount = processInfoWrapper.processorCount;
+        SENTRY_LOG_DEBUG(@"Preparing %d arrays for CPU core usage readings", processorCount);
         for (NSUInteger core = 0; core < processorCount; core++) {
             _cpuUsage[@(core)] = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
         }
@@ -124,6 +125,7 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
     [_cpuUsage enumerateKeysAndObjectsUsingBlock:^(NSNumber *_Nonnull core,
         NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_Nonnull readings,
         BOOL *_Nonnull stop) {
+        SENTRY_LOG_DEBUG(@"Serializing CPU usages for core %@: %@", core, readings);
         if (readings.count > 0) {
             dict[[NSString stringWithFormat:kSentryMetricProfilerSerializationKeyCPUUsageFormat,
                            core.intValue]]
@@ -219,8 +221,11 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
 
     SENTRY_LOG_DEBUG(@"Reporting CPU usages: %@", result);
 
-    [result enumerateObjectsUsingBlock:^(NSNumber *_Nonnull usage, NSUInteger core,
-        BOOL *_Nonnull stop) { [_cpuUsage[@(core)] addObject:[self metricEntryForValue:usage]]; }];
+    [result enumerateObjectsUsingBlock:^(
+        NSNumber *_Nonnull usage, NSUInteger core, BOOL *_Nonnull stop) {
+        SENTRY_LOG_DEBUG(@"Adding cpu usage %@ for core %d", usage, core);
+        [_cpuUsage[@(core)] addObject:[self metricEntryForValue:usage]];
+    }];
 }
 
 - (NSDictionary<NSString *, NSNumber *> *)metricEntryForValue:(NSNumber *)value
