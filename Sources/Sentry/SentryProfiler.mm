@@ -602,8 +602,10 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
             @"value" : @(frameDuration),
         }];
     }];
-    metrics[@"slow_frame_renders"] =
-        @{ @"unit" : @"nanoseconds", @"values" : relativeFrameTimestampsNs };
+    if (relativeFrameTimestampsNs.count > 0) {
+        metrics[@"slow_frame_renders"] =
+            @{ @"unit" : @"nanoseconds", @"values" : relativeFrameTimestampsNs };
+    }
 
     relativeFrameTimestampsNs = [NSMutableArray array];
     [_frameInfo.frameRateTimestamps enumerateObjectsUsingBlock:^(
@@ -619,7 +621,10 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
             @"value" : refreshRate,
         }];
     }];
-    metrics[@"screen_frame_rates"] = @{ @"unit" : @"hz", @"values" : relativeFrameTimestampsNs };
+    if (relativeFrameTimestampsNs.count > 0) {
+        metrics[@"screen_frame_rates"] =
+            @{ @"unit" : @"hz", @"values" : relativeFrameTimestampsNs };
+    }
 #    endif // SENTRY_HAS_UIKIT
 
     // populate info from all transactions that occurred while profiler was running
