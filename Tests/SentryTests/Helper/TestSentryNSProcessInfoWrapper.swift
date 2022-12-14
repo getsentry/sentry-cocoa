@@ -4,6 +4,7 @@ class TestSentryNSProcessInfoWrapper: SentryNSProcessInfoWrapper {
     struct Override {
         var isLowPowerModeEnabled: Bool?
         var thermalState: ProcessInfo.ThermalState?
+        var processorCount: UInt
     }
 
     var overrides = Override()
@@ -14,6 +15,10 @@ class TestSentryNSProcessInfoWrapper: SentryNSProcessInfoWrapper {
 
     override var isLowPowerModeEnabled: Bool {
         overrides.isLowPowerModeEnabled ?? super.isLowPowerModeEnabled
+    }
+
+    override var processorCount: UInt {
+        overrides.processorCount ?? super.processorCount
     }
 
     @available(iOS 9.0, macOS 12.0, *)
