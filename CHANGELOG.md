@@ -24,6 +24,7 @@ This version adds a dependency on Swift.
 - Don't capture zero size screenshots ([#2459](https://github.com/getsentry/sentry-cocoa/pull/2459))
 - Use the preexisting app release version format for profiles (#2470)
 - Don't add out of date context for crashes (#2523)
+- Fix ARC issue for FileManager (#2525)
 
 ### Breaking Changes
 
