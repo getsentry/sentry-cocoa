@@ -189,6 +189,7 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     XCTAssertEqualObjects(options.dsn, @"https://username:password@sentry.io/1");
     XCTAssertNotNil(options.parsedDsn);
+    setenv("SENTRY_DSN", "", 1);
 }
 
 - (void)testInvalidDsnViaEnvironment
@@ -198,6 +199,7 @@
     XCTAssertNil(options.dsn);
     XCTAssertNil(options.parsedDsn);
     XCTAssertEqual(options.enabled, YES);
+    setenv("SENTRY_DSN", "", 1);
 }
 #endif
 
