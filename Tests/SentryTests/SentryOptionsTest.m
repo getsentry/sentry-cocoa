@@ -182,6 +182,16 @@
     XCTAssertEqual(YES, options.enabled);
 }
 
+#if TARGET_OS_OSX
+- (void)testDsnViaEnvironment
+{
+    setenv("SENTRY_DSN", "https://username:password@sentry.io/1", 1);
+    SentryOptions *options = [[SentryOptions alloc] init];
+    XCTAssertEqualObjects(options.dsn, @"https://username:password@sentry.io/1");
+    XCTAssertNotNil(options.parsedDsn);
+}
+#endif
+
 - (void)testTracesSampleRate_SetToNil
 {
     SentryOptions *options = [[SentryOptions alloc] init];
