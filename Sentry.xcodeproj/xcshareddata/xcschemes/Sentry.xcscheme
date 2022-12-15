@@ -74,6 +74,9 @@
                   Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndBaggageHeaderAdded_disabled()">
                </Test>
                <Test
+                  Identifier = "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout_disabled()">
+               </Test>
+               <Test
                   Identifier = "SentryProfilerSwiftTests/testProfileTimeoutTimer_disabled()">
                </Test>
                <Test
@@ -83,13 +86,7 @@
                   Identifier = "SentrySessionGeneratorTests/testSendSessions_disabled()">
                </Test>
                <Test
-                  Identifier = "SentrySpanTests/testAddAndRemoveData_disabled()">
-               </Test>
-               <Test
                   Identifier = "SentryStacktraceBuilderTests/testAsyncStacktraces_disabled()">
-               </Test>
-               <Test
-                  Identifier = "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout_disabled()">
                </Test>
             </SkippedTests>
          </TestableReference>
