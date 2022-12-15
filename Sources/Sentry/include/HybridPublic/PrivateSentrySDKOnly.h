@@ -93,6 +93,8 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 @property (class, nonatomic, assign, readonly) SentryScreenFrames *currentScreenFrames;
 
 + (NSArray<NSData *> *)captureScreenshots;
+
++ (NSData *) captureViewHierarchy;
 #endif
 
 @end

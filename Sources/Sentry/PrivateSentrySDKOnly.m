@@ -9,6 +9,7 @@
 #import <SentryDependencyContainer.h>
 #import <SentryFramesTracker.h>
 #import <SentryScreenshot.h>
+#import "SentryViewHierarchy.h"
 
 @implementation PrivateSentrySDKOnly
 
@@ -124,6 +125,11 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (NSArray<NSData *> *)captureScreenshots
 {
     return [SentryDependencyContainer.sharedInstance.screenshot takeScreenshots];
+}
+
++ (NSData*)captureViewHierarchy
+{
+    return [SentryDependencyContainer.sharedInstance.viewHierarchy fetchViewHierarchy];
 }
 
 #endif
