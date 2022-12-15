@@ -82,7 +82,8 @@ SentryPerformanceTracker () <SentryTracerDelegate>
             newSpan = [SentrySDK.currentHub startTransactionWithContext:context
                                                             bindToScope:bindToScope
                                                         waitForChildren:YES
-                                                  customSamplingContext:@ {}];
+                                                  customSamplingContext:@{}
+                                                           timerWrapper:nil];
 
             if ([newSpan isKindOfClass:[SentryTracer class]]) {
                 [(SentryTracer *)newSpan setDelegate:self];

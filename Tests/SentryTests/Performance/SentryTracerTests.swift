@@ -16,6 +16,7 @@ class SentryTracerTests: XCTestCase {
         let hub: TestHub
         let scope: Scope
         let dispatchQueue = TestSentryDispatchQueueWrapper()
+        let timerWrapper = TestSentryNSTimerWrapper()
         
         let transactionName = "Some Transaction"
         let transactionOperation = "ui.load"
@@ -77,11 +78,25 @@ class SentryTracerTests: XCTestCase {
         }
         
         func getSut(waitForChildren: Bool = true) -> SentryTracer {
-            return hub.startTransaction(with: transactionContext, bindToScope: false, waitForChildren: waitForChildren, customSamplingContext: [:]) as! SentryTracer
+            let tracer = hub.startTransaction(
+                with: transactionContext,
+                bindToScope: false,
+                waitForChildren: waitForChildren,
+                customSamplingContext: [:],
+                timerWrapper: timerWrapper) as! SentryTracer
+            return tracer
         }
         
         func getSut(idleTimeout: TimeInterval = 0.0, dispatchQueueWrapper: SentryDispatchQueueWrapper) -> SentryTracer {
-            return hub.startTransaction(with: transactionContext, bindToScope: false, customSamplingContext: [:], idleTimeout: idleTimeout, dispatchQueueWrapper: dispatchQueueWrapper)
+            let tracer = hub.startTransaction(
+                with: transactionContext,
+                bindToScope: false,
+                customSamplingContext: [:],
+                idleTimeout: idleTimeout,
+                dispatchQueueWrapper: dispatchQueueWrapper,
+                timerWrapper: timerWrapper
+            )
+            return tracer
         }
     }
     
@@ -136,11 +151,22 @@ class SentryTracerTests: XCTestCase {
             XCTAssertEqual(tracerTimestamp.timeIntervalSince1970, span["timestamp"] as? TimeInterval)
         }
     }
+
+    func testDeadlineTimer_FinishesTransactionAndChildren() {
+        let sut = fixture.getSut()
+        let child = sut.startChild(operation: fixture.transactionOperation)
+
+        fixture.timerWrapper.fire()
+
+        assertOneTransactionCaptured(sut)
+
+        XCTAssertEqual(sut.status, .deadlineExceeded)
+        XCTAssertEqual(child.status, .deadlineExceeded)
+    }
     
     func testFinish_CheckDefaultStatus() {
         let sut = fixture.getSut()
         sut.finish()
-        XCTAssertEqual(sut.status, .ok)
         XCTAssertEqual(sut.status, .ok)
     }
     

@@ -126,7 +126,8 @@ SentryUIEventTracker ()
                                                           bindToScope:bindToScope
                                                 customSamplingContext:@{}
                                                           idleTimeout:self.idleTimeout
-                                                 dispatchQueueWrapper:self.dispatchQueueWrapper];
+                                                 dispatchQueueWrapper:self.dispatchQueueWrapper
+                                                         timerWrapper:nil];
 
                 SENTRY_LOG_DEBUG(@"SentryUIEventTracker automatically started a new transaction "
                                  @"with name: %@, bindToScope: %@",

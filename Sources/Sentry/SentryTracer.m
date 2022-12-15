@@ -7,6 +7,7 @@
 #import "SentryFramesTracker.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
+#import "SentryNSTimerWrapper.h"
 #import "SentryNoOpSpan.h"
 #import "SentryProfiler.h"
 #import "SentryProfilesSampler.h"
@@ -52,6 +53,7 @@ SentryTracer ()
 @property (nonatomic) BOOL wasFinishCalled;
 @property (nonatomic) NSTimeInterval idleTimeout;
 @property (nonatomic, nullable, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
+@property (nonatomic, nullable, strong) SentryNSTimerWrapper *timerWrapper;
 @property (nonatomic, nullable, strong) NSTimer *deadlineTimer;
 
 @end
@@ -93,7 +95,8 @@ static BOOL appStartMeasurementRead;
     return [self initWithTransactionContext:transactionContext
                                         hub:hub
                     profilesSamplerDecision:nil
-                            waitForChildren:NO];
+                            waitForChildren:NO
+                               timerWrapper:nil];
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
@@ -105,7 +108,8 @@ static BOOL appStartMeasurementRead;
                     profilesSamplerDecision:nil
                             waitForChildren:waitForChildren
                                 idleTimeout:0.0
-                       dispatchQueueWrapper:nil];
+                       dispatchQueueWrapper:nil
+                               timerWrapper:nil];
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
@@ -113,13 +117,15 @@ static BOOL appStartMeasurementRead;
                    profilesSamplerDecision:
                        (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
                            waitForChildren:(BOOL)waitForChildren
+                              timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper
 {
     return [self initWithTransactionContext:transactionContext
                                         hub:hub
                     profilesSamplerDecision:profilesSamplerDecision
                             waitForChildren:waitForChildren
                                 idleTimeout:0.0
-                       dispatchQueueWrapper:nil];
+                       dispatchQueueWrapper:nil
+                               timerWrapper:timerWrapper];
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
@@ -128,13 +134,15 @@ static BOOL appStartMeasurementRead;
                        (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
                                idleTimeout:(NSTimeInterval)idleTimeout
                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+                              timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper
 {
     return [self initWithTransactionContext:transactionContext
                                         hub:hub
                     profilesSamplerDecision:profilesSamplerDecision
                             waitForChildren:YES
                                 idleTimeout:idleTimeout
-                       dispatchQueueWrapper:dispatchQueueWrapper];
+                       dispatchQueueWrapper:dispatchQueueWrapper
+                               timerWrapper:timerWrapper];
 }
 
 - (instancetype)
@@ -144,6 +152,7 @@ static BOOL appStartMeasurementRead;
                waitForChildren:(BOOL)waitForChildren
                    idleTimeout:(NSTimeInterval)idleTimeout
           dispatchQueueWrapper:(nullable SentryDispatchQueueWrapper *)dispatchQueueWrapper
+                  timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper
 {
     if (self = [super init]) {
         SENTRY_LOG_DEBUG(
@@ -162,6 +171,13 @@ static BOOL appStartMeasurementRead;
         self.finishStatus = kSentrySpanStatusUndefined;
         self.idleTimeout = idleTimeout;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
+
+        if (timerWrapper == nil) {
+            self.timerWrapper = [[SentryNSTimerWrapper alloc] init];
+        } else {
+            self.timerWrapper = timerWrapper;
+        }
+
         appStartMeasurement = [self getAppStartMeasurement];
 
         if ([self hasIdleTimeout]) {
@@ -225,11 +241,10 @@ static BOOL appStartMeasurementRead;
 
 - (void)startDeadlineTimer
 {
-    self.deadlineTimer = [NSTimer scheduledTimerWithTimeInterval:SENTRY_AUTO_TRANSACTION_DEADLINE
-                                                          target:self
-                                                        selector:@selector(deadlineTimerFired)
-                                                        userInfo:nil
-                                                         repeats:NO];
+    self.deadlineTimer = [self.timerWrapper
+        scheduledTimerWithTimeInterval:SENTRY_AUTO_TRANSACTION_DEADLINE
+                               repeats:NO
+                                 block:^(NSTimer *_Nonnull timer) { [self deadlineTimerFired]; }];
 }
 
 - (void)deadlineTimerFired
