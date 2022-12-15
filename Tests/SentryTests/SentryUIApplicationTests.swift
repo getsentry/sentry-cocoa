@@ -4,12 +4,12 @@ import XCTest
 class SentryUIApplicationTests: XCTestCase {
 
     func test_noScene_delegateWithNoWindow() {
-        let sut = MockSentryUIapplicationTests()
+        let sut = MockSentryUIApplicationTests()
         XCTAssertEqual(sut.windows?.count, 0)
     }
 
     func test_delegateWithWindow() {
-        let sut = MockSentryUIapplicationTests()
+        let sut = MockSentryUIApplicationTests()
         sut.appDelegate.window = UIWindow()
 
         XCTAssertEqual(sut.windows?.count, 1)
@@ -23,7 +23,7 @@ class SentryUIApplicationTests: XCTestCase {
         let scene1 = MockUIScene()
         scene1.delegate = sceneDelegate
 
-        let sut = MockSentryUIapplicationTests()
+        let sut = MockSentryUIApplicationTests()
         sut.scenes = [scene1]
 
         XCTAssertEqual(sut.windows?.count, 1)
@@ -36,7 +36,7 @@ class SentryUIApplicationTests: XCTestCase {
         let scene1 = MockUIScene()
         scene1.delegate = sceneDelegate
 
-        let sut = MockSentryUIapplicationTests()
+        let sut = MockSentryUIApplicationTests()
         sut.scenes = [scene1]
 
         XCTAssertEqual(sut.windows?.count, 0)
@@ -50,7 +50,7 @@ class SentryUIApplicationTests: XCTestCase {
         var window: UIWindow?
     }
 
-    private class MockSentryUIapplicationTests: SentryUIApplication {
+    private class MockSentryUIApplicationTests: SentryUIApplication {
         var appDelegate = TestApplicationDelegate()
 
         var scenes: [Any]?
@@ -59,8 +59,9 @@ class SentryUIApplicationTests: XCTestCase {
             return appDelegate
         }
 
-        override func getConnectedScenes(_ application: UIApplication) -> [Any]? {
-            return scenes ?? super.getConnectedScenes(application)
+        @available(iOS 13.0, tvOS 13.0, *)
+        override func getConnectedScenes(_ application: UIApplication) -> [UIScene]? {
+            return scenes as? [UIScene] ?? super.getConnectedScenes(application)
         }
     }
 }
