@@ -50,6 +50,7 @@ class SentryUIApplicationTests: XCTestCase {
         var window: UIWindow?
     }
 
+
     private class MockSentryUIApplicationTests: SentryUIApplication {
         var appDelegate = TestApplicationDelegate()
 

@@ -31,7 +31,7 @@
 - (NSArray<UIWindow *> *)windows
 {
     UIApplication *app = [self sharedApplication];
-    NSMutableArray *result = [[NSMutableArray alloc] init];
+    NSMutableArray *result = [NSMutableArray array];
 
     if (@available(iOS 13.0, tvOS 13.0, *)) {
         NSArray<UIScene *> *scenes = [self getApplicationConnectedScenes:app];
