@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Screenshot crashes when application delegate has no window (#2538)
+
 ## 7.31.3
 
 ### Fixes
