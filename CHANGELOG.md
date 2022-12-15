@@ -1,5 +1,11 @@
 # Changelog
 
+## 7.31.4
+
+### Fixes
+
+- App crash when application delegate has no window
+
 ## 7.31.3
 
 ### Fixes

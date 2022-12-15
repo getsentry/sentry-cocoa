@@ -12,27 +12,45 @@
     return [UIApplication performSelector:@selector(sharedApplication)];
 }
 
+- (nullable id<UIApplicationDelegate>)getApplicationDelegate:(UIApplication *)application
+{
+    return application.delegate;
+}
+
+- (NSArray *)getApplicationConnectedScenes:(UIApplication *)application
+{
+    if (@available(iOS 13.0, tvOS 13.0, *)) {
+        if (application && [application respondsToSelector:@selector(connectedScenes)]) {
+            return [application.connectedScenes allObjects];
+        }
+    }
+    return nil;
+}
+
 - (NSArray<UIWindow *> *)windows
 {
     UIApplication *app = [self sharedApplication];
-    if (app == nil)
-        return nil;
-
-    NSMutableArray *result = [NSMutableArray new];
+    NSMutableArray *result = [[NSMutableArray alloc] init];
 
     if (@available(iOS 13.0, tvOS 13.0, *)) {
-        if ([app respondsToSelector:@selector(connectedScenes)]) {
-            for (UIScene *scene in app.connectedScenes) {
+        NSArray<UIScene *> *scenes = [self getApplicationConnectedScenes:app];
+        if (scenes != nil) {
+            for (UIScene *scene in scenes) {
                 if (scene.activationState == UISceneActivationStateForegroundActive
                     && scene.delegate && [scene.delegate respondsToSelector:@selector(window)]) {
-                    [result addObject:[scene.delegate performSelector:@selector(window)]];
+                    id window = [scene.delegate performSelector:@selector(window)];
+                    if (window) {
+                        [result addObject:window];
+                    }
                 }
             }
         }
     }
 
-    if ([app.delegate respondsToSelector:@selector(window)]) {
-        [result addObject:app.delegate.window];
+    id<UIApplicationDelegate> appDelegate = [self getApplicationDelegate:app];
+
+    if ([appDelegate respondsToSelector:@selector(window)] && appDelegate.window != nil) {
+        [result addObject:appDelegate.window];
     }
 
     return result;

@@ -20,6 +20,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, readonly, nullable) NSArray<UIWindow *> *windows;
 
+/**
+ * Retrieves the application delegate for given UIApplication
+ */
+- (nullable id<UIApplicationDelegate>)getApplicationDelegate:(UIApplication *)application;
+
+/**
+ * Retrieves connected scenes for given UIApplication
+ */
+- (nullable NSArray *)getApplicationConnectedScenes:(UIApplication *)application;
 @end
 
 NS_ASSUME_NONNULL_END
