@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- App crash when application delegate has no window
+- Screenshot crashes when application delegate has no window (#2538)
 
 ## 7.31.3
 
