@@ -420,7 +420,6 @@ SentryHub ()
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
                                   idleTimeout:(NSTimeInterval)idleTimeout
                          dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                                 timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper
 {
     SentrySamplingContext *samplingContext =
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
@@ -438,8 +437,7 @@ SentryHub ()
                                                                         hub:self
                                                     profilesSamplerDecision:profilesSamplerDecision
                                                                 idleTimeout:idleTimeout
-                                                       dispatchQueueWrapper:dispatchQueueWrapper
-                                                               timerWrapper:timerWrapper];
+                                                       dispatchQueueWrapper:dispatchQueueWrapper];
     if (bindToScope)
         self.scope.span = tracer;
 

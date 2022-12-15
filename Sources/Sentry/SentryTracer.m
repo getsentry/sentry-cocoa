@@ -134,7 +134,6 @@ static BOOL appStartMeasurementRead;
                        (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
                                idleTimeout:(NSTimeInterval)idleTimeout
                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                              timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper
 {
     return [self initWithTransactionContext:transactionContext
                                         hub:hub
@@ -142,7 +141,7 @@ static BOOL appStartMeasurementRead;
                             waitForChildren:YES
                                 idleTimeout:idleTimeout
                        dispatchQueueWrapper:dispatchQueueWrapper
-                               timerWrapper:timerWrapper];
+                               timerWrapper:nil];
 }
 
 - (instancetype)

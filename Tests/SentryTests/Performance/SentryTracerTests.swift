@@ -93,8 +93,7 @@ class SentryTracerTests: XCTestCase {
                 bindToScope: false,
                 customSamplingContext: [:],
                 idleTimeout: idleTimeout,
-                dispatchQueueWrapper: dispatchQueueWrapper,
-                timerWrapper: timerWrapper
+                dispatchQueueWrapper: dispatchQueueWrapper
             )
             return tracer
         }

@@ -43,8 +43,7 @@ SentryHub (Private)
                                   bindToScope:(BOOL)bindToScope
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
                                   idleTimeout:(NSTimeInterval)idleTimeout
-                         dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                                 timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper;
+                         dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
 - (SentryId *)captureEvent:(SentryEvent *)event
                   withScope:(SentryScope *)scope

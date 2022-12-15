@@ -138,6 +138,7 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  * @param hub A hub to bind this transaction
  * @param profilesSamplerDecision Whether to sample a profile corresponding to this transaction
  * @param waitForChildren Whether this tracer should wait all children to finish.
+ * @param timerWrapper A writer around NSTimer, to make it testable
  *
  * @return SentryTracer
  */
@@ -156,7 +157,6 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  * @param hub A hub to bind this transaction
  * @param profilesSamplerDecision Whether to sample a profile corresponding to this transaction
  * @param idleTimeout The idle time to wait until to finish the transaction.
- * @param timerWrapper A writer around NSTimer, to make it testable
  *
  * @return SentryTracer
  */
@@ -165,8 +165,7 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
                    profilesSamplerDecision:
                        (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
                                idleTimeout:(NSTimeInterval)idleTimeout
-                      dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                              timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper;
+                      dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
 - (id<SentrySpan>)startChildWithParentId:(SentrySpanId *)parentId
                                operation:(NSString *)operation
