@@ -136,14 +136,7 @@ class SentryFileManagerTests: XCTestCase {
     func testDeleteOldEnvelopes() throws {
         fixture.dispatchQueueWrapper.dispatchAfterExecutesBlock = true
 
-        let envelope = TestConstants.envelope
-        let path = sut.store(envelope)
-
-        let timeIntervalSince1970 = fixture.currentDateProvider.date().timeIntervalSince1970 - (90 * 24 * 60 * 60)
-        let date = Date(timeIntervalSince1970: timeIntervalSince1970 - 1)
-        try FileManager.default.setAttributes([FileAttributeKey.creationDate: date], ofItemAtPath: path)
-
-        XCTAssertEqual(sut.getAllEnvelopes().count, 1)
+        try givenOldEnvelopes()
 
         sut = fixture.getSut()
 
@@ -179,6 +172,22 @@ class SentryFileManagerTests: XCTestCase {
 
         sut = fixture.getSut()
 
+        XCTAssertEqual(sut.getAllEnvelopes().count, 1)
+    }
+    
+    func testFileManagerDeallocated_OldEnvelopesNotDeleted() throws {
+        try givenOldEnvelopes()
+        
+        fixture.dispatchQueueWrapper.dispatchAfterExecutesBlock = false
+
+        // Initialize sut in extra function so ARC deallocates it
+        func getSut() {
+            _ = fixture.getSut()
+        }
+        getSut()
+        
+        fixture.dispatchQueueWrapper.invokeLastDispatchAfter()
+        
         XCTAssertEqual(sut.getAllEnvelopes().count, 1)
     }
 
@@ -576,7 +585,7 @@ class SentryFileManagerTests: XCTestCase {
     }
 
     func testReadPreviousBreadcrumbs() {
-        let observer = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
+        let observer = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
 
         for count in 0..<3 {
             let crumb = TestData.crumb
@@ -595,7 +604,7 @@ class SentryFileManagerTests: XCTestCase {
     }
 
     func testReadPreviousBreadcrumbsCorrectOrderWhenFileTwoHasMoreCrumbs() {
-        let observer = SentryOutOfMemoryScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
+        let observer = SentryWatchdogTerminationScopeObserver(maxBreadcrumbs: 2, fileManager: sut)
 
         for count in 0..<5 {
             let crumb = TestData.crumb
@@ -633,6 +642,17 @@ class SentryFileManagerTests: XCTestCase {
         } catch {
             XCTFail("Failed to store garbage in Envelopes folder.")
         }
+    }
+    
+    private func givenOldEnvelopes() throws {
+        let envelope = TestConstants.envelope
+        let path = sut.store(envelope)
+
+        let timeIntervalSince1970 = fixture.currentDateProvider.date().timeIntervalSince1970 - (90 * 24 * 60 * 60)
+        let date = Date(timeIntervalSince1970: timeIntervalSince1970 - 1)
+        try FileManager.default.setAttributes([FileAttributeKey.creationDate: date], ofItemAtPath: path)
+
+        XCTAssertEqual(sut.getAllEnvelopes().count, 1)
     }
 
     private func storeEvent() {

@@ -8,25 +8,25 @@
 #import <SentryDispatchQueueWrapper.h>
 #import <SentryHub.h>
 #import <SentryOptions+Private.h>
-#import <SentryOutOfMemoryLogic.h>
-#import <SentryOutOfMemoryScopeObserver.h>
-#import <SentryOutOfMemoryTracker.h>
-#import <SentryOutOfMemoryTrackingIntegration.h>
 #import <SentrySDK+Private.h>
+#import <SentryWatchdogTerminationLogic.h>
+#import <SentryWatchdogTerminationScopeObserver.h>
+#import <SentryWatchdogTerminationTracker.h>
+#import <SentryWatchdogTerminationTrackingIntegration.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
-SentryOutOfMemoryTrackingIntegration ()
+SentryWatchdogTerminationTrackingIntegration ()
 
-@property (nonatomic, strong) SentryOutOfMemoryTracker *tracker;
+@property (nonatomic, strong) SentryWatchdogTerminationTracker *tracker;
 @property (nonatomic, strong) SentryANRTracker *anrTracker;
 @property (nullable, nonatomic, copy) NSString *testConfigurationFilePath;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 
 @end
 
-@implementation SentryOutOfMemoryTrackingIntegration
+@implementation SentryWatchdogTerminationTrackingIntegration
 
 - (instancetype)init
 {
@@ -57,16 +57,16 @@ SentryOutOfMemoryTrackingIntegration ()
     SentryAppStateManager *appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
     SentryCrashWrapper *crashWrapper = [SentryDependencyContainer sharedInstance].crashWrapper;
-    SentryOutOfMemoryLogic *logic =
-        [[SentryOutOfMemoryLogic alloc] initWithOptions:options
-                                           crashAdapter:crashWrapper
-                                        appStateManager:appStateManager];
+    SentryWatchdogTerminationLogic *logic =
+        [[SentryWatchdogTerminationLogic alloc] initWithOptions:options
+                                                   crashAdapter:crashWrapper
+                                                appStateManager:appStateManager];
 
-    self.tracker = [[SentryOutOfMemoryTracker alloc] initWithOptions:options
-                                                    outOfMemoryLogic:logic
-                                                     appStateManager:appStateManager
-                                                dispatchQueueWrapper:dispatchQueueWrapper
-                                                         fileManager:fileManager];
+    self.tracker = [[SentryWatchdogTerminationTracker alloc] initWithOptions:options
+                                                    watchdogTerminationLogic:logic
+                                                             appStateManager:appStateManager
+                                                        dispatchQueueWrapper:dispatchQueueWrapper
+                                                                 fileManager:fileManager];
 
     [self.tracker start];
 
@@ -76,9 +76,10 @@ SentryOutOfMemoryTrackingIntegration ()
 
     self.appStateManager = appStateManager;
 
-    SentryOutOfMemoryScopeObserver *scopeObserver = [[SentryOutOfMemoryScopeObserver alloc]
-        initWithMaxBreadcrumbs:options.maxBreadcrumbs
-                   fileManager:[[[SentrySDK currentHub] getClient] fileManager]];
+    SentryWatchdogTerminationScopeObserver *scopeObserver =
+        [[SentryWatchdogTerminationScopeObserver alloc]
+            initWithMaxBreadcrumbs:options.maxBreadcrumbs
+                       fileManager:[[[SentrySDK currentHub] getClient] fileManager]];
 
     [SentrySDK.currentHub configureScope:^(
         SentryScope *_Nonnull outerScope) { [outerScope addObserver:scopeObserver]; }];
@@ -88,7 +89,7 @@ SentryOutOfMemoryTrackingIntegration ()
 
 - (SentryIntegrationOption)integrationOptions
 {
-    return kIntegrationOptionEnableOutOfMemoryTracking;
+    return kIntegrationOptionEnableWatchdogTerminationTracking;
 }
 
 - (void)uninstall

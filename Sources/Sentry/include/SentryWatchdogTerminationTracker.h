@@ -1,25 +1,25 @@
 #import "SentryDefines.h"
 
-@class SentryOptions, SentryOutOfMemoryLogic, SentryDispatchQueueWrapper, SentryAppStateManager,
-    SentryFileManager;
+@class SentryOptions, SentryWatchdogTerminationLogic, SentryDispatchQueueWrapper,
+    SentryAppStateManager, SentryFileManager;
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const SentryOutOfMemoryExceptionType = @"OutOfMemory";
-static NSString *const SentryOutOfMemoryExceptionValue
-    = @"The OS most likely terminated your app because it overused RAM.";
-static NSString *const SentryOutOfMemoryMechanismType = @"out_of_memory";
+static NSString *const SentryWatchdogTerminationExceptionType = @"WatchdogTermination";
+static NSString *const SentryWatchdogTerminationExceptionValue
+    = @"The OS watchdog terminated your app, possibly because it overused RAM.";
+static NSString *const SentryWatchdogTerminationMechanismType = @"watchdog_termination";
 
 /**
  * Detect OOMs based on heuristics described in a blog post:
  * https://engineering.fb.com/2015/08/24/ios/reducing-fooms-in-the-facebook-ios-app/ If a OOM is
  * detected, the SDK sends it as crash event. Only works for iOS, tvOS and macCatalyst.
  */
-@interface SentryOutOfMemoryTracker : NSObject
+@interface SentryWatchdogTerminationTracker : NSObject
 SENTRY_NO_INIT
 
 - (instancetype)initWithOptions:(SentryOptions *)options
-               outOfMemoryLogic:(SentryOutOfMemoryLogic *)outOfMemoryLogic
+       watchdogTerminationLogic:(SentryWatchdogTerminationLogic *)watchdogTerminationLogic
                 appStateManager:(SentryAppStateManager *)appStateManager
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                     fileManager:(SentryFileManager *)fileManager;

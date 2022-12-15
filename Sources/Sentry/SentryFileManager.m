@@ -77,11 +77,15 @@ SentryFileManager ()
         self.currentFileCounter = 0;
         self.maxEnvelopes = options.maxCacheItems;
 
+        __weak SentryFileManager *weakSelf = self;
         [dispatchQueueWrapper
             dispatchAfter:10
                     block:^{
-                        SENTRY_LOG_DEBUG(@"Dispatched deletion of old envelopes from %@", self);
-                        [self deleteOldEnvelopesFromAllSentryPaths];
+                        if (weakSelf == nil) {
+                            return;
+                        }
+                        SENTRY_LOG_DEBUG(@"Dispatched deletion of old envelopes from %@", weakSelf);
+                        [weakSelf deleteOldEnvelopesFromAllSentryPaths];
                     }];
     }
     return self;
@@ -439,7 +443,7 @@ SentryFileManager ()
     NSError *error = nil;
     NSData *data = [SentrySerialization dataWithJSONObject:[appState serialize] error:&error];
 
-    if (nil != error) {
+    if (error != nil) {
         SENTRY_LOG_ERROR(
             @"Failed to store app state, because of an error in serialization: %@", error);
         return;
