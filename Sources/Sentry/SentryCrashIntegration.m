@@ -81,7 +81,7 @@ SentryCrashIntegration ()
     self.scopeObserver =
         [[SentryCrashScopeObserver alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs];
 
-    NSString *customDirectory = options.customCacheDirectory;
+    NSString *customDirectory = options.cacheDirectory;
     [self startCrashHandler:customDirectory];
 
     if (options.stitchAsyncCode) {

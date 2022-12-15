@@ -61,9 +61,7 @@ SentryFileManager ()
         self.currentDateProvider = currentDateProvider;
 
         NSFileManager *fileManager = [NSFileManager defaultManager];
-        NSString *cachePath
-            = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
-                  .firstObject;
+        NSString *cachePath = options.cacheDirectory;
 
         SENTRY_LOG_DEBUG(@"SentryFileManager.cachePath: %@", cachePath);
 
