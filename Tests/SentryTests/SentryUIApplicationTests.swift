@@ -15,7 +15,7 @@ class SentryUIApplicationTests: XCTestCase {
         XCTAssertEqual(sut.windows?.count, 1)
     }
 
-    @available(iOS 13.0, *)
+    @available(iOS 13.0, tvOS 13.0, *)
     func test_applicationWithScenes() {
         let sceneDelegate = TestUISceneDelegate()
         sceneDelegate.window = UIWindow()
@@ -29,7 +29,7 @@ class SentryUIApplicationTests: XCTestCase {
         XCTAssertEqual(sut.windows?.count, 1)
     }
 
-    @available(iOS 13.0, *)
+    @available(iOS 13.0, tvOS 13.0, *)
     func test_applicationWithScenes_noWindow() {
         let sceneDelegate = TestUISceneDelegate()
 

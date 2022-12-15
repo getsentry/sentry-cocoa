@@ -1,5 +1,5 @@
 #import "MockUIScene.h"
-
+#if SENTRY_HAS_UIKIT
 @implementation MockUIScene
 
 - (instancetype)init
@@ -13,3 +13,4 @@
 }
 
 @end
+#endif
