@@ -55,7 +55,7 @@ class SentryUIApplicationTests: XCTestCase {
     }
 
     private class MockSentryUIApplicationTests: SentryUIApplication {
-        weak var appDelegate : TestApplicationDelegate?
+        weak var appDelegate: TestApplicationDelegate?
 
         var scenes: [Any]?
 
