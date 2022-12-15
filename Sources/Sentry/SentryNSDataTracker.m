@@ -195,10 +195,10 @@ SentryNSDataTracker ()
     }
 
     SentryThreadInspector *threadInspector = SentrySDK.currentHub.getClient.threadInspector;
-    SentryThread * mainThread = [threadInspector getCurrentThreadInAppFrames  ];
+    SentryStacktrace * stackTrace = [threadInspector stacktraceForCurrentThread];
 
-    NSMutableArray *frames = [[NSMutableArray alloc] initWithCapacity:mainThread.stacktrace.frames.count];
-    for (SentryFrame * frame in mainThread.stacktrace.frames) {
+    NSMutableArray *frames = [[NSMutableArray alloc] initWithCapacity:stackTrace.frames.count];
+    for (SentryFrame * frame in stackTrace.frames) {
         [frames addObject:[frame serialize]];
     }
 
