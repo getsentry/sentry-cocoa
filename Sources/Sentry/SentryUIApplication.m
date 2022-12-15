@@ -20,10 +20,8 @@
 - (NSArray<UIScene *> *)getApplicationConnectedScenes:(UIApplication *)application
     API_AVAILABLE(ios(13.0), tvos(13.0))
 {
-    if (@available(iOS 13.0, tvOS 13.0, *)) {
-        if (application && [application respondsToSelector:@selector(connectedScenes)]) {
-            return [application.connectedScenes allObjects];
-        }
+    if (application && [application respondsToSelector:@selector(connectedScenes)]) {
+        return [application.connectedScenes allObjects];
     }
 
     return @[];

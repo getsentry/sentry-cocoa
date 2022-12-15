@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Retrieves connected scenes for given UIApplication
  */
-- (nullable NSArray<UIScene *> *)getApplicationConnectedScenes:(UIApplication *)application
+- (NSArray<UIScene *> *)getApplicationConnectedScenes:(UIApplication *)application
     API_AVAILABLE(ios(13.0), tvos(13.0));
 @end
 

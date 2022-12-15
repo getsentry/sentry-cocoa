@@ -10,7 +10,9 @@ class SentryUIApplicationTests: XCTestCase {
 
     func test_delegateWithWindow() {
         let sut = MockSentryUIApplicationTests()
-        sut.appDelegate.window = UIWindow()
+        let delegate = TestApplicationDelegate()
+        sut.appDelegate = delegate
+        sut.appDelegate?.window = UIWindow()
 
         XCTAssertEqual(sut.windows?.count, 1)
     }
@@ -53,7 +55,7 @@ class SentryUIApplicationTests: XCTestCase {
     }
 
     private class MockSentryUIApplicationTests: SentryUIApplication {
-        weak var appDelegate = TestApplicationDelegate()
+        weak var appDelegate : TestApplicationDelegate?
 
         var scenes: [Any]?
 
@@ -62,7 +64,7 @@ class SentryUIApplicationTests: XCTestCase {
         }
 
         @available(iOS 13.0, tvOS 13.0, *)
-        override func getConnectedScenes(_ application: UIApplication) -> [UIScene]? {
+        override func getConnectedScenes(_ application: UIApplication) -> [UIScene] {
             return scenes as? [UIScene] ?? super.getConnectedScenes(application)
         }
     }
