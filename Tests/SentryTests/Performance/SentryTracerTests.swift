@@ -166,6 +166,7 @@ class SentryTracerTests: XCTestCase {
     func testFinish_CheckDefaultStatus() {
         let sut = fixture.getSut()
         sut.finish()
+        fixture.timerWrapper.fire()
         XCTAssertEqual(sut.status, .ok)
     }
     
