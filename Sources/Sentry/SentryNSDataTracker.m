@@ -12,6 +12,7 @@
 #import "SentryStacktrace.h"
 #import "SentryThreadInspector.h"
 #import "SentryFrame.h"
+//#import <dlfcn.h>
 
 const NSString *SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 
@@ -195,7 +196,7 @@ SentryNSDataTracker ()
     }
 
     SentryThreadInspector *threadInspector = SentrySDK.currentHub.getClient.threadInspector;
-    SentryStacktrace * stackTrace = [threadInspector stacktraceForCurrentThread];
+    SentryStacktrace * stackTrace = [threadInspector stacktraceInstAddressForCurrentThread];
 
     NSMutableArray *frames = [[NSMutableArray alloc] initWithCapacity:stackTrace.frames.count];
     for (SentryFrame * frame in stackTrace.frames) {

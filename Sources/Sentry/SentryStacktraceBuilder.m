@@ -6,6 +6,7 @@
 #import "SentryFrame.h"
 #import "SentryFrameRemover.h"
 #import "SentryStacktrace.h"
+#import <dlfcn.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,32 +27,29 @@ SentryStacktraceBuilder ()
     return self;
 }
 
-- (SentryStacktrace *)retrieveStacktraceAddressesFromCursor:(SentryCrashStackCursor)stackCursor {
-    NSMutableArray<SentryFrame *> *frames = [NSMutableArray new];
+- (SentryStacktrace *)retrieveStacktraceFromCursorWithLock:(SentryCrashStackCursor)stackCursor {
+    NSMutableArray<SentryFrame *> *frames = [NSMutableArray array];
     SentryFrame *frame = nil;
     while (stackCursor.advanceCursor(&stackCursor)) {
-        frame = [self.crashStackEntryMapper mapStackEntryWithCursor:stackCursor];
-        [frames addObject:frame];
-    }
-    sentrycrash_async_backtrace_decref(stackCursor.async_caller);
+        if (stackCursor.stackEntry.address == SentryCrashSC_ASYNC_MARKER) {
+            if (frame != nil) {
+                frame.stackStart = @(YES);
+            }
+            // skip the marker frame
+            continue;
+        }
 
-    NSArray<SentryFrame *> *framesCleared = [SentryFrameRemover removeNonSdkFrames:frames];
+        Dl_info info = {0};
+        if (dladdr((const void *)stackCursor.stackEntry.address, &info)) {
 
-    // The frames must be ordered from caller to callee, or oldest to youngest
-    NSArray<SentryFrame *> *framesReversed = [[framesCleared reverseObjectEnumerator] allObjects];
+            stackCursor.stackEntry.imageName = info.dli_fname;
+            stackCursor.stackEntry.imageAddress = (uintptr_t)info.dli_fbase;
+            stackCursor.stackEntry.symbolName = info.dli_sname;
+            stackCursor.stackEntry.symbolAddress = (uintptr_t)info.dli_saddr;
 
-    SentryStacktrace *stacktrace = [[SentryStacktrace alloc] initWithFrames:framesReversed
-                                                                  registers:@{}];
-
-    return stacktrace;
-}
-
-- (SentryStacktrace *)getStacktraceAddressesFromCursor:(SentryCrashStackCursor)stackCursor {
-    NSMutableArray<SentryFrame *> *frames = [NSMutableArray new];
-    SentryFrame *frame = nil;
-    while (stackCursor.advanceCursor(&stackCursor)) {
-        frame = [self.crashStackEntryMapper mapStackEntryWithCursor:stackCursor];
-        [frames addObject:frame];
+            frame = [self.crashStackEntryMapper mapStackEntryWithCursor:stackCursor];
+            [frames addObject:frame];
+        }
     }
     sentrycrash_async_backtrace_decref(stackCursor.async_caller);
 
@@ -71,14 +69,14 @@ SentryStacktraceBuilder ()
     NSMutableArray<SentryFrame *> *frames = [NSMutableArray new];
     SentryFrame *frame = nil;
     while (stackCursor.advanceCursor(&stackCursor)) {
-        if (stackCursor.symbolicate(&stackCursor)) {
-            if (stackCursor.stackEntry.address == SentryCrashSC_ASYNC_MARKER) {
-                if (frame != nil) {
-                    frame.stackStart = @(YES);
-                }
-                // skip the marker frame
-                continue;
+        if (stackCursor.stackEntry.address == SentryCrashSC_ASYNC_MARKER) {
+            if (frame != nil) {
+                frame.stackStart = @(YES);
             }
+            // skip the marker frame
+            continue;
+        }
+        if (stackCursor.symbolicate(&stackCursor)) {
             frame = [self.crashStackEntryMapper mapStackEntryWithCursor:stackCursor];
             [frames addObject:frame];
         }
@@ -139,8 +137,17 @@ SentryStacktraceBuilder ()
     NSInteger framesToSkip = 0;
     sentrycrashsc_initSelfThread(&stackCursor, (int)framesToSkip);
 
-    return [self getStacktraceAddressesFromCursor:stackCursor];
+    return [self retrieveStacktraceFromCursor:stackCursor];
 }
+
+- (SentryStacktrace *)buildStacktraceForCurrentThreadOnlyInstAddresses {
+    SentryCrashStackCursor stackCursor;
+
+    sentrycrashsc_initSelfThread(&stackCursor, 0);
+
+    return [self retrieveStacktraceFromCursor:stackCursor];
+}
+
 
 @end
 

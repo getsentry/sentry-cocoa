@@ -12,7 +12,10 @@ SENTRY_NO_INIT
 - (id)initWithStacktraceBuilder:(SentryStacktraceBuilder *)stacktraceBuilder
        andMachineContextWrapper:(id<SentryCrashMachineContextWrapper>)machineContextWrapper;
 
-- (SentryStacktrace *) stacktraceForCurrentThread;
+/**
+ * Gets the stacktrace with instruction addresses for current thread.
+ */
+- (SentryStacktrace *) stacktraceInstAddressForCurrentThread;
 
 /**
  * Gets current threads with the stacktrace only for the current thread. Frames from the SentrySDK

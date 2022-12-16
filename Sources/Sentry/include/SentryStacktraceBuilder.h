@@ -24,6 +24,14 @@ SENTRY_NO_INIT
 - (SentryStacktrace *)buildStacktraceForCurrentThread;
 
 /**
+ * Retrieve the stacktrace for the current thread with only instructions addresses, removing frames from the SentrySDK until frames from
+ * a different package are found. When including Sentry via the Swift Package Manager the package is
+ * the same as the application that includes Sentry. In this case the full stacktrace is returned
+ * without skipping frames.
+ */
+- (SentryStacktrace *)buildStacktraceForCurrentThreadOnlyInstAddresses;
+
+/**
  * Builds the stacktrace for given thread removing frames from the SentrySDK until frames from
  * a different package are found. When including Sentry via the Swift Package Manager the package is
  * the same as the application that includes Sentry. In this case the full stacktrace is returned
