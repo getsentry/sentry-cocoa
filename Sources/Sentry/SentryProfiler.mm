@@ -387,6 +387,25 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     _gCurrentProfiler = nil;
 }
 
+- (void)startMetricProfiler
+{
+    if (_gCurrentSystemWrapper == nil) {
+        _gCurrentSystemWrapper = [[SentrySystemWrapper alloc] init];
+    }
+    if (_gCurrentProcessInfoWrapper == nil) {
+        _gCurrentProcessInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
+    }
+    if (_gCurrentTimerWrapper == nil) {
+        _gCurrentTimerWrapper = [[SentryNSTimerWrapper alloc] init];
+    }
+    _metricProfiler =
+        [[SentryMetricProfiler alloc] initWithProfileStartTime:_startTimestamp
+                                            processInfoWrapper:_gCurrentProcessInfoWrapper
+                                                 systemWrapper:_gCurrentSystemWrapper
+                                                  timerWrapper:_gCurrentTimerWrapper];
+    [_metricProfiler start];
+}
+
 - (void)start
 {
 // Disable profiling when running with TSAN because it produces a TSAN false
@@ -478,18 +497,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
             kSentryProfilerFrequencyHz);
         _profiler->startSampling();
 
-        if (_gCurrentSystemWrapper == nil) {
-            _gCurrentSystemWrapper = [[SentrySystemWrapper alloc] init];
-        }
-        if (_gCurrentProcessInfoWrapper == nil) {
-            _gCurrentProcessInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
-        }
-        _metricProfiler =
-            [[SentryMetricProfiler alloc] initWithProfileStartTime:_startTimestamp
-                                                processInfoWrapper:_gCurrentProcessInfoWrapper
-                                                     systemWrapper:_gCurrentSystemWrapper
-                                                      timerWrapper:_gCurrentTimerWrapper];
-        [_metricProfiler start];
+        [self startMetricProfiler];
     }
 }
 
