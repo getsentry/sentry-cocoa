@@ -25,6 +25,7 @@ This version adds a dependency on Swift.
 - Use the preexisting app release version format for profiles (#2470)
 - Don't add out of date context for crashes (#2523)
 - Fix ARC issue for FileManager (#2525)
+- Remove delay for deleting old envelopes (#2541)
 
 ### Breaking Changes
 
