@@ -59,16 +59,19 @@ class SentryProfilerSwiftTests: XCTestCase {
         SentryProfiler.useProcessInfoWrapper(fixture.processInfoWrapper)
         SentryProfiler.useTimerWrapper(fixture.timerWrapper)
 
+        // mock cpu usage
         let cpuUsages = [12.4, 63.5, 1.4, 4.6]
         fixture.systemWrapper.overrides.cpuUsagePerCore = cpuUsages.map { NSNumber(value: $0) }
         fixture.processInfoWrapper.overrides.processorCount = UInt(cpuUsages.count)
 
+        // mock memory footprint
         let memoryFootprint: SentryRAMBytes = 123_455
         fixture.systemWrapper.overrides.memoryFootprintBytes = memoryFootprint
 
         let span = fixture.newTransaction()
         forceProfilerSample()
 
+        // mock low power mode
         [true, false].forEach {
             fixture.processInfoWrapper.overrides.isLowPowerModeEnabled = $0
             if #available(macOS 12.0, *) {
@@ -76,13 +79,22 @@ class SentryProfilerSwiftTests: XCTestCase {
             }
         }
 
+        // mock memory pressure notifications
+        [kSentryMemoryPressureLevelWarn, kSentryMemoryPressureLevelCritical, kSentryMemoryPressureLevelNormal].forEach {
+            let dispatchSource = fixture.systemWrapper.dispatchSourceWrapper() as! TestSentryDispatchSourceWrapper
+            dispatchSource.data = $0
+            dispatchSource.fire()
+        }
+
+        // mock thermal state
         [ProcessInfo.ThermalState.critical, .serious, .fair, .nominal].forEach {
             fixture.processInfoWrapper.overrides.thermalState = $0
             fixture.processInfoWrapper.sendThermalStateChangeNotification()
         }
 
+        // gather mock cpu usages and memory footprints
         for _ in 0..<2 {
-            let cpuExp = expectation(description: "first set of cpu measurements are gathered")
+            let cpuExp = expectation(description: "first set of timeseries measurements are gathered")
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.fixture.timerWrapper.fire()
                 cpuExp.fulfill()
@@ -90,12 +102,13 @@ class SentryProfilerSwiftTests: XCTestCase {
             waitForExpectations(timeout: 1)
         }
 
+        // finish profile
         let exp = expectation(description: "Receives profile payload")
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             span.finish()
 
             do {
-                try self.assertMetricsPayload(thermalStateNotifications: 4, powerStateNotifications: 2, expectedCPUUsages: cpuUsages, cpuReadings: 2)
+                try self.assertMetricsPayload(thermalStateNotifications: 4, powerStateNotifications: 2, expectedCPUUsages: cpuUsages, cpuReadings: 2, memoryPressureNotifications: 3)
                 exp.fulfill()
             } catch {
                 XCTFail("Encountered error: \(error)")
@@ -258,6 +271,7 @@ private extension SentryProfilerSwiftTests {
         case malformedMetricValueEntry
         case noCPUUsageEvents
         case noCPUUsageReported
+        case noMemoryPressureNotifications
     }
 
     func getProfileData() throws -> Data {
@@ -305,7 +319,7 @@ private extension SentryProfilerSwiftTests {
         self.assertValidProfileData(data: profileData, transactionEnvironment: transactionEnvironment, numberOfTransactions: numberOfTransactions, shouldTimeout: shouldTimeOut)
     }
 
-    func assertMetricsPayload(thermalStateNotifications: Int, powerStateNotifications: Int, expectedCPUUsages: [Double], cpuReadings: Int) throws {
+    func assertMetricsPayload(thermalStateNotifications: Int, powerStateNotifications: Int, expectedCPUUsages: [Double], cpuReadings: Int, memoryPressureNotifications: Int) throws {
         let profileData = try self.getProfileData()
         guard let profile = try JSONSerialization.jsonObject(with: profileData) as? [String: Any] else {
             throw TestError.unexpectedProfileDeserializationType
@@ -328,6 +342,11 @@ private extension SentryProfilerSwiftTests {
 
         // one initial reading per API spec, then all the actual notifications sent
         XCTAssertEqual(thermalState.count, thermalStateNotifications + 1)
+
+        guard let memoryPressureEntry = measurements[kSentryMetricProfilerSerializationKeyMemoryPressure] as? [String: Any], let memoryPressure = memoryPressureEntry["values"] as? [[String: Any]] else {
+            throw TestError.noMemoryPressureNotifications
+        }
+        XCTAssertEqual(memoryPressure.count, memoryPressureNotifications)
 
         for (i, expectedUsage) in expectedCPUUsages.enumerated() {
             let key = NSString(format: kSentryMetricProfilerSerializationKeyCPUUsageFormat as NSString, i) as String

@@ -1,4 +1,11 @@
+#import "SentryDefines.h"
 #import <Foundation/Foundation.h>
+
+@class SentryDispatchSourceFactory;
+
+SENTRY_EXTERN const NSUInteger kSentryMemoryPressureLevelNormal;
+SENTRY_EXTERN const NSUInteger kSentryMemoryPressureLevelWarn;
+SENTRY_EXTERN const NSUInteger kSentryMemoryPressureLevelCritical;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -15,6 +22,8 @@ typedef mach_vm_size_t SentryRAMBytes;
  * <mach/...>.
  */
 @interface SentrySystemWrapper : NSObject
+
+- (instancetype)initWithDispatchSourceFactory:(SentryDispatchSourceFactory *)dispatchSourceFactory;
 
 - (SentryRAMBytes)memoryFootprintBytes:(NSError **)error;
 

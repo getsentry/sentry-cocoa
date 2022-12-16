@@ -10,6 +10,7 @@
 #    import "SentryDefines.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDevice.h"
+#    import "SentryDispatchSourceWrapper.h"
 #    import "SentryEnvelope.h"
 #    import "SentryEnvelopeItemType.h"
 #    import "SentryFramesTracker.h"
@@ -154,6 +155,7 @@ SentryProfiler *_Nullable _gCurrentProfiler;
 SentryNSProcessInfoWrapper *_gCurrentProcessInfoWrapper;
 SentrySystemWrapper *_gCurrentSystemWrapper;
 SentryNSTimerWrapper *_gCurrentTimerWrapper;
+SentryDispatchSourceWrapper *_gCurrentDispatchSourceWrapper;
 
 NSString *
 profilerTruncationReasonName(SentryProfilerTruncationReason reason)

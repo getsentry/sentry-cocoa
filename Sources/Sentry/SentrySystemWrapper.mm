@@ -1,11 +1,30 @@
 #import "SentrySystemWrapper.h"
+#import "SentryDispatchSourceWrapper.h"
 #import "SentryError.h"
 #import "SentryMachLogging.hpp"
 #import <mach/mach.h>
 
+const NSUInteger kSentryMemoryPressureLevelNormal = DISPATCH_MEMORYPRESSURE_NORMAL;
+const NSUInteger kSentryMemoryPressureLevelWarn = DISPATCH_MEMORYPRESSURE_WARN;
+const NSUInteger kSentryMemoryPressureLevelCritical = DISPATCH_MEMORYPRESSURE_CRITICAL;
+
 @implementation SentrySystemWrapper {
-    dispatch_source_t _memoryWarningSource;
     dispatch_queue_t _memoryWarningQueue;
+    SentryDispatchSourceFactory *_dispatchSourceFactory;
+    SentryDispatchSourceWrapper *_dispatchSourceWrapper;
+}
+
+- (instancetype)initWithDispatchSourceFactory:(SentryDispatchSourceFactory *)dispatchSourceFactory
+{
+    if (self = [super init]) {
+        _dispatchSourceFactory = dispatchSourceFactory;
+
+        const auto queueAttributes
+            = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, 0);
+        _memoryWarningQueue
+            = dispatch_queue_create("io.sentry.queue.memory-warnings", queueAttributes);
+    }
+    return self;
 }
 
 - (SentryRAMBytes)memoryFootprintBytes:(NSError *__autoreleasing _Nullable *)error
@@ -65,27 +84,34 @@
 
 - (void)registerMemoryPressureNotifications:(SentryMemoryPressureNotification)handler
 {
-    const auto queueAttributes
-        = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, 0);
-    _memoryWarningQueue = dispatch_queue_create("io.sentry.queue.memory-warnings", queueAttributes);
-    _memoryWarningSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_MEMORYPRESSURE, 0,
-        DISPATCH_MEMORYPRESSURE_NORMAL | DISPATCH_MEMORYPRESSURE_WARN
-            | DISPATCH_MEMORYPRESSURE_CRITICAL,
-        _memoryWarningQueue);
+    const auto type = DISPATCH_SOURCE_TYPE_MEMORYPRESSURE;
+    const auto mask = DISPATCH_MEMORYPRESSURE_NORMAL | DISPATCH_MEMORYPRESSURE_WARN
+        | DISPATCH_MEMORYPRESSURE_CRITICAL;
+    _dispatchSourceWrapper = [_dispatchSourceFactory dispatchSourceWithType:type
+                                                                     handle:0
+                                                                       mask:mask
+                                                                      queue:_memoryWarningQueue];
+
     __weak auto weakSelf = self;
-    dispatch_source_set_event_handler(_memoryWarningSource, ^{
+    [_dispatchSourceWrapper resumeWithHandler:^{
         const auto strongSelf = weakSelf;
         if (!strongSelf) {
             return;
         }
-        handler(dispatch_source_get_data(strongSelf->_memoryWarningSource));
-    });
-    dispatch_resume(_memoryWarningSource);
+        handler([strongSelf->_dispatchSourceWrapper getData]);
+    }];
 }
 
 - (void)deregisterMemoryPressureNotifications
 {
-    dispatch_source_cancel(_memoryWarningSource);
+    [_dispatchSourceWrapper invalidate];
+}
+
+#pragma mark - Testing
+
+- (SentryDispatchSourceWrapper *)dispatchSourceWrapper
+{
+    return _dispatchSourceWrapper;
 }
 
 @end
