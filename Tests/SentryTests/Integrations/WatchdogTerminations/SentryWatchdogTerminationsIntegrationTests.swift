@@ -1,6 +1,6 @@
 import XCTest
 
-class SentryOutOfMemoryIntegrationTests: XCTestCase {
+class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
     private class Fixture {
         let options: Options
@@ -17,6 +17,7 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
             
             crashWrapper = TestSentryCrashWrapper.sharedInstance()
             SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
+            SentryDependencyContainer.sharedInstance().fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
 
             let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andCurrentDateProvider: currentDate)
             SentrySDK.setCurrentHub(hub)
@@ -26,7 +27,7 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
     }
     
     private var fixture: Fixture!
-    private var sut: SentryOutOfMemoryTrackingIntegration!
+    private var sut: SentryWatchdogTerminationTrackingIntegration!
     
     override func setUp() {
         super.setUp()
@@ -43,14 +44,14 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
     }
     
     func testWhenUnitTests_TrackerNotInitialized() {
-        let sut = SentryOutOfMemoryTrackingIntegration()
+        let sut = SentryWatchdogTerminationTrackingIntegration()
         sut.install(with: Options())
         
         XCTAssertNil(Dynamic(sut).tracker.asAnyObject)
     }
     
     func testWhenNoUnitTests_TrackerInitialized() {
-        let sut = SentryOutOfMemoryTrackingIntegration()
+        let sut = SentryWatchdogTerminationTrackingIntegration()
         Dynamic(sut).setTestConfigurationFilePath(nil)
         sut.install(with: Options())
         
@@ -58,21 +59,18 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
     }
     
     func testTestConfigurationFilePath() {
-        let sut = SentryOutOfMemoryTrackingIntegration()
+        let sut = SentryWatchdogTerminationTrackingIntegration()
         let path = Dynamic(sut).testConfigurationFilePath.asString
         XCTAssertEqual(path, ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"])
     }
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    func testANRDetected_UpdatesAppStateToTrue_disabled() {
+    func testANRDetected_UpdatesAppStateToTrue() throws {
         givenInitializedTracker()
         
         Dynamic(sut).anrDetected()
-        
-        guard let appState = fixture.fileManager.readAppState() else {
-            XCTFail("appState must not be nil")
-            return
-        }
+
+        let appState = try XCTUnwrap(fixture.fileManager.readAppState())
         
         XCTAssertTrue(appState.isANROngoing)
     }
@@ -93,9 +91,9 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
     func test_OOMDisabled_RemovesEnabledIntegration() {
         givenInitializedTracker()
         let options = Options()
-        options.enableOutOfMemoryTracking = false
+        options.enableWatchdogTerminationTracking = false
         
-        let sut = SentryOutOfMemoryTrackingIntegration()
+        let sut = SentryWatchdogTerminationTrackingIntegration()
         let result = sut.install(with: options)
         
         XCTAssertFalse(result)
@@ -103,7 +101,7 @@ class SentryOutOfMemoryIntegrationTests: XCTestCase {
     
     private func givenInitializedTracker(isBeingTraced: Bool = false) {
         fixture.crashWrapper.internalIsBeingTraced = isBeingTraced
-        sut = SentryOutOfMemoryTrackingIntegration()
+        sut = SentryWatchdogTerminationTrackingIntegration()
         let options = Options()
         Dynamic(sut).setTestConfigurationFilePath(nil)
         sut.install(with: options)

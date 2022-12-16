@@ -43,9 +43,9 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-    if ((integrationOptions & kIntegrationOptionEnableOutOfMemoryTracking)
-        && !options.enableOutOfMemoryTracking) {
-        [self logWithOptionName:@"enableOutOfMemoryTracking"];
+    if ((integrationOptions & kIntegrationOptionEnableWatchdogTerminationTracking)
+        && !options.enableWatchdogTerminationTracking) {
+        [self logWithOptionName:@"enableWatchdogTerminationTracking"];
         return NO;
     }
 
@@ -145,6 +145,15 @@ NS_ASSUME_NONNULL_BEGIN
         [self logWithOptionName:@"enableCrashHandler"];
         return NO;
     }
+
+#if SENTRY_HAS_METRIC_KIT
+    if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
+        if ((integrationOptions & kIntegrationOptionEnableMetricKit) && !options.enableMetricKit) {
+            [self logWithOptionName:@"enableMetricKit"];
+            return NO;
+        }
+    }
+#endif
 
     return YES;
 }

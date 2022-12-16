@@ -18,6 +18,12 @@
 #    define SENTRY_HAS_UIKIT 0
 #endif
 
+#if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#    define SENTRY_HAS_METRIC_KIT 1
+#else
+#    define SENTRY_HAS_METRIC_KIT 0
+#endif
+
 #define SENTRY_NO_INIT                                                                             \
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;
@@ -103,16 +109,6 @@ typedef NS_ENUM(NSUInteger, SentryLevel) {
     kSentryLevelWarning = 3,
     kSentryLevelError = 4,
     kSentryLevelFatal = 5
-};
-
-/**
- * Permission status
- */
-typedef NS_ENUM(NSInteger, SentryPermissionStatus) {
-    kSentryPermissionStatusUnknown = 0,
-    kSentryPermissionStatusGranted,
-    kSentryPermissionStatusPartial,
-    kSentryPermissionStatusDenied
 };
 
 /**

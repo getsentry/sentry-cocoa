@@ -94,6 +94,7 @@ class TestData {
         mechanism.data = ["something": ["date": currentDateProvider.date()]]
         mechanism.desc = "desc"
         mechanism.handled = true
+        mechanism.synthetic = false
         mechanism.helpLink = "https://www.sentry.io"
         mechanism.meta = mechanismMeta
         
@@ -176,8 +177,8 @@ class TestData {
     
     static var oomEvent: Event {
         let event = Event(level: SentryLevel.fatal)
-        let exception = Exception(value: SentryOutOfMemoryExceptionValue, type: SentryOutOfMemoryExceptionType)
-        exception.mechanism = Mechanism(type: SentryOutOfMemoryMechanismType)
+        let exception = Exception(value: SentryWatchdogTerminationExceptionValue, type: SentryWatchdogTerminationExceptionType)
+        exception.mechanism = Mechanism(type: SentryWatchdogTerminationMechanismType)
         event.exceptions = [exception]
         return event
     }

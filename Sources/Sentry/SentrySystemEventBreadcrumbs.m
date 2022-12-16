@@ -3,6 +3,7 @@
 #import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryLog.h"
+#import "SentryNSNotificationCenterWrapper.h"
 #import "SentrySDK.h"
 
 // all those notifications are not available for tvOS
@@ -14,16 +15,19 @@
 SentrySystemEventBreadcrumbs ()
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
+@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
 @end
 
 @implementation SentrySystemEventBreadcrumbs
 
 - (instancetype)initWithFileManager:(SentryFileManager *)fileManager
              andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+       andNotificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper
 {
     if (self = [super init]) {
         _fileManager = fileManager;
         _currentDateProvider = currentDateProvider;
+        _notificationCenterWrapper = notificationCenterWrapper;
     }
     return self;
 }
@@ -41,9 +45,28 @@ SentrySystemEventBreadcrumbs ()
 - (void)stop
 {
 #if TARGET_OS_IOS
-    NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
-    [defaultCenter removeObserver:self];
+    // Remove the observers with the most specific detail possible, see
+    // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
+    [self.notificationCenterWrapper removeObserver:self name:UIKeyboardDidShowNotification];
+    [self.notificationCenterWrapper removeObserver:self name:UIKeyboardDidHideNotification];
+    [self.notificationCenterWrapper removeObserver:self
+                                              name:UIApplicationUserDidTakeScreenshotNotification];
+    [self.notificationCenterWrapper removeObserver:self
+                                              name:UIDeviceBatteryLevelDidChangeNotification];
+    [self.notificationCenterWrapper removeObserver:self
+                                              name:UIDeviceBatteryStateDidChangeNotification];
+    [self.notificationCenterWrapper removeObserver:self
+                                              name:UIDeviceOrientationDidChangeNotification];
+    [self.notificationCenterWrapper removeObserver:self
+                                              name:UIDeviceOrientationDidChangeNotification];
 #endif
+}
+
+- (void)dealloc
+{
+    // In dealloc it's safe to unsubscribe for all, see
+    // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
+    [self.notificationCenterWrapper removeObserver:self];
 }
 
 #if TARGET_OS_IOS
@@ -72,18 +95,17 @@ SentrySystemEventBreadcrumbs ()
         currentDevice.batteryMonitoringEnabled = YES;
     }
 
-    NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
-
     // Posted when the battery level changes.
-    [defaultCenter addObserver:self
-                      selector:@selector(batteryStateChanged:)
-                          name:UIDeviceBatteryLevelDidChangeNotification
-                        object:currentDevice];
+    [self.notificationCenterWrapper addObserver:self
+                                       selector:@selector(batteryStateChanged:)
+                                           name:UIDeviceBatteryLevelDidChangeNotification
+                                         object:currentDevice];
+
     // Posted when battery state changes.
-    [defaultCenter addObserver:self
-                      selector:@selector(batteryStateChanged:)
-                          name:UIDeviceBatteryStateDidChangeNotification
-                        object:currentDevice];
+    [self.notificationCenterWrapper addObserver:self
+                                       selector:@selector(batteryStateChanged:)
+                                           name:UIDeviceBatteryStateDidChangeNotification
+                                         object:currentDevice];
 }
 
 - (void)batteryStateChanged:(NSNotification *)notification
@@ -132,10 +154,10 @@ SentrySystemEventBreadcrumbs ()
     }
 
     // Posted when the orientation of the device changes.
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(orientationChanged:)
-                                                 name:UIDeviceOrientationDidChangeNotification
-                                               object:currentDevice];
+    [self.notificationCenterWrapper addObserver:self
+                                       selector:@selector(orientationChanged:)
+                                           name:UIDeviceOrientationDidChangeNotification
+                                         object:currentDevice];
 }
 
 - (void)orientationChanged:(NSNotification *)notification
@@ -163,18 +185,15 @@ SentrySystemEventBreadcrumbs ()
 
 - (void)initKeyboardVisibilityObserver
 {
-    NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
     // Posted immediately after the display of the keyboard.
-    [defaultCenter addObserver:self
-                      selector:@selector(systemEventTriggered:)
-                          name:UIKeyboardDidShowNotification
-                        object:nil];
+    [self.notificationCenterWrapper addObserver:self
+                                       selector:@selector(systemEventTriggered:)
+                                           name:UIKeyboardDidShowNotification];
 
     // Posted immediately after the dismissal of the keyboard.
-    [defaultCenter addObserver:self
-                      selector:@selector(systemEventTriggered:)
-                          name:UIKeyboardDidHideNotification
-                        object:nil];
+    [self.notificationCenterWrapper addObserver:self
+                                       selector:@selector(systemEventTriggered:)
+                                           name:UIKeyboardDidHideNotification];
 }
 
 - (void)systemEventTriggered:(NSNotification *)notification
@@ -189,10 +208,9 @@ SentrySystemEventBreadcrumbs ()
 - (void)initScreenshotObserver
 {
     // it's only about the action, but not the SS itself
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(systemEventTriggered:)
-                                                 name:UIApplicationUserDidTakeScreenshotNotification
-                                               object:nil];
+    [self.notificationCenterWrapper addObserver:self
+                                       selector:@selector(systemEventTriggered:)
+                                           name:UIApplicationUserDidTakeScreenshotNotification];
 }
 
 - (void)initTimezoneObserver
@@ -208,10 +226,9 @@ SentrySystemEventBreadcrumbs ()
     }
 
     // Posted when the timezone of the device changed
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(timezoneEventTriggered)
-                                                 name:NSSystemTimeZoneDidChangeNotification
-                                               object:nil];
+    [self.notificationCenterWrapper addObserver:self
+                                       selector:@selector(timezoneEventTriggered)
+                                           name:NSSystemTimeZoneDidChangeNotification];
 }
 
 - (void)timezoneEventTriggered

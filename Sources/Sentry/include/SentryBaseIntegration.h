@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
     kIntegrationOptionNone = 0,
     kIntegrationOptionEnableAutoSessionTracking = 1 << 0,
-    kIntegrationOptionEnableOutOfMemoryTracking = 1 << 1,
+    kIntegrationOptionEnableWatchdogTerminationTracking = 1 << 1,
     kIntegrationOptionEnableAutoPerformanceTracing = 1 << 2,
     kIntegrationOptionEnableUIViewControllerTracing = 1 << 3,
     kIntegrationOptionAttachScreenshot = 1 << 4,
@@ -22,6 +22,7 @@ typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
     kIntegrationOptionDebuggerNotAttached = 1 << 14,
     kIntegrationOptionAttachViewHierarchy = 1 << 15,
     kIntegrationOptionEnableCrashHandler = 1 << 16,
+    kIntegrationOptionEnableMetricKit = 1 << 17,
 };
 
 @interface SentryBaseIntegration : NSObject

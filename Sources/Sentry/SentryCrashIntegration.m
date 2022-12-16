@@ -5,10 +5,10 @@
 #import "SentryEvent.h"
 #import "SentryHub.h"
 #import "SentryInAppLogic.h"
-#import "SentryOutOfMemoryLogic.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySessionCrashedHandler.h"
+#import "SentryWatchdogTerminationLogic.h"
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
 #import <SentryCrashScopeObserver.h>
@@ -70,13 +70,13 @@ SentryCrashIntegration ()
 
     SentryAppStateManager *appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
-    SentryOutOfMemoryLogic *logic =
-        [[SentryOutOfMemoryLogic alloc] initWithOptions:options
-                                           crashAdapter:self.crashAdapter
-                                        appStateManager:appStateManager];
+    SentryWatchdogTerminationLogic *logic =
+        [[SentryWatchdogTerminationLogic alloc] initWithOptions:options
+                                                   crashAdapter:self.crashAdapter
+                                                appStateManager:appStateManager];
     self.crashedSessionHandler =
         [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:self.crashAdapter
-                                                 outOfMemoryLogic:logic];
+                                         watchdogTerminationLogic:logic];
 
     self.scopeObserver =
         [[SentryCrashScopeObserver alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs];

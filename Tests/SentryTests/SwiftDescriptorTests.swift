@@ -1,26 +1,26 @@
 import XCTest
 
-class SentryUIViewControllerSanitizerTests: XCTestCase {
+class SwiftDescriptorTests: XCTestCase {
 
     private class InnerClass: NSObject {
         
     }
     
-    func testSanitizeViewControllerNameWithBaseObject() {
+    func testDescriptionWithBaseObject() {
         let object = NSObject()
         let name = sanitize(object)
         
         XCTAssertEqual(name, "NSObject")
     }
     
-    func testSanitizeViewControllerNameWithSentryObject() {
+    func testDescriptionWithSentryObject() {
         let object = Options()
         let name = sanitize(object)
         
         XCTAssertEqual(name, "SentryOptions")
     }
     
-    func testSanitizeViewControllerNameWithPrivateSwiftClass() {
+    func testDescriptionWithPrivateSwiftClass() {
         let object = InnerClass()
         let name = sanitize(object)
         

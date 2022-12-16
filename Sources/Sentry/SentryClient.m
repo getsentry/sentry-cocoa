@@ -30,8 +30,6 @@
 #import "SentryMeta.h"
 #import "SentryNSError.h"
 #import "SentryOptions+Private.h"
-#import "SentryOutOfMemoryTracker.h"
-#import "SentryPermissionsObserver.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryStacktraceBuilder.h"
@@ -45,6 +43,7 @@
 #import "SentryUIDeviceWrapper.h"
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
+#import "SentryWatchdogTerminationTracker.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -59,7 +58,6 @@ SentryClient ()
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 @property (nonatomic, strong) id<SentryRandom> random;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
-@property (nonatomic, strong) SentryPermissionsObserver *permissionsObserver;
 @property (nonatomic, strong) SentryUIDeviceWrapper *deviceWrapper;
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
@@ -89,33 +87,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         SENTRY_LOG_ERROR(@"Cannot init filesystem.");
         return nil;
     }
-    return [self initWithOptions:options
-             permissionsObserver:[[SentryPermissionsObserver alloc] init]
-                     fileManager:fileManager];
-}
-
-- (nullable instancetype)initWithOptions:(SentryOptions *)options
-                     permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
-                           dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
-{
-    NSError *error;
-    SentryFileManager *fileManager =
-        [[SentryFileManager alloc] initWithOptions:options
-                            andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-                              dispatchQueueWrapper:dispatchQueue
-                                             error:&error];
-    if (error != nil) {
-        SENTRY_LOG_ERROR(@"Cannot init filesystem.");
-        return nil;
-    }
-    return [self initWithOptions:options
-             permissionsObserver:permissionsObserver
-                     fileManager:fileManager];
+    return [self initWithOptions:options fileManager:fileManager];
 }
 
 /** Internal constructor for testing purposes. */
 - (instancetype)initWithOptions:(SentryOptions *)options
-            permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
                     fileManager:(SentryFileManager *)fileManager
 {
     id<SentryTransport> transport = [SentryTransportFactory initTransport:options
@@ -144,7 +120,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                  threadInspector:threadInspector
                           random:[SentryDependencyContainer sharedInstance].random
                     crashWrapper:[SentryCrashWrapper sharedInstance]
-             permissionsObserver:permissionsObserver
                    deviceWrapper:deviceWrapper
                           locale:[NSLocale autoupdatingCurrentLocale]
                         timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone];
@@ -156,7 +131,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                 threadInspector:(SentryThreadInspector *)threadInspector
                          random:(id<SentryRandom>)random
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
-            permissionsObserver:(SentryPermissionsObserver *)permissionsObserver
                   deviceWrapper:(SentryUIDeviceWrapper *)deviceWrapper
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone
@@ -169,7 +143,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.threadInspector = threadInspector;
         self.random = random;
         self.crashWrapper = crashWrapper;
-        self.permissionsObserver = permissionsObserver;
         self.debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
         self.locale = locale;
         self.timezone = timezone;
@@ -574,18 +547,17 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
 
-    if ([self isOOM:event isCrashEvent:isCrashEvent]) {
+    if ([self isWatchdogTermination:event isCrashEvent:isCrashEvent]) {
         // Remove some mutable properties from the device/app contexts which are no longer
         // applicable
         [self removeExtraDeviceContextFromEvent:event];
-    } else {
+    } else if (!isCrashEvent) {
         // Store the current free memory, free storage, battery level and more mutable properties,
-        // at the time of this event
+        // at the time of this event, but not for crashes as the current data isn't guaranteed to be
+        // the same as when the app crashed.
         [self applyExtraDeviceContextToEvent:event];
+        [self applyCultureContextToEvent:event];
     }
-
-    [self applyPermissionsToEvent:event];
-    [self applyCultureContextToEvent:event];
 
     // With scope applied, before running callbacks run:
     if (event.environment == nil) {
@@ -726,7 +698,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 }
 
-- (BOOL)isOOM:(SentryEvent *)event isCrashEvent:(BOOL)isCrashEvent
+- (BOOL)isWatchdogTermination:(SentryEvent *)event isCrashEvent:(BOOL)isCrashEvent
 {
     if (!isCrashEvent) {
         return NO;
@@ -738,47 +710,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     SentryException *exception = event.exceptions[0];
     return exception.mechanism != nil &&
-        [exception.mechanism.type isEqualToString:SentryOutOfMemoryMechanismType];
-}
-
-- (void)applyPermissionsToEvent:(SentryEvent *)event
-{
-    [self modifyContext:event
-                    key:@"app"
-                  block:^(NSMutableDictionary *app) {
-                      app[@"permissions"] = @ {
-                          @"push_notifications" :
-                              [self stringForPermissionStatus:self.permissionsObserver
-                                                                  .pushPermissionStatus],
-                          @"location_access" :
-                              [self stringForPermissionStatus:self.permissionsObserver
-                                                                  .locationPermissionStatus],
-                          @"photo_library" :
-                              [self stringForPermissionStatus:self.permissionsObserver
-                                                                  .photoLibraryPermissionStatus],
-                      };
-                  }];
-}
-
-- (NSString *)stringForPermissionStatus:(SentryPermissionStatus)status
-{
-    switch (status) {
-    case kSentryPermissionStatusUnknown:
-        return @"unknown";
-        break;
-
-    case kSentryPermissionStatusGranted:
-        return @"granted";
-        break;
-
-    case kSentryPermissionStatusPartial:
-        return @"partial";
-        break;
-
-    case kSentryPermissionStatusDenied:
-        return @"not_granted";
-        break;
-    }
+        [exception.mechanism.type isEqualToString:SentryWatchdogTerminationMechanismType];
 }
 
 - (void)applyCultureContextToEvent:(SentryEvent *)event

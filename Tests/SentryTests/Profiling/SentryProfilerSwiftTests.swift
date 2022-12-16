@@ -80,7 +80,7 @@ class SentryProfilerSwiftTests: XCTestCase {
     ///    transaction B                                           |-------|
     ///    profiler B                                              |-------|  <- normal finish
     ///   ```
-    func testConcurrentSpansWithTimeout() {
+    func testConcurrentSpansWithTimeout_disabled() {
         let options = fixture.options
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0

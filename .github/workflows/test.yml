@@ -183,6 +183,9 @@ jobs:
           sudo ln -s /Applications/Xcode_12.5.1.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 14.5.simruntime
           xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-14-5"
 
+      - name: Install Slather
+        run: gem install slather
+      
       - name: Running tests
         # We call a script with the platform so the destination
         # passed to xcodebuild doesn't end up in the job name,
@@ -206,13 +209,6 @@ jobs:
           path: |
             raw-test-output.log
 
-      # Some tests run only on iOS so we only collect code coverage there.
-      - name: Run Slather
-        if: success() && ${{ contains(matrix.platform, 'iOS') }}
-        run: | 
-          gem install slather
-          slather coverage -x --output-directory slather/ --scheme Sentry --workspace Sentry.xcworkspace Sentry.xcodeproj
-
       # We can upload all coverage reports, because codecov merges them.
       # See https://docs.codecov.io/docs/merging-reports
       # Checkout .codecov.yml to see the config of Codecov
@@ -220,6 +216,9 @@ jobs:
         uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3.1.1
         if: ${{ contains(matrix.platform, 'iOS') }}
         with:
+          # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
+          # be solved by specifying the token, see https://github.com/codecov/codecov-action/issues/557#issuecomment-1224970469
+          token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           verbose: true
 

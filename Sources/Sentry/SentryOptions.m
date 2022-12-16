@@ -29,18 +29,26 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 + (NSArray<NSString *> *)defaultIntegrations
 {
-    return @[
-        @"SentryCrashIntegration",
+    NSMutableArray<NSString *> *defaultIntegrations =
+        @[
+            @"SentryCrashIntegration",
 #if SENTRY_HAS_UIKIT
-        @"SentryANRTrackingIntegration", @"SentryScreenshotIntegration",
-        @"SentryUIEventTrackingIntegration", @"SentryViewHierarchyIntegration",
+            @"SentryANRTrackingIntegration", @"SentryScreenshotIntegration",
+            @"SentryUIEventTrackingIntegration", @"SentryViewHierarchyIntegration",
 #endif
-        @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
-        @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
-        @"SentryOutOfMemoryTrackingIntegration", @"SentryPerformanceTrackingIntegration",
-        @"SentryNetworkTrackingIntegration", @"SentryFileIOTrackingIntegration",
-        @"SentryCoreDataTrackingIntegration"
-    ];
+            @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
+            @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
+            @"SentryWatchdogTerminationTrackingIntegration",
+            @"SentryPerformanceTrackingIntegration", @"SentryNetworkTrackingIntegration",
+            @"SentryFileIOTrackingIntegration", @"SentryCoreDataTrackingIntegration"
+        ]
+            .mutableCopy;
+
+    if (@available(iOS 14.0, macCatalyst 14.0, macOS 12.0, *)) {
+        [defaultIntegrations addObject:@"SentryMetricKitIntegration"];
+    }
+
+    return defaultIntegrations;
 }
 
 - (instancetype)init
@@ -57,14 +65,14 @@ NSString *const kSentryDefaultEnvironment = @"production";
         _defaultSampleRate = @1;
         self.sampleRate = _defaultSampleRate;
         self.enableAutoSessionTracking = YES;
-        self.enableOutOfMemoryTracking = YES;
+        self.enableWatchdogTerminationTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
         self.stitchAsyncCode = NO;
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
         self.enableAutoPerformanceTracing = YES;
-        self.enableCaptureFailedRequests = NO;
+        self.enableCaptureFailedRequests = YES;
         self.environment = kSentryDefaultEnvironment;
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracing = YES;
@@ -78,7 +86,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.appHangTimeoutInterval = 2.0;
         self.enableAutoBreadcrumbTracking = YES;
         self.enableNetworkTracking = YES;
-        self.enableFileIOTracing = NO;
+        self.enableFileIOTracing = YES;
         self.enableNetworkBreadcrumbs = YES;
         _defaultTracesSampleRate = nil;
         self.tracesSampleRate = _defaultTracesSampleRate;
@@ -90,6 +98,13 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableCoreDataTracing = NO;
         _enableSwizzling = YES;
         self.sendClientReports = YES;
+
+#if TARGET_OS_OSX
+        NSString *dsn = [[[NSProcessInfo processInfo] environment] objectForKey:@"SENTRY_DSN"];
+        if (dsn.length > 0) {
+            self.dsn = dsn;
+        }
+#endif
 
         // Use the name of the bundle’s executable file as inAppInclude, so SentryInAppLogic
         // marks frames coming from there as inApp. With this approach, the SDK marks public
@@ -104,7 +119,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         // them as inApp. To fix this, the user can use stack trace rules on Sentry.
         NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
         NSString *bundleExecutable = infoDict[@"CFBundleExecutable"];
-        if (nil == bundleExecutable) {
+        if (bundleExecutable == nil) {
             _inAppIncludes = [NSArray new];
         } else {
             _inAppIncludes = @[ bundleExecutable ];
@@ -113,7 +128,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         _inAppExcludes = [NSArray new];
 
         // Set default release name
-        if (nil != infoDict) {
+        if (infoDict != nil) {
             self.releaseName =
                 [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"],
                           infoDict[@"CFBundleShortVersionString"], infoDict[@"CFBundleVersion"]];
@@ -130,6 +145,12 @@ NSString *const kSentryDefaultEnvironment = @"production";
         SentryHttpStatusCodeRange *defaultHttpStatusCodeRange =
             [[SentryHttpStatusCodeRange alloc] initWithMin:500 max:599];
         self.failedRequestStatusCodes = @[ defaultHttpStatusCodeRange ];
+
+#if SENTRY_HAS_METRIC_KIT
+        if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
+            self.enableMetricKit = NO;
+        }
+#endif
     }
     return self;
 }
@@ -187,7 +208,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     NSError *error = nil;
     self.parsedDsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:&error];
 
-    if (nil == error) {
+    if (error == nil) {
         _dsn = dsn;
     } else {
         SENTRY_LOG_ERROR(@"Could not parse the DSN: %@.", error);

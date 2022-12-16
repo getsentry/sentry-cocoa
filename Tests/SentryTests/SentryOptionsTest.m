@@ -93,7 +93,7 @@
         @"Default integrations are not set correctly");
     XCTAssertEqual(@1, options.sampleRate);
     XCTAssertEqual(YES, options.enableAutoSessionTracking);
-    XCTAssertEqual(YES, options.enableOutOfMemoryTracking);
+    XCTAssertEqual(YES, options.enableWatchdogTerminationTracking);
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
     XCTAssertEqual(YES, options.attachStacktrace);
     XCTAssertEqual(NO, options.stitchAsyncCode);
@@ -117,8 +117,14 @@
     XCTAssertEqual(@[], options.inAppExcludes);
     XCTAssertNil(options.urlSessionDelegate);
     XCTAssertEqual(YES, options.enableSwizzling);
-    XCTAssertEqual(NO, options.enableFileIOTracing);
+    XCTAssertEqual(YES, options.enableFileIOTracing);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
+
+#if SENTRY_HAS_METRIC_KIT
+    if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
+        XCTAssertEqual(NO, options.enableMetricKit);
+    }
+#endif
 
     NSRegularExpression *regexTrace = options.tracePropagationTargets[0];
     XCTAssertTrue([regexTrace.pattern isEqualToString:@".*"]);
@@ -126,7 +132,7 @@
     NSRegularExpression *regexRequests = options.failedRequestTargets[0];
     XCTAssertTrue([regexRequests.pattern isEqualToString:@".*"]);
 
-    XCTAssertEqual(NO, options.enableCaptureFailedRequests);
+    XCTAssertEqual(YES, options.enableCaptureFailedRequests);
 
     SentryHttpStatusCodeRange *range = options.failedRequestStatusCodes[0];
     XCTAssertEqual(500, range.min);
@@ -175,6 +181,27 @@
     XCTAssertNil(options.parsedDsn);
     XCTAssertEqual(YES, options.enabled);
 }
+
+#if TARGET_OS_OSX
+- (void)testDsnViaEnvironment
+{
+    setenv("SENTRY_DSN", "https://username:password@sentry.io/1", 1);
+    SentryOptions *options = [[SentryOptions alloc] init];
+    XCTAssertEqualObjects(options.dsn, @"https://username:password@sentry.io/1");
+    XCTAssertNotNil(options.parsedDsn);
+    setenv("SENTRY_DSN", "", 1);
+}
+
+- (void)testInvalidDsnViaEnvironment
+{
+    setenv("SENTRY_DSN", "foo_bar", 1);
+    SentryOptions *options = [[SentryOptions alloc] init];
+    XCTAssertNil(options.dsn);
+    XCTAssertNil(options.parsedDsn);
+    XCTAssertEqual(options.enabled, YES);
+    setenv("SENTRY_DSN", "", 1);
+}
+#endif
 
 - (void)testTracesSampleRate_SetToNil
 {
