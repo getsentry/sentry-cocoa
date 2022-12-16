@@ -74,7 +74,10 @@
                   Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndBaggageHeaderAdded_disabled()">
                </Test>
                <Test
-                  Identifier = "SentryOutOfMemoryIntegrationTests/testANRDetected_UpdatesAppStateToTrue_disabled()">
+                  Identifier = "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout_disabled()">
+               </Test>
+               <Test
+                  Identifier = "SentryProfilerSwiftTests/testProfileTimeoutTimer_disabled()">
                </Test>
                <Test
                   Identifier = "SentrySDKIntegrationTestsBase">

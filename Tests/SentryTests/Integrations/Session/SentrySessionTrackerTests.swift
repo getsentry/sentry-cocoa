@@ -14,6 +14,8 @@ class SentrySessionTrackerTests: XCTestCase {
         let sentryCrash: TestSentryCrashWrapper
 
         let notificationCenter = TestNSNotificationCenterWrapper()
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
+        lazy var fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueue)
         
         init() {
             options = Options()
@@ -37,8 +39,6 @@ class SentrySessionTrackerTests: XCTestCase {
         }
     }
     
-    private var fileManager: SentryFileManager!
-    
     private var fixture: Fixture!
     private var sut: SessionTracker!
     
@@ -50,11 +50,10 @@ class SentrySessionTrackerTests: XCTestCase {
         fixture = Fixture()
         
         CurrentDate.setCurrentDateProvider(fixture.currentDateProvider)
-        
-        fileManager = try! SentryFileManager(options: fixture.options, andCurrentDateProvider: fixture.currentDateProvider)
-        fileManager.deleteCurrentSession()
-        fileManager.deleteCrashedSession()
-        fileManager.deleteTimestampLastInForeground()
+
+        fixture.fileManager.deleteCurrentSession()
+        fixture.fileManager.deleteCrashedSession()
+        fixture.fileManager.deleteTimestampLastInForeground()
         
         fixture.setNewHubToSDK()
         
@@ -354,7 +353,7 @@ class SentrySessionTrackerTests: XCTestCase {
     func testStop_RemovesObservers() {
         sut.stop()
         
-        let invocations = fixture.notificationCenter.addObserverWithNotificationInvocations
+        let invocations = fixture.notificationCenter.removeObserverWithNameInvocations
         let notificationNames = invocations.invocations.map { $0.name }
         
         assertNotificationNames(notificationNames)
@@ -424,11 +423,11 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private func assertSessionNotStored() {
-        XCTAssertNil(fileManager.readCurrentSession())
+        XCTAssertNil(fixture.fileManager.readCurrentSession())
     }
     
     private func assertSessionStored() {
-        XCTAssertNotNil(fileManager.readCurrentSession())
+        XCTAssertNotNil(fixture.fileManager.readCurrentSession())
     }
     
     private func assertNoSessionSent() {
@@ -528,11 +527,11 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private func assertLastInForegroundIsNil() {
-        XCTAssertNil(fileManager.readTimestampLastInForeground())
+        XCTAssertNil(fixture.fileManager.readTimestampLastInForeground())
     }
     
     private func assertLastInForegroundStored() {
-        XCTAssertEqual(fixture.currentDateProvider.date(), fileManager.readTimestampLastInForeground())
+        XCTAssertEqual(fixture.currentDateProvider.date(), fixture.fileManager.readTimestampLastInForeground())
     }
     
     private func assertAppLaunchSendsCrashedSession() {
@@ -546,7 +545,7 @@ class SentrySessionTrackerTests: XCTestCase {
         crashedSession.environment = fixture.options.environment
         advanceTime(bySeconds: 5)
         crashedSession.endCrashed(withTimestamp: fixture.currentDateProvider.date())
-        fileManager.storeCrashedSession(crashedSession)
+        fixture.fileManager.storeCrashedSession(crashedSession)
         
         sut.start()
         SentrySDK.captureCrash(Event())

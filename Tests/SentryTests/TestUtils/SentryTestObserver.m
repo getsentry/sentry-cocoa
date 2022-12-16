@@ -33,7 +33,6 @@ SentryTestObserver ()
     [[XCTestObservationCenter sharedTestObservationCenter]
         addTestObserver:[[SentryTestObserver alloc] init]];
 #endif
-    [SentryLog configure:YES diagnosticLevel:kSentryLevelDebug];
 }
 
 - (instancetype)init
@@ -48,7 +47,7 @@ SentryTestObserver ()
 
         // The SentryCrashIntegration enriches the scope. We need to install the integration
         // once to get the scope data.
-        [SentrySDK startWithOptionsObject:options];
+        [SentrySDK startWithOptions:options];
 
         self.scope = [[SentryScope alloc] init];
         [SentryCrashIntegration enrichScope:self.scope

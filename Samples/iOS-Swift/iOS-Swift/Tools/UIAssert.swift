@@ -84,11 +84,11 @@ class UIAssert {
             return
         }
         
-        let steps = stepsToCheck ?? ["loadView", "viewDidLoad", "viewWillAppear", "viewDidAppear", "viewAppearing"]
+        let steps = stepsToCheck ?? ["loadView", "viewDidLoad", "viewWillAppear", "viewDidAppear"]
         var missing = [String]()
         
         steps.forEach { spanDescription in
-            let index = children.firstIndex { $0.context.spanDescription == spanDescription }
+            let index = children.firstIndex { $0.spanDescription == spanDescription }
             
             if let spanIndex = index {
                 children.remove(at: spanIndex)

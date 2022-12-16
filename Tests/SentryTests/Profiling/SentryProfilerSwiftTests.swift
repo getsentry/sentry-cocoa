@@ -11,7 +11,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             options.dsn = SentryProfilerSwiftTests.dsnAsString
             return options
         }()
-        lazy var client: TestClient! = TestClient(options: options)
+        lazy var client: TestClient = TestClient(options: options)!
         lazy var hub: SentryHub = {
             let hub = SentryHub(client: client, andScope: scope)
             hub.bindClient(client)
@@ -31,6 +31,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         super.setUp()
         fixture = Fixture()
         SentryTracer.resetAppStartMeasurementRead()
+        SentryLog.configure(true, diagnosticLevel: .debug)
     }
 
     override func tearDown() {
@@ -79,7 +80,7 @@ class SentryProfilerSwiftTests: XCTestCase {
     ///    transaction B                                           |-------|
     ///    profiler B                                              |-------|  <- normal finish
     ///   ```
-    func testConcurrentSpansWithTimeout() {
+    func testConcurrentSpansWithTimeout_disabled() {
         let options = fixture.options
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
@@ -116,7 +117,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         }
     }
 
-    func testProfileTimeoutTimer() {
+    func testProfileTimeoutTimer_disabled() {
         fixture.options.profilesSampleRate = 1.0
         fixture.options.tracesSampleRate = 1.0
         performTest(shouldTimeOut: true)
@@ -269,9 +270,10 @@ private extension SentryProfilerSwiftTests {
 
         XCTAssertEqual(transactionEnvironment, profile["environment"] as! String)
 
-        let version = Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) ?? "(null)"
-        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "(null)"
-        let releaseString = "\(version) (\(build))"
+        let bundleID = Bundle.main.object(forInfoDictionaryKey: kCFBundleIdentifierKey as String) ?? "(null)"
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "(null)"
+        let build = Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) ?? "(null)"
+        let releaseString = "\(bundleID)@\(version)+\(build)"
         XCTAssertEqual(profile["release"] as! String, releaseString)
 
         XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["profile_id"] as! String))

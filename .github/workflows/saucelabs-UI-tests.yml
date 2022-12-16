@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - master
+      - 8.0.0
 
   pull_request:
     paths:
@@ -25,11 +26,11 @@ jobs:
     strategy:
       matrix:
         include:
-          - runs-on: macos-11
-            xcode: '12.5.1'
-
           - runs-on: macos-12
             xcode: '13.4.1'
+
+          - runs-on: macos-12
+            xcode: '14.1'
 
     steps:
       - uses: actions/checkout@v3
@@ -44,7 +45,7 @@ jobs:
           path: |
             DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app.dSYM
             DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app
-          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/iOS-Swift/**') }}-Xcode-${{ matrix.xcode }}-${{ hashFiles('Sentry/Sources/**') }}
+          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/iOS-Swift/**') }}-Xcode-${{ matrix.xcode }}-${{ hashFiles('Sources/Sentry/**') }}
       - name: Cache iOS-Swift UI Test Runner App build product
         id: ios-swift-uitest-runner-cache
         uses: actions/cache@v3
@@ -101,11 +102,6 @@ jobs:
 
           - xcode: '13.4.1'
             suite: 'iOS-13'
-
-          # iOS 12 has a failing test that we need to fix https://github.com/getsentry/sentry-cocoa/issues/1566
-          # iOS 11 keeps timing out and we don't know how to fix it.
-          - xcode: '12.5.1'
-            suite: 'iOS-10'
 
     steps:
       - uses: actions/checkout@v3

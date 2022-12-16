@@ -262,15 +262,14 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
     if (_gCurrentProfiler == nil) {
-        SENTRY_LOG_DEBUG(
-            @"No profiler tracking span with id %@", span.context.spanId.sentrySpanIdString);
+        SENTRY_LOG_DEBUG(@"No profiler tracking span with id %@", span.spanId.sentrySpanIdString);
         return;
     }
 
-    [_gCurrentProfiler->_spansInFlight removeObject:span.context.spanId];
+    [_gCurrentProfiler->_spansInFlight removeObject:span.spanId];
     if (_gCurrentProfiler->_spansInFlight.count == 0) {
         SENTRY_LOG_DEBUG(@"Stopping profiler %@ because span with id %@ was last being profiled.",
-            _gCurrentProfiler, span.context.spanId.sentrySpanIdString);
+            _gCurrentProfiler, span.spanId.sentrySpanIdString);
         [self stopProfilerForReason:SentryProfilerTruncationReasonNormal];
     }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -281,7 +280,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
-    const auto spanID = transaction.trace.context.spanId;
+    const auto spanID = transaction.trace.spanId;
     const auto profiler = _gProfilersPerSpanID[spanID];
     if (profiler == nil) {
         SENTRY_LOG_DEBUG(@"No profiler tracking span with id %@", spanID.sentrySpanIdString);
@@ -297,7 +296,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
-    const auto spanID = transaction.trace.context.spanId;
+    const auto spanID = transaction.trace.spanId;
     SentryProfiler *profiler = _gProfilersPerSpanID[spanID];
     if (profiler == nil) {
         SENTRY_LOG_DEBUG(@"No profiler tracking span with id %@", spanID.sentrySpanIdString);
@@ -305,7 +304,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     }
 
     SENTRY_LOG_DEBUG(@"Found profiler waiting for span with ID %@: %@",
-        transaction.trace.context.spanId.sentrySpanIdString, profiler);
+        transaction.trace.spanId.sentrySpanIdString, profiler);
     [profiler addTransaction:transaction];
 
     [self captureEnvelopeIfFinished:profiler spanID:spanID];
@@ -329,8 +328,10 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     if (profiler->_spansInFlight.count == 0) {
         [profiler captureEnvelope];
         [profiler->_transactions removeAllObjects];
+        SENTRY_LOG_DEBUG(@"Span %@ was last being tracked.", spanID.sentrySpanIdString);
     } else {
-        SENTRY_LOG_DEBUG(@"Profiler %@ is waiting for more spans to complete.", profiler);
+        SENTRY_LOG_DEBUG(@"Profiler %@ is waiting for more spans to complete: %@.", profiler,
+            profiler->_spansInFlight);
     }
 }
 
@@ -545,14 +546,9 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     profile[@"duration_ns"] = [@(profileDuration) stringValue];
     profile[@"truncation_reason"] = profilerTruncationReasonName(_truncationReason);
     profile[@"platform"] = _transactions.firstObject.platform;
-    profile[@"environment"] = _hub.scope.environmentString ?: _hub.getClient.options.environment ?: kSentryDefaultEnvironment;
+    profile[@"environment"] = _hub.scope.environmentString ?: _hub.getClient.options.environment;
     profile[@"timestamp"] = [[SentryCurrentDate date] sentry_toIso8601String];
-
-    const auto bundle = NSBundle.mainBundle;
-    profile[@"release"] =
-        [NSString stringWithFormat:@"%@ (%@)",
-                  [bundle objectForInfoDictionaryKey:(NSString *)kCFBundleVersionKey],
-                  [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
+    profile[@"release"] = _hub.getClient.options.releaseName;
 
 #    if SENTRY_HAS_UIKIT
     auto relativeFrameTimestampsNs = [NSMutableArray array];
@@ -600,10 +596,10 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     SENTRY_LOG_DEBUG(@"Profile end timestamp: %@ absolute time: %llu", _endDate,
         (unsigned long long)_endTimestamp);
     for (SentryTransaction *transaction in _transactions) {
-        SENTRY_LOG_DEBUG(@"Transaction %@ start timestamp: %@", transaction.trace.context.traceId,
+        SENTRY_LOG_DEBUG(@"Transaction %@ start timestamp: %@", transaction.trace.traceId,
             transaction.startTimestamp);
-        SENTRY_LOG_DEBUG(@"Transaction %@ end timestamp: %@", transaction.trace.context.traceId,
-            transaction.timestamp);
+        SENTRY_LOG_DEBUG(
+            @"Transaction %@ end timestamp: %@", transaction.trace.traceId, transaction.timestamp);
         const auto relativeStart =
             [NSString stringWithFormat:@"%llu",
                       [transaction.startTimestamp compare:_startDate] == NSOrderedAscending
@@ -620,7 +616,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
             if (profileStartToTransactionEnd_ns < 0) {
                 SENTRY_LOG_DEBUG(@"Transaction %@ ended before the profiler started, won't "
                                  @"associate it with this profile.",
-                    transaction.trace.context.traceId.sentryIdString);
+                    transaction.trace.traceId.sentryIdString);
                 continue;
             } else {
                 relativeEnd = [NSString
@@ -629,7 +625,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
         }
         [transactionsInfo addObject:@{
             @"id" : transaction.eventId.sentryIdString,
-            @"trace_id" : transaction.trace.context.traceId.sentryIdString,
+            @"trace_id" : transaction.trace.traceId.sentryIdString,
             @"name" : transaction.transaction,
             @"relative_start_ns" : relativeStart,
             @"relative_end_ns" : relativeEnd,

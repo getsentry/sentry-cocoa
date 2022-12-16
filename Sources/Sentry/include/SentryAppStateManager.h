@@ -2,24 +2,28 @@
 #import "SentryDefines.h"
 
 @class SentryOptions, SentryCrashWrapper, SentryAppState, SentryFileManager, SentrySysctl,
-    SentryDispatchQueueWrapper;
+    SentryDispatchQueueWrapper, SentryNSNotificationCenterWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryAppStateManager : NSObject
 SENTRY_NO_INIT
 
+@property (nonatomic, readonly) NSInteger startCount;
+
 - (instancetype)initWithOptions:(SentryOptions *)options
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
                     fileManager:(SentryFileManager *)fileManager
             currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
                          sysctl:(SentrySysctl *)sysctl
-           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
+           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+      notificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper;
 
 #if SENTRY_HAS_UIKIT
 
 - (void)start;
 - (void)stop;
+- (void)stopWithForce:(BOOL)forceStop;
 
 /**
  * Builds the current app state.

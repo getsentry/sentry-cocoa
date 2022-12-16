@@ -6,8 +6,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-FOUNDATION_EXPORT NSString *const kSentryDefaultEnvironment;
-
 @protocol SentryClientAttachmentProcessor <NSObject>
 
 - (nullable NSArray<SentryAttachment *> *)processAttachments:
@@ -17,13 +15,12 @@ FOUNDATION_EXPORT NSString *const kSentryDefaultEnvironment;
 @end
 
 @interface
-SentryClient (Private)
+SentryClient ()
 
 @property (nonatomic, strong)
     NSMutableArray<id<SentryClientAttachmentProcessor>> *attachmentProcessors;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
-
-- (SentryFileManager *)fileManager;
+@property (nonatomic, strong) SentryFileManager *fileManager;
 
 - (SentryId *)captureError:(NSError *)error
                  withScope:(SentryScope *)scope

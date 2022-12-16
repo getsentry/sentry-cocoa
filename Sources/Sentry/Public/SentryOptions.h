@@ -3,18 +3,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryDsn, SentrySdkInfo, SentryMeasurementValue, SentryHttpStatusCodeRange;
+@class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
 
-/**
- * Init SentryOptions.
- * @param options Options dictionary
- * @return SentryOptions
- */
-- (_Nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)options
-                      didFailWithError:(NSError *_Nullable *_Nullable)error;
+- (_Nullable instancetype)initWithDsn:(NSString *)dsn
+                     didFailWithError:(NSError *_Nullable *_Nullable)error;
 
 /**
  * The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
@@ -53,15 +48,20 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic, copy) NSString *dist;
 
 /**
- * The environment used for this event
+ * The environment used for this event. Default value is "production".
  */
-@property (nullable, nonatomic, copy) NSString *environment;
+@property (nonatomic, copy) NSString *environment;
 
 /**
  * Specifies wether this SDK should send events to Sentry. If set to NO events will be
  * dropped in the client and not sent to Sentry. Default is YES.
  */
 @property (nonatomic, assign) BOOL enabled;
+
+/**
+ * Controls the flush duration when calling ``SentrySDK/close``.
+ */
+@property (nonatomic, assign) NSTimeInterval shutdownTimeInterval;
 
 /**
  * When enabled, the SDK sends crashes to Sentry. Default value is YES.
@@ -136,9 +136,9 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableAutoSessionTracking;
 
 /**
- * Whether to enable out of memory tracking or not. Default is YES.
+ * Whether to enable Watchdog Termination tracking or not. Default is YES.
  */
-@property (nonatomic, assign) BOOL enableOutOfMemoryTracking;
+@property (nonatomic, assign) BOOL enableWatchdogTerminationTracking;
 
 /**
  * The interval to end a session if the App goes to the background.
@@ -163,13 +163,6 @@ NS_SWIFT_NAME(Options)
  * This feature is disabled by default.
  */
 @property (nonatomic, assign) BOOL stitchAsyncCode;
-
-/**
- * Describes the Sentry SDK and its configuration used to capture and transmit an event.
- * This is reserved for internal use, and will be removed in a future version of the SDK.
- */
-@property (nonatomic, readonly, strong) SentrySdkInfo *sdkInfo DEPRECATED_MSG_ATTRIBUTE(
-    "This property will be removed in a future version of the SDK");
 
 /**
  * The maximum size for each attachment in bytes. Default is 20 MiB / 20 * 1024 * 1024 bytes.
@@ -198,14 +191,14 @@ NS_SWIFT_NAME(Options)
  * <code>YES</code>. Note: Performance Monitoring must be enabled for this flag to take effect. See:
  * https://docs.sentry.io/platforms/apple/performance/
  */
-@property (nonatomic, assign) BOOL enableAutoPerformanceTracking;
+@property (nonatomic, assign) BOOL enableAutoPerformanceTracing;
 
 #if SENTRY_HAS_UIKIT
 /**
  * When enabled, the SDK tracks performance for UIViewController subclasses. The default is
  * <code>YES</code>.
  */
-@property (nonatomic, assign) BOOL enableUIViewControllerTracking;
+@property (nonatomic, assign) BOOL enableUIViewControllerTracing;
 
 /**
  * This feature is EXPERIMENTAL.
@@ -227,8 +220,6 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL attachViewHierarchy;
 
 /**
- * This feature is EXPERIMENTAL.
- *
  * When enabled, the SDK creates transactions for UI events like buttons clicks, switch toggles,
  * and other ui elements that uses UIControl `sendAction:to:forEvent:`.
  */
@@ -252,7 +243,7 @@ NS_SWIFT_NAME(Options)
  *
  * Default value is <code>NO</code>
  */
-@property (nonatomic, assign) BOOL enablePreWarmedAppStartTracking;
+@property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
 
 #endif
 
@@ -267,9 +258,9 @@ NS_SWIFT_NAME(Options)
 
 /**
  * When enabled, the SDK tracks performance for file IO reads and writes with NSData if auto
- * performance tracking and enableSwizzling are enabled. The default is <code>NO</code>.
+ * performance tracking and enableSwizzling are enabled. The default is <code>YES</code>.
  */
-@property (nonatomic, assign) BOOL enableFileIOTracking;
+@property (nonatomic, assign) BOOL enableFileIOTracing;
 
 /**
  * Indicates the percentage of the tracing data that is collected. Setting this to 0 or NIL discards
@@ -341,7 +332,7 @@ NS_SWIFT_NAME(Options)
  * performance monitoring. The default is <code>NO</code>.
  * @see <https://docs.sentry.io/platforms/apple/performance/>
  */
-@property (nonatomic, assign) BOOL enableCoreDataTracking;
+@property (nonatomic, assign) BOOL enableCoreDataTracing;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
@@ -429,7 +420,7 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, retain) NSArray *tracePropagationTargets;
 
 /**
- * When enabled, the SDK captures HTTP Client errors. Default value is NO.
+ * When enabled, the SDK captures HTTP Client errors.
  * This feature requires enableSwizzling enabled as well, Default value is YES.
  */
 @property (nonatomic, assign) BOOL enableCaptureFailedRequests;
@@ -452,6 +443,19 @@ NS_SWIFT_NAME(Options)
  * The default value automatically captures HTTP Client errors of all outgoing requests.
  */
 @property (nonatomic, strong) NSArray *failedRequestTargets;
+
+#if SENTRY_HAS_METRIC_KIT
+
+/**
+ * ATTENTION: This is an experimental feature.
+ *
+ * This feature is disabled by default. When enabled, the SDK sends ``MXDiagnosticPayload`` data to
+ * Sentry.
+ */
+@property (nonatomic, assign) BOOL enableMetricKit API_AVAILABLE(
+    ios(14.0), macos(12.0), macCatalyst(14.0)) API_UNAVAILABLE(tvos, watchos);
+
+#endif
 
 @end
 

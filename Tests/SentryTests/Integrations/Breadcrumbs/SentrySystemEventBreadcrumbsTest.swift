@@ -8,8 +8,9 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
     
     private class Fixture {
         let options: Options
-        let fileManager: SentryFileManager
+        let fileManager: TestFileManager
         var currentDateProvider = TestCurrentDateProvider()
+        let notificationCenterWrapper = TestNSNotificationCenterWrapper()
 
         init() {
             options = Options()
@@ -18,15 +19,19 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
             options.sessionTrackingIntervalMillis = 10_000
             options.environment = "debug"
 
-            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider)
+            fileManager = try! TestFileManager(options: options, andCurrentDateProvider: currentDateProvider)
         }
 
         func getSut(scope: Scope, currentDevice: UIDevice? = UIDevice.current) -> SentrySystemEventBreadcrumbs {
-            let client = Client(options: self.options)
+            let client = SentryClient(options: self.options)
             let hub = SentryHub(client: client, andScope: scope)
             SentrySDK.setCurrentHub(hub)
 
-            let systemEvents = SentrySystemEventBreadcrumbs(fileManager: fileManager, andCurrentDateProvider: currentDateProvider)!
+            let systemEvents = SentrySystemEventBreadcrumbs(
+                fileManager: fileManager,
+                andCurrentDateProvider: currentDateProvider,
+                andNotificationCenterWrapper: notificationCenterWrapper
+            )!
             systemEvents.start(currentDevice)
             return systemEvents
         }
@@ -264,6 +269,13 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
             XCTAssertEqual(data["previous_seconds_from_gmt"] as? Int, 0)
             XCTAssertEqual(data["current_seconds_from_gmt"] as? Int, 7_200)
         }
+    }
+
+    func testStopCallsSpecificRemoveObserverMethods() {
+        let scope = Scope()
+        sut = fixture.getSut(scope: scope, currentDevice: nil)
+        sut.stop()
+        XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameInvocations.count, 7)
     }
 
     private func assertBreadcrumbAction(scope: Scope, action: String, checks: (([String: Any]) -> Void)? = nil) {
