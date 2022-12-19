@@ -79,7 +79,6 @@ SentryMetricKitIntegration ()
     [self captureMXEvent:callStackTree
           exceptionValue:exceptionValue
            exceptionType:@"MXCrashDiagnostic"
-                 handled:NO
           withScopeBlock:^(SentryScope *_Nonnull scope) {
               [scope clearBreadcrumbs];
               if (diagnostic.virtualMemoryRegionInfo) {
@@ -89,6 +88,55 @@ SentryMetricKitIntegration ()
                                   forKey:@"MetricKit"];
               }
           }];
+}
+
+- (void)captureMXEvent:(SentryMXCallStackTree *)callStackTree
+        exceptionValue:(NSString *)exceptionValue
+         exceptionType:(NSString *)exceptionType
+        withScopeBlock:(void (^)(SentryScope *))block
+{
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
+
+    SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
+                                                                   type:exceptionType];
+    SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:exceptionType];
+    mechanism.handled = @(NO);
+    mechanism.synthetic = @(YES);
+    exception.mechanism = mechanism;
+    event.exceptions = @[ exception ];
+
+    event.threads = [self convertToSentryThreads:callStackTree];
+    event.debugMeta = [self extractDebugMetaFromMXCallStacks:callStackTree.callStacks];
+
+    // The crash event can be way from the past. We don't want to impact the current session.
+    // Therefore we don't call captureCrashEvent.
+    [SentrySDK captureEvent:event withScopeBlock:block];
+}
+
+- (NSArray<SentryThread *> *)convertToSentryThreads:(SentryMXCallStackTree *)callStackTree
+{
+    NSUInteger i = 0;
+    NSMutableArray<SentryThread *> *threads = [NSMutableArray array];
+    for (SentryMXCallStack *callStack in callStackTree.callStacks) {
+        NSEnumerator<SentryMXFrame *> *frameEnumerator
+            = callStack.flattenedRootFrames.objectEnumerator;
+        // The MXFrames are in reversed order when callStackPerThread is true. The Apple docs don't
+        // state that. This is an assumption based on observing MetricKit data.
+        if (callStackTree.callStackPerThread) {
+            frameEnumerator = [callStack.flattenedRootFrames reverseObjectEnumerator];
+        }
+
+        SentryStacktrace *stacktrace = [self convertMXFramesToSentryStacktrace:frameEnumerator];
+
+        SentryThread *thread = [[SentryThread alloc] initWithThreadId:@(i)];
+        thread.stacktrace = stacktrace;
+
+        [threads addObject:thread];
+
+        i++;
+    }
+
+    return threads;
 }
 
 - (void)didReceiveCpuExceptionDiagnostic:(MXCPUExceptionDiagnostic *)diagnostic
@@ -107,11 +155,10 @@ SentryMetricKitIntegration ()
 
     // Still need to figure out proper exception values and types.
     // This code is currently only there for testing with TestFlight.
-    [self captureMXEvent:callStackTree
-          exceptionValue:exceptionValue
-           exceptionType:@"MXCPUException"
-                 handled:YES
-          withScopeBlock:^(SentryScope *_Nonnull scope) { [scope clearBreadcrumbs]; }];
+    [self captureMXHandledEvent:callStackTree
+                 exceptionValue:exceptionValue
+                  exceptionType:@"MXCPUException"
+                 withScopeBlock:^(SentryScope *_Nonnull scope) { [scope clearBreadcrumbs]; }];
 }
 
 - (void)didReceiveDiskWriteExceptionDiagnostic:(MXDiskWriteExceptionDiagnostic *)diagnostic
@@ -127,81 +174,65 @@ SentryMetricKitIntegration ()
 
     // Still need to figure out proper exception values and types.
     // This code is currently only there for testing with TestFlight.
-    [self captureMXEvent:callStackTree
-          exceptionValue:exceptionValue
-           exceptionType:@"MXDiskWriteException"
-                 handled:YES
-          withScopeBlock:^(SentryScope *_Nonnull scope) { [scope clearBreadcrumbs]; }];
+    [self captureMXHandledEvent:callStackTree
+                 exceptionValue:exceptionValue
+                  exceptionType:@"MXDiskWriteException"
+                 withScopeBlock:^(SentryScope *_Nonnull scope) { [scope clearBreadcrumbs]; }];
 }
 
-- (void)captureMXEvent:(SentryMXCallStackTree *)callStackTree
-        exceptionValue:(NSString *)exceptionValue
-         exceptionType:(NSString *)exceptionType
-               handled:(BOOL)handled
-        withScopeBlock:(void (^)(SentryScope *))block
+- (void)captureMXHandledEvent:(SentryMXCallStackTree *)callStackTree
+               exceptionValue:(NSString *)exceptionValue
+                exceptionType:(NSString *)exceptionType
+               withScopeBlock:(void (^)(SentryScope *))block
 {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
 
-    SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
-                                                                   type:exceptionType];
-    SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:exceptionType];
-    mechanism.handled = @(handled);
-    exception.mechanism = mechanism;
-    event.exceptions = @[ exception ];
-
-    event.threads = [self convertToSentryThreads:callStackTree];
-    event.debugMeta = [self extractDebugMeta:callStackTree.callStacks];
-
-    // The crash event can be way from the past. We don't want to impact the current session.
-    // Therefore we don't call captureCrashEvent.
-    [SentrySDK captureEvent:event withScopeBlock:block];
-}
-
-- (NSArray<SentryThread *> *)convertToSentryThreads:(SentryMXCallStackTree *)callStackTree
-{
-    NSUInteger i = 0;
-    NSMutableArray<SentryThread *> *threads = [NSMutableArray array];
     for (SentryMXCallStack *callStack in callStackTree.callStacks) {
+        SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
 
-        NSMutableArray<SentryFrame *> *frames = [NSMutableArray array];
+        SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
+                                                                       type:exceptionType];
+        SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:exceptionType];
+        mechanism.handled = @(YES);
+        mechanism.synthetic = @(YES);
+        exception.mechanism = mechanism;
+        event.exceptions = @[ exception ];
 
-        NSEnumerator<SentryMXFrame *> *frameEnumerator
-            = callStack.flattenedRootFrames.objectEnumerator;
-        // The MXFrames are in reversed order when callStackPerThread is true. The Apple docs don't
-        // state that. This is an assumption based on observing MetricKit data.
-        if (callStackTree.callStackPerThread) {
-            frameEnumerator = [callStack.flattenedRootFrames reverseObjectEnumerator];
-        }
+        SentryThread *thread = [[SentryThread alloc] initWithThreadId:@0];
+        thread.stacktrace =
+            [self convertMXFramesToSentryStacktrace:callStack.flattenedRootFrames.objectEnumerator];
 
-        for (SentryMXFrame *mxFrame in frameEnumerator) {
-            SentryFrame *frame = [[SentryFrame alloc] init];
-            frame.package = mxFrame.binaryName;
-            frame.instructionAddress = sentry_formatHexAddress(@(mxFrame.address));
-            NSNumber *imageAddress = @(mxFrame.address - mxFrame.offsetIntoBinaryTextSegment);
-            frame.imageAddress = sentry_formatHexAddress(imageAddress);
+        event.threads = @[ thread ];
+        event.debugMeta = [self extractDebugMetaFromMXFrames:callStack.flattenedRootFrames];
 
-            [frames addObject:frame];
-        }
+        [SentrySDK captureEvent:event withScopeBlock:block];
+    }
+}
 
-        SentryStacktrace *stacktrace = [[SentryStacktrace alloc] initWithFrames:frames
-                                                                      registers:@{}];
+- (SentryStacktrace *)convertMXFramesToSentryStacktrace:(NSEnumerator<SentryMXFrame *> *)mxFrames
+{
+    NSMutableArray<SentryFrame *> *frames = [NSMutableArray array];
 
-        SentryThread *thread = [[SentryThread alloc] initWithThreadId:@(i)];
-        thread.stacktrace = stacktrace;
+    for (SentryMXFrame *mxFrame in mxFrames) {
+        SentryFrame *frame = [[SentryFrame alloc] init];
+        frame.package = mxFrame.binaryName;
+        frame.instructionAddress = sentry_formatHexAddress(@(mxFrame.address));
+        NSNumber *imageAddress = @(mxFrame.address - mxFrame.offsetIntoBinaryTextSegment);
+        frame.imageAddress = sentry_formatHexAddress(imageAddress);
 
-        [threads addObject:thread];
-
-        i++;
+        [frames addObject:frame];
     }
 
-    return threads;
+    SentryStacktrace *stacktrace = [[SentryStacktrace alloc] initWithFrames:frames registers:@{}];
+
+    return stacktrace;
 }
 
 /**
  * We must extract the debug images from the MetricKit stacktraces as the image addresses change
  * when you restart the app.
  */
-- (NSArray<SentryDebugMeta *> *)extractDebugMeta:(NSArray<SentryMXCallStack *> *)callStacks
+- (NSArray<SentryDebugMeta *> *)extractDebugMetaFromMXCallStacks:
+    (NSArray<SentryMXCallStack *> *)callStacks
 {
     NSMutableDictionary<NSString *, SentryDebugMeta *> *debugMetas =
         [NSMutableDictionary dictionary];
@@ -224,6 +255,32 @@ SentryMetricKitIntegration ()
 
             debugMetas[debugMeta.uuid] = debugMeta;
         }
+    }
+
+    return [debugMetas allValues];
+}
+
+- (NSArray<SentryDebugMeta *> *)extractDebugMetaFromMXFrames:(NSArray<SentryMXFrame *> *)mxFrames
+{
+    NSMutableDictionary<NSString *, SentryDebugMeta *> *debugMetas =
+        [NSMutableDictionary dictionary];
+
+    for (SentryMXFrame *mxFrame in mxFrames) {
+
+        NSString *binaryUUID = [mxFrame.binaryUUID UUIDString];
+        if (debugMetas[binaryUUID]) {
+            continue;
+        }
+
+        SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
+        debugMeta.type = @"apple";
+        debugMeta.uuid = binaryUUID;
+        debugMeta.name = mxFrame.binaryName;
+
+        NSNumber *imageAddress = @(mxFrame.address - mxFrame.offsetIntoBinaryTextSegment);
+        debugMeta.imageAddress = sentry_formatHexAddress(imageAddress);
+
+        debugMetas[debugMeta.uuid] = debugMeta;
     }
 
     return [debugMetas allValues];

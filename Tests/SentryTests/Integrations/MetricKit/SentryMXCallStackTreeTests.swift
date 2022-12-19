@@ -11,11 +11,18 @@ import MetricKit
 
 final class SentryMXCallStackTreeTests: XCTestCase {
     
-    func testDecodeCallStackTree_Simple() throws {
-        let contents = try contentsOfResource("metric-kit-callstack-tree-simple")
+    func testDecodeCallStackTree_PerThread() throws {
+        let contents = try contentsOfResource("metric-kit-callstack-per-thread")
         let callStackTree = try SentryMXCallStackTree.from(data: contents)
         
         try assertSimpleCallStackTree(callStackTree)
+    }
+    
+    func testDecodeCallStackTree_NotPerThread() throws {
+        let contents = try contentsOfResource("metric-kit-callstack-not-per-thread")
+        let callStackTree = try SentryMXCallStackTree.from(data: contents)
+        
+        try assertSimpleCallStackTree(callStackTree, perThread: false, framesAmount: 6, threadAttributed: nil)
     }
     
     func testDecodeCallStackTree_UnknownFieldsPayload() throws {
@@ -42,16 +49,16 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         XCTAssertThrowsError(try SentryMXCallStackTree.from(data: contents))
     }
     
-    private func assertSimpleCallStackTree(_ callStackTree: SentryMXCallStackTree) throws {
+    private func assertSimpleCallStackTree(_ callStackTree: SentryMXCallStackTree, perThread: Bool = true, framesAmount: Int = 3, threadAttributed: Bool? = true) throws {
         XCTAssertNotNil(callStackTree)
-        XCTAssertTrue(callStackTree.callStackPerThread)
+        XCTAssertEqual(perThread, callStackTree.callStackPerThread)
         
         XCTAssertEqual(1, callStackTree.callStacks.count)
         
         let callStack = try XCTUnwrap(callStackTree.callStacks.first)
-        XCTAssertTrue(callStack.threadAttributed ?? false)
+        XCTAssertEqual(threadAttributed, callStack.threadAttributed)
         
-        XCTAssertEqual(3, callStack.flattenedRootFrames.count)
+        XCTAssertEqual(framesAmount, callStack.flattenedRootFrames.count)
         
         let firstFrame = try XCTUnwrap(callStack.flattenedRootFrames[0])
         XCTAssertEqual(UUID(uuidString: "9E8D8DE6-EEC1-3199-8720-9ED68EE3F967"), firstFrame.binaryUUID)
