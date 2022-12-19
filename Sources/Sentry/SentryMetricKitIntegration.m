@@ -79,6 +79,7 @@ SentryMetricKitIntegration ()
     [self captureMXEvent:callStackTree
           exceptionValue:exceptionValue
            exceptionType:@"MXCrashDiagnostic"
+                 handled:NO
           withScopeBlock:^(SentryScope *_Nonnull scope) {
               [scope clearBreadcrumbs];
               if (diagnostic.virtualMemoryRegionInfo) {
@@ -109,6 +110,7 @@ SentryMetricKitIntegration ()
     [self captureMXEvent:callStackTree
           exceptionValue:exceptionValue
            exceptionType:@"MXCPUException"
+                 handled:YES
           withScopeBlock:^(SentryScope *_Nonnull scope) { [scope clearBreadcrumbs]; }];
 }
 
@@ -128,12 +130,14 @@ SentryMetricKitIntegration ()
     [self captureMXEvent:callStackTree
           exceptionValue:exceptionValue
            exceptionType:@"MXDiskWriteException"
+                 handled:YES
           withScopeBlock:^(SentryScope *_Nonnull scope) { [scope clearBreadcrumbs]; }];
 }
 
 - (void)captureMXEvent:(SentryMXCallStackTree *)callStackTree
         exceptionValue:(NSString *)exceptionValue
          exceptionType:(NSString *)exceptionType
+               handled:(BOOL)handled
         withScopeBlock:(void (^)(SentryScope *))block
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
@@ -141,11 +145,11 @@ SentryMetricKitIntegration ()
     SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
                                                                    type:exceptionType];
     SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:exceptionType];
-    mechanism.handled = @(NO);
+    mechanism.handled = @(handled);
     exception.mechanism = mechanism;
     event.exceptions = @[ exception ];
 
-    event.threads = [self convertToSentryThreads:callStackTree.callStacks];
+    event.threads = [self convertToSentryThreads:callStackTree];
     event.debugMeta = [self extractDebugMeta:callStackTree.callStacks];
 
     // The crash event can be way from the past. We don't want to impact the current session.
@@ -153,17 +157,23 @@ SentryMetricKitIntegration ()
     [SentrySDK captureEvent:event withScopeBlock:block];
 }
 
-- (NSArray<SentryThread *> *)convertToSentryThreads:(NSArray<SentryMXCallStack *> *)callStacks
+- (NSArray<SentryThread *> *)convertToSentryThreads:(SentryMXCallStackTree *)callStackTree
 {
     NSUInteger i = 0;
     NSMutableArray<SentryThread *> *threads = [NSMutableArray array];
-    for (SentryMXCallStack *callStack in callStacks) {
+    for (SentryMXCallStack *callStack in callStackTree.callStacks) {
 
         NSMutableArray<SentryFrame *> *frames = [NSMutableArray array];
 
-        // The MXFrames are in reversed order compared to how we order them in Sentry.
-        for (SentryMXFrame *mxFrame in [callStack.flattenedRootFrames reverseObjectEnumerator]) {
+        NSEnumerator<SentryMXFrame *> *frameEnumerator
+            = callStack.flattenedRootFrames.objectEnumerator;
+        // The MXFrames are in reversed order when callStackPerThread is true. The Apple docs don't
+        // state that. This is an assumption based on observing MetricKit data.
+        if (callStackTree.callStackPerThread) {
+            frameEnumerator = [callStack.flattenedRootFrames reverseObjectEnumerator];
+        }
 
+        for (SentryMXFrame *mxFrame in frameEnumerator) {
             SentryFrame *frame = [[SentryFrame alloc] init];
             frame.package = mxFrame.binaryName;
             frame.instructionAddress = sentry_formatHexAddress(@(mxFrame.address));
