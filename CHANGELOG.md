@@ -111,6 +111,11 @@ This version adds a dependency on Swift.
     - Rename `SentryOptions.enableCoreDataTracking` to `enableCoreDataTracing`
 - SentrySDK.close calls flush, which is a blocking call (#2453)
 - Bump minimum Xcode version to 13 (#2483)
+## 7.31.4
+
+### Fixes
+
+- Screenshot crashes when application delegate has no window (#2538)
 
 ## 7.31.3
 

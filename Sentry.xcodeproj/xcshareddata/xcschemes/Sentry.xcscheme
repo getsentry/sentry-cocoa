@@ -88,6 +88,12 @@
                <Test
                   Identifier = "SentryStacktraceBuilderTests/testAsyncStacktraces_disabled()">
                </Test>
+               <Test
+                  Identifier = "SentryUIApplicationTests/test_applicationWithScenes()">
+               </Test>
+               <Test
+                  Identifier = "SentryUIApplicationTests/test_applicationWithScenes_noWindow()">
+               </Test>
             </SkippedTests>
          </TestableReference>
       </Testables>

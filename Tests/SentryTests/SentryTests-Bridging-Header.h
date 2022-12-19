@@ -178,6 +178,7 @@
 @import SentryPrivate;
 
 #if SENTRY_HAS_UIKIT
+#    import "MockUIScene.h"
 #    import "SentryUIEventTracker.h"
 #    import "SentryUIEventTrackingIntegration.h"
 #endif
