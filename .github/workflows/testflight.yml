@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - 8.0.0
+      - feat/metric-kit
     paths:
       - 'Sources/**'
       - 'Samples/iOS-Swift/**'
