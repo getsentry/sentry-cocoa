@@ -64,10 +64,22 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         let mxDelegate = sut as SentryMXManagerDelegate
         mxDelegate.didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: currentDate.date(), timeStampEnd: currentDate.date())
         
-        assertMXCrashEvent(exceptionType: "MXCrashDiagnostic", exceptionValue: "MachException Type:(null) Code:(null) Signal:(null)")
+        assertPerThread(exceptionType: "MXCrashDiagnostic", exceptionValue: "MachException Type:(null) Code:(null) Signal:(null)")
     }
     
-    func testCPUExceptionDiagnostic() throws {
+    func testCPUExceptionDiagnostic_PerThread() throws {
+        givenSdkWithHub()
+        
+        let sut = SentryMetricKitIntegration()
+        givenInstalledWithEnabled(sut)
+        
+        let mxDelegate = sut as SentryMXManagerDelegate
+        mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: currentDate.date(), timeStampEnd: currentDate.date())
+        
+        assertPerThread(exceptionType: "MXCPUException", exceptionValue: "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms")
+    }
+    
+    func testCPUExceptionDiagnostic_NotPerThread() throws {
         givenSdkWithHub()
         
         let sut = SentryMetricKitIntegration()
@@ -76,7 +88,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         let mxDelegate = sut as SentryMXManagerDelegate
         mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: currentDate.date(), timeStampEnd: currentDate.date())
         
-        assertMXEvent(exceptionType: "MXCPUException", exceptionValue: "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms")
+        assertNotPerThread(exceptionType: "MXCPUException", exceptionValue: "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms")
     }
     
     func testDiskWriteExceptionDiagnostic() throws {
@@ -88,39 +100,35 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         let mxDelegate = sut as SentryMXManagerDelegate
         mxDelegate.didReceiveDiskWriteExceptionDiagnostic(TestMXDiskWriteExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: currentDate.date(), timeStampEnd: currentDate.date())
         
-        assertMXEvent(exceptionType: "MXDiskWriteException", exceptionValue: "MXDiskWriteException totalWritesCaused:5.5 Mib")
+        assertNotPerThread(exceptionType: "MXDiskWriteException", exceptionValue: "MXDiskWriteException totalWritesCaused:5.5 Mib")
     }
     
-    @available(iOS 14, macOS 12, *)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
     private func givenInstalledWithEnabled(_ integration: SentryMetricKitIntegration) {
         let options = Options()
         options.enableMetricKit = true
         integration.install(with: options)
     }
     
-    private func assertMXCrashEvent(exceptionType: String, exceptionValue: String) {
+    private func assertPerThread(exceptionType: String, exceptionValue: String) {
         assertEventWithScopeCaptured { event, _, _ in
             XCTAssertEqual(callStackTreePerThread.callStacks.count, event?.threads?.count)
             
-            guard var flattenedRootFrames = callStackTreePerThread.callStacks.first?.flattenedRootFrames else {
-                XCTFail("CallStackTree has no call stack.")
-                return
+            for callSack in callStackTreePerThread.callStacks {
+                var flattenedRootFrames = callSack.flattenedRootFrames
+                flattenedRootFrames.reverse()
+                
+                assertFrames(frames: flattenedRootFrames, event: event, exceptionType, exceptionValue)
             }
-            flattenedRootFrames.reverse()
-            
-            assertFrames(frames: flattenedRootFrames, event: event, exceptionType, exceptionValue)
         }
     }
     
-    private func assertMXEvent(exceptionType: String, exceptionValue: String) {
+    private func assertNotPerThread(exceptionType: String, exceptionValue: String) {
         guard let client = SentrySDK.currentHub().getClient() as? TestClient else {
             XCTFail("Hub Client is not a `TestClient`")
             return
         }
         
-        XCTAssertEqual(2, client.captureEventWithScopeInvocations.count, "More than one `Event` captured.")
+        XCTAssertEqual(2, client.captureEventWithScopeInvocations.count, "Client expected to capture 2 events.")
         let firstEvent = client.captureEventWithScopeInvocations.invocations[0].event
         let secondEvent = client.captureEventWithScopeInvocations.invocations[1].event
         
@@ -169,9 +177,6 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual("iOS-Swift", debugMeta[1].name)
     }
     
-    @available(iOS 14, macOS 12, *)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
     private func assertFrame(mxFrame: SentryMXFrame, sentryFrame: Frame) {
         XCTAssertEqual(mxFrame.binaryName, sentryFrame.package)
         
