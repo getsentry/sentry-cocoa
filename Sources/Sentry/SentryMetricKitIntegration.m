@@ -185,26 +185,29 @@ SentryMetricKitIntegration ()
                 exceptionType:(NSString *)exceptionType
                withScopeBlock:(void (^)(SentryScope *))block
 {
-
     for (SentryMXCallStack *callStack in callStackTree.callStacks) {
-        SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
 
-        SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
-                                                                       type:exceptionType];
-        SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:exceptionType];
-        mechanism.handled = @(YES);
-        mechanism.synthetic = @(YES);
-        exception.mechanism = mechanism;
-        event.exceptions = @[ exception ];
+        for (SentryMXFrame *frame in callStack.callStackRootFrames) {
 
-        SentryThread *thread = [[SentryThread alloc] initWithThreadId:@0];
-        thread.stacktrace =
-            [self convertMXFramesToSentryStacktrace:callStack.flattenedRootFrames.objectEnumerator];
+            SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
 
-        event.threads = @[ thread ];
-        event.debugMeta = [self extractDebugMetaFromMXFrames:callStack.flattenedRootFrames];
+            SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
+                                                                           type:exceptionType];
+            SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:exceptionType];
+            mechanism.handled = @(YES);
+            mechanism.synthetic = @(YES);
+            exception.mechanism = mechanism;
+            event.exceptions = @[ exception ];
 
-        [SentrySDK captureEvent:event withScopeBlock:block];
+            SentryThread *thread = [[SentryThread alloc] initWithThreadId:@0];
+            thread.stacktrace =
+                [self convertMXFramesToSentryStacktrace:frame.framesIncludingSelf.objectEnumerator];
+
+            event.threads = @[ thread ];
+            event.debugMeta = [self extractDebugMetaFromMXFrames:frame.framesIncludingSelf];
+
+            [SentrySDK captureEvent:event withScopeBlock:block];
+        }
     }
 }
 
