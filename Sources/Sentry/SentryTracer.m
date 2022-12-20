@@ -203,7 +203,7 @@ static BOOL appStartMeasurementRead;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         if (profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
-            [SentryProfiler startForSpanID:transactionContext.spanId hub:hub];
+            [SentryProfiler startWithHub:hub];
         }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
@@ -630,10 +630,6 @@ static BOOL appStartMeasurementRead;
         }
     }
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-    [SentryProfiler stopProfilingSpan:self.rootSpan];
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
     SentryTransaction *transaction = [self toTransaction];
 
     // Prewarming can execute code up to viewDidLoad of a UIViewController, and keep the app in the
@@ -645,16 +641,22 @@ static BOOL appStartMeasurementRead;
         SENTRY_LOG_INFO(@"Auto generated transaction exceeded the max duration of %f seconds. Not "
                         @"capturing transaction.",
             SENTRY_AUTO_TRANSACTION_MAX_DURATION);
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-        [SentryProfiler dropTransaction:transaction];
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
         return;
     }
 
-    [_hub captureTransaction:transaction withScope:_hub.scope];
-
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    [SentryProfiler linkTransaction:transaction];
+    SentryEnvelopeItem *profileEnvelopeItem =
+        [SentryProfiler captureProfilingEnvelopeItemForTransaction:transaction];
+    [_hub captureTransaction:transaction
+                      withScope:_hub.scope
+        additionalEnvelopeItems:@[ profileEnvelopeItem ]];
+
+    // TODO: if we're finished capturing the last concurrent transaction, stop/reset the profiler
+    //    if (somethingSomething) {
+    [SentryProfiler stop];
+//    }
+#else
+    [_hub captureTransaction:transaction withScope:_hub.scope];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
