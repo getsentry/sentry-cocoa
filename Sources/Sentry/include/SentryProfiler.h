@@ -3,6 +3,7 @@
 #import "SentrySpan.h"
 #import <Foundation/Foundation.h>
 
+@class SentryEnvelopeItem;
 #if SENTRY_HAS_UIKIT
 @class SentryFramesTracker;
 #endif // SENTRY_HAS_UIKIT
@@ -80,6 +81,11 @@ SENTRY_EXTERN_C_END
 + (void)linkTransaction:(SentryTransaction *)transaction;
 
 + (BOOL)isRunning;
+
+/** Given a transaction, return an envelope item containing any corresponding profile data to be
+ * attached to the transaction envelope. */
+- (nullable SentryEnvelopeItem *)captureProfilingEnvelopeItemForTransaction:
+    (SentryTransaction *)transaction;
 
 @end
 
