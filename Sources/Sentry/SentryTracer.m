@@ -240,10 +240,16 @@ static BOOL appStartMeasurementRead;
 
 - (void)startDeadlineTimer
 {
-    self.deadlineTimer = [self.timerWrapper
-        scheduledTimerWithTimeInterval:SENTRY_AUTO_TRANSACTION_DEADLINE
-                               repeats:NO
-                                 block:^(NSTimer *_Nonnull timer) { [self deadlineTimerFired]; }];
+    __weak SentryTracer *weakSelf = self;
+    self.deadlineTimer =
+        [self.timerWrapper scheduledTimerWithTimeInterval:SENTRY_AUTO_TRANSACTION_DEADLINE
+                                                  repeats:NO
+                                                    block:^(NSTimer *_Nonnull timer) {
+                                                        if (weakSelf == nil) {
+                                                            return;
+                                                        }
+                                                        [weakSelf deadlineTimerFired];
+                                                    }];
 }
 
 - (void)deadlineTimerFired

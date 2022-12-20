@@ -153,16 +153,22 @@ class SentryTracerTests: XCTestCase {
 
     func testDeadlineTimer_FinishesTransactionAndChildren() {
         let sut = fixture.getSut()
-        let child = sut.startChild(operation: fixture.transactionOperation)
+        let child1 = sut.startChild(operation: fixture.transactionOperation)
+        let child2 = sut.startChild(operation: fixture.transactionOperation)
+        let child3 = sut.startChild(operation: fixture.transactionOperation)
+
+        child3.finish()
 
         fixture.timerWrapper.fire()
 
         assertOneTransactionCaptured(sut)
 
         XCTAssertEqual(sut.status, .deadlineExceeded)
-        XCTAssertEqual(child.status, .deadlineExceeded)
+        XCTAssertEqual(child1.status, .deadlineExceeded)
+        XCTAssertEqual(child2.status, .deadlineExceeded)
+        XCTAssertEqual(child3.status, .ok)
     }
-    
+
     func testFinish_CheckDefaultStatus() {
         let sut = fixture.getSut()
         sut.finish()
