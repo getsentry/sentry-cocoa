@@ -1259,6 +1259,20 @@ class SentryClientTest: XCTestCase {
         
         XCTAssertNil(fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.traceContext)
     }
+
+    func test_AddCrashReportAttacment_withViewHierarchy() {
+        let scope = Scope()
+
+        let tempFile = FileManager.default.temporaryDirectory.appendingPathComponent("view-hierarchy.json")
+        try? "data".data(using: .utf8)?.write(to: tempFile)
+
+        scope.addCrashReportAttachment(inPath: tempFile.path)
+
+        XCTAssertEqual(scope.attachments.count, 1)
+        XCTAssertEqual(scope.attachments.first?.filename, "view-hierarchy.json")
+        XCTAssertEqual(scope.attachments.first?.contentType, "application/json")
+        XCTAssertEqual(scope.attachments.first?.attachmentType, .viewHierarchy)
+    }
     
     func testCaptureEvent_withAdditionalEnvelopeItem() {
         let event = Event(level: SentryLevel.warning)

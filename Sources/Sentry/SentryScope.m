@@ -1,6 +1,6 @@
 #import "SentryScope.h"
 #import "NSMutableDictionary+Sentry.h"
-#import "SentryAttachment.h"
+#import "SentryAttachment+Private.h"
 #import "SentryBreadcrumb.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
@@ -393,6 +393,19 @@ SentryScope ()
 {
     @synchronized(_attachmentArray) {
         [_attachmentArray addObject:attachment];
+    }
+}
+
+- (void)addCrashReportAttachmentInPath:(NSString *)filePath
+{
+    if ([filePath.lastPathComponent isEqualToString:@"view-hierarchy.json"]) {
+        [self addAttachment:[[SentryAttachment alloc]
+                                  initWithPath:filePath
+                                      filename:@"view-hierarchy.json"
+                                   contentType:@"application/json"
+                                attachmentType:kSentryAttachmentTypeViewHierarchy]];
+    } else {
+        [self addAttachment:[[SentryAttachment alloc] initWithPath:filePath]];
     }
 }
 
