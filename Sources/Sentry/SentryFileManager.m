@@ -60,7 +60,6 @@ SentryFileManager ()
     self = [super init];
     if (self) {
         self.currentDateProvider = currentDateProvider;
-
         [self createPathsWithOptions:options];
 
         // Remove old cached events for versions before 6.0.0
@@ -78,15 +77,13 @@ SentryFileManager ()
         self.maxEnvelopes = options.maxCacheItems;
 
         __weak SentryFileManager *weakSelf = self;
-        [dispatchQueueWrapper
-            dispatchAfter:10
-                    block:^{
-                        if (weakSelf == nil) {
-                            return;
-                        }
-                        SENTRY_LOG_DEBUG(@"Dispatched deletion of old envelopes from %@", weakSelf);
-                        [weakSelf deleteOldEnvelopesFromAllSentryPaths];
-                    }];
+        [dispatchQueueWrapper dispatchAsyncWithBlock:^{
+            if (weakSelf == nil) {
+                return;
+            }
+            SENTRY_LOG_DEBUG(@"Dispatched deletion of old envelopes from %@", weakSelf);
+            [weakSelf deleteOldEnvelopesFromAllSentryPaths];
+        }];
     }
     return self;
 }
