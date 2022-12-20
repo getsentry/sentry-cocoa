@@ -84,7 +84,7 @@ class UIAssert {
             return
         }
         
-        let steps = stepsToCheck ?? ["loadView", "viewDidLoad", "viewWillAppear", "viewDidAppear", "viewAppearing"]
+        let steps = stepsToCheck ?? ["loadView", "viewDidLoad", "viewWillAppear", "viewDidAppear"]
         var missing = [String]()
         
         steps.forEach { spanDescription in

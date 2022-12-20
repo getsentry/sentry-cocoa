@@ -38,9 +38,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
 #endif
             @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
             @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
-            @"SentryOutOfMemoryTrackingIntegration", @"SentryPerformanceTrackingIntegration",
-            @"SentryNetworkTrackingIntegration", @"SentryFileIOTrackingIntegration",
-            @"SentryCoreDataTrackingIntegration"
+            @"SentryWatchdogTerminationTrackingIntegration",
+            @"SentryPerformanceTrackingIntegration", @"SentryNetworkTrackingIntegration",
+            @"SentryFileIOTrackingIntegration", @"SentryCoreDataTrackingIntegration"
         ]
             .mutableCopy;
 
@@ -65,14 +65,14 @@ NSString *const kSentryDefaultEnvironment = @"production";
         _defaultSampleRate = @1;
         self.sampleRate = _defaultSampleRate;
         self.enableAutoSessionTracking = YES;
-        self.enableOutOfMemoryTracking = YES;
+        self.enableWatchdogTerminationTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
         self.stitchAsyncCode = NO;
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
         self.enableAutoPerformanceTracing = YES;
-        self.enableCaptureFailedRequests = NO;
+        self.enableCaptureFailedRequests = YES;
         self.environment = kSentryDefaultEnvironment;
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracing = YES;
@@ -99,6 +99,13 @@ NSString *const kSentryDefaultEnvironment = @"production";
         _enableSwizzling = YES;
         self.sendClientReports = YES;
 
+#if TARGET_OS_OSX
+        NSString *dsn = [[[NSProcessInfo processInfo] environment] objectForKey:@"SENTRY_DSN"];
+        if (dsn.length > 0) {
+            self.dsn = dsn;
+        }
+#endif
+
         // Use the name of the bundle’s executable file as inAppInclude, so SentryInAppLogic
         // marks frames coming from there as inApp. With this approach, the SDK marks public
         // frameworks such as UIKitCore, CoreFoundation, GraphicsServices, and so forth, as not
@@ -112,7 +119,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         // them as inApp. To fix this, the user can use stack trace rules on Sentry.
         NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
         NSString *bundleExecutable = infoDict[@"CFBundleExecutable"];
-        if (nil == bundleExecutable) {
+        if (bundleExecutable == nil) {
             _inAppIncludes = [NSArray new];
         } else {
             _inAppIncludes = @[ bundleExecutable ];
@@ -121,7 +128,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         _inAppExcludes = [NSArray new];
 
         // Set default release name
-        if (nil != infoDict) {
+        if (infoDict != nil) {
             self.releaseName =
                 [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"],
                           infoDict[@"CFBundleShortVersionString"], infoDict[@"CFBundleVersion"]];
@@ -201,7 +208,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     NSError *error = nil;
     self.parsedDsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:&error];
 
-    if (nil == error) {
+    if (error == nil) {
         _dsn = dsn;
     } else {
         SENTRY_LOG_ERROR(@"Could not parse the DSN: %@.", error);

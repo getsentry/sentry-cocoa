@@ -112,10 +112,6 @@
 #import "SentryNoOpSpan.h"
 #import "SentryObjCRuntimeWrapper.h"
 #import "SentryOptions+Private.h"
-#import "SentryOutOfMemoryLogic.h"
-#import "SentryOutOfMemoryScopeObserver.h"
-#import "SentryOutOfMemoryTracker.h"
-#import "SentryOutOfMemoryTrackingIntegration.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryPerformanceTrackingIntegration.h"
 #import "SentryPredicateDescriptor.h"
@@ -168,6 +164,10 @@
 #import "SentryUserFeedback.h"
 #import "SentryViewHierarchy.h"
 #import "SentryViewHierarchyIntegration.h"
+#import "SentryWatchdogTerminationLogic.h"
+#import "SentryWatchdogTerminationScopeObserver.h"
+#import "SentryWatchdogTerminationTracker.h"
+#import "SentryWatchdogTerminationTrackingIntegration.h"
 #import "TestNSURLRequestBuilder.h"
 #import "TestSentryCrashWrapper.h"
 #import "TestSentrySpan.h"
@@ -180,6 +180,7 @@
 #import "TestSentryViewHierarchy.h"
 
 #if SENTRY_HAS_UIKIT
+#    import "MockUIScene.h"
 #    import "SentryUIEventTracker.h"
 #    import "SentryUIEventTrackingIntegration.h"
 #endif

@@ -94,7 +94,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 + (NSArray<NSData *> *)captureScreenshots;
 
-+ (NSData *) captureViewHierarchy;
++ (NSData *)captureViewHierarchy;
 #endif
 
 @end
