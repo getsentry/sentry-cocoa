@@ -136,7 +136,10 @@ SentryMetricKitIntegration ()
          exceptionType:(NSString *)exceptionType
         withScopeBlock:(void (^)(SentryScope *))block
 {
+
     if (callStackTree.callStackPerThread) {
+        // When callStackPerThread is true the call stacks of the call stack tree represent a call
+        // stack for each thread.
         SentryEvent *event = [self createEvent:handled
                                          level:level
                                 exceptionValue:exceptionValue
@@ -149,6 +152,8 @@ SentryMetricKitIntegration ()
         // Therefore we don't call captureCrashEvent.
         [SentrySDK captureEvent:event withScopeBlock:block];
     } else {
+        // When callStackPerThread is false the call stacks of the call stack tree represent
+        // individual independent call stacks
         for (SentryMXCallStack *callStack in callStackTree.callStacks) {
 
             for (SentryMXFrame *frame in callStack.callStackRootFrames) {
