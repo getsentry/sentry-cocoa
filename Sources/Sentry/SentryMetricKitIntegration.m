@@ -78,6 +78,7 @@ SentryMetricKitIntegration ()
 
     [self captureMXEvent:callStackTree
                  handled:NO
+                   level:kSentryLevelError
           exceptionValue:exceptionValue
            exceptionType:@"MXCrashDiagnostic"
           withScopeBlock:^(SentryScope *_Nonnull scope) { [scope clearBreadcrumbs]; }];
@@ -101,6 +102,7 @@ SentryMetricKitIntegration ()
     // This code is currently only there for testing with TestFlight.
     [self captureMXEvent:callStackTree
                  handled:YES
+                   level:kSentryLevelWarning
           exceptionValue:exceptionValue
            exceptionType:@"MXCPUException"
           withScopeBlock:^(SentryScope *_Nonnull scope) { [scope clearBreadcrumbs]; }];
@@ -121,6 +123,7 @@ SentryMetricKitIntegration ()
     // This code is currently only there for testing with TestFlight.
     [self captureMXEvent:callStackTree
                  handled:YES
+                   level:kSentryLevelWarning
           exceptionValue:exceptionValue
            exceptionType:@"MXDiskWriteException"
           withScopeBlock:^(SentryScope *_Nonnull scope) { [scope clearBreadcrumbs]; }];
@@ -128,20 +131,16 @@ SentryMetricKitIntegration ()
 
 - (void)captureMXEvent:(SentryMXCallStackTree *)callStackTree
                handled:(BOOL)handled
+                 level:(enum SentryLevel)level
         exceptionValue:(NSString *)exceptionValue
          exceptionType:(NSString *)exceptionType
         withScopeBlock:(void (^)(SentryScope *))block
 {
     if (callStackTree.callStackPerThread) {
-        SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
-
-        SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
-                                                                       type:exceptionType];
-        SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:exceptionType];
-        mechanism.handled = @(handled);
-        mechanism.synthetic = @(YES);
-        exception.mechanism = mechanism;
-        event.exceptions = @[ exception ];
+        SentryEvent *event = [self createEvent:handled
+                                         level:level
+                                exceptionValue:exceptionValue
+                                 exceptionType:exceptionType];
 
         event.threads = [self convertToSentryThreads:callStackTree];
         event.debugMeta = [self extractDebugMetaFromMXCallStacks:callStackTree.callStacks];
@@ -154,15 +153,10 @@ SentryMetricKitIntegration ()
 
             for (SentryMXFrame *frame in callStack.callStackRootFrames) {
 
-                SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
-
-                SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
-                                                                               type:exceptionType];
-                SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:exceptionType];
-                mechanism.handled = @(YES);
-                mechanism.synthetic = @(YES);
-                exception.mechanism = mechanism;
-                event.exceptions = @[ exception ];
+                SentryEvent *event = [self createEvent:handled
+                                                 level:level
+                                        exceptionValue:exceptionValue
+                                         exceptionType:exceptionType];
 
                 SentryThread *thread = [[SentryThread alloc] initWithThreadId:@0];
                 thread.stacktrace = [self
@@ -175,6 +169,24 @@ SentryMetricKitIntegration ()
             }
         }
     }
+}
+
+- (SentryEvent *)createEvent:(BOOL)handled
+                       level:(enum SentryLevel)level
+              exceptionValue:(NSString *)exceptionValue
+               exceptionType:(NSString *)exceptionType
+{
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:level];
+
+    SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
+                                                                   type:exceptionType];
+    SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:exceptionType];
+    mechanism.handled = @(handled);
+    mechanism.synthetic = @(YES);
+    exception.mechanism = mechanism;
+    event.exceptions = @[ exception ];
+
+    return event;
 }
 
 - (NSArray<SentryThread *> *)convertToSentryThreads:(SentryMXCallStackTree *)callStackTree
