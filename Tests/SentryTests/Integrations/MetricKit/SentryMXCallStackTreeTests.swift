@@ -15,7 +15,7 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         let contents = try contentsOfResource("metric-kit-callstack-per-thread")
         let callStackTree = try SentryMXCallStackTree.from(data: contents)
         
-        try assertSimpleCallStackTree(callStackTree)
+        try assertSimpleCallStackTree(callStackTree, callStackCount: 2)
     }
     
     func testDecodeCallStackTree_NotPerThread() throws {
@@ -49,11 +49,11 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         XCTAssertThrowsError(try SentryMXCallStackTree.from(data: contents))
     }
     
-    private func assertSimpleCallStackTree(_ callStackTree: SentryMXCallStackTree, perThread: Bool = true, framesAmount: Int = 3, threadAttributed: Bool? = true) throws {
+    private func assertSimpleCallStackTree(_ callStackTree: SentryMXCallStackTree, perThread: Bool = true, callStackCount: Int = 1, framesAmount: Int = 3, threadAttributed: Bool? = true) throws {
         XCTAssertNotNil(callStackTree)
         XCTAssertEqual(perThread, callStackTree.callStackPerThread)
         
-        XCTAssertEqual(1, callStackTree.callStacks.count)
+        XCTAssertEqual(callStackCount, callStackTree.callStacks.count)
         
         let callStack = try XCTUnwrap(callStackTree.callStacks.first)
         XCTAssertEqual(threadAttributed, callStack.threadAttributed)
