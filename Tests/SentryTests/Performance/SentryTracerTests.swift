@@ -169,6 +169,22 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(child3.status, .ok)
     }
 
+    func testDeadlineTimer_OnlyForAutoTransactions() {
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        let child1 = sut.startChild(operation: fixture.transactionOperation)
+        let child2 = sut.startChild(operation: fixture.transactionOperation)
+        let child3 = sut.startChild(operation: fixture.transactionOperation)
+
+        child3.finish()
+
+        fixture.timerWrapper.fire()
+
+        XCTAssertEqual(sut.status, .undefined)
+        XCTAssertEqual(child1.status, .undefined)
+        XCTAssertEqual(child2.status, .undefined)
+        XCTAssertEqual(child3.status, .ok)
+    }
+
     func testDeadlineTimer_Finish_Cancels_Timer() {
         let sut = fixture.getSut()
         sut.finish()
