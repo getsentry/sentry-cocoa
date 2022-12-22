@@ -78,14 +78,16 @@ SentryTracer ()
 #endif
 }
 
-static NSObject *appStartMeasurementLock;
+static NSObject *_gGlobalStateLock;
 static BOOL appStartMeasurementRead;
+static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
 
 + (void)initialize
 {
     if (self == [SentryTracer class]) {
-        appStartMeasurementLock = [[NSObject alloc] init];
+        _gGlobalStateLock = [[NSObject alloc] init];
         appStartMeasurementRead = NO;
+        _gInFlightSpanIDs = [NSMutableArray<SentrySpanId *> array];
     }
 }
 
@@ -166,6 +168,10 @@ static BOOL appStartMeasurementRead;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
         self.rootSpan = [[SentrySpan alloc] initWithTracer:self context:transactionContext];
+        @synchronized(_gGlobalStateLock) {
+            [_gInFlightSpanIDs addObject:self.rootSpan.spanId];
+        }
+
         self.transactionContext = transactionContext;
         _children = [[NSMutableArray alloc] init];
         self.hub = hub;
@@ -325,6 +331,9 @@ static BOOL appStartMeasurementRead;
         parentId.sentrySpanIdString);
     @synchronized(_children) {
         [_children addObject:child];
+    }
+    @synchronized(_gGlobalStateLock) {
+        [_gInFlightSpanIDs addObject:child.spanId];
     }
 
     return child;
@@ -631,6 +640,13 @@ static BOOL appStartMeasurementRead;
         }
     }
 
+    @synchronized(_gGlobalStateLock) {
+        [_gInFlightSpanIDs removeObject:_rootSpan.spanId];
+        for (id<SentrySpan> span in _children) {
+            [_gInFlightSpanIDs removeObject:span.spanId];
+        }
+    }
+
     SentryTransaction *transaction = [self toTransaction];
 
     // Prewarming can execute code up to viewDidLoad of a UIViewController, and keep the app in the
@@ -652,10 +668,11 @@ static BOOL appStartMeasurementRead;
                       withScope:_hub.scope
         additionalEnvelopeItems:@[ profileEnvelopeItem ]];
 
-    // TODO: if we're finished capturing the last concurrent transaction, stop/reset the profiler
-    //    if (somethingSomething) {
-    [SentryProfiler stop];
-//    }
+    @synchronized(_gGlobalStateLock) {
+        if (_gInFlightSpanIDs.count == 0) {
+            [SentryProfiler stop];
+        }
+    }
 #else
     [_hub captureTransaction:transaction withScope:_hub.scope];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -715,7 +732,7 @@ static BOOL appStartMeasurementRead;
     }
 
     SentryAppStartMeasurement *measurement = nil;
-    @synchronized(appStartMeasurementLock) {
+    @synchronized(_gGlobalStateLock) {
         if (appStartMeasurementRead == YES) {
             return nil;
         }
@@ -915,7 +932,7 @@ static BOOL appStartMeasurementRead;
  */
 + (void)resetAppStartMeasurementRead
 {
-    @synchronized(appStartMeasurementLock) {
+    @synchronized(_gGlobalStateLock) {
         appStartMeasurementRead = NO;
     }
 }
