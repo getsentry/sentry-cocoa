@@ -158,6 +158,13 @@ static BOOL appStartMeasurementRead;
             @"Starting transaction ID %@ and name %@ for span ID %@ at system time %llu",
             transactionContext.traceId.sentryIdString, transactionContext.name,
             transactionContext.spanId.sentrySpanIdString, (unsigned long long)getAbsoluteTime());
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+        if (profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
+            [SentryProfiler startWithHub:hub];
+        }
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
         self.rootSpan = [[SentrySpan alloc] initWithTracer:self context:transactionContext];
         self.transactionContext = transactionContext;
         _children = [[NSMutableArray alloc] init];
@@ -200,12 +207,6 @@ static BOOL appStartMeasurementRead;
             initFrozenFrames = currentFrames.frozen;
         }
 #endif // SENTRY_HAS_UIKIT
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-        if (profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
-            [SentryProfiler startWithHub:hub];
-        }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
 
     return self;
