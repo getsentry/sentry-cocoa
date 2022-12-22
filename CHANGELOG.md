@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Crash in SentryOutOfMemoryScopeObserver (#2557)
+
 ## 7.31.4
 
 ### Fixes

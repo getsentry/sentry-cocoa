@@ -75,15 +75,19 @@ SentryOutOfMemoryScopeObserver ()
 
 - (void)store:(NSData *)data
 {
-    [self.fileHandle seekToEndOfFile];
-    [self.fileHandle writeData:data];
-    [self.fileHandle writeData:[@"\n" dataUsingEncoding:NSASCIIStringEncoding]];
+    @try {
+        [self.fileHandle seekToEndOfFile];
+        [self.fileHandle writeData:data];
+        [self.fileHandle writeData:[@"\n" dataUsingEncoding:NSASCIIStringEncoding]];
 
-    self.breadcrumbCounter += 1;
+        self.breadcrumbCounter += 1;
 
-    if (self.breadcrumbCounter >= self.maxBreadcrumbs) {
-        [self switchFileHandle];
-        self.breadcrumbCounter = 0;
+        if (self.breadcrumbCounter >= self.maxBreadcrumbs) {
+            [self switchFileHandle];
+            self.breadcrumbCounter = 0;
+        }
+    } @catch (NSException *exception) {
+        SENTRY_LOG_ERROR(@"Error while writing data: %@", exception.description);
     }
 }
 

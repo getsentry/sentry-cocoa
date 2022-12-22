@@ -521,7 +521,7 @@ class SentryHttpTransportTests: XCTestCase {
 
     func testSendEnvelopesConcurrent() {
         self.measure {
-            fixture.requestManager.responseDelay = 0.000_1
+            fixture.requestManager.responseDelay = 0.0001
 
             let queue = fixture.queue
 
