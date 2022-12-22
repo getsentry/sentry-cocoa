@@ -89,7 +89,7 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
     }
     
     func testAppStartCrash_DurationTooBig_DoesNotCallFlush() {
-        fixture.crashWrapper.internalDurationFromCrashStateInitToLastCrash = 2.00001
+        fixture.crashWrapper.internalDurationFromCrashStateInitToLastCrash = 2.000_01
         
         filterReportWithAttachment()
         
