@@ -212,9 +212,10 @@ jobs:
       # We can upload all coverage reports, because codecov merges them.
       # See https://docs.codecov.io/docs/merging-reports
       # Checkout .codecov.yml to see the config of Codecov
+      # We don't upload codecov for release branches, as we don't want a failing coverage check to block a release.
       - name: Push code coverage to codecov
         uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3.1.1
-        if: ${{ contains(matrix.platform, 'iOS') }}
+        if: ${{ contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') }}
         with:
           # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
           # be solved by specifying the token, see https://github.com/codecov/codecov-action/issues/557#issuecomment-1224970469
