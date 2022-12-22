@@ -137,7 +137,8 @@ class SentryHttpTransportTests: XCTestCase {
 
         waitForAllRequests()
         givenOkResponse()
-        _ = fixture.sut
+        let sut = fixture.sut
+        XCTAssertNotNil(sut)
         waitForAllRequests()
 
         assertEnvelopesStored(envelopeCount: 0)
@@ -561,6 +562,28 @@ class SentryHttpTransportTests: XCTestCase {
         assertRequestsSent(requestCount: 1)
     }
     
+    func testDeallocated_CachedEnvelopesNotAllSent() throws {
+        givenNoInternetConnection()
+        givenCachedEvents(amount: 10)
+    
+        givenOkResponse()
+        fixture.dispatchQueueWrapper.dispatchAfterExecutesBlock = false
+        
+        // Interact with sut in extra function so ARC deallocates it
+        func getSut() {
+            let sut = fixture.sut
+            sut.send(envelope: fixture.eventEnvelope)
+            waitForAllRequests()
+        }
+        getSut()
+        
+        for dispatchAfterBlock in fixture.dispatchQueueWrapper.dispatchAfterInvocations.invocations {
+            dispatchAfterBlock.block()
+        }
+        
+        assertEnvelopesStored(envelopeCount: 10)
+    }
+    
     func testBuildingRequestFailsAndRateLimitActive_RecordsLostEvents() {
         givenRateLimitResponse(forCategory: "error")
         sendEvent()
@@ -759,6 +782,18 @@ class SentryHttpTransportTests: XCTestCase {
         fixture.reachability.triggerNetworkReachable()
 
         XCTAssertEqual(2, fixture.requestManager.requests.count)
+    }
+    
+    func testDealloc_StopsReachabilityMonitoring() {
+        _ = fixture.sut
+
+        XCTAssertEqual(1, fixture.reachability.stopMonitoringInvocations.count)
+    }
+    
+    func testDealloc_TriggerNetworkReachable_NoCrash() {
+        _ = fixture.sut
+        
+        fixture.reachability.triggerNetworkReachable()
     }
 
     private func givenRetryAfterResponse() -> HTTPURLResponse {

@@ -84,11 +84,16 @@ SentryHttpTransport ()
         [self sendAllCachedEnvelopes];
 
 #if !TARGET_OS_WATCH
+        __weak SentryHttpTransport *weakSelf = self;
         [self.reachability monitorURL:[NSURL URLWithString:@"https://sentry.io"]
                         usingCallback:^(BOOL connected, NSString *_Nonnull typeDescription) {
+                            if (weakSelf == nil) {
+                                return;
+                            }
+
                             if (connected) {
                                 SENTRY_LOG_DEBUG(@"Internet connection is back.");
-                                [self sendAllCachedEnvelopes];
+                                [weakSelf sendAllCachedEnvelopes];
                             } else {
                                 SENTRY_LOG_DEBUG(@"Lost internet connection.");
                             }
@@ -119,9 +124,10 @@ SentryHttpTransport ()
     // With this we accept the a tradeoff. We might loose some envelopes when a hard crash happens,
     // because this being done on a background thread, but instead we don't block the calling
     // thread, which could be the main thread.
+    __weak SentryHttpTransport *weakSelf = self;
     [self.dispatchQueue dispatchAsyncWithBlock:^{
-        [self.fileManager storeEnvelope:envelopeToStore];
-        [self sendAllCachedEnvelopes];
+        [weakSelf.fileManager storeEnvelope:envelopeToStore];
+        [weakSelf sendAllCachedEnvelopes];
     }];
 }
 
@@ -291,29 +297,40 @@ SentryHttpTransport ()
     SENTRY_LOG_DEBUG(@"Deleting envelope and sending next.");
     [self.fileManager removeFileAtPath:envelopePath];
     self.isSending = NO;
+
+    __weak SentryHttpTransport *weakSelf = self;
     [self.dispatchQueue dispatchAfter:cachedEnvelopeSendDelay
-                                block:^{ [self sendAllCachedEnvelopes]; }];
+                                block:^{
+                                    if (weakSelf == nil) {
+                                        return;
+                                    }
+                                    [weakSelf sendAllCachedEnvelopes];
+                                }];
 }
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
         envelopePath:(NSString *)envelopePath
              request:(NSURLRequest *)request
 {
-    __block SentryHttpTransport *_self = self;
+    __weak SentryHttpTransport *weakSelf = self;
     [self.requestManager
                addRequest:request
         completionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+            if (weakSelf == nil) {
+                return;
+            }
+
             // If the response is not nil we had an internet connection.
             if (error && response.statusCode != 429) {
-                [_self recordLostEventFor:envelope.items];
+                [weakSelf recordLostEventFor:envelope.items];
             }
 
             if (nil != response) {
-                [_self.rateLimits update:response];
-                [_self deleteEnvelopeAndSendNext:envelopePath];
+                [weakSelf.rateLimits update:response];
+                [weakSelf deleteEnvelopeAndSendNext:envelopePath];
             } else {
                 SENTRY_LOG_DEBUG(@"No internet connection.");
-                [_self finishedSending];
+                [weakSelf finishedSending];
             }
         }];
 }

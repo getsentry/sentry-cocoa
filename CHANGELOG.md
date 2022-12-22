@@ -27,6 +27,7 @@ This version adds a dependency on Swift.
 - Don't add out of date context for crashes (#2523)
 - Fix ARC issue for FileManager (#2525)
 - Remove delay for deleting old envelopes (#2541)
+- Fix strong reference cycle for HttpTransport (#2552)
 
 ### Breaking Changes
 
