@@ -27,7 +27,7 @@ NSString *const kSentryMetricProfilerSerializationUnitPercentage = @"percent";
 
 namespace {
 NSDictionary<NSString *, id> *
-serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSString *unit)
+serializedValues(NSArray<NSDictionary<NSString *, NSString *> *> *values, NSString *unit)
 {
     return @ { @"unit" : unit, @"values" : values };
 }
@@ -41,13 +41,13 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
     SentryNSTimerWrapper *_timerWrapper;
 
     /// arrays of readings keyed on NSNumbers representing the core number for the set of readings
-    NSMutableDictionary<NSNumber *, NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *>
+    NSMutableDictionary<NSNumber *, NSMutableArray<NSDictionary<NSString *, NSString *> *> *>
         *_cpuUsage;
 
-    NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_memoryFootprint;
-    NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_thermalState;
-    NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_powerLevelState;
-    NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_memoryPressureState;
+    NSMutableArray<NSDictionary<NSString *, NSString *> *> *_memoryFootprint;
+    NSMutableArray<NSDictionary<NSString *, NSString *> *> *_thermalState;
+    NSMutableArray<NSDictionary<NSString *, NSString *> *> *_powerLevelState;
+    NSMutableArray<NSDictionary<NSString *, NSString *> *> *_memoryPressureState;
     uint64_t _profileStartTime;
 }
 
@@ -58,23 +58,23 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
 {
     if (self = [super init]) {
         _cpuUsage = [NSMutableDictionary<NSNumber *,
-            NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *>
+            NSMutableArray<NSDictionary<NSString *, NSString *> *> *>
             dictionary];
         const auto processorCount = processInfoWrapper.processorCount;
         SENTRY_LOG_DEBUG(
             @"Preparing %lu arrays for CPU core usage readings", (long unsigned)processorCount);
         for (NSUInteger core = 0; core < processorCount; core++) {
-            _cpuUsage[@(core)] = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
+            _cpuUsage[@(core)] = [NSMutableArray<NSDictionary<NSString *, NSString *> *> array];
         }
 
         _systemWrapper = systemWrapper;
         _processInfoWrapper = processInfoWrapper;
         _timerWrapper = timerWrapper;
 
-        _memoryFootprint = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
-        _thermalState = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
-        _powerLevelState = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
-        _memoryPressureState = [NSMutableArray<NSDictionary<NSString *, NSNumber *> *> array];
+        _memoryFootprint = [NSMutableArray<NSDictionary<NSString *, NSString *> *> array];
+        _thermalState = [NSMutableArray<NSDictionary<NSString *, NSString *> *> array];
+        _powerLevelState = [NSMutableArray<NSDictionary<NSString *, NSString *> *> array];
+        _memoryPressureState = [NSMutableArray<NSDictionary<NSString *, NSString *> *> array];
 
         _profileStartTime = profileStartTime;
     }
@@ -124,7 +124,7 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
     }
 
     [_cpuUsage enumerateKeysAndObjectsUsingBlock:^(NSNumber *_Nonnull core,
-        NSMutableArray<NSDictionary<NSString *, NSNumber *> *> *_Nonnull readings,
+        NSMutableArray<NSDictionary<NSString *, NSString *> *> *_Nonnull readings,
         BOOL *_Nonnull stop) {
         if (readings.count > 0) {
             dict[[NSString stringWithFormat:kSentryMetricProfilerSerializationKeyCPUUsageFormat,
@@ -223,11 +223,12 @@ serializedValues(NSArray<NSDictionary<NSString *, NSNumber *> *> *values, NSStri
         BOOL *_Nonnull stop) { [_cpuUsage[@(core)] addObject:[self metricEntryForValue:usage]]; }];
 }
 
-- (NSDictionary<NSString *, NSNumber *> *)metricEntryForValue:(NSNumber *)value
+- (NSDictionary<NSString *, NSString *> *)metricEntryForValue:(NSNumber *)value
 {
     return @{
-        @"value" : value,
-        @"elapsed_since_start_ns" : @(getDurationNs(_profileStartTime, getAbsoluteTime()))
+        @"value" : [value stringValue],
+        @"elapsed_since_start_ns" :
+            [@(getDurationNs(_profileStartTime, getAbsoluteTime())) stringValue]
     };
 }
 
