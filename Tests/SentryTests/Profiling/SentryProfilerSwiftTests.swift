@@ -144,7 +144,7 @@ class SentryProfilerSwiftTests: XCTestCase {
     ///    transaction B                                           |-------|
     ///    profiler B                                              |-------|  <- normal finish
     ///   ```
-    func testConcurrentSpansWithTimeout_disabled() throws {
+    func testConcurrentSpansWithTimeout() throws {
         let options = fixture.options
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
@@ -180,7 +180,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         }
     }
 
-    func testProfileTimeoutTimer_disabled() throws {
+    func testProfileTimeoutTimer() throws {
         fixture.options.profilesSampleRate = 1.0
         fixture.options.tracesSampleRate = 1.0
         try performTest(shouldTimeOut: true)
@@ -272,12 +272,12 @@ private extension SentryProfilerSwiftTests {
     }
 
     func getProfileData() throws -> Data {
-        guard let envelope = self.fixture.client.captureEnvelopeInvocations.first else {
+        guard let envelope = self.fixture.client.captureEventWithScopeInvocations.first else {
             throw(TestError.noEnvelopeCaptured)
         }
 
-        XCTAssertEqual(1, envelope.items.count)
-        guard let profileItem = envelope.items.first else {
+        XCTAssertEqual(1, envelope.additionalEnvelopeItems.count)
+        guard let profileItem = envelope.additionalEnvelopeItems.first else {
             throw(TestError.noProfileEnvelopeItem)
         }
 
@@ -295,6 +295,9 @@ private extension SentryProfilerSwiftTests {
     }
 
     func performTest(transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1, shouldTimeOut: Bool = false) throws {
+        if shouldTimeOut {
+            kSentryProfilerTimeoutInterval = 1
+        }
         let span = fixture.newTransaction()
 
         forceProfilerSample()
@@ -486,13 +489,13 @@ private extension SentryProfilerSwiftTests {
 
             switch expectedDecision {
             case .undecided, .no:
-                XCTAssertEqual(0, self.fixture.client.captureEnvelopeInvocations.count)
+                XCTAssertEqual(0, self.fixture.client.captureEventWithScopeInvocations.first!.additionalEnvelopeItems.count)
             case .yes:
-                guard let envelope = self.fixture.client.captureEnvelopeInvocations.first else {
+                guard let event = self.fixture.client.captureEventWithScopeInvocations.first else {
                     XCTFail("Expected to capture at least 1 event")
                     return
                 }
-                XCTAssertEqual(1, envelope.items.count)
+                XCTAssertEqual(1, event.additionalEnvelopeItems.count)
             @unknown default:
                 fatalError("Unexpected value for sample decision")
             }

@@ -45,6 +45,7 @@
 
 const int kSentryProfilerFrequencyHz = 101;
 NSString *const kTestStringConst = @"test";
+NSTimeInterval kSentryProfilerTimeoutInterval = 30;
 
 NSString *const kSentryProfilerSerializationKeySlowFrameRenders = @"slow_frame_renders";
 NSString *const kSentryProfilerSerializationKeyFrozenFrameRenders = @"frozen_frame_renders";
@@ -275,15 +276,6 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 
 + (void)startWithHub:(SentryHub *)hub
 {
-    NSTimeInterval timeoutInterval = 30;
-#    if defined(TEST) || defined(TESTCI)
-    timeoutInterval = 1;
-#    endif
-    [self startWithTimeoutInterval:timeoutInterval hub:hub];
-}
-
-+ (void)startWithTimeoutInterval:(NSTimeInterval)timeoutInterval hub:(SentryHub *)hub
-{
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
     if (_gCurrentProfiler) {
@@ -304,7 +296,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     [_gCurrentProfiler start];
 
     _gCurrentProfiler->_timeoutTimer =
-        [NSTimer scheduledTimerWithTimeInterval:timeoutInterval
+        [NSTimer scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
                                          target:self
                                        selector:@selector(timeoutAbort)
                                        userInfo:nil
@@ -452,7 +444,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     const auto transactionInfo = [self serializeInfoForTransaction:transaction
                                                    profileDuration:profileDuration];
     if (transactionInfo) {
-        payload[@"transaction"] = transactionInfo;
+        payload[@"transactions"] = @[ transactionInfo ];
     }
 
     return [self envelopeItemForProfileData:payload profileID:profileID];
