@@ -1480,6 +1480,7 @@
 		84A8891B28DBD28900C51DFD /* SentryDevice.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryDevice.mm; sourceTree = "<group>"; };
 		84A8892028DBD8D600C51DFD /* SentryDeviceTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryDeviceTests.mm; sourceTree = "<group>"; };
 		84E4F5692914F020004C7358 /* Brewfile */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = text; path = Brewfile; sourceTree = "<group>"; tabWidth = 2; };
+		84E9C1B4295511D800F7F702 /* SentrySpan+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentrySpan+Private.h"; path = "include/SentrySpan+Private.h"; sourceTree = "<group>"; };
 		861265F72404EC1500C4AFDE /* NSArray+SentrySanitize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSArray+SentrySanitize.h"; path = "include/NSArray+SentrySanitize.h"; sourceTree = "<group>"; };
 		861265F82404EC1500C4AFDE /* NSArray+SentrySanitize.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSArray+SentrySanitize.m"; sourceTree = "<group>"; };
 		8E0551DF26A7A63C00400526 /* TestProtocolClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestProtocolClient.swift; sourceTree = "<group>"; };
@@ -3004,6 +3005,7 @@
 				8E4E7C7325DAAB49006AB9E2 /* SentrySpanProtocol.h */,
 				7B3B83712833832B0001FDEB /* SentrySpanOperations.h */,
 				8E4E7C6C25DAAAFE006AB9E2 /* SentrySpan.h */,
+				84E9C1B4295511D800F7F702 /* SentrySpan+Private.h */,
 				8EC3AE7925CA23B600E7591A /* SentrySpan.m */,
 				7BE912AA272162AF00E49E62 /* SentryNoOpSpan.h */,
 				7BE912AC272162D900E49E62 /* SentryNoOpSpan.m */,

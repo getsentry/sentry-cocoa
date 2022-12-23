@@ -1,10 +1,10 @@
-#import "SentryEvent.h"
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient.h"
 #import "SentryCurrentDate.h"
 #import "SentryDebugMeta.h"
+#import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryId.h"
 #import "SentryLevelMapper.h"
@@ -16,21 +16,6 @@
 #import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-@interface
-SentryEvent ()
-
-@property (nonatomic) BOOL isCrashEvent;
-
-// We're storing serialized breadcrumbs to disk in JSON, and when we're reading them back (in
-// the case of OOM), we end up with the serialized breadcrumbs again. Instead of turning those
-// dictionaries into proper SentryBreadcrumb instances which then need to be serialized again in
-// SentryEvent, we use this serializedBreadcrumbs property to set the pre-serialized
-// breadcrumbs. It saves a LOT of work - especially turning an NSDictionary into a SentryBreadcrumb
-// is silly when we're just going to do the opposite right after.
-@property (nonatomic, strong) NSArray *serializedBreadcrumbs;
-
-@end
 
 @implementation SentryEvent
 

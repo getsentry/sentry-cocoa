@@ -5,7 +5,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceContext,
     SentryNSTimerWrapper, SentryDispatchQueueWrapper, SentryTracer, SentryProfilesSamplerDecision,
-    SentryMeasurementValue;
+    SentryMeasurementValue, SentrySpan;
 
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
@@ -91,7 +91,7 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 /*
  The root span of this tracer.
  */
-@property (nonatomic, readonly) id<SentrySpan> rootSpan;
+@property (nonatomic, readonly) SentrySpan *rootSpan;
 
 /*
  All the spans that where created with this tracer but rootSpan.

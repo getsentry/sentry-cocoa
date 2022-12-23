@@ -4,6 +4,7 @@
 #import "SentryAppStartMeasurement.h"
 #import "SentryClient.h"
 #import "SentryCurrentDate.h"
+#import "SentryEvent+Private.h"
 #import "SentryFramesTracker.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
@@ -14,7 +15,7 @@
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope.h"
-#import "SentrySpan.h"
+#import "SentrySpan+Private.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
 #import "SentryTime.h"
@@ -43,7 +44,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 @interface
 SentryTracer ()
 
-@property (nonatomic, strong) SentrySpan *rootSpan;
+@property (nonatomic, strong, readwrite) SentrySpan *rootSpan;
 @property (nonatomic, strong) SentryHub *hub;
 @property (nonatomic) SentrySpanStatus finishStatus;
 /** This property is different from isFinished. While isFinished states if the tracer is actually
@@ -156,11 +157,6 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
                   timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper
 {
     if (self = [super init]) {
-        SENTRY_LOG_DEBUG(
-            @"Starting transaction ID %@ and name %@ for span ID %@ at system time %llu",
-            transactionContext.traceId.sentryIdString, transactionContext.name,
-            transactionContext.spanId.sentrySpanIdString, (unsigned long long)getAbsoluteTime());
-
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         if (profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
             [SentryProfiler startWithHub:hub];
@@ -664,9 +660,13 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     SentryEnvelopeItem *profileEnvelopeItem =
         [SentryProfiler captureProfilingEnvelopeItemForTransaction:transaction];
+    NSArray *additionalEnvelopeItems;
+    if (profileEnvelopeItem) {
+        additionalEnvelopeItems = @[ profileEnvelopeItem ];
+    }
     [_hub captureTransaction:transaction
                       withScope:_hub.scope
-        additionalEnvelopeItems:@[ profileEnvelopeItem ]];
+        additionalEnvelopeItems:additionalEnvelopeItems];
 
     @synchronized(_gGlobalStateLock) {
         if (_gInFlightSpanIDs.count == 0) {
@@ -709,6 +709,8 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.transactionContext.name;
+    transaction.startSystemTime = self.rootSpan.startSystemTime;
+    transaction.endSystemTime = self.rootSpan.endSystemTime;
     [self addMeasurements:transaction];
     return transaction;
 }

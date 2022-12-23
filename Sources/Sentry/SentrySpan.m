@@ -1,4 +1,3 @@
-#import "SentrySpan.h"
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryCurrentDate.h"
@@ -6,6 +5,7 @@
 #import "SentryLog.h"
 #import "SentryMeasurementValue.h"
 #import "SentryNoOpSpan.h"
+#import "SentrySpan+Private.h"
 #import "SentrySpanId.h"
 #import "SentryTime.h"
 #import "SentryTraceHeader.h"
@@ -26,10 +26,11 @@ SentrySpan ()
 - (instancetype)initWithTracer:(SentryTracer *)tracer context:(SentrySpanContext *)context
 {
     if (self = [super init]) {
-        SENTRY_LOG_DEBUG(
-            @"Created span %@ for trace ID %@", context.spanId.sentrySpanIdString, tracer.traceId);
         _tracer = tracer;
         self.startTimestamp = [SentryCurrentDate date];
+        self.startSystemTime = getAbsoluteTime();
+        SENTRY_LOG_DEBUG(@"Created span %@ for trace ID %@ at system time %llu",
+            context.spanId.sentrySpanIdString, tracer.traceId, self.startSystemTime);
         _data = [[NSMutableDictionary alloc] init];
         _tags = [[NSMutableDictionary alloc] init];
         _isFinished = NO;
@@ -137,6 +138,7 @@ SentrySpan ()
     _isFinished = YES;
     if (self.timestamp == nil) {
         self.timestamp = [SentryCurrentDate date];
+        self.endSystemTime = getAbsoluteTime();
         SENTRY_LOG_DEBUG(@"Setting span timestamp: %@ at system time %llu", self.timestamp,
             (unsigned long long)getAbsoluteTime());
     }
