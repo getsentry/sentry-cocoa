@@ -11,7 +11,12 @@
 #    import "SentrySystemWrapper.h"
 #    import "SentryTime.h"
 
-static const NSTimeInterval kSentryMetricProfilerTimeseriesInterval = 0.1; // 10 Hz
+/**
+ * Currently set to 10 Hz as we don't anticipate much utility out of a higher resolution when
+ * sampling CPU usage and memory footprint, and we want to minimize the overhead of making the
+ * necessary system calls to gather that information.
+ */
+static const NSTimeInterval kSentryMetricProfilerTimeseriesInterval = 0.1;
 
 NSString *const kSentryMetricProfilerSerializationKeyMemoryFootprint = @"memory-footprint";
 NSString *const kSentryMetricProfilerSerializationKeyMemoryPressure = @"memory-pressure";
