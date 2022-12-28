@@ -88,6 +88,7 @@ SentryHttpTransport ()
         [self.reachability monitorURL:[NSURL URLWithString:@"https://sentry.io"]
                         usingCallback:^(BOOL connected, NSString *_Nonnull typeDescription) {
                             if (weakSelf == nil) {
+                                SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
                                 return;
                             }
 
@@ -317,6 +318,7 @@ SentryHttpTransport ()
                addRequest:request
         completionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
             if (weakSelf == nil) {
+                SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
                 return;
             }
 
