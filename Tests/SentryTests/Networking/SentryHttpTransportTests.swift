@@ -581,7 +581,8 @@ class SentryHttpTransportTests: XCTestCase {
             dispatchAfterBlock.block()
         }
         
-        // The amount of sent envelopes is non deterministic as it depends on how fast ARC deallocates the sut above. We only want to ensure that not all envelopes are sent, so 7 should be fine.
+        // The amount of sent envelopes is non deterministic as it depends on how fast ARC deallocates the sut above.
+        // We only want to ensure that not all envelopes are sent, so 7 should be fine.
         XCTAssertLessThan(7, fixture.fileManager.getAllEnvelopes().count)
     }
     
