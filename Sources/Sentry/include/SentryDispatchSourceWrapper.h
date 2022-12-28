@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (uintptr_t)getData;
 
-- (void)invalidate;
+- (void)cancel;
 
 @end
 

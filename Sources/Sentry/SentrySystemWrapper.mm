@@ -104,7 +104,7 @@ const NSUInteger kSentryMemoryPressureLevelCritical = DISPATCH_MEMORYPRESSURE_CR
 
 - (void)deregisterMemoryPressureNotifications
 {
-    [_dispatchSourceWrapper invalidate];
+    [_dispatchSourceWrapper cancel];
 }
 
 #pragma mark - Testing

@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
     return dispatch_source_get_data(_source);
 }
 
-- (void)invalidate
+- (void)cancel
 {
     dispatch_source_cancel(_source);
 }
