@@ -155,7 +155,6 @@ SentryProfiler *_Nullable _gCurrentProfiler;
 SentryNSProcessInfoWrapper *_gCurrentProcessInfoWrapper;
 SentrySystemWrapper *_gCurrentSystemWrapper;
 SentryNSTimerWrapper *_gCurrentTimerWrapper;
-SentryDispatchSourceWrapper *_gCurrentDispatchSourceWrapper;
 
 NSString *
 profilerTruncationReasonName(SentryProfilerTruncationReason reason)
