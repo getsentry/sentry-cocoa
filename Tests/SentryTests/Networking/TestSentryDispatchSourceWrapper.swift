@@ -18,7 +18,7 @@ class TestSentryDispatchSourceWrapper: SentryDispatchSourceWrapper {
         self.handler = handler
     }
 
-    override func invalidate() {
+    override func cancel() {
         // no-op
     }
 
