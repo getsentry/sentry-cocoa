@@ -49,10 +49,10 @@ serializedValues(NSArray<NSDictionary<NSString *, NSString *> *> *values, NSStri
     NSMutableDictionary<NSNumber *, NSMutableArray<NSDictionary<NSString *, NSString *> *> *>
         *_cpuUsage;
 
-    NSMutableArray<NSDictionary<NSString *, NSString *> *> *_memoryFootprint;
-    NSMutableArray<NSDictionary<NSString *, NSString *> *> *_thermalState;
-    NSMutableArray<NSDictionary<NSString *, NSString *> *> *_powerLevelState;
-    NSMutableArray<NSDictionary<NSString *, NSString *> *> *_memoryPressureState;
+    NSMutableArray<NSDictionary<NSString *, id> *> *_memoryFootprint;
+    NSMutableArray<NSDictionary<NSString *, id> *> *_thermalState;
+    NSMutableArray<NSDictionary<NSString *, id> *> *_powerLevelState;
+    NSMutableArray<NSDictionary<NSString *, id> *> *_memoryPressureState;
     uint64_t _profileStartTime;
 }
 
@@ -76,10 +76,10 @@ serializedValues(NSArray<NSDictionary<NSString *, NSString *> *> *values, NSStri
         _processInfoWrapper = processInfoWrapper;
         _timerWrapper = timerWrapper;
 
-        _memoryFootprint = [NSMutableArray<NSDictionary<NSString *, NSString *> *> array];
-        _thermalState = [NSMutableArray<NSDictionary<NSString *, NSString *> *> array];
-        _powerLevelState = [NSMutableArray<NSDictionary<NSString *, NSString *> *> array];
-        _memoryPressureState = [NSMutableArray<NSDictionary<NSString *, NSString *> *> array];
+        _memoryFootprint = [NSMutableArray<NSDictionary<NSString *, id> *> array];
+        _thermalState = [NSMutableArray<NSDictionary<NSString *, id> *> array];
+        _powerLevelState = [NSMutableArray<NSDictionary<NSString *, id> *> array];
+        _memoryPressureState = [NSMutableArray<NSDictionary<NSString *, id> *> array];
 
         _profileStartTime = profileStartTime;
     }
@@ -228,10 +228,10 @@ serializedValues(NSArray<NSDictionary<NSString *, NSString *> *> *values, NSStri
         BOOL *_Nonnull stop) { [_cpuUsage[@(core)] addObject:[self metricEntryForValue:usage]]; }];
 }
 
-- (NSDictionary<NSString *, NSString *> *)metricEntryForValue:(NSNumber *)value
+- (NSDictionary<NSString *, id> *)metricEntryForValue:(NSNumber *)value
 {
     return @{
-        @"value" : [value stringValue],
+        @"value" : value,
         @"elapsed_since_start_ns" :
             [@(getDurationNs(_profileStartTime, getAbsoluteTime())) stringValue]
     };
