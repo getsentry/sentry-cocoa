@@ -109,7 +109,10 @@ serializedValues(NSArray<NSDictionary<NSString *, NSString *> *> *values, NSStri
 
 - (NSMutableDictionary<NSString *, id> *)serialize
 {
-    const auto dict = [NSMutableDictionary<NSString *, id> dictionary];
+    NSMutableDictionary<NSString *, id> *dict;
+    @synchronized(self) {
+        dict = [NSMutableDictionary<NSString *, id> dictionary];
+    }
 
     if (_memoryFootprint.count > 0) {
         dict[kSentryMetricProfilerSerializationKeyMemoryFootprint]
@@ -168,8 +171,10 @@ serializedValues(NSArray<NSDictionary<NSString *, NSString *> *> *values, NSStri
         if (!strongSelf) {
             return;
         }
-        [strongSelf->_memoryPressureState
-            addObject:[strongSelf metricEntryForValue:@(memoryPressureState)]];
+        @synchronized(strongSelf) {
+            [strongSelf->_memoryPressureState
+                addObject:[strongSelf metricEntryForValue:@(memoryPressureState)]];
+        }
     }];
 }
 
@@ -190,14 +195,18 @@ serializedValues(NSArray<NSDictionary<NSString *, NSString *> *> *values, NSStri
 
 - (void)recordThermalState
 {
-    [_thermalState addObject:[self metricEntryForValue:@(_processInfoWrapper.thermalState)]];
+    @synchronized(self) {
+        [_thermalState addObject:[self metricEntryForValue:@(_processInfoWrapper.thermalState)]];
+    }
 }
 
 - (void)recordPowerLevelState
 {
     if (@available(macOS 12.0, *)) {
-        [_powerLevelState
-            addObject:[self metricEntryForValue:@(_processInfoWrapper.isLowPowerModeEnabled)]];
+        @synchronized(self) {
+            [_powerLevelState
+                addObject:[self metricEntryForValue:@(_processInfoWrapper.isLowPowerModeEnabled)]];
+        }
     }
 }
 
@@ -211,7 +220,9 @@ serializedValues(NSArray<NSDictionary<NSString *, NSString *> *> *values, NSStri
         return;
     }
 
-    [_memoryFootprint addObject:[self metricEntryForValue:@(footprintBytes)]];
+    @synchronized(self) {
+        [_memoryFootprint addObject:[self metricEntryForValue:@(footprintBytes)]];
+    }
 }
 
 - (void)recordCPUPercentagePerCore
@@ -224,8 +235,12 @@ serializedValues(NSArray<NSDictionary<NSString *, NSString *> *> *values, NSStri
         return;
     }
 
-    [result enumerateObjectsUsingBlock:^(NSNumber *_Nonnull usage, NSUInteger core,
-        BOOL *_Nonnull stop) { [_cpuUsage[@(core)] addObject:[self metricEntryForValue:usage]]; }];
+    @synchronized(self) {
+        [result enumerateObjectsUsingBlock:^(
+            NSNumber *_Nonnull usage, NSUInteger core, BOOL *_Nonnull stop) {
+            [_cpuUsage[@(core)] addObject:[self metricEntryForValue:usage]];
+        }];
+    }
 }
 
 - (NSDictionary<NSString *, id> *)metricEntryForValue:(NSNumber *)value
