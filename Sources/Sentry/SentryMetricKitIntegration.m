@@ -152,8 +152,7 @@ SentryMetricKitIntegration ()
         // Therefore we don't call captureCrashEvent.
         [SentrySDK captureEvent:event withScopeBlock:block];
     } else {
-        // When callStackPerThread is false the call stacks of the call stack tree represent
-        // individual independent call stacks
+        // When callStackPerThread is false, each call stack represents a single process thread
         for (SentryMXCallStack *callStack in callStackTree.callStacks) {
 
             for (SentryMXFrame *frame in callStack.callStackRootFrames) {
