@@ -86,30 +86,32 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         }
     }
     
-    @available(iOS 15, macOS 12, *)
     func testCPUExceptionDiagnostic_NotPerThread() throws {
-        givenSdkWithHub()
-        
-        let sut = SentryMetricKitIntegration()
-        givenInstalledWithEnabled(sut)
-        
-        let mxDelegate = sut as SentryMXManagerDelegate
-        mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: currentDate.date(), timeStampEnd: currentDate.date())
-        
-        try assertNotPerThread(exceptionType: "MXCPUException", exceptionValue: "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms")
+        if #available(iOS 14, macOS 12, macCatalyst 14, *) {
+            givenSdkWithHub()
+            
+            let sut = SentryMetricKitIntegration()
+            givenInstalledWithEnabled(sut)
+            
+            let mxDelegate = sut as SentryMXManagerDelegate
+            mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: currentDate.date(), timeStampEnd: currentDate.date())
+            
+            try assertNotPerThread(exceptionType: "MXCPUException", exceptionValue: "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms")
+        }
     }
     
-    @available(iOS 15, macOS 12, *)
     func testDiskWriteExceptionDiagnostic() throws {
-        givenSdkWithHub()
-        
-        let sut = SentryMetricKitIntegration()
-        givenInstalledWithEnabled(sut)
-        
-        let mxDelegate = sut as SentryMXManagerDelegate
-        mxDelegate.didReceiveDiskWriteExceptionDiagnostic(TestMXDiskWriteExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: currentDate.date(), timeStampEnd: currentDate.date())
-        
-        try assertNotPerThread(exceptionType: "MXDiskWriteException", exceptionValue: "MXDiskWriteException totalWritesCaused:5.5 Mib")
+        if #available(iOS 14, macOS 12, macCatalyst 14, *) {
+            givenSdkWithHub()
+            
+            let sut = SentryMetricKitIntegration()
+            givenInstalledWithEnabled(sut)
+            
+            let mxDelegate = sut as SentryMXManagerDelegate
+            mxDelegate.didReceiveDiskWriteExceptionDiagnostic(TestMXDiskWriteExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: currentDate.date(), timeStampEnd: currentDate.date())
+            
+            try assertNotPerThread(exceptionType: "MXDiskWriteException", exceptionValue: "MXDiskWriteException totalWritesCaused:5.5 Mib")
+        }
     }
     
     @available(iOS 14, macOS 12, macCatalyst 14, *)
