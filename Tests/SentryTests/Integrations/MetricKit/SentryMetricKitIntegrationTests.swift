@@ -11,9 +11,6 @@ import XCTest
 import MetricKit
 #endif
 
-@available(iOS 14, macOS 12, *)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
 final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     
     var callStackTreePerThread: SentryMXCallStackTree!
@@ -30,55 +27,66 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     }
 
     func testOptionEnabled_MetricKitManagerInitialized() {
-        let sut = SentryMetricKitIntegration()
-        
-        givenInstalledWithEnabled(sut)
-        
-        XCTAssertNotNil(Dynamic(sut).metricKitManager as SentryMXManager?)
+        if #available(iOS 14, macOS 12, macCatalyst 14, *) {
+            let sut = SentryMetricKitIntegration()
+            
+            givenInstalledWithEnabled(sut)
+            
+            XCTAssertNotNil(Dynamic(sut).metricKitManager as SentryMXManager?)
+        }
     }
     
     func testOptionDisabled_MetricKitManagerNotInitialized() {
-        let sut = SentryMetricKitIntegration()
-        
-        sut.install(with: Options())
-        
-        XCTAssertNil(Dynamic(sut).metricKitManager as SentryMXManager?)
+        if #available(iOS 14, macOS 12, macCatalyst 14, *) {
+            let sut = SentryMetricKitIntegration()
+            
+            sut.install(with: Options())
+            
+            XCTAssertNil(Dynamic(sut).metricKitManager as SentryMXManager?)
+        }
     }
     
     func testUninstall_MetricKitManagerSetToNil() {
-        let sut = SentryMetricKitIntegration()
-        
-        let options = Options()
-        options.enableMetricKit = true
-        sut.install(with: options)
-        sut.uninstall()
-        
-        XCTAssertNil(Dynamic(sut).metricKitManager as SentryMXManager?)
+        if #available(iOS 14, macOS 12, macCatalyst 14, *) {
+            let sut = SentryMetricKitIntegration()
+            
+            let options = Options()
+            options.enableMetricKit = true
+            sut.install(with: options)
+            sut.uninstall()
+            
+            XCTAssertNil(Dynamic(sut).metricKitManager as SentryMXManager?)
+        }
     }
     
     func testMXCrashPayloadReceived() throws {
-        givenSdkWithHub()
-        let sut = SentryMetricKitIntegration()
-        givenInstalledWithEnabled(sut)
-        
-        let mxDelegate = sut as SentryMXManagerDelegate
-        mxDelegate.didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: currentDate.date(), timeStampEnd: currentDate.date())
-        
-        assertPerThread(exceptionType: "MXCrashDiagnostic", exceptionValue: "MachException Type:(null) Code:(null) Signal:(null)")
+        if #available(iOS 14, macOS 12, macCatalyst 14, *) {
+            givenSdkWithHub()
+            let sut = SentryMetricKitIntegration()
+            givenInstalledWithEnabled(sut)
+            
+            let mxDelegate = sut as SentryMXManagerDelegate
+            mxDelegate.didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: currentDate.date(), timeStampEnd: currentDate.date())
+            
+            assertPerThread(exceptionType: "MXCrashDiagnostic", exceptionValue: "MachException Type:(null) Code:(null) Signal:(null)")
+        }
     }
     
     func testCPUExceptionDiagnostic_PerThread() throws {
-        givenSdkWithHub()
-        
-        let sut = SentryMetricKitIntegration()
-        givenInstalledWithEnabled(sut)
-        
-        let mxDelegate = sut as SentryMXManagerDelegate
-        mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: currentDate.date(), timeStampEnd: currentDate.date())
-        
-        assertPerThread(exceptionType: "MXCPUException", exceptionValue: "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms")
+        if #available(iOS 14, macOS 12, macCatalyst 14, *) {
+            givenSdkWithHub()
+            
+            let sut = SentryMetricKitIntegration()
+            givenInstalledWithEnabled(sut)
+            
+            let mxDelegate = sut as SentryMXManagerDelegate
+            mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: currentDate.date(), timeStampEnd: currentDate.date())
+            
+            assertPerThread(exceptionType: "MXCPUException", exceptionValue: "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms")
+        }
     }
     
+    @available(iOS 15, macOS 12, *)
     func testCPUExceptionDiagnostic_NotPerThread() throws {
         givenSdkWithHub()
         
@@ -91,6 +99,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         assertNotPerThread(exceptionType: "MXCPUException", exceptionValue: "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms")
     }
     
+    @available(iOS 15, macOS 12, *)
     func testDiskWriteExceptionDiagnostic() throws {
         givenSdkWithHub()
         
@@ -103,6 +112,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         assertNotPerThread(exceptionType: "MXDiskWriteException", exceptionValue: "MXDiskWriteException totalWritesCaused:5.5 Mib")
     }
     
+    @available(iOS 14, macOS 12, macCatalyst 14, *)
     private func givenInstalledWithEnabled(_ integration: SentryMetricKitIntegration) {
         let options = Options()
         options.enableMetricKit = true
@@ -190,7 +200,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
   
 }
 
-@available(iOS 14, macOS 12, *)
+@available(iOS 14, macOS 12, macCatalyst 14, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 class TestMXCPUExceptionDiagnostic: MXCPUExceptionDiagnostic {
@@ -203,7 +213,7 @@ class TestMXCPUExceptionDiagnostic: MXCPUExceptionDiagnostic {
     }
 }
 
-@available(iOS 14, macOS 12, *)
+@available(iOS 14, macOS 12, macCatalyst 14, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 class TestMXDiskWriteExceptionDiagnostic: MXDiskWriteExceptionDiagnostic {
