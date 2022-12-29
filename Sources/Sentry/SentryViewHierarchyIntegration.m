@@ -1,5 +1,5 @@
 #import "SentryViewHierarchyIntegration.h"
-#import "SentryAttachment.h"
+#import "SentryAttachment+Private.h"
 #import "SentryCrashC.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
@@ -54,20 +54,17 @@ saveViewHierarchy(const char *path)
         return attachments;
     }
 
-    NSArray *decriptions =
+    NSMutableArray<SentryAttachment *> *result = [NSMutableArray arrayWithArray:attachments];
+
+    NSData *viewHierarchy =
         [SentryDependencyContainer.sharedInstance.viewHierarchy fetchViewHierarchy];
-    NSMutableArray *result =
-        [NSMutableArray arrayWithCapacity:attachments.count + decriptions.count];
-    [result addObjectsFromArray:attachments];
+    SentryAttachment *attachment =
+        [[SentryAttachment alloc] initWithData:viewHierarchy
+                                      filename:@"view-hierarchy.json"
+                                   contentType:@"application/json"
+                                attachmentType:kSentryAttachmentTypeViewHierarchy];
 
-    [decriptions enumerateObjectsUsingBlock:^(NSString *decription, NSUInteger idx, BOOL *stop) {
-        SentryAttachment *attachment = [[SentryAttachment alloc]
-            initWithData:[decription dataUsingEncoding:NSUTF8StringEncoding]
-                filename:[NSString stringWithFormat:@"view-hierarchy-%lu.txt", (unsigned long)idx]
-             contentType:@"text/plain"];
-        [result addObject:attachment];
-    }];
-
+    [result addObject:attachment];
     return result;
 }
 

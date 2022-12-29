@@ -68,6 +68,20 @@ jobs:
         run: pod lib lint --verbose --platforms=${{ matrix.platform }} Sentry.podspec --include-podspecs=SentryPrivate.podspec --use-libraries 
         shell: sh
 
+  validate-SentrySwiftUI-podspec:
+    name: Validate SentrySwiftUI Podspec
+    runs-on: macos-12
+    strategy:
+      matrix:
+        platform: ['ios', 'macos', 'tvos', 'watchos']
+
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./scripts/ci-select-xcode.sh
+      - name: Validate Podspec
+        run: pod lib lint --verbose --platforms=${{ matrix.platform }} SentrySwiftUI.podspec --include-podspecs=Sentry.podspec,SentryPrivate.podspec
+        shell: sh
+
   validate-high-risk-files:
     name: No changes in high risk files
     runs-on: ubuntu-latest
