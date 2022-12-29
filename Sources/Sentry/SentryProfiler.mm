@@ -356,7 +356,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
                                                              (lastIndex - firstIndex) + 1 }]];
 }
 
-+ (SentryEnvelopeItem *)captureProfilingEnvelopeItemForTransaction:(SentryTransaction *)transaction
++ (SentryEnvelopeItem *)createProfilingEnvelopeItemForTransaction:(SentryTransaction *)transaction
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
 

@@ -659,7 +659,7 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     SentryEnvelopeItem *profileEnvelopeItem =
-        [SentryProfiler captureProfilingEnvelopeItemForTransaction:transaction];
+        [SentryProfiler createProfilingEnvelopeItemForTransaction:transaction];
     NSArray *additionalEnvelopeItems;
     if (profileEnvelopeItem) {
         additionalEnvelopeItems = @[ profileEnvelopeItem ];

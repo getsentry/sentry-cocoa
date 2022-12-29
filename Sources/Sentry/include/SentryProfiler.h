@@ -58,7 +58,7 @@ SENTRY_EXTERN_C_END
 
 /** Given a transaction, return an envelope item containing any corresponding profile data to be
  * attached to the transaction envelope. */
-+ (nullable SentryEnvelopeItem *)captureProfilingEnvelopeItemForTransaction:
++ (nullable SentryEnvelopeItem *)createProfilingEnvelopeItemForTransaction:
     (SentryTransaction *)transaction;
 
 @end
