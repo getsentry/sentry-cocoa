@@ -235,7 +235,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 #        endif // SENTRY_HAS_UIKIT
         [_gCurrentProfiler start];
         _gCurrentProfiler->_timeoutTimer =
-            [NSTimer scheduledTimerWithTimeInterval:timeoutInterval
+            [NSTimer scheduledTimerWithTimeInterval:10
                                              target:self
                                            selector:@selector(timeoutAbort)
                                            userInfo:nil
@@ -271,7 +271,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     if (_gCurrentProfiler->_spansInFlight.count == 0) {
         SENTRY_LOG_DEBUG(@"Stopping profiler %@ because span with id %@ was last being profiled.",
             _gCurrentProfiler, span.context.spanId.sentrySpanIdString);
-        [self stopProfilerForReason:SentryProfilerTruncationReasonNormal];
+//        [self stopProfilerForReason:SentryProfilerTruncationReasonNormal];
     }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
@@ -357,7 +357,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     }
 
     SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", _gCurrentProfiler);
-    [self stopProfilerForReason:SentryProfilerTruncationReasonAppMovedToBackground];
+   // [self stopProfilerForReason:SentryProfilerTruncationReasonAppMovedToBackground];
 }
 
 + (void)stopProfilerForReason:(SentryProfilerTruncationReason)reason
@@ -374,6 +374,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 
 - (void)start
 {
+    NSLog(@"[INDRAGIE] START");
 // Disable profiling when running with TSAN because it produces a TSAN false
 // positive, similar to the situation described here:
 // https://github.com/envoyproxy/envoy/issues/2561
@@ -487,6 +488,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
         if (_profiler == nullptr || !_profiler->isSampling()) {
             return;
         }
+        NSLog(@"[INDRAGIE] STOP");
 
         _profiler->stopSampling();
         _endTimestamp = getAbsoluteTime();
@@ -541,7 +543,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 
     const auto profileID = [[SentryId alloc] init];
     profile[@"profile_id"] = profileID.sentryIdString;
-    const auto profileDuration = getDurationNs(_startTimestamp, _endTimestamp);
+    const auto profileDuration = getDurationNs(_startTimestamp, getAbsoluteTime());
     profile[@"duration_ns"] = [@(profileDuration) stringValue];
     profile[@"truncation_reason"] = profilerTruncationReasonName(_truncationReason);
     profile[@"platform"] = _transactions.firstObject.platform;
