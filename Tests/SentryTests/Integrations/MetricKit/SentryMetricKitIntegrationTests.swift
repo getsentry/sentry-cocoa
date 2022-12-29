@@ -15,6 +15,8 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     
     var callStackTreePerThread: SentryMXCallStackTree!
     var callStackTreeNotPerThread: SentryMXCallStackTree!
+    var timeStampBegin: Date!
+    var timeStampEnd: Date!
     
     override func setUpWithError() throws {
         try super.setUpWithError()
@@ -24,6 +26,11 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         
         let contentsNotPerThread = try contentsOfResource("metric-kit-callstack-not-per-thread")
         callStackTreeNotPerThread = try SentryMXCallStackTree.from(data: contentsNotPerThread)
+        
+        // Starting from iOS 15 MetricKit payloads are delivered immediately, so
+        // timeStamp and timeStampEnd match.
+        timeStampBegin = currentDate.date().addingTimeInterval(21.23)
+        timeStampEnd = timeStampBegin
     }
 
     func testOptionEnabled_MetricKitManagerInitialized() {
@@ -66,7 +73,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenInstalledWithEnabled(sut)
             
             let mxDelegate = sut as SentryMXManagerDelegate
-            mxDelegate.didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: currentDate.date(), timeStampEnd: currentDate.date())
+            mxDelegate.didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
             try assertPerThread(exceptionType: "MXCrashDiagnostic", exceptionValue: "MachException Type:(null) Code:(null) Signal:(null)")
         }
@@ -80,7 +87,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenInstalledWithEnabled(sut)
             
             let mxDelegate = sut as SentryMXManagerDelegate
-            mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: currentDate.date(), timeStampEnd: currentDate.date())
+            mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
             try assertPerThread(exceptionType: "MXCPUException", exceptionValue: "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms")
         }
@@ -94,7 +101,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenInstalledWithEnabled(sut)
             
             let mxDelegate = sut as SentryMXManagerDelegate
-            mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: currentDate.date(), timeStampEnd: currentDate.date())
+            mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
             try assertNotPerThread(exceptionType: "MXCPUException", exceptionValue: "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms")
         }
@@ -108,7 +115,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenInstalledWithEnabled(sut)
             
             let mxDelegate = sut as SentryMXManagerDelegate
-            mxDelegate.didReceiveDiskWriteExceptionDiagnostic(TestMXDiskWriteExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: currentDate.date(), timeStampEnd: currentDate.date())
+            mxDelegate.didReceiveDiskWriteExceptionDiagnostic(TestMXDiskWriteExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
             try assertNotPerThread(exceptionType: "MXDiskWriteException", exceptionValue: "MXDiskWriteException totalWritesCaused:5.5 Mib")
         }
@@ -124,6 +131,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     private func assertPerThread(exceptionType: String, exceptionValue: String) throws {
         assertEventWithScopeCaptured { event, _, _ in
             XCTAssertEqual(callStackTreePerThread.callStacks.count, event?.threads?.count)
+            XCTAssertEqual(timeStampBegin, event?.timestamp)
             
             for callSack in callStackTreePerThread.callStacks {
                 var flattenedRootFrames = callSack.flattenedRootFrames
@@ -143,6 +151,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(2, client.captureEventWithScopeInvocations.count, "Client expected to capture 2 events.")
         let firstEvent = client.captureEventWithScopeInvocations.invocations[0].event
         let secondEvent = client.captureEventWithScopeInvocations.invocations[1].event
+        
+        XCTAssertEqual(timeStampBegin, firstEvent.timestamp)
+        XCTAssertEqual(timeStampBegin, secondEvent.timestamp)
         
         XCTAssertEqual(false, firstEvent.threads?[0].crashed)
         XCTAssertEqual(false, secondEvent.threads?[0].crashed)
@@ -209,6 +220,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 class TestMXCPUExceptionDiagnostic: MXCPUExceptionDiagnostic {
+    
     override var totalCPUTime: Measurement<UnitDuration> {
         return Measurement(value: 2.2, unit: .milliseconds)
     }

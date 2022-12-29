@@ -81,6 +81,7 @@ SentryMetricKitIntegration ()
                    level:kSentryLevelError
           exceptionValue:exceptionValue
            exceptionType:@"MXCrashDiagnostic"
+          timeStampBegin:timeStampBegin
           withScopeBlock:^(SentryScope *_Nonnull scope) { [scope clearBreadcrumbs]; }];
 }
 
@@ -105,6 +106,7 @@ SentryMetricKitIntegration ()
                    level:kSentryLevelWarning
           exceptionValue:exceptionValue
            exceptionType:@"MXCPUException"
+          timeStampBegin:timeStampBegin
           withScopeBlock:^(SentryScope *_Nonnull scope) { [scope clearBreadcrumbs]; }];
 }
 
@@ -126,6 +128,7 @@ SentryMetricKitIntegration ()
                    level:kSentryLevelWarning
           exceptionValue:exceptionValue
            exceptionType:@"MXDiskWriteException"
+          timeStampBegin:timeStampBegin
           withScopeBlock:^(SentryScope *_Nonnull scope) { [scope clearBreadcrumbs]; }];
 }
 
@@ -134,6 +137,7 @@ SentryMetricKitIntegration ()
                  level:(enum SentryLevel)level
         exceptionValue:(NSString *)exceptionValue
          exceptionType:(NSString *)exceptionType
+        timeStampBegin:(NSDate *)timeStampBegin
         withScopeBlock:(void (^)(SentryScope *))block
 {
 
@@ -145,6 +149,7 @@ SentryMetricKitIntegration ()
                                 exceptionValue:exceptionValue
                                  exceptionType:exceptionType];
 
+        event.timestamp = timeStampBegin;
         event.threads = [self convertToSentryThreads:callStackTree];
 
         SentryThread *crashedThread = event.threads[0];
@@ -169,6 +174,7 @@ SentryMetricKitIntegration ()
                                                  level:level
                                         exceptionValue:exceptionValue
                                          exceptionType:exceptionType];
+                event.timestamp = timeStampBegin;
 
                 SentryThread *thread = [[SentryThread alloc] initWithThreadId:@0];
                 thread.crashed = @(!handled);
