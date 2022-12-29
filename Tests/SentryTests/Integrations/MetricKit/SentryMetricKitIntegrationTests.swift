@@ -68,7 +68,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             let mxDelegate = sut as SentryMXManagerDelegate
             mxDelegate.didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: currentDate.date(), timeStampEnd: currentDate.date())
             
-            assertPerThread(exceptionType: "MXCrashDiagnostic", exceptionValue: "MachException Type:(null) Code:(null) Signal:(null)")
+            try assertPerThread(exceptionType: "MXCrashDiagnostic", exceptionValue: "MachException Type:(null) Code:(null) Signal:(null)")
         }
     }
     
@@ -82,7 +82,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             let mxDelegate = sut as SentryMXManagerDelegate
             mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: currentDate.date(), timeStampEnd: currentDate.date())
             
-            assertPerThread(exceptionType: "MXCPUException", exceptionValue: "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms")
+            try assertPerThread(exceptionType: "MXCPUException", exceptionValue: "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms")
         }
     }
     
@@ -96,7 +96,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         let mxDelegate = sut as SentryMXManagerDelegate
         mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: currentDate.date(), timeStampEnd: currentDate.date())
         
-        assertNotPerThread(exceptionType: "MXCPUException", exceptionValue: "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms")
+        try assertNotPerThread(exceptionType: "MXCPUException", exceptionValue: "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms")
     }
     
     @available(iOS 15, macOS 12, *)
@@ -109,7 +109,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         let mxDelegate = sut as SentryMXManagerDelegate
         mxDelegate.didReceiveDiskWriteExceptionDiagnostic(TestMXDiskWriteExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: currentDate.date(), timeStampEnd: currentDate.date())
         
-        assertNotPerThread(exceptionType: "MXDiskWriteException", exceptionValue: "MXDiskWriteException totalWritesCaused:5.5 Mib")
+        try assertNotPerThread(exceptionType: "MXDiskWriteException", exceptionValue: "MXDiskWriteException totalWritesCaused:5.5 Mib")
     }
     
     @available(iOS 14, macOS 12, macCatalyst 14, *)
@@ -119,7 +119,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         integration.install(with: options)
     }
     
-    private func assertPerThread(exceptionType: String, exceptionValue: String) {
+    private func assertPerThread(exceptionType: String, exceptionValue: String) throws {
         assertEventWithScopeCaptured { event, _, _ in
             XCTAssertEqual(callStackTreePerThread.callStacks.count, event?.threads?.count)
             
@@ -127,12 +127,12 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
                 var flattenedRootFrames = callSack.flattenedRootFrames
                 flattenedRootFrames.reverse()
                 
-                assertFrames(frames: flattenedRootFrames, event: event, exceptionType, exceptionValue)
+                try! assertFrames(frames: flattenedRootFrames, event: event, exceptionType, exceptionValue)
             }
         }
     }
     
-    private func assertNotPerThread(exceptionType: String, exceptionValue: String) {
+    private func assertNotPerThread(exceptionType: String, exceptionValue: String) throws {
         guard let client = SentrySDK.currentHub().getClient() as? TestClient else {
             XCTFail("Hub Client is not a `TestClient`")
             return
@@ -142,33 +142,36 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         let firstEvent = client.captureEventWithScopeInvocations.invocations[0].event
         let secondEvent = client.captureEventWithScopeInvocations.invocations[1].event
         
-        guard let frames = callStackTreeNotPerThread.callStacks.first?.callStackRootFrames else {
-            XCTFail("CallStackTree has no call stack.")
-            return
-        }
+        XCTAssertEqual(false, firstEvent.threads?[0].crashed)
+        XCTAssertEqual(false, secondEvent.threads?[0].crashed)
         
-        assertFrames(frames: frames[0].framesIncludingSelf, event: firstEvent, exceptionType, exceptionValue)
-        assertFrames(frames: frames[1].framesIncludingSelf, event: secondEvent, exceptionType, exceptionValue)
+        let frames = try XCTUnwrap(callStackTreeNotPerThread.callStacks.first?.callStackRootFrames, "CallStackTree has no call stack.")
+        
+        try assertFrames(frames: frames[0].framesIncludingSelf, event: firstEvent, exceptionType, exceptionValue)
+        try assertFrames(frames: frames[1].framesIncludingSelf, event: secondEvent, exceptionType, exceptionValue)
     }
     
-    private func assertFrames(frames: [SentryMXFrame], event: Event?, _ exceptionType: String, _ exceptionValue: String) {
-        guard let sentryFrames = event?.threads?.first?.stacktrace?.frames else {
-            XCTFail("Event has no frames.")
-            return
-        }
+    private func assertFrames(frames: [SentryMXFrame], event: Event?, _ exceptionType: String, _ exceptionValue: String) throws {
+        let sentryFrames = try XCTUnwrap(event?.threads?.first?.stacktrace?.frames, "Event has no frames.")
         XCTAssertEqual(frames.count, sentryFrames.count)
         
+        XCTAssertEqual(1, event?.exceptions?.count)
+        let exception = try! XCTUnwrap(event?.exceptions?.first, "Event has exception.")
+        XCTAssertEqual(frames.count, exception.stacktrace?.frames.count)
+        
+        let exceptionFrames = try! XCTUnwrap(exception.stacktrace?.frames, "Exception has no frames.")
+    
         for i in 0..<frames.count {
             let mxFrame = frames[i]
             let sentryFrame = sentryFrames[i]
+            let sentryExceptionFrame = exceptionFrames[i]
             assertFrame(mxFrame: mxFrame, sentryFrame: sentryFrame)
+            assertFrame(mxFrame: mxFrame, sentryFrame: sentryExceptionFrame)
         }
         
-        XCTAssertEqual(1, event?.exceptions?.count)
-        let exception = event?.exceptions?.first
-        
-        XCTAssertEqual(exceptionType, exception?.type)
-        XCTAssertEqual(exceptionValue, exception?.value)
+        XCTAssertEqual(exceptionType, exception.type)
+        XCTAssertEqual(exceptionValue, exception.value)
+        XCTAssertEqual(event?.threads?.first?.threadId, exception.threadId)
         
         XCTAssertEqual(2, event?.debugMeta?.count)
         guard let debugMeta = event?.debugMeta else {

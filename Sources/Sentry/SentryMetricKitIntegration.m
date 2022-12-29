@@ -146,6 +146,14 @@ SentryMetricKitIntegration ()
                                  exceptionType:exceptionType];
 
         event.threads = [self convertToSentryThreads:callStackTree];
+
+        SentryThread *crashedThread = event.threads[0];
+        crashedThread.crashed = @(!handled);
+
+        SentryException *exception = event.exceptions[0];
+        exception.stacktrace = crashedThread.stacktrace;
+        exception.threadId = crashedThread.threadId;
+
         event.debugMeta = [self extractDebugMetaFromMXCallStacks:callStackTree.callStacks];
 
         // The crash event can be way from the past. We don't want to impact the current session.
@@ -163,8 +171,13 @@ SentryMetricKitIntegration ()
                                          exceptionType:exceptionType];
 
                 SentryThread *thread = [[SentryThread alloc] initWithThreadId:@0];
+                thread.crashed = @(!handled);
                 thread.stacktrace = [self
                     convertMXFramesToSentryStacktrace:frame.framesIncludingSelf.objectEnumerator];
+
+                SentryException *exception = event.exceptions[0];
+                exception.stacktrace = thread.stacktrace;
+                exception.threadId = thread.threadId;
 
                 event.threads = @[ thread ];
                 event.debugMeta = [self extractDebugMetaFromMXFrames:frame.framesIncludingSelf];
