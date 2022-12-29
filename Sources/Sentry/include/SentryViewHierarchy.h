@@ -6,9 +6,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryViewHierarchy : NSObject
 
-- (NSArray<NSString *> *)fetchViewHierarchy;
+- (nullable NSData *)fetchViewHierarchy;
 
-- (void)saveViewHierarchy:(NSString *)path;
+- (BOOL)saveViewHierarchy:(NSString *)filePath;
 @end
 
 NS_ASSUME_NONNULL_END

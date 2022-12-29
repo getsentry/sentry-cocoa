@@ -1,6 +1,5 @@
 #import "PrivatesHeader.h"
 #import "SentryAppStartMeasurement.h"
-#import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryScreenFrames.h"
 
@@ -94,6 +93,8 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 @property (class, nonatomic, assign, readonly) SentryScreenFrames *currentScreenFrames;
 
 + (NSArray<NSData *> *)captureScreenshots;
+
++ (NSData *)captureViewHierarchy;
 #endif
 
 @end

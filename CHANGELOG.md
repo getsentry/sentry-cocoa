@@ -7,10 +7,13 @@ This version adds a dependency on Swift.
 ### Features
 
 - Properly demangle Swift class name (#2162)
+- Change view hierarchy attachment format to JSON (#2491)
+- SwiftUI performance tracking (#2271)
 - Enable [File I/O Tracking](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/#file-io-tracking) by default (#2497)
 - [User Interaction Tracing](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/#user-interaction-tracing) is stable and enabled by default(#2503)
 - Add synthetic for mechanism (#2501)
 - Enable CaptureFailedRequests by default (#2507)
+- Support the [`SENTRY_DSN` environment variable](https://docs.sentry.io/platforms/apple/guides/macos/configuration/options/#dsn) on macOS (#2534)
 
 ### Fixes
 
@@ -21,6 +24,11 @@ This version adds a dependency on Swift.
 - The SDK no longer reports an OOM when a crash happens after closing the SDK (#2468)
 - Don't capture zero size screenshots ([#2459](https://github.com/getsentry/sentry-cocoa/pull/2459))
 - Use the preexisting app release version format for profiles (#2470)
+- Don't add out of date context for crashes (#2523)
+- Fix ARC issue for FileManager (#2525)
+- Remove delay for deleting old envelopes (#2541)
+- Fix strong reference cycle for HttpTransport (#2552)
+- Deleting old envelopes for empty DSN (#2562)
 
 ### Breaking Changes
 
@@ -54,6 +62,8 @@ This version adds a dependency on Swift.
 - SentrySDK.close calls flush, which is a blocking call (#2453)
 - Bump minimum Xcode version to 13 (#2483)
 - Rename `SentryOptions.enableOutOfMemoryTracking` to `SentryOptions.enableWatchdogTerminationTracking` (#2499)
+- Remove the automatic `viewAppearing` span for UIViewController APM (#2511)
+- Remove the permission context for events (#2529)
 
 ## 8.0.0-beta.4
 
@@ -105,6 +115,11 @@ This version adds a dependency on Swift.
     - Rename `SentryOptions.enableCoreDataTracking` to `enableCoreDataTracing`
 - SentrySDK.close calls flush, which is a blocking call (#2453)
 - Bump minimum Xcode version to 13 (#2483)
+## 7.31.4
+
+### Fixes
+
+- Screenshot crashes when application delegate has no window (#2538)
 
 ## 7.31.3
 
