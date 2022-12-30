@@ -70,6 +70,7 @@ std::mutex _gProfilerLock;
 NSMutableDictionary<SentrySpanId *, SentryProfiler *> *_gProfilersPerSpanID;
 SentryProfiler *_Nullable _gCurrentProfiler;
 
+#    if defined(DEBUG)
 NSString *
 parseBacktraceSymbolsFunctionName(const char *symbol)
 {
@@ -90,6 +91,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     }
     return [symbolNSStr substringWithRange:[match rangeAtIndex:1]];
 }
+#endif
 
 std::string formatHex(std::uint64_t v) {
     std::stringstream stream;
