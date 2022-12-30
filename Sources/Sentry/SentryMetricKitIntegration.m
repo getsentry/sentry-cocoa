@@ -12,9 +12,9 @@
 #import <SentryStacktrace.h>
 #import <SentryThread.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
 #if SENTRY_HAS_METRIC_KIT
+
+NS_ASSUME_NONNULL_BEGIN
 
 /**
  * We need to check if MetricKit is available for compatibility on iOS 12 and below. As there are no
@@ -312,7 +312,11 @@ SentryMetricKitIntegration ()
 
 @end
 
+NS_ASSUME_NONNULL_END
+
 #endif
+
+NS_ASSUME_NONNULL_BEGIN
 
 @implementation
 SentryEvent (MetricKit)
