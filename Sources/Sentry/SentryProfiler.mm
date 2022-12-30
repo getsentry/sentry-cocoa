@@ -778,6 +778,7 @@ static void removeURL(NSURL *fileURL) {
     if (self = [super init]) {
         _fileURL = fileURL;
         _stream.open(_fileURL.fileSystemRepresentation);
+        _stream.imbue(std::locale::classic());
         _writer = std::make_shared<minijson::object_writer>(_stream);
     }
     return self;

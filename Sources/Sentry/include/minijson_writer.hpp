@@ -323,7 +323,6 @@ namespace
 
 void adjust_stream_settings(std::ostream& stream)
 {
-    stream.imbue(std::locale::classic());
     stream << std::resetiosflags(std::ios::showpoint | std::ios::showpos);
     stream << std::dec << std::setw(0);
 }
