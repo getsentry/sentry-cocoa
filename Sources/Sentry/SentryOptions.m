@@ -44,7 +44,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         ]
             .mutableCopy;
 
-    if (@available(iOS 15.0, macOS 12.0, *)) {
+    if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
         [defaultIntegrations addObject:@"SentryMetricKitIntegration"];
     }
 

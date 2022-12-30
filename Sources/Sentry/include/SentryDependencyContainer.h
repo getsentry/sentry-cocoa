@@ -43,7 +43,7 @@ SENTRY_NO_INIT
 
 #if SENTRY_HAS_METRIC_KIT
 @property (nonatomic, strong) SentryMXManager *metricKitManager API_AVAILABLE(
-    ios(15.0), macos(12.0)) API_UNAVAILABLE(tvos, watchos, macCatalyst);
+    ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
 #endif
 
 @end
