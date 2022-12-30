@@ -532,24 +532,26 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 
 - (void)stop
 {
-    std::lock_guard<std::mutex> l(_lock);
     if (_profiler == nullptr || !_profiler->isSampling()) {
         return;
     }
-    NSLog(@"[INDRAGIE] STOP");
-
     _profiler->stopSampling();
-    _endDate = [SentryCurrentDate date];
-    SENTRY_LOG_DEBUG(@"Stopped profiler %@ at system time: %llu.", self, getAbsoluteTime());
-    
-    [_framesStream close];
-    removeURL(_framesStream.fileURL);
-    
-    [_stacksStream close];
-    removeURL(_stacksStream.fileURL);
-    
-    [_samplesStream close];
-    removeURL(_samplesStream.fileURL);
+    NSLog(@"[INDRAGIE] STOP");
+    {
+        std::lock_guard<std::mutex> l(_lock);
+        
+        _endDate = [SentryCurrentDate date];
+        SENTRY_LOG_DEBUG(@"Stopped profiler %@ at system time: %llu.", self, getAbsoluteTime());
+        
+        [_framesStream close];
+        removeURL(_framesStream.fileURL);
+        
+        [_stacksStream close];
+        removeURL(_stacksStream.fileURL);
+        
+        [_samplesStream close];
+        removeURL(_samplesStream.fileURL);
+    }
 }
 
 - (void)captureEnvelope
