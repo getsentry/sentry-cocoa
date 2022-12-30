@@ -576,8 +576,12 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
                 for (auto &kv : *_threadMetadata) {
                     auto &m = kv.second;
                     auto threadWriter = threadMetadataWriter.nested_object(std::to_string(m.threadID).c_str());
-                    threadWriter.write("name", m.name);
-                    threadWriter.write("priority", m.priority);
+                    if (!m.name.empty()) {
+                        threadWriter.write("name", m.name);
+                    }
+                    if (m.priority > 0) {
+                        threadWriter.write("priority", m.priority);
+                    }
                     threadWriter.close();
                 }
                 threadMetadataWriter.close();
