@@ -121,7 +121,7 @@
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
 
 #if SENTRY_HAS_METRIC_KIT
-    if (@available(iOS 15.0, macOS 12.0, *)) {
+    if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
         XCTAssertEqual(NO, options.enableMetricKit);
     }
 #endif

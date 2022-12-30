@@ -454,8 +454,8 @@ NS_SWIFT_NAME(Options)
  * these versions, MetricKit delivers diagnostic reports immediately, which allows the Sentry SDK to
  * apply the current data from the scope.
  */
-@property (nonatomic, assign) BOOL enableMetricKit API_AVAILABLE(ios(15.0), macos(12.0))
-    API_UNAVAILABLE(tvos, watchos, macCatalyst);
+@property (nonatomic, assign) BOOL enableMetricKit API_AVAILABLE(
+    ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
 
 #endif
 

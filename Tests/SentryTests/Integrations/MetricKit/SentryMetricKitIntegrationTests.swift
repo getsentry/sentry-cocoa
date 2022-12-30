@@ -34,7 +34,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     }
 
     func testOptionEnabled_MetricKitManagerInitialized() {
-        if #available(iOS 15, macOS 12, *) {
+        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             let sut = SentryMetricKitIntegration()
             
             givenInstalledWithEnabled(sut)
@@ -44,7 +44,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     }
     
     func testOptionDisabled_MetricKitManagerNotInitialized() {
-        if #available(iOS 15, macOS 12, *) {
+        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             let sut = SentryMetricKitIntegration()
             
             sut.install(with: Options())
@@ -54,7 +54,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     }
     
     func testUninstall_MetricKitManagerSetToNil() {
-        if #available(iOS 15, macOS 12, *) {
+        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             let sut = SentryMetricKitIntegration()
             
             let options = Options()
@@ -67,7 +67,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     }
     
     func testMXCrashPayloadReceived() throws {
-        if #available(iOS 15, macOS 12, *) {
+        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
             
             let sut = SentryMetricKitIntegration()
@@ -81,7 +81,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     }
     
     func testCPUExceptionDiagnostic_PerThread() throws {
-        if #available(iOS 15, macOS 12, *) {
+        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
             
             let sut = SentryMetricKitIntegration()
@@ -95,7 +95,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     }
     
     func testCPUExceptionDiagnostic_NotPerThread() throws {
-        if #available(iOS 15, macOS 12, *) {
+        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
             
             let sut = SentryMetricKitIntegration()
@@ -109,7 +109,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     }
     
     func testDiskWriteExceptionDiagnostic() throws {
-        if #available(iOS 15, macOS 12, *) {
+        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
             
             let sut = SentryMetricKitIntegration()
@@ -123,7 +123,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     }
     
     func testHangDiagnostic() throws {
-        if #available(iOS 15, macOS 12, *) {
+        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
             
             let sut = SentryMetricKitIntegration()
@@ -136,7 +136,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         }
     }
     
-    @available(iOS 15, macOS 12, *)
+    @available(iOS 15, macOS 12, macCatalyst 15, *)
     private func givenInstalledWithEnabled(_ integration: SentryMetricKitIntegration) {
         let options = Options()
         options.enableMetricKit = true
@@ -244,10 +244,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
   
 }
 
-@available(iOS 15, macOS 12, *)
+@available(iOS 15, macOS 12, macCatalyst 15, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
-@available(macCatalyst, unavailable)
 class TestMXCPUExceptionDiagnostic: MXCPUExceptionDiagnostic {
     
     override var totalCPUTime: Measurement<UnitDuration> {
@@ -259,20 +258,18 @@ class TestMXCPUExceptionDiagnostic: MXCPUExceptionDiagnostic {
     }
 }
 
-@available(iOS 15, macOS 12, *)
+@available(iOS 15, macOS 12, macCatalyst 15, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
-@available(macCatalyst, unavailable)
 class TestMXDiskWriteExceptionDiagnostic: MXDiskWriteExceptionDiagnostic {
     override var totalWritesCaused: Measurement<UnitInformationStorage> {
         return Measurement(value: 5.5, unit: .mebibits)
     }
 }
 
-@available(iOS 15, macOS 12, *)
+@available(iOS 15, macOS 12, macCatalyst 15, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
-@available(macCatalyst, unavailable)
 class TestMXHangDiagnostic: MXHangDiagnostic {
     override var hangDuration: Measurement<UnitDuration> {
         return Measurement(value: 6.6, unit: .seconds)

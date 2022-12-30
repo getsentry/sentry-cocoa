@@ -147,7 +147,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
 #if SENTRY_HAS_METRIC_KIT
-    if (@available(iOS 15.0, macOS 12.0, *)) {
+    if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
         if ((integrationOptions & kIntegrationOptionEnableMetricKit) && !options.enableMetricKit) {
             [self logWithOptionName:@"enableMetricKit"];
             return NO;

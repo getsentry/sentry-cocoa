@@ -9,10 +9,9 @@ import Foundation
 import MetricKit
 #endif
 
-@available(iOS 15.0, macOS 12.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
-@available(macCatalyst, unavailable)
 @objc public protocol SentryMXManagerDelegate {
     
     func didReceiveCrashDiagnostic(_ diagnostic: MXCrashDiagnostic, callStackTree: SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)
@@ -24,7 +23,7 @@ import MetricKit
     func didReceiveHangDiagnostic(_ diagnostic: MXHangDiagnostic, callStackTree: SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)
 }
 
-@available(iOS 15.0, macOS 12.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 @objcMembers public class SentryMXManager: NSObject, MXMetricManagerSubscriber {
