@@ -140,9 +140,13 @@ SentryMetricKitIntegration ()
     exceptionMechanism:(NSString *)exceptionMechanism
         timeStampBegin:(NSDate *)timeStampBegin
 {
+    // When receiving MXCrashDiagnostic the callStackPerThread was always true. In that case, the
+    // MXCallStacks of the MXCallStackTree were individual threads, all belonging to the process
+    // when the crash occurred. For MXCPUException, the callStackPerThread was always true. In that
+    // case, the MXCallStacks stem from CPU-hungry multiple locations in the sample app during an
+    // observation time of 90 seconds of one app run. It's a collection of stack traces that are
+    // CPU-hungry. They could be from multiple threads or the same thread.
     if (callStackTree.callStackPerThread) {
-        // When callStackPerThread is true the call stacks of the call stack tree represent a call
-        // stack for each thread.
         SentryEvent *event = [self createEvent:handled
                                          level:level
                                 exceptionValue:exceptionValue
@@ -165,7 +169,6 @@ SentryMetricKitIntegration ()
         // Therefore we don't call captureCrashEvent.
         [SentrySDK captureEvent:event];
     } else {
-        // When callStackPerThread is false, each call stack represents a single process thread
         for (SentryMXCallStack *callStack in callStackTree.callStacks) {
 
             for (SentryMXFrame *frame in callStack.callStackRootFrames) {
