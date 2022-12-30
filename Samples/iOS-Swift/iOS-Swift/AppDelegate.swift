@@ -19,7 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 return event
             }
             options.debug = true
-            if #available(iOS 14.0, *) {
+            if #available(iOS 15.0, *) {
                 options.enableMetricKit = true
             }
             // Sampling 100% - In Production you probably want to adjust this
@@ -53,7 +53,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         AppDelegate.startSentry()
         
-        if #available(iOS 14.0, *) {
+        if #available(iOS 15.0, *) {
             metricKit.receiveReports()
         }
         
@@ -61,14 +61,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func applicationWillTerminate(_ application: UIApplication) {
-        if #available(iOS 14.0, *) {
+        if #available(iOS 15.0, *) {
             metricKit.pauseReports()
         }
     }
     
     // Workaround for 'Stored properties cannot be marked potentially unavailable with '@available''
     private var _metricKit: Any?
-    @available(iOS 14.0, *)
+    @available(iOS 15.0, *)
     fileprivate var metricKit: MetricKitManager {
         if _metricKit == nil {
             _metricKit = MetricKitManager()
