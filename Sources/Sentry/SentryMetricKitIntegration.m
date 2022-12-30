@@ -12,6 +12,8 @@
 #import <SentryStacktrace.h>
 #import <SentryThread.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 #if SENTRY_HAS_METRIC_KIT
 
 /**
@@ -21,8 +23,6 @@
 #    if __has_include(<MetricKit/MetricKit.h>)
 #        import <MetricKit/MetricKit.h>
 #    endif
-
-NS_ASSUME_NONNULL_BEGIN
 
 @interface
 SentryMetricKitIntegration ()
@@ -312,6 +312,8 @@ SentryMetricKitIntegration ()
 
 @end
 
+#endif
+
 @implementation
 SentryEvent (MetricKit)
 
@@ -338,5 +340,3 @@ SentryEvent (MetricKit)
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif
