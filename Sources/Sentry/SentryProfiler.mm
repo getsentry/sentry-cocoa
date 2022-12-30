@@ -93,7 +93,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 
 std::string formatHex(std::uint64_t v) {
     std::stringstream stream;
-    stream << "0x" << std::hex << v;
+    stream << "0x" << std::hex << std::setw(16) << std::setfill('0') << v;
     return stream.str();
 }
 
@@ -168,7 +168,7 @@ processBacktrace(const Backtrace &backtrace,
         sampleWriter.write("stack_id", newStackIndex);
         sampleWriter.write("thread_id", backtrace.threadMetadata.threadID);
         if (queueAddress != 0) {
-            sampleWriter.write("queue_address", queueAddress);
+            sampleWriter.write("queue_address", formatHex(queueAddress));
         }
         sampleWriter.close();
     }
