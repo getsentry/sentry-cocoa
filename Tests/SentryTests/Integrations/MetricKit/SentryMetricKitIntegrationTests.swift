@@ -122,6 +122,20 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         }
     }
     
+    func testHangDiagnostic() throws {
+        if #available(iOS 15, macOS 12, *) {
+            givenSDKWithHubWithScope()
+            
+            let sut = SentryMetricKitIntegration()
+            givenInstalledWithEnabled(sut)
+            
+            let mxDelegate = sut as SentryMXManagerDelegate
+            mxDelegate.didReceiveHangDiagnostic(TestMXHangDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
+            
+            try assertNotPerThread(exceptionType: "MXHangDiagnostic", exceptionValue: "MXHangDiagnostic hangDuration:6.6 sec", exceptionMechanism: "mx_hang_diagnostic")
+        }
+    }
+    
     @available(iOS 15, macOS 12, *)
     private func givenInstalledWithEnabled(_ integration: SentryMetricKitIntegration) {
         let options = Options()
@@ -252,6 +266,16 @@ class TestMXCPUExceptionDiagnostic: MXCPUExceptionDiagnostic {
 class TestMXDiskWriteExceptionDiagnostic: MXDiskWriteExceptionDiagnostic {
     override var totalWritesCaused: Measurement<UnitInformationStorage> {
         return Measurement(value: 5.5, unit: .mebibits)
+    }
+}
+
+@available(iOS 15, macOS 12, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+@available(macCatalyst, unavailable)
+class TestMXHangDiagnostic: MXHangDiagnostic {
+    override var hangDuration: Measurement<UnitDuration> {
+        return Measurement(value: 6.6, unit: .seconds)
     }
 }
 

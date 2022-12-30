@@ -6,13 +6,12 @@ final class SentryMetricKitEventTests: XCTestCase {
         XCTAssertTrue(TestData.metricKitEvent.isMetricKitEvent)
     }
     
-    func testMXDiskWriteException_IsMetricKitEvent() {
-        let event = Event(level: .warning)
-        let exception = Exception(value: "something", type: "type")
-        exception.mechanism = Mechanism(type: SentryMetricKitDiskWriteExceptionMechanism)
-        event.exceptions = [exception]
-        
-        XCTAssertTrue(TestData.metricKitEvent.isMetricKitEvent)
+    func testMXDiskWriteException_IsMetricKitEvent() {        
+        XCTAssertTrue(createMetricKitEventWith(mechanismType: SentryMetricKitDiskWriteExceptionMechanism).isMetricKitEvent)
+    }
+    
+    func testMXHangDiagnostic_IsMetricKitEvent() {
+        XCTAssertTrue(createMetricKitEventWith(mechanismType: SentryMetricKitHangDiagnosticMechanism).isMetricKitEvent)
     }
     
     func testWatchDogEvent_IsNotMetricKitEvent() {
@@ -25,5 +24,14 @@ final class SentryMetricKitEventTests: XCTestCase {
     
     func testEmptyEvent_IsNotMetricKitEvent() {
         XCTAssertFalse(Event().isMetricKitEvent)
+    }
+    
+    private func createMetricKitEventWith(mechanismType: String) -> Event {
+        let event = Event(level: .warning)
+        let exception = Exception(value: "something", type: "type")
+        exception.mechanism = Mechanism(type: mechanismType)
+        event.exceptions = [exception]
+        
+        return event
     }
 }

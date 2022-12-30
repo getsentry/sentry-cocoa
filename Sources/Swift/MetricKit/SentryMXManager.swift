@@ -20,6 +20,8 @@ import MetricKit
     func didReceiveDiskWriteExceptionDiagnostic(_ diagnostic: MXDiskWriteExceptionDiagnostic, callStackTree: SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)
     
     func didReceiveCpuExceptionDiagnostic(_ diagnostic: MXCPUExceptionDiagnostic, callStackTree: SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)
+    
+    func didReceiveHangDiagnostic(_ diagnostic: MXHangDiagnostic, callStackTree: SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)
 }
 
 @available(iOS 15.0, macOS 12.0, *)
@@ -64,6 +66,12 @@ import MetricKit
             payload.cpuExceptionDiagnostics?.forEach { diagnostic in
                 actOn(callStackTree: diagnostic.callStackTree) { callStackTree in
                     delegate?.didReceiveCpuExceptionDiagnostic(diagnostic, callStackTree: callStackTree, timeStampBegin: payload.timeStampBegin, timeStampEnd: payload.timeStampEnd)
+                }
+            }
+            
+            payload.hangDiagnostics?.forEach { diagnostic in
+                actOn(callStackTree: diagnostic.callStackTree) { callStackTree in
+                    delegate?.didReceiveHangDiagnostic(diagnostic, callStackTree: callStackTree, timeStampBegin: payload.timeStampBegin, timeStampEnd: payload.timeStampEnd)
                 }
             }
         }
