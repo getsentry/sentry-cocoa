@@ -50,7 +50,7 @@ saveScreenShot(const char *path)
 {
 
     // We don't take screenshots if there is no exception/error.
-    // We dont take screenshots if the event is a crash event.
+    // We don't take screenshots if the event is a crash or metric kit event.
     if ((event.exceptions == nil && event.error == nil) || event.isCrashEvent
         || event.isMetricKitEvent) {
         return attachments;
