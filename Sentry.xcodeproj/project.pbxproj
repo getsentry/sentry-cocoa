@@ -751,6 +751,7 @@
 		035E73C927D57398005EEB11 /* SentryThreadHandleTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryThreadHandleTests.mm; sourceTree = "<group>"; };
 		035E73CB27D575B3005EEB11 /* SentrySamplingProfilerTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentrySamplingProfilerTests.mm; sourceTree = "<group>"; };
 		035E73CD27D5790A005EEB11 /* SentryThreadMetadataCacheTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryThreadMetadataCacheTests.mm; sourceTree = "<group>"; };
+		03897CFB295E349900C43F96 /* minijson_writer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = minijson_writer.hpp; path = Sources/Sentry/include/minijson_writer.hpp; sourceTree = SOURCE_ROOT; };
 		03BCC38927E1BF49003232C7 /* SentryTime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryTime.h; path = Sources/Sentry/include/SentryTime.h; sourceTree = SOURCE_ROOT; };
 		03BCC38B27E1C01A003232C7 /* SentryTime.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = SentryTime.mm; path = Sources/Sentry/SentryTime.mm; sourceTree = SOURCE_ROOT; };
 		03BCC38D27E2A377003232C7 /* SentryProfilingConditionals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryProfilingConditionals.h; path = Sources/Sentry/Public/SentryProfilingConditionals.h; sourceTree = SOURCE_ROOT; };
@@ -2797,6 +2798,7 @@
 				03BCC38B27E1C01A003232C7 /* SentryTime.mm */,
 				0356A56E288B4612008BF593 /* SentryProfilesSampler.h */,
 				0356A56F288B4612008BF593 /* SentryProfilesSampler.m */,
+				03897CFB295E349900C43F96 /* minijson_writer.hpp */,
 			);
 			path = Profiling;
 			sourceTree = "<group>";
