@@ -28,6 +28,7 @@ This version adds a dependency on Swift.
 - Fix ARC issue for FileManager (#2525)
 - Remove delay for deleting old envelopes (#2541)
 - Fix strong reference cycle for HttpTransport (#2552)
+- Deleting old envelopes for empty DSN (#2562)
 
 ### Breaking Changes
 

@@ -16,6 +16,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+NSString *const EnvelopesPathComponent = @"envelopes";
+
 @interface
 SentryFileManager ()
 
@@ -173,8 +175,17 @@ SentryFileManager ()
             continue;
         }
 
+        // If the options don't have a DSN the sentry path doesn't contain a hash and the envelopes
+        // folder is stored in the base path.
+        NSString *envelopesPath;
+        if ([fullPath hasSuffix:EnvelopesPathComponent]) {
+            envelopesPath = fullPath;
+        } else {
+            envelopesPath = [fullPath stringByAppendingPathComponent:EnvelopesPathComponent];
+        }
+
         // Then we will remove all old items from the envelopes subdirectory
-        [self deleteOldEnvelopesFromPath:[fullPath stringByAppendingPathComponent:@"envelopes"]];
+        [self deleteOldEnvelopesFromPath:envelopesPath];
     }
 }
 
@@ -472,7 +483,7 @@ SentryFileManager ()
 
 - (void)moveState:(NSString *)stateFilePath toPreviousState:(NSString *)previousStateFilePath
 {
-    SENTRY_LOG_DEBUG(@"Moving current app state to previous app state.");
+    SENTRY_LOG_DEBUG(@"Moving state %@ to previous %@.", stateFilePath, previousStateFilePath);
     NSFileManager *fileManager = [NSFileManager defaultManager];
 
     // We first need to remove the old previous state file,
@@ -664,7 +675,7 @@ SentryFileManager ()
         [self.sentryPath stringByAppendingPathComponent:@"breadcrumbs.2.state"];
     self.timezoneOffsetFilePath =
         [self.sentryPath stringByAppendingPathComponent:@"timezone.offset"];
-    self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:@"envelopes"];
+    self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:EnvelopesPathComponent];
 }
 
 - (BOOL)createDirectoryIfNotExists:(NSString *)path error:(NSError **)error
