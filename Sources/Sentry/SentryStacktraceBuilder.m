@@ -61,14 +61,13 @@ SentryStacktraceBuilder ()
 
 - (SentryStacktrace *)retrieveStacktraceFromCursor:(SentryCrashStackCursor)stackCursor
 {
-    return [self
-        retrieveStackTraceFromCursor:&stackCursor
-               withFrameSymbolicator:^SentryFrame *(SentryCrashStackCursor *cursor) {
-                   if (stackCursor.symbolicate(cursor)) {
-                       return [self.crashStackEntryMapper mapStackEntryWithCursor:*cursor];
-                   }
-                   return nil;
-               }];
+    return [self retrieveStackTraceFromCursor:&stackCursor
+                        withFrameSymbolicator:^SentryFrame *(SentryCrashStackCursor *cursor) {
+                            if (stackCursor.symbolicate(cursor)) {
+                                return [self.crashStackEntryMapper mapStackEntryWithCursor:*cursor];
+                            }
+                            return nil;
+                        }];
 }
 
 - (SentryStacktrace *)retrieveStacktraceFromCursorNatively:(SentryCrashStackCursor)stackCursor
