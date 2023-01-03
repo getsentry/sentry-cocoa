@@ -94,7 +94,7 @@ class SentryNSDataTrackerTests: XCTestCase {
         let sut = fixture.getSut()
         let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
         var span: Span?
-                
+
         sut.measure(fixture.data, writeToFile: fixture.filePath, atomically: false) { _, _ -> Bool in
             span = self.firstSpan(transaction)
             XCTAssertFalse(span?.isFinished ?? true)
@@ -104,6 +104,28 @@ class SentryNSDataTrackerTests: XCTestCase {
         
         assertSpanDuration(span: span, expectedDuration: 4)
         assertDataSpan(span, path: fixture.filePath, operation: SENTRY_FILE_WRITE_OPERATION, size: fixture.data.count)
+    }
+
+    func testWriteAtomically_Background() {
+        let sut = self.fixture.getSut()
+        let expect = expectation(description: "Operation in background thread")
+        DispatchQueue.global(qos: .default).async {
+            let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
+            var span: Span?
+
+            sut.measure(self.fixture.data, writeToFile: self.fixture.filePath, atomically: false) { _, _ -> Bool in
+                span = self.firstSpan(transaction)
+                XCTAssertFalse(span?.isFinished ?? true)
+                self.advanceTime(bySeconds: 4)
+                return true
+            }
+
+            self.assertSpanDuration(span: span, expectedDuration: 4)
+            self.assertDataSpan(span, path: self.fixture.filePath, operation: SENTRY_FILE_WRITE_OPERATION, size: self.fixture.data.count, mainThread: false)
+            expect.fulfill()
+        }
+
+        wait(for: [expect], timeout: 0.1)
     }
     
     func testWriteWithOptionsAndError_CheckTrace() {
@@ -220,12 +242,14 @@ class SentryNSDataTrackerTests: XCTestCase {
         return result?.first
     }
     
-    private func assertDataSpan(_ span: Span?, path: String, operation: String, size: Int ) {
+    private func assertDataSpan(_ span: Span?, path: String, operation: String, size: Int, mainThread: Bool = true ) {
         XCTAssertNotNil(span)
         XCTAssertEqual(span?.operation, operation)
         XCTAssertTrue(span?.isFinished ?? false)
         XCTAssertEqual(span?.data["file.size"] as? Int, size)
         XCTAssertEqual(span?.data["file.path"] as? String, path)
+        XCTAssertEqual(span?.data["blocked_main_thread"] as? Bool ?? false, mainThread)
+        XCTAssertEqual(span?.data["call_stack"] != nil, mainThread)
         
         let lastComponent = (path as NSString).lastPathComponent
         

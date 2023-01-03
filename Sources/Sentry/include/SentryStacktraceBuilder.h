@@ -24,12 +24,15 @@ SENTRY_NO_INIT
 - (SentryStacktrace *)buildStacktraceForCurrentThread;
 
 /**
- * Retrieve the stacktrace for the current thread with only instructions addresses, removing frames from the SentrySDK until frames from
- * a different package are found. When including Sentry via the Swift Package Manager the package is
- * the same as the application that includes Sentry. In this case the full stacktrace is returned
- * without skipping frames.
+ * Retrieve the stacktrace for the current thread, removing frames from the SentrySDK until frames
+ * from a different package are found. When including Sentry via the Swift Package Manager the
+ * package is the same as the application that includes Sentry. In this case the full stacktrace is
+ * returned without skipping frames.
+ *
+ * @param natively Indicates whether this method should use native functions to symbolicate the
+ * frames or not. Native functions are not async safe.
  */
-- (SentryStacktrace *)buildStacktraceForCurrentThreadOnlyInstAddresses;
+- (SentryStacktrace *)buildStacktraceForCurrentThreadNatively:(BOOL)natively;
 
 /**
  * Builds the stacktrace for given thread removing frames from the SentrySDK until frames from

@@ -1,18 +1,18 @@
 #import "SentryNSDataTracker.h"
 #import "SentryByteCountFormatter.h"
 #import "SentryClient+Private.h"
+#import "SentryDependencyContainer.h"
 #import "SentryFileManager.h"
+#import "SentryFrame.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySpanProtocol.h"
-#import "SentryDependencyContainer.h"
-#import "SentryThread.h"
 #import "SentryStacktrace.h"
+#import "SentryThread.h"
 #import "SentryThreadInspector.h"
-#import "SentryFrame.h"
-//#import <dlfcn.h>
+// #import <dlfcn.h>
 
 const NSString *SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 
@@ -184,28 +184,25 @@ SentryNSDataTracker ()
     return ioSpan;
 }
 
-- (void)mainThreadExtraInfo:(id<SentrySpan>)span {
-    //NSLog(@"### BEGIN EXTRA INFO");
-    CFAbsoluteTime begin = CFAbsoluteTimeGetCurrent();
+- (void)mainThreadExtraInfo:(id<SentrySpan>)span
+{
     BOOL isMainThread = [NSThread isMainThread];
 
     [span setDataValue:@(isMainThread) forKey:@"blocked_main_thread"];
 
-    if(!isMainThread) {
+    if (!isMainThread) {
         return;
     }
 
     SentryThreadInspector *threadInspector = SentrySDK.currentHub.getClient.threadInspector;
-    SentryStacktrace * stackTrace = [threadInspector stacktraceInstAddressForCurrentThread];
+    SentryStacktrace *stackTrace = [threadInspector stacktraceForCurrentThreadNatively];
 
     NSMutableArray *frames = [[NSMutableArray alloc] initWithCapacity:stackTrace.frames.count];
-    for (SentryFrame * frame in stackTrace.frames) {
+    for (SentryFrame *frame in stackTrace.frames) {
         [frames addObject:[frame serialize]];
     }
 
     [span setDataValue:frames forKey:@"call_stack"];
-    CFAbsoluteTime end = CFAbsoluteTimeGetCurrent();
-    NSLog(@"### EXTRA INFO DURATION = %lf", end - begin);
 }
 
 - (nullable id<SentrySpan>)startTrackingWritingNSData:(NSData *)data filePath:(NSString *)path

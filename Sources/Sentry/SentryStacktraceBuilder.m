@@ -27,31 +27,26 @@ SentryStacktraceBuilder ()
     return self;
 }
 
-- (SentryStacktrace *)retrieveStacktraceFromCursorWithLock:(SentryCrashStackCursor)stackCursor {
+- (SentryStacktrace *)retrieveStackTraceFromCursor:(SentryCrashStackCursor *)stackCursor
+                             withFrameSymbolicator:
+                                 (SentryFrame * (^)(SentryCrashStackCursor *nullable))symbolicator
+{
     NSMutableArray<SentryFrame *> *frames = [NSMutableArray array];
     SentryFrame *frame = nil;
-    while (stackCursor.advanceCursor(&stackCursor)) {
-        if (stackCursor.stackEntry.address == SentryCrashSC_ASYNC_MARKER) {
+    while (stackCursor->advanceCursor(stackCursor)) {
+        if (stackCursor->stackEntry.address == SentryCrashSC_ASYNC_MARKER) {
             if (frame != nil) {
                 frame.stackStart = @(YES);
             }
             // skip the marker frame
             continue;
         }
-
-        Dl_info info = {0};
-        if (dladdr((const void *)stackCursor.stackEntry.address, &info)) {
-
-            stackCursor.stackEntry.imageName = info.dli_fname;
-            stackCursor.stackEntry.imageAddress = (uintptr_t)info.dli_fbase;
-            stackCursor.stackEntry.symbolName = info.dli_sname;
-            stackCursor.stackEntry.symbolAddress = (uintptr_t)info.dli_saddr;
-
-            frame = [self.crashStackEntryMapper mapStackEntryWithCursor:stackCursor];
+        frame = symbolicator(stackCursor);
+        if (frame) {
             [frames addObject:frame];
         }
     }
-    sentrycrash_async_backtrace_decref(stackCursor.async_caller);
+    sentrycrash_async_backtrace_decref(stackCursor->async_caller);
 
     NSArray<SentryFrame *> *framesCleared = [SentryFrameRemover removeNonSdkFrames:frames];
 
@@ -66,32 +61,38 @@ SentryStacktraceBuilder ()
 
 - (SentryStacktrace *)retrieveStacktraceFromCursor:(SentryCrashStackCursor)stackCursor
 {
-    NSMutableArray<SentryFrame *> *frames = [NSMutableArray new];
-    SentryFrame *frame = nil;
-    while (stackCursor.advanceCursor(&stackCursor)) {
-        if (stackCursor.stackEntry.address == SentryCrashSC_ASYNC_MARKER) {
-            if (frame != nil) {
-                frame.stackStart = @(YES);
-            }
-            // skip the marker frame
-            continue;
-        }
-        if (stackCursor.symbolicate(&stackCursor)) {
-            frame = [self.crashStackEntryMapper mapStackEntryWithCursor:stackCursor];
-            [frames addObject:frame];
-        }
-    }
-    sentrycrash_async_backtrace_decref(stackCursor.async_caller);
+    return [self
+        retrieveStackTraceFromCursor:&stackCursor
+               withFrameSymbolicator:^SentryFrame *(SentryCrashStackCursor *cursor) {
+                   if (stackCursor.symbolicate(cursor)) {
+                       return [self.crashStackEntryMapper mapStackEntryWithCursor:stackCursor];
+                   }
+                   return nil;
+               }];
+}
 
-    NSArray<SentryFrame *> *framesCleared = [SentryFrameRemover removeNonSdkFrames:frames];
+- (SentryStacktrace *)retrieveStacktraceFromCursorNatively:(SentryCrashStackCursor)stackCursor
+{
+    /**
+     * Different from `retrieveStacktraceFromCursor`, this method uses `dladdr` to retrieve
+     * information from the stack cursor, which is much faster and thread safe but is not async
+     * safe, that's why this method cannot be used during crashes.
+     */
 
-    // The frames must be ordered from caller to callee, or oldest to youngest
-    NSArray<SentryFrame *> *framesReversed = [[framesCleared reverseObjectEnumerator] allObjects];
+    return [self retrieveStackTraceFromCursor:&stackCursor
+                        withFrameSymbolicator:^SentryFrame *(SentryCrashStackCursor *cursor) {
+                            Dl_info info = { 0 };
+                            if (dladdr((const void *)cursor->stackEntry.address, &info)) {
 
-    SentryStacktrace *stacktrace = [[SentryStacktrace alloc] initWithFrames:framesReversed
-                                                                  registers:@{}];
+                                cursor->stackEntry.imageName = info.dli_fname;
+                                cursor->stackEntry.imageAddress = (uintptr_t)info.dli_fbase;
+                                cursor->stackEntry.symbolName = info.dli_sname;
+                                cursor->stackEntry.symbolAddress = (uintptr_t)info.dli_saddr;
 
-    return stacktrace;
+                                return [self.crashStackEntryMapper mapStackEntryWithCursor:*cursor];
+                            }
+                            return nil;
+                        }];
 }
 
 - (SentryStacktrace *)buildStackTraceFromStackEntries:(SentryCrashStackEntry *)entries
@@ -140,14 +141,17 @@ SentryStacktraceBuilder ()
     return [self retrieveStacktraceFromCursor:stackCursor];
 }
 
-- (SentryStacktrace *)buildStacktraceForCurrentThreadOnlyInstAddresses {
+- (SentryStacktrace *)buildStacktraceForCurrentThreadNatively:(BOOL)natively
+{
     SentryCrashStackCursor stackCursor;
 
     sentrycrashsc_initSelfThread(&stackCursor, 0);
 
+    if (natively) {
+        return [self retrieveStacktraceFromCursorNatively:stackCursor];
+    }
     return [self retrieveStacktraceFromCursor:stackCursor];
 }
-
 
 @end
 

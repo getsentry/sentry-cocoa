@@ -58,8 +58,9 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
     return self;
 }
 
-- (SentryStacktrace *) stacktraceInstAddressForCurrentThread {
-    return [self.stacktraceBuilder buildStacktraceForCurrentThreadOnlyInstAddresses];
+- (SentryStacktrace *)stacktraceForCurrentThreadNatively
+{
+    return [self.stacktraceBuilder buildStacktraceForCurrentThreadNatively:true];
 }
 
 - (NSArray<SentryThread *> *)getCurrentThreads

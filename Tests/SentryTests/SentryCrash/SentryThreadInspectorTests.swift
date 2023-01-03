@@ -79,7 +79,15 @@ class SentryThreadInspectorTests: XCTestCase {
         queue.activate()
         wait(for: [expect], timeout: 10)
     }
-    
+
+    func testStackTrackForCurrentThreadNatively() {
+        let stackTrace = fixture.getSut(testWithRealMachineContextWrapper: true).stacktraceForCurrentThreadNatively()
+        XCTAssertNotNil(stackTrace)
+        XCTAssertGreaterThan(stackTrace.frames.count, 0)
+        XCTAssertNotEqual(stackTrace.frames.first?.instructionAddress, "0x0000000000000000")
+        XCTAssertNotEqual(stackTrace.frames.first?.function, "<redacted>")
+    }
+
     func testOnlyCurrentThreadHasStacktrace() {
         let actual = fixture.getSut(testWithRealMachineContextWrapper: true).getCurrentThreads()
         XCTAssertEqual(true, actual[0].current)
