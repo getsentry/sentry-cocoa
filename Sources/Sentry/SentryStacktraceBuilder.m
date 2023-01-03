@@ -65,7 +65,7 @@ SentryStacktraceBuilder ()
         retrieveStackTraceFromCursor:&stackCursor
                withFrameSymbolicator:^SentryFrame *(SentryCrashStackCursor *cursor) {
                    if (stackCursor.symbolicate(cursor)) {
-                       return [self.crashStackEntryMapper mapStackEntryWithCursor:stackCursor];
+                       return [self.crashStackEntryMapper mapStackEntryWithCursor:*cursor];
                    }
                    return nil;
                }];
