@@ -28,7 +28,6 @@ class SentryClientTest: XCTestCase {
         let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
         let transaction: Transaction
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
-        let permissionsObserver = TestSentryPermissionsObserver()
         let deviceWrapper = TestSentryUIDeviceWrapper()
         let locale = Locale(identifier: "en_US")
         let timezone = TimeZone(identifier: "Europe/Vienna")!
@@ -56,6 +55,10 @@ class SentryClientTest: XCTestCase {
             
             transport = TestTransport()
             transportAdapter = TestTransportAdapter(transport: transport, options: options)
+            
+            crashWrapper.internalFreeMemorySize = 123_456
+            crashWrapper.internalAppMemorySize = 234_567
+            crashWrapper.internalFreeStorageSize = 345_678
         }
 
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> SentryClient {
@@ -71,7 +74,6 @@ class SentryClientTest: XCTestCase {
                     threadInspector: threadInspector,
                     random: random,
                     crashWrapper: crashWrapper,
-                    permissionsObserver: permissionsObserver,
                     deviceWrapper: deviceWrapper,
                     locale: locale,
                     timezone: timezone
@@ -576,19 +578,29 @@ class SentryClientTest: XCTestCase {
             XCTAssertNil(actual.debugMeta)
         }
     }
-
-    func testCaptureCrash_CrashWrapper_MemoryAndStorage() {
+    
+    func testCaptureCrash_NoExtraContext() {
         let event = TestData.event
-        event.threads = nil
-        event.debugMeta = nil
 
-        fixture.crashWrapper.internalFreeMemorySize = 123_456
-        fixture.crashWrapper.internalAppMemorySize = 234_567
-        fixture.crashWrapper.internalFreeStorageSize = 345_678
         fixture.getSut().captureCrash(event, with: fixture.scope)
 
         assertLastSentEventWithAttachment { actual in
-            let eventFreeMemory = actual.context?["device"]?["free_memory"] as? Int
+            XCTAssertEqual(1, actual.context?["device"]?.count, "The device context should only contain free_memory")
+            
+            let eventFreeMemory = actual.context?["device"]?[SentryDeviceContextFreeMemoryKey] as? Int
+            XCTAssertEqual(eventFreeMemory, 2_000)
+            
+            XCTAssertNil(actual.context?["app"], "The app context should be nil")
+            XCTAssertNil(actual.context?["culture"], "The culture context should be nil")
+        }
+    }
+
+    func testCaptureEvent_AddCurrentMemoryAndStorage() {
+
+        fixture.getSut().capture(event: TestData.event)
+
+        assertLastSentEvent { actual in
+            let eventFreeMemory = actual.context?["device"]?[SentryDeviceContextFreeMemoryKey] as? Int
             XCTAssertEqual(eventFreeMemory, 123_456)
 
             let eventAppMemory = actual.context?["app"]?["app_memory"] as? Int
@@ -598,16 +610,12 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(eventFreeStorage, 345_678)
         }
     }
-
-    func testCaptureCrash_DeviceProperties() {
+    
+    func testCaptureEvent_DeviceProperties() {
 #if os(iOS)
-        let event = TestData.event
-        event.threads = nil
-        event.debugMeta = nil
+        fixture.getSut().capture(event: TestData.event)
 
-        fixture.getSut().captureCrash(event, with: fixture.scope)
-
-        assertLastSentEventWithAttachment { actual in
+        assertLastSentEvent { actual in
             let orientation = actual.context?["device"]?["orientation"] as? String
             XCTAssertEqual(orientation, "portrait")
 
@@ -620,18 +628,14 @@ class SentryClientTest: XCTestCase {
 #endif
     }
 
-    func testCaptureCrash_DeviceProperties_OtherValues() {
+    func testCaptureEvent_DeviceProperties_OtherValues() {
 #if os(iOS)
-        let event = TestData.event
-        event.threads = nil
-        event.debugMeta = nil
-
         fixture.deviceWrapper.internalOrientation = .landscapeLeft
         fixture.deviceWrapper.interalBatteryState = .full
 
-        fixture.getSut().captureCrash(event, with: fixture.scope)
+        fixture.getSut().capture(event: TestData.event)
 
-        assertLastSentEventWithAttachment { actual in
+        assertLastSentEvent { actual in
             let orientation = actual.context?["device"]?["orientation"] as? String
             XCTAssertEqual(orientation, "landscape")
 
@@ -641,34 +645,10 @@ class SentryClientTest: XCTestCase {
 #endif
     }
 
-    func testCaptureCrash_Permissions() {
-        fixture.permissionsObserver.internalLocationPermissionStatus = SentryPermissionStatus.granted
-        fixture.permissionsObserver.internalPushPermissionStatus = SentryPermissionStatus.granted
-        fixture.permissionsObserver.internalMediaLibraryPermissionStatus = SentryPermissionStatus.denied
-        fixture.permissionsObserver.internalPhotoLibraryPermissionStatus = SentryPermissionStatus.partial
+    func testCaptureEvent_AddCurrentCulture() {
+        fixture.getSut().capture(event: TestData.event)
 
-        let event = TestData.event
-        event.threads = nil
-        event.debugMeta = nil
-
-        fixture.getSut().captureCrash(event, with: fixture.scope)
-
-        assertLastSentEventWithAttachment { actual in
-            let permissions = actual.context?["app"]?["permissions"] as? [String: String]
-            XCTAssertEqual(permissions?["push_notifications"], "granted")
-            XCTAssertEqual(permissions?["location_access"], "granted")
-            XCTAssertEqual(permissions?["photo_library"], "partial")
-        }
-    }
-
-    func testCaptureCrash_Culture() {
-        let event = TestData.event
-        event.threads = nil
-        event.debugMeta = nil
-
-        fixture.getSut().captureCrash(event, with: fixture.scope)
-
-        assertLastSentEventWithAttachment { actual in
+        assertLastSentEvent { actual in
             let culture = actual.context?["culture"]
             XCTAssertEqual(culture?["calendar"] as? String, "Gregorian Calendar")
             XCTAssertEqual(culture?["display_name"] as? String, "English (United States)")
@@ -1111,7 +1091,7 @@ class SentryClientTest: XCTestCase {
 
         let options = Options()
         options.dsn = SentryClientTest.dsn
-        let client = SentryClient(options: options, permissionsObserver: TestSentryPermissionsObserver(), dispatchQueue: TestSentryDispatchQueueWrapper())
+        let client = SentryClient(options: options, dispatchQueue: TestSentryDispatchQueueWrapper())
 
         XCTAssertNil(client)
 
@@ -1278,6 +1258,20 @@ class SentryClientTest: XCTestCase {
         client.capture(event: event)
         
         XCTAssertNil(fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.traceContext)
+    }
+
+    func test_AddCrashReportAttacment_withViewHierarchy() {
+        let scope = Scope()
+
+        let tempFile = FileManager.default.temporaryDirectory.appendingPathComponent("view-hierarchy.json")
+        try? "data".data(using: .utf8)?.write(to: tempFile)
+
+        scope.addCrashReportAttachment(inPath: tempFile.path)
+
+        XCTAssertEqual(scope.attachments.count, 1)
+        XCTAssertEqual(scope.attachments.first?.filename, "view-hierarchy.json")
+        XCTAssertEqual(scope.attachments.first?.contentType, "application/json")
+        XCTAssertEqual(scope.attachments.first?.attachmentType, .viewHierarchy)
     }
     
     func testCaptureEvent_withAdditionalEnvelopeItem() {

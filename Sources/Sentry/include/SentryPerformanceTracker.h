@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * A static instance of performance tracker.
  */
-+ (instancetype)shared;
+@property (nonatomic, class, readonly) SentryPerformanceTracker *shared;
 
 /**
  * Starts a new span if no span is active,

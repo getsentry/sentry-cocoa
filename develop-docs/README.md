@@ -151,7 +151,7 @@ We don't mind breaking changes in SentryPrivate, because this is not meant to be
 
 ### Writing breadcrumbs to disk in the main thread
 
-Date November 15, 2022
+Date: November 15, 2022
 Contributors: @kevinrenskers, @brustolin and @philipphofmann
 
 For the benefit of OOM crashes, we write breadcrumbs to disk; see https://github.com/getsentry/sentry-cocoa/pull/2347. We have decided to do this in the main thread to ensure we're not missing out on any breadcrumbs. It's mainly the last breadcrumb(s) that are important to figure out what is causing an OOM. And since we're only appending to an open file stream, the overhead is acceptable compared to the benefit of having accurate breadcrumbs.
@@ -167,3 +167,9 @@ with Carthage, which was the default for Xcode 11 and below, because the
 platform-specific framework bundles only works with Xcode 12.
 Carthage has encouraged its users [to use XCFrameworks](https://github.com/Carthage/Carthage/tree/a91d086ceaffef65c4a4a761108f3f32c519940c#getting-started)
 since version 0.37.0, released in January 2021. Therefore, it's acceptable to use XCFrameworks for Carthage users.
+
+## Remove the permissions feature
+
+Date: December 14, 2022
+
+We [removed](https://github.com/getsentry/sentry-cocoa/pull/2529) the permissions feature that we added in [7.24.0](https://github.com/getsentry/sentry-cocoa/releases/tag/7.24.0). Multiple people reported getting denied in app review because of permission access without the corresponding Info.plist entry: see [#2528](https://github.com/getsentry/sentry-cocoa/issues/2528) and [2065](https://github.com/getsentry/sentry-cocoa/issues/2065).

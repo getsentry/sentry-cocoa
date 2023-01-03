@@ -6,15 +6,10 @@ let package = Package(
     platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4)],
     products: [
         .library(name: "Sentry", targets: ["Sentry"]),
-        .library(name: "Sentry-Dynamic", type: .dynamic, targets: ["Sentry"])
+        .library(name: "Sentry-Dynamic", type: .dynamic, targets: ["Sentry"]),
+        .library(name: "SentrySwiftUI", targets: ["SentrySwiftUI"])
     ],
     targets: [
-        .target( name: "SentryPrivate",
-                 path: "Sources",
-                 sources: [
-                    "Swift"
-                 ]
-               ),
         .target(
             name: "Sentry",
             dependencies: ["SentryPrivate"],
@@ -41,7 +36,29 @@ let package = Package(
                 .linkedLibrary("z"),
                 .linkedLibrary("c++")
             ]
-        )
+        ),
+        .target( name: "SentryPrivate",
+                 path: "Sources",
+                 sources: [
+                    "Swift"
+                 ]
+               ),
+        .target ( name: "SentrySwiftUI",
+                  dependencies: ["Sentry", "SentryInternal"],
+                  path: "Sources",
+                  exclude: ["SentrySwiftUI/SentryInternal/"],
+                  sources: [
+                    "SentrySwiftUI"
+                  ]
+                ),
+        //SentryInternal is how we expose some internal Sentry SDK classes to SentrySwiftUI.
+        .target( name: "SentryInternal",
+                 path: "Sources",
+                 sources: [
+                    "SentrySwiftUI/SentryInternal/"
+                 ],
+                 publicHeadersPath: "SentrySwiftUI/SentryInternal/"
+               )
     ],
     cxxLanguageStandard: .cxx14
 )

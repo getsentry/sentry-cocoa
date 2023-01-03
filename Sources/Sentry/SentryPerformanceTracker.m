@@ -22,7 +22,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
 
 @implementation SentryPerformanceTracker
 
-+ (instancetype)shared
++ (SentryPerformanceTracker *)shared
 {
     static SentryPerformanceTracker *instance = nil;
     static dispatch_once_t onceToken;

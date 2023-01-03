@@ -1,4 +1,5 @@
 #import "SentryAttachment+Equality.h"
+#import "SentryAttachment+Private.h"
 
 @implementation
 SentryAttachment (Equality)
@@ -19,6 +20,8 @@ SentryAttachment (Equality)
         return YES;
     if (attachment == nil)
         return NO;
+    if (self.attachmentType != attachment.attachmentType)
+        return NO;
     if (self.data != attachment.data && ![self.data isEqualToData:attachment.data])
         return NO;
     if (self.path != attachment.path && ![self.path isEqualToString:attachment.path])
@@ -38,6 +41,7 @@ SentryAttachment (Equality)
     hash = hash * 23 + [self.path hash];
     hash = hash * 23 + [self.filename hash];
     hash = hash * 23 + [self.contentType hash];
+    hash = hash * 23 + self.attachmentType;
 
     return hash;
 }
