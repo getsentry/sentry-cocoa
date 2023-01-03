@@ -14,6 +14,7 @@ This version adds a dependency on Swift.
 - Add synthetic for mechanism (#2501)
 - Enable CaptureFailedRequests by default (#2507)
 - Support the [`SENTRY_DSN` environment variable](https://docs.sentry.io/platforms/apple/guides/macos/configuration/options/#dsn) on macOS (#2534)
+- Add thread information to File I/O spans (#2573)
 
 ### Fixes
 
