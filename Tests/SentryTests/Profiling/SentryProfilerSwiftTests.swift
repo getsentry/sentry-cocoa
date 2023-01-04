@@ -324,7 +324,7 @@ private extension SentryProfilerSwiftTests {
         guard let profile = try JSONSerialization.jsonObject(with: profileData) as? [String: Any] else {
             throw TestError.unexpectedProfileDeserializationType
         }
-        guard let measurements = (profile["profile"] as? [String: Any])?["measurements"] as? [String: Any] else {
+        guard let measurements = profile["measurements"] as? [String: Any] else {
             throw TestError.unexpectedMeasurementsDeserializationType
         }
 
