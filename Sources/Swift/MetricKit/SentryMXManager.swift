@@ -12,7 +12,7 @@ import MetricKit
 @available(iOS 14.0, macOS 12.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
-@objc public protocol SentryMXManagerDelegate: AnyObject {
+@objc public protocol SentryMXManagerDelegate {
     
     func didReceiveCrashDiagnostic(_ diagnostic: MXCrashDiagnostic, callStackTree: SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)
     
