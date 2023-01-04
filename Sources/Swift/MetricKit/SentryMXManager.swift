@@ -9,7 +9,7 @@ import Foundation
 import MetricKit
 #endif
 
-@available(iOS 14.0, macOS 12.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 @objc public protocol SentryMXManagerDelegate {
@@ -21,7 +21,7 @@ import MetricKit
     func didReceiveCpuExceptionDiagnostic(_ diagnostic: MXCPUExceptionDiagnostic, callStackTree: SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)
 }
 
-@available(iOS 14.0, macOS 12.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 @objcMembers public class SentryMXManager: NSObject, MXMetricManagerSubscriber {

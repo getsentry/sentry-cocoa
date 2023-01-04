@@ -14,7 +14,7 @@ static NSString *const SentryMetricKitCpuExceptionMechanism = @"mx_cpu_exception
 
 #if SENTRY_HAS_METRIC_KIT
 
-API_AVAILABLE(ios(14.0), macos(12.0))
+API_AVAILABLE(ios(15.0), macos(12.0), macCatalyst(15.0))
 API_UNAVAILABLE(tvos, watchos)
 @interface SentryMetricKitIntegration
     : SentryBaseIntegration <SentryIntegrationProtocol, SentryMXManagerDelegate>

@@ -44,7 +44,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         ]
             .mutableCopy;
 
-    if (@available(iOS 14.0, macCatalyst 14.0, macOS 12.0, *)) {
+    if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
         [defaultIntegrations addObject:@"SentryMetricKitIntegration"];
     }
 
@@ -147,7 +147,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.failedRequestStatusCodes = @[ defaultHttpStatusCodeRange ];
 
 #if SENTRY_HAS_METRIC_KIT
-        if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
+        if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
             self.enableMetricKit = NO;
         }
 #endif
