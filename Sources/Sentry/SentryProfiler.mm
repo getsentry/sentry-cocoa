@@ -169,6 +169,33 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     }
 }
 
+NSArray *
+processFrameRenderInfo(SentryFrameInfoTimeSeries *frameInfo, uint64_t start, uint64_t duration)
+{
+    auto relativeFrameTimestampsNs = [NSMutableArray array];
+    [frameInfo enumerateObjectsUsingBlock:^(
+        NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+        const auto begin = (uint64_t)(obj[@"start_timestamp"].doubleValue * 1e9);
+        if (begin < start) {
+            return;
+        }
+        const auto end = (uint64_t)(obj[@"end_timestamp"].doubleValue * 1e9);
+        const auto relativeEnd = getDurationNs(start, end);
+        if (relativeEnd > duration) {
+            SENTRY_LOG_DEBUG(@"The last slow/frozen frame extended past the end of the profile, "
+                             @"will not report it.");
+            return;
+        }
+        const auto relativeStart = getDurationNs(start, begin);
+        const auto frameDuration = relativeEnd - relativeStart;
+        [relativeFrameTimestampsNs addObject:@{
+            @"elapsed_since_start_ns" : @(relativeStart),
+            @"value" : @(frameDuration),
+        }];
+    }];
+    return relativeFrameTimestampsNs;
+}
+
 @implementation SentryProfiler {
     NSMutableDictionary<NSString *, id> *_profile;
     uint64_t _startTimestamp;
@@ -590,49 +617,23 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     profile[@"measurements"] = metrics;
 
 #    if SENTRY_HAS_UIKIT
-    auto relativeFrameTimestampsNs = [NSMutableArray array];
-    [_frameInfo.frameTimestamps enumerateObjectsUsingBlock:^(
-        NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-        const auto begin = (uint64_t)(obj[@"start_timestamp"].doubleValue * 1e9);
-        if (begin < _startTimestamp) {
-            return;
-        }
-        const auto end = (uint64_t)(obj[@"end_timestamp"].doubleValue * 1e9);
-        const auto relativeEnd = getDurationNs(_startTimestamp, end);
-        if (relativeEnd > profileDuration) {
-            SENTRY_LOG_DEBUG(@"The last slow/frozen frame extended past the end of the profile, "
-                             @"will not report it.");
-            return;
-        }
-        const auto relativeStart = getDurationNs(_startTimestamp, begin);
-        const auto frameDuration = relativeEnd - relativeStart;
-        [relativeFrameTimestampsNs addObject:@{
-            @"elapsed_since_start_ns" : @(relativeStart),
-            @"value" : @(frameDuration),
-        }];
-    }];
-    if (relativeFrameTimestampsNs.count > 0) {
-        metrics[@"slow_frame_renders"] =
-            @{ @"unit" : @"nanoseconds", @"values" : relativeFrameTimestampsNs };
+    const auto slowTimestamps
+        = processFrameRenderInfo(_frameInfo.slowFrameTimestamps, _startTimestamp, profileDuration);
+    if (slowTimestamps.count > 0) {
+        metrics[@"slow_frame_renders"] = @{ @"unit" : @"nanosecond", @"values" : slowTimestamps };
     }
 
-    relativeFrameTimestampsNs = [NSMutableArray array];
-    [_frameInfo.frameRateTimestamps enumerateObjectsUsingBlock:^(
-        NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-        const auto timestamp = (uint64_t)(obj[@"timestamp"].doubleValue * 1e9);
-        const auto refreshRate = obj[@"frame_rate"];
-        uint64_t relativeTimestamp = 0;
-        if (timestamp >= _startTimestamp) {
-            relativeTimestamp = getDurationNs(_startTimestamp, timestamp);
-        }
-        [relativeFrameTimestampsNs addObject:@{
-            @"elapsed_since_start_ns" : @(relativeTimestamp),
-            @"value" : refreshRate,
-        }];
-    }];
-    if (relativeFrameTimestampsNs.count > 0) {
-        metrics[@"screen_frame_rates"] =
-            @{ @"unit" : @"hz", @"values" : relativeFrameTimestampsNs };
+    const auto frozenTimestamps
+        = processFrameRenderInfo(_frameInfo.slowFrameTimestamps, _startTimestamp, profileDuration);
+    if (frozenTimestamps.count > 0) {
+        metrics[@"frozen_frame_renders"] =
+            @{ @"unit" : @"nanosecond", @"values" : frozenTimestamps };
+    }
+
+    const auto frameRates
+        = processFrameRenderInfo(_frameInfo.frameRateTimestamps, _startTimestamp, profileDuration);
+    if (frameRates.count > 0) {
+        metrics[@"screen_frame_rates"] = @{ @"unit" : @"hz", @"values" : frameRates };
     }
 #    endif // SENTRY_HAS_UIKIT
 

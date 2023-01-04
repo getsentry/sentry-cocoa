@@ -24,7 +24,7 @@ NSString *const kSentryMetricProfilerSerializationKeyPowerState = @"is_low_power
 NSString *const kSentryMetricProfilerSerializationKeyThermalState = @"thermal_state";
 NSString *const kSentryMetricProfilerSerializationKeyCPUUsageFormat = @"cpu_usage_%d";
 
-NSString *const kSentryMetricProfilerSerializationUnitBytes = @"bytes";
+NSString *const kSentryMetricProfilerSerializationUnitBytes = @"byte";
 NSString *const kSentryMetricProfilerSerializationUnitBoolean = @"bool";
 NSString *const kSentryMetricProfilerSerializationUnitMemoryPressureEnum = @"memory_pressure_enum";
 NSString *const kSentryMetricProfilerSerializationUnitThermalStateEnum = @"thermal_state_enum";
