@@ -132,6 +132,26 @@ SentryMetricKitIntegration ()
             timeStampBegin:timeStampBegin];
 }
 
+- (void)didReceiveHangDiagnostic:(MXHangDiagnostic *)diagnostic
+                   callStackTree:(SentryMXCallStackTree *)callStackTree
+                  timeStampBegin:(NSDate *)timeStampBegin
+                    timeStampEnd:(NSDate *)timeStampEnd
+{
+    NSString *hangDuration =
+        [self.measurementFormatter stringFromMeasurement:diagnostic.hangDuration];
+
+    NSString *exceptionValue = [NSString
+        stringWithFormat:@"%@ hangDuration:%@", SentryMetricKitHangDiagnosticType, hangDuration];
+
+    [self captureMXEvent:callStackTree
+                   handled:YES
+                     level:kSentryLevelWarning
+            exceptionValue:exceptionValue
+             exceptionType:SentryMetricKitHangDiagnosticType
+        exceptionMechanism:SentryMetricKitHangDiagnosticMechanism
+            timeStampBegin:timeStampBegin];
+}
+
 - (void)captureMXEvent:(SentryMXCallStackTree *)callStackTree
                handled:(BOOL)handled
                  level:(enum SentryLevel)level
@@ -329,7 +349,7 @@ SentryEvent (MetricKit)
 
     NSArray<NSString *> *metricKitMechanisms = @[
         SentryMetricKitDiskWriteExceptionMechanism, SentryMetricKitCpuExceptionMechanism,
-        @"MXCrashDiagnostic"
+        SentryMetricKitHangDiagnosticMechanism, @"MXCrashDiagnostic"
     ];
 
     SentryException *exception = self.exceptions[0];
