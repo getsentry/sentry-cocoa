@@ -4,6 +4,7 @@
 #import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
 #import "SentryHub+Private.h"
+#import "SentryMetricKitIntegration.h"
 #import "SentrySDK+Private.h"
 
 #if SENTRY_HAS_UIKIT
@@ -49,8 +50,9 @@ saveScreenShot(const char *path)
 {
 
     // We don't take screenshots if there is no exception/error.
-    // We dont take screenshots if the event is a crash event.
-    if ((event.exceptions == nil && event.error == nil) || event.isCrashEvent) {
+    // We don't take screenshots if the event is a crash or metric kit event.
+    if ((event.exceptions == nil && event.error == nil) || event.isCrashEvent
+        || event.isMetricKitEvent) {
         return attachments;
     }
 

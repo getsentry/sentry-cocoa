@@ -77,12 +77,12 @@ SentryMetricKitIntegration ()
                   diagnostic.exceptionType, diagnostic.exceptionCode, diagnostic.signal];
 
     [self captureMXEvent:callStackTree
-                 handled:NO
-                   level:kSentryLevelError
-          exceptionValue:exceptionValue
-           exceptionType:@"MXCrashDiagnostic"
-          timeStampBegin:timeStampBegin
-          withScopeBlock:^(SentryScope *_Nonnull scope) { [scope clearBreadcrumbs]; }];
+                   handled:NO
+                     level:kSentryLevelError
+            exceptionValue:exceptionValue
+             exceptionType:@"MXCrashDiagnostic"
+        exceptionMechanism:@"MXCrashDiagnostic"
+            timeStampBegin:timeStampBegin];
 }
 
 - (void)didReceiveCpuExceptionDiagnostic:(MXCPUExceptionDiagnostic *)diagnostic
@@ -102,12 +102,12 @@ SentryMetricKitIntegration ()
     // Still need to figure out proper exception values and types.
     // This code is currently only there for testing with TestFlight.
     [self captureMXEvent:callStackTree
-                 handled:YES
-                   level:kSentryLevelWarning
-          exceptionValue:exceptionValue
-           exceptionType:@"MXCPUException"
-          timeStampBegin:timeStampBegin
-          withScopeBlock:^(SentryScope *_Nonnull scope) { [scope clearBreadcrumbs]; }];
+                   handled:YES
+                     level:kSentryLevelWarning
+            exceptionValue:exceptionValue
+             exceptionType:SentryMetricKitCpuExceptionType
+        exceptionMechanism:SentryMetricKitCpuExceptionMechanism
+            timeStampBegin:timeStampBegin];
 }
 
 - (void)didReceiveDiskWriteExceptionDiagnostic:(MXDiskWriteExceptionDiagnostic *)diagnostic
@@ -124,12 +124,12 @@ SentryMetricKitIntegration ()
     // Still need to figure out proper exception values and types.
     // This code is currently only there for testing with TestFlight.
     [self captureMXEvent:callStackTree
-                 handled:YES
-                   level:kSentryLevelWarning
-          exceptionValue:exceptionValue
-           exceptionType:@"MXDiskWriteException"
-          timeStampBegin:timeStampBegin
-          withScopeBlock:^(SentryScope *_Nonnull scope) { [scope clearBreadcrumbs]; }];
+                   handled:YES
+                     level:kSentryLevelWarning
+            exceptionValue:exceptionValue
+             exceptionType:SentryMetricKitDiskWriteExceptionType
+        exceptionMechanism:SentryMetricKitDiskWriteExceptionMechanism
+            timeStampBegin:timeStampBegin];
 }
 
 - (void)captureMXEvent:(SentryMXCallStackTree *)callStackTree
@@ -137,8 +137,8 @@ SentryMetricKitIntegration ()
                  level:(enum SentryLevel)level
         exceptionValue:(NSString *)exceptionValue
          exceptionType:(NSString *)exceptionType
+    exceptionMechanism:(NSString *)exceptionMechanism
         timeStampBegin:(NSDate *)timeStampBegin
-        withScopeBlock:(void (^)(SentryScope *))block
 {
     // When receiving MXCrashDiagnostic the callStackPerThread was always true. In that case, the
     // MXCallStacks of the MXCallStackTree were individual threads, all belonging to the process
@@ -150,7 +150,8 @@ SentryMetricKitIntegration ()
         SentryEvent *event = [self createEvent:handled
                                          level:level
                                 exceptionValue:exceptionValue
-                                 exceptionType:exceptionType];
+                                 exceptionType:exceptionType
+                            exceptionMechanism:exceptionMechanism];
 
         event.timestamp = timeStampBegin;
         event.threads = [self convertToSentryThreads:callStackTree];
@@ -166,7 +167,7 @@ SentryMetricKitIntegration ()
 
         // The crash event can be way from the past. We don't want to impact the current session.
         // Therefore we don't call captureCrashEvent.
-        [SentrySDK captureEvent:event withScopeBlock:block];
+        [SentrySDK captureEvent:event];
     } else {
         for (SentryMXCallStack *callStack in callStackTree.callStacks) {
 
@@ -175,7 +176,8 @@ SentryMetricKitIntegration ()
                 SentryEvent *event = [self createEvent:handled
                                                  level:level
                                         exceptionValue:exceptionValue
-                                         exceptionType:exceptionType];
+                                         exceptionType:exceptionType
+                                    exceptionMechanism:exceptionMechanism];
                 event.timestamp = timeStampBegin;
 
                 SentryThread *thread = [[SentryThread alloc] initWithThreadId:@0];
@@ -190,7 +192,7 @@ SentryMetricKitIntegration ()
                 event.threads = @[ thread ];
                 event.debugMeta = [self extractDebugMetaFromMXFrames:frame.framesIncludingSelf];
 
-                [SentrySDK captureEvent:event withScopeBlock:block];
+                [SentrySDK captureEvent:event];
             }
         }
     }
@@ -200,12 +202,13 @@ SentryMetricKitIntegration ()
                        level:(enum SentryLevel)level
               exceptionValue:(NSString *)exceptionValue
                exceptionType:(NSString *)exceptionType
+          exceptionMechanism:(NSString *)exceptionMechanism
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:level];
 
     SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
                                                                    type:exceptionType];
-    SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:exceptionType];
+    SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:exceptionMechanism];
     mechanism.handled = @(handled);
     mechanism.synthetic = @(YES);
     exception.mechanism = mechanism;
@@ -312,3 +315,32 @@ SentryMetricKitIntegration ()
 NS_ASSUME_NONNULL_END
 
 #endif
+
+NS_ASSUME_NONNULL_BEGIN
+
+@implementation
+SentryEvent (MetricKit)
+
+- (BOOL)isMetricKitEvent
+{
+    if (self.exceptions == nil || self.exceptions.count != 1) {
+        return NO;
+    }
+
+    NSArray<NSString *> *metricKitMechanisms = @[
+        SentryMetricKitDiskWriteExceptionMechanism, SentryMetricKitCpuExceptionMechanism,
+        @"MXCrashDiagnostic"
+    ];
+
+    SentryException *exception = self.exceptions[0];
+    if (exception.mechanism != nil &&
+        [metricKitMechanisms containsObject:exception.mechanism.type]) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
+@end
+
+NS_ASSUME_NONNULL_END
