@@ -205,7 +205,9 @@ serializedValues(NSArray<NSDictionary<NSString *, NSString *> *> *values, NSStri
     if (@available(macOS 12.0, *)) {
         @synchronized(self) {
             [_powerLevelState
-                addObject:[self metricEntryForValue:@(_processInfoWrapper.isLowPowerModeEnabled)]];
+                addObject:[self metricEntryForValue:@(_processInfoWrapper.isLowPowerModeEnabled
+                                                            ? 1.f
+                                                            : 0.f)]];
         }
     }
 }
