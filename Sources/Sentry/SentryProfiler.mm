@@ -587,7 +587,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     profile[@"timestamp"] = [[SentryCurrentDate date] sentry_toIso8601String];
     profile[@"release"] = _hub.getClient.options.releaseName;
 
-    profile[@"profile"][@"measurements"] = metrics;
+    profile[@"measurements"] = metrics;
 
 #    if SENTRY_HAS_UIKIT
     auto relativeFrameTimestampsNs = [NSMutableArray array];
