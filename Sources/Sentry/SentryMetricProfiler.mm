@@ -18,16 +18,16 @@
  */
 static const NSTimeInterval kSentryMetricProfilerTimeseriesInterval = 0.1;
 
-NSString *const kSentryMetricProfilerSerializationKeyMemoryFootprint = @"memory-footprint";
-NSString *const kSentryMetricProfilerSerializationKeyMemoryPressure = @"memory-pressure";
-NSString *const kSentryMetricProfilerSerializationKeyPowerState = @"is-low-power-mode";
-NSString *const kSentryMetricProfilerSerializationKeyThermalState = @"thermal-state";
-NSString *const kSentryMetricProfilerSerializationKeyCPUUsageFormat = @"cpu-usage-%d";
+NSString *const kSentryMetricProfilerSerializationKeyMemoryFootprint = @"memory_footprint";
+NSString *const kSentryMetricProfilerSerializationKeyMemoryPressure = @"memory_pressure";
+NSString *const kSentryMetricProfilerSerializationKeyPowerState = @"is_low_power_mode";
+NSString *const kSentryMetricProfilerSerializationKeyThermalState = @"thermal_state";
+NSString *const kSentryMetricProfilerSerializationKeyCPUUsageFormat = @"cpu_usage_%d";
 
 NSString *const kSentryMetricProfilerSerializationUnitBytes = @"bytes";
 NSString *const kSentryMetricProfilerSerializationUnitBoolean = @"bool";
-NSString *const kSentryMetricProfilerSerializationUnitMemoryPressureEnum = @"memory-pressure-enum";
-NSString *const kSentryMetricProfilerSerializationUnitThermalStateEnum = @"thermal-state-enum";
+NSString *const kSentryMetricProfilerSerializationUnitMemoryPressureEnum = @"memory_pressure_enum";
+NSString *const kSentryMetricProfilerSerializationUnitThermalStateEnum = @"thermal_state_enum";
 NSString *const kSentryMetricProfilerSerializationUnitPercentage = @"percent";
 
 namespace {
