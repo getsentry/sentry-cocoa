@@ -192,7 +192,7 @@ SentryBreadcrumbTracker ()
                 crumb.data = [SentryBreadcrumbTracker fetchInfoAboutViewController:self];
 
                 // Adding crumb via the SDK calls SentryBeforeBreadcrumbCallback
-                [SentrySDK addBreadcrumb:crumb]; 
+                [SentrySDK addBreadcrumb:crumb];
             }
             SentrySWCallOriginal(animated);
         }),

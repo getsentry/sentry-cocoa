@@ -135,7 +135,7 @@ SentryEvent ()
 
     if (self.transaction) {
         [serializedData setValue:self.transaction forKey:@"transaction"];
-    } 
+    }
 
     [serializedData setValue:self.fingerprint forKey:@"fingerprint"];
 
