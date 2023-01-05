@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.0.0-beta.6
 
 This version adds a dependency on Swift.
 
