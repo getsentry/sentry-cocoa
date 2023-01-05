@@ -16,6 +16,7 @@ class SentryTracerTests: XCTestCase {
         let hub: TestHub
         let scope: Scope
         let dispatchQueue = TestSentryDispatchQueueWrapper()
+        let timerWrapper = TestSentryNSTimerWrapper()
         
         let transactionName = "Some Transaction"
         let transactionOperation = "ui.load"
@@ -77,11 +78,24 @@ class SentryTracerTests: XCTestCase {
         }
         
         func getSut(waitForChildren: Bool = true) -> SentryTracer {
-            return hub.startTransaction(with: transactionContext, bindToScope: false, waitForChildren: waitForChildren, customSamplingContext: [:]) as! SentryTracer
+            let tracer = hub.startTransaction(
+                with: transactionContext,
+                bindToScope: false,
+                waitForChildren: waitForChildren,
+                customSamplingContext: [:],
+                timerWrapper: timerWrapper) as! SentryTracer
+            return tracer
         }
         
         func getSut(idleTimeout: TimeInterval = 0.0, dispatchQueueWrapper: SentryDispatchQueueWrapper) -> SentryTracer {
-            return hub.startTransaction(with: transactionContext, bindToScope: false, customSamplingContext: [:], idleTimeout: idleTimeout, dispatchQueueWrapper: dispatchQueueWrapper)
+            let tracer = hub.startTransaction(
+                with: transactionContext,
+                bindToScope: false,
+                customSamplingContext: [:],
+                idleTimeout: idleTimeout,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
+            return tracer
         }
     }
     
@@ -136,11 +150,52 @@ class SentryTracerTests: XCTestCase {
             XCTAssertEqual(tracerTimestamp.timeIntervalSince1970, span["timestamp"] as? TimeInterval)
         }
     }
-    
+
+    func testDeadlineTimer_FinishesTransactionAndChildren() {
+        let sut = fixture.getSut()
+        let child1 = sut.startChild(operation: fixture.transactionOperation)
+        let child2 = sut.startChild(operation: fixture.transactionOperation)
+        let child3 = sut.startChild(operation: fixture.transactionOperation)
+
+        child3.finish()
+
+        fixture.timerWrapper.fire()
+
+        assertOneTransactionCaptured(sut)
+
+        XCTAssertEqual(sut.status, .deadlineExceeded)
+        XCTAssertEqual(child1.status, .deadlineExceeded)
+        XCTAssertEqual(child2.status, .deadlineExceeded)
+        XCTAssertEqual(child3.status, .ok)
+    }
+
+    func testDeadlineTimer_OnlyForAutoTransactions() {
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        let child1 = sut.startChild(operation: fixture.transactionOperation)
+        let child2 = sut.startChild(operation: fixture.transactionOperation)
+        let child3 = sut.startChild(operation: fixture.transactionOperation)
+
+        child3.finish()
+
+        fixture.timerWrapper.fire()
+
+        XCTAssertEqual(sut.status, .undefined)
+        XCTAssertEqual(child1.status, .undefined)
+        XCTAssertEqual(child2.status, .undefined)
+        XCTAssertEqual(child3.status, .ok)
+    }
+
+    func testDeadlineTimer_Finish_Cancels_Timer() {
+        let sut = fixture.getSut()
+        sut.finish()
+
+        XCTAssertEqual(fixture.timerWrapper.overrides.timer.invalidateCount, 1)
+    }
+
     func testFinish_CheckDefaultStatus() {
         let sut = fixture.getSut()
         sut.finish()
-        XCTAssertEqual(sut.status, .ok)
+        fixture.timerWrapper.fire()
         XCTAssertEqual(sut.status, .ok)
     }
     
