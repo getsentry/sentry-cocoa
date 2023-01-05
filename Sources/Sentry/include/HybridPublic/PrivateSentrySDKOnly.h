@@ -1,7 +1,6 @@
 #import "PrivatesHeader.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryEnvelopeItemType.h"
-#import "SentryOptions.h"
 #import "SentryScreenFrames.h"
 
 @class SentryEnvelope, SentryDebugMeta, SentryAppStartMeasurement, SentryScreenFrames,
@@ -97,17 +96,6 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 + (NSData *)captureViewHierarchy;
 #endif
-
-@end
-
-@interface
-SentryOptions (HybridSDKs)
-
-/**
- * Init SentryOptions with a dictionary. Needed by hybrid SDKs.
- */
-- (_Nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)options
-                      didFailWithError:(NSError *_Nullable *_Nullable)error;
 
 @end
 
