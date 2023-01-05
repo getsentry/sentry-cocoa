@@ -1,7 +1,7 @@
 #import "SentryHub.h"
 
 @class SentryEnvelopeItem, SentryId, SentryScope, SentryTransaction, SentryDispatchQueueWrapper,
-    SentryTracer;
+    SentryEnvelope, SentryTracer;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -54,6 +54,8 @@ SentryHub (Private)
 - (SentryId *)captureTransaction:(SentryTransaction *)transaction
                        withScope:(SentryScope *)scope
          additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems;
+
+- (void)captureEnvelope:(SentryEnvelope *)envelope;
 
 @end
 

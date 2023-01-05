@@ -64,6 +64,7 @@ This version adds a dependency on Swift.
 - Rename `SentryOptions.enableOutOfMemoryTracking` to `SentryOptions.enableWatchdogTerminationTracking` (#2499)
 - Remove the automatic `viewAppearing` span for UIViewController APM (#2511)
 - Remove the permission context for events (#2529)
+- Remove captureEnvelope from Hub and Client (#2580)
 
 ## 8.0.0-beta.4
 

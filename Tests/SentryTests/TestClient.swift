@@ -110,7 +110,7 @@ class TestClient: SentryClient {
     }
     
     var captureEnvelopeInvocations = Invocations<SentryEnvelope>()
-    override func capture(envelope: SentryEnvelope) {
+    override func capture(_ envelope: SentryEnvelope) {
         captureEnvelopeInvocations.record(envelope)
     }
     
