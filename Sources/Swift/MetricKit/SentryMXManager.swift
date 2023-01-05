@@ -27,6 +27,12 @@ import MetricKit
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 @objcMembers public class SentryMXManager: NSObject, MXMetricManagerSubscriber {
+    
+    let disableCrashDiagnostics: Bool
+    
+    public init(disableCrashDiagnostics: Bool = true) {
+        self.disableCrashDiagnostics = disableCrashDiagnostics
+    }
 
     public weak var delegate: SentryMXManagerDelegate?
     
@@ -51,6 +57,9 @@ import MetricKit
         
         payloads.forEach { payload in
             payload.crashDiagnostics?.forEach { diagnostic in
+                if disableCrashDiagnostics {
+                    return
+                }
                 actOn(callStackTree: diagnostic.callStackTree) { callStackTree in
                     delegate?.didReceiveCrashDiagnostic(diagnostic, callStackTree: callStackTree, timeStampBegin: payload.timeStampBegin, timeStampEnd: payload.timeStampEnd)
                 }
