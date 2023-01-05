@@ -1,5 +1,17 @@
 # Changelog
 
+## 7.31.5
+
+### Fixes
+
+- Crash in SentryOutOfMemoryScopeObserver (#2557)
+
+## 7.31.4
+
+### Fixes
+
+- Screenshot crashes when application delegate has no window (#2538)
+
 ## 7.31.3
 
 ### Fixes
