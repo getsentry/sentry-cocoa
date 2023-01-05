@@ -115,6 +115,12 @@ This version adds a dependency on Swift.
     - Rename `SentryOptions.enableCoreDataTracking` to `enableCoreDataTracing`
 - SentrySDK.close calls flush, which is a blocking call (#2453)
 - Bump minimum Xcode version to 13 (#2483)
+## 7.31.5
+
+### Fixes
+
+- Crash in SentryOutOfMemoryScopeObserver (#2557)
+
 ## 7.31.4
 
 ### Fixes
