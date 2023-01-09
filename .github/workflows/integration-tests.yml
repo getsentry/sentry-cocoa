@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           repository: 'Alamofire/Alamofire'
-          ref: 'f82c23a8a7ef8dc1a49a8bfc6a96883e79121864'
+          ref: '6d6606aed63a778c5a2bd64f8981823433a7f2fa'
 
       # Use github.event.pull_request.head.sha instead of github.sha when available as
       # the github.sha is the pre merge commit id for PRs.
@@ -79,13 +79,22 @@ jobs:
   home-assistant-tests:
     runs-on: macos-11
     timeout-minutes: 60
+    # Disable for now as home assistant depends on a dependency ofr static.realm.io, which has a SSL certificate problem
+    # The job fails with:
+    # Downloading dependency: 12.13.0 from https://static.realm.io/downloads/core/realm-monorepo-xcframework-v12.13.0.tar.xz
+    # Downloading core failed:
+    #   https://static.realm.io/downloads/core/realm-monorepo-xcframework-v12.13.0.tar.xz
+    #   curl: (60) SSL certificate problem: certificate has expired
+    # More details here: https://curl.se/docs/sslcerts.html
+    # We can enable this again once realm fixed their SSL certificate issue or home-kit assistant fixed resolving their dependency.
+    if: false
     env:
       DEVELOPER_DIR: /Applications/Xcode_13.2.app/Contents/Developer
     steps:
       - uses: actions/checkout@v3
         with:
           repository: 'home-assistant/iOS'
-          ref: '6d6606aed63a778c5a2bd64f8981823433a7f2fa'
+          ref: '96f35a51c476b194a775a002e9836006e7c1ae39'
 
       # Use github.event.pull_request.head.sha instead of github.sha when available as
       # the github.sha is the pre merge commit id for PRs.
