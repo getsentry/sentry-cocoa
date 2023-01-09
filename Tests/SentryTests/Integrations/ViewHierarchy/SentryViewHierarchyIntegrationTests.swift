@@ -9,7 +9,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
 
         init() {
             let testViewHierarchy = TestSentryViewHierarchy()
-            testViewHierarchy.result = ["view hierarchy"]
+            testViewHierarchy.result = "view hierarchy".data(using: .utf8) ?? Data()
             viewHierarchy = testViewHierarchy
         }
 
@@ -52,6 +52,17 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
     }
 
+    func test_processAttachments() {
+        let sut = fixture.getSut()
+        let event = Event(error: NSError(domain: "", code: -1))
+
+        let newAttachmentList = sut.processAttachments([], for: event)
+
+        XCTAssertEqual(newAttachmentList?.first?.filename, "view-hierarchy.json")
+        XCTAssertEqual(newAttachmentList?.first?.contentType, "application/json")
+        XCTAssertEqual(newAttachmentList?.first?.attachmentType, .viewHierarchy)
+    }
+
     func test_noViewHierarchy_attachment() {
         let sut = fixture.getSut()
         let event = Event()
@@ -70,6 +81,14 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
 
         XCTAssertEqual(newAttachmentList?.count, 0)
     }
+    
+    func test_noViewHierarchy_MetricKitEvent() {
+        let sut = fixture.getSut()
+        
+        let newAttachmentList = sut.processAttachments([], for: TestData.metricKitEvent)
+
+        XCTAssertEqual(newAttachmentList?.count, 0)
+    }
 
     func test_noViewHierarchy_keepAttachment() {
         let sut = fixture.getSut()
@@ -82,25 +101,5 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         XCTAssertEqual(newAttachmentList?.count, 1)
         XCTAssertEqual(newAttachmentList?.first, attachment)
     }
-
-    func test_attachments() {
-        let sut = fixture.getSut()
-        let event = Event(error: NSError(domain: "", code: -1))
-        fixture.viewHierarchy.result = ["view hierarchy for window zero", "view hierarchy for window one"]
-
-        let newAttachmentList = sut.processAttachments([], for: event) ?? []
-
-        XCTAssertEqual(newAttachmentList.count, 2)
-        XCTAssertEqual(newAttachmentList[0].filename, "view-hierarchy-0.txt")
-        XCTAssertEqual(newAttachmentList[1].filename, "view-hierarchy-1.txt")
-
-        XCTAssertEqual(newAttachmentList[0].contentType, "text/plain")
-        XCTAssertEqual(newAttachmentList[1].contentType, "text/plain")
-
-        XCTAssertEqual(newAttachmentList[0].data?.count, "view hierarchy for window zero".lengthOfBytes(using: .utf8))
-        XCTAssertEqual(newAttachmentList[1].data?.count, "view hierarchy for window one".lengthOfBytes(using: .utf8))
-
-    }
-
 }
 #endif

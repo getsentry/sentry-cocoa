@@ -2,8 +2,11 @@ import Foundation
 import Sentry
 
 class TestTimer: Timer {
+    var invalidateCount = 0
+
     override func invalidate() {
         // no-op as this timer doesn't actually schedule anything on a runloop
+        invalidateCount += 1
     }
 }
 

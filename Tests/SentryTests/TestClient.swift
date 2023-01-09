@@ -94,7 +94,6 @@ class TestClient: SentryClient {
     var captureCrashEventInvocations = Invocations<(event: Event, scope: Scope)>()
     override func captureCrash(_ event: Event, with scope: Scope) -> SentryId {
         captureCrashEventInvocations.record((event, scope))
-        print("### Captured")
         return SentryId()
     }
     
@@ -110,7 +109,7 @@ class TestClient: SentryClient {
     }
     
     var captureEnvelopeInvocations = Invocations<SentryEnvelope>()
-    override func capture(envelope: SentryEnvelope) {
+    override func capture(_ envelope: SentryEnvelope) {
         captureEnvelopeInvocations.record(envelope)
     }
     

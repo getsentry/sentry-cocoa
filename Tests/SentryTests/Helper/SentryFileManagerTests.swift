@@ -134,15 +134,22 @@ class SentryFileManagerTests: XCTestCase {
     }
 
     func testDeleteOldEnvelopes() throws {
-        fixture.dispatchQueueWrapper.dispatchAfterExecutesBlock = true
-
         try givenOldEnvelopes()
 
         sut = fixture.getSut()
 
         XCTAssertEqual(sut.getAllEnvelopes().count, 0)
+    }
+    
+    func testDeleteOldEnvelopes_WithEmptyDSN() throws {
+        fixture.options.dsn = nil
+        sut = fixture.getSut()
+        
+        try givenOldEnvelopes()
 
-        fixture.dispatchQueueWrapper.dispatchAfterExecutesBlock = false
+        sut = fixture.getSut()
+
+        XCTAssertEqual(sut.getAllEnvelopes().count, 0)
     }
 
     func testDontDeleteYoungEnvelopes() throws {
@@ -178,7 +185,7 @@ class SentryFileManagerTests: XCTestCase {
     func testFileManagerDeallocated_OldEnvelopesNotDeleted() throws {
         try givenOldEnvelopes()
         
-        fixture.dispatchQueueWrapper.dispatchAfterExecutesBlock = false
+        fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
 
         // Initialize sut in extra function so ARC deallocates it
         func getSut() {
@@ -186,7 +193,7 @@ class SentryFileManagerTests: XCTestCase {
         }
         getSut()
         
-        fixture.dispatchQueueWrapper.invokeLastDispatchAfter()
+        fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
         
         XCTAssertEqual(sut.getAllEnvelopes().count, 1)
     }

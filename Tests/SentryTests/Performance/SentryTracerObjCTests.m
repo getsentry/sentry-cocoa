@@ -25,7 +25,8 @@
         SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:context
                                                                             hub:hub
                                                         profilesSamplerDecision:nil
-                                                                waitForChildren:YES];
+                                                                waitForChildren:YES
+                                                                   timerWrapper:nil];
         [tracer finish];
         child = [tracer startChildWithOperation:@"child"];
     }

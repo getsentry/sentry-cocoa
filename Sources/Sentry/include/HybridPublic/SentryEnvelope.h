@@ -1,8 +1,8 @@
 #import "PrivatesHeader.h"
-#import <Foundation/Foundation.h>
+#import "SentryEnvelopeItemHeader.h"
 
 @class SentryEvent, SentrySession, SentrySdkInfo, SentryId, SentryUserFeedback, SentryAttachment,
-    SentryTransaction, SentryTraceContext, SentryClientReport;
+    SentryTransaction, SentryTraceContext, SentryClientReport, SentryEnvelopeItemHeader;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -54,26 +54,6 @@ SENTRY_NO_INIT
 @property (nullable, nonatomic, readonly, copy) SentrySdkInfo *sdkInfo;
 
 @property (nullable, nonatomic, readonly, copy) SentryTraceContext *traceContext;
-
-@end
-
-@interface SentryEnvelopeItemHeader : NSObject
-SENTRY_NO_INIT
-
-- (instancetype)initWithType:(NSString *)type length:(NSUInteger)length NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)initWithType:(NSString *)type
-                      length:(NSUInteger)length
-                   filenname:(NSString *)filename
-                 contentType:(NSString *)contentType;
-
-/**
- * The type of the envelope item.
- */
-@property (nonatomic, readonly, copy) NSString *type;
-@property (nonatomic, readonly) NSUInteger length;
-@property (nonatomic, readonly, copy) NSString *_Nullable filename;
-@property (nonatomic, readonly, copy) NSString *_Nullable contentType;
 
 @end
 

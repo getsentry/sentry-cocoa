@@ -219,7 +219,10 @@ static NSObject *sentryDependencyContainerLock;
     if (_metricKitManager == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_metricKitManager == nil) {
-                _metricKitManager = [[SentryMXManager alloc] init];
+                // Disable crash diagnostics as we only use it for validation of the symbolication
+                // of stacktraces, because crashes are easy to trigger for MetricKit. We don't want
+                // crash reports of MetricKit in production as we have SentryCrash.
+                _metricKitManager = [[SentryMXManager alloc] initWithDisableCrashDiagnostics:YES];
             }
         }
     }

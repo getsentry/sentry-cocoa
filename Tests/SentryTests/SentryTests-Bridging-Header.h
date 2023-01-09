@@ -15,7 +15,7 @@
 #import "SentryAppStartTrackingIntegration.h"
 #import "SentryAppState.h"
 #import "SentryAppStateManager.h"
-#import "SentryAttachment.h"
+#import "SentryAttachment+Private.h"
 #import "SentryAutoBreadcrumbTrackingIntegration+Test.h"
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryAutoSessionTrackingIntegration.h"
@@ -115,6 +115,7 @@
 #import "SentryNetworkTrackingIntegration.h"
 #import "SentryNoOpSpan.h"
 #import "SentryObjCRuntimeWrapper.h"
+#import "SentryOptions+HybridSDKs.h"
 #import "SentryOptions+Private.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryPerformanceTrackingIntegration.h"
@@ -181,8 +182,11 @@
 #import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"
 @import SentryPrivate;
+#import "SentryEnvelopeAttachmentHeader.h"
+#import "TestSentryViewHierarchy.h"
 
 #if SENTRY_HAS_UIKIT
+#    import "MockUIScene.h"
 #    import "SentryUIEventTracker.h"
 #    import "SentryUIEventTrackingIntegration.h"
 #endif

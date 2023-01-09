@@ -1,7 +1,9 @@
-#import "SentryEnvelope.h"
 #import "SentryAttachment.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClientReport.h"
+#import "SentryEnvelope+Private.h"
+#import "SentryEnvelopeAttachmentHeader.h"
+#import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
 #import "SentryLog.h"
@@ -43,31 +45,6 @@ NS_ASSUME_NONNULL_BEGIN
         _traceContext = traceContext;
     }
 
-    return self;
-}
-
-@end
-
-@implementation SentryEnvelopeItemHeader
-
-- (instancetype)initWithType:(NSString *)type length:(NSUInteger)length
-{
-    if (self = [super init]) {
-        _type = type;
-        _length = length;
-    }
-    return self;
-}
-
-- (instancetype)initWithType:(NSString *)type
-                      length:(NSUInteger)length
-                   filenname:(NSString *)filename
-                 contentType:(NSString *)contentType
-{
-    if (self = [self initWithType:type length:length]) {
-        _filename = filename;
-        _contentType = contentType;
-    }
     return self;
 }
 
@@ -210,16 +187,17 @@ NS_ASSUME_NONNULL_BEGIN
         data = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
     }
 
-    if (nil == data) {
+    if (data == nil) {
         SENTRY_LOG_ERROR(@"Couldn't init Attachment.");
         return nil;
     }
 
     SentryEnvelopeItemHeader *itemHeader =
-        [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeAttachment
-                                                length:data.length
-                                             filenname:attachment.filename
-                                           contentType:attachment.contentType];
+        [[SentryEnvelopeAttachmentHeader alloc] initWithType:SentryEnvelopeItemTypeAttachment
+                                                      length:data.length
+                                                    filename:attachment.filename
+                                                 contentType:attachment.contentType
+                                              attachmentType:attachment.attachmentType];
 
     return [self initWithHeader:itemHeader data:data];
 }

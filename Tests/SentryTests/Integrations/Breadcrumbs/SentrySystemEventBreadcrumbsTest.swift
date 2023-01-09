@@ -75,7 +75,9 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         let scope = Scope()
         sut = fixture.getSut(scope: scope, currentDevice: currentDevice)
         
-        NotificationCenter.default.post(Notification(name: UIDevice.batteryLevelDidChangeNotification, object: currentDevice))
+        _ = fixture.getSut(scope: scope, currentDevice: currentDevice)
+        
+        postBatteryLevelNotification(uiDevice: currentDevice)
         
         assertBatteryBreadcrumb(scope: scope, charging: true, level: 56)
     }
@@ -86,7 +88,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         let scope = Scope()
         sut = fixture.getSut(scope: scope, currentDevice: currentDevice)
         
-        NotificationCenter.default.post(Notification(name: UIDevice.batteryLevelDidChangeNotification, object: currentDevice))
+        postBatteryLevelNotification(uiDevice: currentDevice)
         
         assertBatteryBreadcrumb(scope: scope, charging: false, level: -1)
     }
@@ -97,7 +99,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         let scope = Scope()
         sut = fixture.getSut(scope: scope, currentDevice: currentDevice)
         
-        NotificationCenter.default.post(Notification(name: UIDevice.batteryLevelDidChangeNotification, object: currentDevice))
+        postBatteryLevelNotification(uiDevice: currentDevice)
         
         assertBatteryBreadcrumb(scope: scope, charging: true, level: -1)
     }
@@ -108,7 +110,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         let scope = Scope()
         sut = fixture.getSut(scope: scope, currentDevice: currentDevice)
         
-        NotificationCenter.default.post(Notification(name: UIDevice.batteryStateDidChangeNotification, object: currentDevice))
+        postBatteryLevelNotification(uiDevice: currentDevice)
         
         assertBatteryBreadcrumb(scope: scope, charging: true, level: 100)
     }
@@ -216,6 +218,9 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         sut = fixture.getSut(scope: scope, currentDevice: nil)
         
         NotificationCenter.default.post(Notification(name: UIWindow.keyboardDidShowNotification))
+        
+        Dynamic(sut).systemEventTriggered(Notification(name: UIWindow.keyboardDidShowNotification))
+        
         assertBreadcrumbAction(scope: scope, action: "UIKeyboardDidShowNotification")
     }
     
@@ -223,7 +228,8 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         let scope = Scope()
         sut = fixture.getSut(scope: scope, currentDevice: nil)
         
-        NotificationCenter.default.post(Notification(name: UIWindow.keyboardDidHideNotification))
+        Dynamic(sut).systemEventTriggered(Notification(name: UIWindow.keyboardDidHideNotification))
+        
         assertBreadcrumbAction(scope: scope, action: "UIKeyboardDidHideNotification")
     }
     
@@ -231,7 +237,8 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         let scope = Scope()
         sut = fixture.getSut(scope: scope, currentDevice: nil)
         
-        NotificationCenter.default.post(Notification(name: UIApplication.userDidTakeScreenshotNotification))
+        Dynamic(sut).systemEventTriggered(Notification(name: UIApplication.userDidTakeScreenshotNotification))
+        
         assertBreadcrumbAction(scope: scope, action: "UIApplicationUserDidTakeScreenshotNotification")
     }
 
@@ -276,6 +283,10 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         sut = fixture.getSut(scope: scope, currentDevice: nil)
         sut.stop()
         XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameInvocations.count, 7)
+    }
+    
+    private func postBatteryLevelNotification(uiDevice: UIDevice) {
+        Dynamic(sut).batteryStateChanged(Notification(name: UIDevice.batteryLevelDidChangeNotification, object: uiDevice))
     }
 
     private func assertBreadcrumbAction(scope: Scope, action: String, checks: (([String: Any]) -> Void)? = nil) {
