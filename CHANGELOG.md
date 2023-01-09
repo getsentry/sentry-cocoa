@@ -14,6 +14,10 @@ This version adds a dependency on Swift.
 - Add synthetic for mechanism (#2501)
 - Enable CaptureFailedRequests by default (#2507)
 - Support the [`SENTRY_DSN` environment variable](https://docs.sentry.io/platforms/apple/guides/macos/configuration/options/#dsn) on macOS (#2534)
+- Experimental MetricKit integration (#2519) for
+  - [MXHangDiagnostic](https://developer.apple.com/documentation/metrickit/mxhangdiagnostic) 
+  - [MXDiskWriteExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxdiskwriteexceptiondiagnostic)
+  - [MXCPUExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxcpuexceptiondiagnostic)
 
 ### Fixes
 
@@ -81,10 +85,6 @@ This version adds a dependency on Swift.
 - Add synthetic for mechanism (#2501)
 - Enable CaptureFailedRequests by default (#2507)
 - Support the [`SENTRY_DSN` environment variable](https://docs.sentry.io/platforms/apple/guides/macos/configuration/options/#dsn) on macOS (#2534)
-- Experimental MetricKit integration (#2519) for
-    - [MXHangDiagnostic](https://developer.apple.com/documentation/metrickit/mxhangdiagnostic) 
-    -[MXDiskWriteExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxdiskwriteexceptiondiagnostic)
-- [MXCPUExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxcpuexceptiondiagnostic)
 
 ### Fixes
 
