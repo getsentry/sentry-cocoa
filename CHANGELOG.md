@@ -1,5 +1,71 @@
 # Changelog
 
+## Unreleased
+
+This version adds a dependency on Swift.
+
+### Features
+
+- Properly demangle Swift class name (#2162)
+- Change view hierarchy attachment format to JSON (#2491)
+- SwiftUI performance tracking (#2271)
+- Enable [File I/O Tracking](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/#file-io-tracking) by default (#2497)
+- [User Interaction Tracing](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/#user-interaction-tracing) is stable and enabled by default(#2503)
+- Add synthetic for mechanism (#2501)
+- Enable CaptureFailedRequests by default (#2507)
+- Support the [`SENTRY_DSN` environment variable](https://docs.sentry.io/platforms/apple/guides/macos/configuration/options/#dsn) on macOS (#2534)
+
+### Fixes
+
+- Errors shortly after `SentrySDK.init` now affect the session (#2430)
+- Use the same default environment for events and sessions (#2447)
+- Increase `SentryCrashMAX_STRINGBUFFERSIZE` to reduce the instances where we're dropping a crash due to size limit (#2465)
+- `SentryAppStateManager` correctly unsubscribes from `NSNotificationCenter` when closing the SDK (#2460)
+- The SDK no longer reports an OOM when a crash happens after closing the SDK (#2468)
+- Don't capture zero size screenshots ([#2459](https://github.com/getsentry/sentry-cocoa/pull/2459))
+- Use the preexisting app release version format for profiles (#2470)
+- Don't add out of date context for crashes (#2523)
+- Fix ARC issue for FileManager (#2525)
+- Remove delay for deleting old envelopes (#2541)
+- Fix strong reference cycle for HttpTransport (#2552)
+- Deleting old envelopes for empty DSN (#2562)
+
+### Breaking Changes
+
+- Rename `- [SentrySDK startWithOptionsObject:]` to `- [SentrySDK startWithOptions:]` (#2404)
+- Make `SpanProtocol.data` non nullable (#2409)
+- Mark `- [SpanProtocol setExtraValue:forKey:]` as deprecated (#2413)
+- Make SpanContext immutable (#2408)
+    - Remove tags from SpanContext 
+    - Remove context property from SentrySpan
+- Bump minimum supported OS versions to macOS 10.13, iOS 11, tvOS 11, and watchOS 4 (#2414)
+- Make public APIs Swift friendly
+    - Rename `SentrySDK.addBreadcrumb(crumb:)` to `SentrySDK.addBreadcrumb(_ crumb:)` (#2416)
+    - Rename `SentryScope.add(_ crumb:)` to `SentryScope.addBreadcrumb(_ crumb:)` (#2416)
+    - Rename `SentryScope.add(_ attachment:)` to `SentryScope.addAttachment(_ attachment:)` (#2416)
+    - Rename `Client` to `SentryClient` (#2403)
+- Remove public APIs
+    - Remove `SentryScope.apply(to:)` (#2416)
+    - Remove `SentryScope.apply(to:maxBreadcrumb:)` (#2416)
+    - Remove `- [SentryOptions initWithDict:didFailWithError:]` (#2404)
+    - Remove `- [SentryOptions sdkInfo]` (#2404)
+    - Make SentrySession and SentrySDKInfo internal (#2451)  
+- Marks App hang's event stacktrace snapshot as true (#2441) 
+- Enable user interaction tracing by default (#2442)
+- Remove default attachment content type (#2443)
+- Rename APM tracking feature flags to tracing (#2450)
+    - Rename `SentryOptions.enableAutoPerformanceTracking` to `enableAutoPerformanceTracing`
+    - Rename `SentryOptions.enableUIViewControllerTracking` to `enableUIViewControllerTracing`
+    - Rename `SentryOptions.enablePreWarmedAppStartTracking` to `enablePreWarmedAppStartTracing`
+    - Rename `SentryOptions.enableFileIOTracking` to `enableFileIOTracing`
+    - Rename `SentryOptions.enableCoreDataTracking` to `enableCoreDataTracing`
+- SentrySDK.close calls flush, which is a blocking call (#2453)
+- Bump minimum Xcode version to 13 (#2483)
+- Rename `SentryOptions.enableOutOfMemoryTracking` to `SentryOptions.enableWatchdogTerminationTracking` (#2499)
+- Remove the automatic `viewAppearing` span for UIViewController APM (#2511)
+- Remove the permission context for events (#2529)
+- Remove confusing transaction tag (#2574)
+
 ## 8.0.0-beta.6
 
 This version adds a dependency on Swift.
