@@ -702,7 +702,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     // identify the user.
     if (nil == event.user) {
         SentryUser *user = [[SentryUser alloc] init];
-        user.userId = [SentryInstallation idWithOptions:self.options];
+        user.userId = [SentryInstallation id];
         event.user = user;
     }
 }

@@ -3,9 +3,6 @@
 #import "SentryCurrentDate.h"
 #import "SentryInstallation.h"
 #import "SentryLog.h"
-#import "SentrySDK+Private.h"
-#import <SentryHub.h>
-#import <SentryClient+Private.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -41,8 +38,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
         _status = kSentrySessionStatusOk;
         _sequence = 1;
         _errors = 0;
-        SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
-        _distinctId = [SentryInstallation idWithOptions:options];
+        _distinctId = [SentryInstallation id];
     }
 
     return self;
