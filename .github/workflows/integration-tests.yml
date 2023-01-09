@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           repository: 'Alamofire/Alamofire'
-          ref: '6d6606aed63a778c5a2bd64f8981823433a7f2fa'
+          ref: 'f82c23a8a7ef8dc1a49a8bfc6a96883e79121864'
 
       # Use github.event.pull_request.head.sha instead of github.sha when available as
       # the github.sha is the pre merge commit id for PRs.
@@ -94,7 +94,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           repository: 'home-assistant/iOS'
-          ref: '96f35a51c476b194a775a002e9836006e7c1ae39'
+          ref: '6d6606aed63a778c5a2bd64f8981823433a7f2fa'
 
       # Use github.event.pull_request.head.sha instead of github.sha when available as
       # the github.sha is the pre merge commit id for PRs.
