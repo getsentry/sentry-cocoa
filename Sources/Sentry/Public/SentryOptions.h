@@ -446,11 +446,14 @@ NS_SWIFT_NAME(Options)
 /**
  * ATTENTION: This is an experimental feature.
  *
- * This feature is disabled by default. When enabled, the SDK sends ``MXDiagnosticPayload`` data to
- * Sentry.
+ * This feature is disabled by default. When enabled, the SDK sends
+ * ``MXDiskWriteExceptionDiagnostic``, ``MXCPUExceptionDiagnostic`` and ``MXHangDiagnostic``  to
+ * Sentry. The SDK supports this feature from iOS 15 and later and macOS 12 and later because, on
+ * these versions, MetricKit delivers diagnostic reports immediately, which allows the Sentry SDK to
+ * apply the current data from the scope.
  */
 @property (nonatomic, assign) BOOL enableMetricKit API_AVAILABLE(
-    ios(14.0), macos(12.0), macCatalyst(14.0)) API_UNAVAILABLE(tvos, watchos);
+    ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
 
 #endif
 

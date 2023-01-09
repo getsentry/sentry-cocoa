@@ -2,15 +2,15 @@ import Foundation
 
 #if os(iOS) || os(macOS)
 /**
- * JSON specification of MXCallStackTree can be found here https://developer.apple.com/documentation/metrickit/mxcallstacktree/3552293-jsonrepresentation.
+ * JSON specification of MXCallStackTree can be found here https://developer.apple.com/documentation/metrickit/mxcallstacktree/3552293-jsonrepresentation
  */
-@objc
+@objcMembers
 public class SentryMXCallStackTree: NSObject, Codable {
     
-    @objc public let callStacks: [SentryMXCallStack]
-    @objc public let callStackPerThread: Bool
+    public let callStacks: [SentryMXCallStack]
+    public let callStackPerThread: Bool
     
-    @objc public init(callStacks: [SentryMXCallStack], callStackPerThread: Bool) {
+    public init(callStacks: [SentryMXCallStack], callStackPerThread: Bool) {
         self.callStacks = callStacks
         self.callStackPerThread = callStackPerThread
     }
@@ -20,12 +20,12 @@ public class SentryMXCallStackTree: NSObject, Codable {
     }
 }
 
-@objc
+@objcMembers
 public class SentryMXCallStack: NSObject, Codable {
     public var threadAttributed: Bool?
     public var callStackRootFrames: [SentryMXFrame]
     
-    @objc public var flattenedRootFrames: [SentryMXFrame] {
+    public var flattenedRootFrames: [SentryMXFrame] {
         return callStackRootFrames.flatMap { [$0] + $0.frames }
     }
 
@@ -35,12 +35,12 @@ public class SentryMXCallStack: NSObject, Codable {
     }
 }
 
-@objc
+@objcMembers
 public class SentryMXFrame: NSObject, Codable {
     public var binaryUUID: UUID
-    @objc public var offsetIntoBinaryTextSegment: Int
-    @objc public var binaryName: String?
-    @objc public var address: UInt64
+    public var offsetIntoBinaryTextSegment: Int
+    public var binaryName: String?
+    public var address: UInt64
     public var subFrames: [SentryMXFrame]?
     
     public var sampleCount: Int?
@@ -55,7 +55,11 @@ public class SentryMXFrame: NSObject, Codable {
     }
     
     public var frames: [SentryMXFrame] {
-        return subFrames?.flatMap { [$0] + $0.frames } ?? []
+        return (subFrames?.flatMap { [$0] + $0.frames } ?? [])
+    }
+    
+    public var framesIncludingSelf: [SentryMXFrame] {
+        return [self] + frames
     }
 }
 
