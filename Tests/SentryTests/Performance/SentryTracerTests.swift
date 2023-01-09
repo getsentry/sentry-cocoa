@@ -1,5 +1,8 @@
 import XCTest
 
+// swiftlint:disable file_length
+// We are aware that the tracer has a lot of logic and we should maybe
+// move some of it to other classes.
 class SentryTracerTests: XCTestCase {
     
     private class TracerDelegate: SentryTracerDelegate {
@@ -1006,3 +1009,5 @@ class SentryTracerTests: XCTestCase {
     }
 
 }
+
+// swiftlint:enable file_length
