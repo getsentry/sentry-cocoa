@@ -169,6 +169,7 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     }
 }
 
+#    if SENTRY_HAS_UIKIT
 NSArray *
 processFrameRenderInfo(SentryFrameInfoTimeSeries *frameInfo, uint64_t start, uint64_t duration)
 {
@@ -195,6 +196,7 @@ processFrameRenderInfo(SentryFrameInfoTimeSeries *frameInfo, uint64_t start, uin
     }];
     return relativeFrameTimestampsNs;
 }
+#    endif // SENTRY_HAS_UIKIT
 
 @implementation SentryProfiler {
     NSMutableDictionary<NSString *, id> *_profile;
