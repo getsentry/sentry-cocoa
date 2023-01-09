@@ -176,11 +176,11 @@ processFrameRenderInfo(SentryFrameInfoTimeSeries *frameInfo, uint64_t start, uin
     auto relativeFrameTimestampsNs = [NSMutableArray array];
     [frameInfo enumerateObjectsUsingBlock:^(
         NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-        const auto begin = (uint64_t)(obj[@"start_timestamp"].doubleValue * 1e9);
+        const auto begin = timeIntervalToNanoseconds(obj[@"start_timestamp"].doubleValue);
         if (begin < start) {
             return;
         }
-        const auto end = (uint64_t)(obj[@"end_timestamp"].doubleValue * 1e9);
+        const auto end = timeIntervalToNanoseconds(obj[@"end_timestamp"].doubleValue);
         const auto relativeEnd = getDurationNs(start, end);
         if (relativeEnd > duration) {
             SENTRY_LOG_DEBUG(@"The last slow/frozen frame extended past the end of the profile, "
@@ -654,15 +654,15 @@ processFrameRenderInfo(SentryFrameInfoTimeSeries *frameInfo, uint64_t start, uin
             [NSString stringWithFormat:@"%llu",
                       [transaction.startTimestamp compare:_startDate] == NSOrderedAscending
                           ? 0
-                          : (unsigned long long)(
-                              [transaction.startTimestamp timeIntervalSinceDate:_startDate] * 1e9)];
+                          : timeIntervalToNanoseconds(
+                              [transaction.startTimestamp timeIntervalSinceDate:_startDate])];
 
         NSString *relativeEnd;
         if ([transaction.timestamp compare:_endDate] == NSOrderedDescending) {
             relativeEnd = [NSString stringWithFormat:@"%llu", profileDuration];
         } else {
-            const auto profileStartToTransactionEnd_ns =
-                [transaction.timestamp timeIntervalSinceDate:_startDate] * 1e9;
+            const auto profileStartToTransactionEnd_ns = timeIntervalToNanoseconds(
+                [transaction.timestamp timeIntervalSinceDate:_startDate]);
             if (profileStartToTransactionEnd_ns < 0) {
                 SENTRY_LOG_DEBUG(@"Transaction %@ ended before the profiler started, won't "
                                  @"associate it with this profile.",
