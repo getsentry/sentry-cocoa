@@ -9,9 +9,6 @@ targets:
   - name: cocoapods
     id: sentry-cocoapod
     specPath: Sentry.podspec
-  - name: cocoapods
-    id: sentry-swift-ui-cocoapod
-    specPath: SentrySwiftUI.podspec
   - name: registry
     sdks:
       cocoapods:sentry-cocoa:

@@ -193,9 +193,6 @@ SentryBreadcrumbTracker ()
 
                 // Adding crumb via the SDK calls SentryBeforeBreadcrumbCallback
                 [SentrySDK addBreadcrumb:crumb];
-                [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
-                    [scope setExtraValue:crumb.data[@"screen"] forKey:@"__sentry_transaction"];
-                }];
             }
             SentrySWCallOriginal(animated);
         }),

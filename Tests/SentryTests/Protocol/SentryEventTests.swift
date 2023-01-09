@@ -78,16 +78,6 @@ class SentryEventTests: XCTestCase {
         )
     }
     
-    func testSerializeWithExtraTransaction() {
-        let event = TestData.event
-        event.transaction = nil
-        let sentryTransaction = "trans"
-        event.extra?["__sentry_transaction"] = sentryTransaction
-        
-        let actual = event.serialize()
-        XCTAssertEqual(sentryTransaction, actual["transaction"] as? String)
-    }
-    
     func testSerializeWithoutBreadcrumbs() {
         let event = TestData.event
         event.breadcrumbs = nil
