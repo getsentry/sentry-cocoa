@@ -112,6 +112,7 @@
 #import "SentryNetworkTrackingIntegration.h"
 #import "SentryNoOpSpan.h"
 #import "SentryObjCRuntimeWrapper.h"
+#import "SentryOptions+HybridSDKs.h"
 #import "SentryOptions+Private.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryPerformanceTrackingIntegration.h"
