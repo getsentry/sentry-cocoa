@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.0.0-beta.6
 
 This version adds a dependency on Swift.
 
@@ -65,6 +65,7 @@ This version adds a dependency on Swift.
 - Remove the automatic `viewAppearing` span for UIViewController APM (#2511)
 - Remove the permission context for events (#2529)
 - Remove captureEnvelope from Hub and Client (#2580)
+- Remove confusing transaction tag (#2574)
 
 ## 8.0.0-beta.4
 
@@ -116,6 +117,12 @@ This version adds a dependency on Swift.
     - Rename `SentryOptions.enableCoreDataTracking` to `enableCoreDataTracing`
 - SentrySDK.close calls flush, which is a blocking call (#2453)
 - Bump minimum Xcode version to 13 (#2483)
+## 7.31.5
+
+### Fixes
+
+- Crash in SentryOutOfMemoryScopeObserver (#2557)
+
 ## 7.31.4
 
 ### Fixes

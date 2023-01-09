@@ -148,7 +148,6 @@
 
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     event.timestamp = date;
-    event.extra = @{ @"__sentry_transaction" : @"yoyoyo" };
     event.sdk = @{
         @"version" : @"0.15.2",
         @"name" : @"sentry-react-native",
@@ -157,8 +156,6 @@
     NSDictionary *serialized = @{
         @"event_id" : [event.eventId sentryIdString],
         @"level" : @"info",
-        @"extra" : @ {},
-        @"transaction" : @"yoyoyo",
         @"platform" : @"cocoa",
         @"sdk" : @ {
             @"name" : @"sentry-react-native",
