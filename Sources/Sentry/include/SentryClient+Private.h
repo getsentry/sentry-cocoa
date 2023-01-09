@@ -2,7 +2,7 @@
 #import "SentryDataCategory.h"
 #import "SentryDiscardReason.h"
 
-@class SentryEnvelopeItem, SentryId, SentryAttachment, SentryThreadInspector;
+@class SentryEnvelopeItem, SentryId, SentryAttachment, SentryThreadInspector, SentryEnvelope;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -45,6 +45,8 @@ SentryClient ()
  * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
  */
 - (void)storeEnvelope:(SentryEnvelope *)envelope;
+
+- (void)captureEnvelope:(SentryEnvelope *)envelope;
 
 - (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason;
 
