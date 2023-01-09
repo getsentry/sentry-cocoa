@@ -79,15 +79,6 @@ jobs:
   home-assistant-tests:
     runs-on: macos-11
     timeout-minutes: 60
-    # Disable for now as home assistant depends on a dependency ofr static.realm.io, which has a SSL certificate problem
-    # The job fails with:
-    # Downloading dependency: 12.13.0 from https://static.realm.io/downloads/core/realm-monorepo-xcframework-v12.13.0.tar.xz
-    # Downloading core failed:
-    #   https://static.realm.io/downloads/core/realm-monorepo-xcframework-v12.13.0.tar.xz
-    #   curl: (60) SSL certificate problem: certificate has expired
-    # More details here: https://curl.se/docs/sslcerts.html
-    # We can enable this again once realm fixed their SSL certificate issue or home-kit assistant fixed resolving their dependency.
-    if: false
     env:
       DEVELOPER_DIR: /Applications/Xcode_13.2.app/Contents/Developer
     steps:
