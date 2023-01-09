@@ -247,7 +247,46 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
 @available(iOS 15, macOS 12, macCatalyst 15, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
+class TestMXCallStackTree: MXCallStackTree {
+    struct Override {
+        var jsonRepresentation = Data()
+    }
+    
+    public var overrides = Override()
+    
+    override func jsonRepresentation() -> Data {
+        return overrides.jsonRepresentation
+    }
+}
+
+@available(iOS 15, macOS 12, macCatalyst 15, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+class TestMXCrashDiagnostic: MXCrashDiagnostic {
+    struct Override {
+        var callStackTree = TestMXCallStackTree()
+    }
+    
+    public var overrides = Override()
+    
+    override var callStackTree: MXCallStackTree {
+        return overrides.callStackTree
+    }
+}
+
+@available(iOS 15, macOS 12, macCatalyst 15, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
 class TestMXCPUExceptionDiagnostic: MXCPUExceptionDiagnostic {
+    struct Override {
+        var callStackTree = TestMXCallStackTree()
+    }
+    
+    public var overrides = Override()
+    
+    override var callStackTree: MXCallStackTree {
+        return overrides.callStackTree
+    }
     
     override var totalCPUTime: Measurement<UnitDuration> {
         return Measurement(value: 2.2, unit: .milliseconds)
@@ -262,6 +301,16 @@ class TestMXCPUExceptionDiagnostic: MXCPUExceptionDiagnostic {
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 class TestMXDiskWriteExceptionDiagnostic: MXDiskWriteExceptionDiagnostic {
+    struct Override {
+        var callStackTree = TestMXCallStackTree()
+    }
+    
+    public var overrides = Override()
+    
+    override var callStackTree: MXCallStackTree {
+        return overrides.callStackTree
+    }
+    
     override var totalWritesCaused: Measurement<UnitInformationStorage> {
         return Measurement(value: 5.5, unit: .mebibits)
     }
@@ -271,6 +320,16 @@ class TestMXDiskWriteExceptionDiagnostic: MXDiskWriteExceptionDiagnostic {
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 class TestMXHangDiagnostic: MXHangDiagnostic {
+    struct Override {
+        var callStackTree = TestMXCallStackTree()
+    }
+    
+    public var overrides = Override()
+    
+    override var callStackTree: MXCallStackTree {
+        return overrides.callStackTree
+    }
+    
     override var hangDuration: Measurement<UnitDuration> {
         return Measurement(value: 6.6, unit: .seconds)
     }
