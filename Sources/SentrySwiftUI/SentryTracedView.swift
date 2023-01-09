@@ -8,7 +8,7 @@ import SentryInternal
 /// A control to measure the performance of your views and send the result as a transaction to Sentry.io.
 ///
 /// You create a transaction by wrapping your views with this.
-/// Nested `SentryTraceView` will create child spans in the transaction.
+/// Nested `SentryTracedView` will create child spans in the transaction.
 ///
 ///     SentryTracedView {
 ///         VStack {
