@@ -7,7 +7,7 @@ struct LoremIpsumView: View {
     @StateObject var viewModel = LoremIpsumViewModel()
     
     var body: some View {
-        SentryTraceView("Lorem Ipsum") {
+        SentryTracedView("Lorem Ipsum") {
             Text(viewModel.text)
                 .padding(16)
         }
