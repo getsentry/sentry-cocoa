@@ -103,7 +103,7 @@ You can run samples in a real device without changing certificates and provision
 * You will need `Cocoa codesigning match encryption password` from your Sentry 1Password account.
 * run `fastlane match_local`
 
-This will setup certificates and provisioning profiles into your machine, but in order to be able to run a sample in a real device you need to register that device with Sentry AppConnect account, add the device to the provisioning profile you want to use, download the profile again and open it with xCode.
+This will setup certificates and provisioning profiles into your machine, but in order to be able to run a sample in a real device you need to register that device with Sentry AppConnect account, add the device to the provisioning profile you want to use, download the profile again and open it with Xcode.
 
 ## Final Notes
 
