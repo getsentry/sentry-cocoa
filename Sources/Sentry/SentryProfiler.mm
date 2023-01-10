@@ -171,9 +171,9 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 
 #    if SENTRY_HAS_UIKIT
 NSArray *
-processFrameRenderInfo(SentryFrameInfoTimeSeries *frameInfo, uint64_t start, uint64_t duration)
+processFrameRenders(SentryFrameInfoTimeSeries *frameInfo, uint64_t start, uint64_t duration)
 {
-    auto relativeFrameTimestampsNs = [NSMutableArray array];
+    auto relativeFrameInfo = [NSMutableArray array];
     [frameInfo enumerateObjectsUsingBlock:^(
         NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
         const auto begin = timeIntervalToNanoseconds(obj[@"start_timestamp"].doubleValue);
@@ -189,12 +189,35 @@ processFrameRenderInfo(SentryFrameInfoTimeSeries *frameInfo, uint64_t start, uin
         }
         const auto relativeStart = getDurationNs(start, begin);
         const auto frameDuration = relativeEnd - relativeStart;
-        [relativeFrameTimestampsNs addObject:@{
+        [relativeFrameInfo addObject:@{
             @"elapsed_since_start_ns" : @(relativeStart),
             @"value" : @(frameDuration),
         }];
     }];
-    return relativeFrameTimestampsNs;
+    return relativeFrameInfo;
+}
+
+NSArray<NSDictionary *> *
+processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
+{
+    if (frameRates.count == 0) {
+        return nil;
+    }
+    auto relativeFrameRates = [NSMutableArray array];
+    [frameRates enumerateObjectsUsingBlock:^(
+        NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+        const auto timestamp = (uint64_t)(obj[@"timestamp"].doubleValue * 1e9);
+        const auto refreshRate = obj[@"frame_rate"];
+        uint64_t relativeTimestamp = 0;
+        if (timestamp >= start) {
+            relativeTimestamp = getDurationNs(start, timestamp);
+        }
+        [relativeFrameRates addObject:@{
+            @"elapsed_since_start_ns" : @(relativeTimestamp),
+            @"value" : refreshRate,
+        }];
+    }];
+    return relativeFrameRates;
 }
 #    endif // SENTRY_HAS_UIKIT
 
@@ -620,20 +643,19 @@ processFrameRenderInfo(SentryFrameInfoTimeSeries *frameInfo, uint64_t start, uin
 
 #    if SENTRY_HAS_UIKIT
     const auto slowTimestamps
-        = processFrameRenderInfo(_frameInfo.slowFrameTimestamps, _startTimestamp, profileDuration);
+        = processFrameRenders(_frameInfo.slowFrameTimestamps, _startTimestamp, profileDuration);
     if (slowTimestamps.count > 0) {
         metrics[@"slow_frame_renders"] = @{ @"unit" : @"nanosecond", @"values" : slowTimestamps };
     }
 
     const auto frozenTimestamps
-        = processFrameRenderInfo(_frameInfo.slowFrameTimestamps, _startTimestamp, profileDuration);
+        = processFrameRenders(_frameInfo.frozenFrameTimestamps, _startTimestamp, profileDuration);
     if (frozenTimestamps.count > 0) {
         metrics[@"frozen_frame_renders"] =
             @{ @"unit" : @"nanosecond", @"values" : frozenTimestamps };
     }
 
-    const auto frameRates
-        = processFrameRenderInfo(_frameInfo.frameRateTimestamps, _startTimestamp, profileDuration);
+    const auto frameRates = processFrameRates(_frameInfo.frameRateTimestamps, _startTimestamp);
     if (frameRates.count > 0) {
         metrics[@"screen_frame_rates"] = @{ @"unit" : @"hz", @"values" : frameRates };
     }
