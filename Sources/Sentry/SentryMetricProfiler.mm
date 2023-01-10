@@ -2,10 +2,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryDependencyContainer.h"
 #    import "SentryLog.h"
-#    import "SentryMachLogging.hpp"
-#    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentryNSTimerWrapper.h"
 #    import "SentrySystemWrapper.h"
@@ -19,15 +16,9 @@
 static const NSTimeInterval kSentryMetricProfilerTimeseriesInterval = 0.1;
 
 NSString *const kSentryMetricProfilerSerializationKeyMemoryFootprint = @"memory_footprint";
-NSString *const kSentryMetricProfilerSerializationKeyMemoryPressure = @"memory_pressure";
-NSString *const kSentryMetricProfilerSerializationKeyPowerState = @"is_low_power_mode";
-NSString *const kSentryMetricProfilerSerializationKeyThermalState = @"thermal_state";
 NSString *const kSentryMetricProfilerSerializationKeyCPUUsageFormat = @"cpu_usage_%d";
 
 NSString *const kSentryMetricProfilerSerializationUnitBytes = @"byte";
-NSString *const kSentryMetricProfilerSerializationUnitBoolean = @"bool";
-NSString *const kSentryMetricProfilerSerializationUnitMemoryPressureEnum = @"memory_pressure_enum";
-NSString *const kSentryMetricProfilerSerializationUnitThermalStateEnum = @"thermal_state_enum";
 NSString *const kSentryMetricProfilerSerializationUnitPercentage = @"percent";
 
 namespace {
@@ -50,9 +41,6 @@ serializedValues(NSArray<NSDictionary<NSString *, NSString *> *> *values, NSStri
         *_cpuUsage;
 
     NSMutableArray<NSDictionary<NSString *, id> *> *_memoryFootprint;
-    NSMutableArray<NSDictionary<NSString *, id> *> *_thermalState;
-    NSMutableArray<NSDictionary<NSString *, id> *> *_powerLevelState;
-    NSMutableArray<NSDictionary<NSString *, id> *> *_memoryPressureState;
     uint64_t _profileStartTime;
 }
 
@@ -77,9 +65,6 @@ serializedValues(NSArray<NSDictionary<NSString *, NSString *> *> *values, NSStri
         _timerWrapper = timerWrapper;
 
         _memoryFootprint = [NSMutableArray<NSDictionary<NSString *, id> *> array];
-        _thermalState = [NSMutableArray<NSDictionary<NSString *, id> *> array];
-        _powerLevelState = [NSMutableArray<NSDictionary<NSString *, id> *> array];
-        _memoryPressureState = [NSMutableArray<NSDictionary<NSString *, id> *> array];
 
         _profileStartTime = profileStartTime;
     }
@@ -96,15 +81,11 @@ serializedValues(NSArray<NSDictionary<NSString *, NSString *> *> *values, NSStri
 - (void)start
 {
     [self registerSampler];
-    [self registerStateChangeNotifications];
-    [self registerMemoryPressureWarningHandler];
 }
 
 - (void)stop
 {
     [_timer invalidate];
-    [_systemWrapper deregisterMemoryPressureNotifications];
-    [_processInfoWrapper stopMonitoring:self];
 }
 
 - (NSMutableDictionary<NSString *, id> *)serialize
@@ -117,18 +98,6 @@ serializedValues(NSArray<NSDictionary<NSString *, NSString *> *> *values, NSStri
     if (_memoryFootprint.count > 0) {
         dict[kSentryMetricProfilerSerializationKeyMemoryFootprint]
             = serializedValues(_memoryFootprint, kSentryMetricProfilerSerializationUnitBytes);
-    }
-    if (_memoryPressureState.count > 0) {
-        dict[kSentryMetricProfilerSerializationKeyMemoryPressure] = serializedValues(
-            _memoryPressureState, kSentryMetricProfilerSerializationUnitMemoryPressureEnum);
-    }
-    if (_powerLevelState.count > 0) {
-        dict[kSentryMetricProfilerSerializationKeyPowerState]
-            = serializedValues(_powerLevelState, kSentryMetricProfilerSerializationUnitBoolean);
-    }
-    if (_thermalState.count > 0) {
-        dict[kSentryMetricProfilerSerializationKeyThermalState] = serializedValues(
-            _thermalState, kSentryMetricProfilerSerializationUnitThermalStateEnum);
     }
 
     [_cpuUsage enumerateKeysAndObjectsUsingBlock:^(NSNumber *_Nonnull core,
@@ -155,61 +124,6 @@ serializedValues(NSArray<NSDictionary<NSString *, NSString *> *> *values, NSStri
                                                          [weakSelf recordCPUPercentagePerCore];
                                                          [weakSelf recordMemoryFootprint];
                                                      }];
-}
-
-/**
- * This is a more fine-grained API, providing normal/warn/critical levels of memory usage, versus
- * using `UIApplicationDidReceiveMemoryWarningNotification` which does not provide any additional
- * information ("This notification does not contain a userInfo dictionary." from
- * https://developer.apple.com/documentation/uikit/uiapplication/1622920-didreceivememorywarningnotificat).
- */
-- (void)registerMemoryPressureWarningHandler
-{
-    __weak auto weakSelf = self;
-    [_systemWrapper registerMemoryPressureNotifications:^(uintptr_t memoryPressureState) {
-        const auto strongSelf = weakSelf;
-        if (!strongSelf) {
-            return;
-        }
-        @synchronized(strongSelf) {
-            [strongSelf->_memoryPressureState
-                addObject:[strongSelf metricEntryForValue:@(memoryPressureState)]];
-        }
-    }];
-}
-
-- (void)registerStateChangeNotifications
-{
-    // According to Apple docs: "To receive NSProcessInfoThermalStateDidChangeNotification, you must
-    // access the thermalState prior to registering for the notification." (from
-    // https://developer.apple.com/documentation/foundation/nsprocessinfothermalstatedidchangenotification/)
-    [self recordThermalState];
-
-    [_processInfoWrapper monitorForThermalStateChanges:self callback:@selector(recordThermalState)];
-
-    if (@available(macOS 12.0, *)) {
-        [_processInfoWrapper monitorForPowerStateChanges:self
-                                                callback:@selector(recordPowerLevelState)];
-    }
-}
-
-- (void)recordThermalState
-{
-    @synchronized(self) {
-        [_thermalState addObject:[self metricEntryForValue:@(_processInfoWrapper.thermalState)]];
-    }
-}
-
-- (void)recordPowerLevelState
-{
-    if (@available(macOS 12.0, *)) {
-        @synchronized(self) {
-            [_powerLevelState
-                addObject:[self metricEntryForValue:@(_processInfoWrapper.isLowPowerModeEnabled
-                                                            ? 1.f
-                                                            : 0.f)]];
-        }
-    }
 }
 
 - (void)recordMemoryFootprint

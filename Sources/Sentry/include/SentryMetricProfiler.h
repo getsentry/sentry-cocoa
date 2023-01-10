@@ -11,15 +11,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationKeyMemoryFootprint;
-SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationKeyMemoryPressure;
-SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationKeyPowerState;
-SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationKeyThermalState;
 SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationKeyCPUUsageFormat;
 
 SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationUnitBytes;
-SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationUnitBoolean;
-SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationUnitMemoryPressureEnum;
-SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationUnitThermalStateEnum;
 SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationUnitPercentage;
 
 /**

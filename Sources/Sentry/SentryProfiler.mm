@@ -10,7 +10,6 @@
 #    import "SentryDefines.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDevice.h"
-#    import "SentryDispatchSourceWrapper.h"
 #    import "SentryEnvelope.h"
 #    import "SentryEnvelopeItemType.h"
 #    import "SentryFramesTracker.h"

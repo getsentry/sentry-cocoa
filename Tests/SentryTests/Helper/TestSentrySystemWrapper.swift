@@ -11,10 +11,6 @@ class TestSentrySystemWrapper: SentrySystemWrapper {
 
     var overrides = Override()
 
-    override init() {
-        super.init(dispatchSourceFactory: TestSentryDispatchSourceFactory())
-    }
-
     override func memoryFootprintBytes(_ error: NSErrorPointer) -> SentryRAMBytes {
         if let errorOverride = overrides.memoryFootprintError {
             error?.pointee = errorOverride

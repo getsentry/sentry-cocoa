@@ -1,31 +1,8 @@
 #import "SentrySystemWrapper.h"
-#import "SentryDispatchSourceWrapper.h"
 #import "SentryError.h"
-#import "SentryMachLogging.hpp"
 #import <mach/mach.h>
 
-const NSUInteger kSentryMemoryPressureLevelNormal = DISPATCH_MEMORYPRESSURE_NORMAL;
-const NSUInteger kSentryMemoryPressureLevelWarn = DISPATCH_MEMORYPRESSURE_WARN;
-const NSUInteger kSentryMemoryPressureLevelCritical = DISPATCH_MEMORYPRESSURE_CRITICAL;
-
-@implementation SentrySystemWrapper {
-    dispatch_queue_t _memoryWarningQueue;
-    SentryDispatchSourceFactory *_dispatchSourceFactory;
-    SentryDispatchSourceWrapper *_dispatchSourceWrapper;
-}
-
-- (instancetype)initWithDispatchSourceFactory:(SentryDispatchSourceFactory *)dispatchSourceFactory
-{
-    if (self = [super init]) {
-        _dispatchSourceFactory = dispatchSourceFactory;
-
-        const auto queueAttributes
-            = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, 0);
-        _memoryWarningQueue
-            = dispatch_queue_create("io.sentry.queue.memory-warnings", queueAttributes);
-    }
-    return self;
-}
+@implementation SentrySystemWrapper
 
 - (SentryRAMBytes)memoryFootprintBytes:(NSError *__autoreleasing _Nullable *)error
 {
@@ -80,38 +57,6 @@ const NSUInteger kSentryMemoryPressureLevelCritical = DISPATCH_MEMORYPRESSURE_CR
     }
 
     return result;
-}
-
-- (void)registerMemoryPressureNotifications:(SentryMemoryPressureNotification)handler
-{
-    const auto type = DISPATCH_SOURCE_TYPE_MEMORYPRESSURE;
-    const auto mask = DISPATCH_MEMORYPRESSURE_NORMAL | DISPATCH_MEMORYPRESSURE_WARN
-        | DISPATCH_MEMORYPRESSURE_CRITICAL;
-    _dispatchSourceWrapper = [_dispatchSourceFactory dispatchSourceWithType:type
-                                                                     handle:0
-                                                                       mask:mask
-                                                                      queue:_memoryWarningQueue];
-
-    __weak auto weakSelf = self;
-    [_dispatchSourceWrapper resumeWithHandler:^{
-        const auto strongSelf = weakSelf;
-        if (!strongSelf) {
-            return;
-        }
-        handler([strongSelf->_dispatchSourceWrapper getData]);
-    }];
-}
-
-- (void)deregisterMemoryPressureNotifications
-{
-    [_dispatchSourceWrapper cancel];
-}
-
-#pragma mark - Testing
-
-- (SentryDispatchSourceWrapper *)dispatchSourceWrapper
-{
-    return _dispatchSourceWrapper;
 }
 
 @end
