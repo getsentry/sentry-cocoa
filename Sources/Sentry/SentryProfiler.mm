@@ -418,23 +418,24 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 
 	// TODO: pass transaction start/end timestamps here so frame/rate info can be sliced
 
-    const auto slowFrames
-        = processFrameRenders(_frameInfo.slowFrameTimestamps, _startTimestamp, profileDuration);
+    const auto slowFrames = processFrameRenderInfo(
+        SentryFramesTracker.sharedInstance.currentFrames.slowFrameTimestamps,
+        _gCurrentProfiler->_startTimestamp, profileDuration);
     const auto slicedSlowFrames = [self slicedArray:slowFrames transaction:transaction];
     if (slicedSlowFrames.count > 0) {
-        metrics[@"slow_frame_renders"] =
-            @{ @"unit" : @"nanosecond", @"values" : slicedSlowFrames };
+        metrics[@"slow_frame_renders"] = @{ @"unit" : @"nanosecond", @"values" : slicedSlowFrames };
     }
 
-    const auto frozenTimestamps
-        = processFrameRenders(_frameInfo.slowFrameTimestamps, _startTimestamp, profileDuration);
+    const auto frozenFrames = processFrameRenderInfo(
+        SentryFramesTracker.sharedInstance.currentFrames.frozenFrameTimestamps,
+        _gCurrentProfiler->_startTimestamp, profileDuration);
     const auto slicedFrozenFrames = [self slicedArray:frozenFrames transaction:transaction];
     if (slicedFrozenFrames.count > 0) {
         metrics[@"frozen_frame_renders"] =
             @{ @"unit" : @"nanosecond", @"values" : slicedFrozenFrames };
     }
 
-    const auto frameRates = processFrameRates(_frameInfo.frameRateTimestamps, _startTimestamp);
+    const auto frameRates = processFrameRates(SentryFramesTracker.sharedInstance.currentFrames.frameRateTimestamps, _startTimestamp);
     const auto slicedFrameRates = [self slicedArray:frameRates transaction:transaction];
     if (slicedFrameRates.count > 0) {
         metrics[@"screen_frame_rates"] = @{ @"unit" : @"hz", @"values" : slicedFrameRates };
