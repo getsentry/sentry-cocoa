@@ -177,7 +177,6 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 }
 
 #    if SENTRY_HAS_UIKIT
-// TODO: pass in start/end timestamps and slice these also
 NSArray *
 processFrameRenders(
     SentryFrameInfoTimeSeries *frameInfo, uint64_t profileStart, uint64_t profileDuration)
@@ -327,35 +326,6 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     return [_gCurrentProfiler isRunning];
 }
 
-+ (NSArray *)slicedArray:(NSArray *)array transaction:(SentryTransaction *)transaction
-{
-    const auto firstIndex = [array
-        indexOfObjectWithOptions:NSEnumerationConcurrent
-                     passingTest:^BOOL(NSDictionary<NSString *, id> *_Nonnull sample,
-                         NSUInteger idx, BOOL *_Nonnull stop) {
-                         return
-                             [sample[@"elapsed_since_start_ns"] longLongValue] > getDurationNs(
-                                 _gCurrentProfiler->_startTimestamp, transaction.startSystemTime);
-                     }];
-
-    const auto lastIndex = [array
-        indexOfObjectWithOptions:NSEnumerationConcurrent | NSEnumerationReverse
-                     passingTest:^BOOL(NSDictionary<NSString *, id> *_Nonnull sample,
-                         NSUInteger idx, BOOL *_Nonnull stop) {
-                         return [sample[@"elapsed_since_start_ns"] longLongValue] < getDurationNs(
-                                    _gCurrentProfiler->_startTimestamp, transaction.endSystemTime);
-                     }];
-
-    if (firstIndex == NSNotFound) {
-        return nil;
-    }
-
-    return [array
-        objectsAtIndexes:[NSIndexSet
-                             indexSetWithIndexesInRange: { firstIndex,
-                                                             (lastIndex - firstIndex) + 1 }]];
-}
-
 + (SentryEnvelopeItem *)createProfilingEnvelopeItemForTransaction:(SentryTransaction *)transaction
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
@@ -415,12 +385,11 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
                            platform:transaction.platform];
 
 #    if SENTRY_HAS_UIKIT
-
-    // TODO: pass transaction start/end timestamps here so frame/rate info can be sliced
-
     const auto slowFrames
         = processFrameRenders(SentryFramesTracker.sharedInstance.currentFrames.slowFrameTimestamps,
             _gCurrentProfiler->_startTimestamp, profileDuration);
+    // ???: because processFrameRenders already has to test for beginning/end containment, may not
+    // even need to call slicedArray here
     const auto slicedSlowFrames = [self slicedArray:slowFrames transaction:transaction];
     if (slicedSlowFrames.count > 0) {
         metrics[@"slow_frame_renders"] = @{ @"unit" : @"nanosecond", @"values" : slicedSlowFrames };
@@ -429,6 +398,8 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     const auto frozenFrames = processFrameRenders(
         SentryFramesTracker.sharedInstance.currentFrames.frozenFrameTimestamps,
         _gCurrentProfiler->_startTimestamp, profileDuration);
+    // ???: because processFrameRenders already has to test for beginning/end containment, may not
+    // even need to call slicedArray here
     const auto slicedFrozenFrames = [self slicedArray:frozenFrames transaction:transaction];
     if (slicedFrozenFrames.count > 0) {
         metrics[@"frozen_frame_renders"] =
@@ -482,6 +453,42 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 #    endif // SENTRY_HAS_UIKIT
 
 #    pragma mark - Private
+
++ (uint64_t)elapsedSince:(uint64_t)time
+{
+    return getDurationNs(_gCurrentProfiler->_startTimestamp, time);
+}
+
++ (NSArray *)slicedArray:(NSArray *)array transaction:(SentryTransaction *)transaction
+{
+#    define SENTRY_SLICE_ARGS                                                                      \
+        NSDictionary<NSString *, id> *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop
+
+    BOOL (^sliceStart)(SENTRY_SLICE_ARGS) = ^BOOL(SENTRY_SLICE_ARGS) {
+        const auto duration = [self elapsedSince:transaction.startSystemTime];
+        return [sample[@"elapsed_since_start_ns"] longLongValue] > duration;
+    };
+    const auto firstIndex = [array indexOfObjectWithOptions:NSEnumerationConcurrent
+                                                passingTest:sliceStart];
+
+    BOOL (^sliceEnd)(SENTRY_SLICE_ARGS) = ^BOOL(SENTRY_SLICE_ARGS) {
+        const auto duration = [self elapsedSince:transaction.endSystemTime];
+        return [sample[@"elapsed_since_start_ns"] longLongValue] < duration;
+    };
+    const auto lastIndex =
+        [array indexOfObjectWithOptions:NSEnumerationConcurrent | NSEnumerationReverse
+                            passingTest:sliceEnd];
+
+#    undef SENTRY_SLICE_ARGS
+
+    if (firstIndex == NSNotFound) {
+        return nil;
+    }
+
+    const auto range = NSMakeRange(firstIndex, (lastIndex - firstIndex) + 1);
+    const auto indices = [NSIndexSet indexSetWithIndexesInRange:range];
+    return [array objectsAtIndexes:indices];
+}
 
 + (void)timeoutAbort
 {
