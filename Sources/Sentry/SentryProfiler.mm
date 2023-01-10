@@ -373,7 +373,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
           };
     [metrics enumerateKeysAndObjectsWithOptions:NSEnumerationConcurrent usingBlock:metricSlicer];
     if (slicedMetrics.count > 0) {
-        payload[@"profile"][@"measurements"] = slicedMetrics;
+        payload[@"measurements"] = slicedMetrics;
     }
 
     const auto profileID = [[SentryId alloc] init];
