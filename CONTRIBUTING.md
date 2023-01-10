@@ -95,6 +95,16 @@ To make a header public follow these steps:
 * Add it to the Umbrella Header [Sentry.h](/Sources/Sentry/Public/Sentry.h).
 * Set the target membership to public.
 
+## Configuring certificates and provisioning profiles locally
+
+You can run samples in a real device without changing certificates and provisioning profiles if you are a Sentry employee with access to Sentry profiles repository and 1Password account.
+
+* Configure your environment to use SSH to access GitHub. Follow [this instructions](https://docs.github.com/en/authentication/connecting-to-github-with-ssh).
+* You will need `Cocoa codesigning match encryption password` from your Sentry 1Password account.
+* run `fastlane match_local`
+
+This will setup certificates and provisioning profiles into your machine, but in order to be able to run a sample in a real device you need to register that device with Sentry AppConnect account, add the device to the provisioning profile you want to use, download the profile again and open it with xCode.
+
 ## Final Notes
 
 When contributing to the codebase, please make note of the following:
