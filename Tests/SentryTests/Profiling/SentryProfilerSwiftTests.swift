@@ -73,12 +73,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 
         // gather mock cpu usages and memory footprints
         for _ in 0..<2 {
-            let cpuExp = expectation(description: "first set of timeseries measurements are gathered")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.fixture.timerWrapper.fire()
-                cpuExp.fulfill()
-            }
-            waitForExpectations(timeout: 1)
+            self.fixture.timerWrapper.fire()
         }
 
         // finish profile
