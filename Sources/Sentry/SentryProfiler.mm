@@ -524,7 +524,6 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 #    if SENTRY_HAS_UIKIT
     [_gCurrentFramesTracker resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
-    _gCurrentProfiler = nil;
 }
 
 - (void)startMetricProfiler
