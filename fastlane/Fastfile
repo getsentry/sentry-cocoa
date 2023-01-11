@@ -57,7 +57,8 @@ platform :ios do
          "io.sentry.cocoa.perf-test-app-plain",
          "io.sentry.*",
          "io.sentry.iOS-Benchmarking.xctrunner",
-         "io.sentry.cocoa.perf-test-app-sentry"]
+         "io.sentry.cocoa.perf-test-app-sentry"],
+        readonly: true
      )
      match(
        type: "appstore",
@@ -69,7 +70,8 @@ platform :ios do
          "io.sentry.cocoa.perf-test-app-plain",
          "io.sentry.*",
          "io.sentry.iOS-Benchmarking.xctrunner",
-         "io.sentry.cocoa.perf-test-app-sentry"]
+         "io.sentry.cocoa.perf-test-app-sentry"],
+        readonly: true
      )
   end
 
