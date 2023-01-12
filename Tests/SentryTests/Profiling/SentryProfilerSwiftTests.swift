@@ -87,7 +87,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             span.finish()
 
             do {
-                try self.assertMetricsPayload(expectedCPUUsages: cpuUsages, cpuReadings: 2)
+                try self.assertMetricsPayload(expectedCPUUsages: cpuUsages, usageReadings: 2, expectedMemoryFootprint: memoryFootprint)
                 exp.fulfill()
             } catch {
                 XCTFail("Encountered error: \(error)")
@@ -246,8 +246,8 @@ private extension SentryProfilerSwiftTests {
         case noEnvelopeCaptured
         case noProfileEnvelopeItem
         case malformedMetricValueEntry
-        case noCPUUsageEvents
-        case noCPUUsageReported
+        case noMetricsReported
+        case noMetricValuesFound
     }
 
     func getProfileData() throws -> Data {
@@ -295,7 +295,7 @@ private extension SentryProfilerSwiftTests {
         self.assertValidProfileData(data: profileData, transactionEnvironment: transactionEnvironment, numberOfTransactions: numberOfTransactions, shouldTimeout: shouldTimeOut)
     }
 
-    func assertMetricsPayload(expectedCPUUsages: [Double], cpuReadings: Int) throws {
+    func assertMetricsPayload(expectedCPUUsages: [Double], usageReadings: Int, expectedMemoryFootprint: SentryRAMBytes) throws {
         let profileData = try self.getProfileData()
         guard let profile = try JSONSerialization.jsonObject(with: profileData) as? [String: Any] else {
             throw TestError.unexpectedProfileDeserializationType
@@ -306,19 +306,24 @@ private extension SentryProfilerSwiftTests {
 
         for (i, expectedUsage) in expectedCPUUsages.enumerated() {
             let key = NSString(format: kSentryMetricProfilerSerializationKeyCPUUsageFormat as NSString, i) as String
-            guard let cpuUsage = measurements[key] as? [String: Any] else {
-                throw TestError.noCPUUsageEvents
-            }
-            guard let values = cpuUsage["values"] as? [[String: Any]] else {
-                throw TestError.malformedMetricValueEntry
-            }
-            XCTAssertEqual(values.count, cpuReadings)
-            guard let firstReport = values[0]["value"] as? Double else {
-                throw TestError.noCPUUsageReported
-            }
-
-            XCTAssertEqual(firstReport, expectedUsage)
+            try assertMetricValue(measurements: measurements, key: key, numberOfReadings: usageReadings, expectedValue: expectedUsage)
         }
+
+        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, numberOfReadings: usageReadings, expectedValue: expectedMemoryFootprint)
+    }
+
+    func assertMetricValue<T: Equatable>(measurements: [String: Any], key: String, numberOfReadings: Int, expectedValue: T) throws {
+        guard let metricContainer = measurements[key] as? [String: Any] else {
+            throw TestError.noMetricsReported
+        }
+        XCTAssertEqual(metricContainer.count, numberOfReadings)
+        guard let memoryFootprint = metricContainer["values"] as? [[String: Any]] else {
+            throw TestError.malformedMetricValueEntry
+        }
+        guard let memoryFootprintValue = memoryFootprint[0]["value"] as? T else {
+            throw TestError.noMetricValuesFound
+        }
+        XCTAssertEqual(memoryFootprintValue, expectedValue)
     }
 
     func assertValidProfileData(data: Data, transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1, shouldTimeout: Bool = false) {
