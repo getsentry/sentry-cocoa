@@ -696,6 +696,7 @@ static BOOL appStartMeasurementRead;
         SentryDebugImageProvider *debugImageProvider
             = SentryDependencyContainer.sharedInstance.debugImageProvider;
         NSMutableSet<NSString *> *imageAddresses = [NSMutableSet set];
+        [imageAddresses addObjectsFromArray:[self extractFramesImageAddressFromSpan:self.rootSpan]];
         for (id<SentrySpan> span in _children) {
             [imageAddresses addObjectsFromArray:[self extractFramesImageAddressFromSpan:span]];
         }
