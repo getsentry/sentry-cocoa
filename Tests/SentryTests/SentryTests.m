@@ -1,13 +1,13 @@
 #import "NSDate+SentryExtras.h"
 #import "SentryBreadcrumbTracker.h"
+#import "SentryDataCategory.h"
 #import "SentryLevelMapper.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
+#import "SentryOptions+HybridSDKs.h"
 #import "SentrySDK+Private.h"
 #import <Sentry/Sentry.h>
 #import <XCTest/XCTest.h>
-
-#import "SentryDataCategory.h"
 
 @interface
 SentryBreadcrumbTracker (Private)
@@ -45,9 +45,9 @@ SentryBreadcrumbTracker (Private)
 - (void)testSharedClient
 {
     NSError *error = nil;
-    SentryOptions *options =
-        [[SentryOptions alloc] initWithDsn:@"https://username:password@app.getsentry.com/12345"
-                          didFailWithError:&error];
+    SentryOptions *options = [[SentryOptions alloc]
+            initWithDict:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }
+        didFailWithError:&error];
 
     SentryClient *client = [[SentryClient alloc] initWithOptions:options];
     XCTAssertNil(error);

@@ -75,15 +75,22 @@ SentryWatchdogTerminationScopeObserver ()
 
 - (void)store:(NSData *)data
 {
-    [self.fileHandle seekToEndOfFile];
-    [self.fileHandle writeData:data];
-    [self.fileHandle writeData:[@"\n" dataUsingEncoding:NSASCIIStringEncoding]];
+    unsigned long long fileSize;
+    @try {
+        fileSize = [self.fileHandle seekToEndOfFile];
 
-    self.breadcrumbCounter += 1;
+        [self.fileHandle writeData:data];
+        [self.fileHandle writeData:[@"\n" dataUsingEncoding:NSASCIIStringEncoding]];
 
-    if (self.breadcrumbCounter >= self.maxBreadcrumbs) {
-        [self switchFileHandle];
-        self.breadcrumbCounter = 0;
+        self.breadcrumbCounter += 1;
+    } @catch (NSException *exception) {
+        SENTRY_LOG_ERROR(@"Error while writing data to end file with size (%llu): %@ ", fileSize,
+            exception.description);
+    } @finally {
+        if (self.breadcrumbCounter >= self.maxBreadcrumbs) {
+            [self switchFileHandle];
+            self.breadcrumbCounter = 0;
+        }
     }
 }
 
