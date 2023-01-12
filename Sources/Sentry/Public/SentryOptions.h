@@ -326,7 +326,7 @@ NS_SWIFT_NAME(Options)
 
 /**
  * When enabled, the SDK tracks the performance of Core Data operations. It requires enabling
- * performance monitoring. The default is <code>NO</code>.
+ * performance monitoring. The default is <code>YES</code>.
  * @see <https://docs.sentry.io/platforms/apple/performance/>
  */
 @property (nonatomic, assign) BOOL enableCoreDataTracing;

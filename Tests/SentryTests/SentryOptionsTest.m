@@ -189,7 +189,7 @@
 
 - (void)testEnableCoreDataTracking
 {
-    [self testBooleanField:@"enableCoreDataTracing" defaultValue:NO];
+    [self testBooleanField:@"enableCoreDataTracing" defaultValue:YES];
 }
 
 - (void)testSendClientReports
