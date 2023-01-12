@@ -82,7 +82,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.idleTimeout = 3.0;
         self.enablePreWarmedAppStartTracing = NO;
 #endif
-        self.enableAppHangTracking = NO;
+        self.enableAppHangTracking = YES;
         self.appHangTimeoutInterval = 2.0;
         self.enableAutoBreadcrumbTracking = YES;
         self.enableNetworkTracking = YES;

@@ -13,6 +13,7 @@ This version adds a dependency on Swift.
 - [User Interaction Tracing](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/#user-interaction-tracing) is stable and enabled by default(#2503)
 - Add synthetic for mechanism (#2501)
 - Enable CaptureFailedRequests by default (#2507)
+- Enable [AppHang Tracking](https://docs.sentry.io/platforms/apple/configuration/app-hangs/) by default (#2600)
 - Support the [`SENTRY_DSN` environment variable](https://docs.sentry.io/platforms/apple/guides/macos/configuration/options/#dsn) on macOS (#2534)
 - Experimental MetricKit integration (#2519) for
   - [MXHangDiagnostic](https://developer.apple.com/documentation/metrickit/mxhangdiagnostic) 
