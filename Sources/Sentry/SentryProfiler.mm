@@ -45,6 +45,10 @@
 const int kSentryProfilerFrequencyHz = 101;
 NSString *const kTestStringConst = @"test";
 
+NSString *const kSentryProfilerSerializationKeySlowFrameRenders = @"slow_frame_renders";
+NSString *const kSentryProfilerSerializationKeyFrozenFrameRenders = @"frozen_frame_renders";
+NSString *const kSentryProfilerSerializationKeyFrameRates = @"screen_frame_rates";
+
 using namespace sentry::profiling;
 
 NSString *
@@ -644,19 +648,21 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     const auto slowTimestamps
         = processFrameRenders(_frameInfo.slowFrameTimestamps, _startTimestamp, profileDuration);
     if (slowTimestamps.count > 0) {
-        metrics[@"slow_frame_renders"] = @{ @"unit" : @"nanosecond", @"values" : slowTimestamps };
+        metrics[kSentryProfilerSerializationKeySlowFrameRenders] =
+            @{ @"unit" : @"nanosecond", @"values" : slowTimestamps };
     }
 
     const auto frozenTimestamps
         = processFrameRenders(_frameInfo.frozenFrameTimestamps, _startTimestamp, profileDuration);
     if (frozenTimestamps.count > 0) {
-        metrics[@"frozen_frame_renders"] =
+        metrics[kSentryProfilerSerializationKeyFrozenFrameRenders] =
             @{ @"unit" : @"nanosecond", @"values" : frozenTimestamps };
     }
 
     const auto frameRates = processFrameRates(_frameInfo.frameRateTimestamps, _startTimestamp);
     if (frameRates.count > 0) {
-        metrics[@"screen_frame_rates"] = @{ @"unit" : @"hz", @"values" : frameRates };
+        metrics[kSentryProfilerSerializationKeyFrameRates] =
+            @{ @"unit" : @"hz", @"values" : frameRates };
     }
 #    endif // SENTRY_HAS_UIKIT
 

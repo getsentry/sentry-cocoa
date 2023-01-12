@@ -23,9 +23,13 @@ class SentryProfilerSwiftTests: XCTestCase {
         let message = "some message"
         let transactionName = "Some Transaction"
         let transactionOperation = "Some Operation"
+
         lazy var systemWrapper = TestSentrySystemWrapper()
         lazy var processInfoWrapper = TestSentryNSProcessInfoWrapper()
         lazy var timerWrapper = TestSentryNSTimerWrapper()
+
+        lazy var displayLinkWrapper = TestDisplayLinkWrapper()
+        lazy var frameTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper)
 
         func newTransaction() -> Span {
             hub.startTransaction(name: transactionName, operation: transactionOperation)
@@ -76,6 +80,16 @@ class SentryProfilerSwiftTests: XCTestCase {
             self.fixture.timerWrapper.fire()
         }
 
+        // gather mock GPU frame render timestamps
+        fixture.frameTracker.start()
+        fixture.displayLinkWrapper.call()
+        fixture.displayLinkWrapper.slowFrame()
+        fixture.displayLinkWrapper.normalFrame()
+        fixture.displayLinkWrapper.almostFrozenFrame()
+        fixture.displayLinkWrapper.normalFrame()
+        fixture.displayLinkWrapper.frozenFrame()
+        fixture.frameTracker.stop()
+
         // mock errors gathering cpu usage and memory footprint to ensure they don't add more information to the payload
         fixture.systemWrapper.overrides.cpuUsageError = NSError(domain: "test-error", code: 0)
         fixture.systemWrapper.overrides.memoryFootprintError = NSError(domain: "test-error", code: 1)
@@ -87,7 +101,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             span.finish()
 
             do {
-                try self.assertMetricsPayload(expectedCPUUsages: cpuUsages, usageReadings: 2, expectedMemoryFootprint: memoryFootprint)
+                try self.assertMetricsPayload(expectedCPUUsages: cpuUsages, usageReadings: 2, expectedMemoryFootprint: memoryFootprint, expectedSlowFrameCount: 2, expectedFrozenFrameCount: 1, expectedFrameRateCount: 1)
                 exp.fulfill()
             } catch {
                 XCTFail("Encountered error: \(error)")
@@ -295,7 +309,7 @@ private extension SentryProfilerSwiftTests {
         self.assertValidProfileData(data: profileData, transactionEnvironment: transactionEnvironment, numberOfTransactions: numberOfTransactions, shouldTimeout: shouldTimeOut)
     }
 
-    func assertMetricsPayload(expectedCPUUsages: [Double], usageReadings: Int, expectedMemoryFootprint: SentryRAMBytes) throws {
+    func assertMetricsPayload(expectedCPUUsages: [Double], usageReadings: Int, expectedMemoryFootprint: SentryRAMBytes, expectedSlowFrameCount: Int, expectedFrozenFrameCount: Int, expectedFrameRateCount: Int) throws {
         let profileData = try self.getProfileData()
         guard let profile = try JSONSerialization.jsonObject(with: profileData) as? [String: Any] else {
             throw TestError.unexpectedProfileDeserializationType
@@ -310,20 +324,27 @@ private extension SentryProfilerSwiftTests {
         }
 
         try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, numberOfReadings: usageReadings, expectedValue: expectedMemoryFootprint)
+
+        let dummyValue: UInt64? = nil
+        try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, numberOfReadings: expectedSlowFrameCount, expectedValue: dummyValue)
+        try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeyFrozenFrameRenders, numberOfReadings: expectedFrozenFrameCount, expectedValue: dummyValue)
+        try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeyFrameRates, numberOfReadings: expectedFrameRateCount, expectedValue: dummyValue)
     }
 
-    func assertMetricValue<T: Equatable>(measurements: [String: Any], key: String, numberOfReadings: Int, expectedValue: T) throws {
+    func assertMetricValue<T: Equatable>(measurements: [String: Any], key: String, numberOfReadings: Int, expectedValue: T?) throws {
         guard let metricContainer = measurements[key] as? [String: Any] else {
             throw TestError.noMetricsReported
         }
         XCTAssertEqual(metricContainer.count, numberOfReadings)
-        guard let memoryFootprint = metricContainer["values"] as? [[String: Any]] else {
-            throw TestError.malformedMetricValueEntry
+        if let expectedValue {
+            guard let memoryFootprint = metricContainer["values"] as? [[String: Any]] else {
+                throw TestError.malformedMetricValueEntry
+            }
+            guard let memoryFootprintValue = memoryFootprint[0]["value"] as? T else {
+                throw TestError.noMetricValuesFound
+            }
+            XCTAssertEqual(memoryFootprintValue, expectedValue)
         }
-        guard let memoryFootprintValue = memoryFootprint[0]["value"] as? T else {
-            throw TestError.noMetricValuesFound
-        }
-        XCTAssertEqual(memoryFootprintValue, expectedValue)
     }
 
     func assertValidProfileData(data: Data, transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1, shouldTimeout: Bool = false) {
