@@ -109,7 +109,6 @@ class SentryNSDataTrackerTests: XCTestCase {
         assertDataSpan(span, path: fixture.filePath, operation: SENTRY_FILE_WRITE_OPERATION, size: fixture.data.count)
     }
 
-
     func testWriteAtomically_CheckTransaction_DebugImages() {
         let sut = fixture.getSut()
         let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
