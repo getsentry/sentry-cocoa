@@ -1068,8 +1068,13 @@ class SentryClientTest: XCTestCase {
 
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
+            var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking", integrationName]
+            if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced() {
+                expectedIntegrations = ["ANRTracking"] + expectedIntegrations
+            }
+            
             assertArrayEquals(
-                expected: ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking", integrationName],
+                expected: expectedIntegrations,
                 actual: actual.sdk?["integrations"] as? [String]
             )
         }

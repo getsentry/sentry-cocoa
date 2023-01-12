@@ -106,13 +106,18 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(SentryLevel.debug, options?.diagnosticLevel)
         XCTAssertEqual(true, options?.attachStacktrace)
         XCTAssertEqual(true, options?.enableAutoSessionTracking)
-
-        assertIntegrationsInstalled(integrations: [
+        
+        var expectedIntegrations = [
             "SentryCrashIntegration",
             "SentryAutoBreadcrumbTrackingIntegration",
             "SentryAutoSessionTrackingIntegration",
             "SentryNetworkTrackingIntegration"
-        ])
+        ]
+        if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced() {
+            expectedIntegrations.append("SentryANRTrackingIntegration")
+        }
+
+        assertIntegrationsInstalled(integrations: expectedIntegrations)
     }
     
     func testStartWithConfigureOptions_NoDsn() throws {
