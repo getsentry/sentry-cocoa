@@ -76,6 +76,11 @@ class SentryProfilerSwiftTests: XCTestCase {
             self.fixture.timerWrapper.fire()
         }
 
+        // mock errors gathering cpu usage and memory footprint to ensure they don't add more information to the payload
+        fixture.systemWrapper.overrides.cpuUsageError = NSError(domain: "test-error", code: 0)
+        fixture.systemWrapper.overrides.memoryFootprintError = NSError(domain: "test-error", code: 1)
+        self.fixture.timerWrapper.fire()
+
         // finish profile
         let exp = expectation(description: "Receives profile payload")
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
