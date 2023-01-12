@@ -6,9 +6,9 @@
 
 @implementation SentryNSDataSwizzling
 
-+ (void)start
++ (void)startWithOptions:(SentryOptions *)options
 {
-    [SentryNSDataTracker.sharedInstance enable];
+    [SentryNSDataTracker.sharedInstance enableWithOptions:options];
     [self swizzleNSData];
 }
 

@@ -11,8 +11,9 @@ class SentryNSDataTrackerTests: XCTestCase {
                 
         func getSut() -> SentryNSDataTracker {
             let result = SentryNSDataTracker.sharedInstance
+            Dynamic(result).processInfoWrapper = TestProcessInfoWrapper()
             CurrentDate.setCurrentDateProvider(dateProvider)
-            result.enable()
+            result.enable(with: Options())
             return result
         }
     }
@@ -22,12 +23,14 @@ class SentryNSDataTrackerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        fixture.getSut().enable()
+        fixture.getSut().enable(with: Options())
         SentrySDK.start { $0.enableFileIOTracing = true }
     }
     
     override func tearDown() {
         super.tearDown()
+        SentryNSDataTracker.sharedInstance.disable()
+        Dynamic(SentryNSDataTracker.sharedInstance).processInfoWrapper = SentryProcessInfoWrapper()
         clearTestState()
     }
     

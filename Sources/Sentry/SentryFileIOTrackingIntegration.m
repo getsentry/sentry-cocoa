@@ -11,7 +11,7 @@
         return NO;
     }
 
-    [SentryNSDataSwizzling start];
+    [SentryNSDataSwizzling startWithOptions:options];
 
     return YES;
 }

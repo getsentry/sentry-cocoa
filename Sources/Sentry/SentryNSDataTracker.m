@@ -1,18 +1,26 @@
 #import "SentryNSDataTracker.h"
 #import "SentryByteCountFormatter.h"
 #import "SentryClient+Private.h"
+#import "SentryCrashDefaultMachineContextWrapper.h"
+#import "SentryCrashStackEntryMapper.h"
+#import "SentryDebugImageProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryFileManager.h"
 #import "SentryFrame.h"
 #import "SentryHub+Private.h"
+#import "SentryInAppLogic.h"
 #import "SentryLog.h"
+#import "SentryOptions.h"
+#import "SentryProcessInfoWrapper.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
+#import "SentrySpan.h"
 #import "SentrySpanProtocol.h"
 #import "SentryStacktrace.h"
+#import "SentryStacktraceBuilder.h"
 #import "SentryThread.h"
 #import "SentryThreadInspector.h"
-// #import <dlfcn.h>
+#import "SentryTracer.h"
 
 const NSString *SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 
@@ -21,6 +29,8 @@ SentryNSDataTracker ()
 
 @property (nonatomic, assign) BOOL isEnabled;
 @property (nonatomic, strong) NSMutableSet<NSData *> *processingData;
+@property (nonatomic, strong) SentryThreadInspector *threadInspector;
+@property (nonatomic, strong) SentryProcessInfoWrapper *processInfoWrapper;
 
 @end
 
@@ -38,14 +48,32 @@ SentryNSDataTracker ()
 {
     if (self = [super init]) {
         self.isEnabled = NO;
+        _processInfoWrapper = [[SentryProcessInfoWrapper alloc] init];
     }
     return self;
 }
 
-- (void)enable
+- (void)buildThreadInspectorForOptions:(SentryOptions *)options
+{
+    SentryInAppLogic *inAppLogic =
+        [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
+                                          inAppExcludes:options.inAppExcludes];
+    SentryCrashStackEntryMapper *crashStackEntryMapper =
+        [[SentryCrashStackEntryMapper alloc] initWithInAppLogic:inAppLogic];
+    SentryStacktraceBuilder *stacktraceBuilder =
+        [[SentryStacktraceBuilder alloc] initWithCrashStackEntryMapper:crashStackEntryMapper];
+    id<SentryCrashMachineContextWrapper> machineContextWrapper =
+        [[SentryCrashDefaultMachineContextWrapper alloc] init];
+    self.threadInspector =
+        [[SentryThreadInspector alloc] initWithStacktraceBuilder:stacktraceBuilder
+                                        andMachineContextWrapper:machineContextWrapper];
+}
+
+- (void)enableWithOptions:(SentryOptions *)options
 {
     @synchronized(self) {
         self.isEnabled = YES;
+        [self buildThreadInspectorForOptions:options];
     }
 }
 
@@ -194,15 +222,26 @@ SentryNSDataTracker ()
         return;
     }
 
-    SentryThreadInspector *threadInspector = SentrySDK.currentHub.getClient.threadInspector;
+    SentryThreadInspector *threadInspector = self.threadInspector;
     SentryStacktrace *stackTrace = [threadInspector stacktraceForCurrentThreadNatively];
 
     NSMutableArray *frames = [[NSMutableArray alloc] initWithCapacity:stackTrace.frames.count];
     for (SentryFrame *frame in stackTrace.frames) {
-        [frames addObject:[frame serialize]];
+        // We dont need the frame if is a system frame
+        if ([frame.package hasPrefix:self.processInfoWrapper.processDirectoryPath]) {
+            [frames addObject:[frame serialize]];
+        }
     }
 
-    [span setDataValue:frames forKey:@"call_stack"];
+    if (frames.count <= 1) {
+        // This means the call was made only by system APIs,
+        // therefore, there is nothing to do about it
+        // and we should not report it as an issue.
+        [span setDataValue:@(NO) forKey:@"blocked_main_thread"];
+    } else {
+        [span setDataValue:frames forKey:@"call_stack"];
+        [[(SentrySpan *)span tracer] setRequiresDebugMeta:YES];
+    }
 }
 
 - (nullable id<SentrySpan>)startTrackingWritingNSData:(NSData *)data filePath:(NSString *)path

@@ -2,9 +2,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SentryOptions;
+
 @interface SentryNSDataSwizzling : NSObject
 
-+ (void)start;
++ (void)startWithOptions:(SentryOptions *)options;
 
 + (void)stop;
 

@@ -177,6 +177,7 @@
 #import "URLSessionTaskMock.h"
 @import SentryPrivate;
 #import "SentryEnvelopeAttachmentHeader.h"
+#import "SentryProcessInfoWrapper.h"
 #import "TestSentryViewHierarchy.h"
 
 #if SENTRY_HAS_UIKIT

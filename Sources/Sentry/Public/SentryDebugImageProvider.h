@@ -20,6 +20,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray<SentryDebugMeta *> *)getDebugImagesForThreads:(NSArray<SentryThread *> *)threads;
 
 /**
+ * Returns a list of debug images that are being referenced by the given memory addresses.
+ *
+ * @param addresses A list of memory addresses in hex format.
+ */
+
+- (NSArray<SentryDebugMeta *> *)getDebugImagesForAddresses:(NSArray<NSString *> *)addresses;
+
+/**
  * Returns the current list of debug images. Be aware that the SentryDebugMeta is actually
  * describing a debug image. This class should be renamed to SentryDebugImage in a future version.
  */

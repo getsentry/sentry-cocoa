@@ -5,11 +5,13 @@ static NSString *const SENTRY_FILE_WRITE_OPERATION = @"file.write";
 
 static NSString *const SENTRY_FILE_READ_OPERATION = @"file.read";
 
+@class SentryOptions;
+
 @interface SentryNSDataTracker : NSObject
 
 @property (class, readonly, nonatomic) SentryNSDataTracker *sharedInstance;
 
-- (void)enable;
+- (void)enableWithOptions:(SentryOptions *)options;
 
 - (void)disable;
 

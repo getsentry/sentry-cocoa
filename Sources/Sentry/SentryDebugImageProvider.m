@@ -14,14 +14,12 @@
 SentryDebugImageProvider ()
 
 @property (nonatomic, strong) id<SentryCrashBinaryImageProvider> binaryImageProvider;
-
 @end
 
 @implementation SentryDebugImageProvider
 
 - (instancetype)init
 {
-
     SentryCrashDefaultBinaryImageProvider *provider =
         [[SentryCrashDefaultBinaryImageProvider alloc] init];
 
@@ -39,6 +37,21 @@ SentryDebugImageProvider ()
     return self;
 }
 
+- (NSArray<SentryDebugMeta *> *)getDebugImagesForAddresses:(NSArray<NSString *> *)addresses
+{
+    NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray new];
+
+    NSArray<SentryDebugMeta *> *binaryImages = [self getDebugImages];
+
+    for (SentryDebugMeta *sourceImage in binaryImages) {
+        if ([addresses containsObject:sourceImage.imageAddress]) {
+            [result addObject:sourceImage];
+        }
+    }
+
+    return result;
+}
+
 - (NSArray<SentryDebugMeta *> *)getDebugImagesForThreads:(NSArray<SentryThread *> *)threads
 {
     NSMutableSet<NSString *> *imageAdresses = [[NSMutableSet alloc] init];
@@ -51,17 +64,7 @@ SentryDebugImageProvider ()
         }
     }
 
-    NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray new];
-
-    NSArray<SentryDebugMeta *> *binaryImages = [self getDebugImages];
-
-    for (SentryDebugMeta *sourceImage in binaryImages) {
-        if ([imageAdresses containsObject:sourceImage.imageAddress]) {
-            [result addObject:sourceImage];
-        }
-    }
-
-    return result;
+    return [self getDebugImagesForAddresses:[imageAdresses allObjects]];
 }
 
 - (NSArray<SentryDebugMeta *> *)getDebugImages

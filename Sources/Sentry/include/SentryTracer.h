@@ -102,6 +102,11 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  */
 @property (nullable, nonatomic, weak) id<SentryTracerDelegate> delegate;
 
+/**
+ * Indicates whether the event created with this tracer needs to include debug images info.
+ */
+@property (nonatomic) BOOL requiresDebugMeta;
+
 @property (nonatomic, readonly) NSDictionary<NSString *, SentryMeasurementValue *> *measurements;
 
 /**
