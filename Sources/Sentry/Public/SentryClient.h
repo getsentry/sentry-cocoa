@@ -1,7 +1,7 @@
 #import "SentryDefines.h"
 
-@class SentryOptions, SentrySession, SentryEvent, SentryEnvelope, SentryScope, SentryFileManager,
-    SentryId, SentryUserFeedback, SentryTransaction;
+@class SentryOptions, SentrySession, SentryEvent, SentryScope, SentryFileManager, SentryId,
+    SentryUserFeedback, SentryTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -109,8 +109,6 @@ SENTRY_NO_INIT
     NS_SWIFT_NAME(capture(userFeedback:));
 
 - (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
-
-- (void)captureEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(capture(envelope:));
 
 /**
  * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified

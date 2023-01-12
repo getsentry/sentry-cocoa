@@ -183,6 +183,14 @@ class TestData {
         return event
     }
     
+    static var metricKitEvent: Event {
+        let event = Event(level: .warning)
+        let exception = Exception(value: "MXCPUException totalCPUTime:90.009 sec totalSampledTime:91.952 sec", type: SentryMetricKitCpuExceptionType)
+        exception.mechanism = Mechanism(type: SentryMetricKitCpuExceptionMechanism)
+        event.exceptions = [exception]
+        return event
+    }
+    
     static func scopeWith(observer: SentryScopeObserver) -> Scope {
         let scope = Scope()
         scope.add(observer)

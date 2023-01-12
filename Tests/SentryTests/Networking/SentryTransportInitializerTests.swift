@@ -16,7 +16,7 @@ class SentryTransportInitializerTests: XCTestCase {
     }
 
     func testDefault() throws {
-        let options = try Options(dsn: SentryTransportInitializerTests.dsnAsString)
+        let options = try Options(dict: ["dsn": SentryTransportInitializerTests.dsnAsString])
         
         let result = TransportInitializer.initTransport(options, sentryFileManager: fileManager)
         

@@ -659,7 +659,7 @@ class SentryHubTests: XCTestCase {
         let envelope = try givenEnvelopeWithModifiedEvent { eventDict in
             eventDict.removeValue(forKey: "level")
         }
-        sut.capture(envelope: envelope)
+        sut.capture(envelope)
         
         assertSessionWithIncrementedErrorCountedAdded()
     }
@@ -670,7 +670,7 @@ class SentryHubTests: XCTestCase {
         let envelope = try givenEnvelopeWithModifiedEvent { eventDict in
             eventDict["level"] = "Garbage"
         }
-        sut.capture(envelope: envelope)
+        sut.capture(envelope)
         
         assertSessionWithIncrementedErrorCountedAdded()
     }
@@ -698,7 +698,7 @@ class SentryHubTests: XCTestCase {
     
     func testCaptureEnvelope_WithSession() {
         let envelope = SentryEnvelope(session: SentrySession(releaseName: ""))
-        sut.capture(envelope: envelope)
+        sut.capture(envelope)
         
         XCTAssertEqual(1, fixture.client.captureEnvelopeInvocations.count)
         XCTAssertEqual(envelope, fixture.client.captureEnvelopeInvocations.first)
@@ -791,7 +791,7 @@ class SentryHubTests: XCTestCase {
     private func captureEventEnvelope(level: SentryLevel) {
         let event = TestData.event
         event.level = level
-        sut.capture(envelope: SentryEnvelope(event: event))
+        sut.capture(SentryEnvelope(event: event))
     }
     
     private func givenCrashedSession() {

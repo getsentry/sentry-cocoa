@@ -1,4 +1,5 @@
 import Foundation
+import SentrySwiftUI
 import SwiftUI
 
 struct LoremIpsumView: View {
@@ -6,8 +7,10 @@ struct LoremIpsumView: View {
     @StateObject var viewModel = LoremIpsumViewModel()
     
     var body: some View {
-        Text(viewModel.text)
-            .padding(16)
+        SentryTracedView("Lorem Ipsum") {
+            Text(viewModel.text)
+                .padding(16)
+        }
     }
 }
 
