@@ -5,17 +5,15 @@ class SentryFramesTrackerTests: XCTestCase {
     
     private class Fixture {
         
-        var displayLinkWrapper: TestDiplayLinkWrapper
+        var displayLinkWrapper: TestDisplayLinkWrapper
         var queue: DispatchQueue
         
         init() {
-            displayLinkWrapper = TestDiplayLinkWrapper()
+            displayLinkWrapper = TestDisplayLinkWrapper()
             queue = DispatchQueue(label: "SentryFramesTrackerTests", qos: .background, attributes: [.concurrent])
         }
         
-        lazy var sut: SentryFramesTracker = {
-            return SentryFramesTracker(displayLinkWrapper: displayLinkWrapper)
-        }()
+        lazy var sut: SentryFramesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper)
     }
     
     private var fixture: Fixture!
