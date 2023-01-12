@@ -336,7 +336,7 @@ private extension SentryProfilerSwiftTests {
             throw TestError.noMetricsReported
         }
         XCTAssertEqual(metricContainer.count, numberOfReadings)
-        if let expectedValue {
+        if let expectedValue = expectedValue {
             guard let memoryFootprint = metricContainer["values"] as? [[String: Any]] else {
                 throw TestError.malformedMetricValueEntry
             }
