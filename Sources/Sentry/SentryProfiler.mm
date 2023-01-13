@@ -713,14 +713,16 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
         if ([transaction.timestamp compare:_endDate] == NSOrderedDescending) {
             relativeEnd = [NSString stringWithFormat:@"%llu", profileDuration];
         } else {
-            const auto profileStartToTransactionEnd_ns = timeIntervalToNanoseconds(
-                [transaction.timestamp timeIntervalSinceDate:_startDate]);
-            if (profileStartToTransactionEnd_ns < 0) {
+            const auto profileStartToTransactionEndInterval =
+                [transaction.timestamp timeIntervalSinceDate:_startDate];
+            if (profileStartToTransactionEndInterval < 0) {
                 SENTRY_LOG_DEBUG(@"Transaction %@ ended before the profiler started, won't "
                                  @"associate it with this profile.",
                     transaction.trace.traceId.sentryIdString);
                 continue;
             } else {
+                const auto profileStartToTransactionEnd_ns
+                    = timeIntervalToNanoseconds(profileStartToTransactionEndInterval);
                 relativeEnd = [NSString
                     stringWithFormat:@"%llu", (unsigned long long)profileStartToTransactionEnd_ns];
             }
