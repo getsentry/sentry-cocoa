@@ -59,28 +59,16 @@
                   Identifier = "SentryCrashIntegrationTests/testStartUpCrash_CallsFlush()">
                </Test>
                <Test
-                  Identifier = "SentryCrashIntegrationTests/testStartUpCrash_CallsFlush()">
-               </Test>
-               <Test
                   Identifier = "SentryCrashReportStore_Tests/testCrashReportCount1">
                </Test>
                <Test
                   Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readPath()">
                </Test>
                <Test
-                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readPath()">
-               </Test>
-               <Test
-                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl()">
-               </Test>
-               <Test
                   Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl()">
                </Test>
                <Test
                   Identifier = "SentryNSErrorTests/testSerializeWithUnderlyingNSException()">
-               </Test>
-               <Test
-                  Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndBaggageHeaderAdded()">
                </Test>
                <Test
                   Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndBaggageHeaderAdded()">
