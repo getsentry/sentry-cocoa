@@ -140,7 +140,7 @@ SentryStacktraceBuilder ()
     return [self retrieveStacktraceFromCursor:stackCursor];
 }
 
-- (SentryStacktrace *)buildStacktraceForCurrentThreadNatively
+- (SentryStacktrace *)buildStacktraceForCurrentThreadAsyncUnsafe
 {
     SentryCrashStackCursor stackCursor;
 
