@@ -60,7 +60,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
 
 - (SentryStacktrace *)stacktraceForCurrentThreadNatively
 {
-    return [self.stacktraceBuilder buildStacktraceForCurrentThreadNatively:true];
+    return [self.stacktraceBuilder buildStacktraceForCurrentThreadNatively];
 }
 
 - (NSArray<SentryThread *> *)getCurrentThreads

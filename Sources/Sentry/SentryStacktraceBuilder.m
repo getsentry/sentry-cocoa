@@ -140,16 +140,13 @@ SentryStacktraceBuilder ()
     return [self retrieveStacktraceFromCursor:stackCursor];
 }
 
-- (SentryStacktrace *)buildStacktraceForCurrentThreadNatively:(BOOL)natively
+- (SentryStacktrace *)buildStacktraceForCurrentThreadNatively
 {
     SentryCrashStackCursor stackCursor;
 
     sentrycrashsc_initSelfThread(&stackCursor, 0);
 
-    if (natively) {
-        return [self retrieveStacktraceFromCursorNatively:stackCursor];
-    }
-    return [self retrieveStacktraceFromCursor:stackCursor];
+    return [self retrieveStacktraceFromCursorNatively:stackCursor];
 }
 
 @end
