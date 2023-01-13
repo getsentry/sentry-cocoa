@@ -53,7 +53,7 @@ make test
 
 ### Flaky tests
 
-If you see a test being flaky, you should ideally fix it immediately. If that's not feasible, you can disable the test in the test scheme, add a suffix _disabled to the test, so it's clear when looking at the test that it is disabled, and create a GH issue with the issue template flaky test. Disabling the test in the scheme has the advantage that the test report will state "X tests passed, Y tests failed, Z tests skipped".
+If you see a test being flaky, you should ideally fix it immediately. If that's not feasible, you can disable the test in the test scheme, and create a GH issue with the issue template flaky test. Disabling the test in the scheme has the advantage that the test report will state "X tests passed, Y tests failed, Z tests skipped", as well as maintaining a centralized list of skipped tests (look in Sentry.xcscheme) and they will be grayed out when viewing in the Xcode Tests Navigator (⌘6).
 
 ## Code Formatting
 
