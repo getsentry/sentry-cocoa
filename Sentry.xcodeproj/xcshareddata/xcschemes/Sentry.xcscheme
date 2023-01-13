@@ -56,19 +56,31 @@
             </BuildableReference>
             <SkippedTests>
                <Test
+                  Identifier = "SentryCrashIntegrationTests/testStartUpCrash_CallsFlush()">
+               </Test>
+               <Test
                   Identifier = "SentryCrashIntegrationTests/testStartUpCrash_CallsFlush_disabled()">
                </Test>
                <Test
                   Identifier = "SentryCrashReportStore_Tests/testCrashReportCount1_disabled">
                </Test>
                <Test
+                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readPath()">
+               </Test>
+               <Test
                   Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readPath_disabled()">
+               </Test>
+               <Test
+                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl()">
                </Test>
                <Test
                   Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl_disabled()">
                </Test>
                <Test
                   Identifier = "SentryNSErrorTests/testSerializeWithUnderlyingNSException_disabled()">
+               </Test>
+               <Test
+                  Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndBaggageHeaderAdded()">
                </Test>
                <Test
                   Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndBaggageHeaderAdded_disabled()">
@@ -89,7 +101,7 @@
                   Identifier = "SentryStacktraceBuilderTests/testAsyncStacktraces_disabled()">
                </Test>
                <Test
-                  Identifier = "SentrySubClassFinderTests/testActOnSubclassesOfViewController_disabled()">
+                  Identifier = "SentrySubClassFinderTests/testActOnSubclassesOfViewController()">
                </Test>
                <Test
                   Identifier = "SentryUIApplicationTests/test_applicationWithScenes()">

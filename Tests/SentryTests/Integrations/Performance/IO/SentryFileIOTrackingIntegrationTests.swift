@@ -191,7 +191,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         ?? bundle.path(forResource: "fatal-error-binary-images-message2", ofType: "json")
     }
     
-    func test_DataConsistency_readUrl_disabled() {
+    func test_DataConsistency_readUrl() {
         SentrySDK.start(options: fixture.getOptions())
         
         let randomValue = UUID().uuidString
@@ -205,7 +205,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(randomValue, readValue)
     }
     
-    func test_DataConsistency_readPath_disabled() {
+    func test_DataConsistency_readPath() {
         SentrySDK.start(options: fixture.getOptions())
         
         let randomValue = UUID().uuidString
