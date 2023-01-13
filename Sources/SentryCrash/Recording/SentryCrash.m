@@ -59,7 +59,6 @@
 SentryCrash ()
 
 @property (nonatomic, readwrite, retain) NSString *bundleName;
-@property (nonatomic, readwrite, retain) NSString *basePath;
 @property (nonatomic, readwrite, assign) SentryCrashMonitorType monitoringWhenUninstalled;
 @property (nonatomic, readwrite, assign) BOOL monitoringFromUninstalledToRestore;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenter;

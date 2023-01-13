@@ -115,7 +115,7 @@ SentryCrashIntegration ()
             canSendReports = YES;
         }
 
-        [installation install];
+        [installation install:customCacheDirectory];
 
         // We need to send the crashed event together with the crashed session in the same envelope
         // to have proper statistics in release health. To achieve this we need both synchronously
