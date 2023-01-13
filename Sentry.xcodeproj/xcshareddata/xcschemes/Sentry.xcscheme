@@ -86,6 +86,9 @@
                   Identifier = "SentryStacktraceBuilderTests/testAsyncStacktraces_disabled()">
                </Test>
                <Test
+                  Identifier = "SentrySubClassFinderTests/testActOnSubclassesOfViewController_disabled()">
+               </Test>
+               <Test
                   Identifier = "SentryUIApplicationTests/test_applicationWithScenes()">
                </Test>
                <Test

@@ -8,9 +8,9 @@ import SentryInternal
 /// A control to measure the performance of your views and send the result as a transaction to Sentry.io.
 ///
 /// You create a transaction by wrapping your views with this.
-/// Nested `SentryTraceView` will create child spans in the transaction.
+/// Nested `SentryTracedView` will create child spans in the transaction.
 ///
-///     SentryTraceView {
+///     SentryTracedView {
 ///         VStack {
 ///             // The part of your content you want to measure
 ///         }
@@ -19,7 +19,7 @@ import SentryInternal
 /// By default, the transaction name will be the first root view, in the case above `VStack`.
 /// You can give your transaction a custom name by providing the name parameter.
 ///
-///     SentryTraceView("My Awesome Screen") {
+///     SentryTracedView("My Awesome Screen") {
 ///         VStack {
 ///             // The part of your content you want to measure
 ///         }
@@ -33,7 +33,7 @@ import SentryInternal
 ///
 ///
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
-public struct SentryTraceView<Content: View>: View {
+public struct SentryTracedView<Content: View>: View {
     
     let content: () -> Content
     let name: String
@@ -41,7 +41,7 @@ public struct SentryTraceView<Content: View>: View {
     
     public init(_ transactionName: String? = nil, content: @escaping () -> Content) {
         self.content = content
-        self.name = transactionName ?? SentryTraceView.extractName(content: Content.self)
+        self.name = transactionName ?? SentryTracedView.extractName(content: Content.self)
         id = SentryPerformanceTracker.shared.startSpan(withName: self.name,
                                                        nameSource: transactionName == nil ? .component : .custom,
                                                        operation: "ui.load")
@@ -72,7 +72,7 @@ public struct SentryTraceView<Content: View>: View {
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 public extension View {
     func sentryTrace(_ transactionName: String? = nil) -> some View {
-        return SentryTraceView(transactionName) {
+        return SentryTracedView(transactionName) {
             return self
         }
     }
