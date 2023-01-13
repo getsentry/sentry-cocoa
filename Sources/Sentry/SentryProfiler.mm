@@ -158,7 +158,9 @@ SentryProfiler *_Nullable _gCurrentProfiler;
 SentryNSProcessInfoWrapper *_gCurrentProcessInfoWrapper;
 SentrySystemWrapper *_gCurrentSystemWrapper;
 SentryNSTimerWrapper *_gCurrentTimerWrapper;
+#    if SENTRY_HAS_UIKIT
 SentryFramesTracker *_gCurrentFramesTracker;
+#    endif // SENTRY_HAS_UIKIT
 
 NSString *
 profilerTruncationReasonName(SentryProfilerTruncationReason reason)
@@ -402,11 +404,13 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     _gCurrentTimerWrapper = timerWrapper;
 }
 
+#    if SENTRY_HAS_UIKIT
 + (void)useFramesTracker:(SentryFramesTracker *)framesTracker
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
     _gCurrentFramesTracker = framesTracker;
 }
+#    endif // SENTRY_HAS_UIKIT
 
 #    pragma mark - Private
 

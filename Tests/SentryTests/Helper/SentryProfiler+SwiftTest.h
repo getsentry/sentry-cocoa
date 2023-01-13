@@ -23,7 +23,9 @@ SentryProfiler ()
 
 + (void)useTimerWrapper:(SentryNSTimerWrapper *)timerWrapper NS_SWIFT_NAME(useTimerWrapper(_:));
 
+#    if SENTRY_HAS_UIKIT
 + (void)useFramesTracker:(SentryFramesTracker *)framesTracker NS_SWIFT_NAME(useFramesTracker(_:));
+#    endif // SENTRY_HAS_UIKIT
 
 @end
 
