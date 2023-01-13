@@ -23,6 +23,8 @@ SentryProfiler ()
 
 + (void)useTimerWrapper:(SentryNSTimerWrapper *)timerWrapper NS_SWIFT_NAME(useTimerWrapper(_:));
 
++ (void)useFramesTracker:(SentryFramesTracker *)framesTracker NS_SWIFT_NAME(useFramesTracker(_:));
+
 @end
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

@@ -29,7 +29,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         lazy var timerWrapper = TestSentryNSTimerWrapper()
 
         lazy var displayLinkWrapper = TestDisplayLinkWrapper()
-        lazy var frameTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper)
+        lazy var framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper)
 
         func newTransaction() -> Span {
             hub.startTransaction(name: transactionName, operation: transactionOperation)
@@ -62,6 +62,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         SentryProfiler.useSystemWrapper(fixture.systemWrapper)
         SentryProfiler.useProcessInfoWrapper(fixture.processInfoWrapper)
         SentryProfiler.useTimerWrapper(fixture.timerWrapper)
+        SentryProfiler.useFramesTracker(fixture.framesTracker)
 
         // mock cpu usage
         let cpuUsages = [12.4, 63.5, 1.4, 4.6]
@@ -81,14 +82,14 @@ class SentryProfilerSwiftTests: XCTestCase {
         }
 
         // gather mock GPU frame render timestamps
-        fixture.frameTracker.start()
-        fixture.displayLinkWrapper.call()
+        fixture.framesTracker.start()
+        fixture.displayLinkWrapper.call() // call once directly to capture previous frame timestamp for comparison with later ones
         fixture.displayLinkWrapper.slowFrame()
         fixture.displayLinkWrapper.normalFrame()
         fixture.displayLinkWrapper.almostFrozenFrame()
         fixture.displayLinkWrapper.normalFrame()
         fixture.displayLinkWrapper.frozenFrame()
-        fixture.frameTracker.stop()
+        fixture.framesTracker.stop()
 
         // mock errors gathering cpu usage and memory footprint to ensure they don't add more information to the payload
         fixture.systemWrapper.overrides.cpuUsageError = NSError(domain: "test-error", code: 0)
@@ -335,15 +336,15 @@ private extension SentryProfilerSwiftTests {
         guard let metricContainer = measurements[key] as? [String: Any] else {
             throw TestError.noMetricsReported
         }
-        XCTAssertEqual(metricContainer.count, numberOfReadings)
+        guard let values = metricContainer["values"] as? [[String: Any]] else {
+            throw TestError.malformedMetricValueEntry
+        }
+        XCTAssertEqual(values.count, numberOfReadings, "Wrong number of values under \(key)")
         if let expectedValue = expectedValue {
-            guard let memoryFootprint = metricContainer["values"] as? [[String: Any]] else {
-                throw TestError.malformedMetricValueEntry
-            }
-            guard let memoryFootprintValue = memoryFootprint[0]["value"] as? T else {
+            guard let memoryFootprintValue = values[0]["value"] as? T else {
                 throw TestError.noMetricValuesFound
             }
-            XCTAssertEqual(memoryFootprintValue, expectedValue)
+            XCTAssertEqual(memoryFootprintValue, expectedValue, "Wrong value for \(key)")
         }
     }
 
