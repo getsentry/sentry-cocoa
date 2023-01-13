@@ -95,7 +95,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         _defaultProfilesSampleRate = nil;
         self.profilesSampleRate = _defaultProfilesSampleRate;
 #endif
-        self.enableCoreDataTracing = NO;
+        self.enableCoreDataTracing = YES;
         _enableSwizzling = YES;
         self.sendClientReports = YES;
 
