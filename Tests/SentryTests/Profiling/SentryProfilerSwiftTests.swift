@@ -28,8 +28,10 @@ class SentryProfilerSwiftTests: XCTestCase {
         lazy var processInfoWrapper = TestSentryNSProcessInfoWrapper()
         lazy var timerWrapper = TestSentryNSTimerWrapper()
 
+#if !os(macOS)
         lazy var displayLinkWrapper = TestDisplayLinkWrapper()
         lazy var framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper)
+#endif
 
         func newTransaction() -> Span {
             hub.startTransaction(name: transactionName, operation: transactionOperation)
@@ -49,7 +51,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         super.tearDown()
         clearTestState()
         SentryTracer.resetAppStartMeasurementRead()
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if !os(macOS)
         SentryFramesTracker.sharedInstance().resetFrames()
         SentryFramesTracker.sharedInstance().stop()
 #endif
@@ -62,7 +64,9 @@ class SentryProfilerSwiftTests: XCTestCase {
         SentryProfiler.useSystemWrapper(fixture.systemWrapper)
         SentryProfiler.useProcessInfoWrapper(fixture.processInfoWrapper)
         SentryProfiler.useTimerWrapper(fixture.timerWrapper)
+#if !os(macOS)
         SentryProfiler.useFramesTracker(fixture.framesTracker)
+#endif
 
         // mock cpu usage
         let cpuUsages = [12.4, 63.5, 1.4, 4.6]
@@ -81,6 +85,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             self.fixture.timerWrapper.fire()
         }
 
+#if !os(macOS)
         // gather mock GPU frame render timestamps
         fixture.framesTracker.start()
         fixture.displayLinkWrapper.call() // call once directly to capture previous frame timestamp for comparison with later ones
@@ -90,6 +95,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         fixture.displayLinkWrapper.normalFrame()
         fixture.displayLinkWrapper.frozenFrame()
         fixture.framesTracker.stop()
+#endif
 
         // mock errors gathering cpu usage and memory footprint to ensure they don't add more information to the payload
         fixture.systemWrapper.overrides.cpuUsageError = NSError(domain: "test-error", code: 0)
@@ -326,10 +332,12 @@ private extension SentryProfilerSwiftTests {
 
         try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, numberOfReadings: usageReadings, expectedValue: expectedMemoryFootprint)
 
+#if !os(macOS)
         let dummyValue: UInt64? = nil
         try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, numberOfReadings: expectedSlowFrameCount, expectedValue: dummyValue)
         try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeyFrozenFrameRenders, numberOfReadings: expectedFrozenFrameCount, expectedValue: dummyValue)
         try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeyFrameRates, numberOfReadings: expectedFrameRateCount, expectedValue: dummyValue)
+#endif
     }
 
     func assertMetricValue<T: Equatable>(measurements: [String: Any], key: String, numberOfReadings: Int, expectedValue: T?) throws {
