@@ -1,5 +1,5 @@
 codecov:
-  branch: 8.0.0
+  branch: main
   require_ci_to_pass: yes
   notify:
     wait_for_ci: yes

@@ -173,3 +173,10 @@ since version 0.37.0, released in January 2021. Therefore, it's acceptable to us
 Date: December 14, 2022
 
 We [removed](https://github.com/getsentry/sentry-cocoa/pull/2529) the permissions feature that we added in [7.24.0](https://github.com/getsentry/sentry-cocoa/releases/tag/7.24.0). Multiple people reported getting denied in app review because of permission access without the corresponding Info.plist entry: see [#2528](https://github.com/getsentry/sentry-cocoa/issues/2528) and [2065](https://github.com/getsentry/sentry-cocoa/issues/2065).
+
+## Rename master to main
+
+Date: January 16th, 2023
+Contributors: @kahest, @brustolin and @philipphofmann
+
+With 8.0.0, we rename the default branch from `master` to `main`. We will keep the `master` branch for backwards compatibility for package managers pointing to the `master` branch.
