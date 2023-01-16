@@ -39,7 +39,7 @@ SentryDebugImageProvider ()
 
 - (NSArray<SentryDebugMeta *> *)getDebugImagesForAddresses:(NSArray<NSString *> *)addresses
 {
-    NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray new];
+    NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray array];
 
     NSArray<SentryDebugMeta *> *binaryImages = [self getDebugImages];
 

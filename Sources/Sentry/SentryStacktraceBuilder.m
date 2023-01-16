@@ -81,7 +81,7 @@ SentryStacktraceBuilder ()
     return [self retrieveStackTraceFromCursor:&stackCursor
                         withFrameSymbolicator:^SentryFrame *(SentryCrashStackCursor *cursor) {
                             Dl_info info = { 0 };
-                            if (dladdr((const void *)cursor->stackEntry.address, &info)) {
+                            if (dladdr((const void *)cursor->stackEntry.address, &info) != 0) {
 
                                 cursor->stackEntry.imageName = info.dli_fname;
                                 cursor->stackEntry.imageAddress = (uintptr_t)info.dli_fbase;

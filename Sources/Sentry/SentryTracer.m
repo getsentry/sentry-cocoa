@@ -722,10 +722,6 @@ static BOOL appStartMeasurementRead;
     return result;
 }
 
-/*(
--(NSArray<NSString *> *)getSpanImages {
-
-}*/
 
 - (nullable SentryAppStartMeasurement *)getAppStartMeasurement
 {
