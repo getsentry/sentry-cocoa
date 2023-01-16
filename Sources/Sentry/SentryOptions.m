@@ -33,12 +33,12 @@ NSString *const kSentryDefaultEnvironment = @"production";
         @[
             @"SentryCrashIntegration",
 #if SENTRY_HAS_UIKIT
-            @"SentryANRTrackingIntegration", @"SentryScreenshotIntegration",
-            @"SentryUIEventTrackingIntegration", @"SentryViewHierarchyIntegration",
+            @"SentryScreenshotIntegration", @"SentryUIEventTrackingIntegration",
+            @"SentryViewHierarchyIntegration",
 #endif
-            @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
-            @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
-            @"SentryWatchdogTerminationTrackingIntegration",
+            @"SentryANRTrackingIntegration", @"SentryFramesTrackingIntegration",
+            @"SentryAutoBreadcrumbTrackingIntegration", @"SentryAutoSessionTrackingIntegration",
+            @"SentryAppStartTrackingIntegration", @"SentryWatchdogTerminationTrackingIntegration",
             @"SentryPerformanceTrackingIntegration", @"SentryNetworkTrackingIntegration",
             @"SentryFileIOTrackingIntegration", @"SentryCoreDataTrackingIntegration"
         ]
