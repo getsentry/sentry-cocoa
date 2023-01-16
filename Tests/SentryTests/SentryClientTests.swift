@@ -1037,9 +1037,15 @@ class SentryClientTest: XCTestCase {
         let eventId = fixture.getSut().capture(message: fixture.messageAsString)
 
         eventId.assertIsNotEmpty()
+        
+        var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking"]
+        if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced() {
+            expectedIntegrations = ["ANRTracking"] + expectedIntegrations
+        }
+        
         assertLastSentEvent { actual in
             assertArrayEquals(
-                expected: ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking"],
+                expected: expectedIntegrations,
                 actual: actual.sdk?["integrations"] as? [String]
             )
         }
@@ -1068,8 +1074,13 @@ class SentryClientTest: XCTestCase {
 
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
+            var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking", integrationName]
+            if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced() {
+                expectedIntegrations = ["ANRTracking"] + expectedIntegrations
+            }
+            
             assertArrayEquals(
-                expected: ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking", integrationName],
+                expected: expectedIntegrations,
                 actual: actual.sdk?["integrations"] as? [String]
             )
         }
