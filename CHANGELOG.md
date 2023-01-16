@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-This version adds a dependency on Swift.
+This version adds a dependency on Swift. We renamed the default branch from `master` to `main`. We are going to keep the `master` branch for backwards compatibility for package managers not pointing to the `master` branch.
 
 ### Features
 
