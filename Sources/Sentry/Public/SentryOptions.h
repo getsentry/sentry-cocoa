@@ -200,7 +200,7 @@ NS_SWIFT_NAME(Options)
 /**
  * This feature is EXPERIMENTAL.
  *
- * Automatically attaches a screenshot when capturing an error or exception.
+ * Automatically attaches a screenshot when capturing an error, exception, or a crash.
  *
  * Default value is <code>NO</code>
  */
