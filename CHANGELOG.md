@@ -8,7 +8,7 @@ This version adds a dependency on Swift. We renamed the default branch from `mas
 
 - Properly demangle Swift class name (#2162)
 - Change view hierarchy attachment format to JSON (#2491)
-- SwiftUI performance tracking (#2271)
+- Experimental SwiftUI performance tracking (#2271)
 - Enable [File I/O Tracking](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/#file-io-tracking) by default (#2497)
 - Enable [AppHang Tracking](https://docs.sentry.io/platforms/apple/configuration/app-hangs/) by default (#2600)
 - Enable [Core Data Tracing](https://docs.sentry.io/platforms/apple/performance/instrumentation/automatic-instrumentation/#core-data-tracking) by default (#2598)
