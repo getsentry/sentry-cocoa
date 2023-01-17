@@ -12,7 +12,7 @@ repos:
       - id: detect-private-key
       - id: end-of-file-fixer
       - id: no-commit-to-branch
-        args: ["-b master"]
+        args: ["-b main"]
 
   - repo: local
     hooks:

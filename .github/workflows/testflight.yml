@@ -2,7 +2,6 @@ name: Upload to Testflight
 on:
   push:
     branches:
-      - master
       - main
     paths:
       - 'Sources/**'
@@ -21,7 +20,7 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh 14.0.1
       - run: bundle install
 
-      # We upload a new version to TestFlight on every commit on Master
+      # We upload a new version to TestFlight on every commit on main
       # So we need to bump the build number each time
       - name: Bump Build Version
         env:
