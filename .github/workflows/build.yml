@@ -2,7 +2,6 @@ name: Build
 on:
   push:
     branches:
-      - master
       - main
       - release/**
 
@@ -17,7 +16,7 @@ on:
       - Sentry.xcworkspace
 
 jobs:
-  # We had issues that the release build was broken on master.
+  # We had issues that the release build was broken on main.
   # With this we catch potential issues already in the PR.
   ios-swift-release:
     name: Release Build of iOS Swift
@@ -109,9 +108,9 @@ jobs:
       - name: Set SPM revision to current git commit
         run: >-
           if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
-            sed -i '' 's/.branch("master")/.revision("${{ github.event.pull_request.head.sha }}")/g' Samples/macOS-SPM-CommandLine/Package.swift
+            sed -i '' 's/.branch("main")/.revision("${{ github.event.pull_request.head.sha }}")/g' Samples/macOS-SPM-CommandLine/Package.swift
           else
-            sed -i '' 's/.branch("master")/.revision("${{ github.sha }}")/g' Samples/macOS-SPM-CommandLine/Package.swift
+            sed -i '' 's/.branch("main")/.revision("${{ github.sha }}")/g' Samples/macOS-SPM-CommandLine/Package.swift
           fi
         shell: bash
       - run: swift build
@@ -126,9 +125,9 @@ jobs:
       - name: Set SPM revision to current git commit
         run: >-
           if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
-            sed -i '' 's/.branch("master")/.revision("${{ github.event.pull_request.head.sha }}")/g' Samples/SPM-Dynamic/Package.swift
+            sed -i '' 's/.branch("main")/.revision("${{ github.event.pull_request.head.sha }}")/g' Samples/SPM-Dynamic/Package.swift
           else
-            sed -i '' 's/.branch("master")/.revision("${{ github.sha }}")/g' Samples/SPM-Dynamic/Package.swift
+            sed -i '' 's/.branch("main")/.revision("${{ github.sha }}")/g' Samples/SPM-Dynamic/Package.swift
           fi
         shell: bash
       - run: swift build
