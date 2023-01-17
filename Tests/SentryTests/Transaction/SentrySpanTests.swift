@@ -249,10 +249,10 @@ class SentrySpanTests: XCTestCase {
 
         serialization = span.serialize()
         XCTAssertNotNil(serialization["data"])
-        let call_stack = (serialization["data"] as? [String: Any])?["call_stack"] as? [[String: Any]]
-        XCTAssertNotNil(call_stack)
-        XCTAssertEqual(call_stack?.first?["function"] as? String, TestData.mainFrame.function)
-        XCTAssertEqual(call_stack?.last?["function"] as? String, TestData.testFrame.function)
+        let callStack = (serialization["data"] as? [String: Any])?["call_stack"] as? [[String: Any]]
+        XCTAssertNotNil(callStack)
+        XCTAssertEqual(callStack?.first?["function"] as? String, TestData.mainFrame.function)
+        XCTAssertEqual(callStack?.last?["function"] as? String, TestData.testFrame.function)
     }
 
     func testSanitizeData() {
