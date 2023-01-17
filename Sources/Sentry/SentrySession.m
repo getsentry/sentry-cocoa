@@ -4,8 +4,8 @@
 #import "SentryInstallation.h"
 #import "SentryLog.h"
 #import "SentrySDK+Private.h"
-#import <SentryHub.h>
 #import <SentryClient+Private.h>
+#import <SentryHub.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

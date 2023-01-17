@@ -45,7 +45,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (NSString *)installationID
 {
-    return [SentryInstallation idWithOptions: [self options]];
+    return [SentryInstallation idWithOptions:[self options]];
 }
 
 + (SentryOptions *)options
