@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- fix: Disable watchdog when disabling crash handler (#2621)
+
 ## 8.0.0
 
 This version adds a dependency on Swift. We renamed the default branch from `master` to `main`. We are going to keep the `master` branch for backwards compatibility for package managers not pointing to the `master` branch.

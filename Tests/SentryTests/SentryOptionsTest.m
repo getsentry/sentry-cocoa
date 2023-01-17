@@ -1094,6 +1094,22 @@
     XCTAssertNotNil(options.urlSessionDelegate);
 }
 
+- (void)testDisableCrashHandler_DisablesWatchDog
+{
+    SentryOptions *options = [self getValidOptions:@{ @"enableCrashHandler" : @(NO) }];
+
+    XCTAssertFalse(options.enableCrashHandler);
+    XCTAssertFalse(options.enableWatchdogTerminationTracking);
+}
+
+- (void)testEnableCrashHandler_DoesNotEnableWatchDog
+{
+    SentryOptions *options = [self getValidOptions:@{ @"enableCrashHandler" : @(NO) }];
+    options.enableCrashHandler = YES;
+    XCTAssertTrue(options.enableCrashHandler);
+    XCTAssertFalse(options.enableWatchdogTerminationTracking);
+}
+
 - (void)assertArrayEquals:(NSArray<NSString *> *)expected actual:(NSArray<NSString *> *)actual
 {
     XCTAssertEqualObjects([expected sortedArrayUsingSelector:@selector(compare:)],

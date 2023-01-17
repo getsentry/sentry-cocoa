@@ -169,6 +169,14 @@ NSString *const kSentryDefaultEnvironment = @"production";
     return self;
 }
 
+- (void)setEnableCrashHandler:(BOOL)enableCrashHandler
+{
+    _enableCrashHandler = enableCrashHandler;
+    if (!enableCrashHandler) {
+        _enableWatchdogTerminationTracking = NO;
+    }
+}
+
 - (void)setTracePropagationTargets:(NSArray *)tracePropagationTargets
 {
     for (id targetCheck in tracePropagationTargets) {
@@ -260,8 +268,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.shutdownTimeInterval = [options[@"shutdownTimeInterval"] doubleValue];
     }
 
+    __block SentryOptions *_self = self;
     [self setBool:options[@"enableCrashHandler"]
-            block:^(BOOL value) { self->_enableCrashHandler = value; }];
+            block:^(BOOL value) { _self.enableCrashHandler = value; }];
 
     if ([options[@"maxBreadcrumbs"] isKindOfClass:[NSNumber class]]) {
         self.maxBreadcrumbs = [options[@"maxBreadcrumbs"] unsignedIntValue];
