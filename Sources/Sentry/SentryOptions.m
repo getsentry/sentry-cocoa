@@ -33,12 +33,12 @@ NSString *const kSentryDefaultEnvironment = @"production";
         @[
             @"SentryCrashIntegration",
 #if SENTRY_HAS_UIKIT
-            @"SentryANRTrackingIntegration", @"SentryScreenshotIntegration",
-            @"SentryUIEventTrackingIntegration", @"SentryViewHierarchyIntegration",
+            @"SentryScreenshotIntegration", @"SentryUIEventTrackingIntegration",
+            @"SentryViewHierarchyIntegration",
 #endif
-            @"SentryFramesTrackingIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
-            @"SentryAutoSessionTrackingIntegration", @"SentryAppStartTrackingIntegration",
-            @"SentryWatchdogTerminationTrackingIntegration",
+            @"SentryANRTrackingIntegration", @"SentryFramesTrackingIntegration",
+            @"SentryAutoBreadcrumbTrackingIntegration", @"SentryAutoSessionTrackingIntegration",
+            @"SentryAppStartTrackingIntegration", @"SentryWatchdogTerminationTrackingIntegration",
             @"SentryPerformanceTrackingIntegration", @"SentryNetworkTrackingIntegration",
             @"SentryFileIOTrackingIntegration", @"SentryCoreDataTrackingIntegration"
         ]
@@ -82,7 +82,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.idleTimeout = 3.0;
         self.enablePreWarmedAppStartTracing = NO;
 #endif
-        self.enableAppHangTracking = NO;
+        self.enableAppHangTracking = YES;
         self.appHangTimeoutInterval = 2.0;
         self.enableAutoBreadcrumbTracking = YES;
         self.enableNetworkTracking = YES;
@@ -95,7 +95,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         _defaultProfilesSampleRate = nil;
         self.profilesSampleRate = _defaultProfilesSampleRate;
 #endif
-        self.enableCoreDataTracing = NO;
+        self.enableCoreDataTracing = YES;
         _enableSwizzling = YES;
         self.sendClientReports = YES;
 

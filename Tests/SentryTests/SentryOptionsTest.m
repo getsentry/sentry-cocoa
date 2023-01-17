@@ -189,7 +189,7 @@
 
 - (void)testEnableCoreDataTracking
 {
-    [self testBooleanField:@"enableCoreDataTracing" defaultValue:NO];
+    [self testBooleanField:@"enableCoreDataTracing" defaultValue:YES];
 }
 
 - (void)testSendClientReports
@@ -567,7 +567,7 @@
     XCTAssertEqual(options.enablePreWarmedAppStartTracing, NO);
     XCTAssertEqual(options.attachViewHierarchy, NO);
 #endif
-    XCTAssertFalse(options.enableAppHangTracking);
+    XCTAssertTrue(options.enableAppHangTracking);
     XCTAssertEqual(options.appHangTimeoutInterval, 2);
     XCTAssertEqual(YES, options.enableNetworkTracking);
     XCTAssertNil(options.tracesSampleRate);
@@ -744,7 +744,7 @@
 
 - (void)testEnableAppHangTracking
 {
-    [self testBooleanField:@"enableAppHangTracking" defaultValue:NO];
+    [self testBooleanField:@"enableAppHangTracking" defaultValue:YES];
 }
 
 - (void)testDefaultAppHangsTimeout

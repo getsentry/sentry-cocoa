@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - master
-      - 8.0.0
+      - main
 
   pull_request:
     paths:
@@ -140,49 +140,3 @@ jobs:
         run: |
           bundle config set --local path 'vendor/bundle'
           for i in {1..2}; do bundle exec fastlane test && break ; done
-
-  # We borrow the tests of VLC iOS under the GPLv2 (or later) and the MPLv2: https://github.com/videolan/vlc-ios
-  # The following steps checkout VLC and apply a github patch to the project. The patch adds
-  # Sentry to the app with auto performance monitoring enabled. We then run the UI tests to make sure
-  # adding our SDK doesn't cause any major issues.
-  vlc-tests:
-    runs-on: macos-12
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          repository: 'videolan/vlc-ios'
-          ref: '5d2b5505edc3387cad43deca14c0bd0b19e3f133'
-
-      # Use github.event.pull_request.head.sha instead of github.sha when available as
-      # the github.sha is the pre merge commit id for PRs.
-      # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
-      - name: Download Apply Patch Script
-        run: >-
-          if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
-            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/apply-patch.sh --output apply-patch.sh
-          else
-            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.sha }}/scripts/apply-patch.sh --output apply-patch.sh
-          fi
-
-          chmod +x apply-patch.sh
-        shell: bash
-
-      - name: Download and Apply Patch
-        run: ./apply-patch.sh "${{ github.event.pull_request.head.sha }}" "${{ github.sha }}" add-sentry-to-vlc
-
-      - uses: actions/cache@v3
-        name: 'Cache: Pods'
-        id: cache-pods
-        with:
-          path: Pods
-          key: >-
-            ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-
-      - name: Install Pods
-        if: steps.cache_pods.outputs.cache-hit != 'true'
-        run: pod install
-
-      - name: Run UI Tests
-        # Run the tests twice in case they are flaky.
-        run: for i in {1..2} ; do set -o pipefail && env NSUnbufferedIO=YES xcodebuild -workspace "VLC.xcworkspace" -scheme "VLC-iOS-UITests" -destination "platform=iOS Simulator,OS=16.0,name=iPhone 13 Pro" test | xcpretty && break ; done
