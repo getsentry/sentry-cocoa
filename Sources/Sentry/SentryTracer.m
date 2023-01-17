@@ -692,21 +692,21 @@ static BOOL appStartMeasurementRead;
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.transactionContext.name;
 
-    NSMutableArray *frames = [NSMutableArray array];
+    NSMutableArray *framesOfAllSpans = [NSMutableArray array];
     if ([(SentrySpan *)self.rootSpan frames]) {
-        [frames addObjectsFromArray:[(SentrySpan *)self.rootSpan frames]];
+        [framesOfAllSpans addObjectsFromArray:[(SentrySpan *)self.rootSpan frames]];
     }
 
     for (SentrySpan *span in _children) {
         if (span.frames) {
-            [frames addObjectsFromArray:span.frames];
+            [framesOfAllSpans addObjectsFromArray:span.frames];
         }
     }
 
-    if (frames.count > 0) {
+    if (framesOfAllSpans.count > 0) {
         SentryDebugImageProvider *debugImageProvider
             = SentryDependencyContainer.sharedInstance.debugImageProvider;
-        transaction.debugMeta = [debugImageProvider getDebugImagesForFrames:frames];
+        transaction.debugMeta = [debugImageProvider getDebugImagesForFrames:framesOfAllSpans];
     }
 
     [self addMeasurements:transaction];

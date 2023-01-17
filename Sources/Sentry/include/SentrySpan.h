@@ -67,7 +67,7 @@ SENTRY_NO_INIT
 @property (nullable, nonatomic, readonly, weak) SentryTracer *tracer;
 
 /**
- *
+ * Frames of the stack trace associated with the span.
  */
 @property (nullable, nonatomic, strong) NSArray<SentryFrame *> *frames;
 

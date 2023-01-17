@@ -240,14 +240,19 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual((serialization["tags"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
     }
 
-    func testSerialization_Frames() {
+    func testSerialization_NoFrames() {
         let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: "test"))
-        var serialization = span.serialize()
+        let serialization = span.serialize()
 
         XCTAssertNil(serialization["data"])
+    }
+
+    func testSerialization_withFrames() {
+        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: "test"))
         span.frames = [TestData.mainFrame, TestData.testFrame]
 
-        serialization = span.serialize()
+        let serialization = span.serialize()
+
         XCTAssertNotNil(serialization["data"])
         let callStack = (serialization["data"] as? [String: Any])?["call_stack"] as? [[String: Any]]
         XCTAssertNotNil(callStack)

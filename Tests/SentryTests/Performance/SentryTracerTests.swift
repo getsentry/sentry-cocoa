@@ -172,7 +172,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(child3.status, .ok)
     }
 
-    func testTransactionWithDebugImage() {
+    func testFramesofSpans_SetsDebugMeta() {
         let sut = fixture.getSut()
         let rootSpan = sut.rootSpan as? SentrySpan
         rootSpan?.frames = [TestData.mainFrame, TestData.testFrame]
