@@ -172,6 +172,21 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(child3.status, .ok)
     }
 
+    func testTransactionWithDebugImage() {
+        let sut = fixture.getSut()
+        let rootSpan = sut.rootSpan as? SentrySpan
+        rootSpan?.frames = [TestData.mainFrame, TestData.testFrame]
+
+        let debugImageProvider = TestDebugImageProvider()
+        debugImageProvider.debugImages = [TestData.debugImage]
+        SentryDependencyContainer.sharedInstance().debugImageProvider = debugImageProvider
+
+        let transaction = Dynamic(sut).toTransaction().asObject as? Transaction
+
+        XCTAssertEqual(transaction?.debugMeta?.count ?? 0, 1)
+        XCTAssertEqual(transaction?.debugMeta?.first, TestData.debugImage)
+    }
+
     func testDeadlineTimer_OnlyForAutoTransactions() {
         let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
         let child1 = sut.startChild(operation: fixture.transactionOperation)
