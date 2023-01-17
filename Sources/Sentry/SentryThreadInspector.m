@@ -58,7 +58,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
     return self;
 }
 
-- (SentryStacktrace *)stacktraceForCurrentThreadNatively
+- (SentryStacktrace *)stacktraceForCurrentThreadAsyncUnsafe
 {
     return [self.stacktraceBuilder buildStacktraceForCurrentThreadAsyncUnsafe];
 }

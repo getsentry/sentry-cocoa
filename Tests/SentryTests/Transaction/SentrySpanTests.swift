@@ -221,7 +221,7 @@ class SentrySpanTests: XCTestCase {
         //Faking extra info to test serialization
         span.parentSpanId = SpanId()
         span.spanDescription = "Span Description"
-        
+
         let serialization = span.serialize()
         XCTAssertEqual(serialization["span_id"] as? String, span.spanId.sentrySpanIdString)
         XCTAssertEqual(serialization["parent_span_id"] as? String, span.parentSpanId?.sentrySpanIdString)
@@ -238,6 +238,21 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNotNil(serialization["tags"])
         XCTAssertEqual((serialization["data"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
         XCTAssertEqual((serialization["tags"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
+    }
+
+    func testSerialization_Frames() {
+        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: "test"))
+        var serialization = span.serialize()
+
+        XCTAssertNil(serialization["data"])
+        span.frames = [TestData.mainFrame, TestData.testFrame]
+
+        serialization = span.serialize()
+        XCTAssertNotNil(serialization["data"])
+        let call_stack = (serialization["data"] as? [String: Any])?["call_stack"] as? [[String: Any]]
+        XCTAssertNotNil(call_stack)
+        XCTAssertEqual(call_stack?.first?["function"] as? String, TestData.mainFrame.function)
+        XCTAssertEqual(call_stack?.last?["function"] as? String, TestData.testFrame.function)
     }
 
     func testSanitizeData() {

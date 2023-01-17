@@ -692,36 +692,26 @@ static BOOL appStartMeasurementRead;
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.transactionContext.name;
 
-    if (self.requiresDebugMeta) {
+    NSMutableArray *frames = [NSMutableArray array];
+    if ([(SentrySpan *)self.rootSpan frames]) {
+        [frames addObjectsFromArray:[(SentrySpan *)self.rootSpan frames]];
+    }
+
+    for (SentrySpan *span in _children) {
+        if (span.frames) {
+            [frames addObjectsFromArray:span.frames];
+        }
+    }
+
+    if (frames.count > 0) {
         SentryDebugImageProvider *debugImageProvider
             = SentryDependencyContainer.sharedInstance.debugImageProvider;
-        NSMutableSet<NSString *> *imageAddresses = [NSMutableSet set];
-        [imageAddresses addObjectsFromArray:[self extractFramesImageAddressFromSpan:self.rootSpan]];
-        for (id<SentrySpan> span in _children) {
-            [imageAddresses addObjectsFromArray:[self extractFramesImageAddressFromSpan:span]];
-        }
-        transaction.debugMeta =
-            [debugImageProvider getDebugImagesForAddresses:imageAddresses.allObjects];
+        transaction.debugMeta = [debugImageProvider getDebugImagesForFrames:frames];
     }
 
     [self addMeasurements:transaction];
     return transaction;
 }
-
-- (NSArray<NSString *> *)extractFramesImageAddressFromSpan:(id<SentrySpan>)span
-{
-    NSArray *spanFrames = span.data[@"call_stack"];
-    NSMutableArray<NSString *> *result = [NSMutableArray array];
-    if (spanFrames && [spanFrames isKindOfClass:NSArray.class]) {
-        for (id object in spanFrames) {
-            if ([object isKindOfClass:NSDictionary.class] && object[@"image_addr"]) {
-                [result addObject:object[@"image_addr"]];
-            }
-        }
-    }
-    return result;
-}
-
 
 - (nullable SentryAppStartMeasurement *)getAppStartMeasurement
 {

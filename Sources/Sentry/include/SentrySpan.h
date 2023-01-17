@@ -5,7 +5,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryTracer, SentryId, SentrySpanId;
+@class SentryTracer, SentryId, SentrySpanId, SentryFrame;
 
 @interface SentrySpan : NSObject <SentrySpan, SentrySerializable>
 SENTRY_NO_INIT
@@ -65,6 +65,11 @@ SENTRY_NO_INIT
  * The Transaction this span is associated with.
  */
 @property (nullable, nonatomic, readonly, weak) SentryTracer *tracer;
+
+/**
+ *
+ */
+@property (nullable, nonatomic, strong) NSArray<SentryFrame *> *frames;
 
 /**
  * Init a SentrySpan with given transaction and context.

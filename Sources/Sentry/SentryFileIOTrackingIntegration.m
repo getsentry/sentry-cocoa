@@ -11,7 +11,7 @@
         return NO;
     }
 
-    [SentryNSDataSwizzling startWithOptions:options];
+    [SentryNSDataSwizzling.shared startWithOptions:options];
 
     return YES;
 }
@@ -24,7 +24,7 @@
 
 - (void)uninstall
 {
-    [SentryNSDataSwizzling stop];
+    [SentryNSDataSwizzling.shared stop];
 }
 
 @end

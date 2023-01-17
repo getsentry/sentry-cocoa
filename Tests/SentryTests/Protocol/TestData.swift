@@ -130,14 +130,30 @@ class TestData {
         
         return thread
     }
+
+    static var thread2: SentryThread {
+        let thread = SentryThread(threadId: 0)
+        thread.crashed = false
+        thread.current = true
+        thread.name = "main"
+        thread.stacktrace = stacktrace2
+
+        return thread
+    }
     
     static var stacktrace: SentryStacktrace {
-        let stacktrace = SentryStacktrace(frames: [frame], registers: ["register": "one"])
+        let stacktrace = SentryStacktrace(frames: [mainFrame], registers: ["register": "one"])
+        stacktrace.snapshot = true
+        return stacktrace
+    }
+
+    static var stacktrace2: SentryStacktrace {
+        let stacktrace = SentryStacktrace(frames: [mainFrame, testFrame], registers: ["register": "one"])
         stacktrace.snapshot = true
         return stacktrace
     }
     
-    static var frame: Frame {
+    static var mainFrame: Frame {
         let frame = Frame()
         frame.columnNumber = 1
         frame.fileName = "fileName"
@@ -147,12 +163,54 @@ class TestData {
         frame.instructionAddress = "0x000000008fd09c40"
         frame.lineNumber = 207
         frame.module = "module"
-        frame.package = "sentry"
+        frame.package = "sentrytest"
         frame.platform = "iOS"
         frame.symbolAddress = "0x000000008e902bf0"
         frame.stackStart = true
         
         return frame
+    }
+
+    static var testFrame: Frame {
+        let frame = Frame()
+        frame.columnNumber = 1
+        frame.fileName = "testFile"
+        frame.function = "test"
+        frame.imageAddress = "0x0000000105705000"
+        frame.inApp = true
+        frame.instructionAddress = "0x000000008fd09c90"
+        frame.lineNumber = 107
+        frame.module = "module"
+        frame.package = "sentrytest"
+        frame.platform = "iOS"
+        frame.symbolAddress = "0x000000008e902b97"
+        frame.stackStart = false
+        return frame
+    }
+
+    static var outsideFrame: Frame {
+        let frame = Frame()
+        frame.columnNumber = 1
+        frame.fileName = "helperFile"
+        frame.function = "helper"
+        frame.imageAddress = "0x0000000105709000"
+        frame.inApp = false
+        frame.instructionAddress = "0x000000008fd09a40"
+        frame.lineNumber = 307
+        frame.module = "outsideModule"
+        frame.package = "ThirdPartyLib"
+        frame.platform = "iOS"
+        frame.symbolAddress = "0x000000008e902e51"
+        frame.stackStart = false
+        return frame
+    }
+
+    static var debugImage: DebugMeta {
+        let image = DebugMeta()
+        image.name = "sentrytest"
+        image.imageAddress = "0x0000000105705000"
+        image.imageVmAddress = "0x0000000105705000"
+        return image
     }
     
     static var fileAttachment: Attachment {

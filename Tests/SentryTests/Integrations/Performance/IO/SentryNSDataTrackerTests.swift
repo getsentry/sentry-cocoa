@@ -8,12 +8,18 @@ class SentryNSDataTrackerTests: XCTestCase {
         let sentryPath = try! TestFileManager(options: Options(), andCurrentDateProvider: DefaultCurrentDateProvider.sharedInstance()).sentryPath 
         let dateProvider = TestCurrentDateProvider()
         let data = "SOME DATA".data(using: .utf8)!
-                
+        let threadInspector = TestThreadInspector.instance
+        let imageProvider = TestDebugImageProvider()
+
         func getSut() -> SentryNSDataTracker {
-            let result = SentryNSDataTracker.sharedInstance
-            Dynamic(result).processInfoWrapper = TestProcessInfoWrapper()
+            imageProvider.debugImages = [TestData.debugImage]
+            SentryDependencyContainer.sharedInstance().debugImageProvider = imageProvider
+
+            threadInspector.allThreads = [TestData.thread2]
+
+            let result = SentryNSDataTracker(threadInspector: threadInspector, processInfoWrapper: TestProcessInfoWrapper())
             CurrentDate.setCurrentDateProvider(dateProvider)
-            result.enable(with: Options())
+            result.enable()
             return result
         }
     }
@@ -23,14 +29,12 @@ class SentryNSDataTrackerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        fixture.getSut().enable(with: Options())
+        fixture.getSut().enable()
         SentrySDK.start { $0.enableFileIOTracing = true }
     }
     
     override func tearDown() {
         super.tearDown()
-        SentryNSDataTracker.sharedInstance.disable()
-        Dynamic(SentryNSDataTracker.sharedInstance).processInfoWrapper = SentryProcessInfoWrapper()
         clearTestState()
     }
     
@@ -125,6 +129,29 @@ class SentryNSDataTrackerTests: XCTestCase {
 
         XCTAssertNotNil(transactionEvent?.debugMeta)
         XCTAssertTrue(transactionEvent?.debugMeta?.count ?? 0 > 0)
+        XCTAssertEqual(transactionEvent?.debugMeta?.first, TestData.debugImage)
+    }
+
+    func testWriteAtomically_CheckTransaction_FilterOut_nonProcessFrames() {
+        let sut = fixture.getSut()
+        let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
+
+        let stackTrace = SentryStacktrace(frames: [TestData.mainFrame, TestData.testFrame, TestData.outsideFrame], registers: ["register": "one"])
+        let thread = SentryThread(threadId: 0)
+        thread.stacktrace = stackTrace
+        fixture.threadInspector.allThreads = [thread]
+
+        var span: SentrySpan?
+
+        sut.measure(fixture.data, writeToFile: fixture.filePath, atomically: false) { _, _ -> Bool in
+            span = self.firstSpan(transaction) as? SentrySpan
+            XCTAssertFalse(span?.isFinished ?? true)
+            return true
+        }
+
+        XCTAssertEqual(span?.frames?.count ?? 0, 2)
+        XCTAssertEqual(span?.frames?.first, TestData.mainFrame)
+        XCTAssertEqual(span?.frames?.last, TestData.testFrame)
     }
 
     func testWriteAtomically_Background() {
@@ -270,7 +297,15 @@ class SentryNSDataTrackerTests: XCTestCase {
         XCTAssertEqual(span?.data["file.size"] as? Int, size)
         XCTAssertEqual(span?.data["file.path"] as? String, path)
         XCTAssertEqual(span?.data["blocked_main_thread"] as? Bool ?? false, mainThread)
-        XCTAssertEqual(span?.data["call_stack"] != nil, mainThread)
+
+        if mainThread {
+            guard let frames = (span as? SentrySpan)?.frames else {
+                XCTFail("File IO Span in the main thread has no frames")
+                return
+            }
+            XCTAssertEqual(frames.first, TestData.mainFrame)
+            XCTAssertEqual(frames.last, TestData.testFrame)
+        }
         
         let lastComponent = (path as NSString).lastPathComponent
         

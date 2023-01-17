@@ -29,7 +29,7 @@ SENTRY_NO_INIT
  * Package Manager the package is the same as the application that includes Sentry. In this case the
  * full stacktrace is returned without skipping frames.
  */
-- (SentryStacktrace *)buildStacktraceForCurrentThreadAsyncUnsafe;
+- (nullable SentryStacktrace *)buildStacktraceForCurrentThreadAsyncUnsafe;
 
 /**
  * Builds the stacktrace for given thread removing frames from the SentrySDK until frames from

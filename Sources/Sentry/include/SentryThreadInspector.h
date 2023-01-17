@@ -15,7 +15,7 @@ SENTRY_NO_INIT
 /**
  * Gets the stacktrace for current thread using native functions.
  */
-- (SentryStacktrace *)stacktraceForCurrentThreadNatively;
+- (nullable SentryStacktrace *)stacktraceForCurrentThreadAsyncUnsafe;
 
 /**
  * Gets current threads with the stacktrace only for the current thread. Frames from the SentrySDK
