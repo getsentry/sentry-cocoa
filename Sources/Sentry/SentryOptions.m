@@ -127,6 +127,7 @@ SentryOptions ()
         SentryHttpStatusCodeRange *defaultHttpStatusCodeRange =
             [[SentryHttpStatusCodeRange alloc] initWithMin:500 max:599];
         self.failedRequestStatusCodes = @[ defaultHttpStatusCodeRange ];
+        self.cacheDirectory = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject;
     }
     return self;
 }
