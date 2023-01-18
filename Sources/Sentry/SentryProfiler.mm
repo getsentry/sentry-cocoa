@@ -336,7 +336,6 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     }
 
     NSMutableDictionary<NSString *, id> *payload = [_gCurrentProfiler->_profileData mutableCopy];
-    NSMutableDictionary<NSString *, id> *metrics = [_gCurrentProfiler->_metricProfiler serialize];
 
     const auto samples = ((NSArray *)payload[@"profile"][@"samples"]);
     if ([samples count] < 2) {
@@ -352,8 +351,21 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     }
     payload[@"profile"][@"samples"] = slicedSamples;
 
+    // add the serialized info for the associated transaction
     const auto firstSampleTimestamp
         = (uint64_t)[slicedSamples.firstObject[@"elapsed_since_start_ns"] longLongValue];
+    const auto profileDuration = getDurationNs(firstSampleTimestamp, getAbsoluteTime());
+
+    const auto transactionInfo = [self serializeInfoForTransaction:transaction
+                                                   profileDuration:profileDuration];
+    if (!transactionInfo) {
+        SENTRY_LOG_WARN(@"Could not find any associated transaction for the profile.");
+        return nil;
+    }
+    payload[@"transactions"] = @[ transactionInfo ];
+
+    // add the gathered metrics
+    NSMutableDictionary<NSString *, id> *metrics = [_gCurrentProfiler->_metricProfiler serialize];
 
     const auto slicedMetrics =
         [NSMutableDictionary<NSString *, id> dictionaryWithCapacity:metrics.count];
@@ -405,19 +417,12 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     }
 #    endif // SENTRY_HAS_UIKIT
 
+    // add the remaining basic metadata for the profile
     const auto profileID = [[SentryId alloc] init];
-    const auto profileDuration = getDurationNs(firstSampleTimestamp, getAbsoluteTime());
-
     [self serializeBasicProfileInfo:payload
                     profileDuration:profileDuration
                           profileID:profileID
                            platform:transaction.platform];
-
-    const auto transactionInfo = [self serializeInfoForTransaction:transaction
-                                                   profileDuration:profileDuration];
-    if (transactionInfo) {
-        payload[@"transactions"] = @[ transactionInfo ];
-    }
 
     return [self envelopeItemForProfileData:payload profileID:profileID];
 }
