@@ -4,7 +4,7 @@
 
 ### Features
 
-- AttachScreenshot options is no longer experimental ()
+- AttachScreenshot options is no longer experimental (#2623)
 
 ## 8.0.0
 
