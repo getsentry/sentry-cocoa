@@ -376,14 +376,6 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
         payload[@"measurements"] = slicedMetrics;
     }
 
-    const auto profileID = [[SentryId alloc] init];
-    const auto profileDuration = getDurationNs(firstSampleTimestamp, getAbsoluteTime());
-
-    [self serializeBasicProfileInfo:payload
-                    profileDuration:profileDuration
-                          profileID:profileID
-                           platform:transaction.platform];
-
 #    if SENTRY_HAS_UIKIT
     const auto slowFrames
         = processFrameRenders(SentryFramesTracker.sharedInstance.currentFrames.slowFrameTimestamps,
@@ -392,7 +384,8 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     // even need to call slicedArray here
     const auto slicedSlowFrames = [self slicedArray:slowFrames transaction:transaction];
     if (slicedSlowFrames.count > 0) {
-        metrics[@"slow_frame_renders"] = @{ @"unit" : @"nanosecond", @"values" : slicedSlowFrames };
+        slicedMetrics[@"slow_frame_renders"] =
+            @{ @"unit" : @"nanosecond", @"values" : slicedSlowFrames };
     }
 
     const auto frozenFrames = processFrameRenders(
@@ -402,7 +395,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     // even need to call slicedArray here
     const auto slicedFrozenFrames = [self slicedArray:frozenFrames transaction:transaction];
     if (slicedFrozenFrames.count > 0) {
-        metrics[@"frozen_frame_renders"] =
+        slicedMetrics[@"frozen_frame_renders"] =
             @{ @"unit" : @"nanosecond", @"values" : slicedFrozenFrames };
     }
 
@@ -411,9 +404,17 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
             _gCurrentProfiler->_startTimestamp);
     const auto slicedFrameRates = [self slicedArray:frameRates transaction:transaction];
     if (slicedFrameRates.count > 0) {
-        metrics[@"screen_frame_rates"] = @{ @"unit" : @"hz", @"values" : slicedFrameRates };
+        slicedMetrics[@"screen_frame_rates"] = @{ @"unit" : @"hz", @"values" : slicedFrameRates };
     }
 #    endif // SENTRY_HAS_UIKIT
+
+    const auto profileID = [[SentryId alloc] init];
+    const auto profileDuration = getDurationNs(firstSampleTimestamp, getAbsoluteTime());
+
+    [self serializeBasicProfileInfo:payload
+                    profileDuration:profileDuration
+                          profileID:profileID
+                           platform:transaction.platform];
 
     const auto transactionInfo = [self serializeInfoForTransaction:transaction
                                                    profileDuration:profileDuration];
