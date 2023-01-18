@@ -480,6 +480,11 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     const auto firstIndex = [array indexOfObjectWithOptions:NSEnumerationConcurrent
                                                 passingTest:sliceStart];
 
+    if (firstIndex == NSNotFound) {
+        SENTRY_LOG_DEBUG(@"Could not find any sample taken during the transaction.");
+        return nil;
+    }
+
     SENTRY_SLICE_BLOCK(sliceEnd, {
         const auto duration = [self elapsedSince:transaction.endSystemTime];
         return [sample[@"elapsed_since_start_ns"] longLongValue] < duration;
@@ -490,7 +495,8 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 
 #    undef SENTRY_SLICE_BLOCK
 
-    if (firstIndex == NSNotFound) {
+    if (lastIndex == NSNotFound) {
+        SENTRY_LOG_DEBUG(@"Could not find any other samples taken during the transaction.");
         return nil;
     }
 
