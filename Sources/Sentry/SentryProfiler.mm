@@ -377,9 +377,8 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     }
 
 #    if SENTRY_HAS_UIKIT
-    const auto slowFrames
-        = processFrameRenders(SentryFramesTracker.sharedInstance.currentFrames.slowFrameTimestamps,
-            _gCurrentProfiler->_startTimestamp, profileDuration);
+    const auto slowFrames = processFrameRenders(_gCurrentFramesTracker.slowFrameTimestamps,
+        _gCurrentProfiler->_startTimestamp, profileDuration);
     // ???: because processFrameRenders already has to test for beginning/end containment, may not
     // even need to call slicedArray here
     const auto slicedSlowFrames = [self slicedArray:slowFrames transaction:transaction];
@@ -388,8 +387,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
             @{ @"unit" : @"nanosecond", @"values" : slicedSlowFrames };
     }
 
-    const auto frozenFrames = processFrameRenders(
-        SentryFramesTracker.sharedInstance.currentFrames.frozenFrameTimestamps,
+    const auto frozenFrames = processFrameRenders(_gCurrentFramesTracker.frozenFrameTimestamps,
         _gCurrentProfiler->_startTimestamp, profileDuration);
     // ???: because processFrameRenders already has to test for beginning/end containment, may not
     // even need to call slicedArray here
@@ -399,9 +397,8 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
             @{ @"unit" : @"nanosecond", @"values" : slicedFrozenFrames };
     }
 
-    const auto frameRates
-        = processFrameRates(SentryFramesTracker.sharedInstance.currentFrames.frameRateTimestamps,
-            _gCurrentProfiler->_startTimestamp);
+    const auto frameRates = processFrameRates(
+        _gCurrentFramesTracker.frameRateTimestamps, _gCurrentProfiler->_startTimestamp);
     const auto slicedFrameRates = [self slicedArray:frameRates transaction:transaction];
     if (slicedFrameRates.count > 0) {
         slicedMetrics[@"screen_frame_rates"] = @{ @"unit" : @"hz", @"values" : slicedFrameRates };
@@ -462,25 +459,28 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 
 + (NSArray *)slicedArray:(NSArray *)array transaction:(SentryTransaction *)transaction
 {
-#    define SENTRY_SLICE_ARGS                                                                      \
-        NSDictionary<NSString *, id> *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop
+#    define SENTRY_SLICE_BLOCK(blockName, blockLogic)                                              \
+        BOOL (^blockName)(                                                                         \
+            NSDictionary<NSString *, id> *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop)    \
+            = ^BOOL(NSDictionary<NSString *, id> *_Nonnull sample, NSUInteger idx,                 \
+                BOOL *_Nonnull stop) blockLogic
 
-    BOOL (^sliceStart)(SENTRY_SLICE_ARGS) = ^BOOL(SENTRY_SLICE_ARGS) {
+    SENTRY_SLICE_BLOCK(sliceStart, {
         const auto duration = [self elapsedSince:transaction.startSystemTime];
         return [sample[@"elapsed_since_start_ns"] longLongValue] > duration;
-    };
+    });
     const auto firstIndex = [array indexOfObjectWithOptions:NSEnumerationConcurrent
                                                 passingTest:sliceStart];
 
-    BOOL (^sliceEnd)(SENTRY_SLICE_ARGS) = ^BOOL(SENTRY_SLICE_ARGS) {
+    SENTRY_SLICE_BLOCK(sliceEnd, {
         const auto duration = [self elapsedSince:transaction.endSystemTime];
         return [sample[@"elapsed_since_start_ns"] longLongValue] < duration;
-    };
+    });
     const auto lastIndex =
         [array indexOfObjectWithOptions:NSEnumerationConcurrent | NSEnumerationReverse
                             passingTest:sliceEnd];
 
-#    undef SENTRY_SLICE_ARGS
+#    undef SENTRY_SLICE_BLOCK
 
     if (firstIndex == NSNotFound) {
         return nil;
