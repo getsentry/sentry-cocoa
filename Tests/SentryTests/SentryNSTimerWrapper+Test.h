@@ -3,6 +3,4 @@
 @interface
 SentryNSTimerWrapper ()
 
-- (void)fire;
-
 @end
