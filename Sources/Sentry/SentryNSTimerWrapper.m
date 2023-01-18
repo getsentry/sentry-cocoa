@@ -9,11 +9,4 @@
     return [NSTimer scheduledTimerWithTimeInterval:interval repeats:repeats block:block];
 }
 
-#pragma mark - Testing
-
-- (void)fire
-{
-    // no-op
-}
-
 @end

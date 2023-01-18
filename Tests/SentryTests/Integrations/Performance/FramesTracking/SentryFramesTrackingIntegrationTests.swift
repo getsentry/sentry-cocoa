@@ -5,7 +5,7 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
 
     private class Fixture {
         let options = Options()
-        let displayLink = TestDiplayLinkWrapper()
+        let displayLink = TestDisplayLinkWrapper()
         
         init() {
             options.dsn = TestConstants.dsnAsString(username: "SentryFramesTrackingIntegrationTests")

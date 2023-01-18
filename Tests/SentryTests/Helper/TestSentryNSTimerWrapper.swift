@@ -25,7 +25,7 @@ class TestSentryNSTimerWrapper: SentryNSTimerWrapper {
         return timer
     }
 
-    override func fire() {
+    func fire() {
         overrides.block?(overrides.timer)
     }
 }

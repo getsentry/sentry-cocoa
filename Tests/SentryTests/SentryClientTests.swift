@@ -633,7 +633,7 @@ class SentryClientTest: XCTestCase {
     func testCaptureEvent_DeviceProperties_OtherValues() {
 #if os(iOS)
         fixture.deviceWrapper.internalOrientation = .landscapeLeft
-        fixture.deviceWrapper.interalBatteryState = .full
+        fixture.deviceWrapper.internalBatteryState = .full
 
         fixture.getSut().capture(event: TestData.event)
 
