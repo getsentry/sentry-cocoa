@@ -58,7 +58,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
     /**
      * Disabled on purpose. This test just sends sessions to Sentry, but doesn't verify that they arrive there properly.
      */
-    func testSendSessions_disabled() {
+    func testSendSessions() {
         sendSessions(amount: Sessions(healthy: 10, errored: 10, crashed: 3, oom: 1, abnormal: 1))
     }
     

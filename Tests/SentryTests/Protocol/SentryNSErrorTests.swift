@@ -27,7 +27,7 @@ class SentryNSErrorTests: XCTestCase {
         XCTAssertEqual(actualUnderlyingError.domain, inputUnderlyingError.domain)
     }
 
-    func testSerializeWithUnderlyingNSException_disabled() {
+    func testSerializeWithUnderlyingNSException() {
         let inputExceptionName = NSExceptionName.decimalNumberDivideByZeroException
         let inputExceptionReason = "test exception reason"
         let inputUnderlyingException = NSException(name: inputExceptionName, reason: inputExceptionReason, userInfo: ["some userinfo key": "some userinfo value"])
