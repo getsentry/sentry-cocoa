@@ -19,8 +19,9 @@ class SentryNSTimerWrapperTests: XCTestCase {
         let exp = expectation(description: "timer fires multiple times")
         exp.expectedFulfillmentCount = 2
         fixture.timerWrapper.scheduledTimer(withTimeInterval: 0.1, repeats: true) {
-            if count == exp.expectedFulfillmentCount {
+            guard count < exp.expectedFulfillmentCount else {
                 $0.invalidate()
+                return
             }
             count += 1
             exp.fulfill()
