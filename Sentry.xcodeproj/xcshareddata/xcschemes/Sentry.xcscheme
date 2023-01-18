@@ -56,37 +56,40 @@
             </BuildableReference>
             <SkippedTests>
                <Test
-                  Identifier = "SentryCrashIntegrationTests/testStartUpCrash_CallsFlush_disabled()">
+                  Identifier = "SentryCrashIntegrationTests/testStartUpCrash_CallsFlush()">
                </Test>
                <Test
-                  Identifier = "SentryCrashReportStore_Tests/testCrashReportCount1_disabled">
+                  Identifier = "SentryCrashReportStore_Tests/testCrashReportCount1">
                </Test>
                <Test
-                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readPath_disabled()">
+                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readPath()">
                </Test>
                <Test
-                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl_disabled()">
+                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl()">
                </Test>
                <Test
-                  Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndBaggageHeaderAdded_disabled()">
+                  Identifier = "SentryNSErrorTests/testSerializeWithUnderlyingNSException()">
                </Test>
                <Test
-                  Identifier = "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout_disabled()">
+                  Identifier = "SentryNetworkTrackerIntegrationTests/testGetRequest_SpanCreatedAndBaggageHeaderAdded()">
                </Test>
                <Test
-                  Identifier = "SentryProfilerSwiftTests/testProfileTimeoutTimer_disabled()">
+                  Identifier = "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout()">
+               </Test>
+               <Test
+                  Identifier = "SentryProfilerSwiftTests/testProfileTimeoutTimer()">
                </Test>
                <Test
                   Identifier = "SentrySDKIntegrationTestsBase">
                </Test>
                <Test
-                  Identifier = "SentrySessionGeneratorTests/testSendSessions_disabled()">
+                  Identifier = "SentrySessionGeneratorTests/testSendSessions()">
                </Test>
                <Test
-                  Identifier = "SentryStacktraceBuilderTests/testAsyncStacktraces_disabled()">
+                  Identifier = "SentryStacktraceBuilderTests/testAsyncStacktraces()">
                </Test>
                <Test
-                  Identifier = "SentrySubClassFinderTests/testActOnSubclassesOfViewController_disabled()">
+                  Identifier = "SentrySubClassFinderTests/testActOnSubclassesOfViewController()">
                </Test>
                <Test
                   Identifier = "SentryUIApplicationTests/test_applicationWithScenes()">

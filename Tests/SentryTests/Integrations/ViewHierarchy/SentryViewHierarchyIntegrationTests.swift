@@ -33,7 +33,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         clearTestState()
     }
 
-    func test_attachViewHierarchy_disabled() {
+    func test_attachViewHierarchy() {
         SentrySDK.start { $0.attachViewHierarchy = false }
         XCTAssertEqual(SentrySDK.currentHub().getClient()?.attachmentProcessors.count, 0)
         XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())

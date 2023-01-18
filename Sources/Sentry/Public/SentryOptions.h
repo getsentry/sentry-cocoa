@@ -200,7 +200,7 @@ NS_SWIFT_NAME(Options)
 /**
  * This feature is EXPERIMENTAL.
  *
- * Automatically attaches a screenshot when capturing an error or exception.
+ * Automatically attaches a screenshot when capturing an error, exception, or a crash.
  *
  * Default value is <code>NO</code>
  */
@@ -386,7 +386,7 @@ NS_SWIFT_NAME(Options)
 /**
  * When enabled, the SDK tracks when the application stops responding for a specific amount of
  * time defined by the `appHangsTimeoutInterval` option. The default is
- * <code>NO</code>
+ * <code>YES</code>
  */
 @property (nonatomic, assign) BOOL enableAppHangTracking;
 

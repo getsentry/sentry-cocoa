@@ -2,8 +2,7 @@ name: lint
 on:
   push:
     branches:
-      - master
-      - 8.0.0
+      - main
     paths:
       - 'Sources/**'
       - 'Tests/**'

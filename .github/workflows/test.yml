@@ -2,8 +2,7 @@ name: Test
 on:
   push:
     branches:
-      - master
-      - 8.0.0
+      - main
       - release/**
 
   pull_request:
