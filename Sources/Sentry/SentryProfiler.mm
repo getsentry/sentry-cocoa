@@ -227,7 +227,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     auto relativeFrameRates = [NSMutableArray array];
     [frameRates enumerateObjectsUsingBlock:^(
         NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-        const auto timestamp = (uint64_t)(obj[@"timestamp"].doubleValue * 1e9);
+        const auto timestamp = timeIntervalToNanoseconds(obj[@"timestamp"].doubleValue);
         const auto refreshRate = obj[@"frame_rate"];
         uint64_t relativeTimestamp = 0;
         if (timestamp >= start) {
@@ -389,8 +389,9 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     }
 
 #    if SENTRY_HAS_UIKIT
-    const auto slowFrames = processFrameRenders(_gCurrentFramesTracker.slowFrameTimestamps,
-        _gCurrentProfiler->_startTimestamp, profileDuration);
+    const auto slowFrames
+        = processFrameRenders(_gCurrentFramesTracker.currentFrames.slowFrameTimestamps,
+            _gCurrentProfiler->_startTimestamp, profileDuration);
     // ???: because processFrameRenders already has to test for beginning/end containment, may not
     // even need to call slicedArray here
     const auto slicedSlowFrames = [self slicedArray:slowFrames transaction:transaction];
@@ -399,8 +400,9 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
             @{ @"unit" : @"nanosecond", @"values" : slicedSlowFrames };
     }
 
-    const auto frozenFrames = processFrameRenders(_gCurrentFramesTracker.frozenFrameTimestamps,
-        _gCurrentProfiler->_startTimestamp, profileDuration);
+    const auto frozenFrames
+        = processFrameRenders(_gCurrentFramesTracker.currentFrames.frozenFrameTimestamps,
+            _gCurrentProfiler->_startTimestamp, profileDuration);
     // ???: because processFrameRenders already has to test for beginning/end containment, may not
     // even need to call slicedArray here
     const auto slicedFrozenFrames = [self slicedArray:frozenFrames transaction:transaction];
@@ -409,8 +411,9 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
             @{ @"unit" : @"nanosecond", @"values" : slicedFrozenFrames };
     }
 
-    const auto frameRates = processFrameRates(
-        _gCurrentFramesTracker.frameRateTimestamps, _gCurrentProfiler->_startTimestamp);
+    const auto frameRates
+        = processFrameRates(_gCurrentFramesTracker.currentFrames.frameRateTimestamps,
+            _gCurrentProfiler->_startTimestamp);
     const auto slicedFrameRates = [self slicedArray:frameRates transaction:transaction];
     if (slicedFrameRates.count > 0) {
         slicedMetrics[@"screen_frame_rates"] = @{ @"unit" : @"hz", @"values" : slicedFrameRates };
@@ -723,16 +726,15 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
         stringWithFormat:@"%llu",
         [transaction.startTimestamp compare:_gCurrentProfiler->_startDate] == NSOrderedAscending
             ? 0
-            : (unsigned long long)(
-                [transaction.startTimestamp timeIntervalSinceDate:_gCurrentProfiler->_startDate]
-                * 1e9)];
+            : timeIntervalToNanoseconds(
+                [transaction.startTimestamp timeIntervalSinceDate:_gCurrentProfiler->_startDate])];
 
     NSString *relativeEnd;
     if ([transaction.timestamp compare:_gCurrentProfiler->_endDate] == NSOrderedDescending) {
         relativeEnd = [NSString stringWithFormat:@"%llu", profileDuration];
     } else {
-        const auto profileStartToTransactionEnd_ns =
-            [transaction.timestamp timeIntervalSinceDate:_gCurrentProfiler->_startDate] * 1e9;
+        const auto profileStartToTransactionEnd_ns = timeIntervalToNanoseconds(
+            [transaction.timestamp timeIntervalSinceDate:_gCurrentProfiler->_startDate]);
         if (profileStartToTransactionEnd_ns < 0) {
             SENTRY_LOG_DEBUG(@"Transaction %@ ended before the profiler started, won't "
                              @"associate it with this profile.",
