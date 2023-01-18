@@ -352,10 +352,10 @@ private extension SentryProfilerSwiftTests {
         }
         XCTAssertEqual(values.count, numberOfReadings, "Wrong number of values under \(key)")
         if let expectedValue = expectedValue {
-            guard let memoryFootprintValue = values[0]["value"] as? T else {
+            guard let actualValue = values[0]["value"] as? T else {
                 throw TestError.noMetricValuesFound
             }
-            XCTAssertEqual(memoryFootprintValue, expectedValue, "Wrong value for \(key)")
+            XCTAssertEqual(actualValue, expectedValue, "Wrong value for \(key)")
         }
     }
 
