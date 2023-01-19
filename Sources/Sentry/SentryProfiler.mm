@@ -394,10 +394,12 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
             _gCurrentProfiler->_startTimestamp, profileDuration);
     // ???: because processFrameRenders already has to test for beginning/end containment, may not
     // even need to call slicedArray here
-    const auto slicedSlowFrames = [self slicedArray:slowFrames transaction:transaction];
-    if (slicedSlowFrames.count > 0) {
-        slicedMetrics[@"slow_frame_renders"] =
-            @{ @"unit" : @"nanosecond", @"values" : slicedSlowFrames };
+    if (slowFrames.count > 0) {
+        const auto slicedSlowFrames = [self slicedArray:slowFrames transaction:transaction];
+        if (slicedSlowFrames.count > 0) {
+            slicedMetrics[@"slow_frame_renders"] =
+                @{ @"unit" : @"nanosecond", @"values" : slicedSlowFrames };
+        }
     }
 
     const auto frozenFrames
@@ -405,18 +407,23 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
             _gCurrentProfiler->_startTimestamp, profileDuration);
     // ???: because processFrameRenders already has to test for beginning/end containment, may not
     // even need to call slicedArray here
-    const auto slicedFrozenFrames = [self slicedArray:frozenFrames transaction:transaction];
-    if (slicedFrozenFrames.count > 0) {
-        slicedMetrics[@"frozen_frame_renders"] =
-            @{ @"unit" : @"nanosecond", @"values" : slicedFrozenFrames };
+    if (frozenFrames.count > 0) {
+        const auto slicedFrozenFrames = [self slicedArray:frozenFrames transaction:transaction];
+        if (slicedFrozenFrames.count > 0) {
+            slicedMetrics[@"frozen_frame_renders"] =
+                @{ @"unit" : @"nanosecond", @"values" : slicedFrozenFrames };
+        }
     }
 
     const auto frameRates
         = processFrameRates(_gCurrentFramesTracker.currentFrames.frameRateTimestamps,
             _gCurrentProfiler->_startTimestamp);
-    const auto slicedFrameRates = [self slicedArray:frameRates transaction:transaction];
-    if (slicedFrameRates.count > 0) {
-        slicedMetrics[@"screen_frame_rates"] = @{ @"unit" : @"hz", @"values" : slicedFrameRates };
+    if (frameRates.count > 0) {
+        const auto slicedFrameRates = [self slicedArray:frameRates transaction:transaction];
+        if (slicedFrameRates.count > 0) {
+            slicedMetrics[@"screen_frame_rates"] =
+                @{ @"unit" : @"hz", @"values" : slicedFrameRates };
+        }
     }
 #    endif // SENTRY_HAS_UIKIT
 
