@@ -6,7 +6,7 @@
 
 - AttachScreenshots is GA (#2623)
 - Gather profiling timeseries metrics for CPU usage and memory footprint, and thermal and memory pressure events (#2493)
-- Changed SentryTracedView init `transactionName` parameter to `viewName` ()
+- Change SentryTracedView init `transactionName` parameter to `viewName` (#2630)
 
 ## 8.0.0
 
