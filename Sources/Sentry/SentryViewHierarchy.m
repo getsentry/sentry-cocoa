@@ -48,11 +48,11 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 
 - (NSData *)fetchViewHierarchy
 {
-    NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
-
     __block NSMutableData *result = [[NSMutableData alloc] init];
 
     void (^save)(void) = ^{
+        NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
+
         if (![self processViewHierarchy:windows
                             addFunction:writeJSONDataToMemory
                                userData:(__bridge void *)(result)]) {
