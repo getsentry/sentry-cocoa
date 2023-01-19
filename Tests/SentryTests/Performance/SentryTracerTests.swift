@@ -38,7 +38,7 @@ class SentryTracerTests: XCTestCase {
         let idleTimeout: TimeInterval = 1.0
         
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        var displayLinkWrapper: TestDiplayLinkWrapper
+        var displayLinkWrapper: TestDisplayLinkWrapper
 #endif
         
         init() {
@@ -58,7 +58,7 @@ class SentryTracerTests: XCTestCase {
             CurrentDate.setCurrentDateProvider(currentDateProvider)
             
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-            displayLinkWrapper = TestDiplayLinkWrapper()
+            displayLinkWrapper = TestDisplayLinkWrapper()
             
             SentryFramesTracker.sharedInstance().setDisplayLinkWrapper(displayLinkWrapper)
             SentryFramesTracker.sharedInstance().start()

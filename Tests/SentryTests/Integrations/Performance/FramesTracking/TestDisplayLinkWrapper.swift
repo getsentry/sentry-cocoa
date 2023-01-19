@@ -1,7 +1,7 @@
 import Foundation
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class TestDiplayLinkWrapper: SentryDisplayLinkWrapper {
+class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
     
     var target: AnyObject!
     var selector: Selector!
