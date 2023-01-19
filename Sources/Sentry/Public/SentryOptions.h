@@ -198,9 +198,7 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableUIViewControllerTracing;
 
 /**
- * This feature is EXPERIMENTAL.
- *
- * Automatically attaches a screenshot when capturing an error, exception, or a crash.
+ * Automatically attaches a screenshot when capturing an error or exception.
  *
  * Default value is <code>NO</code>
  */
