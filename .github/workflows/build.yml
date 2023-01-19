@@ -84,7 +84,7 @@ jobs:
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
-      - run: ./scripts/ci-select-xcode.sh 14.2
+      - run: ./scripts/ci-select-xcode.sh 13.4.1
       - run: make build-xcframework
         shell: sh
 
