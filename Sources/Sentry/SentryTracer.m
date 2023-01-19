@@ -157,13 +157,12 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
                   timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper
 {
     if (self = [super init]) {
+        self.rootSpan = [[SentrySpan alloc] initWithTracer:self context:transactionContext];
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         if (profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
             [SentryProfiler startWithHub:hub];
         }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
-        self.rootSpan = [[SentrySpan alloc] initWithTracer:self context:transactionContext];
         @synchronized(_gGlobalStateLock) {
             [_gInFlightSpanIDs addObject:self.rootSpan.spanId];
         }
