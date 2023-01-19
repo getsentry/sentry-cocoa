@@ -80,13 +80,12 @@ jobs:
           build
 
   build-xcframework:
-    name: Build & Validate XCFramework
+    name: Build XCFramework
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
+      - run: ./scripts/ci-select-xcode.sh 14.2
       - run: make build-xcframework
-        shell: sh
-      - run: make build-xcframework-sample
         shell: sh
 
       - name: Archiving XCFramework.zip
@@ -96,6 +95,22 @@ jobs:
           if-no-files-found: error
           path: |
             ${{ github.workspace }}/*.zip
+
+  validate-xcframework:
+    name: Validate XCFramework
+    runs-on: macos-12
+    needs: build-xcframework
+    strategy:
+      matrix:
+        xcode: ['13.4.1', '14.2']
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ github.sha }}
+      - run: ./scripts/ci-select-xcode.sh ${{ matrix.xcode }}
+      - run: make build-xcframework-sample
+        shell: sh
 
   # Use github.event.pull_request.head.sha instead of github.sha when available as
   # the github.sha is be the pre merge commit id for PRs.
