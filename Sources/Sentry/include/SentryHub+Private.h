@@ -1,7 +1,7 @@
 #import "SentryHub.h"
 
 @class SentryEnvelopeItem, SentryId, SentryScope, SentryTransaction, SentryDispatchQueueWrapper,
-    SentryEnvelope, SentryTracer, SentryNSTimerWrapper;
+    SentryEnvelope, SentryTracer, SentryNSTimerWrapper, SentrySpan;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -24,20 +24,20 @@ SentryHub (Private)
 
 - (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp;
 
-- (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                nameSource:(SentryTransactionNameSource)source
-                                 operation:(NSString *)operation;
+- (SentrySpan *)startTransactionWithName:(NSString *)name
+                              nameSource:(SentryTransactionNameSource)source
+                               operation:(NSString *)operation;
 
-- (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                nameSource:(SentryTransactionNameSource)source
-                                 operation:(NSString *)operation
-                               bindToScope:(BOOL)bindToScope;
+- (SentrySpan *)startTransactionWithName:(NSString *)name
+                              nameSource:(SentryTransactionNameSource)source
+                               operation:(NSString *)operation
+                             bindToScope:(BOOL)bindToScope;
 
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                  bindToScope:(BOOL)bindToScope
-                              waitForChildren:(BOOL)waitForChildren
-                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
-                                 timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper;
+- (SentrySpan *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                bindToScope:(BOOL)bindToScope
+                            waitForChildren:(BOOL)waitForChildren
+                      customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
+                               timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper;
 
 - (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope

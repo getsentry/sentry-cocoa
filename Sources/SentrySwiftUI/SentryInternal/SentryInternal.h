@@ -18,8 +18,7 @@ typedef NS_ENUM(NSInteger, SentryTransactionNameSource) {
     kSentryTransactionNameSourceTask
 };
 
-@class SentrySpanId;
-@protocol SentrySpan;
+@class SentrySpanId, SentrySpan;
 
 typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
@@ -51,7 +50,7 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 - (BOOL)isSpanAlive:(SentrySpanId *)spanId;
 
-- (nullable id<SentrySpan>)getSpan:(SentrySpanId *)spanId;
+- (nullable SentrySpan *)getSpan:(SentrySpanId *)spanId;
 
 - (BOOL)pushActiveSpan:(SentrySpanId *)spanId;
 

@@ -5,6 +5,7 @@
 #import "SentryOptions+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
+#import "SentrySpan.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
 #import "SentryUser.h"
@@ -35,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithScope:(SentryScope *)scope options:(SentryOptions *)options
 {
-    SentryTracer *tracer = [SentryTracer getTracer:scope.span];
+    SentryTracer *tracer = scope.span.tracer;
     if (tracer == nil) {
         return nil;
     } else {
@@ -47,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
                                   scope:(nullable SentryScope *)scope
                                 options:(SentryOptions *)options
 {
-    if (tracer.traceId == nil || options.parsedDsn == nil)
+    if (tracer.rootSpan.traceId == nil || options.parsedDsn == nil)
         return nil;
 
     NSString *userSegment;
@@ -62,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
             [NSString stringWithFormat:@"%@", [(SentryTransactionContext *)tracer sampleRate]];
     }
 
-    return [self initWithTraceId:tracer.traceId
+    return [self initWithTraceId:tracer.rootSpan.traceId
                        publicKey:options.parsedDsn.url.user
                      releaseName:options.releaseName
                      environment:options.environment

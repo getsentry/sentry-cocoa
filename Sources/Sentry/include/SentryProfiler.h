@@ -62,7 +62,7 @@ SENTRY_EXTERN_C_END
  * Report that a span ended to the profiler so it can update bookkeeping and if it was the last
  * concurrent span being profiled, stops the profiler.
  */
-+ (void)stopProfilingSpan:(id<SentrySpan>)span;
++ (void)stopProfilingSpan:(SentrySpan *)span;
 
 /**
  * Certain transactions may be dropped by the SDK at the time they are ended, when we've already

@@ -2,6 +2,8 @@
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryMeasurementValue.h"
+#import "SentrySpan.h"
+#import "SentryTracer.h"
 #import "SentryTransactionContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -9,17 +11,17 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryTransaction ()
 
-@property (nonatomic, strong) NSArray<id<SentrySpan>> *spans;
+@property (nonatomic, strong) NSArray<SentrySpan *> *spans;
 
 @end
 
 @implementation SentryTransaction
 
-- (instancetype)initWithTrace:(SentryTracer *)trace children:(NSArray<id<SentrySpan>> *)children
+- (instancetype)initWithTrace:(SentryTracer *)trace children:(NSArray<SentrySpan *> *)children
 {
     if (self = [super init]) {
-        self.timestamp = trace.timestamp;
-        self.startTimestamp = trace.startTimestamp;
+        self.timestamp = trace.rootSpan.timestamp;
+        self.startTimestamp = trace.rootSpan.startTimestamp;
         self.trace = trace;
         self.spans = children;
         self.type = SentryEnvelopeItemTypeTransaction;
@@ -33,7 +35,7 @@ SentryTransaction ()
         [[NSMutableDictionary alloc] initWithDictionary:[super serialize]];
 
     NSMutableArray *serializedSpans = [[NSMutableArray alloc] init];
-    for (id<SentrySpan> span in self.spans) {
+    for (SentrySpan *span in self.spans) {
         [serializedSpans addObject:[span serialize]];
     }
     serializedData[@"spans"] = serializedSpans;
@@ -47,8 +49,8 @@ SentryTransaction ()
     [serializedData setValue:mutableContext forKey:@"contexts"];
 
     NSMutableDictionary<NSString *, id> *traceTags =
-        [[self.trace.tags sentry_sanitize] mutableCopy];
-    [traceTags addEntriesFromDictionary:[self.trace.tags sentry_sanitize]];
+        [[self.trace.rootSpan.tags sentry_sanitize] mutableCopy];
+    [traceTags addEntriesFromDictionary:[self.trace.rootSpan.tags sentry_sanitize]];
 
     // Adding tags from Trace to serializedData dictionary
     if (serializedData[@"tags"] != nil &&
@@ -61,7 +63,7 @@ SentryTransaction ()
         serializedData[@"tags"] = traceTags;
     }
 
-    NSDictionary<NSString *, id> *traceData = [self.trace.data sentry_sanitize];
+    NSDictionary<NSString *, id> *traceData = [self.trace.rootSpan.data sentry_sanitize];
 
     // Adding data from Trace to serializedData dictionary
     if (serializedData[@"extra"] != nil &&

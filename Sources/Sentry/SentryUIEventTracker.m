@@ -4,6 +4,7 @@
 #import <SentrySDK+Private.h>
 #import <SentrySDK.h>
 #import <SentryScope.h>
+#import <SentrySpan.h>
 #import <SentrySpanId.h>
 #import <SentrySpanOperations.h>
 #import <SentrySpanProtocol.h>
@@ -92,7 +93,7 @@ SentryUIEventTracker ()
                 [currentActiveTransaction.transactionContext.name isEqualToString:transactionName];
             if (sameAction) {
                 SENTRY_LOG_DEBUG(@"Dispatching idle timeout for transaction with span id %@",
-                    currentActiveTransaction.spanId.sentrySpanIdString);
+                    currentActiveTransaction.rootSpan.spanId.sentrySpanIdString);
                 [currentActiveTransaction dispatchIdleTimeout];
                 return;
             }
@@ -102,7 +103,7 @@ SentryUIEventTracker ()
             if (currentActiveTransaction) {
                 SENTRY_LOG_DEBUG(@"SentryUIEventTracker finished transaction %@ (span ID %@)",
                     currentActiveTransaction.transactionContext.name,
-                    currentActiveTransaction.spanId.sentrySpanIdString);
+                    currentActiveTransaction.rootSpan.spanId.sentrySpanIdString);
             }
 
             NSString *operation = [self getOperation:sender];
@@ -113,7 +114,7 @@ SentryUIEventTracker ()
                                                      operation:operation];
 
             __block SentryTracer *transaction;
-            [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+            [SentrySDK.currentHub.scope useSpan:^(SentrySpan *_Nullable span) {
                 BOOL ongoingScreenLoadTransaction
                     = span != nil && [span.operation isEqualToString:SentrySpanOperationUILoad];
                 BOOL ongoingManualTransaction = span != nil
@@ -136,8 +137,8 @@ SentryUIEventTracker ()
             if ([[sender class] isSubclassOfClass:[UIView class]]) {
                 UIView *view = sender;
                 if (view.accessibilityIdentifier) {
-                    [transaction setTagValue:view.accessibilityIdentifier
-                                      forKey:@"accessibilityIdentifier"];
+                    [transaction.rootSpan setTagValue:view.accessibilityIdentifier
+                                               forKey:@"accessibilityIdentifier"];
                 }
             }
 
@@ -146,13 +147,13 @@ SentryUIEventTracker ()
                     [self.activeTransactions removeObject:tracer];
                     SENTRY_LOG_DEBUG(
                         @"Active transactions after removing tracer for span ID %@: %@",
-                        tracer.spanId.sentrySpanIdString, self.activeTransactions);
+                        tracer.rootSpan.spanId.sentrySpanIdString, self.activeTransactions);
                 }
             };
             @synchronized(self.activeTransactions) {
                 SENTRY_LOG_DEBUG(
                     @"Adding transaction %@ to list of active transactions (currently %@)",
-                    transaction.spanId.sentrySpanIdString, self.activeTransactions);
+                    transaction.rootSpan.spanId.sentrySpanIdString, self.activeTransactions);
                 [self.activeTransactions addObject:transaction];
             }
         }

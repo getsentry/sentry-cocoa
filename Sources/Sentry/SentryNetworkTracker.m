@@ -137,8 +137,8 @@ SentryNetworkTracker ()
             return;
         }
 
-        __block id<SentrySpan> span;
-        __block id<SentrySpan> netSpan;
+        __block SentrySpan *span;
+        __block SentrySpan *netSpan;
         netSpan = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN);
 
         // The task already has a span. Nothing to do.
@@ -146,7 +146,7 @@ SentryNetworkTracker ()
             return;
         }
 
-        [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable innerSpan) {
+        [SentrySDK.currentHub.scope useSpan:^(SentrySpan *_Nullable innerSpan) {
             if (innerSpan != nil) {
                 span = innerSpan;
                 netSpan = [span
@@ -168,7 +168,7 @@ SentryNetworkTracker ()
                     withTargets:SentrySDK.options.tracePropagationTargets]) {
             NSString *baggageHeader = @"";
 
-            SentryTracer *tracer = [SentryTracer getTracer:span];
+            SentryTracer *tracer = span.tracer;
             if (tracer != nil) {
                 baggageHeader = [[tracer.traceContext toBaggage]
                     toHTTPHeaderWithOriginalBaggage:
@@ -253,7 +253,7 @@ SentryNetworkTracker ()
         return;
     }
 
-    id<SentrySpan> netSpan;
+    SentrySpan *netSpan;
     @synchronized(sessionTask) {
         netSpan = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN);
         // We'll just go through once

@@ -21,7 +21,7 @@ NS_SWIFT_NAME(Scope)
  *
  * @return current Span or Transaction or null if transaction has not been set.
  */
-@property (nullable, nonatomic, strong) id<SentrySpan> span;
+@property (nullable, nonatomic, strong) SentrySpan *span;
 
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs NS_DESIGNATED_INITIALIZER;
 - (instancetype)init;

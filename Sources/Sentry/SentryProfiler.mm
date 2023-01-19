@@ -28,6 +28,7 @@
 #    import "SentrySystemWrapper.h"
 #    import "SentryThread.h"
 #    import "SentryTime.h"
+#    import "SentryTracer.h"
 #    import "SentryTransaction.h"
 #    import "SentryTransactionContext+Private.h"
 
@@ -329,7 +330,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     _gProfilersPerSpanID[spanID] = _gCurrentProfiler;
 }
 
-+ (void)stopProfilingSpan:(id<SentrySpan>)span
++ (void)stopProfilingSpan:(SentrySpan *)span
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
@@ -350,7 +351,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
-    const auto spanID = transaction.trace.spanId;
+    const auto spanID = transaction.trace.rootSpan.spanId;
     const auto profiler = _gProfilersPerSpanID[spanID];
     if (profiler == nil) {
         SENTRY_LOG_DEBUG(@"No profiler tracking span with id %@", spanID.sentrySpanIdString);
@@ -364,7 +365,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
-    const auto spanID = transaction.trace.spanId;
+    const auto spanID = transaction.trace.rootSpan.spanId;
     SentryProfiler *profiler = _gProfilersPerSpanID[spanID];
     if (profiler == nil) {
         SENTRY_LOG_DEBUG(@"No profiler tracking span with id %@", spanID.sentrySpanIdString);
@@ -372,7 +373,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     }
 
     SENTRY_LOG_DEBUG(@"Found profiler waiting for span with ID %@: %@",
-        transaction.trace.spanId.sentrySpanIdString, profiler);
+        transaction.trace.rootSpan.spanId.sentrySpanIdString, profiler);
     [profiler addTransaction:transaction];
 
     [self captureEnvelopeIfFinished:profiler spanID:spanID];
@@ -698,10 +699,10 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     SENTRY_LOG_DEBUG(@"Profile end timestamp: %@ absolute time: %llu", _endDate,
         (unsigned long long)_endTimestamp);
     for (SentryTransaction *transaction in _transactions) {
-        SENTRY_LOG_DEBUG(@"Transaction %@ start timestamp: %@", transaction.trace.traceId,
+        SENTRY_LOG_DEBUG(@"Transaction %@ start timestamp: %@", transaction.trace.rootSpan.traceId,
             transaction.startTimestamp);
-        SENTRY_LOG_DEBUG(
-            @"Transaction %@ end timestamp: %@", transaction.trace.traceId, transaction.timestamp);
+        SENTRY_LOG_DEBUG(@"Transaction %@ end timestamp: %@", transaction.trace.rootSpan.traceId,
+            transaction.timestamp);
         const auto relativeStart =
             [NSString stringWithFormat:@"%llu",
                       [transaction.startTimestamp compare:_startDate] == NSOrderedAscending
@@ -718,7 +719,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
             if (profileStartToTransactionEndInterval < 0) {
                 SENTRY_LOG_DEBUG(@"Transaction %@ ended before the profiler started, won't "
                                  @"associate it with this profile.",
-                    transaction.trace.traceId.sentryIdString);
+                    transaction.trace.rootSpan.traceId.sentryIdString);
                 continue;
             } else {
                 const auto profileStartToTransactionEnd_ns
@@ -729,7 +730,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
         }
         [transactionsInfo addObject:@{
             @"id" : transaction.eventId.sentryIdString,
-            @"trace_id" : transaction.trace.traceId.sentryIdString,
+            @"trace_id" : transaction.trace.rootSpan.traceId.sentryIdString,
             @"name" : transaction.transaction,
             @"relative_start_ns" : relativeStart,
             @"relative_end_ns" : relativeEnd,

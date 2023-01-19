@@ -15,8 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryPerformanceTracker () <SentryTracerDelegate>
 
-@property (nonatomic, strong) NSMutableDictionary<SentrySpanId *, id<SentrySpan>> *spans;
-@property (nonatomic, strong) NSMutableArray<id<SentrySpan>> *activeSpanStack;
+@property (nonatomic, strong) NSMutableDictionary<SentrySpanId *, SentrySpan *> *spans;
+@property (nonatomic, strong) NSMutableArray<SentrySpan *> *activeSpanStack;
 
 @end
 
@@ -50,12 +50,12 @@ SentryPerformanceTracker () <SentryTracerDelegate>
                          nameSource:(SentryTransactionNameSource)source
                           operation:(NSString *)operation
 {
-    id<SentrySpan> activeSpan;
+    SentrySpan *activeSpan;
     @synchronized(self.activeSpanStack) {
         activeSpan = [self.activeSpanStack lastObject];
     }
 
-    __block id<SentrySpan> newSpan;
+    __block SentrySpan *newSpan;
     if (activeSpan != nil) {
         newSpan = [activeSpan startChildWithOperation:operation description:name];
     } else {
@@ -64,7 +64,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
                                                 nameSource:source
                                                  operation:operation];
 
-        [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> span) {
+        [SentrySDK.currentHub.scope useSpan:^(SentrySpan *span) {
             BOOL bindToScope = true;
             if (span != nil) {
                 if ([SentryUIEventTracker isUIEventOperation:span.operation]) {
@@ -179,7 +179,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
 - (BOOL)pushActiveSpan:(SentrySpanId *)spanId
 {
     SENTRY_LOG_DEBUG(@"Pushing active span %@", spanId.sentrySpanIdString);
-    id<SentrySpan> toActiveSpan;
+    SentrySpan *toActiveSpan;
     @synchronized(self.spans) {
         toActiveSpan = self.spans[spanId];
     }
@@ -210,7 +210,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
 
 - (void)finishSpan:(SentrySpanId *)spanId withStatus:(SentrySpanStatus)status
 {
-    id<SentrySpan> spanTracker;
+    SentrySpan *spanTracker;
     @synchronized(self.spans) {
         spanTracker = self.spans[spanId];
         [self.spans removeObjectForKey:spanId];
@@ -226,14 +226,14 @@ SentryPerformanceTracker () <SentryTracerDelegate>
     }
 }
 
-- (nullable id<SentrySpan>)getSpan:(SentrySpanId *)spanId
+- (nullable SentrySpan *)getSpan:(SentrySpanId *)spanId
 {
     @synchronized(self.spans) {
         return self.spans[spanId];
     }
 }
 
-- (nullable id<SentrySpan>)activeSpanForTracer:(SentryTracer *)tracer
+- (nullable SentrySpan *)activeSpanForTracer:(SentryTracer *)tracer
 {
     @synchronized(self.activeSpanStack) {
         return [self.activeSpanStack lastObject];

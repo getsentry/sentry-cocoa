@@ -28,13 +28,13 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
+- (SentrySpan *)startChildWithOperation:(NSString *)operation
 {
     return [SentryNoOpSpan shared];
 }
 
-- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
-                              description:(nullable NSString *)description
+- (SentrySpan *)startChildWithOperation:(NSString *)operation
+                            description:(nullable NSString *)description
 {
     return [SentryNoOpSpan shared];
 }

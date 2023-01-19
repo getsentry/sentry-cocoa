@@ -6,7 +6,7 @@
 #import "SentryLog.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
-#import "SentrySpanProtocol.h"
+#import "SentrySpan.h"
 
 const NSString *SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 
@@ -55,7 +55,7 @@ SentryNSDataTracker ()
            atomically:(BOOL)useAuxiliaryFile
                method:(BOOL (^)(NSString *, BOOL))method
 {
-    id<SentrySpan> span = [self startTrackingWritingNSData:data filePath:path];
+    SentrySpan *span = [self startTrackingWritingNSData:data filePath:path];
 
     BOOL result = method(path, useAuxiliaryFile);
 
@@ -71,7 +71,7 @@ SentryNSDataTracker ()
                 error:(NSError **)error
                method:(BOOL (^)(NSString *, NSDataWritingOptions, NSError **))method
 {
-    id<SentrySpan> span = [self startTrackingWritingNSData:data filePath:path];
+    SentrySpan *span = [self startTrackingWritingNSData:data filePath:path];
 
     BOOL result = method(path, writeOptionsMask, error);
 
@@ -84,7 +84,7 @@ SentryNSDataTracker ()
 
 - (NSData *)measureNSDataFromFile:(NSString *)path method:(NSData * (^)(NSString *))method
 {
-    id<SentrySpan> span = [self startTrackingReadingFilePath:path];
+    SentrySpan *span = [self startTrackingReadingFilePath:path];
 
     NSData *result = method(path);
 
@@ -101,7 +101,7 @@ SentryNSDataTracker ()
                             error:(NSError **)error
                            method:(NSData * (^)(NSString *, NSDataReadingOptions, NSError **))method
 {
-    id<SentrySpan> span = [self startTrackingReadingFilePath:path];
+    SentrySpan *span = [self startTrackingReadingFilePath:path];
 
     NSData *result = method(path, readOptionsMask, error);
 
@@ -125,7 +125,7 @@ SentryNSDataTracker ()
     if (![url.scheme isEqualToString:NSURLFileScheme])
         return method(url, readOptionsMask, error);
 
-    id<SentrySpan> span = [self startTrackingReadingFilePath:url.path];
+    SentrySpan *span = [self startTrackingReadingFilePath:url.path];
 
     NSData *result = method(url, readOptionsMask, error);
 
@@ -137,9 +137,9 @@ SentryNSDataTracker ()
     return result;
 }
 
-- (nullable id<SentrySpan>)spanForPath:(NSString *)path
-                             operation:(NSString *)operation
-                                  size:(NSUInteger)size
+- (nullable SentrySpan *)spanForPath:(NSString *)path
+                           operation:(NSString *)operation
+                                size:(NSUInteger)size
 {
     @synchronized(self) {
         if (!self.isEnabled) {
@@ -155,8 +155,8 @@ SentryNSDataTracker ()
         return nil;
     }
 
-    __block id<SentrySpan> ioSpan;
-    [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+    __block SentrySpan *ioSpan;
+    [SentrySDK.currentHub.scope useSpan:^(SentrySpan *_Nullable span) {
         ioSpan = [span startChildWithOperation:operation
                                    description:[self transactionDescriptionForFile:path
                                                                           fileSize:size]];
@@ -176,12 +176,12 @@ SentryNSDataTracker ()
     return ioSpan;
 }
 
-- (nullable id<SentrySpan>)startTrackingWritingNSData:(NSData *)data filePath:(NSString *)path
+- (nullable SentrySpan *)startTrackingWritingNSData:(NSData *)data filePath:(NSString *)path
 {
     return [self spanForPath:path operation:SENTRY_FILE_WRITE_OPERATION size:data.length];
 }
 
-- (nullable id<SentrySpan>)startTrackingReadingFilePath:(NSString *)path
+- (nullable SentrySpan *)startTrackingReadingFilePath:(NSString *)path
 {
     // Some iOS versions nest constructors calls. This counter help us avoid create more than one
     // span for the same operation.
@@ -212,7 +212,7 @@ SentryNSDataTracker ()
     }
 }
 
-- (void)finishTrackingNSData:(NSData *)data span:(id<SentrySpan>)span
+- (void)finishTrackingNSData:(NSData *)data span:(SentrySpan *)span
 {
     [span setDataValue:[NSNumber numberWithUnsignedInteger:data.length] forKey:@"file.size"];
     [span finish];

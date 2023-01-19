@@ -144,7 +144,7 @@ SentryScope ()
     }
 }
 
-- (void)setSpan:(nullable id<SentrySpan>)span
+- (void)setSpan:(nullable SentrySpan *)span
 {
     @synchronized(_spanLock) {
         _span = span;
@@ -543,7 +543,7 @@ SentryScope ()
     }
 
     if (self.span != nil) {
-        id<SentrySpan> span;
+        SentrySpan *span;
         @synchronized(_spanLock) {
             span = self.span;
         }

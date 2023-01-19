@@ -17,6 +17,7 @@
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySession+Private.h"
+#import "SentrySpan.h"
 #import "SentryTracer.h"
 #import "SentryTracesSampler.h"
 #import "SentryTransaction.h"
@@ -263,7 +264,7 @@ SentryHub ()
                        withScope:(SentryScope *)scope
          additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
-    SentrySampleDecision decision = transaction.trace.sampled;
+    SentrySampleDecision decision = transaction.trace.rootSpan.sampled;
     if (decision != kSentrySampleDecisionYes) {
         [self.client recordLostEvent:kSentryDataCategoryTransaction
                               reason:kSentryDiscardReasonSampleRate];
@@ -298,7 +299,7 @@ SentryHub ()
     return SentryId.empty;
 }
 
-- (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation
+- (SentrySpan *)startTransactionWithName:(NSString *)name operation:(NSString *)operation
 {
     return [self startTransactionWithContext:[[SentryTransactionContext alloc]
                                                  initWithName:name
@@ -306,9 +307,9 @@ SentryHub ()
                                                     operation:operation]];
 }
 
-- (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                nameSource:(SentryTransactionNameSource)source
-                                 operation:(NSString *)operation
+- (SentrySpan *)startTransactionWithName:(NSString *)name
+                              nameSource:(SentryTransactionNameSource)source
+                               operation:(NSString *)operation
 {
     return [self
         startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name
@@ -316,9 +317,9 @@ SentryHub ()
                                                                          operation:operation]];
 }
 
-- (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                 operation:(NSString *)operation
-                               bindToScope:(BOOL)bindToScope
+- (SentrySpan *)startTransactionWithName:(NSString *)name
+                               operation:(NSString *)operation
+                             bindToScope:(BOOL)bindToScope
 {
     return [self startTransactionWithContext:[[SentryTransactionContext alloc]
                                                  initWithName:name
@@ -327,10 +328,10 @@ SentryHub ()
                                  bindToScope:bindToScope];
 }
 
-- (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                nameSource:(SentryTransactionNameSource)source
-                                 operation:(NSString *)operation
-                               bindToScope:(BOOL)bindToScope
+- (SentrySpan *)startTransactionWithName:(NSString *)name
+                              nameSource:(SentryTransactionNameSource)source
+                               operation:(NSString *)operation
+                             bindToScope:(BOOL)bindToScope
 {
     return
         [self startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name
@@ -339,30 +340,30 @@ SentryHub ()
                               bindToScope:bindToScope];
 }
 
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+- (SentrySpan *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
 {
     return [self startTransactionWithContext:transactionContext customSamplingContext:@{}];
 }
 
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                  bindToScope:(BOOL)bindToScope
+- (SentrySpan *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                bindToScope:(BOOL)bindToScope
 {
     return [self startTransactionWithContext:transactionContext
                                  bindToScope:bindToScope
                        customSamplingContext:@{}];
 }
 
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
+- (SentrySpan *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                      customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
     return [self startTransactionWithContext:transactionContext
                                  bindToScope:false
                        customSamplingContext:customSamplingContext];
 }
 
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                  bindToScope:(BOOL)bindToScope
-                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
+- (SentrySpan *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                bindToScope:(BOOL)bindToScope
+                      customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
     return [self startTransactionWithContext:transactionContext
                                  bindToScope:bindToScope
@@ -385,11 +386,11 @@ SentryHub ()
                                             parentSampled:context.parentSampled];
 }
 
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                  bindToScope:(BOOL)bindToScope
-                              waitForChildren:(BOOL)waitForChildren
-                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
-                                 timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper
+- (SentrySpan *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                bindToScope:(BOOL)bindToScope
+                            waitForChildren:(BOOL)waitForChildren
+                      customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
+                               timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper
 {
     SentrySamplingContext *samplingContext =
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
@@ -403,16 +404,18 @@ SentryHub ()
     SentryProfilesSamplerDecision *profilesSamplerDecision =
         [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
 
-    id<SentrySpan> tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
-                                                                         hub:self
-                                                     profilesSamplerDecision:profilesSamplerDecision
-                                                             waitForChildren:waitForChildren
-                                                                timerWrapper:timerWrapper];
+    SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
+                                                                        hub:self
+                                                    profilesSamplerDecision:profilesSamplerDecision
+                                                            waitForChildren:waitForChildren
+                                                               timerWrapper:timerWrapper];
+    // !!!: need to assign ownership of tracer to maybe? this hub so it doesn't go out of scope and
+    // get deallocated
+    if (bindToScope) {
+        self.scope.span = tracer.rootSpan;
+    }
 
-    if (bindToScope)
-        self.scope.span = tracer;
-
-    return tracer;
+    return tracer.rootSpan;
 }
 
 - (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
@@ -438,8 +441,11 @@ SentryHub ()
                                                     profilesSamplerDecision:profilesSamplerDecision
                                                                 idleTimeout:idleTimeout
                                                        dispatchQueueWrapper:dispatchQueueWrapper];
-    if (bindToScope)
-        self.scope.span = tracer;
+    // !!!: need to assign ownership of tracer to maybe? this hub so it doesn't go out of scope and
+    // get deallocated
+    if (bindToScope) {
+        self.scope.span = tracer.rootSpan;
+    }
 
     return tracer;
 }

@@ -5,7 +5,7 @@
 #import "SentryPredicateDescriptor.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
-#import "SentrySpanProtocol.h"
+#import "SentrySpan.h"
 
 @implementation SentryCoreDataTracker {
     SentryPredicateDescriptor *predicateDescriptor;
@@ -24,8 +24,8 @@
                             error:(NSError **)error
                       originalImp:(NSArray *(NS_NOESCAPE ^)(NSFetchRequest *, NSError **))original
 {
-    __block id<SentrySpan> fetchSpan;
-    [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+    __block SentrySpan *fetchSpan;
+    [SentrySDK.currentHub.scope useSpan:^(SentrySpan *_Nullable span) {
         fetchSpan = [span startChildWithOperation:SENTRY_COREDATA_FETCH_OPERATION
                                       description:[self descriptionFromRequest:request]];
     }];
@@ -64,12 +64,12 @@
                  originalImp:(BOOL(NS_NOESCAPE ^)(NSError **))original
 {
 
-    __block id<SentrySpan> fetchSpan = nil;
+    __block SentrySpan *fetchSpan = nil;
     if (context.hasChanges) {
         __block NSDictionary<NSString *, NSDictionary *> *operations =
             [self groupEntitiesOperations:context];
 
-        [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+        [SentrySDK.currentHub.scope useSpan:^(SentrySpan *_Nullable span) {
             fetchSpan = [span startChildWithOperation:SENTRY_COREDATA_SAVE_OPERATION
                                           description:[self descriptionForOperations:operations
                                                                            inContext:context]];

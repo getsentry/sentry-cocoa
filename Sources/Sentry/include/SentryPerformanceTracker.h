@@ -107,7 +107,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return SentrySpan
  */
-- (nullable id<SentrySpan>)getSpan:(SentrySpanId *)spanId;
+- (nullable SentrySpan *)getSpan:(SentrySpanId *)spanId;
 
 @end
 

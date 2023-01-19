@@ -5,7 +5,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceContext,
     SentryNSTimerWrapper, SentryDispatchQueueWrapper, SentryTracer, SentryProfilesSamplerDecision,
-    SentryMeasurementValue;
+    SentryMeasurementValue, SentrySpan, SentryMeasurementUnit;
 
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
@@ -15,64 +15,13 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  * Return the active span of given tracer.
  * This function is used to determine which span will be used to create a new child.
  */
-- (nullable id<SentrySpan>)activeSpanForTracer:(SentryTracer *)tracer;
+- (nullable SentrySpan *)activeSpanForTracer:(SentryTracer *)tracer;
 
 @end
 
-@interface SentryTracer : NSObject <SentrySpan>
+@interface SentryTracer : NSObject
 
 @property (nonatomic, strong) SentryTransactionContext *transactionContext;
-
-/**
- * Determines which trace the Span belongs to.
- */
-@property (nonatomic) SentryId *traceId;
-
-/**
- * Span id.
- */
-@property (nonatomic) SentrySpanId *spanId;
-
-/**
- * Id of a parent span.
- */
-@property (nullable, nonatomic) SentrySpanId *parentSpanId;
-
-/**
- * If trace is sampled.
- */
-@property (nonatomic) SentrySampleDecision sampled;
-
-/**
- * Short code identifying the type of operation the span is measuring.
- */
-@property (nonatomic, copy) NSString *operation;
-
-/**
- * Longer description of the span's operation, which uniquely identifies the span but is
- * consistent across instances of the span.
- */
-@property (nullable, nonatomic, copy) NSString *spanDescription;
-
-/**
- * Describes the status of the Transaction.
- */
-@property (nonatomic) SentrySpanStatus status;
-
-/**
- * The timestamp of which the span ended.
- */
-@property (nullable, nonatomic, strong) NSDate *timestamp;
-
-/**
- * The start time of the span.
- */
-@property (nullable, nonatomic, strong) NSDate *startTimestamp;
-
-/**
- * Whether the span is finished.
- */
-@property (readonly) BOOL isFinished;
 
 @property (nullable, nonatomic, copy) void (^finishCallback)(SentryTracer *);
 
@@ -91,19 +40,20 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 /*
  The root span of this tracer.
  */
-@property (nonatomic, readonly) id<SentrySpan> rootSpan;
+@property (nonatomic, readonly) SentrySpan *rootSpan;
 
 /*
  All the spans that where created with this tracer but rootSpan.
  */
-@property (nonatomic, readonly) NSArray<id<SentrySpan>> *children;
+@property (nonatomic, readonly) NSArray<SentrySpan *> *children;
 
 /*
  * A delegate that provides extra information for the transaction.
  */
 @property (nullable, nonatomic, weak) id<SentryTracerDelegate> delegate;
 
-@property (nonatomic, readonly) NSDictionary<NSString *, SentryMeasurementValue *> *measurements;
+@property (nonatomic, readonly)
+    NSMutableDictionary<NSString *, SentryMeasurementValue *> *measurements;
 
 /**
  * Init a SentryTracer with given transaction context and hub and set other fields by default
@@ -167,24 +117,21 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
                                idleTimeout:(NSTimeInterval)idleTimeout
                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
-- (id<SentrySpan>)startChildWithParentId:(SentrySpanId *)parentId
-                               operation:(NSString *)operation
-                             description:(nullable NSString *)description
+- (SentrySpan *)startChildWithParentId:(SentrySpanId *)parentId
+                             operation:(NSString *)operation
+                           description:(nullable NSString *)description
     NS_SWIFT_NAME(startChild(parentId:operation:description:));
 
 /**
  * A method to inform the tracer that a span finished.
  */
-- (void)spanFinished:(id<SentrySpan>)finishedSpan;
-
-- (void)setExtraValue:(nullable id)value forKey:(NSString *)key DEPRECATED_ATTRIBUTE;
-
-/**
- * Get the tracer from a span.
- */
-+ (nullable SentryTracer *)getTracer:(id<SentrySpan>)span;
+- (void)spanFinished:(SentrySpan *)finishedSpan;
 
 - (void)dispatchIdleTimeout;
+
+- (NSDictionary *)serialize;
+
+- (void)finish;
 
 @end
 

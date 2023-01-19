@@ -32,6 +32,7 @@
 #import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
+#import "SentrySpan.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThreadInspector.h"
 #import "SentryTraceContext.h"
@@ -314,18 +315,18 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (nullable SentryTraceContext *)getTraceStateWithEvent:(SentryEvent *)event
                                               withScope:(SentryScope *)scope
 {
-    id<SentrySpan> span;
+    SentryTracer *tracer;
     if ([event isKindOfClass:[SentryTransaction class]]) {
-        span = [(SentryTransaction *)event trace];
+        tracer = ((SentryTransaction *)event).trace;
     } else {
         // Even envelopes without transactions can contain the trace state, allowing Sentry to
         // eventually sample attachments belonging to a transaction.
-        span = scope.span;
+        tracer = scope.span.tracer;
     }
 
-    SentryTracer *tracer = [SentryTracer getTracer:span];
-    if (tracer == nil)
+    if (tracer == nil) {
         return nil;
+    }
 
     return [[SentryTraceContext alloc] initWithTracer:tracer scope:scope options:_options];
 }

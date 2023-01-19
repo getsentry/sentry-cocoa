@@ -28,8 +28,7 @@
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;
 
-@class SentryEvent, SentryBreadcrumb, SentrySamplingContext;
-@protocol SentrySpan;
+@class SentryEvent, SentryBreadcrumb, SentrySamplingContext, SentrySpan;
 
 /**
  * Block used for returning after a request finished
@@ -85,7 +84,7 @@ typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
  *
  * @param span The span to be used.
  */
-typedef void (^SentrySpanCallback)(id<SentrySpan> _Nullable span);
+typedef void (^SentrySpanCallback)(SentrySpan *_Nullable span);
 
 /**
  * Loglevel

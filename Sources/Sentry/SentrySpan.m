@@ -26,8 +26,8 @@ SentrySpan ()
 - (instancetype)initWithTracer:(SentryTracer *)tracer context:(SentrySpanContext *)context
 {
     if (self = [super init]) {
-        SENTRY_LOG_DEBUG(
-            @"Created span %@ for trace ID %@", context.spanId.sentrySpanIdString, tracer.traceId);
+        SENTRY_LOG_DEBUG(@"Created span %@ for trace ID %@", context.spanId.sentrySpanIdString,
+            tracer.rootSpan.traceId);
         _tracer = tracer;
         self.startTimestamp = [SentryCurrentDate date];
         _data = [[NSMutableDictionary alloc] init];
@@ -45,13 +45,13 @@ SentrySpan ()
     return self;
 }
 
-- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
+- (SentrySpan *)startChildWithOperation:(NSString *)operation
 {
     return [self startChildWithOperation:operation description:nil];
 }
 
-- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
-                              description:(nullable NSString *)description
+- (SentrySpan *)startChildWithOperation:(NSString *)operation
+                            description:(nullable NSString *)description
 {
     if (self.tracer == nil) {
         SENTRY_LOG_DEBUG(@"No tracer, returning no-op span");
@@ -105,12 +105,15 @@ SentrySpan ()
 
 - (void)setMeasurement:(NSString *)name value:(NSNumber *)value
 {
-    [self.tracer setMeasurement:name value:value];
+    SentryMeasurementValue *measurement = [[SentryMeasurementValue alloc] initWithValue:value];
+    self.tracer.measurements[name] = measurement;
 }
 
 - (void)setMeasurement:(NSString *)name value:(NSNumber *)value unit:(SentryMeasurementUnit *)unit
 {
-    [self.tracer setMeasurement:name value:value unit:unit];
+    SentryMeasurementValue *measurement = [[SentryMeasurementValue alloc] initWithValue:value
+                                                                                   unit:unit];
+    self.tracer.measurements[name] = measurement;
 }
 
 - (NSDictionary<NSString *, id> *)tags

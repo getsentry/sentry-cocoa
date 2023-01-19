@@ -39,14 +39,14 @@ SentrySDK (Private)
 /**
  * Start a transaction with a name and a name source.
  */
-+ (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                nameSource:(SentryTransactionNameSource)source
-                                 operation:(NSString *)operation;
++ (SentrySpan *)startTransactionWithName:(NSString *)name
+                              nameSource:(SentryTransactionNameSource)source
+                               operation:(NSString *)operation;
 
-+ (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                nameSource:(SentryTransactionNameSource)source
-                                 operation:(NSString *)operation
-                               bindToScope:(BOOL)bindToScope;
++ (SentrySpan *)startTransactionWithName:(NSString *)name
+                              nameSource:(SentryTransactionNameSource)source
+                               operation:(NSString *)operation
+                             bindToScope:(BOOL)bindToScope;
 
 @end
 
