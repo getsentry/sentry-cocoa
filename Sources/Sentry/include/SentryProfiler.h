@@ -46,6 +46,10 @@ NSString *profilerTruncationReasonName(SentryProfilerTruncationReason reason);
 
 SENTRY_EXTERN_C_END
 
+/**
+ * @warning: A main assumption is that profile start/stop must be contained within range of time of
+ * the first concurrent transaction's start time and last one's end time.
+ */
 @interface SentryProfiler : NSObject
 
 /** Start the profiler, if it isn't already running. */
