@@ -6,6 +6,10 @@
 
 - Gather profiling timeseries metrics for CPU usage and memory footprint, and thermal and memory pressure events (#2493)
 
+### Fixes
+
+- Reads UI Windows in the main thread while fetching view hierarchy (#2629)
+
 ## 8.0.0
 
 ### Features
