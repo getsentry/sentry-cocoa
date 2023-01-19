@@ -51,7 +51,8 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     __block NSMutableData *result = [[NSMutableData alloc] init];
 
     void (^save)(void) = ^{
-        NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
+        NSArray<UIWindow *> *windows =
+            [SentryDependencyContainer.sharedInstance.application windows];
 
         if (![self processViewHierarchy:windows
                             addFunction:writeJSONDataToMemory

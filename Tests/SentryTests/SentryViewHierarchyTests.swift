@@ -192,7 +192,7 @@ class SentryViewHierarchyTests: XCTestCase {
         private var _windows: [UIWindow]?
         private var _calledOnMainThread = true
 
-        var calledOnMainThread : Bool {
+        var calledOnMainThread: Bool {
             return _calledOnMainThread
         }
 
