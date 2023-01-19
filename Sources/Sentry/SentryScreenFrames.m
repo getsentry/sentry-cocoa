@@ -10,7 +10,8 @@
     return [self initWithTotal:total
                         frozen:frozen
                           slow:slow
-               frameTimestamps:@[]
+           slowFrameTimestamps:@[]
+         frozenFrameTimestamps:@[]
            frameRateTimestamps:@[]];
 #    else
     if (self = [super init]) {
@@ -27,14 +28,16 @@
 - (instancetype)initWithTotal:(NSUInteger)total
                        frozen:(NSUInteger)frozen
                          slow:(NSUInteger)slow
-              frameTimestamps:(SentryFrameInfoTimeSeries *)frameTimestamps
+          slowFrameTimestamps:(SentryFrameInfoTimeSeries *)slowFrameTimestamps
+        frozenFrameTimestamps:(SentryFrameInfoTimeSeries *)frozenFrameTimestamps
           frameRateTimestamps:(SentryFrameInfoTimeSeries *)frameRateTimestamps
 {
     if (self = [super init]) {
         _total = total;
         _slow = slow;
         _frozen = frozen;
-        _frameTimestamps = frameTimestamps;
+        _slowFrameTimestamps = slowFrameTimestamps;
+        _frozenFrameTimestamps = frozenFrameTimestamps;
         _frameRateTimestamps = frameRateTimestamps;
     }
 
