@@ -1,7 +1,7 @@
 #if __has_include(<Sentry/SentryOptions.h>)
-#import <Sentry/SentryOptions.h>
+#    import <Sentry/SentryOptions.h>
 #else
-#import "SentryOptions.h"
+#    import "SentryOptions.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
