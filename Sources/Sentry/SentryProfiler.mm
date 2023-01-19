@@ -467,44 +467,78 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 
 #    pragma mark - Private
 
-+ (uint64_t)elapsedSince:(uint64_t)time
-{
-    return getDurationNs(_gCurrentProfiler->_startTimestamp, time);
-}
-
 + (NSArray *)slicedArray:(NSArray *)array transaction:(SentryTransaction *)transaction
 {
-#    define SENTRY_SLICE_BLOCK(blockName, blockLogic)                                              \
-        BOOL (^blockName)(                                                                         \
-            NSDictionary<NSString *, id> *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop)    \
-            = ^BOOL(NSDictionary<NSString *, id> *_Nonnull sample, NSUInteger idx,                 \
-                BOOL *_Nonnull stop) blockLogic
-
-    SENTRY_SLICE_BLOCK(sliceStart, {
-        const auto duration = [self elapsedSince:transaction.startSystemTime];
-        return [sample[@"elapsed_since_start_ns"] longLongValue] > duration;
-    });
-    const auto firstIndex = [array indexOfObjectWithOptions:NSEnumerationConcurrent
-                                                passingTest:sliceStart];
+    const auto firstIndex = [array indexOfObjectPassingTest:^BOOL(
+        NSDictionary<NSString *, id> *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
+        const auto absoluteSampleTime =
+            [sample[@"elapsed_since_start_ns"] longLongValue] + _gCurrentProfiler->_startTimestamp;
+        SENTRY_LOG_DEBUG(
+            @"[slice start] Comparing sample time %lld to transaction start time %llu; "
+            @"absoluteSampleTime - transaction.startSystemTime = %lld (should be >= 0)",
+            absoluteSampleTime, transaction.startSystemTime,
+            absoluteSampleTime - transaction.startSystemTime);
+        *stop = absoluteSampleTime >= transaction.startSystemTime;
+        return *stop;
+    }];
 
     if (firstIndex == NSNotFound) {
-        SENTRY_LOG_DEBUG(@"Could not find any sample taken during the transaction.");
+        const auto firstSampleAbsoluteTime = [array[0][@"elapsed_since_start_ns"] longLongValue]
+            + _gCurrentProfiler->_startTimestamp;
+        const auto lastSampleAbsoluteTime =
+            [array.lastObject[@"elapsed_since_start_ns"] longLongValue]
+            + _gCurrentProfiler->_startTimestamp;
+        const auto firstSampleRelativeToTransactionStart
+            = firstSampleAbsoluteTime - transaction.startSystemTime;
+        const auto lastSampleRelativeToTransactionStart
+            = lastSampleAbsoluteTime - transaction.startSystemTime;
+        SENTRY_LOG_DEBUG(@"[slice start] Could not find any sample taken during the transaction "
+                         @"(first sample taken at: %llu; last: %llu; transaction start: %llu; end: "
+                         @"%llu; first sample relative to transaction start: %lld; last: %lld).",
+            firstSampleAbsoluteTime, lastSampleAbsoluteTime, transaction.startSystemTime,
+            transaction.endSystemTime, firstSampleRelativeToTransactionStart,
+            lastSampleRelativeToTransactionStart);
         return nil;
+    } else {
+        SENTRY_LOG_DEBUG(@"Found first slice sample at index %lu", firstIndex);
     }
 
-    SENTRY_SLICE_BLOCK(sliceEnd, {
-        const auto duration = [self elapsedSince:transaction.endSystemTime];
-        return [sample[@"elapsed_since_start_ns"] longLongValue] < duration;
-    });
-    const auto lastIndex =
-        [array indexOfObjectWithOptions:NSEnumerationConcurrent | NSEnumerationReverse
-                            passingTest:sliceEnd];
-
-#    undef SENTRY_SLICE_BLOCK
+    const auto lastIndex = [array
+        indexOfObjectWithOptions:NSEnumerationReverse
+                     passingTest:^BOOL(NSDictionary<NSString *, id> *_Nonnull sample,
+                         NSUInteger idx, BOOL *_Nonnull stop) {
+                         const auto absoluteSampleTime =
+                             [sample[@"elapsed_since_start_ns"] longLongValue]
+                             + _gCurrentProfiler->_startTimestamp;
+                         SENTRY_LOG_DEBUG(@"[slice end] Comparing sample time %lld to transaction "
+                                          @"start time %llu, transaction.endSystemTime - "
+                                          @"absoluteSampleTime = %lld (should be >= 0)",
+                             absoluteSampleTime, transaction.endSystemTime,
+                             transaction.endSystemTime - absoluteSampleTime);
+                         *stop = absoluteSampleTime <= transaction.endSystemTime;
+                         return *stop;
+                     }];
 
     if (lastIndex == NSNotFound) {
-        SENTRY_LOG_DEBUG(@"Could not find any other samples taken during the transaction.");
+        const auto firstSampleAbsoluteTime = [array[0][@"elapsed_since_start_ns"] longLongValue]
+            + _gCurrentProfiler->_startTimestamp;
+        const auto lastSampleAbsoluteTime =
+            [array.lastObject[@"elapsed_since_start_ns"] longLongValue]
+            + _gCurrentProfiler->_startTimestamp;
+        const auto firstSampleRelativeToTransactionStart
+            = firstSampleAbsoluteTime - transaction.startSystemTime;
+        const auto lastSampleRelativeToTransactionStart
+            = lastSampleAbsoluteTime - transaction.startSystemTime;
+        SENTRY_LOG_DEBUG(
+            @"[slice end] Could not find any other sample taken during the transaction (first "
+            @"sample taken at: %llu; last: %llu; transaction start: %llu; end: %llu; first sample "
+            @"relative to transaction start: %lld; last: %lld).",
+            firstSampleAbsoluteTime, lastSampleAbsoluteTime, transaction.startSystemTime,
+            transaction.endSystemTime, firstSampleRelativeToTransactionStart,
+            lastSampleRelativeToTransactionStart);
         return nil;
+    } else {
+        SENTRY_LOG_DEBUG(@"Found last slice sample at index %lu", lastIndex);
     }
 
     const auto range = NSMakeRange(firstIndex, (lastIndex - firstIndex) + 1);
