@@ -164,6 +164,8 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
         }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
         @synchronized(_gGlobalStateLock) {
+            SENTRY_LOG_DEBUG(
+                @"[span tracking] Adding root span id %@", self.rootSpan.spanId.sentrySpanIdString);
             [_gInFlightSpanIDs addObject:self.rootSpan.spanId];
         }
 
@@ -328,6 +330,8 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
         [_children addObject:child];
     }
     @synchronized(_gGlobalStateLock) {
+        SENTRY_LOG_DEBUG(
+            @"[span tracking] Adding child span id %@", child.spanId.sentrySpanIdString);
         [_gInFlightSpanIDs addObject:child.spanId];
     }
 
@@ -636,8 +640,12 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
     }
 
     @synchronized(_gGlobalStateLock) {
+        SENTRY_LOG_DEBUG(
+            @"[span tracking] removing root span id %@", _rootSpan.spanId.sentrySpanIdString);
         [_gInFlightSpanIDs removeObject:_rootSpan.spanId];
         for (id<SentrySpan> span in _children) {
+            SENTRY_LOG_DEBUG(
+                @"[span tracking] removing child span id %@", span.spanId.sentrySpanIdString);
             [_gInFlightSpanIDs removeObject:span.spanId];
         }
     }
@@ -662,6 +670,7 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
     NSArray *additionalEnvelopeItems;
     if (profileEnvelopeItem) {
         additionalEnvelopeItems = @[ profileEnvelopeItem ];
+        SENTRY_LOG_DEBUG(@"Capturing transaction with profiling data attached.");
     }
     [_hub captureTransaction:transaction
                       withScope:_hub.scope
