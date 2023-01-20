@@ -4,7 +4,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryTracer, SentryId, SentrySpanId, SentryTraceHeader;
+@class SentryTracer, SentryId, SentrySpanId, SentryTraceHeader, SentryMeasurementUnit;
 
 @interface SentrySpan : NSObject <SentrySerializable>
 SENTRY_NO_INIT
@@ -137,6 +137,26 @@ SENTRY_NO_INIT
  * Sets a tag value.
  */
 - (void)setTagValue:(NSString *)value forKey:(NSString *)key NS_SWIFT_NAME(setTag(value:key:));
+
+- (void)setMeasurement:(NSString *)name
+                 value:(NSNumber *)value NS_SWIFT_NAME(setMeasurement(name:value:));
+;
+
+- (void)setMeasurement:(NSString *)name
+                 value:(NSNumber *)value
+                  unit:(SentryMeasurementUnit *)unit
+    NS_SWIFT_NAME(setMeasurement(name:value:unit:));
+;
+
+/**
+ * Removes a data value.
+ */
+- (void)removeDataForKey:(NSString *)key NS_SWIFT_NAME(removeData(key:));
+
+/**
+ * Removes a tag value.
+ */
+- (void)removeTagForKey:(NSString *)key NS_SWIFT_NAME(removeTag(key:));
 
 @end
 

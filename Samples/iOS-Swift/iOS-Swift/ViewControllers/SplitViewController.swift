@@ -62,7 +62,7 @@ class SecondarySplitViewController: UIViewController {
         super.viewDidAppear(animated)
     }
      
-    func assertTransaction(span: Span) {
+    func assertTransaction(span: SentrySpan) {
         spanObserver?.releaseOnFinish()
         UIAssert.shared.targetView = assertView
         UIAssert.checkForViewControllerLifeCycle(span, viewController: "SplitViewSecondaryController")

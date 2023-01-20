@@ -23,13 +23,13 @@ class SentrySpanTests: XCTestCase {
             currentDateProvider.setDate(date: TestData.timestamp)
         }
         
-        func getSut() -> Span {
+        func getSut() -> SentrySpan {
             return getSut(client: TestClient(options: options)!)
         }
         
-        func getSut(client: SentryClient) -> Span {
+        func getSut(client: SentryClient) -> SentrySpan {
             let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andCurrentDateProvider: currentDateProvider)
-            return hub.startTransaction(name: someTransaction, operation: someOperation)
+            return hub.startTransaction(name: someTransaction, operation: someOperation).rootSpan
         }
         
     }
@@ -311,7 +311,7 @@ class SentrySpanTests: XCTestCase {
     func testSpanWithoutTracer_StartChild_ReturnsNoOpSpan() {
         // Span has a weak reference to tracer. If we don't keep a reference
         // to the tracer ARC will deallocate the tracer.
-        let sutGenerator: () -> Span = {
+        let sutGenerator: () -> SentrySpan = {
             let tracer = SentryTracer()
             return SentrySpan(tracer: tracer, context: SpanContext(operation: ""))
         }

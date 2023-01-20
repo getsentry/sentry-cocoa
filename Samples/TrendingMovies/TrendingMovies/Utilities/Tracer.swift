@@ -12,7 +12,7 @@ struct Tracer {
 
     private static let didFinishDebugMenuOptionSet = false // TODO: implement check for this debug menu option, if/when we bring in the debug menu
 
-    private var currentSpan: Span?
+    private var currentSpan: SentrySpan?
 }
 
 // MARK: Configuration
@@ -72,7 +72,7 @@ extension Tracer {
     }
 
     struct SpanHandle {
-        var span: Span
+        var span: SentrySpan
 
         func annotate(key: String, value: String) {
             print("[TrendingMovies] annotating span \(span.spanId.sentrySpanIdString), key \(key) and value \(value)")

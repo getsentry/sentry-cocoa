@@ -78,7 +78,7 @@ class UIAssert {
         shared.assert(success: false, errorMessage: errorMessage)
     }
     
-    static func checkForViewControllerLifeCycle(_ transaction: Span, viewController: String, stepsToCheck: [String]? = nil, checkExcess: Bool = false) {
+    static func checkForViewControllerLifeCycle(_ transaction: SentrySpan, viewController: String, stepsToCheck: [String]? = nil, checkExcess: Bool = false) {
         guard var children = transaction.children() else {
             shared.assert(success: false, errorMessage: "\(viewController) span has no children")
             return

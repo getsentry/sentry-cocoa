@@ -11,7 +11,7 @@ class TableViewController: UITableViewController {
         spanObserver = createTransactionObserver(forCallback: assertTransaction)
     }
     
-    func assertTransaction(span: Span) {
+    func assertTransaction(span: SentrySpan) {
         spanObserver?.releaseOnFinish()
         UIAssert.checkForViewControllerLifeCycle(span, viewController: "TableViewController")
     }

@@ -42,7 +42,7 @@ class PerformanceViewController: UIViewController {
     private var timer: Timer?
     private let iterations = 5_000_000
     private let range = 1..<Double.greatestFiniteMagnitude
-    private var transaction: Span?
+    private var transaction: SentrySpan?
 }
 
 private extension PerformanceViewController {

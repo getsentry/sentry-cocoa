@@ -115,6 +115,6 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
     }
     
     private func startTransaction() -> SentryTracer {
-        return SentrySDK.startTransaction(name: "TestTransaction", operation: "TestTransaction", bindToScope: true) as! SentryTracer
+        return SentrySDK.startTransaction(name: "TestTransaction", operation: "TestTransaction", bindToScope: true)
     }
 }

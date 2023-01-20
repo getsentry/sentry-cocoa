@@ -153,7 +153,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     
     func testGetRequest_SpanCreatedAndBaggageHeaderAdded() {
         startSDK()
-        let transaction = SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as! SentryTracer
+        let transaction = SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true)
         let expect = expectation(description: "Request completed")
         let session = URLSession(configuration: URLSessionConfiguration.default)
 
@@ -169,7 +169,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         dataTask.resume()
         wait(for: [expect], timeout: 5)
         
-        let children = Dynamic(transaction).children as [Span]?
+        let children = Dynamic(transaction).children as [SentrySpan]?
         
         XCTAssertEqual(children?.count, 1) //Span was created in task resume swizzle.
         let networkSpan = children![0]
@@ -182,7 +182,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
 
     func testGetRequest_CompareSentryTraceHeader() {
         startSDK()
-        let transaction = SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as! SentryTracer
+        let transaction = SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true)
         let expect = expectation(description: "Request completed")
         let session = URLSession(configuration: URLSessionConfiguration.default)
         var response: String?
@@ -271,7 +271,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     }
     
     private func startTransactionBoundToScope() -> SentryTracer {
-        return SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true) as! SentryTracer
+        return SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true)
     }
     
     private func assertRemovedIntegration(_ options: Options) {

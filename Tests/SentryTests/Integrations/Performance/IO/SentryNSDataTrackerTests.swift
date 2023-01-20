@@ -93,7 +93,7 @@ class SentryNSDataTrackerTests: XCTestCase {
     func testWriteAtomically_CheckTrace() {
         let sut = fixture.getSut()
         let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
-        var span: Span?
+        var span: SentrySpan?
                 
         sut.measure(fixture.data, writeToFile: fixture.filePath, atomically: false) { _, _ -> Bool in
             span = self.firstSpan(transaction)
@@ -109,7 +109,7 @@ class SentryNSDataTrackerTests: XCTestCase {
     func testWriteWithOptionsAndError_CheckTrace() {
         let sut = fixture.getSut()
         let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
-        var span: Span?
+        var span: SentrySpan?
         
         try! sut.measure(fixture.data, writeToFile: fixture.filePath, options: .atomic) { _, _, _ -> Bool in
             span = self.firstSpan(transaction)
@@ -125,7 +125,7 @@ class SentryNSDataTrackerTests: XCTestCase {
     func testDontTrackSentryFilesWrites() {
         let sut = fixture.getSut()
         let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
-        var span: Span?
+        var span: SentrySpan?
         
         let expect = expectation(description: "")
         try! sut.measure(fixture.data, writeToFile: fixture.sentryPath, options: .atomic) { _, _, _ -> Bool in
@@ -141,7 +141,7 @@ class SentryNSDataTrackerTests: XCTestCase {
     func testReadFromString() {
         let sut = fixture.getSut()
         let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
-        var span: Span?
+        var span: SentrySpan?
         var usedPath: String?
         
         let data = sut.measureNSData(fromFile: fixture.filePath) { path in
@@ -159,7 +159,7 @@ class SentryNSDataTrackerTests: XCTestCase {
     func testReadFromStringOptionsError() {
         let sut = fixture.getSut()
         let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
-        var span: Span?
+        var span: SentrySpan?
         var usedPath: String?
         var usedOptions: NSData.ReadingOptions?
         
@@ -180,7 +180,7 @@ class SentryNSDataTrackerTests: XCTestCase {
     func testReadFromURLOptionsError() {
         let sut = fixture.getSut()
         let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
-        var span: Span?
+        var span: SentrySpan?
         var usedUrl: URL?
         let url = URL(fileURLWithPath: fixture.filePath)
         var usedOptions: NSData.ReadingOptions?
@@ -202,7 +202,7 @@ class SentryNSDataTrackerTests: XCTestCase {
     func testDontTrackSentryFilesRead() {
         let sut = fixture.getSut()
         let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
-        var span: Span?
+        var span: SentrySpan?
        
         let expect = expectation(description: "")
         let _ = sut.measureNSData(fromFile: fixture.sentryPath) { _ in
@@ -215,12 +215,12 @@ class SentryNSDataTrackerTests: XCTestCase {
         wait(for: [expect], timeout: 0.1)
     }
     
-    private func firstSpan(_ transaction: Span) -> Span? {
-        let result = Dynamic(transaction).children as [Span]?
+    private func firstSpan(_ tracer: SentryTracer) -> SentrySpan? {
+        let result = tracer.children as [SentrySpan]?
         return result?.first
     }
     
-    private func assertDataSpan(_ span: Span?, path: String, operation: String, size: Int ) {
+    private func assertDataSpan(_ span: SentrySpan?, path: String, operation: String, size: Int ) {
         XCTAssertNotNil(span)
         XCTAssertEqual(span?.operation, operation)
         XCTAssertTrue(span?.isFinished ?? false)
@@ -237,7 +237,7 @@ class SentryNSDataTrackerTests: XCTestCase {
         }
     }
     
-    private func assertSpanDuration(span: Span?, expectedDuration: TimeInterval) {
+    private func assertSpanDuration(span: SentrySpan?, expectedDuration: TimeInterval) {
         let duration = span?.timestamp?.timeIntervalSince(span!.startTimestamp!)
         XCTAssertEqual(duration, expectedDuration)
     }

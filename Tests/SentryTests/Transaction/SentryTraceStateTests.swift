@@ -30,9 +30,9 @@ class SentryTraceContextTests: XCTestCase {
             scope = Scope()
             scope.setUser(User(userId: userId))
             scope.userObject?.segment = userSegment
-            scope.span = tracer
+            scope.span = tracer.rootSpan
             
-            traceId = tracer.traceId
+            traceId = tracer.rootSpan.traceId
         }
     }
     

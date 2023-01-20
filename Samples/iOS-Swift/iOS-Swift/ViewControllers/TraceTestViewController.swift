@@ -58,7 +58,7 @@ class TraceTestViewController: UIViewController {
         }
     }
     
-    func assertTransaction(span: Span) {
+    func assertTransaction(span: SentrySpan) {
         DispatchQueue.main.async {
             self.spanObserver?.releaseOnFinish()
             guard let children = span.children() else {

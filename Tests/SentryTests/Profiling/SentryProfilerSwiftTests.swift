@@ -33,8 +33,8 @@ class SentryProfilerSwiftTests: XCTestCase {
         lazy var framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper)
 #endif
 
-        func newTransaction() -> Span {
-            hub.startTransaction(name: transactionName, operation: transactionOperation)
+        func newTransaction() -> SentrySpan {
+            hub.startTransaction(name: transactionName, operation: transactionOperation).rootSpan
         }
     }
 
@@ -123,7 +123,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         options.tracesSampleRate = 1.0
 
         let numberOfTransactions = 10
-        var spans = [Span]()
+        var spans = [SentrySpan]()
         for _ in 0 ..< numberOfTransactions {
             spans.append(fixture.newTransaction())
         }

@@ -1,5 +1,4 @@
 #import "TestSentrySpan.h"
-#import "SentrySpanProtocol.h"
 #import "SentryTracer.h"
 
 @implementation TestSentrySpan

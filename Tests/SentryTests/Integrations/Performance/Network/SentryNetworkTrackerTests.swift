@@ -67,7 +67,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.urlSessionTaskResume(task)
         sut.urlSessionTaskResume(task)
         
-        let spans = Dynamic(transaction).children as [Span]?
+        let spans = Dynamic(transaction).children as [SentrySpan]?
         
         XCTAssertEqual(spans?.count, 1)
     }
@@ -143,7 +143,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let transaction = startTransaction()
         
         sut.urlSessionTaskResume(task)
-        let spans = Dynamic(transaction).children as [Span]?
+        let spans = Dynamic(transaction).children as [SentrySpan]?
         
         XCTAssertEqual(spans!.count, 0)
     }
@@ -158,11 +158,11 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         tracer.finish()
 
-        fixture.scope.span = tracer
+        fixture.scope.span = tracer.rootSpan
 
         sut.urlSessionTaskResume(task)
 
-        let spans = Dynamic(tracer).children as [Span]?
+        let spans = Dynamic(tracer).children as [SentrySpan]?
         XCTAssertEqual(spans?.count, 0)
     }
 
@@ -173,12 +173,12 @@ class SentryNetworkTrackerTests: XCTestCase {
                                                                          operation: SentryNetworkTrackerTests.transactionOperation),
                                   hub: nil,
                                   waitForChildren: true)
-        fixture.scope.span = tracer
+        fixture.scope.span = tracer.rootSpan
         
         sut.urlSessionTaskResume(task)
         tracer.finish()
         
-        let spans = Dynamic(tracer).children as [Span]?
+        let spans = Dynamic(tracer).children as [SentrySpan]?
         let span = spans!.first!
         
         advanceTime(bySeconds: 5)
@@ -188,7 +188,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertTrue(span.isFinished)
         
         assertSpanDuration(span: span, expectedDuration: 5)
-        assertSpanDuration(span: tracer, expectedDuration: 5)
+        assertSpanDuration(span: tracer.rootSpan, expectedDuration: 5)
     }
     
     func testCaptureCancelledRequest() {
@@ -236,7 +236,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let transaction = startTransaction()
         
         sut.urlSessionTaskResume(task)
-        let spans = Dynamic(transaction).children as [Span]?
+        let spans = Dynamic(transaction).children as [SentrySpan]?
         
         objc_removeAssociatedObjects(task)
         
@@ -252,7 +252,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let transaction = startTransaction()
         
         sut.urlSessionTaskResume(task)
-        let spans = Dynamic(transaction).children as [Span]?
+        let spans = Dynamic(transaction).children as [SentrySpan]?
         task.state = .running
         XCTAssertFalse(spans!.first!.isFinished)
         
@@ -275,7 +275,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let transaction = startTransaction()
         
         sut.urlSessionTaskResume(task)
-        let spans = Dynamic(transaction).children as [Span]?
+        let spans = Dynamic(transaction).children as [SentrySpan]?
         
         task.setError(NSError(domain: "TEST_ERROR", code: -1, userInfo: nil))
         sut.urlSessionTask(task, setState: .running)
@@ -519,7 +519,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         queue.activate()
         group.waitWithTimeout(timeout: 100)
         
-        let spans = Dynamic(transaction).children as [Span]?
+        let spans = Dynamic(transaction).children as [SentrySpan]?
         XCTAssertEqual(1, spans?.count)
         let span = spans!.first!
         
@@ -531,7 +531,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     func testBaggageHeader() {
         let sut = fixture.getSut()
         let task = createDataTask()
-        let transaction = startTransaction() as! SentryTracer
+        let transaction = startTransaction()
         sut.urlSessionTaskResume(task)
 
         let expectedBaggageHeader = transaction.traceContext.toBaggage().toHTTPHeader()
@@ -541,7 +541,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     func testTraceHeader() {
         let sut = fixture.getSut()
         let task = createDataTask()
-        let transaction = startTransaction() as! SentryTracer
+        let transaction = startTransaction()
         sut.urlSessionTaskResume(task)
 
         let children = Dynamic(transaction).children as [SentrySpan]?
@@ -555,7 +555,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.disable()
 
         let task = createDataTask()
-        _ = startTransaction() as! SentryTracer
+        _ = startTransaction()
         sut.urlSessionTaskResume(task)
 
         XCTAssertNil(task.currentRequest?.allHTTPHeaderFields?["baggage"])
@@ -576,7 +576,7 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         let sut = fixture.getSut()
         let task = createDataTask()
-        _ = startTransaction() as! SentryTracer
+        _ = startTransaction()
         sut.urlSessionTaskResume(task)
 
         XCTAssertNil(task.currentRequest?.allHTTPHeaderFields?["baggage"])
@@ -749,7 +749,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         sut.urlSessionTaskResume(task)
         
-        let spans = Dynamic(transaction).children as [Span]?
+        let spans = Dynamic(transaction).children as [SentrySpan]?
         let span = spans!.first!
         
         task.setResponse(response)
@@ -776,7 +776,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNil(task.observationInfo)
     }
     
-    private func assertCompletedSpan(_ task: URLSessionDataTaskMock, _ span: Span) {
+    private func assertCompletedSpan(_ task: URLSessionDataTaskMock, _ span: SentrySpan) {
         XCTAssertNotNil(span)
         XCTAssertFalse(span.isFinished)
         XCTAssertEqual(task.currentRequest?.value(forHTTPHeaderField: SENTRY_TRACE_HEADER), span.toTraceHeader().value())
@@ -787,22 +787,22 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNil(task.observationInfo)
     }
     
-    private func assertOneSpanCreated(_ transaction: Span) {
-        let spans = Dynamic(transaction).children as [Span]?
+    private func assertOneSpanCreated(_ tracer: SentryTracer) {
+        let spans = tracer.children as [SentrySpan]?
         XCTAssertEqual(1, spans?.count)
     }
     
-    private func spanForTask(task: URLSessionTask) -> Span? {
+    private func spanForTask(task: URLSessionTask) -> SentrySpan? {
         let sut = fixture.getSut()
         let transaction = startTransaction()
         
         sut.urlSessionTaskResume(task)
         
-        let spans = Dynamic(transaction).children as [Span]?
+        let spans = Dynamic(transaction).children as [SentrySpan]?
         return spans?.first
     }
     
-    private func startTransaction() -> Span {
+    private func startTransaction() -> SentryTracer {
         return SentrySDK.startTransaction(name: SentryNetworkTrackerTests.transactionName, operation: SentryNetworkTrackerTests.transactionOperation, bindToScope: true)
     }
     
@@ -814,7 +814,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         fixture.dateProvider.setDate(date: fixture.dateProvider.date().addingTimeInterval(bySeconds))
     }
         
-    private func assertSpanDuration(span: Span, expectedDuration: TimeInterval) {
+    private func assertSpanDuration(span: SentrySpan, expectedDuration: TimeInterval) {
         let duration = span.timestamp!.timeIntervalSince(span.startTimestamp!)
         XCTAssertEqual(duration, expectedDuration)
     }

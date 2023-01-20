@@ -8,7 +8,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let scope: Scope
         let date: Date
         let event: Event
-        let transaction: Span
+        let transaction: SentrySpan
         
         let dist = "dist"
         let environment = "environment"
@@ -56,7 +56,7 @@ class SentryScopeSwiftTests: XCTestCase {
             event = Event()
             event.message = SentryMessage(formatted: "message")
             
-            transaction = SentryTracer(transactionContext: TransactionContext(name: transactionName, operation: transactionOperation), hub: nil)
+            transaction = SentryTracer(transactionContext: TransactionContext(name: transactionName, operation: transactionOperation), hub: nil).rootSpan
         }
         
         var observer: TestScopeObserver {

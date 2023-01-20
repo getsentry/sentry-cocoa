@@ -3,10 +3,10 @@ import Sentry
 
 class SpanObserver: NSObject {
 
-    let span: Span
+    let span: SentrySpan
     private var callbacks: [String: (Span) -> Void] = [:]
     
-    init(span: Span) {
+    init(span: SentrySpan) {
         self.span = span
     }
     

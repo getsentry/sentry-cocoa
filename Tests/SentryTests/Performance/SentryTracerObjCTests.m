@@ -28,7 +28,7 @@
                                                                 waitForChildren:YES
                                                                    timerWrapper:nil];
         [tracer finish];
-        child = [tracer startChildWithOperation:@"child"];
+        child = [tracer.rootSpan startChildWithOperation:@"child"];
     }
 
     XCTAssertNotNil(child);

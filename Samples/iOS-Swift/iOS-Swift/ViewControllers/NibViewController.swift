@@ -17,7 +17,7 @@ class NibViewController: UIViewController {
         spanObserver = createTransactionObserver(forCallback: assertTransaction(span:))
     }
     
-    func assertTransaction(span: Span) {
+    func assertTransaction(span: SentrySpan) {
         spanObserver?.releaseOnFinish()
         UIAssert.checkForViewControllerLifeCycle(span, viewController: "NibViewController")
     }

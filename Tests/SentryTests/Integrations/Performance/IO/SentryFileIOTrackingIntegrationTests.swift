@@ -231,7 +231,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         
         let childrenSelector = NSSelectorFromString("children")
         
-        guard let children = parentTransaction.perform(childrenSelector).takeUnretainedValue() as? [Span] else {
+        guard let children = parentTransaction.perform(childrenSelector).takeUnretainedValue() as? [SentrySpan] else {
             XCTFail("Did not found children property from transaction.")
             return
         }

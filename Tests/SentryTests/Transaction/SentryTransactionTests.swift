@@ -57,7 +57,7 @@ class SentryTransactionTests: XCTestCase {
         let unit = MeasurementUnitDuration.millisecond
         
         let trace = SentryTracer(transactionContext: TransactionContext(operation: "operation"), hub: TestHub(client: nil, andScope: nil))
-        trace.setMeasurement(name: name, value: value, unit: unit)
+        trace.rootSpan.setMeasurement(name: name, value: value, unit: unit)
         let transaction = fixture.getTransaction(trace: trace)
 
         let actual = transaction.serialize()
@@ -79,8 +79,8 @@ class SentryTransactionTests: XCTestCase {
         let customUnit = MeasurementUnit(unit: "custom")
         
         let trace = SentryTracer(transactionContext: TransactionContext(operation: "operation"), hub: TestHub(client: nil, andScope: nil))
-        trace.setMeasurement(name: frameName, value: frameValue)
-        trace.setMeasurement(name: customName, value: customValue, unit: customUnit)
+        trace.rootSpan.setMeasurement(name: frameName, value: frameValue)
+        trace.rootSpan.setMeasurement(name: customName, value: customValue, unit: customUnit)
         let transaction = fixture.getTransaction(trace: trace)
         
         let actual = transaction.serialize()
@@ -100,7 +100,7 @@ class SentryTransactionTests: XCTestCase {
     func testSerialize_Tags() {
         // given
         let trace = fixture.getTrace()
-        trace.setTag(value: fixture.testValue, key: fixture.testKey)
+        trace.rootSpan.setTag(value: fixture.testValue, key: fixture.testKey)
         
         let sut = Transaction(trace: trace, children: [])
         
@@ -131,7 +131,7 @@ class SentryTransactionTests: XCTestCase {
     func testSerialize_shouldPreserveExtra() {
         // given
         let trace = fixture.getTrace()
-        trace.setData(value: fixture.testValue, key: fixture.testKey)
+        trace.rootSpan.setData(value: fixture.testValue, key: fixture.testKey)
         
         let sut = Transaction(trace: trace, children: [])
         

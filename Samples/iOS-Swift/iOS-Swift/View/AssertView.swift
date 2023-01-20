@@ -4,7 +4,7 @@ import UIKit
 
 class AssertView: UIView {
     
-    var span: Span?
+    var span: SentrySpan?
     var autoHide = true
     
     private var assertLabel: UILabel!

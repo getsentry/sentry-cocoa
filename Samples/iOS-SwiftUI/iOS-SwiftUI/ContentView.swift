@@ -81,7 +81,7 @@ struct ContentView: View {
         return SentrySDK.span as? SentryTracer
     }
     
-    func getCurrentSpan() -> Span? {
+    func getCurrentSpan() -> SentrySpan? {
         let tracker = SentryPerformanceTracker.shared
         guard let currentSpanId = tracker.activeSpanId() else {
             return nil

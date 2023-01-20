@@ -212,34 +212,31 @@ class SentryHubTests: XCTestCase {
     }
     
     func testStartTransactionWithNameOperation() {
-        let span = fixture.getSut().startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        let tracer = Dynamic(span)
+        let tracer = fixture.getSut().startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         XCTAssertEqual(tracer.transactionContext.name, fixture.transactionName)
-        XCTAssertEqual(span.operation, fixture.transactionOperation)
+        XCTAssertEqual(tracer.rootSpan.operation, fixture.transactionOperation)
     }
     
     func testStartTransactionWithContext() {
-        let span = fixture.getSut().startTransaction(transactionContext: TransactionContext(
+        let tracer = fixture.getSut().startTransaction(transactionContext: TransactionContext(
             name: fixture.transactionName,
             operation: fixture.transactionOperation
         ))
-        
-        let tracer = Dynamic(span)
+
         XCTAssertEqual(tracer.transactionContext.name, fixture.transactionName)
-        XCTAssertEqual(span.operation, fixture.transactionOperation)
+        XCTAssertEqual(tracer.rootSpan.operation, fixture.transactionOperation)
     }
 
     func testStartTransactionWithNameSource() {
-        let span = fixture.getSut().startTransaction(transactionContext: TransactionContext(
+        let tracer = fixture.getSut().startTransaction(transactionContext: TransactionContext(
             name: fixture.transactionName,
             nameSource: .url,
             operation: fixture.transactionOperation
         ))
 
-        let tracer = Dynamic(span)
         XCTAssertEqual(tracer.transactionContext.name, fixture.transactionName)
         XCTAssertEqual(tracer.transactionContext.nameSource, SentryTransactionNameSource.url)
-        XCTAssertEqual(span.operation, fixture.transactionOperation)
+        XCTAssertEqual(tracer.rootSpan.operation, fixture.transactionOperation)
     }
     
     func testStartTransactionWithContextSamplingContext() {
@@ -251,12 +248,11 @@ class SentryHubTests: XCTestCase {
             return 0
         }
         
-        let span = fixture.getSut().startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation), customSamplingContext: ["customKey": "customValue"])
-        
-        let tracer = Dynamic(span)
+        let tracer = fixture.getSut().startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation), customSamplingContext: ["customKey": "customValue"])
+
         XCTAssertEqual(tracer.transactionContext.name, fixture.transactionName)
         XCTAssertEqual(customSamplingContext?["customKey"] as? String, "customValue")
-        XCTAssertEqual(span.operation, fixture.transactionOperation)
+        XCTAssertEqual(tracer.rootSpan.operation, fixture.transactionOperation)
     }
     
     func testStartTransaction_checkContextSampleRate_fromOptions() {
@@ -264,9 +260,9 @@ class SentryHubTests: XCTestCase {
         options.tracesSampleRate = 0.49
         
         let span = fixture.getSut().startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation), customSamplingContext: ["customKey": "customValue"])
-        let context = (span as? SentryTracer)?.transactionContext
+        let context = span.transactionContext
         
-        XCTAssertEqual(context?.sampleRate, 0.49)
+        XCTAssertEqual(context.sampleRate, 0.49)
     }
     
     func testStartTransaction_checkContextSampleRate_fromSampler() {
@@ -276,9 +272,9 @@ class SentryHubTests: XCTestCase {
         }
         
         let span = fixture.getSut().startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation), customSamplingContext: ["customKey": "customValue"])
-        let context = (span as? SentryTracer)?.transactionContext
+        let context = span.transactionContext
         
-        XCTAssertEqual(context?.sampleRate, 0.51)
+        XCTAssertEqual(context.sampleRate, 0.51)
     }
     
     func testStartTransactionNotSamplingUsingSampleRate() {
@@ -320,8 +316,8 @@ class SentryHubTests: XCTestCase {
         let hub = fixture.getSut()
         Dynamic(hub).sampler.random = fixture.random
         
-        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        XCTAssertEqual(span.sampled, .no)
+        let tracer = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        XCTAssertEqual(tracer.rootSpan.sampled, .no)
     }
 
     func testCaptureSampledTransaction_ReturnsEmptyId() {
@@ -896,8 +892,8 @@ class SentryHubTests: XCTestCase {
         let hub = fixture.getSut()
         Dynamic(hub).tracesSampler.random = fixture.random
 
-        let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
+        let tracer = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
 
-        XCTAssertEqual(expected, span.sampled)
+        XCTAssertEqual(expected, tracer.rootSpan.sampled)
     }
 }
