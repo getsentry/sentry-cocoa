@@ -1276,46 +1276,62 @@ toString(NSData *data)
     XCTAssertNil(error, @"");
 }
 
-- (void)testDeserializeArrayInt64Min
+- (void)testDeserializeArray_Int64Min
 {
-    NSError *error = (NSError *)self;
     int64_t value = LLONG_MIN;
     NSString *jsonString = [NSString stringWithFormat:@"[%lld]", value];
-    NSArray<NSNumber *> *result = [SentryCrashJSONCodec decode:toData(jsonString)
-                                                       options:0
-                                                         error:&error];
-    XCTAssertNotNil(result);
-    XCTAssertNil(error);
+
+    NSArray<NSNumber *> *result = [self decode:jsonString];
 
     XCTAssertEqual([result[0] longLongValue], value);
 }
 
-- (void)testDeserializeArray64IntMax
+- (void)testDeserializeArray_64IntMax
 {
-    NSError *error = (NSError *)self;
     int64_t value = LLONG_MAX;
     NSString *jsonString = [NSString stringWithFormat:@"[%lld]", value];
-    NSArray<NSNumber *> *result = [SentryCrashJSONCodec decode:toData(jsonString)
-                                                       options:0
-                                                         error:&error];
-    XCTAssertNotNil(result);
-    XCTAssertNil(error);
+
+    NSArray<NSNumber *> *result = [self decode:jsonString];
 
     XCTAssertEqual([result[0] longLongValue], value);
 }
 
-- (void)testDeserializeArrayUIntMax
+- (void)testDeserializeArrayUIntMax_UsesDouble
 {
-    NSError *error = (NSError *)self;
     uint64_t value = ULLONG_MAX;
     NSString *jsonString = [NSString stringWithFormat:@"[%llu]", value];
+
+    NSArray<NSNumber *> *result = [self decode:jsonString];
+
+    XCTAssertNotEqual([result[0] unsignedLongLongValue], value);
+    XCTAssertEqual([result[0] doubleValue], [@(value) doubleValue]);
+}
+
+- (void)testDeserializeArray_NegativeLLONG_MIN_plusOne_UsesDouble
+{
+    uint64_t value = (uint64_t)LLONG_MIN + 1;
+    NSString *jsonString = [NSString stringWithFormat:@"[-%llu]", value];
+
+    NSArray<NSNumber *> *result = [self decode:jsonString];
+
+    XCTAssertNotEqual([result[0] unsignedLongLongValue], value);
+    XCTAssertEqual([result[0] doubleValue], -[@(value) doubleValue]);
+}
+
+- (void)testDeserializeArray_UIntOverflow_UsesDouble
+{
+    NSError *error = (NSError *)self;
+    uint64_t ullongmax = ULLONG_MAX;
+    double value = (double)ULLONG_MAX + 1;
+    NSLog(@"%f, %llu", value, ullongmax);
+    NSString *jsonString = [NSString stringWithFormat:@"[%f]", value];
     NSArray<NSNumber *> *result = [SentryCrashJSONCodec decode:toData(jsonString)
                                                        options:0
                                                          error:&error];
     XCTAssertNotNil(result);
     XCTAssertNil(error);
 
-    XCTAssertEqual([result[0] unsignedLongLongValue], value);
+    XCTAssertEqual([result[0] doubleValue], value);
 }
 
 - (void)testDeserializeDictionaryInvalidKey
@@ -1633,6 +1649,17 @@ addJSONData(const char *data, int length, void *userData)
     [encodedData appendBytes:"\0" length:1];
 
     [self expectEquivalentJSON:encodedData.bytes toJSON:expectedJson];
+}
+
+- (NSArray<NSNumber *> *)decode:(NSString *)jsonString
+{
+    NSError *error = nil;
+    NSArray<NSNumber *> *result = [SentryCrashJSONCodec decode:toData(jsonString)
+                                                       options:0
+                                                         error:&error];
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+    return result;
 }
 
 @end

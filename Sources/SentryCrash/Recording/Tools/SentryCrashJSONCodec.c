@@ -1211,9 +1211,8 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
         }
 
         if (!isFPChar(*context->bufferPtr) && !isOverflow) {
-            if (sign > 0 || accum <= ((uint64_t)LLONG_MAX + 1)) {
-                int64_t signedAccum = accum;
-                signedAccum *= sign;
+            if ((sign == -1 && accum <= ((uint64_t)LLONG_MIN)) || accum <= ((uint64_t)LLONG_MAX)) {
+                int64_t signedAccum = accum * sign;
                 return context->callbacks->onIntegerElement(name, signedAccum, context->userData);
             }
         }
