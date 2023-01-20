@@ -180,3 +180,10 @@ Date: January 16th, 2023
 Contributors: @kahest, @brustolin and @philipphofmann
 
 With 8.0.0, we rename the default branch from `master` to `main`. We will keep the `master` branch for backwards compatibility for package managers pointing to the `master` branch.
+
+## SentrySwiftUI version
+
+Date: January 18th, 2023
+Contributors: @brustolin and @philipphofmann
+
+We release experimental SentrySwiftUI cocoa package with the version 8.0.0 because all podspecs file in a repo need to have the same version. 

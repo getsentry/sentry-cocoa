@@ -7,7 +7,7 @@ let package = Package(
     name: "macOS-SPM-CommandLine",
     dependencies: [
         // branch is replaced in CI to the current sha
-        .package(name: "Sentry", url: "https://github.com/getsentry/sentry-cocoa", .branch("master") )
+        .package(name: "Sentry", url: "https://github.com/getsentry/sentry-cocoa", .branch("main") )
     ],
     targets: [
         .target(

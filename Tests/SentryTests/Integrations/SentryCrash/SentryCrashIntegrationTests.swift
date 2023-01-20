@@ -261,8 +261,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         assertLocaleOnHub(locale: Locale.autoupdatingCurrent.identifier, hub: hub)
     }
 
-    // !!!: Disabled until flakiness can be fixed
-    func testStartUpCrash_CallsFlush_disabled() throws {
+    func testStartUpCrash_CallsFlush() throws {
         let (sut, hub) = givenSutWithGlobalHubAndCrashWrapper()
         sut.install(with: Options())
         

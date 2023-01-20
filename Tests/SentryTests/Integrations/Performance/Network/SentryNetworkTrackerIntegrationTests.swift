@@ -151,7 +151,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual(1, breadcrumbs?.count)
     }
     
-    func testGetRequest_SpanCreatedAndBaggageHeaderAdded_disabled() {
+    func testGetRequest_SpanCreatedAndBaggageHeaderAdded() {
         startSDK()
         let transaction = SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as! SentryTracer
         let expect = expectation(description: "Request completed")

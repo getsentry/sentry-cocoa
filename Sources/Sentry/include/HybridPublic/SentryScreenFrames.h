@@ -18,7 +18,8 @@ SENTRY_NO_INIT
 - (instancetype)initWithTotal:(NSUInteger)total
                        frozen:(NSUInteger)frozen
                          slow:(NSUInteger)slow
-              frameTimestamps:(SentryFrameInfoTimeSeries *)frameTimestamps
+          slowFrameTimestamps:(SentryFrameInfoTimeSeries *)slowFrameTimestamps
+        frozenFrameTimestamps:(SentryFrameInfoTimeSeries *)frozenFrameTimestamps
           frameRateTimestamps:(SentryFrameInfoTimeSeries *)frameRateTimestamps;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -28,10 +29,16 @@ SENTRY_NO_INIT
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
- * Array of dictionaries describing slow/frozen frames' timestamps. Each dictionary start and end
+ * Array of dictionaries describing slow frames' timestamps. Each dictionary has a start and end
  * timestamp for every such frame, keyed under @c start_timestamp and @c end_timestamp.
  */
-@property (nonatomic, copy, readonly) SentryFrameInfoTimeSeries *frameTimestamps;
+@property (nonatomic, copy, readonly) SentryFrameInfoTimeSeries *slowFrameTimestamps;
+
+/**
+ * Array of dictionaries describing frozen frames' timestamps. Each dictionary has a start and end
+ * timestamp for every such frame, keyed under @c start_timestamp and @c end_timestamp.
+ */
+@property (nonatomic, copy, readonly) SentryFrameInfoTimeSeries *frozenFrameTimestamps;
 
 /**
  * Array of dictionaries describing the screen refresh rate at all points in time that it changes,

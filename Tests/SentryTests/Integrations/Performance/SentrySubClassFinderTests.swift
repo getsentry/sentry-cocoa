@@ -38,7 +38,7 @@ class SentrySubClassFinderTests: XCTestCase {
         fixture = Fixture()
     }
     
-    func testActOnSubclassesOfViewController_disabled() {
+    func testActOnSubclassesOfViewController() {
         assertActOnSubclassesOfViewController(expected: [FirstViewController.self, SecondViewController.self, ViewControllerNumberThree.self, VCAnyNaming.self])
     }
     
