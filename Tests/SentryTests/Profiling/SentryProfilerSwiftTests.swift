@@ -130,10 +130,13 @@ class SentryProfilerSwiftTests: XCTestCase {
 
         forceProfilerSample()
 
-        spans.forEach { $0.finish() }
+        try spans.forEach {
+            $0.finish()
 
-        let profileData = try getProfileData()
-        self.assertValidProfileData(data: profileData, numberOfTransactions: numberOfTransactions)
+            let profileData = try getProfileData()
+            self.assertValidProfileData(data: profileData)
+        }
+
     }
 
     /// Test a situation where a long-running span starts the profiler, which winds up timing out, and then another span starts that begins a new profile, then finishes, and then the long-running span finishes; both profiles should be separately captured in envelopes.
@@ -148,6 +151,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         let options = fixture.options
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
+        kSentryProfilerTimeoutInterval = 1
 
         let spanA = fixture.newTransaction()
 
@@ -164,20 +168,19 @@ class SentryProfilerSwiftTests: XCTestCase {
 
         forceProfilerSample()
 
-        spanB.finish()
-        spanA.finish()
+        // TODO: newTransaction, getProfileData and assertValidProfileData need additional arguments so we can know the correct transaction info is injected into the right profile payloads and profiles are then attached to the correct transactions.
 
-        XCTAssertEqual(self.fixture.client.captureEnvelopeInvocations.count, 2)
-        var currentEnvelope = 0
-        for envelope in self.fixture.client.captureEnvelopeInvocations.invocations {
-            XCTAssertEqual(1, envelope.items.count)
-            guard let profileItem = envelope.items.first else {
-                throw TestError.noProfileEnvelopeItem
-            }
-            XCTAssertEqual("profile", profileItem.header.type)
-            self.assertValidProfileData(data: profileItem.data, shouldTimeout: currentEnvelope == 1)
-            currentEnvelope += 1
-        }
+        spanB.finish()
+        let profileData = try getProfileData()
+        self.assertValidProfileData(data: profileData)
+
+        spanA.finish()
+        let profileData = try getProfileData()
+        self.assertValidProfileData(data: profileData)
+    }
+
+    func testSlicingProfileSamplesAndMetrics() {
+        // TODO: implement
     }
 
     func testProfileTimeoutTimer() throws {
@@ -272,7 +275,7 @@ private extension SentryProfilerSwiftTests {
     }
 
     func getProfileData() throws -> Data {
-        guard let envelope = self.fixture.client.captureEventWithScopeInvocations.first else {
+        guard let envelope = self.fixture.client.captureEventWithScopeInvocations.last else {
             throw(TestError.noEnvelopeCaptured)
         }
 
@@ -294,7 +297,7 @@ private extension SentryProfilerSwiftTests {
         }
     }
 
-    func performTest(transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1, shouldTimeOut: Bool = false) throws {
+    func performTest(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeOut: Bool = false) throws {
         if shouldTimeOut {
             kSentryProfilerTimeoutInterval = 1
         }
@@ -316,7 +319,7 @@ private extension SentryProfilerSwiftTests {
         waitForExpectations(timeout: 10)
 
         let profileData = try getProfileData()
-        self.assertValidProfileData(data: profileData, transactionEnvironment: transactionEnvironment, numberOfTransactions: numberOfTransactions, shouldTimeout: shouldTimeOut)
+        self.assertValidProfileData(data: profileData, transactionEnvironment: transactionEnvironment, shouldTimeout: shouldTimeOut)
     }
 
     func assertMetricsPayload(expectedCPUUsages: [Double], usageReadings: Int, expectedMemoryFootprint: SentryRAMBytes, expectedSlowFrameCount: Int, expectedFrozenFrameCount: Int, expectedFrameRateCount: Int) throws {
@@ -359,7 +362,7 @@ private extension SentryProfilerSwiftTests {
         }
     }
 
-    func assertValidProfileData(data: Data, transactionEnvironment: String = kSentryDefaultEnvironment, numberOfTransactions: Int = 1, shouldTimeout: Bool = false) {
+    func assertValidProfileData(data: Data, transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeout: Bool = false) {
         let profile = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
 
         XCTAssertNotNil(profile["version"])
@@ -436,7 +439,7 @@ private extension SentryProfilerSwiftTests {
         XCTAssert(foundAtLeastOneNonEmptySample)
 
         let transactions = profile["transactions"] as? [[String: Any]]
-        XCTAssertEqual(transactions!.count, numberOfTransactions)
+        XCTAssertEqual(transactions!.count, 1)
         for transaction in transactions! {
             XCTAssertEqual(fixture.transactionName, transaction["name"] as! String)
             XCTAssertNotNil(transaction["id"])
