@@ -7,6 +7,12 @@
 - AttachScreenshots is GA (#2623)
 - Gather profiling timeseries metrics for CPU usage and memory footprint (#2493)
 
+### Fixes
+
+- Support uint64 in crash reports (#2631)
+- Always fetch view hierarchy on the main thread (#2629)
+- Carthage Xcode 14 compatibility issue (#2636)
+
 ## 8.0.0
 
 ### Features

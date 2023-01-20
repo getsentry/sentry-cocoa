@@ -126,55 +126,56 @@ toString(NSData *data)
 {
     NSError *error = (NSError *)self;
     NSString *expected = @"[1]";
-    id original = [NSArray arrayWithObjects:[NSNumber numberWithInt:1], nil];
+    int value = 1;
+    NSArray<NSNumber *> *original = [NSArray arrayWithObjects:[NSNumber numberWithInt:value], nil];
     NSString *jsonString = toString([SentryCrashJSONCodec encode:original
                                                          options:SentryCrashJSONEncodeOptionSorted
                                                            error:&error]);
-    XCTAssertNotNil(jsonString, @"");
-    XCTAssertNil(error, @"");
-    XCTAssertEqualObjects(jsonString, expected, @"");
+    XCTAssertNotNil(jsonString);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(jsonString, expected);
     id result = [SentryCrashJSONCodec decode:toData(jsonString) options:0 error:&error];
-    XCTAssertNotNil(result, @"");
-    XCTAssertNil(error, @"");
-    XCTAssertEqualObjects(result, original, @"");
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(result, original);
 }
 
 - (void)testSerializeDeserializeArrayFloat
 {
     NSError *error = (NSError *)self;
+    float value = -0.2f;
     NSString *expected = @"[-0.2]";
-    id original = [NSArray arrayWithObjects:[NSNumber numberWithFloat:-0.2f], nil];
+    NSArray<NSNumber *> *original =
+        [NSArray arrayWithObjects:[NSNumber numberWithFloat:value], nil];
     NSString *jsonString = toString([SentryCrashJSONCodec encode:original
                                                          options:SentryCrashJSONEncodeOptionSorted
                                                            error:&error]);
-    XCTAssertNotNil(jsonString, @"");
-    XCTAssertNil(error, @"");
-    XCTAssertEqualObjects(jsonString, expected, @"");
+    XCTAssertNotNil(jsonString);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(jsonString, expected);
     id result = [SentryCrashJSONCodec decode:toData(jsonString) options:0 error:&error];
-    XCTAssertNotNil(result, @"");
-    XCTAssertNil(error, @"");
-    XCTAssertEqual([[result objectAtIndex:0] floatValue], -0.2f, @"");
-    // This always fails on NSNumber filled with float.
-    // XCTAssertEqualObjects(result, original, @"");
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+    XCTAssertEqual([[result objectAtIndex:0] floatValue], value);
 }
 
 - (void)testSerializeDeserializeArrayFloat2
 {
     NSError *error = (NSError *)self;
     NSString *expected = @"[-2e-15]";
-    id original = [NSArray arrayWithObjects:[NSNumber numberWithFloat:-2e-15f], nil];
+    float value = -2e-15f;
+    NSArray<NSNumber *> *original =
+        [NSArray arrayWithObjects:[NSNumber numberWithFloat:value], nil];
     NSString *jsonString = toString([SentryCrashJSONCodec encode:original
                                                          options:SentryCrashJSONEncodeOptionSorted
                                                            error:&error]);
-    XCTAssertNotNil(jsonString, @"");
-    XCTAssertNil(error, @"");
-    XCTAssertEqualObjects(jsonString, expected, @"");
+    XCTAssertNotNil(jsonString);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(jsonString, expected);
     id result = [SentryCrashJSONCodec decode:toData(jsonString) options:0 error:&error];
-    XCTAssertNotNil(result, @"");
-    XCTAssertNil(error, @"");
-    XCTAssertEqual([[result objectAtIndex:0] floatValue], -2e-15f, @"");
-    // This always fails on NSNumber filled with float.
-    // XCTAssertEqualObjects(result, original, @"");
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+    XCTAssertEqual([[result objectAtIndex:0] floatValue], value);
 }
 
 - (void)testSerializeDeserializeArrayString
@@ -1275,6 +1276,64 @@ toString(NSData *data)
     XCTAssertNil(error, @"");
 }
 
+- (void)testDeserializeArray_Int64Min
+{
+    int64_t value = LLONG_MIN;
+    NSString *jsonString = [NSString stringWithFormat:@"[%lld]", value];
+
+    NSArray<NSNumber *> *result = [self decode:jsonString];
+
+    XCTAssertEqual([result[0] longLongValue], value);
+}
+
+- (void)testDeserializeArray_64IntMax
+{
+    int64_t value = LLONG_MAX;
+    NSString *jsonString = [NSString stringWithFormat:@"[%lld]", value];
+
+    NSArray<NSNumber *> *result = [self decode:jsonString];
+
+    XCTAssertEqual([result[0] longLongValue], value);
+}
+
+- (void)testDeserializeArrayUIntMax_UsesDouble
+{
+    uint64_t value = ULLONG_MAX;
+    NSString *jsonString = [NSString stringWithFormat:@"[%llu]", value];
+
+    NSArray<NSNumber *> *result = [self decode:jsonString];
+
+    XCTAssertNotEqual([result[0] unsignedLongLongValue], value);
+    XCTAssertEqual([result[0] doubleValue], [@(value) doubleValue]);
+}
+
+- (void)testDeserializeArray_NegativeLLONG_MIN_plusOne_UsesDouble
+{
+    uint64_t value = (uint64_t)LLONG_MIN + 1;
+    NSString *jsonString = [NSString stringWithFormat:@"[-%llu]", value];
+
+    NSArray<NSNumber *> *result = [self decode:jsonString];
+
+    XCTAssertNotEqual([result[0] unsignedLongLongValue], value);
+    XCTAssertEqual([result[0] doubleValue], -[@(value) doubleValue]);
+}
+
+- (void)testDeserializeArray_UIntOverflow_UsesDouble
+{
+    NSError *error = (NSError *)self;
+    uint64_t ullongmax = ULLONG_MAX;
+    double value = (double)ULLONG_MAX + 1;
+    NSLog(@"%f, %llu", value, ullongmax);
+    NSString *jsonString = [NSString stringWithFormat:@"[%f]", value];
+    NSArray<NSNumber *> *result = [SentryCrashJSONCodec decode:toData(jsonString)
+                                                       options:0
+                                                         error:&error];
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+
+    XCTAssertEqual([result[0] doubleValue], value);
+}
+
 - (void)testDeserializeDictionaryInvalidKey
 {
     NSError *error = (NSError *)self;
@@ -1590,6 +1649,17 @@ addJSONData(const char *data, int length, void *userData)
     [encodedData appendBytes:"\0" length:1];
 
     [self expectEquivalentJSON:encodedData.bytes toJSON:expectedJson];
+}
+
+- (NSArray<NSNumber *> *)decode:(NSString *)jsonString
+{
+    NSError *error = nil;
+    NSArray<NSNumber *> *result = [SentryCrashJSONCodec decode:toData(jsonString)
+                                                       options:0
+                                                         error:&error];
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+    return result;
 }
 
 @end

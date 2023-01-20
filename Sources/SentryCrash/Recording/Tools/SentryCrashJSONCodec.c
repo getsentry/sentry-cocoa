@@ -30,6 +30,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
+#include <limits.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -1190,17 +1191,17 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
     case '8':
     case '9': {
         // Try integer conversion.
-        int64_t accum = 0;
+        uint64_t accum = 0;
+        bool isOverflow = false;
         const char *const start = context->bufferPtr;
 
         for (; context->bufferPtr < context->bufferEnd && isdigit(*context->bufferPtr);
              context->bufferPtr++) {
-            accum = accum * 10 + (*context->bufferPtr - '0');
-            unlikely_if(accum < 0)
-            {
-                // Overflow
-                break;
-            }
+            unlikely_if((isOverflow = accum > (ULLONG_MAX / 10))) { break; }
+            accum *= 10;
+            int nextDigit = (*context->bufferPtr - '0');
+            unlikely_if((isOverflow = accum > (ULLONG_MAX - nextDigit))) { break; }
+            accum += nextDigit;
         }
 
         unlikely_if(context->bufferPtr >= context->bufferEnd)
@@ -1209,9 +1210,11 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
             return SentryCrashJSON_ERROR_INCOMPLETE;
         }
 
-        if (!isFPChar(*context->bufferPtr) && accum >= 0) {
-            accum *= sign;
-            return context->callbacks->onIntegerElement(name, accum, context->userData);
+        if (!isFPChar(*context->bufferPtr) && !isOverflow) {
+            if ((sign == -1 && accum <= ((uint64_t)LLONG_MIN)) || accum <= ((uint64_t)LLONG_MAX)) {
+                int64_t signedAccum = accum * sign;
+                return context->callbacks->onIntegerElement(name, signedAccum, context->userData);
+            }
         }
 
         while (context->bufferPtr < context->bufferEnd && isFPChar(*context->bufferPtr)) {
