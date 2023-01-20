@@ -12,9 +12,6 @@ SENTRY_NO_INIT
 - (id)initWithStacktraceBuilder:(SentryStacktraceBuilder *)stacktraceBuilder
        andMachineContextWrapper:(id<SentryCrashMachineContextWrapper>)machineContextWrapper;
 
-/**
- * Gets the stacktrace for current thread using native functions.
- */
 - (nullable SentryStacktrace *)stacktraceForCurrentThreadAsyncUnsafe;
 
 /**
