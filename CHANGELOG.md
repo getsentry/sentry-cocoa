@@ -15,6 +15,10 @@ This version adds a dependency on Swift. We renamed the default branch from `mas
 - AttachScreenshots is GA (#2623)
 - Gather profiling timeseries metrics for CPU usage and memory footprint (#2493)
 
+### Fixes
+
+- Support uint64 in crash reports (#2631)
+
 ## 8.0.0
 
 ### Features
