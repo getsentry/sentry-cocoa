@@ -14,6 +14,7 @@ on:
       - 'fastlane/**'
       - 'scripts/ci-select-xcode.sh'
       - Sentry.xcworkspace
+      - Gemfile.lock
 
 jobs:
   # We had issues that the release build was broken on main.
