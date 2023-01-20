@@ -24,6 +24,7 @@
 
 #include "SentryCrashSymbolicator.h"
 #include "SentryCrashDynamicLinker.h"
+#import <stdio.h>
 
 /** Remove any pointer tagging from an instruction address
  * On armv7 the least significant bit of the pointer distinguishes
@@ -60,8 +61,16 @@ sentrycrashsymbolicator_symbolicate(SentryCrashStackCursor *cursor)
     }
 
     Dl_info symbolsBuffer;
-    if (sentrycrashdl_dladdr(
-            CALL_INSTRUCTION_FROM_RETURN_ADDRESS(cursor->stackEntry.address), &symbolsBuffer)) {
+    
+    bool symbols_succeed = false;
+
+    if (cursor->useDlAddr) {
+        symbols_succeed = dladdr((void *)cursor->stackEntry.address, &symbolsBuffer) != 0;
+    } else {
+        symbols_succeed = sentrycrashdl_dladdr(CALL_INSTRUCTION_FROM_RETURN_ADDRESS(cursor->stackEntry.address), &symbolsBuffer);
+    }
+
+    if (symbols_succeed) {
         cursor->stackEntry.imageAddress = (uintptr_t)symbolsBuffer.dli_fbase;
         cursor->stackEntry.imageName = symbolsBuffer.dli_fname;
         cursor->stackEntry.symbolAddress = (uintptr_t)symbolsBuffer.dli_saddr;

@@ -30,6 +30,8 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
 {
     sentrycrashmc_getContextForThread(thread, context, false);
     SentryCrashStackCursor stackCursor;
+    stackCursor.useDlAddr = 0;
+    
     sentrycrashsc_initWithMachineContext(&stackCursor, MAX_STACKTRACE_LENGTH, context);
 
     unsigned int entries = 0;

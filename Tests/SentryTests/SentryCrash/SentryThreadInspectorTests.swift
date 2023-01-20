@@ -85,7 +85,10 @@ class SentryThreadInspectorTests: XCTestCase {
             XCTFail("Stack Trace not found")
             return
         }
+        let stackTrace2 = fixture.getSut(testWithRealMachineContextWrapper: true).getCurrentThreadsWithStackTrace() 
+
         XCTAssertNotNil(stackTrace)
+        XCTAssertNotNil(stackTrace2)
         XCTAssertGreaterThan(stackTrace.frames.count, 0)
         XCTAssertNotEqual(stackTrace.frames.first?.instructionAddress, "0x0000000000000000")
         XCTAssertNotEqual(stackTrace.frames.first?.function, "<redacted>")

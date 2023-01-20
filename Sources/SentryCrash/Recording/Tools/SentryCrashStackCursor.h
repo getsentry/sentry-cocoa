@@ -92,6 +92,8 @@ typedef struct SentryCrashStackCursor {
 
     /** Internal context-specific information. */
     void *context[SentryCrashSC_CONTEXT_SIZE];
+
+    bool useDlAddr;
 } SentryCrashStackCursor;
 
 /** Common initialization routine for a stack cursor.
