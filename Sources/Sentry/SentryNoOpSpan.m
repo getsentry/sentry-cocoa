@@ -1,5 +1,6 @@
 #import "SentryNoOpSpan.h"
 #import "SentryId.h"
+#import "SentryMeasurementUnit.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
 #import "SentryTraceHeader.h"

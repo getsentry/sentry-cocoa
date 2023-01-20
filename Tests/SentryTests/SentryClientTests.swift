@@ -1249,7 +1249,7 @@ class SentryClientTest: XCTestCase {
         let event = Event(level: SentryLevel.warning)
         event.message = fixture.message
         let scope = Scope()
-        scope.span = fixture.trace
+        scope.span = fixture.trace.rootSpan
         
         let client = fixture.getSut()
         client.capture(event: event, scope: scope)
@@ -1263,7 +1263,8 @@ class SentryClientTest: XCTestCase {
         let event = Event(level: SentryLevel.warning)
         event.message = fixture.message
         let scope = Scope()
-        scope.span = SentryTracer()
+        let tracer = SentryTracer()
+        scope.span = tracer.rootSpan
         
         let client = fixture.getSut()
         client.capture(event: event, scope: scope)

@@ -7,7 +7,6 @@
 #import <SentrySpan.h>
 #import <SentrySpanId.h>
 #import <SentrySpanOperations.h>
-#import <SentrySpanProtocol.h>
 #import <SentryTracer.h>
 #import <SentryTransactionContext+Private.h>
 #import <SentryUIEventTracker.h>

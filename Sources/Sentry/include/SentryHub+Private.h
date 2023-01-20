@@ -24,20 +24,20 @@ SentryHub (Private)
 
 - (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp;
 
-- (SentrySpan *)startTransactionWithName:(NSString *)name
-                              nameSource:(SentryTransactionNameSource)source
-                               operation:(NSString *)operation;
+- (SentryTracer *)startTransactionWithName:(NSString *)name
+                                nameSource:(SentryTransactionNameSource)source
+                                 operation:(NSString *)operation;
 
-- (SentrySpan *)startTransactionWithName:(NSString *)name
-                              nameSource:(SentryTransactionNameSource)source
-                               operation:(NSString *)operation
-                             bindToScope:(BOOL)bindToScope;
+- (SentryTracer *)startTransactionWithName:(NSString *)name
+                                nameSource:(SentryTransactionNameSource)source
+                                 operation:(NSString *)operation
+                               bindToScope:(BOOL)bindToScope;
 
-- (SentrySpan *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                bindToScope:(BOOL)bindToScope
-                            waitForChildren:(BOOL)waitForChildren
-                      customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
-                               timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper;
+- (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bindToScope
+                              waitForChildren:(BOOL)waitForChildren
+                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
+                                 timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper;
 
 - (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope

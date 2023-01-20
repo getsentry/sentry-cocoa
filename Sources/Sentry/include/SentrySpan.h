@@ -1,14 +1,23 @@
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
 #import "SentrySpanContext.h"
-#import "SentrySpanProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryTracer, SentryId, SentrySpanId;
+@class SentryTracer, SentryId, SentrySpanId, SentryTraceHeader;
 
-@interface SentrySpan : NSObject <SentrySpan, SentrySerializable>
+@interface SentrySpan : NSObject <SentrySerializable>
 SENTRY_NO_INIT
+
+/**
+ * An arbitrary mapping of additional metadata of the span.
+ */
+@property (readonly) NSDictionary<NSString *, id> *data;
+
+/**
+ * key-value pairs holding additional data about the span.
+ */
+@property (readonly) NSDictionary<NSString *, NSString *> *tags;
 
 /**
  * Determines which trace the Span belongs to.
@@ -76,7 +85,59 @@ SENTRY_NO_INIT
  */
 - (instancetype)initWithTracer:(SentryTracer *)transaction context:(SentrySpanContext *)context;
 
-- (void)setExtraValue:(nullable id)value forKey:(NSString *)key DEPRECATED_ATTRIBUTE;
+- (void)setExtraValue:(nullable id)value
+               forKey:(NSString *)key DEPRECATED_ATTRIBUTE NS_SWIFT_NAME(setExtra(value:key:));
+
+/**
+ * Sets a value to data.
+ */
+- (void)setDataValue:(nullable id)value forKey:(NSString *)key NS_SWIFT_NAME(setData(value:key:));
+
+/**
+ * Starts a child span.
+ *
+ * @param operation Short code identifying the type of operation the span is measuring.
+ *
+ * @return SentrySpan
+ */
+- (SentrySpan *)startChildWithOperation:(NSString *)operation NS_SWIFT_NAME(startChild(operation:));
+
+/**
+ * Starts a child span.
+ *
+ * @param operation Defines the child span operation.
+ * @param description Define the child span description.
+ *
+ * @return SentrySpan
+ */
+- (SentrySpan *)startChildWithOperation:(NSString *)operation
+                            description:(nullable NSString *)description
+    NS_SWIFT_NAME(startChild(operation:description:));
+
+/**
+ * Finishes the span by setting the end time.
+ */
+- (void)finish;
+
+/**
+ * Finishes the span by setting the end time and span status.
+ *
+ * @param status The status of this span
+ *  */
+- (void)finishWithStatus:(SentrySpanStatus)status NS_SWIFT_NAME(finish(status:));
+
+/**
+ * Returns the trace information that could be sent as a sentry-trace header.
+ *
+ * @return SentryTraceHeader.
+ */
+- (SentryTraceHeader *)toTraceHeader;
+
+/**
+ * Sets a tag value.
+ */
+- (void)setTagValue:(NSString *)value forKey:(NSString *)key NS_SWIFT_NAME(setTag(value:key:));
+
 @end
 
 NS_ASSUME_NONNULL_END

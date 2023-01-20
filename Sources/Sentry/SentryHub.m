@@ -299,7 +299,7 @@ SentryHub ()
     return SentryId.empty;
 }
 
-- (SentrySpan *)startTransactionWithName:(NSString *)name operation:(NSString *)operation
+- (SentryTracer *)startTransactionWithName:(NSString *)name operation:(NSString *)operation
 {
     return [self startTransactionWithContext:[[SentryTransactionContext alloc]
                                                  initWithName:name
@@ -307,9 +307,9 @@ SentryHub ()
                                                     operation:operation]];
 }
 
-- (SentrySpan *)startTransactionWithName:(NSString *)name
-                              nameSource:(SentryTransactionNameSource)source
-                               operation:(NSString *)operation
+- (SentryTracer *)startTransactionWithName:(NSString *)name
+                                nameSource:(SentryTransactionNameSource)source
+                                 operation:(NSString *)operation
 {
     return [self
         startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name
@@ -317,9 +317,9 @@ SentryHub ()
                                                                          operation:operation]];
 }
 
-- (SentrySpan *)startTransactionWithName:(NSString *)name
-                               operation:(NSString *)operation
-                             bindToScope:(BOOL)bindToScope
+- (SentryTracer *)startTransactionWithName:(NSString *)name
+                                 operation:(NSString *)operation
+                               bindToScope:(BOOL)bindToScope
 {
     return [self startTransactionWithContext:[[SentryTransactionContext alloc]
                                                  initWithName:name
@@ -328,10 +328,10 @@ SentryHub ()
                                  bindToScope:bindToScope];
 }
 
-- (SentrySpan *)startTransactionWithName:(NSString *)name
-                              nameSource:(SentryTransactionNameSource)source
-                               operation:(NSString *)operation
-                             bindToScope:(BOOL)bindToScope
+- (SentryTracer *)startTransactionWithName:(NSString *)name
+                                nameSource:(SentryTransactionNameSource)source
+                                 operation:(NSString *)operation
+                               bindToScope:(BOOL)bindToScope
 {
     return
         [self startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name
@@ -340,30 +340,30 @@ SentryHub ()
                               bindToScope:bindToScope];
 }
 
-- (SentrySpan *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+- (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
 {
     return [self startTransactionWithContext:transactionContext customSamplingContext:@{}];
 }
 
-- (SentrySpan *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                bindToScope:(BOOL)bindToScope
+- (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bindToScope
 {
     return [self startTransactionWithContext:transactionContext
                                  bindToScope:bindToScope
                        customSamplingContext:@{}];
 }
 
-- (SentrySpan *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                      customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
+- (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
     return [self startTransactionWithContext:transactionContext
                                  bindToScope:false
                        customSamplingContext:customSamplingContext];
 }
 
-- (SentrySpan *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                bindToScope:(BOOL)bindToScope
-                      customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
+- (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bindToScope
+                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
     return [self startTransactionWithContext:transactionContext
                                  bindToScope:bindToScope
@@ -386,11 +386,11 @@ SentryHub ()
                                             parentSampled:context.parentSampled];
 }
 
-- (SentrySpan *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                bindToScope:(BOOL)bindToScope
-                            waitForChildren:(BOOL)waitForChildren
-                      customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
-                               timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper
+- (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bindToScope
+                              waitForChildren:(BOOL)waitForChildren
+                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
+                                 timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper
 {
     SentrySamplingContext *samplingContext =
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
@@ -409,13 +409,11 @@ SentryHub ()
                                                     profilesSamplerDecision:profilesSamplerDecision
                                                             waitForChildren:waitForChildren
                                                                timerWrapper:timerWrapper];
-    // !!!: need to assign ownership of tracer to maybe? this hub so it doesn't go out of scope and
-    // get deallocated
     if (bindToScope) {
         self.scope.span = tracer.rootSpan;
     }
 
-    return tracer.rootSpan;
+    return tracer;
 }
 
 - (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
@@ -441,8 +439,6 @@ SentryHub ()
                                                     profilesSamplerDecision:profilesSamplerDecision
                                                                 idleTimeout:idleTimeout
                                                        dispatchQueueWrapper:dispatchQueueWrapper];
-    // !!!: need to assign ownership of tracer to maybe? this hub so it doesn't go out of scope and
-    // get deallocated
     if (bindToScope) {
         self.scope.span = tracer.rootSpan;
     }

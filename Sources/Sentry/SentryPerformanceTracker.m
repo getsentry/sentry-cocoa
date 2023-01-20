@@ -5,7 +5,6 @@
 #import "SentryScope.h"
 #import "SentrySpan.h"
 #import "SentrySpanId.h"
-#import "SentrySpanProtocol.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext+Private.h"
 #import "SentryUIEventTracker.h"
@@ -79,15 +78,13 @@ SentryPerformanceTracker () <SentryTracerDelegate>
             }
 
             SENTRY_LOG_DEBUG(@"Creating new transaction bound to scope: %d", bindToScope);
-            newSpan = [SentrySDK.currentHub startTransactionWithContext:context
-                                                            bindToScope:bindToScope
-                                                        waitForChildren:YES
-                                                  customSamplingContext:@{}
-                                                           timerWrapper:nil];
-
-            if ([newSpan isKindOfClass:[SentryTracer class]]) {
-                [(SentryTracer *)newSpan setDelegate:self];
-            }
+            SentryTracer *newTracer = [SentrySDK.currentHub startTransactionWithContext:context
+                                                                            bindToScope:bindToScope
+                                                                        waitForChildren:YES
+                                                                  customSamplingContext:@{}
+                                                                           timerWrapper:nil];
+            newSpan = newTracer.rootSpan;
+            [newTracer setDelegate:self];
         }];
     }
 

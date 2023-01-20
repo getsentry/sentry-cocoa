@@ -1,11 +1,11 @@
-#import "SentrySpanProtocol.h"
+
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceContext,
     SentryNSTimerWrapper, SentryDispatchQueueWrapper, SentryTracer, SentryProfilesSamplerDecision,
-    SentryMeasurementValue, SentrySpan, SentryMeasurementUnit;
+    SentryMeasurementValue, SentrySpan, SentryMeasurementUnit, SentrySpanId;
 
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 

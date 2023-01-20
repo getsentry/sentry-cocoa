@@ -180,25 +180,25 @@ static NSUInteger startInvocations;
     return [SentrySDK.currentHub captureEvent:event withScope:scope];
 }
 
-+ (SentrySpan *)startTransactionWithName:(NSString *)name operation:(NSString *)operation
++ (SentryTracer *)startTransactionWithName:(NSString *)name operation:(NSString *)operation
 {
     return [self startTransactionWithName:name
                                nameSource:kSentryTransactionNameSourceCustom
                                 operation:operation];
 }
 
-+ (SentrySpan *)startTransactionWithName:(NSString *)name
-                              nameSource:(SentryTransactionNameSource)source
-                               operation:(NSString *)operation
++ (SentryTracer *)startTransactionWithName:(NSString *)name
+                                nameSource:(SentryTransactionNameSource)source
+                                 operation:(NSString *)operation
 {
     return [SentrySDK.currentHub startTransactionWithName:name
                                                nameSource:source
                                                 operation:operation];
 }
 
-+ (SentrySpan *)startTransactionWithName:(NSString *)name
-                               operation:(NSString *)operation
-                             bindToScope:(BOOL)bindToScope
++ (SentryTracer *)startTransactionWithName:(NSString *)name
+                                 operation:(NSString *)operation
+                               bindToScope:(BOOL)bindToScope
 {
     return [self startTransactionWithName:name
                                nameSource:kSentryTransactionNameSourceCustom
@@ -206,10 +206,10 @@ static NSUInteger startInvocations;
                               bindToScope:bindToScope];
 }
 
-+ (SentrySpan *)startTransactionWithName:(NSString *)name
-                              nameSource:(SentryTransactionNameSource)source
-                               operation:(NSString *)operation
-                             bindToScope:(BOOL)bindToScope
++ (SentryTracer *)startTransactionWithName:(NSString *)name
+                                nameSource:(SentryTransactionNameSource)source
+                                 operation:(NSString *)operation
+                               bindToScope:(BOOL)bindToScope
 {
     return [SentrySDK.currentHub startTransactionWithName:name
                                                nameSource:source
@@ -217,29 +217,29 @@ static NSUInteger startInvocations;
                                               bindToScope:bindToScope];
 }
 
-+ (SentrySpan *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
++ (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
 {
     return [SentrySDK.currentHub startTransactionWithContext:transactionContext];
 }
 
-+ (SentrySpan *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                bindToScope:(BOOL)bindToScope
++ (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bindToScope
 {
     return [SentrySDK.currentHub startTransactionWithContext:transactionContext
                                                  bindToScope:bindToScope];
 }
 
-+ (SentrySpan *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                bindToScope:(BOOL)bindToScope
-                      customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
++ (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bindToScope
+                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
     return [SentrySDK.currentHub startTransactionWithContext:transactionContext
                                                  bindToScope:bindToScope
                                        customSamplingContext:customSamplingContext];
 }
 
-+ (SentrySpan *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                      customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
++ (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
     return [SentrySDK.currentHub startTransactionWithContext:transactionContext
                                        customSamplingContext:customSamplingContext];
