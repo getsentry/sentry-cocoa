@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SentrySwiftUI"
-  s.version      = "0.1.0"
+  s.version      = "8.0.0"
   s.summary      = "Sentry client for SwiftUI"
   s.homepage     = "https://github.com/getsentry/sentry-cocoa"
   s.license      = "mit"
@@ -15,15 +15,9 @@ Pod::Spec.new do |s|
   s.module_name  = "SentrySwiftUI"
   s.requires_arc = true
   s.frameworks = 'Foundation', 'SwiftUI'
-  s.swift_versions = "5.0"
-  s.watchos.pod_target_xcconfig = {
-      'OTHER_LDFLAGS' => '$(inherited) -framework WatchKit'
-  }
+  s.swift_versions = "5.5"
+  s.watchos.framework = 'WatchKit'
 
-  s.default_subspecs = ['Core']
-  
-  s.subspec 'Core' do |sp|
-      sp.source_files = "Sources/SentrySwiftUI/**/*.{swift,h,m}"
-      sp.dependency 'Sentry', "8.0.0"
-  end
+  s.source_files = "Sources/SentrySwiftUI/**/*.{swift,h,m}"
+  s.dependency 'Sentry', "8.0.0"
 end

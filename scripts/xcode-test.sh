@@ -40,7 +40,7 @@ case $PLATFORM in
 esac
 
 case $REF_NAME in
-    "master")
+    "main")
         CONFIGURATION="TestCI"
         ;;
     
