@@ -337,7 +337,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 
     NSMutableDictionary<NSString *, id> *payload = [_gCurrentProfiler->_profileData mutableCopy];
 
-    const auto samples = ((NSArray *)payload[@"profile"][@"samples"]);
+    NSArray *samples = ((NSArray *)payload[@"profile"][@"samples"]).mutableCopy;
     if ([samples count] < 2) {
         SENTRY_LOG_DEBUG(@"Not enough samples in profile");
         return nil;
