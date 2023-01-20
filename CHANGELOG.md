@@ -5,7 +5,7 @@
 ### Features
 
 - AttachScreenshots is GA (#2623)
-- Gather profiling timeseries metrics for CPU usage and memory footprint, and thermal and memory pressure events (#2493)
+- Gather profiling timeseries metrics for CPU usage and memory footprint (#2493)
 
 ### Fixes
 
