@@ -61,13 +61,14 @@ sentrycrashsymbolicator_symbolicate(SentryCrashStackCursor *cursor)
     }
 
     Dl_info symbolsBuffer;
-    
+
     bool symbols_succeed = false;
 
     if (cursor->useDlAddr) {
         symbols_succeed = dladdr((void *)cursor->stackEntry.address, &symbolsBuffer) != 0;
     } else {
-        symbols_succeed = sentrycrashdl_dladdr(CALL_INSTRUCTION_FROM_RETURN_ADDRESS(cursor->stackEntry.address), &symbolsBuffer);
+        symbols_succeed = sentrycrashdl_dladdr(
+            CALL_INSTRUCTION_FROM_RETURN_ADDRESS(cursor->stackEntry.address), &symbolsBuffer);
     }
 
     if (symbols_succeed) {
