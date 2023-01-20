@@ -8,7 +8,7 @@
 
 ### Fixes
 
-- Reads UI Windows in the main thread while fetching view hierarchy (#2629)
+- Always fetch view hierarchy on the main thread (#2629)
 
 ## 8.0.0
 
