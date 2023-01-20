@@ -11,6 +11,10 @@
 
 - Support uint64 in crash reports (#2631)
 
+### Fixes
+
+- Always fetch view hierarchy on the main thread (#2629)
+
 ## 8.0.0
 
 ### Features
