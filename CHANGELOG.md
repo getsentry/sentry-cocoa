@@ -14,6 +14,7 @@ This version adds a dependency on Swift. We renamed the default branch from `mas
 
 - AttachScreenshots is GA (#2623)
 - Gather profiling timeseries metrics for CPU usage and memory footprint (#2493)
+- Change SentryTracedView `transactionName` to `viewName` (#2630)
 
 ### Fixes
 
