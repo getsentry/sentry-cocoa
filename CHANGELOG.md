@@ -12,6 +12,7 @@
 - Support uint64 in crash reports (#2631)
 - Always fetch view hierarchy on the main thread (#2629)
 - Carthage Xcode 14 compatibility issue (#2636)
+- Crash in CppException Monitor (#2639)
 
 ## 8.0.0
 
