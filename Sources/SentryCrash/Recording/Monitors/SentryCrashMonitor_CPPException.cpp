@@ -99,7 +99,7 @@ sentrycrashcm_cppexception_callOriginalTerminationHandler(void)
 {
     // Can be NULL as the return value of set_terminate can be a NULL pointer; see:
     // https://en.cppreference.com/w/cpp/error/set_terminate
-    if (g_originalTerminateHandler) {
+    if (g_originalTerminateHandler != NULL) {
         SentryCrashLOG_DEBUG("Calling original terminate handler.");
         g_originalTerminateHandler();
     }
