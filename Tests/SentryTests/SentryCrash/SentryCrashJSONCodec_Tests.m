@@ -1296,15 +1296,24 @@ toString(NSData *data)
     XCTAssertEqual([result[0] longLongValue], value);
 }
 
-- (void)testDeserializeArrayUIntMax_UsesDouble
+- (void)testDeserializeArrayIntMaxPlusOne_UsesUInt
+{
+    uint64_t value = (uint64_t)LLONG_MAX + 1;
+    NSString *jsonString = [NSString stringWithFormat:@"[%llu]", value];
+
+    NSArray<NSNumber *> *result = [self decode:jsonString];
+
+    XCTAssertEqual([result[0] unsignedLongLongValue], value);
+}
+
+- (void)testDeserializeArrayUIntMax_UsesUInt
 {
     uint64_t value = ULLONG_MAX;
     NSString *jsonString = [NSString stringWithFormat:@"[%llu]", value];
 
     NSArray<NSNumber *> *result = [self decode:jsonString];
 
-    XCTAssertNotEqual([result[0] unsignedLongLongValue], value);
-    XCTAssertEqual([result[0] doubleValue], [@(value) doubleValue]);
+    XCTAssertEqual([result[0] unsignedLongLongValue], value);
 }
 
 - (void)testDeserializeArray_NegativeLLONG_MIN_plusOne_UsesDouble
@@ -1566,7 +1575,7 @@ addJSONData(const char *data, int length, void *userData)
 {
     NSString *savedFilename = [self.tempPath stringByAppendingPathComponent:@"big.json"];
     id savedObject = @{
-        @"an_array" : @[ @1, @2, @3, @4 ],
+        @"an_array" : @[ @1, @2, @3, @4, @1.3, @(YES), @(LLONG_MIN), @(ULLONG_MAX) ],
         @"lines" : @[
             @"I cannot describe to you my sensations on the near prospect of my undertaking.",
             @"It is impossible to communicate to you a conception of the trembling sensation, half pleasurable and half fearful, with which I am preparing to depart.",

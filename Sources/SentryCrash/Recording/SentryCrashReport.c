@@ -134,7 +134,7 @@ static void
 addUIntegerElement(
     const SentryCrashReportWriter *const writer, const char *const key, const uint64_t value)
 {
-    sentrycrashjson_addIntegerElement(getJsonContext(writer), key, (int64_t)value);
+    sentrycrashjson_addUIntegerElement(getJsonContext(writer), key, value);
 }
 
 static void

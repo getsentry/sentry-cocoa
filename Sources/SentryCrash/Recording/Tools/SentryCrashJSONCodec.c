@@ -336,6 +336,17 @@ sentrycrashjson_addIntegerElement(
 }
 
 int
+sentrycrashjson_addUIntegerElement(
+    SentryCrashJSONEncodeContext *const context, const char *const name, uint64_t value)
+{
+    int result = sentrycrashjson_beginElement(context, name);
+    unlikely_if(result != SentryCrashJSON_OK) { return result; }
+    char buff[30];
+    sprintf(buff, "%" PRIu64, value);
+    return addJSONData(context, buff, (int)strlen(buff));
+}
+
+int
 sentrycrashjson_addNullElement(SentryCrashJSONEncodeContext *const context, const char *const name)
 {
     int result = sentrycrashjson_beginElement(context, name);
@@ -1217,6 +1228,12 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
             }
         }
 
+        if (!isFPChar(*context->bufferPtr) && !isOverflow) {
+            if (sign == 1 && accum <= ULLONG_MAX) {
+                return context->callbacks->onUIntegerElement(name, accum, context->userData);
+            }
+        }
+
         while (context->bufferPtr < context->bufferEnd && isFPChar(*context->bufferPtr)) {
             context->bufferPtr++;
         }
@@ -1355,6 +1372,16 @@ addJSONFromFile_onIntegerElement(const char *const name, const int64_t value, vo
 }
 
 static int
+addJSONFromFile_onUIntegerElement(
+    const char *const name, const uint64_t value, void *const userData)
+{
+    JSONFromFileContext *context = (JSONFromFileContext *)userData;
+    int result = sentrycrashjson_addUIntegerElement(context->encodeContext, name, value);
+    context->updateDecoderCallback(context);
+    return result;
+}
+
+static int
 addJSONFromFile_onNullElement(const char *const name, void *const userData)
 {
     JSONFromFileContext *context = (JSONFromFileContext *)userData;
@@ -1423,6 +1450,7 @@ sentrycrashjson_addJSONFromFile(SentryCrashJSONEncodeContext *const encodeContex
         .onEndData = addJSONFromFile_onEndData,
         .onFloatingPointElement = addJSONFromFile_onFloatingPointElement,
         .onIntegerElement = addJSONFromFile_onIntegerElement,
+        .onUIntegerElement = addJSONFromFile_onUIntegerElement,
         .onNullElement = addJSONFromFile_onNullElement,
         .onStringElement = addJSONFromFile_onStringElement,
     };
@@ -1480,6 +1508,7 @@ sentrycrashjson_addJSONElement(SentryCrashJSONEncodeContext *const encodeContext
         .onEndData = addJSONFromFile_onEndData,
         .onFloatingPointElement = addJSONFromFile_onFloatingPointElement,
         .onIntegerElement = addJSONFromFile_onIntegerElement,
+        .onUIntegerElement = addJSONFromFile_onUIntegerElement,
         .onNullElement = addJSONFromFile_onNullElement,
         .onStringElement = addJSONFromFile_onStringElement,
     };
