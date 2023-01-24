@@ -2,10 +2,19 @@
 
 ## Unreleased
 
+### Fixes
+
+- fix: Disable watchdog when disabling crash handler (#2621)
+
+## 8.0.0
+
+This version adds a dependency on Swift. We renamed the default branch from `master` to `main`. We are going to keep the `master` branch for backwards compatibility for package managers not pointing to the `master` branch.
+
 ### Features
 
 - AttachScreenshots is GA (#2623)
 - Gather profiling timeseries metrics for CPU usage and memory footprint (#2493)
+- Change SentryTracedView `transactionName` to `viewName` (#2630)
 
 ### Fixes
 

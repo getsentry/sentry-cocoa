@@ -88,22 +88,36 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertFalse(appState.isANROngoing)
     }
     
-    func test_OOMDisabled_RemovesEnabledIntegration() {
-        givenInitializedTracker()
+    func test_WatchdogTerminationEnabled_DoesInstall() {
+        XCTAssertTrue(givenIntegration().install(with: Options()))
+    }
+    
+    func test_WatchdogTerminationDisabled_DoesNotInstall() {
+        let sut = givenIntegration()
         let options = Options()
         options.enableWatchdogTerminationTracking = false
         
-        let sut = SentryWatchdogTerminationTrackingIntegration()
-        let result = sut.install(with: options)
+        XCTAssertFalse(sut.install(with: options))
+    }
+    
+    func test_CrashHandlerDisabled_DoesNotInstall() {
+        let sut = givenIntegration()
+        let options = Options()
+        options.enableCrashHandler = false
         
-        XCTAssertFalse(result)
+        XCTAssertFalse(sut.install(with: options))
+    }
+    
+    private func givenIntegration() -> SentryWatchdogTerminationTrackingIntegration {
+        let sut = SentryWatchdogTerminationTrackingIntegration()
+        Dynamic(sut).setTestConfigurationFilePath(nil)
+        return sut
     }
     
     private func givenInitializedTracker(isBeingTraced: Bool = false) {
         fixture.crashWrapper.internalIsBeingTraced = isBeingTraced
-        sut = SentryWatchdogTerminationTrackingIntegration()
+        sut = givenIntegration()
         let options = Options()
-        Dynamic(sut).setTestConfigurationFilePath(nil)
         sut.install(with: options)
     }
     
