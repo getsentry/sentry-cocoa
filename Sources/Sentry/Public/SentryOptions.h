@@ -62,6 +62,10 @@ NS_SWIFT_NAME(Options)
 
 /**
  * When enabled, the SDK sends crashes to Sentry. Default value is YES.
+ *
+ * Disabling this feature disables the ``SentryWatchdogTerminationTrackingIntegration``, cause the
+ * ``SentryWatchdogTerminationTrackingIntegration`` would falsely report every crash as watchdog
+ * termination.
  */
 @property (nonatomic, assign) BOOL enableCrashHandler;
 
@@ -134,6 +138,9 @@ NS_SWIFT_NAME(Options)
 
 /**
  * Whether to enable Watchdog Termination tracking or not. Default is YES.
+ *
+ * This feature requires the ``SentryCrashIntegration`` being enabled, cause otherwise it would
+ * falsely report every crash as watchdog termination.
  */
 @property (nonatomic, assign) BOOL enableWatchdogTerminationTracking;
 
