@@ -38,7 +38,10 @@
 #import "SentryCrashSystemCapabilities.h"
 #import "SentryDependencyContainer.h"
 #import "SentryNSNotificationCenterWrapper.h"
+#import "SentrySDK+Private.h"
 #import <NSData+Sentry.h>
+#import <SentryClient+Private.h>
+#import <SentryHub.h>
 
 // #define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
@@ -75,6 +78,13 @@ getBundleName()
 static NSString *
 getBasePath()
 {
+    SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
+    NSString *customCacheDirectory = options.cacheDirectory;
+
+    if (customCacheDirectory != nil) {
+        return customCacheDirectory;
+    }
+
     NSArray *directories
         = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     if ([directories count] == 0) {
@@ -86,6 +96,7 @@ getBasePath()
         SentryCrashLOG_ERROR(@"Could not locate cache directory path.");
         return nil;
     }
+
     NSString *pathEnd = [@"SentryCrash" stringByAppendingPathComponent:getBundleName()];
     return [cachePath stringByAppendingPathComponent:pathEnd];
 }

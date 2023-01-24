@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add cache directory option ([#6](https://github.com/jamf/sentry-cocoa/pull/6))
+
 ## 7.31.5
 
 ### Fixes
