@@ -76,6 +76,15 @@ SENTRY_NO_INIT
  */
 - (instancetype)initWithTracer:(SentryTracer *)transaction context:(SentrySpanContext *)context;
 
+/**
+ * Init a SentrySpan with given context.
+ *
+ * @param context This span context information.
+ *
+ * @return SentrySpan
+ */
+- (instancetype)initWithContext:(SentrySpanContext *)context;
+
 - (void)setExtraValue:(nullable id)value forKey:(NSString *)key DEPRECATED_ATTRIBUTE;
 @end
 

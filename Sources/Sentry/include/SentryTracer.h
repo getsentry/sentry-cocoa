@@ -1,4 +1,5 @@
 #import "SentrySpanProtocol.h"
+#import "SentrySpan.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -19,60 +20,9 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
 @end
 
-@interface SentryTracer : NSObject <SentrySpan>
+@interface SentryTracer : SentrySpan
 
 @property (nonatomic, strong) SentryTransactionContext *transactionContext;
-
-/**
- * Determines which trace the Span belongs to.
- */
-@property (nonatomic) SentryId *traceId;
-
-/**
- * Span id.
- */
-@property (nonatomic) SentrySpanId *spanId;
-
-/**
- * Id of a parent span.
- */
-@property (nullable, nonatomic) SentrySpanId *parentSpanId;
-
-/**
- * If trace is sampled.
- */
-@property (nonatomic) SentrySampleDecision sampled;
-
-/**
- * Short code identifying the type of operation the span is measuring.
- */
-@property (nonatomic, copy) NSString *operation;
-
-/**
- * Longer description of the span's operation, which uniquely identifies the span but is
- * consistent across instances of the span.
- */
-@property (nullable, nonatomic, copy) NSString *spanDescription;
-
-/**
- * Describes the status of the Transaction.
- */
-@property (nonatomic) SentrySpanStatus status;
-
-/**
- * The timestamp of which the span ended.
- */
-@property (nullable, nonatomic, strong) NSDate *timestamp;
-
-/**
- * The start time of the span.
- */
-@property (nullable, nonatomic, strong) NSDate *startTimestamp;
-
-/**
- * Whether the span is finished.
- */
-@property (readonly) BOOL isFinished;
 
 @property (nullable, nonatomic, copy) void (^finishCallback)(SentryTracer *);
 
@@ -87,11 +37,6 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  * Retrieves a trace context from this tracer.
  */
 @property (nonatomic, readonly) SentryTraceContext *traceContext;
-
-/*
- The root span of this tracer.
- */
-@property (nonatomic, readonly) id<SentrySpan> rootSpan;
 
 /*
  All the spans that where created with this tracer but rootSpan.
@@ -176,8 +121,6 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  * A method to inform the tracer that a span finished.
  */
 - (void)spanFinished:(id<SentrySpan>)finishedSpan;
-
-- (void)setExtraValue:(nullable id)value forKey:(NSString *)key DEPRECATED_ATTRIBUTE;
 
 /**
  * Get the tracer from a span.

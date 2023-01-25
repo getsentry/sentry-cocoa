@@ -23,12 +23,11 @@ SentrySpan ()
     BOOL _isFinished;
 }
 
-- (instancetype)initWithTracer:(SentryTracer *)tracer context:(SentrySpanContext *)context
-{
+
+- (instancetype)initWithContext:(SentrySpanContext *)context {
     if (self = [super init]) {
         SENTRY_LOG_DEBUG(
-            @"Created span %@ for trace ID %@", context.spanId.sentrySpanIdString, tracer.traceId);
-        _tracer = tracer;
+            @"Created span %@", context.spanId.sentrySpanIdString);
         self.startTimestamp = [SentryCurrentDate date];
         _data = [[NSMutableDictionary alloc] init];
         _tags = [[NSMutableDictionary alloc] init];
@@ -41,6 +40,14 @@ SentrySpan ()
         _spanDescription = context.spanDescription;
         _spanId = context.spanId;
         _sampled = context.sampled;
+    }
+    return self;
+}
+
+- (instancetype)initWithTracer:(SentryTracer *)tracer context:(SentrySpanContext *)context
+{
+    if (self = [self initWithContext:context]) {
+        _tracer = tracer;
     }
     return self;
 }

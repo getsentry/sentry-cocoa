@@ -43,7 +43,6 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 @interface
 SentryTracer ()
 
-@property (nonatomic, strong) SentrySpan *rootSpan;
 @property (nonatomic, strong) SentryHub *hub;
 @property (nonatomic) SentrySpanStatus finishStatus;
 /** This property is different from isFinished. While isFinished states if the tracer is actually
@@ -63,8 +62,6 @@ SentryTracer ()
     BOOL _waitForChildren;
     SentryTraceContext *_traceContext;
     SentryAppStartMeasurement *appStartMeasurement;
-    NSMutableDictionary<NSString *, id> *_tags;
-    NSMutableDictionary<NSString *, id> *_data;
     NSMutableDictionary<NSString *, SentryMeasurementValue *> *_measurements;
     dispatch_block_t _idleTimeoutBlock;
     NSMutableArray<id<SentrySpan>> *_children;
@@ -153,20 +150,17 @@ static BOOL appStartMeasurementRead;
           dispatchQueueWrapper:(nullable SentryDispatchQueueWrapper *)dispatchQueueWrapper
                   timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper
 {
-    if (self = [super init]) {
+    if (self = [super initWithContext:transactionContext]) {
         SENTRY_LOG_DEBUG(
             @"Starting transaction ID %@ and name %@ for span ID %@ at system time %llu",
             transactionContext.traceId.sentryIdString, transactionContext.name,
             transactionContext.spanId.sentrySpanIdString, (unsigned long long)getAbsoluteTime());
-        self.rootSpan = [[SentrySpan alloc] initWithTracer:self context:transactionContext];
         self.transactionContext = transactionContext;
         _children = [[NSMutableArray alloc] init];
         self.hub = hub;
         self.wasFinishCalled = NO;
         _waitForChildren = waitForChildren;
-        _tags = [[NSMutableDictionary alloc] init];
-        _data = [[NSMutableDictionary alloc] init];
-        _measurements = [[NSMutableDictionary alloc] init];
+       _measurements = [[NSMutableDictionary alloc] init];
         self.finishStatus = kSentrySpanStatusUndefined;
         self.idleTimeout = idleTimeout;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
@@ -277,12 +271,12 @@ static BOOL appStartMeasurementRead;
     if (self.delegate) {
         @synchronized(_children) {
             span = [self.delegate activeSpanForTracer:self];
-            if (span == nil || span == self || ![_children containsObject:span]) {
-                span = _rootSpan;
+            if (span == nil || ![_children containsObject:span]) {
+                span = self;
             }
         }
     } else {
-        span = _rootSpan;
+        span = self;
     }
 
     return span;
@@ -290,13 +284,21 @@ static BOOL appStartMeasurementRead;
 
 - (id<SentrySpan>)startChildWithOperation:(NSString *)operation
 {
-    return [[self getActiveSpan] startChildWithOperation:operation];
+    id<SentrySpan> activeSpan = [self getActiveSpan];
+    if (activeSpan == self) {
+        return [self startChildWithParentId:self.spanId operation:operation description:nil];
+    }
+    return [activeSpan startChildWithOperation:operation];
 }
 
 - (id<SentrySpan>)startChildWithOperation:(NSString *)operation
                               description:(nullable NSString *)description
 {
-    return [[self getActiveSpan] startChildWithOperation:operation description:description];
+    id<SentrySpan> activeSpan = [self getActiveSpan];
+    if (activeSpan == self) {
+        return [self startChildWithParentId:self.spanId operation:operation description:description];
+    }
+    return [activeSpan startChildWithOperation:operation description:description];
 }
 
 - (id<SentrySpan>)startChildWithParentId:(SentrySpanId *)parentId
@@ -312,12 +314,12 @@ static BOOL appStartMeasurementRead;
     }
 
     SentrySpanContext *context =
-        [[SentrySpanContext alloc] initWithTraceId:_rootSpan.traceId
+        [[SentrySpanContext alloc] initWithTraceId:self.traceId
                                             spanId:[[SentrySpanId alloc] init]
                                           parentId:parentId
                                          operation:operation
                                    spanDescription:description
-                                           sampled:_rootSpan.sampled];
+                                           sampled:self.sampled];
 
     SentrySpan *child = [[SentrySpan alloc] initWithTracer:self context:context];
     SENTRY_LOG_DEBUG(@"Started child span %@ under %@", child.spanId.sentrySpanIdString,
@@ -334,97 +336,12 @@ static BOOL appStartMeasurementRead;
     SENTRY_LOG_DEBUG(@"Finished span %@", finishedSpan.spanId.sentrySpanIdString);
     // Calling canBeFinished on the rootSpan would end up in an endless loop because canBeFinished
     // calls finish on the rootSpan.
-    if (finishedSpan == self.rootSpan) {
+    if (finishedSpan == self) {
         SENTRY_LOG_DEBUG(
             @"Cannot call finish on root span with id %@", finishedSpan.spanId.sentrySpanIdString);
         return;
     }
     [self canBeFinished];
-}
-
-- (SentryId *)traceId
-{
-    return self.rootSpan.traceId;
-}
-
-- (void)setTraceId:(SentryId *)traceId
-{
-    [self.rootSpan setTraceId:traceId];
-}
-
-- (SentrySpanId *)spanId
-{
-    return self.rootSpan.spanId;
-}
-
-- (void)setSpanId:(SentrySpanId *)spanId
-{
-    [self.rootSpan setSpanId:spanId];
-}
-
-- (nullable SentrySpanId *)parentSpanId
-{
-    return self.rootSpan.parentSpanId;
-}
-
-- (void)setParentSpanId:(nullable SentrySpanId *)parentSpanId
-{
-    [self.rootSpan setParentSpanId:parentSpanId];
-}
-
-- (SentrySampleDecision)sampled
-{
-    return self.rootSpan.sampled;
-}
-
-- (void)setSampled:(SentrySampleDecision)sampled
-{
-    [self.rootSpan setSampled:sampled];
-}
-
-- (NSString *)operation
-{
-    return self.rootSpan.operation;
-}
-
-- (void)setOperation:(NSString *)operation
-{
-    [self.rootSpan setOperation:operation];
-}
-
-- (nullable NSString *)spanDescription
-{
-    return self.rootSpan.spanDescription;
-}
-
-- (void)setSpanDescription:(nullable NSString *)spanDescription
-{
-    [self.rootSpan setSpanDescription:spanDescription];
-}
-
-- (SentrySpanStatus)status
-{
-    return self.rootSpan.status;
-}
-
-- (void)setStatus:(SentrySpanStatus)status
-{
-    [self.rootSpan setStatus:status];
-}
-
-- (nullable NSDate *)timestamp
-{
-    return self.rootSpan.timestamp;
-}
-
-- (void)setTimestamp:(nullable NSDate *)timestamp
-{
-    self.rootSpan.timestamp = timestamp;
-}
-
-- (nullable NSDate *)startTimestamp
-{
-    return self.rootSpan.startTimestamp;
 }
 
 - (SentryTraceContext *)traceContext
@@ -441,70 +358,9 @@ static BOOL appStartMeasurementRead;
     return _traceContext;
 }
 
-- (void)setStartTimestamp:(nullable NSDate *)startTimestamp
-{
-    self.rootSpan.startTimestamp = startTimestamp;
-
-#if SENTRY_HAS_UIKIT
-    _startTimeChanged = YES;
-#endif
-}
-
-- (NSDictionary<NSString *, id> *)data
-{
-    @synchronized(_data) {
-        return [_data copy];
-    }
-}
-
-- (NSDictionary<NSString *, id> *)tags
-{
-    @synchronized(_tags) {
-        return [_tags copy];
-    }
-}
-
-- (BOOL)isFinished
-{
-    return self.rootSpan.isFinished;
-}
-
 - (NSArray<id<SentrySpan>> *)children
 {
     return [_children copy];
-}
-
-- (void)setDataValue:(nullable id)value forKey:(NSString *)key
-{
-    @synchronized(_data) {
-        [_data setValue:value forKey:key];
-    }
-}
-
-- (void)setExtraValue:(nullable id)value forKey:(NSString *)key
-{
-    [self setDataValue:value forKey:key];
-}
-
-- (void)removeDataForKey:(NSString *)key
-{
-    @synchronized(_data) {
-        [_data removeObjectForKey:key];
-    }
-}
-
-- (void)setTagValue:(NSString *)value forKey:(NSString *)key
-{
-    @synchronized(_tags) {
-        [_tags setValue:value forKey:key];
-    }
-}
-
-- (void)removeTagForKey:(NSString *)key
-{
-    @synchronized(_tags) {
-        [_tags removeObjectForKey:key];
-    }
 }
 
 - (void)setMeasurement:(NSString *)name value:(NSNumber *)value
@@ -518,11 +374,6 @@ static BOOL appStartMeasurementRead;
     SentryMeasurementValue *measurement = [[SentryMeasurementValue alloc] initWithValue:value
                                                                                    unit:unit];
     _measurements[name] = measurement;
-}
-
-- (SentryTraceHeader *)toTraceHeader
-{
-    return [self.rootSpan toTraceHeader];
 }
 
 - (void)finish
@@ -547,9 +398,9 @@ static BOOL appStartMeasurementRead;
     // Transaction already finished and captured.
     // Sending another transaction and spans with
     // the same SentryId would be an error.
-    if (self.rootSpan.isFinished) {
+    if (self.isFinished) {
         SENTRY_LOG_DEBUG(
-            @"Root span with id %@ is already finished", self.rootSpan.spanId.sentrySpanIdString);
+            @"Root span with id %@ is already finished", self.spanId.sentrySpanIdString);
         return;
     }
 
@@ -557,14 +408,14 @@ static BOOL appStartMeasurementRead;
     if (!self.wasFinishCalled && !hasUnfinishedChildSpansToWaitFor && [self hasIdleTimeout]) {
         SENTRY_LOG_DEBUG(
             @"Root span with id %@ isn't waiting on children and needs idle timeout dispatched.",
-            self.rootSpan.spanId.sentrySpanIdString);
+            self.spanId.sentrySpanIdString);
         [self dispatchIdleTimeout];
         return;
     }
 
     if (!self.wasFinishCalled || hasUnfinishedChildSpansToWaitFor) {
         SENTRY_LOG_DEBUG(@"Root span with id %@ has children but isn't waiting for them right now.",
-            self.rootSpan.spanId.sentrySpanIdString);
+            self.spanId.sentrySpanIdString);
         return;
     }
 
@@ -588,7 +439,7 @@ static BOOL appStartMeasurementRead;
 
 - (void)finishInternal
 {
-    [_rootSpan finishWithStatus:_finishStatus];
+    [super finishWithStatus:_finishStatus];
 
     if (self.finishCallback) {
         self.finishCallback(self);
@@ -631,7 +482,7 @@ static BOOL appStartMeasurementRead;
     }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    [SentryProfiler stopProfilingSpan:self.rootSpan];
+    [SentryProfiler stopProfilingSpan:self];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     SentryTransaction *transaction = [self toTransaction];
@@ -769,7 +620,7 @@ static BOOL appStartMeasurementRead;
     NSDate *appStartEndTimestamp = [appStartMeasurement.appStartTimestamp
         dateByAddingTimeInterval:appStartMeasurement.duration];
 
-    SentrySpan *appStartSpan = [self buildSpan:_rootSpan.spanId
+    SentrySpan *appStartSpan = [self buildSpan:self.spanId
                                      operation:operation
                                    description:type];
     [appStartSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
@@ -867,44 +718,14 @@ static BOOL appStartMeasurementRead;
                 description:(NSString *)description
 {
     SentrySpanContext *context =
-        [[SentrySpanContext alloc] initWithTraceId:_rootSpan.traceId
+        [[SentrySpanContext alloc] initWithTraceId:self.traceId
                                             spanId:[[SentrySpanId alloc] init]
                                           parentId:parentId
                                          operation:operation
                                    spanDescription:description
-                                           sampled:_rootSpan.sampled];
+                                           sampled:self.sampled];
 
     return [[SentrySpan alloc] initWithTracer:self context:context];
-}
-
-- (NSDictionary *)serialize
-{
-    NSMutableDictionary<NSString *, id> *mutableDictionary =
-        [[NSMutableDictionary alloc] initWithDictionary:[_rootSpan serialize]];
-
-    @synchronized(_data) {
-        if (_data.count > 0) {
-            NSMutableDictionary *data = _data.mutableCopy;
-            if (mutableDictionary[@"data"] != nil &&
-                [mutableDictionary[@"data"] isKindOfClass:NSDictionary.class]) {
-                [data addEntriesFromDictionary:mutableDictionary[@"data"]];
-            }
-            mutableDictionary[@"data"] = [data sentry_sanitize];
-        }
-    }
-
-    @synchronized(_tags) {
-        if (_tags.count > 0) {
-            NSMutableDictionary *tags = _tags.mutableCopy;
-            if (mutableDictionary[@"tags"] != nil &&
-                [mutableDictionary[@"tags"] isKindOfClass:NSDictionary.class]) {
-                [tags addEntriesFromDictionary:mutableDictionary[@"tags"]];
-            }
-            mutableDictionary[@"tags"] = tags;
-        }
-    }
-
-    return mutableDictionary;
 }
 
 /**

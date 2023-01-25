@@ -1258,20 +1258,6 @@ class SentryClientTest: XCTestCase {
         
         XCTAssertNotNil(fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.traceContext)
     }
-    
-    func testCaptureEvent_traceInScope_dontSendTraceState() {
-        let event = Event(level: SentryLevel.warning)
-        event.message = fixture.message
-        let scope = Scope()
-        scope.span = SentryTracer()
-        
-        let client = fixture.getSut()
-        client.capture(event: event, scope: scope)
-        
-        client.capture(event: event)
-        
-        XCTAssertNil(fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.traceContext)
-    }
 
     func test_AddCrashReportAttacment_withViewHierarchy() {
         let scope = Scope()
