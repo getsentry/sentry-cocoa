@@ -92,6 +92,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)finishSpan:(SentrySpanId *)spanId withStatus:(SentrySpanStatus)status;
 
 /**
+ * Cancel the given span.
+ */
+- (void)cancelSpan:(SentrySpanId *)spanId;
+
+/**
  * Checks if given span is waiting to be finished.
  *
  * @param spanId Id of the span to be checked.

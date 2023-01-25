@@ -526,17 +526,20 @@ static BOOL appStartMeasurementRead;
 }
 
 - (void)cancelChild:(id<SentrySpan>)child {
-    [_children removeObject:child];
+    @synchronized(_children) {
+        [_children removeObject:child];
 
-    NSMutableArray * toRemove = [[NSMutableArray alloc] initWithCapacity:_children.count];
+        NSMutableArray * toRemove = [[NSMutableArray alloc] initWithCapacity:_children.count];
 
-    for (id<SentrySpan> span in _children) {
-        if ([span.parentSpanId isEqual:child.spanId]) {
-            [toRemove addObject:span];
+        for (id<SentrySpan> span in _children) {
+            if ([span.parentSpanId isEqual:child.spanId]) {
+                [toRemove addObject:span];
+            }
         }
-    }
 
-    [_children removeObjectsInArray:toRemove];
+        [_children removeObjectsInArray:toRemove];
+    }
+    [self canBeFinished];
 }
 
 - (void)finish
