@@ -72,12 +72,14 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
     
     func testUIViewController_loadView_noTransactionBoundToScope() {
+        fixture.sut.start()
         let controller = UIViewController()
         controller.loadView()
         XCTAssertNil(SentrySDK.span)
     }
     
     func testViewControllerWithoutLoadView_TransactionBoundToScope() {
+        fixture.sut.start()
         let controller = TestViewController()
         controller.loadView()
         XCTAssertNotNil(SentrySDK.span)

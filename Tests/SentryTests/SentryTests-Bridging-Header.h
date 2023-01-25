@@ -183,6 +183,7 @@
 @import SentryPrivate;
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "TestSentryViewHierarchy.h"
+#import "SentryPerformanceTracker+Testing.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"

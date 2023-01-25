@@ -525,6 +525,20 @@ static BOOL appStartMeasurementRead;
     return [self.rootSpan toTraceHeader];
 }
 
+- (void)cancelChild:(id<SentrySpan>)child {
+    [_children removeObject:child];
+
+    NSMutableArray * toRemove = [[NSMutableArray alloc] initWithCapacity:_children.count];
+
+    for (id<SentrySpan> span in _children) {
+        if ([span.parentSpanId isEqual:child.spanId]) {
+            [toRemove addObject:span];
+        }
+    }
+
+    [_children removeObjectsInArray:toRemove];
+}
+
 - (void)finish
 {
     SENTRY_LOG_DEBUG(

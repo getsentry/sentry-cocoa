@@ -48,6 +48,7 @@ public struct SentryTracedView<Content: View>: View {
         id = SentryPerformanceTracker.shared.startSpan(withName: self.name,
                                                        nameSource: transactionName == nil ? .component : .custom,
                                                        operation: "ui.load")
+        print("### Traced Created  = \(self.name)")
     }
     
     private static func extractName(content: Any) -> String {
@@ -61,13 +62,23 @@ public struct SentryTracedView<Content: View>: View {
     }
     
     public var body: some View {
+        var wasFinished = false
+
         SentryPerformanceTracker.shared.pushActiveSpan(id)
-        
-        let result = self.content().onAppear {
-            SentryPerformanceTracker.shared.finishSpan(id)
+
+        let result = self.content().onAppear{
+            SentryPerformanceTracker.shared.finishSpan(self.id)
+            SentryPerformanceTracker.shared.popActiveSpan()
+            wasFinished = true
         }
-        
-        SentryPerformanceTracker.shared.popActiveSpan()
+
+        DispatchQueue.main.async {
+            if !wasFinished {
+                
+            }
+        }
+
+        print("### body end  = \(self.name)")
         return result
     }
 }

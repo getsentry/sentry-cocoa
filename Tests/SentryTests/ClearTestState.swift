@@ -29,6 +29,8 @@ class TestCleanup: NSObject {
 
         SentryDependencyContainer.reset()
         Dynamic(SentryGlobalEventProcessor.shared()).removeAllProcessors()
+        SentryPerformanceTracker.shared.spans.removeAllObjects()
+        SentryPerformanceTracker.shared.activeSpanStack.removeAllObjects()
         SentrySwizzleWrapper.sharedInstance.removeAllCallbacks()
 
         SentryNSDataTracker.sharedInstance.disable()

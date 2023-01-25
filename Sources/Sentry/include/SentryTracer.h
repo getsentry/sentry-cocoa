@@ -186,6 +186,11 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
 - (void)dispatchIdleTimeout;
 
+/**
+ * Removes the child span from the transaction and all its children.
+ */
+- (void)cancelChild:(id<SentrySpan>)child;
+
 @end
 
 NS_ASSUME_NONNULL_END

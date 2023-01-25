@@ -160,6 +160,10 @@ struct ContentView: View {
                         NavigationLink(destination: LoremIpsumView()) {
                             Text("Lorem Ipsum")
                         }
+
+                        NavigationLink(destination: UIKitScreen()) {
+                            Text("UIKit Screen")
+                        }
                     }
                 }
             }

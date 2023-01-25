@@ -99,6 +99,7 @@ SentryUIViewControllerPerformanceTracker ()
         // Use the target itself to store the spanId to avoid using a global mapper.
         objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, spanId,
             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        [self.tracker pushActiveSpan:spanId];
     }
 }
 
@@ -186,6 +187,7 @@ SentryUIViewControllerPerformanceTracker ()
                                              inBlock:callbackToOrigin];
         };
         [self.tracker activateSpan:spanId duringBlock:duringBlock];
+        [self.tracker popActiveSpan];
 
         // If we are still tracking this UIViewController finish the transaction
         // and remove associated span id.
