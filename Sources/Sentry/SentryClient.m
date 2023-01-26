@@ -148,6 +148,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.timezone = timezone;
         self.attachmentProcessors = [[NSMutableArray alloc] init];
         self.deviceWrapper = deviceWrapper;
+
+        [fileManager deleteOldEnvelopeItems];
     }
     return self;
 }

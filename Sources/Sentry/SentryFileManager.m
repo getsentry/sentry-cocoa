@@ -22,6 +22,7 @@ NSString *const EnvelopesPathComponent = @"envelopes";
 SentryFileManager ()
 
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
+@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, copy) NSString *basePath;
 @property (nonatomic, copy) NSString *sentryPath;
 @property (nonatomic, copy) NSString *eventsPath;
@@ -59,9 +60,9 @@ SentryFileManager ()
                     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                                    error:(NSError **)error
 {
-    self = [super init];
-    if (self) {
+    if (self = [super init]) {
         self.currentDateProvider = currentDateProvider;
+        self.dispatchQueue = dispatchQueueWrapper;
         [self createPathsWithOptions:options];
 
         // Remove old cached events for versions before 6.0.0
@@ -77,15 +78,6 @@ SentryFileManager ()
 
         self.currentFileCounter = 0;
         self.maxEnvelopes = options.maxCacheItems;
-
-        __weak SentryFileManager *weakSelf = self;
-        [dispatchQueueWrapper dispatchAsyncWithBlock:^{
-            if (weakSelf == nil) {
-                return;
-            }
-            SENTRY_LOG_DEBUG(@"Dispatched deletion of old envelopes from %@", weakSelf);
-            [weakSelf deleteOldEnvelopesFromAllSentryPaths];
-        }];
     }
     return self;
 }
@@ -93,6 +85,18 @@ SentryFileManager ()
 - (void)setDelegate:(id<SentryFileManagerDelegate>)delegate
 {
     _delegate = delegate;
+}
+
+- (void)deleteOldEnvelopeItems
+{
+    __weak SentryFileManager *weakSelf = self;
+    [self.dispatchQueue dispatchAsyncWithBlock:^{
+        if (weakSelf == nil) {
+            return;
+        }
+        SENTRY_LOG_DEBUG(@"Dispatched deletion of old envelopes from %@", weakSelf);
+        [weakSelf deleteOldEnvelopesFromAllSentryPaths];
+    }];
 }
 
 - (void)deleteAllFolders

@@ -172,14 +172,37 @@ class SentryViewHierarchyTests: XCTestCase {
         wait(for: [ex], timeout: 1)
     }
 
+    func test_fetch_usesMainThread() {
+        let sut = TestSentryViewHierarchy()
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        fixture.uiApplication.windows = [window]
+
+        let ex = expectation(description: "Running on background Thread")
+        let dispatch = DispatchQueue(label: "background")
+        dispatch.async {
+            let _ = sut.fetch()
+            ex.fulfill()
+        }
+
+        wait(for: [ex], timeout: 1)
+        XCTAssertTrue(fixture.uiApplication.calledOnMainThread, "fetchViewHierarchy is not using the main thread to get UI windows")
+    }
+
     class TestSentryUIApplication: SentryUIApplication {
         private var _windows: [UIWindow]?
+        private var _calledOnMainThread = true
+
+        var calledOnMainThread: Bool {
+            return _calledOnMainThread
+        }
 
         override var windows: [UIWindow]? {
             get {
+                _calledOnMainThread = Thread.isMainThread
                 return _windows
             }
             set {
+                _calledOnMainThread = Thread.isMainThread
                 _windows = newValue
             }
         }
