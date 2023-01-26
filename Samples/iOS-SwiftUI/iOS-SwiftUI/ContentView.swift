@@ -109,6 +109,8 @@ struct ContentView: View {
                                 .accessibilityIdentifier("CHILD_PARENT_SPANID")
                         }
                     }
+
+                    SecondView()
                     
                     Button(action: addBreadcrumbAction) {
                         Text("Add Breadcrumb")
@@ -129,12 +131,13 @@ struct ContentView: View {
                     Button(action: captureNSExceptionAction) {
                         Text("Capture NSException")
                     }
-                    
-                    Button(action: captureTransactionAction) {
-                        Text("Capture Transaction")
-                    }
-                    
+
                     VStack(spacing: 16) {
+
+                        Button(action: captureTransactionAction) {
+                            Text("Capture Transaction")
+                        }
+
                         Button(action: {
                             SentrySDK.crash()
                         }) {
@@ -161,8 +164,13 @@ struct ContentView: View {
                             Text("Lorem Ipsum")
                         }
 
+
                         NavigationLink(destination: UIKitScreen()) {
                             Text("UIKit Screen")
+                        }
+
+                        NavigationLink(destination: FormScreen()) {
+                            Text("Form Screen")
                         }
                     }
                 }
@@ -173,7 +181,9 @@ struct ContentView: View {
 
 struct SecondView: View {
     var body: some View {
-        Text("This is the detail view 1")
+        SentryTracedView("Second View") {
+            Text("This is the detail view 1")
+        }
     }
 }
 

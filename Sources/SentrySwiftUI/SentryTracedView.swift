@@ -37,51 +37,41 @@ import SentryInternal
 ///
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 public struct SentryTracedView<Content: View>: View {
-    
+
     let content: () -> Content
     let name: String
     let id: SpanId
-    
+
     public init(_ transactionName: String? = nil, content: @escaping () -> Content) {
         self.content = content
         self.name = transactionName ?? SentryTracedView.extractName(content: Content.self)
         id = SentryPerformanceTracker.shared.startSpan(withName: self.name,
                                                        nameSource: transactionName == nil ? .component : .custom,
                                                        operation: "ui.load")
+        print("### \(self.name) = Traced created")
     }
-    
+
     private static func extractName(content: Any) -> String {
         var result = String(describing: content)
-        
+
         if let index = result.firstIndex(of: "<") {
             result = String(result[result.startIndex ..< index])
         }
-        
+
         return result
     }
-    
-    public var body: some View {
-        var wasFinished = false
-        var wasCanceled = false
 
+    public var body: some View {
+        print("### \(self.name) = Body started")
         SentryPerformanceTracker.shared.pushActiveSpan(id)
 
         let result = self.content().onAppear{
-            if (!wasCanceled) {
-                SentryPerformanceTracker.shared.finishSpan(self.id)
-                SentryPerformanceTracker.shared.popActiveSpan()
-                wasFinished = true
-            }
+            SentryPerformanceTracker.shared.finishSpan(self.id)
+            print("### \(self.name) = Body Appear")
         }
 
-        DispatchQueue.main.async {
-            if !wasFinished {
-                SentryPerformanceTracker.shared.cancelSpan(self.id)
-                SentryPerformanceTracker.shared.popActiveSpan()
-                wasCanceled = true
-            }
-        }
-
+        SentryPerformanceTracker.shared.popActiveSpan()
+        print("### \(self.name) = Body End")
         return result
     }
 }
