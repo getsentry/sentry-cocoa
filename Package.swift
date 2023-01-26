@@ -5,9 +5,8 @@ let package = Package(
     name: "Sentry",
     platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4)],
     products: [
-        .library(name: "Sentry", targets: ["Sentry"]),
-        .library(name: "Sentry-Dynamic", type: .dynamic, targets: ["Sentry"]),
-        .library(name: "SentrySwiftUI", targets: ["SentrySwiftUI"])
+        .library(name: "SentryOnly", type: .dynamic, targets: ["Sentry"]),
+        .library(name: "SentryWithSwiftUI", type: .dynamic, targets: ["SentrySwiftUI"])
     ],
     targets: [
         .target(
