@@ -137,6 +137,7 @@ class SentryFileManagerTests: XCTestCase {
         try givenOldEnvelopes()
 
         sut = fixture.getSut()
+        sut.deleteOldEnvelopeItems()
 
         XCTAssertEqual(sut.getAllEnvelopes().count, 0)
     }
@@ -144,10 +145,11 @@ class SentryFileManagerTests: XCTestCase {
     func testDeleteOldEnvelopes_WithEmptyDSN() throws {
         fixture.options.dsn = nil
         sut = fixture.getSut()
+        sut.deleteOldEnvelopeItems()
         
         try givenOldEnvelopes()
 
-        sut = fixture.getSut()
+        sut.deleteOldEnvelopeItems()
 
         XCTAssertEqual(sut.getAllEnvelopes().count, 0)
     }
