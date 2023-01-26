@@ -49,6 +49,8 @@ SENTRY_NO_INIT
 - (void)deleteAllEnvelopes;
 - (void)deleteAllFolders;
 
+- (void)deleteOldEnvelopeItems;
+
 /**
  * Get all envelopes sorted ascending by the timeIntervalSince1970 the envelope was stored and if
  * two envelopes are stored at the same time sorted by the order they were stored.
