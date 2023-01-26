@@ -3,6 +3,7 @@
 #import "SentryCrashStackCursor_MachineContext.h"
 #import "SentryCrashStackCursor_SelfThread.h"
 #import "SentryCrashStackEntryMapper.h"
+#import "SentryCrashSymbolicator.h"
 #import "SentryFrame.h"
 #import "SentryFrameRemover.h"
 #import "SentryStacktrace.h"
@@ -106,7 +107,7 @@ SentryStacktraceBuilder ()
 {
     SentryCrashStackCursor stackCursor;
     sentrycrashsc_initSelfThread(&stackCursor, 0);
-    stackCursor.useDlAddr = true;
+    stackCursor.symbolicate = sentrycrashsymbolicator_symbolicate_async_unsafe;
     return [self retrieveStacktraceFromCursor:stackCursor];
 }
 
