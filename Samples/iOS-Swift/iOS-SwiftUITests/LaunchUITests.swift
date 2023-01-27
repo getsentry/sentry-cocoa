@@ -20,6 +20,15 @@ class LaunchUITests: XCTestCase {
         super.tearDown()
     }
 
+    func testCrashRecovery(){
+        app.buttons["crash"].tap()
+        if app.buttons["crash"].exists {
+            XCTFail("App did not crashed")
+        }
+        app.launch()
+        waitForExistenseOfMainScreen()
+    }
+
     func testBreadcrumbData() {
         let breadcrumbLabel = app.staticTexts["breadcrumbLabel"]
         breadcrumbLabel.waitForExistence("Breadcrumb label not found.")
