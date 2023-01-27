@@ -138,6 +138,13 @@ onIntegerElement(const char *const name, const int64_t value, void *const userDa
 }
 
 static int
+onUIntegerElement(
+    __unused const char *const name, __unused const uint64_t value, __unused void *const userData)
+{
+    return SentryCrashJSON_OK;
+}
+
+static int
 onNullElement(__unused const char *const name, __unused void *const userData)
 {
     return SentryCrashJSON_OK;
@@ -234,6 +241,7 @@ loadState(const char *const path)
     callbacks.onEndData = onEndData;
     callbacks.onFloatingPointElement = onFloatingPointElement;
     callbacks.onIntegerElement = onIntegerElement;
+    callbacks.onUIntegerElement = onUIntegerElement;
     callbacks.onNullElement = onNullElement;
     callbacks.onStringElement = onStringElement;
 
