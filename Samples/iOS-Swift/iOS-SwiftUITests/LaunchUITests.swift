@@ -20,7 +20,7 @@ class LaunchUITests: XCTestCase {
         super.tearDown()
     }
 
-    func testCrashRecovery(){
+    func testCrashRecovery() {
         app.buttons["crash"].tap()
         if app.buttons["crash"].exists {
             XCTFail("App did not crashed")
