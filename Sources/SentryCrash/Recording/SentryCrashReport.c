@@ -1278,7 +1278,7 @@ writeError(const SentryCrashReportWriter *const writer, const char *const key,
             const char *machExceptionName = sentrycrashmach_exceptionName(crash->mach.type);
             const char *machCodeName = crash->mach.code == 0
                 ? NULL
-                : sentrycrashmach_kernelReturnCodeName(crash->mach.code);
+                : sentrycrashmach_kernelReturnCodeName(crash->mach.type, crash->mach.code);
             writer->addUIntegerElement(
                 writer, SentryCrashField_Exception, (unsigned)crash->mach.type);
             if (machExceptionName != NULL) {
@@ -1289,7 +1289,7 @@ writeError(const SentryCrashReportWriter *const writer, const char *const key,
                 writer->addStringElement(writer, SentryCrashField_CodeName, machCodeName);
             }
             writer->addUIntegerElement(
-                writer, SentryCrashField_Subcode, (unsigned)crash->mach.subcode);
+                writer, SentryCrashField_Subcode, (size_t)crash->mach.subcode);
         }
         writer->endContainer(writer);
 #endif

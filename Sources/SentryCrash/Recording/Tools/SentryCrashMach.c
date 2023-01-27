@@ -27,6 +27,10 @@
 #include <mach/mach.h>
 #include <stdlib.h>
 
+#if defined(__arm__) || defined(__arm64__)
+#    include <mach/arm/exception.h>
+#endif /* defined (__arm__) || defined (__arm64__) */
+
 #define RETURN_NAME_FOR_ENUM(A)                                                                    \
     case A:                                                                                        \
         return #A
@@ -50,7 +54,7 @@ sentrycrashmach_exceptionName(const int64_t exceptionType)
 }
 
 const char *
-sentrycrashmach_kernelReturnCodeName(const int64_t returnCode)
+sentrycrashmach_kernelReturnCodeName(const int64_t exceptionType, const int64_t returnCode)
 {
     switch (returnCode) {
         RETURN_NAME_FOR_ENUM(KERN_SUCCESS);
@@ -104,6 +108,25 @@ sentrycrashmach_kernelReturnCodeName(const int64_t returnCode)
         RETURN_NAME_FOR_ENUM(KERN_NOT_WAITING);
         RETURN_NAME_FOR_ENUM(KERN_OPERATION_TIMED_OUT);
         RETURN_NAME_FOR_ENUM(KERN_CODESIGN_ERROR);
+        RETURN_NAME_FOR_ENUM(KERN_POLICY_STATIC);
+        RETURN_NAME_FOR_ENUM(KERN_INSUFFICIENT_BUFFER_SIZE);
+        RETURN_NAME_FOR_ENUM(KERN_DENIED);
+        RETURN_NAME_FOR_ENUM(KERN_MISSING_KC);
+        RETURN_NAME_FOR_ENUM(KERN_INVALID_KC);
+        RETURN_NAME_FOR_ENUM(KERN_NOT_FOUND);
+
+#if defined(__arm__) || defined(__arm64__)
+        /*
+         * Located at mach/arm/exception.h
+         * For EXC_BAD_ACCESS
+         * Note: do not conflict with kern_return_t values returned by vm_fault
+         */
+        RETURN_NAME_FOR_ENUM(EXC_ARM_DA_ALIGN);
+        RETURN_NAME_FOR_ENUM(EXC_ARM_DA_DEBUG);
+        RETURN_NAME_FOR_ENUM(EXC_ARM_SP_ALIGN);
+        RETURN_NAME_FOR_ENUM(EXC_ARM_SWP);
+        RETURN_NAME_FOR_ENUM(EXC_ARM_PAC_FAIL);
+#endif /* defined (__arm__) || defined (__arm64__) */
     }
     return NULL;
 }

@@ -45,7 +45,7 @@ const char *sentrycrashmach_exceptionName(int64_t exceptionType);
  *
  * @return The code's name or NULL if not found.
  */
-const char *sentrycrashmach_kernelReturnCodeName(int64_t returnCode);
+const char *sentrycrashmach_kernelReturnCodeName(int64_t exceptionType, int64_t returnCode);
 
 /** Get the signal equivalent of a mach exception.
  *
