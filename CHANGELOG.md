@@ -16,6 +16,7 @@
 - Carthage Xcode 14 compatibility issue (#2636)
 - Crash in CppException Monitor (#2639)
 - fix: Disable watchdog when disabling crash handler (#2621)
+- MachException Improvements (#2662)
 
 ## 8.0.0
 
