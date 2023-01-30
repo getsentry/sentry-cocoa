@@ -5,15 +5,16 @@ import SentrySwiftUI
 struct FormScreen : View {
 
     @State var name : String = ""
+    @State var email : String = ""
 
-    func printMainThreda() {
+    func printMainThread() {
         DispatchQueue.main.async {
             print("### IS MAIN THREAD")
         }
     }
 
     var body: some View {
-        printMainThreda()
+        printMainThread()
         return SentryTracedView("Form Screen") {
             List {
                 Section{
@@ -27,7 +28,29 @@ struct FormScreen : View {
                             .opacity(name.isEmpty ? 1 : 0)
                     }
                 }
+
+                Section{
+                    EmailView(email: $email)
+                }
             }.navigationTitle("Form Screen")
+        }
+    }
+}
+
+struct EmailView : View {
+
+    @Binding var email : String
+
+    private func emailIsValid( _ email: String) -> Bool {
+        return email.contains("@") || email.isEmpty
+    }
+
+    var body: some View {
+        HStack {
+            Text("E-mail")
+            TextField("E-Mail", text: $email)
+                .keyboardType(.emailAddress)
+                .border(emailIsValid(email) ? .clear : .red)
         }
     }
 }
