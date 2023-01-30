@@ -21,7 +21,7 @@ class LaunchUITests: XCTestCase {
     }
 
     func testCrashRecovery() {
-        if #available(iOS 13, *){
+        if #available(iOS 13, *) {
             app.buttons["crash"].tap()
             if app.buttons["crash"].exists {
                 XCTFail("App did not crashed")
