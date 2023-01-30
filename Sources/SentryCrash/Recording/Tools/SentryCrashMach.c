@@ -54,7 +54,7 @@ sentrycrashmach_exceptionName(const int64_t exceptionType)
 }
 
 const char *
-sentrycrashmach_kernelReturnCodeName(const int64_t exceptionType, const int64_t returnCode)
+sentrycrashmach_kernelReturnCodeName(const int64_t returnCode)
 {
     switch (returnCode) {
         RETURN_NAME_FOR_ENUM(KERN_SUCCESS);
