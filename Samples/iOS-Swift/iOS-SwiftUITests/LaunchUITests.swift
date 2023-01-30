@@ -21,7 +21,10 @@ class LaunchUITests: XCTestCase {
     }
 
     func testCrashRecovery() {
-        if #available(iOS 13, *){
+        //We will be removing this test from iOS 12 because it fails during CI, which looks like a bug that we cannot reproduce.
+        //If we introduce a bug in the crash report process we will catch it with tests for iOS 13 or above.
+        //For some reason is not possible to use @available(iOS 13, *) in the test function.
+        if #available(iOS 13, *) {
             app.buttons["crash"].tap()
             if app.buttons["crash"].exists {
                 XCTFail("App did not crashed")
