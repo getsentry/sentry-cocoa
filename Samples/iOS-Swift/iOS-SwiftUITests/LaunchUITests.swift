@@ -20,6 +20,7 @@ class LaunchUITests: XCTestCase {
         super.tearDown()
     }
 
+    @available(iOS 13, *)
     func testCrashRecovery() {
         app.buttons["crash"].tap()
         if app.buttons["crash"].exists {
