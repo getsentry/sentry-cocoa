@@ -458,8 +458,17 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
             if (address == 0) {
                 return @"Attempted to dereference null pointer.";
             }
-            return [NSString
-                stringWithFormat:@"Attempted to dereference garbage pointer %p.", (void *)address];
+
+            NSString *codeName = errorReport[@SentryCrashField_Mach][@SentryCrashField_CodeName];
+            if (codeName != nil) {
+                // Inspired by
+                // https://developer.apple.com/documentation/xcode/investigating-memory-access-crashes
+                return [NSString stringWithFormat:@"%@ at %p.", codeName, (void *)address];
+            } else {
+                return
+                    [NSString stringWithFormat:@"Attempted to dereference garbage pointer at %p.",
+                              (void *)address];
+            }
         }
 
         return nil;

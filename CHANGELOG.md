@@ -7,6 +7,7 @@
 - AttachScreenshots is GA (#2623)
 - Gather profiling timeseries metrics for CPU usage and memory footprint (#2493)
 - Change SentryTracedView `transactionName` to `viewName` (#2630)
+- Add EXC_BAD_ACCESS subtypes to events (#2667)
 
 ### Fixes
 
