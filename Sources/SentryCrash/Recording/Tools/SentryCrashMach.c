@@ -171,26 +171,3 @@ sentrycrashmach_signalForMachException(const int exception, const mach_exception
     }
     return 0;
 }
-return code == KERN_INVALID_ADDRESS ? SIGSEGV : SIGBUS;
-case EXC_BAD_INSTRUCTION:
-return SIGILL;
-case EXC_BREAKPOINT:
-return SIGTRAP;
-case EXC_EMULATION:
-return SIGEMT;
-case EXC_SOFTWARE: {
-    switch (code) {
-    case EXC_UNIX_BAD_SYSCALL:
-        return SIGSYS;
-    case EXC_UNIX_BAD_PIPE:
-        return SIGPIPE;
-    case EXC_UNIX_ABORT:
-        return SIGABRT;
-    case EXC_SOFT_SIGNAL:
-        return SIGKILL;
-    }
-    break;
-}
-}
-return 0;
-}
