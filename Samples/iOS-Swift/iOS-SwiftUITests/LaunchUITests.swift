@@ -20,14 +20,16 @@ class LaunchUITests: XCTestCase {
         super.tearDown()
     }
 
-    @available(iOS 13, *)
     func testCrashRecovery() {
-        app.buttons["crash"].tap()
-        if app.buttons["crash"].exists {
-            XCTFail("App did not crashed")
+        if #available(iOS 13, *){
+            app.buttons["crash"].tap()
+            if app.buttons["crash"].exists {
+                XCTFail("App did not crashed")
+            }
+
+            app.launch()
+            waitForExistenseOfMainScreen()
         }
-        app.launch()
-        waitForExistenseOfMainScreen()
     }
 
     func testBreadcrumbData() {
