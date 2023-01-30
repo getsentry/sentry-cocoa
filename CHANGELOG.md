@@ -4,6 +4,7 @@
 
 ### Features
 
+- Add thread information to File I/O spans (#2573)
 - AttachScreenshots is GA (#2623)
 - Gather profiling timeseries metrics for CPU usage and memory footprint (#2493)
 - Change SentryTracedView `transactionName` to `viewName` (#2630)
