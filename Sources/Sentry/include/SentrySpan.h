@@ -5,7 +5,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryTracer, SentryId, SentrySpanId;
+@class SentryTracer, SentryId, SentrySpanId, SentryFrame;
 
 @interface SentrySpan : NSObject <SentrySpan, SentrySerializable>
 SENTRY_NO_INIT
@@ -70,6 +70,11 @@ SENTRY_NO_INIT
  * Indicates whether this span can be discarded if not properly finished.
  */
 @property (nonatomic) BOOL optional;
+
+/**
+ * Frames of the stack trace associated with the span.
+ */
+@property (nullable, nonatomic, strong) NSArray<SentryFrame *> *frames;
 
 /**
  * Init a SentrySpan with given transaction and context.

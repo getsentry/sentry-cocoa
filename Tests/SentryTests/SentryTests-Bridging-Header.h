@@ -182,6 +182,7 @@
 #import "URLSessionTaskMock.h"
 @import SentryPrivate;
 #import "SentryEnvelopeAttachmentHeader.h"
+#import "SentryProcessInfoWrapper.h"
 #import "TestSentryViewHierarchy.h"
 #import "SentryPerformanceTracker+Testing.h"
 

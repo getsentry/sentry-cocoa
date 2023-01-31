@@ -32,7 +32,5 @@ class TestCleanup: NSObject {
         SentryPerformanceTracker.shared.spans.removeAllObjects()
         SentryPerformanceTracker.shared.activeSpanStack.removeAllObjects()
         SentrySwizzleWrapper.sharedInstance.removeAllCallbacks()
-
-        SentryNSDataTracker.sharedInstance.disable()
     }
 }

@@ -30,6 +30,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
 {
     sentrycrashmc_getContextForThread(thread, context, false);
     SentryCrashStackCursor stackCursor;
+
     sentrycrashsc_initWithMachineContext(&stackCursor, MAX_STACKTRACE_LENGTH, context);
 
     unsigned int entries = 0;
@@ -56,6 +57,11 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
         self.machineContextWrapper = machineContextWrapper;
     }
     return self;
+}
+
+- (SentryStacktrace *)stacktraceForCurrentThreadAsyncUnsafe
+{
+    return [self.stacktraceBuilder buildStacktraceForCurrentThreadAsyncUnsafe];
 }
 
 - (NSArray<SentryThread *> *)getCurrentThreads

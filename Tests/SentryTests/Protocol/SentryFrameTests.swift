@@ -3,7 +3,7 @@ import XCTest
 class SentryFrameTests: XCTestCase {
 
     func testSerialize() {
-        let frame = TestData.frame
+        let frame = TestData.mainFrame
         
         let actual = frame.serialize()
         

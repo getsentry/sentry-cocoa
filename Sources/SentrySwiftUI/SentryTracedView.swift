@@ -41,12 +41,12 @@ public struct SentryTracedView<Content: View>: View {
     let content: () -> Content
     let name: String
     let id: SpanId
-
-    public init(_ transactionName: String? = nil, content: @escaping () -> Content) {
+    
+    public init(_ viewName: String? = nil, content: @escaping () -> Content) {
         self.content = content
-        self.name = transactionName ?? SentryTracedView.extractName(content: Content.self)
+        self.name = viewName ?? SentryTracedView.extractName(content: Content.self)
         id = SentryPerformanceTracker.shared.startSpan(withName: self.name,
-                                                       nameSource: transactionName == nil ? .component : .custom,
+                                                       nameSource: viewName == nil ? .component : .custom,
                                                        operation: "ui.load")
         print("### \(self.name) = Traced created")
     }
@@ -81,8 +81,8 @@ public struct SentryTracedView<Content: View>: View {
 ///
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 public extension View {
-    func sentryTrace(_ transactionName: String? = nil) -> some View {
-        return SentryTracedView(transactionName) {
+    func sentryTrace(_ viewName: String? = nil) -> some View {
+        return SentryTracedView(viewName) {
             return self
         }
     }
