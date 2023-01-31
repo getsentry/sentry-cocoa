@@ -427,6 +427,14 @@ static BOOL appStartMeasurementRead;
     return self.rootSpan.startTimestamp;
 }
 
+-(BOOL)optional {
+    return _rootSpan.optional;
+}
+
+-(void)setOptional:(BOOL)optional {
+    _rootSpan.optional = optional;
+}
+
 - (SentryTraceContext *)traceContext
 {
     if (_traceContext == nil) {
@@ -525,23 +533,6 @@ static BOOL appStartMeasurementRead;
     return [self.rootSpan toTraceHeader];
 }
 
-- (void)cancelChild:(id<SentrySpan>)child {
-    @synchronized(_children) {
-        [_children removeObject:child];
-
-        NSMutableArray * toRemove = [[NSMutableArray alloc] initWithCapacity:_children.count];
-
-        for (id<SentrySpan> span in _children) {
-            if ([span.parentSpanId isEqual:child.spanId]) {
-                [toRemove addObject:span];
-            }
-        }
-
-        [_children removeObjectsInArray:toRemove];
-    }
-    [self canBeFinished];
-}
-
 - (void)finish
 {
     SENTRY_LOG_DEBUG(
@@ -595,8 +586,8 @@ static BOOL appStartMeasurementRead;
     }
 
     @synchronized(_children) {
-        for (id<SentrySpan> span in _children) {
-            if (![span isFinished])
+        for (SentrySpan * span in _children) {
+            if (!span.isFinished && !span.optional)
                 return YES;
         }
         return NO;
@@ -625,33 +616,39 @@ static BOOL appStartMeasurementRead;
         }
     }];
 
-    @synchronized(_children) {
-        if (self.idleTimeout > 0.0 && _children.count == 0) {
-            SENTRY_LOG_DEBUG(@"Was waiting for timeout for UI event trace but it had no children, "
-                             @"will not keep transaction.");
-            return;
-        }
+    NSMutableArray<SentrySpan *> * spans = [[NSMutableArray alloc] initWithCapacity:_children.count];
 
-        for (id<SentrySpan> span in _children) {
-            if (!span.isFinished) {
+    @synchronized(_children) {
+        for (SentrySpan * span in _children) {
+            if (!span.isFinished && !span.optional) {
                 [span finishWithStatus:kSentrySpanStatusDeadlineExceeded];
 
                 // Unfinished children should have the same
                 // end timestamp as their parent transaction
                 span.timestamp = self.timestamp;
             }
+
+            if (span.isFinished) {
+                [spans addObject:span];
+            }
         }
 
         if ([self hasIdleTimeout]) {
-            [self trimEndTimestamp];
+            [self trimEndTimestamp: spans];
         }
+    }
+
+    if ((self.idleTimeout > 0.0 || _rootSpan.optional) && spans.count == 0) {
+        SENTRY_LOG_DEBUG(@"Was waiting for timeout for UI event trace or its an optional trace and it had no children, "
+                         @"will not keep transaction.");
+        return;
     }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     [SentryProfiler stopProfilingSpan:self.rootSpan];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-    SentryTransaction *transaction = [self toTransaction];
+    SentryTransaction *transaction = [self toTransactionWith:spans];
 
     // Prewarming can execute code up to viewDidLoad of a UIViewController, and keep the app in the
     // background. This can lead to auto-generated transactions lasting for minutes or event hours.
@@ -675,11 +672,11 @@ static BOOL appStartMeasurementRead;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
-- (void)trimEndTimestamp
+- (void)trimEndTimestamp:(NSArray<SentrySpan *> *)spans
 {
     NSDate *oldest = self.startTimestamp;
 
-    for (id<SentrySpan> childSpan in _children) {
+    for (id<SentrySpan> childSpan in spans) {
         if ([oldest compare:childSpan.timestamp] == NSOrderedAscending) {
             oldest = childSpan.timestamp;
         }
@@ -690,15 +687,16 @@ static BOOL appStartMeasurementRead;
     }
 }
 
-- (SentryTransaction *)toTransaction
-{
-    NSArray<id<SentrySpan>> *appStartSpans = [self buildAppStartSpans];
+//Keeping for test purpose
+- (SentryTransaction *)toTransaction {
+    return [self toTransactionWith:_children];
+}
 
-    NSArray<id<SentrySpan>> *spans;
-    @synchronized(_children) {
-        [_children addObjectsFromArray:appStartSpans];
-        spans = [_children copy];
-    }
+- (SentryTransaction *)toTransactionWith:(NSArray<SentrySpan *> *)children
+{
+    NSArray<SentrySpan *> *appStartSpans = [self buildAppStartSpans];
+
+    NSArray<id<SentrySpan>> *spans = [children arrayByAddingObjectsFromArray:appStartSpans];
 
     if (appStartMeasurement != nil) {
         [self setStartTimestamp:appStartMeasurement.appStartTimestamp];

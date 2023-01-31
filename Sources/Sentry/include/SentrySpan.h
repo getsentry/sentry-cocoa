@@ -67,6 +67,11 @@ SENTRY_NO_INIT
 @property (nullable, nonatomic, readonly, weak) SentryTracer *tracer;
 
 /**
+ * Indicates whether this span can be discarded if not properly finished.
+ */
+@property (nonatomic) BOOL optional;
+
+/**
  * Init a SentrySpan with given transaction and context.
  *
  * @param transaction The @c SentryTracer managing the transaction this span is associated with.

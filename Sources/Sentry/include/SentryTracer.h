@@ -74,6 +74,8 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  */
 @property (readonly) BOOL isFinished;
 
+@property (nonatomic) BOOL optional;
+
 @property (nullable, nonatomic, copy) void (^finishCallback)(SentryTracer *);
 
 /**
@@ -185,11 +187,6 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 + (nullable SentryTracer *)getTracer:(id<SentrySpan>)span;
 
 - (void)dispatchIdleTimeout;
-
-/**
- * Removes the child span from the transaction and all its children.
- */
-- (void)cancelChild:(id<SentrySpan>)child;
 
 @end
 

@@ -219,18 +219,6 @@ SentryPerformanceTracker () <SentryTracerDelegate>
     [spanTracker finishWithStatus:status];
 }
 
-- (void)cancelSpan:(SentrySpanId *)spanId {
-    id<SentrySpan> spanTracker;
-    @synchronized(self.spans) {
-        spanTracker = self.spans[spanId];
-        [self.spans removeObjectForKey:spanId];
-    }
-
-    if ([spanTracker isKindOfClass:[SentrySpan class]]) {
-        [[(SentrySpan *)spanTracker tracer] cancelChild:spanTracker];
-    }
-}
-
 - (BOOL)isSpanAlive:(SentrySpanId *)spanId
 {
     @synchronized(self.spans) {
