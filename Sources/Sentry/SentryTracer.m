@@ -338,11 +338,11 @@ static BOOL appStartMeasurementRead;
 - (void)spanFinished:(id<SentrySpan>)finishedSpan
 {
     SENTRY_LOG_DEBUG(@"Finished span %@", finishedSpan.spanId.sentrySpanIdString);
-    // Calling canBeFinished on the rootSpan would end up in an endless loop because canBeFinished
-    // calls finish on the rootSpan.
+    // Calling canBeFinished on self would end up in an endless loop because canBeFinished
+    // calls finish again.
     if (finishedSpan == self) {
         SENTRY_LOG_DEBUG(
-            @"Cannot call finish on root span with id %@", finishedSpan.spanId.sentrySpanIdString);
+            @"Cannot call finish on span with id %@", finishedSpan.spanId.sentrySpanIdString);
         return;
     }
     [self canBeFinished];
@@ -413,21 +413,21 @@ static BOOL appStartMeasurementRead;
     // the same SentryId would be an error.
     if (self.isFinished) {
         SENTRY_LOG_DEBUG(
-            @"Root span with id %@ is already finished", self.spanId.sentrySpanIdString);
+            @"Span with id %@ is already finished", self.spanId.sentrySpanIdString);
         return;
     }
 
     BOOL hasUnfinishedChildSpansToWaitFor = [self hasUnfinishedChildSpansToWaitFor];
     if (!self.wasFinishCalled && !hasUnfinishedChildSpansToWaitFor && [self hasIdleTimeout]) {
         SENTRY_LOG_DEBUG(
-            @"Root span with id %@ isn't waiting on children and needs idle timeout dispatched.",
+            @"Span with id %@ isn't waiting on children and needs idle timeout dispatched.",
             self.spanId.sentrySpanIdString);
         [self dispatchIdleTimeout];
         return;
     }
 
     if (!self.wasFinishCalled || hasUnfinishedChildSpansToWaitFor) {
-        SENTRY_LOG_DEBUG(@"Root span with id %@ has children but isn't waiting for them right now.",
+        SENTRY_LOG_DEBUG(@"Span with id %@ has children but isn't waiting for them right now.",
             self.spanId.sentrySpanIdString);
         return;
     }
