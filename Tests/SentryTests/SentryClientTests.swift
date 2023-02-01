@@ -138,6 +138,14 @@ class SentryClientTest: XCTestCase {
         clearTestState()
     }
     
+    func testInit_CallsDeleteOldEnvelopeItemsInvocations() throws {
+        let fileManager = try TestFileManager(options: Options())
+        
+        _ = SentryClient(options: Options(), fileManager: fileManager)
+        
+        XCTAssertEqual(1, fileManager.deleteOldEnvelopeItemsInvocations.count)
+    }
+    
     func testClientIsEnabled() {
         XCTAssertTrue(fixture.getSut().isEnabled)
     }

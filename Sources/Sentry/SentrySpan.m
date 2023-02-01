@@ -2,6 +2,7 @@
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryCurrentDate.h"
+#import "SentryFrame.h"
 #import "SentryId.h"
 #import "SentryLog.h"
 #import "SentryMeasurementValue.h"
@@ -202,8 +203,20 @@ SentrySpan ()
                          forKey:@"start_timestamp"];
 
     @synchronized(_data) {
-        if (_data.count > 0) {
-            mutableDictionary[@"data"] = [_data.copy sentry_sanitize];
+        NSMutableDictionary *data = _data.mutableCopy;
+
+        if (self.frames && self.frames.count > 0) {
+            NSMutableArray *frames = [[NSMutableArray alloc] initWithCapacity:self.frames.count];
+
+            for (SentryFrame *frame in self.frames) {
+                [frames addObject:[frame serialize]];
+            }
+
+            data[@"call_stack"] = frames;
+        }
+
+        if (data.count > 0) {
+            mutableDictionary[@"data"] = [data.copy sentry_sanitize];
         }
     }
 

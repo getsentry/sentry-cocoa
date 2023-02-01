@@ -4,6 +4,8 @@
 #import "SentryAppStartMeasurement.h"
 #import "SentryClient.h"
 #import "SentryCurrentDate.h"
+#import "SentryDebugImageProvider.h"
+#import "SentryDependencyContainer.h"
 #import "SentryFramesTracker.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
@@ -540,6 +542,24 @@ static BOOL appStartMeasurementRead;
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.transactionContext.name;
+
+    NSMutableArray *framesOfAllSpans = [NSMutableArray array];
+    if ([(SentrySpan *)self.rootSpan frames]) {
+        [framesOfAllSpans addObjectsFromArray:[(SentrySpan *)self.rootSpan frames]];
+    }
+
+    for (SentrySpan *span in _children) {
+        if (span.frames) {
+            [framesOfAllSpans addObjectsFromArray:span.frames];
+        }
+    }
+
+    if (framesOfAllSpans.count > 0) {
+        SentryDebugImageProvider *debugImageProvider
+            = SentryDependencyContainer.sharedInstance.debugImageProvider;
+        transaction.debugMeta = [debugImageProvider getDebugImagesForFrames:framesOfAllSpans];
+    }
+
     [self addMeasurements:transaction];
     return transaction;
 }
