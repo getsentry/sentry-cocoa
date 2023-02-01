@@ -24,11 +24,10 @@ SentrySpan ()
     BOOL _isFinished;
 }
 
-
-- (instancetype)initWithContext:(SentrySpanContext *)context {
+- (instancetype)initWithContext:(SentrySpanContext *)context
+{
     if (self = [super init]) {
-        SENTRY_LOG_DEBUG(
-            @"Created span %@", context.spanId.sentrySpanIdString);
+        SENTRY_LOG_DEBUG(@"Created span %@", context.spanId.sentrySpanIdString);
         self.startTimestamp = [SentryCurrentDate date];
         _data = [[NSMutableDictionary alloc] init];
         _tags = [[NSMutableDictionary alloc] init];

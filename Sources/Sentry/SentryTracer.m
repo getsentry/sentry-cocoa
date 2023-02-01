@@ -162,7 +162,7 @@ static BOOL appStartMeasurementRead;
         self.hub = hub;
         self.wasFinishCalled = NO;
         _waitForChildren = waitForChildren;
-       _measurements = [[NSMutableDictionary alloc] init];
+        _measurements = [[NSMutableDictionary alloc] init];
         self.finishStatus = kSentrySpanStatusUndefined;
         self.idleTimeout = idleTimeout;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
@@ -298,7 +298,9 @@ static BOOL appStartMeasurementRead;
 {
     id<SentrySpan> activeSpan = [self getActiveSpan];
     if (activeSpan == self) {
-        return [self startChildWithParentId:self.spanId operation:operation description:description];
+        return [self startChildWithParentId:self.spanId
+                                  operation:operation
+                                description:description];
     }
     return [activeSpan startChildWithOperation:operation description:description];
 }
@@ -649,9 +651,7 @@ static BOOL appStartMeasurementRead;
     NSDate *appStartEndTimestamp = [appStartMeasurement.appStartTimestamp
         dateByAddingTimeInterval:appStartMeasurement.duration];
 
-    SentrySpan *appStartSpan = [self buildSpan:self.spanId
-                                     operation:operation
-                                   description:type];
+    SentrySpan *appStartSpan = [self buildSpan:self.spanId operation:operation description:type];
     [appStartSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
     [appStartSpan setTimestamp:appStartEndTimestamp];
 
