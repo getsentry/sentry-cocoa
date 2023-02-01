@@ -22,7 +22,7 @@ This SDK is written in Objective-C but also provides a nice Swift interface.
 
 **Where is the master branch?**
 
-We renamed the default branch from `master` to `main`. We are going to keep the `master` branch for backwards compatibility for package managers pointing to the [`master` branch](https://github.com/getsentry/sentry-cocoa/tree/master).
+We renamed the default branch from `master` to `main`.
 
 # Initialization
 
