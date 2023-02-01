@@ -1,11 +1,10 @@
 #import "SentryDefines.h"
-#import "SentrySerializable.h"
-#import "SentrySpanContext.h"
 #import "SentrySpanProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryTracer, SentryId, SentrySpanId, SentryFrame;
+@class SentryTracer, SentryId, SentrySpanId, SentryFrame, SentrySpanContext;
+@protocol SentrySerializable;
 
 @interface SentrySpan : NSObject <SentrySpan, SentrySerializable>
 SENTRY_NO_INIT

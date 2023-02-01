@@ -11,6 +11,8 @@
 #import "SentryTime.h"
 #import "SentryTraceHeader.h"
 #import "SentryTracer.h"
+#import "SentrySerializable.h"
+#import "SentrySpanContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
