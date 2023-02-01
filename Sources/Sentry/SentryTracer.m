@@ -360,6 +360,15 @@ static BOOL appStartMeasurementRead;
     return _traceContext;
 }
 
+- (void)setStartTimestamp:(nullable NSDate *)startTimestamp
+{
+    super.startTimestamp = startTimestamp;
+
+#if SENTRY_HAS_UIKIT
+    _startTimeChanged = YES;
+#endif
+}
+
 - (NSArray<id<SentrySpan>> *)children
 {
     return [_children copy];
@@ -544,8 +553,8 @@ static BOOL appStartMeasurementRead;
     transaction.transaction = self.transactionContext.name;
 
     NSMutableArray *framesOfAllSpans = [NSMutableArray array];
-    if ([(SentrySpan *)self.rootSpan frames]) {
-        [framesOfAllSpans addObjectsFromArray:[(SentrySpan *)self.rootSpan frames]];
+    if ([(SentrySpan *)self frames]) {
+        [framesOfAllSpans addObjectsFromArray:[(SentrySpan *)self frames]];
     }
 
     for (SentrySpan *span in _children) {
