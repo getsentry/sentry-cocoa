@@ -412,8 +412,7 @@ static BOOL appStartMeasurementRead;
     // Sending another transaction and spans with
     // the same SentryId would be an error.
     if (self.isFinished) {
-        SENTRY_LOG_DEBUG(
-            @"Span with id %@ is already finished", self.spanId.sentrySpanIdString);
+        SENTRY_LOG_DEBUG(@"Span with id %@ is already finished", self.spanId.sentrySpanIdString);
         return;
     }
 
