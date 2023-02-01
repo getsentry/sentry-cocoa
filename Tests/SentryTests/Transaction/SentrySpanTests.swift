@@ -13,7 +13,7 @@ class SentrySpanTests: XCTestCase {
         let extraValue = "extra_value"
         let options: Options
         let currentDateProvider = TestCurrentDateProvider()
-        let tracer =  SentryTracer(context: SpanContext(operation: "TEST"))
+        let tracer = SentryTracer(context: SpanContext(operation: "TEST"))
 
         init() {
             options = Options()

@@ -1,5 +1,5 @@
-#import "SentrySpanProtocol.h"
 #import "SentrySpan.h"
+#import "SentrySpanProtocol.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
