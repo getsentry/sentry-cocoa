@@ -660,11 +660,17 @@ class SentryClientTest: XCTestCase {
 
         assertLastSentEvent { actual in
             let culture = actual.context?["culture"]
-            XCTAssertEqual(culture?["calendar"] as? String, "Gregorian Calendar")
-            XCTAssertEqual(culture?["display_name"] as? String, "English (United States)")
-            XCTAssertEqual(culture?["locale"] as? String, "en_US")
-            XCTAssertEqual(culture?["is_24_hour_format"] as? Bool, false)
-            XCTAssertEqual(culture?["timezone"] as? String, "Europe/Vienna")
+            
+            if #available(iOS 10, macOS 10.12, watchOS 3, tvOS 10, *) {
+                
+                let expectedCalendar = fixture.locale.localizedString(for: fixture.locale.calendar.identifier)
+                XCTAssertEqual(culture?["calendar"] as? String, expectedCalendar)
+                XCTAssertEqual(culture?["display_name"] as? String, fixture.locale.localizedString(forIdentifier: fixture.locale.identifier))
+            }
+                
+            XCTAssertEqual(culture?["locale"] as? String, fixture.locale.identifier)
+            XCTAssertEqual(culture?["is_24_hour_format"] as? Bool, (fixture.locale as NSLocale).sentry_timeIs24HourFormat())
+            XCTAssertEqual(culture?["timezone"] as? String, fixture.timezone.identifier)
         }
     }
 
