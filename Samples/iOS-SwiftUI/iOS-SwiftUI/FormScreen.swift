@@ -26,7 +26,7 @@ struct FormScreen : View {
                     SentryTracedView("Text Span") {
                         Text("Name is required")
                             .opacity(name.isEmpty ? 1 : 0)
-                    }
+                    //}
                 }
 
                 Section{
@@ -46,12 +46,13 @@ struct EmailView : View {
     }
 
     var body: some View {
-        HStack {
-            Text("E-mail")
-            TextField("E-Mail", text: $email)
-                .keyboardType(.emailAddress)
-                .border(emailIsValid(email) ? .clear : .red)
-        }
+        print("### Email view body")
+            return HStack {
+                Text("E-mail")
+                TextField("E-Mail", text: $email)
+                    .keyboardType(.emailAddress)
+                    .border(emailIsValid(email) ? .clear : .red)
+            }
     }
 }
 

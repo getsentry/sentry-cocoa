@@ -34,9 +34,10 @@ import SentryInternal
 ///         //The part of your content you want to measure
 ///     }.sentryTrace("My Awesome Screen")
 ///
-///
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 public struct SentryTracedView<Content: View>: View {
+
+    @State var wasOnAppearCalled = false
 
     let content: () -> Content
     let name: String
@@ -45,6 +46,7 @@ public struct SentryTracedView<Content: View>: View {
     public init(_ viewName: String? = nil, content: @escaping () -> Content) {
         self.content = content
         self.name = viewName ?? SentryTracedView.extractName(content: Content.self)
+
         id = SentryPerformanceTracker.shared.startSpan(withName: self.name,
                                                        nameSource: viewName == nil ? .component : .custom,
                                                        operation: "ui.load")
@@ -63,11 +65,15 @@ public struct SentryTracedView<Content: View>: View {
 
     public var body: some View {
         print("### \(self.name) = Body started")
+
         SentryPerformanceTracker.shared.pushActiveSpan(id)
 
         let result = self.content().onAppear{
             SentryPerformanceTracker.shared.finishSpan(self.id)
             print("### \(self.name) = Body Appear")
+            self.wasOnAppearCalled = true
+        }.onDisappear {
+            print("### \(self.name) = Body Disappear")
         }
 
         SentryPerformanceTracker.shared.popActiveSpan()
