@@ -74,8 +74,6 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  */
 @property (readonly) BOOL isFinished;
 
-@property (nonatomic) BOOL optional;
-
 @property (nullable, nonatomic, copy) void (^finishCallback)(SentryTracer *);
 
 /**
