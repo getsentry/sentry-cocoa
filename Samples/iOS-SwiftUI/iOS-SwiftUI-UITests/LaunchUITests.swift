@@ -24,5 +24,4 @@ class LaunchUITests: XCTestCase {
         XCTAssertEqual(transactionName.label, "Content View Body")
         XCTAssertEqual(childParentId.label, transactionId.label)
     }
-    
 }

@@ -174,8 +174,7 @@ class SentryTracerTests: XCTestCase {
 
     func testFramesofSpans_SetsDebugMeta() {
         let sut = fixture.getSut()
-        let rootSpan = sut.rootSpan as? SentrySpan
-        rootSpan?.frames = [TestData.mainFrame, TestData.testFrame]
+        sut.frames = [TestData.mainFrame, TestData.testFrame]
 
         let debugImageProvider = TestDebugImageProvider()
         debugImageProvider.debugImages = [TestData.debugImage]

@@ -13,7 +13,7 @@ class SentrySpanTests: XCTestCase {
         let extraValue = "extra_value"
         let options: Options
         let currentDateProvider = TestCurrentDateProvider()
-        let tracer = SentryTracer()
+        let tracer = SentryTracer(context: SpanContext(operation: "TEST"))
 
         init() {
             options = Options()
@@ -332,7 +332,7 @@ class SentrySpanTests: XCTestCase {
         // Span has a weak reference to tracer. If we don't keep a reference
         // to the tracer ARC will deallocate the tracer.
         let sutGenerator: () -> Span = {
-            let tracer = SentryTracer()
+            let tracer = SentryTracer(context: SpanContext(operation: "TEST"))
             return SentrySpan(tracer: tracer, context: SpanContext(operation: ""))
         }
         
