@@ -30,6 +30,19 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentrySpanId *)startSpanWithName:(NSString *)name operation:(NSString *)operation;
 
 /**
+ * Starts a new span with an idle timeout if no span is active,
+ * then bind it to the scope if no span is binded.
+ * If there`s an active span, starts a child of the active span.
+ *
+ * @param name Span name.
+ * @param operation Span operation.
+ * @param timeout Idle timeout. Ignored if 0.
+ *
+ * @return The span id.
+ */
+- (SentrySpanId *)startSpanWithName:(NSString *)name operation:(NSString *)operation idleTimeout:(NSTimeInterval)timeout;
+
+/**
  * Activate the span with `spanId`
  * to create any call to startSpan as a child.
  * If the there is no span with the fiven spanId

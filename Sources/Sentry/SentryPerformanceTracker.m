@@ -48,8 +48,18 @@ SentryPerformanceTracker () <SentryTracerDelegate>
 
 - (SentrySpanId *)startSpanWithName:(NSString *)name
                          nameSource:(SentryTransactionNameSource)source
+                          operation:(NSString *)operation {
+    return [self startSpanWithName:name nameSource:source operation:operation idleTimeout:0];
+}
+
+- (SentrySpanId *)startSpanWithName:(NSString *)name operation:(NSString *)operation idleTimeout:(NSTimeInterval)timeout {
+    return [self startSpanWithName:name nameSource:kSentryTransactionNameSourceCustom operation:operation idleTimeout:timeout];
+}
+
+- (SentrySpanId *)startSpanWithName:(NSString *)name
+                         nameSource:(SentryTransactionNameSource)source
                           operation:(NSString *)operation
-{
+                        idleTimeout:(NSTimeInterval)timeout {
     id<SentrySpan> activeSpan;
     @synchronized(self.activeSpanStack) {
         activeSpan = [self.activeSpanStack lastObject];

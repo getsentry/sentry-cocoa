@@ -37,20 +37,16 @@ import SentryInternal
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 public struct SentryTracedView<Content: View>: View {
 
-    @State var wasOnAppearCalled = false
+    @State var viewWasPresented = false
 
     let content: () -> Content
     let name: String
-    let id: SpanId
-    
+    let nameSource : SentryTransactionNameSource
+
     public init(_ viewName: String? = nil, content: @escaping () -> Content) {
         self.content = content
         self.name = viewName ?? SentryTracedView.extractName(content: Content.self)
-
-        id = SentryPerformanceTracker.shared.startSpan(withName: self.name,
-                                                       nameSource: viewName == nil ? .component : .custom,
-                                                       operation: "ui.load")
-        print("### \(self.name) = Traced created")
+        self.nameSource = viewName == nil ? .component : .custom
     }
 
     private static func extractName(content: Any) -> String {
@@ -63,22 +59,24 @@ public struct SentryTracedView<Content: View>: View {
         return result
     }
 
+
+
     public var body: some View {
-        print("### \(self.name) = Body started")
-
-        SentryPerformanceTracker.shared.pushActiveSpan(id)
-
-        let result = self.content().onAppear{
-            SentryPerformanceTracker.shared.finishSpan(self.id)
-            print("### \(self.name) = Body Appear")
-            self.wasOnAppearCalled = true
-        }.onDisappear {
-            print("### \(self.name) = Body Disappear")
+        if viewWasPresented  {
+            return self.content().onAppear()
         }
 
-        SentryPerformanceTracker.shared.popActiveSpan()
-        print("### \(self.name) = Body End")
-        return result
+        let id = SentryPerformanceTracker.shared.startSpan(withName: self.name, nameSource: self.nameSource, operation: "ui.load")
+
+        SentryPerformanceTracker.shared.pushActiveSpan(id)
+        defer {
+            SentryPerformanceTracker.shared.popActiveSpan()
+            SentryPerformanceTracker.shared.finishSpan(id)
+        }
+
+        return self.content().onAppear {
+            self.viewWasPresented = true
+        }
     }
 }
 
