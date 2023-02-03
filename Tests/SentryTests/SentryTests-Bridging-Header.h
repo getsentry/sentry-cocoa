@@ -5,6 +5,7 @@
 #import "NSData+Sentry.h"
 #import "NSData+SentryCompression.h"
 #import "NSDate+SentryExtras.h"
+#import "NSLocale+Sentry.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "NSURLProtocolSwizzle.h"
 #import "PrivateSentrySDKOnly.h"
