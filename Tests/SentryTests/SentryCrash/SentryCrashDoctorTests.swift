@@ -3,7 +3,7 @@ import XCTest
 final class SentryCrashDoctorTests: XCTestCase {
 
     func testBadAccess() throws {
-        let report = try getCrashReport(resource: "crash-bad-access")
+        let report = try getCrashReport(resource: "Resources/crash-bad-access")
         
         let diagnose = SentryCrashDoctor().diagnoseCrash(report)
         
@@ -11,7 +11,7 @@ final class SentryCrashDoctorTests: XCTestCase {
     }
     
     func testBadAccess_NoSubcode() throws {
-        let report = try getCrashReport(resource: "crash-bad-access-no-subcode")
+        let report = try getCrashReport(resource: "Resources/crash-bad-access-no-subcode")
         
         let diagnose = SentryCrashDoctor().diagnoseCrash(report)
         
