@@ -5,6 +5,7 @@
 #import "NSData+Sentry.h"
 #import "NSData+SentryCompression.h"
 #import "NSDate+SentryExtras.h"
+#import "NSLocale+Sentry.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "NSURLProtocolSwizzle.h"
 #import "PrivateSentrySDKOnly.h"
@@ -183,6 +184,7 @@
 #import "URLSessionTaskMock.h"
 @import SentryPrivate;
 #import "SentryEnvelopeAttachmentHeader.h"
+#import "SentryProcessInfoWrapper.h"
 #import "TestSentryViewHierarchy.h"
 
 #if SENTRY_HAS_UIKIT

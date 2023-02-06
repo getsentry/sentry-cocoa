@@ -9,6 +9,16 @@ NS_ASSUME_NONNULL_BEGIN
     [NSThread sleepForTimeInterval:timeInterval];
 }
 
+- (void)threadStarted:(NSUUID *)threadID;
+{
+    // No op. Only needed for testing.
+}
+
+- (void)threadFinished:(NSUUID *)threadID
+{
+    // No op. Only needed for testing.
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
