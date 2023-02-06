@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Cleanup AppHangTracking properly when closing SDK (#2671)
+
 ## 8.1.0
 
 ### Features
