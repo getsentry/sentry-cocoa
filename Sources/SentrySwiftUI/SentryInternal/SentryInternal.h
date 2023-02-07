@@ -58,8 +58,6 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 - (void)popActiveSpan;
 
-- (void)cancelSpan:(SentrySpanId *)spanId;
-
 @end
 
 NS_ASSUME_NONNULL_END
