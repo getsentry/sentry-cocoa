@@ -3,6 +3,7 @@ import SentrySwiftUI
 import SwiftUI
 
 struct ContentView: View {
+
     var addBreadcrumbAction: () -> Void = {
         let crumb = Breadcrumb(level: SentryLevel.info, category: "Debug")
         crumb.message = "tapped addBreadcrumb"
@@ -88,12 +89,18 @@ struct ContentView: View {
         }
         
         let span = tracker.getSpan(currentSpanId)
-        
-        return span
+
+        if !(span is SentryTracer) {
+            lastSpan = span
+        }
+
+        return lastSpan ?? span
     }
-    
+
+    @State var lastSpan : Span?
+
     var body: some View {
-        SentryTracedView("Content View Body") {
+        return SentryTracedView("Content View Body") {
             NavigationView {
                 VStack(alignment: HorizontalAlignment.center, spacing: 16) {
                     Text(getCurrentTracer()?.transactionContext.name ?? "NO SPAN")

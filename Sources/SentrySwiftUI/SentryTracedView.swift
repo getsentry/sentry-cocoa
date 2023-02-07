@@ -36,7 +36,6 @@ import SentryInternal
 ///
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 public struct SentryTracedView<Content: View>: View {
-
     @State var viewWasPresented = false
 
     let content: () -> Content
@@ -59,14 +58,27 @@ public struct SentryTracedView<Content: View>: View {
         return result
     }
 
-
-
     public var body: some View {
         if viewWasPresented  {
             return self.content().onAppear()
         }
 
-        let id = SentryPerformanceTracker.shared.startSpan(withName: self.name, nameSource: self.nameSource, operation: "ui.load")
+        var transactionCreated = false
+        if SentryPerformanceTracker.shared.activeSpanId() == nil {
+            transactionCreated = true
+            let transactionId = SentryPerformanceTracker.shared.startSpan(withName: self.name, nameSource: nameSource, operation: "ui.load")
+            SentryPerformanceTracker.shared.pushActiveSpan(transactionId)
+
+            //According to Apple's documentation, the call to `body` needs to be fast
+            //and can be made many times in one frame. Therefore they don't use async code to process the view.
+            //Scheduling to finish the transaction at the end of the main loop seems the least hack solution right now.
+            DispatchQueue.main.async {
+                SentryPerformanceTracker.shared.popActiveSpan()
+                SentryPerformanceTracker.shared.finishSpan(transactionId)
+            }
+        }
+
+        let id = SentryPerformanceTracker.shared.startSpan(withName: transactionCreated ? "\(self.name).body" : self.name, nameSource: nameSource, operation: "ui.load")
 
         SentryPerformanceTracker.shared.pushActiveSpan(id)
         defer {

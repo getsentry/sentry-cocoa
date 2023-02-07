@@ -9,6 +9,7 @@
 #import "SentryTracer.h"
 #import "SentryTransactionContext+Private.h"
 #import "SentryUIEventTracker.h"
+#import "SentryDependencyContainer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -91,10 +92,10 @@ SentryPerformanceTracker () <SentryTracerDelegate>
             SENTRY_LOG_DEBUG(@"Creating new transaction bound to scope: %d", bindToScope);
             newSpan = [SentrySDK.currentHub startTransactionWithContext:context
                                                             bindToScope:bindToScope
-                                                        waitForChildren:YES
                                                   customSamplingContext:@{}
-                                                           timerWrapper:nil];
-
+                                                            idleTimeout:timeout
+                                                   dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper];
+            
             if ([newSpan isKindOfClass:[SentryTracer class]]) {
                 [(SentryTracer *)newSpan setDelegate:self];
             }

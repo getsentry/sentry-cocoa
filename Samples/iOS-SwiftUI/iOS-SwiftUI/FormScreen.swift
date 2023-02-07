@@ -7,15 +7,8 @@ struct FormScreen : View {
     @State var name : String = ""
     @State var email : String = ""
 
-    func printMainThread() {
-        DispatchQueue.main.async {
-            print("### IS MAIN THREAD")
-        }
-    }
-
     var body: some View {
-        printMainThread()
-        return SentryTracedView("Form Screen") {
+        SentryTracedView("Form Screen") {
             List {
                 Section{
                     HStack {
@@ -23,7 +16,7 @@ struct FormScreen : View {
                         TextField("name", text: $name)
                     }
                 } footer: {
-                    //SentryTracedView("Text Span") {
+                   // SentryTracedView("Text Span") {
                         Text("Name is required")
                             .opacity(name.isEmpty ? 1 : 0)
                     //}
@@ -46,13 +39,14 @@ struct EmailView : View {
     }
 
     var body: some View {
-        print("### Email view body")
-            return HStack {
+        SentryTracedView("Second View") {
+            HStack {
                 Text("E-mail")
                 TextField("E-Mail", text: $email)
                     .keyboardType(.emailAddress)
                     .border(emailIsValid(email) ? .clear : .red)
             }
+        }
     }
 }
 
