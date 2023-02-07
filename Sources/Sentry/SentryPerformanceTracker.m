@@ -9,7 +9,6 @@
 #import "SentryTracer.h"
 #import "SentryTransactionContext+Private.h"
 #import "SentryUIEventTracker.h"
-#import "SentryDependencyContainer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -49,18 +48,8 @@ SentryPerformanceTracker () <SentryTracerDelegate>
 
 - (SentrySpanId *)startSpanWithName:(NSString *)name
                          nameSource:(SentryTransactionNameSource)source
-                          operation:(NSString *)operation {
-    return [self startSpanWithName:name nameSource:source operation:operation idleTimeout:0];
-}
-
-- (SentrySpanId *)startSpanWithName:(NSString *)name operation:(NSString *)operation idleTimeout:(NSTimeInterval)timeout {
-    return [self startSpanWithName:name nameSource:kSentryTransactionNameSourceCustom operation:operation idleTimeout:timeout];
-}
-
-- (SentrySpanId *)startSpanWithName:(NSString *)name
-                         nameSource:(SentryTransactionNameSource)source
                           operation:(NSString *)operation
-                        idleTimeout:(NSTimeInterval)timeout {
+{
     id<SentrySpan> activeSpan;
     @synchronized(self.activeSpanStack) {
         activeSpan = [self.activeSpanStack lastObject];
@@ -92,10 +81,10 @@ SentryPerformanceTracker () <SentryTracerDelegate>
             SENTRY_LOG_DEBUG(@"Creating new transaction bound to scope: %d", bindToScope);
             newSpan = [SentrySDK.currentHub startTransactionWithContext:context
                                                             bindToScope:bindToScope
+                                                        waitForChildren:YES
                                                   customSamplingContext:@{}
-                                                            idleTimeout:timeout
-                                                   dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper];
-            
+                                                           timerWrapper:nil];
+
             if ([newSpan isKindOfClass:[SentryTracer class]]) {
                 [(SentryTracer *)newSpan setDelegate:self];
             }
