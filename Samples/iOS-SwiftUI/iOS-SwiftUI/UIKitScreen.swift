@@ -17,11 +17,9 @@ class CustomViewController : UIViewController {
         label.autoresizingMask = [.flexibleHeight, .flexibleWidth]
         label.textAlignment = .center
         self.view.addSubview(label)
-        print("### View Did Load")
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        print("### Did Appear")
     }
 }
 
@@ -29,7 +27,6 @@ struct UIKitView: UIViewControllerRepresentable {
     typealias UIViewControllerType = CustomViewController
 
     func makeUIViewController(context: Context) -> CustomViewController {
-        print("### View Controller requested")
         return CustomViewController()
     }
 

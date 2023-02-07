@@ -16,10 +16,10 @@ struct FormScreen : View {
                         TextField("name", text: $name)
                     }
                 } footer: {
-                   // SentryTracedView("Text Span") {
+                    SentryTracedView("Text Span") {
                         Text("Name is required")
                             .opacity(name.isEmpty ? 1 : 0)
-                    //}
+                    }
                 }
 
                 Section{
