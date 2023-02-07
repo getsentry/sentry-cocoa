@@ -26,9 +26,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
 {
     static SentryPerformanceTracker *instance = nil;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        instance = [[self alloc] init];
-    });
+    dispatch_once(&onceToken, ^{ instance = [[self alloc] init]; });
     return instance;
 }
 
@@ -242,7 +240,8 @@ SentryPerformanceTracker () <SentryTracerDelegate>
     }
 }
 
-- (void)clear {
+- (void)clear
+{
     [self.activeSpanStack removeAllObjects];
     [self.spans removeAllObjects];
 }

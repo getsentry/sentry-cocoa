@@ -3,7 +3,7 @@ import SentrySwiftUI
 import SwiftUI
 import UIKit
 
-class CustomViewController : UIViewController {
+class CustomViewController: UIViewController {
 
     override func loadView() {
         print("loadView")
