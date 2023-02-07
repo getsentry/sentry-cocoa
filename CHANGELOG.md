@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Mix UIKit and SwiftUI transactions (#2681)
+
 ## 8.1.0
 
 ### Features
