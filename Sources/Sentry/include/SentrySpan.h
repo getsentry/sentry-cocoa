@@ -1,11 +1,10 @@
 #import "SentryDefines.h"
-#import "SentrySerializable.h"
-#import "SentrySpanContext.h"
 #import "SentrySpanProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryTracer, SentryId, SentrySpanId;
+@class SentryTracer, SentryId, SentrySpanId, SentryFrame, SentrySpanContext;
+@protocol SentrySerializable;
 
 @interface SentrySpan : NSObject <SentrySpan, SentrySerializable>
 SENTRY_NO_INIT
@@ -67,6 +66,11 @@ SENTRY_NO_INIT
 @property (nullable, nonatomic, readonly, weak) SentryTracer *tracer;
 
 /**
+ * Frames of the stack trace associated with the span.
+ */
+@property (nullable, nonatomic, strong) NSArray<SentryFrame *> *frames;
+
+/**
  * Init a SentrySpan with given transaction and context.
  *
  * @param transaction The @c SentryTracer managing the transaction this span is associated with.
@@ -75,6 +79,15 @@ SENTRY_NO_INIT
  * @return SentrySpan
  */
 - (instancetype)initWithTracer:(SentryTracer *)transaction context:(SentrySpanContext *)context;
+
+/**
+ * Init a SentrySpan with given context.
+ *
+ * @param context This span context information.
+ *
+ * @return SentrySpan
+ */
+- (instancetype)initWithContext:(SentrySpanContext *)context;
 
 - (void)setExtraValue:(nullable id)value forKey:(NSString *)key DEPRECATED_ATTRIBUTE;
 @end

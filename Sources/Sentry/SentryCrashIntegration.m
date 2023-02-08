@@ -151,7 +151,7 @@ SentryCrashIntegration ()
  */
 + (void)sendAllSentryCrashReports
 {
-    [installation sendAllReports];
+    [installation sendAllReportsWithCompletion:NULL];
 }
 
 - (void)uninstall

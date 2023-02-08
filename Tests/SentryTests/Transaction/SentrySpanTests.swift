@@ -13,7 +13,7 @@ class SentrySpanTests: XCTestCase {
         let extraValue = "extra_value"
         let options: Options
         let currentDateProvider = TestCurrentDateProvider()
-        let tracer = SentryTracer()
+        let tracer = SentryTracer(context: SpanContext(operation: "TEST"))
 
         init() {
             options = Options()
@@ -221,7 +221,7 @@ class SentrySpanTests: XCTestCase {
         //Faking extra info to test serialization
         span.parentSpanId = SpanId()
         span.spanDescription = "Span Description"
-        
+
         let serialization = span.serialize()
         XCTAssertEqual(serialization["span_id"] as? String, span.spanId.sentrySpanIdString)
         XCTAssertEqual(serialization["parent_span_id"] as? String, span.parentSpanId?.sentrySpanIdString)
@@ -238,6 +238,26 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNotNil(serialization["tags"])
         XCTAssertEqual((serialization["data"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
         XCTAssertEqual((serialization["tags"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
+    }
+
+    func testSerialization_NoFrames() {
+        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: "test"))
+        let serialization = span.serialize()
+
+        XCTAssertNil(serialization["data"])
+    }
+
+    func testSerialization_withFrames() {
+        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: "test"))
+        span.frames = [TestData.mainFrame, TestData.testFrame]
+
+        let serialization = span.serialize()
+
+        XCTAssertNotNil(serialization["data"])
+        let callStack = (serialization["data"] as? [String: Any])?["call_stack"] as? [[String: Any]]
+        XCTAssertNotNil(callStack)
+        XCTAssertEqual(callStack?.first?["function"] as? String, TestData.mainFrame.function)
+        XCTAssertEqual(callStack?.last?["function"] as? String, TestData.testFrame.function)
     }
 
     func testSanitizeData() {
@@ -312,7 +332,7 @@ class SentrySpanTests: XCTestCase {
         // Span has a weak reference to tracer. If we don't keep a reference
         // to the tracer ARC will deallocate the tracer.
         let sutGenerator: () -> Span = {
-            let tracer = SentryTracer()
+            let tracer = SentryTracer(context: SpanContext(operation: "TEST"))
             return SentrySpan(tracer: tracer, context: SpanContext(operation: ""))
         }
         

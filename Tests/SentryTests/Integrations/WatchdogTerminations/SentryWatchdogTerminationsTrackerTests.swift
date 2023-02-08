@@ -91,7 +91,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.sysctl.systemBootTimestamp)
         
         XCTAssertEqual(appState, actual)
-        XCTAssertEqual(2, fixture.dispatchQueue.dispatchAsyncCalled)
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchAsyncCalled)
     }
     
     func testGoToForeground_SetsIsActive() {
@@ -106,7 +106,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         goToBackground()
         
         XCTAssertFalse(fixture.realFileManager.readAppState()?.isActive ?? true)
-        XCTAssertEqual(4, fixture.dispatchQueue.dispatchAsyncCalled)
+        XCTAssertEqual(3, fixture.dispatchQueue.dispatchAsyncCalled)
     }
     
     func testGoToForeground_WhenAppStateNil_NothingIsStored() {

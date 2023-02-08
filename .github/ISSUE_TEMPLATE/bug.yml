@@ -64,6 +64,14 @@ body:
     validations:
       required: true
 
+  - type: input
+    id: submit-a-pr
+    attributes:
+      label: Are you willing to submit a PR?
+      description: We accept contributions!
+    validations:
+      required: false
+
   - type: markdown
     attributes:
       value: |-

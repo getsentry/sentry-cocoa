@@ -1,7 +1,6 @@
 @testable import Sentry
 import XCTest
 
-@available(OSX 10.10, *)
 class SentryCrashInstallationReporterTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryCrashInstallationReporterTests")
@@ -23,20 +22,27 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         clearTestState()
     }
     
+    func testReportIsSentAndDeleted() throws {
+        sdkStarted()
+        
+        try givenStoredSentryCrashReport(resource: "Resources/crash-report-1")
+
+        sut.sendAllReports { filteredReports, _, _ in
+            XCTAssertEqual(1, filteredReports?.count)
+        }
+        
+        assertNoReportsStored()
+    }
+    
     func testFaultyReportIsNotSentAndDeleted() throws {
         sdkStarted()
         
         try givenStoredSentryCrashReport(resource: "Resources/Crash-faulty-report")
 
-        sut.sendAllReports()
+        sut.sendAllReports { filteredReports, _, _ in
+            XCTAssertEqual(0, filteredReports?.count)
+        }
         
-        // We need to wait a bit until SentryCrash is finished processing reports.
-        // It is not optimal to block, but we would need to change the internals
-        // of SentryCrash a lot to be able to avoid this delay. As we would
-        // like to replace SentryCrash anyway it's not worth the effort right now.
-        delayNonBlocking()
-        
-        assertNoEventsSent()
         assertNoReportsStored()
     }
     
@@ -49,10 +55,6 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         testClient = TestClient(options: options)
         let hub = SentryHub(client: testClient, andScope: nil)
         SentrySDK.setCurrentHub(hub)
-    }
-    
-    private func assertNoEventsSent() {
-        XCTAssertEqual(0, testClient.captureEventWithScopeInvocations.count)
     }
     
     private func assertNoReportsStored() {

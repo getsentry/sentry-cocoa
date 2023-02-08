@@ -138,6 +138,14 @@ class SentryClientTest: XCTestCase {
         clearTestState()
     }
     
+    func testInit_CallsDeleteOldEnvelopeItemsInvocations() throws {
+        let fileManager = try TestFileManager(options: Options())
+        
+        _ = SentryClient(options: Options(), fileManager: fileManager)
+        
+        XCTAssertEqual(1, fileManager.deleteOldEnvelopeItemsInvocations.count)
+    }
+    
     func testClientIsEnabled() {
         XCTAssertTrue(fixture.getSut().isEnabled)
     }
@@ -652,11 +660,17 @@ class SentryClientTest: XCTestCase {
 
         assertLastSentEvent { actual in
             let culture = actual.context?["culture"]
-            XCTAssertEqual(culture?["calendar"] as? String, "Gregorian Calendar")
-            XCTAssertEqual(culture?["display_name"] as? String, "English (United States)")
-            XCTAssertEqual(culture?["locale"] as? String, "en_US")
-            XCTAssertEqual(culture?["is_24_hour_format"] as? Bool, false)
-            XCTAssertEqual(culture?["timezone"] as? String, "Europe/Vienna")
+            
+            if #available(iOS 10, macOS 10.12, watchOS 3, tvOS 10, *) {
+                
+                let expectedCalendar = fixture.locale.localizedString(for: fixture.locale.calendar.identifier)
+                XCTAssertEqual(culture?["calendar"] as? String, expectedCalendar)
+                XCTAssertEqual(culture?["display_name"] as? String, fixture.locale.localizedString(forIdentifier: fixture.locale.identifier))
+            }
+                
+            XCTAssertEqual(culture?["locale"] as? String, fixture.locale.identifier)
+            XCTAssertEqual(culture?["is_24_hour_format"] as? Bool, (fixture.locale as NSLocale).sentry_timeIs24HourFormat())
+            XCTAssertEqual(culture?["timezone"] as? String, fixture.timezone.identifier)
         }
     }
 
@@ -1257,20 +1271,6 @@ class SentryClientTest: XCTestCase {
         client.capture(event: event)
         
         XCTAssertNotNil(fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.traceContext)
-    }
-    
-    func testCaptureEvent_traceInScope_dontSendTraceState() {
-        let event = Event(level: SentryLevel.warning)
-        event.message = fixture.message
-        let scope = Scope()
-        scope.span = SentryTracer()
-        
-        let client = fixture.getSut()
-        client.capture(event: event, scope: scope)
-        
-        client.capture(event: event)
-        
-        XCTAssertNil(fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.traceContext)
     }
 
     func test_AddCrashReportAttacment_withViewHierarchy() {

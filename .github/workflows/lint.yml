@@ -21,6 +21,7 @@ on:
       - '.github/workflows/lint.yml'
       - 'scripts/ci-select-xcode.sh'
       - 'scripts/no-changes-in-high-risk-files.sh'
+      - 'Sentry.xcodeproj/**'
 
 jobs:
   swift-lint:

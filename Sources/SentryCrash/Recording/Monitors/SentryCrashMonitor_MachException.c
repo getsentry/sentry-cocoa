@@ -48,12 +48,19 @@
 #    define kThreadPrimary "SentryCrash Exception Handler (Primary)"
 #    define kThreadSecondary "SentryCrash Exception Handler (Secondary)"
 
+#    ifdef __LP64__
+#        define MACH_ERROR_CODE_MASK 0xFFFFFFFFFFFFFFFF
+#    else
+#        define MACH_ERROR_CODE_MASK 0xFFFFFFFF
+#    endif
+
 // ============================================================================
 #    pragma mark - Types -
 // ============================================================================
 
 /** A mach exception message (according to ux_exception.c, xnu-1699.22.81).
  */
+#    pragma pack(4)
 typedef struct {
     /** Mach header. */
     mach_msg_header_t header;
@@ -90,9 +97,11 @@ typedef struct {
     /** Padding to avoid RCV_TOO_LARGE. */
     char padding[512];
 } MachExceptionMessage;
+#    pragma pack()
 
 /** A mach reply message (according to ux_exception.c, xnu-1699.22.81).
  */
+#    pragma pack(4)
 typedef struct {
     /** Mach header. */
     mach_msg_header_t header;
@@ -103,6 +112,7 @@ typedef struct {
     /** Return code. */
     kern_return_t returnCode;
 } MachReplyMessage;
+#    pragma pack()
 
 // ============================================================================
 #    pragma mark - Globals -
@@ -310,8 +320,8 @@ handleExceptions(void *const userData)
         SentryCrashLOG_ERROR("mach_msg: %s", mach_error_string(kr));
     }
 
-    SentryCrashLOG_DEBUG("Trapped mach exception code 0x%x, subcode 0x%x", exceptionMessage.code[0],
-        exceptionMessage.code[1]);
+    SentryCrashLOG_DEBUG("Trapped mach exception code 0x%llx, subcode 0x%llx",
+        exceptionMessage.code[0], exceptionMessage.code[1]);
     if (g_isEnabled) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
@@ -330,8 +340,7 @@ handleExceptions(void *const userData)
             // ever fire?
             restoreExceptionPorts();
             if (thread_resume(g_secondaryMachThread) != KERN_SUCCESS) {
-                SentryCrashLOG_DEBUG("Could not activate secondary thread. "
-                                     "Restoring original exception ports.");
+                SentryCrashLOG_DEBUG("Could not activate secondary thread.");
             }
         } else {
             SentryCrashLOG_DEBUG("This is the secondary exception thread. "
@@ -348,7 +357,7 @@ handleExceptions(void *const userData)
         if (sentrycrashmc_getContextForThread(exceptionMessage.thread.name, machineContext, true)) {
             sentrycrashsc_initWithMachineContext(
                 &g_stackCursor, MAX_STACKTRACE_LENGTH, machineContext);
-            SentryCrashLOG_TRACE("Fault address 0x%x, instruction address 0x%x",
+            SentryCrashLOG_TRACE("Fault address %p, instruction address %p",
                 sentrycrashcpu_faultAddress(machineContext),
                 sentrycrashcpu_instructionAddress(machineContext));
             if (exceptionMessage.exception == EXC_BAD_ACCESS) {
@@ -363,8 +372,8 @@ handleExceptions(void *const userData)
         crashContext->eventID = eventID;
         crashContext->registersAreValid = true;
         crashContext->mach.type = exceptionMessage.exception;
-        crashContext->mach.code = exceptionMessage.code[0];
-        crashContext->mach.subcode = exceptionMessage.code[1];
+        crashContext->mach.code = exceptionMessage.code[0] & (int64_t)MACH_ERROR_CODE_MASK;
+        crashContext->mach.subcode = exceptionMessage.code[1] & (int64_t)MACH_ERROR_CODE_MASK;
         if (crashContext->mach.code == KERN_PROTECTION_FAILURE && crashContext->isStackOverflow) {
             // A stack overflow should return KERN_INVALID_ADDRESS, but
             // when a stack blasts through the guard pages at the top of the
@@ -478,8 +487,8 @@ installExceptionHandler()
     }
 
     SentryCrashLOG_DEBUG("Installing port as exception handler.");
-    kr = task_set_exception_ports(
-        thisTask, mask, g_exceptionPort, EXCEPTION_DEFAULT, THREAD_STATE_NONE);
+    kr = task_set_exception_ports(thisTask, mask, g_exceptionPort,
+        (int)(EXCEPTION_DEFAULT | MACH_EXCEPTION_CODES), THREAD_STATE_NONE);
     if (kr != KERN_SUCCESS) {
         SentryCrashLOG_ERROR("task_set_exception_ports: %s", mach_error_string(kr));
         goto failed;

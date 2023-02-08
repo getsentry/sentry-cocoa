@@ -104,7 +104,7 @@ jobs:
           # iOS 16
           - runs-on: macos-12
             platform: 'iOS'
-            xcode: '14.0'
+            xcode: '14.2'
             test-destination-os: 'latest'
             timeout-minutes: 15
 

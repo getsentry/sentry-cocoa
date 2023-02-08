@@ -94,6 +94,17 @@ __cxa_throw(void *thrown_exception, std::type_info *tinfo, void (*dest)(void *))
 }
 }
 
+void
+sentrycrashcm_cppexception_callOriginalTerminationHandler(void)
+{
+    // Can be NULL as the return value of set_terminate can be a NULL pointer; see:
+    // https://en.cppreference.com/w/cpp/error/set_terminate
+    if (g_originalTerminateHandler != NULL) {
+        SentryCrashLOG_DEBUG("Calling original terminate handler.");
+        g_originalTerminateHandler();
+    }
+}
+
 static void
 CPPExceptionTerminate(void)
 {
@@ -167,8 +178,7 @@ CPPExceptionTerminate(void)
     }
     sentrycrashmc_resumeEnvironment(threads, numThreads);
 
-    SentryCrashLOG_DEBUG("Calling original terminate handler.");
-    g_originalTerminateHandler();
+    sentrycrashcm_cppexception_callOriginalTerminationHandler();
 }
 
 // ============================================================================
@@ -197,6 +207,7 @@ setEnabled(bool isEnabled)
             g_originalTerminateHandler = std::set_terminate(CPPExceptionTerminate);
         } else {
             std::set_terminate(g_originalTerminateHandler);
+            g_originalTerminateHandler = NULL;
         }
         g_captureNextStackTrace = isEnabled;
     }

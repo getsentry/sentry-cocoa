@@ -11,6 +11,10 @@ class TestThreadInspector: SentryThreadInspector {
         let stacktraceBuilder = SentryStacktraceBuilder(crashStackEntryMapper: crashStackEntryMapper)
         return TestThreadInspector(stacktraceBuilder: stacktraceBuilder, andMachineContextWrapper: SentryCrashDefaultMachineContextWrapper())
     }
+
+    override func stacktraceForCurrentThreadAsyncUnsafe() -> SentryStacktrace? {
+        return allThreads?.first?.stacktrace ?? TestData.thread.stacktrace
+    }
     
     override func getCurrentThreads() -> [SentryThread] {
         return allThreads ?? [TestData.thread]

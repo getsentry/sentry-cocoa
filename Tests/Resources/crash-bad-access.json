@@ -1,0 +1,266 @@
+{
+    "report": {
+        "version": "3.2.0",
+        "id": "42A64046-9255-4995-98C2-553FA204DF4D",
+        "process_name": "iOS-Swift",
+        "timestamp": 1675069636,
+        "type": "standard"
+    },
+    "process": {},
+    "system": {
+        "system_name": "iOS",
+        "system_version": "16.2",
+        "machine": "iPhone11,8",
+        "model": "N841AP",
+        "kernel_version": "Darwin Kernel Version 22.2.0: Tue Nov  1 21:21:17 PDT 2022; root:xnu-8792.60.51.122.1~1/RELEASE_ARM64_T8020",
+        "os_version": "20C5043e",
+        "jailbroken": false,
+        "boot_time": "2023-01-30T08:43:25Z",
+        "app_start_time": "2023-01-30T09:05:01Z",
+        "CFBundleExecutablePath": "/private/var/containers/Bundle/Application/53C684E3-9F0E-4FE3-8291-88677BAB718C/iOS-Swift.app/iOS-Swift",
+        "CFBundleExecutable": "iOS-Swift",
+        "CFBundleIdentifier": "io.sentry.sample.iOS-Swift",
+        "CFBundleName": "iOS-Swift",
+        "CFBundleVersion": "1",
+        "CFBundleShortVersionString": "7.31.5",
+        "app_uuid": "C488D0BE-E733-3031-AEF3-CC5182AB1E3B",
+        "cpu_arch": "arm64",
+        "cpu_type": 16777228,
+        "cpu_subtype": 2,
+        "binary_cpu_type": 16777228,
+        "binary_cpu_subtype": 0,
+        "process_name": "iOS-Swift",
+        "process_id": 495,
+        "parent_process_id": 1,
+        "device_app_hash": "9116712086e95f0c91b259ee97270e8f6a8a7768",
+        "build_type": "debug",
+        "total_storage": 63933894656,
+        "free_storage": 26521919488,
+        "memory": {
+            "size": 2976202752,
+            "usable": 2550726656,
+            "free": 66846720
+        },
+        "application_stats": {
+            "application_active": true,
+            "application_in_foreground": true,
+            "launches_since_last_crash": 1,
+            "sessions_since_last_crash": 2,
+            "active_time_since_last_crash": 120.664,
+            "background_time_since_last_crash": 12.2669,
+            "sessions_since_launch": 2,
+            "active_time_since_launch": 120.664,
+            "background_time_since_launch": 12.2669
+        }
+    },
+    "crash": {
+        "error": {
+            "mach": {
+                "exception": 1,
+                "exception_name": "EXC_BAD_ACCESS",
+                "code": 257,
+                "code_name": "EXC_ARM_DA_ALIGN",
+                "subcode": 5365848110
+            },
+            "signal": {
+                "signal": 10,
+                "name": "SIGBUS",
+                "code": 0,
+                "code_name": "BUS_NOOP"
+            },
+            "address": 5365848110,
+            "type": "mach"
+        }
+    },
+    "sentry_sdk_scope": {
+        "user": {
+            "email": "tony1@example.com",
+            "id": "1"
+        },
+        "environment": "debug",
+        "tags": {
+            "language": "swift"
+        },
+        "extra": {
+            "currentViewController": "<iOS_Swift.ViewController: 0x159d05ac0>"
+        },
+        "breadcrumbs": [
+            {
+                "category": "started",
+                "level": "info",
+                "message": "Breadcrumb Tracking",
+                "timestamp": "2023-01-30T09:05:01.740Z",
+                "type": "debug"
+            },
+            {
+                "category": "device.orientation",
+                "data": {
+                    "position": "portrait"
+                },
+                "level": "info",
+                "timestamp": "2023-01-30T09:05:01.757Z",
+                "type": "navigation"
+            },
+            {
+                "category": "ui.lifecycle",
+                "data": {
+                    "beingPresented": "false",
+                    "is_window_rootViewController": "true",
+                    "screen": "UINavigationController",
+                    "window": "<UIWindow: 0x159d0af90; frame = (0 0; 414 896); gestureRecognizers = <NSArray: 0x282ec60a0>; backgroundColor = <UIDynamicSystemColor: 0x2835fe280; name = _windowBackgroundColor>; layer = <UIWindowLayer: 0x282ec6400>>",
+                    "window_isKeyWindow": "true",
+                    "window_windowLevel": "0.000000"
+                },
+                "level": "info",
+                "timestamp": "2023-01-30T09:05:01.819Z",
+                "type": "navigation"
+            },
+            {
+                "category": "ui.lifecycle",
+                "data": {
+                    "beingPresented": "false",
+                    "is_window_rootViewController": "false",
+                    "parentViewController": "UINavigationController",
+                    "screen": "ViewController",
+                    "title": "Sentry Test App (Swift)",
+                    "window": "<UIWindow: 0x159d0af90; frame = (0 0; 414 896); gestureRecognizers = <NSArray: 0x282ec60a0>; backgroundColor = <UIDynamicSystemColor: 0x2835fe280; name = _windowBackgroundColor>; layer = <UIWindowLayer: 0x282ec6400>>",
+                    "window_isKeyWindow": "true",
+                    "window_windowLevel": "0.000000"
+                },
+                "level": "info",
+                "timestamp": "2023-01-30T09:05:01.819Z",
+                "type": "navigation"
+            },
+            {
+                "category": "app.lifecycle",
+                "data": {
+                    "state": "foreground"
+                },
+                "level": "info",
+                "timestamp": "2023-01-30T09:05:01.987Z",
+                "type": "navigation"
+            },
+            {
+                "category": "device.event",
+                "data": {
+                    "action": "BATTERY_STATE_CHANGE",
+                    "level": 4,
+                    "plugged": true
+                },
+                "level": "info",
+                "timestamp": "2023-01-30T09:05:21.053Z",
+                "type": "system"
+            },
+            {
+                "category": "device.event",
+                "data": {
+                    "action": "BATTERY_STATE_CHANGE",
+                    "level": 3,
+                    "plugged": true
+                },
+                "level": "info",
+                "timestamp": "2023-01-30T09:05:41.050Z",
+                "type": "system"
+            },
+            {
+                "category": "device.event",
+                "data": {
+                    "action": "BATTERY_STATE_CHANGE",
+                    "level": 4,
+                    "plugged": true
+                },
+                "level": "info",
+                "timestamp": "2023-01-30T09:06:01.086Z",
+                "type": "system"
+            },
+            {
+                "category": "device.event",
+                "data": {
+                    "action": "BATTERY_STATE_CHANGE",
+                    "level": 3,
+                    "plugged": true
+                },
+                "level": "info",
+                "timestamp": "2023-01-30T09:06:21.115Z",
+                "type": "system"
+            },
+            {
+                "category": "app.lifecycle",
+                "data": {
+                    "state": "background"
+                },
+                "level": "info",
+                "timestamp": "2023-01-30T09:07:02.658Z",
+                "type": "navigation"
+            },
+            {
+                "category": "device.orientation",
+                "data": {
+                    "position": "portrait"
+                },
+                "level": "info",
+                "timestamp": "2023-01-30T09:07:14.286Z",
+                "type": "navigation"
+            },
+            {
+                "category": "app.lifecycle",
+                "data": {
+                    "state": "foreground"
+                },
+                "level": "info",
+                "timestamp": "2023-01-30T09:07:15.480Z",
+                "type": "navigation"
+            },
+            {
+                "category": "touch",
+                "data": {
+                    "title": "crash",
+                    "view": "<UIButton: 0x159e43020; frame = (0 210; 181.5 30); opaque = NO; autoresize = RM+BM; layer = <CALayer: 0x2820d8980>>"
+                },
+                "level": "info",
+                "message": "crash:",
+                "timestamp": "2023-01-30T09:07:16.198Z",
+                "type": "user"
+            }
+        ]
+    },
+    "user": {
+        "context": {
+            "app": {
+                "app_build": "1",
+                "app_id": "C488D0BE-E733-3031-AEF3-CC5182AB1E3B",
+                "app_identifier": "io.sentry.sample.iOS-Swift",
+                "app_name": "iOS-Swift",
+                "app_start_time": "2023-01-30T09:05:01Z",
+                "app_version": "7.31.5",
+                "build_type": "debug",
+                "device_app_hash": "9116712086e95f0c91b259ee97270e8f6a8a7768"
+            },
+            "device": {
+                "arch": "arm64",
+                "boot_time": "2023-01-30T08:43:25Z",
+                "family": "iOS",
+                "free_memory": 38764544,
+                "free_storage": 26521919488,
+                "locale": "en_AT",
+                "memory_size": 2976202752,
+                "model": "iPhone11,8",
+                "model_id": "N841AP",
+                "screen_height_pixels": 896,
+                "screen_width_pixels": 414,
+                "simulator": false,
+                "storage_size": 63933894656,
+                "usable_memory": 2552430592
+            },
+            "os": {
+                "build": "20C5043e",
+                "kernel_version": "Darwin Kernel Version 22.2.0: Tue Nov  1 21:21:17 PDT 2022; root:xnu-8792.60.51.122.1~1/RELEASE_ARM64_T8020",
+                "name": "iOS",
+                "rooted": false,
+                "version": "16.2"
+            }
+        },
+        "release": "io.sentry.sample.iOS-Swift@7.31.5+1"
+    },
+    "debug": {}
+}

@@ -2,7 +2,7 @@
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
-@class SentryThread, SentryStacktraceBuilder;
+@class SentryThread, SentryStacktraceBuilder, SentryStacktrace;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -11,6 +11,8 @@ SENTRY_NO_INIT
 
 - (id)initWithStacktraceBuilder:(SentryStacktraceBuilder *)stacktraceBuilder
        andMachineContextWrapper:(id<SentryCrashMachineContextWrapper>)machineContextWrapper;
+
+- (nullable SentryStacktrace *)stacktraceForCurrentThreadAsyncUnsafe;
 
 /**
  * Gets current threads with the stacktrace only for the current thread. Frames from the SentrySDK

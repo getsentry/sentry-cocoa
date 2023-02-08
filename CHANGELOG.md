@@ -2,10 +2,29 @@
 
 ## Unreleased
 
+### Fixes
+
+- Cleanup AppHangTracking properly when closing SDK (#2671)
+- Add EXC_BAD_ACCESS subtypes to events (#2667)
+- Fix atomic import error for profiling (#2683)
+
+## 8.1.0
+
 ### Features
 
+- Add thread information to File I/O spans (#2573)
 - AttachScreenshots is GA (#2623)
 - Gather profiling timeseries metrics for CPU usage and memory footprint (#2493)
+- Change SentryTracedView `transactionName` to `viewName` (#2630)
+
+### Fixes
+
+- Support uint64 in crash reports (#2631, #2642, #2663)
+- Always fetch view hierarchy on the main thread (#2629)
+- Carthage Xcode 14 compatibility issue (#2636)
+- Crash in CppException Monitor (#2639)
+- fix: Disable watchdog when disabling crash handler (#2621)
+- MachException Improvements (#2662)
 
 ## 8.0.0
 

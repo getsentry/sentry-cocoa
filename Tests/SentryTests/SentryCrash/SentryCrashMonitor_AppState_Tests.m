@@ -155,26 +155,10 @@
     [jsonData writeToFile:stateFile atomically:true];
 
     [self initializeCrashState];
-    SentryCrash_AppState context = *sentrycrashstate_currentState();
-
-    XCTAssertTrue(context.applicationIsInForeground);
-    XCTAssertFalse(context.applicationIsActive);
-
-    XCTAssertEqual(context.activeDurationSinceLastCrash, 0.0);
-    XCTAssertEqual(context.backgroundDurationSinceLastCrash, 0.0);
-    XCTAssertEqual(context.launchesSinceLastCrash, 1);
-    XCTAssertEqual(context.sessionsSinceLastCrash, 1);
-
-    XCTAssertEqual(context.activeDurationSinceLaunch, 0.0);
-    XCTAssertEqual(context.backgroundDurationSinceLaunch, 0.0);
-    XCTAssertEqual(context.sessionsSinceLaunch, 1);
-
-    XCTAssertFalse(context.crashedThisLaunch);
-    XCTAssertFalse(context.crashedLastLaunch);
-    XCTAssertEqual(context.durationFromCrashStateInitToLastCrash, 0.0);
+    [self assertDefaultCrashState];
 
     [self initializeCrashState];
-    context = *sentrycrashstate_currentState();
+    SentryCrash_AppState context = *sentrycrashstate_currentState();
     XCTAssertEqual(context.launchesSinceLastCrash, 2);
     XCTAssertEqual(context.sessionsSinceLastCrash, 2);
 
@@ -184,6 +168,20 @@
     context = *sentrycrashstate_currentState();
     XCTAssertEqual(context.launchesSinceLastCrash, 1);
     XCTAssertEqual(context.sessionsSinceLastCrash, 1);
+}
+
+- (void)testInitWithUnsupportedFields
+{
+    NSString *stateFile = [self.tempPath stringByAppendingPathComponent:@"state.json"];
+    NSString *jsonPath = [[NSBundle bundleForClass:self.class]
+        pathForResource:@"Resources/CrashState_unsupported_fields"
+                 ofType:@"json"];
+    NSData *jsonData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:jsonPath]];
+    [jsonData writeToFile:stateFile atomically:true];
+
+    [self initializeCrashState];
+
+    [self assertDefaultCrashState];
 }
 
 - (void)testInitWithCrashStateLegacy
@@ -712,6 +710,27 @@
     XCTAssertTrue(context.crashedLastLaunch);
     XCTAssertGreaterThan(context.durationFromCrashStateInitToLastCrash, 0.0);
     XCTAssertLessThan(context.durationFromCrashStateInitToLastCrash, 1.0);
+}
+
+- (void)assertDefaultCrashState
+{
+    SentryCrash_AppState context = *sentrycrashstate_currentState();
+
+    XCTAssertTrue(context.applicationIsInForeground);
+    XCTAssertFalse(context.applicationIsActive);
+
+    XCTAssertEqual(context.activeDurationSinceLastCrash, 0.0);
+    XCTAssertEqual(context.backgroundDurationSinceLastCrash, 0.0);
+    XCTAssertEqual(context.launchesSinceLastCrash, 1);
+    XCTAssertEqual(context.sessionsSinceLastCrash, 1);
+
+    XCTAssertEqual(context.activeDurationSinceLaunch, 0.0);
+    XCTAssertEqual(context.backgroundDurationSinceLaunch, 0.0);
+    XCTAssertEqual(context.sessionsSinceLaunch, 1);
+
+    XCTAssertFalse(context.crashedThisLaunch);
+    XCTAssertFalse(context.crashedLastLaunch);
+    XCTAssertEqual(context.durationFromCrashStateInitToLastCrash, 0.0);
 }
 
 @end

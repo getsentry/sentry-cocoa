@@ -142,6 +142,11 @@ class TestFileManager: SentryFileManager {
     init(options: Options, andCurrentDateProvider currentDateProvider: CurrentDateProvider) throws {
         try super.init(options: options, andCurrentDateProvider: currentDateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
     }
+    
+    var deleteOldEnvelopeItemsInvocations = Invocations<Void>()
+    override func deleteOldEnvelopeItems() {
+        deleteOldEnvelopeItemsInvocations.record(Void())
+    }
 
     override func readTimestampLastInForeground() -> Date? {
         readTimestampLastInForegroundInvocations += 1
