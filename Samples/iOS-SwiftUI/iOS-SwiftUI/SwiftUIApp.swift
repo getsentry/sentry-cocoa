@@ -1,3 +1,4 @@
+import Foundation
 import Sentry
 import SwiftUI
 
@@ -15,6 +16,8 @@ struct SwiftUIApp: App {
             options.enableUserInteractionTracing = true
         }
     }
+
+
     
     var body: some Scene {
         WindowGroup {

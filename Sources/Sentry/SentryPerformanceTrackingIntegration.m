@@ -4,6 +4,7 @@
 #import "SentryLog.h"
 #import "SentrySubClassFinder.h"
 #import "SentryUIViewControllerSwizzling.h"
+#import "SentryProcessInfoWrapper.h"
 
 @interface
 SentryPerformanceTrackingIntegration ()
@@ -37,7 +38,8 @@ SentryPerformanceTrackingIntegration ()
            initWithOptions:options
              dispatchQueue:dispatchQueue
         objcRuntimeWrapper:[SentryDefaultObjCRuntimeWrapper sharedInstance]
-            subClassFinder:subClassFinder];
+            subClassFinder:subClassFinder
+        processInfoWrapper:[[SentryProcessInfoWrapper alloc] init]];
 
     [self.swizzling start];
     return YES;

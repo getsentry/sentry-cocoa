@@ -6,8 +6,6 @@ import UIKit
 class CustomViewController: UIViewController {
 
     override func loadView() {
-        print("loadView")
-        print("### loadView")
         super.loadView()
     }
 
@@ -36,9 +34,6 @@ struct UIKitView: UIViewControllerRepresentable {
 }
 
 struct UIKitScreen: View {
-
-    @StateObject var viewModel = LoremIpsumViewModel()
-
     var body: some View {
         SentryTracedView("UIKit in SwiftUI") {
             UIKitView()

@@ -9,6 +9,7 @@
 #import <SentryOptions.h>
 #import <UIViewController+Sentry.h>
 #import <objc/runtime.h>
+#import "SentryProcessInfoWrapper.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -33,6 +34,7 @@ SentryUIViewControllerSwizzling ()
 @property (nonatomic, strong) id<SentryObjCRuntimeWrapper> objcRuntimeWrapper;
 @property (nonatomic, strong) SentrySubClassFinder *subClassFinder;
 @property (nonatomic, strong) NSMutableSet<NSString *> *imagesActedOnSubclassesOfUIViewControllers;
+@property (nonatomic, strong) SentryProcessInfoWrapper * processInfoWrapper;
 
 @end
 
@@ -42,6 +44,7 @@ SentryUIViewControllerSwizzling ()
                   dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
              objcRuntimeWrapper:(id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper
                  subClassFinder:(SentrySubClassFinder *)subClassFinder
+             processInfoWrapper:(SentryProcessInfoWrapper *)processInfoWrapper
 {
     if (self = [super init]) {
         self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
@@ -50,6 +53,7 @@ SentryUIViewControllerSwizzling ()
         self.objcRuntimeWrapper = objcRuntimeWrapper;
         self.subClassFinder = subClassFinder;
         self.imagesActedOnSubclassesOfUIViewControllers = [NSMutableSet new];
+        self.processInfoWrapper = processInfoWrapper;
     }
 
     return self;
@@ -90,6 +94,14 @@ SentryUIViewControllerSwizzling ()
         }
 
         [self swizzleAllSubViewControllersInApp:app];
+    } else {
+        NSString * processImage = self.processInfoWrapper.processPath;
+        if (processImage) {
+            [self swizzleUIViewControllersOfImage:processImage];
+        } else {
+            SENTRY_LOG_DEBUG(@"UIViewControllerSwizziling: Did not found image name from current process. "
+                             @"Skipping Swizzling of view controllers");
+        }
     }
 
     [self swizzleUIViewController];
@@ -139,7 +151,7 @@ SentryUIViewControllerSwizzling ()
     if (imageNameAsCharArray == NULL) {
         SENTRY_LOG_DEBUG(@"UIViewControllerSwizziling: Wasn't able to get image name of the class: "
                          @"%@. Skipping swizzling of classes in same image.",
-            class);
+                         class);
         return;
     }
 
@@ -154,6 +166,10 @@ SentryUIViewControllerSwizzling ()
         return;
     }
 
+    [self swizzleUIViewControllersOfImage:imageName];
+}
+
+- (void)swizzleUIViewControllersOfImage:(NSString *)imageName {
     if ([imageName containsString:@"UIKitCore"]) {
         SENTRY_LOG_DEBUG(@"UIViewControllerSwizziling: Skipping UIKitCore.");
         return;
