@@ -40,7 +40,7 @@ public struct SentryTracedView<Content: View>: View {
 
     let content: () -> Content
     let name: String
-    let nameSource : SentryTransactionNameSource
+    let nameSource: SentryTransactionNameSource
 
     public init(_ viewName: String? = nil, content: @escaping () -> Content) {
         self.content = content
@@ -59,7 +59,7 @@ public struct SentryTracedView<Content: View>: View {
     }
 
     public var body: some View {
-        if viewWasPresented  {
+        if viewWasPresented {
             return self.content().onAppear()
         }
 

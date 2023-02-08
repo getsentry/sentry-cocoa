@@ -6,6 +6,11 @@
 
 - Mix UIKit and SwiftUI transactions (#2681)
 
+### Fixes
+
+- Cleanup AppHangTracking properly when closing SDK (#2671)
+- Add EXC_BAD_ACCESS subtypes to events (#2667)
+
 ## 8.1.0
 
 ### Features

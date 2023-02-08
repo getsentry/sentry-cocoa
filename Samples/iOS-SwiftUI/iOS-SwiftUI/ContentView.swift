@@ -97,7 +97,7 @@ struct ContentView: View {
         return lastSpan ?? span
     }
 
-    @State var lastSpan : Span?
+    @State var lastSpan: Span?
 
     var body: some View {
         return SentryTracedView("Content View Body") {
@@ -170,7 +170,6 @@ struct ContentView: View {
                         NavigationLink(destination: LoremIpsumView()) {
                             Text("Lorem Ipsum")
                         }
-
 
                         NavigationLink(destination: UIKitScreen()) {
                             Text("UIKit Screen")

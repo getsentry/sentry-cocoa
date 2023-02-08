@@ -1,16 +1,16 @@
 import Foundation
-import SwiftUI
 import SentrySwiftUI
+import SwiftUI
 
-struct FormScreen : View {
+struct FormScreen: View {
 
-    @State var name : String = ""
-    @State var email : String = ""
+    @State var name: String = ""
+    @State var email: String = ""
 
     var body: some View {
         SentryTracedView("Form Screen") {
             List {
-                Section{
+                Section {
                     HStack {
                         Text("Name")
                         TextField("name", text: $name)
@@ -22,7 +22,7 @@ struct FormScreen : View {
                     }
                 }
 
-                Section{
+                Section {
                     EmailView(email: $email)
                 }
             }.navigationTitle("Form Screen")
@@ -30,9 +30,9 @@ struct FormScreen : View {
     }
 }
 
-struct EmailView : View {
+struct EmailView: View {
 
-    @Binding var email : String
+    @Binding var email: String
 
     private func emailIsValid( _ email: String) -> Bool {
         return email.contains("@") || email.isEmpty

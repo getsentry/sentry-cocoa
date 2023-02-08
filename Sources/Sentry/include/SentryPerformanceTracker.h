@@ -109,7 +109,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable id<SentrySpan>)getSpan:(SentrySpanId *)spanId;
 
-
 - (BOOL)pushActiveSpan:(SentrySpanId *)spanId;
 
 - (void)popActiveSpan;

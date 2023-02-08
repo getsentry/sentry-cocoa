@@ -36,6 +36,7 @@
 #import "SentryCrashDebug.h"
 #import "SentryCrashDefaultBinaryImageProvider.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
+#import "SentryCrashDoctor.h"
 #import "SentryCrashInstallationReporter.h"
 #import "SentryCrashIntegration+TestInit.h"
 #import "SentryCrashIntegration.h"
@@ -183,9 +184,9 @@
 #import "URLSessionTaskMock.h"
 @import SentryPrivate;
 #import "SentryEnvelopeAttachmentHeader.h"
+#import "SentryPerformanceTracker+Testing.h"
 #import "SentryProcessInfoWrapper.h"
 #import "TestSentryViewHierarchy.h"
-#import "SentryPerformanceTracker+Testing.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"
