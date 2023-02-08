@@ -135,14 +135,14 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-private class ViewControllerForBreadcrumbTest : UIViewController {
+private class ViewControllerForBreadcrumbTest: UIViewController {
 
     @objc
-    func textFieldTextChanged(_ sender : Any) {
+    func textFieldTextChanged(_ sender: Any) {
     }
 
     @objc
-    func textFieldEndChange(_ sender : Any) {
+    func textFieldEndChange(_ sender: Any) {
     }
 
 }

@@ -141,15 +141,18 @@ SentryBreadcrumbTracker ()
     [SentrySDK addBreadcrumb:crumb];
 }
 
-+ (BOOL)avoidSender:(id)sender forTarget:(id)target action:(NSString *)action {
++ (BOOL)avoidSender:(id)sender forTarget:(id)target action:(NSString *)action
+{
 #if SENTRY_HAS_UIKIT
     if ([sender isKindOfClass:UITextField.self]) {
-        //This is required to avoid creating breadcrumbs for every key pressed in a text field.
-        //Textfield may invoke many types of event, in order to check if is a `UIControlEventEditingChanged`
-        //we need to compare the current action to all events attached to the control.
-        //This may cause a false negative if the developer is using the same action for different events.
-        UITextField* textField = sender;
-        NSArray<NSString *> * actions = [textField actionsForTarget:target forControlEvent:UIControlEventEditingChanged];
+        // This is required to avoid creating breadcrumbs for every key pressed in a text field.
+        // Textfield may invoke many types of event, in order to check if is a
+        // `UIControlEventEditingChanged` we need to compare the current action to all events
+        // attached to the control. This may cause a false negative if the developer is using the
+        // same action for different events.
+        UITextField *textField = sender;
+        NSArray<NSString *> *actions = [textField actionsForTarget:target
+                                                   forControlEvent:UIControlEventEditingChanged];
         return [actions containsObject:action];
     }
 #endif
@@ -161,26 +164,27 @@ SentryBreadcrumbTracker ()
 {
 #if SENTRY_HAS_UIKIT
     [self.swizzleWrapper
-     swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
-        if ([SentrySDK.currentHub getClient] == nil || [SentryBreadcrumbTracker avoidSender:sender forTarget:target action:action]) {
-            return;
-        }
-
-        NSDictionary *data = nil;
-        for (UITouch *touch in event.allTouches) {
-            if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
-                data = [SentryBreadcrumbTracker extractDataFromView:touch.view];
+        swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
+            if ([SentrySDK.currentHub getClient] == nil ||
+                [SentryBreadcrumbTracker avoidSender:sender forTarget:target action:action]) {
+                return;
             }
-        }
 
-        SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                                                 category:@"touch"];
-        crumb.type = @"user";
-        crumb.message = action;
-        crumb.data = data;
-        [SentrySDK addBreadcrumb:crumb];
-    }
-     forKey:SentryBreadcrumbTrackerSwizzleSendAction];
+            NSDictionary *data = nil;
+            for (UITouch *touch in event.allTouches) {
+                if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
+                    data = [SentryBreadcrumbTracker extractDataFromView:touch.view];
+                }
+            }
+
+            SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                                     category:@"touch"];
+            crumb.type = @"user";
+            crumb.message = action;
+            crumb.data = data;
+            [SentrySDK addBreadcrumb:crumb];
+        }
+                   forKey:SentryBreadcrumbTrackerSwizzleSendAction];
 
 #else
     SENTRY_LOG_DEBUG(@"NO UIKit -> [SentryBreadcrumbTracker swizzleSendAction] does nothing.");
