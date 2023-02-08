@@ -6,6 +6,7 @@
 
 - Cleanup AppHangTracking properly when closing SDK (#2671)
 - Add EXC_BAD_ACCESS subtypes to events (#2667)
+- Keep status of auto transactions when finishing (#2684)
 
 ## 8.1.0
 
