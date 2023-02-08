@@ -12,6 +12,7 @@ class CustomViewController : UIViewController {
     }
 
     override func viewDidLoad() {
+        super.viewDidLoad()
         let label = UILabel(frame: self.view.bounds)
         label.text = "This is UIKit"
         label.autoresizingMask = [.flexibleHeight, .flexibleWidth]
