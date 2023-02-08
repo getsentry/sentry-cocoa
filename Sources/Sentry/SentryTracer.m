@@ -31,8 +31,6 @@
 #import <SentryScreenFrames.h>
 #import <SentrySpanOperations.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
 static const void *spanTimestampObserver = &spanTimestampObserver;
 
 /**
@@ -156,7 +154,6 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
                   timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper
 {
     if (self = [super initWithContext:transactionContext]) {
-        SENTRY_LOG_DEBUG(
 #if SENTRY_TARGET_PROFILING_SUPPORTED
         if (profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
             [SentryProfiler startWithHub:hub];
@@ -164,8 +161,8 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
         @synchronized(_gGlobalStateLock) {
             SENTRY_LOG_DEBUG(
-                @"[span tracking] Adding root span id %@", self.rootSpan.spanId.sentrySpanIdString);
-            [_gInFlightSpanIDs addObject:self.rootSpan.spanId];
+                @"[span tracking] Adding root span id %@", self.spanId.sentrySpanIdString);
+            [_gInFlightSpanIDs addObject:self.spanId];
         }
 
         self.transactionContext = transactionContext;
@@ -505,8 +502,8 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
 
     @synchronized(_gGlobalStateLock) {
         SENTRY_LOG_DEBUG(
-            @"[span tracking] removing root span id %@", _rootSpan.spanId.sentrySpanIdString);
-        [_gInFlightSpanIDs removeObject:_rootSpan.spanId];
+            @"[span tracking] removing root span id %@", self.spanId.sentrySpanIdString);
+        [_gInFlightSpanIDs removeObject:self.spanId];
         for (id<SentrySpan> span in _children) {
             SENTRY_LOG_DEBUG(
                 @"[span tracking] removing child span id %@", span.spanId.sentrySpanIdString);
@@ -581,8 +578,8 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.transactionContext.name;
-    transaction.startSystemTime = self.rootSpan.startSystemTime;
-    transaction.endSystemTime = self.rootSpan.endSystemTime;
+    transaction.startSystemTime = self.startSystemTime;
+    transaction.endSystemTime = self.endSystemTime;
 
     NSMutableArray *framesOfAllSpans = [NSMutableArray array];
     if ([(SentrySpan *)self frames]) {
@@ -812,5 +809,3 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
 }
 
 @end
-
-NS_ASSUME_NONNULL_END

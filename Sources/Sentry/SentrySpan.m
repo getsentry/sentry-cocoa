@@ -33,7 +33,7 @@ SentrySpan ()
         self.startTimestamp = [SentryCurrentDate date];
         self.startSystemTime = getAbsoluteTime();
         SENTRY_LOG_DEBUG(@"Created span %@ for trace ID %@ at system time %llu",
-            context.spanId.sentrySpanIdString, tracer.traceId, self.startSystemTime);
+            context.spanId.sentrySpanIdString, context.traceId, self.startSystemTime);
         _data = [[NSMutableDictionary alloc] init];
         _tags = [[NSMutableDictionary alloc] init];
         _isFinished = NO;
