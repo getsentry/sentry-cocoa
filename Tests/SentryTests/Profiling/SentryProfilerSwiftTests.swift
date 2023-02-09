@@ -171,11 +171,11 @@ class SentryProfilerSwiftTests: XCTestCase {
         // TODO: newTransaction, getProfileData and assertValidProfileData need additional arguments so we can know the correct transaction info is injected into the right profile payloads and profiles are then attached to the correct transactions.
 
         spanB.finish()
-        let profileData = try getProfileData()
+        var profileData = try getProfileData()
         self.assertValidProfileData(data: profileData)
 
         spanA.finish()
-        let profileData = try getProfileData()
+        profileData = try getProfileData()
         self.assertValidProfileData(data: profileData)
     }
 
