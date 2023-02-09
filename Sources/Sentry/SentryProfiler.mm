@@ -330,8 +330,12 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
-    if (!_gCurrentProfiler || ![_gCurrentProfiler isRunning]) {
-        SENTRY_LOG_DEBUG(@"No profiler currently running.");
+    if (!_gCurrentProfiler) {
+        SENTRY_LOG_WARN(@"No current global profiler manager to stop.");
+        return;
+    }
+    if (![_gCurrentProfiler isRunning]) {
+        SENTRY_LOG_WARN(@"Current profiler is not running.");
         return;
     }
 
@@ -557,8 +561,12 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
-    if (!_gCurrentProfiler || ![_gCurrentProfiler isRunning]) {
-        SENTRY_LOG_DEBUG(@"No current profiler to stop.");
+    if (!_gCurrentProfiler) {
+        SENTRY_LOG_WARN(@"No current global profiler manager to stop.");
+        return;
+    }
+    if (![_gCurrentProfiler isRunning]) {
+        SENTRY_LOG_WARN(@"Current profiler is not running.");
         return;
     }
 
@@ -570,8 +578,12 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
-    if (!_gCurrentProfiler || ![_gCurrentProfiler isRunning]) {
-        SENTRY_LOG_DEBUG(@"No current profiler to stop.");
+    if (!_gCurrentProfiler) {
+        SENTRY_LOG_WARN(@"No current global profiler manager to stop.");
+        return;
+    }
+    if (![_gCurrentProfiler isRunning]) {
+        SENTRY_LOG_WARN(@"Current profiler is not running.");
         return;
     }
 
@@ -706,7 +718,12 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 - (void)stop
 {
     @synchronized(self) {
-        if (_profiler == nullptr || !_profiler->isSampling()) {
+        if (_profiler == nullptr) {
+            SENTRY_LOG_WARN(@"No profiler instance found.");
+            return;
+        }
+        if (!_profiler->isSampling()) {
+            SENTRY_LOG_WARN(@"Profiler is not currently sampling.");
             return;
         }
 
