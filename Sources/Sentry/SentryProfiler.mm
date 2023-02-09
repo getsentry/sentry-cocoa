@@ -637,7 +637,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     if (_profiler != nullptr) {
         SENTRY_LOG_WARN(
             @"There is already a profiler instance. Will stop it before creating a new one.");
-        _profiler->stopSampling();
+        return;
     }
 
     // Pop the clang diagnostic to ignore unreachable code for TSAN runs
