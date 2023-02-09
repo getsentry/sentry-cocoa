@@ -634,115 +634,109 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 #        endif // __has_feature(thread_sanitizer)
 #    endif // defined(__has_feature)
 
-    @synchronized(self) {
+    if (_profiler != nullptr) {
+        SENTRY_LOG_WARN(
+            @"There is already a profiler instance. Will stop it before creating a new one.");
+        _profiler->stopSampling();
+    }
 
-        // Pop the clang diagnostic to ignore unreachable code for TSAN runs
+    // Pop the clang diagnostic to ignore unreachable code for TSAN runs
 #    if defined(__has_feature)
 #        if __has_feature(thread_sanitizer)
 #            pragma clang diagnostic pop
 #        endif // __has_feature(thread_sanitizer)
 #    endif // defined(__has_feature)
 
-        if (_profiler != nullptr) {
-            SENTRY_LOG_WARN(
-                @"There is already a profiler instance. Will stop it before creating a new one.");
-            _profiler->stopSampling();
-        }
-        _profileData = [NSMutableDictionary<NSString *, id> dictionary];
-        const auto sampledProfile = [NSMutableDictionary<NSString *, id> dictionary];
+    _profileData = [NSMutableDictionary<NSString *, id> dictionary];
+    const auto sampledProfile = [NSMutableDictionary<NSString *, id> dictionary];
 
-        /*
-         * Maintain an index of unique frames to avoid duplicating large amounts of data. Every
-         * unique frame is stored in an array, and every time a stack trace is captured for a
-         * sample, the stack is stored as an array of integers indexing into the array of frames.
-         * Stacks are thusly also stored as unique elements in their own index, an array of arrays
-         * of frame indices, and each sample references a stack by index, to deduplicate common
-         * stacks between samples, such as when the same deep function call runs across multiple
-         * samples.
-         *
-         * E.g. if we have the following samples in the following function call stacks:
-         *
-         *              v sample1    v sample2               v sample3    v sample4
-         * |-foo--------|------------|-----|    |-abc--------|------------|-----|
-         *    |-bar-----|------------|--|          |-def-----|------------|--|
-         *      |-baz---|------------|-|             |-ghi---|------------|-|
-         *
-         * Then we'd wind up with the following structures:
-         *
-         * frames: [
-         *   { function: foo, instruction_addr: ... },
-         *   { function: bar, instruction_addr: ... },
-         *   { function: baz, instruction_addr: ... },
-         *   { function: abc, instruction_addr: ... },
-         *   { function: def, instruction_addr: ... },
-         *   { function: ghi, instruction_addr: ... }
-         * ]
-         * stacks: [ [0, 1, 2], [3, 4, 5] ]
-         * samples: [
-         *   { stack_id: 0, ... },
-         *   { stack_id: 0, ... },
-         *   { stack_id: 1, ... },
-         *   { stack_id: 1, ... }
-         * ]
-         */
-        const auto samples = [NSMutableArray<NSDictionary<NSString *, id> *> array];
-        const auto stacks = [NSMutableArray<NSMutableArray<NSNumber *> *> array];
-        const auto frames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
-        const auto frameIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-        const auto stackIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-        sampledProfile[@"samples"] = samples;
-        sampledProfile[@"stacks"] = stacks;
-        sampledProfile[@"frames"] = frames;
+    /*
+     * Maintain an index of unique frames to avoid duplicating large amounts of data. Every
+     * unique frame is stored in an array, and every time a stack trace is captured for a
+     * sample, the stack is stored as an array of integers indexing into the array of frames.
+     * Stacks are thusly also stored as unique elements in their own index, an array of arrays
+     * of frame indices, and each sample references a stack by index, to deduplicate common
+     * stacks between samples, such as when the same deep function call runs across multiple
+     * samples.
+     *
+     * E.g. if we have the following samples in the following function call stacks:
+     *
+     *              v sample1    v sample2               v sample3    v sample4
+     * |-foo--------|------------|-----|    |-abc--------|------------|-----|
+     *    |-bar-----|------------|--|          |-def-----|------------|--|
+     *      |-baz---|------------|-|             |-ghi---|------------|-|
+     *
+     * Then we'd wind up with the following structures:
+     *
+     * frames: [
+     *   { function: foo, instruction_addr: ... },
+     *   { function: bar, instruction_addr: ... },
+     *   { function: baz, instruction_addr: ... },
+     *   { function: abc, instruction_addr: ... },
+     *   { function: def, instruction_addr: ... },
+     *   { function: ghi, instruction_addr: ... }
+     * ]
+     * stacks: [ [0, 1, 2], [3, 4, 5] ]
+     * samples: [
+     *   { stack_id: 0, ... },
+     *   { stack_id: 0, ... },
+     *   { stack_id: 1, ... },
+     *   { stack_id: 1, ... }
+     * ]
+     */
+    const auto samples = [NSMutableArray<NSDictionary<NSString *, id> *> array];
+    const auto stacks = [NSMutableArray<NSMutableArray<NSNumber *> *> array];
+    const auto frames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
+    const auto frameIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+    const auto stackIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+    sampledProfile[@"samples"] = samples;
+    sampledProfile[@"stacks"] = stacks;
+    sampledProfile[@"frames"] = frames;
 
-        const auto threadMetadata =
-            [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
-        const auto queueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
-        sampledProfile[@"thread_metadata"] = threadMetadata;
-        sampledProfile[@"queue_metadata"] = queueMetadata;
-        _profileData[@"profile"] = sampledProfile;
-        _startTimestamp = getAbsoluteTime();
-        _startDate = [SentryCurrentDate date];
+    const auto threadMetadata = [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
+    const auto queueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
+    sampledProfile[@"thread_metadata"] = threadMetadata;
+    sampledProfile[@"queue_metadata"] = queueMetadata;
+    _profileData[@"profile"] = sampledProfile;
+    _startTimestamp = getAbsoluteTime();
+    _startDate = [SentryCurrentDate date];
 
-        SENTRY_LOG_DEBUG(@"Starting profiler %@ at system time %llu.", self, _startTimestamp);
+    SENTRY_LOG_DEBUG(@"Starting profiler %@ at system time %llu.", self, _startTimestamp);
 
-        __weak const auto weakSelf = self;
-        _profiler = std::make_shared<SamplingProfiler>(
-            [weakSelf, threadMetadata, queueMetadata, samples, mainThreadID = _mainThreadID, frames,
-                frameIndexLookup, stacks, stackIndexLookup](auto &backtrace) {
-                const auto strongSelf = weakSelf;
-                if (strongSelf == nil) {
-                    SENTRY_LOG_WARN(
-                        @"Profiler instance no longer exists, cannot process next sample.");
-                    return;
-                }
-                processBacktrace(backtrace, threadMetadata, queueMetadata, samples, stacks, frames,
-                    frameIndexLookup, strongSelf->_startTimestamp, stackIndexLookup);
-            },
-            kSentryProfilerFrequencyHz);
-        _profiler->startSampling();
+    __weak const auto weakSelf = self;
+    _profiler = std::make_shared<SamplingProfiler>(
+        [weakSelf, threadMetadata, queueMetadata, samples, mainThreadID = _mainThreadID, frames,
+            frameIndexLookup, stacks, stackIndexLookup](auto &backtrace) {
+            const auto strongSelf = weakSelf;
+            if (strongSelf == nil) {
+                SENTRY_LOG_WARN(@"Profiler instance no longer exists, cannot process next sample.");
+                return;
+            }
+            processBacktrace(backtrace, threadMetadata, queueMetadata, samples, stacks, frames,
+                frameIndexLookup, strongSelf->_startTimestamp, stackIndexLookup);
+        },
+        kSentryProfilerFrequencyHz);
+    _profiler->startSampling();
 
-        [self startMetricProfiler];
-    }
+    [self startMetricProfiler];
 }
 
 - (void)stop
 {
-    @synchronized(self) {
-        if (_profiler == nullptr) {
-            SENTRY_LOG_WARN(@"No profiler instance found.");
-            return;
-        }
-        if (!_profiler->isSampling()) {
-            SENTRY_LOG_WARN(@"Profiler is not currently sampling.");
-            return;
-        }
-
-        _profiler->stopSampling();
-        _endTimestamp = getAbsoluteTime();
-        _endDate = [SentryCurrentDate date];
-        [_metricProfiler stop];
-        SENTRY_LOG_DEBUG(@"Stopped profiler %@ at system time: %llu.", self, _endTimestamp);
+    if (_profiler == nullptr) {
+        SENTRY_LOG_WARN(@"No profiler instance found.");
+        return;
     }
+    if (!_profiler->isSampling()) {
+        SENTRY_LOG_WARN(@"Profiler is not currently sampling.");
+        return;
+    }
+
+    _profiler->stopSampling();
+    _endTimestamp = getAbsoluteTime();
+    _endDate = [SentryCurrentDate date];
+    [_metricProfiler stop];
+    SENTRY_LOG_DEBUG(@"Stopped profiler %@ at system time: %llu.", self, _endTimestamp);
 }
 
 + (void)serializeBasicProfileInfo:(NSMutableDictionary<NSString *, id> *)profile
