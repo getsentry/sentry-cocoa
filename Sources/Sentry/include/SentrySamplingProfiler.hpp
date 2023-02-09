@@ -4,6 +4,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    include <atomic>
 #    include <cstdint>
 #    include <functional>
 #    include <mach/mach.h>
