@@ -636,6 +636,8 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     @synchronized(self) {
 #    pragma clang diagnostic pop
         if (_profiler != nullptr) {
+            SENTRY_LOG_WARN(
+                @"There is already a profiler instance. Will stop it before creating a new one.");
             _profiler->stopSampling();
         }
         _profileData = [NSMutableDictionary<NSString *, id> dictionary];
