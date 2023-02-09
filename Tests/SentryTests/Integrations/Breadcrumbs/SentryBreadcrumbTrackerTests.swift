@@ -120,11 +120,11 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
     }
 
     func test_dont_avoidSender_not_UITextField() {
-        let uiSwitch = UISwitch()
+        let button = UIButton()
         let viewController = ViewControllerForBreadcrumbTest()
-        uiSwitch.addTarget(viewController, action: #selector(viewController.textFieldTextChanged(_:)), for: .editingChanged)
+        button.addTarget(viewController, action: #selector(viewController.textFieldTextChanged(_:)), for: .touchUpInside)
 
-        let result = Dynamic(SentryBreadcrumbTracker.self).avoidSender(uiSwitch, forTarget: viewController, action: NSStringFromSelector(#selector(viewController.textFieldEndChange(_:))) ).asBool ?? false
+        let result = Dynamic(SentryBreadcrumbTracker.self).avoidSender(button, forTarget: viewController, action: NSStringFromSelector(#selector(viewController.textFieldEndChange(_:))) ).asBool ?? false
 
         XCTAssertFalse(result)
     }
