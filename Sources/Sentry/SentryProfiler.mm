@@ -635,8 +635,13 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 #    endif // defined(__has_feature)
 
     if (_profiler != nullptr) {
+        // This theoretically shouldn't be possible as long as we're checking for nil and running
+        // profilers in +[start], but technically we should still cover nilness here as well. So,
+        // we'll just bail and let the current one continue to do whatever it's already doing:
+        // either currently sampling, or waiting to be queried and provide profile data to
+        // SentryTracer for upload with transaction envelopes, so as not to lose that data.
         SENTRY_LOG_WARN(
-            @"There is already a profiler instance. Will stop it before creating a new one.");
+            @"There is already a private profiler instance present, will not start a new one.");
         return;
     }
 
