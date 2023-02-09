@@ -153,6 +153,7 @@ SentrySpan ()
     if (self.tracer == nil) {
         SENTRY_LOG_DEBUG(
             @"No tracer associated with span with id %@", self.spanId.sentrySpanIdString);
+        [SentryTracer removeSpanIDFromBookkeeping:self.spanId];
         return;
     }
     [self.tracer spanFinished:self];

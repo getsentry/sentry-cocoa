@@ -129,6 +129,8 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
 - (void)dispatchIdleTimeout;
 
++ (void)removeSpanIDFromBookkeeping:(SentrySpanId *)spanID;
+
 @end
 
 NS_ASSUME_NONNULL_END
