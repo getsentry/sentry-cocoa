@@ -95,8 +95,8 @@ SentryUIViewControllerSwizzling ()
 
         [self swizzleAllSubViewControllersInApp:app];
     } else {
-        //If we can't find an UIApplication instance we may use the current process path as the image name.
-        //This mostly happens with SwiftUI projects.
+        // If we can't find an UIApplication instance we may use the current process path as the
+        // image name. This mostly happens with SwiftUI projects.
         NSString *processImage = self.processInfoWrapper.processPath;
         if (processImage) {
             [self swizzleUIViewControllersOfImage:processImage];
