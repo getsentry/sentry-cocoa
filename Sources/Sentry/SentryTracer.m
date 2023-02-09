@@ -543,7 +543,11 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
 
     @synchronized(_gGlobalStateLock) {
         if (_gInFlightSpanIDs.count == 0) {
+            SENTRY_LOG_DEBUG(@"Last in flight span completed, stopping profiler.");
             [SentryProfiler stop];
+        } else {
+            SENTRY_LOG_DEBUG(@"Waiting on other spans to complete before stopping profiler: %@.",
+                _gInFlightSpanIDs);
         }
     }
 #else
