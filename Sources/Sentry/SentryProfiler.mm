@@ -557,7 +557,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
-    if (_gCurrentProfiler || ![_gCurrentProfiler isRunning]) {
+    if (!_gCurrentProfiler || ![_gCurrentProfiler isRunning]) {
         SENTRY_LOG_DEBUG(@"No current profiler to stop.");
         return;
     }
