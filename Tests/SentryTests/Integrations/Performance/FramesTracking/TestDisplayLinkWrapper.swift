@@ -29,6 +29,10 @@ class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
     override var timestamp: CFTimeInterval {
         return internalTimestamp
     }
+
+    func changeFrameRate(_ newFrameRate: Double) {
+        internalActualFrameRate = newFrameRate
+    }
     
     func normalFrame() {
         internalTimestamp += frameDuration

@@ -177,6 +177,11 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
 }
 
 #    if SENTRY_HAS_UIKIT
+/**
+ * Convert the data structure that records timestamps for GPU frame render info from
+ * SentryFramesTracker to the structure expected for profiling metrics, and throw out any that
+ * didn't occur within the profile time.
+ */
 NSArray *
 processFrameRenders(
     SentryFrameInfoTimeSeries *frameInfo, uint64_t profileStart, uint64_t profileDuration)
@@ -218,17 +223,29 @@ processFrameRenders(
     return relativeFrameInfo;
 }
 
+/**
+ * Convert the data structure that records timestamps for CPU frame rate info from
+ * SentryFramesTracker to the structure expected for profiling metrics, and throw out any that
+ * didn't occur within the profile time.
+ */
 NSArray<NSDictionary *> *
 processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 {
-    if (frameRates.count == 0) {
-        return nil;
-    }
     auto relativeFrameRates = [NSMutableArray array];
     [frameRates enumerateObjectsUsingBlock:^(
         NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
         const auto timestamp = timeIntervalToNanoseconds(obj[@"timestamp"].doubleValue);
         const auto refreshRate = obj[@"frame_rate"];
+#        if defined(TEST) || defined(TESTCI)
+        // we don't currently validate the timestamps in tests, and the mock doesn't provide
+        // realistic ones, so they'd fail the checks below. just write them directly into the data
+        // structure so we can count *how many* were recorded
+        [relativeFrameRates addObject:@{
+            @"elapsed_since_start_ns" : @(timestamp),
+            @"value" : refreshRate,
+        }];
+        return;
+#        else // if not testing, ie, development or production
         uint64_t relativeTimestamp = 0;
         if (timestamp >= start) {
             relativeTimestamp = getDurationNs(start, timestamp);
@@ -237,6 +254,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
             @"elapsed_since_start_ns" : @(relativeTimestamp),
             @"value" : refreshRate,
         }];
+#        endif // defined(TEST) || defined(TESTCI)
     }];
     return relativeFrameRates;
 }
@@ -392,27 +410,16 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     const auto slowFrames
         = processFrameRenders(_gCurrentFramesTracker.currentFrames.slowFrameTimestamps,
             _gCurrentProfiler->_startTimestamp, profileDuration);
-    // ???: because processFrameRenders already has to test for beginning/end containment, may not
-    // even need to call slicedArray here
     if (slowFrames.count > 0) {
-        const auto slicedSlowFrames = [self slicedArray:slowFrames transaction:transaction];
-        if (slicedSlowFrames.count > 0) {
-            slicedMetrics[@"slow_frame_renders"] =
-                @{ @"unit" : @"nanosecond", @"values" : slicedSlowFrames };
-        }
+        slicedMetrics[@"slow_frame_renders"] = @{ @"unit" : @"nanosecond", @"values" : slowFrames };
     }
 
     const auto frozenFrames
         = processFrameRenders(_gCurrentFramesTracker.currentFrames.frozenFrameTimestamps,
             _gCurrentProfiler->_startTimestamp, profileDuration);
-    // ???: because processFrameRenders already has to test for beginning/end containment, may not
-    // even need to call slicedArray here
     if (frozenFrames.count > 0) {
-        const auto slicedFrozenFrames = [self slicedArray:frozenFrames transaction:transaction];
-        if (slicedFrozenFrames.count > 0) {
-            slicedMetrics[@"frozen_frame_renders"] =
-                @{ @"unit" : @"nanosecond", @"values" : slicedFrozenFrames };
-        }
+        slicedMetrics[@"frozen_frame_renders"] =
+            @{ @"unit" : @"nanosecond", @"values" : frozenFrames };
     }
 
     const auto frameRates

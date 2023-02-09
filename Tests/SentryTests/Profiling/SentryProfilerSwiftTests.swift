@@ -77,6 +77,8 @@ class SentryProfilerSwiftTests: XCTestCase {
         let memoryFootprint: SentryRAMBytes = 123_455
         fixture.systemWrapper.overrides.memoryFootprintBytes = memoryFootprint
 
+        // TODO: gather some SentryFramesTracker events to make sure they don't make it into the profile payload after slicing metrics
+
         let span = fixture.newTransaction()
         forceProfilerSample()
 
@@ -90,8 +92,10 @@ class SentryProfilerSwiftTests: XCTestCase {
         fixture.framesTracker.start()
         fixture.displayLinkWrapper.call() // call once directly to capture previous frame timestamp for comparison with later ones
         fixture.displayLinkWrapper.slowFrame()
+        fixture.displayLinkWrapper.changeFrameRate(120.0)
         fixture.displayLinkWrapper.normalFrame()
         fixture.displayLinkWrapper.almostFrozenFrame()
+        fixture.displayLinkWrapper.changeFrameRate(60.0)
         fixture.displayLinkWrapper.normalFrame()
         fixture.displayLinkWrapper.frozenFrame()
         fixture.framesTracker.stop()
@@ -107,8 +111,10 @@ class SentryProfilerSwiftTests: XCTestCase {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             span.finish()
 
+            // TODO: gather more metrics to make sure they don't make it into the profile payload after slicing metrics
+
             do {
-                try self.assertMetricsPayload(expectedCPUUsages: cpuUsages, usageReadings: 2, expectedMemoryFootprint: memoryFootprint, expectedSlowFrameCount: 2, expectedFrozenFrameCount: 1, expectedFrameRateCount: 1)
+                try self.assertMetricsPayload(expectedCPUUsages: cpuUsages, usageReadings: 2, expectedMemoryFootprint: memoryFootprint, expectedSlowFrameCount: 2, expectedFrozenFrameCount: 1, expectedFrameRateCount: 3)
                 exp.fulfill()
             } catch {
                 XCTFail("Encountered error: \(error)")
