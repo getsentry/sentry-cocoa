@@ -161,12 +161,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
     if (self = [self init]) {
         if (![self validateOptions:options didFailWithError:error]) {
             if (error != nil) {
-                [SentryLog
-                    logWithMessage:[NSString stringWithFormat:@"Failed to initialize: %@", *error]
-                          andLevel:kSentryLevelError];
+                SENTRY_LOG_ERROR(@"Failed to initialize SentryOptions: %@", *error);
             } else {
-                [SentryLog logWithMessage:[NSString stringWithFormat:@"Failed to initialize"]
-                                 andLevel:kSentryLevelError];
+                SENTRY_LOG_ERROR(@"Failed to initialize SentryOptions");
             }
             return nil;
         }
