@@ -141,9 +141,9 @@ SentryBreadcrumbTracker ()
     [SentrySDK addBreadcrumb:crumb];
 }
 
+#if SENTRY_HAS_UIKIT
 + (BOOL)avoidSender:(id)sender forTarget:(id)target action:(NSString *)action
 {
-#if SENTRY_HAS_UIKIT
     if ([sender isKindOfClass:UITextField.self]) {
         // This is required to avoid creating breadcrumbs for every key pressed in a text field.
         // Textfield may invoke many types of event, in order to check if is a
@@ -155,10 +155,9 @@ SentryBreadcrumbTracker ()
                                                    forControlEvent:UIControlEventEditingChanged];
         return [actions containsObject:action];
     }
-#endif
-
     return false;
 }
+#endif
 
 - (void)swizzleSendAction
 {
