@@ -157,6 +157,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         let options = fixture.options
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
+        let originalTimeoutInterval = kSentryProfilerTimeoutInterval
         kSentryProfilerTimeoutInterval = 1
 
         let spanA = fixture.newTransaction()
@@ -183,6 +184,8 @@ class SentryProfilerSwiftTests: XCTestCase {
         spanA.finish()
         profileData = try getProfileData()
         self.assertValidProfileData(data: profileData)
+
+        kSentryProfilerTimeoutInterval = originalTimeoutInterval
     }
 
     func testSlicingProfileSamplesAndMetrics() {
@@ -304,6 +307,7 @@ private extension SentryProfilerSwiftTests {
     }
 
     func performTest(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeOut: Bool = false) throws {
+        let originalTimeoutInterval = kSentryProfilerTimeoutInterval
         if shouldTimeOut {
             kSentryProfilerTimeoutInterval = 1
         }
@@ -326,6 +330,10 @@ private extension SentryProfilerSwiftTests {
 
         let profileData = try getProfileData()
         self.assertValidProfileData(data: profileData, transactionEnvironment: transactionEnvironment, shouldTimeout: shouldTimeOut)
+
+        if shouldTimeOut {
+            kSentryProfilerTimeoutInterval = originalTimeoutInterval
+        }
     }
 
     func assertMetricsPayload(expectedCPUUsages: [Double], usageReadings: Int, expectedMemoryFootprint: SentryRAMBytes, expectedSlowFrameCount: Int, expectedFrozenFrameCount: Int, expectedFrameRateCount: Int) throws {
