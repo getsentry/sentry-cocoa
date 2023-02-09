@@ -36,7 +36,7 @@ import SentryInternal
 ///
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
 public struct SentryTracedView<Content: View>: View {
-    @State var viewWasPresented = false
+    @State var viewAppeared = false
 
     let content: () -> Content
     let name: String

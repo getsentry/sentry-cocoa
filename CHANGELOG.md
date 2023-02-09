@@ -4,7 +4,7 @@
 
 ### Features
 
-- Mix UIKit and SwiftUI transactions (#2681)
+- Combine UIKit and SwiftUI transactions (#2681)
 
 ### Fixes
 
