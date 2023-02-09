@@ -277,7 +277,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
-    if (_gCurrentProfiler) {
+    if (_gCurrentProfiler && [_gCurrentProfiler isRunning]) {
         SENTRY_LOG_DEBUG(@"A profiler is already running.");
         return;
     }
@@ -312,7 +312,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
-    if (_gCurrentProfiler == nil) {
+    if (!_gCurrentProfiler || ![_gCurrentProfiler isRunning]) {
         SENTRY_LOG_DEBUG(@"No profiler currently running.");
         return;
     }
@@ -331,7 +331,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
     if (_gCurrentProfiler == nil) {
-        SENTRY_LOG_DEBUG(@"No profiler currently running.");
+        SENTRY_LOG_DEBUG(@"No profiler from which to receive data.");
         return nil;
     }
 
@@ -550,7 +550,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
-    if (_gCurrentProfiler == nil) {
+    if (_gCurrentProfiler || ![_gCurrentProfiler isRunning]) {
         SENTRY_LOG_DEBUG(@"No current profiler to stop.");
         return;
     }
@@ -563,7 +563,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
-    if (_gCurrentProfiler == nil) {
+    if (!_gCurrentProfiler || ![_gCurrentProfiler isRunning]) {
         SENTRY_LOG_DEBUG(@"No current profiler to stop.");
         return;
     }
