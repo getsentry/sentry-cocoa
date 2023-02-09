@@ -631,10 +631,18 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     return;
 #            pragma clang diagnostic push
 #            pragma clang diagnostic ignored "-Wunreachable-code"
-#        endif
-#    endif
+#        endif // __has_feature(thread_sanitizer)
+#    endif // defined(__has_feature)
+
     @synchronized(self) {
-#    pragma clang diagnostic pop
+
+        // Pop the clang diagnostic to ignore unreachable code for TSAN runs
+#    if defined(__has_feature)
+#        if __has_feature(thread_sanitizer)
+#            pragma clang diagnostic pop
+#        endif // __has_feature(thread_sanitizer)
+#    endif // defined(__has_feature)
+
         if (_profiler != nullptr) {
             SENTRY_LOG_WARN(
                 @"There is already a profiler instance. Will stop it before creating a new one.");
