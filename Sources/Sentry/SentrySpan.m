@@ -29,9 +29,6 @@ SentrySpan ()
 - (instancetype)initWithContext:(SentrySpanContext *)context
 {
     if (self = [super init]) {
-        SENTRY_LOG_DEBUG(@"Created span %@", context.spanId.sentrySpanIdString);
-        self.startTimestamp = [SentryCurrentDate date];
-        self.startSystemTime = getAbsoluteTime();
         SENTRY_LOG_DEBUG(@"Created span %@ for trace ID %@ at system time %llu",
             context.spanId.sentrySpanIdString, context.traceId, self.startSystemTime);
         _data = [[NSMutableDictionary alloc] init];

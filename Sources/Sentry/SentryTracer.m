@@ -159,6 +159,8 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
             [SentryProfiler startWithHub:hub];
         }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
+        self.startTimestamp = [SentryCurrentDate date];
+        self.startSystemTime = getAbsoluteTime();
         @synchronized(_gGlobalStateLock) {
             SENTRY_LOG_DEBUG(
                 @"[span tracking] Adding root span id %@", self.spanId.sentrySpanIdString);
@@ -328,6 +330,8 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
                                            sampled:self.sampled];
 
     SentrySpan *child = [[SentrySpan alloc] initWithTracer:self context:context];
+    child.startTimestamp = [SentryCurrentDate date];
+    child.startSystemTime = getAbsoluteTime();
     SENTRY_LOG_DEBUG(@"Started child span %@ under %@", child.spanId.sentrySpanIdString,
         parentId.sentrySpanIdString);
     @synchronized(_children) {
