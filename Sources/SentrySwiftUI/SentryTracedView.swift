@@ -59,7 +59,7 @@ public struct SentryTracedView<Content: View>: View {
     }
 
     public var body: some View {
-        if viewWasPresented {
+        if viewAppeared {
             return self.content().onAppear()
         }
 
@@ -87,7 +87,7 @@ public struct SentryTracedView<Content: View>: View {
         }
 
         return self.content().onAppear {
-            self.viewWasPresented = true
+            self.viewAppeared = true
         }
     }
 }
