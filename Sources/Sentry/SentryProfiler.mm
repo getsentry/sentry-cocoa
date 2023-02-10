@@ -484,11 +484,6 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
         NSDictionary<NSString *, id> *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
         const auto absoluteSampleTime =
             [sample[@"elapsed_since_start_ns"] longLongValue] + _gCurrentProfiler->_startTimestamp;
-        SENTRY_LOG_DEBUG(
-            @"[slice start] Comparing sample time %lld to transaction start time %llu; "
-            @"absoluteSampleTime - transaction.startSystemTime = %lld (should be >= 0)",
-            absoluteSampleTime, transaction.startSystemTime,
-            absoluteSampleTime - transaction.startSystemTime);
         *stop = absoluteSampleTime >= transaction.startSystemTime;
         return *stop;
     }];
@@ -514,21 +509,16 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
         SENTRY_LOG_DEBUG(@"Found first slice sample at index %lu", firstIndex);
     }
 
-    const auto lastIndex = [array
-        indexOfObjectWithOptions:NSEnumerationReverse
-                     passingTest:^BOOL(NSDictionary<NSString *, id> *_Nonnull sample,
-                         NSUInteger idx, BOOL *_Nonnull stop) {
-                         const auto absoluteSampleTime =
-                             [sample[@"elapsed_since_start_ns"] longLongValue]
-                             + _gCurrentProfiler->_startTimestamp;
-                         SENTRY_LOG_DEBUG(@"[slice end] Comparing sample time %lld to transaction "
-                                          @"start time %llu, transaction.endSystemTime - "
-                                          @"absoluteSampleTime = %lld (should be >= 0)",
-                             absoluteSampleTime, transaction.endSystemTime,
-                             transaction.endSystemTime - absoluteSampleTime);
-                         *stop = absoluteSampleTime <= transaction.endSystemTime;
-                         return *stop;
-                     }];
+    const auto lastIndex =
+        [array indexOfObjectWithOptions:NSEnumerationReverse
+                            passingTest:^BOOL(NSDictionary<NSString *, id> *_Nonnull sample,
+                                NSUInteger idx, BOOL *_Nonnull stop) {
+                                const auto absoluteSampleTime =
+                                    [sample[@"elapsed_since_start_ns"] longLongValue]
+                                    + _gCurrentProfiler->_startTimestamp;
+                                *stop = absoluteSampleTime <= transaction.endSystemTime;
+                                return *stop;
+                            }];
 
     if (lastIndex == NSNotFound) {
         const auto firstSampleAbsoluteTime = [array[0][@"elapsed_since_start_ns"] longLongValue]
