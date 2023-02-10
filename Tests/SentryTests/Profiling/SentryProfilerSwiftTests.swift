@@ -68,17 +68,16 @@ class SentryProfilerSwiftTests: XCTestCase {
         SentryProfiler.useFramesTracker(fixture.framesTracker)
 #endif
 
-        // mock cpu usage
+        // prepare mock cpu usage
         let cpuUsages = [12.4, 63.5, 1.4, 4.6]
         fixture.systemWrapper.overrides.cpuUsagePerCore = cpuUsages.map { NSNumber(value: $0) }
         fixture.processInfoWrapper.overrides.processorCount = UInt(cpuUsages.count)
 
-        // mock memory footprint
+        // prepare mock memory footprint
         let memoryFootprint: SentryRAMBytes = 123_455
         fixture.systemWrapper.overrides.memoryFootprintBytes = memoryFootprint
 
-        // TODO: gather some SentryFramesTracker events to make sure they don't make it into the profile payload after slicing metrics
-
+        // start span
         let span = fixture.newTransaction()
         forceProfilerSample()
 
@@ -110,9 +109,6 @@ class SentryProfilerSwiftTests: XCTestCase {
         let exp = expectation(description: "Receives profile payload")
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             span.finish()
-
-            // TODO: gather more metrics to make sure they don't make it into the profile payload after slicing metrics
-
             do {
                 try self.assertMetricsPayload(expectedCPUUsages: cpuUsages, usageReadings: 2, expectedMemoryFootprint: memoryFootprint, expectedSlowFrameCount: 2, expectedFrozenFrameCount: 1, expectedFrameRateCount: 3)
                 exp.fulfill()
@@ -174,9 +170,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         let spanB = fixture.newTransaction()
 
         forceProfilerSample()
-
-        // TODO: newTransaction, getProfileData and assertValidProfileData need additional arguments so we can know the correct transaction info is injected into the right profile payloads and profiles are then attached to the correct transactions.
-
+        
         spanB.finish()
         var profileData = try getProfileData()
         self.assertValidProfileData(data: profileData)
