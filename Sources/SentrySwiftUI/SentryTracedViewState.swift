@@ -4,6 +4,4 @@ class SentryTracedViewState {
 
     var viewAppeared = false
 
-    
-
 }

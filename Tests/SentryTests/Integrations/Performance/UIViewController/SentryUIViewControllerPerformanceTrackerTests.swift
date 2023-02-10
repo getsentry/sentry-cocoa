@@ -501,8 +501,6 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual(children?.count, 5)
     }
 
-
-
     private func assertSpanDuration(span: Span?, expectedDuration: TimeInterval) throws {
         let span = try XCTUnwrap(span)
         let timestamp = try XCTUnwrap(span.timestamp)

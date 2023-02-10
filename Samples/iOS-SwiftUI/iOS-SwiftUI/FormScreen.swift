@@ -29,7 +29,6 @@ struct FormScreen: View {
                     }
                 }
 
-
                 Section {
                     EmailView(email: $email)
                 }
