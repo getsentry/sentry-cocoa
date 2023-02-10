@@ -93,7 +93,7 @@ class SentrySpanTests: XCTestCase {
     }
 
     func testFinishSpanWithDefaultTimestamp() {
-        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
+        let span = fixture.getSut()
         span.finish()
 
         XCTAssertEqual(span.startTimestamp, TestData.timestamp)
@@ -103,7 +103,7 @@ class SentrySpanTests: XCTestCase {
     }
 
     func testFinishSpanWithCustomTimestamp() {
-        let span = SentrySpan(tracer: fixture.tracer, context: SpanContext(operation: fixture.someOperation, sampled: .undecided))
+        let span = fixture.getSut()
         span.timestamp = Date(timeIntervalSince1970: 123)
         span.finish()
 
