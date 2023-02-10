@@ -188,10 +188,6 @@ class SentryProfilerSwiftTests: XCTestCase {
         kSentryProfilerTimeoutInterval = originalTimeoutInterval
     }
 
-    func testSlicingProfileSamplesAndMetrics() {
-        // TODO: implement
-    }
-
     func testProfileTimeoutTimer() throws {
         fixture.options.profilesSampleRate = 1.0
         fixture.options.tracesSampleRate = 1.0
