@@ -189,44 +189,34 @@ processFrameRenders(
     auto relativeFrameInfo = [NSMutableArray array];
     [frameInfo enumerateObjectsUsingBlock:^(
         NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-        const auto frameRenderStart
-            = timeIntervalToNanoseconds(obj[@"start_timestamp"].doubleValue);
+        const auto frameRenderStart = obj[@"start_timestamp"].unsignedLongLongValue;
 
-#        if defined(TEST) || defined(TESTCI)
-        // we don't currently validate the timestamps in tests, and the mock doesn't provide
-        // realistic ones, so they'd fail the checks below. just write them directly into the data
-        // structure so we can count *how many* were recorded
-        [relativeFrameInfo addObject:@{
-            @"elapsed_since_start_ns" : @(frameRenderStart),
-            @"value" : @(frameRenderStart),
-        }];
-        return;
-#        else // if not testing, ie, development or production
         if (frameRenderStart < profileStart) {
             return;
         }
-        const auto frameRenderEnd = timeIntervalToNanoseconds(obj[@"end_timestamp"].doubleValue);
-        const auto frameRenderEndRelativeToProfileStart = getDurationNs(profileStart, frameRenderEnd);
+        const auto frameRenderEnd = obj[@"end_timestamp"].unsignedLongLongValue;
+        const auto frameRenderEndRelativeToProfileStart
+            = getDurationNs(profileStart, frameRenderEnd);
         if (frameRenderEndRelativeToProfileStart > profileDuration) {
             SENTRY_LOG_DEBUG(@"The last slow/frozen frame extended past the end of the profile, "
                              @"will not report it.");
             return;
         }
-        const auto frameRenderStartRelativeToProfileStartNs = getDurationNs(profileStart, frameRenderStart);
-        const auto frameRenderDurationNs = frameRenderEndRelativeToProfileStart - frameRenderStartRelativeToProfileStartNs;
+        const auto frameRenderStartRelativeToProfileStartNs
+            = getDurationNs(profileStart, frameRenderStart);
+        const auto frameRenderDurationNs
+            = frameRenderEndRelativeToProfileStart - frameRenderStartRelativeToProfileStartNs;
         [relativeFrameInfo addObject:@{
             @"elapsed_since_start_ns" : @(frameRenderStartRelativeToProfileStartNs),
             @"value" : @(frameRenderDurationNs),
         }];
-#        endif // defined(TEST) || defined(TESTCI)
     }];
     return relativeFrameInfo;
 }
 
 /**
  * Convert the data structure that records timestamps for CPU frame rate info from
- * SentryFramesTracker to the structure expected for profiling metrics, and throw out any that
- * didn't occur within the profile time.
+ * SentryFramesTracker to the structure expected for profiling metrics.
  */
 NSArray<NSDictionary *> *
 processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
@@ -234,18 +224,8 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     auto relativeFrameRates = [NSMutableArray array];
     [frameRates enumerateObjectsUsingBlock:^(
         NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-        const auto timestamp = timeIntervalToNanoseconds(obj[@"timestamp"].doubleValue);
+        const auto timestamp = obj[@"timestamp"].unsignedLongLongValue;
         const auto refreshRate = obj[@"frame_rate"];
-#        if defined(TEST) || defined(TESTCI)
-        // we don't currently validate the timestamps in tests, and the mock doesn't provide
-        // realistic ones, so they'd fail the checks below. just write them directly into the data
-        // structure so we can count *how many* were recorded
-        [relativeFrameRates addObject:@{
-            @"elapsed_since_start_ns" : @(timestamp),
-            @"value" : refreshRate,
-        }];
-        return;
-#        else // if not testing, ie, development or production
         uint64_t relativeTimestamp = 0;
         if (timestamp >= start) {
             relativeTimestamp = getDurationNs(start, timestamp);
@@ -254,7 +234,6 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
             @"elapsed_since_start_ns" : @(relativeTimestamp),
             @"value" : refreshRate,
         }];
-#        endif // defined(TEST) || defined(TESTCI)
     }];
     return relativeFrameRates;
 }
@@ -264,7 +243,6 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     NSMutableDictionary<NSString *, id> *_profileData;
     uint64_t _startTimestamp;
     NSDate *_startDate;
-    uint64_t _endTimestamp;
     NSDate *_endDate;
     std::shared_ptr<SamplingProfiler> _profiler;
     SentryMetricProfiler *_metricProfiler;
@@ -406,9 +384,6 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
                   @{ @"unit" : nextMetricsEntry[@"unit"], @"values" : nextSlicedMetrics };
           };
     [metrics enumerateKeysAndObjectsWithOptions:NSEnumerationConcurrent usingBlock:metricSlicer];
-    if (slicedMetrics.count > 0) {
-        payload[@"measurements"] = slicedMetrics;
-    }
 
 #    if SENTRY_HAS_UIKIT
     const auto slowFrames
@@ -437,6 +412,10 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
         }
     }
 #    endif // SENTRY_HAS_UIKIT
+
+    if (slicedMetrics.count > 0) {
+        payload[@"measurements"] = slicedMetrics;
+    }
 
     // add the remaining basic metadata for the profile
     const auto profileID = [[SentryId alloc] init];
@@ -728,10 +707,9 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     }
 
     _profiler->stopSampling();
-    _endTimestamp = getAbsoluteTime();
     _endDate = [SentryCurrentDate date];
     [_metricProfiler stop];
-    SENTRY_LOG_DEBUG(@"Stopped profiler %@ at system time: %llu.", self, _endTimestamp);
+    SENTRY_LOG_DEBUG(@"Stopped profiler %@.", self);
 }
 
 + (void)serializeBasicProfileInfo:(NSMutableDictionary<NSString *, id> *)profile
@@ -789,8 +767,6 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 
     SENTRY_LOG_DEBUG(@"Profile start timestamp: %@ absolute time: %llu",
         _gCurrentProfiler->_startDate, (unsigned long long)_gCurrentProfiler->_startTimestamp);
-    SENTRY_LOG_DEBUG(@"Profile end timestamp: %@ absolute time: %llu", _gCurrentProfiler->_endDate,
-        (unsigned long long)_gCurrentProfiler->_endTimestamp);
 
     const auto relativeStart = [NSString
         stringWithFormat:@"%llu",

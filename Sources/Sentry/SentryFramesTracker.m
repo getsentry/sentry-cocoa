@@ -3,6 +3,7 @@
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryProfiler.h"
 #import "SentryProfilingConditionals.h"
+#import "SentryTime.h"
 #import "SentryTracer.h"
 #import <SentryScreenFrames.h>
 #include <stdatomic.h>
@@ -29,6 +30,7 @@ SentryFramesTracker ()
 
 @property (nonatomic, strong, readonly) SentryDisplayLinkWrapper *displayLinkWrapper;
 @property (nonatomic, assign) CFTimeInterval previousFrameTimestamp;
+@property (nonatomic) uint64_t previousFrameSystemTimestamp;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *frozenFrameTimestamps;
 @property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *slowFrameTimestamps;
@@ -107,9 +109,11 @@ SentryFramesTracker ()
 - (void)displayLinkCallback
 {
     CFTimeInterval thisFrameTimestamp = self.displayLinkWrapper.timestamp;
+    uint64_t thisFrameSystemTimestamp = getAbsoluteTime();
 
     if (self.previousFrameTimestamp == SentryPreviousFrameInitialValue) {
         self.previousFrameTimestamp = thisFrameTimestamp;
+        self.previousFrameSystemTimestamp = thisFrameSystemTimestamp;
         return;
     }
 
@@ -144,7 +148,7 @@ SentryFramesTracker ()
         = shouldRecordFrameRates && (hasNoFrameRatesYet || frameRateSignificantlyChanged);
     if (shouldRecordNewFrameRate) {
         [self.frameRateTimestamps addObject:@{
-            @"timestamp" : @(self.displayLinkWrapper.timestamp),
+            @"timestamp" : @(thisFrameSystemTimestamp),
             @"frame_rate" : @(actualFramesPerSecond),
         }];
     }
@@ -159,21 +163,22 @@ SentryFramesTracker ()
     if (frameDuration > slowFrameThreshold && frameDuration <= SentryFrozenFrameThreshold) {
         atomic_fetch_add_explicit(&_slowFrames, 1, SentryFramesMemoryOrder);
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        [self recordTimestampStart:@(self.previousFrameTimestamp)
-                               end:@(thisFrameTimestamp)
+        [self recordTimestampStart:@(self.previousFrameSystemTimestamp)
+                               end:@(thisFrameSystemTimestamp)
                              array:self.slowFrameTimestamps];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
     } else if (frameDuration > SentryFrozenFrameThreshold) {
         atomic_fetch_add_explicit(&_frozenFrames, 1, SentryFramesMemoryOrder);
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        [self recordTimestampStart:@(self.previousFrameTimestamp)
-                               end:@(thisFrameTimestamp)
+        [self recordTimestampStart:@(self.previousFrameSystemTimestamp)
+                               end:@(thisFrameSystemTimestamp)
                              array:self.frozenFrameTimestamps];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
 
     atomic_fetch_add_explicit(&_totalFrames, 1, SentryFramesMemoryOrder);
     self.previousFrameTimestamp = thisFrameTimestamp;
+    self.previousFrameSystemTimestamp = thisFrameSystemTimestamp;
 }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED

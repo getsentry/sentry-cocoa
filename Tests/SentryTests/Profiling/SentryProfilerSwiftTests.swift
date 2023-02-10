@@ -33,8 +33,73 @@ class SentryProfilerSwiftTests: XCTestCase {
         lazy var framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper)
 #endif
 
+        // mocked metrics per span
+        let cpuUsages = [12.4, 63.5, 1.4, 4.6]
+        let memoryFootprint: SentryRAMBytes = 123_455
+        let usageReadings = 2
+        let slowFrameCount = 2
+        let frozenFrameCount = 1
+        let frameRateCount = 3
+
         func newTransaction() -> Span {
             hub.startTransaction(name: transactionName, operation: transactionOperation)
+        }
+
+        func prepareMetricsMocks() {
+            SentryProfiler.useSystemWrapper(systemWrapper)
+            SentryProfiler.useProcessInfoWrapper(processInfoWrapper)
+            SentryProfiler.useTimerWrapper(timerWrapper)
+    #if !os(macOS)
+            SentryProfiler.useFramesTracker(framesTracker)
+    #endif
+
+            // prepare mock cpu usage
+            systemWrapper.overrides.cpuUsagePerCore = cpuUsages.map { NSNumber(value: $0) }
+            processInfoWrapper.overrides.processorCount = UInt(cpuUsages.count)
+
+            // prepare mock memory footprint
+            systemWrapper.overrides.memoryFootprintBytes = memoryFootprint
+        }
+
+        func gatherMockedMetrics() {
+            // gather mock cpu usages and memory footprints
+            for _ in 0..<usageReadings {
+                self.timerWrapper.fire()
+            }
+
+    #if !os(macOS)
+            // gather mock GPU frame render timestamps
+            displayLinkWrapper.call() // call once directly to capture previous frame timestamp for comparison with later ones
+
+            var slowFrames = 0
+            var frozenFrames = 0
+            var frameRates = 0
+            let frameRateValues = [60.0, 120.0]
+            for _ in 0..<max(slowFrameCount, frozenFrameCount, frameRateCount) {
+                displayLinkWrapper.normalFrame()
+                if slowFrames < slowFrameCount {
+                    slowFrames += 1
+                    arc4random() % 2 == 0 ? displayLinkWrapper.slowFrame() : displayLinkWrapper.almostFrozenFrame()
+                }
+                displayLinkWrapper.normalFrame()
+                if frozenFrames < frozenFrameCount {
+                    frozenFrames += 1
+                    displayLinkWrapper.frozenFrame()
+                }
+                displayLinkWrapper.normalFrame()
+                if frameRates < frameRateCount {
+                    frameRates += 1
+                    displayLinkWrapper.changeFrameRate(frameRateValues[frameRates % 2])
+                }
+                displayLinkWrapper.normalFrame()
+            }
+
+    #endif
+
+            // mock errors gathering cpu usage and memory footprint to ensure they don't add more information to the payload
+            systemWrapper.overrides.cpuUsageError = NSError(domain: "test-error", code: 0)
+            systemWrapper.overrides.memoryFootprintError = NSError(domain: "test-error", code: 1)
+            timerWrapper.fire()
         }
     }
 
@@ -61,56 +126,23 @@ class SentryProfilerSwiftTests: XCTestCase {
         let options = fixture.options
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
-        SentryProfiler.useSystemWrapper(fixture.systemWrapper)
-        SentryProfiler.useProcessInfoWrapper(fixture.processInfoWrapper)
-        SentryProfiler.useTimerWrapper(fixture.timerWrapper)
-#if !os(macOS)
-        SentryProfiler.useFramesTracker(fixture.framesTracker)
-#endif
 
-        // prepare mock cpu usage
-        let cpuUsages = [12.4, 63.5, 1.4, 4.6]
-        fixture.systemWrapper.overrides.cpuUsagePerCore = cpuUsages.map { NSNumber(value: $0) }
-        fixture.processInfoWrapper.overrides.processorCount = UInt(cpuUsages.count)
-
-        // prepare mock memory footprint
-        let memoryFootprint: SentryRAMBytes = 123_455
-        fixture.systemWrapper.overrides.memoryFootprintBytes = memoryFootprint
+        fixture.prepareMetricsMocks()
 
         // start span
         let span = fixture.newTransaction()
         forceProfilerSample()
 
-        // gather mock cpu usages and memory footprints
-        for _ in 0..<2 {
-            self.fixture.timerWrapper.fire()
-        }
-
-#if !os(macOS)
-        // gather mock GPU frame render timestamps
         fixture.framesTracker.start()
-        fixture.displayLinkWrapper.call() // call once directly to capture previous frame timestamp for comparison with later ones
-        fixture.displayLinkWrapper.slowFrame()
-        fixture.displayLinkWrapper.changeFrameRate(120.0)
-        fixture.displayLinkWrapper.normalFrame()
-        fixture.displayLinkWrapper.almostFrozenFrame()
-        fixture.displayLinkWrapper.changeFrameRate(60.0)
-        fixture.displayLinkWrapper.normalFrame()
-        fixture.displayLinkWrapper.frozenFrame()
+        fixture.gatherMockedMetrics()
         fixture.framesTracker.stop()
-#endif
-
-        // mock errors gathering cpu usage and memory footprint to ensure they don't add more information to the payload
-        fixture.systemWrapper.overrides.cpuUsageError = NSError(domain: "test-error", code: 0)
-        fixture.systemWrapper.overrides.memoryFootprintError = NSError(domain: "test-error", code: 1)
-        self.fixture.timerWrapper.fire()
 
         // finish profile
         let exp = expectation(description: "Receives profile payload")
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             span.finish()
             do {
-                try self.assertMetricsPayload(expectedCPUUsages: cpuUsages, usageReadings: 2, expectedMemoryFootprint: memoryFootprint, expectedSlowFrameCount: 2, expectedFrozenFrameCount: 1, expectedFrameRateCount: 3)
+                try self.assertMetricsPayload()
                 exp.fulfill()
             } catch {
                 XCTFail("Encountered error: \(error)")
@@ -123,21 +155,29 @@ class SentryProfilerSwiftTests: XCTestCase {
         let options = fixture.options
         options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
+        fixture.prepareMetricsMocks()
 
         let numberOfTransactions = 10
         var spans = [Span]()
+
         for _ in 0 ..< numberOfTransactions {
             spans.append(fixture.newTransaction())
         }
 
         forceProfilerSample()
 
+        fixture.framesTracker.start()
         try spans.forEach {
+            fixture.gatherMockedMetrics()
+            fixture.systemWrapper.overrides.cpuUsageError = nil
+            fixture.systemWrapper.overrides.memoryFootprintError = nil
+
             $0.finish()
 
-            let profileData = try getProfileData()
-            self.assertValidProfileData(data: profileData)
+            try self.assertValidProfileData()
+            try self.assertMetricsPayload()
         }
+        fixture.framesTracker.stop()
 
     }
 
@@ -170,14 +210,12 @@ class SentryProfilerSwiftTests: XCTestCase {
         let spanB = fixture.newTransaction()
 
         forceProfilerSample()
-        
+
         spanB.finish()
-        var profileData = try getProfileData()
-        self.assertValidProfileData(data: profileData)
+        try self.assertValidProfileData()
 
         spanA.finish()
-        profileData = try getProfileData()
-        self.assertValidProfileData(data: profileData)
+        try self.assertValidProfileData()
 
         kSentryProfilerTimeoutInterval = originalTimeoutInterval
     }
@@ -273,7 +311,7 @@ private extension SentryProfilerSwiftTests {
         case noMetricValuesFound
     }
 
-    func getProfileData() throws -> Data {
+    func getLatestProfileData() throws -> Data {
         guard let envelope = self.fixture.client.captureEventWithScopeInvocations.last else {
             throw(TestError.noEnvelopeCaptured)
         }
@@ -318,16 +356,15 @@ private extension SentryProfilerSwiftTests {
 
         waitForExpectations(timeout: 10)
 
-        let profileData = try getProfileData()
-        self.assertValidProfileData(data: profileData, transactionEnvironment: transactionEnvironment, shouldTimeout: shouldTimeOut)
+        try self.assertValidProfileData(transactionEnvironment: transactionEnvironment, shouldTimeout: shouldTimeOut)
 
         if shouldTimeOut {
             kSentryProfilerTimeoutInterval = originalTimeoutInterval
         }
     }
 
-    func assertMetricsPayload(expectedCPUUsages: [Double], usageReadings: Int, expectedMemoryFootprint: SentryRAMBytes, expectedSlowFrameCount: Int, expectedFrozenFrameCount: Int, expectedFrameRateCount: Int) throws {
-        let profileData = try self.getProfileData()
+    func assertMetricsPayload() throws {
+        let profileData = try self.getLatestProfileData()
         guard let profile = try JSONSerialization.jsonObject(with: profileData) as? [String: Any] else {
             throw TestError.unexpectedProfileDeserializationType
         }
@@ -335,18 +372,18 @@ private extension SentryProfilerSwiftTests {
             throw TestError.unexpectedMeasurementsDeserializationType
         }
 
-        for (i, expectedUsage) in expectedCPUUsages.enumerated() {
+        for (i, expectedUsage) in fixture.cpuUsages.enumerated() {
             let key = NSString(format: kSentryMetricProfilerSerializationKeyCPUUsageFormat as NSString, i) as String
-            try assertMetricValue(measurements: measurements, key: key, numberOfReadings: usageReadings, expectedValue: expectedUsage)
+            try assertMetricValue(measurements: measurements, key: key, numberOfReadings: fixture.usageReadings, expectedValue: expectedUsage)
         }
 
-        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, numberOfReadings: usageReadings, expectedValue: expectedMemoryFootprint)
+        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, numberOfReadings: fixture.usageReadings, expectedValue: fixture.memoryFootprint)
 
 #if !os(macOS)
         let dummyValue: UInt64? = nil
-        try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, numberOfReadings: expectedSlowFrameCount, expectedValue: dummyValue)
-        try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeyFrozenFrameRenders, numberOfReadings: expectedFrozenFrameCount, expectedValue: dummyValue)
-        try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeyFrameRates, numberOfReadings: expectedFrameRateCount, expectedValue: dummyValue)
+        try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, numberOfReadings: fixture.slowFrameCount, expectedValue: dummyValue)
+        try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeyFrozenFrameRenders, numberOfReadings: fixture.frozenFrameCount, expectedValue: dummyValue)
+        try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeyFrameRates, numberOfReadings: fixture.frameRateCount + 1, expectedValue: dummyValue)
 #endif
     }
 
@@ -366,8 +403,9 @@ private extension SentryProfilerSwiftTests {
         }
     }
 
-    func assertValidProfileData(data: Data, transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeout: Bool = false) {
-        let profile = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
+    func assertValidProfileData(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeout: Bool = false) throws {
+        let data = try getLatestProfileData()
+        let profile = try JSONSerialization.jsonObject(with: data) as! [String: Any]
 
         XCTAssertNotNil(profile["version"])
         if let timestampString = profile["timestamp"] as? String {
