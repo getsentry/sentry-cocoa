@@ -99,7 +99,13 @@ SentryUIViewControllerPerformanceTracker ()
         // Use the target itself to store the spanId to avoid using a global mapper.
         objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, spanId,
             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-        [self.tracker pushActiveSpan:spanId];
+
+        //If there is no active span in the queue push this transaction
+        //to serve as an umbrella transaction that will capture every span
+        //happening while the transaction is active.
+        if (self.tracker.activeSpanId == nil) {
+            [self.tracker pushActiveSpan:spanId];
+        }
     }
 }
 
@@ -186,8 +192,14 @@ SentryUIViewControllerPerformanceTracker ()
                                            operation:SentrySpanOperationUILoad
                                              inBlock:callbackToOrigin];
         };
+
         [self.tracker activateSpan:spanId duringBlock:duringBlock];
-        [self.tracker popActiveSpan];
+        id<SentrySpan> vcSpan = [self.tracker getSpan:spanId];
+        //If the current controller span has no parent,
+        //it means it is the root transaction and need to be pop from the queue.
+        if (vcSpan.parentSpanId == nil) {
+            [self.tracker popActiveSpan];
+        }
 
         // If we are still tracking this UIViewController finish the transaction
         // and remove associated span id.

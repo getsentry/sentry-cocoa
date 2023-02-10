@@ -7,6 +7,10 @@ struct FormScreen: View {
     @State var name: String = ""
     @State var email: String = ""
 
+    func getCurrentTracer() -> String? {
+        return SentryPerformanceTracker.shared.activeSpanId()?.sentrySpanIdString
+    }
+    
     var body: some View {
         SentryTracedView("Form Screen") {
             List {
@@ -15,6 +19,9 @@ struct FormScreen: View {
                         Text("Name")
                         TextField("name", text: $name)
                     }
+                } header: {
+                    Text(getCurrentTracer() ?? "NO SPAN")
+                        .accessibilityIdentifier("SPAN_ID")
                 } footer: {
                     SentryTracedView("Text Span") {
                         Text("Name is required")
@@ -22,10 +29,19 @@ struct FormScreen: View {
                     }
                 }
 
+
                 Section {
                     EmailView(email: $email)
                 }
             }.navigationTitle("Form Screen")
+                .toolbar {
+                    Button {
+                        name = "John"
+                        email = "John@email.com"
+                    } label: {
+                        Text("Test")
+                    }
+                }
         }
     }
 }

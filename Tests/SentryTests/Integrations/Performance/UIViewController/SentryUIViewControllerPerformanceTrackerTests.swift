@@ -456,6 +456,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let sut = fixture.getSut()
         let firstController = TestViewController()
         let secondController = TestViewController()
+        let thirdController = TestViewController()
         let tracker = fixture.tracker
 
         var tracer: SentryTracer!
@@ -468,8 +469,26 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         //The second view controller should be part of the current transaction
         //even though it's not happening inside one of the ui life cycle functions
         sut.viewControllerViewDidLoad(secondController) {
-            let secondTracer = self.getStack(tracker).first as? SentryTracer
-            XCTAssertEqual(tracer, secondTracer)
+            guard let spanId = tracker.activeSpanId(),
+                  let viewDidLoadSpan = tracker.getSpan(spanId),
+                  let viewDidLoadSpanParent = viewDidLoadSpan.parentSpanId,
+                  let secondVCSpan = tracker.getSpan(viewDidLoadSpanParent) else {
+                XCTFail("Could not get the second controller span")
+                return
+            }
+            XCTAssertEqual(tracer.spanId, secondVCSpan.parentSpanId)
+        }
+
+        //The third view controller should also be a child of the first span
+        sut.viewControllerViewDidLoad(thirdController) {
+            guard let spanId = tracker.activeSpanId(),
+                  let viewDidLoadSpan = tracker.getSpan(spanId),
+                  let viewDidLoadSpanParent = viewDidLoadSpan.parentSpanId,
+                  let secondVCSpan = tracker.getSpan(viewDidLoadSpanParent) else {
+                XCTFail("Could not get the third controller span")
+                return
+            }
+            XCTAssertEqual(tracer.spanId, secondVCSpan.parentSpanId)
         }
 
         let children: [Span]? = Dynamic(tracer).children as [Span]?
@@ -477,9 +496,12 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         //First Controller viewDidLoad
         //Second Controller root span
         //Second Controller viewDidLoad
-        XCTAssertEqual(children?.count, 3)
-
+        //Third Controller root span
+        //Third Controller viewDidLoad
+        XCTAssertEqual(children?.count, 5)
     }
+
+
 
     private func assertSpanDuration(span: Span?, expectedDuration: TimeInterval) throws {
         let span = try XCTUnwrap(span)
