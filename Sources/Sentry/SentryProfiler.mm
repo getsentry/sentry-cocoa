@@ -192,14 +192,14 @@ processFrameRenders(
         const auto frameRenderStart = obj[@"start_timestamp"].unsignedLongLongValue;
 
         if (frameRenderStart < profileStart) {
+            SENTRY_LOG_DEBUG(@"GPU frame render started before profile start, will not report it.");
             return;
         }
         const auto frameRenderEnd = obj[@"end_timestamp"].unsignedLongLongValue;
         const auto frameRenderEndRelativeToProfileStart
             = getDurationNs(profileStart, frameRenderEnd);
         if (frameRenderEndRelativeToProfileStart > profileDuration) {
-            SENTRY_LOG_DEBUG(@"The last slow/frozen frame extended past the end of the profile, "
-                             @"will not report it.");
+            SENTRY_LOG_DEBUG(@"GPU frame render ended after profile end, will not report it.");
             return;
         }
         const auto frameRenderStartRelativeToProfileStartNs
