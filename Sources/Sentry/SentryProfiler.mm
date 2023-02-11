@@ -380,8 +380,10 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
                   return;
               }
 
-              slicedMetrics[metricKey] =
-                  @{ @"unit" : nextMetricsEntry[@"unit"], @"values" : nextSlicedMetrics };
+              @synchronized(slicedMetrics) {
+                  slicedMetrics[metricKey] =
+                      @{ @"unit" : nextMetricsEntry[@"unit"], @"values" : nextSlicedMetrics };
+              }
           };
     [metrics enumerateKeysAndObjectsWithOptions:NSEnumerationConcurrent usingBlock:metricSlicer];
 
