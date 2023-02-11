@@ -191,6 +191,24 @@ class SentryProfilerSwiftTests: XCTestCase {
             try self.assertValidProfileData()
             try self.assertMetricsPayload(metricsBatches: i + 1)
         }
+
+        // do everything again to make sure that stopping and starting the profiler over again works
+        spans.removeAll()
+
+        for _ in 0 ..< numberOfTransactions {
+            spans.append(fixture.newTransaction())
+        }
+
+        forceProfilerSample()
+
+        for (i, span) in spans.enumerated() {
+            fixture.gatherMockedMetrics()
+
+            span.finish()
+
+            try self.assertValidProfileData()
+            try self.assertMetricsPayload(metricsBatches: i + 1)
+        }
 #if !os(macOS)
         fixture.framesTracker.stop()
 #endif
