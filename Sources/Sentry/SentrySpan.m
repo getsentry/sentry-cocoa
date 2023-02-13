@@ -6,6 +6,7 @@
 #import "SentryLog.h"
 #import "SentryMeasurementValue.h"
 #import "SentryNoOpSpan.h"
+#import "SentryProfilingConditionals.h"
 #import "SentrySerializable.h"
 #import "SentrySpan+Private.h"
 #import "SentrySpanContext.h"
@@ -153,7 +154,9 @@ SentrySpan ()
     if (self.tracer == nil) {
         SENTRY_LOG_DEBUG(
             @"No tracer associated with span with id %@", self.spanId.sentrySpanIdString);
-        [SentryTracer removeSpanIDFromBookkeeping:self.spanId];
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+        [SentryTracer removeSpanIDFromGlobalBookkeeping:self.spanId];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
         return;
     }
     [self.tracer spanFinished:self];
