@@ -72,6 +72,7 @@ public struct SentryTracedView<Content: View>: View {
             //According to Apple's documentation, the call to `body` needs to be fast
             //and can be made many times in one frame. Therefore they don't use async code to process the view.
             //Scheduling to finish the transaction at the end of the main loop seems the least hack solution right now.
+            //'onAppear' is not a suitable place to do this because it may happen before other view `body` property get called.
             DispatchQueue.main.async {
                 SentryPerformanceTracker.shared.popActiveSpan()
                 SentryPerformanceTracker.shared.finishSpan(transactionId)
