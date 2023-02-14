@@ -149,7 +149,8 @@ SentryBreadcrumbTracker ()
         // Textfield may invoke many types of event, in order to check if is a
         // `UIControlEventEditingChanged` we need to compare the current action to all events
         // attached to the control. This may cause a false negative if the developer is using the
-        // same action for different events.
+        // same action for different events, but this trade off is acceptable because using the same
+        // action for `.editingChanged` and another event is not supposed to happen.
         UITextField *textField = sender;
         NSArray<NSString *> *actions = [textField actionsForTarget:target
                                                    forControlEvent:UIControlEventEditingChanged];
