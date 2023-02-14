@@ -313,7 +313,30 @@ handleExceptions(void *const userData)
         kern_return_t kr = mach_msg(&exceptionMessage.header, MACH_RCV_MSG, 0,
             sizeof(exceptionMessage), g_exceptionPort, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
         if (kr == KERN_SUCCESS) {
-            break;
+            // If the exception was generated in a different process than the one in which
+            // the handler was installed, ignore it.  Task-level exception handlers are
+            // inherited by subprocesses, and we don't want to handle or report exceptions
+            // in arbitrary subprocesses of the one in which we were installed.
+            if (exceptionMessage.task.name != mach_task_self()) {
+                SentryCrashLOG_DEBUG("Received exception from subprocess. Ignoring message and waiting for another.");
+                // Send a reply saying "I didn't handle this exception".
+                replyMessage.header.msgh_id = 0;
+                replyMessage.header.msgh_bits = exceptionMessage.header.msgh_bits & MACH_MSGH_BITS_REMOTE_MASK;
+                replyMessage.header.msgh_remote_port = exceptionMessage.header.msgh_remote_port;
+                replyMessage.header.msgh_local_port = MACH_PORT_NULL;
+                replyMessage.header.msgh_size = sizeof(mach_msg_header_t);
+
+                replyMessage.NDR = exceptionMessage.NDR;
+                // Tell the kernel that we failed to handle the exception, so that
+                // the next handler in the chain gets invoked.
+                replyMessage.returnCode = KERN_FAILURE;
+
+                mach_msg(&replyMessage.header, MACH_SEND_MSG, sizeof(replyMessage), 0, replyMessage.header.msgh_remote_port,
+                    MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
+                continue;
+            } else {
+                break;
+            }
         }
 
         // Loop and try again on failure.
