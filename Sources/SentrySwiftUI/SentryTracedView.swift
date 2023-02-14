@@ -79,7 +79,7 @@ public struct SentryTracedView<Content: View>: View {
             }
         }
 
-        let id = SentryPerformanceTracker.shared.startSpan(withName: transactionCreated ? "\(self.name).body" : self.name, nameSource: nameSource, operation: "ui.load")
+        let id = SentryPerformanceTracker.shared.startSpan(withName: transactionCreated ? "\(self.name) - body" : self.name, nameSource: nameSource, operation: "ui.load")
 
         SentryPerformanceTracker.shared.pushActiveSpan(id)
         defer {
