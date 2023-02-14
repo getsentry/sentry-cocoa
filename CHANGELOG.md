@@ -49,6 +49,7 @@ We renamed the default branch from `master` to `main`. We are going to keep the 
   - [MXHangDiagnostic](https://developer.apple.com/documentation/metrickit/mxhangdiagnostic) 
   - [MXDiskWriteExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxdiskwriteexceptiondiagnostic)
   - [MXCPUExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxcpuexceptiondiagnostic)
+- Add a timeout for auto-generated transactions (#2535)
 
 ### Fixes
 
