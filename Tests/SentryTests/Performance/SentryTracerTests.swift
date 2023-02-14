@@ -216,6 +216,47 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(sut.status, .ok)
     }
     
+    func testIdleTransactionWithStatus_KeepsStatusWhenAutoFinishing() {
+        let status = SentrySpanStatus.aborted
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        sut.status = status
+        
+        let child = sut.startChild(operation: fixture.transactionOperation)
+        advanceTime(bySeconds: 0.1)
+        child.finish()
+        
+        fixture.dispatchQueue.invokeLastDispatchAfter()
+        
+        assertOneTransactionCaptured(sut)
+        XCTAssertEqual(status, sut.status)
+    }
+    
+    func testWaitForChildrenTransactionWithStatus_OverwriteStatusInFinish() {
+        let sut = fixture.getSut()
+        sut.status = .aborted
+        
+        let finishstatus = SentrySpanStatus.cancelled
+        
+        let child = sut.startChild(operation: fixture.transactionOperation)
+        advanceTime(bySeconds: 0.1)
+        child.finish()
+        
+        sut.finish(status: finishstatus)
+        
+        assertOneTransactionCaptured(sut)
+        XCTAssertEqual(finishstatus, sut.status)
+    }
+    
+    func testManualTransaction_OverwritesStatusInFinish() {
+        let sut = fixture.getSut(waitForChildren: false)
+        sut.status = .aborted
+        
+        sut.finish()
+        
+        assertOneTransactionCaptured(sut)
+        XCTAssertEqual(.ok, sut.status)
+    }
+    
     func testFinish_WithoutHub_DoesntCaptureTransaction() {
         let sut = SentryTracer(transactionContext: fixture.transactionContext, hub: nil, waitForChildren: false)
         
