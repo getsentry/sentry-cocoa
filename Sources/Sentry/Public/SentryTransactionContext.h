@@ -1,8 +1,10 @@
+#import "SentryProfilingConditionals.h"
 #import "SentrySampleDecision.h"
 #import "SentrySpanContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SentryId;
 @class SentrySpanId;
 @class SentryThread;
 
@@ -25,6 +27,15 @@ SENTRY_NO_INIT
  * Sample rate used for this transaction
  */
 @property (nonatomic, strong, nullable) NSNumber *sampleRate;
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+/**
+ * The profile associated with the transaction.
+ * @note Only one profile may be associated with a transaction, but many transactions may be
+ * associated with the same profile.
+ */
+@property (nonatomic, strong, nullable) SentryId *profileID;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 /**
  * Init a SentryTransactionContext with given name and set other fields by default

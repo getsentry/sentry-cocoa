@@ -537,12 +537,15 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
         return;
     }
 
+    SentryId *profileID = [[SentryId alloc] init];
     SentryEnvelopeItem *profileEnvelopeItem =
-        [SentryProfiler createProfilingEnvelopeItemForTransaction:transaction];
+        [SentryProfiler createProfilingEnvelopeItemForTransaction:transaction profileID:profileID];
     if (!profileEnvelopeItem) {
         [_hub captureTransaction:transaction withScope:_hub.scope];
         return;
     }
+
+    _transactionContext.profileID = profileID;
 
     SENTRY_LOG_DEBUG(@"Capturing transaction with profiling data attached.");
     [_hub captureTransaction:transaction

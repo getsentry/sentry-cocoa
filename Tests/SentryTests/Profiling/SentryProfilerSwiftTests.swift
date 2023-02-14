@@ -342,12 +342,22 @@ private extension SentryProfilerSwiftTests {
         case malformedMetricValueEntry
         case noMetricsReported
         case noMetricValuesFound
+        case unexpectedEnvelopeEventType
+        case noTransactionContexts
+        case unexpectedTransactionContextSchema
+        case noTransactionProfileContext
+        case unexpectedTransactionProfileContextSchema
     }
 
-    func getLatestProfileData() throws -> Data {
-        guard let envelope = self.fixture.client.captureEventWithScopeInvocations.last else {
+    func getLatestEvent() throws -> TestClient.CapturedEvent {
+        guard let event = self.fixture.client.captureEventWithScopeInvocations.last else {
             throw(TestError.noEnvelopeCaptured)
         }
+        return event
+    }
+
+    func getLatestProfile() throws -> [String: Any] {
+        let envelope = try getLatestEvent()
 
         XCTAssertEqual(1, envelope.additionalEnvelopeItems.count)
         guard let profileItem = envelope.additionalEnvelopeItems.first else {
@@ -355,7 +365,37 @@ private extension SentryProfilerSwiftTests {
         }
 
         XCTAssertEqual("profile", profileItem.header.type)
-        return profileItem.data
+
+        guard let profile = try JSONSerialization.jsonObject(with: profileItem.data) as? [String: Any] else {
+            throw TestError.unexpectedProfileDeserializationType
+        }
+
+        return profile
+    }
+
+    func getLatestTransactionProfileContext() throws -> [String: String] {
+        let envelope = try getLatestEvent()
+
+        guard let transaction = envelope.event as? Transaction else {
+            throw TestError.unexpectedEnvelopeEventType
+        }
+
+        let serialization = transaction.serialize()
+
+        guard let contexts = serialization["contexts"] else {
+            throw TestError.noTransactionContexts
+        }
+        guard let typedContexts = contexts as? [String: Any] else {
+            throw TestError.unexpectedTransactionContextSchema
+        }
+        guard let profileContext = typedContexts["profile"] else {
+            throw TestError.noTransactionProfileContext
+        }
+        guard let typedProfileContext = profileContext as? [String: String] else {
+            throw TestError.unexpectedTransactionProfileContextSchema
+        }
+
+        return typedProfileContext
     }
 
     /// Keep a thread busy over a long enough period of time (long enough for 3 samples) for the sampler to pick it up.
@@ -397,10 +437,7 @@ private extension SentryProfilerSwiftTests {
     }
 
     func assertMetricsPayload(metricsBatches: Int = 1) throws {
-        let profileData = try self.getLatestProfileData()
-        guard let profile = try JSONSerialization.jsonObject(with: profileData) as? [String: Any] else {
-            throw TestError.unexpectedProfileDeserializationType
-        }
+        let profile = try self.getLatestProfile()
         guard let measurements = profile["measurements"] as? [String: Any] else {
             throw TestError.unexpectedMeasurementsDeserializationType
         }
@@ -443,8 +480,7 @@ private extension SentryProfilerSwiftTests {
     }
 
     func assertValidProfileData(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeout: Bool = false) throws {
-        let data = try getLatestProfileData()
-        let profile = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        let profile = try getLatestProfile()
 
         XCTAssertNotNil(profile["version"])
         if let timestampString = profile["timestamp"] as? String {
@@ -480,7 +516,11 @@ private extension SentryProfilerSwiftTests {
         let releaseString = "\(bundleID)@\(version)+\(build)"
         XCTAssertEqual(profile["release"] as! String, releaseString)
 
-        XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["profile_id"] as! String))
+        let profileID = profile["profile_id"] as! String
+        XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profileID))
+
+        let profileContext = try getLatestTransactionProfileContext()
+        XCTAssertEqual(profileContext["profile_id"], profileID)
 
         let images = (profile["debug_meta"] as! [String: Any])["images"] as! [[String: Any]]
         XCTAssertFalse(images.isEmpty)

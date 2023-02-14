@@ -1,7 +1,9 @@
 #import "SentryTransaction.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryEnvelopeItemType.h"
+#import "SentryId.h"
 #import "SentryMeasurementValue.h"
+#import "SentryProfilingConditionals.h"
 #import "SentryTransactionContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -86,9 +88,15 @@ SentryTransaction ()
 
     if (self.trace) {
         [serializedData setValue:self.trace.transactionContext.name forKey:@"transaction"];
-
         serializedData[@"transaction_info"] =
             @{ @"source" : [self stringForNameSource:self.trace.transactionContext.nameSource] };
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+        if (self.trace.transactionContext.profileID) {
+            serializedData[@"contexts"][@"profile"] = @{
+                @"profile_id" : self.trace.transactionContext.profileID.sentryIdString,
+            };
+        }
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
 
     return serializedData;

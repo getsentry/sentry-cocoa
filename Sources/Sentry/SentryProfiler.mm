@@ -327,6 +327,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 }
 
 + (SentryEnvelopeItem *)createProfilingEnvelopeItemForTransaction:(SentryTransaction *)transaction
+                                                        profileID:(SentryId *)profileID
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
@@ -420,7 +421,6 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     }
 
     // add the remaining basic metadata for the profile
-    const auto profileID = [[SentryId alloc] init];
     [self serializeBasicProfileInfo:payload
                     profileDuration:profileDuration
                           profileID:profileID

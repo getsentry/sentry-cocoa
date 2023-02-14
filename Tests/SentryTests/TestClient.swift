@@ -1,6 +1,8 @@
 import Foundation
 
 class TestClient: SentryClient {
+    typealias CapturedEvent = (event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])
+
     override init?(options: Options) {
         super.init(options: options, fileManager: try! TestFileManager(options: options))
     }
@@ -36,7 +38,7 @@ class TestClient: SentryClient {
         return event.eventId
     }
     
-    var captureEventWithScopeInvocations = Invocations<(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])>()
+    var captureEventWithScopeInvocations = Invocations<CapturedEvent>()
     override func capture(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem]) -> SentryId {
         captureEventWithScopeInvocations.record((event, scope, additionalEnvelopeItems))
         return event.eventId
