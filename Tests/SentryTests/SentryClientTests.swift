@@ -684,6 +684,19 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(expectedValue, actual.context!["user info"]!["key"] as? String)
         }
     }
+    
+    func testCaptureExceptionWithAppStateInForegroud() {
+        let fileManager = try! TestFileManager(options: Options())
+        fileManager.appState = SentryAppState(releaseName: "", osVersion: "", vendorId: "", isDebugging: false, systemBootTimestamp: Date())
+        fileManager.appState?.isActive = true
+        SentryDependencyContainer.sharedInstance().fileManager = fileManager
+        
+        fixture.getSut().capture(event: TestData.event)
+        assertLastSentEvent { actual in
+            let inForeground = actual.context?["app"]?["in_foreground"] as? Bool
+            XCTAssertEqual(inForeground, true)
+        }
+    }
 
     func testCaptureExceptionWithoutAttachStacktrace() {
         let eventId = fixture.getSut(configureOptions: { options in

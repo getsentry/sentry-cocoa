@@ -244,6 +244,7 @@ SentryCrashReportConverter ()
     thread.crashed = threadDictionary[@"crashed"];
     thread.current = threadDictionary[@"current_thread"];
     thread.name = threadDictionary[@"name"];
+    thread.main = [NSNumber numberWithBool:[threadDictionary[@"index"] isEqual:@0]];
     if (nil == thread.name) {
         thread.name = threadDictionary[@"dispatch_queue"];
     }

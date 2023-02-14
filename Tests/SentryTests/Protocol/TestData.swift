@@ -127,6 +127,7 @@ class TestData {
         thread.current = true
         thread.name = "main"
         thread.stacktrace = stacktrace
+        thread.main = true
         
         return thread
     }

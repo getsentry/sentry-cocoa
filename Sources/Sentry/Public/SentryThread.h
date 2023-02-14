@@ -34,6 +34,11 @@ SENTRY_NO_INIT
 @property (nonatomic, copy) NSNumber *_Nullable current;
 
 /**
+ * Was it the main thread?
+ */
+@property (nonatomic, copy) NSNumber *_Nullable main;
+
+/**
  * Initializes a SentryThread with its id
  * @param threadId NSNumber
  * @return SentryThread
