@@ -542,6 +542,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             event.threads = [self.threadInspector getCurrentThreads];
         }
 
+#if SENTRY_HAS_UIKIT
         SentryAppStateManager *manager = [SentryDependencyContainer sharedInstance].appStateManager;
         SentryAppState *appState = [manager loadPreviousAppState];
         BOOL inForeground = [appState isActive];
@@ -559,6 +560,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                 event.context = context;
             }
         }
+#endif
 
         BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
         if (!isCrashEvent && shouldAttachStacktrace && debugMetaNotAttached
