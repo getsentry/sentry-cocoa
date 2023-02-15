@@ -265,6 +265,16 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableFileIOTracing;
 
 /**
+ * Indicates whether tracing should be enabled.
+ * Enabling this will change `tracesSampleRate` to 1 if both
+ * `tracesSampleRate` and `tracesSampler` are nil.
+ *
+ * Changing either `tracesSampleRate` or `tracesSampler` to
+ * a value other then nil will enable this in case this was never changed before.
+ */
+@property (nonatomic) BOOL enableTracing;
+
+/**
  * Indicates the percentage of the tracing data that is collected. Setting this to 0 or NIL discards
  * all trace data, 1.0 collects all trace data, 0.01 collects 1% of all trace data. The default is
  * 0. The value needs to be >= 0.0 and <= 1.0. When setting a value out of range  the SDK sets it to
@@ -280,8 +290,8 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic) SentryTracesSamplerCallback tracesSampler;
 
 /**
- * If tracing should be enabled or not. Returns YES if either a tracesSampleRate > 0 and <=1 or a
- * tracesSampler is set otherwise NO.
+ * If tracing is enabled or not. Returns YES if enabledTracing is YES and either a tracesSampleRate
+ * > 0 and <=1 or a tracesSampler is set otherwise NO.
  */
 @property (nonatomic, assign, readonly) BOOL isTracingEnabled;
 

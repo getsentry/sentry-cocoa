@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add enableTracing option ()
+
 ### Fixes
 
 - Cleanup AppHangTracking properly when closing SDK (#2671)
