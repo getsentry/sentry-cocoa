@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features
+
+- Add isMain thread to SentryThread
+- Add `in_foreground` to App Context
+
 ### Fixes
 
 - Cleanup AppHangTracking properly when closing SDK (#2671)
