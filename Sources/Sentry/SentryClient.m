@@ -548,9 +548,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         if (appState != nil) {
             NSMutableDictionary *context =
                 [event.context mutableCopy] ?: [NSMutableDictionary dictionary];
-            if (context[@"app"] == nil ||
-                [context[@"app"] isKindOfClass:NSDictionary.self]
-                    && context[@"app"][@"in_foreground"] == nil) {
+            if (context[@"app"] == nil
+                || ([context[@"app"] isKindOfClass:NSDictionary.self]
+                    && context[@"app"][@"in_foreground"] == nil)) {
                 NSMutableDictionary *app = [(NSDictionary *)context[@"app"] mutableCopy]
                     ?: [NSMutableDictionary dictionary];
                 context[@"app"] = app;
