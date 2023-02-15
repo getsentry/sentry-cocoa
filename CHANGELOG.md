@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add enableTracing option ()
+- Add enableTracing option (#2693)
 
 ### Fixes
 
