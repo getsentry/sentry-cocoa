@@ -21,6 +21,7 @@ SentryUIViewControllerSwizzling (Test)
 
 - (void)swizzleUIViewControllersOfClassesInImageOf:(nullable Class)class;
 
+- (void)swizzleUIViewControllersOfImage:(NSString *)imageName;
 @end
 
 #endif

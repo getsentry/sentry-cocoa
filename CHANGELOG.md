@@ -4,6 +4,7 @@
 
 ### Features
 
+- Combine UIKit and SwiftUI transactions (#2681)
 - Add enableTracing option (#2693)
 
 ### Fixes
@@ -12,6 +13,7 @@
 - Add EXC_BAD_ACCESS subtypes to events (#2667)
 - Keep status of auto transactions when finishing (#2684)
 - Fix atomic import error for profiling (#2683)
+- Don't create breadcrumb for UITextField editingChanged event (#2686)
 
 ## 8.1.0
 
@@ -54,6 +56,7 @@ We renamed the default branch from `master` to `main`. We are going to keep the 
   - [MXHangDiagnostic](https://developer.apple.com/documentation/metrickit/mxhangdiagnostic) 
   - [MXDiskWriteExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxdiskwriteexceptiondiagnostic)
   - [MXCPUExceptionDiagnostic](https://developer.apple.com/documentation/metrickit/mxcpuexceptiondiagnostic)
+- Add a timeout for auto-generated transactions (#2535)
 
 ### Fixes
 

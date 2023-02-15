@@ -7,4 +7,9 @@
     return NSBundle.mainBundle.bundlePath;
 }
 
+- (NSString *)processPath
+{
+    return NSBundle.mainBundle.executablePath;
+}
+
 @end
