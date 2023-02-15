@@ -553,7 +553,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                     ?: [NSMutableDictionary dictionary];
                 context[@"app"] = app;
 
-                app[@"in_foreground"] = @(inForeground);
+                app[@"in_foreground"]
+                    = app[@"in_foreground"] == nil ? @(inForeground) : app[@"in_foreground"];
                 event.context = context;
             }
         }

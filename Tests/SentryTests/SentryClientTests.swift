@@ -684,17 +684,59 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(expectedValue, actual.context!["user info"]!["key"] as? String)
         }
     }
-    
-    func testCaptureExceptionWithAppStateInForegroud() {
+
+    func testCaptureExceptionWithAppStateInForegroudDoNotAddIfAppStateNil() {
+        let event = TestData.event
+        fixture.getSut().capture(event: event)
+        assertLastSentEvent { actual in
+            let inForeground = actual.context?["app"]?["in_foreground"] as? Bool
+            XCTAssertEqual(inForeground, nil)
+        }
+    }
+
+    func testCaptureExceptionWithAppStateInForegroudCreateAppContext() {
         let fileManager = try! TestFileManager(options: Options())
-        fileManager.appState = SentryAppState(releaseName: "", osVersion: "", vendorId: "", isDebugging: false, systemBootTimestamp: Date())
-        fileManager.appState?.isActive = true
         SentryDependencyContainer.sharedInstance().fileManager = fileManager
-        
-        fixture.getSut().capture(event: TestData.event)
+        fileManager.appState = TestData.appState
+        fileManager.appState?.isActive = true
+
+        let event = TestData.event
+        event.context?.removeValue(forKey: "app")
+        fixture.getSut().capture(event: event)
         assertLastSentEvent { actual in
             let inForeground = actual.context?["app"]?["in_foreground"] as? Bool
             XCTAssertEqual(inForeground, true)
+        }
+    }
+
+    func testCaptureExceptionWithAppStateInForegroud() {
+        let fileManager = try! TestFileManager(options: Options())
+        SentryDependencyContainer.sharedInstance().fileManager = fileManager
+        fileManager.appState = TestData.appState
+        fileManager.appState?.isActive = true
+
+        let event = TestData.event
+        event.context!["app"] = [ "test": "keep-value" ]
+        fixture.getSut().capture(event: event)
+        assertLastSentEvent { actual in
+            let inForeground = actual.context?["app"]?["in_foreground"] as? Bool
+            XCTAssertEqual(inForeground, true)
+            XCTAssertEqual(actual.context?["app"]?["test"] as? String, "keep-value")
+        }
+    }
+
+    func testCaptureExceptionWithAppStateInForegroudDoNotOverwriteExistingValue() {
+        let fileManager = try! TestFileManager(options: Options())
+        SentryDependencyContainer.sharedInstance().fileManager = fileManager
+        fileManager.appState = TestData.appState
+        fileManager.appState?.isActive = true
+
+        let event = TestData.event
+        event.context!["app"] = [ "in_foreground": "keep-value" ]
+        fixture.getSut().capture(event: event)
+        assertLastSentEvent { actual in
+            let inForeground = actual.context?["app"]?["in_foreground"] as? String
+            XCTAssertEqual(inForeground, "keep-value")
         }
     }
 
