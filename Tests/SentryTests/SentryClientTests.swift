@@ -685,6 +685,7 @@ class SentryClientTest: XCTestCase {
         }
     }
 
+#if SENTRY_HAS_UIKIT
     func testCaptureExceptionWithAppStateInForegroudDoNotAddIfAppStateNil() {
         let event = TestData.event
         fixture.getSut().capture(event: event)
@@ -739,6 +740,7 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(inForeground, "keep-value")
         }
     }
+#endif
 
     func testCaptureExceptionWithoutAttachStacktrace() {
         let eventId = fixture.getSut(configureOptions: { options in
