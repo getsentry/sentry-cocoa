@@ -36,7 +36,7 @@ SENTRY_NO_INIT
 /**
  * Was it the main thread?
  */
-@property (nonatomic, copy) NSNumber *_Nullable main;
+@property (nonatomic, copy) NSNumber *_Nullable isMain;
 
 /**
  * Initializes a SentryThread with its id

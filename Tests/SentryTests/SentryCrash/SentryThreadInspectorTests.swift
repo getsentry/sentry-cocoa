@@ -194,7 +194,7 @@ class SentryThreadInspectorTests: XCTestCase {
         var mainThread: SentryThread?
         let threadCount = actualThreads.count
         for i in 0..<threadCount {
-            if actualThreads[i].main!.boolValue {
+            if actualThreads[i].isMain!.boolValue {
                 actualMainThreadsCount += 1
                 mainThread = actualThreads[i]
             }

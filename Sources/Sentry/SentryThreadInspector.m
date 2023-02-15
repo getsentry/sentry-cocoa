@@ -78,7 +78,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
         SentryCrashThread thread = [self.machineContextWrapper getThread:context withIndex:i];
         SentryThread *sentryThread = [[SentryThread alloc] initWithThreadId:@(i)];
 
-        sentryThread.main =
+        sentryThread.isMain =
             [NSNumber numberWithBool:[self.machineContextWrapper isMainThread:thread]];
         sentryThread.name = [self getThreadName:thread];
 
@@ -145,7 +145,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
         for (int i = 0; i < numSuspendedThreads; i++) {
             SentryThread *sentryThread = [[SentryThread alloc] initWithThreadId:@(i)];
 
-            sentryThread.main = [NSNumber numberWithBool:i == 0];
+            sentryThread.isMain = [NSNumber numberWithBool:i == 0];
             sentryThread.name = [self getThreadName:threadsInfos[i].thread];
 
             sentryThread.crashed = @NO;
