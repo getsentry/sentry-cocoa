@@ -8,6 +8,7 @@
 - Add EXC_BAD_ACCESS subtypes to events (#2667)
 - Keep status of auto transactions when finishing (#2684)
 - Fix atomic import error for profiling (#2683)
+- Don't create breadcrumb for UITextField editingChanged event (#2686)
 
 ## 8.1.0
 
