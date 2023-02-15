@@ -4,9 +4,9 @@
 
 ### Features
 
-- Add isMain thread to SentryThread
-- Add `in_foreground` to App Context
 - Combine UIKit and SwiftUI transactions (#2681)
+- Add isMain thread to SentryThread (#2692)
+- Add `in_foreground` to App Context (#2692)
 
 ### Fixes
 
