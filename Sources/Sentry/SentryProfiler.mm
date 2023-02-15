@@ -380,12 +380,10 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
                   return;
               }
 
-              @synchronized(slicedMetrics) {
-                  slicedMetrics[metricKey] =
-                      @{ @"unit" : nextMetricsEntry[@"unit"], @"values" : nextSlicedMetrics };
-              }
+              slicedMetrics[metricKey] =
+                  @{ @"unit" : nextMetricsEntry[@"unit"], @"values" : nextSlicedMetrics };
           };
-    [metrics enumerateKeysAndObjectsWithOptions:NSEnumerationConcurrent usingBlock:metricSlicer];
+    [metrics enumerateKeysAndObjectsUsingBlock:metricSlicer];
 
 #    if SENTRY_HAS_UIKIT
     const auto slowFrames
