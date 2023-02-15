@@ -7,7 +7,7 @@ class DataBag {
 
     static let shared = DataBag()
 
-    var info = [String:Any]()
+    var info = [String: Any]()
 
     private init() {
     }
