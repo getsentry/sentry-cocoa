@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Combine UIKit and SwiftUI transactions (#2681)
+
 ### Fixes
 
 - Cleanup AppHangTracking properly when closing SDK (#2671)
