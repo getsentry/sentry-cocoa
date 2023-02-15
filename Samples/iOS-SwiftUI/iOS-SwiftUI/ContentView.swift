@@ -2,6 +2,17 @@ import Sentry
 import SentrySwiftUI
 import SwiftUI
 
+//This is for test purpose
+class DataBag {
+
+    static let shared = DataBag()
+
+    var info = [String:Any]()
+
+    private init() {
+    }
+}
+
 struct ContentView: View {
 
     var addBreadcrumbAction: () -> Void = {
@@ -77,27 +88,31 @@ struct ContentView: View {
             }
         }
     }
-    
+
     func getCurrentTracer() -> SentryTracer? {
-        return SentrySDK.span as? SentryTracer
+        if DataBag.shared.info["initialTransaction"] == nil {
+            DataBag.shared.info["initialTransaction"] = SentrySDK.span as? SentryTracer
+        }
+        return DataBag.shared.info["initialTransaction"] as? SentryTracer
     }
-    
+
     func getCurrentSpan() -> Span? {
+
         let tracker = SentryPerformanceTracker.shared
         guard let currentSpanId = tracker.activeSpanId() else {
-            return nil
-        }
-        
-        let span = tracker.getSpan(currentSpanId)
-
-        if !(span is SentryTracer) {
-            lastSpan = span
+            return DataBag.shared.info["lastSpan"] as? Span
         }
 
-        return lastSpan ?? span
+        if DataBag.shared.info["lastSpan"] == nil {
+            let span = tracker.getSpan(currentSpanId)
+
+            if !(span is SentryTracer) {
+                DataBag.shared.info["lastSpan"] = span
+            }
+        }
+
+        return DataBag.shared.info["lastSpan"] as? Span
     }
-
-    @State var lastSpan: Span?
 
     var body: some View {
         return SentryTracedView("Content View Body") {
@@ -117,8 +132,6 @@ struct ContentView: View {
                         }
                     }
 
-                    SecondView()
-                    
                     Button(action: addBreadcrumbAction) {
                         Text("Add Breadcrumb")
                     }
@@ -178,6 +191,8 @@ struct ContentView: View {
                         NavigationLink(destination: FormScreen()) {
                             Text("Form Screen")
                         }
+
+                        SecondView()
                     }
                 }
             }
