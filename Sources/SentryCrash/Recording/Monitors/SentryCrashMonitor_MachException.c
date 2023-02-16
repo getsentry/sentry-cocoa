@@ -331,7 +331,7 @@ handleExceptions(void *const userData)
                 // the next handler in the chain gets invoked.
                 replyMessage.returnCode = KERN_FAILURE;
 
-                mach_msg(&replyMessage.header, MACH_SEND_MSG, sizeof(replyMessage), 0, replyMessage.header.msgh_remote_port,
+                mach_msg(&replyMessage.header, MACH_SEND_MSG, sizeof(replyMessage), 0, MACH_PORT_NULL,
                     MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
                 continue;
             } else {
