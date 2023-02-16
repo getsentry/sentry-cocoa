@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.current forKey:@"current"];
     [serializedData setValue:self.name forKey:@"name"];
     [serializedData setValue:[self.stacktrace serialize] forKey:@"stacktrace"];
+    [serializedData setValue:self.isMain forKey:@"main"];
 
     return serializedData;
 }

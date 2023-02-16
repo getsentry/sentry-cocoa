@@ -169,9 +169,10 @@ class TestFileManager: SentryFileManager {
         return nil
     }
 
+    var appState: SentryAppState?
     var readPreviousAppStateInvocations = Invocations<Void>()
     override func readPreviousAppState() -> SentryAppState? {
         readPreviousAppStateInvocations.record(Void())
-        return nil
+        return appState
     }
 }
