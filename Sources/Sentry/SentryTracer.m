@@ -212,8 +212,14 @@ static BOOL appStartMeasurementRead;
     if (_idleTimeoutBlock != nil) {
         [self.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
     }
-    __block SentryTracer *_self = self;
-    _idleTimeoutBlock = dispatch_block_create(0, ^{ [_self finishInternal]; });
+    __weak SentryTracer *weakSelf = self;
+    _idleTimeoutBlock = dispatch_block_create(0, ^{
+        if (weakSelf == nil) {
+            SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
+            return;
+        }
+        [weakSelf finishInternal];
+    });
     [self.dispatchQueueWrapper dispatchAfter:self.idleTimeout block:_idleTimeoutBlock];
 }
 
