@@ -15,5 +15,6 @@ class SentryThreadTests: XCTestCase {
         XCTAssertTrue(actual["current"] as! Bool)
         XCTAssertEqual(TestData.thread.name, actual["name"] as? String)
         XCTAssertNotNil(actual["stacktrace"])
+        XCTAssertTrue(actual["main"] as! Bool)
     }
 }

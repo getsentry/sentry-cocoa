@@ -244,6 +244,8 @@ SentryCrashReportConverter ()
     thread.crashed = threadDictionary[@"crashed"];
     thread.current = threadDictionary[@"current_thread"];
     thread.name = threadDictionary[@"name"];
+    // We don't have access to the MachineContextWrapper but we know first thread is always the main
+    thread.isMain = [NSNumber numberWithBool:thread.threadId.intValue == 0];
     if (nil == thread.name) {
         thread.name = threadDictionary[@"dispatch_queue"];
     }
