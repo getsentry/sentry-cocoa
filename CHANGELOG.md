@@ -15,6 +15,7 @@
 - Keep status of auto transactions when finishing (#2684)
 - Fix atomic import error for profiling (#2683)
 - Don't create breadcrumb for UITextField editingChanged event (#2686)
+- Fix EXC_BAD_ACCESS in SentryTracer (#2697)
 
 ## 8.1.0
 

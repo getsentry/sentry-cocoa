@@ -431,6 +431,23 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(expectedEndTimestamp, sut.timestamp)
     }
     
+    func testIdleTimeout_TracerDeallocated() {
+        // Interact with sut in extra function so ARC deallocates it
+        func getSut() {
+            let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+            
+            _ = sut.startChild(operation: fixture.transactionOperation)
+        }
+        
+        getSut()
+            
+        for dispatchAfterBlock in fixture.dispatchQueue.dispatchAfterInvocations.invocations {
+            dispatchAfterBlock.block()
+        }
+        
+        XCTAssertEqual(0, fixture.hub.capturedEventsWithScopes.count)
+    }
+    
     func testNonIdleTransaction_CallFinish_DoesNotTrimEndTimestamp() {
         let sut = fixture.getSut()
         
