@@ -266,7 +266,7 @@ NS_SWIFT_NAME(Options)
 
 /**
  * Indicates whether tracing should be enabled.
- * Enabling this will change `tracesSampleRate` to 1 if both
+ * Enabling this sets `tracesSampleRate` to 1 if both
  * `tracesSampleRate` and `tracesSampler` are nil.
  *
  * Changing either `tracesSampleRate` or `tracesSampler` to
