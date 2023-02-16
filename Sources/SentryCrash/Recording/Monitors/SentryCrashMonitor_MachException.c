@@ -324,7 +324,7 @@ handleExceptions(void *const userData)
                 replyMessage.header.msgh_bits = exceptionMessage.header.msgh_bits & MACH_MSGH_BITS_REMOTE_MASK;
                 replyMessage.header.msgh_remote_port = exceptionMessage.header.msgh_remote_port;
                 replyMessage.header.msgh_local_port = MACH_PORT_NULL;
-                replyMessage.header.msgh_size = sizeof(mach_msg_header_t);
+                replyMessage.header.msgh_size = sizeof(MachReplyMessage);
 
                 replyMessage.NDR = exceptionMessage.NDR;
                 // Tell the kernel that we failed to handle the exception, so that
