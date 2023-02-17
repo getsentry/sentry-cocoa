@@ -8,6 +8,7 @@
 #import "SentryFrame.h"
 #import "SentryHexAddressFormatter.h"
 #import "SentryInAppLogic.h"
+#import "SentryInternalDefines.h"
 #import "SentryLog.h"
 #import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
@@ -318,15 +319,15 @@ SentryCrashReportConverter ()
 - (SentryDebugMeta *)debugMetaFromBinaryImageDictionary:(NSDictionary *)sourceImage
 {
     SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
-    debugMeta.uuid = sourceImage[@"uuid"];
-    debugMeta.type = @"apple";
+    debugMeta.debugID = sourceImage[@"uuid"];
+    debugMeta.type = SentryDebugImageType;
     // We default to 0 on the server if not sent
     if ([sourceImage[@"image_vmaddr"] integerValue] > 0) {
         debugMeta.imageVmAddress = sentry_formatHexAddress(sourceImage[@"image_vmaddr"]);
     }
     debugMeta.imageAddress = sentry_formatHexAddress(sourceImage[@"image_addr"]);
     debugMeta.imageSize = sourceImage[@"image_size"];
-    debugMeta.name = sourceImage[@"name"];
+    debugMeta.codeFile = sourceImage[@"name"];
     return debugMeta;
 }
 

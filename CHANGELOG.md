@@ -17,6 +17,10 @@
 - Don't create breadcrumb for UITextField editingChanged event (#2686)
 - Fix EXC_BAD_ACCESS in SentryTracer (#2697)
 
+### Improvements
+
+- Change debug image type to macho (#2701)
+
 ## 8.1.0
 
 ### Features

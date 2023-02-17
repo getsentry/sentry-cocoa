@@ -32,7 +32,7 @@ extern "C" {
 #endif
 
 #include "SentryCrashMonitor.h"
-#import "SentryInternalDefines.h"
+#import "SentryInternalCDefines.h"
 
 /** Access the Monitor API.
  */

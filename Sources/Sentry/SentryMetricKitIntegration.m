@@ -1,3 +1,4 @@
+#import "SentryInternalDefines.h"
 #import "SentryScope.h"
 #import <Foundation/Foundation.h>
 #import <SentryDebugMeta.h>
@@ -297,7 +298,7 @@ SentryMetricKitIntegration ()
             [self extractDebugMetaFromMXFrames:callStack.flattenedRootFrames];
 
         for (SentryDebugMeta *debugMeta in callStackDebugMetas) {
-            debugMetas[debugMeta.uuid] = debugMeta;
+            debugMetas[debugMeta.debugID] = debugMeta;
         }
     }
 
@@ -317,14 +318,14 @@ SentryMetricKitIntegration ()
         }
 
         SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
-        debugMeta.type = @"apple";
-        debugMeta.uuid = binaryUUID;
-        debugMeta.name = mxFrame.binaryName;
+        debugMeta.type = SentryDebugImageType;
+        debugMeta.debugID = binaryUUID;
+        debugMeta.codeFile = mxFrame.binaryName;
 
         NSNumber *imageAddress = @(mxFrame.address - mxFrame.offsetIntoBinaryTextSegment);
         debugMeta.imageAddress = sentry_formatHexAddress(imageAddress);
 
-        debugMetas[debugMeta.uuid] = debugMeta;
+        debugMetas[debugMeta.debugID] = debugMeta;
     }
 
     return [debugMetas allValues];
