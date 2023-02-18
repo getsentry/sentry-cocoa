@@ -6,7 +6,6 @@
 #import "SentryLog.h"
 #import "SentryMeasurementValue.h"
 #import "SentryNoOpSpan.h"
-#import "SentryProfilingConditionals.h"
 #import "SentrySerializable.h"
 #import "SentrySpan+Private.h"
 #import "SentrySpanContext.h"
@@ -30,6 +29,8 @@ SentrySpan ()
 - (instancetype)initWithContext:(SentrySpanContext *)context
 {
     if (self = [super init]) {
+        self.startTimestamp = [SentryCurrentDate date];
+        self.startSystemTime = getAbsoluteTime();
         SENTRY_LOG_DEBUG(@"Created span %@ for trace ID %@ at system time %llu",
             context.spanId.sentrySpanIdString, context.traceId, self.startSystemTime);
         _data = [[NSMutableDictionary alloc] init];
@@ -154,9 +155,6 @@ SentrySpan ()
     if (self.tracer == nil) {
         SENTRY_LOG_DEBUG(
             @"No tracer associated with span with id %@", self.spanId.sentrySpanIdString);
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-        [SentryTracer removeSpanIDFromGlobalBookkeeping:self.spanId];
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
         return;
     }
     [self.tracer spanFinished:self];

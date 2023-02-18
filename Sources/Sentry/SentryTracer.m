@@ -81,7 +81,7 @@ SentryTracer ()
 
 static NSObject *_gGlobalStateLock;
 static BOOL appStartMeasurementRead;
-static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
+static NSMutableArray<SentryId *> *_gInFlightTraceIDs;
 
 + (void)initialize
 {
@@ -156,17 +156,6 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
                   timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper
 {
     if (self = [super initWithContext:transactionContext]) {
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-        if (profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
-            _isProfiling = YES;
-            [SentryProfiler startWithHub:hub];
-            SENTRY_LOG_DEBUG(
-                @"[span tracking] Adding root span id %@", self.spanId.sentrySpanIdString);
-            [self trackSpanForConcurrentProfiling:self.spanId];
-        }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
-        self.startTimestamp = [SentryCurrentDate date];
-        self.startSystemTime = getAbsoluteTime();
         self.transactionContext = transactionContext;
         _children = [[NSMutableArray alloc] init];
         self.hub = hub;
@@ -206,6 +195,12 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
             initFrozenFrames = currentFrames.frozen;
         }
 #endif // SENTRY_HAS_UIKIT
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+        [self trackTracerForConcurrentProfiling:self.traceId
+                                            hub:hub
+                                        sampled:profilesSamplerDecision.decision];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
 
     return self;
@@ -343,15 +338,6 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
     @synchronized(_children) {
         [_children addObject:child];
     }
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-    @synchronized(_gGlobalStateLock) {
-        if (self.isProfiling) {
-            SENTRY_LOG_DEBUG(
-                @"[span tracking] Adding child span id %@", child.spanId.sentrySpanIdString);
-            [_gInFlightSpanIDs addObject:child.spanId];
-        }
-    }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     return child;
 }
@@ -520,7 +506,7 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
     }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    [self stopTrackingSpanForConcurrentProfiling];
+    [self stopTrackingTracerForConcurrentProfiling];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     [self captureTransactionInEnvelope];
@@ -561,13 +547,13 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
         additionalEnvelopeItems:@[ profileEnvelopeItem ]];
 
     @synchronized(_gGlobalStateLock) {
-        if (_gInFlightSpanIDs.count == 0) {
-            SENTRY_LOG_DEBUG(@"Last in flight span completed, stopping profiler.");
+        if (_gInFlightTraceIDs.count == 0) {
+            SENTRY_LOG_DEBUG(@"Last in flight tracer completed, stopping profiler.");
             [SentryProfiler stop];
         } else {
             SENTRY_LOG_DEBUG(
-                @"Waiting on %lu other spans to complete before stopping profiler: %@.",
-                _gInFlightSpanIDs.count, _gInFlightSpanIDs);
+                @"Waiting on %lu other tracers to complete before stopping profiler: %@.",
+                _gInFlightTraceIDs.count, _gInFlightTraceIDs);
         }
     }
 #else
@@ -837,40 +823,33 @@ static NSMutableArray<SentrySpanId *> *_gInFlightSpanIDs;
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-- (void)trackSpanForConcurrentProfiling:(SentrySpanId *)spanID
+- (void)trackTracerForConcurrentProfiling:(SentryId *)traceID
+                                      hub:(SentryHub *)hub
+                                  sampled:(SentrySampleDecision)sampleDecision
+{
+    if (sampleDecision != kSentrySampleDecisionYes) {
+        return;
+    }
+    _isProfiling = YES;
+    [SentryProfiler startWithHub:hub];
+    SENTRY_LOG_DEBUG(@"[span tracking] Adding root span id %@", self.spanId.sentrySpanIdString);
+
+    @synchronized(_gGlobalStateLock) {
+        if (_gInFlightTraceIDs == nil) {
+            _gInFlightTraceIDs = [NSMutableArray<SentryId *> array];
+        }
+        [_gInFlightTraceIDs addObject:traceID];
+    }
+}
+
+- (void)stopTrackingTracerForConcurrentProfiling
 {
     if (!self.isProfiling) {
         return;
     }
     @synchronized(_gGlobalStateLock) {
-        if (_gInFlightSpanIDs == nil) {
-            _gInFlightSpanIDs = [NSMutableArray<SentrySpanId *> array];
-        }
-        [_gInFlightSpanIDs addObject:spanID];
-    }
-}
-
-- (void)stopTrackingSpanForConcurrentProfiling
-{
-    if (self.isProfiling) {
-        return;
-    }
-    @synchronized(_gGlobalStateLock) {
-        SENTRY_LOG_DEBUG(
-            @"[span tracking] removing root span id %@", self.spanId.sentrySpanIdString);
-        [_gInFlightSpanIDs removeObject:self.spanId];
-        for (id<SentrySpan> span in _children) {
-            SENTRY_LOG_DEBUG(
-                @"[span tracking] removing child span id %@", span.spanId.sentrySpanIdString);
-            [_gInFlightSpanIDs removeObject:span.spanId];
-        }
-    }
-}
-
-+ (void)removeSpanIDFromGlobalBookkeeping:(SentrySpanId *)spanID
-{
-    @synchronized(_gGlobalStateLock) {
-        [_gInFlightSpanIDs removeObject:spanID];
+        SENTRY_LOG_DEBUG(@"[tracer tracking] removing trace id %@", self.traceId);
+        [_gInFlightTraceIDs removeObject:self.traceId];
     }
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

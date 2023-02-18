@@ -129,10 +129,6 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
 - (void)dispatchIdleTimeout;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-+ (void)removeSpanIDFromGlobalBookkeeping:(SentrySpanId *)spanID;
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
 @end
 
 NS_ASSUME_NONNULL_END
