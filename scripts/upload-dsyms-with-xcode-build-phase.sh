@@ -8,7 +8,6 @@ set -uox pipefail
 
 SENTRY_AUTH_TOKEN="${1}"
 
-# Replace revision with SHA
 REPLACE="s/YOUR_AUTH_TOKEN/${SENTRY_AUTH_TOKEN}/g"
 sed -i '' $REPLACE ./scripts/upload-dsyms-with-xcode-build-phase.patch
 
