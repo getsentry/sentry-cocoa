@@ -1,6 +1,8 @@
 #import "SentryClient.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "NSLocale+Sentry.h"
+#import "SentryAppState.h"
+#import "SentryAppStateManager.h"
 #import "SentryAttachment.h"
 #import "SentryClient+Private.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
@@ -539,6 +541,26 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         if (!isCrashEvent && shouldAttachStacktrace && threadsNotAttached) {
             event.threads = [self.threadInspector getCurrentThreads];
         }
+
+#if SENTRY_HAS_UIKIT
+        SentryAppStateManager *manager = [SentryDependencyContainer sharedInstance].appStateManager;
+        SentryAppState *appState = [manager loadPreviousAppState];
+        BOOL inForeground = [appState isActive];
+        if (appState != nil) {
+            NSMutableDictionary *context =
+                [event.context mutableCopy] ?: [NSMutableDictionary dictionary];
+            if (context[@"app"] == nil
+                || ([context[@"app"] isKindOfClass:NSDictionary.self]
+                    && context[@"app"][@"in_foreground"] == nil)) {
+                NSMutableDictionary *app = [(NSDictionary *)context[@"app"] mutableCopy]
+                    ?: [NSMutableDictionary dictionary];
+                context[@"app"] = app;
+
+                app[@"in_foreground"] = @(inForeground);
+                event.context = context;
+            }
+        }
+#endif
 
         BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
         if (!isCrashEvent && shouldAttachStacktrace && debugMetaNotAttached

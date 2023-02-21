@@ -7,7 +7,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryOptions, SentryDispatchQueueWrapper, SentrySubClassFinder;
+@class SentryOptions, SentryDispatchQueueWrapper, SentrySubClassFinder, SentryProcessInfoWrapper;
 
 /**
  * This is a protocol to define which properties and methods the swizzler required from
@@ -29,7 +29,8 @@ SENTRY_NO_INIT
 - (instancetype)initWithOptions:(SentryOptions *)options
                   dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
              objcRuntimeWrapper:(id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper
-                 subClassFinder:(SentrySubClassFinder *)subClassFinder;
+                 subClassFinder:(SentrySubClassFinder *)subClassFinder
+             processInfoWrapper:(SentryProcessInfoWrapper *)processInfoWrapper;
 
 - (void)start;
 

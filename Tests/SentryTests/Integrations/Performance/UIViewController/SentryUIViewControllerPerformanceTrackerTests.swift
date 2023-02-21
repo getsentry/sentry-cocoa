@@ -33,7 +33,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
         
         let viewController = TestViewController()
-        let tracker = SentryPerformanceTracker()
+        let tracker = SentryPerformanceTracker.shared
         let dateProvider = TestCurrentDateProvider()
         
         var viewControllerName: String!
@@ -42,11 +42,8 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             CurrentDate.setCurrentDateProvider(dateProvider)
             
             viewControllerName = SwiftDescriptor.getObjectClassName(viewController)
-        
-            let result = SentryUIViewControllerPerformanceTracker.shared
-            Dynamic(result).tracker = self.tracker
-            
-            return result
+
+            return SentryUIViewControllerPerformanceTracker.shared
         }
     }
     
@@ -454,60 +451,54 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual(children.count, 2)
         wait(for: [callbackExpectation], timeout: 0)
     }
-    
-    func testMultiplesViewController() {
+
+    func test_captureAllAutomaticSpans() {
         let sut = fixture.getSut()
         let firstController = TestViewController()
         let secondController = TestViewController()
+        let thirdController = TestViewController()
         let tracker = fixture.tracker
 
-        var firstTransaction: SentryTracer!
-        var secondTransaction: SentryTracer!
+        var tracer: SentryTracer!
 
+        //The first view controller creates a transaction
         sut.viewControllerViewDidLoad(firstController) {
-            firstTransaction = self.getStack(tracker).first as? SentryTracer
+            tracer = self.getStack(tracker).first as? SentryTracer
         }
 
+        //The second view controller should be part of the current transaction
+        //even though it's not happening inside one of the ui life cycle functions
         sut.viewControllerViewDidLoad(secondController) {
-            secondTransaction = self.getStack(tracker).first as? SentryTracer
+            guard let spanId = tracker.activeSpanId(),
+                  let viewDidLoadSpan = tracker.getSpan(spanId),
+                  let viewDidLoadSpanParent = viewDidLoadSpan.parentSpanId,
+                  let secondVCSpan = tracker.getSpan(viewDidLoadSpanParent) else {
+                XCTFail("Could not get the second controller span")
+                return
+            }
+            XCTAssertEqual(tracer.spanId, secondVCSpan.parentSpanId)
         }
 
-        //Callback methods intentionally left blank from now on
-        sut.viewControllerViewWillLayoutSubViews(firstController) {
+        //The third view controller should also be a child of the first span
+        sut.viewControllerViewDidLoad(thirdController) {
+            guard let spanId = tracker.activeSpanId(),
+                  let viewDidLoadSpan = tracker.getSpan(spanId),
+                  let viewDidLoadSpanParent = viewDidLoadSpan.parentSpanId,
+                  let secondVCSpan = tracker.getSpan(viewDidLoadSpanParent) else {
+                XCTFail("Could not get the third controller span")
+                return
+            }
+            XCTAssertEqual(tracer.spanId, secondVCSpan.parentSpanId)
         }
 
-        sut.viewControllerViewWillLayoutSubViews(secondController) {
-        }
+        let children: [Span]? = Dynamic(tracer).children as [Span]?
 
-        sut.viewControllerViewDidLayoutSubViews(firstController) {
-        }
-
-        var firstSpanChildren: [Span]? = Dynamic(firstTransaction).children as [Span]?
-        XCTAssertEqual(firstSpanChildren?.count, 4)
-
-        sut.viewControllerViewDidLayoutSubViews(secondController) {
-        }
-
-        var secondSpanChildren: [Span]? = Dynamic(secondTransaction).children as [Span]?
-        XCTAssertEqual(secondSpanChildren?.count, 4)
-
-        sut.viewControllerViewWillAppear(firstController) {
-        }
-
-        sut.viewControllerViewWillAppear(secondController) {
-        }
-
-        sut.viewControllerViewDidAppear(firstController) {
-        }
-
-        firstSpanChildren = Dynamic(firstTransaction).children as [Span]?
-        XCTAssertEqual(firstSpanChildren?.count, 6)
-
-        sut.viewControllerViewDidAppear(secondController) {
-        }
-
-        secondSpanChildren = Dynamic(secondTransaction).children as [Span]?
-        XCTAssertEqual(secondSpanChildren?.count, 6)
+        //First Controller viewDidLoad
+        //Second Controller root span
+        //Second Controller viewDidLoad
+        //Third Controller root span
+        //Third Controller viewDidLoad
+        XCTAssertEqual(children?.count, 5)
     }
 
     private func assertSpanDuration(span: Span?, expectedDuration: TimeInterval) throws {

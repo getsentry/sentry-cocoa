@@ -1,4 +1,5 @@
 #import "NSDate+SentryExtras.h"
+#import "NSMutableDictionary+Sentry.h"
 #import "SentryCurrentDate.h"
 #import "SentryInstallation.h"
 #import "SentryLog.h"
@@ -201,9 +202,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
         }
                                                   .mutableCopy;
 
-        if (_init != nil) {
-            [serializedData setValue:_init forKey:@"init"];
-        }
+        [serializedData setBoolValue:_init forKey:@"init"];
 
         NSString *statusString = nameForSentrySessionStatus(_status);
 

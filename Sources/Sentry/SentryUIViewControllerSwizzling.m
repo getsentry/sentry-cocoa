@@ -1,6 +1,7 @@
 #import "SentryUIViewControllerSwizzling.h"
 #import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryLog.h"
+#import "SentryProcessInfoWrapper.h"
 #import "SentrySubClassFinder.h"
 #import "SentrySwizzle.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
@@ -33,6 +34,7 @@ SentryUIViewControllerSwizzling ()
 @property (nonatomic, strong) id<SentryObjCRuntimeWrapper> objcRuntimeWrapper;
 @property (nonatomic, strong) SentrySubClassFinder *subClassFinder;
 @property (nonatomic, strong) NSMutableSet<NSString *> *imagesActedOnSubclassesOfUIViewControllers;
+@property (nonatomic, strong) SentryProcessInfoWrapper *processInfoWrapper;
 
 @end
 
@@ -42,6 +44,7 @@ SentryUIViewControllerSwizzling ()
                   dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
              objcRuntimeWrapper:(id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper
                  subClassFinder:(SentrySubClassFinder *)subClassFinder
+             processInfoWrapper:(SentryProcessInfoWrapper *)processInfoWrapper
 {
     if (self = [super init]) {
         self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
@@ -50,6 +53,7 @@ SentryUIViewControllerSwizzling ()
         self.objcRuntimeWrapper = objcRuntimeWrapper;
         self.subClassFinder = subClassFinder;
         self.imagesActedOnSubclassesOfUIViewControllers = [NSMutableSet new];
+        self.processInfoWrapper = processInfoWrapper;
     }
 
     return self;
@@ -90,6 +94,17 @@ SentryUIViewControllerSwizzling ()
         }
 
         [self swizzleAllSubViewControllersInApp:app];
+    } else {
+        // If we can't find an UIApplication instance we may use the current process path as the
+        // image name. This mostly happens with SwiftUI projects.
+        NSString *processImage = self.processInfoWrapper.processPath;
+        if (processImage) {
+            [self swizzleUIViewControllersOfImage:processImage];
+        } else {
+            SENTRY_LOG_DEBUG(
+                @"UIViewControllerSwizziling: Did not found image name from current process. "
+                @"Skipping Swizzling of view controllers");
+        }
     }
 
     [self swizzleUIViewController];
@@ -154,6 +169,11 @@ SentryUIViewControllerSwizzling ()
         return;
     }
 
+    [self swizzleUIViewControllersOfImage:imageName];
+}
+
+- (void)swizzleUIViewControllersOfImage:(NSString *)imageName
+{
     if ([imageName containsString:@"UIKitCore"]) {
         SENTRY_LOG_DEBUG(@"UIViewControllerSwizziling: Skipping UIKitCore.");
         return;

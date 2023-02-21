@@ -20,4 +20,9 @@ class SentryFrameTests: XCTestCase {
         XCTAssertEqual(frame.inApp, actual["in_app"] as? NSNumber)
         XCTAssertEqual(frame.stackStart, actual["stack_start"] as? NSNumber)
     }
+    
+    func testSerialize_Bools() {
+        SentryBooleanSerialization.test(Frame(), property: "inApp", serializedProperty: "in_app")
+        SentryBooleanSerialization.test(Frame(), property: "stackStart", serializedProperty: "stack_start")
+    }
 }

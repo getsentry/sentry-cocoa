@@ -12,17 +12,17 @@ NS_SWIFT_NAME(Span)
 /**
  * Determines which trace the Span belongs to.
  */
-@property (nonatomic) SentryId *traceId;
+@property (nonatomic, strong) SentryId *traceId;
 
 /**
  * Span id.
  */
-@property (nonatomic) SentrySpanId *spanId;
+@property (nonatomic, strong) SentrySpanId *spanId;
 
 /**
  * The id of the parent span.
  */
-@property (nullable, nonatomic) SentrySpanId *parentSpanId;
+@property (nullable, nonatomic, strong) SentrySpanId *parentSpanId;
 
 /**
  * The sampling decision of the trace.

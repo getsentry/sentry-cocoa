@@ -240,6 +240,12 @@ SentryPerformanceTracker () <SentryTracerDelegate>
     }
 }
 
+- (void)clear
+{
+    [self.activeSpanStack removeAllObjects];
+    [self.spans removeAllObjects];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

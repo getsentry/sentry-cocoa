@@ -180,6 +180,28 @@ class SentryThreadInspectorTests: XCTestCase {
         XCTAssertEqual(threads[0].name, "main")
         XCTAssertEqual(threads[1].name, "Second Thread")
     }
+
+    func testOnlyOneThreadIsMain() {
+        fixture.testMachineContextWrapper.mockThreads = [
+            ThreadInfo(threadId: 2, name: "Main Thread"),
+            ThreadInfo(threadId: 1, name: "First Thread") ]
+        fixture.testMachineContextWrapper.mainThread = 2
+        fixture.testMachineContextWrapper.threadCount = 2
+
+        let actualThreads = fixture.getSut().getCurrentThreads()
+
+        var actualMainThreadsCount = 0
+        var mainThread: SentryThread?
+        let threadCount = actualThreads.count
+        for i in 0..<threadCount {
+            if actualThreads[i].isMain!.boolValue {
+                actualMainThreadsCount += 1
+                mainThread = actualThreads[i]
+            }
+        }
+        XCTAssertEqual(actualMainThreadsCount, 1)
+        XCTAssertEqual(mainThread?.name, "Main Thread")
+    }
 }
 
 private class TestSentryStacktraceBuilder: SentryStacktraceBuilder {
