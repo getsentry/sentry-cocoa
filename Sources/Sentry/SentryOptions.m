@@ -77,8 +77,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableCaptureFailedRequests = YES;
         self.environment = kSentryDefaultEnvironment;
 
-        _enableTracing = false;
-        _enableTracingManual = false;
+        _enableTracing = NO;
+        _enableTracingManual = NO;
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracing = YES;
         self.attachScreenshot = NO;

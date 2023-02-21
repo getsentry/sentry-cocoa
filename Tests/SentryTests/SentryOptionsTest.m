@@ -807,6 +807,7 @@
     options.enableTracing = NO;
     options.tracesSampleRate = @0.5;
     XCTAssertFalse(options.enableTracing);
+    XCTAssertEqual(options.tracesSampleRate.doubleValue, 0.5);
 }
 
 - (void)testChanging_tracesSampler_afterSetting_enableTracing
