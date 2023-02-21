@@ -19,23 +19,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 return event
             }
             options.debug = true
+            if #available(iOS 15.0, *) {
+                options.enableMetricKit = true
+            }
             // Sampling 100% - In Production you probably want to adjust this
             options.tracesSampleRate = 1.0
             options.sessionTrackingIntervalMillis = 5_000
-            options.enableFileIOTracking = true
-            options.enableCoreDataTracking = true
+            options.enableFileIOTracing = true
+            options.enableCoreDataTracing = true
             options.profilesSampleRate = 1.0
             options.attachScreenshot = true
             options.attachViewHierarchy = true
             options.environment = "test-app"
 
             let isBenchmarking = ProcessInfo.processInfo.arguments.contains("--io.sentry.test.benchmarking")
-            options.enableAutoPerformanceTracking = !isBenchmarking
+            options.enableAutoPerformanceTracing = !isBenchmarking
 
             // the benchmark test starts and stops a custom transaction using a UIButton, and automatic user interaction tracing stops the transaction that begins with that button press after the idle timeout elapses, stopping the profiler (only one profiler runs regardless of the number of concurrent transactions)
             options.enableUserInteractionTracing = !isBenchmarking
-            options.enableAutoPerformanceTracking = !isBenchmarking
-            options.enablePreWarmedAppStartTracking = !isBenchmarking
+            options.enableAutoPerformanceTracing = !isBenchmarking
+            options.enablePreWarmedAppStartTracing = !isBenchmarking
 
             // because we run CPU for 15 seconds at full throttle, we trigger ANR issues being sent. disable such during benchmarks.
             options.enableAppHangTracking = !isBenchmarking
@@ -50,7 +53,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         AppDelegate.startSentry()
         
-        if #available(iOS 14.0, *) {
+        if #available(iOS 15.0, *) {
             metricKit.receiveReports()
         }
         
@@ -58,14 +61,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func applicationWillTerminate(_ application: UIApplication) {
-        if #available(iOS 14.0, *) {
+        if #available(iOS 15.0, *) {
             metricKit.pauseReports()
         }
     }
     
     // Workaround for 'Stored properties cannot be marked potentially unavailable with '@available''
     private var _metricKit: Any?
-    @available(iOS 14.0, *)
+    @available(iOS 15.0, *)
     fileprivate var metricKit: MetricKitManager {
         if _metricKit == nil {
             _metricKit = MetricKitManager()

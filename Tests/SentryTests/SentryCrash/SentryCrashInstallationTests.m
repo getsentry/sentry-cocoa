@@ -4,6 +4,7 @@
 #import "SentryCrashInstallation.h"
 #import "SentryCrashMonitor.h"
 #import "SentryCrashMonitor_MachException.h"
+#import "SentryCrashSystemCapabilities.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import "SentryTests-Swift.h"
 #import <XCTest/XCTest.h>
@@ -62,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
     [installation uninstall];
 
 #if SentryCrashCRASH_HAS_UIAPPLICATION
-    XCTAssertEqual(5, self.notificationCenter.removeWithNotificationInvocationsCount);
+    XCTAssertEqual(5, self.notificationCenter.removeObserverWithNameInvocationsCount);
 #endif
 }
 
@@ -95,7 +96,7 @@ NS_ASSUME_NONNULL_BEGIN
         crashHandlerDataAfterInstall:crashHandlerDataAfterInstall];
 
 #if SentryCrashCRASH_HAS_UIAPPLICATION
-    XCTAssertEqual(55, self.notificationCenter.removeWithNotificationInvocationsCount);
+    XCTAssertEqual(55, self.notificationCenter.removeObserverWithNameInvocationsCount);
 #endif
 }
 

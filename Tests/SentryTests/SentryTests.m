@@ -1,13 +1,13 @@
 #import "NSDate+SentryExtras.h"
 #import "SentryBreadcrumbTracker.h"
+#import "SentryDataCategory.h"
 #import "SentryLevelMapper.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
+#import "SentryOptions+HybridSDKs.h"
 #import "SentrySDK+Private.h"
 #import <Sentry/Sentry.h>
 #import <XCTest/XCTest.h>
-
-#import "SentryDataCategory.h"
 
 @interface
 SentryBreadcrumbTracker (Private)
@@ -59,14 +59,18 @@ SentryBreadcrumbTracker (Private)
 
 - (void)testSDKDefaultHub
 {
-    [SentrySDK startWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
+    [SentrySDK startWithConfigureOptions:^(SentryOptions *_Nonnull options) {
+        options.dsn = @"https://username:password@app.getsentry.com/12345";
+    }];
     XCTAssertNotNil([SentrySDK.currentHub getClient]);
     [SentrySDK.currentHub bindClient:nil];
 }
 
 - (void)testSDKBreadCrumbAdd
 {
-    [SentrySDK startWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
+    [SentrySDK startWithConfigureOptions:^(SentryOptions *_Nonnull options) {
+        options.dsn = @"https://username:password@app.getsentry.com/12345";
+    }];
 
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
                                                              category:@"testCategory"];
@@ -79,7 +83,9 @@ SentryBreadcrumbTracker (Private)
 
 - (void)testSDKCaptureEvent
 {
-    [SentrySDK startWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
+    [SentrySDK startWithConfigureOptions:^(SentryOptions *_Nonnull options) {
+        options.dsn = @"https://username:password@app.getsentry.com/12345";
+    }];
 
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
 
@@ -91,7 +97,9 @@ SentryBreadcrumbTracker (Private)
 
 - (void)testSDKCaptureError
 {
-    [SentrySDK startWithOptions:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }];
+    [SentrySDK startWithConfigureOptions:^(SentryOptions *_Nonnull options) {
+        options.dsn = @"https://username:password@app.getsentry.com/12345";
+    }];
 
     NSError *error =
         [NSError errorWithDomain:@"testworld"

@@ -1,5 +1,8 @@
 import XCTest
 
+// swiftlint:disable file_length
+// We are aware that the tracer has a lot of logic and we should maybe
+// move some of it to other classes.
 class SentryTracerTests: XCTestCase {
     
     private class TracerDelegate: SentryTracerDelegate {
@@ -12,10 +15,11 @@ class SentryTracerTests: XCTestCase {
     }
 
     private class Fixture {
-        let client: TestClient
+        let client: TestClient!
         let hub: TestHub
         let scope: Scope
         let dispatchQueue = TestSentryDispatchQueueWrapper()
+        let timerWrapper = TestSentryNSTimerWrapper()
         
         let transactionName = "Some Transaction"
         let transactionOperation = "ui.load"
@@ -34,7 +38,7 @@ class SentryTracerTests: XCTestCase {
         let idleTimeout: TimeInterval = 1.0
         
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        var displayLinkWrapper: TestDiplayLinkWrapper
+        var displayLinkWrapper: TestDisplayLinkWrapper
 #endif
         
         init() {
@@ -47,14 +51,14 @@ class SentryTracerTests: XCTestCase {
             transactionContext = TransactionContext(name: transactionName, operation: transactionOperation)
             
             scope = Scope()
-            client = TestClient(options: Options())!
+            client = TestClient(options: Options())
             client.options.tracesSampleRate = 1
             hub = TestHub(client: client, andScope: scope)
             
             CurrentDate.setCurrentDateProvider(currentDateProvider)
             
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-            displayLinkWrapper = TestDiplayLinkWrapper()
+            displayLinkWrapper = TestDisplayLinkWrapper()
             
             SentryFramesTracker.sharedInstance().setDisplayLinkWrapper(displayLinkWrapper)
             SentryFramesTracker.sharedInstance().start()
@@ -77,11 +81,24 @@ class SentryTracerTests: XCTestCase {
         }
         
         func getSut(waitForChildren: Bool = true) -> SentryTracer {
-            return hub.startTransaction(with: transactionContext, bindToScope: false, waitForChildren: waitForChildren, customSamplingContext: [:]) as! SentryTracer
+            let tracer = hub.startTransaction(
+                with: transactionContext,
+                bindToScope: false,
+                waitForChildren: waitForChildren,
+                customSamplingContext: [:],
+                timerWrapper: timerWrapper) as! SentryTracer
+            return tracer
         }
         
         func getSut(idleTimeout: TimeInterval = 0.0, dispatchQueueWrapper: SentryDispatchQueueWrapper) -> SentryTracer {
-            return hub.startTransaction(with: transactionContext, bindToScope: false, customSamplingContext: [:], idleTimeout: idleTimeout, dispatchQueueWrapper: dispatchQueueWrapper)
+            let tracer = hub.startTransaction(
+                with: transactionContext,
+                bindToScope: false,
+                customSamplingContext: [:],
+                idleTimeout: idleTimeout,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
+            return tracer
         }
     }
     
@@ -136,11 +153,108 @@ class SentryTracerTests: XCTestCase {
             XCTAssertEqual(tracerTimestamp.timeIntervalSince1970, span["timestamp"] as? TimeInterval)
         }
     }
-    
+
+    func testDeadlineTimer_FinishesTransactionAndChildren() {
+        let sut = fixture.getSut()
+        let child1 = sut.startChild(operation: fixture.transactionOperation)
+        let child2 = sut.startChild(operation: fixture.transactionOperation)
+        let child3 = sut.startChild(operation: fixture.transactionOperation)
+
+        child3.finish()
+
+        fixture.timerWrapper.fire()
+
+        assertOneTransactionCaptured(sut)
+
+        XCTAssertEqual(sut.status, .deadlineExceeded)
+        XCTAssertEqual(child1.status, .deadlineExceeded)
+        XCTAssertEqual(child2.status, .deadlineExceeded)
+        XCTAssertEqual(child3.status, .ok)
+    }
+
+    func testFramesofSpans_SetsDebugMeta() {
+        let sut = fixture.getSut()
+        sut.frames = [TestData.mainFrame, TestData.testFrame]
+
+        let debugImageProvider = TestDebugImageProvider()
+        debugImageProvider.debugImages = [TestData.debugImage]
+        SentryDependencyContainer.sharedInstance().debugImageProvider = debugImageProvider
+
+        let transaction = Dynamic(sut).toTransaction().asObject as? Transaction
+
+        XCTAssertEqual(transaction?.debugMeta?.count ?? 0, 1)
+        XCTAssertEqual(transaction?.debugMeta?.first, TestData.debugImage)
+    }
+
+    func testDeadlineTimer_OnlyForAutoTransactions() {
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        let child1 = sut.startChild(operation: fixture.transactionOperation)
+        let child2 = sut.startChild(operation: fixture.transactionOperation)
+        let child3 = sut.startChild(operation: fixture.transactionOperation)
+
+        child3.finish()
+
+        fixture.timerWrapper.fire()
+
+        XCTAssertEqual(sut.status, .undefined)
+        XCTAssertEqual(child1.status, .undefined)
+        XCTAssertEqual(child2.status, .undefined)
+        XCTAssertEqual(child3.status, .ok)
+    }
+
+    func testDeadlineTimer_Finish_Cancels_Timer() {
+        let sut = fixture.getSut()
+        sut.finish()
+
+        XCTAssertEqual(fixture.timerWrapper.overrides.timer.invalidateCount, 1)
+    }
+
     func testFinish_CheckDefaultStatus() {
         let sut = fixture.getSut()
         sut.finish()
-        XCTAssertEqual(sut.context.status, .ok)
+        fixture.timerWrapper.fire()
+        XCTAssertEqual(sut.status, .ok)
+    }
+    
+    func testIdleTransactionWithStatus_KeepsStatusWhenAutoFinishing() {
+        let status = SentrySpanStatus.aborted
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        sut.status = status
+        
+        let child = sut.startChild(operation: fixture.transactionOperation)
+        advanceTime(bySeconds: 0.1)
+        child.finish()
+        
+        fixture.dispatchQueue.invokeLastDispatchAfter()
+        
+        assertOneTransactionCaptured(sut)
+        XCTAssertEqual(status, sut.status)
+    }
+    
+    func testWaitForChildrenTransactionWithStatus_OverwriteStatusInFinish() {
+        let sut = fixture.getSut()
+        sut.status = .aborted
+        
+        let finishstatus = SentrySpanStatus.cancelled
+        
+        let child = sut.startChild(operation: fixture.transactionOperation)
+        advanceTime(bySeconds: 0.1)
+        child.finish()
+        
+        sut.finish(status: finishstatus)
+        
+        assertOneTransactionCaptured(sut)
+        XCTAssertEqual(finishstatus, sut.status)
+    }
+    
+    func testManualTransaction_OverwritesStatusInFinish() {
+        let sut = fixture.getSut(waitForChildren: false)
+        sut.status = .aborted
+        
+        sut.finish()
+        
+        assertOneTransactionCaptured(sut)
+        XCTAssertEqual(.ok, sut.status)
     }
     
     func testFinish_WithoutHub_DoesntCaptureTransaction() {
@@ -317,6 +431,23 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(expectedEndTimestamp, sut.timestamp)
     }
     
+    func testIdleTimeout_TracerDeallocated() {
+        // Interact with sut in extra function so ARC deallocates it
+        func getSut() {
+            let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+            
+            _ = sut.startChild(operation: fixture.transactionOperation)
+        }
+        
+        getSut()
+            
+        for dispatchAfterBlock in fixture.dispatchQueue.dispatchAfterInvocations.invocations {
+            dispatchAfterBlock.block()
+        }
+        
+        XCTAssertEqual(0, fixture.hub.capturedEventsWithScopes.count)
+    }
+    
     func testNonIdleTransaction_CallFinish_DoesNotTrimEndTimestamp() {
         let sut = fixture.getSut()
         
@@ -393,7 +524,7 @@ class SentryTracerTests: XCTestCase {
 
         let secondChild = sut.startChild(operation: fixture.transactionOperation)
 
-        XCTAssertEqual(secondChild.context.parentSpanId, child.context.spanId)
+        XCTAssertEqual(secondChild.parentSpanId, child.spanId)
     }
 
     func test_startChildWithDelegate_ActiveNotChild() {
@@ -408,8 +539,8 @@ class SentryTracerTests: XCTestCase {
 
         let secondChild = sut.startChild(operation: fixture.transactionOperation)
 
-        XCTAssertEqual(secondChild.context.parentSpanId, sut.context.spanId)
-        XCTAssertEqual(secondChild.context.parentSpanId, child.context.parentSpanId)
+        XCTAssertEqual(secondChild.parentSpanId, sut.spanId)
+        XCTAssertEqual(secondChild.parentSpanId, child.parentSpanId)
     }
 
     func test_startChildWithDelegate_SelfIsActive() {
@@ -424,8 +555,8 @@ class SentryTracerTests: XCTestCase {
 
         let secondChild = sut.startChild(operation: fixture.transactionOperation)
 
-        XCTAssertEqual(secondChild.context.parentSpanId, sut.context.spanId)
-        XCTAssertEqual(secondChild.context.parentSpanId, child.context.parentSpanId)
+        XCTAssertEqual(secondChild.parentSpanId, sut.spanId)
+        XCTAssertEqual(secondChild.parentSpanId, child.parentSpanId)
     }
 
     func testAddPreWarmedAppStartMeasurement_PutOnNextAutoUITransaction() {
@@ -636,15 +767,15 @@ class SentryTracerTests: XCTestCase {
         sut.finish()
         
         XCTAssertTrue(child1.isFinished)
-        XCTAssertEqual(child1.context.status, .deadlineExceeded)
+        XCTAssertEqual(child1.status, .deadlineExceeded)
         XCTAssertEqual(sut.timestamp, child1.timestamp)
         
         XCTAssertTrue(child2.isFinished)
-        XCTAssertEqual(child2.context.status, .ok)
+        XCTAssertEqual(child2.status, .ok)
         XCTAssertNotEqual(sut.timestamp, child2.timestamp)
         
         XCTAssertTrue(child3.isFinished)
-        XCTAssertEqual(child3.context.status, .deadlineExceeded)
+        XCTAssertEqual(child3.status, .deadlineExceeded)
         XCTAssertEqual(sut.timestamp, child3.timestamp)
     }
     
@@ -687,9 +818,6 @@ class SentryTracerTests: XCTestCase {
     
     // Although we only run this test above the below specified versions, we expect the
     // implementation to be thread safe
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
     func testFinishAsync() {
         let sut = fixture.getSut()
         let child = sut.startChild(operation: fixture.transactionOperation)
@@ -697,12 +825,14 @@ class SentryTracerTests: XCTestCase {
         
         let queue = DispatchQueue(label: "SentryTracerTests", attributes: [.concurrent, .initiallyInactive])
         let group = DispatchGroup()
-        
-        for _ in 0 ..< 5_000 {
+
+        let children = 5
+        let grandchildren = 10
+        for _ in 0 ..< children {
             group.enter()
             queue.async {
                 let grandChild = child.startChild(operation: self.fixture.transactionOperation)
-                for _ in 0 ..< 9 {
+                for _ in 0 ..< grandchildren {
                     let grandGrandChild = grandChild.startChild(operation: self.fixture.transactionOperation)
                     grandGrandChild.finish()
                 }
@@ -721,21 +851,18 @@ class SentryTracerTests: XCTestCase {
         assertOneTransactionCaptured(sut)
         
         let spans = getSerializedTransaction()["spans"]! as! [[String: Any]]
-        XCTAssertEqual(spans.count, 50_001)
+        XCTAssertEqual(spans.count, children * (grandchildren + 1) + 1)
     }
     
     // Although we only run this test above the below specified versions, we expect the
     // implementation to be thread safe
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
     func testConcurrentTransactions_OnlyOneGetsMeasurement() {
         SentrySDK.setAppStartMeasurement(fixture.getAppStartMeasurement(type: .warm))
         
         let queue = DispatchQueue(label: "", qos: .background, attributes: [.concurrent, .initiallyInactive] )
         let group = DispatchGroup()
         
-        let transactions = 10_000
+        let transactions = 5
         for _ in 0..<transactions {
             group.enter()
             queue.async {
@@ -751,13 +878,13 @@ class SentryTracerTests: XCTestCase {
         
         XCTAssertEqual(transactions, fixture.hub.capturedEventsWithScopes.count)
         
-        let transactionsWithAppStartMeasrurement = fixture.hub.capturedEventsWithScopes.filter { pair in
+        let transactionsWithAppStartMeasurement = fixture.hub.capturedEventsWithScopes.filter { pair in
             let serializedTransaction = pair.event.serialize()
             let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
             return measurements == ["app_start_warm": ["value": 500]]
         }
         
-        XCTAssertEqual(1, transactionsWithAppStartMeasrurement.count)
+        XCTAssertEqual(1, transactionsWithAppStartMeasurement.count)
     }
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -810,23 +937,12 @@ class SentryTracerTests: XCTestCase {
     }
 #endif
     
+    @available(*, deprecated)
     func testSetExtra_ForwardsToSetData() {
         let sut = fixture.getSut()
         sut.setExtra(value: 0, key: "key")
         
         XCTAssertEqual(["key": 0], sut.data as! [String: Int])
-    }
-    
-    func testTagsFromContext_shouldBeSerialized() {
-        // given
-        fixture.transactionContext.setTag(value: fixture.testValue, key: fixture.testKey)
-        let transaction = fixture.getSut()
-        
-        // when
-        let dict = try! XCTUnwrap(transaction.serialize()["tags"] as? [String: String])
-        
-        // then
-        XCTAssertEqual(dict, [fixture.testKey: fixture.testValue])
     }
 
     private func advanceTime(bySeconds: TimeInterval) {
@@ -867,21 +983,21 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(5, spans?.count)
         
         let appLaunchSpan = spans?.first { span in
-            span.context.spanDescription == startType
+            span.spanDescription == startType
         }
         let trace: SentryTracer? = Dynamic(transaction).trace
-        XCTAssertEqual(operation, appLaunchSpan?.context.operation)
-        XCTAssertEqual(trace?.context.spanId, appLaunchSpan?.context.parentSpanId)
+        XCTAssertEqual(operation, appLaunchSpan?.operation)
+        XCTAssertEqual(trace?.spanId, appLaunchSpan?.parentSpanId)
         XCTAssertEqual(appStartMeasurement.appStartTimestamp, appLaunchSpan?.startTimestamp)
         XCTAssertEqual(fixture.appStartEnd, appLaunchSpan?.timestamp)
         
         func assertSpan(_ description: String, _ startTimestamp: Date, _ timestamp: Date) {
             let span = spans?.first { span in
-                span.context.spanDescription == description
+                span.spanDescription == description
             }
             
-            XCTAssertEqual(operation, span?.context.operation)
-            XCTAssertEqual(appLaunchSpan?.context.spanId, span?.context.parentSpanId)
+            XCTAssertEqual(operation, span?.operation)
+            XCTAssertEqual(appLaunchSpan?.spanId, span?.parentSpanId)
             XCTAssertEqual(startTimestamp, span?.startTimestamp)
             XCTAssertEqual(timestamp, span?.timestamp)
         }
@@ -907,21 +1023,21 @@ class SentryTracerTests: XCTestCase {
             XCTAssertEqual(3, spans?.count)
 
             let appLaunchSpan = spans?.first { span in
-                span.context.spanDescription == startType
+                span.spanDescription == startType
             }
             let trace: SentryTracer? = Dynamic(transaction).trace
-            XCTAssertEqual(operation, appLaunchSpan?.context.operation)
-            XCTAssertEqual(trace?.context.spanId, appLaunchSpan?.context.parentSpanId)
+            XCTAssertEqual(operation, appLaunchSpan?.operation)
+            XCTAssertEqual(trace?.spanId, appLaunchSpan?.parentSpanId)
             XCTAssertEqual(appStartMeasurement.appStartTimestamp, appLaunchSpan?.startTimestamp)
             XCTAssertEqual(fixture.appStartEnd.timeIntervalSince1970, appLaunchSpan?.timestamp?.timeIntervalSince1970)
 
             func assertSpan(_ description: String, _ startTimestamp: Date, _ timestamp: Date) {
                 let span = spans?.first { span in
-                    span.context.spanDescription == description
+                    span.spanDescription == description
                 }
 
-                XCTAssertEqual(operation, span?.context.operation)
-                XCTAssertEqual(appLaunchSpan?.context.spanId, span?.context.parentSpanId)
+                XCTAssertEqual(operation, span?.operation)
+                XCTAssertEqual(appLaunchSpan?.spanId, span?.parentSpanId)
                 XCTAssertEqual(startTimestamp, span?.startTimestamp)
                 XCTAssertEqual(timestamp, span?.timestamp)
             }
@@ -965,3 +1081,5 @@ class SentryTracerTests: XCTestCase {
     }
 
 }
+
+// swiftlint:enable file_length

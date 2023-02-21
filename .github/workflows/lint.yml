@@ -2,7 +2,7 @@ name: lint
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - 'Sources/**'
       - 'Tests/**'
@@ -21,6 +21,7 @@ on:
       - '.github/workflows/lint.yml'
       - 'scripts/ci-select-xcode.sh'
       - 'scripts/no-changes-in-high-risk-files.sh'
+      - 'Sentry.xcodeproj/**'
 
 jobs:
   swift-lint:
@@ -39,8 +40,8 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh
       - run: make analyze
 
-  validate-podspec:
-    name: Validate Podspec
+  validate-podspec-framework:
+    name: Validate Podspec as Framework
     runs-on: macos-12
     strategy:
       matrix:
@@ -50,7 +51,35 @@ jobs:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh
       - name: Validate Podspec
-        run: pod lib lint --verbose --platforms=${{ matrix.platform }}
+        run: pod lib lint --verbose --platforms=${{ matrix.platform }} Sentry.podspec --include-podspecs=SentryPrivate.podspec
+        shell: sh
+
+  validate-podspec-static:
+    name: Validate Podspec as Static library
+    runs-on: macos-12
+    strategy:
+      matrix:
+        platform: ['ios', 'macos', 'tvos', 'watchos']
+
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./scripts/ci-select-xcode.sh
+      - name: Validate Podspec
+        run: pod lib lint --verbose --platforms=${{ matrix.platform }} Sentry.podspec --include-podspecs=SentryPrivate.podspec --use-libraries 
+        shell: sh
+
+  validate-SentrySwiftUI-podspec:
+    name: Validate SentrySwiftUI Podspec
+    runs-on: macos-12
+    strategy:
+      matrix:
+        platform: ['ios', 'macos', 'tvos', 'watchos']
+
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./scripts/ci-select-xcode.sh
+      - name: Validate Podspec
+        run: pod lib lint --verbose --platforms=${{ matrix.platform }} SentrySwiftUI.podspec --include-podspecs=Sentry.podspec,SentryPrivate.podspec
         shell: sh
 
   validate-high-risk-files:

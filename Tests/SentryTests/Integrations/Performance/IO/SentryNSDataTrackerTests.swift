@@ -5,12 +5,19 @@ class SentryNSDataTrackerTests: XCTestCase {
     private class Fixture {
         
         let filePath = "Some Path"
-        let sentryPath = try! SentryFileManager(options: Options(), andCurrentDateProvider: DefaultCurrentDateProvider.sharedInstance()).sentryPath 
+        let sentryPath = try! TestFileManager(options: Options(), andCurrentDateProvider: DefaultCurrentDateProvider.sharedInstance()).sentryPath 
         let dateProvider = TestCurrentDateProvider()
         let data = "SOME DATA".data(using: .utf8)!
-                
+        let threadInspector = TestThreadInspector.instance
+        let imageProvider = TestDebugImageProvider()
+
         func getSut() -> SentryNSDataTracker {
-            let result = SentryNSDataTracker.sharedInstance
+            imageProvider.debugImages = [TestData.debugImage]
+            SentryDependencyContainer.sharedInstance().debugImageProvider = imageProvider
+
+            threadInspector.allThreads = [TestData.thread2]
+
+            let result = SentryNSDataTracker(threadInspector: threadInspector, processInfoWrapper: TestProcessInfoWrapper())
             CurrentDate.setCurrentDateProvider(dateProvider)
             result.enable()
             return result
@@ -23,7 +30,7 @@ class SentryNSDataTrackerTests: XCTestCase {
         super.setUp()
         fixture = Fixture()
         fixture.getSut().enable()
-        SentrySDK.start { $0.enableFileIOTracking = true }
+        SentrySDK.start { $0.enableFileIOTracing = true }
     }
     
     override func tearDown() {
@@ -94,7 +101,7 @@ class SentryNSDataTrackerTests: XCTestCase {
         let sut = fixture.getSut()
         let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
         var span: Span?
-                
+
         sut.measure(fixture.data, writeToFile: fixture.filePath, atomically: false) { _, _ -> Bool in
             span = self.firstSpan(transaction)
             XCTAssertFalse(span?.isFinished ?? true)
@@ -104,6 +111,69 @@ class SentryNSDataTrackerTests: XCTestCase {
         
         assertSpanDuration(span: span, expectedDuration: 4)
         assertDataSpan(span, path: fixture.filePath, operation: SENTRY_FILE_WRITE_OPERATION, size: fixture.data.count)
+    }
+
+    func testWriteAtomically_CheckTransaction_DebugImages() {
+        let sut = fixture.getSut()
+        let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
+        var span: Span?
+
+        sut.measure(fixture.data, writeToFile: fixture.filePath, atomically: false) { _, _ -> Bool in
+            span = self.firstSpan(transaction)
+            XCTAssertFalse(span?.isFinished ?? true)
+            self.advanceTime(bySeconds: 4)
+            return true
+        }
+
+        let transactionEvent = Dynamic(transaction).toTransaction().asObject as? Transaction
+
+        XCTAssertNotNil(transactionEvent?.debugMeta)
+        XCTAssertTrue(transactionEvent?.debugMeta?.count ?? 0 > 0)
+        XCTAssertEqual(transactionEvent?.debugMeta?.first, TestData.debugImage)
+    }
+
+    func testWriteAtomically_CheckTransaction_FilterOut_nonProcessFrames() {
+        let sut = fixture.getSut()
+        let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
+
+        let stackTrace = SentryStacktrace(frames: [TestData.mainFrame, TestData.testFrame, TestData.outsideFrame], registers: ["register": "one"])
+        let thread = SentryThread(threadId: 0)
+        thread.stacktrace = stackTrace
+        fixture.threadInspector.allThreads = [thread]
+
+        var span: SentrySpan?
+
+        sut.measure(fixture.data, writeToFile: fixture.filePath, atomically: false) { _, _ -> Bool in
+            span = self.firstSpan(transaction) as? SentrySpan
+            XCTAssertFalse(span?.isFinished ?? true)
+            return true
+        }
+
+        XCTAssertEqual(span?.frames?.count ?? 0, 2)
+        XCTAssertEqual(span?.frames?.first, TestData.mainFrame)
+        XCTAssertEqual(span?.frames?.last, TestData.testFrame)
+    }
+
+    func testWriteAtomically_Background() {
+        let sut = self.fixture.getSut()
+        let expect = expectation(description: "Operation in background thread")
+        DispatchQueue.global(qos: .default).async {
+            let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
+            var span: Span?
+
+            sut.measure(self.fixture.data, writeToFile: self.fixture.filePath, atomically: false) { _, _ -> Bool in
+                span = self.firstSpan(transaction)
+                XCTAssertFalse(span?.isFinished ?? true)
+                self.advanceTime(bySeconds: 4)
+                return true
+            }
+
+            self.assertSpanDuration(span: span, expectedDuration: 4)
+            self.assertDataSpan(span, path: self.fixture.filePath, operation: SENTRY_FILE_WRITE_OPERATION, size: self.fixture.data.count, mainThread: false)
+            expect.fulfill()
+        }
+
+        wait(for: [expect], timeout: 0.1)
     }
     
     func testWriteWithOptionsAndError_CheckTrace() {
@@ -220,20 +290,30 @@ class SentryNSDataTrackerTests: XCTestCase {
         return result?.first
     }
     
-    private func assertDataSpan(_ span: Span?, path: String, operation: String, size: Int ) {
+    private func assertDataSpan(_ span: Span?, path: String, operation: String, size: Int, mainThread: Bool = true ) {
         XCTAssertNotNil(span)
-        XCTAssertEqual(span?.context.operation, operation)
+        XCTAssertEqual(span?.operation, operation)
         XCTAssertTrue(span?.isFinished ?? false)
-        XCTAssertEqual(span?.data?["file.size"] as? Int, size)
-        XCTAssertEqual(span?.data?["file.path"] as? String, path)
+        XCTAssertEqual(span?.data["file.size"] as? Int, size)
+        XCTAssertEqual(span?.data["file.path"] as? String, path)
+        XCTAssertEqual(span?.data["blocked_main_thread"] as? Bool ?? false, mainThread)
+
+        if mainThread {
+            guard let frames = (span as? SentrySpan)?.frames else {
+                XCTFail("File IO Span in the main thread has no frames")
+                return
+            }
+            XCTAssertEqual(frames.first, TestData.mainFrame)
+            XCTAssertEqual(frames.last, TestData.testFrame)
+        }
         
         let lastComponent = (path as NSString).lastPathComponent
         
         if operation == SENTRY_FILE_READ_OPERATION {
-            XCTAssertEqual(span?.context.spanDescription, lastComponent)
+            XCTAssertEqual(span?.spanDescription, lastComponent)
         } else {
             let bytesDescription = ByteCountFormatter.string(fromByteCount: Int64(size), countStyle: .binary)
-            XCTAssertEqual(span?.context.spanDescription ?? "", "\(lastComponent) (\(bytesDescription))")
+            XCTAssertEqual(span?.spanDescription ?? "", "\(lastComponent) (\(bytesDescription))")
         }
     }
     

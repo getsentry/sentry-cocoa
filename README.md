@@ -20,6 +20,10 @@ _Bad software is everywhere, and we're tired of it. Sentry is on a mission to he
 
 This SDK is written in Objective-C but also provides a nice Swift interface.
 
+**Where is the master branch?**
+
+We renamed the default branch from `master` to `main`.
+
 # Initialization
 
 *Remember to call this as early in your application life cycle as possible*

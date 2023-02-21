@@ -1,6 +1,7 @@
 #import "SentrySerialization.h"
 #import "SentryAppState.h"
-#import "SentryEnvelope.h"
+#import "SentryEnvelope+Private.h"
+#import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryError.h"
 #import "SentryId.h"
@@ -81,26 +82,8 @@ NS_ASSUME_NONNULL_BEGIN
 
     for (int i = 0; i < envelope.items.count; ++i) {
         [envelopeData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
-        NSMutableDictionary *serializedItemHeaderData = [NSMutableDictionary new];
-        if (nil != envelope.items[i].header) {
-            if (nil != envelope.items[i].header.type) {
-                [serializedItemHeaderData setValue:envelope.items[i].header.type forKey:@"type"];
-            }
+        NSDictionary *serializedItemHeaderData = [envelope.items[i].header serialize];
 
-            NSString *filename = envelope.items[i].header.filename;
-            if (nil != filename) {
-                [serializedItemHeaderData setValue:filename forKey:@"filename"];
-            }
-
-            NSString *contentType = envelope.items[i].header.contentType;
-            if (nil != contentType) {
-                [serializedItemHeaderData setValue:contentType forKey:@"content_type"];
-            }
-
-            [serializedItemHeaderData
-                setValue:[NSNumber numberWithUnsignedInteger:envelope.items[i].header.length]
-                  forKey:@"length"];
-        }
         NSData *itemHeader = [SentrySerialization dataWithJSONObject:serializedItemHeaderData
                                                                error:error];
         if (nil == itemHeader) {
@@ -280,15 +263,18 @@ NS_ASSUME_NONNULL_BEGIN
                 break;
             }
 
-            NSString *_Nullable filename = [headerDictionary valueForKey:@"filename"];
-            NSString *_Nullable contentType = [headerDictionary valueForKey:@"content_type"];
+            NSString *filename = [headerDictionary valueForKey:@"filename"];
+            NSString *contentType = [headerDictionary valueForKey:@"content_type"];
+            NSString *attachmentType = [headerDictionary valueForKey:@"attachment_type"];
 
             SentryEnvelopeItemHeader *itemHeader;
-            if (nil != filename && nil != contentType) {
-                itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:type
-                                                                     length:bodyLength
-                                                                  filenname:filename
-                                                                contentType:contentType];
+            if (nil != filename) {
+                itemHeader = [[SentryEnvelopeAttachmentHeader alloc]
+                      initWithType:type
+                            length:bodyLength
+                          filename:filename
+                       contentType:contentType
+                    attachmentType:typeForSentryAttachmentName(attachmentType)];
             } else {
                 itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:type length:bodyLength];
             }

@@ -72,8 +72,10 @@ class TestData {
         debugMeta.imageSize = 352_256
         debugMeta.imageVmAddress = "0x00007fff51af0000"
         debugMeta.name = "/tmp/scratch/dyld_sim"
-        debugMeta.type = "apple"
+        debugMeta.codeFile = "/tmp/scratch/dyld_sim"
+        debugMeta.type = "macho"
         debugMeta.uuid = "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322"
+        debugMeta.debugID = "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF321"
         
         return debugMeta
     }
@@ -94,6 +96,7 @@ class TestData {
         mechanism.data = ["something": ["date": currentDateProvider.date()]]
         mechanism.desc = "desc"
         mechanism.handled = true
+        mechanism.synthetic = false
         mechanism.helpLink = "https://www.sentry.io"
         mechanism.meta = mechanismMeta
         
@@ -120,23 +123,40 @@ class TestData {
         return mechanismMeta
     }
     
-    static var thread: Sentry.Thread {
-        let thread = Sentry.Thread(threadId: 10)
+    static var thread: SentryThread {
+        let thread = SentryThread(threadId: 10)
         thread.crashed = false
         thread.current = true
         thread.name = "main"
         thread.stacktrace = stacktrace
+        thread.isMain = true
         
         return thread
     }
+
+    static var thread2: SentryThread {
+        let thread = SentryThread(threadId: 0)
+        thread.crashed = false
+        thread.current = true
+        thread.name = "main"
+        thread.stacktrace = stacktrace2
+
+        return thread
+    }
     
-    static var stacktrace: Stacktrace {
-        let stacktrace = Stacktrace(frames: [frame], registers: ["register": "one"])
+    static var stacktrace: SentryStacktrace {
+        let stacktrace = SentryStacktrace(frames: [mainFrame], registers: ["register": "one"])
+        stacktrace.snapshot = true
+        return stacktrace
+    }
+
+    static var stacktrace2: SentryStacktrace {
+        let stacktrace = SentryStacktrace(frames: [mainFrame, testFrame], registers: ["register": "one"])
         stacktrace.snapshot = true
         return stacktrace
     }
     
-    static var frame: Frame {
+    static var mainFrame: Frame {
         let frame = Frame()
         frame.columnNumber = 1
         frame.fileName = "fileName"
@@ -146,12 +166,54 @@ class TestData {
         frame.instructionAddress = "0x000000008fd09c40"
         frame.lineNumber = 207
         frame.module = "module"
-        frame.package = "sentry"
+        frame.package = "sentrytest"
         frame.platform = "iOS"
         frame.symbolAddress = "0x000000008e902bf0"
         frame.stackStart = true
         
         return frame
+    }
+
+    static var testFrame: Frame {
+        let frame = Frame()
+        frame.columnNumber = 1
+        frame.fileName = "testFile"
+        frame.function = "test"
+        frame.imageAddress = "0x0000000105705000"
+        frame.inApp = true
+        frame.instructionAddress = "0x000000008fd09c90"
+        frame.lineNumber = 107
+        frame.module = "module"
+        frame.package = "sentrytest"
+        frame.platform = "iOS"
+        frame.symbolAddress = "0x000000008e902b97"
+        frame.stackStart = false
+        return frame
+    }
+
+    static var outsideFrame: Frame {
+        let frame = Frame()
+        frame.columnNumber = 1
+        frame.fileName = "helperFile"
+        frame.function = "helper"
+        frame.imageAddress = "0x0000000105709000"
+        frame.inApp = false
+        frame.instructionAddress = "0x000000008fd09a40"
+        frame.lineNumber = 307
+        frame.module = "outsideModule"
+        frame.package = "ThirdPartyLib"
+        frame.platform = "iOS"
+        frame.symbolAddress = "0x000000008e902e51"
+        frame.stackStart = false
+        return frame
+    }
+
+    static var debugImage: DebugMeta {
+        let image = DebugMeta()
+        image.name = "sentrytest"
+        image.imageAddress = "0x0000000105705000"
+        image.imageVmAddress = "0x0000000105705000"
+        return image
     }
     
     static var fileAttachment: Attachment {
@@ -176,8 +238,16 @@ class TestData {
     
     static var oomEvent: Event {
         let event = Event(level: SentryLevel.fatal)
-        let exception = Exception(value: SentryOutOfMemoryExceptionValue, type: SentryOutOfMemoryExceptionType)
-        exception.mechanism = Mechanism(type: SentryOutOfMemoryMechanismType)
+        let exception = Exception(value: SentryWatchdogTerminationExceptionValue, type: SentryWatchdogTerminationExceptionType)
+        exception.mechanism = Mechanism(type: SentryWatchdogTerminationMechanismType)
+        event.exceptions = [exception]
+        return event
+    }
+    
+    static var metricKitEvent: Event {
+        let event = Event(level: .warning)
+        let exception = Exception(value: "MXCPUException totalCPUTime:90.009 sec totalSampledTime:91.952 sec", type: SentryMetricKitCpuExceptionType)
+        exception.mechanism = Mechanism(type: SentryMetricKitCpuExceptionMechanism)
         event.exceptions = [exception]
         return event
     }
@@ -200,11 +270,11 @@ class TestData {
         
         let crumb1 = TestData.crumb
         crumb1.message = "Crumb 1"
-        scope.add(crumb1)
+        scope.addBreadcrumb(crumb1)
         
         let crumb2 = TestData.crumb
         crumb2.message = "Crumb 2"
-        scope.add(crumb2)
+        scope.addBreadcrumb(crumb2)
         
         return scope
     }

@@ -13,6 +13,7 @@
 #import <SentryNSNotificationCenterWrapper.h>
 #import <SentrySDK+Private.h>
 #import <SentryScreenshot.h>
+#import <SentrySwift.h>
 #import <SentrySwizzleWrapper.h>
 #import <SentrySysctl.h>
 #import <SentryThreadWrapper.h>
@@ -63,12 +64,13 @@ static NSObject *sentryDependencyContainerLock;
         if (_appStateManager == nil) {
             SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
             _appStateManager = [[SentryAppStateManager alloc]
-                     initWithOptions:options
-                        crashWrapper:self.crashWrapper
-                         fileManager:self.fileManager
-                 currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-                              sysctl:[[SentrySysctl alloc] init]
-                dispatchQueueWrapper:self.dispatchQueueWrapper];
+                          initWithOptions:options
+                             crashWrapper:self.crashWrapper
+                              fileManager:self.fileManager
+                      currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                                   sysctl:[[SentrySysctl alloc] init]
+                     dispatchQueueWrapper:self.dispatchQueueWrapper
+                notificationCenterWrapper:self.notificationCenterWrapper];
         }
         return _appStateManager;
     }
@@ -207,7 +209,27 @@ static NSObject *sentryDependencyContainerLock;
             }
         }
     }
+
     return _anrTracker;
 }
+
+#if SENTRY_HAS_METRIC_KIT
+- (SentryMXManager *)metricKitManager
+{
+    if (_metricKitManager == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_metricKitManager == nil) {
+                // Disable crash diagnostics as we only use it for validation of the symbolication
+                // of stacktraces, because crashes are easy to trigger for MetricKit. We don't want
+                // crash reports of MetricKit in production as we have SentryCrash.
+                _metricKitManager = [[SentryMXManager alloc] initWithDisableCrashDiagnostics:YES];
+            }
+        }
+    }
+
+    return _metricKitManager;
+}
+
+#endif
 
 @end

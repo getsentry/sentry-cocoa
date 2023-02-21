@@ -12,7 +12,7 @@ SentryDateUtil ()
 
 + (BOOL)isInFuture:(NSDate *_Nullable)date
 {
-    if (nil == date)
+    if (date == nil)
         return NO;
 
     NSComparisonResult result = [[SentryCurrentDate date] compare:date];
@@ -21,11 +21,11 @@ SentryDateUtil ()
 
 + (NSDate *_Nullable)getMaximumDate:(NSDate *_Nullable)first andOther:(NSDate *_Nullable)second
 {
-    if (nil == first && nil == second)
+    if (first == nil && second == nil)
         return nil;
-    if (nil == first)
+    if (first == nil)
         return second;
-    if (nil == second)
+    if (second == nil)
         return first;
 
     NSComparisonResult result = [first compare:second];

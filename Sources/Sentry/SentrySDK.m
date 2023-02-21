@@ -1,6 +1,7 @@
 #import "SentrySDK.h"
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
+#import "SentryAppStateManager.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
@@ -128,20 +129,7 @@ static NSUInteger startInvocations;
     startInvocations = value;
 }
 
-+ (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict
-{
-    NSError *error = nil;
-    SentryOptions *options = [[SentryOptions alloc] initWithDict:optionsDict
-                                                didFailWithError:&error];
-    if (nil != error) {
-        SENTRY_LOG_ERROR(@"Error while initializing the SDK");
-        SENTRY_LOG_ERROR(@"%@", error);
-    } else {
-        [SentrySDK startWithOptionsObject:options];
-    }
-}
-
-+ (void)startWithOptionsObject:(SentryOptions *)options
++ (void)startWithOptions:(SentryOptions *)options
 {
     startInvocations++;
 
@@ -162,7 +150,7 @@ static NSUInteger startInvocations;
 {
     SentryOptions *options = [[SentryOptions alloc] init];
     configureOptions(options);
-    [SentrySDK startWithOptionsObject:options];
+    [SentrySDK startWithOptions:options];
 }
 
 + (void)captureCrashEvent:(SentryEvent *)event
@@ -416,9 +404,13 @@ static NSUInteger startInvocations;
     }
     [hub removeAllIntegrations];
 
-    // close the client
-    SentryClient *client = [hub getClient];
-    client.options.enabled = NO;
+#if SENTRY_HAS_UIKIT
+    // force the AppStateManager to unsubscribe, see
+    // https://github.com/getsentry/sentry-cocoa/issues/2455
+    [[SentryDependencyContainer sharedInstance].appStateManager stopWithForce:YES];
+#endif
+
+    [hub close];
     [hub bindClient:nil];
 
     [SentrySDK setCurrentHub:nil];

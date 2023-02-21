@@ -35,7 +35,6 @@
 #include "SentryCrashMonitor_NSException.h"
 #include "SentryCrashMonitor_Signal.h"
 #include "SentryCrashMonitor_System.h"
-#include "SentryCrashMonitor_User.h"
 #include "SentryCrashMonitor_Zombie.h"
 #include "SentryCrashSystemCapabilities.h"
 #include "SentryCrashThread.h"
@@ -80,10 +79,6 @@ static Monitor g_monitors[] = {
     {
         .monitorType = SentryCrashMonitorTypeCPPException,
         .getAPI = sentrycrashcm_cppexception_getAPI,
-    },
-    {
-        .monitorType = SentryCrashMonitorTypeUserReported,
-        .getAPI = sentrycrashcm_user_getAPI,
     },
     {
         .monitorType = SentryCrashMonitorTypeSystem,
@@ -241,12 +236,8 @@ sentrycrashcm_handleException(struct SentryCrash_MonitorContext *context)
 
     g_onExceptionEvent(context);
 
-    if (context->currentSnapshotUserReported) {
-        g_handlingFatalException = false;
-    } else {
-        if (g_handlingFatalException && !g_crashedDuringExceptionHandling) {
-            SentryCrashLOG_DEBUG("Exception is fatal. Restoring original handlers.");
-            sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeNone);
-        }
+    if (g_handlingFatalException && !g_crashedDuringExceptionHandling) {
+        SentryCrashLOG_DEBUG("Exception is fatal. Restoring original handlers.");
+        sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeNone);
     }
 }

@@ -27,7 +27,7 @@ class SentryNSErrorTests: XCTestCase {
         XCTAssertEqual(actualUnderlyingError.domain, inputUnderlyingError.domain)
     }
 
-    func testSerializeWithUnderlyingNSException_disabled() {
+    func testSerializeWithUnderlyingNSException() {
         let inputExceptionName = NSExceptionName.decimalNumberDivideByZeroException
         let inputExceptionReason = "test exception reason"
         let inputUnderlyingException = NSException(name: inputExceptionName, reason: inputExceptionReason, userInfo: ["some userinfo key": "some userinfo value"])
@@ -42,4 +42,15 @@ class SentryNSErrorTests: XCTestCase {
         XCTAssertEqual(actualDescription, "\(inputDescription) (\(inputExceptionReason))")
     }
 
+    func testWithKernelError() {
+        let inputKernelErrorCode = KERN_NOT_RECEIVER
+        let inputDescription = "some test kernel error"
+        let actualError = NSErrorFromSentryErrorWithKernelError(SentryError.unknownError, inputDescription, inputKernelErrorCode)
+
+        guard let actualDescription = actualError?.localizedDescription else {
+            XCTFail("Expected a localizedDescription in the resulting error")
+            return
+        }
+        XCTAssertEqual(actualDescription, "\(inputDescription) (The task in question does not hold receive rights for the port argument.)")
+    }
 }

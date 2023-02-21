@@ -3,7 +3,7 @@ import XCTest
 class SentryFrameTests: XCTestCase {
 
     func testSerialize() {
-        let frame = TestData.frame
+        let frame = TestData.mainFrame
         
         let actual = frame.serialize()
         
@@ -19,5 +19,10 @@ class SentryFrameTests: XCTestCase {
         XCTAssertEqual(frame.platform, actual["platform"] as? String)
         XCTAssertEqual(frame.inApp, actual["in_app"] as? NSNumber)
         XCTAssertEqual(frame.stackStart, actual["stack_start"] as? NSNumber)
+    }
+    
+    func testSerialize_Bools() {
+        SentryBooleanSerialization.test(Frame(), property: "inApp", serializedProperty: "in_app")
+        SentryBooleanSerialization.test(Frame(), property: "stackStart", serializedProperty: "stack_start")
     }
 }

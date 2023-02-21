@@ -1,18 +1,17 @@
 import Foundation
 
-class TestClient: Client {
-    let sentryFileManager: SentryFileManager
-    let queue = DispatchQueue(label: "TestClient", attributes: .concurrent)
-
+class TestClient: SentryClient {
     override init?(options: Options) {
-        sentryFileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
-        super.init(options: options, permissionsObserver: TestSentryPermissionsObserver())
+        super.init(options: options, fileManager: try! TestFileManager(options: options))
     }
 
+    override init?(options: Options, fileManager: SentryFileManager) {
+        super.init(options: options, fileManager: fileManager)
+    }
+    
     // Without this override we get a fatal error: use of unimplemented initializer
     // see https://stackoverflow.com/questions/28187261/ios-swift-fatal-error-use-of-unimplemented-initializer-init
-    override init(options: Options, transportAdapter: SentryTransportAdapter, fileManager: SentryFileManager, threadInspector: SentryThreadInspector, random: SentryRandomProtocol, crashWrapper: SentryCrashWrapper, permissionsObserver: SentryPermissionsObserver, deviceWrapper: SentryUIDeviceWrapper, locale: Locale, timezone: TimeZone) {
-        sentryFileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
+    override init(options: Options, transportAdapter: SentryTransportAdapter, fileManager: SentryFileManager, threadInspector: SentryThreadInspector, random: SentryRandomProtocol, crashWrapper: SentryCrashWrapper, deviceWrapper: SentryUIDeviceWrapper, locale: Locale, timezone: TimeZone) {
         super.init(
             options: options,
             transportAdapter: transportAdapter,
@@ -20,15 +19,10 @@ class TestClient: Client {
             threadInspector: threadInspector,
             random: random,
             crashWrapper: crashWrapper,
-            permissionsObserver: permissionsObserver,
             deviceWrapper: deviceWrapper,
             locale: locale,
             timezone: timezone
         )
-    }
-
-    override func fileManager() -> SentryFileManager {
-        sentryFileManager
     }
     
     var captureSessionInvocations = Invocations<SentrySession>()
@@ -100,7 +94,6 @@ class TestClient: Client {
     var captureCrashEventInvocations = Invocations<(event: Event, scope: Scope)>()
     override func captureCrash(_ event: Event, with scope: Scope) -> SentryId {
         captureCrashEventInvocations.record((event, scope))
-        print("### Captured")
         return SentryId()
     }
     
@@ -116,7 +109,7 @@ class TestClient: Client {
     }
     
     var captureEnvelopeInvocations = Invocations<SentryEnvelope>()
-    override func capture(envelope: SentryEnvelope) {
+    override func capture(_ envelope: SentryEnvelope) {
         captureEnvelopeInvocations.record(envelope)
     }
     
@@ -130,9 +123,9 @@ class TestClient: Client {
         recordLostEvents.record((category, reason))
     }
     
-    var flushInvoctions = Invocations<TimeInterval>()
+    var flushInvocations = Invocations<TimeInterval>()
     override func flush(timeout: TimeInterval) {
-        flushInvoctions.record(timeout)
+        flushInvocations.record(timeout)
     }
 }
 
@@ -141,6 +134,19 @@ class TestFileManager: SentryFileManager {
     var readTimestampLastInForegroundInvocations: Int = 0
     var storeTimestampLastInForegroundInvocations: Int = 0
     var deleteTimestampLastInForegroundInvocations: Int = 0
+
+    init(options: Options) throws {
+        try super.init(options: options, andCurrentDateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+    }
+
+    init(options: Options, andCurrentDateProvider currentDateProvider: CurrentDateProvider) throws {
+        try super.init(options: options, andCurrentDateProvider: currentDateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+    }
+    
+    var deleteOldEnvelopeItemsInvocations = Invocations<Void>()
+    override func deleteOldEnvelopeItems() {
+        deleteOldEnvelopeItemsInvocations.record(Void())
+    }
 
     override func readTimestampLastInForeground() -> Date? {
         readTimestampLastInForegroundInvocations += 1
@@ -163,9 +169,10 @@ class TestFileManager: SentryFileManager {
         return nil
     }
 
+    var appState: SentryAppState?
     var readPreviousAppStateInvocations = Invocations<Void>()
     override func readPreviousAppState() -> SentryAppState? {
         readPreviousAppStateInvocations.record(Void())
-        return nil
+        return appState
     }
 }

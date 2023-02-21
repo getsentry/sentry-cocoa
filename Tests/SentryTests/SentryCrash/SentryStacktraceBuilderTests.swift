@@ -67,7 +67,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
         XCTAssertTrue(filteredFrames.count == 1, "The frames must be ordered from caller to callee, or oldest to youngest.")
     }
     
-    func testAsyncStacktraces_disabled() throws {
+    func testAsyncStacktraces() throws {
         SentrySDK.start { options in
             options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
             options.stitchAsyncCode = true

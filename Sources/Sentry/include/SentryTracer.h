@@ -1,10 +1,12 @@
+#import "SentrySpan.h"
 #import "SentrySpanProtocol.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceContext,
-    SentryDispatchQueueWrapper, SentryTracer, SentryProfilesSamplerDecision, SentryMeasurementValue;
+    SentryNSTimerWrapper, SentryDispatchQueueWrapper, SentryTracer, SentryProfilesSamplerDecision,
+    SentryMeasurementValue;
 
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
@@ -18,29 +20,9 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
 @end
 
-@interface SentryTracer : NSObject <SentrySpan>
+@interface SentryTracer : SentrySpan
 
 @property (nonatomic, strong) SentryTransactionContext *transactionContext;
-
-/**
- * The context information of the span.
- */
-@property (nonatomic, readonly) SentrySpanContext *context;
-
-/**
- * The timestamp of which the span ended.
- */
-@property (nullable, nonatomic, strong) NSDate *timestamp;
-
-/**
- * The start time of the span.
- */
-@property (nullable, nonatomic, strong) NSDate *startTimestamp;
-
-/**
- * Whether the span is finished.
- */
-@property (readonly) BOOL isFinished;
 
 @property (nullable, nonatomic, copy) void (^finishCallback)(SentryTracer *);
 
@@ -55,11 +37,6 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  * Retrieves a trace context from this tracer.
  */
 @property (nonatomic, readonly) SentryTraceContext *traceContext;
-
-/*
- The root span of this tracer.
- */
-@property (nonatomic, readonly) id<SentrySpan> rootSpan;
 
 /*
  All the spans that where created with this tracer but rootSpan.
@@ -106,6 +83,7 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  * @param hub A hub to bind this transaction
  * @param profilesSamplerDecision Whether to sample a profile corresponding to this transaction
  * @param waitForChildren Whether this tracer should wait all children to finish.
+ * @param timerWrapper A writer around NSTimer, to make it testable
  *
  * @return SentryTracer
  */
@@ -113,7 +91,8 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
                                        hub:(nullable SentryHub *)hub
                    profilesSamplerDecision:
                        (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
-                           waitForChildren:(BOOL)waitForChildren;
+                           waitForChildren:(BOOL)waitForChildren
+                              timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper;
 
 /**
  * Init a SentryTracer with given transaction context, hub and whether the tracer should wait

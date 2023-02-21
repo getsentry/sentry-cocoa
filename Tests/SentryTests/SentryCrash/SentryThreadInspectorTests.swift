@@ -6,10 +6,10 @@ class SentryThreadInspectorTests: XCTestCase {
         var testMachineContextWrapper = TestMachineContextWrapper()
         var stacktraceBuilder = TestSentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: [])))
         
-        func getSut(testWithRealMachineConextWrapper: Bool = false) -> SentryThreadInspector {
+        func getSut(testWithRealMachineContextWrapper: Bool = false) -> SentryThreadInspector {
             
-            let machineContextWrapper = testWithRealMachineConextWrapper ? SentryCrashDefaultMachineContextWrapper() : testMachineContextWrapper as SentryCrashMachineContextWrapper
-            let stacktraceBuilder = testWithRealMachineConextWrapper ? SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []))) : self.stacktraceBuilder
+            let machineContextWrapper = testWithRealMachineContextWrapper ? SentryCrashDefaultMachineContextWrapper() : testMachineContextWrapper as SentryCrashMachineContextWrapper
+            let stacktraceBuilder = testWithRealMachineContextWrapper ? SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []))) : self.stacktraceBuilder
             
             return SentryThreadInspector(
                 stacktraceBuilder: stacktraceBuilder,
@@ -31,25 +31,22 @@ class SentryThreadInspectorTests: XCTestCase {
     }
     
     func testStacktraceHasFrames() {
-        let actual = fixture.getSut(testWithRealMachineConextWrapper: true).getCurrentThreads()
+        let actual = fixture.getSut(testWithRealMachineContextWrapper: true).getCurrentThreads()
         let stacktrace = actual[0].stacktrace
         
         // The stacktrace has usually more than 40 frames. Feel free to change the number if the tests are failing
         XCTAssertTrue(30 < stacktrace?.frames.count ?? 0, "Not enough stacktrace frames.")
     }
     
-    @available(macOS 10.12, iOS 10.0, tvOS 10.0, *)
     func testStacktraceHasFrames_forEveryThread_withStitchAsyncOn() {
         SentrySDK.start { $0.stitchAsyncCode = true }
         assertStackForEveryThread()
     }
     
-    @available(macOS 10.12, iOS 10.0, tvOS 10.0, *)
     func testStacktraceHasFrames_forEveryThread() {
         assertStackForEveryThread()
     }
     
-    @available(macOS 10.12, iOS 10.0, tvOS 10.0, *)
     func assertStackForEveryThread() {
         
         let queue = DispatchQueue(label: "defaultphil", attributes: [.concurrent, .initiallyInactive])
@@ -57,7 +54,7 @@ class SentryThreadInspectorTests: XCTestCase {
         let expect = expectation(description: "Read every thread")
         expect.expectedFulfillmentCount = 10
         
-        let sut = self.fixture.getSut(testWithRealMachineConextWrapper: true)
+        let sut = self.fixture.getSut(testWithRealMachineContextWrapper: true)
         for _ in 0..<10 {
             
             queue.async {
@@ -82,9 +79,23 @@ class SentryThreadInspectorTests: XCTestCase {
         queue.activate()
         wait(for: [expect], timeout: 10)
     }
-    
+
+    func testStackTrackForCurrentThreadAsyncUnsafe() {
+        guard let stackTrace = fixture.getSut(testWithRealMachineContextWrapper: true).stacktraceForCurrentThreadAsyncUnsafe() else {
+            XCTFail("Stack Trace not found")
+            return
+        }
+        let stackTrace2 = fixture.getSut(testWithRealMachineContextWrapper: true).getCurrentThreadsWithStackTrace() 
+
+        XCTAssertNotNil(stackTrace)
+        XCTAssertNotNil(stackTrace2)
+        XCTAssertGreaterThan(stackTrace.frames.count, 0)
+        XCTAssertNotEqual(stackTrace.frames.first?.instructionAddress, "0x0000000000000000")
+        XCTAssertNotEqual(stackTrace.frames.first?.function, "<redacted>")
+    }
+
     func testOnlyCurrentThreadHasStacktrace() {
-        let actual = fixture.getSut(testWithRealMachineConextWrapper: true).getCurrentThreads()
+        let actual = fixture.getSut(testWithRealMachineContextWrapper: true).getCurrentThreads()
         XCTAssertEqual(true, actual[0].current)
         XCTAssertNotNil(actual[0].stacktrace)
         
@@ -93,7 +104,7 @@ class SentryThreadInspectorTests: XCTestCase {
     }
     
     func testOnlyFirstThreadIsCurrent() {
-        let actual = fixture.getSut(testWithRealMachineConextWrapper: true).getCurrentThreads()
+        let actual = fixture.getSut(testWithRealMachineContextWrapper: true).getCurrentThreads()
         
         let thread0 = actual[0]
         XCTAssertEqual(true, thread0.current)
@@ -105,7 +116,7 @@ class SentryThreadInspectorTests: XCTestCase {
     }
     
     func testStacktraceOnlyForCurrentThread() {
-        let actual = fixture.getSut(testWithRealMachineConextWrapper: true).getCurrentThreads()
+        let actual = fixture.getSut(testWithRealMachineContextWrapper: true).getCurrentThreads()
         
         XCTAssertNotNil(actual[0].stacktrace)
         
@@ -117,7 +128,7 @@ class SentryThreadInspectorTests: XCTestCase {
     }
     
     func testCrashedIsFalseForAllThreads() {
-        let actual = fixture.getSut(testWithRealMachineConextWrapper: true).getCurrentThreads()
+        let actual = fixture.getSut(testWithRealMachineContextWrapper: true).getCurrentThreads()
         
         let threadCount = actual.count
         for i in 0..<threadCount {
@@ -169,13 +180,35 @@ class SentryThreadInspectorTests: XCTestCase {
         XCTAssertEqual(threads[0].name, "main")
         XCTAssertEqual(threads[1].name, "Second Thread")
     }
+
+    func testOnlyOneThreadIsMain() {
+        fixture.testMachineContextWrapper.mockThreads = [
+            ThreadInfo(threadId: 2, name: "Main Thread"),
+            ThreadInfo(threadId: 1, name: "First Thread") ]
+        fixture.testMachineContextWrapper.mainThread = 2
+        fixture.testMachineContextWrapper.threadCount = 2
+
+        let actualThreads = fixture.getSut().getCurrentThreads()
+
+        var actualMainThreadsCount = 0
+        var mainThread: SentryThread?
+        let threadCount = actualThreads.count
+        for i in 0..<threadCount {
+            if actualThreads[i].isMain!.boolValue {
+                actualMainThreadsCount += 1
+                mainThread = actualThreads[i]
+            }
+        }
+        XCTAssertEqual(actualMainThreadsCount, 1)
+        XCTAssertEqual(mainThread?.name, "Main Thread")
+    }
 }
 
 private class TestSentryStacktraceBuilder: SentryStacktraceBuilder {
     
-    var stackTraces = [SentryCrashThread: Stacktrace]()
-    override func buildStacktrace(forThread thread: SentryCrashThread, context: OpaquePointer) -> Stacktrace {
-        return stackTraces[thread] ?? Stacktrace(frames: [], registers: [:])
+    var stackTraces = [SentryCrashThread: SentryStacktrace]()
+    override func buildStacktrace(forThread thread: SentryCrashThread, context: OpaquePointer) -> SentryStacktrace {
+        return stackTraces[thread] ?? SentryStacktrace(frames: [], registers: [:])
     }
         
 }

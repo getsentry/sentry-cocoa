@@ -41,13 +41,16 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
     override func tearDown() {
         super.tearDown()
         sut.clear()
+        
+        wait(for: [fixture.threadWrapper.threadFinishedExpectation], timeout: 5)
+        XCTAssertEqual(0, fixture.threadWrapper.threads.count)
     }
     
     func start() {
         sut.addListener(self)
     }
     
-    func testContinousANR_OneReported() {
+    func testContinuousANR_OneReported() {
         fixture.dispatchQueue.blockBeforeMainBlock = {
             self.advanceTime(bySeconds: self.fixture.timeoutInterval)
             return false
@@ -151,6 +154,22 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         start()
         wait(for: [anrDetectedExpectation, anrStoppedExpectation, mainBlockExpectation, secondListener.anrStoppedExpectation, secondListener.anrDetectedExpectation], timeout: waitTimeout)
 
+    }
+    
+    func testClearDirectlyAfterStart() {
+        anrDetectedExpectation.isInverted = true
+        
+        let invocations = 10
+        for _ in 0..<invocations {
+            sut.addListener(self)
+            sut.clear()
+        }
+        
+        wait(for: [anrDetectedExpectation, anrStoppedExpectation], timeout: 1)
+        
+        XCTAssertEqual(0, fixture.threadWrapper.threads.count)
+        XCTAssertEqual(1, fixture.threadWrapper.threadStartedInvocations.count)
+        XCTAssertEqual(1, fixture.threadWrapper.threadFinishedInvocations.count)
     }
     
     func anrDetected() {

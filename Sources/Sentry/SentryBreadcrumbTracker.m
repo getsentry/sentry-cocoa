@@ -6,9 +6,9 @@
 #import "SentryLog.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope.h"
+#import "SentrySwift.h"
 #import "SentrySwizzle.h"
 #import "SentrySwizzleWrapper.h"
-#import "SentryUIViewControllerSanitizer.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -141,13 +141,32 @@ SentryBreadcrumbTracker ()
     [SentrySDK addBreadcrumb:crumb];
 }
 
+#if SENTRY_HAS_UIKIT
++ (BOOL)avoidSender:(id)sender forTarget:(id)target action:(NSString *)action
+{
+    if ([sender isKindOfClass:UITextField.self]) {
+        // This is required to avoid creating breadcrumbs for every key pressed in a text field.
+        // Textfield may invoke many types of event, in order to check if is a
+        // `UIControlEventEditingChanged` we need to compare the current action to all events
+        // attached to the control. This may cause a false negative if the developer is using the
+        // same action for different events, but this trade off is acceptable because using the same
+        // action for `.editingChanged` and another event is not supposed to happen.
+        UITextField *textField = sender;
+        NSArray<NSString *> *actions = [textField actionsForTarget:target
+                                                   forControlEvent:UIControlEventEditingChanged];
+        return [actions containsObject:action];
+    }
+    return false;
+}
+#endif
+
 - (void)swizzleSendAction
 {
 #if SENTRY_HAS_UIKIT
-
     [self.swizzleWrapper
         swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
-            if ([SentrySDK.currentHub getClient] == nil) {
+            if ([SentrySDK.currentHub getClient] == nil ||
+                [SentryBreadcrumbTracker avoidSender:sender forTarget:target action:action]) {
                 return;
             }
 
@@ -193,9 +212,6 @@ SentryBreadcrumbTracker ()
 
                 // Adding crumb via the SDK calls SentryBeforeBreadcrumbCallback
                 [SentrySDK addBreadcrumb:crumb];
-                [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
-                    [scope setExtraValue:crumb.data[@"screen"] forKey:@"__sentry_transaction"];
-                }];
             }
             SentrySWCallOriginal(animated);
         }),
@@ -234,8 +250,7 @@ SentryBreadcrumbTracker ()
 {
     NSMutableDictionary *info = @{}.mutableCopy;
 
-    info[@"screen"] = [SentryUIViewControllerSanitizer
-        sanitizeViewControllerName:[NSString stringWithFormat:@"%@", controller]];
+    info[@"screen"] = [SwiftDescriptor getObjectClassName:controller];
 
     if ([controller.navigationItem.title length] != 0) {
         info[@"title"] = controller.navigationItem.title;
@@ -246,13 +261,13 @@ SentryBreadcrumbTracker ()
     info[@"beingPresented"] = controller.beingPresented ? @"true" : @"false";
 
     if (controller.presentingViewController != nil) {
-        info[@"presentingViewController"] = [SentryUIViewControllerSanitizer
-            sanitizeViewControllerName:controller.presentingViewController];
+        info[@"presentingViewController"] =
+            [SwiftDescriptor getObjectClassName:controller.presentingViewController];
     }
 
     if (controller.parentViewController != nil) {
-        info[@"parentViewController"] = [SentryUIViewControllerSanitizer
-            sanitizeViewControllerName:controller.parentViewController];
+        info[@"parentViewController"] =
+            [SwiftDescriptor getObjectClassName:controller.parentViewController];
     }
 
     if (controller.view.window != nil) {

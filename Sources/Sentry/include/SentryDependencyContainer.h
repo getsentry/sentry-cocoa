@@ -4,7 +4,7 @@
 
 @class SentryAppStateManager, SentryCrashWrapper, SentryThreadWrapper, SentrySwizzleWrapper,
     SentryDispatchQueueWrapper, SentryDebugImageProvider, SentryANRTracker,
-    SentryNSNotificationCenterWrapper;
+    SentryNSNotificationCenterWrapper, SentryMXManager;
 
 #if SENTRY_HAS_UIKIT
 @class SentryScreenshot, SentryUIApplication, SentryViewHierarchy;
@@ -40,6 +40,11 @@ SENTRY_NO_INIT
 #endif
 
 - (SentryANRTracker *)getANRTracker:(NSTimeInterval)timeout;
+
+#if SENTRY_HAS_METRIC_KIT
+@property (nonatomic, strong) SentryMXManager *metricKitManager API_AVAILABLE(
+    ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
+#endif
 
 @end
 

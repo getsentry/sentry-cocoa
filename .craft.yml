@@ -4,6 +4,10 @@ preReleaseCommand: bash ./scripts/bump.sh
 targets:
   - name: github
   - name: cocoapods
+    id: sentryprivate-cocoapod
+    specPath: SentryPrivate.podspec
+  - name: cocoapods
+    id: sentry-cocoapod
     specPath: Sentry.podspec
   - name: registry
     sdks:

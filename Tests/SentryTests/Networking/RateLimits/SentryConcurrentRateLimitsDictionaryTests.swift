@@ -30,11 +30,7 @@ class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
         sut.addRateLimit(SentryDataCategory.attachment, validUntil: dateB)
         XCTAssertEqual(dateB, self.sut.getRateLimit(for: SentryDataCategory.attachment))
     }
-    // Although we only run this test above the below specified versions, we expect the
-    // implementation to be thread safe
-    @available(tvOS 10.0, *)
-    @available(OSX 10.12, *)
-    @available(iOS 10.0, *)
+
     func testConcurrentReadWrite() {
         let queue1 = DispatchQueue(label: "SentryConcurrentRateLimitsStorageTests1", qos: .background, attributes: [.concurrent, .initiallyInactive])
         let queue2 = DispatchQueue(label: "SentryConcurrentRateLimitsStorageTests2", qos: .utility, attributes: [.concurrent, .initiallyInactive])

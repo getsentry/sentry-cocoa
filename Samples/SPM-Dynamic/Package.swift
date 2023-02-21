@@ -5,12 +5,13 @@ import PackageDescription
 
 let package = Package(
     name: "SPM-Dynamic",
+    platforms: [.macOS(.v10_13)],
     products: [
         .library(name: "SPM-Dynamic", type: .dynamic, targets: ["SPM-Dynamic"])
     ],
     dependencies: [
         // branch is replaced in CI to the current sha
-        .package(name: "Sentry", url: "https://github.com/getsentry/sentry-cocoa", .branch("master") )
+        .package(name: "Sentry", url: "https://github.com/getsentry/sentry-cocoa", .branch("main") )
     ],
     targets: [
         .target(

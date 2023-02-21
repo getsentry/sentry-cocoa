@@ -34,9 +34,13 @@ format-clang:
 format-swift:
 	swiftlint --fix
 
+
+## Current git reference name
+GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
+
 test:
 	@echo "--> Running all tests"
-	xcodebuild -workspace Sentry.xcworkspace -scheme Sentry -configuration Test GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES -destination "platform=macOS" test | rbenv exec bundle exec xcpretty -t
+	./scripts/xcode-test.sh iOS latest $(GIT-REF) YES
 .PHONY: test
 
 run-test-server:
@@ -61,17 +65,6 @@ build-xcframework-sample:
 	./scripts/create-carthage-json.sh
 	cd Samples/Carthage-Validation/XCFramework/ && carthage update --use-xcframeworks
 	xcodebuild -project "Samples/Carthage-Validation/XCFramework/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
-
-# Building the .frameworsk.zip only works with Xcode 12, as there is no workaround yet for Xcode 13.
-build-framework:
-	@echo "--> Carthage: creating Sentry framework"
-	./scripts/carthage-xcode12-workaround.sh build --no-skip-current
-	./scripts/carthage-xcode12-workaround.sh archive Sentry --output Sentry.framework.zip
-
-build-framework-sample:
-	./scripts/create-carthage-json.sh
-	cd Samples/Carthage-Validation/Framework/ && carthage update
-	xcodebuild -project "Samples/Carthage-Validation/Framework/Framework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
 ## Build Sentry as a XCFramework that can be used with watchOS and save it to
 ## the watchOS sample.
@@ -107,4 +100,6 @@ git-commit-add:
 	git push --tags
 
 release-pod:
+	pod trunk push SentryPrivate.podspec
 	pod trunk push Sentry.podspec
+	pod trunk push SentrySwiftUI.podspec

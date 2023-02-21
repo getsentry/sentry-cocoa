@@ -36,7 +36,7 @@ SentryUIEventTrackingIntegration ()
 
 - (SentryIntegrationOption)integrationOptions
 {
-    return kIntegrationOptionEnableAutoPerformanceTracking | kIntegrationOptionEnableSwizzling
+    return kIntegrationOptionEnableAutoPerformanceTracing | kIntegrationOptionEnableSwizzling
         | kIntegrationOptionIsTracingEnabled | kIntegrationOptionEnableUserInteractionTracing;
 }
 

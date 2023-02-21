@@ -26,14 +26,10 @@ SENTRY_NO_INIT
 @property (class, nonatomic, readonly) BOOL isEnabled;
 
 /**
- * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations.
+ * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to
+ * set a valid DSN.
  */
-+ (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict NS_SWIFT_NAME(start(options:));
-
-/**
- * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations.
- */
-+ (void)startWithOptionsObject:(SentryOptions *)options NS_SWIFT_NAME(start(options:));
++ (void)startWithOptions:(SentryOptions *)options NS_SWIFT_NAME(start(options:));
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to
@@ -264,7 +260,7 @@ SENTRY_NO_INIT
  *
  * @param crumb The Breadcrumb to add to the current Scope of the current Hub.
  */
-+ (void)addBreadcrumb:(SentryBreadcrumb *)crumb NS_SWIFT_NAME(addBreadcrumb(crumb:));
++ (void)addBreadcrumb:(SentryBreadcrumb *)crumb NS_SWIFT_NAME(addBreadcrumb(_:));
 
 /**
  * Use this method to modify the current Scope of the current Hub. The SDK uses the Scope to attach
@@ -284,7 +280,7 @@ SENTRY_NO_INIT
  *
  * @param user The user to set to the current Scope.
  */
-+ (void)setUser:(SentryUser *_Nullable)user;
++ (void)setUser:(nullable SentryUser *)user;
 
 /**
  * Starts a new SentrySession. If there's a running SentrySession, it ends it before starting the
@@ -315,7 +311,8 @@ SENTRY_NO_INIT
 + (void)flush:(NSTimeInterval)timeout NS_SWIFT_NAME(flush(timeout:));
 
 /**
- * Closes the SDK and uninstalls all the integrations.
+ * Closes the SDK, uninstalls all the integrations, and calls flush with
+ * ``SentryOptions/shutdownTimeInterval``.
  */
 + (void)close;
 

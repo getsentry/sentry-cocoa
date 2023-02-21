@@ -1,0 +1,36 @@
+{
+  "callStacks": [
+    {
+      "threadAttributed": true,
+      "callStackRootFrames": [
+        {
+          "binaryUUID": "9E8D8DE6-EEC1-3199-8720-9ED68EE3F967",
+          "offsetIntoBinaryTextSegment": 414732,
+          "sampleCount": 1,
+          "subFrames": [
+            {
+              "binaryUUID": "CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF",
+              "offsetIntoBinaryTextSegment": 46380,
+              "sampleCount": 1,
+              "binaryName": "iOS-Swift",
+              "address": 4310988076,
+              "subFrames": [
+                {
+                  "binaryUUID": "CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF",
+                  "offsetIntoBinaryTextSegment": 46370,
+                  "sampleCount": 1,
+                  "binaryName": "iOS-Swift",
+                  "address": 4310988026
+                }
+              ]
+            }
+          ],
+          "binaryName": "Sentry",
+          "address": 4312798220
+        }
+      ]
+    }
+  ],
+  "callStackPerThread": true,
+  "unkownField": true
+}

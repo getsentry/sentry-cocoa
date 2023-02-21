@@ -1,9 +1,11 @@
 codecov:
+  branch: main
+  require_ci_to_pass: yes
   notify:
-    after_n_builds: 2 # Wait for both iOS and Mac Catalyst to finish
+    wait_for_ci: yes
 
 coverage:
-  range: "93...100"
+  range: 85...100
 
 parsers:
   gcov:
@@ -14,11 +16,10 @@ parsers:
       macro: no
 
 ignore:
-  - "Sources/SentryCrash"
   - "Tests/SentryTests" 
 
 comment:
   layout: "reach,diff,flags,files,footer"
   behavior: default
   require_changes: no
-  after_n_builds: 2 # Wait for both iOS and Mac Catalyst to finish
+  after_n_builds: 5 # Wait for all jobs uploading reports

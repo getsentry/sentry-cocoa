@@ -61,15 +61,15 @@ class SentryDebugImageProviderTests: XCTestCase {
         
         XCTAssertEqual(3, actual.count)
         
-        XCTAssertEqual("dyld_sim", actual[0].name)
-        XCTAssertEqual("UIKit", actual[1].name)
-        XCTAssertEqual("CoreData", actual[2].name)
+        XCTAssertEqual("dyld_sim", actual[0].codeFile)
+        XCTAssertEqual("UIKit", actual[1].codeFile)
+        XCTAssertEqual("CoreData", actual[2].codeFile)
         
         let debugMeta = actual[0]
-        XCTAssertEqual("84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322", debugMeta.uuid)
+        XCTAssertEqual("84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322", debugMeta.debugID)
         XCTAssertEqual("0x0000000105705000", debugMeta.imageAddress)
         XCTAssertEqual("0x00007fff51af0000", debugMeta.imageVmAddress)
-        XCTAssertEqual("apple", debugMeta.type)
+        XCTAssertEqual("macho", debugMeta.type)
         XCTAssertEqual(352_256, debugMeta.imageSize)
     }
     
@@ -122,36 +122,36 @@ class SentryDebugImageProviderTests: XCTestCase {
     func testImagesForThreads() {
         let sut = fixture.getSut(images: fixture.getTestImages())
         
-        let thread = Sentry.Thread(threadId: NSNumber(value: 1))
+        let thread = SentryThread(threadId: NSNumber(value: 1))
         let frame = Sentry.Frame()
         frame.imageAddress = "0x0000000105705000"
-        thread.stacktrace = Stacktrace(frames: [frame], registers: [:])
+        thread.stacktrace = SentryStacktrace(frames: [frame], registers: [:])
         
         var actual = sut.getDebugImages(for: [thread])
         
         XCTAssertEqual(actual.count, 1)
-        XCTAssertEqual(actual[0].name, "dyld_sim")
+        XCTAssertEqual(actual[0].codeFile, "dyld_sim")
         XCTAssertEqual(actual[0].imageAddress, "0x0000000105705000")
         
         let frame2 = Sentry.Frame()
         frame2.imageAddress = "0x00000001410b1a00"
         let frame3 = Sentry.Frame()
         frame3.imageAddress = "0x000000017ca5e400"
-        thread.stacktrace = Stacktrace(frames: [frame2, frame3], registers: [:])
+        thread.stacktrace = SentryStacktrace(frames: [frame2, frame3], registers: [:])
         
         actual = sut.getDebugImages(for: [thread])
         
         XCTAssertEqual(actual.count, 2)
-        XCTAssertEqual(actual[0].name, "UIKit")
+        XCTAssertEqual(actual[0].codeFile, "UIKit")
         XCTAssertEqual(actual[0].imageAddress, "0x00000001410b1a00")
         
-        XCTAssertEqual(actual[1].name, "CoreData")
+        XCTAssertEqual(actual[1].codeFile, "CoreData")
         XCTAssertEqual(actual[1].imageAddress, "0x000000017ca5e400")
     }
     
     func test_NoImage_ForThread_WithoutStackTrace() {
         let sut = fixture.getSut(images: fixture.getTestImages())
-        let thread = Sentry.Thread(threadId: NSNumber(value: 1))
+        let thread = SentryThread(threadId: NSNumber(value: 1))
         let actual = sut.getDebugImages(for: [thread])
         
         XCTAssertEqual(actual.count, 0)

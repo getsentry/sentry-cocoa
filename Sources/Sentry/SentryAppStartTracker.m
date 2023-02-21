@@ -34,7 +34,7 @@ SentryAppStartTracker ()
 @property (nonatomic, strong) SentrySysctl *sysctl;
 @property (nonatomic, assign) BOOL wasInBackground;
 @property (nonatomic, strong) NSDate *didFinishLaunchingTimestamp;
-@property (nonatomic, assign) BOOL enablePreWarmedAppStartTracking;
+@property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
 
 @end
 
@@ -56,7 +56,7 @@ SentryAppStartTracker ()
                        dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                             appStateManager:(SentryAppStateManager *)appStateManager
                                      sysctl:(SentrySysctl *)sysctl
-            enablePreWarmedAppStartTracking:(BOOL)enablePreWarmedAppStartTracking
+             enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing
 {
     if (self = [super init]) {
         self.currentDate = currentDateProvider;
@@ -66,7 +66,7 @@ SentryAppStartTracker ()
         self.previousAppState = [self.appStateManager loadPreviousAppState];
         self.wasInBackground = NO;
         self.didFinishLaunchingTimestamp = [currentDateProvider date];
-        self.enablePreWarmedAppStartTracking = enablePreWarmedAppStartTracking;
+        self.enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing;
     }
     return self;
 }
@@ -127,11 +127,11 @@ SentryAppStartTracker ()
         if ([self isActivePrewarmAvailable] && isActivePrewarm) {
             SENTRY_LOG_INFO(@"The app was prewarmed.");
 
-            if (self.enablePreWarmedAppStartTracking) {
+            if (self.enablePreWarmedAppStartTracing) {
                 isPreWarmed = YES;
             } else {
                 SENTRY_LOG_INFO(
-                    @"EnablePreWarmedAppStartTracking disabled. Not measuring app start.");
+                    @"EnablePreWarmedAppStartTracing disabled. Not measuring app start.");
                 return;
             }
         }

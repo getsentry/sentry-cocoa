@@ -6,6 +6,7 @@
 #import "SentryMeta.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
+#import "SentryViewHierarchy.h"
 #import <SentryDependencyContainer.h>
 #import <SentryFramesTracker.h>
 #import <SentryScreenshot.h>
@@ -124,6 +125,11 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (NSArray<NSData *> *)captureScreenshots
 {
     return [SentryDependencyContainer.sharedInstance.screenshot takeScreenshots];
+}
+
++ (NSData *)captureViewHierarchy
+{
+    return [SentryDependencyContainer.sharedInstance.viewHierarchy fetchViewHierarchy];
 }
 
 #endif

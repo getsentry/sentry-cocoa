@@ -15,6 +15,7 @@ class SentryMechanismTests: XCTestCase {
         XCTAssertEqual(expected.type, actual["type"] as! String)
         XCTAssertEqual(expected.desc, actual["description"] as? String)
         XCTAssertEqual(expected.handled, actual["handled"] as? NSNumber)
+        XCTAssertEqual(expected.synthetic, actual["synthetic"] as? NSNumber)
         XCTAssertEqual(expected.helpLink, actual["help_link"] as? String)
 
         guard let something = (actual["data"] as? [String: Any])?["something"] as? [String: Any] else {
@@ -27,5 +28,18 @@ class SentryMechanismTests: XCTestCase {
         XCTAssertEqual(date.sentry_toIso8601String(), something["date"] as? String)
 
         XCTAssertNotNil(actual["meta"])
+    }
+    
+    func testSerialize_OnlyType_NullablePropertiesNotAdded() {
+        let type = "type"
+        let mechanism = Mechanism(type: type)
+        
+        let actual = mechanism.serialize()
+        XCTAssertEqual(1, actual.count)
+        XCTAssertEqual(type, actual["type"] as? String)
+    }
+    
+    func testSerialize_Bools() {
+        SentryBooleanSerialization.test(Mechanism(type: ""), property: "handled")
     }
 }

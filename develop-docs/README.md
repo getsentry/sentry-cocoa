@@ -51,6 +51,15 @@ Once daily and for every PR via [Github action](../.github/workflows/benchmarkin
     - Sauce Labs allows relaxing the timeout for a suite of tests and for a `XCTestCase` subclass' collection of test case methods, but each test case in the suite must run in less than 15 minutes. 20 trials takes too long, so we split it up into multiple test cases, each running a subset of the trials. 
     - This is done by dynamically generating test case methods in `SentrySDKPerformanceBenchmarkTests`, which is necessarily written in Objective-C since this is not possible to do in Swift tests. By doing this dynamically, we can easily fine tune how we split up the work to account for changes in the test duration or in constraints on how things run in Sauce Labs etc.
 
+## Upload iOS-Swift's dSYMs with Xcode Run Script
+
+The following script applies a patch so Xcode uploads the iOS-Swift's dSYMs to Sentry during Xcode's build phase.
+Ensure to not commit the patch file after running this script, which then contains your auth token.
+
+```sh
+./scripts/upload-dsyms-with-xcode-build-phase.sh YOUR_AUTH_TOKEN
+```
+
 ## Auto UI Performance Class Overview
 
 ![Auto UI Performance Class Overview](./auto-ui-performance-tracking.svg)
@@ -136,9 +145,54 @@ the iOS 12 simulator a try.
 
 Related to [GH-2218](https://github.com/getsentry/sentry-cocoa/issues/2218)
 
+### Adding Swift code in the project
+
+Date: October 1st 2022
+Contributors: @brustolin
+
+A Sentry SDK started to be [written in Swift once,](https://github.com/getsentry/raven-swift) but due to ABI not being stable at that time, it got dropped. Since then Swift 5.0 landed and we got ABI stability. We’ve considered adding Swift to our sentry.cocoa SDK since then, but because of some of the trade offs, we’ve postponed that decision.
+This changed with our goal to better support SwiftUI. It’s growing in popularity and we need to write code in Swift in order to support it.
+SwiftUI support will be available through an additional library, but to support it, we need to be able to demangle Swift class names in Sentry SDK, which can be done by using Swift API.
+Since we support SPM, and SPM doesn't support multi-language projects, we need to create two different targets, one with Swift and another with Objective-C code. Because of that, our swift code needs to be public, so we're creating a second module called SentryPrivate, where all swift code will be, and we need an extra cocoapod library. 
+With this approach, classes from SentryPrivate will not be available when users import Sentry.
+We don't mind breaking changes in SentryPrivate, because this is not meant to be use by the user, we going to point this out in the docs.
+
+
 ### Writing breadcrumbs to disk in the main thread
 
-Date November 15, 2022
+Date: November 15, 2022
 Contributors: @kevinrenskers, @brustolin and @philipphofmann
 
 For the benefit of OOM crashes, we write breadcrumbs to disk; see https://github.com/getsentry/sentry-cocoa/pull/2347. We have decided to do this in the main thread to ensure we're not missing out on any breadcrumbs. It's mainly the last breadcrumb(s) that are important to figure out what is causing an OOM. And since we're only appending to an open file stream, the overhead is acceptable compared to the benefit of having accurate breadcrumbs.
+
+### Bump min Xcode version to 13
+
+With adding the [MetricKit integration](https://github.com/getsentry/sentry-cocoa/issues/1661), we need to bump the min Xcode version to 13,
+as MetricKit is unavailable on previous Xcode versions. As Xcode 12 doesn't run on macOS 12, and the current Xcode version is 14, we are OK
+with that change. With that change, we also have to drop support for
+[building platform-specific framework bundles](https://github.com/Carthage/Carthage/tree/a91d086ceaffef65c4a4a761108f3f32c519940c#building-platform-specific-framework-bundles-default-for-xcode-11-and-below)
+with Carthage, which was the default for Xcode 11 and below, because the
+[workaround](https://github.com/Carthage/Carthage/blob/a91d086ceaffef65c4a4a761108f3f32c519940c/Documentation/Xcode12Workaround.md) for creating a
+platform-specific framework bundles only works with Xcode 12.
+Carthage has encouraged its users [to use XCFrameworks](https://github.com/Carthage/Carthage/tree/a91d086ceaffef65c4a4a761108f3f32c519940c#getting-started)
+since version 0.37.0, released in January 2021. Therefore, it's acceptable to use XCFrameworks for Carthage users.
+
+## Remove the permissions feature
+
+Date: December 14, 2022
+
+We [removed](https://github.com/getsentry/sentry-cocoa/pull/2529) the permissions feature that we added in [7.24.0](https://github.com/getsentry/sentry-cocoa/releases/tag/7.24.0). Multiple people reported getting denied in app review because of permission access without the corresponding Info.plist entry: see [#2528](https://github.com/getsentry/sentry-cocoa/issues/2528) and [2065](https://github.com/getsentry/sentry-cocoa/issues/2065).
+
+## Rename master to main
+
+Date: January 16th, 2023
+Contributors: @kahest, @brustolin and @philipphofmann
+
+With 8.0.0, we rename the default branch from `master` to `main`. We will keep the `master` branch for backwards compatibility for package managers pointing to the `master` branch.
+
+## SentrySwiftUI version
+
+Date: January 18th, 2023
+Contributors: @brustolin and @philipphofmann
+
+We release experimental SentrySwiftUI cocoa package with the version 8.0.0 because all podspecs file in a repo need to have the same version. 

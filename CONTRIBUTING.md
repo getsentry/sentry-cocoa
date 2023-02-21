@@ -53,7 +53,19 @@ make test
 
 ### Flaky tests
 
-If you see a test being flaky, you should ideally fix it immediately. If that's not feasible, you can disable the test in the test scheme, add a suffix _disabled to the test, so it's clear when looking at the test that it is disabled, and create a GH issue with the issue template flaky test. Disabling the test in the scheme has the advantage that the test report will state "X tests passed, Y tests failed, Z tests skipped".
+If you see a test being flaky, you should ideally fix it immediately. If that's not feasible, you can disable the test in the test scheme by unchecking it in the Test action:
+
+![Disabling test cases via the Xcode scheme](./develop-docs/disabling_tests_xcode_scheme.png)
+
+or by right-clicking it in the Tests Navigator (⌘6):
+
+![Disabling test cases via the Xcode Tests navigator](./develop-docs/disabling_tests_xcode_tests_navigator.png)
+
+Then create a GH issue with the [flaky test issue template](https://github.com/getsentry/sentry-cocoa/issues/new?assignees=&labels=Platform%3A+Cocoa%2CType%3A+Flaky+Test&template=flaky-test.yml). 
+
+Disabling the test in the scheme has the advantage that the test report will state "X tests passed, Y tests failed, Z tests skipped", as well as maintaining a centralized list of skipped tests (look in Sentry.xcscheme) and they will be grayed out when viewing in the Xcode Tests Navigator (⌘6):
+
+![How Xcode displays skipped tests in the Tests Navigator](./develop-docs/xcode_tests_navigator_with_skipped_test.png)
 
 ## Code Formatting
 
@@ -94,6 +106,16 @@ To make a header public follow these steps:
 * Move it into the folder [Public](/Sources/Sentry/Public). Both [CocoaPods](Sentry.podspec) and [Swift Package Manager](Package.swift) make all headers in this folder public.
 * Add it to the Umbrella Header [Sentry.h](/Sources/Sentry/Public/Sentry.h).
 * Set the target membership to public.
+
+## Configuring certificates and provisioning profiles locally
+
+You can run samples in a real device without changing certificates and provisioning profiles if you are a Sentry employee with access to Sentry profiles repository and 1Password account.
+
+* Configure your environment to use SSH to access GitHub. Follow [this instructions](https://docs.github.com/en/authentication/connecting-to-github-with-ssh).
+* You will need `Cocoa codesigning match encryption password` from your Sentry 1Password account.
+* run `fastlane match_local`
+
+This will setup certificates and provisioning profiles into your machine, but in order to be able to run a sample in a real device you need to register that device with Sentry AppConnect account, add the device to the provisioning profile you want to use, download the profile again and open it with Xcode.
 
 ## Final Notes
 

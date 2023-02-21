@@ -256,7 +256,7 @@ class SentryUIEventTrackerTests: XCTestCase {
         
         XCTAssertEqual(name, span.transactionContext.name)
         XCTAssertEqual(nameSource, span.transactionContext.nameSource)
-        XCTAssertEqual(operation, span.context.operation)
+        XCTAssertEqual(operation, span.operation)
     }
     
     private func assertNoTransaction() {
@@ -271,7 +271,7 @@ class SentryUIEventTrackerTests: XCTestCase {
     
     private func assertFinishesTransaction(_ transaction: SentryTracer, _ operation: String) {
         XCTAssertTrue(transaction.isFinished)
-        XCTAssertEqual(.ok, transaction.context.status)
+        XCTAssertEqual(.ok, transaction.status)
         assertTransaction(name: "SentryTests.FirstViewController.\(expectedAction)", operation: operation)
         
         let transactions = getInternalTransactions()

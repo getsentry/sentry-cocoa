@@ -7,6 +7,15 @@
 #import "SentryMachLogging.hpp"
 
 uint64_t
+timeIntervalToNanoseconds(double seconds)
+{
+    NSCAssert(seconds >= 0, @"Seconds must be a positive value");
+    NSCAssert(seconds <= UINT64_MAX / 1e9,
+        @"Value of seconds is too great; will overflow if casted to a uint64_t");
+    return (uint64_t)(seconds * 1e9);
+}
+
+uint64_t
 getAbsoluteTime(void)
 {
     if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)) {

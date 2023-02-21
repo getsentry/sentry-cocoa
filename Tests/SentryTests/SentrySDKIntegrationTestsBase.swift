@@ -22,9 +22,9 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
         clearTestState()
     }
     
-    func givenSdkWithHub(_ options: Options? = nil) {
-        let client = TestClient(options: options ?? self.options)!
-        let hub = SentryHub(client: client, andScope: Scope(), andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andCurrentDateProvider: currentDate)
+    func givenSdkWithHub(_ options: Options? = nil, scope: Scope = Scope()) {
+        let client = TestClient(options: options ?? self.options)
+        let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andCurrentDateProvider: currentDate)
         
         SentrySDK.setCurrentHub(hub)
     }

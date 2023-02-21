@@ -13,5 +13,5 @@ class SentryNSURLSessionTaskSearchTests: XCTestCase {
             XCTAssertEqual(String(describing: classes.first!), "__NSCFURLSessionTask")
         }
     }
-    
+
 }
