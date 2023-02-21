@@ -66,6 +66,14 @@ class TestData {
         return user
     }
     
+    static var geo: Geo {
+        let geo = Geo()
+        geo.city = "Vienna"
+        geo.countryCode = "at"
+        geo.region = "Vienna"
+        return geo
+    }
+    
     static var debugMeta: DebugMeta {
         let debugMeta = DebugMeta()
         debugMeta.imageAddress = "0x0000000105705000"
