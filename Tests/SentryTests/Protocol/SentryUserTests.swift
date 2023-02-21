@@ -12,6 +12,7 @@ class SentryUserTests: XCTestCase {
         user.username = ""
         user.ipAddress = ""
         user.segment = ""
+        user.name = ""
         user.data?.removeAll()
         
         XCTAssertEqual(TestData.user.userId, actual["id"] as? String)
@@ -19,6 +20,7 @@ class SentryUserTests: XCTestCase {
         XCTAssertEqual(TestData.user.username, actual["username"] as? String)
         XCTAssertEqual(TestData.user.ipAddress, actual["ip_address"] as? String)
         XCTAssertEqual(TestData.user.segment, actual["segment"] as? String)
+        XCTAssertEqual(TestData.user.name, actual["name"] as? String)
         XCTAssertEqual(["some": ["data": "data", "date": TestData.timestampAs8601String]], actual["data"] as? Dictionary)
     }
     
@@ -64,6 +66,7 @@ class SentryUserTests: XCTestCase {
         testIsNotEqual { user in user.username = "" }
         testIsNotEqual { user in user.ipAddress = "" }
         testIsNotEqual { user in user.segment = "" }
+        testIsNotEqual { user in user.name = "" }
         testIsNotEqual { user in user.data?.removeAll() }
     }
     
@@ -83,6 +86,7 @@ class SentryUserTests: XCTestCase {
         user.username = ""
         user.ipAddress = ""
         user.segment = ""
+        user.name = ""
         user.data = [:]
         
         XCTAssertEqual(TestData.user, copiedUser)
@@ -119,6 +123,7 @@ class SentryUserTests: XCTestCase {
                     user.username = "\(i)"
                     user.ipAddress = "\(i)"
                     user.segment = "\(i)"
+                    user.name = "\(i)"
                     
                     user.data?["\(i)"] = "\(i)"
                     

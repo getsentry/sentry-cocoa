@@ -32,6 +32,11 @@ NS_SWIFT_NAME(User)
 @property (atomic, copy) NSString *_Nullable segment;
 
 /**
+ * Optional: Human readable name
+ */
+@property (atomic, copy) NSString *_Nullable name;
+
+/**
  * Optional: Additional data
  */
 @property (atomic, strong) NSDictionary<NSString *, id> *_Nullable data;
