@@ -22,8 +22,12 @@ class SentryUserTests: XCTestCase {
         XCTAssertEqual(TestData.user.ipAddress, actual["ip_address"] as? String)
         XCTAssertEqual(TestData.user.segment, actual["segment"] as? String)
         XCTAssertEqual(TestData.user.name, actual["name"] as? String)
-        XCTAssertEqual(TestData.user.geo, actual["geo"] as? String)
         XCTAssertEqual(["some": ["data": "data", "date": TestData.timestampAs8601String]], actual["data"] as? Dictionary)
+        
+        let actualGeo = actual["geo"] as? [String: Any]
+        XCTAssertEqual(TestData.user.geo?.city, actualGeo?["city"] as? String)
+        XCTAssertEqual(TestData.user.geo?.countryCode, actualGeo?["country_code"] as? String)
+        XCTAssertEqual(TestData.user.geo?.region, actualGeo?["region"] as? String)
     }
     
     func testSerializationWithOnlyId() {
@@ -129,9 +133,9 @@ class SentryUserTests: XCTestCase {
                     user.segment = "\(i)"
                     user.name = "\(i)"
                     
-                    let geo = Geo()
-                    geo.city = "\(i)"
-                    user.geo = geo
+                    user.geo?.city = "\(i)"
+                    user.geo?.countryCode = "\(i)"
+                    user.geo?.region = "\(i)"
                     
                     user.data?["\(i)"] = "\(i)"
                     

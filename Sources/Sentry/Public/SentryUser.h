@@ -4,6 +4,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SentryGeo;
+
 NS_SWIFT_NAME(User)
 @interface SentryUser : NSObject <SentrySerializable, NSCopying>
 
@@ -40,7 +42,7 @@ NS_SWIFT_NAME(User)
 /**
  * Optional: Geo location of user
  */
-@property (nonatomic, strong) SentryGeo *_Nullable geo;
+@property (nonatomic, copy) SentryGeo *_Nullable geo;
 
 /**
  * Optional: Additional data
