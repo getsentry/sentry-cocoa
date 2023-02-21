@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- Add cache directory option ([#6](https://github.com/jamf/sentry-cocoa/pull/6))
+- Add cache directory option ([#2711](https://github.com/getsentry/sentry-cocoa/pull/2711))
+
 ### Features
 
 - Combine UIKit and SwiftUI transactions (#2681)
