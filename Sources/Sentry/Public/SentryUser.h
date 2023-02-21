@@ -1,5 +1,6 @@
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
+#import "SentryGeo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,6 +36,11 @@ NS_SWIFT_NAME(User)
  * Optional: Human readable name
  */
 @property (atomic, copy) NSString *_Nullable name;
+
+/**
+ * Optional: Geo location of user
+ */
+@property (nonatomic, strong) SentryGeo *_Nullable geo;
 
 /**
  * Optional: Additional data
