@@ -338,6 +338,10 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     NSMutableDictionary<NSString *, id> *payload = [_gCurrentProfiler->_profileData mutableCopy];
 
     NSArray *samples = ((NSArray *)payload[@"profile"][@"samples"]).mutableCopy;
+
+    // We need at least two samples to be able to draw a stack frame for any given function: one
+    // sample for the start of the frame and another for the end. Otherwise we would only have a
+    // stack frame with 0 duration, which wouldn't make sense.
     if ([samples count] < 2) {
         SENTRY_LOG_DEBUG(@"Not enough samples in profile");
         return nil;
@@ -760,7 +764,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     profile[@"release"] = _gCurrentProfiler->_hub.getClient.options.releaseName;
 }
 
-/** @return serialize info from all transactions that occurred while profiler was running */
+/** @return serialize info corresponding to the specified transaction. */
 + (NSDictionary *)serializeInfoForTransaction:(SentryTransaction *)transaction
                               profileDuration:(uint64_t)profileDuration
 {
