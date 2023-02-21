@@ -70,12 +70,13 @@ NS_ASSUME_NONNULL_BEGIN
         if (self.city != otherCity && ![self.city isEqualToString:otherCity]) {
             return NO;
         }
-        
+
         NSString *otherCountryCode = geo.countryCode;
-        if (self.countryCode != otherCountryCode && ![self.countryCode isEqualToString:otherCountryCode]) {
+        if (self.countryCode != otherCountryCode
+            && ![self.countryCode isEqualToString:otherCountryCode]) {
             return NO;
         }
-        
+
         NSString *otherRegion = geo.region;
         if (self.region != otherRegion && ![self.region isEqualToString:otherRegion]) {
             return NO;
