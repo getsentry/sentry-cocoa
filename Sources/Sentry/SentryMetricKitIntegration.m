@@ -194,26 +194,66 @@ SentryMetricKitIntegration ()
 
             for (SentryMXFrame *frame in callStack.callStackRootFrames) {
 
-                SentryEvent *event = [self createEvent:handled
-                                                 level:level
-                                        exceptionValue:exceptionValue
-                                         exceptionType:exceptionType
-                                    exceptionMechanism:exceptionMechanism];
-                event.timestamp = timeStampBegin;
+                NSMutableArray<SentryMXFrame *> *currentFrames = [NSMutableArray array];
+                NSMutableSet<NSNumber *> *processedAddresses = [NSMutableSet set];
 
-                SentryThread *thread = [[SentryThread alloc] initWithThreadId:@0];
-                thread.crashed = @(!handled);
-                thread.stacktrace = [self
-                    convertMXFramesToSentryStacktrace:frame.framesIncludingSelf.objectEnumerator];
+                SentryMXFrame *currentFrame = frame;
+                [currentFrames addObject:currentFrame];
 
-                SentryException *exception = event.exceptions[0];
-                exception.stacktrace = thread.stacktrace;
-                exception.threadId = thread.threadId;
+                while (currentFrames.count > 0) {
+                    NSArray<SentryMXFrame *> *subFrames = currentFrame.subFrames;
 
-                event.threads = @[ thread ];
-                event.debugMeta = [self extractDebugMetaFromMXFrames:frame.framesIncludingSelf];
+                    // Find not processed subframe
+                    NSArray<SentryMXFrame *> *result = [subFrames
+                        filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
+                                                        SentryMXFrame *f,
+                                                        NSDictionary<NSString *, id> *bindings) {
+                            return ![processedAddresses containsObject:@(f.address)];
+                        }]];
 
-                [SentrySDK captureEvent:event];
+                    SentryMXFrame *notProcessed = result.firstObject;
+                    [processedAddresses addObject:@(currentFrame.address)];
+
+                    if (subFrames.count == 0) {
+                        // Leaf found
+
+                        // Add totalSample count of all frames
+                        SentryEvent *event = [self createEvent:handled
+                                                         level:level
+                                                exceptionValue:exceptionValue
+                                                 exceptionType:exceptionType
+                                            exceptionMechanism:exceptionMechanism];
+                        event.timestamp = timeStampBegin;
+
+                        SentryThread *thread = [[SentryThread alloc] initWithThreadId:@0];
+                        thread.crashed = @(!handled);
+                        thread.stacktrace =
+                            [self convertMXFramesToSentryStacktrace:currentFrames.objectEnumerator];
+
+                        SentryException *exception = event.exceptions[0];
+                        exception.stacktrace = thread.stacktrace;
+                        exception.threadId = thread.threadId;
+
+                        event.threads = @[ thread ];
+                        event.debugMeta = [self extractDebugMetaFromMXFrames:currentFrames];
+
+                        [SentrySDK captureEvent:event];
+
+                        // look for next frame to process
+                        // keep popping until next found
+                        [currentFrames removeLastObject];
+                        currentFrame = [currentFrames lastObject];
+
+                    } else {
+                        if (notProcessed != nil) {
+                            currentFrame = notProcessed;
+                            [currentFrames addObject:currentFrame];
+                        } else {
+                            [currentFrames removeLastObject];
+                            currentFrame = [currentFrames lastObject];
+                        }
+                    }
+                }
             }
         }
     }

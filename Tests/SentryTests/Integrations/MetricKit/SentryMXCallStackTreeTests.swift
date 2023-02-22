@@ -22,7 +22,7 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         let contents = try contentsOfResource("metric-kit-callstack-not-per-thread")
         let callStackTree = try SentryMXCallStackTree.from(data: contents)
         
-        try assertSimpleCallStackTree(callStackTree, perThread: false, framesAmount: 6, threadAttributed: nil)
+        try assertSimpleCallStackTree(callStackTree, perThread: false, framesAmount: 7, threadAttributed: nil, secondFrameSubFrameCount: 2)
     }
     
     func testDecodeCallStackTree_UnknownFieldsPayload() throws {
@@ -49,7 +49,7 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         XCTAssertThrowsError(try SentryMXCallStackTree.from(data: contents))
     }
     
-    private func assertSimpleCallStackTree(_ callStackTree: SentryMXCallStackTree, perThread: Bool = true, callStackCount: Int = 1, framesAmount: Int = 3, threadAttributed: Bool? = true) throws {
+    private func assertSimpleCallStackTree(_ callStackTree: SentryMXCallStackTree, perThread: Bool = true, callStackCount: Int = 1, framesAmount: Int = 3, threadAttributed: Bool? = true, secondFrameSubFrameCount: Int = 1) throws {
         XCTAssertNotNil(callStackTree)
         XCTAssertEqual(perThread, callStackTree.callStackPerThread)
         
@@ -74,7 +74,7 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         XCTAssertEqual(1, secondFrame.sampleCount)
         XCTAssertEqual("iOS-Swift", secondFrame.binaryName)
         XCTAssertEqual(4_310_988_076, secondFrame.address)
-        XCTAssertEqual(1, secondFrame.subFrames?.count)
+        XCTAssertEqual(secondFrameSubFrameCount, secondFrame.subFrames?.count)
         
         let thirdFrame = try XCTUnwrap(callStack.flattenedRootFrames[2])
         XCTAssertEqual(UUID(uuidString: "CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF"), thirdFrame.binaryUUID)
