@@ -213,6 +213,16 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         
         let allFrames = try XCTUnwrap(callStackTreeNotPerThread.callStacks.first?.flattenedRootFrames, "CallStackTree has no call stack.")
         
+        // Overview of stacktrace
+        // | frame 0 |
+        //      | frame 1 |
+        //          | frame 2 |     -> stack trace consists of [0,1,2]
+        //          | frame 3 |
+        //              | frame 4 |     -> stack trace consists of [0,1,3,4]
+        //          | frame 5 |     -> stack trace consists of [0,1,5]
+        // | frame 6 |
+        //      | frame 7 |
+        //          | frame 8 |     -> stack trace consists of [6,7,8]
         let firstEventFrames = [0, 1, 2].map { allFrames[$0] }
         let secondEventFrames = [0, 1, 3, 4].map { allFrames[$0] }
         let thirdEventFrames = [0, 1, 5].map { allFrames[$0] }

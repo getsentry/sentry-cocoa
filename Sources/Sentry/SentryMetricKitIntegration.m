@@ -214,46 +214,67 @@ SentryMetricKitIntegration ()
         [SentrySDK captureEvent:event];
     } else {
         for (SentryMXCallStack *callStack in callStackTree.callStacks) {
-            for (SentryMXFrame *rootFrame in callStack.callStackRootFrames) {
-                [self buildAndCaptureMXEventFor:rootFrame args:args];
-            }
+            [self buildAndCaptureMXEventFor:callStack.callStackRootFrames args:args];
         }
     }
 }
 
-- (void)buildAndCaptureMXEventFor:(SentryMXFrame *)rootFrame args:(SentryMetricKitArguments *)args
+/**
+ * MetricKit organizes the stacktraces in a tree structure. The stacktrace consists of the leaf
+ * frame plus its ancestors.
+ *
+ * The algorithm adds all frames to a list until it finds a leaf frame. Then it reports that frame
+ * with its ancestors as a stacktrace. Afterward, it pops frames from its lists until it finds a
+ * frame that has unprocessed subframes. It repeats until there are no more unprocessed subframes.
+ *
+ * In the following example, the algorithm starts with frame 0, continues until frame 2, and reports
+ * a stacktrace. Then it goes back up to frame 1, and continues with the first unprocessed subframe
+ * frame 3 until frame 4, and again reports the stacktrace.
+ *
+ * | frame 0 |
+ *      | frame 1 |
+ *          | frame 2 |     -> stack trace consists of [0,1,2]
+ *          | frame 3 |
+ *              | frame 4 |     -> stack trace consists of [0,1,3,4]
+ *          | frame 5 |     -> stack trace consists of [0,1,5]
+ * | frame 6 |
+ *      | frame 7 |
+ *          | frame 8 |     -> stack trace consists of [6,7,8]
+ */
+- (void)buildAndCaptureMXEventFor:(NSArray<SentryMXFrame *> *)rootFrames
+                             args:(SentryMetricKitArguments *)args
 {
-    NSMutableArray<SentryMXFrame *> *currentFrames = [NSMutableArray array];
-    NSMutableSet<NSNumber *> *processedFrameAddresses = [NSMutableSet set];
+    for (SentryMXFrame *rootFrame in rootFrames) {
+        NSMutableArray<SentryMXFrame *> *currentFrames = [NSMutableArray array];
+        NSMutableSet<NSNumber *> *processedFrameAddresses = [NSMutableSet set];
 
-    SentryMXFrame *currentFrame = rootFrame;
-    [currentFrames addObject:currentFrame];
+        SentryMXFrame *currentFrame = rootFrame;
+        [currentFrames addObject:currentFrame];
 
-    while (currentFrames.count > 0) {
-        NSArray<SentryMXFrame *> *subFrames = currentFrame.subFrames;
+        while (currentFrames.count > 0) {
+            NSArray<SentryMXFrame *> *subFrames = currentFrame.subFrames;
 
-        SentryMXFrame *nonProcessSubFrame =
-            [self getFirstNotProcessedSubFrames:subFrames
-                        processedFrameAddresses:processedFrameAddresses];
-        [processedFrameAddresses addObject:@(currentFrame.address)];
+            SentryMXFrame *nonProcessSubFrame =
+                [self getFirstNotProcessedSubFrames:subFrames
+                            processedFrameAddresses:processedFrameAddresses];
+            [processedFrameAddresses addObject:@(currentFrame.address)];
 
-        // If a frame has no sub frames its a leaf in the stack trace tree and we report an event
-        // with all its parent frames.
-        if (subFrames.count == 0) {
-            [self captureEventNotPerThread:currentFrames args:args];
+            // If a frame has no sub frames its a leaf in the stack trace tree and we report an
+            // event with all its ancestor frames.
+            if (subFrames.count == 0) {
+                [self captureEventNotPerThread:currentFrames args:args];
 
-            // look for next frame to process
-            // keep popping until next found
-            [currentFrames removeLastObject];
-            currentFrame = [currentFrames lastObject];
-
-        } else {
-            if (nonProcessSubFrame != nil) {
-                currentFrame = nonProcessSubFrame;
-                [currentFrames addObject:currentFrame];
-            } else {
+                // Keep popping until next until next unprocessed frame.
                 [currentFrames removeLastObject];
                 currentFrame = [currentFrames lastObject];
+            } else {
+                if (nonProcessSubFrame != nil) {
+                    currentFrame = nonProcessSubFrame;
+                    [currentFrames addObject:currentFrame];
+                } else {
+                    [currentFrames removeLastObject];
+                    currentFrame = [currentFrames lastObject];
+                }
             }
         }
     }
@@ -264,9 +285,9 @@ SentryMetricKitIntegration ()
                                       (NSSet<NSNumber *> *)processedFrameAddresses
 {
     return [subFrames filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
-                                                      SentryMXFrame *f,
+                                                      SentryMXFrame *frame,
                                                       NSDictionary<NSString *, id> *bindings) {
-        return ![processedFrameAddresses containsObject:@(f.address)];
+        return ![processedFrameAddresses containsObject:@(frame.address)];
     }]].firstObject;
 }
 
