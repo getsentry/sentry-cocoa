@@ -31,6 +31,8 @@
 #import <SentryScreenFrames.h>
 #import <SentrySpanOperations.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 static const void *spanTimestampObserver = &spanTimestampObserver;
 
 /**
@@ -858,3 +860,5 @@ static NSMutableArray<SentryId *> *_gInFlightTraceIDs;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
+
+NS_ASSUME_NONNULL_END
