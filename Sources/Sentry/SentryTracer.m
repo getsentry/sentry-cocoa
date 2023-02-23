@@ -17,7 +17,7 @@
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope.h"
-#import "SentrySpan+Private.h"
+#import "SentrySpan.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
 #import "SentryTime.h"
@@ -57,6 +57,8 @@ SentryTracer ()
 @property (nonatomic, nullable, strong) NSTimer *deadlineTimer;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic) BOOL isProfiling;
+@property (nonatomic) uint64_t startSystemTime;
+@property (nonatomic) uint64_t endSystemTime;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
@@ -332,7 +334,6 @@ static NSMutableArray<SentryId *> *_gInFlightTraceIDs;
 
     SentrySpan *child = [[SentrySpan alloc] initWithTracer:self context:context];
     child.startTimestamp = [SentryCurrentDate date];
-    child.startSystemTime = getAbsoluteTime();
     SENTRY_LOG_DEBUG(@"Started child span %@ under %@", child.spanId.sentrySpanIdString,
         parentId.sentrySpanIdString);
     @synchronized(_children) {
@@ -831,6 +832,7 @@ static NSMutableArray<SentryId *> *_gInFlightTraceIDs;
         return;
     }
     _isProfiling = YES;
+    self.startSystemTime = getAbsoluteTime();
     [SentryProfiler startWithHub:hub];
     SENTRY_LOG_DEBUG(@"[span tracking] Adding root span id %@", self.spanId.sentrySpanIdString);
 
@@ -847,6 +849,7 @@ static NSMutableArray<SentryId *> *_gInFlightTraceIDs;
     if (!self.isProfiling) {
         return;
     }
+    self.endSystemTime = getAbsoluteTime();
     @synchronized(_gGlobalStateLock) {
         SENTRY_LOG_DEBUG(@"[tracer tracking] removing trace id %@", self.traceId);
         [_gInFlightTraceIDs removeObject:self.traceId];
