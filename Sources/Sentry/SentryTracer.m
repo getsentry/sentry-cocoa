@@ -22,6 +22,7 @@
 #import "SentrySpanId.h"
 #import "SentryTime.h"
 #import "SentryTraceContext.h"
+#import "SentryTracerConcurrency.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
@@ -60,7 +61,6 @@ SentryTracer ()
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic) BOOL isProfiling;
 @property (nonatomic) uint64_t startSystemTime;
-@property (nonatomic) uint64_t endSystemTime;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
@@ -201,9 +201,12 @@ static NSMutableArray<SentryId *> *_gInFlightTraceIDs;
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        [self trackTracerForConcurrentProfiling:self.traceId
-                                            hub:hub
-                                        sampled:profilesSamplerDecision.decision];
+        if (profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
+            _isProfiling = YES;
+            _startSystemTime = getAbsoluteTime();
+            [SentryProfiler startWithHub:hub];
+            trackTracerWithID(self.traceId);
+        }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
 
@@ -508,15 +511,6 @@ static NSMutableArray<SentryId *> *_gInFlightTraceIDs;
         }
     }
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-    [self stopTrackingTracerForConcurrentProfiling];
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
-    [self captureTransactionInEnvelope];
-}
-
-- (void)captureTransactionInEnvelope
-{
     SentryTransaction *transaction = [self toTransaction];
 
     // Prewarming can execute code up to viewDidLoad of a UIViewController, and keep the app in the
@@ -532,11 +526,18 @@ static NSMutableArray<SentryId *> *_gInFlightTraceIDs;
     }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    if (!self.isProfiling) {
-        [_hub captureTransaction:transaction withScope:_hub.scope];
+    if (self.isProfiling) {
+        [self captureTransactionWithProfile:transaction];
         return;
     }
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
+    [_hub captureTransaction:transaction withScope:_hub.scope];
+}
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+- (void)captureTransactionWithProfile:(SentryTransaction *)transaction
+{
     SentryEnvelopeItem *profileEnvelopeItem =
         [SentryProfiler createProfilingEnvelopeItemForTransaction:transaction];
     if (!profileEnvelopeItem) {
@@ -544,25 +545,14 @@ static NSMutableArray<SentryId *> *_gInFlightTraceIDs;
         return;
     }
 
+    stopTrackingTracerWithID(self.traceId, ^{ [SentryProfiler stop]; });
+
     SENTRY_LOG_DEBUG(@"Capturing transaction with profiling data attached.");
     [_hub captureTransaction:transaction
                       withScope:_hub.scope
         additionalEnvelopeItems:@[ profileEnvelopeItem ]];
-
-    @synchronized(_gGlobalStateLock) {
-        if (_gInFlightTraceIDs.count == 0) {
-            SENTRY_LOG_DEBUG(@"Last in flight tracer completed, stopping profiler.");
-            [SentryProfiler stop];
-        } else {
-            SENTRY_LOG_DEBUG(
-                @"Waiting on %lu other tracers to complete before stopping profiler: %@.",
-                _gInFlightTraceIDs.count, _gInFlightTraceIDs);
-        }
-    }
-#else
-    [_hub captureTransaction:transaction withScope:_hub.scope];
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 - (void)trimEndTimestamp
 {
@@ -595,8 +585,10 @@ static NSMutableArray<SentryId *> *_gInFlightTraceIDs;
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.transactionContext.name;
+#if SENTRY_TARGET_PROFILING_SUPPORTED
     transaction.startSystemTime = self.startSystemTime;
-    transaction.endSystemTime = self.endSystemTime;
+    transaction.endSystemTime = getAbsoluteTime();
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     NSMutableArray *framesOfAllSpans = [NSMutableArray array];
     if ([(SentrySpan *)self frames]) {
@@ -824,40 +816,6 @@ static NSMutableArray<SentryId *> *_gInFlightTraceIDs;
     }
     return nil;
 }
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-- (void)trackTracerForConcurrentProfiling:(SentryId *)traceID
-                                      hub:(SentryHub *)hub
-                                  sampled:(SentrySampleDecision)sampleDecision
-{
-    if (sampleDecision != kSentrySampleDecisionYes) {
-        return;
-    }
-    _isProfiling = YES;
-    self.startSystemTime = getAbsoluteTime();
-    [SentryProfiler startWithHub:hub];
-    SENTRY_LOG_DEBUG(@"[span tracking] Adding root span id %@", self.spanId.sentrySpanIdString);
-
-    @synchronized(_gGlobalStateLock) {
-        if (_gInFlightTraceIDs == nil) {
-            _gInFlightTraceIDs = [NSMutableArray<SentryId *> array];
-        }
-        [_gInFlightTraceIDs addObject:traceID];
-    }
-}
-
-- (void)stopTrackingTracerForConcurrentProfiling
-{
-    if (!self.isProfiling) {
-        return;
-    }
-    self.endSystemTime = getAbsoluteTime();
-    @synchronized(_gGlobalStateLock) {
-        SENTRY_LOG_DEBUG(@"[tracer tracking] removing trace id %@", self.traceId);
-        [_gInFlightTraceIDs removeObject:self.traceId];
-    }
-}
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
 
