@@ -214,68 +214,80 @@ SentryMetricKitIntegration ()
         [SentrySDK captureEvent:event];
     } else {
         for (SentryMXCallStack *callStack in callStackTree.callStacks) {
-
-            for (SentryMXFrame *frame in callStack.callStackRootFrames) {
-
-                NSMutableArray<SentryMXFrame *> *currentFrames = [NSMutableArray array];
-                NSMutableSet<NSNumber *> *processedAddresses = [NSMutableSet set];
-
-                SentryMXFrame *currentFrame = frame;
-                [currentFrames addObject:currentFrame];
-
-                while (currentFrames.count > 0) {
-                    NSArray<SentryMXFrame *> *subFrames = currentFrame.subFrames;
-
-                    // Find not processed subframe
-                    NSArray<SentryMXFrame *> *result = [subFrames
-                        filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
-                                                        SentryMXFrame *f,
-                                                        NSDictionary<NSString *, id> *bindings) {
-                            return ![processedAddresses containsObject:@(f.address)];
-                        }]];
-
-                    SentryMXFrame *notProcessed = result.firstObject;
-                    [processedAddresses addObject:@(currentFrame.address)];
-
-                    if (subFrames.count == 0) {
-                        // Leaf found
-
-                        // Add totalSample count of all frames
-                        SentryEvent *event = [self createEvent:args];
-                        event.timestamp = args.timeStampBegin;
-
-                        SentryThread *thread = [[SentryThread alloc] initWithThreadId:@0];
-                        thread.crashed = @(!args.handled);
-                        thread.stacktrace =
-                            [self convertMXFramesToSentryStacktrace:currentFrames.objectEnumerator];
-
-                        SentryException *exception = event.exceptions[0];
-                        exception.stacktrace = thread.stacktrace;
-                        exception.threadId = thread.threadId;
-
-                        event.threads = @[ thread ];
-                        event.debugMeta = [self extractDebugMetaFromMXFrames:currentFrames];
-
-                        [SentrySDK captureEvent:event];
-
-                        // look for next frame to process
-                        // keep popping until next found
-                        [currentFrames removeLastObject];
-                        currentFrame = [currentFrames lastObject];
-
-                    } else {
-                        if (notProcessed != nil) {
-                            currentFrame = notProcessed;
-                            [currentFrames addObject:currentFrame];
-                        } else {
-                            [currentFrames removeLastObject];
-                            currentFrame = [currentFrames lastObject];
-                        }
-                    }
-                }
+            for (SentryMXFrame *rootFrame in callStack.callStackRootFrames) {
+                [self buildAndCaptureMXEventFor:rootFrame args:args];
             }
         }
     }
+}
+
+- (void)buildAndCaptureMXEventFor:(SentryMXFrame *)rootFrame args:(SentryMetricKitArguments *)args
+{
+    NSMutableArray<SentryMXFrame *> *currentFrames = [NSMutableArray array];
+    NSMutableSet<NSNumber *> *processedFrameAddresses = [NSMutableSet set];
+
+    SentryMXFrame *currentFrame = rootFrame;
+    [currentFrames addObject:currentFrame];
+
+    while (currentFrames.count > 0) {
+        NSArray<SentryMXFrame *> *subFrames = currentFrame.subFrames;
+
+        SentryMXFrame *nonProcessSubFrame =
+            [self getFirstNotProcessedSubFrames:subFrames
+                        processedFrameAddresses:processedFrameAddresses];
+        [processedFrameAddresses addObject:@(currentFrame.address)];
+
+        // If a frame has no sub frames its a leaf in the stack trace tree and we report an event
+        // with all its parent frames.
+        if (subFrames.count == 0) {
+            [self captureEventNotPerThread:currentFrames args:args];
+
+            // look for next frame to process
+            // keep popping until next found
+            [currentFrames removeLastObject];
+            currentFrame = [currentFrames lastObject];
+
+        } else {
+            if (nonProcessSubFrame != nil) {
+                currentFrame = nonProcessSubFrame;
+                [currentFrames addObject:currentFrame];
+            } else {
+                [currentFrames removeLastObject];
+                currentFrame = [currentFrames lastObject];
+            }
+        }
+    }
+}
+
+- (nullable SentryMXFrame *)getFirstNotProcessedSubFrames:(NSArray<SentryMXFrame *> *)subFrames
+                                  processedFrameAddresses:
+                                      (NSSet<NSNumber *> *)processedFrameAddresses
+{
+    return [subFrames filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
+                                                      SentryMXFrame *f,
+                                                      NSDictionary<NSString *, id> *bindings) {
+        return ![processedFrameAddresses containsObject:@(f.address)];
+    }]].firstObject;
+}
+
+- (void)captureEventNotPerThread:(NSArray<SentryMXFrame *> *)frames
+                            args:(SentryMetricKitArguments *)args
+{
+    SentryEvent *event = [self createEvent:args];
+    event.timestamp = args.timeStampBegin;
+
+    SentryThread *thread = [[SentryThread alloc] initWithThreadId:@0];
+    thread.crashed = @(!args.handled);
+    thread.stacktrace = [self convertMXFramesToSentryStacktrace:frames.objectEnumerator];
+
+    SentryException *exception = event.exceptions[0];
+    exception.stacktrace = thread.stacktrace;
+    exception.threadId = thread.threadId;
+
+    event.threads = @[ thread ];
+    event.debugMeta = [self extractDebugMetaFromMXFrames:frames];
+
+    [SentrySDK captureEvent:event];
 }
 
 - (SentryEvent *)createEvent:(SentryMetricKitArguments *)args
