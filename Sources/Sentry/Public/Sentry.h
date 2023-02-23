@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 
-// Useless line to trigger profile-data-generator
+// Useless line to trigger profile-data-generator 2
 //! Project version number for Sentry.
 FOUNDATION_EXPORT double SentryVersionNumber;
 
