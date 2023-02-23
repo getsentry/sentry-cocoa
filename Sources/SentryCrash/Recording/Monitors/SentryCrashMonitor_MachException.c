@@ -323,7 +323,7 @@ handleExceptions(void *const userData)
 
             SentryCrashLOG_DEBUG("Received exception from subprocess. Ignoring message and waiting for another.");
             // Send a reply saying "I didn't handle this exception".
-            replyMessage.header.msgh_id = 0;
+            replyMessage.header.msgh_id = exceptionMessage.header.msgh_id;
             replyMessage.header.msgh_bits = exceptionMessage.header.msgh_bits & MACH_MSGH_BITS_REMOTE_MASK;
             replyMessage.header.msgh_remote_port = exceptionMessage.header.msgh_remote_port;
             replyMessage.header.msgh_local_port = MACH_PORT_NULL;
