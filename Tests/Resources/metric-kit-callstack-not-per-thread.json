@@ -19,14 +19,31 @@
                   "offsetIntoBinaryTextSegment": 46370,
                   "sampleCount": 1,
                   "binaryName": "iOS-Swift",
-                  "address": 4310988026
+                  "address": 4310988026,
+                  "subFrames": []
                 },
                 {
                   "binaryUUID": "CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF",
                   "offsetIntoBinaryTextSegment": 46360,
                   "sampleCount": 1,
                   "binaryName": "iOS-Swift",
-                  "address": 4310988056
+                  "address": 4310988056,
+                  "subFrames": [
+                    {
+                      "binaryUUID": "CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF",
+                      "offsetIntoBinaryTextSegment": 46330,
+                      "sampleCount": 1,
+                      "binaryName": "iOS-Swift",
+                      "address": 4310988066
+                    }
+                  ]
+                },
+                {
+                  "binaryUUID": "CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF",
+                  "offsetIntoBinaryTextSegment": 46310,
+                  "sampleCount": 1,
+                  "binaryName": "iOS-Swift",
+                  "address": 4310988036
                 }
               ]
             }

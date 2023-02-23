@@ -90,7 +90,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             let mxDelegate = sut as SentryMXManagerDelegate
             mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
-            try assertPerThread(exceptionType: "MXCPUException", exceptionValue: "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms", exceptionMechanism: "mx_cpu_exception")
+            assertNothingCaptured()
         }
     }
     
@@ -183,26 +183,45 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         }
     }
     
+    private func assertNothingCaptured() {
+        guard let client = SentrySDK.currentHub().getClient() as? TestClient else {
+            XCTFail("Hub Client is not a `TestClient`")
+            return
+        }
+        
+        XCTAssertEqual(0, client.captureEventWithScopeInvocations.count, "No events should be captured")
+    }
+    
     private func assertNotPerThread(exceptionType: String, exceptionValue: String, exceptionMechanism: String) throws {
         guard let client = SentrySDK.currentHub().getClient() as? TestClient else {
             XCTFail("Hub Client is not a `TestClient`")
             return
         }
         
-        XCTAssertEqual(2, client.captureEventWithScopeInvocations.count, "Client expected to capture 2 events.")
-        let firstEvent = client.captureEventWithScopeInvocations.invocations[0].event
-        let secondEvent = client.captureEventWithScopeInvocations.invocations[1].event
+        let invocations = client.captureEventWithScopeInvocations.invocations
+        XCTAssertEqual(4, client.captureEventWithScopeInvocations.count, "Client expected to capture 2 events.")
         
-        XCTAssertEqual(timeStampBegin, firstEvent.timestamp)
-        XCTAssertEqual(timeStampBegin, secondEvent.timestamp)
+        let firstEvent = invocations[0].event
+        let secondEvent = invocations[1].event
+        let thirdEvent = invocations[2].event
+        let fourthEvent = invocations[3].event
         
-        XCTAssertEqual(false, firstEvent.threads?[0].crashed)
-        XCTAssertEqual(false, secondEvent.threads?[0].crashed)
+        invocations.map { $0.event }.forEach {
+            XCTAssertEqual(timeStampBegin, $0.timestamp)
+            XCTAssertEqual(false, $0.threads?[0].crashed)
+        }
         
-        let frames = try XCTUnwrap(callStackTreeNotPerThread.callStacks.first?.callStackRootFrames, "CallStackTree has no call stack.")
+        let allFrames = try XCTUnwrap(callStackTreeNotPerThread.callStacks.first?.flattenedRootFrames, "CallStackTree has no call stack.")
         
-        try assertFrames(frames: frames[0].framesIncludingSelf, event: firstEvent, exceptionType, exceptionValue, exceptionMechanism)
-        try assertFrames(frames: frames[1].framesIncludingSelf, event: secondEvent, exceptionType, exceptionValue, exceptionMechanism)
+        let firstEventFrames = [0, 1, 2].map { allFrames[$0] }
+        let secondEventFrames = [0, 1, 3, 4].map { allFrames[$0] }
+        let thirdEventFrames = [0, 1, 5].map { allFrames[$0] }
+        let fourthEventFrames = [6, 7, 8].map { allFrames[$0] }
+        
+        try assertFrames(frames: firstEventFrames, event: firstEvent, exceptionType, exceptionValue, exceptionMechanism)
+        try assertFrames(frames: secondEventFrames, event: secondEvent, exceptionType, exceptionValue, exceptionMechanism)
+        try assertFrames(frames: thirdEventFrames, event: thirdEvent, exceptionType, exceptionValue, exceptionMechanism)
+        try assertFrames(frames: fourthEventFrames, event: fourthEvent, exceptionType, exceptionValue, exceptionMechanism)
     }
     
     private func assertFrames(frames: [SentryMXFrame], event: Event?, _ exceptionType: String, _ exceptionValue: String, _ exceptionMechanism: String, handled: Bool = true) throws {

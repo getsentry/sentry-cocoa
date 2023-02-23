@@ -7,6 +7,7 @@
 #import <SentryException.h>
 #import <SentryFrame.h>
 #import <SentryHexAddressFormatter.h>
+#import <SentryLog.h>
 #import <SentryMechanism.h>
 #import <SentryMetricKitIntegration.h>
 #import <SentrySDK+Private.h>
@@ -24,6 +25,21 @@
 #    endif
 
 NS_ASSUME_NONNULL_BEGIN
+
+@interface SentryMetricKitArguments : NSObject
+
+@property (nonatomic, assign) BOOL handled;
+@property (nonatomic, assign) SentryLevel level;
+@property (nonatomic, copy) NSString *exceptionValue;
+@property (nonatomic, copy) NSString *exceptionType;
+@property (nonatomic, copy) NSString *exceptionMechanism;
+@property (nonatomic, copy) NSDate *timeStampBegin;
+
+@end
+
+@implementation SentryMetricKitArguments
+
+@end
 
 @interface
 SentryMetricKitIntegration ()
@@ -77,13 +93,15 @@ SentryMetricKitIntegration ()
         [NSString stringWithFormat:@"MachException Type:%@ Code:%@ Signal:%@",
                   diagnostic.exceptionType, diagnostic.exceptionCode, diagnostic.signal];
 
-    [self captureMXEvent:callStackTree
-                   handled:NO
-                     level:kSentryLevelError
-            exceptionValue:exceptionValue
-             exceptionType:@"MXCrashDiagnostic"
-        exceptionMechanism:@"MXCrashDiagnostic"
-            timeStampBegin:timeStampBegin];
+    SentryMetricKitArguments *args = [[SentryMetricKitArguments alloc] init];
+    args.handled = NO;
+    args.level = kSentryLevelError;
+    args.exceptionValue = exceptionValue;
+    args.exceptionType = @"MXCrashDiagnostic";
+    args.exceptionMechanism = @"MXCrashDiagnostic";
+    args.timeStampBegin = timeStampBegin;
+
+    [self captureMXEvent:callStackTree args:args];
 }
 
 - (void)didReceiveCpuExceptionDiagnostic:(MXCPUExceptionDiagnostic *)diagnostic
@@ -91,6 +109,14 @@ SentryMetricKitIntegration ()
                           timeStampBegin:(NSDate *)timeStampBegin
                             timeStampEnd:(NSDate *)timeStampEnd
 {
+    // MXCPUExceptionDiagnostics call stacks point to hot spots in code and aren't organized per
+    // thread. See https://developer.apple.com/videos/play/wwdc2020/10078/?time=224
+    if (callStackTree.callStackPerThread) {
+        SENTRY_LOG_WARN(@"MXCPUExceptionDiagnostics aren't expected to have call stacks per "
+                        @"thread. Ignoring it.");
+        return;
+    }
+
     NSString *totalCPUTime =
         [self.measurementFormatter stringFromMeasurement:diagnostic.totalCPUTime];
     NSString *totalSampledTime =
@@ -102,13 +128,15 @@ SentryMetricKitIntegration ()
 
     // Still need to figure out proper exception values and types.
     // This code is currently only there for testing with TestFlight.
-    [self captureMXEvent:callStackTree
-                   handled:YES
-                     level:kSentryLevelWarning
-            exceptionValue:exceptionValue
-             exceptionType:SentryMetricKitCpuExceptionType
-        exceptionMechanism:SentryMetricKitCpuExceptionMechanism
-            timeStampBegin:timeStampBegin];
+    SentryMetricKitArguments *args = [[SentryMetricKitArguments alloc] init];
+    args.handled = YES;
+    args.level = kSentryLevelWarning;
+    args.exceptionValue = exceptionValue;
+    args.exceptionType = SentryMetricKitCpuExceptionType;
+    args.exceptionMechanism = SentryMetricKitCpuExceptionMechanism;
+    args.timeStampBegin = timeStampBegin;
+
+    [self captureMXEvent:callStackTree args:args];
 }
 
 - (void)didReceiveDiskWriteExceptionDiagnostic:(MXDiskWriteExceptionDiagnostic *)diagnostic
@@ -124,13 +152,16 @@ SentryMetricKitIntegration ()
 
     // Still need to figure out proper exception values and types.
     // This code is currently only there for testing with TestFlight.
-    [self captureMXEvent:callStackTree
-                   handled:YES
-                     level:kSentryLevelWarning
-            exceptionValue:exceptionValue
-             exceptionType:SentryMetricKitDiskWriteExceptionType
-        exceptionMechanism:SentryMetricKitDiskWriteExceptionMechanism
-            timeStampBegin:timeStampBegin];
+
+    SentryMetricKitArguments *args = [[SentryMetricKitArguments alloc] init];
+    args.handled = YES;
+    args.level = kSentryLevelWarning;
+    args.exceptionValue = exceptionValue;
+    args.exceptionType = SentryMetricKitDiskWriteExceptionType;
+    args.exceptionMechanism = SentryMetricKitDiskWriteExceptionMechanism;
+    args.timeStampBegin = timeStampBegin;
+
+    [self captureMXEvent:callStackTree args:args];
 }
 
 - (void)didReceiveHangDiagnostic:(MXHangDiagnostic *)diagnostic
@@ -144,22 +175,18 @@ SentryMetricKitIntegration ()
     NSString *exceptionValue = [NSString
         stringWithFormat:@"%@ hangDuration:%@", SentryMetricKitHangDiagnosticType, hangDuration];
 
-    [self captureMXEvent:callStackTree
-                   handled:YES
-                     level:kSentryLevelWarning
-            exceptionValue:exceptionValue
-             exceptionType:SentryMetricKitHangDiagnosticType
-        exceptionMechanism:SentryMetricKitHangDiagnosticMechanism
-            timeStampBegin:timeStampBegin];
+    SentryMetricKitArguments *args = [[SentryMetricKitArguments alloc] init];
+    args.handled = YES;
+    args.level = kSentryLevelWarning;
+    args.exceptionValue = exceptionValue;
+    args.exceptionType = SentryMetricKitHangDiagnosticType;
+    args.exceptionMechanism = SentryMetricKitHangDiagnosticMechanism;
+    args.timeStampBegin = timeStampBegin;
+
+    [self captureMXEvent:callStackTree args:args];
 }
 
-- (void)captureMXEvent:(SentryMXCallStackTree *)callStackTree
-               handled:(BOOL)handled
-                 level:(enum SentryLevel)level
-        exceptionValue:(NSString *)exceptionValue
-         exceptionType:(NSString *)exceptionType
-    exceptionMechanism:(NSString *)exceptionMechanism
-        timeStampBegin:(NSDate *)timeStampBegin
+- (void)captureMXEvent:(SentryMXCallStackTree *)callStackTree args:(SentryMetricKitArguments *)args
 {
     // When receiving MXCrashDiagnostic the callStackPerThread was always true. In that case, the
     // MXCallStacks of the MXCallStackTree were individual threads, all belonging to the process
@@ -168,17 +195,13 @@ SentryMetricKitIntegration ()
     // observation time of 90 seconds of one app run. It's a collection of stack traces that are
     // CPU-hungry. They could be from multiple threads or the same thread.
     if (callStackTree.callStackPerThread) {
-        SentryEvent *event = [self createEvent:handled
-                                         level:level
-                                exceptionValue:exceptionValue
-                                 exceptionType:exceptionType
-                            exceptionMechanism:exceptionMechanism];
+        SentryEvent *event = [self createEvent:args];
 
-        event.timestamp = timeStampBegin;
+        event.timestamp = args.timeStampBegin;
         event.threads = [self convertToSentryThreads:callStackTree];
 
         SentryThread *crashedThread = event.threads[0];
-        crashedThread.crashed = @(!handled);
+        crashedThread.crashed = @(!args.handled);
 
         SentryException *exception = event.exceptions[0];
         exception.stacktrace = crashedThread.stacktrace;
@@ -218,15 +241,11 @@ SentryMetricKitIntegration ()
                         // Leaf found
 
                         // Add totalSample count of all frames
-                        SentryEvent *event = [self createEvent:handled
-                                                         level:level
-                                                exceptionValue:exceptionValue
-                                                 exceptionType:exceptionType
-                                            exceptionMechanism:exceptionMechanism];
-                        event.timestamp = timeStampBegin;
+                        SentryEvent *event = [self createEvent:args];
+                        event.timestamp = args.timeStampBegin;
 
                         SentryThread *thread = [[SentryThread alloc] initWithThreadId:@0];
-                        thread.crashed = @(!handled);
+                        thread.crashed = @(!args.handled);
                         thread.stacktrace =
                             [self convertMXFramesToSentryStacktrace:currentFrames.objectEnumerator];
 
@@ -259,18 +278,14 @@ SentryMetricKitIntegration ()
     }
 }
 
-- (SentryEvent *)createEvent:(BOOL)handled
-                       level:(enum SentryLevel)level
-              exceptionValue:(NSString *)exceptionValue
-               exceptionType:(NSString *)exceptionType
-          exceptionMechanism:(NSString *)exceptionMechanism
+- (SentryEvent *)createEvent:(SentryMetricKitArguments *)args
 {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:level];
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:args.level];
 
-    SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
-                                                                   type:exceptionType];
-    SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:exceptionMechanism];
-    mechanism.handled = @(handled);
+    SentryException *exception = [[SentryException alloc] initWithValue:args.exceptionValue
+                                                                   type:args.exceptionType];
+    SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:args.exceptionMechanism];
+    mechanism.handled = @(args.handled);
     mechanism.synthetic = @(YES);
     exception.mechanism = mechanism;
     event.exceptions = @[ exception ];
