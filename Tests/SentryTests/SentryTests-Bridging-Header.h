@@ -21,6 +21,7 @@
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryAutoSessionTrackingIntegration.h"
 #import "SentryBaggage.h"
+#import "SentryBooleanSerialization.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryByteCountFormatter.h"
 #import "SentryClassRegistrator.h"

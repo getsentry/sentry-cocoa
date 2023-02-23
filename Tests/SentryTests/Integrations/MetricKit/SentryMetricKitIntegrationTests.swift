@@ -220,15 +220,15 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             return
         }
         
-        XCTAssertEqual("apple", debugMeta[0].type)
-        XCTAssertEqual("9E8D8DE6-EEC1-3199-8720-9ED68EE3F967", debugMeta[0].uuid)
+        XCTAssertEqual("macho", debugMeta[0].type)
+        XCTAssertEqual("9E8D8DE6-EEC1-3199-8720-9ED68EE3F967", debugMeta[0].debugID)
         XCTAssertEqual("0x000000010109c000", debugMeta[0].imageAddress)
-        XCTAssertEqual("Sentry", debugMeta[0].name)
+        XCTAssertEqual("Sentry", debugMeta[0].codeFile)
         
-        XCTAssertEqual("apple", debugMeta[1].type)
-        XCTAssertEqual("CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF", debugMeta[1].uuid)
+        XCTAssertEqual("macho", debugMeta[1].type)
+        XCTAssertEqual("CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF", debugMeta[1].debugID)
         XCTAssertEqual("0x0000000100f3c000", debugMeta[1].imageAddress)
-        XCTAssertEqual("iOS-Swift", debugMeta[1].name)
+        XCTAssertEqual("iOS-Swift", debugMeta[1].codeFile)
     }
     
     private func assertFrame(mxFrame: SentryMXFrame, sentryFrame: Frame) {
