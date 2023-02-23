@@ -485,7 +485,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
             _tracesSampleRate = @1;
         }
     }
-    _enableTracingManual = true;
+    _enableTracingManual = YES;
 }
 
 - (void)setTracesSampleRate:(NSNumber *)tracesSampleRate
