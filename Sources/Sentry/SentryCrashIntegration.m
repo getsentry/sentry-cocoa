@@ -81,7 +81,7 @@ SentryCrashIntegration ()
     self.scopeObserver =
         [[SentryCrashScopeObserver alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs];
 
-    [self startCrashHandler:options.cacheDirectory];
+    [self startCrashHandler:options.cacheDirectoryPatch];
 
     if (options.stitchAsyncCode) {
         [self.crashAdapter installAsyncHooks];

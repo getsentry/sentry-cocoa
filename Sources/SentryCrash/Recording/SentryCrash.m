@@ -79,7 +79,7 @@ static NSString *
 getBasePath()
 {
     SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
-    NSString *customCacheDirectory = options.cacheDirectory;
+    NSString *customCacheDirectory = options.cacheDirectoryPatch;
 
     if (customCacheDirectory != nil) {
         return customCacheDirectory;

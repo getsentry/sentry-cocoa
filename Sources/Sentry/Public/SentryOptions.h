@@ -20,7 +20,7 @@ NS_SWIFT_NAME(Options)
  * Optional, custom cache directory. Use when default one can not be accessed, e.g. in security
  * environment.
  */
-@property (nonatomic, strong) NSString *_Nullable cacheDirectory;
+@property (nonatomic, copy) NSString *cacheDirectoryPatch;
 
 /**
  * The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
