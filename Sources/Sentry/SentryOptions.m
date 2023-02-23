@@ -145,7 +145,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         SentryHttpStatusCodeRange *defaultHttpStatusCodeRange =
             [[SentryHttpStatusCodeRange alloc] initWithMin:500 max:599];
         self.failedRequestStatusCodes = @[ defaultHttpStatusCodeRange ];
-        self.cacheDirectoryPatch
+        self.cacheDirectoryPath
             = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
                   .firstObject;
 
@@ -275,6 +275,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     if ([options[@"maxCacheItems"] isKindOfClass:[NSNumber class]]) {
         self.maxCacheItems = [options[@"maxCacheItems"] unsignedIntValue];
+    }
+
+    if ([options[@"cacheDirectoryPath"] isKindOfClass:[NSString class]]) {
+        self.cacheDirectoryPath = options[@"cacheDirectoryPath"];
     }
 
     if ([self isBlock:options[@"beforeSend"]]) {

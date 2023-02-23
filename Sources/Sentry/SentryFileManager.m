@@ -653,7 +653,7 @@ SentryFileManager ()
 
 - (void)createPathsWithOptions:(SentryOptions *_Nonnull)options
 {
-    NSString *cachePath = options.cacheDirectoryPatch;
+    NSString *cachePath = options.cacheDirectoryPath;
 
     if (cachePath == nil) {
         cachePath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)

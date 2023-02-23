@@ -18,7 +18,7 @@ static NSString *volatile installationString;
             return installationString;
         }
 
-        NSString *cachePath = options.cacheDirectoryPatch;
+        NSString *cachePath = options.cacheDirectoryPath;
         NSString *installationFilePath = [cachePath stringByAppendingPathComponent:@"INSTALLATION"];
         NSData *installationData = [NSData dataWithContentsOfFile:installationFilePath];
 
