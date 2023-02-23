@@ -1,8 +1,14 @@
+#import "SentryCompiler.h"
+#import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
 
 @class SentryId;
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
 NS_ASSUME_NONNULL_BEGIN
+
+SENTRY_EXTERN_C_BEGIN
 
 typedef void (^SentryConcurrentTransactionCleanupBlock)(void);
 
@@ -16,4 +22,8 @@ void trackTracerWithID(SentryId *traceID);
  */
 void stopTrackingTracerWithID(SentryId *traceID, SentryConcurrentTransactionCleanupBlock cleanup);
 
+SENTRY_EXTERN_C_END
+
 NS_ASSUME_NONNULL_END
+
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED

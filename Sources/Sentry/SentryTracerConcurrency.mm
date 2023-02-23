@@ -2,17 +2,20 @@
 #import "SentryId.h"
 #import "SentryLog.h"
 
-static NSMutableArray<SentryId *> *_gInFlightTraceIDs;
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
+static NSMutableSet<NSString *> *_gInFlightTraceIDs;
 
 void
 trackTracerWithID(SentryId *traceID)
 {
     @synchronized(_gInFlightTraceIDs) {
         if (_gInFlightTraceIDs == nil) {
-            _gInFlightTraceIDs = [NSMutableArray<SentryId *> array];
+            _gInFlightTraceIDs = [NSMutableSet<NSString *> set];
         }
-        SENTRY_LOG_DEBUG(@"Adding tracer id %@", traceID.sentryIdString);
-        [_gInFlightTraceIDs addObject:traceID];
+        const auto idString = traceID.sentryIdString;
+        SENTRY_LOG_DEBUG(@"Adding tracer id %@", idString);
+        [_gInFlightTraceIDs addObject:idString];
     }
 }
 
@@ -20,8 +23,9 @@ void
 stopTrackingTracerWithID(SentryId *traceID, SentryConcurrentTransactionCleanupBlock cleanup)
 {
     @synchronized(_gInFlightTraceIDs) {
-        SENTRY_LOG_DEBUG(@"Removing trace id %@", traceID.sentryIdString);
-        [_gInFlightTraceIDs removeObject:traceID];
+        const auto idString = traceID.sentryIdString;
+        SENTRY_LOG_DEBUG(@"Removing trace id %@", idString);
+        [_gInFlightTraceIDs removeObject:idString];
         if (_gInFlightTraceIDs.count == 0) {
             SENTRY_LOG_DEBUG(@"Last in flight tracer completed, performing cleanup.");
             cleanup();
@@ -31,3 +35,5 @@ stopTrackingTracerWithID(SentryId *traceID, SentryConcurrentTransactionCleanupBl
         }
     }
 }
+
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
