@@ -36,10 +36,11 @@
         [NSDate dateWithTimeIntervalSince1970:@(1491210797).integerValue], event.timestamp);
     XCTAssertEqual(event.debugMeta.count, (unsigned long)13);
     SentryDebugMeta *firstDebugImage = event.debugMeta.firstObject;
-    XCTAssertTrue([firstDebugImage.name isEqualToString:@"/var/containers/Bundle/Application/"
-                                                        @"94765405-4249-4E20-B1E7-9801C14D5645/"
-                                                        @"CrashProbeiOS.app/CrashProbeiOS"]);
-    XCTAssertTrue([firstDebugImage.uuid isEqualToString:@"363F8E49-2D2A-3A26-BF90-60D6A8896CF0"]);
+    XCTAssertTrue([firstDebugImage.codeFile isEqualToString:@"/var/containers/Bundle/Application/"
+                                                            @"94765405-4249-4E20-B1E7-9801C14D5645/"
+                                                            @"CrashProbeiOS.app/CrashProbeiOS"]);
+    XCTAssertTrue(
+        [firstDebugImage.debugID isEqualToString:@"363F8E49-2D2A-3A26-BF90-60D6A8896CF0"]);
     XCTAssertTrue([firstDebugImage.imageAddress isEqualToString:@"0x0000000100034000"]);
     XCTAssertTrue([firstDebugImage.imageVmAddress isEqualToString:@"0x0000000100000000"]);
     XCTAssertEqualObjects(firstDebugImage.imageSize, @(65536));
@@ -75,19 +76,21 @@
     XCTAssertNotNil([[event serialize] valueForKeyPath:@"exception.values"]);
     XCTAssertNotNil([[event serialize] valueForKeyPath:@"threads.values"]);
 
-    XCTAssertEqualObjects([event.debugMeta[0].name lastPathComponent], @"CrashProbeiOS");
-    XCTAssertEqualObjects([event.debugMeta[1].name lastPathComponent], @"CrashLibiOS");
-    XCTAssertEqualObjects([event.debugMeta[2].name lastPathComponent], @"KSCrash");
-    XCTAssertEqualObjects([event.debugMeta[3].name lastPathComponent], @"libsystem_pthread.dylib");
-    XCTAssertEqualObjects([event.debugMeta[4].name lastPathComponent], @"libsystem_kernel.dylib");
-    XCTAssertEqualObjects([event.debugMeta[5].name lastPathComponent], @"libdyld.dylib");
-    XCTAssertEqualObjects([event.debugMeta[6].name lastPathComponent], @"libsystem_c.dylib");
-    XCTAssertEqualObjects([event.debugMeta[7].name lastPathComponent], @"AVFAudio");
-    XCTAssertEqualObjects([event.debugMeta[8].name lastPathComponent], @"Foundation");
-    XCTAssertEqualObjects([event.debugMeta[9].name lastPathComponent], @"CoreFoundation");
-    XCTAssertEqualObjects([event.debugMeta[10].name lastPathComponent], @"CFNetwork");
-    XCTAssertEqualObjects([event.debugMeta[11].name lastPathComponent], @"GraphicsServices");
-    XCTAssertEqualObjects([event.debugMeta[12].name lastPathComponent], @"UIKit");
+    XCTAssertEqualObjects([event.debugMeta[0].codeFile lastPathComponent], @"CrashProbeiOS");
+    XCTAssertEqualObjects([event.debugMeta[1].codeFile lastPathComponent], @"CrashLibiOS");
+    XCTAssertEqualObjects([event.debugMeta[2].codeFile lastPathComponent], @"KSCrash");
+    XCTAssertEqualObjects(
+        [event.debugMeta[3].codeFile lastPathComponent], @"libsystem_pthread.dylib");
+    XCTAssertEqualObjects(
+        [event.debugMeta[4].codeFile lastPathComponent], @"libsystem_kernel.dylib");
+    XCTAssertEqualObjects([event.debugMeta[5].codeFile lastPathComponent], @"libdyld.dylib");
+    XCTAssertEqualObjects([event.debugMeta[6].codeFile lastPathComponent], @"libsystem_c.dylib");
+    XCTAssertEqualObjects([event.debugMeta[7].codeFile lastPathComponent], @"AVFAudio");
+    XCTAssertEqualObjects([event.debugMeta[8].codeFile lastPathComponent], @"Foundation");
+    XCTAssertEqualObjects([event.debugMeta[9].codeFile lastPathComponent], @"CoreFoundation");
+    XCTAssertEqualObjects([event.debugMeta[10].codeFile lastPathComponent], @"CFNetwork");
+    XCTAssertEqualObjects([event.debugMeta[11].codeFile lastPathComponent], @"GraphicsServices");
+    XCTAssertEqualObjects([event.debugMeta[12].codeFile lastPathComponent], @"UIKit");
 }
 
 /**
@@ -131,12 +134,23 @@
     __block NSArray *serializedDebugImages
         = ((NSArray *)[serializedEvent valueForKeyPath:@"debug_meta.images"]);
 
+    NSData *data = [NSJSONSerialization dataWithJSONObject:serializedDebugImages
+                                                   options:NSJSONWritingPrettyPrinted
+                                                     error:nil];
+
+    NSString *jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+    XCTAssertNotNil(jsonString);
+
     NSArray *convertedDebugImages = [((NSArray *)[eventJson valueForKeyPath:@"debug_meta.images"])
         filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
                                         NSDictionary *evaluatedObject,
                                         __unused NSDictionary<NSString *, id> *bindings) {
             for (NSDictionary *image in serializedDebugImages) {
-                if ([image[@"name"] isEqualToString:evaluatedObject[@"name"]])
+                if ([image[@"code_file"] isEqualToString:evaluatedObject[@"code_file"]])
+                    return true;
+
+                if ([image[@"debug_id"] isEqualToString:evaluatedObject[@"debug_id"]])
                     return true;
             }
             return false;

@@ -11,7 +11,7 @@
 
 ## :pencil: Checklist
 
-<!--- Put an `x` in the boxes that apply -->
+You have to check all boxes before merging:
 
 - [ ] I reviewed the submitted code.
 - [ ] I added tests to verify the changes.

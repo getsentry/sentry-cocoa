@@ -1,1 +1,3 @@
-typedef unsigned long long bytes;
+#import <Foundation/Foundation.h>
+
+static NSString *const SentryDebugImageType = @"macho";

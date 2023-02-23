@@ -2,2605 +2,2605 @@
   "debug_meta" : {
     "images" : [
       {
-        "name" : "CrashProbeiOS",
         "image_vmaddr" : "0x0000000100000000",
+        "debug_id" : "2C656702-AA16-3E5F-94D9-D4430DA53398",
         "image_addr" : "0x0000000100088000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 65536,
-        "uuid" : "2C656702-AA16-3E5F-94D9-D4430DA53398"
+        "code_file" : "\/var\/containers\/Bundle\/Application\/4465496C-84E6-4AA0-9484-0B11F57A03AC\/CrashProbeiOS.app\/CrashProbeiOS"
       },
       {
-        "name" : "CrashLibiOS",
+        "debug_id" : "B521943A-8F27-38B3-827F-E306B72FBBF3",
         "image_addr" : "0x00000001001b8000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1179648,
-        "uuid" : "B521943A-8F27-38B3-827F-E306B72FBBF3"
+        "code_file" : "\/private\/var\/containers\/Bundle\/Application\/4465496C-84E6-4AA0-9484-0B11F57A03AC\/CrashProbeiOS.app\/Frameworks\/CrashLibiOS.framework\/CrashLibiOS"
       },
       {
-        "name" : "PLCrashReporter_DynamicFramework",
+        "debug_id" : "5F92053F-5521-3F88-B171-2E9DFCB0B8A7",
         "image_addr" : "0x00000001000a4000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 294912,
-        "uuid" : "5F92053F-5521-3F88-B171-2E9DFCB0B8A7"
+        "code_file" : "\/private\/var\/containers\/Bundle\/Application\/4465496C-84E6-4AA0-9484-0B11F57A03AC\/CrashProbeiOS.app\/Frameworks\/PLCrashReporter_DynamicFramework.framework\/PLCrashReporter_DynamicFramework"
       },
       {
-        "name" : "Sentry",
+        "debug_id" : "29F88CA1-8396-3C4D-978D-3684DCEC45CE",
         "image_addr" : "0x0000000100358000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 507904,
-        "uuid" : "29F88CA1-8396-3C4D-978D-3684DCEC45CE"
+        "code_file" : "\/private\/var\/containers\/Bundle\/Application\/4465496C-84E6-4AA0-9484-0B11F57A03AC\/CrashProbeiOS.app\/Frameworks\/Sentry.framework\/Sentry"
       },
       {
-        "name" : "libswiftCore.dylib",
+        "debug_id" : "38772865-84ED-3C76-8657-A5AC9FEB968F",
         "image_addr" : "0x000000010040c000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 2244608,
-        "uuid" : "38772865-84ED-3C76-8657-A5AC9FEB968F"
+        "code_file" : "\/private\/var\/containers\/Bundle\/Application\/4465496C-84E6-4AA0-9484-0B11F57A03AC\/CrashProbeiOS.app\/Frameworks\/libswiftCore.dylib"
       },
       {
-        "name" : "libswiftCoreGraphics.dylib",
+        "debug_id" : "41390F37-4D42-345D-B0B1-16BC862A660D",
         "image_addr" : "0x000000010010c000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 65536,
-        "uuid" : "41390F37-4D42-345D-B0B1-16BC862A660D"
+        "code_file" : "\/private\/var\/containers\/Bundle\/Application\/4465496C-84E6-4AA0-9484-0B11F57A03AC\/CrashProbeiOS.app\/Frameworks\/libswiftCoreGraphics.dylib"
       },
       {
-        "name" : "libswiftCoreImage.dylib",
+        "debug_id" : "7CC35FA2-E7AC-37E2-9AFC-9B2E44C3CE23",
         "image_addr" : "0x0000000100760000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 32768,
-        "uuid" : "7CC35FA2-E7AC-37E2-9AFC-9B2E44C3CE23"
+        "code_file" : "\/private\/var\/containers\/Bundle\/Application\/4465496C-84E6-4AA0-9484-0B11F57A03AC\/CrashProbeiOS.app\/Frameworks\/libswiftCoreImage.dylib"
       },
       {
-        "name" : "libswiftDarwin.dylib",
+        "debug_id" : "65E73A1F-3895-3DC1-87AC-99308DE5F771",
         "image_addr" : "0x0000000100770000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 32768,
-        "uuid" : "65E73A1F-3895-3DC1-87AC-99308DE5F771"
+        "code_file" : "\/private\/var\/containers\/Bundle\/Application\/4465496C-84E6-4AA0-9484-0B11F57A03AC\/CrashProbeiOS.app\/Frameworks\/libswiftDarwin.dylib"
       },
       {
-        "name" : "libswiftDispatch.dylib",
+        "debug_id" : "7BF65B3C-E640-3563-9EB6-2D050893A637",
         "image_addr" : "0x0000000100784000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 114688,
-        "uuid" : "7BF65B3C-E640-3563-9EB6-2D050893A637"
+        "code_file" : "\/private\/var\/containers\/Bundle\/Application\/4465496C-84E6-4AA0-9484-0B11F57A03AC\/CrashProbeiOS.app\/Frameworks\/libswiftDispatch.dylib"
       },
       {
-        "name" : "libswiftFoundation.dylib",
+        "debug_id" : "28774CF5-57D5-3803-9BA8-14909004E5B7",
         "image_addr" : "0x00000001007d4000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 802816,
-        "uuid" : "28774CF5-57D5-3803-9BA8-14909004E5B7"
+        "code_file" : "\/private\/var\/containers\/Bundle\/Application\/4465496C-84E6-4AA0-9484-0B11F57A03AC\/CrashProbeiOS.app\/Frameworks\/libswiftFoundation.dylib"
       },
       {
-        "name" : "libswiftObjectiveC.dylib",
+        "debug_id" : "B859C1E1-2B11-36F0-8B9E-C40980DBFBFC",
         "image_addr" : "0x0000000100950000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 32768,
-        "uuid" : "B859C1E1-2B11-36F0-8B9E-C40980DBFBFC"
+        "code_file" : "\/private\/var\/containers\/Bundle\/Application\/4465496C-84E6-4AA0-9484-0B11F57A03AC\/CrashProbeiOS.app\/Frameworks\/libswiftObjectiveC.dylib"
       },
       {
-        "name" : "libswiftQuartzCore.dylib",
+        "debug_id" : "D2321A9A-E1B1-3B3A-AF86-EA181D9BDB30",
         "image_addr" : "0x0000000100964000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 32768,
-        "uuid" : "D2321A9A-E1B1-3B3A-AF86-EA181D9BDB30"
+        "code_file" : "\/private\/var\/containers\/Bundle\/Application\/4465496C-84E6-4AA0-9484-0B11F57A03AC\/CrashProbeiOS.app\/Frameworks\/libswiftQuartzCore.dylib"
       },
       {
-        "name" : "libswiftUIKit.dylib",
+        "debug_id" : "8EB0D006-78FC-3541-B998-1460E7B0883F",
         "image_addr" : "0x0000000100974000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 49152,
-        "uuid" : "8EB0D006-78FC-3541-B998-1460E7B0883F"
+        "code_file" : "\/private\/var\/containers\/Bundle\/Application\/4465496C-84E6-4AA0-9484-0B11F57A03AC\/CrashProbeiOS.app\/Frameworks\/libswiftUIKit.dylib"
       },
       {
-        "name" : "KSCrash",
+        "debug_id" : "7A3CAD9A-CFAF-3991-AE61-E52AB6289C43",
         "image_addr" : "0x000000010098c000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 360448,
-        "uuid" : "7A3CAD9A-CFAF-3991-AE61-E52AB6289C43"
+        "code_file" : "\/private\/var\/containers\/Bundle\/Application\/4465496C-84E6-4AA0-9484-0B11F57A03AC\/CrashProbeiOS.app\/Frameworks\/KSCrash.framework\/KSCrash"
       },
       {
-        "name" : "libc++.1.dylib",
         "image_vmaddr" : "0x000000018002a000",
+        "debug_id" : "4D91C4D8-8583-39C7-AE2B-3716D1F5E0FC",
         "image_addr" : "0x0000000189c3a000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 352256,
-        "uuid" : "4D91C4D8-8583-39C7-AE2B-3716D1F5E0FC"
+        "code_file" : "\/usr\/lib\/libc++.1.dylib"
       },
       {
-        "name" : "libc++abi.dylib",
         "image_vmaddr" : "0x0000000180080000",
+        "debug_id" : "5615FB63-7877-3E82-A20D-5D0727A6132E",
         "image_addr" : "0x0000000189c90000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 118784,
-        "uuid" : "5615FB63-7877-3E82-A20D-5D0727A6132E"
+        "code_file" : "\/usr\/lib\/libc++abi.dylib"
       },
       {
-        "name" : "libSystem.B.dylib",
         "image_vmaddr" : "0x0000000180028000",
+        "debug_id" : "6D9AB1F5-DF1B-36D8-9FD5-675936E3DA5E",
         "image_addr" : "0x0000000189c38000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 8192,
-        "uuid" : "6D9AB1F5-DF1B-36D8-9FD5-675936E3DA5E"
+        "code_file" : "\/usr\/lib\/libSystem.B.dylib"
       },
       {
-        "name" : "libcache.dylib",
         "image_vmaddr" : "0x000000018047e000",
+        "debug_id" : "F507D09B-AB2D-343C-9B9C-53A05986909B",
         "image_addr" : "0x000000018a08e000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 20480,
-        "uuid" : "F507D09B-AB2D-343C-9B9C-53A05986909B"
+        "code_file" : "\/usr\/lib\/system\/libcache.dylib"
       },
       {
-        "name" : "libsystem_pthread.dylib",
         "image_vmaddr" : "0x0000000180706000",
+        "debug_id" : "EC957CA3-8CDB-3FF3-9A67-5B484D59D580",
         "image_addr" : "0x000000018a316000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 40960,
-        "uuid" : "EC957CA3-8CDB-3FF3-9A67-5B484D59D580"
+        "code_file" : "\/usr\/lib\/system\/libsystem_pthread.dylib"
       },
       {
-        "name" : "libsystem_kernel.dylib",
         "image_vmaddr" : "0x0000000180622000",
+        "debug_id" : "2CCF4DB3-3C32-3A68-B059-42B8375B90C2",
         "image_addr" : "0x000000018a232000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 151552,
-        "uuid" : "2CCF4DB3-3C32-3A68-B059-42B8375B90C2"
+        "code_file" : "\/usr\/lib\/system\/libsystem_kernel.dylib"
       },
       {
-        "name" : "libsystem_platform.dylib",
         "image_vmaddr" : "0x00000001806ff000",
+        "debug_id" : "021E2B40-0D1B-36F1-927C-D8B9EF5771FF",
         "image_addr" : "0x000000018a30f000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 28672,
-        "uuid" : "021E2B40-0D1B-36F1-927C-D8B9EF5771FF"
+        "code_file" : "\/usr\/lib\/system\/libsystem_platform.dylib"
       },
       {
-        "name" : "libdyld.dylib",
         "image_vmaddr" : "0x000000018052d000",
+        "debug_id" : "649EB4FD-79BF-3086-9584-B3EC86B6BCBC",
         "image_addr" : "0x000000018a13d000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 20480,
-        "uuid" : "649EB4FD-79BF-3086-9584-B3EC86B6BCBC"
+        "code_file" : "\/usr\/lib\/system\/libdyld.dylib"
       },
       {
-        "name" : "libsystem_malloc.dylib",
         "image_vmaddr" : "0x0000000180674000",
+        "debug_id" : "44978732-2834-39FC-92FF-F8E3AB817123",
         "image_addr" : "0x000000018a284000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 114688,
-        "uuid" : "44978732-2834-39FC-92FF-F8E3AB817123"
+        "code_file" : "\/usr\/lib\/system\/libsystem_malloc.dylib"
       },
       {
-        "name" : "libcompiler_rt.dylib",
         "image_vmaddr" : "0x000000018048f000",
+        "debug_id" : "C2952C91-4323-3A30-BBAD-9FFD3535C47C",
         "image_addr" : "0x000000018a09f000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 16384,
-        "uuid" : "C2952C91-4323-3A30-BBAD-9FFD3535C47C"
+        "code_file" : "\/usr\/lib\/system\/libcompiler_rt.dylib"
       },
       {
-        "name" : "libunwind.dylib",
         "image_vmaddr" : "0x000000018072f000",
+        "debug_id" : "0963FC28-3756-30E6-8CCD-844E4F48D1B2",
         "image_addr" : "0x000000018a33f000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 24576,
-        "uuid" : "0963FC28-3756-30E6-8CCD-844E4F48D1B2"
+        "code_file" : "\/usr\/lib\/system\/libunwind.dylib"
       },
       {
-        "name" : "libsystem_c.dylib",
         "image_vmaddr" : "0x0000000180554000",
+        "debug_id" : "D3151107-5C1B-38BC-BC51-98A7F40447B5",
         "image_addr" : "0x000000018a164000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 512000,
-        "uuid" : "D3151107-5C1B-38BC-BC51-98A7F40447B5"
+        "code_file" : "\/usr\/lib\/system\/libsystem_c.dylib"
       },
       {
-        "name" : "libsystem_m.dylib",
         "image_vmaddr" : "0x0000000180647000",
+        "debug_id" : "D2B01724-1850-3909-A266-78AE48B1269C",
         "image_addr" : "0x000000018a257000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 184320,
-        "uuid" : "D2B01724-1850-3909-A266-78AE48B1269C"
+        "code_file" : "\/usr\/lib\/system\/libsystem_m.dylib"
       },
       {
-        "name" : "libdispatch.dylib",
         "image_vmaddr" : "0x00000001804fd000",
+        "debug_id" : "46E0CB20-3933-3474-BA7B-47B131153BD5",
         "image_addr" : "0x000000018a10d000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 196608,
-        "uuid" : "46E0CB20-3933-3474-BA7B-47B131153BD5"
+        "code_file" : "\/usr\/lib\/system\/libdispatch.dylib"
       },
       {
-        "name" : "libsystem_blocks.dylib",
         "image_vmaddr" : "0x0000000180553000",
+        "debug_id" : "373B4D27-9E64-32D5-B718-EC5B71AEBFC4",
         "image_addr" : "0x000000018a163000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 4096,
-        "uuid" : "373B4D27-9E64-32D5-B718-EC5B71AEBFC4"
+        "code_file" : "\/usr\/lib\/system\/libsystem_blocks.dylib"
       },
       {
-        "name" : "libobjc.A.dylib",
         "image_vmaddr" : "0x00000001800a0000",
+        "debug_id" : "64C3C5A5-6C7A-30C3-9FF4-A3EC74426CF4",
         "image_addr" : "0x0000000189cb0000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 4055040,
-        "uuid" : "64C3C5A5-6C7A-30C3-9FF4-A3EC74426CF4"
+        "code_file" : "\/usr\/lib\/libobjc.A.dylib"
       },
       {
-        "name" : "liblaunch.dylib",
         "image_vmaddr" : "0x0000000180532000",
+        "debug_id" : "985C8570-C860-3F88-8637-2C8FE4843F08",
         "image_addr" : "0x000000018a142000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 4096,
-        "uuid" : "985C8570-C860-3F88-8637-2C8FE4843F08"
+        "code_file" : "\/usr\/lib\/system\/liblaunch.dylib"
       },
       {
-        "name" : "libxpc.dylib",
         "image_vmaddr" : "0x0000000180736000",
+        "debug_id" : "9BF3E86D-19F1-318A-9B19-06A2681CF234",
         "image_addr" : "0x000000018a346000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 159744,
-        "uuid" : "9BF3E86D-19F1-318A-9B19-06A2681CF234"
+        "code_file" : "\/usr\/lib\/system\/libxpc.dylib"
       },
       {
-        "name" : "libsystem_sandbox.dylib",
         "image_vmaddr" : "0x0000000180710000",
+        "debug_id" : "1A659AA7-DC7F-34D9-88FD-A8E46BBD67D6",
         "image_addr" : "0x000000018a320000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 16384,
-        "uuid" : "1A659AA7-DC7F-34D9-88FD-A8E46BBD67D6"
+        "code_file" : "\/usr\/lib\/system\/libsystem_sandbox.dylib"
       },
       {
-        "name" : "libmacho.dylib",
         "image_vmaddr" : "0x0000000180533000",
+        "debug_id" : "3FDC8B3E-BE27-315A-A71C-ADF73B0E0642",
         "image_addr" : "0x000000018a143000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 24576,
-        "uuid" : "3FDC8B3E-BE27-315A-A71C-ADF73B0E0642"
+        "code_file" : "\/usr\/lib\/system\/libmacho.dylib"
       },
       {
-        "name" : "libsystem_asl.dylib",
         "image_vmaddr" : "0x000000018053b000",
+        "debug_id" : "2F456D47-DB49-37C5-AA3D-EE82AB2550EE",
         "image_addr" : "0x000000018a14b000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 98304,
-        "uuid" : "2F456D47-DB49-37C5-AA3D-EE82AB2550EE"
+        "code_file" : "\/usr\/lib\/system\/libsystem_asl.dylib"
       },
       {
-        "name" : "libsystem_trace.dylib",
         "image_vmaddr" : "0x000000018071c000",
+        "debug_id" : "A42D46C7-E346-3233-B758-73D1E3AC2267",
         "image_addr" : "0x000000018a32c000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 77824,
-        "uuid" : "A42D46C7-E346-3233-B758-73D1E3AC2267"
+        "code_file" : "\/usr\/lib\/system\/libsystem_trace.dylib"
       },
       {
-        "name" : "libsystem_notify.dylib",
         "image_vmaddr" : "0x00000001806f4000",
+        "debug_id" : "FB43E04C-8D8E-3001-BD73-370115B6ABD4",
         "image_addr" : "0x000000018a304000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 45056,
-        "uuid" : "FB43E04C-8D8E-3001-BD73-370115B6ABD4"
+        "code_file" : "\/usr\/lib\/system\/libsystem_notify.dylib"
       },
       {
-        "name" : "libsystem_symptoms.dylib",
         "image_vmaddr" : "0x0000000180714000",
+        "debug_id" : "29EB26C4-CA5C-3BD0-AAF1-F8BD8CE2E600",
         "image_addr" : "0x000000018a324000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 32768,
-        "uuid" : "29EB26C4-CA5C-3BD0-AAF1-F8BD8CE2E600"
+        "code_file" : "\/usr\/lib\/system\/libsystem_symptoms.dylib"
       },
       {
-        "name" : "libsystem_info.dylib",
         "image_vmaddr" : "0x00000001805fe000",
+        "debug_id" : "D0D5A77D-E466-31FC-A60A-BD5313794EF1",
         "image_addr" : "0x000000018a20e000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 147456,
-        "uuid" : "D0D5A77D-E466-31FC-A60A-BD5313794EF1"
+        "code_file" : "\/usr\/lib\/system\/libsystem_info.dylib"
       },
       {
-        "name" : "libsystem_dnssd.dylib",
         "image_vmaddr" : "0x00000001805f7000",
+        "debug_id" : "58D80A29-AEE7-360A-B167-18545B8102A2",
         "image_addr" : "0x000000018a207000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 28672,
-        "uuid" : "58D80A29-AEE7-360A-B167-18545B8102A2"
+        "code_file" : "\/usr\/lib\/system\/libsystem_dnssd.dylib"
       },
       {
-        "name" : "libsystem_network.dylib",
         "image_vmaddr" : "0x0000000180690000",
+        "debug_id" : "E59C5C15-0B41-3094-81D1-85CA548EC114",
         "image_addr" : "0x000000018a2a0000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 368640,
-        "uuid" : "E59C5C15-0B41-3094-81D1-85CA548EC114"
+        "code_file" : "\/usr\/lib\/system\/libsystem_network.dylib"
       },
       {
-        "name" : "libsystem_networkextension.dylib",
         "image_vmaddr" : "0x00000001806ea000",
+        "debug_id" : "4D2D53BD-1D01-3320-9B89-6E201160A682",
         "image_addr" : "0x000000018a2fa000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 40960,
-        "uuid" : "4D2D53BD-1D01-3320-9B89-6E201160A682"
+        "code_file" : "\/usr\/lib\/system\/libsystem_networkextension.dylib"
       },
       {
-        "name" : "libcommonCrypto.dylib",
         "image_vmaddr" : "0x0000000180483000",
+        "debug_id" : "0BD3D4CB-2D80-3C6C-AF1D-09E54E8DC705",
         "image_addr" : "0x000000018a093000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 49152,
-        "uuid" : "0BD3D4CB-2D80-3C6C-AF1D-09E54E8DC705"
+        "code_file" : "\/usr\/lib\/system\/libcommonCrypto.dylib"
       },
       {
-        "name" : "libcorecrypto.dylib",
         "image_vmaddr" : "0x000000018049b000",
+        "debug_id" : "1662015F-100E-3FAB-8573-F40889935A98",
         "image_addr" : "0x000000018a0ab000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 401408,
-        "uuid" : "1662015F-100E-3FAB-8573-F40889935A98"
+        "code_file" : "\/usr\/lib\/system\/libcorecrypto.dylib"
       },
       {
-        "name" : "libsystem_configuration.dylib",
         "image_vmaddr" : "0x00000001805d1000",
+        "debug_id" : "1DB4AAED-5FDC-3CD5-92A5-2F7358D1C666",
         "image_addr" : "0x000000018a1e1000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 20480,
-        "uuid" : "1DB4AAED-5FDC-3CD5-92A5-2F7358D1C666"
+        "code_file" : "\/usr\/lib\/system\/libsystem_configuration.dylib"
       },
       {
-        "name" : "libcopyfile.dylib",
         "image_vmaddr" : "0x0000000180493000",
+        "debug_id" : "EE8E1650-DB9B-3A57-B3E5-17677EF1DA49",
         "image_addr" : "0x000000018a0a3000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 32768,
-        "uuid" : "EE8E1650-DB9B-3A57-B3E5-17677EF1DA49"
+        "code_file" : "\/usr\/lib\/system\/libcopyfile.dylib"
       },
       {
-        "name" : "libremovefile.dylib",
         "image_vmaddr" : "0x0000000180539000",
+        "debug_id" : "7E353A22-2170-3CCD-99C8-BB04A0BDC3DD",
         "image_addr" : "0x000000018a149000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 8192,
-        "uuid" : "7E353A22-2170-3CCD-99C8-BB04A0BDC3DD"
+        "code_file" : "\/usr\/lib\/system\/libremovefile.dylib"
       },
       {
-        "name" : "libsystem_containermanager.dylib",
         "image_vmaddr" : "0x00000001805d6000",
+        "debug_id" : "15235799-C224-34B7-8BFD-0F93CDC2C9DC",
         "image_addr" : "0x000000018a1e6000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 24576,
-        "uuid" : "15235799-C224-34B7-8BFD-0F93CDC2C9DC"
+        "code_file" : "\/usr\/lib\/system\/libsystem_containermanager.dylib"
       },
       {
-        "name" : "libsystem_coreservices.dylib",
         "image_vmaddr" : "0x00000001805dc000",
+        "debug_id" : "31D817E7-2933-3CD6-BE46-95ADE5ABF990",
         "image_addr" : "0x000000018a1ec000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 8192,
-        "uuid" : "31D817E7-2933-3CD6-BE46-95ADE5ABF990"
+        "code_file" : "\/usr\/lib\/system\/libsystem_coreservices.dylib"
       },
       {
-        "name" : "libsystem_coretls.dylib",
         "image_vmaddr" : "0x00000001805de000",
+        "debug_id" : "099DD5A8-2BED-3088-82BC-1782787B23CC",
         "image_addr" : "0x000000018a1ee000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 102400,
-        "uuid" : "099DD5A8-2BED-3088-82BC-1782787B23CC"
+        "code_file" : "\/usr\/lib\/system\/libsystem_coretls.dylib"
       },
       {
-        "name" : "libvminterpose.dylib",
         "image_vmaddr" : "0x0000000180735000",
+        "debug_id" : "ACCCC912-F988-3308-8C66-2F78EC126FE2",
         "image_addr" : "0x000000018a345000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 4096,
-        "uuid" : "ACCCC912-F988-3308-8C66-2F78EC126FE2"
+        "code_file" : "\/usr\/lib\/system\/libvminterpose.dylib"
       },
       {
-        "name" : "libz.1.dylib",
         "image_vmaddr" : "0x0000000180973000",
+        "debug_id" : "76EA48B2-D805-3291-891A-800D76088C09",
         "image_addr" : "0x000000018a583000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 73728,
-        "uuid" : "76EA48B2-D805-3291-891A-800D76088C09"
+        "code_file" : "\/usr\/lib\/libz.1.dylib"
       },
       {
-        "name" : "AVFoundation",
         "image_vmaddr" : "0x0000000188fb9000",
+        "debug_id" : "C3E7A97C-D98B-3AFA-890F-FAC55DB4E57F",
         "image_addr" : "0x0000000192bc9000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1798144,
-        "uuid" : "C3E7A97C-D98B-3AFA-890F-FAC55DB4E57F"
+        "code_file" : "\/System\/Library\/Frameworks\/AVFoundation.framework\/AVFoundation"
       },
       {
-        "name" : "AVFAudio",
         "image_vmaddr" : "0x000000019b64b000",
+        "debug_id" : "390C9893-95D3-320B-A649-EE2E9861EC16",
         "image_addr" : "0x00000001a525b000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 856064,
-        "uuid" : "390C9893-95D3-320B-A649-EE2E9861EC16"
+        "code_file" : "\/System\/Library\/Frameworks\/AVFoundation.framework\/Frameworks\/AVFAudio.framework\/AVFAudio"
       },
       {
-        "name" : "MobileCoreServices",
         "image_vmaddr" : "0x0000000182fe3000",
+        "debug_id" : "D07C5422-5AF9-3B62-8978-0C72418E3C9F",
         "image_addr" : "0x000000018cbf3000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1236992,
-        "uuid" : "D07C5422-5AF9-3B62-8978-0C72418E3C9F"
+        "code_file" : "\/System\/Library\/Frameworks\/MobileCoreServices.framework\/MobileCoreServices"
       },
       {
-        "name" : "Foundation",
         "image_vmaddr" : "0x0000000182030000",
+        "debug_id" : "73FF2B76-D90F-3C90-B010-8F6E36E3B71F",
         "image_addr" : "0x000000018bc40000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 2949120,
-        "uuid" : "73FF2B76-D90F-3C90-B010-8F6E36E3B71F"
+        "code_file" : "\/System\/Library\/Frameworks\/Foundation.framework\/Foundation"
       },
       {
-        "name" : "libarchive.2.dylib",
         "image_vmaddr" : "0x0000000182004000",
+        "debug_id" : "D8F62188-0212-3A0C-A0EC-0D922A65C9A6",
         "image_addr" : "0x000000018bc14000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 172032,
-        "uuid" : "D8F62188-0212-3A0C-A0EC-0D922A65C9A6"
+        "code_file" : "\/usr\/lib\/libarchive.2.dylib"
       },
       {
-        "name" : "libbz2.1.0.dylib",
         "image_vmaddr" : "0x0000000181fc2000",
+        "debug_id" : "64376E53-ACD7-32F3-B5C8-5EE50B4F01C1",
         "image_addr" : "0x000000018bbd2000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 57344,
-        "uuid" : "64376E53-ACD7-32F3-B5C8-5EE50B4F01C1"
+        "code_file" : "\/usr\/lib\/libbz2.1.0.dylib"
       },
       {
-        "name" : "libxml2.2.dylib",
         "image_vmaddr" : "0x000000018194b000",
+        "debug_id" : "29F6E338-C1F1-3348-9708-11CA0F0FE293",
         "image_addr" : "0x000000018b55b000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 958464,
-        "uuid" : "29F6E338-C1F1-3348-9708-11CA0F0FE293"
+        "code_file" : "\/usr\/lib\/libxml2.2.dylib"
       },
       {
-        "name" : "libicucore.A.dylib",
         "image_vmaddr" : "0x000000018075d000",
+        "debug_id" : "8784ED70-62A1-39AD-9C76-8ED801BB5C8F",
         "image_addr" : "0x000000018a36d000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 2187264,
-        "uuid" : "8784ED70-62A1-39AD-9C76-8ED801BB5C8F"
+        "code_file" : "\/usr\/lib\/libicucore.A.dylib"
       },
       {
-        "name" : "liblzma.5.dylib",
         "image_vmaddr" : "0x0000000181fd0000",
+        "debug_id" : "7B9227FB-2ACB-3FED-A1BF-FD6427B92FD5",
         "image_addr" : "0x000000018bbe0000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 102400,
-        "uuid" : "7B9227FB-2ACB-3FED-A1BF-FD6427B92FD5"
+        "code_file" : "\/usr\/lib\/liblzma.5.dylib"
       },
       {
-        "name" : "CoreFoundation",
         "image_vmaddr" : "0x000000018151a000",
+        "debug_id" : "106DCFDA-E2AC-31B9-AF16-E54E3FDB49BE",
         "image_addr" : "0x000000018b12a000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 3678208,
-        "uuid" : "106DCFDA-E2AC-31B9-AF16-E54E3FDB49BE"
+        "code_file" : "\/System\/Library\/Frameworks\/CoreFoundation.framework\/CoreFoundation"
       },
       {
-        "name" : "CFNetwork",
         "image_vmaddr" : "0x0000000181c4d000",
+        "debug_id" : "7074B3E7-19D2-3257-B4CD-53899121F5C8",
         "image_addr" : "0x000000018b85d000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 3624960,
-        "uuid" : "7074B3E7-19D2-3257-B4CD-53899121F5C8"
+        "code_file" : "\/System\/Library\/Frameworks\/CFNetwork.framework\/CFNetwork"
       },
       {
-        "name" : "libMobileGestalt.dylib",
         "image_vmaddr" : "0x000000018192a000",
+        "debug_id" : "648FED3B-F8AF-3CCD-BD24-E5C65E81CEB5",
         "image_addr" : "0x000000018b53a000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 135168,
-        "uuid" : "648FED3B-F8AF-3CCD-BD24-E5C65E81CEB5"
+        "code_file" : "\/usr\/lib\/libMobileGestalt.dylib"
       },
       {
-        "name" : "IOKit",
         "image_vmaddr" : "0x00000001818ae000",
+        "debug_id" : "04198D72-3E7F-3834-914A-E5869C25E65C",
         "image_addr" : "0x000000018b4be000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 507904,
-        "uuid" : "04198D72-3E7F-3834-914A-E5869C25E65C"
+        "code_file" : "\/System\/Library\/Frameworks\/IOKit.framework\/Versions\/A\/IOKit"
       },
       {
-        "name" : "libenergytrace.dylib",
         "image_vmaddr" : "0x00000001818ad000",
+        "debug_id" : "6EC005A9-A0A9-31DA-96FF-F946B027CA37",
         "image_addr" : "0x000000018b4bd000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 4096,
-        "uuid" : "6EC005A9-A0A9-31DA-96FF-F946B027CA37"
+        "code_file" : "\/usr\/lib\/libenergytrace.dylib"
       },
       {
-        "name" : "libbsm.0.dylib",
         "image_vmaddr" : "0x000000018189c000",
+        "debug_id" : "E663BF7A-74F4-3AAD-9F86-229B0B29F376",
         "image_addr" : "0x000000018b4ac000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 69632,
-        "uuid" : "E663BF7A-74F4-3AAD-9F86-229B0B29F376"
+        "code_file" : "\/usr\/lib\/libbsm.0.dylib"
       },
       {
-        "name" : "SystemConfiguration",
         "image_vmaddr" : "0x0000000181ad0000",
+        "debug_id" : "E8AAAB69-0585-3F7E-97FB-492185CF20BE",
         "image_addr" : "0x000000018b6e0000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 442368,
-        "uuid" : "E8AAAB69-0585-3F7E-97FB-492185CF20BE"
+        "code_file" : "\/System\/Library\/Frameworks\/SystemConfiguration.framework\/SystemConfiguration"
       },
       {
-        "name" : "libnetwork.dylib",
         "image_vmaddr" : "0x000000018e23e000",
+        "debug_id" : "3AF8267F-E288-3A70-AC1E-B0BB5D860470",
         "image_addr" : "0x0000000197e4e000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 499712,
-        "uuid" : "3AF8267F-E288-3A70-AC1E-B0BB5D860470"
+        "code_file" : "\/usr\/lib\/libnetwork.dylib"
       },
       {
-        "name" : "libpcap.A.dylib",
         "image_vmaddr" : "0x000000019b5de000",
+        "debug_id" : "DF0DE8F5-B0BA-3098-B116-D0C8BC0943C4",
         "image_addr" : "0x00000001a51ee000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 208896,
-        "uuid" : "DF0DE8F5-B0BA-3098-B116-D0C8BC0943C4"
+        "code_file" : "\/usr\/lib\/libpcap.A.dylib"
       },
       {
-        "name" : "libcoretls.dylib",
         "image_vmaddr" : "0x000000019f316000",
+        "debug_id" : "D1FAC1C2-86AE-3BC8-AE28-DC466198A9A1",
         "image_addr" : "0x00000001a8f26000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 4096,
-        "uuid" : "D1FAC1C2-86AE-3BC8-AE28-DC466198A9A1"
+        "code_file" : "\/usr\/lib\/libcoretls.dylib"
       },
       {
-        "name" : "libcoretls_cfhelpers.dylib",
         "image_vmaddr" : "0x000000019f317000",
+        "debug_id" : "F8FE6C97-D49B-3597-B938-B7BB107095A6",
         "image_addr" : "0x00000001a8f27000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 8192,
-        "uuid" : "F8FE6C97-D49B-3597-B938-B7BB107095A6"
+        "code_file" : "\/usr\/lib\/libcoretls_cfhelpers.dylib"
       },
       {
-        "name" : "Security",
         "image_vmaddr" : "0x0000000181a35000",
+        "debug_id" : "2423134E-64F9-39AB-A836-8D62495F8197",
         "image_addr" : "0x000000018b645000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 634880,
-        "uuid" : "2423134E-64F9-39AB-A836-8D62495F8197"
+        "code_file" : "\/System\/Library\/Frameworks\/Security.framework\/Security"
       },
       {
-        "name" : "libsqlite3.dylib",
         "image_vmaddr" : "0x0000000181b3c000",
+        "debug_id" : "F1A568E3-93D5-31F6-AF5E-1EDB816CDAB2",
         "image_addr" : "0x000000018b74c000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1118208,
-        "uuid" : "F1A568E3-93D5-31F6-AF5E-1EDB816CDAB2"
+        "code_file" : "\/usr\/lib\/libsqlite3.dylib"
       },
       {
-        "name" : "libCRFSuite.dylib",
         "image_vmaddr" : "0x0000000181fe9000",
+        "debug_id" : "7C6AFB4C-2FB1-3BE9-A84C-F6D72CE823D8",
         "image_addr" : "0x000000018bbf9000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 110592,
-        "uuid" : "7C6AFB4C-2FB1-3BE9-A84C-F6D72CE823D8"
+        "code_file" : "\/usr\/lib\/libCRFSuite.dylib"
       },
       {
-        "name" : "liblangid.dylib",
         "image_vmaddr" : "0x000000018202e000",
+        "debug_id" : "C78B76C3-00B0-36C6-852E-9FF59B9B5E0A",
         "image_addr" : "0x000000018bc3e000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 8192,
-        "uuid" : "C78B76C3-00B0-36C6-852E-9FF59B9B5E0A"
+        "code_file" : "\/usr\/lib\/liblangid.dylib"
       },
       {
-        "name" : "AudioToolbox",
         "image_vmaddr" : "0x00000001843f7000",
+        "debug_id" : "029613CD-133B-3EC2-A013-56CA617FBB5B",
         "image_addr" : "0x000000018e007000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 4542464,
-        "uuid" : "029613CD-133B-3EC2-A013-56CA617FBB5B"
+        "code_file" : "\/System\/Library\/Frameworks\/AudioToolbox.framework\/AudioToolbox"
       },
       {
-        "name" : "CrashReporterSupport",
         "image_vmaddr" : "0x000000018326d000",
+        "debug_id" : "C3B0E870-E0AC-38D8-92B6-90DAB53F3306",
         "image_addr" : "0x000000018ce7d000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 94208,
-        "uuid" : "C3B0E870-E0AC-38D8-92B6-90DAB53F3306"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CrashReporterSupport.framework\/CrashReporterSupport"
       },
       {
-        "name" : "ProtocolBuffer",
         "image_vmaddr" : "0x00000001843ac000",
+        "debug_id" : "437889DC-D32D-3566-A0CC-4506AB1ABBA2",
         "image_addr" : "0x000000018dfbc000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 110592,
-        "uuid" : "437889DC-D32D-3566-A0CC-4506AB1ABBA2"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/ProtocolBuffer.framework\/ProtocolBuffer"
       },
       {
-        "name" : "AssertionServices",
         "image_vmaddr" : "0x0000000183173000",
+        "debug_id" : "4CEF0D85-A60B-329E-8581-09F9638ABD7C",
         "image_addr" : "0x000000018cd83000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 65536,
-        "uuid" : "4CEF0D85-A60B-329E-8581-09F9638ABD7C"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/AssertionServices.framework\/AssertionServices"
       },
       {
-        "name" : "BaseBoard",
         "image_vmaddr" : "0x0000000183111000",
+        "debug_id" : "7AA95EA0-660F-325D-B0C7-E793A3193CC5",
         "image_addr" : "0x000000018cd21000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 401408,
-        "uuid" : "7AA95EA0-660F-325D-B0C7-E793A3193CC5"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/BaseBoard.framework\/BaseBoard"
       },
       {
-        "name" : "IOSurface",
         "image_vmaddr" : "0x0000000183258000",
+        "debug_id" : "419BCF22-D977-32BD-99F6-F7BB6B50E133",
         "image_addr" : "0x000000018ce68000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 36864,
-        "uuid" : "419BCF22-D977-32BD-99F6-F7BB6B50E133"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/IOSurface.framework\/IOSurface"
       },
       {
-        "name" : "CoreGraphics",
         "image_vmaddr" : "0x0000000182a3b000",
+        "debug_id" : "F8A6E0DE-80B2-3CB8-B416-54B953606846",
         "image_addr" : "0x000000018c64b000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 5525504,
-        "uuid" : "F8A6E0DE-80B2-3CB8-B416-54B953606846"
+        "code_file" : "\/System\/Library\/Frameworks\/CoreGraphics.framework\/CoreGraphics"
       },
       {
-        "name" : "Accelerate",
         "image_vmaddr" : "0x0000000182a3a000",
+        "debug_id" : "166A50B8-1544-3CE8-9269-964414CFD7B2",
         "image_addr" : "0x000000018c64a000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 4096,
-        "uuid" : "166A50B8-1544-3CE8-9269-964414CFD7B2"
+        "code_file" : "\/System\/Library\/Frameworks\/Accelerate.framework\/Accelerate"
       },
       {
-        "name" : "vImage",
         "image_vmaddr" : "0x00000001826db000",
+        "debug_id" : "8984CA1D-BDD4-3415-93C2-532A3F112644",
         "image_addr" : "0x000000018c2eb000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 2732032,
-        "uuid" : "8984CA1D-BDD4-3415-93C2-532A3F112644"
+        "code_file" : "\/System\/Library\/Frameworks\/Accelerate.framework\/Frameworks\/vImage.framework\/vImage"
       },
       {
-        "name" : "vecLib",
         "image_vmaddr" : "0x0000000182a39000",
+        "debug_id" : "6C742A3F-1AD8-3395-A1A5-F3FC1ABD56F8",
         "image_addr" : "0x000000018c649000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 4096,
-        "uuid" : "6C742A3F-1AD8-3395-A1A5-F3FC1ABD56F8"
+        "code_file" : "\/System\/Library\/Frameworks\/Accelerate.framework\/Frameworks\/vecLib.framework\/vecLib"
       },
       {
-        "name" : "libvDSP.dylib",
         "image_vmaddr" : "0x00000001829c3000",
+        "debug_id" : "DAB77266-0509-376E-B918-A2C72163797E",
         "image_addr" : "0x000000018c5d3000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 483328,
-        "uuid" : "DAB77266-0509-376E-B918-A2C72163797E"
+        "code_file" : "\/System\/Library\/Frameworks\/Accelerate.framework\/Frameworks\/vecLib.framework\/libvDSP.dylib"
       },
       {
-        "name" : "libvMisc.dylib",
         "image_vmaddr" : "0x0000000182976000",
+        "debug_id" : "1FC0B5B5-A59C-3AE7-8EFA-0A4124BF69B0",
         "image_addr" : "0x000000018c586000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 155648,
-        "uuid" : "1FC0B5B5-A59C-3AE7-8EFA-0A4124BF69B0"
+        "code_file" : "\/System\/Library\/Frameworks\/Accelerate.framework\/Frameworks\/vecLib.framework\/libvMisc.dylib"
       },
       {
-        "name" : "libBLAS.dylib",
         "image_vmaddr" : "0x0000000182300000",
+        "debug_id" : "8EFC2FFF-CC8D-3817-A73D-A84FFD232D46",
         "image_addr" : "0x000000018bf10000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 704512,
-        "uuid" : "8EFC2FFF-CC8D-3817-A73D-A84FFD232D46"
+        "code_file" : "\/System\/Library\/Frameworks\/Accelerate.framework\/Frameworks\/vecLib.framework\/libBLAS.dylib"
       },
       {
-        "name" : "libLAPACK.dylib",
         "image_vmaddr" : "0x00000001823ac000",
+        "debug_id" : "13C0D767-6F6A-381A-A399-570BF0142738",
         "image_addr" : "0x000000018bfbc000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 3338240,
-        "uuid" : "13C0D767-6F6A-381A-A399-570BF0142738"
+        "code_file" : "\/System\/Library\/Frameworks\/Accelerate.framework\/Frameworks\/vecLib.framework\/libLAPACK.dylib"
       },
       {
-        "name" : "libLinearAlgebra.dylib",
         "image_vmaddr" : "0x000000018299c000",
+        "debug_id" : "39992B5D-7F8A-38E7-B46A-B952E44AA2F2",
         "image_addr" : "0x000000018c5ac000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 86016,
-        "uuid" : "39992B5D-7F8A-38E7-B46A-B952E44AA2F2"
+        "code_file" : "\/System\/Library\/Frameworks\/Accelerate.framework\/Frameworks\/vecLib.framework\/libLinearAlgebra.dylib"
       },
       {
-        "name" : "libSparseBLAS.dylib",
         "image_vmaddr" : "0x00000001829b1000",
+        "debug_id" : "B0AF26C6-88C6-3150-8453-FD8F08CF1D0B",
         "image_addr" : "0x000000018c5c1000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 73728,
-        "uuid" : "B0AF26C6-88C6-3150-8453-FD8F08CF1D0B"
+        "code_file" : "\/System\/Library\/Frameworks\/Accelerate.framework\/Frameworks\/vecLib.framework\/libSparseBLAS.dylib"
       },
       {
-        "name" : "libQuadrature.dylib",
         "image_vmaddr" : "0x000000019d478000",
+        "debug_id" : "4411B918-1C51-39DD-AA99-22189F9C7111",
         "image_addr" : "0x00000001a7088000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 20480,
-        "uuid" : "4411B918-1C51-39DD-AA99-22189F9C7111"
+        "code_file" : "\/System\/Library\/Frameworks\/Accelerate.framework\/Frameworks\/vecLib.framework\/libQuadrature.dylib"
       },
       {
-        "name" : "libBNNS.dylib",
         "image_vmaddr" : "0x000000019d465000",
+        "debug_id" : "4125A50B-B8A4-3220-8477-E6A131DF9291",
         "image_addr" : "0x00000001a7075000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 77824,
-        "uuid" : "4125A50B-B8A4-3220-8477-E6A131DF9291"
+        "code_file" : "\/System\/Library\/Frameworks\/Accelerate.framework\/Frameworks\/vecLib.framework\/libBNNS.dylib"
       },
       {
-        "name" : "WirelessDiagnostics",
         "image_vmaddr" : "0x000000018d34b000",
+        "debug_id" : "48FAA274-0417-3B34-80E8-0C9E3040B9A9",
         "image_addr" : "0x0000000196f5b000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 266240,
-        "uuid" : "48FAA274-0417-3B34-80E8-0C9E3040B9A9"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/WirelessDiagnostics.framework\/WirelessDiagnostics"
       },
       {
-        "name" : "libAWDSupportFramework.dylib",
         "image_vmaddr" : "0x000000018d0a8000",
+        "debug_id" : "02E78DD5-29E8-33BE-AC13-46B6C6DD58C2",
         "image_addr" : "0x0000000196cb8000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 2494464,
-        "uuid" : "02E78DD5-29E8-33BE-AC13-46B6C6DD58C2"
+        "code_file" : "\/usr\/lib\/libAWDSupportFramework.dylib"
       },
       {
-        "name" : "libprotobuf.dylib",
         "image_vmaddr" : "0x000000018cbda000",
+        "debug_id" : "84B34C63-3961-3BFE-828B-D68A396AC0FE",
         "image_addr" : "0x00000001967ea000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 450560,
-        "uuid" : "84B34C63-3961-3BFE-828B-D68A396AC0FE"
+        "code_file" : "\/usr\/lib\/libprotobuf.dylib"
       },
       {
-        "name" : "libTelephonyUtilDynamic.dylib",
         "image_vmaddr" : "0x000000018386e000",
+        "debug_id" : "94A0C079-A36E-3676-83F2-08CE4449A249",
         "image_addr" : "0x000000018d47e000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 438272,
-        "uuid" : "94A0C079-A36E-3676-83F2-08CE4449A249"
+        "code_file" : "\/usr\/lib\/libTelephonyUtilDynamic.dylib"
       },
       {
-        "name" : "FrontBoardServices",
         "image_vmaddr" : "0x00000001831b5000",
+        "debug_id" : "49204359-A984-3DD8-AD76-9C64BC8F468F",
         "image_addr" : "0x000000018cdc5000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 327680,
-        "uuid" : "49204359-A984-3DD8-AD76-9C64BC8F468F"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/FrontBoardServices.framework\/FrontBoardServices"
       },
       {
-        "name" : "BackBoardServices",
         "image_vmaddr" : "0x0000000183183000",
+        "debug_id" : "322BD4E1-81FA-3E77-B991-33E48E785E6C",
         "image_addr" : "0x000000018cd93000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 188416,
-        "uuid" : "322BD4E1-81FA-3E77-B991-33E48E785E6C"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/BackBoardServices.framework\/BackBoardServices"
       },
       {
-        "name" : "GraphicsServices",
         "image_vmaddr" : "0x0000000182f80000",
+        "debug_id" : "93B59704-4B52-3474-9061-BB64DDF8ADAE",
         "image_addr" : "0x000000018cb90000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 86016,
-        "uuid" : "93B59704-4B52-3474-9061-BB64DDF8ADAE"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/GraphicsServices.framework\/GraphicsServices"
       },
       {
-        "name" : "SpringBoardServices",
         "image_vmaddr" : "0x0000000183208000",
+        "debug_id" : "D573996D-9308-3F05-BF72-C1AB6E9A64A1",
         "image_addr" : "0x000000018ce18000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 217088,
-        "uuid" : "D573996D-9308-3F05-BF72-C1AB6E9A64A1"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/SpringBoardServices.framework\/SpringBoardServices"
       },
       {
-        "name" : "CoreAudio",
         "image_vmaddr" : "0x0000000183dd0000",
+        "debug_id" : "D90859B5-D4E9-3314-9498-4312EEECAE5C",
         "image_addr" : "0x000000018d9e0000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1368064,
-        "uuid" : "D90859B5-D4E9-3314-9498-4312EEECAE5C"
+        "code_file" : "\/System\/Library\/Frameworks\/CoreAudio.framework\/CoreAudio"
       },
       {
-        "name" : "TCC",
         "image_vmaddr" : "0x0000000183855000",
+        "debug_id" : "14D74558-7F8B-3FA2-B6F9-E604D76237F5",
         "image_addr" : "0x000000018d465000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 28672,
-        "uuid" : "14D74558-7F8B-3FA2-B6F9-E604D76237F5"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/TCC.framework\/TCC"
       },
       {
-        "name" : "CoreMedia",
         "image_vmaddr" : "0x0000000183f22000",
+        "debug_id" : "7022FB70-A4A7-39BB-A88D-A73F1EB71989",
         "image_addr" : "0x000000018db32000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1105920,
-        "uuid" : "7022FB70-A4A7-39BB-A88D-A73F1EB71989"
+        "code_file" : "\/System\/Library\/Frameworks\/CoreMedia.framework\/CoreMedia"
       },
       {
-        "name" : "UserFS",
         "image_vmaddr" : "0x0000000183f1e000",
+        "debug_id" : "AE124362-4C42-39B7-884C-99688373C241",
         "image_addr" : "0x000000018db2e000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 16384,
-        "uuid" : "AE124362-4C42-39B7-884C-99688373C241"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/UserFS.framework\/UserFS"
       },
       {
-        "name" : "ImageIO",
         "image_vmaddr" : "0x00000001832c8000",
+        "debug_id" : "4732D269-B830-3640-8ADB-B7A9C9D28F55",
         "image_addr" : "0x000000018ced8000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 5820416,
-        "uuid" : "4732D269-B830-3640-8ADB-B7A9C9D28F55"
+        "code_file" : "\/System\/Library\/Frameworks\/ImageIO.framework\/ImageIO"
       },
       {
-        "name" : "Metal",
         "image_vmaddr" : "0x0000000183c04000",
+        "debug_id" : "2ABE00AC-599D-3A7D-88B2-741D577528AB",
         "image_addr" : "0x000000018d814000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 401408,
-        "uuid" : "2ABE00AC-599D-3A7D-88B2-741D577528AB"
+        "code_file" : "\/System\/Library\/Frameworks\/Metal.framework\/Metal"
       },
       {
-        "name" : "libmetal_timestamp.dylib",
         "image_vmaddr" : "0x0000000183c03000",
+        "debug_id" : "4BBC0AEB-1865-3CBC-B4E7-205C5B0CC630",
         "image_addr" : "0x000000018d813000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 4096,
-        "uuid" : "4BBC0AEB-1865-3CBC-B4E7-205C5B0CC630"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/GPUCompiler.framework\/libmetal_timestamp.dylib"
       },
       {
-        "name" : "libCoreFSCache.dylib",
         "image_vmaddr" : "0x0000000183ba9000",
+        "debug_id" : "549CB68E-024A-3157-BAAC-EC610957268D",
         "image_addr" : "0x000000018d7b9000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 16384,
-        "uuid" : "549CB68E-024A-3157-BAAC-EC610957268D"
+        "code_file" : "\/System\/Library\/Frameworks\/OpenGLES.framework\/libCoreFSCache.dylib"
       },
       {
-        "name" : "IOAccelerator",
         "image_vmaddr" : "0x0000000183ba1000",
+        "debug_id" : "D306F220-4C64-3A38-AE94-BB9883593FB7",
         "image_addr" : "0x000000018d7b1000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 24576,
-        "uuid" : "D306F220-4C64-3A38-AE94-BB9883593FB7"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/IOAccelerator.framework\/IOAccelerator"
       },
       {
-        "name" : "libcompression.dylib",
         "image_vmaddr" : "0x00000001838ec000",
+        "debug_id" : "347A9D75-F3A8-3AAE-978B-77241B0C469B",
         "image_addr" : "0x000000018d4fc000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 90112,
-        "uuid" : "347A9D75-F3A8-3AAE-978B-77241B0C469B"
+        "code_file" : "\/usr\/lib\/libcompression.dylib"
       },
       {
-        "name" : "AppleJPEG",
         "image_vmaddr" : "0x0000000183287000",
+        "debug_id" : "557E7CA7-706F-3AB5-8830-60B4D3B375D6",
         "image_addr" : "0x000000018ce97000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 266240,
-        "uuid" : "557E7CA7-706F-3AB5-8830-60B4D3B375D6"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/AppleJPEG.framework\/AppleJPEG"
       },
       {
-        "name" : "IOSurfaceAccelerator",
         "image_vmaddr" : "0x0000000183284000",
+        "debug_id" : "D51A80F8-30D9-3151-92EE-D78BC4EA2383",
         "image_addr" : "0x000000018ce94000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 12288,
-        "uuid" : "D51A80F8-30D9-3151-92EE-D78BC4EA2383"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/IOSurfaceAccelerator.framework\/IOSurfaceAccelerator"
       },
       {
-        "name" : "CoreVideo",
         "image_vmaddr" : "0x0000000183c71000",
+        "debug_id" : "E5CDB372-2823-3916-88EA-30A8C1256531",
         "image_addr" : "0x000000018d881000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 151552,
-        "uuid" : "E5CDB372-2823-3916-88EA-30A8C1256531"
+        "code_file" : "\/System\/Library\/Frameworks\/CoreVideo.framework\/CoreVideo"
       },
       {
-        "name" : "ColorSync",
         "image_vmaddr" : "0x0000000184d50000",
+        "debug_id" : "BF0D0845-CABE-3139-8805-F3DB9E196503",
         "image_addr" : "0x000000018e960000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 466944,
-        "uuid" : "BF0D0845-CABE-3139-8805-F3DB9E196503"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/ColorSync.framework\/ColorSync"
       },
       {
-        "name" : "IOMobileFramebuffer",
         "image_vmaddr" : "0x0000000183bfa000",
+        "debug_id" : "7FB677E4-DF58-3224-8C4F-1FDE4A616FAA",
         "image_addr" : "0x000000018d80a000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 36864,
-        "uuid" : "7FB677E4-DF58-3224-8C4F-1FDE4A616FAA"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/IOMobileFramebuffer.framework\/IOMobileFramebuffer"
       },
       {
-        "name" : "OpenGLES",
         "image_vmaddr" : "0x0000000183c66000",
+        "debug_id" : "FA5F3A60-FD02-3F32-B568-9051AB513139",
         "image_addr" : "0x000000018d876000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 45056,
-        "uuid" : "FA5F3A60-FD02-3F32-B568-9051AB513139"
+        "code_file" : "\/System\/Library\/Frameworks\/OpenGLES.framework\/OpenGLES"
       },
       {
-        "name" : "libGFXShared.dylib",
         "image_vmaddr" : "0x0000000183bef000",
+        "debug_id" : "B771EE14-9361-3796-BEBD-52181E1ECA38",
         "image_addr" : "0x000000018d7ff000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 45056,
-        "uuid" : "B771EE14-9361-3796-BEBD-52181E1ECA38"
+        "code_file" : "\/System\/Library\/Frameworks\/OpenGLES.framework\/libGFXShared.dylib"
       },
       {
-        "name" : "libGLImage.dylib",
         "image_vmaddr" : "0x0000000183bad000",
+        "debug_id" : "6483DA03-BBF2-3DB8-A8BE-79690278C7BA",
         "image_addr" : "0x000000018d7bd000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 270336,
-        "uuid" : "6483DA03-BBF2-3DB8-A8BE-79690278C7BA"
+        "code_file" : "\/System\/Library\/Frameworks\/OpenGLES.framework\/libGLImage.dylib"
       },
       {
-        "name" : "libCVMSPluginSupport.dylib",
         "image_vmaddr" : "0x0000000183ba7000",
+        "debug_id" : "BFA07DEF-237D-3661-A4B6-CFE46D64BB98",
         "image_addr" : "0x000000018d7b7000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 8192,
-        "uuid" : "BFA07DEF-237D-3661-A4B6-CFE46D64BB98"
+        "code_file" : "\/System\/Library\/Frameworks\/OpenGLES.framework\/libCVMSPluginSupport.dylib"
       },
       {
-        "name" : "libCoreVMClient.dylib",
         "image_vmaddr" : "0x0000000183b9b000",
+        "debug_id" : "0DCDD0AA-83C7-30BE-911F-DA447D25E1BB",
         "image_addr" : "0x000000018d7ab000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 24576,
-        "uuid" : "0DCDD0AA-83C7-30BE-911F-DA447D25E1BB"
+        "code_file" : "\/System\/Library\/Frameworks\/OpenGLES.framework\/libCoreVMClient.dylib"
       },
       {
-        "name" : "AppSupport",
         "image_vmaddr" : "0x0000000182f95000",
+        "debug_id" : "B9AF4EC3-9608-3455-9462-2765E98D4F8F",
         "image_addr" : "0x000000018cba5000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 319488,
-        "uuid" : "B9AF4EC3-9608-3455-9462-2765E98D4F8F"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/AppSupport.framework\/AppSupport"
       },
       {
-        "name" : "PowerLog",
         "image_vmaddr" : "0x0000000183861000",
+        "debug_id" : "C229F340-E6E5-312E-8D35-6171E80CB855",
         "image_addr" : "0x000000018d471000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 53248,
-        "uuid" : "C229F340-E6E5-312E-8D35-6171E80CB855"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/PowerLog.framework\/PowerLog"
       },
       {
-        "name" : "CoreImage",
         "image_vmaddr" : "0x00000001852e0000",
+        "debug_id" : "61853DBE-6FAF-3809-B9E1-ABCF2F7B0865",
         "image_addr" : "0x000000018eef0000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1875968,
-        "uuid" : "61853DBE-6FAF-3809-B9E1-ABCF2F7B0865"
+        "code_file" : "\/System\/Library\/Frameworks\/CoreImage.framework\/CoreImage"
       },
       {
-        "name" : "MetalPerformanceShaders",
         "image_vmaddr" : "0x0000000184dc2000",
+        "debug_id" : "726B36AD-5FCC-3080-8E3A-5E9119E57082",
         "image_addr" : "0x000000018e9d2000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 462848,
-        "uuid" : "726B36AD-5FCC-3080-8E3A-5E9119E57082"
+        "code_file" : "\/System\/Library\/Frameworks\/MetalPerformanceShaders.framework\/MetalPerformanceShaders"
       },
       {
-        "name" : "FaceCore",
         "image_vmaddr" : "0x0000000184e33000",
+        "debug_id" : "02D5C77F-9A36-31C8-ADFE-8E8B3B442D33",
         "image_addr" : "0x000000018ea43000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 4390912,
-        "uuid" : "02D5C77F-9A36-31C8-ADFE-8E8B3B442D33"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/FaceCore.framework\/FaceCore"
       },
       {
-        "name" : "libFosl_dynamic.dylib",
         "image_vmaddr" : "0x000000019aff3000",
+        "debug_id" : "68D0828E-8FB6-39C6-9844-78A1A2565C5B",
         "image_addr" : "0x00000001a4c03000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1900544,
-        "uuid" : "68D0828E-8FB6-39C6-9844-78A1A2565C5B"
+        "code_file" : "\/usr\/lib\/libFosl_dynamic.dylib"
       },
       {
-        "name" : "VideoToolbox",
         "image_vmaddr" : "0x00000001841cf000",
+        "debug_id" : "2AED6874-C960-31A8-991D-E16A6344C541",
         "image_addr" : "0x000000018dddf000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 589824,
-        "uuid" : "2AED6874-C960-31A8-991D-E16A6344C541"
+        "code_file" : "\/System\/Library\/Frameworks\/VideoToolbox.framework\/VideoToolbox"
       },
       {
-        "name" : "IntlPreferences",
         "image_vmaddr" : "0x0000000188ebb000",
+        "debug_id" : "6ACC26E8-84E5-3BAE-BD74-498DF6B5B08A",
         "image_addr" : "0x0000000192acb000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 65536,
-        "uuid" : "6ACC26E8-84E5-3BAE-BD74-498DF6B5B08A"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/IntlPreferences.framework\/IntlPreferences"
       },
       {
-        "name" : "liblockdown.dylib",
         "image_vmaddr" : "0x0000000183261000",
+        "debug_id" : "E262BBE5-419E-3E5B-A65B-1BBE05144DCF",
         "image_addr" : "0x000000018ce71000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 49152,
-        "uuid" : "E262BBE5-419E-3E5B-A65B-1BBE05144DCF"
+        "code_file" : "\/usr\/lib\/liblockdown.dylib"
       },
       {
-        "name" : "MobileKeyBag",
         "image_vmaddr" : "0x000000018323d000",
+        "debug_id" : "F0CC77EC-DBBD-37B8-A31A-A6EA6107C2AE",
         "image_addr" : "0x000000018ce4d000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 110592,
-        "uuid" : "F0CC77EC-DBBD-37B8-A31A-A6EA6107C2AE"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/MobileKeyBag.framework\/MobileKeyBag"
       },
       {
-        "name" : "MediaToolbox",
         "image_vmaddr" : "0x00000001887a5000",
+        "debug_id" : "41143EFD-F08E-310B-BEAD-E5AD8F48ED64",
         "image_addr" : "0x00000001923b5000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 5668864,
-        "uuid" : "41143EFD-F08E-310B-BEAD-E5AD8F48ED64"
+        "code_file" : "\/System\/Library\/Frameworks\/MediaToolbox.framework\/MediaToolbox"
       },
       {
-        "name" : "MediaAccessibility",
         "image_vmaddr" : "0x0000000184d34000",
+        "debug_id" : "3D38F833-924E-3FE9-8BA4-D3535D224F52",
         "image_addr" : "0x000000018e944000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 45056,
-        "uuid" : "3D38F833-924E-3FE9-8BA4-D3535D224F52"
+        "code_file" : "\/System\/Library\/Frameworks\/MediaAccessibility.framework\/MediaAccessibility"
       },
       {
-        "name" : "CoreText",
         "image_vmaddr" : "0x0000000184260000",
+        "debug_id" : "A666649B-919F-306E-A1A7-6E11E6ABB103",
         "image_addr" : "0x000000018de70000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1359872,
-        "uuid" : "A666649B-919F-306E-A1A7-6E11E6ABB103"
+        "code_file" : "\/System\/Library\/Frameworks\/CoreText.framework\/CoreText"
       },
       {
-        "name" : "FontServices",
         "image_vmaddr" : "0x000000018425f000",
+        "debug_id" : "1C8E81AE-BF9C-3AA0-983A-610B5F42B7E2",
         "image_addr" : "0x000000018de6f000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 4096,
-        "uuid" : "1C8E81AE-BF9C-3AA0-983A-610B5F42B7E2"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/FontServices.framework\/FontServices"
       },
       {
-        "name" : "libFontParser.dylib",
         "image_vmaddr" : "0x00000001840c1000",
+        "debug_id" : "6F9E33F4-5714-3AF6-9CCA-EAE478B885B5",
         "image_addr" : "0x000000018dcd1000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1105920,
-        "uuid" : "6F9E33F4-5714-3AF6-9CCA-EAE478B885B5"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/FontServices.framework\/libFontParser.dylib"
       },
       {
-        "name" : "CoreAUC",
         "image_vmaddr" : "0x0000000188797000",
+        "debug_id" : "CB5AC659-DEA3-3C11-AF60-C02B26D95F65",
         "image_addr" : "0x00000001923a7000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 57344,
-        "uuid" : "CB5AC659-DEA3-3C11-AF60-C02B26D95F65"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CoreAUC.framework\/CoreAUC"
       },
       {
-        "name" : "AggregateDictionary",
         "image_vmaddr" : "0x000000018385c000",
+        "debug_id" : "9BB5DC9D-93DA-36D5-914F-FD26DABF0306",
         "image_addr" : "0x000000018d46c000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 20480,
-        "uuid" : "9BB5DC9D-93DA-36D5-914F-FD26DABF0306"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/AggregateDictionary.framework\/AggregateDictionary"
       },
       {
-        "name" : "NetworkStatistics",
         "image_vmaddr" : "0x0000000188560000",
+        "debug_id" : "212DAC87-43E1-3479-ABA0-81268EC250C7",
         "image_addr" : "0x0000000192170000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 135168,
-        "uuid" : "212DAC87-43E1-3479-ABA0-81268EC250C7"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/NetworkStatistics.framework\/NetworkStatistics"
       },
       {
-        "name" : "QuartzCore",
         "image_vmaddr" : "0x000000018484c000",
+        "debug_id" : "CBC3476D-359B-3382-847B-BAE0CC36BA92",
         "image_addr" : "0x000000018e45c000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1957888,
-        "uuid" : "CBC3476D-359B-3382-847B-BAE0CC36BA92"
+        "code_file" : "\/System\/Library\/Frameworks\/QuartzCore.framework\/QuartzCore"
       },
       {
-        "name" : "CoreBrightness",
         "image_vmaddr" : "0x00000001921cc000",
+        "debug_id" : "B25E7B35-8AB9-3335-B4AC-016104E4CBB8",
         "image_addr" : "0x000000019bddc000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 389120,
-        "uuid" : "B25E7B35-8AB9-3335-B4AC-016104E4CBB8"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CoreBrightness.framework\/CoreBrightness"
       },
       {
-        "name" : "Celestial",
         "image_vmaddr" : "0x0000000188d0d000",
+        "debug_id" : "5BD278A9-F075-3F6C-AD41-CFF43F69CB73",
         "image_addr" : "0x000000019291d000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1761280,
-        "uuid" : "5BD278A9-F075-3F6C-AD41-CFF43F69CB73"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/Celestial.framework\/Celestial"
       },
       {
-        "name" : "CoreMotion",
         "image_vmaddr" : "0x000000018860b000",
+        "debug_id" : "1EE3BF50-5BBD-3BB1-B441-6468626F84D6",
         "image_addr" : "0x000000019221b000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1445888,
-        "uuid" : "1EE3BF50-5BBD-3BB1-B441-6468626F84D6"
+        "code_file" : "\/System\/Library\/Frameworks\/CoreMotion.framework\/CoreMotion"
       },
       {
-        "name" : "ManagedConfiguration",
         "image_vmaddr" : "0x0000000184b55000",
+        "debug_id" : "C12972E1-AE6B-3137-818C-F2F7F98C70F5",
         "image_addr" : "0x000000018e765000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1011712,
-        "uuid" : "C12972E1-AE6B-3137-818C-F2F7F98C70F5"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/ManagedConfiguration.framework\/ManagedConfiguration"
       },
       {
-        "name" : "libmis.dylib",
         "image_vmaddr" : "0x0000000184a42000",
+        "debug_id" : "D7314816-D970-3355-B562-FDDE67082111",
         "image_addr" : "0x000000018e652000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 135168,
-        "uuid" : "D7314816-D970-3355-B562-FDDE67082111"
+        "code_file" : "\/usr\/lib\/libmis.dylib"
       },
       {
-        "name" : "Netrb",
         "image_vmaddr" : "0x0000000184a2a000",
+        "debug_id" : "E94D66F1-8475-3471-80A3-2F0381FECCD1",
         "image_addr" : "0x000000018e63a000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 28672,
-        "uuid" : "E94D66F1-8475-3471-80A3-2F0381FECCD1"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/Netrb.framework\/Netrb"
       },
       {
-        "name" : "Accounts",
         "image_vmaddr" : "0x0000000183ca0000",
+        "debug_id" : "E3B0193F-65C1-3029-B406-6582E4DE0B9B",
         "image_addr" : "0x000000018d8b0000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 249856,
-        "uuid" : "E3B0193F-65C1-3029-B406-6582E4DE0B9B"
+        "code_file" : "\/System\/Library\/Frameworks\/Accounts.framework\/Accounts"
       },
       {
-        "name" : "CoreData",
         "image_vmaddr" : "0x0000000183902000",
+        "debug_id" : "149E3207-A34F-3DB2-89B3-C7F9D5BA7344",
         "image_addr" : "0x000000018d512000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 2723840,
-        "uuid" : "149E3207-A34F-3DB2-89B3-C7F9D5BA7344"
+        "code_file" : "\/System\/Library\/Frameworks\/CoreData.framework\/CoreData"
       },
       {
-        "name" : "OAuth",
         "image_vmaddr" : "0x0000000183c96000",
+        "debug_id" : "329757FC-3F93-35FF-AE08-668C4993906D",
         "image_addr" : "0x000000018d8a6000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 12288,
-        "uuid" : "329757FC-3F93-35FF-AE08-668C4993906D"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/OAuth.framework\/OAuth"
       },
       {
-        "name" : "PersistentConnection",
         "image_vmaddr" : "0x00000001843c7000",
+        "debug_id" : "A3B0EE68-40F0-3C82-B4BA-EDC047639B5D",
         "image_addr" : "0x000000018dfd7000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 167936,
-        "uuid" : "A3B0EE68-40F0-3C82-B4BA-EDC047639B5D"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/PersistentConnection.framework\/PersistentConnection"
       },
       {
-        "name" : "CoreTelephony",
         "image_vmaddr" : "0x0000000184037000",
+        "debug_id" : "00F7AC27-A10E-3A60-A7AE-7A68BA302AC8",
         "image_addr" : "0x000000018dc47000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 565248,
-        "uuid" : "00F7AC27-A10E-3A60-A7AE-7A68BA302AC8"
+        "code_file" : "\/System\/Library\/Frameworks\/CoreTelephony.framework\/CoreTelephony"
       },
       {
-        "name" : "libcupolicy.dylib",
         "image_vmaddr" : "0x0000000184030000",
+        "debug_id" : "25272348-F11F-33FA-A9EE-F0607D76FB0E",
         "image_addr" : "0x000000018dc40000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 28672,
-        "uuid" : "25272348-F11F-33FA-A9EE-F0607D76FB0E"
+        "code_file" : "\/usr\/lib\/libcupolicy.dylib"
       },
       {
-        "name" : "CommonUtilities",
         "image_vmaddr" : "0x00000001838d9000",
+        "debug_id" : "0421CB6F-6D31-3979-B5D6-C27B3E802C27",
         "image_addr" : "0x000000018d4e9000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 77824,
-        "uuid" : "0421CB6F-6D31-3979-B5D6-C27B3E802C27"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CommonUtilities.framework\/CommonUtilities"
       },
       {
-        "name" : "DataMigration",
         "image_vmaddr" : "0x00000001843f0000",
+        "debug_id" : "5D249959-4AED-3827-AF35-46C23A219C55",
         "image_addr" : "0x000000018e000000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 28672,
-        "uuid" : "5D249959-4AED-3827-AF35-46C23A219C55"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/DataMigration.framework\/DataMigration"
       },
       {
-        "name" : "Quagga",
         "image_vmaddr" : "0x0000000185263000",
+        "debug_id" : "D09D2EF7-1F52-3907-8BBC-2A7226EF7F1F",
         "image_addr" : "0x000000018ee73000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 512000,
-        "uuid" : "D09D2EF7-1F52-3907-8BBC-2A7226EF7F1F"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/Quagga.framework\/Quagga"
       },
       {
-        "name" : "libiconv.2.dylib",
         "image_vmaddr" : "0x0000000183cdd000",
+        "debug_id" : "46725290-0A63-38ED-AD04-84BFD6E215E5",
         "image_addr" : "0x000000018d8ed000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 995328,
-        "uuid" : "46725290-0A63-38ED-AD04-84BFD6E215E5"
+        "code_file" : "\/usr\/lib\/libiconv.2.dylib"
       },
       {
-        "name" : "GLKit",
         "image_vmaddr" : "0x000000018ba67000",
+        "debug_id" : "37DC9A25-76B1-3AAD-9D63-74257277F6E3",
         "image_addr" : "0x0000000195677000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 200704,
-        "uuid" : "37DC9A25-76B1-3AAD-9D63-74257277F6E3"
+        "code_file" : "\/System\/Library\/Frameworks\/GLKit.framework\/GLKit"
       },
       {
-        "name" : "TextureIO",
         "image_vmaddr" : "0x000000019bef2000",
+        "debug_id" : "FECC75F3-26B7-3389-BCF8-D1A09C682E12",
         "image_addr" : "0x00000001a5b02000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 671744,
-        "uuid" : "FECC75F3-26B7-3389-BCF8-D1A09C682E12"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/TextureIO.framework\/TextureIO"
       },
       {
-        "name" : "libate.dylib",
         "image_vmaddr" : "0x000000019f29d000",
+        "debug_id" : "FF42AE1A-98ED-3F43-A98C-C741C8ECA516",
         "image_addr" : "0x00000001a8ead000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 495616,
-        "uuid" : "FF42AE1A-98ED-3F43-A98C-C741C8ECA516"
+        "code_file" : "\/usr\/lib\/libate.dylib"
       },
       {
-        "name" : "CoreUI",
         "image_vmaddr" : "0x000000018753b000",
+        "debug_id" : "7576B43E-D499-3E04-BF03-B92B7027EE14",
         "image_addr" : "0x000000019114b000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 811008,
-        "uuid" : "7576B43E-D499-3E04-BF03-B92B7027EE14"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CoreUI.framework\/CoreUI"
       },
       {
-        "name" : "ModelIO",
         "image_vmaddr" : "0x000000018b16e000",
+        "debug_id" : "D76CCB65-1F5D-3EB5-8CD7-DAD0B86FE22D",
         "image_addr" : "0x0000000194d7e000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 8200192,
-        "uuid" : "D76CCB65-1F5D-3EB5-8CD7-DAD0B86FE22D"
+        "code_file" : "\/System\/Library\/Frameworks\/ModelIO.framework\/ModelIO"
       },
       {
-        "name" : "UIKit",
         "image_vmaddr" : "0x0000000187766000",
+        "debug_id" : "D978EB03-0EA3-33B0-B02C-F5A28CC8CD4F",
         "image_addr" : "0x0000000191376000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 14319616,
-        "uuid" : "D978EB03-0EA3-33B0-B02C-F5A28CC8CD4F"
+        "code_file" : "\/System\/Library\/Frameworks\/UIKit.framework\/UIKit"
       },
       {
-        "name" : "UIFoundation",
         "image_vmaddr" : "0x0000000187682000",
+        "debug_id" : "F4E6F907-A46A-3071-8BE4-E97EE34D08BF",
         "image_addr" : "0x0000000191292000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 884736,
-        "uuid" : "F4E6F907-A46A-3071-8BE4-E97EE34D08BF"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/UIFoundation.framework\/UIFoundation"
       },
       {
-        "name" : "HangTracer",
         "image_vmaddr" : "0x0000000187629000",
+        "debug_id" : "B7EA0A9E-A13F-3CA0-A6AA-0E4166A9AE90",
         "image_addr" : "0x0000000191239000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 16384,
-        "uuid" : "B7EA0A9E-A13F-3CA0-A6AA-0E4166A9AE90"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/HangTracer.framework\/HangTracer"
       },
       {
-        "name" : "UserNotifications",
         "image_vmaddr" : "0x000000019b9fc000",
+        "debug_id" : "2637BB1D-0CEE-3C31-A844-3CF02596EEE7",
         "image_addr" : "0x00000001a560c000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 147456,
-        "uuid" : "2637BB1D-0CEE-3C31-A844-3CF02596EEE7"
+        "code_file" : "\/System\/Library\/Frameworks\/UserNotifications.framework\/UserNotifications"
       },
       {
-        "name" : "MobileAsset",
         "image_vmaddr" : "0x0000000184d3f000",
+        "debug_id" : "5FED8264-9BE6-33FE-89B6-99599310AB46",
         "image_addr" : "0x000000018e94f000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 69632,
-        "uuid" : "5FED8264-9BE6-33FE-89B6-99599310AB46"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/MobileAsset.framework\/MobileAsset"
       },
       {
-        "name" : "DictionaryServices",
         "image_vmaddr" : "0x0000000187601000",
+        "debug_id" : "5536CF26-C4E9-373B-8D8D-3D04B721DCA9",
         "image_addr" : "0x0000000191211000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 163840,
-        "uuid" : "5536CF26-C4E9-373B-8D8D-3D04B721DCA9"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/DictionaryServices.framework\/DictionaryServices"
       },
       {
-        "name" : "NLP",
         "image_vmaddr" : "0x000000019df5f000",
+        "debug_id" : "78DDCCA4-1BC2-3103-BC0F-821EC3CEAFA8",
         "image_addr" : "0x00000001a7b6f000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 839680,
-        "uuid" : "78DDCCA4-1BC2-3103-BC0F-821EC3CEAFA8"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/NLP.framework\/NLP"
       },
       {
-        "name" : "libcmph.dylib",
         "image_vmaddr" : "0x0000000184a31000",
+        "debug_id" : "83FB86D1-A65C-3CF6-9CFC-9B6BD2FDF846",
         "image_addr" : "0x000000018e641000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 69632,
-        "uuid" : "83FB86D1-A65C-3CF6-9CFC-9B6BD2FDF846"
+        "code_file" : "\/usr\/lib\/libcmph.dylib"
       },
       {
-        "name" : "LanguageModeling",
         "image_vmaddr" : "0x0000000184a63000",
+        "debug_id" : "57F28272-ABB4-3927-8C7C-81982026EF0D",
         "image_addr" : "0x000000018e673000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 991232,
-        "uuid" : "57F28272-ABB4-3927-8C7C-81982026EF0D"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/LanguageModeling.framework\/LanguageModeling"
       },
       {
-        "name" : "CoreEmoji",
         "image_vmaddr" : "0x000000019d8d7000",
+        "debug_id" : "B2CCA65A-B837-3B92-AE34-12D934524C75",
         "image_addr" : "0x00000001a74e7000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 73728,
-        "uuid" : "B2CCA65A-B837-3B92-AE34-12D934524C75"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CoreEmoji.framework\/CoreEmoji"
       },
       {
-        "name" : "DataDetectorsCore",
         "image_vmaddr" : "0x000000018d068000",
+        "debug_id" : "9E73EE03-30D0-35AC-9471-AF29D71731D9",
         "image_addr" : "0x0000000196c78000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 204800,
-        "uuid" : "9E73EE03-30D0-35AC-9471-AF29D71731D9"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/DataDetectorsCore.framework\/DataDetectorsCore"
       },
       {
-        "name" : "AppleFSCompression",
         "image_vmaddr" : "0x00000001970de000",
+        "debug_id" : "EE64E73C-DECD-3470-9A01-0DABD37F00DE",
         "image_addr" : "0x00000001a0cee000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 61440,
-        "uuid" : "EE64E73C-DECD-3470-9A01-0DABD37F00DE"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/AppleFSCompression.framework\/AppleFSCompression"
       },
       {
-        "name" : "libxslt.1.dylib",
         "image_vmaddr" : "0x00000001873a5000",
+        "debug_id" : "8CCD71D1-B1CD-31CD-8052-6A654964FFBA",
         "image_addr" : "0x0000000190fb5000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 167936,
-        "uuid" : "8CCD71D1-B1CD-31CD-8052-6A654964FFBA"
+        "code_file" : "\/usr\/lib\/libxslt.1.dylib"
       },
       {
-        "name" : "libmarisa.dylib",
         "image_vmaddr" : "0x0000000184c4c000",
+        "debug_id" : "148B0548-F1F5-3C96-B82C-22C0405591AE",
         "image_addr" : "0x000000018e85c000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 94208,
-        "uuid" : "148B0548-F1F5-3C96-B82C-22C0405591AE"
+        "code_file" : "\/usr\/lib\/libmarisa.dylib"
       },
       {
-        "name" : "TextInput",
         "image_vmaddr" : "0x00000001854aa000",
+        "debug_id" : "92C6D1F5-62DB-313D-ACB2-D86A92285896",
         "image_addr" : "0x000000018f0ba000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 327680,
-        "uuid" : "92C6D1F5-62DB-313D-ACB2-D86A92285896"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/TextInput.framework\/TextInput"
       },
       {
-        "name" : "WebKitLegacy",
         "image_vmaddr" : "0x00000001873ce000",
+        "debug_id" : "7041F31A-F79C-30DB-9AFF-4500A4441887",
         "image_addr" : "0x0000000190fde000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1495040,
-        "uuid" : "7041F31A-F79C-30DB-9AFF-4500A4441887"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/WebKitLegacy.framework\/WebKitLegacy"
       },
       {
-        "name" : "JavaScriptCore",
         "image_vmaddr" : "0x000000018551a000",
+        "debug_id" : "5BB5B158-A758-3EE8-B325-FAADA574FFA0",
         "image_addr" : "0x000000018f12a000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 10760192,
-        "uuid" : "5BB5B158-A758-3EE8-B325-FAADA574FFA0"
+        "code_file" : "\/System\/Library\/Frameworks\/JavaScriptCore.framework\/JavaScriptCore"
       },
       {
-        "name" : "WebCore",
         "image_vmaddr" : "0x00000001861b0000",
+        "debug_id" : "B4621BBB-EFCF-3133-93D5-066D3EAE32E0",
         "image_addr" : "0x000000018fdc0000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 18829312,
-        "uuid" : "B4621BBB-EFCF-3133-93D5-066D3EAE32E0"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/WebCore.framework\/WebCore"
       },
       {
-        "name" : "ProofReader",
         "image_vmaddr" : "0x0000000184c63000",
+        "debug_id" : "00EBCD5E-0FAD-31AA-9BD9-883D2D74D047",
         "image_addr" : "0x000000018e873000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 856064,
-        "uuid" : "00EBCD5E-0FAD-31AA-9BD9-883D2D74D047"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/ProofReader.framework\/ProofReader"
       },
       {
-        "name" : "libAccessibility.dylib",
         "image_vmaddr" : "0x00000001854fa000",
+        "debug_id" : "3EB602E7-1B85-3FA4-B976-15DF5929AD40",
         "image_addr" : "0x000000018f10a000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 69632,
-        "uuid" : "3EB602E7-1B85-3FA4-B976-15DF5929AD40"
+        "code_file" : "\/usr\/lib\/libAccessibility.dylib"
       },
       {
-        "name" : "PhysicsKit",
         "image_vmaddr" : "0x000000018762d000",
+        "debug_id" : "CB917D2A-9364-3F2A-9DA7-A0E4F578E11D",
         "image_addr" : "0x000000019123d000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 348160,
-        "uuid" : "CB917D2A-9364-3F2A-9DA7-A0E4F578E11D"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/PhysicsKit.framework\/PhysicsKit"
       },
       {
-        "name" : "MessageUI",
         "image_vmaddr" : "0x000000018e15e000",
+        "debug_id" : "5E5F7E26-AE18-3852-89A3-3C2549DD3500",
         "image_addr" : "0x0000000197d6e000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 917504,
-        "uuid" : "5E5F7E26-AE18-3852-89A3-3C2549DD3500"
+        "code_file" : "\/System\/Library\/Frameworks\/MessageUI.framework\/MessageUI"
       },
       {
-        "name" : "CalendarDatabase",
         "image_vmaddr" : "0x000000018aaf8000",
+        "debug_id" : "661AFDBE-6314-3DC6-9999-F98BA9B6CF82",
         "image_addr" : "0x0000000194708000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 630784,
-        "uuid" : "661AFDBE-6314-3DC6-9999-F98BA9B6CF82"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CalendarDatabase.framework\/CalendarDatabase"
       },
       {
-        "name" : "CalendarFoundation",
         "image_vmaddr" : "0x000000018a997000",
+        "debug_id" : "183FE09E-DA41-3D8A-B047-6EDA6972FD45",
         "image_addr" : "0x00000001945a7000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 389120,
-        "uuid" : "183FE09E-DA41-3D8A-B047-6EDA6972FD45"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CalendarFoundation.framework\/CalendarFoundation"
       },
       {
-        "name" : "PersonaKit",
         "image_vmaddr" : "0x000000019ba32000",
+        "debug_id" : "CFE978BE-028E-351D-8420-21CE97EEA8E0",
         "image_addr" : "0x00000001a5642000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 61440,
-        "uuid" : "CFE978BE-028E-351D-8420-21CE97EEA8E0"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/PersonaKit.framework\/PersonaKit"
       },
       {
-        "name" : "ProactiveEventTracker",
         "image_vmaddr" : "0x000000019b71c000",
+        "debug_id" : "F795EA33-656F-3713-824C-E6267708FF14",
         "image_addr" : "0x00000001a532c000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 40960,
-        "uuid" : "F795EA33-656F-3713-824C-E6267708FF14"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/ProactiveEventTracker.framework\/ProactiveEventTracker"
       },
       {
-        "name" : "Contacts",
         "image_vmaddr" : "0x000000018a092000",
+        "debug_id" : "C9C1D322-781F-3DEB-B9FE-52C5D39BC993",
         "image_addr" : "0x0000000193ca2000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 737280,
-        "uuid" : "C9C1D322-781F-3DEB-B9FE-52C5D39BC993"
+        "code_file" : "\/System\/Library\/Frameworks\/Contacts.framework\/Contacts"
       },
       {
-        "name" : "AddressBook",
         "image_vmaddr" : "0x0000000188581000",
+        "debug_id" : "EF2B71F5-96B9-31EE-B3F9-406DAE49BE86",
         "image_addr" : "0x0000000192191000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 565248,
-        "uuid" : "EF2B71F5-96B9-31EE-B3F9-406DAE49BE86"
+        "code_file" : "\/System\/Library\/Frameworks\/AddressBook.framework\/AddressBook"
       },
       {
-        "name" : "DataAccessExpress",
         "image_vmaddr" : "0x0000000188537000",
+        "debug_id" : "0C1935DC-1DD2-3280-A1DD-E1E681E218AB",
         "image_addr" : "0x0000000192147000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 167936,
-        "uuid" : "0C1935DC-1DD2-3280-A1DD-E1E681E218AB"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/DataAccessExpress.framework\/DataAccessExpress"
       },
       {
-        "name" : "vCard",
         "image_vmaddr" : "0x000000018a190000",
+        "debug_id" : "E14D16DD-03CB-3572-A794-E53AC9576F24",
         "image_addr" : "0x0000000193da0000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 167936,
-        "uuid" : "E14D16DD-03CB-3572-A794-E53AC9576F24"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/vCard.framework\/vCard"
       },
       {
-        "name" : "ContactsFoundation",
         "image_vmaddr" : "0x000000018a03f000",
+        "debug_id" : "30994C33-B8A7-3233-9E8A-206B372A216E",
         "image_addr" : "0x0000000193c4f000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 327680,
-        "uuid" : "30994C33-B8A7-3233-9E8A-206B372A216E"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/ContactsFoundation.framework\/ContactsFoundation"
       },
       {
-        "name" : "iCalendar",
         "image_vmaddr" : "0x000000018a95a000",
+        "debug_id" : "11AAA2F3-5B66-3A67-B25F-EF4F5BA5D53D",
         "image_addr" : "0x000000019456a000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 217088,
-        "uuid" : "11AAA2F3-5B66-3A67-B25F-EF4F5BA5D53D"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/iCalendar.framework\/iCalendar"
       },
       {
-        "name" : "Bom",
         "image_vmaddr" : "0x000000018a781000",
+        "debug_id" : "DCED9E27-6E94-31B9-B107-14B62423AAE0",
         "image_addr" : "0x0000000194391000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 200704,
-        "uuid" : "DCED9E27-6E94-31B9-B107-14B62423AAE0"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/Bom.framework\/Bom"
       },
       {
-        "name" : "CoreDAV",
         "image_vmaddr" : "0x000000018a80d000",
+        "debug_id" : "2E5849D6-A01D-3FC5-AA12-627B58F2F73D",
         "image_addr" : "0x000000019441d000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 389120,
-        "uuid" : "2E5849D6-A01D-3FC5-AA12-627B58F2F73D"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CoreDAV.framework\/CoreDAV"
       },
       {
-        "name" : "AuthKit",
         "image_vmaddr" : "0x0000000189d0c000",
+        "debug_id" : "E529D56E-0C10-3B29-AC16-5813A251D0F5",
         "image_addr" : "0x000000019391c000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 278528,
-        "uuid" : "E529D56E-0C10-3B29-AC16-5813A251D0F5"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/AuthKit.framework\/AuthKit"
       },
       {
-        "name" : "SymptomDiagnosticReporter",
         "image_vmaddr" : "0x000000019eada000",
+        "debug_id" : "E108B2C6-450A-3CEB-BB54-999543C41E7E",
         "image_addr" : "0x00000001a86ea000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 24576,
-        "uuid" : "E108B2C6-450A-3CEB-BB54-999543C41E7E"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/SymptomDiagnosticReporter.framework\/SymptomDiagnosticReporter"
       },
       {
-        "name" : "AppleIDAuthSupport",
         "image_vmaddr" : "0x00000001970ed000",
+        "debug_id" : "EDDEC2D1-D9DF-3C31-81BF-B61B31D7442B",
         "image_addr" : "0x00000001a0cfd000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 49152,
-        "uuid" : "EDDEC2D1-D9DF-3C31-81BF-B61B31D7442B"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/AppleIDAuthSupport.framework\/AppleIDAuthSupport"
       },
       {
-        "name" : "libresolv.9.dylib",
         "image_vmaddr" : "0x000000018a00d000",
+        "debug_id" : "1B7BA757-FBA6-3EFA-82E3-BDE6E09324DC",
         "image_addr" : "0x0000000193c1d000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 114688,
-        "uuid" : "1B7BA757-FBA6-3EFA-82E3-BDE6E09324DC"
+        "code_file" : "\/usr\/lib\/libresolv.9.dylib"
       },
       {
-        "name" : "CoreLocation",
         "image_vmaddr" : "0x00000001898b4000",
+        "debug_id" : "DEFB029F-ECDE-3057-9911-3468A7D69170",
         "image_addr" : "0x00000001934c4000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 548864,
-        "uuid" : "DEFB029F-ECDE-3057-9911-3468A7D69170"
+        "code_file" : "\/System\/Library\/Frameworks\/CoreLocation.framework\/CoreLocation"
       },
       {
-        "name" : "GeoServices",
         "image_vmaddr" : "0x000000018920c000",
+        "debug_id" : "72488753-F8D6-3C47-B355-82FF9099F0D3",
         "image_addr" : "0x0000000192e1c000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 6963200,
-        "uuid" : "72488753-F8D6-3C47-B355-82FF9099F0D3"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/GeoServices.framework\/GeoServices"
       },
       {
-        "name" : "CacheDelete",
         "image_vmaddr" : "0x000000018876c000",
+        "debug_id" : "3F482B9A-2F3B-36E4-A317-A31672374EF3",
         "image_addr" : "0x000000019237c000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 176128,
-        "uuid" : "3F482B9A-2F3B-36E4-A317-A31672374EF3"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CacheDelete.framework\/CacheDelete"
       },
       {
-        "name" : "CoreBluetooth",
         "image_vmaddr" : "0x000000018850e000",
+        "debug_id" : "1176B2CC-3401-3D13-ABF4-A3F3136BBFF5",
         "image_addr" : "0x000000019211e000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 167936,
-        "uuid" : "1176B2CC-3401-3D13-ABF4-A3F3136BBFF5"
+        "code_file" : "\/System\/Library\/Frameworks\/CoreBluetooth.framework\/CoreBluetooth"
       },
       {
-        "name" : "ContactsUI",
         "image_vmaddr" : "0x000000018b02a000",
+        "debug_id" : "DDE16AE9-CB87-34F4-8BC4-48264D0D1580",
         "image_addr" : "0x0000000194c3a000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1327104,
-        "uuid" : "DDE16AE9-CB87-34F4-8BC4-48264D0D1580"
+        "code_file" : "\/System\/Library\/Frameworks\/ContactsUI.framework\/ContactsUI"
       },
       {
-        "name" : "ContactsUICore",
         "image_vmaddr" : "0x000000019c4c3000",
+        "debug_id" : "86346DAF-FB08-31AC-A4BE-7B714D7208C1",
         "image_addr" : "0x00000001a60d3000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 303104,
-        "uuid" : "86346DAF-FB08-31AC-A4BE-7B714D7208C1"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/ContactsUICore.framework\/ContactsUICore"
       },
       {
-        "name" : "CoreRecents",
         "image_vmaddr" : "0x000000018d577000",
+        "debug_id" : "843B7AEB-E6BE-39FE-AC1A-F86B16AACCFC",
         "image_addr" : "0x0000000197187000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 49152,
-        "uuid" : "843B7AEB-E6BE-39FE-AC1A-F86B16AACCFC"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CoreRecents.framework\/CoreRecents"
       },
       {
-        "name" : "CoreSpotlight",
         "image_vmaddr" : "0x000000018a146000",
+        "debug_id" : "88CF375E-1073-3F50-82E2-47A1CFD8E968",
         "image_addr" : "0x0000000193d56000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 303104,
-        "uuid" : "88CF375E-1073-3F50-82E2-47A1CFD8E968"
+        "code_file" : "\/System\/Library\/Frameworks\/CoreSpotlight.framework\/CoreSpotlight"
       },
       {
-        "name" : "MobileSpotlightIndex",
         "image_vmaddr" : "0x0000000189e2b000",
+        "debug_id" : "DCDB768E-C6F7-3E57-93BE-8925FFE27624",
         "image_addr" : "0x0000000193a3b000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1593344,
-        "uuid" : "DCDB768E-C6F7-3E57-93BE-8925FFE27624"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/MobileSpotlightIndex.framework\/MobileSpotlightIndex"
       },
       {
-        "name" : "PlugInKit",
         "image_vmaddr" : "0x0000000189fb0000",
+        "debug_id" : "B5C7C973-0F90-3D35-8179-DBC4E9B867EC",
         "image_addr" : "0x0000000193bc0000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 131072,
-        "uuid" : "B5C7C973-0F90-3D35-8179-DBC4E9B867EC"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/PlugInKit.framework\/PlugInKit"
       },
       {
-        "name" : "CoreDuet",
         "image_vmaddr" : "0x0000000188ee3000",
+        "debug_id" : "A562B152-936F-30FA-BDEB-6C92FB389A98",
         "image_addr" : "0x0000000192af3000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 876544,
-        "uuid" : "A562B152-936F-30FA-BDEB-6C92FB389A98"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CoreDuet.framework\/CoreDuet"
       },
       {
-        "name" : "Intents",
         "image_vmaddr" : "0x000000019b726000",
+        "debug_id" : "37A7D5A5-0042-3B0C-A44B-E5F10B72A109",
         "image_addr" : "0x00000001a5336000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1667072,
-        "uuid" : "37A7D5A5-0042-3B0C-A44B-E5F10B72A109"
+        "code_file" : "\/System\/Library\/Frameworks\/Intents.framework\/Intents"
       },
       {
-        "name" : "IntentsFoundation",
         "image_vmaddr" : "0x000000019de17000",
+        "debug_id" : "9BD70336-28A8-30DF-AC55-A0971B83EE0E",
         "image_addr" : "0x00000001a7a27000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 4096,
-        "uuid" : "9BD70336-28A8-30DF-AC55-A0971B83EE0E"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/IntentsFoundation.framework\/IntentsFoundation"
       },
       {
-        "name" : "CoreDuetDaemonProtocol",
         "image_vmaddr" : "0x0000000188ece000",
+        "debug_id" : "53503D63-1374-33F5-8E5E-52F9AAB49C20",
         "image_addr" : "0x0000000192ade000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 86016,
-        "uuid" : "53503D63-1374-33F5-8E5E-52F9AAB49C20"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CoreDuetDaemonProtocol.framework\/CoreDuetDaemonProtocol"
       },
       {
-        "name" : "CoreDuetDebugLogging",
         "image_vmaddr" : "0x0000000188ecb000",
+        "debug_id" : "E265220B-5D15-3693-BACB-0410B6123B9C",
         "image_addr" : "0x0000000192adb000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 12288,
-        "uuid" : "E265220B-5D15-3693-BACB-0410B6123B9C"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CoreDuetDebugLogging.framework\/CoreDuetDebugLogging"
       },
       {
-        "name" : "CommunicationsFilter",
         "image_vmaddr" : "0x000000018a579000",
+        "debug_id" : "27CBF1F3-D228-32B5-A8D3-1E6827E53B8C",
         "image_addr" : "0x0000000194189000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 20480,
-        "uuid" : "27CBF1F3-D228-32B5-A8D3-1E6827E53B8C"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CommunicationsFilter.framework\/CommunicationsFilter"
       },
       {
-        "name" : "IMFoundation",
         "image_vmaddr" : "0x00000001891a5000",
+        "debug_id" : "B77F258F-6006-37BC-B7DC-D81D46C844A0",
         "image_addr" : "0x0000000192db5000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 421888,
-        "uuid" : "B77F258F-6006-37BC-B7DC-D81D46C844A0"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/IMFoundation.framework\/IMFoundation"
       },
       {
-        "name" : "libtidy.A.dylib",
         "image_vmaddr" : "0x0000000189170000",
+        "debug_id" : "11EF7612-AFCC-30BD-975B-FCFF9B2C8171",
         "image_addr" : "0x0000000192d80000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 217088,
-        "uuid" : "11EF7612-AFCC-30BD-975B-FCFF9B2C8171"
+        "code_file" : "\/usr\/lib\/libtidy.A.dylib"
       },
       {
-        "name" : "ContactsAutocomplete",
         "image_vmaddr" : "0x000000018e114000",
+        "debug_id" : "1FD2B5DD-89CD-304E-8C7A-2A0325B94412",
         "image_addr" : "0x0000000197d24000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 237568,
-        "uuid" : "1FD2B5DD-89CD-304E-8C7A-2A0325B94412"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/ContactsAutocomplete.framework\/ContactsAutocomplete"
       },
       {
-        "name" : "EventKit",
         "image_vmaddr" : "0x000000018abd8000",
+        "debug_id" : "DBCDBE4C-A38B-3A09-8ECC-C5FE55076C3E",
         "image_addr" : "0x00000001947e8000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 856064,
-        "uuid" : "DBCDBE4C-A38B-3A09-8ECC-C5FE55076C3E"
+        "code_file" : "\/System\/Library\/Frameworks\/EventKit.framework\/EventKit"
       },
       {
-        "name" : "CalendarDaemon",
         "image_vmaddr" : "0x000000018ab92000",
+        "debug_id" : "3F400914-37F6-3958-8453-5F6D3757CBDA",
         "image_addr" : "0x00000001947a2000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 286720,
-        "uuid" : "3F400914-37F6-3958-8453-5F6D3757CBDA"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CalendarDaemon.framework\/CalendarDaemon"
       },
       {
-        "name" : "FTClientServices",
         "image_vmaddr" : "0x000000018df0f000",
+        "debug_id" : "23C91638-04E8-38E2-A0BC-DC5F7028C7F4",
         "image_addr" : "0x0000000197b1f000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 16384,
-        "uuid" : "23C91638-04E8-38E2-A0BC-DC5F7028C7F4"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/FTClientServices.framework\/FTClientServices"
       },
       {
-        "name" : "Marco",
         "image_vmaddr" : "0x00000001898b2000",
+        "debug_id" : "76C2AE5E-325A-390B-AC5A-C8AB58ADA900",
         "image_addr" : "0x00000001934c2000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 8192,
-        "uuid" : "76C2AE5E-325A-390B-AC5A-C8AB58ADA900"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/Marco.framework\/Marco"
       },
       {
-        "name" : "DiagnosticLogCollection",
         "image_vmaddr" : "0x00000001898b0000",
+        "debug_id" : "C5E7AE6E-9238-3A43-A1A5-319DB54ED21A",
         "image_addr" : "0x00000001934c0000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 8192,
-        "uuid" : "C5E7AE6E-9238-3A43-A1A5-319DB54ED21A"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/DiagnosticLogCollection.framework\/DiagnosticLogCollection"
       },
       {
-        "name" : "FTServices",
         "image_vmaddr" : "0x000000018a7bb000",
+        "debug_id" : "40032D26-8532-3A4F-9B1C-3DB0552F725A",
         "image_addr" : "0x00000001943cb000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 335872,
-        "uuid" : "40032D26-8532-3A4F-9B1C-3DB0552F725A"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/FTServices.framework\/FTServices"
       },
       {
-        "name" : "IDSFoundation",
         "image_vmaddr" : "0x0000000189bd1000",
+        "debug_id" : "F3F524DF-E251-3740-8CCB-76290EDC1E41",
         "image_addr" : "0x00000001937e1000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 339968,
-        "uuid" : "F3F524DF-E251-3740-8CCB-76290EDC1E41"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/IDSFoundation.framework\/IDSFoundation"
       },
       {
-        "name" : "FTAWD",
         "image_vmaddr" : "0x000000018e51a000",
+        "debug_id" : "27BF4F81-1071-3C48-AE3D-04BB6EC94228",
         "image_addr" : "0x000000019812a000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 94208,
-        "uuid" : "27BF4F81-1071-3C48-AE3D-04BB6EC94228"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/FTAWD.framework\/FTAWD"
       },
       {
-        "name" : "AddressBookUI",
         "image_vmaddr" : "0x000000018bd4a000",
+        "debug_id" : "261CB88A-F8F9-3D53-9E34-E4B6B24CD268",
         "image_addr" : "0x000000019595a000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 884736,
-        "uuid" : "261CB88A-F8F9-3D53-9E34-E4B6B24CD268"
+        "code_file" : "\/System\/Library\/Frameworks\/AddressBookUI.framework\/AddressBookUI"
       },
       {
-        "name" : "Message",
         "image_vmaddr" : "0x000000018ce7d000",
+        "debug_id" : "2A5588B5-631B-374D-B55F-EE36F4FAE292",
         "image_addr" : "0x0000000196a8d000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1277952,
-        "uuid" : "2A5588B5-631B-374D-B55F-EE36F4FAE292"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/Message.framework\/Message"
       },
       {
-        "name" : "MailSupport",
         "image_vmaddr" : "0x000000019dea4000",
+        "debug_id" : "5284C98D-34B4-3E46-A8FD-4BF3316F3B8B",
         "image_addr" : "0x00000001a7ab4000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 86016,
-        "uuid" : "5284C98D-34B4-3E46-A8FD-4BF3316F3B8B"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/MailSupport.framework\/MailSupport"
       },
       {
-        "name" : "CertUI",
         "image_vmaddr" : "0x000000018a7b2000",
+        "debug_id" : "51AD533F-4EB2-3FBF-928E-307DCAD33B23",
         "image_addr" : "0x00000001943c2000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 36864,
-        "uuid" : "51AD533F-4EB2-3FBF-928E-307DCAD33B23"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CertUI.framework\/CertUI"
       },
       {
-        "name" : "CloudKit",
         "image_vmaddr" : "0x000000018be22000",
+        "debug_id" : "2E459699-DFE5-39C6-909B-1FC4F8752AE2",
         "image_addr" : "0x0000000195a32000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 905216,
-        "uuid" : "2E459699-DFE5-39C6-909B-1FC4F8752AE2"
+        "code_file" : "\/System\/Library\/Frameworks\/CloudKit.framework\/CloudKit"
       },
       {
-        "name" : "MMCS",
         "image_vmaddr" : "0x000000018a5e7000",
+        "debug_id" : "D3A23EB9-69F1-32FB-A6FB-2285C0FD1C63",
         "image_addr" : "0x00000001941f7000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 823296,
-        "uuid" : "D3A23EB9-69F1-32FB-A6FB-2285C0FD1C63"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/MMCS.framework\/MMCS"
       },
       {
-        "name" : "ProtectedCloudStorage",
         "image_vmaddr" : "0x0000000189fd0000",
+        "debug_id" : "02DB4203-4136-3D60-AE53-B7A371D40BD3",
         "image_addr" : "0x0000000193be0000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 249856,
-        "uuid" : "02DB4203-4136-3D60-AE53-B7A371D40BD3"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/ProtectedCloudStorage.framework\/ProtectedCloudStorage"
       },
       {
-        "name" : "libheimdal-asn1.dylib",
         "image_vmaddr" : "0x0000000189d50000",
+        "debug_id" : "4ECCE70D-988E-310B-9B52-CA42C7C0EC58",
         "image_addr" : "0x0000000193960000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 24576,
-        "uuid" : "4ECCE70D-988E-310B-9B52-CA42C7C0EC58"
+        "code_file" : "\/usr\/lib\/libheimdal-asn1.dylib"
       },
       {
-        "name" : "ChunkingLibrary",
         "image_vmaddr" : "0x000000018a57e000",
+        "debug_id" : "4FE600FC-8BEB-3518-8E02-5BE176805889",
         "image_addr" : "0x000000019418e000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 155648,
-        "uuid" : "4FE600FC-8BEB-3518-8E02-5BE176805889"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/ChunkingLibrary.framework\/ChunkingLibrary"
       },
       {
-        "name" : "AssetCacheServices",
         "image_vmaddr" : "0x000000018a5df000",
+        "debug_id" : "BDB3C189-C80F-3461-9B2A-B5ED6EF7CD3E",
         "image_addr" : "0x00000001941ef000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 32768,
-        "uuid" : "BDB3C189-C80F-3461-9B2A-B5ED6EF7CD3E"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/AssetCacheServices.framework\/AssetCacheServices"
       },
       {
-        "name" : "DataAccess",
         "image_vmaddr" : "0x000000018c074000",
+        "debug_id" : "411C8605-7898-3CE6-92A5-0445DD7C3ACC",
         "image_addr" : "0x0000000195c84000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 360448,
-        "uuid" : "411C8605-7898-3CE6-92A5-0445DD7C3ACC"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/DataAccess.framework\/DataAccess"
       },
       {
-        "name" : "AppleAccount",
         "image_vmaddr" : "0x000000018a506000",
+        "debug_id" : "785A7614-494F-34DE-A01A-7B70EFEFE9F5",
         "image_addr" : "0x0000000194116000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 471040,
-        "uuid" : "785A7614-494F-34DE-A01A-7B70EFEFE9F5"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/AppleAccount.framework\/AppleAccount"
       },
       {
-        "name" : "AppleIDSSOAuthentication",
         "image_vmaddr" : "0x000000018a4d8000",
+        "debug_id" : "B40813AE-4EEC-36B6-88E1-1926CBCB0447",
         "image_addr" : "0x00000001940e8000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 118784,
-        "uuid" : "B40813AE-4EEC-36B6-88E1-1926CBCB0447"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/AppleIDSSOAuthentication.framework\/AppleIDSSOAuthentication"
       },
       {
-        "name" : "ApplePushService",
         "image_vmaddr" : "0x000000018a029000",
+        "debug_id" : "1A6F36D9-181F-3582-952C-116FF3997682",
         "image_addr" : "0x0000000193c39000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 90112,
-        "uuid" : "1A6F36D9-181F-3582-952C-116FF3997682"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/ApplePushService.framework\/ApplePushService"
       },
       {
-        "name" : "StoreServices",
         "image_vmaddr" : "0x0000000185f5d000",
+        "debug_id" : "923C3A18-3303-3474-88F6-26C6D699E81F",
         "image_addr" : "0x000000018fb6d000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 2437120,
-        "uuid" : "923C3A18-3303-3474-88F6-26C6D699E81F"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/StoreServices.framework\/StoreServices"
       },
       {
-        "name" : "WebBookmarks",
         "image_vmaddr" : "0x000000018afde000",
+        "debug_id" : "D2D3BBE2-E46B-360A-9FBD-33DA4E431982",
         "image_addr" : "0x0000000194bee000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 311296,
-        "uuid" : "D2D3BBE2-E46B-360A-9FBD-33DA4E431982"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/WebBookmarks.framework\/WebBookmarks"
       },
       {
-        "name" : "Notes",
         "image_vmaddr" : "0x000000018bd0b000",
+        "debug_id" : "4860404D-E6BA-32B5-8494-10E0546F8231",
         "image_addr" : "0x000000019591b000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 258048,
-        "uuid" : "4860404D-E6BA-32B5-8494-10E0546F8231"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/Notes.framework\/Notes"
       },
       {
-        "name" : "ContentIndex",
         "image_vmaddr" : "0x000000018a6e1000",
+        "debug_id" : "9EFFB867-9419-357C-A707-6FC757692DBF",
         "image_addr" : "0x00000001942f1000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 274432,
-        "uuid" : "9EFFB867-9419-357C-A707-6FC757692DBF"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/ContentIndex.framework\/ContentIndex"
       },
       {
-        "name" : "MIME",
         "image_vmaddr" : "0x000000018a3ed000",
+        "debug_id" : "9B88A201-24C6-337B-B606-BEA3A52C2825",
         "image_addr" : "0x0000000193ffd000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 352256,
-        "uuid" : "9B88A201-24C6-337B-B606-BEA3A52C2825"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/MIME.framework\/MIME"
       },
       {
-        "name" : "MessageSupport",
         "image_vmaddr" : "0x000000018a3ea000",
+        "debug_id" : "5052734B-9EE1-31B6-9E39-A1D83FD49B68",
         "image_addr" : "0x0000000193ffa000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 12288,
-        "uuid" : "5052734B-9EE1-31B6-9E39-A1D83FD49B68"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/MessageSupport.framework\/MessageSupport"
       },
       {
-        "name" : "MailServices",
         "image_vmaddr" : "0x000000018a4f5000",
+        "debug_id" : "EF44AD00-0DF2-3C6E-9534-9F787E97B1D5",
         "image_addr" : "0x0000000194105000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 69632,
-        "uuid" : "EF44AD00-0DF2-3C6E-9534-9F787E97B1D5"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/MailServices.framework\/MailServices"
       },
       {
-        "name" : "WebKit",
         "image_vmaddr" : "0x000000018aca9000",
+        "debug_id" : "6AE6056F-48F3-3A9E-A777-06543CA8336A",
         "image_addr" : "0x00000001948b9000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 3362816,
-        "uuid" : "6AE6056F-48F3-3A9E-A777-06543CA8336A"
+        "code_file" : "\/System\/Library\/Frameworks\/WebKit.framework\/WebKit"
       },
       {
-        "name" : "CorePDF",
         "image_vmaddr" : "0x000000018a892000",
+        "debug_id" : "FEE9997C-3884-36B4-B62B-E4D6AC131B29",
         "image_addr" : "0x00000001944a2000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 819200,
-        "uuid" : "FEE9997C-3884-36B4-B62B-E4D6AC131B29"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CorePDF.framework\/CorePDF"
       },
       {
-        "name" : "libCGInterfaces.dylib",
         "image_vmaddr" : "0x000000019621a000",
+        "debug_id" : "87C9A4C0-59AA-3AFC-BB7B-B28BBEC871CE",
         "image_addr" : "0x000000019fe2a000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 86016,
-        "uuid" : "87C9A4C0-59AA-3AFC-BB7B-B28BBEC871CE"
+        "code_file" : "\/System\/Library\/Frameworks\/Accelerate.framework\/Frameworks\/vImage.framework\/Libraries\/libCGInterfaces.dylib"
       },
       {
-        "name" : "libGSFontCache.dylib",
         "image_vmaddr" : "0x0000000198587000",
+        "debug_id" : "2E8F9932-D26F-32D1-9735-76C882B43D54",
         "image_addr" : "0x00000001a2197000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 53248,
-        "uuid" : "2E8F9932-D26F-32D1-9735-76C882B43D54"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/FontServices.framework\/libGSFontCache.dylib"
       },
       {
-        "name" : "ConstantClasses",
         "image_vmaddr" : "0x000000018993a000",
+        "debug_id" : "4BBCF7DC-726B-33A0-859C-704BC4DBB3B1",
         "image_addr" : "0x000000019354a000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 24576,
-        "uuid" : "4BBCF7DC-726B-33A0-859C-704BC4DBB3B1"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/ConstantClasses.framework\/ConstantClasses"
       },
       {
-        "name" : "libTrueTypeScaler.dylib",
         "image_vmaddr" : "0x0000000198594000",
+        "debug_id" : "2CE7D0CC-B235-30C8-A9BA-4E53E5944504",
         "image_addr" : "0x00000001a21a4000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 204800,
-        "uuid" : "2CE7D0CC-B235-30C8-A9BA-4E53E5944504"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/FontServices.framework\/libTrueTypeScaler.dylib"
       },
       {
-        "name" : "UserManagement",
         "image_vmaddr" : "0x000000018a87b000",
+        "debug_id" : "473DE07B-B5A7-3FF3-A682-092967C68A31",
         "image_addr" : "0x000000019448b000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 94208,
-        "uuid" : "473DE07B-B5A7-3FF3-A682-092967C68A31"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/UserManagement.framework\/UserManagement"
       },
       {
-        "name" : "CoreServicesInternal",
         "image_vmaddr" : "0x0000000197dee000",
+        "debug_id" : "9B171F3D-2ACA-39EE-B984-347ABB597600",
         "image_addr" : "0x00000001a19fe000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 155648,
-        "uuid" : "9B171F3D-2ACA-39EE-B984-347ABB597600"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CoreServicesInternal.framework\/CoreServicesInternal"
       },
       {
-        "name" : "QuickLook",
         "image_vmaddr" : "0x000000018e02c000",
+        "debug_id" : "9ACE97D8-D928-3553-9569-75559E8BDE7E",
         "image_addr" : "0x0000000197c3c000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 622592,
-        "uuid" : "9ACE97D8-D928-3553-9569-75559E8BDE7E"
+        "code_file" : "\/System\/Library\/Frameworks\/QuickLook.framework\/QuickLook"
       },
       {
-        "name" : "MediaPlayer",
         "image_vmaddr" : "0x000000018c320000",
+        "debug_id" : "E55C6CB5-EE2F-38DC-A9CC-669BA8815C59",
         "image_addr" : "0x0000000195f30000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 4038656,
-        "uuid" : "E55C6CB5-EE2F-38DC-A9CC-669BA8815C59"
+        "code_file" : "\/System\/Library\/Frameworks\/MediaPlayer.framework\/MediaPlayer"
       },
       {
-        "name" : "MediaPlatform",
         "image_vmaddr" : "0x0000000191661000",
+        "debug_id" : "C17C4536-81C3-3709-9BAB-F02A4A8D309D",
         "image_addr" : "0x000000019b271000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 610304,
-        "uuid" : "C17C4536-81C3-3709-9BAB-F02A4A8D309D"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/MediaPlatform.framework\/MediaPlatform"
       },
       {
-        "name" : "MediaServices",
         "image_vmaddr" : "0x0000000189ced000",
+        "debug_id" : "B6DDA0EE-C945-385A-A266-29DFC66E727F",
         "image_addr" : "0x00000001938fd000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 126976,
-        "uuid" : "B6DDA0EE-C945-385A-A266-29DFC66E727F"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/MediaServices.framework\/MediaServices"
       },
       {
-        "name" : "MediaLibraryCore",
         "image_vmaddr" : "0x0000000192bc8000",
+        "debug_id" : "5901B31A-CBE3-3EB6-B4DE-293C7BDBAB90",
         "image_addr" : "0x000000019c7d8000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 4579328,
-        "uuid" : "5901B31A-CBE3-3EB6-B4DE-293C7BDBAB90"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/MediaLibraryCore.framework\/MediaLibraryCore"
       },
       {
-        "name" : "DAAPKit",
         "image_vmaddr" : "0x000000018b940000",
+        "debug_id" : "CAEAC3F1-A8C6-3264-91AD-3212CE44FAD5",
         "image_addr" : "0x0000000195550000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 28672,
-        "uuid" : "CAEAC3F1-A8C6-3264-91AD-3212CE44FAD5"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/DAAPKit.framework\/DAAPKit"
       },
       {
-        "name" : "StoreServicesCore",
         "image_vmaddr" : "0x000000019255b000",
+        "debug_id" : "33A209ED-AB17-3590-80C6-6EB92019B1D2",
         "image_addr" : "0x000000019c16b000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1241088,
-        "uuid" : "33A209ED-AB17-3590-80C6-6EB92019B1D2"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/StoreServicesCore.framework\/StoreServicesCore"
       },
       {
-        "name" : "iTunesStore",
         "image_vmaddr" : "0x000000018beff000",
+        "debug_id" : "B67F721D-9908-370F-B020-ADE3881974FC",
         "image_addr" : "0x0000000195b0f000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 487424,
-        "uuid" : "B67F721D-9908-370F-B020-ADE3881974FC"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/iTunesStore.framework\/iTunesStore"
       },
       {
-        "name" : "MobileWiFi",
         "image_vmaddr" : "0x000000018a6b0000",
+        "debug_id" : "1A53ECF1-86F4-3264-BC98-F59E8549EBDA",
         "image_addr" : "0x00000001942c0000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 200704,
-        "uuid" : "1A53ECF1-86F4-3264-BC98-F59E8549EBDA"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/MobileWiFi.framework\/MobileWiFi"
       },
       {
-        "name" : "CaptiveNetwork",
         "image_vmaddr" : "0x000000018a5a4000",
+        "debug_id" : "5716000A-F692-3D2B-B20C-914497CE8E98",
         "image_addr" : "0x00000001941b4000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 49152,
-        "uuid" : "5716000A-F692-3D2B-B20C-914497CE8E98"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CaptiveNetwork.framework\/CaptiveNetwork"
       },
       {
-        "name" : "EAP8021X",
         "image_vmaddr" : "0x000000018a5b0000",
+        "debug_id" : "9DE80177-045D-3C79-81A3-5DBB49C40BB7",
         "image_addr" : "0x00000001941c0000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 192512,
-        "uuid" : "9DE80177-045D-3C79-81A3-5DBB49C40BB7"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/EAP8021X.framework\/EAP8021X"
       },
       {
-        "name" : "MusicLibrary",
         "image_vmaddr" : "0x000000018ba98000",
+        "debug_id" : "F7002EE1-FAE5-31BD-A657-BA6B8E538A67",
         "image_addr" : "0x00000001956a8000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 2568192,
-        "uuid" : "F7002EE1-FAE5-31BD-A657-BA6B8E538A67"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/MusicLibrary.framework\/MusicLibrary"
       },
       {
-        "name" : "MediaRemote",
         "image_vmaddr" : "0x0000000189d56000",
+        "debug_id" : "40B2A126-6F11-3C36-8C81-AB5556224B58",
         "image_addr" : "0x0000000193966000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 872448,
-        "uuid" : "40B2A126-6F11-3C36-8C81-AB5556224B58"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/MediaRemote.framework\/MediaRemote"
       },
       {
-        "name" : "HomeSharing",
         "image_vmaddr" : "0x000000018c0f5000",
+        "debug_id" : "CC7B2963-B186-3526-BE62-01E42F669F68",
         "image_addr" : "0x0000000195d05000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 647168,
-        "uuid" : "CC7B2963-B186-3526-BE62-01E42F669F68"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/HomeSharing.framework\/HomeSharing"
       },
       {
-        "name" : "QuickLookThumbnailing",
         "image_vmaddr" : "0x000000018df13000",
+        "debug_id" : "DE791BF0-BA08-3294-8799-F5FCD0735153",
         "image_addr" : "0x0000000197b23000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 81920,
-        "uuid" : "DE791BF0-BA08-3294-8799-F5FCD0735153"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/QuickLookThumbnailing.framework\/QuickLookThumbnailing"
       },
       {
-        "name" : "GenerationalStorage",
         "image_vmaddr" : "0x000000018d55d000",
+        "debug_id" : "BDF96D0D-A1FD-3798-9068-C21AACAC599E",
         "image_addr" : "0x000000019716d000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 106496,
-        "uuid" : "BDF96D0D-A1FD-3798-9068-C21AACAC599E"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/GenerationalStorage.framework\/GenerationalStorage"
       },
       {
-        "name" : "EventKitUI",
         "image_vmaddr" : "0x000000018eb66000",
+        "debug_id" : "8F1FC03D-E8A4-3D20-A7CF-E07A9B353E78",
         "image_addr" : "0x0000000198776000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1847296,
-        "uuid" : "8F1FC03D-E8A4-3D20-A7CF-E07A9B353E78"
+        "code_file" : "\/System\/Library\/Frameworks\/EventKitUI.framework\/EventKitUI"
       },
       {
-        "name" : "CalendarUIKit",
         "image_vmaddr" : "0x000000018eaba000",
+        "debug_id" : "C78D40CF-1545-30BF-8C46-5FD6E6EE0754",
         "image_addr" : "0x00000001986ca000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 225280,
-        "uuid" : "C78D40CF-1545-30BF-8C46-5FD6E6EE0754"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CalendarUIKit.framework\/CalendarUIKit"
       },
       {
-        "name" : "MobileIcons",
         "image_vmaddr" : "0x000000018a724000",
+        "debug_id" : "13D5204B-B7D7-3CFA-BC77-021FF627E46E",
         "image_addr" : "0x0000000194334000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 36864,
-        "uuid" : "13D5204B-B7D7-3CFA-BC77-021FF627E46E"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/MobileIcons.framework\/MobileIcons"
       },
       {
-        "name" : "AVKit",
         "image_vmaddr" : "0x000000018eed5000",
+        "debug_id" : "48A8E6A4-E942-3282-9500-258BAE842A5B",
         "image_addr" : "0x0000000198ae5000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 303104,
-        "uuid" : "48A8E6A4-E942-3282-9500-258BAE842A5B"
+        "code_file" : "\/System\/Library\/Frameworks\/AVKit.framework\/AVKit"
       },
       {
-        "name" : "Pegasus",
         "image_vmaddr" : "0x000000018eddf000",
+        "debug_id" : "D3E2EE60-35FB-32B8-B583-3FCEAA2A0F34",
         "image_addr" : "0x00000001989ef000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 204800,
-        "uuid" : "D3E2EE60-35FB-32B8-B583-3FCEAA2A0F34"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/Pegasus.framework\/Pegasus"
       },
       {
-        "name" : "MarkupUI",
         "image_vmaddr" : "0x0000000199548000",
+        "debug_id" : "3475E77C-71E7-39E9-A28D-E3B3DFB68712",
         "image_addr" : "0x00000001a3158000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 204800,
-        "uuid" : "3475E77C-71E7-39E9-A28D-E3B3DFB68712"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/MarkupUI.framework\/MarkupUI"
       },
       {
-        "name" : "PDFKit",
         "image_vmaddr" : "0x000000019e0bc000",
+        "debug_id" : "BD937D07-88FC-3FFB-B361-972E0D3CF178",
         "image_addr" : "0x00000001a7ccc000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 458752,
-        "uuid" : "BD937D07-88FC-3FFB-B361-972E0D3CF178"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/PDFKit.framework\/PDFKit"
       },
       {
-        "name" : "AnnotationKit",
         "image_vmaddr" : "0x000000019367e000",
+        "debug_id" : "5E11F0A8-CBE0-361D-9F37-BB581F100516",
         "image_addr" : "0x000000019d28e000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1064960,
-        "uuid" : "5E11F0A8-CBE0-361D-9F37-BB581F100516"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/AnnotationKit.framework\/AnnotationKit"
       },
       {
-        "name" : "CoreHandwriting",
         "image_vmaddr" : "0x00000001914da000",
+        "debug_id" : "ACDCF25E-B258-37E9-8A63-112E69F44DFE",
         "image_addr" : "0x000000019b0ea000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 499712,
-        "uuid" : "ACDCF25E-B258-37E9-8A63-112E69F44DFE"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CoreHandwriting.framework\/CoreHandwriting"
       },
       {
-        "name" : "libmecabra.dylib",
         "image_vmaddr" : "0x000000018994b000",
+        "debug_id" : "E119BB15-D556-30B9-8568-790B1A3F5F08",
         "image_addr" : "0x000000019355b000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 2646016,
-        "uuid" : "E119BB15-D556-30B9-8568-790B1A3F5F08"
+        "code_file" : "\/usr\/lib\/libmecabra.dylib"
       },
       {
-        "name" : "DifferentialPrivacy",
         "image_vmaddr" : "0x000000019db7a000",
+        "debug_id" : "8087806C-CB5A-3D9F-95A4-BC232203D7E5",
         "image_addr" : "0x00000001a778a000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 204800,
-        "uuid" : "8087806C-CB5A-3D9F-95A4-BC232203D7E5"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/DifferentialPrivacy.framework\/DifferentialPrivacy"
       },
       {
-        "name" : "CoreParsec",
         "image_vmaddr" : "0x000000019da92000",
+        "debug_id" : "CE459A7A-371A-30DE-9D43-95CB5303C8BE",
         "image_addr" : "0x00000001a76a2000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 507904,
-        "uuid" : "CE459A7A-371A-30DE-9D43-95CB5303C8BE"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CoreParsec.framework\/CoreParsec"
       },
       {
-        "name" : "SearchFoundation",
         "image_vmaddr" : "0x000000019cd52000",
+        "debug_id" : "FB3D28A7-221C-3512-BBE2-F45683109C5A",
         "image_addr" : "0x00000001a6962000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 118784,
-        "uuid" : "FB3D28A7-221C-3512-BBE2-F45683109C5A"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/SearchFoundation.framework\/SearchFoundation"
       },
       {
-        "name" : "CoreInterest",
         "image_vmaddr" : "0x000000019d8e9000",
+        "debug_id" : "113FB214-9C3B-3865-B3ED-6DC78BB5FB17",
         "image_addr" : "0x00000001a74f9000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 102400,
-        "uuid" : "113FB214-9C3B-3865-B3ED-6DC78BB5FB17"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CoreInterest.framework\/CoreInterest"
       },
       {
-        "name" : "libChineseTokenizer.dylib",
         "image_vmaddr" : "0x0000000189940000",
+        "debug_id" : "6BD9A629-B2BE-3CCD-A309-5C0A91DD565A",
         "image_addr" : "0x0000000193550000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 45056,
-        "uuid" : "6BD9A629-B2BE-3CCD-A309-5C0A91DD565A"
+        "code_file" : "\/usr\/lib\/libChineseTokenizer.dylib"
       },
       {
-        "name" : "Photos",
         "image_vmaddr" : "0x000000018d38c000",
+        "debug_id" : "0A617D08-8F78-34B7-AFCC-B7F2D921D83C",
         "image_addr" : "0x0000000196f9c000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1134592,
-        "uuid" : "0A617D08-8F78-34B7-AFCC-B7F2D921D83C"
+        "code_file" : "\/System\/Library\/Frameworks\/Photos.framework\/Photos"
       },
       {
-        "name" : "PrototypeTools",
         "image_vmaddr" : "0x000000018cba3000",
+        "debug_id" : "116A80CD-8A80-3838-9BF4-9C4F153A2A3E",
         "image_addr" : "0x00000001967b3000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 225280,
-        "uuid" : "116A80CD-8A80-3838-9BF4-9C4F153A2A3E"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/PrototypeTools.framework\/PrototypeTools"
       },
       {
-        "name" : "PhotosFormats",
         "image_vmaddr" : "0x000000018c2fe000",
+        "debug_id" : "F3E67990-8262-38DE-B30A-C0D6BB27EB65",
         "image_addr" : "0x0000000195f0e000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 106496,
-        "uuid" : "F3E67990-8262-38DE-B30A-C0D6BB27EB65"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/PhotosFormats.framework\/PhotosFormats"
       },
       {
-        "name" : "CloudPhotoLibrary",
         "image_vmaddr" : "0x000000018bf7d000",
+        "debug_id" : "60A82E3C-B879-30C7-93FA-6962D93B99FA",
         "image_addr" : "0x0000000195b8d000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1011712,
-        "uuid" : "60A82E3C-B879-30C7-93FA-6962D93B99FA"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CloudPhotoLibrary.framework\/CloudPhotoLibrary"
       },
       {
-        "name" : "DCIMServices",
         "image_vmaddr" : "0x000000018c1c2000",
+        "debug_id" : "F60047CA-F775-3C8C-B774-7C46AFDE9560",
         "image_addr" : "0x0000000195dd2000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 49152,
-        "uuid" : "F60047CA-F775-3C8C-B774-7C46AFDE9560"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/DCIMServices.framework\/DCIMServices"
       },
       {
-        "name" : "AssetsLibraryServices",
         "image_vmaddr" : "0x000000018c0cc000",
+        "debug_id" : "236638B3-0551-3AEE-AA1C-1EA169612389",
         "image_addr" : "0x0000000195cdc000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 167936,
-        "uuid" : "236638B3-0551-3AEE-AA1C-1EA169612389"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/AssetsLibraryServices.framework\/AssetsLibraryServices"
       },
       {
-        "name" : "CoreMediaStream",
         "image_vmaddr" : "0x000000018c1ce000",
+        "debug_id" : "872B89C4-047B-3D1A-865B-D6C72ECC15B3",
         "image_addr" : "0x0000000195dde000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 1245184,
-        "uuid" : "872B89C4-047B-3D1A-865B-D6C72ECC15B3"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CoreMediaStream.framework\/CoreMediaStream"
       },
       {
-        "name" : "IDS",
         "image_vmaddr" : "0x0000000189c24000",
+        "debug_id" : "46297703-FB51-363C-B259-DCE3CD5D2A5B",
         "image_addr" : "0x0000000193834000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 823296,
-        "uuid" : "46297703-FB51-363C-B259-DCE3CD5D2A5B"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/IDS.framework\/IDS"
       },
       {
-        "name" : "Network",
         "image_vmaddr" : "0x000000018e2cb000",
+        "debug_id" : "B407F51F-578D-3B2E-84E0-C0EDD5A3BA80",
         "image_addr" : "0x0000000197edb000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 528384,
-        "uuid" : "B407F51F-578D-3B2E-84E0-C0EDD5A3BA80"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/Network.framework\/Network"
       },
       {
-        "name" : "PhotoLibraryServices",
         "image_vmaddr" : "0x000000018c805000",
+        "debug_id" : "BD7F71E0-A57F-3E9A-B455-95ED9335D1B0",
         "image_addr" : "0x0000000196415000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 3792896,
-        "uuid" : "BD7F71E0-A57F-3E9A-B455-95ED9335D1B0"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/PhotoLibraryServices.framework\/PhotoLibraryServices"
       },
       {
-        "name" : "CloudPhotoServices",
         "image_vmaddr" : "0x000000018bf76000",
+        "debug_id" : "8B5D7B33-0D38-3DC5-97B3-0EC4D0101024",
         "image_addr" : "0x0000000195b86000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 28672,
-        "uuid" : "8B5D7B33-0D38-3DC5-97B3-0EC4D0101024"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CloudPhotoServices.framework\/CloudPhotoServices"
       },
       {
-        "name" : "CameraKit",
         "image_vmaddr" : "0x000000018c6fa000",
+        "debug_id" : "C1664953-6657-30E7-9118-584D6E1EE0F0",
         "image_addr" : "0x000000019630a000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 942080,
-        "uuid" : "C1664953-6657-30E7-9118-584D6E1EE0F0"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CameraKit.framework\/CameraKit"
       },
       {
-        "name" : "ACTFramework",
         "image_vmaddr" : "0x000000018c193000",
+        "debug_id" : "031BEBA8-BC32-3E75-8FC6-C2D9E5017AE0",
         "image_addr" : "0x0000000195da3000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 192512,
-        "uuid" : "031BEBA8-BC32-3E75-8FC6-C2D9E5017AE0"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/ACTFramework.framework\/ACTFramework"
       },
       {
-        "name" : "MediaStream",
         "image_vmaddr" : "0x000000018c7e8000",
+        "debug_id" : "3EB1040F-B962-3240-A62F-11DFFB756E5D",
         "image_addr" : "0x00000001963f8000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 118784,
-        "uuid" : "3EB1040F-B962-3240-A62F-11DFFB756E5D"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/MediaStream.framework\/MediaStream"
       },
       {
-        "name" : "XPCKit",
         "image_vmaddr" : "0x000000018c318000",
+        "debug_id" : "BBEA263E-D858-3A1A-839F-4A1EFBF1B2D1",
         "image_addr" : "0x0000000195f28000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 32768,
-        "uuid" : "BBEA263E-D858-3A1A-839F-4A1EFBF1B2D1"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/XPCKit.framework\/XPCKit"
       },
       {
-        "name" : "PhotosUI",
         "image_vmaddr" : "0x000000018fba8000",
+        "debug_id" : "D68CF8B1-8C72-38C7-BFB7-CE99E65D51E3",
         "image_addr" : "0x00000001997b8000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 4665344,
-        "uuid" : "D68CF8B1-8C72-38C7-BFB7-CE99E65D51E3"
+        "code_file" : "\/System\/Library\/Frameworks\/PhotosUI.framework\/PhotosUI"
       },
       {
-        "name" : "Social",
         "image_vmaddr" : "0x000000018e352000",
+        "debug_id" : "50677C3E-FB26-30DD-8010-220256F0BC0E",
         "image_addr" : "0x0000000197f62000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 667648,
-        "uuid" : "50677C3E-FB26-30DD-8010-220256F0BC0E"
+        "code_file" : "\/System\/Library\/Frameworks\/Social.framework\/Social"
       },
       {
-        "name" : "AssetsLibrary",
         "image_vmaddr" : "0x000000018d683000",
+        "debug_id" : "A77FE79A-2957-398C-9200-6D40428ADB84",
         "image_addr" : "0x0000000197293000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 81920,
-        "uuid" : "A77FE79A-2957-398C-9200-6D40428ADB84"
+        "code_file" : "\/System\/Library\/Frameworks\/AssetsLibrary.framework\/AssetsLibrary"
       },
       {
-        "name" : "iPhotoMigrationSupport",
         "image_vmaddr" : "0x000000018e7bd000",
+        "debug_id" : "826F27A3-CEA1-3F36-A032-B518F98CFE3C",
         "image_addr" : "0x00000001983cd000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 90112,
-        "uuid" : "826F27A3-CEA1-3F36-A032-B518F98CFE3C"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/iPhotoMigrationSupport.framework\/iPhotoMigrationSupport"
       },
       {
-        "name" : "DiagnosticExtensions",
         "image_vmaddr" : "0x0000000198157000",
+        "debug_id" : "751652E6-4F47-3582-B32F-B527A9C15F29",
         "image_addr" : "0x00000001a1d67000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 49152,
-        "uuid" : "751652E6-4F47-3582-B32F-B527A9C15F29"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/DiagnosticExtensions.framework\/DiagnosticExtensions"
       },
       {
-        "name" : "PhotosUICore",
         "image_vmaddr" : "0x000000019e61f000",
+        "debug_id" : "3A1515A8-9DC4-32AE-ADEA-640D249F7B07",
         "image_addr" : "0x00000001a822f000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 2543616,
-        "uuid" : "3A1515A8-9DC4-32AE-ADEA-640D249F7B07"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/PhotosUICore.framework\/PhotosUICore"
       },
       {
-        "name" : "SiriTasks",
         "image_vmaddr" : "0x000000018f244000",
+        "debug_id" : "DB4A587D-3C13-3811-B421-42A53D1AABA0",
         "image_addr" : "0x0000000198e54000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 77824,
-        "uuid" : "DB4A587D-3C13-3811-B421-42A53D1AABA0"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/SiriTasks.framework\/SiriTasks"
       },
       {
-        "name" : "AssistantServices",
         "image_vmaddr" : "0x000000018a332000",
+        "debug_id" : "990345A1-5FC1-30F5-B0AF-5A891BE7FEFE",
         "image_addr" : "0x0000000193f42000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 667648,
-        "uuid" : "990345A1-5FC1-30F5-B0AF-5A891BE7FEFE"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/AssistantServices.framework\/AssistantServices"
       },
       {
-        "name" : "SAObjects",
         "image_vmaddr" : "0x000000018a246000",
+        "debug_id" : "480E6533-8EA4-3C7E-9EAD-E7E752BE0227",
         "image_addr" : "0x0000000193e56000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 327680,
-        "uuid" : "480E6533-8EA4-3C7E-9EAD-E7E752BE0227"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/SAObjects.framework\/SAObjects"
       },
       {
-        "name" : "VoiceServices",
         "image_vmaddr" : "0x000000018a1b9000",
+        "debug_id" : "BCC4D7AC-8025-323A-8343-07A99FE57A92",
         "image_addr" : "0x0000000193dc9000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 577536,
-        "uuid" : "BCC4D7AC-8025-323A-8343-07A99FE57A92"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/VoiceServices.framework\/VoiceServices"
       },
       {
-        "name" : "WirelessProximity",
         "image_vmaddr" : "0x0000000191236000",
+        "debug_id" : "DC39CF2E-FBA9-33CE-9FFC-A54F86FC7C9E",
         "image_addr" : "0x000000019ae46000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 204800,
-        "uuid" : "DC39CF2E-FBA9-33CE-9FFC-A54F86FC7C9E"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/WirelessProximity.framework\/WirelessProximity"
       },
       {
-        "name" : "PhotoEditSupport",
         "image_vmaddr" : "0x000000018f4d6000",
+        "debug_id" : "A27F219B-62B8-3B03-884C-033CE8BBA2A8",
         "image_addr" : "0x00000001990e6000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 536576,
-        "uuid" : "A27F219B-62B8-3B03-884C-033CE8BBA2A8"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/PhotoEditSupport.framework\/PhotoEditSupport"
       },
       {
-        "name" : "PhotoLibrary",
         "image_vmaddr" : "0x000000018e805000",
+        "debug_id" : "5FEBC81B-129C-384F-8E4E-AE22466EB1FD",
         "image_addr" : "0x0000000198415000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 598016,
-        "uuid" : "5FEBC81B-129C-384F-8E4E-AE22466EB1FD"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/PhotoLibrary.framework\/PhotoLibrary"
       },
       {
-        "name" : "ImageCapture",
         "image_vmaddr" : "0x000000018e765000",
+        "debug_id" : "447E5BB1-3ED2-315C-A6DF-500CCB4C2A44",
         "image_addr" : "0x0000000198375000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 360448,
-        "uuid" : "447E5BB1-3ED2-315C-A6DF-500CCB4C2A44"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/ImageCapture.framework\/ImageCapture"
       },
       {
-        "name" : "MobileStorage",
         "image_vmaddr" : "0x000000019993a000",
+        "debug_id" : "4E2DFFBE-C077-30DA-947C-C2AF9751EFFA",
         "image_addr" : "0x00000001a354a000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 40960,
-        "uuid" : "4E2DFFBE-C077-30DA-947C-C2AF9751EFFA"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/MobileStorage.framework\/MobileStorage"
       },
       {
-        "name" : "FileProvider",
         "image_vmaddr" : "0x0000000193c2a000",
+        "debug_id" : "BC630859-BB91-3CE5-A7BB-FB0855AE6896",
         "image_addr" : "0x000000019d83a000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 28672,
-        "uuid" : "BC630859-BB91-3CE5-A7BB-FB0855AE6896"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/FileProvider.framework\/FileProvider"
       },
       {
-        "name" : "CloudDocsFileProvider",
+        "debug_id" : "2AB0E37F-D596-31DA-94DD-4818C1BD2581",
         "image_addr" : "0x0000000104770000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 16384,
-        "uuid" : "2AB0E37F-D596-31DA-94DD-4818C1BD2581"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/FileProvider.framework\/Modules\/CloudDocsFileProvider.bundle\/CloudDocsFileProvider"
       },
       {
-        "name" : "CloudDocs",
         "image_vmaddr" : "0x00000001938c1000",
+        "debug_id" : "8282435D-A596-3428-92C1-CA43EDD5E3D8",
         "image_addr" : "0x000000019d4d1000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 565248,
-        "uuid" : "8282435D-A596-3428-92C1-CA43EDD5E3D8"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CloudDocs.framework\/CloudDocs"
       },
       {
-        "name" : "FileProviderModule",
+        "debug_id" : "931D2485-5E1F-307D-A602-ECC7B39D5851",
         "image_addr" : "0x0000000104790000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 16384,
-        "uuid" : "931D2485-5E1F-307D-A602-ECC7B39D5851"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/FileProvider.framework\/Modules\/FileProviderModule.bundle\/FileProviderModule"
       },
       {
-        "name" : "RawCamera",
         "image_vmaddr" : "0x0000000195f4a000",
+        "debug_id" : "D0641D0C-738F-3319-A4DA-746AA64C9ACC",
         "image_addr" : "0x000000019fb5a000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 2760704,
-        "uuid" : "D0641D0C-738F-3319-A4DA-746AA64C9ACC"
+        "code_file" : "\/System\/Library\/CoreServices\/RawCamera.bundle\/RawCamera"
       },
       {
-        "name" : "Sharing",
         "image_vmaddr" : "0x000000019303a000",
+        "debug_id" : "51D6C3AB-9702-3564-AED4-483053FA0E5E",
         "image_addr" : "0x000000019cc4a000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 819200,
-        "uuid" : "51D6C3AB-9702-3564-AED4-483053FA0E5E"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/Sharing.framework\/Sharing"
       },
       {
-        "name" : "CoreUtils",
         "image_vmaddr" : "0x000000018e451000",
+        "debug_id" : "C9E7F832-9190-3BAC-93ED-C3E87D21EF14",
         "image_addr" : "0x0000000198061000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 823296,
-        "uuid" : "C9E7F832-9190-3BAC-93ED-C3E87D21EF14"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/CoreUtils.framework\/CoreUtils"
       },
       {
-        "name" : "BluetoothManager",
         "image_vmaddr" : "0x000000018a776000",
+        "debug_id" : "6D7F28A1-EE64-30E8-ABF3-405997CE4969",
         "image_addr" : "0x0000000194386000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 45056,
-        "uuid" : "6D7F28A1-EE64-30E8-ABF3-405997CE4969"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/BluetoothManager.framework\/BluetoothManager"
       },
       {
-        "name" : "MobileBluetooth",
         "image_vmaddr" : "0x000000018a72d000",
+        "debug_id" : "F2526AC2-1040-369D-AD9D-B947D1C66CAD",
         "image_addr" : "0x000000019433d000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 57344,
-        "uuid" : "F2526AC2-1040-369D-AD9D-B947D1C66CAD"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/MobileBluetooth.framework\/MobileBluetooth"
       },
       {
-        "name" : "IMSharedUtilities",
         "image_vmaddr" : "0x000000019bc3d000",
+        "debug_id" : "82638556-97BB-3ED6-820E-E5357619F000",
         "image_addr" : "0x00000001a584d000",
-        "type" : "apple",
+        "type" : "macho",
         "image_size" : 180224,
-        "uuid" : "82638556-97BB-3ED6-820E-E5357619F000"
+        "code_file" : "\/System\/Library\/PrivateFrameworks\/IMSharedUtilities.framework\/IMSharedUtilities"
       }
     ]
   },

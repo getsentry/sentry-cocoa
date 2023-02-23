@@ -32,4 +32,8 @@ class SentryStacktraceTests: XCTestCase {
         
         XCTAssertNil(actual["frames"] as? [Any])
     }
+    
+    func testSerialize_Bools() {
+        SentryBooleanSerialization.test(SentryStacktrace(frames: [], registers: [:]), property: "snapshot")
+    }
 }
