@@ -462,8 +462,12 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 
 #    pragma mark - Private
 
-+ (NSArray *)slicedArray:(NSArray *)array transaction:(SentryTransaction *)transaction
++ (nullable NSArray *)slicedArray:(NSArray *)array transaction:(SentryTransaction *)transaction
 {
+    if (array.count == 0) {
+        return nil;
+    }
+
     const auto firstIndex = [array indexOfObjectPassingTest:^BOOL(
         NSDictionary<NSString *, id> *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
         const auto absoluteSampleTime =
@@ -473,21 +477,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     }];
 
     if (firstIndex == NSNotFound) {
-        const auto firstSampleAbsoluteTime = [array[0][@"elapsed_since_start_ns"] longLongValue]
-            + _gCurrentProfiler->_startTimestamp;
-        const auto lastSampleAbsoluteTime =
-            [array.lastObject[@"elapsed_since_start_ns"] longLongValue]
-            + _gCurrentProfiler->_startTimestamp;
-        const auto firstSampleRelativeToTransactionStart
-            = firstSampleAbsoluteTime - transaction.startSystemTime;
-        const auto lastSampleRelativeToTransactionStart
-            = lastSampleAbsoluteTime - transaction.startSystemTime;
-        SENTRY_LOG_DEBUG(@"[slice start] Could not find any sample taken during the transaction "
-                         @"(first sample taken at: %llu; last: %llu; transaction start: %llu; end: "
-                         @"%llu; first sample relative to transaction start: %lld; last: %lld).",
-            firstSampleAbsoluteTime, lastSampleAbsoluteTime, transaction.startSystemTime,
-            transaction.endSystemTime, firstSampleRelativeToTransactionStart,
-            lastSampleRelativeToTransactionStart);
+        [self logSlicingFailureWithArray:array transaction:transaction start:YES];
         return nil;
     } else {
         SENTRY_LOG_DEBUG(@"Found first slice sample at index %lu", firstIndex);
@@ -505,22 +495,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
                             }];
 
     if (lastIndex == NSNotFound) {
-        const auto firstSampleAbsoluteTime = [array[0][@"elapsed_since_start_ns"] longLongValue]
-            + _gCurrentProfiler->_startTimestamp;
-        const auto lastSampleAbsoluteTime =
-            [array.lastObject[@"elapsed_since_start_ns"] longLongValue]
-            + _gCurrentProfiler->_startTimestamp;
-        const auto firstSampleRelativeToTransactionStart
-            = firstSampleAbsoluteTime - transaction.startSystemTime;
-        const auto lastSampleRelativeToTransactionStart
-            = lastSampleAbsoluteTime - transaction.startSystemTime;
-        SENTRY_LOG_DEBUG(
-            @"[slice end] Could not find any other sample taken during the transaction (first "
-            @"sample taken at: %llu; last: %llu; transaction start: %llu; end: %llu; first sample "
-            @"relative to transaction start: %lld; last: %lld).",
-            firstSampleAbsoluteTime, lastSampleAbsoluteTime, transaction.startSystemTime,
-            transaction.endSystemTime, firstSampleRelativeToTransactionStart,
-            lastSampleRelativeToTransactionStart);
+        [self logSlicingFailureWithArray:array transaction:transaction start:NO];
         return nil;
     } else {
         SENTRY_LOG_DEBUG(@"Found last slice sample at index %lu", lastIndex);
@@ -529,6 +504,40 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     const auto range = NSMakeRange(firstIndex, (lastIndex - firstIndex) + 1);
     const auto indices = [NSIndexSet indexSetWithIndexesInRange:range];
     return [array objectsAtIndexes:indices];
+}
+
+/**
+ * Print a debug log to help diagnose slicing errors.
+ * @param start @c YES if this is an attempt to find the start of the sliced data based on the
+ * transaction start; @c NO if it's trying to find the end of the sliced data based on the
+ * transaction's end, to accurately describe what's happening in the log statement.
+ */
++ (void)logSlicingFailureWithArray:(NSArray *)array
+                       transaction:(SentryTransaction *)transaction
+                             start:(BOOL)start
+{
+    if (!SENTRY_ASSERT(array.count > 0, @"Should not have attempted to slice an empty array.")) {
+        return;
+    }
+
+    if (![SentryLog willLogAtLevel:kSentryLevelDebug]) {
+        return;
+    }
+
+    const auto firstSampleAbsoluteTime =
+        [array[0][@"elapsed_since_start_ns"] longLongValue] + _gCurrentProfiler->_startTimestamp;
+    const auto lastSampleAbsoluteTime = [array.lastObject[@"elapsed_since_start_ns"] longLongValue]
+        + _gCurrentProfiler->_startTimestamp;
+    const auto firstSampleRelativeToTransactionStart
+        = firstSampleAbsoluteTime - transaction.startSystemTime;
+    const auto lastSampleRelativeToTransactionStart
+        = lastSampleAbsoluteTime - transaction.startSystemTime;
+    SENTRY_LOG_DEBUG(@"[slice %@] Could not find any%@ sample taken during the transaction "
+                     @"(first sample taken at: %llu; last: %llu; transaction start: %llu; end: "
+                     @"%llu; first sample relative to transaction start: %lld; last: %lld).",
+        start ? @"start" : @"end", start ? @"" : @" other", firstSampleAbsoluteTime,
+        lastSampleAbsoluteTime, transaction.startSystemTime, transaction.endSystemTime,
+        firstSampleRelativeToTransactionStart, lastSampleRelativeToTransactionStart);
 }
 
 + (void)timeoutAbort
