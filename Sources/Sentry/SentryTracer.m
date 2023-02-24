@@ -83,14 +83,13 @@ SentryTracer ()
 #endif
 }
 
-static NSObject *_gGlobalStateLock;
+static NSObject *appStartMeasurementLock;
 static BOOL appStartMeasurementRead;
-static NSMutableArray<SentryId *> *_gInFlightTraceIDs;
 
 + (void)initialize
 {
     if (self == [SentryTracer class]) {
-        _gGlobalStateLock = [[NSObject alloc] init];
+        appStartMeasurementLock = [[NSObject alloc] init];
         appStartMeasurementRead = NO;
     }
 }
@@ -630,7 +629,7 @@ static NSMutableArray<SentryId *> *_gInFlightTraceIDs;
     }
 
     SentryAppStartMeasurement *measurement = nil;
-    @synchronized(_gGlobalStateLock) {
+    @synchronized(appStartMeasurementLock) {
         if (appStartMeasurementRead == YES) {
             return nil;
         }
@@ -798,7 +797,7 @@ static NSMutableArray<SentryId *> *_gInFlightTraceIDs;
  */
 + (void)resetAppStartMeasurementRead
 {
-    @synchronized(_gGlobalStateLock) {
+    @synchronized(appStartMeasurementLock) {
         appStartMeasurementRead = NO;
     }
 }
