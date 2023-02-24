@@ -1,4 +1,5 @@
 #import "SentryEvent.h"
+#import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
 
 @interface
@@ -19,7 +20,9 @@ SentryEvent ()
  */
 @property (nonatomic, strong) NSArray *serializedBreadcrumbs;
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic) uint64_t startSystemTime;
 @property (nonatomic) uint64_t endSystemTime;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
