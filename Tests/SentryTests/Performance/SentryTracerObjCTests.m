@@ -3,6 +3,7 @@
 #import "SentryOptions.h"
 #import "SentryProfiler.h"
 #import "SentryProfilesSampler.h"
+#import "SentryProfilingConditionals.h"
 #import "SentrySpan.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
@@ -39,6 +40,7 @@
     [child finish];
 }
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
 - (void)testConcurrentTracerProfiling
 {
     SentryOptions *options = [[SentryOptions alloc] init];
@@ -89,5 +91,6 @@
 
     [self waitForExpectationsWithTimeout:2.0 handler:nil];
 }
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
