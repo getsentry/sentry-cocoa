@@ -265,14 +265,16 @@ SentryMetricKitIntegration ()
             if (subFrames.count == 0) {
                 [self captureEventNotPerThread:currentFrames params:params];
 
-                // Keep popping until next until next unprocessed frame.
+                // Keep popping until next unprocessed subFrames.
                 [currentFrames removeLastObject];
                 currentFrame = [currentFrames lastObject];
             } else {
+                // If it's a non processed sub frame add it to the list of current frames.
                 if (nonProcessSubFrame != nil) {
                     currentFrame = nonProcessSubFrame;
                     [currentFrames addObject:currentFrame];
                 } else {
+                    // If not keep popping
                     [currentFrames removeLastObject];
                     currentFrame = [currentFrames lastObject];
                 }
