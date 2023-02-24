@@ -776,9 +776,9 @@
 {
     SentryOptions *options = [[SentryOptions alloc] init];
     options.tracesSampleRate = @0.5;
-    options.enableTracing = false;
+    options.enableTracing = NO;
     XCTAssertEqual(options.tracesSampleRate.doubleValue, 0.5);
-    options.enableTracing = true;
+    options.enableTracing = YES;
     XCTAssertEqual(options.tracesSampleRate.doubleValue, 0.5);
 }
 
@@ -789,9 +789,9 @@
     {
         return @0.1;
     };
-    options.enableTracing = false;
+    options.enableTracing = NO;
     XCTAssertNil(options.tracesSampleRate);
-    options.enableTracing = true;
+    options.enableTracing = FALSE;
     XCTAssertNil(options.tracesSampleRate);
 }
 
