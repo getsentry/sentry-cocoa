@@ -72,7 +72,7 @@ SentryANRTracker ()
     NSTimeInterval sleepInterval = self.timeoutInterval / reportThreshold;
 
     // Canceling the thread can take up to sleepInterval.
-    while (true) {
+    while (YES) {
         @synchronized(threadLock) {
             if (state != kSentryANRTrackerRunning) {
                 break;

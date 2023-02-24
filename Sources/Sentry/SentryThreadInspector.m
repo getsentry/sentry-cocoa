@@ -28,7 +28,7 @@ unsigned int
 getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineContext *context,
     SentryCrashStackEntry *buffer, unsigned int maxEntries)
 {
-    sentrycrashmc_getContextForThread(thread, context, false);
+    sentrycrashmc_getContextForThread(thread, context, NO);
     SentryCrashStackCursor stackCursor;
 
     sentrycrashsc_initWithMachineContext(&stackCursor, MAX_STACKTRACE_LENGTH, context);
