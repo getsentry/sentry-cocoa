@@ -495,7 +495,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     } else if ([self isValidTracesSampleRate:tracesSampleRate]) {
         _tracesSampleRate = tracesSampleRate;
         if (!_enableTracingManual) {
-            _enableTracing = true;
+            _enableTracing = YES;
         }
     } else {
         _tracesSampleRate = _defaultTracesSampleRate;
@@ -506,7 +506,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 {
     _tracesSampler = tracesSampler;
     if (_tracesSampler != nil && !_enableTracingManual) {
-        _enableTracing = true;
+        _enableTracing = YES;
     }
 }
 
