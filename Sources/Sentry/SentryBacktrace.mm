@@ -1,14 +1,14 @@
-#include "SentryBacktrace.hpp"
+#include "SentryBacktrace.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    include "SentryAsyncSafeLogging.h"
 #    include "SentryCompiler.h"
-#    include "SentryMachLogging.hpp"
+#    include "SentryMachLogging.h"
 #    include "SentryStackBounds.hpp"
 #    include "SentryStackFrame.hpp"
-#    include "SentryThreadHandle.hpp"
-#    include "SentryThreadMetadataCache.hpp"
+#    include "SentryThreadHandle.h"
+#    include "SentryThreadMetadataCache.h"
 #    include "SentryThreadState.hpp"
 #    include "SentryTime.h"
 

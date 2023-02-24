@@ -5,8 +5,8 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    include "SentryStackBounds.hpp"
-#    include "SentryThreadHandle.hpp"
-#    include "SentryThreadMetadataCache.hpp"
+#    include "SentryThreadHandle.h"
+#    include "SentryThreadMetadataCache.h"
 
 #    include <cstddef>
 #    include <cstdint>

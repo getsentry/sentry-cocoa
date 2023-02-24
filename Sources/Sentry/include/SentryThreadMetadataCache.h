@@ -4,7 +4,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    include "SentryThreadHandle.hpp"
+#    include "SentryThreadHandle.h"
 
 #    include <cstdint>
 #    include <memory>

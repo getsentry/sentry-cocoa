@@ -4,8 +4,8 @@
 
 #    import <XCTest/XCTest.h>
 
-#    import "SentryMachLogging.hpp"
-#    import "SentryThreadMetadataCache.hpp"
+#    import "SentryMachLogging.h"
+#    import "SentryThreadMetadataCache.h"
 
 #    import <pthread.h>
 #    import <thread>

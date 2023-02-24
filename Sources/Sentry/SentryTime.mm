@@ -4,7 +4,7 @@
 #import <ctime>
 #import <mach/mach_time.h>
 
-#import "SentryMachLogging.hpp"
+#import "SentryMachLogging.h"
 
 uint64_t
 timeIntervalToNanoseconds(double seconds)

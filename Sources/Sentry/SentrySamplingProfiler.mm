@@ -1,10 +1,10 @@
-#include "SentrySamplingProfiler.hpp"
+#include "SentrySamplingProfiler.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    include "SentryBacktrace.hpp"
-#    include "SentryMachLogging.hpp"
-#    include "SentryThreadMetadataCache.hpp"
+#    include "SentryBacktrace.h"
+#    include "SentryMachLogging.h"
+#    include "SentryThreadMetadataCache.h"
 
 #    include <chrono>
 #    include <mach/clock.h>

@@ -7,7 +7,7 @@
 #    include "SentryCPU.h"
 #    include "SentryCompiler.h"
 #    include "SentryStackFrame.hpp"
-#    include "SentryThreadHandle.hpp"
+#    include "SentryThreadHandle.h"
 
 #    include <cstdint>
 #    include <mach/mach.h>

@@ -1,4 +1,4 @@
-#include "SentryProfilingLogging.hpp"
+#include "SentryProfilingLogging.h"
 
 #import "SentryLog.h"
 

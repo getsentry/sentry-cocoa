@@ -1,5 +1,5 @@
 #import "SentryError.h"
-#import "SentryMachLogging.hpp"
+#import "SentryMachLogging.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

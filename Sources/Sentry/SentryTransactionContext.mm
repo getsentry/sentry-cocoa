@@ -2,7 +2,7 @@
 #import "SentryLog.h"
 #include "SentryProfilingConditionals.h"
 #import "SentryThread.h"
-#include "SentryThreadHandle.hpp"
+#include "SentryThreadHandle.h"
 #import "SentryTransactionContext+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN

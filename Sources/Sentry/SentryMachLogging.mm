@@ -1,4 +1,4 @@
-#include "SentryMachLogging.hpp"
+#include "SentryMachLogging.h"
 
 namespace sentry {
 

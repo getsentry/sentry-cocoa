@@ -4,9 +4,9 @@
 
 #    import <XCTest/XCTest.h>
 
-#    import "SentryBacktrace.hpp"
-#    import "SentrySamplingProfiler.hpp"
-#    import "SentryThreadMetadataCache.hpp"
+#    import "SentryBacktrace.h"
+#    import "SentrySamplingProfiler.h"
+#    import "SentryThreadMetadataCache.h"
 #    import "SentryTime.h"
 
 #    import <chrono>

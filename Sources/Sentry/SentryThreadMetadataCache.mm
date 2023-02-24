@@ -1,9 +1,9 @@
-#include "SentryThreadMetadataCache.hpp"
+#include "SentryThreadMetadataCache.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    include "SentryStackBounds.hpp"
-#    include "SentryThreadHandle.hpp"
+#    include "SentryThreadHandle.h"
 
 #    include <algorithm>
 #    include <string>

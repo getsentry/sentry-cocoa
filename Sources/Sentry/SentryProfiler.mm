@@ -2,7 +2,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "NSDate+SentryExtras.h"
-#    import "SentryBacktrace.hpp"
+#    import "SentryBacktrace.h"
 #    import "SentryClient+Private.h"
 #    import "SentryCurrentDate.h"
 #    import "SentryDebugImageProvider.h"
@@ -21,7 +21,7 @@
 #    import "SentryMetricProfiler.h"
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentryNSTimerWrapper.h"
-#    import "SentrySamplingProfiler.hpp"
+#    import "SentrySamplingProfiler.h"
 #    import "SentryScope+Private.h"
 #    import "SentryScreenFrames.h"
 #    import "SentrySerialization.h"

@@ -1,4 +1,4 @@
-#include "SentryBacktrace.hpp"
+#include "SentryBacktrace.h"
 #import "SentryProfiler.h"
 #import "SentryProfilingConditionals.h"
 

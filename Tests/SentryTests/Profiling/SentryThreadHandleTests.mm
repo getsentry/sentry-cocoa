@@ -4,7 +4,7 @@
 
 #    import <XCTest/XCTest.h>
 
-#    import "SentryThreadHandle.hpp"
+#    import "SentryThreadHandle.h"
 
 #    import <atomic>
 #    import <csignal>

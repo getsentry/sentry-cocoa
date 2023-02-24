@@ -1,9 +1,9 @@
-#include "SentryThreadHandle.hpp"
+#include "SentryThreadHandle.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    include "SentryMachLogging.hpp"
-#    include "SentryProfilingLogging.hpp"
+#    include "SentryMachLogging.h"
+#    include "SentryProfilingLogging.h"
 
 #    include <cstdint>
 #    include <dispatch/dispatch.h>
