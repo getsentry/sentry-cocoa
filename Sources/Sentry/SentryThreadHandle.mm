@@ -4,6 +4,7 @@
 
 #    include "SentryMachLogging.h"
 #    include "SentryProfilingLogging.h"
+#    include "SentryThreadInfoCheck.hpp"
 
 #    include <cstdint>
 #    include <dispatch/dispatch.h>
@@ -135,10 +136,8 @@ namespace profiling {
         mach_msg_type_number_t count = THREAD_IDENTIFIER_INFO_COUNT;
         const auto idInfo = reinterpret_cast<thread_identifier_info_t>(info);
         if (thread_info(handle_, THREAD_IDENTIFIER_INFO, info, &count) == KERN_SUCCESS
-            && sentrycrashmem_isMemoryReadable(idInfo, sizeof(*idInfo))) {
-            const auto queuePtr = (__bridge dispatch_queue_t)(void *)idInfo->dispatch_qaddr;
-            if (queuePtr != nullptr && sentrycrashmem_isMemoryReadable(queuePtr, sizeof(uint64_t))
-                && idInfo->thread_handle != 0 && *queuePtr != nullptr) {
+            && isValidThreadInfo(idInfo)) {
+            if (isValidQueuePointer(idInfo)) {
                 return idInfo->dispatch_qaddr;
             }
         }
