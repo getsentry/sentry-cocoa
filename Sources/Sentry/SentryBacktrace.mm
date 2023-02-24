@@ -170,8 +170,8 @@ namespace profiling {
                 *newQueueLabel = '\0';
                 if (cachedMetadata.address == 0) {
                     // There's no cached metadata, so we should try to read it.
-                    const auto queue = reinterpret_cast<dispatch_queue_t *>(queueAddress);
-                    const auto queueLabel = dispatch_queue_get_label(*queue);
+                    const auto queue = (__bridge dispatch_queue_t)(void *)queueAddress;
+                    const auto queueLabel = dispatch_queue_get_label(queue);
                     strlcpy(newQueueLabel, queueLabel, sizeof(newQueueLabel));
                 }
 

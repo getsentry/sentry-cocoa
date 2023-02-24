@@ -136,8 +136,8 @@ namespace profiling {
         const auto idInfo = reinterpret_cast<thread_identifier_info_t>(info);
         if (thread_info(handle_, THREAD_IDENTIFIER_INFO, info, &count) == KERN_SUCCESS
             && sentrycrashmem_isMemoryReadable(idInfo, sizeof(*idInfo))) {
-            const auto queuePtr = reinterpret_cast<dispatch_queue_t *>(idInfo->dispatch_qaddr);
-            if (queuePtr != nullptr && sentrycrashmem_isMemoryReadable(queuePtr, sizeof(*queuePtr))
+            const auto queuePtr = (__bridge dispatch_queue_t)(void *)idInfo->dispatch_qaddr;
+            if (queuePtr != nullptr && sentrycrashmem_isMemoryReadable(queuePtr, sizeof(uint64_t))
                 && idInfo->thread_handle != 0 && *queuePtr != nullptr) {
                 return idInfo->dispatch_qaddr;
             }
