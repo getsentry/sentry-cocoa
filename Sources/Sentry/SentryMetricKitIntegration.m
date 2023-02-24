@@ -221,8 +221,9 @@ SentryMetricKitIntegration ()
 }
 
 /**
- * MetricKit organizes the stacktraces in a tree structure. The stacktrace consists of the leaf
- * frame plus its ancestors.
+ * If callStackPerThread is false, MetricKit organizes the stacktraces in a tree structure. See
+ * https://developer.apple.com/videos/play/wwdc2020/10078/?time=224 The stacktrace consists of the
+ * leaf frame plus its ancestors.
  *
  * The algorithm adds all frames to a list until it finds a leaf frame. Then it reports that frame
  * with its ancestors as a stacktrace. Afterward, it pops frames from its lists until it finds a
