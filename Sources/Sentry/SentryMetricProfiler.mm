@@ -2,11 +2,24 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    import "SentryEvent+Private.h"
 #    import "SentryLog.h"
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentryNSTimerWrapper.h"
 #    import "SentrySystemWrapper.h"
 #    import "SentryTime.h"
+#    import "SentryTransaction.h"
+
+/**
+ * A storage class for metric readings, with one property for the reading value itself, whether it
+ * be bytes of memory, % CPU etc, and another for the absolute system time it was recorded at.
+ */
+@interface SentryMetricReading : NSObject
+@property (strong, nonatomic) NSNumber *value;
+@property (assign, nonatomic) uint64_t absoluteTimestamp;
+@end
+@implementation SentryMetricReading
+@end
 
 /**
  * Currently set to 10 Hz as we don't anticipate much utility out of a higher resolution when
@@ -22,10 +35,39 @@ NSString *const kSentryMetricProfilerSerializationUnitBytes = @"byte";
 NSString *const kSentryMetricProfilerSerializationUnitPercentage = @"percent";
 
 namespace {
-NSDictionary<NSString *, id> *
-serializedValues(NSArray<NSDictionary<NSString *, NSString *> *> *values, NSString *unit)
+/**
+ * @return a dictionary containing all the metric values recorded during the transaction, or @c nil
+ * if there were no metrics recorded during the transaction.
+ */
+SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
+    NSArray<SentryMetricReading *> *absoluteTimestampValues, NSString *unit,
+    SentryTransaction *transaction)
 {
-    return @ { @"unit" : unit, @"values" : values };
+    const auto *timestampNormalizedValues = [NSMutableArray<SentrySerializedMetricReading *> array];
+    [absoluteTimestampValues enumerateObjectsUsingBlock:^(
+        SentryMetricReading *_Nonnull reading, NSUInteger idx, BOOL *_Nonnull stop) {
+        if (reading.absoluteTimestamp < transaction.startSystemTime) {
+            return;
+        }
+        if (reading.absoluteTimestamp > transaction.endSystemTime) {
+            return;
+        }
+
+        const auto relativeTimestamp
+            = getDurationNs(transaction.startSystemTime, reading.absoluteTimestamp);
+        if (!relativeTimestamp) {
+            return;
+        }
+
+        [timestampNormalizedValues addObject:@ {
+            @"elapsed_since_start_ns" : relativeTimestamp.stringValue,
+            @"value" : reading.value
+        }];
+    }];
+    if (timestampNormalizedValues.count == 0) {
+        return nil;
+    }
+    return @ { @"unit" : unit, @"values" : timestampNormalizedValues };
 }
 } // namespace
 
@@ -37,36 +79,30 @@ serializedValues(NSArray<NSDictionary<NSString *, NSString *> *> *values, NSStri
     SentryNSTimerWrapper *_timerWrapper;
 
     /// arrays of readings keyed on NSNumbers representing the core number for the set of readings
-    NSMutableDictionary<NSNumber *, NSMutableArray<NSDictionary<NSString *, NSString *> *> *>
-        *_cpuUsage;
+    NSMutableDictionary<NSNumber *, NSMutableArray<SentryMetricReading *> *> *_cpuUsage;
 
-    NSMutableArray<NSDictionary<NSString *, id> *> *_memoryFootprint;
-    uint64_t _profileStartTime;
+    NSMutableArray<SentryMetricReading *> *_memoryFootprint;
 }
 
-- (instancetype)initWithProfileStartTime:(uint64_t)profileStartTime
-                      processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
-                           systemWrapper:(SentrySystemWrapper *)systemWrapper
-                            timerWrapper:(SentryNSTimerWrapper *)timerWrapper
+- (instancetype)initWithProcessInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
+                             systemWrapper:(SentrySystemWrapper *)systemWrapper
+                              timerWrapper:(SentryNSTimerWrapper *)timerWrapper
 {
     if (self = [super init]) {
-        _cpuUsage = [NSMutableDictionary<NSNumber *,
-            NSMutableArray<NSDictionary<NSString *, NSString *> *> *>
-            dictionary];
+        _cpuUsage =
+            [NSMutableDictionary<NSNumber *, NSMutableArray<SentryMetricReading *> *> dictionary];
         const auto processorCount = processInfoWrapper.processorCount;
         SENTRY_LOG_DEBUG(
             @"Preparing %lu arrays for CPU core usage readings", (long unsigned)processorCount);
         for (NSUInteger core = 0; core < processorCount; core++) {
-            _cpuUsage[@(core)] = [NSMutableArray<NSDictionary<NSString *, NSString *> *> array];
+            _cpuUsage[@(core)] = [NSMutableArray<SentryMetricReading *> array];
         }
 
         _systemWrapper = systemWrapper;
         _processInfoWrapper = processInfoWrapper;
         _timerWrapper = timerWrapper;
 
-        _memoryFootprint = [NSMutableArray<NSDictionary<NSString *, id> *> array];
-
-        _profileStartTime = profileStartTime;
+        _memoryFootprint = [NSMutableArray<SentryMetricReading *> array];
     }
     return self;
 }
@@ -88,7 +124,7 @@ serializedValues(NSArray<NSDictionary<NSString *, NSString *> *> *values, NSStri
     [_timer invalidate];
 }
 
-- (NSMutableDictionary<NSString *, id> *)serialize
+- (NSMutableDictionary<NSString *, id> *)serializeForTransaction:(SentryTransaction *)transaction
 {
     NSMutableDictionary<NSString *, id> *dict;
     @synchronized(self) {
@@ -97,16 +133,17 @@ serializedValues(NSArray<NSDictionary<NSString *, NSString *> *> *values, NSStri
 
     if (_memoryFootprint.count > 0) {
         dict[kSentryMetricProfilerSerializationKeyMemoryFootprint]
-            = serializedValues(_memoryFootprint, kSentryMetricProfilerSerializationUnitBytes);
+            = serializeValuesWithNormalizedTime(
+                _memoryFootprint, kSentryMetricProfilerSerializationUnitBytes, transaction);
     }
 
     [_cpuUsage enumerateKeysAndObjectsUsingBlock:^(NSNumber *_Nonnull core,
-        NSMutableArray<NSDictionary<NSString *, NSString *> *> *_Nonnull readings,
-        BOOL *_Nonnull stop) {
+        NSMutableArray<SentryMetricReading *> *_Nonnull readings, BOOL *_Nonnull stop) {
         if (readings.count > 0) {
             dict[[NSString stringWithFormat:kSentryMetricProfilerSerializationKeyCPUUsageFormat,
                            core.intValue]]
-                = serializedValues(readings, kSentryMetricProfilerSerializationUnitPercentage);
+                = serializeValuesWithNormalizedTime(
+                    readings, kSentryMetricProfilerSerializationUnitPercentage, transaction);
         }
     }];
 
@@ -137,7 +174,7 @@ serializedValues(NSArray<NSDictionary<NSString *, NSString *> *> *values, NSStri
     }
 
     @synchronized(self) {
-        [_memoryFootprint addObject:[self metricEntryForValue:@(footprintBytes)]];
+        [_memoryFootprint addObject:[self metricReadingForValue:@(footprintBytes)]];
     }
 }
 
@@ -154,18 +191,17 @@ serializedValues(NSArray<NSDictionary<NSString *, NSString *> *> *values, NSStri
     @synchronized(self) {
         [result enumerateObjectsUsingBlock:^(
             NSNumber *_Nonnull usage, NSUInteger core, BOOL *_Nonnull stop) {
-            [_cpuUsage[@(core)] addObject:[self metricEntryForValue:usage]];
+            [_cpuUsage[@(core)] addObject:[self metricReadingForValue:usage]];
         }];
     }
 }
 
-- (NSDictionary<NSString *, id> *)metricEntryForValue:(NSNumber *)value
+- (SentryMetricReading *)metricReadingForValue:(NSNumber *)value
 {
-    return @{
-        @"value" : value,
-        @"elapsed_since_start_ns" :
-            [@(getDurationNs(_profileStartTime, getAbsoluteTime())) stringValue]
-    };
+    const auto reading = [[SentryMetricReading alloc] init];
+    reading.value = value;
+    reading.absoluteTimestamp = getAbsoluteTime();
+    return reading;
 }
 
 @end

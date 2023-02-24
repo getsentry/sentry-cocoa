@@ -1,6 +1,9 @@
 #import "SentryCompiler.h"
 #import "SentryProfilingConditionals.h"
+#import <Foundation/Foundation.h>
 #import <stdint.h>
+
+NS_ASSUME_NONNULL_BEGIN
 
 SENTRY_EXTERN_C_BEGIN
 
@@ -17,8 +20,12 @@ uint64_t timeIntervalToNanoseconds(double seconds);
 uint64_t getAbsoluteTime(void);
 
 /**
- * Returns the duration in nanoseconds between two absolute timestamps.
+ * @Returns The duration in nanoseconds between two absolute timestamps, as a @c NSNumber wrapping
+ * an unsigned 64 bit integer, or @c nil if the inputs were not ordered in such a way that the end
+ * input is earlier than the beginning input, which would return a negative duration.
  */
-uint64_t getDurationNs(uint64_t startTimestamp, uint64_t endTimestamp);
+NSNumber *_Nullable getDurationNs(uint64_t startTimestamp, uint64_t endTimestamp);
 
 SENTRY_EXTERN_C_END
+
+NS_ASSUME_NONNULL_END

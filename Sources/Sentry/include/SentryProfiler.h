@@ -53,7 +53,7 @@ SENTRY_EXTERN_C_END
 @interface SentryProfiler : NSObject
 
 /** Start the profiler, if it isn't already running. */
-+ (void)startWithHub:(SentryHub *)hub;
++ (void)startWithHub:(SentryHub *)hub transactionStart:(uint64_t)transactionStart;
 
 /** Stop the profiler if it is running. */
 + (void)stop;
