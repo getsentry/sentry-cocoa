@@ -302,6 +302,14 @@ SENTRY_NO_INIT
 + (void)crash;
 
 /**
+ * Report to the current ongoing UIViewController transaction
+ * that the screen is fully loaded and ready to be used,
+ * this creates a new span with the amount of time it took
+ * from initializing the view controller until it is ready.
+ */
++ (void)reportFullDisplayed;
+
+/**
  * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified
  * timeout in seconds. If there is no internet connection, the function returns immediately. The SDK
  * doesn't dispose the client or the hub.

@@ -7,6 +7,8 @@
 #import "SentryScope.h"
 #import "SentrySpanId.h"
 #import "SentrySwift.h"
+#import "SentryTimeToDisplayTracker.h"
+#import "SentryTracer.h"
 #import <SentryInAppLogic.h>
 #import <SentrySpanOperations.h>
 #import <objc/runtime.h>
@@ -16,6 +18,7 @@ SentryUIViewControllerPerformanceTracker ()
 
 @property (nonatomic, strong) SentryPerformanceTracker *tracker;
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
+@property (nullable, nonatomic, weak) SentryTimeToDisplayTracker *currentTTDTracker;
 
 @end
 
@@ -38,11 +41,20 @@ SentryUIViewControllerPerformanceTracker ()
 
         self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
                                                             inAppExcludes:options.inAppExcludes];
+
+        _enableWaitForFullDisplay = NO;
     }
     return self;
 }
 
 #if SENTRY_HAS_UIKIT
+
+- (SentrySpan *)viewControllerPerformanceSpan:(UIViewController *)controller
+{
+    SentrySpanId *spanId
+        = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
+    return [self.tracker getSpan:spanId];
+}
 
 - (void)viewControllerLoadView:(UIViewController *)controller
               callbackToOrigin:(void (^)(void))callbackToOrigin
@@ -60,6 +72,7 @@ SentryUIViewControllerPerformanceTracker ()
                    block:^{
                        SENTRY_LOG_DEBUG(@"Tracking loadView");
                        [self createTransaction:controller];
+                       [self createTimeToDisplay:controller];
                        [self measurePerformance:@"loadView"
                                          target:controller
                                callbackToOrigin:callbackToOrigin];
@@ -109,6 +122,55 @@ SentryUIViewControllerPerformanceTracker ()
     }
 }
 
+- (void)createTimeToDisplay:(UIViewController *)controller
+{
+    SentrySpan *vcSpan = [self viewControllerPerformanceSpan:controller];
+
+    if (![vcSpan isKindOfClass:[SentryTracer self]]) {
+        // Since TTID and TTFD are meant to the whole screen
+        // we will not track child view controllers
+        return;
+    }
+
+    if ([vcSpan.tracer getMiddlewaresOfType:SentryTimeToDisplayTracker.self].count > 0) {
+        // Already tracking time to display.
+        return;
+    }
+
+    if (self.currentTTDTracker) {
+        [self.currentTTDTracker stopWaitingFullDisplay];
+    }
+
+    SentryTimeToDisplayTracker *ttdTracker =
+        [[SentryTimeToDisplayTracker alloc] initForController:controller
+                                           waitForFullDisplay:self.enableWaitForFullDisplay];
+    [vcSpan.tracer addMiddleware:ttdTracker];
+
+    self.currentTTDTracker = ttdTracker;
+}
+
+- (void)finishTTIDForController:(UIViewController *)controller
+{
+    SentrySpan *vcSpan = [self viewControllerPerformanceSpan:controller];
+
+    if (![vcSpan isKindOfClass:[SentryTracer self]]) {
+        // Only tracer may have TimeToDisplayTracker
+        return;
+    }
+
+    SentryTimeToDisplayTracker *ttdTracker =
+        [vcSpan.tracer getMiddlewaresOfType:SentryTimeToDisplayTracker.self].firstObject;
+    [ttdTracker registerInitialDisplay];
+}
+
+- (void)reportTTFD
+{
+    [self.currentTTDTracker registerFullDisplay];
+
+    // No need for it anymore
+    self.currentTTDTracker = nil;
+}
+
 - (void)viewControllerViewWillAppear:(UIViewController *)controller
                     callbackToOrigin:(void (^)(void))callbackToOrigin
 {
@@ -144,6 +206,8 @@ SentryUIViewControllerPerformanceTracker ()
                    callbackToOrigin:(void (^)(void))callbackToOrigin
 {
     SENTRY_LOG_DEBUG(@"Tracking UIViewController.viewDidAppear");
+
+    [self finishTTIDForController:controller];
     [self finishTransaction:controller
                      status:kSentrySpanStatusOk
             lifecycleMethod:@"viewDidAppear"

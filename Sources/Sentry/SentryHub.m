@@ -11,6 +11,7 @@
 #import "SentryId.h"
 #import "SentryLog.h"
 #import "SentryNSTimerWrapper.h"
+#import "SentryPerformanceTracker.h"
 #import "SentryProfilesSampler.h"
 #import "SentrySDK+Private.h"
 #import "SentrySamplingContext.h"
@@ -21,6 +22,7 @@
 #import "SentryTracesSampler.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext+Private.h"
+#import "SentryUIViewControllerPerformanceTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -666,6 +668,17 @@ SentryHub ()
     }
 
     return NO;
+}
+
+- (void)reportFullDisplayed
+{
+#if SENTRY_HAS_UIKIT
+    if (_client.options.enableTimeToFullDisplay) {
+        [SentryUIViewControllerPerformanceTracker.shared reportTTFD];
+    } else {
+        SENTRY_LOG_DEBUG(@"The options `enableTimeToFullDisplay` is disabled.");
+    }
+#endif
 }
 
 - (void)flush:(NSTimeInterval)timeout

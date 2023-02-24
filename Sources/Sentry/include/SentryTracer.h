@@ -8,6 +8,8 @@ NS_ASSUME_NONNULL_BEGIN
     SentryNSTimerWrapper, SentryDispatchQueueWrapper, SentryTracer, SentryProfilesSamplerDecision,
     SentryMeasurementValue;
 
+@protocol SentryTracerMiddleware;
+
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
 @protocol SentryTracerDelegate
@@ -49,6 +51,8 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 @property (nullable, nonatomic, weak) id<SentryTracerDelegate> delegate;
 
 @property (nonatomic, readonly) NSDictionary<NSString *, SentryMeasurementValue *> *measurements;
+
+@property (nonatomic, readonly) NSArray<id<SentryTracerMiddleware>> *middlewares;
 
 /**
  * Init a SentryTracer with given transaction context and hub and set other fields by default
@@ -128,6 +132,12 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 + (nullable SentryTracer *)getTracer:(id<SentrySpan>)span;
 
 - (void)dispatchIdleTimeout;
+
+- (void)addMiddleware:(id<SentryTracerMiddleware>)middleware;
+
+- (void)removeMiddleware:(id<SentryTracerMiddleware>)middleware;
+
+- (NSArray<id<SentryTracerMiddleware>> *)getMiddlewaresOfType:(Class)middlewareType;
 
 @end
 

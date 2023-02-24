@@ -462,6 +462,13 @@ NS_SWIFT_NAME(Options)
 
 #endif
 
+/**
+ * Use this in conjunction with `enableUIViewControllerTracing`.
+ * By enabling this, every UIViewController tracing transaction will wait
+ * for a call to `SentrySDK.reportFullDisplay()` until the transaction times out.
+ */
+@property (nonatomic) BOOL enableTimeToFullDisplay;
+
 @end
 
 NS_ASSUME_NONNULL_END

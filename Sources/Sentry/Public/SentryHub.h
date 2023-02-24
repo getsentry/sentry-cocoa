@@ -250,6 +250,14 @@ SENTRY_NO_INIT
 - (void)setUser:(SentryUser *_Nullable)user;
 
 /**
+ * Indicates that your screen is fully loaded and ready to be used.
+ * This should be used together with automatic performance transaction,
+ * a full display span will be created if there is a view controller transaction
+ * happening.
+ */
+- (void)reportFullDisplayed;
+
+/**
  * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified
  * timeout in seconds. If there is no internet connection, the function returns immediately. The SDK
  * doesn't dispose the client or the hub.

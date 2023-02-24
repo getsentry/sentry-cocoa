@@ -5,6 +5,8 @@
 #    import <UIKit/UIKit.h>
 #endif
 
+@class SentrySpan;
+
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID
@@ -23,6 +25,8 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET
 @interface SentryUIViewControllerPerformanceTracker : NSObject
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, readonly, class) SentryUIViewControllerPerformanceTracker *shared;
+
+@property (nonatomic) BOOL enableWaitForFullDisplay;
 
 /**
  * Measures viewController`s loadView method.
@@ -96,6 +100,9 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET
  */
 - (void)viewControllerViewDidLayoutSubViews:(UIViewController *)controller
                            callbackToOrigin:(void (^)(void))callback;
+
+- (void)reportTTFD;
+
 #endif
 @end
 

@@ -383,6 +383,17 @@ static NSUInteger startInvocations;
     }
 }
 
+/**
+ * Indicates that your screen is fully loaded and ready to be used.
+ * This should be used together with automatic performance transaction,
+ * a full display span will be created if there is a view controller transaction
+ * happening.
+ */
++ (void)reportFullDisplayed
+{
+    [SentrySDK.currentHub reportFullDisplayed];
+}
+
 + (void)flush:(NSTimeInterval)timeout
 {
     [SentrySDK.currentHub flush:timeout];

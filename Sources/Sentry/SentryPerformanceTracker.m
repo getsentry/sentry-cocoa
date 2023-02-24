@@ -7,13 +7,14 @@
 #import "SentrySpanId.h"
 #import "SentrySpanProtocol.h"
 #import "SentryTracer.h"
+#import "SentryTracerMiddleware.h"
 #import "SentryTransactionContext+Private.h"
 #import "SentryUIEventTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
-SentryPerformanceTracker () <SentryTracerDelegate>
+SentryPerformanceTracker () <SentryTracerDelegate, SentryTracerMiddleware>
 
 @property (nonatomic, strong) NSMutableDictionary<SentrySpanId *, id<SentrySpan>> *spans;
 @property (nonatomic, strong) NSMutableArray<id<SentrySpan>> *activeSpanStack;
@@ -87,6 +88,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
 
             if ([newSpan isKindOfClass:[SentryTracer class]]) {
                 [(SentryTracer *)newSpan setDelegate:self];
+                [(SentryTracer *)newSpan addMiddleware:self];
             }
         }];
     }
@@ -213,7 +215,12 @@ SentryPerformanceTracker () <SentryTracerDelegate>
     id<SentrySpan> spanTracker;
     @synchronized(self.spans) {
         spanTracker = self.spans[spanId];
-        [self.spans removeObjectForKey:spanId];
+        // Hold reference for tracer for longer because automatic
+        // tracer aren't  being referenced by anything else.
+        // callback to `tracerDidFinish` will release it.
+        if (![spanTracker isKindOfClass:SentryTracer.self]) {
+            [self.spans removeObjectForKey:spanId];
+        }
     }
 
     [spanTracker finishWithStatus:status];
@@ -244,6 +251,13 @@ SentryPerformanceTracker () <SentryTracerDelegate>
 {
     [self.activeSpanStack removeAllObjects];
     [self.spans removeAllObjects];
+}
+
+- (void)tracerDidFinish:(SentryTracer *)tracer
+{
+    @synchronized(self.spans) {
+        [self.spans removeObjectForKey:tracer.spanId];
+    }
 }
 
 @end
