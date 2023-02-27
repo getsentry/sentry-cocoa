@@ -1,6 +1,8 @@
 #import "SentrySpan.h"
 #import "SentryTracer.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  * Protocol used to intercept some of `SentryTracer` steps
  * in order to modify its behavior and distribute concern to other classes.
@@ -35,3 +37,5 @@
 - (void)tracerDidFinish:(SentryTracer *)tracer;
 
 @end
+
+NS_ASSUME_NONNULL_END

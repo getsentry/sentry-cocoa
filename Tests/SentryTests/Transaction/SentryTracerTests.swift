@@ -14,6 +14,37 @@ class SentryTracerTests: XCTestCase {
         }
     }
 
+    private class TestTracerMiddleware: NSObject, SentryTracerMiddleware {
+
+        var additionalSpans: [SentrySpan] = []
+
+        var tracerDidTimeoutCalled = false
+        func tracerDidTimeout(_ tracer: SentryTracer) {
+            tracerDidTimeoutCalled = true
+        }
+
+        var createAdditionalSpansCalled = false
+        func createAdditionalSpans(forTrace tracer: SentryTracer) -> [Span] {
+            createAdditionalSpansCalled = true
+            return additionalSpans
+        }
+
+        var installCalled = false
+        func install(for tracer: SentryTracer) {
+            installCalled = true
+        }
+
+        var unistallCalled = false
+        func uninstall(for tracer: SentryTracer) {
+            unistallCalled = true
+        }
+
+        var tracerDidFinishCalled = false
+        func tracerDidFinish(_ tracer: SentryTracer) {
+            tracerDidFinishCalled = true
+        }
+    }
+
     private class Fixture {
         let client: TestClient!
         let hub: TestHub
@@ -36,6 +67,8 @@ class SentryTracerTests: XCTestCase {
         let testValue = "extra_value"
         
         let idleTimeout: TimeInterval = 1.0
+
+        let tracerMiddleware = TestTracerMiddleware()
         
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         var displayLinkWrapper: TestDisplayLinkWrapper
@@ -471,7 +504,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAfterInvocations.count)
         
         sut.finish()
-        XCTAssertEqual(2, fixture.dispatchQueue.dispatchCancelInvocations.count)
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations.count)
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAfterInvocations.count)
         
         XCTAssertFalse(sut.isFinished)
@@ -868,6 +901,53 @@ class SentryTracerTests: XCTestCase {
         }
         
         XCTAssertEqual(1, transactionsWithAppStartMeasurement.count)
+    }
+
+    func test_callMiddleware_install() {
+        let tracer = fixture.getSut()
+        tracer.addMiddleware(fixture.tracerMiddleware)
+        XCTAssertTrue(fixture.tracerMiddleware.installCalled)
+    }
+
+    func test_callMiddleware_unistall() {
+        let tracer = fixture.getSut()
+        tracer.addMiddleware(fixture.tracerMiddleware)
+        tracer.removeMiddleware(fixture.tracerMiddleware)
+        XCTAssertTrue(fixture.tracerMiddleware.unistallCalled)
+    }
+
+    func test_callMiddleware_didFinish() {
+        let tracer = fixture.getSut()
+        tracer.addMiddleware(fixture.tracerMiddleware)
+        tracer.finish()
+        XCTAssertTrue(fixture.tracerMiddleware.tracerDidFinishCalled)
+    }
+
+    func test_callMiddleware_additionalSpansCalled() {
+        let tracer = fixture.getSut()
+        tracer.addMiddleware(fixture.tracerMiddleware)
+        fixture.tracerMiddleware.additionalSpans = [ SentrySpan(context: TestData.spanContext), SentrySpan(context: TestData.spanContext) ]
+
+        let child = tracer.startChild(operation: "Test") as? SentrySpan
+
+        let transaction = Dynamic(tracer).toTransaction().asObject as? Transaction
+
+        let spans = Dynamic(transaction).spans.asArray as? [SentrySpan]
+
+        XCTAssertTrue(fixture.tracerMiddleware.createAdditionalSpansCalled)
+        XCTAssertEqual(spans?.count, 3)
+
+        XCTAssertEqual(spans?[0], child )
+        XCTAssertEqual(spans?[1], fixture.tracerMiddleware.additionalSpans[0] )
+        XCTAssertEqual(spans?[2], fixture.tracerMiddleware.additionalSpans[1] )
+    }
+
+    func test_callMiddleware_tracerTimeout() {
+        let tracer = fixture.getSut()
+        tracer.addMiddleware(fixture.tracerMiddleware)
+        fixture.timerWrapper.fire()
+
+        XCTAssertTrue(fixture.tracerMiddleware.tracerDidTimeoutCalled)
     }
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

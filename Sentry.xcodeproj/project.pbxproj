@@ -2108,7 +2108,6 @@
 				7BD7299B24654CD500EA3610 /* Helper */,
 				7B944FA924697E9700A10721 /* Integrations */,
 				7BBD18AF24517E5D00427C76 /* Networking */,
-				7B42602C26302DE500B36EDD /* Performance */,
 				035E73C627D5661A005EEB11 /* Profiling */,
 				7B3D0474249A3D5800E106B6 /* Protocol */,
 				63FE71D220DA66C500CDBAE8 /* SentryCrash */,
@@ -2490,16 +2489,6 @@
 			path = Protocol;
 			sourceTree = "<group>";
 		};
-		7B42602C26302DE500B36EDD /* Performance */ = {
-			isa = PBXGroup;
-			children = (
-				8EAC7FF7265C8910005B44E5 /* SentryTracerTests.swift */,
-				7BBEB16026AEE5EF00C06C03 /* SentryTracer+Test.h */,
-				7BEFB043270B0F630025F808 /* SentryTracerObjCTests.m */,
-			);
-			path = Performance;
-			sourceTree = "<group>";
-		};
 		7B634595280EB94200CFA05A /* UIEvents */ = {
 			isa = PBXGroup;
 			children = (
@@ -2530,6 +2519,9 @@
 				D88817DB26D72B7B00BF2251 /* SentryTraceStateTests.swift */,
 				7BE912AE272166DD00E49E62 /* SentryNoOpSpanTests.swift */,
 				D880E3A628573E87008A90DB /* SentryBaggageTests.swift */,
+				8EAC7FF7265C8910005B44E5 /* SentryTracerTests.swift */,
+				7BBEB16026AEE5EF00C06C03 /* SentryTracer+Test.h */,
+				7BEFB043270B0F630025F808 /* SentryTracerObjCTests.m */,
 				D8137D52272B53070082656C /* TestSentrySpan.h */,
 				D8137D53272B53070082656C /* TestSentrySpan.m */,
 			);

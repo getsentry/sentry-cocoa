@@ -42,12 +42,16 @@ SentryTimeToDisplayTracker ()
 
 - (void)registerInitialDisplay
 {
+    if (self.initialDisplaySpan.timestamp != nil) {
+        return;
+    }
+
     self.initialDisplaySpan.timestamp = [SentryCurrentDate date];
 
     if (self.fullDisplay != nil &&
-        [self.fullDisplay compare:self.initialDisplaySpan.timestamp] == NSOrderedAscending ) {
+        [self.fullDisplay compare:self.initialDisplaySpan.timestamp] == NSOrderedAscending) {
         self.fullDisplay = self.initialDisplaySpan.timestamp;
-    } 
+    }
 
     if (!self.waitFullDisplay || self.fullDisplay != nil) {
         // If this class is waiting for a full display, we don't finish the TTID span
@@ -69,7 +73,8 @@ SentryTimeToDisplayTracker ()
     }
 }
 
-- (void)stopWaitingFullDisplay {
+- (void)stopWaitingFullDisplay
+{
     if (self.initialDisplaySpan && !self.initialDisplaySpan.isFinished) {
         [self.initialDisplaySpan finish];
     }

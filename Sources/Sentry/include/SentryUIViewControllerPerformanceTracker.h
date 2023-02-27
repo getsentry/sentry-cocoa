@@ -5,7 +5,7 @@
 #    import <UIKit/UIKit.h>
 #endif
 
-@class SentrySpan;
+@class SentrySpan, SentryInAppLogic;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,6 +25,8 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET
 @interface SentryUIViewControllerPerformanceTracker : NSObject
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, readonly, class) SentryUIViewControllerPerformanceTracker *shared;
+
+@property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 
 @property (nonatomic) BOOL enableWaitForFullDisplay;
 

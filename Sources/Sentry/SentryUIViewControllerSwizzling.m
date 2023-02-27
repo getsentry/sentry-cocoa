@@ -108,6 +108,7 @@ SentryUIViewControllerSwizzling ()
     }
 
     [self swizzleUIViewController];
+    SentryUIViewControllerPerformanceTracker.shared.inAppLogic = self.inAppLogic;
 }
 
 - (id<SentryUIApplication>)findApp

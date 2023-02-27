@@ -37,12 +37,16 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let dateProvider = TestCurrentDateProvider()
         
         var viewControllerName: String!
+
+        var inAppLogic: SentryInAppLogic {
+            return SentryInAppLogic(inAppIncludes: options.inAppIncludes, inAppExcludes: [])
+        }
                 
         func getSut() -> SentryUIViewControllerPerformanceTracker {
             CurrentDate.setCurrentDateProvider(dateProvider)
             
             viewControllerName = SwiftDescriptor.getObjectClassName(viewController)
-
+            SentryUIViewControllerPerformanceTracker.shared.inAppLogic = self.inAppLogic
             return SentryUIViewControllerPerformanceTracker.shared
         }
     }
@@ -166,7 +170,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         
         lifecycleEndingMethod(sut, viewController, tracker, callbackExpectation, tracer)
 
-        XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 7)
+        XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 8)
         XCTAssertTrue(tracer.isFinished)
         XCTAssertEqual(finishStatus.rawValue, tracer.status.rawValue)
 
@@ -323,7 +327,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertTrue(unwrappedTransactionSpan.isFinished)
 
         let children = try XCTUnwrap(Dynamic(unwrappedTransactionSpan).children.asArray)
-        XCTAssertEqual(children.count, 4)
+        XCTAssertEqual(children.count, 5)
 
         assertTrackerIsEmpty(tracker)
     }
@@ -399,7 +403,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         unwrappedTransactionSpan = try XCTUnwrap(transactionSpan)
         XCTAssertFalse(unwrappedTransactionSpan.isFinished)
-        XCTAssertEqual(Dynamic(unwrappedTransactionSpan).children.asArray!.count, 2)
+        XCTAssertEqual(Dynamic(unwrappedTransactionSpan).children.asArray!.count, 3)
 
         wait(for: [callbackExpectation], timeout: 0)
     }
@@ -448,8 +452,45 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
 
         let children = try XCTUnwrap(Dynamic(transactionSpan).children.asArray)
-        XCTAssertEqual(children.count, 2)
+        XCTAssertEqual(children.count, 3)
         wait(for: [callbackExpectation], timeout: 0)
+    }
+
+    func test_waitForFullDisplay() {
+        let sut = fixture.getSut()
+        let tracker = fixture.tracker
+        let firstController = TestViewController()
+
+        var tracer: SentryTracer?
+
+        sut.enableWaitForFullDisplay = true
+
+        //The first view controller creates a transaction
+        sut.viewControllerLoadView(firstController) {
+            tracer = self.getStack(tracker).first as? SentryTracer
+        }
+
+        let ttdTracker = tracer?.getMiddlewaresOfType(SentryTimeToDisplayTracker.self).first as? SentryTimeToDisplayTracker
+
+        XCTAssertTrue(ttdTracker?.waitFullDisplay ?? false)
+    }
+
+    func test_dontWaitForFullDisplay() {
+        let sut = fixture.getSut()
+        let tracker = fixture.tracker
+        let firstController = TestViewController()
+
+        var tracer: SentryTracer?
+
+        sut.enableWaitForFullDisplay = false
+
+        //The first view controller creates a transaction
+        sut.viewControllerLoadView(firstController) {
+            tracer = self.getStack(tracker).first as? SentryTracer
+        }
+
+        let ttdTracker = tracer?.getMiddlewaresOfType(SentryTimeToDisplayTracker.self).first as? SentryTimeToDisplayTracker
+        XCTAssertFalse(ttdTracker?.waitFullDisplay ?? true)
     }
 
     func test_captureAllAutomaticSpans() {

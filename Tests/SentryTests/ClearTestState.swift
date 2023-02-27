@@ -31,5 +31,6 @@ class TestCleanup: NSObject {
         Dynamic(SentryGlobalEventProcessor.shared()).removeAllProcessors()
         SentryPerformanceTracker.shared.clear()
         SentrySwizzleWrapper.sharedInstance.removeAllCallbacks()
+        SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay = false
     }
 }

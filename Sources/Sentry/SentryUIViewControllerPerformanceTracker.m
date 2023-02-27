@@ -17,7 +17,6 @@
 SentryUIViewControllerPerformanceTracker ()
 
 @property (nonatomic, strong) SentryPerformanceTracker *tracker;
-@property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 @property (nullable, nonatomic, weak) SentryTimeToDisplayTracker *currentTTDTracker;
 
 @end
@@ -38,7 +37,6 @@ SentryUIViewControllerPerformanceTracker ()
         self.tracker = SentryPerformanceTracker.shared;
 
         SentryOptions *options = [SentrySDK options];
-
         self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
                                                             inAppExcludes:options.inAppExcludes];
 
@@ -206,8 +204,6 @@ SentryUIViewControllerPerformanceTracker ()
                    callbackToOrigin:(void (^)(void))callbackToOrigin
 {
     SENTRY_LOG_DEBUG(@"Tracking UIViewController.viewDidAppear");
-
-    [self finishTTIDForController:controller];
     [self finishTransaction:controller
                      status:kSentrySpanStatusOk
             lifecycleMethod:@"viewDidAppear"
@@ -228,6 +224,7 @@ SentryUIViewControllerPerformanceTracker ()
 - (void)viewControllerViewWillDisappear:(UIViewController *)controller
                        callbackToOrigin:(void (^)(void))callbackToOrigin
 {
+
     [self finishTransaction:controller
                      status:kSentrySpanStatusCancelled
             lifecycleMethod:@"viewWillDisappear"
@@ -268,6 +265,8 @@ SentryUIViewControllerPerformanceTracker ()
         // If we are still tracking this UIViewController finish the transaction
         // and remove associated span id.
         [self.tracker finishSpan:spanId withStatus:status];
+
+        [self finishTTIDForController:controller];
         objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, nil,
             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     };
