@@ -137,22 +137,6 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     }
     
     @available(iOS 15, macOS 12, macCatalyst 15, *)
-    func testRealCPU() throws {
-        let contents = try contentsOfResource("metric-kit-callstack-tree-real-cpu")
-        let callStackTree = try SentryMXCallStackTree.from(data: contents)
-        
-        SentrySDK.start { options in
-            options.dsn = TestConstants.realDSN
-        }
-        
-        let sut = SentryMetricKitIntegration()
-        let mxDelegate = sut as SentryMXManagerDelegate
-        mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTree, timeStampBegin: .now, timeStampEnd: .now)
-        
-        SentrySDK.flush(timeout: 2.0)
-    }
-    
-    @available(iOS 15, macOS 12, macCatalyst 15, *)
     private func givenInstalledWithEnabled(_ integration: SentryMetricKitIntegration) {
         let options = Options()
         options.enableMetricKit = true
