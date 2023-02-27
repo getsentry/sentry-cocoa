@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
             copy.ipAddress = self.ipAddress;
             copy.segment = self.segment;
             copy.name = self.name;
-            copy.geo = self.geo;
+            copy.geo = self.geo.copy;
             copy.data = self.data.copy;
         }
     }
