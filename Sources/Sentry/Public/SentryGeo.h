@@ -10,17 +10,17 @@ NS_SWIFT_NAME(Geo)
 /**
  * Optional: Human readable city name.
  */
-@property (atomic, copy) NSString *_Nullable city;
+@property (nullable, atomic, copy) NSString *city;
 
 /**
  * Optional: Two-letter country code (ISO 3166-1 alpha-2).
  */
-@property (atomic, copy) NSString *_Nullable countryCode;
+@property (nullable, atomic, copy) NSString *countryCode;
 
 /**
  * Optional: Human readable region name or code.
  */
-@property (atomic, copy) NSString *_Nullable region;
+@property (nullable, atomic, copy) NSString *region;
 
 - (instancetype)init;
 
