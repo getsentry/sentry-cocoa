@@ -9,7 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithOperation:(NSString *)operation
 {
-    return [self initWithOperation:operation sampled:false];
+    return [self initWithOperation:operation sampled:NO];
 }
 
 - (instancetype)initWithOperation:(NSString *)operation sampled:(SentrySampleDecision)sampled

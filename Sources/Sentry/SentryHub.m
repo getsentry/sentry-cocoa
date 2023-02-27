@@ -97,7 +97,7 @@ SentryHub ()
         }
         _session = [[SentrySession alloc] initWithReleaseName:options.releaseName];
 
-        if (_errorsBeforeSession > 0 && options.enableAutoSessionTracking == true) {
+        if (_errorsBeforeSession > 0 && options.enableAutoSessionTracking == YES) {
             _session.errors = _errorsBeforeSession;
             _errorsBeforeSession = 0;
         }
@@ -356,7 +356,7 @@ SentryHub ()
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
 {
     return [self startTransactionWithContext:transactionContext
-                                 bindToScope:false
+                                 bindToScope:NO
                        customSamplingContext:customSamplingContext];
 }
 

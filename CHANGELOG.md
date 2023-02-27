@@ -1,13 +1,14 @@
 # Changelog
 
-## Unreleased
+## 8.2.0
 
 ### Features
 
-- Combine UIKit and SwiftUI transactions (#2681)
+- Add enableTracing option (#2693)
 - Add isMain thread to SentryThread (#2692)
 - Add `in_foreground` to App Context (#2692)
 - Add `name` and `geo` to User (#2710)
+- Combine UIKit and SwiftUI transactions (#2681)
 
 ### Fixes
 
