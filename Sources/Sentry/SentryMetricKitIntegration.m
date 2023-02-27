@@ -222,26 +222,29 @@ SentryMetricKitIntegration ()
 
 /**
  * If callStackPerThread is false, MetricKit organizes the stacktraces in a tree structure. See
- * https://developer.apple.com/videos/play/wwdc2020/10078/?time=224 The stacktrace consists of the
- * leaf frame plus its ancestors.
+ * https://developer.apple.com/videos/play/wwdc2020/10078/?time=224. The stacktrace consists of the
+ * last sibbling leaf frame plus its ancestors.
  *
- * The algorithm adds all frames to a list until it finds a leaf frame. Then it reports that frame
- * with its ancestors as a stacktrace. Afterward, it pops frames from its lists until it finds a
- * frame that has unprocessed subframes. It repeats until there are no more unprocessed subframes.
+ * The algorithm adds all frames to a list until it finds a leaf frame being the last sibling. Then
+ * it reports that frame with its siblings and ancestors as a stacktrace.
  *
- * In the following example, the algorithm starts with frame 0, continues until frame 2, and reports
- * a stacktrace. Then it goes back up to frame 1, and continues with the first unprocessed subframe
- * frame 3 until frame 4, and again reports the stacktrace.
+ * In the following example, the algorithm starts with frame 0, continues until frame 6, and reports
+ * a stacktrace. Then it pops all sibling, goes back up to frame 3, and continues the search.
  *
  * | frame 0 |
  *      | frame 1 |
- *          | frame 2 |     -> stack trace consists of [0,1,2]
+ *          | frame 2 |
  *          | frame 3 |
- *              | frame 4 |     -> stack trace consists of [0,1,3,4]
- *          | frame 5 |     -> stack trace consists of [0,1,5]
- * | frame 6 |
- *      | frame 7 |
- *          | frame 8 |     -> stack trace consists of [6,7,8]
+ *              | frame 4 |
+ *              | frame 5 |
+ *              | frame 6 |     -> stack trace consists of [0, 1, 3, 4, 5, 6]
+ *          | frame 7 |
+ *          | frame 8 |         -> stack trace consists of [0, 1, 2, 3, 7, 8]
+ *      | frame 9 |             -> stack trace consists of [0, 1, 9]
+ * | frame 10 |
+ *      | frame 11 |
+ *          | frame 12 |
+ *          | frame 13 |    -> stack trace consists of [10, 11, 12, 13]
  */
 - (void)buildAndCaptureMXEventFor:(NSArray<SentryMXFrame *> *)rootFrames
                            params:(SentryMXExceptionParams *)params
@@ -249,33 +252,48 @@ SentryMetricKitIntegration ()
     for (SentryMXFrame *rootFrame in rootFrames) {
         NSMutableArray<SentryMXFrame *> *currentFrames = [NSMutableArray array];
         NSMutableSet<NSNumber *> *processedFrameAddresses = [NSMutableSet set];
+        NSMutableDictionary<NSNumber *, SentryMXFrame *> *frameParents =
+            [NSMutableDictionary dictionary];
 
         SentryMXFrame *currentFrame = rootFrame;
+        SentryMXFrame *parentFrame = nil;
         [currentFrames addObject:currentFrame];
 
         while (currentFrames.count > 0) {
             NSArray<SentryMXFrame *> *subFrames = currentFrame.subFrames;
+            for (SentryMXFrame *subFrame in subFrames) {
+                frameParents[@(subFrame.address)] = currentFrame;
+            }
+            parentFrame = frameParents[@(currentFrame.address)];
 
             SentryMXFrame *nonProcessSubFrame =
                 [self getFirstNotProcessedSubFrames:subFrames
                             processedFrameAddresses:processedFrameAddresses];
             [processedFrameAddresses addObject:@(currentFrame.address)];
 
-            // If a frame has no sub frames its a leaf in the stack trace tree and we report an
-            // event with all its ancestor frames.
-            if (subFrames.count == 0) {
+            // If last sibbling without children
+            BOOL noChildren = subFrames.count == 0;
+            SentryMXFrame *parentNonProcessSubFrame =
+                [self getFirstNotProcessedSubFrames:parentFrame.subFrames
+                            processedFrameAddresses:processedFrameAddresses];
+            BOOL lastSibling = parentNonProcessSubFrame == nil;
+            if (noChildren && lastSibling) {
                 [self captureEventNotPerThread:currentFrames params:params];
 
-                // Keep popping until next unprocessed subFrames.
-                [currentFrames removeLastObject];
+                // Pop all siblings
+                for (int i = 0; i < parentFrame.subFrames.count; i++) {
+                    [currentFrames removeLastObject];
+                }
                 currentFrame = [currentFrames lastObject];
             } else {
-                // If it's a non processed sub frame add it to the list of current frames.
-                if (nonProcessSubFrame != nil) {
+                if (nonProcessSubFrame == nil) {
+                    currentFrame = parentNonProcessSubFrame;
+                } else {
                     currentFrame = nonProcessSubFrame;
+                }
+                if (currentFrame) {
                     [currentFrames addObject:currentFrame];
                 } else {
-                    // If not keep popping
                     [currentFrames removeLastObject];
                     currentFrame = [currentFrames lastObject];
                 }

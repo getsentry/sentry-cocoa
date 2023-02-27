@@ -216,25 +216,31 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // Overview of stacktrace
         // | frame 0 |
         //      | frame 1 |
-        //          | frame 2 |     -> stack trace consists of [0,1,2]
+        //          | frame 2 |
         //          | frame 3 |
-        //              | frame 4 |     -> stack trace consists of [0,1,3,4]
-        //          | frame 5 |     -> stack trace consists of [0,1,5]
-        // | frame 6 |
-        //      | frame 7 |
-        //          | frame 8 |     -> stack trace consists of [6,7,8]
-        let firstEventFrames = [0, 1, 2].map { allFrames[$0] }
-        let secondEventFrames = [0, 1, 3, 4].map { allFrames[$0] }
-        let thirdEventFrames = [0, 1, 5].map { allFrames[$0] }
-        let fourthEventFrames = [6, 7, 8].map { allFrames[$0] }
+        //              | frame 4 |
+        //              | frame 5 |
+        //              | frame 6 |     -> stack trace consists of [0,1,3,4,5,6]
+        //          | frame 7 |
+        //          | frame 8 |         -> stack trace consists of [0,1,2,3,7,8]
+        //      | frame 9 |             -> stack trace consists of [0,1,9]
+        // | frame 10 |
+        //      | frame 11 |
+        //          | frame 12 |
+        //          | frame 13 |    -> stack trace consists of [10,11,12,13]
         
-        try assertFrames(frames: firstEventFrames, event: firstEvent, exceptionType, exceptionValue, exceptionMechanism)
-        try assertFrames(frames: secondEventFrames, event: secondEvent, exceptionType, exceptionValue, exceptionMechanism)
-        try assertFrames(frames: thirdEventFrames, event: thirdEvent, exceptionType, exceptionValue, exceptionMechanism)
-        try assertFrames(frames: fourthEventFrames, event: fourthEvent, exceptionType, exceptionValue, exceptionMechanism)
+        let firstEventFrames = [0, 1, 2, 3, 4, 5, 6].map { allFrames[$0] }
+        let secondEventFrames = [0, 1, 2, 3, 7, 8].map { allFrames[$0] }
+        let thirdEventFrames = [0, 1, 9].map { allFrames[$0] }
+        let fourthEventFrames = [10, 11, 12, 13].map { allFrames[$0] }
+        
+        try assertFrames(frames: firstEventFrames, event: firstEvent, exceptionType, exceptionValue, exceptionMechanism, debugMetaCount: 3)
+        try assertFrames(frames: secondEventFrames, event: secondEvent, exceptionType, exceptionValue, exceptionMechanism, debugMetaCount: 3)
+        try assertFrames(frames: thirdEventFrames, event: thirdEvent, exceptionType, exceptionValue, exceptionMechanism, debugMetaCount: 3)
+        try assertFrames(frames: fourthEventFrames, event: fourthEvent, exceptionType, exceptionValue, exceptionMechanism, debugMetaCount: 3)
     }
     
-    private func assertFrames(frames: [SentryMXFrame], event: Event?, _ exceptionType: String, _ exceptionValue: String, _ exceptionMechanism: String, handled: Bool = true) throws {
+    private func assertFrames(frames: [SentryMXFrame], event: Event?, _ exceptionType: String, _ exceptionValue: String, _ exceptionMechanism: String, handled: Bool = true, debugMetaCount: Int = 2) throws {
         let sentryFrames = try XCTUnwrap(event?.threads?.first?.stacktrace?.frames, "Event has no frames.")
         XCTAssertEqual(frames.count, sentryFrames.count)
         
@@ -259,7 +265,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(true, exception.mechanism?.synthetic)
         XCTAssertEqual(event?.threads?.first?.threadId, exception.threadId)
         
-        XCTAssertEqual(2, event?.debugMeta?.count)
+        XCTAssertEqual(debugMetaCount, event?.debugMeta?.count)
         guard let debugMeta = event?.debugMeta else {
             XCTFail("Event has no debugMeta.")
             return
