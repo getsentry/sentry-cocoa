@@ -98,6 +98,15 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
         }
     }
+    
+    func testANRDetected_ButNoThreads_EventNotCaptured() {
+        givenInitializedTracker()
+        setUpThreadInspector(addThreads: false)
+        
+        Dynamic(sut).anrDetected()
+        
+        assertNoEventCaptured()
+    }
 
     private func givenInitializedTracker(isBeingTraced: Bool = false) {
         givenSdkWithHub()
@@ -106,27 +115,32 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         sut.install(with: self.options)
     }
     
-    private func setUpThreadInspector() {
+    private func setUpThreadInspector(addThreads: Bool = true) {
         let threadInspector = TestThreadInspector.instance
         
-        let frame1 = Sentry.Frame()
-        frame1.function = "Second_frame_function"
-        
-        let thread1 = SentryThread(threadId: 0)
-        thread1.stacktrace = SentryStacktrace(frames: [frame1], registers: [:])
-        thread1.current = true
-        
-        let frame2 = Sentry.Frame()
-        frame2.function = "main"
-        
-        let thread2 = SentryThread(threadId: 1)
-        thread2.stacktrace = SentryStacktrace(frames: [frame2], registers: [:])
-        thread2.current = false
-        
-        threadInspector.allThreads = [
-            thread2,
-            thread1
-        ]
+        if addThreads {
+            
+            let frame1 = Sentry.Frame()
+            frame1.function = "Second_frame_function"
+            
+            let thread1 = SentryThread(threadId: 0)
+            thread1.stacktrace = SentryStacktrace(frames: [frame1], registers: [:])
+            thread1.current = true
+            
+            let frame2 = Sentry.Frame()
+            frame2.function = "main"
+            
+            let thread2 = SentryThread(threadId: 1)
+            thread2.stacktrace = SentryStacktrace(frames: [frame2], registers: [:])
+            thread2.current = false
+            
+            threadInspector.allThreads = [
+                thread2,
+                thread1
+            ]
+        } else {
+            threadInspector.allThreads = []
+        }
         
         SentrySDK.currentHub().getClient()?.threadInspector = threadInspector
     }
