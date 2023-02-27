@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- MetricKit stack traces (#2732)
+
 ## 8.2.0
 
 ### Features
