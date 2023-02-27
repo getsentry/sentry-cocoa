@@ -16,6 +16,8 @@
 		7B3427FE25876DE700056519 /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B3427FC25876DE700056519 /* Tongariro.jpg */; };
 		7B948A06275E459C00F04173 /* CppSample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B948A04275E459C00F04173 /* CppSample.cpp */; };
 		7B948A0A275E4A9900F04173 /* CppWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B948A09275E4A9900F04173 /* CppWrapper.m */; };
+		8407540C299EF528006AB754 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8407540B299EF528006AB754 /* main.m */; };
+		84075415299EF679006AB754 /* subprocess-crasher in Resources */ = {isa = PBXBuildFile; fileRef = 84075409299EF528006AB754 /* subprocess-crasher */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +49,20 @@
 			remoteGlobalIDString = D81A3488291D0AC0005A27A9;
 			remoteInfo = SentryPrivate;
 		};
+		84075412299EF528006AB754 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6308533E2440C45A00DDE4CE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D8199DAA29376E9B0074249E;
+			remoteInfo = SentrySwiftUI;
+		};
+		84075416299EF695006AB754 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 637AFDE3243B04320034958B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 84075408299EF528006AB754;
+			remoteInfo = "subprocess-crasher";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -60,6 +76,15 @@
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
+		};
+		84075407299EF528006AB754 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -79,6 +104,8 @@
 		7B948A05275E459C00F04173 /* CppSample.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CppSample.hpp; sourceTree = "<group>"; };
 		7B948A08275E498E00F04173 /* CppWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CppWrapper.h; sourceTree = "<group>"; };
 		7B948A09275E4A9900F04173 /* CppWrapper.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = CppWrapper.m; sourceTree = "<group>"; };
+		84075409299EF528006AB754 /* subprocess-crasher */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "subprocess-crasher"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8407540B299EF528006AB754 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,6 +114,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				6308534E2440C5FB00DDE4CE /* Sentry.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		84075406299EF528006AB754 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,6 +133,7 @@
 				630853442440C45A00DDE4CE /* Sentry.framework */,
 				630853462440C45A00DDE4CE /* SentryTests.xctest */,
 				7B0AC1782939FBC700EFD958 /* SentryPrivate.framework */,
+				84075413299EF528006AB754 /* SentrySwiftUI.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -108,6 +143,7 @@
 			children = (
 				6308533E2440C45A00DDE4CE /* Sentry.xcodeproj */,
 				637AFDED243B04320034958B /* macOS-Swift */,
+				8407540A299EF528006AB754 /* subprocess-crasher */,
 				637AFDEC243B04320034958B /* Products */,
 				637AFDFE243B07420034958B /* Frameworks */,
 			);
@@ -117,6 +153,7 @@
 			isa = PBXGroup;
 			children = (
 				637AFDEB243B04320034958B /* macOS-Swift.app */,
+				84075409299EF528006AB754 /* subprocess-crasher */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -148,6 +185,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		8407540A299EF528006AB754 /* subprocess-crasher */ = {
+			isa = PBXGroup;
+			children = (
+				8407540B299EF528006AB754 /* main.m */,
+			);
+			path = "subprocess-crasher";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -163,12 +208,30 @@
 			buildRules = (
 			);
 			dependencies = (
+				84075417299EF695006AB754 /* PBXTargetDependency */,
 				6308534D2440C5F500DDE4CE /* PBXTargetDependency */,
 			);
 			name = "macOS-Swift";
 			productName = "macOS-Swift";
 			productReference = 637AFDEB243B04320034958B /* macOS-Swift.app */;
 			productType = "com.apple.product-type.application";
+		};
+		84075408299EF528006AB754 /* subprocess-crasher */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 84075414299EF528006AB754 /* Build configuration list for PBXNativeTarget "subprocess-crasher" */;
+			buildPhases = (
+				84075405299EF528006AB754 /* Sources */,
+				84075406299EF528006AB754 /* Frameworks */,
+				84075407299EF528006AB754 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "subprocess-crasher";
+			productName = "subprocess-crasher";
+			productReference = 84075409299EF528006AB754 /* subprocess-crasher */;
+			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
 
@@ -183,6 +246,9 @@
 					637AFDEA243B04320034958B = {
 						CreatedOnToolsVersion = 11.4;
 						LastSwiftMigration = 1310;
+					};
+					84075408299EF528006AB754 = {
+						CreatedOnToolsVersion = 14.1;
 					};
 				};
 			};
@@ -206,6 +272,7 @@
 			projectRoot = "";
 			targets = (
 				637AFDEA243B04320034958B /* macOS-Swift */,
+				84075408299EF528006AB754 /* subprocess-crasher */,
 			);
 		};
 /* End PBXProject section */
@@ -232,6 +299,13 @@
 			remoteRef = 7B0AC1772939FBC700EFD958 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		84075413299EF528006AB754 /* SentrySwiftUI.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SentrySwiftUI.framework;
+			remoteRef = 84075412299EF528006AB754 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -239,6 +313,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84075415299EF679006AB754 /* subprocess-crasher in Resources */,
 				637AFDF3243B04340034958B /* Assets.xcassets in Resources */,
 				7B3427FE25876DE700056519 /* Tongariro.jpg in Resources */,
 				637AFDF6243B04340034958B /* Main.storyboard in Resources */,
@@ -259,6 +334,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		84075405299EF528006AB754 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8407540C299EF528006AB754 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -266,6 +349,11 @@
 			isa = PBXTargetDependency;
 			name = Sentry;
 			targetProxy = 6308534C2440C5F500DDE4CE /* PBXContainerItemProxy */;
+		};
+		84075417299EF695006AB754 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 84075408299EF528006AB754 /* subprocess-crasher */;
+			targetProxy = 84075416299EF695006AB754 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -443,6 +531,30 @@
 			};
 			name = Release;
 		};
+		8407540D299EF528006AB754 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 97JCY7859U;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.6;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		8407540E299EF528006AB754 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 97JCY7859U;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.6;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -460,6 +572,15 @@
 			buildConfigurations = (
 				637AFDFC243B04340034958B /* Debug */,
 				637AFDFD243B04340034958B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		84075414299EF528006AB754 /* Build configuration list for PBXNativeTarget "subprocess-crasher" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8407540D299EF528006AB754 /* Debug */,
+				8407540E299EF528006AB754 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

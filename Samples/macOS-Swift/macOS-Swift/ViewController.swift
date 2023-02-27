@@ -36,7 +36,17 @@ class ViewController: NSViewController {
         let exception = NSException(name: NSExceptionName("My Custom exception"), reason: "User clicked the button", userInfo: userInfo)
         NSApp.perform("_crashOnException:", with: exception)
     }
-    
+
+    @IBAction func crashInSubprocess(_ sender: Any) {
+        let subprocess = Process()
+        subprocess.executableURL = Bundle.main.url(forResource: "subprocess-crasher", withExtension: nil)
+        subprocess.waitUntilExit()
+        subprocess.terminationHandler = {
+            print("finished; status: \($0.terminationStatus); reason: \($0.terminationReason)")
+        }
+        subprocess.launch()
+    }
+
     @IBAction func captureTransaction(_ sender: Any) {
         let transaction = SentrySDK.startTransaction(name: "Some Transaction", operation: "some operation")
         DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 0.4...0.6), execute: {
