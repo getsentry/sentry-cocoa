@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased 
+
+### Fixes
+
+- Crash in AppHangs when no threads (#2725)
+
 ## 8.2.0
 
 ### Features
