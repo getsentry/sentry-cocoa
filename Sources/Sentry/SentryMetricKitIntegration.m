@@ -250,58 +250,60 @@ SentryMetricKitIntegration ()
                            params:(SentryMXExceptionParams *)params
 {
     for (SentryMXFrame *rootFrame in rootFrames) {
-        NSMutableArray<SentryMXFrame *> *currentFrames = [NSMutableArray array];
+        NSMutableArray<SentryMXFrame *> *stackTraceFrames = [NSMutableArray array];
         NSMutableSet<NSNumber *> *processedFrameAddresses = [NSMutableSet set];
-        NSMutableDictionary<NSNumber *, SentryMXFrame *> *frameParents =
+        NSMutableDictionary<NSNumber *, SentryMXFrame *> *addressesToParentFrames =
             [NSMutableDictionary dictionary];
 
         SentryMXFrame *currentFrame = rootFrame;
-        SentryMXFrame *parentFrame = nil;
-        [currentFrames addObject:currentFrame];
+        [stackTraceFrames addObject:currentFrame];
 
-        while (currentFrames.count > 0) {
-            currentFrame = [currentFrames lastObject];
+        while (stackTraceFrames.count > 0) {
+            currentFrame = [stackTraceFrames lastObject];
             [processedFrameAddresses addObject:@(currentFrame.address)];
 
-            NSArray<SentryMXFrame *> *subFrames = currentFrame.subFrames;
-            for (SentryMXFrame *subFrame in subFrames) {
-                frameParents[@(subFrame.address)] = currentFrame;
+            for (SentryMXFrame *subFrame in currentFrame.subFrames) {
+                addressesToParentFrames[@(subFrame.address)] = currentFrame;
             }
-            parentFrame = frameParents[@(currentFrame.address)];
+            SentryMXFrame *parentFrame = addressesToParentFrames[@(currentFrame.address)];
 
-            BOOL noChildren = subFrames.count == 0;
-            SentryMXFrame *firstNonProcessedSibling =
-                [self getFirstNotProcessedSubFrames:parentFrame.subFrames
-                            processedFrameAddresses:processedFrameAddresses];
-            BOOL lastUnprocessedSibling = firstNonProcessedSibling == nil;
+            SentryMXFrame *firstUnprocessedSibling =
+                [self getFirstUnprocessedSubFrames:parentFrame.subFrames
+                           processedFrameAddresses:processedFrameAddresses];
+
+            BOOL lastUnprocessedSibling = firstUnprocessedSibling == nil;
+            BOOL noChildren = currentFrame.subFrames.count == 0;
 
             if (noChildren && lastUnprocessedSibling) {
-                [self captureEventNotPerThread:currentFrames params:params];
+                [self captureEventNotPerThread:stackTraceFrames params:params];
 
                 // Pop all siblings
                 for (int i = 0; i < parentFrame.subFrames.count; i++) {
-                    [currentFrames removeLastObject];
+                    [stackTraceFrames removeLastObject];
                 }
             } else {
                 SentryMXFrame *nonProcessedSubFrame =
-                    [self getFirstNotProcessedSubFrames:subFrames
-                                processedFrameAddresses:processedFrameAddresses];
+                    [self getFirstUnprocessedSubFrames:currentFrame.subFrames
+                               processedFrameAddresses:processedFrameAddresses];
 
+                // Keep adding sub frames
                 if (nonProcessedSubFrame != nil) {
-                    [currentFrames addObject:nonProcessedSubFrame];
-                } else if (firstNonProcessedSibling != nil) {
-                    [currentFrames addObject:firstNonProcessedSibling];
-                } else {
-                    [currentFrames removeLastObject];
+                    [stackTraceFrames addObject:nonProcessedSubFrame];
+                } // Keep adding siblings
+                else if (firstUnprocessedSibling != nil) {
+                    [stackTraceFrames addObject:firstUnprocessedSibling];
+                } // Keep popping
+                else {
+                    [stackTraceFrames removeLastObject];
                 }
             }
         }
     }
 }
 
-- (nullable SentryMXFrame *)getFirstNotProcessedSubFrames:(NSArray<SentryMXFrame *> *)subFrames
-                                  processedFrameAddresses:
-                                      (NSSet<NSNumber *> *)processedFrameAddresses
+- (nullable SentryMXFrame *)getFirstUnprocessedSubFrames:(NSArray<SentryMXFrame *> *)subFrames
+                                 processedFrameAddresses:
+                                     (NSSet<NSNumber *> *)processedFrameAddresses
 {
     return [subFrames filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
                                                       SentryMXFrame *frame,
