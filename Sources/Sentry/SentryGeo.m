@@ -31,9 +31,9 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableDictionary *serializedData = [[NSMutableDictionary alloc] init];
 
     @synchronized(self) {
-        [serializedData setValue:self.city forKey:@"city"];
-        [serializedData setValue:self.countryCode forKey:@"country_code"];
-        [serializedData setValue:self.region forKey:@"region"];
+        serializedData[@"city"] = self.city;
+        serializedData[@"country_code"] = self.countryCode;
+        serializedData[@"region"] = self.region;
     }
 
     return serializedData;
