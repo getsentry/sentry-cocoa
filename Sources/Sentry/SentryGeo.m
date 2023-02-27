@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary<NSString *, id> *)serialize
 {
-    NSMutableDictionary *serializedData = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *serializedData = [NSMutableDictionary dictionary];
 
     @synchronized(self) {
         serializedData[@"city"] = self.city;
