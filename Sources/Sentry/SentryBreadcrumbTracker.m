@@ -156,7 +156,7 @@ SentryBreadcrumbTracker ()
                                                    forControlEvent:UIControlEventEditingChanged];
         return [actions containsObject:action];
     }
-    return false;
+    return NO;
 }
 #endif
 

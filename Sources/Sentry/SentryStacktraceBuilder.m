@@ -86,7 +86,7 @@ SentryStacktraceBuilder ()
 - (SentryStacktrace *)buildStacktraceForThread:(SentryCrashThread)thread
                                        context:(struct SentryCrashMachineContext *)context
 {
-    sentrycrashmc_getContextForThread(thread, context, false);
+    sentrycrashmc_getContextForThread(thread, context, NO);
     SentryCrashStackCursor stackCursor;
     sentrycrashsc_initWithMachineContext(&stackCursor, MAX_STACKTRACE_LENGTH, context);
 

@@ -4,9 +4,10 @@
 
 ### Features
 
-- Combine UIKit and SwiftUI transactions (#2681)
+- Add enableTracing option (#2693)
 - Add isMain thread to SentryThread (#2692)
 - Add `in_foreground` to App Context (#2692)
+- Combine UIKit and SwiftUI transactions (#2681)
 
 ### Fixes
 
