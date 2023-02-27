@@ -1,9 +1,6 @@
 #import "SentryCompiler.h"
 #import "SentryProfilingConditionals.h"
-#import <Foundation/Foundation.h>
 #import <stdint.h>
-
-NS_ASSUME_NONNULL_BEGIN
 
 SENTRY_EXTERN_C_BEGIN
 
@@ -20,12 +17,20 @@ uint64_t timeIntervalToNanoseconds(double seconds);
 uint64_t getAbsoluteTime(void);
 
 /**
- * @Returns The duration in nanoseconds between two absolute timestamps, as a @c NSNumber wrapping
- * an unsigned 64 bit integer, or @c nil if the inputs were not ordered in such a way that the end
- * input is earlier than the beginning input, which would return a negative duration.
+ * Check whether two timestamps provided as 64 bit unsigned integers are in normal
+ * chronological order, as a convenience runtime check before using @c getDurationNs.
+ * Equal timestamps are considered to be valid chronological order.
+ * @return @c true if @c b>=a, otherwise return @c false.
  */
-NSNumber *_Nullable getDurationNs(uint64_t startTimestamp, uint64_t endTimestamp);
+bool orderedChronologically(uint64_t a, uint64_t b);
+
+/**
+ * Returns the duration in nanoseconds between two absolute timestamps.
+ * @warning if @c startTimestamp is actually a later timestamp than @c endTimestamp,
+ * this will return @c 0, as subtracting a greater value from a lesser value in unsigned integers
+ * will underflow, producing undefined behavior. Always check the magnitudes before calling
+ * this function, see @c orderedChronologically for a convenient utility to do so.
+ */
+uint64_t getDurationNs(uint64_t startTimestamp, uint64_t endTimestamp);
 
 SENTRY_EXTERN_C_END
-
-NS_ASSUME_NONNULL_END

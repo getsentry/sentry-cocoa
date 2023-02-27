@@ -4,7 +4,6 @@
 #import <ctime>
 #import <mach/mach_time.h>
 
-#import "SentryInternalDefines.h"
 #import "SentryMachLogging.hpp"
 
 uint64_t
@@ -25,16 +24,19 @@ getAbsoluteTime(void)
     return mach_absolute_time();
 }
 
-NSNumber *_Nullable getDurationNs(uint64_t startTimestamp, uint64_t endTimestamp)
+bool
+orderedChronologically(uint64_t a, uint64_t b)
 {
-    if (!SENTRY_CASSERT(
-            endTimestamp >= startTimestamp, @"End timestamp must come after start timestamp.")) {
-        return nil;
-    }
+    return b >= a;
+}
 
+uint64_t
+getDurationNs(uint64_t startTimestamp, uint64_t endTimestamp)
+{
+    assert(endTimestamp >= startTimestamp);
     uint64_t duration = endTimestamp - startTimestamp;
     if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)) {
-        return @(duration);
+        return duration;
     }
 
     static struct mach_timebase_info info;
@@ -42,5 +44,5 @@ NSNumber *_Nullable getDurationNs(uint64_t startTimestamp, uint64_t endTimestamp
     dispatch_once(&onceToken, ^{ SENTRY_PROF_LOG_KERN_RETURN(mach_timebase_info(&info)); });
     duration *= info.numer;
     duration /= info.denom;
-    return @(duration);
+    return duration;
 }

@@ -85,10 +85,10 @@ processBacktrace(const Backtrace &backtrace,
     NSMutableDictionary<NSString *, NSNumber *> *frameIndexLookup, uint64_t startTimestamp,
     NSMutableDictionary<NSString *, NSNumber *> *stackIndexLookup)
 {
-    const auto relativeTimestamp = getDurationNs(startTimestamp, backtrace.absoluteTimestamp);
-    if (!relativeTimestamp) {
+    if (!orderedChronologically(startTimestamp, backtrace.absoluteTimestamp)) {
         return;
     }
+    const auto relativeTimestamp = getDurationNs(startTimestamp, backtrace.absoluteTimestamp);
 
     const auto threadID = [@(backtrace.threadMetadata.threadID) stringValue];
     NSString *queueAddress = nil;
@@ -139,7 +139,7 @@ processBacktrace(const Backtrace &backtrace,
     }
 
     const auto sample = [NSMutableDictionary<NSString *, id> dictionary];
-    sample[@"elapsed_since_start_ns"] = [relativeTimestamp stringValue];
+    sample[@"elapsed_since_start_ns"] = @(relativeTimestamp).stringValue;
     sample[@"thread_id"] = threadID;
     if (queueAddress != nil) {
         sample[@"queue_address"] = queueAddress;

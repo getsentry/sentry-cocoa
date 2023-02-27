@@ -52,15 +52,15 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
         if (reading.absoluteTimestamp > transaction.endSystemTime) {
             return;
         }
-
-        const auto relativeTimestamp
-            = getDurationNs(transaction.startSystemTime, reading.absoluteTimestamp);
-        if (!relativeTimestamp) {
+        if (!orderedChronologically(transaction.startSystemTime, reading.absoluteTimestamp)) {
             return;
         }
 
-        [timestampNormalizedValues addObject:@ {
-            @"elapsed_since_start_ns" : relativeTimestamp.stringValue,
+        const auto relativeTimestamp
+            = getDurationNs(transaction.startSystemTime, reading.absoluteTimestamp);
+
+        [timestampNormalizedValues addObject:@{
+            @"elapsed_since_start_ns" : @(relativeTimestamp).stringValue,
             @"value" : reading.value
         }];
     }];
