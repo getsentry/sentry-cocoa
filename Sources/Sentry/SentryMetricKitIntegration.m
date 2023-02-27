@@ -260,42 +260,39 @@ SentryMetricKitIntegration ()
         [currentFrames addObject:currentFrame];
 
         while (currentFrames.count > 0) {
+            currentFrame = [currentFrames lastObject];
+            [processedFrameAddresses addObject:@(currentFrame.address)];
+
             NSArray<SentryMXFrame *> *subFrames = currentFrame.subFrames;
             for (SentryMXFrame *subFrame in subFrames) {
                 frameParents[@(subFrame.address)] = currentFrame;
             }
             parentFrame = frameParents[@(currentFrame.address)];
 
-            SentryMXFrame *nonProcessSubFrame =
-                [self getFirstNotProcessedSubFrames:subFrames
-                            processedFrameAddresses:processedFrameAddresses];
-            [processedFrameAddresses addObject:@(currentFrame.address)];
-
-            // If last sibbling without children
             BOOL noChildren = subFrames.count == 0;
-            SentryMXFrame *parentNonProcessSubFrame =
+            SentryMXFrame *firstNonProcessedSibling =
                 [self getFirstNotProcessedSubFrames:parentFrame.subFrames
                             processedFrameAddresses:processedFrameAddresses];
-            BOOL lastSibling = parentNonProcessSubFrame == nil;
-            if (noChildren && lastSibling) {
+            BOOL lastUnprocessedSibling = firstNonProcessedSibling == nil;
+
+            if (noChildren && lastUnprocessedSibling) {
                 [self captureEventNotPerThread:currentFrames params:params];
 
                 // Pop all siblings
                 for (int i = 0; i < parentFrame.subFrames.count; i++) {
                     [currentFrames removeLastObject];
                 }
-                currentFrame = [currentFrames lastObject];
             } else {
-                if (nonProcessSubFrame == nil) {
-                    currentFrame = parentNonProcessSubFrame;
-                } else {
-                    currentFrame = nonProcessSubFrame;
-                }
-                if (currentFrame) {
-                    [currentFrames addObject:currentFrame];
+                SentryMXFrame *nonProcessedSubFrame =
+                    [self getFirstNotProcessedSubFrames:subFrames
+                                processedFrameAddresses:processedFrameAddresses];
+
+                if (nonProcessedSubFrame != nil) {
+                    [currentFrames addObject:nonProcessedSubFrame];
+                } else if (firstNonProcessedSibling != nil) {
+                    [currentFrames addObject:firstNonProcessedSibling];
                 } else {
                     [currentFrames removeLastObject];
-                    currentFrame = [currentFrames lastObject];
                 }
             }
         }
