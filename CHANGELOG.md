@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- MetricKit stack traces (#2732)
+- MetricKit stack traces (#2723)
 
 ## 8.2.0
 

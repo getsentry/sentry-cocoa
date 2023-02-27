@@ -31,7 +31,7 @@ index 9adac264..8ef3a3bb 100644
 +			);
 +			runOnlyForDeploymentPostprocessing = 0;
 +			shellPath = /bin/sh;
-+			shellScript = "if which sentry-cli >/dev/null; then\nexport SENTRY_ORG=sentry-sdks\nexport SENTRY_PROJECT=sentry-cocoa\nexport SENTRY_AUTH_TOKEN=YOUR_AUTH_TOKEN\nERROR=$(sentry-cli upload-dif \"$DWARF_DSYM_FOLDER_PATH\" 2>&1 >/dev/null)\nif [ ! $? -eq 0 ]; then\necho \"warning: sentry-cli - $ERROR\"\nfi\nelse\necho \"warning: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases\"\nfi\n";
++			shellScript = "if which sentry-cli >/dev/null; then\nexport SENTRY_ORG=sentry-sdks\nexport SENTRY_PROJECT=sentry-cocoa\nexport SENTRY_AUTH_TOKEN=293dd072fd6c47c696c6dc3cc16a0b9dd4628669a537401bac237cf9f75a62ce\nERROR=$(sentry-cli upload-dif \"$DWARF_DSYM_FOLDER_PATH\" 2>&1 >/dev/null)\nif [ ! $? -eq 0 ]; then\necho \"warning: sentry-cli - $ERROR\"\nfi\nelse\necho \"warning: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases\"\nfi\n";
 +		};
 +/* End PBXShellScriptBuildPhase section */
 +
