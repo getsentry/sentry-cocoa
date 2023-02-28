@@ -103,7 +103,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET
 - (void)viewControllerViewDidLayoutSubViews:(UIViewController *)controller
                            callbackToOrigin:(void (^)(void))callback;
 
-- (void)reportTTFD;
+- (void)reportFullyDisplayed;
 
 #endif
 @end

@@ -302,12 +302,11 @@ SENTRY_NO_INIT
 + (void)crash;
 
 /**
- * Report to the current ongoing UIViewController transaction
- * that the screen is fully loaded and ready to be used,
- * this creates a new span with the amount of time it took
- * from initializing the view controller until it is ready.
+ * Reports to the ongoing UIViewController transaction
+ * that the screen contents are fully loaded and displayed,
+ * which will create a new span.
  */
-+ (void)reportFullDisplayed;
++ (void)reportFullyDisplayed;
 
 /**
  * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified

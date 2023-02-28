@@ -161,7 +161,7 @@ SentryUIViewControllerPerformanceTracker ()
     [ttdTracker registerInitialDisplay];
 }
 
-- (void)reportTTFD
+- (void)reportFullyDisplayed
 {
     [self.currentTTDTracker registerFullDisplay];
 

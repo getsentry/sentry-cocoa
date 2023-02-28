@@ -670,11 +670,11 @@ SentryHub ()
     return NO;
 }
 
-- (void)reportFullDisplayed
+- (void)reportFullyDisplayed
 {
 #if SENTRY_HAS_UIKIT
     if (_client.options.enableTimeToFullDisplay) {
-        [SentryUIViewControllerPerformanceTracker.shared reportTTFD];
+        [SentryUIViewControllerPerformanceTracker.shared reportFullyDisplayed];
     } else {
         SENTRY_LOG_DEBUG(@"The options `enableTimeToFullDisplay` is disabled.");
     }

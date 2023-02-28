@@ -250,12 +250,11 @@ SENTRY_NO_INIT
 - (void)setUser:(SentryUser *_Nullable)user;
 
 /**
- * Indicates that your screen is fully loaded and ready to be used.
- * This should be used together with automatic performance transaction,
- * a full display span will be created if there is a view controller transaction
- * happening.
+ * Reports to the ongoing UIViewController transaction
+ * that the screen contents are fully loaded and displayed,
+ * which will create a new span.
  */
-- (void)reportFullDisplayed;
+- (void)reportFullyDisplayed;
 
 /**
  * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified

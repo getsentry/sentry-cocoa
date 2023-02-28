@@ -35,7 +35,7 @@ SentryTimeToDisplayTracker ()
 - (void)installForTracer:(SentryTracer *)tracer
 {
     self.initialDisplaySpan =
-        [tracer startChildWithOperation:SentrySpanOperationUILoadTTID
+        [tracer startChildWithOperation:SentrySpanOperationUILoadInitialDisplay
                             description:[NSString stringWithFormat:@"%@ initial display",
                                                   self.controllerName]];
 }
@@ -97,7 +97,7 @@ SentryTimeToDisplayTracker ()
                                 initWithTraceId:tracer.traceId
                                          spanId:[[SentrySpanId alloc] init]
                                        parentId:tracer.spanId
-                                      operation:SentrySpanOperationUILoadTTFD
+                                      operation:SentrySpanOperationUILoadFullDisplay
                                 spanDescription:[NSString stringWithFormat:@"%@ full display",
                                                           self.controllerName]
                                         sampled:tracer.sampled]];
