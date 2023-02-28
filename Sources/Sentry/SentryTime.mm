@@ -24,7 +24,7 @@ getAbsoluteTime(void)
     return mach_absolute_time();
 }
 
-bool
+BOOL
 orderedChronologically(uint64_t a, uint64_t b)
 {
     return b >= a;
