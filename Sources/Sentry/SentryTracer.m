@@ -211,6 +211,7 @@ static BOOL appStartMeasurementRead;
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+        // TODO(ref): Move Profiling to a middleware. https://github.com/getsentry/sentry-cocoa/issues/2736
         if (profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
             _isProfiling = YES;
             _startSystemTime = getAbsoluteTime();
@@ -230,7 +231,7 @@ static BOOL appStartMeasurementRead;
 
 - (void)dispatchIdleTimeout
 {
-    // TODO: replace idleTimeout implementation with middleware
+    // TODO(ref): replace idleTimeout implementation with middleware https://github.com/getsentry/sentry-cocoa/issues/2736
     if (_idleTimeoutBlock != nil) {
         [self.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
     }
@@ -504,7 +505,7 @@ static BOOL appStartMeasurementRead;
     }
     [self reportDidFinished];
 
-    // TODO: Use middleware instead of finish callback
+    // TODO(ref): Use middleware instead of finish callback https://github.com/getsentry/sentry-cocoa/issues/2736
     if (self.finishCallback) {
         self.finishCallback(self);
 
@@ -605,7 +606,7 @@ static BOOL appStartMeasurementRead;
 
 - (SentryTransaction *)toTransaction
 {
-    // TODO: use middleware to create appStartSpans
+    // TODO(ref): use middleware to create appStartSpans https://github.com/getsentry/sentry-cocoa/issues/2736
     NSArray<id<SentrySpan>> *appStartSpans = [self buildAppStartSpans];
 
     NSMutableArray<id<SentrySpan>> *spans =

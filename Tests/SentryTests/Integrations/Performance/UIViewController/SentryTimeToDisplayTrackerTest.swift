@@ -40,7 +40,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(ttidSpan?.timestamp, fixture.dateProvider.date())
         XCTAssertTrue(ttidSpan?.isFinished ?? false)
         XCTAssertEqual(ttidSpan?.spanDescription, "UIViewController initial display")
-        XCTAssertEqual(ttidSpan?.operation, SentrySpanOperationUILoadTTID)
+        XCTAssertEqual(ttidSpan?.operation, SentrySpanOperationUILoadInitialDisplay)
     }
 
     func testRegisterInitialDisplay_waitForFullDisplay() {
@@ -95,7 +95,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(additionalSpans[0].status, .ok)
 
         XCTAssertEqual(additionalSpans[0].spanDescription, "UIViewController full display")
-        XCTAssertEqual(additionalSpans[0].operation, SentrySpanOperationUILoadTTFD)
+        XCTAssertEqual(additionalSpans[0].operation, SentrySpanOperationUILoadFullDisplay)
     }
 
     func testWaiting_timeout() {
