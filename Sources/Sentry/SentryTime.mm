@@ -34,6 +34,10 @@ uint64_t
 getDurationNs(uint64_t startTimestamp, uint64_t endTimestamp)
 {
     assert(endTimestamp >= startTimestamp);
+    if (endTimestamp < startTimestamp) {
+        return 0;
+    }
+
     uint64_t duration = endTimestamp - startTimestamp;
     if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)) {
         return duration;
