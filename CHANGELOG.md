@@ -87,6 +87,7 @@ We renamed the default branch from `master` to `main`. We are going to keep the 
 - Remove delay for deleting old envelopes (#2541)
 - Fix strong reference cycle for HttpTransport (#2552)
 - Deleting old envelopes for empty DSN (#2562)
+- Remove `SentrySystemEventBreadcrumbs` observers with the most specific detail possible (#2489)
 
 ### Breaking Changes
 
