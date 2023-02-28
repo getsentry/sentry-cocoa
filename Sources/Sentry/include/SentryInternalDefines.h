@@ -1,4 +1,3 @@
-#import "SentryLog.h"
 #import <Foundation/Foundation.h>
 
 static NSString *const SentryDebugImageType = @"macho";
@@ -14,16 +13,6 @@ static NSString *const SentryDebugImageType = @"macho";
         if (!__cond_result) {                                                                      \
             SENTRY_LOG_WARN(__VA_ARGS__);                                                          \
             NSAssert(NO, __VA_ARGS__);                                                             \
-        }                                                                                          \
-        (__cond_result);                                                                           \
-    })
-
-#define SENTRY_CASSERT(cond, ...)                                                                  \
-    ({                                                                                             \
-        const auto __cond_result = (cond);                                                         \
-        if (!__cond_result) {                                                                      \
-            SENTRY_LOG_WARN(__VA_ARGS__);                                                          \
-            NSCAssert(NO, __VA_ARGS__);                                                            \
         }                                                                                          \
         (__cond_result);                                                                           \
     })
