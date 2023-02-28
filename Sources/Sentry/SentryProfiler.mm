@@ -205,6 +205,13 @@ processFrameRenders(SentryFrameInfoTimeSeries *frameInfo, SentryTransaction *tra
         const auto relativeFrameRenderEnd
             = getDurationNs(transaction.startSystemTime, frameRenderEnd);
 
+        // this probably won't happen, but doesn't hurt to have one last defensive check before
+        // calling getDurationNs
+        if (!orderedChronologically(relativeFrameRenderStart, relativeFrameRenderEnd)) {
+            SENTRY_LOG_WARN(
+                @"Computed relative start and end timestamps are not chronologically ordered.");
+            return;
+        }
         const auto frameRenderDurationNs
             = getDurationNs(relativeFrameRenderStart, relativeFrameRenderEnd);
 
@@ -257,6 +264,12 @@ serializedSamplesWithRelativeTimestamps(
     const auto result = [NSMutableArray<NSDictionary *> array];
     [samples enumerateObjectsUsingBlock:^(
         SentrySampleEntry *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
+        // This shouldn't happen as we would've filtered out any such samples, but we should still
+        // guard against it before calling getDurationNs as a defensive measure
+        if (!orderedChronologically(transaction.startSystemTime, sample.absoluteTimestamp)) {
+            SENTRY_LOG_WARN(@"Filtered sample not chronological with transaction.");
+            return;
+        }
         const auto dict = [NSMutableDictionary dictionaryWithDictionary:@ {
             @"elapsed_since_start_ns" :
                 [NSString stringWithFormat:@"%llu",
