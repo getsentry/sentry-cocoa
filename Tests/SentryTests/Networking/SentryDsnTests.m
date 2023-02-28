@@ -137,8 +137,7 @@
 
 - (void)testInitWithInvalidString
 {
-    SentryDsn *dsn = [[SentryDsn alloc] initWithString:@"This is invalid DSN"
-                                      didFailWithError:nil];
+    SentryDsn *dsn = [[SentryDsn alloc] initWithString:@"This is invalid DSN" didFailWithError:nil];
     XCTAssertNil(dsn);
 }
 
