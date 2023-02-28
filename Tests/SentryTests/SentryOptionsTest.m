@@ -532,7 +532,7 @@
         @"sdk" : [NSNull null],
         @"enableCaptureFailedRequests" : [NSNull null],
         @"failedRequestStatusCodes" : [NSNull null],
-        @"enableTimeToFullDisplay": [NSNull null],
+        @"enableTimeToFullDisplay" : [NSNull null],
         @"enableTracing" : [NSNull null]
     }
                                                 didFailWithError:nil];
