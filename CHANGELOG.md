@@ -1,9 +1,10 @@
 # Changelog
 
-## Unreleased
+## Unreleased 
 
 ### Fixes
 
+- Crash in AppHangs when no threads (#2725)
 - MetricKit stack traces (#2723)
 
 ## 8.2.0
