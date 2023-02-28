@@ -85,20 +85,31 @@ processBacktrace(const Backtrace &backtrace,
     NSMutableDictionary<NSString *, NSNumber *> *frameIndexLookup,
     NSMutableDictionary<NSString *, NSNumber *> *stackIndexLookup)
 {
-    {
-        const auto threadID = [@(backtrace.threadMetadata.threadID) stringValue];
-        NSMutableDictionary<NSString *, id> *metadata = threadMetadata[threadID];
-        if (metadata == nil) {
-            metadata = [NSMutableDictionary<NSString *, id> dictionary];
-            threadMetadata[threadID] = metadata;
-        }
-        if (!backtrace.threadMetadata.name.empty() && metadata[@"name"] == nil) {
-            metadata[@"name"] =
-                [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
-        }
-        if (backtrace.threadMetadata.priority != -1 && metadata[@"priority"] == nil) {
-            metadata[@"priority"] = @(backtrace.threadMetadata.priority);
-        }
+    const auto sample = [[SentrySampleEntry alloc] init];
+    sample.absoluteTimestamp = backtrace.absoluteTimestamp;
+    sample.threadID = backtrace.threadMetadata.threadID;
+
+    const auto threadID = [@(backtrace.threadMetadata.threadID) stringValue];
+
+    NSString *queueAddress = nil;
+    if (backtrace.queueMetadata.address != 0) {
+        queueAddress = sentry_formatHexAddress(@(backtrace.queueMetadata.address));
+    }
+    NSMutableDictionary<NSString *, id> *metadata = threadMetadata[threadID];
+    if (metadata == nil) {
+        metadata = [NSMutableDictionary<NSString *, id> dictionary];
+        threadMetadata[threadID] = metadata;
+    }
+    if (!backtrace.threadMetadata.name.empty() && metadata[@"name"] == nil) {
+        metadata[@"name"] = [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
+    }
+    if (backtrace.threadMetadata.priority != -1 && metadata[@"priority"] == nil) {
+        metadata[@"priority"] = @(backtrace.threadMetadata.priority);
+    }
+    if (queueAddress != nil && queueMetadata[queueAddress] == nil
+        && backtrace.queueMetadata.label != nullptr) {
+        queueMetadata[queueAddress] =
+            @ { @"label" : [NSString stringWithUTF8String:backtrace.queueMetadata.label->c_str()] };
     }
 #    if defined(DEBUG)
     const auto symbols
@@ -127,26 +138,9 @@ processBacktrace(const Backtrace &backtrace,
         }
     }
 
-    const auto sample = [[SentrySampleEntry alloc] init];
-    sample.absoluteTimestamp = backtrace.absoluteTimestamp;
-    sample.threadID = backtrace.threadMetadata.threadID;
-
-    {
-        NSString *queueAddress = nil;
-        if (backtrace.queueMetadata.address != 0) {
-            queueAddress = sentry_formatHexAddress(@(backtrace.queueMetadata.address));
-        }
-        if (queueAddress != nil && queueMetadata[queueAddress] == nil
-            && backtrace.queueMetadata.label != nullptr) {
-            queueMetadata[queueAddress] = @ {
-                @"label" : [NSString stringWithUTF8String:backtrace.queueMetadata.label->c_str()]
-            };
-        }
-        if (queueAddress != nil) {
-            sample.queueAddress = queueAddress;
-        }
+    if (queueAddress != nil) {
+        sample.queueAddress = queueAddress;
     }
-
     const auto stackKey = [stack componentsJoinedByString:@"|"];
     const auto stackIndex = stackIndexLookup[stackKey];
     if (stackIndex) {
@@ -411,8 +405,7 @@ serializedSamplesWithRelativeTimestamps(
     };
 
     // add the serialized info for the associated transaction
-    const auto firstSampleTimestamp
-        = (uint64_t)[slicedSamples.firstObject[@"elapsed_since_start_ns"] longLongValue];
+    const auto firstSampleTimestamp = slicedSamples.firstObject.absoluteTimestamp;
     const auto profileDuration = getDurationNs(firstSampleTimestamp, getAbsoluteTime());
 
     const auto transactionInfo = [self serializeInfoForTransaction:transaction
@@ -490,8 +483,8 @@ serializedSamplesWithRelativeTimestamps(
 
 #    pragma mark - Private
 
-+ (nullable NSArray *)slicedSamples:(NSArray<SentrySampleEntry *> *)samples
-                        transaction:(SentryTransaction *)transaction
++ (nullable NSArray<SentrySampleEntry *> *)slicedSamples:(NSArray<SentrySampleEntry *> *)samples
+                                             transaction:(SentryTransaction *)transaction
 {
     if (samples.count == 0) {
         return nil;
@@ -536,7 +529,7 @@ serializedSamplesWithRelativeTimestamps(
  * transaction start; @c NO if it's trying to find the end of the sliced data based on the
  * transaction's end, to accurately describe what's happening in the log statement.
  */
-+ (void)logSlicingFailureWithArray:(NSArray *)array
++ (void)logSlicingFailureWithArray:(NSArray<SentrySampleEntry *> *)array
                        transaction:(SentryTransaction *)transaction
                              start:(BOOL)start
 {
@@ -548,10 +541,8 @@ serializedSamplesWithRelativeTimestamps(
         return;
     }
 
-    const auto firstSampleAbsoluteTime =
-        [array[0][@"elapsed_since_start_ns"] longLongValue] + transaction.startSystemTime;
-    const auto lastSampleAbsoluteTime =
-        [array.lastObject[@"elapsed_since_start_ns"] longLongValue] + transaction.startSystemTime;
+    const auto firstSampleAbsoluteTime = array.firstObject.absoluteTimestamp;
+    const auto lastSampleAbsoluteTime = array.lastObject.absoluteTimestamp;
     const auto firstSampleRelativeToTransactionStart
         = firstSampleAbsoluteTime - transaction.startSystemTime;
     const auto lastSampleRelativeToTransactionStart
