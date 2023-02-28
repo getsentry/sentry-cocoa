@@ -190,33 +190,28 @@ processFrameRenders(SentryFrameInfoTimeSeries *frameInfo, SentryTransaction *tra
     [frameInfo enumerateObjectsUsingBlock:^(
         NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
         const auto frameRenderStart = obj[@"start_timestamp"].unsignedLongLongValue;
-        const auto relativeFrameRenderStart
-            = getDurationNs(transaction.startSystemTime, frameRenderStart);
-        if (!relativeFrameRenderStart) {
-            SENTRY_LOG_DEBUG(@"Frame render started before transaction started, won't record.");
+
+        if (!orderedChronologically(transaction.startSystemTime, frameRenderStart)) {
+            SENTRY_LOG_DEBUG(@"GPU frame render started before profile start, will not report it.");
             return;
         }
-
         const auto frameRenderEnd = obj[@"end_timestamp"].unsignedLongLongValue;
-        const auto relativeFrameRenderEnd
-            = getDurationNs(transaction.startSystemTime, frameRenderEnd);
-        if (!relativeFrameRenderEnd) {
+        if (orderedChronologically(transaction.endSystemTime, frameRenderEnd)) {
             SENTRY_LOG_DEBUG(@"Frame render finished after transaction finished, won't record.");
             return;
         }
+        const auto relativeFrameRenderStart
+            = getDurationNs(transaction.startSystemTime, frameRenderStart);
+        const auto relativeFrameRenderEnd
+            = getDurationNs(transaction.startSystemTime, frameRenderEnd);
 
         const auto frameRenderDurationNs
-            = getDurationNs(relativeFrameRenderStart.unsignedLongLongValue,
-                relativeFrameRenderEnd.unsignedLongLongValue);
-        if (!frameRenderDurationNs) {
-            SENTRY_LOG_DEBUG(@"Relative frame render start somehow computed as after the relative "
-                             @"frame render end.");
-            return;
-        }
+            = getDurationNs(relativeFrameRenderStart, relativeFrameRenderEnd);
 
         [relativeFrameInfo addObject:@{
-            @"elapsed_since_start_ns" : [relativeFrameRenderStart stringValue],
-            @"value" : @([frameRenderDurationNs unsignedIntegerValue]),
+            @"elapsed_since_start_ns" :
+                [NSString stringWithFormat:@"%llu", relativeFrameRenderStart],
+            @"value" : @(frameRenderDurationNs),
         }];
     }];
     return relativeFrameInfo;
@@ -235,20 +230,17 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, SentryTransaction *tran
         const auto timestamp = obj[@"timestamp"].unsignedLongLongValue;
         const auto refreshRate = obj[@"frame_rate"];
 
-        if (timestamp < transaction.startSystemTime) {
+        if (!orderedChronologically(transaction.startSystemTime, timestamp)) {
             return;
         }
-        if (timestamp >= transaction.endSystemTime) {
+        if (orderedChronologically(transaction.endSystemTime, timestamp)) {
             return;
         }
 
-        const auto relativeTimestamp = getDurationNs(start, timestamp);
-        if (!relativeTimestamp) {
-            return;
-        }
+        const auto relativeTimestamp = getDurationNs(transaction.startSystemTime, timestamp);
 
         [relativeFrameRates addObject:@ {
-            @"elapsed_since_start_ns" : [relativeTimestamp stringValue],
+            @"elapsed_since_start_ns" : [NSString stringWithFormat:@"%llu", relativeTimestamp],
             @"value" : refreshRate,
         }];
     }];
