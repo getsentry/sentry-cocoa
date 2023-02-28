@@ -203,7 +203,7 @@ static BOOL appStartMeasurementRead;
         if (profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
             _isProfiling = YES;
             _startSystemTime = getAbsoluteTime();
-            [SentryProfiler startWithHub:hub transactionStart:_startSystemTime];
+            [SentryProfiler startWithHub:hub];
             trackTracerWithID(self.traceId);
         }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

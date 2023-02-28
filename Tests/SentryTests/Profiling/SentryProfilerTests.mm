@@ -58,11 +58,10 @@ using namespace sentry::profiling;
         [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
     const auto resolvedQueueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
     const auto resolvedStacks = [NSMutableArray<NSMutableArray<NSNumber *> *> array];
-    const auto resolvedSamples = [NSMutableArray<NSDictionary<NSString *, id> *> array];
+    const auto resolvedSamples = [NSMutableArray<SentrySampleEntry *> array];
     const auto resolvedFrames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
     const auto frameIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
     const auto stackIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-    const auto transactionStart = 0;
 
     // record an initial backtrace
 
@@ -84,7 +83,7 @@ using namespace sentry::profiling;
     backtrace1.addresses = addresses1;
 
     processBacktrace(backtrace1, resolvedThreadMetadata, resolvedQueueMetadata, resolvedSamples,
-        resolvedStacks, resolvedFrames, frameIndexLookup, transactionStart, stackIndexLookup);
+        resolvedStacks, resolvedFrames, frameIndexLookup, stackIndexLookup);
 
     // record a second backtrace with some common addresses to test frame deduplication
 
@@ -106,12 +105,12 @@ using namespace sentry::profiling;
     backtrace2.addresses = addresses2;
 
     processBacktrace(backtrace2, resolvedThreadMetadata, resolvedQueueMetadata, resolvedSamples,
-        resolvedStacks, resolvedFrames, frameIndexLookup, transactionStart, stackIndexLookup);
+        resolvedStacks, resolvedFrames, frameIndexLookup, stackIndexLookup);
 
     // record a third backtrace that's identical to the second to test stack deduplication
 
     processBacktrace(backtrace2, resolvedThreadMetadata, resolvedQueueMetadata, resolvedSamples,
-        resolvedStacks, resolvedFrames, frameIndexLookup, transactionStart, stackIndexLookup);
+        resolvedStacks, resolvedFrames, frameIndexLookup, stackIndexLookup);
 
     XCTAssertEqual(resolvedFrames.count, 5UL);
     XCTAssertEqual(resolvedStacks.count, 2UL);
