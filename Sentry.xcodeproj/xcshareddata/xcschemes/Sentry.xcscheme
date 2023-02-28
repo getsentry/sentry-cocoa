@@ -77,12 +77,6 @@
                   Identifier = "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout()">
                </Test>
                <Test
-                  Identifier = "SentryProfilerSwiftTests/testMetricProfiler()">
-               </Test>
-               <Test
-                  Identifier = "SentryProfilerSwiftTests/testProfileTimeoutTimer()">
-               </Test>
-               <Test
                   Identifier = "SentrySDKIntegrationTestsBase">
                </Test>
                <Test

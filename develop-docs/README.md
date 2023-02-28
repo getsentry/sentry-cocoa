@@ -51,6 +51,15 @@ Once daily and for every PR via [Github action](../.github/workflows/benchmarkin
     - Sauce Labs allows relaxing the timeout for a suite of tests and for a `XCTestCase` subclass' collection of test case methods, but each test case in the suite must run in less than 15 minutes. 20 trials takes too long, so we split it up into multiple test cases, each running a subset of the trials. 
     - This is done by dynamically generating test case methods in `SentrySDKPerformanceBenchmarkTests`, which is necessarily written in Objective-C since this is not possible to do in Swift tests. By doing this dynamically, we can easily fine tune how we split up the work to account for changes in the test duration or in constraints on how things run in Sauce Labs etc.
 
+## Upload iOS-Swift's dSYMs with Xcode Run Script
+
+The following script applies a patch so Xcode uploads the iOS-Swift's dSYMs to Sentry during Xcode's build phase.
+Ensure to not commit the patch file after running this script, which then contains your auth token.
+
+```sh
+./scripts/upload-dsyms-with-xcode-build-phase.sh YOUR_AUTH_TOKEN
+```
+
 ## Auto UI Performance Class Overview
 
 ![Auto UI Performance Class Overview](./auto-ui-performance-tracking.svg)

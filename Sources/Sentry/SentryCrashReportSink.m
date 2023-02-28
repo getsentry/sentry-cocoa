@@ -81,7 +81,7 @@ SentryCrashReportSink ()
         }
     }
     if (onCompletion) {
-        onCompletion(sentReports, TRUE, nil);
+        onCompletion(sentReports, YES, nil);
     }
 }
 

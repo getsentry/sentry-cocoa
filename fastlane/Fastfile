@@ -90,7 +90,7 @@ platform :ios do
       workspace: "Sentry.xcworkspace",
       scheme: "iOS-Swift",
       include_bitcode: false,
-      include_symbols: false,
+      include_symbols: true,
       export_method: "app-store",
       archive_path: "iOS-Swift"
     )

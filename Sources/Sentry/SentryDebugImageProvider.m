@@ -5,6 +5,7 @@
 #import "SentryDebugMeta.h"
 #import "SentryFrame.h"
 #import "SentryHexAddressFormatter.h"
+#import "SentryInternalDefines.h"
 #import "SentryLog.h"
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
@@ -97,8 +98,8 @@ SentryDebugImageProvider ()
 - (SentryDebugMeta *)fillDebugMetaFrom:(SentryCrashBinaryImage)image
 {
     SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
-    debugMeta.uuid = [SentryDebugImageProvider convertUUID:image.uuid];
-    debugMeta.type = @"apple";
+    debugMeta.debugID = [SentryDebugImageProvider convertUUID:image.uuid];
+    debugMeta.type = SentryDebugImageType;
 
     if (image.vmAddress > 0) {
         NSNumber *imageVmAddress = [NSNumber numberWithUnsignedLongLong:image.vmAddress];
@@ -111,7 +112,7 @@ SentryDebugImageProvider ()
     debugMeta.imageSize = @(image.size);
 
     if (nil != image.name) {
-        debugMeta.name = [[NSString alloc] initWithUTF8String:image.name];
+        debugMeta.codeFile = [[NSString alloc] initWithUTF8String:image.name];
     }
 
     return debugMeta;
