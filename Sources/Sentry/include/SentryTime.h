@@ -1,5 +1,6 @@
 #import "SentryCompiler.h"
 #import "SentryProfilingConditionals.h"
+#import <stdbool.h>
 #import <stdint.h>
 
 SENTRY_EXTERN_C_BEGIN
@@ -22,7 +23,7 @@ uint64_t getAbsoluteTime(void);
  * Equal timestamps are considered to be valid chronological order.
  * @return @c true if @c b>=a, otherwise return @c false.
  */
-BOOL orderedChronologically(uint64_t a, uint64_t b);
+bool orderedChronologically(uint64_t a, uint64_t b);
 
 /**
  * Returns the duration in nanoseconds between two absolute timestamps.
