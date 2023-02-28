@@ -33,7 +33,7 @@ orderedChronologically(uint64_t a, uint64_t b)
 uint64_t
 getDurationNs(uint64_t startTimestamp, uint64_t endTimestamp)
 {
-    assert(endTimestamp >= startTimestamp);
+    NSCAssert(endTimestamp >= startTimestamp, @"Inputs must be chronologically ordered.");
     if (endTimestamp < startTimestamp) {
         return 0;
     }

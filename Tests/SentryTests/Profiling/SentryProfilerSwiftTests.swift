@@ -439,6 +439,9 @@ private extension SentryProfilerSwiftTests {
                 throw TestError.noMetricValuesFound
             }
             XCTAssertEqual(actualValue, expectedValue, "Wrong value for \(key)")
+
+            let timestamp = try XCTUnwrap(values[0]["elapsed_since_start_ns"])
+            XCTAssert(timestamp is String)
         }
     }
 
@@ -538,9 +541,12 @@ private extension SentryProfilerSwiftTests {
         }
 
         for sample in samples {
-            XCTAssertNotNil(sample["elapsed_since_start_ns"] as! String)
+            let timestamp = try XCTUnwrap(sample["elapsed_since_start_ns"])
+            XCTAssert(timestamp is String)
             XCTAssertNotNil(sample["thread_id"])
-            XCTAssertNotNil(stacks[sample["stack_id"] as! Int])
+            let stackIDEntry = try XCTUnwrap(sample["stack_id"])
+            let stackID = try XCTUnwrap(stackIDEntry as? Int)
+            XCTAssertNotNil(stacks[stackID])
         }
 
         if shouldTimeout {
