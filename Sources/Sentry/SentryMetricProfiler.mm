@@ -46,12 +46,12 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
     const auto *timestampNormalizedValues = [NSMutableArray<SentrySerializedMetricReading *> array];
     [absoluteTimestampValues enumerateObjectsUsingBlock:^(
         SentryMetricReading *_Nonnull reading, NSUInteger idx, BOOL *_Nonnull stop) {
-        if (reading.absoluteTimestamp < transaction.startSystemTime) {
+        // if the metric reading wasn't recorded until the transaction ended, don't include it
+        if (orderedChronologically(transaction.endSystemTime, reading.absoluteTimestamp)) {
             return;
         }
-        if (reading.absoluteTimestamp > transaction.endSystemTime) {
-            return;
-        }
+
+        // if the metric reading was taken before the transaction started, don't include it
         if (!orderedChronologically(transaction.startSystemTime, reading.absoluteTimestamp)) {
             return;
         }

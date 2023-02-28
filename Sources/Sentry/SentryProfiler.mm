@@ -255,6 +255,9 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 
 @implementation SentryProfiler {
     NSMutableDictionary<NSString *, id> *_profileData;
+    uint64_t _startTimestamp;
+    NSDate *_startDate;
+    NSDate *_endDate;
     std::shared_ptr<SamplingProfiler> _profiler;
     SentryMetricProfiler *_metricProfiler;
     SentryDebugImageProvider *_debugImageProvider;
@@ -676,6 +679,8 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
     sampledProfile[@"thread_metadata"] = threadMetadata;
     sampledProfile[@"queue_metadata"] = queueMetadata;
     _profileData[@"profile"] = sampledProfile;
+    _startTimestamp = getAbsoluteTime();
+    _startDate = [SentryCurrentDate date];
 
     __weak const auto weakSelf = self;
     _profiler = std::make_shared<SamplingProfiler>(
@@ -756,12 +761,39 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, uint64_t start)
 + (NSDictionary *)serializeInfoForTransaction:(SentryTransaction *)transaction
                               profileDuration:(uint64_t)profileDuration
 {
+
+    SENTRY_LOG_DEBUG(@"Profile start timestamp: %@ absolute time: %llu",
+        _gCurrentProfiler->_startDate, (unsigned long long)_gCurrentProfiler->_startTimestamp);
+
+    const auto relativeStart = [NSString
+        stringWithFormat:@"%llu",
+        [transaction.startTimestamp compare:_gCurrentProfiler->_startDate] == NSOrderedAscending
+            ? 0
+            : timeIntervalToNanoseconds(
+                [transaction.startTimestamp timeIntervalSinceDate:_gCurrentProfiler->_startDate])];
+
+    NSString *relativeEnd;
+    if ([transaction.timestamp compare:_gCurrentProfiler->_endDate] == NSOrderedDescending) {
+        relativeEnd = [NSString stringWithFormat:@"%llu", profileDuration];
+    } else {
+        const auto profileStartToTransactionEnd_ns = timeIntervalToNanoseconds(
+            [transaction.timestamp timeIntervalSinceDate:_gCurrentProfiler->_startDate]);
+        if (profileStartToTransactionEnd_ns < 0) {
+            SENTRY_LOG_DEBUG(@"Transaction %@ ended before the profiler started, won't "
+                             @"associate it with this profile.",
+                transaction.trace.traceId.sentryIdString);
+            return nil;
+        } else {
+            relativeEnd = [NSString
+                stringWithFormat:@"%llu", (unsigned long long)profileStartToTransactionEnd_ns];
+        }
+    }
     return @{
         @"id" : transaction.eventId.sentryIdString,
         @"trace_id" : transaction.trace.traceId.sentryIdString,
         @"name" : transaction.transaction,
-        @"relative_start_ns" : @"0",
-        @"relative_end_ns" : @"0",
+        @"relative_start_ns" : relativeStart,
+        @"relative_end_ns" : relativeEnd,
         @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
     };
 }
