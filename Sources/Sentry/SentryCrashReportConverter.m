@@ -8,6 +8,7 @@
 #import "SentryFrame.h"
 #import "SentryHexAddressFormatter.h"
 #import "SentryInAppLogic.h"
+#import "SentryInternalDefines.h"
 #import "SentryLog.h"
 #import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
@@ -244,6 +245,8 @@ SentryCrashReportConverter ()
     thread.crashed = threadDictionary[@"crashed"];
     thread.current = threadDictionary[@"current_thread"];
     thread.name = threadDictionary[@"name"];
+    // We don't have access to the MachineContextWrapper but we know first thread is always the main
+    thread.isMain = [NSNumber numberWithBool:thread.threadId.intValue == 0];
     if (nil == thread.name) {
         thread.name = threadDictionary[@"dispatch_queue"];
     }
@@ -316,15 +319,15 @@ SentryCrashReportConverter ()
 - (SentryDebugMeta *)debugMetaFromBinaryImageDictionary:(NSDictionary *)sourceImage
 {
     SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
-    debugMeta.uuid = sourceImage[@"uuid"];
-    debugMeta.type = @"apple";
+    debugMeta.debugID = sourceImage[@"uuid"];
+    debugMeta.type = SentryDebugImageType;
     // We default to 0 on the server if not sent
     if ([sourceImage[@"image_vmaddr"] integerValue] > 0) {
         debugMeta.imageVmAddress = sentry_formatHexAddress(sourceImage[@"image_vmaddr"]);
     }
     debugMeta.imageAddress = sentry_formatHexAddress(sourceImage[@"image_addr"]);
     debugMeta.imageSize = sourceImage[@"image_size"];
-    debugMeta.name = sourceImage[@"name"];
+    debugMeta.codeFile = sourceImage[@"name"];
     return debugMeta;
 }
 

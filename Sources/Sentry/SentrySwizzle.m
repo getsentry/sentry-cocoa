@@ -27,7 +27,7 @@ SentrySwizzleInfo ()
 
 #if TEST
     @synchronized(self) {
-        self.originalCalled = true;
+        self.originalCalled = YES;
     }
 #endif
 

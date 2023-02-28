@@ -4,7 +4,6 @@
 #import "SentryDependencyContainer.h"
 #import "SentryLog.h"
 #import "SentryNSNotificationCenterWrapper.h"
-#import "SentrySDK.h"
 
 // all those notifications are not available for tvOS
 #if TARGET_OS_IOS
@@ -13,6 +12,7 @@
 
 @interface
 SentrySystemEventBreadcrumbs ()
+@property (nonatomic, weak) id<SentrySystemEventBreadcrumbsDelegate> delegate;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
@@ -32,11 +32,11 @@ SentrySystemEventBreadcrumbs ()
     return self;
 }
 
-- (void)start
+- (void)startWithDelegate:(id<SentrySystemEventBreadcrumbsDelegate>)delegate
 {
 #if TARGET_OS_IOS
     UIDevice *currentDevice = [UIDevice currentDevice];
-    [self start:currentDevice];
+    [self startWithDelegate:delegate currentDevice:currentDevice];
 #else
     SENTRY_LOG_DEBUG(@"NO iOS -> [SentrySystemEventsBreadcrumbs.start] does nothing.");
 #endif
@@ -71,10 +71,12 @@ SentrySystemEventBreadcrumbs ()
 
 #if TARGET_OS_IOS
 /**
- * Only used for testing, call start() instead.
+ * Only used for testing, call startWithDelegate instead.
  */
-- (void)start:(UIDevice *)currentDevice
+- (void)startWithDelegate:(id<SentrySystemEventBreadcrumbsDelegate>)delegate
+            currentDevice:(nullable UIDevice *)currentDevice
 {
+    _delegate = delegate;
     if (currentDevice != nil) {
         [self initBatteryObserver:currentDevice];
         [self initOrientationObserver:currentDevice];
@@ -118,7 +120,7 @@ SentrySystemEventBreadcrumbs ()
                                                              category:@"device.event"];
     crumb.type = @"system";
     crumb.data = batteryData;
-    [SentrySDK addBreadcrumb:crumb];
+    [_delegate addBreadcrumb:crumb];
 }
 
 - (NSMutableDictionary<NSString *, id> *)getBatteryStatus:(UIDevice *)currentDevice
@@ -180,7 +182,7 @@ SentrySystemEventBreadcrumbs ()
         crumb.data = @{ @"position" : @"portrait" };
     }
     crumb.type = @"navigation";
-    [SentrySDK addBreadcrumb:crumb];
+    [_delegate addBreadcrumb:crumb];
 }
 
 - (void)initKeyboardVisibilityObserver
@@ -202,7 +204,7 @@ SentrySystemEventBreadcrumbs ()
                                                              category:@"device.event"];
     crumb.type = @"system";
     crumb.data = @{ @"action" : notification.name };
-    [SentrySDK addBreadcrumb:crumb];
+    [_delegate addBreadcrumb:crumb];
 }
 
 - (void)initScreenshotObserver
@@ -253,7 +255,7 @@ SentrySystemEventBreadcrumbs ()
         @"previous_seconds_from_gmt" : storedTimezoneOffset,
         @"current_seconds_from_gmt" : @(offset)
     };
-    [SentrySDK addBreadcrumb:crumb];
+    [_delegate addBreadcrumb:crumb];
 
     [self updateStoredTimezone];
 }

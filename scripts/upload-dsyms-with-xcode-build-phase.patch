@@ -1,0 +1,40 @@
+diff --git a/Samples/iOS-Swift/iOS-Swift.xcodeproj/project.pbxproj b/Samples/iOS-Swift/iOS-Swift.xcodeproj/project.pbxproj
+index 9adac264..8ef3a3bb 100644
+--- a/Samples/iOS-Swift/iOS-Swift.xcodeproj/project.pbxproj
++++ b/Samples/iOS-Swift/iOS-Swift.xcodeproj/project.pbxproj
+@@ -561,6 +561,7 @@
+ 				637AFDA4243B02760034958B /* Resources */,
+ 				630853552440C60F00DDE4CE /* Embed Frameworks */,
+ 				D840D535273A07F600CDF142 /* Embed App Clips */,
++				62F226AA29A35FAE0038080D /* ShellScript */,
+ 			);
+ 			buildRules = (
+ 			);
+@@ -821,6 +822,27 @@
+ 		};
+ /* End PBXResourcesBuildPhase section */
+ 
++/* Begin PBXShellScriptBuildPhase section */
++		62F226AA29A35FAE0038080D /* ShellScript */ = {
++			isa = PBXShellScriptBuildPhase;
++			buildActionMask = 2147483647;
++			files = (
++			);
++			inputFileListPaths = (
++			);
++			inputPaths = (
++				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
++			);
++			outputFileListPaths = (
++			);
++			outputPaths = (
++			);
++			runOnlyForDeploymentPostprocessing = 0;
++			shellPath = /bin/sh;
++			shellScript = "if which sentry-cli >/dev/null; then\nexport SENTRY_ORG=sentry-sdks\nexport SENTRY_PROJECT=sentry-cocoa\nexport SENTRY_AUTH_TOKEN=YOUR_AUTH_TOKEN\nERROR=$(sentry-cli upload-dif \"$DWARF_DSYM_FOLDER_PATH\" 2>&1 >/dev/null)\nif [ ! $? -eq 0 ]; then\necho \"warning: sentry-cli - $ERROR\"\nfi\nelse\necho \"warning: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases\"\nfi\n";
++		};
++/* End PBXShellScriptBuildPhase section */
++
+ /* Begin PBXSourcesBuildPhase section */
+ 		637AFDA2243B02760034958B /* Sources */ = {
+ 			isa = PBXSourcesBuildPhase;

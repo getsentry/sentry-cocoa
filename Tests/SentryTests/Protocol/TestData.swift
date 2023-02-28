@@ -72,8 +72,10 @@ class TestData {
         debugMeta.imageSize = 352_256
         debugMeta.imageVmAddress = "0x00007fff51af0000"
         debugMeta.name = "/tmp/scratch/dyld_sim"
-        debugMeta.type = "apple"
+        debugMeta.codeFile = "/tmp/scratch/dyld_sim"
+        debugMeta.type = "macho"
         debugMeta.uuid = "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322"
+        debugMeta.debugID = "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF321"
         
         return debugMeta
     }
@@ -127,6 +129,7 @@ class TestData {
         thread.current = true
         thread.name = "main"
         thread.stacktrace = stacktrace
+        thread.isMain = true
         
         return thread
     }

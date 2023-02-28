@@ -66,7 +66,7 @@ SentryPerformanceTracker () <SentryTracerDelegate, SentryTracerMiddleware>
                                                  operation:operation];
 
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> span) {
-            BOOL bindToScope = true;
+            BOOL bindToScope = YES;
             if (span != nil) {
                 if ([SentryUIEventTracker isUIEventOperation:span.operation]) {
                     SENTRY_LOG_DEBUG(
@@ -75,7 +75,7 @@ SentryPerformanceTracker () <SentryTracerDelegate, SentryTracerMiddleware>
                 } else {
                     SENTRY_LOG_DEBUG(@"Current scope span %@ is not tracking a UI event",
                         span.spanId.sentrySpanIdString);
-                    bindToScope = false;
+                    bindToScope = NO;
                 }
             }
 

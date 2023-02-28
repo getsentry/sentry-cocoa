@@ -11,6 +11,10 @@ SENTRY_NO_INIT
 
 + (void)logWithMessage:(NSString *)message andLevel:(SentryLevel)level;
 
+/** @return @c YES if the current logging configuration will log statements at the current level, @c
+ * NO if not. */
++ (BOOL)willLogAtLevel:(SentryLevel)level;
+
 @end
 
 NS_ASSUME_NONNULL_END

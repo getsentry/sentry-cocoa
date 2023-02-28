@@ -1,9 +1,18 @@
 # Changelog
 
-## Unreleased
+## Unreleased 
+
+### Fixes
+
+- Crash in AppHangs when no threads (#2725)
+
+## 8.2.0
 
 ### Features
 
+- Add enableTracing option (#2693)
+- Add isMain thread to SentryThread (#2692)
+- Add `in_foreground` to App Context (#2692)
 - Combine UIKit and SwiftUI transactions (#2681)
 
 ### Fixes
@@ -13,6 +22,12 @@
 - Keep status of auto transactions when finishing (#2684)
 - Fix atomic import error for profiling (#2683)
 - Don't create breadcrumb for UITextField editingChanged event (#2686)
+- Fix EXC_BAD_ACCESS in SentryTracer (#2697)
+- Serialization of nullable booleans (#2706)
+
+### Improvements
+
+- Change debug image type to macho (#2701)
 
 ## 8.1.0
 

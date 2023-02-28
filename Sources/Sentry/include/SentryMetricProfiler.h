@@ -29,7 +29,20 @@ SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationUnitPercentage;
 - (void)start;
 - (void)stop;
 
-/** @return All data gathered during the profiling run. */
+/**
+ * Return a serialized dictionary of the collected metrics.
+ *
+ * The dictionary will have the following structure:
+ * @code
+ * @"<metric-name>": @{
+ *      @"unit": @"<unit-name>",
+ *      @"values": @[
+ *          @"elapsed_since_start_ns": @"<64-bit-unsigned-timestamp>",
+ *          @"value": @"<numeric-value>"
+ *      ]
+ * }
+ * @endcode
+ */
 - (NSMutableDictionary<NSString *, id> *)serialize;
 
 @end

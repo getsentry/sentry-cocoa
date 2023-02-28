@@ -38,4 +38,8 @@ class SentryMechanismTests: XCTestCase {
         XCTAssertEqual(1, actual.count)
         XCTAssertEqual(type, actual["type"] as? String)
     }
+    
+    func testSerialize_Bools() {
+        SentryBooleanSerialization.test(Mechanism(type: ""), property: "handled")
+    }
 }
