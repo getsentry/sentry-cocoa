@@ -58,7 +58,7 @@ using namespace sentry::profiling;
         [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
     const auto resolvedQueueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
     const auto resolvedStacks = [NSMutableArray<NSMutableArray<NSNumber *> *> array];
-    const auto resolvedSamples = [NSMutableArray<SentrySampleEntry *> array];
+    const auto resolvedSamples = [NSMutableArray<SentrySample *> array];
     const auto resolvedFrames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
     const auto frameIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
     const auto stackIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];

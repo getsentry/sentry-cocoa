@@ -79,13 +79,12 @@ void
 processBacktrace(const Backtrace &backtrace,
     NSMutableDictionary<NSString *, NSMutableDictionary *> *threadMetadata,
     NSMutableDictionary<NSString *, NSDictionary *> *queueMetadata,
-    NSMutableArray<SentrySampleEntry *> *samples,
-    NSMutableArray<NSMutableArray<NSNumber *> *> *stacks,
+    NSMutableArray<SentrySample *> *samples, NSMutableArray<NSMutableArray<NSNumber *> *> *stacks,
     NSMutableArray<NSDictionary<NSString *, id> *> *frames,
     NSMutableDictionary<NSString *, NSNumber *> *frameIndexLookup,
     NSMutableDictionary<NSString *, NSNumber *> *stackIndexLookup)
 {
-    const auto sample = [[SentrySampleEntry alloc] init];
+    const auto sample = [[SentrySample alloc] init];
     sample.absoluteTimestamp = backtrace.absoluteTimestamp;
     sample.threadID = backtrace.threadMetadata.threadID;
 
@@ -259,11 +258,11 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, SentryTransaction *tran
  * their data, with timestamps normalized relative to the provided transaction's start time. */
 NSArray<NSDictionary *> *
 serializedSamplesWithRelativeTimestamps(
-    NSArray<SentrySampleEntry *> *samples, SentryTransaction *transaction)
+    NSArray<SentrySample *> *samples, SentryTransaction *transaction)
 {
     const auto result = [NSMutableArray<NSDictionary *> array];
     [samples enumerateObjectsUsingBlock:^(
-        SentrySampleEntry *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
+        SentrySample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
         // This shouldn't happen as we would've filtered out any such samples, but we should still
         // guard against it before calling getDurationNs as a defensive measure
         if (!orderedChronologically(transaction.startSystemTime, sample.absoluteTimestamp)) {
@@ -384,7 +383,7 @@ serializedSamplesWithRelativeTimestamps(
 
     const auto payload = [NSMutableDictionary<NSString *, id> dictionary];
 
-    NSArray<SentrySampleEntry *> *samples = _gCurrentProfiler->_profileData[@"profile"][@"samples"];
+    NSArray<SentrySample *> *samples = _gCurrentProfiler->_profileData[@"profile"][@"samples"];
 
     // We need at least two samples to be able to draw a stack frame for any given function: one
     // sample for the start of the frame and another for the end. Otherwise we would only have a
@@ -488,15 +487,15 @@ serializedSamplesWithRelativeTimestamps(
 
 #    pragma mark - Private
 
-+ (nullable NSArray<SentrySampleEntry *> *)slicedSamples:(NSArray<SentrySampleEntry *> *)samples
-                                             transaction:(SentryTransaction *)transaction
++ (nullable NSArray<SentrySample *> *)slicedSamples:(NSArray<SentrySample *> *)samples
+                                        transaction:(SentryTransaction *)transaction
 {
     if (samples.count == 0) {
         return nil;
     }
 
     const auto firstIndex = [samples indexOfObjectPassingTest:^BOOL(
-        SentrySampleEntry *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
+        SentrySample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
         *stop = sample.absoluteTimestamp >= transaction.startSystemTime;
         return *stop;
     }];
@@ -510,7 +509,7 @@ serializedSamplesWithRelativeTimestamps(
 
     const auto lastIndex =
         [samples indexOfObjectWithOptions:NSEnumerationReverse
-                              passingTest:^BOOL(SentrySampleEntry *_Nonnull sample, NSUInteger idx,
+                              passingTest:^BOOL(SentrySample *_Nonnull sample, NSUInteger idx,
                                   BOOL *_Nonnull stop) {
                                   *stop = sample.absoluteTimestamp <= transaction.endSystemTime;
                                   return *stop;
@@ -534,7 +533,7 @@ serializedSamplesWithRelativeTimestamps(
  * transaction start; @c NO if it's trying to find the end of the sliced data based on the
  * transaction's end, to accurately describe what's happening in the log statement.
  */
-+ (void)logSlicingFailureWithArray:(NSArray<SentrySampleEntry *> *)array
++ (void)logSlicingFailureWithArray:(NSArray<SentrySample *> *)array
                        transaction:(SentryTransaction *)transaction
                              start:(BOOL)start
 {
@@ -693,7 +692,7 @@ serializedSamplesWithRelativeTimestamps(
      *   { stack_id: 1, ... }
      * ]
      */
-    const auto samples = [NSMutableArray<SentrySampleEntry *> array];
+    const auto samples = [NSMutableArray<SentrySample *> array];
     const auto stacks = [NSMutableArray<NSMutableArray<NSNumber *> *> array];
     const auto frames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
     const auto frameIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
