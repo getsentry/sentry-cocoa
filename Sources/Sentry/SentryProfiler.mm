@@ -286,9 +286,6 @@ serializedSamplesWithRelativeTimestamps(
 
 @implementation SentryProfiler {
     NSMutableDictionary<NSString *, id> *_profileData;
-    uint64_t _startTimestamp;
-    NSDate *_startDate;
-    NSDate *_endDate;
     std::shared_ptr<SamplingProfiler> _profiler;
     SentryMetricProfiler *_metricProfiler;
     SentryDebugImageProvider *_debugImageProvider;
@@ -408,11 +405,7 @@ serializedSamplesWithRelativeTimestamps(
     };
 
     // add the serialized info for the associated transaction
-    const auto firstSampleTimestamp = slicedSamples.firstObject.absoluteTimestamp;
-    const auto profileDuration = getDurationNs(firstSampleTimestamp, getAbsoluteTime());
-
-    const auto transactionInfo = [self serializeInfoForTransaction:transaction
-                                                   profileDuration:profileDuration];
+    const auto transactionInfo = [self serializeInfoForTransaction:transaction];
     if (!transactionInfo) {
         SENTRY_LOG_WARN(@"Could not find any associated transaction for the profile.");
         return nil;
@@ -448,10 +441,7 @@ serializedSamplesWithRelativeTimestamps(
 
     // add the remaining basic metadata for the profile
     const auto profileID = [[SentryId alloc] init];
-    [self serializeBasicProfileInfo:payload
-                    profileDuration:profileDuration
-                          profileID:profileID
-                           platform:transaction.platform];
+    [self serializeBasicProfileInfo:payload profileID:profileID platform:transaction.platform];
 
     return [self envelopeItemForProfileData:payload profileID:profileID];
 }
@@ -705,8 +695,6 @@ serializedSamplesWithRelativeTimestamps(
     sampledProfile[@"thread_metadata"] = threadMetadata;
     sampledProfile[@"queue_metadata"] = queueMetadata;
     _profileData[@"profile"] = sampledProfile;
-    _startTimestamp = getAbsoluteTime();
-    _startDate = [SentryCurrentDate date];
 
     __weak const auto weakSelf = self;
     _profiler = std::make_shared<SamplingProfiler>(
@@ -743,7 +731,6 @@ serializedSamplesWithRelativeTimestamps(
 }
 
 + (void)serializeBasicProfileInfo:(NSMutableDictionary<NSString *, id> *)profile
-                  profileDuration:(const unsigned long long &)profileDuration
                         profileID:(SentryId *const &)profileID
                          platform:(NSString *)platform
 {
@@ -773,7 +760,6 @@ serializedSamplesWithRelativeTimestamps(
     };
 
     profile[@"profile_id"] = profileID.sentryIdString;
-    profile[@"duration_ns"] = [@(profileDuration) stringValue];
     profile[@"truncation_reason"]
         = profilerTruncationReasonName(_gCurrentProfiler->_truncationReason);
     profile[@"platform"] = platform;
@@ -785,41 +771,11 @@ serializedSamplesWithRelativeTimestamps(
 
 /** @return serialize info corresponding to the specified transaction. */
 + (NSDictionary *)serializeInfoForTransaction:(SentryTransaction *)transaction
-                              profileDuration:(uint64_t)profileDuration
 {
-
-    SENTRY_LOG_DEBUG(@"Profile start timestamp: %@ absolute time: %llu",
-        _gCurrentProfiler->_startDate, (unsigned long long)_gCurrentProfiler->_startTimestamp);
-
-    const auto relativeStart = [NSString
-        stringWithFormat:@"%llu",
-        [transaction.startTimestamp compare:_gCurrentProfiler->_startDate] == NSOrderedAscending
-            ? 0
-            : timeIntervalToNanoseconds(
-                [transaction.startTimestamp timeIntervalSinceDate:_gCurrentProfiler->_startDate])];
-
-    NSString *relativeEnd;
-    if ([transaction.timestamp compare:_gCurrentProfiler->_endDate] == NSOrderedDescending) {
-        relativeEnd = [NSString stringWithFormat:@"%llu", profileDuration];
-    } else {
-        const auto profileStartToTransactionEnd_ns = timeIntervalToNanoseconds(
-            [transaction.timestamp timeIntervalSinceDate:_gCurrentProfiler->_startDate]);
-        if (profileStartToTransactionEnd_ns < 0) {
-            SENTRY_LOG_DEBUG(@"Transaction %@ ended before the profiler started, won't "
-                             @"associate it with this profile.",
-                transaction.trace.traceId.sentryIdString);
-            return nil;
-        } else {
-            relativeEnd = [NSString
-                stringWithFormat:@"%llu", (unsigned long long)profileStartToTransactionEnd_ns];
-        }
-    }
     return @{
         @"id" : transaction.eventId.sentryIdString,
         @"trace_id" : transaction.trace.traceId.sentryIdString,
         @"name" : transaction.transaction,
-        @"relative_start_ns" : relativeStart,
-        @"relative_end_ns" : relativeEnd,
         @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
     };
 }

@@ -535,8 +535,6 @@ private extension SentryProfilerSwiftTests {
                 XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: traceIDString as! String))
             }
             XCTAssertNotNil(transaction["trace_id"])
-            XCTAssertNotNil(transaction["relative_start_ns"])
-            XCTAssertFalse((transaction["relative_end_ns"] as! NSString).isEqual(to: "0"))
             XCTAssertNotNil(transaction["active_thread_id"])
         }
 
