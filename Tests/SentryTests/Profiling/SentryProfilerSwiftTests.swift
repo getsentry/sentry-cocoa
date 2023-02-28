@@ -522,21 +522,18 @@ private extension SentryProfilerSwiftTests {
         }
         XCTAssert(foundAtLeastOneNonEmptySample)
 
-        let transactions = profile["transactions"] as? [[String: Any]]
-        XCTAssertEqual(transactions!.count, 1)
-        for transaction in transactions! {
-            XCTAssertEqual(fixture.transactionName, transaction["name"] as! String)
-            XCTAssertNotNil(transaction["id"])
-            if let idString = transaction["id"] {
-                XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: idString as! String))
-            }
-            XCTAssertNotNil(transaction["trace_id"])
-            if let traceIDString = transaction["trace_id"] {
-                XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: traceIDString as! String))
-            }
-            XCTAssertNotNil(transaction["trace_id"])
-            XCTAssertNotNil(transaction["active_thread_id"])
+        let transaction = try XCTUnwrap(profile["transaction"] as? [String: Any])
+        XCTAssertEqual(fixture.transactionName, transaction["name"] as! String)
+        XCTAssertNotNil(transaction["id"])
+        if let idString = transaction["id"] {
+            XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: idString as! String))
         }
+        XCTAssertNotNil(transaction["trace_id"])
+        if let traceIDString = transaction["trace_id"] {
+            XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: traceIDString as! String))
+        }
+        XCTAssertNotNil(transaction["trace_id"])
+        XCTAssertNotNil(transaction["active_thread_id"])
 
         for sample in samples {
             let timestamp = try XCTUnwrap(sample["elapsed_since_start_ns"])
