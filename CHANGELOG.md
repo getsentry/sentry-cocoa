@@ -5,6 +5,7 @@
 ### Fixes
 
 - Crash in AppHangs when no threads (#2725)
+- Time to initial display and time to full display (#2724)
 
 ## 8.2.0
 
