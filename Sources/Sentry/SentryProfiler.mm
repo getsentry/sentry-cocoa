@@ -410,7 +410,7 @@ serializedSamplesWithRelativeTimestamps(
         SENTRY_LOG_WARN(@"Could not find any associated transaction for the profile.");
         return nil;
     }
-    payload[@"transactions"] = @[ transactionInfo ];
+    payload[@"transaction"] = transactionInfo;
 
     // add the gathered metrics
     const auto metrics = [_gCurrentProfiler->_metricProfiler serializeForTransaction:transaction];
