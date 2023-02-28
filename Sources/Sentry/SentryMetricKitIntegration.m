@@ -7,6 +7,7 @@
 #import <SentryException.h>
 #import <SentryFrame.h>
 #import <SentryHexAddressFormatter.h>
+#import <SentryLog.h>
 #import <SentryMechanism.h>
 #import <SentryMetricKitIntegration.h>
 #import <SentrySDK+Private.h>
@@ -24,6 +25,21 @@
 #    endif
 
 NS_ASSUME_NONNULL_BEGIN
+
+@interface SentryMXExceptionParams : NSObject
+
+@property (nonatomic, assign) BOOL handled;
+@property (nonatomic, assign) SentryLevel level;
+@property (nonatomic, copy) NSString *exceptionValue;
+@property (nonatomic, copy) NSString *exceptionType;
+@property (nonatomic, copy) NSString *exceptionMechanism;
+@property (nonatomic, copy) NSDate *timeStampBegin;
+
+@end
+
+@implementation SentryMXExceptionParams
+
+@end
 
 @interface
 SentryMetricKitIntegration ()
@@ -77,13 +93,15 @@ SentryMetricKitIntegration ()
         [NSString stringWithFormat:@"MachException Type:%@ Code:%@ Signal:%@",
                   diagnostic.exceptionType, diagnostic.exceptionCode, diagnostic.signal];
 
-    [self captureMXEvent:callStackTree
-                   handled:NO
-                     level:kSentryLevelError
-            exceptionValue:exceptionValue
-             exceptionType:@"MXCrashDiagnostic"
-        exceptionMechanism:@"MXCrashDiagnostic"
-            timeStampBegin:timeStampBegin];
+    SentryMXExceptionParams *params = [[SentryMXExceptionParams alloc] init];
+    params.handled = NO;
+    params.level = kSentryLevelError;
+    params.exceptionValue = exceptionValue;
+    params.exceptionType = @"MXCrashDiagnostic";
+    params.exceptionMechanism = @"MXCrashDiagnostic";
+    params.timeStampBegin = timeStampBegin;
+
+    [self captureMXEvent:callStackTree params:params];
 }
 
 - (void)didReceiveCpuExceptionDiagnostic:(MXCPUExceptionDiagnostic *)diagnostic
@@ -91,6 +109,14 @@ SentryMetricKitIntegration ()
                           timeStampBegin:(NSDate *)timeStampBegin
                             timeStampEnd:(NSDate *)timeStampEnd
 {
+    // MXCPUExceptionDiagnostics call stacks point to hot spots in code and aren't organized per
+    // thread. See https://developer.apple.com/videos/play/wwdc2020/10078/?time=224
+    if (callStackTree.callStackPerThread) {
+        SENTRY_LOG_WARN(@"MXCPUExceptionDiagnostics aren't expected to have call stacks per "
+                        @"thread. Ignoring it.");
+        return;
+    }
+
     NSString *totalCPUTime =
         [self.measurementFormatter stringFromMeasurement:diagnostic.totalCPUTime];
     NSString *totalSampledTime =
@@ -102,13 +128,15 @@ SentryMetricKitIntegration ()
 
     // Still need to figure out proper exception values and types.
     // This code is currently only there for testing with TestFlight.
-    [self captureMXEvent:callStackTree
-                   handled:YES
-                     level:kSentryLevelWarning
-            exceptionValue:exceptionValue
-             exceptionType:SentryMetricKitCpuExceptionType
-        exceptionMechanism:SentryMetricKitCpuExceptionMechanism
-            timeStampBegin:timeStampBegin];
+    SentryMXExceptionParams *params = [[SentryMXExceptionParams alloc] init];
+    params.handled = YES;
+    params.level = kSentryLevelWarning;
+    params.exceptionValue = exceptionValue;
+    params.exceptionType = SentryMetricKitCpuExceptionType;
+    params.exceptionMechanism = SentryMetricKitCpuExceptionMechanism;
+    params.timeStampBegin = timeStampBegin;
+
+    [self captureMXEvent:callStackTree params:params];
 }
 
 - (void)didReceiveDiskWriteExceptionDiagnostic:(MXDiskWriteExceptionDiagnostic *)diagnostic
@@ -124,13 +152,16 @@ SentryMetricKitIntegration ()
 
     // Still need to figure out proper exception values and types.
     // This code is currently only there for testing with TestFlight.
-    [self captureMXEvent:callStackTree
-                   handled:YES
-                     level:kSentryLevelWarning
-            exceptionValue:exceptionValue
-             exceptionType:SentryMetricKitDiskWriteExceptionType
-        exceptionMechanism:SentryMetricKitDiskWriteExceptionMechanism
-            timeStampBegin:timeStampBegin];
+
+    SentryMXExceptionParams *params = [[SentryMXExceptionParams alloc] init];
+    params.handled = YES;
+    params.level = kSentryLevelWarning;
+    params.exceptionValue = exceptionValue;
+    params.exceptionType = SentryMetricKitDiskWriteExceptionType;
+    params.exceptionMechanism = SentryMetricKitDiskWriteExceptionMechanism;
+    params.timeStampBegin = timeStampBegin;
+
+    [self captureMXEvent:callStackTree params:params];
 }
 
 - (void)didReceiveHangDiagnostic:(MXHangDiagnostic *)diagnostic
@@ -144,41 +175,34 @@ SentryMetricKitIntegration ()
     NSString *exceptionValue = [NSString
         stringWithFormat:@"%@ hangDuration:%@", SentryMetricKitHangDiagnosticType, hangDuration];
 
-    [self captureMXEvent:callStackTree
-                   handled:YES
-                     level:kSentryLevelWarning
-            exceptionValue:exceptionValue
-             exceptionType:SentryMetricKitHangDiagnosticType
-        exceptionMechanism:SentryMetricKitHangDiagnosticMechanism
-            timeStampBegin:timeStampBegin];
+    SentryMXExceptionParams *params = [[SentryMXExceptionParams alloc] init];
+    params.handled = YES;
+    params.level = kSentryLevelWarning;
+    params.exceptionValue = exceptionValue;
+    params.exceptionType = SentryMetricKitHangDiagnosticType;
+    params.exceptionMechanism = SentryMetricKitHangDiagnosticMechanism;
+    params.timeStampBegin = timeStampBegin;
+
+    [self captureMXEvent:callStackTree params:params];
 }
 
 - (void)captureMXEvent:(SentryMXCallStackTree *)callStackTree
-               handled:(BOOL)handled
-                 level:(enum SentryLevel)level
-        exceptionValue:(NSString *)exceptionValue
-         exceptionType:(NSString *)exceptionType
-    exceptionMechanism:(NSString *)exceptionMechanism
-        timeStampBegin:(NSDate *)timeStampBegin
+                params:(SentryMXExceptionParams *)params
 {
     // When receiving MXCrashDiagnostic the callStackPerThread was always true. In that case, the
     // MXCallStacks of the MXCallStackTree were individual threads, all belonging to the process
-    // when the crash occurred. For MXCPUException, the callStackPerThread was always true. In that
+    // when the crash occurred. For MXCPUException, the callStackPerThread was always false. In that
     // case, the MXCallStacks stem from CPU-hungry multiple locations in the sample app during an
     // observation time of 90 seconds of one app run. It's a collection of stack traces that are
-    // CPU-hungry. They could be from multiple threads or the same thread.
+    // CPU-hungry.
     if (callStackTree.callStackPerThread) {
-        SentryEvent *event = [self createEvent:handled
-                                         level:level
-                                exceptionValue:exceptionValue
-                                 exceptionType:exceptionType
-                            exceptionMechanism:exceptionMechanism];
+        SentryEvent *event = [self createEvent:params];
 
-        event.timestamp = timeStampBegin;
+        event.timestamp = params.timeStampBegin;
         event.threads = [self convertToSentryThreads:callStackTree];
 
         SentryThread *crashedThread = event.threads[0];
-        crashedThread.crashed = @(!handled);
+        crashedThread.crashed = @(!params.handled);
 
         SentryException *exception = event.exceptions[0];
         exception.stacktrace = crashedThread.stacktrace;
@@ -191,46 +215,131 @@ SentryMetricKitIntegration ()
         [SentrySDK captureEvent:event];
     } else {
         for (SentryMXCallStack *callStack in callStackTree.callStacks) {
+            [self buildAndCaptureMXEventFor:callStack.callStackRootFrames params:params];
+        }
+    }
+}
 
-            for (SentryMXFrame *frame in callStack.callStackRootFrames) {
+/**
+ * If callStackPerThread is false, MetricKit organizes the stacktraces in a tree structure. See
+ * https://developer.apple.com/videos/play/wwdc2020/10078/?time=224. The stacktrace consists of the
+ * last sibbling leaf frame plus its ancestors.
+ *
+ * The algorithm adds all frames to a list until it finds a leaf frame being the last sibling. Then
+ * it reports that frame with its siblings and ancestors as a stacktrace.
+ *
+ * In the following example, the algorithm starts with frame 0, continues until frame 6, and reports
+ * a stacktrace. Then it pops all sibling, goes back up to frame 3, and continues the search.
+ *
+ * | frame 0 |
+ *      | frame 1 |
+ *          | frame 2 |
+ *          | frame 3 |
+ *              | frame 4 |
+ *              | frame 5 |
+ *              | frame 6 |     -> stack trace consists of [0, 1, 3, 4, 5, 6]
+ *          | frame 7 |
+ *          | frame 8 |         -> stack trace consists of [0, 1, 2, 3, 7, 8]
+ *      | frame 9 |             -> stack trace consists of [0, 1, 9]
+ * | frame 10 |
+ *      | frame 11 |
+ *          | frame 12 |
+ *          | frame 13 |    -> stack trace consists of [10, 11, 12, 13]
+ */
+- (void)buildAndCaptureMXEventFor:(NSArray<SentryMXFrame *> *)rootFrames
+                           params:(SentryMXExceptionParams *)params
+{
+    for (SentryMXFrame *rootFrame in rootFrames) {
+        NSMutableArray<SentryMXFrame *> *stackTraceFrames = [NSMutableArray array];
+        NSMutableSet<NSNumber *> *processedFrameAddresses = [NSMutableSet set];
+        NSMutableDictionary<NSNumber *, SentryMXFrame *> *addressesToParentFrames =
+            [NSMutableDictionary dictionary];
 
-                SentryEvent *event = [self createEvent:handled
-                                                 level:level
-                                        exceptionValue:exceptionValue
-                                         exceptionType:exceptionType
-                                    exceptionMechanism:exceptionMechanism];
-                event.timestamp = timeStampBegin;
+        SentryMXFrame *currentFrame = rootFrame;
+        [stackTraceFrames addObject:currentFrame];
 
-                SentryThread *thread = [[SentryThread alloc] initWithThreadId:@0];
-                thread.crashed = @(!handled);
-                thread.stacktrace = [self
-                    convertMXFramesToSentryStacktrace:frame.framesIncludingSelf.objectEnumerator];
+        while (stackTraceFrames.count > 0) {
+            currentFrame = [stackTraceFrames lastObject];
+            [processedFrameAddresses addObject:@(currentFrame.address)];
 
-                SentryException *exception = event.exceptions[0];
-                exception.stacktrace = thread.stacktrace;
-                exception.threadId = thread.threadId;
+            for (SentryMXFrame *subFrame in currentFrame.subFrames) {
+                addressesToParentFrames[@(subFrame.address)] = currentFrame;
+            }
+            SentryMXFrame *parentFrame = addressesToParentFrames[@(currentFrame.address)];
 
-                event.threads = @[ thread ];
-                event.debugMeta = [self extractDebugMetaFromMXFrames:frame.framesIncludingSelf];
+            SentryMXFrame *firstUnprocessedSibling =
+                [self getFirstUnprocessedSubFrames:parentFrame.subFrames
+                           processedFrameAddresses:processedFrameAddresses];
 
-                [SentrySDK captureEvent:event];
+            BOOL lastUnprocessedSibling = firstUnprocessedSibling == nil;
+            BOOL noChildren = currentFrame.subFrames.count == 0;
+
+            if (noChildren && lastUnprocessedSibling) {
+                [self captureEventNotPerThread:stackTraceFrames params:params];
+
+                // Pop all siblings
+                for (int i = 0; i < parentFrame.subFrames.count; i++) {
+                    [stackTraceFrames removeLastObject];
+                }
+            } else {
+                SentryMXFrame *nonProcessedSubFrame =
+                    [self getFirstUnprocessedSubFrames:currentFrame.subFrames
+                               processedFrameAddresses:processedFrameAddresses];
+
+                // Keep adding sub frames
+                if (nonProcessedSubFrame != nil) {
+                    [stackTraceFrames addObject:nonProcessedSubFrame];
+                } // Keep adding siblings
+                else if (firstUnprocessedSibling != nil) {
+                    [stackTraceFrames addObject:firstUnprocessedSibling];
+                } // Keep popping
+                else {
+                    [stackTraceFrames removeLastObject];
+                }
             }
         }
     }
 }
 
-- (SentryEvent *)createEvent:(BOOL)handled
-                       level:(enum SentryLevel)level
-              exceptionValue:(NSString *)exceptionValue
-               exceptionType:(NSString *)exceptionType
-          exceptionMechanism:(NSString *)exceptionMechanism
+- (nullable SentryMXFrame *)getFirstUnprocessedSubFrames:(NSArray<SentryMXFrame *> *)subFrames
+                                 processedFrameAddresses:
+                                     (NSSet<NSNumber *> *)processedFrameAddresses
 {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:level];
+    return [subFrames filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
+                                                      SentryMXFrame *frame,
+                                                      NSDictionary<NSString *, id> *bindings) {
+        return ![processedFrameAddresses containsObject:@(frame.address)];
+    }]].firstObject;
+}
 
-    SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
-                                                                   type:exceptionType];
-    SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:exceptionMechanism];
-    mechanism.handled = @(handled);
+- (void)captureEventNotPerThread:(NSArray<SentryMXFrame *> *)frames
+                          params:(SentryMXExceptionParams *)params
+{
+    SentryEvent *event = [self createEvent:params];
+    event.timestamp = params.timeStampBegin;
+
+    SentryThread *thread = [[SentryThread alloc] initWithThreadId:@0];
+    thread.crashed = @(!params.handled);
+    thread.stacktrace = [self convertMXFramesToSentryStacktrace:frames.objectEnumerator];
+
+    SentryException *exception = event.exceptions[0];
+    exception.stacktrace = thread.stacktrace;
+    exception.threadId = thread.threadId;
+
+    event.threads = @[ thread ];
+    event.debugMeta = [self extractDebugMetaFromMXFrames:frames];
+
+    [SentrySDK captureEvent:event];
+}
+
+- (SentryEvent *)createEvent:(SentryMXExceptionParams *)params
+{
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:params.level];
+
+    SentryException *exception = [[SentryException alloc] initWithValue:params.exceptionValue
+                                                                   type:params.exceptionType];
+    SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:params.exceptionMechanism];
+    mechanism.handled = @(params.handled);
     mechanism.synthetic = @(YES);
     exception.mechanism = mechanism;
     event.exceptions = @[ exception ];
