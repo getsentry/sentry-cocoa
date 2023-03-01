@@ -80,6 +80,28 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         }
     }
     
+    func testSetInAppIncludes_AppliesInAppToStackTrace() throws {
+        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
+            givenSDKWithHubWithScope()
+            
+            let sut = SentryMetricKitIntegration()
+            givenInstalledWithEnabled(sut) { options in
+                options.add(inAppInclude: "iOS-Swift")
+            }
+            
+            let mxDelegate = sut as SentryMXManagerDelegate
+            mxDelegate.didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
+            
+            assertEventWithScopeCaptured { event, _, _ in
+                let stacktrace = try! XCTUnwrap( event?.threads?.first?.stacktrace)
+                
+                let inAppFramesCount = stacktrace.frames.filter { $0.inApp as? Bool ?? false }.count
+                
+                XCTAssertEqual(2, inAppFramesCount)
+            }
+        }
+    }
+    
     func testCPUExceptionDiagnostic_PerThread() throws {
         if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
@@ -137,9 +159,10 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     }
     
     @available(iOS 15, macOS 12, macCatalyst 15, *)
-    private func givenInstalledWithEnabled(_ integration: SentryMetricKitIntegration) {
+    private func givenInstalledWithEnabled(_ integration: SentryMetricKitIntegration, optionsBlock: (Options) -> Void = { _ in }) {
         let options = Options()
         options.enableMetricKit = true
+        optionsBlock(options)
         integration.install(with: options)
     }
     
@@ -275,6 +298,8 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(mxFrame.binaryName, sentryFrame.package)
         let lastRootFrameImageAddress = formatHexAddress(value: mxFrame.address - UInt64(mxFrame.offsetIntoBinaryTextSegment))
         XCTAssertEqual(lastRootFrameImageAddress, sentryFrame.imageAddress)
+        
+        XCTAssertFalse(sentryFrame.inApp as? Bool ?? true)
     }
   
 }

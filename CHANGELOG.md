@@ -6,6 +6,7 @@
 
 - Crash in AppHangs when no threads (#2725)
 - MetricKit stack traces (#2723)
+- InApp for MetricKit stack traces (#2739)
 
 ## 8.2.0
 

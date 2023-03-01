@@ -7,6 +7,7 @@
 #import <SentryException.h>
 #import <SentryFrame.h>
 #import <SentryHexAddressFormatter.h>
+#import <SentryInAppLogic.h>
 #import <SentryLog.h>
 #import <SentryMechanism.h>
 #import <SentryMetricKitIntegration.h>
@@ -46,6 +47,7 @@ SentryMetricKitIntegration ()
 
 @property (nonatomic, strong, nullable) SentryMXManager *metricKitManager;
 @property (nonatomic, strong) NSMeasurementFormatter *measurementFormatter;
+@property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 
 @end
 
@@ -63,6 +65,8 @@ SentryMetricKitIntegration ()
     self.measurementFormatter = [[NSMeasurementFormatter alloc] init];
     self.measurementFormatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
     self.measurementFormatter.unitOptions = NSMeasurementFormatterUnitOptionsProvidedUnit;
+    self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
+                                                        inAppExcludes:options.inAppExcludes];
 
     return YES;
 }
@@ -380,6 +384,7 @@ SentryMetricKitIntegration ()
     for (SentryMXFrame *mxFrame in mxFrames) {
         SentryFrame *frame = [[SentryFrame alloc] init];
         frame.package = mxFrame.binaryName;
+        frame.inApp = @([self.inAppLogic isInApp:mxFrame.binaryName]);
         frame.instructionAddress = sentry_formatHexAddress(@(mxFrame.address));
         NSNumber *imageAddress = @(mxFrame.address - mxFrame.offsetIntoBinaryTextSegment);
         frame.imageAddress = sentry_formatHexAddress(imageAddress);
