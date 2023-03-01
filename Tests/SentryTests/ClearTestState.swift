@@ -25,12 +25,12 @@ class TestCleanup: NSObject {
 
         setenv("ActivePrewarm", "0", 1)
         SentryAppStartTracker.load()
+        SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay = false
         #endif
 
         SentryDependencyContainer.reset()
         Dynamic(SentryGlobalEventProcessor.shared()).removeAllProcessors()
         SentryPerformanceTracker.shared.clear()
         SentrySwizzleWrapper.sharedInstance.removeAllCallbacks()
-        SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay = false
     }
 }

@@ -3,7 +3,6 @@
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
-#endif
 
 @class SentrySpan, SentryInAppLogic;
 
@@ -23,7 +22,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET
  * This class is intended to be used in a swizzled context.
  */
 @interface SentryUIViewControllerPerformanceTracker : NSObject
-#if SENTRY_HAS_UIKIT
+
 @property (nonatomic, readonly, class) SentryUIViewControllerPerformanceTracker *shared;
 
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
@@ -105,7 +104,7 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET
 
 - (void)reportFullyDisplayed;
 
-#endif
 @end
 
 NS_ASSUME_NONNULL_END
+#endif

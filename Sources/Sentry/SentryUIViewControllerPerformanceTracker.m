@@ -13,6 +13,8 @@
 #import <SentrySpanOperations.h>
 #import <objc/runtime.h>
 
+#if SENTRY_HAS_UIKIT
+
 @interface
 SentryUIViewControllerPerformanceTracker ()
 
@@ -44,8 +46,6 @@ SentryUIViewControllerPerformanceTracker ()
     }
     return self;
 }
-
-#if SENTRY_HAS_UIKIT
 
 - (SentrySpan *)viewControllerPerformanceSpan:(UIViewController *)controller
 {
@@ -405,6 +405,7 @@ SentryUIViewControllerPerformanceTracker ()
                                          inBlock:callbackToOrigin];
     }
 }
-#endif
 
 @end
+
+#endif
