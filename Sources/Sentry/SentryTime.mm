@@ -24,10 +24,20 @@ getAbsoluteTime(void)
     return mach_absolute_time();
 }
 
+bool
+orderedChronologically(uint64_t a, uint64_t b)
+{
+    return b >= a;
+}
+
 uint64_t
 getDurationNs(uint64_t startTimestamp, uint64_t endTimestamp)
 {
-    assert(endTimestamp >= startTimestamp);
+    NSCAssert(endTimestamp >= startTimestamp, @"Inputs must be chronologically ordered.");
+    if (endTimestamp < startTimestamp) {
+        return 0;
+    }
+
     uint64_t duration = endTimestamp - startTimestamp;
     if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)) {
         return duration;
