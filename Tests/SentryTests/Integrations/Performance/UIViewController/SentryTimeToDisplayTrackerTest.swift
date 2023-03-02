@@ -9,7 +9,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     private class Fixture {
         let dateProvider: TestCurrentDateProvider = TestCurrentDateProvider()
         let tracer = SentryTracer(transactionContext: TransactionContext(operation: "Test Operation"), hub: nil)
-        let spanCreation : SpanCreationCallback = { op, desc in
+        let spanCreation: SpanCreationCallback = { op, desc in
             return SentrySpan(context: SpanContext(trace: SentryId(), spanId: SpanId(), parentId: nil, operation: op, spanDescription: desc, sampled: .yes))
         }
     }
@@ -78,7 +78,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         tracer.addExtension(sut)
         sut.reportFullDisplay()
 
-        let additionalSpans = sut.tracerAdditionalSpan({ op, desc in
+        let additionalSpans = sut.tracerAdditionalSpan({ op, _ in
             return SentrySpan(context: SpanContext(operation: op))
         })
         XCTAssertEqual(additionalSpans.count, 0)

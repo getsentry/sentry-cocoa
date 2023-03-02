@@ -899,15 +899,16 @@ static BOOL appStartMeasurementRead;
 {
     NSMutableArray *result = [NSMutableArray array];
 
-    SpanCreationCallback creationCallback = ^SentrySpan*(NSString * operation, NSString * description) {
+    SpanCreationCallback creationCallback
+        = ^SentrySpan *(NSString *operation, NSString *description)
+    {
         return [[SentrySpan alloc]
-            initWithContext:[[SentrySpanContext alloc]
-                                initWithTraceId:self.traceId
-                                         spanId:[[SentrySpanId alloc] init]
-                                       parentId:self.spanId
-                                      operation:operation
-                                spanDescription:description
-                                        sampled:self.sampled]];
+            initWithContext:[[SentrySpanContext alloc] initWithTraceId:self.traceId
+                                                                spanId:[[SentrySpanId alloc] init]
+                                                              parentId:self.spanId
+                                                             operation:operation
+                                                       spanDescription:description
+                                                               sampled:self.sampled]];
     };
 
     @synchronized(_extensions) {

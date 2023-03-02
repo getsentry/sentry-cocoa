@@ -3,7 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef SentrySpan *_Nonnull (^SpanCreationCallback)(NSString * operation, NSString * description);
+typedef SentrySpan *_Nonnull (^SpanCreationCallback)(NSString *operation, NSString *description);
 
 /**
  * Protocol used to intercept some of `SentryTracer` steps

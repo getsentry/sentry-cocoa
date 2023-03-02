@@ -92,8 +92,8 @@ SentryTimeToDisplayTracker ()
 - (NSArray<id<SentrySpan>> *)tracerAdditionalSpan:(SpanCreationCallback)creationCallback
 {
     if (self.fullDisplay) {
-        SentrySpan *ttfd = creationCallback(SentrySpanOperationUILoadFullDisplay,[NSString stringWithFormat:@"%@ full display",
-                                                                                  self.controllerName]);
+        SentrySpan *ttfd = creationCallback(SentrySpanOperationUILoadFullDisplay,
+            [NSString stringWithFormat:@"%@ full display", self.controllerName]);
 
         ttfd.startTimestamp = self.startDate;
         ttfd.timestamp = self.fullDisplay;
