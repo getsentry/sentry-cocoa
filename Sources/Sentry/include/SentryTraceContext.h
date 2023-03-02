@@ -1,9 +1,18 @@
-#import "SentryId.h"
+#if __has_include(<Sentry/SentrySerializable.h>)
+#import <Sentry/SentrySerializable.h>
+#else
 #import "SentrySerializable.h"
+#endif
+
+#if __has_include(<Sentry/SentryId.h>)
+#import <Sentry/SentryId.h>
+#else
+#import "SentryId.h"
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryScope, SentryOptions, SentryTracer, SentryUser, SentryBaggage;
+@class SentryScope, SentryId, SentryOptions, SentryTracer, SentryUser, SentryBaggage;
 
 @interface SentryTraceContext : NSObject <SentrySerializable>
 

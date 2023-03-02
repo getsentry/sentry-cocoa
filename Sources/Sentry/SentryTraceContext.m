@@ -8,6 +8,7 @@
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
 #import "SentryUser.h"
+#import "SentryId.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
