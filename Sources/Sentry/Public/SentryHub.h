@@ -2,7 +2,7 @@
 #import "SentryIntegrationProtocol.h"
 #import "SentrySpanProtocol.h"
 
-@class SentryEvent, SentryClient, SentryScope, SentrySession, SentryUser, SentryBreadcrumb,
+@class SentryEvent, SentryClient, SentryScope, SentryUser, SentryBreadcrumb,
     SentryId, SentryUserFeedback, SentryTransactionContext;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -11,11 +11,6 @@ SENTRY_NO_INIT
 
 - (instancetype)initWithClient:(SentryClient *_Nullable)client
                       andScope:(SentryScope *_Nullable)scope;
-
-/**
- * Since there's no scope stack, single hub instance,  we keep the session here.
- */
-@property (nonatomic, readonly, strong) SentrySession *_Nullable session;
 
 /**
  * Starts a new SentrySession. If there's a running SentrySession, it ends it before starting the

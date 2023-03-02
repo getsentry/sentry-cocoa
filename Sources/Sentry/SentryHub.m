@@ -28,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 SentryHub ()
 
 @property (nullable, nonatomic, strong) SentryClient *client;
+@property (nullable, nonatomic, strong) SentrySession *session;
 @property (nullable, nonatomic, strong) SentryScope *scope;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryTracesSampler *tracesSampler;

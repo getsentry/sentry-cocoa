@@ -2,8 +2,9 @@
 #import "SentryAppStartMeasurement.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryScreenFrames.h"
+#import "SentryEnvelope.h"
 
-@class SentryEnvelope, SentryDebugMeta, SentryAppStartMeasurement, SentryScreenFrames,
+@class SentryDebugMeta, SentryAppStartMeasurement, SentryScreenFrames,
     SentryOptions;
 
 NS_ASSUME_NONNULL_BEGIN
