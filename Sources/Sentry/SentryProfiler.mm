@@ -175,6 +175,12 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     }
 }
 
+NSString *
+serializedUnsigned64BitInteger(uint64_t value)
+{
+    return [NSString stringWithFormat:@"%llu", value];
+}
+
 #    if SENTRY_HAS_UIKIT
 /**
  * Convert the data structure that records timestamps for GPU frame render info from
@@ -214,8 +220,7 @@ processFrameRenders(SentryFrameInfoTimeSeries *frameInfo, SentryTransaction *tra
             = getDurationNs(relativeFrameRenderStart, relativeFrameRenderEnd);
 
         [relativeFrameInfo addObject:@{
-            @"elapsed_since_start_ns" :
-                [NSString stringWithFormat:@"%llu", relativeFrameRenderStart],
+            @"elapsed_since_start_ns" : serializedUnsigned64BitInteger(relativeFrameRenderStart),
             @"value" : @(frameRenderDurationNs),
         }];
     }];
@@ -245,7 +250,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, SentryTransaction *tran
         const auto relativeTimestamp = getDurationNs(transaction.startSystemTime, timestamp);
 
         [relativeFrameRates addObject:@ {
-            @"elapsed_since_start_ns" : [NSString stringWithFormat:@"%llu", relativeTimestamp],
+            @"elapsed_since_start_ns" : serializedUnsigned64BitInteger(relativeTimestamp),
             @"value" : refreshRate,
         }];
     }];
@@ -269,10 +274,9 @@ serializedSamplesWithRelativeTimestamps(
             return;
         }
         const auto dict = [NSMutableDictionary dictionaryWithDictionary:@ {
-            @"elapsed_since_start_ns" :
-                [NSString stringWithFormat:@"%llu",
-                          getDurationNs(transaction.startSystemTime, sample.absoluteTimestamp)],
-            @"thread_id" : [NSString stringWithFormat:@"%llu", sample.threadID],
+            @"elapsed_since_start_ns" : serializedUnsigned64BitInteger(
+                getDurationNs(transaction.startSystemTime, sample.absoluteTimestamp)),
+            @"thread_id" : serializedUnsigned64BitInteger(sample.threadID),
             @"stack_id" : sample.stackIndex,
         }];
         if (sample.queueAddress) {
@@ -800,7 +804,7 @@ serializedSamplesWithRelativeTimestamps(
 
     NSString *relativeEnd;
     if ([transaction.timestamp compare:_gCurrentProfiler->_endDate] == NSOrderedDescending) {
-        relativeEnd = [NSString stringWithFormat:@"%llu", profileDuration];
+        relativeEnd = serializedUnsigned64BitInteger(profileDuration);
     } else {
         const auto profileStartToTransactionEnd_ns = timeIntervalToNanoseconds(
             [transaction.timestamp timeIntervalSinceDate:_gCurrentProfiler->_startDate]);
