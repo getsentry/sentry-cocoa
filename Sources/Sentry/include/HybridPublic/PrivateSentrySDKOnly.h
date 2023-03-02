@@ -1,8 +1,14 @@
 #import "PrivatesHeader.h"
 #import "SentryAppStartMeasurement.h"
-#import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryScreenFrames.h"
+
+#if COCOAPODS
+@class SentryEnvelope;
+#else
+#import "SentryEnvelope.h"
+#endif
+
 
 @class SentryDebugMeta, SentryAppStartMeasurement, SentryScreenFrames, SentryOptions;
 
