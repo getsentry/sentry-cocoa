@@ -7,6 +7,7 @@
 - Crash in AppHangs when no threads (#2725)
 - MetricKit stack traces (#2723)
 - InApp for MetricKit stack traces (#2739)
+- Mutating while enumerating crash in Tracer (#2744)
 
 ## 8.2.0
 
