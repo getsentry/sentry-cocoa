@@ -6,9 +6,8 @@
 #if COCOAPODS
 @class SentryEnvelope;
 #else
-#import "SentryEnvelope.h"
+#    import "SentryEnvelope.h"
 #endif
-
 
 @class SentryDebugMeta, SentryAppStartMeasurement, SentryScreenFrames, SentryOptions;
 

@@ -8,8 +8,8 @@
 #if COCOAPODS
 @class SentrySdkInfo, SentryTraceContext;
 #else
-#import "SentrySdkInfo.h"
-#import "SentryTraceContext.h"
+#    import "SentrySdkInfo.h"
+#    import "SentryTraceContext.h"
 
 #endif
 
