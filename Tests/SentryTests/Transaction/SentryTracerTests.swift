@@ -12,19 +12,23 @@ class SentryTracerTests: XCTestCase {
         func activeSpan(for tracer: SentryTracer) -> Span? {
             return activeSpan
         }
+
+        var tracerDidFinishCalled = false
+        func tracerDidFinish(_ tracer: SentryTracer) {
+            tracerDidFinishCalled = true
+        }
     }
 
-    private class TestTracerMiddleware: NSObject, SentryTracerMiddleware {
-
+    private class TestTracerExtension: NSObject, SentryTracerExtension {
         var additionalSpans: [SentrySpan] = []
 
         var tracerDidTimeoutCalled = false
-        func tracerDidTimeout(_ tracer: SentryTracer) {
+        func tracerDidTimeout() {
             tracerDidTimeoutCalled = true
         }
 
         var createAdditionalSpansCalled = false
-        func createAdditionalSpans(forTrace tracer: SentryTracer) -> [Span] {
+        func tracerAdditionalSpan(_ creationCallback: @escaping SpanCreationCallback) -> [Span] {
             createAdditionalSpansCalled = true
             return additionalSpans
         }
@@ -37,11 +41,6 @@ class SentryTracerTests: XCTestCase {
         var unistallCalled = false
         func uninstall(for tracer: SentryTracer) {
             unistallCalled = true
-        }
-
-        var tracerDidFinishCalled = false
-        func tracerDidFinish(_ tracer: SentryTracer) {
-            tracerDidFinishCalled = true
         }
     }
 
@@ -68,7 +67,7 @@ class SentryTracerTests: XCTestCase {
         
         let idleTimeout: TimeInterval = 1.0
 
-        let tracerMiddleware = TestTracerMiddleware()
+        let tracerExtension = TestTracerExtension()
         
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         var displayLinkWrapper: TestDisplayLinkWrapper
@@ -922,28 +921,22 @@ class SentryTracerTests: XCTestCase {
 
     func test_callMiddleware_install() {
         let tracer = fixture.getSut()
-        tracer.addMiddleware(fixture.tracerMiddleware)
-        XCTAssertTrue(fixture.tracerMiddleware.installCalled)
+        tracer.addExtension(fixture.tracerExtension)
+        XCTAssertTrue(fixture.tracerExtension.installCalled)
     }
 
-    func test_callMiddleware_unistall() {
+    func test_callDelegate_didFinished() {
         let tracer = fixture.getSut()
-        tracer.addMiddleware(fixture.tracerMiddleware)
-        tracer.removeMiddleware(fixture.tracerMiddleware)
-        XCTAssertTrue(fixture.tracerMiddleware.unistallCalled)
-    }
-
-    func test_callMiddleware_didFinish() {
-        let tracer = fixture.getSut()
-        tracer.addMiddleware(fixture.tracerMiddleware)
+        let delegate = TracerDelegate()
+        tracer.delegate = delegate
         tracer.finish()
-        XCTAssertTrue(fixture.tracerMiddleware.tracerDidFinishCalled)
+        XCTAssertTrue(delegate.tracerDidFinishCalled)
     }
 
     func test_callMiddleware_additionalSpansCalled() {
         let tracer = fixture.getSut()
-        tracer.addMiddleware(fixture.tracerMiddleware)
-        fixture.tracerMiddleware.additionalSpans = [ SentrySpan(context: TestData.spanContext), SentrySpan(context: TestData.spanContext) ]
+        tracer.addExtension(fixture.tracerExtension)
+        fixture.tracerExtension.additionalSpans = [ SentrySpan(context: TestData.spanContext), SentrySpan(context: TestData.spanContext) ]
 
         let child = tracer.startChild(operation: "Test") as? SentrySpan
 
@@ -951,20 +944,20 @@ class SentryTracerTests: XCTestCase {
 
         let spans = Dynamic(transaction).spans.asArray as? [SentrySpan]
 
-        XCTAssertTrue(fixture.tracerMiddleware.createAdditionalSpansCalled)
+        XCTAssertTrue(fixture.tracerExtension.createAdditionalSpansCalled)
         XCTAssertEqual(spans?.count, 3)
 
         XCTAssertEqual(spans?[0], child )
-        XCTAssertEqual(spans?[1], fixture.tracerMiddleware.additionalSpans[0] )
-        XCTAssertEqual(spans?[2], fixture.tracerMiddleware.additionalSpans[1] )
+        XCTAssertEqual(spans?[1], fixture.tracerExtension.additionalSpans[0] )
+        XCTAssertEqual(spans?[2], fixture.tracerExtension.additionalSpans[1] )
     }
 
     func test_callMiddleware_tracerTimeout() {
         let tracer = fixture.getSut()
-        tracer.addMiddleware(fixture.tracerMiddleware)
+        tracer.addExtension(fixture.tracerExtension)
         fixture.timerWrapper.fire()
 
-        XCTAssertTrue(fixture.tracerMiddleware.tracerDidTimeoutCalled)
+        XCTAssertTrue(fixture.tracerExtension.tracerDidTimeoutCalled)
     }
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

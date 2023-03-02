@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
     SentryNSTimerWrapper, SentryDispatchQueueWrapper, SentryTracer, SentryProfilesSamplerDecision,
     SentryMeasurementValue;
 
-@protocol SentryTracerMiddleware;
+@protocol SentryTracerExtension;
 
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
@@ -19,6 +19,12 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  * This function is used to determine which span will be used to create a new child.
  */
 - (nullable id<SentrySpan>)activeSpanForTracer:(SentryTracer *)tracer;
+
+
+/**
+ * Report that the tracer has finished.
+ */
+- (void)tracerDidFinish:(SentryTracer *)tracer;
 
 @end
 
@@ -52,7 +58,7 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
 @property (nonatomic, readonly) NSDictionary<NSString *, SentryMeasurementValue *> *measurements;
 
-@property (nonatomic, readonly) NSArray<id<SentryTracerMiddleware>> *middlewares;
+@property (nonatomic, readonly) NSArray<id<SentryTracerExtension>> *extensions;
 
 /**
  * Init a SentryTracer with given transaction context and hub and set other fields by default
@@ -133,11 +139,9 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
 - (void)dispatchIdleTimeout;
 
-- (void)addMiddleware:(id<SentryTracerMiddleware>)middleware;
+- (void)addExtension:(id<SentryTracerExtension>)extension;
 
-- (void)removeMiddleware:(id<SentryTracerMiddleware>)middleware;
-
-- (NSArray<id<SentryTracerMiddleware>> *)getMiddlewaresOfType:(Class)middlewareType;
+- (NSArray<id<SentryTracerExtension>> *)getExtensionsOfType:(Class)extensionType;
 
 @end
 

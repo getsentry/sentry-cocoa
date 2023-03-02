@@ -7,14 +7,14 @@
 #import "SentrySpanId.h"
 #import "SentrySpanProtocol.h"
 #import "SentryTracer.h"
-#import "SentryTracerMiddleware.h"
+#import "SentryTracerExtension.h"
 #import "SentryTransactionContext+Private.h"
 #import "SentryUIEventTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
-SentryPerformanceTracker () <SentryTracerDelegate, SentryTracerMiddleware>
+SentryPerformanceTracker () <SentryTracerDelegate>
 
 @property (nonatomic, strong) NSMutableDictionary<SentrySpanId *, id<SentrySpan>> *spans;
 @property (nonatomic, strong) NSMutableArray<id<SentrySpan>> *activeSpanStack;
@@ -88,7 +88,6 @@ SentryPerformanceTracker () <SentryTracerDelegate, SentryTracerMiddleware>
 
             if ([newSpan isKindOfClass:[SentryTracer class]]) {
                 [(SentryTracer *)newSpan setDelegate:self];
-                [(SentryTracer *)newSpan addMiddleware:self];
             }
         }];
     }

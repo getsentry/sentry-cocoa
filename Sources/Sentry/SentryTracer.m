@@ -23,7 +23,7 @@
 #import "SentryTime.h"
 #import "SentryTraceContext.h"
 #import "SentryTracerConcurrency.h"
-#import "SentryTracerMiddleware.h"
+#import "SentryTracerExtension.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
@@ -78,7 +78,7 @@ SentryTracer ()
     NSMutableDictionary<NSString *, SentryMeasurementValue *> *_measurements;
     dispatch_block_t _idleTimeoutBlock;
     NSMutableArray<id<SentrySpan>> *_children;
-    NSMutableArray<id<SentryTracerMiddleware>> *_middlewares;
+    NSMutableArray<id<SentryTracerExtension>> *_extensions;
 
 #if SENTRY_HAS_UIKIT
     BOOL _startTimeChanged;
@@ -175,7 +175,7 @@ static BOOL appStartMeasurementRead;
         self.wasFinishCalled = NO;
         _waitForChildren = waitForChildren;
         _measurements = [[NSMutableDictionary alloc] init];
-        _middlewares = [NSMutableArray array];
+        _extensions = [NSMutableArray array];
         self.finishStatus = kSentrySpanStatusUndefined;
         self.idleTimeout = idleTimeout;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
@@ -211,7 +211,7 @@ static BOOL appStartMeasurementRead;
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        // TODO(ref): Move Profiling to a middleware.
+        // TODO(ref): Move Profiling to a SentryTracerExtension.
         // https://github.com/getsentry/sentry-cocoa/issues/2736
         if (profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
             _isProfiling = YES;
@@ -232,7 +232,7 @@ static BOOL appStartMeasurementRead;
 
 - (void)dispatchIdleTimeout
 {
-    // TODO(ref): replace idleTimeout implementation with middleware
+    // TODO(ref): replace idleTimeout implementation with SentryTracerExtension
     // https://github.com/getsentry/sentry-cocoa/issues/2736
     if (_idleTimeoutBlock != nil) {
         [self.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
@@ -286,7 +286,7 @@ static BOOL appStartMeasurementRead;
 
     @synchronized(self) {
         // This try to minimize a run condition with a proper call to `finishInternal`,
-        // which could be triggered by the user or a middleware.
+        // which could be triggered by the user or a extension.
         if (self.isFinished)
             return;
     }
@@ -505,9 +505,9 @@ static BOOL appStartMeasurementRead;
         }
         [super finishWithStatus:_finishStatus];
     }
-    [self reportDidFinished];
+    [self.delegate tracerDidFinish:self];
 
-    // TODO(ref): Use middleware instead of finish callback
+    // TODO(ref): Use SentryTracerExtension instead of finish callback
     // https://github.com/getsentry/sentry-cocoa/issues/2736
     if (self.finishCallback) {
         self.finishCallback(self);
@@ -609,7 +609,7 @@ static BOOL appStartMeasurementRead;
 
 - (SentryTransaction *)toTransaction
 {
-    // TODO(ref): use middleware to create appStartSpans
+    // TODO(ref): use SentryTracerExtension to create appStartSpans
     // https://github.com/getsentry/sentry-cocoa/issues/2736
     NSArray<id<SentrySpan>> *appStartSpans = [self buildAppStartSpans];
 
@@ -619,7 +619,7 @@ static BOOL appStartMeasurementRead;
     @synchronized(_children) {
         [spans addObjectsFromArray:_children];
         [spans addObjectsFromArray:appStartSpans];
-        [spans addObjectsFromArray:[self getMiddlewareAdditionalSpans]];
+        [spans addObjectsFromArray:[self getExtensionsAdditionalSpans]];
     }
 
     if (appStartMeasurement != nil) {
@@ -860,41 +860,29 @@ static BOOL appStartMeasurementRead;
     return nil;
 }
 
-#pragma mark - Middlewares
+#pragma mark - Extensions
 
-- (void)addMiddleware:(id<SentryTracerMiddleware>)middleware
+- (void)addExtension:(id<SentryTracerExtension>)extension
 {
-    @synchronized(_middlewares) {
-        [_middlewares addObject:middleware];
-        if ([middleware respondsToSelector:@selector(installForTracer:)]) {
-            [middleware installForTracer:self];
-        }
+    @synchronized(_extensions) {
+        [_extensions addObject:extension];
+        [extension installForTracer:self];
     }
 }
 
-- (void)removeMiddleware:(id<SentryTracerMiddleware>)middleware
+- (NSArray<id<SentryTracerExtension>> *)safeExtensions
 {
-    @synchronized(_middlewares) {
-        if ([middleware respondsToSelector:@selector(uninstallForTracer:)]) {
-            [middleware uninstallForTracer:self];
-        }
-        [_middlewares removeObject:middleware];
+    @synchronized(_extensions) {
+        return [_extensions copy];
     }
 }
 
-- (NSArray<id<SentryTracerMiddleware>> *)safeMiddlewares
+- (NSArray<id<SentryTracerExtension>> *)getExtensionsOfType:(Class)extensionType
 {
-    @synchronized(_middlewares) {
-        return [_middlewares copy];
-    }
-}
+    NSMutableArray *result = [[NSMutableArray alloc] initWithCapacity:_extensions.count];
 
-- (NSArray<id<SentryTracerMiddleware>> *)getMiddlewaresOfType:(Class)middlewareType
-{
-    NSMutableArray *result = [[NSMutableArray alloc] initWithCapacity:_middlewares.count];
-
-    for (id<SentryTracerMiddleware> mw in [self safeMiddlewares]) {
-        if ([mw isKindOfClass:middlewareType]) {
+    for (id<SentryTracerExtension> mw in [self safeExtensions]) {
+        if ([mw isKindOfClass:extensionType]) {
             [result addObject:mw];
         }
     }
@@ -902,42 +890,39 @@ static BOOL appStartMeasurementRead;
     return result;
 }
 
-- (NSArray<id<SentryTracerMiddleware>> *)middlewares
+- (NSArray<id<SentryTracerExtension>> *)extensions
 {
-    return _middlewares.copy;
+    return _extensions.copy;
 }
 
-- (NSArray<id<SentrySpan>> *)getMiddlewareAdditionalSpans
+- (NSArray<id<SentrySpan>> *)getExtensionsAdditionalSpans
 {
     NSMutableArray *result = [NSMutableArray array];
-    @synchronized(_middlewares) {
-        for (id<SentryTracerMiddleware> mw in _middlewares) {
-            if ([mw respondsToSelector:@selector(createAdditionalSpansForTrace:)]) {
-                [result addObjectsFromArray:[mw createAdditionalSpansForTrace:self]];
-            }
+
+    SpanCreationCallback creationCallback = ^SentrySpan*(NSString * operation, NSString * description) {
+        return [[SentrySpan alloc]
+            initWithContext:[[SentrySpanContext alloc]
+                                initWithTraceId:self.traceId
+                                         spanId:[[SentrySpanId alloc] init]
+                                       parentId:self.spanId
+                                      operation:operation
+                                spanDescription:description
+                                        sampled:self.sampled]];
+    };
+
+    @synchronized(_extensions) {
+        for (id<SentryTracerExtension> mw in _extensions) {
+            [result addObjectsFromArray:[mw tracerAdditionalSpan:creationCallback]];
         }
     }
     return result;
 }
 
-- (void)reportDidFinished
-{
-    @synchronized(_middlewares) {
-        for (id<SentryTracerMiddleware> mw in _middlewares) {
-            if ([mw respondsToSelector:@selector(tracerDidFinish:)]) {
-                [mw tracerDidFinish:self];
-            }
-        }
-    }
-}
-
 - (void)reportTracerTimeout
 {
-    @synchronized(_middlewares) {
-        for (id<SentryTracerMiddleware> mw in _middlewares) {
-            if ([mw respondsToSelector:@selector(tracerDidTimeout:)]) {
-                [mw tracerDidTimeout:self];
-            }
+    @synchronized(_extensions) {
+        for (id<SentryTracerExtension> mw in _extensions) {
+            [mw tracerDidTimeout];
         }
     }
 }

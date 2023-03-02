@@ -939,7 +939,7 @@ private class TimeToDisplayTrackerTest: SentryTimeToDisplayTracker {
     }
 
     var registerFullDisplayCalled = false
-    override func registerFullDisplay() {
+    override func reportFullDisplay() {
         registerFullDisplayCalled = true
     }
 

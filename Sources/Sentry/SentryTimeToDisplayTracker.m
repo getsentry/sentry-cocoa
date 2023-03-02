@@ -40,7 +40,7 @@ SentryTimeToDisplayTracker ()
                                                   self.controllerName]];
 }
 
-- (void)registerInitialDisplay
+- (void)reportInitialDisplay
 {
     if (self.initialDisplaySpan.timestamp != nil) {
         return;
@@ -62,7 +62,7 @@ SentryTimeToDisplayTracker ()
     }
 }
 
-- (void)registerFullDisplay
+- (void)reportFullDisplay
 {
     if (self.waitFullDisplay) {
         self.fullDisplay = [SentryCurrentDate date];
@@ -80,7 +80,7 @@ SentryTimeToDisplayTracker ()
     }
 }
 
-- (void)tracerDidTimeout:(SentryTracer *)tracer
+- (void)tracerDidTimeout
 {
     // SentryTracer deadline timeout fired,
     // initial display span needs to be finished.
@@ -89,18 +89,11 @@ SentryTimeToDisplayTracker ()
     }
 }
 
-- (NSArray<id<SentrySpan>> *)createAdditionalSpansForTrace:(SentryTracer *)tracer
+- (NSArray<id<SentrySpan>> *)tracerAdditionalSpan:(SpanCreationCallback)creationCallback
 {
     if (self.fullDisplay) {
-        SentrySpan *ttfd = [[SentrySpan alloc]
-            initWithContext:[[SentrySpanContext alloc]
-                                initWithTraceId:tracer.traceId
-                                         spanId:[[SentrySpanId alloc] init]
-                                       parentId:tracer.spanId
-                                      operation:SentrySpanOperationUILoadFullDisplay
-                                spanDescription:[NSString stringWithFormat:@"%@ full display",
-                                                          self.controllerName]
-                                        sampled:tracer.sampled]];
+        SentrySpan *ttfd = creationCallback(SentrySpanOperationUILoadFullDisplay,[NSString stringWithFormat:@"%@ full display",
+                                                                                  self.controllerName]);
 
         ttfd.startTimestamp = self.startDate;
         ttfd.timestamp = self.fullDisplay;
@@ -110,11 +103,6 @@ SentryTimeToDisplayTracker ()
     }
 
     return @[];
-}
-
-- (NSDate *)startDate
-{
-    return _startDate;
 }
 
 @end

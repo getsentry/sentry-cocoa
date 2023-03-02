@@ -130,8 +130,9 @@ SentryUIViewControllerPerformanceTracker ()
         return;
     }
 
-    if ([vcSpan.tracer getMiddlewaresOfType:SentryTimeToDisplayTracker.self].count > 0) {
-        // Already tracking time to display.
+    if ([vcSpan.tracer getExtensionsOfType:SentryTimeToDisplayTracker.self].count > 0) {
+        // Already tracking time to display, not creating a new tracker.
+        // This may happen if user manually call `loadView` from a view controller more than once.
         return;
     }
 
@@ -142,7 +143,7 @@ SentryUIViewControllerPerformanceTracker ()
     SentryTimeToDisplayTracker *ttdTracker =
         [[SentryTimeToDisplayTracker alloc] initForController:controller
                                            waitForFullDisplay:self.enableWaitForFullDisplay];
-    [vcSpan.tracer addMiddleware:ttdTracker];
+    [vcSpan.tracer addExtension:ttdTracker];
 
     self.currentTTDTracker = ttdTracker;
 }
@@ -157,16 +158,13 @@ SentryUIViewControllerPerformanceTracker ()
     }
 
     SentryTimeToDisplayTracker *ttdTracker =
-        [vcSpan.tracer getMiddlewaresOfType:SentryTimeToDisplayTracker.self].firstObject;
-    [ttdTracker registerInitialDisplay];
+        [vcSpan.tracer getExtensionsOfType:SentryTimeToDisplayTracker.self].firstObject;
+    [ttdTracker reportInitialDisplay];
 }
 
 - (void)reportFullyDisplayed
 {
-    [self.currentTTDTracker registerFullDisplay];
-
-    // No need for it anymore
-    self.currentTTDTracker = nil;
+    [self.currentTTDTracker reportFullDisplay];
 }
 
 - (void)viewControllerViewWillAppear:(UIViewController *)controller

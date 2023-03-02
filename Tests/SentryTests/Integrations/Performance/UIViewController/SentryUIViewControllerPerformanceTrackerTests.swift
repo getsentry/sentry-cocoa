@@ -470,7 +470,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             tracer = self.getStack(tracker).first as? SentryTracer
         }
 
-        let ttdTracker = tracer?.getMiddlewaresOfType(SentryTimeToDisplayTracker.self).first as? SentryTimeToDisplayTracker
+        let ttdTracker = tracer?.getExtensionsOfType(SentryTimeToDisplayTracker.self).first as? SentryTimeToDisplayTracker
 
         XCTAssertTrue(ttdTracker?.waitFullDisplay ?? false)
     }
@@ -489,7 +489,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             tracer = self.getStack(tracker).first as? SentryTracer
         }
 
-        let ttdTracker = tracer?.getMiddlewaresOfType(SentryTimeToDisplayTracker.self).first as? SentryTimeToDisplayTracker
+        let ttdTracker = tracer?.getExtensionsOfType(SentryTimeToDisplayTracker.self).first as? SentryTimeToDisplayTracker
         XCTAssertFalse(ttdTracker?.waitFullDisplay ?? true)
     }
 
