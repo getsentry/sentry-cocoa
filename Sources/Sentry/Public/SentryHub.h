@@ -2,8 +2,8 @@
 #import "SentryIntegrationProtocol.h"
 #import "SentrySpanProtocol.h"
 
-@class SentryEvent, SentryClient, SentryScope, SentryUser, SentryBreadcrumb,
-    SentryId, SentryUserFeedback, SentryTransactionContext;
+@class SentryEvent, SentryClient, SentryScope, SentryUser, SentryBreadcrumb, SentryId,
+    SentryUserFeedback, SentryTransactionContext;
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SentryHub : NSObject

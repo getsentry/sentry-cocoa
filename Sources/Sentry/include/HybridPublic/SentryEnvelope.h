@@ -1,8 +1,8 @@
 #import "PrivatesHeader.h"
 #if __has_include(<Sentry/SentryEnvelopeItemHeader.h>)
-#import <Sentry/SentryEnvelopeItemHeader.h>
+#    import <Sentry/SentryEnvelopeItemHeader.h>
 #else
-#import "SentryEnvelopeItemHeader.h"
+#    import "SentryEnvelopeItemHeader.h"
 #endif
 #import "SentrySdkInfo.h"
 #import "SentryTraceContext.h"

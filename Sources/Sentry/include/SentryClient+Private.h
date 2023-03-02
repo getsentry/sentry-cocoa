@@ -2,7 +2,8 @@
 #import "SentryDataCategory.h"
 #import "SentryDiscardReason.h"
 
-@class SentrySession, SentryEnvelopeItem, SentryId, SentryAttachment, SentryThreadInspector, SentryEnvelope;
+@class SentrySession, SentryEnvelopeItem, SentryId, SentryAttachment, SentryThreadInspector,
+    SentryEnvelope;
 
 NS_ASSUME_NONNULL_BEGIN
 
