@@ -31,7 +31,7 @@ class TraceTestViewController: UIViewController {
                     self.imageView.image = UIImage(data: image)
                     self.appendLifeCycleStep("GET https://sentry-brand.storage.googleapis.com/sentry-logo-black.png")
                 }
-                SentrySDK.reportFullDisplayed()
+                SentrySDK.reportFullyDisplayed()
             }
         }
         
