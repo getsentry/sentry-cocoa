@@ -1,6 +1,7 @@
 #import "SentryTraceContext.h"
 #import "SentryBaggage.h"
 #import "SentryDsn.h"
+#import "SentryId.h"
 #import "SentryLog.h"
 #import "SentryOptions+Private.h"
 #import "SentryScope+Private.h"
@@ -8,7 +9,6 @@
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
 #import "SentryUser.h"
-#import "SentryId.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
