@@ -7,7 +7,7 @@
 - Crash in AppHangs when no threads (#2725)
 
 ### Features
-- Time to initial display and time to full display (#2724)
+- Time to initial and full display (#2724)
 
 ## 8.2.0
 

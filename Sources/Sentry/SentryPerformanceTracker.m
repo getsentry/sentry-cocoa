@@ -215,8 +215,8 @@ SentryPerformanceTracker () <SentryTracerDelegate, SentryTracerMiddleware>
     id<SentrySpan> spanTracker;
     @synchronized(self.spans) {
         spanTracker = self.spans[spanId];
-        // Hold reference for tracer for longer because automatic
-        // tracer aren't  being referenced by anything else.
+        // Hold reference for tracer until the tracer finishes because automatic
+        // tracers aren't referenced by anything else.
         // callback to `tracerDidFinish` will release it.
         if (![spanTracker isKindOfClass:SentryTracer.self]) {
             [self.spans removeObjectForKey:spanId];
