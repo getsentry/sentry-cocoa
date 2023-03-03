@@ -2,13 +2,13 @@ import Sentry
 import XCTest
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-class SentryProfilerSwiftTests: XCTestCase {
+class _SentryProfilerSwiftTests: XCTestCase {
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryProfilerSwiftTests")
 
     private class Fixture {
         lazy var options: Options = {
             let options = Options()
-            options.dsn = SentryProfilerSwiftTests.dsnAsString
+            options.dsn = _SentryProfilerSwiftTests.dsnAsString
             return options
         }()
         lazy var client: TestClient = TestClient(options: options)!
@@ -333,7 +333,7 @@ class SentryProfilerSwiftTests: XCTestCase {
     }
 }
 
-private extension SentryProfilerSwiftTests {
+private extension _SentryProfilerSwiftTests {
     enum TestError: Error {
         case unexpectedProfileDeserializationType
         case unexpectedMeasurementsDeserializationType
