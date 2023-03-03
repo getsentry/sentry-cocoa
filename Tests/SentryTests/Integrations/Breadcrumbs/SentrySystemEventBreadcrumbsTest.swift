@@ -1,4 +1,5 @@
 @testable import Sentry
+import SentryTestUtils
 import XCTest
 
 class SentrySystemEventBreadcrumbsTest: XCTestCase {
@@ -127,7 +128,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
             
             XCTAssertEqual("device.event", crumb.category)
             XCTAssertEqual("system", crumb.type)
-            XCTAssertEqual(.info, crumb.level)
+            XCTAssertEqual(SentryLevel.info, crumb.level)
             
             XCTAssertNotNil(crumb.data, "no breadcrumb.data")
             
@@ -181,7 +182,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
             
             XCTAssertEqual("device.orientation", crumb.category)
             XCTAssertEqual("navigation", crumb.type)
-            XCTAssertEqual(.info, crumb.level)
+            XCTAssertEqual(SentryLevel.info, crumb.level)
             
             XCTAssertNotNil(crumb.data, "no breadcrumb.data")
             
@@ -268,7 +269,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
        
             XCTAssertEqual("device.event", crumb.category)
             XCTAssertEqual("system", crumb.type)
-            XCTAssertEqual(.info, crumb.level)
+            XCTAssertEqual(SentryLevel.info, crumb.level)
             
             if let data = crumb.data {
                 XCTAssertEqual(action, data["action"] as? String)

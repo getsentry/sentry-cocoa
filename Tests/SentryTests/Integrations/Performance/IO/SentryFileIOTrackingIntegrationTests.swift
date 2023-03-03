@@ -1,5 +1,6 @@
 import Foundation
 import Sentry
+import SentryTestUtils
 import XCTest
  
 // This test is also executed under iOS-SwiftUITests, because

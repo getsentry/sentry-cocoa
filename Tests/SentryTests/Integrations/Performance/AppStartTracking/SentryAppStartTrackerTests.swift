@@ -1,10 +1,10 @@
+import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryAppStartTrackerTests: NotificationCenterTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryAppStartTrackerTests")
-    private static let dsn = TestConstants.dsn(username: "SentryAppStartTrackerTests")
     
     private class Fixture {
         

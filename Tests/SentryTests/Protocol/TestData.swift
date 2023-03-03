@@ -1,5 +1,6 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 import Sentry
+import SentryTestUtils
 import UIKit
 #endif
 
