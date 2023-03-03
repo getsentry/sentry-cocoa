@@ -1,5 +1,4 @@
 import SentryTestUtils
-import SentryTestUtils
 import XCTest
 
 class SentryCrashIntegrationTests: NotificationCenterTestCase {
