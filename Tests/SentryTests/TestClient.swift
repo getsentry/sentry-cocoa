@@ -2,24 +2,25 @@ import Foundation
 
 class TestClient: SentryClient {
     override init?(options: Options) {
-        super.init(options: options, fileManager: try! TestFileManager(options: options), transportAdapter: TestTransportAdapter(transport: TestTransport(), options: options))
+        super.init(options: options, fileManager: try! TestFileManager(options: options), deleteOldEnvelopeItems: false, transportAdapter: TestTransportAdapter(transport: TestTransport(), options: options))
     }
 
-    override init?(options: Options, fileManager: SentryFileManager) {
-        super.init(options: options, fileManager: fileManager, transportAdapter: TestTransportAdapter(transport: TestTransport(), options: options))
+    override init?(options: Options, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool) {
+        super.init(options: options, fileManager: fileManager, deleteOldEnvelopeItems: deleteOldEnvelopeItems, transportAdapter: TestTransportAdapter(transport: TestTransport(), options: options))
     }
     
-    override init(options: Options, fileManager: SentryFileManager, transportAdapter: SentryTransportAdapter) {
-        super.init(options: options, fileManager: fileManager, transportAdapter: transportAdapter)
+    override init(options: Options, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool, transportAdapter: SentryTransportAdapter) {
+        super.init(options: options, fileManager: fileManager, deleteOldEnvelopeItems: deleteOldEnvelopeItems, transportAdapter: transportAdapter)
     }
     
     // Without this override we get a fatal error: use of unimplemented initializer
     // see https://stackoverflow.com/questions/28187261/ios-swift-fatal-error-use-of-unimplemented-initializer-init
-    override init(options: Options, transportAdapter: SentryTransportAdapter, fileManager: SentryFileManager, threadInspector: SentryThreadInspector, random: SentryRandomProtocol, crashWrapper: SentryCrashWrapper, deviceWrapper: SentryUIDeviceWrapper, locale: Locale, timezone: TimeZone) {
+    override init(options: Options, transportAdapter: SentryTransportAdapter, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool, threadInspector: SentryThreadInspector, random: SentryRandomProtocol, crashWrapper: SentryCrashWrapper, deviceWrapper: SentryUIDeviceWrapper, locale: Locale, timezone: TimeZone) {
         super.init(
             options: options,
             transportAdapter: transportAdapter,
             fileManager: fileManager,
+            deleteOldEnvelopeItems: false,
             threadInspector: threadInspector,
             random: random,
             crashWrapper: crashWrapper,
