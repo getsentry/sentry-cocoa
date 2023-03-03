@@ -92,7 +92,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     }
     
     func testGetInstallationId() {
-        XCTAssertEqual(SentryInstallation.id(), PrivateSentrySDKOnly.installationID)
+        XCTAssertEqual(SentryInstallation.id(with: Options()), PrivateSentrySDKOnly.installationID)
     }
     
     func testSendAppStartMeasurement() {

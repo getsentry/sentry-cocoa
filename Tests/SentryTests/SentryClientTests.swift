@@ -1186,7 +1186,7 @@ class SentryClientTest: XCTestCase {
         fixture.getSut().capture(message: "any message")
         
         assertLastSentEvent { actual in
-            XCTAssertEqual(SentryInstallation.id(), actual.user?.userId)
+            XCTAssertEqual(SentryInstallation.id(with: Options()), actual.user?.userId)
         }
     }
     

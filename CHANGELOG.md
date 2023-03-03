@@ -2,7 +2,11 @@
 
 ## Unreleased
 
+### Features 
+
 - Add cache directory option ([#2711](https://github.com/getsentry/sentry-cocoa/pull/2711))
+
+## 8.2.0
 
 ### Features
 

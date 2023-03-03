@@ -9,18 +9,10 @@ NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
 
 /**
- * Init SentryOptions.
- * @param options Options dictionary
- * @return SentryOptions
- */
-- (_Nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)options
-                      didFailWithError:(NSError *_Nullable *_Nullable)error;
-
-/**
  * Optional, custom cache directory. Use when default one can not be accessed, e.g. in security
  * environment.
  */
-@property (nonatomic, strong) NSString *_Nullable cacheDirectory;
+@property (nonatomic, copy) NSString *cacheDirectoryPath;
 
 /**
  * The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
