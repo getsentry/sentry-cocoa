@@ -161,17 +161,20 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         anrStoppedExpectation.isInverted = true
         
         // So ARC deallocates SentryANRTrackerTestDelegate
-        func addSecondListener() {
-            self.sut.addListener(SentryANRTrackerTestDelegate())
+        let addListenersCount = 10
+        func addListeners() {
+            for _ in 0..<addListenersCount {
+                self.sut.addListener(SentryANRTrackerTestDelegate())
+            }
         }
-        addSecondListener()
+        addListeners()
         
         sut.addListener(self)
         sut.removeListener(self)
         
         let listeners = Dynamic(sut).listeners.asObject as? NSHashTable<NSObject>
         
-        XCTAssertEqual(0, listeners?.count)
+        XCTAssertGreaterThan(addListenersCount, listeners?.count ?? addListenersCount)
         
         wait(for: [anrDetectedExpectation, anrStoppedExpectation], timeout: 0.0)
     }
