@@ -107,6 +107,25 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         
         assertNoEventCaptured()
     }
+    
+    func testDealloc_CallsUninstall() {
+        givenInitializedTracker()
+        
+        // // So ARC deallocates the SentryANRTrackingIntegration
+        func initIntegration() {
+            self.crashWrapper.internalIsBeingTraced = false
+            let sut = SentryANRTrackingIntegration()
+            sut.install(with: self.options)
+        }
+        
+        initIntegration()
+        
+        let tracker = SentryDependencyContainer.sharedInstance().getANRTracker(self.options.appHangTimeoutInterval)
+        
+        let listeners = Dynamic(tracker).listeners.asObject as? NSHashTable<NSObject>
+        
+        XCTAssertEqual(1, listeners?.count ?? 2)
+    }
 
     private func givenInitializedTracker(isBeingTraced: Bool = false) {
         givenSdkWithHub()

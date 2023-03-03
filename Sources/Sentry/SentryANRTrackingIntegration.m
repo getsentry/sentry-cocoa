@@ -55,6 +55,11 @@ SentryANRTrackingIntegration ()
     [self.tracker removeListener:self];
 }
 
+- (void)dealloc
+{
+    [self uninstall];
+}
+
 - (void)anrDetected
 {
     SentryThreadInspector *threadInspector = SentrySDK.currentHub.getClient.threadInspector;
