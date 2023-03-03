@@ -102,6 +102,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     SentryTransportAdapter *transportAdapter =
         [[SentryTransportAdapter alloc] initWithTransport:transport options:options];
 
+    return [self initWithOptions:options fileManager:fileManager transportAdapter:transportAdapter];
+}
+
+/** Internal constructor for testing purposes. */
+- (instancetype)initWithOptions:(SentryOptions *)options
+                    fileManager:(SentryFileManager *)fileManager
+               transportAdapter:(SentryTransportAdapter *)transportAdapter
+
+{
     SentryInAppLogic *inAppLogic =
         [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
                                           inAppExcludes:options.inAppExcludes];

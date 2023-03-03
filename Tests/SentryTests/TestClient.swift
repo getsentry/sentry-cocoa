@@ -2,11 +2,15 @@ import Foundation
 
 class TestClient: SentryClient {
     override init?(options: Options) {
-        super.init(options: options, fileManager: try! TestFileManager(options: options))
+        super.init(options: options, fileManager: try! TestFileManager(options: options), transportAdapter: TestTransportAdapter(transport: TestTransport(), options: options))
     }
 
     override init?(options: Options, fileManager: SentryFileManager) {
-        super.init(options: options, fileManager: fileManager)
+        super.init(options: options, fileManager: fileManager, transportAdapter: TestTransportAdapter(transport: TestTransport(), options: options))
+    }
+    
+    override init(options: Options, fileManager: SentryFileManager, transportAdapter: SentryTransportAdapter) {
+        super.init(options: options, fileManager: fileManager, transportAdapter: transportAdapter)
     }
     
     // Without this override we get a fatal error: use of unimplemented initializer

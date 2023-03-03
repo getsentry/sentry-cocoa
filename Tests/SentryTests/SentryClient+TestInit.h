@@ -16,6 +16,10 @@ SentryClient ()
                               fileManager:(SentryFileManager *)fileManager;
 
 - (instancetype)initWithOptions:(SentryOptions *)options
+                    fileManager:(SentryFileManager *)fileManager
+               transportAdapter:(SentryTransportAdapter *)transportAdapter;
+
+- (instancetype)initWithOptions:(SentryOptions *)options
                transportAdapter:(SentryTransportAdapter *)transportAdapter
                     fileManager:(SentryFileManager *)fileManager
                 threadInspector:(SentryThreadInspector *)threadInspector
