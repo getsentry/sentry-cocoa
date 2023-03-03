@@ -8,6 +8,7 @@
 - MetricKit stack traces (#2723)
 - InApp for MetricKit stack traces (#2739)
 - Mutating while enumerating crash in Tracer (#2744)
+- Normalize profiling timestamps relative to transaction start (#2729)
 
 ## 8.2.0
 
