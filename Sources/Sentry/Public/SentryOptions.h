@@ -146,6 +146,7 @@ NS_SWIFT_NAME(Options)
 
 /**
  * The interval to end a session if the App goes to the background.
+ * The default is 30000 millis / 30 seconds.
  */
 @property (nonatomic, assign) NSUInteger sessionTrackingIntervalMillis;
 
