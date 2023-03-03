@@ -816,8 +816,6 @@ class SentryTracerTests: XCTestCase {
         XCTAssertTrue(sutOnScope === fixture.hub.scope.span)
     }
     
-    // Although we only run this test above the below specified versions, we expect the
-    // implementation to be thread safe
     func testFinishAsync() {
         let sut = fixture.getSut()
         let child = sut.startChild(operation: fixture.transactionOperation)
@@ -854,8 +852,6 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(spans.count, children * (grandchildren + 1) + 1)
     }
     
-    // Although we only run this test above the below specified versions, we expect the
-    // implementation to be thread safe
     func testConcurrentTransactions_OnlyOneGetsMeasurement() {
         SentrySDK.setAppStartMeasurement(fixture.getAppStartMeasurement(type: .warm))
         
@@ -885,6 +881,47 @@ class SentryTracerTests: XCTestCase {
         }
         
         XCTAssertEqual(1, transactionsWithAppStartMeasurement.count)
+    }
+    
+    func testAddingSpansOnDifferentThread_WhileFinishing_DoesNotCrash() {
+        let sut = fixture.getSut(waitForChildren: false)
+        
+        let children = 1_000
+        for _ in 0..<children {
+            let child = sut.startChild(operation: self.fixture.transactionOperation)
+            child.finish()
+        }
+        
+        let queue = DispatchQueue(label: "SentryTracerTests", attributes: [.concurrent, .initiallyInactive])
+        let group = DispatchGroup()
+        
+        func addChildrenAsync() {
+            for _ in 0 ..< 100 {
+                group.enter()
+                queue.async {
+                    let child = sut.startChild(operation: self.fixture.transactionOperation)
+                    Dynamic(child).frames = []
+                    child.finish()
+                    group.leave()
+                }
+            }
+        }
+
+       addChildrenAsync()
+        
+        group.enter()
+        queue.async {
+            sut.finish()
+            group.leave()
+        }
+        
+        addChildrenAsync()
+        
+        queue.activate()
+        group.wait()
+        
+        let spans = getSerializedTransaction()["spans"]! as! [[String: Any]]
+        XCTAssertGreaterThanOrEqual(spans.count, children)
     }
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
