@@ -54,6 +54,7 @@ using namespace sentry::profiling;
     XCTAssertGreaterThan(std::chrono::duration_cast<std::chrono::seconds>(duration).count(), 0);
     XCTAssertGreaterThan(profiler->numSamples(), static_cast<std::uint64_t>(0));
     XCTAssertGreaterThan(numIdleSamples, 0);
+    pthread_cancel(idleThread);
 }
 
 static void *
