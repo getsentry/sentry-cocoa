@@ -16,6 +16,8 @@ on:
       - 'scripts/tests-with-thread-sanitizer.sh'
       - 'scripts/ci-select-xcode.sh'
       - 'scripts/xcode-test.sh'
+
+      # run the workflow any time an Xcode scheme changes for any tested target
       - 'Sentry.xcodeproj/xcshareddata/xcschemes/Sentry.xcscheme'
       - 'Samples/tvOS-Swift/tvOS-Swift.xcodeproj/xcshareddata/xcschemes/tvOS-Swift.xcscheme'
       - 'Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS13-Swift.xcscheme'
