@@ -4,8 +4,8 @@
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryInAppLogic.h"
 #import "SentryNSDataTracker.h"
+#import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions+Private.h"
-#import "SentryProcessInfoWrapper.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwizzle.h"
 #import "SentryThreadInspector.h"
@@ -33,7 +33,7 @@ SentryNSDataSwizzling ()
 {
     self.dataTracker = [[SentryNSDataTracker alloc]
         initWithThreadInspector:[self buildThreadInspectorForOptions:options]
-             processInfoWrapper:[[SentryProcessInfoWrapper alloc] init]];
+             processInfoWrapper:[[SentryNSProcessInfoWrapper alloc] init]];
     [self.dataTracker enable];
     [SentryNSDataSwizzling swizzleNSData];
 }

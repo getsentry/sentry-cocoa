@@ -18,7 +18,10 @@ class SentryNSDataTrackerTests: XCTestCase {
 
             threadInspector.allThreads = [TestData.thread2]
 
-            let result = SentryNSDataTracker(threadInspector: threadInspector, processInfoWrapper: TestProcessInfoWrapper())
+            let processInfoWrapper = TestSentryNSProcessInfoWrapper()
+            processInfoWrapper.overrides.processDirectoryPath = "sentrytest"
+
+            let result = SentryNSDataTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)
             CurrentDate.setCurrentDateProvider(dateProvider)
             result.enable()
             return result
