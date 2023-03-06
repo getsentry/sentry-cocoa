@@ -9,6 +9,7 @@
 - InApp for MetricKit stack traces (#2739)
 - Mutating while enumerating crash in Tracer (#2744)
 - Normalize profiling timestamps relative to transaction start (#2729)
+- Stop using UIScreen.main
 
 ## 8.2.0
 
