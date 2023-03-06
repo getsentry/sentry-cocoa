@@ -19,6 +19,7 @@
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
+#    import "SentryUIApplication.h"
 #endif
 
 static dispatch_once_t installationToken = 0;
@@ -275,8 +276,15 @@ SentryCrashIntegration ()
 #if SENTRY_HAS_UIDEVICE && !defined(TESTCI)
     // Acessessing UIScreen.mainScreen fails when using SentryTestObserver.
     // It's a bug with the iOS 15 and 16 simulator, it runs fine with iOS 14.
-    [deviceData setValue:@(UIScreen.mainScreen.bounds.size.height) forKey:@"screen_height_pixels"];
-    [deviceData setValue:@(UIScreen.mainScreen.bounds.size.width) forKey:@"screen_width_pixels"];
+
+    NSArray<UIWindow *> * appWindows = SentryDependencyContainer.sharedInstance.application.windows;
+    if ([appWindows count] > 0) {
+        UIScreen* appScreen = appWindows.firstObject.screen;
+        if (appScreen != nil) {
+            [deviceData setValue:@(appScreen.bounds.size.height) forKey:@"screen_height_pixels"];
+            [deviceData setValue:@(appScreen.bounds.size.width) forKey:@"screen_width_pixels"];
+        }
+    }
 #endif
 
     [scope setContextValue:deviceData forKey:DEVICE_KEY];
