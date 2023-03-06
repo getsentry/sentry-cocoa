@@ -17,6 +17,15 @@ on:
       - 'scripts/ci-select-xcode.sh'
       - 'scripts/xcode-test.sh'
 
+      # run the workflow any time an Xcode scheme changes for any tested target
+      - 'Sentry.xcodeproj/xcshareddata/xcschemes/Sentry.xcscheme'
+      - 'Samples/tvOS-Swift/tvOS-Swift.xcodeproj/xcshareddata/xcschemes/tvOS-Swift.xcscheme'
+      - 'Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS13-Swift.xcscheme'
+      - 'Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-SwiftUITests.xcscheme'
+      - 'Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-Swift.xcscheme'
+      - 'Samples/macOS-Swift/macOS-Swift.xcodeproj/xcshareddata/xcschemes/macOS-Swift.xcscheme'
+      - 'Samples/iOS-ObjectiveC/iOS-ObjectiveC.xcodeproj/xcshareddata/xcschemes/iOS-ObjectiveC.xcscheme'
+
 jobs:
   build-test-server:
     name: Build test server
