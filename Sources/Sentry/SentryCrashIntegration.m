@@ -274,8 +274,6 @@ SentryCrashIntegration ()
     [deviceData setValue:locale forKey:LOCALE_KEY];
 
 #if SENTRY_HAS_UIDEVICE && !defined(TESTCI)
-    // Acessessing UIScreen.mainScreen fails when using SentryTestObserver.
-    // It's a bug with the iOS 15 and 16 simulator, it runs fine with iOS 14.
 
     NSArray<UIWindow *> *appWindows = SentryDependencyContainer.sharedInstance.application.windows;
     if ([appWindows count] > 0) {
