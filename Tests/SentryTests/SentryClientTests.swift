@@ -1,4 +1,5 @@
 import Sentry
+import SentryTestUtils
 import XCTest
 
 // swiftlint:disable file_length
@@ -73,6 +74,7 @@ class SentryClientTest: XCTestCase {
                     options: options,
                     transportAdapter: transportAdapter,
                     fileManager: fileManager,
+                    deleteOldEnvelopeItems: false,
                     threadInspector: threadInspector,
                     random: random,
                     crashWrapper: crashWrapper,
@@ -141,7 +143,7 @@ class SentryClientTest: XCTestCase {
     func testInit_CallsDeleteOldEnvelopeItemsInvocations() throws {
         let fileManager = try TestFileManager(options: Options())
         
-        _ = SentryClient(options: Options(), fileManager: fileManager)
+        _ = SentryClient(options: Options(), fileManager: fileManager, deleteOldEnvelopeItems: true)
         
         XCTAssertEqual(1, fileManager.deleteOldEnvelopeItemsInvocations.count)
     }
@@ -1175,7 +1177,7 @@ class SentryClientTest: XCTestCase {
 
         let options = Options()
         options.dsn = SentryClientTest.dsn
-        let client = SentryClient(options: options, dispatchQueue: TestSentryDispatchQueueWrapper())
+        let client = SentryClient(options: options, dispatchQueue: TestSentryDispatchQueueWrapper(), deleteOldEnvelopeItems: false)
 
         XCTAssertNil(client)
 

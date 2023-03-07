@@ -1,4 +1,5 @@
 import Sentry
+import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
@@ -11,7 +12,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             options.dsn = SentryProfilerSwiftTests.dsnAsString
             return options
         }()
-        lazy var client: TestClient = TestClient(options: options)!
+        lazy var client: TestClient? = TestClient(options: options)
         lazy var hub: SentryHub = {
             let hub = SentryHub(client: client, andScope: scope)
             hub.bindClient(client)
@@ -345,7 +346,7 @@ private extension SentryProfilerSwiftTests {
     }
 
     func getLatestProfileData() throws -> Data {
-        guard let envelope = self.fixture.client.captureEventWithScopeInvocations.last else {
+        guard let envelope = try XCTUnwrap(self.fixture.client).captureEventWithScopeInvocations.last else {
             throw(TestError.noEnvelopeCaptured)
         }
 
@@ -356,6 +357,14 @@ private extension SentryProfilerSwiftTests {
 
         XCTAssertEqual("profile", profileItem.header.type)
         return profileItem.data
+    }
+
+    func getLatestTransaction() throws -> Transaction {
+        guard let envelope = try XCTUnwrap(self.fixture.client).captureEventWithScopeInvocations.last else {
+            throw(TestError.noEnvelopeCaptured)
+        }
+
+        return try XCTUnwrap(envelope.event as? Transaction)
     }
 
     /// Keep a thread busy over a long enough period of time (long enough for 3 samples) for the sampler to pick it up.
@@ -398,6 +407,7 @@ private extension SentryProfilerSwiftTests {
 
     func assertMetricsPayload(metricsBatches: Int = 1) throws {
         let profileData = try self.getLatestProfileData()
+        let transaction = try getLatestTransaction()
         guard let profile = try JSONSerialization.jsonObject(with: profileData) as? [String: Any] else {
             throw TestError.unexpectedProfileDeserializationType
         }
@@ -409,24 +419,24 @@ private extension SentryProfilerSwiftTests {
 
         for (i, expectedUsage) in fixture.mockCPUUsages.enumerated() {
             let key = NSString(format: kSentryMetricProfilerSerializationKeyCPUUsageFormat as NSString, i) as String
-            try assertMetricValue(measurements: measurements, key: key, numberOfReadings: expectedUsageReadings, expectedValue: expectedUsage)
+            try assertMetricValue(measurements: measurements, key: key, numberOfReadings: expectedUsageReadings, expectedValue: expectedUsage, transaction: transaction)
         }
 
-        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, numberOfReadings: expectedUsageReadings, expectedValue: fixture.mockMemoryFootprint)
+        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, numberOfReadings: expectedUsageReadings, expectedValue: fixture.mockMemoryFootprint, transaction: transaction)
 
 #if !os(macOS)
         // can't elide the value argument, because assertMetricValue is generic and the parameter type won't be able to be inferred, so we provide a dummy variable/value
         let dummyValue: UInt64? = nil
-        try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, numberOfReadings: fixture.mockSlowFramesPerBatch * metricsBatches, expectedValue: dummyValue)
-        try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeyFrozenFrameRenders, numberOfReadings: fixture.mockFrozenFramesPerBatch * metricsBatches, expectedValue: dummyValue)
+        try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, numberOfReadings: fixture.mockSlowFramesPerBatch * metricsBatches, expectedValue: dummyValue, transaction: transaction)
+        try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeyFrozenFrameRenders, numberOfReadings: fixture.mockFrozenFramesPerBatch * metricsBatches, expectedValue: dummyValue, transaction: transaction)
 
         // need to add 1 frame rate reading because there is always an initial one for the frame rate when the frame tracker starts
         let expectedFrameRateReadings = 1 + fixture.mockFrameRateChangesPerBatch.count * metricsBatches
-        try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeyFrameRates, numberOfReadings: expectedFrameRateReadings, expectedValue: dummyValue)
+        try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeyFrameRates, numberOfReadings: expectedFrameRateReadings, expectedValue: dummyValue, transaction: transaction)
 #endif
     }
 
-    func assertMetricValue<T: Equatable>(measurements: [String: Any], key: String, numberOfReadings: Int, expectedValue: T?) throws {
+    func assertMetricValue<T: Equatable>(measurements: [String: Any], key: String, numberOfReadings: Int, expectedValue: T?, transaction: Transaction) throws {
         guard let metricContainer = measurements[key] as? [String: Any] else {
             throw TestError.noMetricsReported
         }
@@ -434,20 +444,30 @@ private extension SentryProfilerSwiftTests {
             throw TestError.malformedMetricValueEntry
         }
         XCTAssertEqual(values.count, numberOfReadings, "Wrong number of values under \(key)")
+
         if let expectedValue = expectedValue {
             guard let actualValue = values[0]["value"] as? T else {
                 throw TestError.noMetricValuesFound
             }
             XCTAssertEqual(actualValue, expectedValue, "Wrong value for \(key)")
 
-            let timestamp = try XCTUnwrap(values[0]["elapsed_since_start_ns"])
-            XCTAssert(timestamp is String)
+            let timestamp = try XCTUnwrap(values[0]["elapsed_since_start_ns"] as? NSString)
+            try assertTimestampOccursWithinTransaction(timestamp: timestamp, transaction: transaction)
         }
+    }
+
+    /// Assert that the relative timestamp actually falls within the transaction's duration, so it should be between 0 and the transaction duration. The string that holds an elapsed time actually holds an unsigned long long value (due to us using unsigned 64 bit integers, which are not officially supported by JSON), but there is no Cocoa API to get that back out of a string. So, we'll just convert them to signed 64 bit integers, for which there is an API. This likely won't cause a problem because signed 64 bit ints still support large positive values that are likely to be larger than any amount of nanoseconds of a machine's uptime. We can revisit if this actually fails in practice.
+    func assertTimestampOccursWithinTransaction(timestamp: NSString, transaction: Transaction) throws {
+        let transactionDuration = Int64(getDurationNs(transaction.startSystemTime, transaction.endSystemTime))
+        let timestampNumericValue = timestamp.longLongValue
+        XCTAssertGreaterThanOrEqual(timestampNumericValue, 0)
+        XCTAssertLessThanOrEqual(timestampNumericValue, transactionDuration)
     }
 
     func assertValidProfileData(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeout: Bool = false) throws {
         let data = try getLatestProfileData()
-        let profile = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        let profile = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let transaction = try getLatestTransaction()
 
         XCTAssertNotNil(profile["version"])
         if let timestampString = profile["timestamp"] as? String {
@@ -456,61 +476,64 @@ private extension SentryProfilerSwiftTests {
             XCTFail("Expected a top-level timestamp")
         }
 
-        let device = profile["device"] as? [String: Any?]
+        let device = try XCTUnwrap(profile["device"] as? [String: Any?])
         XCTAssertNotNil(device)
-        XCTAssertEqual("Apple", device!["manufacturer"] as! String)
-        XCTAssertEqual(device!["locale"] as! String, (NSLocale.current as NSLocale).localeIdentifier)
-        XCTAssertFalse((device!["model"] as! String).isEmpty)
+        XCTAssertEqual("Apple", try XCTUnwrap(device["manufacturer"] as? String))
+        XCTAssertEqual(try XCTUnwrap(device["locale"] as? String), (NSLocale.current as NSLocale).localeIdentifier)
+        XCTAssertFalse(try XCTUnwrap(device["model"] as? String).isEmpty)
 #if targetEnvironment(simulator)
-        XCTAssertTrue(device!["is_emulator"] as! Bool)
+        XCTAssertTrue(try XCTUnwrap(device["is_emulator"] as? Bool))
 #else
-        XCTAssertFalse(device!["is_emulator"] as! Bool)
+        XCTAssertFalse(try XCTUnwrap(device["is_emulator"] as? Bool))
 #endif
 
-        let os = profile["os"] as? [String: Any?]
+        let os = try XCTUnwrap(profile["os"] as? [String: Any?])
         XCTAssertNotNil(os)
-        XCTAssertNotNil(os?["name"] as? String)
-        XCTAssertFalse((os!["version"] as! String).isEmpty)
-        XCTAssertFalse((os!["build_number"] as! String).isEmpty)
+        XCTAssertNotNil(try XCTUnwrap(os["name"] as? String))
+        XCTAssertFalse(try XCTUnwrap(os["version"] as? String).isEmpty)
+        XCTAssertFalse(try XCTUnwrap(os["build_number"] as? String).isEmpty)
 
-        XCTAssertEqual("cocoa", profile["platform"] as! String)
+        let platform = try XCTUnwrap(profile["platform"] as? String)
+        XCTAssertEqual("cocoa", platform)
 
-        XCTAssertEqual(transactionEnvironment, profile["environment"] as! String)
+        XCTAssertEqual(transactionEnvironment, try XCTUnwrap(profile["environment"] as? String))
 
         let bundleID = Bundle.main.object(forInfoDictionaryKey: kCFBundleIdentifierKey as String) ?? "(null)"
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "(null)"
         let build = Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) ?? "(null)"
-        let releaseString = "\(bundleID)@\(version)+\(build)"
-        XCTAssertEqual(profile["release"] as! String, releaseString)
+        let expectedReleaseString = "\(bundleID)@\(version)+\(build)"
+        let actualReleaseString = try XCTUnwrap(profile["release"] as? String)
+        XCTAssertEqual(actualReleaseString, expectedReleaseString)
 
-        XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: profile["profile_id"] as! String))
+        XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: try XCTUnwrap(profile["profile_id"] as? String)))
 
-        let images = (profile["debug_meta"] as! [String: Any])["images"] as! [[String: Any]]
+        let debugMeta = try XCTUnwrap(profile["debug_meta"] as? [String: Any])
+        let images = try XCTUnwrap(debugMeta["images"] as? [[String: Any]])
         XCTAssertFalse(images.isEmpty)
         let firstImage = images[0]
-        XCTAssertFalse((firstImage["code_file"] as! String).isEmpty)
-        XCTAssertFalse((firstImage["debug_id"] as! String).isEmpty)
-        XCTAssertFalse((firstImage["image_addr"] as! String).isEmpty)
-        XCTAssertGreaterThan((firstImage["image_size"] as! Int), 0)
-        XCTAssertEqual(firstImage["type"] as! String, "macho")
+        XCTAssertFalse(try XCTUnwrap(firstImage["code_file"] as? String).isEmpty)
+        XCTAssertFalse(try XCTUnwrap(firstImage["debug_id"] as? String).isEmpty)
+        XCTAssertFalse(try XCTUnwrap(firstImage["image_addr"] as? String).isEmpty)
+        XCTAssertGreaterThan(try XCTUnwrap(firstImage["image_size"] as? Int), 0)
+        XCTAssertEqual(try XCTUnwrap(firstImage["type"] as? String), "macho")
 
-        let sampledProfile = profile["profile"] as! [String: Any]
-        let threadMetadata = sampledProfile["thread_metadata"] as! [String: [String: Any]]
-        let queueMetadata = sampledProfile["queue_metadata"] as! [String: Any]
+        let sampledProfile = try XCTUnwrap(profile["profile"] as? [String: Any])
+        let threadMetadata = try XCTUnwrap(sampledProfile["thread_metadata"] as? [String: [String: Any]])
+        let queueMetadata = try XCTUnwrap(sampledProfile["queue_metadata"] as? [String: Any])
         XCTAssertFalse(threadMetadata.isEmpty)
-        XCTAssertFalse(threadMetadata.values.compactMap { $0["priority"] }.filter { ($0 as! Int) > 0 }.isEmpty)
+        XCTAssertFalse(try threadMetadata.values.compactMap { $0["priority"] }.filter { try XCTUnwrap($0 as? Int) > 0 }.isEmpty)
         XCTAssertFalse(queueMetadata.isEmpty)
-        XCTAssertFalse(((queueMetadata.first?.value as! [String: Any])["label"] as! String).isEmpty)
+        XCTAssertFalse(try XCTUnwrap(try XCTUnwrap(queueMetadata.first?.value as? [String: Any])["label"] as? String).isEmpty)
 
-        let samples = sampledProfile["samples"] as! [[String: Any]]
+        let samples = try XCTUnwrap(sampledProfile["samples"] as? [[String: Any]])
         XCTAssertFalse(samples.isEmpty)
 
-        let frames = sampledProfile["frames"] as! [[String: Any]]
+        let frames = try XCTUnwrap(sampledProfile["frames"] as? [[String: Any]])
         XCTAssertFalse(frames.isEmpty)
-        XCTAssertFalse((frames[0]["instruction_addr"] as! String).isEmpty)
-        XCTAssertFalse((frames[0]["function"] as! String).isEmpty)
+        XCTAssertFalse(try XCTUnwrap(frames[0]["instruction_addr"] as? String).isEmpty)
+        XCTAssertFalse(try XCTUnwrap(frames[0]["function"] as? String).isEmpty)
 
-        let stacks = sampledProfile["stacks"] as! [[Int]]
+        let stacks = try XCTUnwrap(sampledProfile["stacks"] as? [[Int]])
         var foundAtLeastOneNonEmptySample = false
         XCTAssertFalse(stacks.isEmpty)
         for stack in stacks {
@@ -522,11 +545,22 @@ private extension SentryProfilerSwiftTests {
         }
         XCTAssert(foundAtLeastOneNonEmptySample)
 
-        let transaction = try XCTUnwrap(profile["transaction"] as? [String: Any])
-        XCTAssertEqual(fixture.transactionName, transaction["name"] as! String)
-        XCTAssertNotNil(transaction["id"])
-        if let idString = transaction["id"] {
-            XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: idString as! String))
+        let transactions = try XCTUnwrap(profile["transactions"] as? [[String: Any]])
+        XCTAssertEqual(transactions.count, 1)
+        for transaction in transactions {
+            XCTAssertEqual(fixture.transactionName, try XCTUnwrap(transaction["name"] as? String))
+            XCTAssertNotNil(transaction["id"])
+            if let idString = transaction["id"] {
+                XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: try XCTUnwrap(idString as? String)))
+            }
+            XCTAssertNotNil(transaction["trace_id"])
+            if let traceIDString = transaction["trace_id"] {
+                XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: try XCTUnwrap(traceIDString as? String)))
+            }
+            XCTAssertNotNil(transaction["trace_id"])
+            XCTAssertNotNil(transaction["relative_start_ns"])
+            XCTAssertFalse(try XCTUnwrap(transaction["relative_end_ns"] as? NSString).isEqual(to: "0"))
+            XCTAssertNotNil(transaction["active_thread_id"])
         }
         XCTAssertNotNil(transaction["trace_id"])
         if let traceIDString = transaction["trace_id"] {
@@ -536,8 +570,8 @@ private extension SentryProfilerSwiftTests {
         XCTAssertNotNil(transaction["active_thread_id"])
 
         for sample in samples {
-            let timestamp = try XCTUnwrap(sample["elapsed_since_start_ns"])
-            XCTAssert(timestamp is String)
+            let timestamp = try XCTUnwrap(sample["elapsed_since_start_ns"] as? NSString)
+            try assertTimestampOccursWithinTransaction(timestamp: timestamp, transaction: transaction)
             XCTAssertNotNil(sample["thread_id"])
             let stackIDEntry = try XCTUnwrap(sample["stack_id"])
             let stackID = try XCTUnwrap(stackIDEntry as? Int)
@@ -545,7 +579,7 @@ private extension SentryProfilerSwiftTests {
         }
 
         if shouldTimeout {
-            XCTAssertEqual(profile["truncation_reason"] as! String, profilerTruncationReasonName(.timeout))
+            XCTAssertEqual(try XCTUnwrap(profile["truncation_reason"] as? String), profilerTruncationReasonName(.timeout))
         }
     }
 
@@ -572,12 +606,21 @@ private extension SentryProfilerSwiftTests {
         DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
             span.finish()
 
+            guard let client = self.fixture.client else {
+                XCTFail("Expected a valid test client to exist")
+                return
+            }
+
             switch expectedDecision {
             case .undecided, .no:
-                XCTAssertEqual(0, self.fixture.client.captureEventWithScopeInvocations.first!.additionalEnvelopeItems.count)
+                guard let event = client.captureEventWithScopeInvocations.first else {
+                    XCTFail("Expected to capture at least 1 event, but without a profile")
+                    return
+                }
+                XCTAssertEqual(0, event.additionalEnvelopeItems.count)
             case .yes:
-                guard let event = self.fixture.client.captureEventWithScopeInvocations.first else {
-                    XCTFail("Expected to capture at least 1 event")
+                guard let event = client.captureEventWithScopeInvocations.first else {
+                    XCTFail("Expected to capture at least 1 event with a profile")
                     return
                 }
                 XCTAssertEqual(1, event.additionalEnvelopeItems.count)

@@ -1,4 +1,5 @@
 import Foundation
+import SentryTestUtils
 
 class TestFileManagerDelegate: NSObject, SentryFileManagerDelegate {
     

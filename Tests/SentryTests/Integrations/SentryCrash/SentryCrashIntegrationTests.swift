@@ -1,9 +1,9 @@
+import SentryTestUtils
 import XCTest
 
 class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryCrashIntegrationTests")
-    private static let dsn = TestConstants.dsn(username: "SentryCrashIntegrationTests")
     
     private class Fixture {
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
@@ -21,7 +21,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             options.dsn = SentryCrashIntegrationTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
             
-            client = TestClient(options: options, fileManager: try! SentryFileManager(options: options, andCurrentDateProvider: CurrentDate.getProvider()!, dispatchQueueWrapper: dispatchQueueWrapper))
+            client = TestClient(options: options, fileManager: try! SentryFileManager(options: options, andCurrentDateProvider: CurrentDate.getProvider()!, dispatchQueueWrapper: dispatchQueueWrapper), deleteOldEnvelopeItems: false)
             hub = TestHub(client: client, andScope: nil)
         }
         

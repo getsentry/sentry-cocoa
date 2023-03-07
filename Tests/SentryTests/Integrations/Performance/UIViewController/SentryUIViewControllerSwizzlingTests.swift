@@ -1,4 +1,5 @@
 import Sentry
+import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -8,7 +9,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         let objcRuntimeWrapper = SentryTestObjCRuntimeWrapper()
         let subClassFinder: TestSubClassFinder
-        let processInfoWrapper = SentryProcessInfoWrapper()
+        let processInfoWrapper = SentryNSProcessInfoWrapper()
         
         init() {
             subClassFinder = TestSubClassFinder(dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper)

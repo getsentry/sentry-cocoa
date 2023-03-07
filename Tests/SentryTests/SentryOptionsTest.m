@@ -48,6 +48,13 @@
     XCTAssertNil(options);
 }
 
+- (void)testInvalidDsnWithNoErrorArgument
+{
+    SentryOptions *options = [[SentryOptions alloc] initWithDict:@{ @"dsn" : @"https://sentry.io" }
+                                                didFailWithError:nil];
+    XCTAssertNil(options);
+}
+
 - (void)testRelease
 {
     SentryOptions *options = [self getValidOptions:@{ @"release" : @"abc" }];
@@ -531,7 +538,7 @@
     }
                                                 didFailWithError:nil];
 
-    XCTAssertNotNil(options.parsedDsn);
+    XCTAssertNil(options.parsedDsn);
     [self assertDefaultValues:options];
 }
 

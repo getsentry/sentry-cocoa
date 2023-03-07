@@ -1,3 +1,4 @@
+import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -154,6 +155,29 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         start()
         wait(for: [anrDetectedExpectation, anrStoppedExpectation, mainBlockExpectation, secondListener.anrStoppedExpectation, secondListener.anrDetectedExpectation], timeout: waitTimeout)
 
+    }
+    
+    func testNotRemovingDeallocatedListener_DoesNotRetainListener_AndStopsTracking() {
+        anrDetectedExpectation.isInverted = true
+        anrStoppedExpectation.isInverted = true
+        
+        // So ARC deallocates SentryANRTrackerTestDelegate
+        let addListenersCount = 10
+        func addListeners() {
+            for _ in 0..<addListenersCount {
+                self.sut.addListener(SentryANRTrackerTestDelegate())
+            }
+        }
+        addListeners()
+        
+        sut.addListener(self)
+        sut.removeListener(self)
+        
+        let listeners = Dynamic(sut).listeners.asObject as? NSHashTable<NSObject>
+        
+        XCTAssertGreaterThan(addListenersCount, listeners?.count ?? addListenersCount)
+        
+        wait(for: [anrDetectedExpectation, anrStoppedExpectation], timeout: 0.0)
     }
     
     func testClearDirectlyAfterStart() {
