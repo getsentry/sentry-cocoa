@@ -618,7 +618,7 @@ static BOOL appStartMeasurementRead;
 
     NSMutableArray<id<SentrySpan>> *spans =
         [[NSMutableArray alloc] initWithCapacity:_children.count + appStartSpans.count];
-    
+
     @synchronized(_children) {
         [spans addObjectsFromArray:_children];
         [spans addObjectsFromArray:appStartSpans];
