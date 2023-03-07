@@ -42,7 +42,7 @@ NS_SWIFT_NAME(User)
 /**
  * Optional: Geo location of user
  */
-@property (nonatomic, strong) SentryGeo *_Nullable geo;
+@property (nullable, nonatomic, strong) SentryGeo *geo;
 
 /**
  * Optional: Additional data
