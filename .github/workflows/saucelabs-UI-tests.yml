@@ -18,6 +18,10 @@ on:
       - 'scripts/set-device-tests-environment.patch'
       - 'scripts/ci-select-xcode.sh'
 
+      # run the workflow any time an Xcode scheme changes for one of the sample apps with a UI test suite we run in saucelabs
+      - 'Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-SwiftUITests.xcscheme'
+      - 'Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-Swift.xcscheme'
+
 jobs:
   build-ui-tests:
     name: Build UITests with Xcode ${{matrix.xcode}}
