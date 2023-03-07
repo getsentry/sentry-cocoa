@@ -135,6 +135,12 @@
     XCTAssertTrue([dsn getStoreEndpoint] == [dsn getStoreEndpoint]);
 }
 
+- (void)testInitWithInvalidString
+{
+    SentryDsn *dsn = [[SentryDsn alloc] initWithString:@"This is invalid DSN" didFailWithError:nil];
+    XCTAssertNil(dsn);
+}
+
 - (void)testGetEnvelopeDsnCachesResult
 {
     SentryDsn *dsn = [[SentryDsn alloc] initWithString:@"https://username:password@getsentry.net/1"

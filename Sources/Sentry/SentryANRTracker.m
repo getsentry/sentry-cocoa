@@ -20,7 +20,7 @@ SentryANRTracker ()
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
-@property (nonatomic, strong) NSMutableSet<id<SentryANRTrackerDelegate>> *listeners;
+@property (nonatomic, strong) NSHashTable<id<SentryANRTrackerDelegate>> *listeners;
 @property (nonatomic, assign) NSTimeInterval timeoutInterval;
 
 @end
@@ -42,7 +42,7 @@ SentryANRTracker ()
         self.crashWrapper = crashWrapper;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
         self.threadWrapper = threadWrapper;
-        self.listeners = [NSMutableSet set];
+        self.listeners = [NSHashTable weakObjectsHashTable];
         threadLock = [[NSObject alloc] init];
         state = kSentryANRTrackerNotRunning;
     }

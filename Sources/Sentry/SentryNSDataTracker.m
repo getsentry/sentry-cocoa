@@ -6,8 +6,8 @@
 #import "SentryFrame.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
+#import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions.h"
-#import "SentryProcessInfoWrapper.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySpan.h"
@@ -25,14 +25,14 @@ SentryNSDataTracker ()
 @property (nonatomic, assign) BOOL isEnabled;
 @property (nonatomic, strong) NSMutableSet<NSData *> *processingData;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
-@property (nonatomic, strong) SentryProcessInfoWrapper *processInfoWrapper;
+@property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
 
 @end
 
 @implementation SentryNSDataTracker
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
-                     processInfoWrapper:(SentryProcessInfoWrapper *)processInfoWrapper
+                     processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
 {
     if (self = [super init]) {
         _processInfoWrapper = processInfoWrapper;

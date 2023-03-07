@@ -358,6 +358,14 @@ private extension SentryProfilerSwiftTests {
         return profileItem.data
     }
 
+    func getLatestTransaction() throws -> Transaction {
+        guard let envelope = self.fixture.client.captureEventWithScopeInvocations.last else {
+            throw(TestError.noEnvelopeCaptured)
+        }
+
+        return envelope.event as! Transaction
+    }
+
     /// Keep a thread busy over a long enough period of time (long enough for 3 samples) for the sampler to pick it up.
     func forceProfilerSample() {
         let str = "a"
@@ -398,6 +406,7 @@ private extension SentryProfilerSwiftTests {
 
     func assertMetricsPayload(metricsBatches: Int = 1) throws {
         let profileData = try self.getLatestProfileData()
+        let transaction = try getLatestTransaction()
         guard let profile = try JSONSerialization.jsonObject(with: profileData) as? [String: Any] else {
             throw TestError.unexpectedProfileDeserializationType
         }
@@ -409,24 +418,24 @@ private extension SentryProfilerSwiftTests {
 
         for (i, expectedUsage) in fixture.mockCPUUsages.enumerated() {
             let key = NSString(format: kSentryMetricProfilerSerializationKeyCPUUsageFormat as NSString, i) as String
-            try assertMetricValue(measurements: measurements, key: key, numberOfReadings: expectedUsageReadings, expectedValue: expectedUsage)
+            try assertMetricValue(measurements: measurements, key: key, numberOfReadings: expectedUsageReadings, expectedValue: expectedUsage, transaction: transaction)
         }
 
-        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, numberOfReadings: expectedUsageReadings, expectedValue: fixture.mockMemoryFootprint)
+        try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, numberOfReadings: expectedUsageReadings, expectedValue: fixture.mockMemoryFootprint, transaction: transaction)
 
 #if !os(macOS)
         // can't elide the value argument, because assertMetricValue is generic and the parameter type won't be able to be inferred, so we provide a dummy variable/value
         let dummyValue: UInt64? = nil
-        try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, numberOfReadings: fixture.mockSlowFramesPerBatch * metricsBatches, expectedValue: dummyValue)
-        try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeyFrozenFrameRenders, numberOfReadings: fixture.mockFrozenFramesPerBatch * metricsBatches, expectedValue: dummyValue)
+        try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, numberOfReadings: fixture.mockSlowFramesPerBatch * metricsBatches, expectedValue: dummyValue, transaction: transaction)
+        try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeyFrozenFrameRenders, numberOfReadings: fixture.mockFrozenFramesPerBatch * metricsBatches, expectedValue: dummyValue, transaction: transaction)
 
         // need to add 1 frame rate reading because there is always an initial one for the frame rate when the frame tracker starts
         let expectedFrameRateReadings = 1 + fixture.mockFrameRateChangesPerBatch.count * metricsBatches
-        try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeyFrameRates, numberOfReadings: expectedFrameRateReadings, expectedValue: dummyValue)
+        try assertMetricValue(measurements: measurements, key: kSentryProfilerSerializationKeyFrameRates, numberOfReadings: expectedFrameRateReadings, expectedValue: dummyValue, transaction: transaction)
 #endif
     }
 
-    func assertMetricValue<T: Equatable>(measurements: [String: Any], key: String, numberOfReadings: Int, expectedValue: T?) throws {
+    func assertMetricValue<T: Equatable>(measurements: [String: Any], key: String, numberOfReadings: Int, expectedValue: T?, transaction: Transaction) throws {
         guard let metricContainer = measurements[key] as? [String: Any] else {
             throw TestError.noMetricsReported
         }
@@ -434,17 +443,30 @@ private extension SentryProfilerSwiftTests {
             throw TestError.malformedMetricValueEntry
         }
         XCTAssertEqual(values.count, numberOfReadings, "Wrong number of values under \(key)")
+
         if let expectedValue = expectedValue {
             guard let actualValue = values[0]["value"] as? T else {
                 throw TestError.noMetricValuesFound
             }
             XCTAssertEqual(actualValue, expectedValue, "Wrong value for \(key)")
+
+            let timestamp = try XCTUnwrap(values[0]["elapsed_since_start_ns"] as? NSString)
+            try assertTimestampOccursWithinTransaction(timestamp: timestamp, transaction: transaction)
         }
+    }
+
+    /// Assert that the relative timestamp actually falls within the transaction's duration, so it should be between 0 and the transaction duration. The string that holds an elapsed time actually holds an unsigned long long value (due to us using unsigned 64 bit integers, which are not officially supported by JSON), but there is no Cocoa API to get that back out of a string. So, we'll just convert them to signed 64 bit integers, for which there is an API. This likely won't cause a problem because signed 64 bit ints still support large positive values that are likely to be larger than any amount of nanoseconds of a machine's uptime. We can revisit if this actually fails in practice.
+    func assertTimestampOccursWithinTransaction(timestamp: NSString, transaction: Transaction) throws {
+        let transactionDuration = Int64(getDurationNs(transaction.startSystemTime, transaction.endSystemTime))
+        let timestampNumericValue = timestamp.longLongValue
+        XCTAssertGreaterThanOrEqual(timestampNumericValue, 0)
+        XCTAssertLessThanOrEqual(timestampNumericValue, transactionDuration)
     }
 
     func assertValidProfileData(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeout: Bool = false) throws {
         let data = try getLatestProfileData()
         let profile = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        let transaction = try getLatestTransaction()
 
         XCTAssertNotNil(profile["version"])
         if let timestampString = profile["timestamp"] as? String {
@@ -538,9 +560,12 @@ private extension SentryProfilerSwiftTests {
         }
 
         for sample in samples {
-            XCTAssertNotNil(sample["elapsed_since_start_ns"] as! String)
+            let timestamp = try XCTUnwrap(sample["elapsed_since_start_ns"] as? NSString)
+            try assertTimestampOccursWithinTransaction(timestamp: timestamp, transaction: transaction)
             XCTAssertNotNil(sample["thread_id"])
-            XCTAssertNotNil(stacks[sample["stack_id"] as! Int])
+            let stackIDEntry = try XCTUnwrap(sample["stack_id"])
+            let stackID = try XCTUnwrap(stackIDEntry as? Int)
+            XCTAssertNotNil(stacks[stackID])
         }
 
         if shouldTimeout {
