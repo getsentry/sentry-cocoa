@@ -137,7 +137,7 @@ SentryUIViewControllerPerformanceTracker ()
     }
 
     if (self.currentTTDTracker) {
-        [self.currentTTDTracker stopWaitingFullDisplay];
+        [self.currentTTDTracker stopWaitingForFullDisplay];
     }
 
     SentryTimeToDisplayTracker *ttdTracker =
@@ -164,7 +164,7 @@ SentryUIViewControllerPerformanceTracker ()
 
 - (void)reportFullyDisplayed
 {
-    [self.currentTTDTracker reportFullDisplay];
+    [self.currentTTDTracker reportFullyDisplayed];
 }
 
 - (void)viewControllerViewWillAppear:(UIViewController *)controller

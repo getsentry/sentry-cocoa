@@ -472,7 +472,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         let ttdTracker = tracer?.getExtensionsOfType(SentryTimeToDisplayTracker.self).first as? SentryTimeToDisplayTracker
 
-        XCTAssertTrue(ttdTracker?.waitFullDisplay ?? false)
+        XCTAssertTrue(ttdTracker?.waitForFullDisplay ?? false)
     }
 
     func test_dontWaitForFullDisplay() {
@@ -490,7 +490,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
 
         let ttdTracker = tracer?.getExtensionsOfType(SentryTimeToDisplayTracker.self).first as? SentryTimeToDisplayTracker
-        XCTAssertFalse(ttdTracker?.waitFullDisplay ?? true)
+        XCTAssertFalse(ttdTracker?.waitForFullDisplay ?? true)
     }
 
     func test_captureAllAutomaticSpans() {

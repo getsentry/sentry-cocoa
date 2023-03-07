@@ -22,12 +22,12 @@ SentryTimeToDisplayTracker ()
 @implementation SentryTimeToDisplayTracker
 
 - (instancetype)initForController:(UIViewController *)controller
-               waitForFullDisplay:(BOOL)waitFullDisplay
+               waitForFullDisplay:(BOOL)waitForFullDisplay
 {
     if (self = [super init]) {
         self.startDate = [SentryCurrentDate date];
         self.controllerName = [SwiftDescriptor getObjectClassName:controller];
-        self.waitFullDisplay = waitFullDisplay;
+        self.waitForFullDisplay = waitForFullDisplay;
     }
     return self;
 }
@@ -48,12 +48,12 @@ SentryTimeToDisplayTracker ()
 
     self.initialDisplaySpan.timestamp = [SentryCurrentDate date];
 
-    if (self.fullDisplay != nil &&
-        [self.fullDisplay compare:self.initialDisplaySpan.timestamp] == NSOrderedAscending) {
-        self.fullDisplay = self.initialDisplaySpan.timestamp;
+    if (self.fullDisplayDate != nil &&
+        [self.fullDisplayDate compare:self.initialDisplaySpan.timestamp] == NSOrderedAscending) {
+        self.fullDisplayDate = self.initialDisplaySpan.timestamp;
     }
 
-    if (!self.waitFullDisplay || self.fullDisplay != nil) {
+    if (!self.waitForFullDisplay || self.fullDisplayDate != nil) {
         // If this class is waiting for a full display, we don't finish the TTID span
         // because this will make the tracer wait for its children which gives the user more time to
         // report full display, since SentryTracer have a dead line timeout, eventually it will be
@@ -62,18 +62,18 @@ SentryTimeToDisplayTracker ()
     }
 }
 
-- (void)reportFullDisplay
+- (void)reportFullyDisplayed
 {
-    if (self.waitFullDisplay) {
-        self.fullDisplay = [SentryCurrentDate date];
+    if (self.waitForFullDisplay) {
+        self.fullDisplayDate = [SentryCurrentDate date];
 
-        if (self.waitFullDisplay && self.initialDisplaySpan.timestamp != nil) {
+        if (self.waitForFullDisplay && self.initialDisplaySpan.timestamp != nil) {
             [self.initialDisplaySpan finish];
         }
     }
 }
 
-- (void)stopWaitingFullDisplay
+- (void)stopWaitingForFullDisplay
 {
     if (self.initialDisplaySpan && !self.initialDisplaySpan.isFinished) {
         [self.initialDisplaySpan finish];
@@ -91,12 +91,12 @@ SentryTimeToDisplayTracker ()
 
 - (NSArray<id<SentrySpan>> *)tracerAdditionalSpan:(SpanCreationCallback)creationCallback
 {
-    if (self.fullDisplay) {
+    if (self.fullDisplayDate) {
         SentrySpan *ttfd = creationCallback(SentrySpanOperationUILoadFullDisplay,
             [NSString stringWithFormat:@"%@ full display", self.controllerName]);
 
         ttfd.startTimestamp = self.startDate;
-        ttfd.timestamp = self.fullDisplay;
+        ttfd.timestamp = self.fullDisplayDate;
         ttfd.status = kSentrySpanStatusOk;
 
         return @[ ttfd ];

@@ -709,7 +709,7 @@ class SentryHubTests: XCTestCase {
         fixture.options.enableTimeToFullDisplay = true
         let sut = fixture.getSut(fixture.options)
 
-        let testTTDTracker = TimeToDisplayTrackerTest()
+        let testTTDTracker = TestTimeToDisplayTracker()
 
         Dynamic(SentryUIViewControllerPerformanceTracker.shared).currentTTDTracker = testTTDTracker
 
@@ -723,7 +723,7 @@ class SentryHubTests: XCTestCase {
         fixture.options.enableTimeToFullDisplay = false
         let sut = fixture.getSut(fixture.options)
 
-        let testTTDTracker = TimeToDisplayTrackerTest()
+        let testTTDTracker = TestTimeToDisplayTracker()
 
         Dynamic(SentryUIViewControllerPerformanceTracker.shared).currentTTDTracker = testTTDTracker
 
@@ -939,7 +939,7 @@ private class TestTimeToDisplayTracker: SentryTimeToDisplayTracker {
     }
 
     var registerFullDisplayCalled = false
-    override func reportFullDisplay() {
+    override func reportFullyDisplayed() {
         registerFullDisplayCalled = true
     }
 

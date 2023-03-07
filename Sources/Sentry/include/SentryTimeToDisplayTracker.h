@@ -32,7 +32,7 @@ SENTRY_NO_INIT
 
 - (void)reportInitialDisplay;
 
-- (void)reportFullDisplay;
+- (void)reportFullyDisplayed;
 
 - (void)stopWaitingForFullDisplay;
 

@@ -26,7 +26,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         clearTestState()
     }
 
-    func testreportInitialDisplay_notWaitingFullDisplay() {
+    func testreportInitialDisplay_notWaitingFullDisplay() throws {
         let sut = SentryTimeToDisplayTracker(for: UIViewController(), waitForFullDisplay: false)
         let tracer = fixture.tracer
 
@@ -35,15 +35,15 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(tracer.children.count, 1)
 
         let ttidSpan = try XCTUnwrap(tracer.children.first, "Expected a TTID span")
-        XCTAssertEqual(ttidSpan?.startTimestamp, fixture.dateProvider.date())
+        XCTAssertEqual(ttidSpan.startTimestamp, fixture.dateProvider.date())
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
         sut.reportInitialDisplay()
 
-        XCTAssertEqual(ttidSpan?.timestamp, fixture.dateProvider.date())
-        XCTAssertTrue(ttidSpan?.isFinished ?? false)
-        XCTAssertEqual(ttidSpan?.spanDescription, "UIViewController initial display")
-        XCTAssertEqual(ttidSpan?.operation, SentrySpanOperationUILoadInitialDisplay)
+        XCTAssertEqual(ttidSpan.timestamp, fixture.dateProvider.date())
+        XCTAssertTrue(ttidSpan.isFinished)
+        XCTAssertEqual(ttidSpan.spanDescription, "UIViewController initial display")
+        XCTAssertEqual(ttidSpan.operation, SentrySpanOperationUILoadInitialDisplay)
     }
 
     func testreportInitialDisplay_waitForFullDisplay() {
@@ -64,7 +64,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertFalse(ttidSpan?.isFinished ?? true)
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 11))
-        sut.reportFullDisplay()
+        sut.reportFullyDisplayed()
 
         XCTAssertEqual(ttidSpan?.timestamp, Date(timeIntervalSince1970: 9))
         XCTAssertTrue(ttidSpan?.isFinished ?? false)
@@ -76,7 +76,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         let tracer = fixture.tracer
 
         tracer.addExtension(sut)
-        sut.reportFullDisplay()
+        sut.reportFullyDisplayed()
 
         let additionalSpans = sut.tracerAdditionalSpan({ op, _ in
             return SentrySpan(context: SpanContext(operation: op))
@@ -91,7 +91,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         tracer.addExtension(sut)
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 11))
-        sut.reportFullDisplay()
+        sut.reportFullyDisplayed()
 
         let additionalSpans = sut.tracerAdditionalSpan(fixture.spanCreation)
         XCTAssertEqual(additionalSpans.count, 1)
@@ -131,7 +131,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         let ttidSpan = tracer.children.first
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
-        sut.reportFullDisplay()
+        sut.reportFullyDisplayed()
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 11))
         sut.reportInitialDisplay()
@@ -157,7 +157,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertFalse(ttidSpan?.isFinished ?? true)
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 11))
-        sut.stopWaitingFullDisplay()
+        sut.stopWaitingForFullDisplay()
 
         XCTAssertEqual(ttidSpan?.timestamp, Date(timeIntervalSince1970: 9))
         XCTAssertTrue(ttidSpan?.isFinished ?? false)
