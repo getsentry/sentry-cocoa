@@ -13,9 +13,9 @@ SentryTimeToDisplayTracker ()
 
 @property (nonatomic, strong) NSDate *startDate;
 @property (nonatomic, strong) SentrySpan *initialDisplaySpan;
-@property (nonatomic, strong) NSDate *fullDisplay;
+@property (nonatomic, strong) NSDate *fullDisplayDate;
 @property (nonatomic, strong) NSString *controllerName;
-@property (nonatomic) BOOL waitFullDisplay;
+@property (nonatomic) BOOL waitForFullDisplay;
 
 @end
 

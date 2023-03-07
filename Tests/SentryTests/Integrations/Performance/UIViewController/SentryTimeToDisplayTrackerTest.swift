@@ -34,7 +34,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         tracer.addExtension(sut)
         XCTAssertEqual(tracer.children.count, 1)
 
-        let ttidSpan = tracer.children.first
+        let ttidSpan = try XCTUnwrap(tracer.children.first, "Expected a TTID span")
         XCTAssertEqual(ttidSpan?.startTimestamp, fixture.dateProvider.date())
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))

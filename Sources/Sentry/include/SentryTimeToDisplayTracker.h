@@ -25,16 +25,16 @@ SENTRY_NO_INIT
 
 @property (nonatomic, strong, readonly) NSDate *startDate;
 
-@property (nonatomic, readonly) BOOL waitFullDisplay;
+@property (nonatomic, readonly) BOOL waitForFullDisplay;
 
 - (instancetype)initForController:(UIViewController *)controller
-               waitForFullDisplay:(BOOL)waitFullDisplay;
+               waitForFullDisplay:(BOOL)waitForFullDisplay;
 
 - (void)reportInitialDisplay;
 
 - (void)reportFullDisplay;
 
-- (void)stopWaitingFullDisplay;
+- (void)stopWaitingForFullDisplay;
 
 @end
 
