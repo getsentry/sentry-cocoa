@@ -5,6 +5,7 @@
 ### Features
 
 - Add `name` and `geo` to User (#2710)
+
 ## 8.3.0
 
 ### Fixes
