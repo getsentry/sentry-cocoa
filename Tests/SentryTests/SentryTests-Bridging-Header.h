@@ -187,7 +187,6 @@
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryPerformanceTracker+Testing.h"
-#import "SentryProcessInfoWrapper.h"
 #import "SentrySpanOperations.h"
 #import "SentryTimeToDisplayTracker.h"
 #import "TestSentryViewHierarchy.h"
