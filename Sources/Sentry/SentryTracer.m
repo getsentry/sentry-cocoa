@@ -629,8 +629,7 @@ static BOOL appStartMeasurementRead;
         [self setStartTimestamp:appStartMeasurement.appStartTimestamp];
     }
 
-    SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self
-                                                                     children:spans];
+    SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.transactionContext.name;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     transaction.startSystemTime = self.startSystemTime;
