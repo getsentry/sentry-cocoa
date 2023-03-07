@@ -5,6 +5,10 @@
 ### Fixes
 
 - Crash in AppHangs when no threads (#2725)
+- MetricKit stack traces (#2723)
+- InApp for MetricKit stack traces (#2739)
+- Mutating while enumerating crash in Tracer (#2744)
+- Normalize profiling timestamps relative to transaction start (#2729)
 
 ### Features
 - Time to initial and full display (#2724)
@@ -89,6 +93,7 @@ We renamed the default branch from `master` to `main`. We are going to keep the 
 - Remove delay for deleting old envelopes (#2541)
 - Fix strong reference cycle for HttpTransport (#2552)
 - Deleting old envelopes for empty DSN (#2562)
+- Remove `SentrySystemEventBreadcrumbs` observers with the most specific detail possible (#2489)
 
 ### Breaking Changes
 

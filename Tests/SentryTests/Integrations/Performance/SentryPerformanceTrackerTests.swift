@@ -19,7 +19,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         }
         
         func getSut() -> SentryPerformanceTracker {
-            return  SentryPerformanceTracker()
+            return SentryPerformanceTracker()
         }
     }
     
@@ -280,7 +280,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
             
             let queue = DispatchQueue(label: "SentryPerformanceTrackerTests", attributes: [.concurrent, .initiallyInactive])
             let group = DispatchGroup()
-            
+
             for _ in 0 ..< 5_000 {
                 group.enter()
                 queue.async {
@@ -294,6 +294,9 @@ class SentryPerformanceTrackerTests: XCTestCase {
         }
         let spans = getSpans(tracker: sut)
         XCTAssertEqual(spans.count, 5_001)
+        for span in spans {
+            sut.finishSpan(span.key)
+        }
     }
     
     func testStackAsync() {

@@ -618,7 +618,7 @@ static BOOL appStartMeasurementRead;
 
     NSMutableArray<id<SentrySpan>> *spans =
         [[NSMutableArray alloc] initWithCapacity:_children.count + appStartSpans.count];
-    ;
+    
     @synchronized(_children) {
         [spans addObjectsFromArray:_children];
         [spans addObjectsFromArray:appStartSpans];
@@ -629,7 +629,8 @@ static BOOL appStartMeasurementRead;
         [self setStartTimestamp:appStartMeasurement.appStartTimestamp];
     }
 
-    SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
+    SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self
+                                                                     children:childrenCopy];
     transaction.transaction = self.transactionContext.name;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     transaction.startSystemTime = self.startSystemTime;

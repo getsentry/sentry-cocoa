@@ -19,9 +19,61 @@
                   "offsetIntoBinaryTextSegment": 46370,
                   "sampleCount": 1,
                   "binaryName": "iOS-Swift",
-                  "address": 4310988026
+                  "address": 4310988026,
+                  "subFrames": []
+                },
+                {
+                  "binaryUUID": "CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF",
+                  "offsetIntoBinaryTextSegment": 46360,
+                  "sampleCount": 1,
+                  "binaryName": "iOS-Swift",
+                  "address": 4310988056,
+                  "subFrames": [
+                    {
+                      "binaryUUID": "CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF",
+                      "offsetIntoBinaryTextSegment": 46330,
+                      "sampleCount": 1,
+                      "binaryName": "iOS-Swift",
+                      "address": 4310988066
+                    },
+                    {
+                      "binaryUUID": "56C020FC-0369-3775-B947-148F388A65B3",
+                      "offsetIntoBinaryTextSegment": 4081167,
+                      "sampleCount": 1,
+                      "binaryName": "libswiftCore.dylib",
+                      "address": 6669985296
+                    },
+                    {
+                      "binaryUUID": "56C020FC-0369-3775-B947-148F388A65B3",
+                      "offsetIntoBinaryTextSegment": 4108728,
+                      "sampleCount": 1,
+                      "binaryName": "libswiftCore.dylib",
+                      "address": 6670012856
+                    }
+                  ]
+                },
+                {
+                  "binaryUUID": "CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF",
+                  "offsetIntoBinaryTextSegment": 46300,
+                  "sampleCount": 1,
+                  "binaryName": "iOS-Swift",
+                  "address": 4310988046
+                },
+                {
+                  "binaryUUID": "45AC734E-6649-3EE2-A096-3FD66441AB78",
+                  "offsetIntoBinaryTextSegment": 2988,
+                  "sampleCount": 1,
+                  "binaryName": "libsystem_pthread.dylib",
+                  "address": 8080116652
                 }
               ]
+            },
+            {
+              "binaryUUID": "45AC734E-6649-3EE2-A096-3FD66441AB78",
+              "offsetIntoBinaryTextSegment": 2998,
+              "sampleCount": 1,
+              "binaryName": "libsystem_pthread.dylib",
+              "address": 8080116642
             }
           ],
           "binaryName": "Sentry",
@@ -45,6 +97,13 @@
                   "sampleCount": 1,
                   "binaryName": "iOS-Swift",
                   "address": 4310988026
+                },
+                {
+                  "binaryUUID": "45AC734E-6649-3EE2-A096-3FD66441AB78",
+                  "offsetIntoBinaryTextSegment": 46360,
+                  "sampleCount": 1,
+                  "binaryName": "libsystem_pthread.dylib",
+                  "address": 4310988036
                 }
               ]
             }

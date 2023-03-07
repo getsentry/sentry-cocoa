@@ -145,7 +145,8 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableWatchdogTerminationTracking;
 
 /**
- * The interval to end a session if the App goes to the background.
+ * The interval to end a session after the App goes to the background.
+ * The default is 30 seconds.
  */
 @property (nonatomic, assign) NSUInteger sessionTrackingIntervalMillis;
 
