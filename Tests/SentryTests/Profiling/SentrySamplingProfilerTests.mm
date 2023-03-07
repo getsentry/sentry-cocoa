@@ -54,12 +54,17 @@ using namespace sentry::profiling;
     XCTAssertGreaterThan(std::chrono::duration_cast<std::chrono::seconds>(duration).count(), 0);
     XCTAssertGreaterThan(profiler->numSamples(), static_cast<std::uint64_t>(0));
     XCTAssertGreaterThan(numIdleSamples, 0);
-    pthread_cancel(idleThread);
+
+    // end the test idle thread
+    XCTAssertEqual(pthread_cancel(idleThread), 0);
+    XCTAssertEqual(pthread_join(idleThread, nullptr), 0);
 }
 
 static void *
 idleThreadEntry(__unused void *ptr)
 {
+    pthread_testcancel();
+
     // Wait on a condition variable that will never be signaled to make the thread idle.
     pthread_cond_t cv;
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
