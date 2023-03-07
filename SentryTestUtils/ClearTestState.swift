@@ -1,7 +1,7 @@
 import Foundation
 import Sentry
 
-func clearTestState() {
+public func clearTestState() {
     TestCleanup.clearTestState()
 }
 

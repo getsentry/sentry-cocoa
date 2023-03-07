@@ -1,10 +1,10 @@
 import Sentry
+import SentryTestUtils
 import XCTest
 
 class SentryHttpTransportTests: XCTestCase {
 
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryHttpTransportTests")
-    private static let dsn = TestConstants.dsn(username: "SentryHttpTransportTests")
 
     private class Fixture {
         let event: Event
@@ -107,9 +107,13 @@ class SentryHttpTransportTests: XCTestCase {
         }
     }
 
+    class func dsn() throws -> SentryDsn {
+        try TestConstants.dsn(username: "SentryHttpTransportTests")
+    }
+
     class func buildRequest(_ envelope: SentryEnvelope) -> SentryNSURLRequest {
         let envelopeData = try! SentrySerialization.data(with: envelope)
-        return try! SentryNSURLRequest(envelopeRequestWith: SentryHttpTransportTests.dsn, andData: envelopeData)
+        return try! SentryNSURLRequest(envelopeRequestWith: dsn(), andData: envelopeData)
     }
 
     private var fixture: Fixture!
@@ -408,7 +412,7 @@ class SentryHttpTransportTests: XCTestCase {
         let sessionEnvelope = SentryEnvelope(id: fixture.event.eventId, singleItem: SentryEnvelopeItem(session: fixture.session))
 
         let sessionData = try! SentrySerialization.data(with: sessionEnvelope)
-        let sessionRequest = try! SentryNSURLRequest(envelopeRequestWith: SentryHttpTransportTests.dsn, andData: sessionData)
+        let sessionRequest = try! SentryNSURLRequest(envelopeRequestWith: SentryHttpTransportTests.dsn(), andData: sessionData)
 
         if fixture.requestManager.requests.invocations.count > 3 {
             XCTAssertEqual(sessionRequest.httpBody, fixture.requestManager.requests.invocations[3].httpBody, "Envelope with only session item should be sent.")

@@ -1,9 +1,9 @@
+import SentryTestUtils
 import XCTest
 
 class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryCrashIntegrationTests")
-    private static let dsn = TestConstants.dsn(username: "SentryCrashIntegrationTests")
     
     private class Fixture {
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()

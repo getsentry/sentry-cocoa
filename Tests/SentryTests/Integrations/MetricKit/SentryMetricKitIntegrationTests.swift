@@ -1,5 +1,6 @@
 import Sentry
 import SentryPrivate
+import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(macOS)

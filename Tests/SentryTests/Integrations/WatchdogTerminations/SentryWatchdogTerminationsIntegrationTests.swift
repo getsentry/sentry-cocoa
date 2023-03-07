@@ -1,3 +1,4 @@
+import SentryTestUtils
 import XCTest
 
 class SentryWatchdogTerminationIntegrationTests: XCTestCase {

@@ -1,10 +1,10 @@
 @testable import Sentry
+import SentryTestUtils
 import XCTest
 
 class SentrySDKTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySDKTests")
-    private static let dsn = TestConstants.dsn(username: "SentrySDKTests")
     
     private class Fixture {
     

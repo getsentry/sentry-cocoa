@@ -96,6 +96,16 @@
                </Test>
             </SkippedTests>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "8431EECF29B27B1100D8DC56"
+               BuildableName = "SentryProfilerTests.xctest"
+               BlueprintName = "SentryProfilerTests"
+               ReferencedContainer = "container:Sentry.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
