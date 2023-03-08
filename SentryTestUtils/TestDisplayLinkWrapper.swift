@@ -1,10 +1,10 @@
 import Foundation
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
+public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
     
-    var target: AnyObject!
-    var selector: Selector!
+    public var target: AnyObject!
+    public var selector: Selector!
     var internalTimestamp = 0.0
     var internalActualFrameRate = 60.0
     let frozenFrameThreshold = 0.7
@@ -17,53 +17,53 @@ class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
         return 1 / (Double(internalActualFrameRate) - 1.0)
     }
     
-    override func link(withTarget target: Any, selector sel: Selector) {
+    public override func link(withTarget target: Any, selector sel: Selector) {
         self.target = target as AnyObject
         self.selector = sel
     }
     
-    func call() {
+    public func call() {
         _ = target.perform(selector)
     }
 
-    override var timestamp: CFTimeInterval {
+    public override var timestamp: CFTimeInterval {
         return internalTimestamp
     }
 
-    func changeFrameRate(_ newFrameRate: Double) {
+    public func changeFrameRate(_ newFrameRate: Double) {
         internalActualFrameRate = newFrameRate
     }
     
-    func normalFrame() {
+    public func normalFrame() {
         internalTimestamp += frameDuration
         call()
     }
     
-    func slowFrame() {
+    public func slowFrame() {
         internalTimestamp += slowFrameThreshold + 0.001
         call()
     }
     
-    func almostFrozenFrame() {
+    public func almostFrozenFrame() {
         internalTimestamp += frozenFrameThreshold
         call()
     }
     
-    func frozenFrame() {
+    public func frozenFrame() {
         internalTimestamp += frozenFrameThreshold + 0.001
         call()
     }
     
-    override var targetTimestamp: CFTimeInterval {
+    public override var targetTimestamp: CFTimeInterval {
         return internalTimestamp + frameDuration
     }
     
-    override func invalidate() {
+    public override func invalidate() {
         target = nil
         selector = nil
     }
     
-    func givenFrames(_ slow: Int, _ frozen: Int, _ normal: Int) {
+    public func givenFrames(_ slow: Int, _ frozen: Int, _ normal: Int) {
         self.call()
 
         for _ in 0..<slow {

@@ -283,7 +283,9 @@ extension Dynamic {
         
         var storedSize = 0
         var storedAlignment = 0
+        //swiftlint:disable force_unwrapping
         NSGetSizeAndAlignment(invocation.returnType!, &storedSize, &storedAlignment)
+        //swiftlint:enable force_unwrapping
         guard MemoryLayout<T>.size == storedSize && MemoryLayout<T>.alignment == storedAlignment else {
             return nil
         }

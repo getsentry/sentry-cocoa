@@ -1,3 +1,4 @@
+import SentryTestUtils
 import XCTest
 
 // swiftlint:disable file_length

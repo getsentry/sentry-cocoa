@@ -166,9 +166,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
 {
     if (self = [self init]) {
         if (![self validateOptions:options didFailWithError:error]) {
-            [SentryLog
-                logWithMessage:[NSString stringWithFormat:@"Failed to initialize: %@", *error]
-                      andLevel:kSentryLevelError];
+            if (error != nil) {
+                SENTRY_LOG_ERROR(@"Failed to initialize SentryOptions: %@", *error);
+            } else {
+                SENTRY_LOG_ERROR(@"Failed to initialize SentryOptions");
+            }
             return nil;
         }
     }
@@ -241,12 +243,17 @@ NSString *const kSentryDefaultEnvironment = @"production";
         }
     }
 
-    NSString *dsn = @"";
-    if (nil != options[@"dsn"] && [options[@"dsn"] isKindOfClass:[NSString class]]) {
-        dsn = options[@"dsn"];
-    }
+    if (options[@"dsn"] != [NSNull null]) {
+        NSString *dsn = @"";
+        if (nil != options[@"dsn"] && [options[@"dsn"] isKindOfClass:[NSString class]]) {
+            dsn = options[@"dsn"];
+        }
 
-    self.parsedDsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:error];
+        self.parsedDsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:error];
+        if (self.parsedDsn == nil) {
+            return NO;
+        }
+    }
 
     if ([options[@"release"] isKindOfClass:[NSString class]]) {
         self.releaseName = options[@"release"];
@@ -437,11 +444,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
     }
 #endif
 
-    if (nil != error && nil != *error) {
-        return NO;
-    } else {
-        return YES;
-    }
+    return YES;
 }
 
 - (void)setBool:(id)value block:(void (^)(BOOL))block

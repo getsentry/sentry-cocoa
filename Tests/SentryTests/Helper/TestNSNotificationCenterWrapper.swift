@@ -1,4 +1,5 @@
 import Foundation
+import SentryTestUtils
 
 @objcMembers public class TestNSNotificationCenterWrapper: SentryNSNotificationCenterWrapper {
     var addObserverInvocations = Invocations<(observer: Any, selector: Selector, name: NSNotification.Name)>()
