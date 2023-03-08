@@ -283,7 +283,7 @@ SentryCrashIntegration ()
             [deviceData setValue:@(appScreen.bounds.size.width) forKey:@"screen_width_pixels"];
         }
     }
-    
+
 #endif
 
     [scope setContextValue:deviceData forKey:DEVICE_KEY];
