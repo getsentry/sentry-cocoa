@@ -469,11 +469,6 @@ private extension SentryProfilerSwiftTests {
         let profile = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
 
         XCTAssertNotNil(profile["version"])
-        if let timestampString = profile["timestamp"] as? String {
-            XCTAssertNotNil(NSDate.sentry_from(iso8601String: timestampString))
-        } else {
-            XCTFail("Expected a top-level timestamp")
-        }
 
         let device = try XCTUnwrap(profile["device"] as? [String: Any?])
         XCTAssertNotNil(device)
@@ -546,6 +541,10 @@ private extension SentryProfilerSwiftTests {
 
         let latestTransaction = try getLatestTransaction()
         let linkedTransactionInfo = try XCTUnwrap(profile["transaction"] as? [String: Any])
+
+        let linkedTransactionTimestampString = try XCTUnwrap(profile["timestamp"] as? String)
+        let latestTransactionTimestampString = try XCTUnwrap((latestTransaction.startTimestamp as NSDate?)?.sentry_toIso8601String() as? String)
+        XCTAssertEqual(linkedTransactionTimestampString, latestTransactionTimestampString)
 
         XCTAssertEqual(fixture.transactionName, latestTransaction.transaction)
         XCTAssertEqual(fixture.transactionName, try XCTUnwrap(linkedTransactionInfo["name"] as? String))
