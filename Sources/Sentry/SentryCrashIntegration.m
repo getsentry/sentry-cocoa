@@ -273,7 +273,7 @@ SentryCrashIntegration ()
     NSString *locale = [[NSLocale autoupdatingCurrentLocale] objectForKey:NSLocaleIdentifier];
     [deviceData setValue:locale forKey:LOCALE_KEY];
 
-#if SENTRY_HAS_UIDEVICE && !defined(TESTCI)
+#if SENTRY_HAS_UIDEVICE
 
     NSArray<UIWindow *> *appWindows = SentryDependencyContainer.sharedInstance.application.windows;
     if ([appWindows count] > 0) {
@@ -283,6 +283,7 @@ SentryCrashIntegration ()
             [deviceData setValue:@(appScreen.bounds.size.width) forKey:@"screen_width_pixels"];
         }
     }
+    
 #endif
 
     [scope setContextValue:deviceData forKey:DEVICE_KEY];
