@@ -467,7 +467,6 @@ private extension SentryProfilerSwiftTests {
     func assertValidProfileData(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeout: Bool = false) throws {
         let data = try getLatestProfileData()
         let profile = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
-        let transaction = try getLatestTransaction()
 
         XCTAssertNotNil(profile["version"])
         if let timestampString = profile["timestamp"] as? String {
@@ -545,27 +544,26 @@ private extension SentryProfilerSwiftTests {
         }
         XCTAssert(foundAtLeastOneNonEmptySample)
 
-        let transactions = try XCTUnwrap(profile["transactions"] as? [[String: Any]])
-        XCTAssertEqual(transactions.count, 1)
-        for transaction in transactions {
-            XCTAssertEqual(fixture.transactionName, try XCTUnwrap(transaction["name"] as? String))
-            XCTAssertNotNil(transaction["id"])
-            if let idString = transaction["id"] {
-                XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: try XCTUnwrap(idString as? String)))
-            }
-            XCTAssertNotNil(transaction["trace_id"])
-            if let traceIDString = transaction["trace_id"] {
-                XCTAssertNotEqual(SentryId.empty, SentryId(uuidString: try XCTUnwrap(traceIDString as? String)))
-            }
-            XCTAssertNotNil(transaction["trace_id"])
-            XCTAssertNotNil(transaction["relative_start_ns"])
-            XCTAssertFalse(try XCTUnwrap(transaction["relative_end_ns"] as? NSString).isEqual(to: "0"))
-            XCTAssertNotNil(transaction["active_thread_id"])
-        }
+        let latestTransaction = try getLatestTransaction()
+        let linkedTransactionInfo = try XCTUnwrap(profile["transaction"] as? [String: Any])
+
+        XCTAssertEqual(fixture.transactionName, latestTransaction.transaction)
+        XCTAssertEqual(fixture.transactionName, try XCTUnwrap(linkedTransactionInfo["name"] as? String))
+
+        let linkedTransactionId = SentryId(uuidString: try XCTUnwrap(linkedTransactionInfo["id"] as? String))
+        XCTAssertEqual(latestTransaction.eventId, linkedTransactionId)
+        XCTAssertNotEqual(SentryId.empty, linkedTransactionId)
+
+        let linkedTransactionTraceId = SentryId(uuidString: try XCTUnwrap(linkedTransactionInfo["trace_id"] as? String))
+        XCTAssertEqual(latestTransaction.trace.traceId, linkedTransactionTraceId)
+        XCTAssertNotEqual(SentryId.empty, linkedTransactionTraceId)
+
+        let activeThreadId = try XCTUnwrap(linkedTransactionInfo["active_thread_id"] as? NSNumber)
+        XCTAssertEqual(activeThreadId, latestTransaction.trace.transactionContext.sentry_threadInfo().threadId)
 
         for sample in samples {
             let timestamp = try XCTUnwrap(sample["elapsed_since_start_ns"] as? NSString)
-            try assertTimestampOccursWithinTransaction(timestamp: timestamp, transaction: transaction)
+            try assertTimestampOccursWithinTransaction(timestamp: timestamp, transaction: latestTransaction)
             XCTAssertNotNil(sample["thread_id"])
             let stackIDEntry = try XCTUnwrap(sample["stack_id"])
             let stackID = try XCTUnwrap(stackIDEntry as? Int)
