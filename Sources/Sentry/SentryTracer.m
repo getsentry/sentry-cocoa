@@ -1,4 +1,3 @@
-#import "SentryTracer.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
@@ -22,6 +21,7 @@
 #import "SentrySpanId.h"
 #import "SentryTime.h"
 #import "SentryTraceContext.h"
+#import "SentryTracer+Private.h"
 #import "SentryTracerConcurrency.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
@@ -75,8 +75,6 @@ SentryTracer ()
     NSMutableArray<id<SentrySpan>> *_children;
 
 #if SENTRY_HAS_UIKIT
-    BOOL _startTimeChanged;
-
     NSUInteger initTotalFrames;
     NSUInteger initSlowFrames;
     NSUInteger initFrozenFrames;
@@ -186,7 +184,7 @@ static BOOL appStartMeasurementRead;
         }
 
 #if SENTRY_HAS_UIKIT
-        _startTimeChanged = NO;
+        self.startTimeChanged = NO;
 
         // Store current amount of frames at the beginning to be able to calculate the amount of
         // frames at the end of the transaction.
@@ -379,7 +377,7 @@ static BOOL appStartMeasurementRead;
     super.startTimestamp = startTimestamp;
 
 #if SENTRY_HAS_UIKIT
-    _startTimeChanged = YES;
+    self.startTimeChanged = YES;
 #endif
 }
 
@@ -579,6 +577,7 @@ static BOOL appStartMeasurementRead;
     }
 
     if (appStartMeasurement != nil) {
+        self.originalStartTimestamp = self.startTimestamp;
         [self setStartTimestamp:appStartMeasurement.appStartTimestamp];
     }
 
@@ -649,9 +648,8 @@ static BOOL appStartMeasurementRead;
 
     NSTimeInterval difference = [appStartEndTimestamp timeIntervalSinceDate:self.startTimestamp];
 
-    // If the difference between the end of the app start and the beginning of the current
-    // transaction is smaller than SENTRY_APP_START_MEASUREMENT_DIFFERENCE. With this we
-    // avoid messing up transactions too much.
+    // Don't attach app start measurements if too much time elapsed between the end of the app start
+    // sequence and the start of the transaction. This makes transactions too long.
     if (difference > SENTRY_APP_START_MEASUREMENT_DIFFERENCE
         || difference < -SENTRY_APP_START_MEASUREMENT_DIFFERENCE) {
         return nil;
@@ -756,7 +754,7 @@ static BOOL appStartMeasurementRead;
 #if SENTRY_HAS_UIKIT
     // Frames
     SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
-    if (framesTracker.isRunning && !_startTimeChanged) {
+    if (framesTracker.isRunning && !self.startTimeChanged) {
 
         SentryScreenFrames *currentFrames = framesTracker.currentFrames;
         NSInteger totalFrames = currentFrames.total - initTotalFrames;

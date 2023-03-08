@@ -56,8 +56,6 @@ class SentryTracerTests: XCTestCase {
             client.options.tracesSampleRate = 1
             hub = TestHub(client: client, andScope: scope)
             
-            CurrentDate.setCurrentDateProvider(currentDateProvider)
-            
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             displayLinkWrapper = TestDisplayLinkWrapper()
             
@@ -108,17 +106,11 @@ class SentryTracerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        SentryTracer.resetAppStartMeasurementRead()
     }
     
     override func tearDown() {
         super.tearDown()
         clearTestState()
-        SentryTracer.resetAppStartMeasurementRead()
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        SentryFramesTracker.sharedInstance().resetFrames()
-        SentryFramesTracker.sharedInstance().stop()
-#endif
     }
     
     func testFinish_WithChildren_WaitsForAllChildren() {
