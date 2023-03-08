@@ -599,7 +599,7 @@ static BOOL appStartMeasurementRead;
 {
     NSDate *oldest = self.startTimestamp;
 
-    @synchronized (_children) {
+    @synchronized(_children) {
         for (id<SentrySpan> childSpan in _children) {
             if ([oldest compare:childSpan.timestamp] == NSOrderedAscending) {
                 oldest = childSpan.timestamp;
