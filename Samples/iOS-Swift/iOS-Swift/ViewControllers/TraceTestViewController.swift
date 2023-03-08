@@ -23,7 +23,6 @@ class TraceTestViewController: UIViewController {
         let session = URLSession(configuration: URLSessionConfiguration.default)
         let dataTask = session.dataTask(with: imgUrl) { (data, _, error) in
             //Simulated delay in the download
-            Thread.sleep(forTimeInterval: 2)
             DispatchQueue.main.async {
                 if let err = error {
                     SentrySDK.capture(error: err)
