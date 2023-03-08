@@ -194,4 +194,5 @@
 #    import "MockUIScene.h"
 #    import "SentryUIEventTracker.h"
 #    import "SentryUIEventTrackingIntegration.h"
+#    import "SentryUIViewControllerPerformanceTracker.h"
 #endif

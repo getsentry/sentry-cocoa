@@ -29,3 +29,4 @@
 #import "SentryTransport.h"
 #import "SentryTransportAdapter.h"
 #import "SentryUIDeviceWrapper.h"
+#import "SentryUIViewControllerPerformanceTracker.h"
