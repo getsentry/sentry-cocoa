@@ -1,7 +1,7 @@
 import Foundation
 import Sentry
-import XCTest
 import SentryTestUtils
+import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
