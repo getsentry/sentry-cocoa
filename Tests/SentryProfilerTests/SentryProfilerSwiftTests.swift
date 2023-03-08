@@ -600,6 +600,7 @@ private extension SentryProfilerSwiftTests {
     func assertProfilesSampler(expectedDecision: SentrySampleDecision, options: (Options) -> Void) {
         let fixtureOptions = fixture.options
         fixtureOptions.tracesSampleRate = 1.0
+        fixtureOptions.profilesSampleRate = nil
         fixtureOptions.profilesSampler = { _ in
             switch expectedDecision {
             case .undecided, .no:
