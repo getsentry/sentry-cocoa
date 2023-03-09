@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes 
+
+- Stop using UIScreen.main (#2762)
+
 ## 8.3.0
 
 ### Fixes
