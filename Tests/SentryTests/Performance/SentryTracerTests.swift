@@ -922,7 +922,7 @@ class SentryTracerTests: XCTestCase {
     func testChangeStartTimeStamp_RemovesFramesMeasurement() {
         let sut = fixture.getSut()
         fixture.displayLinkWrapper.givenFrames(1, 1, 1)
-        sut.startTimestamp = sut.startTimestamp?.addingTimeInterval(-1)
+        sut.updateStartTime(sut.startTimestamp?.addingTimeInterval(-1))
         
         sut.finish()
         
@@ -992,7 +992,7 @@ class SentryTracerTests: XCTestCase {
     
     private func whenFinishingAutoUITransaction(startTimestamp: TimeInterval) {
         let sut = fixture.getSut()
-        sut.startTimestamp = fixture.appStartEnd.addingTimeInterval(startTimestamp)
+        sut.updateStartTime(fixture.appStartEnd.addingTimeInterval(startTimestamp))
         sut.finish()
         fixture.hub.group.wait()
     }

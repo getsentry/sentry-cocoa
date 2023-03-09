@@ -558,6 +558,13 @@ static BOOL appStartMeasurementRead;
     }
 }
 
+- (void)updateStartTime:(NSDate *)startTime
+{
+    _originalStartTimestamp = self.startTimestamp;
+    super.startTimestamp = startTime;
+    _startTimeChanged = YES;
+}
+
 - (SentryTransaction *)toTransaction
 {
     NSArray<id<SentrySpan>> *appStartSpans = [self buildAppStartSpans];
@@ -569,9 +576,7 @@ static BOOL appStartMeasurementRead;
     }
 
     if (appStartMeasurement != nil) {
-        _originalStartTimestamp = self.startTimestamp;
-        super.startTimestamp = appStartMeasurement.appStartTimestamp;
-        _startTimeChanged = YES;
+        [self updateStartTime:appStartMeasurement.appStartTimestamp];
     }
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self
