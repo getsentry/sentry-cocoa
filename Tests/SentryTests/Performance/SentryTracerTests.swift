@@ -919,10 +919,10 @@ class SentryTracerTests: XCTestCase {
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
-    func testChangeStartTimeStamp_RemovesFramesMeasurement() {
+    func testChangeStartTimeStamp_RemovesFramesMeasurement() throws {
         let sut = fixture.getSut()
         fixture.displayLinkWrapper.givenFrames(1, 1, 1)
-        sut.updateStartTime(sut.startTimestamp?.addingTimeInterval(-1))
+        sut.updateStartTime(try XCTUnwrap(sut.startTimestamp).addingTimeInterval(-1))
         
         sut.finish()
         
