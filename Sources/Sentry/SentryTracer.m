@@ -187,7 +187,6 @@ static BOOL appStartMeasurementRead;
         }
 
 #if SENTRY_HAS_UIKIT
-
         // Store current amount of frames at the beginning to be able to calculate the amount of
         // frames at the end of the transaction.
         SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
@@ -372,12 +371,6 @@ static BOOL appStartMeasurementRead;
         }
     }
     return _traceContext;
-}
-
-- (void)setStartTimestamp:(nullable NSDate *)startTimestamp
-{
-    super.startTimestamp = startTimestamp;
-    _startTimeChanged = YES;
 }
 
 - (NSArray<id<SentrySpan>> *)children
@@ -577,7 +570,8 @@ static BOOL appStartMeasurementRead;
 
     if (appStartMeasurement != nil) {
         _originalStartTimestamp = self.startTimestamp;
-        [self setStartTimestamp:appStartMeasurement.appStartTimestamp];
+        super.startTimestamp = appStartMeasurement.appStartTimestamp;
+        _startTimeChanged = YES;
     }
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self
