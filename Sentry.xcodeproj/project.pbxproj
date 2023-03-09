@@ -1532,7 +1532,6 @@
 		84A8892028DBD8D600C51DFD /* SentryDeviceTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryDeviceTests.mm; sourceTree = "<group>"; };
 		84AF45A429A7FFA500FBB177 /* SentryTracerConcurrency.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryTracerConcurrency.h; path = include/SentryTracerConcurrency.h; sourceTree = "<group>"; };
 		84AF45A529A7FFA500FBB177 /* SentryTracerConcurrency.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryTracerConcurrency.mm; sourceTree = "<group>"; };
-		84B3598B29B93690005447EB /* SentryTracer+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryTracer+Private.h"; sourceTree = "<group>"; };
 		84B7FA3B29B2866200AD93B1 /* SentryTestUtils-ObjC-BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryTestUtils-ObjC-BridgingHeader.h"; sourceTree = "<group>"; };
 		84B7FA4729B2995A00AD93B1 /* DeploymentTargets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = DeploymentTargets.xcconfig; sourceTree = "<group>"; };
 		84E4F5692914F020004C7358 /* Brewfile */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = text; path = Brewfile; sourceTree = "<group>"; tabWidth = 2; };
@@ -3126,7 +3125,6 @@
 				8E133FA525E72EB400ABD0BF /* SentrySamplingContext.h */,
 				8E133FA025E72DEF00ABD0BF /* SentrySamplingContext.m */,
 				8E4E7C7B25DAB287006AB9E2 /* SentryTracer.h */,
-				84B3598B29B93690005447EB /* SentryTracer+Private.h */,
 				8E4E7C8125DAB2A5006AB9E2 /* SentryTracer.m */,
 				84AF45A429A7FFA500FBB177 /* SentryTracerConcurrency.h */,
 				84AF45A529A7FFA500FBB177 /* SentryTracerConcurrency.mm */,

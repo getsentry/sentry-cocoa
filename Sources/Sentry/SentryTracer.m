@@ -1,3 +1,4 @@
+#import "SentryTracer.h"
 #import "NSDictionary+SentrySanitize.h"
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
@@ -21,7 +22,6 @@
 #import "SentrySpanId.h"
 #import "SentryTime.h"
 #import "SentryTraceContext.h"
-#import "SentryTracer+Private.h"
 #import "SentryTracerConcurrency.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
@@ -73,8 +73,11 @@ SentryTracer ()
     NSMutableDictionary<NSString *, SentryMeasurementValue *> *_measurements;
     dispatch_block_t _idleTimeoutBlock;
     NSMutableArray<id<SentrySpan>> *_children;
+    BOOL _startTimeChanged;
+    NSDate *_originalStartTimestamp;
 
 #if SENTRY_HAS_UIKIT
+
     NSUInteger initTotalFrames;
     NSUInteger initSlowFrames;
     NSUInteger initFrozenFrames;
@@ -184,7 +187,6 @@ static BOOL appStartMeasurementRead;
         }
 
 #if SENTRY_HAS_UIKIT
-        self.startTimeChanged = NO;
 
         // Store current amount of frames at the beginning to be able to calculate the amount of
         // frames at the end of the transaction.
@@ -375,10 +377,7 @@ static BOOL appStartMeasurementRead;
 - (void)setStartTimestamp:(nullable NSDate *)startTimestamp
 {
     super.startTimestamp = startTimestamp;
-
-#if SENTRY_HAS_UIKIT
-    self.startTimeChanged = YES;
-#endif
+    _startTimeChanged = YES;
 }
 
 - (NSArray<id<SentrySpan>> *)children
@@ -577,7 +576,7 @@ static BOOL appStartMeasurementRead;
     }
 
     if (appStartMeasurement != nil) {
-        self.originalStartTimestamp = self.startTimestamp;
+        _originalStartTimestamp = self.startTimestamp;
         [self setStartTimestamp:appStartMeasurement.appStartTimestamp];
     }
 
@@ -754,7 +753,7 @@ static BOOL appStartMeasurementRead;
 #if SENTRY_HAS_UIKIT
     // Frames
     SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
-    if (framesTracker.isRunning && !self.startTimeChanged) {
+    if (framesTracker.isRunning && !_startTimeChanged) {
 
         SentryScreenFrames *currentFrames = framesTracker.currentFrames;
         NSInteger totalFrames = currentFrames.total - initTotalFrames;
@@ -813,6 +812,11 @@ static BOOL appStartMeasurementRead;
         return [(SentrySpan *)span tracer];
     }
     return nil;
+}
+
+- (NSDate *)originalStartTimestamp
+{
+    return _startTimeChanged ? _originalStartTimestamp : self.startTimestamp;
 }
 
 @end
