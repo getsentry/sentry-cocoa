@@ -30,6 +30,7 @@
 #    import "SentrySystemWrapper.h"
 #    import "SentryThread.h"
 #    import "SentryTime.h"
+#    import "SentryTracer.h"
 #    import "SentryTransaction.h"
 #    import "SentryTransactionContext+Private.h"
 
@@ -770,7 +771,7 @@ serializedSamplesWithRelativeTimestamps(
     profile[@"environment"] = _gCurrentProfiler->_hub.scope.environmentString
         ?: _gCurrentProfiler->_hub.getClient.options.environment;
 
-    const auto timestamp = transaction.startTimestamp;
+    const auto timestamp = transaction.trace.originalStartTimestamp;
     if (UNLIKELY(timestamp == nil)) {
         SENTRY_LOG_WARN(@"There was no start timestamp on the provided transaction. Falling back "
                         @"to old behavior of using the current time.");

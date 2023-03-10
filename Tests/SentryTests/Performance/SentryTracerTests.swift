@@ -56,8 +56,6 @@ class SentryTracerTests: XCTestCase {
             client.options.tracesSampleRate = 1
             hub = TestHub(client: client, andScope: scope)
             
-            CurrentDate.setCurrentDateProvider(currentDateProvider)
-            
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             displayLinkWrapper = TestDisplayLinkWrapper()
             
@@ -108,17 +106,11 @@ class SentryTracerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        SentryTracer.resetAppStartMeasurementRead()
     }
     
     override func tearDown() {
         super.tearDown()
         clearTestState()
-        SentryTracer.resetAppStartMeasurementRead()
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        SentryFramesTracker.sharedInstance().resetFrames()
-        SentryFramesTracker.sharedInstance().stop()
-#endif
     }
     
     func testFinish_WithChildren_WaitsForAllChildren() {
@@ -927,10 +919,10 @@ class SentryTracerTests: XCTestCase {
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
-    func testChangeStartTimeStamp_RemovesFramesMeasurement() {
+    func testChangeStartTimeStamp_RemovesFramesMeasurement() throws {
         let sut = fixture.getSut()
         fixture.displayLinkWrapper.givenFrames(1, 1, 1)
-        sut.startTimestamp = sut.startTimestamp?.addingTimeInterval(-1)
+        sut.updateStartTime(try XCTUnwrap(sut.startTimestamp).addingTimeInterval(-1))
         
         sut.finish()
         
@@ -1000,7 +992,7 @@ class SentryTracerTests: XCTestCase {
     
     private func whenFinishingAutoUITransaction(startTimestamp: TimeInterval) {
         let sut = fixture.getSut()
-        sut.startTimestamp = fixture.appStartEnd.addingTimeInterval(startTimestamp)
+        sut.updateStartTime(fixture.appStartEnd.addingTimeInterval(startTimestamp))
         sut.finish()
         fixture.hub.group.wait()
     }

@@ -73,9 +73,10 @@ SentryTracer ()
     NSMutableDictionary<NSString *, SentryMeasurementValue *> *_measurements;
     dispatch_block_t _idleTimeoutBlock;
     NSMutableArray<id<SentrySpan>> *_children;
+    BOOL _startTimeChanged;
+    NSDate *_originalStartTimestamp;
 
 #if SENTRY_HAS_UIKIT
-    BOOL _startTimeChanged;
 
     NSUInteger initTotalFrames;
     NSUInteger initSlowFrames;
@@ -186,8 +187,6 @@ static BOOL appStartMeasurementRead;
         }
 
 #if SENTRY_HAS_UIKIT
-        _startTimeChanged = NO;
-
         // Store current amount of frames at the beginning to be able to calculate the amount of
         // frames at the end of the transaction.
         SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
@@ -372,15 +371,6 @@ static BOOL appStartMeasurementRead;
         }
     }
     return _traceContext;
-}
-
-- (void)setStartTimestamp:(nullable NSDate *)startTimestamp
-{
-    super.startTimestamp = startTimestamp;
-
-#if SENTRY_HAS_UIKIT
-    _startTimeChanged = YES;
-#endif
 }
 
 - (NSArray<id<SentrySpan>> *)children
@@ -568,6 +558,13 @@ static BOOL appStartMeasurementRead;
     }
 }
 
+- (void)updateStartTime:(NSDate *)startTime
+{
+    _originalStartTimestamp = self.startTimestamp;
+    super.startTimestamp = startTime;
+    _startTimeChanged = YES;
+}
+
 - (SentryTransaction *)toTransaction
 {
     NSArray<id<SentrySpan>> *appStartSpans = [self buildAppStartSpans];
@@ -579,7 +576,7 @@ static BOOL appStartMeasurementRead;
     }
 
     if (appStartMeasurement != nil) {
-        [self setStartTimestamp:appStartMeasurement.appStartTimestamp];
+        [self updateStartTime:appStartMeasurement.appStartTimestamp];
     }
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self
@@ -649,9 +646,8 @@ static BOOL appStartMeasurementRead;
 
     NSTimeInterval difference = [appStartEndTimestamp timeIntervalSinceDate:self.startTimestamp];
 
-    // If the difference between the end of the app start and the beginning of the current
-    // transaction is smaller than SENTRY_APP_START_MEASUREMENT_DIFFERENCE. With this we
-    // avoid messing up transactions too much.
+    // Don't attach app start measurements if too much time elapsed between the end of the app start
+    // sequence and the start of the transaction. This makes transactions too long.
     if (difference > SENTRY_APP_START_MEASUREMENT_DIFFERENCE
         || difference < -SENTRY_APP_START_MEASUREMENT_DIFFERENCE) {
         return nil;
@@ -815,6 +811,11 @@ static BOOL appStartMeasurementRead;
         return [(SentrySpan *)span tracer];
     }
     return nil;
+}
+
+- (NSDate *)originalStartTimestamp
+{
+    return _startTimeChanged ? _originalStartTimestamp : self.startTimestamp;
 }
 
 @end
