@@ -30,6 +30,7 @@
 #    import "SentrySystemWrapper.h"
 #    import "SentryThread.h"
 #    import "SentryTime.h"
+#    import "SentryTracer.h"
 #    import "SentryTransaction.h"
 #    import "SentryTransactionContext+Private.h"
 
@@ -445,7 +446,7 @@ serializedSamplesWithRelativeTimestamps(
 
     // add the remaining basic metadata for the profile
     const auto profileID = [[SentryId alloc] init];
-    [self serializeBasicProfileInfo:payload profileID:profileID platform:transaction.platform];
+    [self serializeBasicProfileInfo:payload profileID:profileID transaction:transaction];
 
     return [self envelopeItemForProfileData:payload profileID:profileID];
 }
@@ -736,7 +737,7 @@ serializedSamplesWithRelativeTimestamps(
 
 + (void)serializeBasicProfileInfo:(NSMutableDictionary<NSString *, id> *)profile
                         profileID:(SentryId *const &)profileID
-                         platform:(NSString *)platform
+                      transaction:(SentryTransaction *)transaction
 {
     profile[@"version"] = @"1";
     const auto debugImages = [NSMutableArray<NSDictionary<NSString *, id> *> new];
@@ -766,10 +767,19 @@ serializedSamplesWithRelativeTimestamps(
     profile[@"profile_id"] = profileID.sentryIdString;
     profile[@"truncation_reason"]
         = profilerTruncationReasonName(_gCurrentProfiler->_truncationReason);
-    profile[@"platform"] = platform;
+    profile[@"platform"] = transaction.platform;
     profile[@"environment"] = _gCurrentProfiler->_hub.scope.environmentString
         ?: _gCurrentProfiler->_hub.getClient.options.environment;
-    profile[@"timestamp"] = [[SentryCurrentDate date] sentry_toIso8601String];
+
+    const auto timestamp = transaction.trace.originalStartTimestamp;
+    if (UNLIKELY(timestamp == nil)) {
+        SENTRY_LOG_WARN(@"There was no start timestamp on the provided transaction. Falling back "
+                        @"to old behavior of using the current time.");
+        profile[@"timestamp"] = [[SentryCurrentDate date] sentry_toIso8601String];
+    } else {
+        profile[@"timestamp"] = [timestamp sentry_toIso8601String];
+    }
+
     profile[@"release"] = _gCurrentProfiler->_hub.getClient.options.releaseName;
 }
 

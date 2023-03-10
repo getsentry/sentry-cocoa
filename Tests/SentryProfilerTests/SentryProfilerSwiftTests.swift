@@ -29,13 +29,19 @@ class SentryProfilerSwiftTests: XCTestCase {
         lazy var processInfoWrapper = TestSentryNSProcessInfoWrapper()
         lazy var timerWrapper = TestSentryNSTimerWrapper()
 
+        let currentDateProvider = TestCurrentDateProvider()
+
 #if !os(macOS)
         lazy var displayLinkWrapper = TestDisplayLinkWrapper()
         lazy var framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper)
 #endif
 
-        func newTransaction() -> Span {
-            hub.startTransaction(name: transactionName, operation: transactionOperation)
+        func newTransaction(testingAppLaunchSpans: Bool = false) -> Span {
+            currentDateProvider.setDate(date: currentDateProvider.date().addingTimeInterval(2))
+            if testingAppLaunchSpans {
+                return hub.startTransaction(name: transactionName, operation: SentrySpanOperationUILoad)
+            }
+            return hub.startTransaction(name: transactionName, operation: transactionOperation)
         }
 
         // mocking
@@ -108,6 +114,24 @@ class SentryProfilerSwiftTests: XCTestCase {
             systemWrapper.overrides.memoryFootprintError = NSError(domain: "test-error", code: 1)
             timerWrapper.fire()
         }
+
+        // app start simulation
+
+        lazy var appStart = currentDateProvider.date()
+        var appStartDuration = 0.5
+        lazy var appStartEnd = appStart.addingTimeInterval(appStartDuration)
+
+        func getAppStartMeasurement(type: SentryAppStartType, preWarmed: Bool = false) -> SentryAppStartMeasurement {
+            let runtimeInitDuration = 0.05
+            let runtimeInit = appStart.addingTimeInterval(runtimeInitDuration)
+            let mainDuration = 0.15
+            let main = appStart.addingTimeInterval(mainDuration)
+            let didFinishLaunching = appStart.addingTimeInterval(0.3)
+            appStart = preWarmed ? main : appStart
+            appStartDuration = preWarmed ? appStartDuration - runtimeInitDuration - mainDuration : appStartDuration
+            appStartEnd = appStart.addingTimeInterval(appStartDuration)
+            return SentryAppStartMeasurement(type: type, isPreWarmed: preWarmed, appStartTimestamp: appStart, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, didFinishLaunchingTimestamp: didFinishLaunching)
+        }
     }
 
     private var fixture: Fixture!
@@ -115,25 +139,18 @@ class SentryProfilerSwiftTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        SentryTracer.resetAppStartMeasurementRead()
         SentryLog.configure(true, diagnosticLevel: .debug)
+        CurrentDate.setCurrentDateProvider(fixture.currentDateProvider)
+        fixture.options.profilesSampleRate = 1.0
+        fixture.options.tracesSampleRate = 1.0
     }
 
     override func tearDown() {
         super.tearDown()
         clearTestState()
-        SentryTracer.resetAppStartMeasurementRead()
-#if !os(macOS)
-        SentryFramesTracker.sharedInstance().resetFrames()
-        SentryFramesTracker.sharedInstance().stop()
-#endif
     }
 
     func testMetricProfiler() {
-        let options = fixture.options
-        options.profilesSampleRate = 1.0
-        options.tracesSampleRate = 1.0
-
         fixture.mockMetricsSubsystems()
 
         fixture.mockMetricsSubsystems()
@@ -166,9 +183,6 @@ class SentryProfilerSwiftTests: XCTestCase {
     }
 
     func testConcurrentProfilingTransactions() throws {
-        let options = fixture.options
-        options.profilesSampleRate = 1.0
-        options.tracesSampleRate = 1.0
         fixture.mockMetricsSubsystems()
         fixture.prepareMetricsMocks()
 
@@ -224,9 +238,6 @@ class SentryProfilerSwiftTests: XCTestCase {
     ///    profiler B                                              |-------|  <- normal finish
     ///   ```
     func testConcurrentSpansWithTimeout() throws {
-        let options = fixture.options
-        options.profilesSampleRate = 1.0
-        options.tracesSampleRate = 1.0
         let originalTimeoutInterval = kSentryProfilerTimeoutInterval
         kSentryProfilerTimeoutInterval = 1
 
@@ -255,28 +266,32 @@ class SentryProfilerSwiftTests: XCTestCase {
     }
 
     func testProfileTimeoutTimer() throws {
-        fixture.options.profilesSampleRate = 1.0
-        fixture.options.tracesSampleRate = 1.0
         try performTest(shouldTimeOut: true)
     }
 
     func testStartTransaction_ProfilingDataIsValid() throws {
-        fixture.options.profilesSampleRate = 1.0
-        fixture.options.tracesSampleRate = 1.0
         try performTest()
     }
 
     func testProfilingDataContainsEnvironmentSetFromOptions() throws {
-        fixture.options.profilesSampleRate = 1.0
-        fixture.options.tracesSampleRate = 1.0
         let expectedEnvironment = "test-environment"
         fixture.options.environment = expectedEnvironment
         try performTest(transactionEnvironment: expectedEnvironment)
     }
 
+    func testProfileWithTransactionContainingStartupSpansForColdStart() throws {
+        try performTest(launchType: .cold, prewarmed: false)
+    }
+
+    func testProfileWithTransactionContainingStartupSpansForWarmStart() throws {
+        try performTest(launchType: .warm, prewarmed: false)
+    }
+
+    func testProfileWithTransactionContainingStartupSpansForPrewarmedStart() throws {
+        try performTest(launchType: .cold, prewarmed: true)
+    }
+
     func testProfilingDataContainsEnvironmentSetFromConfigureScope() throws {
-        fixture.options.profilesSampleRate = 1.0
-        fixture.options.tracesSampleRate = 1.0
         let expectedEnvironment = "test-environment"
         fixture.hub.configureScope { scope in
             scope.setEnvironment(expectedEnvironment)
@@ -376,12 +391,19 @@ private extension SentryProfilerSwiftTests {
         }
     }
 
-    func performTest(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeOut: Bool = false) throws {
+    func performTest(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeOut: Bool = false, launchType: SentryAppStartType? = nil, prewarmed: Bool = false) throws {
+        var testingAppLaunchSpans = false
+        if let launchType = launchType {
+            testingAppLaunchSpans = true
+            let appStartMeasurement = fixture.getAppStartMeasurement(type: launchType, preWarmed: prewarmed)
+            SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        }
+
         let originalTimeoutInterval = kSentryProfilerTimeoutInterval
         if shouldTimeOut {
             kSentryProfilerTimeoutInterval = 1
         }
-        let span = fixture.newTransaction()
+        let span = fixture.newTransaction(testingAppLaunchSpans: testingAppLaunchSpans)
 
         forceProfilerSample()
 
@@ -469,11 +491,6 @@ private extension SentryProfilerSwiftTests {
         let profile = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
 
         XCTAssertNotNil(profile["version"])
-        if let timestampString = profile["timestamp"] as? String {
-            XCTAssertNotNil(NSDate.sentry_from(iso8601String: timestampString))
-        } else {
-            XCTFail("Expected a top-level timestamp")
-        }
 
         let device = try XCTUnwrap(profile["device"] as? [String: Any?])
         XCTAssertNotNil(device)
@@ -547,6 +564,10 @@ private extension SentryProfilerSwiftTests {
         let latestTransaction = try getLatestTransaction()
         let linkedTransactionInfo = try XCTUnwrap(profile["transaction"] as? [String: Any])
 
+        let linkedTransactionTimestampString = try XCTUnwrap(profile["timestamp"] as? String)
+        let latestTransactionTimestampString = (latestTransaction.trace.originalStartTimestamp as NSDate).sentry_toIso8601String()
+        XCTAssertEqual(linkedTransactionTimestampString, latestTransactionTimestampString)
+
         XCTAssertEqual(fixture.transactionName, latestTransaction.transaction)
         XCTAssertEqual(fixture.transactionName, try XCTUnwrap(linkedTransactionInfo["name"] as? String))
 
@@ -578,6 +599,7 @@ private extension SentryProfilerSwiftTests {
     func assertProfilesSampler(expectedDecision: SentrySampleDecision, options: (Options) -> Void) {
         let fixtureOptions = fixture.options
         fixtureOptions.tracesSampleRate = 1.0
+        fixtureOptions.profilesSampleRate = nil
         fixtureOptions.profilesSampler = { _ in
             switch expectedDecision {
             case .undecided, .no:
