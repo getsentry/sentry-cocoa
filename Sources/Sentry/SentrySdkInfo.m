@@ -1,6 +1,16 @@
 #import "SentrySdkInfo.h"
 #import <Foundation/Foundation.h>
 
+#if SWIFT_PACKAGE
+static NSString *SENTRY_PACKAGE_INFO = @"spm:getsentry/%@";
+#elif COCOAPODS
+static NSString *SENTRY_PACKAGE_INFO = @"cocoapods:getsentry/%@";
+#elif CARTHAGE_YES
+static NSString *SENTRY_PACKAGE_INFO = @"carthage:getsentry/%@";
+#else
+static NSString *SENTRY_PACKAGE_INFO = nil;
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentrySdkInfo
@@ -8,18 +18,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithName:(NSString *)name andVersion:(NSString *)version
 {
     if (self = [super init]) {
-
-        if (name.length == 0) {
-            _name = @"";
-        } else {
-            _name = name;
-        }
-
-        if (version.length == 0) {
-            _version = @"";
-        } else {
-            _version = version;
-        }
+        _name = name ?: @"";
+        _version = version ?: @"";
     }
 
     return self;
@@ -60,7 +60,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary<NSString *, id> *)serialize
 {
-    return @{ @"sdk" : @ { @"name" : self.name, @"version" : self.version } };
+    NSMutableDictionary *sdk = @{
+        @"name" : self.name,
+        @"version" : self.version,
+    }
+                                   .mutableCopy;
+    if (SENTRY_PACKAGE_INFO != nil) {
+        sdk[@"packages"] = @{
+            @"name" : [NSString stringWithFormat:SENTRY_PACKAGE_INFO, self.name],
+            @"version" : self.version
+        };
+    }
+
+    return @{ @"sdk" : sdk };
 }
 
 @end
