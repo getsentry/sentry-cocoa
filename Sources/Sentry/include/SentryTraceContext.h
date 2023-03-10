@@ -12,7 +12,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryScope, SentryId, SentryOptions, SentryTracer, SentryUser, SentryBaggage;
+@class SentryScope, SentryOptions, SentryTracer, SentryUser, SentryBaggage;
 
 @interface SentryTraceContext : NSObject <SentrySerializable>
 
