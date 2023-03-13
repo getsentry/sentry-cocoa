@@ -152,7 +152,10 @@ processBacktrace(const Backtrace &backtrace,
         [stacks addObject:stack];
     }
 
-    [samples addObject:sample];
+    {
+        std::lock_guard<std::mutex> l(_gSamplesArrayLock);
+        [samples addObject:sample];
+    }
 }
 
 std::mutex _gProfilerLock;

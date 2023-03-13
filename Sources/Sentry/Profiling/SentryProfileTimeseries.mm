@@ -4,6 +4,8 @@
 #import "SentryLog.h"
 #import "SentryTransaction.h"
 
+std::mutex _gSamplesArrayLock;
+
 /**
  * Print a debug log to help diagnose slicing errors.
  * @param start @c YES if this is an attempt to find the start of the sliced data based on the
@@ -39,17 +41,24 @@ logSlicingFailureWithArray(
 NSArray<SentrySample *> *_Nullable slicedProfileSamples(
     NSArray<SentrySample *> *samples, SentryTransaction *transaction)
 {
-    NSArray<SentrySample *> *samplesCopy = [samples copy];
+    NSArray<SentrySample *> *samplesCopy;
+    {
+        std::lock_guard<std::mutex> l(_gSamplesArrayLock);
+        samplesCopy = [samples copy];
+    }
 
     if (samplesCopy.count == 0) {
         return nil;
     }
 
-    const auto firstIndex = [samplesCopy indexOfObjectPassingTest:^BOOL(
-        SentrySample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
-        *stop = sample.absoluteTimestamp >= transaction.startSystemTime;
-        return *stop;
-    }];
+    const auto transactionStart = transaction.startSystemTime;
+    const auto firstIndex =
+        [samplesCopy indexOfObjectWithOptions:NSEnumerationConcurrent
+                                  passingTest:^BOOL(SentrySample *_Nonnull sample, NSUInteger idx,
+                                      BOOL *_Nonnull stop) {
+                                      *stop = sample.absoluteTimestamp >= transactionStart;
+                                      return *stop;
+                                  }];
 
     if (firstIndex == NSNotFound) {
         logSlicingFailureWithArray(samplesCopy, transaction, /*start*/ YES);
@@ -58,11 +67,12 @@ NSArray<SentrySample *> *_Nullable slicedProfileSamples(
         SENTRY_LOG_DEBUG(@"Found first slice sample at index %lu", firstIndex);
     }
 
+    const auto transactionEnd = transaction.endSystemTime;
     const auto lastIndex =
-        [samplesCopy indexOfObjectWithOptions:NSEnumerationReverse
+        [samplesCopy indexOfObjectWithOptions:NSEnumerationConcurrent | NSEnumerationReverse
                                   passingTest:^BOOL(SentrySample *_Nonnull sample, NSUInteger idx,
                                       BOOL *_Nonnull stop) {
-                                      *stop = sample.absoluteTimestamp <= transaction.endSystemTime;
+                                      *stop = sample.absoluteTimestamp <= transactionEnd;
                                       return *stop;
                                   }];
 
