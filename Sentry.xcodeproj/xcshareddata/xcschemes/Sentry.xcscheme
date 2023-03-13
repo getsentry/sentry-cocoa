@@ -62,12 +62,6 @@
                   Identifier = "SentryCrashReportStore_Tests/testCrashReportCount1">
                </Test>
                <Test
-                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readPath()">
-               </Test>
-               <Test
-                  Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readUrl()">
-               </Test>
-               <Test
                   Identifier = "SentryNSErrorTests/testSerializeWithUnderlyingNSException()">
                </Test>
                <Test
@@ -95,6 +89,16 @@
                   Identifier = "SentryUIApplicationTests/test_applicationWithScenes_noWindow()">
                </Test>
             </SkippedTests>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "8431EECF29B27B1100D8DC56"
+               BuildableName = "SentryProfilerTests.xctest"
+               BlueprintName = "SentryProfilerTests"
+               ReferencedContainer = "container:Sentry.xcodeproj">
+            </BuildableReference>
          </TestableReference>
       </Testables>
    </TestAction>

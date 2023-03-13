@@ -5,6 +5,10 @@
 ### Features
 
 - Add `name` and `geo` to User (#2710)
+### Fixes 
+
+- Stop using UIScreen.main (#2762)
+- Profile timestamp alignment with transactions (#2771) and app start spans (#2772)
 
 ## 8.3.0
 

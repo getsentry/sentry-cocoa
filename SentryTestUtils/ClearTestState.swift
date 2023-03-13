@@ -1,7 +1,7 @@
 import Foundation
 import Sentry
 
-func clearTestState() {
+public func clearTestState() {
     TestCleanup.clearTestState()
 }
 
@@ -31,5 +31,7 @@ class TestCleanup: NSObject {
         Dynamic(SentryGlobalEventProcessor.shared()).removeAllProcessors()
         SentryPerformanceTracker.shared.clear()
         SentrySwizzleWrapper.sharedInstance.removeAllCallbacks()
+
+        SentryTracer.resetAppStartMeasurementRead()
     }
 }

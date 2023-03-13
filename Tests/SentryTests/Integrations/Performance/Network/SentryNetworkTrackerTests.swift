@@ -1,4 +1,5 @@
 import ObjectiveC
+import SentryTestUtils
 import XCTest
 
 class SentryNetworkTrackerTests: XCTestCase {

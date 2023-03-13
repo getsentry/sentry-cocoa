@@ -1,3 +1,5 @@
+#include "DeploymentTargets.xcconfig"
+
 SDKROOT = $(SDKROOT__CARTHAGE_$(CARTHAGE)) //  basically, iphoneos (unless «CARTHAGE» == «YES»)
 // Carthage relies on this assumption, years standing — that SDKROOT is default or explicitly
 // set to `macosx` (or equivalent) under the ‘single target, multiple platform’ paradigm
@@ -37,11 +39,6 @@ CLANG_ENABLE_MODULES = YES
 ONLY_ACTIVE_ARCH[config=Debug] = YES
 GCC_OPTIMIZATION_LEVEL[config=Debug] = 0
 COPY_PHASE_STRIP[config=Debug] = NO
-
-MACOSX_DEPLOYMENT_TARGET = 10.13
-IPHONEOS_DEPLOYMENT_TARGET = 11.0
-WATCHOS_DEPLOYMENT_TARGET = 4.0
-TVOS_DEPLOYMENT_TARGET = 11.0
 
 LD_RUNPATH_SEARCH_PATHS[sdk=macosx*] = $(inherited) @executable_path/../Frameworks @loader_path/../Frameworks;
 LD_RUNPATH_SEARCH_PATHS[sdk=iphone*] = $(inherited) @executable_path/Frameworks @loader_path/Frameworks;

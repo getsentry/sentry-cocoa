@@ -55,7 +55,6 @@
 		D83A30D8279F159D00372D0A /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D83A30DC279F16BA00372D0A /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		D83A30E1279F1F5C00372D0A /* fatal-error-binary-images-message2.json in Resources */ = {isa = PBXBuildFile; fileRef = D83A30DF279F1F5C00372D0A /* fatal-error-binary-images-message2.json */; };
-		D83A30E6279FE21F00372D0A /* SentryFileIOTrackingIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83A30E5279FE21F00372D0A /* SentryFileIOTrackingIntegrationTests.swift */; };
 		D840D523273A07F400CDF142 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D840D522273A07F400CDF142 /* AppDelegate.swift */; };
 		D840D525273A07F400CDF142 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D840D524273A07F400CDF142 /* SceneDelegate.swift */; };
 		D840D527273A07F400CDF142 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D840D526273A07F400CDF142 /* ViewController.swift */; };
@@ -135,6 +134,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 637AFDA5243B02760034958B;
 			remoteInfo = "iOS-Swift";
+		};
+		84B7FA5A29B2A86500AD93B1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6308532C2440C44F00DDE4CE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8431EFD929B27B1100D8DC56;
+			remoteInfo = SentryProfilerTests;
+		};
+		84B7FA5C29B2A86500AD93B1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6308532C2440C44F00DDE4CE /* Sentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8431F00A29B284F200D8DC56;
+			remoteInfo = SentryTestUtils;
 		};
 		D8105B5B297E792200299F03 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -284,7 +297,6 @@
 		D8269A5C274C108100BD5BD5 /* iOS13-Swift.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "iOS13-Swift.entitlements"; sourceTree = "<group>"; };
 		D83A30C7279EFD6E00372D0A /* ClearTestState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearTestState.swift; sourceTree = "<group>"; };
 		D83A30DF279F1F5C00372D0A /* fatal-error-binary-images-message2.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "fatal-error-binary-images-message2.json"; path = "../../../Tests/Resources/fatal-error-binary-images-message2.json"; sourceTree = "<group>"; };
-		D83A30E5279FE21F00372D0A /* SentryFileIOTrackingIntegrationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SentryFileIOTrackingIntegrationTests.swift; path = ../../../Tests/SentryTests/Integrations/Performance/IO/SentryFileIOTrackingIntegrationTests.swift; sourceTree = "<group>"; };
 		D840D520273A07F400CDF142 /* iOS-SwiftClip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS-SwiftClip.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D840D522273A07F400CDF142 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D840D524273A07F400CDF142 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -373,6 +385,8 @@
 				630853342440C44F00DDE4CE /* SentryTests.xctest */,
 				D81A349A291D0B2C005A27A9 /* SentryPrivate.framework */,
 				D8105B5C297E792200299F03 /* SentrySwiftUI.framework */,
+				84B7FA5B29B2A86500AD93B1 /* SentryProfilerTests.xctest */,
+				84B7FA5D29B2A86500AD93B1 /* libSentryTestUtils.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -440,7 +454,6 @@
 			children = (
 				D83A30DF279F1F5C00372D0A /* fatal-error-binary-images-message2.json */,
 				7B64386A26A6C544000D0F65 /* LaunchUITests.swift */,
-				D83A30E5279FE21F00372D0A /* SentryFileIOTrackingIntegrationTests.swift */,
 				84B527B728DD24BA00475E8D /* SentryDeviceTests.mm */,
 				84B527BB28DD25E400475E8D /* SentryDevice.h */,
 				84B527BC28DD25E400475E8D /* SentryDevice.mm */,
@@ -744,6 +757,20 @@
 			remoteRef = 630853332440C44F00DDE4CE /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		84B7FA5B29B2A86500AD93B1 /* SentryProfilerTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = SentryProfilerTests.xctest;
+			remoteRef = 84B7FA5A29B2A86500AD93B1 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		84B7FA5D29B2A86500AD93B1 /* libSentryTestUtils.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSentryTestUtils.a;
+			remoteRef = 84B7FA5C29B2A86500AD93B1 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		D8105B5C297E792200299F03 /* SentrySwiftUI.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
@@ -856,7 +883,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				84B527B928DD24BA00475E8D /* SentryDeviceTests.mm in Sources */,
-				D83A30E6279FE21F00372D0A /* SentryFileIOTrackingIntegrationTests.swift in Sources */,
 				7B64386B26A6C544000D0F65 /* LaunchUITests.swift in Sources */,
 				84B527BD28DD25E400475E8D /* SentryDevice.mm in Sources */,
 				D83A30C8279EFD6E00372D0A /* ClearTestState.swift in Sources */,
