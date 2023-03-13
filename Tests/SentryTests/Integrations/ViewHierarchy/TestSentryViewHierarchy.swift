@@ -6,7 +6,7 @@ class TestSentryViewHierarchy: SentryViewHierarchy {
     var result: Data?
     var viewHierarchyResult: Int32 = 0
     var processViewHierarchyCallback: (() -> Void)?
-    var saveFilePathUsed : String?
+    var saveFilePathUsed: String?
 
     override func fetch() -> Data? {
         guard let result = self.result
