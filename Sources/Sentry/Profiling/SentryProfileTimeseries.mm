@@ -1,8 +1,11 @@
 #import "SentryProfileTimeseries.h"
-#import "SentryEvent+Private.h"
-#import "SentryInternalDefines.h"
-#import "SentryLog.h"
-#import "SentryTransaction.h"
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
+#    import "SentryEvent+Private.h"
+#    import "SentryInternalDefines.h"
+#    import "SentryLog.h"
+#    import "SentryTransaction.h"
 
 std::mutex _gSamplesArrayLock;
 
@@ -90,3 +93,5 @@ NSArray<SentrySample *> *_Nullable slicedProfileSamples(
 
 @implementation SentrySample
 @end
+
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
