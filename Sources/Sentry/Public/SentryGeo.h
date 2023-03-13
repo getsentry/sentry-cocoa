@@ -22,8 +22,6 @@ NS_SWIFT_NAME(Geo)
  */
 @property (nullable, atomic, copy) NSString *region;
 
-- (instancetype)init;
-
 - (BOOL)isEqual:(id _Nullable)other;
 
 - (BOOL)isEqualToGeo:(SentryGeo *)geo;

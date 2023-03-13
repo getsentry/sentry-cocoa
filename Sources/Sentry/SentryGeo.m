@@ -6,14 +6,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryGeo
 
-- (instancetype)init
-{
-    return [super init];
-}
-
 - (id)copyWithZone:(nullable NSZone *)zone
 {
-    SentryGeo *copy = [[SentryGeo allocWithZone:zone] init];
+    SentryGeo *copy = [[[self class] allocWithZone:zone] init];
 
     @synchronized(self) {
         if (copy != nil) {
