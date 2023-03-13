@@ -484,33 +484,35 @@ serializedSamplesWithRelativeTimestamps(
 + (nullable NSArray<SentrySample *> *)slicedSamples:(NSArray<SentrySample *> *)samples
                                         transaction:(SentryTransaction *)transaction
 {
-    if (samples.count == 0) {
+    NSArray<SentrySample *> *samplesCopy = [samples copy];
+
+    if (samplesCopy.count == 0) {
         return nil;
     }
 
-    const auto firstIndex = [samples indexOfObjectPassingTest:^BOOL(
+    const auto firstIndex = [samplesCopy indexOfObjectPassingTest:^BOOL(
         SentrySample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
         *stop = sample.absoluteTimestamp >= transaction.startSystemTime;
         return *stop;
     }];
 
     if (firstIndex == NSNotFound) {
-        [self logSlicingFailureWithArray:samples transaction:transaction start:YES];
+        [self logSlicingFailureWithArray:samplesCopy transaction:transaction start:YES];
         return nil;
     } else {
         SENTRY_LOG_DEBUG(@"Found first slice sample at index %lu", firstIndex);
     }
 
     const auto lastIndex =
-        [samples indexOfObjectWithOptions:NSEnumerationReverse
-                              passingTest:^BOOL(SentrySample *_Nonnull sample, NSUInteger idx,
-                                  BOOL *_Nonnull stop) {
-                                  *stop = sample.absoluteTimestamp <= transaction.endSystemTime;
-                                  return *stop;
-                              }];
+        [samplesCopy indexOfObjectWithOptions:NSEnumerationReverse
+                                  passingTest:^BOOL(SentrySample *_Nonnull sample, NSUInteger idx,
+                                      BOOL *_Nonnull stop) {
+                                      *stop = sample.absoluteTimestamp <= transaction.endSystemTime;
+                                      return *stop;
+                                  }];
 
     if (lastIndex == NSNotFound) {
-        [self logSlicingFailureWithArray:samples transaction:transaction start:NO];
+        [self logSlicingFailureWithArray:samplesCopy transaction:transaction start:NO];
         return nil;
     } else {
         SENTRY_LOG_DEBUG(@"Found last slice sample at index %lu", lastIndex);
@@ -518,7 +520,7 @@ serializedSamplesWithRelativeTimestamps(
 
     const auto range = NSMakeRange(firstIndex, (lastIndex - firstIndex) + 1);
     const auto indices = [NSIndexSet indexSetWithIndexesInRange:range];
-    return [samples objectsAtIndexes:indices];
+    return [samplesCopy objectsAtIndexes:indices];
 }
 
 /**
