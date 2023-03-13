@@ -6,6 +6,7 @@
 
 - Stop using UIScreen.main (#2762)
 - Profile timestamp alignment with transactions (#2771) and app start spans (#2772)
+- View hierarchy not sent for crashes ()
 
 ## 8.3.0
 
