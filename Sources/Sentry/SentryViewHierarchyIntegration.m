@@ -19,7 +19,7 @@
 void
 saveViewHierarchy(const char *reportDirectoryPath)
 {
-    NSString *reportPath = [[NSString stringWithUTF8String:path]
+    NSString *reportPath = [[NSString stringWithUTF8String:reportDirectoryPath]
         stringByAppendingPathComponent:@"view-hierarchy.json"];
     [SentryDependencyContainer.sharedInstance.viewHierarchy saveViewHierarchy:reportPath];
 }
