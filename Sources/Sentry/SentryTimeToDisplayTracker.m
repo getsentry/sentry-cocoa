@@ -33,12 +33,15 @@ SentryTimeToDisplayTracker ()
 - (void)installForTracer:(SentryTracer *)tracer
 {
     self.initialDisplaySpan =
-    [tracer startChildWithOperation:SentrySpanOperationUILoadInitialDisplay
-                        description:[NSString stringWithFormat:@"%@ initial display",
-                                     self.controllerName]];
+        [tracer startChildWithOperation:SentrySpanOperationUILoadInitialDisplay
+                            description:[NSString stringWithFormat:@"%@ initial display",
+                                                  self.controllerName]];
 
     if (self.waitForFullDisplay) {
-        self.fullDisplaySpan = [tracer startChildWithOperation:SentrySpanOperationUILoadFullDisplay description:[NSString stringWithFormat:@"%@ full display", self.controllerName]];
+        self.fullDisplaySpan =
+            [tracer startChildWithOperation:SentrySpanOperationUILoadFullDisplay
+                                description:[NSString stringWithFormat:@"%@ full display",
+                                                      self.controllerName]];
     }
 }
 
@@ -51,7 +54,8 @@ SentryTimeToDisplayTracker ()
     self.initialDisplaySpan.timestamp = [SentryCurrentDate date];
 
     if (self.fullDisplaySpan.timestamp != nil &&
-        [self.fullDisplaySpan.timestamp compare:self.initialDisplaySpan.timestamp] == NSOrderedAscending) {
+        [self.fullDisplaySpan.timestamp compare:self.initialDisplaySpan.timestamp]
+            == NSOrderedAscending) {
         self.fullDisplaySpan.timestamp = self.initialDisplaySpan.timestamp;
     }
     [self.initialDisplaySpan finish];
@@ -59,27 +63,7 @@ SentryTimeToDisplayTracker ()
 
 - (void)reportFullyDisplayed
 {
-    if (self.waitForFullDisplay) {
-        if (self.waitForFullDisplay && self.initialDisplaySpan.timestamp != nil) {
-            [self.initialDisplaySpan finish];
-        }
-    }
-}
-
-- (void)stopWaitingForFullDisplay
-{
-    if (self.initialDisplaySpan && !self.initialDisplaySpan.isFinished) {
-        [self.initialDisplaySpan finish];
-    }
-}
-
-- (void)tracerDidTimeout
-{
-}
-
-- (NSArray<id<SentrySpan>> *)tracerAdditionalSpan:(SpanCreationCallback)creationCallback
-{
-    return @[];
+    [self.fullDisplaySpan finish];
 }
 
 @end

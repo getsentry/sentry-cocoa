@@ -3,8 +3,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef SentrySpan *_Nonnull (^SpanCreationCallback)(NSString *operation, NSString *description);
-
 /**
  * Protocol used to intercept some of `SentryTracer` steps
  * in order to modify its behavior and distribute concern to other classes.
@@ -16,16 +14,6 @@ typedef SentrySpan *_Nonnull (^SpanCreationCallback)(NSString *operation, NSStri
  * You should no keep a strong reference to the tracer.
  */
 - (void)installForTracer:(SentryTracer *)tracer;
-
-/**
- Return additional spans to be added to the transaction.
- */
-- (NSArray<id<SentrySpan>> *)tracerAdditionalSpan:(SpanCreationCallback)creationCallback;
-
-/**
- Called when the dead line timeout is triggered
- */
-- (void)tracerDidTimeout;
 
 @end
 

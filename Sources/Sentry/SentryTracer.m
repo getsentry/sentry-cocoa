@@ -282,8 +282,6 @@ static BOOL appStartMeasurementRead;
 - (void)deadlineTimerFired
 {
     SENTRY_LOG_DEBUG(@"Sentry tracer deadline fired");
-    [self reportTracerTimeout];
-
     @synchronized(self) {
         // This try to minimize a run condition with a proper call to `finishInternal`,
         // which could be triggered by the user or a extension.
@@ -624,7 +622,6 @@ static BOOL appStartMeasurementRead;
     @synchronized(_children) {
         [spans addObjectsFromArray:_children];
         [spans addObjectsFromArray:appStartSpans];
-        [spans addObjectsFromArray:[self getExtensionsAdditionalSpans]];
     }
 
     if (appStartMeasurement != nil) {
@@ -898,39 +895,6 @@ static BOOL appStartMeasurementRead;
 - (NSArray<id<SentryTracerExtension>> *)extensions
 {
     return _extensions.copy;
-}
-
-- (NSArray<id<SentrySpan>> *)getExtensionsAdditionalSpans
-{
-    NSMutableArray *result = [NSMutableArray array];
-
-    SpanCreationCallback creationCallback
-        = ^SentrySpan *(NSString *operation, NSString *description)
-    {
-        return [[SentrySpan alloc]
-            initWithContext:[[SentrySpanContext alloc] initWithTraceId:self.traceId
-                                                                spanId:[[SentrySpanId alloc] init]
-                                                              parentId:self.spanId
-                                                             operation:operation
-                                                       spanDescription:description
-                                                               sampled:self.sampled]];
-    };
-
-    @synchronized(_extensions) {
-        for (id<SentryTracerExtension> mw in _extensions) {
-            [result addObjectsFromArray:[mw tracerAdditionalSpan:creationCallback]];
-        }
-    }
-    return result;
-}
-
-- (void)reportTracerTimeout
-{
-    @synchronized(_extensions) {
-        for (id<SentryTracerExtension> mw in _extensions) {
-            [mw tracerDidTimeout];
-        }
-    }
 }
 
 @end

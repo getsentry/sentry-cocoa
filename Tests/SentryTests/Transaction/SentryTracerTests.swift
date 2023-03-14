@@ -23,25 +23,9 @@ class SentryTracerTests: XCTestCase {
     private class TestTracerExtension: NSObject, SentryTracerExtension {
         var additionalSpans: [SentrySpan] = []
 
-        var tracerDidTimeoutCalled = false
-        func tracerDidTimeout() {
-            tracerDidTimeoutCalled = true
-        }
-
-        var createAdditionalSpansCalled = false
-        func tracerAdditionalSpan(_ creationCallback: @escaping SpanCreationCallback) -> [Span] {
-            createAdditionalSpansCalled = true
-            return additionalSpans
-        }
-
         var installCalled = false
         func install(for tracer: SentryTracer) {
             installCalled = true
-        }
-
-        var unistallCalled = false
-        func uninstall(for tracer: SentryTracer) {
-            unistallCalled = true
         }
     }
 
@@ -928,33 +912,6 @@ class SentryTracerTests: XCTestCase {
         tracer.delegate = delegate
         tracer.finish()
         XCTAssertTrue(delegate.tracerDidFinishCalled)
-    }
-
-    func test_callMiddleware_additionalSpansCalled() {
-        let tracer = fixture.getSut()
-        tracer.addExtension(fixture.tracerExtension)
-        fixture.tracerExtension.additionalSpans = [ SentrySpan(context: TestData.spanContext), SentrySpan(context: TestData.spanContext) ]
-
-        let child = tracer.startChild(operation: "Test") as? SentrySpan
-
-        let transaction = Dynamic(tracer).toTransaction().asObject as? Transaction
-
-        let spans = Dynamic(transaction).spans.asArray as? [SentrySpan]
-
-        XCTAssertTrue(fixture.tracerExtension.createAdditionalSpansCalled)
-        XCTAssertEqual(spans?.count, 3)
-
-        XCTAssertEqual(spans?[0], child )
-        XCTAssertEqual(spans?[1], fixture.tracerExtension.additionalSpans[0] )
-        XCTAssertEqual(spans?[2], fixture.tracerExtension.additionalSpans[1] )
-    }
-
-    func test_callMiddleware_tracerTimeout() {
-        let tracer = fixture.getSut()
-        tracer.addExtension(fixture.tracerExtension)
-        fixture.timerWrapper.fire()
-
-        XCTAssertTrue(fixture.tracerExtension.tracerDidTimeoutCalled)
     }
     
     func testAddingSpansOnDifferentThread_WhileFinishing_DoesNotCrash() {

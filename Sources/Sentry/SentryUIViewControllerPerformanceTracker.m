@@ -136,10 +136,6 @@ SentryUIViewControllerPerformanceTracker ()
         return;
     }
 
-    if (self.currentTTDTracker) {
-        [self.currentTTDTracker stopWaitingForFullDisplay];
-    }
-
     SentryTimeToDisplayTracker *ttdTracker =
         [[SentryTimeToDisplayTracker alloc] initForController:controller
                                            waitForFullDisplay:self.enableWaitForFullDisplay];
@@ -148,7 +144,7 @@ SentryUIViewControllerPerformanceTracker ()
     self.currentTTDTracker = ttdTracker;
 }
 
-- (void)finishTTIDForController:(UIViewController *)controller
+- (void)finishTTIDForController:(UIViewController *)controller withStatus:(SentrySpanStatus)status
 {
     SentrySpan *vcSpan = [self viewControllerPerformanceSpan:controller];
 
@@ -160,6 +156,7 @@ SentryUIViewControllerPerformanceTracker ()
     SentryTimeToDisplayTracker *ttdTracker =
         [vcSpan.tracer getExtensionsOfType:SentryTimeToDisplayTracker.self].firstObject;
     [ttdTracker reportInitialDisplay];
+    ttdTracker.initialDisplaySpan.status = status;
 }
 
 - (void)reportFullyDisplayed
@@ -264,7 +261,7 @@ SentryUIViewControllerPerformanceTracker ()
         // and remove associated span id.
         [self.tracker finishSpan:spanId withStatus:status];
 
-        [self finishTTIDForController:controller];
+        [self finishTTIDForController:controller withStatus:status];
         objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, nil,
             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     };
