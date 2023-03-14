@@ -104,6 +104,14 @@ jobs:
           path: |
             ${{ github.workspace }}/*.zip
 
+      - name: Archive build log if failed
+        uses: actions/upload-artifact@v3
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: raw-build-output-build-xcframework
+          path: |
+            build-xcframework.log
+
   validate-xcframework:
     name: Validate XCFramework Xcode ${{ matrix.xcode }}
     runs-on: macos-12
