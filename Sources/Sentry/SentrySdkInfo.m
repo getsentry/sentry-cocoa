@@ -1,12 +1,18 @@
 #import "SentrySdkInfo.h"
 #import <Foundation/Foundation.h>
 
+
+/**
+ * This is required to identify the package manager used when installing sentry.
+ */
 #if SWIFT_PACKAGE
 static NSString *SENTRY_PACKAGE_INFO = @"spm:getsentry/%@";
 #elif COCOAPODS
 static NSString *SENTRY_PACKAGE_INFO = @"cocoapods:getsentry/%@";
 #elif CARTHAGE_YES
 static NSString *SENTRY_PACKAGE_INFO = @"carthage:getsentry/%@";
+#elif TEST
+static NSString *SENTRY_PACKAGE_INFO = @"TEST:getsentry/%@";
 #else
 static NSString *SENTRY_PACKAGE_INFO = nil;
 #endif

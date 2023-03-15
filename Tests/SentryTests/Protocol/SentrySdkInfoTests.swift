@@ -20,14 +20,19 @@ class SentrySdkInfoTests: XCTestCase {
         XCTAssertEqual(version, actual.version)
     }
     
-    func testSerialization() {
+    func testSerialization() throws {
         let version = "5.2.0"
         let actual = SentrySdkInfo(name: sdkName, andVersion: version).serialize()
         
         if let sdkInfo = actual["sdk"] as? [String: Any] {
-            XCTAssertEqual(2, sdkInfo.count)
+            XCTAssertEqual(3, sdkInfo.count)
             XCTAssertEqual(sdkName, sdkInfo["name"] as? String)
             XCTAssertEqual(version, sdkInfo["version"] as? String)
+
+            let packageInfo = try XCTUnwrap(sdkInfo["packages"] as? [String: Any])
+
+            XCTAssertEqual(packageInfo["name"] as? String, "TEST:getsentry/\(sdkName)")
+            XCTAssertEqual(packageInfo["version"] as? String, version)
         } else {
             XCTFail("Serialization of SdkInfo doesn't contain sdk")
         }
