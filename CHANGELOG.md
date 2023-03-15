@@ -10,6 +10,9 @@
 
 ## 8.3.0
 
+### Important Note
+This release can cause crashes when Profiling is enabled (#2779). Please update to `8.3.1`.
+
 ### Fixes
 
 - Crash in AppHangs when no threads (#2725)
