@@ -1,11 +1,12 @@
 # Changelog
 
-## Unreleased
+## 8.3.1
 
 ### Fixes 
 
 - Stop using UIScreen.main (#2762)
 - Profile timestamp alignment with transactions (#2771) and app start spans (#2772)
+- Fix crash when compiling profiling data during transaction serialization (#2783)
 
 ## 8.3.0
 
