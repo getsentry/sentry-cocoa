@@ -251,18 +251,31 @@ class ViewController: UIViewController {
     @IBAction func anrFillingRunLoop(_ sender: Any) {
         let buttonTitle = self.anrFillingRunLoopButton.currentTitle
         var i = 0
+        
+        func sleep(timeout: Double) {
+            let group = DispatchGroup()
+            group.enter()
+            let queue = DispatchQueue(label: "delay", qos: .background, attributes: [])
+            
+            queue.asyncAfter(deadline: .now() + timeout) {
+                group.leave()
+            }
+            
+            group.wait()
+        }
 
         dispatchQueue.async {
-            for _ in 0...100_000 {
+            for _ in 0...30 {
                 i += Int.random(in: 0...10)
                 i -= 1
                 
                 DispatchQueue.main.async {
-                    self.anrFillingRunLoopButton.setTitle("Work in Progress \(i)", for: .normal)
+                    sleep(timeout: 0.1)
+                    self.anrFillingRunLoopButton.setTitle("Title \(i)", for: .normal)
                 }
             }
             
-            DispatchQueue.main.async {
+            DispatchQueue.main.sync {
                 self.anrFillingRunLoopButton.setTitle(buttonTitle, for: .normal)
             }
         }

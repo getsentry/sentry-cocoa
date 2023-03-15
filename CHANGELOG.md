@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Updating AppHang state on main thread (#2793)
+
 ## 8.3.1
 
 ### Fixes 
