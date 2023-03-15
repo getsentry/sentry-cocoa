@@ -6,7 +6,7 @@
 
 - Stop using UIScreen.main (#2762)
 - Profile timestamp alignment with transactions (#2771) and app start spans (#2772)
-- Fix crash when compiling profiling data during transaction serialization (#2783)
+- Fix crash when compiling profiling data during transaction serialization (#2786)
 
 ## 8.3.0
 
