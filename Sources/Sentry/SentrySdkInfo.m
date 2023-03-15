@@ -1,7 +1,6 @@
 #import "SentrySdkInfo.h"
 #import <Foundation/Foundation.h>
 
-
 /**
  * This is required to identify the package manager used when installing sentry.
  */
