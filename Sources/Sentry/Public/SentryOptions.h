@@ -359,6 +359,9 @@ NS_SWIFT_NAME(Options)
  * This property is dependent on `tracesSampleRate` -- if `tracesSampleRate` is 0 (default),
  * no profiles will be collected no matter what this property is set to. This property is
  * used to undersample profiles *relative to* `tracesSampleRate`.
+ *
+ * @Note This feature is not supported on watchOS or tvOS.
+ * @warning This is a beta feature and may still have bugs.
  */
 @property (nullable, nonatomic, strong) NSNumber *profilesSampleRate;
 
@@ -368,12 +371,18 @@ NS_SWIFT_NAME(Options)
  * A callback to a user defined profiles sampler function. This is similar to setting
  * `profilesSampleRate`, but instead of a static value, the callback function will be called to
  * determine the sample rate.
+ *
+ * @Note This feature is not supported on watchOS or tvOS.
+ * @warning This is a beta feature and may still have bugs.
  */
 @property (nullable, nonatomic) SentryTracesSamplerCallback profilesSampler;
 
 /**
  * If profiling should be enabled or not. Returns YES if either a profilesSampleRate > 0 and
  * <=1 or a profilesSampler is set otherwise NO.
+ *
+ * @Note This feature is not supported on watchOS or tvOS.
+ * @warning This is a beta feature and may still have bugs.
  */
 @property (nonatomic, assign, readonly) BOOL isProfilingEnabled;
 
@@ -383,8 +392,9 @@ NS_SWIFT_NAME(Options)
  * over this setting.
  *
  * Whether to enable the sampling profiler. Default is NO.
- * @note This is a beta feature that is currently not available to all Sentry customers. This
- * feature is not supported on watchOS or tvOS.
+ *
+ * @Note This feature is not supported on watchOS or tvOS.
+ * @warning This is a beta feature and may still have bugs.
  */
 @property (nonatomic, assign) BOOL enableProfiling DEPRECATED_MSG_ATTRIBUTE(
     "Use profilesSampleRate or profilesSampler instead. This property will be removed in a future "
