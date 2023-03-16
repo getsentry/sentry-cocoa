@@ -74,6 +74,9 @@
                   Identifier = "SentrySDKIntegrationTestsBase">
                </Test>
                <Test
+                  Identifier = "SentrySDKTests/testStartWithConfigureOptions()">
+               </Test>
+               <Test
                   Identifier = "SentrySessionGeneratorTests/testSendSessions()">
                </Test>
                <Test
