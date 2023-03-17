@@ -40,12 +40,12 @@ extern "C" {
 void sentrycrashmc_suspendEnvironment(
     thread_act_array_t *suspendedThreads, mach_msg_type_number_t *numSuspendedThreads);
 
-
 /**
- Suspend the runtime environment only if the amount of threads is not higher than maxSupportedThreads.
+ Suspend the runtime environment only if the amount of threads is not higher than
+ maxSupportedThreads.
  */
-void sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(
-    thread_act_array_t *suspendedThreads, mach_msg_type_number_t *numSuspendedThreads, mach_msg_type_number_t maxSupportedThreads );
+void sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(thread_act_array_t *suspendedThreads,
+    mach_msg_type_number_t *numSuspendedThreads, mach_msg_type_number_t maxSupportedThreads);
 
 /** Resume the runtime environment.
  */

@@ -1,6 +1,5 @@
 import XCTest
 
-
 class SentryThreadInspectorTests: XCTestCase {
     
     private class Fixture {
@@ -91,7 +90,7 @@ class SentryThreadInspectorTests: XCTestCase {
         for _ in 0..<expect.expectedFulfillmentCount {
             Thread.detachNewThread {
                 expect.fulfill()
-                while (self.fixture.keepThreadAlive) {
+                while self.fixture.keepThreadAlive {
                     Thread.sleep(forTimeInterval: 0.001)
                 }
             }
@@ -99,7 +98,7 @@ class SentryThreadInspectorTests: XCTestCase {
 
         wait(for: [expect], timeout: 1)
         let suspendedThreads = sut.getCurrentThreadsWithStackTrace()
-        fixture.keepThreadAlive = false;
+        fixture.keepThreadAlive = false
         XCTAssertEqual(suspendedThreads.count, 0)
     }
 

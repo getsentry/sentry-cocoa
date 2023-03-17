@@ -147,12 +147,14 @@ void
 sentrycrashmc_suspendEnvironment(
     thread_act_array_t *suspendedThreads, mach_msg_type_number_t *numSuspendedThreads)
 {
-    sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(suspendedThreads, numSuspendedThreads, 1000);
+    sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(
+        suspendedThreads, numSuspendedThreads, 1000);
 }
 
-void sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(
-        thread_act_array_t *suspendedThreads, mach_msg_type_number_t *numSuspendedThreads, mach_msg_type_number_t maxSupportedThreads )
-    {
+void
+sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(thread_act_array_t *suspendedThreads,
+    mach_msg_type_number_t *numSuspendedThreads, mach_msg_type_number_t maxSupportedThreads)
+{
 #if SentryCrashCRASH_HAS_THREADS_API
     SentryCrashLOG_DEBUG("Suspending environment.");
     kern_return_t kr;
