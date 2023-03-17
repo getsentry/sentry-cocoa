@@ -88,9 +88,6 @@ class SentryUserTests: XCTestCase {
         XCTAssertEqual(TestData.user, copiedUser)
     }
     
-    // Although we only run this test above the below specified versions, we expect the
-    // implementation to be thread safe
-    // With this test we test if modifications from multiple threads don't lead to a crash.
     func testModifyingFromMultipleThreads() {
         let queue = DispatchQueue(label: "SentryScopeTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
         let group = DispatchGroup()
