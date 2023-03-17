@@ -203,4 +203,4 @@ We release experimental SentrySwiftUI cocoa package with the version 8.0.0 becau
 To be able to identify the package manager(PM) being used by the user, we need that the PM identify itself.
 Luckily all of the 3 PMs we support do this in some way, mostly by exposing a compiler directive (SPM, COCOA)
 or a build setting (CARTHAGE). With this information we can create a conditional compilation that injects the name of
-the PM. You can found this at `SentrySDKInfo.m`.
+the PM. You can find this in `SentrySDKInfo.m`.
