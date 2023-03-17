@@ -119,6 +119,8 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
         thread_act_array_t suspendedThreads = NULL;
         mach_msg_type_number_t numSuspendedThreads = 0;
 
+        //We add a limit of 70 threads because in every test up to a 100 seems fine.
+        //We are giving it an extra safety margin.
         sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(&suspendedThreads, &numSuspendedThreads, 70);
         // DANGER: Do not try to allocate memory in the heap or call Objective-C code in this
         // section Doing so when the threads are suspended may lead to deadlocks or crashes.
