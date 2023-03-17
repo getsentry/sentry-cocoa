@@ -6,6 +6,10 @@
 
 - Updating AppHang state on main thread (#2793)
 
+### Improvements
+
+- Remove not needed locks in SentryUser (#2809)
+
 ## 8.3.1
 
 ### Fixes 
