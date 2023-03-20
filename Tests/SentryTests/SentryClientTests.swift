@@ -607,7 +607,7 @@ class SentryClientTest: XCTestCase {
         }
     }
 
-    func testCaptureEvent_AddCurrentMemoryAndStorage() {
+    func testCaptureEvent_AddCurrentMemoryStorageAndCPUCoreCount() {
 
         fixture.getSut().capture(event: TestData.event)
 
@@ -620,6 +620,9 @@ class SentryClientTest: XCTestCase {
 
             let eventFreeStorage = actual.context?["device"]?["free_storage"] as? Int
             XCTAssertEqual(eventFreeStorage, 345_678)
+
+            let cpuCoreCount = actual.context?["device"]?["processor_count"]
+            XCTAssertNotNil(cpuCoreCount)
         }
     }
     

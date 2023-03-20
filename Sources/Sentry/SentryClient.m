@@ -794,6 +794,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                 block:^(NSMutableDictionary *device) {
                     device[SentryDeviceContextFreeMemoryKey] = @(self.crashWrapper.freeMemorySize);
                     device[@"free_storage"] = @(self.crashWrapper.freeStorageSize);
+                    device[@"processor_count"] = @(NSProcessInfo.processInfo.processorCount);
 
 #if TARGET_OS_IOS
                     if (self.deviceWrapper.orientation != UIDeviceOrientationUnknown) {
