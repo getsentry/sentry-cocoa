@@ -6,6 +6,23 @@ enum SampleError: Error {
     case awesomeCentaur
 }
 
+extension SampleError: CustomNSError {
+    var errorUserInfo: [String: Any] {
+        func getDebugDescription() -> String {
+            switch self {
+            case SampleError.bestDeveloper:
+                return  "bestDeveloper"
+            case .happyCustomer:
+                return  "happyCustomer"
+            case .awesomeCentaur:
+                return "awesomeCentaur"
+            }
+        }
+        
+        return [NSDebugDescriptionErrorKey: getDebugDescription()]
+    }
+}
+
 class RandomErrorGenerator {
     
     static func generate() throws {
