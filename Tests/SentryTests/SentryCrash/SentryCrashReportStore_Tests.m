@@ -57,6 +57,7 @@
 
     int64_t reportID = 0;
     sscanf(filename, scanFormat, &reportID);
+
     return reportID;
 }
 

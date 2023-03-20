@@ -31,7 +31,6 @@
 #include "SentryCrashMonitorContext.h"
 #include "SentryCrashMonitor_AppState.h"
 #include "SentryCrashMonitor_System.h"
-#include "SentryCrashMonitor_Zombie.h"
 #include "SentryCrashObjC.h"
 #include "SentryCrashReport.h"
 #include "SentryCrashReportFixer.h"
