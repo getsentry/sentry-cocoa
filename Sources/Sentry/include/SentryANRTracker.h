@@ -39,6 +39,9 @@ SENTRY_NO_INIT
 
 @end
 
+/**
+ * The ``SentryANRTracker`` calls the methods from background threads.
+ */
 @protocol SentryANRTrackerDelegate <NSObject>
 
 - (void)anrDetected;
