@@ -76,7 +76,7 @@ SentrySdkInfo ()
     return [self initWithName:name andVersion:version];
 }
 
-- (NSString *)getPackageName:(SentryPackageManagerOption)packageManager
+- (nullable NSString *)getPackageName:(SentryPackageManagerOption)packageManager
 {
     switch (packageManager) {
     case SentrySwiftPackage:
