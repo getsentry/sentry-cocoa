@@ -89,7 +89,7 @@ class SentryUserTests: XCTestCase {
     }
     
     func testModifyingFromMultipleThreads() {
-        let queue = DispatchQueue(label: "SentryScopeTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
+        let queue = DispatchQueue(label: "SentryUserTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
         let group = DispatchGroup()
         
         let user = TestData.user.copy() as! User
