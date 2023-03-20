@@ -99,7 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (self.segment != otherSegment && ![self.segment isEqualToString:otherSegment]) {
         return NO;
     }
-    
+
     NSString *otherName = user.name;
     if (self.name != otherName && ![self.name isEqualToString:otherName]) {
         return NO;
