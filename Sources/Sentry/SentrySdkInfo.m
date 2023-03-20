@@ -2,7 +2,7 @@
 #import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSUInteger, SentryPackageManagerOption) {
-    SentrySwiftPackage,
+    SentrySwiftPackageManager,
     SentryCocoaPods,
     SentryCarthage,
     SentryNoPackage
@@ -12,7 +12,7 @@ typedef NS_ENUM(NSUInteger, SentryPackageManagerOption) {
  * This is required to identify the package manager used when installing sentry.
  */
 #if SWIFT_PACKAGE
-static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentrySwiftPackage;
+static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentrySwiftPackageManager;
 #elif COCOAPODS
 static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentryCocoaPods;
 #elif CARTHAGE_YES
@@ -80,7 +80,7 @@ SentrySdkInfo ()
 - (nullable NSString *)getPackageName:(SentryPackageManagerOption)packageManager
 {
     switch (packageManager) {
-    case SentrySwiftPackage:
+    case SentrySwiftPackageManager:
         return @"spm:getsentry/%@";
     case SentryCocoaPods:
         return @"cocoapods:getsentry/%@";
@@ -99,11 +99,14 @@ SentrySdkInfo ()
     }
                                    .mutableCopy;
     if (self.packageManager != SentryNoPackage) {
-        sdk[@"packages"] = @{
-            @"name" :
-                [NSString stringWithFormat:[self getPackageName:self.packageManager], self.name],
-            @"version" : self.version
-        };
+        NSString *format = [self getPackageName:self.packageManager];
+        if (format != nil) {
+            sdk[@"packages"] = @{
+                @"name" :
+                    [NSString stringWithFormat:format, self.name],
+                @"version" : self.version
+            };
+        }
     }
 
     return @{ @"sdk" : sdk };
