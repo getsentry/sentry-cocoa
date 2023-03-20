@@ -10,6 +10,8 @@
 #import <SentryDependencyContainer.h>
 #import <SentryFramesTracker.h>
 #import <SentryScreenshot.h>
+#import <SentryUser.h>
+#import "SentryUser+Json.h"
 
 @implementation PrivateSentrySDKOnly
 
@@ -133,5 +135,9 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 }
 
 #endif
+
++ (SentryUser *)userWithJSONObject:(NSDictionary *)jsonObject {
+    return [[SentryUser alloc] initWithJSONObject:jsonObject];
+}
 
 @end

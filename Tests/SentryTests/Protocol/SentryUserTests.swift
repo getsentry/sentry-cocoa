@@ -12,17 +12,17 @@ class SentryUserTests: XCTestCase {
             "data": [
                 "fixture-key": "fixture-value"
             ],
-            "foo": "fixture-foo" // Unknown
+            "foo": "bar" // Unknown
         ]
-        let user = User(jsonObject: json)
-        
+        let user = PrivateSentrySDKOnly.user(withJSONObject: json)
+
         XCTAssertEqual(user?.userId, "fixture-id")
         XCTAssertEqual(user?.email, "fixture-email")
         XCTAssertEqual(user?.username, "fixture-username")
         XCTAssertEqual(user?.ipAddress, "fixture-ip_address")
         XCTAssertEqual(user?.segment, "fixture-segment")
         XCTAssertEqual(user?.data?["fixture-key"] as? String, "fixture-value")
-        XCTAssertEqual(user?.unknown?["foo"] as? String, "fixture-foo")
+        XCTAssertEqual(user?.value(forKey: "unknown") as? NSDictionary, ["foo": "bar"])
     }
     
     func testSerializationWithAllProperties() {
@@ -36,7 +36,7 @@ class SentryUserTests: XCTestCase {
         user.ipAddress = ""
         user.segment = ""
         user.data?.removeAll()
-        user.unknown?.removeAll()
+        user.setValue(nil, forKey: "unknown")
         
         XCTAssertEqual(TestData.user.userId, actual["id"] as? String)
         XCTAssertEqual(TestData.user.email, actual["email"] as? String)
@@ -55,8 +55,6 @@ class SentryUserTests: XCTestCase {
         XCTAssertEqual(1, actual.count)
     }
     
-    
-
     func testSerializationWithoutId() {
         let user = User()
         let actual = user.serialize()

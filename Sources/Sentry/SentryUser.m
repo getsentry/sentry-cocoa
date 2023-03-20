@@ -3,6 +3,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface SentryUser()
+/**
+ * Optional: Additional serialization data
+ */
+@property (atomic, strong) NSDictionary<NSString *, id> *_Nullable unknown;
+@end
+
 @implementation SentryUser
 
 - (nullable instancetype)initWithJSONObject:(NSDictionary *)jsonObject {
