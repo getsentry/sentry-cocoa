@@ -17,9 +17,9 @@ NS_ASSUME_NONNULL_BEGIN
  * Save the current app screen shots in the given directory.
  * If an app has more than one screen, one image for each screen will be saved.
  *
- * @param filesDirectory The path where the images should be saved.
+ * @param imagesDirectoryPath The path where the images should be saved.
  */
-- (void)saveScreenShots:(NSString *)filesDirectory;
+- (void)saveScreenShots:(NSString *)imagesDirectoryPath;
 
 - (NSArray<NSData *> *)takeScreenshots;
 @end
