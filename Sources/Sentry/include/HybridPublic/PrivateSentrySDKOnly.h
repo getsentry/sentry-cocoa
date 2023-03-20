@@ -2,12 +2,7 @@
 #import "SentryAppStartMeasurement.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryScreenFrames.h"
-
-#if COCOAPODS
-@class SentryEnvelope;
-#else
-#    import "SentryEnvelope.h"
-#endif
+#import "SentryEnvelope.h"
 
 @class SentryDebugMeta, SentryAppStartMeasurement, SentryScreenFrames, SentryOptions;
 
