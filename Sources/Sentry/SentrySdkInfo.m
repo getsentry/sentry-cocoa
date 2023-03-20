@@ -16,6 +16,7 @@ static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentrySwiftPackage;
 #elif COCOAPODS
 static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentryCocoaPods;
 #elif CARTHAGE_YES
+//CARTHAGE is a xcodebuild build setting with value `YES`, we need to convert it into a compiler definition to be able to use it.
 static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentryCarthage;
 #else
 static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentryNoPackage;
