@@ -31,6 +31,7 @@
 #import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentryNSError.h"
+#import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
@@ -46,7 +47,6 @@
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
 #import "SentryWatchdogTerminationTracker.h"
-#import "SentryNSProcessInfoWrapper.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -64,7 +64,7 @@ SentryClient ()
 @property (nonatomic, strong) SentryUIDeviceWrapper *deviceWrapper;
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
-@property (nonatomic, strong) SentryNSProcessInfoWrapper * processInfoWrapper;
+@property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
 
 @end
 
