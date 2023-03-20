@@ -148,7 +148,7 @@ sentrycrashmc_suspendEnvironment(
     thread_act_array_t *suspendedThreads, mach_msg_type_number_t *numSuspendedThreads)
 {
     sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(
-        suspendedThreads, numSuspendedThreads, 1000);
+        suspendedThreads, numSuspendedThreads, UINT32_MAX);
 }
 
 void

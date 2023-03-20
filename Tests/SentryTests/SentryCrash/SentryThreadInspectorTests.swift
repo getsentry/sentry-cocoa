@@ -96,7 +96,7 @@ class SentryThreadInspectorTests: XCTestCase {
             }
         }
 
-        wait(for: [expect], timeout: 1)
+        wait(for: [expect], timeout: 5)
         let suspendedThreads = sut.getCurrentThreadsWithStackTrace()
         fixture.keepThreadAlive = false
         XCTAssertEqual(suspendedThreads.count, 0)

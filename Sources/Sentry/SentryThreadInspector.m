@@ -119,7 +119,8 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
         thread_act_array_t suspendedThreads = NULL;
         mach_msg_type_number_t numSuspendedThreads = 0;
 
-        // We add a limit of 70 threads because in every test up to a 100 seems fine.
+        // SentryThreadInspector is crashing when there is too many threads.
+        // We add a limit of 70 threads because in test with up to 100 threads it seems fine.
         // We are giving it an extra safety margin.
         sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(
             &suspendedThreads, &numSuspendedThreads, 70);
