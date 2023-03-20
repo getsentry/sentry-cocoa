@@ -358,4 +358,88 @@ class ViewController: UIViewController {
     @IBAction func startSDK(_ sender: Any) {
         AppDelegate.startSentry()
     }
+
+    var transaction: Span?
+    @IBAction func startTransaction(_ sender: Any) {
+        print("[iOS-Swift] Starting manual transaction")
+        transaction = SentrySDK.startTransaction(name: "Manual Transaction", operation: "Manual Operation")
+    }
+
+    @IBAction func endTransaction(_ sender: Any) {
+        print("[iOS-Swift] Stopping manual transaction")
+        transaction?.finish()
+        transaction = nil
+    }
+
+    let bgQueue = DispatchQueue(label: "io.sentry.background-profiling-issue-queue", qos: .background)
+    let hugeJSON: Data = {
+        func randomString() -> String {
+            var key = ""
+            for _ in 0..<10 {
+                key.append(UUID().uuidString)
+            }
+            return key
+        }
+
+        var dict = [String: String]()
+        for _ in 0..<1_000_000 {
+            dict[randomString()] = randomString()
+        }
+        return try! JSONSerialization.data(withJSONObject: dict)
+    }()
+    @IBOutlet weak var imageView: UIImageView!
+    @IBAction func profilingIssues(_ sender: Any) {
+        func decodeJSON() {
+            let _ = try! JSONDecoder().decode([String: String].self, from: hugeJSON)
+        }
+
+        func deserializeJSON() {
+            let _ = try! JSONSerialization.jsonObject(with: hugeJSON)
+        }
+
+        func decodeImage(onMainThread: Bool) {
+            let image = UIImage(data: try! Data(contentsOf: Bundle.main.url(forResource: "Tongariro", withExtension: "jpg")!))
+            if onMainThread {
+                imageView.image = image
+            } else {
+                DispatchQueue.main.async {
+                    self.imageView.image = image
+                }
+            }
+        }
+
+        let menu = UIAlertController(title: "Choose scenario", message: nil, preferredStyle: .alert)
+        menu.addAction(UIAlertAction(title: "Decode JSON on main thread", style: .default, handler: { _ in
+            DispatchQueue.main.async {
+                decodeJSON()
+            }
+        }))
+        menu.addAction(UIAlertAction(title: "Decode JSON on bg thread", style: .default, handler: { _ in
+            self.bgQueue.async {
+                decodeJSON()
+            }
+        }))
+        menu.addAction(UIAlertAction(title: "Deserialize JSON on main thread", style: .default, handler: { _ in
+            DispatchQueue.main.async {
+                deserializeJSON()
+            }
+        }))
+        menu.addAction(UIAlertAction(title: "Deserialize JSON on bg thread", style: .default, handler: { _ in
+            self.bgQueue.async {
+                deserializeJSON()
+            }
+        }))
+        menu.addAction(UIAlertAction(title: "Decode image on main thread", style: .default, handler: { _ in
+            DispatchQueue.main.async {
+                decodeImage(onMainThread: true)
+            }
+        }))
+        menu.addAction(UIAlertAction(title: "Decode image on bg thread", style: .default, handler: { _ in
+            self.bgQueue.async {
+                decodeImage(onMainThread: false)
+            }
+        }))
+        menu.addAction(UIAlertAction(title: "Cancel", style: .destructive))
+        present(menu, animated: true)
+    }
 }
