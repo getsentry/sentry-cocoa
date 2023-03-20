@@ -5,6 +5,7 @@
 ### Features
 
 - Add `name` and `geo` to User (#2710)
+
 ### Fixes
 
 - Updating AppHang state on main thread (#2793)
