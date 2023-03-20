@@ -36,6 +36,7 @@ class SentryUserTests: XCTestCase {
         user.ipAddress = ""
         user.segment = ""
         user.data?.removeAll()
+        user.unknown?.removeAll()
         
         XCTAssertEqual(TestData.user.userId, actual["id"] as? String)
         XCTAssertEqual(TestData.user.email, actual["email"] as? String)
@@ -43,6 +44,7 @@ class SentryUserTests: XCTestCase {
         XCTAssertEqual(TestData.user.ipAddress, actual["ip_address"] as? String)
         XCTAssertEqual(TestData.user.segment, actual["segment"] as? String)
         XCTAssertEqual(["some": ["data": "data", "date": TestData.timestampAs8601String]], actual["data"] as? Dictionary)
+        XCTAssertEqual(["some": "data"], actual["unknown"] as? Dictionary)
     }
     
     func testSerializationWithOnlyId() {

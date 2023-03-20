@@ -64,6 +64,7 @@ class TestData {
         user.ipAddress = "127.0.0.1"
         user.segment = "segmentA"
         user.data = ["some": ["data": "data", "date": timestamp]]
+        user.unknown = ["some": "data"]
         
         return user
     }
