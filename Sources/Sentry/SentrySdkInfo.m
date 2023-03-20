@@ -1,22 +1,34 @@
 #import "SentrySdkInfo.h"
 #import <Foundation/Foundation.h>
 
+typedef NS_ENUM(NSUInteger, SentryPackageManagerOption) {
+    SentrySwiftPackage,
+    SentryCocoaPods,
+    SentryCarthage,
+    SentryNoPackage
+};
+
 /**
  * This is required to identify the package manager used when installing sentry.
  */
 #if SWIFT_PACKAGE
-static NSString *SENTRY_PACKAGE_INFO = @"spm:getsentry/%@";
+static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentrySwiftPackage;
 #elif COCOAPODS
-static NSString *SENTRY_PACKAGE_INFO = @"cocoapods:getsentry/%@";
+static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentryCocoaPods;
 #elif CARTHAGE_YES
-static NSString *SENTRY_PACKAGE_INFO = @"carthage:getsentry/%@";
-#elif TEST
-static NSString *SENTRY_PACKAGE_INFO = @"TEST:getsentry/%@";
+static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentryCarthage;
 #else
-static NSString *SENTRY_PACKAGE_INFO = nil;
+static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentryNoPackage;
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
+
+@interface
+SentrySdkInfo ()
+
+@property (nonatomic) SentryPackageManagerOption packageManager;
+
+@end
 
 @implementation SentrySdkInfo
 
@@ -25,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (self = [super init]) {
         _name = name ?: @"";
         _version = version ?: @"";
+        _packageManager = SENTRY_PACKAGE_INFO;
     }
 
     return self;
@@ -63,6 +76,20 @@ NS_ASSUME_NONNULL_BEGIN
     return [self initWithName:name andVersion:version];
 }
 
+- (NSString *)getPackageName:(SentryPackageManagerOption)packageManager
+{
+    switch (packageManager) {
+    case SentrySwiftPackage:
+        return @"spm:getsentry/%@";
+    case SentryCocoaPods:
+        return @"cocoapods:getsentry/%@";
+    case SentryCarthage:
+        return @"carthage:getsentry/%@";
+    default:
+        return nil;
+    }
+}
+
 - (NSDictionary<NSString *, id> *)serialize
 {
     NSMutableDictionary *sdk = @{
@@ -70,9 +97,10 @@ NS_ASSUME_NONNULL_BEGIN
         @"version" : self.version,
     }
                                    .mutableCopy;
-    if (SENTRY_PACKAGE_INFO != nil) {
+    if (self.packageManager != SentryNoPackage) {
         sdk[@"packages"] = @{
-            @"name" : [NSString stringWithFormat:SENTRY_PACKAGE_INFO, self.name],
+            @"name" :
+                [NSString stringWithFormat:[self getPackageName:self.packageManager], self.name],
             @"version" : self.version
         };
     }

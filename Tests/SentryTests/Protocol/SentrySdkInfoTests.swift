@@ -1,3 +1,4 @@
+import SentryTestUtils
 import XCTest
 
 class SentrySdkInfoTests: XCTestCase {
@@ -20,22 +21,42 @@ class SentrySdkInfoTests: XCTestCase {
         XCTAssertEqual(version, actual.version)
     }
     
-    func testSerialization() throws {
+    func testSerialization() {
         let version = "5.2.0"
         let actual = SentrySdkInfo(name: sdkName, andVersion: version).serialize()
         
         if let sdkInfo = actual["sdk"] as? [String: Any] {
-            XCTAssertEqual(3, sdkInfo.count)
+            XCTAssertEqual(2, sdkInfo.count)
             XCTAssertEqual(sdkName, sdkInfo["name"] as? String)
             XCTAssertEqual(version, sdkInfo["version"] as? String)
+        } else {
+            XCTFail("Serialization of SdkInfo doesn't contain sdk")
+        }
+    }
+
+    func testSPM_packageInfo() throws {
+        let version = "5.2.0"
+        let actual = SentrySdkInfo(name: sdkName, andVersion: version)
+        Dynamic(actual).packageManager = 0
+        let serialization = actual.serialize()
+
+        if let sdkInfo = serialization["sdk"] as? [String: Any] {
+            XCTAssertEqual(3, sdkInfo.count)
 
             let packageInfo = try XCTUnwrap(sdkInfo["packages"] as? [String: Any])
-
-            XCTAssertEqual(packageInfo["name"] as? String, "TEST:getsentry/\(sdkName)")
+            XCTAssertEqual(packageInfo["name"] as? String, "spm:getsentry/\(sdkName)")
             XCTAssertEqual(packageInfo["version"] as? String, version)
         } else {
             XCTFail("Serialization of SdkInfo doesn't contain sdk")
         }
+    }
+
+    func testPackageNames () {
+        let actual = SentrySdkInfo(name: sdkName, andVersion: "")
+        XCTAssertEqual(Dynamic(actual).getPackageName(0), "spm:getsentry/%@")
+        XCTAssertEqual(Dynamic(actual).getPackageName(1), "cocoapods:getsentry/%@")
+        XCTAssertEqual(Dynamic(actual).getPackageName(2), "carthage:getsentry/%@")
+        XCTAssertNil(Dynamic(actual).getPackageName(3).asString)
     }
     
     func testInitWithDict_SdkInfo() {
