@@ -2,6 +2,29 @@ import XCTest
 
 class SentryUserTests: XCTestCase {
 
+    func testInitWithJson() {
+        let json: [AnyHashable: Any] = [
+            "id": "fixture-id",
+            "email": "fixture-email",
+            "username": "fixture-username",
+            "ip_address": "fixture-ip_address",
+            "segment": "fixture-segment",
+            "data": [
+                "fixture-key": "fixture-value"
+            ],
+            "foo": "fixture-foo" // Unknown
+        ]
+        let user = User(jsonObject: json)
+        
+        XCTAssertEqual(user?.userId, "fixture-id")
+        XCTAssertEqual(user?.email, "fixture-email")
+        XCTAssertEqual(user?.username, "fixture-username")
+        XCTAssertEqual(user?.ipAddress, "fixture-ip_address")
+        XCTAssertEqual(user?.segment, "fixture-segment")
+        XCTAssertEqual(user?.data?["fixture-key"] as? String, "fixture-value")
+        XCTAssertEqual(user?.unknown?["foo"] as? String, "fixture-foo")
+    }
+    
     func testSerializationWithAllProperties() {
         let user = TestData.user.copy() as! User
         let actual = user.serialize()
@@ -29,6 +52,8 @@ class SentryUserTests: XCTestCase {
         XCTAssertEqual(user.userId, actual["id"] as? String)
         XCTAssertEqual(1, actual.count)
     }
+    
+    
 
     func testSerializationWithoutId() {
         let user = User()

@@ -37,6 +37,18 @@ NS_SWIFT_NAME(User)
 @property (atomic, strong) NSDictionary<NSString *, id> *_Nullable data;
 
 /**
+ * Optional: Additional serialization data
+ */
+@property (atomic, strong) NSDictionary<NSString *, id> *_Nullable unknown;
+
+/**
+ * Initializes a SentryUser from a JSON object.
+ * @param jsonObject The jsonObject containing the user.
+ * @return The SentryUser or nil if the JSONObject contains an error.
+ */
+- (nullable instancetype)initWithJSONObject:(NSDictionary *)jsonObject;
+
+/**
  * Initializes a SentryUser with the id
  * @param userId NSString
  * @return SentryUser
