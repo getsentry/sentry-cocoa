@@ -103,8 +103,7 @@ SentrySdkInfo ()
         NSString *format = [self getPackageName:self.packageManager];
         if (format != nil) {
             sdk[@"packages"] = @{
-                @"name" :
-                    [NSString stringWithFormat:format, self.name],
+                @"name" : [NSString stringWithFormat:format, self.name],
                 @"version" : self.version
             };
         }
