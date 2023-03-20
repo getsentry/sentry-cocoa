@@ -5,6 +5,7 @@
 ### Fixes
 
 - Updating AppHang state on main thread (#2793)
+- App Hang report crashes with too many threads (#2811)
 
 ### Improvements
 
