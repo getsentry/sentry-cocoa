@@ -5,6 +5,7 @@ class SentryThreadInspectorTests: XCTestCase {
     private class Fixture {
         var testMachineContextWrapper = TestMachineContextWrapper()
         var stacktraceBuilder = TestSentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: [])))
+        var keepThreadAlive = true
         
         func getSut(testWithRealMachineContextWrapper: Bool = false) -> SentryThreadInspector {
             
@@ -78,6 +79,27 @@ class SentryThreadInspectorTests: XCTestCase {
         
         queue.activate()
         wait(for: [expect], timeout: 10)
+    }
+
+    func testGetCurrentThreadWithStackTrack_TooManyThreads() {
+        let expect = expectation(description: "Wait all Threads")
+        expect.expectedFulfillmentCount = 70
+
+        let sut = self.fixture.getSut(testWithRealMachineContextWrapper: true)
+
+        for _ in 0..<expect.expectedFulfillmentCount {
+            Thread.detachNewThread {
+                expect.fulfill()
+                while self.fixture.keepThreadAlive {
+                    Thread.sleep(forTimeInterval: 0.001)
+                }
+            }
+        }
+
+        wait(for: [expect], timeout: 5)
+        let suspendedThreads = sut.getCurrentThreadsWithStackTrace()
+        fixture.keepThreadAlive = false
+        XCTAssertEqual(suspendedThreads.count, 0)
     }
 
     func testStackTrackForCurrentThreadAsyncUnsafe() {

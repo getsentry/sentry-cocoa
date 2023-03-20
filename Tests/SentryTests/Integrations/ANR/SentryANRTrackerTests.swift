@@ -90,8 +90,9 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
     
     func testMultipleANRs_MultipleReported() {
         anrDetectedExpectation.expectedFulfillmentCount = 3
+        let expectedANRStoppedInvocations = 2
         anrStoppedExpectation.isInverted = false
-        anrStoppedExpectation.expectedFulfillmentCount = 2
+        anrStoppedExpectation.expectedFulfillmentCount = expectedANRStoppedInvocations
         
         fixture.dispatchQueue.blockBeforeMainBlock = {
             self.advanceTime(bySeconds: self.fixture.timeoutInterval)
@@ -105,6 +106,7 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         start()
         
         wait(for: [anrDetectedExpectation, anrStoppedExpectation], timeout: waitTimeout)
+        XCTAssertEqual(expectedANRStoppedInvocations, fixture.dispatchQueue.dispatchAsyncInvocations.count)
     }
     
     func testAppSuspended_NoANR() {

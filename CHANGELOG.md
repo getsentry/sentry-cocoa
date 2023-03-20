@@ -5,12 +5,27 @@
 ### Features
 
 - Add `name` and `geo` to User (#2710)
+### Fixes
+
+- Updating AppHang state on main thread (#2793)
+- App Hang report crashes with too many threads (#2811)
+
+### Improvements
+
+- Remove not needed locks in SentryUser (#2809)
+
+## 8.3.1
+
 ### Fixes 
 
 - Stop using UIScreen.main (#2762)
 - Profile timestamp alignment with transactions (#2771) and app start spans (#2772)
+- Fix crash when compiling profiling data during transaction serialization (#2786)
 
 ## 8.3.0
+
+### Important Note
+This release can cause crashes when Profiling is enabled (#2779). Please update to `8.3.1`.
 
 ### Fixes
 
