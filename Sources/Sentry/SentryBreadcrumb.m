@@ -5,6 +5,46 @@
 
 @implementation SentryBreadcrumb
 
+- (instancetype)initWithJSONObject:(NSDictionary *)jsonObject {
+    if (self = [super init]) {
+        NSMutableDictionary *unknown = [NSMutableDictionary dictionary];
+        for (id key in jsonObject) {
+            id value = [jsonObject valueForKey:key];
+            if ([key isEqualToString: @"level"]) {
+                if (value != nil && [value isKindOfClass:[NSString class]]) {
+                    self.level = sentryLevelForString(value);
+                }
+            } else if ([key isEqualToString: @"timestamp"]) {
+                if (value != nil && [value isKindOfClass:[NSString class]]) {
+                    self.timestamp = [NSDate sentry_fromIso8601String:value];
+                }
+            } else if ([key isEqualToString: @"category"]) {
+                if (value != nil && [value isKindOfClass:[NSString class]]) {
+                    self.category = value;
+                }
+            } else if ([key isEqualToString: @"type"]) {
+                if (value != nil && [value isKindOfClass:[NSString class]]) {
+                    self.type = value;
+                }
+            } else if ([key isEqualToString: @"message"]) {
+                if (value != nil && [value isKindOfClass:[NSString class]]) {
+                    self.message = value;
+                }
+            } else if ([key isEqualToString: @"data"]) {
+                if (value != nil && [value isKindOfClass:[NSDictionary class]]) {
+                    self.data = value;
+                }
+            } else {
+                unknown[key] = value;
+            }
+        }
+        if (unknown.count > 0) {
+            self.unknown = [unknown copy];
+        }
+    }
+    return self;
+}
+
 - (instancetype)initWithLevel:(enum SentryLevel)level category:(NSString *)category
 {
     self = [super init];
@@ -31,6 +71,7 @@
     [serializedData setValue:self.type forKey:@"type"];
     [serializedData setValue:self.message forKey:@"message"];
     [serializedData setValue:[self.data sentry_sanitize] forKey:@"data"];
+    [serializedData setValue:[self.unknown sentry_sanitize] forKey:@"unknown"];
 
     return serializedData;
 }
@@ -65,6 +106,8 @@
         return NO;
     if (self.data != breadcrumb.data && ![self.data isEqualToDictionary:breadcrumb.data])
         return NO;
+    if (self.unknown != breadcrumb.unknown && ![self.unknown isEqualToDictionary:breadcrumb.unknown])
+        return NO;
     return YES;
 }
 
@@ -77,6 +120,7 @@
     hash = hash * 23 + [self.type hash];
     hash = hash * 23 + [self.message hash];
     hash = hash * 23 + [self.data hash];
+    hash = hash * 23 + [self.unknown hash];
     return hash;
 }
 
