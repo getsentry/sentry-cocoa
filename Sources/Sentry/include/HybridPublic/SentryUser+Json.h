@@ -9,7 +9,8 @@
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
 
-@interface SentryUser (Json)
+@interface
+SentryUser (Json)
 
 /**
  * Initializes a SentryUser from a JSON object.

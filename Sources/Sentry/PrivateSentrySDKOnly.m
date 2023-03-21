@@ -1,4 +1,5 @@
 #import "PrivateSentrySDKOnly.h"
+#import "SentryBreadcrumb+Json.h"
 #import "SentryClient.h"
 #import "SentryDebugImageProvider.h"
 #import "SentryHub+Private.h"
@@ -6,14 +7,13 @@
 #import "SentryMeta.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
+#import "SentryUser+Json.h"
 #import "SentryViewHierarchy.h"
+#import <SentryBreadcrumb.h>
 #import <SentryDependencyContainer.h>
 #import <SentryFramesTracker.h>
 #import <SentryScreenshot.h>
 #import <SentryUser.h>
-#import "SentryUser+Json.h"
-#import <SentryBreadcrumb.h>
-#import "SentryBreadcrumb+Json.h"
 
 @implementation PrivateSentrySDKOnly
 
