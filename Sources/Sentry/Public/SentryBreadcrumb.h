@@ -40,11 +40,6 @@ NS_SWIFT_NAME(Breadcrumb)
 @property (nonatomic, strong) NSDictionary<NSString *, id> *_Nullable data;
 
 /**
- * Optional: Additional serialization data
- */
-@property (atomic, strong) NSDictionary<NSString *, id> *_Nullable unknown;
-
-/**
  * Initializes a SentryBreadcrumb from a JSON object.
  * @param jsonObject The jsonObject containing the breadcrumb.
  * @return The SentryBreadcrumb or nil if the JSONObject contains an error.

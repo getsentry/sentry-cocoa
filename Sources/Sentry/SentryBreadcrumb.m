@@ -3,6 +3,10 @@
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryLevelMapper.h"
 
+@interface SentryBreadcrumb()
+@property (atomic, strong) NSDictionary<NSString *, id> *_Nullable unknown;
+@end
+
 @implementation SentryBreadcrumb
 
 - (instancetype)initWithJSONObject:(NSDictionary *)jsonObject {
