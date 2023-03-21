@@ -368,7 +368,7 @@ SentryHub ()
     return [self startTransactionWithContext:transactionContext
                                  bindToScope:bindToScope
                        customSamplingContext:customSamplingContext
-                                configure:nil];
+                               configuration:nil];
 }
 
 - (SentryTransactionContext *)transactionContext:(SentryTransactionContext *)context
@@ -388,7 +388,8 @@ SentryHub ()
 - (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
-                                    configure:(nullable SentryTracerConfigure)configure {
+                                configuration:(nullable SentryTracerConfiguration *)configuration
+{
     SentrySamplingContext *samplingContext =
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
                                             customSamplingContext:customSamplingContext];
@@ -401,14 +402,11 @@ SentryHub ()
     SentryProfilesSamplerDecision *profilesSamplerDecision =
         [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
 
-    SentryTracer* tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
+    configuration.profilesSamplerDecision = profilesSamplerDecision;
+
+    SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                         hub:self
-                                                                  configure:^(SentryTracerConfiguration * configuration) {
-        if (configure) {
-            configure(configuration);
-        }
-        configuration->profilesSamplerDecision = profilesSamplerDecision;
-    }];
+                                                              configuration:configuration];
 
     if (bindToScope)
         self.scope.span = tracer;

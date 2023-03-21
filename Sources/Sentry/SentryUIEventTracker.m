@@ -121,14 +121,16 @@ SentryUIEventTracker ()
                     && ![span.operation containsString:SentrySpanOperationUIAction];
 
                 BOOL bindToScope = !ongoingScreenLoadTransaction && !ongoingManualTransaction;
-                transaction =
-                    [SentrySDK.currentHub startTransactionWithContext:context
-                                                          bindToScope:bindToScope
-                                                customSamplingContext:@{}
-                                                            configure:^(SentryTracerConfiguration * _Nonnull configuration) {
-                        configuration->idleTimeout = self.idleTimeout;
-                        configuration->dispatchQueueWrapper = self.dispatchQueueWrapper;
-                    }];
+
+                transaction = [SentrySDK.currentHub
+                    startTransactionWithContext:context
+                                    bindToScope:bindToScope
+                          customSamplingContext:@{}
+                                  configuration:[SentryTracerConfiguration configurationWithBlock:^(
+                                                    SentryTracerConfiguration *config) {
+                                      config.idleTimeout = self.idleTimeout;
+                                      config.dispatchQueueWrapper = self.dispatchQueueWrapper;
+                                  }]];
 
                 SENTRY_LOG_DEBUG(@"SentryUIEventTracker automatically started a new transaction "
                                  @"with name: %@, bindToScope: %@",

@@ -54,8 +54,9 @@ SentryTracer ()
  * necessarily lead to finishing the tracer, because it could still wait for child spans to finish
  * if waitForChildren is <code>YES</code>. */
 @property (nonatomic) BOOL wasFinishCalled;
-@property (nonatomic) BOOL wasCaptured;
 @property (nonatomic, nullable, strong) NSTimer *deadlineTimer;
+@property (nonnull, strong) SentryTracerConfiguration *configuration;
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic) BOOL isProfiling;
 @property (nonatomic) uint64_t startSystemTime;
@@ -79,8 +80,6 @@ SentryTracer ()
     NSUInteger initSlowFrames;
     NSUInteger initFrozenFrames;
 #endif
-
-    SentryTracerConfiguration _configuration;
 }
 
 static NSObject *appStartMeasurementLock;
@@ -97,30 +96,18 @@ static BOOL appStartMeasurementRead;
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
 {
-    return [self initWithTransactionContext:transactionContext
-                                        hub:hub
-                                  configure:nil];
+    return [self initWithTransactionContext:transactionContext hub:hub configuration:nil];
 }
-
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
-                                 configure:(nullable SentryTracerConfigure)configure {
+                             configuration:(nullable SentryTracerConfiguration *)configuration;
+{
     if (!(self = [super initWithContext:transactionContext])) {
         return nil;
     }
 
-    SentryTracerConfiguration configuration;
-    configuration.autoCapture = NO;
-    configuration.idleTimeout = 0.0;
-    configuration.dispatchQueueWrapper = nil;
-    configuration.profilesSamplerDecision = nil;
-    configuration.timerWrapper = nil;
-    configuration.waitForChildren = NO;
-    if (configure) {
-        configure(&configuration);
-    }
-    _configuration = configuration;
+    _configuration = configuration ?: [[SentryTracerConfiguration alloc] init];
 
     self.transactionContext = transactionContext;
     _children = [[NSMutableArray alloc] init];
@@ -180,7 +167,8 @@ static BOOL appStartMeasurementRead;
         }
         [weakSelf finishInternal];
     });
-    [_configuration.dispatchQueueWrapper dispatchAfter:_configuration.idleTimeout block:_idleTimeoutBlock];
+    [_configuration.dispatchQueueWrapper dispatchAfter:_configuration.idleTimeout
+                                                 block:_idleTimeoutBlock];
 }
 
 - (BOOL)hasIdleTimeout
@@ -205,13 +193,13 @@ static BOOL appStartMeasurementRead;
     __weak SentryTracer *weakSelf = self;
     self.deadlineTimer =
         [_configuration.timerWrapper scheduledTimerWithTimeInterval:SENTRY_AUTO_TRANSACTION_DEADLINE
-                                                  repeats:NO
-                                                    block:^(NSTimer *_Nonnull timer) {
-                                                        if (weakSelf == nil) {
-                                                            return;
-                                                        }
-                                                        [weakSelf deadlineTimerFired];
-                                                    }];
+                                                            repeats:NO
+                                                              block:^(NSTimer *_Nonnull timer) {
+                                                                  if (weakSelf == nil) {
+                                                                      return;
+                                                                  }
+                                                                  [weakSelf deadlineTimerFired];
+                                                              }];
 }
 
 - (void)deadlineTimerFired
@@ -454,23 +442,6 @@ static BOOL appStartMeasurementRead;
         if ([self hasIdleTimeout]) {
             [self trimEndTimestamp];
         }
-    }
-
-    if (_configuration.autoCapture) {
-        [self capture];
-    }
-}
-
-- (void)capture {
-
-    if (self.wasCaptured) {
-        return;
-    }
-    @synchronized (self) {
-        if (self.wasCaptured) {
-            return;
-        }
-        self.wasCaptured = true;
     }
 
     SentryTransaction *transaction = [self toTransaction];
