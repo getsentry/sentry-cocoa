@@ -10,7 +10,7 @@ SentryBreadcrumb ()
 
 @implementation SentryBreadcrumb
 
-- (instancetype)initWithJSONObject:(NSDictionary *)jsonObject
+- (nullable instancetype)initWithJSONObject:(NSDictionary *)jsonObject
 {
     if (self = [super init]) {
         NSMutableDictionary *unknown = [NSMutableDictionary dictionary];
