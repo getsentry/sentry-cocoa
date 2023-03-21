@@ -367,9 +367,8 @@ SentryHub ()
 {
     return [self startTransactionWithContext:transactionContext
                                  bindToScope:bindToScope
-                             waitForChildren:NO
                        customSamplingContext:customSamplingContext
-                                timerWrapper:nil];
+                                configure:nil];
 }
 
 - (SentryTransactionContext *)transactionContext:(SentryTransactionContext *)context
@@ -386,42 +385,10 @@ SentryHub ()
                                             parentSampled:context.parentSampled];
 }
 
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                  bindToScope:(BOOL)bindToScope
-                              waitForChildren:(BOOL)waitForChildren
-                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
-                                 timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper
-{
-    SentrySamplingContext *samplingContext =
-        [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
-                                            customSamplingContext:customSamplingContext];
-
-    SentryTracesSamplerDecision *samplerDecision = [_tracesSampler sample:samplingContext];
-    transactionContext = [self transactionContext:transactionContext
-                                      withSampled:samplerDecision.decision];
-    transactionContext.sampleRate = samplerDecision.sampleRate;
-
-    SentryProfilesSamplerDecision *profilesSamplerDecision =
-        [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
-
-    id<SentrySpan> tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
-                                                                         hub:self
-                                                     profilesSamplerDecision:profilesSamplerDecision
-                                                             waitForChildren:waitForChildren
-                                                                timerWrapper:timerWrapper];
-
-    if (bindToScope)
-        self.scope.span = tracer;
-
-    return tracer;
-}
-
 - (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
-                                  idleTimeout:(NSTimeInterval)idleTimeout
-                         dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-{
+                                    configure:(nullable SentryTracerConfigure)configure {
     SentrySamplingContext *samplingContext =
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
                                             customSamplingContext:customSamplingContext];
@@ -434,11 +401,15 @@ SentryHub ()
     SentryProfilesSamplerDecision *profilesSamplerDecision =
         [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
 
-    SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
+    SentryTracer* tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                         hub:self
-                                                    profilesSamplerDecision:profilesSamplerDecision
-                                                                idleTimeout:idleTimeout
-                                                       dispatchQueueWrapper:dispatchQueueWrapper];
+                                                                  configure:^(SentryTracerConfiguration * configuration) {
+        if (configure) {
+            configure(configuration);
+        }
+        configuration->profilesSamplerDecision = profilesSamplerDecision;
+    }];
+
     if (bindToScope)
         self.scope.span = tracer;
 

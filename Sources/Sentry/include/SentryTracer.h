@@ -10,6 +10,49 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
+typedef struct {
+    /**
+     * Indicates whether the tracer will be finished only if all children have been finished.
+     * If this property is YES and the finish function is called before all children are finished
+     * the tracer will automatically finish when the last child finishes.
+     *
+     * Default is NO.
+     */
+    BOOL waitForChildren;
+
+    /**
+     * A dispatch queue wrapper to intermediate between the tracer and dispatch calls.
+     */
+    SentryDispatchQueueWrapper * _Nullable dispatchQueueWrapper;
+
+    /**
+     * Whether to sample a profile corresponding to this transaction
+     */
+    SentryProfilesSamplerDecision * _Nullable  profilesSamplerDecision;
+
+    /**
+     * The idle time to wait until to finish the transaction
+     *
+     * Default is 0 seconds
+     */
+    NSTimeInterval idleTimeout;
+
+    /**
+     * A writer around NSTimer, to make it testable
+     */
+    SentryNSTimerWrapper * _Nullable timerWrapper;
+
+    /**
+     * Indicates whether the tracer should automatically capture the transaction after finishing.
+     *
+     * Default is YES.
+     */
+    BOOL autoCapture;
+
+} SentryTracerConfiguration;
+
+typedef void (^SentryTracerConfigure)(SentryTracerConfiguration* configuration);
+
 @protocol SentryTracerDelegate
 
 /**
@@ -25,13 +68,6 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 @property (nonatomic, strong) SentryTransactionContext *transactionContext;
 
 @property (nullable, nonatomic, copy) void (^finishCallback)(SentryTracer *);
-
-/**
- * Indicates whether this tracer will be finished only if all children have been finished.
- * If this property is YES and the finish function is called before all children are finished
- * the tracer will automatically finish when the last child finishes.
- */
-@property (readonly) BOOL waitForChildren;
 
 /**
  * Retrieves a trace context from this tracer.
@@ -70,55 +106,16 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
                                        hub:(nullable SentryHub *)hub;
 
 /**
- * Init a SentryTracer with given transaction context, hub and whether the tracer should wait
- * for all children to finish before it finishes.
+ * Init a SentryTracer with given transaction context and hub and set other fields by default
  *
  * @param transactionContext Transaction context
  * @param hub A hub to bind this transaction
- * @param waitForChildren Whether this tracer should wait all children to finish.
  *
  * @return SentryTracer
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
-                           waitForChildren:(BOOL)waitForChildren;
-
-/**
- * Init a SentryTracer with given transaction context, hub and whether the tracer should wait
- * for all children to finish before it finishes.
- *
- * @param transactionContext Transaction context
- * @param hub A hub to bind this transaction
- * @param profilesSamplerDecision Whether to sample a profile corresponding to this transaction
- * @param waitForChildren Whether this tracer should wait all children to finish.
- * @param timerWrapper A writer around NSTimer, to make it testable
- *
- * @return SentryTracer
- */
-- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                                       hub:(nullable SentryHub *)hub
-                   profilesSamplerDecision:
-                       (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
-                           waitForChildren:(BOOL)waitForChildren
-                              timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper;
-
-/**
- * Init a SentryTracer with given transaction context, hub and whether the tracer should wait
- * for all children to finish before it finishes.
- *
- * @param transactionContext Transaction context
- * @param hub A hub to bind this transaction
- * @param profilesSamplerDecision Whether to sample a profile corresponding to this transaction
- * @param idleTimeout The idle time to wait until to finish the transaction.
- *
- * @return SentryTracer
- */
-- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                                       hub:(nullable SentryHub *)hub
-                   profilesSamplerDecision:
-                       (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
-                               idleTimeout:(NSTimeInterval)idleTimeout
-                      dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
+                                 configure:(nullable SentryTracerConfigure)configure;
 
 - (id<SentrySpan>)startChildWithParentId:(SentrySpanId *)parentId
                                operation:(NSString *)operation
@@ -129,6 +126,13 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  * A method to inform the tracer that a span finished.
  */
 - (void)spanFinished:(id<SentrySpan>)finishedSpan;
+
+
+/**
+ * Capture the transaction in case it was not captured yet.
+ */
+- (void)capture;
+
 
 /**
  * Get the tracer from a span.
