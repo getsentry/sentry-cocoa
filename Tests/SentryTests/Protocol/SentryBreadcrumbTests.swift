@@ -42,7 +42,7 @@ class SentryBreadcrumbTests: XCTestCase {
             "data": ["foo": "bar"],
             "foo": "bar" // Unknown
         ]
-        let breadcrumb = Breadcrumb(jsonObject: json)
+        let breadcrumb = PrivateSentrySDKOnly.breadcrumb(withJSONObject: json)
         
         XCTAssertEqual(breadcrumb?.level, SentryLevel.info)
         XCTAssertEqual(breadcrumb?.timestamp, fixture.date)

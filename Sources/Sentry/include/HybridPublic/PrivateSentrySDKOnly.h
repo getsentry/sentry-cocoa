@@ -99,6 +99,8 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 + (SentryUser *_Nullable)userWithJSONObject:(NSDictionary *)jsonObject;
 
++ (SentryBreadcrumb *_Nullable)breadcrumbWithJSONObject:(NSDictionary *)jsonObject;
+
 @end
 
 NS_ASSUME_NONNULL_END
