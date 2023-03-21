@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Create User and Breadcrumb from map #2820
+
 ### Fixes
 
 - Updating AppHang state on main thread (#2793)
