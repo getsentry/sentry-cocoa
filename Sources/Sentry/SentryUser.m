@@ -3,38 +3,40 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryUser()
+@interface
+SentryUser ()
 @property (atomic, strong) NSDictionary<NSString *, id> *_Nullable unknown;
 @end
 
 @implementation SentryUser
 
-- (nullable instancetype)initWithJSONObject:(NSDictionary *)jsonObject {
+- (nullable instancetype)initWithJSONObject:(NSDictionary *)jsonObject
+{
     if (self = [super init]) {
         NSMutableDictionary *unknown = [NSMutableDictionary dictionary];
         for (id key in jsonObject) {
             id value = [jsonObject valueForKey:key];
-            if ([key isEqualToString: @"id"]) {
+            if ([key isEqualToString:@"id"]) {
                 if (value != nil && [value isKindOfClass:[NSString class]]) {
                     self.userId = value;
                 }
-            } else if ([key isEqualToString: @"email"]) {
+            } else if ([key isEqualToString:@"email"]) {
                 if (value != nil && [value isKindOfClass:[NSString class]]) {
                     self.email = value;
                 }
-            } else if ([key isEqualToString: @"username"]) {
+            } else if ([key isEqualToString:@"username"]) {
                 if (value != nil && [value isKindOfClass:[NSString class]]) {
                     self.username = value;
                 }
-            } else if ([key isEqualToString: @"ip_address"]) {
+            } else if ([key isEqualToString:@"ip_address"]) {
                 if (value != nil && [value isKindOfClass:[NSString class]]) {
                     self.ipAddress = value;
                 }
-            } else if ([key isEqualToString: @"segment"]) {
+            } else if ([key isEqualToString:@"segment"]) {
                 if (value != nil && [value isKindOfClass:[NSString class]]) {
                     self.segment = value;
                 }
-            } else if ([key isEqualToString: @"data"]) {
+            } else if ([key isEqualToString:@"data"]) {
                 if (value != nil && [value isKindOfClass:[NSDictionary class]]) {
                     self.data = value;
                 }
@@ -150,7 +152,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (self.data != otherUserData && ![self.data isEqualToDictionary:otherUserData]) {
         return NO;
     }
-    
+
     NSDictionary<NSString *, id> *otherUserUnknown = user.unknown;
     if (self.unknown != otherUserUnknown && ![self.unknown isEqualToDictionary:otherUserUnknown]) {
         return NO;
