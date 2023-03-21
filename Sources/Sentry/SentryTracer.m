@@ -66,7 +66,6 @@ SentryTracer ()
 
 @implementation SentryTracer {
     /** Wether the tracer should wait for child spans to finish before finishing itself. */
-    BOOL _waitForChildren;
     SentryTraceContext *_traceContext;
     SentryAppStartMeasurement *appStartMeasurement;
     NSMutableDictionary<NSString *, SentryMeasurementValue *> *_measurements;
@@ -382,7 +381,7 @@ static BOOL appStartMeasurementRead;
 
 - (BOOL)hasUnfinishedChildSpansToWaitFor
 {
-    if (!_waitForChildren) {
+    if (!self.configuration.waitForChildren) {
         return NO;
     }
 

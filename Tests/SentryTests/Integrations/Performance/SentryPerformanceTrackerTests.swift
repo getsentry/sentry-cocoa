@@ -47,7 +47,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         let scopeSpan = fixture.scope.span
         
         XCTAssert(scopeSpan === transaction)
-        XCTAssertTrue(transaction.waitForChildren)
+        XCTAssertTrue(Dynamic(transaction).configuration.waitForChildren.asBool ?? false)
         XCTAssertEqual(transaction.transactionContext.name, fixture.someTransaction)
         XCTAssertEqual(transaction.transactionContext.nameSource, .custom)
     }

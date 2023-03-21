@@ -83,9 +83,11 @@ class SentryTracerTests: XCTestCase {
             let tracer = hub.startTransaction(
                 with: transactionContext,
                 bindToScope: false,
-                waitForChildren: waitForChildren,
                 customSamplingContext: [:],
-                timerWrapper: timerWrapper) as! SentryTracer
+                configuration: SentryTracerConfiguration(block: {
+                    $0.waitForChildren = waitForChildren
+                    $0.timerWrapper = self.timerWrapper
+                }))
             return tracer
         }
         
@@ -94,8 +96,10 @@ class SentryTracerTests: XCTestCase {
                 with: transactionContext,
                 bindToScope: false,
                 customSamplingContext: [:],
-                idleTimeout: idleTimeout,
-                dispatchQueueWrapper: dispatchQueueWrapper
+                configuration: SentryTracerConfiguration(block: {
+                    $0.idleTimeout = idleTimeout
+                    $0.dispatchQueueWrapper = dispatchQueueWrapper
+                })
             )
             return tracer
         }
@@ -251,7 +255,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testFinish_WithoutHub_DoesntCaptureTransaction() {
-        let sut = SentryTracer(transactionContext: fixture.transactionContext, hub: nil, waitForChildren: false)
+        let sut = SentryTracer(transactionContext: fixture.transactionContext, hub: nil)
         
         sut.finish()
         

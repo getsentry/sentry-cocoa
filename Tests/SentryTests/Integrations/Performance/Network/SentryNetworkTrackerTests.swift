@@ -155,7 +155,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let tracer = SentryTracer(transactionContext: TransactionContext(name: SentryNetworkTrackerTests.transactionName,
                                                                          operation: SentryNetworkTrackerTests.transactionOperation),
                                   hub: nil,
-                                  waitForChildren: true)
+                                  configuration: SentryTracerConfiguration(block: { $0.waitForChildren = true }))
 
         tracer.finish()
 
@@ -172,8 +172,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let task = createDataTask()
         let tracer = SentryTracer(transactionContext: TransactionContext(name: SentryNetworkTrackerTests.transactionName,
                                                                          operation: SentryNetworkTrackerTests.transactionOperation),
-                                  hub: nil,
-                                  waitForChildren: true)
+                                  hub: nil, configuration: SentryTracerConfiguration(block: { $0.waitForChildren = true }))
         fixture.scope.span = tracer
         
         sut.urlSessionTaskResume(task)

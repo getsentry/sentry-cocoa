@@ -187,6 +187,7 @@
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryPerformanceTracker+Testing.h"
+#import "SentryTracerConfiguration.h"
 #import "TestSentryViewHierarchy.h"
 
 #if SENTRY_HAS_UIKIT
