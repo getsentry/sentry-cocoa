@@ -138,11 +138,11 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 #endif
 
-+ (SentryUser *)userWithJSONObject:(NSDictionary *)jsonObject {
++ (SentryUser *_Nullable)userWithJSONObject:(NSDictionary *)jsonObject {
     return [[SentryUser alloc] initWithJSONObject:jsonObject];
 }
 
-+ (SentryBreadcrumb *)breadcrumbWithJSONObject:(NSDictionary *)jsonObject {
++ (SentryBreadcrumb *_Nullable)breadcrumbWithJSONObject:(NSDictionary *)jsonObject {
     return [[SentryBreadcrumb alloc] initWithJSONObject:jsonObject];
 }
 
