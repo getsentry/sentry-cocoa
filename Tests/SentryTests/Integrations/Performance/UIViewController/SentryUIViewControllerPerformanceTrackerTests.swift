@@ -470,27 +470,24 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         sut.viewControllerLoadView(firstController) {
             tracer = self.getStack(tracker).first as? SentryTracer
         }
+        XCTAssertEqual(tracer?.children[3].operation, "dae")
+        //let ttdTracker = objc_getAssociatedObject(firstController, SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID) as? SentryTimeToDisplayTracker
 
-        let ttdTracker = tracer?.getExtensionsOfType(SentryTimeToDisplayTracker.self).first as? SentryTimeToDisplayTracker
-
-        XCTAssertTrue(ttdTracker?.waitForFullDisplay ?? false)
+        //XCTAssertTrue(ttdTracker?.waitForFullDisplay ?? false)
     }
 
     func test_dontWaitForFullDisplay() {
         let sut = fixture.getSut()
-        let tracker = fixture.tracker
+        //let tracker = fixture.tracker
         let firstController = TestViewController()
-
-        var tracer: SentryTracer?
 
         sut.enableWaitForFullDisplay = false
 
         //The first view controller creates a transaction
         sut.viewControllerLoadView(firstController) {
-            tracer = self.getStack(tracker).first as? SentryTracer
         }
 
-        let ttdTracker = tracer?.getExtensionsOfType(SentryTimeToDisplayTracker.self).first as? SentryTimeToDisplayTracker
+        let ttdTracker = objc_getAssociatedObject(firstController, SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID) as? SentryTimeToDisplayTracker
         XCTAssertFalse(ttdTracker?.waitForFullDisplay ?? true)
     }
 

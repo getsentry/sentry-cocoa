@@ -138,10 +138,6 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
 - (void)dispatchIdleTimeout;
 
-- (void)addExtension:(id<SentryTracerExtension>)extension;
-
-- (NSArray<id<SentryTracerExtension>> *)getExtensionsOfType:(Class)extensionType;
-
 @end
 
 NS_ASSUME_NONNULL_END

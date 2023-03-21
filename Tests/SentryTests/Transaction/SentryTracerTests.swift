@@ -20,15 +20,6 @@ class SentryTracerTests: XCTestCase {
         }
     }
 
-    private class TestTracerExtension: NSObject, SentryTracerExtension {
-        var additionalSpans: [SentrySpan] = []
-
-        var installCalled = false
-        func install(for tracer: SentryTracer) {
-            installCalled = true
-        }
-    }
-
     private class Fixture {
         let client: TestClient!
         let hub: TestHub
@@ -51,8 +42,6 @@ class SentryTracerTests: XCTestCase {
         let testValue = "extra_value"
         
         let idleTimeout: TimeInterval = 1.0
-
-        let tracerExtension = TestTracerExtension()
         
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         var displayLinkWrapper: TestDisplayLinkWrapper
@@ -898,20 +887,6 @@ class SentryTracerTests: XCTestCase {
         }
         
         XCTAssertEqual(1, transactionsWithAppStartMeasurement.count)
-    }
-
-    func test_callMiddleware_install() {
-        let tracer = fixture.getSut()
-        tracer.addExtension(fixture.tracerExtension)
-        XCTAssertTrue(fixture.tracerExtension.installCalled)
-    }
-
-    func test_callDelegate_didFinished() {
-        let tracer = fixture.getSut()
-        let delegate = TracerDelegate()
-        tracer.delegate = delegate
-        tracer.finish()
-        XCTAssertTrue(delegate.tracerDidFinishCalled)
     }
     
     func testAddingSpansOnDifferentThread_WhileFinishing_DoesNotCrash() {

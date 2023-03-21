@@ -130,7 +130,7 @@ SentryUIViewControllerPerformanceTracker ()
         return;
     }
 
-    if ([vcSpan.tracer getExtensionsOfType:SentryTimeToDisplayTracker.self].count > 0) {
+    if (objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID)) {
         // Already tracking time to display, not creating a new tracker.
         // This may happen if user manually call `loadView` from a view controller more than once.
         return;
@@ -139,7 +139,10 @@ SentryUIViewControllerPerformanceTracker ()
     SentryTimeToDisplayTracker *ttdTracker =
         [[SentryTimeToDisplayTracker alloc] initForController:controller
                                            waitForFullDisplay:self.enableWaitForFullDisplay];
-    [vcSpan.tracer addExtension:ttdTracker];
+
+    objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER, ttdTracker,
+        OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    [ttdTracker startForTracer:(SentryTracer *)vcSpan];
 
     self.currentTTDTracker = ttdTracker;
 }
@@ -153,8 +156,8 @@ SentryUIViewControllerPerformanceTracker ()
         return;
     }
 
-    SentryTimeToDisplayTracker *ttdTracker =
-        [vcSpan.tracer getExtensionsOfType:SentryTimeToDisplayTracker.self].firstObject;
+    SentryTimeToDisplayTracker *ttdTracker
+        = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID);
     [ttdTracker reportInitialDisplay];
     ttdTracker.initialDisplaySpan.status = status;
 }

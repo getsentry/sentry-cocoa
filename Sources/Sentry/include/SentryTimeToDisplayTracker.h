@@ -1,11 +1,10 @@
 #import "SentryDefines.h"
-#import "SentryTracerExtension.h"
 #import <Foundation/Foundation.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
 
-@class SentrySpan;
+@class SentrySpan, SentryTracer;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -20,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
  * TTFD span is created when `SentryTracer` request for additional spans only if
  * a full display was registered before.
  */
-@interface SentryTimeToDisplayTracker : NSObject <SentryTracerExtension>
+@interface SentryTimeToDisplayTracker : NSObject
 SENTRY_NO_INIT
 
 @property (nullable, nonatomic, strong, readonly) SentrySpan *initialDisplaySpan;
@@ -31,6 +30,8 @@ SENTRY_NO_INIT
 
 - (instancetype)initForController:(UIViewController *)controller
                waitForFullDisplay:(BOOL)waitForFullDisplay;
+
+- (void)startForTracer:(SentryTracer *)tracer;
 
 - (void)reportInitialDisplay;
 

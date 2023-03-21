@@ -5,6 +5,7 @@
 #import "SentrySpanId.h"
 #import "SentrySpanOperations.h"
 #import "SentrySwift.h"
+#import "SentryTracer.h"
 
 #if SENTRY_HAS_UIKIT
 
@@ -30,7 +31,7 @@ SentryTimeToDisplayTracker ()
     return self;
 }
 
-- (void)installForTracer:(SentryTracer *)tracer
+- (void)startForTracer:(SentryTracer *)tracer
 {
     self.initialDisplaySpan =
         [tracer startChildWithOperation:SentrySpanOperationUILoadInitialDisplay

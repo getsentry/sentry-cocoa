@@ -29,7 +29,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         let tracer = fixture.tracer
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
-        tracer.addExtension(sut)
+        sut.start(for: tracer)
         XCTAssertEqual(tracer.children.count, 1)
 
         let ttidSpan = try XCTUnwrap(tracer.children.first, "Expected a TTID span")
@@ -49,7 +49,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         let tracer = fixture.tracer
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
-        tracer.addExtension(sut)
+        sut.start(for: tracer)
         XCTAssertEqual(tracer.children.count, 2)
 
         let ttidSpan = tracer.children.first
@@ -73,7 +73,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         let sut = SentryTimeToDisplayTracker(for: UIViewController(), waitForFullDisplay: false)
         let tracer = fixture.tracer
 
-        tracer.addExtension(sut)
+        sut.start(for: tracer)
         sut.reportFullyDisplayed()
 
         XCTAssertNil(sut.fullDisplaySpan)
@@ -84,7 +84,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         let sut = SentryTimeToDisplayTracker(for: UIViewController(), waitForFullDisplay: true)
         let tracer = fixture.tracer
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
-        tracer.addExtension(sut)
+        sut.start(for: tracer)
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 11))
         sut.reportFullyDisplayed()
@@ -101,9 +101,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     func test_fullDisplay_reportedBefore_initialDisplay() {
         let sut = SentryTimeToDisplayTracker(for: UIViewController(), waitForFullDisplay: true)
         let tracer = fixture.tracer
-
+        sut.start(for: tracer)
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
-        tracer.addExtension(sut)
 
         let ttidSpan = tracer.children.first
 

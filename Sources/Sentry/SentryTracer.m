@@ -23,7 +23,6 @@
 #import "SentryTime.h"
 #import "SentryTraceContext.h"
 #import "SentryTracerConcurrency.h"
-#import "SentryTracerExtension.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
@@ -211,8 +210,6 @@ static BOOL appStartMeasurementRead;
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        // TODO(ref): Move Profiling to a SentryTracerExtension.
-        // https://github.com/getsentry/sentry-cocoa/issues/2736
         if (profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
             _isProfiling = YES;
             _startSystemTime = getAbsoluteTime();
@@ -232,8 +229,6 @@ static BOOL appStartMeasurementRead;
 
 - (void)dispatchIdleTimeout
 {
-    // TODO(ref): replace idleTimeout implementation with SentryTracerExtension
-    // https://github.com/getsentry/sentry-cocoa/issues/2736
     if (_idleTimeoutBlock != nil) {
         [self.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
     }
@@ -508,8 +503,6 @@ static BOOL appStartMeasurementRead;
     }
     [self.delegate tracerDidFinish:self];
 
-    // TODO(ref): Use SentryTracerExtension instead of finish callback
-    // https://github.com/getsentry/sentry-cocoa/issues/2736
     if (self.finishCallback) {
         self.finishCallback(self);
 
@@ -860,41 +853,6 @@ static BOOL appStartMeasurementRead;
         return [(SentrySpan *)span tracer];
     }
     return nil;
-}
-
-#pragma mark - Extensions
-
-- (void)addExtension:(id<SentryTracerExtension>)extension
-{
-    @synchronized(_extensions) {
-        [_extensions addObject:extension];
-        [extension installForTracer:self];
-    }
-}
-
-- (NSArray<id<SentryTracerExtension>> *)safeExtensions
-{
-    @synchronized(_extensions) {
-        return [_extensions copy];
-    }
-}
-
-- (NSArray<id<SentryTracerExtension>> *)getExtensionsOfType:(Class)extensionType
-{
-    NSMutableArray *result = [[NSMutableArray alloc] initWithCapacity:_extensions.count];
-
-    for (id<SentryTracerExtension> mw in [self safeExtensions]) {
-        if ([mw isKindOfClass:extensionType]) {
-            [result addObject:mw];
-        }
-    }
-
-    return result;
-}
-
-- (NSArray<id<SentryTracerExtension>> *)extensions
-{
-    return _extensions.copy;
 }
 
 @end
