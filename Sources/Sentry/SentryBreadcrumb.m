@@ -16,30 +16,24 @@ SentryBreadcrumb ()
         NSMutableDictionary *unknown = [NSMutableDictionary dictionary];
         for (id key in jsonObject) {
             id value = [jsonObject valueForKey:key];
-            if ([key isEqualToString:@"level"]) {
-                if (value != nil && [value isKindOfClass:[NSString class]]) {
-                    self.level = sentryLevelForString(value);
-                }
-            } else if ([key isEqualToString:@"timestamp"]) {
-                if (value != nil && [value isKindOfClass:[NSString class]]) {
-                    self.timestamp = [NSDate sentry_fromIso8601String:value];
-                }
-            } else if ([key isEqualToString:@"category"]) {
-                if (value != nil && [value isKindOfClass:[NSString class]]) {
-                    self.category = value;
-                }
-            } else if ([key isEqualToString:@"type"]) {
-                if (value != nil && [value isKindOfClass:[NSString class]]) {
-                    self.type = value;
-                }
-            } else if ([key isEqualToString:@"message"]) {
-                if (value != nil && [value isKindOfClass:[NSString class]]) {
-                    self.message = value;
-                }
-            } else if ([key isEqualToString:@"data"]) {
-                if (value != nil && [value isKindOfClass:[NSDictionary class]]) {
-                    self.data = value;
-                }
+            if (value == nil) {
+                continue;
+            }
+            Boolean isString = [value isKindOfClass:[NSString class]];
+            Boolean isDictionary =  [value isKindOfClass:[NSDictionary class]];
+            
+            if ([key isEqualToString:@"level"] && isString) {
+                self.level = sentryLevelForString(value);
+            } else if ([key isEqualToString:@"timestamp"] && isString) {
+                self.timestamp = [NSDate sentry_fromIso8601String:value];
+            } else if ([key isEqualToString:@"category"] && isString) {
+                self.category = value;
+            } else if ([key isEqualToString:@"type"] && isString) {
+                self.type = value;
+            } else if ([key isEqualToString:@"message"] && isString) {
+                self.message = value;
+            } else if ([key isEqualToString:@"data"] && isDictionary) {
+                self.data = value;
             } else {
                 unknown[key] = value;
             }

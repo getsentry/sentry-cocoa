@@ -16,30 +16,24 @@ SentryUser ()
         NSMutableDictionary *unknown = [NSMutableDictionary dictionary];
         for (id key in jsonObject) {
             id value = [jsonObject valueForKey:key];
-            if ([key isEqualToString:@"id"]) {
-                if (value != nil && [value isKindOfClass:[NSString class]]) {
-                    self.userId = value;
-                }
-            } else if ([key isEqualToString:@"email"]) {
-                if (value != nil && [value isKindOfClass:[NSString class]]) {
-                    self.email = value;
-                }
-            } else if ([key isEqualToString:@"username"]) {
-                if (value != nil && [value isKindOfClass:[NSString class]]) {
-                    self.username = value;
-                }
-            } else if ([key isEqualToString:@"ip_address"]) {
-                if (value != nil && [value isKindOfClass:[NSString class]]) {
-                    self.ipAddress = value;
-                }
-            } else if ([key isEqualToString:@"segment"]) {
-                if (value != nil && [value isKindOfClass:[NSString class]]) {
-                    self.segment = value;
-                }
-            } else if ([key isEqualToString:@"data"]) {
-                if (value != nil && [value isKindOfClass:[NSDictionary class]]) {
-                    self.data = value;
-                }
+            if (value == nil) {
+                continue;
+            }
+            Boolean isString = [value isKindOfClass:[NSString class]];
+            Boolean isDictionary =  [value isKindOfClass:[NSDictionary class]];
+            
+            if ([key isEqualToString:@"id"] && isString) {
+                self.userId = value;
+            } else if ([key isEqualToString:@"email"] && isString) {
+                self.email = value;
+            } else if ([key isEqualToString:@"username"] && isString) {
+                self.username = value;
+            } else if ([key isEqualToString:@"ip_address"] && isString) {
+                self.ipAddress = value;
+            } else if ([key isEqualToString:@"segment"] && isString) {
+                self.segment = value;
+            } else if ([key isEqualToString:@"data"] && isDictionary) {
+                self.data = value;
             } else {
                 unknown[key] = value;
             }
