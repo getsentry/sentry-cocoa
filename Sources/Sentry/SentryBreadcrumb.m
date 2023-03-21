@@ -75,8 +75,12 @@
     [serializedData setValue:self.type forKey:@"type"];
     [serializedData setValue:self.message forKey:@"message"];
     [serializedData setValue:[self.data sentry_sanitize] forKey:@"data"];
-    [serializedData setValue:[self.unknown sentry_sanitize] forKey:@"unknown"];
-
+    NSDictionary<NSString *, id> *unknown = self.unknown;
+    if (unknown != nil) {
+        for (id key in unknown) {
+            [serializedData setValue:unknown[key] forKey:key];
+        }
+    }
     return serializedData;
 }
 

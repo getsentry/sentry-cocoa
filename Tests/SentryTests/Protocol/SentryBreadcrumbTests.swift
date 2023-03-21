@@ -111,7 +111,7 @@ class SentryBreadcrumbTests: XCTestCase {
         XCTAssertEqual(fixture.type, actual["type"] as? String)
         XCTAssertEqual(fixture.message, actual["message"] as? String)
         XCTAssertEqual(["some": ["data": "data", "date": fixture.dateAs8601String]], actual["data"] as? Dictionary)
-        XCTAssertEqual(["foo": "bar"], actual["unknown"] as? Dictionary)
+        XCTAssertEqual("bar", actual["foo"] as? String)
     }
     
     func testDescription() {

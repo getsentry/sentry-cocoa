@@ -90,8 +90,12 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.ipAddress forKey:@"ip_address"];
     [serializedData setValue:self.segment forKey:@"segment"];
     [serializedData setValue:[self.data sentry_sanitize] forKey:@"data"];
-    [serializedData setValue:[self.unknown sentry_sanitize] forKey:@"unknown"];
-    
+    NSDictionary<NSString *, id> *unknown = self.unknown;
+    if (unknown != nil) {
+        for (id key in unknown) {
+            [serializedData setValue:unknown[key] forKey:key];
+        }
+    }
     return serializedData;
 }
 
