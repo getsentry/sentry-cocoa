@@ -216,6 +216,14 @@ class ViewController: UIViewController {
             }
         }
     }
+
+    @IBAction func start100Threads(_ sender: Any) {
+        for _ in 0..<100 {
+            Thread.detachNewThread {
+                Thread.sleep(forTimeInterval: 10)
+            }
+        }
+    }
     
     private func calcPi() -> Double {
         var denominator = 1.0
