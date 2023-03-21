@@ -1,10 +1,16 @@
 # Changelog
 
-## 8.3.2
+## Unreleased
 
 ### Fixes
 
 - View hierarchy not sent for crashes (#2781)
+
+## 8.3.2
+
+### Fixes
+
+
 - Updating AppHang state on main thread (#2793)
 - App Hang report crashes with too many threads (#2811)
 
