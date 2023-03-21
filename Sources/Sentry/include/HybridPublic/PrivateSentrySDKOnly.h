@@ -99,9 +99,9 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 + (NSData *)captureViewHierarchy;
 #endif
 
-+ (SentryUser *_Nullable)userWithJSONObject:(NSDictionary *)jsonObject;
++ (SentryUser *_Nullable)userWithDictionary:(NSDictionary *)dictionary;
 
-+ (SentryBreadcrumb *_Nullable)breadcrumbWithJSONObject:(NSDictionary *)jsonObject;
++ (SentryBreadcrumb *_Nullable)breadcrumbWithDictionary:(NSDictionary *)dictionary;
 
 @end
 

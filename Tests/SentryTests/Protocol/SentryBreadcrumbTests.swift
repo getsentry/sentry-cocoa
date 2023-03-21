@@ -32,8 +32,8 @@ class SentryBreadcrumbTests: XCTestCase {
     
     private let fixture = Fixture()
 
-    func testInitWithJson() {
-        let json: [AnyHashable: Any] = [
+    func testInitWithDictionary() {
+        let dict: [AnyHashable: Any] = [
             "level": "info",
             "timestamp": fixture.dateAs8601String,
             "category": fixture.category,
@@ -42,7 +42,7 @@ class SentryBreadcrumbTests: XCTestCase {
             "data": ["foo": "bar"],
             "foo": "bar" // Unknown
         ]
-        let breadcrumb = PrivateSentrySDKOnly.breadcrumb(withJSONObject: json)
+        let breadcrumb = PrivateSentrySDKOnly.breadcrumb(with: dict)
         
         XCTAssertEqual(breadcrumb?.level, SentryLevel.info)
         XCTAssertEqual(breadcrumb?.timestamp, fixture.date)

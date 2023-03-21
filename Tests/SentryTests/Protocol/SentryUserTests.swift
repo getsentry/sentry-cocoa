@@ -2,8 +2,8 @@ import XCTest
 
 class SentryUserTests: XCTestCase {
 
-    func testInitWithJson() {
-        let json: [AnyHashable: Any] = [
+    func testInitWithDictionary() {
+        let dict: [AnyHashable: Any] = [
             "id": "fixture-id",
             "email": "fixture-email",
             "username": "fixture-username",
@@ -14,7 +14,7 @@ class SentryUserTests: XCTestCase {
             ],
             "foo": "bar" // Unknown
         ]
-        let user = PrivateSentrySDKOnly.user(withJSONObject: json)
+        let user = PrivateSentrySDKOnly.user(with: dict)
 
         XCTAssertEqual(user?.userId, "fixture-id")
         XCTAssertEqual(user?.email, "fixture-email")

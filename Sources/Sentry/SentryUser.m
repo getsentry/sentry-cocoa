@@ -10,12 +10,12 @@ SentryUser ()
 
 @implementation SentryUser
 
-- (nullable instancetype)initWithJSONObject:(NSDictionary *)jsonObject
+- (nullable instancetype)initWithDictionary:(NSDictionary *_Nullable)dictionary
 {
     if (self = [super init]) {
         NSMutableDictionary *unknown = [NSMutableDictionary dictionary];
-        for (id key in jsonObject) {
-            id value = [jsonObject valueForKey:key];
+        for (id key in dictionary) {
+            id value = [dictionary valueForKey:key];
             if (value == nil) {
                 continue;
             }

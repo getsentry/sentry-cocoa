@@ -1,5 +1,5 @@
 #import "PrivateSentrySDKOnly.h"
-#import "SentryBreadcrumb+Json.h"
+#import "SentryBreadcrumb+Private.h"
 #import "SentryClient.h"
 #import "SentryDebugImageProvider.h"
 #import "SentryHub+Private.h"
@@ -7,7 +7,7 @@
 #import "SentryMeta.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
-#import "SentryUser+Json.h"
+#import "SentryUser+Private.h"
 #import "SentryViewHierarchy.h"
 #import <SentryBreadcrumb.h>
 #import <SentryDependencyContainer.h>
@@ -138,14 +138,14 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 #endif
 
-+ (SentryUser *_Nullable)userWithJSONObject:(NSDictionary *)jsonObject
++ (SentryUser *_Nullable)userWithDictionary:(NSDictionary *)dictionary
 {
-    return [[SentryUser alloc] initWithJSONObject:jsonObject];
+    return [[SentryUser alloc] initWithDictionary:dictionary];
 }
 
-+ (SentryBreadcrumb *_Nullable)breadcrumbWithJSONObject:(NSDictionary *)jsonObject
++ (SentryBreadcrumb *_Nullable)breadcrumbWithDictionary:(NSDictionary *)dictionary
 {
-    return [[SentryBreadcrumb alloc] initWithJSONObject:jsonObject];
+    return [[SentryBreadcrumb alloc] initWithDictionary:dictionary];
 }
 
 @end
