@@ -2,6 +2,10 @@
 
 ## 8.3.2
 
+### Features
+
+- Add CPU core count in device context (#2814)
+
 ### Fixes
 
 - Updating AppHang state on main thread (#2793)
