@@ -20,8 +20,8 @@ SentryUser ()
                 continue;
             }
             Boolean isString = [value isKindOfClass:[NSString class]];
-            Boolean isDictionary =  [value isKindOfClass:[NSDictionary class]];
-            
+            Boolean isDictionary = [value isKindOfClass:[NSDictionary class]];
+
             if ([key isEqualToString:@"id"] && isString) {
                 self.userId = value;
             } else if ([key isEqualToString:@"email"] && isString) {
