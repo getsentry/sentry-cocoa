@@ -99,6 +99,7 @@ class SentryTracerTests: XCTestCase {
                 configuration: SentryTracerConfiguration(block: {
                     $0.idleTimeout = idleTimeout
                     $0.dispatchQueueWrapper = dispatchQueueWrapper
+                    $0.waitForChildren = true
                 })
             )
             return tracer

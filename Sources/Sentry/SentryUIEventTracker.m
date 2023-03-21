@@ -129,6 +129,7 @@ SentryUIEventTracker ()
                                   configuration:[SentryTracerConfiguration configurationWithBlock:^(
                                                     SentryTracerConfiguration *config) {
                                       config.idleTimeout = self.idleTimeout;
+                                      config.waitForChildren = YES;
                                       config.dispatchQueueWrapper = self.dispatchQueueWrapper;
                                   }]];
 
