@@ -23,12 +23,12 @@ typedef struct {
     /**
      * A dispatch queue wrapper to intermediate between the tracer and dispatch calls.
      */
-    SentryDispatchQueueWrapper * _Nullable dispatchQueueWrapper;
+    SentryDispatchQueueWrapper *_Nullable dispatchQueueWrapper;
 
     /**
      * Whether to sample a profile corresponding to this transaction
      */
-    SentryProfilesSamplerDecision * _Nullable  profilesSamplerDecision;
+    SentryProfilesSamplerDecision *_Nullable profilesSamplerDecision;
 
     /**
      * The idle time to wait until to finish the transaction
@@ -40,7 +40,7 @@ typedef struct {
     /**
      * A writer around NSTimer, to make it testable
      */
-    SentryNSTimerWrapper * _Nullable timerWrapper;
+    SentryNSTimerWrapper *_Nullable timerWrapper;
 
     /**
      * Indicates whether the tracer should automatically capture the transaction after finishing.
@@ -51,7 +51,7 @@ typedef struct {
 
 } SentryTracerConfiguration;
 
-typedef void (^SentryTracerConfigure)(SentryTracerConfiguration* configuration);
+typedef void (^SentryTracerConfigure)(SentryTracerConfiguration *configuration);
 
 @protocol SentryTracerDelegate
 
@@ -127,12 +127,10 @@ typedef void (^SentryTracerConfigure)(SentryTracerConfiguration* configuration);
  */
 - (void)spanFinished:(id<SentrySpan>)finishedSpan;
 
-
 /**
  * Capture the transaction in case it was not captured yet.
  */
 - (void)capture;
-
 
 /**
  * Get the tracer from a span.

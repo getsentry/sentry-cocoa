@@ -368,7 +368,7 @@ SentryHub ()
     return [self startTransactionWithContext:transactionContext
                                  bindToScope:bindToScope
                        customSamplingContext:customSamplingContext
-                                configure:nil];
+                                   configure:nil];
 }
 
 - (SentryTransactionContext *)transactionContext:(SentryTransactionContext *)context
@@ -388,7 +388,8 @@ SentryHub ()
 - (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
-                                    configure:(nullable SentryTracerConfigure)configure {
+                                    configure:(nullable SentryTracerConfigure)configure
+{
     SentrySamplingContext *samplingContext =
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
                                             customSamplingContext:customSamplingContext];
@@ -401,14 +402,15 @@ SentryHub ()
     SentryProfilesSamplerDecision *profilesSamplerDecision =
         [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
 
-    SentryTracer* tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
-                                                                        hub:self
-                                                                  configure:^(SentryTracerConfiguration * configuration) {
-        if (configure) {
-            configure(configuration);
-        }
-        configuration->profilesSamplerDecision = profilesSamplerDecision;
-    }];
+    SentryTracer *tracer = [[SentryTracer alloc]
+        initWithTransactionContext:transactionContext
+                               hub:self
+                         configure:^(SentryTracerConfiguration *configuration) {
+                             if (configure) {
+                                 configure(configuration);
+                             }
+                             configuration->profilesSamplerDecision = profilesSamplerDecision;
+                         }];
 
     if (bindToScope)
         self.scope.span = tracer;

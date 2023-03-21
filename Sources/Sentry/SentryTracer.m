@@ -97,15 +97,13 @@ static BOOL appStartMeasurementRead;
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
 {
-    return [self initWithTransactionContext:transactionContext
-                                        hub:hub
-                                  configure:nil];
+    return [self initWithTransactionContext:transactionContext hub:hub configure:nil];
 }
-
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
-                                 configure:(nullable SentryTracerConfigure)configure {
+                                 configure:(nullable SentryTracerConfigure)configure
+{
     if (!(self = [super initWithContext:transactionContext])) {
         return nil;
     }
@@ -180,7 +178,8 @@ static BOOL appStartMeasurementRead;
         }
         [weakSelf finishInternal];
     });
-    [_configuration.dispatchQueueWrapper dispatchAfter:_configuration.idleTimeout block:_idleTimeoutBlock];
+    [_configuration.dispatchQueueWrapper dispatchAfter:_configuration.idleTimeout
+                                                 block:_idleTimeoutBlock];
 }
 
 - (BOOL)hasIdleTimeout
@@ -205,13 +204,13 @@ static BOOL appStartMeasurementRead;
     __weak SentryTracer *weakSelf = self;
     self.deadlineTimer =
         [_configuration.timerWrapper scheduledTimerWithTimeInterval:SENTRY_AUTO_TRANSACTION_DEADLINE
-                                                  repeats:NO
-                                                    block:^(NSTimer *_Nonnull timer) {
-                                                        if (weakSelf == nil) {
-                                                            return;
-                                                        }
-                                                        [weakSelf deadlineTimerFired];
-                                                    }];
+                                                            repeats:NO
+                                                              block:^(NSTimer *_Nonnull timer) {
+                                                                  if (weakSelf == nil) {
+                                                                      return;
+                                                                  }
+                                                                  [weakSelf deadlineTimerFired];
+                                                              }];
 }
 
 - (void)deadlineTimerFired
@@ -461,12 +460,13 @@ static BOOL appStartMeasurementRead;
     }
 }
 
-- (void)capture {
+- (void)capture
+{
 
     if (self.wasCaptured) {
         return;
     }
-    @synchronized (self) {
+    @synchronized(self) {
         if (self.wasCaptured) {
             return;
         }
