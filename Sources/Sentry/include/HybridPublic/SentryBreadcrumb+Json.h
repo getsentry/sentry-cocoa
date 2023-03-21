@@ -10,7 +10,8 @@
 #import "SentrySerializable.h"
 #import <SentryBreadcrumb.h>
 
-@interface SentryBreadcrumb (Json)
+@interface
+SentryBreadcrumb (Json)
 
 /**
  * Initializes a SentryBreadcrumb from a JSON object.

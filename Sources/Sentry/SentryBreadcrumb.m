@@ -20,8 +20,8 @@ SentryBreadcrumb ()
                 continue;
             }
             Boolean isString = [value isKindOfClass:[NSString class]];
-            Boolean isDictionary =  [value isKindOfClass:[NSDictionary class]];
-            
+            Boolean isDictionary = [value isKindOfClass:[NSDictionary class]];
+
             if ([key isEqualToString:@"level"] && isString) {
                 self.level = sentryLevelForString(value);
             } else if ([key isEqualToString:@"timestamp"] && isString) {
