@@ -3,6 +3,8 @@
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryScreenFrames.h"
+#import "SentryUser.h"
+#import "SentryBreadcrumb.h"
 
 @class SentryDebugMeta, SentryAppStartMeasurement, SentryScreenFrames, SentryOptions;
 
