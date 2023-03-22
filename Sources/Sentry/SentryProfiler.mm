@@ -437,10 +437,12 @@ serializedSamplesWithRelativeTimestamps(
         metrics[@"frozen_frame_renders"] = @{ @"unit" : @"nanosecond", @"values" : frozenFrames };
     }
 
-    const auto frameRates
-        = processFrameRates(_gCurrentFramesTracker.currentFrames.frameRateTimestamps, transaction);
-    if (frameRates.count > 0) {
-        metrics[@"screen_frame_rates"] = @{ @"unit" : @"hz", @"values" : frameRates };
+    if (slowFrames.count > 0 || frozenFrames.count > 0) {
+        const auto frameRates = processFrameRates(
+            _gCurrentFramesTracker.currentFrames.frameRateTimestamps, transaction);
+        if (frameRates.count > 0) {
+            metrics[@"screen_frame_rates"] = @{ @"unit" : @"hz", @"values" : frameRates };
+        }
     }
 #    endif // SENTRY_HAS_UIKIT
 
@@ -539,6 +541,9 @@ serializedSamplesWithRelativeTimestamps(
     }
     if (_gCurrentTimerWrapper == nil) {
         _gCurrentTimerWrapper = [[SentryNSTimerWrapper alloc] init];
+    }
+    if (_gCurrentFramesTracker == nil) {
+        _gCurrentFramesTracker = SentryFramesTracker.sharedInstance;
     }
     _metricProfiler =
         [[SentryMetricProfiler alloc] initWithProcessInfoWrapper:_gCurrentProcessInfoWrapper
