@@ -5,6 +5,7 @@
 ### Features
 
 - Time to initial and full display (#2724)
+
 ### Fixes
 
 - View hierarchy not sent for crashes (#2781)
