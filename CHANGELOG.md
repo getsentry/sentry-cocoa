@@ -6,6 +6,7 @@
 
 - View hierarchy not sent for crashes (#2781)
 - Crash in Tracer for idle timeout (#2834)
+- Correctly track and send GPU frame render data in profiles (#2823)
 
 ## 8.3.2
 
