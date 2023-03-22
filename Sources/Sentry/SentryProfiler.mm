@@ -450,11 +450,11 @@ serializedSamplesWithRelativeTimestamps(
         payload[@"measurements"] = metrics;
     }
 
-    // #if defined(TEST) || defined(TESTCI)
+#    if defined(TEST) || defined(TESTCI)
     [NSNotificationCenter.defaultCenter postNotificationName:@"SentryProfileCompleteNotification"
                                                       object:nil
                                                     userInfo:payload];
-    // #endif // defined(TEST) || defined(TESTCI)
+#    endif // defined(TEST) || defined(TESTCI)
 
     // add the remaining basic metadata for the profile
     const auto profileID = [[SentryId alloc] init];
