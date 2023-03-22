@@ -1,7 +1,6 @@
 import XCTest
 
 class LaunchUITests: XCTestCase {
-
     private let app: XCUIApplication = XCUIApplication()
 
     override func setUp() {
@@ -39,7 +38,7 @@ class LaunchUITests: XCTestCase {
         let breadcrumbLabel = app.staticTexts["breadcrumbLabel"]
         breadcrumbLabel.waitForExistence("Breadcrumb label not found.")
         XCTAssertEqual(breadcrumbLabel.label, "{ category: ui.lifecycle, parentViewController: UINavigationController, beingPresented: false, window_isKeyWindow: true, is_window_rootViewController: false }")
-      }
+    }
 
     func testLoremIpsum() {
         app.buttons["loremIpsumButton"].tap()
@@ -87,12 +86,34 @@ class LaunchUITests: XCTestCase {
             assertApp()
         }
     }
-        
-    private func waitForExistenceOfMainScreen() {
+
+    /**
+     * We had a bug where we forgot to install the frames tracker into the profiler, so weren't sending any GPU frame information with profiles. Since it's not possible to enforce such installation, we test for the results we expect here, by starting a transaction, triggering an ANR which will cause degraded frame rendering, stop the transaction, and inspect the profile payload.
+     */
+    func testProfilingGPUInfo() throws {
+        app.buttons["Start transaction"].tap()
+        app.buttons["ANR filling run loop"].tap()
+        app.buttons["Stop transaction"].tap()
+
+        let profileBase64DataString = try XCTUnwrap(app.textFields["io.sentry.ui-tests.profile-marshaling-text-field"].value as? NSString)
+        let profileData = try XCTUnwrap(Data(base64Encoded: profileBase64DataString as String))
+        let profileDict = try XCTUnwrap(try JSONSerialization.jsonObject(with: profileData) as? [String: Any])
+
+        let metrics = try XCTUnwrap(profileDict["measurements"] as? [String: Any])
+        let slowFrames = try XCTUnwrap(metrics["slow_frame_renders"] as? [String: Any])
+        let slowFrameValues = try XCTUnwrap(slowFrames["values"] as? [[String: Any]])
+        let frozenFrames = try XCTUnwrap(metrics["frozen_frame_renders"] as? [String: Any])
+        let frozenFrameValues = try XCTUnwrap(frozenFrames["values"] as? [[String: Any]])
+        XCTAssert(slowFrameValues.count > 0 || frozenFrameValues.count > 0)
+    }
+}
+
+private extension LaunchUITests {
+    func waitForExistenceOfMainScreen() {
         app.buttons["captureMessageButton"].waitForExistence( "Home Screen doesn't exist.")
     }
     
-    private func checkSlowAndFrozenFrames() {
+    func checkSlowAndFrozenFrames() {
         let frameStatsLabel = app.staticTexts["framesStatsLabel"]
         frameStatsLabel.waitForExistence("Frame statistics message not found.")
         
@@ -111,18 +132,16 @@ class LaunchUITests: XCTestCase {
         XCTAssertTrue(0.5 > frozenFramesPercentage, "Too many frozen frames.")
     }
     
-    private func assertApp() {
+    func assertApp() {
         let confirmation = app.staticTexts["ASSERT_MESSAGE"]
         let errorMessage = app.staticTexts["ASSERT_ERROR"]
         confirmation.waitForExistence("Assertion Message Not Found")
         
         XCTAssertTrue(confirmation.label == "ASSERT: SUCCESS", errorMessage.label)
     }
-    
 }
 
 extension XCUIElement {
-
     func waitForExistence(_ message: String) {
         XCTAssertTrue(self.waitForExistence(timeout: TimeInterval(10)), message)
     }

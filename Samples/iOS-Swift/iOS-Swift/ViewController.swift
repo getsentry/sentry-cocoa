@@ -137,7 +137,34 @@ class ViewController: UIViewController {
     @IBAction func captureFatalError(_ sender: Any) {
         fatalError("This is a fatal error. Oh no 😬.")
     }
+
+    var span: Span?
+    let profilerNotification = NSNotification.Name("SentryProfileCompleteNotification")
     
+    @IBAction func startTransaction(_ sender: Any) {
+        guard span == nil else { return }
+        span = SentrySDK.startTransaction(name: "Manual Transaction", operation: "Manual Operation")
+
+        NotificationCenter.default.addObserver(forName: profilerNotification, object: nil, queue: nil) { note in
+            DispatchQueue.main.async {
+                let alert = UIAlertController(title: "Profile completed", message: nil, preferredStyle: .alert)
+                alert.addTextField {
+                    $0.text = try! JSONSerialization.data(withJSONObject: note.userInfo!).base64EncodedString()
+                    $0.accessibilityLabel = "io.sentry.ui-tests.profile-marshaling-text-field"
+                }
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                self.present(alert, animated: false)
+            }
+        }
+    }
+
+    @IBAction func stopTransaction(_ sender: Any) {
+        span?.finish()
+        span = nil
+
+        NotificationCenter.default.removeObserver(self, name: profilerNotification, object: nil)
+    }
+
     @IBAction func captureTransaction(_ sender: Any) {
         let transaction = SentrySDK.startTransaction(name: "Some Transaction", operation: "Some Operation")
         
