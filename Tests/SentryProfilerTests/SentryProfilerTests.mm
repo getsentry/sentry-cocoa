@@ -1,5 +1,8 @@
+#import "SentryEvent+Private.h"
+#import "SentryProfileTimeseries.h"
 #import "SentryProfiler+Test.h"
 #import "SentryProfilingConditionals.h"
+#import "SentryTransaction.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -50,6 +53,119 @@ using namespace sentry::profiling;
     });
     [self waitForExpectationsWithTimeout:1.0
                                  handler:^(NSError *_Nullable error) { NSLog(@"%@", error); }];
+}
+
+- (void)testProfilerMutationDuringSlicing
+{
+    const auto resolvedThreadMetadata =
+        [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
+    const auto resolvedQueueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
+    const auto resolvedStacks = [NSMutableArray<NSMutableArray<NSNumber *> *> array];
+    const auto resolvedSamples = [NSMutableArray<SentrySample *> array];
+    const auto resolvedFrames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
+    const auto frameIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+    const auto stackIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+
+    // generate a large timeseries of simulated data
+
+    const auto threads = 5;
+    const auto samplesPerThread = 10000;
+    auto sampleIdx = 0;
+    for (auto thread = 0; thread < threads; thread++) {
+        // avoid overlapping any simulated data values
+        const auto threadID = thread + threads;
+        const auto threadPriority = thread + threads * 2;
+        const auto queue = thread + threads * 3;
+        uint64_t address = thread + threads * 4;
+
+        ThreadMetadata threadMetadata;
+        threadMetadata.name = [[NSString stringWithFormat:@"testThread-%d", thread]
+            cStringUsingEncoding:NSUTF8StringEncoding];
+        threadMetadata.threadID = threadID;
+        threadMetadata.priority = threadPriority;
+
+        QueueMetadata queueMetadata;
+        queueMetadata.address = queue;
+        queueMetadata.label = std::make_shared<std::string>([[NSString
+            stringWithFormat:@"testQueue-%d", thread] cStringUsingEncoding:NSUTF8StringEncoding]);
+
+        Backtrace backtrace;
+        backtrace.threadMetadata = threadMetadata;
+        backtrace.queueMetadata = queueMetadata;
+        backtrace.addresses
+            = std::vector<std::uintptr_t>({ address + 1, address + 2, address + 3 });
+
+        for (auto sample = 0; sample < samplesPerThread; sample++) {
+            backtrace.absoluteTimestamp = sampleIdx; // simulate 1 sample per nanosecond
+            processBacktrace(backtrace, resolvedThreadMetadata, resolvedQueueMetadata,
+                resolvedSamples, resolvedStacks, resolvedFrames, frameIndexLookup,
+                stackIndexLookup);
+            ++sampleIdx;
+        }
+    }
+
+    // start submitting two types of concurrent operations:
+    //     1. slice the timeseries bounded by a transaction
+    //     2. add more samples
+
+    const auto operations = 50;
+
+    const auto context = [[SentrySpanContext alloc] initWithOperation:@"test trace"];
+    const auto trace = [[SentryTracer alloc] initWithContext:context];
+    const auto transaction = [[SentryTransaction alloc] initWithTrace:trace children:@[]];
+    transaction.startSystemTime = arc4random() % sampleIdx;
+    const auto remainingTime = sampleIdx - transaction.startSystemTime;
+    const auto minDuration = 10;
+    transaction.endSystemTime = transaction.startSystemTime
+        + (arc4random() % (remainingTime - minDuration) + minDuration + 1);
+
+    const auto sliceExpectation =
+        [self expectationWithDescription:@"all slice operations complete"];
+    sliceExpectation.expectedFulfillmentCount = operations;
+
+    void (^sliceBlock)(void) = ^(void) {
+        __unused const auto slice = slicedProfileSamples(resolvedSamples, transaction);
+        [sliceExpectation fulfill];
+    };
+
+    ThreadMetadata threadMetadata;
+    threadMetadata.name = "testThread";
+    threadMetadata.threadID = 12345568910;
+    threadMetadata.priority = 666;
+
+    QueueMetadata queueMetadata;
+    queueMetadata.address = 9876543210;
+    queueMetadata.label = std::make_shared<std::string>("testQueue");
+
+    const auto addresses = std::vector<std::uintptr_t>({ 777, 888, 789 });
+
+    Backtrace backtrace;
+    backtrace.threadMetadata = threadMetadata;
+    backtrace.queueMetadata = queueMetadata;
+    backtrace.absoluteTimestamp = 5;
+    backtrace.addresses = addresses;
+
+    const auto mutateExpectation =
+        [self expectationWithDescription:@"all mutating operations complete"];
+    mutateExpectation.expectedFulfillmentCount = operations;
+
+    void (^mutateBlock)(void) = ^(void) {
+        processBacktrace(backtrace, resolvedThreadMetadata, resolvedQueueMetadata, resolvedSamples,
+            resolvedStacks, resolvedFrames, frameIndexLookup, stackIndexLookup);
+        [mutateExpectation fulfill];
+    };
+
+    const auto sliceOperations = [[NSOperationQueue alloc] init]; // concurrent queue
+
+    const auto mutateOperations = [[NSOperationQueue alloc] init];
+    mutateOperations.maxConcurrentOperationCount = 1; // serial queue
+
+    for (auto operation = 0; operation < operations; operation++) {
+        [sliceOperations addOperationWithBlock:sliceBlock];
+        [mutateOperations addOperationWithBlock:mutateBlock];
+    }
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testProfilerPayload

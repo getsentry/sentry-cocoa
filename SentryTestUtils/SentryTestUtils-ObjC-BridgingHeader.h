@@ -25,7 +25,7 @@
 #import "SentrySystemWrapper.h"
 #import "SentryThreadInspector.h"
 #import "SentryTraceContext.h"
-#import "SentryTracer.h"
+#import "SentryTracer+Test.h"
 #import "SentryTransport.h"
 #import "SentryTransportAdapter.h"
 #import "SentryUIDeviceWrapper.h"

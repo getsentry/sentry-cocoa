@@ -31,6 +31,7 @@
 #import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentryNSError.h"
+#import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
@@ -63,6 +64,7 @@ SentryClient ()
 @property (nonatomic, strong) SentryUIDeviceWrapper *deviceWrapper;
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
+@property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
 
 @end
 
@@ -171,6 +173,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.timezone = timezone;
         self.attachmentProcessors = [[NSMutableArray alloc] init];
         self.deviceWrapper = deviceWrapper;
+        self.processInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
 
         if (deleteOldEnvelopeItems) {
             [fileManager deleteOldEnvelopeItems];
@@ -794,6 +797,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                 block:^(NSMutableDictionary *device) {
                     device[SentryDeviceContextFreeMemoryKey] = @(self.crashWrapper.freeMemorySize);
                     device[@"free_storage"] = @(self.crashWrapper.freeStorageSize);
+                    device[@"processor_count"] = @([self.processInfoWrapper processorCount]);
 
 #if TARGET_OS_IOS
                     if (self.deviceWrapper.orientation != UIDeviceOrientationUnknown) {

@@ -22,6 +22,7 @@
 #    import "SentryMetricProfiler.h"
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentryNSTimerWrapper.h"
+#    import "SentryProfileTimeseries.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryScope+Private.h"
 #    import "SentryScreenFrames.h"
@@ -30,6 +31,7 @@
 #    import "SentrySystemWrapper.h"
 #    import "SentryThread.h"
 #    import "SentryTime.h"
+#    import "SentryTracer.h"
 #    import "SentryTransaction.h"
 #    import "SentryTransactionContext+Private.h"
 
@@ -150,7 +152,10 @@ processBacktrace(const Backtrace &backtrace,
         [stacks addObject:stack];
     }
 
-    [samples addObject:sample];
+    {
+        std::lock_guard<std::mutex> l(_gSamplesArrayLock);
+        [samples addObject:sample];
+    }
 }
 
 std::mutex _gProfilerLock;
@@ -394,7 +399,7 @@ serializedSamplesWithRelativeTimestamps(
     }
 
     // slice the profile data to only include the samples/metrics within the transaction
-    const auto slicedSamples = [self slicedSamples:samples transaction:transaction];
+    const auto slicedSamples = slicedProfileSamples(samples, transaction);
     if (slicedSamples.count < 2) {
         SENTRY_LOG_DEBUG(@"Not enough samples in profile during the transaction");
         return nil;
@@ -445,7 +450,7 @@ serializedSamplesWithRelativeTimestamps(
 
     // add the remaining basic metadata for the profile
     const auto profileID = [[SentryId alloc] init];
-    [self serializeBasicProfileInfo:payload profileID:profileID platform:transaction.platform];
+    [self serializeBasicProfileInfo:payload profileID:profileID transaction:transaction];
 
     return [self envelopeItemForProfileData:payload profileID:profileID];
 }
@@ -479,78 +484,6 @@ serializedSamplesWithRelativeTimestamps(
 #    endif // SENTRY_HAS_UIKIT
 
 #    pragma mark - Private
-
-+ (nullable NSArray<SentrySample *> *)slicedSamples:(NSArray<SentrySample *> *)samples
-                                        transaction:(SentryTransaction *)transaction
-{
-    if (samples.count == 0) {
-        return nil;
-    }
-
-    const auto firstIndex = [samples indexOfObjectPassingTest:^BOOL(
-        SentrySample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
-        *stop = sample.absoluteTimestamp >= transaction.startSystemTime;
-        return *stop;
-    }];
-
-    if (firstIndex == NSNotFound) {
-        [self logSlicingFailureWithArray:samples transaction:transaction start:YES];
-        return nil;
-    } else {
-        SENTRY_LOG_DEBUG(@"Found first slice sample at index %lu", firstIndex);
-    }
-
-    const auto lastIndex =
-        [samples indexOfObjectWithOptions:NSEnumerationReverse
-                              passingTest:^BOOL(SentrySample *_Nonnull sample, NSUInteger idx,
-                                  BOOL *_Nonnull stop) {
-                                  *stop = sample.absoluteTimestamp <= transaction.endSystemTime;
-                                  return *stop;
-                              }];
-
-    if (lastIndex == NSNotFound) {
-        [self logSlicingFailureWithArray:samples transaction:transaction start:NO];
-        return nil;
-    } else {
-        SENTRY_LOG_DEBUG(@"Found last slice sample at index %lu", lastIndex);
-    }
-
-    const auto range = NSMakeRange(firstIndex, (lastIndex - firstIndex) + 1);
-    const auto indices = [NSIndexSet indexSetWithIndexesInRange:range];
-    return [samples objectsAtIndexes:indices];
-}
-
-/**
- * Print a debug log to help diagnose slicing errors.
- * @param start @c YES if this is an attempt to find the start of the sliced data based on the
- * transaction start; @c NO if it's trying to find the end of the sliced data based on the
- * transaction's end, to accurately describe what's happening in the log statement.
- */
-+ (void)logSlicingFailureWithArray:(NSArray<SentrySample *> *)array
-                       transaction:(SentryTransaction *)transaction
-                             start:(BOOL)start
-{
-    if (!SENTRY_ASSERT(array.count > 0, @"Should not have attempted to slice an empty array.")) {
-        return;
-    }
-
-    if (![SentryLog willLogAtLevel:kSentryLevelDebug]) {
-        return;
-    }
-
-    const auto firstSampleAbsoluteTime = array.firstObject.absoluteTimestamp;
-    const auto lastSampleAbsoluteTime = array.lastObject.absoluteTimestamp;
-    const auto firstSampleRelativeToTransactionStart
-        = firstSampleAbsoluteTime - transaction.startSystemTime;
-    const auto lastSampleRelativeToTransactionStart
-        = lastSampleAbsoluteTime - transaction.startSystemTime;
-    SENTRY_LOG_DEBUG(@"[slice %@] Could not find any%@ sample taken during the transaction "
-                     @"(first sample taken at: %llu; last: %llu; transaction start: %llu; end: "
-                     @"%llu; first sample relative to transaction start: %lld; last: %lld).",
-        start ? @"start" : @"end", start ? @"" : @" other", firstSampleAbsoluteTime,
-        lastSampleAbsoluteTime, transaction.startSystemTime, transaction.endSystemTime,
-        firstSampleRelativeToTransactionStart, lastSampleRelativeToTransactionStart);
-}
 
 + (void)timeoutAbort
 {
@@ -736,7 +669,7 @@ serializedSamplesWithRelativeTimestamps(
 
 + (void)serializeBasicProfileInfo:(NSMutableDictionary<NSString *, id> *)profile
                         profileID:(SentryId *const &)profileID
-                         platform:(NSString *)platform
+                      transaction:(SentryTransaction *)transaction
 {
     profile[@"version"] = @"1";
     const auto debugImages = [NSMutableArray<NSDictionary<NSString *, id> *> new];
@@ -766,10 +699,19 @@ serializedSamplesWithRelativeTimestamps(
     profile[@"profile_id"] = profileID.sentryIdString;
     profile[@"truncation_reason"]
         = profilerTruncationReasonName(_gCurrentProfiler->_truncationReason);
-    profile[@"platform"] = platform;
+    profile[@"platform"] = transaction.platform;
     profile[@"environment"] = _gCurrentProfiler->_hub.scope.environmentString
         ?: _gCurrentProfiler->_hub.getClient.options.environment;
-    profile[@"timestamp"] = [[SentryCurrentDate date] sentry_toIso8601String];
+
+    const auto timestamp = transaction.trace.originalStartTimestamp;
+    if (UNLIKELY(timestamp == nil)) {
+        SENTRY_LOG_WARN(@"There was no start timestamp on the provided transaction. Falling back "
+                        @"to old behavior of using the current time.");
+        profile[@"timestamp"] = [[SentryCurrentDate date] sentry_toIso8601String];
+    } else {
+        profile[@"timestamp"] = [timestamp sentry_toIso8601String];
+    }
+
     profile[@"release"] = _gCurrentProfiler->_hub.getClient.options.releaseName;
 }
 

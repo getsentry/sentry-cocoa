@@ -136,7 +136,7 @@
                                                 </subviews>
                                             </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="1a2-Yg-Az9">
-                                                <rect key="frame" x="181.5" y="0.0" width="216.5" height="360"/>
+                                                <rect key="frame" x="181.5" y="0.0" width="216.5" height="390"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Yi7-GN-26l">
                                                         <rect key="frame" x="0.0" y="0.0" width="216.5" height="30"/>
@@ -229,6 +229,14 @@
                                                         <state key="normal" title="Force unwrap optional"/>
                                                         <connections>
                                                             <action selector="unwrapCrash:" destination="BYZ-38-t0r" eventType="touchUpInside" id="qdc-Of-kqz"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hAC-fJ-9yK">
+                                                        <rect key="frame" x="0.0" y="360" width="216.5" height="30"/>
+                                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                        <state key="normal" title="Start 100 threads"/>
+                                                        <connections>
+                                                            <action selector="start100Threads:" destination="BYZ-38-t0r" eventType="touchUpInside" id="qDh-S4-Sib"/>
                                                         </connections>
                                                     </button>
                                                 </subviews>
@@ -424,14 +432,14 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <navigationBar contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1SX-yg-zgj">
-                                <rect key="frame" x="-1" y="0.0" width="414" height="44"/>
+                                <rect key="frame" x="-1" y="0.0" width="413" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                 <items>
                                     <navigationItem title="Hello" id="7le-ZX-hzV"/>
                                 </items>
                             </navigationBar>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" preservesSuperviewLayoutMargins="YES" layoutMarginsFollowReadableWidth="YES" delaysContentTouches="NO" editable="NO" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sla-j3-cfX">
-                                <rect key="frame" x="18" y="70" width="374" height="824"/>
+                                <rect key="frame" x="18" y="70" width="374" height="823"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <color key="textColor" systemColor="labelColor"/>

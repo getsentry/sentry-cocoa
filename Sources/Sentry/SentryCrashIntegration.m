@@ -18,6 +18,7 @@
 #import <SentrySysctl.h>
 
 #if SENTRY_HAS_UIKIT
+#    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
 #endif
 
@@ -272,11 +273,17 @@ SentryCrashIntegration ()
     NSString *locale = [[NSLocale autoupdatingCurrentLocale] objectForKey:NSLocaleIdentifier];
     [deviceData setValue:locale forKey:LOCALE_KEY];
 
-#if SENTRY_HAS_UIDEVICE && !defined(TESTCI)
-    // Acessessing UIScreen.mainScreen fails when using SentryTestObserver.
-    // It's a bug with the iOS 15 and 16 simulator, it runs fine with iOS 14.
-    [deviceData setValue:@(UIScreen.mainScreen.bounds.size.height) forKey:@"screen_height_pixels"];
-    [deviceData setValue:@(UIScreen.mainScreen.bounds.size.width) forKey:@"screen_width_pixels"];
+#if SENTRY_HAS_UIDEVICE
+
+    NSArray<UIWindow *> *appWindows = SentryDependencyContainer.sharedInstance.application.windows;
+    if ([appWindows count] > 0) {
+        UIScreen *appScreen = appWindows.firstObject.screen;
+        if (appScreen != nil) {
+            [deviceData setValue:@(appScreen.bounds.size.height) forKey:@"screen_height_pixels"];
+            [deviceData setValue:@(appScreen.bounds.size.width) forKey:@"screen_width_pixels"];
+        }
+    }
+
 #endif
 
     [scope setContextValue:deviceData forKey:DEVICE_KEY];
