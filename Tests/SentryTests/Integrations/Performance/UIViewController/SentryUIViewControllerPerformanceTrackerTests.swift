@@ -470,25 +470,25 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         sut.viewControllerLoadView(firstController) {
             tracer = self.getStack(tracker).first as? SentryTracer
         }
-        XCTAssertEqual(tracer?.children[3].operation, "dae")
-        //let ttdTracker = objc_getAssociatedObject(firstController, SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID) as? SentryTimeToDisplayTracker
-
-        //XCTAssertTrue(ttdTracker?.waitForFullDisplay ?? false)
+        XCTAssertEqual(tracer?.children.count, 3)
+        XCTAssertEqual(tracer?.children[1].operation, "ui.load.full_display")
     }
 
     func test_dontWaitForFullDisplay() {
         let sut = fixture.getSut()
-        //let tracker = fixture.tracker
+        let tracker = fixture.tracker
         let firstController = TestViewController()
+
+        var tracer: SentryTracer?
 
         sut.enableWaitForFullDisplay = false
 
         //The first view controller creates a transaction
         sut.viewControllerLoadView(firstController) {
+            tracer = self.getStack(tracker).first as? SentryTracer
         }
 
-        let ttdTracker = objc_getAssociatedObject(firstController, SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID) as? SentryTimeToDisplayTracker
-        XCTAssertFalse(ttdTracker?.waitForFullDisplay ?? true)
+        XCTAssertEqual(tracer?.children.count, 2)
     }
 
     func test_captureAllAutomaticSpans() {
