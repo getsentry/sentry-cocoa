@@ -153,7 +153,7 @@ SentryUIViewControllerPerformanceTracker ()
         = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER);
 
     if (ttdTracker == nil) {
-        //View controller is not a root view controller and does not contain TTID/TTFD spans.
+        // View controller is not a root view controller and does not contain TTID/TTFD spans.
         return;
     }
 
