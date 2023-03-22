@@ -10,10 +10,17 @@
 
 #if SENTRY_HAS_UIKIT
 
+/**
+ * Function to call through to the ObjC method to save a view hierarchy, which can be passed around
+ * as a function pointer in the C crash reporting code.
+ * @param reportDirectoryPath The path to the directory containing crash reporting files, in which a
+ * new file will be created to store the view hierarchy description.
+ */
 void
-saveViewHierarchy(const char *path)
+saveViewHierarchy(const char *reportDirectoryPath)
 {
-    NSString *reportPath = [NSString stringWithUTF8String:path];
+    NSString *reportPath = [[NSString stringWithUTF8String:reportDirectoryPath]
+        stringByAppendingPathComponent:@"view-hierarchy.json"];
     [SentryDependencyContainer.sharedInstance.viewHierarchy saveViewHierarchy:reportPath];
 }
 
