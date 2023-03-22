@@ -548,9 +548,11 @@ serializedSamplesWithRelativeTimestamps(
     if (_gCurrentTimerWrapper == nil) {
         _gCurrentTimerWrapper = [[SentryNSTimerWrapper alloc] init];
     }
+#    if SENTRY_HAS_UIKIT
     if (_gCurrentFramesTracker == nil) {
         _gCurrentFramesTracker = SentryFramesTracker.sharedInstance;
     }
+#    endif // SENTRY_HAS_UIKIT
     _metricProfiler =
         [[SentryMetricProfiler alloc] initWithProcessInfoWrapper:_gCurrentProcessInfoWrapper
                                                    systemWrapper:_gCurrentSystemWrapper
