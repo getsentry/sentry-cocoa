@@ -149,7 +149,9 @@ class ViewController: UIViewController {
             DispatchQueue.main.async {
                 let alert = UIAlertController(title: "Profile completed", message: nil, preferredStyle: .alert)
                 alert.addTextField {
+                    //swiftlint:disable force_unwrapping
                     $0.text = try! JSONSerialization.data(withJSONObject: note.userInfo!).base64EncodedString()
+                    //swiftlint:enable force_unwrapping
                     $0.accessibilityLabel = "io.sentry.ui-tests.profile-marshaling-text-field"
                 }
                 alert.addAction(UIAlertAction(title: "OK", style: .default))

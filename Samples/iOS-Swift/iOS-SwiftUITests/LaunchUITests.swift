@@ -104,7 +104,7 @@ class LaunchUITests: XCTestCase {
         let slowFrameValues = try XCTUnwrap(slowFrames["values"] as? [[String: Any]])
         let frozenFrames = try XCTUnwrap(metrics["frozen_frame_renders"] as? [String: Any])
         let frozenFrameValues = try XCTUnwrap(frozenFrames["values"] as? [[String: Any]])
-        XCTAssert(slowFrameValues.count > 0 || frozenFrameValues.count > 0)
+        XCTAssertFalse(slowFrameValues.isEmpty && frozenFrameValues.isEmpty)
     }
 }
 
