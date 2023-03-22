@@ -30,15 +30,16 @@ SENTRY_EXTERN NSString *const kSentryProfilerSerializationKeyFrameRates;
 
 SENTRY_EXTERN_C_BEGIN
 
-/*
- * Parses a symbol that is returned from `backtrace_symbols()`, which encodes information
- * like the frame index, image name, function name, and offset in a single string. e.g.
- * For the input:
- * 2   UIKitCore                           0x00000001850d97ac -[UIFieldEditor
- * _fullContentInsetsFromFonts] + 160 This function would return: -[UIFieldEditor
- * _fullContentInsetsFromFonts]
- *
- * If the format does not match the expected format, this returns the input string.
+/**
+ * Parses a symbol that is returned from @c backtrace_symbols()  which encodes information
+ * like the frame index, image name, function name, and offset in a single string.
+ * @discussion For the input:
+ *  @code
+ * 2 UIKitCore 0x00000001850d97ac -[UIFieldEditor _fullContentInsetsFromFonts] + 160
+ * @endcode
+ * This function would return:
+ * @code -[UIFieldEditor _fullContentInsetsFromFonts] @endcode
+ * @note If the format does not match the expected format, this returns the input string.
  */
 NSString *parseBacktraceSymbolsFunctionName(const char *symbol);
 
@@ -47,21 +48,28 @@ NSString *profilerTruncationReasonName(SentryProfilerTruncationReason reason);
 SENTRY_EXTERN_C_END
 
 /**
- * @warning: A main assumption is that profile start/stop must be contained within range of time of
+ * A wrapper around the low-level components used to gather sampled backtrace profiles.
+ * @warning A main assumption is that profile start/stop must be contained within range of time of
  * the first concurrent transaction's start time and last one's end time.
  */
 @interface SentryProfiler : NSObject
 
-/** Start the profiler, if it isn't already running. */
+/**
+ * Start the profiler, if it isn't already running.
+ */
 + (void)startWithHub:(SentryHub *)hub;
 
-/** Stop the profiler if it is running. */
+/**
+ * Stop the profiler if it is running.
+ */
 + (void)stop;
 
 + (BOOL)isRunning;
 
-/** Given a transaction, return an envelope item containing any corresponding profile data to be
- * attached to the transaction envelope. */
+/**
+ * Given a transaction, return an envelope item containing any corresponding profile data to be
+ * attached to the transaction envelope.
+ * */
 + (nullable SentryEnvelopeItem *)createProfilingEnvelopeItemForTransaction:
     (SentryTransaction *)transaction;
 

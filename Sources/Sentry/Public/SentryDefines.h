@@ -37,14 +37,14 @@
 typedef void (^SentryRequestFinished)(NSError *_Nullable error);
 
 /**
- * Block used for request operation finished, shouldDiscardEvent is YES if event
+ * Block used for request operation finished, @c shouldDiscardEvent is @c YES if event
  * should be deleted regardless if an error occurred or not
  */
 typedef void (^SentryRequestOperationFinished)(
     NSHTTPURLResponse *_Nullable response, NSError *_Nullable error);
 /**
  * Block can be used to mutate a breadcrumb before it's added to the scope.
- * To avoid adding the breadcrumb altogether, return nil instead.
+ * To avoid adding the breadcrumb altogether, return @c nil instead.
  */
 typedef SentryBreadcrumb *_Nullable (^SentryBeforeBreadcrumbCallback)(
     SentryBreadcrumb *_Nonnull breadcrumb);
@@ -71,24 +71,21 @@ typedef BOOL (^SentryShouldQueueEvent)(
 
 /**
  * Function pointer for a sampler callback.
- *
  * @param samplingContext context of the sampling.
- *
- * @return A sample rate that is >= 0.0 and <= 1.0 or NIL if no sampling decision has been taken..
- * When returning a value out of range the SDK uses the default of 0.
+ * @return A sample rate that is >=  @c 0.0 and \<= @c 1.0 or @c nil if no sampling decision has
+ * been taken. When returning a value out of range the SDK uses the default of @c 0.
  */
 typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
     SentrySamplingContext *_Nonnull samplingContext);
 
 /**
  * Function pointer for span manipulation.
- *
  * @param span The span to be used.
  */
 typedef void (^SentrySpanCallback)(id<SentrySpan> _Nullable span);
 
 /**
- * Loglevel
+ * Log level.
  */
 typedef NS_ENUM(NSInteger, SentryLogLevel) {
     kSentryLogLevelNone = 1,
@@ -98,7 +95,7 @@ typedef NS_ENUM(NSInteger, SentryLogLevel) {
 };
 
 /**
- * Sentry level
+ * Sentry level.
  */
 typedef NS_ENUM(NSUInteger, SentryLevel) {
     // Defaults to None which doesn't get serialized
@@ -112,7 +109,7 @@ typedef NS_ENUM(NSUInteger, SentryLevel) {
 };
 
 /**
- * Static internal helper to convert enum to string
+ * Static internal helper to convert enum to string.
  */
 static DEPRECATED_MSG_ATTRIBUTE(
     "Use nameForSentryLevel() instead.") NSString *_Nonnull const SentryLevelNames[]
@@ -128,7 +125,7 @@ static DEPRECATED_MSG_ATTRIBUTE(
 static NSUInteger const defaultMaxBreadcrumbs = 100;
 
 /**
- * Transaction name source
+ * Transaction name source.
  */
 typedef NS_ENUM(NSInteger, SentryTransactionNameSource) {
     kSentryTransactionNameSourceCustom = 0,

@@ -42,8 +42,7 @@ static NSString *const SentryConnectivityNone = @"none";
 
 /**
  * Check whether the connectivity change should be noted or ignored.
- *
- * @return YES if the connectivity change should be reported
+ * @return @c YES if the connectivity change should be reported
  */
 BOOL
 SentryConnectivityShouldReportChange(SCNetworkReachabilityFlags flags)
@@ -91,7 +90,7 @@ SentryConnectivityFlagRepresentation(SCNetworkReachabilityFlags flags)
 }
 
 /**
- * Callback invoked by SCNetworkReachability, which calls an Objective-C block
+ * Callback invoked by @c SCNetworkReachability, which calls an Objective-C block
  * that handles the connection change.
  */
 void
