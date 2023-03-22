@@ -149,15 +149,14 @@ SentryUIViewControllerPerformanceTracker ()
 
 - (void)finishTTIDForController:(UIViewController *)controller withStatus:(SentrySpanStatus)status
 {
-    SentrySpan *vcSpan = [self viewControllerPerformanceSpan:controller];
+    SentryTimeToDisplayTracker *ttdTracker
+        = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER);
 
-    if (![vcSpan isKindOfClass:[SentryTracer self]]) {
-        // Only tracer may have TimeToDisplayTracker
+    if (ttdTracker == nil) {
+        //View controller is not a root view controller and does not contain TTID/TTFD spans.
         return;
     }
 
-    SentryTimeToDisplayTracker *ttdTracker
-        = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER);
     [ttdTracker reportInitialDisplay];
     ttdTracker.initialDisplaySpan.status = status;
 }
