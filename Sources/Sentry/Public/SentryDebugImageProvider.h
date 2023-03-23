@@ -26,8 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Returns the current list of debug images. Be aware that the @c SentryDebugMeta is actually
- * describing a debug image. This class should be renamed to @c SentryDebugImage in a future
- * version.
+ * describing a debug image.
+ * @todo This class should be renamed to @c SentryDebugImage in a future version.
  */
 - (NSArray<SentryDebugMeta *> *)getDebugImages;
 
