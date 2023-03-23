@@ -95,18 +95,18 @@ static BOOL appStartMeasurementRead;
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
 {
-    return [self initWithTransactionContext:transactionContext hub:hub configuration:nil];
+    return [self initWithTransactionContext:transactionContext hub:hub configuration:SentryTracerConfiguration.defaultConfiguration];
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
-                             configuration:(nullable SentryTracerConfiguration *)configuration;
+                             configuration:(SentryTracerConfiguration *)configuration;
 {
     if (!(self = [super initWithContext:transactionContext])) {
         return nil;
     }
 
-    _configuration = configuration ?: [[SentryTracerConfiguration alloc] init];
+    _configuration = configuration;
 
     self.transactionContext = transactionContext;
     _children = [[NSMutableArray alloc] init];

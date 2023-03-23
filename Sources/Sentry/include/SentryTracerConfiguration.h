@@ -6,6 +6,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryTracerConfiguration : NSObject
 
+
+/**
+ * Return an instance of SentryTracerConfiguration with default values.
+ */
+@property (class, readonly) SentryTracerConfiguration * defaultConfiguration;
+
 /**
  * Indicates whether the tracer will be finished only if all children have been finished.
  * If this property is YES and the finish function is called before all children are finished

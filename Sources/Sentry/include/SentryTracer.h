@@ -74,7 +74,7 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
-                             configuration:(nullable SentryTracerConfiguration *)configuration;
+                             configuration:(SentryTracerConfiguration *)configuration;
 
 - (id<SentrySpan>)startChildWithParentId:(SentrySpanId *)parentId
                                operation:(NSString *)operation

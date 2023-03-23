@@ -2,6 +2,11 @@
 
 @implementation SentryTracerConfiguration
 
+
++ (SentryTracerConfiguration *)defaultConfiguration {
+    return [[SentryTracerConfiguration alloc] init];
+}
+
 + (SentryTracerConfiguration *)configurationWithBlock:(void (^)(SentryTracerConfiguration *))block
 {
     SentryTracerConfiguration *result = [[SentryTracerConfiguration alloc] init];
