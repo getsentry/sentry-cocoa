@@ -2,8 +2,8 @@
 
 @implementation SentryTracerConfiguration
 
-
-+ (SentryTracerConfiguration *)defaultConfiguration {
++ (SentryTracerConfiguration *)defaultConfiguration
+{
     return [[SentryTracerConfiguration alloc] init];
 }
 

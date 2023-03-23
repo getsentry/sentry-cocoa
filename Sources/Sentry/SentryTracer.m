@@ -95,7 +95,9 @@ static BOOL appStartMeasurementRead;
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
 {
-    return [self initWithTransactionContext:transactionContext hub:hub configuration:SentryTracerConfiguration.defaultConfiguration];
+    return [self initWithTransactionContext:transactionContext
+                                        hub:hub
+                              configuration:SentryTracerConfiguration.defaultConfiguration];
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
