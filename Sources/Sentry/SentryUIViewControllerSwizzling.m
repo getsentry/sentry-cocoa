@@ -15,12 +15,12 @@
 #    import <UIKit/UIKit.h>
 
 /**
- * 'swizzleRootViewControllerFromUIApplication:' requires an object that conforms to
- * 'SentryUIApplication' to swizzle it, this way, instead of relying on UIApplication, we can test
- * with a mock class.
+ * @c swizzleRootViewControllerFromUIApplication: requires an object that conforms to
+ * @c SentryUIApplication to swizzle it, this way, instead of relying on @c UIApplication, we can
+ * test with a mock class.
  *
- * This category makes UIApplication conform to
- * SentryUIApplication in order to be used by 'SentryUIViewControllerSwizzling'.
+ * This category makes @c UIApplication conform to
+ * @c SentryUIApplication in order to be used by @c SentryUIViewControllerSwizzling .
  */
 @interface
 UIApplication (SentryUIApplication) <SentryUIApplication>
@@ -209,8 +209,8 @@ SentryUIViewControllerSwizzling ()
 
 /**
  * If the iOS version is 13 or newer, and the project does not use a custom Window initialization
- * the app uses a UIScenes to manage windows instead of the old AppDelegate.
- * We wait for the first scene to connect to the app in order to find the rootViewController.
+ * the app uses a @c UIScene to manage windows instead of the old AppDelegate.
+ * We wait for the first scene to connect to the app in order to find the @c rootViewController.
  */
 - (void)swizzleRootViewControllerFromSceneDelegateNotification:(NSNotification *)notification
 {
@@ -306,11 +306,10 @@ SentryUIViewControllerSwizzling ()
 }
 
 /**
- * We need to swizzle UIViewController 'loadView'
- * because we can`t do it for controllers that use Nib files
- * (see `swizzleLoadView` for more information).
- * SentryUIViewControllerPerformanceTracker makes sure we don't get two spans
- * if the loadView of an actual UIViewController is swizzled.
+ * We need to swizzle @c -[UIViewController @c loadView] because we can't do it for controllers that
+ * use Nib files (see @c swizzleLoadView for more information).
+ * @c SentryUIViewControllerPerformanceTracker makes sure we don't get two spans
+ * if the @c -[loadView] of an actual @c UIViewController is swizzled.
  */
 - (void)swizzleUIViewController
 {

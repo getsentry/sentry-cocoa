@@ -8,8 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Get a screenshot of every open window in the app.
- *
- * @return An array of NSData containing a PNG image
+ * @return An array of @c NSData instances containing PNG images.
  */
 - (nullable NSArray<NSData *> *)appScreenshots;
 
