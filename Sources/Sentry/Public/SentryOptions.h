@@ -160,8 +160,8 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL attachStacktrace;
 
 /**
- * Attention: This is an experimental feature. Turning this feature on can have an impact on
- * the grouping of your issues.
+ * @warning This is an experimental feature and may still have bugs. Turning this feature on can
+ * have an impact on the grouping of your issues.
  *
  * When enabled, the SDK stitches stack traces of asynchronous code together.
  *
@@ -213,7 +213,7 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL attachScreenshot;
 
 /**
- * This feature is EXPERIMENTAL.
+ * @warning This is an experimental feature and may still have bugs.
  *
  * Automatically attaches a textual representation of the view hierarchy when capturing an error
  * event.
@@ -235,7 +235,7 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) NSTimeInterval idleTimeout;
 
 /**
- * This feature is EXPERIMENTAL.
+ * @warning This is an experimental feature and may still have bugs.
  *
  * Report pre-warmed app starts by dropping the first app start spans if pre-warming paused during
  * these steps. This approach will shorten the app start duration, but it represents the duration a
@@ -349,7 +349,8 @@ NS_SWIFT_NAME(Options)
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
- * This feature is experimental. Profiling is not supported on watchOS or tvOS.
+ * @warning This is a beta feature and may still have bugs.
+ * @note Profiling is not supported on watchOS or tvOS.
  *
  * Indicates the percentage profiles being sampled out of the sampled transactions.
  *
@@ -363,7 +364,8 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic, strong) NSNumber *profilesSampleRate;
 
 /**
- * This feature is experimental. Profiling is not supported on watchOS or tvOS.
+ * @warning This is a beta feature and may still have bugs.
+ * @note Profiling is not supported on watchOS or tvOS.
  *
  * A callback to a user defined profiles sampler function. This is similar to setting
  * `profilesSampleRate`, but instead of a static value, the callback function will be called to
@@ -372,6 +374,9 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic) SentryTracesSamplerCallback profilesSampler;
 
 /**
+ * @warning This is a beta feature and may still have bugs.
+ * @note Profiling is not supported on watchOS or tvOS.
+ *
  * If profiling should be enabled or not. Returns YES if either a profilesSampleRate > 0 and
  * <=1 or a profilesSampler is set otherwise NO.
  */
@@ -380,11 +385,12 @@ NS_SWIFT_NAME(Options)
 /**
  * DEPRECATED: Use `profilesSampleRate` instead. Setting `enableProfiling` to YES is the equivalent
  * of setting `profilesSampleRate` to `1.0`. If `profilesSampleRate` is set, it will take precedence
+ * @warning This is a beta feature and may still have bugs.
+ * @note Profiling is not supported on watchOS or tvOS.
+ *
  * over this setting.
  *
  * Whether to enable the sampling profiler. Default is NO.
- * @note This is a beta feature that is currently not available to all Sentry customers. This
- * feature is not supported on watchOS or tvOS.
  */
 @property (nonatomic, assign) BOOL enableProfiling DEPRECATED_MSG_ATTRIBUTE(
     "Use profilesSampleRate or profilesSampler instead. This property will be removed in a future "
@@ -460,7 +466,7 @@ NS_SWIFT_NAME(Options)
 #if SENTRY_HAS_METRIC_KIT
 
 /**
- * ATTENTION: This is an experimental feature.
+ * @warning This is an experimental feature and may still have bugs.
  *
  * This feature is disabled by default. When enabled, the SDK sends
  * ``MXDiskWriteExceptionDiagnostic``, ``MXCPUExceptionDiagnostic`` and ``MXHangDiagnostic``  to
