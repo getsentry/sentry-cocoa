@@ -160,7 +160,7 @@ NS_SWIFT_NAME(Event)
 @property (nonatomic, strong) NSArray<SentryBreadcrumb *> *_Nullable breadcrumbs;
 
 /**
- * Set the Http request information.
+ * Set the HTTP request information.
  */
 @property (nonatomic, strong, nullable) SentryRequest *request;
 
