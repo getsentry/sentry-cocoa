@@ -87,6 +87,7 @@ SENTRY_NO_INIT
  * Size of information units derived from bytes.
  * @see https://en.wikipedia.org/wiki/Units_of_information
  */
+NS_SWIFT_NAME(MeasurementUnitInformation)
 @interface SentryMeasurementUnitInformation : SentryMeasurementUnit
 SENTRY_NO_INIT
 
