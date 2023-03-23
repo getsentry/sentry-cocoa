@@ -43,6 +43,11 @@ SentryTimeToDisplayTracker ()
             [tracer startChildWithOperation:SentrySpanOperationUILoadFullDisplay
                                 description:[NSString stringWithFormat:@"%@ full display",
                                                       self.controllerName]];
+
+        // By concept this two spans should have the same beginning,
+        // which also should be the same of the transaction starting.
+        self.fullDisplaySpan.startTimestamp = tracer.startTimestamp;
+        self.initialDisplaySpan.startTimestamp = tracer.startTimestamp;
     }
 }
 

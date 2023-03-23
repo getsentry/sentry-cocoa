@@ -305,6 +305,9 @@ SENTRY_NO_INIT
  * Reports to the ongoing UIViewController transaction
  * that the screen contents are fully loaded and displayed,
  * which will create a new span.
+ *
+ * For more information see our documentation:
+ * https://docs.sentry.io/platforms/cocoa/performance/instrumentation/automatic-instrumentation/#time-to-full-display
  */
 + (void)reportFullyDisplayed;
 

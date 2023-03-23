@@ -9,7 +9,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
     private class Fixture {
         let dateProvider: TestCurrentDateProvider = TestCurrentDateProvider()
-        let tracer = SentryTracer(transactionContext: TransactionContext(operation: "Test Operation"), hub: nil)
+        var tracer: SentryTracer {  SentryTracer(transactionContext: TransactionContext(operation: "Test Operation"), hub: nil) }
     }
 
     private let fixture = Fixture()
@@ -45,10 +45,11 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     }
 
     func testreportInitialDisplay_waitForFullDisplay() {
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
+
         let sut = SentryTimeToDisplayTracker(for: UIViewController(), waitForFullDisplay: true)
         let tracer = fixture.tracer
 
-        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
         sut.start(for: tracer)
         XCTAssertEqual(tracer.children.count, 2)
 
@@ -81,9 +82,11 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     }
 
     func testreportFullDisplay_waitingForFullDisplay() {
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
+
         let sut = SentryTimeToDisplayTracker(for: UIViewController(), waitForFullDisplay: true)
         let tracer = fixture.tracer
-        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
+
         sut.start(for: tracer)
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 11))
@@ -96,6 +99,20 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
         XCTAssertEqual(sut.fullDisplaySpan?.spanDescription, "UIViewController full display")
         XCTAssertEqual(sut.fullDisplaySpan?.operation, SentrySpanOperationUILoadFullDisplay)
+    }
+
+    func test_checkInitialTime() {
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
+        fixture.dateProvider.driftTimeForEveryRead = true
+
+        let sut = SentryTimeToDisplayTracker(for: UIViewController(), waitForFullDisplay: true)
+        let tracer = fixture.tracer
+
+        sut.start(for: tracer)
+
+        XCTAssertNotNil(sut.fullDisplaySpan)
+        XCTAssertEqual(sut.fullDisplaySpan?.startTimestamp, tracer.startTimestamp)
+        XCTAssertEqual(sut.initialDisplaySpan?.startTimestamp, tracer.startTimestamp)
     }
 
     func test_fullDisplay_reportedBefore_initialDisplay() {
