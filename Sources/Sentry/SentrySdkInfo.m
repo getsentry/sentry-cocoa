@@ -5,7 +5,7 @@ typedef NS_ENUM(NSUInteger, SentryPackageManagerOption) {
     SentrySwiftPackageManager,
     SentryCocoaPods,
     SentryCarthage,
-    SentryNoPackage
+    SentryPackageManagerUnkown
 };
 
 /**
