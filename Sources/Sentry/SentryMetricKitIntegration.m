@@ -225,16 +225,16 @@ SentryMetricKitIntegration ()
 }
 
 /**
- * If callStackPerThread is false, MetricKit organizes the stacktraces in a tree structure. See
+ * If @c callStackPerThread is @c NO , MetricKit organizes the stacktraces in a tree structure. See
  * https://developer.apple.com/videos/play/wwdc2020/10078/?time=224. The stacktrace consists of the
- * last sibbling leaf frame plus its ancestors.
+ * last sibling leaf frame plus its ancestors.
  *
  * The algorithm adds all frames to a list until it finds a leaf frame being the last sibling. Then
  * it reports that frame with its siblings and ancestors as a stacktrace.
  *
  * In the following example, the algorithm starts with frame 0, continues until frame 6, and reports
  * a stacktrace. Then it pops all sibling, goes back up to frame 3, and continues the search.
- *
+ * @code
  * | frame 0 |
  *      | frame 1 |
  *          | frame 2 |
@@ -249,6 +249,7 @@ SentryMetricKitIntegration ()
  *      | frame 11 |
  *          | frame 12 |
  *          | frame 13 |    -> stack trace consists of [10, 11, 12, 13]
+ * @endcode
  */
 - (void)buildAndCaptureMXEventFor:(NSArray<SentryMXFrame *> *)rootFrames
                            params:(SentryMXExceptionParams *)params

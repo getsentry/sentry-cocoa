@@ -28,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 SentryHub ()
 
 @property (nullable, nonatomic, strong) SentryClient *client;
+@property (nullable, nonatomic, strong) SentrySession *session;
 @property (nullable, nonatomic, strong) SentryScope *scope;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryTracesSampler *tracesSampler;
@@ -562,9 +563,9 @@ SentryHub ()
 }
 
 /**
- * Checks if a specific Integration (`integrationClass`) has been installed.
- * @return BOOL If instance of `integrationClass` exists within
- * `SentryHub.installedIntegrations`.
+ * Checks if a specific Integration (@c integrationClass) has been installed.
+ * @return @c YES if instance of @c integrationClass exists within
+ * @c SentryHub.installedIntegrations .
  */
 - (BOOL)isIntegrationInstalled:(Class)integrationClass
 {

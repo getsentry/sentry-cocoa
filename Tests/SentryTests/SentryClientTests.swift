@@ -607,9 +607,14 @@ class SentryClientTest: XCTestCase {
         }
     }
 
-    func testCaptureEvent_AddCurrentMemoryAndStorage() {
+    func testCaptureEvent_AddCurrentMemoryStorageAndCPUCoreCount() {
 
-        fixture.getSut().capture(event: TestData.event)
+        let sut = fixture.getSut()
+        let testProcessWrapper = TestSentryNSProcessInfoWrapper()
+        testProcessWrapper.overrides.processorCount = 12
+        Dynamic(sut).processInfoWrapper = testProcessWrapper
+
+        sut.capture(event: TestData.event)
 
         assertLastSentEvent { actual in
             let eventFreeMemory = actual.context?["device"]?[SentryDeviceContextFreeMemoryKey] as? Int
@@ -620,6 +625,9 @@ class SentryClientTest: XCTestCase {
 
             let eventFreeStorage = actual.context?["device"]?["free_storage"] as? Int
             XCTAssertEqual(eventFreeStorage, 345_678)
+
+            let cpuCoreCount = actual.context?["device"]?["processor_count"] as? UInt
+            XCTAssertEqual(testProcessWrapper.processorCount, cpuCoreCount)
         }
     }
     
