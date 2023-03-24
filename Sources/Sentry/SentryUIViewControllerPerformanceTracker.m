@@ -147,20 +147,6 @@ SentryUIViewControllerPerformanceTracker ()
     self.currentTTDTracker = ttdTracker;
 }
 
-- (void)finishTTIDForController:(UIViewController *)controller withStatus:(SentrySpanStatus)status
-{
-    SentryTimeToDisplayTracker *ttdTracker
-        = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER);
-
-    if (ttdTracker == nil) {
-        // View controller is not a root view controller and does not contain TTID/TTFD spans.
-        return;
-    }
-
-    [ttdTracker reportInitialDisplay];
-    ttdTracker.initialDisplaySpan.status = status;
-}
-
 - (void)reportFullyDisplayed
 {
     [self.currentTTDTracker reportFullyDisplayed];
@@ -189,6 +175,9 @@ SentryUIViewControllerPerformanceTracker ()
         };
 
         [self.tracker activateSpan:spanId duringBlock:duringBlock];
+
+        SentryTimeToDisplayTracker *ttdTracker = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER);
+        [ttdTracker reportReadyToDisplay];
     };
 
     [self limitOverride:@"viewWillAppear"
@@ -263,7 +252,6 @@ SentryUIViewControllerPerformanceTracker ()
         // and remove associated span id.
         [self.tracker finishSpan:spanId withStatus:status];
 
-        [self finishTTIDForController:controller withStatus:status];
         objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_SPAN_ID, nil,
             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     };

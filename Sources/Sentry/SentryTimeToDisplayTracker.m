@@ -6,27 +6,43 @@
 #import "SentrySpanOperations.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
+#import "SentryFramesTracker.h"
 
 #if SENTRY_HAS_UIKIT
 
 @interface
-SentryTimeToDisplayTracker ()
+SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 
 @property (nonatomic, strong) SentrySpan *initialDisplaySpan;
 @property (nonatomic, strong) SentrySpan *fullDisplaySpan;
-@property (nonatomic, strong) NSString *controllerName;
-@property (nonatomic) BOOL waitForFullDisplay;
 
 @end
 
-@implementation SentryTimeToDisplayTracker
+@implementation SentryTimeToDisplayTracker {
+    BOOL _waitForFullDisplay;
+    BOOL _isReadyToDisplay;
+    BOOL _fullyDisplayedReported;
+    SentryFramesTracker * _frameTracker;
+    NSString * _controllerName;
+}
 
 - (instancetype)initForController:(UIViewController *)controller
                waitForFullDisplay:(BOOL)waitForFullDisplay
 {
+    return [self initForController:controller frameTracker:SentryFramesTracker.sharedInstance waitForFullDisplay:waitForFullDisplay];
+}
+
+- (instancetype)initForController:(UIViewController *)controller
+                     frameTracker:(SentryFramesTracker *)frametracker
+               waitForFullDisplay:(BOOL)waitForFullDisplay
+{
     if (self = [super init]) {
-        self.controllerName = [SwiftDescriptor getObjectClassName:controller];
-        self.waitForFullDisplay = waitForFullDisplay;
+        _controllerName = [SwiftDescriptor getObjectClassName:controller];
+        _waitForFullDisplay = waitForFullDisplay;
+        _frameTracker = frametracker;
+
+        _isReadyToDisplay = NO;
+        _fullyDisplayedReported = NO;
     }
     return self;
 }
@@ -36,19 +52,21 @@ SentryTimeToDisplayTracker ()
     self.initialDisplaySpan =
         [tracer startChildWithOperation:SentrySpanOperationUILoadInitialDisplay
                             description:[NSString stringWithFormat:@"%@ initial display",
-                                                  self.controllerName]];
+                                                  _controllerName]];
 
     if (self.waitForFullDisplay) {
         self.fullDisplaySpan =
             [tracer startChildWithOperation:SentrySpanOperationUILoadFullDisplay
                                 description:[NSString stringWithFormat:@"%@ full display",
-                                                      self.controllerName]];
+                                                      _controllerName]];
 
         // By concept this two spans should have the same beginning,
         // which also should be the same of the transaction starting.
         self.fullDisplaySpan.startTimestamp = tracer.startTimestamp;
         self.initialDisplaySpan.startTimestamp = tracer.startTimestamp;
     }
+
+    [_frameTracker addListener:self];
 }
 
 - (void)reportInitialDisplay
@@ -67,9 +85,27 @@ SentryTimeToDisplayTracker ()
     [self.initialDisplaySpan finish];
 }
 
+- (void)reportReadyToDisplay
+{
+    _isReadyToDisplay = YES;
+}
+
 - (void)reportFullyDisplayed
 {
-    [self.fullDisplaySpan finish];
+    _fullyDisplayedReported = YES;
+    if (_isReadyToDisplay) {
+        [self.fullDisplaySpan finish];
+    }
+}
+
+- (void)framesTrackerHasNewFrame {
+    if (_fullyDisplayedReported && self.fullDisplaySpan.isFinished == NO) {
+        [self.fullDisplaySpan finish];
+    }
+    if (_isReadyToDisplay && self.initialDisplaySpan.isFinished == NO) {
+        [self reportInitialDisplay];
+        [SentryFramesTracker.sharedInstance removeListener:self];
+    }
 }
 
 @end

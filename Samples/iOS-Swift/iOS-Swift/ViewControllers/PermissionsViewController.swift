@@ -56,6 +56,11 @@ class PermissionsViewController: UIViewController {
     @objc func requestLocationPermission() {
         locationManager.requestWhenInUseAuthorization()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        SentrySDK.reportFullyDisplayed()
+    }
 
     @objc func requestPushPermission() {
         UNUserNotificationCenter.current()

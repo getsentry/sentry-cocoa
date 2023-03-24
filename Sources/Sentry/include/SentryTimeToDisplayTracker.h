@@ -4,7 +4,7 @@
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
 
-@class SentrySpan, SentryTracer;
+@class SentrySpan, SentryTracer, SentryFramesTracker;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,9 +31,13 @@ SENTRY_NO_INIT
 - (instancetype)initForController:(UIViewController *)controller
                waitForFullDisplay:(BOOL)waitForFullDisplay;
 
+- (instancetype)initForController:(UIViewController *)controller
+                     frameTracker:(SentryFramesTracker *)frametracker
+               waitForFullDisplay:(BOOL)waitForFullDisplay;
+
 - (void)startForTracer:(SentryTracer *)tracer;
 
-- (void)reportInitialDisplay;
+- (void)reportReadyToDisplay;
 
 - (void)reportFullyDisplayed;
 

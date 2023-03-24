@@ -122,9 +122,10 @@ class CoreDataViewController: UITableViewController {
         } catch let error as NSError {
             print("Could not fetch. \(error), \(error.userInfo)")
         }
-        
+        SentrySDK.reportFullyDisplayed()
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(requestNewPerson(_:)))
     }
+    
     
     @objc
     private func requestNewPerson(_ source: Any?) {
