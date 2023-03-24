@@ -7,16 +7,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if SENTRY_HAS_UIKIT
 
-
 @class SentryTracer;
-
 
 @protocol SentryFramesTrackerListener
 
-- (void) framesTrackerHasNewFrame;
+- (void)framesTrackerHasNewFrame;
 
 @end
-
 
 /**
  * Tracks total, frozen and slow frames for iOS, tvOS, and Mac Catalyst.

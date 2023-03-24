@@ -176,7 +176,8 @@ SentryUIViewControllerPerformanceTracker ()
 
         [self.tracker activateSpan:spanId duringBlock:duringBlock];
 
-        SentryTimeToDisplayTracker *ttdTracker = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER);
+        SentryTimeToDisplayTracker *ttdTracker
+            = objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER);
         [ttdTracker reportReadyToDisplay];
     };
 

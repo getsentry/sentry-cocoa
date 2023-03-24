@@ -14,7 +14,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         var displayLinkWrapper = TestDisplayLinkWrapper()
 
         func getSut(for controller: UIViewController, waitForFullDisplay: Bool) -> SentryTimeToDisplayTracker {
-            let framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper);
+            let framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper)
             framesTracker.start()
             return SentryTimeToDisplayTracker(for: controller, frameTracker: framesTracker, waitForFullDisplay: waitForFullDisplay)
         }

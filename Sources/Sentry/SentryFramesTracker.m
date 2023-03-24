@@ -31,7 +31,7 @@ SentryFramesTracker ()
 @property (nonatomic, strong, readonly) SentryDisplayLinkWrapper *displayLinkWrapper;
 @property (nonatomic, assign) CFTimeInterval previousFrameTimestamp;
 @property (nonatomic) uint64_t previousFrameSystemTimestamp;
-@property (nonatomic, strong) NSMutableSet * listeners;
+@property (nonatomic, strong) NSMutableSet *listeners;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *frozenFrameTimestamps;
 @property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *slowFrameTimestamps;
@@ -185,8 +185,9 @@ SentryFramesTracker ()
     [self reportNewFrame];
 }
 
-- (void)reportNewFrame {
-    @synchronized (self.listeners) {
+- (void)reportNewFrame
+{
+    @synchronized(self.listeners) {
         for (id<SentryFramesTrackerListener> listener in self.listeners) {
             [listener framesTrackerHasNewFrame];
         }
@@ -230,18 +231,19 @@ SentryFramesTracker ()
     [self.displayLinkWrapper invalidate];
 }
 
-- (void)addListener:(id<SentryFramesTrackerListener>)listener {
-    @synchronized (self.listeners) {
+- (void)addListener:(id<SentryFramesTrackerListener>)listener
+{
+    @synchronized(self.listeners) {
         [self.listeners addObject:listener];
     }
 }
 
-- (void)removeListener:(id<SentryFramesTrackerListener>)listener {
-    @synchronized (self.listeners) {
+- (void)removeListener:(id<SentryFramesTrackerListener>)listener
+{
+    @synchronized(self.listeners) {
         [self.listeners removeObject:listener];
     }
 }
-
 
 @end
 

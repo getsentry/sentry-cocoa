@@ -126,7 +126,6 @@ class CoreDataViewController: UITableViewController {
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(requestNewPerson(_:)))
     }
     
-    
     @objc
     private func requestNewPerson(_ source: Any?) {
         let alert = UIAlertController(title: "New Person", message: nil, preferredStyle: .alert)

@@ -1,12 +1,12 @@
 #import "SentryTimeToDisplayTracker.h"
 #import "SentryCurrentDate.h"
+#import "SentryFramesTracker.h"
 #import "SentrySpan.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
 #import "SentrySpanOperations.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
-#import "SentryFramesTracker.h"
 
 #if SENTRY_HAS_UIKIT
 
@@ -22,14 +22,16 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
     BOOL _waitForFullDisplay;
     BOOL _isReadyToDisplay;
     BOOL _fullyDisplayedReported;
-    SentryFramesTracker * _frameTracker;
-    NSString * _controllerName;
+    SentryFramesTracker *_frameTracker;
+    NSString *_controllerName;
 }
 
 - (instancetype)initForController:(UIViewController *)controller
                waitForFullDisplay:(BOOL)waitForFullDisplay
 {
-    return [self initForController:controller frameTracker:SentryFramesTracker.sharedInstance waitForFullDisplay:waitForFullDisplay];
+    return [self initForController:controller
+                      frameTracker:SentryFramesTracker.sharedInstance
+                waitForFullDisplay:waitForFullDisplay];
 }
 
 - (instancetype)initForController:(UIViewController *)controller
@@ -49,10 +51,9 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 
 - (void)startForTracer:(SentryTracer *)tracer
 {
-    self.initialDisplaySpan =
-        [tracer startChildWithOperation:SentrySpanOperationUILoadInitialDisplay
-                            description:[NSString stringWithFormat:@"%@ initial display",
-                                                  _controllerName]];
+    self.initialDisplaySpan = [tracer
+        startChildWithOperation:SentrySpanOperationUILoadInitialDisplay
+                    description:[NSString stringWithFormat:@"%@ initial display", _controllerName]];
 
     if (self.waitForFullDisplay) {
         self.fullDisplaySpan =
@@ -98,7 +99,8 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
     }
 }
 
-- (void)framesTrackerHasNewFrame {
+- (void)framesTrackerHasNewFrame
+{
     if (_fullyDisplayedReported && self.fullDisplaySpan.isFinished == NO) {
         [self.fullDisplaySpan finish];
     }
