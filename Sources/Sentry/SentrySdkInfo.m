@@ -20,7 +20,7 @@ static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentryCocoaPods;
 // definition to be able to use it.
 static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentryCarthage;
 #else
-static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentryNoPackage;
+static SentryPackageManagerOption SENTRY_PACKAGE_INFO = SentryPackageManagerUnkown;
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -99,7 +99,7 @@ SentrySdkInfo ()
         @"version" : self.version,
     }
                                    .mutableCopy;
-    if (self.packageManager != SentryNoPackage) {
+    if (self.packageManager != SentryPackageManagerUnkown) {
         NSString *format = [self getPackageName:self.packageManager];
         if (format != nil) {
             sdk[@"packages"] = @{
