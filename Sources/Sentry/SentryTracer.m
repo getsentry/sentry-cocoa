@@ -161,15 +161,24 @@ static BOOL appStartMeasurementRead;
         [_configuration.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
     }
     __weak SentryTracer *weakSelf = self;
-    _idleTimeoutBlock = dispatch_block_create(0, ^{
+    _idleTimeoutBlock = [self.dispatchQueueWrapper createDispatchBlock:^{
         if (weakSelf == nil) {
             SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
             return;
         }
         [weakSelf finishInternal];
     });
-    [_configuration.dispatchQueueWrapper dispatchAfter:_configuration.idleTimeout
+
+    }];
+    if (_idleTimeoutBlock == NULL) {
+        SENTRY_LOG_WARN(@"Couln't create idle time out block. Can't schedule idle timeout. "
+                        @"Finishing transaction");
+        // If the transaction has no children, the SDK will discard it.
+        [self finishInternal];
+    } else {
+        [_configuration.dispatchQueueWrapper dispatchAfter:_configuration.idleTimeout
                                                  block:_idleTimeoutBlock];
+    }
 }
 
 - (BOOL)hasIdleTimeout

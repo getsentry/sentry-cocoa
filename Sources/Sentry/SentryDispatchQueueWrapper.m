@@ -77,6 +77,11 @@ NS_ASSUME_NONNULL_BEGIN
     dispatch_once(predicate, block);
 }
 
+- (nullable dispatch_block_t)createDispatchBlock:(void (^)(void))block
+{
+    return dispatch_block_create(0, block);
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
