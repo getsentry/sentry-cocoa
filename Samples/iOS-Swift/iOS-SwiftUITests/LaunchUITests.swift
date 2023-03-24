@@ -91,11 +91,14 @@ class LaunchUITests: XCTestCase {
      * We had a bug where we forgot to install the frames tracker into the profiler, so weren't sending any GPU frame information with profiles. Since it's not possible to enforce such installation via the compiler, we test for the results we expect here, by starting a transaction, triggering an ANR which will cause degraded frame rendering, stop the transaction, and inspect the profile payload.
      */
     func testProfilingGPUInfo() throws {
-        app.buttons["Start transaction"].tap()
-        app.buttons["ANR filling run loop"].tap()
-        app.buttons["Stop transaction"].tap()
+        app.buttons["Start transaction"].afterWaitingForExistence("Couldn't find button to start transaction").tap()
+        app.buttons["ANR filling run loop"].afterWaitingForExistence("Couldn't find button to ANR").tap()
+        app.buttons["Stop transaction"].afterWaitingForExistence("Couldn't find button to end transaction").tap()
 
-        let profileBase64DataString = try XCTUnwrap(app.textFields["io.sentry.ui-tests.profile-marshaling-text-field"].value as? NSString)
+        let textField = app.textFields["io.sentry.ui-tests.profile-marshaling-text-field"]
+        textField.waitForExistence("Couldn't find profile marshaling text field.")
+
+        let profileBase64DataString = try XCTUnwrap(textField.value as? NSString)
         let profileData = try XCTUnwrap(Data(base64Encoded: profileBase64DataString as String))
         let profileDict = try XCTUnwrap(try JSONSerialization.jsonObject(with: profileData) as? [String: Any])
 
@@ -105,6 +108,10 @@ class LaunchUITests: XCTestCase {
         let frozenFrames = try XCTUnwrap(metrics["frozen_frame_renders"] as? [String: Any])
         let frozenFrameValues = try XCTUnwrap(frozenFrames["values"] as? [[String: Any]])
         XCTAssertFalse(slowFrameValues.isEmpty && frozenFrameValues.isEmpty)
+
+        let frameRates = try XCTUnwrap(metrics["screen_frame_rates"] as? [String: Any])
+        let frameRateValues = try XCTUnwrap(frozenFrames["values"] as? [[String: Any]])
+        XCTAssertFalse(frameRateValues.isEmpty)
     }
 }
 
@@ -144,5 +151,10 @@ private extension LaunchUITests {
 extension XCUIElement {
     func waitForExistence(_ message: String) {
         XCTAssertTrue(self.waitForExistence(timeout: TimeInterval(10)), message)
+    }
+
+    func afterWaitingForExistence(_ failureMessage: String) -> XCUIElement {
+        waitForExistence(failureMessage)
+        return self
     }
 }
