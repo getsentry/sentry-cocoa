@@ -227,6 +227,7 @@ static BOOL appStartMeasurementRead;
     if (_idleTimeoutBlock == NULL) {
         SENTRY_LOG_WARN(@"Couln't create idle time out block. Can't schedule idle timeout. "
                         @"Finishing transaction");
+        // If the transaction has no children, the SDK will discard it.
         [self finishInternal];
     } else {
         [self.dispatchQueueWrapper dispatchAfter:self.idleTimeout block:_idleTimeoutBlock];
