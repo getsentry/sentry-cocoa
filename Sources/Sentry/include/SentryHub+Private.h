@@ -37,7 +37,7 @@ SentryHub (Private)
 - (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
-                                configuration:(nullable SentryTracerConfiguration *)configuration;
+                                configuration:(SentryTracerConfiguration *)configuration;
 
 - (SentryId *)captureEvent:(SentryEvent *)event
                   withScope:(SentryScope *)scope

@@ -368,7 +368,7 @@ SentryHub ()
     return [self startTransactionWithContext:transactionContext
                                  bindToScope:bindToScope
                        customSamplingContext:customSamplingContext
-                               configuration:nil];
+                               configuration:[SentryTracerConfiguration defaultConfiguration]];
 }
 
 - (SentryTransactionContext *)transactionContext:(SentryTransactionContext *)context
@@ -388,7 +388,7 @@ SentryHub ()
 - (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
-                                configuration:(nullable SentryTracerConfiguration *)configuration
+                                configuration:(SentryTracerConfiguration *)configuration
 {
     SentrySamplingContext *samplingContext =
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
