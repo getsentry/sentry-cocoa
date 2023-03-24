@@ -9,6 +9,7 @@ class TableViewController: UITableViewController {
         super.viewDidLoad()
         
         spanObserver = createTransactionObserver(forCallback: assertTransaction)
+        //We dont have reportFullyDisplayed in this VC by design, to test what happens when we forgot it.
     }
     
     func assertTransaction(span: Span) {
@@ -32,10 +33,5 @@ class TableViewController: UITableViewController {
         cell.backgroundColor = UIColor(white: CGFloat(w), alpha: 1)
 
         return cell
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        SentrySDK.reportFullyDisplayed()
     }
 }

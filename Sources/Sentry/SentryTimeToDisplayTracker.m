@@ -68,6 +68,8 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
     }
 
     [_frameTracker addListener:self];
+    [tracer setFinishCallback:^(
+        SentryTracer *_tracer) { [self trimTTFDIdNecessaryForTracer:_tracer]; }];
 }
 
 - (void)reportInitialDisplay
@@ -108,6 +110,17 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         [self reportInitialDisplay];
         [SentryFramesTracker.sharedInstance removeListener:self];
     }
+}
+
+- (void)trimTTFDIdNecessaryForTracer:(SentryTracer *)tracer
+{
+    if (self.fullDisplaySpan.status != kSentrySpanStatusDeadlineExceeded) {
+        return;
+    }
+
+    self.fullDisplaySpan.timestamp = self.initialDisplaySpan.timestamp;
+    self.fullDisplaySpan.spanDescription =
+        [NSString stringWithFormat:@"%@ - Expired", self.fullDisplaySpan.spanDescription];
 }
 
 @end

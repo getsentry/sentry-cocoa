@@ -128,6 +128,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
         sut.start(for: tracer)
 
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 10))
         sut.reportReadyToDisplay()
         fixture.displayLinkWrapper.normalFrame()
 
@@ -154,8 +155,30 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 11))
         sut.reportFullyDisplayed()
 
-        XCTAssertNotNil(sut.fullDisplaySpan)
         XCTAssertFalse(sut.fullDisplaySpan?.isFinished ?? true)
+    }
+
+    func testReportFullDisplay_expires() {
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
+
+        let sut = fixture.getSut(for: UIViewController(), waitForFullDisplay: true)
+        let tracer = fixture.tracer
+
+        sut.start(for: tracer)
+
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 10))
+        sut.reportReadyToDisplay()
+        fixture.displayLinkWrapper.normalFrame()
+
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 11))
+        sut.fullDisplaySpan?.finish(status: .deadlineExceeded)
+
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 13))
+        tracer.finish()
+
+        XCTAssertEqual(sut.fullDisplaySpan?.startTimestamp, Date(timeIntervalSince1970: 9))
+        XCTAssertEqual(sut.fullDisplaySpan?.timestamp, Date(timeIntervalSince1970: 10))
+        XCTAssertEqual(sut.fullDisplaySpan?.spanDescription, "UIViewController full display - Expired")
     }
 
     func test_checkInitialTime() {
