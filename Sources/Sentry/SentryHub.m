@@ -532,9 +532,9 @@ SentryHub ()
 }
 
 /**
- * Checks if a specific Integration (`integrationClass`) has been installed.
- * @return BOOL If instance of `integrationClass` exists within
- * `SentryHub.installedIntegrations`.
+ * Checks if a specific Integration (@c integrationClass) has been installed.
+ * @return @c YES if instance of @c integrationClass exists within
+ * @c SentryHub.installedIntegrations .
  */
 - (BOOL)isIntegrationInstalled:(Class)integrationClass
 {

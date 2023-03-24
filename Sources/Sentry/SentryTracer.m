@@ -49,10 +49,10 @@ SentryTracer ()
 
 @property (nonatomic, strong) SentryHub *hub;
 @property (nonatomic) SentrySpanStatus finishStatus;
-/** This property is different from isFinished. While isFinished states if the tracer is actually
- * finished, this property tells you if finish was called on the tracer. Calling finish doesn't
- * necessarily lead to finishing the tracer, because it could still wait for child spans to finish
- * if waitForChildren is <code>YES</code>. */
+/** This property is different from @c isFinished. While @c isFinished states if the tracer is
+ * actually finished, this property tells you if finish was called on the tracer. Calling
+ * @c -[finish] doesn't necessarily lead to finishing the tracer, because it could still wait for
+ * child spans to finish if @c waitForChildren is @c YES . */
 @property (nonatomic) BOOL wasFinishCalled;
 @property (nonatomic, nullable, strong) NSTimer *deadlineTimer;
 @property (nonnull, strong) SentryTracerConfiguration *configuration;

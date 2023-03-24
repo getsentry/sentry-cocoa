@@ -4,6 +4,17 @@
 
 ### Fixes
 
+- View hierarchy not sent for crashes (#2781)
+
+## 8.3.2
+
+### Features
+
+- Add CPU core count in device context (#2814)
+
+### Fixes
+
+
 - Updating AppHang state on main thread (#2793)
 - App Hang report crashes with too many threads (#2811)
 

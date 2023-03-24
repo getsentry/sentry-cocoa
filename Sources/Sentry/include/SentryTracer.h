@@ -32,12 +32,12 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  */
 @property (nonatomic, readonly) SentryTraceContext *traceContext;
 
-/*
- All the spans that where created with this tracer but rootSpan.
+/**
+ * All the spans that where created with this tracer but rootSpan.
  */
 @property (nonatomic, readonly) NSArray<id<SentrySpan>> *children;
 
-/*
+/**
  * A delegate that provides extra information for the transaction.
  */
 @property (nullable, nonatomic, weak) id<SentryTracerDelegate> delegate;
@@ -53,12 +53,9 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 @property (strong, nonatomic, readonly) NSDate *originalStartTimestamp;
 
 /**
- * Init a SentryTracer with given transaction context and hub and set other fields by default
- *
+ * Init a @c SentryTracer with given transaction context and hub and set other fields by default
  * @param transactionContext Transaction context
  * @param hub A hub to bind this transaction
- *
- * @return SentryTracer
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub;

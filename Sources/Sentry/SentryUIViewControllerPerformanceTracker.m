@@ -157,9 +157,10 @@ SentryUIViewControllerPerformanceTracker ()
  * ‘will’ callback method, you end the process in both the corresponding ‘did’ and the opposite
  * ‘will’ callback method.
  *
- * As stated above viewWillAppear doesn't need to be followed by a viewDidAppear. A viewWillAppear
- * can also be followed by a viewWillDisappear. Therefore, we finish the transaction in
- * viewWillDisappear, if it wasn't already finished in viewDidAppear.
+ * As stated above @c viewWillAppear doesn't need to be followed by a @c viewDidAppear. A
+ * @c viewWillAppear can also be followed by a @c viewWillDisappear. Therefore, we finish the
+ * transaction in
+ * @c viewWillDisappear, if it wasn't already finished in @c viewDidAppear.
  */
 - (void)viewControllerViewWillDisappear:(UIViewController *)controller
                        callbackToOrigin:(void (^)(void))callbackToOrigin

@@ -3,6 +3,9 @@
 #import "SentryViewHierarchy.h"
 
 #if SENTRY_HAS_UIKIT
+
+void saveViewHierarchy(const char *path);
+
 @interface
 SentryViewHierarchy (Test)
 - (int)viewHierarchyFromView:(UIView *)view intoContext:(SentryCrashJSONEncodeContext *)context;
