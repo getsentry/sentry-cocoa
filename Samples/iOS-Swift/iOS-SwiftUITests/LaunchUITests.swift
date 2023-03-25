@@ -90,7 +90,12 @@ class LaunchUITests: XCTestCase {
     /**
      * We had a bug where we forgot to install the frames tracker into the profiler, so weren't sending any GPU frame information with profiles. Since it's not possible to enforce such installation via the compiler, we test for the results we expect here, by starting a transaction, triggering an ANR which will cause degraded frame rendering, stop the transaction, and inspect the profile payload.
      */
-    @available(iOS 13.0, *) func testProfilingGPUInfo() throws {
+    func testProfilingGPUInfo() throws {
+        // Marking the function as @available doesn't work to skip the test on earlier OS versions. We have to manually skip it here. It seems to only fail consistently on iOS 12; I think due to the ANR causing the app to crash. We don't need to test this on multiple OSes right now, so 13+ is still more than enough coverage.
+        guard #available(iOS 13.0, *) else {
+           throw XCTSkip("Only run on iOS 13 and above.")
+        }
+
         app.buttons["Start transaction"].afterWaitingForExistence("Couldn't find button to start transaction").tap()
         app.buttons["ANR filling run loop"].afterWaitingForExistence("Couldn't find button to ANR").tap()
         app.buttons["Stop transaction"].afterWaitingForExistence("Couldn't find button to end transaction").tap()
