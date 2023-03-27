@@ -22,33 +22,29 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 /**
- * Initializes an SentryEnvelopeHeader object with the specified eventId.
- *
- * Sets the sdkInfo from SentryMeta.
- *
+ * Initializes an @c SentryEnvelopeHeader object with the specified eventId.
+ * @note Sets the @c sdkInfo from @c SentryMeta.
  * @param eventId The identifier of the event. Can be nil if no event in the envelope or attachment
  * related to event.
  */
 - (instancetype)initWithId:(SentryId *_Nullable)eventId;
 
 /**
- * Initializes an SentryEnvelopeHeader object with the specified eventId and traceContext.
- *
- * @param eventId The identifier of the event. Can be nil if no event in the envelope or attachment
- * related to event.
+ * Initializes a @c SentryEnvelopeHeader object with the specified @c eventId and @c traceContext.
+ * @param eventId The identifier of the event. Can be @c nil if no event in the envelope or
+ * attachment related to event.
  * @param traceContext Current trace state.
  */
 - (instancetype)initWithId:(nullable SentryId *)eventId
               traceContext:(nullable SentryTraceContext *)traceContext;
 
 /**
- * Initializes an SentryEnvelopeHeader object with the specified eventId, skdInfo and traceContext.
- *
- * It is recommended to use initWithId:traceContext: because it sets the sdkInfo for you.
- *
- * @param eventId The identifier of the event. Can be nil if no event in the envelope or attachment
- * related to event.
- * @param sdkInfo sdkInfo Describes the Sentry SDK. Can be nil for backwards compatibility. New
+ * Initializes a @c SentryEnvelopeHeader object with the specified @c eventId, @c skdInfo and
+ * @c traceContext. It is recommended to use @c initWithId:traceContext: because it sets the
+ * @c sdkInfo for you.
+ * @param eventId The identifier of the event. Can be @c nil if no event in the envelope or
+ * attachment related to event.
+ * @param sdkInfo Describes the Sentry SDK. Can be @c nil for backwards compatibility. New
  * instances should always provide a version.
  * @param traceContext Current trace state.
  */
@@ -58,8 +54,8 @@ SENTRY_NO_INIT
 
 /**
  * The event identifier, if available.
- * An event id exist if the envelope contains an event of items within it are
- * related. i.e Attachments
+ * An event id exist if the envelope contains an event of items within it are related. i.e
+ * Attachments
  */
 @property (nullable, nonatomic, readonly, copy) SentryId *eventId;
 
@@ -104,25 +100,24 @@ SENTRY_NO_INIT
 - (instancetype)initWithId:(SentryId *_Nullable)id items:(NSArray<SentryEnvelopeItem *> *)items;
 
 /**
- * Initializes a SentryEnvelope with a single session.
+ * Initializes a @c SentryEnvelope with a single session.
  * @param session to init the envelope with.
- * @return an initialized SentryEnvelope
  */
 - (instancetype)initWithSession:(SentrySession *)session;
 
 /**
- * Initializes a SentryEnvelope with a list of sessions.
- * Can be used when an operations that starts a session closes an ongoing
- * session
+ * Initializes a @c SentryEnvelope with a list of sessions.
+ * Can be used when an operation that starts a session closes an ongoing session.
  * @param sessions to init the envelope with.
- * @return an initialized SentryEnvelope
  */
 - (instancetype)initWithSessions:(NSArray<SentrySession *> *)sessions;
 
 - (instancetype)initWithHeader:(SentryEnvelopeHeader *)header
                          items:(NSArray<SentryEnvelopeItem *> *)items NS_DESIGNATED_INITIALIZER;
 
-// Convenience init for a single event
+/**
+ * Convenience init for a single event.
+ */
 - (instancetype)initWithEvent:(SentryEvent *)event;
 
 - (instancetype)initWithUserFeedback:(SentryUserFeedback *)userFeedback;

@@ -39,7 +39,7 @@ SentryHttpTransport ()
  * Relay expects the discarded events split by data category and reason; see
  * https://develop.sentry.dev/sdk/client-reports/#envelope-item-payload.
  * We could use nested dictionaries, but instead, we use a dictionary with key
- * `data-category:reason` and value `SentryDiscardedEvent` because it's easier to read and type.
+ * @c data-category:reason and value @c SentryDiscardedEvent because it's easier to read and type.
  */
 @property (nonatomic, strong)
     NSMutableDictionary<NSString *, SentryDiscardedEvent *> *discardedEvents;

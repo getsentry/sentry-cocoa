@@ -229,6 +229,26 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(status, sut.status)
     }
     
+    func testIdleTransaction_CreatingDispatchBlockFails_NoTransactionCaptured() {
+        fixture.dispatchQueue.createDispatchBlockReturnsNULL = true
+        
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        
+        assertTransactionNotCaptured(sut)
+    }
+    
+    func testIdleTransaction_CreatingDispatchBlockFailsForFirstChild_FinishesTransaction() {
+        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
+        
+        fixture.dispatchQueue.createDispatchBlockReturnsNULL = true
+        
+        let child = sut.startChild(operation: fixture.transactionOperation)
+        advanceTime(bySeconds: 0.1)
+        child.finish()
+        
+        assertOneTransactionCaptured(sut)
+    }
+    
     func testWaitForChildrenTransactionWithStatus_OverwriteStatusInFinish() {
         let sut = fixture.getSut()
         sut.status = .aborted

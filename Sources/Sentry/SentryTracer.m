@@ -49,10 +49,10 @@ SentryTracer ()
 
 @property (nonatomic, strong) SentryHub *hub;
 @property (nonatomic) SentrySpanStatus finishStatus;
-/** This property is different from isFinished. While isFinished states if the tracer is actually
- * finished, this property tells you if finish was called on the tracer. Calling finish doesn't
- * necessarily lead to finishing the tracer, because it could still wait for child spans to finish
- * if waitForChildren is <code>YES</code>. */
+/** This property is different from @c isFinished. While @c isFinished states if the tracer is
+ * actually finished, this property tells you if finish was called on the tracer. Calling
+ * @c -[finish] doesn't necessarily lead to finishing the tracer, because it could still wait for
+ * child spans to finish if @c waitForChildren is @c YES . */
 @property (nonatomic) BOOL wasFinishCalled;
 @property (nonatomic) NSTimeInterval idleTimeout;
 @property (nonatomic, nullable, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
@@ -227,14 +227,21 @@ static BOOL appStartMeasurementRead;
         [self.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
     }
     __weak SentryTracer *weakSelf = self;
-    _idleTimeoutBlock = dispatch_block_create(0, ^{
+    _idleTimeoutBlock = [self.dispatchQueueWrapper createDispatchBlock:^{
         if (weakSelf == nil) {
             SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
             return;
         }
         [weakSelf finishInternal];
-    });
-    [self.dispatchQueueWrapper dispatchAfter:self.idleTimeout block:_idleTimeoutBlock];
+    }];
+    if (_idleTimeoutBlock == NULL) {
+        SENTRY_LOG_WARN(@"Couln't create idle time out block. Can't schedule idle timeout. "
+                        @"Finishing transaction");
+        // If the transaction has no children, the SDK will discard it.
+        [self finishInternal];
+    } else {
+        [self.dispatchQueueWrapper dispatchAfter:self.idleTimeout block:_idleTimeoutBlock];
+    }
 }
 
 - (BOOL)hasIdleTimeout

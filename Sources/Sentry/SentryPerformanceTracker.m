@@ -85,9 +85,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
                                                   customSamplingContext:@{}
                                                            timerWrapper:nil];
 
-            if ([newSpan isKindOfClass:[SentryTracer class]]) {
-                [(SentryTracer *)newSpan setDelegate:self];
-            }
+            [(SentryTracer *)newSpan setDelegate:self];
         }];
     }
 

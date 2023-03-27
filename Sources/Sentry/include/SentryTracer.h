@@ -35,7 +35,7 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
 /**
  * Indicates whether this tracer will be finished only if all children have been finished.
- * If this property is YES and the finish function is called before all children are finished
+ * If this property is @c YES and the finish function is called before all children are finished
  * the tracer will automatically finish when the last child finishes.
  */
 @property (readonly) BOOL waitForChildren;
@@ -45,12 +45,12 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  */
 @property (nonatomic, readonly) SentryTraceContext *traceContext;
 
-/*
- All the spans that where created with this tracer but rootSpan.
+/**
+ * All the spans that where created with this tracer but rootSpan.
  */
 @property (nonatomic, readonly) NSArray<id<SentrySpan>> *children;
 
-/*
+/**
  * A delegate that provides extra information for the transaction.
  */
 @property (nullable, nonatomic, weak) id<SentryTracerDelegate> delegate;
@@ -68,41 +68,32 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 @property (strong, nonatomic, readonly) NSDate *originalStartTimestamp;
 
 /**
- * Init a SentryTracer with given transaction context and hub and set other fields by default
- *
+ * Init a @c SentryTracer with given transaction context and hub and set other fields by default
  * @param transactionContext Transaction context
  * @param hub A hub to bind this transaction
- *
- * @return SentryTracer
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub;
 
 /**
- * Init a SentryTracer with given transaction context, hub and whether the tracer should wait
+ * Init a @c SentryTracer with given transaction context, hub and whether the tracer should wait
  * for all children to finish before it finishes.
- *
  * @param transactionContext Transaction context
  * @param hub A hub to bind this transaction
  * @param waitForChildren Whether this tracer should wait all children to finish.
- *
- * @return SentryTracer
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
                            waitForChildren:(BOOL)waitForChildren;
 
 /**
- * Init a SentryTracer with given transaction context, hub and whether the tracer should wait
+ * Init a @c SentryTracer with given transaction context, hub and whether the tracer should wait
  * for all children to finish before it finishes.
- *
  * @param transactionContext Transaction context
- * @param hub A hub to bind this transaction
- * @param profilesSamplerDecision Whether to sample a profile corresponding to this transaction
+ * @param hub A hub to bind this transaction.
+ * @param profilesSamplerDecision Whether to sample a profile corresponding to this transaction.
  * @param waitForChildren Whether this tracer should wait all children to finish.
- * @param timerWrapper A writer around NSTimer, to make it testable
- *
- * @return SentryTracer
+ * @param timerWrapper A wrapper around @c NSTimer, to make it testable.
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
@@ -112,15 +103,12 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
                               timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper;
 
 /**
- * Init a SentryTracer with given transaction context, hub and whether the tracer should wait
+ * Init a @c SentryTracer with given transaction context, hub and whether the tracer should wait
  * for all children to finish before it finishes.
- *
  * @param transactionContext Transaction context
  * @param hub A hub to bind this transaction
  * @param profilesSamplerDecision Whether to sample a profile corresponding to this transaction
  * @param idleTimeout The idle time to wait until to finish the transaction.
- *
- * @return SentryTracer
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub

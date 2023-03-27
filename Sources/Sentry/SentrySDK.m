@@ -351,7 +351,7 @@ static NSUInteger startInvocations;
 }
 
 /**
- * Install integrations and keeps ref in `SentryHub.integrations`
+ * Install integrations and keeps ref in @c SentryHub.integrations
  */
 + (void)installIntegrations
 {

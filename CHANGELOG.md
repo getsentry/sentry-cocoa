@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.3.3
 
 ### Features
 
@@ -9,6 +9,7 @@
 ### Fixes
 
 - View hierarchy not sent for crashes (#2781)
+- Crash in Tracer for idle timeout (#2834)
 
 ## 8.3.2
 
