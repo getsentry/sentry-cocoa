@@ -34,9 +34,10 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
     func testreportInitialDisplay_notWaitingFullDisplay() throws {
         let sut = fixture.getSut(for: UIViewController(), waitForFullDisplay: false)
-        let tracer = fixture.tracer
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
+        let tracer = fixture.tracer
+
         sut.start(for: tracer)
         XCTAssertEqual(tracer.children.count, 1)
 
@@ -55,9 +56,11 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
     func testReportNewFrame_notReadyToDisplay() throws {
         let sut = fixture.getSut(for: UIViewController(), waitForFullDisplay: false)
-        let tracer = fixture.tracer
 
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
+
+        let tracer = fixture.tracer
+
         sut.start(for: tracer)
         XCTAssertEqual(tracer.children.count, 1)
 

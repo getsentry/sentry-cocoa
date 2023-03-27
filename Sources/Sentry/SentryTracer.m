@@ -87,8 +87,6 @@ SentryTracer ()
 static NSObject *appStartMeasurementLock;
 static BOOL appStartMeasurementRead;
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wshadow"
 + (void)initialize
 {
     if (self == [SentryTracer class]) {
@@ -96,8 +94,6 @@ static BOOL appStartMeasurementRead;
         appStartMeasurementRead = NO;
     }
 }
-
-#pragma clang diagnostic pop
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
@@ -170,7 +166,6 @@ static BOOL appStartMeasurementRead;
         self.wasFinishCalled = NO;
         _waitForChildren = waitForChildren;
         _measurements = [[NSMutableDictionary alloc] init];
-        _extensions = [NSMutableArray array];
         self.finishStatus = kSentrySpanStatusUndefined;
         self.idleTimeout = idleTimeout;
         self.dispatchQueueWrapper = dispatchQueueWrapper;

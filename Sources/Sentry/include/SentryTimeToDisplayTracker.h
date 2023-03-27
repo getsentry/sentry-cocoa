@@ -9,15 +9,11 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * This is a SentryTracer extension responsible for creating
+ * @brief This is a class responsible for creating
  * TTID and TTFD spans.
- * This extension creates the TTID span during installation and make use of
- * the `SentryTracer` wait for children feature to keep transaction open long
- * enough to wait for a full display report if required, otherwise it finished
- * the TTID span when a initial display is registered, allowing the tracer to
- * finish as soon as possible.
- * TTFD span is created when `SentryTracer` request for additional spans only if
- * a full display was registered before.
+ * @discussion This class creates the TTID and TTFD spans and make use of
+ * the @c SentryTracer wait for children feature to keep transaction open long
+ * enough to wait for a full display report if @c waitForFullDisplay is true.
  */
 @interface SentryTimeToDisplayTracker : NSObject
 SENTRY_NO_INIT

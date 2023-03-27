@@ -57,8 +57,6 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
 @property (nonatomic, readonly) NSDictionary<NSString *, SentryMeasurementValue *> *measurements;
 
-@property (nonatomic, readonly) NSArray<id<SentryTracerExtension>> *extensions;
-
 /**
  * When an app launch is traced, after building the app start spans, the tracer's start timestamp is
  * adjusted backwards to be the start of the first app start span. But, we still need to know the

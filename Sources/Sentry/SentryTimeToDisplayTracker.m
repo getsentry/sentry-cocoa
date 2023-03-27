@@ -64,8 +64,9 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         // By concept this two spans should have the same beginning,
         // which also should be the same of the transaction starting.
         self.fullDisplaySpan.startTimestamp = tracer.startTimestamp;
-        self.initialDisplaySpan.startTimestamp = tracer.startTimestamp;
     }
+    
+    self.initialDisplaySpan.startTimestamp = tracer.startTimestamp;
 
     [_frameTracker addListener:self];
     [tracer setFinishCallback:^(
@@ -78,13 +79,6 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         return;
     }
 
-    self.initialDisplaySpan.timestamp = [SentryCurrentDate date];
-
-    if (self.fullDisplaySpan.timestamp != nil &&
-        [self.fullDisplaySpan.timestamp compare:self.initialDisplaySpan.timestamp]
-            == NSOrderedAscending) {
-        self.fullDisplaySpan.timestamp = self.initialDisplaySpan.timestamp;
-    }
     [self.initialDisplaySpan finish];
 }
 
@@ -103,7 +97,10 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 
 - (void)framesTrackerHasNewFrame
 {
-    if (_fullyDisplayedReported && self.fullDisplaySpan.isFinished == NO) {
+    //The purpose of TTID and TTFD is to measure how long
+    //the user needs to see something different in the screen.
+    //Thats why we need to wait for the next frame to be drawn.
+    if (_waitForFullDisplay && _fullyDisplayedReported && self.fullDisplaySpan.isFinished == NO) {
         [self.fullDisplaySpan finish];
     }
     if (_isReadyToDisplay && self.initialDisplaySpan.isFinished == NO) {
