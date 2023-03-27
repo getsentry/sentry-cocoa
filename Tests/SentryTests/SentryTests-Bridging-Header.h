@@ -189,7 +189,6 @@
 #import "SentryPerformanceTracker+Testing.h"
 #import "TestSentryViewHierarchy.h"
 
-
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"
 #    import "SentryUIEventTracker.h"
