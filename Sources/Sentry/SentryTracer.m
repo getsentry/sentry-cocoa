@@ -503,6 +503,10 @@ static BOOL appStartMeasurementRead;
         self.finishCallback = nil;
     }
 
+    if (appStartMeasurement != nil) {
+        [self updateStartTime:appStartMeasurement.appStartTimestamp];
+    }
+
     // Prewarming can execute code up to viewDidLoad of a UIViewController, and keep the app in the
     // background. This can lead to auto-generated transactions lasting for minutes or even hours.
     // Therefore, we drop transactions lasting longer than SENTRY_AUTO_TRANSACTION_MAX_DURATION.
@@ -614,10 +618,6 @@ static BOOL appStartMeasurementRead;
     @synchronized(_children) {
         [spans addObjectsFromArray:_children];
         [spans addObjectsFromArray:appStartSpans];
-    }
-
-    if (appStartMeasurement != nil) {
-        [self updateStartTime:appStartMeasurement.appStartTimestamp];
     }
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
