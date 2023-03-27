@@ -8,8 +8,6 @@ NS_ASSUME_NONNULL_BEGIN
     SentryNSTimerWrapper, SentryDispatchQueueWrapper, SentryTracer, SentryProfilesSamplerDecision,
     SentryMeasurementValue;
 
-@protocol SentryTracerExtension;
-
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
 @protocol SentryTracerDelegate

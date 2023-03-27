@@ -65,15 +65,6 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
         SentryTracer *_tracer) { [self trimTTFDIdNecessaryForTracer:_tracer]; }];
 }
 
-- (void)reportInitialDisplay
-{
-    if (self.initialDisplaySpan.timestamp != nil) {
-        return;
-    }
-
-    [self.initialDisplaySpan finish];
-}
-
 - (void)reportReadyToDisplay
 {
     _isReadyToDisplay = YES;
@@ -90,14 +81,14 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 - (void)framesTrackerHasNewFrame
 {
     // The purpose of TTID and TTFD is to measure how long
-    // the user needs to see something different in the screen.
+    // takes to the content of the screen to change.
     // Thats why we need to wait for the next frame to be drawn.
     if (_waitForFullDisplay && _fullyDisplayedReported && self.fullDisplaySpan.isFinished == NO) {
         [self.fullDisplaySpan finish];
     }
     if (_isReadyToDisplay && self.initialDisplaySpan.isFinished == NO) {
-        [self reportInitialDisplay];
-        [SentryFramesTracker.sharedInstance removeListener:self];
+        [self.initialDisplaySpan finish];
+        [_frameTracker removeListener:self];
     }
 }
 

@@ -935,7 +935,7 @@ class SentryHubTests: XCTestCase {
 private class TestTimeToDisplayTracker: SentryTimeToDisplayTracker {
 
     init() {
-        super.init(for: UIViewController(), waitForFullDisplay: false)
+        super.init(for: UIViewController(), framesTracker: SentryFramesTracker.sharedInstance(), waitForFullDisplay: false)
     }
 
     var registerFullDisplayCalled = false
