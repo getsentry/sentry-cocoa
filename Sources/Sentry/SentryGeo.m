@@ -21,13 +21,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary<NSString *, id> *)serialize
 {
-    NSMutableDictionary *serializedData = [NSMutableDictionary dictionary];
-
-    serializedData[@"city"] = self.city;
-    serializedData[@"country_code"] = self.countryCode;
-    serializedData[@"region"] = self.region;
-
-    return serializedData;
+    return @{
+        @"city" : self.city,
+        @"country_code" : self.countryCode,
+        @"region" : self.region
+    };
 }
 
 - (BOOL)isEqual:(id _Nullable)other
