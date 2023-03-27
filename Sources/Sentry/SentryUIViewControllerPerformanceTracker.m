@@ -12,6 +12,7 @@
 #import <SentryInAppLogic.h>
 #import <SentrySpanOperations.h>
 #import <objc/runtime.h>
+#import "SentryFramesTracker.h"
 
 #if SENTRY_HAS_UIKIT
 
@@ -138,6 +139,7 @@ SentryUIViewControllerPerformanceTracker ()
 
     SentryTimeToDisplayTracker *ttdTracker =
         [[SentryTimeToDisplayTracker alloc] initForController:controller
+                                                framesTracker:SentryFramesTracker.sharedInstance
                                            waitForFullDisplay:self.enableWaitForFullDisplay];
 
     objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER, ttdTracker,

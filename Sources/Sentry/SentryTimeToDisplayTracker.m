@@ -27,21 +27,13 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 }
 
 - (instancetype)initForController:(UIViewController *)controller
-               waitForFullDisplay:(BOOL)waitForFullDisplay
-{
-    return [self initForController:controller
-                      frameTracker:SentryFramesTracker.sharedInstance
-                waitForFullDisplay:waitForFullDisplay];
-}
-
-- (instancetype)initForController:(UIViewController *)controller
-                     frameTracker:(SentryFramesTracker *)frametracker
+                     framesTracker:(SentryFramesTracker *)framestracker
                waitForFullDisplay:(BOOL)waitForFullDisplay
 {
     if (self = [super init]) {
         _controllerName = [SwiftDescriptor getObjectClassName:controller];
         _waitForFullDisplay = waitForFullDisplay;
-        _frameTracker = frametracker;
+        _frameTracker = framestracker;
 
         _isReadyToDisplay = NO;
         _fullyDisplayedReported = NO;
