@@ -474,13 +474,15 @@ NS_SWIFT_NAME(Options)
 #endif
 
 /**
- * Use this in conjunction with `enableUIViewControllerTracing`.
+ * ATTENTION: This is an experimental feature.
  * By enabling this, every UIViewController tracing transaction will wait
- * for a call to `SentrySDK.reportFullyDisplayed()`.
- * If `SentrySDK.reportFullyDisplayed()` is not called, the transaction will finish
+ * for a call to @c SentrySDK.reportFullyDisplayed().
+ *
+ * @discussion Use this in conjunction with @c enableUIViewControllerTracing.
+ * If @c SentrySDK.reportFullyDisplayed() is not called, the transaction will finish
  * automatically after 30 seconds and the `Time to full display` Span will be
- * finished with `DeadlineExceeded` status.
- * The default value is `NO`.
+ * finished with @c DeadlineExceeded status.
+ * @note Default value is `NO`.
  */
 @property (nonatomic) BOOL enableTimeToFullDisplay;
 
