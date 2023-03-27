@@ -90,7 +90,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 - (void)reportFullyDisplayed
 {
     _fullyDisplayedReported = YES;
-    if (_isReadyToDisplay) {
+    if (self.waitForFullDisplay && _isReadyToDisplay) {
         [self.fullDisplaySpan finish];
     }
 }

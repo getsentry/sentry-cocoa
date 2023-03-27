@@ -28,7 +28,7 @@ SENTRY_NO_INIT
                waitForFullDisplay:(BOOL)waitForFullDisplay;
 
 - (instancetype)initForController:(UIViewController *)controller
-                     frameTracker:(SentryFramesTracker *)frametracker
+                    framesTracker:(SentryFramesTracker *)framestracker
                waitForFullDisplay:(BOOL)waitForFullDisplay;
 
 - (void)startForTracer:(SentryTracer *)tracer;
