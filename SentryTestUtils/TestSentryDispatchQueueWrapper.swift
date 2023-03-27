@@ -62,4 +62,13 @@ public class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {
     public override func dispatchOnce(_ predicate: UnsafeMutablePointer<Int>, block: @escaping () -> Void) {
         block()
     }
+    
+    public var createDispatchBlockReturnsNULL = false
+    public override func createDispatchBlock(_ block: @escaping () -> Void) -> (() -> Void)? {
+        if createDispatchBlockReturnsNULL {
+            return nil
+        }
+        return super.createDispatchBlock(block)
+    }
+    
 }

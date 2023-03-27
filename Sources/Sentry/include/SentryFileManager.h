@@ -52,15 +52,14 @@ SENTRY_NO_INIT
 - (void)deleteOldEnvelopeItems;
 
 /**
- * Get all envelopes sorted ascending by the timeIntervalSince1970 the envelope was stored and if
+ * Get all envelopes sorted ascending by the @c timeIntervalSince1970 the envelope was stored and if
  * two envelopes are stored at the same time sorted by the order they were stored.
  */
 - (NSArray<SentryFileContents *> *)getAllEnvelopes;
 
 /**
- * Gets the oldest stored envelope. For the order see getAllEnvelopes.
- *
- * @return SentryFileContens if there is an envelope and nil if there are no envelopes.
+ * Gets the oldest stored envelope. For the order see @c getAllEnvelopes.
+ * @return @c SentryFileContents if there is an envelope and @c nil if there are no envelopes.
  */
 - (SentryFileContents *_Nullable)getOldestEnvelope;
 

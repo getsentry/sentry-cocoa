@@ -53,6 +53,12 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
     }
 
+    func test_integrationAddFileName() {
+        SentrySDK.start { $0.attachViewHierarchy = true }
+        saveViewHierarchy("/test/path")
+        XCTAssertEqual("/test/path/view-hierarchy.json", fixture.viewHierarchy.saveFilePathUsed)
+    }
+
     func test_processAttachments() {
         let sut = fixture.getSut()
         let event = Event(error: NSError(domain: "", code: -1))

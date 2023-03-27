@@ -23,14 +23,14 @@ SENTRY_EXTERN NSString *const kSentryMetricProfilerSerializationUnitPercentage;
 
 /**
  * A structure to hold a single metric reading and the time it was taken, as a dictionary with keyed
- * values either of type NSNumber for the reading value, or NSString for the timestamp (we just
- * encode @cuint64\_t as a string since JSON doesn't officially support it).
+ * values either of type @c NSNumber for the reading value, or @c NSString for the timestamp (we
+ * just encode @c uint64_t as a string since JSON doesn't officially support it).
  */
 typedef NSDictionary<NSString *, id /* <NSNumber, NSString> */> SentrySerializedMetricReading;
 
 /**
  * A structure containing the timeseries of values for a particular metric type, as a dictionary
- * with keyed values either of type NSString, for unit names, or an array of metrics entries
+ * with keyed values either of type @c NSString, for unit names, or an array of metrics entries
  * containing the values and timestamps in the above typedef.
  */
 typedef NSDictionary<NSString *, id /* <NSString, NSArray<SentrySerializedMetricEntry *>> */>
@@ -50,8 +50,7 @@ typedef NSDictionary<NSString *, id /* <NSString, NSArray<SentrySerializedMetric
 
 /**
  * Return a serialized dictionary of the collected metrics.
- *
- * The dictionary will have the following structure:
+ * @discussion The dictionary will have the following structure:
  * @code
  * @"<metric-name>": @{
  *      @"unit": @"<unit-name>",

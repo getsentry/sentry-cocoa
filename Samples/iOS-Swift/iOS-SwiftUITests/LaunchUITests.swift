@@ -11,7 +11,7 @@ class LaunchUITests: XCTestCase {
         XCUIDevice.shared.orientation = .portrait
         app.launch()
         
-        waitForExistenseOfMainScreen()
+        waitForExistenceOfMainScreen()
         checkSlowAndFrozenFrames()
     }
     
@@ -31,7 +31,7 @@ class LaunchUITests: XCTestCase {
             }
 
             app.launch()
-            waitForExistenseOfMainScreen()
+            waitForExistenceOfMainScreen()
         }
     }
 
@@ -88,7 +88,7 @@ class LaunchUITests: XCTestCase {
         }
     }
         
-    private func waitForExistenseOfMainScreen() {
+    private func waitForExistenceOfMainScreen() {
         app.buttons["captureMessageButton"].waitForExistence( "Home Screen doesn't exist.")
     }
     
