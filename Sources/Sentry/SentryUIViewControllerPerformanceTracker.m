@@ -1,4 +1,5 @@
 #import "SentryUIViewControllerPerformanceTracker.h"
+#import "SentryFramesTracker.h"
 #import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentryPerformanceTracker+Private.h"
@@ -12,7 +13,6 @@
 #import <SentryInAppLogic.h>
 #import <SentrySpanOperations.h>
 #import <objc/runtime.h>
-#import "SentryFramesTracker.h"
 
 #if SENTRY_HAS_UIKIT
 
@@ -131,7 +131,6 @@ SentryUIViewControllerPerformanceTracker ()
         return;
     }
 
-    
     if (objc_getAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER)) {
         // Already tracking time to display, not creating a new tracker.
         // This may happen if user manually call `loadView` from a view controller more than once.

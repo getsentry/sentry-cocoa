@@ -27,7 +27,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 }
 
 - (instancetype)initForController:(UIViewController *)controller
-                     framesTracker:(SentryFramesTracker *)framestracker
+                    framesTracker:(SentryFramesTracker *)framestracker
                waitForFullDisplay:(BOOL)waitForFullDisplay
 {
     if (self = [super init]) {
