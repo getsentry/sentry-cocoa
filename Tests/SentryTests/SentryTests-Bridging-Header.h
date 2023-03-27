@@ -184,11 +184,9 @@
 #import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"
 @import SentryPrivate;
-#import "SentryBreadcrumb.h"
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryPerformanceTracker+Testing.h"
-#import "SentryUser.h"
 #import "TestSentryViewHierarchy.h"
 
 #if SENTRY_HAS_UIKIT
