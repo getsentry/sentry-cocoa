@@ -42,7 +42,7 @@ static const void *spanTimestampObserver = &spanTimestampObserver;
  */
 static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
 static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
-static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 5.0;
+static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 
 @interface
 SentryTracer ()
