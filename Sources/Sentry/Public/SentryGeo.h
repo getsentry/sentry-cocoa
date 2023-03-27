@@ -4,6 +4,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// Approximate geographical location of the end user or device.
+///
+/// Example of serialized data:
+/// {
+///   "geo": {
+///     "country_code": "US",
+///     "city": "Ashburn",
+///     "region": "San Francisco"
+///   }
+/// }
 NS_SWIFT_NAME(Geo)
 @interface SentryGeo : NSObject <SentrySerializable, NSCopying>
 
