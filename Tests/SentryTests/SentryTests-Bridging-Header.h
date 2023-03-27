@@ -188,6 +188,8 @@
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryPerformanceTracker+Testing.h"
 #import "TestSentryViewHierarchy.h"
+#import "SentryBreadcrumb.h"
+#import "SentryUser.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"
