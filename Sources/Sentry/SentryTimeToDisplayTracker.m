@@ -100,7 +100,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 
     self.fullDisplaySpan.timestamp = self.initialDisplaySpan.timestamp;
     self.fullDisplaySpan.spanDescription =
-        [NSString stringWithFormat:@"%@ - Expired", self.fullDisplaySpan.spanDescription];
+        [NSString stringWithFormat:@"%@ - Deadline Exceeded", self.fullDisplaySpan.spanDescription];
 }
 
 @end

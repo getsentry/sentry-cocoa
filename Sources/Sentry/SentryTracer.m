@@ -274,7 +274,7 @@ static BOOL appStartMeasurementRead;
 {
     SENTRY_LOG_DEBUG(@"Sentry tracer deadline fired");
     @synchronized(self) {
-        // This try to minimize a run condition with a proper call to `finishInternal`,
+        // This try to minimize a race condition with a proper call to `finishInternal`,
         // which could be triggered by the user or a extension.
         if (self.isFinished) {
             return;
@@ -603,8 +603,6 @@ static BOOL appStartMeasurementRead;
 
 - (SentryTransaction *)toTransaction
 {
-    // TODO(ref): use SentryTracerExtension to create appStartSpans
-    // https://github.com/getsentry/sentry-cocoa/issues/2736
     NSArray<id<SentrySpan>> *appStartSpans = [self buildAppStartSpans];
 
     NSMutableArray<id<SentrySpan>> *spans =
