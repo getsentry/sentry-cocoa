@@ -8,7 +8,8 @@ class ViewController: UIViewController {
     @IBOutlet weak var anrFillingRunLoopButton: UIButton!
     @IBOutlet weak var framesLabel: UILabel!
     @IBOutlet weak var breadcrumbLabel: UILabel!
-    
+    @IBOutlet weak var uiTestNameLabel: UILabel!
+
     private let dispatchQueue = DispatchQueue(label: "ViewController", attributes: .concurrent)
     private let diskWriteException = DiskWriteException()
 
@@ -45,6 +46,10 @@ class ViewController: UIViewController {
                 self.dsnTextField.text = dsn
                 self.dsnTextField.backgroundColor = UIColor.systemGreen
             }
+        }
+
+        if let uiTestName = ProcessInfo.processInfo.environment["io.sentry.ui-test.test-name"] {
+            uiTestNameLabel.text = uiTestName
         }
     }
     

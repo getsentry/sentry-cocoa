@@ -8,6 +8,7 @@ class LaunchUITests: XCTestCase {
         
         continueAfterFailure = false
         XCUIDevice.shared.orientation = .portrait
+        app.launchEnvironment["io.sentry.ui-test.test-name"] = name
         app.launch()
         
         waitForExistenceOfMainScreen()
