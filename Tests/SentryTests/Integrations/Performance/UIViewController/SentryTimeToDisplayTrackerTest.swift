@@ -191,7 +191,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
         XCTAssertEqual(sut.fullDisplaySpan?.startTimestamp, Date(timeIntervalSince1970: 9))
         XCTAssertEqual(sut.fullDisplaySpan?.timestamp, Date(timeIntervalSince1970: 10))
-        XCTAssertEqual(sut.fullDisplaySpan?.spanDescription, "UIViewController full display - Expired")
+        XCTAssertEqual(sut.fullDisplaySpan?.spanDescription, "UIViewController full display - Deadline Exceeded")
     }
 
     func testCheckInitialTime() {

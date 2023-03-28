@@ -246,6 +246,46 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         
         wait(for: [callbackExpectation], timeout: 0)
     }
+
+    func testReportFullyDisplayed() {
+        let sut = fixture.getSut()
+        sut.enableWaitForFullDisplay = true
+        let viewController = fixture.viewController
+        let tracker = fixture.tracker
+        var tracer: SentryTracer?
+
+        sut.viewControllerLoadView(viewController) {
+            let spans = self.getStack(tracker)
+            tracer = spans.first as? SentryTracer
+        }
+
+        sut.reportFullyDisplayed()
+        reportFrame()
+
+        XCTAssertTrue(tracer?.children[1].isFinished ?? false)
+    }
+
+    func testSecondViewController() {
+        let sut = fixture.getSut()
+        let viewController = fixture.viewController
+        let viewController2 = TestViewController()
+        
+        sut.viewControllerLoadView(viewController) {
+            //Left empty on purpose
+        }
+
+        let ttdTracker = Dynamic(sut).currentTTDTracker.asObject as? SentryTimeToDisplayTracker
+        XCTAssertNotNil(ttdTracker)
+
+        sut.viewControllerLoadView(viewController2) {
+            //Left empty on purpose
+        }
+
+        let secondTTDTracker = objc_getAssociatedObject(viewController2, SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER)
+
+        XCTAssertEqual(ttdTracker, Dynamic(sut).currentTTDTracker.asObject)
+        XCTAssertNil(secondTTDTracker)
+    }
     
     func testTimeMeasurement_SkipLoadView() throws {
         let sut = fixture.getSut()

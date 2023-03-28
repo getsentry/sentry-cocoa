@@ -274,8 +274,7 @@ static BOOL appStartMeasurementRead;
 {
     SENTRY_LOG_DEBUG(@"Sentry tracer deadline fired");
     @synchronized(self) {
-        // This try to minimize a race condition with a proper call to `finishInternal`,
-        // which could be triggered by the user or a extension.
+        // This try to minimize a race condition with a proper call to `finishInternal`.
         if (self.isFinished) {
             return;
         }
@@ -610,8 +609,8 @@ static BOOL appStartMeasurementRead;
 
     @synchronized(_children) {
         [spans addObjectsFromArray:_children];
-        [spans addObjectsFromArray:appStartSpans];
     }
+    [spans addObjectsFromArray:appStartSpans];
 
     SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.transactionContext.name;

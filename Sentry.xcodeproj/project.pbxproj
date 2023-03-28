@@ -4499,7 +4499,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
-					"SENTRY_DEVELOPMENT=1",
 				);
 				GCC_WARN_SHADOW = YES;
 				INFOPLIST_FILE = Sources/Sentry/Info.plist;

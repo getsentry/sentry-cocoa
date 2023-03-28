@@ -18,9 +18,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryTimeToDisplayTracker : NSObject
 SENTRY_NO_INIT
 
-@property (nullable, nonatomic, strong, readonly) SentrySpan *initialDisplaySpan;
+@property (nullable, nonatomic, weak, readonly) SentrySpan *initialDisplaySpan;
 
-@property (nullable, nonatomic, strong, readonly) SentrySpan *fullDisplaySpan;
+@property (nullable, nonatomic, weak, readonly) SentrySpan *fullDisplaySpan;
 
 @property (nonatomic, readonly) BOOL waitForFullDisplay;
 

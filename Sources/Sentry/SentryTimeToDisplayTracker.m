@@ -13,8 +13,8 @@
 @interface
 SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 
-@property (nonatomic, strong) SentrySpan *initialDisplaySpan;
-@property (nonatomic, strong) SentrySpan *fullDisplaySpan;
+@property (nonatomic, weak) SentrySpan *initialDisplaySpan;
+@property (nonatomic, weak) SentrySpan *fullDisplaySpan;
 
 @end
 
@@ -53,7 +53,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
                                 description:[NSString stringWithFormat:@"%@ full display",
                                                       _controllerName]];
 
-        // By concept this two spans should have the same beginning,
+        // By concept TTID and TTFD spans should have the same beginning,
         // which also should be the same of the transaction starting.
         self.fullDisplaySpan.startTimestamp = tracer.startTimestamp;
     }
