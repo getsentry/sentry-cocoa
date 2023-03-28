@@ -168,7 +168,9 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             callbackExpectation.fulfill()
         }
         XCTAssertFalse(tracer.isFinished)
-        
+
+        reportFrame()
+
         lifecycleEndingMethod(sut, viewController, tracker, callbackExpectation, tracer)
 
         XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 8)
@@ -231,7 +233,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             callbackExpectation.fulfill()
         }
         try assertSpanDuration(span: lastSpan, expectedDuration: 1)
-        
+        reportFrame()
         advanceTime(bySeconds: 4)
 
         sut.viewControllerViewDidAppear(viewController) {
@@ -316,6 +318,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         sut.viewControllerViewWillAppear(viewController) {
             //intentionally left empty.
         }
+        reportFrame()
         sut.viewControllerViewDidAppear(viewController) {
             //intentionally left empty.
             //Need to call viewControllerViewDidAppear to finish the transaction.
@@ -565,6 +568,10 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.dateProvider.setDate(date: fixture.dateProvider.date().addingTimeInterval(bySeconds))
+    }
+
+    private func reportFrame() {
+        Dynamic(SentryFramesTracker.sharedInstance()).displayLinkCallback()
     }
 }
 #endif
