@@ -69,6 +69,8 @@ SentryUser ()
         copy.username = self.username;
         copy.ipAddress = self.ipAddress;
         copy.segment = self.segment;
+        copy.name = self.name;
+        copy.geo = self.geo.copy;
         copy.data = self.data.copy;
         copy.unknown = self.unknown.copy;
     }
@@ -85,6 +87,8 @@ SentryUser ()
     [serializedData setValue:self.username forKey:@"username"];
     [serializedData setValue:self.ipAddress forKey:@"ip_address"];
     [serializedData setValue:self.segment forKey:@"segment"];
+    [serializedData setValue:self.name forKey:@"name"];
+    [serializedData setValue:[self.geo serialize] forKey:@"geo"];
     [serializedData setValue:[self.data sentry_sanitize] forKey:@"data"];
     NSDictionary<NSString *, id> *unknown = self.unknown;
     if (unknown != nil) {
@@ -142,6 +146,16 @@ SentryUser ()
         return NO;
     }
 
+    NSString *otherName = user.name;
+    if (self.name != otherName && ![self.name isEqualToString:otherName]) {
+        return NO;
+    }
+
+    SentryGeo *otherGeo = user.geo;
+    if (self.geo != otherGeo && ![self.geo isEqualToGeo:otherGeo]) {
+        return NO;
+    }
+
     NSDictionary<NSString *, id> *otherUserData = user.data;
     if (self.data != otherUserData && ![self.data isEqualToDictionary:otherUserData]) {
         return NO;
@@ -164,6 +178,8 @@ SentryUser ()
     hash = hash * 23 + [self.username hash];
     hash = hash * 23 + [self.ipAddress hash];
     hash = hash * 23 + [self.segment hash];
+    hash = hash * 23 + [self.name hash];
+    hash = hash * 23 + [self.geo hash];
     hash = hash * 23 + [self.data hash];
     hash = hash * 23 + [self.unknown hash];
     return hash;
