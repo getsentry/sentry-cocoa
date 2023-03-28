@@ -4,6 +4,7 @@ final class ProfilingUITests: XCTestCase {
     private let app: XCUIApplication = XCUIApplication()
 
     override func setUpWithError() throws {
+        try super.setUpWithError()
         continueAfterFailure = false
         XCUIDevice.shared.orientation = .portrait
         app.launchEnvironment["io.sentry.ui-test.test-name"] = name
