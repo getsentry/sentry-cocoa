@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+ 
+- Correctly track and send GPU frame render data in profiles (#2823)
+
 ## 8.3.3
 
 ### Fixes
