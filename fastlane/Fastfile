@@ -133,7 +133,7 @@ platform :ios do
     )
 
     # don't use gym here because it always appends a "build" command which fails, since this is a test target not configured for running
-    sh "set -o pipefail && xcodebuild -workspace ../Sentry.xcworkspace -scheme iOS-SwiftUITests -derivedDataPath ../DerivedData -destination 'generic/platform=iOS' build-for-testing | xcpretty"
+    sh "set -o pipefail && xcodebuild -workspace ../Sentry.xcworkspace -scheme iOS-SwiftUITests -derivedDataPath ../DerivedData -destination 'generic/platform=iOS' -configuration Test build-for-testing | xcpretty"
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end

@@ -437,16 +437,24 @@ serializedSamplesWithRelativeTimestamps(
         metrics[@"frozen_frame_renders"] = @{ @"unit" : @"nanosecond", @"values" : frozenFrames };
     }
 
-    const auto frameRates
-        = processFrameRates(_gCurrentFramesTracker.currentFrames.frameRateTimestamps, transaction);
-    if (frameRates.count > 0) {
-        metrics[@"screen_frame_rates"] = @{ @"unit" : @"hz", @"values" : frameRates };
+    if (slowFrames.count > 0 || frozenFrames.count > 0) {
+        const auto frameRates = processFrameRates(
+            _gCurrentFramesTracker.currentFrames.frameRateTimestamps, transaction);
+        if (frameRates.count > 0) {
+            metrics[@"screen_frame_rates"] = @{ @"unit" : @"hz", @"values" : frameRates };
+        }
     }
 #    endif // SENTRY_HAS_UIKIT
 
     if (metrics.count > 0) {
         payload[@"measurements"] = metrics;
     }
+
+#    if defined(TEST) || defined(TESTCI)
+    [NSNotificationCenter.defaultCenter postNotificationName:@"SentryProfileCompleteNotification"
+                                                      object:nil
+                                                    userInfo:payload];
+#    endif // defined(TEST) || defined(TESTCI)
 
     // add the remaining basic metadata for the profile
     const auto profileID = [[SentryId alloc] init];
@@ -540,6 +548,11 @@ serializedSamplesWithRelativeTimestamps(
     if (_gCurrentTimerWrapper == nil) {
         _gCurrentTimerWrapper = [[SentryNSTimerWrapper alloc] init];
     }
+#    if SENTRY_HAS_UIKIT
+    if (_gCurrentFramesTracker == nil) {
+        _gCurrentFramesTracker = SentryFramesTracker.sharedInstance;
+    }
+#    endif // SENTRY_HAS_UIKIT
     _metricProfiler =
         [[SentryMetricProfiler alloc] initWithProcessInfoWrapper:_gCurrentProcessInfoWrapper
                                                    systemWrapper:_gCurrentSystemWrapper
