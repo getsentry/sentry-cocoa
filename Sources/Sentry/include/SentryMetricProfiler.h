@@ -55,8 +55,11 @@ typedef NSDictionary<NSString *, id /* <NSString, NSArray<SentrySerializedMetric
  * @"<metric-name>": @{
  *      @"unit": @"<unit-name>",
  *      @"values": @[
- *          @"elapsed_since_start_ns": @"<64-bit-unsigned-timestamp>",
- *          @"value": @"<numeric-value>"
+ *          @{
+ *              @"elapsed_since_start_ns": @"<64-bit-unsigned-timestamp>",
+ *              @"value": @"<numeric-value>"
+ *          },
+ *          // ... more dictionaries like that ...
  *      ]
  * }
  * @endcode

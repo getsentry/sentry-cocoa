@@ -8,8 +8,8 @@ defaults:
   timeout: 20m
 
 xcuitest:
-  app: ./DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app
-  testApp: ./DerivedData/Build/Products/Debug-iphoneos/iOS-SwiftUITests-Runner.app
+  app: ./DerivedData/Build/Products/Test-iphoneos/iOS-Swift.app
+  testApp: ./DerivedData/Build/Products/Test-iphoneos/iOS-SwiftUITests-Runner.app
 
 suites:
    
