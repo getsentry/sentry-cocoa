@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Features
+
+- Add `name` and `geo` to User (#2710)
 ### Fixes
  
 - Correctly track and send GPU frame render data in profiles (#2823)
