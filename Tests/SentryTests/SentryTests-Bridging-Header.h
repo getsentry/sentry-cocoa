@@ -190,6 +190,7 @@
 #import "SentrySpanOperations.h"
 #import "SentryTimeToDisplayTracker.h"
 #import "TestSentryViewHierarchy.h"
+#import "SentryMeasurementValue.h"
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"
 #    import "SentryUIEventTracker.h"
