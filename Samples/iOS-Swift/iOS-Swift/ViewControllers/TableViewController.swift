@@ -9,7 +9,7 @@ class TableViewController: UITableViewController {
         super.viewDidLoad()
         
         spanObserver = createTransactionObserver(forCallback: assertTransaction)
-        //We dont have reportFullyDisplayed in this VC by design, to test what happens when we forgot it.
+        SentrySDK.reportFullyDisplayed()
     }
     
     func assertTransaction(span: Span) {
