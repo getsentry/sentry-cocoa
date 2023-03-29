@@ -1,12 +1,10 @@
 #import "PrivatesHeader.h"
 #import "SentryAppStartMeasurement.h"
-#import "SentryBreadcrumb.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryScreenFrames.h"
-#import "SentryUser.h"
 
-@class SentryDebugMeta, SentryAppStartMeasurement, SentryScreenFrames, SentryOptions;
+@class SentryDebugMeta, SentryAppStartMeasurement, SentryScreenFrames, SentryOptions, SentryBreadcrumb, SentryUser;
 
 NS_ASSUME_NONNULL_BEGIN
 
