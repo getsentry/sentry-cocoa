@@ -58,7 +58,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(ttidSpan.spanDescription, "UIViewController initial display")
         XCTAssertEqual(ttidSpan.operation, SentrySpanOperationUILoadInitialDisplay)
 
-        assertMeasurement(tracer: tracer, name: "time_to_initial_display", duration: 2000)
+        assertMeasurement(tracer: tracer, name: "time_to_initial_display", duration: 2_000)
 
         XCTAssertEqual(Dynamic(fixture.framesTracker).listeners.count, 0)
     }
@@ -112,8 +112,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 11))
         sut.reportFullyDisplayed()
 
-        assertMeasurement(tracer: tracer, name: "time_to_initial_display", duration: 2000)
-        assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 4000)
+        assertMeasurement(tracer: tracer, name: "time_to_initial_display", duration: 2_000)
+        assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 4_000)
 
         XCTAssertEqual(ttidSpan?.timestamp, Date(timeIntervalSince1970: 9))
         XCTAssertTrue(ttidSpan?.isFinished ?? false)
@@ -227,8 +227,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         sut.reportReadyToDisplay()
         fixture.displayLinkWrapper.normalFrame()
 
-        assertMeasurement(tracer: tracer, name: "time_to_initial_display", duration: 4000)
-        assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 4000)
+        assertMeasurement(tracer: tracer, name: "time_to_initial_display", duration: 4_000)
+        assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 4_000)
 
         XCTAssertEqual(sut.initialDisplaySpan?.timestamp, fixture.dateProvider.date())
         XCTAssertEqual(sut.fullDisplaySpan?.timestamp, sut.initialDisplaySpan?.timestamp)
@@ -259,10 +259,9 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         let ttid = measurements?["time_to_initial_display"] as? [String: Any]
         let ttfd = measurements?["time_to_full_display"] as? [String: Any]
 
-        XCTAssertEqual(ttid?["value"] as? Int, 1000)
-        XCTAssertEqual(ttfd?["value"] as? Int, 3000)
+        XCTAssertEqual(ttid?["value"] as? Int, 1_000)
+        XCTAssertEqual(ttfd?["value"] as? Int, 3_000)
     }
-
 
     func assertMeasurement(tracer: SentryTracer, name: String, duration: TimeInterval) {
         XCTAssertEqual(tracer.measurements[name]?.value, NSNumber(value: duration))

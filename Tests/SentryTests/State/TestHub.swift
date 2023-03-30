@@ -47,6 +47,6 @@ class TestHub: SentryHub {
     var capturedTransactionsWithScope: [(transaction: [String: Any], scope: Scope)] = []
     override func capture(_ transaction: Transaction, with scope: Scope) -> SentryId {
         capturedTransactionsWithScope.append((transaction.serialize(), scope))
-        return transaction.eventId
+        return super.capture(transaction, with: scope)
     }
 }
