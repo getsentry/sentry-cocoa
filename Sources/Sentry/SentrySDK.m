@@ -383,6 +383,11 @@ static NSUInteger startInvocations;
     }
 }
 
++ (void)reportFullyDisplayed
+{
+    [SentrySDK.currentHub reportFullyDisplayed];
+}
+
 + (void)flush:(NSTimeInterval)timeout
 {
     [SentrySDK.currentHub flush:timeout];

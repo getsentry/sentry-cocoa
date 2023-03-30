@@ -14,6 +14,7 @@ class LoremIpsumViewController: UIViewController {
                 if let contents = FileManager.default.contents(atPath: path) {
                     DispatchQueue.main.async {
                         self.textView.text = String(data: contents, encoding: .utf8)
+                        SentrySDK.reportFullyDisplayed()
                     }
                 }
             }

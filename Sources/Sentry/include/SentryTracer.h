@@ -18,6 +18,11 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
  */
 - (nullable id<SentrySpan>)activeSpanForTracer:(SentryTracer *)tracer;
 
+/**
+ * Report that the tracer has finished.
+ */
+- (void)tracerDidFinish:(SentryTracer *)tracer;
+
 @end
 
 @interface SentryTracer : SentrySpan

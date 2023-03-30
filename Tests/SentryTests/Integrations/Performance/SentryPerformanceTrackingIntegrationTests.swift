@@ -65,6 +65,28 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
         XCTAssertFalse(result)
         XCTAssertNil(Dynamic(sut).swizzling.asObject)
     }
+
+    func testConfigure_waitForDisplay() {
+        let sut = SentryPerformanceTrackingIntegration()
+
+        let options = Options()
+        options.tracesSampleRate = 0.1
+        options.enableTimeToFullDisplay = true
+        sut.install(with: options)
+
+        XCTAssertTrue(SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay)
+    }
+
+    func testConfigure_dontWaitForDisplay() {
+        let sut = SentryPerformanceTrackingIntegration()
+
+        let options = Options()
+        options.tracesSampleRate = 0.1
+        options.enableTimeToFullDisplay = false
+        sut.install(with: options)
+
+        XCTAssertFalse(SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay)
+    }
     
 #endif
 }

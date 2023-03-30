@@ -3,7 +3,8 @@
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
-#endif
+
+@class SentrySpan, SentryInAppLogic;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -16,13 +17,20 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_LAYOUTSUBVIEW_SPAN_ID
 static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET
     = @"SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET";
 
+static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER
+    = @"SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER";
+
 /**
  * Class responsible to track UI performance.
  * This class is intended to be used in a swizzled context.
  */
 @interface SentryUIViewControllerPerformanceTracker : NSObject
-#if SENTRY_HAS_UIKIT
+
 @property (nonatomic, readonly, class) SentryUIViewControllerPerformanceTracker *shared;
+
+@property (nonatomic, strong) SentryInAppLogic *inAppLogic;
+
+@property (nonatomic) BOOL enableWaitForFullDisplay;
 
 /**
  * Measures @c controller's @c loadView method.
@@ -90,7 +98,10 @@ static NSString *const SENTRY_UI_PERFORMANCE_TRACKER_SPANS_IN_EXECUTION_SET
  */
 - (void)viewControllerViewDidLayoutSubViews:(UIViewController *)controller
                            callbackToOrigin:(void (^)(void))callback;
-#endif
+
+- (void)reportFullyDisplayed;
+
 @end
 
 NS_ASSUME_NONNULL_END
+#endif // SENTRY_HAS_UIKIT
