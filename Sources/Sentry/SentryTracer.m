@@ -602,8 +602,6 @@ static BOOL appStartMeasurementRead;
 
 - (SentryTransaction *)toTransaction
 {
-    // TODO(ref): use SentryTracerExtension to create appStartSpans
-    // https://github.com/getsentry/sentry-cocoa/issues/2736
     NSArray<id<SentrySpan>> *appStartSpans = [self buildAppStartSpans];
 
     NSMutableArray<id<SentrySpan>> *spans =
