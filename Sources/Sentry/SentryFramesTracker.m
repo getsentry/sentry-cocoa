@@ -1,6 +1,7 @@
 #import "SentryFramesTracker.h"
 #import "SentryCompiler.h"
 #import "SentryDisplayLinkWrapper.h"
+#import "SentryLog.h"
 #import "SentryProfiler.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryTime.h"
@@ -16,7 +17,7 @@
 typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *> SentryMutableFrameInfoTimeSeries;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-static CFTimeInterval const SentryFrozenFrameThreshold = 0.7;
+CFTimeInterval const SentryFrozenFrameThreshold = 0.7;
 static CFTimeInterval const SentryPreviousFrameInitialValue = -1;
 
 /**
@@ -39,6 +40,14 @@ SentryFramesTracker ()
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
+
+CFTimeInterval
+slowFrameThreshold(uint64_t actualFramesPerSecond)
+{
+    // Most frames take just a few microseconds longer than the optimal calculated duration.
+    // Therefore we subtract one, because otherwise almost all frames would be slow.
+    return 1.0 / (actualFramesPerSecond - 1.0);
+}
 
 @implementation SentryFramesTracker {
 
@@ -127,12 +136,12 @@ SentryFramesTracker ()
     // need to check the frame rate for every callback.
     // targetTimestamp is only available on iOS 10.0 and tvOS 10.0 and above. We use a fallback of
     // 60 fps.
-    double actualFramesPerSecond = 60.0;
+    uint64_t currentFrameRate = 60;
     if (UNLIKELY((self.displayLinkWrapper.targetTimestamp == self.displayLinkWrapper.timestamp))) {
-        actualFramesPerSecond = 60.0;
+        currentFrameRate = 60;
     } else {
-        actualFramesPerSecond
-            = 1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp);
+        currentFrameRate = (uint64_t)round(
+            (1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp)));
     }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -142,30 +151,28 @@ SentryFramesTracker ()
     BOOL shouldRecordFrameRates = [SentryProfiler isRunning];
 #        endif // defined(TEST) || defined(TESTCI)
     BOOL hasNoFrameRatesYet = self.frameRateTimestamps.count == 0;
-    BOOL frameRateSignificantlyChanged
-        = fabs(self.frameRateTimestamps.lastObject[@"frame_rate"].doubleValue
-              - actualFramesPerSecond)
-        > 1e-10f; // these may be a small fraction off of a whole number of frames per second, so
-                  // allow some small epsilon difference
+    double previousFrameRate
+        = self.frameRateTimestamps.lastObject[@"frame_rate"].unsignedLongLongValue;
+    BOOL frameRateChanged = previousFrameRate != currentFrameRate;
     BOOL shouldRecordNewFrameRate
-        = shouldRecordFrameRates && (hasNoFrameRatesYet || frameRateSignificantlyChanged);
+        = shouldRecordFrameRates && (hasNoFrameRatesYet || frameRateChanged);
     if (shouldRecordNewFrameRate) {
+        SENTRY_LOG_DEBUG(@"Recording new frame rate at %llu.", self.previousFrameSystemTimestamp);
         [self.frameRateTimestamps addObject:@{
             @"timestamp" : @(thisFrameSystemTimestamp),
-            @"frame_rate" : @(actualFramesPerSecond),
+            @"frame_rate" : @(currentFrameRate),
         }];
     }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-    // Most frames take just a few microseconds longer than the optimal calculated duration.
-    // Therefore we subtract one, because otherwise almost all frames would be slow.
-    CFTimeInterval slowFrameThreshold = 1 / (actualFramesPerSecond - 1);
-
     CFTimeInterval frameDuration = thisFrameTimestamp - self.previousFrameTimestamp;
 
-    if (frameDuration > slowFrameThreshold && frameDuration <= SentryFrozenFrameThreshold) {
+    if (frameDuration > slowFrameThreshold(currentFrameRate)
+        && frameDuration <= SentryFrozenFrameThreshold) {
         atomic_fetch_add_explicit(&_slowFrames, 1, SentryFramesMemoryOrder);
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
+        SENTRY_LOG_DEBUG(@"Capturing slow frame starting at %llu and ending at %llu.",
+            self.previousFrameSystemTimestamp, thisFrameSystemTimestamp);
         [self recordTimestampStart:@(self.previousFrameSystemTimestamp)
                                end:@(thisFrameSystemTimestamp)
                              array:self.slowFrameTimestamps];
@@ -173,10 +180,15 @@ SentryFramesTracker ()
     } else if (frameDuration > SentryFrozenFrameThreshold) {
         atomic_fetch_add_explicit(&_frozenFrames, 1, SentryFramesMemoryOrder);
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
+        SENTRY_LOG_DEBUG(@"Capturing frozen frame starting at %llu and ending at %llu.",
+            self.previousFrameSystemTimestamp, thisFrameSystemTimestamp);
         [self recordTimestampStart:@(self.previousFrameSystemTimestamp)
                                end:@(thisFrameSystemTimestamp)
                              array:self.frozenFrameTimestamps];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
+    } else {
+        SENTRY_LOG_DEBUG(@"Rendered normal frame starting at %llu and ending at %llu.",
+            self.previousFrameSystemTimestamp, thisFrameSystemTimestamp);
     }
 
     atomic_fetch_add_explicit(&_totalFrames, 1, SentryFramesMemoryOrder);
