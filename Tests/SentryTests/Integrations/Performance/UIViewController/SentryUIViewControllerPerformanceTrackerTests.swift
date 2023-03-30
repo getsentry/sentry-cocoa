@@ -168,7 +168,9 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             callbackExpectation.fulfill()
         }
         XCTAssertFalse(tracer.isFinished)
-        
+
+        reportFrame()
+
         lifecycleEndingMethod(sut, viewController, tracker, callbackExpectation, tracer)
 
         XCTAssertEqual(Dynamic(transactionSpan).children.asArray!.count, 8)
@@ -231,7 +233,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             callbackExpectation.fulfill()
         }
         try assertSpanDuration(span: lastSpan, expectedDuration: 1)
-        
+        reportFrame()
         advanceTime(bySeconds: 4)
 
         sut.viewControllerViewDidAppear(viewController) {
@@ -243,6 +245,46 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         try assertSpanDuration(span: transactionSpan, expectedDuration: 22)
         
         wait(for: [callbackExpectation], timeout: 0)
+    }
+
+    func testReportFullyDisplayed() {
+        let sut = fixture.getSut()
+        sut.enableWaitForFullDisplay = true
+        let viewController = fixture.viewController
+        let tracker = fixture.tracker
+        var tracer: SentryTracer?
+
+        sut.viewControllerLoadView(viewController) {
+            let spans = self.getStack(tracker)
+            tracer = spans.first as? SentryTracer
+        }
+
+        sut.reportFullyDisplayed()
+        reportFrame()
+
+        XCTAssertTrue(tracer?.children[1].isFinished ?? false)
+    }
+
+    func testSecondViewController() {
+        let sut = fixture.getSut()
+        let viewController = fixture.viewController
+        let viewController2 = TestViewController()
+        
+        sut.viewControllerLoadView(viewController) {
+            //Left empty on purpose
+        }
+
+        let ttdTracker = Dynamic(sut).currentTTDTracker.asObject as? SentryTimeToDisplayTracker
+        XCTAssertNotNil(ttdTracker)
+
+        sut.viewControllerLoadView(viewController2) {
+            //Left empty on purpose
+        }
+
+        let secondTTDTracker = objc_getAssociatedObject(viewController2, SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER)
+
+        XCTAssertEqual(ttdTracker, Dynamic(sut).currentTTDTracker.asObject)
+        XCTAssertNil(secondTTDTracker)
     }
     
     func testTimeMeasurement_SkipLoadView() throws {
@@ -316,6 +358,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         sut.viewControllerViewWillAppear(viewController) {
             //intentionally left empty.
         }
+        reportFrame()
         sut.viewControllerViewDidAppear(viewController) {
             //intentionally left empty.
             //Need to call viewControllerViewDidAppear to finish the transaction.
@@ -565,6 +608,10 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.dateProvider.setDate(date: fixture.dateProvider.date().addingTimeInterval(bySeconds))
+    }
+
+    private func reportFrame() {
+        Dynamic(SentryFramesTracker.sharedInstance()).displayLinkCallback()
     }
 }
 #endif

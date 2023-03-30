@@ -143,7 +143,7 @@ SentryUIViewControllerPerformanceTracker ()
                                            waitForFullDisplay:self.enableWaitForFullDisplay];
 
     objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER, ttdTracker,
-        OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        OBJC_ASSOCIATION_ASSIGN);
     [ttdTracker startForTracer:(SentryTracer *)vcSpan];
 
     self.currentTTDTracker = ttdTracker;

@@ -523,6 +523,22 @@ class SentrySDKTests: XCTestCase {
         XCTAssertFalse(stateAfterStop!.isSDKRunning)
     }
 #endif
+
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    func testReportFullyDisplayed() {
+        fixture.options.enableTimeToFullDisplay = true
+
+        SentrySDK.start(options: fixture.options)
+
+        let testTTDTracker = TestTimeToDisplayTracker()
+
+        Dynamic(SentryUIViewControllerPerformanceTracker.shared).currentTTDTracker = testTTDTracker
+
+        SentrySDK.reportFullyDisplayed()
+
+        XCTAssertTrue(testTTDTracker.registerFullDisplayCalled)
+    }
+#endif
     
     func testClose_SetsClientToNil() {
         SentrySDK.start { options in

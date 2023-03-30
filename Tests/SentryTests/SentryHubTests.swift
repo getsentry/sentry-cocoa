@@ -932,7 +932,7 @@ class SentryHubTests: XCTestCase {
 }
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-private class TestTimeToDisplayTracker: SentryTimeToDisplayTracker {
+class TestTimeToDisplayTracker: SentryTimeToDisplayTracker {
 
     init() {
         super.init(for: UIViewController(), framesTracker: SentryFramesTracker.sharedInstance(), waitForFullDisplay: false)

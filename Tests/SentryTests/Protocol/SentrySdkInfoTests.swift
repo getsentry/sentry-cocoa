@@ -1,3 +1,4 @@
+import SentryTestUtils
 import XCTest
 
 class SentrySdkInfoTests: XCTestCase {
@@ -31,6 +32,62 @@ class SentrySdkInfoTests: XCTestCase {
         } else {
             XCTFail("Serialization of SdkInfo doesn't contain sdk")
         }
+    }
+
+    func testSPM_packageInfo() throws {
+        let version = "5.2.0"
+        let actual = SentrySdkInfo(name: sdkName, andVersion: version)
+        Dynamic(actual).packageManager = 0
+        let serialization = actual.serialize()
+
+        if let sdkInfo = serialization["sdk"] as? [String: Any] {
+            XCTAssertEqual(3, sdkInfo.count)
+
+            let packageInfo = try XCTUnwrap(sdkInfo["packages"] as? [String: Any])
+            XCTAssertEqual(packageInfo["name"] as? String, "spm:getsentry/\(sdkName)")
+            XCTAssertEqual(packageInfo["version"] as? String, version)
+        } else {
+            XCTFail("Serialization of SdkInfo doesn't contain sdk")
+        }
+    }
+
+    func testCarthage_packageInfo() throws {
+        let version = "5.2.0"
+        let actual = SentrySdkInfo(name: sdkName, andVersion: version)
+        Dynamic(actual).packageManager = 2
+        let serialization = actual.serialize()
+
+        if let sdkInfo = serialization["sdk"] as? [String: Any] {
+            XCTAssertEqual(3, sdkInfo.count)
+
+            let packageInfo = try XCTUnwrap(sdkInfo["packages"] as? [String: Any])
+            XCTAssertEqual(packageInfo["name"] as? String, "carthage:getsentry/\(sdkName)")
+            XCTAssertEqual(packageInfo["version"] as? String, version)
+        } else {
+            XCTFail("Serialization of SdkInfo doesn't contain sdk")
+        }
+    }
+
+    func testcocoapods_packageInfo() throws {
+        let version = "5.2.0"
+        let actual = SentrySdkInfo(name: sdkName, andVersion: version)
+        Dynamic(actual).packageManager = 1
+        let serialization = actual.serialize()
+
+        if let sdkInfo = serialization["sdk"] as? [String: Any] {
+            XCTAssertEqual(3, sdkInfo.count)
+
+            let packageInfo = try XCTUnwrap(sdkInfo["packages"] as? [String: Any])
+            XCTAssertEqual(packageInfo["name"] as? String, "cocoapods:getsentry/\(sdkName)")
+            XCTAssertEqual(packageInfo["version"] as? String, version)
+        } else {
+            XCTFail("Serialization of SdkInfo doesn't contain sdk")
+        }
+    }
+
+    func testNoPackageNames () {
+        let actual = SentrySdkInfo(name: sdkName, andVersion: "")
+        XCTAssertNil(Dynamic(actual).getPackageName(3).asString)
     }
     
     func testInitWithDict_SdkInfo() {
