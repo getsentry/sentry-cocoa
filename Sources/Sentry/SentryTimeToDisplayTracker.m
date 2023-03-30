@@ -75,9 +75,9 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 {
     _fullyDisplayedReported = YES;
     if (self.waitForFullDisplay && _isReadyToDisplay) {
-        // We need the timestamp to be able to calculate duration
-        // but we cant finish first and add measure later because
-        // finishing the span may trigger the tracer finishInternal
+        // We need the timestamp to be able to calculate the duration
+        // but we can't finish first and add measure later because
+        // finishing the span may trigger the tracer finishInternal.
         self.fullDisplaySpan.timestamp = [SentryCurrentDate date];
         [self addTimeToDisplayMeasurement:self.fullDisplaySpan name:@"time_to_full_display"];
         [self.fullDisplaySpan finish];
