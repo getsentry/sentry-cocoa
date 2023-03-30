@@ -201,11 +201,13 @@ processFrameRenders(SentryFrameInfoTimeSeries *frameInfo, SentryTransaction *tra
         const auto frameRenderStart = obj[@"start_timestamp"].unsignedLongLongValue;
 
         if (!orderedChronologically(transaction.startSystemTime, frameRenderStart)) {
-            SENTRY_LOG_DEBUG(@"GPU frame render started before profile start, will not report it.");
+            SENTRY_LOG_DEBUG(@"GPU frame render started (%llu) before transaction start (%llu), "
+                             @"will not report it.",
+                frameRenderStart, transaction.startSystemTime);
             return;
         }
         const auto frameRenderEnd = obj[@"end_timestamp"].unsignedLongLongValue;
-        if (orderedChronologically(transaction.endSystemTime, frameRenderEnd)) {
+        if (!orderedChronologically(frameRenderEnd, transaction.endSystemTime)) {
             SENTRY_LOG_DEBUG(@"Frame render finished after transaction finished, won't record.");
             return;
         }
@@ -248,7 +250,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, SentryTransaction *tran
         if (!orderedChronologically(transaction.startSystemTime, timestamp)) {
             return;
         }
-        if (orderedChronologically(transaction.endSystemTime, timestamp)) {
+        if (!orderedChronologically(timestamp, transaction.endSystemTime)) {
             return;
         }
 
