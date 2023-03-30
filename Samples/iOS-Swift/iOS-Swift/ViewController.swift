@@ -8,7 +8,8 @@ class ViewController: UIViewController {
     @IBOutlet weak var anrFillingRunLoopButton: UIButton!
     @IBOutlet weak var framesLabel: UILabel!
     @IBOutlet weak var breadcrumbLabel: UILabel!
-    
+    @IBOutlet weak var uiTestNameLabel: UILabel!
+
     private let dispatchQueue = DispatchQueue(label: "ViewController", attributes: .concurrent)
     private let diskWriteException = DiskWriteException()
 
@@ -46,6 +47,10 @@ class ViewController: UIViewController {
                 self.dsnTextField.backgroundColor = UIColor.systemGreen
             }
         }
+
+        if let uiTestName = ProcessInfo.processInfo.environment["io.sentry.ui-test.test-name"] {
+            uiTestNameLabel.text = uiTestName
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -75,21 +80,24 @@ class ViewController: UIViewController {
         }
     }
     
-    @IBAction func addBreadcrumb(_ sender: Any) {
+    @IBAction func addBreadcrumb(_ sender: UIButton) {
+        highlightButton(sender)
         let crumb = Breadcrumb(level: SentryLevel.info, category: "Debug")
         crumb.message = "tapped addBreadcrumb"
         crumb.type = "user"
         SentrySDK.addBreadcrumb(crumb)
     }
     
-    @IBAction func captureMessage(_ sender: Any) {
+    @IBAction func captureMessage(_ sender: UIButton) {
+        highlightButton(sender)
         let eventId = SentrySDK.capture(message: "Yeah captured a message")
         // Returns eventId in case of successfull processed event
         // otherwise nil
         print("\(String(describing: eventId))")
     }
     
-    @IBAction func uiClickTransaction(_ sender: Any) {
+    @IBAction func uiClickTransaction(_ sender: UIButton) {
+        highlightButton(sender)
         dispatchQueue.async {
             if let path = Bundle.main.path(forResource: "LoremIpsum", ofType: "txt") {
                 _ = FileManager.default.contents(atPath: path)
@@ -104,7 +112,8 @@ class ViewController: UIViewController {
         dataTask.resume()
     }
     
-    @IBAction func captureUserFeedback(_ sender: Any) {
+    @IBAction func captureUserFeedback(_ sender: UIButton) {
+        highlightButton(sender)
         let error = NSError(domain: "UserFeedbackErrorDomain", code: 0, userInfo: [NSLocalizedDescriptionKey: "This never happens."])
 
         let eventId = SentrySDK.capture(error: error) { scope in
@@ -118,7 +127,8 @@ class ViewController: UIViewController {
         SentrySDK.capture(userFeedback: userFeedback)
     }
     
-    @IBAction func captureError(_ sender: Any) {
+    @IBAction func captureError(_ sender: UIButton) {
+        highlightButton(sender)
         do {
             try RandomErrorGenerator.generate()
         } catch {
@@ -131,7 +141,8 @@ class ViewController: UIViewController {
         }
     }
     
-    @IBAction func captureNSException(_ sender: Any) {
+    @IBAction func captureNSException(_ sender: UIButton) {
+        highlightButton(sender)
         let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User clicked the button", userInfo: nil)
         let scope = Scope()
         scope.setLevel(.fatal)
@@ -139,11 +150,44 @@ class ViewController: UIViewController {
         SentrySDK.capture(exception: exception, scope: scope)
     }
     
-    @IBAction func captureFatalError(_ sender: Any) {
+    @IBAction func captureFatalError(_ sender: UIButton) {
+        highlightButton(sender)
         fatalError("This is a fatal error. Oh no 😬.")
     }
+
+    var span: Span?
+    let profilerNotification = NSNotification.Name("SentryProfileCompleteNotification")
     
-    @IBAction func captureTransaction(_ sender: Any) {
+    @IBAction func startTransaction(_ sender: UIButton) {
+        highlightButton(sender)
+        guard span == nil else { return }
+        span = SentrySDK.startTransaction(name: "Manual Transaction", operation: "Manual Operation")
+
+        NotificationCenter.default.addObserver(forName: profilerNotification, object: nil, queue: nil) { note in
+            DispatchQueue.main.async {
+                let alert = UIAlertController(title: "Profile completed", message: nil, preferredStyle: .alert)
+                alert.addTextField {
+                    //swiftlint:disable force_unwrapping
+                    $0.text = try! JSONSerialization.data(withJSONObject: note.userInfo!).base64EncodedString()
+                    //swiftlint:enable force_unwrapping
+                    $0.accessibilityLabel = "io.sentry.ui-tests.profile-marshaling-text-field"
+                }
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                self.present(alert, animated: false)
+            }
+        }
+    }
+
+    @IBAction func stopTransaction(_ sender: UIButton) {
+        highlightButton(sender)
+        span?.finish()
+        span = nil
+
+        NotificationCenter.default.removeObserver(self, name: profilerNotification, object: nil)
+    }
+
+    @IBAction func captureTransaction(_ sender: UIButton) {
+        highlightButton(sender)
         let transaction = SentrySDK.startTransaction(name: "Some Transaction", operation: "Some Operation")
         
         transaction.setMeasurement(name: "duration", value: 44, unit: MeasurementUnitDuration.nanosecond)
@@ -161,19 +205,21 @@ class ViewController: UIViewController {
         })
     }
    
-    @IBAction func crash(_ sender: Any) {
+    @IBAction func crash(_ sender: UIButton) {
         SentrySDK.crash()
     }
 
     // swiftlint:disable force_unwrapping
-    @IBAction func unwrapCrash(_ sender: Any) {
+    @IBAction func unwrapCrash(_ sender: UIButton) {
+        highlightButton(sender)
         let a: String! = nil
         let b: String = a!
         print(b)
     }
     // swiftlint:enable force_unwrapping
 
-    @IBAction func asyncCrash(_ sender: Any) {
+    @IBAction func asyncCrash(_ sender: UIButton) {
+        highlightButton(sender)
         DispatchQueue.main.async {
             self.asyncCrash1()
         }
@@ -191,7 +237,8 @@ class ViewController: UIViewController {
         }
     }
 
-    @IBAction func oomCrash(_ sender: Any) {
+    @IBAction func oomCrash(_ sender: UIButton) {
+        highlightButton(sender)
         DispatchQueue.main.async {
             let megaByte = 1_024 * 1_024
             let memoryPageSize = NSPageSize()
@@ -207,14 +254,16 @@ class ViewController: UIViewController {
         }
     }
     
-    @IBAction func diskWriteException(_ sender: Any) {
+    @IBAction func diskWriteException(_ sender: UIButton) {
+        highlightButton(sender)
         diskWriteException.continuouslyWriteToDisk()
         
         // As we are writing to disk continuously we would keep adding spans to this UIEventTransaction.
         SentrySDK.span?.finish()
     }
     
-    @IBAction func highCPULoad(_ sender: Any) {
+    @IBAction func highCPULoad(_ sender: UIButton) {
+        highlightButton(sender)
         dispatchQueue.async {
             while true {
                 _ = self.calcPi()
@@ -222,7 +271,8 @@ class ViewController: UIViewController {
         }
     }
 
-    @IBAction func start100Threads(_ sender: Any) {
+    @IBAction func start100Threads(_ sender: UIButton) {
+        highlightButton(sender)
         for _ in 0..<100 {
             Thread.detachNewThread {
                 Thread.sleep(forTimeInterval: 10)
@@ -247,7 +297,8 @@ class ViewController: UIViewController {
         return pi
     }
 
-    @IBAction func anrFullyBlocking(_ sender: Any) {
+    @IBAction func anrFullyBlocking(_ sender: UIButton) {
+        highlightButton(sender)
         let buttonTitle = self.anrFullyBlockingButton.currentTitle
         var i = 0
         
@@ -261,7 +312,8 @@ class ViewController: UIViewController {
         self.anrFullyBlockingButton.setTitle(buttonTitle, for: .normal)
     }
     
-    @IBAction func anrFillingRunLoop(_ sender: Any) {
+    @IBAction func anrFillingRunLoop(_ sender: UIButton) {
+        highlightButton(sender)
         let buttonTitle = self.anrFillingRunLoopButton.currentTitle
         var i = 0
         
@@ -297,70 +349,91 @@ class ViewController: UIViewController {
     @IBAction func dsnChanged(_ sender: UITextField) {
         let options = Options()
         options.dsn = sender.text
-        
+
         if let dsn = options.dsn {
             sender.backgroundColor = UIColor.systemGreen
-            
+
             dispatchQueue.async {
                 DSNStorage.shared.saveDSN(dsn: dsn)
             }
         } else {
             sender.backgroundColor = UIColor.systemRed
-            
+
             dispatchQueue.async {
                 DSNStorage.shared.deleteDSN()
             }
         }
     }
     
-    @IBAction func resetDSN(_ sender: Any) {
+    @IBAction func resetDSN(_ sender: UIButton) {
+        highlightButton(sender)
         self.dsnTextField.text = AppDelegate.defaultDSN
         self.dsnTextField.backgroundColor = UIColor.systemGreen
-        
+
         dispatchQueue.async {
             DSNStorage.shared.saveDSN(dsn: AppDelegate.defaultDSN)
         }
     }
     
-    @IBAction func showNibController(_ sender: Any) {
+    @IBAction func showNibController(_ sender: UIButton) {
+        highlightButton(sender)
         let nib = NibViewController()
         nib.title = "Nib View Controller"
         navigationController?.pushViewController(nib, animated: false)
     }
     
-    @IBAction func showTableViewController(_ sender: Any) {
+    @IBAction func showTableViewController(_ sender: UIButton) {
+        highlightButton(sender)
         let controller = TableViewController(style: .plain)
         controller.title = "Table View Controller"
         navigationController?.pushViewController(controller, animated: false)
     }
     
-    @IBAction func useCoreData(_ sender: Any) {
+    @IBAction func useCoreData(_ sender: UIButton) {
+        highlightButton(sender)
         let controller = CoreDataViewController()
         controller.title = "CoreData"
         navigationController?.pushViewController(controller, animated: false)
     }
 
-    @IBAction func performanceScenarios(_ sender: Any) {
+    @IBAction func performanceScenarios(_ sender: UIButton) {
+        highlightButton(sender)
         let controller = PerformanceViewController()
         controller.title = "Performance Scenarios"
         navigationController?.pushViewController(controller, animated: false)
     }
 
-    @IBAction func permissions(_ sender: Any) {
+    @IBAction func permissions(_ sender: UIButton) {
+        highlightButton(sender)
         let controller = PermissionsViewController()
         controller.title = "Permissions"
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    @IBAction func flush(_ sender: Any) {
+    @IBAction func flush(_ sender: UIButton) {
+        highlightButton(sender)
         SentrySDK.flush(timeout: 5)
     }
     
-    @IBAction func close(_ sender: Any) {
+    @IBAction func close(_ sender: UIButton) {
+        highlightButton(sender)
         SentrySDK.close()
     }
-    
-    @IBAction func startSDK(_ sender: Any) {
+
+    @IBAction func startSDK(_ sender: UIButton) {
+        highlightButton(sender)
         AppDelegate.startSentry()
+    }
+
+    func highlightButton(_ sender: UIButton) {
+        let originalLayerColor = sender.layer.backgroundColor
+        let originalTitleColor = sender.titleColor(for: .normal)
+        sender.layer.backgroundColor = UIColor.blue.cgColor
+        sender.setTitleColor(.white, for: .normal)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            sender.layer.backgroundColor = originalLayerColor
+            sender.setTitleColor(originalTitleColor, for: .normal)
+            sender.titleLabel?.textColor = originalTitleColor
+        }
     }
 }

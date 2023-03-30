@@ -35,7 +35,7 @@ NS_SWIFT_NAME(DebugMeta)
 /**
  * Name of the image. Use @c codeFile when using "macho" as the @c type .
  */
-@property (nonatomic, copy) NSString *_Nullable name;
+@property (nullable, nonatomic, copy) NSString *name;
 
 /**
  * The size of the image in virtual memory. If missing, Sentry will assume that the image spans up

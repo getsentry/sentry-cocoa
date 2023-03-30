@@ -8,6 +8,10 @@
 - Add time-to-initial-display and time-to-full-display measurements to ViewController transactions (#)
 
 ### 
+- Add `name` and `geo` to User (#2710)
+### Fixes
+ 
+- Correctly track and send GPU frame render data in profiles (#2823)
 
 ## 8.3.3
 
