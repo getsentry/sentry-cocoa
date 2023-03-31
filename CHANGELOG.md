@@ -5,6 +5,7 @@
 ### Features
 
 - Time to initial and full display (#2724)
+- Add time-to-initial-display and time-to-full-display measurements to ViewController transactions (#2843)
 - Add `name` and `geo` to User (#2710)
 
 ### Fixes
