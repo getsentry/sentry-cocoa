@@ -89,9 +89,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
                                   configuration.waitForChildren = YES;
                               }]];
 
-            if ([newSpan isKindOfClass:[SentryTracer class]]) {
-                [(SentryTracer *)newSpan setDelegate:self];
-            }
+            [(SentryTracer *)newSpan setDelegate:self];
         }];
     }
 
@@ -217,7 +215,12 @@ SentryPerformanceTracker () <SentryTracerDelegate>
     id<SentrySpan> spanTracker;
     @synchronized(self.spans) {
         spanTracker = self.spans[spanId];
-        [self.spans removeObjectForKey:spanId];
+        // Hold reference for tracer until the tracer finishes because automatic
+        // tracers aren't referenced by anything else.
+        // callback to `tracerDidFinish` will release it.
+        if (![spanTracker isKindOfClass:SentryTracer.self]) {
+            [self.spans removeObjectForKey:spanId];
+        }
     }
 
     [spanTracker finishWithStatus:status];
@@ -248,6 +251,13 @@ SentryPerformanceTracker () <SentryTracerDelegate>
 {
     [self.activeSpanStack removeAllObjects];
     [self.spans removeAllObjects];
+}
+
+- (void)tracerDidFinish:(SentryTracer *)tracer
+{
+    @synchronized(self.spans) {
+        [self.spans removeObjectForKey:tracer.spanId];
+    }
 }
 
 @end

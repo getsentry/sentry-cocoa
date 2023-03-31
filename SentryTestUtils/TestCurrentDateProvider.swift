@@ -4,9 +4,18 @@ import Foundation
 public class TestCurrentDateProvider: NSObject, CurrentDateProvider {
     
     private var internalDate = Date(timeIntervalSinceReferenceDate: 0)
+
+    public var driftTimeForEveryRead = false
     
     public func date() -> Date {
-        internalDate
+
+        defer {
+            if driftTimeForEveryRead {
+                internalDate = internalDate.addingTimeInterval(0.1)
+            }
+        }
+
+        return internalDate
     }
     
     public func setDate(date: Date) {

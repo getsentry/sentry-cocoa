@@ -274,6 +274,16 @@ SENTRY_NO_INIT
 + (void)crash;
 
 /**
+ * Reports to the ongoing UIViewController transaction
+ * that the screen contents are fully loaded and displayed,
+ * which will create a new span.
+ *
+ * For more information see our documentation:
+ * https://docs.sentry.io/platforms/cocoa/performance/instrumentation/automatic-instrumentation/#time-to-full-display
+ */
++ (void)reportFullyDisplayed;
+
+/**
  * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified
  * timeout in seconds. If there is no internet connection, the function returns immediately. The SDK
  * doesn't dispose the client or the hub.

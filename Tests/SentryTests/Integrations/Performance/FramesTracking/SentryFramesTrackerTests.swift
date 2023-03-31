@@ -113,6 +113,57 @@ class SentryFramesTrackerTests: XCTestCase {
 
         try assert(slow: 0, frozen: 0)
     }
+
+    func testAddListener() {
+        let sut = fixture.sut
+        let listener = FrameTrackerListener()
+        sut.start()
+        sut.add(listener)
+
+        fixture.displayLinkWrapper.normalFrame()
+
+        XCTAssertTrue(listener.newFrameReported)
+    }
+
+    func testRemoveListener() {
+        let sut = fixture.sut
+        let listener = FrameTrackerListener()
+        sut.start()
+        sut.add(listener)
+        sut.remove(listener)
+
+        fixture.displayLinkWrapper.normalFrame()
+
+        XCTAssertFalse(listener.newFrameReported)
+    }
+
+    func testReleasedListener() {
+        let sut = fixture.sut
+        var callbackCalls = 0
+        sut.start()
+
+        autoreleasepool {
+            let listener = FrameTrackerListener()
+            listener.callback = {
+                callbackCalls += 1
+            }
+            sut.add(listener)
+            fixture.displayLinkWrapper.normalFrame()
+        }
+
+        fixture.displayLinkWrapper.normalFrame()
+
+        XCTAssertEqual(callbackCalls, 1)
+    }
+}
+
+private class FrameTrackerListener: NSObject, SentryFramesTrackerListener {
+    var newFrameReported = false
+    var callback: (() -> Void)?
+    func framesTrackerHasNewFrame() {
+        newFrameReported = true
+        callback?()
+    }
 }
 
 private extension SentryFramesTrackerTests {

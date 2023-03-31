@@ -13,6 +13,11 @@ class SentryTracerTests: XCTestCase {
         func activeSpan(for tracer: SentryTracer) -> Span? {
             return activeSpan
         }
+
+        var tracerDidFinishCalled = false
+        func tracerDidFinish(_ tracer: SentryTracer) {
+            tracerDidFinishCalled = true
+        }
     }
 
     private class Fixture {
@@ -466,8 +471,8 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(0, fixture.hub.capturedEventsWithScopes.count)
     }
     
-    func testNonIdleTransaction_CallFinish_DoesNotTrimEndTimestamp() {
-        let sut = fixture.getSut()
+    func testAutomaticTransaction_CallFinish_DoesNotTrimEndTimestamp() {
+        let sut = fixture.getSut(waitForChildren: false)
         
         advanceTime(bySeconds: 1.0)
         let child = sut.startChild(operation: fixture.transactionOperation)
@@ -506,7 +511,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAfterInvocations.count)
         
         sut.finish()
-        XCTAssertEqual(2, fixture.dispatchQueue.dispatchCancelInvocations.count)
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations.count)
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAfterInvocations.count)
         
         XCTAssertFalse(sut.isFinished)
