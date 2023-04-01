@@ -1,5 +1,6 @@
 #import "SentryFramesTracker.h"
 #import "SentryCompiler.h"
+#import "SentryCurrentDate.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryLog.h"
 #import "SentryProfiler.h"
@@ -120,7 +121,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 - (void)displayLinkCallback
 {
     CFTimeInterval thisFrameTimestamp = self.displayLinkWrapper.timestamp;
-    uint64_t thisFrameSystemTimestamp = getAbsoluteTime();
+    uint64_t thisFrameSystemTimestamp = SentryCurrentDate.getCurrentDateProvider.systemTime;
 
     if (self.previousFrameTimestamp == SentryPreviousFrameInitialValue) {
         self.previousFrameTimestamp = thisFrameTimestamp;
