@@ -136,7 +136,7 @@ processBacktrace(const Backtrace &backtrace,
     }
 
     const auto sample = [[SentrySample alloc] init];
-    sample.absoluteTimestamp = backtrace.absoluteTimestamp;
+    sample.absoluteTimestamp = SentryCurrentDate.getCurrentDateProvider.systemTime;
     sample.threadID = backtrace.threadMetadata.threadID;
     if (queueAddress != nil) {
         sample.queueAddress = queueAddress;
