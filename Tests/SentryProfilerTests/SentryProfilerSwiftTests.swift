@@ -265,8 +265,10 @@ class SentryProfilerSwiftTests: XCTestCase {
         // do everything again to make sure that stopping and starting the profiler over again works
         spans.removeAll()
         fixture.currentDateProvider.reset()
+#if !os(macOS)
         fixture.resetGPUExpectations()
         fixture.framesTracker.resetFrames()
+#endif
         fixture.prepareMetricsMocks()
 
         for _ in 0 ..< numberOfTransactions {
@@ -275,7 +277,9 @@ class SentryProfilerSwiftTests: XCTestCase {
 
         forceProfilerSample()
 
+#if !os(macOS)
         fixture.displayLinkWrapper.call()
+#endif
         for (i, span) in spans.enumerated() {
             try fixture.gatherMockedMetrics(span: span)
             span.finish()
