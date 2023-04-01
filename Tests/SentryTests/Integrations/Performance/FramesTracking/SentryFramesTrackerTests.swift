@@ -46,9 +46,9 @@ class SentryFramesTrackerTests: XCTestCase {
         sut.start()
         
         fixture.displayLinkWrapper.call()
-        fixture.displayLinkWrapper.slowFrame()
+        fixture.displayLinkWrapper.fastestSlowFrame()
         fixture.displayLinkWrapper.normalFrame()
-        fixture.displayLinkWrapper.almostFrozenFrame()
+        fixture.displayLinkWrapper.slowestSlowFrame()
 
         try assert(slow: 2, frozen: 0, total: 3)
     }
@@ -58,8 +58,8 @@ class SentryFramesTrackerTests: XCTestCase {
         sut.start()
         
         fixture.displayLinkWrapper.call()
-        fixture.displayLinkWrapper.slowFrame()
-        fixture.displayLinkWrapper.frozenFrame()
+        fixture.displayLinkWrapper.fastestSlowFrame()
+        fixture.displayLinkWrapper.fastestFrozenFrame()
 
         try assert(slow: 1, frozen: 1, total: 2)
     }
@@ -69,9 +69,9 @@ class SentryFramesTrackerTests: XCTestCase {
         sut.start()
 
         fixture.displayLinkWrapper.call()
-        fixture.displayLinkWrapper.slowFrame()
-        fixture.displayLinkWrapper.changeFrameRate(120.0)
-        fixture.displayLinkWrapper.frozenFrame()
+        fixture.displayLinkWrapper.fastestSlowFrame()
+        fixture.displayLinkWrapper.changeFrameRate(.high)
+        fixture.displayLinkWrapper.fastestFrozenFrame()
 
         try assert(slow: 1, frozen: 1, total: 2, frameRates: 2)
     }
@@ -92,8 +92,8 @@ class SentryFramesTrackerTests: XCTestCase {
         let frames: UInt = 600_000
         for _ in 0 ..< frames {
             fixture.displayLinkWrapper.normalFrame()
-            fixture.displayLinkWrapper.slowFrame()
-            fixture.displayLinkWrapper.frozenFrame()
+            fixture.displayLinkWrapper.fastestSlowFrame()
+            fixture.displayLinkWrapper.fastestFrozenFrame()
         }
         
         group.wait()
