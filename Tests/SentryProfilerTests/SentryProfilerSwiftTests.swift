@@ -52,8 +52,10 @@ class SentryProfilerSwiftTests: XCTestCase {
         let mockSlowFramesPerBatch = 2
         let mockFrozenFramesPerBatch = 1
 
+#if !os(macOS)
         // SentryFramesTracker starts assuming a frame rate of 60 Hz and will only log an update if it changes, so the first value here needs to be different for it to register.
         let mockFrameRateChangesPerBatch: [FrameRate] = [.high, .low, .high, .low]
+#endif
 
         func mockMetricsSubsystems() {
             SentryProfiler.useSystemWrapper(systemWrapper)
