@@ -53,7 +53,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         let mockFrozenFramesPerBatch = 1
 
         // SentryFramesTracker starts assuming a frame rate of 60 Hz and will only log an update if it changes, so the first value here needs to be different for it to register.
-        let mockFrameRateChangesPerBatch: [Double] = [120.0, 60.0, 120.0, 60.0]
+        let mockFrameRateChangesPerBatch: [FrameRate] = [.high, .low, .high, .low]
 
         func mockMetricsSubsystems() {
             SentryProfiler.useSystemWrapper(systemWrapper)
@@ -91,12 +91,12 @@ class SentryProfilerSwiftTests: XCTestCase {
             for _ in 0..<max(mockSlowFramesPerBatch, mockFrozenFramesPerBatch, mockFrameRateChangesPerBatch.count) {
                 displayLinkWrapper.normalFrame()
                 if slowFrames < mockSlowFramesPerBatch {
-                    displayLinkWrapper.slowFrame()
+                    displayLinkWrapper.middlingSlowFrame()
                     slowFrames += 1
                 }
                 displayLinkWrapper.normalFrame()
                 if frozenFrames < mockFrozenFramesPerBatch {
-                    displayLinkWrapper.frozenFrame()
+                    displayLinkWrapper.fastestFrozenFrame()
                     frozenFrames += 1
                 }
                 displayLinkWrapper.normalFrame()
