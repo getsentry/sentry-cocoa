@@ -97,7 +97,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 
     #if !os(macOS)
             var shouldRecordFrameRateExpectation = false
-            var _previousSystemTime = currentDateProvider.systemTime()
+            var previousSystemTime = currentDateProvider.systemTime()
 
             func changeFrameRate(_ new: FrameRate) {
                 displayLinkWrapper.changeFrameRate(new)
@@ -107,9 +107,9 @@ class SentryProfilerSwiftTests: XCTestCase {
             func renderGPUFrame(_ type: GPUFrame) {
                 if shouldRecordFrameRateExpectation {
                     shouldRecordFrameRateExpectation = false
-                    print("will expect frame rate \(displayLinkWrapper.currentFrameRate.rawValue) at \(_previousSystemTime)")
+                    print("will expect frame rate \(displayLinkWrapper.currentFrameRate.rawValue) at \(previousSystemTime)")
                     expectedFrameRateChanges.append([
-                        "elapsed_since_start_ns": String(_previousSystemTime),
+                        "elapsed_since_start_ns": String(previousSystemTime),
                         "value": NSNumber(value: displayLinkWrapper.currentFrameRate.rawValue)
                     ])
                 }
@@ -118,32 +118,32 @@ class SentryProfilerSwiftTests: XCTestCase {
                 case .normal:
                     currentDateProvider.advanceBy(nanoseconds: 1)
                     let currentSystemTime: UInt64 = currentDateProvider.systemTime()
-                    print("expect normal frame to start at \(_previousSystemTime) and end at \(currentSystemTime)")
-                    _previousSystemTime = currentSystemTime
+                    print("expect normal frame to start at \(previousSystemTime) and end at \(currentSystemTime)")
+                    previousSystemTime = currentSystemTime
 
                     displayLinkWrapper.normalFrame()
                 case .slow:
                     let duration: UInt64 = 3
                     currentDateProvider.advanceBy(nanoseconds: duration)
                     let currentSystemTime = currentDateProvider.systemTime()
-                    print("will expect \(String(describing: type)) frame starting at \(_previousSystemTime) and ending at \(currentSystemTime)")
+                    print("will expect \(String(describing: type)) frame starting at \(previousSystemTime) and ending at \(currentSystemTime)")
                     expectedSlowFrames.append([
-                        "elapsed_since_start_ns": String(_previousSystemTime),
+                        "elapsed_since_start_ns": String(previousSystemTime),
                         "value": duration
                     ])
-                    _previousSystemTime = currentSystemTime
+                    previousSystemTime = currentSystemTime
 
                     displayLinkWrapper.middlingSlowFrame()
                 case .frozen:
                     let duration: UInt64 = 10
                     currentDateProvider.advanceBy(nanoseconds: duration)
                     let currentSystemTime = currentDateProvider.systemTime()
-                    print("will expect \(String(describing: type)) frame starting at \(_previousSystemTime) and ending at \(currentSystemTime)")
+                    print("will expect \(String(describing: type)) frame starting at \(previousSystemTime) and ending at \(currentSystemTime)")
                     expectedFrozenFrames.append([
-                        "elapsed_since_start_ns": String(_previousSystemTime),
+                        "elapsed_since_start_ns": String(previousSystemTime),
                         "value": duration
                     ])
-                    _previousSystemTime = currentSystemTime
+                    previousSystemTime = currentSystemTime
 
                     displayLinkWrapper.fastestFrozenFrame()
                 }
