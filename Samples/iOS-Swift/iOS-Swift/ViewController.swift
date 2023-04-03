@@ -52,7 +52,12 @@ class ViewController: UIViewController {
             uiTestNameLabel.text = uiTestName
         }
     }
-    
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        SentrySDK.reportFullyDisplayed()
+    }
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         

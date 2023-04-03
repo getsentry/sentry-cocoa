@@ -76,6 +76,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableAutoPerformanceTracing = YES;
         self.enableCaptureFailedRequests = YES;
         self.environment = kSentryDefaultEnvironment;
+        self.enableTimeToFullDisplay = NO;
 
         _enableTracing = NO;
         _enableTracingManual = NO;
@@ -335,6 +336,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     [self setBool:options[@"enableCaptureFailedRequests"]
             block:^(BOOL value) { self->_enableCaptureFailedRequests = value; }];
+
+    [self setBool:options[@"enableTimeToFullDisplay"]
+            block:^(BOOL value) { self->_enableTimeToFullDisplay = value; }];
 
 #if SENTRY_HAS_UIKIT
     [self setBool:options[@"enableUIViewControllerTracing"]

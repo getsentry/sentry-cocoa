@@ -185,12 +185,15 @@
 #import "URLSessionTaskMock.h"
 @import SentryPrivate;
 #import "SentryEnvelopeAttachmentHeader.h"
+#import "SentryMeasurementValue.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryPerformanceTracker+Testing.h"
+#import "SentrySpanOperations.h"
+#import "SentryTimeToDisplayTracker.h"
 #import "TestSentryViewHierarchy.h"
-
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"
 #    import "SentryUIEventTracker.h"
 #    import "SentryUIEventTrackingIntegration.h"
+#    import "SentryUIViewControllerPerformanceTracker.h"
 #endif

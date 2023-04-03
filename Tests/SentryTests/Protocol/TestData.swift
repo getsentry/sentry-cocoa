@@ -236,6 +236,10 @@ class TestData {
     static var dataAttachment: Attachment {
         return Attachment(data: "hello".data(using: .utf8)!, filename: "file.txt")
     }
+
+    static var spanContext: SpanContext {
+        SpanContext(operation: "Test Context")
+    }
     
     enum SampleError: Error {
         case bestDeveloper
@@ -325,4 +329,5 @@ class TestData {
         
         return SentryAppStartMeasurement(type: type, isPreWarmed: false, appStartTimestamp: appStartTimestamp, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main, didFinishLaunchingTimestamp: didFinishLaunching)
     }
+
 }

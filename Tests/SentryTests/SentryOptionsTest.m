@@ -325,6 +325,11 @@
     [self testBooleanField:@"enableCaptureFailedRequests" defaultValue:YES];
 }
 
+- (void)testEnableTimeToFullDisplay
+{
+    [self testBooleanField:@"enableTimeToFullDisplay" defaultValue:NO];
+}
+
 - (void)testFailedRequestStatusCodes
 {
     SentryHttpStatusCodeRange *httpStatusCodeRange =
@@ -534,6 +539,7 @@
         @"sdk" : [NSNull null],
         @"enableCaptureFailedRequests" : [NSNull null],
         @"failedRequestStatusCodes" : [NSNull null],
+        @"enableTimeToFullDisplay" : [NSNull null],
         @"enableTracing" : [NSNull null]
     }
                                                 didFailWithError:nil];
@@ -605,6 +611,8 @@
     SentryHttpStatusCodeRange *range = options.failedRequestStatusCodes[0];
     XCTAssertEqual(500, range.min);
     XCTAssertEqual(599, range.max);
+
+    XCTAssertFalse(options.enableTimeToFullDisplay);
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    pragma clang diagnostic push

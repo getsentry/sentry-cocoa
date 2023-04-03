@@ -4,12 +4,15 @@
 
 ### Features
 
+- Time to initial and full display (#2724)
+- Add time-to-initial-display and time-to-full-display measurements to ViewController transactions (#2843)
 - Add `name` and `geo` to User (#2710)
 - Create User and Breadcrumb from map (#2820)
 
 ### Fixes
  
 - Correctly track and send GPU frame render data in profiles (#2823)
+- Xcode 14.3 compiling issue regarding functions declaration with no prototype (#2852) 
 
 ## 8.3.3
 
