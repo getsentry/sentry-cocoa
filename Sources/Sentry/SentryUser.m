@@ -10,7 +10,7 @@ SentryUser ()
 
 @implementation SentryUser
 
-- (nullable instancetype)initWithDictionary:(NSDictionary *_Nullable)dictionary
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary
 {
     if (self = [super init]) {
         NSMutableDictionary *unknown = [NSMutableDictionary dictionary];

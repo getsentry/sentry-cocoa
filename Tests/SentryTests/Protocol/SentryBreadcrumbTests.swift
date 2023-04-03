@@ -44,13 +44,13 @@ class SentryBreadcrumbTests: XCTestCase {
         ]
         let breadcrumb = PrivateSentrySDKOnly.breadcrumb(with: dict)
         
-        XCTAssertEqual(breadcrumb?.level, SentryLevel.info)
-        XCTAssertEqual(breadcrumb?.timestamp, fixture.date)
-        XCTAssertEqual(breadcrumb?.category, fixture.category)
-        XCTAssertEqual(breadcrumb?.type, fixture.type)
-        XCTAssertEqual(breadcrumb?.message, fixture.message)
-        XCTAssertEqual(breadcrumb?.data as? NSDictionary, ["foo": "bar"])
-        XCTAssertEqual(breadcrumb?.value(forKey: "unknown") as? NSDictionary, ["foo": "bar"])
+        XCTAssertEqual(breadcrumb.level, SentryLevel.info)
+        XCTAssertEqual(breadcrumb.timestamp, fixture.date)
+        XCTAssertEqual(breadcrumb.category, fixture.category)
+        XCTAssertEqual(breadcrumb.type, fixture.type)
+        XCTAssertEqual(breadcrumb.message, fixture.message)
+        XCTAssertEqual(breadcrumb.data as? NSDictionary, ["foo": "bar"])
+        XCTAssertEqual(breadcrumb.value(forKey: "unknown") as? NSDictionary, ["foo": "bar"])
     }
     
     func testHash() {

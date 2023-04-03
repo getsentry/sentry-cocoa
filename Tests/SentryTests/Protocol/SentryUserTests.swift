@@ -16,13 +16,13 @@ class SentryUserTests: XCTestCase {
         ]
         let user = PrivateSentrySDKOnly.user(with: dict)
 
-        XCTAssertEqual(user?.userId, "fixture-id")
-        XCTAssertEqual(user?.email, "fixture-email")
-        XCTAssertEqual(user?.username, "fixture-username")
-        XCTAssertEqual(user?.ipAddress, "fixture-ip_address")
-        XCTAssertEqual(user?.segment, "fixture-segment")
-        XCTAssertEqual(user?.data?["fixture-key"] as? String, "fixture-value")
-        XCTAssertEqual(user?.value(forKey: "unknown") as? NSDictionary, ["foo": "bar"])
+        XCTAssertEqual(user.userId, "fixture-id")
+        XCTAssertEqual(user.email, "fixture-email")
+        XCTAssertEqual(user.username, "fixture-username")
+        XCTAssertEqual(user.ipAddress, "fixture-ip_address")
+        XCTAssertEqual(user.segment, "fixture-segment")
+        XCTAssertEqual(user.data?["fixture-key"] as? String, "fixture-value")
+        XCTAssertEqual(user.value(forKey: "unknown") as? NSDictionary, ["foo": "bar"])
     }
     
     func testSerializationWithAllProperties() {

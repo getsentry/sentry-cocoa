@@ -138,12 +138,12 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 #endif
 
-+ (SentryUser *_Nullable)userWithDictionary:(NSDictionary *)dictionary
++ (SentryUser *)userWithDictionary:(NSDictionary *)dictionary
 {
     return [[SentryUser alloc] initWithDictionary:dictionary];
 }
 
-+ (SentryBreadcrumb *_Nullable)breadcrumbWithDictionary:(NSDictionary *)dictionary
++ (SentryBreadcrumb *)breadcrumbWithDictionary:(NSDictionary *)dictionary
 {
     return [[SentryBreadcrumb alloc] initWithDictionary:dictionary];
 }

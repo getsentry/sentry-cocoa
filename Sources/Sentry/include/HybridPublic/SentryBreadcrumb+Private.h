@@ -8,7 +8,7 @@ SentryBreadcrumb (Private)
 /**
  * Initializes a SentryBreadcrumb from a JSON object.
  * @param dictionary The dictionary containing breadcrumb data.
- * @return The SentryBreadcrumb or nil if initializing with the dictionary results in an error.
+ * @return The SentryBreadcrumb.
  */
-- (nullable instancetype)initWithDictionary:(NSDictionary *_Nullable)dictionary;
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary;
 @end
