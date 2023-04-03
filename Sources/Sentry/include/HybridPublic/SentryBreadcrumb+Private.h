@@ -1,11 +1,3 @@
-//
-//  SentryBreadcrumb+Private.h
-//  Sentry
-//
-//  Created by Denis Andrašec on 21.03.23.
-//  Copyright © 2023 Sentry. All rights reserved.
-//
-
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
 #import <SentryBreadcrumb.h>
