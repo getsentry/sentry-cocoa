@@ -152,7 +152,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     BOOL shouldRecordFrameRates = [SentryProfiler isRunning];
 #        endif // defined(TEST) || defined(TESTCI)
     BOOL hasNoFrameRatesYet = self.frameRateTimestamps.count == 0;
-    double previousFrameRate
+    uint64_t previousFrameRate
         = self.frameRateTimestamps.lastObject[@"frame_rate"].unsignedLongLongValue;
     BOOL frameRateChanged = previousFrameRate != currentFrameRate;
     BOOL shouldRecordNewFrameRate
