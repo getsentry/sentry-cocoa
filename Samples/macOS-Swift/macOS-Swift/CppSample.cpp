@@ -2,13 +2,13 @@
 #include <stdexcept>
 
 void
-internalFunction()
+internalFunction(void)
 {
     throw std::invalid_argument("Invalid Argument.");
 }
 
 void
-Sentry::CppSample::throwCPPException()
+Sentry::CppSample::throwCPPException(void)
 {
     internalFunction();
 }

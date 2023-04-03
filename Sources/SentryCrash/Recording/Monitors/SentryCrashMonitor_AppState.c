@@ -196,7 +196,7 @@ addJSONData(const char *const data, const int length, void *const userData)
 // ============================================================================
 
 static double
-getCurentTime()
+getCurentTime(void)
 {
     struct timeval tv;
     gettimeofday(&tv, NULL);
@@ -353,7 +353,7 @@ sentrycrashstate_initialize(const char *const stateFilePath)
 }
 
 bool
-sentrycrashstate_reset()
+sentrycrashstate_reset(void)
 {
     if (g_isEnabled) {
         g_state.sessionsSinceLaunch = 1;
@@ -467,7 +467,7 @@ setEnabled(bool isEnabled)
 }
 
 static bool
-isEnabled()
+isEnabled(void)
 {
     return g_isEnabled;
 }
@@ -494,7 +494,7 @@ addContextualInfoToEvent(SentryCrash_MonitorContext *eventContext)
 }
 
 SentryCrashMonitorAPI *
-sentrycrashcm_appstate_getAPI()
+sentrycrashcm_appstate_getAPI(void)
 {
     static SentryCrashMonitorAPI api = { .setEnabled = setEnabled,
         .isEnabled = isEnabled,

@@ -137,13 +137,13 @@ setEnabled(bool isEnabled)
 }
 
 static bool
-isEnabled()
+isEnabled(void)
 {
     return g_isEnabled;
 }
 
 SentryCrashMonitorAPI *
-sentrycrashcm_nsexception_getAPI()
+sentrycrashcm_nsexception_getAPI(void)
 {
     static SentryCrashMonitorAPI api = { .setEnabled = setEnabled, .isEnabled = isEnabled };
     return &api;
