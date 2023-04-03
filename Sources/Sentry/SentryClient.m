@@ -18,6 +18,7 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
+#import "SentryExtraContextProvider.h"
 #import "SentryFileManager.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryHub+Private.h"
@@ -31,7 +32,6 @@
 #import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentryNSError.h"
-#import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
@@ -43,7 +43,6 @@
 #import "SentryTransport.h"
 #import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
-#import "SentryUIDeviceWrapper.h"
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
 #import "SentryWatchdogTerminationTracker.h"
@@ -61,10 +60,9 @@ SentryClient ()
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 @property (nonatomic, strong) id<SentryRandom> random;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
-@property (nonatomic, strong) SentryUIDeviceWrapper *deviceWrapper;
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
-@property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
+@property (nonatomic, strong) SentryExtraContextProvider *extraContextProvider;
 
 @end
 
@@ -135,7 +133,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     SentryThreadInspector *threadInspector =
         [[SentryThreadInspector alloc] initWithStacktraceBuilder:stacktraceBuilder
                                         andMachineContextWrapper:machineContextWrapper];
-    SentryUIDeviceWrapper *deviceWrapper = [[SentryUIDeviceWrapper alloc] init];
+    SentryExtraContextProvider *extraContextProvider = [SentryExtraContextProvider sharedInstance];
 
     return [self initWithOptions:options
                 transportAdapter:transportAdapter
@@ -144,9 +142,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                  threadInspector:threadInspector
                           random:[SentryDependencyContainer sharedInstance].random
                     crashWrapper:[SentryCrashWrapper sharedInstance]
-                   deviceWrapper:deviceWrapper
                           locale:[NSLocale autoupdatingCurrentLocale]
-                        timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone];
+                        timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone
+            extraContextProvider:extraContextProvider];
 }
 
 - (instancetype)initWithOptions:(SentryOptions *)options
@@ -156,9 +154,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                 threadInspector:(SentryThreadInspector *)threadInspector
                          random:(id<SentryRandom>)random
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
-                  deviceWrapper:(SentryUIDeviceWrapper *)deviceWrapper
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone
+           extraContextProvider:(SentryExtraContextProvider *)extraContentProvider
 {
     if (self = [super init]) {
         _isEnabled = YES;
@@ -172,8 +170,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.locale = locale;
         self.timezone = timezone;
         self.attachmentProcessors = [[NSMutableArray alloc] init];
-        self.deviceWrapper = deviceWrapper;
-        self.processInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
+        self.extraContextProvider = extraContentProvider;
 
         if (deleteOldEnvelopeItems) {
             [fileManager deleteOldEnvelopeItems];
@@ -791,36 +788,17 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)applyExtraDeviceContextToEvent:(SentryEvent *)event
 {
-    [self
-        modifyContext:event
-                  key:@"device"
-                block:^(NSMutableDictionary *device) {
-                    device[SentryDeviceContextFreeMemoryKey] = @(self.crashWrapper.freeMemorySize);
-                    device[@"free_storage"] = @(self.crashWrapper.freeStorageSize);
-                    device[@"processor_count"] = @([self.processInfoWrapper processorCount]);
-
-#if TARGET_OS_IOS
-                    if (self.deviceWrapper.orientation != UIDeviceOrientationUnknown) {
-                        device[@"orientation"]
-                            = UIDeviceOrientationIsPortrait(self.deviceWrapper.orientation)
-                            ? @"portrait"
-                            : @"landscape";
-                    }
-
-                    if (self.deviceWrapper.isBatteryMonitoringEnabled) {
-                        device[@"charging"]
-                            = self.deviceWrapper.batteryState == UIDeviceBatteryStateCharging
-                            ? @(YES)
-                            : @(NO);
-                        device[@"battery_level"] = @((int)(self.deviceWrapper.batteryLevel * 100));
-                    }
-#endif
-                }];
+    NSDictionary *extraContext = [[self extraContextProvider] getExtraContext];
+    [self modifyContext:event
+                    key:@"device"
+                  block:^(NSMutableDictionary *device) {
+                      [device addEntriesFromDictionary:extraContext[@"device"]];
+                  }];
 
     [self modifyContext:event
                     key:@"app"
                   block:^(NSMutableDictionary *app) {
-                      app[SentryDeviceContextAppMemoryKey] = @(self.crashWrapper.appMemorySize);
+                      [app addEntriesFromDictionary:extraContext[@"app"]];
                   }];
 }
 
