@@ -192,7 +192,7 @@ sentrycrashsysctl_timevalForName(const char *const name)
 }
 
 struct timeval
-sentrycrashsysctl_currentProcessStartTime()
+sentrycrashsysctl_currentProcessStartTime(void)
 {
     size_t len = 4;
     int mib[len];

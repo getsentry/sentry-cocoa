@@ -409,7 +409,7 @@ handleExceptions(void *const userData)
 // ============================================================================
 
 static void
-uninstallExceptionHandler()
+uninstallExceptionHandler(void)
 {
     SentryCrashLOG_DEBUG("Uninstalling mach exception handler.");
 
@@ -446,7 +446,7 @@ uninstallExceptionHandler()
 }
 
 static bool
-installExceptionHandler()
+installExceptionHandler(void)
 {
     SentryCrashLOG_DEBUG("Installing mach exception handler.");
 
@@ -545,7 +545,7 @@ setEnabled(bool isEnabled)
 }
 
 static bool
-isEnabled()
+isEnabled(void)
 {
     return g_isEnabled;
 }
@@ -563,7 +563,7 @@ addContextualInfoToEvent(struct SentryCrash_MonitorContext *eventContext)
 #endif
 
 SentryCrashMonitorAPI *
-sentrycrashcm_machexception_getAPI()
+sentrycrashcm_machexception_getAPI(void)
 {
     static SentryCrashMonitorAPI api = {
 #if SentryCrashCRASH_HAS_MACH

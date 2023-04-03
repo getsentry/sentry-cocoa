@@ -92,7 +92,7 @@ getThreadList(SentryCrashMachineContext *context)
 }
 
 int
-sentrycrashmc_contextSize()
+sentrycrashmc_contextSize(void)
 {
     return sizeof(SentryCrashMachineContext);
 }
