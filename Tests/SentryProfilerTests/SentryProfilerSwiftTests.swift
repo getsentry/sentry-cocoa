@@ -175,7 +175,6 @@ class SentryProfilerSwiftTests: XCTestCase {
             renderGPUFrame(.normal)
             renderGPUFrame(.frozen)
             renderGPUFrame(.normal)
-            renderGPUFrame(.normal)
             renderGPUFrame(.slow)
             renderGPUFrame(.normal)
             renderGPUFrame(.frozen)
@@ -513,6 +512,18 @@ private extension SentryProfilerSwiftTests {
 #endif
     }
 
+    func sortedByTimestamps(_ entries: [[String: Any]]) -> [[String: Any]] {
+        entries.sorted { a, b in
+            UInt64(a["elapsed_since_start_ns"] as! String)! < UInt64(b["elapsed_since_start_ns"] as! String)!
+        }
+    }
+
+    func printTimestamps(entries: [[String: Any]]) {
+        print(entries.reduce(into: [NSString](), { partialResult, entry in
+            partialResult.append(entry["elapsed_since_start_ns"] as! NSString)
+        }))
+    }
+
     func assertMetricEntries(measurements: [String: Any], key: String, expectedEntries: [[String: Any]], transaction: Transaction) throws {
         guard let metricContainer = measurements[key] as? [String: Any] else {
             throw TestError.noMetricsReported
@@ -520,29 +531,15 @@ private extension SentryProfilerSwiftTests {
         guard let actualEntries = metricContainer["values"] as? [[String: Any]] else {
             throw TestError.malformedMetricValueEntry
         }
-        XCTAssertEqual(actualEntries.count, expectedEntries.count, "Wrong number of values under \(key)")
-
-        func sortedByTimestamps(_ entries: [[String: Any]]) -> [[String: Any]] {
-            entries.sorted { a, b in
-                UInt64(a["elapsed_since_start_ns"] as! String)! < UInt64(b["elapsed_since_start_ns"] as! String)!
-            }
-        }
-
         let sortedActualEntries = sortedByTimestamps(actualEntries)
         let sortedExpectedEntries = sortedByTimestamps(expectedEntries)
 
-        // debug
-        func printTimestamps(entries: [[String: Any]]) {
-            print(entries.reduce(into: [NSString](), { partialResult, entry in
-                partialResult.append(entry["elapsed_since_start_ns"] as! NSString)
-            }))
+        let expectedAmountOfReadings = actualEntries.count == expectedEntries.count
+        XCTAssert(expectedAmountOfReadings, "Wrong number of values under \(key). expected: \(sortedExpectedEntries); actual: \(sortedActualEntries); transaction start time: \(transaction.startSystemTime)")
+
+        guard expectedAmountOfReadings else {
+            return
         }
-        print("expected entry absolute timestamps for \(key)")
-        printTimestamps(entries: sortedExpectedEntries)
-        print("actual entry relative timestamps for \(key)")
-        printTimestamps(entries: sortedActualEntries)
-        print("transaction start time: \(transaction.startSystemTime)")
-        // /debug
 
         for i in 0..<actualEntries.count {
             let actualEntry = sortedActualEntries[i]
