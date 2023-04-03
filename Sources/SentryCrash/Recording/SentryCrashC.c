@@ -75,7 +75,6 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
 {
     SentryCrashLOG_DEBUG("Updating application state to note crash.");
     sentrycrashstate_notifyAppCrash();
-    printf("### CRASHED");
 
     if (monitorContext->crashedDuringCrashHandling) {
         sentrycrashreport_writeRecrashReport(monitorContext, g_lastCrashReportFilePath);
