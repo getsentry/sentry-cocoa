@@ -39,7 +39,7 @@ a(std::uintptr_t *addresses, bool *reachedEndOfStackPtr, std::size_t maxDepth, s
 }
 
 [[noreturn]] NOT_TAIL_CALLED NEVER_INLINE void
-cancelLoop()
+cancelLoop(void)
 {
     while (true) {
         pthread_testcancel();
@@ -47,31 +47,31 @@ cancelLoop()
 }
 
 NOT_TAIL_CALLED NEVER_INLINE void
-bc_c()
+bc_c(void)
 {
     cancelLoop();
 }
 
 NOT_TAIL_CALLED NEVER_INLINE void
-bc_e()
+bc_e(void)
 {
     bc_c();
 }
 
 NOT_TAIL_CALLED NEVER_INLINE void
-bc_d()
+bc_d(void)
 {
     bc_e();
 }
 
 NOT_TAIL_CALLED NEVER_INLINE void
-bc_b()
+bc_b(void)
 {
     bc_c();
 }
 
 NOT_TAIL_CALLED NEVER_INLINE void
-bc_a()
+bc_a(void)
 {
     bc_b();
 }
