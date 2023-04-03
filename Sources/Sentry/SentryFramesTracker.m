@@ -160,7 +160,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     if (shouldRecordNewFrameRate) {
         SENTRY_LOG_DEBUG(@"Recording new frame rate at %llu.", self.previousFrameSystemTimestamp);
         [self.frameRateTimestamps addObject:@{
-            @"timestamp" : @(thisFrameSystemTimestamp),
+            @"timestamp" : @(self.previousFrameSystemTimestamp),
             @"frame_rate" : @(currentFrameRate),
         }];
     }
