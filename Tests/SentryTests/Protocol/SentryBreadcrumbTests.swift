@@ -49,7 +49,7 @@ class SentryBreadcrumbTests: XCTestCase {
         XCTAssertEqual(breadcrumb.category, fixture.category)
         XCTAssertEqual(breadcrumb.type, fixture.type)
         XCTAssertEqual(breadcrumb.message, fixture.message)
-        XCTAssertEqual(breadcrumb.data as? NSDictionary, ["foo": "bar"])
+        XCTAssertEqual(breadcrumb.data as? [String: String], ["foo": "bar"])
         XCTAssertEqual(breadcrumb.value(forKey: "unknown") as? NSDictionary, ["foo": "bar"])
     }
     
