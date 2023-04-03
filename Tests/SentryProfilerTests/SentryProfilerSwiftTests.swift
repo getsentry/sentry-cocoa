@@ -417,6 +417,7 @@ private extension SentryProfilerSwiftTests {
         case malformedMetricValueEntry
         case noMetricsReported
         case noMetricValuesFound
+        case unexpectedAmountOfValues
     }
 
     func getLatestProfileData() throws -> Data {
@@ -538,7 +539,7 @@ private extension SentryProfilerSwiftTests {
         XCTAssert(expectedAmountOfReadings, "Wrong number of values under \(key). expected: \(sortedExpectedEntries); actual: \(sortedActualEntries); transaction start time: \(transaction.startSystemTime)")
 
         guard expectedAmountOfReadings else {
-            return
+            throw TestError.unexpectedAmountOfValues
         }
 
         for i in 0..<actualEntries.count {
