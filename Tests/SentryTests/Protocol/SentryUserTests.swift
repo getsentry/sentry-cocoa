@@ -15,7 +15,7 @@ class SentryUserTests: XCTestCase {
             "foo": "bar" // Unknown
         ]
         let user = PrivateSentrySDKOnly.user(with: dict)
-
+        
         XCTAssertEqual(user.userId, "fixture-id")
         XCTAssertEqual(user.email, "fixture-email")
         XCTAssertEqual(user.username, "fixture-username")
@@ -27,6 +27,8 @@ class SentryUserTests: XCTestCase {
     
     func testSerializationWithAllProperties() {
         let user = TestData.user.copy() as! User
+        user.setValue(["some": "data"], forKey: "unknown")
+        
         let actual = user.serialize()
 
         // Changing the original doesn't modify the serialized

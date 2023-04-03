@@ -66,7 +66,6 @@ class TestData {
         user.name = "User"
         user.geo = geo
         user.data = ["some": ["data": "data", "date": timestamp]]
-        user.setValue(["some": "data"], forKey: "unknown")
         
         return user
     }
