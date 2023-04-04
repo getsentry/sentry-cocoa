@@ -60,7 +60,6 @@ class SentryProfilerSwiftTests: XCTestCase {
 
         /// Advance the mock date provider, start a new transaction and return its handle.
         func newTransaction(testingAppLaunchSpans: Bool = false) throws -> SentryTracer {
-            currentDateProvider.advanceBy(nanoseconds: 2)
             if testingAppLaunchSpans {
                 return try XCTUnwrap(hub.startTransaction(name: transactionName, operation: SentrySpanOperationUILoad) as? SentryTracer)
             }
@@ -103,7 +102,6 @@ class SentryProfilerSwiftTests: XCTestCase {
 
     #if !os(macOS)
             var shouldRecordFrameRateExpectation = false
-            var previousSystemTime = currentDateProvider.systemTime()
 
             func changeFrameRate(_ new: FrameRate) {
                 displayLinkWrapper.changeFrameRate(new)
@@ -230,24 +228,12 @@ class SentryProfilerSwiftTests: XCTestCase {
     }
 
     func testMetricProfiler() throws {
-        // start span
         let span = try fixture.newTransaction()
         forceProfilerSample()
-
         try fixture.gatherMockedMetrics(span: span)
-
-        // finish profile
-        let exp = expectation(description: "Receives profile payload")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            span.finish()
-            do {
-                try self.assertMetricsPayload()
-                exp.fulfill()
-            } catch {
-                XCTFail("Encountered error: \(error)")
-            }
-        }
-        waitForExpectations(timeout: 3)
+        self.fixture.currentDateProvider.advanceBy(nanoseconds: 1.toNanoSeconds())
+        span.finish()
+        try self.assertMetricsPayload()
     }
 
     func testConcurrentProfilingTransactions() throws {
@@ -287,6 +273,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 #endif
         for (i, span) in spans.enumerated() {
             try fixture.gatherMockedMetrics(span: span)
+            self.fixture.currentDateProvider.advanceBy(nanoseconds: 1.toNanoSeconds())
             span.finish()
 
             try self.assertValidProfileData()
@@ -663,36 +650,31 @@ private extension SentryProfilerSwiftTests {
         Dynamic(hub).tracesSampler.random = TestRandom(value: 1.0)
 
         let span = try fixture.newTransaction()
-        let exp = expectation(description: "Span finishes")
-        DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
-            span.finish()
+        forceProfilerSample()
+        fixture.currentDateProvider.advance(by: 5)
+        span.finish()
 
-            guard let client = self.fixture.client else {
-                XCTFail("Expected a valid test client to exist")
-                return
-            }
-
-            switch expectedDecision {
-            case .undecided, .no:
-                guard let event = client.captureEventWithScopeInvocations.first else {
-                    XCTFail("Expected to capture at least 1 event, but without a profile")
-                    return
-                }
-                XCTAssertEqual(0, event.additionalEnvelopeItems.count)
-            case .yes:
-                guard let event = client.captureEventWithScopeInvocations.first else {
-                    XCTFail("Expected to capture at least 1 event with a profile")
-                    return
-                }
-                XCTAssertEqual(1, event.additionalEnvelopeItems.count)
-            @unknown default:
-                fatalError("Unexpected value for sample decision")
-            }
-
-            exp.fulfill()
+        guard let client = self.fixture.client else {
+            XCTFail("Expected a valid test client to exist")
+            return
         }
 
-        waitForExpectations(timeout: 3)
+        switch expectedDecision {
+        case .undecided, .no:
+            guard let event = client.captureEventWithScopeInvocations.first else {
+                XCTFail("Expected to capture at least 1 event, but without a profile")
+                return
+            }
+            XCTAssertEqual(0, event.additionalEnvelopeItems.count)
+        case .yes:
+            guard let event = client.captureEventWithScopeInvocations.first else {
+                XCTFail("Expected to capture at least 1 event with a profile")
+                return
+            }
+            XCTAssertEqual(1, event.additionalEnvelopeItems.count)
+        @unknown default:
+            fatalError("Unexpected value for sample decision")
+        }
     }
 }
 #endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
