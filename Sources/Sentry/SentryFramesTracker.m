@@ -153,16 +153,15 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 #        endif // defined(TEST) || defined(TESTCI)
     BOOL hasNoFrameRatesYet = self.frameRateTimestamps.count == 0;
     uint64_t previousFrameRate
-        = self.frameRateTimestamps.lastObject[@"frame_rate"].unsignedLongLongValue;
+        = self.frameRateTimestamps.lastObject[@"value"].unsignedLongLongValue;
     BOOL frameRateChanged = previousFrameRate != currentFrameRate;
     BOOL shouldRecordNewFrameRate
         = shouldRecordFrameRates && (hasNoFrameRatesYet || frameRateChanged);
     if (shouldRecordNewFrameRate) {
-        SENTRY_LOG_DEBUG(@"Recording new frame rate at %llu.", self.previousFrameSystemTimestamp);
-        [self.frameRateTimestamps addObject:@{
-            @"timestamp" : @(self.previousFrameSystemTimestamp),
-            @"frame_rate" : @(currentFrameRate),
-        }];
+        SENTRY_LOG_DEBUG(@"Recording new frame rate at %llu.", thisFrameSystemTimestamp);
+        [self recordTimestamp:thisFrameSystemTimestamp
+                        value:@(currentFrameRate)
+                        array:self.frameRateTimestamps];
     }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -172,24 +171,21 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
         && frameDuration <= SentryFrozenFrameThreshold) {
         atomic_fetch_add_explicit(&_slowFrames, 1, SentryFramesMemoryOrder);
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        SENTRY_LOG_DEBUG(@"Capturing slow frame starting at %llu and ending at %llu.",
-            self.previousFrameSystemTimestamp, thisFrameSystemTimestamp);
-        [self recordTimestampStart:@(self.previousFrameSystemTimestamp)
-                               end:@(thisFrameSystemTimestamp)
-                             array:self.slowFrameTimestamps];
+        SENTRY_LOG_DEBUG(@"Capturing slow frame starting at %llu.", thisFrameSystemTimestamp);
+        [self recordTimestamp:thisFrameSystemTimestamp
+                        value:@(thisFrameSystemTimestamp - self.previousFrameSystemTimestamp)
+                        array:self.slowFrameTimestamps];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
     } else if (frameDuration > SentryFrozenFrameThreshold) {
         atomic_fetch_add_explicit(&_frozenFrames, 1, SentryFramesMemoryOrder);
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-        SENTRY_LOG_DEBUG(@"Capturing frozen frame starting at %llu and ending at %llu.",
-            self.previousFrameSystemTimestamp, thisFrameSystemTimestamp);
-        [self recordTimestampStart:@(self.previousFrameSystemTimestamp)
-                               end:@(thisFrameSystemTimestamp)
-                             array:self.frozenFrameTimestamps];
+        SENTRY_LOG_DEBUG(@"Capturing frozen frame starting at %llu.", thisFrameSystemTimestamp);
+        [self recordTimestamp:thisFrameSystemTimestamp
+                        value:@(thisFrameSystemTimestamp - self.previousFrameSystemTimestamp)
+                        array:self.frozenFrameTimestamps];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
     } else {
-        SENTRY_LOG_DEBUG(@"Rendered normal frame starting at %llu and ending at %llu.",
-            self.previousFrameSystemTimestamp, thisFrameSystemTimestamp);
+        SENTRY_LOG_DEBUG(@"Rendered normal frame starting at %llu.", thisFrameSystemTimestamp);
     }
 
     atomic_fetch_add_explicit(&_totalFrames, 1, SentryFramesMemoryOrder);
@@ -211,14 +207,14 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-- (void)recordTimestampStart:(NSNumber *)start end:(NSNumber *)end array:(NSMutableArray *)array
+- (void)recordTimestamp:(uint64_t)timestamp value:(NSNumber *)value array:(NSMutableArray *)array
 {
     BOOL shouldRecord = [SentryProfiler isRunning];
 #        if defined(TEST) || defined(TESTCI)
     shouldRecord = YES;
 #        endif
     if (shouldRecord) {
-        [array addObject:@{ @"start_timestamp" : start, @"end_timestamp" : end }];
+        [array addObject:@{ @"timestamp" : @(timestamp), @"value" : value }];
     }
 }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED

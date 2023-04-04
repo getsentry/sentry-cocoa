@@ -111,45 +111,43 @@ class SentryProfilerSwiftTests: XCTestCase {
             func renderGPUFrame(_ type: GPUFrame) {
                 if shouldRecordFrameRateExpectation {
                     shouldRecordFrameRateExpectation = false
-                    print("will expect frame rate \(displayLinkWrapper.currentFrameRate.rawValue) at \(previousSystemTime)")
+                    let currentSystemTime = currentDateProvider.systemTime()
+                    print("will expect frame rate \(displayLinkWrapper.currentFrameRate.rawValue) at \(currentSystemTime)")
                     expectedFrameRateChanges.append([
-                        "elapsed_since_start_ns": String(previousSystemTime),
+                        "elapsed_since_start_ns": String(currentSystemTime),
                         "value": NSNumber(value: displayLinkWrapper.currentFrameRate.rawValue)
                     ])
                 }
 
                 switch type {
                 case .normal:
-                    currentDateProvider.advanceBy(nanoseconds: 1)
                     let currentSystemTime: UInt64 = currentDateProvider.systemTime()
-                    print("expect normal frame to start at \(previousSystemTime) and end at \(currentSystemTime)")
-                    previousSystemTime = currentSystemTime
+                    print("expect normal frame to start at \(currentSystemTime)")
 
                     displayLinkWrapper.normalFrame()
+                    currentDateProvider.advanceBy(nanoseconds: 1)
                 case .slow:
                     let duration: UInt64 = 3
-                    currentDateProvider.advanceBy(nanoseconds: duration)
                     let currentSystemTime = currentDateProvider.systemTime()
-                    print("will expect \(String(describing: type)) frame starting at \(previousSystemTime) and ending at \(currentSystemTime)")
+                    print("will expect \(String(describing: type)) frame starting at \(currentSystemTime)")
                     expectedSlowFrames.append([
-                        "elapsed_since_start_ns": String(previousSystemTime),
+                        "elapsed_since_start_ns": String(currentSystemTime),
                         "value": duration
                     ])
-                    previousSystemTime = currentSystemTime
 
                     displayLinkWrapper.middlingSlowFrame()
+                    currentDateProvider.advanceBy(nanoseconds: duration)
                 case .frozen:
                     let duration: UInt64 = 10
-                    currentDateProvider.advanceBy(nanoseconds: duration)
                     let currentSystemTime = currentDateProvider.systemTime()
-                    print("will expect \(String(describing: type)) frame starting at \(previousSystemTime) and ending at \(currentSystemTime)")
+                    print("will expect \(String(describing: type)) frame starting at \(currentSystemTime)")
                     expectedFrozenFrames.append([
-                        "elapsed_since_start_ns": String(previousSystemTime),
+                        "elapsed_since_start_ns": String(currentSystemTime),
                         "value": duration
                     ])
-                    previousSystemTime = currentSystemTime
 
                     displayLinkWrapper.fastestFrozenFrame()
+                    currentDateProvider.advanceBy(nanoseconds: duration)
                 }
             }
 
@@ -241,7 +239,9 @@ class SentryProfilerSwiftTests: XCTestCase {
         var spans = [Span]()
 
         for _ in 0 ..< numberOfTransactions {
-            spans.append(try fixture.newTransaction())
+            let span = try fixture.newTransaction()
+            spans.append(span)
+            fixture.currentDateProvider.advanceBy(nanoseconds: 100)
         }
 
         forceProfilerSample()
@@ -260,6 +260,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 #if !os(macOS)
         fixture.resetGPUExpectations()
         fixture.framesTracker.resetFrames()
+        fixture.displayLinkWrapper.call()
 #endif
 
         for _ in 0 ..< numberOfTransactions {
