@@ -18,33 +18,17 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSData *_Nullable)dataWithJSONObject:(NSDictionary *)dictionary
                                   error:(NSError *_Nullable *_Nullable)error
 {
-// We'll do this whether we're handling an exception or library error
+    // We'll do this whether we're handling an exception or library error
 #define SENTRY_HANDLE_ERROR(__sentry_error)                                                        \
     SENTRY_LOG_ERROR(@"Invalid JSON: %@", __sentry_error);                                         \
     *error = __sentry_error;                                                                       \
     return nil;
 
-    NSData *data = nil;
-
-#if defined(DEBUG) || defined(TEST) || defined(TESTCI)
-    @try {
-#else
-    if ([NSJSONSerialization isValidJSONObject:dictionary]) {
-#endif
-        data = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:error];
-#if defined(DEBUG) || defined(TEST) || defined(TESTCI)
-    } @catch (NSException *exception) {
-        if (error) {
-            SENTRY_HANDLE_ERROR(NSErrorFromSentryErrorWithException(
-                kSentryErrorJsonConversionError, @"Event cannot be converted to JSON", exception));
-        }
+    NSData *data = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:error];
+    if (data != nil && *error != nil) {
+        SENTRY_HANDLE_ERROR(NSErrorFromSentryError(
+            kSentryErrorJsonConversionError, @"Event cannot be converted to JSON"));
     }
-#else
-    } else if (error) {
-        SENTRY_HANDLE_ERROR(NSErrorFromSentryErrorWithUnderlyingError(
-            kSentryErrorJsonConversionError, @"Event cannot be converted to JSON", *error));
-    }
-#endif
 
     return data;
 }
