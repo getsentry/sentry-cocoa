@@ -184,8 +184,6 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
                         value:@(thisFrameSystemTimestamp - self.previousFrameSystemTimestamp)
                         array:self.frozenFrameTimestamps];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
-    } else {
-        SENTRY_LOG_DEBUG(@"Rendered normal frame starting at %llu.", thisFrameSystemTimestamp);
     }
 
     atomic_fetch_add_explicit(&_totalFrames, 1, SentryFramesMemoryOrder);
