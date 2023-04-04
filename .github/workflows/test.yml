@@ -173,7 +173,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            **/com.apple.pkg.iPhoneSimulatorSDK12_4-12.4.1.1568665771.dmg
+            **/com.apple.pkg.iPhoneSimulatorSDK12_4-12.4*.dmg
           key: ios-simulator-12.4-cache
 
       - name: Install iOS 12.4 simulator
