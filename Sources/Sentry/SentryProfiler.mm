@@ -162,7 +162,8 @@ std::mutex _gProfilerLock;
 SentryProfiler *_Nullable _gCurrentProfiler;
 SentryNSProcessInfoWrapper *_gCurrentProcessInfoWrapper;
 SentrySystemWrapper *_gCurrentSystemWrapper;
-SentryNSTimerWrapper *_gCurrentTimerWrapper;
+SentryNSTimerWrapper *_gMetricTimerWrapper;
+SentryNSTimerWrapper *_gTimeoutTimerWrapper;
 #    if SENTRY_HAS_UIKIT
 SentryFramesTracker *_gCurrentFramesTracker;
 #    endif // SENTRY_HAS_UIKIT
@@ -343,12 +344,15 @@ serializedSamplesWithRelativeTimestamps(
 
     [_gCurrentProfiler start];
 
+    if (_gTimeoutTimerWrapper == nil) {
+        _gTimeoutTimerWrapper = [[SentryNSTimerWrapper alloc] init];
+    }
     _gCurrentProfiler->_timeoutTimer =
-        [NSTimer scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
-                                         target:self
-                                       selector:@selector(timeoutAbort)
-                                       userInfo:nil
-                                        repeats:NO];
+        [_gTimeoutTimerWrapper scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
+                                                       target:self
+                                                     selector:@selector(timeoutAbort)
+                                                     userInfo:nil
+                                                      repeats:NO];
 #    if SENTRY_HAS_UIKIT
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(backgroundAbort)
@@ -479,10 +483,16 @@ serializedSamplesWithRelativeTimestamps(
     _gCurrentProcessInfoWrapper = processInfoWrapper;
 }
 
-+ (void)useTimerWrapper:(SentryNSTimerWrapper *)timerWrapper
++ (void)useMetricTimerWrapper:(SentryNSTimerWrapper *)timerWrapper
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
-    _gCurrentTimerWrapper = timerWrapper;
+    _gMetricTimerWrapper = timerWrapper;
+}
+
++ (void)useTimeoutTimerWrapper:(SentryNSTimerWrapper *)timerWrapper
+{
+    std::lock_guard<std::mutex> l(_gProfilerLock);
+    _gTimeoutTimerWrapper = timerWrapper;
 }
 
 #    if SENTRY_HAS_UIKIT
@@ -547,8 +557,8 @@ serializedSamplesWithRelativeTimestamps(
     if (_gCurrentProcessInfoWrapper == nil) {
         _gCurrentProcessInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
     }
-    if (_gCurrentTimerWrapper == nil) {
-        _gCurrentTimerWrapper = [[SentryNSTimerWrapper alloc] init];
+    if (_gMetricTimerWrapper == nil) {
+        _gMetricTimerWrapper = [[SentryNSTimerWrapper alloc] init];
     }
 #    if SENTRY_HAS_UIKIT
     if (_gCurrentFramesTracker == nil) {
@@ -558,7 +568,7 @@ serializedSamplesWithRelativeTimestamps(
     _metricProfiler =
         [[SentryMetricProfiler alloc] initWithProcessInfoWrapper:_gCurrentProcessInfoWrapper
                                                    systemWrapper:_gCurrentSystemWrapper
-                                                    timerWrapper:_gCurrentTimerWrapper];
+                                                    timerWrapper:_gMetricTimerWrapper];
     [_metricProfiler start];
 }
 

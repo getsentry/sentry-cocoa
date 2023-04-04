@@ -13,7 +13,14 @@ public class TestTimer: Timer {
 public class TestSentryNSTimerWrapper: SentryNSTimerWrapper {
     public struct Overrides {
         public var timer: TestTimer!
+
         var block: ((Timer) -> Void)?
+
+        struct InvocationInfo {
+            var target: NSObject
+            var selector: Selector
+        }
+        var invocationInfo: InvocationInfo?
     }
 
     public var overrides = Overrides()
@@ -25,7 +32,17 @@ public class TestSentryNSTimerWrapper: SentryNSTimerWrapper {
         return timer
     }
 
+    public override func scheduledTimer(withTimeInterval ti: TimeInterval, target aTarget: Any, selector aSelector: Selector, userInfo: Any?, repeats yesOrNo: Bool) -> Timer {
+        let timer = TestTimer()
+        overrides.invocationInfo = Overrides.InvocationInfo(target: aTarget as! NSObject, selector: aSelector)
+        return timer
+    }
+
     public func fire() {
-        overrides.block?(overrides.timer)
+        if let block = overrides.block {
+            block(overrides.timer)
+        } else if let invocationInfo = overrides.invocationInfo {
+            try! Invocation(target: invocationInfo.target, selector: invocationInfo.selector).invoke()
+        }
     }
 }

@@ -9,4 +9,17 @@
     return [NSTimer scheduledTimerWithTimeInterval:interval repeats:repeats block:block];
 }
 
+- (NSTimer *)scheduledTimerWithTimeInterval:(NSTimeInterval)ti
+                                     target:(id)aTarget
+                                   selector:(SEL)aSelector
+                                   userInfo:(nullable id)userInfo
+                                    repeats:(BOOL)yesOrNo
+{
+    return [NSTimer scheduledTimerWithTimeInterval:ti
+                                            target:aTarget
+                                          selector:aSelector
+                                          userInfo:userInfo
+                                           repeats:yesOrNo];
+}
+
 @end
