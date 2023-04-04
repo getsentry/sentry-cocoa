@@ -131,7 +131,6 @@ class SentryProfilerSwiftTests: XCTestCase {
                         "value": duration
                     ])
                 }
-                
                 if shouldRecordFrameRateExpectation {
                     shouldRecordFrameRateExpectation = false
                     let currentSystemTime = currentDateProvider.systemTime()
@@ -152,6 +151,7 @@ class SentryProfilerSwiftTests: XCTestCase {
              * refresh rate:  |---60hz--------------|---120hz------|---60hz--------------------------------------|
              * time:          N--S----N--F----------N-N-S--N-F-----N--N--S----N--F----------N--S----N--F----------
              */
+            changeFrameRate(.low)
             renderGPUFrame(.normal)
             renderGPUFrame(.slow)
             renderGPUFrame(.normal)
@@ -168,6 +168,8 @@ class SentryProfilerSwiftTests: XCTestCase {
             renderGPUFrame(.slow)
             renderGPUFrame(.normal)
             renderGPUFrame(.frozen)
+            renderGPUFrame(.normal)
+            changeFrameRate(.high)
             renderGPUFrame(.normal)
             renderGPUFrame(.slow)
             renderGPUFrame(.normal)
@@ -230,48 +232,35 @@ class SentryProfilerSwiftTests: XCTestCase {
         let numberOfTransactions = 10
         var spans = [Span]()
 
-        for _ in 0 ..< numberOfTransactions {
-            let span = try fixture.newTransaction()
-            spans.append(span)
-            fixture.currentDateProvider.advanceBy(nanoseconds: 100)
+        func createConcurrentSpansWithMetrics() throws {
+            for _ in 0 ..< numberOfTransactions {
+                let span = try fixture.newTransaction()
+                spans.append(span)
+                fixture.currentDateProvider.advanceBy(nanoseconds: 100)
+            }
+
+            forceProfilerSample()
+
+            for (i, span) in spans.enumerated() {
+                try fixture.gatherMockedMetrics(span: span)
+                span.finish()
+
+                try self.assertValidProfileData()
+                try self.assertMetricsPayload(metricsBatches: i + 1)
+            }
         }
 
-        forceProfilerSample()
-
-        for (i, span) in spans.enumerated() {
-            try fixture.gatherMockedMetrics(span: span)
-            span.finish()
-
-            try self.assertValidProfileData()
-            try self.assertMetricsPayload(metricsBatches: i + 1)
-        }
+        try createConcurrentSpansWithMetrics()
 
         // do everything again to make sure that stopping and starting the profiler over again works
         spans.removeAll()
-        fixture.currentDateProvider.reset()
 #if !os(macOS)
         fixture.resetGPUExpectations()
         fixture.framesTracker.resetFrames()
         fixture.displayLinkWrapper.call()
 #endif
 
-        for _ in 0 ..< numberOfTransactions {
-            spans.append(try fixture.newTransaction())
-        }
-
-        forceProfilerSample()
-
-#if !os(macOS)
-        fixture.displayLinkWrapper.call()
-#endif
-        for (i, span) in spans.enumerated() {
-            try fixture.gatherMockedMetrics(span: span)
-            self.fixture.currentDateProvider.advanceBy(nanoseconds: 1.toNanoSeconds())
-            span.finish()
-
-            try self.assertValidProfileData()
-            try self.assertMetricsPayload(metricsBatches: i + 1)
-        }
+        try createConcurrentSpansWithMetrics()
     }
 
     /// Test a situation where a long-running span starts the profiler, which winds up timing out, and then another span starts that begins a new profile, then finishes, and then the long-running span finishes; both profiles should be separately captured in envelopes.

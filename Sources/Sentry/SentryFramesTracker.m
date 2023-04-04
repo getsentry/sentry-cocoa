@@ -162,6 +162,8 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
         [self recordTimestamp:thisFrameSystemTimestamp
                         value:@(currentFrameRate)
                         array:self.frameRateTimestamps];
+    } else {
+        SENTRY_LOG_DEBUG(@"Won't record frame rate at %llu", thisFrameSystemTimestamp);
     }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
