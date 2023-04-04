@@ -8,7 +8,6 @@
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashIntegration.h"
 #import "SentryCrashStackEntryMapper.h"
-#import "SentryCrashWrapper.h"
 #import "SentryDebugImageProvider.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
@@ -59,7 +58,6 @@ SentryClient ()
 @property (nonatomic, strong) SentryTransportAdapter *transportAdapter;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 @property (nonatomic, strong) id<SentryRandom> random;
-@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
 @property (nonatomic, strong) SentryExtraContextProvider *extraContextProvider;
@@ -141,7 +139,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
           deleteOldEnvelopeItems:deleteOldEnvelopeItems
                  threadInspector:threadInspector
                           random:[SentryDependencyContainer sharedInstance].random
-                    crashWrapper:[SentryCrashWrapper sharedInstance]
                           locale:[NSLocale autoupdatingCurrentLocale]
                         timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone
             extraContextProvider:extraContextProvider];
@@ -153,7 +150,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
          deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
                 threadInspector:(SentryThreadInspector *)threadInspector
                          random:(id<SentryRandom>)random
-                   crashWrapper:(SentryCrashWrapper *)crashWrapper
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone
            extraContextProvider:(SentryExtraContextProvider *)extraContentProvider
@@ -165,7 +161,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.fileManager = fileManager;
         self.threadInspector = threadInspector;
         self.random = random;
-        self.crashWrapper = crashWrapper;
         self.debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
         self.locale = locale;
         self.timezone = timezone;
