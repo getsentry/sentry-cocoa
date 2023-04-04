@@ -30,6 +30,11 @@ class SentryTransportAdapterTests: XCTestCase {
         sut = fixture.sut
     }
     
+    override func tearDown() {
+        clearTestState()
+        super.tearDown()
+    }
+    
     func testSendEventWithSession_SendsCorrectEnvelope() throws {
         let session = SentrySession(releaseName: "1.0.1")
         let event = TestData.event
@@ -40,6 +45,7 @@ class SentryTransportAdapterTests: XCTestCase {
             SentryEnvelopeItem(attachment: fixture.attachment, maxAttachmentSize: fixture.options.maxAttachmentSize)!,
             SentryEnvelopeItem(session: session)
         ])
+        expectedEnvelope.header.sentAt = CurrentDate.date()
         
         assertEnvelope(expected: expectedEnvelope)
     }
@@ -52,6 +58,7 @@ class SentryTransportAdapterTests: XCTestCase {
             SentryEnvelopeItem(event: event),
             SentryEnvelopeItem(attachment: fixture.attachment, maxAttachmentSize: fixture.options.maxAttachmentSize)!
         ])
+        expectedEnvelope.header.sentAt = CurrentDate.date()
         
         assertEnvelope(expected: expectedEnvelope)
     }
@@ -61,8 +68,18 @@ class SentryTransportAdapterTests: XCTestCase {
         sut.send(userFeedback: userFeedback)
         
         let expectedEnvelope = SentryEnvelope(userFeedback: userFeedback)
+        expectedEnvelope.header.sentAt = CurrentDate.date()
         
         assertEnvelope(expected: expectedEnvelope)
+    }
+    
+    func testSendingEnvelopeSetsSentAt() {
+        let event = Event()
+        let envelope = SentryEnvelope(event: event)
+        sut.send(envelope: envelope)
+        
+        let sent = fixture.transport.sentEnvelopes.first!
+        XCTAssertEqual(sent.header.sentAt, CurrentDate.date())
     }
     
     private func assertEnvelope(expected: SentryEnvelope) {

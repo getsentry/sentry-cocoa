@@ -1,4 +1,5 @@
 #import "SentryTransportAdapter.h"
+#import "SentryCurrentDate.h"
 #import "SentryEnvelope.h"
 #import "SentryEvent.h"
 #import "SentryOptions.h"
@@ -94,6 +95,7 @@ SentryTransportAdapter ()
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
 {
+    envelope.header.sentAt = SentryCurrentDate.date;
     [self.transport sendEnvelope:envelope];
 }
 
