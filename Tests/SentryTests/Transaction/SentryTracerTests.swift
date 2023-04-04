@@ -918,7 +918,7 @@ class SentryTracerTests: XCTestCase {
                 group.enter()
                 queue.async {
                     let child = sut.startChild(operation: self.fixture.transactionOperation)
-                    Dynamic(child).frames = []
+                    Dynamic(child).frames = [] as [Frame]
                     child.finish()
                     group.leave()
                 }
