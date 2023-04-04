@@ -168,18 +168,25 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
       # GH action images don't have an iOS 12.4 simulator. Therefore we have to download and install the simulator manually.
-      - name: Cached iOS 12.4 Disk Image Download
+      - name: Cached iOS 12.4 Simulator install
+        if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '12.4'}}
         id: ios_simulator_12_4_cache
         uses: actions/cache@v3
         with:
           path: |
-            **/com.apple.pkg.iPhoneSimulatorSDK12_4-12.4*.dmg
+            /Users/runner/Library/Caches/XcodeInstall/com.apple.pkg.iPhoneSimulatorSDK12_4
+            vendor/bundle
           key: ios-simulator-12.4-cache
 
-      - name: Install iOS 12.4 simulator
-        if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '12.4' && steps.ios_simulator_12_4_cache.outputs.cache-hit != 'true'}}
+      - name: xcode-install iOS 12.4 Simulator
+        if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '12.4' && steps.ios_simulator_12_4_cache.outputs.cache-hit != 'true' }}
         run: |
           gem install xcode-install
+          xcversion simulators --install='iOS 12.4' --no-install
+
+      - name: Install iOS 12.4 simulator
+        if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '12.4'}}
+        run: |
           xcversion simulators --install='iOS 12.4'
           xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-12-4"
 
