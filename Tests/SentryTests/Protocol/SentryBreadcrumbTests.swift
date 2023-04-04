@@ -19,7 +19,7 @@ class SentryBreadcrumbTests: XCTestCase {
             breadcrumb.category = category
             breadcrumb.type = "user"
             breadcrumb.message = "Click something"
-            breadcrumb.data = ["some": ["data": "data", "date": date]]
+            breadcrumb.data = ["some": ["data": "data", "date": date] as [String: Any]]
         }
         
         var dateAs8601String: String {
