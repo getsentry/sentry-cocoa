@@ -3,8 +3,8 @@
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashUUIDConversion.h"
 #import "SentryDebugMeta.h"
+#import "SentryFormatter.h"
 #import "SentryFrame.h"
-#import "SentryHexAddressFormatter.h"
 #import "SentryInternalDefines.h"
 #import "SentryLog.h"
 #import "SentryStacktrace.h"
@@ -102,10 +102,10 @@ SentryDebugImageProvider ()
     debugMeta.type = SentryDebugImageType;
 
     if (image.vmAddress > 0) {
-        debugMeta.imageVmAddress = sentry_formatHexAddressPointer(image.vmAddress);
+        debugMeta.imageVmAddress = sentry_formatHexAddressUInt64(image.vmAddress);
     }
 
-    debugMeta.imageAddress = sentry_formatHexAddressPointer(image.address);
+    debugMeta.imageAddress = sentry_formatHexAddressUInt64(image.address);
 
     debugMeta.imageSize = @(image.size);
 

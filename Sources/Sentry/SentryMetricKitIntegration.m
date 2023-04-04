@@ -5,8 +5,8 @@
 #import <SentryDependencyContainer.h>
 #import <SentryEvent.h>
 #import <SentryException.h>
+#import <SentryFormatter.h>
 #import <SentryFrame.h>
-#import <SentryHexAddressFormatter.h>
 #import <SentryInAppLogic.h>
 #import <SentryLog.h>
 #import <SentryMechanism.h>
@@ -386,9 +386,9 @@ SentryMetricKitIntegration ()
         SentryFrame *frame = [[SentryFrame alloc] init];
         frame.package = mxFrame.binaryName;
         frame.inApp = @([self.inAppLogic isInApp:mxFrame.binaryName]);
-        frame.instructionAddress = sentry_formatHexAddressPointer(mxFrame.address);
+        frame.instructionAddress = sentry_formatHexAddressUInt64(mxFrame.address);
         uint64_t imageAddress = mxFrame.address - mxFrame.offsetIntoBinaryTextSegment;
-        frame.imageAddress = sentry_formatHexAddressPointer(imageAddress);
+        frame.imageAddress = sentry_formatHexAddressUInt64(imageAddress);
 
         [frames addObject:frame];
     }
@@ -438,7 +438,7 @@ SentryMetricKitIntegration ()
         debugMeta.codeFile = mxFrame.binaryName;
 
         uint64_t imageAddress = mxFrame.address - mxFrame.offsetIntoBinaryTextSegment;
-        debugMeta.imageAddress = sentry_formatHexAddressPointer(imageAddress);
+        debugMeta.imageAddress = sentry_formatHexAddressUInt64(imageAddress);
 
         debugMetas[debugMeta.debugID] = debugMeta;
     }

@@ -1,6 +1,6 @@
 #import "SentryCrashStackEntryMapper.h"
+#import "SentryFormatter.h"
 #import "SentryFrame.h"
-#import "SentryHexAddressFormatter.h"
 #import "SentryInAppLogic.h"
 #import <Foundation/Foundation.h>
 
@@ -27,11 +27,11 @@ SentryCrashStackEntryMapper ()
 {
     SentryFrame *frame = [[SentryFrame alloc] init];
 
-    frame.symbolAddress = sentry_formatHexAddressPointer(stackEntry.symbolAddress);
+    frame.symbolAddress = sentry_formatHexAddressUInt64(stackEntry.symbolAddress);
 
-    frame.instructionAddress = sentry_formatHexAddressPointer(stackEntry.address);
+    frame.instructionAddress = sentry_formatHexAddressUInt64(stackEntry.address);
 
-    frame.imageAddress = sentry_formatHexAddressPointer(stackEntry.imageAddress);
+    frame.imageAddress = sentry_formatHexAddressUInt64(stackEntry.imageAddress);
 
     if (stackEntry.symbolName != NULL) {
         frame.function = [NSString stringWithCString:stackEntry.symbolName
