@@ -18,6 +18,11 @@ class SentryFramesTrackerTests: XCTestCase {
     }
     
     private var fixture: Fixture!
+
+    override class func setUp() {
+        super.setUp()
+        SentryLog.configure(true, diagnosticLevel: .debug)
+    }
     
     override func setUp() {
         super.setUp()
@@ -77,6 +82,9 @@ class SentryFramesTrackerTests: XCTestCase {
     }
     
     func testAllFrames_ConcurrentRead() throws {
+        // this is a really long test and the logs slow it down
+        SentryLog.configure(false, diagnosticLevel: .error)
+
         let sut = fixture.sut
         sut.start()
         
@@ -98,6 +106,9 @@ class SentryFramesTrackerTests: XCTestCase {
         
         group.wait()
         try assert(slow: frames, frozen: frames, total: 3 * frames)
+
+        // ok, set logs back to debug for other tests
+        SentryLog.configure(true, diagnosticLevel: .debug)
     }
     
     func testPerformanceOfTrackingFrames() throws {
@@ -186,10 +197,9 @@ private extension SentryFramesTrackerTests {
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     func assertProfilingData(slow: UInt? = nil, frozen: UInt? = nil, frameRates: UInt? = nil) throws {
-        func assertStartAndEndOrdering(frame: [String: NSNumber]) throws {
-            let start = try XCTUnwrap(frame["start_timestamp"], "Expected a start timestamp for the frame.")
-            let end = try XCTUnwrap(frame["end_timestamp"], "Expected an end timestamp for the frame.")
-            XCTAssert(start.compare(end) != .orderedDescending)
+        func assertFrameInfo(frame: [String: NSNumber]) throws {
+            XCTAssertNotNil(frame["timestamp"], "Expected a timestamp for the frame.")
+            XCTAssertNotNil(frame["value"], "Expected a duration value for the frame.")
         }
 
         let currentFrames = fixture.sut.currentFrames
@@ -197,13 +207,13 @@ private extension SentryFramesTrackerTests {
         if let slow = slow {
             XCTAssertEqual(currentFrames.slowFrameTimestamps.count, Int(slow))
             for frame in currentFrames.slowFrameTimestamps {
-                try assertStartAndEndOrdering(frame: frame)
+                try assertFrameInfo(frame: frame)
             }
         }
         if let frozen = frozen {
             XCTAssertEqual(currentFrames.frozenFrameTimestamps.count, Int(frozen))
             for frame in currentFrames.frozenFrameTimestamps {
-                try assertStartAndEndOrdering(frame: frame)
+                try assertFrameInfo(frame: frame)
             }
         }
         if let frameRates = frameRates {
