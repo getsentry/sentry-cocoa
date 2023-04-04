@@ -33,6 +33,8 @@ class SentrySerializationTests: XCTestCase {
 
         let item = SentryEnvelopeItem(event: event)
         let envelope = SentryEnvelope(id: event.eventId, singleItem: item)
+        envelope.header.sentAt = Date(timeIntervalSince1970: 9001)
+        
         // Sanity check
         XCTAssertEqual(event.eventId, envelope.header.eventId)
         XCTAssertEqual(1, envelope.items.count)
@@ -46,6 +48,7 @@ class SentrySerializationTests: XCTestCase {
             XCTAssertEqual(envelope.items[0].header.length, deserializedEnvelope.items[0].header.length)
             XCTAssertEqual(envelope.items[0].data, deserializedEnvelope.items[0].data)
             XCTAssertNil(deserializedEnvelope.header.traceContext)
+            XCTAssertEqual(Date(timeIntervalSince1970: 9001), deserializedEnvelope.header.sentAt)
         }
     }
 

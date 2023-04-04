@@ -63,6 +63,8 @@ SENTRY_NO_INIT
 
 @property (nullable, nonatomic, readonly, copy) SentryTraceContext *traceContext;
 
+@property (nullable, nonatomic, copy) NSDate *sentAt;
+
 @end
 
 @interface SentryEnvelopeItem : NSObject

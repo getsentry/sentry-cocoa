@@ -10,6 +10,7 @@
 #import "SentrySdkInfo.h"
 #import "SentrySession.h"
 #import "SentryTraceContext.h"
+#import "NSDate+SentryExtras.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -67,6 +68,11 @@ NS_ASSUME_NONNULL_BEGIN
     SentryTraceContext *traceContext = envelope.header.traceContext;
     if (traceContext != nil) {
         [serializedData setValue:[traceContext serialize] forKey:@"trace"];
+    }
+    
+    NSDate *sentAt = envelope.header.sentAt;
+    if (sentAt != nil) {
+        [serializedData setValue:[sentAt sentry_toIso8601String] forKey:@"sent_at"];
     }
 
     NSData *header = [SentrySerialization dataWithJSONObject:serializedData error:error];
@@ -192,10 +198,14 @@ NS_ASSUME_NONNULL_BEGIN
                     traceContext =
                         [[SentryTraceContext alloc] initWithDict:headerDictionary[@"trace"]];
                 }
-
+                
                 envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:eventId
                                                                   sdkInfo:sdkInfo
                                                              traceContext:traceContext];
+                
+                if (nil != headerDictionary[@"sent_at"]) {
+                    envelopeHeader.sentAt = [NSDate sentry_fromIso8601String:headerDictionary[@"sent_at"]];
+                }
             }
             break;
         }
