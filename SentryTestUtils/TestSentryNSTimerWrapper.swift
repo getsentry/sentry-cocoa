@@ -34,7 +34,9 @@ public class TestSentryNSTimerWrapper: SentryNSTimerWrapper {
 
     public override func scheduledTimer(withTimeInterval ti: TimeInterval, target aTarget: Any, selector aSelector: Selector, userInfo: Any?, repeats yesOrNo: Bool) -> Timer {
         let timer = TestTimer()
+        //swiftlint:disable force_cast
         overrides.invocationInfo = Overrides.InvocationInfo(target: aTarget as! NSObject, selector: aSelector)
+        //swiftlint:enable force_cast
         return timer
     }
 
