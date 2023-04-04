@@ -33,7 +33,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         let currentDateProvider = TestCurrentDateProvider()
 
 #if !os(macOS)
-        lazy var displayLinkWrapper = TestDisplayLinkWrapper()
+        lazy var displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: currentDateProvider)
         lazy var framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper)
 #endif
 
@@ -101,7 +101,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             }
 
     #if !os(macOS)
-            var shouldRecordFrameRateExpectation = false
+            var shouldRecordFrameRateExpectation = true
 
             func changeFrameRate(_ new: FrameRate) {
                 displayLinkWrapper.changeFrameRate(new)
@@ -109,6 +109,29 @@ class SentryProfilerSwiftTests: XCTestCase {
             }
 
             func renderGPUFrame(_ type: GPUFrame) {
+                switch type {
+                case .normal:
+                    let currentSystemTime: UInt64 = currentDateProvider.systemTime()
+                    print("expect normal frame to start at \(currentSystemTime)")
+                    displayLinkWrapper.normalFrame()
+                case .slow:
+                    let duration = displayLinkWrapper.middlingSlowFrame().toNanoSeconds()
+                    let currentSystemTime = currentDateProvider.systemTime()
+                    print("will expect \(String(describing: type)) frame starting at \(currentSystemTime)")
+                    expectedSlowFrames.append([
+                        "elapsed_since_start_ns": String(currentSystemTime),
+                        "value": duration
+                    ])
+                case .frozen:
+                    let duration = displayLinkWrapper.fastestFrozenFrame().toNanoSeconds()
+                    let currentSystemTime = currentDateProvider.systemTime()
+                    print("will expect \(String(describing: type)) frame starting at \(currentSystemTime)")
+                    expectedFrozenFrames.append([
+                        "elapsed_since_start_ns": String(currentSystemTime),
+                        "value": duration
+                    ])
+                }
+                
                 if shouldRecordFrameRateExpectation {
                     shouldRecordFrameRateExpectation = false
                     let currentSystemTime = currentDateProvider.systemTime()
@@ -117,37 +140,6 @@ class SentryProfilerSwiftTests: XCTestCase {
                         "elapsed_since_start_ns": String(currentSystemTime),
                         "value": NSNumber(value: displayLinkWrapper.currentFrameRate.rawValue)
                     ])
-                }
-
-                switch type {
-                case .normal:
-                    let currentSystemTime: UInt64 = currentDateProvider.systemTime()
-                    print("expect normal frame to start at \(currentSystemTime)")
-
-                    displayLinkWrapper.normalFrame()
-                    currentDateProvider.advanceBy(nanoseconds: 1)
-                case .slow:
-                    let duration: UInt64 = 3
-                    let currentSystemTime = currentDateProvider.systemTime()
-                    print("will expect \(String(describing: type)) frame starting at \(currentSystemTime)")
-                    expectedSlowFrames.append([
-                        "elapsed_since_start_ns": String(currentSystemTime),
-                        "value": duration
-                    ])
-
-                    displayLinkWrapper.middlingSlowFrame()
-                    currentDateProvider.advanceBy(nanoseconds: duration)
-                case .frozen:
-                    let duration: UInt64 = 10
-                    let currentSystemTime = currentDateProvider.systemTime()
-                    print("will expect \(String(describing: type)) frame starting at \(currentSystemTime)")
-                    expectedFrozenFrames.append([
-                        "elapsed_since_start_ns": String(currentSystemTime),
-                        "value": duration
-                    ])
-
-                    displayLinkWrapper.fastestFrozenFrame()
-                    currentDateProvider.advanceBy(nanoseconds: duration)
                 }
             }
 
