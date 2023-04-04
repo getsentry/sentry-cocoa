@@ -386,9 +386,9 @@ SentryMetricKitIntegration ()
         SentryFrame *frame = [[SentryFrame alloc] init];
         frame.package = mxFrame.binaryName;
         frame.inApp = @([self.inAppLogic isInApp:mxFrame.binaryName]);
-        frame.instructionAddress = sentry_formatHexAddress(@(mxFrame.address));
-        NSNumber *imageAddress = @(mxFrame.address - mxFrame.offsetIntoBinaryTextSegment);
-        frame.imageAddress = sentry_formatHexAddress(imageAddress);
+        frame.instructionAddress = sentry_formatHexAddressPointer(mxFrame.address);
+        uint64_t imageAddress = mxFrame.address - mxFrame.offsetIntoBinaryTextSegment;
+        frame.imageAddress = sentry_formatHexAddressPointer(imageAddress);
 
         [frames addObject:frame];
     }
@@ -437,8 +437,8 @@ SentryMetricKitIntegration ()
         debugMeta.debugID = binaryUUID;
         debugMeta.codeFile = mxFrame.binaryName;
 
-        NSNumber *imageAddress = @(mxFrame.address - mxFrame.offsetIntoBinaryTextSegment);
-        debugMeta.imageAddress = sentry_formatHexAddress(imageAddress);
+        uint64_t imageAddress = mxFrame.address - mxFrame.offsetIntoBinaryTextSegment;
+        debugMeta.imageAddress = sentry_formatHexAddressPointer(imageAddress);
 
         debugMetas[debugMeta.debugID] = debugMeta;
     }

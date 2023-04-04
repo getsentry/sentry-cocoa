@@ -27,14 +27,11 @@ SentryCrashStackEntryMapper ()
 {
     SentryFrame *frame = [[SentryFrame alloc] init];
 
-    NSNumber *symbolAddress = @(stackEntry.symbolAddress);
-    frame.symbolAddress = sentry_formatHexAddress(symbolAddress);
+    frame.symbolAddress = sentry_formatHexAddressPointer(stackEntry.symbolAddress);
 
-    NSNumber *instructionAddress = @(stackEntry.address);
-    frame.instructionAddress = sentry_formatHexAddress(instructionAddress);
+    frame.instructionAddress = sentry_formatHexAddressPointer(stackEntry.address);
 
-    NSNumber *imageAddress = @(stackEntry.imageAddress);
-    frame.imageAddress = sentry_formatHexAddress(imageAddress);
+    frame.imageAddress = sentry_formatHexAddressPointer(stackEntry.imageAddress);
 
     if (stackEntry.symbolName != NULL) {
         frame.function = [NSString stringWithCString:stackEntry.symbolName

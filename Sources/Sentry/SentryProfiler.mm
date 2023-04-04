@@ -90,7 +90,7 @@ processBacktrace(const Backtrace &backtrace,
 
     NSString *queueAddress = nil;
     if (backtrace.queueMetadata.address != 0) {
-        queueAddress = sentry_formatHexAddress(@(backtrace.queueMetadata.address));
+        queueAddress = sentry_formatHexAddressPointer(backtrace.queueMetadata.address);
     }
     NSMutableDictionary<NSString *, id> *metadata = threadMetadata[threadID];
     if (metadata == nil) {
@@ -118,7 +118,7 @@ processBacktrace(const Backtrace &backtrace,
     for (std::vector<uintptr_t>::size_type backtraceAddressIdx = 0;
          backtraceAddressIdx < backtrace.addresses.size(); backtraceAddressIdx++) {
         const auto instructionAddress
-            = sentry_formatHexAddress(@(backtrace.addresses[backtraceAddressIdx]));
+            = sentry_formatHexAddressPointer(backtrace.addresses[backtraceAddressIdx]);
 
         const auto frameIndex = frameIndexLookup[instructionAddress];
         if (frameIndex == nil) {

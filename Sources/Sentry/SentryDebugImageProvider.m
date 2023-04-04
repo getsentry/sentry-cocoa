@@ -102,12 +102,10 @@ SentryDebugImageProvider ()
     debugMeta.type = SentryDebugImageType;
 
     if (image.vmAddress > 0) {
-        NSNumber *imageVmAddress = [NSNumber numberWithUnsignedLongLong:image.vmAddress];
-        debugMeta.imageVmAddress = sentry_formatHexAddress(imageVmAddress);
+        debugMeta.imageVmAddress = sentry_formatHexAddressPointer(image.vmAddress);
     }
 
-    NSNumber *imageAddress = [NSNumber numberWithUnsignedLongLong:image.address];
-    debugMeta.imageAddress = sentry_formatHexAddress(imageAddress);
+    debugMeta.imageAddress = sentry_formatHexAddressPointer(image.address);
 
     debugMeta.imageSize = @(image.size);
 
