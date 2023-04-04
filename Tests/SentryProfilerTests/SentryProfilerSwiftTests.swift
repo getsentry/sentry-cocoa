@@ -519,10 +519,10 @@ private extension SentryProfilerSwiftTests {
         }
     }
 
-    func printTimestamps(entries: [[String: Any]]) {
-        print(entries.reduce(into: [NSString](), { partialResult, entry in
+    func printTimestamps(entries: [[String: Any]]) -> [NSString] {
+        entries.reduce(into: [NSString](), { partialResult, entry in
             partialResult.append(entry["elapsed_since_start_ns"] as! NSString)
-        }))
+        })
     }
 
     func assertMetricEntries(measurements: [String: Any], key: String, expectedEntries: [[String: Any]], transaction: Transaction) throws {
@@ -536,7 +536,7 @@ private extension SentryProfilerSwiftTests {
         let sortedExpectedEntries = sortedByTimestamps(expectedEntries)
 
         let expectedAmountOfReadings = actualEntries.count == expectedEntries.count
-        XCTAssert(expectedAmountOfReadings, "Wrong number of values under \(key). expected: \(sortedExpectedEntries); actual: \(sortedActualEntries); transaction start time: \(transaction.startSystemTime)")
+        XCTAssert(expectedAmountOfReadings, "Wrong number of values under \(key). expected: \(printTimestamps(entries: sortedExpectedEntries)); actual: \(printTimestamps(entries: sortedActualEntries)); transaction start time: \(transaction.startSystemTime)")
 
         guard expectedAmountOfReadings else {
             throw TestError.unexpectedAmountOfValues
