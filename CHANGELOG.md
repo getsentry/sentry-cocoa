@@ -1,11 +1,5 @@
 # Changelog
 
-## Unreleased
-
-### Features
-
-- Provide private access to ExtraContext for hybrid SDKs (#2855)
-
 ## 8.4.0
 
 ### Features
