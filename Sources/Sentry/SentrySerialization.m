@@ -22,8 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
         return nil;
     }
 
-    NSError * error = nil;
-    NSData * data = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:&error];
+    NSError *error = nil;
+    NSData *data = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:&error];
     if (error) {
         SENTRY_LOG_ERROR(@"Internal error while serializing JSON: %@", error);
     }
