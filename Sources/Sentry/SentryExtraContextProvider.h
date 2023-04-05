@@ -12,9 +12,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)sharedInstance;
 
-- (_Nonnull instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
-                                deviceWrapper:(SentryUIDeviceWrapper *)deviceWrapper
-                           processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper;
+- (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
+                       deviceWrapper:(SentryUIDeviceWrapper *)deviceWrapper
+                  processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper;
 
 - (NSDictionary *)getExtraContext;
 
