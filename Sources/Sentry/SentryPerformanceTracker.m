@@ -79,11 +79,15 @@ SentryPerformanceTracker () <SentryTracerDelegate>
             }
 
             SENTRY_LOG_DEBUG(@"Creating new transaction bound to scope: %d", bindToScope);
-            newSpan = [SentrySDK.currentHub startTransactionWithContext:context
-                                                            bindToScope:bindToScope
-                                                        waitForChildren:YES
-                                                  customSamplingContext:@{}
-                                                           timerWrapper:nil];
+
+            newSpan = [SentrySDK.currentHub
+                startTransactionWithContext:context
+                                bindToScope:bindToScope
+                      customSamplingContext:@{}
+                              configuration:[SentryTracerConfiguration configurationWithBlock:^(
+                                                SentryTracerConfiguration *configuration) {
+                                  configuration.waitForChildren = YES;
+                              }]];
 
             [(SentryTracer *)newSpan setDelegate:self];
         }];
