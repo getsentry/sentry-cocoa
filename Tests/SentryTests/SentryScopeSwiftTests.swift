@@ -29,14 +29,14 @@ class SentryScopeSwiftTests: XCTestCase {
             user.email = "user@sentry.io"
             user.username = "user123"
             user.ipAddress = ipAddress
-            user.data = ["some": ["data": "data", "date": date]]
+            user.data = ["some": ["data": "data", "date": date] as [String: Any]]
             
             breadcrumb = Breadcrumb()
             breadcrumb.level = SentryLevel.info
             breadcrumb.timestamp = date
             breadcrumb.type = "user"
             breadcrumb.message = "Clicked something"
-            breadcrumb.data = ["some": ["data": "data", "date": date]]
+            breadcrumb.data = ["some": ["data": "data", "date": date] as [String: Any]]
             
             scope = Scope(maxBreadcrumbs: maxBreadcrumbs)
             scope.setUser(user)

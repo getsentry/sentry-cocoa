@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.4.0
 
 ### Features
 
@@ -11,7 +11,7 @@
 ### Fixes
  
 - Correctly track and send GPU frame render data in profiles (#2823)
-- Xcode 14.3 compiling issue regarding functions declaration with no prototype (#2852) 
+- Xcode 14.3 compiling issue regarding functions declaration with no prototype (#2852)
 
 ## 8.3.3
 
