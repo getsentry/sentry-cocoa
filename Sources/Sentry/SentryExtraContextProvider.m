@@ -23,16 +23,16 @@ SentryExtraContextProvider ()
     return instance;
 }
 
-- (_Nonnull instancetype)init
+- (instancetype)init
 {
     return [self initWithCrashWrapper:[SentryCrashWrapper sharedInstance]
                         deviceWrapper:[[SentryUIDeviceWrapper alloc] init]
                    processInfoWrapper:[[SentryNSProcessInfoWrapper alloc] init]];
 }
 
-- (_Nonnull instancetype)initWithCrashWrapper:(id)crashWrapper
-                                deviceWrapper:(id)deviceWrapper
-                           processInfoWrapper:(id)processInfoWrapper
+- (instancetype)initWithCrashWrapper:(id)crashWrapper
+                       deviceWrapper:(id)deviceWrapper
+                  processInfoWrapper:(id)processInfoWrapper
 {
     if (self = [super init]) {
         self.crashWrapper = crashWrapper;
@@ -44,12 +44,7 @@ SentryExtraContextProvider ()
 
 - (NSDictionary *)getExtraContext
 {
-    NSMutableDictionary *extraContext = [[NSMutableDictionary alloc] init];
-
-    [extraContext setValue:[self getExtraDeviceContext] forKey:@"device"];
-    [extraContext setValue:[self getExtraAppContext] forKey:@"app"];
-
-    return extraContext;
+    return @{ @"device" : [self getExtraDeviceContext], @"app" : [self getExtraAppContext] };
 }
 
 - (NSDictionary *)getExtraDeviceContext
@@ -78,9 +73,7 @@ SentryExtraContextProvider ()
 
 - (NSDictionary *)getExtraAppContext
 {
-    NSMutableDictionary *extraAppContext = [[NSMutableDictionary alloc] init];
-    extraAppContext[SentryDeviceContextAppMemoryKey] = @(self.crashWrapper.appMemorySize);
-    return extraAppContext;
+    return @{ SentryDeviceContextAppMemoryKey : @(self.crashWrapper.appMemorySize) };
 }
 
 @end
