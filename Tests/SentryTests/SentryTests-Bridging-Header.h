@@ -79,6 +79,7 @@
 #import "SentryFileIOTrackingIntegration.h"
 #import "SentryFileManager+TestProperties.h"
 #import "SentryFileManager.h"
+#import "SentryFormatter.h"
 #import "SentryFrame.h"
 #import "SentryFrameRemover.h"
 #import "SentryFramesTracker+TestInit.h"
