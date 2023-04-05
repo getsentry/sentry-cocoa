@@ -29,14 +29,9 @@ SentryNSURLRequest ()
                                  didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     NSDictionary *serialized = [event serialize];
-    NSData *jsonData = [SentrySerialization dataWithJSONObject:serialized error:error];
+    NSData *jsonData = [SentrySerialization dataWithJSONObject:serialized];
     if (nil == jsonData) {
-        if (error) {
-            // TODO: We're possibly overriding an error set by the actual
-            // code that failed ^
-            *error = NSErrorFromSentryError(
-                kSentryErrorJsonConversionError, @"Event cannot be converted to JSON");
-        }
+        SENTRY_LOG_ERROR(@"Event cannot be converted to JSON");
         return nil;
     }
 
