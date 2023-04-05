@@ -12,7 +12,7 @@
  
 - Correctly track and send GPU frame render data in profiles (#2823)
 - Xcode 14.3 compiling issue regarding functions declaration with no prototype (#2852) 
-- Serialization with invalid objects (#2858)
+- Crash when serializing invalid objects (#2858)
 
 ## 8.3.3
 
