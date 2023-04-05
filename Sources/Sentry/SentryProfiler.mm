@@ -86,7 +86,7 @@ processBacktrace(const Backtrace &backtrace,
     NSMutableDictionary<NSString *, NSNumber *> *frameIndexLookup,
     NSMutableDictionary<NSString *, NSNumber *> *stackIndexLookup)
 {
-    const auto threadID = SENTRY_UINT64_TO_STRING(backtrace.threadMetadata.threadID);
+    const auto threadID = sentry_stringForUInt64(backtrace.threadMetadata.threadID);
 
     NSString *queueAddress = nil;
     if (backtrace.queueMetadata.address != 0) {
@@ -219,7 +219,7 @@ processFrameRenders(SentryFrameInfoTimeSeries *frameInfo, SentryTransaction *tra
             = getDurationNs(relativeFrameRenderStart, relativeFrameRenderEnd);
 
         [relativeFrameInfo addObject:@{
-            @"elapsed_since_start_ns" : SENTRY_UINT64_TO_STRING(relativeFrameRenderStart),
+            @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeFrameRenderStart),
             @"value" : @(frameRenderDurationNs),
         }];
     }];
@@ -249,7 +249,7 @@ processFrameRates(SentryFrameInfoTimeSeries *frameRates, SentryTransaction *tran
         const auto relativeTimestamp = getDurationNs(transaction.startSystemTime, timestamp);
 
         [relativeFrameRates addObject:@ {
-            @"elapsed_since_start_ns" : SENTRY_UINT64_TO_STRING(relativeTimestamp),
+            @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp),
             @"value" : refreshRate,
         }];
     }];
@@ -273,9 +273,9 @@ serializedSamplesWithRelativeTimestamps(
             return;
         }
         const auto dict = [NSMutableDictionary dictionaryWithDictionary:@ {
-            @"elapsed_since_start_ns" : SENTRY_UINT64_TO_STRING(
+            @"elapsed_since_start_ns" : sentry_stringForUInt64(
                 getDurationNs(transaction.startSystemTime, sample.absoluteTimestamp)),
-            @"thread_id" : SENTRY_UINT64_TO_STRING(sample.threadID),
+            @"thread_id" : sentry_stringForUInt64(sample.threadID),
             @"stack_id" : sample.stackIndex,
         }];
         if (sample.queueAddress) {

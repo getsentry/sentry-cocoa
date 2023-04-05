@@ -61,7 +61,7 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
             = getDurationNs(transaction.startSystemTime, reading.absoluteTimestamp);
 
         [timestampNormalizedValues addObject:@ {
-            @"elapsed_since_start_ns" : SENTRY_UINT64_TO_STRING(relativeTimestamp),
+            @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp),
             @"value" : reading.value
         }];
     }];
