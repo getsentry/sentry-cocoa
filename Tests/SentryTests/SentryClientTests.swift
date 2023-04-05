@@ -30,6 +30,8 @@ class SentryClientTest: XCTestCase {
         let transaction: Transaction
         let crashWrapper = TestSentryCrashWrapper.sharedInstance()
         let deviceWrapper = TestSentryUIDeviceWrapper()
+        let processWrapper = TestSentryNSProcessInfoWrapper()
+        let extraContentProvider: SentryExtraContextProvider
         let locale = Locale(identifier: "en_US")
         let timezone = TimeZone(identifier: "Europe/Vienna")!
         let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
@@ -60,6 +62,8 @@ class SentryClientTest: XCTestCase {
             crashWrapper.internalFreeMemorySize = 123_456
             crashWrapper.internalAppMemorySize = 234_567
             crashWrapper.internalFreeStorageSize = 345_678
+            
+            extraContentProvider = SentryExtraContextProvider(crashWrapper: crashWrapper, deviceWrapper: deviceWrapper, processInfoWrapper: processWrapper)
         }
 
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> SentryClient {
@@ -77,10 +81,9 @@ class SentryClientTest: XCTestCase {
                     deleteOldEnvelopeItems: false,
                     threadInspector: threadInspector,
                     random: random,
-                    crashWrapper: crashWrapper,
-                    deviceWrapper: deviceWrapper,
                     locale: locale,
-                    timezone: timezone
+                    timezone: timezone,
+                    extraContextProvider: extraContentProvider
                 )
             } catch {
                 XCTFail("Options could not be created")
@@ -610,9 +613,7 @@ class SentryClientTest: XCTestCase {
     func testCaptureEvent_AddCurrentMemoryStorageAndCPUCoreCount() {
 
         let sut = fixture.getSut()
-        let testProcessWrapper = TestSentryNSProcessInfoWrapper()
-        testProcessWrapper.overrides.processorCount = 12
-        Dynamic(sut).processInfoWrapper = testProcessWrapper
+        fixture.processWrapper.overrides.processorCount = 12
 
         sut.capture(event: TestData.event)
 
@@ -627,7 +628,7 @@ class SentryClientTest: XCTestCase {
             XCTAssertEqual(eventFreeStorage, 345_678)
 
             let cpuCoreCount = actual.context?["device"]?["processor_count"] as? UInt
-            XCTAssertEqual(testProcessWrapper.processorCount, cpuCoreCount)
+            XCTAssertEqual(fixture.processWrapper.processorCount, cpuCoreCount)
         }
     }
     
