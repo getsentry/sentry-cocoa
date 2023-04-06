@@ -123,7 +123,7 @@ class SentryTracerTests: XCTestCase {
         clearTestState()
     }
     
-    func testFinish_WithChildren_WaitsForAllChildren() {
+    func testFinish_WithChildren_WaitsForAllChildren() throws {
         let sut = fixture.getSut()
         let child = sut.startChild(operation: fixture.transactionOperation)
         sut.finish()
@@ -144,7 +144,7 @@ class SentryTracerTests: XCTestCase {
         
         assertOneTransactionCaptured(sut)
         
-        let serialization = getSerializedTransaction()
+        let serialization = try getSerializedTransaction()
         let spans = serialization["spans"]! as! [[String: Any]]
         
         let tracerTimestamp: NSDate = sut.timestamp! as NSDate
@@ -839,7 +839,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertTrue(sutOnScope === fixture.hub.scope.span)
     }
     
-    func testFinishAsync() {
+    func testFinishAsync() throws {
         let sut = fixture.getSut()
         let child = sut.startChild(operation: fixture.transactionOperation)
         sut.finish()
@@ -871,7 +871,7 @@ class SentryTracerTests: XCTestCase {
         
         assertOneTransactionCaptured(sut)
         
-        let spans = getSerializedTransaction()["spans"]! as! [[String: Any]]
+        let spans = try getSerializedTransaction()["spans"]! as! [[String: Any]]
         XCTAssertEqual(spans.count, children * (grandchildren + 1) + 1)
     }
     
@@ -906,7 +906,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(1, transactionsWithAppStartMeasurement.count)
     }
     
-    func testAddingSpansOnDifferentThread_WhileFinishing_DoesNotCrash() {
+    func testAddingSpansOnDifferentThread_WhileFinishing_DoesNotCrash() throws {
         let sut = fixture.getSut(waitForChildren: false)
         
         let children = 1_000
@@ -943,7 +943,7 @@ class SentryTracerTests: XCTestCase {
         queue.activate()
         group.wait()
         
-        let spans = getSerializedTransaction()["spans"]! as! [[String: Any]]
+        let spans = try getSerializedTransaction()["spans"]! as! [[String: Any]]
         XCTAssertGreaterThanOrEqual(spans.count, children)
     }
     
@@ -1013,10 +1013,9 @@ class SentryTracerTests: XCTestCase {
         fixture.currentDateProvider.internalDispatchNow = newNow
     }
     
-    private func getSerializedTransaction() -> [String: Any] {
-        guard let transaction = fixture.hub.capturedEventsWithScopes.first?.event else {
-            fatalError("Event must not be nil.")
-        }
+    private func getSerializedTransaction() throws -> [String: Any] {
+         let transaction = try XCTUnwrap( fixture.hub.capturedEventsWithScopes.first?.event)
+        
         return transaction.serialize()
     }
     
