@@ -1,4 +1,3 @@
-// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitor_MachException.c
 //
@@ -410,7 +409,7 @@ handleExceptions(void *const userData)
 // ============================================================================
 
 static void
-uninstallExceptionHandler(void)
+uninstallExceptionHandler()
 {
     SentryCrashLOG_DEBUG("Uninstalling mach exception handler.");
 
@@ -447,7 +446,7 @@ uninstallExceptionHandler(void)
 }
 
 static bool
-installExceptionHandler(void)
+installExceptionHandler()
 {
     SentryCrashLOG_DEBUG("Installing mach exception handler.");
 
@@ -546,7 +545,7 @@ setEnabled(bool isEnabled)
 }
 
 static bool
-isEnabled(void)
+isEnabled()
 {
     return g_isEnabled;
 }
@@ -564,7 +563,7 @@ addContextualInfoToEvent(struct SentryCrash_MonitorContext *eventContext)
 #endif
 
 SentryCrashMonitorAPI *
-sentrycrashcm_machexception_getAPI(void)
+sentrycrashcm_machexception_getAPI()
 {
     static SentryCrashMonitorAPI api = {
 #if SentryCrashCRASH_HAS_MACH

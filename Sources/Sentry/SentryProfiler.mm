@@ -22,7 +22,6 @@
 #    import "SentryMetricProfiler.h"
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentryNSTimerWrapper.h"
-#    import "SentryProfileTimeseries.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryScope+Private.h"
 #    import "SentryScreenFrames.h"
@@ -31,7 +30,6 @@
 #    import "SentrySystemWrapper.h"
 #    import "SentryThread.h"
 #    import "SentryTime.h"
-#    import "SentryTracer.h"
 #    import "SentryTransaction.h"
 #    import "SentryTransactionContext+Private.h"
 
@@ -152,10 +150,7 @@ processBacktrace(const Backtrace &backtrace,
         [stacks addObject:stack];
     }
 
-    {
-        std::lock_guard<std::mutex> l(_gSamplesArrayLock);
-        [samples addObject:sample];
-    }
+    [samples addObject:sample];
 }
 
 std::mutex _gProfilerLock;
@@ -295,6 +290,9 @@ serializedSamplesWithRelativeTimestamps(
 
 @implementation SentryProfiler {
     NSMutableDictionary<NSString *, id> *_profileData;
+    uint64_t _startTimestamp;
+    NSDate *_startDate;
+    NSDate *_endDate;
     std::shared_ptr<SamplingProfiler> _profiler;
     SentryMetricProfiler *_metricProfiler;
     SentryDebugImageProvider *_debugImageProvider;
@@ -399,7 +397,7 @@ serializedSamplesWithRelativeTimestamps(
     }
 
     // slice the profile data to only include the samples/metrics within the transaction
-    const auto slicedSamples = slicedProfileSamples(samples, transaction);
+    const auto slicedSamples = [self slicedSamples:samples transaction:transaction];
     if (slicedSamples.count < 2) {
         SENTRY_LOG_DEBUG(@"Not enough samples in profile during the transaction");
         return nil;
@@ -414,12 +412,16 @@ serializedSamplesWithRelativeTimestamps(
     };
 
     // add the serialized info for the associated transaction
-    const auto transactionInfo = [self serializeInfoForTransaction:transaction];
+    const auto firstSampleTimestamp = slicedSamples.firstObject.absoluteTimestamp;
+    const auto profileDuration = getDurationNs(firstSampleTimestamp, getAbsoluteTime());
+
+    const auto transactionInfo = [self serializeInfoForTransaction:transaction
+                                                   profileDuration:profileDuration];
     if (!transactionInfo) {
         SENTRY_LOG_WARN(@"Could not find any associated transaction for the profile.");
         return nil;
     }
-    payload[@"transaction"] = transactionInfo;
+    payload[@"transactions"] = @[ transactionInfo ];
 
     // add the gathered metrics
     const auto metrics = [_gCurrentProfiler->_metricProfiler serializeForTransaction:transaction];
@@ -437,12 +439,10 @@ serializedSamplesWithRelativeTimestamps(
         metrics[@"frozen_frame_renders"] = @{ @"unit" : @"nanosecond", @"values" : frozenFrames };
     }
 
-    if (slowFrames.count > 0 || frozenFrames.count > 0) {
-        const auto frameRates = processFrameRates(
-            _gCurrentFramesTracker.currentFrames.frameRateTimestamps, transaction);
-        if (frameRates.count > 0) {
-            metrics[@"screen_frame_rates"] = @{ @"unit" : @"hz", @"values" : frameRates };
-        }
+    const auto frameRates
+        = processFrameRates(_gCurrentFramesTracker.currentFrames.frameRateTimestamps, transaction);
+    if (frameRates.count > 0) {
+        metrics[@"screen_frame_rates"] = @{ @"unit" : @"hz", @"values" : frameRates };
     }
 #    endif // SENTRY_HAS_UIKIT
 
@@ -450,15 +450,12 @@ serializedSamplesWithRelativeTimestamps(
         payload[@"measurements"] = metrics;
     }
 
-#    if defined(TEST) || defined(TESTCI)
-    [NSNotificationCenter.defaultCenter postNotificationName:@"SentryProfileCompleteNotification"
-                                                      object:nil
-                                                    userInfo:payload];
-#    endif // defined(TEST) || defined(TESTCI)
-
     // add the remaining basic metadata for the profile
     const auto profileID = [[SentryId alloc] init];
-    [self serializeBasicProfileInfo:payload profileID:profileID transaction:transaction];
+    [self serializeBasicProfileInfo:payload
+                    profileDuration:profileDuration
+                          profileID:profileID
+                           platform:transaction.platform];
 
     return [self envelopeItemForProfileData:payload profileID:profileID];
 }
@@ -492,6 +489,78 @@ serializedSamplesWithRelativeTimestamps(
 #    endif // SENTRY_HAS_UIKIT
 
 #    pragma mark - Private
+
++ (nullable NSArray<SentrySample *> *)slicedSamples:(NSArray<SentrySample *> *)samples
+                                        transaction:(SentryTransaction *)transaction
+{
+    if (samples.count == 0) {
+        return nil;
+    }
+
+    const auto firstIndex = [samples indexOfObjectPassingTest:^BOOL(
+        SentrySample *_Nonnull sample, NSUInteger idx, BOOL *_Nonnull stop) {
+        *stop = sample.absoluteTimestamp >= transaction.startSystemTime;
+        return *stop;
+    }];
+
+    if (firstIndex == NSNotFound) {
+        [self logSlicingFailureWithArray:samples transaction:transaction start:YES];
+        return nil;
+    } else {
+        SENTRY_LOG_DEBUG(@"Found first slice sample at index %lu", firstIndex);
+    }
+
+    const auto lastIndex =
+        [samples indexOfObjectWithOptions:NSEnumerationReverse
+                              passingTest:^BOOL(SentrySample *_Nonnull sample, NSUInteger idx,
+                                  BOOL *_Nonnull stop) {
+                                  *stop = sample.absoluteTimestamp <= transaction.endSystemTime;
+                                  return *stop;
+                              }];
+
+    if (lastIndex == NSNotFound) {
+        [self logSlicingFailureWithArray:samples transaction:transaction start:NO];
+        return nil;
+    } else {
+        SENTRY_LOG_DEBUG(@"Found last slice sample at index %lu", lastIndex);
+    }
+
+    const auto range = NSMakeRange(firstIndex, (lastIndex - firstIndex) + 1);
+    const auto indices = [NSIndexSet indexSetWithIndexesInRange:range];
+    return [samples objectsAtIndexes:indices];
+}
+
+/**
+ * Print a debug log to help diagnose slicing errors.
+ * @param start @c YES if this is an attempt to find the start of the sliced data based on the
+ * transaction start; @c NO if it's trying to find the end of the sliced data based on the
+ * transaction's end, to accurately describe what's happening in the log statement.
+ */
++ (void)logSlicingFailureWithArray:(NSArray<SentrySample *> *)array
+                       transaction:(SentryTransaction *)transaction
+                             start:(BOOL)start
+{
+    if (!SENTRY_ASSERT(array.count > 0, @"Should not have attempted to slice an empty array.")) {
+        return;
+    }
+
+    if (![SentryLog willLogAtLevel:kSentryLevelDebug]) {
+        return;
+    }
+
+    const auto firstSampleAbsoluteTime = array.firstObject.absoluteTimestamp;
+    const auto lastSampleAbsoluteTime = array.lastObject.absoluteTimestamp;
+    const auto firstSampleRelativeToTransactionStart
+        = firstSampleAbsoluteTime - transaction.startSystemTime;
+    const auto lastSampleRelativeToTransactionStart
+        = lastSampleAbsoluteTime - transaction.startSystemTime;
+    SENTRY_LOG_DEBUG(@"[slice %@] Could not find any%@ sample taken during the transaction "
+                     @"(first sample taken at: %llu; last: %llu; transaction start: %llu; end: "
+                     @"%llu; first sample relative to transaction start: %lld; last: %lld).",
+        start ? @"start" : @"end", start ? @"" : @" other", firstSampleAbsoluteTime,
+        lastSampleAbsoluteTime, transaction.startSystemTime, transaction.endSystemTime,
+        firstSampleRelativeToTransactionStart, lastSampleRelativeToTransactionStart);
+}
 
 + (void)timeoutAbort
 {
@@ -548,11 +617,6 @@ serializedSamplesWithRelativeTimestamps(
     if (_gCurrentTimerWrapper == nil) {
         _gCurrentTimerWrapper = [[SentryNSTimerWrapper alloc] init];
     }
-#    if SENTRY_HAS_UIKIT
-    if (_gCurrentFramesTracker == nil) {
-        _gCurrentFramesTracker = SentryFramesTracker.sharedInstance;
-    }
-#    endif // SENTRY_HAS_UIKIT
     _metricProfiler =
         [[SentryMetricProfiler alloc] initWithProcessInfoWrapper:_gCurrentProcessInfoWrapper
                                                    systemWrapper:_gCurrentSystemWrapper
@@ -645,6 +709,8 @@ serializedSamplesWithRelativeTimestamps(
     sampledProfile[@"thread_metadata"] = threadMetadata;
     sampledProfile[@"queue_metadata"] = queueMetadata;
     _profileData[@"profile"] = sampledProfile;
+    _startTimestamp = getAbsoluteTime();
+    _startDate = [SentryCurrentDate date];
 
     __weak const auto weakSelf = self;
     _profiler = std::make_shared<SamplingProfiler>(
@@ -681,8 +747,9 @@ serializedSamplesWithRelativeTimestamps(
 }
 
 + (void)serializeBasicProfileInfo:(NSMutableDictionary<NSString *, id> *)profile
+                  profileDuration:(const unsigned long long &)profileDuration
                         profileID:(SentryId *const &)profileID
-                      transaction:(SentryTransaction *)transaction
+                         platform:(NSString *)platform
 {
     profile[@"version"] = @"1";
     const auto debugImages = [NSMutableArray<NSDictionary<NSString *, id> *> new];
@@ -710,31 +777,53 @@ serializedSamplesWithRelativeTimestamps(
     };
 
     profile[@"profile_id"] = profileID.sentryIdString;
+    profile[@"duration_ns"] = [@(profileDuration) stringValue];
     profile[@"truncation_reason"]
         = profilerTruncationReasonName(_gCurrentProfiler->_truncationReason);
-    profile[@"platform"] = transaction.platform;
+    profile[@"platform"] = platform;
     profile[@"environment"] = _gCurrentProfiler->_hub.scope.environmentString
         ?: _gCurrentProfiler->_hub.getClient.options.environment;
-
-    const auto timestamp = transaction.trace.originalStartTimestamp;
-    if (UNLIKELY(timestamp == nil)) {
-        SENTRY_LOG_WARN(@"There was no start timestamp on the provided transaction. Falling back "
-                        @"to old behavior of using the current time.");
-        profile[@"timestamp"] = [[SentryCurrentDate date] sentry_toIso8601String];
-    } else {
-        profile[@"timestamp"] = [timestamp sentry_toIso8601String];
-    }
-
+    profile[@"timestamp"] = [[SentryCurrentDate date] sentry_toIso8601String];
     profile[@"release"] = _gCurrentProfiler->_hub.getClient.options.releaseName;
 }
 
 /** @return serialize info corresponding to the specified transaction. */
 + (NSDictionary *)serializeInfoForTransaction:(SentryTransaction *)transaction
+                              profileDuration:(uint64_t)profileDuration
 {
+
+    SENTRY_LOG_DEBUG(@"Profile start timestamp: %@ absolute time: %llu",
+        _gCurrentProfiler->_startDate, (unsigned long long)_gCurrentProfiler->_startTimestamp);
+
+    const auto relativeStart = [NSString
+        stringWithFormat:@"%llu",
+        [transaction.startTimestamp compare:_gCurrentProfiler->_startDate] == NSOrderedAscending
+            ? 0
+            : timeIntervalToNanoseconds(
+                [transaction.startTimestamp timeIntervalSinceDate:_gCurrentProfiler->_startDate])];
+
+    NSString *relativeEnd;
+    if ([transaction.timestamp compare:_gCurrentProfiler->_endDate] == NSOrderedDescending) {
+        relativeEnd = serializedUnsigned64BitInteger(profileDuration);
+    } else {
+        const auto profileStartToTransactionEnd_ns = timeIntervalToNanoseconds(
+            [transaction.timestamp timeIntervalSinceDate:_gCurrentProfiler->_startDate]);
+        if (profileStartToTransactionEnd_ns < 0) {
+            SENTRY_LOG_DEBUG(@"Transaction %@ ended before the profiler started, won't "
+                             @"associate it with this profile.",
+                transaction.trace.traceId.sentryIdString);
+            return nil;
+        } else {
+            relativeEnd = [NSString
+                stringWithFormat:@"%llu", (unsigned long long)profileStartToTransactionEnd_ns];
+        }
+    }
     return @{
         @"id" : transaction.eventId.sentryIdString,
         @"trace_id" : transaction.trace.traceId.sentryIdString,
         @"name" : transaction.transaction,
+        @"relative_start_ns" : relativeStart,
+        @"relative_end_ns" : relativeEnd,
         @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
     };
 }
@@ -742,9 +831,10 @@ serializedSamplesWithRelativeTimestamps(
 + (SentryEnvelopeItem *)envelopeItemForProfileData:(NSMutableDictionary<NSString *, id> *)profile
                                          profileID:(SentryId *)profileID
 {
-    const auto JSONData = [SentrySerialization dataWithJSONObject:profile];
+    NSError *error = nil;
+    const auto JSONData = [SentrySerialization dataWithJSONObject:profile error:&error];
     if (JSONData == nil) {
-        SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
+        SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON: %@", error);
         return nil;
     }
 

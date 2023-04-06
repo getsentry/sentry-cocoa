@@ -1,59 +1,6 @@
 # Changelog
 
-## Unreleased
-
-### Fixes
-
-- Crash when serializing invalid objects (#2858)
-
-## 8.4.0
-
-### Features
-
-- Time to initial and full display (#2724)
-- Add time-to-initial-display and time-to-full-display measurements to ViewController transactions (#2843)
-- Add `name` and `geo` to User (#2710)
-
-### Fixes
- 
-- Correctly track and send GPU frame render data in profiles (#2823)
-- Xcode 14.3 compiling issue regarding functions declaration with no prototype (#2852) 
-
-## 8.3.3
-
-### Fixes
-
-- View hierarchy not sent for crashes (#2781)
-- Crash in Tracer for idle timeout (#2834)
-
-## 8.3.2
-
-### Features
-
-- Add CPU core count in device context (#2814)
-
-### Fixes
-
-
-- Updating AppHang state on main thread (#2793)
-- App Hang report crashes with too many threads (#2811)
-
-### Improvements
-
-- Remove not needed locks in SentryUser (#2809)
-
-## 8.3.1
-
-### Fixes 
-
-- Stop using UIScreen.main (#2762)
-- Profile timestamp alignment with transactions (#2771) and app start spans (#2772)
-- Fix crash when compiling profiling data during transaction serialization (#2786)
-
 ## 8.3.0
-
-### Important Note
-This release can cause crashes when Profiling is enabled (#2779). Please update to `8.3.1`.
 
 ### Fixes
 

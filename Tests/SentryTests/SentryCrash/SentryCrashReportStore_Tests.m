@@ -1,4 +1,3 @@
-// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashReportStore_Tests.m
 //
@@ -58,7 +57,6 @@
 
     int64_t reportID = 0;
     sscanf(filename, scanFormat, &reportID);
-
     return reportID;
 }
 

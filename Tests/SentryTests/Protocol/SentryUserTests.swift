@@ -12,8 +12,6 @@ class SentryUserTests: XCTestCase {
         user.username = ""
         user.ipAddress = ""
         user.segment = ""
-        user.name = ""
-        user.geo = Geo()
         user.data?.removeAll()
         
         XCTAssertEqual(TestData.user.userId, actual["id"] as? String)
@@ -21,13 +19,7 @@ class SentryUserTests: XCTestCase {
         XCTAssertEqual(TestData.user.username, actual["username"] as? String)
         XCTAssertEqual(TestData.user.ipAddress, actual["ip_address"] as? String)
         XCTAssertEqual(TestData.user.segment, actual["segment"] as? String)
-        XCTAssertEqual(TestData.user.name, actual["name"] as? String)
         XCTAssertEqual(["some": ["data": "data", "date": TestData.timestampAs8601String]], actual["data"] as? Dictionary)
-        
-        let actualGeo = actual["geo"] as? [String: Any]
-        XCTAssertEqual(TestData.user.geo?.city, actualGeo?["city"] as? String)
-        XCTAssertEqual(TestData.user.geo?.countryCode, actualGeo?["country_code"] as? String)
-        XCTAssertEqual(TestData.user.geo?.region, actualGeo?["region"] as? String)
     }
     
     func testSerializationWithOnlyId() {
@@ -72,8 +64,6 @@ class SentryUserTests: XCTestCase {
         testIsNotEqual { user in user.username = "" }
         testIsNotEqual { user in user.ipAddress = "" }
         testIsNotEqual { user in user.segment = "" }
-        testIsNotEqual { user in user.name = "" }
-        testIsNotEqual { user in user.geo = Geo() }
         testIsNotEqual { user in user.data?.removeAll() }
     }
     
@@ -93,15 +83,16 @@ class SentryUserTests: XCTestCase {
         user.username = ""
         user.ipAddress = ""
         user.segment = ""
-        user.name = ""
-        user.geo = Geo()
         user.data = [:]
         
         XCTAssertEqual(TestData.user, copiedUser)
     }
     
+    // Although we only run this test above the below specified versions, we expect the
+    // implementation to be thread safe
+    // With this test we test if modifications from multiple threads don't lead to a crash.
     func testModifyingFromMultipleThreads() {
-        let queue = DispatchQueue(label: "SentryUserTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
+        let queue = DispatchQueue(label: "SentryScopeTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
         let group = DispatchGroup()
         
         let user = TestData.user.copy() as! User
@@ -128,11 +119,6 @@ class SentryUserTests: XCTestCase {
                     user.username = "\(i)"
                     user.ipAddress = "\(i)"
                     user.segment = "\(i)"
-                    user.name = "\(i)"
-                    
-                    user.geo?.city = "\(i)"
-                    user.geo?.countryCode = "\(i)"
-                    user.geo?.region = "\(i)"
                     
                     user.data?["\(i)"] = "\(i)"
                     

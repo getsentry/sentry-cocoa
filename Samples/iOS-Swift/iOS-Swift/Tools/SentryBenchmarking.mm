@@ -13,7 +13,7 @@
 namespace {
 /// @note: Implementation ported from @c SentryThreadHandle.hpp .
 NSDictionary<NSString *, NSArray<NSNumber *> *> *
-cpuInfoByThread(void)
+cpuInfoByThread()
 {
     const auto dict = [NSMutableDictionary<NSString *, NSArray<NSNumber *> *> dictionary];
     mach_msg_type_number_t count;

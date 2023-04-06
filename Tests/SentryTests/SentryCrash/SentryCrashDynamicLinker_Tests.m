@@ -1,4 +1,3 @@
-// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashDynamicLinker_Tests.m
 //

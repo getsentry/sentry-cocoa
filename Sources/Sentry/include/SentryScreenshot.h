@@ -8,17 +8,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Get a screenshot of every open window in the app.
- * @return An array of @c NSData instances containing PNG images.
+ *
+ * @return An array of NSData containing a PNG image
  */
 - (nullable NSArray<NSData *> *)appScreenshots;
 
-/**
- * Save the current app screen shots in the given directory.
- * If an app has more than one screen, one image for each screen will be saved.
- *
- * @param imagesDirectoryPath The path where the images should be saved.
- */
-- (void)saveScreenShots:(NSString *)imagesDirectoryPath;
+- (void)saveScreenShots:(NSString *)path;
 
 - (NSArray<NSData *> *)takeScreenshots;
 @end

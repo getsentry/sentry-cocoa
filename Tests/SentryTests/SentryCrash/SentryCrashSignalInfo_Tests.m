@@ -1,4 +1,3 @@
-// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashSignalInfo_Tests.m
 //

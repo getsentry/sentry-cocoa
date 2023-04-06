@@ -1,4 +1,3 @@
-// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashC.c
 //
@@ -32,6 +31,7 @@
 #include "SentryCrashMonitorContext.h"
 #include "SentryCrashMonitor_AppState.h"
 #include "SentryCrashMonitor_System.h"
+#include "SentryCrashMonitor_Zombie.h"
 #include "SentryCrashObjC.h"
 #include "SentryCrashReport.h"
 #include "SentryCrashReportFixer.h"
@@ -225,7 +225,7 @@ sentrycrash_notifyAppCrash(void)
 }
 
 int
-sentrycrash_getReportCount(void)
+sentrycrash_getReportCount()
 {
     return sentrycrashcrs_getReportCount();
 }
@@ -266,7 +266,7 @@ sentrycrash_addUserReport(const char *report, int reportLength)
 }
 
 void
-sentrycrash_deleteAllReports(void)
+sentrycrash_deleteAllReports()
 {
     sentrycrashcrs_deleteAllReports();
 }
@@ -278,13 +278,13 @@ sentrycrash_deleteReportWithID(int64_t reportID)
 }
 
 bool
-sentrycrash_hasSaveScreenshotCallback(void)
+sentrycrash_hasSaveScreenshotCallback()
 {
     return g_saveScreenShot != NULL;
 }
 
 bool
-sentrycrash_hasSaveViewHierarchyCallback(void)
+sentrycrash_hasSaveViewHierarchyCallback()
 {
     return g_saveViewHierarchy != NULL;
 }

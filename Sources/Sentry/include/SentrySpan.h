@@ -71,15 +71,21 @@ SENTRY_NO_INIT
 @property (nullable, nonatomic, strong) NSArray<SentryFrame *> *frames;
 
 /**
- * Init a @c SentrySpan with given transaction and context.
+ * Init a SentrySpan with given transaction and context.
+ *
  * @param transaction The @c SentryTracer managing the transaction this span is associated with.
  * @param context This span context information.
+ *
+ * @return SentrySpan
  */
 - (instancetype)initWithTracer:(SentryTracer *)transaction context:(SentrySpanContext *)context;
 
 /**
- * Init a @c SentrySpan with given context.
+ * Init a SentrySpan with given context.
+ *
  * @param context This span context information.
+ *
+ * @return SentrySpan
  */
 - (instancetype)initWithContext:(SentrySpanContext *)context;
 

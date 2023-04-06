@@ -1,5 +1,4 @@
 import Sentry
-import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -51,12 +50,6 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         SentrySDK.close()
         XCTAssertNil(SentrySDK.currentHub().getClient()?.attachmentProcessors)
         XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
-    }
-
-    func test_integrationAddFileName() {
-        SentrySDK.start { $0.attachViewHierarchy = true }
-        saveViewHierarchy("/test/path")
-        XCTAssertEqual("/test/path/view-hierarchy.json", fixture.viewHierarchy.saveFilePathUsed)
     }
 
     func test_processAttachments() {

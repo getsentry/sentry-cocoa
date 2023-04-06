@@ -76,7 +76,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableAutoPerformanceTracing = YES;
         self.enableCaptureFailedRequests = YES;
         self.environment = kSentryDefaultEnvironment;
-        self.enableTimeToFullDisplay = NO;
 
         _enableTracing = NO;
         _enableTracingManual = NO;
@@ -224,7 +223,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 }
 
 /**
- * Populates all @c SentryOptions values from @c options dict using fallbacks/defaults if needed.
+ * Populates all `SentryOptions` values from `options` dict using fallbacks/defaults if needed.
  */
 - (BOOL)validateOptions:(NSDictionary<NSString *, id> *)options
        didFailWithError:(NSError *_Nullable *_Nullable)error
@@ -336,9 +335,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     [self setBool:options[@"enableCaptureFailedRequests"]
             block:^(BOOL value) { self->_enableCaptureFailedRequests = value; }];
-
-    [self setBool:options[@"enableTimeToFullDisplay"]
-            block:^(BOOL value) { self->_enableTimeToFullDisplay = value; }];
 
 #if SENTRY_HAS_UIKIT
     [self setBool:options[@"enableUIViewControllerTracing"]
@@ -569,11 +565,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 /**
  * Checks if the passed in block is actually of type block. We can't check if the block matches a
- * specific block without some complex objc runtime method calls and therefore we only check if it's
- * a block or not. Assigning a wrong block to the @c SentryOptions blocks still could lead to
- * crashes at runtime, but when someone uses the @c initWithDict they should better know what they
- * are doing.
- * @see Taken from https://gist.github.com/steipete/6ee378bd7d87f276f6e0
+ * specific block without some complex objc runtime method calls and therefore we only check if its
+ * a block or not. Assigning a wrong block to the SentryOption blocks still could lead to crashes at
+ * runtime, but when someone uses the initWithDict they should better know what they are doing.
+ *
+ * Taken from https://gist.github.com/steipete/6ee378bd7d87f276f6e0
  */
 - (BOOL)isBlock:(nullable id)block
 {

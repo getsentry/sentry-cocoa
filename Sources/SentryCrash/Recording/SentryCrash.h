@@ -1,4 +1,3 @@
-// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrash.h
 //
@@ -100,6 +99,13 @@ static NSString *const SENTRYCRASH_REPORT_ATTACHMENTS_ITEM = @"attachments";
  * Default: YES
  */
 @property (nonatomic, readwrite, assign) BOOL introspectMemory;
+
+/** If YES, monitor all Objective-C/Swift deallocations and keep track of any
+ * accesses after deallocation.
+ *
+ * Default: NO
+ */
+@property (nonatomic, readwrite, assign) BOOL catchZombies;
 
 /** List of Objective-C classes that should never be introspected.
  * Whenever a class in this list is encountered, only the class name will be

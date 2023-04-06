@@ -1,5 +1,3 @@
-import SentryTestUtils
-
 class TestSentryReachability: SentryReachability {
     var block: SentryConnectivityChangeBlock?
 

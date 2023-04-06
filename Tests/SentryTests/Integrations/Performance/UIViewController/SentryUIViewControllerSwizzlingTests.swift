@@ -1,5 +1,4 @@
 import Sentry
-import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -82,6 +81,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     
     func testViewControllerWithoutLoadView_TransactionBoundToScope() {
         fixture.sut.start()
+        SentryPerformanceTracker.shared.clear()
         let controller = TestViewController()
         controller.loadView()
         XCTAssertNotNil(SentrySDK.span)

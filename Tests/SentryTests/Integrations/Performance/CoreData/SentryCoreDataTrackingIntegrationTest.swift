@@ -1,5 +1,4 @@
 import CoreData
-import SentryTestUtils
 import XCTest
 
 class SentryCoreDataTrackingIntegrationTests: XCTestCase {

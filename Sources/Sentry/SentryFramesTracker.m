@@ -31,7 +31,6 @@ SentryFramesTracker ()
 @property (nonatomic, strong, readonly) SentryDisplayLinkWrapper *displayLinkWrapper;
 @property (nonatomic, assign) CFTimeInterval previousFrameTimestamp;
 @property (nonatomic) uint64_t previousFrameSystemTimestamp;
-@property (nonatomic, strong) NSHashTable<id<SentryFramesTrackerListener>> *listeners;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *frozenFrameTimestamps;
 @property (nonatomic, readwrite) SentryMutableFrameInfoTimeSeries *slowFrameTimestamps;
@@ -68,7 +67,6 @@ SentryFramesTracker ()
     if (self = [super init]) {
         _isRunning = NO;
         _displayLinkWrapper = displayLinkWrapper;
-        _listeners = [NSHashTable weakObjectsHashTable];
         [self resetFrames];
     }
     return self;
@@ -116,7 +114,6 @@ SentryFramesTracker ()
     if (self.previousFrameTimestamp == SentryPreviousFrameInitialValue) {
         self.previousFrameTimestamp = thisFrameTimestamp;
         self.previousFrameSystemTimestamp = thisFrameSystemTimestamp;
-        [self reportNewFrame];
         return;
     }
 
@@ -182,19 +179,6 @@ SentryFramesTracker ()
     atomic_fetch_add_explicit(&_totalFrames, 1, SentryFramesMemoryOrder);
     self.previousFrameTimestamp = thisFrameTimestamp;
     self.previousFrameSystemTimestamp = thisFrameSystemTimestamp;
-    [self reportNewFrame];
-}
-
-- (void)reportNewFrame
-{
-    NSArray *localListeners;
-    @synchronized(self.listeners) {
-        localListeners = [self.listeners allObjects];
-    }
-
-    for (id<SentryFramesTrackerListener> listener in localListeners) {
-        [listener framesTrackerHasNewFrame];
-    }
 }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -232,21 +216,6 @@ SentryFramesTracker ()
 {
     _isRunning = NO;
     [self.displayLinkWrapper invalidate];
-}
-
-- (void)addListener:(id<SentryFramesTrackerListener>)listener
-{
-
-    @synchronized(self.listeners) {
-        [self.listeners addObject:listener];
-    }
-}
-
-- (void)removeListener:(id<SentryFramesTrackerListener>)listener
-{
-    @synchronized(self.listeners) {
-        [self.listeners removeObject:listener];
-    }
 }
 
 @end

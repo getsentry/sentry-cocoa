@@ -1,4 +1,3 @@
-// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashSysCtl.m
 //
@@ -193,7 +192,7 @@ sentrycrashsysctl_timevalForName(const char *const name)
 }
 
 struct timeval
-sentrycrashsysctl_currentProcessStartTime(void)
+sentrycrashsysctl_currentProcessStartTime()
 {
     size_t len = 4;
     int mib[len];

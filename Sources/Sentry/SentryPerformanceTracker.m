@@ -79,17 +79,15 @@ SentryPerformanceTracker () <SentryTracerDelegate>
             }
 
             SENTRY_LOG_DEBUG(@"Creating new transaction bound to scope: %d", bindToScope);
+            newSpan = [SentrySDK.currentHub startTransactionWithContext:context
+                                                            bindToScope:bindToScope
+                                                        waitForChildren:YES
+                                                  customSamplingContext:@{}
+                                                           timerWrapper:nil];
 
-            newSpan = [SentrySDK.currentHub
-                startTransactionWithContext:context
-                                bindToScope:bindToScope
-                      customSamplingContext:@{}
-                              configuration:[SentryTracerConfiguration configurationWithBlock:^(
-                                                SentryTracerConfiguration *configuration) {
-                                  configuration.waitForChildren = YES;
-                              }]];
-
-            [(SentryTracer *)newSpan setDelegate:self];
+            if ([newSpan isKindOfClass:[SentryTracer class]]) {
+                [(SentryTracer *)newSpan setDelegate:self];
+            }
         }];
     }
 
@@ -215,12 +213,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
     id<SentrySpan> spanTracker;
     @synchronized(self.spans) {
         spanTracker = self.spans[spanId];
-        // Hold reference for tracer until the tracer finishes because automatic
-        // tracers aren't referenced by anything else.
-        // callback to `tracerDidFinish` will release it.
-        if (![spanTracker isKindOfClass:SentryTracer.self]) {
-            [self.spans removeObjectForKey:spanId];
-        }
+        [self.spans removeObjectForKey:spanId];
     }
 
     [spanTracker finishWithStatus:status];
@@ -251,13 +244,6 @@ SentryPerformanceTracker () <SentryTracerDelegate>
 {
     [self.activeSpanStack removeAllObjects];
     [self.spans removeAllObjects];
-}
-
-- (void)tracerDidFinish:(SentryTracer *)tracer
-{
-    @synchronized(self.spans) {
-        [self.spans removeObjectForKey:tracer.spanId];
-    }
 }
 
 @end

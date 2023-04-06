@@ -101,7 +101,7 @@ namespace profiling {
                 "startSampling is no-op because SamplingProfiler failed to initialize");
             return;
         }
-        std::lock_guard<std::mutex> l(isSamplingLock_);
+        std::lock_guard<std::mutex> l(lock_);
         if (isSampling_) {
             return;
         }
@@ -132,7 +132,7 @@ namespace profiling {
         if (!isInitialized_) {
             return;
         }
-        std::lock_guard<std::mutex> l(isSamplingLock_);
+        std::lock_guard<std::mutex> l(lock_);
         if (!isSampling_) {
             return;
         }
@@ -144,7 +144,7 @@ namespace profiling {
     bool
     SamplingProfiler::isSampling()
     {
-        std::lock_guard<std::mutex> l(isSamplingLock_);
+        std::lock_guard<std::mutex> l(lock_);
         return isSampling_;
     }
 

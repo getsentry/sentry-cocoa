@@ -1,5 +1,4 @@
 import ObjectiveC
-import SentryTestUtils
 import XCTest
 
 class SentryNetworkTrackerTests: XCTestCase {
@@ -155,7 +154,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let tracer = SentryTracer(transactionContext: TransactionContext(name: SentryNetworkTrackerTests.transactionName,
                                                                          operation: SentryNetworkTrackerTests.transactionOperation),
                                   hub: nil,
-                                  configuration: SentryTracerConfiguration(block: { $0.waitForChildren = true }))
+                                  waitForChildren: true)
 
         tracer.finish()
 
@@ -172,7 +171,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         let task = createDataTask()
         let tracer = SentryTracer(transactionContext: TransactionContext(name: SentryNetworkTrackerTests.transactionName,
                                                                          operation: SentryNetworkTrackerTests.transactionOperation),
-                                  hub: nil, configuration: SentryTracerConfiguration(block: { $0.waitForChildren = true }))
+                                  hub: nil,
+                                  waitForChildren: true)
         fixture.scope.span = tracer
         
         sut.urlSessionTaskResume(task)
@@ -472,6 +472,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         assertOneSpanCreated(transaction)
     }
     
+    // Although we only run this test above the below specified versions, we expect the
+    // implementation to be thread safe
     func testResumeCalledMultipleTimesConcurrent_OneSpanCreated() {
         let task = createDataTask()
         let sut = fixture.getSut()
@@ -495,6 +497,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         assertOneSpanCreated(transaction)
     }
     
+    // Although we only run this test above the below specified versions, we expect the
+    // implementation to be thread safe
     func testChangeStateMultipleTimesConcurrent_OneSpanFinished() {
         let task = createDataTask()
         let sut = fixture.getSut()

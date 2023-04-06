@@ -1,4 +1,3 @@
-import SentryTestUtils
 import XCTest
 
 class SentryPerformanceTrackerTests: XCTestCase {
@@ -47,7 +46,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         let scopeSpan = fixture.scope.span
         
         XCTAssert(scopeSpan === transaction)
-        XCTAssertTrue(Dynamic(transaction).configuration.waitForChildren.asBool ?? false)
+        XCTAssertTrue(transaction.waitForChildren)
         XCTAssertEqual(transaction.transactionContext.name, fixture.someTransaction)
         XCTAssertEqual(transaction.transactionContext.nameSource, .custom)
     }
@@ -206,14 +205,12 @@ class SentryPerformanceTrackerTests: XCTestCase {
         let spanId = startSpan(tracker: sut)
         let span = sut.getSpan(spanId)
         var blockCalled = false
-
-        XCTAssertEqual(getSpans(tracker: sut).count, 1)
-
+        
         sut.activateSpan(spanId) {
             blockCalled = true
             let childId = self.startSpan(tracker: sut)
             let child = sut.getSpan(childId)
-            XCTAssertEqual(self.getSpans(tracker: sut).count, 2)
+            
             XCTAssertFalse(span!.isFinished)
             XCTAssertFalse(child!.isFinished)
             
@@ -222,15 +219,13 @@ class SentryPerformanceTrackerTests: XCTestCase {
             XCTAssertFalse(span!.isFinished)
             XCTAssertTrue(child!.isFinished)
         }
-
-        XCTAssertEqual(getSpans(tracker: sut).count, 1)
+        
         sut.finishSpan(spanId)
         let status = Dynamic(span).finishStatus as SentrySpanStatus?
         
         XCTAssertEqual(status!, .ok)
         XCTAssertTrue(span!.isFinished)
         XCTAssertTrue(blockCalled)
-        XCTAssertEqual(getSpans(tracker: sut).count, 0)
     }
     
     func testFinishSpanWithStatus() {

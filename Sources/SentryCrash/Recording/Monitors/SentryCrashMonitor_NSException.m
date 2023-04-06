@@ -1,4 +1,3 @@
-// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitor_NSException.m
 //
@@ -138,13 +137,13 @@ setEnabled(bool isEnabled)
 }
 
 static bool
-isEnabled(void)
+isEnabled()
 {
     return g_isEnabled;
 }
 
 SentryCrashMonitorAPI *
-sentrycrashcm_nsexception_getAPI(void)
+sentrycrashcm_nsexception_getAPI()
 {
     static SentryCrashMonitorAPI api = { .setEnabled = setEnabled, .isEnabled = isEnabled };
     return &api;

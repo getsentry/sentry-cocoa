@@ -14,13 +14,15 @@ SENTRY_NO_INIT
 
 /**
  * Maps the stackEntry of a SentryCrashStackCursor to SentryFrame.
- * @param stackCursor An with @c SentryCrash initialized @c stackCursor. You can use for example
- * @c sentrycrashsc_initSelfThread.
+ *
+ * @param stackCursor An with SentryCrash initialized stackCursor. You can use for example
+ * sentrycrashsc_initSelfThread.
  */
 - (SentryFrame *)mapStackEntryWithCursor:(SentryCrashStackCursor)stackCursor;
 
 /**
- * Maps a @c SentryCrashStackEntry to @c SentryFrame.
+ * Maps a SentryCrashStackEntry to SentryFrame.
+ *
  * @param stackEntry A stack entry retrieved from a thread.
  */
 - (SentryFrame *)sentryCrashStackEntryToSentryFrame:(SentryCrashStackEntry)stackEntry;

@@ -1,15 +1,15 @@
 import Sentry
-import SentryTestUtils
 import XCTest
 
 class SentryHubTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryHubTests")
+    private static let dsn = TestConstants.dsn(username: "SentryHubTests")
         
     private class Fixture {
         let options: Options
         let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
-        let exception = NSException(name: NSExceptionName("My Custom exception"), reason: "User wants to crash", userInfo: nil)
+        let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User wants to crash", userInfo: nil)
         lazy var client = TestClient(options: options)!
         let crumb = Breadcrumb(level: .error, category: "default")
         let scope = Scope()
@@ -695,7 +695,7 @@ class SentryHubTests: XCTestCase {
         
         assertNoEnvelopesCaptured()
     }
-
+    
     func testCaptureEnvelope_WithSession() {
         let envelope = SentryEnvelope(session: SentrySession(releaseName: ""))
         sut.capture(envelope)
@@ -703,35 +703,6 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(1, fixture.client.captureEnvelopeInvocations.count)
         XCTAssertEqual(envelope, fixture.client.captureEnvelopeInvocations.first)
     }
-
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    func test_reportFullyDisplayed_enableTimeToFullDisplay_YES() {
-        fixture.options.enableTimeToFullDisplay = true
-        let sut = fixture.getSut(fixture.options)
-
-        let testTTDTracker = TestTimeToDisplayTracker()
-
-        Dynamic(SentryUIViewControllerPerformanceTracker.shared).currentTTDTracker = testTTDTracker
-
-        sut.reportFullyDisplayed()
-
-        XCTAssertTrue(testTTDTracker.registerFullDisplayCalled)
-
-    }
-
-    func test_reportFullyDisplayed_enableTimeToFullDisplay_NO() {
-        fixture.options.enableTimeToFullDisplay = false
-        let sut = fixture.getSut(fixture.options)
-
-        let testTTDTracker = TestTimeToDisplayTracker()
-
-        Dynamic(SentryUIViewControllerPerformanceTracker.shared).currentTTDTracker = testTTDTracker
-
-        sut.reportFullyDisplayed()
-
-        XCTAssertFalse(testTTDTracker.registerFullDisplayCalled)
-    }
-#endif
 
     private func addBreadcrumbThroughConfigureScope(_ hub: SentryHub) {
         hub.configureScope({ scope in
@@ -930,18 +901,3 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(expected, span.sampled)
     }
 }
-
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class TestTimeToDisplayTracker: SentryTimeToDisplayTracker {
-
-    init() {
-        super.init(for: UIViewController(), framesTracker: SentryFramesTracker.sharedInstance(), waitForFullDisplay: false)
-    }
-
-    var registerFullDisplayCalled = false
-    override func reportFullyDisplayed() {
-        registerFullDisplayCalled = true
-    }
-
-}
-#endif

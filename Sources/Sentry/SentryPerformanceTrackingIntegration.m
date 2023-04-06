@@ -4,7 +4,6 @@
 #import "SentryLog.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentrySubClassFinder.h"
-#import "SentryUIViewControllerPerformanceTracker.h"
 #import "SentryUIViewControllerSwizzling.h"
 
 @interface
@@ -43,9 +42,6 @@ SentryPerformanceTrackingIntegration ()
         processInfoWrapper:[[SentryNSProcessInfoWrapper alloc] init]];
 
     [self.swizzling start];
-    SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay
-        = options.enableTimeToFullDisplay;
-
     return YES;
 #else
     SENTRY_LOG_DEBUG(@"NO UIKit -> [SentryPerformanceTrackingIntegration start] does nothing.");

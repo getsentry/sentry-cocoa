@@ -1,5 +1,4 @@
 #include "../../Sources/Configuration/Sentry.xcconfig"
-#include "../../Sources/Configuration/DeploymentTargets.xcconfig"
 
 PRODUCT_NAME = Tests
 INFOPLIST_FILE = Tests/SentryTests/Info.plist

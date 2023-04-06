@@ -11,7 +11,6 @@
 #import "SentryId.h"
 #import "SentryLog.h"
 #import "SentryNSTimerWrapper.h"
-#import "SentryPerformanceTracker.h"
 #import "SentryProfilesSampler.h"
 #import "SentrySDK+Private.h"
 #import "SentrySamplingContext.h"
@@ -22,7 +21,6 @@
 #import "SentryTracesSampler.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext+Private.h"
-#import "SentryUIViewControllerPerformanceTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,7 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
 SentryHub ()
 
 @property (nullable, nonatomic, strong) SentryClient *client;
-@property (nullable, nonatomic, strong) SentrySession *session;
 @property (nullable, nonatomic, strong) SentryScope *scope;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryTracesSampler *tracesSampler;
@@ -369,8 +366,9 @@ SentryHub ()
 {
     return [self startTransactionWithContext:transactionContext
                                  bindToScope:bindToScope
+                             waitForChildren:NO
                        customSamplingContext:customSamplingContext
-                               configuration:[SentryTracerConfiguration defaultConfiguration]];
+                                timerWrapper:nil];
 }
 
 - (SentryTransactionContext *)transactionContext:(SentryTransactionContext *)context
@@ -387,10 +385,11 @@ SentryHub ()
                                             parentSampled:context.parentSampled];
 }
 
-- (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope
+                              waitForChildren:(BOOL)waitForChildren
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
-                                configuration:(SentryTracerConfiguration *)configuration
+                                 timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper
 {
     SentrySamplingContext *samplingContext =
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
@@ -404,12 +403,41 @@ SentryHub ()
     SentryProfilesSamplerDecision *profilesSamplerDecision =
         [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
 
-    configuration.profilesSamplerDecision = profilesSamplerDecision;
+    id<SentrySpan> tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
+                                                                         hub:self
+                                                     profilesSamplerDecision:profilesSamplerDecision
+                                                             waitForChildren:waitForChildren
+                                                                timerWrapper:timerWrapper];
+
+    if (bindToScope)
+        self.scope.span = tracer;
+
+    return tracer;
+}
+
+- (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bindToScope
+                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
+                                  idleTimeout:(NSTimeInterval)idleTimeout
+                         dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+{
+    SentrySamplingContext *samplingContext =
+        [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
+                                            customSamplingContext:customSamplingContext];
+
+    SentryTracesSamplerDecision *samplerDecision = [_tracesSampler sample:samplingContext];
+    transactionContext = [self transactionContext:transactionContext
+                                      withSampled:samplerDecision.decision];
+    transactionContext.sampleRate = samplerDecision.sampleRate;
+
+    SentryProfilesSamplerDecision *profilesSamplerDecision =
+        [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
 
     SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                         hub:self
-                                                              configuration:configuration];
-
+                                                    profilesSamplerDecision:profilesSamplerDecision
+                                                                idleTimeout:idleTimeout
+                                                       dispatchQueueWrapper:dispatchQueueWrapper];
     if (bindToScope)
         self.scope.span = tracer;
 
@@ -534,9 +562,9 @@ SentryHub ()
 }
 
 /**
- * Checks if a specific Integration (@c integrationClass) has been installed.
- * @return @c YES if instance of @c integrationClass exists within
- * @c SentryHub.installedIntegrations .
+ * Checks if a specific Integration (`integrationClass`) has been installed.
+ * @return BOOL If instance of `integrationClass` exists within
+ * `SentryHub.installedIntegrations`.
  */
 - (BOOL)isIntegrationInstalled:(Class)integrationClass
 {
@@ -638,17 +666,6 @@ SentryHub ()
     }
 
     return NO;
-}
-
-- (void)reportFullyDisplayed
-{
-#if SENTRY_HAS_UIKIT
-    if (_client.options.enableTimeToFullDisplay) {
-        [SentryUIViewControllerPerformanceTracker.shared reportFullyDisplayed];
-    } else {
-        SENTRY_LOG_DEBUG(@"The options `enableTimeToFullDisplay` is disabled.");
-    }
-#endif
 }
 
 - (void)flush:(NSTimeInterval)timeout

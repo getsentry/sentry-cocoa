@@ -1,5 +1,4 @@
 import Foundation
-import SentryTestUtils
 
 public class TestRequestManager: NSObject, RequestManager {
     

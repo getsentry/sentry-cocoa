@@ -318,7 +318,7 @@ SentryFileManager ()
 
 - (void)storeSession:(SentrySession *)session sessionFilePath:(NSString *)sessionFilePath
 {
-    NSData *sessionData = [SentrySerialization dataWithSession:session];
+    NSData *sessionData = [SentrySerialization dataWithSession:session error:nil];
     SENTRY_LOG_DEBUG(@"Writing session: %@", sessionFilePath);
     @synchronized(self.currentSessionFilePath) {
         if (![self writeData:sessionData toPath:sessionFilePath]) {
@@ -444,7 +444,7 @@ SentryFileManager ()
 
 - (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path
 {
-    NSData *saveData = [SentrySerialization dataWithJSONObject:dictionary];
+    NSData *saveData = [SentrySerialization dataWithJSONObject:dictionary error:nil];
     return nil != saveData ? [self storeData:saveData toUniqueJSONPath:path]
                            : path; // TODO: Should we return null instead? Whoever is using this
                                    // return value is being tricked.
@@ -452,10 +452,12 @@ SentryFileManager ()
 
 - (void)storeAppState:(SentryAppState *)appState
 {
-    NSData *data = [SentrySerialization dataWithJSONObject:[appState serialize]];
+    NSError *error = nil;
+    NSData *data = [SentrySerialization dataWithJSONObject:[appState serialize] error:&error];
 
-    if (data == nil) {
-        SENTRY_LOG_ERROR(@"Failed to store app state, because of an error in serialization");
+    if (error != nil) {
+        SENTRY_LOG_ERROR(
+            @"Failed to store app state, because of an error in serialization: %@", error);
         return;
     }
 

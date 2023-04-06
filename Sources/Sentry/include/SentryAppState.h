@@ -13,9 +13,11 @@ SENTRY_NO_INIT
                 systemBootTimestamp:(NSDate *)systemBootTimestamp;
 
 /**
- * Initializes @c SentryAppState from a JSON object.
- * @param jsonObject The @c jsonObject containing the session.
- * @return The @c SentrySession or @c nil if @c jsonObject contains an error.
+ * Initializes SentryAppState from a JSON object.
+ *
+ * @param jsonObject The jsonObject containing the session.
+ *
+ * @return The SentrySession or nil if the JSONObject contains an error.
  */
 - (nullable instancetype)initWithJSONObject:(NSDictionary *)jsonObject;
 

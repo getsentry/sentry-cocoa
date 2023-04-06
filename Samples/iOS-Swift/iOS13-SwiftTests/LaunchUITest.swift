@@ -12,7 +12,7 @@ class LaunchUITests: XCTestCase {
         app.launch()
         XCUIDevice.shared.orientation = .portrait
         
-        waitForExistenceOfMainScreen()
+        waitForExistenseOfMainScreen()
     }
     
     override func tearDownWithError() throws {
@@ -25,7 +25,7 @@ class LaunchUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["SwiftUI!"].waitForExistence(timeout: timeout), "SwiftUI not loaded.")
     }
     
-    private func waitForExistenceOfMainScreen() {
+    private func waitForExistenseOfMainScreen() {
         XCTAssertTrue(app.buttons["captureMessage"].waitForExistence(timeout: timeout), "Home Screen doesn't exist.")
     }
 }

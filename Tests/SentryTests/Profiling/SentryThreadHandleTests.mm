@@ -15,7 +15,7 @@ using namespace sentry::profiling;
 
 namespace {
 mach_port_t
-currentMachThread(void)
+currentMachThread()
 {
     const auto port = mach_thread_self();
     mach_port_deallocate(mach_task_self(), port);

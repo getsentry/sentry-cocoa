@@ -1,4 +1,3 @@
-// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitor_Signal.c
 //
@@ -121,7 +120,7 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 // ============================================================================
 
 static bool
-installSignalHandler(void)
+installSignalHandler()
 {
     SentryCrashLOG_DEBUG("Installing signal handler.");
 
@@ -231,7 +230,7 @@ setEnabled(bool isEnabled)
 }
 
 static bool
-isEnabled(void)
+isEnabled()
 {
     return g_isEnabled;
 }
@@ -248,7 +247,7 @@ addContextualInfoToEvent(struct SentryCrash_MonitorContext *eventContext)
 #endif
 
 SentryCrashMonitorAPI *
-sentrycrashcm_signal_getAPI(void)
+sentrycrashcm_signal_getAPI()
 {
     static SentryCrashMonitorAPI api = {
 #if SentryCrashCRASH_HAS_SIGNAL

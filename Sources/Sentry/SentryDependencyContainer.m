@@ -8,6 +8,7 @@
 #import <SentryDebugImageProvider.h>
 #import <SentryDefaultCurrentDateProvider.h>
 #import <SentryDependencyContainer.h>
+#import <SentryDispatchQueueWrapper.h>
 #import <SentryHub.h>
 #import <SentryNSNotificationCenterWrapper.h>
 #import <SentrySDK+Private.h>
@@ -203,7 +204,7 @@ static NSObject *sentryDependencyContainerLock;
                     initWithTimeoutInterval:timeout
                         currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
                                crashWrapper:self.crashWrapper
-                       dispatchQueueWrapper:self.dispatchQueueWrapper
+                       dispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
                               threadWrapper:self.threadWrapper];
             }
         }

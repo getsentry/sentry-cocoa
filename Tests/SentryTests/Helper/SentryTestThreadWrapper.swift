@@ -1,5 +1,4 @@
 import Foundation
-import SentryTestUtils
 import XCTest
 
 class SentryTestThreadWrapper: SentryThreadWrapper {

@@ -1,4 +1,3 @@
-import SentryTestUtils
 import XCTest
 
 // swiftlint:disable file_length
@@ -12,11 +11,6 @@ class SentryTracerTests: XCTestCase {
 
         func activeSpan(for tracer: SentryTracer) -> Span? {
             return activeSpan
-        }
-
-        var tracerDidFinishCalled = false
-        func tracerDidFinish(_ tracer: SentryTracer) {
-            tracerDidFinishCalled = true
         }
     }
 
@@ -61,6 +55,8 @@ class SentryTracerTests: XCTestCase {
             client.options.tracesSampleRate = 1
             hub = TestHub(client: client, andScope: scope)
             
+            CurrentDate.setCurrentDateProvider(currentDateProvider)
+            
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             displayLinkWrapper = TestDisplayLinkWrapper()
             
@@ -88,11 +84,9 @@ class SentryTracerTests: XCTestCase {
             let tracer = hub.startTransaction(
                 with: transactionContext,
                 bindToScope: false,
+                waitForChildren: waitForChildren,
                 customSamplingContext: [:],
-                configuration: SentryTracerConfiguration(block: {
-                    $0.waitForChildren = waitForChildren
-                    $0.timerWrapper = self.timerWrapper
-                }))
+                timerWrapper: timerWrapper) as! SentryTracer
             return tracer
         }
         
@@ -101,11 +95,8 @@ class SentryTracerTests: XCTestCase {
                 with: transactionContext,
                 bindToScope: false,
                 customSamplingContext: [:],
-                configuration: SentryTracerConfiguration(block: {
-                    $0.idleTimeout = idleTimeout
-                    $0.dispatchQueueWrapper = dispatchQueueWrapper
-                    $0.waitForChildren = true
-                })
+                idleTimeout: idleTimeout,
+                dispatchQueueWrapper: dispatchQueueWrapper
             )
             return tracer
         }
@@ -116,14 +107,20 @@ class SentryTracerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
+        SentryTracer.resetAppStartMeasurementRead()
     }
     
     override func tearDown() {
         super.tearDown()
         clearTestState()
+        SentryTracer.resetAppStartMeasurementRead()
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        SentryFramesTracker.sharedInstance().resetFrames()
+        SentryFramesTracker.sharedInstance().stop()
+#endif
     }
     
-    func testFinish_WithChildren_WaitsForAllChildren() throws {
+    func testFinish_WithChildren_WaitsForAllChildren() {
         let sut = fixture.getSut()
         let child = sut.startChild(operation: fixture.transactionOperation)
         sut.finish()
@@ -144,7 +141,7 @@ class SentryTracerTests: XCTestCase {
         
         assertOneTransactionCaptured(sut)
         
-        let serialization = try getSerializedTransaction()
+        let serialization = getSerializedTransaction()
         let spans = serialization["spans"]! as! [[String: Any]]
         
         let tracerTimestamp: NSDate = sut.timestamp! as NSDate
@@ -234,26 +231,6 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(status, sut.status)
     }
     
-    func testIdleTransaction_CreatingDispatchBlockFails_NoTransactionCaptured() {
-        fixture.dispatchQueue.createDispatchBlockReturnsNULL = true
-        
-        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
-        
-        assertTransactionNotCaptured(sut)
-    }
-    
-    func testIdleTransaction_CreatingDispatchBlockFailsForFirstChild_FinishesTransaction() {
-        let sut = fixture.getSut(idleTimeout: fixture.idleTimeout, dispatchQueueWrapper: fixture.dispatchQueue)
-        
-        fixture.dispatchQueue.createDispatchBlockReturnsNULL = true
-        
-        let child = sut.startChild(operation: fixture.transactionOperation)
-        advanceTime(bySeconds: 0.1)
-        child.finish()
-        
-        assertOneTransactionCaptured(sut)
-    }
-    
     func testWaitForChildrenTransactionWithStatus_OverwriteStatusInFinish() {
         let sut = fixture.getSut()
         sut.status = .aborted
@@ -281,7 +258,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testFinish_WithoutHub_DoesntCaptureTransaction() {
-        let sut = SentryTracer(transactionContext: fixture.transactionContext, hub: nil)
+        let sut = SentryTracer(transactionContext: fixture.transactionContext, hub: nil, waitForChildren: false)
         
         sut.finish()
         
@@ -471,8 +448,8 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(0, fixture.hub.capturedEventsWithScopes.count)
     }
     
-    func testAutomaticTransaction_CallFinish_DoesNotTrimEndTimestamp() {
-        let sut = fixture.getSut(waitForChildren: false)
+    func testNonIdleTransaction_CallFinish_DoesNotTrimEndTimestamp() {
+        let sut = fixture.getSut()
         
         advanceTime(bySeconds: 1.0)
         let child = sut.startChild(operation: fixture.transactionOperation)
@@ -511,7 +488,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAfterInvocations.count)
         
         sut.finish()
-        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations.count)
+        XCTAssertEqual(2, fixture.dispatchQueue.dispatchCancelInvocations.count)
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAfterInvocations.count)
         
         XCTAssertFalse(sut.isFinished)
@@ -839,7 +816,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertTrue(sutOnScope === fixture.hub.scope.span)
     }
     
-    func testFinishAsync() throws {
+    func testFinishAsync() {
         let sut = fixture.getSut()
         let child = sut.startChild(operation: fixture.transactionOperation)
         sut.finish()
@@ -871,7 +848,7 @@ class SentryTracerTests: XCTestCase {
         
         assertOneTransactionCaptured(sut)
         
-        let spans = try getSerializedTransaction()["spans"]! as! [[String: Any]]
+        let spans = getSerializedTransaction()["spans"]! as! [[String: Any]]
         XCTAssertEqual(spans.count, children * (grandchildren + 1) + 1)
     }
     
@@ -906,7 +883,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(1, transactionsWithAppStartMeasurement.count)
     }
     
-    func testAddingSpansOnDifferentThread_WhileFinishing_DoesNotCrash() throws {
+    func testAddingSpansOnDifferentThread_WhileFinishing_DoesNotCrash() {
         let sut = fixture.getSut(waitForChildren: false)
         
         let children = 1_000
@@ -923,7 +900,7 @@ class SentryTracerTests: XCTestCase {
                 group.enter()
                 queue.async {
                     let child = sut.startChild(operation: self.fixture.transactionOperation)
-                    Dynamic(child).frames = [] as [Frame]
+                    Dynamic(child).frames = []
                     child.finish()
                     group.leave()
                 }
@@ -943,16 +920,16 @@ class SentryTracerTests: XCTestCase {
         queue.activate()
         group.wait()
         
-        let spans = try getSerializedTransaction()["spans"]! as! [[String: Any]]
+        let spans = getSerializedTransaction()["spans"]! as! [[String: Any]]
         XCTAssertGreaterThanOrEqual(spans.count, children)
     }
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
-    func testChangeStartTimeStamp_RemovesFramesMeasurement() throws {
+    func testChangeStartTimeStamp_RemovesFramesMeasurement() {
         let sut = fixture.getSut()
         fixture.displayLinkWrapper.givenFrames(1, 1, 1)
-        sut.updateStartTime(try XCTUnwrap(sut.startTimestamp).addingTimeInterval(-1))
+        sut.startTimestamp = sut.startTimestamp?.addingTimeInterval(-1)
         
         sut.finish()
         
@@ -1013,15 +990,16 @@ class SentryTracerTests: XCTestCase {
         fixture.currentDateProvider.internalDispatchNow = newNow
     }
     
-    private func getSerializedTransaction() throws -> [String: Any] {
-         let transaction = try XCTUnwrap( fixture.hub.capturedEventsWithScopes.first?.event)
-        
+    private func getSerializedTransaction() -> [String: Any] {
+        guard let transaction = fixture.hub.capturedEventsWithScopes.first?.event else {
+            fatalError("Event must not be nil.")
+        }
         return transaction.serialize()
     }
     
     private func whenFinishingAutoUITransaction(startTimestamp: TimeInterval) {
         let sut = fixture.getSut()
-        sut.updateStartTime(fixture.appStartEnd.addingTimeInterval(startTimestamp))
+        sut.startTimestamp = fixture.appStartEnd.addingTimeInterval(startTimestamp)
         sut.finish()
         fixture.hub.group.wait()
     }

@@ -1,16 +1,17 @@
 import XCTest
 
 class LaunchUITests: XCTestCase {
+
     private let app: XCUIApplication = XCUIApplication()
 
     override func setUp() {
         super.setUp()
+        
         continueAfterFailure = false
         XCUIDevice.shared.orientation = .portrait
-        app.launchEnvironment["io.sentry.ui-test.test-name"] = name
         app.launch()
         
-        waitForExistenceOfMainScreen()
+        waitForExistenseOfMainScreen()
         checkSlowAndFrozenFrames()
     }
     
@@ -30,7 +31,7 @@ class LaunchUITests: XCTestCase {
             }
 
             app.launch()
-            waitForExistenceOfMainScreen()
+            waitForExistenseOfMainScreen()
         }
     }
 
@@ -38,7 +39,7 @@ class LaunchUITests: XCTestCase {
         let breadcrumbLabel = app.staticTexts["breadcrumbLabel"]
         breadcrumbLabel.waitForExistence("Breadcrumb label not found.")
         XCTAssertEqual(breadcrumbLabel.label, "{ category: ui.lifecycle, parentViewController: UINavigationController, beingPresented: false, window_isKeyWindow: true, is_window_rootViewController: false }")
-    }
+      }
 
     func testLoremIpsum() {
         app.buttons["loremIpsumButton"].tap()
@@ -86,14 +87,12 @@ class LaunchUITests: XCTestCase {
             assertApp()
         }
     }
-}
-
-private extension LaunchUITests {
-    func waitForExistenceOfMainScreen() {
+        
+    private func waitForExistenseOfMainScreen() {
         app.buttons["captureMessageButton"].waitForExistence( "Home Screen doesn't exist.")
     }
     
-    func checkSlowAndFrozenFrames() {
+    private func checkSlowAndFrozenFrames() {
         let frameStatsLabel = app.staticTexts["framesStatsLabel"]
         frameStatsLabel.waitForExistence("Frame statistics message not found.")
         
@@ -112,11 +111,19 @@ private extension LaunchUITests {
         XCTAssertTrue(0.5 > frozenFramesPercentage, "Too many frozen frames.")
     }
     
-    func assertApp() {
+    private func assertApp() {
         let confirmation = app.staticTexts["ASSERT_MESSAGE"]
         let errorMessage = app.staticTexts["ASSERT_ERROR"]
         confirmation.waitForExistence("Assertion Message Not Found")
         
         XCTAssertTrue(confirmation.label == "ASSERT: SUCCESS", errorMessage.label)
+    }
+    
+}
+
+extension XCUIElement {
+
+    func waitForExistence(_ message: String) {
+        XCTAssertTrue(self.waitForExistence(timeout: TimeInterval(10)), message)
     }
 }

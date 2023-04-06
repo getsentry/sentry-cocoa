@@ -1,5 +1,4 @@
 import Foundation
-import SentryTestUtils
 
 class TestEnvelopeRateLimitDelegate: NSObject, SentryEnvelopeRateLimitDelegate {
     

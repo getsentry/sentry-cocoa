@@ -1,4 +1,3 @@
-// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitor_CPPException.c
 //
@@ -187,7 +186,7 @@ CPPExceptionTerminate(void)
 // ============================================================================
 
 static void
-initialize(void)
+initialize()
 {
     static bool isInitialized = false;
     if (!isInitialized) {
@@ -215,13 +214,13 @@ setEnabled(bool isEnabled)
 }
 
 static bool
-isEnabled(void)
+isEnabled()
 {
     return g_isEnabled;
 }
 
 extern "C" SentryCrashMonitorAPI *
-sentrycrashcm_cppexception_getAPI(void)
+sentrycrashcm_cppexception_getAPI()
 {
     static SentryCrashMonitorAPI api = { .setEnabled = setEnabled, .isEnabled = isEnabled };
     return &api;

@@ -27,14 +27,11 @@
         SentryHub *hub = [[SentryHub alloc] initWithClient:nil andScope:nil];
         SentryTransactionContext *context =
             [[SentryTransactionContext alloc] initWithOperation:@""];
-        SentryTracer *tracer = [[SentryTracer alloc]
-            initWithTransactionContext:context
-                                   hub:hub
-                         configuration:[SentryTracerConfiguration configurationWithBlock:^(
-                                           SentryTracerConfiguration *configuration) {
-                             configuration.waitForChildren = YES;
-                         }]];
-
+        SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:context
+                                                                            hub:hub
+                                                        profilesSamplerDecision:nil
+                                                                waitForChildren:YES
+                                                                   timerWrapper:nil];
         [tracer finish];
         child = [tracer startChildWithOperation:@"child"];
     }
@@ -58,23 +55,17 @@
         [[SentryProfilesSamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
                                                   forSampleRate:@1];
 
-    SentryTracer *tracer1 = [[SentryTracer alloc]
-        initWithTransactionContext:context1
-                               hub:hub
-                     configuration:[SentryTracerConfiguration configurationWithBlock:^(
-                                       SentryTracerConfiguration *configuration) {
-                         configuration.profilesSamplerDecision = decision;
-                         configuration.waitForChildren = YES;
-                     }]];
+    SentryTracer *tracer1 = [[SentryTracer alloc] initWithTransactionContext:context1
+                                                                         hub:hub
+                                                     profilesSamplerDecision:decision
+                                                             waitForChildren:YES
+                                                                timerWrapper:nil];
 
-    SentryTracer *tracer2 = [[SentryTracer alloc]
-        initWithTransactionContext:context2
-                               hub:hub
-                     configuration:[SentryTracerConfiguration configurationWithBlock:^(
-                                       SentryTracerConfiguration *configuration) {
-                         configuration.profilesSamplerDecision = decision;
-                         configuration.waitForChildren = YES;
-                     }]];
+    SentryTracer *tracer2 = [[SentryTracer alloc] initWithTransactionContext:context2
+                                                                         hub:hub
+                                                     profilesSamplerDecision:decision
+                                                             waitForChildren:YES
+                                                                timerWrapper:nil];
 
     // force some samples to be taken by the profiler
     NSMutableString *string = [NSMutableString string];

@@ -1,10 +1,10 @@
 @testable import Sentry
-import SentryTestUtils
 import XCTest
 
 class SentryTransportInitializerTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryTransportInitializerTests")
+    private static let dsn = TestConstants.dsn(username: "SentryTransportInitializerTests")
     
     private var fileManager: SentryFileManager!
     

@@ -1,5 +1,4 @@
 import ObjectiveC
-import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

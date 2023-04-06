@@ -12,8 +12,8 @@ typedef void (^SentryMemoryPressureNotification)(uintptr_t);
 typedef mach_vm_size_t SentryRAMBytes;
 
 /**
- * A wrapper around low-level system APIs that are found in headers such as @c <sys/...> and
- * @c <mach/...>.
+ * A wrapper around low-level system APIs that are found in headers such as @c <sys/...> and @c
+ * <mach/...>.
  */
 @interface SentrySystemWrapper : NSObject
 

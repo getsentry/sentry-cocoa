@@ -25,10 +25,11 @@ SENTRY_NO_INIT
 
 /**
  * Initializes an attachment with data.
+ *
  * @param data The data for the attachment.
  * @param filename The name of the attachment to display in Sentry.
- * @param contentType The content type of the attachment. Default is @c "application/octet-stream".
- * @param attachmentType The type of the attachment. Default is @c "EventAttachment".
+ * @param contentType The content type of the attachment. Default is "application/octet-stream".
+ * @param attachmentType The type of the attachment. Default is "EventAttachment".
  */
 - (instancetype)initWithData:(NSData *)data
                     filename:(NSString *)filename
@@ -37,10 +38,11 @@ SENTRY_NO_INIT
 
 /**
  * Initializes an attachment with data.
+ *
  * @param path The path of the file whose contents you want to upload to Sentry.
  * @param filename The name of the attachment to display in Sentry.
- * @param contentType The content type of the attachment. Default is @c "application/octet-stream".
- * @param attachmentType The type of the attachment. Default is@c  "EventAttachment".
+ * @param contentType The content type of the attachment. Default is "application/octet-stream".
+ * @param attachmentType The type of the attachment. Default is "EventAttachment".
  */
 - (instancetype)initWithPath:(NSString *)path
                     filename:(NSString *)filename

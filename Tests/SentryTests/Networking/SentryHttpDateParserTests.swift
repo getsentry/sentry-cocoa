@@ -1,5 +1,4 @@
 @testable import Sentry
-import SentryTestUtils
 import XCTest
 
 class SentryHttpDateParserTests: XCTestCase {

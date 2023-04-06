@@ -1,5 +1,4 @@
 import Sentry
-import SentryTestUtils
 import XCTest
 
 class SentrySpanTests: XCTestCase {

@@ -143,7 +143,6 @@
 #import "SentrySessionTracker.h"
 #import "SentrySpan.h"
 #import "SentrySpanId.h"
-#import "SentrySpanOperations.h"
 #import "SentryStacktrace.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySubClassFinder.h"
@@ -159,6 +158,7 @@
 #import "SentryTime.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer+Test.h"
+#import "SentryTracer.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext+Private.h"
 #import "SentryTransport.h"
@@ -185,17 +185,12 @@
 #import "URLSessionTaskMock.h"
 @import SentryPrivate;
 #import "SentryEnvelopeAttachmentHeader.h"
-#import "SentryExtraContextProvider.h"
-#import "SentryMeasurementValue.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryPerformanceTracker+Testing.h"
-#import "SentrySpanOperations.h"
-#import "SentryTimeToDisplayTracker.h"
-#import "SentryTracerConfiguration.h"
 #import "TestSentryViewHierarchy.h"
+
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"
 #    import "SentryUIEventTracker.h"
 #    import "SentryUIEventTrackingIntegration.h"
-#    import "SentryUIViewControllerPerformanceTracker.h"
 #endif

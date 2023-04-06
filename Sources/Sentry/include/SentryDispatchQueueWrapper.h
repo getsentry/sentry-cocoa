@@ -21,8 +21,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)dispatchOnce:(dispatch_once_t *)predicate block:(void (^)(void))block;
 
-- (nullable dispatch_block_t)createDispatchBlock:(void (^)(void))block;
-
 @end
 
 NS_ASSUME_NONNULL_END

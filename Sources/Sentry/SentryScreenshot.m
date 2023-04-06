@@ -20,7 +20,7 @@
     return result;
 }
 
-- (void)saveScreenShots:(NSString *)imagesDirectoryPath
+- (void)saveScreenShots:(NSString *)path
 {
     // This function does not dispatch the screenshot to the main thread.
     // The caller should be aware of that.
@@ -31,7 +31,7 @@
         NSString *name = idx == 0
             ? @"screenshot.png"
             : [NSString stringWithFormat:@"screenshot-%li.png", (unsigned long)idx + 1];
-        NSString *fileName = [imagesDirectoryPath stringByAppendingPathComponent:name];
+        NSString *fileName = [path stringByAppendingPathComponent:name];
         [obj writeToFile:fileName atomically:YES];
     }];
 }

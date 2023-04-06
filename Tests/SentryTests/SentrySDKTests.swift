@@ -1,10 +1,10 @@
 @testable import Sentry
-import SentryTestUtils
 import XCTest
 
 class SentrySDKTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySDKTests")
+    private static let dsn = TestConstants.dsn(username: "SentrySDKTests")
     
     private class Fixture {
     
@@ -521,22 +521,6 @@ class SentrySDKTests: XCTestCase {
 
         let stateAfterStop = fixture.fileManager.readAppState()
         XCTAssertFalse(stateAfterStop!.isSDKRunning)
-    }
-#endif
-
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    func testReportFullyDisplayed() {
-        fixture.options.enableTimeToFullDisplay = true
-
-        SentrySDK.start(options: fixture.options)
-
-        let testTTDTracker = TestTimeToDisplayTracker()
-
-        Dynamic(SentryUIViewControllerPerformanceTracker.shared).currentTTDTracker = testTTDTracker
-
-        SentrySDK.reportFullyDisplayed()
-
-        XCTAssertTrue(testTTDTracker.registerFullDisplayCalled)
     }
 #endif
     

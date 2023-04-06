@@ -22,7 +22,6 @@ class TraceTestViewController: UIViewController {
         }
         let session = URLSession(configuration: URLSessionConfiguration.default)
         let dataTask = session.dataTask(with: imgUrl) { (data, _, error) in
-            //Simulated delay in the download
             DispatchQueue.main.async {
                 if let err = error {
                     SentrySDK.capture(error: err)
@@ -30,7 +29,6 @@ class TraceTestViewController: UIViewController {
                     self.imageView.image = UIImage(data: image)
                     self.appendLifeCycleStep("GET https://sentry-brand.storage.googleapis.com/sentry-logo-black.png")
                 }
-                SentrySDK.reportFullyDisplayed()
             }
         }
         

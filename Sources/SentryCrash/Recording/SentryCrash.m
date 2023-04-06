@@ -1,4 +1,3 @@
-// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrash.m
 //
@@ -65,7 +64,7 @@ SentryCrash ()
 @end
 
 static NSString *
-getBundleName(void)
+getBundleName()
 {
     NSString *bundleName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleName"];
     if (bundleName == nil) {
@@ -75,7 +74,7 @@ getBundleName(void)
 }
 
 static NSString *
-getBasePath(void)
+getBasePath()
 {
     NSArray *directories
         = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
@@ -106,6 +105,7 @@ getBasePath(void)
 @synthesize bundleName = _bundleName;
 @synthesize basePath = _basePath;
 @synthesize introspectMemory = _introspectMemory;
+@synthesize catchZombies = _catchZombies;
 @synthesize doNotIntrospectClasses = _doNotIntrospectClasses;
 @synthesize demangleLanguages = _demangleLanguages;
 @synthesize maxReportCount = _maxReportCount;
@@ -141,6 +141,7 @@ getBasePath(void)
         }
         self.deleteBehaviorAfterSendAll = SentryCrashCDeleteAlways;
         self.introspectMemory = YES;
+        self.catchZombies = NO;
         self.maxReportCount = 5;
         self.monitoring = SentryCrashMonitorTypeProductionSafeMinimal;
         self.monitoringFromUninstalledToRestore = NO;
@@ -193,6 +194,12 @@ getBasePath(void)
 {
     _introspectMemory = introspectMemory;
     sentrycrash_setIntrospectMemory(introspectMemory);
+}
+
+- (void)setCatchZombies:(BOOL)catchZombies
+{
+    _catchZombies = catchZombies;
+    self.monitoring |= SentryCrashMonitorTypeZombie;
 }
 
 - (void)setDoNotIntrospectClasses:(NSArray *)doNotIntrospectClasses
@@ -378,7 +385,10 @@ getBasePath(void)
 // ============================================================================
 
 #define SYNTHESIZE_CRASH_STATE_PROPERTY(TYPE, NAME)                                                \
-    -(TYPE)NAME { return sentrycrashstate_currentState()->NAME; }
+    -(TYPE)NAME                                                                                    \
+    {                                                                                              \
+        return sentrycrashstate_currentState()->NAME;                                              \
+    }
 
 SYNTHESIZE_CRASH_STATE_PROPERTY(NSTimeInterval, activeDurationSinceLastCrash)
 SYNTHESIZE_CRASH_STATE_PROPERTY(NSTimeInterval, backgroundDurationSinceLastCrash)

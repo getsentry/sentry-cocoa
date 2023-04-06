@@ -13,7 +13,7 @@
 bool terminateCalled = false;
 
 void
-testTerminationHandler(void)
+testTerminationHandler()
 {
     terminateCalled = true;
 }

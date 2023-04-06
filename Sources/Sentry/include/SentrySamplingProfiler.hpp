@@ -58,7 +58,7 @@ namespace profiling {
         std::function<void(const Backtrace &)> callback_;
         std::shared_ptr<ThreadMetadataCache> cache_;
         bool isInitialized_;
-        std::mutex isSamplingLock_;
+        std::mutex lock_;
         bool isSampling_;
         std::thread thread_;
         clock_serv_t clock_;

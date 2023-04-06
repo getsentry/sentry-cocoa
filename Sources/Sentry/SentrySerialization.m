@@ -16,17 +16,35 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentrySerialization
 
 + (NSData *_Nullable)dataWithJSONObject:(NSDictionary *)dictionary
+                                  error:(NSError *_Nullable *_Nullable)error
 {
-    if (![NSJSONSerialization isValidJSONObject:dictionary]) {
-        SENTRY_LOG_ERROR(@"Dictionary is not a valid JSON object.");
-        return nil;
-    }
+// We'll do this whether we're handling an exception or library error
+#define SENTRY_HANDLE_ERROR(__sentry_error)                                                        \
+    SENTRY_LOG_ERROR(@"Invalid JSON: %@", __sentry_error);                                         \
+    *error = __sentry_error;                                                                       \
+    return nil;
 
-    NSError *error = nil;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:&error];
-    if (error) {
-        SENTRY_LOG_ERROR(@"Internal error while serializing JSON: %@", error);
+    NSData *data = nil;
+
+#if defined(DEBUG) || defined(TEST) || defined(TESTCI)
+    @try {
+#else
+    if ([NSJSONSerialization isValidJSONObject:dictionary]) {
+#endif
+        data = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:error];
+#if defined(DEBUG) || defined(TEST) || defined(TESTCI)
+    } @catch (NSException *exception) {
+        if (error) {
+            SENTRY_HANDLE_ERROR(NSErrorFromSentryErrorWithException(
+                kSentryErrorJsonConversionError, @"Event cannot be converted to JSON", exception));
+        }
     }
+#else
+    } else if (error) {
+        SENTRY_HANDLE_ERROR(NSErrorFromSentryErrorWithUnderlyingError(
+            kSentryErrorJsonConversionError, @"Event cannot be converted to JSON", *error));
+    }
+#endif
 
     return data;
 }
@@ -51,9 +69,13 @@ NS_ASSUME_NONNULL_BEGIN
         [serializedData setValue:[traceContext serialize] forKey:@"trace"];
     }
 
-    NSData *header = [SentrySerialization dataWithJSONObject:serializedData];
+    NSData *header = [SentrySerialization dataWithJSONObject:serializedData error:error];
     if (nil == header) {
         SENTRY_LOG_ERROR(@"Envelope header cannot be converted to JSON.");
+        if (error) {
+            *error = NSErrorFromSentryError(
+                kSentryErrorJsonConversionError, @"Envelope header cannot be converted to JSON");
+        }
         return nil;
     }
     [envelopeData appendData:header];
@@ -62,9 +84,14 @@ NS_ASSUME_NONNULL_BEGIN
         [envelopeData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
         NSDictionary *serializedItemHeaderData = [envelope.items[i].header serialize];
 
-        NSData *itemHeader = [SentrySerialization dataWithJSONObject:serializedItemHeaderData];
+        NSData *itemHeader = [SentrySerialization dataWithJSONObject:serializedItemHeaderData
+                                                               error:error];
         if (nil == itemHeader) {
             SENTRY_LOG_ERROR(@"Envelope item header cannot be converted to JSON.");
+            if (error) {
+                *error = NSErrorFromSentryError(kSentryErrorJsonConversionError,
+                    @"Envelope item header cannot be converted to JSON");
+            }
             return nil;
         }
         [envelopeData appendData:itemHeader];
@@ -278,8 +305,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (NSData *_Nullable)dataWithSession:(SentrySession *)session
+                               error:(NSError *_Nullable *_Nullable)error
 {
-    return [self dataWithJSONObject:[session serialize]];
+    return [self dataWithJSONObject:[session serialize] error:error];
 }
 
 + (SentrySession *_Nullable)sessionWithData:(NSData *)sessionData

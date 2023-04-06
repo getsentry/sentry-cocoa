@@ -2,8 +2,7 @@
 #import "SentryDataCategory.h"
 #import "SentryDiscardReason.h"
 
-@class SentrySession, SentryEnvelopeItem, SentryId, SentryAttachment, SentryThreadInspector,
-    SentryEnvelope;
+@class SentryEnvelopeItem, SentryId, SentryAttachment, SentryThreadInspector, SentryEnvelope;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -41,8 +40,6 @@ SentryClient ()
                   withScope:(SentryScope *)scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
     NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
-
-- (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
 
 /**
  * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.

@@ -1,4 +1,3 @@
-// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashReportStore.c
 //
@@ -60,7 +59,7 @@ compareInt64(const void *a, const void *b)
 }
 
 static inline int64_t
-getNextUniqueID(void)
+getNextUniqueID()
 {
     return g_nextUniqueIDHigh + g_nextUniqueIDLow++;
 }
@@ -98,7 +97,7 @@ getReportIDFromFilePath(const char *filepath)
 }
 
 static int
-getReportCount(void)
+getReportCount()
 {
     int count = 0;
     DIR *dir = opendir(g_reportsPath);
@@ -148,7 +147,7 @@ done:
 }
 
 static void
-pruneReports(void)
+pruneReports()
 {
     int reportCount = getReportCount();
     if (reportCount > g_maxReportCount) {
@@ -162,7 +161,7 @@ pruneReports(void)
 }
 
 static void
-initializeIDs(void)
+initializeIDs()
 {
     time_t rawTime;
     time(&rawTime);
@@ -199,7 +198,7 @@ sentrycrashcrs_getNextCrashReportPath(char *crashReportPathBuffer)
 }
 
 int
-sentrycrashcrs_getReportCount(void)
+sentrycrashcrs_getReportCount()
 {
     pthread_mutex_lock(&g_mutex);
     int count = getReportCount();
@@ -280,7 +279,7 @@ done:
 }
 
 void
-sentrycrashcrs_deleteAllReports(void)
+sentrycrashcrs_deleteAllReports()
 {
     pthread_mutex_lock(&g_mutex);
     sentrycrashfu_deleteContentsOfPath(g_reportsPath);

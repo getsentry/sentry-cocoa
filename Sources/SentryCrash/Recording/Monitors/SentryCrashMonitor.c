@@ -1,4 +1,3 @@
-// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitor.c
 //
@@ -36,6 +35,7 @@
 #include "SentryCrashMonitor_NSException.h"
 #include "SentryCrashMonitor_Signal.h"
 #include "SentryCrashMonitor_System.h"
+#include "SentryCrashMonitor_Zombie.h"
 #include "SentryCrashSystemCapabilities.h"
 #include "SentryCrashThread.h"
 
@@ -70,6 +70,10 @@ static Monitor g_monitors[] = {
     {
         .monitorType = SentryCrashMonitorTypeNSException,
         .getAPI = sentrycrashcm_nsexception_getAPI,
+    },
+    {
+        .monitorType = SentryCrashMonitorTypeZombie,
+        .getAPI = sentrycrashcm_zombie_getAPI,
     },
 #endif
     {
@@ -192,7 +196,7 @@ sentrycrashcm_setActiveMonitors(SentryCrashMonitorType monitorTypes)
 }
 
 SentryCrashMonitorType
-sentrycrashcm_getActiveMonitors(void)
+sentrycrashcm_getActiveMonitors()
 {
     return g_activeMonitors;
 }

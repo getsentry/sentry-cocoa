@@ -22,11 +22,6 @@ class NibViewController: UIViewController {
         UIAssert.checkForViewControllerLifeCycle(span, viewController: "NibViewController")
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        SentrySDK.reportFullyDisplayed()
-    }
-
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
     }

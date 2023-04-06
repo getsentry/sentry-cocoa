@@ -294,7 +294,7 @@ sentrycrash_install_async_hooks(void)
 }
 
 void
-sentrycrash_deactivate_async_hooks(void)
+sentrycrash_deactivate_async_hooks()
 {
     // Instead of reverting the rebinding (which is not really possible), we rather
     // deactivate the hooks. They still exist, and still get called, but they will just

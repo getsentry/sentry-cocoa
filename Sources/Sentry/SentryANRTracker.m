@@ -89,13 +89,7 @@ SentryANRTracker ()
 
             if (reported) {
                 SENTRY_LOG_WARN(@"ANR stopped.");
-
-                // The ANR stopped, don't block the main thread with calling ANRStopped listeners.
-                // While the ANR code reports an ANR and collects the stack trace, the ANR might
-                // stop simultaneously. In that case, the ANRs stack trace would contain the
-                // following code running on the main thread. To avoid this, we offload work to a
-                // background thread.
-                [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{ [self ANRStopped]; }];
+                [self ANRStopped];
             }
 
             reported = NO;

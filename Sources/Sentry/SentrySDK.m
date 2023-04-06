@@ -351,7 +351,7 @@ static NSUInteger startInvocations;
 }
 
 /**
- * Install integrations and keeps ref in @c SentryHub.integrations
+ * Install integrations and keeps ref in `SentryHub.integrations`
  */
 + (void)installIntegrations
 {
@@ -381,11 +381,6 @@ static NSUInteger startInvocations;
             [SentrySDK.currentHub addInstalledIntegration:integrationInstance name:integrationName];
         }
     }
-}
-
-+ (void)reportFullyDisplayed
-{
-    [SentrySDK.currentHub reportFullyDisplayed];
 }
 
 + (void)flush:(NSTimeInterval)timeout

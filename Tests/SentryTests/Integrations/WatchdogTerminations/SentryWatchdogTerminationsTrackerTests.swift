@@ -1,10 +1,10 @@
-import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryOutOfMemoryTrackerTests")
+    private static let dsn = TestConstants.dsn(username: "SentryOutOfMemoryTrackerTests")
     
     private class Fixture {
         

@@ -132,17 +132,18 @@ SentrySessionTracker ()
 
 /**
  * It is called when an App. is receiving events / It is in the foreground and when we receive a
- * @c SentryHybridSdkDidBecomeActiveNotification. There is no guarantee that this method is called
- * once or twice. We need to ensure that we execute it only once.
- * @discussion This also works when using SwiftUI or Scenes, as UIKit posts a
- * @c didBecomeActiveNotification regardless of whether your app uses scenes, see
+ * SentryHybridSdkDidBecomeActiveNotification. There is no guarantee that this method is called once
+ * or twice. We need to ensure that we execute it only once.
+ *
+ * This also works when using SwiftUI or Scenes, as UIKit posts a didBecomeActiveNotification
+ * regardless of whether your app uses scenes, see
  * https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622956-applicationdidbecomeactive.
- * @warning Hybrid SDKs must only post this notification if they are running in the foreground
- * because the auto session tracking logic doesn't support background tasks. Posting the
- * notification from the background would mess up the session stats. Hybrid SDKs must only post this
- * notification if they are running in the foreground because the auto session tracking logic
- * doesn't support background tasks. Posting the notification from the background would mess up the
- * session stats.
+ *
+ * Hybrid SDKs must only post this notification if they are running in the foreground because the
+ * auto session tracking logic doesn't support background tasks. Posting the notification from the
+ * background would mess up the session stats. Hybrid SDKs must only post this notification if they
+ * are running in the foreground because the auto session tracking logic doesn't support background
+ * tasks. Posting the notification from the background would mess up the session stats.
  */
 - (void)didBecomeActive
 {

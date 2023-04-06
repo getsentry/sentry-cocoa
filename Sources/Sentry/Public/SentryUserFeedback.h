@@ -14,6 +14,7 @@ SENTRY_NO_INIT
 
 /**
  * Initializes SentryUserFeedback and sets the required eventId.
+ *
  * @param eventId The eventId of the event to which the user feedback is associated.
  */
 - (instancetype)initWithEventId:(SentryId *)eventId;

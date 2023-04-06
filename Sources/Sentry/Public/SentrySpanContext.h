@@ -45,27 +45,36 @@ SENTRY_NO_INIT
 @property (nullable, nonatomic, copy, readonly) NSString *spanDescription;
 
 /**
- * Init a @c SentryContext with an operation code.
- * @note @c traceId and @c spanId with be randomly created; @c sampled by default is
- * @c kSentrySampleDecisionUndecided .
+ * Init a SentryContext with an operation code,
+ * traceId and spanId with be randomly created,
+ * sampled by default is Undecided.
+ *
+ * @return SentryContext
  */
 - (instancetype)initWithOperation:(NSString *)operation;
 
 /**
- * Init a @c SentryContext with an operation code and mark it as sampled or not.
+ * Init a SentryContext with an operation code and mark it as sampled or not.
  * TraceId and SpanId with be randomly created.
+ *
  * @param operation The operation this span is measuring.
  * @param sampled Determines whether the trace should be sampled.
+ *
+ * @return SentryContext
  */
 
 - (instancetype)initWithOperation:(NSString *)operation sampled:(SentrySampleDecision)sampled;
 
 /**
+ * Init a SentryContext with given traceId, spanId and parentId.
+ *
  * @param traceId Determines which trace the Span belongs to.
- * @param spanId The Span Id.
+ * @param spanId The Span Id
  * @param operation The operation this span is measuring.
  * @param parentId Id of a parent span.
  * @param sampled Determines whether the trace should be sampled.
+ *
+ * @return SentryContext
  */
 - (instancetype)initWithTraceId:(SentryId *)traceId
                          spanId:(SentrySpanId *)spanId
@@ -74,12 +83,16 @@ SENTRY_NO_INIT
                         sampled:(SentrySampleDecision)sampled;
 
 /**
+ * Init a SentryContext with given traceId, spanId and parentId.
+ *
  * @param traceId Determines which trace the Span belongs to.
- * @param spanId The Span Id.
+ * @param spanId The Span Id
  * @param operation The operation this span is measuring.
  * @param parentId Id of a parent span.
- * @param description The span description.
+ * @param description The span description
  * @param sampled Determines whether the trace should be sampled.
+ *
+ * @return SentryContext
  */
 - (instancetype)initWithTraceId:(SentryId *)traceId
                          spanId:(SentrySpanId *)spanId
