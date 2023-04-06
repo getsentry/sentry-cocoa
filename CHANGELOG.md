@@ -5,6 +5,7 @@
 ### Fixes
 
 - Crash when serializing invalid objects (#2858)
+- Convert remaining usages of `sprintf` to `snprintf` (#2866)
 
 ## 8.4.0
 
