@@ -238,7 +238,9 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
 
         let hub = TestHub(client: SentryClient(options: Options()), andScope: nil)
-        let tracer = SentryTracer(transactionContext: TransactionContext(operation: "Test Operation"), hub: hub, waitForChildren: true)
+        let tracer = SentryTracer(transactionContext: TransactionContext(operation: "Test Operation"), hub: hub, configuration: SentryTracerConfiguration(block: { config in
+            config.waitForChildren = true
+        }))
         let sut = fixture.getSut(for: UIViewController(), waitForFullDisplay: true)
 
         sut.start(for: tracer)
