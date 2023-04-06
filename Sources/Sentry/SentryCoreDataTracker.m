@@ -146,8 +146,9 @@
 {
     NSMutableDictionary<NSString *, NSNumber *> *result = [NSMutableDictionary new];
 
-    for (NSManagedObject *item in entities) {
-        NSString *cl = item.entity.name;
+    for (id item in entities) {
+        // entity.name is nullable! fall back to old behavior
+        NSString *cl = ((NSManagedObject *)item).entity.name ?: NSStringFromClass([item class]);
         NSNumber *count = result[cl];
         result[cl] = [NSNumber numberWithInt:count.intValue + 1];
     }
