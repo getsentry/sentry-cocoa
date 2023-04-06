@@ -5,6 +5,7 @@
 ### Fixes
 
 - Crash when serializing invalid objects (#2858)
+- Possible crash in Core Data tracking (#2865)
 
 ## 8.4.0
 
