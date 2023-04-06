@@ -342,9 +342,10 @@ sentrycrashjson_addUIntegerElement(
 {
     int result = sentrycrashjson_beginElement(context, name);
     unlikely_if(result != SentryCrashJSON_OK) { return result; }
-    char buff[30];
-    size_t size = snprintf(NULL, 0, "%" PRIu64, value) + 1;
-    snprintf(buff, size, "%" PRIu64, value);
+#define SENTRY_UINT_BUFFER_SIZE 30
+    char buff[SENTRY_UINT_BUFFER_SIZE];
+    snprintf(buff, SENTRY_UINT_BUFFER_SIZE, "%" PRIu64, value);
+#undef SENTRY_UINT_BUFFER_SIZE
     return addJSONData(context, buff, (int)strlen(buff));
 }
 
