@@ -3,9 +3,9 @@ import XCTest
 final class SentryFormatterTests: XCTestCase {
     func testFormatHexAddress() {
         for (input, expected) in [
-            (2_391_813_104, "0x000000008e902bf0"),
-            (2_412_813_376, "0x000000008fd09c40"),
-            (2_488_998_912, "0x00000000945b1c00")
+            (0x000000008e902bf0, "0x000000008e902bf0"),
+            (0x000000008fd09c40, "0x000000008fd09c40"),
+            (0x00000000945b1c00, "0x00000000945b1c00")
         ] {
             XCTAssertEqual(sentry_formatHexAddress(input as NSNumber), expected)
         }
