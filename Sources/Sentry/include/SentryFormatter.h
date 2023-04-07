@@ -26,6 +26,13 @@ sentry_stringForUInt64(uint64_t value)
 static inline NSString *
 sentry_formatHexAddress(NSNumber *value)
 {
+    /*
+     * We observed a 41% speedup by using snprintf vs +[NSString stringWithFormat:]. In a trial
+     * using a profile, we observed the +[NSString stringWithFormat:] using 282ms of CPU time, vs
+     * 164ms of CPU time for snprintf. There is also an assumed space improvement due to not needing
+     * to allocate as many instances of NSString, like for the format string literal, instead only
+     * using stack-bound C strings.
+     */
     return sentry_snprintfHexAddress([value unsignedLongLongValue]);
 }
 
