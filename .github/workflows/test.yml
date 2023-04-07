@@ -101,7 +101,7 @@ jobs:
             platform: 'iOS'
             xcode: '13.2.1'
             test-destination-os: '14.5'
-            timeout-minutes: 15
+            timeout-minutes: 20
 
           # iOS 15
           - runs-on: macos-12
