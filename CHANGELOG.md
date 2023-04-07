@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- feat: Core data operation in the main thread (#2879)
+
 ### Fixes
 
 - Crash when serializing invalid objects (#2858)
