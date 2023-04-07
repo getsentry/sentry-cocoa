@@ -409,36 +409,18 @@ class SentryProfilerSwiftTests: XCTestCase {
 }
 
 private extension SentryProfilerSwiftTests {
-    enum TestError: Error {
-        case unexpectedProfileDeserializationType
-        case unexpectedMeasurementsDeserializationType
-        case noEnvelopeCaptured
-        case noProfileEnvelopeItem
-        case malformedMetricValueEntry
-        case noMetricsReported
-        case noMetricValuesFound
-        case unexpectedAmountOfValues
-    }
-
     func getLatestProfileData() throws -> Data {
-        guard let envelope = try XCTUnwrap(self.fixture.client).captureEventWithScopeInvocations.last else {
-            throw(TestError.noEnvelopeCaptured)
-        }
+        let envelope = try XCTUnwrap(self.fixture.client?.captureEventWithScopeInvocations.last)
 
         XCTAssertEqual(1, envelope.additionalEnvelopeItems.count)
-        guard let profileItem = envelope.additionalEnvelopeItems.first else {
-            throw(TestError.noProfileEnvelopeItem)
-        }
+        let profileItem = try XCTUnwrap(envelope.additionalEnvelopeItems.first)
 
         XCTAssertEqual("profile", profileItem.header.type)
         return profileItem.data
     }
 
     func getLatestTransaction() throws -> Transaction {
-        guard let envelope = try XCTUnwrap(self.fixture.client).captureEventWithScopeInvocations.last else {
-            throw(TestError.noEnvelopeCaptured)
-        }
-
+        let envelope = try XCTUnwrap(self.fixture.client?.captureEventWithScopeInvocations.last)
         return try XCTUnwrap(envelope.event as? Transaction)
     }
 
@@ -490,12 +472,8 @@ private extension SentryProfilerSwiftTests {
     func assertMetricsPayload(metricsBatches: Int = 1) throws {
         let profileData = try self.getLatestProfileData()
         let transaction = try getLatestTransaction()
-        guard let profile = try JSONSerialization.jsonObject(with: profileData) as? [String: Any] else {
-            throw TestError.unexpectedProfileDeserializationType
-        }
-        guard let measurements = profile["measurements"] as? [String: Any] else {
-            throw TestError.unexpectedMeasurementsDeserializationType
-        }
+        let profile = try XCTUnwrap(JSONSerialization.jsonObject(with: profileData) as? [String: Any])
+        let measurements = try XCTUnwrap(profile["measurements"] as? [String: Any])
 
         let expectedUsageReadings = fixture.mockUsageReadingsPerBatch * metricsBatches
 
@@ -526,20 +504,14 @@ private extension SentryProfilerSwiftTests {
     }
 
     func assertMetricEntries(measurements: [String: Any], key: String, expectedEntries: [[String: Any]], transaction: Transaction) throws {
-        guard let metricContainer = measurements[key] as? [String: Any] else {
-            throw TestError.noMetricsReported
-        }
-        guard let actualEntries = metricContainer["values"] as? [[String: Any]] else {
-            throw TestError.malformedMetricValueEntry
-        }
+        let metricContainer = try XCTUnwrap(measurements[key] as? [String: Any])
+        let actualEntries = try XCTUnwrap(metricContainer["values"] as? [[String: Any]])
         let sortedActualEntries = sortedByTimestamps(actualEntries)
         let sortedExpectedEntries = sortedByTimestamps(expectedEntries)
 
-        let expectedAmountOfReadings = actualEntries.count == expectedEntries.count
-        XCTAssert(expectedAmountOfReadings, "Wrong number of values under \(key). expected: \(printTimestamps(entries: sortedExpectedEntries)); actual: \(printTimestamps(entries: sortedActualEntries)); transaction start time: \(transaction.startSystemTime)")
-
-        guard expectedAmountOfReadings else {
-            throw TestError.unexpectedAmountOfValues
+        guard actualEntries.count == expectedEntries.count else {
+            XCTFail("Wrong number of values under \(key). expected: \(printTimestamps(entries: sortedExpectedEntries)); actual: \(printTimestamps(entries: sortedActualEntries)); transaction start time: \(transaction.startSystemTime)")
+            return
         }
 
         for i in 0..<actualEntries.count {
@@ -558,18 +530,12 @@ private extension SentryProfilerSwiftTests {
     }
 
     func assertMetricValue<T: Equatable>(measurements: [String: Any], key: String, numberOfReadings: Int, expectedValue: T? = nil, transaction: Transaction) throws {
-        guard let metricContainer = measurements[key] as? [String: Any] else {
-            throw TestError.noMetricsReported
-        }
-        guard let values = metricContainer["values"] as? [[String: Any]] else {
-            throw TestError.malformedMetricValueEntry
-        }
+        let metricContainer = try XCTUnwrap(measurements[key] as? [String: Any])
+        let values = try XCTUnwrap(metricContainer["values"] as? [[String: Any]])
         XCTAssertEqual(values.count, numberOfReadings, "Wrong number of values under \(key)")
 
         if let expectedValue = expectedValue {
-            guard let actualValue = values[0]["value"] as? T else {
-                throw TestError.noMetricValuesFound
-            }
+            let actualValue = try XCTUnwrap(values[0]["value"] as? T)
             XCTAssertEqual(actualValue, expectedValue, "Wrong value for \(key)")
 
             let timestamp = try XCTUnwrap(values[0]["elapsed_since_start_ns"] as? NSString)
