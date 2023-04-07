@@ -4,7 +4,7 @@
 #import <unistd.h>
 
 BOOL
-isDebugging()
+isDebugging(void)
 {
     struct kinfo_proc info;
 
@@ -29,7 +29,7 @@ isDebugging()
 }
 
 BOOL
-isSimulator()
+isSimulator(void)
 {
     NSOperatingSystemVersion ios9 = { 9, 0, 0 };
     NSProcessInfo *processInfo = [NSProcessInfo processInfo];

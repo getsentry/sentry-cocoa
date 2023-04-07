@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMachineContext.c
 //
@@ -92,7 +93,7 @@ getThreadList(SentryCrashMachineContext *context)
 }
 
 int
-sentrycrashmc_contextSize()
+sentrycrashmc_contextSize(void)
 {
     return sizeof(SentryCrashMachineContext);
 }

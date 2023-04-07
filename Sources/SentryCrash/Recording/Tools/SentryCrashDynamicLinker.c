@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashDynamicLinker.c
 //
@@ -334,7 +335,7 @@ getCrashInfo(const struct mach_header *header, SentryCrashBinaryImage *buffer)
 }
 
 int
-sentrycrashdl_imageCount()
+sentrycrashdl_imageCount(void)
 {
     return (int)_dyld_image_count();
 }

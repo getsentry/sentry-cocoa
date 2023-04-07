@@ -1,3 +1,4 @@
+#import "SentryExtraContextProvider.h"
 #import "SentryRandom.h"
 #import "SentryTransport.h"
 #import <Sentry/Sentry.h>
@@ -28,10 +29,9 @@ SentryClient ()
          deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
                 threadInspector:(SentryThreadInspector *)threadInspector
                          random:(id<SentryRandom>)random
-                   crashWrapper:(SentryCrashWrapper *)crashWrapper
-                  deviceWrapper:(SentryUIDeviceWrapper *)deviceWrapper
                          locale:(NSLocale *)locale
-                       timezone:(NSTimeZone *)timezone;
+                       timezone:(NSTimeZone *)timezone
+           extraContextProvider:(SentryExtraContextProvider *)extraContextProvider;
 
 @end
 

@@ -155,7 +155,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let tracer = SentryTracer(transactionContext: TransactionContext(name: SentryNetworkTrackerTests.transactionName,
                                                                          operation: SentryNetworkTrackerTests.transactionOperation),
                                   hub: nil,
-                                  waitForChildren: true)
+                                  configuration: SentryTracerConfiguration(block: { $0.waitForChildren = true }))
 
         tracer.finish()
 
@@ -172,8 +172,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let task = createDataTask()
         let tracer = SentryTracer(transactionContext: TransactionContext(name: SentryNetworkTrackerTests.transactionName,
                                                                          operation: SentryNetworkTrackerTests.transactionOperation),
-                                  hub: nil,
-                                  waitForChildren: true)
+                                  hub: nil, configuration: SentryTracerConfiguration(block: { $0.waitForChildren = true }))
         fixture.scope.span = tracer
         
         sut.urlSessionTaskResume(task)
@@ -626,8 +625,6 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         sut.urlSessionTask(task, setState: .completed)
         
-        fixture.hub.group.wait()
-        
         guard let envelope = self.fixture.hub.capturedEventsWithScopes.first else {
             XCTFail("Expected to capture 1 event")
             return
@@ -657,8 +654,6 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         sut.urlSessionTask(task, setState: .completed)
         
-        fixture.hub.group.wait()
-        
         guard let envelope = self.fixture.hub.capturedEventsWithScopes.first else {
             XCTFail("Expected to capture 1 event")
             return
@@ -677,8 +672,6 @@ class SentryNetworkTrackerTests: XCTestCase {
         task.setResponse(createResponse(code: 500))
         
         sut.urlSessionTask(task, setState: .completed)
-        
-        fixture.hub.group.wait()
         
         guard let envelope = self.fixture.hub.capturedEventsWithScopes.first else {
             XCTFail("Expected to capture 1 event")

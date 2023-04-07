@@ -369,9 +369,8 @@ SentryHub ()
 {
     return [self startTransactionWithContext:transactionContext
                                  bindToScope:bindToScope
-                             waitForChildren:NO
                        customSamplingContext:customSamplingContext
-                                timerWrapper:nil];
+                               configuration:[SentryTracerConfiguration defaultConfiguration]];
 }
 
 - (SentryTransactionContext *)transactionContext:(SentryTransactionContext *)context
@@ -388,41 +387,10 @@ SentryHub ()
                                             parentSampled:context.parentSampled];
 }
 
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                  bindToScope:(BOOL)bindToScope
-                              waitForChildren:(BOOL)waitForChildren
-                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
-                                 timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper
-{
-    SentrySamplingContext *samplingContext =
-        [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
-                                            customSamplingContext:customSamplingContext];
-
-    SentryTracesSamplerDecision *samplerDecision = [_tracesSampler sample:samplingContext];
-    transactionContext = [self transactionContext:transactionContext
-                                      withSampled:samplerDecision.decision];
-    transactionContext.sampleRate = samplerDecision.sampleRate;
-
-    SentryProfilesSamplerDecision *profilesSamplerDecision =
-        [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
-
-    id<SentrySpan> tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
-                                                                         hub:self
-                                                     profilesSamplerDecision:profilesSamplerDecision
-                                                             waitForChildren:waitForChildren
-                                                                timerWrapper:timerWrapper];
-
-    if (bindToScope)
-        self.scope.span = tracer;
-
-    return tracer;
-}
-
 - (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
-                                  idleTimeout:(NSTimeInterval)idleTimeout
-                         dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+                                configuration:(SentryTracerConfiguration *)configuration
 {
     SentrySamplingContext *samplingContext =
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
@@ -436,11 +404,12 @@ SentryHub ()
     SentryProfilesSamplerDecision *profilesSamplerDecision =
         [_profilesSampler sample:samplingContext tracesSamplerDecision:samplerDecision];
 
+    configuration.profilesSamplerDecision = profilesSamplerDecision;
+
     SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                         hub:self
-                                                    profilesSamplerDecision:profilesSamplerDecision
-                                                                idleTimeout:idleTimeout
-                                                       dispatchQueueWrapper:dispatchQueueWrapper];
+                                                              configuration:configuration];
+
     if (bindToScope)
         self.scope.span = tracer;
 

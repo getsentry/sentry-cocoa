@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashC.c
 //
@@ -224,7 +225,7 @@ sentrycrash_notifyAppCrash(void)
 }
 
 int
-sentrycrash_getReportCount()
+sentrycrash_getReportCount(void)
 {
     return sentrycrashcrs_getReportCount();
 }
@@ -265,7 +266,7 @@ sentrycrash_addUserReport(const char *report, int reportLength)
 }
 
 void
-sentrycrash_deleteAllReports()
+sentrycrash_deleteAllReports(void)
 {
     sentrycrashcrs_deleteAllReports();
 }
@@ -277,13 +278,13 @@ sentrycrash_deleteReportWithID(int64_t reportID)
 }
 
 bool
-sentrycrash_hasSaveScreenshotCallback()
+sentrycrash_hasSaveScreenshotCallback(void)
 {
     return g_saveScreenShot != NULL;
 }
 
 bool
-sentrycrash_hasSaveViewHierarchyCallback()
+sentrycrash_hasSaveViewHierarchyCallback(void)
 {
     return g_saveViewHierarchy != NULL;
 }

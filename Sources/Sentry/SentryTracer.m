@@ -54,10 +54,9 @@ SentryTracer ()
  * @c -[finish] doesn't necessarily lead to finishing the tracer, because it could still wait for
  * child spans to finish if @c waitForChildren is @c YES . */
 @property (nonatomic) BOOL wasFinishCalled;
-@property (nonatomic) NSTimeInterval idleTimeout;
-@property (nonatomic, nullable, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
-@property (nonatomic, nullable, strong) SentryNSTimerWrapper *timerWrapper;
 @property (nonatomic, nullable, strong) NSTimer *deadlineTimer;
+@property (nonnull, strong) SentryTracerConfiguration *configuration;
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic) BOOL isProfiling;
 @property (nonatomic) uint64_t startSystemTime;
@@ -67,7 +66,6 @@ SentryTracer ()
 
 @implementation SentryTracer {
     /** Wether the tracer should wait for child spans to finish before finishing itself. */
-    BOOL _waitForChildren;
     SentryTraceContext *_traceContext;
     SentryAppStartMeasurement *appStartMeasurement;
     NSMutableDictionary<NSString *, SentryMeasurementValue *> *_measurements;
@@ -77,7 +75,6 @@ SentryTracer ()
     NSDate *_originalStartTimestamp;
 
 #if SENTRY_HAS_UIKIT
-
     NSUInteger initTotalFrames;
     NSUInteger initSlowFrames;
     NSUInteger initFrozenFrames;
@@ -100,113 +97,60 @@ static BOOL appStartMeasurementRead;
 {
     return [self initWithTransactionContext:transactionContext
                                         hub:hub
-                    profilesSamplerDecision:nil
-                            waitForChildren:NO
-                               timerWrapper:nil];
+                              configuration:SentryTracerConfiguration.defaultConfiguration];
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub
-                           waitForChildren:(BOOL)waitForChildren
+                             configuration:(SentryTracerConfiguration *)configuration;
 {
-    return [self initWithTransactionContext:transactionContext
-                                        hub:hub
-                    profilesSamplerDecision:nil
-                            waitForChildren:waitForChildren
-                                idleTimeout:0.0
-                       dispatchQueueWrapper:nil
-                               timerWrapper:nil];
-}
+    if (!(self = [super initWithContext:transactionContext])) {
+        return nil;
+    }
 
-- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                                       hub:(nullable SentryHub *)hub
-                   profilesSamplerDecision:
-                       (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
-                           waitForChildren:(BOOL)waitForChildren
-                              timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper
-{
-    return [self initWithTransactionContext:transactionContext
-                                        hub:hub
-                    profilesSamplerDecision:profilesSamplerDecision
-                            waitForChildren:waitForChildren
-                                idleTimeout:0.0
-                       dispatchQueueWrapper:nil
-                               timerWrapper:timerWrapper];
-}
+    _configuration = configuration;
 
-- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                                       hub:(nullable SentryHub *)hub
-                   profilesSamplerDecision:
-                       (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
-                               idleTimeout:(NSTimeInterval)idleTimeout
-                      dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-{
-    return [self initWithTransactionContext:transactionContext
-                                        hub:hub
-                    profilesSamplerDecision:profilesSamplerDecision
-                            waitForChildren:YES
-                                idleTimeout:idleTimeout
-                       dispatchQueueWrapper:dispatchQueueWrapper
-                               timerWrapper:nil];
-}
+    self.transactionContext = transactionContext;
+    _children = [[NSMutableArray alloc] init];
+    self.hub = hub;
+    self.wasFinishCalled = NO;
+    _measurements = [[NSMutableDictionary alloc] init];
+    self.finishStatus = kSentrySpanStatusUndefined;
 
-- (instancetype)
-    initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                           hub:(nullable SentryHub *)hub
-       profilesSamplerDecision:(nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
-               waitForChildren:(BOOL)waitForChildren
-                   idleTimeout:(NSTimeInterval)idleTimeout
-          dispatchQueueWrapper:(nullable SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                  timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper
-{
-    if (self = [super initWithContext:transactionContext]) {
-        self.transactionContext = transactionContext;
-        _children = [[NSMutableArray alloc] init];
-        self.hub = hub;
-        self.wasFinishCalled = NO;
-        _waitForChildren = waitForChildren;
-        _measurements = [[NSMutableDictionary alloc] init];
-        self.finishStatus = kSentrySpanStatusUndefined;
-        self.idleTimeout = idleTimeout;
-        self.dispatchQueueWrapper = dispatchQueueWrapper;
+    if (_configuration.timerWrapper == nil) {
+        _configuration.timerWrapper = [[SentryNSTimerWrapper alloc] init];
+    }
 
-        if (timerWrapper == nil) {
-            self.timerWrapper = [[SentryNSTimerWrapper alloc] init];
-        } else {
-            self.timerWrapper = timerWrapper;
-        }
+    appStartMeasurement = [self getAppStartMeasurement];
 
-        appStartMeasurement = [self getAppStartMeasurement];
+    if ([self hasIdleTimeout]) {
+        [self dispatchIdleTimeout];
+    }
 
-        if ([self hasIdleTimeout]) {
-            [self dispatchIdleTimeout];
-        }
-
-        if ([self isAutoGeneratedTransaction]) {
-            [self startDeadlineTimer];
-        }
+    if ([self isAutoGeneratedTransaction]) {
+        [self startDeadlineTimer];
+    }
 
 #if SENTRY_HAS_UIKIT
-        // Store current amount of frames at the beginning to be able to calculate the amount of
-        // frames at the end of the transaction.
-        SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
-        if (framesTracker.isRunning) {
-            SentryScreenFrames *currentFrames = framesTracker.currentFrames;
-            initTotalFrames = currentFrames.total;
-            initSlowFrames = currentFrames.slow;
-            initFrozenFrames = currentFrames.frozen;
-        }
+    // Store current amount of frames at the beginning to be able to calculate the amount of
+    // frames at the end of the transaction.
+    SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
+    if (framesTracker.isRunning) {
+        SentryScreenFrames *currentFrames = framesTracker.currentFrames;
+        initTotalFrames = currentFrames.total;
+        initSlowFrames = currentFrames.slow;
+        initFrozenFrames = currentFrames.frozen;
+    }
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        if (profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
-            _isProfiling = YES;
-            _startSystemTime = SentryCurrentDate.getCurrentDateProvider.systemTime;
-            [SentryProfiler startWithHub:hub];
-            trackTracerWithID(self.traceId);
-        }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+    if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
+        _isProfiling = YES;
+        _startSystemTime = SentryCurrentDate.getCurrentDateProvider.systemTime;
+        [SentryProfiler startWithHub:hub];
+        trackTracerWithID(self.traceId);
     }
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     return self;
 }
@@ -219,40 +163,42 @@ static BOOL appStartMeasurementRead;
 - (void)dispatchIdleTimeout
 {
     if (_idleTimeoutBlock != nil) {
-        [self.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
+        [_configuration.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
     }
     __weak SentryTracer *weakSelf = self;
-    _idleTimeoutBlock = [self.dispatchQueueWrapper createDispatchBlock:^{
+    _idleTimeoutBlock = [_configuration.dispatchQueueWrapper createDispatchBlock:^{
         if (weakSelf == nil) {
             SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
             return;
         }
         [weakSelf finishInternal];
     }];
+
     if (_idleTimeoutBlock == NULL) {
         SENTRY_LOG_WARN(@"Couln't create idle time out block. Can't schedule idle timeout. "
                         @"Finishing transaction");
         // If the transaction has no children, the SDK will discard it.
         [self finishInternal];
     } else {
-        [self.dispatchQueueWrapper dispatchAfter:self.idleTimeout block:_idleTimeoutBlock];
+        [_configuration.dispatchQueueWrapper dispatchAfter:_configuration.idleTimeout
+                                                     block:_idleTimeoutBlock];
     }
 }
 
 - (BOOL)hasIdleTimeout
 {
-    return self.idleTimeout > 0 && self.dispatchQueueWrapper != nil;
+    return _configuration.idleTimeout > 0 && _configuration.dispatchQueueWrapper != nil;
 }
 
 - (BOOL)isAutoGeneratedTransaction
 {
-    return self.waitForChildren || [self hasIdleTimeout];
+    return _configuration.waitForChildren || [self hasIdleTimeout];
 }
 
 - (void)cancelIdleTimeout
 {
     if ([self hasIdleTimeout]) {
-        [self.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
+        [_configuration.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
     }
 }
 
@@ -260,14 +206,14 @@ static BOOL appStartMeasurementRead;
 {
     __weak SentryTracer *weakSelf = self;
     self.deadlineTimer =
-        [self.timerWrapper scheduledTimerWithTimeInterval:SENTRY_AUTO_TRANSACTION_DEADLINE
-                                                  repeats:NO
-                                                    block:^(NSTimer *_Nonnull timer) {
-                                                        if (weakSelf == nil) {
-                                                            return;
-                                                        }
-                                                        [weakSelf deadlineTimerFired];
-                                                    }];
+        [_configuration.timerWrapper scheduledTimerWithTimeInterval:SENTRY_AUTO_TRANSACTION_DEADLINE
+                                                            repeats:NO
+                                                              block:^(NSTimer *_Nonnull timer) {
+                                                                  if (weakSelf == nil) {
+                                                                      return;
+                                                                  }
+                                                                  [weakSelf deadlineTimerFired];
+                                                              }];
 }
 
 - (void)deadlineTimerFired
@@ -456,7 +402,7 @@ static BOOL appStartMeasurementRead;
 
 - (BOOL)hasUnfinishedChildSpansToWaitFor
 {
-    if (!_waitForChildren) {
+    if (!self.configuration.waitForChildren) {
         return NO;
     }
 
@@ -524,7 +470,7 @@ static BOOL appStartMeasurementRead;
     }];
 
     @synchronized(_children) {
-        if (self.idleTimeout > 0.0 && _children.count == 0) {
+        if (_configuration.idleTimeout > 0.0 && _children.count == 0) {
             SENTRY_LOG_DEBUG(@"Was waiting for timeout for UI event trace but it had no children, "
                              @"will not keep transaction.");
             return;

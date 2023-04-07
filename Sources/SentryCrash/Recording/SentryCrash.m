@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrash.m
 //
@@ -64,7 +65,7 @@ SentryCrash ()
 @end
 
 static NSString *
-getBundleName()
+getBundleName(void)
 {
     NSString *bundleName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleName"];
     if (bundleName == nil) {
@@ -74,7 +75,7 @@ getBundleName()
 }
 
 static NSString *
-getBasePath()
+getBasePath(void)
 {
     NSArray *directories
         = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);

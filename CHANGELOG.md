@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Fixes
+
+- Crash when serializing invalid objects (#2858)
+
+## 8.4.0
+
 ### Features
 
 - Time to initial and full display (#2724)
@@ -11,6 +17,7 @@
 ### Fixes
  
 - Correctly track and send GPU frame render data in profiles (#2823)
+- Xcode 14.3 compiling issue regarding functions declaration with no prototype (#2852) 
 
 ## 8.3.3
 
