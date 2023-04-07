@@ -215,7 +215,10 @@ class SentryProfilerSwiftTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
+
+        // If a test early exits because of a thrown error, it may not finish the spans it created. This ensures any open spans are closed before starting the next test case.
         fixture.timeoutTimerWrapper.fire()
+
         clearTestState()
     }
 
