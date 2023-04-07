@@ -148,7 +148,7 @@
 
     for (id item in entities) {
         // entity.name is nullable! fall back to old behavior
-        NSString *cl = ((NSManagedObject *)item).entity.name ?: NSStringFromClass([item class]);
+        NSString *cl = ((NSManagedObject *)item).entity.name ?: [SwiftDescriptor getObjectClassName:item]);
         NSNumber *count = result[cl];
         result[cl] = [NSNumber numberWithInt:count.intValue + 1];
     }
