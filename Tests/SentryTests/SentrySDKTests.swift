@@ -561,13 +561,13 @@ class SentrySDKTests: XCTestCase {
         XCTAssertFalse(client?.isEnabled ?? true)
     }
     
-    func testClose_CallsFlushCorrectlyOnTransport() {
+    func testClose_CallsFlushCorrectlyOnTransport() throws {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
         }
         
         let transport = TestTransport()
-        let client = SentryClient(options: fixture.options)
+        let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), deleteOldEnvelopeItems: false)
         Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
         SentrySDK.currentHub().bindClient(client)
         SentrySDK.close()
@@ -575,13 +575,13 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(Options().shutdownTimeInterval, transport.flushInvocations.first)
     }
     
-    func testFlush_CallsFlushCorrectlyOnTransport() {
+    func testFlush_CallsFlushCorrectlyOnTransport() throws {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
         }
         
         let transport = TestTransport()
-        let client = SentryClient(options: fixture.options)
+        let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), deleteOldEnvelopeItems: false)
         Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
         SentrySDK.currentHub().bindClient(client)
         

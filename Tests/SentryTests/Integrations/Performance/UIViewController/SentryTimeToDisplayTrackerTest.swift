@@ -234,10 +234,11 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(sut.fullDisplaySpan?.timestamp, sut.initialDisplaySpan?.timestamp)
     }
 
-    func testReportFullyDisplayed_afterFinishingTracer_withWaitForChildren() {
+    func testReportFullyDisplayed_afterFinishingTracer_withWaitForChildren() throws {
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
 
-        let hub = TestHub(client: SentryClient(options: Options()), andScope: nil)
+        let options = Options()
+        let hub = TestHub(client: SentryClient(options: options, fileManager: try TestFileManager(options: options), deleteOldEnvelopeItems: false), andScope: nil)
         let tracer = SentryTracer(transactionContext: TransactionContext(operation: "Test Operation"), hub: hub, configuration: SentryTracerConfiguration(block: { config in
             config.waitForChildren = true
         }))
