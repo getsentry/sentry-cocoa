@@ -1,20 +1,29 @@
 
 #import "SentryCoreDataTracker.h"
+#import "SentryFrame.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
+#import "SentryNSProcessInfoWrapper.h"
 #import "SentryPredicateDescriptor.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySpanProtocol.h"
+#import "SentryStacktrace.h"
+#import "SentryThreadInspector.h"
 
 @implementation SentryCoreDataTracker {
     SentryPredicateDescriptor *predicateDescriptor;
+    SentryThreadInspector *_threadInspector;
+    SentryNSProcessInfoWrapper *_processInfoWrapper;
 }
 
-- (instancetype)init
+- (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
+                     processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper;
 {
     if (self = [super init]) {
         predicateDescriptor = [[SentryPredicateDescriptor alloc] init];
+        _threadInspector = threadInspector;
+        _processInfoWrapper = processInfoWrapper;
     }
     return self;
 }
@@ -47,8 +56,9 @@
     NSArray *result = original(request, error);
 
     if (fetchSpan) {
-        [fetchSpan setDataValue:[NSNumber numberWithInteger:result.count] forKey:@"read_count"];
+        [self mainThreadExtraInfo:fetchSpan];
 
+        [fetchSpan setDataValue:[NSNumber numberWithInteger:result.count] forKey:@"read_count"];
         [fetchSpan
             finishWithStatus:result == nil ? kSentrySpanStatusInternalError : kSentrySpanStatusOk];
 
@@ -91,6 +101,7 @@
     BOOL result = original(error);
 
     if (fetchSpan) {
+        [self mainThreadExtraInfo:fetchSpan];
         [fetchSpan finishWithStatus:result ? kSentrySpanStatusOk : kSentrySpanStatusInternalError];
 
         SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically finished span with status: %@",
@@ -98,6 +109,20 @@
     }
 
     return result;
+}
+
+- (void)mainThreadExtraInfo:(SentrySpan *)span
+{
+    BOOL isMainThread = [NSThread isMainThread];
+
+    [span setDataValue:@(isMainThread) forKey:@"blocked_main_thread"];
+
+    if (!isMainThread) {
+        return;
+    }
+
+    SentryStacktrace *stackTrace = [_threadInspector stacktraceForCurrentThreadAsyncUnsafe];
+    [span setFrames:stackTrace.frames];
 }
 
 - (NSString *)descriptionForOperations:

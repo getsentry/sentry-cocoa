@@ -27,7 +27,7 @@ SentryExtraContextProvider ()
 {
     return [self initWithCrashWrapper:[SentryCrashWrapper sharedInstance]
                         deviceWrapper:[[SentryUIDeviceWrapper alloc] init]
-                   processInfoWrapper:[[SentryNSProcessInfoWrapper alloc] init]];
+                   processInfoWrapper:[SentryNSProcessInfoWrapper shared]];
 }
 
 - (instancetype)initWithCrashWrapper:(id)crashWrapper

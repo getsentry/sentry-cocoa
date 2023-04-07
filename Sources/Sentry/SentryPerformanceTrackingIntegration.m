@@ -40,7 +40,7 @@ SentryPerformanceTrackingIntegration ()
              dispatchQueue:dispatchQueue
         objcRuntimeWrapper:[SentryDefaultObjCRuntimeWrapper sharedInstance]
             subClassFinder:subClassFinder
-        processInfoWrapper:[[SentryNSProcessInfoWrapper alloc] init]];
+        processInfoWrapper:[SentryNSProcessInfoWrapper shared]];
 
     [self.swizzling start];
     SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay

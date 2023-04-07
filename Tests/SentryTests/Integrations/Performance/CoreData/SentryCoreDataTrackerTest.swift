@@ -6,9 +6,18 @@ class SentryCoreDataTrackerTests: XCTestCase {
     
     private class Fixture {
         let context = TestNSManagedObjectContext()
+        let threadInspector = TestThreadInspector.instance
+        let imageProvider = TestDebugImageProvider()
         
         func getSut() -> SentryCoreDataTracker {
-            return SentryCoreDataTracker()
+            imageProvider.debugImages = [TestData.debugImage]
+            SentryDependencyContainer.sharedInstance().debugImageProvider = imageProvider
+
+            threadInspector.allThreads = [TestData.thread2]
+            let processInfoWrapper = TestSentryNSProcessInfoWrapper()
+            processInfoWrapper.overrides.processDirectoryPath = "sentrytest"
+
+            return SentryCoreDataTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)
         }
 
         func testEntity() -> TestEntity {
@@ -46,6 +55,17 @@ class SentryCoreDataTrackerTests: XCTestCase {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         assertRequest(fetch, expectedDescription: "SELECT 'TestEntity'")
     }
+
+    func testFetchRequestBackgroundThread() {
+        let expect = expectation(description: "Operation in background thread")
+        DispatchQueue.global(qos: .default).async {
+            let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
+            self.assertRequest(fetch, expectedDescription: "SELECT 'TestEntity'", mainThread: false)
+            expect.fulfill()
+        }
+
+        wait(for: [expect], timeout: 0.1)
+    }
     
     func test_FetchRequest_WithPredicate() {
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
@@ -81,6 +101,17 @@ class SentryCoreDataTrackerTests: XCTestCase {
     func test_Save_1Insert_1Entity() {
         fixture.context.inserted = [fixture.testEntity()]
         assertSave("INSERTED 1 'TestEntity'")
+    }
+
+    func testSaveBackgroundThread() {
+        let expect = expectation(description: "Operation in background thread")
+        DispatchQueue.global(qos: .default).async {
+            self.fixture.context.inserted = [self.fixture.testEntity()]
+            self.assertSave("INSERTED 1 'TestEntity'", mainThread: false)
+            expect.fulfill()
+        }
+
+        wait(for: [expect], timeout: 0.1)
     }
     
     func test_Save_2Insert_1Entity() {
@@ -229,7 +260,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         XCTAssertEqual(transaction.children.count, 0)
     }
     
-    func assertSave(_ expectedDescription: String) {
+    func assertSave(_ expectedDescription: String, mainThread: Bool = true) {
         let sut = fixture.getSut()
         
         let transaction = startTransaction()
@@ -237,13 +268,27 @@ class SentryCoreDataTrackerTests: XCTestCase {
         try? sut.saveManagedObjectContext(fixture.context) { _ in
             return true
         }
-        
-        XCTAssertEqual(transaction.children.count, 1)
-        XCTAssertEqual(transaction.children[0].operation, SENTRY_COREDATA_SAVE_OPERATION)
-        XCTAssertEqual(transaction.children[0].spanDescription, expectedDescription)
+
+        guard let dbSpan = try? XCTUnwrap(transaction.children.first) else {
+            XCTFail("Span for DB operation don't exist.")
+            return
+        }
+
+        XCTAssertEqual(dbSpan.operation, SENTRY_COREDATA_SAVE_OPERATION)
+        XCTAssertEqual(dbSpan.spanDescription, expectedDescription)
+        XCTAssertEqual(dbSpan.data["blocked_main_thread"] as? Bool ?? false, mainThread)
+
+        if mainThread {
+            guard let frames = (dbSpan as? SentrySpan)?.frames else {
+                XCTFail("File IO Span in the main thread has no frames")
+                return
+            }
+            XCTAssertEqual(frames.first, TestData.mainFrame)
+            XCTAssertEqual(frames.last, TestData.testFrame)
+        }
     }
     
-    func assertRequest(_ fetch: NSFetchRequest<TestEntity>, expectedDescription: String) {
+    func assertRequest(_ fetch: NSFetchRequest<TestEntity>, expectedDescription: String, mainThread: Bool = true) {
         let transaction = startTransaction()
         let sut = fixture.getSut()
         
@@ -254,12 +299,26 @@ class SentryCoreDataTrackerTests: XCTestCase {
         let result = try?  sut.fetchManagedObjectContext(context, request: fetch) { _, _ in
             return [someEntity]
         }
-        
+
+        guard let dbSpan = try? XCTUnwrap(transaction.children.first) else {
+            XCTFail("Span for DB operation don't exist.")
+            return
+        }
+
         XCTAssertEqual(result?.count, 1)
-        XCTAssertEqual(transaction.children.count, 1)
-        XCTAssertEqual(transaction.children[0].operation, SENTRY_COREDATA_FETCH_OPERATION)
-        XCTAssertEqual(transaction.children[0].spanDescription, expectedDescription)
-        XCTAssertEqual(transaction.children[0].data["read_count"] as? Int, 1)
+        XCTAssertEqual(dbSpan.operation, SENTRY_COREDATA_FETCH_OPERATION)
+        XCTAssertEqual(dbSpan.spanDescription, expectedDescription)
+        XCTAssertEqual(dbSpan.data["read_count"] as? Int, 1)
+        XCTAssertEqual(dbSpan.data["blocked_main_thread"] as? Bool ?? false, mainThread)
+
+        if mainThread {
+            guard let frames = (dbSpan as? SentrySpan)?.frames else {
+                XCTFail("File IO Span in the main thread has no frames")
+                return
+            }
+            XCTAssertEqual(frames.first, TestData.mainFrame)
+            XCTAssertEqual(frames.last, TestData.testFrame)
+        }
     }
     
     private func startTransaction() -> SentryTracer {
