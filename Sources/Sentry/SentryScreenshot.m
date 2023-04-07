@@ -56,8 +56,7 @@
         if ([window drawViewHierarchyInRect:window.bounds afterScreenUpdates:false]) {
             UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
             // this shouldn't happen now that we discard windows with either 0 height or 0 width,
-            // but still, we shouldn't send any images with either one. previously we'd allow a 0
-            // dimension. change the || to &&
+            // but still, we shouldn't send any images with either one.
             if (LIKELY(img.size.width > 0 && img.size.height > 0)) {
                 NSData *bytes = UIImagePNGRepresentation(img);
                 if (bytes && bytes.length > 0) {
