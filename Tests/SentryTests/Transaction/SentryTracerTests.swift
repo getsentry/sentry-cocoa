@@ -603,7 +603,6 @@ class SentryTracerTests: XCTestCase {
         let sut = fixture.getSut()
         advanceTime(bySeconds: 1)
         sut.finish()
-        fixture.hub.group.wait()
         
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
 
@@ -623,16 +622,14 @@ class SentryTracerTests: XCTestCase {
         advanceTime(bySeconds: 0.5)
         secondTransaction.finish()
 
-        fixture.hub.group.wait()
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
         let serializedSecondTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
         XCTAssertNil(serializedSecondTransaction["measurements"])
 
         firstTransaction.finish()
-        fixture.hub.group.wait()
         
         XCTAssertEqual(2, fixture.hub.capturedEventsWithScopes.count)
-        assertAppStartMeasurementOn(transaction: fixture.hub.capturedEventsWithScopes[1].event as! Transaction, appStartMeasurement: appStartMeasurement)
+        assertAppStartMeasurementOn(transaction: fixture.hub.capturedEventsWithScopes.invocations[1].event as! Transaction, appStartMeasurement: appStartMeasurement)
     }
     
     func testAddUnknownAppStartMeasurement_NotPutOnNextTransaction() {
@@ -647,7 +644,6 @@ class SentryTracerTests: XCTestCase {
         ))
         
         fixture.getSut().finish()
-        fixture.hub.group.wait()
         
         assertAppStartMeasurementNotPutOnTransaction()
     }
@@ -694,7 +690,6 @@ class SentryTracerTests: XCTestCase {
         
         let sut = fixture.hub.startTransaction(transactionContext: TransactionContext(name: "custom", operation: "custom")) as! SentryTracer
         sut.finish()
-        fixture.hub.group.wait()
         
         XCTAssertNotNil(SentrySDK.getAppStartMeasurement())
         
@@ -718,7 +713,6 @@ class SentryTracerTests: XCTestCase {
         let sut = fixture.getSut()
         advanceTime(bySeconds: 1.0)
         sut.finish()
-        fixture.hub.group.wait()
         
         assertAppStartMeasurementNotPutOnTransaction()
     }
@@ -732,7 +726,6 @@ class SentryTracerTests: XCTestCase {
         let sut = fixture.getSut()
         advanceTime(bySeconds: 1.0)
         sut.finish()
-        fixture.hub.group.wait()
         
         assertAppStartMeasurementNotPutOnTransaction()
     }
@@ -744,7 +737,6 @@ class SentryTracerTests: XCTestCase {
         
         let sut = fixture.getSut()
         sut.finish()
-        fixture.hub.group.wait()
         
         assertAppStartMeasurementNotPutOnTransaction()
     }
@@ -760,7 +752,6 @@ class SentryTracerTests: XCTestCase {
         childSpan.setMeasurement(name: name, value: value, unit: unit)
         childSpan.finish()
         sut.finish()
-        fixture.hub.group.wait()
 
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first?.event.serialize()
@@ -893,11 +884,9 @@ class SentryTracerTests: XCTestCase {
         queue.activate()
         group.wait()
         
-        fixture.hub.group.wait()
-        
         XCTAssertEqual(transactions, fixture.hub.capturedEventsWithScopes.count)
         
-        let transactionsWithAppStartMeasurement = fixture.hub.capturedEventsWithScopes.filter { pair in
+        let transactionsWithAppStartMeasurement = fixture.hub.capturedEventsWithScopes.invocations.filter { pair in
             let serializedTransaction = pair.event.serialize()
             let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
             return measurements == ["app_start_warm": ["value": 500]]
@@ -970,8 +959,6 @@ class SentryTracerTests: XCTestCase {
         
         sut.finish()
         
-        fixture.hub.group.wait()
-        
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first!.event.serialize()
         let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
@@ -1023,16 +1010,13 @@ class SentryTracerTests: XCTestCase {
         let sut = fixture.getSut()
         sut.updateStartTime(fixture.appStartEnd.addingTimeInterval(startTimestamp))
         sut.finish()
-        fixture.hub.group.wait()
     }
 
     private func assertTransactionNotCaptured(_ tracer: SentryTracer) {
-        fixture.hub.group.wait()
         XCTAssertEqual(0, fixture.hub.capturedEventsWithScopes.count)
     }
     
     private func assertOneTransactionCaptured(_ tracer: SentryTracer) {
-        fixture.hub.group.wait()
         XCTAssertTrue(tracer.isFinished)
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
     }
@@ -1115,8 +1099,6 @@ class SentryTracerTests: XCTestCase {
     }
     
     private func assertNoMeasurementsAdded() {
-        fixture.hub.group.wait()
-        
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first?.event.serialize()
         XCTAssertNil(serializedTransaction?["measurements"])

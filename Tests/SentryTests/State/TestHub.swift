@@ -1,9 +1,7 @@
 import Foundation
+import SentryTestUtils
 
 class TestHub: SentryHub {
-    
-    let group = DispatchGroup()
-    let queue = DispatchQueue(label: "TestHub", attributes: .concurrent)
 
     var startSessionInvocations: Int = 0
     var closeCachedSessionInvocations: Int = 0
@@ -23,30 +21,27 @@ class TestHub: SentryHub {
         endSessionTimestamp = timestamp
     }
     
-    var sentCrashEvents: [Event] = []
+    var sentCrashEvents = Invocations<Event>()
     override func captureCrash(_ event: Event) {
-        sentCrashEvents.append(event)
+        sentCrashEvents.record(event)
     }
     
-    var sentCrashEventsWithScope: [(event: Event, scope: Scope)] = []
+    var sentCrashEventsWithScope = Invocations<(event: Event, scope: Scope)>()
     override func captureCrash(_ event: Event, with scope: Scope) {
-        sentCrashEventsWithScope.append((event, scope))
+        sentCrashEventsWithScope.record((event, scope))
     }
     
-    var capturedEventsWithScopes: [(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])] = []
+    var capturedEventsWithScopes = Invocations<(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])>()
     override func capture(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem]) -> SentryId {
-        group.enter()
-        queue.async(flags: .barrier) {
-            self.capturedEventsWithScopes.append((event, scope, additionalEnvelopeItems))
-            self.group.leave()
-        }
+        
+        self.capturedEventsWithScopes.record((event, scope, additionalEnvelopeItems))
         
         return event.eventId
     }
 
-    var capturedTransactionsWithScope: [(transaction: [String: Any], scope: Scope)] = []
+    var capturedTransactionsWithScope = Invocations<(transaction: [String: Any], scope: Scope)>()
     override func capture(_ transaction: Transaction, with scope: Scope) -> SentryId {
-        capturedTransactionsWithScope.append((transaction.serialize(), scope))
+        capturedTransactionsWithScope.record((transaction.serialize(), scope))
         return super.capture(transaction, with: scope)
     }
 }
