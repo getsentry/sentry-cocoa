@@ -6,7 +6,7 @@
 
 - Crash when serializing invalid objects (#2858)
 - Convert remaining usages of `sprintf` to `snprintf` (#2866)
-- Don't send screenshots with either width or height of 0 (#2876))
+- Don't send screenshots with either width or height of 0 (#2876)
 
 ## 8.4.0
 
