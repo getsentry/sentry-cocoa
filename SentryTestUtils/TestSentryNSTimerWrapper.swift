@@ -16,7 +16,7 @@ public class TestSentryNSTimerWrapper: SentryNSTimerWrapper {
         var block: ((Timer) -> Void)?
     }
 
-    public lazy var overrides = Overrides()
+    public var overrides = Overrides()
 
     public override func scheduledTimer(withTimeInterval interval: TimeInterval, repeats: Bool, block: @escaping (Timer) -> Void) -> Timer {
         let timer = TestTimer()

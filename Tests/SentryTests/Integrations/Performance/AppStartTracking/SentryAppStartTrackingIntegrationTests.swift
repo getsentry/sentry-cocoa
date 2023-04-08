@@ -19,6 +19,11 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
     
     private var fixture: Fixture!
     private var sut: SentryAppStartTrackingIntegration!
+
+    override class func setUp() {
+        super.setUp()
+        SentryLog.configure(true, diagnosticLevel: .debug)
+    }
     
     override func setUp() {
         super.setUp()
