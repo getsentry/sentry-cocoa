@@ -10,6 +10,8 @@ SentryTracer (Test)
 
 - (void)updateStartTime:(NSDate *)startTime;
 
++ (void)resetConcurrencyTracking;
+
 @end
 
 NS_ASSUME_NONNULL_END

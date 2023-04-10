@@ -175,7 +175,7 @@ static BOOL appStartMeasurementRead;
     }];
 
     if (_idleTimeoutBlock == NULL) {
-        SENTRY_LOG_WARN(@"Couln't create idle time out block. Can't schedule idle timeout. "
+        SENTRY_LOG_WARN(@"Couldn't create idle time out block. Can't schedule idle timeout. "
                         @"Finishing transaction");
         // If the transaction has no children, the SDK will discard it.
         [self finishInternal];
@@ -795,6 +795,16 @@ static BOOL appStartMeasurementRead;
 {
     return _startTimeChanged ? _originalStartTimestamp : self.startTimestamp;
 }
+
+#if defined(TEST) || defined(TESTCI)
+// this just calls through to SentryTracerConcurrency.resetConcurrencyTracking(). we have to do this
+// through SentryTracer because SentryTracerConcurrency cannot be included in test targets via ObjC
+// bridging headers because it contains C++.
++ (void)resetConcurrencyTracking
+{
+    resetConcurrencyTracking();
+}
+#endif // defined(TEST) || defined(TESTCI)
 
 @end
 
