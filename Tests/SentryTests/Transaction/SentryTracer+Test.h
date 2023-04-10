@@ -10,9 +10,9 @@ SentryTracer (Test)
 
 - (void)updateStartTime:(NSDate *)startTime;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_TARGET_PROFILING_SUPPORTED && (defined(TEST) || defined(TESTCI))
 + (void)resetConcurrencyTracking;
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED && (defined(TEST) || defined(TESTCI))
 
 @end
 

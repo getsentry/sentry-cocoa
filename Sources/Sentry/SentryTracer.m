@@ -796,7 +796,7 @@ static BOOL appStartMeasurementRead;
     return _startTimeChanged ? _originalStartTimestamp : self.startTimestamp;
 }
 
-#if defined(TEST) || defined(TESTCI)
+#if SENTRY_TARGET_PROFILING_SUPPORTED && (defined(TEST) || defined(TESTCI))
 // this just calls through to SentryTracerConcurrency.resetConcurrencyTracking(). we have to do this
 // through SentryTracer because SentryTracerConcurrency cannot be included in test targets via ObjC
 // bridging headers because it contains C++.
@@ -804,7 +804,7 @@ static BOOL appStartMeasurementRead;
 {
     resetConcurrencyTracking();
 }
-#endif // defined(TEST) || defined(TESTCI)
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED && (defined(TEST) || defined(TESTCI))
 
 @end
 

@@ -34,6 +34,9 @@ class TestCleanup: NSObject {
         SentrySwizzleWrapper.sharedInstance.removeAllCallbacks()
 
         SentryTracer.resetAppStartMeasurementRead()
+
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
         SentryTracer.resetConcurrencyTracking()
+#endif
     }
 }
