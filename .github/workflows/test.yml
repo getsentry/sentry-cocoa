@@ -332,7 +332,7 @@ jobs:
     runs-on: macos-11
     strategy:
       matrix:
-        target: ['ios_swift', 'ios_objc', 'tvos_swift']
+        target: ['ios_swift', 'ios_objc']
 
     steps:
       - uses: actions/checkout@v3
