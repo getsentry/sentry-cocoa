@@ -626,7 +626,8 @@ private extension SentryProfilerSwiftTests {
             case .yes:
                 return NSNumber(value: 1)
             @unknown default:
-                fatalError("Unexpected value for sample decision")
+                XCTFail("Unexpected value for sample decision")
+                return NSNumber(value: 0)
             }
         }
         options(fixtureOptions)
@@ -639,26 +640,17 @@ private extension SentryProfilerSwiftTests {
         fixture.currentDateProvider.advance(by: 5)
         span.finish()
 
-        guard let client = self.fixture.client else {
-            XCTFail("Expected a valid test client to exist")
-            return
-        }
+        let client = try XCTUnwrap(self.fixture.client)
 
         switch expectedDecision {
         case .undecided, .no:
-            guard let event = client.captureEventWithScopeInvocations.first else {
-                XCTFail("Expected to capture at least 1 event, but without a profile")
-                return
-            }
+            let event = try XCTUnwrap(client.captureEventWithScopeInvocations.first)
             XCTAssertEqual(0, event.additionalEnvelopeItems.count)
         case .yes:
-            guard let event = client.captureEventWithScopeInvocations.first else {
-                XCTFail("Expected to capture at least 1 event with a profile")
-                return
-            }
+            let event = try XCTUnwrap(client.captureEventWithScopeInvocations.first)
             XCTAssertEqual(1, event.additionalEnvelopeItems.count)
         @unknown default:
-            fatalError("Unexpected value for sample decision")
+            XCTFail("Unexpected value for sample decision")
         }
     }
 }
