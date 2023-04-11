@@ -21,6 +21,7 @@ class SentryHubTests: XCTestCase {
         let crashedSession: SentrySession
         let transactionName = "Some Transaction"
         let transactionOperation = "Some Operation"
+        let traceOrigin = "auto"
         let random = TestRandom(value: 0.5)
         let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
         
@@ -233,7 +234,8 @@ class SentryHubTests: XCTestCase {
         let span = fixture.getSut().startTransaction(transactionContext: TransactionContext(
             name: fixture.transactionName,
             nameSource: .url,
-            operation: fixture.transactionOperation
+            operation: fixture.transactionOperation,
+            origin: fixture.traceOrigin
         ))
 
         let tracer = Dynamic(span)

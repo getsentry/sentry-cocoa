@@ -6,6 +6,7 @@ class SentryTransactionTests: XCTestCase {
     private class Fixture {
         let transactionName = "Some Transaction"
         let transactionOperation = "ui.load"
+        let traceOrigin = "auto"
         let testKey = "extra_key"
         let testValue = "extra_value"
         
@@ -14,7 +15,7 @@ class SentryTransactionTests: XCTestCase {
         }
         
         func getContext() -> TransactionContext {
-            return TransactionContext(name: transactionName, nameSource: .component, operation: transactionOperation)
+            return TransactionContext(name: transactionName, nameSource: .component, operation: transactionOperation, origin: traceOrigin)
         }
         
         func getTrace() -> SentryTracer {

@@ -27,11 +27,13 @@ SentryHub (Private)
 
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name
                                 nameSource:(SentryTransactionNameSource)source
-                                 operation:(NSString *)operation;
+                                 operation:(NSString *)operation
+                                    origin:(NSString *)origin;
 
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name
                                 nameSource:(SentryTransactionNameSource)source
                                  operation:(NSString *)operation
+                                    origin:(NSString *)origin
                                bindToScope:(BOOL)bindToScope;
 
 - (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext

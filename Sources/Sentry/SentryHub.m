@@ -18,6 +18,7 @@
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySession+Private.h"
+#import "SentryTraceOrigins.h"
 #import "SentryTracer.h"
 #import "SentryTracesSampler.h"
 #import "SentryTransaction.h"
@@ -306,17 +307,19 @@ SentryHub ()
     return [self startTransactionWithContext:[[SentryTransactionContext alloc]
                                                  initWithName:name
                                                    nameSource:kSentryTransactionNameSourceCustom
-                                                    operation:operation]];
+                                                    operation:operation
+                                                       origin:SentryTraceOriginManual]];
 }
 
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name
                                 nameSource:(SentryTransactionNameSource)source
                                  operation:(NSString *)operation
 {
-    return [self
-        startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name
-                                                                        nameSource:source
-                                                                         operation:operation]];
+    return [self startTransactionWithContext:[[SentryTransactionContext alloc]
+                                                 initWithName:name
+                                                   nameSource:source
+                                                    operation:operation
+                                                       origin:SentryTraceOriginManual]];
 }
 
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name
@@ -326,20 +329,22 @@ SentryHub ()
     return [self startTransactionWithContext:[[SentryTransactionContext alloc]
                                                  initWithName:name
                                                    nameSource:kSentryTransactionNameSourceCustom
-                                                    operation:operation]
+                                                    operation:operation
+                                                       origin:SentryTraceOriginManual]
                                  bindToScope:bindToScope];
 }
 
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name
                                 nameSource:(SentryTransactionNameSource)source
                                  operation:(NSString *)operation
+                                    origin:(NSString *)origin
                                bindToScope:(BOOL)bindToScope
 {
-    return
-        [self startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name
-                                                                              nameSource:source
-                                                                               operation:operation]
-                              bindToScope:bindToScope];
+    SentryTransactionContext *context = [[SentryTransactionContext alloc] initWithName:name
+                                                                            nameSource:source
+                                                                             operation:operation
+                                                                                origin:origin];
+    return [self startTransactionWithContext:context bindToScope:bindToScope];
 }
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
@@ -380,6 +385,7 @@ SentryHub ()
     return [[SentryTransactionContext alloc] initWithName:context.name
                                                nameSource:context.nameSource
                                                 operation:context.operation
+                                                   origin:SentryTraceOriginAuto
                                                   traceId:context.traceId
                                                    spanId:context.spanId
                                              parentSpanId:context.parentSpanId

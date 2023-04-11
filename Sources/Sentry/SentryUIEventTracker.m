@@ -7,6 +7,7 @@
 #import <SentrySpanId.h>
 #import <SentrySpanOperations.h>
 #import <SentrySpanProtocol.h>
+#import <SentryTraceOrigins.h>
 #import <SentryTracer.h>
 #import <SentryTransactionContext+Private.h>
 #import <SentryUIEventTracker.h>
@@ -110,7 +111,8 @@ SentryUIEventTracker ()
             SentryTransactionContext *context =
                 [[SentryTransactionContext alloc] initWithName:transactionName
                                                     nameSource:kSentryTransactionNameSourceComponent
-                                                     operation:operation];
+                                                     operation:operation
+                                                        origin:SentryTraceOriginUIEventTracker];
 
             __block SentryTracer *transaction;
             [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {

@@ -24,6 +24,7 @@ SentrySpan ()
     NSMutableDictionary<NSString *, id> *_data;
     NSMutableDictionary<NSString *, id> *_tags;
     BOOL _isFinished;
+    NSString *_origin;
 }
 
 - (instancetype)initWithContext:(SentrySpanContext *)context
@@ -41,6 +42,7 @@ SentrySpan ()
         _spanDescription = context.spanDescription;
         _spanId = context.spanId;
         _sampled = context.sampled;
+        _origin = context.origin;
     }
     return self;
 }
@@ -169,7 +171,7 @@ SentrySpan ()
         @"type" : SENTRY_TRACE_TYPE,
         @"span_id" : self.spanId.sentrySpanIdString,
         @"trace_id" : self.traceId.sentryIdString,
-        @"op" : self.operation
+        @"op" : self.operation,
     }
                                                  .mutableCopy;
 
@@ -224,6 +226,10 @@ SentrySpan ()
         if (_tags.count > 0) {
             mutableDictionary[@"tags"] = _tags.copy;
         }
+    }
+
+    if (_origin) {
+        mutableDictionary[@"origin"] = _origin;
     }
 
     return mutableDictionary;

@@ -11,6 +11,7 @@
 #import "SentryMeta.h"
 #import "SentryOptions+Private.h"
 #import "SentryScope.h"
+#import "SentryTraceOrigins.h"
 
 @interface
 SentrySDK ()
@@ -193,7 +194,8 @@ static NSUInteger startInvocations;
 {
     return [SentrySDK.currentHub startTransactionWithName:name
                                                nameSource:source
-                                                operation:operation];
+                                                operation:operation
+                                                   origin:SentryTraceOriginManual];
 }
 
 + (id<SentrySpan>)startTransactionWithName:(NSString *)name
@@ -214,6 +216,7 @@ static NSUInteger startInvocations;
     return [SentrySDK.currentHub startTransactionWithName:name
                                                nameSource:source
                                                 operation:operation
+                                                   origin:SentryTraceOriginManual
                                               bindToScope:bindToScope];
 }
 
