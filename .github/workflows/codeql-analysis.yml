@@ -1,0 +1,38 @@
+name: 'CodeQL'
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '40 4 * * 6'
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: macos-11
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['cpp']
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@d186a2a36cc67bfa1b860e6170d37fb9634742c7 # pin@v2
+        with:
+          languages: ${{ matrix.language }}
+
+      - run: >-
+          env NSUnbufferedIO=YES
+          xcodebuild
+          -workspace Sentry.xcworkspace
+          -scheme Sentry
+          -configuration Release
+          -destination platform="iOS Simulator,OS=latest,name=iPhone 11 Pro"
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@d186a2a36cc67bfa1b860e6170d37fb9634742c7 # pin@v2

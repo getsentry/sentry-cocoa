@@ -1,0 +1,31 @@
+name: format code
+on:
+  pull_request:
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
+      - 'test-server/**'
+      - 'Samples/**'
+      - '.github/workflows/format-code.yml'
+
+jobs:
+  # Formats Swift, Objective-C, C++, and C code and commits the formatted code
+  # if necessary
+  format-code:
+    name: Format Code
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v3
+      ## Update internal list of formulae to the latest
+      - run: brew update
+      - name: Install Clang-Format
+        run: brew install clang-format
+      - run: swiftlint --version
+      - name: Format Code
+        run: make format
+
+      # actions/checkout fetches only a single commit in a detached HEAD state. Therefore
+      # we need to pass the current branch, otherwise we can't commit the changes.
+      # GITHUB_HEAD_REF is the name of the head branch. GitHub Actions only sets this for PRs.
+      - name: Commit Formatted Code
+        run: ./scripts/commit-formatted-code.sh $GITHUB_HEAD_REF

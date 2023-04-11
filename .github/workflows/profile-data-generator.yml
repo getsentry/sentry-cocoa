@@ -1,0 +1,96 @@
+# Defines a workflow that generates large volumes of real-ish profiling data to work with for various development tasks.
+
+name: Generate Profiling Test Data
+on:
+  schedule:
+    - cron: '0 */6 * * *' # every 6 hours = 4x/day
+  pull_request:
+    paths:
+      - 'Sources/Sentry/Public/**'
+      - 'Samples/TrendingMovies/**'
+
+jobs:
+  build-profile-data-generator-targets:
+    name: Build app and test runner
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./scripts/ci-select-xcode.sh 13.4.1
+      - name: Install SentryCli
+        run: brew install getsentry/tools/sentry-cli
+      - name: Cache Carthage dependencies
+        id: trendingmovies-carthage-cache
+        uses: actions/cache@v3
+        with:
+          path: ./Samples/TrendingMovies/Carthage/Build
+          key: trendingmovies-carthage-cache-key-${{ hashFiles('Samples/TrendingMovies/Cartfile.resolved') }}
+      - name: Install Carthage deps
+        if: steps.trendingmovies-carthage-cache.outputs.cache-hit != 'true'
+        run: cd Samples/TrendingMovies && carthage update --use-xcframeworks
+      - name: Cache TrendingMovies App and dSYM build products
+        id: cache-trending-movies-app
+        uses: actions/cache@v3
+        with:
+          path: |
+            DerivedData/Build/Products/Debug-iphoneos/TrendingMovies.app
+            DerivedData/Build/Products/Debug-iphoneos/TrendingMovies.app.dSYM
+          key: trendingmovies-app-cache-key-${{ hashFiles('Samples/TrendingMovies/TrendingMovies/**') }}-${{ hashFiles('Sources/Sentry/**') }}
+      - name: Cache ProfileDataGenerator UI Test Runner App build product
+        id: cache-profiledatagenerator-test-runner-app
+        uses: actions/cache@v3
+        with:
+          path: |
+            DerivedData/Build/Products/Debug-iphoneos/ProfileDataGeneratorUITest-Runner.app
+          key: profiledatagenerator-test-runner-app-cache-key-${{ hashFiles('Samples/TrendingMovies/ProfileDataGeneratorUITest/**') }}
+      - run: fastlane build_trending_movies
+        if: steps.cache-trending-movies-app.outputs.cache-hit != 'true'
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+      - run: fastlane build_profile_data_generator_ui_test
+        if: steps.cache-profiledatagenerator-test-runner-app.outputs.cache-hit != 'true'
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+      - name: Upload dSYMs
+        run: |
+          sentry-cli --auth-token ${{ secrets.SENTRY_AUTH_TOKEN }} upload-dif --org sentry-sdks --project trending-movies DerivedData/Build/Products/Debug-iphoneos/TrendingMovies.app.dSYM
+      - name: Archiving DerivedData
+        uses: actions/upload-artifact@v3
+        with:
+          name: data-generator-build-products
+          path: |
+            **/Debug-iphoneos/TrendingMovies.app
+            **/Debug-iphoneos/ProfileDataGeneratorUITest-Runner.app
+
+  run-profile-data-generator:
+    timeout-minutes: 10
+    name: Run profile generation on Sauce Labs
+    runs-on: ubuntu-latest
+    needs: build-profile-data-generator-targets
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: ['High-end device', 'Mid-range device']
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: data-generator-build-products
+      - run: npm install -g saucectl@0.107.2
+      - name: Run Tests in Sauce Labs
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+        run: |
+          saucectl run --select-suite "${{ matrix.suite }}" --config .sauce/profile-data-generator-config.yml ||:

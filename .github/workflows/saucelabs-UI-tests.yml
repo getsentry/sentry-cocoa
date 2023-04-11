@@ -1,0 +1,123 @@
+name: Sauce Labs UI Tests
+on:
+  # Schedule the UI tests so we can see in Sentry how the duration of transactions
+  # changes over time.
+  schedule:
+    - cron: '0 0 * * *'
+  push:
+    branches:
+      - main
+
+  pull_request:
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
+      - '.github/workflows/saucelabs-UI-tests.yml'
+      - 'fastlane/**'
+      - '.sauce/config.yml'
+      - 'scripts/set-device-tests-environment.patch'
+      - 'scripts/ci-select-xcode.sh'
+
+      # run the workflow any time an Xcode scheme changes for one of the sample apps with a UI test suite we run in saucelabs
+      - 'Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-SwiftUITests.xcscheme'
+      - 'Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-Swift.xcscheme'
+
+jobs:
+  build-ui-tests:
+    name: Build UITests with Xcode ${{matrix.xcode}}
+    runs-on: ${{matrix.runs-on}}
+    strategy:
+      matrix:
+        include:
+          - runs-on: macos-12
+            xcode: '13.4.1'
+
+          - runs-on: macos-12
+            xcode: '14.1'
+
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+      - name: Install SentryCli
+        run: brew install getsentry/tools/sentry-cli
+      - run: git apply ./scripts/set-device-tests-environment.patch
+      - name: Cache iOS-Swift App and dSYM build products
+        id: ios-swift-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            DerivedData/Build/Products/Test-iphoneos/iOS-Swift.app.dSYM
+            DerivedData/Build/Products/Test-iphoneos/iOS-Swift.app
+          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/iOS-Swift/**') }}-Xcode-${{ matrix.xcode }}-${{ hashFiles('Sources/Sentry/**') }}
+      - name: Cache iOS-Swift UI Test Runner App build product
+        id: ios-swift-uitest-runner-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            DerivedData/Build/Products/Test-iphoneos/iOS-SwiftUITests-Runner.app
+          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/iOS-SwiftUITests/**') }}-Xcode-${{ matrix.xcode }}
+      - run: fastlane build_ios_swift_for_tests
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+      - run: fastlane build_ios_swift_ui_test
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+      - name: Upload dSYMs
+        run: |
+          sentry-cli --auth-token ${{ secrets.SENTRY_AUTH_TOKEN }} upload-dif --org sentry-sdks --project sentry-cocoa DerivedData/Build/Products/Test-iphoneos/iOS-Swift.app.dSYM
+      - name: Archiving DerivedData
+        uses: actions/upload-artifact@v3
+        with:
+          name: DerivedData-Xcode-${{matrix.xcode}}
+          path: |
+            **/Test-iphoneos/iOS-Swift.app
+            **/Test-iphoneos/iOS-SwiftUITests-Runner.app
+
+  run-ui-tests-with-sauce:
+    name: Run UI Tests for iOS ${{ matrix.suite }} on Sauce Labs
+    runs-on: ubuntu-latest
+    needs: build-ui-tests
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - xcode: '13.4.1'
+            suite: 'iOS-15'
+
+          # We want to test the frame tracker at 120 fps
+          - xcode: '13.4.1'
+            suite: 'iPhone-Pro'
+
+          - xcode: '13.4.1'
+            suite: 'iOS-14'
+
+          - xcode: '13.4.1'
+            suite: 'iOS-13'
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: DerivedData-Xcode-${{matrix.xcode}}
+
+      - run: npm install -g saucectl@0.107.2
+
+      # As Sauce Labs is a bit flaky we retry 5 times
+      - name: Run Tests in SauceLab
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+        run: for i in {1..5}; do saucectl run --select-suite ${{ matrix.suite }} && break ; done
