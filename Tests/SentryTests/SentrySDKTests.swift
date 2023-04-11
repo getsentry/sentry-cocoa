@@ -31,6 +31,8 @@ class SentrySDKTests: XCTestCase {
         }
         
         let message = "message"
+        let operation = "ui.load"
+        let transactionName = "Load Main Screen"
         
         init() {
             CurrentDate.setCurrentDateProvider(currentDate)
@@ -344,24 +346,23 @@ class SentrySDKTests: XCTestCase {
     func testStartTransaction() {
         givenSdkWithHub()
         
-        let operation = "ui.load"
-        let name = "Load Main Screen"
-        let transaction = SentrySDK.startTransaction(name: name, operation: operation)
+        let transaction = SentrySDK.startTransaction(name: fixture.transactionName, operation: fixture.operation)
         
-        XCTAssertEqual(operation, transaction.operation)
-        let tracer = transaction as! SentryTracer
-        XCTAssertEqual(name, tracer.traceContext.transaction)
-        
+        assertTransaction(transaction: transaction)
+            
         XCTAssertNil(SentrySDK.span)
     }
     
     func testStartTransaction_WithBindToScope() {
         givenSdkWithHub()
         
-        let span = SentrySDK.startTransaction(name: "Some Transaction", operation: "Operations", bindToScope: true)
+        let transaction = SentrySDK.startTransaction(name: fixture.transactionName, operation: fixture.operation, bindToScope: true)
+        
+        assertTransaction(transaction: transaction)
+        
         let newSpan = SentrySDK.span
         
-        XCTAssert(span === newSpan)
+        XCTAssert(transaction === newSpan)
     }
     
     func testInstallIntegrations() {
@@ -707,6 +708,13 @@ class SentrySDKTests: XCTestCase {
     private func assertHubScopeNotChanged() {
         let hubScope = SentrySDK.currentHub().scope
         XCTAssertEqual(fixture.scope, hubScope)
+    }
+    
+    private func assertTransaction(transaction: Span) {
+        XCTAssertEqual(fixture.operation, transaction.operation)
+        let tracer = transaction as! SentryTracer
+        XCTAssertEqual(fixture.transactionName, tracer.traceContext.transaction)
+        XCTAssertEqual(.custom, tracer.transactionContext.nameSource)
     }
     
     private func advanceTime(bySeconds: TimeInterval) {
