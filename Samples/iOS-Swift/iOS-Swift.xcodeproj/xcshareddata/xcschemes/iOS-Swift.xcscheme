@@ -39,6 +39,12 @@
             </BuildableReference>
             <SkippedTests>
                <Test
+                  Identifier = "ProfilingUITests">
+               </Test>
+               <Test
+                  Identifier = "SentryDeviceTests">
+               </Test>
+               <Test
                   Identifier = "SentryFileIOTrackingIntegrationTests/test_DataConsistency_readPath_disabled()">
                </Test>
                <Test

@@ -2,6 +2,7 @@ import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+@available(iOS 13, *)
 class SentryViewHierarchyTests: XCTestCase {
     private class Fixture {
 
