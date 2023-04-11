@@ -22,7 +22,7 @@ AppDelegate ()
         options.tracesSampleRate = @1.0;
         options.enableFileIOTracing = YES;
         options.attachScreenshot = YES;
-        options.attachViewHierarchy = YES;
+        //options.attachViewHierarchy = YES;
         options.enableUserInteractionTracing = YES;
         if ([NSProcessInfo.processInfo.arguments containsObject:@"--io.sentry.profiling.enable"]) {
             options.profilesSampleRate = @1;

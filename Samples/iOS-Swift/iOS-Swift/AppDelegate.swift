@@ -29,7 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enableCoreDataTracing = true
             options.profilesSampleRate = 1.0
             options.attachScreenshot = true
-            options.attachViewHierarchy = true
+            //options.attachViewHierarchy = true
             options.environment = "test-app"
             options.enableTimeToFullDisplay = true
 
