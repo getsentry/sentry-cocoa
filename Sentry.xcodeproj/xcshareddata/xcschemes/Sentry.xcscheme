@@ -89,6 +89,12 @@
                   Identifier = "SentryUIApplicationTests/test_applicationWithScenes_noWindow()">
                </Test>
                <Test
+                  Identifier = "SentryViewHierarchyTests">
+               </Test>
+               <Test
+                  Identifier = "SentryWatchdogTerminationIntegrationTests">
+               </Test>
+               <Test
                   Identifier = "SwiftDescriptorTests">
                </Test>
                <Test
