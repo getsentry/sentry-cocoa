@@ -201,7 +201,7 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 {
     const auto reading = [[SentryMetricReading alloc] init];
     reading.value = value;
-    reading.absoluteTimestamp = SentryCurrentDate.getCurrentDateProvider.systemTime;
+    reading.absoluteTimestamp = SentryCurrentDate.systemTime;
     return reading;
 }
 

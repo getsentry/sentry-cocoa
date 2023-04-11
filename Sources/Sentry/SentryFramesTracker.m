@@ -121,7 +121,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 - (void)displayLinkCallback
 {
     CFTimeInterval thisFrameTimestamp = self.displayLinkWrapper.timestamp;
-    uint64_t thisFrameSystemTimestamp = SentryCurrentDate.getCurrentDateProvider.systemTime;
+    uint64_t thisFrameSystemTimestamp = SentryCurrentDate.systemTime;
 
     if (self.previousFrameTimestamp == SentryPreviousFrameInitialValue) {
         self.previousFrameTimestamp = thisFrameTimestamp;
