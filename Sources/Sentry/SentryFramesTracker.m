@@ -18,7 +18,7 @@
 typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *> SentryMutableFrameInfoTimeSeries;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-CFTimeInterval const SentryFrozenFrameThreshold = 0.7;
+static CFTimeInterval const SentryFrozenFrameThreshold = 0.7;
 static CFTimeInterval const SentryPreviousFrameInitialValue = -1;
 
 /**
