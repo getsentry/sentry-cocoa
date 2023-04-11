@@ -5,6 +5,7 @@
 #    import <XCTest/XCTest.h>
 
 #    import "SentryBacktrace.hpp"
+#    import "SentryCurrentDate.h"
 #    import "SentryThreadHandle.hpp"
 
 #    import <cmath>
@@ -203,7 +204,7 @@ countof(Array &)
     bool foundThread1 = false, foundThread2 = false;
     // Try up to 3 times.
     for (int i = 0; i < 3; i++) {
-        enumerateBacktracesForAllThreads(
+        enumerateBacktracesForAllThreads([]() { return SentryCurrentDate.systemTime; },
             [&](auto &backtrace) {
                 const auto thread = backtrace.threadMetadata.threadID;
                 if (thread == pthread_mach_thread_np(thread1)) {
