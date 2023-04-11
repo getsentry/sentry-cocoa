@@ -146,7 +146,7 @@ SentrySpan ()
     if (self.timestamp == nil) {
         self.timestamp = [SentryCurrentDate date];
         SENTRY_LOG_DEBUG(@"Setting span timestamp: %@ at system time %llu", self.timestamp,
-            (unsigned long long)SentryCurrentDate.getCurrentDateProvider.systemTime);
+            (unsigned long long)SentryCurrentDate.systemTime);
     }
     if (self.tracer == nil) {
         SENTRY_LOG_DEBUG(

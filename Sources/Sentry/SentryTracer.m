@@ -146,7 +146,7 @@ static BOOL appStartMeasurementRead;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
         _isProfiling = YES;
-        _startSystemTime = getAbsoluteTime();
+        _startSystemTime = SentryCurrentDate.systemTime;
         [SentryProfiler startWithHub:hub];
         trackTracerWithID(self.traceId);
     }
@@ -562,7 +562,7 @@ static BOOL appStartMeasurementRead;
     transaction.transaction = self.transactionContext.name;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     transaction.startSystemTime = self.startSystemTime;
-    transaction.endSystemTime = SentryCurrentDate.getCurrentDateProvider.systemTime;
+    transaction.endSystemTime = SentryCurrentDate.systemTime;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     NSMutableArray *framesOfAllSpans = [NSMutableArray array];
