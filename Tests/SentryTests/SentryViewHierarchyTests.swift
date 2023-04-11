@@ -2,6 +2,14 @@ import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
+/**
+ * This test is making iOS 13 simulator hang in GH workflow,
+ * that why every test function needs to check for iOS 13 or later.
+ * By testing this in the other versions of iOS we guarantee the behavior
+ * mean while, running an iOS 13 sample with Saucelabs ensures this feature
+ * is not crashing the app.
+ */
 class SentryViewHierarchyTests: XCTestCase {
     private class Fixture {
 
@@ -26,7 +34,7 @@ class SentryViewHierarchyTests: XCTestCase {
     }
 
     func test_Multiple_Window() {
-        if #available(iOS 13, *) {
+        if #available(iOS 14, *) {
             let firstWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
             let secondWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
 
@@ -45,7 +53,7 @@ class SentryViewHierarchyTests: XCTestCase {
     }
 
     func test_ViewHierarchy_fetch() {
-        if #available(iOS 13, *) {
+        if #available(iOS 14, *) {
             var window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
             window.accessibilityIdentifier = "WindowId"
 
@@ -76,7 +84,7 @@ class SentryViewHierarchyTests: XCTestCase {
     }
 
     func test_Window_with_children() {
-        if #available(iOS 13, *) {
+        if #available(iOS 14, *) {
             let firstWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
             let childView = UIView(frame: CGRect(x: 1, y: 1, width: 8, height: 8))
             let secondChildView = UIView(frame: CGRect(x: 2, y: 2, width: 6, height: 6))
@@ -104,7 +112,7 @@ class SentryViewHierarchyTests: XCTestCase {
     }
 
     func test_ViewHierarchy_with_ViewController() {
-        if #available(iOS 13, *) {
+        if #available(iOS 14, *) {
             let firstWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
             let viewController = UIViewController()
             firstWindow.rootViewController = viewController
@@ -129,7 +137,7 @@ class SentryViewHierarchyTests: XCTestCase {
     }
 
     func test_ViewHierarchy_save() {
-        if #available(iOS 13, *) {
+        if #available(iOS 14, *) {
             let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
             window.accessibilityIdentifier = "WindowId"
 
@@ -145,7 +153,7 @@ class SentryViewHierarchyTests: XCTestCase {
     }
 
     func test_invalidFilePath() {
-        if #available(iOS 13, *) {
+        if #available(iOS 14, *) {
             let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
             window.accessibilityIdentifier = "WindowId"
 
@@ -156,7 +164,7 @@ class SentryViewHierarchyTests: XCTestCase {
     }
 
     func test_invalidSerialization() {
-        if #available(iOS 13, *) {
+        if #available(iOS 14, *) {
             let sut = TestSentryViewHierarchy()
             sut.viewHierarchyResult = -1
             let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
@@ -169,7 +177,7 @@ class SentryViewHierarchyTests: XCTestCase {
     }
 
     func test_fetchFromBackgroundTest() {
-        if #available(iOS 13, *) {
+        if #available(iOS 14, *) {
             let sut = TestSentryViewHierarchy()
             let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
             fixture.uiApplication.windows = [window]
@@ -190,7 +198,7 @@ class SentryViewHierarchyTests: XCTestCase {
     }
 
     func test_fetch_usesMainThread() {
-        if #available(iOS 13, *) {
+        if #available(iOS 14, *) {
             let sut = TestSentryViewHierarchy()
             let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
             fixture.uiApplication.windows = [window]
