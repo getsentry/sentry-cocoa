@@ -337,13 +337,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # GH action images don't have an iOS 12.4 simulator. Therefore we have to download and install the simulator manually.
-      - name: Install iOS 12.4 simulator
-        run: |
-          gem install xcode-install
-          xcversion simulators --install='iOS 12.4'
-          xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-12-4"
-
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
         run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} device:"iPhone 8 (12.4)" address_sanitizer:false && break ; done
