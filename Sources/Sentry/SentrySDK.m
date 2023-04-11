@@ -183,17 +183,8 @@ static NSUInteger startInvocations;
 
 + (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation
 {
-    return [self startTransactionWithName:name
-                               nameSource:kSentryTransactionNameSourceCustom
-                                operation:operation];
-}
-
-+ (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                nameSource:(SentryTransactionNameSource)source
-                                 operation:(NSString *)operation
-{
     return [SentrySDK.currentHub startTransactionWithName:name
-                                               nameSource:source
+                                               nameSource:kSentryTransactionNameSourceCustom
                                                 operation:operation
                                                    origin:SentryTraceOriginManual];
 }
@@ -202,19 +193,8 @@ static NSUInteger startInvocations;
                                  operation:(NSString *)operation
                                bindToScope:(BOOL)bindToScope
 {
-    return [self startTransactionWithName:name
-                               nameSource:kSentryTransactionNameSourceCustom
-                                operation:operation
-                              bindToScope:bindToScope];
-}
-
-+ (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                nameSource:(SentryTransactionNameSource)source
-                                 operation:(NSString *)operation
-                               bindToScope:(BOOL)bindToScope
-{
     return [SentrySDK.currentHub startTransactionWithName:name
-                                               nameSource:source
+                                               nameSource:kSentryTransactionNameSourceCustom
                                                 operation:operation
                                                    origin:SentryTraceOriginManual
                                               bindToScope:bindToScope];

@@ -344,6 +344,20 @@ class SentrySDKTests: XCTestCase {
     func testStartTransaction() {
         givenSdkWithHub()
         
+        let operation = "ui.load"
+        let name = "Load Main Screen"
+        let transaction = SentrySDK.startTransaction(name: name, operation: operation)
+        
+        XCTAssertEqual(operation, transaction.operation)
+        let tracer = transaction as! SentryTracer
+        XCTAssertEqual(name, tracer.traceContext.transaction)
+        
+        XCTAssertNil(SentrySDK.span)
+    }
+    
+    func testStartTransaction_WithBindToScope() {
+        givenSdkWithHub()
+        
         let span = SentrySDK.startTransaction(name: "Some Transaction", operation: "Operations", bindToScope: true)
         let newSpan = SentrySDK.span
         
