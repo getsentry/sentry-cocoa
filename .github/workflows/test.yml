@@ -330,7 +330,7 @@ jobs:
   ui-tests-swift-ios-12:
     name: UI Tests on iOS 12 Simulator
     runs-on: macos-11
-    timeout-minutes: 10
+    timeout-minutes: 15
     strategy:
       matrix:
         target: ['ios_swift', 'ios_objc']
