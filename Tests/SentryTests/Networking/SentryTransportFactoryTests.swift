@@ -6,6 +6,10 @@ class SentryTransportFactoryTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryTransportFactoryTests")
 
+    override class func setUp() {
+        SentryLog.configure(true, diagnosticLevel: .debug)
+    }
+
     func testIntegration_UrlSessionDelegate_PassedToRequestManager() {
         let urlSessionDelegateSpy = SentryURLSessionDelegateSpy()
         

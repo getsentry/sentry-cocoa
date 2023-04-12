@@ -6,6 +6,7 @@
 #import "SentryCrashSymbolicator.h"
 #import "SentryFrame.h"
 #import "SentryFrameRemover.h"
+#import "SentryLog.h"
 #import "SentryStacktrace.h"
 #import <dlfcn.h>
 
@@ -33,11 +34,15 @@ SentryStacktraceBuilder ()
     NSMutableArray<SentryFrame *> *frames = [NSMutableArray array];
     SentryFrame *frame = nil;
     while (stackCursor.advanceCursor(&stackCursor)) {
+        SENTRY_LOG_DEBUG(@"Next stack frame: %s; address: %lu (SentryCrashSC_ASYNC_MARKER: %lu)",
+            stackCursor.stackEntry.symbolName, stackCursor.stackEntry.address,
+            SentryCrashSC_ASYNC_MARKER);
         if (stackCursor.stackEntry.address == SentryCrashSC_ASYNC_MARKER) {
             if (frame != nil) {
                 frame.stackStart = @(YES);
             }
             // skip the marker frame
+            SENTRY_LOG_DEBUG(@"Skipping async continuation marker frame.");
             continue;
         }
         if (stackCursor.symbolicate(&stackCursor)) {

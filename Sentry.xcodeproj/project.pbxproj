@@ -635,6 +635,7 @@
 		849AC4DB29E62FC600889C16 /* SentryCrashInstallationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849AC4D929E62FBF00889C16 /* SentryCrashInstallationTests.swift */; };
 		849AC4DE29E647A500889C16 /* SentryURLSessionDelegateSpy.h in Headers */ = {isa = PBXBuildFile; fileRef = 849AC4DC29E647A500889C16 /* SentryURLSessionDelegateSpy.h */; };
 		849AC4DF29E647A500889C16 /* SentryURLSessionDelegateSpy.m in Sources */ = {isa = PBXBuildFile; fileRef = 849AC4DD29E647A500889C16 /* SentryURLSessionDelegateSpy.m */; };
+		849AC4E129E64C9F00889C16 /* Resources in CopyFiles */ = {isa = PBXBuildFile; fileRef = 630C01951EC341D600C52CEF /* Resources */; };
 		84A888FD28D9B11700C51DFD /* SentryProfiler+Test.h in Headers */ = {isa = PBXBuildFile; fileRef = 84A888FC28D9B11700C51DFD /* SentryProfiler+Test.h */; };
 		84A8891C28DBD28900C51DFD /* SentryDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 84A8891A28DBD28900C51DFD /* SentryDevice.h */; };
 		84A8891D28DBD28900C51DFD /* SentryDevice.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84A8891B28DBD28900C51DFD /* SentryDevice.mm */; };
@@ -866,6 +867,19 @@
 			remoteInfo = SentryPrivate;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		849AC4E029E64C8F00889C16 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 16;
+			files = (
+				849AC4E129E64C9F00889C16 /* Resources in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0356A56E288B4612008BF593 /* SentryProfilesSampler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryProfilesSampler.h; path = Sources/Sentry/include/SentryProfilesSampler.h; sourceTree = SOURCE_ROOT; };
@@ -3714,6 +3728,7 @@
 				8431F00629B284F200D8DC56 /* Headers */,
 				8431F00729B284F200D8DC56 /* Sources */,
 				8431F00829B284F200D8DC56 /* Frameworks */,
+				849AC4E029E64C8F00889C16 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -4986,7 +5001,6 @@
 				DEVELOPMENT_TEAM = "";
 				EXECUTABLE_PREFIX = lib;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				MACH_O_TYPE = staticlib;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
@@ -5017,7 +5031,6 @@
 				DEVELOPMENT_TEAM = "";
 				EXECUTABLE_PREFIX = lib;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				MACH_O_TYPE = staticlib;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5047,7 +5060,6 @@
 				DEVELOPMENT_TEAM = "";
 				EXECUTABLE_PREFIX = lib;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				MACH_O_TYPE = staticlib;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5077,7 +5089,6 @@
 				DEVELOPMENT_TEAM = "";
 				EXECUTABLE_PREFIX = lib;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				MACH_O_TYPE = staticlib;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
 				PRODUCT_NAME = "$(TARGET_NAME)";

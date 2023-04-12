@@ -14,6 +14,11 @@ class SentryStacktraceBuilderTests: XCTestCase {
 
     private var fixture: Fixture!
 
+    override class func setUp() {
+        super.setUp()
+        SentryLog.configure(true, diagnosticLevel: .debug)
+    }
+
     override func setUp() {
         super.setUp()
         fixture = Fixture()
@@ -72,6 +77,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
         SentrySDK.start { options in
             options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
             options.stitchAsyncCode = true
+            options.debug = true
         }
         
         let expect = expectation(description: "testAsyncStacktraces")
@@ -107,8 +113,11 @@ class SentryStacktraceBuilderTests: XCTestCase {
             return frame.stackStart?.boolValue ?? false
         }
 
-        XCTAssertTrue(filteredFrames.count >= 3, "The Stacktrace must include the async callers.")
-        XCTAssertTrue(startFrames.count >= 3, "The Stacktrace must have async continuation markers.")
+        let allFrames = (actual.frames.map({ frame in
+            frame.function
+        }) as NSArray).componentsJoined(by: "\n")
+        XCTAssertTrue(filteredFrames.count >= 3, "The Stacktrace must include the async callers (frames: \(allFrames)).")
+        XCTAssertTrue(startFrames.count >= 3, "The Stacktrace must have async continuation markers (frames: \(allFrames)).")
 
         expect.fulfill()
     }
