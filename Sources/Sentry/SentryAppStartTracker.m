@@ -35,9 +35,7 @@ SentryAppStartTracker ()
 @property (nonatomic, assign) BOOL wasInBackground;
 @property (nonatomic, strong) NSDate *didFinishLaunchingTimestamp;
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
-#    if TEST
-@property (nonatomic) BOOL isRunning;
-#    endif
+
 @end
 
 @implementation SentryAppStartTracker
@@ -69,9 +67,7 @@ SentryAppStartTracker ()
         self.wasInBackground = NO;
         self.didFinishLaunchingTimestamp = [currentDateProvider date];
         self.enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing;
-#    if TEST
         self.isRunning = NO;
-#    endif
     }
     return self;
 }
@@ -122,9 +118,7 @@ SentryAppStartTracker ()
     [self.appStateManager start];
 #    endif
 
-#    if TEST
     self.isRunning = YES;
-#    endif
 }
 
 - (void)buildAppStartMeasurement

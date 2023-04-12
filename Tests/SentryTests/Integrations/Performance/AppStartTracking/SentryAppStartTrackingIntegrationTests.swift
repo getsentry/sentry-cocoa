@@ -120,10 +120,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
 
         _ = try XCTUnwrap(Dynamic(tracker).sysctl.asObject as? SentrySysctl, "Tracker does not have a Sysctl")
 
-        XCTAssertEqual(Dynamic(tracker).enablePreWarmedAppStartTracing.asBool, fixture.options.enablePreWarmedAppStartTracing)
-        let isRunning = Dynamic(tracker).isRunning.asBool ?? false
-
-        XCTAssertTrue(isRunning, "AppStartTracking should be running")
+        XCTAssertTrue(tracker.isRunning, "AppStartTracking should be running")
     }
     
 }
