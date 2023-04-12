@@ -130,10 +130,12 @@ Contributors: @marandaneto, @brustolin and @philipphofmann
 
 We decided not to use the `NSRange` type for the `failedRequestStatusCodes` property of the `SentryNetworkTracker` class because it's not compatible with the specification, which requires the type to be a range of `from` -> `to` integers. The `NSRange` type is a range of `location` -> `length` integers. We decided to use a custom type instead of `NSRange` to avoid confusion. The custom type is called `SentryHttpStatusCodeRange`.
 
-### Manually installing iOS 12 simulators
+### Manually installing iOS 12 simulators  <a name="ios-12-simulators"></a>
 
 Date: October 21st 2022
 Contributors: @philipphofmann
+
+We reverted this decision with [remove running unit tests on iOS 12 simulators](#remove-ios-12-simulators).
 
 GH actions will remove the macOS-10.15 image, which contains an iOS 12 simulator on 12/1/22; see https://github.com/actions/runner-images/issues/5583.
 Neither the [macOS-11](https://github.com/actions/runner-images/blob/main/images/macos/macos-11-Readme.md#installed-sdks) nor the
@@ -207,3 +209,19 @@ the PM. You can find this in `SentrySDKInfo.m`.
 ## Usage of `__has_include`
 
 Some private headers add a dependency of a public header, when those private headers are used in a sample project, or referenced from a hybrid SDK, it is treated as part of the project using it, therefore, if it points to a header that is not part of said project, a compilation error will occur. To solve this we make use of `__has_include` to try to point to the SDK version of the header, or to fallback to the direct reference when compiling the SDK.
+
+### Remove running unit tests on iOS 12 simulators <a name="remove-ios-12-simulators"></a>
+
+Date: April 12th 2023
+Contributors: @philipphofmann
+
+We use [`xcode-install`](https://github.com/xcpretty/xcode-install) to install some older iOS simulators for test runs [here](https://github.com/getsentry/sentry-cocoa/blob/ff5c1d83bf601bbcd0f5f1070c3abf05310881bd/.github/workflows/test.yml#L174) and [here](https://github.com/getsentry/sentry-cocoa/blob/ff5c1d83bf601bbcd0f5f1070c3abf05310881bd/.github/workflows/test.yml#L343). That project is being sunset, so we would have to find an alternative.
+
+Installing the simulator can take up to 15 minutes, so the current solution slows CI and sometimes leads to timeouts.
+We want our CI to be fast and reliable. Instead of running the unit tests on iOS 12, we run UI tests on an iPhone with iOS 12,
+which reduces the risk of breaking users on iOS 12. Our unit tests should primarily focus on business logic and shouldn't depend
+on specific iOS versions. If we have functionality that risks breaking on older iOS versions, we should write UI tests instead.
+For the swizzling of UIViewControllers and NSURLSession, we have UI tests running on iOS 12. Therefore, dropping running unit
+tests on iOS 12 simulators is acceptable. This decision reverts [manually installing iOS 12 simulators](#ios-12-simulators).
+
+Related to [GH-2862](https://github.com/getsentry/sentry-cocoa/issues/2862) and 

@@ -36,7 +36,7 @@ suites:
   - name: "iOS-12"
     devices:
       - name: "iPhone.*"
-        platformVersion: "12.5.5"
+        platformVersion: "12.5.7"
 
   - name: "iOS-11"
     devices:

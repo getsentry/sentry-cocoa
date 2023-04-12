@@ -106,6 +106,9 @@ jobs:
           - xcode: '13.4.1'
             suite: 'iOS-13'
 
+          - xcode: '13.4.1'
+            suite: 'iOS-12'
+
     steps:
       - uses: actions/checkout@v3
 
