@@ -88,9 +88,6 @@
                <Test
                   Identifier = "SentryUIApplicationTests/test_applicationWithScenes_noWindow()">
                </Test>
-               <Test
-                  Identifier = "SentryViewHierarchyTests">
-               </Test>
             </SkippedTests>
          </TestableReference>
          <TestableReference
