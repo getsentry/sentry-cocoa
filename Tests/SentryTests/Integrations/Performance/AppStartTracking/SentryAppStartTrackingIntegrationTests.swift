@@ -47,7 +47,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
         try assertTrackerSetupAndRunning(tracker)
     }
 
-    func testUnistall_stopTracker() throws {
+    func testUnistall_stopsTracker() throws {
         sut.install(with: fixture.options)
 
         let tracker = try XCTUnwrap(Dynamic(sut).tracker.asObject as? SentryAppStartTracker, "SentryAppStartTrackingIntegration should have a tracker")
