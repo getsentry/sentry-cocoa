@@ -114,6 +114,16 @@
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "849AC45529E6139C00889C16"
+               BuildableName = "SentryCrashTests.xctest"
+               BlueprintName = "SentryCrashTests"
+               ReferencedContainer = "container:Sentry.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
