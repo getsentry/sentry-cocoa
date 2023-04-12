@@ -326,38 +326,6 @@ jobs:
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
 
-  # macos-11 doesn't have a simulator for iOS 12
-  ui-tests-swift-ios-12:
-    name: UI Tests on iOS 12 Simulator
-    runs-on: macos-11
-    strategy:
-      matrix:
-        target: ['ios_swift', 'ios_objc', 'tvos_swift']
-
-    steps:
-      - uses: actions/checkout@v3
-
-      # GH action images don't have an iOS 12.4 simulator. Therefore we have to download and install the simulator manually.
-      - name: Install iOS 12.4 simulator
-        run: |
-          gem install xcode-install
-          xcversion simulators --install='iOS 12.4'
-          xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-12-4"
-
-      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
-      - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} device:"iPhone 8 (12.4)" address_sanitizer:false && break ; done
-        shell: sh
-
-      - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v3
-        if: ${{  failure() || cancelled() }}
-        with:
-          name: raw-uitest-output-${{matrix.target}}-ios-12
-          path: |
-            ~/Library/Logs/scan/*.log
-            ./fastlane/test_output/**
-
   ui-tests-address-sanitizer:
     name: UI Tests with Address Sanitizer
     runs-on: macos-12
