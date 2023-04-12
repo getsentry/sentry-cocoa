@@ -318,6 +318,8 @@ class SentryCoreDataTrackerTests: XCTestCase {
             }
             XCTAssertEqual(frames.first, TestData.mainFrame)
             XCTAssertEqual(frames.last, TestData.testFrame)
+        } else {
+            XCTAssertNil((dbSpan as? SentrySpan)?.frames)
         }
     }
     

@@ -2,7 +2,7 @@ import XCTest
 
 class SentryNSProcessInfoWrapperTests: XCTestCase {
     struct Fixture {
-        lazy var processInfoWrapper = SentryNSProcessInfoWrapper.shared
+        lazy var processInfoWrapper = SentryNSProcessInfoWrapper()
     }
     lazy var fixture = Fixture()
 

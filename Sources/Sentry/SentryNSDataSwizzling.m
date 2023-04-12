@@ -11,6 +11,7 @@
 #import "SentryThreadInspector.h"
 #import <SentryLog.h>
 #import <objc/runtime.h>
+#import "SentryDependencyContainer.h"
 
 @interface
 SentryNSDataSwizzling ()
@@ -33,7 +34,7 @@ SentryNSDataSwizzling ()
 {
     self.dataTracker = [[SentryNSDataTracker alloc]
         initWithThreadInspector:[[SentryThreadInspector alloc] initWithOptions:options]
-             processInfoWrapper:[SentryNSProcessInfoWrapper shared]];
+             processInfoWrapper:[SentryDependencyContainer.sharedInstance processInfoWrapper]];
     [self.dataTracker enable];
     [SentryNSDataSwizzling swizzleNSData];
 }

@@ -1,4 +1,5 @@
 
+#import "SentryInternalDefines.h"
 #import "SentryCoreDataTracker.h"
 #import "SentryFrame.h"
 #import "SentryHub+Private.h"
@@ -115,7 +116,7 @@
 {
     BOOL isMainThread = [NSThread isMainThread];
 
-    [span setDataValue:@(isMainThread) forKey:@"blocked_main_thread"];
+    [span setDataValue:@(isMainThread) forKey:BLOCKED_MAIN_THREAD];
 
     if (!isMainThread) {
         return;

@@ -17,6 +17,7 @@
 #import <SentrySysctl.h>
 #import <SentryThreadWrapper.h>
 #import <SentryViewHierarchy.h>
+#import "SentryNSProcessInfoWrapper.h"
 
 @implementation SentryDependencyContainer
 
@@ -227,6 +228,18 @@ static NSObject *sentryDependencyContainerLock;
     }
 
     return _metricKitManager;
+}
+
+- (SentryNSProcessInfoWrapper *)processInfoWrapper
+{
+    if (_processInfoWrapper == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_processInfoWrapper == nil) {
+                _processInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
+            }
+        }
+    }
+    return _processInfoWrapper;
 }
 
 #endif
