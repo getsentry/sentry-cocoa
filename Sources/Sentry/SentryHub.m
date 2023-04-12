@@ -57,7 +57,7 @@ SentryHub ()
         _integrationsLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
         _installedIntegrationNames = [[NSMutableSet alloc] init];
-        _crashWrapper = [SentryCrashWrapper sharedInstance];
+        _crashWrapper = [[SentryDependencyContainer sharedInstance] crashWrapper];
         _tracesSampler = [[SentryTracesSampler alloc] initWithOptions:client.options];
         _errorsBeforeSession = 0;
 #if SENTRY_TARGET_PROFILING_SUPPORTED

@@ -140,7 +140,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         
         SentrySDK.start(options: options)
         
-        sentryCrash = TestSentryCrashWrapper.sharedInstance()
+        sentryCrash = TestSentryCrashWrapper()
         let client = SentrySDK.currentHub().getClient()
         let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: self.sentryCrash, andCurrentDateProvider: DefaultCurrentDateProvider.sharedInstance())
         SentrySDK.setCurrentHub(hub)

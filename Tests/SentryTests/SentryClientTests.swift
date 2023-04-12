@@ -28,7 +28,7 @@ class SentryClientTest: XCTestCase {
         
         let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
         let transaction: Transaction
-        let crashWrapper = TestSentryCrashWrapper.sharedInstance()
+        let crashWrapper = TestSentryCrashWrapper()
         let deviceWrapper = TestSentryUIDeviceWrapper()
         let processWrapper = TestSentryNSProcessInfoWrapper()
         let extraContentProvider: SentryExtraContextProvider

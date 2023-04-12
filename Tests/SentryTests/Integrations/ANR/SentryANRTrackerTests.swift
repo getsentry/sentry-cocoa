@@ -18,7 +18,7 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         let threadWrapper = SentryTestThreadWrapper()
         
         init() {
-            crashWrapper = TestSentryCrashWrapper.sharedInstance()
+            crashWrapper = TestSentryCrashWrapper()
         }
     }
     

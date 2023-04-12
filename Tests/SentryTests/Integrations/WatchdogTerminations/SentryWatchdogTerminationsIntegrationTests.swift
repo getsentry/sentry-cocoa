@@ -16,7 +16,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             
             client = TestClient(options: options)
             
-            crashWrapper = TestSentryCrashWrapper.sharedInstance()
+            crashWrapper = TestSentryCrashWrapper()
             SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
             SentryDependencyContainer.sharedInstance().fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
 

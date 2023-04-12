@@ -198,7 +198,7 @@
 - (void)testGetProcessInfo
 {
     int pid = getpid();
-    struct kinfo_proc procInfo = { { { { 0 } } } };
+    struct kinfo_proc procInfo = { { 0 }, { 0 } };
     bool success = sentrycrashsysctl_getProcessInfo(pid, &procInfo);
     XCTAssertTrue(success, @"");
     NSString *processName = [NSString stringWithCString:procInfo.kp_proc.p_comm

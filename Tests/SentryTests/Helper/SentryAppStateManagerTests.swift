@@ -24,7 +24,7 @@ class SentryAppStateManagerTests: XCTestCase {
         func getSut() -> SentryAppStateManager {
             return SentryAppStateManager(
                 options: options,
-                crashWrapper: TestSentryCrashWrapper.sharedInstance(),
+                crashWrapper: TestSentryCrashWrapper(),
                 fileManager: fileManager,
                 currentDateProvider: currentDate,
                 sysctl: TestSysctl(),

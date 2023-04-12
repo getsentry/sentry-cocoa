@@ -37,6 +37,8 @@ extern "C" {
  * - Uncaught Objective-C NSException
  */
 typedef enum {
+    SentryCrashMonitorTypeNone = 0x00,
+
     /* Captures and reports Mach exceptions. */
     SentryCrashMonitorTypeMachException = 0x01,
 
@@ -91,8 +93,6 @@ typedef enum {
  */
 #define SentryCrashMonitorTypeRequired                                                             \
     (SentryCrashMonitorTypeSystem | SentryCrashMonitorTypeApplicationState)
-
-#define SentryCrashMonitorTypeNone 0
 
 const char *sentrycrashmonitortype_name(SentryCrashMonitorType monitorType);
 

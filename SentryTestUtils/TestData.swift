@@ -1,22 +1,21 @@
 import Sentry
-import SentryTestUtils
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 import UIKit
 #endif
 
-class TestData {
+public class TestData {
     
-    static let timestamp = Date(timeIntervalSince1970: 10)
-    static var timestampAs8601String: String {
+    public static let timestamp = Date(timeIntervalSince1970: 10)
+    public static var timestampAs8601String: String {
         get {
             (timestamp as NSDate).sentry_toIso8601String()
         }
     }
-    static let sdk = ["name": SentryMeta.sdkName, "version": SentryMeta.versionString]
-    static let context: [String: [String: Any]] = ["context": ["c": "a", "date": timestamp]]
+    public static let sdk = ["name": SentryMeta.sdkName, "version": SentryMeta.versionString]
+    public static let context: [String: [String: Any]] = ["context": ["c": "a", "date": timestamp]]
     
-    static var crumb: Breadcrumb {
+    public static var crumb: Breadcrumb {
         let crumb = Breadcrumb()
         crumb.level = SentryLevel.info
         crumb.timestamp = timestamp
@@ -26,7 +25,7 @@ class TestData {
         return crumb
     }
     
-    static var event: Event {
+    public static var event: Event {
         let event = Event(level: SentryLevel.info)
         
         event.breadcrumbs = [crumb]
@@ -57,7 +56,7 @@ class TestData {
         return event
     }
     
-    static var user: User {
+    public static var user: User {
         let user = User(userId: "id")
         user.email = "user@sentry.io"
         user.username = "user123"
@@ -70,7 +69,7 @@ class TestData {
         return user
     }
     
-    static var geo: Geo {
+    public static var geo: Geo {
         let geo = Geo()
         geo.city = "Vienna"
         geo.countryCode = "at"
@@ -78,7 +77,7 @@ class TestData {
         return geo
     }
     
-    static var debugMeta: DebugMeta {
+    public static var debugMeta: DebugMeta {
         let debugMeta = DebugMeta()
         debugMeta.imageAddress = "0x0000000105705000"
         debugMeta.imageSize = 352_256
@@ -92,7 +91,7 @@ class TestData {
         return debugMeta
     }
     
-    static var exception: Exception {
+    public static var exception: Exception {
         let exception = Exception(value: "value", type: "type")
         exception.mechanism = mechanism
         exception.module = "module"
@@ -102,7 +101,7 @@ class TestData {
         return exception
     }
     
-    static var mechanism: Mechanism {
+    public static var mechanism: Mechanism {
         let currentDateProvider = TestCurrentDateProvider()
         let mechanism = Mechanism(type: "type")
         mechanism.data = ["something": ["date": currentDateProvider.date()]]
@@ -115,7 +114,7 @@ class TestData {
         return mechanism
     }
     
-    static var mechanismMeta: MechanismMeta {
+    public static var mechanismMeta: MechanismMeta {
         let mechanismMeta = MechanismMeta()
         mechanismMeta.machException = [
             "name": "EXC_BAD_ACCESS",
@@ -135,7 +134,7 @@ class TestData {
         return mechanismMeta
     }
     
-    static var thread: SentryThread {
+    public static var thread: SentryThread {
         let thread = SentryThread(threadId: 10)
         thread.crashed = false
         thread.current = true
@@ -146,7 +145,7 @@ class TestData {
         return thread
     }
 
-    static var thread2: SentryThread {
+    public static var thread2: SentryThread {
         let thread = SentryThread(threadId: 0)
         thread.crashed = false
         thread.current = true
@@ -156,19 +155,19 @@ class TestData {
         return thread
     }
     
-    static var stacktrace: SentryStacktrace {
+    public static var stacktrace: SentryStacktrace {
         let stacktrace = SentryStacktrace(frames: [mainFrame], registers: ["register": "one"])
         stacktrace.snapshot = true
         return stacktrace
     }
 
-    static var stacktrace2: SentryStacktrace {
+    public static var stacktrace2: SentryStacktrace {
         let stacktrace = SentryStacktrace(frames: [mainFrame, testFrame], registers: ["register": "one"])
         stacktrace.snapshot = true
         return stacktrace
     }
     
-    static var mainFrame: Frame {
+    public static var mainFrame: Frame {
         let frame = Frame()
         frame.columnNumber = 1
         frame.fileName = "fileName"
@@ -186,7 +185,7 @@ class TestData {
         return frame
     }
 
-    static var testFrame: Frame {
+    public static var testFrame: Frame {
         let frame = Frame()
         frame.columnNumber = 1
         frame.fileName = "testFile"
@@ -203,7 +202,7 @@ class TestData {
         return frame
     }
 
-    static var outsideFrame: Frame {
+    public static var outsideFrame: Frame {
         let frame = Frame()
         frame.columnNumber = 1
         frame.fileName = "helperFile"
@@ -220,7 +219,7 @@ class TestData {
         return frame
     }
 
-    static var debugImage: DebugMeta {
+    public static var debugImage: DebugMeta {
         let image = DebugMeta()
         image.name = "sentrytest"
         image.imageAddress = "0x0000000105705000"
@@ -228,15 +227,15 @@ class TestData {
         return image
     }
     
-    static var fileAttachment: Attachment {
+    public static var fileAttachment: Attachment {
         return Attachment(path: "path/to/file.txt", filename: "file.txt")
     }
     
-    static var dataAttachment: Attachment {
+    public static var dataAttachment: Attachment {
         return Attachment(data: "hello".data(using: .utf8)!, filename: "file.txt")
     }
 
-    static var spanContext: SpanContext {
+    public static var spanContext: SpanContext {
         SpanContext(operation: "Test Context")
     }
     
@@ -246,13 +245,13 @@ class TestData {
         case awesomeCentaur
     }
     
-    static var someUUID = "12345678-1234-1234-1234-12344567890AB"
+    public static var someUUID = "12345678-1234-1234-1234-12344567890AB"
     
-    static var appState: SentryAppState {
+    public static var appState: SentryAppState {
         return SentryAppState(releaseName: "1.0.0", osVersion: "14.4.1", vendorId: someUUID, isDebugging: false, systemBootTimestamp: timestamp)
     }
     
-    static var oomEvent: Event {
+    public static var oomEvent: Event {
         let event = Event(level: SentryLevel.fatal)
         let exception = Exception(value: SentryWatchdogTerminationExceptionValue, type: SentryWatchdogTerminationExceptionType)
         exception.mechanism = Mechanism(type: SentryWatchdogTerminationMechanismType)
@@ -260,7 +259,7 @@ class TestData {
         return event
     }
     
-    static var metricKitEvent: Event {
+    public static var metricKitEvent: Event {
         let event = Event(level: .warning)
         let exception = Exception(value: "MXCPUException totalCPUTime:90.009 sec totalSampledTime:91.952 sec", type: SentryMetricKitCpuExceptionType)
         exception.mechanism = Mechanism(type: SentryMetricKitCpuExceptionMechanism)
@@ -268,7 +267,7 @@ class TestData {
         return event
     }
     
-    static func scopeWith(observer: SentryScopeObserver) -> Scope {
+    public static func scopeWith(observer: SentryScopeObserver) -> Scope {
         let scope = Scope()
         scope.add(observer)
         
@@ -295,7 +294,7 @@ class TestData {
         return scope
     }
     
-    static var userFeedback: UserFeedback {
+    public static var userFeedback: UserFeedback {
         let userFeedback = UserFeedback(eventId: SentryId())
         userFeedback.comments = "It doesn't really"
         userFeedback.email = "john@me.com"
@@ -303,11 +302,11 @@ class TestData {
         return userFeedback
     }
     
-    static func setContext(_ scope: Scope) {
+    public static func setContext(_ scope: Scope) {
         scope.setContext(value: TestData.context["context"]!, key: "context")
     }
     
-    static var request: SentryRequest {
+    public static var request: SentryRequest {
         let request = SentryRequest()
         request.url = "https://sentry.io"
         request.fragment = "fragment"
@@ -320,7 +319,7 @@ class TestData {
         return request
     }
     
-    static func getAppStartMeasurement(type: SentryAppStartType, appStartTimestamp: Date = TestData.timestamp) -> SentryAppStartMeasurement {
+    public static func getAppStartMeasurement(type: SentryAppStartType, appStartTimestamp: Date = TestData.timestamp) -> SentryAppStartMeasurement {
         let appStartDuration = 0.5
         let main = appStartTimestamp.addingTimeInterval(0.15)
         let runtimeInit = appStartTimestamp.addingTimeInterval(0.05)

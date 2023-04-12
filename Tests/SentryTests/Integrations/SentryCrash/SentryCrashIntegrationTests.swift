@@ -13,7 +13,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let sentryCrash: TestSentryCrashWrapper
         
         init() {
-            sentryCrash = TestSentryCrashWrapper.sharedInstance()
+            sentryCrash = TestSentryCrashWrapper()
             sentryCrash.internalActiveDurationSinceLastCrash = 5.0
             sentryCrash.internalCrashedLastLaunch = true
             
@@ -100,7 +100,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     func testSystemInfoIsEmpty() {
         let scope = Scope()
-        SentryCrashIntegration.enrichScope(scope, crashWrapper: TestSentryCrashWrapper.sharedInstance())
+        SentryCrashIntegration.enrichScope(scope, crashWrapper: TestSentryCrashWrapper())
         
         // We don't worry about the actual values
         // This is an edge case where the user doesn't use the
@@ -328,7 +328,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
     
     private func givenSutWithGlobalHubAndCrashWrapper() -> (SentryCrashIntegration, SentryHub) {
-        let sut = fixture.getSut(crashWrapper: SentryCrashWrapper.sharedInstance())
+        let sut = fixture.getSut(crashWrapper: SentryCrashWrapper()) // ???: should this be using TestSentryCrashWrapper?
         let hub = fixture.hub
         SentrySDK.setCurrentHub(hub)
 

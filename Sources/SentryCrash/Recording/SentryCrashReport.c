@@ -1337,6 +1337,8 @@ writeError(const SentryCrashReportWriter *const writer, const char *const key,
             SentryCrashLOG_ERROR(
                 "Crash monitor type 0x%x shouldn't be able to cause events!", crash->crashType);
             break;
+        case SentryCrashMonitorTypeNone:
+            break;
         }
     }
     writer->endContainer(writer);

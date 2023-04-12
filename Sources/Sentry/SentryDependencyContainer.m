@@ -80,7 +80,7 @@ static NSObject *sentryDependencyContainerLock;
     if (_crashWrapper == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_crashWrapper == nil) {
-                _crashWrapper = [SentryCrashWrapper sharedInstance];
+                _crashWrapper = [[SentryCrashWrapper alloc] init];
             }
         }
     }
