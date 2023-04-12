@@ -3,16 +3,8 @@ import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-/**
- * This test is making iOS 13 simulator hang in GH workflow,
- * that why every test function needs to check for iOS 13 or later.
- * By testing this in the other versions of iOS we guarantee the behavior
- * mean while, running an iOS 13 sample with Saucelabs ensures this feature
- * is not crashing the app.
- */
 class SentryViewHierarchyTests: XCTestCase {
     private class Fixture {
-
         let uiApplication = TestSentryUIApplication()
 
         var sut: SentryViewHierarchy {
@@ -28,191 +20,188 @@ class SentryViewHierarchyTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().application = fixture.uiApplication
     }
 
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+
+        /**
+         * This test is making iOS 13 simulator hang in GH workflow,
+         * thats why we need to check for iOS 13 or later.
+         * By testing this in the other versions of iOS we guarantee the behavior
+         * mean while, running an iOS 12 sample with Saucelabs ensures this feature
+         * is not crashing the app.
+         */
+        if #available(iOS 13, *) {
+            throw XCTSkip("Skipping for iOS < 13")
+        }
+    }
+
     override func tearDown() {
         super.tearDown()
         clearTestState()
     }
 
     func test_Multiple_Window() {
-        if #available(iOS 14, *) {
-            let firstWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
-            let secondWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        let firstWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        let secondWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
 
-            fixture.uiApplication.windows = [firstWindow, secondWindow]
+        fixture.uiApplication.windows = [firstWindow, secondWindow]
 
-            guard let descriptions = self.fixture.sut.fetch() else {
-                XCTFail("Could not serialize view hierarchy")
-                return
-            }
-
-            let object = try? JSONSerialization.jsonObject(with: descriptions) as? NSDictionary
-            let windows = object?["windows"] as? NSArray
-            XCTAssertNotNil(windows)
-            XCTAssertEqual(windows?.count, 2)
+        guard let descriptions = self.fixture.sut.fetch() else {
+            XCTFail("Could not serialize view hierarchy")
+            return
         }
+
+        let object = try? JSONSerialization.jsonObject(with: descriptions) as? NSDictionary
+        let windows = object?["windows"] as? NSArray
+        XCTAssertNotNil(windows)
+        XCTAssertEqual(windows?.count, 2)
     }
 
     func test_ViewHierarchy_fetch() {
-        if #available(iOS 14, *) {
-            var window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
-            window.accessibilityIdentifier = "WindowId"
+        var window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        window.accessibilityIdentifier = "WindowId"
 
-            fixture.uiApplication.windows = [window]
-            guard let data = self.fixture.sut.fetch()
-            else {
-                XCTFail("Could not serialize view hierarchy")
-                return
-            }
-            var descriptions = String(data: data, encoding: .utf8) ?? ""
-
-            XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"WindowId\",\"width\":10,\"height\":10,\"x\":0,\"y\":0,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
-
-            window = UIWindow(frame: CGRect(x: 1, y: 2, width: 20, height: 30))
-            window.accessibilityIdentifier = "IdWindow"
-
-            fixture.uiApplication.windows = [window]
-
-            guard let data = self.fixture.sut.fetch()
-            else {
-                XCTFail("Could not serialize view hierarchy")
-                return
-            }
-            descriptions = String(data: data, encoding: .utf8) ?? ""
-
-            XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"IdWindow\",\"width\":20,\"height\":30,\"x\":1,\"y\":2,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
+        fixture.uiApplication.windows = [window]
+        guard let data = self.fixture.sut.fetch()
+        else {
+            XCTFail("Could not serialize view hierarchy")
+            return
         }
+        var descriptions = String(data: data, encoding: .utf8) ?? ""
+
+        XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"WindowId\",\"width\":10,\"height\":10,\"x\":0,\"y\":0,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
+
+        window = UIWindow(frame: CGRect(x: 1, y: 2, width: 20, height: 30))
+        window.accessibilityIdentifier = "IdWindow"
+
+        fixture.uiApplication.windows = [window]
+
+        guard let data = self.fixture.sut.fetch()
+        else {
+            XCTFail("Could not serialize view hierarchy")
+            return
+        }
+        descriptions = String(data: data, encoding: .utf8) ?? ""
+
+        XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"IdWindow\",\"width\":20,\"height\":30,\"x\":1,\"y\":2,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
     }
 
     func test_Window_with_children() {
-        if #available(iOS 14, *) {
-            let firstWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
-            let childView = UIView(frame: CGRect(x: 1, y: 1, width: 8, height: 8))
-            let secondChildView = UIView(frame: CGRect(x: 2, y: 2, width: 6, height: 6))
+        let firstWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        let childView = UIView(frame: CGRect(x: 1, y: 1, width: 8, height: 8))
+        let secondChildView = UIView(frame: CGRect(x: 2, y: 2, width: 6, height: 6))
 
-            firstWindow.addSubview(childView)
-            firstWindow.addSubview(secondChildView)
+        firstWindow.addSubview(childView)
+        firstWindow.addSubview(secondChildView)
 
-            fixture.uiApplication.windows = [firstWindow]
+        fixture.uiApplication.windows = [firstWindow]
 
-            guard let descriptions = self.fixture.sut.fetch()
-            else {
-                XCTFail("Could not serialize view hierarchy")
-                return
-            }
-
-            let object = try? JSONSerialization.jsonObject(with: descriptions) as? NSDictionary
-            let window = (object?["windows"] as? NSArray)?.firstObject as? NSDictionary
-            let children = window?["children"] as? NSArray
-
-            let firstChild = children?.firstObject as? NSDictionary
-
-            XCTAssertEqual(children?.count, 2)
-            XCTAssertEqual(firstChild?["type"] as? String, "UIView")
+        guard let descriptions = self.fixture.sut.fetch()
+        else {
+            XCTFail("Could not serialize view hierarchy")
+            return
         }
+
+        let object = try? JSONSerialization.jsonObject(with: descriptions) as? NSDictionary
+        let window = (object?["windows"] as? NSArray)?.firstObject as? NSDictionary
+        let children = window?["children"] as? NSArray
+
+        let firstChild = children?.firstObject as? NSDictionary
+
+        XCTAssertEqual(children?.count, 2)
+        XCTAssertEqual(firstChild?["type"] as? String, "UIView")
     }
 
     func test_ViewHierarchy_with_ViewController() {
-        if #available(iOS 14, *) {
-            let firstWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
-            let viewController = UIViewController()
-            firstWindow.rootViewController = viewController
-            firstWindow.addSubview(viewController.view)
+        let firstWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        let viewController = UIViewController()
+        firstWindow.rootViewController = viewController
+        firstWindow.addSubview(viewController.view)
 
-            fixture.uiApplication.windows = [firstWindow]
+        fixture.uiApplication.windows = [firstWindow]
 
-            guard let descriptions = self.fixture.sut.fetch()
-            else {
-                XCTFail("Could not serialize view hierarchy")
-                return
-            }
-
-            let object = try? JSONSerialization.jsonObject(with: descriptions) as? NSDictionary
-            let window = (object?["windows"] as? NSArray)?.firstObject as? NSDictionary
-            let children = window?["children"] as? NSArray
-
-            let firstChild = children?.firstObject as? NSDictionary
-
-            XCTAssertEqual(firstChild?["view_controller"] as? String, "UIViewController")
+        guard let descriptions = self.fixture.sut.fetch()
+        else {
+            XCTFail("Could not serialize view hierarchy")
+            return
         }
+
+        let object = try? JSONSerialization.jsonObject(with: descriptions) as? NSDictionary
+        let window = (object?["windows"] as? NSArray)?.firstObject as? NSDictionary
+        let children = window?["children"] as? NSArray
+
+        let firstChild = children?.firstObject as? NSDictionary
+
+        XCTAssertEqual(firstChild?["view_controller"] as? String, "UIViewController")
     }
 
     func test_ViewHierarchy_save() {
-        if #available(iOS 14, *) {
-            let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
-            window.accessibilityIdentifier = "WindowId"
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        window.accessibilityIdentifier = "WindowId"
 
-            fixture.uiApplication.windows = [window]
+        fixture.uiApplication.windows = [window]
 
-            let path = FileManager.default.temporaryDirectory.appendingPathComponent("view.json").path
-            self.fixture.sut.save(path)
+        let path = FileManager.default.temporaryDirectory.appendingPathComponent("view.json").path
+        self.fixture.sut.save(path)
 
-            let descriptions = (try? String(contentsOfFile: path)) ?? ""
+        let descriptions = (try? String(contentsOfFile: path)) ?? ""
 
-            XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"WindowId\",\"width\":10,\"height\":10,\"x\":0,\"y\":0,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
-        }
+        XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"WindowId\",\"width\":10,\"height\":10,\"x\":0,\"y\":0,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
     }
 
     func test_invalidFilePath() {
-        if #available(iOS 14, *) {
-            let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
-            window.accessibilityIdentifier = "WindowId"
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        window.accessibilityIdentifier = "WindowId"
 
-            fixture.uiApplication.windows = [window]
+        fixture.uiApplication.windows = [window]
 
-            XCTAssertFalse(self.fixture.sut.save(""))
-        }
+        XCTAssertFalse(self.fixture.sut.save(""))
     }
 
     func test_invalidSerialization() {
-        if #available(iOS 14, *) {
-            let sut = TestSentryViewHierarchy()
-            sut.viewHierarchyResult = -1
-            let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
-            window.accessibilityIdentifier = "WindowId"
+        let sut = TestSentryViewHierarchy()
+        sut.viewHierarchyResult = -1
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        window.accessibilityIdentifier = "WindowId"
 
-            fixture.uiApplication.windows = [window]
-            let result = sut.fetch()
-            XCTAssertNil(result)
-        }
+        fixture.uiApplication.windows = [window]
+        let result = sut.fetch()
+        XCTAssertNil(result)
     }
 
     func test_fetchFromBackgroundTest() {
-        if #available(iOS 14, *) {
-            let sut = TestSentryViewHierarchy()
-            let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
-            fixture.uiApplication.windows = [window]
+        let sut = TestSentryViewHierarchy()
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        fixture.uiApplication.windows = [window]
 
-            let ex = expectation(description: "Running on Main Thread")
-            sut.processViewHierarchyCallback = {
-                ex.fulfill()
-                XCTAssertTrue(Thread.isMainThread)
-            }
-
-            let dispatch = DispatchQueue(label: "background")
-            dispatch.async {
-                let _ = sut.fetch()
-            }
-
-            wait(for: [ex], timeout: 1)
+        let ex = expectation(description: "Running on Main Thread")
+        sut.processViewHierarchyCallback = {
+            ex.fulfill()
+            XCTAssertTrue(Thread.isMainThread)
         }
+
+        let dispatch = DispatchQueue(label: "background")
+        dispatch.async {
+            let _ = sut.fetch()
+        }
+
+        wait(for: [ex], timeout: 1)
     }
 
     func test_fetch_usesMainThread() {
-        if #available(iOS 14, *) {
-            let sut = TestSentryViewHierarchy()
-            let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
-            fixture.uiApplication.windows = [window]
-            
-            let ex = expectation(description: "Running on background Thread")
-            let dispatch = DispatchQueue(label: "background")
-            dispatch.async {
-                let _ = sut.fetch()
-                ex.fulfill()
-            }
-            
-            wait(for: [ex], timeout: 1)
-            XCTAssertTrue(fixture.uiApplication.calledOnMainThread, "fetchViewHierarchy is not using the main thread to get UI windows")
+        let sut = TestSentryViewHierarchy()
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        fixture.uiApplication.windows = [window]
+
+        let ex = expectation(description: "Running on background Thread")
+        let dispatch = DispatchQueue(label: "background")
+        dispatch.async {
+            let _ = sut.fetch()
+            ex.fulfill()
         }
+
+        wait(for: [ex], timeout: 1)
+        XCTAssertTrue(fixture.uiApplication.calledOnMainThread, "fetchViewHierarchy is not using the main thread to get UI windows")
     }
 
     class TestSentryUIApplication: SentryUIApplication {

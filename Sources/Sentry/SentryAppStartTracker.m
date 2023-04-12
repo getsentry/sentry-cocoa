@@ -35,7 +35,9 @@ SentryAppStartTracker ()
 @property (nonatomic, assign) BOOL wasInBackground;
 @property (nonatomic, strong) NSDate *didFinishLaunchingTimestamp;
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
-
+#    if TEST
+@property (nonatomic) BOOL isRunning;
+#    endif
 @end
 
 @implementation SentryAppStartTracker
@@ -67,6 +69,9 @@ SentryAppStartTracker ()
         self.wasInBackground = NO;
         self.didFinishLaunchingTimestamp = [currentDateProvider date];
         self.enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing;
+#    if TEST
+        self.isRunning = NO;
+#    endif
     }
     return self;
 }
@@ -115,6 +120,10 @@ SentryAppStartTracker ()
 
 #    if SENTRY_HAS_UIKIT
     [self.appStateManager start];
+#    endif
+
+#    if TEST
+    self.isRunning = YES;
 #    endif
 }
 
@@ -208,8 +217,8 @@ SentryAppStartTracker ()
         SentrySDK.appStartMeasurement = appStartMeasurement;
     };
 
-    // With only running this once we know that the process is a new one when the following
-    // code is executed.
+// With only running this once we know that the process is a new one when the following
+// code is executed.
 // We need to make sure the block runs on each test instead of only once
 #    if TEST
     block();
@@ -285,6 +294,10 @@ SentryAppStartTracker ()
     [NSNotificationCenter.defaultCenter removeObserver:self
                                                   name:UIApplicationDidEnterBackgroundNotification
                                                 object:nil];
+
+#    if TEST
+    self.isRunning = NO;
+#    endif
 }
 
 - (void)dealloc
