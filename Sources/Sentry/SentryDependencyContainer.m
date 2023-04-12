@@ -1,6 +1,7 @@
 #import "SentryANRTracker.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDispatchQueueWrapper.h"
+#import "SentryNSProcessInfoWrapper.h"
 #import "SentryUIApplication.h"
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
@@ -17,7 +18,6 @@
 #import <SentrySysctl.h>
 #import <SentryThreadWrapper.h>
 #import <SentryViewHierarchy.h>
-#import "SentryNSProcessInfoWrapper.h"
 
 @implementation SentryDependencyContainer
 

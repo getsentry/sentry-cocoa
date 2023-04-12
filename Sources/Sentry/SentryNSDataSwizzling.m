@@ -2,6 +2,7 @@
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashMachineContextWrapper.h"
 #import "SentryCrashStackEntryMapper.h"
+#import "SentryDependencyContainer.h"
 #import "SentryInAppLogic.h"
 #import "SentryNSDataTracker.h"
 #import "SentryNSProcessInfoWrapper.h"
@@ -11,7 +12,6 @@
 #import "SentryThreadInspector.h"
 #import <SentryLog.h>
 #import <objc/runtime.h>
-#import "SentryDependencyContainer.h"
 
 @interface
 SentryNSDataSwizzling ()

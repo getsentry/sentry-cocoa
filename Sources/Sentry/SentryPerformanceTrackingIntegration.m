@@ -1,12 +1,12 @@
 #import "SentryPerformanceTrackingIntegration.h"
 #import "SentryDefaultObjCRuntimeWrapper.h"
+#import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryLog.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentrySubClassFinder.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
 #import "SentryUIViewControllerSwizzling.h"
-#import "SentryDependencyContainer.h"
 
 @interface
 SentryPerformanceTrackingIntegration ()

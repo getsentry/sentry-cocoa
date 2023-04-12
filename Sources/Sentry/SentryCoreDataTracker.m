@@ -1,8 +1,8 @@
 
-#import "SentryInternalDefines.h"
 #import "SentryCoreDataTracker.h"
 #import "SentryFrame.h"
 #import "SentryHub+Private.h"
+#import "SentryInternalDefines.h"
 #import "SentryLog.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryPredicateDescriptor.h"

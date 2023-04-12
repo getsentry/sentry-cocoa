@@ -1,4 +1,3 @@
-#import "SentryInternalDefines.h"
 #import "SentryNSDataTracker.h"
 #import "SentryByteCountFormatter.h"
 #import "SentryClient+Private.h"
@@ -6,6 +5,7 @@
 #import "SentryFileManager.h"
 #import "SentryFrame.h"
 #import "SentryHub+Private.h"
+#import "SentryInternalDefines.h"
 #import "SentryLog.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions.h"
