@@ -12,6 +12,11 @@ xcuitest:
   testApp: ./DerivedData/Build/Products/Test-iphoneos/iOS-SwiftUITests-Runner.app
 
 suites:
+
+  - name: "iOS-16"
+    devices:
+      - name: "iPhone.*"
+        platformVersion: "16.4"
    
   - name: "iOS-15"
     devices:
