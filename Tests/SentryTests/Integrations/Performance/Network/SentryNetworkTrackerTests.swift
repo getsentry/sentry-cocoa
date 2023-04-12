@@ -625,8 +625,6 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         sut.urlSessionTask(task, setState: .completed)
         
-        fixture.hub.group.wait()
-        
         guard let envelope = self.fixture.hub.capturedEventsWithScopes.first else {
             XCTFail("Expected to capture 1 event")
             return
@@ -656,8 +654,6 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         sut.urlSessionTask(task, setState: .completed)
         
-        fixture.hub.group.wait()
-        
         guard let envelope = self.fixture.hub.capturedEventsWithScopes.first else {
             XCTFail("Expected to capture 1 event")
             return
@@ -676,8 +672,6 @@ class SentryNetworkTrackerTests: XCTestCase {
         task.setResponse(createResponse(code: 500))
         
         sut.urlSessionTask(task, setState: .completed)
-        
-        fixture.hub.group.wait()
         
         guard let envelope = self.fixture.hub.capturedEventsWithScopes.first else {
             XCTFail("Expected to capture 1 event")

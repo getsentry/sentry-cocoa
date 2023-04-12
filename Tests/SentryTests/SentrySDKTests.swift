@@ -31,6 +31,8 @@ class SentrySDKTests: XCTestCase {
         }
         
         let message = "message"
+        let operation = "ui.load"
+        let transactionName = "Load Main Screen"
         
         init() {
             CurrentDate.setCurrentDateProvider(currentDate)
@@ -344,10 +346,23 @@ class SentrySDKTests: XCTestCase {
     func testStartTransaction() {
         givenSdkWithHub()
         
-        let span = SentrySDK.startTransaction(name: "Some Transaction", operation: "Operations", bindToScope: true)
+        let transaction = SentrySDK.startTransaction(name: fixture.transactionName, operation: fixture.operation)
+        
+        assertTransaction(transaction: transaction)
+            
+        XCTAssertNil(SentrySDK.span)
+    }
+    
+    func testStartTransaction_WithBindToScope() {
+        givenSdkWithHub()
+        
+        let transaction = SentrySDK.startTransaction(name: fixture.transactionName, operation: fixture.operation, bindToScope: true)
+        
+        assertTransaction(transaction: transaction)
+        
         let newSpan = SentrySDK.span
         
-        XCTAssert(span === newSpan)
+        XCTAssert(transaction === newSpan)
     }
     
     func testInstallIntegrations() {
@@ -561,13 +576,13 @@ class SentrySDKTests: XCTestCase {
         XCTAssertFalse(client?.isEnabled ?? true)
     }
     
-    func testClose_CallsFlushCorrectlyOnTransport() {
+    func testClose_CallsFlushCorrectlyOnTransport() throws {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
         }
         
         let transport = TestTransport()
-        let client = SentryClient(options: fixture.options)
+        let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), deleteOldEnvelopeItems: false)
         Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
         SentrySDK.currentHub().bindClient(client)
         SentrySDK.close()
@@ -575,13 +590,13 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(Options().shutdownTimeInterval, transport.flushInvocations.first)
     }
     
-    func testFlush_CallsFlushCorrectlyOnTransport() {
+    func testFlush_CallsFlushCorrectlyOnTransport() throws {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
         }
         
         let transport = TestTransport()
-        let client = SentryClient(options: fixture.options)
+        let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), deleteOldEnvelopeItems: false)
         Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
         SentrySDK.currentHub().bindClient(client)
         
@@ -591,7 +606,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(flushTimeout, transport.flushInvocations.first)
     }
     
-    func testSetpAppStartMeasurementConcurrently_() {
+    func testSetAppStartMeasurementConcurrently() {
         func setAppStartMeasurement(_ queue: DispatchQueue, _ i: Int) {
             group.enter()
             queue.async {
@@ -693,6 +708,13 @@ class SentrySDKTests: XCTestCase {
     private func assertHubScopeNotChanged() {
         let hubScope = SentrySDK.currentHub().scope
         XCTAssertEqual(fixture.scope, hubScope)
+    }
+    
+    private func assertTransaction(transaction: Span) {
+        XCTAssertEqual(fixture.operation, transaction.operation)
+        let tracer = transaction as! SentryTracer
+        XCTAssertEqual(fixture.transactionName, tracer.traceContext.transaction)
+        XCTAssertEqual(.custom, tracer.transactionContext.nameSource)
     }
     
     private func advanceTime(bySeconds: TimeInterval) {
