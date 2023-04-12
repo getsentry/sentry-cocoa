@@ -7,7 +7,7 @@ class SentryTransportFactoryTests: XCTestCase {
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryTransportFactoryTests")
 
     func testIntegration_UrlSessionDelegate_PassedToRequestManager() {
-        let urlSessionDelegateSpy = UrlSessionDelegateSpy()
+        let urlSessionDelegateSpy = SentryURLSessionDelegateSpy()
         
         let expect = expectation(description: "UrlSession Delegate of Options called in RequestManager")
         urlSessionDelegateSpy.delegateCallback = {

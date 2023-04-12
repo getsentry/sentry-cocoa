@@ -1,8 +1,13 @@
 #import "SentryOptions.h"
+#import "SentryDSN.h"
 #import "SentryError.h"
+#import "SentryEvent.h"
+#import "SentryHTTPStatusCodeRange.h"
 #import "SentryOptions+HybridSDKs.h"
+#import "SentryOptions+Private.h"
 #import "SentrySDK.h"
-#import "SentryTests-Swift.h"
+#import "SentrySamplingContext.h"
+#import "SentryURLSessionDelegateSpy.h"
 #import <XCTest/XCTest.h>
 
 @interface SentryOptionsTest : XCTestCase
@@ -1168,7 +1173,7 @@
 
 - (void)testUrlSessionDelegate
 {
-    id<NSURLSessionDelegate> urlSessionDelegate = [[UrlSessionDelegateSpy alloc] init];
+    id<NSURLSessionDelegate> urlSessionDelegate = [[SentryURLSessionDelegateSpy alloc] init];
 
     SentryOptions *options = [self getValidOptions:@{ @"urlSessionDelegate" : urlSessionDelegate }];
 
