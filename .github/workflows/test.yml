@@ -81,13 +81,6 @@ jobs:
         # we get the error 'XCTest/XCTest.h' not found. Setting ENABLE_TESTING_SEARCH_PATH=YES
         # doesn't work.
         include:
-          # iOS 12.4
-          - runs-on: macos-11
-            platform: 'iOS'
-            xcode: '13.2.1'
-            test-destination-os: '12.4'
-            # This job needs to install the simulator which can take a couple of minutes
-            timeout-minutes: 25 
 
           # iOS 13.7
           - runs-on: macos-11
@@ -166,14 +159,6 @@ jobs:
       - run: ./test-server-exec &
 
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
-
-      # GH action images don't have an iOS 12.4 simulator. Therefore we have to download and install the simulator manually.
-      - name: Install iOS 12.4 simulator
-        if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '12.4'}}
-        run: |
-          gem install xcode-install
-          xcversion simulators --install='iOS 12.4'
-          xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-12-4"
 
       # Workaround with a symlink pointed out in: https://github.com/actions/virtual-environments/issues/551#issuecomment-637344435
       - name: Prepare iOS 13.7 simulator
