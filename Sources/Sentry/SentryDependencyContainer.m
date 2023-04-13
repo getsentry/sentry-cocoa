@@ -213,6 +213,18 @@ static NSObject *sentryDependencyContainerLock;
     return _anrTracker;
 }
 
+- (SentryNSProcessInfoWrapper *)processInfoWrapper
+{
+    if (_processInfoWrapper == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_processInfoWrapper == nil) {
+                _processInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
+            }
+        }
+    }
+    return _processInfoWrapper;
+}
+
 #if SENTRY_HAS_METRIC_KIT
 - (SentryMXManager *)metricKitManager
 {
@@ -228,18 +240,6 @@ static NSObject *sentryDependencyContainerLock;
     }
 
     return _metricKitManager;
-}
-
-- (SentryNSProcessInfoWrapper *)processInfoWrapper
-{
-    if (_processInfoWrapper == nil) {
-        @synchronized(sentryDependencyContainerLock) {
-            if (_processInfoWrapper == nil) {
-                _processInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
-            }
-        }
-    }
-    return _processInfoWrapper;
 }
 
 #endif
