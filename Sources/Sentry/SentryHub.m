@@ -311,11 +311,8 @@ SentryHub ()
                                  operation:(NSString *)operation
                                bindToScope:(BOOL)bindToScope
 {
-    SentryTransactionContext *context =
-        [[SentryTransactionContext alloc] initWithName:name
-                                            nameSource:kSentryTransactionNameSourceCustom
-                                             operation:operation
-                                                origin:SentryTraceOriginManual];
+    SentryTransactionContext *context = [[SentryTransactionContext alloc] initWithName:name
+                                                                             operation:operation];
 
     return [self startTransactionWithContext:context bindToScope:bindToScope];
 }
