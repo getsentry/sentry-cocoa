@@ -543,7 +543,7 @@ serializedSamplesWithRelativeTimestamps(
         _gCurrentSystemWrapper = [[SentrySystemWrapper alloc] init];
     }
     if (_gCurrentProcessInfoWrapper == nil) {
-        _gCurrentProcessInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
+        _gCurrentProcessInfoWrapper = [SentryDependencyContainer.sharedInstance processInfoWrapper];
     }
     if (_gCurrentTimerWrapper == nil) {
         _gCurrentTimerWrapper = [[SentryNSTimerWrapper alloc] init];

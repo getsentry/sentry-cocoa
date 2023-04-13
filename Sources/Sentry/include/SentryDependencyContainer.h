@@ -4,7 +4,7 @@
 
 @class SentryAppStateManager, SentryCrashWrapper, SentryThreadWrapper, SentrySwizzleWrapper,
     SentryDispatchQueueWrapper, SentryDebugImageProvider, SentryANRTracker,
-    SentryNSNotificationCenterWrapper, SentryMXManager;
+    SentryNSNotificationCenterWrapper, SentryMXManager, SentryNSProcessInfoWrapper;
 
 #if SENTRY_HAS_UIKIT
 @class SentryScreenshot, SentryUIApplication, SentryViewHierarchy;
@@ -32,6 +32,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 @property (nonatomic, strong) SentryANRTracker *anrTracker;
+@property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
 
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryScreenshot *screenshot;
