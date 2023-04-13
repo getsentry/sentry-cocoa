@@ -26,10 +26,7 @@ SentryTransactionContext ()
 
 - (instancetype)initWithName:(NSString *)name operation:(NSString *)operation
 {
-    return [self initWithName:name
-                   nameSource:kSentryTransactionNameSourceCustom
-                    operation:operation
-                       origin:SentryTraceOriginManual];
+    return [self initWithName:name operation:operation sampled:kSentrySampleDecisionUndecided];
 }
 
 - (instancetype)initWithName:(NSString *)name
@@ -44,7 +41,7 @@ SentryTransactionContext ()
 }
 
 - (instancetype)initWithName:(NSString *)name
-                   operation:(nonnull NSString *)operation
+                   operation:(NSString *)operation
                      traceId:(SentryId *)traceId
                       spanId:(SentrySpanId *)spanId
                 parentSpanId:(nullable SentrySpanId *)parentSpanId
