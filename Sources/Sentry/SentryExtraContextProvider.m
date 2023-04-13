@@ -26,7 +26,7 @@ SentryExtraContextProvider ()
 
 - (instancetype)init
 {
-    return return
+    return
         [self initWithCrashWrapper:[SentryDependencyContainer.sharedInstance crashWrapper]
                      deviceWrapper:[[SentryUIDeviceWrapper alloc] init]
                 processInfoWrapper:[SentryDependencyContainer.sharedInstance processInfoWrapper]];
