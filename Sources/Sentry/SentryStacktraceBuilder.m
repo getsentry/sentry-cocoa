@@ -46,7 +46,8 @@ SentryStacktraceBuilder ()
             continue;
         }
         if (stackCursor.symbolicate(&stackCursor)) {
-            [frames addObject:[self.crashStackEntryMapper mapStackEntryWithCursor:stackCursor]];
+            frame = [self.crashStackEntryMapper mapStackEntryWithCursor:stackCursor];
+            [frames addObject:frame];
         }
     }
     sentrycrash_async_backtrace_decref(stackCursor.async_caller);
