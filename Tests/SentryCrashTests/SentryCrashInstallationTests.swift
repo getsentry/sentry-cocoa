@@ -90,7 +90,7 @@ private extension SentryCrashInstallationTests {
     }
 
     func assertReservedThreads(monitorsAfterInstall: SentryCrashMonitorType) {
-        if monitorsAfterInstall == SentryCrashMonitorTypeMachException {
+        if monitorsAfterInstall.rawValue & SentryCrashMonitorTypeMachException.rawValue == 1 {
             XCTAssert(sentrycrashcm_hasReservedThreads())
         } else {
             XCTAssertFalse(sentrycrashcm_hasReservedThreads())
