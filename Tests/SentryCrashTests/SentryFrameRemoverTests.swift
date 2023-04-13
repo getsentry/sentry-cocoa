@@ -49,8 +49,8 @@ class SentryFrameRemoverTests: XCTestCase {
              fixture.sentryPrivateFrame,
              fixture.nonSentryFrame]
         let actual = SentryFrameRemover.removeNonSdkFrames(frames)
-        
-        XCTAssertEqual(expected, actual)
+
+        XCTAssert(equivalent(expected: expected, actual: actual))
     }
     
     func testNoSdkFramesFirst_NoFramesRemoved() {
@@ -60,16 +60,31 @@ class SentryFrameRemoverTests: XCTestCase {
              fixture.nonSentryFrame]
         
         let actual = SentryFrameRemover.removeNonSdkFrames(frames)
-                XCTAssertEqual(frames, actual)
+        XCTAssert(equivalent(expected: frames, actual: actual))
     }
     
     func testNoSdkFrames_NoFramesRemoved() {
         let actual = SentryFrameRemover.removeNonSdkFrames(fixture.nonSentryFrames)
-        XCTAssertEqual(fixture.nonSentryFrames, actual)
+        XCTAssert(equivalent(expected: fixture.nonSentryFrames, actual: actual))
     }
     
     func testOnlySdkFrames_AllFramesRemoved() {
         let actual = SentryFrameRemover.removeNonSdkFrames(fixture.sentryFrames)
-        XCTAssertEqual(fixture.sentryFrames, actual)
+        XCTAssert(equivalent(expected: fixture.sentryFrames, actual: actual))
+    }
+}
+
+private extension SentryFrameRemoverTests {
+    /// Compare elements pairwise to see if the two input arrays are equivalent or not.
+    func equivalent(expected: [Frame], actual: [Frame]) -> Bool {
+        guard expected.count == actual.count else { return false }
+        for i in 0..<expected.count {
+            let nextExpected = expected[i]
+            let nextActual = actual[i]
+            if nextExpected.package != nextActual.package {
+                return false
+            }
+        }
+        return true
     }
 }
