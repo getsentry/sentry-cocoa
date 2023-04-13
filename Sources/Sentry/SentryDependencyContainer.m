@@ -1,6 +1,7 @@
 #import "SentryANRTracker.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDispatchQueueWrapper.h"
+#import "SentryNSProcessInfoWrapper.h"
 #import "SentryUIApplication.h"
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
@@ -227,6 +228,18 @@ static NSObject *sentryDependencyContainerLock;
     }
 
     return _metricKitManager;
+}
+
+- (SentryNSProcessInfoWrapper *)processInfoWrapper
+{
+    if (_processInfoWrapper == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_processInfoWrapper == nil) {
+                _processInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
+            }
+        }
+    }
+    return _processInfoWrapper;
 }
 
 #endif
