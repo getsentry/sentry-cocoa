@@ -304,23 +304,20 @@ SentryHub ()
 
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation
 {
-    return [self startTransactionWithContext:[[SentryTransactionContext alloc]
-                                                 initWithName:name
-                                                   nameSource:kSentryTransactionNameSourceCustom
-                                                    operation:operation
-                                                       origin:SentryTraceOriginManual]];
+    return [self startTransactionWithName:name operation:operation bindToScope:NO];
 }
 
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name
                                  operation:(NSString *)operation
                                bindToScope:(BOOL)bindToScope
 {
-    return [self startTransactionWithContext:[[SentryTransactionContext alloc]
-                                                 initWithName:name
-                                                   nameSource:kSentryTransactionNameSourceCustom
-                                                    operation:operation
-                                                       origin:SentryTraceOriginManual]
-                                 bindToScope:bindToScope];
+    SentryTransactionContext *context =
+        [[SentryTransactionContext alloc] initWithName:name
+                                            nameSource:kSentryTransactionNameSourceCustom
+                                             operation:operation
+                                                origin:SentryTraceOriginManual];
+
+    return [self startTransactionWithContext:context bindToScope:bindToScope];
 }
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
@@ -361,7 +358,7 @@ SentryHub ()
     return [[SentryTransactionContext alloc] initWithName:context.name
                                                nameSource:context.nameSource
                                                 operation:context.operation
-                                                   origin:SentryTraceOriginAuto
+                                                   origin:context.origin
                                                   traceId:context.traceId
                                                    spanId:context.spanId
                                              parentSpanId:context.parentSpanId

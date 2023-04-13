@@ -11,7 +11,6 @@
 #import "SentryMeta.h"
 #import "SentryOptions+Private.h"
 #import "SentryScope.h"
-#import "SentryTraceOrigins.h"
 
 @interface
 SentrySDK ()

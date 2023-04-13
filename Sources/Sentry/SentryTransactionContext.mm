@@ -67,7 +67,9 @@ SentryTransactionContext ()
                    operation:(NSString *)operation
                       origin:(NSString *)origin
 {
-    if (self = [super initWithOperation:operation]) {
+    if (self = [super initWithOperation:operation
+                                 origin:origin
+                                sampled:kSentryDefaultSamplingDecision]) {
         [self commonInitWithName:name source:source parentSampled:kSentryDefaultSamplingDecision];
     }
     return self;
