@@ -1,6 +1,7 @@
 #import "SentryExtraContextProvider.h"
 #import "SentryCrashIntegration.h"
 #import "SentryCrashWrapper.h"
+#import "SentryDependencyContainer.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryUIDeviceWrapper.h"
 
@@ -25,9 +26,10 @@ SentryExtraContextProvider ()
 
 - (instancetype)init
 {
-    return [self initWithCrashWrapper:[SentryCrashWrapper sharedInstance]
-                        deviceWrapper:[[SentryUIDeviceWrapper alloc] init]
-                   processInfoWrapper:[[SentryNSProcessInfoWrapper alloc] init]];
+    return
+        [self initWithCrashWrapper:[SentryCrashWrapper sharedInstance]
+                     deviceWrapper:[[SentryUIDeviceWrapper alloc] init]
+                processInfoWrapper:[SentryDependencyContainer.sharedInstance processInfoWrapper]];
 }
 
 - (instancetype)initWithCrashWrapper:(id)crashWrapper

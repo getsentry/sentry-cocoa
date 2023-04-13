@@ -25,17 +25,6 @@ SentryHub (Private)
 
 - (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp;
 
-- (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                nameSource:(SentryTransactionNameSource)source
-                                 operation:(NSString *)operation
-                                    origin:(NSString *)origin;
-
-- (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                nameSource:(SentryTransactionNameSource)source
-                                 operation:(NSString *)operation
-                                    origin:(NSString *)origin
-                               bindToScope:(BOOL)bindToScope;
-
 - (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
