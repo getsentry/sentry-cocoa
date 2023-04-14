@@ -9,14 +9,15 @@ public class TestSentryNSTimerWrapper: SentryNSTimerWrapper {
     
     public var timer: Timer {
         get {
-            _timer!
+            _timer ?? Timer()
         }
     }
 
     public override func scheduledTimer(withTimeInterval interval: TimeInterval, repeats: Bool, block: @escaping (Timer) -> Void) -> Timer {
-        _timer = Timer.scheduledTimer(withTimeInterval: TimeInterval.infinity, repeats: repeats, block: block)
+        let timer = Timer.scheduledTimer(withTimeInterval: TimeInterval.infinity, repeats: repeats, block: block)
+        _timer = timer
         
-        return _timer!
+        return timer
     }
 
     public func fire() {
