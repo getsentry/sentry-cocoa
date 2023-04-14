@@ -8,6 +8,12 @@ class SentryTransactionContextTests: XCTestCase {
     let operation = "ui.load"
     let transactionName = "Screen Load"
     let origin = "auto.ui.swift_ui"
+    let traceID = SentryId()
+    let spanID = SpanId()
+    let parentSpanID = SpanId()
+    let nameSource = SentryTransactionNameSource.route
+    let sampled = SentrySampleDecision.yes
+    let parentSampled = SentrySampleDecision.no
     
     func testPublicInit_WithOperation() {
         let context = TransactionContext(operation: operation)
@@ -34,16 +40,13 @@ class SentryTransactionContextTests: XCTestCase {
     }
     
     func testPublicInit_WithAllParams() {
-        let traceID = SentryId()
-        let spanID = SpanId()
-        let parentSpanID = SpanId()
-        
         let context = TransactionContext(name: transactionName, operation: operation, trace: traceID, spanId: spanID, parentSpanId: parentSpanID, parentSampled: .no)
         
         assertContext(context: context, isParentSpanIdNil: false)
         XCTAssertEqual(traceID, context.traceId)
         XCTAssertEqual(spanID, context.spanId)
         XCTAssertEqual(parentSpanID, context.parentSpanId)
+        XCTAssertEqual(.no, context.parentSampled)
     }
     
     func testPrivateInit_WithNameSourceOperationOrigin() {
@@ -59,6 +62,28 @@ class SentryTransactionContextTests: XCTestCase {
         let context = TransactionContext(name: transactionName, nameSource: nameSource, operation: operation, origin: origin, sampled: sampled)
         
         assertContext(context: context, sampled: sampled, nameSource: nameSource, origin: origin)
+    }
+    
+    func testPrivateInit_AllParams() {
+        let context = contextWithAllParams
+        
+        assertContext(context: context, sampled: sampled, isParentSpanIdNil: false, nameSource: nameSource, origin: origin)
+        XCTAssertEqual(traceID, context.traceId)
+        XCTAssertEqual(spanID, context.spanId)
+        XCTAssertEqual(parentSpanID, context.parentSpanId)
+    }
+    
+    private var contextWithAllParams: TransactionContext {
+        get {
+            return TransactionContext(name: transactionName, nameSource: nameSource, operation: operation, origin: origin, trace: traceID, spanId: spanID, parentSpanId: parentSpanID, sampled: sampled, parentSampled: parentSampled)
+        }
+    }
+    
+    func testSerialize() {
+        let context = contextWithAllParams
+        
+        let actual = context.serialize()
+        XCTAssertNotNil(actual)
     }
     
     private func assertContext(context: TransactionContext, transactionName: String? = nil, sampled: SentrySampleDecision = .undecided, isParentSpanIdNil: Bool = true, nameSource: SentryTransactionNameSource = SentryTransactionNameSource.custom, origin: String? = nil) {
