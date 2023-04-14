@@ -209,7 +209,7 @@ class SentryTracerTests: XCTestCase {
         let sut = fixture.getSut()
         sut.finish()
 
-        XCTAssertEqual(fixture.timerWrapper.overrides.timer.invalidateCount, 1)
+        XCTAssertFalse(fixture.timerWrapper.timer.isValid)
     }
 
     func testFinish_CheckDefaultStatus() {
