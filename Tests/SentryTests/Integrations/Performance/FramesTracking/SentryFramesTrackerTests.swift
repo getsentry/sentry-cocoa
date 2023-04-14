@@ -77,9 +77,6 @@ class SentryFramesTrackerTests: XCTestCase {
     }
     
     func testAllFrames_ConcurrentRead() throws {
-        // this is a really long test and the logs slow it down
-        SentryLog.configure(false, diagnosticLevel: .error)
-
         let sut = fixture.sut
         sut.start()
         
