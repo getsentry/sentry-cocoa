@@ -40,18 +40,9 @@ SentryPerformanceTracker () <SentryTracerDelegate>
     return self;
 }
 
-- (SentrySpanId *)startSpanWithName:(NSString *)name operation:(NSString *)operation
-{
-    return [self startSpanWithName:name
-                        nameSource:kSentryTransactionNameSourceCustom
-                         operation:operation
-                            origin:SentryTraceOriginAuto];
-}
-
 - (SentrySpanId *)startSpanWithName:(NSString *)name
                          nameSource:(SentryTransactionNameSource)source
                           operation:(NSString *)operation
-                             origin:(NSString *)origin
 {
     id<SentrySpan> activeSpan;
     @synchronized(self.activeSpanStack) {
@@ -62,10 +53,11 @@ SentryPerformanceTracker () <SentryTracerDelegate>
     if (activeSpan != nil) {
         newSpan = [activeSpan startChildWithOperation:operation description:name];
     } else {
-        SentryTransactionContext *context = [[SentryTransactionContext alloc] initWithName:name
-                                                                                nameSource:source
-                                                                                 operation:operation
-                                                                                    origin:origin];
+        SentryTransactionContext *context =
+            [[SentryTransactionContext alloc] initWithName:name
+                                                nameSource:source
+                                                 operation:operation
+                                                    origin:SentryTraceOriginAuto];
 
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> span) {
             BOOL bindToScope = YES;
@@ -111,44 +103,19 @@ SentryPerformanceTracker () <SentryTracerDelegate>
 }
 
 - (void)measureSpanWithDescription:(NSString *)description
-                         operation:(NSString *)operation
-                           inBlock:(void (^)(void))block
-{
-    [self measureSpanWithDescription:description
-                          nameSource:kSentryTransactionNameSourceCustom
-                           operation:operation
-                              origin:SentryTraceOriginAuto
-                             inBlock:block];
-}
-
-- (void)measureSpanWithDescription:(NSString *)description
                         nameSource:(SentryTransactionNameSource)source
                          operation:(NSString *)operation
-                            origin:(NSString *)origin
                            inBlock:(void (^)(void))block
 {
     SentrySpanId *spanId = [self startSpanWithName:description
                                         nameSource:source
-                                         operation:operation
-                                            origin:origin];
+                                         operation:operation];
     SENTRY_LOG_DEBUG(@"Measuring span %@; description %@; operation: %@", spanId.sentrySpanIdString,
         description, operation);
     [self pushActiveSpan:spanId];
     block();
     [self popActiveSpan];
     [self finishSpan:spanId];
-}
-
-- (void)measureSpanWithDescription:(NSString *)description
-                         operation:(NSString *)operation
-                      parentSpanId:(SentrySpanId *)parentSpanId
-                           inBlock:(void (^)(void))block
-{
-    [self measureSpanWithDescription:description
-                          nameSource:kSentryTransactionNameSourceCustom
-                           operation:operation
-                        parentSpanId:parentSpanId
-                             inBlock:block];
 }
 
 - (void)measureSpanWithDescription:(NSString *)description
@@ -162,7 +129,6 @@ SentryPerformanceTracker () <SentryTracerDelegate>
                [self measureSpanWithDescription:description
                                      nameSource:source
                                       operation:operation
-                                         origin:SentryTraceOriginAuto
                                         inBlock:block];
            }];
 }
