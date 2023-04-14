@@ -98,9 +98,6 @@ class SentryFramesTrackerTests: XCTestCase {
         
         group.wait()
         try assert(slow: frames, frozen: frames, total: 3 * frames)
-
-        // ok, set logs back to debug for other tests
-        SentryLog.configure(true, diagnosticLevel: .debug)
     }
     
     func testPerformanceOfTrackingFrames() throws {
