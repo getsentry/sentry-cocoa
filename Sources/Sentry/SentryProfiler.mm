@@ -136,7 +136,7 @@ processBacktrace(const Backtrace &backtrace,
     }
 
     const auto sample = [[SentrySample alloc] init];
-    sample.absoluteTimestamp = SentryCurrentDate.systemTime;
+    sample.absoluteTimestamp = backtrace.absoluteTimestamp;
     sample.threadID = backtrace.threadMetadata.threadID;
     if (queueAddress != nil) {
         sample.queueAddress = queueAddress;
@@ -624,8 +624,15 @@ serializedSamplesWithRelativeTimestamps(
                 SENTRY_LOG_WARN(@"Profiler instance no longer exists, cannot process next sample.");
                 return;
             }
+#    if defined(TEST) || defined(TESTCI)
+            Backtrace backtraceCopy = backtrace;
+            backtraceCopy.absoluteTimestamp = SentryCurrentDate.systemTime;
+            processBacktrace(backtraceCopy, threadMetadata, queueMetadata, samples, stacks, frames,
+                frameIndexLookup, stackIndexLookup);
+#    else
             processBacktrace(backtrace, threadMetadata, queueMetadata, samples, stacks, frames,
                 frameIndexLookup, stackIndexLookup);
+#    endif // defined(TEST) || defined(TESTCI)
         },
         kSentryProfilerFrequencyHz);
     _profiler->startSampling();
