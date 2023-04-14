@@ -24,7 +24,7 @@ namespace profiling {
 
         void *
         samplingThreadMain(mach_port_t port, clock_serv_t clock, mach_timespec_t delaySpec,
-            std::shared_ptr<ThreadMetadataCache> cache, std::function<uint64_t()> dateProvider,
+            std::shared_ptr<ThreadMetadataCache> cache,
             std::function<void(const Backtrace &)> callback, std::atomic_uint64_t &numSamples,
             std::function<void()> onThreadStart)
         {
@@ -48,7 +48,7 @@ namespace profiling {
                 }
 
                 numSamples.fetch_add(1, std::memory_order_relaxed);
-                enumerateBacktracesForAllThreads(dateProvider, callback, cache);
+                enumerateBacktracesForAllThreads(callback, cache);
             }
             pthread_cleanup_pop(1);
             return nullptr;
@@ -56,10 +56,9 @@ namespace profiling {
 
     } // namespace
 
-    SamplingProfiler::SamplingProfiler(std::function<uint64_t()> dateProvider,
+    SamplingProfiler::SamplingProfiler(
         std::function<void(const Backtrace &)> callback, std::uint32_t samplingRateHz)
-        : dateProvider_(std::move(dateProvider))
-        , callback_(std::move(callback))
+        : callback_(std::move(callback))
         , cache_(std::make_shared<ThreadMetadataCache>())
         , isInitialized_(false)
         , isSampling_(false)
@@ -108,8 +107,8 @@ namespace profiling {
         }
         isSampling_ = true;
         numSamples_ = 0;
-        thread_ = std::thread(samplingThreadMain, port_, clock_, delaySpec_, cache_, dateProvider_,
-            callback_, std::ref(numSamples_), onThreadStart);
+        thread_ = std::thread(samplingThreadMain, port_, clock_, delaySpec_, cache_, callback_,
+            std::ref(numSamples_), onThreadStart);
 
         int policy;
         sched_param param;

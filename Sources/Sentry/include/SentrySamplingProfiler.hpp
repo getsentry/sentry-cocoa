@@ -25,13 +25,12 @@ namespace profiling {
     public:
         /**
          * Creates a new sampling profiler that samples at the specified rate.
-         * @param dateProvider A function that returns a timestamp for the current time.
          * @param callback The callback that is called with each trace entry containing the
          * backtrace for a particular thread. The timestamp of the entry will be set to the
          * timestamp that the sample was collected at.
          * @param samplingRateHz The sampling rate, in Hz, to sample at.
          */
-        SamplingProfiler(std::function<uint64_t()> dateProvider,
+        SamplingProfiler(
             std::function<void(const Backtrace &)> callback, std::uint32_t samplingRateHz);
 
         ~SamplingProfiler();
@@ -56,7 +55,6 @@ namespace profiling {
 
     private:
         mach_timespec_t delaySpec_;
-        std::function<uint64_t()> dateProvider_;
         std::function<void(const Backtrace &)> callback_;
         std::shared_ptr<ThreadMetadataCache> cache_;
         bool isInitialized_;

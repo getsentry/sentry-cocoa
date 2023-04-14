@@ -55,12 +55,10 @@ namespace profiling {
      * outside, the scope of the callback, as it will be invalid or reused for a subsequent
      * call.
      *
-     * @param dateProvider A function that returns a timestamp for the current time.
      * @param f The function to call for each entry.
      * @param cache The cache used to look up thread metadata.
      */
-    void enumerateBacktracesForAllThreads(const std::function<uint64_t()> dateProvider,
-        const std::function<void(const Backtrace &)> &f,
+    void enumerateBacktracesForAllThreads(const std::function<void(const Backtrace &)> &f,
         const std::shared_ptr<ThreadMetadataCache> &cache);
 
 } // namespace profiling

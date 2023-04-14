@@ -136,7 +136,7 @@ processBacktrace(const Backtrace &backtrace,
     }
 
     const auto sample = [[SentrySample alloc] init];
-    sample.absoluteTimestamp = backtrace.absoluteTimestamp;
+    sample.absoluteTimestamp = SentryCurrentDate.systemTime;
     sample.threadID = backtrace.threadMetadata.threadID;
     if (queueAddress != nil) {
         sample.queueAddress = queueAddress;
@@ -616,7 +616,7 @@ serializedSamplesWithRelativeTimestamps(
     _profileData[@"profile"] = sampledProfile;
 
     __weak const auto weakSelf = self;
-    _profiler = std::make_shared<SamplingProfiler>([&]() { return SentryCurrentDate.systemTime; },
+    _profiler = std::make_shared<SamplingProfiler>(
         [weakSelf, threadMetadata, queueMetadata, samples, mainThreadID = _mainThreadID, frames,
             frameIndexLookup, stacks, stackIndexLookup](auto &backtrace) {
             const auto strongSelf = weakSelf;

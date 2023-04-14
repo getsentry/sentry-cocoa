@@ -5,7 +5,6 @@
 #    import <XCTest/XCTest.h>
 
 #    import "SentryBacktrace.hpp"
-#    import "SentryCurrentDate.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryThreadMetadataCache.hpp"
 #    import "SentryTime.h"
@@ -31,15 +30,14 @@ using namespace sentry::profiling;
     XCTAssertEqual(pthread_create(&idleThread, nullptr, idleThreadEntry, nullptr), 0);
     int numIdleSamples = 0;
 
-    const auto profiler
-        = std::make_shared<SamplingProfiler>([]() { return SentryCurrentDate.systemTime; },
-            [&](auto &backtrace) {
-                const auto thread = backtrace.threadMetadata.threadID;
-                if (thread == pthread_mach_thread_np(idleThread)) {
-                    numIdleSamples++;
-                }
-            },
-            samplingRateHz);
+    const auto profiler = std::make_shared<SamplingProfiler>(
+        [&](auto &backtrace) {
+            const auto thread = backtrace.threadMetadata.threadID;
+            if (thread == pthread_mach_thread_np(idleThread)) {
+                numIdleSamples++;
+            }
+        },
+        samplingRateHz);
     XCTAssertFalse(profiler->isSampling());
 
     std::uint64_t start = 0;
