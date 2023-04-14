@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
                           spanId:spanId
                         parentId:parentId
                        operation:operation
-                 spanDescription:nil
+                 spanDescription:description
                           origin:SentryTraceOriginManual
                          sampled:sampled];
 }
