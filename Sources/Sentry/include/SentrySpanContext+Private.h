@@ -15,7 +15,7 @@ SentrySpanContext (Private)
                        parentId:(nullable SentrySpanId *)parentId
                       operation:(NSString *)operation
                 spanDescription:(nullable NSString *)description
-                         origin:(nullable NSString *)origin
+                         origin:(NSString *)origin
                         sampled:(SentrySampleDecision)sampled;
 
 @end

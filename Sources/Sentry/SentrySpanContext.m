@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
                        parentId:(nullable SentrySpanId *)parentId
                       operation:(NSString *)operation
                 spanDescription:(nullable NSString *)description
-                         origin:(nullable NSString *)origin
+                         origin:(NSString *)origin
                         sampled:(SentrySampleDecision)sampled
 {
     if (self = [super init]) {

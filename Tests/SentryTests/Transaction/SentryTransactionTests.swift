@@ -161,6 +161,17 @@ class SentryTransactionTests: XCTestCase {
         // then
         XCTAssertEqual(serializedTransactionExtra, [fixture.testKey: fixture.testValue])
     }
+    
+    func testSerializeOrigin() throws {
+        let scope = Scope()
+        let transaction = fixture.getTransactionWith(scope: scope)
+        let actual = transaction.serialize()
+        
+        let contexts = try XCTUnwrap(actual["contexts"] as? [String: Any])
+        let traceContext = try XCTUnwrap(contexts["trace"] as? [String: Any])
+        
+        XCTAssertEqual(fixture.traceOrigin, traceContext["origin"] as? String)
+    }
 
     func testSerialize_TransactionInfo() {
         let scope = Scope()
