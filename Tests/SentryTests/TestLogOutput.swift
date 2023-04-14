@@ -26,25 +26,10 @@ class TestLogOutPutTests: XCTestCase {
     
     func testLoggingFromMulitpleThreads() {
         let sut = TestLogOutput()
-        
-        let queue = DispatchQueue(label: "TestLogOutPutTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
-        let group = DispatchGroup()
-        
-        for _ in 0...2 {
-            group.enter()
-            queue.async {
-                
-                for i in 0...1_000 {
-                    sut.log("Some message \(i)")
-                }
-                
-                XCTAssertNotNil(sut.loggedMessages)
-                
-                group.leave()
-            }
-        }
-        
-        queue.activate()
-        group.waitWithTimeout(timeout: 500)
+        testConcurrentModifications(writeWork: { i in
+            sut.log("Some message \(i)")
+        }, readWork: {
+            XCTAssertNotNil(sut.loggedMessages)
+        })
     }
 }
