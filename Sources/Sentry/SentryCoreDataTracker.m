@@ -174,7 +174,8 @@
     NSMutableDictionary<NSString *, NSNumber *> *result = [NSMutableDictionary new];
 
     for (id item in entities) {
-        NSString *cl = ((NSManagedObject *)item).entity.name ?: [SwiftDescriptor getObjectClassName:item];
+        NSString *cl
+            = ((NSManagedObject *)item).entity.name ?: [SwiftDescriptor getObjectClassName:item];
         NSNumber *count = result[cl];
         result[cl] = [NSNumber numberWithInt:count.intValue + 1];
     }
