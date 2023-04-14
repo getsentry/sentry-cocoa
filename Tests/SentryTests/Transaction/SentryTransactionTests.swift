@@ -169,4 +169,13 @@ class SentryTransactionTests: XCTestCase {
         let actualTransactionInfo = actual["transaction_info"] as? [String: String]
         XCTAssertEqual(actualTransactionInfo?["source"], "component")
     }
+    
+    func testSerialize_TransactionName() {
+        let scope = Scope()
+        let transaction = fixture.getTransactionWith(scope: scope)
+        let actual = transaction.serialize()
+
+        let actualTransaction = actual["transaction"] as? String
+        XCTAssertEqual(actualTransaction, fixture.transactionName)
+    }
 }
