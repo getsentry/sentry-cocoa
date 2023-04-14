@@ -52,7 +52,7 @@ class SentryClientTest: XCTestCase {
             
             let options = Options()
             options.dsn = SentryClientTest.dsn
-            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider())
+            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: TestCurrentDateProvider(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
             
             transaction = Transaction(trace: trace, children: [])
             

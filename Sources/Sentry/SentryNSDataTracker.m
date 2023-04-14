@@ -5,6 +5,7 @@
 #import "SentryFileManager.h"
 #import "SentryFrame.h"
 #import "SentryHub+Private.h"
+#import "SentryInternalDefines.h"
 #import "SentryLog.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions.h"
@@ -187,7 +188,7 @@ SentryNSDataTracker ()
 {
     BOOL isMainThread = [NSThread isMainThread];
 
-    [span setDataValue:@(isMainThread) forKey:@"blocked_main_thread"];
+    [span setDataValue:@(isMainThread) forKey:BLOCKED_MAIN_THREAD];
 
     if (!isMainThread) {
         return;
@@ -207,7 +208,7 @@ SentryNSDataTracker ()
         // and only the 'main' frame remains in the stack
         // therefore, there is nothing to do about it
         // and we should not report it as an issue.
-        [span setDataValue:@(NO) forKey:@"blocked_main_thread"];
+        [span setDataValue:@(NO) forKey:BLOCKED_MAIN_THREAD];
     } else {
         [((SentrySpan *)span) setFrames:frames];
     }

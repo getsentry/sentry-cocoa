@@ -2,10 +2,15 @@
 
 ## Unreleased
 
+### Features
+
+- feat: Core data operation in the main thread (#2879)
+
 ### Fixes
 
 - Crash when serializing invalid objects (#2858)
 - Possible crash in Core Data tracking (#2865)
+- Don't send screenshots with either width or height of 0 (#2876))
 
 ## 8.4.0
 

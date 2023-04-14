@@ -194,31 +194,6 @@ SentryCrashInstallation ()
     return g_crashHandlerData;
 }
 
-- (SentryCrashInstReportField *)reportFieldForProperty:(NSString *)propertyName
-{
-    SentryCrashInstReportField *field = [self.fields objectForKey:propertyName];
-    if (field == nil) {
-        field = [SentryCrashInstReportField fieldWithIndex:self.nextFieldIndex];
-        self.nextFieldIndex++;
-        self.crashHandlerData->reportFieldsCount = self.nextFieldIndex;
-        self.crashHandlerData->reportFields[field.index] = field.field;
-        [self.fields setObject:field forKey:propertyName];
-    }
-    return field;
-}
-
-- (void)reportFieldForProperty:(NSString *)propertyName setKey:(id)key
-{
-    SentryCrashInstReportField *field = [self reportFieldForProperty:propertyName];
-    field.key = key;
-}
-
-- (void)reportFieldForProperty:(NSString *)propertyName setValue:(id)value
-{
-    SentryCrashInstReportField *field = [self reportFieldForProperty:propertyName];
-    field.value = value;
-}
-
 - (NSError *)validateProperties
 {
     NSMutableString *errors = [NSMutableString string];
