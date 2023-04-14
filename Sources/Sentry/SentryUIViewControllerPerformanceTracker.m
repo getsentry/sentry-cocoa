@@ -2,7 +2,6 @@
 #import "SentryFramesTracker.h"
 #import "SentryHub.h"
 #import "SentryLog.h"
-#import "SentryPerformanceTracker+Private.h"
 #import "SentryPerformanceTracker.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope.h"
