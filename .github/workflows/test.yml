@@ -87,14 +87,14 @@ jobs:
             platform: 'iOS'
             xcode: '13.2.1'
             test-destination-os: '13.7'
-            timeout-minutes: 15
+            timeout-minutes: 20
 
           # iOS 14
           - runs-on: macos-11
             platform: 'iOS'
             xcode: '13.2.1'
             test-destination-os: '14.5'
-            timeout-minutes: 15
+            timeout-minutes: 20
 
           # iOS 15
           - runs-on: macos-12
