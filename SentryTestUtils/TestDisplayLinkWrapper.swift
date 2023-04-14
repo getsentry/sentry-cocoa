@@ -14,17 +14,21 @@ public enum FrameRate: UInt64 {
     case low  = 60
     case high = 120
 
-    public var tickDuration: Double {
-        return 1 / Double(self.rawValue)
+    public var tickDuration: CFTimeInterval {
+        return 1 / CFTimeInterval(self.rawValue)
     }
 }
 
 public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
     public var target: AnyObject!
     public var selector: Selector!
-    var internalTimestamp = 0.0
     public var currentFrameRate: FrameRate = .low
     let frozenFrameThreshold = 0.7
+    public var dateProvider: TestCurrentDateProvider
+
+    public init(dateProvider: TestCurrentDateProvider = TestCurrentDateProvider()) {
+        self.dateProvider = dateProvider
+    }
 
     public override func link(withTarget target: Any, selector sel: Selector) {
         self.target = target as AnyObject
@@ -32,11 +36,11 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
     }
 
     public override var timestamp: CFTimeInterval {
-        return internalTimestamp
+        return dateProvider.systemTime().toTimeInterval()
     }
 
     public override var targetTimestamp: CFTimeInterval {
-        return internalTimestamp + currentFrameRate.tickDuration
+        return dateProvider.systemTime().toTimeInterval() + currentFrameRate.tickDuration
     }
 
     public override func invalidate() {
@@ -53,34 +57,41 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
     }
     
     public func normalFrame() {
-        internalTimestamp += currentFrameRate.tickDuration
+        dateProvider.advance(by: currentFrameRate.tickDuration)
         call()
     }
     
-    public func fastestSlowFrame() {
-        internalTimestamp += slowFrameThreshold(currentFrameRate.rawValue) + timeEpsilon
+    public func fastestSlowFrame() -> CFTimeInterval {
+        let duration: Double = slowFrameThreshold(currentFrameRate.rawValue) + timeEpsilon
+        dateProvider.advance(by: duration)
         call()
+        return duration
     }
 
-    public func middlingSlowFrame() {
-        internalTimestamp += (frozenFrameThreshold - (slowFrameThreshold(currentFrameRate.rawValue) + timeEpsilon)) / 2.0
+    public func middlingSlowFrame() -> CFTimeInterval {
+        let duration: Double = (frozenFrameThreshold - (slowFrameThreshold(currentFrameRate.rawValue) + timeEpsilon)) / 2.0
+        dateProvider.advance(by: duration)
         call()
+        return duration
     }
     
-    public func slowestSlowFrame() {
-        internalTimestamp += frozenFrameThreshold
+    public func slowestSlowFrame() -> CFTimeInterval {
+        dateProvider.advance(by: frozenFrameThreshold)
         call()
+        return frozenFrameThreshold
     }
 
-    public func fastestFrozenFrame() {
-        internalTimestamp += frozenFrameThreshold + timeEpsilon
+    public func fastestFrozenFrame() -> CFTimeInterval {
+        let duration: Double = frozenFrameThreshold + timeEpsilon
+        dateProvider.advance(by: duration)
         call()
+        return duration
     }
 
     /// There's no upper bound for a frozen frame, except maybe for the watchdog time limit.
     /// - parameter extraTime: the additional time to add to the frozen frame threshold when simulating a frozen frame.
     public func slowerFrozenFrame(extraTime: TimeInterval = 0.1) {
-        internalTimestamp += frozenFrameThreshold + extraTime
+        dateProvider.advance(by: frozenFrameThreshold + extraTime)
         call()
     }
     
@@ -88,11 +99,11 @@ public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
         self.call()
 
         for _ in 0..<slow {
-            fastestSlowFrame()
+            _ = fastestSlowFrame()
         }
         
         for _ in 0..<frozen {
-            fastestFrozenFrame()
+            _ = fastestFrozenFrame()
         }
 
         for _ in 0..<(normal - 1) {
