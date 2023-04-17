@@ -210,7 +210,6 @@ jobs:
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v3
-        if: ${{  failure() || cancelled() }}
         with:
           name: raw-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
           path: |
