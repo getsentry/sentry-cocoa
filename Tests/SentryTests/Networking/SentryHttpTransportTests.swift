@@ -52,14 +52,17 @@ class SentryHttpTransportTests: XCTestCase {
             attachmentEnvelopeItem = SentryEnvelopeItem(attachment: TestData.dataAttachment, maxAttachmentSize: 5 * 1_024 * 1_024)!
 
             eventEnvelope = SentryEnvelope(id: event.eventId, items: [SentryEnvelopeItem(event: event), attachmentEnvelopeItem])
+            eventEnvelope.header.sentAt = CurrentDate.date()
             eventWithAttachmentRequest = buildRequest(eventEnvelope)
 
             session = SentrySession(releaseName: "2.0.1")
             sessionEnvelope = SentryEnvelope(id: nil, singleItem: SentryEnvelopeItem(session: session))
+            sessionEnvelope.header.sentAt = CurrentDate.date()
             sessionRequest = buildRequest(sessionEnvelope)
 
             let items = [SentryEnvelopeItem(event: event), SentryEnvelopeItem(session: session)]
             eventWithSessionEnvelope = SentryEnvelope(id: event.eventId, items: items)
+            eventWithSessionEnvelope.header.sentAt = CurrentDate.date()
             eventWithSessionRequest = buildRequest(eventWithSessionEnvelope)
 
             options = Options()
@@ -70,7 +73,9 @@ class SentryHttpTransportTests: XCTestCase {
             rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser()), andRateLimitParser: RateLimitParser())
 
             userFeedback = TestData.userFeedback
-            userFeedbackRequest = buildRequest(SentryEnvelope(userFeedback: userFeedback))
+            let userFeedbackEnvelope = SentryEnvelope(userFeedback: userFeedback)
+            userFeedbackEnvelope.header.sentAt = CurrentDate.date()
+            userFeedbackRequest = buildRequest(userFeedbackEnvelope)
             
             let beforeSendTransaction = SentryDiscardedEvent(reason: .beforeSend, category: .transaction, quantity: 2)
             let sampleRateTransaction = SentryDiscardedEvent(reason: .sampleRate, category: .transaction, quantity: 1)
@@ -88,6 +93,7 @@ class SentryHttpTransportTests: XCTestCase {
                 SentryEnvelopeItem(clientReport: clientReport)
             ]
             clientReportEnvelope = SentryEnvelope(id: event.eventId, items: clientReportEnvelopeItems)
+            clientReportEnvelope.header.sentAt = CurrentDate.date()
             clientReportRequest = buildRequest(clientReportEnvelope)
         }
 
@@ -212,6 +218,7 @@ class SentryHttpTransportTests: XCTestCase {
             SentryEnvelopeItem(clientReport: clientReport)
         ]
         let envelope = SentryEnvelope(id: fixture.event.eventId, items: envelopeItems)
+        envelope.header.sentAt = CurrentDate.date()
         let request = SentryHttpTransportTests.buildRequest(envelope)
         XCTAssertEqual(request.httpBody, fixture.requestManager.requests.last?.httpBody)
     }
@@ -410,7 +417,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertEnvelopesStored(envelopeCount: 0)
 
         let sessionEnvelope = SentryEnvelope(id: fixture.event.eventId, singleItem: SentryEnvelopeItem(session: fixture.session))
-
+        sessionEnvelope.header.sentAt = CurrentDate.date()
         let sessionData = try! SentrySerialization.data(with: sessionEnvelope)
         let sessionRequest = try! SentryNSURLRequest(envelopeRequestWith: SentryHttpTransportTests.dsn(), andData: sessionData)
 
@@ -490,6 +497,7 @@ class SentryHttpTransportTests: XCTestCase {
             SentryEnvelopeItem(clientReport: clientReport)
         ]
         let clientReportEnvelope = SentryEnvelope(id: fixture.event.eventId, items: clientReportEnvelopeItems)
+        clientReportEnvelope.header.sentAt = CurrentDate.date()
         let clientReportRequest = SentryHttpTransportTests.buildRequest(clientReportEnvelope)
         
         givenRateLimitResponse(forCategory: "error")
@@ -801,7 +809,7 @@ class SentryHttpTransportTests: XCTestCase {
         
         fixture.reachability.triggerNetworkReachable()
     }
-
+    
     private func givenRetryAfterResponse() -> HTTPURLResponse {
         let response = TestResponseFactory.createRetryAfterResponse(headerValue: "1")
         fixture.requestManager.returnResponse(response: response)

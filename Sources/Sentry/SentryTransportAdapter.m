@@ -95,7 +95,6 @@ SentryTransportAdapter ()
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
 {
-    envelope.header.sentAt = SentryCurrentDate.date;
     [self.transport sendEnvelope:envelope];
 }
 

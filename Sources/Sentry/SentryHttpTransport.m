@@ -277,6 +277,8 @@ SentryHttpTransport ()
         return;
     }
 
+    rateLimitedEnvelope.header.sentAt = SentryCurrentDate.date;
+    
     NSError *requestError = nil;
     NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:rateLimitedEnvelope
                                                                    dsn:self.options.parsedDsn
