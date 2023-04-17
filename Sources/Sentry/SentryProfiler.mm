@@ -624,6 +624,11 @@ serializedSamplesWithRelativeTimestamps(
                 SENTRY_LOG_WARN(@"Profiler instance no longer exists, cannot process next sample.");
                 return;
             }
+
+        // in test, we'll overwrite the sample's timestamp to one mocked by SentryCurrentDate etal.
+        // Doing this in a unified way between tests and production required extensive changes to
+        // the C++ layer, so we opted for this solution to avoid any potential breakages or
+        // performance hits there.
 #    if defined(TEST) || defined(TESTCI)
             Backtrace backtraceCopy = backtrace;
             backtraceCopy.absoluteTimestamp = SentryCurrentDate.systemTime;
