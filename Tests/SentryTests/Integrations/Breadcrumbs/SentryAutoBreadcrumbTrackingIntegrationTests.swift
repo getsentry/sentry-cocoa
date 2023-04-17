@@ -93,9 +93,9 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
 
 private class SentryTestBreadcrumbTracker: SentryBreadcrumbTracker {
     
-    let startInvocations = Invocations<Void>()
-    override func start() {
-        startInvocations.record(Void())
+    let startInvocations = Invocations<SentryBreadcrumbDelegate>()
+    override func start(with delegate: SentryBreadcrumbDelegate) {
+        startInvocations.record(delegate)
     }
     
     let startSwizzleInvocations = Invocations<Void>()
