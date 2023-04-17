@@ -359,14 +359,13 @@ static BOOL appStartMeasurementRead;
 
 - (void)finish
 {
-    SENTRY_LOG_DEBUG(
-        @"-[SentryTracer finish] for trace ID %@", _traceContext.traceId.sentryIdString);
     [self finishWithStatus:kSentrySpanStatusOk];
 }
 
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
-    SENTRY_LOG_DEBUG(@"Finished trace %@", self.traceContext.traceId.sentryIdString);
+    SENTRY_LOG_DEBUG(@"Finished trace with traceID: %@ and status: %@", self.traceId.sentryIdString,
+        nameForSentrySpanStatus(status));
     self.wasFinishCalled = YES;
     _finishStatus = status;
     [self canBeFinished];
