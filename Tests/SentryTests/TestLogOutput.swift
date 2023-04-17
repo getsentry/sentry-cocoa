@@ -6,6 +6,8 @@ class TestLogOutput: SentryLogOutput {
     
     private var _loggedMessages: [String] = []
     
+    var callSuperWhenLogging = true
+    
     var loggedMessages: [String] {
         get {
             queue.sync {
@@ -15,7 +17,9 @@ class TestLogOutput: SentryLogOutput {
     }
     
     override func log(_ message: String) {
-        super.log(message)
+        if callSuperWhenLogging {
+            super.log(message)
+        }
         queue.async(flags: .barrier) {
             self._loggedMessages.append(message)
         }
@@ -26,6 +30,7 @@ class TestLogOutPutTests: XCTestCase {
     
     func testLoggingFromMulitpleThreads() {
         let sut = TestLogOutput()
+        sut.callSuperWhenLogging = false
         testConcurrentModifications(writeWork: { i in
             sut.log("Some message \(i)")
         }, readWork: {
