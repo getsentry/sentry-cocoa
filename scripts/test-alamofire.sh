@@ -22,9 +22,9 @@ git config advice.detachedHead false
 git checkout --progress --force f82c23a8a7ef8dc1a49a8bfc6a96883e79121864
 git log -1 --format='%H'
 
-cp "$scripts_path/local-alamofire.patch" "local-alamofire.patch"
+cp "$scripts_path/add-local-sentry-to-alamofire.patch" "add-local-sentry-to-alamofire.patch"
 
-git apply "local-alamofire.patch"
+git apply "add-local-sentry-to-alamofire.patch"
 
 curl "https://github.com/Alamofire/Firewalk/releases/download/0.8.1/firewalk.zip" --output firewalk.zip -L
 Unzip "firewalk.zip"
@@ -34,7 +34,7 @@ firewalks_pid=$!
 trap 'kill $firewalks_pid' ERR
 
 set -o pipefail && env NSUnbufferedIO=YES \
-  xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" \
+  xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" -destination "OS=16.4,name=iPhone 14 Pro" \
   -skip-testing:"Alamofire iOS Tests/AuthenticationInterceptorTestCase/testThatInterceptorThrowsMissingCredentialErrorWhenCredentialIsNilAndRequestShouldBeRetried" \
   -skip-testing:"Alamofire iOS Tests/AuthenticationInterceptorTestCase/testThatInterceptorRetriesRequestThatFailedWithOutdatedCredential" \
   test | xcpretty
