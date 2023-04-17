@@ -5,6 +5,7 @@
 ### Features
 
 - feat: Core data operation in the main thread (#2879)
+- Create User and Breadcrumb from map (#2820)
 
 ### Fixes
 
@@ -18,7 +19,6 @@
 - Time to initial and full display (#2724)
 - Add time-to-initial-display and time-to-full-display measurements to ViewController transactions (#2843)
 - Add `name` and `geo` to User (#2710)
-- Create User and Breadcrumb from map (#2820)
 
 ### Fixes
  
