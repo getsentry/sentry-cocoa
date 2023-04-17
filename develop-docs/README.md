@@ -225,3 +225,16 @@ For the swizzling of UIViewControllers and NSURLSession, we have UI tests runnin
 tests on iOS 12 simulators is acceptable. This decision reverts [manually installing iOS 12 simulators](#ios-12-simulators).
 
 Related to [GH-2862](https://github.com/getsentry/sentry-cocoa/issues/2862) and 
+
+### Remove integration tests from CI <a name="remove-integration-tests-from-ci"></a>
+
+Date: April 17th 2023
+Contributors: @brustolin @philipphofmann
+
+Both Alamofire and Home Assistance integration tests are no longer reliable as they keep failing and causing more problems than adding value. 
+These tests used to work for a while, and we know that the Sentry SDK was not breaking these projects. 
+Therefore, we have decided to remove the tests and add some key files to our list of risk files. 
+This way, if these files are changed, we will be reminded to test the changes with other projects. 
+Additionally, two new 'make' commands(test-alamofire, test-homekit) are being added to the project to assist in testing the Sentry SDK in third-party projects.
+
+Related to [GH-2916](https://github.com/getsentry/sentry-cocoa/pull/2916)
