@@ -44,8 +44,7 @@ jobs:
             curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.sha }}/scripts/ci-select-xcode.sh --output ci-select-xcode.sh
           fi
 
-          chmod +x apply-patch.sh
-          chmod +x ci-select-xcode.sh
+          chmod +x apply-patch.sh ci-select-xcode.sh
         shell: bash
 
       - name: Select Xcode Version
