@@ -31,21 +31,24 @@ jobs:
           repository: 'Alamofire/Alamofire'
           ref: 'f82c23a8a7ef8dc1a49a8bfc6a96883e79121864'
 
-      - run: ./scripts/ci-select-xcode.sh 14.2
-
       # Use github.event.pull_request.head.sha instead of github.sha when available as
       # the github.sha is the pre merge commit id for PRs.
       # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
-      - name: Download Apply Patch Script
+      - name: Download Scripts
         run: >-
           if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
             curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/apply-patch.sh --output apply-patch.sh
+            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/ci-select-xcode.sh
           else
-            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.sha }}/scripts/apply-patch.sh --output apply-patch.sh
+            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/apply-patch.sh --output apply-patch.sh
+            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/ci-select-xcode.sh
           fi
 
           chmod +x apply-patch.sh
+          chmod +x ci-select-xcode.sh
         shell: bash
+
+      - run: ./scripts/ci-select-xcode.sh 14.2
 
       - name: Download and Apply Patch
         run: ./apply-patch.sh "${{ github.event.pull_request.head.sha }}" "${{ github.sha }}" add-sentry-to-alamofire
