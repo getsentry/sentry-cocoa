@@ -14,7 +14,7 @@ class TestData {
         }
     }
     static let sdk = ["name": SentryMeta.sdkName, "version": SentryMeta.versionString]
-    static let context = ["context": ["c": "a", "date": timestamp]]
+    static let context: [String: [String: Any]] = ["context": ["c": "a", "date": timestamp]]
     
     static var crumb: Breadcrumb {
         let crumb = Breadcrumb()
@@ -22,7 +22,7 @@ class TestData {
         crumb.timestamp = timestamp
         crumb.type = "user"
         crumb.message = "Clicked something"
-        crumb.data = ["some": ["data": "data", "date": timestamp]]
+        crumb.data = ["some": ["data": "data", "date": timestamp] as [String: Any]]
         return crumb
     }
     
@@ -65,7 +65,7 @@ class TestData {
         user.segment = "segmentA"
         user.name = "User"
         user.geo = geo
-        user.data = ["some": ["data": "data", "date": timestamp]]
+        user.data = ["some": ["data": "data", "date": timestamp] as [String: Any]] 
         
         return user
     }

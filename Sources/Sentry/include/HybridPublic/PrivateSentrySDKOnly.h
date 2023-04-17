@@ -63,6 +63,11 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  */
 + (NSString *)getSdkVersionString;
 
+/**
+ * Retrieves extra context
+ */
++ (NSDictionary *)getExtraContext;
+
 @property (class, nullable, nonatomic, copy)
     SentryOnAppStartMeasurementAvailable onAppStartMeasurementAvailable;
 

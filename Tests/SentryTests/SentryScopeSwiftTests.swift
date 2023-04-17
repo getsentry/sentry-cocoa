@@ -29,14 +29,14 @@ class SentryScopeSwiftTests: XCTestCase {
             user.email = "user@sentry.io"
             user.username = "user123"
             user.ipAddress = ipAddress
-            user.data = ["some": ["data": "data", "date": date]]
+            user.data = ["some": ["data": "data", "date": date] as [String: Any]]
             
             breadcrumb = Breadcrumb()
             breadcrumb.level = SentryLevel.info
             breadcrumb.timestamp = date
             breadcrumb.type = "user"
             breadcrumb.message = "Clicked something"
-            breadcrumb.data = ["some": ["data": "data", "date": date]]
+            breadcrumb.data = ["some": ["data": "data", "date": date] as [String: Any]]
             
             scope = Scope(maxBreadcrumbs: maxBreadcrumbs)
             scope.setUser(user)
@@ -317,28 +317,13 @@ class SentryScopeSwiftTests: XCTestCase {
     
     // With this test we test if modifications from multiple threads don't lead to a crash.
     func testModifyingFromMultipleThreads() {
-        let queue = DispatchQueue(label: "SentryScopeTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
-        let group = DispatchGroup()
-        
         let scope = fixture.scope
         
-        for _ in 0...2 {
-            group.enter()
-            queue.async {
-                
-                // The number is kept small for the CI to not take too long.
-                // If you really want to test this increase to 100_000 or so.
-                for _ in 0...10 {
-                    // Simulate some real world modifications of the user
-                    self.modifyScope(scope: scope)
-                }
-                
-                group.leave()
-            }
-        }
-        
-        queue.activate()
-        group.waitWithTimeout(timeout: 500)
+        // The number is kept small for the CI to not take too long.
+        // If you really want to test this increase to 100_000 or so.
+        testConcurrentModifications(asyncWorkItems: 2, writeLoopCount: 10, writeWork: { _ in
+            self.modifyScope(scope: scope)
+        })
     }
     
     func testScopeObserver_setUser() {

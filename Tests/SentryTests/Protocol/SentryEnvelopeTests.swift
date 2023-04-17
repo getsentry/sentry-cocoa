@@ -177,7 +177,7 @@ class SentryEnvelopeTests: XCTestCase {
         let event = fixture.event
         let envelope = SentryEnvelope(event: event)
 
-        let expectedData = try SentrySerialization.data(withJSONObject: event.serialize())
+        let expectedData = SentrySerialization.data(withJSONObject: event.serialize())!
 
         XCTAssertEqual(event.eventId, envelope.header.eventId)
         XCTAssertEqual(1, envelope.items.count)
@@ -222,7 +222,7 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual("user_report", item?.header.type)
         XCTAssertNotNil(item?.data)
         
-        let expectedData = try SentrySerialization.data(withJSONObject: userFeedback.serialize())
+        let expectedData = SentrySerialization.data(withJSONObject: userFeedback.serialize())!
 
         let actual = String(data: item?.data ?? Data(), encoding: .utf8)?.sorted()
         let expected = String(data: expectedData, encoding: .utf8)?.sorted()

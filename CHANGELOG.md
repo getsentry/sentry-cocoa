@@ -5,6 +5,12 @@
 ### Features
 
 - Add `sent_at` to envelope header (#2859)
+- feat: Core data operation in the main thread (#2879)
+
+### Fixes
+
+- Crash when serializing invalid objects (#2858)
+- Don't send screenshots with either width or height of 0 (#2876))
 
 ## 8.4.0
 
@@ -17,7 +23,7 @@
 ### Fixes
  
 - Correctly track and send GPU frame render data in profiles (#2823)
-- Xcode 14.3 compiling issue regarding functions declaration with no prototype (#2852)
+- Xcode 14.3 compiling issue regarding functions declaration with no prototype (#2852) 
 
 ## 8.3.3
 
