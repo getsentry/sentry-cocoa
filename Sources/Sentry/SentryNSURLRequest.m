@@ -103,9 +103,6 @@ newAuthHeader(NSURL *url)
         appendFormat:@"%@,",
         newHeaderPart(@"sentry_client",
             [NSString stringWithFormat:@"%@/%@", SentryMeta.sdkName, SentryMeta.versionString])];
-    [string
-        appendFormat:@"%@,",
-        newHeaderPart(@"sentry_timestamp", @((NSInteger)[[NSDate date] timeIntervalSince1970]))];
     [string appendFormat:@"%@", newHeaderPart(@"sentry_key", url.user)];
     if (nil != url.password) {
         [string appendFormat:@",%@", newHeaderPart(@"sentry_secret", url.password)];
