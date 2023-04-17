@@ -9,7 +9,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
     
     private class Fixture {
         let options: Options
-        let delegate = SentrySystemEventBreadcrumbTestDelegate()
+        let delegate = SentryBreadcrumbTestDelegate()
         let fileManager: TestFileManager
         var currentDateProvider = TestCurrentDateProvider()
         let notificationCenterWrapper = TestNSNotificationCenterWrapper()
@@ -281,12 +281,4 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
     }
     
     #endif
-}
-
-class SentrySystemEventBreadcrumbTestDelegate: NSObject, SentrySystemEventBreadcrumbsDelegate {
-    
-    var addCrumbInvocations = Invocations<Breadcrumb>()
-    func add(_ crumb: Breadcrumb) {
-        addCrumbInvocations.record(crumb)
-    }
 }

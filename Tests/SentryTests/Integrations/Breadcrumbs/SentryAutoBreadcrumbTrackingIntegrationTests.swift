@@ -107,8 +107,8 @@ private class SentryTestBreadcrumbTracker: SentryBreadcrumbTracker {
 
 private class SentryTestSystemEventBreadcrumbs: SentrySystemEventBreadcrumbs {
     
-    let startWithdelegateInvocations = Invocations<SentrySystemEventBreadcrumbsDelegate>()
-    override func start(with delegate: SentrySystemEventBreadcrumbsDelegate) {
+    let startWithdelegateInvocations = Invocations<SentryBreadcrumbDelegate>()
+    override func start(with delegate: SentryBreadcrumbDelegate) {
         startWithdelegateInvocations.record(delegate)
     }
 }
