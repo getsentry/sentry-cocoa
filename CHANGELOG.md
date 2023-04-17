@@ -9,7 +9,8 @@
 ### Fixes
 
 - Crash when serializing invalid objects (#2858)
-- Don't send screenshots with either width or height of 0 (#2876))
+- Don't send screenshots with either width or height of 0 (#2876)
+- GPU frame alignment with stack traces in profiles (#2856)
 
 ## 8.4.0
 
