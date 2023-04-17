@@ -65,7 +65,7 @@ jobs:
         run: |
           for i in {1..2}; do \
           set -o pipefail && env NSUnbufferedIO=YES \
-          xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" \
+          xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" -destination "OS=15.2, name=iPhone 13 Pro" \
           -skip-testing:"Alamofire iOS Tests/AuthenticationInterceptorTestCase/testThatInterceptorThrowsMissingCredentialErrorWhenCredentialIsNilAndRequestShouldBeRetried" \
           -skip-testing:"Alamofire iOS Tests/AuthenticationInterceptorTestCase/testThatInterceptorRetriesRequestThatFailedWithOutdatedCredential" \
           test | xcpretty \
