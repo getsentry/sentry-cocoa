@@ -63,7 +63,7 @@ if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
     env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
         -scheme Sentry -configuration $CONFIGURATION \
         -destination "$DESTINATION" \
-        build-for-testing | tee raw-test-build-output.log | $RUBY_ENV_ARGS xcpretty -t && exit ${PIPESTATUS[0]}
+        build-for-testing | tee raw-test-build-output.log | $RUBY_ENV_ARGS xcpretty -t
     date
     # Skip some tests that fail on iOS 12.4.
     env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
@@ -76,7 +76,7 @@ else
     env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
         -scheme Sentry -configuration $CONFIGURATION \
         -destination "$DESTINATION" \
-        build-for-testing | tee raw-test-build-output.log | $RUBY_ENV_ARGS xcpretty -t && exit ${PIPESTATUS[0]}
+        build-for-testing | tee raw-test-build-output.log | $RUBY_ENV_ARGS xcpretty -t
     date
     env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
         -scheme Sentry -configuration $CONFIGURATION \
