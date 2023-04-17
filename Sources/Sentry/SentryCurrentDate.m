@@ -22,6 +22,14 @@ static id<SentryCurrentDateProvider> currentDateProvider;
     return [currentDateProvider date];
 }
 
++ (uint64_t)systemTime
+{
+    if (currentDateProvider == nil) {
+        currentDateProvider = [SentryDefaultCurrentDateProvider sharedInstance];
+    }
+    return [currentDateProvider systemTime];
+}
+
 + (dispatch_time_t)dispatchTimeNow
 {
     if (currentDateProvider == nil) {

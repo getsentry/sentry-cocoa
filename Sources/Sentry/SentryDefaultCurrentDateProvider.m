@@ -1,4 +1,5 @@
 #import "SentryDefaultCurrentDateProvider.h"
+#import "SentryTime.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,6 +31,11 @@ SentryDefaultCurrentDateProvider ()
 - (NSInteger)timezoneOffset
 {
     return [NSTimeZone localTimeZone].secondsFromGMT;
+}
+
+- (uint64_t)systemTime
+{
+    return getAbsoluteTime();
 }
 
 @end
