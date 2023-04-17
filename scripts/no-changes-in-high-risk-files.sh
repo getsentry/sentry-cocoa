@@ -12,7 +12,8 @@ if [ "$ACTUAL" = "$EXPECTED" ]; then
     echo "No changes in high risk files."
     exit 0
 else
-    echo "Changes in high risk files. If your changes are intended please update the sha in ./scripts/no-changes-in-high-risk-files.sh to $ACTUAL."
-    echo "But first, use `make test-alamofire` and `make test-homekit` to ensure the changes are safe to run on third party projects."
+    echo "Changes in high risk files. Test your changes by using `make test-alamofire` and `make test-homekit` to ensure the changes are safe to run on third party projects."
+    echo "If your changes are intended and everything is running properly, please update the sha in ./scripts/no-changes-in-high-risk-files.sh to: "
+    echo "$ACTUAL"
     exit 1
 fi
