@@ -543,7 +543,7 @@ serializedSamplesWithRelativeTimestamps(
         _gCurrentSystemWrapper = [[SentrySystemWrapper alloc] init];
     }
     if (_gCurrentProcessInfoWrapper == nil) {
-        _gCurrentProcessInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
+        _gCurrentProcessInfoWrapper = [SentryDependencyContainer.sharedInstance processInfoWrapper];
     }
     if (_gCurrentTimerWrapper == nil) {
         _gCurrentTimerWrapper = [[SentryNSTimerWrapper alloc] init];
@@ -742,10 +742,9 @@ serializedSamplesWithRelativeTimestamps(
 + (SentryEnvelopeItem *)envelopeItemForProfileData:(NSMutableDictionary<NSString *, id> *)profile
                                          profileID:(SentryId *)profileID
 {
-    NSError *error = nil;
-    const auto JSONData = [SentrySerialization dataWithJSONObject:profile error:&error];
+    const auto JSONData = [SentrySerialization dataWithJSONObject:profile];
     if (JSONData == nil) {
-        SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON: %@", error);
+        SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
         return nil;
     }
 

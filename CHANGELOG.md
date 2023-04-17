@@ -4,6 +4,17 @@
 
 ### Features
 
+- feat: Core data operation in the main thread (#2879)
+
+### Fixes
+
+- Crash when serializing invalid objects (#2858)
+- Don't send screenshots with either width or height of 0 (#2876))
+
+## 8.4.0
+
+### Features
+
 - Time to initial and full display (#2724)
 - Add time-to-initial-display and time-to-full-display measurements to ViewController transactions (#2843)
 - Add `name` and `geo` to User (#2710)

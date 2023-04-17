@@ -1,8 +1,12 @@
 #import "SentryThreadInspector.h"
+#import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashStackCursor.h"
 #include "SentryCrashStackCursor_MachineContext.h"
+#import "SentryCrashStackEntryMapper.h"
 #include "SentryCrashSymbolicator.h"
 #import "SentryFrame.h"
+#import "SentryInAppLogic.h"
+#import "SentryOptions.h"
 #import "SentryStacktrace.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThread.h"
@@ -57,6 +61,21 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
         self.machineContextWrapper = machineContextWrapper;
     }
     return self;
+}
+
+- (instancetype)initWithOptions:(SentryOptions *)options
+{
+    SentryInAppLogic *inAppLogic =
+        [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
+                                          inAppExcludes:options.inAppExcludes];
+    SentryCrashStackEntryMapper *crashStackEntryMapper =
+        [[SentryCrashStackEntryMapper alloc] initWithInAppLogic:inAppLogic];
+    SentryStacktraceBuilder *stacktraceBuilder =
+        [[SentryStacktraceBuilder alloc] initWithCrashStackEntryMapper:crashStackEntryMapper];
+    id<SentryCrashMachineContextWrapper> machineContextWrapper =
+        [[SentryCrashDefaultMachineContextWrapper alloc] init];
+    return [self initWithStacktraceBuilder:stacktraceBuilder
+                  andMachineContextWrapper:machineContextWrapper];
 }
 
 - (SentryStacktrace *)stacktraceForCurrentThreadAsyncUnsafe

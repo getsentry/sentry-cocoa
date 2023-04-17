@@ -19,7 +19,7 @@ class SentryBreadcrumbTests: XCTestCase {
             breadcrumb.category = category
             breadcrumb.type = type
             breadcrumb.message = message
-            breadcrumb.data = ["some": ["data": "data", "date": date]]
+            breadcrumb.data = ["some": ["data": "data", "date": date] as [String: Any]]
             breadcrumb.setValue(["foo": "bar"], forKey: "unknown")
         }
         

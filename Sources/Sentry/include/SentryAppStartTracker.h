@@ -16,6 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryAppStartTracker : NSObject
 SENTRY_NO_INIT
 
+@property (nonatomic) BOOL isRunning;
+
 - (instancetype)initWithCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
                        dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                             appStateManager:(SentryAppStateManager *)appStateManager

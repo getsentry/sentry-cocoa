@@ -2,6 +2,7 @@
 #import "SentryBreadcrumb+Private.h"
 #import "SentryClient.h"
 #import "SentryDebugImageProvider.h"
+#import "SentryExtraContextProvider.h"
 #import "SentryHub+Private.h"
 #import "SentryInstallation.h"
 #import "SentryMeta.h"
@@ -102,6 +103,11 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (NSString *)getSdkVersionString
 {
     return SentryMeta.versionString;
+}
+
++ (NSDictionary *)getExtraContext
+{
+    return [[SentryExtraContextProvider sharedInstance] getExtraContext];
 }
 
 #if SENTRY_HAS_UIKIT
