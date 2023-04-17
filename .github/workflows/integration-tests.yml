@@ -38,17 +38,18 @@ jobs:
         run: >-
           if [[ "${{ github.event.pull_request.head.sha }}" != "" ]]; then
             curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/apply-patch.sh --output apply-patch.sh
-            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/ci-select-xcode.sh
+            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/ci-select-xcode.sh --output ci-select-xcode.sh
           else
             curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/apply-patch.sh --output apply-patch.sh
-            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/ci-select-xcode.sh
+            curl https://raw.githubusercontent.com/getsentry/sentry-cocoa/${{ github.event.pull_request.head.sha }}/scripts/ci-select-xcode.sh --output ci-select-xcode.sh
           fi
 
           chmod +x apply-patch.sh
           chmod +x ci-select-xcode.sh
         shell: bash
 
-      - run: ./scripts/ci-select-xcode.sh 14.2
+      - name: Select Xcode Version
+        run: ./ci-select-xcode.sh 14.2
 
       - name: Download and Apply Patch
         run: ./apply-patch.sh "${{ github.event.pull_request.head.sha }}" "${{ github.sha }}" add-sentry-to-alamofire
