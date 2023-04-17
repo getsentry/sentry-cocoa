@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (traceContext != nil) {
         [serializedData setValue:[traceContext serialize] forKey:@"trace"];
     }
-    
+
     NSDate *sentAt = envelope.header.sentAt;
     if (sentAt != nil) {
         [serializedData setValue:[sentAt sentry_toIso8601String] forKey:@"sent_at"];
