@@ -74,8 +74,8 @@ jobs:
           set -o pipefail && env NSUnbufferedIO=YES \
           xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" -destination "OS=16.2,name=iPhone 13 Pro" \
           -skip-testing:"Alamofire iOS Tests/AuthenticationInterceptorTestCase/testThatInterceptorThrowsMissingCredentialErrorWhenCredentialIsNilAndRequestShouldBeRetried" \
-          -skip-testing:"Alamofire iOS Tests/AuthenticationInterceptorTestCase/testThatInterceptorRetriesRequestThatFailedWithOutdatedCredential" \ 
-          -skip-testing:"Alamofire iOS Tests/SessionTestCase/testReleasingManagerWithPendingRequestDeinitializesSuccessfully" \ 
+          -skip-testing:"Alamofire iOS Tests/AuthenticationInterceptorTestCase/testThatInterceptorRetriesRequestThatFailedWithOutdatedCredential" \
+          -skip-testing:"Alamofire iOS Tests/SessionTestCase/testReleasingManagerWithPendingRequestDeinitializesSuccessfully" \
           test | xcpretty \
           && break ; done
 
