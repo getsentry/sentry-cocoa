@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - ci/fix-web-request-tests
 
   pull_request:
     paths:
@@ -22,13 +23,15 @@ jobs:
   # doesn't break web requests.
   web-request-tests:
     name: Integration Web Requests
-    runs-on: macos-11
+    runs-on: macos-12
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v3
         with:
           repository: 'Alamofire/Alamofire'
           ref: 'f82c23a8a7ef8dc1a49a8bfc6a96883e79121864'
+
+      - run: ./scripts/ci-select-xcode.sh 14.2
 
       # Use github.event.pull_request.head.sha instead of github.sha when available as
       # the github.sha is the pre merge commit id for PRs.
@@ -61,11 +64,11 @@ jobs:
 
       - name: Run tests
         # Run the tests twice, because they are sometimes flaky.
-        # We skip two tests because it also fails sometimes when not adding Sentry to Alamofire.
+        # We skip two tests because they even fail sometimes when not adding Sentry to Alamofire.
         run: |
           for i in {1..2}; do \
           set -o pipefail && env NSUnbufferedIO=YES \
-          xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" -destination "OS=15.2,name=iPhone 13 Pro" \
+          xcodebuild -project "Alamofire.xcodeproj" -scheme "Alamofire iOS" -destination "OS=16.2,name=iPhone 13 Pro" \
           -skip-testing:"Alamofire iOS Tests/AuthenticationInterceptorTestCase/testThatInterceptorThrowsMissingCredentialErrorWhenCredentialIsNilAndRequestShouldBeRetried" \
           -skip-testing:"Alamofire iOS Tests/AuthenticationInterceptorTestCase/testThatInterceptorRetriesRequestThatFailedWithOutdatedCredential" \
           test | xcpretty \
