@@ -196,7 +196,7 @@ serializedUnsigned64BitInteger(uint64_t value)
  * Although we reset the profiling timestamps each time the profiler stops and starts, concurrent
  * transactions that start after the first one won't have a screen frame rate recorded within their
  * timeframe, because it will have already been recorded for the first transaction and isn't
- * recorded again unless the system changes it¥. In these cases, use the most recently recorded data
+ * recorded again unless the system changes it. In these cases, use the most recently recorded data
  * for it.
  */
 NSArray<SentrySerializedMetricReading *> *
