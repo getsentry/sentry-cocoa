@@ -3,20 +3,17 @@ import XCTest
 
 class SentryBreadcrumbTrackerTests: XCTestCase {
     
-    private var scope: Scope!
+    private var delegate: SentryBreadcrumbTestDelegate!
     
     override func setUp() {
         super.setUp()
         
-        scope = Scope()
-        let client = TestClient(options: Options())
-        let hub = TestHub(client: client, andScope: scope)
-        SentrySDK.setCurrentHub(hub)
+        delegate = SentryBreadcrumbTestDelegate()
     }
     
     override func tearDown() {
         super.tearDown()
-        clearTestState()
+        delegate = nil
     }
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -25,7 +22,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let swizzleWrapper = SentrySwizzleWrapper.sharedInstance
         let sut = SentryBreadcrumbTracker(swizzleWrapper: swizzleWrapper)
 
-        sut.start()
+        sut.start(with: delegate)
         sut.startSwizzle()
         sut.stop()
 
@@ -34,8 +31,13 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
     }
 
     func testSwizzlingStarted_ViewControllerAppears_AddsUILifeCycleBreadcrumb() {
+        let scope = Scope()
+        let client = TestClient(options: Options())
+        let hub = TestHub(client: client, andScope: scope)
+        SentrySDK.setCurrentHub(hub)
+        
         let sut = SentryBreadcrumbTracker(swizzleWrapper: SentrySwizzleWrapper.sharedInstance)
-        sut.start()
+        sut.start(with: delegate)
         sut.startSwizzle()
 
         let viewController = UIViewController()
@@ -45,9 +47,9 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
 
         let crumbs = Dynamic(scope).breadcrumbArray.asArray as? [Breadcrumb]
 
-        XCTAssertEqual(2, crumbs?.count)
+        XCTAssertEqual(1, crumbs?.count)
 
-        let lifeCycleCrumb = crumbs?[1]
+        let lifeCycleCrumb = crumbs?[0]
         XCTAssertEqual("navigation", lifeCycleCrumb?.type)
         XCTAssertEqual("ui.lifecycle", lifeCycleCrumb?.category)
         XCTAssertEqual("false", lifeCycleCrumb?.data?["beingPresented"] as? String)
@@ -55,6 +57,8 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertEqual("test title", lifeCycleCrumb?.data?["title"] as? String)
         XCTAssertEqual("false", lifeCycleCrumb?.data?["beingPresented"] as? String)
         XCTAssertEqual("UINavigationController", lifeCycleCrumb?.data?["parentViewController"] as? String)
+        
+        clearTestState()
     }
     
     func testExtractDataFrom_View() {

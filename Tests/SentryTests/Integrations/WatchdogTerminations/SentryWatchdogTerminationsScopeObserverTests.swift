@@ -18,7 +18,7 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
 
             options = Options()
             options.dsn = SentryWatchdogTerminationScopeObserverTests.dsn
-            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
+            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
         }
 
         func getSut() -> SentryWatchdogTerminationScopeObserver {
