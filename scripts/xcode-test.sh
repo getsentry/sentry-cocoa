@@ -63,7 +63,7 @@ if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
     env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
         -scheme Sentry -configuration $CONFIGURATION \
         -destination "$DESTINATION" \
-        build-for-testing | tee raw-test-build-output.log | $RUBY_ENV_ARGS xcpretty -t
+        build-for-testing | tee raw-test-build-output.log
     date
     # Skip some tests that fail on iOS 12.4.
     env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
@@ -71,15 +71,15 @@ if [ $PLATFORM == "iOS" -a $OS == "12.4" ]; then
         -destination "$DESTINATION" \
         -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfAddingBreadcrumbs" \
         -skip-testing:"SentryTests/SentrySDKTests/testMemoryFootprintOfTransactions" \
-        test-without-building | tee raw-test-output.log | $RUBY_ENV_ARGS xcpretty -t && slather coverage --configuration $CONFIGURATION && exit ${PIPESTATUS[0]}
+        test-without-building | tee raw-test-output.log | slather coverage --configuration $CONFIGURATION && exit ${PIPESTATUS[0]}
 else
     env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
         -scheme Sentry -configuration $CONFIGURATION \
         -destination "$DESTINATION" \
-        build-for-testing | tee raw-test-build-output.log | $RUBY_ENV_ARGS xcpretty -t
+        build-for-testing | tee raw-test-build-output.log
     date
     env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
         -scheme Sentry -configuration $CONFIGURATION \
         -destination "$DESTINATION" \
-        test-without-building | tee raw-test-output.log | $RUBY_ENV_ARGS xcpretty -t && slather coverage --configuration $CONFIGURATION && exit ${PIPESTATUS[0]}
+        test-without-building | tee raw-test-output.log | slather coverage --configuration $CONFIGURATION && exit ${PIPESTATUS[0]}
 fi
