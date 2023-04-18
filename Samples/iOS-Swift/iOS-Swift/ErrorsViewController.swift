@@ -1,8 +1,8 @@
 import Foundation
-import UIKit
 import Sentry
+import UIKit
 
-class ErrorsViewController : UIViewController {
+class ErrorsViewController: UIViewController {
 
     private let dispatchQueue = DispatchQueue(label: "ErrorsViewController", attributes: .concurrent)
     private let diskWriteException = DiskWriteException()

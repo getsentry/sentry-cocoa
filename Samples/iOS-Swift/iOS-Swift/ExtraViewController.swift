@@ -1,8 +1,8 @@
 import Foundation
-import UIKit
 import Sentry
+import UIKit
 
-class ExtraViewController : UIViewController {
+class ExtraViewController: UIViewController {
 
     @IBOutlet weak var dsnTextField: UITextField!
     @IBOutlet weak var framesLabel: UILabel!
