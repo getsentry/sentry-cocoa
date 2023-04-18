@@ -18,6 +18,8 @@
         app.launchArguments =
             [app.launchArguments arrayByAddingObject:@"--io.sentry.test.benchmarking"];
         [app launch];
+        [app.tabBars[@"Tab Bar"].buttons[@"Transactions"] tap];
+
         [app.buttons[@"Performance scenarios"] tap];
 
         // after navigating to the test, the test app will do CPU intensive work until hitting the
