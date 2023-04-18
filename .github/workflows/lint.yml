@@ -41,13 +41,13 @@ jobs:
       - run: make analyze
 
   validate-podspec:
-    name: Validate Podspec for ${{ matrix.platform}} ${{ matrix.extra_args }}
+    name: Validate ${{ matrix.platform}}.podspec ${{ matrix.library_type }} for ${{ matrix.platform}} 
     runs-on: macos-12
     strategy:
       matrix:
+        podspec: ['Sentry', 'SentrySwiftUI']
         platform: ['ios', 'macos', 'tvos', 'watchos']
-        podspec: ['Sentry.podspec --include-podspecs=SentryPrivate.podspec', 'SentrySwiftUI.podspec --include-podspecs=Sentry.podspec,SentryPrivate.podspec']
-        extra_args: ['', '--use-libraries'] # Use libraries is for validating the static library
+        library_type: ['dynamic', 'static']
 
     steps:
       - uses: actions/checkout@v3
@@ -55,8 +55,8 @@ jobs:
       # We need to update the spec-repo, because it can happen that it is not up to date and then the lint fails.
       - run: pod repo update
       - name: Validate Podspec
-        run: pod lib lint --verbose --platforms=${{ matrix.platform }} ${{ matrix.podspec}} ${{ matrix.extra_args }}
-        shell: sh
+        run: ./scripts/pod-lib-lint.sh ${{ matrix.platform }} ${{ matrix.podspec}} ${{ matrix.library_type}}
+
 
   validate-high-risk-files:
     name: No changes in high risk files
