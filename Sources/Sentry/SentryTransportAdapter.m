@@ -1,5 +1,4 @@
 #import "SentryTransportAdapter.h"
-#import "SentryCurrentDate.h"
 #import "SentryEnvelope.h"
 #import "SentryEvent.h"
 #import "SentryOptions.h"

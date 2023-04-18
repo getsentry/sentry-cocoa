@@ -277,6 +277,7 @@ SentryHttpTransport ()
         return;
     }
 
+    // We must set sentAt as close as possible to the transmission of the envelope to Sentry.
     rateLimitedEnvelope.header.sentAt = SentryCurrentDate.date;
 
     NSError *requestError = nil;
