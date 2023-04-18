@@ -23,8 +23,6 @@ case $POD_SPEC in
         ;;
 esac
 
-
-
 case $LIBRARY_TYPE in
     "static")
         EXTRA_ARGS="--use-libraries"
