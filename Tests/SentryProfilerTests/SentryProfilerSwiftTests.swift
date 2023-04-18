@@ -259,7 +259,6 @@ class SentryProfilerSwiftTests: XCTestCase {
         spans.removeAll()
 #if !os(macOS)
         fixture.resetGPUExpectations()
-        fixture.framesTracker.resetFrames()
         fixture.displayLinkWrapper.call()
 #endif
 
