@@ -11,14 +11,6 @@ static NSMutableDictionary<NSString *, SentrySwizzleSendActionCallback>
     *sentrySwizzleSendActionCallbacks;
 #endif
 
-+ (SentrySwizzleWrapper *)sharedInstance
-{
-    static SentrySwizzleWrapper *instance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ instance = [[self alloc] init]; });
-    return instance;
-}
-
 + (void)initialize
 {
 #if SENTRY_HAS_UIKIT
