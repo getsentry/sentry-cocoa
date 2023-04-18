@@ -108,7 +108,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let viewController = ViewControllerForBreadcrumbTest()
         textField.addTarget(viewController, action: #selector(viewController.textFieldTextChanged(_:)), for: .editingChanged)
 
-        let result = Dynamic(SentryBreadcrumbTracker.self).avoidSender(textField, forTarget: viewController, action: NSStringFromSelector(#selector(viewController.textFieldTextChanged(_:))) ).asBool ?? false
+        let result = SentryBreadcrumbTracker.avoidSender(textField, forTarget: viewController, action: NSStringFromSelector(#selector(viewController.textFieldTextChanged(_:))))
 
         XCTAssertTrue(result)
     }
@@ -119,7 +119,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         textField.addTarget(viewController, action: #selector(viewController.textFieldTextChanged(_:)), for: .editingChanged)
         textField.addTarget(viewController, action: #selector(viewController.textFieldEndChange(_:)), for: .editingDidEnd)
 
-        let result = Dynamic(SentryBreadcrumbTracker.self).avoidSender(textField, forTarget: viewController, action: NSStringFromSelector(#selector(viewController.textFieldEndChange(_:))) ).asBool ?? false
+        let result = SentryBreadcrumbTracker.avoidSender(textField, forTarget: viewController, action: NSStringFromSelector(#selector(viewController.textFieldEndChange(_:))) )
 
         XCTAssertFalse(result)
     }
@@ -129,7 +129,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let viewController = ViewControllerForBreadcrumbTest()
         button.addTarget(viewController, action: #selector(viewController.textFieldTextChanged(_:)), for: .touchUpInside)
 
-        let result = Dynamic(SentryBreadcrumbTracker.self).avoidSender(button, forTarget: viewController, action: NSStringFromSelector(#selector(viewController.textFieldEndChange(_:))) ).asBool ?? false
+        let result = SentryBreadcrumbTracker.avoidSender(button, forTarget: viewController, action: NSStringFromSelector(#selector(viewController.textFieldEndChange(_:))))
 
         XCTAssertFalse(result)
     }

@@ -15,6 +15,13 @@ SENTRY_NO_INIT
 - (void)startSwizzle;
 - (void)stop;
 
+#if SENTRY_HAS_UIKIT
+/**
+ * For testing.
+ */
++ (BOOL)avoidSender:(id)sender forTarget:(id)target action:(NSString *)action;
+#endif
+
 @end
 
 NS_ASSUME_NONNULL_END
