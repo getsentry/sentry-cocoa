@@ -41,7 +41,7 @@ jobs:
       - run: make analyze
 
   validate-podspec:
-    name: Validate ${{ matrix.podspec}} ${{ matrix.extra_args }}
+    name: Validate ${{ matrix.podspec}} for ${{ matrix.platform}} ${{ matrix.extra_args }}
     runs-on: macos-12
     strategy:
       matrix:
