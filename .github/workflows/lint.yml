@@ -41,7 +41,7 @@ jobs:
       - run: make analyze
 
   lint-podspec:
-    name: Lint ${{ matrix.podspec}} ${{ matrix.library_type }} for ${{ matrix.platform}} 
+    name: pod lint ${{ matrix.podspec}} ${{ matrix.library_type }} ${{ matrix.platform}}
     runs-on: macos-12
     strategy:
       matrix:
