@@ -40,46 +40,23 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh
       - run: make analyze
 
-  validate-podspec-framework:
-    name: Validate Podspec as Framework
+  validate-podspec:
+    name: Validate ${{ matrix.podspec}} ${{ matrix.extra_args }}
     runs-on: macos-12
     strategy:
       matrix:
         platform: ['ios', 'macos', 'tvos', 'watchos']
+        podspec: ['Sentry.podspec', 'SentrySwiftUI.podspec']
+        include_podspecs: ['Sentry.podspec', 'Sentry.podspec,SentryPrivate.podspec']
+        extra_args: ['', '--use-libraries'] # Use libraries is for validating the static library
 
     steps:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh
+      # We need to update the spec-repo, because it can happen that it is not up to date and then the lint fails.
+      - run: pod repo update
       - name: Validate Podspec
-        run: pod lib lint --verbose --platforms=${{ matrix.platform }} Sentry.podspec --include-podspecs=SentryPrivate.podspec
-        shell: sh
-
-  validate-podspec-static:
-    name: Validate Podspec as Static library
-    runs-on: macos-12
-    strategy:
-      matrix:
-        platform: ['ios', 'macos', 'tvos', 'watchos']
-
-    steps:
-      - uses: actions/checkout@v3
-      - run: ./scripts/ci-select-xcode.sh
-      - name: Validate Podspec
-        run: pod lib lint --verbose --platforms=${{ matrix.platform }} Sentry.podspec --include-podspecs=SentryPrivate.podspec --use-libraries 
-        shell: sh
-
-  validate-SentrySwiftUI-podspec:
-    name: Validate SentrySwiftUI Podspec
-    runs-on: macos-12
-    strategy:
-      matrix:
-        platform: ['ios', 'macos', 'tvos', 'watchos']
-
-    steps:
-      - uses: actions/checkout@v3
-      - run: ./scripts/ci-select-xcode.sh
-      - name: Validate Podspec
-        run: pod lib lint --verbose --platforms=${{ matrix.platform }} SentrySwiftUI.podspec --include-podspecs=Sentry.podspec,SentryPrivate.podspec
+        run: pod lib lint --verbose --platforms=${{ matrix.platform }} ${{ matrix.podspec}} --include-podspecs=${{ matrix.include_podspecs }} ${{ matrix.extra_args }}
         shell: sh
 
   validate-high-risk-files:
