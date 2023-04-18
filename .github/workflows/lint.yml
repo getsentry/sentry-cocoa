@@ -40,8 +40,8 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh
       - run: make analyze
 
-  validate-podspec:
-    name: Validate ${{ matrix.podspec}}.podspec ${{ matrix.library_type }} for ${{ matrix.platform}} 
+  lint-podspec:
+    name: Lint ${{ matrix.podspec}} ${{ matrix.library_type }} for ${{ matrix.platform}} 
     runs-on: macos-12
     strategy:
       matrix:
