@@ -1,4 +1,13 @@
 #!/bin/bash
+
+# Ensure the swizzling of network classes doesn't break the normal functionality of web requests.
+# We borrow the tests of Alamofire under the MIT license: https://github.com/Alamofire/Alamofire.
+# The following steps checkout Alamofire and apply a github patch to the project. The patch adds
+# Sentry to the tests with auto performance monitoring enabled. While the tests are running a
+# transaction is bound to the scope, so the Sentry SDK adds spans to the transaction. This doesn't
+# validate if the Sentry SDK adds proper spans. It only validates that the swizzling logic
+# doesn't break web request
+
 echo "### Integration test - Alamofire ###"
 
 current_dir=$(pwd)

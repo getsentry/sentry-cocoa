@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# We borrow the tests of Home Assistant under the Apache license: https://github.com/home-assistant/iOS.
+#The following steps checkout Home Assistant and apply a github patch to the project. The patch adds
+# Sentry to the app with auto performance monitoring enabled. We then run the UI tests to make sure
+# adding our SDK doesn't cause any major issues.
+
 #Home assistant cocoapod requires 'cocoapods-acknowledgements' plugin to work
 #If you dont have it use: gem install cocoapods-acknowledgements
 echo "### Integration test - Home Assistant ###"
