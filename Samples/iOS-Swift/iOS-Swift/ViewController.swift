@@ -4,7 +4,13 @@ import UIKit
 class ViewController: UIViewController {
 
     private let dispatchQueue = DispatchQueue(label: "ViewController", attributes: .concurrent)
-    
+
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        SentrySDK.reportFullyDisplayed()
+    }
+
     @IBAction func uiClickTransaction(_ sender: UIButton) {
         highlightButton(sender)
         dispatchQueue.async {

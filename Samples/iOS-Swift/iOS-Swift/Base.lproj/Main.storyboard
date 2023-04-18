@@ -623,6 +623,7 @@
                         <outlet property="breadcrumbLabel" destination="4M5-qM-BM9" id="rDd-LH-T9l"/>
                         <outlet property="dsnTextField" destination="wzO-lb-yFR" id="8Oz-V5-VTq"/>
                         <outlet property="framesLabel" destination="xua-qE-dXN" id="vP2-XG-wBW"/>
+                        <outlet property="uiTestNameLabel" destination="eMF-4u-JGE" id="YVe-Un-zF9"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Lml-ok-XC1" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
