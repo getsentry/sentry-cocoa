@@ -58,8 +58,6 @@ case $IS_LOCAL_BUILD in
         ;;
 esac
 
-date
-
 # build everything for testing
 env NSUnbufferedIO=YES xcodebuild       \
     -workspace Sentry.xcworkspace       \
@@ -68,8 +66,6 @@ env NSUnbufferedIO=YES xcodebuild       \
     -destination "$DESTINATION" -quiet  \
     build-for-testing                   \
         | tee raw-test-build-output.log
-
-date
 
 # run the tests
 env NSUnbufferedIO=YES xcodebuild                               \
