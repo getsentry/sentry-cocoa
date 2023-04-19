@@ -59,13 +59,26 @@ case $IS_LOCAL_BUILD in
 esac
 
 date
-env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
-    -scheme Sentry -configuration $CONFIGURATION \
-    -destination "$DESTINATION" -quiet \
-    build-for-testing | tee raw-test-build-output.log
+
+# build everything for testing
+env NSUnbufferedIO=YES xcodebuild       \
+    -workspace Sentry.xcworkspace       \
+    -scheme Sentry                      \
+    -configuration $CONFIGURATION       \
+    -destination "$DESTINATION" -quiet  \
+    build-for-testing                   \
+        | tee raw-test-build-output.log
+
 date
-env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
-    -scheme Sentry -configuration $CONFIGURATION \
-    -destination "$DESTINATION" \
-    test-without-building | tee raw-test-output.log
-slather coverage --configuration $CONFIGURATION
+
+# run the tests
+env NSUnbufferedIO=YES xcodebuild                               \
+    -workspace Sentry.xcworkspace                               \
+    -scheme Sentry                                              \
+    -configuration $CONFIGURATION                               \
+    -destination "$DESTINATION"                                 \
+    test-without-building                                       \
+        | tee raw-test-output.log                               \
+        | $RUBY_ENV_ARGS xcpretty -t                            \
+            && slather coverage --configuration $CONFIGURATION  \
+            && exit ${PIPESTATUS[0]}
