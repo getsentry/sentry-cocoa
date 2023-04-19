@@ -36,7 +36,7 @@ class ViewController: UIViewController {
 
         // Also works
         let user = User(userId: "1")
-        user.email = "tony1@example.com"
+        user.email = "philipp.hofmann@senty.io"
         SentrySDK.setUser(user)
         
         dispatchQueue.async {
