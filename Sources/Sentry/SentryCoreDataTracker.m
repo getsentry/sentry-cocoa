@@ -11,6 +11,7 @@
 #import "SentrySpanProtocol.h"
 #import "SentryStacktrace.h"
 #import "SentryThreadInspector.h"
+#import "SentryTraceOrigins.h"
 
 @implementation SentryCoreDataTracker {
     SentryPredicateDescriptor *predicateDescriptor;
@@ -38,6 +39,7 @@
     [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
         fetchSpan = [span startChildWithOperation:SENTRY_COREDATA_FETCH_OPERATION
                                       description:[self descriptionFromRequest:request]];
+        fetchSpan.origin = SentryTraceOriginAutoDBCoreData;
     }];
 
     if (fetchSpan) {
@@ -84,7 +86,7 @@
             fetchSpan = [span startChildWithOperation:SENTRY_COREDATA_SAVE_OPERATION
                                           description:[self descriptionForOperations:operations
                                                                            inContext:context]];
-
+            fetchSpan.origin = SentryTraceOriginAutoDBCoreData;
             if (fetchSpan) {
                 [SentryLog
                     logWithMessage:[NSString
