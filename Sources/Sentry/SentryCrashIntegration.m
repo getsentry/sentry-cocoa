@@ -1,4 +1,5 @@
 #import "SentryCrashIntegration.h"
+#import "SentryCrashBinaryImageCache.h"
 #import "SentryCrashInstallationReporter.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDispatchQueueWrapper.h"
@@ -143,6 +144,8 @@ SentryCrashIntegration ()
         if (canSendReports) {
             [SentryCrashIntegration sendAllSentryCrashReports];
         }
+
+        sentrycrashbic_startCache();
     };
     [self.dispatchQueueWrapper dispatchOnce:&installationToken block:block];
 }
@@ -163,6 +166,7 @@ SentryCrashIntegration ()
     }
 
     [self.crashAdapter uninstallAsyncHooks];
+    sentrycrashbic_stopCache();
 
     [NSNotificationCenter.defaultCenter removeObserver:self
                                                   name:NSCurrentLocaleDidChangeNotification

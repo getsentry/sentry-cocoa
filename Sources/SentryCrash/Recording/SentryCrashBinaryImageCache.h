@@ -1,8 +1,8 @@
 #ifndef SentryCrashBinaryImageCache_h
 #define SentryCrashBinaryImageCache_h
 
-#include <stdio.h>
 #include "SentryCrashDynamicLinker.h"
+#include <stdio.h>
 
 /**
  *Get the number of loaded binary images.
@@ -12,7 +12,7 @@ int sentrycrashbic_imageCount(void);
 /**
  * Return a pointer to a SentryCrashBinaryImage in the index position in the cache.
  */
-SentryCrashBinaryImage * sentrycrashbic_getBinaryImageBuffer(int index);
+SentryCrashBinaryImage *sentrycrashbic_getBinaryImageCache(int index);
 
 /**
  * Startes the cache that will monitor binary image being loaded or removed.

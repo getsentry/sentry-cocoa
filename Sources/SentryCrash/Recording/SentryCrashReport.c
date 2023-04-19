@@ -27,6 +27,7 @@
 
 #include "SentryCrashReport.h"
 
+#include "SentryCrashBinaryImageCache.h"
 #include "SentryCrashCPU.h"
 #include "SentryCrashCachedData.h"
 #include "SentryCrashDynamicLinker.h"
@@ -1164,37 +1165,32 @@ writeAllThreads(const SentryCrashReportWriter *const writer, const char *const k
  *
  * @param key The object key, if needed.
  *
- * @param index Which image to write about.
+ * @param image Which image to write about.
  */
 static void
-writeBinaryImage(
-    const SentryCrashReportWriter *const writer, const char *const key, const int index)
+writeBinaryImage(const SentryCrashReportWriter *const writer, const char *const key,
+    SentryCrashBinaryImage *image)
 {
-    SentryCrashBinaryImage image = { 0 };
-    if (!sentrycrashdl_getBinaryImage(index, &image)) {
-        return;
-    }
-
     writer->beginObject(writer, key);
     {
-        writer->addUIntegerElement(writer, SentryCrashField_ImageAddress, image.address);
-        writer->addUIntegerElement(writer, SentryCrashField_ImageVmAddress, image.vmAddress);
-        writer->addUIntegerElement(writer, SentryCrashField_ImageSize, image.size);
-        writer->addStringElement(writer, SentryCrashField_Name, image.name);
-        writer->addUUIDElement(writer, SentryCrashField_UUID, image.uuid);
-        writer->addIntegerElement(writer, SentryCrashField_CPUType, image.cpuType);
-        writer->addIntegerElement(writer, SentryCrashField_CPUSubType, image.cpuSubType);
-        writer->addUIntegerElement(writer, SentryCrashField_ImageMajorVersion, image.majorVersion);
-        writer->addUIntegerElement(writer, SentryCrashField_ImageMinorVersion, image.minorVersion);
+        writer->addUIntegerElement(writer, SentryCrashField_ImageAddress, image->address);
+        writer->addUIntegerElement(writer, SentryCrashField_ImageVmAddress, image->vmAddress);
+        writer->addUIntegerElement(writer, SentryCrashField_ImageSize, image->size);
+        writer->addStringElement(writer, SentryCrashField_Name, image->name);
+        writer->addUUIDElement(writer, SentryCrashField_UUID, image->uuid);
+        writer->addIntegerElement(writer, SentryCrashField_CPUType, image->cpuType);
+        writer->addIntegerElement(writer, SentryCrashField_CPUSubType, image->cpuSubType);
+        writer->addUIntegerElement(writer, SentryCrashField_ImageMajorVersion, image->majorVersion);
+        writer->addUIntegerElement(writer, SentryCrashField_ImageMinorVersion, image->minorVersion);
         writer->addUIntegerElement(
-            writer, SentryCrashField_ImageRevisionVersion, image.revisionVersion);
-        if (image.crashInfoMessage != NULL) {
+            writer, SentryCrashField_ImageRevisionVersion, image->revisionVersion);
+        if (image->crashInfoMessage != NULL) {
             writer->addStringElement(
-                writer, SentryCrashField_ImageCrashInfoMessage, image.crashInfoMessage);
+                writer, SentryCrashField_ImageCrashInfoMessage, image->crashInfoMessage);
         }
-        if (image.crashInfoMessage2 != NULL) {
+        if (image->crashInfoMessage2 != NULL) {
             writer->addStringElement(
-                writer, SentryCrashField_ImageCrashInfoMessage2, image.crashInfoMessage2);
+                writer, SentryCrashField_ImageCrashInfoMessage2, image->crashInfoMessage2);
         }
     }
     writer->endContainer(writer);
@@ -1209,12 +1205,12 @@ writeBinaryImage(
 static void
 writeBinaryImages(const SentryCrashReportWriter *const writer, const char *const key)
 {
-    const int imageCount = sentrycrashdl_imageCount();
-
+    const int imageCount = sentrycrashbic_imageCount();
     writer->beginArray(writer, key);
     {
         for (int iImg = 0; iImg < imageCount; iImg++) {
-            writeBinaryImage(writer, NULL, iImg);
+            SentryCrashBinaryImage *image = sentrycrashbic_getBinaryImageCache(iImg);
+            writeBinaryImage(writer, NULL, image);
         }
     }
     writer->endContainer(writer);
