@@ -53,7 +53,7 @@ SentryAutoBreadcrumbTrackingIntegration ()
     systemEventBreadcrumbs:(SentrySystemEventBreadcrumbs *)systemEventBreadcrumbs
 {
     self.breadcrumbTracker = breadcrumbTracker;
-    [self.breadcrumbTracker start];
+    [self.breadcrumbTracker startWithDelegate:self];
 
     if (options.enableSwizzling) {
         [self.breadcrumbTracker startSwizzle];

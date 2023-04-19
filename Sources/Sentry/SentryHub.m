@@ -638,6 +638,7 @@ SentryHub ()
 - (void)close
 {
     [_client close];
+    SENTRY_LOG_DEBUG(@"Closed the Hub.");
 }
 
 @end

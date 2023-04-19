@@ -492,6 +492,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     _isEnabled = NO;
     [self flush:self.options.shutdownTimeInterval];
+    SENTRY_LOG_DEBUG(@"Closed the Client.");
 }
 
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event

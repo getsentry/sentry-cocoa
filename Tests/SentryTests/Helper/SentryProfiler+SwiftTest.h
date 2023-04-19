@@ -21,7 +21,11 @@ SentryProfiler ()
 + (void)useProcessInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
     NS_SWIFT_NAME(useProcessInfoWrapper(_:));
 
-+ (void)useTimerWrapper:(SentryNSTimerWrapper *)timerWrapper NS_SWIFT_NAME(useTimerWrapper(_:));
++ (void)useMetricTimerWrapper:(SentryNSTimerWrapper *)timerWrapper
+    NS_SWIFT_NAME(useMetricTimerWrapper(_:));
+
++ (void)useTimeoutTimerWrapper:(SentryNSTimerWrapper *)timerWrapper
+    NS_SWIFT_NAME(useTimeoutTimerWrapper(_:));
 
 #    if SENTRY_HAS_UIKIT
 + (void)useFramesTracker:(SentryFramesTracker *)framesTracker NS_SWIFT_NAME(useFramesTracker(_:));

@@ -2,6 +2,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    import "SentryCurrentDate.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryLog.h"
 #    import "SentryNSProcessInfoWrapper.h"
@@ -47,7 +48,7 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
     [absoluteTimestampValues enumerateObjectsUsingBlock:^(
         SentryMetricReading *_Nonnull reading, NSUInteger idx, BOOL *_Nonnull stop) {
         // if the metric reading wasn't recorded until the transaction ended, don't include it
-        if (orderedChronologically(transaction.endSystemTime, reading.absoluteTimestamp)) {
+        if (!orderedChronologically(reading.absoluteTimestamp, transaction.endSystemTime)) {
             return;
         }
 
@@ -200,7 +201,7 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 {
     const auto reading = [[SentryMetricReading alloc] init];
     reading.value = value;
-    reading.absoluteTimestamp = getAbsoluteTime();
+    reading.absoluteTimestamp = SentryCurrentDate.systemTime;
     return reading;
 }
 
