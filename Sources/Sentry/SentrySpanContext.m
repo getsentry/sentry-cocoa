@@ -100,7 +100,8 @@ NS_ASSUME_NONNULL_BEGIN
         @"type" : SENTRY_TRACE_TYPE,
         @"span_id" : self.spanId.sentrySpanIdString,
         @"trace_id" : self.traceId.sentryIdString,
-        @"op" : self.operation
+        @"op" : self.operation,
+        @"origin" : self.origin
     }
                                                  .mutableCopy;
 
@@ -116,10 +117,6 @@ NS_ASSUME_NONNULL_BEGIN
 
     if (self.parentSpanId != nil) {
         [mutabledictionary setValue:self.parentSpanId.sentrySpanIdString forKey:@"parent_span_id"];
-    }
-
-    if (self.origin != nil) {
-        mutabledictionary[@"origin"] = self.origin;
     }
 
     return mutabledictionary;
