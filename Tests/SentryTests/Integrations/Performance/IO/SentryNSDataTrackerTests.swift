@@ -297,6 +297,7 @@ class SentryNSDataTrackerTests: XCTestCase {
     private func assertDataSpan(_ span: Span?, path: String, operation: String, size: Int, mainThread: Bool = true ) {
         XCTAssertNotNil(span)
         XCTAssertEqual(span?.operation, operation)
+        XCTAssertEqual(span?.origin, "auto.file")
         XCTAssertTrue(span?.isFinished ?? false)
         XCTAssertEqual(span?.data["file.size"] as? Int, size)
         XCTAssertEqual(span?.data["file.path"] as? String, path)

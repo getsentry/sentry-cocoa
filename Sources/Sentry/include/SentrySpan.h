@@ -48,7 +48,7 @@ SENTRY_NO_INIT
  *
  * @see <https://develop.sentry.dev/sdk/performance/trace-origin>
  */
-@property (nonatomic, copy, readonly) NSString *origin;
+@property (nonatomic, copy) NSString *origin;
 
 /**
  * Describes the status of the Transaction.
