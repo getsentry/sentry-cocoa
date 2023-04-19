@@ -52,12 +52,13 @@ SentryPerformanceTracker () <SentryTracerDelegate>
     __block id<SentrySpan> newSpan;
     if (activeSpan != nil) {
         newSpan = [activeSpan startChildWithOperation:operation description:name];
+        newSpan.origin = SentryTraceOriginAutoUIViewController;
     } else {
         SentryTransactionContext *context =
             [[SentryTransactionContext alloc] initWithName:name
                                                 nameSource:source
                                                  operation:operation
-                                                    origin:SentryTraceOriginAuto];
+                                                    origin:SentryTraceOriginAutoUIViewController];
 
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> span) {
             BOOL bindToScope = YES;
