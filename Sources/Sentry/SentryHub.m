@@ -18,7 +18,6 @@
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySession+Private.h"
-#import "SentryTraceOrigins.h"
 #import "SentryTracer.h"
 #import "SentryTracesSampler.h"
 #import "SentryTransaction.h"
@@ -304,17 +303,21 @@ SentryHub ()
 
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation
 {
-    return [self startTransactionWithName:name operation:operation bindToScope:NO];
+    return [self startTransactionWithContext:[[SentryTransactionContext alloc]
+                                                 initWithName:name
+                                                   nameSource:kSentryTransactionNameSourceCustom
+                                                    operation:operation]];
 }
 
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name
                                  operation:(NSString *)operation
                                bindToScope:(BOOL)bindToScope
 {
-    SentryTransactionContext *context = [[SentryTransactionContext alloc] initWithName:name
-                                                                             operation:operation];
-
-    return [self startTransactionWithContext:context bindToScope:bindToScope];
+    return [self startTransactionWithContext:[[SentryTransactionContext alloc]
+                                                 initWithName:name
+                                                   nameSource:kSentryTransactionNameSourceCustom
+                                                    operation:operation]
+                                 bindToScope:bindToScope];
 }
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
