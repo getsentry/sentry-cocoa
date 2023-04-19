@@ -375,21 +375,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(0, fixture.delegate.envelopeItemsDeleted.count)
     }
 
-    /**
-     * We need to deserialize every envelope and check if it contains a session.
-     */
-    func testMigrateSessionInit_WorstCasePerformance() {
-        sut.store(fixture.sessionEnvelope)
-        sut.store(fixture.sessionUpdateEnvelope)
-        for _ in 0...(fixture.maxCacheItems - 3) {
-            sut.store(TestConstants.envelope)
-        }
-
-        measure {
-            sut.store(TestConstants.envelope)
-        }
-    }
-
     func testGetAllEnvelopesAreSortedByDateAscending() {
         givenMaximumEnvelopes()
 

@@ -130,10 +130,12 @@ Contributors: @marandaneto, @brustolin and @philipphofmann
 
 We decided not to use the `NSRange` type for the `failedRequestStatusCodes` property of the `SentryNetworkTracker` class because it's not compatible with the specification, which requires the type to be a range of `from` -> `to` integers. The `NSRange` type is a range of `location` -> `length` integers. We decided to use a custom type instead of `NSRange` to avoid confusion. The custom type is called `SentryHttpStatusCodeRange`.
 
-### Manually installing iOS 12 simulators
+### Manually installing iOS 12 simulators  <a name="ios-12-simulators"></a>
 
 Date: October 21st 2022
 Contributors: @philipphofmann
+
+We reverted this decision with [remove running unit tests on iOS 12 simulators](#remove-ios-12-simulators).
 
 GH actions will remove the macOS-10.15 image, which contains an iOS 12 simulator on 12/1/22; see https://github.com/actions/runner-images/issues/5583.
 Neither the [macOS-11](https://github.com/actions/runner-images/blob/main/images/macos/macos-11-Readme.md#installed-sdks) nor the
@@ -177,33 +179,62 @@ platform-specific framework bundles only works with Xcode 12.
 Carthage has encouraged its users [to use XCFrameworks](https://github.com/Carthage/Carthage/tree/a91d086ceaffef65c4a4a761108f3f32c519940c#getting-started)
 since version 0.37.0, released in January 2021. Therefore, it's acceptable to use XCFrameworks for Carthage users.
 
-## Remove the permissions feature
+### Remove the permissions feature
 
 Date: December 14, 2022
 
 We [removed](https://github.com/getsentry/sentry-cocoa/pull/2529) the permissions feature that we added in [7.24.0](https://github.com/getsentry/sentry-cocoa/releases/tag/7.24.0). Multiple people reported getting denied in app review because of permission access without the corresponding Info.plist entry: see [#2528](https://github.com/getsentry/sentry-cocoa/issues/2528) and [2065](https://github.com/getsentry/sentry-cocoa/issues/2065).
 
-## Rename master to main
+### Rename master to main
 
 Date: January 16th, 2023
 Contributors: @kahest, @brustolin and @philipphofmann
 
 With 8.0.0, we rename the default branch from `master` to `main`. We will keep the `master` branch for backwards compatibility for package managers pointing to the `master` branch.
 
-## SentrySwiftUI version
+### SentrySwiftUI version
 
 Date: January 18th, 2023
 Contributors: @brustolin and @philipphofmann
 
 We release experimental SentrySwiftUI cocoa package with the version 8.0.0 because all podspecs file in a repo need to have the same version. 
 
-## Tracking package managers
+### Tracking package managers
 
 To be able to identify the package manager(PM) being used by the user, we need that the PM identify itself.
 Luckily all of the 3 PMs we support do this in some way, mostly by exposing a compiler directive (SPM, COCOA)
 or a build setting (CARTHAGE). With this information we can create a conditional compilation that injects the name of
 the PM. You can find this in `SentrySDKInfo.m`.
 
-## Usage of `__has_include`
+### Usage of `__has_include`
 
 Some private headers add a dependency of a public header, when those private headers are used in a sample project, or referenced from a hybrid SDK, it is treated as part of the project using it, therefore, if it points to a header that is not part of said project, a compilation error will occur. To solve this we make use of `__has_include` to try to point to the SDK version of the header, or to fallback to the direct reference when compiling the SDK.
+
+### Remove running unit tests on iOS 12 simulators <a name="remove-ios-12-simulators"></a>
+
+Date: April 12th 2023
+Contributors: @philipphofmann
+
+We use [`xcode-install`](https://github.com/xcpretty/xcode-install) to install some older iOS simulators for test runs [here](https://github.com/getsentry/sentry-cocoa/blob/ff5c1d83bf601bbcd0f5f1070c3abf05310881bd/.github/workflows/test.yml#L174) and [here](https://github.com/getsentry/sentry-cocoa/blob/ff5c1d83bf601bbcd0f5f1070c3abf05310881bd/.github/workflows/test.yml#L343). That project is being sunset, so we would have to find an alternative.
+
+Installing the simulator can take up to 15 minutes, so the current solution slows CI and sometimes leads to timeouts.
+We want our CI to be fast and reliable. Instead of running the unit tests on iOS 12, we run UI tests on an iPhone with iOS 12,
+which reduces the risk of breaking users on iOS 12. Our unit tests should primarily focus on business logic and shouldn't depend
+on specific iOS versions. If we have functionality that risks breaking on older iOS versions, we should write UI tests instead.
+For the swizzling of UIViewControllers and NSURLSession, we have UI tests running on iOS 12. Therefore, dropping running unit
+tests on iOS 12 simulators is acceptable. This decision reverts [manually installing iOS 12 simulators](#ios-12-simulators).
+
+Related to [GH-2862](https://github.com/getsentry/sentry-cocoa/issues/2862) and 
+
+### Remove integration tests from CI <a name="remove-integration-tests-from-ci"></a>
+
+Date: April 17th 2023
+Contributors: @brustolin @philipphofmann
+
+Both Alamofire and Home Assistance integration tests are no longer reliable as they keep failing and causing more problems than adding value. 
+These tests used to work for a while, and we know that the Sentry SDK was not breaking these projects. 
+Therefore, we have decided to remove the tests and add some key files to our list of risk files. 
+This way, if these files are changed, we will be reminded to test the changes with other projects. 
+Additionally, two new 'make' commands(test-alamofire, test-homekit) are being added to the project to assist in testing the Sentry SDK in third-party projects.
+
+Related to [GH-2916](https://github.com/getsentry/sentry-cocoa/pull/2916)

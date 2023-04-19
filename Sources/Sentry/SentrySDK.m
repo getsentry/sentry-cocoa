@@ -182,37 +182,14 @@ static NSUInteger startInvocations;
 
 + (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation
 {
-    return [self startTransactionWithName:name
-                               nameSource:kSentryTransactionNameSourceCustom
-                                operation:operation];
-}
-
-+ (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                nameSource:(SentryTransactionNameSource)source
-                                 operation:(NSString *)operation
-{
-    return [SentrySDK.currentHub startTransactionWithName:name
-                                               nameSource:source
-                                                operation:operation];
+    return [SentrySDK.currentHub startTransactionWithName:name operation:operation];
 }
 
 + (id<SentrySpan>)startTransactionWithName:(NSString *)name
                                  operation:(NSString *)operation
                                bindToScope:(BOOL)bindToScope
 {
-    return [self startTransactionWithName:name
-                               nameSource:kSentryTransactionNameSourceCustom
-                                operation:operation
-                              bindToScope:bindToScope];
-}
-
-+ (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                nameSource:(SentryTransactionNameSource)source
-                                 operation:(NSString *)operation
-                               bindToScope:(BOOL)bindToScope
-{
     return [SentrySDK.currentHub startTransactionWithName:name
-                                               nameSource:source
                                                 operation:operation
                                               bindToScope:bindToScope];
 }
@@ -398,16 +375,18 @@ static NSUInteger startInvocations;
  */
 + (void)close
 {
+    SENTRY_LOG_DEBUG(@"Starting to close SDK.");
     // pop the hub and unset
     SentryHub *hub = SentrySDK.currentHub;
 
-    // uninstall all the integrations
+    // Uninstall all the integrations
     for (NSObject<SentryIntegrationProtocol> *integration in hub.installedIntegrations) {
         if ([integration respondsToSelector:@selector(uninstall)]) {
             [integration uninstall];
         }
     }
     [hub removeAllIntegrations];
+    SENTRY_LOG_DEBUG(@"Uninstalled all integrations.");
 
 #if SENTRY_HAS_UIKIT
     // force the AppStateManager to unsubscribe, see

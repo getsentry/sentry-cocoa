@@ -1,15 +1,29 @@
 # Changelog
 
-## Unreleased
+## 8.5.0
+
+### Features
+
+- feat: Core data operation in the main thread (#2879)
+
+### Fixes
+
+- Crash when serializing invalid objects (#2858)
+- Don't send screenshots with either width or height of 0 (#2876)
+- GPU frame alignment with stack traces in profiles (#2856)
+
+## 8.4.0
 
 ### Features
 
 - Time to initial and full display (#2724)
+- Add time-to-initial-display and time-to-full-display measurements to ViewController transactions (#2843)
 - Add `name` and `geo` to User (#2710)
 
 ### Fixes
  
 - Correctly track and send GPU frame render data in profiles (#2823)
+- Xcode 14.3 compiling issue regarding functions declaration with no prototype (#2852) 
 
 ## 8.3.3
 

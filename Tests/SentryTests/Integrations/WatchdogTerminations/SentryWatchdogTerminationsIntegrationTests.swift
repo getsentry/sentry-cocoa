@@ -18,7 +18,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             
             crashWrapper = TestSentryCrashWrapper.sharedInstance()
             SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
-            SentryDependencyContainer.sharedInstance().fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate)
+            SentryDependencyContainer.sharedInstance().fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
 
             let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andCurrentDateProvider: currentDate)
             SentrySDK.setCurrentHub(hub)

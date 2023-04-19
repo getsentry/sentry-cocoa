@@ -31,3 +31,5 @@ static NSString *const SentryDebugImageType = @"macho";
         }                                                                                          \
         (__cond_result);                                                                           \
     })
+
+#define BLOCKED_MAIN_THREAD @"blocked_main_thread"
