@@ -17,6 +17,8 @@ class TestCleanup: NSObject {
         SentrySDK.setAppStartMeasurement(nil)
         CurrentDate.setCurrentDateProvider(nil)
         SentryNetworkTracker.sharedInstance.disable()
+        
+        SentryLog.configure(true, diagnosticLevel: .debug)
 
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let framesTracker = SentryFramesTracker.sharedInstance()
