@@ -52,13 +52,15 @@ esac
 case $IS_LOCAL_BUILD in
     "ci")
         RUBY_ENV_ARGS=""
+        XCBEATUTIFY_ARGS="-qq"
         ;;
     *)
         RUBY_ENV_ARGS="rbenv exec bundle exec"
+        XCBEATUTIFY_ARGS=""
         ;;
 esac
 
 env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
     -scheme Sentry -configuration $CONFIGURATION \
     -destination "$DESTINATION" \
-    test | tee raw-test-output.log | $RUBY_ENV_ARGS xcpretty -t && slather coverage --configuration $CONFIGURATION && exit ${PIPESTATUS[0]}
+    test | tee raw-test-output.log | $RUBY_ENV_ARGS xcbeautify $XCBEATUTIFY_ARGS && slather coverage --configuration $CONFIGURATION && exit ${PIPESTATUS[0]}

@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - release/**
+      - ci/fix-replace-xcpretty
 
   pull_request:
     paths:
@@ -192,6 +193,9 @@ jobs:
 
       - name: Install Slather
         run: gem install slather
+
+      - name: Install XCBeautify
+        run: gem install xcbeautify
       
       - name: Running tests
         # We call a script with the platform so the destination
