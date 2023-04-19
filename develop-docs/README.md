@@ -238,3 +238,13 @@ This way, if these files are changed, we will be reminded to test the changes wi
 Additionally, two new 'make' commands(test-alamofire, test-homekit) are being added to the project to assist in testing the Sentry SDK in third-party projects.
 
 Related to [GH-2916](https://github.com/getsentry/sentry-cocoa/pull/2916)
+
+### Replace xcpretty with xcbeautify
+
+Date: April 19th 2023
+Contributors: @philipphofmann
+
+Using xcpretty to format the tests lead to long running tests see [GH-2911](https://github.com/getsentry/sentry-cocoa/issues/2911).
+Removing it fixes that problem. Although xcpretty is [preinstalled](https://github.com/actions/runner-images/blob/bea98d07491839b4ab1963e6a0341e8cab07ae16/images/macos/macos-12-Readme.md#xcode-support-tools)
+on GH actions, we decided to use [xcbeautify](https://github.com/tuist/xcbeautify) instead and accept the tradeoff of installing
+it on every GH actions run, which takes around 15 seconds. 

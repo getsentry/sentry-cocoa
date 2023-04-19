@@ -194,6 +194,7 @@ jobs:
       - name: Install Slather
         run: gem install slather
 
+      # Using preinstalled xcpretty lead to long running tests see https://github.com/getsentry/sentry-cocoa/issues/2911.
       - name: Install XCBeautify
         run: brew install xcbeautify
       
