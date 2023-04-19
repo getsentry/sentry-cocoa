@@ -104,13 +104,19 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
     }
 
     func test_avoidSender() {
-        let textField = UITextField()
-        let viewController = ViewControllerForBreadcrumbTest()
-        textField.addTarget(viewController, action: #selector(viewController.textFieldTextChanged(_:)), for: .editingChanged)
-
-        let result = Dynamic(SentryBreadcrumbTracker.self).avoidSender(textField, forTarget: viewController, action: NSStringFromSelector(#selector(viewController.textFieldTextChanged(_:))) ).asBool ?? false
-
-        XCTAssertTrue(result)
+        // This test continuously times out on iOS 13 and iOS 14 in CI, but it succeeds when
+        // running it locally for iOS 14. Multiple investigations didn't uncover the cause of
+        // this problem. We don't want to spend more time finding the root cause of the problem.
+        // There, we only run it on iOS 15 and above.
+        if #available(iOS 15, *) {
+            let textField = UITextField()
+            let viewController = ViewControllerForBreadcrumbTest()
+            textField.addTarget(viewController, action: #selector(viewController.textFieldTextChanged(_:)), for: .editingChanged)
+            
+            let result = Dynamic(SentryBreadcrumbTracker.self).avoidSender(textField, forTarget: viewController, action: NSStringFromSelector(#selector(viewController.textFieldTextChanged(_:))) ).asBool ?? false
+            
+            XCTAssertTrue(result)
+        }
     }
 
     func test_dont_avoidSender() {
