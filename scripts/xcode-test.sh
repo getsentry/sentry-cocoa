@@ -66,6 +66,6 @@ env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
 date
 env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
     -scheme Sentry -configuration $CONFIGURATION \
-    -destination "$DESTINATION" -quiet \
+    -destination "$DESTINATION" \
     test-without-building | tee raw-test-output.log
 slather coverage --configuration $CONFIGURATION
