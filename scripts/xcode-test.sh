@@ -61,11 +61,11 @@ esac
 date
 env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
     -scheme Sentry -configuration $CONFIGURATION \
-    -destination "$DESTINATION" \
+    -destination "$DESTINATION" -quiet \
     build-for-testing | tee raw-test-build-output.log
 date
 env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
     -scheme Sentry -configuration $CONFIGURATION \
-    -destination "$DESTINATION" \
+    -destination "$DESTINATION" -quiet \
     test-without-building | tee raw-test-output.log
 slather coverage --configuration $CONFIGURATION
