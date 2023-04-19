@@ -7,6 +7,7 @@
 #import "SentrySpanId.h"
 #import "SentrySpanOperations.h"
 #import "SentrySwift.h"
+#import "SentryTraceOrigins.h"
 #import "SentryTracer.h"
 
 #if SENTRY_HAS_UIKIT
@@ -47,6 +48,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
     self.initialDisplaySpan = [tracer
         startChildWithOperation:SentrySpanOperationUILoadInitialDisplay
                     description:[NSString stringWithFormat:@"%@ initial display", _controllerName]];
+    self.initialDisplaySpan.origin = SentryTraceOriginAutoUITimeToDisplay;
 
     if (self.waitForFullDisplay) {
         self.fullDisplaySpan =
