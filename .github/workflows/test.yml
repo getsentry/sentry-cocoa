@@ -195,7 +195,7 @@ jobs:
         run: gem install slather
 
       - name: Install XCBeautify
-        run: gem install xcbeautify
+        run: brew install xcbeautify
       
       - name: Running tests
         # We call a script with the platform so the destination
