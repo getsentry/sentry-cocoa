@@ -73,8 +73,8 @@ binaryImageRemoved(const struct mach_header *header, intptr_t slide)
     if (index >= 0) {
         int amountToMove = binaryImagesAmount - index + 1;
         int sizeToMove = amountToMove * sizeof(SentryCrashBinaryImage);
-        void * startPosition = binaryImagesBuffer + ((index + 1) * sizeof(SentryCrashBinaryImage));
-        void * moveTo = startPosition - sizeof(SentryCrashBinaryImage);
+        void *startPosition = binaryImagesBuffer + ((index + 1) * sizeof(SentryCrashBinaryImage));
+        void *moveTo = startPosition - sizeof(SentryCrashBinaryImage);
 
         memcmp(moveTo, startPosition, sizeToMove);
         binaryImagesAmount--;
