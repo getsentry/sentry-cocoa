@@ -23,13 +23,17 @@ class SentryFramesTrackerTests: XCTestCase {
         super.setUp()
         fixture = Fixture()
 
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
         // the profiler must be running for the frames tracker to record frame rate info etc, validated in assertProfilingData()
         SentryProfiler.start(with: TestHub(client: nil, andScope: nil))
+#endif
     }
 
     override func tearDown() {
         super.tearDown()
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
         SentryProfiler.stop()
+#endif
     }
     
     func testIsNotRunning_WhenNotStarted() {
