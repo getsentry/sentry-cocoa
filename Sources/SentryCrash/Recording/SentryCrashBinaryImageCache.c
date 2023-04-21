@@ -77,7 +77,7 @@ binaryImageRemoved(const struct mach_header *header, intptr_t slide)
      void *startPosition = binaryImagesBuffer + ((index + 1) * sizeof(SentryCrashBinaryImage));
      void *moveTo = startPosition - sizeof(SentryCrashBinaryImage);
 
-     memcmp(moveTo, startPosition, sizeToMove);
+     memcpy(moveTo, startPosition, sizeToMove);
      binaryImagesAmount--;
 
     pthread_mutex_unlock(&binaryImagesMutex);
