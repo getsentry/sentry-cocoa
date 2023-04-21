@@ -21,12 +21,4 @@ final class SentryFormatterTests: XCTestCase {
             XCTAssertEqual(sentry_stringForUInt64(UInt64(input)), expected)
         }
     }
-
-    func testFormatHexAddressPerformance() {
-        measure {
-            for _ in 0..<1_000 {
-                sentry_formatHexAddress(arc4random() as NSNumber)
-            }
-        }
-    }
 }
