@@ -77,6 +77,9 @@ class SentryFramesTrackerTests: XCTestCase {
     }
     
     func testAllFrames_ConcurrentRead() throws {
+        // To not spam the test logs
+        SentryLog.configure(true, diagnosticLevel: .error)
+        
         let sut = fixture.sut
         sut.start()
         
@@ -98,6 +101,8 @@ class SentryFramesTrackerTests: XCTestCase {
         
         group.wait()
         try assert(slow: frames, frozen: frames, total: 3 * frames)
+        
+        setTestDefaultLogLevel()
     }
     
     func testPerformanceOfTrackingFrames() throws {
