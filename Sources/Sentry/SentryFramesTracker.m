@@ -146,22 +146,18 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-#        if defined(TEST) || defined(TESTCI)
-    BOOL shouldRecordFrameRates = YES;
-#        else
-    BOOL shouldRecordFrameRates = [SentryProfiler isRunning];
-#        endif // defined(TEST) || defined(TESTCI)
-    BOOL hasNoFrameRatesYet = self.frameRateTimestamps.count == 0;
-    uint64_t previousFrameRate
-        = self.frameRateTimestamps.lastObject[@"value"].unsignedLongLongValue;
-    BOOL frameRateChanged = previousFrameRate != currentFrameRate;
-    BOOL shouldRecordNewFrameRate
-        = shouldRecordFrameRates && (hasNoFrameRatesYet || frameRateChanged);
-    if (shouldRecordNewFrameRate) {
-        SENTRY_LOG_DEBUG(@"Recording new frame rate at %llu.", thisFrameSystemTimestamp);
-        [self recordTimestamp:thisFrameSystemTimestamp
-                        value:@(currentFrameRate)
-                        array:self.frameRateTimestamps];
+    if ([SentryProfiler isRunning]) {
+        BOOL hasNoFrameRatesYet = self.frameRateTimestamps.count == 0;
+        uint64_t previousFrameRate
+            = self.frameRateTimestamps.lastObject[@"value"].unsignedLongLongValue;
+        BOOL frameRateChanged = previousFrameRate != currentFrameRate;
+        BOOL shouldRecordNewFrameRate = hasNoFrameRatesYet || frameRateChanged;
+        if (shouldRecordNewFrameRate) {
+            SENTRY_LOG_DEBUG(@"Recording new frame rate at %llu.", thisFrameSystemTimestamp);
+            [self recordTimestamp:thisFrameSystemTimestamp
+                            value:@(currentFrameRate)
+                            array:self.frameRateTimestamps];
+        }
     }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
