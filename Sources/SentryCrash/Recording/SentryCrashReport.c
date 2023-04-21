@@ -913,16 +913,14 @@ writeNotableStackContents(const SentryCrashReportWriter *const writer,
         highAddress = tmp;
     }
     uintptr_t contentsAsPointer;
-#define SENTRY_NAME_BUFFER_SIZE 40
-    char nameBuffer[SENTRY_NAME_BUFFER_SIZE];
+    char nameBuffer[40];
     for (uintptr_t address = lowAddress; address < highAddress; address += sizeof(address)) {
         if (sentrycrashmem_copySafely(
                 (void *)address, &contentsAsPointer, sizeof(contentsAsPointer))) {
-            snprintf(nameBuffer, SENTRY_NAME_BUFFER_SIZE, "stack@%p", (void *)address);
+            sprintf(nameBuffer, "stack@%p", (void *)address);
             writeMemoryContentsIfNotable(writer, nameBuffer, contentsAsPointer);
         }
     }
-#undef SENTRY_NAME_BUFFER_SIZE
 }
 
 #pragma mark Registers
