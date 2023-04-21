@@ -16,7 +16,6 @@ static pthread_mutex_t binaryImagesMutex = PTHREAD_MUTEX_INITIALIZER;
 static void
 increaseBufferSize(void)
 {
-    pthread_mutex_lock(&binaryImagesMutex);
     uint oldLength = binaryImagesBufferLength;
     uint newLength = oldLength + CACHE_SIZE_INCREMENT;
 
@@ -26,7 +25,6 @@ increaseBufferSize(void)
 
     binaryImagesBuffer = newBuffer;
     binaryImagesBufferLength = newLength;
-    pthread_mutex_unlock(&binaryImagesMutex);
 }
 
 static void
@@ -50,7 +48,7 @@ binaryImageAdded(const struct mach_header *header, intptr_t slide)
     pthread_mutex_lock(&binaryImagesMutex);
     if (binaryImagesAmount >= binaryImagesBufferLength) {
          increaseBufferSize();
-     }
+    }
     binaryImagesBuffer[binaryImagesAmount++] = binaryImage;
     pthread_mutex_unlock(&binaryImagesMutex);
 }
@@ -68,17 +66,17 @@ binaryImageRemoved(const struct mach_header *header, intptr_t slide)
     }
 
     if (index < 0 || index >= binaryImagesAmount) {
-    	pthread_mutex_unlock(&binaryImagesMutex);
+        pthread_mutex_unlock(&binaryImagesMutex);
         return;
     }
 
-     int amountToMove = binaryImagesAmount - index + 1;
-     int sizeToMove = amountToMove * sizeof(SentryCrashBinaryImage);
-     void *startPosition = binaryImagesBuffer + ((index + 1) * sizeof(SentryCrashBinaryImage));
-     void *moveTo = startPosition - sizeof(SentryCrashBinaryImage);
+    int amountToMove = binaryImagesAmount - index + 1;
+    int sizeToMove = amountToMove * sizeof(SentryCrashBinaryImage);
+    void *startPosition = binaryImagesBuffer + ((index + 1) * sizeof(SentryCrashBinaryImage));
+    void *moveTo = startPosition - sizeof(SentryCrashBinaryImage);
 
-     memcpy(moveTo, startPosition, sizeToMove);
-     binaryImagesAmount--;
+    memcpy(moveTo, startPosition, sizeToMove);
+    binaryImagesAmount--;
 
     pthread_mutex_unlock(&binaryImagesMutex);
 }
@@ -92,24 +90,34 @@ sentrycrashbic_imageCount(void)
 SentryCrashBinaryImage *
 sentrycrashbic_getBinaryImageCache(int index)
 {
+    if (index >= binaryImagesAmount) {
+        return NULL;
+    }
     return &binaryImagesBuffer[index];
 }
 
 void
 sentrycrashbic_startCache(void)
 {
+    pthread_mutex_lock(&binaryImagesMutex);
     binaryImagesBufferLength = CACHE_SIZE_INCREMENT;
     binaryImagesBuffer = malloc(sizeof(SentryCrashBinaryImage) * binaryImagesBufferLength);
     binaryImagesAmount = 0;
     _dyld_register_func_for_add_image(&binaryImageAdded);
     _dyld_register_func_for_remove_image(&binaryImageRemoved);
+    pthread_mutex_unlock(&binaryImagesMutex);
 }
 
 void
 sentrycrashbic_stopCache(void)
 {
+    if (binaryImagesBuffer == NULL) {
+        return;
+    }
+    pthread_mutex_lock(&binaryImagesMutex);
     free(binaryImagesBuffer);
     binaryImagesBuffer = NULL;
     binaryImagesAmount = 0;
     binaryImagesBufferLength = 0;
+    pthread_mutex_unlock(&binaryImagesMutex);
 }
