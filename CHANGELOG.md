@@ -5,6 +5,7 @@
 ### Fixes 
 
 - Ensure the current GPU frame rate is always reported for concurrent transaction profiling metrics (#2929)
+- Improved performance serializing profiling data (#2863)
 
 ## 8.5.0
 
