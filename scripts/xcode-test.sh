@@ -59,7 +59,22 @@ case $IS_LOCAL_BUILD in
         ;;
 esac
 
-if [ "$COMMAND" = "build-for-testing" ] || [ "$COMMAND" = "test" ]; then
+case $COMMAND in
+    "build-for-testing")
+        RUN_BUILD_FOR_TESTING=true
+        RUN_TEST_WITHOUT_BUILDING=false
+        ;;
+    "test-without-building")
+        RUN_BUILD_FOR_TESTING=false
+        RUN_TEST_WITHOUT_BUILDING=true
+        ;;
+    *)
+        RUN_BUILD_FOR_TESTING=true
+        RUN_TEST_WITHOUT_BUILDING=true
+        ;;
+esac
+
+if [ $RUN_BUILD_FOR_TESTING == true ]; then
     # build everything for testing
     env NSUnbufferedIO=YES xcodebuild       \
         -workspace Sentry.xcworkspace       \
@@ -69,7 +84,7 @@ if [ "$COMMAND" = "build-for-testing" ] || [ "$COMMAND" = "test" ]; then
         build-for-testing
 fi
 
-if [ "$COMMAND" = "test-without-building" ] || [ "$COMMAND" = "test" ]; then
+if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
     # run the tests
     env NSUnbufferedIO=YES xcodebuild                               \
         -workspace Sentry.xcworkspace                               \
