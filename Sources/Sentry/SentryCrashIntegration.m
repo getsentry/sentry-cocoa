@@ -40,6 +40,13 @@ SentryCrashIntegration ()
 
 @implementation SentryCrashIntegration
 
+- (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
+{
+    return
+        [self initWithCrashWrapper:crashWrapper
+            andDispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper];
+}
+
 /** Internal constructor for testing */
 - (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
              andDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper

@@ -87,6 +87,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
     
     func testContext_IsPassedToSentryCrash() {
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = fixture.dispatchQueueWrapper
         SentrySDK.start { options in
             options.dsn = SentryCrashIntegrationTests.dsnAsString
         }
