@@ -337,7 +337,9 @@ static NSUInteger startInvocations;
         // Gatekeeper
         return;
     }
-    SentryOptions *options = [SentrySDK.currentHub getClient].options;
+    SentryHub *hub = SentrySDK.currentHub;
+    SentryClient *client = hub.getClient;
+    SentryOptions *options = client.options;
     for (NSString *integrationName in options.integrations) {
         Class integrationClass = NSClassFromString(integrationName);
         if (nil == integrationClass) {
@@ -345,14 +347,14 @@ static NSUInteger startInvocations;
                              @"couldn't find \"%@\" -> skipping.",
                 integrationName);
             continue;
-        } else if ([SentrySDK.currentHub isIntegrationInstalled:integrationClass]) {
+        } else if ([hub isIntegrationInstalled:integrationClass]) {
             SENTRY_LOG_ERROR(
                 @"[SentryHub doInstallIntegrations] already installed \"%@\" -> skipping.",
                 integrationName);
             continue;
         }
         SentryBaseIntegration *integrationInstance = [integrationClass alloc];
-        integrationInstance = [integrationInstance init];
+        integrationInstance = [integrationInstance initWithCrashWrapper:client.crashWrapper];
         BOOL shouldInstall = [integrationInstance installWithOptions:options];
 
         if (shouldInstall) {
