@@ -33,13 +33,13 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         super.tearDown()
     }
 
-    func testWhenBeingTraced_TrackerNotInitialized() {
-        givenInitializedTracker(isBeingTraced: true)
+    func testWhenBeingTraced_TrackerNotInitialized() throws {
+        try givenInitializedTracker(isBeingTraced: true)
         XCTAssertNil(Dynamic(sut).tracker.asAnyObject)
     }
 
-    func testWhenNoDebuggerAttached_TrackerInitialized() {
-        givenInitializedTracker()
+    func testWhenNoDebuggerAttached_TrackerInitialized() throws {
+        try givenInitializedTracker()
         XCTAssertNotNil(Dynamic(sut).tracker.asAnyObject)
     }
     
@@ -64,8 +64,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertFalse(result)
     }
     
-    func testANRDetected_EventCaptured() {
-        givenInitializedTracker()
+    func testANRDetected_EventCaptured() throws {
+        try givenInitializedTracker()
         setUpThreadInspector()
         
         Dynamic(sut).anrDetected()
@@ -100,8 +100,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         }
     }
     
-    func testANRDetected_ButNoThreads_EventNotCaptured() {
-        givenInitializedTracker()
+    func testANRDetected_ButNoThreads_EventNotCaptured() throws {
+        try givenInitializedTracker()
         setUpThreadInspector(addThreads: false)
         
         Dynamic(sut).anrDetected()
@@ -109,8 +109,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         assertNoEventCaptured()
     }
     
-    func testDealloc_CallsUninstall() {
-        givenInitializedTracker()
+    func testDealloc_CallsUninstall() throws {
+        try givenInitializedTracker()
         
         // // So ARC deallocates the SentryANRTrackingIntegration
         func initIntegration() {
@@ -128,8 +128,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(1, listeners?.count ?? 2)
     }
 
-    private func givenInitializedTracker(isBeingTraced: Bool = false) {
-        givenSdkWithHub()
+    private func givenInitializedTracker(isBeingTraced: Bool = false) throws {
+        try givenSdkWithHub()
         crashWrapper.internalIsBeingTraced = isBeingTraced
         sut = SentryANRTrackingIntegration(crashWrapper: crashWrapper)
         sut.install(with: self.options)

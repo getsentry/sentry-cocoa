@@ -18,11 +18,11 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
     
     private var fixture: Fixture!
     
-    override func setUp() {
-        super.setUp()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
         fixture = Fixture(crashWrapper: crashWrapper)
         
-        givenSdkWithHub()
+        try givenSdkWithHub()
     }
         
     func testFilterReports_withScreenShots() {

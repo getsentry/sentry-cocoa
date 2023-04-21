@@ -22,8 +22,9 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
         clearTestState()
     }
     
-    func givenSdkWithHub(_ options: Options? = nil, scope: Scope = Scope()) {
-        let client = TestClient(options: options ?? self.options)
+    func givenSdkWithHub(_ options: Options? = nil, scope: Scope = Scope()) throws {
+        let resolvedOptions = options ?? self.options
+        let client = TestClient(options: resolvedOptions, fileManager: try TestFileManager(options: resolvedOptions), crashWrapper: crashWrapper, deleteOldEnvelopeItems: false)
         let hub = SentryHub(client: client, andScope: scope, andCurrentDateProvider: currentDate)
         SentrySDK.setCurrentHub(hub)
     }
