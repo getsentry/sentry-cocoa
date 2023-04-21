@@ -192,13 +192,17 @@ jobs:
 
       - name: Install Slather
         run: gem install slather
+
+      # We split building and running tests in two steps so we know how long running the tests takes.
+      - name: Build tests
+        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME build-for-testing
       
       - name: Running tests
         # We call a script with the platform so the destination
         # passed to xcodebuild doesn't end up in the job name,
         # because GitHub Actions don't provide an easy way of
         # manipulating string in expressions.
-        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME
+        run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME test-without-building
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@v3

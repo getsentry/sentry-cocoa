@@ -12,6 +12,7 @@ PLATFORM="${1}"
 OS=${2:-latest}
 REF_NAME="${3-HEAD}"
 IS_LOCAL_BUILD="${4:-ci}"
+COMMAND="${5:-test}"
 DESTINATION=""
 CONFIGURATION=""
 
@@ -58,7 +59,26 @@ case $IS_LOCAL_BUILD in
         ;;
 esac
 
-env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
-    -scheme Sentry -configuration $CONFIGURATION \
-    -destination "$DESTINATION" \
-    test | tee raw-test-output.log | $RUBY_ENV_ARGS xcpretty -t && slather coverage --configuration $CONFIGURATION && exit ${PIPESTATUS[0]}
+if [ "$COMMAND" = "build-for-testing" ] || [ "$COMMAND" = "test" ]; then
+    # build everything for testing
+    env NSUnbufferedIO=YES xcodebuild       \
+        -workspace Sentry.xcworkspace       \
+        -scheme Sentry                      \
+        -configuration $CONFIGURATION       \
+        -destination "$DESTINATION" -quiet  \
+        build-for-testing
+fi
+
+if [ "$COMMAND" = "test-without-building" ] || [ "$COMMAND" = "test" ]; then
+    # run the tests
+    env NSUnbufferedIO=YES xcodebuild                               \
+        -workspace Sentry.xcworkspace                               \
+        -scheme Sentry                                              \
+        -configuration $CONFIGURATION                               \
+        -destination "$DESTINATION"                                 \
+        test-without-building                                       \
+            | tee raw-test-output.log                               \
+            | $RUBY_ENV_ARGS xcpretty -t                            \
+                && slather coverage --configuration $CONFIGURATION  \
+                && exit ${PIPESTATUS[0]}
+fi
