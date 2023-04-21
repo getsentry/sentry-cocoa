@@ -1674,7 +1674,7 @@ addJSONData(const char *data, int length, void *userData)
 
 - (void)testFastUIntEncode
 {
-    char *expectedJson = "{\"a_container\": {\"uint\":\"1234567890\"}}";
+    char *expectedJson = "{\"uint\":1234567890}";
 
     NSMutableData *encodedData = [NSMutableData data];
     SentryCrashJSONEncodeContext context = { 0 };
