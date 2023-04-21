@@ -1,11 +1,11 @@
-#import "SentryIntegrationProtocol.h"
+#import "SentryBaseIntegration.h"
 #import <Foundation/Foundation.h>
 
 @class SentryOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryTestIntegration : NSObject <SentryIntegrationProtocol>
+@interface SentryTestIntegration : SentryBaseIntegration
 
 @property (nonatomic, strong) SentryOptions *options;
 

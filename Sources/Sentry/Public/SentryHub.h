@@ -1,5 +1,4 @@
 #import "SentryDefines.h"
-#import "SentryIntegrationProtocol.h"
 #import "SentrySpanProtocol.h"
 
 @class SentryEvent, SentryClient, SentryScope, SentryUser, SentryBreadcrumb, SentryId,

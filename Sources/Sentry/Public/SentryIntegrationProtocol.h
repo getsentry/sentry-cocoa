@@ -1,14 +1,14 @@
+#import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
-#import "SentryDefines.h"
-#import "SentryOptions.h"
+@class SentryOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryIntegrationProtocol <NSObject>
 
 /**
- * Installs the integration and returns YES if successful.
+ * Installs the integration and returns @c YES if successful.
  */
 - (BOOL)installWithOptions:(SentryOptions *)options;
 

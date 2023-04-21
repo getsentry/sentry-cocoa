@@ -10,6 +10,7 @@
 #import "SentryViewHierarchy.h"
 #import <SentryDependencyContainer.h>
 #import <SentryFramesTracker.h>
+#import <SentryOptions.h>
 #import <SentryScreenshot.h>
 
 @implementation PrivateSentrySDKOnly

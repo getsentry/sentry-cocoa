@@ -6,6 +6,7 @@
 #import "SentryInternalNotificationNames.h"
 #import "SentryLog.h"
 #import "SentryNSNotificationCenterWrapper.h"
+#import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 
 #if SENTRY_HAS_UIKIT

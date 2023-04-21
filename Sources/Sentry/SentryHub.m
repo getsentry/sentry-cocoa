@@ -1,4 +1,5 @@
 #import "SentryHub.h"
+#import "SentryBaseIntegration.h"
 #import "SentryClient+Private.h"
 #import "SentryCrashWrapper.h"
 #import "SentryCurrentDateProvider.h"
@@ -36,7 +37,7 @@ SentryHub ()
 @property (nonatomic, strong) SentryTracesSampler *tracesSampler;
 @property (nonatomic, strong) SentryProfilesSampler *profilesSampler;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
-@property (nonatomic, strong) NSMutableArray<id<SentryIntegrationProtocol>> *installedIntegrations;
+@property (nonatomic, strong) NSMutableArray<SentryBaseIntegration *> *installedIntegrations;
 @property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
 @property (nonatomic) NSUInteger errorsBeforeSession;
 
@@ -519,7 +520,7 @@ SentryHub ()
 - (BOOL)isIntegrationInstalled:(Class)integrationClass
 {
     @synchronized(_integrationsLock) {
-        for (id<SentryIntegrationProtocol> item in _installedIntegrations) {
+        for (SentryBaseIntegration *item in _installedIntegrations) {
             if ([item isKindOfClass:integrationClass]) {
                 return YES;
             }
@@ -537,7 +538,7 @@ SentryHub ()
     }
 }
 
-- (void)addInstalledIntegration:(id<SentryIntegrationProtocol>)integration name:(NSString *)name
+- (void)addInstalledIntegration:(SentryBaseIntegration *)integration name:(NSString *)name
 {
     @synchronized(_integrationsLock) {
         [_installedIntegrations addObject:integration];
@@ -553,7 +554,7 @@ SentryHub ()
     }
 }
 
-- (NSArray<id<SentryIntegrationProtocol>> *)installedIntegrations
+- (NSArray<SentryBaseIntegration *> *)installedIntegrations
 {
     @synchronized(_integrationsLock) {
         return _installedIntegrations.copy;

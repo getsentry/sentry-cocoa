@@ -22,6 +22,7 @@
 #    import "SentryMetricProfiler.h"
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentryNSTimerWrapper.h"
+#    import "SentryOptions.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryScope+Private.h"

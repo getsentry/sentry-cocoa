@@ -2,6 +2,7 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryAppStateManager.h"
+#import "SentryBaseIntegration.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
@@ -350,7 +351,7 @@ static NSUInteger startInvocations;
                 integrationName);
             continue;
         }
-        id<SentryIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
+        SentryBaseIntegration *integrationInstance = [[integrationClass alloc] init];
         BOOL shouldInstall = [integrationInstance installWithOptions:options];
 
         if (shouldInstall) {
