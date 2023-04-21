@@ -47,11 +47,12 @@ binaryImageAdded(const struct mach_header *header, intptr_t slide)
         return;
     }
 
+    pthread_mutex_lock(&binaryImagesMutex);
     if (binaryImagesAmount >= binaryImagesBufferLength) {
-        increaseBufferSize();
-    }
-
+         increaseBufferSize();
+     }
     binaryImagesBuffer[binaryImagesAmount++] = binaryImage;
+    pthread_mutex_unlock(&binaryImagesMutex);
 }
 
 static void
@@ -66,19 +67,18 @@ binaryImageRemoved(const struct mach_header *header, intptr_t slide)
         }
     }
 
-    if (index >= binaryImagesAmount) {
+    if (index < 0 || index >= binaryImagesAmount) {
+    	pthread_mutex_unlock(&binaryImagesMutex);
         return;
     }
 
-    if (index >= 0) {
-        int amountToMove = binaryImagesAmount - index + 1;
-        int sizeToMove = amountToMove * sizeof(SentryCrashBinaryImage);
-        void *startPosition = binaryImagesBuffer + ((index + 1) * sizeof(SentryCrashBinaryImage));
-        void *moveTo = startPosition - sizeof(SentryCrashBinaryImage);
+     int amountToMove = binaryImagesAmount - index + 1;
+     int sizeToMove = amountToMove * sizeof(SentryCrashBinaryImage);
+     void *startPosition = binaryImagesBuffer + ((index + 1) * sizeof(SentryCrashBinaryImage));
+     void *moveTo = startPosition - sizeof(SentryCrashBinaryImage);
 
-        memcmp(moveTo, startPosition, sizeToMove);
-        binaryImagesAmount--;
-    }
+     memcmp(moveTo, startPosition, sizeToMove);
+     binaryImagesAmount--;
 
     pthread_mutex_unlock(&binaryImagesMutex);
 }
