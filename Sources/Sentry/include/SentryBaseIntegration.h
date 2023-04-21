@@ -1,3 +1,4 @@
+#import "SentryIntegrationProtocol.h"
 #import "SentryOptions.h"
 #import <Foundation/Foundation.h>
 
@@ -25,7 +26,7 @@ typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
     kIntegrationOptionEnableMetricKit = 1 << 17,
 };
 
-@interface SentryBaseIntegration : NSObject
+@interface SentryBaseIntegration : NSObject <SentryIntegrationProtocol>
 
 - (NSString *)integrationName;
 - (BOOL)installWithOptions:(SentryOptions *)options;
