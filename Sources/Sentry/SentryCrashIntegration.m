@@ -42,9 +42,8 @@ SentryCrashIntegration ()
 
 - (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
 {
-    return
-        [self initWithCrashWrapper:crashWrapper
-            andDispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper];
+    return [self initWithCrashWrapper:crashWrapper
+              andDispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]];
 }
 
 /** Internal constructor for testing */
