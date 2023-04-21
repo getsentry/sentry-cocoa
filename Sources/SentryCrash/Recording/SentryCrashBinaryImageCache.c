@@ -70,10 +70,12 @@ binaryImageRemoved(const struct mach_header *header, intptr_t slide)
         return;
     }
 
+    size_t itemSize = sizeof(SentryCrashBinaryImage);
+
     int amountToMove = binaryImagesAmount - index + 1;
-    int sizeToMove = amountToMove * sizeof(SentryCrashBinaryImage);
-    void *startPosition = binaryImagesBuffer + ((index + 1) * sizeof(SentryCrashBinaryImage));
-    void *moveTo = startPosition - sizeof(SentryCrashBinaryImage);
+    size_t sizeToMove = amountToMove * itemSize;
+    void *startPosition = binaryImagesBuffer + ((index + 1) * itemSize);
+    void *moveTo = startPosition - itemSize;
 
     memcpy(moveTo, startPosition, sizeToMove);
     binaryImagesAmount--;
