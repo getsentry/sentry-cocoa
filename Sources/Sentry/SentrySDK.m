@@ -338,7 +338,7 @@ static NSUInteger startInvocations;
         return;
     }
     SentryOptions *options = [SentrySDK.currentHub getClient].options;
-    for (NSString *integrationName in [SentrySDK.currentHub getClient].options.integrations) {
+    for (NSString *integrationName in options.integrations) {
         Class integrationClass = NSClassFromString(integrationName);
         if (nil == integrationClass) {
             SENTRY_LOG_ERROR(@"[SentryHub doInstallIntegrations] "

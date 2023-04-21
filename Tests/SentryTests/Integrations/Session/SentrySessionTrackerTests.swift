@@ -11,7 +11,7 @@ class SentrySessionTrackerTests: XCTestCase {
         let options: Options
         let currentDateProvider = TestCurrentDateProvider()
         let client: TestClient!
-        let sentryCrash: TestSentryCrashWrapper
+        let sentryCrash: TestCrashWrapper
 
         let notificationCenter = TestNSNotificationCenterWrapper()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
@@ -26,7 +26,7 @@ class SentrySessionTrackerTests: XCTestCase {
             
             client = TestClient(options: options)
             
-            sentryCrash = TestSentryCrashWrapper.sharedInstance()
+            sentryCrash = TestCrashWrapper()
         }
         
         func getSut() -> SessionTracker {
@@ -34,7 +34,7 @@ class SentrySessionTrackerTests: XCTestCase {
         }
         
         func setNewHubToSDK() {
-            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: self.sentryCrash, andCurrentDateProvider: currentDateProvider)
+            let hub = SentryHub(client: client, andScope: nil, andCurrentDateProvider: currentDateProvider)
             SentrySDK.setCurrentHub(hub)
         }
     }

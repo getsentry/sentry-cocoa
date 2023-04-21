@@ -6,7 +6,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     private class Fixture {
         let options: Options
         let client: TestClient!
-        let crashWrapper: TestSentryCrashWrapper
+        let crashWrapper: TestCrashWrapper
         let currentDate = TestCurrentDateProvider()
         let fileManager: SentryFileManager
         let dispatchQueue = TestSentryDispatchQueueWrapper()
@@ -16,11 +16,10 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             
             client = TestClient(options: options)
             
-            crashWrapper = TestSentryCrashWrapper.sharedInstance()
-            SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
+            crashWrapper = TestCrashWrapper()
             SentryDependencyContainer.sharedInstance().fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
 
-            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andCurrentDateProvider: currentDate)
+            let hub = SentryHub(client: client, andScope: nil, andCurrentDateProvider: currentDate)
             SentrySDK.setCurrentHub(hub)
             
             fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate, dispatchQueueWrapper: dispatchQueue)
@@ -45,14 +44,14 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     }
     
     func testWhenUnitTests_TrackerNotInitialized() {
-        let sut = SentryWatchdogTerminationTrackingIntegration()
+        let sut = SentryWatchdogTerminationTrackingIntegration(crashWrapper: fixture.crashWrapper)
         sut.install(with: Options())
         
         XCTAssertNil(Dynamic(sut).tracker.asAnyObject)
     }
     
     func testWhenNoUnitTests_TrackerInitialized() {
-        let sut = SentryWatchdogTerminationTrackingIntegration()
+        let sut = SentryWatchdogTerminationTrackingIntegration(crashWrapper: fixture.crashWrapper)
         Dynamic(sut).setTestConfigurationFilePath(nil)
         sut.install(with: Options())
         
@@ -60,7 +59,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     }
     
     func testTestConfigurationFilePath() {
-        let sut = SentryWatchdogTerminationTrackingIntegration()
+        let sut = SentryWatchdogTerminationTrackingIntegration(crashWrapper: fixture.crashWrapper)
         let path = Dynamic(sut).testConfigurationFilePath.asString
         XCTAssertEqual(path, ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"])
     }
@@ -110,7 +109,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     }
     
     private func givenIntegration() -> SentryWatchdogTerminationTrackingIntegration {
-        let sut = SentryWatchdogTerminationTrackingIntegration()
+        let sut = SentryWatchdogTerminationTrackingIntegration(crashWrapper: fixture.crashWrapper)
         Dynamic(sut).setTestConfigurationFilePath(nil)
         return sut
     }

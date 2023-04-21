@@ -17,6 +17,7 @@ class SentrySDKTests: XCTestCase {
         let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User clicked the button", userInfo: nil)
         let userFeedback: UserFeedback
         let currentDate = TestCurrentDateProvider()
+        let crashWrapper = TestCrashWrapper()
         
         let scopeBlock: (Scope) -> Void = { scope in
             scope.setTag(value: "tag", key: "tag")
@@ -34,7 +35,7 @@ class SentrySDKTests: XCTestCase {
         let operation = "ui.load"
         let transactionName = "Load Main Screen"
         
-        init() {
+        init() throws {
             CurrentDate.setCurrentDateProvider(currentDate)
             
             event = Event()
@@ -46,8 +47,8 @@ class SentrySDKTests: XCTestCase {
             options = Options()
             options.dsn = SentrySDKTests.dsnAsString
             options.releaseName = "1.0.0"
-            client = TestClient(options: options)!
-            hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andCurrentDateProvider: currentDate)
+            client = TestClient(options: options, fileManager: try TestFileManager(options: options), crashWrapper: crashWrapper, deleteOldEnvelopeItems: false)!
+            hub = SentryHub(client: client, andScope: scope, andCurrentDateProvider: currentDate)
             
             userFeedback = UserFeedback(eventId: SentryId())
             userFeedback.comments = "Again really?"
@@ -58,9 +59,9 @@ class SentrySDKTests: XCTestCase {
     
     private var fixture: Fixture!
     
-    override func setUp() {
-        super.setUp()
-        fixture = Fixture()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        fixture = try Fixture()
     }
     
     override func tearDown() {
@@ -89,7 +90,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(0, breadcrumbs?.count)
     }
 
-    func testStartWithConfigureOptions() {
+    func testStartWithConfigureOptions() throws {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
             options.debug = true
@@ -115,7 +116,8 @@ class SentrySDKTests: XCTestCase {
             "SentryAutoSessionTrackingIntegration",
             "SentryNetworkTrackingIntegration"
         ]
-        if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced() {
+        let client = try XCTUnwrap(SentrySDK.currentHub().getClient())
+        if !client.crashWrapper.isBeingTraced() {
             expectedIntegrations.append("SentryANRTrackingIntegration")
         }
 
@@ -582,7 +584,7 @@ class SentrySDKTests: XCTestCase {
         }
         
         let transport = TestTransport()
-        let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), deleteOldEnvelopeItems: false)
+        let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), crashWrapper: fixture.crashWrapper, deleteOldEnvelopeItems: false)
         Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
         SentrySDK.currentHub().bindClient(client)
         SentrySDK.close()
@@ -596,7 +598,7 @@ class SentrySDKTests: XCTestCase {
         }
         
         let transport = TestTransport()
-        let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), deleteOldEnvelopeItems: false)
+        let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), crashWrapper: fixture.crashWrapper, deleteOldEnvelopeItems: false)
         Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
         SentrySDK.currentHub().bindClient(client)
         

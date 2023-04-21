@@ -47,7 +47,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         let options = Options()
         options.enableAppHangTracking = false
         
-        sut = SentryANRTrackingIntegration()
+        sut = SentryANRTrackingIntegration(crashWrapper: crashWrapper)
         let result = sut.install(with: options)
 
         XCTAssertFalse(result)
@@ -58,7 +58,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         options.enableAppHangTracking = true
         options.appHangTimeoutInterval = 0
         
-        sut = SentryANRTrackingIntegration()
+        sut = SentryANRTrackingIntegration(crashWrapper: TestCrashWrapper())
         let result = sut.install(with: options)
         
         XCTAssertFalse(result)
@@ -115,7 +115,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         // // So ARC deallocates the SentryANRTrackingIntegration
         func initIntegration() {
             self.crashWrapper.internalIsBeingTraced = false
-            let sut = SentryANRTrackingIntegration()
+            let sut = SentryANRTrackingIntegration(crashWrapper: crashWrapper)
             sut.install(with: self.options)
         }
         
@@ -130,8 +130,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
     private func givenInitializedTracker(isBeingTraced: Bool = false) {
         givenSdkWithHub()
-        self.crashWrapper.internalIsBeingTraced = isBeingTraced
-        sut = SentryANRTrackingIntegration()
+        crashWrapper.internalIsBeingTraced = isBeingTraced
+        sut = SentryANRTrackingIntegration(crashWrapper: crashWrapper)
         sut.install(with: self.options)
     }
     

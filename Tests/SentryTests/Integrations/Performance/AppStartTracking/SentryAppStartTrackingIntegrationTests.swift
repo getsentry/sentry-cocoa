@@ -29,7 +29,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
         super.setUp()
         fixture = Fixture()
         SentrySDK.setAppStartMeasurement(nil)
-        sut = SentryAppStartTrackingIntegration()
+        sut = SentryAppStartTrackingIntegration(crashWrapper: TestCrashWrapper())
     }
 
     override func tearDown() {

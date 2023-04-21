@@ -15,7 +15,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         }
 
         func getSut() -> SentryViewHierarchyIntegration {
-            let result = SentryViewHierarchyIntegration()
+            let result = SentryViewHierarchyIntegration(crashWrapper: TestCrashWrapper())
             return result
         }
     }

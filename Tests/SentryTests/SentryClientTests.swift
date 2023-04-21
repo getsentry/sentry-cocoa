@@ -28,7 +28,7 @@ class SentryClientTest: XCTestCase {
         
         let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
         let transaction: Transaction
-        let crashWrapper = TestSentryCrashWrapper.sharedInstance()
+        let crashWrapper = TestCrashWrapper()
         let deviceWrapper = TestSentryUIDeviceWrapper()
         let processWrapper = TestSentryNSProcessInfoWrapper()
         let extraContentProvider: SentryExtraContextProvider
@@ -78,6 +78,7 @@ class SentryClientTest: XCTestCase {
                     options: options,
                     transportAdapter: transportAdapter,
                     fileManager: fileManager,
+                    crashWrapper: crashWrapper,
                     deleteOldEnvelopeItems: false,
                     threadInspector: threadInspector,
                     random: random,
@@ -146,7 +147,7 @@ class SentryClientTest: XCTestCase {
     func testInit_CallsDeleteOldEnvelopeItemsInvocations() throws {
         let fileManager = try TestFileManager(options: Options())
         
-        _ = SentryClient(options: Options(), fileManager: fileManager, deleteOldEnvelopeItems: true)
+        _ = SentryClient(options: Options(), fileManager: fileManager, crashWrapper: fixture.crashWrapper, deleteOldEnvelopeItems: true)
         
         XCTAssertEqual(1, fileManager.deleteOldEnvelopeItemsInvocations.count)
     }
@@ -1113,7 +1114,7 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    func testSetSDKIntegrations() {
+    func testSetSDKIntegrations() throws {
         SentrySDK.start(options: Options())
 
         let eventId = fixture.getSut().capture(message: fixture.messageAsString)
@@ -1121,7 +1122,8 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsNotEmpty()
         
         var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking"]
-        if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced() {
+        let crashWrapper = try XCTUnwrap(SentrySDK.currentHub().getClient()?.crashWrapper)
+        if !crashWrapper.isBeingTraced() {
             expectedIntegrations = ["ANRTracking"] + expectedIntegrations
         }
         
@@ -1157,7 +1159,11 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking", integrationName]
-            if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced() {
+            guard let crashWrapper = SentrySDK.currentHub().getClient()?.crashWrapper else {
+                XCTFail("Expected a SentryCrashWrapper from the current hub's client.")
+                return
+            }
+            if !crashWrapper.isBeingTraced() {
                 expectedIntegrations = ["ANRTracking"] + expectedIntegrations
             }
             
@@ -1186,7 +1192,7 @@ class SentryClientTest: XCTestCase {
 
         let options = Options()
         options.dsn = SentryClientTest.dsn
-        let client = SentryClient(options: options, dispatchQueue: TestSentryDispatchQueueWrapper(), deleteOldEnvelopeItems: false)
+        let client = SentryClient(options: options, dispatchQueue: TestSentryDispatchQueueWrapper(), crashWrapper: fixture.crashWrapper, deleteOldEnvelopeItems: false) 
 
         XCTAssertNil(client)
 
@@ -1377,7 +1383,7 @@ class SentryClientTest: XCTestCase {
         SentrySDK.setCurrentHub(hub)
         
         func addIntegrations(amount: Int) {
-            let emptyIntegration = EmptyIntegration(crashWrapper: TestSentryCrashWrapper())
+            let emptyIntegration = EmptyIntegration(crashWrapper: fixture.crashWrapper)
             for i in 0..<amount {
                 hub.addInstalledIntegration(emptyIntegration, name: "Integration\(i)")
             }

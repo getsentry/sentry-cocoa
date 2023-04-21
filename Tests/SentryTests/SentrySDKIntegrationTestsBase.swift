@@ -5,7 +5,7 @@ import XCTest
 class SentrySDKIntegrationTestsBase: XCTestCase {
     
     var currentDate = TestCurrentDateProvider()
-    var crashWrapper: TestSentryCrashWrapper!
+    var crashWrapper: TestCrashWrapper!
     
     var options: Options {
         Options()
@@ -13,8 +13,7 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        crashWrapper = TestSentryCrashWrapper.sharedInstance()
-        SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
+        crashWrapper = TestCrashWrapper()
         currentDate = TestCurrentDateProvider()
     }
     
@@ -25,8 +24,7 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
     
     func givenSdkWithHub(_ options: Options? = nil, scope: Scope = Scope()) {
         let client = TestClient(options: options ?? self.options)
-        let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andCurrentDateProvider: currentDate)
-        
+        let hub = SentryHub(client: client, andScope: scope, andCurrentDateProvider: currentDate)
         SentrySDK.setCurrentHub(hub)
     }
     
@@ -101,7 +99,7 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
             return
         }
         
-        XCTAssertEqual(1, client.captureCrashEventInvocations.count, "Wrong number of `Crashs` captured.")
+        XCTAssertEqual(1, client.captureCrashEventInvocations.count, "Wrong number of `Crashes` captured.")
         let capture = client.captureCrashEventInvocations.first
         callback(capture?.event, capture?.scope)
     }

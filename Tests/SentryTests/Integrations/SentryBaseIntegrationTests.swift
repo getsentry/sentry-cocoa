@@ -1,4 +1,5 @@
 import Sentry
+import SentryTestUtils
 import XCTest
 
 class MyTestIntegration: SentryBaseIntegration {
@@ -30,18 +31,18 @@ class SentryBaseIntegrationTests: XCTestCase {
     }
 
     func testIntegrationName() {
-        let sut = SentryBaseIntegration()
+        let sut = SentryBaseIntegration(crashWrapper: TestCrashWrapper())
         XCTAssertEqual(sut.integrationName(), "SentryBaseIntegration")
     }
 
     func testInstall() {
-        let sut = SentryBaseIntegration()
+        let sut = SentryBaseIntegration(crashWrapper: TestCrashWrapper())
         let result = sut.install(with: .init())
         XCTAssertTrue(result)
     }
 
     func testInstall_FailingIntegrationOption() {
-        let sut = MyTestIntegration()
+        let sut = MyTestIntegration(crashWrapper: TestCrashWrapper())
         let options = Options()
         options.enableAutoSessionTracking = false
         let result = sut.install(with: options)

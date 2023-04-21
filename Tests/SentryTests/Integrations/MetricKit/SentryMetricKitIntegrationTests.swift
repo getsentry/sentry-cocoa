@@ -36,7 +36,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
 
     func testOptionEnabled_MetricKitManagerInitialized() {
         if #available(iOS 15, macOS 12, macCatalyst 15, *) {
-            let sut = SentryMetricKitIntegration()
+            let sut = SentryMetricKitIntegration(crashWrapper: crashWrapper)
             
             givenInstalledWithEnabled(sut)
             
@@ -46,7 +46,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     
     func testOptionDisabled_MetricKitManagerNotInitialized() {
         if #available(iOS 15, macOS 12, macCatalyst 15, *) {
-            let sut = SentryMetricKitIntegration()
+            let sut = SentryMetricKitIntegration(crashWrapper: crashWrapper)
             
             sut.install(with: Options())
             
@@ -56,7 +56,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     
     func testUninstall_MetricKitManagerSetToNil() {
         if #available(iOS 15, macOS 12, macCatalyst 15, *) {
-            let sut = SentryMetricKitIntegration()
+            let sut = SentryMetricKitIntegration(crashWrapper: crashWrapper)
             
             let options = Options()
             options.enableMetricKit = true
@@ -71,7 +71,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
             
-            let sut = SentryMetricKitIntegration()
+            let sut = SentryMetricKitIntegration(crashWrapper: crashWrapper)
             givenInstalledWithEnabled(sut)
             
             let mxDelegate = sut as SentryMXManagerDelegate
@@ -85,7 +85,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
             
-            let sut = SentryMetricKitIntegration()
+            let sut = SentryMetricKitIntegration(crashWrapper: crashWrapper)
             givenInstalledWithEnabled(sut) { options in
                 options.add(inAppInclude: "iOS-Swift")
             }
@@ -107,7 +107,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
             
-            let sut = SentryMetricKitIntegration()
+            let sut = SentryMetricKitIntegration(crashWrapper: crashWrapper)
             givenInstalledWithEnabled(sut)
             
             let mxDelegate = sut as SentryMXManagerDelegate
@@ -121,7 +121,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
             
-            let sut = SentryMetricKitIntegration()
+            let sut = SentryMetricKitIntegration(crashWrapper: crashWrapper)
             givenInstalledWithEnabled(sut)
             
             let mxDelegate = sut as SentryMXManagerDelegate
@@ -135,7 +135,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
             
-            let sut = SentryMetricKitIntegration()
+            let sut = SentryMetricKitIntegration(crashWrapper: crashWrapper)
             givenInstalledWithEnabled(sut)
             
             let mxDelegate = sut as SentryMXManagerDelegate
@@ -149,7 +149,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
             
-            let sut = SentryMetricKitIntegration()
+            let sut = SentryMetricKitIntegration(crashWrapper: crashWrapper)
             givenInstalledWithEnabled(sut)
             
             let mxDelegate = sut as SentryMXManagerDelegate

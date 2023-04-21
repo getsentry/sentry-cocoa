@@ -178,7 +178,6 @@
 #import "SentryWatchdogTerminationTracker.h"
 #import "SentryWatchdogTerminationTrackingIntegration.h"
 #import "TestNSURLRequestBuilder.h"
-#import "TestSentryCrashWrapper.h"
 #import "TestSentrySpan.h"
 #import "TestUrlSession.h"
 #import "UIView+Sentry.h"

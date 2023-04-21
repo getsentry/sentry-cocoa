@@ -16,7 +16,7 @@ class SentryHubTests: XCTestCase {
         let message = "some message"
         let event: Event
         let currentDateProvider = TestCurrentDateProvider()
-        let sentryCrash = TestSentryCrashWrapper.sharedInstance()
+        let sentryCrash = TestCrashWrapper()
         let fileManager: SentryFileManager
         let crashedSession: SentrySession
         let transactionName = "Some Transaction"
@@ -48,7 +48,7 @@ class SentryHubTests: XCTestCase {
         }
         
         func getSut(_ options: Options, _ scope: Scope? = nil) -> SentryHub {
-            let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: sentryCrash, andCurrentDateProvider: currentDateProvider)
+            let hub = SentryHub(client: client, andScope: scope, andCurrentDateProvider: currentDateProvider)
             hub.bindClient(client)
             return hub
         }
@@ -177,7 +177,7 @@ class SentryHubTests: XCTestCase {
     }
     
     func testAddUserToTheScope() throws {
-        let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), deleteOldEnvelopeItems: false)
+        let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), crashWrapper: fixture.sentryCrash, deleteOldEnvelopeItems: false)
         let hub = SentryHub(client: client, andScope: Scope())
 
         let user = User()
@@ -771,7 +771,7 @@ class SentryHubTests: XCTestCase {
             queue.async {
                 for j in 0..<innerLoopAmount {
                     let integrationName = "Integration\(i)\(j)"
-                    sut.addInstalledIntegration(EmptyIntegration(), name: integrationName)
+                    sut.addInstalledIntegration(EmptyIntegration(crashWrapper: self.fixture.sentryCrash), name: integrationName)
                     XCTAssertTrue(sut.hasIntegration(integrationName))
                 }
                 group.leave()
@@ -799,7 +799,7 @@ class SentryHubTests: XCTestCase {
             queue.async {
                 for j in 0..<10 {
                     let integrationName = "Integration\(i)\(j)"
-                    sut.addInstalledIntegration(EmptyIntegration(), name: integrationName)
+                    sut.addInstalledIntegration(EmptyIntegration(crashWrapper: self.fixture.sentryCrash), name: integrationName)
                     sut.hasIntegration(integrationName)
                     sut.isIntegrationInstalled(EmptyIntegration.self)
                 }

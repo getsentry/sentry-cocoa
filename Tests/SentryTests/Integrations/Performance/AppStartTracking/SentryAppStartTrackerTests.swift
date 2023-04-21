@@ -12,7 +12,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let currentDate = TestCurrentDateProvider()
         let sysctl = TestSysctl()
         let fileManager: SentryFileManager
-        let crashWrapper = TestSentryCrashWrapper.sharedInstance()
+        let crashWrapper = TestCrashWrapper()
         let appStateManager: SentryAppStateManager
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         var enablePreWarmedAppStartTracing = true

@@ -5,7 +5,7 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testSwizzlingInitialized_WhenAPMandTracingEnabled() {
-        let sut = SentryPerformanceTrackingIntegration()
+        let sut = SentryPerformanceTrackingIntegration(crashWrapper: TestCrashWrapper())
         
         let options = Options()
         options.tracesSampleRate = 0.1
@@ -15,7 +15,7 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
     }
     
     func testSwizzlingNotInitialized_WhenTracingDisabled() {
-        let sut = SentryPerformanceTrackingIntegration()
+        let sut = SentryPerformanceTrackingIntegration(crashWrapper: TestCrashWrapper())
         
         sut.install(with: Options())
         
@@ -23,7 +23,7 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
     }
     
     func testSwizzlingNotInitialized_WhenAPMDisabled() {
-        let sut = SentryPerformanceTrackingIntegration()
+        let sut = SentryPerformanceTrackingIntegration(crashWrapper: TestCrashWrapper())
         
         let options = Options()
         options.tracesSampleRate = 0.1
@@ -34,7 +34,7 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
     }
     
     func testSwizzlingNotInitialized_WhenSwizzlingDisabled() {
-        let sut = SentryPerformanceTrackingIntegration()
+        let sut = SentryPerformanceTrackingIntegration(crashWrapper: TestCrashWrapper())
         
         let options = Options()
         options.tracesSampleRate = 0.1
@@ -59,7 +59,7 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
     }
     
     private func disablesIntegration(_ options: Options) {
-        let sut = SentryPerformanceTrackingIntegration()
+        let sut = SentryPerformanceTrackingIntegration(crashWrapper: TestCrashWrapper())
         let result = sut.install(with: options)
         
         XCTAssertFalse(result)
@@ -67,7 +67,7 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
     }
 
     func testConfigure_waitForDisplay() {
-        let sut = SentryPerformanceTrackingIntegration()
+        let sut = SentryPerformanceTrackingIntegration(crashWrapper: TestCrashWrapper())
 
         let options = Options()
         options.tracesSampleRate = 0.1
@@ -78,7 +78,7 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
     }
 
     func testConfigure_dontWaitForDisplay() {
-        let sut = SentryPerformanceTrackingIntegration()
+        let sut = SentryPerformanceTrackingIntegration(crashWrapper: TestCrashWrapper())
 
         let options = Options()
         options.tracesSampleRate = 0.1

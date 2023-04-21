@@ -13,7 +13,7 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         }
         
         var sut: SentryFramesTrackingIntegration {
-            return SentryFramesTrackingIntegration()
+            return SentryFramesTrackingIntegration(crashWrapper: TestCrashWrapper())
         }
     }
     

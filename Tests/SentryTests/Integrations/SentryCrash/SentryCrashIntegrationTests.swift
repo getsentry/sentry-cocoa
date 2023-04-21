@@ -10,10 +10,10 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let hub: SentryHub
         let client: TestClient!
         let options: Options
-        let sentryCrash: TestSentryCrashWrapper
+        let sentryCrash: TestCrashWrapper
         
         init() {
-            sentryCrash = TestSentryCrashWrapper.sharedInstance()
+            sentryCrash = TestCrashWrapper()
             sentryCrash.internalActiveDurationSinceLastCrash = 5.0
             sentryCrash.internalCrashedLastLaunch = true
             
@@ -21,7 +21,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             options.dsn = SentryCrashIntegrationTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
             
-            client = TestClient(options: options, fileManager: try! SentryFileManager(options: options, andCurrentDateProvider: CurrentDate.getProvider()!, dispatchQueueWrapper: dispatchQueueWrapper), deleteOldEnvelopeItems: false)
+            client = TestClient(options: options, fileManager: try! SentryFileManager(options: options, andCurrentDateProvider: CurrentDate.getProvider()!, dispatchQueueWrapper: dispatchQueueWrapper), crashWrapper: sentryCrash, deleteOldEnvelopeItems: false)
             hub = TestHub(client: client, andScope: nil)
         }
         
@@ -100,7 +100,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     func testSystemInfoIsEmpty() {
         let scope = Scope()
-        SentryCrashIntegration.enrichScope(scope, crashWrapper: TestSentryCrashWrapper.sharedInstance())
+        SentryCrashIntegration.enrichScope(scope, crashWrapper: TestCrashWrapper())
         
         // We don't worry about the actual values
         // This is an edge case where the user doesn't use the
@@ -272,7 +272,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         api?.pointee.setEnabled(true)
         
         let transport = TestTransport()
-        let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), deleteOldEnvelopeItems: false)
+        let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), crashWrapper: fixture.sentryCrash, deleteOldEnvelopeItems: false)
         Dynamic(client).transportAdapter = TestTransportAdapter(transport: transport, options: fixture.options)
         hub.bindClient(client)
         
@@ -328,7 +328,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
     
     private func givenSutWithGlobalHubAndCrashWrapper() -> (SentryCrashIntegration, SentryHub) {
-        let sut = fixture.getSut(crashWrapper: SentryCrashWrapper.sharedInstance())
+        let sut = fixture.getSut(crashWrapper: SentryCrashWrapper())
         let hub = fixture.hub
         SentrySDK.setCurrentHub(hub)
 

@@ -19,7 +19,7 @@ SentryBaseIntegration ()
 
 - (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
 {
-    if (self = [super init]) {
+    if (!(self = [super init])) {
         return nil;
     }
 

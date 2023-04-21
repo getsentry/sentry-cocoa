@@ -16,7 +16,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         var abnormal = 0
     }
     
-    private var sentryCrash: TestSentryCrashWrapper!
+    private var sentryCrash: TestCrashWrapper!
     private var autoSessionTrackingIntegration: SentryAutoSessionTrackingIntegration!
     private var crashIntegration: SentryCrashIntegration!
     private var options: Options!
@@ -140,15 +140,15 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         
         SentrySDK.start(options: options)
         
-        sentryCrash = TestSentryCrashWrapper.sharedInstance()
+        sentryCrash = TestCrashWrapper()
         let client = SentrySDK.currentHub().getClient()
-        let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: self.sentryCrash, andCurrentDateProvider: DefaultCurrentDateProvider.sharedInstance())
+        let hub = SentryHub(client: client, andScope: nil, andCurrentDateProvider: DefaultCurrentDateProvider.sharedInstance())
         SentrySDK.setCurrentHub(hub)
         
         crashIntegration = SentryCrashIntegration(crashWrapper: sentryCrash, andDispatchQueueWrapper: TestSentryDispatchQueueWrapper())
         crashIntegration.install(with: options)
         
-        autoSessionTrackingIntegration = SentryAutoSessionTrackingIntegration()
+        autoSessionTrackingIntegration = SentryAutoSessionTrackingIntegration(crashWrapper: sentryCrash)
         autoSessionTrackingIntegration.install(with: options)
     }
     

@@ -238,7 +238,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
 
         let options = Options()
-        let hub = TestHub(client: SentryClient(options: options, fileManager: try TestFileManager(options: options), deleteOldEnvelopeItems: false), andScope: nil)
+        let hub = TestHub(client: SentryClient(options: options, fileManager: try TestFileManager(options: options), crashWrapper: TestCrashWrapper(), deleteOldEnvelopeItems: false), andScope: nil)
         let tracer = SentryTracer(transactionContext: TransactionContext(operation: "Test Operation"), hub: hub, configuration: SentryTracerConfiguration(block: { config in
             config.waitForChildren = true
         }))

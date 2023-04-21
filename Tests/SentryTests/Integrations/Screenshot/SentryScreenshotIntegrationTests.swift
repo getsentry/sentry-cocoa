@@ -15,7 +15,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         }
         
         func getSut() -> SentryScreenshotIntegration {
-            let result = SentryScreenshotIntegration()
+            let result = SentryScreenshotIntegration(crashWrapper: TestCrashWrapper())
             return result
         }
     }

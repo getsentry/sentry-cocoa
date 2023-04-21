@@ -4,8 +4,12 @@ import XCTest
 class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
     
     private class Fixture {
-        let crashWrapper = TestSentryCrashWrapper.sharedInstance()
+        let crashWrapper: TestCrashWrapper
         let dispatchQueue = TestSentryDispatchQueueWrapper()
+
+        init(crashWrapper: TestCrashWrapper) {
+            self.crashWrapper = crashWrapper
+        }
         
         var sut: SentryCrashReportSink {
             return SentryCrashReportSink(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []), crashWrapper: crashWrapper, dispatchQueue: dispatchQueue)
@@ -16,7 +20,7 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
     
     override func setUp() {
         super.setUp()
-        fixture = Fixture()
+        fixture = Fixture(crashWrapper: crashWrapper)
         
         givenSdkWithHub()
     }

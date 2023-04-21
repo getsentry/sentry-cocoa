@@ -4,7 +4,7 @@ import XCTest
 final class SentryExtraContextProviderTests: XCTestCase {
 
     private class Fixture {
-        let crashWrapper = TestSentryCrashWrapper.sharedInstance()
+        let crashWrapper = TestCrashWrapper()
         let deviceWrapper = TestSentryUIDeviceWrapper()
         let processWrapper = TestSentryNSProcessInfoWrapper()
         

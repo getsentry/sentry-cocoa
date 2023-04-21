@@ -8,7 +8,7 @@ class SentryUIEventTrackerIntegrationTests: XCTestCase {
     private class Fixture {
           
         func getSut() -> SentryUIEventTrackingIntegration {
-            return SentryUIEventTrackingIntegration()
+            return SentryUIEventTrackingIntegration(crashWrapper: TestCrashWrapper())
         }
         
         func optionForUIEventTracking(enableSwizzling: Bool = true, enableAutoPerformanceTracing: Bool = true, enableUserInteractionTracing: Bool = true, tracesSampleRate: Double = 1.0) -> Options {

@@ -10,7 +10,7 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
         var systemEventBreadcrumbs: SentryTestSystemEventBreadcrumbs?
         
         var sut: SentryAutoBreadcrumbTrackingIntegration {
-            return SentryAutoBreadcrumbTrackingIntegration()
+            return SentryAutoBreadcrumbTrackingIntegration(crashWrapper: TestCrashWrapper())
         }
     }
     
@@ -51,7 +51,7 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
         let options = Options()
         options.enableAutoBreadcrumbTracking = false
 
-        let sut = SentryAutoBreadcrumbTrackingIntegration()
+        let sut = SentryAutoBreadcrumbTrackingIntegration(crashWrapper: TestCrashWrapper())
         let result = sut.install(with: options)
 
         XCTAssertFalse(result)
@@ -60,7 +60,7 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
     func testInstall() throws {
         let options = Options()
         
-        let sut = SentryAutoBreadcrumbTrackingIntegration()
+        let sut = SentryAutoBreadcrumbTrackingIntegration(crashWrapper: TestCrashWrapper())
         try self.install(sut: sut, options: options)
         
         let scope = Scope()

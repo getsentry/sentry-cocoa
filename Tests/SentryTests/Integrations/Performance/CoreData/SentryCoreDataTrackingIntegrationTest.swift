@@ -16,7 +16,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         }
         
         func getSut() -> SentryCoreDataTrackingIntegration {
-            return SentryCoreDataTrackingIntegration()
+            return SentryCoreDataTrackingIntegration(crashWrapper: TestCrashWrapper())
         }
     }
     

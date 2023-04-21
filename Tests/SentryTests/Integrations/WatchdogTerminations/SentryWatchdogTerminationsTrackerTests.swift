@@ -10,7 +10,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         
         let options: Options
         let client: TestClient!
-        let crashWrapper: TestSentryCrashWrapper
+        let crashWrapper: TestCrashWrapper
         lazy var mockFileManager = try! TestFileManager(options: options, andCurrentDateProvider: currentDate)
         lazy var realFileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDate, dispatchQueueWrapper: dispatchQueue)
         let currentDate = TestCurrentDateProvider()
@@ -25,9 +25,9 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             
             client = TestClient(options: options)
             
-            crashWrapper = TestSentryCrashWrapper.sharedInstance()
+            crashWrapper = TestCrashWrapper()
             
-            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andCurrentDateProvider: currentDate)
+            let hub = SentryHub(client: client, andScope: nil, andCurrentDateProvider: currentDate)
             SentrySDK.setCurrentHub(hub)
         }
         
