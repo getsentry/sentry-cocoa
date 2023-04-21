@@ -381,7 +381,7 @@ static NSUInteger startInvocations;
     SentryHub *hub = SentrySDK.currentHub;
 
     // Uninstall all the integrations
-    for (NSObject<SentryIntegrationProtocol> *integration in hub.installedIntegrations) {
+    for (SentryBaseIntegration *integration in hub.installedIntegrations) {
         if ([integration respondsToSelector:@selector(uninstall)]) {
             [integration uninstall];
         }
