@@ -11,8 +11,8 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
         Options()
     }
     
-    override func setUp() {
-        super.setUp()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
         crashWrapper = TestCrashWrapper()
         currentDate = TestCurrentDateProvider()
     }

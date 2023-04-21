@@ -7,27 +7,21 @@ class SentrySessionTrackerTests: XCTestCase {
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySessionTrackerTests")
     
     private class Fixture {
-        
-        let options: Options
-        let currentDateProvider = TestCurrentDateProvider()
-        let client: TestClient!
-        let sentryCrash: TestCrashWrapper
-
-        let notificationCenter = TestNSNotificationCenterWrapper()
-        let dispatchQueue = TestSentryDispatchQueueWrapper()
-        lazy var fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueue)
-        
-        init() {
-            options = Options()
+        lazy var options = {
+            let options = Options()
             options.dsn = SentrySessionTrackerTests.dsnAsString
             options.releaseName = "SentrySessionTrackerIntegrationTests"
             options.sessionTrackingIntervalMillis = 10_000
             options.environment = "debug"
-            
-            client = TestClient(options: options)
-            
-            sentryCrash = TestCrashWrapper()
-        }
+            return options
+        }()
+        let currentDateProvider = TestCurrentDateProvider()
+        lazy var client = TestClient(options: options, fileManager: fileManager, crashWrapper: sentryCrash, deleteOldEnvelopeItems: false)!
+        lazy var sentryCrash = TestCrashWrapper()
+
+        let notificationCenter = TestNSNotificationCenterWrapper()
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
+        lazy var fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueue)
         
         func getSut() -> SessionTracker {
             return SessionTracker(options: options, currentDateProvider: currentDateProvider, notificationCenter: notificationCenter)
@@ -184,7 +178,7 @@ class SentrySessionTrackerTests: XCTestCase {
         goToForeground()
         goToBackground(forSeconds: 2)
         advanceTime(bySeconds: 2)
-        // Terminate and goToBackground not called intenionally, because we don't want to end the session
+        // Terminate and goToBackground not called intentionally, because we don't want to end the session
         sut.stop()
         
         advanceTime(bySeconds: 1)
@@ -201,7 +195,7 @@ class SentrySessionTrackerTests: XCTestCase {
         goToForeground()
         advanceTime(bySeconds: 5)
         goToBackground()
-        // Terminate not called intenionally, because we don't want to end the session properly
+        // Terminate not called intentionally, because we don't want to end the session properly
         sut.stop()
         
         advanceTime(bySeconds: 1)
@@ -409,7 +403,7 @@ class SentrySessionTrackerTests: XCTestCase {
     private func crashInForeground() {
         sut.start()
         goToForeground()
-        // Terminate and background not called intenionally, because the app crashed
+        // Terminate and background not called intentionally, because the app crashed
         sut.stop()
         fixture.sentryCrash.internalCrashedLastLaunch = true
     }
@@ -417,7 +411,7 @@ class SentrySessionTrackerTests: XCTestCase {
     private func crashInBackground() {
         sut.start()
         goToBackground()
-        // Terminate not called intenionally, because the app crashed
+        // Terminate not called intentionally, because the app crashed
         sut.stop()
         fixture.sentryCrash.internalCrashedLastLaunch = true
     }
