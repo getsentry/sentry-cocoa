@@ -110,6 +110,9 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
     }
     
     func testAppSuspended_NoANR() {
+        // To avoid spamming the test logs
+        SentryLog.configure(true, diagnosticLevel: .error)
+        
         anrDetectedExpectation.isInverted = true
         fixture.dispatchQueue.blockBeforeMainBlock = {
             let delta = self.fixture.timeoutInterval * 2
@@ -119,6 +122,8 @@ class SentryANRTrackerTests: XCTestCase, SentryANRTrackerDelegate {
         start()
         
         wait(for: [anrDetectedExpectation, anrStoppedExpectation], timeout: waitTimeout)
+        
+        setTestDefaultLogLevel()
     }
     
     func testRemoveListener_StopsReportingANRs() {

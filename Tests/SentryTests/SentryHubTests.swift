@@ -33,7 +33,7 @@ class SentryHubTests: XCTestCase {
             event = Event()
             event.message = SentryMessage(formatted: message)
             
-            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider)
+            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
             
             CurrentDate.setCurrentDateProvider(currentDateProvider)
             
@@ -176,8 +176,8 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(crumbMessage, scopeBreadcrumbs?.first?["message"] as? String)
     }
     
-    func testAddUserToTheScope() {
-        let client = SentryClient(options: fixture.options)
+    func testAddUserToTheScope() throws {
+        let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), deleteOldEnvelopeItems: false)
         let hub = SentryHub(client: client, andScope: Scope())
 
         let user = User()

@@ -39,13 +39,6 @@ SentryPerformanceTracker () <SentryTracerDelegate>
     return self;
 }
 
-- (SentrySpanId *)startSpanWithName:(NSString *)name operation:(NSString *)operation
-{
-    return [self startSpanWithName:name
-                        nameSource:kSentryTransactionNameSourceCustom
-                         operation:operation];
-}
-
 - (SentrySpanId *)startSpanWithName:(NSString *)name
                          nameSource:(SentryTransactionNameSource)source
                           operation:(NSString *)operation
@@ -108,16 +101,6 @@ SentryPerformanceTracker () <SentryTracerDelegate>
 }
 
 - (void)measureSpanWithDescription:(NSString *)description
-                         operation:(NSString *)operation
-                           inBlock:(void (^)(void))block
-{
-    [self measureSpanWithDescription:description
-                          nameSource:kSentryTransactionNameSourceCustom
-                           operation:operation
-                             inBlock:block];
-}
-
-- (void)measureSpanWithDescription:(NSString *)description
                         nameSource:(SentryTransactionNameSource)source
                          operation:(NSString *)operation
                            inBlock:(void (^)(void))block
@@ -131,18 +114,6 @@ SentryPerformanceTracker () <SentryTracerDelegate>
     block();
     [self popActiveSpan];
     [self finishSpan:spanId];
-}
-
-- (void)measureSpanWithDescription:(NSString *)description
-                         operation:(NSString *)operation
-                      parentSpanId:(SentrySpanId *)parentSpanId
-                           inBlock:(void (^)(void))block
-{
-    [self measureSpanWithDescription:description
-                          nameSource:kSentryTransactionNameSourceCustom
-                           operation:operation
-                        parentSpanId:parentSpanId
-                             inBlock:block];
 }
 
 - (void)measureSpanWithDescription:(NSString *)description

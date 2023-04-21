@@ -162,7 +162,8 @@ std::mutex _gProfilerLock;
 SentryProfiler *_Nullable _gCurrentProfiler;
 SentryNSProcessInfoWrapper *_gCurrentProcessInfoWrapper;
 SentrySystemWrapper *_gCurrentSystemWrapper;
-SentryNSTimerWrapper *_gCurrentTimerWrapper;
+SentryNSTimerWrapper *_gMetricTimerWrapper;
+SentryNSTimerWrapper *_gTimeoutTimerWrapper;
 #    if SENTRY_HAS_UIKIT
 SentryFramesTracker *_gCurrentFramesTracker;
 #    endif // SENTRY_HAS_UIKIT
@@ -185,75 +186,49 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
  * Convert the data structure that records timestamps for GPU frame render info from
  * SentryFramesTracker to the structure expected for profiling metrics, and throw out any that
  * didn't occur within the profile time.
+ * @param useMostRecentRecording @c SentryFramesTracker doesn't stop running once it starts.
+ * Although we reset the profiling timestamps each time the profiler stops and starts, concurrent
+ * transactions that start after the first one won't have a screen frame rate recorded within their
+ * timeframe, because it will have already been recorded for the first transaction and isn't
+ * recorded again unless the system changes it. In these cases, use the most recently recorded data
+ * for it.
  */
 NSArray<SentrySerializedMetricReading *> *
-processFrameRenders(SentryFrameInfoTimeSeries *frameInfo, SentryTransaction *transaction)
+sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, SentryTransaction *transaction,
+    BOOL useMostRecentRecording)
 {
-    auto relativeFrameInfo = [NSMutableArray<SentrySerializedMetricEntry *> array];
+    auto slicedGPUEntries = [NSMutableArray<SentrySerializedMetricEntry *> array];
+    __block NSNumber *nearestPredecessorValue;
     [frameInfo enumerateObjectsUsingBlock:^(
         NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-        const auto frameRenderStart = obj[@"start_timestamp"].unsignedLongLongValue;
-
-        if (!orderedChronologically(transaction.startSystemTime, frameRenderStart)) {
-            SENTRY_LOG_DEBUG(@"GPU frame render started before profile start, will not report it.");
-            return;
-        }
-        const auto frameRenderEnd = obj[@"end_timestamp"].unsignedLongLongValue;
-        if (orderedChronologically(transaction.endSystemTime, frameRenderEnd)) {
-            SENTRY_LOG_DEBUG(@"Frame render finished after transaction finished, won't record.");
-            return;
-        }
-        const auto relativeFrameRenderStart
-            = getDurationNs(transaction.startSystemTime, frameRenderStart);
-        const auto relativeFrameRenderEnd
-            = getDurationNs(transaction.startSystemTime, frameRenderEnd);
-
-        // this probably won't happen, but doesn't hurt to have one last defensive check before
-        // calling getDurationNs
-        if (!orderedChronologically(relativeFrameRenderStart, relativeFrameRenderEnd)) {
-            SENTRY_LOG_WARN(
-                @"Computed relative start and end timestamps are not chronologically ordered.");
-            return;
-        }
-        const auto frameRenderDurationNs
-            = getDurationNs(relativeFrameRenderStart, relativeFrameRenderEnd);
-
-        [relativeFrameInfo addObject:@{
-            @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeFrameRenderStart),
-            @"value" : @(frameRenderDurationNs),
-        }];
-    }];
-    return relativeFrameInfo;
-}
-
-/**
- * Convert the data structure that records timestamps for GPU frame rate info from
- * SentryFramesTracker to the structure expected for profiling metrics.
- */
-NSArray<NSDictionary *> *
-processFrameRates(SentryFrameInfoTimeSeries *frameRates, SentryTransaction *transaction)
-{
-    auto relativeFrameRates = [NSMutableArray array];
-    [frameRates enumerateObjectsUsingBlock:^(
-        NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
         const auto timestamp = obj[@"timestamp"].unsignedLongLongValue;
-        const auto refreshRate = obj[@"frame_rate"];
 
         if (!orderedChronologically(transaction.startSystemTime, timestamp)) {
-            return;
-        }
-        if (orderedChronologically(transaction.endSystemTime, timestamp)) {
+            SENTRY_LOG_DEBUG(@"GPU info recorded (%llu) before transaction start (%llu), "
+                             @"will not report it.",
+                timestamp, transaction.startSystemTime);
+            nearestPredecessorValue = obj[@"value"];
             return;
         }
 
+        if (!orderedChronologically(timestamp, transaction.endSystemTime)) {
+            SENTRY_LOG_DEBUG(@"GPU info recorded after transaction finished, won't record.");
+            return;
+        }
         const auto relativeTimestamp = getDurationNs(transaction.startSystemTime, timestamp);
 
-        [relativeFrameRates addObject:@ {
+        [slicedGPUEntries addObject:@ {
             @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp),
-            @"value" : refreshRate,
+            @"value" : obj[@"value"],
         }];
     }];
-    return relativeFrameRates;
+    if (useMostRecentRecording && slicedGPUEntries.count == 0) {
+        [slicedGPUEntries addObject:@ {
+            @"elapsed_since_start_ns" : @"0",
+            @"value" : nearestPredecessorValue,
+        }];
+    }
+    return slicedGPUEntries;
 }
 #    endif // SENTRY_HAS_UIKIT
 
@@ -335,12 +310,15 @@ serializedSamplesWithRelativeTimestamps(
 
     [_gCurrentProfiler start];
 
+    if (_gTimeoutTimerWrapper == nil) {
+        _gTimeoutTimerWrapper = [[SentryNSTimerWrapper alloc] init];
+    }
     _gCurrentProfiler->_timeoutTimer =
-        [NSTimer scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
-                                         target:self
-                                       selector:@selector(timeoutAbort)
-                                       userInfo:nil
-                                        repeats:NO];
+        [_gTimeoutTimerWrapper scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
+                                                       target:self
+                                                     selector:@selector(timeoutAbort)
+                                                     userInfo:nil
+                                                      repeats:NO];
 #    if SENTRY_HAS_UIKIT
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(backgroundAbort)
@@ -419,21 +397,23 @@ serializedSamplesWithRelativeTimestamps(
     const auto metrics = [_gCurrentProfiler->_metricProfiler serializeForTransaction:transaction];
 
 #    if SENTRY_HAS_UIKIT
-    const auto slowFrames = processFrameRenders(
-        _gCurrentFramesTracker.currentFrames.slowFrameTimestamps, transaction);
+    const auto slowFrames = sliceGPUData(_gCurrentFramesTracker.currentFrames.slowFrameTimestamps,
+        transaction, /*useMostRecentRecording */ NO);
     if (slowFrames.count > 0) {
         metrics[@"slow_frame_renders"] = @{ @"unit" : @"nanosecond", @"values" : slowFrames };
     }
 
-    const auto frozenFrames = processFrameRenders(
-        _gCurrentFramesTracker.currentFrames.frozenFrameTimestamps, transaction);
+    const auto frozenFrames
+        = sliceGPUData(_gCurrentFramesTracker.currentFrames.frozenFrameTimestamps, transaction,
+            /*useMostRecentRecording */ NO);
     if (frozenFrames.count > 0) {
         metrics[@"frozen_frame_renders"] = @{ @"unit" : @"nanosecond", @"values" : frozenFrames };
     }
 
     if (slowFrames.count > 0 || frozenFrames.count > 0) {
-        const auto frameRates = processFrameRates(
-            _gCurrentFramesTracker.currentFrames.frameRateTimestamps, transaction);
+        const auto frameRates
+            = sliceGPUData(_gCurrentFramesTracker.currentFrames.frameRateTimestamps, transaction,
+                /*useMostRecentRecording */ YES);
         if (frameRates.count > 0) {
             metrics[@"screen_frame_rates"] = @{ @"unit" : @"hz", @"values" : frameRates };
         }
@@ -471,10 +451,16 @@ serializedSamplesWithRelativeTimestamps(
     _gCurrentProcessInfoWrapper = processInfoWrapper;
 }
 
-+ (void)useTimerWrapper:(SentryNSTimerWrapper *)timerWrapper
++ (void)useMetricTimerWrapper:(SentryNSTimerWrapper *)timerWrapper
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
-    _gCurrentTimerWrapper = timerWrapper;
+    _gMetricTimerWrapper = timerWrapper;
+}
+
++ (void)useTimeoutTimerWrapper:(SentryNSTimerWrapper *)timerWrapper
+{
+    std::lock_guard<std::mutex> l(_gProfilerLock);
+    _gTimeoutTimerWrapper = timerWrapper;
 }
 
 #    if SENTRY_HAS_UIKIT
@@ -537,10 +523,10 @@ serializedSamplesWithRelativeTimestamps(
         _gCurrentSystemWrapper = [[SentrySystemWrapper alloc] init];
     }
     if (_gCurrentProcessInfoWrapper == nil) {
-        _gCurrentProcessInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
+        _gCurrentProcessInfoWrapper = [SentryDependencyContainer.sharedInstance processInfoWrapper];
     }
-    if (_gCurrentTimerWrapper == nil) {
-        _gCurrentTimerWrapper = [[SentryNSTimerWrapper alloc] init];
+    if (_gMetricTimerWrapper == nil) {
+        _gMetricTimerWrapper = [[SentryNSTimerWrapper alloc] init];
     }
 #    if SENTRY_HAS_UIKIT
     if (_gCurrentFramesTracker == nil) {
@@ -550,7 +536,7 @@ serializedSamplesWithRelativeTimestamps(
     _metricProfiler =
         [[SentryMetricProfiler alloc] initWithProcessInfoWrapper:_gCurrentProcessInfoWrapper
                                                    systemWrapper:_gCurrentSystemWrapper
-                                                    timerWrapper:_gCurrentTimerWrapper];
+                                                    timerWrapper:_gMetricTimerWrapper];
     [_metricProfiler start];
 }
 
@@ -649,8 +635,20 @@ serializedSamplesWithRelativeTimestamps(
                 SENTRY_LOG_WARN(@"Profiler instance no longer exists, cannot process next sample.");
                 return;
             }
+
+        // in test, we'll overwrite the sample's timestamp to one mocked by SentryCurrentDate etal.
+        // Doing this in a unified way between tests and production required extensive changes to
+        // the C++ layer, so we opted for this solution to avoid any potential breakages or
+        // performance hits there.
+#    if defined(TEST) || defined(TESTCI)
+            Backtrace backtraceCopy = backtrace;
+            backtraceCopy.absoluteTimestamp = SentryCurrentDate.systemTime;
+            processBacktrace(backtraceCopy, threadMetadata, queueMetadata, samples, stacks, frames,
+                frameIndexLookup, stackIndexLookup);
+#    else
             processBacktrace(backtrace, threadMetadata, queueMetadata, samples, stacks, frames,
                 frameIndexLookup, stackIndexLookup);
+#    endif // defined(TEST) || defined(TESTCI)
         },
         kSentryProfilerFrequencyHz);
     _profiler->startSampling();

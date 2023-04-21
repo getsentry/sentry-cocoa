@@ -1,5 +1,6 @@
 #import "SentryBreadcrumbTracker.h"
 #import "SentryBreadcrumb.h"
+#import "SentryBreadcrumbDelegate.h"
 #import "SentryClient.h"
 #import "SentryDefines.h"
 #import "SentryHub.h"
@@ -25,6 +26,7 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
 SentryBreadcrumbTracker ()
 
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
+@property (nonatomic, weak) id<SentryBreadcrumbDelegate> delegate;
 
 @end
 
@@ -38,8 +40,9 @@ SentryBreadcrumbTracker ()
     return self;
 }
 
-- (void)start
+- (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate
 {
+    _delegate = delegate;
     [self addEnabledCrumb];
     [self trackApplicationUIKitNotifications];
 }
@@ -57,6 +60,7 @@ SentryBreadcrumbTracker ()
 #if SENTRY_HAS_UIKIT
     [self.swizzleWrapper removeSwizzleSendActionForKey:SentryBreadcrumbTrackerSwizzleSendAction];
 #endif
+    _delegate = nil;
 }
 
 - (void)trackApplicationUIKitNotifications
@@ -81,15 +85,13 @@ SentryBreadcrumbTracker ()
                     object:nil
                      queue:nil
                 usingBlock:^(NSNotification *notification) {
-                    if (nil != [SentrySDK.currentHub getClient]) {
-                        SentryBreadcrumb *crumb =
-                            [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelWarning
-                                                           category:@"device.event"];
-                        crumb.type = @"system";
-                        crumb.data = @ { @"action" : @"LOW_MEMORY" };
-                        crumb.message = @"Low memory";
-                        [SentrySDK addBreadcrumb:crumb];
-                    }
+                    SentryBreadcrumb *crumb =
+                        [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelWarning
+                                                       category:@"device.event"];
+                    crumb.type = @"system";
+                    crumb.data = @ { @"action" : @"LOW_MEMORY" };
+                    crumb.message = @"Low memory";
+                    [self.delegate addBreadcrumb:crumb];
                 }];
 #endif
 
@@ -124,12 +126,10 @@ SentryBreadcrumbTracker ()
                   withDataKey:(NSString *)key
                 withDataValue:(NSString *)value
 {
-    if (nil != [SentrySDK.currentHub getClient]) {
-        SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:level category:category];
-        crumb.type = type;
-        crumb.data = @{ key : value };
-        [SentrySDK addBreadcrumb:crumb];
-    }
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:level category:category];
+    crumb.type = type;
+    crumb.data = @{ key : value };
+    [self.delegate addBreadcrumb:crumb];
 }
 
 - (void)addEnabledCrumb
@@ -138,7 +138,7 @@ SentryBreadcrumbTracker ()
                                                              category:@"started"];
     crumb.type = @"debug";
     crumb.message = @"Breadcrumb Tracking";
-    [SentrySDK addBreadcrumb:crumb];
+    [self.delegate addBreadcrumb:crumb];
 }
 
 #if SENTRY_HAS_UIKIT
@@ -165,8 +165,7 @@ SentryBreadcrumbTracker ()
 #if SENTRY_HAS_UIKIT
     [self.swizzleWrapper
         swizzleSendAction:^(NSString *action, id target, id sender, UIEvent *event) {
-            if ([SentrySDK.currentHub getClient] == nil ||
-                [SentryBreadcrumbTracker avoidSender:sender forTarget:target action:action]) {
+            if ([SentryBreadcrumbTracker avoidSender:sender forTarget:target action:action]) {
                 return;
             }
 
@@ -182,7 +181,7 @@ SentryBreadcrumbTracker ()
             crumb.type = @"user";
             crumb.message = action;
             crumb.data = data;
-            [SentrySDK addBreadcrumb:crumb];
+            [self.delegate addBreadcrumb:crumb];
         }
                    forKey:SentryBreadcrumbTrackerSwizzleSendAction];
 

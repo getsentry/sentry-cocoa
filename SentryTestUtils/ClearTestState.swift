@@ -5,6 +5,10 @@ public func clearTestState() {
     TestCleanup.clearTestState()
 }
 
+public func setTestDefaultLogLevel() {
+    SentryLog.configure(true, diagnosticLevel: .debug)
+}
+
 @objcMembers
 class TestCleanup: NSObject {
     static func clearTestState() {
@@ -17,6 +21,8 @@ class TestCleanup: NSObject {
         SentrySDK.setAppStartMeasurement(nil)
         CurrentDate.setCurrentDateProvider(nil)
         SentryNetworkTracker.sharedInstance.disable()
+        
+        setTestDefaultLogLevel()
 
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let framesTracker = SentryFramesTracker.sharedInstance()
@@ -34,5 +40,9 @@ class TestCleanup: NSObject {
         SentrySwizzleWrapper.sharedInstance.removeAllCallbacks()
 
         SentryTracer.resetAppStartMeasurementRead()
+
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+        SentryTracer.resetConcurrencyTracking()
+#endif
     }
 }
