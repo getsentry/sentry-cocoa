@@ -1377,7 +1377,7 @@ class SentryClientTest: XCTestCase {
         SentrySDK.setCurrentHub(hub)
         
         func addIntegrations(amount: Int) {
-            let emptyIntegration = EmptyIntegration()
+            let emptyIntegration = EmptyIntegration(crashWrapper: TestSentryCrashWrapper())
             for i in 0..<amount {
                 hub.addInstalledIntegration(emptyIntegration, name: "Integration\(i)")
             }

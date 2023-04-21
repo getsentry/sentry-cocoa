@@ -33,7 +33,6 @@ SentryHub ()
 @property (nullable, nonatomic, strong) SentryClient *client;
 @property (nullable, nonatomic, strong) SentrySession *session;
 @property (nullable, nonatomic, strong) SentryScope *scope;
-@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryTracesSampler *tracesSampler;
 @property (nonatomic, strong) SentryProfilesSampler *profilesSampler;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
@@ -58,7 +57,6 @@ SentryHub ()
         _integrationsLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
         _installedIntegrationNames = [[NSMutableSet alloc] init];
-        _crashWrapper = [SentryCrashWrapper sharedInstance];
         _tracesSampler = [[SentryTracesSampler alloc] initWithOptions:client.options];
         _errorsBeforeSession = 0;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -74,11 +72,9 @@ SentryHub ()
 /** Internal constructor for testing */
 - (instancetype)initWithClient:(nullable SentryClient *)client
                       andScope:(nullable SentryScope *)scope
-               andCrashWrapper:(SentryCrashWrapper *)crashWrapper
         andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
 {
     self = [self initWithClient:client andScope:scope];
-    _crashWrapper = crashWrapper;
     _currentDateProvider = currentDateProvider;
 
     return self;
@@ -171,7 +167,7 @@ SentryHub ()
 
     // The crashed session is handled in SentryCrashIntegration. Checkout the comments there to find
     // out more.
-    if (!self.crashWrapper.crashedLastLaunch) {
+    if (!self.client.crashWrapper.crashedLastLaunch) {
         if (timestamp == nil) {
             SENTRY_LOG_DEBUG(@"No timestamp to close session was provided. Closing as abnormal. "
                              @"Using session's start time %@",

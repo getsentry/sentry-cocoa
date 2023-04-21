@@ -4,21 +4,25 @@
 
 @implementation TestSentryCrashWrapper
 
-+ (instancetype)sharedInstance
+- (instancetype)init
 {
-    TestSentryCrashWrapper *instance = [[self alloc] init];
-    instance.internalActiveDurationSinceLastCrash = NO;
-    instance.internalDurationFromCrashStateInitToLastCrash = 0;
-    instance.internalActiveDurationSinceLastCrash = 0;
-    instance.internalIsBeingTraced = NO;
-    instance.internalIsSimulatorBuild = NO;
-    instance.internalIsApplicationInForeground = YES;
-    instance.installAsyncHooksCalled = NO;
-    instance.uninstallAsyncHooksCalled = NO;
-    instance.internalFreeMemorySize = 0;
-    instance.internalAppMemorySize = 0;
-    instance.internalFreeStorageSize = 0;
-    return instance;
+    if (!(self = [super init])) {
+        return nil;
+    }
+
+    _internalActiveDurationSinceLastCrash = NO;
+    _internalDurationFromCrashStateInitToLastCrash = 0;
+    _internalActiveDurationSinceLastCrash = 0;
+    _internalIsBeingTraced = NO;
+    _internalIsSimulatorBuild = NO;
+    _internalIsApplicationInForeground = YES;
+    _installAsyncHooksCalled = NO;
+    _uninstallAsyncHooksCalled = NO;
+    _internalFreeMemorySize = 0;
+    _internalAppMemorySize = 0;
+    _internalFreeStorageSize = 0;
+
+    return self;
 }
 
 - (BOOL)crashedLastLaunch

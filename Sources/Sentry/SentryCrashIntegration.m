@@ -33,7 +33,7 @@ SentryCrashIntegration ()
 
 @property (nonatomic, weak) SentryOptions *options;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
-@property (nonatomic, strong) SentryCrashWrapper *crashAdapter;
+@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentrySessionCrashedHandler *crashedSessionHandler;
 @property (nonatomic, strong) SentryCrashScopeObserver *scopeObserver;
 
@@ -41,20 +41,12 @@ SentryCrashIntegration ()
 
 @implementation SentryCrashIntegration
 
-- (instancetype)init
-{
-    self = [self initWithCrashAdapter:[SentryCrashWrapper sharedInstance]
-              andDispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]];
-
-    return self;
-}
-
 /** Internal constructor for testing */
-- (instancetype)initWithCrashAdapter:(SentryCrashWrapper *)crashAdapter
+- (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
              andDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
-    if (self = [super init]) {
-        self.crashAdapter = crashAdapter;
+    if (self = [super initWithCrashWrapper:crashWrapper]) {
+        self.crashWrapper = crashWrapper;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
     }
 
@@ -73,10 +65,10 @@ SentryCrashIntegration ()
         [SentryDependencyContainer sharedInstance].appStateManager;
     SentryWatchdogTerminationLogic *logic =
         [[SentryWatchdogTerminationLogic alloc] initWithOptions:options
-                                                   crashAdapter:self.crashAdapter
+                                                   crashWrapper:self.crashWrapper
                                                 appStateManager:appStateManager];
     self.crashedSessionHandler =
-        [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:self.crashAdapter
+        [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:self.crashWrapper
                                          watchdogTerminationLogic:logic];
 
     self.scopeObserver =
@@ -85,7 +77,7 @@ SentryCrashIntegration ()
     [self startCrashHandler];
 
     if (options.stitchAsyncCode) {
-        [self.crashAdapter installAsyncHooks];
+        [self.crashWrapper installAsyncHooks];
     }
 
     [self configureScope];
@@ -109,7 +101,7 @@ SentryCrashIntegration ()
 
             installation = [[SentryCrashInstallationReporter alloc]
                 initWithInAppLogic:inAppLogic
-                      crashWrapper:self.crashAdapter
+                      crashWrapper:self.crashWrapper
                      dispatchQueue:self.dispatchQueueWrapper];
 
             canSendReports = YES;
@@ -162,7 +154,7 @@ SentryCrashIntegration ()
         installationToken = 0;
     }
 
-    [self.crashAdapter uninstallAsyncHooks];
+    [self.crashWrapper uninstallAsyncHooks];
 
     [NSNotificationCenter.defaultCenter removeObserver:self
                                                   name:NSCurrentLocaleDidChangeNotification
@@ -174,7 +166,7 @@ SentryCrashIntegration ()
     // We need to make sure to set always the scope to KSCrash so we have it in
     // case of a crash
     [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
-        [SentryCrashIntegration enrichScope:outerScope crashWrapper:self.crashAdapter];
+        [SentryCrashIntegration enrichScope:outerScope crashWrapper:self.crashWrapper];
 
         NSMutableDictionary<NSString *, id> *userInfo =
             [[NSMutableDictionary alloc] initWithDictionary:[outerScope serialize]];

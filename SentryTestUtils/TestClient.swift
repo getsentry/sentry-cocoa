@@ -2,15 +2,15 @@ import Foundation
 
 public class TestClient: SentryClient {
     public override init?(options: Options) {
-        super.init(options: options, fileManager: try! TestFileManager(options: options), deleteOldEnvelopeItems: false, transportAdapter: TestTransportAdapter(transport: TestTransport(), options: options))
+        super.init(options: options, fileManager: try! TestFileManager(options: options), crashWrapper: TestSentryCrashWrapper(), deleteOldEnvelopeItems: false, transportAdapter: TestTransportAdapter(transport: TestTransport(), options: options))
     }
 
     public override init?(options: Options, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool) {
-        super.init(options: options, fileManager: fileManager, deleteOldEnvelopeItems: deleteOldEnvelopeItems, transportAdapter: TestTransportAdapter(transport: TestTransport(), options: options))
+        super.init(options: options, fileManager: fileManager, crashWrapper: <#SentryCrashWrapper#>, deleteOldEnvelopeItems: deleteOldEnvelopeItems, transportAdapter: TestTransportAdapter(transport: TestTransport(), options: options))
     }
     
     public override init(options: Options, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool, transportAdapter: SentryTransportAdapter) {
-        super.init(options: options, fileManager: fileManager, deleteOldEnvelopeItems: deleteOldEnvelopeItems, transportAdapter: transportAdapter)
+        super.init(options: options, fileManager: fileManager, crashWrapper: <#SentryCrashWrapper#>, deleteOldEnvelopeItems: deleteOldEnvelopeItems, transportAdapter: transportAdapter)
     }
     
     // Without this override we get a fatal error: use of unimplemented initializer
@@ -20,6 +20,7 @@ public class TestClient: SentryClient {
             options: options,
             transportAdapter: transportAdapter,
             fileManager: fileManager,
+            crashWrapper: <#SentryCrashWrapper#>,
             deleteOldEnvelopeItems: false,
             threadInspector: threadInspector,
             random: random,

@@ -5,7 +5,6 @@
 #import "SentryUIApplication.h"
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
-#import <SentryCrashWrapper.h>
 #import <SentryDebugImageProvider.h>
 #import <SentryDefaultCurrentDateProvider.h>
 #import <SentryDependencyContainer.h>
@@ -65,7 +64,7 @@ static NSObject *sentryDependencyContainerLock;
             SentryOptions *options = [[[SentrySDK currentHub] getClient] options];
             _appStateManager = [[SentryAppStateManager alloc]
                           initWithOptions:options
-                             crashWrapper:self.crashWrapper
+                             crashWrapper:[[[SentrySDK currentHub] getClient] crashWrapper]
                               fileManager:self.fileManager
                       currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
                                    sysctl:[[SentrySysctl alloc] init]
@@ -74,18 +73,6 @@ static NSObject *sentryDependencyContainerLock;
         }
         return _appStateManager;
     }
-}
-
-- (SentryCrashWrapper *)crashWrapper
-{
-    if (_crashWrapper == nil) {
-        @synchronized(sentryDependencyContainerLock) {
-            if (_crashWrapper == nil) {
-                _crashWrapper = [SentryCrashWrapper sharedInstance];
-            }
-        }
-    }
-    return _crashWrapper;
 }
 
 - (SentryThreadWrapper *)threadWrapper
@@ -203,7 +190,7 @@ static NSObject *sentryDependencyContainerLock;
                 _anrTracker = [[SentryANRTracker alloc]
                     initWithTimeoutInterval:timeout
                         currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
-                               crashWrapper:self.crashWrapper
+                               crashWrapper:[[[SentrySDK currentHub] getClient] crashWrapper]
                        dispatchQueueWrapper:self.dispatchQueueWrapper
                               threadWrapper:self.threadWrapper];
             }

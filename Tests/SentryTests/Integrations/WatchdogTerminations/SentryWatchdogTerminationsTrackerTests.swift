@@ -47,7 +47,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             )
             let logic = SentryWatchdogTerminationLogic(
                 options: options,
-                crashAdapter: crashWrapper,
+                crashWrapper: crashWrapper,
                 appStateManager: appStateManager
             )
             return SentryWatchdogTerminationTracker(

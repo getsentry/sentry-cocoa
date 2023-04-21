@@ -3,7 +3,7 @@
 #import "SentryDiscardReason.h"
 
 @class SentrySession, SentryEnvelopeItem, SentryId, SentryAttachment, SentryThreadInspector,
-    SentryEnvelope;
+    SentryEnvelope, SentryCrashWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -22,6 +22,7 @@ SentryClient ()
     NSMutableArray<id<SentryClientAttachmentProcessor>> *attachmentProcessors;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
 @property (nonatomic, strong) SentryFileManager *fileManager;
+@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 
 - (SentryId *)captureError:(NSError *)error
                  withScope:(SentryScope *)scope

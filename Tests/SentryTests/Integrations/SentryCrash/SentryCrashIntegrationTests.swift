@@ -37,13 +37,13 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         }
         
         func getSut(crashWrapper: SentryCrashWrapper) -> SentryCrashIntegration {
-            return SentryCrashIntegration(crashAdapter: crashWrapper, andDispatchQueueWrapper: dispatchQueueWrapper)
+            return SentryCrashIntegration(crashWrapper: crashWrapper, andDispatchQueueWrapper: dispatchQueueWrapper)
         }
         
         var sutWithoutCrash: SentryCrashIntegration {
             let crash = sentryCrash
             crash.internalCrashedLastLaunch = false
-            return SentryCrashIntegration(crashAdapter: crash, andDispatchQueueWrapper: dispatchQueueWrapper)
+            return SentryCrashIntegration(crashWrapper: crash, andDispatchQueueWrapper: dispatchQueueWrapper)
         }
     }
     
@@ -168,7 +168,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         
         let sentryCrash = fixture.sentryCrash
         sentryCrash.internalCrashedLastLaunch = false
-        let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        let sut = SentryCrashIntegration(crashWrapper: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
         sut.install(with: Options())
         
         let fileManager = fixture.client.fileManager

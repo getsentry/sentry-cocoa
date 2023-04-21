@@ -28,9 +28,9 @@ SentryWatchdogTerminationTrackingIntegration ()
 
 @implementation SentryWatchdogTerminationTrackingIntegration
 
-- (instancetype)init
+- (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
 {
-    if (self = [super init]) {
+    if (self = [super initWithCrashWrapper:crashWrapper]) {
         self.testConfigurationFilePath
             = NSProcessInfo.processInfo.environment[@"XCTestConfigurationFilePath"];
     }
@@ -56,10 +56,10 @@ SentryWatchdogTerminationTrackingIntegration ()
     SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
     SentryAppStateManager *appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
-    SentryCrashWrapper *crashWrapper = [SentryDependencyContainer sharedInstance].crashWrapper;
+    SentryCrashWrapper *crashWrapper = [[SentrySDK currentHub] getClient].crashWrapper;
     SentryWatchdogTerminationLogic *logic =
         [[SentryWatchdogTerminationLogic alloc] initWithOptions:options
-                                                   crashAdapter:crashWrapper
+                                                   crashWrapper:crashWrapper
                                                 appStateManager:appStateManager];
 
     self.tracker = [[SentryWatchdogTerminationTracker alloc] initWithOptions:options

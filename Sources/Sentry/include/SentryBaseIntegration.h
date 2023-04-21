@@ -1,6 +1,9 @@
+#import "SentryDefines.h"
 #import "SentryIntegrationProtocol.h"
 #import "SentryOptions.h"
 #import <Foundation/Foundation.h>
+
+@class SentryCrashWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,6 +30,10 @@ typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
 };
 
 @interface SentryBaseIntegration : NSObject <SentryIntegrationProtocol>
+
+SENTRY_NO_INIT
+
+- (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper;
 
 - (NSString *)integrationName;
 - (BOOL)installWithOptions:(SentryOptions *)options;

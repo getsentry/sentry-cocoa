@@ -14,7 +14,7 @@
 SentryWatchdogTerminationLogic ()
 
 @property (nonatomic, strong) SentryOptions *options;
-@property (nonatomic, strong) SentryCrashWrapper *crashAdapter;
+@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 
 @end
@@ -22,12 +22,12 @@ SentryWatchdogTerminationLogic ()
 @implementation SentryWatchdogTerminationLogic
 
 - (instancetype)initWithOptions:(SentryOptions *)options
-                   crashAdapter:(SentryCrashWrapper *)crashAdapter
+                   crashWrapper:(SentryCrashWrapper *)crashWrapper
                 appStateManager:(SentryAppStateManager *)appStateManager
 {
     if (self = [super init]) {
         self.options = options;
-        self.crashAdapter = crashAdapter;
+        self.crashWrapper = crashWrapper;
         self.appStateManager = appStateManager;
     }
     return self;
@@ -48,7 +48,7 @@ SentryWatchdogTerminationLogic ()
         return NO;
     }
 
-    if (self.crashAdapter.isSimulatorBuild) {
+    if (self.crashWrapper.isSimulatorBuild) {
         return NO;
     }
 
@@ -80,7 +80,7 @@ SentryWatchdogTerminationLogic ()
     }
 
     // The app crashed on the previous run. No Watchdog Termination.
-    if (self.crashAdapter.crashedLastLaunch) {
+    if (self.crashWrapper.crashedLastLaunch) {
         return NO;
     }
 

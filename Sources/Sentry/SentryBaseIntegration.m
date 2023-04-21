@@ -1,13 +1,31 @@
 #import "SentryBaseIntegration.h"
+#import "SentryClient+Private.h"
 #import "SentryCrashWrapper.h"
+#import "SentryHub+Private.h"
 #import "SentryLog.h"
+#import "SentrySDK+Private.h"
 #import <Foundation/Foundation.h>
 #import <SentryDependencyContainer.h>
 #import <SentryOptions+Private.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface
+SentryBaseIntegration ()
+@property (strong, nonatomic) SentryCrashWrapper *crashWrapper;
+@end
+
 @implementation SentryBaseIntegration
+
+- (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
+{
+    if (self = [super init]) {
+        return nil;
+    }
+
+    _crashWrapper = crashWrapper;
+    return self;
+}
 
 - (NSString *)integrationName
 {
@@ -127,7 +145,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     if ((integrationOptions & kIntegrationOptionDebuggerNotAttached) &&
-        [SentryDependencyContainer.sharedInstance.crashWrapper isBeingTraced]) {
+        [[[SentrySDK currentHub] getClient].crashWrapper isBeingTraced]) {
         [self logWithReason:@"because the debugger is attached"];
         return NO;
     }

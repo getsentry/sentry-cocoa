@@ -6,10 +6,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Written in Objective-C because Swift doesn't allow you to call the constructor of
- * TestSentryCrashAdapter. We override sharedInstance in the implementation file to make it work.
+ * TestSentryCrashWrapper. We override sharedInstance in the implementation file to make it work.
  */
 @interface TestSentryCrashWrapper : SentryCrashWrapper
-SENTRY_NO_INIT
 
 @property (nonatomic, assign) BOOL internalCrashedLastLaunch;
 

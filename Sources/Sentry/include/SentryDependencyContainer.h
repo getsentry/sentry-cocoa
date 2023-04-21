@@ -2,9 +2,9 @@
 #import "SentryFileManager.h"
 #import "SentryRandom.h"
 
-@class SentryAppStateManager, SentryCrashWrapper, SentryThreadWrapper, SentrySwizzleWrapper,
-    SentryDispatchQueueWrapper, SentryDebugImageProvider, SentryANRTracker,
-    SentryNSNotificationCenterWrapper, SentryMXManager, SentryNSProcessInfoWrapper;
+@class SentryAppStateManager, SentryThreadWrapper, SentrySwizzleWrapper, SentryDispatchQueueWrapper,
+    SentryDebugImageProvider, SentryANRTracker, SentryNSNotificationCenterWrapper, SentryMXManager,
+    SentryNSProcessInfoWrapper;
 
 #if SENTRY_HAS_UIKIT
 @class SentryScreenshot, SentryUIApplication, SentryViewHierarchy;
@@ -24,7 +24,6 @@ SENTRY_NO_INIT
 
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
-@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
 @property (nonatomic, strong) id<SentryRandom> random;
 @property (nonatomic, strong) SentrySwizzleWrapper *swizzleWrapper;
