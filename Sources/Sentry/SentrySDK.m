@@ -351,7 +351,8 @@ static NSUInteger startInvocations;
                 integrationName);
             continue;
         }
-        SentryBaseIntegration *integrationInstance = [[integrationClass alloc] init];
+        SentryBaseIntegration *integrationInstance = [integrationClass alloc];
+        integrationInstance = [integrationInstance init];
         BOOL shouldInstall = [integrationInstance installWithOptions:options];
 
         if (shouldInstall) {
