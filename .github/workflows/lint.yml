@@ -40,47 +40,23 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh
       - run: make analyze
 
-  validate-podspec-framework:
-    name: Validate Podspec as Framework
+  lint-podspec:
+    name: pod lint ${{ matrix.podspec}} ${{ matrix.library_type }} ${{ matrix.platform}}
     runs-on: macos-12
     strategy:
       matrix:
+        podspec: ['Sentry', 'SentrySwiftUI']
         platform: ['ios', 'macos', 'tvos', 'watchos']
+        library_type: ['dynamic', 'static']
 
     steps:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh
+      # We need to update the spec-repo, because it can happen that it is not up to date and then the lint fails.
+      - run: pod repo update
       - name: Validate Podspec
-        run: pod lib lint --verbose --platforms=${{ matrix.platform }} Sentry.podspec --include-podspecs=SentryPrivate.podspec
-        shell: sh
+        run: ./scripts/pod-lib-lint.sh ${{ matrix.platform }} ${{ matrix.podspec}} ${{ matrix.library_type}}
 
-  validate-podspec-static:
-    name: Validate Podspec as Static library
-    runs-on: macos-12
-    strategy:
-      matrix:
-        platform: ['ios', 'macos', 'tvos', 'watchos']
-
-    steps:
-      - uses: actions/checkout@v3
-      - run: ./scripts/ci-select-xcode.sh
-      - name: Validate Podspec
-        run: pod lib lint --verbose --platforms=${{ matrix.platform }} Sentry.podspec --include-podspecs=SentryPrivate.podspec --use-libraries 
-        shell: sh
-
-  validate-SentrySwiftUI-podspec:
-    name: Validate SentrySwiftUI Podspec
-    runs-on: macos-12
-    strategy:
-      matrix:
-        platform: ['ios', 'macos', 'tvos', 'watchos']
-
-    steps:
-      - uses: actions/checkout@v3
-      - run: ./scripts/ci-select-xcode.sh
-      - name: Validate Podspec
-        run: pod lib lint --verbose --platforms=${{ matrix.platform }} SentrySwiftUI.podspec --include-podspecs=Sentry.podspec,SentryPrivate.podspec
-        shell: sh
 
   validate-high-risk-files:
     name: No changes in high risk files

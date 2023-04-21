@@ -1,3 +1,4 @@
+#import "SentryByteCountFormatter.h"
 #import "SentryNSDataTracker.h"
 #import "SentryOptions.h"
 #import "SentrySDK.h"
@@ -218,10 +219,9 @@
     if ([operation isEqualToString:SENTRY_FILE_READ_OPERATION]) {
         XCTAssertEqualObjects(ioSpan.spanDescription, filename);
     } else {
-        NSString *expectedString = [NSString
-            stringWithFormat:@"%@ (%@)", filename,
-            [NSByteCountFormatter stringFromByteCount:someData.length
-                                           countStyle:NSByteCountFormatterCountStyleBinary]];
+        NSString *expectedString =
+            [NSString stringWithFormat:@"%@ (%@)", filename,
+                      [SentryByteCountFormatter bytesCountDescription:someData.length]];
 
         XCTAssertEqualObjects(ioSpan.spanDescription, expectedString);
     }

@@ -22,6 +22,10 @@ void trackTracerWithID(SentryId *traceID);
  */
 void stopTrackingTracerWithID(SentryId *traceID, SentryConcurrentTransactionCleanupBlock cleanup);
 
+#    if defined(TEST) || defined(TESTCI)
+void resetConcurrencyTracking(void);
+#    endif // defined(TEST) || defined(TESTCI)
+
 SENTRY_EXTERN_C_END
 
 NS_ASSUME_NONNULL_END

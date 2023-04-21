@@ -1,5 +1,6 @@
 #import "SentrySystemEventBreadcrumbs.h"
 #import "SentryBreadcrumb.h"
+#import "SentryBreadcrumbDelegate.h"
 #import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryLog.h"
@@ -12,7 +13,7 @@
 
 @interface
 SentrySystemEventBreadcrumbs ()
-@property (nonatomic, weak) id<SentrySystemEventBreadcrumbsDelegate> delegate;
+@property (nonatomic, weak) id<SentryBreadcrumbDelegate> delegate;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
@@ -32,7 +33,7 @@ SentrySystemEventBreadcrumbs ()
     return self;
 }
 
-- (void)startWithDelegate:(id<SentrySystemEventBreadcrumbsDelegate>)delegate
+- (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate
 {
 #if TARGET_OS_IOS
     UIDevice *currentDevice = [UIDevice currentDevice];
@@ -73,7 +74,7 @@ SentrySystemEventBreadcrumbs ()
 /**
  * Only used for testing, call startWithDelegate instead.
  */
-- (void)startWithDelegate:(id<SentrySystemEventBreadcrumbsDelegate>)delegate
+- (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate
             currentDevice:(nullable UIDevice *)currentDevice
 {
     _delegate = delegate;

@@ -316,7 +316,7 @@ class SentryNSDataTrackerTests: XCTestCase {
         if operation == SENTRY_FILE_READ_OPERATION {
             XCTAssertEqual(span?.spanDescription, lastComponent)
         } else {
-            let bytesDescription = ByteCountFormatter.string(fromByteCount: Int64(size), countStyle: .binary)
+            let bytesDescription = SentryByteCountFormatter.bytesCountDescription( UInt(size))
             XCTAssertEqual(span?.spanDescription ?? "", "\(lastComponent) (\(bytesDescription))")
         }
     }
