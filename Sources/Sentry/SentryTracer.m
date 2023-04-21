@@ -146,7 +146,7 @@ static BOOL appStartMeasurementRead;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
         _isProfiling = YES;
-        _startSystemTime = getAbsoluteTime();
+        _startSystemTime = SentryCurrentDate.systemTime;
         [SentryProfiler startWithHub:hub];
         trackTracerWithID(self.traceId);
     }
@@ -175,7 +175,7 @@ static BOOL appStartMeasurementRead;
     }];
 
     if (_idleTimeoutBlock == NULL) {
-        SENTRY_LOG_WARN(@"Couln't create idle time out block. Can't schedule idle timeout. "
+        SENTRY_LOG_WARN(@"Couldn't create idle time out block. Can't schedule idle timeout. "
                         @"Finishing transaction");
         // If the transaction has no children, the SDK will discard it.
         [self finishInternal];
@@ -359,14 +359,13 @@ static BOOL appStartMeasurementRead;
 
 - (void)finish
 {
-    SENTRY_LOG_DEBUG(
-        @"-[SentryTracer finish] for trace ID %@", _traceContext.traceId.sentryIdString);
     [self finishWithStatus:kSentrySpanStatusOk];
 }
 
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
-    SENTRY_LOG_DEBUG(@"Finished trace %@", self.traceContext.traceId.sentryIdString);
+    SENTRY_LOG_DEBUG(@"Finished trace with traceID: %@ and status: %@", self.traceId.sentryIdString,
+        nameForSentrySpanStatus(status));
     self.wasFinishCalled = YES;
     _finishStatus = status;
     [self canBeFinished];
@@ -562,7 +561,7 @@ static BOOL appStartMeasurementRead;
     transaction.transaction = self.transactionContext.name;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     transaction.startSystemTime = self.startSystemTime;
-    transaction.endSystemTime = getAbsoluteTime();
+    transaction.endSystemTime = SentryCurrentDate.systemTime;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     NSMutableArray *framesOfAllSpans = [NSMutableArray array];
@@ -795,6 +794,16 @@ static BOOL appStartMeasurementRead;
 {
     return _startTimeChanged ? _originalStartTimestamp : self.startTimestamp;
 }
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED && (defined(TEST) || defined(TESTCI))
+// this just calls through to SentryTracerConcurrency.resetConcurrencyTracking(). we have to do this
+// through SentryTracer because SentryTracerConcurrency cannot be included in test targets via ObjC
+// bridging headers because it contains C++.
++ (void)resetConcurrencyTracking
+{
+    resetConcurrencyTracking();
+}
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED && (defined(TEST) || defined(TESTCI))
 
 @end
 

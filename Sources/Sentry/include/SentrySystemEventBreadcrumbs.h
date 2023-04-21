@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryNSNotificationCenterWrapper;
 
-@protocol SentrySystemEventBreadcrumbsDelegate;
+@protocol SentryBreadcrumbDelegate;
 
 @interface SentrySystemEventBreadcrumbs : NSObject
 SENTRY_NO_INIT
@@ -19,21 +19,15 @@ SENTRY_NO_INIT
              andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
        andNotificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper;
 
-- (void)startWithDelegate:(id<SentrySystemEventBreadcrumbsDelegate>)delegate;
+- (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate;
 
 #if TARGET_OS_IOS
-- (void)startWithDelegate:(id<SentrySystemEventBreadcrumbsDelegate>)delegate
+- (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate
             currentDevice:(nullable UIDevice *)currentDevice;
 - (void)timezoneEventTriggered;
 #endif
 
 - (void)stop;
-
-@end
-
-@protocol SentrySystemEventBreadcrumbsDelegate <NSObject>
-
-- (void)addBreadcrumb:(SentryBreadcrumb *)crumb;
 
 @end
 

@@ -33,7 +33,7 @@ class SentryHubTests: XCTestCase {
             event = Event()
             event.message = SentryMessage(formatted: message)
             
-            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider)
+            fileManager = try! SentryFileManager(options: options, andCurrentDateProvider: currentDateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
             
             CurrentDate.setCurrentDateProvider(currentDateProvider)
             

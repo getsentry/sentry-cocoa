@@ -4,7 +4,6 @@ import XCTest
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryViewHierarchyTests: XCTestCase {
     private class Fixture {
-
         let uiApplication = TestSentryUIApplication()
 
         var sut: SentryViewHierarchy {
@@ -16,8 +15,24 @@ class SentryViewHierarchyTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
+
         fixture = Fixture()
         SentryDependencyContainer.sharedInstance().application = fixture.uiApplication
+    }
+
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+
+        /**
+         * This test is making iOS 13 simulator hang in GH workflow,
+         * thats why we need to check for iOS 13 or later.
+         * By testing this in the other versions of iOS we guarantee the behavior
+         * mean while, running an iOS 12 sample with Saucelabs ensures this feature
+         * is not crashing the app.
+         */
+        guard #available(iOS 13, *) else {
+            throw XCTSkip("Skipping for iOS < 13")
+        }
     }
 
     override func tearDown() {
@@ -164,7 +179,7 @@ class SentryViewHierarchyTests: XCTestCase {
             ex.fulfill()
             XCTAssertTrue(Thread.isMainThread)
         }
-        
+
         let dispatch = DispatchQueue(label: "background")
         dispatch.async {
             let _ = sut.fetch()

@@ -81,13 +81,6 @@ jobs:
         # we get the error 'XCTest/XCTest.h' not found. Setting ENABLE_TESTING_SEARCH_PATH=YES
         # doesn't work.
         include:
-          # iOS 12.4
-          - runs-on: macos-11
-            platform: 'iOS'
-            xcode: '13.2.1'
-            test-destination-os: '12.4'
-            # This job needs to install the simulator which can take a couple of minutes
-            timeout-minutes: 25 
 
           # iOS 13.7
           - runs-on: macos-11
@@ -130,6 +123,13 @@ jobs:
             xcode: '13.4.1'
             test-destination-os: 'latest'
             timeout-minutes: 15
+          
+            # macOS 13
+          - runs-on: macos-12
+            platform: 'macOS'
+            xcode: '14.2'
+            test-destination-os: 'latest'
+            timeout-minutes: 15
 
           # Catalyst. We only test the latest version, as
           # the risk something breaking on Catalyst and not
@@ -156,6 +156,13 @@ jobs:
             test-destination-os: 'latest'
             timeout-minutes: 15
 
+          # tvOS 16
+          - runs-on: macos-12
+            platform: 'tvOS'
+            xcode: '14.2'
+            test-destination-os: 'latest'
+            timeout-minutes: 15
+
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
@@ -166,14 +173,6 @@ jobs:
       - run: ./test-server-exec &
 
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
-
-      # GH action images don't have an iOS 12.4 simulator. Therefore we have to download and install the simulator manually.
-      - name: Install iOS 12.4 simulator
-        if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '12.4'}}
-        run: |
-          gem install xcode-install
-          xcversion simulators --install='iOS 12.4'
-          xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-12-4"
 
       # Workaround with a symlink pointed out in: https://github.com/actions/virtual-environments/issues/551#issuecomment-637344435
       - name: Prepare iOS 13.7 simulator
@@ -222,7 +221,7 @@ jobs:
       # Checkout .codecov.yml to see the config of Codecov
       # We don't upload codecov for release branches, as we don't want a failing coverage check to block a release.
       - name: Push code coverage to codecov
-        uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3.1.1
+        uses: codecov/codecov-action@40a12dcee2df644d47232dde008099a3e9e4f865 # pin@v3.1.2
         if: ${{ contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') }}
         with:
           # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
@@ -322,38 +321,6 @@ jobs:
         if: ${{  failure() || cancelled() }}
         with:
           name: raw-swiftui-test-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
-          path: |
-            ~/Library/Logs/scan/*.log
-            ./fastlane/test_output/**
-
-  # macos-11 doesn't have a simulator for iOS 12
-  ui-tests-swift-ios-12:
-    name: UI Tests on iOS 12 Simulator
-    runs-on: macos-11
-    strategy:
-      matrix:
-        target: ['ios_swift', 'ios_objc', 'tvos_swift']
-
-    steps:
-      - uses: actions/checkout@v3
-
-      # GH action images don't have an iOS 12.4 simulator. Therefore we have to download and install the simulator manually.
-      - name: Install iOS 12.4 simulator
-        run: |
-          gem install xcode-install
-          xcversion simulators --install='iOS 12.4'
-          xcrun simctl create custom-test-device "iPhone 8" "com.apple.CoreSimulator.SimRuntime.iOS-12-4"
-
-      # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
-      - name: Run Fastlane
-        run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} device:"iPhone 8 (12.4)" address_sanitizer:false && break ; done
-        shell: sh
-
-      - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v3
-        if: ${{  failure() || cancelled() }}
-        with:
-          name: raw-uitest-output-${{matrix.target}}-ios-12
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**

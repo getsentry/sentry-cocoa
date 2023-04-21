@@ -119,18 +119,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                transportAdapter:(SentryTransportAdapter *)transportAdapter
 
 {
-    SentryInAppLogic *inAppLogic =
-        [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
-                                          inAppExcludes:options.inAppExcludes];
-    SentryCrashStackEntryMapper *crashStackEntryMapper =
-        [[SentryCrashStackEntryMapper alloc] initWithInAppLogic:inAppLogic];
-    SentryStacktraceBuilder *stacktraceBuilder =
-        [[SentryStacktraceBuilder alloc] initWithCrashStackEntryMapper:crashStackEntryMapper];
-    id<SentryCrashMachineContextWrapper> machineContextWrapper =
-        [[SentryCrashDefaultMachineContextWrapper alloc] init];
     SentryThreadInspector *threadInspector =
-        [[SentryThreadInspector alloc] initWithStacktraceBuilder:stacktraceBuilder
-                                        andMachineContextWrapper:machineContextWrapper];
+        [[SentryThreadInspector alloc] initWithOptions:options];
+
     SentryExtraContextProvider *extraContextProvider = [SentryExtraContextProvider sharedInstance];
 
     return [self initWithOptions:options
@@ -501,6 +492,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     _isEnabled = NO;
     [self flush:self.options.shutdownTimeInterval];
+    SENTRY_LOG_DEBUG(@"Closed the Client.");
 }
 
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
