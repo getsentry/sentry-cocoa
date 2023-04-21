@@ -33,7 +33,6 @@ SentryCrashIntegration ()
 
 @property (nonatomic, weak) SentryOptions *options;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
-@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentrySessionCrashedHandler *crashedSessionHandler;
 @property (nonatomic, strong) SentryCrashScopeObserver *scopeObserver;
 
@@ -46,7 +45,6 @@ SentryCrashIntegration ()
              andDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super initWithCrashWrapper:crashWrapper]) {
-        self.crashWrapper = crashWrapper;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
     }
 

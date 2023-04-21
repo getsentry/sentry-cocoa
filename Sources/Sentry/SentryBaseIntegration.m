@@ -10,11 +10,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryBaseIntegration ()
-@property (strong, nonatomic) SentryCrashWrapper *crashWrapper;
-@end
-
 @implementation SentryBaseIntegration
 
 - (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper

@@ -48,10 +48,6 @@ public class TestCrashWrapper: SentryCrashWrapper {
         uninstallAsyncHooksCalled = true
     }
 
-    public override func systemInfo() -> [AnyHashable: Any] {
-        [:]
-    }
-
     public override func freeMemorySize() -> bytes {
         internalFreeMemorySize
     }

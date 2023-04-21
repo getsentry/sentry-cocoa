@@ -31,6 +31,8 @@ typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
 
 @interface SentryBaseIntegration : NSObject <SentryIntegrationProtocol>
 
+@property (strong, nonatomic) SentryCrashWrapper *crashWrapper;
+
 SENTRY_NO_INIT
 
 - (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper;
