@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
   pull_request:
+    branches:
+      - main
+      - release/**
     paths:
       - 'Sources/**'
       - '.github/workflows/codeql-analysis.yml'
