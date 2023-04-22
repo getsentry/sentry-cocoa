@@ -35,7 +35,7 @@ jobs:
           -workspace Sentry.xcworkspace
           -scheme Sentry
           -configuration Release
-          -destination platform="iOS Simulator,OS=latest,name=iPhone 11 Pro"
+          -destination platform="iOS Simulator,OS=latest,name=iPhone 11 Pro" | xcpretty && exit ${PIPESTATUS[0]}
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@7df0ce34898d659f95c0c4a09eaa8d4e32ee64db # pin@v2
