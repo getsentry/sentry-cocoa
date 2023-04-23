@@ -247,8 +247,15 @@ sentrycrashdl_dladdr(const uintptr_t address, Dl_info *const info)
                     uintptr_t symbolBase = symbolTable[iSym].n_value;
                     uintptr_t currentDistance = addressWithSlide - symbolBase;
                     if ((addressWithSlide >= symbolBase) && (currentDistance <= bestDistance)) {
-                        bestMatch = symbolTable + iSym;
-                        bestDistance = currentDistance;
+                        /*
+                        At runtime symbol table may have duplicate elements, all the value of these elments duplicate except n_un.n_strx
+                        Some of these elements whose name was empty (n_un.n_strx was 1) is not the symbol we want
+                        */
+                        char *symbol_name = (char *)((intptr_t)stringTable + (intptr_t)symbolTable[iSym].n_un.n_strx);
+                        if (strlen(symbol_name) > 0) {
+                            bestMatch = symbolTable + iSym;
+                            bestDistance = currentDistance;
+                        }
                     }
                 }
             }
