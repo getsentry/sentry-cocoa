@@ -19,16 +19,14 @@ static NSMutableDictionary<NSString *, SentrySwizzleSendActionCallback>
     return instance;
 }
 
+#if SENTRY_HAS_UIKIT
 + (void)initialize
 {
-#if SENTRY_HAS_UIKIT
     if (self == [SentrySwizzleWrapper class]) {
         sentrySwizzleSendActionCallbacks = [NSMutableDictionary new];
     }
-#endif
 }
 
-#if SENTRY_HAS_UIKIT
 - (void)swizzleSendAction:(SentrySwizzleSendActionCallback)callback forKey:(NSString *)key
 {
     // We need to make a copy of the block to avoid ARC of autoreleasing it.
@@ -75,16 +73,12 @@ static NSMutableDictionary<NSString *, SentrySwizzleSendActionCallback>
 {
     return sentrySwizzleSendActionCallbacks;
 }
-#endif
 
 - (void)removeAllCallbacks
 {
-#if SENTRY_HAS_UIKIT
     [sentrySwizzleSendActionCallbacks removeAllObjects];
-#endif
 }
 
-#if SENTRY_HAS_UIKIT
 // For test purpose
 + (BOOL)hasCallbacks
 {

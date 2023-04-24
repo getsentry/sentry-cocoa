@@ -10,7 +10,7 @@ EXPECTED="819d5ca5e3db2ac23c859b14c149b7f0754d3ae88bea1dba92c18f49a81da0e1  ./So
 e95e62ec7363984f20c78643bb7d992a41a740f97e1befb71525ac34caf88b37  ./Sources/Sentry/SentryNSDataSwizzling.m
 9ad05dd8dd29788cba994736fdcd3bbde59a94e32612640d11f4f9c38ad6610e  ./Sources/Sentry/SentrySubClassFinder.m
 13c3030d8c1fb145760d51837773c35127c777fce1d4dbb9009d53d0fcc5dce8  ./Sources/Sentry/SentryCoreDataSwizzling.m
-e41c853a75dcc31a2783ec513acc8c7af8a67033ab8585c80b525f63dd26b506  ./Sources/Sentry/SentrySwizzleWrapper.m
+c6fd5fb82863246c697f4913fdd03c09a18d1006d30322d375a66a0046e9c252  ./Sources/Sentry/SentrySwizzleWrapper.m
 b1c642450170358cab39b4cc6cd546f27c41b12eacb90c3ad93f87733d46e56c  ./Sources/Sentry/include/SentrySwizzle.h
 f97128c823f92d1c2ec37e5e3b2914f7488a94043af6a8344e348f1a14425f47  ./Sources/Sentry/SentrySwizzle.m"
 

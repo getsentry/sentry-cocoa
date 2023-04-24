@@ -9,6 +9,7 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySpanProtocol.h"
+@import SentryPrivate;
 #import "SentryStacktrace.h"
 #import "SentryThreadInspector.h"
 
@@ -172,8 +173,9 @@
 {
     NSMutableDictionary<NSString *, NSNumber *> *result = [NSMutableDictionary new];
 
-    for (NSManagedObject *item in entities) {
-        NSString *cl = item.entity.name;
+    for (id item in entities) {
+        NSString *cl
+            = ((NSManagedObject *)item).entity.name ?: [SwiftDescriptor getObjectClassName:item];
         NSNumber *count = result[cl];
         result[cl] = [NSNumber numberWithInt:count.intValue + 1];
     }
