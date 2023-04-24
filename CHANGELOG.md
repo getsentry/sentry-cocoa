@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add `sent_at` to envelope header (#2859)
+
 ### Fixes 
 
 - Ensure the current GPU frame rate is always reported for concurrent transaction profiling metrics (#2929)
@@ -10,7 +14,6 @@
 
 ### Features
 
-- Add `sent_at` to envelope header (#2859)
 - feat: Core data operation in the main thread (#2879)
 
 ### Fixes
