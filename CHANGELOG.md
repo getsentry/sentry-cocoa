@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes 
+
+- Ensure the current GPU frame rate is always reported for concurrent transaction profiling metrics (#2929)
+
 ## 8.5.0
 
 ### Features

@@ -192,11 +192,19 @@ serializedUnsigned64BitInteger(uint64_t value)
  * Convert the data structure that records timestamps for GPU frame render info from
  * SentryFramesTracker to the structure expected for profiling metrics, and throw out any that
  * didn't occur within the profile time.
+ * @param useMostRecentRecording @c SentryFramesTracker doesn't stop running once it starts.
+ * Although we reset the profiling timestamps each time the profiler stops and starts, concurrent
+ * transactions that start after the first one won't have a screen frame rate recorded within their
+ * timeframe, because it will have already been recorded for the first transaction and isn't
+ * recorded again unless the system changes it. In these cases, use the most recently recorded data
+ * for it.
  */
 NSArray<SentrySerializedMetricReading *> *
-sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, SentryTransaction *transaction)
+sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, SentryTransaction *transaction,
+    BOOL useMostRecentRecording)
 {
     auto slicedGPUEntries = [NSMutableArray<SentrySerializedMetricEntry *> array];
+    __block NSNumber *nearestPredecessorValue;
     [frameInfo enumerateObjectsUsingBlock:^(
         NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
         const auto timestamp = obj[@"timestamp"].unsignedLongLongValue;
@@ -205,6 +213,7 @@ sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, SentryTransaction *transactio
             SENTRY_LOG_DEBUG(@"GPU info recorded (%llu) before transaction start (%llu), "
                              @"will not report it.",
                 timestamp, transaction.startSystemTime);
+            nearestPredecessorValue = obj[@"value"];
             return;
         }
 
@@ -219,6 +228,12 @@ sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, SentryTransaction *transactio
             @"value" : obj[@"value"],
         }];
     }];
+    if (useMostRecentRecording && slicedGPUEntries.count == 0) {
+        [slicedGPUEntries addObject:@ {
+            @"elapsed_since_start_ns" : serializedUnsigned64BitInteger(0),
+            @"value" : nearestPredecessorValue,
+        }];
+    }
     return slicedGPUEntries;
 }
 #    endif // SENTRY_HAS_UIKIT
@@ -388,21 +403,23 @@ serializedSamplesWithRelativeTimestamps(
     const auto metrics = [_gCurrentProfiler->_metricProfiler serializeForTransaction:transaction];
 
 #    if SENTRY_HAS_UIKIT
-    const auto slowFrames
-        = sliceGPUData(_gCurrentFramesTracker.currentFrames.slowFrameTimestamps, transaction);
+    const auto slowFrames = sliceGPUData(_gCurrentFramesTracker.currentFrames.slowFrameTimestamps,
+        transaction, /*useMostRecentRecording */ NO);
     if (slowFrames.count > 0) {
         metrics[@"slow_frame_renders"] = @{ @"unit" : @"nanosecond", @"values" : slowFrames };
     }
 
     const auto frozenFrames
-        = sliceGPUData(_gCurrentFramesTracker.currentFrames.frozenFrameTimestamps, transaction);
+        = sliceGPUData(_gCurrentFramesTracker.currentFrames.frozenFrameTimestamps, transaction,
+            /*useMostRecentRecording */ NO);
     if (frozenFrames.count > 0) {
         metrics[@"frozen_frame_renders"] = @{ @"unit" : @"nanosecond", @"values" : frozenFrames };
     }
 
     if (slowFrames.count > 0 || frozenFrames.count > 0) {
         const auto frameRates
-            = sliceGPUData(_gCurrentFramesTracker.currentFrames.frameRateTimestamps, transaction);
+            = sliceGPUData(_gCurrentFramesTracker.currentFrames.frameRateTimestamps, transaction,
+                /*useMostRecentRecording */ YES);
         if (frameRates.count > 0) {
             metrics[@"screen_frame_rates"] = @{ @"unit" : @"hz", @"values" : frameRates };
         }
