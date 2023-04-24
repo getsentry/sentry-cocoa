@@ -5,6 +5,7 @@
 ### Fixes 
 
 - Ensure the current GPU frame rate is always reported for concurrent transaction profiling metrics (#2929)
+- Possible crash in Core Data tracking (#2865)
 - Convert one of the two remaining usages of `sprintf` to `snprintf` (#2866)
 
 ## 8.5.0

@@ -12,6 +12,7 @@ PLATFORM="${1}"
 OS=${2:-latest}
 REF_NAME="${3-HEAD}"
 IS_LOCAL_BUILD="${4:-ci}"
+COMMAND="${5:-test}"
 DESTINATION=""
 CONFIGURATION=""
 
@@ -58,7 +59,41 @@ case $IS_LOCAL_BUILD in
         ;;
 esac
 
-env NSUnbufferedIO=YES xcodebuild -workspace Sentry.xcworkspace \
-    -scheme Sentry -configuration $CONFIGURATION \
-    -destination "$DESTINATION" \
-    test | tee raw-test-output.log | $RUBY_ENV_ARGS xcpretty -t && slather coverage --configuration $CONFIGURATION && exit ${PIPESTATUS[0]}
+case $COMMAND in
+    "build-for-testing")
+        RUN_BUILD_FOR_TESTING=true
+        RUN_TEST_WITHOUT_BUILDING=false
+        ;;
+    "test-without-building")
+        RUN_BUILD_FOR_TESTING=false
+        RUN_TEST_WITHOUT_BUILDING=true
+        ;;
+    *)
+        RUN_BUILD_FOR_TESTING=true
+        RUN_TEST_WITHOUT_BUILDING=true
+        ;;
+esac
+
+if [ $RUN_BUILD_FOR_TESTING == true ]; then
+    # build everything for testing
+    env NSUnbufferedIO=YES xcodebuild       \
+        -workspace Sentry.xcworkspace       \
+        -scheme Sentry                      \
+        -configuration $CONFIGURATION       \
+        -destination "$DESTINATION" -quiet  \
+        build-for-testing
+fi
+
+if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
+    # run the tests
+    env NSUnbufferedIO=YES xcodebuild                               \
+        -workspace Sentry.xcworkspace                               \
+        -scheme Sentry                                              \
+        -configuration $CONFIGURATION                               \
+        -destination "$DESTINATION"                                 \
+        test-without-building                                       \
+            | tee raw-test-output.log                               \
+            | $RUBY_ENV_ARGS xcpretty -t                            \
+                && slather coverage --configuration $CONFIGURATION  \
+                && exit ${PIPESTATUS[0]}
+fi
