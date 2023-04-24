@@ -90,33 +90,42 @@ sentrycrashbic_imageCount(void)
 }
 
 SentryCrashBinaryImage *
-sentrycrashbic_getBinaryImageCache(int index)
+sentrycrashbic_getCachedBinaryImage(int index)
 {
+    //This function is not thread safe, because this is meant to be used during crash signal handling.
     if (index >= binaryImagesAmount) {
         return NULL;
     }
     return &binaryImagesBuffer[index];
 }
 
+
+
 void
 sentrycrashbic_startCache(void)
 {
     pthread_mutex_lock(&binaryImagesMutex);
+    if (binaryImagesBuffer) {
+        free(binaryImagesBuffer);
+    }
     binaryImagesBufferLength = CACHE_SIZE_INCREMENT;
     binaryImagesBuffer = malloc(sizeof(SentryCrashBinaryImage) * binaryImagesBufferLength);
     binaryImagesAmount = 0;
+    pthread_mutex_unlock(&binaryImagesMutex);
+
+    //During a call to _dyld_register_func_for_add_image() the callback func is called for every existing image
     _dyld_register_func_for_add_image(&binaryImageAdded);
     _dyld_register_func_for_remove_image(&binaryImageRemoved);
-    pthread_mutex_unlock(&binaryImagesMutex);
 }
 
 void
 sentrycrashbic_stopCache(void)
 {
+    pthread_mutex_lock(&binaryImagesMutex);
     if (binaryImagesBuffer == NULL) {
+        pthread_mutex_unlock(&binaryImagesMutex);
         return;
     }
-    pthread_mutex_lock(&binaryImagesMutex);
     free(binaryImagesBuffer);
     binaryImagesBuffer = NULL;
     binaryImagesAmount = 0;

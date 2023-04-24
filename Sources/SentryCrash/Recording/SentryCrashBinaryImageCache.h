@@ -18,7 +18,7 @@ int sentrycrashbic_imageCount(void);
  *@warning This function is not thread safe, because this is meant to be used during crash signal
  *handling.
  */
-SentryCrashBinaryImage *sentrycrashbic_getBinaryImageCache(int index);
+SentryCrashBinaryImage *sentrycrashbic_getCachedBinaryImage(int index);
 
 /**
  * Startes the cache that will monitor binary image being loaded or removed.
