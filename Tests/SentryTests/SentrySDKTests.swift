@@ -159,6 +159,13 @@ class SentrySDKTests: XCTestCase {
         
         XCTAssertTrue(wasBeforeSendCalled, "beforeSend was not called.")
     }
+
+    func testStartWithScope() {
+        let scope = Scope()
+        scope.setUser(User(userId: "me"))
+        SentrySDK.start(options: fixture.options, scope: scope)
+        XCTAssertEqual("me", SentrySDK.currentHub().scope.userObject?.userId)
+    }
     
     func testCrashedLastRun() {
         XCTAssertEqual(SentryCrash.sharedInstance().crashedLastLaunch, SentrySDK.crashedLastRun) 
