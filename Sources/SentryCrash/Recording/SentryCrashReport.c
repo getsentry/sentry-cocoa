@@ -1209,7 +1209,7 @@ writeBinaryImages(const SentryCrashReportWriter *const writer, const char *const
     writer->beginArray(writer, key);
     {
         for (int iImg = 0; iImg < imageCount; iImg++) {
-            SentryCrashBinaryImage *image = sentrycrashbic_getBinaryImageCache(iImg);
+            SentryCrashBinaryImage *image = sentrycrashbic_getCachedBinaryImage(iImg);
             writeBinaryImage(writer, NULL, image);
         }
     }

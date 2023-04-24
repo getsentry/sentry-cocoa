@@ -47,7 +47,7 @@ binaryImageAdded(const struct mach_header *header, intptr_t slide)
 
     pthread_mutex_lock(&binaryImagesMutex);
     if (binaryImagesAmount >= binaryImagesBufferLength) {
-         increaseBufferSize();
+        increaseBufferSize();
     }
     binaryImagesBuffer[binaryImagesAmount++] = binaryImage;
     pthread_mutex_unlock(&binaryImagesMutex);
