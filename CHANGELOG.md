@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Create User and Breadcrumb from map (#2820)
+
 ### Fixes 
 
 - Ensure the current GPU frame rate is always reported for concurrent transaction profiling metrics (#2929)
@@ -11,7 +15,6 @@
 ### Features
 
 - feat: Core data operation in the main thread (#2879)
-- Create User and Breadcrumb from map (#2820)
 
 ### Fixes
 
