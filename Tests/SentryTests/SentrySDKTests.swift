@@ -165,6 +165,7 @@ class SentrySDKTests: XCTestCase {
         scope.setUser(User(userId: "me"))
         SentrySDK.start(options: fixture.options, scope: scope)
         XCTAssertEqual("me", SentrySDK.currentHub().scope.userObject?.userId)
+        XCTAssertIdentical(scope, SentrySDK.currentHub().scope)
     }
     
     func testCrashedLastRun() {
