@@ -1,0 +1,176 @@
+diff --git a/Configuration/HomeAssistant.xcconfig b/Configuration/HomeAssistant.xcconfig
+index 2b1cdd31..962ec867 100644
+--- a/Configuration/HomeAssistant.xcconfig
++++ b/Configuration/HomeAssistant.xcconfig
+@@ -92,3 +92,5 @@ CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES
+ CLANG_ANALYZER_NONNULL = YES
+ CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES
+ GCC_NO_COMMON_BLOCKS = YES
++
++OTHER_LDFLAGS[sdk=watch*] = $(inherited) -framework WatchKit
+diff --git a/HomeAssistant.xcodeproj/project.pbxproj b/HomeAssistant.xcodeproj/project.pbxproj
+index 64a81356..da0e3ede 100644
+--- a/HomeAssistant.xcodeproj/project.pbxproj
++++ b/HomeAssistant.xcodeproj/project.pbxproj
+@@ -311,7 +311,6 @@
+ 		11AF4D26249D1931006C74C0 /* LastUpdateSensor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11AF4D24249D1931006C74C0 /* LastUpdateSensor.swift */; };
+ 		11AF4D2A249D88C5006C74C0 /* ActivitySensor.test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11AF4D29249D88C5006C74C0 /* ActivitySensor.test.swift */; };
+ 		11AF4D2C249D965C006C74C0 /* BatterySensor.test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11AF4D2B249D965C006C74C0 /* BatterySensor.test.swift */; };
+-		11AF4D2E249DA5AF006C74C0 /* GeocoderSensor.test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11AF4D2D249DA5AF006C74C0 /* GeocoderSensor.test.swift */; };
+ 		11AF4D30249DCA88006C74C0 /* ConnectivitySensor.test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11AF4D2F249DCA87006C74C0 /* ConnectivitySensor.test.swift */; };
+ 		11B1FFC524CCD72F00F9BCB2 /* VoiceShortcutRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11B1FFC424CCD72F00F9BCB2 /* VoiceShortcutRow.swift */; };
+ 		11B38EDF275BE29F00205C7B /* ConnectionInfo.test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11B38EDE275BE29F00205C7B /* ConnectionInfo.test.swift */; };
+@@ -1381,7 +1380,6 @@
+ 		11AF4D24249D1931006C74C0 /* LastUpdateSensor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastUpdateSensor.swift; sourceTree = "<group>"; };
+ 		11AF4D29249D88C5006C74C0 /* ActivitySensor.test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivitySensor.test.swift; sourceTree = "<group>"; };
+ 		11AF4D2B249D965C006C74C0 /* BatterySensor.test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatterySensor.test.swift; sourceTree = "<group>"; };
+-		11AF4D2D249DA5AF006C74C0 /* GeocoderSensor.test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeocoderSensor.test.swift; sourceTree = "<group>"; };
+ 		11AF4D2F249DCA87006C74C0 /* ConnectivitySensor.test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectivitySensor.test.swift; sourceTree = "<group>"; };
+ 		11B1FFC424CCD72F00F9BCB2 /* VoiceShortcutRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceShortcutRow.swift; sourceTree = "<group>"; };
+ 		11B38EDE275BE29F00205C7B /* ConnectionInfo.test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionInfo.test.swift; sourceTree = "<group>"; };
+@@ -2639,7 +2637,6 @@
+ 				11AF4D29249D88C5006C74C0 /* ActivitySensor.test.swift */,
+ 				11AF4D2B249D965C006C74C0 /* BatterySensor.test.swift */,
+ 				11AF4D2F249DCA87006C74C0 /* ConnectivitySensor.test.swift */,
+-				11AF4D2D249DA5AF006C74C0 /* GeocoderSensor.test.swift */,
+ 				11CB98C5249DE15B00B05222 /* LastUpdateSensor.test.swift */,
+ 				11CB98C7249DE24000B05222 /* PedometerSensor.test.swift */,
+ 				119385A6249E9F930097F497 /* StorageSensor.test.swift */,
+@@ -5744,7 +5741,6 @@
+ 				11A3F08C24ECE88C0018D84F /* WebhookUpdateLocation.test.swift in Sources */,
+ 				11B7DC1F266C5D3E0090BD3B /* LocalPushManager.test.swift in Sources */,
+ 				11CB98CD249E637300B05222 /* Version+HA.test.swift in Sources */,
+-				11AF4D2E249DA5AF006C74C0 /* GeocoderSensor.test.swift in Sources */,
+ 				114FACAE24B2ABA2006C581F /* Promise+WebhookJson.test.swift in Sources */,
+ 				115AD72D267C57DA0090B243 /* FocusSensor.test.swift in Sources */,
+ 				11CB98C6249DE15B00B05222 /* LastUpdateSensor.test.swift in Sources */,
+diff --git a/Podfile b/Podfile
+index d2d83b14..d73adf17 100644
+--- a/Podfile
++++ b/Podfile
+@@ -30,7 +30,8 @@ pod 'ObjectMapper', git: 'https://github.com/tristanhimmelman/ObjectMapper.git',
+ pod 'PromiseKit'
+ 
+ pod 'RealmSwift'
+-pod 'Sentry'
++pod 'Sentry', :path => '../../'
++pod 'SentryPrivate', :path => '../../'
+ pod 'UIColor_Hex_Swift'
+ pod 'Version'
+ pod 'XCGLogger'
+@@ -111,7 +112,7 @@ post_install do |installer|
+     target.build_configurations.each do |config|
+       config.build_settings['WATCHOS_DEPLOYMENT_TARGET'] = '5.0'
+       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+-      config.build_settings['SWIFT_INSTALL_OBJC_HEADER'] = 'NO'
++      config.build_settings['SWIFT_INSTALL_OBJC_HEADER'] = 'NO' unless target.name.include? 'Sentry'
+     end
+ 
+     # Fix bundle targets' 'Signing Certificate' to 'Sign to Run Locally'
+diff --git a/Sources/App/AppDelegate.swift b/Sources/App/AppDelegate.swift
+index 8e0e35f4..96650a6f 100644
+--- a/Sources/App/AppDelegate.swift
++++ b/Sources/App/AppDelegate.swift
+@@ -13,6 +13,7 @@ import SafariServices
+ import Shared
+ import UIKit
+ import XCGLogger
++import Sentry
+ 
+ let keychain = Constants.Keychain
+ 
+@@ -125,6 +126,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
+         _ application: UIApplication,
+         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+     ) -> Bool {
++        SentrySDK.start { options in
++            options.dsn = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
++            options.environment = "integration-tests"
++            options.tracesSampleRate = 1.0
++            options.enableFileIOTracing = true
++            options.profilesSampleRate = 1.0
++        }
++
+         if NSClassFromString("XCTest") != nil {
+             return true
+         }
+diff --git a/Sources/Shared/Environment/CrashReporter.swift b/Sources/Shared/Environment/CrashReporter.swift
+index b8eb37f0..046e7851 100644
+--- a/Sources/Shared/Environment/CrashReporter.swift
++++ b/Sources/Shared/Environment/CrashReporter.swift
+@@ -20,34 +20,6 @@ public class CrashReporterImpl: CrashReporter {
+         Current.Log.add(destination: with(SentryLogDestination()) {
+             $0.outputLevel = .warning
+         })
+-
+-        SentrySDK.start { options in
+-            options.dsn = "https://762c198b86594fa2b6bedf87028db34d@o427061.ingest.sentry.io/5372775"
+-            options.debug = Current.appConfiguration == .Debug
+-            options.enableAutoSessionTracking = Current.settingsStore.privacy.analytics
+-            options.maxBreadcrumbs = 1000
+-
+-            var integrations = type(of: options).defaultIntegrations()
+-
+-            let analyticsIntegrations = Set([
+-                "SentryAutoBreadcrumbTrackingIntegration",
+-                "SentryAutoSessionTrackingIntegration",
+-            ])
+-
+-            let crashesIntegrations = Set([
+-                "SentryCrashIntegration",
+-            ])
+-
+-            if !Current.settingsStore.privacy.crashes {
+-                integrations.removeAll(where: { crashesIntegrations.contains($0) })
+-            }
+-
+-            if !Current.settingsStore.privacy.analytics {
+-                integrations.removeAll(where: { analyticsIntegrations.contains($0) })
+-            }
+-
+-            options.integrations = integrations
+-        }
+     }
+ 
+     public func setUserProperty(value: String?, name: String) {
+diff --git a/Sources/Shared/Environment/SentryLogDestination.swift b/Sources/Shared/Environment/SentryLogDestination.swift
+index fb0d965b..d7c9924a 100644
+--- a/Sources/Shared/Environment/SentryLogDestination.swift
++++ b/Sources/Shared/Environment/SentryLogDestination.swift
+@@ -10,7 +10,7 @@ open class SentryLogDestination: BaseQueuedDestination {
+ 
+         let breadcrumb = Breadcrumb(level: .init(xcgLogLevel: logDetails.level), category: "log")
+         breadcrumb.message = message
+-        SentrySDK.addBreadcrumb(crumb: breadcrumb)
++        SentrySDK.addBreadcrumb(breadcrumb)
+     }
+ }
+ 
+diff --git a/fastlane/Fastfile b/fastlane/Fastfile
+index 3a21ee25..0bb5778a 100644
+--- a/fastlane/Fastfile
++++ b/fastlane/Fastfile
+@@ -287,23 +287,6 @@ end
+ 
+ desc 'Find unused localized strings'
+ lane :unused_strings do
+-  files = [
+-    '../Sources/App/Resources/en.lproj/Localizable.strings'
+-  ]
+-  files.each do |file|
+-    puts "Looking at #{file}"
+-    unused_strings = File.read(file)
+-                         # grab the keys only
+-                         .scan(/"([^"]+)" = [^;]+;/)
+-                         # replace _ in the keys with nothing, which is what swiftgen does
+-                         .map { |s| [s[0], s[0].gsub('_', '')] }
+-                         # ignore any keys at the root level (aka like ok_label)
+-                         .select { |full, _key| full.include?('.') }
+-                         # find any strings that don't have matches in code
+-                         .select { |_full, key| system("git grep --ignore-case --quiet #{key} -- ../*.swift") == false }
+-    unused_strings.each { |full, _key| puts full }
+-    puts "- Found #{unused_strings.count} unused strings"
+-  end
+ end
+ 
+ desc 'Upload App Store Connect metadata to Lokalise'

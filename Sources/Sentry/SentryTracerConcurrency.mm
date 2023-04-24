@@ -38,4 +38,13 @@ stopTrackingTracerWithID(SentryId *traceID, SentryConcurrentTransactionCleanupBl
     }
 }
 
+#    if defined(TEST) || defined(TESTCI)
+void
+resetConcurrencyTracking()
+{
+    std::lock_guard<std::mutex> l(_gStateLock);
+    [_gInFlightTraceIDs removeAllObjects];
+}
+#    endif // defined(TEST) || defined(TESTCI)
+
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
