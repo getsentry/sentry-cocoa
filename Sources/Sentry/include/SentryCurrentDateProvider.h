@@ -11,6 +11,8 @@ NS_SWIFT_NAME(CurrentDateProvider)
 
 - (NSInteger)timezoneOffset;
 
+- (uint64_t)systemTime;
+
 @end
 
 NS_ASSUME_NONNULL_END

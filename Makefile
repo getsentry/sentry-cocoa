@@ -22,6 +22,10 @@ lint:
 	swiftlint
 .PHONY: lint
 
+no-changes-in-high-risk-files:
+	@echo "--> Checking if there are changes in high risk files"
+	./scripts/no-changes-in-high-risk-files.sh
+
 format: format-clang format-swift
 
 # Format ObjC, ObjC++, C, and C++
@@ -47,6 +51,12 @@ run-test-server:
 	cd ./test-server && swift build
 	cd ./test-server && swift run &
 .PHONY: run-test-server
+
+test-alamofire:
+	./scripts/test-alamofire.sh
+
+test-homekit:
+	./scripts/test-homekit.sh
 
 analyze:
 	rm -rf analyzer
