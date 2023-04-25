@@ -137,7 +137,7 @@ struct ContentView: View {
                                 .accessibilityIdentifier("CHILD_TRACE_ORIGIN")
                         }
                     }
-                    HStack (spacing:30) {
+                    HStack (spacing: 30) {
                         VStack(spacing: 16) {
 
                             Button(action: addBreadcrumbAction) {
@@ -159,8 +159,6 @@ struct ContentView: View {
                             Button(action: captureNSExceptionAction) {
                                 Text("Capture NSException")
                             }
-
-
 
                             Button(action: captureTransactionAction) {
                                 Text("Capture Transaction")
