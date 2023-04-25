@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Create User and Breadcrumb from map (#2820)
+
 ### Fixes 
 
 - Ensure the current GPU frame rate is always reported for concurrent transaction profiling metrics (#2929)
@@ -46,7 +50,6 @@
 - Add CPU core count in device context (#2814)
 
 ### Fixes
-
 
 - Updating AppHang state on main thread (#2793)
 - App Hang report crashes with too many threads (#2811)
