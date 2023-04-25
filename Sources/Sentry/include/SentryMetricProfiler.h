@@ -5,7 +5,7 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 @class SentryNSProcessInfoWrapper;
-@class SentryNSTimerWrapper;
+@class SentryDispatchFactory;
 @class SentrySystemWrapper;
 @class SentryTransaction;
 
@@ -44,7 +44,7 @@ typedef NSDictionary<NSString *, id /* <NSString, NSArray<SentrySerializedMetric
 
 - (instancetype)initWithProcessInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
                              systemWrapper:(SentrySystemWrapper *)systemWrapper
-                              timerWrapper:(SentryNSTimerWrapper *)timerWrapper;
+                           dispatchFactory:(SentryDispatchFactory *)dispatchFactory;
 - (void)start;
 - (void)stop;
 
