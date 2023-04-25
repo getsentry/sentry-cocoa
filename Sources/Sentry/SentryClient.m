@@ -35,6 +35,7 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryStacktraceBuilder.h"
+#import "SentrySwift.h"
 #import "SentryThreadInspector.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer.h"
@@ -248,9 +249,22 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     // If the error has a debug description, use that.
     NSString *customExceptionValue = [[error userInfo] valueForKey:NSDebugDescriptionErrorKey];
+
+    NSString *swiftErrorDescription = nil;
+    // SwiftNativeNSError is the subclass of NSError used to represent bridged native Swift errors,
+    // see
+    // https://github.com/apple/swift/blob/067e4ec50147728f2cb990dbc7617d66692c1554/stdlib/public/runtime/ErrorObject.mm#L63-L73
+    NSString *errorClass = NSStringFromClass(error.class);
+    if ([errorClass containsString:@"SwiftNativeNSError"]) {
+        swiftErrorDescription = [SwiftDescriptor getSwiftErrorDescription:error];
+    }
+
     if (customExceptionValue != nil) {
         exceptionValue =
             [NSString stringWithFormat:@"%@ (Code: %ld)", customExceptionValue, (long)error.code];
+    } else if (swiftErrorDescription != nil) {
+        exceptionValue =
+            [NSString stringWithFormat:@"%@ (Code: %ld)", swiftErrorDescription, (long)error.code];
     } else {
         exceptionValue = [NSString stringWithFormat:@"Code: %ld", (long)error.code];
     }
