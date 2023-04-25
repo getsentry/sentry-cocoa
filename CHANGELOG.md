@@ -4,7 +4,7 @@
 
 ### Features
 
-- Swift Error Names (#2958)
+- Swift Error Names (#2960)
 
 Instead of only the Swift error name and error code, the SDK now sends the Swift error name for enum-based errors.
 
