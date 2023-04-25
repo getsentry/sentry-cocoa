@@ -138,6 +138,13 @@ SentryTransactionContext ()
 #endif
 }
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+- (SentryThread *)sentry_threadInfo
+{
+    return self.threadInfo;
+}
+#endif
+
 - (void)commonInitWithName:(NSString *)name
                     source:(SentryTransactionNameSource)source
              parentSampled:(SentrySampleDecision)parentSampled
@@ -148,13 +155,6 @@ SentryTransactionContext ()
     [self getThreadInfo];
     SENTRY_LOG_DEBUG(@"Created transaction context with name %@", name);
 }
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-- (SentryThread *)sentry_threadInfo
-{
-    return self.threadInfo;
-}
-#endif
 
 @end
 
