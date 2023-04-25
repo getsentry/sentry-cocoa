@@ -161,7 +161,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
         XCTAssertEqual(sut.fullDisplaySpan?.spanDescription, "UIViewController full display")
         XCTAssertEqual(sut.fullDisplaySpan?.operation, SentrySpanOperationUILoadFullDisplay)
-        XCTAssertEqual(sut.fullDisplaySpan?.origin, "manual")
+        XCTAssertEqual(sut.fullDisplaySpan?.origin, "manual.ui.time_to_display")
     }
 
     func testReportFullDisplay_waitingForFullDisplay_notReadyToDisplay() {

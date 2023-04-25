@@ -55,6 +55,7 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
             [tracer startChildWithOperation:SentrySpanOperationUILoadFullDisplay
                                 description:[NSString stringWithFormat:@"%@ full display",
                                                       _controllerName]];
+        self.fullDisplaySpan.origin = SentryTraceOriginManualUITimeToDisplay;
 
         // By concept TTID and TTFD spans should have the same beginning,
         // which also should be the same of the transaction starting.
