@@ -4,7 +4,8 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryScreenFrames.h"
 
-@class SentryDebugMeta, SentryAppStartMeasurement, SentryScreenFrames, SentryOptions;
+@class SentryDebugMeta, SentryAppStartMeasurement, SentryScreenFrames, SentryOptions,
+    SentryBreadcrumb, SentryUser;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -102,6 +103,10 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 + (NSData *)captureViewHierarchy;
 #endif
+
++ (SentryUser *)userWithDictionary:(NSDictionary *)dictionary;
+
++ (SentryBreadcrumb *)breadcrumbWithDictionary:(NSDictionary *)dictionary;
 
 @end
 
