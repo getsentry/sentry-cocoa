@@ -52,7 +52,7 @@ SENTRY_NO_INIT
  *
  * @see <https://develop.sentry.dev/sdk/performance/trace-origin>
  */
-@property (nonatomic, copy, readonly) NSString *origin;
+@property (nonatomic, copy) NSString *origin;
 
 /**
  * Init a @c SentryContext with an operation code.

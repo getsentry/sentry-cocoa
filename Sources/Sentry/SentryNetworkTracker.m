@@ -163,7 +163,7 @@ SentryNetworkTracker ()
                     startChildWithOperation:SENTRY_NETWORK_REQUEST_OPERATION
                                 description:[NSString stringWithFormat:@"%@ %@",
                                                       sessionTask.currentRequest.HTTPMethod, url]];
-                netSpan.origin = SentryTraceOriginAutoHttpNSRLSession;
+                netSpan.origin = SentryTraceOriginAutoHttpNSURLSession;
             }
         }];
 

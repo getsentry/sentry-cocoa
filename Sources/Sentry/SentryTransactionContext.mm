@@ -130,6 +130,14 @@ SentryTransactionContext ()
     return self;
 }
 
+- (void)getThreadInfo
+{
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    const auto threadID = sentry::profiling::ThreadHandle::current()->tid();
+    self.threadInfo = [[SentryThread alloc] initWithThreadId:@(threadID)];
+#endif
+}
+
 - (void)commonInitWithName:(NSString *)name
                     source:(SentryTransactionNameSource)source
              parentSampled:(SentrySampleDecision)parentSampled
@@ -139,14 +147,6 @@ SentryTransactionContext ()
     self.parentSampled = parentSampled;
     [self getThreadInfo];
     SENTRY_LOG_DEBUG(@"Created transaction context with name %@", name);
-}
-
-- (void)getThreadInfo
-{
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-    const auto threadID = sentry::profiling::ThreadHandle::current()->tid();
-    self.threadInfo = [[SentryThread alloc] initWithThreadId:@(threadID)];
-#endif
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED

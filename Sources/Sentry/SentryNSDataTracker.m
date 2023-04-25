@@ -167,7 +167,7 @@ SentryNSDataTracker ()
         ioSpan = [span startChildWithOperation:operation
                                    description:[self transactionDescriptionForFile:path
                                                                           fileSize:size]];
-        ioSpan.origin = SentryTraceOriginAutoFile;
+        ioSpan.origin = SentryTraceOriginAutoNSData;
     }];
 
     if (ioSpan == nil) {
