@@ -20,6 +20,7 @@ SentrySDK.capture(error: LoginError.wrongPassword)
 Capturing the above Swift error will now result in the following error message in Sentry: `wrongPassword (Code: 1)` instead of only `(Code: 1)`.
 [Customized error descriptions](https://docs.sentry.io/platforms/apple/usage/#customizing-error-descriptions) have precedence over this feature.
 To avoid sending PII by accident, the SDK doesn't send the Swift error name for struct-based Swift errors, and the SDK drops the values of enums.
+This change has no impact on grouping of the issues in Sentry.
 
 - Create User and Breadcrumb from map (#2820)
 
