@@ -8,8 +8,9 @@
 
 ### Fixes 
 
-- Ensure the current GPU frame rate is always reported for concurrent transaction profiling metrics (#2929)
+- Improved performance serializing profiling data (#2863)
 - Possible crash in Core Data tracking (#2865)
+- Ensure the current GPU frame rate is always reported for concurrent transaction profiling metrics (#2929)
 
 ## 8.5.0
 
