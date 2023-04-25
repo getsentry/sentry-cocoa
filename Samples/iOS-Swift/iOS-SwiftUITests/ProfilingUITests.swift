@@ -21,7 +21,7 @@ final class ProfilingUITests: XCTestCase {
         }
 
         app.buttons["Start transaction"].afterWaitingForExistence("Couldn't find button to start transaction").tap()
-        app.buttons["ANR fully blocking"].afterWaitingForExistence("Couldn't find button to ANR").tap()
+        app.buttons["ANR filling run loop"].afterWaitingForExistence("Couldn't find button to ANR").tap()
         app.buttons["Stop transaction"].afterWaitingForExistence("Couldn't find button to end transaction").tap()
 
         let textField = app.textFields["io.sentry.ui-tests.profile-marshaling-text-field"]
