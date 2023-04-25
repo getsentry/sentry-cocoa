@@ -1,4 +1,5 @@
 #import "PrivateSentrySDKOnly.h"
+#import "SentryBreadcrumb+Private.h"
 #import "SentryClient.h"
 #import "SentryDebugImageProvider.h"
 #import "SentryExtraContextProvider.h"
@@ -7,10 +8,13 @@
 #import "SentryMeta.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
+#import "SentryUser+Private.h"
 #import "SentryViewHierarchy.h"
+#import <SentryBreadcrumb.h>
 #import <SentryDependencyContainer.h>
 #import <SentryFramesTracker.h>
 #import <SentryScreenshot.h>
+#import <SentryUser.h>
 
 @implementation PrivateSentrySDKOnly
 
@@ -139,5 +143,15 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 }
 
 #endif
+
++ (SentryUser *)userWithDictionary:(NSDictionary *)dictionary
+{
+    return [[SentryUser alloc] initWithDictionary:dictionary];
+}
+
++ (SentryBreadcrumb *)breadcrumbWithDictionary:(NSDictionary *)dictionary
+{
+    return [[SentryBreadcrumb alloc] initWithDictionary:dictionary];
+}
 
 @end
