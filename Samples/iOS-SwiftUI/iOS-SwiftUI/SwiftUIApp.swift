@@ -11,9 +11,6 @@ struct SwiftUIApp: App {
             options.tracesSampleRate = 1.0
             options.profilesSampleRate = 1.0
         }
-        let user = User()
-        user.email = "philipp.hofmann@sentry.io"
-        SentrySDK.setUser(user)
     }
     
     var body: some Scene {
