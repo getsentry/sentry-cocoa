@@ -359,7 +359,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         sut.viewControllerLoadView(viewController) {
             transactionSpan = self.getStack(tracker).first
             lastSpan = self.getStack(tracker).last
-            customSpanId = tracker.startSpan(withName: self.spanName, nameSource: .custom, operation: self.spanOperation)
+            customSpanId = tracker.startSpan(withName: self.spanName, nameSource: .custom, operation: self.spanOperation, origin: self.origin)
         }
         let unwrappedLastSpan = try XCTUnwrap(lastSpan)
         XCTAssertTrue(unwrappedLastSpan.isFinished)
@@ -524,7 +524,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
         XCTAssertEqual(tracer?.children.count, 3)
         XCTAssertEqual(tracer?.children[1].operation, "ui.load.full_display")
-        XCTAssertEqual(tracer?.children[1].origin, "manual")
+        XCTAssertEqual(tracer?.children[1].origin, "manual.ui.time_to_display")
     }
 
     func test_dontWaitForFullDisplay() {

@@ -6,7 +6,6 @@
 #import "SentrySpan.h"
 #import "SentrySpanId.h"
 #import "SentrySpanProtocol.h"
-#import "SentryTraceOrigins.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext+Private.h"
 #import "SentryUIEventTracker.h"
@@ -43,6 +42,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
 - (SentrySpanId *)startSpanWithName:(NSString *)name
                          nameSource:(SentryTransactionNameSource)source
                           operation:(NSString *)operation
+                             origin:(NSString *)origin
 {
     id<SentrySpan> activeSpan;
     @synchronized(self.activeSpanStack) {
@@ -52,13 +52,12 @@ SentryPerformanceTracker () <SentryTracerDelegate>
     __block id<SentrySpan> newSpan;
     if (activeSpan != nil) {
         newSpan = [activeSpan startChildWithOperation:operation description:name];
-        newSpan.origin = SentryTraceOriginAutoUIViewController;
+        newSpan.origin = origin;
     } else {
-        SentryTransactionContext *context =
-            [[SentryTransactionContext alloc] initWithName:name
-                                                nameSource:source
-                                                 operation:operation
-                                                    origin:SentryTraceOriginAutoUIViewController];
+        SentryTransactionContext *context = [[SentryTransactionContext alloc] initWithName:name
+                                                                                nameSource:source
+                                                                                 operation:operation
+                                                                                    origin:origin];
 
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> span) {
             BOOL bindToScope = YES;
@@ -106,11 +105,13 @@ SentryPerformanceTracker () <SentryTracerDelegate>
 - (void)measureSpanWithDescription:(NSString *)description
                         nameSource:(SentryTransactionNameSource)source
                          operation:(NSString *)operation
+                            origin:(NSString *)origin
                            inBlock:(void (^)(void))block
 {
     SentrySpanId *spanId = [self startSpanWithName:description
                                         nameSource:source
-                                         operation:operation];
+                                         operation:operation
+                                            origin:origin];
     SENTRY_LOG_DEBUG(@"Measuring span %@; description %@; operation: %@", spanId.sentrySpanIdString,
         description, operation);
     [self pushActiveSpan:spanId];
@@ -122,6 +123,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
 - (void)measureSpanWithDescription:(NSString *)description
                         nameSource:(SentryTransactionNameSource)source
                          operation:(NSString *)operation
+                            origin:(NSString *)origin
                       parentSpanId:(SentrySpanId *)parentSpanId
                            inBlock:(void (^)(void))block
 {
@@ -130,6 +132,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
                [self measureSpanWithDescription:description
                                      nameSource:source
                                       operation:operation
+                                         origin:origin
                                         inBlock:block];
            }];
 }

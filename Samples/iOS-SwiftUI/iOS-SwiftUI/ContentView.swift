@@ -123,12 +123,18 @@ struct ContentView: View {
                     Text(getCurrentTracer()?.transactionContext.spanId.sentrySpanIdString ?? "NO ID")
                         .accessibilityIdentifier("TRANSACTION_ID")
                     
+                    Text(getCurrentTracer()?.transactionContext.origin ?? "NO ORIGIN")
+                        .accessibilityIdentifier("TRACE_ORIGIN")
+                    
                     SentryTracedView("Child Span") {
                         VStack {
                             Text(getCurrentSpan()?.spanDescription ?? "NO SPAN")
                                 .accessibilityIdentifier("CHILD_NAME")
                             Text(getCurrentSpan()?.parentSpanId?.sentrySpanIdString ?? "NO SPAN")
                                 .accessibilityIdentifier("CHILD_PARENT_SPANID")
+                            
+                            Text(getCurrentSpan()?.origin ?? "NO CHILD ORIGIN")
+                                .accessibilityIdentifier("CHILD_TRACE_ORIGIN")
                         }
                     }
 
