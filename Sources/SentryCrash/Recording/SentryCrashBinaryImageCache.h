@@ -4,11 +4,9 @@
 #include "SentryCrashDynamicLinker.h"
 #include <stdio.h>
 
+typedef void (*sentrycrashbic_imageIteratorCallback)(SentryCrashBinaryImage *, void *context);
 
-
-typedef void(*sentrycrashbic_imageIteratorCallback)(SentryCrashBinaryImage *, void * context);
-
-void sentrycrashbic_iterateOverImages(sentrycrashbic_imageIteratorCallback index, void * context);
+void sentrycrashbic_iterateOverImages(sentrycrashbic_imageIteratorCallback index, void *context);
 
 /**
  * Startes the cache that will monitor binary image being loaded or removed.

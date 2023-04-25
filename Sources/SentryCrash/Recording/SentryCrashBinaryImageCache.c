@@ -7,15 +7,14 @@
 #include <string.h>
 #include <unistd.h>
 
-
 typedef struct SentryCrashBinaryImageNode {
     SentryCrashBinaryImage image;
     bool available;
-    struct SentryCrashBinaryImageNode * next;
+    struct SentryCrashBinaryImageNode *next;
 } SentryCrashBinaryImageNode;
 
 static SentryCrashBinaryImageNode rootNode = { 0 };
-static SentryCrashBinaryImageNode * tailNode = NULL;
+static SentryCrashBinaryImageNode *tailNode = NULL;
 static pthread_mutex_t binaryImagesMutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void
@@ -38,7 +37,7 @@ binaryImageAdded(const struct mach_header *header, intptr_t slide)
         return;
     }
 
-    SentryCrashBinaryImageNode * newNode = malloc(sizeof(SentryCrashBinaryImageNode));
+    SentryCrashBinaryImageNode *newNode = malloc(sizeof(SentryCrashBinaryImageNode));
     newNode->available = true;
     newNode->image = binaryImage;
     newNode->next = NULL;
@@ -51,10 +50,10 @@ binaryImageAdded(const struct mach_header *header, intptr_t slide)
 static void
 binaryImageRemoved(const struct mach_header *header, intptr_t slide)
 {
-    SentryCrashBinaryImageNode* nextNode = &rootNode;
+    SentryCrashBinaryImageNode *nextNode = &rootNode;
 
     while (nextNode != NULL) {
-        if (nextNode->image.address == (uint64_t)header){
+        if (nextNode->image.address == (uint64_t)header) {
             nextNode->available = false;
             break;
         }
@@ -62,8 +61,10 @@ binaryImageRemoved(const struct mach_header *header, intptr_t slide)
     }
 }
 
-void sentrycrashbic_iterateOverImages(sentrycrashbic_imageIteratorCallback callback, void * context) {
-    SentryCrashBinaryImageNode* nextNode = &rootNode;
+void
+sentrycrashbic_iterateOverImages(sentrycrashbic_imageIteratorCallback callback, void *context)
+{
+    SentryCrashBinaryImageNode *nextNode = &rootNode;
 
     while (nextNode != NULL) {
         if (nextNode->available) {
@@ -78,7 +79,7 @@ sentrycrashbic_startCache(void)
 {
     pthread_mutex_lock(&binaryImagesMutex);
     if (tailNode != NULL) {
-        //Already initialized
+        // Already initialized
         pthread_mutex_unlock(&binaryImagesMutex);
         return;
     }
@@ -101,11 +102,11 @@ sentrycrashbic_stopCache(void)
         return;
     }
 
-    SentryCrashBinaryImageNode* node = rootNode.next;
+    SentryCrashBinaryImageNode *node = rootNode.next;
     rootNode.next = NULL;
 
     while (node != NULL) {
-        SentryCrashBinaryImageNode* nextNode = node->next;
+        SentryCrashBinaryImageNode *nextNode = node->next;
         free(node);
         node = nextNode;
     }

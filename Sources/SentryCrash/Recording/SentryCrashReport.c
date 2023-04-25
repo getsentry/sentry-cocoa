@@ -1196,10 +1196,10 @@ writeBinaryImage(const SentryCrashReportWriter *const writer, const char *const 
     writer->endContainer(writer);
 }
 
-
 static void
-binaryImagesIteratorCallback(SentryCrashBinaryImage *image, void * context) {
-    SentryCrashReportWriter * writer = (SentryCrashReportWriter *)context;
+binaryImagesIteratorCallback(SentryCrashBinaryImage *image, void *context)
+{
+    SentryCrashReportWriter *writer = (SentryCrashReportWriter *)context;
     writeBinaryImage(writer, NULL, image);
 }
 
@@ -1213,7 +1213,7 @@ static void
 writeBinaryImages(const SentryCrashReportWriter *const writer, const char *const key)
 {
     writer->beginArray(writer, key);
-    sentrycrashbic_iterateOverImages(&binaryImagesIteratorCallback, (void *) writer);
+    sentrycrashbic_iterateOverImages(&binaryImagesIteratorCallback, (void *)writer);
     writer->endContainer(writer);
     printf("###FIM\n");
 }
