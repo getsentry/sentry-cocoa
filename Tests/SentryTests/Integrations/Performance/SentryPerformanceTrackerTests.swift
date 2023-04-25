@@ -279,6 +279,9 @@ class SentryPerformanceTrackerTests: XCTestCase {
     }
         
     func testStartSpanAsync() {
+        // To not spam the test logs
+        SentryLog.configure(true, diagnosticLevel: .error)
+        
         let sut = fixture.getSut()
         let spanId = startSpan(tracker: sut)
         sut.activateSpan(spanId) {
@@ -302,6 +305,8 @@ class SentryPerformanceTrackerTests: XCTestCase {
         for span in spans {
             sut.finishSpan(span.key)
         }
+        
+        setTestDefaultLogLevel()
     }
     
     func testStackAsync() {
