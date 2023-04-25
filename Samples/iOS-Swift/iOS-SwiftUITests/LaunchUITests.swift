@@ -102,7 +102,7 @@ class LaunchUITests: XCTestCase {
 
 private extension LaunchUITests {
     func waitForExistenceOfMainScreen() {
-       app.tabBars["Tab Bar"].waitForExistence( "Home Screen doesn't exist.")
+        app.waitForExistence( "Home Screen doesn't exist.")
     }
     
     func checkSlowAndFrozenFrames() {
