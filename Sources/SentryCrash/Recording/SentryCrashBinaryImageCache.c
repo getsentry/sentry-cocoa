@@ -38,12 +38,12 @@ binaryImageAdded(const struct mach_header *header, intptr_t slide)
         return;
     }
 
-    SentryCrashBinaryImageNode newNode = { 0 };
-    newNode.available = true;
-    newNode.image = binaryImage;
+    SentryCrashBinaryImageNode * newNode = malloc(sizeof(SentryCrashBinaryImageNode));
+    newNode->available = true;
+    newNode->image = binaryImage;
+    newNode->next = NULL;
 
-    tailNode->next = malloc(sizeof(SentryCrashBinaryImageNode));
-    *tailNode->next = newNode;
+    tailNode->next = newNode;
     tailNode = tailNode->next;
     pthread_mutex_unlock(&binaryImagesMutex);
 }
