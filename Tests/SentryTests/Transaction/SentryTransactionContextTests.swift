@@ -1,5 +1,4 @@
 import Foundation
-
 import SentryTestUtils
 import XCTest
 
@@ -83,6 +82,14 @@ class SentryTransactionContextTests: XCTestCase {
         let context = contextWithAllParams
         
         let actual = context.serialize()
+        XCTAssertEqual(context.traceId.sentryIdString, actual["trace_id"] as? String)
+        XCTAssertEqual(context.spanId.sentrySpanIdString, actual["span_id"] as? String)
+        XCTAssertEqual(context.origin, actual["origin"] as? String)
+        XCTAssertEqual(context.parentSpanId?.sentrySpanIdString, actual["parent_span_id"] as? String)
+        XCTAssertEqual("trace", actual["type"] as? String)
+        XCTAssertEqual("true", actual["sampled"] as? String)
+        XCTAssertEqual("ui.load", actual["op"] as? String)
+        
         XCTAssertNotNil(actual)
     }
     
@@ -102,7 +109,5 @@ class SentryTransactionContextTests: XCTestCase {
         } else {
             XCTAssertNotNil(context.parentSpanId)
         }
-         
     }
-    
 }
