@@ -31,6 +31,13 @@ NSString *const kSentryMetricProfilerSerializationKeyCPUUsageFormat = @"cpu_usag
 NSString *const kSentryMetricProfilerSerializationUnitBytes = @"byte";
 NSString *const kSentryMetricProfilerSerializationUnitPercentage = @"percent";
 
+// Currently set to 10 Hz as we don't anticipate much utility out of a higher resolution when
+// sampling CPU usage and memory footprint, and we want to minimize the overhead of making the
+// necessary system calls to gather that information. This is currently roughly 10% of the
+// backtrace profiler's resolution.
+static uint64_t frequencyHz = 10;
+static uint64_t leewayNs = 50000; // 50 milliseconds
+
 namespace {
 /**
  * @return a dictionary containing all the metric values recorded during the transaction, or @c nil
@@ -151,18 +158,10 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 
 - (void)registerSampler
 {
-    // Currently set to 10 Hz as we don't anticipate much utility out of a higher resolution when
-    // sampling CPU usage and memory footprint, and we want to minimize the overhead of making the
-    // necessary system calls to gather that information. This is currently roughly 10% of the
-    // backtrace profiler's resolution.
-    static uint64_t frequencyHz = 10;
-    uint64_t intervalNs = (uint64_t)1e9 / frequencyHz;
-    uint64_t leewayNs = 50000; // 50 milliseconds
-
     __weak auto weakSelf = self;
     _timer =
         [_dispatchFactory sourceWithInterval:intervalNs
-                                      leeway:leewayNs
+                                      leeway:(uint64_t)1e9 / frequencyHz
                                    queueName:"io.sentry.metric-profiler"
                                   attributes:dispatch_queue_attr_make_with_qos_class(
                                                  DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_UTILITY, 0)
