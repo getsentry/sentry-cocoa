@@ -6,6 +6,7 @@
 
 - Ensure the current GPU frame rate is always reported for concurrent transaction profiling metrics (#2929)
 - Possible crash in Core Data tracking (#2865)
+- Move profiler metric collection to a background queue (#2956)
 
 ## 8.5.0
 
