@@ -67,11 +67,11 @@ class LaunchUITests: XCTestCase {
     }
     
     func testCaptureError() {
-        app.buttons["Error"].tap()
+        app.buttons["Capture Error"].tap()
     }
     
     func testCaptureException() {
-        app.buttons["NSException"].tap()
+        app.buttons["Capture NSException"].tap()
     }
     
     func testShowTableView() {
