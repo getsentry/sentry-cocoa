@@ -1196,6 +1196,13 @@ writeBinaryImage(const SentryCrashReportWriter *const writer, const char *const 
     writer->endContainer(writer);
 }
 
+
+static void
+binaryImagesIteratorCallback(SentryCrashBinaryImage *image, void * context) {
+    SentryCrashReportWriter * writer = (SentryCrashReportWriter *)context;
+    writeBinaryImage(writer, NULL, image);
+}
+
 /** Write information about all images to the report.
  *
  * @param writer The writer.
@@ -1205,15 +1212,10 @@ writeBinaryImage(const SentryCrashReportWriter *const writer, const char *const 
 static void
 writeBinaryImages(const SentryCrashReportWriter *const writer, const char *const key)
 {
-    const int imageCount = sentrycrashbic_imageCount();
     writer->beginArray(writer, key);
-    {
-        for (int iImg = 0; iImg < imageCount; iImg++) {
-            SentryCrashBinaryImage *image = sentrycrashbic_getCachedBinaryImage(iImg);
-            writeBinaryImage(writer, NULL, image);
-        }
-    }
+    sentrycrashbic_iterateOverImages(&binaryImagesIteratorCallback, (void *) writer);
     writer->endContainer(writer);
+    printf("###FIM\n");
 }
 
 /** Write information about system memory to the report.

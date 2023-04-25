@@ -4,21 +4,11 @@
 #include "SentryCrashDynamicLinker.h"
 #include <stdio.h>
 
-/**
- *Get the number of loaded binary images.
- *
- *@warning This function is not thread safe, because this is meant to be used during crash signal
- *handling.
- */
-int sentrycrashbic_imageCount(void);
 
-/**
- * Return a pointer to a SentryCrashBinaryImage in the index position in the cache.
- *
- *@warning This function is not thread safe, because this is meant to be used during crash signal
- *handling.
- */
-SentryCrashBinaryImage *sentrycrashbic_getCachedBinaryImage(int index);
+
+typedef void(*sentrycrashbic_imageIteratorCallback)(SentryCrashBinaryImage *, void * context);
+
+void sentrycrashbic_iterateOverImages(sentrycrashbic_imageIteratorCallback index, void * context);
 
 /**
  * Startes the cache that will monitor binary image being loaded or removed.
