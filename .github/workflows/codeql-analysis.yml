@@ -6,9 +6,6 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - 'Sources/**'
-      - '.github/workflows/codeql-analysis.yml'
   schedule:
     - cron: '40 4 * * 6'
 
