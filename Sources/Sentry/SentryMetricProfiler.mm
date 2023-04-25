@@ -36,7 +36,6 @@ NSString *const kSentryMetricProfilerSerializationUnitPercentage = @"percent";
 // necessary system calls to gather that information. This is currently roughly 10% of the
 // backtrace profiler's resolution.
 static uint64_t frequencyHz = 10;
-static uint64_t leewayNs = 50000; // 50 milliseconds
 
 namespace {
 /**
@@ -159,9 +158,11 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 - (void)registerSampler
 {
     __weak auto weakSelf = self;
+    const auto intervalNs = (uint64_t)1e9 / frequencyHz;
+    const auto leewayNs = intervalNs / 2;
     _timer =
         [_dispatchFactory sourceWithInterval:intervalNs
-                                      leeway:(uint64_t)1e9 / frequencyHz
+                                      leeway:leewayNs
                                    queueName:"io.sentry.metric-profiler"
                                   attributes:dispatch_queue_attr_make_with_qos_class(
                                                  DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_UTILITY, 0)
