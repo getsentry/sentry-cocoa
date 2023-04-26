@@ -28,9 +28,18 @@ class SentryScopeSwiftTests: XCTestCase {
             user = User(userId: "id")
             user.email = "user@sentry.io"
             user.username = "user123"
+            user.ipAddress = "127.0.0.1"
+            user.segment = "segmentA"
+            user.name = "User"
             user.ipAddress = ipAddress
-            user.data = ["some": ["data": "data", "date": date] as [String: Any]]
             
+            let geo = Geo()
+            geo.city = "Vienna"
+            geo.countryCode = "at"
+            geo.region = "Vienna"
+            user.geo = geo
+            user.data = ["some": ["data": "data", "date": date] as [String: Any]]
+
             breadcrumb = Breadcrumb()
             breadcrumb.level = SentryLevel.info
             breadcrumb.timestamp = date

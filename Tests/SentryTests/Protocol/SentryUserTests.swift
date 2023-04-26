@@ -2,8 +2,33 @@ import XCTest
 
 class SentryUserTests: XCTestCase {
 
+    func testInitWithDictionary() {
+        let dict: [AnyHashable: Any] = [
+            "id": "fixture-id",
+            "email": "fixture-email",
+            "username": "fixture-username",
+            "ip_address": "fixture-ip_address",
+            "segment": "fixture-segment",
+            "data": [
+                "fixture-key": "fixture-value"
+            ],
+            "foo": "bar" // Unknown
+        ]
+        let user = PrivateSentrySDKOnly.user(with: dict)
+        
+        XCTAssertEqual(user.userId, "fixture-id")
+        XCTAssertEqual(user.email, "fixture-email")
+        XCTAssertEqual(user.username, "fixture-username")
+        XCTAssertEqual(user.ipAddress, "fixture-ip_address")
+        XCTAssertEqual(user.segment, "fixture-segment")
+        XCTAssertEqual(user.data?["fixture-key"] as? String, "fixture-value")
+        XCTAssertEqual(user.value(forKey: "unknown") as? NSDictionary, ["foo": "bar"])
+    }
+    
     func testSerializationWithAllProperties() {
         let user = TestData.user.copy() as! User
+        user.setValue(["some": "data"], forKey: "unknown")
+        
         let actual = user.serialize()
 
         // Changing the original doesn't modify the serialized
@@ -15,6 +40,7 @@ class SentryUserTests: XCTestCase {
         user.name = ""
         user.geo = Geo()
         user.data?.removeAll()
+        user.setValue(nil, forKey: "unknown")
         
         XCTAssertEqual(TestData.user.userId, actual["id"] as? String)
         XCTAssertEqual(TestData.user.email, actual["email"] as? String)
@@ -23,6 +49,7 @@ class SentryUserTests: XCTestCase {
         XCTAssertEqual(TestData.user.segment, actual["segment"] as? String)
         XCTAssertEqual(TestData.user.name, actual["name"] as? String)
         XCTAssertEqual(["some": ["data": "data", "date": TestData.timestampAs8601String]], actual["data"] as? Dictionary)
+        XCTAssertEqual("data", actual["some"] as? String)
         
         let actualGeo = actual["geo"] as? [String: Any]
         XCTAssertEqual(TestData.user.geo?.city, actualGeo?["city"] as? String)
@@ -37,7 +64,7 @@ class SentryUserTests: XCTestCase {
         XCTAssertEqual(user.userId, actual["id"] as? String)
         XCTAssertEqual(1, actual.count)
     }
-
+    
     func testSerializationWithoutId() {
         let user = User()
         let actual = user.serialize()

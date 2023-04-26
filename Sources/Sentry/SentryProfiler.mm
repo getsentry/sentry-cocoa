@@ -13,8 +13,8 @@
 #    import "SentryEnvelope.h"
 #    import "SentryEnvelopeItemType.h"
 #    import "SentryEvent+Private.h"
+#    import "SentryFormatter.h"
 #    import "SentryFramesTracker.h"
-#    import "SentryHexAddressFormatter.h"
 #    import "SentryHub+Private.h"
 #    import "SentryId.h"
 #    import "SentryInternalDefines.h"
@@ -86,11 +86,11 @@ processBacktrace(const Backtrace &backtrace,
     NSMutableDictionary<NSString *, NSNumber *> *frameIndexLookup,
     NSMutableDictionary<NSString *, NSNumber *> *stackIndexLookup)
 {
-    const auto threadID = [@(backtrace.threadMetadata.threadID) stringValue];
+    const auto threadID = sentry_stringForUInt64(backtrace.threadMetadata.threadID);
 
     NSString *queueAddress = nil;
     if (backtrace.queueMetadata.address != 0) {
-        queueAddress = sentry_formatHexAddress(@(backtrace.queueMetadata.address));
+        queueAddress = sentry_formatHexAddressUInt64(backtrace.queueMetadata.address);
     }
     NSMutableDictionary<NSString *, id> *metadata = threadMetadata[threadID];
     if (metadata == nil) {
@@ -118,7 +118,7 @@ processBacktrace(const Backtrace &backtrace,
     for (std::vector<uintptr_t>::size_type backtraceAddressIdx = 0;
          backtraceAddressIdx < backtrace.addresses.size(); backtraceAddressIdx++) {
         const auto instructionAddress
-            = sentry_formatHexAddress(@(backtrace.addresses[backtraceAddressIdx]));
+            = sentry_formatHexAddressUInt64(backtrace.addresses[backtraceAddressIdx]);
 
         const auto frameIndex = frameIndexLookup[instructionAddress];
         if (frameIndex == nil) {
@@ -181,12 +181,6 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
     }
 }
 
-NSString *
-serializedUnsigned64BitInteger(uint64_t value)
-{
-    return [NSString stringWithFormat:@"%llu", value];
-}
-
 #    if SENTRY_HAS_UIKIT
 /**
  * Convert the data structure that records timestamps for GPU frame render info from
@@ -224,13 +218,13 @@ sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, SentryTransaction *transactio
         const auto relativeTimestamp = getDurationNs(transaction.startSystemTime, timestamp);
 
         [slicedGPUEntries addObject:@ {
-            @"elapsed_since_start_ns" : serializedUnsigned64BitInteger(relativeTimestamp),
+            @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp),
             @"value" : obj[@"value"],
         }];
     }];
     if (useMostRecentRecording && slicedGPUEntries.count == 0) {
         [slicedGPUEntries addObject:@ {
-            @"elapsed_since_start_ns" : serializedUnsigned64BitInteger(0),
+            @"elapsed_since_start_ns" : @"0",
             @"value" : nearestPredecessorValue,
         }];
     }
@@ -254,9 +248,9 @@ serializedSamplesWithRelativeTimestamps(
             return;
         }
         const auto dict = [NSMutableDictionary dictionaryWithDictionary:@ {
-            @"elapsed_since_start_ns" : serializedUnsigned64BitInteger(
+            @"elapsed_since_start_ns" : sentry_stringForUInt64(
                 getDurationNs(transaction.startSystemTime, sample.absoluteTimestamp)),
-            @"thread_id" : serializedUnsigned64BitInteger(sample.threadID),
+            @"thread_id" : sentry_stringForUInt64(sample.threadID),
             @"stack_id" : sample.stackIndex,
         }];
         if (sample.queueAddress) {

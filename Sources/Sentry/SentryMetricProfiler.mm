@@ -4,6 +4,7 @@
 
 #    import "SentryCurrentDate.h"
 #    import "SentryEvent+Private.h"
+#    import "SentryFormatter.h"
 #    import "SentryLog.h"
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentryNSTimerWrapper.h"
@@ -60,8 +61,8 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
         const auto relativeTimestamp
             = getDurationNs(transaction.startSystemTime, reading.absoluteTimestamp);
 
-        [timestampNormalizedValues addObject:@{
-            @"elapsed_since_start_ns" : @(relativeTimestamp).stringValue,
+        [timestampNormalizedValues addObject:@ {
+            @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp),
             @"value" : reading.value
         }];
     }];
