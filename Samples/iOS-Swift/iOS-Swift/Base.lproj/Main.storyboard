@@ -129,7 +129,7 @@
                             <constraint firstItem="Cod-iq-tSj" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="ViO-xX-9xw"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Transactions" image="clock.fill" selectedImage="clock.fill" catalog="system" id="ypv-KA-BBe"/>
+                    <tabBarItem key="tabBarItem" title="Transactions" image="clock.fill" catalog="system" selectedImage="clock.fill" id="ypv-KA-BBe"/>
                     <navigationItem key="navigationItem" title="Sentry Test App (Swift)" id="Ddh-Ww-vzM"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -399,8 +399,8 @@
                             <constraint firstItem="fn9-mQ-2PY" firstAttribute="centerY" secondItem="RXi-Ac-EvL" secondAttribute="centerY" id="UYM-w4-XaB"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Errors" image="exclamationmark.triangle.fill" id="u05-ZO-4bg">
-                        <imageReference key="selectedImage" image="exclamationmark.triangle.fill" catalog="system" renderingMode="template"/>
+                    <tabBarItem key="tabBarItem" title="Errors" image="exclamationmark.triangle.fill" catalog="system" id="u05-ZO-4bg">
+                        <imageReference key="selectedImage" image="exclamationmark.triangle.fill" catalog="system"/>
                     </tabBarItem>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0Fg-3B-Ecy" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -603,7 +603,7 @@
                             <constraint firstItem="zhO-zJ-CAt" firstAttribute="centerX" secondItem="QWh-GD-7Cl" secondAttribute="centerX" id="rW3-yv-lJt"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Extra" image="ellipsis.circle.fill" selectedImage="ellipsis.circle.fill" catalog="system" id="e34-WA-EKV"/>
+                    <tabBarItem key="tabBarItem" title="Extra" image="ellipsis.circle.fill" catalog="system" selectedImage="ellipsis.circle.fill" id="e34-WA-EKV"/>
                     <connections>
                         <outlet property="anrFillingRunLoopButton" destination="2e4-48-rLl" id="MXb-mV-5SL"/>
                         <outlet property="anrFullyBlockingButton" destination="rpD-Rf-xbz" id="jF4-7m-26n"/>
@@ -619,12 +619,9 @@
         </scene>
     </scenes>
     <resources>
-        <image name="clock.fill" width="128" height="128"/>
         <image name="clock.fill" catalog="system" width="128" height="123"/>
-        <image name="ellipsis.circle.fill" width="128" height="128"/>
         <image name="ellipsis.circle.fill" catalog="system" width="128" height="123"/>
         <image name="exclamationmark.triangle.fill" catalog="system" width="128" height="109"/>
-        <image name="exclamationmark.triangle.fill" width="128" height="128"/>
         <systemColor name="labelColor">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
