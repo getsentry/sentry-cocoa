@@ -34,7 +34,7 @@ class LaunchUITests: XCTestCase {
     }
 
     func testBreadcrumbData() {
-        XCUIApplication().tabBars["Tab Bar"].buttons["Extra"].tap()
+        app.buttons["Extra"].tap()
 
         let breadcrumbLabel = app.staticTexts["breadcrumbLabel"]
         breadcrumbLabel.waitForExistence("Breadcrumb label not found.")
@@ -42,27 +42,27 @@ class LaunchUITests: XCTestCase {
     }
 
     func testLoremIpsum() {
-        XCUIApplication().tabBars["Tab Bar"].buttons["Transactions"].tap()
+        app.buttons["Transactions"].tap()
         app.buttons["loremIpsumButton"].tap()
         app.textViews.firstMatch.waitForExistence("Lorem Ipsum not loaded.")
     }
     
     func testNavigationTransaction() {
-        XCUIApplication().tabBars["Tab Bar"].buttons["Transactions"].tap()
+        app.buttons["Transactions"].tap()
         app.buttons["testNavigationTransactionButton"].tap()
         app.images.firstMatch.waitForExistence("Navigation transaction not loaded.")
         assertApp()
     }
     
     func testShowNib() {
-        XCUIApplication().tabBars["Tab Bar"].buttons["Transactions"].tap()
+        app.buttons["Transactions"].tap()
         app.buttons["showNibButton"].tap()
         app.buttons["lonelyButton"].waitForExistence("Nib ViewController not loaded.")
         assertApp()
     }
     
     func testUiClickTransaction() {
-        XCUIApplication().tabBars["Tab Bar"].buttons["Transactions"].tap()
+        app.buttons["Transactions"].tap()
         app.buttons["uiClickTransactionButton"].tap()
     }
     
@@ -75,14 +75,14 @@ class LaunchUITests: XCTestCase {
     }
     
     func testShowTableView() {
-        XCUIApplication().tabBars["Tab Bar"].buttons["Transactions"].tap()
+        app.buttons["Transactions"].tap()
         app.buttons["showTableViewButton"].tap()
         app.navigationBars.buttons.element(boundBy: 0).waitForExistence("TableView not loaded.")
         assertApp()
     }
     
     func testSplitView() {
-        XCUIApplication().tabBars["Tab Bar"].buttons["Transactions"].tap()
+        app.buttons["Transactions"].tap()
         app.buttons["showSplitViewButton"].tap()
         
         let app = XCUIApplication()
@@ -95,7 +95,7 @@ class LaunchUITests: XCTestCase {
     }
 
     func testCheckSlowAndFrozenFrames() {
-        XCUIApplication().tabBars["Tab Bar"].buttons["Extra"].tap()
+        app.buttons["Extra"].tap()
         checkSlowAndFrozenFrames()
     }
 }
