@@ -23,6 +23,8 @@ class LaunchUITests: XCTestCase {
         XCTAssertEqual(childName.label, "Child Span")
         XCTAssertEqual(transactionName.label, "Content View Body")
         XCTAssertEqual(childParentId.label, transactionId.label)
+        XCTAssertEqual("auto.ui.swift_ui", app.staticTexts["TRACE_ORIGIN"].label)
+        XCTAssertEqual("auto.ui.swift_ui", app.staticTexts["CHILD_TRACE_ORIGIN"].label)
     }
 
     func testNoNewTransactionForSecondCallToBody() {

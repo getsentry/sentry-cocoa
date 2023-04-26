@@ -4,7 +4,12 @@
 
 ### Features
 
+- Send trace origin (#2957)
+
+[Trace origin](https://develop.sentry.dev/sdk/performance/trace-origin/) indicates what created a trace or a span. Not all transactions and spans contain enough information to tell whether the user or what precisely in the SDK created it. Origin solves this problem. The SDK now sends origin for transactions and spans.
+
 - Create User and Breadcrumb from map (#2820)
+
 
 ### Fixes 
 

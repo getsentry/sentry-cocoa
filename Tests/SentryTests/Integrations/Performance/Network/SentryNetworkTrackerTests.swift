@@ -8,6 +8,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     private static let testURL = URL(string: "https://www.domain.com/api")!
     private static let transactionName = "TestTransaction"
     private static let transactionOperation = "Test"
+    private static let origin = "auto.http.ns_url_session"
     
     private class Fixture {
         static let url = ""
@@ -214,6 +215,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let span = spanForTask(task: task)!
         
         XCTAssertEqual(span.spanDescription, "GET \(SentryNetworkTrackerTests.testURL)")
+        XCTAssertEqual(SentryNetworkTrackerTests.origin, span.origin)
     }
     
     func testSpanDescriptionNameWithPost() {
@@ -221,6 +223,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let span = spanForTask(task: task)!
         
         XCTAssertEqual(span.spanDescription, "POST \(SentryNetworkTrackerTests.testURL)")
+        XCTAssertEqual(SentryNetworkTrackerTests.origin, span.origin)
     }
     
     func testStatusForTaskRunning() {

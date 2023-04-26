@@ -1030,6 +1030,7 @@ class SentryTracerTests: XCTestCase {
         }
         let trace: SentryTracer? = Dynamic(transaction).trace
         XCTAssertEqual(operation, appLaunchSpan?.operation)
+        XCTAssertEqual("auto.app.start", appLaunchSpan?.origin)
         XCTAssertEqual(trace?.spanId, appLaunchSpan?.parentSpanId)
         XCTAssertEqual(appStartMeasurement.appStartTimestamp, appLaunchSpan?.startTimestamp)
         XCTAssertEqual(fixture.appStartEnd, appLaunchSpan?.timestamp)
@@ -1040,6 +1041,7 @@ class SentryTracerTests: XCTestCase {
             }
             
             XCTAssertEqual(operation, span?.operation)
+            XCTAssertEqual("auto.app.start", span?.origin)
             XCTAssertEqual(appLaunchSpan?.spanId, span?.parentSpanId)
             XCTAssertEqual(startTimestamp, span?.startTimestamp)
             XCTAssertEqual(timestamp, span?.timestamp)

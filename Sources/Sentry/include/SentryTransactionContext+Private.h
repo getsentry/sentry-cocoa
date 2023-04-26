@@ -8,16 +8,19 @@ SentryTransactionContext (Private)
 
 - (instancetype)initWithName:(NSString *)name
                   nameSource:(SentryTransactionNameSource)source
-                   operation:(NSString *)operation;
+                   operation:(NSString *)operation
+                      origin:(NSString *)origin;
 
 - (instancetype)initWithName:(NSString *)name
                   nameSource:(SentryTransactionNameSource)source
                    operation:(NSString *)operation
+                      origin:(NSString *)origin
                      sampled:(SentrySampleDecision)sampled;
 
 - (instancetype)initWithName:(NSString *)name
                   nameSource:(SentryTransactionNameSource)source
                    operation:(nonnull NSString *)operation
+                      origin:(NSString *)origin
                      traceId:(SentryId *)traceId
                       spanId:(SentrySpanId *)spanId
                 parentSpanId:(nullable SentrySpanId *)parentSpanId
@@ -26,6 +29,7 @@ SentryTransactionContext (Private)
 - (instancetype)initWithName:(NSString *)name
                   nameSource:(SentryTransactionNameSource)source
                    operation:(NSString *)operation
+                      origin:(NSString *)origin
                      traceId:(SentryId *)traceId
                       spanId:(SentrySpanId *)spanId
                 parentSpanId:(nullable SentrySpanId *)parentSpanId
