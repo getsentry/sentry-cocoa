@@ -130,19 +130,23 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 
 - (NSMutableDictionary<NSString *, id> *)serializeForTransaction:(SentryTransaction *)transaction
 {
-    NSMutableDictionary<NSString *, id> *dict;
+    NSArray<SentryMetricReading *> *memoryFootprint;
+    NSDictionary<NSNumber *, NSArray<SentryMetricReading *> *> *cpuUsage;
     @synchronized(self) {
-        dict = [NSMutableDictionary<NSString *, id> dictionary];
+        memoryFootprint = [NSArray<SentryMetricReading *> arrayWithArray:_memoryFootprint];
+        cpuUsage = [NSDictionary<NSNumber *, NSArray<SentryMetricReading *> *>
+            dictionaryWithDictionary:_cpuUsage];
     }
 
-    if (_memoryFootprint.count > 0) {
+    const auto dict = [NSMutableDictionary<NSString *, id> dictionary];
+    if (memoryFootprint.count > 0) {
         dict[kSentryMetricProfilerSerializationKeyMemoryFootprint]
             = serializeValuesWithNormalizedTime(
-                _memoryFootprint, kSentryMetricProfilerSerializationUnitBytes, transaction);
+                memoryFootprint, kSentryMetricProfilerSerializationUnitBytes, transaction);
     }
 
-    [_cpuUsage enumerateKeysAndObjectsUsingBlock:^(NSNumber *_Nonnull core,
-        NSMutableArray<SentryMetricReading *> *_Nonnull readings, BOOL *_Nonnull stop) {
+    [cpuUsage enumerateKeysAndObjectsUsingBlock:^(NSNumber *_Nonnull core,
+        NSArray<SentryMetricReading *> *_Nonnull readings, BOOL *_Nonnull stop) {
         if (readings.count > 0) {
             dict[[NSString stringWithFormat:kSentryMetricProfilerSerializationKeyCPUUsageFormat,
                            core.intValue]]
