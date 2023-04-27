@@ -438,14 +438,6 @@ SentryFileManager ()
     return YES;
 }
 
-- (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path
-{
-    NSData *saveData = [SentrySerialization dataWithJSONObject:dictionary];
-    return nil != saveData ? [self storeData:saveData toUniqueJSONPath:path]
-                           : path; // TODO: Should we return null instead? Whoever is using this
-                                   // return value is being tricked.
-}
-
 - (void)storeAppState:(SentryAppState *)appState
 {
     NSData *data = [SentrySerialization dataWithJSONObject:[appState serialize]];
