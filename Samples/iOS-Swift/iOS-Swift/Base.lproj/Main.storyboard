@@ -301,12 +301,12 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0SU-p6-HVz" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2237" y="-3"/>
+            <point key="canvasLocation" x="-2432" y="-3"/>
         </scene>
-        <!--Errors-->
+        <!--Extras-->
         <scene sceneID="MFJ-pr-7hN">
             <objects>
-                <viewController id="QmU-DD-itF" customClass="ErrorsViewController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Extras" id="QmU-DD-itF" customClass="ErrorsViewController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="M6c-EX-0C6">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -407,11 +407,11 @@
             </objects>
             <point key="canvasLocation" x="-274" y="-602"/>
         </scene>
-        <!--Tab Bar Controller-->
+        <!--Sentry Sample-->
         <scene sceneID="Utg-a8-6kx">
             <objects>
-                <tabBarController id="Q14-xN-bDJ" sceneMemberID="viewController">
-                    <navigationItem key="navigationItem" id="3V1-hd-GqJ"/>
+                <tabBarController title="Sentry Sample" id="Q14-xN-bDJ" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" title="Sentry Sample" id="3V1-hd-GqJ"/>
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="xMc-eI-6xF">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="49"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -436,7 +436,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="zhO-zJ-CAt">
-                                <rect key="frame" x="8" y="13" width="304" height="557"/>
+                                <rect key="frame" x="8" y="80" width="304" height="423"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="Yzg-QH-aPg">
                                         <rect key="frame" x="0.0" y="0.0" width="304" height="168"/>
@@ -545,22 +545,22 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="omd-Rj-xhq">
-                                        <rect key="frame" x="0.0" y="168" width="304" height="389"/>
+                                        <rect key="frame" x="0.0" y="168" width="304" height="255"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eMF-4u-JGE">
-                                                <rect key="frame" x="8" y="32" width="288" height="50"/>
+                                                <rect key="frame" x="8" y="32" width="288" height="36"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="DSN  " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FXp-oI-RdR">
-                                                <rect key="frame" x="8" y="82" width="288" height="50"/>
+                                                <rect key="frame" x="8" y="68" width="288" height="35.5"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <textField opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="249" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="wzO-lb-yFR">
-                                                <rect key="frame" x="8" y="132" width="288" height="50"/>
+                                                <rect key="frame" x="8" y="103.5" width="288" height="36"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <textInputTraits key="textInputTraits"/>
                                                 <connections>
@@ -568,21 +568,21 @@
                                                 </connections>
                                             </textField>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="te3-IR-L1y">
-                                                <rect key="frame" x="8" y="182" width="288" height="50"/>
+                                                <rect key="frame" x="8" y="139.5" width="288" height="36"/>
                                                 <state key="normal" title="Reset DSN"/>
                                                 <connections>
                                                     <action selector="resetDSN:" destination="VqS-l1-kwe" eventType="touchUpInside" id="3LJ-al-JGc"/>
                                                 </connections>
                                             </button>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Frames" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xua-qE-dXN" userLabel="frames">
-                                                <rect key="frame" x="8" y="232" width="288" height="50"/>
+                                                <rect key="frame" x="8" y="175.5" width="288" height="35.5"/>
                                                 <accessibility key="accessibilityConfiguration" identifier="framesStatsLabel"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Last breadcrumb" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4M5-qM-BM9" userLabel="breadcrumb">
-                                                <rect key="frame" x="8" y="282" width="288" height="50"/>
+                                                <rect key="frame" x="8" y="211" width="288" height="36"/>
                                                 <accessibility key="accessibilityConfiguration" identifier="breadcrumbLabel"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>
@@ -599,6 +599,8 @@
                         <constraints>
                             <constraint firstItem="zhO-zJ-CAt" firstAttribute="centerY" secondItem="QWh-GD-7Cl" secondAttribute="centerY" id="6pX-ML-1Hh"/>
                             <constraint firstItem="zhO-zJ-CAt" firstAttribute="leading" secondItem="QWh-GD-7Cl" secondAttribute="leading" constant="8" id="Asm-Ny-qaW"/>
+                            <constraint firstItem="QWh-GD-7Cl" firstAttribute="bottom" secondItem="zhO-zJ-CAt" secondAttribute="bottom" constant="16" id="Of4-a9-fcc"/>
+                            <constraint firstItem="QWh-GD-7Cl" firstAttribute="top" secondItem="zhO-zJ-CAt" secondAttribute="top" constant="-16" id="ZLU-h5-5P6"/>
                             <constraint firstItem="QWh-GD-7Cl" firstAttribute="trailing" secondItem="zhO-zJ-CAt" secondAttribute="trailing" constant="8" id="eGG-ja-YO9"/>
                             <constraint firstItem="zhO-zJ-CAt" firstAttribute="centerX" secondItem="QWh-GD-7Cl" secondAttribute="centerX" id="rW3-yv-lJt"/>
                         </constraints>
