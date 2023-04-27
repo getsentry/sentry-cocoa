@@ -851,38 +851,87 @@ private extension SentryProfilerSwiftTests {
 }
 #endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 
+let system = SentrySystemWrapper()
+
 extension SentryProfilerSwiftTests {
     func testQueuesAndThreads() {
-        let exp = expectation(description: "all blocks finish")
-        exp.expectedFulfillmentCount = 61
 
-        let system = SentrySystemWrapper()
-        func scheduleBlocks(_ queue: DispatchQueue, _ number: Int, _ queueName: String, slow: Bool = false) {
+        let privateSerialUtilityQueue = DispatchQueue(label: "private", qos: .utility)
+        let privateConcurrentBackgroundQueue = DispatchQueue(label: "private", qos: .background, attributes: [.concurrent])
+
+        func scheduleBlocks(_ queue: DispatchQueue, _ number: Int, _ queueName: String, _ exp: XCTestExpectation, slow: Bool = false) {
             for _ in 0..<number {
                 queue.async {
                     if slow { sleep(5) }
-                    let cpus = try! system.cpuUsagePerCore()
-                    print(queueName + ", thread \(String(reflecting: Thread.current)); cpus: \(cpus)")
+                    let cpus = try! system.cpuUsagePerCore().map { percent in
+                        NSString(format: "%.1f", percent.doubleValue)
+                    }
+                    let power = try! system.powerUsage()
+                    let contextSwitches = try! system.numContextSwitches()
+                    print("queue: \(queueName); thread: \(String(reflecting: Thread.current)); cpu usage: \(cpus); power stats: \(power); context switches: \(contextSwitches)")
                     exp.fulfill()
                 }
             }
         }
 
-        scheduleBlocks(DispatchQueue.main, 5, "main")
-        scheduleBlocks(DispatchQueue.main, 1, "main", slow: true)
-        scheduleBlocks(DispatchQueue.main, 5, "main")
+        benchmark {
+            print("=== Starting next iteration ===")
 
-        let privateSerialUtilityQueue = DispatchQueue(label: "private", qos: .utility)
-        let privateConcurrentBackgroundQueue = DispatchQueue(label: "private", qos: .background, attributes: [.concurrent])
-        [
-            "global background": DispatchQueue.global(qos: .background),
-            "user initiated": DispatchQueue.global(qos: .userInitiated),
-            "utility": DispatchQueue.global(qos: .utility),
-            "private serial utility": privateSerialUtilityQueue,
-            "private concurrent background": privateConcurrentBackgroundQueue
-        ].forEach {
-            scheduleBlocks($0.value, 10, $0.key)
+            let exp = self.expectation(description: "all blocks finish")
+            exp.expectedFulfillmentCount = 60
+
+            [
+                "main": DispatchQueue.main,
+                "global background": DispatchQueue.global(qos: .background),
+                "global user initiated": DispatchQueue.global(qos: .userInitiated),
+                "global utility": DispatchQueue.global(qos: .utility),
+                "private serial utility": privateSerialUtilityQueue,
+                "private concurrent background": privateConcurrentBackgroundQueue
+            ].forEach {
+                scheduleBlocks($0.value, 10, $0.key, exp)
+            }
+
+            self.waitForExpectations(timeout: 10)
         }
-        waitForExpectations(timeout: 10)
+    }
+}
+
+func benchmark(block: @escaping () -> Void) {
+
+    var cpuPowerUsages = [UInt64]()
+    var gpuPowerUsages = [UInt64]()
+    var pswitches = [UInt64]()
+    var contextSwitches = [UInt64]()
+    let averageWallClockTime = dispatch_benchmark(10) {
+        let startingPowerUsage = try! system.powerUsage()
+        let startingContextSwitches = try! system.numContextSwitches()
+
+        block()
+
+        let endingPowerUsage = try! system.powerUsage()
+        let totalCPUPowerUsed = endingPowerUsage[1].uint64Value - startingPowerUsage[1].uint64Value
+        cpuPowerUsages.append(totalCPUPowerUsed)
+
+        let totalGPUPowerUsed = endingPowerUsage[2].uint64Value - startingPowerUsage[2].uint64Value
+        gpuPowerUsages.append(totalGPUPowerUsed)
+
+        let totalPswitches = endingPowerUsage[4].uint64Value - startingPowerUsage[4].uint64Value
+        pswitches.append(totalPswitches)
+
+        let endingContextSwitches = try! system.numContextSwitches()
+        let totalContextSwitches = endingContextSwitches.uint64Value - startingContextSwitches.uint64Value
+        contextSwitches.append(totalContextSwitches)
+    }
+
+    print("average total CPU power usage: \(cpuPowerUsages.average) nJ")
+    print("average total GPU power usage: \(gpuPowerUsages.average) nJ")
+    print("average processor switches: \(pswitches.average)")
+    print("average wall clock time: \(averageWallClockTime) ns")
+    print("average context switches: \(contextSwitches.average)")
+}
+
+extension Array where Element == UInt64 {
+    var average: Double {
+        Double(reduce(0, +)) / Double(count)
     }
 }

@@ -3,6 +3,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
+
 typedef void (^SentryMemoryPressureNotification)(uintptr_t);
 
 /**
@@ -26,6 +28,14 @@ typedef mach_vm_size_t SentryRAMBytes;
  */
 - (nullable NSArray<NSNumber *> *)cpuUsagePerCore:(NSError **)error;
 
+/**
+ * Return the current estimated amount of nanojoules used by the current mach task.
+ * @returns An array with ordered values of [ total_energy, cpu_energy, gpu_energy, ptime, pswitches
+ * ].
+ */
+- (NSArray<NSNumber *> *_Nullable)powerUsage:(NSError **)error;
+
+- (nullable NSNumber *)numContextSwitches:(NSError **)error;
 @end
 
 NS_ASSUME_NONNULL_END
