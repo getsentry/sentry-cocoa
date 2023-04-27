@@ -17,6 +17,13 @@
 - Possible crash in Core Data tracking (#2865)
 - Ensure the current GPU frame rate is always reported for concurrent transaction profiling metrics (#2929)
 
+### Breaking Changes
+
+- Remove `stitchAsyncCode` from SentryOption
+
+The stitchAsyncCode option has been removed from the codebase as it was not behaving in a consistent way. Its behavior was unpredictable and resulted in unexpected errors.
+
+
 ## 8.5.0
 
 ### Features

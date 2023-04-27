@@ -185,17 +185,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertNil(fileManager.readCurrentSession())
         XCTAssertNil(fileManager.readCrashedSession())
     }
-    
-    func testInstall_WhenStitchAsyncCallsEnabled_CallsInstallAsyncHooks() {
-        let sut = fixture.getSut()
         
-        let options = Options()
-        options.stitchAsyncCode = true
-        sut.install(with: options)
-        
-        XCTAssertTrue(fixture.sentryCrash.installAsyncHooksCalled)
-    }
-    
     func testInstall_WhenStitchAsyncCallsDisabled_DoesNotCallInstallAsyncHooks() {
         fixture.getSut().install(with: Options())
         

@@ -84,10 +84,6 @@ SentryCrashIntegration ()
 
     [self startCrashHandler];
 
-    if (options.stitchAsyncCode) {
-        [self.crashAdapter installAsyncHooks];
-    }
-
     [self configureScope];
 
     return YES;

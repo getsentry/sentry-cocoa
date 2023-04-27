@@ -163,14 +163,6 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL attachStacktrace;
 
 /**
- * @warning This is an experimental feature and may still have bugs. Turning this feature on can
- * have an impact on the grouping of your issues.
- * @brief When enabled, the SDK stitches stack traces of asynchronous code together.
- * @note This feature is disabled by default.
- */
-@property (nonatomic, assign) BOOL stitchAsyncCode;
-
-/**
  * The maximum size for each attachment in bytes.
  * @note Default is 20 MiB (20 ✕ 1024 ✕ 1024 bytes).
  * @note Please also check the maximum attachment size of relay to make sure your attachments don't
