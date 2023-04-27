@@ -76,7 +76,7 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 } // namespace
 
 @implementation SentryMetricProfiler {
-    SentryDispatchSourceWrapper *_timer;
+    SentryDispatchSourceWrapper *_dispatchSource;
 
     SentryNSProcessInfoWrapper *_processInfoWrapper;
     SentrySystemWrapper *_systemWrapper;
@@ -125,7 +125,7 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 
 - (void)stop
 {
-    [_timer cancel];
+    [_dispatchSource cancel];
 }
 
 - (NSMutableDictionary<NSString *, id> *)serializeForTransaction:(SentryTransaction *)transaction
@@ -165,7 +165,7 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
     __weak auto weakSelf = self;
     const auto intervalNs = (uint64_t)1e9 / frequencyHz;
     const auto leewayNs = intervalNs / 2;
-    _timer =
+    _dispatchSource =
         [_dispatchFactory sourceWithInterval:intervalNs
                                       leeway:leewayNs
                                    queueName:"io.sentry.metric-profiler"

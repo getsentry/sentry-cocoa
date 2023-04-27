@@ -12,25 +12,15 @@
 
 - (SentryDispatchSourceWrapper *)sourceWithInterval:(uint64_t)interval
                                              leeway:(uint64_t)leeway
-                                              queue:(SentryDispatchQueueWrapper *)queueWrapper
-                                       eventHandler:(void (^)(void))eventHandler
-{
-    return [[SentryDispatchSourceWrapper alloc] initTimerWithInterval:interval
-                                                               leeway:leeway
-                                                                queue:queueWrapper
-                                                         eventHandler:eventHandler];
-}
-
-- (SentryDispatchSourceWrapper *)sourceWithInterval:(uint64_t)interval
-                                             leeway:(uint64_t)leeway
                                           queueName:(const char *)queueName
                                          attributes:(dispatch_queue_attr_t)attributes
                                        eventHandler:(void (^)(void))eventHandler
 {
-    return [self sourceWithInterval:interval
-                             leeway:leeway
-                              queue:[self queueWithName:queueName attributes:attributes]
-                       eventHandler:eventHandler];
+    return [[SentryDispatchSourceWrapper alloc]
+        initTimerWithInterval:interval
+                       leeway:leeway
+                        queue:[self queueWithName:queueName attributes:attributes]
+                 eventHandler:eventHandler];
 }
 
 @end

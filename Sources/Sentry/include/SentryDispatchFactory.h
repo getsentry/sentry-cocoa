@@ -18,16 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
                                    attributes:(dispatch_queue_attr_t)attributes;
 
 /**
- * Generate a @c dispatch_source_t using the provided @c SentryDispatchQueueWrapper .
- */
-- (SentryDispatchSourceWrapper *)sourceWithInterval:(uint64_t)interval
-                                             leeway:(uint64_t)leeway
-                                              queue:(SentryDispatchQueueWrapper *)queueWrapper
-                                       eventHandler:(void (^)(void))eventHandler;
-
-/**
- * Generate a @c dispatch_source_t by internally vending the required @c SentryDispatchQueueWrapper
- * .
+ * Generate a @c dispatch_source_t by internally vending the required @c SentryDispatchQueueWrapper.
  */
 - (SentryDispatchSourceWrapper *)sourceWithInterval:(uint64_t)interval
                                              leeway:(uint64_t)leeway
