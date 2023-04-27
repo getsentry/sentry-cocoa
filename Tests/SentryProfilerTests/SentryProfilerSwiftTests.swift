@@ -854,29 +854,45 @@ private extension SentryProfilerSwiftTests {
 let system = SentrySystemWrapper()
 
 extension SentryProfilerSwiftTests {
+    func work() {
+        var results = [Double]()
+        for _ in 0..<1_000 {
+            let a = UInt64(arc4random())
+            let b = UInt64(arc4random())
+            let c = a + b
+            let d = a > b ? a - b : b - a
+            let e = c / d
+            let f = d / c
+            let g = a % b
+            let h = b % a
+            let i = e * g
+            let j = f * h
+            let k = e * h
+            let l = f * g
+            let m = sqrt(Double(a))
+            let n = sqrt(Double(b))
+            let o = m * n
+            let p = atan2(m, n)
+            results.append(Double(i + j + k + l) + o + p)
+        }
+        let _ = results.average
+    }
+    
     func testQueuesAndThreads() {
-
         let privateSerialUtilityQueue = DispatchQueue(label: "private", qos: .utility)
         let privateConcurrentBackgroundQueue = DispatchQueue(label: "private", qos: .background, attributes: [.concurrent])
 
-        func scheduleBlocks(_ queue: DispatchQueue, _ number: Int, _ queueName: String, _ exp: XCTestExpectation, slow: Bool = false) {
+        func scheduleBlocks(_ queue: DispatchQueue, _ number: Int, _ queueName: String, _ exp: XCTestExpectation, slow: Bool = false, work: Bool = true) {
             for _ in 0..<number {
                 queue.async {
                     if slow { sleep(5) }
-                    let cpus = try! system.cpuUsagePerCore().map { percent in
-                        NSString(format: "%.1f", percent.doubleValue)
-                    }
-                    let power = try! system.powerUsage()
-                    let contextSwitches = try! system.numContextSwitches()
-                    print("queue: \(queueName); thread: \(String(reflecting: Thread.current)); cpu usage: \(cpus); power stats: \(power); context switches: \(contextSwitches)")
+                    if work { self.work() }
                     exp.fulfill()
                 }
             }
         }
 
-        benchmark {
-            print("=== Starting next iteration ===")
-
+        let multithreaded = benchmark {
             let exp = self.expectation(description: "all blocks finish")
             exp.expectedFulfillmentCount = 60
 
@@ -893,16 +909,47 @@ extension SentryProfilerSwiftTests {
 
             self.waitForExpectations(timeout: 10)
         }
+
+        let mainThreadOnly = benchmark {
+            let exp = self.expectation(description: "all blocks finish")
+            exp.expectedFulfillmentCount = 60
+            scheduleBlocks(DispatchQueue.main, 60, "main", exp)
+            self.waitForExpectations(timeout: 10)
+        }
+
+        print("multithreaded - main thread only: \(multithreaded.diff(other: mainThreadOnly))")
     }
 }
 
-func benchmark(block: @escaping () -> Void) {
+struct BenchmarkStats: CustomStringConvertible {
+    var averageCPUPowerUsage_nJ: Double
+    var averageGPUPowerUsage_nJ: Double
+    var averageProcessorSwitches: Double
+    var averageWallClockTime_ns: UInt64
+    var averageContextSwitches: Double
 
+    var description: String {
+        String([
+            "average total CPU power usage: \(averageCPUPowerUsage_nJ) nJ",
+            "average total GPU power usage: \(averageGPUPowerUsage_nJ) nJ",
+            "average processor switches: \(averageProcessorSwitches)",
+            "average wall clock time: \(averageWallClockTime_ns) ns",
+            "average context switches: \(averageContextSwitches)"
+        ].joined(separator: "\n"))
+    }
+
+    // self - other
+    func diff(other: BenchmarkStats) -> BenchmarkStats {
+        return BenchmarkStats(averageCPUPowerUsage_nJ: averageCPUPowerUsage_nJ - other.averageCPUPowerUsage_nJ, averageGPUPowerUsage_nJ: averageGPUPowerUsage_nJ - other.averageGPUPowerUsage_nJ, averageProcessorSwitches: averageProcessorSwitches - other.averageProcessorSwitches, averageWallClockTime_ns: averageWallClockTime_ns - other.averageWallClockTime_ns, averageContextSwitches: averageContextSwitches)
+    }
+}
+
+func benchmark(block: @escaping () -> Void) -> BenchmarkStats {
     var cpuPowerUsages = [UInt64]()
     var gpuPowerUsages = [UInt64]()
     var pswitches = [UInt64]()
     var contextSwitches = [UInt64]()
-    let averageWallClockTime = dispatch_benchmark(10) {
+    let averageWallClockTime = dispatch_benchmark(100) {
         let startingPowerUsage = try! system.powerUsage()
         let startingContextSwitches = try! system.numContextSwitches()
 
@@ -923,15 +970,17 @@ func benchmark(block: @escaping () -> Void) {
         contextSwitches.append(totalContextSwitches)
     }
 
-    print("average total CPU power usage: \(cpuPowerUsages.average) nJ")
-    print("average total GPU power usage: \(gpuPowerUsages.average) nJ")
-    print("average processor switches: \(pswitches.average)")
-    print("average wall clock time: \(averageWallClockTime) ns")
-    print("average context switches: \(contextSwitches.average)")
+    return BenchmarkStats(averageCPUPowerUsage_nJ: cpuPowerUsages.average, averageGPUPowerUsage_nJ: gpuPowerUsages.average, averageProcessorSwitches: pswitches.average, averageWallClockTime_ns: averageWallClockTime, averageContextSwitches: contextSwitches.average)
 }
 
 extension Array where Element == UInt64 {
     var average: Double {
         Double(reduce(0, +)) / Double(count)
+    }
+}
+
+extension Array where Element == Double {
+    var average: Double {
+        reduce(0, +) / Double(count)
     }
 }
