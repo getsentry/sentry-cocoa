@@ -10,7 +10,6 @@
 
 - Create User and Breadcrumb from map (#2820)
 
-
 ### Fixes 
 
 - Improved performance serializing profiling data (#2863)

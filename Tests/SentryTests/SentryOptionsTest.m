@@ -478,11 +478,6 @@
     [self testBooleanField:@"attachStacktrace"];
 }
 
-- (void)testStitchAsyncCodeDisabledPerDefault
-{
-    [self testBooleanField:@"stitchAsyncCode" defaultValue:NO];
-}
-
 - (void)testEnableIOTracking
 {
     [self testBooleanField:@"enableFileIOTracing" defaultValue:YES];
@@ -517,7 +512,6 @@
         @"enableOutOfMemoryTracking" : [NSNull null],
         @"sessionTrackingIntervalMillis" : [NSNull null],
         @"attachStacktrace" : [NSNull null],
-        @"stitchAsyncCode" : [NSNull null],
         @"maxAttachmentSize" : [NSNull null],
         @"sendDefaultPii" : [NSNull null],
         @"enableAutoPerformanceTracing" : [NSNull null],
