@@ -252,11 +252,19 @@ SentryFileManager ()
 
 - (NSString *)storeEnvelope:(SentryEnvelope *)envelope
 {
+    NSData *envelopeData = [SentrySerialization dataWithEnvelope:envelope error:nil];
+    NSString *path =
+        [self.envelopesPath stringByAppendingPathComponent:[self uniqueAscendingJsonName]];
+
     @synchronized(self) {
-        NSString *result = [self storeData:[SentrySerialization dataWithEnvelope:envelope error:nil]
-                          toUniqueJSONPath:self.envelopesPath];
+        SENTRY_LOG_DEBUG(@"Writing envelope to path: %@", path);
+
+        if (![self writeData:envelopeData toPath:path]) {
+            SENTRY_LOG_WARN(@"Failed to store envelope.");
+        }
+
         [self handleEnvelopesLimit];
-        return result;
+        return path;
     }
 }
 
@@ -414,18 +422,6 @@ SentryFileManager ()
     NSString *timestampString = [[NSString alloc] initWithData:lastInForegroundData
                                                       encoding:NSUTF8StringEncoding];
     return [NSDate sentry_fromIso8601String:timestampString];
-}
-
-- (NSString *)storeData:(NSData *)data toUniqueJSONPath:(NSString *)path
-{
-    @synchronized(self) {
-        NSString *finalPath = [path stringByAppendingPathComponent:[self uniqueAscendingJsonName]];
-        SENTRY_LOG_DEBUG(@"Writing to file: %@", finalPath);
-        if (![self writeData:data toPath:finalPath]) {
-            SENTRY_LOG_WARN(@"Failed to store data.");
-        }
-        return finalPath;
-    }
 }
 
 - (BOOL)writeData:(NSData *)data toPath:(NSString *)path
