@@ -216,12 +216,6 @@ class SentryFileManagerTests: XCTestCase {
         sut.removeFile(atPath: "x")
         XCTAssertFalse(logOutput.loggedMessages.contains(where: { $0.contains("[error]") }))
     }
-    
-    func testFailingStoreDictionary() {
-        sut.store(["date": Date() ], toPath: "")
-        let files = sut.allFiles(inFolder: "x")
-        XCTAssertTrue(files.isEmpty)
-    }
 
     func testDefaultMaxEnvelopes() {
         for _ in 0...(fixture.maxCacheItems + 1) {
