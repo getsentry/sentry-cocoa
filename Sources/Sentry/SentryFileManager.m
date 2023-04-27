@@ -217,9 +217,8 @@ SentryFileManager ()
 
 - (void)deleteAllEnvelopes
 {
-    for (NSString *path in [self allFilesInFolder:self.envelopesPath]) {
-        [self removeFileAtPath:[self.envelopesPath stringByAppendingPathComponent:path]];
-    }
+    [self removeFileAtPath:self.envelopesPath];
+    [self createDirectoryIfNotExists:self.envelopesPath error:nil];
 }
 
 - (NSArray<NSString *> *)allFilesInFolder:(NSString *)path
