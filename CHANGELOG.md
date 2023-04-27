@@ -21,8 +21,7 @@
 
 - Remove `stitchAsyncCode` from SentryOption
 
-The stitchAsyncCode option has been removed from the codebase as it was not behaving in a consistent way. Its behavior was unpredictable and resulted in unexpected errors.
-
+The `stitchAsyncCode` option has been removed from `SentryOptions` as it was not behaving in a consistent way. Its behavior was unpredictable and resulted in unexpected errors. We plan to add it back once we fix it.
 
 ## 8.5.0
 
