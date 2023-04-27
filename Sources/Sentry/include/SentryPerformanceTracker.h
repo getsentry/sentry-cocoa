@@ -27,7 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (SentrySpanId *)startSpanWithName:(NSString *)name
                          nameSource:(SentryTransactionNameSource)source
-                          operation:(NSString *)operation;
+                          operation:(NSString *)operation
+                             origin:(NSString *)origin;
 
 /**
  * Activate the span with @c spanId to create any call to @c startSpan as a child.
@@ -47,6 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)measureSpanWithDescription:(NSString *)description
                         nameSource:(SentryTransactionNameSource)source
                          operation:(NSString *)operation
+                            origin:(NSString *)origin
                            inBlock:(void (^)(void))block;
 
 /**
@@ -61,6 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)measureSpanWithDescription:(NSString *)description
                         nameSource:(SentryTransactionNameSource)source
                          operation:(NSString *)operation
+                            origin:(NSString *)origin
                       parentSpanId:(SentrySpanId *)parentSpanId
                            inBlock:(void (^)(void))block;
 

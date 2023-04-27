@@ -2,8 +2,19 @@
 
 ## Unreleased
 
+### Features
+
+- Send trace origin (#2957)
+
+[Trace origin](https://develop.sentry.dev/sdk/performance/trace-origin/) indicates what created a trace or a span. Not all transactions and spans contain enough information to tell whether the user or what precisely in the SDK created it. Origin solves this problem. The SDK now sends origin for transactions and spans.
+
+- Create User and Breadcrumb from map (#2820)
+
+
 ### Fixes 
 
+- Improved performance serializing profiling data (#2863)
+- Possible crash in Core Data tracking (#2865)
 - Ensure the current GPU frame rate is always reported for concurrent transaction profiling metrics (#2929)
 
 ## 8.5.0
@@ -45,7 +56,6 @@
 - Add CPU core count in device context (#2814)
 
 ### Fixes
-
 
 - Updating AppHang state on main thread (#2793)
 - App Hang report crashes with too many threads (#2811)

@@ -22,6 +22,10 @@ lint:
 	swiftlint
 .PHONY: lint
 
+no-changes-in-high-risk-files:
+	@echo "--> Checking if there are changes in high risk files"
+	./scripts/no-changes-in-high-risk-files.sh
+
 format: format-clang format-swift
 
 # Format ObjC, ObjC++, C, and C++
@@ -41,6 +45,7 @@ GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
 test:
 	@echo "--> Running all tests"
 	./scripts/xcode-test.sh iOS latest $(GIT-REF) YES
+	./scripts/xcode-slowest-tests.sh
 .PHONY: test
 
 run-test-server:

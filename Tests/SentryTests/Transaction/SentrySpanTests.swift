@@ -239,6 +239,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNotNil(serialization["tags"])
         XCTAssertEqual((serialization["data"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
         XCTAssertEqual((serialization["tags"] as! Dictionary)[fixture.extraKey], fixture.extraValue)
+        XCTAssertEqual("manual", serialization["origin"] as? String)
     }
 
     func testSerialization_NoFrames() {
