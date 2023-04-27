@@ -217,8 +217,10 @@ SentryFileManager ()
 
 - (void)deleteAllEnvelopes
 {
-    for (NSString *path in [self allFilesInFolder:self.envelopesPath]) {
-        [self removeFileAtPath:[self.envelopesPath stringByAppendingPathComponent:path]];
+    [self removeFileAtPath:self.envelopesPath];
+    NSError *error;
+    if (![self createDirectoryIfNotExists:self.envelopesPath error:&error]) {
+        SENTRY_LOG_ERROR(@"Couldn't create envelopes path.");
     }
 }
 

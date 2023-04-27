@@ -46,7 +46,11 @@ SENTRY_NO_INIT
 
 + (BOOL)createDirectoryAtPath:(NSString *)path withError:(NSError **)error;
 
+/**
+ * Only used for teting.
+ */
 - (void)deleteAllEnvelopes;
+
 - (void)deleteAllFolders;
 
 - (void)deleteOldEnvelopeItems;
