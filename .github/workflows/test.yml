@@ -204,6 +204,9 @@ jobs:
         # manipulating string in expressions.
         run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME ci test-without-building
 
+      - name: Slowest Tests
+        run: ./scripts/xcode-slowest-tests.sh
+
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@v3
         if: failure()
