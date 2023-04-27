@@ -1,5 +1,4 @@
 #!/bin/bash
-set -uo pipefail
 
 # Finds the x amount of slowest test cases in the raw-test-output.log file.
 # Logic copied from https://stanislaw.github.io/2016/08/04/how-to-find-the-slowest-xctest.html.
