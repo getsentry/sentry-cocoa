@@ -877,7 +877,7 @@ extension SentryProfilerSwiftTests {
         }
         let _ = results.average
     }
-    
+
     func testQueuesAndThreads() {
         let privateSerialUtilityQueue = DispatchQueue(label: "private", qos: .utility)
         let privateConcurrentBackgroundQueue = DispatchQueue(label: "private", qos: .background, attributes: [.concurrent])
@@ -917,6 +917,8 @@ extension SentryProfilerSwiftTests {
             self.waitForExpectations(timeout: 10)
         }
 
+        print("multithreaded: \(multithreaded)")
+        print("mainThreadOnly: \(mainThreadOnly)")
         print("multithreaded - main thread only: \(multithreaded.diff(other: mainThreadOnly))")
     }
 }
