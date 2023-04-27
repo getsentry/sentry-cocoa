@@ -850,3 +850,39 @@ private extension SentryProfilerSwiftTests {
     }
 }
 #endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+
+extension SentryProfilerSwiftTests {
+    func testQueuesAndThreads() {
+        let exp = expectation(description: "all blocks finish")
+        exp.expectedFulfillmentCount = 61
+
+        let system = SentrySystemWrapper()
+        func scheduleBlocks(_ queue: DispatchQueue, _ number: Int, _ queueName: String, slow: Bool = false) {
+            for _ in 0..<number {
+                queue.async {
+                    if slow { sleep(5) }
+                    let cpus = try! system.cpuUsagePerCore()
+                    print(queueName + ", thread \(String(reflecting: Thread.current)); cpus: \(cpus)")
+                    exp.fulfill()
+                }
+            }
+        }
+
+        scheduleBlocks(DispatchQueue.main, 5, "main")
+        scheduleBlocks(DispatchQueue.main, 1, "main", slow: true)
+        scheduleBlocks(DispatchQueue.main, 5, "main")
+
+        let privateSerialUtilityQueue = DispatchQueue(label: "private", qos: .utility)
+        let privateConcurrentBackgroundQueue = DispatchQueue(label: "private", qos: .background, attributes: [.concurrent])
+        [
+            "global background": DispatchQueue.global(qos: .background),
+            "user initiated": DispatchQueue.global(qos: .userInitiated),
+            "utility": DispatchQueue.global(qos: .utility),
+            "private serial utility": privateSerialUtilityQueue,
+            "private concurrent background": privateConcurrentBackgroundQueue
+        ].forEach {
+            scheduleBlocks($0.value, 10, $0.key)
+        }
+        waitForExpectations(timeout: 10)
+    }
+}
