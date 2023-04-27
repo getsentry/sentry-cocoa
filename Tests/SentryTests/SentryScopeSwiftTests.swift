@@ -1,3 +1,4 @@
+import SentryTestUtils
 import XCTest
 
 class SentryScopeSwiftTests: XCTestCase {
@@ -305,12 +306,17 @@ class SentryScopeSwiftTests: XCTestCase {
     }
     
     func testPeformanceOfSyncToSentryCrash() {
+        // To avoid spamming the test logs
+        SentryLog.configure(true, diagnosticLevel: .error)
+        
         let scope = fixture.scope
         scope.add(SentryCrashScopeObserver(maxBreadcrumbs: 100))
         
         self.measure {
             modifyScope(scope: scope)
         }
+        
+        setTestDefaultLogLevel()
     }
     
     func testPeformanceOfSyncToSentryCrash_OneCrumb() {
