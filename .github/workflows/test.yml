@@ -285,6 +285,9 @@ jobs:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh
 
+      # Configure the simulator to open the keyboard
+      - run: defaults write com.apple.iphonesimulator ConnectHardwareKeyboard 0
+
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
         run: for i in {1..2}; do fastlane ui_tests_${{matrix.target}} && break ; done
