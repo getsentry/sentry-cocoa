@@ -122,7 +122,6 @@ extension MultithreadingTests {
         var averageProcessorSwitches: Double
         var averageWallClockTime_ns: Int64
         var averageContextSwitches: Double
-    //    var averageCPUUsagesPerThread: [UInt64: ThreadUsage]
 
         var description: String {
             String([
@@ -151,12 +150,10 @@ extension MultithreadingTests {
         var gpuPowerUsages = [UInt64]()
         var pswitches = [UInt64]()
         var contextSwitches = [UInt64]()
-    //    var cpuTimePerThread = [SentryCPUUsagePerThread]()
         var cpuTicks = [UInt64]()
         let averageWallClockTime = dispatch_benchmark(benchmarkIterations) {
             let startingPowerUsage = try! SentryBenchmarking.powerUsage()
             let startingContextSwitches = try! SentryBenchmarking.numContextSwitches()
-    //        let startingCPUUsagePerThread = try! SentryBenchmarking.cpuUsagePerThread()
             let startingCPUTicks = try! SentryBenchmarking.cpuTicks()
 
             block()
@@ -175,27 +172,10 @@ extension MultithreadingTests {
             let totalContextSwitches = endingContextSwitches.uint64Value - startingContextSwitches.uint64Value
             contextSwitches.append(totalContextSwitches)
 
-    //        let endingCPUUsagePerThread = try! SentryBenchmarking.cpuUsagePerThread()
-    //        let totalCPUUsagePerThread = SentryCPUUsagePerThread()
-    //        endingCPUUsagePerThread.usages.allKeys.forEach { key in
-    //            guard let start = startingCPUUsagePerThread.usages[key] as? SentryThreadCPUUsage else { return }
-    //            guard let end = endingCPUUsagePerThread.usages[key] as? SentryThreadCPUUsage else { return }
-    //            let system = end.data.system_time.seconds - start.data.system_time.seconds + end.data.system_time.microseconds - start.data.system_time.microseconds
-    //            let user = end.data.user_time.seconds - start.data.user_time.seconds + end.data.user_time.microseconds - start.data.user_time.microseconds
-    //            let usage = end.data.cpu_usage - start.data.cpu_usage
-    //            totalCPUUsagePerThread.usages[key] = (system, user, usage)
-    //        }
-    //        cpuTimePerThread.append(totalCPUUsagePerThread)
-
             let endingCPUTicks = try! SentryBenchmarking.cpuTicks()
             let totalCPUTicks = endingCPUTicks.total() - startingCPUTicks.total()
             cpuTicks.append(totalCPUTicks)
         }
-
-    //    var threadCounts = [UInt64: UInt64]()
-    //    let totalUsagePerThread = cpuTimePerThread.reduce(into: [UInt64: ThreadUsage]) { partialResult, next in
-    //
-    //    }
 
         return BenchmarkStats(averageCPUPowerUsage_nJ: cpuPowerUsages.average, averageGPUPowerUsage_nJ: gpuPowerUsages.average, averageProcessorSwitches: pswitches.average, averageWallClockTime_ns: Int64(averageWallClockTime), averageContextSwitches: contextSwitches.average)
     }
