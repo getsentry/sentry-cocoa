@@ -18,9 +18,9 @@
 
 ### Removed
 
-- Remove `stitchAsyncCode` from SentryOption (#2973)
+- Remove experimental `stitchAsyncCode` from SentryOptions (#2973)
 
-The `stitchAsyncCode` experimental option has been removed from `SentryOptions` as it was not behaving in a consistent way. Its behavior was unpredictable and resulted in unexpected errors. We plan to add it back once we fix it.
+The `stitchAsyncCode` experimental option has been removed from `SentryOptions` as its behavior was unpredictable and sometimes resulted in unexpected errors. We plan to add it back once we fix it, but we don't have an ETA for it.
 
 ## 8.5.0
 
