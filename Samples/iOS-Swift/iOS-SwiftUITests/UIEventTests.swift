@@ -31,13 +31,10 @@ class UIEventTests: XCTestCase {
         //Also test breadcrumb for buttons
         app.buttons["Press me"].tap()
 
-        app.keys["t"].tap()
-        app.keys["e"].tap()
-        app.keys["s"].tap()
-        app.keys["t"].tap()
+        app.textFields["tfTest"].typeText("test")
 
         XCTAssertEqual(label.label, "pressMe:")
-        app/*@START_MENU_TOKEN@*/.buttons["Return"]/*[[".keyboards",".buttons[\"return\"]",".buttons[\"Return\"]"],[[[-1,2],[-1,1],[-1,0,1]],[[-1,2],[-1,1]]],[0]]@END_MENU_TOKEN@*/.tap()
+        app.textFields["tfTest"].typeText("\n")
         XCTAssertEqual(label.label, "textFieldEndChanging:")
     }
 
