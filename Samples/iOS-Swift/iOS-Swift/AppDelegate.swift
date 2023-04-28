@@ -44,6 +44,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enableCaptureFailedRequests = true
             let httpStatusCodeRange = HttpStatusCodeRange(min: 400, max: 599)
             options.failedRequestStatusCodes = [ httpStatusCodeRange ]
+            options.beforeBreadcrumb = { breadcrumb in
+                NotificationCenter.default.post(name: .init("io.sentry.newbreadcrumb") , object: breadcrumb)
+                return breadcrumb
+            }
         }
 
         SentrySDK.configureScope { (scope) in
