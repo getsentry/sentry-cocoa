@@ -23,18 +23,16 @@ class UIEventTests: XCTestCase {
         app.buttons["Extra"].tap()
         app.buttons["UI event tests"].tap()
 
-        app.textFields["tfTest"].tap()
-
         let label = app.staticTexts["lbBreadcrumb"]
 
-        //Set the label to have something to compare after.
-        //Also test breadcrumb for buttons
-        app.buttons["Press me"].tap()
+        //Trigger a change in textfield
+        app.buttons["changeButton"].tap()
+        //Check the last breadcrumb is the button being pressed
+        XCTAssertEqual(label.label, "performChangedPressed:")
 
-        app.textFields["tfTest"].typeText("test")
-
-        XCTAssertEqual(label.label, "pressMe:")
-        app.textFields["tfTest"].typeText("\n")
+        //Trigger an endEditing in textfield
+        app.buttons["endEditingButton"].tap()
+        //Check the last breadcrumb is the endEditing form the textfield and not the button being pressed
         XCTAssertEqual(label.label, "textFieldEndChanging:")
     }
 

@@ -641,18 +641,28 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Last Breadcrumb" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JG7-ED-myd">
-                                <rect key="frame" x="25" y="181" width="279" height="20.5"/>
+                                <rect key="frame" x="25" y="134" width="279" height="20.5"/>
                                 <accessibility key="accessibilityConfiguration" identifier="lbBreadcrumb"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Hbs-7f-aqW">
-                                <rect key="frame" x="112.5" y="130" width="95" height="35"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YQi-VW-lsa">
+                                <rect key="frame" x="73" y="513" width="174.5" height="35"/>
+                                <accessibility key="accessibilityConfiguration" identifier="changeButton"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Press me"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Perform &quot;Changed&quot;"/>
                                 <connections>
-                                    <action selector="pressMe:" destination="ch4-pK-Zhg" eventType="touchUpInside" id="66R-gH-MSU"/>
+                                    <action selector="performChangedPressed:" destination="ch4-pK-Zhg" eventType="touchUpInside" id="fQw-EL-6TH"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sL7-7x-NzY">
+                                <rect key="frame" x="64.5" y="461" width="191.5" height="35"/>
+                                <accessibility key="accessibilityConfiguration" identifier="endEditingButton"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Perform &quot;End Editing&quot;"/>
+                                <connections>
+                                    <action selector="performEndEditingPressed:" destination="ch4-pK-Zhg" eventType="touchUpInside" id="5JA-wJ-Cxb"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -660,13 +670,15 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="zBF-6Q-F9x" firstAttribute="trailing" secondItem="twI-nB-owH" secondAttribute="trailing" constant="16" id="6ED-0l-q9w"/>
-                            <constraint firstItem="Hbs-7f-aqW" firstAttribute="top" secondItem="twI-nB-owH" secondAttribute="bottom" constant="16" id="HSB-gP-u3E"/>
+                            <constraint firstItem="JG7-ED-myd" firstAttribute="top" secondItem="twI-nB-owH" secondAttribute="bottom" constant="20" id="78w-Vz-y5G"/>
                             <constraint firstItem="twI-nB-owH" firstAttribute="top" secondItem="zBF-6Q-F9x" secondAttribute="top" constant="16" id="NGA-GJ-mqi"/>
-                            <constraint firstItem="JG7-ED-myd" firstAttribute="top" secondItem="Hbs-7f-aqW" secondAttribute="bottom" constant="16" id="NUT-4L-WVf"/>
+                            <constraint firstItem="sL7-7x-NzY" firstAttribute="centerX" secondItem="zBF-6Q-F9x" secondAttribute="centerX" id="ZQg-m0-qWc"/>
                             <constraint firstItem="zBF-6Q-F9x" firstAttribute="trailing" secondItem="JG7-ED-myd" secondAttribute="trailing" constant="16" id="auW-kT-CFX"/>
-                            <constraint firstItem="Hbs-7f-aqW" firstAttribute="centerX" secondItem="zBF-6Q-F9x" secondAttribute="centerX" id="gRe-ee-cVH"/>
+                            <constraint firstItem="YQi-VW-lsa" firstAttribute="centerX" secondItem="zBF-6Q-F9x" secondAttribute="centerX" id="g1f-Ge-ayc"/>
+                            <constraint firstItem="zBF-6Q-F9x" firstAttribute="bottom" secondItem="YQi-VW-lsa" secondAttribute="bottom" constant="20" id="mDU-DK-iPd"/>
                             <constraint firstItem="JG7-ED-myd" firstAttribute="leading" secondItem="zBF-6Q-F9x" secondAttribute="leading" constant="25" id="pbK-4x-Ycs"/>
                             <constraint firstItem="twI-nB-owH" firstAttribute="leading" secondItem="zBF-6Q-F9x" secondAttribute="leading" constant="25" id="wU6-Fa-gcH"/>
+                            <constraint firstItem="YQi-VW-lsa" firstAttribute="top" secondItem="sL7-7x-NzY" secondAttribute="bottom" constant="17" id="zlb-sF-sft"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="VLZ-y9-Tk6"/>

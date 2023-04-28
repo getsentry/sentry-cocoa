@@ -33,9 +33,18 @@ class UIEventBreadcrumbController: UIViewController, UITextFieldDelegate {
     }
 
     @objc func textFieldChanged(_ sender: Any) {
+        print("### Changed")
     }
 
     @IBAction func pressMe(_ sender: Any) {
+    }
+
+    @IBAction func performChangedPressed(_ sender: Any) {
+        textField.sendActions(for: .editingChanged)
+    }
+
+    @IBAction func performEndEditingPressed(_ sender: Any) {
+        textField.sendActions(for: .editingDidEnd)
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
