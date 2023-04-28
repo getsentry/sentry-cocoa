@@ -203,19 +203,15 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
 - (SentryScreenFrames *)currentFrames
 {
-    NSUInteger total = _totalFrames;
-    NSUInteger slow = _slowFrames;
-    NSUInteger frozen = _frozenFrames;
-
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-    return [[SentryScreenFrames alloc] initWithTotal:total
-                                              frozen:frozen
-                                                slow:slow
+    return [[SentryScreenFrames alloc] initWithTotal:_totalFrames
+                                              frozen:_frozenFrames
+                                                slow:_slowFrames
                                  slowFrameTimestamps:self.slowFrameTimestamps
                                frozenFrameTimestamps:self.frozenFrameTimestamps
                                  frameRateTimestamps:self.frameRateTimestamps];
 #    else
-    return [[SentryScreenFrames alloc] initWithTotal:total frozen:frozen slow:slow];
+    return [[SentryScreenFrames alloc] initWithTotal:_totalFrames frozen:_frozenFrames slow:_slowFrames];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
