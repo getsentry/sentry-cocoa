@@ -45,7 +45,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let httpStatusCodeRange = HttpStatusCodeRange(min: 400, max: 599)
             options.failedRequestStatusCodes = [ httpStatusCodeRange ]
             options.beforeBreadcrumb = { breadcrumb in
-                NotificationCenter.default.post(name: .init("io.sentry.newbreadcrumb") , object: breadcrumb)
+                NotificationCenter.default.post(name: .init("io.sentry.newbreadcrumb"), object: breadcrumb)
                 return breadcrumb
             }
         }

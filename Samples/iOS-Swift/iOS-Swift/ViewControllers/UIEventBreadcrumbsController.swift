@@ -2,13 +2,12 @@ import Foundation
 import Sentry
 import UIKit
 
-class UIEventBreadcrumbController : UIViewController, UITextFieldDelegate {
+class UIEventBreadcrumbController: UIViewController, UITextFieldDelegate {
 
-    private var notificationObserver : NSObjectProtocol?
+    private var notificationObserver: NSObjectProtocol?
 
-    @IBOutlet var textField : UITextField!
-    @IBOutlet var lastBreadcrumbLabel : UILabel!
-
+    @IBOutlet var textField: UITextField!
+    @IBOutlet var lastBreadcrumbLabel: UILabel!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,16 +26,16 @@ class UIEventBreadcrumbController : UIViewController, UITextFieldDelegate {
         }
     }
 
-    @objc func textFieldFocus(_ sender : Any) {
+    @objc func textFieldFocus(_ sender: Any) {
     }
 
-    @objc func textFieldEndChanging(_ sender : Any) {
+    @objc func textFieldEndChanging(_ sender: Any) {
     }
 
-    @objc func textFieldChanged(_ sender : Any) {
+    @objc func textFieldChanged(_ sender: Any) {
     }
 
-    @IBAction func pressMe(_ sender : Any) {
+    @IBAction func pressMe(_ sender: Any) {
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
