@@ -52,7 +52,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             SentryDependencyContainer.sharedInstance().dispatchFactory = dispatchFactory
             SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory
 
-            systemWrapper.overrides.cpuUsagePerCore = SentryCPUUsagePerCore(usages: mockCPUUsages.map { NSNumber(value: $0) })
+            systemWrapper.overrides.cpuUsagePerCore = mockCPUUsages.map { NSNumber(value: $0) }
             processInfoWrapper.overrides.processorCount = UInt(mockCPUUsages.count)
             systemWrapper.overrides.memoryFootprintBytes = mockMemoryFootprint
 

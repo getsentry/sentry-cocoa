@@ -6,7 +6,7 @@ public class TestSentrySystemWrapper: SentrySystemWrapper {
         public var memoryFootprintBytes: SentryRAMBytes?
 
         public var cpuUsageError: NSError?
-        public var cpuUsagePerCore: SentryCPUUsagePerCore?
+        public var cpuUsagePerCore: [NSNumber]?
     }
 
     public var overrides = Override()
@@ -19,7 +19,7 @@ public class TestSentrySystemWrapper: SentrySystemWrapper {
         return overrides.memoryFootprintBytes ?? super.memoryFootprintBytes(error)
     }
 
-    public override func cpuUsagePerCore() throws -> SentryCPUUsagePerCore {
+    public override func cpuUsagePerCore() throws -> [NSNumber] {
         if let errorOverride = overrides.cpuUsageError {
             throw errorOverride
         }

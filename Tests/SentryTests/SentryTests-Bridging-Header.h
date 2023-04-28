@@ -200,7 +200,6 @@
 #import "UIView+Sentry.h"
 #import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"
-#include <pthread.h>
 @import SentryPrivate;
 #import "SentryBinaryImageCache+Private.h"
 #import "SentryCrashBinaryImageCache.h"

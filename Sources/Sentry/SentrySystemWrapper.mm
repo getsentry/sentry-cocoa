@@ -57,7 +57,6 @@
     }
 
     return result;
-    ;
 }
 
 @end

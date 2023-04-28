@@ -1,8 +1,6 @@
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
-#import <mach/mach.h>
-
 NS_ASSUME_NONNULL_BEGIN
 
 typedef void (^SentryMemoryPressureNotification)(uintptr_t);
@@ -27,6 +25,7 @@ typedef mach_vm_size_t SentryRAMBytes;
  * @c ...] .
  */
 - (nullable NSArray<NSNumber *> *)cpuUsagePerCore:(NSError **)error;
+
 @end
 
 NS_ASSUME_NONNULL_END
