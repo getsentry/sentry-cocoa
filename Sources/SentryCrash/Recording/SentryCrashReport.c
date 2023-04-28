@@ -59,7 +59,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <mach-o/dyld.h>
 
 // ============================================================================
 #pragma mark - Constants -
