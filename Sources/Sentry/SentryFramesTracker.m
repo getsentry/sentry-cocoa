@@ -211,7 +211,9 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
                                frozenFrameTimestamps:self.frozenFrameTimestamps
                                  frameRateTimestamps:self.frameRateTimestamps];
 #    else
-    return [[SentryScreenFrames alloc] initWithTotal:_totalFrames frozen:_frozenFrames slow:_slowFrames];
+    return [[SentryScreenFrames alloc] initWithTotal:_totalFrames
+                                              frozen:_frozenFrames
+                                                slow:_slowFrames];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
