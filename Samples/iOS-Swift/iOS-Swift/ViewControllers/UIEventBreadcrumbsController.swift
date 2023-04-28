@@ -48,6 +48,7 @@ class UIEventBreadcrumbController : UIViewController, UITextFieldDelegate {
         if let obs = notificationObserver {
             NotificationCenter.default.removeObserver(obs)
         }
+        super.viewWillDisappear(animated)
     }
 
 }
