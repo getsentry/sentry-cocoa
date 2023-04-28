@@ -18,8 +18,7 @@ class UIEventTests: XCTestCase {
         super.tearDown()
     }
 
-
-    func testUIEventIgnoreTextFieldChange(){
+    func testUIEventIgnoreTextFieldChange() {
 
         app.buttons["Extra"].tap()
         app.buttons["UI event tests"].tap()
