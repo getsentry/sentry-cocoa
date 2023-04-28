@@ -10,6 +10,8 @@
 #    import "SentryDefines.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDevice.h"
+#    import "SentryDispatchFactory.h"
+#    import "SentryDispatchSourceWrapper.h"
 #    import "SentryEnvelope.h"
 #    import "SentryEnvelopeItemType.h"
 #    import "SentryEvent+Private.h"
@@ -162,7 +164,7 @@ std::mutex _gProfilerLock;
 SentryProfiler *_Nullable _gCurrentProfiler;
 SentryNSProcessInfoWrapper *_gCurrentProcessInfoWrapper;
 SentrySystemWrapper *_gCurrentSystemWrapper;
-SentryNSTimerWrapper *_gMetricTimerWrapper;
+SentryDispatchFactory *_gDispatchFactory;
 SentryNSTimerWrapper *_gTimeoutTimerWrapper;
 #    if SENTRY_HAS_UIKIT
 SentryFramesTracker *_gCurrentFramesTracker;
@@ -451,10 +453,10 @@ serializedSamplesWithRelativeTimestamps(
     _gCurrentProcessInfoWrapper = processInfoWrapper;
 }
 
-+ (void)useMetricTimerWrapper:(SentryNSTimerWrapper *)timerWrapper
++ (void)useDispatchFactory:(SentryDispatchFactory *)dispatchFactory
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
-    _gMetricTimerWrapper = timerWrapper;
+    _gDispatchFactory = dispatchFactory;
 }
 
 + (void)useTimeoutTimerWrapper:(SentryNSTimerWrapper *)timerWrapper
@@ -525,8 +527,8 @@ serializedSamplesWithRelativeTimestamps(
     if (_gCurrentProcessInfoWrapper == nil) {
         _gCurrentProcessInfoWrapper = [SentryDependencyContainer.sharedInstance processInfoWrapper];
     }
-    if (_gMetricTimerWrapper == nil) {
-        _gMetricTimerWrapper = [[SentryNSTimerWrapper alloc] init];
+    if (_gDispatchFactory == nil) {
+        _gDispatchFactory = [[SentryDispatchFactory alloc] init];
     }
 #    if SENTRY_HAS_UIKIT
     if (_gCurrentFramesTracker == nil) {
@@ -536,7 +538,7 @@ serializedSamplesWithRelativeTimestamps(
     _metricProfiler =
         [[SentryMetricProfiler alloc] initWithProcessInfoWrapper:_gCurrentProcessInfoWrapper
                                                    systemWrapper:_gCurrentSystemWrapper
-                                                    timerWrapper:_gMetricTimerWrapper];
+                                                 dispatchFactory:_gDispatchFactory];
     [_metricProfiler start];
 }
 
