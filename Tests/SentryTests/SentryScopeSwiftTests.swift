@@ -121,6 +121,7 @@ class SentryScopeSwiftTests: XCTestCase {
 
     func testInitWithScope() {
         let scope = fixture.scope
+        scope.span = fixture.transaction
 
         let snapshot = scope.serialize() as! [String: AnyHashable]
 
