@@ -1,3 +1,4 @@
+@testable import iOS_Swift
 import XCTest
 
 final class MultithreadingTests: XCTestCase {
@@ -25,8 +26,6 @@ final class MultithreadingTests: XCTestCase {
         print("multithreaded - main thread only: \(multiqueue.diff(other: mainQueueOnly))")
     }
 }
-
-let system = SentrySystemWrapper()
 
 extension MultithreadingTests {
     func work() {
@@ -63,8 +62,8 @@ extension MultithreadingTests {
         for _ in 0..<number {
             queue.async {
 //                print("time: \(getAbsoluteTime()); queue: \(queueName); thread: \(pthread_mach_thread_np(pthread_self()))\(Thread.current.isMainThread ? " (main)" : "")")
-//                print("cpu usage: \(String(reflecting: try! system.cpuUsagePerCore()))")
-//                print("cpu info:\n\(String(reflecting: try! system.cpuInfo()))")
+//                print("cpu usage: \(String(reflecting: try! SentryBenchmarking.cpuUsagePerCore()))")
+//                print("cpu info:\n\(String(reflecting: try! SentryBenchmarking.cpuInfo()))")
                 self.workUnit(exp: exp, slow: slow, doWork: doWork)
             }
         }
@@ -155,14 +154,14 @@ extension MultithreadingTests {
     //    var cpuTimePerThread = [SentryCPUUsagePerThread]()
         var cpuTicks = [UInt64]()
         let averageWallClockTime = dispatch_benchmark(benchmarkIterations) {
-            let startingPowerUsage = try! system.powerUsage()
-            let startingContextSwitches = try! system.numContextSwitches()
-    //        let startingCPUUsagePerThread = try! system.cpuUsagePerThread()
-            let startingCPUTicks = try! system.cpuTicks()
+            let startingPowerUsage = try! SentryBenchmarking.powerUsage()
+            let startingContextSwitches = try! SentryBenchmarking.numContextSwitches()
+    //        let startingCPUUsagePerThread = try! SentryBenchmarking.cpuUsagePerThread()
+            let startingCPUTicks = try! SentryBenchmarking.cpuTicks()
 
             block()
 
-            let endingPowerUsage = try! system.powerUsage()
+            let endingPowerUsage = try! SentryBenchmarking.powerUsage()
             let totalCPUPowerUsed = endingPowerUsage.totalCPU() - startingPowerUsage.totalCPU()
             cpuPowerUsages.append(totalCPUPowerUsed)
 
@@ -172,11 +171,11 @@ extension MultithreadingTests {
             let totalPswitches = endingPowerUsage.info.task_pset_switches - startingPowerUsage.info.task_pset_switches
             pswitches.append(totalPswitches)
 
-            let endingContextSwitches = try! system.numContextSwitches()
+            let endingContextSwitches = try! SentryBenchmarking.numContextSwitches()
             let totalContextSwitches = endingContextSwitches.uint64Value - startingContextSwitches.uint64Value
             contextSwitches.append(totalContextSwitches)
 
-    //        let endingCPUUsagePerThread = try! system.cpuUsagePerThread()
+    //        let endingCPUUsagePerThread = try! SentryBenchmarking.cpuUsagePerThread()
     //        let totalCPUUsagePerThread = SentryCPUUsagePerThread()
     //        endingCPUUsagePerThread.usages.allKeys.forEach { key in
     //            guard let start = startingCPUUsagePerThread.usages[key] as? SentryThreadCPUUsage else { return }
@@ -188,7 +187,7 @@ extension MultithreadingTests {
     //        }
     //        cpuTimePerThread.append(totalCPUUsagePerThread)
 
-            let endingCPUTicks = try! system.cpuTicks()
+            let endingCPUTicks = try! SentryBenchmarking.cpuTicks()
             let totalCPUTicks = endingCPUTicks.total() - startingCPUTicks.total()
             cpuTicks.append(totalCPUTicks)
         }

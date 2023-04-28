@@ -3153,7 +3153,6 @@
 				035E73CD27D5790A005EEB11 /* SentryThreadMetadataCacheTests.mm */,
 				03F9D37B2819A65C00602916 /* SentryProfilerTests.mm */,
 				8419C0C328C1889D001C8259 /* SentryProfilerSwiftTests.swift */,
-				84C47AE029FC696000DAEB8A /* MultithreadingTests.swift */,
 			);
 			path = SentryProfilerTests;
 			sourceTree = "<group>";
@@ -4443,7 +4442,6 @@
 				8431EFE129B27B5300D8DC56 /* SentryThreadMetadataCacheTests.mm in Sources */,
 				8431EFE029B27B5300D8DC56 /* SentryBacktraceTests.mm in Sources */,
 				8431EFDF29B27B5300D8DC56 /* SentryThreadHandleTests.mm in Sources */,
-				84C47AE129FC696000DAEB8A /* MultithreadingTests.swift in Sources */,
 				8431EFE829B27BAD00D8DC56 /* SentrySystemWrapperTests.swift in Sources */,
 				8431EFE529B27BAD00D8DC56 /* SentryNSProcessInfoWrapperTests.swift in Sources */,
 				8431EFDE29B27B5300D8DC56 /* SentryProfilerSwiftTests.swift in Sources */,

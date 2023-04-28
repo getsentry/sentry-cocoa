@@ -197,7 +197,7 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
     }
 
     @synchronized(self) {
-        [result.usages enumerateObjectsUsingBlock:^(
+        [result enumerateObjectsUsingBlock:^(
             NSNumber *_Nonnull usage, NSUInteger core, BOOL *_Nonnull stop) {
             [_cpuUsage[@(core)] addObject:[self metricReadingForValue:usage]];
         }];

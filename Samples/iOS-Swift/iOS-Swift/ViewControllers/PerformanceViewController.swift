@@ -77,7 +77,7 @@ private extension PerformanceViewController {
         }
         transaction = SentrySDK.startTransaction(name: "io.sentry.benchmark.transaction", operation: "crunch-numbers")
         timer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(doRandomWork), userInfo: nil, repeats: true)
-        SentryBenchmarking.startBenchmark()
+        SentryBenchmarking.startSampledBenchmark()
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
             self.stopTest()
@@ -91,7 +91,7 @@ private extension PerformanceViewController {
             transaction = nil
         }
 
-        guard let value = SentryBenchmarking.stopBenchmark() else {
+        guard let value = SentryBenchmarking.stopSampledBenchmark() else {
             SentrySDK.capture(error: NSError(domain: "io.sentry.benchmark.error", code: 1, userInfo: ["description": "Only one CPU sample was taken, can't calculate benchmark deltas."]))
             valueTextField.text = "nil"
             return
