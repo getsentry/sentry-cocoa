@@ -43,7 +43,13 @@ void
 sentrycrashsc_initSelfThread(SentryCrashStackCursor *cursor, int skipEntries)
 {
     SelfThreadContext *context = (SelfThreadContext *)cursor->context;
-    int backtraceLength = backtrace((void **)context->backtrace, MAX_BACKTRACE_LENGTH);
+
+    int backtraceLength;
+    if (__builtin_available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)) {
+        backtraceLength = (int)backtrace_async((void **)context->backtrace, MAX_BACKTRACE_LENGTH, NULL);
+    } else {
+        backtraceLength = backtrace((void **)context->backtrace, MAX_BACKTRACE_LENGTH);
+    }
     sentrycrashsc_initWithBacktrace(cursor, context->backtrace, backtraceLength, skipEntries + 1);
 
     cursor->async_caller = sentrycrash_get_async_caller_for_thread(sentrycrashthread_self());
