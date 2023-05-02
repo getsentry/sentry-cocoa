@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)installAsyncHooks
 {
-    NSAssert(false, @"`installAsyncHooks` should not be called");
+    NSAssert(false, @"`installAsyncHooks` should not be called, as its behavior is unpredictable and sometimes resulted in unexpected errors.");
     sentrycrash_install_async_hooks();
 }
 
