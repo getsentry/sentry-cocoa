@@ -103,21 +103,5 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertNil(result?["title"] as Any?)
     }
 #endif
-    
-}
-
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-
-private class ViewControllerForBreadcrumbTest: UIViewController {
-
-    @objc
-    func textFieldTextChanged(_ sender: Any) {
-    }
-
-    @objc
-    func textFieldEndChange(_ sender: Any) {
-    }
 
 }
-
-#endif

@@ -648,19 +648,19 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YQi-VW-lsa">
-                                <rect key="frame" x="73" y="513" width="174.5" height="35"/>
+                                <rect key="frame" x="44.5" y="513" width="231" height="35"/>
                                 <accessibility key="accessibilityConfiguration" identifier="editingChangedButton"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Perform &quot;Changed&quot;"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Perform &quot;Editing Changed&quot;"/>
                                 <connections>
                                     <action selector="performEditingChangedPressed:" destination="ch4-pK-Zhg" eventType="touchUpInside" id="Sso-D9-mmM"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sL7-7x-NzY">
-                                <rect key="frame" x="64.5" y="461" width="191.5" height="35"/>
+                                <rect key="frame" x="49.5" y="461" width="221.5" height="35"/>
                                 <accessibility key="accessibilityConfiguration" identifier="editingDidEndButton"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Perform &quot;End Editing&quot;"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Perform &quot;Editing Did End&quot;"/>
                                 <connections>
                                     <action selector="perforEditingDidEndPressed:" destination="ch4-pK-Zhg" eventType="touchUpInside" id="tRY-zj-Fd6"/>
                                 </connections>
