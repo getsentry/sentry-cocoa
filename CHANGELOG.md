@@ -8,14 +8,14 @@ Instead of only the Swift error name and error code, the SDK now sends the Swift
 
 ```Swift
 enum LoginError: Error {
-    case wrongUser
+    case wrongUser(id: String)
     case wrongPassword
 }
 
-SentrySDK.capture(error: LoginError.wrongPassword)
+SentrySDK.capture(error: LoginError.wrongUser)
 ```
 
-Capturing the above Swift error will now result in the following error message in Sentry: `wrongPassword (Code: 1)` instead of only `(Code: 1)`.
+Capturing the above Swift error will now result in the following error message in Sentry: `wrongUser(id: "12345678") (Code: 1)` instead of only `(Code: 1)`.
 [Customized error descriptions](https://docs.sentry.io/platforms/apple/usage/#customizing-error-descriptions) have precedence over this feature.
 This change has no impact on grouping of the issues in Sentry.
 
