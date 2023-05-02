@@ -36,6 +36,10 @@
 		84FB812A284001B800F3A94A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
 		84FB812B284001B800F3A94A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
 		8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */; };
+		D80D021329EE93630084393D /* ErrorsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80D021229EE93630084393D /* ErrorsViewController.swift */; };
+		D80D021A29EE936F0084393D /* ExtraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80D021929EE936F0084393D /* ExtraViewController.swift */; };
+		D80D021B29EE9E3D0084393D /* ErrorsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80D021229EE93630084393D /* ErrorsViewController.swift */; };
+		D80D021C29EE9E400084393D /* ExtraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80D021929EE936F0084393D /* ExtraViewController.swift */; };
 		D8105B61297E824C00299F03 /* SentrySwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8105B5C297E792200299F03 /* SentrySwiftUI.framework */; };
 		D8105B62297E824C00299F03 /* SentrySwiftUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D8105B5C297E792200299F03 /* SentrySwiftUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8269A3C274C095E00BD5BD5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8269A3B274C095E00BD5BD5 /* AppDelegate.swift */; };
@@ -293,6 +297,8 @@
 		84FB8129284001B800F3A94A /* SentryBenchmarking.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryBenchmarking.mm; sourceTree = "<group>"; };
 		84FB812C2840021B00F3A94A /* iOS-Swift-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "iOS-Swift-Bridging-Header.h"; sourceTree = "<group>"; };
 		8E8C57AE25EF16E6001CEEFA /* TraceTestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceTestViewController.swift; sourceTree = "<group>"; };
+		D80D021229EE93630084393D /* ErrorsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorsViewController.swift; sourceTree = "<group>"; };
+		D80D021929EE936F0084393D /* ExtraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtraViewController.swift; sourceTree = "<group>"; };
 		D8269A39274C095E00BD5BD5 /* iOS13-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS13-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8269A3B274C095E00BD5BD5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D8269A3D274C095E00BD5BD5 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -442,6 +448,8 @@
 				63F93AA9245AC91600A500DB /* iOS-Swift.entitlements */,
 				637AFDA9243B02760034958B /* AppDelegate.swift */,
 				637AFDAD243B02760034958B /* ViewController.swift */,
+				D80D021229EE93630084393D /* ErrorsViewController.swift */,
+				D80D021929EE936F0084393D /* ExtraViewController.swift */,
 				637AFDAF243B02760034958B /* Main.storyboard */,
 				637AFDB2243B02770034958B /* Assets.xcassets */,
 				7B3427F725876A5200056519 /* Tongariro.jpg */,
@@ -876,11 +884,13 @@
 				84FB812A284001B800F3A94A /* SentryBenchmarking.mm in Sources */,
 				D8F3D052274E572F00B56F8C /* DSNStorage.swift in Sources */,
 				D8F3D054274E572F00B56F8C /* RandomErrors.swift in Sources */,
+				D80D021329EE93630084393D /* ErrorsViewController.swift in Sources */,
 				D8D7BB4C2750095800044146 /* UIViewExtension.swift in Sources */,
 				7B79000429028C7300A7F467 /* MetricKitManager.swift in Sources */,
 				D8D7BB4A2750067900044146 /* UIAssert.swift in Sources */,
 				D8F3D057274E574200B56F8C /* LoremIpsumViewController.swift in Sources */,
 				D8DBDA78274D5FC400007380 /* SplitViewController.swift in Sources */,
+				D80D021A29EE936F0084393D /* ExtraViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -927,11 +937,13 @@
 				D8F3D055274E572F00B56F8C /* RandomErrors.swift in Sources */,
 				0AAAB8572887F7C60011845C /* PermissionsViewController.swift in Sources */,
 				D8269A3C274C095E00BD5BD5 /* AppDelegate.swift in Sources */,
+				D80D021B29EE9E3D0084393D /* ErrorsViewController.swift in Sources */,
 				D8444E53275F792A0042F4DE /* UIAssert.swift in Sources */,
 				D8269A3E274C095E00BD5BD5 /* SceneDelegate.swift in Sources */,
 				D8444E54275F794D0042F4DE /* SpanObserver.swift in Sources */,
 				D8269A55274C0F9A00BD5BD5 /* TraceTestViewController.swift in Sources */,
 				D88E666828732AE000153425 /* PerformanceViewController.swift in Sources */,
+				D80D021C29EE9E400084393D /* ExtraViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

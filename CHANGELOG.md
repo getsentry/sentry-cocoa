@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 8.6.0
 
 ### Features
 
@@ -21,13 +21,20 @@ Capturing the above Swift error will now result in the following error message i
 [Customized error descriptions](https://docs.sentry.io/platforms/apple/usage/#customizing-error-descriptions) have precedence over this feature.
 To avoid sending PII by accident, the SDK doesn't send the Swift error name for struct-based Swift errors, and the SDK drops the values of enums.
 This change has no impact on grouping of the issues in Sentry.
+- Send trace origin (#2957)
+
+[Trace origin](https://develop.sentry.dev/sdk/performance/trace-origin/) indicates what created a trace or a span. Not all transactions and spans contain enough information to tell whether the user or what precisely in the SDK created it. Origin solves this problem. The SDK now sends origin for transactions and spans.
 
 - Create User and Breadcrumb from map (#2820)
 
+
 ### Fixes 
 
-- Ensure the current GPU frame rate is always reported for concurrent transaction profiling metrics (#2929)
+- Improved performance serializing profiling data (#2863)
 - Possible crash in Core Data tracking (#2865)
+- Ensure the current GPU frame rate is always reported for concurrent transaction profiling metrics (#2929)
+- Move profiler metric collection to a background queue (#2956)
+- Propagate span when copying scope (#2952)
 
 ## 8.5.0
 

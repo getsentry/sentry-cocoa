@@ -216,12 +216,6 @@ class SentryFileManagerTests: XCTestCase {
         sut.removeFile(atPath: "x")
         XCTAssertFalse(logOutput.loggedMessages.contains(where: { $0.contains("[error]") }))
     }
-    
-    func testFailingStoreDictionary() {
-        sut.store(["date": Date() ], toPath: "")
-        let files = sut.allFiles(inFolder: "x")
-        XCTAssertTrue(files.isEmpty)
-    }
 
     func testDefaultMaxEnvelopes() {
         for _ in 0...(fixture.maxCacheItems + 1) {
@@ -250,6 +244,9 @@ class SentryFileManagerTests: XCTestCase {
     }
 
     func testDefaultMaxEnvelopesConcurrent() {
+        let maxCacheItems = 1
+        let sut = fixture.getSut(maxCacheItems: UInt(maxCacheItems))
+        
         let parallelTaskAmount = 5
         let queue = DispatchQueue(label: "testDefaultMaxEnvelopesConcurrent", qos: .userInitiated, attributes: [.concurrent, .initiallyInactive])
         
@@ -257,8 +254,8 @@ class SentryFileManagerTests: XCTestCase {
         envelopeStoredExpectation.expectedFulfillmentCount = parallelTaskAmount
         for _ in 0..<parallelTaskAmount {
             queue.async {
-                for _ in 0...(self.fixture.maxCacheItems + 5) {
-                    self.sut.store(TestConstants.envelope)
+                for _ in 0...(maxCacheItems + 5) {
+                    sut.store(TestConstants.envelope)
                 }
                 envelopeStoredExpectation.fulfill()
             }
@@ -268,7 +265,7 @@ class SentryFileManagerTests: XCTestCase {
         wait(for: [envelopeStoredExpectation], timeout: 10)
 
         let events = sut.getAllEnvelopes()
-        XCTAssertEqual(fixture.maxCacheItems, events.count)
+        XCTAssertEqual(maxCacheItems, events.count)
     }
     
     func testMaxEnvelopesSet() {

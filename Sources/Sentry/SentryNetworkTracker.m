@@ -19,6 +19,7 @@
 #import "SentryThreadInspector.h"
 #import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
+#import "SentryTraceOrigins.h"
 #import "SentryTracer.h"
 #import <objc/runtime.h>
 
@@ -162,6 +163,7 @@ SentryNetworkTracker ()
                     startChildWithOperation:SENTRY_NETWORK_REQUEST_OPERATION
                                 description:[NSString stringWithFormat:@"%@ %@",
                                                       sessionTask.currentRequest.HTTPMethod, url]];
+                netSpan.origin = SentryTraceOriginAutoHttpNSURLSession;
             }
         }];
 

@@ -80,6 +80,7 @@
 #import "SentryFileIOTrackingIntegration.h"
 #import "SentryFileManager+TestProperties.h"
 #import "SentryFileManager.h"
+#import "SentryFormatter.h"
 #import "SentryFrame.h"
 #import "SentryFrameRemover.h"
 #import "SentryFramesTracker+TestInit.h"
@@ -185,6 +186,8 @@
 #import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"
 @import SentryPrivate;
+#import "SentryDispatchFactory.h"
+#import "SentryDispatchSourceWrapper.h"
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryExtraContextProvider.h"
 #import "SentryMeasurementValue.h"
