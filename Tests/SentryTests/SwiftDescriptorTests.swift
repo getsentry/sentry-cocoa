@@ -29,25 +29,23 @@ class SwiftDescriptorTests: XCTestCase {
     }
     
     func testgetSwiftErrorDescription_EnumValue() {
-        let actual = SwiftDescriptor.getSwiftErrorDescription(SentryTestError.someError)
-        XCTAssertEqual("someError", actual)
+        let actual = SwiftDescriptor.getSwiftErrorDescription(LoginError.wrongPassword)
+        XCTAssertEqual("wrongPassword", actual)
     }
     
     func testgetSwiftErrorDescription_EnumValueWithData() {
-        let actual = SwiftDescriptor.getSwiftErrorDescription(SentryTestError.someOhterError(10))
-        XCTAssertEqual("someOhterError", actual)
+        let actual = SwiftDescriptor.getSwiftErrorDescription(LoginError.wrongUser(name: "Max"))
+        XCTAssertEqual("wrongUser(name: \"Max\")", actual)
     }
     
     func testgetSwiftErrorDescription_StructWithData() {
         let actual = SwiftDescriptor.getSwiftErrorDescription(XMLParsingError(line: 10, column: 12, kind: .internalError))
-        XCTAssertNil(actual)
-        
-        SentrySDK.capture(error: LoginError.wrongPassword)
+        XCTAssertEqual("XMLParsingError(line: 10, column: 12, kind: SentryTests.XMLParsingError.ErrorKind.internalError)", actual)
     }
     
     func testgetSwiftErrorDescription_StructWithOneParam() {
         let actual = SwiftDescriptor.getSwiftErrorDescription(StructWithOneParam(line: 10))
-        XCTAssertNil(actual)
+        XCTAssertEqual("StructWithOneParam(line: 10)", actual)
     }
     
     private func sanitize(_ name: AnyObject) -> String {
@@ -55,13 +53,8 @@ class SwiftDescriptorTests: XCTestCase {
     }
 }
 
-enum SentryTestError: Error {
-    case someError
-    case someOhterError(Int)
-}
-
 enum LoginError: Error {
-    case wrongUser
+    case wrongUser(name: String)
     case wrongPassword
 }
 
@@ -78,11 +71,5 @@ struct XMLParsingError: Error {
 }
 
 struct StructWithOneParam: Error {
-    enum ErrorKind {
-        case invalidCharacter
-        case mismatchedTag
-        case internalError
-    }
-
     let line: Int
 }
