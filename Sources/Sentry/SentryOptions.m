@@ -70,7 +70,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableWatchdogTerminationTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
-        self.stitchAsyncCode = NO;
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
         self.enableAutoPerformanceTracing = YES;
@@ -320,9 +319,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     [self setBool:options[@"attachStacktrace"]
             block:^(BOOL value) { self->_attachStacktrace = value; }];
-
-    [self setBool:options[@"stitchAsyncCode"]
-            block:^(BOOL value) { self->_stitchAsyncCode = value; }];
 
     if ([options[@"maxAttachmentSize"] isKindOfClass:[NSNumber class]]) {
         self.maxAttachmentSize = [options[@"maxAttachmentSize"] unsignedIntValue];

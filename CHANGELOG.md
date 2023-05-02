@@ -16,13 +16,18 @@
 
 - Create User and Breadcrumb from map (#2820)
 
-
 ### Fixes 
 
 - Improved performance serializing profiling data (#2863)
 - Possible crash in Core Data tracking (#2865)
 - Ensure the current GPU frame rate is always reported for concurrent transaction profiling metrics (#2929)
 - Move profiler metric collection to a background queue (#2956)
+
+### Removed
+
+- Remove experimental `stitchAsyncCode` from SentryOptions (#2973)
+
+The `stitchAsyncCode` experimental option has been removed from `SentryOptions` as its behavior was unpredictable and sometimes resulted in unexpected errors. We plan to add it back once we fix it, but we don't have an ETA for it.
 
 ## 8.5.0
 

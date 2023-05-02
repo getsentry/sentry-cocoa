@@ -1133,12 +1133,6 @@ class SentryClientTest: XCTestCase {
         }
     }
 
-    func testTrackStitchAsyncCode() {        
-        testFeatureTrackingAsIntegration(integrationName: "StitchAsyncCode") {
-            $0.stitchAsyncCode = true
-        }
-    }
-
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testTrackPreWarmedAppStartTracking() {
         testFeatureTrackingAsIntegration(integrationName: "PreWarmedAppStartTracing") {
