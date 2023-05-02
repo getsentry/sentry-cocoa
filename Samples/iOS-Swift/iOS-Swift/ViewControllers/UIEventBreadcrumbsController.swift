@@ -2,7 +2,7 @@ import Foundation
 import Sentry
 import UIKit
 
-class UIEventBreadcrumbController: UIViewController, UITextFieldDelegate {
+class UIEventBreadcrumbController: UIViewController {
 
     private var notificationObserver: NSObjectProtocol?
 
@@ -14,7 +14,6 @@ class UIEventBreadcrumbController: UIViewController, UITextFieldDelegate {
 
         textField.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged)
         textField.addTarget(self, action: #selector(textFieldEndChanging), for: .editingDidEnd)
-        textField.delegate = self
 
         notificationObserver = NotificationCenter.default.addObserver(forName: .init("io.sentry.newbreadcrumb"), object: nil, queue: nil) {
             guard let breadcrumb = $0.object as? Breadcrumb else { return }
@@ -33,10 +32,6 @@ class UIEventBreadcrumbController: UIViewController, UITextFieldDelegate {
     }
 
     @objc func textFieldChanged(_ sender: Any) {
-        print("### Changed")
-    }
-
-    @IBAction func pressMe(_ sender: Any) {
     }
 
     @IBAction func performChangedPressed(_ sender: Any) {
@@ -45,11 +40,6 @@ class UIEventBreadcrumbController: UIViewController, UITextFieldDelegate {
 
     @IBAction func performEndEditingPressed(_ sender: Any) {
         textField.sendActions(for: .editingDidEnd)
-    }
-
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
     }
 
     override func viewWillDisappear(_ animated: Bool) {
