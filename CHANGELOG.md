@@ -1,8 +1,6 @@
 # Changelog
 
-## 8.6.0
-
-### Features
+## Unreleased
 
 - Swift Error Names (#2960)
 
@@ -21,6 +19,11 @@ Capturing the above Swift error will now result in the following error message i
 [Customized error descriptions](https://docs.sentry.io/platforms/apple/usage/#customizing-error-descriptions) have precedence over this feature.
 To avoid sending PII by accident, the SDK doesn't send the Swift error name for struct-based Swift errors, and the SDK drops the values of enums.
 This change has no impact on grouping of the issues in Sentry.
+
+## 8.6.0
+
+### Features
+
 - Send trace origin (#2957)
 
 [Trace origin](https://develop.sentry.dev/sdk/performance/trace-origin/) indicates what created a trace or a span. Not all transactions and spans contain enough information to tell whether the user or what precisely in the SDK created it. Origin solves this problem. The SDK now sends origin for transactions and spans.
