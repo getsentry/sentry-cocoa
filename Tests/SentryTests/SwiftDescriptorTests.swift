@@ -28,22 +28,22 @@ class SwiftDescriptorTests: XCTestCase {
         XCTAssertEqual(name, "InnerClass")
     }
     
-    func testgetSwiftErrorDescription_EnumValue() {
+    func testGetSwiftErrorDescription_EnumValue() {
         let actual = SwiftDescriptor.getSwiftErrorDescription(LoginError.wrongPassword)
         XCTAssertEqual("wrongPassword", actual)
     }
     
-    func testgetSwiftErrorDescription_EnumValueWithData() {
+    func testGetSwiftErrorDescription_EnumValueWithData() {
         let actual = SwiftDescriptor.getSwiftErrorDescription(LoginError.wrongUser(name: "Max"))
         XCTAssertEqual("wrongUser(name: \"Max\")", actual)
     }
     
-    func testgetSwiftErrorDescription_StructWithData() {
+    func testGetSwiftErrorDescription_StructWithData() {
         let actual = SwiftDescriptor.getSwiftErrorDescription(XMLParsingError(line: 10, column: 12, kind: .internalError))
         XCTAssertEqual("XMLParsingError(line: 10, column: 12, kind: SentryTests.XMLParsingError.ErrorKind.internalError)", actual)
     }
     
-    func testgetSwiftErrorDescription_StructWithOneParam() {
+    func testGetSwiftErrorDescription_StructWithOneParam() {
         let actual = SwiftDescriptor.getSwiftErrorDescription(StructWithOneParam(line: 10))
         XCTAssertEqual("StructWithOneParam(line: 10)", actual)
     }

@@ -471,28 +471,28 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    func testCaptureSwiftErrorStruct_DoesNotUseDescriptionToAvoidPII() {
+    func testCaptureSwiftErrorStruct_UsesSwiftStringDescription() {
         let eventId = fixture.getSut().capture(error: XMLParsingError(line: 10, column: 12, kind: .internalError))
 
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             do {
                 let exceptions = try XCTUnwrap(actual.exceptions)
-                XCTAssertEqual("Code: 1", try XCTUnwrap(exceptions.first).value)
+                XCTAssertEqual("XMLParsingError(line: 10, column: 12, kind: SentryTests.XMLParsingError.ErrorKind.internalError) (Code: 1)", try XCTUnwrap(exceptions.first).value)
             } catch {
                 XCTFail("Exception expected but was nil")
             }
         }
     }
     
-    func testCaptureSwiftErrorWithData_UsesSwiftStringDescriptionStripped() {
+    func testCaptureSwiftErrorWithData_UsesSwiftStringDescription() {
         let eventId = fixture.getSut().capture(error: SentryClientError.invalidInput("hello"))
 
         eventId.assertIsNotEmpty()
         assertLastSentEvent { actual in
             do {
                 let exceptions = try XCTUnwrap(actual.exceptions)
-                XCTAssertEqual("invalidInput (Code: 0)", try XCTUnwrap(exceptions.first).value)
+                XCTAssertEqual("invalidInput(\"hello\") (Code: 0)", try XCTUnwrap(exceptions.first).value)
             } catch {
                 XCTFail("Exception expected but was nil")
             }
@@ -500,7 +500,6 @@ class SentryClientTest: XCTestCase {
     }
     
     func testCaptureSwiftErrorWithDebugDescription_UsesDebugDescription() {
-        
         let eventId = fixture.getSut().capture(error: SentryClientErrorWithDebugDescription.someError)
 
         eventId.assertIsNotEmpty()
