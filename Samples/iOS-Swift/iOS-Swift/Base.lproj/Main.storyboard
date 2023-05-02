@@ -642,27 +642,27 @@
                             </textField>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Last Breadcrumb" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JG7-ED-myd">
                                 <rect key="frame" x="25" y="134" width="279" height="20.5"/>
-                                <accessibility key="accessibilityConfiguration" identifier="lbBreadcrumb"/>
+                                <accessibility key="accessibilityConfiguration" identifier="breadcrumbLabel"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YQi-VW-lsa">
                                 <rect key="frame" x="73" y="513" width="174.5" height="35"/>
-                                <accessibility key="accessibilityConfiguration" identifier="changeButton"/>
+                                <accessibility key="accessibilityConfiguration" identifier="editingChangedButton"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Perform &quot;Changed&quot;"/>
                                 <connections>
-                                    <action selector="performChangedPressed:" destination="ch4-pK-Zhg" eventType="touchUpInside" id="fQw-EL-6TH"/>
+                                    <action selector="performEditingChangedPressed:" destination="ch4-pK-Zhg" eventType="touchUpInside" id="Sso-D9-mmM"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sL7-7x-NzY">
                                 <rect key="frame" x="64.5" y="461" width="191.5" height="35"/>
-                                <accessibility key="accessibilityConfiguration" identifier="endEditingButton"/>
+                                <accessibility key="accessibilityConfiguration" identifier="editingDidEndButton"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Perform &quot;End Editing&quot;"/>
                                 <connections>
-                                    <action selector="performEndEditingPressed:" destination="ch4-pK-Zhg" eventType="touchUpInside" id="5JA-wJ-Cxb"/>
+                                    <action selector="perforEditingDidEndPressed:" destination="ch4-pK-Zhg" eventType="touchUpInside" id="tRY-zj-Fd6"/>
                                 </connections>
                             </button>
                         </subviews>

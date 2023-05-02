@@ -27,10 +27,10 @@ class UIEventBreadcrumbTests: XCTestCase {
         //Trigger a change in textfield
         app.buttons["editingChangedButton"].tap()
         //Check the last breadcrumb is the button being pressed
-        XCTAssertEqual(label.label, "performChangedPressed:")
+        XCTAssertEqual(label.label, "performEditingChangedPressed:")
 
         //Trigger an endEditing in textfield
-        app.buttons["editingDidEnd"].tap()
+        app.buttons["editingDidEndButton"].tap()
         //Check the last breadcrumb is the endEditing from the textfield and not the button being pressed
         XCTAssertEqual(label.label, "textFieldEndChanging:")
     }
