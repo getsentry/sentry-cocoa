@@ -118,6 +118,37 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertNil(actual["transaction"])
         XCTAssertNotNil(actual["breadcrumbs"])
     }
+
+    func testInitWithScope() {
+        let scope = fixture.scope
+        scope.span = fixture.transaction
+
+        let snapshot = scope.serialize() as! [String: AnyHashable]
+
+        let cloned = Scope(scope: scope)
+        XCTAssertEqual(cloned.serialize() as! [String: AnyHashable], snapshot)
+
+        let (event1, event2) = (Event(), Event())
+        (event1.timestamp, event2.timestamp) = (fixture.date, fixture.date)
+        event2.eventId = event1.eventId
+        scope.applyTo(event: event1, maxBreadcrumbs: 10)
+        cloned.applyTo(event: event2, maxBreadcrumbs: 10)
+        XCTAssertEqual(
+            event1.serialize() as! [String: AnyHashable],
+            event2.serialize() as! [String: AnyHashable]
+        )
+
+        cloned.setExtras(["aa": "b"])
+        cloned.setTags(["ab": "c"])
+        cloned.addBreadcrumb(Breadcrumb(level: .debug, category: "http2"))
+        cloned.setUser(User(userId: "aid"))
+        cloned.setContext(value: ["ae": "af"], key: "myContext")
+        cloned.setDist("a456")
+        cloned.setEnvironment("a789")
+
+        XCTAssertEqual(scope.serialize() as! [String: AnyHashable], snapshot)
+        XCTAssertNotEqual(scope.serialize() as! [String: AnyHashable], cloned.serialize() as! [String: AnyHashable])
+    }
     
     func testApplyToEvent() {
         let actual = fixture.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
