@@ -34,11 +34,11 @@ class UIEventBreadcrumbController: UIViewController {
     @objc func textFieldChanged(_ sender: Any) {
     }
 
-    @IBAction func performChangedPressed(_ sender: Any) {
+    @IBAction func performEditingChangedPressed(_ sender: Any) {
         textField.sendActions(for: .editingChanged)
     }
 
-    @IBAction func performEndEditingPressed(_ sender: Any) {
+    @IBAction func perforEditingDidEndPressed(_ sender: Any) {
         textField.sendActions(for: .editingDidEnd)
     }
 
