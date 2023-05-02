@@ -12,7 +12,7 @@ enum LoginError: Error {
     case wrongPassword
 }
 
-SentrySDK.capture(error: LoginError.wrongUser)
+SentrySDK.capture(error: LoginError.wrongUser("12345678"))
 ```
 
 Capturing the above Swift error will now result in the following error message in Sentry: `wrongUser(id: "12345678") (Code: 1)` instead of only `(Code: 1)`.
