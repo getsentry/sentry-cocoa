@@ -186,6 +186,8 @@
 #import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"
 @import SentryPrivate;
+#import "SentryDispatchFactory.h"
+#import "SentryDispatchSourceWrapper.h"
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryExtraContextProvider.h"
 #import "SentryMeasurementValue.h"
