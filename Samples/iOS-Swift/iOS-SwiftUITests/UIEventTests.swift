@@ -32,7 +32,7 @@ class UIEventTests: XCTestCase {
 
         //Trigger an endEditing in textfield
         app.buttons["endEditingButton"].tap()
-        //Check the last breadcrumb is the endEditing form the textfield and not the button being pressed
+        //Check the last breadcrumb is the endEditing from the textfield and not the button being pressed
         XCTAssertEqual(label.label, "textFieldEndChanging:")
     }
 

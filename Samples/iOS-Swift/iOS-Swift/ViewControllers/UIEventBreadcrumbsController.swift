@@ -19,7 +19,7 @@ class UIEventBreadcrumbController: UIViewController, UITextFieldDelegate {
         notificationObserver = NotificationCenter.default.addObserver(forName: .init("io.sentry.newbreadcrumb"), object: nil, queue: nil) {
             guard let breadcrumb = $0.object as? Breadcrumb else { return }
             if breadcrumb.type != "user" {
-                //Ignore user interaction breadcrumbs
+                //Ignore non user interaction breadcrumbs
                 return
             }
             self.lastBreadcrumbLabel.text = breadcrumb.message ?? "#EMPTY#"
