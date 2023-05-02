@@ -2,10 +2,13 @@
 
 ## Unreleased
 
+### Features
+
+- Allow starting the SDK with an initial scope (#2982)
+
 ### Fixes 
 
 - Propagate span when copying scope (#2952)
-- Allow starting the SDK with an initial scope (#2982)
 
 ## 8.6.0
 
