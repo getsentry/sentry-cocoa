@@ -19,6 +19,10 @@ Capturing the above Swift error will now result in the following error message i
 [Customized error descriptions](https://docs.sentry.io/platforms/apple/usage/#customizing-error-descriptions) have precedence over this feature.
 This change has no impact on grouping of the issues in Sentry.
 
+### Fixes 
+
+- Propagate span when copying scope (#2952)
+
 ## 8.6.0
 
 ### Features
@@ -36,7 +40,6 @@ This change has no impact on grouping of the issues in Sentry.
 - Possible crash in Core Data tracking (#2865)
 - Ensure the current GPU frame rate is always reported for concurrent transaction profiling metrics (#2929)
 - Move profiler metric collection to a background queue (#2956)
-- Propagate span when copying scope (#2952)
 
 ## 8.5.0
 
