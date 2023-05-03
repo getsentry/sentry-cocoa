@@ -13,10 +13,10 @@ on:
 jobs:
   upload_to_testflight:
     name: Build and Upload iOS-Swift to Testflight
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
-      - run: ./scripts/ci-select-xcode.sh 14.2
+      - run: ./scripts/ci-select-xcode.sh 14.3
       - run: bundle install
 
       # We upload a new version to TestFlight on every commit on main
