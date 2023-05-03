@@ -90,7 +90,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
         let filteredFrames = actual.frames
             .compactMap(\.function)
             .filter { needed.contains(where: $0.contains) }
-        XCTAssertGreaterThanOrEqual(filteredFrames.count, 3, "The Stacktrace must include the async callers.")
+        XCTAssertGreaterThanOrEqual(filteredFrames.count, 4, "The Stacktrace must include the async callers.")
     }
 
     func asyncFrame1(expect: XCTestExpectation) {
