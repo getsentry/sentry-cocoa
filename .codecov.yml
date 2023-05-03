@@ -1,0 +1,24 @@
+codecov:
+  branch: main
+  require_ci_to_pass: yes
+  notify:
+    wait_for_ci: yes
+
+coverage:
+  range: 80...100
+  precision: 3
+  round: down
+
+ignore:
+  - "Tests/SentryTests" 
+
+comment:
+  layout: "reach,diff,flags,files,footer"
+  # Update, if comment exists. Otherwise post new.
+  behavior: default
+  # Comments will only post when coverage changes. Furthermore, if a comment
+  # already exists, and a newer commit results in no coverage change for the
+  # entire pull, the comment will be deleted.
+  require_changes: true
+  require_base: yes # must have a base report to post
+  require_head: yes # must have a head report to post
