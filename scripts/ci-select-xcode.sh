@@ -3,6 +3,7 @@
 # For available Xcode versions see:
 # - https://github.com/actions/virtual-environments/blob/main/images/macos/macos-11-Readme.md#xcode
 # - https://github.com/actions/runner-images/blob/main/images/macos/macos-12-Readme.md
+# - https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md
 
 set -euo pipefail
 
