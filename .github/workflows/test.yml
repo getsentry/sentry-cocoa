@@ -16,6 +16,7 @@ on:
       - 'scripts/tests-with-thread-sanitizer.sh'
       - 'scripts/ci-select-xcode.sh'
       - 'scripts/xcode-test.sh'
+      - '.codecov.yml'
 
       # run the workflow any time an Xcode scheme changes for any tested target
       - 'Sentry.xcodeproj/xcshareddata/xcschemes/Sentry.xcscheme'
