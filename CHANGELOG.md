@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Support for stitching async Swift Concurrency frames (#2983)
+
 ### Fixes 
 
 - Propagate span when copying scope (#2952)
