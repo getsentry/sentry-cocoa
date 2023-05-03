@@ -25,14 +25,13 @@ class UIEventBreadcrumbTests: XCTestCase {
         //Trigger a change in textfield
         app.buttons["editingChangedButton"].tap()
 
-        Thread.sleep(forTimeInterval: 0.5)
         //Check the last breadcrumb is the button being pressed
-        XCTAssertEqual(app.staticTexts["breadcrumbLabel"].label, "performEditingChangedPressed:")
+        app.staticTexts["performEditingChangedPressed:"].waitForExistence("performEditingChangedPressed: not called")
 
         //Trigger an endEditing in textfield
         app.buttons["editingDidEndButton"].tap()
         //Check the last breadcrumb is the endEditing from the textfield and not the button being pressed
-        XCTAssertEqual(app.staticTexts["breadcrumbLabel"].label, "textFieldEndChanging:")
+        app.staticTexts["textFieldEndChanging:"].waitForExistence("textFieldEndChanging: not called")
     }
 
     func waitForExistenceOfMainScreen() {
