@@ -23,7 +23,7 @@ class UIEventBreadcrumbTests: XCTestCase {
         app.buttons["UI event tests"].tap()
 
         //Trigger a change in textfield
-        app.buttons["editingChangedButton"].tap()
+        app.buttons["editingChangedButton"].afterWaitingForExistence("Did not find editingChangedButton").tap()
 
         //Check the last breadcrumb is the button being pressed
         app.staticTexts["performEditingChangedPressed:"].waitForExistence("performEditingChangedPressed: not called")
