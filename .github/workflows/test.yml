@@ -104,9 +104,9 @@ jobs:
             timeout-minutes: 15
 
           # iOS 16
-          - runs-on: macos-12
+          - runs-on: macos-13
             platform: 'iOS'
-            xcode: '14.2'
+            xcode: '14.3'
             test-destination-os: 'latest'
             timeout-minutes: 15
 
@@ -125,9 +125,9 @@ jobs:
             timeout-minutes: 15
           
             # macOS 13
-          - runs-on: macos-12
+          - runs-on: macos-13
             platform: 'macOS'
-            xcode: '14.2'
+            xcode: '14.3'
             test-destination-os: 'latest'
             timeout-minutes: 15
 
@@ -157,9 +157,9 @@ jobs:
             timeout-minutes: 15
 
           # tvOS 16
-          - runs-on: macos-12
+          - runs-on: macos-13
             platform: 'tvOS'
-            xcode: '14.2'
+            xcode: '14.3'
             test-destination-os: 'latest'
             timeout-minutes: 15
 
