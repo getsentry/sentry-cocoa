@@ -6,6 +6,7 @@
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentrySDK.h"
+#import "SentryScope.h"
 
 @interface
 SentryOptions ()
@@ -76,6 +77,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableCaptureFailedRequests = YES;
         self.environment = kSentryDefaultEnvironment;
         self.enableTimeToFullDisplay = NO;
+
+        self.initialScopeFactory = ^SentryScope *{ return nil; };
 
         _enableTracing = NO;
         _enableTracingManual = NO;
@@ -336,6 +339,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self setBool:options[@"enableTimeToFullDisplay"]
             block:^(BOOL value) { self->_enableTimeToFullDisplay = value; }];
 
+    if ([self isBlock:options[@"initialScopeFactory"]]) {
+        self.initialScopeFactory = options[@"initialScopeFactory"];
+    }
+
 #if SENTRY_HAS_UIKIT
     [self setBool:options[@"enableUIViewControllerTracing"]
             block:^(BOOL value) { self->_enableUIViewControllerTracing = value; }];
@@ -524,6 +531,17 @@ NSString *const kSentryDefaultEnvironment = @"production";
     return _enableTracing
         && ((_tracesSampleRate != nil && [_tracesSampleRate doubleValue] > 0)
             || _tracesSampler != nil);
+}
+
+- (void)initialScope:(void (^)(SentryScope *))callback {
+    __weak SentryOptions *weakSelf = self;
+    self.initialScopeFactory = ^SentryScope * {
+        SentryScope *initialScope = weakSelf
+            ? [[SentryScope alloc] initWithMaxBreadcrumbs:weakSelf.maxBreadcrumbs]
+            : [[SentryScope alloc] init];
+        callback(initialScope);
+        return initialScope;
+    };
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED

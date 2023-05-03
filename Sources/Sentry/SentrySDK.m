@@ -129,7 +129,7 @@ static NSUInteger startInvocations;
     startInvocations = value;
 }
 
-+ (void)startWithOptions:(SentryOptions *)options andScope:(nullable SentryScope *)scope
++ (void)startWithOptions:(SentryOptions *)options
 {
     startInvocations++;
 
@@ -141,14 +141,9 @@ static NSUInteger startInvocations;
 
     // The Hub needs to be initialized with a client so that closing a session
     // can happen.
-    [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:scope]];
+    [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:options.initialScopeFactory()]];
     SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
     [SentrySDK installIntegrations];
-}
-
-+ (void)startWithOptions:(SentryOptions *)options
-{
-    [SentrySDK startWithOptions:options andScope:nil];
 }
 
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions

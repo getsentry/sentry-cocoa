@@ -3,7 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange;
+@class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange, SentryScope;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -190,6 +190,19 @@ NS_SWIFT_NAME(Options)
  * https://docs.sentry.io/platforms/apple/performance/
  */
 @property (nonatomic, assign) BOOL enableAutoPerformanceTracing;
+
+/**
+ * A block that creates the initial scope to use when starting the SDK.
+ * @note Return @c nil to allow the SDK to lazily create its own scope.
+ * @note The default simply returns @c nil .
+ */
+@property (nonatomic) SentryScope * _Nullable (^initialScopeFactory)(void);
+
+/**
+ * Provides an initial scope to use when starting the SDK.
+ * @param callback A block that configures a fresh scope as desired.
+ */
+- (void)initialScope:(void (^)(SentryScope *scope))callback;
 
 #if SENTRY_HAS_UIKIT
 /**

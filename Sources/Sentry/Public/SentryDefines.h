@@ -28,7 +28,7 @@
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;
 
-@class SentryEvent, SentryBreadcrumb, SentrySamplingContext;
+@class SentryEvent, SentryBreadcrumb, SentrySamplingContext, SentryScope;
 @protocol SentrySpan;
 
 /**

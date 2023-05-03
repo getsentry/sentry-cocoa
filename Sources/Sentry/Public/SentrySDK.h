@@ -28,12 +28,6 @@ SENTRY_NO_INIT
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to
  * set a valid DSN.
  */
-+ (void)startWithOptions:(SentryOptions *)options andScope:(nullable SentryScope *)scope NS_SWIFT_NAME(start(options:scope:));
-
-/**
- * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to
- * set a valid DSN.
- */
 + (void)startWithOptions:(SentryOptions *)options NS_SWIFT_NAME(start(options:));
 
 /**

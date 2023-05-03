@@ -1144,6 +1144,30 @@
     XCTAssertEqualObjects(@[], options.inAppExcludes);
 }
 
+- (void)testDefaultInitialScope {
+    SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertNil(options.initialScopeFactory());
+}
+
+- (void)testInitialScopeFactory {
+    SentryScope *(^initialScopeFactory)(void) = ^SentryScope * { return nil; };
+    SentryOptions *options = [self getValidOptions:@{ @"initialScopeFactory": initialScopeFactory }];
+    XCTAssertIdentical(initialScopeFactory, options.initialScopeFactory);
+}
+
+- (void)testConfigureInitialScope {
+    SentryOptions *options = [self getValidOptions:@{}];
+    [options initialScope:^(SentryScope *scope) {
+        [scope setUser:[[SentryUser alloc] initWithUserId:@"me"]];
+    }];
+    options.maxBreadcrumbs = 123;
+
+    SentryScope *scope = options.initialScopeFactory();
+
+    XCTAssertEqual(@"me", scope.userObject.userId);
+    XCTAssertEqual(123, [(id)scope maxBreadcrumbs]);
+}
+
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict
 {
     NSError *error = nil;

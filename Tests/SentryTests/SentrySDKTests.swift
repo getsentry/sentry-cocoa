@@ -163,7 +163,10 @@ class SentrySDKTests: XCTestCase {
     func testStartWithScope() {
         let scope = Scope()
         scope.setUser(User(userId: "me"))
-        SentrySDK.start(options: fixture.options, scope: scope)
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+            options.initialScopeFactory = { scope }
+        }
         XCTAssertEqual("me", SentrySDK.currentHub().scope.userObject?.userId)
         XCTAssertIdentical(scope, SentrySDK.currentHub().scope)
     }
