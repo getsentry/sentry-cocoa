@@ -702,10 +702,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             [integrations addObject:trimmed];
         }
 
-        if (self.options.stitchAsyncCode) {
-            [integrations addObject:@"StitchAsyncCode"];
-        }
-
 #if SENTRY_HAS_UIKIT
         if (self.options.enablePreWarmedAppStartTracing) {
             [integrations addObject:@"PreWarmedAppStartTracing"];

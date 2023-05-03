@@ -185,33 +185,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertNil(fileManager.readCurrentSession())
         XCTAssertNil(fileManager.readCrashedSession())
     }
-    
-    func testInstall_WhenStitchAsyncCallsEnabled_CallsInstallAsyncHooks() {
-        let sut = fixture.getSut()
-        
-        let options = Options()
-        options.stitchAsyncCode = true
-        sut.install(with: options)
-        
-        XCTAssertTrue(fixture.sentryCrash.installAsyncHooksCalled)
-    }
-    
-    func testInstall_WhenStitchAsyncCallsDisabled_DoesNotCallInstallAsyncHooks() {
-        fixture.getSut().install(with: Options())
-        
-        XCTAssertFalse(fixture.sentryCrash.installAsyncHooksCalled)
-    }
-
-    func testUninstall_CallsUninstallAsyncHooks() {
-        let sut = fixture.getSut()
-
-        sut.install(with: Options())
-
-        sut.uninstall()
-
-        XCTAssertTrue(fixture.sentryCrash.uninstallAsyncHooksCalled)
-    }
-    
+            
     func testUninstall_DoesNotUpdateLocale_OnLocaleDidChangeNotification() {
         let (sut, hub) = givenSutWithGlobalHubAndCrashWrapper()
 

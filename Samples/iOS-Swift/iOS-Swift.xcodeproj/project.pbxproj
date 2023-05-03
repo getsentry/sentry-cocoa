@@ -82,6 +82,8 @@
 		D890CD3F26CEE31B001246CF /* NibViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D890CD3E26CEE31B001246CF /* NibViewController.swift */; };
 		D8B56CF0273A8D97004DF238 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; };
 		D8B56CF1273A8D97004DF238 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D8C33E1F29FBB1F70071B75A /* UIEventBreadcrumbsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C33E1E29FBB1F70071B75A /* UIEventBreadcrumbsController.swift */; };
+		D8C33E2629FBB8D90071B75A /* UIEventBreadcrumbTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C33E2529FBB8D90071B75A /* UIEventBreadcrumbTests.swift */; };
 		D8D7BB4A2750067900044146 /* UIAssert.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB492750067900044146 /* UIAssert.swift */; };
 		D8D7BB4C2750095800044146 /* UIViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB4B2750095800044146 /* UIViewExtension.swift */; };
 		D8D7BB4E27501B9400044146 /* SpanObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB4D27501B9400044146 /* SpanObserver.swift */; };
@@ -323,6 +325,8 @@
 		D88E666D28732B6700153425 /* iOS13-Swift-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "iOS13-Swift-Bridging-Header.h"; sourceTree = "<group>"; };
 		D890CD3B26CEE2FA001246CF /* NibViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NibViewController.xib; sourceTree = "<group>"; };
 		D890CD3E26CEE31B001246CF /* NibViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NibViewController.swift; sourceTree = "<group>"; };
+		D8C33E1E29FBB1F70071B75A /* UIEventBreadcrumbsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIEventBreadcrumbsController.swift; sourceTree = "<group>"; };
+		D8C33E2529FBB8D90071B75A /* UIEventBreadcrumbTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIEventBreadcrumbTests.swift; sourceTree = "<group>"; };
 		D8D7BB492750067900044146 /* UIAssert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIAssert.swift; sourceTree = "<group>"; };
 		D8D7BB4B2750095800044146 /* UIViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewExtension.swift; sourceTree = "<group>"; };
 		D8D7BB4D27501B9400044146 /* SpanObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpanObserver.swift; sourceTree = "<group>"; };
@@ -466,6 +470,7 @@
 			children = (
 				D83A30DF279F1F5C00372D0A /* fatal-error-binary-images-message2.json */,
 				7B64386A26A6C544000D0F65 /* LaunchUITests.swift */,
+				D8C33E2529FBB8D90071B75A /* UIEventBreadcrumbTests.swift */,
 				84A5D72C29D2708D00388BFA /* UITestHelpers.swift */,
 				84A5D72529D2705000388BFA /* ProfilingUITests.swift */,
 				84B527B728DD24BA00475E8D /* SentryDeviceTests.mm */,
@@ -538,6 +543,7 @@
 				D8F57BC427BBD787000D09D4 /* CoreDataViewController.swift */,
 				84FB811F283EEDB900F3A94A /* PerformanceViewController.swift */,
 				0AABE2E928855FF80057ED69 /* PermissionsViewController.swift */,
+				D8C33E1E29FBB1F70071B75A /* UIEventBreadcrumbsController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -880,6 +886,7 @@
 				D8F57BC527BBD787000D09D4 /* CoreDataViewController.swift in Sources */,
 				D8D7BB4E27501B9400044146 /* SpanObserver.swift in Sources */,
 				D8DBDA76274D591F00007380 /* TableViewController.swift in Sources */,
+				D8C33E1F29FBB1F70071B75A /* UIEventBreadcrumbsController.swift in Sources */,
 				8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */,
 				84FB812A284001B800F3A94A /* SentryBenchmarking.mm in Sources */,
 				D8F3D052274E572F00B56F8C /* DSNStorage.swift in Sources */,
@@ -903,6 +910,7 @@
 				84B527B928DD24BA00475E8D /* SentryDeviceTests.mm in Sources */,
 				7B64386B26A6C544000D0F65 /* LaunchUITests.swift in Sources */,
 				84B527BD28DD25E400475E8D /* SentryDevice.mm in Sources */,
+				D8C33E2629FBB8D90071B75A /* UIEventBreadcrumbTests.swift in Sources */,
 				D83A30C8279EFD6E00372D0A /* ClearTestState.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
