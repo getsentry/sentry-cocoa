@@ -3,13 +3,16 @@ on:
   push:
     branches:
       - main
-      - ci/testflight-macos-13 # remove before merging
     paths:
       - 'Sources/**'
       - 'Samples/iOS-Swift/**'
       - '.github/workflows/testflight.yml'
       - 'fastlane/**'
       - 'scripts/ci-select-xcode.sh'
+  
+  pull_request:
+    paths:
+      - '.github/workflows/testflight.yml'
 
 jobs:
   upload_to_testflight:
