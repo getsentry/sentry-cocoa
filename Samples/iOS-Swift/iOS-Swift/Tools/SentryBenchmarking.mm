@@ -11,6 +11,13 @@
 
 #define SENTRY_BENCHMARKING_THREAD_NAME "io.sentry.benchmark.sampler-thread"
 
+@implementation SentryBenchmarkStats
+- (SentryBenchmarkStats *)diff:(SentryBenchmarkStats *)other
+{
+    return nil; // TODO: implement
+}
+@end
+
 @implementation SentryCPUUsagePerCore
 
 - (instancetype)initWithUsages:(NSArray<NSNumber *> *)usages

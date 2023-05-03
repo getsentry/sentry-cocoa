@@ -36,6 +36,16 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSArray *enabledPhysicalCoresPerPerformanceLevel;
 @end
 
+@interface SentryBenchmarkStats : NSObject
+@property SentryCPUInfo *cpuInfo;
+@property SentryCPUTickInfo *cpuTickInfo;
+@property SentryPowerUsageStats *powerUsage;
+@property SentryCPUUsagePerCore *cpuUsage;
+
+/** self - other */
+- (SentryBenchmarkStats *)diff:(SentryBenchmarkStats *)other;
+@end
+
 @interface SentryBenchmarking : NSObject
 
 /**
@@ -52,6 +62,8 @@ NS_ASSUME_NONNULL_BEGIN
  * overhead of the profiler; or, if an error occurred, returns @c nil .
  */
 + (nullable NSString *)stopSampledBenchmark;
+
++ (SentryBenchmarkStats *)gatherBenchmarkStats;
 
 /**
  * @return The CPU usage per core, where the order of results corresponds to the core number as
