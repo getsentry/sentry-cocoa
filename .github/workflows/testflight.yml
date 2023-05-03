@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - ci/testflight-macos-13 # remove before merging
     paths:
       - 'Sources/**'
       - 'Samples/iOS-Swift/**'
