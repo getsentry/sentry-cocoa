@@ -4,8 +4,6 @@
 
 - Swift Error Names (#2960)
 
-Instead of only the Swift error name and error code, the SDK now sends the Swift error name for enum-based errors.
-
 ```Swift
 enum LoginError: Error {
     case wrongUser(id: String)
@@ -15,7 +13,13 @@ enum LoginError: Error {
 SentrySDK.capture(error: LoginError.wrongUser("12345678"))
 ```
 
-Capturing the above Swift error will now result in the following error message in Sentry: `wrongUser(id: "12345678") (Code: 1)` instead of only `(Code: 1)`.
+For the Swift error above Sentry displays:
+
+| sentry-cocoa SDK | Title | Description |
+| ----------- | ----------- | ----------- |
+| Since 8.7.0 | `LoginError` | `wrongUser(id: "12345678") (Code: 1)` |
+| Before 8.7.0 | `LoginError` | `Code: 1` |
+
 [Customized error descriptions](https://docs.sentry.io/platforms/apple/usage/#customizing-error-descriptions) have precedence over this feature.
 This change has no impact on grouping of the issues in Sentry.
 
