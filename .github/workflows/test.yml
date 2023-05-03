@@ -37,10 +37,10 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ./test-server/.build
-          key: test-server-${{ hashFiles('./test-server') }}
+          key: ubuntu-test-server-${{ hashFiles('./test-server') }}
           restore-keys: |
-            test-server-${{ hashFiles('./test-server') }}
-            test-server-
+            ubuntu-test-server-${{ hashFiles('./test-server') }}
+            ubuntu-test-server-
 
       - name: Build Test Server
         if: steps.cache_test_server.outputs.cache-hit != 'true'
