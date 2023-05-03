@@ -16,6 +16,7 @@ on:
       - 'scripts/tests-with-thread-sanitizer.sh'
       - 'scripts/ci-select-xcode.sh'
       - 'scripts/xcode-test.sh'
+      - '.codecov.yml'
 
       # run the workflow any time an Xcode scheme changes for any tested target
       - 'Sentry.xcodeproj/xcshareddata/xcschemes/Sentry.xcscheme'
@@ -104,9 +105,9 @@ jobs:
             timeout-minutes: 15
 
           # iOS 16
-          - runs-on: macos-12
+          - runs-on: macos-13
             platform: 'iOS'
-            xcode: '14.2'
+            xcode: '14.3'
             test-destination-os: 'latest'
             timeout-minutes: 15
 
@@ -125,9 +126,9 @@ jobs:
             timeout-minutes: 15
           
             # macOS 13
-          - runs-on: macos-12
+          - runs-on: macos-13
             platform: 'macOS'
-            xcode: '14.2'
+            xcode: '14.3'
             test-destination-os: 'latest'
             timeout-minutes: 15
 
@@ -157,9 +158,9 @@ jobs:
             timeout-minutes: 15
 
           # tvOS 16
-          - runs-on: macos-12
+          - runs-on: macos-13
             platform: 'tvOS'
-            xcode: '14.2'
+            xcode: '14.3'
             test-destination-os: 'latest'
             timeout-minutes: 15
 
@@ -168,6 +169,10 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: test-server
+
+      - name: Print hardware info
+        run: system_profiler SPHardwareDataType
+
       - name: Allow test-server to run
         run: chmod +x ./test-server-exec
       - run: ./test-server-exec &

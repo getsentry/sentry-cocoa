@@ -134,11 +134,12 @@
     const auto modelName = sentry_getDeviceModel();
     XCTAssertNotEqual(modelName.length, 0U);
 #if TARGET_OS_OSX || TARGET_OS_MACCATALYST
-#    if defined(TESTCI) || defined(TEST)
-    SENTRY_ASSERT_CONTAINS(modelName, @"VMware");
-#    else
-    SENTRY_ASSERT_CONTAINS(modelName, @"Mac");
-#    endif // defined(TESTCI)
+    NSString *VMware = @"VMware";
+    NSString *mac = @"Mac";
+    BOOL containsExpectedDevice =
+        [modelName containsString:VMware] || [modelName containsString:mac];
+    XCTAssertTrue(
+        containsExpectedDevice, @"Expected %@ to contain either %@ or %@", modelName, VMware, mac);
 #elif TARGET_OS_IOS
     // We must test this branch in iOS-SwiftUITests since it must run on device, which SentryTests
     // cannot.
