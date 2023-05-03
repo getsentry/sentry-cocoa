@@ -247,7 +247,7 @@ jobs:
   # that adds a significant overhead.
   thread-sanitizer:
     name: Unit iOS - Thread Sanitizer
-    runs-on: macos-12
+        runs-on: macos-12
     # When there are threading issues the tests sometimes keep hanging
     timeout-minutes: 20
 
@@ -281,7 +281,7 @@ jobs:
 
   ui-tests:
     name: UI Tests for ${{matrix.target}} on Simulators
-    runs-on: macos-12
+    runs-on: macos-13
     strategy: 
       matrix:
         target: ['ios_swift', 'ios_objc', 'tvos_swift']
