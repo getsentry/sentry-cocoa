@@ -533,13 +533,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
             || _tracesSampler != nil);
 }
 
-- (void)configureInitialScope:(void (^)(SentryScope *))callback {
-    self.initialScope = ^SentryScope *(SentryScope *scope) {
-        callback(scope);
-        return scope;
-    };
-}
-
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 - (BOOL)isValidProfilesSampleRate:(NSNumber *)profilesSampleRate
 {
