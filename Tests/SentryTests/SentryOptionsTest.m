@@ -1144,6 +1144,18 @@
     XCTAssertEqualObjects(@[], options.inAppExcludes);
 }
 
+- (void)testDefaultInitialScope {
+    SentryOptions *options = [self getValidOptions:@{}];
+    SentryScope *scope = [[SentryScope alloc] init];
+    XCTAssertIdentical(scope, options.initialScope(scope));
+}
+
+- (void)testInitialScope {
+    SentryScope *(^initialScope)(SentryScope *) = ^SentryScope * (SentryScope *scope) { return scope; };
+    SentryOptions *options = [self getValidOptions:@{ @"initialScope": initialScope }];
+    XCTAssertIdentical(initialScope, options.initialScope);
+}
+
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict
 {
     NSError *error = nil;

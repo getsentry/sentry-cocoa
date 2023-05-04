@@ -6,6 +6,7 @@
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentrySDK.h"
+#import "SentryScope.h"
 
 @interface
 SentryOptions ()
@@ -76,6 +77,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableCaptureFailedRequests = YES;
         self.environment = kSentryDefaultEnvironment;
         self.enableTimeToFullDisplay = NO;
+
+        self.initialScope = ^SentryScope *(SentryScope *scope) { return scope; };
 
         _enableTracing = NO;
         _enableTracingManual = NO;
@@ -335,6 +338,10 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     [self setBool:options[@"enableTimeToFullDisplay"]
             block:^(BOOL value) { self->_enableTimeToFullDisplay = value; }];
+
+    if ([self isBlock:options[@"initialScope"]]) {
+        self.initialScope = options[@"initialScope"];
+    }
 
 #if SENTRY_HAS_UIKIT
     [self setBool:options[@"enableUIViewControllerTracing"]
