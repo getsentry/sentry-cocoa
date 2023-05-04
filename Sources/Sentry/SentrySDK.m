@@ -139,9 +139,10 @@ static NSUInteger startInvocations;
     [newClient.fileManager moveAppStateToPreviousAppState];
     [newClient.fileManager moveBreadcrumbsToPreviousBreadcrumbs];
 
+    SentryScope *scope = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
     // The Hub needs to be initialized with a client so that closing a session
     // can happen.
-    [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:nil]];
+    [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:scope]];
     SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
     [SentrySDK installIntegrations];
 }

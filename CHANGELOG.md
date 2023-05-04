@@ -5,6 +5,7 @@
 ### Features
 
 - Support for stitching async Swift Concurrency frames (#2983)
+- Allow starting the SDK with an initial scope (#2982)
 - Swift Error Names (#2960)
 
 ```Swift

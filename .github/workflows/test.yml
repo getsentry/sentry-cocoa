@@ -26,6 +26,14 @@ on:
       - 'Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-Swift.xcscheme'
       - 'Samples/macOS-Swift/macOS-Swift.xcodeproj/xcshareddata/xcschemes/macOS-Swift.xcscheme'
       - 'Samples/iOS-ObjectiveC/iOS-ObjectiveC.xcodeproj/xcshareddata/xcschemes/iOS-ObjectiveC.xcscheme'
+    
+  schedule:
+    # Run tests every hour to get some data on how long they take and how often they fail.
+    # We hypothesize that tests take longer and fail more often when the US is online.
+    # The plan is to remove this after a week or so, once we have enough data.
+    # We didn't choose 0 to minimize collisions with other workflows.
+    # Run every hour at 17 minutes past the hour.
+    - cron:  '47 * * * *'
 
 jobs:
   build-test-server:
@@ -71,16 +79,13 @@ jobs:
   unit-tests:
     name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}} - OS ${{matrix.test-destination-os}}
     runs-on: ${{matrix.runs-on}}
-    timeout-minutes: ${{matrix.timeout-minutes}}
+    timeout-minutes: 20
     needs: build-test-server
 
     strategy:
       fail-fast: false
       matrix:
         # Can't run tests on watchOS because XCTest is not available
-        # We can't use Xcode 11.7 as we use XCTestObservation. When building with Xcode 11.7
-        # we get the error 'XCTest/XCTest.h' not found. Setting ENABLE_TESTING_SEARCH_PATH=YES
-        # doesn't work.
         include:
 
           # iOS 13.7
@@ -88,49 +93,42 @@ jobs:
             platform: 'iOS'
             xcode: '13.2.1'
             test-destination-os: '13.7'
-            timeout-minutes: 15
 
           # iOS 14
           - runs-on: macos-11
             platform: 'iOS'
             xcode: '13.2.1'
             test-destination-os: '14.5'
-            timeout-minutes: 15
 
           # iOS 15
           - runs-on: macos-12
             platform: 'iOS'
             xcode: '13.4.1'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
           # iOS 16
           - runs-on: macos-13
             platform: 'iOS'
             xcode: '14.3'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
           # macOS 11
           - runs-on: macos-11
             platform: 'macOS'
             xcode: '13.2.1'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
           # macOS 12
           - runs-on: macos-12
             platform: 'macOS'
             xcode: '13.4.1'
             test-destination-os: 'latest'
-            timeout-minutes: 15
           
             # macOS 13
           - runs-on: macos-13
             platform: 'macOS'
             xcode: '14.3'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
           # Catalyst. We only test the latest version, as
           # the risk something breaking on Catalyst and not
@@ -139,7 +137,6 @@ jobs:
             platform: 'Catalyst'
             xcode: '13.4.1'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
           # MetricKit doesn't exist for tvOS, so we can still run unit tests with
           # Xcode 12 for it.
@@ -148,21 +145,18 @@ jobs:
             platform: 'tvOS'
             xcode: '12.5.1'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
           # tvOS 15
           - runs-on: macos-12
             platform: 'tvOS'
             xcode: '13.4.1'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
           # tvOS 16
           - runs-on: macos-13
             platform: 'tvOS'
             xcode: '14.3'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v3
@@ -281,14 +275,14 @@ jobs:
 
   ui-tests:
     name: UI Tests for ${{matrix.target}} on Simulators
-    runs-on: macos-12
-    strategy: 
+    runs-on: macos-13
+    strategy:
       matrix:
         target: ['ios_swift', 'ios_objc', 'tvos_swift']
 
     steps:
       - uses: actions/checkout@v3
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh  "14.3"
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
