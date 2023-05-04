@@ -71,7 +71,7 @@ jobs:
   unit-tests:
     name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}} - OS ${{matrix.test-destination-os}}
     runs-on: ${{matrix.runs-on}}
-    timeout-minutes: ${{matrix.timeout-minutes}}
+    timeout-minutes: 20
     needs: build-test-server
 
     strategy:
@@ -88,49 +88,42 @@ jobs:
             platform: 'iOS'
             xcode: '13.2.1'
             test-destination-os: '13.7'
-            timeout-minutes: 15
 
           # iOS 14
           - runs-on: macos-11
             platform: 'iOS'
             xcode: '13.2.1'
             test-destination-os: '14.5'
-            timeout-minutes: 15
 
           # iOS 15
           - runs-on: macos-12
             platform: 'iOS'
             xcode: '13.4.1'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
           # iOS 16
           - runs-on: macos-13
             platform: 'iOS'
             xcode: '14.3'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
           # macOS 11
           - runs-on: macos-11
             platform: 'macOS'
             xcode: '13.2.1'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
           # macOS 12
           - runs-on: macos-12
             platform: 'macOS'
             xcode: '13.4.1'
             test-destination-os: 'latest'
-            timeout-minutes: 15
           
             # macOS 13
           - runs-on: macos-13
             platform: 'macOS'
             xcode: '14.3'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
           # Catalyst. We only test the latest version, as
           # the risk something breaking on Catalyst and not
@@ -139,7 +132,6 @@ jobs:
             platform: 'Catalyst'
             xcode: '13.4.1'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
           # MetricKit doesn't exist for tvOS, so we can still run unit tests with
           # Xcode 12 for it.
@@ -148,21 +140,18 @@ jobs:
             platform: 'tvOS'
             xcode: '12.5.1'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
           # tvOS 15
           - runs-on: macos-12
             platform: 'tvOS'
             xcode: '13.4.1'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
           # tvOS 16
           - runs-on: macos-13
             platform: 'tvOS'
             xcode: '14.3'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v3
