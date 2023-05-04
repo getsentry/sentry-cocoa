@@ -192,17 +192,17 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableAutoPerformanceTracing;
 
 /**
- * A block that creates the initial scope to use when starting the SDK.
+ * A block that creates the initial scope when starting the SDK.
  * @note Return @c nil to allow the SDK to lazily create its own scope.
  * @note The default simply returns @c nil .
  */
-@property (nonatomic) SentryScope * _Nullable (^initialScopeFactory)(void);
+@property (nonatomic) SentryScope * _Nullable (^initialScope)(void);
 
 /**
- * Provides an initial scope to use when starting the SDK.
- * @param callback A block that configures a fresh scope as desired.
+ * Defines the initial scope used when starting the SDK.
+ * @param callback A block that receives a fresh scope and configures it.
  */
-- (void)initialScope:(void (^)(SentryScope *scope))callback;
+- (void)configureInitialScope:(void (^)(SentryScope *scope))callback;
 
 #if SENTRY_HAS_UIKIT
 /**

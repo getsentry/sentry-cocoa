@@ -78,7 +78,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.environment = kSentryDefaultEnvironment;
         self.enableTimeToFullDisplay = NO;
 
-        self.initialScopeFactory = ^SentryScope *{ return nil; };
+        self.initialScope = ^SentryScope *{ return nil; };
 
         _enableTracing = NO;
         _enableTracingManual = NO;
@@ -339,8 +339,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self setBool:options[@"enableTimeToFullDisplay"]
             block:^(BOOL value) { self->_enableTimeToFullDisplay = value; }];
 
-    if ([self isBlock:options[@"initialScopeFactory"]]) {
-        self.initialScopeFactory = options[@"initialScopeFactory"];
+    if ([self isBlock:options[@"initialScope"]]) {
+        self.initialScope = options[@"initialScope"];
     }
 
 #if SENTRY_HAS_UIKIT
@@ -533,14 +533,14 @@ NSString *const kSentryDefaultEnvironment = @"production";
             || _tracesSampler != nil);
 }
 
-- (void)initialScope:(void (^)(SentryScope *))callback {
+- (void)configureInitialScope:(void (^)(SentryScope *))callback {
     __weak SentryOptions *weakSelf = self;
-    self.initialScopeFactory = ^SentryScope * {
-        SentryScope *initialScope = weakSelf
+    self.initialScope = ^SentryScope * {
+        SentryScope *scope = weakSelf
             ? [[SentryScope alloc] initWithMaxBreadcrumbs:weakSelf.maxBreadcrumbs]
             : [[SentryScope alloc] init];
-        callback(initialScope);
-        return initialScope;
+        callback(scope);
+        return scope;
     };
 }
 
