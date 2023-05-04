@@ -78,7 +78,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.environment = kSentryDefaultEnvironment;
         self.enableTimeToFullDisplay = NO;
 
-        self.initialScope = ^SentryScope *{ return nil; };
+        self.initialScope = ^SentryScope *(SentryScope *scope) { return scope; };
 
         _enableTracing = NO;
         _enableTracingManual = NO;
@@ -534,11 +534,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 }
 
 - (void)configureInitialScope:(void (^)(SentryScope *))callback {
-    __weak SentryOptions *weakSelf = self;
-    self.initialScope = ^SentryScope * {
-        SentryScope *scope = weakSelf
-            ? [[SentryScope alloc] initWithMaxBreadcrumbs:weakSelf.maxBreadcrumbs]
-            : [[SentryScope alloc] init];
+    self.initialScope = ^SentryScope *(SentryScope *scope) {
         callback(scope);
         return scope;
     };
