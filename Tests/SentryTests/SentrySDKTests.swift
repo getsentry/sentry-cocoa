@@ -165,7 +165,11 @@ class SentrySDKTests: XCTestCase {
         scope.setUser(User(userId: "me"))
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
-            options.initialScope = { _ in scope }
+            options.maxBreadcrumbs = 123
+            options.initialScope = { suggested in
+                XCTAssertEqual(123, Dynamic(suggested).maxBreadcrumbs)
+                return scope
+            }
         }
         XCTAssertEqual("me", SentrySDK.currentHub().scope.userObject?.userId)
         XCTAssertIdentical(scope, SentrySDK.currentHub().scope)

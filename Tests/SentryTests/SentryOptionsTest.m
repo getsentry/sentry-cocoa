@@ -1156,19 +1156,6 @@
     XCTAssertIdentical(initialScope, options.initialScope);
 }
 
-- (void)testConfigureInitialScope {
-    SentryOptions *options = [self getValidOptions:@{}];
-    options.initialScope = ^(SentryScope *scope) {
-        [scope setUser:[[SentryUser alloc] initWithUserId:@"me"]];
-        return scope;
-    };
-
-    SentryScope *scope = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:123]);
-
-    XCTAssertEqual(@"me", scope.userObject.userId);
-    XCTAssertEqual(123, [(id)scope maxBreadcrumbs]);
-}
-
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict
 {
     NSError *error = nil;
