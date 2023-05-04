@@ -50,21 +50,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 NotificationCenter.default.post(name: .init("io.sentry.newbreadcrumb"), object: breadcrumb)
                 return breadcrumb
             }
-        }
+            
+            options.initialScope = { scope in
+                scope.setEnvironment("debug")
+                scope.setTag(value: "swift", key: "language")
+               
+                let user = User(userId: "1")
+                user.email = "tony@example.com"
+                scope.setUser(user)
 
-        SentrySDK.configureScope { (scope) in
-            scope.setEnvironment("debug")
-            scope.setTag(value: "swift", key: "language")
-           
-            let user = User(userId: "1")
-            user.email = "tony@example.com"
-            scope.setUser(user)
-
-            if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
-                scope.addAttachment(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
-            }
-            if let data = "hello".data(using: .utf8) {
-                scope.addAttachment(Attachment(data: data, filename: "log.txt"))
+                if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
+                    scope.addAttachment(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
+                }
+                if let data = "hello".data(using: .utf8) {
+                    scope.addAttachment(Attachment(data: data, filename: "log.txt"))
+                }
+                return scope
             }
         }
     }
