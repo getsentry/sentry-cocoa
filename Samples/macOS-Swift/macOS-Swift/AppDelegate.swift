@@ -13,15 +13,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             if ProcessInfo.processInfo.arguments.contains("--io.sentry.profiling.enable") {
                 options.profilesSampleRate = 1
             }
-        }
-        
-        SentrySDK.configureScope { scope in
-            if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
-                scope.addAttachment(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
-            }
             
-            if let data = "hello".data(using: .utf8) {
-                scope.addAttachment(Attachment(data: data, filename: "log.txt"))
+            options.initialScope = { scope in
+                if let path = Bundle.main.path(forResource: "Tongariro", ofType: "jpg") {
+                    scope.addAttachment(Attachment(path: path, filename: "Tongariro.jpg", contentType: "image/jpeg"))
+                }
+                
+                if let data = "hello".data(using: .utf8) {
+                    scope.addAttachment(Attachment(data: data, filename: "log.txt"))
+                }
+                
+                return scope
             }
         }
     }

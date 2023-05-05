@@ -197,7 +197,7 @@ NS_SWIFT_NAME(Options)
  * configure and return this, or create your own scope instead.
  * @note The default simply returns the passed in scope.
  */
-@property (nonatomic) SentryScope *(^initialScope)(SentryScope *);
+@property (nonatomic) SentryScope * (^initialScope)(SentryScope *);
 
 #if SENTRY_HAS_UIKIT
 /**
