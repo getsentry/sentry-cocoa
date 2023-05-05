@@ -47,7 +47,8 @@
     XCTAssertEqual(files.count, 2);
 }
 
-- (void)test_cleanBundleName {
+- (void)test_cleanBundleName
+{
     SentryCrash *sentryCrash = [[SentryCrash alloc] init];
 
     NSString * clearedBundleName = [sentryCrash clearBundleName:@"Sentry/Test"];
