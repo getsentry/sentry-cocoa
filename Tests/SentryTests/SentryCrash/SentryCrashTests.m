@@ -8,7 +8,7 @@
 
 @interface SentryCrash (private)
 
-- (NSString *) clearBundleName:(NSString *)filename;
+- (NSString *)clearBundleName:(NSString *)filename;
 
 - (NSArray *)getAttachmentPaths:(int64_t)reportID;
 
@@ -51,7 +51,7 @@
 {
     SentryCrash *sentryCrash = [[SentryCrash alloc] init];
 
-    NSString * clearedBundleName = [sentryCrash clearBundleName:@"Sentry/Test"];
+    NSString *clearedBundleName = [sentryCrash clearBundleName:@"Sentry/Test"];
 
     XCTAssertEqualObjects(clearedBundleName, @"Sentry-Test");
 }

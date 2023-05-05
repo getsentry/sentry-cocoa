@@ -534,18 +534,20 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
     sentrycrash_notifyAppTerminate();
 }
 
-- (NSString *) clearBundleName:(NSString *)filename
+- (NSString *)clearBundleName:(NSString *)filename
 {
     return [filename stringByReplacingOccurrencesOfString:@"/" withString:@"-"];
 }
 
-- (NSString *) getBundleName
+- (NSString *)getBundleName
 {
-    NSString *bundleName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleName"] ?: @"Unknown";
+    NSString *bundleName =
+        [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleName"] ?: @"Unknown";
     return [self clearBundleName:bundleName];
 }
 
-- (NSString *) getBasePath {
+- (NSString *)getBasePath
+{
     NSArray *directories
         = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     if ([directories count] == 0) {
@@ -560,7 +562,6 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
     NSString *pathEnd = [@"SentryCrash" stringByAppendingPathComponent:[self getBundleName]];
     return [cachePath stringByAppendingPathComponent:pathEnd];
 }
-
 
 @end
 
