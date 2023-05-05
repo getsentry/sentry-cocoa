@@ -133,9 +133,9 @@ jobs:
           # Catalyst. We only test the latest version, as
           # the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
-          - runs-on: macos-12
+          - runs-on: macos-13
             platform: 'Catalyst'
-            xcode: '13.4.1'
+            xcode: '14.3'
             test-destination-os: 'latest'
 
           # MetricKit doesn't exist for tvOS, so we can still run unit tests with
