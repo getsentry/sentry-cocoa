@@ -73,9 +73,10 @@ getBundleName(void)
 #if TEST
         bundleName = @"Sentry/Test";
 #else
-        bundleName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleName"] ?: @"Unknown";
+        bundleName =
+            [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleName"] ?: @"Unknown";
 #endif
-        //bundleName is only used for file name, therefore '/' is not allowed.
+        // bundleName is only used for file name, therefore '/' is not allowed.
         bundleName = [bundleName stringByReplacingOccurrencesOfString:@"/" withString:@"-"];
     }
 
