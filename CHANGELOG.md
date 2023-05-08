@@ -29,6 +29,7 @@ This change has no impact on grouping of the issues in Sentry.
 ### Fixes 
 
 - Propagate span when copying scope (#2952)
+- Remove "/" from crash report file name (#3005)
 
 ## 8.6.0
 
