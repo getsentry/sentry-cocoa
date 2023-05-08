@@ -536,7 +536,7 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
 
 - (NSString *)clearBundleName:(NSString *)filename
 {
-    //The bundle name is used as file name, therefore "/" is not allowed.
+    // The bundle name is used as file name, therefore "/" is not allowed.
     return [filename stringByReplacingOccurrencesOfString:@"/" withString:@"-"];
 }
 
