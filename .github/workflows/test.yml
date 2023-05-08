@@ -194,7 +194,16 @@ jobs:
 
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build tests
+        id: build_tests
         run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME ci build-for-testing
+
+      - name: Archiving DerivedData Logs
+        uses: actions/upload-artifact@v3
+        if: steps.build_tests.outcome == 'failure'
+        with:
+          name: derived-data-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
       
       - name: Run tests
         # We call a script with the platform so the destination
@@ -206,14 +215,6 @@ jobs:
       - name: Slowest Tests
         if: ${{ always() }}
         run: ./scripts/xcode-slowest-tests.sh
-
-      - name: Archiving DerivedData Logs
-        uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: derived-data-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
-          path: |
-            /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v3
