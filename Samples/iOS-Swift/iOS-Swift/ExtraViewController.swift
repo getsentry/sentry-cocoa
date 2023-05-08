@@ -220,16 +220,19 @@ class ExtraViewController: UIViewController {
     }
 
     @IBAction func decodeImageBg(_ sender: Any) {
-        let data = try! Data(contentsOf: Bundle.main.url(forResource: "Tongariro", withExtension: "jpg")!)
-
         let start = SentryBenchmarking.gatherBenchmarkStats()
-        let image = UIImage(data: data)
-        let end = SentryBenchmarking.gatherBenchmarkStats()
-        let diff = end.diff(start)
+        DispatchQueue.global(qos: .background).async {
+            let data = try! Data(contentsOf: Bundle.main.url(forResource: "Tongariro", withExtension: "jpg")!)
+            let image = UIImage(data: data)
+            let end = SentryBenchmarking.gatherBenchmarkStats()
+            let diff = end.diff(start)
 
-        let alert = UIAlertController(title: "Benchmark results", message: diff.description, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: false)
+            let alert = UIAlertController(title: "Benchmark results", message: diff.description, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            DispatchQueue.main.async {
+                self.present(alert, animated: false)
+            }
+        }
     }
 
     private func calcPi() -> Double {

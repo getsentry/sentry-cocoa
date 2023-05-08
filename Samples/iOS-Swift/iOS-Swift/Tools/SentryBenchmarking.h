@@ -7,12 +7,14 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryCPUUsagePerCore : NSObject
 - (instancetype)initWithUsages:(NSArray<NSNumber *> *)usages;
 @property NSArray<NSNumber *> *usages;
+- (SentryCPUUsagePerCore *)diff:(SentryCPUUsagePerCore *)other;
 @end
 
 @interface SentryPowerUsageStats : NSObject
 @property struct task_power_info_v2 info;
 - (uint64_t)totalCPU;
 - (uint64_t)totalGPU;
+- (SentryPowerUsageStats *)diff:(SentryPowerUsageStats *)other;
 @end
 
 @interface SentryCPUTickInfo : NSObject
@@ -20,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property uint64_t user;
 @property uint64_t idle;
 - (uint64_t)total;
+- (SentryCPUTickInfo *)diff:(SentryCPUTickInfo *)other;
 @end
 
 @interface SentryCPUInfo : NSObject
@@ -34,6 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSArray *enabledLogicalCoresPerPerformanceLevel;
 @property NSArray *availablePhysicalCoresPerPerformanceLevel;
 @property NSArray *enabledPhysicalCoresPerPerformanceLevel;
+
+- (SentryCPUInfo *)diff:(SentryCPUInfo *)other;
 @end
 
 @interface SentryBenchmarkStats : NSObject

@@ -12,10 +12,25 @@
 #define SENTRY_BENCHMARKING_THREAD_NAME "io.sentry.benchmark.sampler-thread"
 
 @implementation SentryBenchmarkStats
+
 - (SentryBenchmarkStats *)diff:(SentryBenchmarkStats *)other
 {
-    return nil; // TODO: implement
+    const auto diff = [[SentryBenchmarkStats alloc] init];
+    diff.cpuInfo = [self.cpuInfo diff:other.cpuInfo];
+    diff.cpuTickInfo = [self.cpuTickInfo diff:other.cpuTickInfo];
+    diff.cpuUsage = [self.cpuUsage diff:other.cpuUsage];
+    diff.powerUsage = [self.powerUsage diff:other.powerUsage];
+    return diff;
 }
+
+- (NSString *)debugDescription
+{
+    return [NSString
+        stringWithFormat:@"CPU usage:\n%@\nPower usage:\n%@\nCPU ticks:\n%@\nCPU info:\n%@\n",
+        self.cpuUsage.debugDescription, self.powerUsage.debugDescription,
+        self.cpuTickInfo.debugDescription, self.cpuInfo.debugDescription];
+}
+
 @end
 
 @implementation SentryCPUUsagePerCore
@@ -37,6 +52,17 @@
         BOOL *_Nonnull stop) { [result appendFormat:@"Core %lu: %.1f%%; ", idx, obj.floatValue]; }];
     return [result stringByReplacingCharactersInRange:NSMakeRange(result.length - 2, 2)
                                            withString:@""];
+}
+
+- (SentryCPUUsagePerCore *)diff:(SentryCPUUsagePerCore *)other
+{
+    const auto diff = [NSMutableArray<NSNumber *> array];
+    [self.usages
+        enumerateObjectsUsingBlock:^(NSNumber *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+            const auto otherUsage = other.usages[idx];
+            [diff addObject:@(obj.doubleValue - otherUsage.doubleValue)];
+        }];
+    return [[SentryCPUUsagePerCore alloc] initWithUsages:diff];
 }
 
 @end
@@ -62,6 +88,17 @@
     return _info.gpu_energy.task_gpu_utilisation;
 }
 
+- (NSString *)debugDescription
+{
+    return [NSString
+        stringWithFormat:@"totalCPU: %llu; totalGPU: %llu", [self totalCPU], [self totalGPU]];
+}
+
+- (SentryPowerUsageStats *)diff:(SentryPowerUsageStats *)other
+{
+    return [SentryPowerUsageStats alloc] initWithInfo: { }
+}
+
 @end
 
 @implementation SentryCPUTickInfo
@@ -80,6 +117,11 @@
 - (uint64_t)total
 {
     return _system + _user;
+}
+
+- (NSString *)debugDescription
+{
+    return [NSString stringWithFormat:@"CPU ticks: %llu", [self total]];
 }
 
 @end
