@@ -439,10 +439,6 @@ private extension SentryProfilerSwiftTests {
             try assertMetricValue(measurements: measurements, key: key, numberOfReadings: expectedUsageReadings, expectedValue: expectedUsage, transaction: transaction)
         }
 
-        let test: UInt? = nil
-        let crash = test!
-        print(crash)
-
         try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, numberOfReadings: expectedUsageReadings, expectedValue: fixture.mockMemoryFootprint, transaction: transaction)
 
 #if !os(macOS)
