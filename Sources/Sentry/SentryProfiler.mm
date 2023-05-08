@@ -107,8 +107,11 @@ processBacktrace(const Backtrace &backtrace,
     }
     if (queueAddress != nil && queueMetadata[queueAddress] == nil
         && backtrace.queueMetadata.label != nullptr) {
-        queueMetadata[queueAddress] =
-            @ { @"label" : [NSString stringWithUTF8String:backtrace.queueMetadata.label->c_str()] };
+        const auto labelCString = backtrace.queueMetadata.label->c_str();
+        if (labelCString != nullptr) {
+            queueMetadata[queueAddress] =
+                @ { @"label" : [NSString stringWithUTF8String:labelCString] };
+        }
     }
 #    if defined(DEBUG)
     const auto symbols
