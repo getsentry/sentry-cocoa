@@ -209,14 +209,26 @@ class ExtraViewController: UIViewController {
     @IBAction func decodeImageMain(_ sender: Any) {
         let data = try! Data(contentsOf: Bundle.main.url(forResource: "Tongariro", withExtension: "jpg")!)
 
-        let start = SentryBenchmarking.gatherBenchmarkStats()
+        let mainStartStats = SentryBenchmarking.gatherBenchmarkStats()
         let image = UIImage(data: data)
-        let end = SentryBenchmarking.gatherBenchmarkStats()
-        let diff = end.diff(start)
+        let mainEndStats = SentryBenchmarking.gatherBenchmarkStats()
+        let mainStats = mainEndStats.diff(mainStartStats)
+        
+        DispatchQueue.global(qos: .background).async {
+            let data = try! Data(contentsOf: Bundle.main.url(forResource: "Tongariro", withExtension: "jpg")!)
+            let bgStartStats = SentryBenchmarking.gatherBenchmarkStats()
+            let image = UIImage(data: data)
+            let bgEndStats = SentryBenchmarking.gatherBenchmarkStats()
+            let bgStats = bgEndStats.diff(bgStartStats)
 
-        let alert = UIAlertController(title: "Benchmark results", message: diff.description, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: false)
+            let diff = mainStats.diff(bgStats)
+
+            let alert = UIAlertController(title: "Benchmark results (main - bg)", message: String(reflecting: diff), preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            DispatchQueue.main.async {
+                self.present(alert, animated: false)
+            }
+        }
     }
 
     @IBAction func decodeImageBg(_ sender: Any) {
@@ -227,7 +239,7 @@ class ExtraViewController: UIViewController {
             let end = SentryBenchmarking.gatherBenchmarkStats()
             let diff = end.diff(start)
 
-            let alert = UIAlertController(title: "Benchmark results", message: diff.description, preferredStyle: .alert)
+            let alert = UIAlertController(title: "Benchmark results", message: String(reflecting: diff), preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             DispatchQueue.main.async {
                 self.present(alert, animated: false)

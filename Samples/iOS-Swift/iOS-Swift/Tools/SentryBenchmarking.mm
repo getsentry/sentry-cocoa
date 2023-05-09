@@ -11,24 +11,60 @@
 
 #define SENTRY_BENCHMARKING_THREAD_NAME "io.sentry.benchmark.sampler-thread"
 
-@implementation SentryBenchmarkStats
-
-- (SentryBenchmarkStats *)diff:(SentryBenchmarkStats *)other
-{
-    const auto diff = [[SentryBenchmarkStats alloc] init];
-    diff.cpuInfo = [self.cpuInfo diff:other.cpuInfo];
-    diff.cpuTickInfo = [self.cpuTickInfo diff:other.cpuTickInfo];
-    diff.cpuUsage = [self.cpuUsage diff:other.cpuUsage];
-    diff.powerUsage = [self.powerUsage diff:other.powerUsage];
-    return diff;
-}
+@implementation SentryBenchmarkStatsDiff
 
 - (NSString *)debugDescription
 {
-    return [NSString
-        stringWithFormat:@"CPU usage:\n%@\nPower usage:\n%@\nCPU ticks:\n%@\nCPU info:\n%@\n",
-        self.cpuUsage.debugDescription, self.powerUsage.debugDescription,
-        self.cpuTickInfo.debugDescription, self.cpuInfo.debugDescription];
+    return [NSString stringWithFormat:@"CPU ticks:\nsystem: %lld; user: %lld; idle: %lld\nPower "
+                                      @"usage:\ncpu: %lld; gpu: %lld\ncontext switches: %lld",
+                     _cpuTicksSystem, _cpuTicksUser, _cpuTicksIdle, _totalCPUPower, _totalGPUPower,
+                     _contextSwitches];
+}
+
+- (SentryBenchmarkStatsDiff *)diff:(SentryBenchmarkStatsDiff *)other
+{
+    const auto diff = [[SentryBenchmarkStatsDiff alloc] init];
+    diff.cpuTicksSystem = self.cpuTicksSystem - other.cpuTicksSystem;
+    diff.cpuTicksUser = self.cpuTicksUser - other.cpuTicksUser;
+    diff.cpuTicksIdle = self.cpuTicksIdle - other.cpuTicksIdle;
+    diff.totalCPUPower = self.totalCPUPower - other.totalCPUPower;
+    diff.totalGPUPower = self.totalGPUPower - other.totalGPUPower;
+    diff.contextSwitches = self.contextSwitches - other.contextSwitches;
+    return diff;
+}
+
+@end
+
+@implementation SentryBenchmarkStats
+
+- (instancetype)initWithCPUTickInfo:(SentryCPUTickInfo *)cpuTickInfo
+                         powerUsage:(SentryPowerUsageStats *)powerUsage
+                    contextSwitches:(uint64_t)contextSwitches
+{
+    if (!(self = [super init])) {
+        return nil;
+    }
+
+    _cpuTickInfo = cpuTickInfo;
+    _powerUsage = powerUsage;
+    _contextSwitches = contextSwitches;
+
+    return self;
+}
+
+- (SentryBenchmarkStatsDiff *)diff:(SentryBenchmarkStats *)other
+{
+    const auto diff = [[SentryBenchmarkStatsDiff alloc] init];
+    diff.cpuTicksSystem = (int64_t)self.cpuTickInfo.system - (int64_t)other.cpuTickInfo.system;
+    diff.cpuTicksUser = (int64_t)self.cpuTickInfo.user - (int64_t)other.cpuTickInfo.user;
+    diff.cpuTicksIdle = (int64_t)self.cpuTickInfo.idle - (int64_t)other.cpuTickInfo.idle;
+
+    diff.totalCPUPower = (int64_t)self.powerUsage.totalCPU - (int64_t)other.powerUsage.totalCPU;
+    diff.totalGPUPower = (int64_t)self.powerUsage.totalGPU - (int64_t)other.powerUsage.totalGPU;
+
+    diff.contextSwitches = (int64_t)self.contextSwitches - (int64_t)other.contextSwitches;
+
+    return diff;
 }
 
 @end
@@ -52,17 +88,6 @@
         BOOL *_Nonnull stop) { [result appendFormat:@"Core %lu: %.1f%%; ", idx, obj.floatValue]; }];
     return [result stringByReplacingCharactersInRange:NSMakeRange(result.length - 2, 2)
                                            withString:@""];
-}
-
-- (SentryCPUUsagePerCore *)diff:(SentryCPUUsagePerCore *)other
-{
-    const auto diff = [NSMutableArray<NSNumber *> array];
-    [self.usages
-        enumerateObjectsUsingBlock:^(NSNumber *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-            const auto otherUsage = other.usages[idx];
-            [diff addObject:@(obj.doubleValue - otherUsage.doubleValue)];
-        }];
-    return [[SentryCPUUsagePerCore alloc] initWithUsages:diff];
 }
 
 @end
@@ -94,11 +119,11 @@
         stringWithFormat:@"totalCPU: %llu; totalGPU: %llu", [self totalCPU], [self totalGPU]];
 }
 
-- (SentryPowerUsageStats *)diff:(SentryPowerUsageStats *)other
-{
-    return [SentryPowerUsageStats alloc] initWithInfo: { }
-}
+@end
 
+@interface
+SentryCPUTickInfo ()
+@property host_cpu_load_info_data_t data;
 @end
 
 @implementation SentryCPUTickInfo
@@ -107,6 +132,7 @@
 {
     self = [super init];
     if (self) {
+        _data = data;
         _system = data.cpu_ticks[CPU_STATE_SYSTEM];
         _user = data.cpu_ticks[CPU_STATE_USER] + data.cpu_ticks[CPU_STATE_NICE];
         _idle = data.cpu_ticks[CPU_STATE_IDLE];
@@ -143,6 +169,16 @@
                                            withString:@""];
 }
 
+@end
+
+@interface SentryBenchmarkSample : NSObject
+
+@property NSDictionary<NSString *, NSArray<NSNumber *> *> *cpuUsagePerThread;
+@property SentryCPUUsagePerCore *cpuUsagePerCore;
+
+@end
+
+@implementation SentryBenchmarkSample
 @end
 
 namespace {
@@ -199,31 +235,30 @@ cpuInfoByThread(void)
 const auto frequencyHz = 10;
 const auto intervalNs = 1e9 / frequencyHz;
 
-NSMutableArray<NSDictionary<NSString *, NSArray<NSNumber *> *> *> *samples =
-    [NSMutableArray<NSDictionary<NSString *, NSArray<NSNumber *> *> *> array];
+const auto samples = [NSMutableArray<SentryBenchmarkSample *> array];
 
 dispatch_source_t source;
 dispatch_queue_t queue;
-}
 
-SentryPowerUsageStats *_startPowerUsage;
-SentryCPUTickInfo *_startCPUTicks;
-SentryCPUUsagePerCore *_startCPUUsagePerCore;
+SentryBenchmarkStats *startStats;
+}
 
 @implementation SentryBenchmarking
 
-+ (void)startBenchmark
++ (SentryBenchmarkStats *)gatherBenchmarkStats
 {
-    _startCPUTicks = [self cpuTicks:nil];
-    _startPowerUsage = [self powerUsage:nil];
-    _startCPUUsagePerCore = [self cpuUsagePerCore:nil];
+    return [[SentryBenchmarkStats alloc]
+        initWithCPUTickInfo:[self cpuTicks:nil]
+                 powerUsage:[self powerUsage:nil]
+            contextSwitches:[[self numContextSwitches:nil] longLongValue]];
 }
 
-+ (void)stopBenchmark
++ (void)recordSample
 {
-    const auto endCPUTicks = [self cpuTicks:nil];
-    const auto endPowerUsage = [self powerUsage:nil];
-    const auto endCPUUsagePerCore = [self cpuUsagePerCore:nil];
+    const auto sample = [[SentryBenchmarkSample alloc] init];
+    sample.cpuUsagePerThread = cpuInfoByThread();
+    sample.cpuUsagePerCore = [self cpuUsagePerCore:nil];
+    [samples addObject:sample];
 }
 
 + (void)startSampledBenchmark
@@ -233,7 +268,7 @@ SentryCPUUsagePerCore *_startCPUUsagePerCore;
     const auto leewayNs = intervalNs / 2;
     queue = dispatch_queue_create("io.sentry.benchmark.gcd-scheduler", attr);
     source = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
-    dispatch_source_set_event_handler(source, ^{ [samples addObject:cpuInfoByThread()]; });
+    dispatch_source_set_event_handler(source, ^{ [self recordSample]; });
     dispatch_source_set_timer(
         source, dispatch_time(DISPATCH_TIME_NOW, intervalNs), intervalNs, leewayNs);
     dispatch_resume(source);
@@ -243,7 +278,7 @@ SentryCPUUsagePerCore *_startCPUUsagePerCore;
 {
     dispatch_cancel(source);
 
-    [samples addObject:cpuInfoByThread()];
+    [self recordSample];
 
     if (samples.count < 2) {
         printf("[Sentry Benchmark] not enough samples were gathered to compute CPU usage.\n");
@@ -256,17 +291,19 @@ SentryCPUUsagePerCore *_startCPUUsagePerCore;
         const auto before = samples[i];
         const auto after = samples[i + 1];
 
-        const auto afterKeys = [NSSet<NSString *> setWithArray:after.allKeys];
-        const auto persistedThreads = [NSMutableSet<NSString *> setWithArray:before.allKeys];
+        const auto afterKeys = [NSSet<NSString *> setWithArray:after.cpuUsagePerThread.allKeys];
+        const auto persistedThreads =
+            [NSMutableSet<NSString *> setWithArray:before.cpuUsagePerThread.allKeys];
         [persistedThreads intersectSet:afterKeys];
-        const auto destroyedThreads = [NSMutableSet<NSString *> setWithArray:before.allKeys];
+        const auto destroyedThreads =
+            [NSMutableSet<NSString *> setWithArray:before.cpuUsagePerThread.allKeys];
         [destroyedThreads minusSet:persistedThreads];
 
         for (NSString *key : persistedThreads) {
-            const auto lastSystemTime = before[key][0].integerValue;
-            const auto thisSystemTime = after[key][0].integerValue;
-            const auto lastUserTime = before[key][1].integerValue;
-            const auto thisUserTime = after[key][1].integerValue;
+            const auto lastSystemTime = before.cpuUsagePerThread[key][0].integerValue;
+            const auto thisSystemTime = after.cpuUsagePerThread[key][0].integerValue;
+            const auto lastUserTime = before.cpuUsagePerThread[key][1].integerValue;
+            const auto thisUserTime = after.cpuUsagePerThread[key][1].integerValue;
             if (thisSystemTime + thisUserTime < lastSystemTime + lastUserTime) {
                 // thread id was reassigned to a new thread since last sample
                 [destroyedThreads addObject:key];
@@ -373,7 +410,6 @@ SentryCPUUsagePerCore *_startCPUUsagePerCore;
     }
 
     return [[SentryCPUUsagePerCore alloc] initWithUsages:result];
-    ;
 }
 
 + (nullable NSNumber *)numContextSwitches:(NSError **)error
@@ -391,7 +427,7 @@ SentryCPUUsagePerCore *_startCPUUsagePerCore;
                                         stringWithFormat:@"task_info reported an error: %d", status]
                                 }];
         }
-        return 0;
+        return nil;
     }
     return @(info.csw);
 }

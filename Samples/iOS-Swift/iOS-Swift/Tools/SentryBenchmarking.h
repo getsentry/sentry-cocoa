@@ -7,14 +7,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryCPUUsagePerCore : NSObject
 - (instancetype)initWithUsages:(NSArray<NSNumber *> *)usages;
 @property NSArray<NSNumber *> *usages;
-- (SentryCPUUsagePerCore *)diff:(SentryCPUUsagePerCore *)other;
 @end
 
 @interface SentryPowerUsageStats : NSObject
 @property struct task_power_info_v2 info;
 - (uint64_t)totalCPU;
 - (uint64_t)totalGPU;
-- (SentryPowerUsageStats *)diff:(SentryPowerUsageStats *)other;
 @end
 
 @interface SentryCPUTickInfo : NSObject
@@ -22,7 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property uint64_t user;
 @property uint64_t idle;
 - (uint64_t)total;
-- (SentryCPUTickInfo *)diff:(SentryCPUTickInfo *)other;
 @end
 
 @interface SentryCPUInfo : NSObject
@@ -37,18 +34,33 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSArray *enabledLogicalCoresPerPerformanceLevel;
 @property NSArray *availablePhysicalCoresPerPerformanceLevel;
 @property NSArray *enabledPhysicalCoresPerPerformanceLevel;
+@end
 
-- (SentryCPUInfo *)diff:(SentryCPUInfo *)other;
+@interface SentryBenchmarkStatsDiff : NSObject
+@property int64_t cpuTicksSystem;
+@property int64_t cpuTicksUser;
+@property int64_t cpuTicksIdle;
+
+@property int64_t totalCPUPower;
+@property int64_t totalGPUPower;
+
+@property int64_t contextSwitches;
+
+/** self - other */
+- (SentryBenchmarkStatsDiff *)diff:(SentryBenchmarkStatsDiff *)other;
 @end
 
 @interface SentryBenchmarkStats : NSObject
-@property SentryCPUInfo *cpuInfo;
 @property SentryCPUTickInfo *cpuTickInfo;
 @property SentryPowerUsageStats *powerUsage;
-@property SentryCPUUsagePerCore *cpuUsage;
+@property uint64_t contextSwitches;
+
+- (instancetype)initWithCPUTickInfo:(SentryCPUTickInfo *)cpuTickInfo
+                         powerUsage:(SentryPowerUsageStats *)powerUsage
+                    contextSwitches:(uint64_t)contextSwitches;
 
 /** self - other */
-- (SentryBenchmarkStats *)diff:(SentryBenchmarkStats *)other;
+- (SentryBenchmarkStatsDiff *)diff:(SentryBenchmarkStats *)other;
 @end
 
 @interface SentryBenchmarking : NSObject
