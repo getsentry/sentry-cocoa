@@ -107,7 +107,7 @@ SentryScreenshot ()
 
         if ([window drawViewHierarchyInRect:window.bounds afterScreenUpdates:false]) {
 
-            if (@available(iOS 13.0,tvOS 13.0, *)) {
+            if (@available(iOS 13.0, tvOS 13.0, *)) {
                 [self removePII:UIGraphicsGetCurrentContext()];
             }
 
