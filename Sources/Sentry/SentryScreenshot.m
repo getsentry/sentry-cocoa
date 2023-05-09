@@ -53,7 +53,7 @@
     VNRecognizeTextRequest * textRequest = [[VNRecognizeTextRequest alloc] initWithCompletionHandler:^(VNRequest * _Nonnull request, NSError * _Nullable error) {
         requestResult = request;
     }];
-    //textRequest.recognitionLevel = VNRequestTextRecognitionLevelFast;
+
 
     NSError * error;
     [imageHandler performRequests:@[textRequest] error:&error];
@@ -61,7 +61,8 @@
     if (requestResult == nil) {
         return;
     }
-
+    CGImageRelease(image);
+    
     UIGraphicsPushContext(context);
     CGRect contextRect = CGContextGetClipBoundingBox(context);
     CGContextScaleCTM(context, 1, -1);
