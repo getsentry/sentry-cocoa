@@ -1,8 +1,11 @@
 #import "SentryEvent+Private.h"
+#import "SentryId.h"
 #import "SentryProfileTimeseries.h"
 #import "SentryProfiler+Test.h"
 #import "SentryProfilingConditionals.h"
+#import "SentryThread.h"
 #import "SentryTransaction.h"
+#import "SentryTransactionContext+Private.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -60,7 +63,7 @@ using namespace sentry::profiling;
     const auto resolvedThreadMetadata =
         [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
     const auto resolvedQueueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
-    const auto resolvedStacks = [NSMutableArray<NSMutableArray<NSNumber *> *> array];
+    const auto resolvedStacks = [NSMutableArray<NSArray<NSNumber *> *> array];
     const auto resolvedSamples = [NSMutableArray<SentrySample *> array];
     const auto resolvedFrames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
     const auto frameIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
@@ -168,12 +171,118 @@ using namespace sentry::profiling;
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
+- (void)testProfilerMutationDuringSerialization
+{
+    const auto resolvedThreadMetadata =
+        [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
+    const auto resolvedQueueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
+    const auto resolvedStacks = [NSMutableArray<NSArray<NSNumber *> *> array];
+    const auto resolvedSamples = [NSMutableArray<SentrySample *> array];
+    const auto resolvedFrames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
+    const auto frameIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+    const auto stackIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+
+    // initialize the data structures with some simulated data
+    {
+        const auto threadID = 1;
+        const auto threadPriority = 2;
+        const auto queue = 3;
+        uint64_t address = 4;
+
+        ThreadMetadata threadMetadata;
+        threadMetadata.name = [@"testThread-1" cStringUsingEncoding:NSUTF8StringEncoding];
+        threadMetadata.threadID = threadID;
+        threadMetadata.priority = threadPriority;
+
+        QueueMetadata queueMetadata;
+        queueMetadata.address = queue;
+        queueMetadata.label = std::make_shared<std::string>(
+            [@"testQueue-1" cStringUsingEncoding:NSUTF8StringEncoding]);
+
+        Backtrace backtrace;
+        backtrace.threadMetadata = threadMetadata;
+        backtrace.queueMetadata = queueMetadata;
+        backtrace.addresses
+            = std::vector<std::uintptr_t>({ address + 1, address + 2, address + 3 });
+
+        backtrace.absoluteTimestamp = 1;
+        processBacktrace(backtrace, resolvedThreadMetadata, resolvedQueueMetadata, resolvedSamples,
+            resolvedStacks, resolvedFrames, frameIndexLookup, stackIndexLookup);
+
+        backtrace.absoluteTimestamp = 2;
+        processBacktrace(backtrace, resolvedThreadMetadata, resolvedQueueMetadata, resolvedSamples,
+            resolvedStacks, resolvedFrames, frameIndexLookup, stackIndexLookup);
+    }
+
+    // serialize the data as if it were captured in a transaction envelope
+    const auto sampledProfile = [NSMutableDictionary<NSString *, id> dictionary];
+    sampledProfile[@"samples"] = resolvedSamples;
+    sampledProfile[@"stacks"] = resolvedStacks;
+    sampledProfile[@"frames"] = resolvedFrames;
+    sampledProfile[@"thread_metadata"] = resolvedThreadMetadata;
+    sampledProfile[@"queue_metadata"] = resolvedQueueMetadata;
+    const auto profileData = @{ @"profile" : sampledProfile };
+
+    const auto context = [[SentrySpanContext alloc] initWithOperation:@"test trace"];
+    const auto trace = [[SentryTracer alloc] initWithContext:context];
+    const auto transaction = [[SentryTransaction alloc] initWithTrace:trace children:@[]];
+    transaction.transaction = @"someTransaction";
+    transaction.trace.transactionContext =
+        [[SentryTransactionContext alloc] initWithName:@"someTransaction"
+                                             operation:@"someOperation"];
+    transaction.trace.transactionContext.threadInfo = [[SentryThread alloc] initWithThreadId:@1];
+    transaction.startSystemTime = 1;
+    transaction.endSystemTime = 2;
+
+    const auto profileID = [[SentryId alloc] init];
+    const auto serialization = serializedProfileData(profileData, transaction, profileID,
+        profilerTruncationReasonName(SentryProfilerTruncationReasonNormal), @"test", @"someRelease",
+        @{}, @[]);
+
+    // cause the data structures to be modified again
+    {
+        ThreadMetadata threadMetadata;
+        threadMetadata.name = "testThread";
+        threadMetadata.threadID = 12345568910;
+        threadMetadata.priority = 666;
+
+        QueueMetadata queueMetadata;
+        queueMetadata.address = 9876543210;
+        queueMetadata.label = std::make_shared<std::string>("testQueue");
+
+        const auto addresses = std::vector<std::uintptr_t>({ 0x777, 0x888, 0x999 });
+
+        Backtrace backtrace;
+        backtrace.threadMetadata = threadMetadata;
+        backtrace.queueMetadata = queueMetadata;
+        backtrace.absoluteTimestamp = 5;
+        backtrace.addresses = addresses;
+
+        processBacktrace(backtrace, resolvedThreadMetadata, resolvedQueueMetadata, resolvedSamples,
+            resolvedStacks, resolvedFrames, frameIndexLookup, stackIndexLookup);
+    }
+
+    // ensure the serialization data structures don't contain the new values
+    NSArray<NSDictionary<NSString *, id> *> *frames = serialization[@"profile"][@"frames"];
+    XCTAssertEqual(frames.count, 3UL);
+
+    const auto index =
+        [frames indexOfObjectPassingTest:^BOOL(NSDictionary<NSString *, id> *_Nonnull obj,
+            __unused NSUInteger idx, __unused BOOL *_Nonnull stop) {
+            NSString *address = obj[@"instruction_addr"];
+            const auto unexpected =
+                @[ @"0x0000000000000777", @"0x0000000000000777", @"0x0000000000000777" ];
+            return [unexpected containsObject:address];
+        }];
+    XCTAssertEqual(index, NSNotFound);
+}
+
 - (void)testProfilerPayload
 {
     const auto resolvedThreadMetadata =
         [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
     const auto resolvedQueueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
-    const auto resolvedStacks = [NSMutableArray<NSMutableArray<NSNumber *> *> array];
+    const auto resolvedStacks = [NSMutableArray<NSArray<NSNumber *> *> array];
     const auto resolvedSamples = [NSMutableArray<SentrySample *> array];
     const auto resolvedFrames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
     const auto frameIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];

@@ -209,7 +209,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 
     override class func setUp() {
         super.setUp()
-        SentryLog.configure(true, diagnosticLevel: .debug)
+//        SentryLog.configure(true, diagnosticLevel: .debug)
     }
 
     override func setUp() {
@@ -236,7 +236,7 @@ class SentryProfilerSwiftTests: XCTestCase {
     }
 
     func testConcurrentProfilingTransactions() throws {
-        let numberOfTransactions = 10
+        let numberOfTransactions = 100
         var spans = [Span]()
 
         func createConcurrentSpansWithMetrics() throws {

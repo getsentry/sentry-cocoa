@@ -79,11 +79,13 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     return [symbolNSStr substringWithRange:[match rangeAtIndex:1]];
 }
 
+std::mutex _gDataStructureLock;
+
 void
 processBacktrace(const Backtrace &backtrace,
     NSMutableDictionary<NSString *, NSMutableDictionary *> *threadMetadata,
     NSMutableDictionary<NSString *, NSDictionary *> *queueMetadata,
-    NSMutableArray<SentrySample *> *samples, NSMutableArray<NSMutableArray<NSNumber *> *> *stacks,
+    NSMutableArray<SentrySample *> *samples, NSMutableArray<NSArray<NSNumber *> *> *stacks,
     NSMutableArray<NSDictionary<NSString *, id> *> *frames,
     NSMutableDictionary<NSString *, NSNumber *> *frameIndexLookup,
     NSMutableDictionary<NSString *, NSNumber *> *stackIndexLookup)
@@ -155,7 +157,7 @@ processBacktrace(const Backtrace &backtrace,
     }
 
     {
-        std::lock_guard<std::mutex> l(_gSamplesArrayLock);
+        std::lock_guard<std::mutex> l(_gDataStructureLock);
         [samples addObject:sample];
     }
 }
@@ -264,6 +266,136 @@ serializedSamplesWithRelativeTimestamps(
     return result;
 }
 
+NSDictionary<NSString *, id> *
+serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransaction *transaction,
+    SentryId *profileID, NSString *truncationReason, NSString *environment, NSString *release,
+    NSDictionary<NSString *, id> *serializedMetrics, NSArray<SentryDebugMeta *> *debugMeta)
+{
+    NSArray<SentrySample *> *samplesCopy;
+    NSArray<NSArray<NSNumber *> *> *stacksCopy;
+    NSArray<NSDictionary<NSString *, id> *> *framesCopy;
+    NSDictionary<NSString *, NSDictionary *> *threadMetadataCopy;
+    NSDictionary<NSString *, NSDictionary *> *queueMetadataCopy;
+    {
+        std::lock_guard<std::mutex> d(_gDataStructureLock);
+        samplesCopy = [profileData[@"profile"][@"samples"] copy];
+        stacksCopy = profileData[@"profile"][@"stacks"];
+        framesCopy = profileData[@"profile"][@"frames"];
+        threadMetadataCopy = profileData[@"profile"][@"thread_metadata"];
+        queueMetadataCopy = profileData[@"profile"][@"queue_metadata"];
+    }
+
+    // We need at least two samples to be able to draw a stack frame for any given function: one
+    // sample for the start of the frame and another for the end. Otherwise we would only have a
+    // stack frame with 0 duration, which wouldn't make sense.
+    if ([samplesCopy count] < 2) {
+        SENTRY_LOG_DEBUG(@"Not enough samples in profile");
+        return nil;
+    }
+
+    // slice the profile data to only include the samples/metrics within the transaction
+    const auto slicedSamples = slicedProfileSamples(samplesCopy, transaction);
+    if (slicedSamples.count < 2) {
+        SENTRY_LOG_DEBUG(@"Not enough samples in profile during the transaction");
+        return nil;
+    }
+
+    const auto payload = [NSMutableDictionary<NSString *, id> dictionary];
+
+    payload[@"version"] = @"1";
+    const auto debugImages = [NSMutableArray<NSDictionary<NSString *, id> *> new];
+    for (SentryDebugMeta *debugImage in debugMeta) {
+        [debugImages addObject:[debugImage serialize]];
+    }
+    if (debugImages.count > 0) {
+        payload[@"debug_meta"] = @ { @"images" : debugImages };
+    }
+
+    payload[@"os"] = @ {
+        @"name" : sentry_getOSName(),
+        @"version" : sentry_getOSVersion(),
+        @"build_number" : sentry_getOSBuildNumber()
+    };
+
+    const auto isEmulated = sentry_isSimulatorBuild();
+    payload[@"device"] = @{
+        @"architecture" : sentry_getCPUArchitecture(),
+        @"is_emulator" : @(isEmulated),
+        @"locale" : NSLocale.currentLocale.localeIdentifier,
+        @"manufacturer" : @"Apple",
+        @"model" : isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel()
+    };
+
+    payload[@"profile_id"] = profileID.sentryIdString;
+    payload[@"truncation_reason"] = truncationReason;
+    payload[@"platform"] = transaction.platform;
+    payload[@"environment"] = environment;
+
+    const auto timestamp = transaction.trace.originalStartTimestamp;
+    if (UNLIKELY(timestamp == nil)) {
+        SENTRY_LOG_WARN(@"There was no start timestamp on the provided transaction. Falling back "
+                        @"to old behavior of using the current time.");
+        payload[@"timestamp"] = [[SentryCurrentDate date] sentry_toIso8601String];
+    } else {
+        payload[@"timestamp"] = [timestamp sentry_toIso8601String];
+    }
+
+    payload[@"release"] = release;
+
+    payload[@"profile"] = @ {
+        @"samples" : serializedSamplesWithRelativeTimestamps(slicedSamples, transaction),
+        @"stacks" : stacksCopy,
+        @"frames" : framesCopy,
+        @"thread_metadata" : threadMetadataCopy,
+        @"queue_metadata" : queueMetadataCopy,
+    };
+
+    payload[@"transaction"] = @ {
+        @"id" : transaction.eventId.sentryIdString,
+        @"trace_id" : transaction.trace.traceId.sentryIdString,
+        @"name" : transaction.transaction,
+        @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
+    };
+
+    // add the gathered metrics
+    auto metrics = serializedMetrics;
+
+#    if SENTRY_HAS_UIKIT
+    const auto mutableMetrics =
+        [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
+    const auto slowFrames = sliceGPUData(_gCurrentFramesTracker.currentFrames.slowFrameTimestamps,
+        transaction, /*useMostRecentRecording */ NO);
+    if (slowFrames.count > 0) {
+        mutableMetrics[@"slow_frame_renders"] =
+            @ { @"unit" : @"nanosecond", @"values" : slowFrames };
+    }
+
+    const auto frozenFrames
+        = sliceGPUData(_gCurrentFramesTracker.currentFrames.frozenFrameTimestamps, transaction,
+            /*useMostRecentRecording */ NO);
+    if (frozenFrames.count > 0) {
+        mutableMetrics[@"frozen_frame_renders"] =
+            @ { @"unit" : @"nanosecond", @"values" : frozenFrames };
+    }
+
+    if (slowFrames.count > 0 || frozenFrames.count > 0) {
+        const auto frameRates
+            = sliceGPUData(_gCurrentFramesTracker.currentFrames.frameRateTimestamps, transaction,
+                /*useMostRecentRecording */ YES);
+        if (frameRates.count > 0) {
+            mutableMetrics[@"screen_frame_rates"] = @ { @"unit" : @"hz", @"values" : frameRates };
+        }
+    }
+    metrics = mutableMetrics;
+#    endif // SENTRY_HAS_UIKIT
+
+    if (metrics.count > 0) {
+        payload[@"measurements"] = metrics;
+    }
+
+    return payload;
+}
+
 @implementation SentryProfiler {
     NSMutableDictionary<NSString *, id> *_profileData;
     std::shared_ptr<SamplingProfiler> _profiler;
@@ -353,88 +485,14 @@ serializedSamplesWithRelativeTimestamps(
 
 + (SentryEnvelopeItem *)createProfilingEnvelopeItemForTransaction:(SentryTransaction *)transaction
 {
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-
-    if (_gCurrentProfiler == nil) {
-        SENTRY_LOG_DEBUG(@"No profiler from which to receive data.");
-        return nil;
-    }
-
-    const auto payload = [NSMutableDictionary<NSString *, id> dictionary];
-
-    NSArray<SentrySample *> *samples = _gCurrentProfiler->_profileData[@"profile"][@"samples"];
-
-    // We need at least two samples to be able to draw a stack frame for any given function: one
-    // sample for the start of the frame and another for the end. Otherwise we would only have a
-    // stack frame with 0 duration, which wouldn't make sense.
-    if ([samples count] < 2) {
-        SENTRY_LOG_DEBUG(@"Not enough samples in profile");
-        return nil;
-    }
-
-    // slice the profile data to only include the samples/metrics within the transaction
-    const auto slicedSamples = slicedProfileSamples(samples, transaction);
-    if (slicedSamples.count < 2) {
-        SENTRY_LOG_DEBUG(@"Not enough samples in profile during the transaction");
-        return nil;
-    }
-
-    payload[@"profile"] = @{
-        @"samples" : serializedSamplesWithRelativeTimestamps(slicedSamples, transaction),
-        @"stacks" : _gCurrentProfiler->_profileData[@"profile"][@"stacks"],
-        @"frames" : _gCurrentProfiler->_profileData[@"profile"][@"frames"],
-        @"thread_metadata" : _gCurrentProfiler->_profileData[@"profile"][@"thread_metadata"],
-        @"queue_metadata" : _gCurrentProfiler->_profileData[@"profile"][@"queue_metadata"],
-    };
-
-    // add the serialized info for the associated transaction
-    const auto transactionInfo = [self serializeInfoForTransaction:transaction];
-    if (!transactionInfo) {
-        SENTRY_LOG_WARN(@"Could not find any associated transaction for the profile.");
-        return nil;
-    }
-    payload[@"transaction"] = transactionInfo;
-
-    // add the gathered metrics
-    const auto metrics = [_gCurrentProfiler->_metricProfiler serializeForTransaction:transaction];
-
-#    if SENTRY_HAS_UIKIT
-    const auto slowFrames = sliceGPUData(_gCurrentFramesTracker.currentFrames.slowFrameTimestamps,
-        transaction, /*useMostRecentRecording */ NO);
-    if (slowFrames.count > 0) {
-        metrics[@"slow_frame_renders"] = @{ @"unit" : @"nanosecond", @"values" : slowFrames };
-    }
-
-    const auto frozenFrames
-        = sliceGPUData(_gCurrentFramesTracker.currentFrames.frozenFrameTimestamps, transaction,
-            /*useMostRecentRecording */ NO);
-    if (frozenFrames.count > 0) {
-        metrics[@"frozen_frame_renders"] = @{ @"unit" : @"nanosecond", @"values" : frozenFrames };
-    }
-
-    if (slowFrames.count > 0 || frozenFrames.count > 0) {
-        const auto frameRates
-            = sliceGPUData(_gCurrentFramesTracker.currentFrames.frameRateTimestamps, transaction,
-                /*useMostRecentRecording */ YES);
-        if (frameRates.count > 0) {
-            metrics[@"screen_frame_rates"] = @{ @"unit" : @"hz", @"values" : frameRates };
-        }
-    }
-#    endif // SENTRY_HAS_UIKIT
-
-    if (metrics.count > 0) {
-        payload[@"measurements"] = metrics;
-    }
+    const auto profileID = [[SentryId alloc] init];
+    const auto payload = [self serializeForTransaction:transaction profileID:profileID];
 
 #    if defined(TEST) || defined(TESTCI)
     [NSNotificationCenter.defaultCenter postNotificationName:@"SentryProfileCompleteNotification"
                                                       object:nil
                                                     userInfo:payload];
 #    endif // defined(TEST) || defined(TESTCI)
-
-    // add the remaining basic metadata for the profile
-    const auto profileID = [[SentryId alloc] init];
-    [self serializeBasicProfileInfo:payload profileID:profileID transaction:transaction];
 
     return [self envelopeItemForProfileData:payload profileID:profileID];
 }
@@ -474,6 +532,25 @@ serializedSamplesWithRelativeTimestamps(
 #    endif // SENTRY_HAS_UIKIT
 
 #    pragma mark - Private
+
++ (NSDictionary<NSString *, id> *)serializeForTransaction:(SentryTransaction *)transaction
+                                                profileID:(SentryId *)profileID
+{
+    std::lock_guard<std::mutex> l(_gProfilerLock);
+
+    if (_gCurrentProfiler == nil) {
+        SENTRY_LOG_DEBUG(@"No profiler from which to receive data.");
+        return nil;
+    }
+
+    return serializedProfileData(_gCurrentProfiler->_profileData, transaction, profileID,
+        profilerTruncationReasonName(_gCurrentProfiler->_truncationReason),
+        _gCurrentProfiler->_hub.scope.environmentString
+            ?: _gCurrentProfiler->_hub.getClient.options.environment,
+        _gCurrentProfiler->_hub.getClient.options.releaseName,
+        [_gCurrentProfiler->_metricProfiler serializeForTransaction:transaction],
+        [_gCurrentProfiler->_debugImageProvider getDebugImages]);
+}
 
 + (void)timeoutAbort
 {
@@ -614,7 +691,7 @@ serializedSamplesWithRelativeTimestamps(
      * ]
      */
     const auto samples = [NSMutableArray<SentrySample *> array];
-    const auto stacks = [NSMutableArray<NSMutableArray<NSNumber *> *> array];
+    const auto stacks = [NSMutableArray<NSArray<NSNumber *> *> array];
     const auto frames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
     const auto frameIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
     const auto stackIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
@@ -674,66 +751,7 @@ serializedSamplesWithRelativeTimestamps(
     SENTRY_LOG_DEBUG(@"Stopped profiler %@.", self);
 }
 
-+ (void)serializeBasicProfileInfo:(NSMutableDictionary<NSString *, id> *)profile
-                        profileID:(SentryId *const &)profileID
-                      transaction:(SentryTransaction *)transaction
-{
-    profile[@"version"] = @"1";
-    const auto debugImages = [NSMutableArray<NSDictionary<NSString *, id> *> new];
-    const auto debugMeta = [_gCurrentProfiler->_debugImageProvider getDebugImages];
-    for (SentryDebugMeta *debugImage in debugMeta) {
-        [debugImages addObject:[debugImage serialize]];
-    }
-    if (debugImages.count > 0) {
-        profile[@"debug_meta"] = @{ @"images" : debugImages };
-    }
-
-    profile[@"os"] = @{
-        @"name" : sentry_getOSName(),
-        @"version" : sentry_getOSVersion(),
-        @"build_number" : sentry_getOSBuildNumber()
-    };
-
-    const auto isEmulated = sentry_isSimulatorBuild();
-    profile[@"device"] = @{
-        @"architecture" : sentry_getCPUArchitecture(),
-        @"is_emulator" : @(isEmulated),
-        @"locale" : NSLocale.currentLocale.localeIdentifier,
-        @"manufacturer" : @"Apple",
-        @"model" : isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel()
-    };
-
-    profile[@"profile_id"] = profileID.sentryIdString;
-    profile[@"truncation_reason"]
-        = profilerTruncationReasonName(_gCurrentProfiler->_truncationReason);
-    profile[@"platform"] = transaction.platform;
-    profile[@"environment"] = _gCurrentProfiler->_hub.scope.environmentString
-        ?: _gCurrentProfiler->_hub.getClient.options.environment;
-
-    const auto timestamp = transaction.trace.originalStartTimestamp;
-    if (UNLIKELY(timestamp == nil)) {
-        SENTRY_LOG_WARN(@"There was no start timestamp on the provided transaction. Falling back "
-                        @"to old behavior of using the current time.");
-        profile[@"timestamp"] = [[SentryCurrentDate date] sentry_toIso8601String];
-    } else {
-        profile[@"timestamp"] = [timestamp sentry_toIso8601String];
-    }
-
-    profile[@"release"] = _gCurrentProfiler->_hub.getClient.options.releaseName;
-}
-
-/** @return serialize info corresponding to the specified transaction. */
-+ (NSDictionary *)serializeInfoForTransaction:(SentryTransaction *)transaction
-{
-    return @{
-        @"id" : transaction.eventId.sentryIdString,
-        @"trace_id" : transaction.trace.traceId.sentryIdString,
-        @"name" : transaction.transaction,
-        @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
-    };
-}
-
-+ (SentryEnvelopeItem *)envelopeItemForProfileData:(NSMutableDictionary<NSString *, id> *)profile
++ (SentryEnvelopeItem *)envelopeItemForProfileData:(NSDictionary<NSString *, id> *)profile
                                          profileID:(SentryId *)profileID
 {
     const auto JSONData = [SentrySerialization dataWithJSONObject:profile];
