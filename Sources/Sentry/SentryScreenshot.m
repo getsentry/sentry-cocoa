@@ -8,7 +8,8 @@
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
 
-@interface SentryScreenshot ()
+@interface
+SentryScreenshot ()
 
 - (void)removePII:(CGContextRef)context API_AVAILABLE(macos(11.0), ios(13.0), tvos(13.0));
 
@@ -44,19 +45,21 @@
     }];
 }
 
-- (void)removePII:(CGContextRef)context {
+- (void)removePII:(CGContextRef)context
+{
     CGImageRef image = CGBitmapContextCreateImage(context);
-    VNImageRequestHandler * imageHandler = [[VNImageRequestHandler alloc] initWithCGImage:image options:@{}];
+    VNImageRequestHandler *imageHandler = [[VNImageRequestHandler alloc] initWithCGImage:image
+                                                                                 options:@{}];
 
-    __block VNRequest * requestResult = nil;
+    __block VNRequest *requestResult = nil;
 
-    VNRecognizeTextRequest * textRequest = [[VNRecognizeTextRequest alloc] initWithCompletionHandler:^(VNRequest * _Nonnull request, NSError * _Nullable error) {
-        requestResult = request;
-    }];
-    //textRequest.recognitionLevel = VNRequestTextRecognitionLevelFast;
+    VNRecognizeTextRequest *textRequest =
+        [[VNRecognizeTextRequest alloc] initWithCompletionHandler:^(
+            VNRequest *_Nonnull request, NSError *_Nullable error) { requestResult = request; }];
+    // textRequest.recognitionLevel = VNRequestTextRecognitionLevelFast;
 
-    NSError * error;
-    [imageHandler performRequests:@[textRequest] error:&error];
+    NSError *error;
+    [imageHandler performRequests:@[ textRequest ] error:&error];
 
     if (requestResult == nil) {
         return;
@@ -69,14 +72,16 @@
 
     CGContextSetFillColorWithColor(context, UIColor.blackColor.CGColor);
 
-    for (VNRecognizedTextObservation * observartion in requestResult.results) {
-        VNRecognizedText * candidate = [[observartion topCandidates:1] firstObject];
-        if (candidate == nil) continue;
+    for (VNRecognizedTextObservation *observartion in requestResult.results) {
+        VNRecognizedText *candidate = [[observartion topCandidates:1] firstObject];
+        if (candidate == nil)
+            continue;
 
         NSRange range = NSMakeRange(0, candidate.string.length);
-        VNRectangleObservation * candidateBox = [candidate boundingBoxForRange:range error:nil];
+        VNRectangleObservation *candidateBox = [candidate boundingBoxForRange:range error:nil];
 
-        CGRect maskBox = VNImageRectForNormalizedRect(candidateBox.boundingBox,(unsigned long)contextRect.size.width, (unsigned long)contextRect.size.height);
+        CGRect maskBox = VNImageRectForNormalizedRect(candidateBox.boundingBox,
+            (unsigned long)contextRect.size.width, (unsigned long)contextRect.size.height);
 
         CGContextFillRect(context, maskBox);
     }
