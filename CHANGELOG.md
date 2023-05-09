@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix import of `User` & `Breadcrumb` (#3017)
+
 ## 8.7.0
 
 ### Features
