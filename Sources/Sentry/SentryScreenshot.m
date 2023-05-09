@@ -3,9 +3,16 @@
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryUIApplication.h"
+@import Vision;
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
+
+@interface SentryScreenshot ()
+
+- (void)removePII:(CGContextRef)context API_AVAILABLE(macos(11.0), ios(13.0), tvos(13.0));
+
+@end
 
 @implementation SentryScreenshot
 
@@ -37,6 +44,45 @@
     }];
 }
 
+- (void)removePII:(CGContextRef)context {
+    CGImageRef image = CGBitmapContextCreateImage(context);
+    VNImageRequestHandler * imageHandler = [[VNImageRequestHandler alloc] initWithCGImage:image options:@{}];
+
+    __block VNRequest * requestResult = nil;
+
+    VNRecognizeTextRequest * textRequest = [[VNRecognizeTextRequest alloc] initWithCompletionHandler:^(VNRequest * _Nonnull request, NSError * _Nullable error) {
+        requestResult = request;
+    }];
+    //textRequest.recognitionLevel = VNRequestTextRecognitionLevelFast;
+
+    NSError * error;
+    [imageHandler performRequests:@[textRequest] error:&error];
+
+    if (requestResult == nil) {
+        return;
+    }
+
+    UIGraphicsPushContext(context);
+    CGRect contextRect = CGContextGetClipBoundingBox(context);
+    CGContextScaleCTM(context, 1, -1);
+    CGContextTranslateCTM(context, 0, -contextRect.size.height);
+
+    CGContextSetFillColorWithColor(context, UIColor.blackColor.CGColor);
+
+    for (VNRecognizedTextObservation * observartion in requestResult.results) {
+        VNRecognizedText * candidate = [[observartion topCandidates:1] firstObject];
+        if (candidate == nil) continue;
+
+        NSRange range = NSMakeRange(0, candidate.string.length);
+        VNRectangleObservation * candidateBox = [candidate boundingBoxForRange:range error:nil];
+
+        CGRect maskBox = VNImageRectForNormalizedRect(candidateBox.boundingBox,(unsigned long)contextRect.size.width, (unsigned long)contextRect.size.height);
+
+        CGContextFillRect(context, maskBox);
+    }
+    UIGraphicsPopContext();
+}
+
 - (NSArray<NSData *> *)takeScreenshots
 {
     NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
@@ -54,6 +100,11 @@
         UIGraphicsBeginImageContext(size);
 
         if ([window drawViewHierarchyInRect:window.bounds afterScreenUpdates:false]) {
+
+            if (@available(iOS 13.0, *)) {
+                [self removePII:UIGraphicsGetCurrentContext()];
+            }
+
             UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
             // this shouldn't happen now that we discard windows with either 0 height or 0 width,
             // but still, we shouldn't send any images with either one.
