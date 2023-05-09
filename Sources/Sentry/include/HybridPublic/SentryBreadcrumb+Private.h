@@ -1,6 +1,6 @@
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
-#import <SentryBreadcrumb.h>
+#import "SentryBreadcrumb.h"
 
 @interface
 SentryBreadcrumb (Private)
