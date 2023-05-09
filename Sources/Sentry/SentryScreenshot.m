@@ -3,15 +3,15 @@
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryUIApplication.h"
-@import Vision;
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
+@import Vision;
 
 @interface
 SentryScreenshot ()
 
-- (void)removePII:(CGContextRef)context API_AVAILABLE(macos(11.0), ios(13.0), tvos(13.0));
+- (void)removePII:(CGContextRef)context API_AVAILABLE(ios(13.0), tvos(13.0));
 
 @end
 
@@ -106,7 +106,7 @@ SentryScreenshot ()
 
         if ([window drawViewHierarchyInRect:window.bounds afterScreenUpdates:false]) {
 
-            if (@available(iOS 13.0, *)) {
+            if (@available(iOS 13.0,tvOS 13.0, *)) {
                 [self removePII:UIGraphicsGetCurrentContext()];
             }
 
