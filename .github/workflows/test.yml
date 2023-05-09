@@ -194,6 +194,7 @@ jobs:
 
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build tests
+        id: build_tests
         run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME ci build-for-testing
       
       - name: Run tests
@@ -209,7 +210,7 @@ jobs:
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@v3
-        if: failure()
+        if: steps.build_tests.outcome == 'failure'
         with:
           name: derived-data-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
           path: |
