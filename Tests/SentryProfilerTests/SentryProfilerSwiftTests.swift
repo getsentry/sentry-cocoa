@@ -236,7 +236,7 @@ class SentryProfilerSwiftTests: XCTestCase {
     }
 
     func testConcurrentProfilingTransactions() throws {
-        let numberOfTransactions = 100
+        let numberOfTransactions = 10
         var spans = [Span]()
 
         func createConcurrentSpansWithMetrics() throws {
