@@ -364,19 +364,11 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="s6w-E3-5yE" userLabel="DiskWriteException">
-                                                <rect key="frame" x="0.0" y="28" width="135" height="28"/>
+                                                <rect key="frame" x="0.0" y="42" width="135" height="28"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                 <state key="normal" title="DiskWriteException"/>
                                                 <connections>
                                                     <action selector="diskWriteException:" destination="QmU-DD-itF" eventType="touchUpInside" id="p74-qC-kH7"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cki-iy-1lL">
-                                                <rect key="frame" x="0.0" y="56" width="135" height="28"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                <state key="normal" title="async crash"/>
-                                                <connections>
-                                                    <action selector="asyncCrash:" destination="QmU-DD-itF" eventType="touchUpInside" id="L4F-Xr-S2F"/>
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NNd-Ec-zXw">

@@ -45,8 +45,7 @@ SentryStacktraceBuilder ()
             [frames addObject:frame];
         }
     }
-    sentrycrash_async_backtrace_decref(stackCursor.async_caller);
-
+    
     NSArray<SentryFrame *> *framesCleared = [SentryFrameRemover removeNonSdkFrames:frames];
 
     // The frames must be ordered from caller to callee, or oldest to youngest
