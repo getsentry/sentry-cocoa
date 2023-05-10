@@ -279,10 +279,10 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     {
         std::lock_guard<std::mutex> d(_gDataStructureLock);
         samplesCopy = [profileData[@"profile"][@"samples"] copy];
-        stacksCopy = profileData[@"profile"][@"stacks"];
-        framesCopy = profileData[@"profile"][@"frames"];
-        threadMetadataCopy = profileData[@"profile"][@"thread_metadata"];
-        queueMetadataCopy = profileData[@"profile"][@"queue_metadata"];
+        stacksCopy = [profileData[@"profile"][@"stacks"] copy];
+        framesCopy = [profileData[@"profile"][@"frames"] copy];
+        threadMetadataCopy = [profileData[@"profile"][@"thread_metadata"] copy];
+        queueMetadataCopy = [profileData[@"profile"][@"queue_metadata"] copy];
     }
 
     // We need at least two samples to be able to draw a stack frame for any given function: one
