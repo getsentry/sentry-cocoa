@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Fix crashes in profiling serialization race condition (#3018)
+
 ## 8.7.0
 
 ### Features
@@ -30,7 +36,6 @@ This change has no impact on grouping of the issues in Sentry.
 
 - Propagate span when copying scope (#2952)
 - Remove "/" from crash report file name (#3005)
-- Fix race condition in profiling serialization (#3018)
 
 ## 8.6.0
 

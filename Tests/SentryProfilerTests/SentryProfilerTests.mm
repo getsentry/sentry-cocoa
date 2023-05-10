@@ -271,7 +271,7 @@ using namespace sentry::profiling;
             __unused NSUInteger idx, __unused BOOL *_Nonnull stop) {
             NSString *address = obj[@"instruction_addr"];
             const auto unexpected =
-                @[ @"0x0000000000000777", @"0x0000000000000777", @"0x0000000000000777" ];
+                @[ @"0x0000000000000777", @"0x0000000000000888", @"0x0000000000000999" ];
             return [unexpected containsObject:address];
         }];
     XCTAssertEqual(index, NSNotFound);
