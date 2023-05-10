@@ -45,7 +45,7 @@ SentryStacktraceBuilder ()
             [frames addObject:frame];
         }
     }
-    
+
     NSArray<SentryFrame *> *framesCleared = [SentryFrameRemover removeNonSdkFrames:frames];
 
     // The frames must be ordered from caller to callee, or oldest to youngest

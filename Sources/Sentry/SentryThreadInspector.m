@@ -46,7 +46,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
             entries++;
         }
     }
-    
+
     return entries;
 }
 
