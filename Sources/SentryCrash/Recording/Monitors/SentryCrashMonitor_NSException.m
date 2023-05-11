@@ -104,7 +104,6 @@ handleException(NSException *exception)
             SentryCrashLOG_DEBUG(@"Calling original exception handler.");
             g_previousUncaughtExceptionHandler(exception);
         }
-        sentrycrash_async_backtrace_decref(cursor.async_caller);
     }
 }
 
