@@ -102,11 +102,6 @@ processBacktrace(const Backtrace &backtrace,
     if (backtrace.threadMetadata.priority != -1 && metadata[@"priority"] == nil) {
         metadata[@"priority"] = @(backtrace.threadMetadata.priority);
     }
-#    if defined(DEBUG)
-    const auto symbols
-        = backtrace_symbols(reinterpret_cast<void *const *>(backtrace.addresses.data()),
-            static_cast<int>(backtrace.addresses.size()));
-#    endif
 
     const auto stack = [NSMutableArray<NSNumber *> array];
     for (std::vector<uintptr_t>::size_type backtraceAddressIdx = 0;
@@ -119,6 +114,9 @@ processBacktrace(const Backtrace &backtrace,
             const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
             frame[@"instruction_addr"] = instructionAddress;
 #    if defined(DEBUG)
+            const auto symbols
+                = backtrace_symbols(reinterpret_cast<void *const *>(backtrace.addresses.data()),
+                    static_cast<int>(backtrace.addresses.size()));
             frame[@"function"] = parseBacktraceSymbolsFunctionName(symbols[backtraceAddressIdx]);
 #    endif
             [stack addObject:@(frames.count)];
