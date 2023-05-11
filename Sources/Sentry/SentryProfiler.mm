@@ -90,19 +90,6 @@ processBacktrace(const Backtrace &backtrace,
     NSMutableDictionary<NSString *, NSNumber *> *frameIndexLookup,
     NSMutableDictionary<NSString *, NSNumber *> *stackIndexLookup)
 {
-    const auto threadID = sentry_stringForUInt64(backtrace.threadMetadata.threadID);
-    NSMutableDictionary<NSString *, id> *metadata = threadMetadata[threadID];
-    if (metadata == nil) {
-        metadata = [NSMutableDictionary<NSString *, id> dictionary];
-        threadMetadata[threadID] = metadata;
-    }
-    if (!backtrace.threadMetadata.name.empty() && metadata[@"name"] == nil) {
-        metadata[@"name"] = [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
-    }
-    if (backtrace.threadMetadata.priority != -1 && metadata[@"priority"] == nil) {
-        metadata[@"priority"] = @(backtrace.threadMetadata.priority);
-    }
-
     const auto stack = [NSMutableArray<NSNumber *> array];
     for (std::vector<uintptr_t>::size_type backtraceAddressIdx = 0;
          backtraceAddressIdx < backtrace.addresses.size(); backtraceAddressIdx++) {
@@ -155,7 +142,30 @@ processBacktrace(const Backtrace &backtrace,
     }
 
     {
+        // critical section: here is where all mutable data structures are updated, which must be
+        // copied later during serialization, so we need enforce exclusive access
         std::lock_guard<std::mutex> l(_gDataStructureLock);
+
+        // The following can overwrite thread metadata that was previously recorded for a thread,
+        // when between samples if we find that the metadata is not present on one sample but is
+        // present for a subsequent sample on the same thread. This occasionally happens when we
+        // can't read the metadata for a thread (unclear why this happens but it tends to happen
+        // sometimes for a newly created thread).
+        const auto threadID = sentry_stringForUInt64(backtrace.threadMetadata.threadID);
+        NSMutableDictionary<NSString *, id> *metadata = threadMetadata[threadID];
+        if (metadata == nil) {
+            metadata = [NSMutableDictionary<NSString *, id> dictionary];
+            threadMetadata[threadID] = metadata;
+        }
+        if (!backtrace.threadMetadata.name.empty() && metadata[@"name"] == nil) {
+            metadata[@"name"] =
+                [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
+        }
+        if (backtrace.threadMetadata.priority != -1 && metadata[@"priority"] == nil) {
+            metadata[@"priority"] = @(backtrace.threadMetadata.priority);
+        }
+
+        // add the new sample to the data structure
         [samples addObject:sample];
     }
 }
@@ -272,15 +282,21 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     NSArray<SentrySample *> *samplesCopy;
     NSArray<NSArray<NSNumber *> *> *stacksCopy;
     NSArray<NSDictionary<NSString *, id> *> *framesCopy;
-    NSDictionary<NSString *, NSDictionary *> *threadMetadataCopy;
+    NSMutableDictionary<NSString *, NSDictionary *> *threadMetadataCopy;
     NSDictionary<NSString *, NSDictionary *> *queueMetadataCopy;
     {
         std::lock_guard<std::mutex> d(_gDataStructureLock);
         samplesCopy = [profileData[@"profile"][@"samples"] copy];
         stacksCopy = [profileData[@"profile"][@"stacks"] copy];
         framesCopy = [profileData[@"profile"][@"frames"] copy];
-        threadMetadataCopy = [profileData[@"profile"][@"thread_metadata"] copy];
         queueMetadataCopy = [profileData[@"profile"][@"queue_metadata"] copy];
+
+        // thread metadata contains a mutable substructure, so it's not enough to perform a copy of
+        // the top-level dictionary, we need to go deeper to copy the mutable subdictionaries
+        threadMetadataCopy = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
+        [((NSDictionary<NSString *, NSDictionary *> *)profileData[@"profile"][@"thread_metadata"])
+            enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, NSDictionary *_Nonnull obj,
+                BOOL *_Nonnull stop) { threadMetadataCopy[key] = [obj copy]; }];
     }
 
     // We need at least two samples to be able to draw a stack frame for any given function: one
