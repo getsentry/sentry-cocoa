@@ -65,7 +65,6 @@ SentryNSURLRequest ()
     return self;
 }
 
-// TODO: Get refactored out to be a single init method
 - (_Nullable instancetype)initEnvelopeRequestWithDsn:(SentryDsn *)dsn
                                              andData:(NSData *)data
                                     didFailWithError:(NSError *_Nullable *_Nullable)error

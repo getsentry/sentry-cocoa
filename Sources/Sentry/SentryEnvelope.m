@@ -98,10 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithSession:(SentrySession *)session
 {
-    NSData *json = [NSJSONSerialization dataWithJSONObject:[session serialize]
-                                                   options:0
-                                                     // TODO: handle error
-                                                     error:nil];
+    NSData *json = [NSJSONSerialization dataWithJSONObject:[session serialize] options:0 error:nil];
     return [self
         initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeSession
                                                                length:json.length]

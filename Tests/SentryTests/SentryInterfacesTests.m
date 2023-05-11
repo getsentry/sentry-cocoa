@@ -12,8 +12,6 @@
 
 @implementation SentryInterfacesTests
 
-// TODO test event
-
 - (void)testFrame
 {
     SentryFrame *frame = [[SentryFrame alloc] init];

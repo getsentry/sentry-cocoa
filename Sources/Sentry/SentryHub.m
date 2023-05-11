@@ -111,7 +111,6 @@ SentryHub ()
         [scope applyToSession:_session];
 
         [self storeCurrentSession:_session];
-        // TODO: Capture outside the lock. Not the reference in the scope.
         [self captureSession:_session];
     }
     [lastSession endSessionExitedWithTimestamp:[self.currentDateProvider date]];
