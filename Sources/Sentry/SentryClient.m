@@ -452,8 +452,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)captureEnvelope:(SentryEnvelope *)envelope
 {
-    // TODO: What is about beforeSend
-
     if ([self isDisabled]) {
         [self logDisabledMessage];
         return;

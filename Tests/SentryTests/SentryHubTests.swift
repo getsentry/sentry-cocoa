@@ -81,7 +81,7 @@ class SentryHubTests: XCTestCase {
 
     func testBeforeBreadcrumbWithoutCallbackStoresBreadcrumb() {
         let hub = fixture.getSut()
-        // TODO: Add a better API
+        
         let crumb = Breadcrumb(
             level: .error,
             category: "default")
