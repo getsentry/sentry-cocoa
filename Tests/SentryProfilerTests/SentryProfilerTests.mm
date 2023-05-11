@@ -184,26 +184,19 @@ using namespace sentry::profiling;
 
     // initialize the data structures with some simulated data
     {
-        const auto threadID = 1;
-        const auto threadPriority = 2;
-        const auto queue = 3;
-        uint64_t address = 4;
-
         ThreadMetadata threadMetadata;
-        threadMetadata.name = [@"testThread-1" cStringUsingEncoding:NSUTF8StringEncoding];
-        threadMetadata.threadID = threadID;
-        threadMetadata.priority = threadPriority;
+        // leave thread name as nil so it can be overwritten later
+        threadMetadata.threadID = 1;
+        threadMetadata.priority = 2;
 
         QueueMetadata queueMetadata;
-        queueMetadata.address = queue;
-        queueMetadata.label = std::make_shared<std::string>(
-            [@"testQueue-1" cStringUsingEncoding:NSUTF8StringEncoding]);
+        queueMetadata.address = 3;
+        queueMetadata.label = std::make_shared<std::string>("testQueue-1");
 
         Backtrace backtrace;
         backtrace.threadMetadata = threadMetadata;
         backtrace.queueMetadata = queueMetadata;
-        backtrace.addresses
-            = std::vector<std::uintptr_t>({ address + 1, address + 2, address + 3 });
+        backtrace.addresses = std::vector<std::uintptr_t>({ 0x4, 0x5, 0x6 });
 
         backtrace.absoluteTimestamp = 1;
         processBacktrace(backtrace, resolvedThreadMetadata, resolvedQueueMetadata, resolvedSamples,
@@ -239,30 +232,49 @@ using namespace sentry::profiling;
         profilerTruncationReasonName(SentryProfilerTruncationReasonNormal), @"test", @"someRelease",
         @{}, @[]);
 
-    // cause the data structures to be modified again
+    // cause the data structures to be modified again: add new addresses
     {
         ThreadMetadata threadMetadata;
-        threadMetadata.name = "testThread";
+        threadMetadata.name = "newThread-2";
         threadMetadata.threadID = 12345568910;
         threadMetadata.priority = 666;
 
         QueueMetadata queueMetadata;
         queueMetadata.address = 9876543210;
-        queueMetadata.label = std::make_shared<std::string>("testQueue");
-
-        const auto addresses = std::vector<std::uintptr_t>({ 0x777, 0x888, 0x999 });
+        queueMetadata.label = std::make_shared<std::string>("newQueue-2");
 
         Backtrace backtrace;
         backtrace.threadMetadata = threadMetadata;
         backtrace.queueMetadata = queueMetadata;
         backtrace.absoluteTimestamp = 5;
-        backtrace.addresses = addresses;
+        backtrace.addresses = std::vector<std::uintptr_t>({ 0x777, 0x888, 0x999 });
 
         processBacktrace(backtrace, resolvedThreadMetadata, resolvedQueueMetadata, resolvedSamples,
             resolvedStacks, resolvedFrames, frameIndexLookup, stackIndexLookup);
     }
 
-    // ensure the serialization data structures don't contain the new values
+    // cause the data structures to be modified again: overwrite previous thread metadata
+    {
+        ThreadMetadata threadMetadata;
+        threadMetadata.name = "testThread-1";
+        threadMetadata.threadID = 1;
+        threadMetadata.priority = 2;
+
+        QueueMetadata queueMetadata;
+        queueMetadata.address = 3;
+        queueMetadata.label = std::make_shared<std::string>("testQueue-1");
+
+        Backtrace backtrace;
+        backtrace.threadMetadata = threadMetadata;
+        backtrace.queueMetadata = queueMetadata;
+        backtrace.absoluteTimestamp = 6;
+        backtrace.addresses = std::vector<std::uintptr_t>({ 0x4, 0x5, 0x6 });
+
+        processBacktrace(backtrace, resolvedThreadMetadata, resolvedQueueMetadata, resolvedSamples,
+            resolvedStacks, resolvedFrames, frameIndexLookup, stackIndexLookup);
+    }
+
+    // ensure the serialization's copied data structures don't contain the new addresses
     NSArray<NSDictionary<NSString *, id> *> *frames = serialization[@"profile"][@"frames"];
     XCTAssertEqual(frames.count, 3UL);
 
@@ -278,6 +290,12 @@ using namespace sentry::profiling;
         @"The data structures copied for serialization should not be modified with subsequent "
         @"calls from the backtrace sampler. The new backtrace addresses should not appear in the "
         @"copies of the profiling data structures after calling the serialization function.");
+
+    // ensure the serialization's copied data structures don't get the updated thread info
+    XCTAssertNil(serialization[@"profile"][@"thread_metadata"][@"1"][@"name"],
+        @"Thread metadata had a nil thread name at time of serialization, but modification "
+        @"overwrote it later and that change propagated to the serialization copy of the profiling "
+        @"data structure.");
 }
 
 - (void)testProfilerPayload
