@@ -274,7 +274,10 @@ using namespace sentry::profiling;
                 @[ @"0x0000000000000777", @"0x0000000000000888", @"0x0000000000000999" ];
             return [unexpected containsObject:address];
         }];
-    XCTAssertEqual(index, NSNotFound);
+    XCTAssertEqual(index, NSNotFound,
+        @"The data structures copied for serialization should not be modified with subsequent "
+        @"calls from the backtrace sampler. The new backtrace addresses should not appear in the "
+        @"copies of the profiling data structures after calling the serialization function.");
 }
 
 - (void)testProfilerPayload
