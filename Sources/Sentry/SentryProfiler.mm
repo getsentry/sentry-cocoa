@@ -91,11 +91,6 @@ processBacktrace(const Backtrace &backtrace,
     NSMutableDictionary<NSString *, NSNumber *> *stackIndexLookup)
 {
     const auto threadID = sentry_stringForUInt64(backtrace.threadMetadata.threadID);
-
-    NSString *queueAddress = nil;
-    if (backtrace.queueMetadata.address != 0) {
-        queueAddress = sentry_formatHexAddressUInt64(backtrace.queueMetadata.address);
-    }
     NSMutableDictionary<NSString *, id> *metadata = threadMetadata[threadID];
     if (metadata == nil) {
         metadata = [NSMutableDictionary<NSString *, id> dictionary];
@@ -106,11 +101,6 @@ processBacktrace(const Backtrace &backtrace,
     }
     if (backtrace.threadMetadata.priority != -1 && metadata[@"priority"] == nil) {
         metadata[@"priority"] = @(backtrace.threadMetadata.priority);
-    }
-    if (queueAddress != nil && queueMetadata[queueAddress] == nil
-        && backtrace.queueMetadata.label != nullptr) {
-        queueMetadata[queueAddress] =
-            @ { @"label" : [NSString stringWithUTF8String:backtrace.queueMetadata.label->c_str()] };
     }
 #    if defined(DEBUG)
     const auto symbols
@@ -142,6 +132,16 @@ processBacktrace(const Backtrace &backtrace,
     const auto sample = [[SentrySample alloc] init];
     sample.absoluteTimestamp = backtrace.absoluteTimestamp;
     sample.threadID = backtrace.threadMetadata.threadID;
+
+    NSString *queueAddress = nil;
+    if (backtrace.queueMetadata.address != 0) {
+        queueAddress = sentry_formatHexAddressUInt64(backtrace.queueMetadata.address);
+    }
+    if (queueAddress != nil && queueMetadata[queueAddress] == nil
+        && backtrace.queueMetadata.label != nullptr) {
+        queueMetadata[queueAddress] =
+            @ { @"label" : [NSString stringWithUTF8String:backtrace.queueMetadata.label->c_str()] };
+    }
     if (queueAddress != nil) {
         sample.queueAddress = queueAddress;
     }
