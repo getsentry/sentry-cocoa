@@ -130,6 +130,7 @@ processBacktrace(const Backtrace &backtrace,
     if (queueAddress != nil) {
         sample.queueAddress = queueAddress;
     }
+
     const auto stackKey = [stack componentsJoinedByString:@"|"];
     const auto stackIndex = stackIndexLookup[stackKey];
     if (stackIndex) {
