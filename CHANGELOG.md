@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add `sent_at` to envelope header (#2859)
+
 ## 8.7.0
 
 ### Features
