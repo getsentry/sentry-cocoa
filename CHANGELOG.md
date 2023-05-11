@@ -1,10 +1,15 @@
 # Changelog
 
-## 8.7.0
+## Unreleased
 
 ### Features
 
 - Add `sent_at` to envelope header (#2859)
+
+## 8.7.0
+
+### Features
+
 - Allow starting the SDK with an initial scope (#2982)
 - Swift Error Names (#2960)
 
