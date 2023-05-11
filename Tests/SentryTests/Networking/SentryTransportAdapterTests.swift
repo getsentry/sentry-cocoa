@@ -24,6 +24,8 @@ class SentryTransportAdapterTests: XCTestCase {
     override func setUp() {
         super.setUp()
         
+        CurrentDate.setCurrentDateProvider(TestCurrentDateProvider())
+        
         fixture = Fixture()
         sut = fixture.sut
     }
