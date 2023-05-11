@@ -16,6 +16,7 @@ on:
       - 'scripts/tests-with-thread-sanitizer.sh'
       - 'scripts/ci-select-xcode.sh'
       - 'scripts/xcode-test.sh'
+      - '.codecov.yml'
 
       # run the workflow any time an Xcode scheme changes for any tested target
       - 'Sentry.xcodeproj/xcshareddata/xcschemes/Sentry.xcscheme'
@@ -25,6 +26,14 @@ on:
       - 'Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-Swift.xcscheme'
       - 'Samples/macOS-Swift/macOS-Swift.xcodeproj/xcshareddata/xcschemes/macOS-Swift.xcscheme'
       - 'Samples/iOS-ObjectiveC/iOS-ObjectiveC.xcodeproj/xcshareddata/xcschemes/iOS-ObjectiveC.xcscheme'
+    
+  schedule:
+    # Run tests every hour to get some data on how long they take and how often they fail.
+    # We hypothesize that tests take longer and fail more often when the US is online.
+    # The plan is to remove this after a week or so, once we have enough data.
+    # We didn't choose 0 to minimize collisions with other workflows.
+    # Run every hour at 17 minutes past the hour.
+    - cron:  '47 * * * *'
 
 jobs:
   build-test-server:
@@ -70,16 +79,13 @@ jobs:
   unit-tests:
     name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}} - OS ${{matrix.test-destination-os}}
     runs-on: ${{matrix.runs-on}}
-    timeout-minutes: ${{matrix.timeout-minutes}}
+    timeout-minutes: 20
     needs: build-test-server
 
     strategy:
       fail-fast: false
       matrix:
         # Can't run tests on watchOS because XCTest is not available
-        # We can't use Xcode 11.7 as we use XCTestObservation. When building with Xcode 11.7
-        # we get the error 'XCTest/XCTest.h' not found. Setting ENABLE_TESTING_SEARCH_PATH=YES
-        # doesn't work.
         include:
 
           # iOS 13.7
@@ -87,58 +93,50 @@ jobs:
             platform: 'iOS'
             xcode: '13.2.1'
             test-destination-os: '13.7'
-            timeout-minutes: 15
 
           # iOS 14
           - runs-on: macos-11
             platform: 'iOS'
             xcode: '13.2.1'
             test-destination-os: '14.5'
-            timeout-minutes: 15
 
           # iOS 15
           - runs-on: macos-12
             platform: 'iOS'
             xcode: '13.4.1'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
           # iOS 16
-          - runs-on: macos-12
+          - runs-on: macos-13
             platform: 'iOS'
-            xcode: '14.2'
+            xcode: '14.3'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
           # macOS 11
           - runs-on: macos-11
             platform: 'macOS'
             xcode: '13.2.1'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
           # macOS 12
           - runs-on: macos-12
             platform: 'macOS'
             xcode: '13.4.1'
             test-destination-os: 'latest'
-            timeout-minutes: 15
           
             # macOS 13
-          - runs-on: macos-12
+          - runs-on: macos-13
             platform: 'macOS'
-            xcode: '14.2'
+            xcode: '14.3'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
           # Catalyst. We only test the latest version, as
           # the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
-          - runs-on: macos-12
+          - runs-on: macos-13
             platform: 'Catalyst'
-            xcode: '13.4.1'
+            xcode: '14.3'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
           # MetricKit doesn't exist for tvOS, so we can still run unit tests with
           # Xcode 12 for it.
@@ -147,27 +145,28 @@ jobs:
             platform: 'tvOS'
             xcode: '12.5.1'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
           # tvOS 15
           - runs-on: macos-12
             platform: 'tvOS'
             xcode: '13.4.1'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
           # tvOS 16
-          - runs-on: macos-12
+          - runs-on: macos-13
             platform: 'tvOS'
-            xcode: '14.2'
+            xcode: '14.3'
             test-destination-os: 'latest'
-            timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with:
           name: test-server
+
+      - name: Print hardware info
+        run: system_profiler SPHardwareDataType
+
       - name: Allow test-server to run
         run: chmod +x ./test-server-exec
       - run: ./test-server-exec &
@@ -195,6 +194,7 @@ jobs:
 
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build tests
+        id: build_tests
         run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME ci build-for-testing
       
       - name: Run tests
@@ -204,9 +204,13 @@ jobs:
         # manipulating string in expressions.
         run: ./scripts/xcode-test.sh ${{matrix.platform}} ${{matrix.test-destination-os}} $GITHUB_REF_NAME ci test-without-building
 
+      - name: Slowest Tests
+        if: ${{ always() }}
+        run: ./scripts/xcode-slowest-tests.sh
+
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@v3
-        if: failure()
+        if: steps.build_tests.outcome == 'failure'
         with:
           name: derived-data-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
           path: |
@@ -220,16 +224,36 @@ jobs:
           path: |
             raw-test-output.log
 
+      - name: Archiving Crash Logs
+        uses: actions/upload-artifact@v3
+        if: ${{  failure() || cancelled() }}
+        with:
+          name: crash-logs-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            ~/Library/Logs/DiagnosticReports/**
+
       # We can upload all coverage reports, because codecov merges them.
       # See https://docs.codecov.io/docs/merging-reports
       # Checkout .codecov.yml to see the config of Codecov
       # We don't upload codecov for release branches, as we don't want a failing coverage check to block a release.
+      # We don't upload codecov for scheduled runs as CodeCov only accepts a limited amount of uploads per commit.
       - name: Push code coverage to codecov
+        id: codecov_1
         uses: codecov/codecov-action@894ff025c7b54547a9a2a1e9f228beae737ad3c2 # pin@v3.1.3
-        if: ${{ contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') }}
+        if: ${{ contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
           # be solved by specifying the token, see https://github.com/codecov/codecov-action/issues/557#issuecomment-1224970469
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+          verbose: true
+
+      # Sometimes codecov uploads etc can fail. Retry one time to rule out e.g. intermittent network failures.
+      - name: Push code coverage to codecov
+        id: codecov_2
+        uses: codecov/codecov-action@894ff025c7b54547a9a2a1e9f228beae737ad3c2 # pin@v3.1.3
+        if: ${{ steps.codecov_1.outcome == 'failure' && contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
+        with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           verbose: true
@@ -272,14 +296,14 @@ jobs:
 
   ui-tests:
     name: UI Tests for ${{matrix.target}} on Simulators
-    runs-on: macos-12
-    strategy: 
+    runs-on: macos-13
+    strategy:
       matrix:
         target: ['ios_swift', 'ios_objc', 'tvos_swift']
 
     steps:
       - uses: actions/checkout@v3
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh  "14.3"
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane

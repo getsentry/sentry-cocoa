@@ -1,8 +1,10 @@
 #import "SentryTransactionContext.h"
 #import "SentryLog.h"
 #include "SentryProfilingConditionals.h"
+#import "SentrySpanContext+Private.h"
 #import "SentryThread.h"
 #include "SentryThreadHandle.hpp"
+#import "SentryTraceOrigins.h"
 #import "SentryTransactionContext+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -20,21 +22,11 @@ SentryTransactionContext ()
 
 @implementation SentryTransactionContext
 
+#pragma mark - Public
+
 - (instancetype)initWithName:(NSString *)name operation:(NSString *)operation
 {
-    return [self initWithName:name
-                   nameSource:kSentryTransactionNameSourceCustom
-                    operation:operation];
-}
-
-- (instancetype)initWithName:(NSString *)name
-                  nameSource:(SentryTransactionNameSource)source
-                   operation:(NSString *)operation
-{
-    if (self = [super initWithOperation:operation]) {
-        [self commonInitWithName:name source:source parentSampled:kSentryDefaultSamplingDecision];
-    }
-    return self;
+    return [self initWithName:name operation:operation sampled:kSentrySampleDecisionUndecided];
 }
 
 - (instancetype)initWithName:(NSString *)name
@@ -44,22 +36,12 @@ SentryTransactionContext ()
     return [self initWithName:name
                    nameSource:kSentryTransactionNameSourceCustom
                     operation:operation
+                       origin:SentryTraceOriginManual
                       sampled:sampled];
 }
 
 - (instancetype)initWithName:(NSString *)name
-                  nameSource:(SentryTransactionNameSource)source
                    operation:(NSString *)operation
-                     sampled:(SentrySampleDecision)sampled
-{
-    if (self = [super initWithOperation:operation sampled:sampled]) {
-        [self commonInitWithName:name source:source parentSampled:kSentryDefaultSamplingDecision];
-    }
-    return self;
-}
-
-- (instancetype)initWithName:(NSString *)name
-                   operation:(nonnull NSString *)operation
                      traceId:(SentryId *)traceId
                       spanId:(SentrySpanId *)spanId
                 parentSpanId:(nullable SentrySpanId *)parentSpanId
@@ -68,15 +50,44 @@ SentryTransactionContext ()
     return [self initWithName:name
                    nameSource:kSentryTransactionNameSourceCustom
                     operation:operation
+                       origin:SentryTraceOriginManual
                       traceId:traceId
                        spanId:spanId
                  parentSpanId:parentSpanId
                 parentSampled:parentSampled];
 }
 
+#pragma mark - Private
+
+- (instancetype)initWithName:(NSString *)name
+                  nameSource:(SentryTransactionNameSource)source
+                   operation:(NSString *)operation
+                      origin:(NSString *)origin
+{
+    if (self = [super initWithOperation:operation
+                                 origin:origin
+                                sampled:kSentryDefaultSamplingDecision]) {
+        [self commonInitWithName:name source:source parentSampled:kSentryDefaultSamplingDecision];
+    }
+    return self;
+}
+
+- (instancetype)initWithName:(NSString *)name
+                  nameSource:(SentryTransactionNameSource)source
+                   operation:(NSString *)operation
+                      origin:(NSString *)origin
+                     sampled:(SentrySampleDecision)sampled
+{
+    if (self = [super initWithOperation:operation origin:origin sampled:sampled]) {
+        [self commonInitWithName:name source:source parentSampled:kSentryDefaultSamplingDecision];
+    }
+    return self;
+}
+
 - (instancetype)initWithName:(NSString *)name
                   nameSource:(SentryTransactionNameSource)source
                    operation:(nonnull NSString *)operation
+                      origin:(NSString *)origin
                      traceId:(SentryId *)traceId
                       spanId:(SentrySpanId *)spanId
                 parentSpanId:(nullable SentrySpanId *)parentSpanId
@@ -86,6 +97,8 @@ SentryTransactionContext ()
                                spanId:spanId
                              parentId:parentSpanId
                             operation:operation
+                      spanDescription:nil
+                               origin:origin
                               sampled:kSentryDefaultSamplingDecision]) {
         [self commonInitWithName:name source:source parentSampled:parentSampled];
     }
@@ -95,6 +108,7 @@ SentryTransactionContext ()
 - (instancetype)initWithName:(NSString *)name
                   nameSource:(SentryTransactionNameSource)source
                    operation:(NSString *)operation
+                      origin:(NSString *)origin
                      traceId:(SentryId *)traceId
                       spanId:(SentrySpanId *)spanId
                 parentSpanId:(nullable SentrySpanId *)parentSpanId
@@ -105,6 +119,8 @@ SentryTransactionContext ()
                                spanId:spanId
                              parentId:parentSpanId
                             operation:operation
+                      spanDescription:nil
+                               origin:origin
                               sampled:sampled]) {
         _name = [NSString stringWithString:name];
         _nameSource = source;

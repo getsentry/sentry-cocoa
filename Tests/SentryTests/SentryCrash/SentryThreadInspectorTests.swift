@@ -39,11 +39,6 @@ class SentryThreadInspectorTests: XCTestCase {
         XCTAssertTrue(30 < stacktrace?.frames.count ?? 0, "Not enough stacktrace frames.")
     }
     
-    func testStacktraceHasFrames_forEveryThread_withStitchAsyncOn() {
-        SentrySDK.start { $0.stitchAsyncCode = true }
-        assertStackForEveryThread()
-    }
-    
     func testStacktraceHasFrames_forEveryThread() {
         assertStackForEveryThread()
     }

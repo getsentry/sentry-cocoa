@@ -3,7 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange;
+@class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange, SentryScope;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -163,14 +163,6 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL attachStacktrace;
 
 /**
- * @warning This is an experimental feature and may still have bugs. Turning this feature on can
- * have an impact on the grouping of your issues.
- * @brief When enabled, the SDK stitches stack traces of asynchronous code together.
- * @note This feature is disabled by default.
- */
-@property (nonatomic, assign) BOOL stitchAsyncCode;
-
-/**
  * The maximum size for each attachment in bytes.
  * @note Default is 20 MiB (20 ✕ 1024 ✕ 1024 bytes).
  * @note Please also check the maximum attachment size of relay to make sure your attachments don't
@@ -198,6 +190,14 @@ NS_SWIFT_NAME(Options)
  * https://docs.sentry.io/platforms/apple/performance/
  */
 @property (nonatomic, assign) BOOL enableAutoPerformanceTracing;
+
+/**
+ * A block that configures the initial scope when starting the SDK.
+ * @discussion The block receives a suggested default scope. You can either
+ * configure and return this, or create your own scope instead.
+ * @note The default simply returns the passed in scope.
+ */
+@property (nonatomic) SentryScope * (^initialScope)(SentryScope *);
 
 #if SENTRY_HAS_UIKIT
 /**

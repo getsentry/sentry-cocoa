@@ -307,6 +307,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
 
         XCTAssertEqual(result?.count, 1)
         XCTAssertEqual(dbSpan.operation, SENTRY_COREDATA_FETCH_OPERATION)
+        XCTAssertEqual(dbSpan.origin, "auto.db.core_data")
         XCTAssertEqual(dbSpan.spanDescription, expectedDescription)
         XCTAssertEqual(dbSpan.data["read_count"] as? Int, 1)
         XCTAssertEqual(dbSpan.data["blocked_main_thread"] as? Bool ?? false, mainThread)

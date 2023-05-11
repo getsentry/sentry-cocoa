@@ -26,6 +26,11 @@ AppDelegate ()
         SentryHttpStatusCodeRange *httpStatusCodeRange =
             [[SentryHttpStatusCodeRange alloc] initWithMin:400 max:599];
         options.failedRequestStatusCodes = @[ httpStatusCodeRange ];
+
+        options.initialScope = ^(SentryScope *scope) {
+            [scope setTagValue:@"" forKey:@""];
+            return scope;
+        };
     }];
 
     return YES;

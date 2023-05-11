@@ -21,8 +21,8 @@ SentryProfiler ()
 + (void)useProcessInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
     NS_SWIFT_NAME(useProcessInfoWrapper(_:));
 
-+ (void)useMetricTimerWrapper:(SentryNSTimerWrapper *)timerWrapper
-    NS_SWIFT_NAME(useMetricTimerWrapper(_:));
++ (void)useDispatchFactory:(SentryDispatchFactory *)dispatchFactory
+    NS_SWIFT_NAME(useDispatchFactory(_:));
 
 + (void)useTimeoutTimerWrapper:(SentryNSTimerWrapper *)timerWrapper
     NS_SWIFT_NAME(useTimeoutTimerWrapper(_:));

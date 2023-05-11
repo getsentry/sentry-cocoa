@@ -21,6 +21,7 @@ class SentryHubTests: XCTestCase {
         let crashedSession: SentrySession
         let transactionName = "Some Transaction"
         let transactionOperation = "Some Operation"
+        let traceOrigin = "auto"
         let random = TestRandom(value: 0.5)
         let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
         
@@ -128,6 +129,9 @@ class SentryHubTests: XCTestCase {
     }
     
     func testBreadcrumbCapLimit() {
+        // To avoid spamming the test logs
+        SentryLog.configure(true, diagnosticLevel: .error)
+        
         let hub = fixture.getSut()
 
         for _ in 0...100 {
@@ -135,6 +139,8 @@ class SentryHubTests: XCTestCase {
         }
 
         assert(withScopeBreadcrumbsCount: 100, with: hub)
+        
+        setTestDefaultLogLevel()
     }
     
     func testBreadcrumbOverDefaultLimit() {
@@ -213,9 +219,11 @@ class SentryHubTests: XCTestCase {
     
     func testStartTransactionWithNameOperation() {
         let span = fixture.getSut().startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
-        let tracer = Dynamic(span)
+        let tracer = span as! SentryTracer
         XCTAssertEqual(tracer.transactionContext.name, fixture.transactionName)
         XCTAssertEqual(span.operation, fixture.transactionOperation)
+        XCTAssertEqual(SentryTransactionNameSource.custom, tracer.transactionContext.nameSource)
+        XCTAssertEqual("manual", tracer.transactionContext.origin)
     }
     
     func testStartTransactionWithContext() {
@@ -224,22 +232,25 @@ class SentryHubTests: XCTestCase {
             operation: fixture.transactionOperation
         ))
         
-        let tracer = Dynamic(span)
+        let tracer = span as! SentryTracer
         XCTAssertEqual(tracer.transactionContext.name, fixture.transactionName)
         XCTAssertEqual(span.operation, fixture.transactionOperation)
+        XCTAssertEqual("manual", tracer.transactionContext.origin)
     }
 
     func testStartTransactionWithNameSource() {
         let span = fixture.getSut().startTransaction(transactionContext: TransactionContext(
             name: fixture.transactionName,
             nameSource: .url,
-            operation: fixture.transactionOperation
+            operation: fixture.transactionOperation,
+            origin: fixture.traceOrigin
         ))
 
-        let tracer = Dynamic(span)
+        let tracer = span as! SentryTracer
         XCTAssertEqual(tracer.transactionContext.name, fixture.transactionName)
         XCTAssertEqual(tracer.transactionContext.nameSource, SentryTransactionNameSource.url)
         XCTAssertEqual(span.operation, fixture.transactionOperation)
+        XCTAssertEqual(tracer.transactionContext.origin, fixture.traceOrigin)
     }
     
     func testStartTransactionWithContextSamplingContext() {

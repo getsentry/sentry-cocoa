@@ -62,6 +62,9 @@
                   Identifier = "SentryCrashReportStore_Tests/testCrashReportCount1">
                </Test>
                <Test
+                  Identifier = "SentryCrashReportStore_Tests/testDeleteAllReports">
+               </Test>
+               <Test
                   Identifier = "SentryNSErrorTests/testSerializeWithUnderlyingNSException()">
                </Test>
                <Test

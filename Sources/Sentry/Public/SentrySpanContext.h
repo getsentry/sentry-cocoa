@@ -45,6 +45,16 @@ SENTRY_NO_INIT
 @property (nullable, nonatomic, copy, readonly) NSString *spanDescription;
 
 /**
+ * The origin of the span indicates what created the span.
+ *
+ * @note Gets set by the SDK. It is not expected to be set manually by users. Although the protocol
+ * allows this value to be optional, we make it nonnullable as we always send the value.
+ *
+ * @see <https://develop.sentry.dev/sdk/performance/trace-origin>
+ */
+@property (nonatomic, copy) NSString *origin;
+
+/**
  * Init a @c SentryContext with an operation code.
  * @note @c traceId and @c spanId with be randomly created; @c sampled by default is
  * @c kSentrySampleDecisionUndecided .
@@ -57,7 +67,6 @@ SENTRY_NO_INIT
  * @param operation The operation this span is measuring.
  * @param sampled Determines whether the trace should be sampled.
  */
-
 - (instancetype)initWithOperation:(NSString *)operation sampled:(SentrySampleDecision)sampled;
 
 /**

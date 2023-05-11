@@ -64,34 +64,6 @@ SentryCrash ()
 
 @end
 
-static NSString *
-getBundleName(void)
-{
-    NSString *bundleName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleName"];
-    if (bundleName == nil) {
-        bundleName = @"Unknown";
-    }
-    return bundleName;
-}
-
-static NSString *
-getBasePath(void)
-{
-    NSArray *directories
-        = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    if ([directories count] == 0) {
-        SentryCrashLOG_ERROR(@"Could not locate cache directory path.");
-        return nil;
-    }
-    NSString *cachePath = [directories objectAtIndex:0];
-    if ([cachePath length] == 0) {
-        SentryCrashLOG_ERROR(@"Could not locate cache directory path.");
-        return nil;
-    }
-    NSString *pathEnd = [@"SentryCrash" stringByAppendingPathComponent:getBundleName()];
-    return [cachePath stringByAppendingPathComponent:pathEnd];
-}
-
 @implementation SentryCrash
 
 // ============================================================================
@@ -126,13 +98,13 @@ getBasePath(void)
 
 - (id)init
 {
-    return [self initWithBasePath:getBasePath()];
+    return [self initWithBasePath:[self getBasePath]];
 }
 
 - (id)initWithBasePath:(NSString *)basePath
 {
     if ((self = [super init])) {
-        self.bundleName = getBundleName();
+        self.bundleName = [self getBundleName];
         self.basePath = basePath;
         if (self.basePath == nil) {
             SentryCrashLOG_ERROR(@"Failed to initialize crash handler. Crash "
@@ -560,6 +532,36 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
 - (void)applicationWillTerminate
 {
     sentrycrash_notifyAppTerminate();
+}
+
+- (NSString *)clearBundleName:(NSString *)filename
+{
+    // The bundle name is used as file name, therefore "/" is not allowed.
+    return [filename stringByReplacingOccurrencesOfString:@"/" withString:@"-"];
+}
+
+- (NSString *)getBundleName
+{
+    NSString *bundleName =
+        [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleName"] ?: @"Unknown";
+    return [self clearBundleName:bundleName];
+}
+
+- (NSString *)getBasePath
+{
+    NSArray *directories
+        = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    if ([directories count] == 0) {
+        SentryCrashLOG_ERROR(@"Could not locate cache directory path.");
+        return nil;
+    }
+    NSString *cachePath = [directories objectAtIndex:0];
+    if ([cachePath length] == 0) {
+        SentryCrashLOG_ERROR(@"Could not locate cache directory path.");
+        return nil;
+    }
+    NSString *pathEnd = [@"SentryCrash" stringByAppendingPathComponent:[self getBundleName]];
+    return [cachePath stringByAppendingPathComponent:pathEnd];
 }
 
 @end

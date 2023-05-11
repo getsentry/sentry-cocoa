@@ -18,10 +18,12 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope.h"
 #import "SentrySpan.h"
+#import "SentrySpanContext+Private.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
 #import "SentryTime.h"
 #import "SentryTraceContext.h"
+#import "SentryTraceOrigins.h"
 #import "SentryTracerConcurrency.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
@@ -761,6 +763,7 @@ static BOOL appStartMeasurementRead;
                                           parentId:parentId
                                          operation:operation
                                    spanDescription:description
+                                            origin:SentryTraceOriginAutoAppStart
                                            sampled:self.sampled];
 
     return [[SentrySpan alloc] initWithTracer:self context:context];
