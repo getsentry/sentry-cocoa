@@ -23,10 +23,6 @@ SENTRY_NO_INIT
 
 - (BOOL)isApplicationInForeground;
 
-- (void)installAsyncHooks;
-
-- (void)uninstallAsyncHooks;
-
 - (NSDictionary *)systemInfo;
 
 - (bytes)freeMemorySize;

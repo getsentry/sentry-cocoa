@@ -33,13 +33,6 @@ class ErrorsViewController: UIViewController {
     }
     // swiftlint:enable force_unwrapping
 
-    @IBAction func asyncCrash(_ sender: UIButton) {
-        highlightButton(sender)
-        DispatchQueue.main.async {
-            self.asyncCrash1()
-        }
-    }
-
     @IBAction func captureError(_ sender: UIButton) {
         highlightButton(sender)
         do {
@@ -66,18 +59,6 @@ class ErrorsViewController: UIViewController {
     @IBAction func captureFatalError(_ sender: UIButton) {
         highlightButton(sender)
         fatalError("This is a fatal error. Oh no 😬.")
-    }
-
-    func asyncCrash1() {
-        DispatchQueue.main.async {
-            self.asyncCrash2()
-        }
-    }
-
-    func asyncCrash2() {
-        DispatchQueue.main.async {
-            SentrySDK.crash()
-        }
     }
 
     @IBAction func oomCrash(_ sender: UIButton) {
