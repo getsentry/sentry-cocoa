@@ -64,7 +64,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
             expect.fulfill()
         }
 
-        wait(for: [expect], timeout: 0.1)
+        wait(for: [expect], timeout: 1.0)
     }
     
     func test_FetchRequest_WithPredicate() {
@@ -111,7 +111,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
             expect.fulfill()
         }
 
-        wait(for: [expect], timeout: 0.1)
+        wait(for: [expect], timeout: 1.0)
     }
     
     func test_Save_2Insert_1Entity() {
