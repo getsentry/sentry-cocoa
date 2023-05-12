@@ -171,6 +171,17 @@ using namespace sentry::profiling;
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
+/**
+ * We received reports of crashes happening during serialization, which turned out to be caused by a
+ * data race in the collections we use to store profiler information, which are block-enumerated by
+ * NSJSONSerialization, which is not a thread-safe operation. So when the backtrace profiler
+ * modified the same collection from another thread while the block enumeration was in progress, a
+ * crash occurred. The solution is twofold:
+ *   1. copy the data structures so that serialization works with a new instance that will never be
+ * modified by the backtrace sampler thread
+ *   2. force exclusive access to the data structures so that they are never modified during any
+ * other operation, even the copy
+ */
 - (void)testProfilerMutationDuringSerialization
 {
     const auto resolvedThreadMetadata =
@@ -254,6 +265,7 @@ using namespace sentry::profiling;
     }
 
     // cause the data structures to be modified again: overwrite previous thread metadata
+    // subdictionary contents
     {
         ThreadMetadata threadMetadata;
         threadMetadata.name = "testThread-1";
@@ -276,7 +288,9 @@ using namespace sentry::profiling;
 
     // ensure the serialization's copied data structures don't contain the new addresses
     NSArray<NSDictionary<NSString *, id> *> *frames = serialization[@"profile"][@"frames"];
-    XCTAssertEqual(frames.count, 3UL);
+    XCTAssertEqual(frames.count, 3UL,
+        @"New frames appeared in the data structure that should have been copied for serialization "
+        @"and should no longer be modifiable from the backtrace sampler thread.");
 
     const auto index =
         [frames indexOfObjectPassingTest:^BOOL(NSDictionary<NSString *, id> *_Nonnull obj,
