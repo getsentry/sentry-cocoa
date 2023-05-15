@@ -26,14 +26,6 @@ on:
       - 'Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-Swift.xcscheme'
       - 'Samples/macOS-Swift/macOS-Swift.xcodeproj/xcshareddata/xcschemes/macOS-Swift.xcscheme'
       - 'Samples/iOS-ObjectiveC/iOS-ObjectiveC.xcodeproj/xcshareddata/xcschemes/iOS-ObjectiveC.xcscheme'
-    
-  schedule:
-    # Run tests every hour to get some data on how long they take and how often they fail.
-    # We hypothesize that tests take longer and fail more often when the US is online.
-    # The plan is to remove this after a week or so, once we have enough data.
-    # We didn't choose 0 to minimize collisions with other workflows.
-    # Run every hour at 17 minutes past the hour.
-    - cron:  '47 * * * *'
 
 jobs:
   build-test-server:
