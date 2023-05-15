@@ -154,7 +154,7 @@ processBacktrace(const Backtrace &backtrace,
         [stacks addObject:stack];
     }
 
-    {
+    @autoreleasepool {
         std::lock_guard<std::mutex> l(_gSamplesArrayLock);
         [samples addObject:sample];
     }
@@ -274,6 +274,12 @@ serializedSamplesWithRelativeTimestamps(
     SentryProfilerTruncationReason _truncationReason;
     NSTimer *_timeoutTimer;
     SentryHub *__weak _hub;
+}
+
+- (void)dealloc
+{
+    _profiler = nullptr;
+    _profileData = nil;
 }
 
 - (instancetype)initWithHub:(SentryHub *)hub
@@ -436,7 +442,31 @@ serializedSamplesWithRelativeTimestamps(
     const auto profileID = [[SentryId alloc] init];
     [self serializeBasicProfileInfo:payload profileID:profileID transaction:transaction];
 
-    return [self envelopeItemForProfileData:payload profileID:profileID];
+    const auto envelope = [self envelopeItemForProfileData:payload profileID:profileID];
+
+    // if we were keeping this data around after stopping the profiler due to a background event or
+    // if the timeout timer elapsed, we can now release it
+    [self cleanUpProfilingData];
+
+    return envelope;
+}
+
+/**
+ * Since we keep a reference to a memory hierarchy via a global variable holding the profiler
+ * instance, we need to manually release it when we're done with it. This would implicitly happen on
+ * a subsequent call to @c +[start] , but it's better to release the memory as soon as we're done
+ * with it in case
+ * @warning This method does so if the profiler is no longer running, but that can also be the case
+ * if it stopped due to a background or timeout, where in those cases the data still needs to be
+ * retained until the tracer requests the data to attach to a transaction envelope, so be careful to
+ * only call this after stopping the profiler in the normal case.
+ */
++ (void)cleanUpProfilingData
+{
+    if (![_gCurrentProfiler isRunning]) {
+        _gCurrentProfiler->_profileData = nil;
+        _gCurrentProfiler = nil;
+    }
 }
 
 #    pragma mark - Testing
@@ -517,6 +547,13 @@ serializedSamplesWithRelativeTimestamps(
 #    if SENTRY_HAS_UIKIT
     [_gCurrentFramesTracker resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
+
+    // if we're stopping due to a timeout or background event, we need to keep the data around until
+    // the tracer requests it for its transaction envelope attachment, so only try to clean up with
+    // data if this is a normal stop
+    if (reason == SentryProfilerTruncationReasonNormal) {
+        [self cleanUpProfilingData];
+    }
 }
 
 - (void)startMetricProfiler

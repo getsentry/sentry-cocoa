@@ -126,6 +126,8 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 - (void)stop
 {
     [_dispatchSource cancel];
+    _cpuUsage = nil;
+    _memoryFootprint = nil;
 }
 
 - (NSMutableDictionary<NSString *, id> *)serializeForTransaction:(SentryTransaction *)transaction
