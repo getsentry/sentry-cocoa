@@ -19,6 +19,7 @@
 #import "SentryOptions.h"
 #import "SentryReachability.h"
 #import "SentrySerialization.h"
+#import "SentrySingleExecution.h"
 
 static NSTimeInterval const cachedEnvelopeSendDelay = 0.1;
 
@@ -50,7 +51,7 @@ SentryHttpTransport ()
  */
 @property (atomic) BOOL isSending;
 
-@property (atomic) BOOL isFlushing;
+@property (nonatomic) SentrySingleExecution* flushSingleExecution;
 
 @end
 
@@ -75,7 +76,7 @@ SentryHttpTransport ()
         self.dispatchQueue = dispatchQueueWrapper;
         self.dispatchGroup = dispatch_group_create();
         _isSending = NO;
-        _isFlushing = NO;
+        _flushSingleExecution = [[SentrySingleExecution alloc] init];
         self.discardedEvents = [NSMutableDictionary new];
         [self.envelopeRateLimit setDelegate:self];
         [self.fileManager setDelegate:self];
@@ -158,45 +159,28 @@ SentryHttpTransport ()
 
 - (BOOL)flush:(NSTimeInterval)timeout
 {
-    // Calculate the dispatch time of the flush duration as early as possible to guarantee an exact
-    // flush duration. Any code up to the dispatch_group_wait can take a couple of ms, adding up to
-    // the flush duration.
-    dispatch_time_t delta = (int64_t)(timeout * (NSTimeInterval)NSEC_PER_SEC);
-    dispatch_time_t dispatchTimeout = dispatch_time(DISPATCH_TIME_NOW, delta);
-
-    // Double-Checked Locking to avoid acquiring unnecessary locks.
-    if (_isFlushing) {
-        SENTRY_LOG_DEBUG(@"Already flushing.");
-        return NO;
-    }
-
-    @synchronized(self) {
-        if (_isFlushing) {
-            SENTRY_LOG_DEBUG(@"Already flushing.");
-            return NO;
-        }
-
-        SENTRY_LOG_DEBUG(@"Start flushing.");
-
-        _isFlushing = YES;
+    __block intptr_t result = NO;
+    BOOL executed = [self.flushSingleExecution standaloneExecution:^{
+        dispatch_time_t delta = (int64_t)(timeout * (NSTimeInterval)NSEC_PER_SEC);
+        dispatch_time_t dispatchTimeout = dispatch_time(DISPATCH_TIME_NOW, delta);
         dispatch_group_enter(self.dispatchGroup);
+
+        [self sendAllCachedEnvelopes];
+
+        result = dispatch_group_wait(self.dispatchGroup, dispatchTimeout);
+
+        if (result == 0) {
+            SENTRY_LOG_DEBUG(@"Finished flushing.");
+        } else {
+            SENTRY_LOG_DEBUG(@"Flushing timed out.");
+        }
+    }];
+
+    if (executed == NO) {
+        SENTRY_LOG_DEBUG(@"Already flushing.");
     }
 
-    [self sendAllCachedEnvelopes];
-
-    intptr_t result = dispatch_group_wait(self.dispatchGroup, dispatchTimeout);
-
-    @synchronized(self) {
-        self.isFlushing = NO;
-    }
-
-    if (result == 0) {
-        SENTRY_LOG_DEBUG(@"Finished flushing.");
-        return YES;
-    } else {
-        SENTRY_LOG_DEBUG(@"Flushing timed out.");
-        return NO;
-    }
+    return result != 0;
 }
 
 /**
@@ -342,9 +326,8 @@ SentryHttpTransport ()
     SENTRY_LOG_DEBUG(@"Finished sending.");
     @synchronized(self) {
         self.isSending = NO;
-        if (self.isFlushing) {
+        if (self.flushSingleExecution.isRunning) {
             SENTRY_LOG_DEBUG(@"Stop flushing.");
-            self.isFlushing = NO;
             dispatch_group_leave(self.dispatchGroup);
         }
     }

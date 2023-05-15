@@ -721,59 +721,35 @@ class SentryHttpTransportTests: XCTestCase {
     
     func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() {
         CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
-        
-        givenCachedEvents(amount: 30)
-        fixture.requestManager.responseDelay = fixture.flushTimeout * 2
-        
-        let allFlushCallsGroup = DispatchGroup()
-        let ensureFlushingGroup = DispatchGroup()
-        let ensureFlushingQueue = DispatchQueue(label: "First flushing")
-        
-        allFlushCallsGroup.enter()
-        ensureFlushingGroup.enter()
-        ensureFlushingQueue.async {
-            ensureFlushingGroup.leave()
-            let beforeFlush = getAbsoluteTime()
-            let result = self.sut.flush(self.fixture.flushTimeout)
-            let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
-            
-            XCTAssertFalse(result)
-            XCTAssertLessThan(self.fixture.flushTimeout, blockingDuration)
-            
-            allFlushCallsGroup.leave()
-        }
-        
-        // Ensure transport is flushing.
-        ensureFlushingGroup.waitWithTimeout()
-        
-        // Even when the dispatch group above waited successfully, there is not guarantee
-        // that the transport is already flushing. The queue above could stop it's execution,
-        // and the main thread could continue here. With the blocking call we give the
-        // queue some time to call the blocking flushing method.
-        delayNonBlocking(timeout: 0.1)
-        
-        // Now the transport should also have left the synchronized block, and the
-        // double-checked lock, should return immediately.
-        
-        let initiallyInactiveQueue = fixture.queue
-        for _ in 0..<2 {
-            allFlushCallsGroup.enter()
-            initiallyInactiveQueue.async {
-                for _ in 0..<10 {
-                    let beforeFlush = getAbsoluteTime()
-                    let result = self.sut.flush(self.fixture.flushTimeout)
-                    let blockingDuration = getDurationNs(beforeFlush, getAbsoluteTime()).toTimeInterval()
-                    
-                    XCTAssertGreaterThan(0.1, blockingDuration, "The flush call should have returned immediately.")
-                    XCTAssertFalse(result)
-                }
+        let sut = fixture.sut
+        let singleExecution = Dynamic(sut).flushSingleExecution.asObject as? SentrySingleExecution
 
-                allFlushCallsGroup.leave()
-            }
+        let semaphore = DispatchSemaphore(value:0)
+
+        let beginOFExecuteExpectation = expectation(description: "Will Execute Begin")
+        let endOFExecuteExpectation = expectation(description: "Will Execute End")
+        let willSkipExpectation = expectation(description: "WillSkip")
+
+        singleExecution?.willExecute = {
+            beginOFExecuteExpectation.fulfill()
+            //Hold the execution to test race condition
+            semaphore.wait()
+            endOFExecuteExpectation.fulfill()
         }
 
-        initiallyInactiveQueue.activate()
-        allFlushCallsGroup.waitWithTimeout()
+        singleExecution?.willSkip = {
+            willSkipExpectation.fulfill()
+            semaphore.signal()
+        }
+
+        DispatchQueue.global().async {
+            sut.flush(self.fixture.flushTimeout)
+        }
+        wait(for: [beginOFExecuteExpectation], timeout: 1)
+
+        let hasExecuted = sut.flush(self.fixture.flushTimeout)
+        XCTAssertFalse(hasExecuted)
+        wait(for: [endOFExecuteExpectation, willSkipExpectation], timeout: 1)
     }
 
     func testSendsWhenNetworkComesBack() {
