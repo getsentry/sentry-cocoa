@@ -123,11 +123,6 @@ processBacktrace(const Backtrace &backtrace,
     if (backtrace.queueMetadata.address != 0) {
         queueAddress = sentry_formatHexAddressUInt64(backtrace.queueMetadata.address);
     }
-    if (queueAddress != nil && queueMetadata[queueAddress] == nil
-        && backtrace.queueMetadata.label != nullptr) {
-        queueMetadata[queueAddress] =
-            @ { @"label" : [NSString stringWithUTF8String:backtrace.queueMetadata.label->c_str()] };
-    }
     if (queueAddress != nil) {
         sample.queueAddress = queueAddress;
     }
@@ -146,6 +141,14 @@ processBacktrace(const Backtrace &backtrace,
         // critical section: here is where all mutable data structures are updated, which must be
         // copied later during serialization, so we need enforce exclusive access
         std::lock_guard<std::mutex> l(_gDataStructureLock);
+
+        // update queue metadata if we have any and it isn't already recorded from a previous sample
+        if (queueAddress != nil && queueMetadata[queueAddress] == nil
+            && backtrace.queueMetadata.label != nullptr) {
+            queueMetadata[queueAddress] = @ {
+                @"label" : [NSString stringWithUTF8String:backtrace.queueMetadata.label->c_str()]
+            };
+        }
 
         // The following can overwrite thread metadata that was previously recorded for a thread,
         // when between samples if we find that the metadata is not present on one sample but is
