@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Fix crashes in profiling serialization race condition (#3018)
+
 ## 8.7.1
 
 ### Features
