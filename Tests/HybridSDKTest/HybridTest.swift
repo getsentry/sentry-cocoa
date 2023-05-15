@@ -3,6 +3,6 @@ import Sentry
 
 public class HybridTest {
 
-    var sentry : SentrySDK?
+    var sentry: SentrySDK?
 
 }
