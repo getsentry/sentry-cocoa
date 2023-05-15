@@ -1,4 +1,5 @@
 #import "SentrySerialization.h"
+#import "NSDate+SentryExtras.h"
 #import "SentryAppState.h"
 #import "SentryEnvelope+Private.h"
 #import "SentryEnvelopeAttachmentHeader.h"
@@ -51,6 +52,10 @@ NS_ASSUME_NONNULL_BEGIN
         [serializedData setValue:[traceContext serialize] forKey:@"trace"];
     }
 
+    NSDate *sentAt = envelope.header.sentAt;
+    if (sentAt != nil) {
+        [serializedData setValue:[sentAt sentry_toIso8601String] forKey:@"sent_at"];
+    }
     NSData *header = [SentrySerialization dataWithJSONObject:serializedData];
     if (nil == header) {
         SENTRY_LOG_ERROR(@"Envelope header cannot be converted to JSON.");
@@ -169,6 +174,11 @@ NS_ASSUME_NONNULL_BEGIN
                 envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:eventId
                                                                   sdkInfo:sdkInfo
                                                              traceContext:traceContext];
+
+                if (headerDictionary[@"sent_at"] != nil) {
+                    envelopeHeader.sentAt =
+                        [NSDate sentry_fromIso8601String:headerDictionary[@"sent_at"]];
+                }
             }
             break;
         }

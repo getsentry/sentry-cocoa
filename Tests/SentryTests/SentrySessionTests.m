@@ -33,7 +33,7 @@
     XCTAssertTrue([expected.sessionId isEqual:actual.sessionId]);
     XCTAssertEqual(expected.sequence, actual.sequence);
     XCTAssertEqual(expected.errors, actual.errors);
-    // TODO: get XCT happy XCTAssertEqual(expected.init, actual.init);
+
     XCTAssertEqualWithAccuracy([expected.started timeIntervalSinceReferenceDate],
         [actual.started timeIntervalSinceReferenceDate], 1);
     XCTAssertEqual(expected.status, actual.status);
@@ -61,7 +61,7 @@
     XCTAssertTrue([expected.sessionId isEqual:actual.sessionId]);
     XCTAssertEqual(expected.sequence, actual.sequence);
     XCTAssertEqual(expected.errors, actual.errors);
-    // TODO: get XCT happy XCTAssertEqual(expected.init, actual.init);
+
     XCTAssertEqualWithAccuracy([expected.started timeIntervalSinceReferenceDate],
         [actual.started timeIntervalSinceReferenceDate], 1);
     XCTAssertEqualWithAccuracy([timestamp timeIntervalSinceReferenceDate],
@@ -86,7 +86,7 @@
     XCTAssertTrue([expected.sessionId isEqual:actual.sessionId]);
     XCTAssertEqual(expected.sequence, actual.sequence);
     XCTAssertEqual(expected.errors, actual.errors);
-    // TODO: get XCT happy XCTAssertEqual(expected.init, actual.init);
+
     XCTAssertEqualWithAccuracy([expected.started timeIntervalSinceReferenceDate],
         [actual.started timeIntervalSinceReferenceDate], 1);
     XCTAssertEqualWithAccuracy([expected.timestamp timeIntervalSinceReferenceDate],
