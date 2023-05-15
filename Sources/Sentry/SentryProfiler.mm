@@ -91,6 +91,7 @@ processBacktrace(const Backtrace &backtrace,
     NSMutableDictionary<NSString *, NSNumber *> *stackIndexLookup)
 {
     const auto stack = [NSMutableArray<NSNumber *> array];
+    const auto framesToAdd = [NSMutableArray<NSDictionary<NSString *, id> *> array];
     for (std::vector<uintptr_t>::size_type backtraceAddressIdx = 0;
          backtraceAddressIdx < backtrace.addresses.size(); backtraceAddressIdx++) {
         const auto instructionAddress
@@ -108,7 +109,7 @@ processBacktrace(const Backtrace &backtrace,
 #    endif
             [stack addObject:@(frames.count)];
             frameIndexLookup[instructionAddress] = @(frames.count);
-            [frames addObject:frame];
+            [framesToAdd addObject:frame];
         } else {
             [stack addObject:frameIndex];
         }
@@ -139,7 +140,6 @@ processBacktrace(const Backtrace &backtrace,
         const auto nextStackIndex = @(stacks.count);
         sample.stackIndex = nextStackIndex;
         stackIndexLookup[stackKey] = nextStackIndex;
-        [stacks addObject:stack];
     }
 
     {
@@ -168,6 +168,13 @@ processBacktrace(const Backtrace &backtrace,
 
         // add the new sample to the data structure
         [samples addObject:sample];
+
+        // add the stack if it isn't already cached in the lookup index
+        if (stackIndex == nil) {
+            [stacks addObject:stack];
+        }
+
+        [frames addObjectsFromArray:framesToAdd];
     }
 }
 

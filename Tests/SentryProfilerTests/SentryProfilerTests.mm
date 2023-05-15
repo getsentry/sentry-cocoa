@@ -334,7 +334,7 @@ using namespace sentry::profiling;
     queueMetadata1.address = 9876543210;
     queueMetadata1.label = std::make_shared<std::string>("testQueue");
 
-    const auto addresses1 = std::vector<std::uintptr_t>({ 123, 456, 789 });
+    const auto addresses1 = std::vector<std::uintptr_t>({ 0x123, 0x456, 0x789 });
 
     Backtrace backtrace1;
     backtrace1.threadMetadata = threadMetadata1;
@@ -356,7 +356,7 @@ using namespace sentry::profiling;
     queueMetadata2.address = 9876543210;
     queueMetadata2.label = std::make_shared<std::string>("testQueue");
 
-    const auto addresses2 = std::vector<std::uintptr_t>({ 777, 888, 789 });
+    const auto addresses2 = std::vector<std::uintptr_t>({ 0x777, 0x888, 0x789 });
 
     Backtrace backtrace2;
     backtrace2.threadMetadata = threadMetadata2;
@@ -367,12 +367,21 @@ using namespace sentry::profiling;
     processBacktrace(backtrace2, resolvedThreadMetadata, resolvedQueueMetadata, resolvedSamples,
         resolvedStacks, resolvedFrames, frameIndexLookup, stackIndexLookup);
 
-    // record a third backtrace that's identical to the second to test stack deduplication
+    // record a third backtrace that's identical to the second to test stack/frame deduplication
 
     processBacktrace(backtrace2, resolvedThreadMetadata, resolvedQueueMetadata, resolvedSamples,
         resolvedStacks, resolvedFrames, frameIndexLookup, stackIndexLookup);
 
     XCTAssertEqual(resolvedFrames.count, 5UL);
+    const auto expectedOrdered = @[
+        @"0x0000000000000123", @"0x0000000000000456", @"0x0000000000000789", @"0x0000000000000777",
+        @"0x0000000000000888"
+    ];
+    [resolvedFrames enumerateObjectsUsingBlock:^(NSDictionary<NSString *, id> *_Nonnull actualFrame,
+        NSUInteger idx, __unused BOOL *_Nonnull stop) {
+        XCTAssert([actualFrame[@"instruction_addr"] isEqualToString:expectedOrdered[idx]]);
+    }];
+
     XCTAssertEqual(resolvedStacks.count, 2UL);
     XCTAssertEqual(resolvedSamples.count, 3UL);
 }
