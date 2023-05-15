@@ -2,7 +2,6 @@
 #import "SentryCrash.h"
 #import "SentryCrashMonitor_AppState.h"
 #import "SentryCrashMonitor_System.h"
-#import "SentryHook.h"
 #import <Foundation/Foundation.h>
 #import <SentryCrashCachedData.h>
 #import <SentryCrashDebug.h>
@@ -49,20 +48,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isApplicationInForeground
 {
     return sentrycrashstate_currentState()->applicationIsInForeground;
-}
-
-- (void)installAsyncHooks
-{
-    NSAssert(false,
-        @"`installAsyncHooks` should not be called, as its behavior is unpredictable and sometimes "
-        @"resulted in unexpected errors.");
-    sentrycrash_install_async_hooks();
-}
-
-- (void)uninstallAsyncHooks
-{
-    NSAssert(false, @"`uninstallAsyncHooks` should not be called");
-    sentrycrash_deactivate_async_hooks();
 }
 
 - (NSDictionary *)systemInfo

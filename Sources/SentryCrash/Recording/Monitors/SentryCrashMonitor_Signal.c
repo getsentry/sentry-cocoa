@@ -108,7 +108,6 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 
         sentrycrashcm_handleException(crashContext);
         sentrycrashmc_resumeEnvironment(threads, numThreads);
-        sentrycrash_async_backtrace_decref(g_stackCursor.async_caller);
     }
 
     SentryCrashLOG_DEBUG("Re-raising signal for regular handlers to catch.");

@@ -30,12 +30,12 @@
                                                                               andData:[NSData data]
                                                                      didFailWithError:&error];
 
-    NSString *authHeader = [[NSString alloc]
-        initWithFormat:@"Sentry "
-                       @"sentry_version=7,sentry_client=sentry.cocoa/"
-                       @"%@,sentry_timestamp=%@,sentry_key=username,sentry_"
-                       @"secret=password",
-        SentryMeta.versionString, @((NSInteger)[[NSDate date] timeIntervalSince1970])];
+    NSString *authHeader =
+        [[NSString alloc] initWithFormat:@"Sentry "
+                                         @"sentry_version=7,sentry_client=sentry.cocoa/"
+                                         @"%@,sentry_key=username,sentry_"
+                                         @"secret=password",
+                          SentryMeta.versionString];
 
     XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-Sentry-Auth"], authHeader);
     XCTAssertNil(error);
@@ -50,11 +50,11 @@
                                                                               andData:[NSData data]
                                                                      didFailWithError:&error];
 
-    NSString *authHeader = [[NSString alloc]
-        initWithFormat:@"Sentry "
-                       @"sentry_version=7,sentry_client=sentry.cocoa/"
-                       @"%@,sentry_timestamp=%@,sentry_key=username",
-        SentryMeta.versionString, @((NSInteger)[[NSDate date] timeIntervalSince1970])];
+    NSString *authHeader =
+        [[NSString alloc] initWithFormat:@"Sentry "
+                                         @"sentry_version=7,sentry_client=sentry.cocoa/"
+                                         @"%@,sentry_key=username",
+                          SentryMeta.versionString];
 
     XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-Sentry-Auth"], authHeader);
     XCTAssertNil(error);
