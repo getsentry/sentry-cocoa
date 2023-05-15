@@ -1,5 +1,6 @@
 #import "SentrySingleExecution.h"
-@interface SentrySingleExecution ()
+@interface
+SentrySingleExecution ()
 
 @property (nonatomic, strong) void (^willSkip)(void);
 

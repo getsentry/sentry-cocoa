@@ -719,37 +719,22 @@ class SentryHttpTransportTests: XCTestCase {
         assertFlushBlocksAndFinishesSuccessfully()
     }
     
-    func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() {
+    func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() throws {
         CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
         let sut = fixture.sut
-        let singleExecution = Dynamic(sut).flushSingleExecution.asObject as? SentrySingleExecution
+        let singleExecution = try XCTUnwrap(Dynamic(sut).flushSingleExecution.asObject as? SentrySingleExecution)
 
-        let semaphore = DispatchSemaphore(value:0)
+        var firstFlush = false
+        var secondFlush = true
 
-        let beginOFExecuteExpectation = expectation(description: "Will Execute Begin")
-        let endOFExecuteExpectation = expectation(description: "Will Execute End")
-        let willSkipExpectation = expectation(description: "WillSkip")
-
-        singleExecution?.willExecute = {
-            beginOFExecuteExpectation.fulfill()
-            //Hold the execution to test race condition
-            semaphore.wait()
-            endOFExecuteExpectation.fulfill()
+        assertRaceConditon(target: singleExecution) {
+            firstFlush = sut.flush(self.fixture.flushTimeout)
+        } subsequentCall: {
+            secondFlush = sut.flush(self.fixture.flushTimeout)
         }
 
-        singleExecution?.willSkip = {
-            willSkipExpectation.fulfill()
-            semaphore.signal()
-        }
-
-        DispatchQueue.global().async {
-            sut.flush(self.fixture.flushTimeout)
-        }
-        wait(for: [beginOFExecuteExpectation], timeout: 1)
-
-        let hasExecuted = sut.flush(self.fixture.flushTimeout)
-        XCTAssertFalse(hasExecuted)
-        wait(for: [endOFExecuteExpectation, willSkipExpectation], timeout: 1)
+        XCTAssertTrue(firstFlush)
+        XCTAssertFalse(secondFlush)
     }
 
     func testSendsWhenNetworkComesBack() {

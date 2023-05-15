@@ -51,7 +51,7 @@ SentryHttpTransport ()
  */
 @property (atomic) BOOL isSending;
 
-@property (nonatomic) SentrySingleExecution* flushSingleExecution;
+@property (nonatomic) SentrySingleExecution *flushSingleExecution;
 
 @end
 
@@ -159,7 +159,7 @@ SentryHttpTransport ()
 
 - (BOOL)flush:(NSTimeInterval)timeout
 {
-    __block intptr_t result = NO;
+    __block intptr_t result;
     BOOL executed = [self.flushSingleExecution standaloneExecution:^{
         dispatch_time_t delta = (int64_t)(timeout * (NSTimeInterval)NSEC_PER_SEC);
         dispatch_time_t dispatchTimeout = dispatch_time(DISPATCH_TIME_NOW, delta);
@@ -178,9 +178,10 @@ SentryHttpTransport ()
 
     if (executed == NO) {
         SENTRY_LOG_DEBUG(@"Already flushing.");
+        return NO;
     }
 
-    return result != 0;
+    return result == 0;
 }
 
 /**
