@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Fix crashes in profiling serialization race condition (#3018)
+
 ## 8.7.1
 
 ### Features
@@ -9,12 +15,6 @@
 ### Fixes
 
 - Fix import of `User` & `Breadcrumb` (#3017)
-
-## 8.7.0
-
-### Fixed
-
-- Fix crashes in profiling serialization race condition (#3018)
 
 ## 8.7.0
 
