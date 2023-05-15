@@ -12,7 +12,8 @@ let files = [
     "./Sources/Configuration/Sentry.xcconfig",
     "./Sources/Configuration/SentryPrivate.xcconfig",
     "./Sources/Configuration/SentrySwiftUI.xcconfig",
-    "./Samples/iOS-Swift/iOS-Swift.xcodeproj/project.pbxproj"
+    "./Samples/iOS-Swift/iOS-Swift.xcodeproj/project.pbxproj",
+    "./Tests/HybridSDKTest/HybridPod.podspec"
 ]
 
 let args = CommandLine.arguments
