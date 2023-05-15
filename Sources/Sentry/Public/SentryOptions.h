@@ -351,7 +351,6 @@ NS_SWIFT_NAME(Options)
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
- * @warning This is a beta feature and may still have bugs.
  * @note Profiling is not supported on watchOS or tvOS.
  * Indicates the percentage profiles being sampled out of the sampled transactions.
  * @note The default is @c 0.
@@ -364,7 +363,6 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic, strong) NSNumber *profilesSampleRate;
 
 /**
- * @warning This is a beta feature and may still have bugs.
  * @note Profiling is not supported on watchOS or tvOS.
  * A callback to a user defined profiles sampler function. This is similar to setting
  * @c profilesSampleRate  but instead of a static value, the callback function will be called to
@@ -373,7 +371,6 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic) SentryTracesSamplerCallback profilesSampler;
 
 /**
- * @warning This is a beta feature and may still have bugs.
  * @note Profiling is not supported on watchOS or tvOS.
  * If profiling should be enabled or not. Returns @c YES if either a profilesSampleRate > @c 0 and
  * \<= @c 1 or a profilesSampler is set otherwise @c NO.
@@ -381,7 +378,6 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign, readonly) BOOL isProfilingEnabled;
 
 /**
- * @warning This is a beta feature and may still have bugs.
  * @brief Whether to enable the sampling profiler.
  * @note Profiling is not supported on watchOS or tvOS.
  * @deprecated Use @c profilesSampleRate instead. Setting @c enableProfiling to @c YES is the
