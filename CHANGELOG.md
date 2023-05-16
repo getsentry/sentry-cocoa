@@ -4,7 +4,7 @@
 
 ### Fixed
 
-- Fix crashes in profiling serialization race condition (#3018)
+- Fix crashes in profiling serialization race condition (#3018, #3035)
 - Fix a crash for user interaction transactions (#3036)
 
 ## 8.7.1

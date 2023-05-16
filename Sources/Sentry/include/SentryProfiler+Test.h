@@ -1,4 +1,5 @@
 #include "SentryBacktrace.hpp"
+#import "SentryProfiler+Private.h"
 #import "SentryProfiler.h"
 #import "SentryProfilingConditionals.h"
 
@@ -10,14 +11,6 @@
 @class SentryTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
-
-void processBacktrace(const sentry::profiling::Backtrace &backtrace,
-    NSMutableDictionary<NSString *, NSMutableDictionary *> *threadMetadata,
-    NSMutableDictionary<NSString *, NSDictionary *> *queueMetadata,
-    NSMutableArray<SentrySample *> *samples, NSMutableArray<NSArray<NSNumber *> *> *stacks,
-    NSMutableArray<NSDictionary<NSString *, id> *> *frames,
-    NSMutableDictionary<NSString *, NSNumber *> *frameIndexLookup,
-    NSMutableDictionary<NSString *, NSNumber *> *stackIndexLookup);
 
 NSDictionary<NSString *, id> *serializedProfileData(NSDictionary<NSString *, id> *profileData,
     SentryTransaction *transaction, SentryId *profileID, NSString *truncationReason,
