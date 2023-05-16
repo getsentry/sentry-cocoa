@@ -57,9 +57,9 @@ jobs:
       - name: Validate Podspec
         run: ./scripts/pod-lib-lint.sh ${{ matrix.platform }} ${{ matrix.podspec}} ${{ matrix.library_type}}
 
-  lint-hybridsdk-podspec:
+  lint-hybrid-sdk-podspec:
     name: pod lint Sentry/HybridSDK
-    runs-on: macos-12
+    runs-on: macos-13
 
     steps:
       - uses: actions/checkout@v3
