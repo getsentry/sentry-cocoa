@@ -697,19 +697,17 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     _state = state;
     _profiler = std::make_shared<SamplingProfiler>(
         [state](auto &backtrace) {
-            @autoreleasepool {
-            // in test, we'll overwrite the sample's timestamp to one mocked by SentryCurrentDate
-            // etal. Doing this in a unified way between tests and production required extensive
-            // changes to the C++ layer, so we opted for this solution to avoid any potential
-            // breakages or performance hits there.
+        // in test, we'll overwrite the sample's timestamp to one mocked by SentryCurrentDate
+        // etal. Doing this in a unified way between tests and production required extensive
+        // changes to the C++ layer, so we opted for this solution to avoid any potential
+        // breakages or performance hits there.
 #    if defined(TEST) || defined(TESTCI)
-                Backtrace backtraceCopy = backtrace;
-                backtraceCopy.absoluteTimestamp = SentryCurrentDate.systemTime;
-                [state appendBacktrace:backtraceCopy];
+            Backtrace backtraceCopy = backtrace;
+            backtraceCopy.absoluteTimestamp = SentryCurrentDate.systemTime;
+            [state appendBacktrace:backtraceCopy];
 #    else
-                [state appendBacktrace:backtrace];
+            [state appendBacktrace:backtrace];
 #    endif // defined(TEST) || defined(TESTCI)
-            }
         },
         kSentryProfilerFrequencyHz);
     _profiler->startSampling();
