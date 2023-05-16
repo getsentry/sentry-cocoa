@@ -63,7 +63,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh '14.3'
       - run: pod repo update
       - name: Validate HybridPod Podspec
         run: pod lib lint ./Tests/HybridSDKTest/HybridPod.podspec --allow-warnings --verbose --platforms=ios "--include-podspecs={SentryPrivate.podspec,Sentry.podspec}"
