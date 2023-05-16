@@ -34,6 +34,17 @@ class UIEventBreadcrumbTests: XCTestCase {
         app.staticTexts["textFieldEndChanging:"].waitForExistence("textFieldEndChanging: not called")
     }
 
+    func testExtractInfoFromView() {
+        app.buttons["Extra"].tap()
+        app.buttons["breadcrumbInfoButton"].tap()
+        app.buttons["extractInfoButton"].waitForExistence("Extract Info Button not found")
+        app.buttons["extractInfoButton"].tap()
+
+        let info = app.staticTexts["infoLabel"].label
+
+        XCTAssertNotEqual(info, "ERROR")
+    }
+
     func waitForExistenceOfMainScreen() {
         app.waitForExistence( "Home Screen doesn't exist.")
     }

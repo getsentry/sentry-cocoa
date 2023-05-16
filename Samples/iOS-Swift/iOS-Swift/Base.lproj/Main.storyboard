@@ -223,6 +223,53 @@
             </objects>
             <point key="canvasLocation" x="2726" y="-625"/>
         </scene>
+        <!--Info For Breadcrumb Controller-->
+        <scene sceneID="arS-SB-tPi">
+            <objects>
+                <viewController id="baS-wm-UQo" customClass="InfoForBreadcrumbController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="kuq-y5-xKM">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gz6-bT-PrL">
+                                <rect key="frame" x="65" y="85" width="190" height="35"/>
+                                <accessibility key="accessibilityConfiguration" identifier="extractInfoButton"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Extract Info from view"/>
+                                <connections>
+                                    <action selector="buttonPressed:" destination="baS-wm-UQo" eventType="touchUpInside" id="PXn-G1-6hu"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="j1U-nc-cGt">
+                                <rect key="frame" x="16" y="316" width="288" height="0.0"/>
+                                <accessibility key="accessibilityConfiguration" identifier="infoLabel"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="ddq-ee-7Ns"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <accessibility key="accessibilityConfiguration" identifier="SOME IDENTIFIER"/>
+                        <constraints>
+                            <constraint firstItem="j1U-nc-cGt" firstAttribute="centerY" secondItem="ddq-ee-7Ns" secondAttribute="centerY" id="82P-hx-kSu"/>
+                            <constraint firstItem="j1U-nc-cGt" firstAttribute="centerX" secondItem="ddq-ee-7Ns" secondAttribute="centerX" id="Wfx-cx-GyP"/>
+                            <constraint firstItem="ddq-ee-7Ns" firstAttribute="trailing" secondItem="j1U-nc-cGt" secondAttribute="trailing" constant="16" id="lNx-HO-514"/>
+                            <constraint firstItem="j1U-nc-cGt" firstAttribute="leading" secondItem="ddq-ee-7Ns" secondAttribute="leading" constant="16" id="qpD-rY-i4q"/>
+                            <constraint firstItem="Gz6-bT-PrL" firstAttribute="top" secondItem="ddq-ee-7Ns" secondAttribute="top" constant="21" id="tIx-31-b6h"/>
+                            <constraint firstItem="Gz6-bT-PrL" firstAttribute="centerX" secondItem="ddq-ee-7Ns" secondAttribute="centerX" id="ufo-QO-Dwx"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="HVa-fh-O6F"/>
+                    <connections>
+                        <outlet property="button" destination="Gz6-bT-PrL" id="ZR6-lQ-Uj5"/>
+                        <outlet property="label" destination="j1U-nc-cGt" id="xgx-T0-PVu"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="CJw-J7-n7w" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="995.625" y="-1275"/>
+        </scene>
         <!--Split View Controller-->
         <scene sceneID="6Nq-cD-DlA">
             <objects>
@@ -508,7 +555,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ckT-1E-GWZ">
-                                                        <rect key="frame" x="0.0" y="42" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="33.5" width="152" height="28"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="Close SDK"/>
                                                         <connections>
@@ -516,7 +563,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rpD-Rf-xbz">
-                                                        <rect key="frame" x="0.0" y="84" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="67" width="152" height="28"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="ANR fully blocking"/>
                                                         <connections>
@@ -524,7 +571,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2e4-48-rLl">
-                                                        <rect key="frame" x="0.0" y="126" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="101" width="152" height="28"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="ANR filling run loop"/>
                                                         <connections>
@@ -532,12 +579,22 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="F0l-xf-cQd">
-                                                        <rect key="frame" x="0.0" y="168" width="152" height="28"/>
+                                                        <rect key="frame" x="0.0" y="134.5" width="152" height="28"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                         <state key="normal" title="Start 100 threads"/>
                                                         <connections>
                                                             <action selector="start100Threads:" destination="VqS-l1-kwe" eventType="touchUpInside" id="9KO-KS-85G"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Evt-B9-zEC">
+                                                        <rect key="frame" x="0.0" y="168" width="152" height="28"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="breadcrumbInfoButton"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                        <state key="normal" title="Breadcrumb info test"/>
+                                                        <connections>
+                                                            <segue destination="baS-wm-UQo" kind="show" id="P5B-LG-XhB"/>
                                                         </connections>
                                                     </button>
                                                 </subviews>
