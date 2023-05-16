@@ -8,7 +8,7 @@ When working with Swift, it's important to keep the following restrictions in mi
 
 1. All Swift code will be bundled within the `SentryPrivate` library, which `Sentry` depends on.
 2. User-facing APIs cannot be written in Swift because their components will be accessed through imports from "SentryPrivate."
-3. `SentryPrivate` does not have access to `Sentry` classes to avoid cyclic references. As a result, any code written in Objective-C is not accessible from Swift.
+3. `SentryPrivate` does not have access to `Sentry` classes to avoid cyclic references. As a result, any code written in Objective-C is not accessible from the  Swift layer.
     - However, it is possible to create Dependency Injection (DI) APIs in Swift, allowing `Sentry` to inject its objects for use within "SentryPrivate."
 4. `SentryPrivate` public APIs (code consumed by `Sentry`) cannot utilize certain Objective-C incompatible features, including:
     - Generics
