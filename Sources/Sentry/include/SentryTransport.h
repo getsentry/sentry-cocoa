@@ -6,6 +6,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSInteger, SentryTransportFlushResult) {
+    kSentryTransportFlushResultSuccess = 0,
+    kSentryTransportFlushResultTimedOut,
+    kSentryTransportFlushResultAlreadyFlushingBeforeLock,
+    kSentryTransportFlushResultAlreadyFlushingInLock
+};
+
 NS_SWIFT_NAME(Transport)
 @protocol SentryTransport <NSObject>
 
@@ -13,7 +20,7 @@ NS_SWIFT_NAME(Transport)
 
 - (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason;
 
-- (BOOL)flush:(NSTimeInterval)timeout;
+- (SentryTransportFlushResult)flush:(NSTimeInterval)timeout;
 
 @end
 

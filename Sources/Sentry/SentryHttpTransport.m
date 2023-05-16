@@ -156,7 +156,7 @@ SentryHttpTransport ()
     }
 }
 
-- (BOOL)flush:(NSTimeInterval)timeout
+- (SentryTransportFlushResult)flush:(NSTimeInterval)timeout
 {
     // Calculate the dispatch time of the flush duration as early as possible to guarantee an exact
     // flush duration. Any code up to the dispatch_group_wait can take a couple of ms, adding up to
@@ -167,13 +167,13 @@ SentryHttpTransport ()
     // Double-Checked Locking to avoid acquiring unnecessary locks.
     if (_isFlushing) {
         SENTRY_LOG_DEBUG(@"Already flushing.");
-        return NO;
+        return kSentryTransportFlushResultAlreadyFlushingBeforeLock;
     }
 
     @synchronized(self) {
         if (_isFlushing) {
             SENTRY_LOG_DEBUG(@"Already flushing.");
-            return NO;
+            return kSentryTransportFlushResultAlreadyFlushingInLock;
         }
 
         SENTRY_LOG_DEBUG(@"Start flushing.");
@@ -186,16 +186,12 @@ SentryHttpTransport ()
 
     intptr_t result = dispatch_group_wait(self.dispatchGroup, dispatchTimeout);
 
-    @synchronized(self) {
-        self.isFlushing = NO;
-    }
-
     if (result == 0) {
         SENTRY_LOG_DEBUG(@"Finished flushing.");
-        return YES;
+        return kSentryTransportFlushResultSuccess;
     } else {
         SENTRY_LOG_DEBUG(@"Flushing timed out.");
-        return NO;
+        return kSentryTransportFlushResultTimedOut;
     }
 }
 
