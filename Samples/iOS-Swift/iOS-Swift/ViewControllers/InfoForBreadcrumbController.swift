@@ -16,7 +16,7 @@ class InfoForBreadcrumbController: UIViewController {
             return
         }
 
-        let hasCorrectData = String(describing: view) == viewInfo["view"] as! String &&
+        let hasCorrectData = String(describing: view) == viewInfo["view"] as? String &&
         viewInfo["tag"] == nil &&
         viewInfo["accessibilityIdentifier"] as? String == "SOME IDENTIFIER" &&
         viewInfo["title"] == nil &&
