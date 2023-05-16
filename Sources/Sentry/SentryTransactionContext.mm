@@ -11,15 +11,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 static const auto kSentryDefaultSamplingDecision = kSentrySampleDecisionUndecided;
 
-@interface
-SentryTransactionContext ()
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-@property (nonatomic, strong) SentryThread *threadInfo;
-#endif
-
-@end
-
 @implementation SentryTransactionContext
 
 #pragma mark - Public

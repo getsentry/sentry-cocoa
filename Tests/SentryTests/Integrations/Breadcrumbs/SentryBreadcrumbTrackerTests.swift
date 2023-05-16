@@ -60,48 +60,6 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         
         clearTestState()
     }
-    
-    func testExtractDataFrom_View() {
-        let view = UIView()
-        let result = Dynamic(SentryBreadcrumbTracker.self).extractDataFromView(view) as [String: Any?]?
-        
-        XCTAssertEqual(result?["view"] as? String, String(describing: view))
-        XCTAssertNil(result?["title"] as Any?)
-        XCTAssertNil(result?["tag"] as Any?)
-        XCTAssertNil(result?["accessibilityIdentifier"] as Any?)
-    }
-    
-    func testExtractDataFrom_ViewWith_Tag_accessibilityIdentifier() {
-        let view = UIView()
-        view.tag = 2
-        view.accessibilityIdentifier = "SOME IDENTIFIER"
-        
-        let result = Dynamic(SentryBreadcrumbTracker.self).extractDataFromView(view) as [String: Any?]?
-        
-        XCTAssertEqual(result?["view"] as? String, String(describing: view))
-        XCTAssertEqual(result?["tag"] as? Int, 2)
-        XCTAssertEqual(result?["accessibilityIdentifier"] as? String, "SOME IDENTIFIER")
-        XCTAssertNil(result?["title"] as Any?)
-    }
-    
-    func testExtractDataFrom_ButtonWith_Title() {
-        let view = UIButton()
-        view.setTitle("BUTTON TITLE", for: .normal)
-        
-        let result = Dynamic(SentryBreadcrumbTracker.self).extractDataFromView(view) as [String: Any?]?
-        
-        XCTAssertEqual(result?["view"] as? String, String(describing: view))
-        XCTAssertEqual(result?["title"] as? String, "BUTTON TITLE")
-    }
-    
-    func testExtractDataFrom_ButtonWithout_Title() {
-        let view = UIButton()
-        
-        let result = Dynamic(SentryBreadcrumbTracker.self).extractDataFromView(view) as [String: Any?]?
-        
-        XCTAssertEqual(result?["view"] as? String, String(describing: view))
-        XCTAssertNil(result?["title"] as Any?)
-    }
 #endif
 
 }

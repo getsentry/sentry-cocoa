@@ -4,7 +4,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
-SentryTransactionContext (Private)
+SentryTransactionContext ()
 
 - (instancetype)initWithName:(NSString *)name
                   nameSource:(SentryTransactionNameSource)source
@@ -37,6 +37,10 @@ SentryTransactionContext (Private)
                parentSampled:(SentrySampleDecision)parentSampled;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+// This is currently only exposed for testing purposes, see -[SentryProfilerTests
+// testProfilerMutationDuringSerialization]
+@property (nonatomic, strong) SentryThread *threadInfo;
+
 - (SentryThread *)sentry_threadInfo;
 #endif
 
