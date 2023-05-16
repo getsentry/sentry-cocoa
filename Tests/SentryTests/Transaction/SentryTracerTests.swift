@@ -211,6 +211,15 @@ class SentryTracerTests: XCTestCase {
 
         XCTAssertFalse(fixture.timerWrapper.overrides.timer.isValid)
     }
+    
+    func testDeadlineTimer_MultipleSpansFinishedInParallel() {
+        let sut = fixture.getSut(idleTimeout: 0.01, dispatchQueueWrapper: SentryDispatchQueueWrapper())
+        
+        testConcurrentModifications(writeWork: { _ in
+            let child = sut.startChild(operation: self.fixture.transactionOperation)
+            child.finish()
+        })
+    }
 
     func testFinish_CheckDefaultStatus() {
         let sut = fixture.getSut()
