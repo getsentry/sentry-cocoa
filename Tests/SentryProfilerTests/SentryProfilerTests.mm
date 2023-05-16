@@ -145,9 +145,8 @@ using namespace sentry::profiling;
     mutateExpectation.expectedFulfillmentCount = operations;
 
     void (^mutateBlock)(void) = ^(void) {
-        [state mutate:^(__unused SentryProfilingMutableState *mutableState) {
-            [mutateExpectation fulfill];
-        }];
+        [state mutate:^(
+            __unused SentryProfilingMutableState *mutableState) { [mutateExpectation fulfill]; }];
     };
 
     const auto sliceOperations = [[NSOperationQueue alloc] init]; // concurrent queue
@@ -195,7 +194,7 @@ using namespace sentry::profiling;
 
         backtrace.absoluteTimestamp = 1;
         [state appendBacktrace:backtrace];
-        
+
         backtrace.absoluteTimestamp = 2;
         [state appendBacktrace:backtrace];
     }
@@ -335,18 +334,19 @@ using namespace sentry::profiling;
     // record a third backtrace that's identical to the second to test stack/frame deduplication
 
     [state appendBacktrace:backtrace2];
-    
+
     [state mutate:^(SentryProfilingMutableState *mutableState) {
         XCTAssertEqual(mutableState.frames.count, 5UL);
         const auto expectedOrdered = @[
-            @"0x0000000000000123", @"0x0000000000000456", @"0x0000000000000789", @"0x0000000000000777",
-            @"0x0000000000000888"
+            @"0x0000000000000123", @"0x0000000000000456", @"0x0000000000000789",
+            @"0x0000000000000777", @"0x0000000000000888"
         ];
-        [mutableState.frames enumerateObjectsUsingBlock:^(NSDictionary<NSString *, id> *_Nonnull actualFrame,
-            NSUInteger idx, __unused BOOL *_Nonnull stop) {
-            XCTAssert([actualFrame[@"instruction_addr"] isEqualToString:expectedOrdered[idx]]);
-        }];
-        
+        [mutableState.frames
+            enumerateObjectsUsingBlock:^(NSDictionary<NSString *, id> *_Nonnull actualFrame,
+                NSUInteger idx, __unused BOOL *_Nonnull stop) {
+                XCTAssert([actualFrame[@"instruction_addr"] isEqualToString:expectedOrdered[idx]]);
+            }];
+
         XCTAssertEqual(mutableState.stacks.count, 2UL);
         XCTAssertEqual(mutableState.samples.count, 3UL);
     }];

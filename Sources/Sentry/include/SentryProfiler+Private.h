@@ -1,6 +1,6 @@
-#import <Foundation/Foundation.h>
 #import "SentryBacktrace.hpp"
 #import "SentryProfilingConditionals.h"
+#import <Foundation/Foundation.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -12,8 +12,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly) NSMutableArray<SentrySample *> *samples;
 @property (nonatomic, strong, readonly) NSMutableArray<NSArray<NSNumber *> *> *stacks;
 @property (nonatomic, strong, readonly) NSMutableArray<NSDictionary<NSString *, id> *> *frames;
-@property (nonatomic, strong, readonly) NSMutableDictionary<NSString *, NSMutableDictionary *> *threadMetadata;
-@property (nonatomic, strong, readonly) NSMutableDictionary<NSString *, NSDictionary *> *queueMetadata;
+@property (nonatomic, strong, readonly)
+    NSMutableDictionary<NSString *, NSMutableDictionary *> *threadMetadata;
+@property (nonatomic, strong, readonly)
+    NSMutableDictionary<NSString *, NSDictionary *> *queueMetadata;
 
 /*
  * Maintain an index of unique frames to avoid duplicating large amounts of data. Every
@@ -49,8 +51,10 @@ NS_ASSUME_NONNULL_BEGIN
  *   { stack_id: 1, ... }
  * ]
  */
-@property (nonatomic, strong, readonly) NSMutableDictionary<NSString *, NSNumber *> *frameIndexLookup;
-@property (nonatomic, strong, readonly) NSMutableDictionary<NSString *, NSNumber *> *stackIndexLookup;
+@property (nonatomic, strong, readonly)
+    NSMutableDictionary<NSString *, NSNumber *> *frameIndexLookup;
+@property (nonatomic, strong, readonly)
+    NSMutableDictionary<NSString *, NSNumber *> *stackIndexLookup;
 @end
 
 @interface SentryProfilingState : NSObject

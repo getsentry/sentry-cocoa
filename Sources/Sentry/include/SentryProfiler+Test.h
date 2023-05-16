@@ -1,6 +1,6 @@
 #include "SentryBacktrace.hpp"
-#import "SentryProfiler.h"
 #import "SentryProfiler+Private.h"
+#import "SentryProfiler.h"
 #import "SentryProfilingConditionals.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED

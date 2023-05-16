@@ -295,7 +295,8 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 
 @implementation SentryProfilingMutableState
 
-- (instancetype)init {
+- (instancetype)init
+{
     if (self = [super init]) {
         _samples = [NSMutableArray<SentrySample *> array];
         _stacks = [NSMutableArray<NSArray<NSNumber *> *> array];
@@ -330,10 +331,11 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     block(_mutableState);
 }
 
-- (void)appendBacktrace:(const Backtrace &)backtrace {
+- (void)appendBacktrace:(const Backtrace &)backtrace
+{
     [self mutate:^(SentryProfilingMutableState *state) {
         const auto threadID = sentry_stringForUInt64(backtrace.threadMetadata.threadID);
-        
+
         NSString *queueAddress = nil;
         if (backtrace.queueMetadata.address != 0) {
             queueAddress = sentry_formatHexAddressUInt64(backtrace.queueMetadata.address);
@@ -344,21 +346,23 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
             state.threadMetadata[threadID] = metadata;
         }
         if (!backtrace.threadMetadata.name.empty() && metadata[@"name"] == nil) {
-            metadata[@"name"] = [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
+            metadata[@"name"] =
+                [NSString stringWithUTF8String:backtrace.threadMetadata.name.c_str()];
         }
         if (backtrace.threadMetadata.priority != -1 && metadata[@"priority"] == nil) {
             metadata[@"priority"] = @(backtrace.threadMetadata.priority);
         }
         if (queueAddress != nil && state.queueMetadata[queueAddress] == nil
             && backtrace.queueMetadata.label != nullptr) {
-            state.queueMetadata[queueAddress] =
-                @ { @"label" : [NSString stringWithUTF8String:backtrace.queueMetadata.label->c_str()] };
+            state.queueMetadata[queueAddress] = @ {
+                @"label" : [NSString stringWithUTF8String:backtrace.queueMetadata.label->c_str()]
+            };
         }
-    #    if defined(DEBUG)
+#    if defined(DEBUG)
         const auto symbols
             = backtrace_symbols(reinterpret_cast<void *const *>(backtrace.addresses.data()),
                 static_cast<int>(backtrace.addresses.size()));
-    #    endif
+#    endif
 
         const auto stack = [NSMutableArray<NSNumber *> array];
         for (std::vector<uintptr_t>::size_type backtraceAddressIdx = 0;
@@ -370,9 +374,10 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
             if (frameIndex == nil) {
                 const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
                 frame[@"instruction_addr"] = instructionAddress;
-    #    if defined(DEBUG)
-                frame[@"function"] = parseBacktraceSymbolsFunctionName(symbols[backtraceAddressIdx]);
-    #    endif
+#    if defined(DEBUG)
+                frame[@"function"]
+                    = parseBacktraceSymbolsFunctionName(symbols[backtraceAddressIdx]);
+#    endif
                 const auto newFrameIndex = @(state.frames.count);
                 [stack addObject:newFrameIndex];
                 state.frameIndexLookup[instructionAddress] = newFrameIndex;
@@ -388,7 +393,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
         if (queueAddress != nil) {
             sample.queueAddress = queueAddress;
         }
-        
+
         const auto stackKey = [stack componentsJoinedByString:@"|"];
         const auto stackIndex = state.stackIndexLookup[stackKey];
         if (stackIndex) {
@@ -399,33 +404,34 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
             state.stackIndexLookup[stackKey] = nextStackIndex;
             [state.stacks addObject:stack];
         }
-        
+
         [state.samples addObject:sample];
     }];
 }
 
-- (NSDictionary<NSString *,id> *)copyProfilingData {
+- (NSDictionary<NSString *, id> *)copyProfilingData
+{
     std::lock_guard<std::mutex> l(_lock);
-    
+
     NSMutableArray<SentrySample *> *const samples = [_mutableState.samples copy];
     NSMutableArray<NSArray<NSNumber *> *> *const stacks = [_mutableState.stacks copy];
     NSMutableArray<NSDictionary<NSString *, id> *> *const frames = [_mutableState.frames copy];
-    NSMutableDictionary<NSString *, NSDictionary *> *const queueMetadata = [_mutableState.queueMetadata copy];
+    NSMutableDictionary<NSString *, NSDictionary *> *const queueMetadata =
+        [_mutableState.queueMetadata copy];
 
     // thread metadata contains a mutable substructure, so it's not enough to perform a copy of
     // the top-level dictionary, we need to go deeper to copy the mutable subdictionaries
     const auto threadMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
-    [_mutableState.threadMetadata
-        enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, NSDictionary *_Nonnull obj,
-            BOOL *_Nonnull stop) { threadMetadata[key] = [obj copy]; }];
-    
+    [_mutableState.threadMetadata enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key,
+        NSDictionary *_Nonnull obj, BOOL *_Nonnull stop) { threadMetadata[key] = [obj copy]; }];
+
     return @{
-        @"profile": @{
-            @"samples": samples,
-            @"stacks": stacks,
-            @"frames": frames,
-            @"thread_metadata": threadMetadata,
-            @"queue_metadata": queueMetadata
+        @"profile" : @ {
+            @"samples" : samples,
+            @"stacks" : stacks,
+            @"frames" : frames,
+            @"thread_metadata" : threadMetadata,
+            @"queue_metadata" : queueMetadata
         }
     };
 }
@@ -577,9 +583,9 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
         return nil;
     }
 
-    return serializedProfileData([_gCurrentProfiler->_state copyProfilingData], transaction, profileID,
-        profilerTruncationReasonName(_gCurrentProfiler->_truncationReason),
-        _gCurrentProfiler->_hub.scope.environmentString
+    return serializedProfileData([_gCurrentProfiler->_state copyProfilingData], transaction,
+        profileID, profilerTruncationReasonName(_gCurrentProfiler->_truncationReason),
+        _gCurrentProfiler -> _hub.scope.environmentString
             ?: _gCurrentProfiler->_hub.getClient.options.environment,
         _gCurrentProfiler->_hub.getClient.options.releaseName,
         [_gCurrentProfiler->_metricProfiler serializeForTransaction:transaction],
@@ -689,22 +695,23 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 
     SentryProfilingState *const state = [[SentryProfilingState alloc] init];
     _state = state;
-    _profiler = std::make_shared<SamplingProfiler>([state](auto &backtrace) {
-        @autoreleasepool {
-            // in test, we'll overwrite the sample's timestamp to one mocked by SentryCurrentDate etal.
-            // Doing this in a unified way between tests and production required extensive changes to
-            // the C++ layer, so we opted for this solution to avoid any potential breakages or
-            // performance hits there.
-    #    if defined(TEST) || defined(TESTCI)
-            Backtrace backtraceCopy = backtrace;
-            backtraceCopy.absoluteTimestamp = SentryCurrentDate.systemTime;
-            [state appendBacktrace:backtraceCopy];
-    #    else
-            [state appendBacktrace:backtrace];
-    #    endif // defined(TEST) || defined(TESTCI)
-        }
-    },
-    kSentryProfilerFrequencyHz);
+    _profiler = std::make_shared<SamplingProfiler>(
+        [state](auto &backtrace) {
+            @autoreleasepool {
+            // in test, we'll overwrite the sample's timestamp to one mocked by SentryCurrentDate
+            // etal. Doing this in a unified way between tests and production required extensive
+            // changes to the C++ layer, so we opted for this solution to avoid any potential
+            // breakages or performance hits there.
+#    if defined(TEST) || defined(TESTCI)
+                Backtrace backtraceCopy = backtrace;
+                backtraceCopy.absoluteTimestamp = SentryCurrentDate.systemTime;
+                [state appendBacktrace:backtraceCopy];
+#    else
+                [state appendBacktrace:backtrace];
+#    endif // defined(TEST) || defined(TESTCI)
+            }
+        },
+        kSentryProfilerFrequencyHz);
     _profiler->startSampling();
 
     [self startMetricProfiler];
