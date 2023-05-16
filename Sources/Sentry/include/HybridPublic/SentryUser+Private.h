@@ -1,6 +1,6 @@
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
-#import "SentryUser.h"
+#import <SentryUser.h>
 
 @interface
 SentryUser (Private)
