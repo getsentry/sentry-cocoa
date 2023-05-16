@@ -4,7 +4,7 @@ This page contains internal documentation for development.
 
 ## Coding with Swift
 
-To use Swift in the project take a look at [Swift Usage](/Swift-Usage.md) documentation.
+To use Swift in the project take a look at [Swift Usage](Swift-Usage.md) documentation.
 
 ## Code Signing
 
