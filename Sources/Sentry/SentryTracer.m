@@ -75,6 +75,7 @@ SentryTracer ()
     NSMutableArray<id<SentrySpan>> *_children;
     BOOL _startTimeChanged;
     NSDate *_originalStartTimestamp;
+    NSObject *_idleTimeoutLock;
 
 #if SENTRY_HAS_UIKIT
     NSUInteger initTotalFrames;
@@ -125,6 +126,7 @@ static BOOL appStartMeasurementRead;
 
     appStartMeasurement = [self getAppStartMeasurement];
 
+    _idleTimeoutLock = [[NSObject alloc] init];
     if ([self hasIdleTimeout]) {
         [self dispatchIdleTimeout];
     }
@@ -164,26 +166,28 @@ static BOOL appStartMeasurementRead;
 
 - (void)dispatchIdleTimeout
 {
-    if (_idleTimeoutBlock != nil) {
-        [_configuration.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
-    }
-    __weak SentryTracer *weakSelf = self;
-    _idleTimeoutBlock = [_configuration.dispatchQueueWrapper createDispatchBlock:^{
-        if (weakSelf == nil) {
-            SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
-            return;
+    @synchronized(_idleTimeoutLock) {
+        if (_idleTimeoutBlock != NULL) {
+            [_configuration.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
         }
-        [weakSelf finishInternal];
-    }];
+        __weak SentryTracer *weakSelf = self;
+        _idleTimeoutBlock = [_configuration.dispatchQueueWrapper createDispatchBlock:^{
+            if (weakSelf == nil) {
+                SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
+                return;
+            }
+            [weakSelf finishInternal];
+        }];
 
-    if (_idleTimeoutBlock == NULL) {
-        SENTRY_LOG_WARN(@"Couldn't create idle time out block. Can't schedule idle timeout. "
-                        @"Finishing transaction");
-        // If the transaction has no children, the SDK will discard it.
-        [self finishInternal];
-    } else {
-        [_configuration.dispatchQueueWrapper dispatchAfter:_configuration.idleTimeout
-                                                     block:_idleTimeoutBlock];
+        if (_idleTimeoutBlock == NULL) {
+            SENTRY_LOG_WARN(@"Couldn't create idle time out block. Can't schedule idle timeout. "
+                            @"Finishing transaction");
+            // If the transaction has no children, the SDK will discard it.
+            [self finishInternal];
+        } else {
+            [_configuration.dispatchQueueWrapper dispatchAfter:_configuration.idleTimeout
+                                                         block:_idleTimeoutBlock];
+        }
     }
 }
 
@@ -199,8 +203,10 @@ static BOOL appStartMeasurementRead;
 
 - (void)cancelIdleTimeout
 {
-    if ([self hasIdleTimeout]) {
-        [_configuration.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
+    @synchronized(_idleTimeoutLock) {
+        if ([self hasIdleTimeout]) {
+            [_configuration.dispatchQueueWrapper dispatchCancel:_idleTimeoutBlock];
+        }
     }
 }
 
