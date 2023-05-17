@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Convert one of the two remaining usages of `sprintf` to `snprintf` (#2866)
+
 ## 8.7.2
 
 ### Fixed
@@ -62,7 +68,6 @@ This change has no impact on grouping of the issues in Sentry.
 
 - Improved performance serializing profiling data (#2863)
 - Possible crash in Core Data tracking (#2865)
-- Convert one of the two remaining usages of `sprintf` to `snprintf` (#2866)
 - Ensure the current GPU frame rate is always reported for concurrent transaction profiling metrics (#2929)
 - Move profiler metric collection to a background queue (#2956)
 
