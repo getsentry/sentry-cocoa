@@ -20,7 +20,6 @@ static pthread_mutex_t binaryImagesMutex = PTHREAD_MUTEX_INITIALIZER;
 static void
 binaryImageAdded(const struct mach_header *header, intptr_t slide)
 {
-    pthread_mutex_lock(&binaryImagesMutex);
     if (tailNode == NULL) {
         pthread_mutex_unlock(&binaryImagesMutex);
         return;
@@ -30,6 +29,8 @@ binaryImageAdded(const struct mach_header *header, intptr_t slide)
     if (!dladdr(header, &info) || info.dli_fname == NULL) {
         return;
     }
+
+    pthread_mutex_lock(&binaryImagesMutex);
 
     SentryCrashBinaryImage binaryImage = { 0 };
     if (!sentrycrashdl_getBinaryImageForHeader(
