@@ -1,6 +1,6 @@
 # Swift Usage
 
-Starting from version 8.0, it is now possible to include Swift code in the project. All Swift files should be placed under the `/Sources/Swift` directory.
+Starting from version 8.0.0, it is now possible to include Swift code in the project. All Swift files should be placed under the `/Sources/Swift` directory.
 
 > In this document, `SentryPrivate` refers to the library written in Swift, while `Sentry` represents the framework written in Objective-C. The term `SentryPrivate` public API refers to the API that will be consumed by `Sentry` and is not intended for direct use by users.
 
