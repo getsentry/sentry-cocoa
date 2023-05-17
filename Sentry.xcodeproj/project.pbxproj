@@ -1727,6 +1727,8 @@
 		D8CB742C294B294B00A5F964 /* MockUIScene.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MockUIScene.h; sourceTree = "<group>"; };
 		D8CB742D294B294B00A5F964 /* MockUIScene.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MockUIScene.m; sourceTree = "<group>"; };
 		D8CE69BB277E39C700C6EC5C /* SentryFileIOTrackingIntegrationObjCTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryFileIOTrackingIntegrationObjCTests.m; sourceTree = "<group>"; };
+		D8F01DE42A126B62008F4996 /* HybridPod.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = HybridPod.podspec; sourceTree = "<group>"; };
+		D8F01DE52A126BF5008F4996 /* HybridTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HybridTest.swift; sourceTree = "<group>"; };
 		D8F6A2452885512100320515 /* SentryPredicateDescriptor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryPredicateDescriptor.m; sourceTree = "<group>"; };
 		D8F6A24A2885515B00320515 /* SentryPredicateDescriptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryPredicateDescriptor.h; path = include/SentryPredicateDescriptor.h; sourceTree = "<group>"; };
 		D8F6A24C2885534E00320515 /* SentryPredicateDescriptorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryPredicateDescriptorTests.swift; sourceTree = "<group>"; };
@@ -2174,6 +2176,7 @@
 				63AA76AA1EB9D5CD00D153DE /* Configuration */,
 				63AA75931EB8AEDB00D153DE /* SentryTests */,
 				8431EFDB29B27B3D00D8DC56 /* SentryProfilerTests */,
+				D8F01DE32A125D7B008F4996 /* HybridSDKTest */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -3327,6 +3330,15 @@
 				D8ACE3C52762187200F5A213 /* SentryNSDataTracker.m */,
 			);
 			name = IO;
+			sourceTree = "<group>";
+		};
+		D8F01DE32A125D7B008F4996 /* HybridSDKTest */ = {
+			isa = PBXGroup;
+			children = (
+				D8F01DE42A126B62008F4996 /* HybridPod.podspec */,
+				D8F01DE52A126BF5008F4996 /* HybridTest.swift */,
+			);
+			path = HybridSDKTest;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
