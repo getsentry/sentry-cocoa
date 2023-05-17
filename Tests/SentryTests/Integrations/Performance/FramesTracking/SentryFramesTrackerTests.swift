@@ -22,6 +22,18 @@ class SentryFramesTrackerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
+
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+        // the profiler must be running for the frames tracker to record frame rate info etc, validated in assertProfilingData()
+        SentryProfiler.start(with: TestHub(client: nil, andScope: nil))
+#endif
+    }
+
+    override func tearDown() {
+        super.tearDown()
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+        SentryProfiler.stop()
+#endif
     }
     
     func testIsNotRunning_WhenNotStarted() {
@@ -75,31 +87,7 @@ class SentryFramesTrackerTests: XCTestCase {
 
         try assert(slow: 1, frozen: 1, total: 2, frameRates: 2)
     }
-    
-    func testAllFrames_ConcurrentRead() throws {
-        let sut = fixture.sut
-        sut.start()
-        
-        let group = DispatchGroup()
 
-        let currentFrames = sut.currentFrames
-        assertPreviousCountLesserThanCurrent(group) { return currentFrames.frozen }
-        assertPreviousCountLesserThanCurrent(group) { return currentFrames.slow }
-        assertPreviousCountLesserThanCurrent(group) { return currentFrames.total }
-        
-        fixture.displayLinkWrapper.call()
-        
-        let frames: UInt = 600_000
-        for _ in 0 ..< frames {
-            fixture.displayLinkWrapper.normalFrame()
-            _ = fixture.displayLinkWrapper.fastestSlowFrame()
-            _ = fixture.displayLinkWrapper.fastestFrozenFrame()
-        }
-        
-        group.wait()
-        try assert(slow: frames, frozen: frames, total: 3 * frames)
-    }
-    
     func testPerformanceOfTrackingFrames() throws {
         let sut = fixture.sut
         sut.start()
@@ -210,19 +198,6 @@ private extension SentryFramesTrackerTests {
         }
     }
 #endif
-
-    func assertPreviousCountLesserThanCurrent(_ group: DispatchGroup, count: @escaping () -> UInt) {
-        group.enter()
-        fixture.queue.async {
-            var previousCount: UInt = 0
-            for _ in 0 ..< 60_000 {
-                let currentCount = count()
-                XCTAssertTrue(previousCount <= currentCount)
-                previousCount = currentCount
-            }
-            group.leave()
-        }
-    }
 }
 
 #endif

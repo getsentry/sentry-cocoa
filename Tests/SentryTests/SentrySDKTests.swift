@@ -159,6 +159,21 @@ class SentrySDKTests: XCTestCase {
         
         XCTAssertTrue(wasBeforeSendCalled, "beforeSend was not called.")
     }
+
+    func testStartWithScope() {
+        let scope = Scope()
+        scope.setUser(User(userId: "me"))
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+            options.maxBreadcrumbs = 123
+            options.initialScope = { suggested in
+                XCTAssertEqual(123, Dynamic(suggested).maxBreadcrumbs)
+                return scope
+            }
+        }
+        XCTAssertEqual("me", SentrySDK.currentHub().scope.userObject?.userId)
+        XCTAssertIdentical(scope, SentrySDK.currentHub().scope)
+    }
     
     func testCrashedLastRun() {
         XCTAssertEqual(SentryCrash.sharedInstance().crashedLastLaunch, SentrySDK.crashedLastRun) 
@@ -346,10 +361,14 @@ class SentrySDKTests: XCTestCase {
     func testStartTransaction() {
         givenSdkWithHub()
         
-        let transaction = SentrySDK.startTransaction(name: fixture.transactionName, operation: fixture.operation)
+        let operation = "ui.load"
+        let name = "Load Main Screen"
+        let transaction = SentrySDK.startTransaction(name: name, operation: operation)
         
-        assertTransaction(transaction: transaction)
-            
+        XCTAssertEqual(operation, transaction.operation)
+        let tracer = transaction as! SentryTracer
+        XCTAssertEqual(name, tracer.traceContext.transaction)
+        
         XCTAssertNil(SentrySDK.span)
     }
     

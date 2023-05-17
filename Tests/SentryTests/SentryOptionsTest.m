@@ -478,11 +478,6 @@
     [self testBooleanField:@"attachStacktrace"];
 }
 
-- (void)testStitchAsyncCodeDisabledPerDefault
-{
-    [self testBooleanField:@"stitchAsyncCode" defaultValue:NO];
-}
-
 - (void)testEnableIOTracking
 {
     [self testBooleanField:@"enableFileIOTracing" defaultValue:YES];
@@ -517,7 +512,6 @@
         @"enableOutOfMemoryTracking" : [NSNull null],
         @"sessionTrackingIntervalMillis" : [NSNull null],
         @"attachStacktrace" : [NSNull null],
-        @"stitchAsyncCode" : [NSNull null],
         @"maxAttachmentSize" : [NSNull null],
         @"sendDefaultPii" : [NSNull null],
         @"enableAutoPerformanceTracing" : [NSNull null],
@@ -569,7 +563,6 @@
     XCTAssertEqual(YES, options.enableWatchdogTerminationTracking);
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
     XCTAssertEqual(YES, options.attachStacktrace);
-    XCTAssertEqual(NO, options.stitchAsyncCode);
     XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);
     XCTAssertEqual(NO, options.sendDefaultPii);
     XCTAssertTrue(options.enableAutoPerformanceTracing);
@@ -1149,6 +1142,23 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
     XCTAssertEqualObjects(@[], options.inAppExcludes);
+}
+
+- (void)testDefaultInitialScope
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+    SentryScope *scope = [[SentryScope alloc] init];
+    XCTAssertIdentical(scope, options.initialScope(scope));
+}
+
+- (void)testInitialScope
+{
+    SentryScope * (^initialScope)(SentryScope *) = ^SentryScope *(SentryScope *scope)
+    {
+        return scope;
+    };
+    SentryOptions *options = [self getValidOptions:@{ @"initialScope" : initialScope }];
+    XCTAssertIdentical(initialScope, options.initialScope);
 }
 
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict

@@ -14,7 +14,7 @@ case $POD_SPEC in
         ;;
 
     "SentrySwiftUI")
-        INCLUDE_POD_SPECS="--include-podspecs=Sentry.podspec,SentryPrivate.podspec"
+        INCLUDE_POD_SPECS="--include-podspecs={Sentry.podspec,SentryPrivate.podspec}"
         ;;
 
     *)

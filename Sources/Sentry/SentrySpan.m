@@ -41,6 +41,7 @@ SentrySpan ()
         _spanDescription = context.spanDescription;
         _spanId = context.spanId;
         _sampled = context.sampled;
+        _origin = context.origin;
     }
     return self;
 }
@@ -169,7 +170,8 @@ SentrySpan ()
         @"type" : SENTRY_TRACE_TYPE,
         @"span_id" : self.spanId.sentrySpanIdString,
         @"trace_id" : self.traceId.sentryIdString,
-        @"op" : self.operation
+        @"op" : self.operation,
+        @"origin" : self.origin
     }
                                                  .mutableCopy;
 

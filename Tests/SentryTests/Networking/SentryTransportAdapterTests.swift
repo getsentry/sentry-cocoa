@@ -25,7 +25,7 @@ class SentryTransportAdapterTests: XCTestCase {
         super.setUp()
         
         CurrentDate.setCurrentDateProvider(TestCurrentDateProvider())
-
+        
         fixture = Fixture()
         sut = fixture.sut
     }

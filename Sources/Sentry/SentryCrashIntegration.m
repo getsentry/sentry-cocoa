@@ -85,10 +85,6 @@ SentryCrashIntegration ()
 
     [self startCrashHandler];
 
-    if (options.stitchAsyncCode) {
-        [self.crashAdapter installAsyncHooks];
-    }
-
     [self configureScope];
 
     return YES;
@@ -164,9 +160,6 @@ SentryCrashIntegration ()
         [installation uninstall];
         installationToken = 0;
     }
-
-    [self.crashAdapter uninstallAsyncHooks];
-    sentrycrashbic_stopCache();
 
     [NSNotificationCenter.defaultCenter removeObserver:self
                                                   name:NSCurrentLocaleDidChangeNotification

@@ -269,7 +269,11 @@ SENTRY_NO_INIT
 + (void)endSession;
 
 /**
- * This forces a crash, useful to test the @c SentryCrash integration
+ * This forces a crash, useful to test the @c SentryCrash integration.
+ *
+ * @note The SDK can't report a crash when a debugger is attached. Your application needs to run
+ * without a debugger attached to capture the crash and send it to Sentry the next time you launch
+ * your application.
  */
 + (void)crash;
 

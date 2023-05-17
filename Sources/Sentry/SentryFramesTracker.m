@@ -21,12 +21,6 @@ typedef NSMutableArray<NSDictionary<NSString *, NSNumber *> *> SentryMutableFram
 static CFTimeInterval const SentryFrozenFrameThreshold = 0.7;
 static CFTimeInterval const SentryPreviousFrameInitialValue = -1;
 
-/**
- * Relaxed memoring ordering is typical for incrementing counters. This operation only requires
- * atomicity but not ordering or synchronization.
- */
-static memory_order const SentryFramesMemoryOrder = memory_order_relaxed;
-
 @interface
 SentryFramesTracker ()
 
@@ -51,14 +45,9 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 }
 
 @implementation SentryFramesTracker {
-
-    /**
-     * With 32 bit we can track frames with 120 fps for around 414 days (2^32 / (120* 60 * 60 *
-     * 24)).
-     */
-    atomic_uint_fast32_t _totalFrames;
-    atomic_uint_fast32_t _slowFrames;
-    atomic_uint_fast32_t _frozenFrames;
+    unsigned int _totalFrames;
+    unsigned int _slowFrames;
+    unsigned int _frozenFrames;
 }
 
 + (instancetype)sharedInstance
@@ -93,9 +82,9 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 /** Internal for testing */
 - (void)resetFrames
 {
-    atomic_store_explicit(&_totalFrames, 0, SentryFramesMemoryOrder);
-    atomic_store_explicit(&_frozenFrames, 0, SentryFramesMemoryOrder);
-    atomic_store_explicit(&_slowFrames, 0, SentryFramesMemoryOrder);
+    _totalFrames = 0;
+    _frozenFrames = 0;
+    _slowFrames = 0;
 
     self.previousFrameTimestamp = SentryPreviousFrameInitialValue;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -146,22 +135,18 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-#        if defined(TEST) || defined(TESTCI)
-    BOOL shouldRecordFrameRates = YES;
-#        else
-    BOOL shouldRecordFrameRates = [SentryProfiler isRunning];
-#        endif // defined(TEST) || defined(TESTCI)
-    BOOL hasNoFrameRatesYet = self.frameRateTimestamps.count == 0;
-    uint64_t previousFrameRate
-        = self.frameRateTimestamps.lastObject[@"value"].unsignedLongLongValue;
-    BOOL frameRateChanged = previousFrameRate != currentFrameRate;
-    BOOL shouldRecordNewFrameRate
-        = shouldRecordFrameRates && (hasNoFrameRatesYet || frameRateChanged);
-    if (shouldRecordNewFrameRate) {
-        SENTRY_LOG_DEBUG(@"Recording new frame rate at %llu.", thisFrameSystemTimestamp);
-        [self recordTimestamp:thisFrameSystemTimestamp
-                        value:@(currentFrameRate)
-                        array:self.frameRateTimestamps];
+    if ([SentryProfiler isRunning]) {
+        BOOL hasNoFrameRatesYet = self.frameRateTimestamps.count == 0;
+        uint64_t previousFrameRate
+            = self.frameRateTimestamps.lastObject[@"value"].unsignedLongLongValue;
+        BOOL frameRateChanged = previousFrameRate != currentFrameRate;
+        BOOL shouldRecordNewFrameRate = hasNoFrameRatesYet || frameRateChanged;
+        if (shouldRecordNewFrameRate) {
+            SENTRY_LOG_DEBUG(@"Recording new frame rate at %llu.", thisFrameSystemTimestamp);
+            [self recordTimestamp:thisFrameSystemTimestamp
+                            value:@(currentFrameRate)
+                            array:self.frameRateTimestamps];
+        }
     }
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -169,7 +154,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
     if (frameDuration > slowFrameThreshold(currentFrameRate)
         && frameDuration <= SentryFrozenFrameThreshold) {
-        atomic_fetch_add_explicit(&_slowFrames, 1, SentryFramesMemoryOrder);
+        _slowFrames++;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
         SENTRY_LOG_DEBUG(@"Capturing slow frame starting at %llu.", thisFrameSystemTimestamp);
         [self recordTimestamp:thisFrameSystemTimestamp
@@ -177,7 +162,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
                         array:self.slowFrameTimestamps];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
     } else if (frameDuration > SentryFrozenFrameThreshold) {
-        atomic_fetch_add_explicit(&_frozenFrames, 1, SentryFramesMemoryOrder);
+        _frozenFrames++;
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
         SENTRY_LOG_DEBUG(@"Capturing frozen frame starting at %llu.", thisFrameSystemTimestamp);
         [self recordTimestamp:thisFrameSystemTimestamp
@@ -185,8 +170,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
                         array:self.frozenFrameTimestamps];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
-
-    atomic_fetch_add_explicit(&_totalFrames, 1, SentryFramesMemoryOrder);
+    _totalFrames++;
     self.previousFrameTimestamp = thisFrameTimestamp;
     self.previousFrameSystemTimestamp = thisFrameSystemTimestamp;
     [self reportNewFrame];
@@ -219,19 +203,17 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
 - (SentryScreenFrames *)currentFrames
 {
-    NSUInteger total = atomic_load_explicit(&_totalFrames, SentryFramesMemoryOrder);
-    NSUInteger slow = atomic_load_explicit(&_slowFrames, SentryFramesMemoryOrder);
-    NSUInteger frozen = atomic_load_explicit(&_frozenFrames, SentryFramesMemoryOrder);
-
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-    return [[SentryScreenFrames alloc] initWithTotal:total
-                                              frozen:frozen
-                                                slow:slow
+    return [[SentryScreenFrames alloc] initWithTotal:_totalFrames
+                                              frozen:_frozenFrames
+                                                slow:_slowFrames
                                  slowFrameTimestamps:self.slowFrameTimestamps
                                frozenFrameTimestamps:self.frozenFrameTimestamps
                                  frameRateTimestamps:self.frameRateTimestamps];
 #    else
-    return [[SentryScreenFrames alloc] initWithTotal:total frozen:frozen slow:slow];
+    return [[SentryScreenFrames alloc] initWithTotal:_totalFrames
+                                              frozen:_frozenFrames
+                                                slow:_slowFrames];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 

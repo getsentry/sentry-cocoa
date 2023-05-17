@@ -1080,7 +1080,6 @@ writeThread(const SentryCrashReportWriter *const writer, const char *const key,
         "Writing thread %x (index %d). is crashed: %d", thread, threadIndex, isCrashedThread);
 
     SentryCrashStackCursor stackCursor;
-    stackCursor.async_caller = NULL;
 
     bool hasBacktrace = getStackCursor(crash, machineContext, &stackCursor);
 
@@ -1113,8 +1112,6 @@ writeThread(const SentryCrashReportWriter *const writer, const char *const key,
         }
     }
     writer->endContainer(writer);
-
-    sentrycrash_async_backtrace_decref(stackCursor.async_caller);
 }
 
 /** Write information about all threads to the report.

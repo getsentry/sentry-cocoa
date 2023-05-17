@@ -3,7 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange;
+@class SentryDsn, SentryMeasurementValue, SentryHttpStatusCodeRange, SentryScope;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -163,14 +163,6 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL attachStacktrace;
 
 /**
- * @warning This is an experimental feature and may still have bugs. Turning this feature on can
- * have an impact on the grouping of your issues.
- * @brief When enabled, the SDK stitches stack traces of asynchronous code together.
- * @note This feature is disabled by default.
- */
-@property (nonatomic, assign) BOOL stitchAsyncCode;
-
-/**
  * The maximum size for each attachment in bytes.
  * @note Default is 20 MiB (20 ✕ 1024 ✕ 1024 bytes).
  * @note Please also check the maximum attachment size of relay to make sure your attachments don't
@@ -199,6 +191,14 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableAutoPerformanceTracing;
 
+/**
+ * A block that configures the initial scope when starting the SDK.
+ * @discussion The block receives a suggested default scope. You can either
+ * configure and return this, or create your own scope instead.
+ * @note The default simply returns the passed in scope.
+ */
+@property (nonatomic) SentryScope * (^initialScope)(SentryScope *);
+
 #if SENTRY_HAS_UIKIT
 /**
  * When enabled, the SDK tracks performance for UIViewController subclasses.
@@ -223,6 +223,7 @@ NS_SWIFT_NAME(Options)
 /**
  * When enabled, the SDK creates transactions for UI events like buttons clicks, switch toggles,
  * and other ui elements that uses UIControl @c sendAction:to:forEvent:
+ * @note Default value is @c YES .
  */
 @property (nonatomic, assign) BOOL enableUserInteractionTracing;
 
@@ -350,7 +351,6 @@ NS_SWIFT_NAME(Options)
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
- * @warning This is a beta feature and may still have bugs.
  * @note Profiling is not supported on watchOS or tvOS.
  * Indicates the percentage profiles being sampled out of the sampled transactions.
  * @note The default is @c 0.
@@ -363,7 +363,6 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic, strong) NSNumber *profilesSampleRate;
 
 /**
- * @warning This is a beta feature and may still have bugs.
  * @note Profiling is not supported on watchOS or tvOS.
  * A callback to a user defined profiles sampler function. This is similar to setting
  * @c profilesSampleRate  but instead of a static value, the callback function will be called to
@@ -372,7 +371,6 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic) SentryTracesSamplerCallback profilesSampler;
 
 /**
- * @warning This is a beta feature and may still have bugs.
  * @note Profiling is not supported on watchOS or tvOS.
  * If profiling should be enabled or not. Returns @c YES if either a profilesSampleRate > @c 0 and
  * \<= @c 1 or a profilesSampler is set otherwise @c NO.
@@ -380,7 +378,6 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign, readonly) BOOL isProfilingEnabled;
 
 /**
- * @warning This is a beta feature and may still have bugs.
  * @brief Whether to enable the sampling profiler.
  * @note Profiling is not supported on watchOS or tvOS.
  * @deprecated Use @c profilesSampleRate instead. Setting @c enableProfiling to @c YES is the

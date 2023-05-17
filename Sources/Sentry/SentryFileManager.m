@@ -217,8 +217,10 @@ SentryFileManager ()
 
 - (void)deleteAllEnvelopes
 {
-    for (NSString *path in [self allFilesInFolder:self.envelopesPath]) {
-        [self removeFileAtPath:[self.envelopesPath stringByAppendingPathComponent:path]];
+    [self removeFileAtPath:self.envelopesPath];
+    NSError *error;
+    if (![self createDirectoryIfNotExists:self.envelopesPath error:&error]) {
+        SENTRY_LOG_ERROR(@"Couldn't create envelopes path.");
     }
 }
 
@@ -252,11 +254,19 @@ SentryFileManager ()
 
 - (NSString *)storeEnvelope:(SentryEnvelope *)envelope
 {
+    NSData *envelopeData = [SentrySerialization dataWithEnvelope:envelope error:nil];
+    NSString *path =
+        [self.envelopesPath stringByAppendingPathComponent:[self uniqueAscendingJsonName]];
+
     @synchronized(self) {
-        NSString *result = [self storeData:[SentrySerialization dataWithEnvelope:envelope error:nil]
-                          toUniqueJSONPath:self.envelopesPath];
+        SENTRY_LOG_DEBUG(@"Writing envelope to path: %@", path);
+
+        if (![self writeData:envelopeData toPath:path]) {
+            SENTRY_LOG_WARN(@"Failed to store envelope.");
+        }
+
         [self handleEnvelopesLimit];
-        return result;
+        return path;
     }
 }
 
@@ -416,18 +426,6 @@ SentryFileManager ()
     return [NSDate sentry_fromIso8601String:timestampString];
 }
 
-- (NSString *)storeData:(NSData *)data toUniqueJSONPath:(NSString *)path
-{
-    @synchronized(self) {
-        NSString *finalPath = [path stringByAppendingPathComponent:[self uniqueAscendingJsonName]];
-        SENTRY_LOG_DEBUG(@"Writing to file: %@", finalPath);
-        if (![self writeData:data toPath:finalPath]) {
-            SENTRY_LOG_WARN(@"Failed to store data.");
-        }
-        return finalPath;
-    }
-}
-
 - (BOOL)writeData:(NSData *)data toPath:(NSString *)path
 {
     NSError *error;
@@ -440,14 +438,6 @@ SentryFileManager ()
         return NO;
     }
     return YES;
-}
-
-- (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path
-{
-    NSData *saveData = [SentrySerialization dataWithJSONObject:dictionary];
-    return nil != saveData ? [self storeData:saveData toUniqueJSONPath:path]
-                           : path; // TODO: Should we return null instead? Whoever is using this
-                                   // return value is being tricked.
 }
 
 - (void)storeAppState:(SentryAppState *)appState

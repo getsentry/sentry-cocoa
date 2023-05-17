@@ -67,22 +67,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
         
         XCTAssertTrue(filteredFrames.count == 1, "The frames must be ordered from caller to callee, or oldest to youngest.")
     }
-    
-    func testAsyncStacktraces() throws {
-        SentrySDK.start { options in
-            options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
-            options.stitchAsyncCode = true
-        }
-        
-        let expect = expectation(description: "testAsyncStacktraces")
-
-        fixture.queue.async {
-            self.asyncFrame1(expect: expect)
-        }
-        
-        wait(for: [expect], timeout: 2)
-    }
-    
+     
     func asyncFrame1(expect: XCTestExpectation) {
         fixture.queue.asyncAfter(deadline: DispatchTime.now()) {
             self.asyncFrame2(expect: expect)

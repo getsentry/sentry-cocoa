@@ -13,6 +13,13 @@ repos:
       - id: end-of-file-fixer
       - id: no-commit-to-branch
 
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.23.0
+    hooks:
+    - id: check-github-actions
+    - id: check-github-workflows
+      args: [--verbose]
+
   - repo: local
     hooks:
       - id: format-clang
@@ -30,3 +37,11 @@ repos:
         types_or: ["swift" ]
         args:
           - "format-swift"
+
+      - id: no-changes-in-high-risk-files
+        name: No Changes in High Risk Files
+        entry: make
+        language: system
+        types_or: ["swift","objective-c", "objective-c++", "c", "c++"]
+        args:
+          - "no-changes-in-high-risk-files"

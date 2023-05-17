@@ -163,34 +163,4 @@
     XCTAssertTrue([[[scope serialize] objectForKey:@"breadcrumbs"] count] == 0);
 }
 
-- (void)testInitWithScope
-{
-    SentryScope *scope = [[SentryScope alloc] init];
-    [scope setExtras:@{ @"a" : @"b" }];
-    [scope setTags:@{ @"b" : @"c" }];
-    [scope addBreadcrumb:[self getBreadcrumb]];
-    [scope setUser:[[SentryUser alloc] initWithUserId:@"id"]];
-    [scope setContextValue:@{ @"e" : @"f" } forKey:@"myContext"];
-    [scope setDist:@"456"];
-    [scope setEnvironment:@"789"];
-    [scope setFingerprint:@[ @"a" ]];
-
-    NSMutableDictionary *snapshot = [scope serialize].mutableCopy;
-
-    SentryScope *cloned = [[SentryScope alloc] initWithScope:scope];
-    XCTAssertEqualObjects(snapshot, [cloned serialize]);
-
-    [cloned setExtras:@{ @"aa" : @"b" }];
-    [cloned setTags:@{ @"ab" : @"c" }];
-    [cloned addBreadcrumb:[[SentryBreadcrumb alloc] initWithLevel:kSentryLevelDebug
-                                                         category:@"http2"]];
-    [cloned setUser:[[SentryUser alloc] initWithUserId:@"aid"]];
-    [cloned setContextValue:@{ @"ae" : @"af" } forKey:@"myContext"];
-    [cloned setDist:@"a456"];
-    [cloned setEnvironment:@"a789"];
-
-    XCTAssertEqualObjects(snapshot, [scope serialize]);
-    XCTAssertNotEqualObjects([scope serialize], [cloned serialize]);
-}
-
 @end

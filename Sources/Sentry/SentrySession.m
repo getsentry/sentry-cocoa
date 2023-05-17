@@ -220,7 +220,6 @@ nameForSentrySessionStatus(SentrySessionStatus status)
             [serializedData setValue:[NSNumber numberWithDouble:secondsBetween] forKey:@"duration"];
         }
 
-        // TODO: seq to be just unix time in mills?
         [serializedData setValue:@(_sequence) forKey:@"seq"];
 
         if (_releaseName != nil || _environment != nil) {

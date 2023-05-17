@@ -7,8 +7,6 @@
 #    import "SentryLog.h"
 #    import "SentryTransaction.h"
 
-std::mutex _gSamplesArrayLock;
-
 /**
  * Print a debug log to help diagnose slicing errors.
  * @param start @c YES if this is an attempt to find the start of the sliced data based on the
@@ -44,27 +42,21 @@ logSlicingFailureWithArray(
 NSArray<SentrySample *> *_Nullable slicedProfileSamples(
     NSArray<SentrySample *> *samples, SentryTransaction *transaction)
 {
-    NSArray<SentrySample *> *samplesCopy;
-    {
-        std::lock_guard<std::mutex> l(_gSamplesArrayLock);
-        samplesCopy = [samples copy];
-    }
-
-    if (samplesCopy.count == 0) {
+    if (samples.count == 0) {
         return nil;
     }
 
     const auto transactionStart = transaction.startSystemTime;
     const auto firstIndex =
-        [samplesCopy indexOfObjectWithOptions:NSEnumerationConcurrent
-                                  passingTest:^BOOL(SentrySample *_Nonnull sample, NSUInteger idx,
-                                      BOOL *_Nonnull stop) {
-                                      *stop = sample.absoluteTimestamp >= transactionStart;
-                                      return *stop;
-                                  }];
+        [samples indexOfObjectWithOptions:NSEnumerationConcurrent
+                              passingTest:^BOOL(SentrySample *_Nonnull sample, NSUInteger idx,
+                                  BOOL *_Nonnull stop) {
+                                  *stop = sample.absoluteTimestamp >= transactionStart;
+                                  return *stop;
+                              }];
 
     if (firstIndex == NSNotFound) {
-        logSlicingFailureWithArray(samplesCopy, transaction, /*start*/ YES);
+        logSlicingFailureWithArray(samples, transaction, /*start*/ YES);
         return nil;
     } else {
         SENTRY_LOG_DEBUG(@"Found first slice sample at index %lu", firstIndex);
@@ -72,15 +64,15 @@ NSArray<SentrySample *> *_Nullable slicedProfileSamples(
 
     const auto transactionEnd = transaction.endSystemTime;
     const auto lastIndex =
-        [samplesCopy indexOfObjectWithOptions:NSEnumerationConcurrent | NSEnumerationReverse
-                                  passingTest:^BOOL(SentrySample *_Nonnull sample, NSUInteger idx,
-                                      BOOL *_Nonnull stop) {
-                                      *stop = sample.absoluteTimestamp <= transactionEnd;
-                                      return *stop;
-                                  }];
+        [samples indexOfObjectWithOptions:NSEnumerationConcurrent | NSEnumerationReverse
+                              passingTest:^BOOL(SentrySample *_Nonnull sample, NSUInteger idx,
+                                  BOOL *_Nonnull stop) {
+                                  *stop = sample.absoluteTimestamp <= transactionEnd;
+                                  return *stop;
+                              }];
 
     if (lastIndex == NSNotFound) {
-        logSlicingFailureWithArray(samplesCopy, transaction, /*start*/ NO);
+        logSlicingFailureWithArray(samples, transaction, /*start*/ NO);
         return nil;
     } else {
         SENTRY_LOG_DEBUG(@"Found last slice sample at index %lu", lastIndex);
@@ -88,7 +80,7 @@ NSArray<SentrySample *> *_Nullable slicedProfileSamples(
 
     const auto range = NSMakeRange(firstIndex, (lastIndex - firstIndex) + 1);
     const auto indices = [NSIndexSet indexSetWithIndexesInRange:range];
-    return [samplesCopy objectsAtIndexes:indices];
+    return [samples objectsAtIndexes:indices];
 }
 
 @implementation SentrySample
