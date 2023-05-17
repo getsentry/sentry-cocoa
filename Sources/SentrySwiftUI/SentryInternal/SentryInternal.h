@@ -31,16 +31,19 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 - (SentrySpanId *)startSpanWithName:(NSString *)name
                          nameSource:(SentryTransactionNameSource)source
-                          operation:(NSString *)operation;
+                          operation:(NSString *)operation
+                             origin:(NSString *)origin;
 
 - (void)activateSpan:(SentrySpanId *)spanId duringBlock:(void (^)(void))block;
 
 - (void)measureSpanWithDescription:(NSString *)description
                          operation:(NSString *)operation
+                            origin:(NSString *)origin
                            inBlock:(void (^)(void))block;
 
 - (void)measureSpanWithDescription:(NSString *)description
                          operation:(NSString *)operation
+                            origin:(NSString *)origin
                       parentSpanId:(SentrySpanId *)parentSpanId
                            inBlock:(void (^)(void))block;
 

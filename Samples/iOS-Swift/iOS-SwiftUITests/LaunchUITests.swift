@@ -11,7 +11,6 @@ class LaunchUITests: XCTestCase {
         app.launch()
         
         waitForExistenceOfMainScreen()
-        checkSlowAndFrozenFrames()
     }
     
     override func tearDown() {
@@ -24,8 +23,8 @@ class LaunchUITests: XCTestCase {
         //If we introduce a bug in the crash report process we will catch it with tests for iOS 13 or above.
         //For some reason is not possible to use @available(iOS 13, *) in the test function.
         if #available(iOS 13, *) {
-            app.buttons["crash"].tap()
-            if app.buttons["crash"].exists {
+            app.buttons["Crash the app"].tap()
+            if app.buttons["Crash the app"].exists {
                 XCTFail("App did not crashed")
             }
 
@@ -35,47 +34,55 @@ class LaunchUITests: XCTestCase {
     }
 
     func testBreadcrumbData() {
+        app.buttons["Extra"].tap()
+
         let breadcrumbLabel = app.staticTexts["breadcrumbLabel"]
         breadcrumbLabel.waitForExistence("Breadcrumb label not found.")
-        XCTAssertEqual(breadcrumbLabel.label, "{ category: ui.lifecycle, parentViewController: UINavigationController, beingPresented: false, window_isKeyWindow: true, is_window_rootViewController: false }")
+        XCTAssertEqual(breadcrumbLabel.label, "{ category: ui.lifecycle, parentViewController: UITabBarController, beingPresented: false, window_isKeyWindow: true, is_window_rootViewController: false }")
     }
 
     func testLoremIpsum() {
+        app.buttons["Transactions"].tap()
         app.buttons["loremIpsumButton"].tap()
         app.textViews.firstMatch.waitForExistence("Lorem Ipsum not loaded.")
     }
     
     func testNavigationTransaction() {
+        app.buttons["Transactions"].tap()
         app.buttons["testNavigationTransactionButton"].tap()
         app.images.firstMatch.waitForExistence("Navigation transaction not loaded.")
         assertApp()
     }
     
     func testShowNib() {
+        app.buttons["Transactions"].tap()
         app.buttons["showNibButton"].tap()
         app.buttons["lonelyButton"].waitForExistence("Nib ViewController not loaded.")
         assertApp()
     }
     
     func testUiClickTransaction() {
+        app.buttons["Transactions"].tap()
         app.buttons["uiClickTransactionButton"].tap()
     }
     
     func testCaptureError() {
-        app.buttons["Error"].tap()
+        app.buttons["Capture Error"].tap()
     }
     
     func testCaptureException() {
-        app.buttons["NSException"].tap()
+        app.buttons["Capture NSException"].tap()
     }
     
     func testShowTableView() {
+        app.buttons["Transactions"].tap()
         app.buttons["showTableViewButton"].tap()
         app.navigationBars.buttons.element(boundBy: 0).waitForExistence("TableView not loaded.")
         assertApp()
     }
     
     func testSplitView() {
+        app.buttons["Transactions"].tap()
         app.buttons["showSplitViewButton"].tap()
         
         let app = XCUIApplication()
@@ -86,11 +93,16 @@ class LaunchUITests: XCTestCase {
             assertApp()
         }
     }
+
+    func testCheckSlowAndFrozenFrames() {
+        app.buttons["Extra"].tap()
+        checkSlowAndFrozenFrames()
+    }
 }
 
 private extension LaunchUITests {
     func waitForExistenceOfMainScreen() {
-        app.buttons["captureMessageButton"].waitForExistence( "Home Screen doesn't exist.")
+        app.waitForExistence( "Home Screen doesn't exist.")
     }
     
     func checkSlowAndFrozenFrames() {

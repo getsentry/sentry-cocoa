@@ -211,6 +211,15 @@ class SentryTracerTests: XCTestCase {
 
         XCTAssertFalse(fixture.timerWrapper.overrides.timer.isValid)
     }
+    
+    func testDeadlineTimer_MultipleSpansFinishedInParallel() {
+        let sut = fixture.getSut(idleTimeout: 0.01, dispatchQueueWrapper: SentryDispatchQueueWrapper())
+        
+        testConcurrentModifications(writeWork: { _ in
+            let child = sut.startChild(operation: self.fixture.transactionOperation)
+            child.finish()
+        })
+    }
 
     func testFinish_CheckDefaultStatus() {
         let sut = fixture.getSut()
@@ -1030,6 +1039,7 @@ class SentryTracerTests: XCTestCase {
         }
         let trace: SentryTracer? = Dynamic(transaction).trace
         XCTAssertEqual(operation, appLaunchSpan?.operation)
+        XCTAssertEqual("auto.app.start", appLaunchSpan?.origin)
         XCTAssertEqual(trace?.spanId, appLaunchSpan?.parentSpanId)
         XCTAssertEqual(appStartMeasurement.appStartTimestamp, appLaunchSpan?.startTimestamp)
         XCTAssertEqual(fixture.appStartEnd, appLaunchSpan?.timestamp)
@@ -1040,6 +1050,7 @@ class SentryTracerTests: XCTestCase {
             }
             
             XCTAssertEqual(operation, span?.operation)
+            XCTAssertEqual("auto.app.start", span?.origin)
             XCTAssertEqual(appLaunchSpan?.spanId, span?.parentSpanId)
             XCTAssertEqual(startTimestamp, span?.startTimestamp)
             XCTAssertEqual(timestamp, span?.timestamp)

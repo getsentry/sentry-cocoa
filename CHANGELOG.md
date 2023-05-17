@@ -1,12 +1,76 @@
 # Changelog
 
-## Unreleased
+## 8.7.2
+
+### Fixed
+
+- Fix crashes in profiling serialization race condition (#3018, #3035)
+- Fix a crash for user interaction transactions (#3036)
+
+## 8.7.1
+
+### Features
+
+- Add `sent_at` to envelope header (#2859)
+
+### Fixes
+
+- Fix import of `User` & `Breadcrumb` (#3017)
+
+## 8.7.0
+
+### Features
+
+- Allow starting the SDK with an initial scope (#2982)
+- Swift Error Names (#2960)
+
+```Swift
+enum LoginError: Error {
+    case wrongUser(id: String)
+    case wrongPassword
+}
+
+SentrySDK.capture(error: LoginError.wrongUser("12345678"))
+```
+
+For the Swift error above Sentry displays:
+
+| sentry-cocoa SDK | Title | Description |
+| ----------- | ----------- | ----------- |
+| Since 8.7.0 | `LoginError` | `wrongUser(id: "12345678") (Code: 1)` |
+| Before 8.7.0 | `LoginError` | `Code: 1` |
+
+[Customized error descriptions](https://docs.sentry.io/platforms/apple/usage/#customizing-error-descriptions) have precedence over this feature.
+This change has no impact on grouping of the issues in Sentry.
 
 ### Fixes 
 
-- Ensure the current GPU frame rate is always reported for concurrent transaction profiling metrics (#2929)
+- Propagate span when copying scope (#2952)
+- Remove "/" from crash report file name (#3005)
+
+## 8.6.0
+
+### Features
+
+- Send trace origin (#2957)
+
+[Trace origin](https://develop.sentry.dev/sdk/performance/trace-origin/) indicates what created a trace or a span. Not all transactions and spans contain enough information to tell whether the user or what precisely in the SDK created it. Origin solves this problem. The SDK now sends origin for transactions and spans.
+
+- Create User and Breadcrumb from map (#2820)
+
+### Fixes 
+
+- Improved performance serializing profiling data (#2863)
 - Possible crash in Core Data tracking (#2865)
 - Convert one of the two remaining usages of `sprintf` to `snprintf` (#2866)
+- Ensure the current GPU frame rate is always reported for concurrent transaction profiling metrics (#2929)
+- Move profiler metric collection to a background queue (#2956)
+
+### Removed
+
+- Remove experimental `stitchAsyncCode` from SentryOptions (#2973)
+
+The `stitchAsyncCode` experimental option has been removed from `SentryOptions` as its behavior was unpredictable and sometimes resulted in unexpected errors. We plan to add it back once we fix it, but we don't have an ETA for it.
 
 ## 8.5.0
 
@@ -47,7 +111,6 @@
 - Add CPU core count in device context (#2814)
 
 ### Fixes
-
 
 - Updating AppHang state on main thread (#2793)
 - App Hang report crashes with too many threads (#2811)

@@ -115,6 +115,7 @@ SentryScope ()
         self.distString = scope.distString;
         self.environmentString = scope.environmentString;
         self.levelEnum = scope.levelEnum;
+        self.span = scope.span;
     }
     return self;
 }

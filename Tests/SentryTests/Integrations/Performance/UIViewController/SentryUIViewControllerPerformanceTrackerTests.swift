@@ -20,6 +20,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     let layoutSubviews = "layoutSubViews"
     let spanName = "spanName"
     let spanOperation = "spanOperation"
+    let origin = "auto.ui.view_controller"
     
     private class Fixture {
         
@@ -71,6 +72,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
                 let blockSpan = self.getStack(tracker).last!
                 XCTAssertEqual(blockSpan.parentSpanId, transactionSpan.spanId)
                 XCTAssertEqual(blockSpan.spanDescription, self.viewDidAppear)
+                XCTAssertEqual(blockSpan.origin, self.origin)
                 callbackExpectation.fulfill()
             }
 
@@ -90,6 +92,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
                 let blockSpan = self.getStack(tracker).last!
                 XCTAssertEqual(blockSpan.parentSpanId, transactionSpan.spanId)
                 XCTAssertEqual(blockSpan.spanDescription, self.viewWillDisappear)
+                XCTAssertEqual(blockSpan.origin, self.origin)
                 callbackExpectation.fulfill()
             }
         }
@@ -111,6 +114,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             if let blockSpan = spans.last, let transactionSpan = transactionSpan {
                 XCTAssertEqual(blockSpan.parentSpanId, transactionSpan.spanId)
                 XCTAssertEqual(blockSpan.spanDescription, self.loadView)
+                XCTAssertEqual(blockSpan.origin, self.origin)
             } else {
                 XCTFail("Expected spans")
             }
@@ -119,12 +123,14 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let tracer = try XCTUnwrap(transactionSpan as? SentryTracer)
         XCTAssertEqual(tracer.transactionContext.name, fixture.viewControllerName)
         XCTAssertEqual(tracer.transactionContext.nameSource, .component)
+        XCTAssertEqual(tracer.transactionContext.origin, origin)
         XCTAssertFalse(tracer.isFinished)
 
         sut.viewControllerViewDidLoad(viewController) {
             if let blockSpan = self.getStack(tracker).last {
                 XCTAssertEqual(blockSpan.parentSpanId, tracer.spanId)
                 XCTAssertEqual(blockSpan.spanDescription, self.viewDidLoad)
+                XCTAssertEqual(blockSpan.origin, self.origin)
             } else {
                 XCTFail("Expected a span")
             }
@@ -136,6 +142,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             if let blockSpan = self.getStack(tracker).last {
                 XCTAssertEqual(blockSpan.parentSpanId, tracer.spanId)
                 XCTAssertEqual(blockSpan.spanDescription, self.viewWillLayoutSubviews)
+                XCTAssertEqual(blockSpan.origin, self.origin)
             } else {
                 XCTFail("Expected a span")
             }
@@ -151,6 +158,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             if let blockSpan = self.getStack(tracker).last {
                 XCTAssertEqual(blockSpan.parentSpanId, tracer.spanId)
                 XCTAssertEqual(blockSpan.spanDescription, self.viewDidLayoutSubviews)
+                XCTAssertEqual(blockSpan.origin, self.origin)
             } else {
                 XCTFail("Expected a span")
             }
@@ -162,6 +170,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             if let blockSpan = self.getStack(tracker).last {
                 XCTAssertEqual(blockSpan.parentSpanId, tracer.spanId)
                 XCTAssertEqual(blockSpan.spanDescription, self.viewWillAppear)
+                XCTAssertEqual(blockSpan.origin, self.origin)
             } else {
                 XCTFail("Expected a span")
             }
@@ -350,7 +359,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         sut.viewControllerLoadView(viewController) {
             transactionSpan = self.getStack(tracker).first
             lastSpan = self.getStack(tracker).last
-            customSpanId = tracker.startSpan(withName: self.spanName, nameSource: .custom, operation: self.spanOperation)
+            customSpanId = tracker.startSpan(withName: self.spanName, nameSource: .custom, operation: self.spanOperation, origin: self.origin)
         }
         let unwrappedLastSpan = try XCTUnwrap(lastSpan)
         XCTAssertTrue(unwrappedLastSpan.isFinished)
@@ -515,6 +524,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         }
         XCTAssertEqual(tracer?.children.count, 3)
         XCTAssertEqual(tracer?.children[1].operation, "ui.load.full_display")
+        XCTAssertEqual(tracer?.children[1].origin, "manual.ui.time_to_display")
     }
 
     func test_dontWaitForFullDisplay() {

@@ -17,9 +17,10 @@ class SentryBreadcrumbTests: XCTestCase {
             breadcrumb.level = SentryLevel.info
             breadcrumb.timestamp = date
             breadcrumb.category = category
-            breadcrumb.type = "user"
-            breadcrumb.message = "Click something"
+            breadcrumb.type = type
+            breadcrumb.message = message
             breadcrumb.data = ["some": ["data": "data", "date": date] as [String: Any]]
+            breadcrumb.setValue(["foo": "bar"], forKey: "unknown")
         }
         
         var dateAs8601String: String {
@@ -31,6 +32,27 @@ class SentryBreadcrumbTests: XCTestCase {
     
     private let fixture = Fixture()
 
+    func testInitWithDictionary() {
+        let dict: [AnyHashable: Any] = [
+            "level": "info",
+            "timestamp": fixture.dateAs8601String,
+            "category": fixture.category,
+            "type": fixture.type,
+            "message": fixture.message,
+            "data": ["foo": "bar"],
+            "foo": "bar" // Unknown
+        ]
+        let breadcrumb = PrivateSentrySDKOnly.breadcrumb(with: dict)
+        
+        XCTAssertEqual(breadcrumb.level, SentryLevel.info)
+        XCTAssertEqual(breadcrumb.timestamp, fixture.date)
+        XCTAssertEqual(breadcrumb.category, fixture.category)
+        XCTAssertEqual(breadcrumb.type, fixture.type)
+        XCTAssertEqual(breadcrumb.message, fixture.message)
+        XCTAssertEqual(breadcrumb.data as? [String: String], ["foo": "bar"])
+        XCTAssertEqual(breadcrumb.value(forKey: "unknown") as? NSDictionary, ["foo": "bar"])
+    }
+    
     func testHash() {
         let fixture2 = Fixture()
         XCTAssertEqual(fixture.breadcrumb.hash(), fixture2.breadcrumb.hash())
@@ -61,6 +83,7 @@ class SentryBreadcrumbTests: XCTestCase {
         testIsNotEqual { breadcrumb in breadcrumb.type = "" }
         testIsNotEqual { breadcrumb in breadcrumb.message = "" }
         testIsNotEqual { breadcrumb in breadcrumb.data?.removeAll() }
+        testIsNotEqual { breadcrumb in breadcrumb.setValue(nil, forKey: "unknown") }
     }
     
     func testIsNotEqual(block: (Breadcrumb) -> Void ) {
@@ -80,6 +103,7 @@ class SentryBreadcrumbTests: XCTestCase {
         crumb.type = ""
         crumb.message = ""
         crumb.data = nil
+        crumb.setValue(nil, forKey: "unknown")
         
         XCTAssertEqual("info", actual["level"] as? String)
         XCTAssertEqual(fixture.dateAs8601String, actual["timestamp"] as? String)
@@ -87,6 +111,7 @@ class SentryBreadcrumbTests: XCTestCase {
         XCTAssertEqual(fixture.type, actual["type"] as? String)
         XCTAssertEqual(fixture.message, actual["message"] as? String)
         XCTAssertEqual(["some": ["data": "data", "date": fixture.dateAs8601String]], actual["data"] as? Dictionary)
+        XCTAssertEqual("bar", actual["foo"] as? String)
     }
     
     func testDescription() {

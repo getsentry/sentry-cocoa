@@ -46,7 +46,6 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
             entries++;
         }
     }
-    sentrycrash_async_backtrace_decref(stackCursor.async_caller);
 
     return entries;
 }

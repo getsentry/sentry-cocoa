@@ -87,36 +87,7 @@ class SentryFramesTrackerTests: XCTestCase {
 
         try assert(slow: 1, frozen: 1, total: 2, frameRates: 2)
     }
-    
-    func testAllFrames_ConcurrentRead() throws {
-        // To not spam the test logs
-        SentryLog.configure(true, diagnosticLevel: .error)
-        
-        let sut = fixture.sut
-        sut.start()
-        
-        let group = DispatchGroup()
 
-        let currentFrames = sut.currentFrames
-        assertPreviousCountLesserThanCurrent(group) { return currentFrames.frozen }
-        assertPreviousCountLesserThanCurrent(group) { return currentFrames.slow }
-        assertPreviousCountLesserThanCurrent(group) { return currentFrames.total }
-        
-        fixture.displayLinkWrapper.call()
-        
-        let frames: UInt = 600_000
-        for _ in 0 ..< frames {
-            fixture.displayLinkWrapper.normalFrame()
-            _ = fixture.displayLinkWrapper.fastestSlowFrame()
-            _ = fixture.displayLinkWrapper.fastestFrozenFrame()
-        }
-        
-        group.wait()
-        try assert(slow: frames, frozen: frames, total: 3 * frames)
-        
-        setTestDefaultLogLevel()
-    }
-    
     func testPerformanceOfTrackingFrames() throws {
         let sut = fixture.sut
         sut.start()
@@ -227,19 +198,6 @@ private extension SentryFramesTrackerTests {
         }
     }
 #endif
-
-    func assertPreviousCountLesserThanCurrent(_ group: DispatchGroup, count: @escaping () -> UInt) {
-        group.enter()
-        fixture.queue.async {
-            var previousCount: UInt = 0
-            for _ in 0 ..< 60_000 {
-                let currentCount = count()
-                XCTAssertTrue(previousCount <= currentCount)
-                previousCount = currentCount
-            }
-            group.leave()
-        }
-    }
 }
 
 #endif

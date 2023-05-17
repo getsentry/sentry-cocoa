@@ -35,6 +35,16 @@ NS_SWIFT_NAME(Span)
 @property (nonatomic, copy) NSString *operation;
 
 /**
+ * The origin of the span indicates what created the span.
+ *
+ * @note Gets set by the SDK. It is not expected to be set manually by users. Although the protocol
+ * allows this value to be optional, we make it nonnullable as we always send the value.
+ *
+ * @see <https://develop.sentry.dev/sdk/performance/trace-origin>
+ */
+@property (nonatomic, copy) NSString *origin;
+
+/**
  * Longer description of the span's operation, which uniquely identifies the span but is
  * consistent across instances of the span.
  */

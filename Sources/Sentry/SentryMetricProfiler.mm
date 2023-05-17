@@ -3,7 +3,11 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryCurrentDate.h"
+#    import "SentryDispatchFactory.h"
+#    import "SentryDispatchQueueWrapper.h"
+#    import "SentryDispatchSourceWrapper.h"
 #    import "SentryEvent+Private.h"
+#    import "SentryFormatter.h"
 #    import "SentryLog.h"
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentryNSTimerWrapper.h"
@@ -22,18 +26,17 @@
 @implementation SentryMetricReading
 @end
 
-/**
- * Currently set to 10 Hz as we don't anticipate much utility out of a higher resolution when
- * sampling CPU usage and memory footprint, and we want to minimize the overhead of making the
- * necessary system calls to gather that information.
- */
-static const NSTimeInterval kSentryMetricProfilerTimeseriesInterval = 0.1;
-
 NSString *const kSentryMetricProfilerSerializationKeyMemoryFootprint = @"memory_footprint";
 NSString *const kSentryMetricProfilerSerializationKeyCPUUsageFormat = @"cpu_usage_%d";
 
 NSString *const kSentryMetricProfilerSerializationUnitBytes = @"byte";
 NSString *const kSentryMetricProfilerSerializationUnitPercentage = @"percent";
+
+// Currently set to 10 Hz as we don't anticipate much utility out of a higher resolution when
+// sampling CPU usage and memory footprint, and we want to minimize the overhead of making the
+// necessary system calls to gather that information. This is currently roughly 10% of the
+// backtrace profiler's resolution.
+static uint64_t frequencyHz = 10;
 
 namespace {
 /**
@@ -60,8 +63,8 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
         const auto relativeTimestamp
             = getDurationNs(transaction.startSystemTime, reading.absoluteTimestamp);
 
-        [timestampNormalizedValues addObject:@{
-            @"elapsed_since_start_ns" : @(relativeTimestamp).stringValue,
+        [timestampNormalizedValues addObject:@ {
+            @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp),
             @"value" : reading.value
         }];
     }];
@@ -73,11 +76,11 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 } // namespace
 
 @implementation SentryMetricProfiler {
-    NSTimer *_timer;
+    SentryDispatchSourceWrapper *_dispatchSource;
 
     SentryNSProcessInfoWrapper *_processInfoWrapper;
     SentrySystemWrapper *_systemWrapper;
-    SentryNSTimerWrapper *_timerWrapper;
+    SentryDispatchFactory *_dispatchFactory;
 
     /// arrays of readings keyed on NSNumbers representing the core number for the set of readings
     NSMutableDictionary<NSNumber *, NSMutableArray<SentryMetricReading *> *> *_cpuUsage;
@@ -87,7 +90,7 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 
 - (instancetype)initWithProcessInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
                              systemWrapper:(SentrySystemWrapper *)systemWrapper
-                              timerWrapper:(SentryNSTimerWrapper *)timerWrapper
+                           dispatchFactory:(nonnull SentryDispatchFactory *)dispatchFactory
 {
     if (self = [super init]) {
         _cpuUsage =
@@ -101,7 +104,7 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 
         _systemWrapper = systemWrapper;
         _processInfoWrapper = processInfoWrapper;
-        _timerWrapper = timerWrapper;
+        _dispatchFactory = dispatchFactory;
 
         _memoryFootprint = [NSMutableArray<SentryMetricReading *> array];
     }
@@ -122,24 +125,28 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 
 - (void)stop
 {
-    [_timer invalidate];
+    [_dispatchSource cancel];
 }
 
 - (NSMutableDictionary<NSString *, id> *)serializeForTransaction:(SentryTransaction *)transaction
 {
-    NSMutableDictionary<NSString *, id> *dict;
+    NSArray<SentryMetricReading *> *memoryFootprint;
+    NSDictionary<NSNumber *, NSArray<SentryMetricReading *> *> *cpuUsage;
     @synchronized(self) {
-        dict = [NSMutableDictionary<NSString *, id> dictionary];
+        memoryFootprint = [NSArray<SentryMetricReading *> arrayWithArray:_memoryFootprint];
+        cpuUsage = [NSDictionary<NSNumber *, NSArray<SentryMetricReading *> *>
+            dictionaryWithDictionary:_cpuUsage];
     }
 
-    if (_memoryFootprint.count > 0) {
+    const auto dict = [NSMutableDictionary<NSString *, id> dictionary];
+    if (memoryFootprint.count > 0) {
         dict[kSentryMetricProfilerSerializationKeyMemoryFootprint]
             = serializeValuesWithNormalizedTime(
-                _memoryFootprint, kSentryMetricProfilerSerializationUnitBytes, transaction);
+                memoryFootprint, kSentryMetricProfilerSerializationUnitBytes, transaction);
     }
 
-    [_cpuUsage enumerateKeysAndObjectsUsingBlock:^(NSNumber *_Nonnull core,
-        NSMutableArray<SentryMetricReading *> *_Nonnull readings, BOOL *_Nonnull stop) {
+    [cpuUsage enumerateKeysAndObjectsUsingBlock:^(NSNumber *_Nonnull core,
+        NSArray<SentryMetricReading *> *_Nonnull readings, BOOL *_Nonnull stop) {
         if (readings.count > 0) {
             dict[[NSString stringWithFormat:kSentryMetricProfilerSerializationKeyCPUUsageFormat,
                            core.intValue]]
@@ -156,12 +163,18 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 - (void)registerSampler
 {
     __weak auto weakSelf = self;
-    _timer = [_timerWrapper scheduledTimerWithTimeInterval:kSentryMetricProfilerTimeseriesInterval
-                                                   repeats:YES
-                                                     block:^(NSTimer *_Nonnull timer) {
-                                                         [weakSelf recordCPUPercentagePerCore];
-                                                         [weakSelf recordMemoryFootprint];
-                                                     }];
+    const auto intervalNs = (uint64_t)1e9 / frequencyHz;
+    const auto leewayNs = intervalNs / 2;
+    _dispatchSource =
+        [_dispatchFactory sourceWithInterval:intervalNs
+                                      leeway:leewayNs
+                                   queueName:"io.sentry.metric-profiler"
+                                  attributes:dispatch_queue_attr_make_with_qos_class(
+                                                 DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_UTILITY, 0)
+                                eventHandler:^{
+                                    [weakSelf recordCPUPercentagePerCore];
+                                    [weakSelf recordMemoryFootprint];
+                                }];
 }
 
 - (void)recordMemoryFootprint

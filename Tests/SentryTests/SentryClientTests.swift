@@ -415,7 +415,7 @@ class SentryClientTest: XCTestCase {
         eventId.assertIsNotEmpty()
         let error = TestError.invalidTest as NSError
         assertLastSentEvent { actual in
-            assertValidErrorEvent(actual, error)
+            assertValidErrorEvent(actual, error, exceptionValue: "invalidTest (Code: 0)")
         }
     }
 
@@ -451,6 +451,62 @@ class SentryClientTest: XCTestCase {
             do {
                 let exceptions = try XCTUnwrap(actual.exceptions)
                 XCTAssertEqual("Code: 999", try XCTUnwrap(exceptions.first).value)
+            } catch {
+                XCTFail("Exception expected but was nil")
+            }
+        }
+    }
+    
+    func testCaptureSwiftError_UsesSwiftStringDescription() {
+        let eventId = fixture.getSut().capture(error: SentryClientError.someError)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            do {
+                let exceptions = try XCTUnwrap(actual.exceptions)
+                XCTAssertEqual("someError (Code: 1)", try XCTUnwrap(exceptions.first).value)
+            } catch {
+                XCTFail("Exception expected but was nil")
+            }
+        }
+    }
+    
+    func testCaptureSwiftErrorStruct_UsesSwiftStringDescription() {
+        let eventId = fixture.getSut().capture(error: XMLParsingError(line: 10, column: 12, kind: .internalError))
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            do {
+                let exceptions = try XCTUnwrap(actual.exceptions)
+                XCTAssertEqual("XMLParsingError(line: 10, column: 12, kind: SentryTests.XMLParsingError.ErrorKind.internalError) (Code: 1)", try XCTUnwrap(exceptions.first).value)
+            } catch {
+                XCTFail("Exception expected but was nil")
+            }
+        }
+    }
+    
+    func testCaptureSwiftErrorWithData_UsesSwiftStringDescription() {
+        let eventId = fixture.getSut().capture(error: SentryClientError.invalidInput("hello"))
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            do {
+                let exceptions = try XCTUnwrap(actual.exceptions)
+                XCTAssertEqual("invalidInput(\"hello\") (Code: 0)", try XCTUnwrap(exceptions.first).value)
+            } catch {
+                XCTFail("Exception expected but was nil")
+            }
+        }
+    }
+    
+    func testCaptureSwiftErrorWithDebugDescription_UsesDebugDescription() {
+        let eventId = fixture.getSut().capture(error: SentryClientErrorWithDebugDescription.someError)
+
+        eventId.assertIsNotEmpty()
+        assertLastSentEvent { actual in
+            do {
+                let exceptions = try XCTUnwrap(actual.exceptions)
+                XCTAssertEqual("anotherError (Code: 0)", try XCTUnwrap(exceptions.first).value)
             } catch {
                 XCTFail("Exception expected but was nil")
             }
@@ -1133,12 +1189,6 @@ class SentryClientTest: XCTestCase {
         }
     }
 
-    func testTrackStitchAsyncCode() {        
-        testFeatureTrackingAsIntegration(integrationName: "StitchAsyncCode") {
-            $0.stitchAsyncCode = true
-        }
-    }
-
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testTrackPreWarmedAppStartTracking() {
         testFeatureTrackingAsIntegration(integrationName: "PreWarmedAppStartTracing") {
@@ -1464,7 +1514,7 @@ class SentryClientTest: XCTestCase {
         }
     }
     
-    private func assertValidErrorEvent(_ event: Event, _ error: NSError) {
+    private func assertValidErrorEvent(_ event: Event, _ error: NSError, exceptionValue: String? = nil) {
         XCTAssertEqual(SentryLevel.error, event.level)
         XCTAssertEqual(error, event.error as NSError?)
         
@@ -1475,7 +1525,7 @@ class SentryClientTest: XCTestCase {
         let exception = exceptions[0]
         XCTAssertEqual(error.domain, exception.type)
         
-        XCTAssertEqual("Code: \(error.code)", exception.value)
+        XCTAssertEqual(exceptionValue ?? "Code: \(error.code)", exception.value)
         
         XCTAssertNil(exception.threadId)
         XCTAssertNil(exception.stacktrace)
@@ -1563,6 +1613,28 @@ class SentryClientTest: XCTestCase {
         }
     }
     
+}
+
+enum SentryClientError: Error {
+    case someError
+    case invalidInput(String)
+}
+
+enum SentryClientErrorWithDebugDescription: Error {
+    case someError
+}
+
+extension SentryClientErrorWithDebugDescription: CustomNSError {
+    var errorUserInfo: [String: Any] {
+        func getDebugDescription() -> String {
+            switch self {
+            case .someError:
+                return  "anotherError"
+            }
+        }
+
+        return [NSDebugDescriptionErrorKey: getDebugDescription()]
+    }
 }
 
 // swiftlint:enable file_length

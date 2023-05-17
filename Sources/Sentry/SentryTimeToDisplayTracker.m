@@ -7,6 +7,7 @@
 #import "SentrySpanId.h"
 #import "SentrySpanOperations.h"
 #import "SentrySwift.h"
+#import "SentryTraceOrigins.h"
 #import "SentryTracer.h"
 
 #if SENTRY_HAS_UIKIT
@@ -47,12 +48,14 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
     self.initialDisplaySpan = [tracer
         startChildWithOperation:SentrySpanOperationUILoadInitialDisplay
                     description:[NSString stringWithFormat:@"%@ initial display", _controllerName]];
+    self.initialDisplaySpan.origin = SentryTraceOriginAutoUITimeToDisplay;
 
     if (self.waitForFullDisplay) {
         self.fullDisplaySpan =
             [tracer startChildWithOperation:SentrySpanOperationUILoadFullDisplay
                                 description:[NSString stringWithFormat:@"%@ full display",
                                                       _controllerName]];
+        self.fullDisplaySpan.origin = SentryTraceOriginManualUITimeToDisplay;
 
         // By concept TTID and TTFD spans should have the same beginning,
         // which also should be the same of the transaction starting.
