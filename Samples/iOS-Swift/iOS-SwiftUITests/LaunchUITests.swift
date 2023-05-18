@@ -98,6 +98,21 @@ class LaunchUITests: XCTestCase {
         app.buttons["Extra"].tap()
         checkSlowAndFrozenFrames()
     }
+
+    /**
+     * We received a customer report that ASAN reports a use-after-free error after
+     * calling UIImage(named:) with an empty string argument. Recording another
+     * transaction leads to the ASAN error.
+     */
+    func testUseAfterFreeAfterUIImageNamedEmptyString() {
+        let app = XCUIApplication()
+
+        // this primes the state required according to the customer report, by setting a UIImageView.image property to a UIImage(named: "")
+        app/*@START_MENU_TOKEN@*/.staticTexts["Use-after-free"]/*[[".buttons[\"Use-after-free\"].staticTexts[\"Use-after-free\"]",".staticTexts[\"Use-after-free\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
+
+        // this causes another transaction to be recorded which hits the codepath necessary for the ASAN to trip
+        app.tabBars["Tab Bar"].buttons["Extra"].tap()
+    }
 }
 
 private extension LaunchUITests {
