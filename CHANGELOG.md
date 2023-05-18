@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Convert one of the two remaining usages of `sprintf` to `snprintf` (#2866)
+
 ## 8.7.2
 
 ### Fixed
