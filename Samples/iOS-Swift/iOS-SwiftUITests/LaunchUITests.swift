@@ -104,7 +104,11 @@ class LaunchUITests: XCTestCase {
      * calling UIImage(named:) with an empty string argument. Recording another
      * transaction leads to the ASAN error.
      */
-    func testUseAfterFreeAfterUIImageNamedEmptyString() {
+    func testUseAfterFreeAfterUIImageNamedEmptyString() throws {
+        guard #available(iOS 14, *) else {
+            throw XCTSkip("Only run for iOS 14 or later")
+        }
+
         let app = XCUIApplication()
 
         // this primes the state required according to the customer report, by setting a UIImageView.image property to a UIImage(named: "")
