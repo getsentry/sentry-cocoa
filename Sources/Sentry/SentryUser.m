@@ -136,8 +136,8 @@ SentryUser ()
         return NO;
     }
 
-    NSString *otherIpAdress = user.ipAddress;
-    if (self.ipAddress != otherIpAdress && ![self.ipAddress isEqualToString:otherIpAdress]) {
+    NSString *otherIpAddress = user.ipAddress;
+    if (self.ipAddress != otherIpAddress && ![self.ipAddress isEqualToString:otherIpAddress]) {
         return NO;
     }
 
