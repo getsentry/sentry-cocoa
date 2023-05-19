@@ -5,6 +5,7 @@
 ### Fixes
 
 - Convert one of the two remaining usages of `sprintf` to `snprintf` (#2866)
+- Fix a use-after-free that could occur after initializing a UIImage with an empty name string (#3042)
 
 ## 8.7.2
 
