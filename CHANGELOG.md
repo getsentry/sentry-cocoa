@@ -15,12 +15,9 @@
 
 ## 8.7.1
 
-### Features
-
-- Add `sent_at` to envelope header (#2859)
-
 ### Fixes
 
+- Add `sent_at` to envelope header (#2859)
 - Fix import of `User` & `Breadcrumb` (#3017)
 
 ## 8.7.0
