@@ -26,7 +26,7 @@ class SentryCrashDefaultBinaryImageProviderTests: XCTestCase {
             let actual = sut.getBinaryImage(i)
             
             var expected = SentryCrashBinaryImage()
-            sentrycrashdl_getBinaryImage(Int32(i), &expected)
+            sentrycrashdl_getBinaryImage(Int32(i), &expected, /*isCrash*/ false)
             
             XCTAssertEqual(expected.uuid, actual.uuid)
             XCTAssertEqual(expected.vmAddress, actual.vmAddress)

@@ -39,6 +39,12 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [SentrySerialization envelopeWithData:data];
 }
 
++ (NSArray<SentryDebugMeta *> *)getDebugImages
+{
+    // maintains previous behavior for the same method call by also trying to gather crash info
+    return [self getDebugImagesCrashed:YES];
+}
+
 + (NSArray<SentryDebugMeta *> *)getDebugImagesCrashed:(BOOL)isCrash
 {
     return [[SentryDependencyContainer sharedInstance].debugImageProvider
