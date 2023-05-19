@@ -39,9 +39,10 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [SentrySerialization envelopeWithData:data];
 }
 
-+ (NSArray<SentryDebugMeta *> *)getDebugImages
++ (NSArray<SentryDebugMeta *> *)getDebugImagesCrashed:(BOOL)isCrash
 {
-    return [[SentryDependencyContainer sharedInstance].debugImageProvider getDebugImages];
+    return [[SentryDependencyContainer sharedInstance].debugImageProvider
+        getDebugImagesCrashed:isCrash];
 }
 
 + (nullable SentryAppStartMeasurement *)appStartMeasurement

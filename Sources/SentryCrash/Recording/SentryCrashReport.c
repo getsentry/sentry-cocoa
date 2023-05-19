@@ -1166,7 +1166,7 @@ writeBinaryImage(
     const SentryCrashReportWriter *const writer, const char *const key, const int index)
 {
     SentryCrashBinaryImage image = { 0 };
-    if (!sentrycrashdl_getBinaryImage(index, &image)) {
+    if (!sentrycrashdl_getBinaryImage(index, &image, /*isCrash*/ true)) {
         return;
     }
 

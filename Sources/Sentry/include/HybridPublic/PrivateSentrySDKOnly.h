@@ -40,9 +40,11 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 /**
  * Returns the current list of debug images. Be aware that the @c SentryDebugMeta is actually
  * describing a debug image.
- * @todo This class should be renamed to @c SentryDebugImage in a future version.
+ * @param isCrash @c YES if we're collecting binary images for a crash report, @c NO if we're
+ * gathering them for other backtrace information, like a performance transaction. If this is for a
+ * crash, each image's data section crash info is also included.
  */
-+ (NSArray<SentryDebugMeta *> *)getDebugImages;
++ (NSArray<SentryDebugMeta *> *)getDebugImagesCrashed:(BOOL)isCrash;
 
 /**
  * Override SDK information.

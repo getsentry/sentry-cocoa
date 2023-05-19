@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSInteger)getImageCount;
 
-- (SentryCrashBinaryImage)getBinaryImage:(NSInteger)index;
+- (SentryCrashBinaryImage)getBinaryImage:(NSInteger)index isCrash:(BOOL)isCrash;
 
 @end
 
