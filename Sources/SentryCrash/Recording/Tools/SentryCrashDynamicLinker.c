@@ -413,9 +413,9 @@ sentrycrashdl_getBinaryImageForHeader(const void *const header_ptr, const char *
     buffer->majorVersion = version >> 16;
     buffer->minorVersion = (version >> 8) & 0xff;
     buffer->revisionVersion = version & 0xff;
-    //    if (isCrash) {
-    getCrashInfo(header, buffer);
-    //    }
+    if (isCrash) {
+        getCrashInfo(header, buffer);
+    }
 
     return true;
 }
