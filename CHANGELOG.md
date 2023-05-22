@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Support for stitching async Swift Concurrency frames
+
 ### Fixes
 
 - Convert one of the two remaining usages of `sprintf` to `snprintf` (#2866)
