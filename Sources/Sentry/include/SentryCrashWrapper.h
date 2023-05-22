@@ -11,6 +11,10 @@ SENTRY_NO_INIT
 
 + (instancetype)sharedInstance;
 
+- (void)startBinaryImageCache;
+
+- (void)stopBinaryImageCache;
+
 - (BOOL)crashedLastLaunch;
 
 - (NSTimeInterval)durationFromCrashStateInitToLastCrash;

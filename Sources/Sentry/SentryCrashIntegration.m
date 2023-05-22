@@ -1,5 +1,4 @@
 #import "SentryCrashIntegration.h"
-#import "SentryCrashBinaryImageCache.h"
 #import "SentryCrashInstallationReporter.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDispatchQueueWrapper.h"
@@ -141,7 +140,7 @@ SentryCrashIntegration ()
             [SentryCrashIntegration sendAllSentryCrashReports];
         }
 
-        sentrycrashbic_startCache();
+        [self.crashAdapter startBinaryImageCache];
     };
     [self.dispatchQueueWrapper dispatchOnce:&installationToken block:block];
 }

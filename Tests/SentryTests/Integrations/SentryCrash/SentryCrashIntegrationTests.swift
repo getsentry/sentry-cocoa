@@ -175,7 +175,19 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertEqual(session, fileManager.readCurrentSession())
         XCTAssertNil(fileManager.readCrashedSession())
     }
-    
+
+    func testInstallAndUninstall_startsStopsBinaryImageCache() {
+        let (sut, _) = givenSutWithGlobalHub()
+
+        sut.install(with: Options())
+
+        XCTAssertTrue(fixture.sentryCrash.binaryCacheStarted)
+
+        sut.uninstall()
+
+        XCTAssertTrue(fixture.sentryCrash.binaryCacheStopped)
+    }
+
     func testEndSessionAsCrashed_NoCurrentSession() {
         let (sut, _) = givenSutWithGlobalHub()
         

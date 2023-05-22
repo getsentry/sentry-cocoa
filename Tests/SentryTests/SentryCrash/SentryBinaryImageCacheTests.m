@@ -1,4 +1,5 @@
 #import "SentryCrashBinaryImageCache.h"
+#import "SentryCrashWrapper.h"
 #import <XCTest/XCTest.h>
 #include <mach-o/dyld.h>
 
@@ -83,7 +84,7 @@ addBinaryImageToArray(SentryCrashBinaryImage *image, void *context)
 
 - (void)testStartCache
 {
-    sentrycrashbic_startCache();
+    [[SentryCrashWrapper sharedInstance] startBinaryImageCache];
     [self assertBinaryImageCacheLength:5];
 }
 
@@ -141,7 +142,8 @@ addBinaryImageToArray(SentryCrashBinaryImage *image, void *context)
     [self assertBinaryImageCacheLength:5];
 }
 
-- (void)testAddNewImageAfterStopping {
+- (void)testAddNewImageAfterStopping
+{
     sentrycrashbic_startCache();
     [self assertBinaryImageCacheLength:5];
 
