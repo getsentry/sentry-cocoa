@@ -141,7 +141,8 @@ addBinaryImageToArray(SentryCrashBinaryImage *image, void *context)
     [self assertBinaryImageCacheLength:5];
 }
 
-- (void)testAddNewImageAfterStopping {
+- (void)testAddNewImageAfterStopping
+{
     sentrycrashbic_startCache();
     [self assertBinaryImageCacheLength:5];
 
