@@ -7,6 +7,47 @@
 #include <string.h>
 #include <unistd.h>
 
+#if TEST || TESTCI
+
+typedef void (*SentryRegisterImageCallback)(const struct mach_header *mh, intptr_t vmaddr_slide);
+typedef void (*SentryRegisterFunction)(SentryRegisterImageCallback function);
+
+static SentryRegisterFunction _sentry_register_func_for_add_image
+    = &_dyld_register_func_for_add_image;
+static SentryRegisterFunction _sentry_register_func_for_remove_image
+    = &_dyld_register_func_for_remove_image;
+
+void
+sentry_setRegisterFuncForAddImage(SentryRegisterFunction addFunction)
+{
+    _sentry_register_func_for_add_image = addFunction;
+}
+
+void
+sentry_setRegisterFuncForRemoveImage(SentryRegisterFunction removeFunction)
+{
+    _sentry_register_func_for_remove_image = removeFunction;
+}
+
+void
+sentry_resetFuncForAddRemoveImage(void)
+{
+    _sentry_register_func_for_add_image = &_dyld_register_func_for_add_image;
+    _sentry_register_func_for_remove_image = &_dyld_register_func_for_remove_image;
+}
+
+#    define sentry_dyld_register_func_for_add_image(CALLBACK)                                      \
+        _sentry_register_func_for_add_image(CALLBACK);
+#    define sentry_dyld_register_func_for_remove_image(CALLBACK)                                   \
+        _sentry_register_func_for_remove_image(CALLBACK);
+
+#else
+#    define sentry_dyld_register_func_for_add_image(CALLBACK)                                      \
+        _dyld_register_func_for_add_image(CALLBACK)
+#    define sentry_dyld_register_func_for_remove_image(CALLBACK)                                   \
+        _dyld_register_func_for_remove_image(CALLBACK)
+#endif
+
 typedef struct SentryCrashBinaryImageNode {
     SentryCrashBinaryImage image;
     bool available;
@@ -21,7 +62,6 @@ static void
 binaryImageAdded(const struct mach_header *header, intptr_t slide)
 {
     if (tailNode == NULL) {
-        pthread_mutex_unlock(&binaryImagesMutex);
         return;
     }
 
@@ -29,8 +69,6 @@ binaryImageAdded(const struct mach_header *header, intptr_t slide)
     if (!dladdr(header, &info) || info.dli_fname == NULL) {
         return;
     }
-
-    pthread_mutex_lock(&binaryImagesMutex);
 
     SentryCrashBinaryImage binaryImage = { 0 };
     if (!sentrycrashdl_getBinaryImageForHeader(
@@ -43,6 +81,7 @@ binaryImageAdded(const struct mach_header *header, intptr_t slide)
     newNode->image = binaryImage;
     newNode->next = NULL;
 
+    pthread_mutex_lock(&binaryImagesMutex);
     tailNode->next = newNode;
     tailNode = tailNode->next;
     pthread_mutex_unlock(&binaryImagesMutex);
@@ -90,8 +129,8 @@ sentrycrashbic_startCache(void)
 
     // During a call to _dyld_register_func_for_add_image() the callback func is called for every
     // existing image
-    _dyld_register_func_for_add_image(&binaryImageAdded);
-    _dyld_register_func_for_remove_image(&binaryImageRemoved);
+    sentry_dyld_register_func_for_add_image(&binaryImageAdded);
+    sentry_dyld_register_func_for_remove_image(&binaryImageRemoved);
 }
 
 void
@@ -112,5 +151,6 @@ sentrycrashbic_stopCache(void)
         node = nextNode;
     }
 
+    tailNode = NULL;
     pthread_mutex_unlock(&binaryImagesMutex);
 }
