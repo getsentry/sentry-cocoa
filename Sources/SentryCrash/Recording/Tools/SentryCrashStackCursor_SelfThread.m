@@ -34,7 +34,7 @@
     (SentryCrashSC_CONTEXT_SIZE                                                                    \
         - sizeof(SentryCrashStackCursor_Backtrace_Context) / sizeof(void *) - 1)
 
-size_t backtrace_async(void** array, size_t length, uint32_t *task_id);
+size_t backtrace_async(void **array, size_t length, uint32_t *task_id);
 
 typedef struct {
     SentryCrashStackCursor_Backtrace_Context SelfThreadContextSpacer;
