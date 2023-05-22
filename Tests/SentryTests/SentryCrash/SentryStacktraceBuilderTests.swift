@@ -68,30 +68,30 @@ class SentryStacktraceBuilderTests: XCTestCase {
         XCTAssertTrue(filteredFrames.count == 1, "The frames must be ordered from caller to callee, or oldest to youngest.")
     }
 
-//    func testConcurrentStacktraces() async throws {
-//        guard #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) else { return }
-//        SentrySDK.start { options in
-//            options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
-//        }
-//
-//        await Task { await innerFrame1() }.value
-//    }
-//
-//    @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-//    func innerFrame1() async {
-//        await Task { @MainActor in }.value
-//        await innerFrame2()
-//    }
-//
-//    @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-//    func innerFrame2() async {
-//        let needed = ["testConcurrentStacktraces", "innerFrame1", "innerFrame2"]
-//        let actual = fixture.sut.buildStacktraceForCurrentThreadAsyncUnsafe()!
-//        let filteredFrames = actual.frames
-//            .compactMap(\.function)
-//            .filter { needed.contains(where: $0.contains) }
-//        XCTAssertGreaterThanOrEqual(filteredFrames.count, 3, "The Stacktrace must include the async callers.")
-//    }
+    func testConcurrentStacktraces() async throws {
+        guard #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) else { return }
+        SentrySDK.start { options in
+            options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
+        }
+
+        await Task { await innerFrame1() }.value
+    }
+
+    @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+    func innerFrame1() async {
+        await Task { @MainActor in }.value
+        await innerFrame2()
+    }
+
+    @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+    func innerFrame2() async {
+        let needed = ["testConcurrentStacktraces", "innerFrame1", "innerFrame2"]
+        let actual = fixture.sut.buildStacktraceForCurrentThreadAsyncUnsafe()!
+        let filteredFrames = actual.frames
+            .compactMap({ $0.function })
+            .filter { needed.contains(where: $0.contains) }
+        XCTAssertGreaterThanOrEqual(filteredFrames.count, 3, "The Stacktrace must include the async callers.")
+    }
 
     func asyncFrame1(expect: XCTestExpectation) {
         fixture.queue.asyncAfter(deadline: DispatchTime.now()) {
