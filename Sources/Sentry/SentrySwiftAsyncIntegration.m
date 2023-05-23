@@ -9,7 +9,8 @@
     return options.stitchSwiftAsync;
 }
 
-- (void)uninstall {
+- (void)uninstall
+{
     sentrycrashsc_setSwiftAsyncStitching(NO);
 }
 

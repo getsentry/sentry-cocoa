@@ -41,7 +41,9 @@ typedef struct {
 
 static BOOL stitchSwiftAsync = NO;
 
-void sentrycrashsc_setSwiftAsyncStitching(bool enabled) {
+void
+sentrycrashsc_setSwiftAsyncStitching(bool enabled)
+{
     stitchSwiftAsync = enabled;
 }
 
@@ -56,7 +58,7 @@ sentrycrashsc_initSelfThread(SentryCrashStackCursor *cursor, int skipEntries)
     if (@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)) {
         if (stitchSwiftAsync) {
             backtraceLength
-            = (int)backtrace_async((void **)context->backtrace, MAX_BACKTRACE_LENGTH, NULL);
+                = (int)backtrace_async((void **)context->backtrace, MAX_BACKTRACE_LENGTH, NULL);
         } else {
             backtraceLength = backtrace((void **)context->backtrace, MAX_BACKTRACE_LENGTH);
         }
