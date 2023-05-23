@@ -34,7 +34,7 @@ SentryHttpTransport ()
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) dispatch_group_t dispatchGroup;
 @property (nonatomic, strong) SentryReachability *reachability;
-@property (nonatomic, strong) void (^startFlushCallback)(void);
+@property (nullable, nonatomic, copy) void (^startFlushCallback)(void);
 
 /**
  * Relay expects the discarded events split by data category and reason; see
@@ -157,7 +157,7 @@ SentryHttpTransport ()
     }
 }
 
-- (void)setStartFlushCallback:(nonnull void (^)(void))callback
+- (void)setStartFlushCallback:(void (^)(void))callback
 {
     _startFlushCallback = callback;
 }
