@@ -68,7 +68,6 @@ class SentryStacktraceBuilderTests: XCTestCase {
         XCTAssertTrue(filteredFrames.count == 1, "The frames must be ordered from caller to callee, or oldest to youngest.")
     }
 
-
     func testConcurrentStacktraces() {
         guard #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) else { return }
         let waitForAsyncToRun = expectation(description: "Wait async functions")
