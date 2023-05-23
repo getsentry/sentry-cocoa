@@ -2,6 +2,7 @@
 import SentryTestUtils
 import XCTest
 
+@available(tvOS 15.0, *)
 class SentryStacktraceBuilderTests: XCTestCase {
     
     private class Fixture {
@@ -75,7 +76,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
             await self.firstFrame()
             waitForAsyncToRun.fulfill()
         }
-        wait(for: [waitForAsyncToRun], timeout: 100)
+        wait(for: [waitForAsyncToRun], timeout: 1)
     }
 
     @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
