@@ -44,7 +44,7 @@ sentrycrashsc_initSelfThread(SentryCrashStackCursor *cursor, int skipEntries)
 {
     SelfThreadContext *context = (SelfThreadContext *)cursor->context;
 
-//backtrace_async api is not available for xcode 12
+// backtrace_async api is not available for xcode 12
 #if __clang_major__ > 13
     int backtraceLength;
     if (@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)) {
