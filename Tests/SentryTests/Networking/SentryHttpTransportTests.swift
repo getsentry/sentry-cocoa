@@ -740,11 +740,13 @@ class SentryHttpTransportTests: XCTestCase {
         let ensureFlushingGroup = DispatchGroup()
         let ensureFlushingQueue = DispatchQueue(label: "First flushing")
         
+        sut.setStartFlushCallback {
+            ensureFlushingGroup.leave()
+        }
+        
         allFlushCallsGroup.enter()
         ensureFlushingGroup.enter()
         ensureFlushingQueue.async {
-            ensureFlushingGroup.leave()
-            
             XCTAssertEqual(.timedOut, self.sut.flush(flushTimeout))
             
             allFlushCallsGroup.leave()
@@ -752,12 +754,6 @@ class SentryHttpTransportTests: XCTestCase {
         
         // Ensure transport is flushing.
         ensureFlushingGroup.waitWithTimeout()
-        
-        // Even when the dispatch group above waited successfully, there is no guarantee
-        // that the transport is already flushing. The queue above could stop it's execution,
-        // and the main thread could continue here. With the blocking call we give the
-        // queue some time to call the blocking flushing method.
-        delayNonBlocking(timeout: flushTimeout / 2)
         
         // Now the transport should also have left the synchronized block, and the
         // double-checked lock, should return immediately.

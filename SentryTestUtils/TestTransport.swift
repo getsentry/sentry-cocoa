@@ -18,4 +18,8 @@ public class TestTransport: NSObject, Transport {
         flushInvocations.record(timeout)
         return .success
     }
+    
+    public func setStartFlushCallback(_ callback: @escaping () -> Void) {
+        
+    }
 }
