@@ -130,14 +130,6 @@ jobs:
             xcode: '14.3'
             test-destination-os: 'latest'
 
-          # MetricKit doesn't exist for tvOS, so we can still run unit tests with
-          # Xcode 12 for it.
-          # tvOS 14
-          - runs-on: macos-11
-            platform: 'tvOS'
-            xcode: '12.5.1'
-            test-destination-os: 'latest'
-
           # tvOS 15
           - runs-on: macos-12
             platform: 'tvOS'
