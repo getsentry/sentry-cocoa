@@ -19,9 +19,9 @@ sentry_register_func_for_add_image(
 {
     addBinaryImage = func;
 
-    if (mech_headers_initial_array) {
-        for (NSUInteger i = 0; i < mech_headers_initial_array.count; i++) {
-            NSValue *header = mech_headers_initial_array[i];
+    if (mach_headers_initial_array) {
+        for (NSUInteger i = 0; i < mach_headers_initial_array.count; i++) {
+            NSValue *header = mach_headers_initial_array[i];
             func(header.pointerValue, 0);
         }
     }
@@ -37,7 +37,7 @@ sentry_register_func_for_remove_image(
 static void
 cacheMachHeaders(const struct mach_header *mh, __unused intptr_t vmaddr_slide)
 {
-    [mech_headers_test_cache addObject:[NSValue valueWithPointer:mh]];
+    [mach_headers_test_cache addObject:[NSValue valueWithPointer:mh]];
 }
 
 static void
@@ -63,7 +63,7 @@ addBinaryImageToArray(SentryCrashBinaryImage *image, void *context)
 + (void)setUp
 {
     // Create a test cache of actual binary images to be used during tests.
-    mech_headers_test_cache = [NSMutableArray array];
+    mach_headers_test_cache = [NSMutableArray array];
     _dyld_register_func_for_add_image(&cacheMachHeaders);
 }
 
@@ -72,8 +72,8 @@ addBinaryImageToArray(SentryCrashBinaryImage *image, void *context)
     sentry_setRegisterFuncForAddImage(&sentry_register_func_for_add_image);
     sentry_setRegisterFuncForRemoveImage(&sentry_register_func_for_remove_image);
 
-    mech_headers_initial_array =
-        [mech_headers_test_cache subarrayWithRange:NSMakeRange(0, 5)].mutableCopy;
+    mach_headers_initial_array =
+        [mach_headers_test_cache subarrayWithRange:NSMakeRange(0, 5)].mutableCopy;
 }
 
 - (void)tearDown
@@ -120,15 +120,15 @@ addBinaryImageToArray(SentryCrashBinaryImage *image, void *context)
     sentrycrashbic_startCache();
     [self assertBinaryImageCacheLength:5];
 
-    addBinaryImage([mech_headers_test_cache[5] pointerValue], 0);
-    mech_headers_initial_array =
-        [mech_headers_test_cache subarrayWithRange:NSMakeRange(0, 6)].mutableCopy;
+    addBinaryImage([mach_headers_test_cache[5] pointerValue], 0);
+    mach_headers_initial_array =
+        [mach_headers_test_cache subarrayWithRange:NSMakeRange(0, 6)].mutableCopy;
     [self assertBinaryImageCacheLength:6];
     [self assertCachedBinaryImages];
 
-    addBinaryImage([mech_headers_test_cache[6] pointerValue], 0);
-    mech_headers_initial_array =
-        [mech_headers_test_cache subarrayWithRange:NSMakeRange(0, 7)].mutableCopy;
+    addBinaryImage([mach_headers_test_cache[6] pointerValue], 0);
+    mach_headers_initial_array =
+        [mach_headers_test_cache subarrayWithRange:NSMakeRange(0, 7)].mutableCopy;
     [self assertBinaryImageCacheLength:7];
     [self assertCachedBinaryImages];
 }
@@ -148,7 +148,7 @@ addBinaryImageToArray(SentryCrashBinaryImage *image, void *context)
     [self assertBinaryImageCacheLength:5];
 
     sentrycrashbic_stopCache();
-    addBinaryImage([mech_headers_test_cache[6] pointerValue], 0);
+    addBinaryImage([mach_headers_test_cache[6] pointerValue], 0);
     [self assertBinaryImageCacheLength:0];
 }
 
@@ -157,11 +157,11 @@ addBinaryImageToArray(SentryCrashBinaryImage *image, void *context)
     sentrycrashbic_startCache();
     [self assertBinaryImageCacheLength:5];
 
-    removeBinaryImage([mech_headers_initial_array[4] pointerValue], 0);
+    removeBinaryImage([mach_headers_initial_array[4] pointerValue], 0);
     [self assertBinaryImageCacheLength:4];
     [self assertCachedBinaryImages];
 
-    removeBinaryImage([mech_headers_initial_array[3] pointerValue], 0);
+    removeBinaryImage([mach_headers_initial_array[3] pointerValue], 0);
     [self assertBinaryImageCacheLength:3];
     [self assertCachedBinaryImages];
 }
@@ -171,14 +171,14 @@ addBinaryImageToArray(SentryCrashBinaryImage *image, void *context)
     sentrycrashbic_startCache();
     [self assertBinaryImageCacheLength:5];
 
-    removeBinaryImage([mech_headers_initial_array[0] pointerValue], 0);
+    removeBinaryImage([mach_headers_initial_array[0] pointerValue], 0);
     [self assertBinaryImageCacheLength:4];
-    [mech_headers_initial_array removeObjectAtIndex:0];
+    [mach_headers_initial_array removeObjectAtIndex:0];
     [self assertCachedBinaryImages];
 
-    removeBinaryImage([mech_headers_initial_array[0] pointerValue], 0);
+    removeBinaryImage([mach_headers_initial_array[0] pointerValue], 0);
     [self assertBinaryImageCacheLength:3];
-    [mech_headers_initial_array removeObjectAtIndex:0];
+    [mach_headers_initial_array removeObjectAtIndex:0];
     [self assertCachedBinaryImages];
 }
 
@@ -187,16 +187,16 @@ addBinaryImageToArray(SentryCrashBinaryImage *image, void *context)
     sentrycrashbic_startCache();
     [self assertBinaryImageCacheLength:5];
 
-    removeBinaryImage([mech_headers_initial_array[0] pointerValue], 0);
+    removeBinaryImage([mach_headers_initial_array[0] pointerValue], 0);
     [self assertBinaryImageCacheLength:4];
 
-    NSValue *removeItem = mech_headers_initial_array[0];
-    [mech_headers_initial_array removeObjectAtIndex:0];
+    NSValue *removeItem = mach_headers_initial_array[0];
+    [mach_headers_initial_array removeObjectAtIndex:0];
     [self assertCachedBinaryImages];
 
     addBinaryImage(removeItem.pointerValue, 0);
     [self assertBinaryImageCacheLength:5];
-    [mech_headers_initial_array insertObject:removeItem atIndex:4];
+    [mach_headers_initial_array insertObject:removeItem atIndex:4];
     [self assertCachedBinaryImages];
 }
 
@@ -212,7 +212,7 @@ addBinaryImageToArray(SentryCrashBinaryImage *image, void *context)
     NSArray *cached = [self binaryImageCacheToArray];
     for (NSUInteger i = 0; i < cached.count; i++) {
         SentryCrashBinaryImage *binaryImage = [cached[i] pointerValue];
-        struct mach_header *header = [mech_headers_initial_array[i] pointerValue];
+        struct mach_header *header = [mach_headers_initial_array[i] pointerValue];
         XCTAssertEqual(binaryImage->address, (uint64_t)header);
     }
 }
