@@ -729,12 +729,16 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() {
+        // To avoid spamming the test logs
+        SentryLog.configure(true, diagnosticLevel: .error)
+        
         CurrentDate.setCurrentDateProvider(DefaultCurrentDateProvider.sharedInstance())
         
         givenCachedEvents(amount: 30)
         
-        let flushTimeout = 0.001
-        fixture.requestManager.responseDelay = flushTimeout * 10
+        let flushTimeout = 0.1
+        fixture.requestManager.waitForResponseDispatchGroup = true
+        fixture.requestManager.responseDispatchGroup.enter()
         
         let allFlushCallsGroup = DispatchGroup()
         let ensureFlushingGroup = DispatchGroup()
@@ -748,7 +752,7 @@ class SentryHttpTransportTests: XCTestCase {
         ensureFlushingGroup.enter()
         ensureFlushingQueue.async {
             XCTAssertEqual(.timedOut, self.sut.flush(flushTimeout))
-            
+            self.fixture.requestManager.responseDispatchGroup.leave()
             allFlushCallsGroup.leave()
         }
         
@@ -772,6 +776,8 @@ class SentryHttpTransportTests: XCTestCase {
 
         initiallyInactiveQueue.activate()
         allFlushCallsGroup.waitWithTimeout()
+        
+        setTestDefaultLogLevel()
     }
 
     func testSendsWhenNetworkComesBack() {
