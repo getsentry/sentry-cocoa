@@ -1210,7 +1210,6 @@ writeBinaryImages(const SentryCrashReportWriter *const writer, const char *const
     writer->beginArray(writer, key);
     sentrycrashbic_iterateOverImages(&binaryImagesIteratorCallback, (void *)writer);
     writer->endContainer(writer);
-    printf("###FIM\n");
 }
 
 /** Write information about system memory to the report.

@@ -10,8 +10,8 @@ void sentry_resetFuncForAddRemoveImage(void);
 
 static void (*addBinaryImage)(const struct mach_header *mh, intptr_t vmaddr_slide);
 static void (*removeBinaryImage)(const struct mach_header *mh, intptr_t vmaddr_slide);
-static NSMutableArray *mech_headers_test_cache;
-static NSMutableArray *mech_headers_initial_array;
+static NSMutableArray *mach_headers_test_cache;
+static NSMutableArray *mach_headers_initial_array;
 
 static void
 sentry_register_func_for_add_image(

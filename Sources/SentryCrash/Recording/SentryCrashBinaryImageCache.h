@@ -9,12 +9,12 @@ typedef void (*sentrycrashbic_imageIteratorCallback)(SentryCrashBinaryImage *, v
 void sentrycrashbic_iterateOverImages(sentrycrashbic_imageIteratorCallback index, void *context);
 
 /**
- * Startes the cache that will monitor binary image being loaded or removed.
+ * Starts the cache that will monitor binary image being loaded or removed.
  */
 void sentrycrashbic_startCache(void);
 
 /**
- * Stops the cache from monitor binary image being loaded or removed.
+ * Stops the cache from monitoring binary image being loaded or removed.
  * This will also clean the cache.
  */
 void sentrycrashbic_stopCache(void);
