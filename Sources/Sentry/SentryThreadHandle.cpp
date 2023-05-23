@@ -137,8 +137,15 @@ namespace profiling {
         if (thread_info(handle_, THREAD_IDENTIFIER_INFO, info, &count) != KERN_SUCCESS) {
             return 0;
         }
+        if (info == nullptr) {
+            return 0;
+        }
+
         const auto idInfo = reinterpret_cast<thread_identifier_info_t>(info);
         if (!sentrycrashmem_isMemoryReadable(idInfo, sizeof(*idInfo))) {
+            return 0;
+        }
+        if (idInfo->dispatch_qaddr == 0) {
             return 0;
         }
 
@@ -150,10 +157,16 @@ namespace profiling {
             return 0;
         }
 
+        if (idInfo == nullptr) {
+            return 0;
+        }
         if (idInfo->thread_handle == 0) {
             return 0;
         }
 
+        if (queuePtr == nullptr) {
+            return 0;
+        }
         if (*queuePtr == nullptr) {
             return 0;
         }
