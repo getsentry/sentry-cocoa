@@ -34,8 +34,6 @@
     (SentryCrashSC_CONTEXT_SIZE                                                                    \
         - sizeof(SentryCrashStackCursor_Backtrace_Context) / sizeof(void *) - 1)
 
-size_t backtrace_async(void **array, size_t length, uint32_t *task_id);
-
 typedef struct {
     SentryCrashStackCursor_Backtrace_Context SelfThreadContextSpacer;
     uintptr_t backtrace[0];
@@ -46,6 +44,8 @@ sentrycrashsc_initSelfThread(SentryCrashStackCursor *cursor, int skipEntries)
 {
     SelfThreadContext *context = (SelfThreadContext *)cursor->context;
 
+//backtrace_async api is not available for xcode 12
+#if __clang_major__ > 13
     int backtraceLength;
     if (@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)) {
         backtraceLength
@@ -53,6 +53,9 @@ sentrycrashsc_initSelfThread(SentryCrashStackCursor *cursor, int skipEntries)
     } else {
         backtraceLength = backtrace((void **)context->backtrace, MAX_BACKTRACE_LENGTH);
     }
+#else
+    int backtraceLength = backtrace((void **)context->backtrace, MAX_BACKTRACE_LENGTH);
+#endif
 
     sentrycrashsc_initWithBacktrace(cursor, context->backtrace, backtraceLength, skipEntries + 1);
 }
