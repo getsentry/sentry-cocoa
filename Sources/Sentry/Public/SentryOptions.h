@@ -482,7 +482,6 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic) BOOL enableTimeToFullDisplay;
 
-
 /**
  * @warning This is an experimental feature and may still have bugs.
  * @brief Stitches the call to Swift Async functions in one consecutive stack trace.
