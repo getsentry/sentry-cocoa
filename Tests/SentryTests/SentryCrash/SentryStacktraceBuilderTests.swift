@@ -68,8 +68,19 @@ class SentryStacktraceBuilderTests: XCTestCase {
         XCTAssertTrue(filteredFrames.count == 1, "The frames must be ordered from caller to callee, or oldest to youngest.")
     }
 
+
+    func testConcurrentStacktraces() {
+        guard #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) else { return }
+        let waitForAsyncToRun = expectation(description: "Wait async functions")
+        Task {
+            await self.firstFrame()
+            waitForAsyncToRun.fulfill()
+        }
+        wait(for: [waitForAsyncToRun], timeout: 100)
+    }
+
     @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-    func testConcurrentStacktraces() async throws {
+    func firstFrame() async {
         SentrySDK.start { options in
             options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
         }
@@ -85,7 +96,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
 
     @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
     func innerFrame2() async {
-        let needed = ["testConcurrentStacktraces", "innerFrame1", "innerFrame2"]
+        let needed = ["firstFrame", "innerFrame1", "innerFrame2"]
         let actual = fixture.sut.buildStacktraceForCurrentThreadAsyncUnsafe()!
         let filteredFrames = actual.frames
             .compactMap({ $0.function })
