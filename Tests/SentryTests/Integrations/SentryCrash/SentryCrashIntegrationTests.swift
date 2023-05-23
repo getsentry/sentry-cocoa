@@ -183,8 +183,27 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
         XCTAssertTrue(fixture.sentryCrash.binaryCacheStarted)
 
-        sut.uninstall()
+        var imagesCounter = 0
 
+        sentrycrashbic_iterateOverImages({ header, context in
+            guard let counter = context?.assumingMemoryBound(to: Int.self) else {
+                return
+            }
+            counter.pointee = counter.pointee + 1
+        }, &imagesCounter)
+        XCTAssertGreaterThan(imagesCounter, 0)
+
+        sut.uninstall()
+        imagesCounter = 0
+
+        sentrycrashbic_iterateOverImages({ header, context in
+            guard let counter = context?.assumingMemoryBound(to: Int.self) else {
+                return
+            }
+            counter.pointee = counter.pointee + 1
+        }, &imagesCounter)
+
+        XCTAssertEqual(imagesCounter, 0)
         XCTAssertTrue(fixture.sentryCrash.binaryCacheStopped)
     }
 

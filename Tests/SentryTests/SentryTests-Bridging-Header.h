@@ -196,6 +196,7 @@
 #import "SentrySpanOperations.h"
 #import "SentryTimeToDisplayTracker.h"
 #import "SentryTracerConfiguration.h"
+#import "SentryCrashBinaryImageCache.h"
 #import "TestSentryViewHierarchy.h"
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"
