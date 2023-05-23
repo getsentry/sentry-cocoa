@@ -767,7 +767,7 @@ class SentryHttpTransportTests: XCTestCase {
             allFlushCallsGroup.enter()
             initiallyInactiveQueue.async {
                 for _ in 0..<10 {
-                    XCTAssertEqual(.alreadyFlushingBeforeLock, self.sut.flush(flushTimeout), "Double checked lock should have returned immediately")
+                    XCTAssertEqual(.alreadyFlushing, self.sut.flush(flushTimeout), "Double checked lock should have returned immediately")
                 }
 
                 allFlushCallsGroup.leave()

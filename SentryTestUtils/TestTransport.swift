@@ -14,7 +14,7 @@ public class TestTransport: NSObject, Transport {
     }
     
     public var flushInvocations = Invocations<TimeInterval>()
-    public func flush(_ timeout: TimeInterval) -> SentryTransportFlushResult {
+    public func flush(_ timeout: TimeInterval) -> SentryFlushResult {
         flushInvocations.record(timeout)
         return .success
     }
