@@ -128,21 +128,37 @@ namespace profiling {
     ThreadHandle::dispatchQueueAddress() const noexcept
     {
         if (handle_ == THREAD_NULL) {
-            return {};
+            return 0;
         }
+
         integer_t infoBuffer[THREAD_IDENTIFIER_INFO_COUNT] = { 0 };
         thread_info_t info = infoBuffer;
         mach_msg_type_number_t count = THREAD_IDENTIFIER_INFO_COUNT;
-        const auto idInfo = reinterpret_cast<thread_identifier_info_t>(info);
-        if (thread_info(handle_, THREAD_IDENTIFIER_INFO, info, &count) == KERN_SUCCESS
-            && sentrycrashmem_isMemoryReadable(idInfo, sizeof(*idInfo))) {
-            const auto queuePtr = reinterpret_cast<dispatch_queue_t *>(idInfo->dispatch_qaddr);
-            if (queuePtr != nullptr && sentrycrashmem_isMemoryReadable(queuePtr, sizeof(*queuePtr))
-                && idInfo->thread_handle != 0 && *queuePtr != nullptr) {
-                return idInfo->dispatch_qaddr;
-            }
+        if (thread_info(handle_, THREAD_IDENTIFIER_INFO, info, &count) != KERN_SUCCESS) {
+            return 0;
         }
-        return 0;
+        const auto idInfo = reinterpret_cast<thread_identifier_info_t>(info);
+        if (!sentrycrashmem_isMemoryReadable(idInfo, sizeof(*idInfo))) {
+            return 0;
+        }
+
+        const auto queuePtr = reinterpret_cast<dispatch_queue_t *>(idInfo->dispatch_qaddr);
+        if (queuePtr == nullptr) {
+            return 0;
+        }
+        if (!sentrycrashmem_isMemoryReadable(queuePtr, sizeof(*queuePtr))) {
+            return 0;
+        }
+
+        if (idInfo->thread_handle == 0) {
+            return 0;
+        }
+
+        if (*queuePtr == nullptr) {
+            return 0;
+        }
+
+        return idInfo->dispatch_qaddr;
     }
 
     int
