@@ -189,7 +189,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             guard let counter = context?.assumingMemoryBound(to: Int.self) else {
                 return
             }
-            counter.pointee = counter.pointee + 1
+            counter.pointee += 1
         }, &imagesCounter)
         XCTAssertGreaterThan(imagesCounter, 0)
 
@@ -200,7 +200,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             guard let counter = context?.assumingMemoryBound(to: Int.self) else {
                 return
             }
-            counter.pointee = counter.pointee + 1
+            counter.pointee += 1
         }, &imagesCounter)
 
         XCTAssertEqual(imagesCounter, 0)
