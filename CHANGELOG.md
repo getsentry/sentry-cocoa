@@ -2,18 +2,22 @@
 
 ## Unreleased
 
+### Fixes
+
+- Convert one of the two remaining usages of `sprintf` to `snprintf` (#2866)
+
+## 8.7.2
+
 ### Fixed
 
-- Fix crashes in profiling serialization race condition (#3018)
+- Fix crashes in profiling serialization race condition (#3018, #3035)
+- Fix a crash for user interaction transactions (#3036)
 
 ## 8.7.1
 
-### Features
-
-- Add `sent_at` to envelope header (#2859)
-
 ### Fixes
 
+- Add `sent_at` to envelope header (#2859)
 - Fix import of `User` & `Breadcrumb` (#3017)
 
 ## 8.7.0

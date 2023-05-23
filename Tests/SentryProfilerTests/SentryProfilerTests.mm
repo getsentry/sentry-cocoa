@@ -60,15 +60,7 @@ using namespace sentry::profiling;
 
 - (void)testProfilerMutationDuringSlicing
 {
-    const auto resolvedThreadMetadata =
-        [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
-    const auto resolvedQueueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
-    const auto resolvedStacks = [NSMutableArray<NSArray<NSNumber *> *> array];
-    const auto resolvedSamples = [NSMutableArray<SentrySample *> array];
-    const auto resolvedFrames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
-    const auto frameIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-    const auto stackIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-
+    SentryProfilingState *state = [[SentryProfilingState alloc] init];
     // generate a large timeseries of simulated data
 
     const auto threads = 5;
@@ -100,9 +92,7 @@ using namespace sentry::profiling;
 
         for (auto sample = 0; sample < samplesPerThread; sample++) {
             backtrace.absoluteTimestamp = sampleIdx; // simulate 1 sample per nanosecond
-            processBacktrace(backtrace, resolvedThreadMetadata, resolvedQueueMetadata,
-                resolvedSamples, resolvedStacks, resolvedFrames, frameIndexLookup,
-                stackIndexLookup);
+            [state appendBacktrace:backtrace];
             ++sampleIdx;
         }
     }
@@ -127,8 +117,10 @@ using namespace sentry::profiling;
     sliceExpectation.expectedFulfillmentCount = operations;
 
     void (^sliceBlock)(void) = ^(void) {
-        __unused const auto slice = slicedProfileSamples(resolvedSamples, transaction);
-        [sliceExpectation fulfill];
+        [state mutate:^(SentryProfilingMutableState *mutableState) {
+            __unused const auto slice = slicedProfileSamples(mutableState.samples, transaction);
+            [sliceExpectation fulfill];
+        }];
     };
 
     ThreadMetadata threadMetadata;
@@ -153,9 +145,8 @@ using namespace sentry::profiling;
     mutateExpectation.expectedFulfillmentCount = operations;
 
     void (^mutateBlock)(void) = ^(void) {
-        processBacktrace(backtrace, resolvedThreadMetadata, resolvedQueueMetadata, resolvedSamples,
-            resolvedStacks, resolvedFrames, frameIndexLookup, stackIndexLookup);
-        [mutateExpectation fulfill];
+        [state mutate:^(
+            __unused SentryProfilingMutableState *mutableState) { [mutateExpectation fulfill]; }];
     };
 
     const auto sliceOperations = [[NSOperationQueue alloc] init]; // concurrent queue
@@ -184,15 +175,7 @@ using namespace sentry::profiling;
  */
 - (void)testProfilerMutationDuringSerialization
 {
-    const auto resolvedThreadMetadata =
-        [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
-    const auto resolvedQueueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
-    const auto resolvedStacks = [NSMutableArray<NSArray<NSNumber *> *> array];
-    const auto resolvedSamples = [NSMutableArray<SentrySample *> array];
-    const auto resolvedFrames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
-    const auto frameIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-    const auto stackIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-
+    SentryProfilingState *state = [[SentryProfilingState alloc] init];
     // initialize the data structures with some simulated data
     {
         ThreadMetadata threadMetadata;
@@ -210,22 +193,14 @@ using namespace sentry::profiling;
         backtrace.addresses = std::vector<std::uintptr_t>({ 0x4, 0x5, 0x6 });
 
         backtrace.absoluteTimestamp = 1;
-        processBacktrace(backtrace, resolvedThreadMetadata, resolvedQueueMetadata, resolvedSamples,
-            resolvedStacks, resolvedFrames, frameIndexLookup, stackIndexLookup);
+        [state appendBacktrace:backtrace];
 
         backtrace.absoluteTimestamp = 2;
-        processBacktrace(backtrace, resolvedThreadMetadata, resolvedQueueMetadata, resolvedSamples,
-            resolvedStacks, resolvedFrames, frameIndexLookup, stackIndexLookup);
+        [state appendBacktrace:backtrace];
     }
 
     // serialize the data as if it were captured in a transaction envelope
-    const auto sampledProfile = [NSMutableDictionary<NSString *, id> dictionary];
-    sampledProfile[@"samples"] = resolvedSamples;
-    sampledProfile[@"stacks"] = resolvedStacks;
-    sampledProfile[@"frames"] = resolvedFrames;
-    sampledProfile[@"thread_metadata"] = resolvedThreadMetadata;
-    sampledProfile[@"queue_metadata"] = resolvedQueueMetadata;
-    const auto profileData = @{ @"profile" : sampledProfile };
+    const auto profileData = [state copyProfilingData];
 
     const auto context = [[SentrySpanContext alloc] initWithOperation:@"test trace"];
     const auto trace = [[SentryTracer alloc] initWithContext:context];
@@ -260,8 +235,7 @@ using namespace sentry::profiling;
         backtrace.absoluteTimestamp = 5;
         backtrace.addresses = std::vector<std::uintptr_t>({ 0x777, 0x888, 0x999 });
 
-        processBacktrace(backtrace, resolvedThreadMetadata, resolvedQueueMetadata, resolvedSamples,
-            resolvedStacks, resolvedFrames, frameIndexLookup, stackIndexLookup);
+        [state appendBacktrace:backtrace];
     }
 
     // cause the data structures to be modified again: overwrite previous thread metadata
@@ -282,8 +256,7 @@ using namespace sentry::profiling;
         backtrace.absoluteTimestamp = 6;
         backtrace.addresses = std::vector<std::uintptr_t>({ 0x4, 0x5, 0x6 });
 
-        processBacktrace(backtrace, resolvedThreadMetadata, resolvedQueueMetadata, resolvedSamples,
-            resolvedStacks, resolvedFrames, frameIndexLookup, stackIndexLookup);
+        [state appendBacktrace:backtrace];
     }
 
     // ensure the serialization's copied data structures don't contain the new addresses
@@ -314,14 +287,7 @@ using namespace sentry::profiling;
 
 - (void)testProfilerPayload
 {
-    const auto resolvedThreadMetadata =
-        [NSMutableDictionary<NSString *, NSMutableDictionary *> dictionary];
-    const auto resolvedQueueMetadata = [NSMutableDictionary<NSString *, NSDictionary *> dictionary];
-    const auto resolvedStacks = [NSMutableArray<NSArray<NSNumber *> *> array];
-    const auto resolvedSamples = [NSMutableArray<SentrySample *> array];
-    const auto resolvedFrames = [NSMutableArray<NSDictionary<NSString *, id> *> array];
-    const auto frameIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
-    const auto stackIndexLookup = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+    SentryProfilingState *state = [[SentryProfilingState alloc] init];
 
     // record an initial backtrace
 
@@ -342,8 +308,7 @@ using namespace sentry::profiling;
     backtrace1.absoluteTimestamp = 5;
     backtrace1.addresses = addresses1;
 
-    processBacktrace(backtrace1, resolvedThreadMetadata, resolvedQueueMetadata, resolvedSamples,
-        resolvedStacks, resolvedFrames, frameIndexLookup, stackIndexLookup);
+    [state appendBacktrace:backtrace1];
 
     // record a second backtrace with some common addresses to test frame deduplication
 
@@ -364,26 +329,27 @@ using namespace sentry::profiling;
     backtrace2.absoluteTimestamp = 5;
     backtrace2.addresses = addresses2;
 
-    processBacktrace(backtrace2, resolvedThreadMetadata, resolvedQueueMetadata, resolvedSamples,
-        resolvedStacks, resolvedFrames, frameIndexLookup, stackIndexLookup);
+    [state appendBacktrace:backtrace2];
 
     // record a third backtrace that's identical to the second to test stack/frame deduplication
 
-    processBacktrace(backtrace2, resolvedThreadMetadata, resolvedQueueMetadata, resolvedSamples,
-        resolvedStacks, resolvedFrames, frameIndexLookup, stackIndexLookup);
+    [state appendBacktrace:backtrace2];
 
-    XCTAssertEqual(resolvedFrames.count, 5UL);
-    const auto expectedOrdered = @[
-        @"0x0000000000000123", @"0x0000000000000456", @"0x0000000000000789", @"0x0000000000000777",
-        @"0x0000000000000888"
-    ];
-    [resolvedFrames enumerateObjectsUsingBlock:^(NSDictionary<NSString *, id> *_Nonnull actualFrame,
-        NSUInteger idx, __unused BOOL *_Nonnull stop) {
-        XCTAssert([actualFrame[@"instruction_addr"] isEqualToString:expectedOrdered[idx]]);
+    [state mutate:^(SentryProfilingMutableState *mutableState) {
+        XCTAssertEqual(mutableState.frames.count, 5UL);
+        const auto expectedOrdered = @[
+            @"0x0000000000000123", @"0x0000000000000456", @"0x0000000000000789",
+            @"0x0000000000000777", @"0x0000000000000888"
+        ];
+        [mutableState.frames
+            enumerateObjectsUsingBlock:^(NSDictionary<NSString *, id> *_Nonnull actualFrame,
+                NSUInteger idx, __unused BOOL *_Nonnull stop) {
+                XCTAssert([actualFrame[@"instruction_addr"] isEqualToString:expectedOrdered[idx]]);
+            }];
+
+        XCTAssertEqual(mutableState.stacks.count, 2UL);
+        XCTAssertEqual(mutableState.samples.count, 3UL);
     }];
-
-    XCTAssertEqual(resolvedStacks.count, 2UL);
-    XCTAssertEqual(resolvedSamples.count, 3UL);
 }
 
 @end

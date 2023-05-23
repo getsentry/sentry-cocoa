@@ -57,6 +57,16 @@ jobs:
       - name: Validate Podspec
         run: ./scripts/pod-lib-lint.sh ${{ matrix.platform }} ${{ matrix.podspec}} ${{ matrix.library_type}}
 
+  lint-hybrid-sdk-podspec:
+    name: pod lint Sentry/HybridSDK
+    runs-on: macos-13
+
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./scripts/ci-select-xcode.sh '14.3'
+      - run: pod repo update
+      - name: Validate HybridPod Podspec
+        run: pod lib lint ./Tests/HybridSDKTest/HybridPod.podspec --allow-warnings --verbose --platforms=ios "--include-podspecs={SentryPrivate.podspec,Sentry.podspec}"
 
   validate-high-risk-files:
     name: No changes in high risk files

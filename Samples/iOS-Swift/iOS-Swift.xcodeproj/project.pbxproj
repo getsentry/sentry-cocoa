@@ -89,6 +89,7 @@
 		D8D7BB4E27501B9400044146 /* SpanObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D7BB4D27501B9400044146 /* SpanObserver.swift */; };
 		D8DBDA76274D591F00007380 /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DBDA75274D591F00007380 /* TableViewController.swift */; };
 		D8DBDA78274D5FC400007380 /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DBDA77274D5FC400007380 /* SplitViewController.swift */; };
+		D8F01DEA2A1376B5008F4996 /* InfoForBreadcrumbController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F01DE92A1376B5008F4996 /* InfoForBreadcrumbController.swift */; };
 		D8F3D052274E572F00B56F8C /* DSNStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F3D04F274E572F00B56F8C /* DSNStorage.swift */; };
 		D8F3D053274E572F00B56F8C /* DSNStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F3D04F274E572F00B56F8C /* DSNStorage.swift */; };
 		D8F3D054274E572F00B56F8C /* RandomErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F3D051274E572F00B56F8C /* RandomErrors.swift */; };
@@ -332,6 +333,8 @@
 		D8D7BB4D27501B9400044146 /* SpanObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpanObserver.swift; sourceTree = "<group>"; };
 		D8DBDA75274D591F00007380 /* TableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewController.swift; sourceTree = "<group>"; };
 		D8DBDA77274D5FC400007380 /* SplitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
+		D8F01DE92A1376B5008F4996 /* InfoForBreadcrumbController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoForBreadcrumbController.swift; sourceTree = "<group>"; };
+		D8F01DF02A1377D0008F4996 /* SentryExposure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryExposure.h; sourceTree = "<group>"; };
 		D8F3D04F274E572F00B56F8C /* DSNStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DSNStorage.swift; sourceTree = "<group>"; };
 		D8F3D051274E572F00B56F8C /* RandomErrors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RandomErrors.swift; sourceTree = "<group>"; };
 		D8F3D056274E574200B56F8C /* LoremIpsumViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoremIpsumViewController.swift; sourceTree = "<group>"; };
@@ -544,6 +547,7 @@
 				84FB811F283EEDB900F3A94A /* PerformanceViewController.swift */,
 				0AABE2E928855FF80057ED69 /* PermissionsViewController.swift */,
 				D8C33E1E29FBB1F70071B75A /* UIEventBreadcrumbsController.swift */,
+				D8F01DE92A1376B5008F4996 /* InfoForBreadcrumbController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -560,6 +564,7 @@
 				D8D7BB4D27501B9400044146 /* SpanObserver.swift */,
 				84FB812C2840021B00F3A94A /* iOS-Swift-Bridging-Header.h */,
 				7B5525B22938B5B5006A2932 /* DiskWriteException.swift */,
+				D8F01DF02A1377D0008F4996 /* SentryExposure.h */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -885,6 +890,7 @@
 				637AFDAA243B02760034958B /* AppDelegate.swift in Sources */,
 				D8F57BC527BBD787000D09D4 /* CoreDataViewController.swift in Sources */,
 				D8D7BB4E27501B9400044146 /* SpanObserver.swift in Sources */,
+				D8F01DEA2A1376B5008F4996 /* InfoForBreadcrumbController.swift in Sources */,
 				D8DBDA76274D591F00007380 /* TableViewController.swift in Sources */,
 				D8C33E1F29FBB1F70071B75A /* UIEventBreadcrumbsController.swift in Sources */,
 				8E8C57AF25EF16E6001CEEFA /* TraceTestViewController.swift in Sources */,
@@ -1190,7 +1196,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.7.1;
+				MARKETING_VERSION = 8.7.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.iOS-Swift";
@@ -1219,7 +1225,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.7.1;
+				MARKETING_VERSION = 8.7.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift";
@@ -1864,7 +1870,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.7.1;
+				MARKETING_VERSION = 8.7.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development io.sentry.sample.iOS-Swift.Clip";
@@ -1899,7 +1905,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.7.1;
+				MARKETING_VERSION = 8.7.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.sample.iOS-Swift.Clip";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.sentry.sample.iOS-Swift.Clip";
