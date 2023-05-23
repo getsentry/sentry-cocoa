@@ -186,6 +186,7 @@
 #import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"
 @import SentryPrivate;
+#import "SentryCrashBinaryImageCache.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchSourceWrapper.h"
 #import "SentryEnvelopeAttachmentHeader.h"
@@ -196,7 +197,6 @@
 #import "SentrySpanOperations.h"
 #import "SentryTimeToDisplayTracker.h"
 #import "SentryTracerConfiguration.h"
-#import "SentryCrashBinaryImageCache.h"
 #import "TestSentryViewHierarchy.h"
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"

@@ -185,7 +185,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
         var imagesCounter = 0
 
-        sentrycrashbic_iterateOverImages({ header, context in
+        sentrycrashbic_iterateOverImages({ _, context in
             guard let counter = context?.assumingMemoryBound(to: Int.self) else {
                 return
             }
@@ -196,7 +196,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         sut.uninstall()
         imagesCounter = 0
 
-        sentrycrashbic_iterateOverImages({ header, context in
+        sentrycrashbic_iterateOverImages({ _, context in
             guard let counter = context?.assumingMemoryBound(to: Int.self) else {
                 return
             }
