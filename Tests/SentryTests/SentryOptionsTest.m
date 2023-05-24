@@ -1187,18 +1187,21 @@
     XCTAssertNotNil(options.urlSessionDelegate);
 }
 
-- (void)testDefaultSwiftAsyncStacktraces {
-    SentryOptions * options = [[SentryOptions alloc] init];
+- (void)testDefaultSwiftAsyncStacktraces
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
     XCTAssertFalse(options.swiftAsyncStacktraces);
 }
 
-- (void)testInitialSwiftAsyncStacktraces {
+- (void)testInitialSwiftAsyncStacktraces
+{
     SentryOptions *options = [self getValidOptions:@{}];
     XCTAssertFalse(options.swiftAsyncStacktraces);
 }
 
-- (void)testInitialSwiftAsyncStacktracesYes {
-    SentryOptions *options = [self getValidOptions:@{@"swiftAsyncStacktraces": @YES}];
+- (void)testInitialSwiftAsyncStacktracesYes
+{
+    SentryOptions *options = [self getValidOptions:@{ @"swiftAsyncStacktraces" : @YES }];
     XCTAssertTrue(options.swiftAsyncStacktraces);
 }
 
