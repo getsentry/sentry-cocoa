@@ -87,6 +87,8 @@ binaryImageAdded(const struct mach_header *header, intptr_t slide)
     if (tailNode != NULL) {
         tailNode->next = newNode;
         tailNode = tailNode->next;
+    } else {
+        free(newNode);
     }
     pthread_mutex_unlock(&binaryImagesMutex);
 }
