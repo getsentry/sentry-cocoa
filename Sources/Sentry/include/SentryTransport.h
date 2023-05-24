@@ -21,10 +21,9 @@ NS_SWIFT_NAME(Transport)
 
 - (SentryFlushResult)flush:(NSTimeInterval)timeout;
 
-/**
- * Only needed for testing.
- */
+#if TEST || TESTCI
 - (void)setStartFlushCallback:(void (^)(void))callback;
+#endif
 
 @end
 

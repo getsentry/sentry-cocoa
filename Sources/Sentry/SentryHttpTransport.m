@@ -34,7 +34,10 @@ SentryHttpTransport ()
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) dispatch_group_t dispatchGroup;
 @property (nonatomic, strong) SentryReachability *reachability;
+
+#if TEST || TESTCI
 @property (nullable, nonatomic, strong) void (^startFlushCallback)(void);
+#endif
 
 /**
  * Relay expects the discarded events split by data category and reason; see
@@ -157,10 +160,12 @@ SentryHttpTransport ()
     }
 }
 
+#if TEST || TESTCI
 - (void)setStartFlushCallback:(void (^)(void))callback
 {
     _startFlushCallback = callback;
 }
+#endif
 
 - (SentryFlushResult)flush:(NSTimeInterval)timeout
 {
@@ -186,9 +191,11 @@ SentryHttpTransport ()
 
         _isFlushing = YES;
         dispatch_group_enter(self.dispatchGroup);
+#if TEST || TESTCI
         if (self.startFlushCallback != nil) {
             self.startFlushCallback();
         }
+#endif
     }
 
     [self sendAllCachedEnvelopes];
