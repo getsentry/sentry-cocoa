@@ -5,6 +5,7 @@
 ### Fixes
 
 - Convert one of the two remaining usages of `sprintf` to `snprintf` (#2866)
+- Fix memory leaks in the profiler (#3055)
 
 ## 8.7.2
 
