@@ -4,7 +4,7 @@
 
 ### Features
 
-- Support for stitching async Swift Concurrency frames (#3051)
+- Experimental support for Swift Async stacktraces (#3051)
 
 ### Fixes
 
