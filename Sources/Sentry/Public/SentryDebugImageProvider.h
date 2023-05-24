@@ -19,8 +19,10 @@ NS_ASSUME_NONNULL_BEGIN
  * @warning This assumes a crash has occurred and attempts to read the crash information from each
  * image's data segment, which may not be present or be invalid if a crash has not actually
  * occurred. To avoid this, use the new @c -[getDebugImagesForThreads:isCrash:] instead.
+ * @deprecated Use @c -[getDebugImagesForThreads:isCrash:] instead.
  */
-- (NSArray<SentryDebugMeta *> *)getDebugImagesForThreads:(NSArray<SentryThread *> *)threads;
+- (NSArray<SentryDebugMeta *> *)getDebugImagesForThreads:(NSArray<SentryThread *> *)threads
+    DEPRECATED_MSG_ATTRIBUTE("Use -[getDebugImagesForThreads:isCrash:] instead.");
 
 /**
  * Returns a list of debug images that are being referenced in the given threads.
@@ -38,8 +40,10 @@ NS_ASSUME_NONNULL_BEGIN
  * @warning This assumes a crash has occurred and attempts to read the crash information from each
  * image's data segment, which may not be present or be invalid if a crash has not actually
  * occurred. To avoid this, use the new @c -[getDebugImagesForFrames:isCrash:] instead.
+ * @deprecated Use @c -[getDebugImagesForFrames:isCrash:] instead.
  */
-- (NSArray<SentryDebugMeta *> *)getDebugImagesForFrames:(NSArray<SentryFrame *> *)frames;
+- (NSArray<SentryDebugMeta *> *)getDebugImagesForFrames:(NSArray<SentryFrame *> *)frames
+    DEPRECATED_MSG_ATTRIBUTE("Use -[getDebugImagesForFrames:isCrash:] instead.");
 
 /**
  * Returns a list of debug images that are being referenced by the given frames.
@@ -57,8 +61,10 @@ NS_ASSUME_NONNULL_BEGIN
  * @warning This assumes a crash has occurred and attempts to read the crash information from each
  * image's data segment, which may not be present or be invalid if a crash has not actually
  * occurred. To avoid this, use the new @c -[getDebugImagesCrashed:] instead.
+ * @deprecated Use @c -[getDebugImagesCrashed:] instead.
  */
-- (NSArray<SentryDebugMeta *> *)getDebugImages;
+- (NSArray<SentryDebugMeta *> *)getDebugImages DEPRECATED_MSG_ATTRIBUTE(
+    "Use -[getDebugImagesCrashed:] instead.");
 
 /**
  * Returns the current list of debug images. Be aware that the @c SentryDebugMeta is actually
