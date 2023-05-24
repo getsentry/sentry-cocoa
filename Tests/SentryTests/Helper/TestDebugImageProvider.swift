@@ -8,6 +8,6 @@ class TestDebugImageProvider: SentryDebugImageProvider {
     }
 
     override func getDebugImagesCrashed(_ isCrash: Bool) -> [DebugMeta] {
-        debugImages ?? super.getDebugImages()
+        debugImages ?? super.getDebugImagesCrashed(isCrash)
     }
 }
