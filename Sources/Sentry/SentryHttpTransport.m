@@ -35,6 +35,10 @@ SentryHttpTransport ()
 @property (nonatomic, strong) dispatch_group_t dispatchGroup;
 @property (nonatomic, strong) SentryReachability *reachability;
 
+#if TEST || TESTCI
+@property (nullable, nonatomic, strong) void (^startFlushCallback)(void);
+#endif
+
 /**
  * Relay expects the discarded events split by data category and reason; see
  * https://develop.sentry.dev/sdk/client-reports/#envelope-item-payload.
@@ -156,7 +160,14 @@ SentryHttpTransport ()
     }
 }
 
-- (BOOL)flush:(NSTimeInterval)timeout
+#if TEST || TESTCI
+- (void)setStartFlushCallback:(void (^)(void))callback
+{
+    _startFlushCallback = callback;
+}
+#endif
+
+- (SentryFlushResult)flush:(NSTimeInterval)timeout
 {
     // Calculate the dispatch time of the flush duration as early as possible to guarantee an exact
     // flush duration. Any code up to the dispatch_group_wait can take a couple of ms, adding up to
@@ -167,19 +178,24 @@ SentryHttpTransport ()
     // Double-Checked Locking to avoid acquiring unnecessary locks.
     if (_isFlushing) {
         SENTRY_LOG_DEBUG(@"Already flushing.");
-        return NO;
+        return kSentryFlushResultAlreadyFlushing;
     }
 
     @synchronized(self) {
         if (_isFlushing) {
             SENTRY_LOG_DEBUG(@"Already flushing.");
-            return NO;
+            return kSentryFlushResultAlreadyFlushing;
         }
 
         SENTRY_LOG_DEBUG(@"Start flushing.");
 
         _isFlushing = YES;
         dispatch_group_enter(self.dispatchGroup);
+#if TEST || TESTCI
+        if (self.startFlushCallback != nil) {
+            self.startFlushCallback();
+        }
+#endif
     }
 
     [self sendAllCachedEnvelopes];
@@ -192,10 +208,10 @@ SentryHttpTransport ()
 
     if (result == 0) {
         SENTRY_LOG_DEBUG(@"Finished flushing.");
-        return YES;
+        return kSentryFlushResultSuccess;
     } else {
         SENTRY_LOG_DEBUG(@"Flushing timed out.");
-        return NO;
+        return kSentryFlushResultTimedOut;
     }
 }
 
