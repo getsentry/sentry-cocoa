@@ -587,7 +587,7 @@
     XCTAssertEqual(YES, options.enableSwizzling);
     XCTAssertEqual(YES, options.enableFileIOTracing);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
-    XCTAssertTrue(options.swiftAsyncStacktraces);
+    XCTAssertFalse(options.swiftAsyncStacktraces);
 
 #if SENTRY_HAS_METRIC_KIT
     if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
