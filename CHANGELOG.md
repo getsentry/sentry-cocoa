@@ -5,6 +5,7 @@
 ### Fixes
 
 - Convert one of the two remaining usages of `sprintf` to `snprintf` (#2866)
+- Duplicated HTTP breadcrumbs (#3058)
 
 ## 8.7.2
 
