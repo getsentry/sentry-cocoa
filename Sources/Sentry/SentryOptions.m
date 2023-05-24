@@ -107,7 +107,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableCoreDataTracing = YES;
         _enableSwizzling = YES;
         self.sendClientReports = YES;
-        self.stitchSwiftAsync = NO;
+        self.swiftAsyncStacktraces = NO;
 
 #if TARGET_OS_OSX
         NSString *dsn = [[[NSProcessInfo processInfo] environment] objectForKey:@"SENTRY_DSN"];
@@ -317,8 +317,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self setBool:options[@"enableWatchdogTerminationTracking"]
             block:^(BOOL value) { self->_enableWatchdogTerminationTracking = value; }];
 
-    [self setBool:options[@"stitchSwiftAsync"]
-            block:^(BOOL value) { self->_stitchSwiftAsync = value; }];
+    [self setBool:options[@"swiftAsyncStacktraces"]
+            block:^(BOOL value) { self->_swiftAsyncStacktraces = value; }];
 
     if ([options[@"sessionTrackingIntervalMillis"] isKindOfClass:[NSNumber class]]) {
         self.sessionTrackingIntervalMillis =

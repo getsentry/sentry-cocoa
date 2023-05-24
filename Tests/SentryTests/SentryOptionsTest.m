@@ -534,7 +534,8 @@
         @"enableCaptureFailedRequests" : [NSNull null],
         @"failedRequestStatusCodes" : [NSNull null],
         @"enableTimeToFullDisplay" : [NSNull null],
-        @"enableTracing" : [NSNull null]
+        @"enableTracing" : [NSNull null],
+        @"swiftAsyncStacktraces" : [NSNull null]
     }
                                                 didFailWithError:nil];
 
@@ -586,6 +587,7 @@
     XCTAssertEqual(YES, options.enableSwizzling);
     XCTAssertEqual(YES, options.enableFileIOTracing);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
+    XCTAssertTrue(options.swiftAsyncStacktraces);
 
 #if SENTRY_HAS_METRIC_KIT
     if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
@@ -1183,6 +1185,21 @@
     SentryOptions *options = [self getValidOptions:@{ @"urlSessionDelegate" : urlSessionDelegate }];
 
     XCTAssertNotNil(options.urlSessionDelegate);
+}
+
+- (void)testDefaultSwiftAsyncStacktraces {
+    SentryOptions * options = [[SentryOptions alloc] init];
+    XCTAssertFalse(options.swiftAsyncStacktraces);
+}
+
+- (void)testInitialSwiftAsyncStacktraces {
+    SentryOptions *options = [self getValidOptions:@{}];
+    XCTAssertFalse(options.swiftAsyncStacktraces);
+}
+
+- (void)testInitialSwiftAsyncStacktracesYes {
+    SentryOptions *options = [self getValidOptions:@{@"swiftAsyncStacktraces": @YES}];
+    XCTAssertTrue(options.swiftAsyncStacktraces);
 }
 
 - (void)assertArrayEquals:(NSArray<NSString *> *)expected actual:(NSArray<NSString *> *)actual

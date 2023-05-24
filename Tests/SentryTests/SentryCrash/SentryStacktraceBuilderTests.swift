@@ -73,7 +73,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
 
         SentrySDK.start { options in
             options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
-            options.stitchSwiftAsync = true
+            options.swiftAsyncStacktraces = true
         }
 
         let waitForAsyncToRun = expectation(description: "Wait async functions")
@@ -90,7 +90,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
 
         SentrySDK.start { options in
             options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
-            options.stitchSwiftAsync = false
+            options.swiftAsyncStacktraces = false
         }
 
         let waitForAsyncToRun = expectation(description: "Wait async functions")

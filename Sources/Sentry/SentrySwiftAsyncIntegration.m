@@ -5,8 +5,8 @@
 
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options
 {
-    sentrycrashsc_setSwiftAsyncStitching(options.stitchSwiftAsync);
-    return options.stitchSwiftAsync;
+    sentrycrashsc_setSwiftAsyncStitching(options.swiftAsyncStacktraces);
+    return options.swiftAsyncStacktraces;
 }
 
 - (void)uninstall
