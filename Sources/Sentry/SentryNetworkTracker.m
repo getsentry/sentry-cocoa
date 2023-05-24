@@ -2,6 +2,7 @@
 #import "SentryBaggage.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
+#import "SentryDSN.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryHttpStatusCodeRange+Private.h"
@@ -22,7 +23,6 @@
 #import "SentryTraceOrigins.h"
 #import "SentryTracer.h"
 #import <objc/runtime.h>
-#import "SentryDSN.h"
 
 /**
  * WARNING: We had issues in the past with this code on older iOS versions. We don't run unit tests
@@ -415,9 +415,11 @@ SentryNetworkTracker ()
 
 - (void)addBreadcrumbForSessionTask:(NSURLSessionTask *)sessionTask
 {
-    id hasBreadcrumb = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_BREADCRUMB);
-    if (hasBreadcrumb && [hasBreadcrumb isKindOfClass:NSNumber.class] && [hasBreadcrumb boolValue]) {
-      return;
+    id hasBreadcrumb
+        = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_BREADCRUMB);
+    if (hasBreadcrumb && [hasBreadcrumb isKindOfClass:NSNumber.class] &&
+        [hasBreadcrumb boolValue]) {
+        return;
     }
 
     if (!self.isNetworkBreadcrumbEnabled) {
@@ -444,8 +446,8 @@ SentryNetworkTracker ()
     breadcrumb.data = breadcrumbData;
     [SentrySDK addBreadcrumb:breadcrumb];
 
-  objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_BREADCRUMB, [NSNumber numberWithBool:YES],
-    OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_BREADCRUMB,
+        [NSNumber numberWithBool:YES], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (NSInteger)urlResponseStatusCode:(NSURLResponse *)response
