@@ -82,8 +82,12 @@ binaryImageAdded(const struct mach_header *header, intptr_t slide)
     newNode->next = NULL;
 
     pthread_mutex_lock(&binaryImagesMutex);
-    tailNode->next = newNode;
-    tailNode = tailNode->next;
+    //If tailNode is null is meant the cache was
+    //stop while waiting for the lock to release
+    if (tailNode != NULL) {
+        tailNode->next = newNode;
+        tailNode = tailNode->next;
+    }
     pthread_mutex_unlock(&binaryImagesMutex);
 }
 
@@ -104,9 +108,16 @@ binaryImageRemoved(const struct mach_header *header, intptr_t slide)
 void
 sentrycrashbic_iterateOverImages(sentrycrashbic_imageIteratorCallback callback, void *context)
 {
+    /**
+     We can't use locks here because this is meant to be used during crashes,
+     where we can't use async unsafe functions. In order to avoid potential problems,
+     we choose an approach that doesn't remove nodes from the list.
+    */
     SentryCrashBinaryImageNode *nextNode = &rootNode;
 
-    while (nextNode != NULL) {
+    //If tailNode is null it means the cache was stopped, therefore we end the iteration.
+    //This will minimize any race condition effect without the need for locks.
+    while (nextNode != NULL && tailNode != NULL) {
         if (nextNode->available) {
             callback(&nextNode->image, context);
         }
@@ -144,6 +155,7 @@ sentrycrashbic_stopCache(void)
 
     SentryCrashBinaryImageNode *node = rootNode.next;
     rootNode.next = NULL;
+    tailNode = NULL;
 
     while (node != NULL) {
         SentryCrashBinaryImageNode *nextNode = node->next;
@@ -151,6 +163,5 @@ sentrycrashbic_stopCache(void)
         node = nextNode;
     }
 
-    tailNode = NULL;
     pthread_mutex_unlock(&binaryImagesMutex);
 }
