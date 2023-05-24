@@ -354,12 +354,11 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
         }
         if (queueAddress != nil && state.queueMetadata[queueAddress] == nil
             && backtrace.queueMetadata.label != nullptr) {
-            NSString *const labelNSStr = [NSString stringWithUTF8String:backtrace.queueMetadata.label->c_str()];
+            NSString *const labelNSStr =
+                [NSString stringWithUTF8String:backtrace.queueMetadata.label->c_str()];
             // -[NSString stringWithUTF8String:] can return `nil` for malformed string data
             if (labelNSStr != nil) {
-                state.queueMetadata[queueAddress] = @ {
-                    @"label" : labelNSStr
-                };
+                state.queueMetadata[queueAddress] = @ { @"label" : labelNSStr };
             }
         }
 #    if defined(DEBUG)
