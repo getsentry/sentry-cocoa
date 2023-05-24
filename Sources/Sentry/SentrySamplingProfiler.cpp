@@ -24,9 +24,9 @@ namespace profiling {
 
         void *
         samplingThreadMain(mach_port_t port, clock_serv_t clock, mach_timespec_t delaySpec,
-            std::shared_ptr<ThreadMetadataCache> cache,
-            std::function<void(const Backtrace &)> callback, std::atomic_uint64_t &numSamples,
-            std::function<void()> onThreadStart)
+            const std::shared_ptr<ThreadMetadataCache> &cache,
+            const std::function<void(const Backtrace &)> &callback,
+            std::atomic_uint64_t &numSamples, std::function<void()> onThreadStart)
         {
             SENTRY_PROF_LOG_ERROR_RETURN(pthread_setname_np("io.sentry.SamplingProfiler"));
             const int maxSize = 512;
@@ -107,8 +107,8 @@ namespace profiling {
         }
         isSampling_ = true;
         numSamples_ = 0;
-        thread_ = std::thread(samplingThreadMain, port_, clock_, delaySpec_, cache_, callback_,
-            std::ref(numSamples_), onThreadStart);
+        thread_ = std::thread(samplingThreadMain, port_, clock_, delaySpec_, std::cref(cache_),
+            std::cref(callback_), std::ref(numSamples_), onThreadStart);
 
         int policy;
         sched_param param;
