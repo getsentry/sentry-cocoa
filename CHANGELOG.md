@@ -5,6 +5,7 @@
 ### Fixes
 
 - Convert one of the two remaining usages of `sprintf` to `snprintf` (#2866)
+- Cache binary images to be used for crashes (#2939)
 
 ## 8.7.2
 
