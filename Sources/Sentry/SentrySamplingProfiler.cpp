@@ -25,14 +25,16 @@ namespace profiling {
             std::atomic_uint64_t &numSamples;
             std::function<void()> onThreadStart;
         };
-    
+
         void
         freeReplyBuf(void *reply)
         {
             free(reply);
         }
-    
-        void deleteParams(void *params) {
+
+        void
+        deleteParams(void *params)
+        {
             delete reinterpret_cast<SamplingThreadParams *>(params);
         }
 
@@ -51,11 +53,12 @@ namespace profiling {
             while (true) {
                 pthread_testcancel();
                 if (SENTRY_PROF_LOG_MACH_MSG_RETURN(mach_msg(&replyBuf->Head, MACH_RCV_MSG, 0,
-                                                             maxSize, params->port, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL))
+                        maxSize, params->port, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL))
                     != MACH_MSG_SUCCESS) {
                     break;
                 }
-                if (SENTRY_PROF_LOG_KERN_RETURN(clock_alarm(params->clock, TIME_RELATIVE, params->delaySpec, params->port))
+                if (SENTRY_PROF_LOG_KERN_RETURN(
+                        clock_alarm(params->clock, TIME_RELATIVE, params->delaySpec, params->port))
                     != KERN_SUCCESS) {
                     break;
                 }
@@ -134,9 +137,12 @@ namespace profiling {
             param.sched_priority = 50;
             SENTRY_PROF_LOG_ERROR_RETURN(pthread_attr_setschedparam(&attr, &param));
         }
-        
-        const auto params = new SamplingThreadParams{port_, clock_, delaySpec_, cache_, callback_, std::ref(numSamples_), std::move(onThreadStart)};
-        if (SENTRY_PROF_LOG_ERROR_RETURN(pthread_create(&thread_, &attr, samplingThreadMain, params)) != 0) {
+
+        const auto params = new SamplingThreadParams { port_, clock_, delaySpec_, cache_, callback_,
+            std::ref(numSamples_), std::move(onThreadStart) };
+        if (SENTRY_PROF_LOG_ERROR_RETURN(
+                pthread_create(&thread_, &attr, samplingThreadMain, params))
+            != 0) {
             return;
         }
 
