@@ -82,8 +82,8 @@ binaryImageAdded(const struct mach_header *header, intptr_t slide)
     newNode->next = NULL;
 
     pthread_mutex_lock(&binaryImagesMutex);
-    //If tailNode is null is meant the cache was
-    //stop while waiting for the lock to release
+    // If tailNode is null is meant the cache was
+    // stop while waiting for the lock to release
     if (tailNode != NULL) {
         tailNode->next = newNode;
         tailNode = tailNode->next;
@@ -115,8 +115,8 @@ sentrycrashbic_iterateOverImages(sentrycrashbic_imageIteratorCallback callback, 
     */
     SentryCrashBinaryImageNode *nextNode = &rootNode;
 
-    //If tailNode is null it means the cache was stopped, therefore we end the iteration.
-    //This will minimize any race condition effect without the need for locks.
+    // If tailNode is null it means the cache was stopped, therefore we end the iteration.
+    // This will minimize any race condition effect without the need for locks.
     while (nextNode != NULL && tailNode != NULL) {
         if (nextNode->available) {
             callback(&nextNode->image, context);

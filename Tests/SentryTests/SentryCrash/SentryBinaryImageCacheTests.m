@@ -72,8 +72,8 @@ addBinaryImageToArray(SentryCrashBinaryImage *image, void *context)
     sentry_setRegisterFuncForAddImage(&sentry_register_func_for_add_image);
     sentry_setRegisterFuncForRemoveImage(&sentry_register_func_for_remove_image);
 
-    //Copying the first 5 images from the temporary list.
-    //5 is a magic number.
+    // Copying the first 5 images from the temporary list.
+    // 5 is a magic number.
     mach_headers_expect_array =
         [mach_headers_test_cache subarrayWithRange:NSMakeRange(0, 5)].mutableCopy;
 }
@@ -202,12 +202,13 @@ addBinaryImageToArray(SentryCrashBinaryImage *image, void *context)
     [self assertCachedBinaryImages];
 }
 
-- (void)testAddBinaryImageInParallel {
+- (void)testAddBinaryImageInParallel
+{
     sentrycrashbic_startCache();
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_group_t group = dispatch_group_create();
 
-    for (NSUInteger i = 5; i < mach_headers_test_cache.count ; i++) {
+    for (NSUInteger i = 5; i < mach_headers_test_cache.count; i++) {
         dispatch_group_enter(group);
         dispatch_group_async(group, queue, ^{
             addBinaryImage([mach_headers_test_cache[i] pointerValue], 0);
