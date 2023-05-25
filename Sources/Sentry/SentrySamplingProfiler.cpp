@@ -143,6 +143,7 @@ namespace profiling {
         if (SENTRY_PROF_LOG_ERROR_RETURN(
                 pthread_create(&thread_, &attr, samplingThreadMain, params))
             != 0) {
+            delete params;
             return;
         }
 
