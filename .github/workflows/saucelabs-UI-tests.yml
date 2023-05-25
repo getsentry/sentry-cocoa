@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - main
-      - ci/ui-tests-xcode-14
 
   pull_request:
     paths:
