@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - build/update-fastlane
     paths:
       - 'Sources/**'
       - 'Samples/iOS-Swift/**'
