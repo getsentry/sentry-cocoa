@@ -5,6 +5,7 @@
 ### Fixes
 
 - Convert one of the two remaining usages of `sprintf` to `snprintf` (#2866)
+- Fix use-after-free ASAN warning (#3042)
 - Fix memory leaks in the profiler (#3055, #3061)
 
 ## 8.7.2

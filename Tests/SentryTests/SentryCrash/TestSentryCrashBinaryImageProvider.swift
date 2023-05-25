@@ -5,6 +5,10 @@ public class TestSentryCrashBinaryImageProvider: NSObject, SentryCrashBinaryImag
     
     var binaryImage: [SentryCrashBinaryImage] = []
     public func getBinaryImage(_ index: Int) -> SentryCrashBinaryImage {
+        getBinaryImage(index, isCrash: true)
+    }
+
+    public func getBinaryImage(_ index: Int, isCrash: Bool) -> SentryCrashBinaryImage {
         binaryImage[Int(index)]
     }
     

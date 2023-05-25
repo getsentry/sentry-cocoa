@@ -592,7 +592,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
             ?: _gCurrentProfiler->_hub.getClient.options.environment,
         _gCurrentProfiler->_hub.getClient.options.releaseName,
         [_gCurrentProfiler->_metricProfiler serializeForTransaction:transaction],
-        [_gCurrentProfiler->_debugImageProvider getDebugImages]);
+        [_gCurrentProfiler->_debugImageProvider getDebugImagesCrashed:NO]);
 }
 
 + (void)timeoutAbort

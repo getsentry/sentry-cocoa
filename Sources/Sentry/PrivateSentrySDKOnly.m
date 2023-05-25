@@ -41,7 +41,14 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (NSArray<SentryDebugMeta *> *)getDebugImages
 {
-    return [[SentryDependencyContainer sharedInstance].debugImageProvider getDebugImages];
+    // maintains previous behavior for the same method call by also trying to gather crash info
+    return [self getDebugImagesCrashed:YES];
+}
+
++ (NSArray<SentryDebugMeta *> *)getDebugImagesCrashed:(BOOL)isCrash
+{
+    return [[SentryDependencyContainer sharedInstance].debugImageProvider
+        getDebugImagesCrashed:isCrash];
 }
 
 + (nullable SentryAppStartMeasurement *)appStartMeasurement
