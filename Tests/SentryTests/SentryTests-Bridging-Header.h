@@ -193,11 +193,11 @@
 #import "SentryMeasurementValue.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryPerformanceTracker+Testing.h"
+#import "SentrySampleDecision+Private.h"
 #import "SentrySpanOperations.h"
 #import "SentryTimeToDisplayTracker.h"
 #import "SentryTracerConfiguration.h"
 #import "TestSentryViewHierarchy.h"
-#import "SentrySampleDecision+Private.h"
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"
 #    import "SentryUIEventTracker.h"
