@@ -7,7 +7,7 @@ valueForSentrySampleDecision(SentrySampleDecision decision)
     case kSentrySampleDecisionUndecided:
         return nil;
     case kSentrySampleDecisionYes:
-            return @YES;
+        return @YES;
     case kSentrySampleDecisionNo:
         return @NO;
     }

@@ -8,7 +8,7 @@
 
 ### Fixes
 
-- Changed `Trace` serialized value for `sampled` from string to boolean (#3067)
+- Changed `Trace` serialized value of `sampled` from string to boolean (#3067)
 
 ## 8.7.3
 

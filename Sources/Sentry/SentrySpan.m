@@ -7,13 +7,13 @@
 #import "SentryLog.h"
 #import "SentryMeasurementValue.h"
 #import "SentryNoOpSpan.h"
+#import "SentrySampleDecision+Private.h"
 #import "SentrySerializable.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
 #import "SentryTime.h"
 #import "SentryTraceHeader.h"
 #import "SentryTracer.h"
-#import "SentrySampleDecision+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

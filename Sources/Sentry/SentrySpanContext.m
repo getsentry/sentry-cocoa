@@ -1,9 +1,9 @@
 #import "SentrySpanContext.h"
 #import "SentryId.h"
 #import "SentryLog.h"
+#import "SentrySampleDecision+Private.h"
 #import "SentrySpanId.h"
 #import "SentryTraceOrigins.h"
-#import "SentrySampleDecision+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
