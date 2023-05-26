@@ -415,6 +415,10 @@ SentryNetworkTracker ()
 
 - (void)addBreadcrumbForSessionTask:(NSURLSessionTask *)sessionTask
 {
+    if (!self.isNetworkBreadcrumbEnabled) {
+        return;
+    }
+
     id hasBreadcrumb
         = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_BREADCRUMB);
     if (hasBreadcrumb && [hasBreadcrumb isKindOfClass:NSNumber.class] &&
@@ -422,9 +426,6 @@ SentryNetworkTracker ()
         return;
     }
 
-    if (!self.isNetworkBreadcrumbEnabled) {
-        return;
-    }
     SentryLevel breadcrumbLevel = sessionTask.error != nil ? kSentryLevelError : kSentryLevelInfo;
     SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
                                                                   category:@"http"];
