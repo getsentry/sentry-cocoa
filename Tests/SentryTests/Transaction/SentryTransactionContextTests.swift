@@ -87,7 +87,7 @@ class SentryTransactionContextTests: XCTestCase {
         XCTAssertEqual(context.origin, actual["origin"] as? String)
         XCTAssertEqual(context.parentSpanId?.sentrySpanIdString, actual["parent_span_id"] as? String)
         XCTAssertEqual("trace", actual["type"] as? String)
-        XCTAssertEqual("true", actual["sampled"] as? String)
+        XCTAssertEqual(true, actual["sampled"] as? NSNumber)
         XCTAssertEqual("ui.load", actual["op"] as? String)
         
         XCTAssertNotNil(actual)
