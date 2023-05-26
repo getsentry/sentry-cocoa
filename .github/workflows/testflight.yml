@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+
     paths:
       - 'Sources/**'
       - 'Samples/iOS-Swift/**'
