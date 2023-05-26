@@ -3,9 +3,15 @@
 ## Unreleased
 
 ### Fixes
+- Duplicated HTTP breadcrumbs (#3058)
+
+## 8.7.3
+
+### Fixes
 
 - Convert one of the two remaining usages of `sprintf` to `snprintf` (#2866)
-- Duplicated HTTP breadcrumbs (#3058)
+- Fix use-after-free ASAN warning (#3042)
+- Fix memory leaks in the profiler (#3055, #3061)
 
 ## 8.7.2
 

@@ -4,12 +4,17 @@ import UIKit
 
 class ErrorsViewController: UIViewController {
 
+    @IBOutlet weak var imageView: UIImageView!
     private let dispatchQueue = DispatchQueue(label: "ErrorsViewController", attributes: .concurrent)
     private let diskWriteException = DiskWriteException()
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         SentrySDK.reportFullyDisplayed()
+    }
+
+    @IBAction func useAfterFree(_ sender: UIButton) {
+        imageView.image = UIImage(named: "")
     }
 
     @IBAction func diskWriteException(_ sender: UIButton) {

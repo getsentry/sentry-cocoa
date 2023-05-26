@@ -10,7 +10,7 @@
 #    include <mach/mach.h>
 #    include <memory>
 #    include <mutex>
-#    include <thread>
+#    include <pthread.h>
 
 namespace sentry {
 namespace profiling {
@@ -60,7 +60,7 @@ namespace profiling {
         bool isInitialized_;
         std::mutex isSamplingLock_;
         bool isSampling_;
-        std::thread thread_;
+        pthread_t thread_;
         clock_serv_t clock_;
         mach_port_t port_;
         std::atomic_uint64_t numSamples_;
