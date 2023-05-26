@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Breaking Changes
+
+- Removed `nameForSentrySampleDecision`
+
+### Fixes
+
+- Changed `Trace` serialized value for `sampled` from string to boolean
+
 ## 8.7.3
 
 ### Fixes
