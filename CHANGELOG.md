@@ -4,11 +4,11 @@
 
 ### Breaking Changes
 
-- Removed `nameForSentrySampleDecision`
+- Removed `nameForSentrySampleDecision` (#3067)
 
 ### Fixes
 
-- Changed `Trace` serialized value for `sampled` from string to boolean
+- Changed `Trace` serialized value for `sampled` from string to boolean (#3067)
 
 ## 8.7.3
 
