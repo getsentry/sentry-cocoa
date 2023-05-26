@@ -3,6 +3,7 @@
 #import "SentryLog.h"
 #import "SentrySpanId.h"
 #import "SentryTraceOrigins.h"
+#import "SentrySampleDecision+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -108,7 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
     // Since we guard for 'undecided', we'll
     // either send it if it's 'true' or 'false'.
     if (self.sampled != kSentrySampleDecisionUndecided) {
-        [mutabledictionary setValue:nameForSentrySampleDecision(self.sampled) forKey:@"sampled"];
+        [mutabledictionary setValue:valueForSentrySampleDecision(self.sampled) forKey:@"sampled"];
     }
 
     if (self.spanDescription != nil) {

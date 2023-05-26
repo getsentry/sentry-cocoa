@@ -197,6 +197,7 @@
 #import "SentryTimeToDisplayTracker.h"
 #import "SentryTracerConfiguration.h"
 #import "TestSentryViewHierarchy.h"
+#import "SentrySampleDecision+Private.h"
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"
 #    import "SentryUIEventTracker.h"
