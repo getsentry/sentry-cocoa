@@ -82,8 +82,8 @@ binaryImageAdded(const struct mach_header *header, intptr_t slide)
     newNode->next = NULL;
 
     pthread_mutex_lock(&binaryImagesMutex);
-    // If tailNode is null is meant the cache was
-    // stop while waiting for the lock to release
+    // Recheck tailNode as it could be null when
+    // stopped from another thread.
     if (tailNode != NULL) {
         tailNode->next = newNode;
         tailNode = tailNode->next;
