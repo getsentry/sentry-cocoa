@@ -370,6 +370,22 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumb!.data!["url"] as! String, SentryNetworkTrackerTests.testURL.absoluteString)
         XCTAssertEqual(breadcrumb!.data!["method"] as! String, "GET")
     }
+
+    func testNoDuplicatedBreadcrumbs() {
+        let task = createDataTask()
+        let _ = spanForTask(task: task)!
+
+        objc_removeAssociatedObjects(task)
+
+        setTaskState(task, state: .completed)
+        setTaskState(task, state: .running)
+        setTaskState(task, state: .completed)
+
+        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        let amount = breadcrumbs?.count ?? 0
+
+        XCTAssertEqual(amount, 1)
+    }
     
     func testWhenNoSpan_RemoveObserver() {
         let task = createDataTask()

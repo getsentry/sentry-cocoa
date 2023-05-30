@@ -5,6 +5,12 @@
 ### Fixes
 
 - Fix a data race for `SentryId.empty` (#3072)
+- Changed `Trace` serialized value of `sampled` from string to boolean (#3067)
+- Duplicated HTTP breadcrumbs (#3058)
+
+### Breaking Changes
+
+- Removed `nameForSentrySampleDecision` which shouldn't have been public (#3067)
 
 ## 8.7.3
 
