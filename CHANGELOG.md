@@ -4,7 +4,7 @@
 
 ### Breaking Changes
 
-- Removed `nameForSentrySampleDecision` (#3067)
+- Removed `nameForSentrySampleDecision` which shouldn't have been public (#3067)
 
 ### Fixes
 
