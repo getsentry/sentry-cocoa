@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Experimental support for Swift Async stacktraces (#3051)
+
 ### Fixes
 
 - Fix a data race for `SentryId.empty` (#3072)
