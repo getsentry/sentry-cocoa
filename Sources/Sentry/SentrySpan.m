@@ -7,6 +7,7 @@
 #import "SentryLog.h"
 #import "SentryMeasurementValue.h"
 #import "SentryNoOpSpan.h"
+#import "SentrySampleDecision+Private.h"
 #import "SentrySerializable.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
@@ -184,7 +185,7 @@ SentrySpan ()
     // Since we guard for 'undecided', we'll
     // either send it if it's 'true' or 'false'.
     if (self.sampled != kSentrySampleDecisionUndecided) {
-        [mutableDictionary setValue:nameForSentrySampleDecision(self.sampled) forKey:@"sampled"];
+        [mutableDictionary setValue:valueForSentrySampleDecision(self.sampled) forKey:@"sampled"];
     }
 
     if (self.spanDescription != nil) {
