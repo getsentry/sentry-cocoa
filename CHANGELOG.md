@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix a data race for `SentryId.empty` (#3072)
+
 ## 8.7.3
 
 ### Fixes
