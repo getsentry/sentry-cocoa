@@ -42,6 +42,8 @@ extern "C" {
  */
 void sentrycrashsc_initSelfThread(SentryCrashStackCursor *cursor, int skipEntries);
 
+void sentrycrashsc_setSwiftAsyncStitching(bool enabled);
+
 #ifdef __cplusplus
 }
 #endif

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Experimental support for Swift Async stacktraces (#3051)
+
 ### Fixes
 
 - Changed `Trace` serialized value of `sampled` from string to boolean (#3067)
