@@ -10,6 +10,7 @@
 
 - Changed `Trace` serialized value of `sampled` from string to boolean (#3067)
 - Duplicated HTTP breadcrumbs (#3058)
+- Expose SentryPrivate and SentrySwiftUI schemes for cartahge clients that have `--no-use-binaries` option (#3071)
 
 ### Breaking Changes
 
