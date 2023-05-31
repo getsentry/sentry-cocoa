@@ -82,7 +82,7 @@ jobs:
 
   build-xcframework:
     name: Build XCFramework
-    runs-on: macos-13
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
 
@@ -92,7 +92,7 @@ jobs:
       # this SDK is not supported by the compiler (the SDK is built with 'Apple Swift version 5.7.2
       # (swiftlang-5.7.2.135.5 clang-1400.0.29.51)', while this compiler is 'Apple Swift version 5.6.1
       # (swiftlang-5.6.0.323.66 clang-1316.0.20.12)'). Please select a toolchain which matches the SDK.
-      - run: ./scripts/ci-select-xcode.sh
+      - run: ./scripts/ci-select-xcode.sh 13.4.1
       - run: make build-xcframework
         shell: sh
 
