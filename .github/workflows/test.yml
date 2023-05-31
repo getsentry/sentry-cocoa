@@ -17,9 +17,9 @@ on:
       - 'scripts/ci-select-xcode.sh'
       - 'scripts/xcode-test.sh'
       - '.codecov.yml'
+      - Sentry.xcodeproj
 
-      # run the workflow any time an Xcode scheme changes for any tested target
-      - 'Sentry.xcodeproj/xcshareddata/xcschemes/Sentry.xcscheme'
+      # run the workflow any time an Xcode scheme changes for a sample app
       - 'Samples/tvOS-Swift/tvOS-Swift.xcodeproj/xcshareddata/xcschemes/tvOS-Swift.xcscheme'
       - 'Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS13-Swift.xcscheme'
       - 'Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-SwiftUITests.xcscheme'
