@@ -12,7 +12,7 @@ on:
 jobs:
   analyze:
     name: Analyze
-    runs-on: macos-11
+    runs-on: macos-13
 
     strategy:
       fail-fast: false

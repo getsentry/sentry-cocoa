@@ -26,7 +26,7 @@ on:
 jobs:
   swift-lint:
     name: Swift Lint
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
       - name: Run SwiftLint
@@ -34,7 +34,7 @@ jobs:
 
   xcode-analyze:
     name: Xcode Analyze
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh
@@ -42,7 +42,7 @@ jobs:
 
   lint-podspec:
     name: pod lint ${{ matrix.podspec}} ${{ matrix.library_type }} ${{ matrix.platform}}
-    runs-on: macos-12
+    runs-on: macos-13
     strategy:
       matrix:
         podspec: ['Sentry', 'SentrySwiftUI']
@@ -63,7 +63,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - run: ./scripts/ci-select-xcode.sh '14.3'
+      - run: ./scripts/ci-select-xcode.sh
       - run: pod repo update
       - name: Validate HybridPod Podspec
         run: pod lib lint ./Tests/HybridSDKTest/HybridPod.podspec --allow-warnings --verbose --platforms=ios "--include-podspecs={SentryPrivate.podspec,Sentry.podspec}"

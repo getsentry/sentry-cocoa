@@ -21,7 +21,7 @@ jobs:
   # With this we catch potential issues already in the PR.
   ios-swift-release:
     name: Release Build of iOS Swift
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh
@@ -40,7 +40,7 @@ jobs:
 
   build-sample:
     name: Sample ${{ matrix.scheme }}
-    runs-on: macos-12
+    runs-on: macos-13
     strategy:
       fail-fast: false
       matrix:
@@ -65,7 +65,7 @@ jobs:
 
   build-watch-os-sample:
     name: Sample watchOS
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
       - run: ./scripts/ci-select-xcode.sh
@@ -82,7 +82,7 @@ jobs:
 
   build-xcframework:
     name: Build XCFramework
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
 
@@ -92,7 +92,7 @@ jobs:
       # this SDK is not supported by the compiler (the SDK is built with 'Apple Swift version 5.7.2
       # (swiftlang-5.7.2.135.5 clang-1400.0.29.51)', while this compiler is 'Apple Swift version 5.6.1
       # (swiftlang-5.6.0.323.66 clang-1316.0.20.12)'). Please select a toolchain which matches the SDK.
-      - run: ./scripts/ci-select-xcode.sh 13.4.1
+      - run: ./scripts/ci-select-xcode.sh
       - run: make build-xcframework
         shell: sh
 
@@ -114,7 +114,7 @@ jobs:
 
   validate-xcframework:
     name: Validate XCFramework Xcode ${{ matrix.xcode }}
-    runs-on: macos-12
+    runs-on: macos-13
     needs: build-xcframework
     strategy:
       matrix:
@@ -133,7 +133,7 @@ jobs:
   # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
   validate-spm:
     name: Validate Swift Package Manager
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
       - name: Set SPM revision to current git commit
@@ -150,7 +150,7 @@ jobs:
 
   validate-spm-dynamic:
     name: Validate Swift Package Manager Dynamic
-    runs-on: macos-11
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
       - name: Set SPM revision to current git commit
@@ -167,7 +167,7 @@ jobs:
 
   swift-build:
     name: Build with Swift
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
       - run: swift build
