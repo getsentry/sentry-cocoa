@@ -48,13 +48,15 @@ sentry_resetFuncForAddRemoveImage(void)
         _sentry_register_func_for_add_image(CALLBACK);
 #    define sentry_dyld_register_func_for_remove_image(CALLBACK)                                   \
         _sentry_register_func_for_remove_image(CALLBACK);
-#define _will_add_image() if (SentryWillAddImageCallback) SentryWillAddImageCallback();
+#    define _will_add_image()                                                                      \
+        if (SentryWillAddImageCallback)                                                            \
+            SentryWillAddImageCallback();
 #else
 #    define sentry_dyld_register_func_for_add_image(CALLBACK)                                      \
         _dyld_register_func_for_add_image(CALLBACK)
 #    define sentry_dyld_register_func_for_remove_image(CALLBACK)                                   \
         _dyld_register_func_for_remove_image(CALLBACK)
-#define _will_add_image() 
+#    define _will_add_image()
 #endif
 
 typedef struct SentryCrashBinaryImageNode {

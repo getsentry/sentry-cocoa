@@ -58,11 +58,12 @@ addBinaryImageToArray(SentryCrashBinaryImage *image, void *context)
 dispatch_semaphore_t delaySemaphore = NULL;
 dispatch_semaphore_t delayCalled = NULL;
 static void
-delayAddBinaryImage(void) {
+delayAddBinaryImage(void)
+{
     if (delayCalled) {
         dispatch_semaphore_signal(delayCalled);
     }
-    if(delaySemaphore) {
+    if (delaySemaphore) {
         dispatch_semaphore_wait(delaySemaphore, DISPATCH_TIME_FOREVER);
     }
 }
@@ -234,17 +235,18 @@ delayAddBinaryImage(void) {
     [self assertBinaryImageCacheLength:(int)mach_headers_test_cache.count];
 }
 
-- (void)testCloseCacheWhileAdding {
+- (void)testCloseCacheWhileAdding
+{
     sentrycrashbic_startCache();
     sentry_setFuncForBeforeAdd(&delayAddBinaryImage);
     delaySemaphore = dispatch_semaphore_create(0);
     delayCalled = dispatch_semaphore_create(0);
 
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        addBinaryImage([mach_headers_test_cache[6] pointerValue], 0);
-    });
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+        ^{ addBinaryImage([mach_headers_test_cache[6] pointerValue], 0); });
 
-    intptr_t result = dispatch_semaphore_wait(delayCalled,  dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
+    intptr_t result
+        = dispatch_semaphore_wait(delayCalled, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
     sentrycrashbic_stopCache();
     dispatch_semaphore_signal(delaySemaphore);
     [self assertBinaryImageCacheLength:0];
