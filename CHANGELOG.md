@@ -5,6 +5,7 @@
 ### Features
 
 - Experimental support for Swift Async stacktraces (#3051)
+- Cache binary images to be used for crashes (#2939)
 
 ### Fixes
 
@@ -22,7 +23,6 @@
 ### Fixes
 
 - Convert one of the two remaining usages of `sprintf` to `snprintf` (#2866)
-- Cache binary images to be used for crashes (#2939)
 - Fix use-after-free ASAN warning (#3042)
 - Fix memory leaks in the profiler (#3055, #3061)
 

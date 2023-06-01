@@ -7,6 +7,7 @@
 void sentry_setRegisterFuncForAddImage(void *addFunction);
 void sentry_setRegisterFuncForRemoveImage(void *removeFunction);
 void sentry_resetFuncForAddRemoveImage(void);
+void sentry_setFuncForBeforeAdd(void (*callback)(void));
 
 static void (*addBinaryImage)(const struct mach_header *mh, intptr_t vmaddr_slide);
 static void (*removeBinaryImage)(const struct mach_header *mh, intptr_t vmaddr_slide);
@@ -54,6 +55,18 @@ addBinaryImageToArray(SentryCrashBinaryImage *image, void *context)
     [array addObject:[NSValue valueWithPointer:image]];
 }
 
+dispatch_semaphore_t delaySemaphore = NULL;
+dispatch_semaphore_t delayCalled = NULL;
+static void
+delayAddBinaryImage(void) {
+    if (delayCalled) {
+        dispatch_semaphore_signal(delayCalled);
+    }
+    if(delaySemaphore) {
+        dispatch_semaphore_wait(delaySemaphore, DISPATCH_TIME_FOREVER);
+    }
+}
+
 @interface SentryBinaryImageCacheTests : XCTestCase
 
 @end
@@ -82,6 +95,7 @@ addBinaryImageToArray(SentryCrashBinaryImage *image, void *context)
 {
     sentry_resetFuncForAddRemoveImage();
     sentrycrashbic_stopCache();
+    sentry_setFuncForBeforeAdd(NULL);
 }
 
 - (void)testStartCache
@@ -218,6 +232,23 @@ addBinaryImageToArray(SentryCrashBinaryImage *image, void *context)
     dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
 
     [self assertBinaryImageCacheLength:(int)mach_headers_test_cache.count];
+}
+
+- (void)testCloseCacheWhileAdding {
+    sentrycrashbic_startCache();
+    sentry_setFuncForBeforeAdd(&delayAddBinaryImage);
+    delaySemaphore = dispatch_semaphore_create(0);
+    delayCalled = dispatch_semaphore_create(0);
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        addBinaryImage([mach_headers_test_cache[6] pointerValue], 0);
+    });
+
+    intptr_t result = dispatch_semaphore_wait(delayCalled,  dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
+    sentrycrashbic_stopCache();
+    dispatch_semaphore_signal(delaySemaphore);
+    [self assertBinaryImageCacheLength:0];
+    XCTAssertEqual(result, 0);
 }
 
 - (void)assertBinaryImageCacheLength:(int)expected

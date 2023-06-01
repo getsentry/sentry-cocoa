@@ -17,6 +17,8 @@ static SentryRegisterFunction _sentry_register_func_for_add_image
 static SentryRegisterFunction _sentry_register_func_for_remove_image
     = &_dyld_register_func_for_remove_image;
 
+static void (*SentryWillAddImageCallback)(void) = NULL;
+
 void
 sentry_setRegisterFuncForAddImage(SentryRegisterFunction addFunction)
 {
@@ -30,6 +32,12 @@ sentry_setRegisterFuncForRemoveImage(SentryRegisterFunction removeFunction)
 }
 
 void
+sentry_setFuncForBeforeAdd(void (*callback)(void))
+{
+    SentryWillAddImageCallback = callback;
+}
+
+void
 sentry_resetFuncForAddRemoveImage(void)
 {
     _sentry_register_func_for_add_image = &_dyld_register_func_for_add_image;
@@ -40,12 +48,13 @@ sentry_resetFuncForAddRemoveImage(void)
         _sentry_register_func_for_add_image(CALLBACK);
 #    define sentry_dyld_register_func_for_remove_image(CALLBACK)                                   \
         _sentry_register_func_for_remove_image(CALLBACK);
-
+#define _will_add_image() if (SentryWillAddImageCallback) SentryWillAddImageCallback();
 #else
 #    define sentry_dyld_register_func_for_add_image(CALLBACK)                                      \
         _dyld_register_func_for_add_image(CALLBACK)
 #    define sentry_dyld_register_func_for_remove_image(CALLBACK)                                   \
         _dyld_register_func_for_remove_image(CALLBACK)
+#define _will_add_image() 
 #endif
 
 typedef struct SentryCrashBinaryImageNode {
@@ -72,7 +81,7 @@ binaryImageAdded(const struct mach_header *header, intptr_t slide)
 
     SentryCrashBinaryImage binaryImage = { 0 };
     if (!sentrycrashdl_getBinaryImageForHeader(
-            (const void *)header, info.dli_fname, &binaryImage)) {
+            (const void *)header, info.dli_fname, &binaryImage, false)) {
         return;
     }
 
@@ -80,7 +89,7 @@ binaryImageAdded(const struct mach_header *header, intptr_t slide)
     newNode->available = true;
     newNode->image = binaryImage;
     newNode->next = NULL;
-
+    _will_add_image();
     pthread_mutex_lock(&binaryImagesMutex);
     // Recheck tailNode as it could be null when
     // stopped from another thread.
