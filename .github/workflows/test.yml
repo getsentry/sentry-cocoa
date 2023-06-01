@@ -30,7 +30,7 @@ on:
 jobs:
   build-test-server:
     name: Build test server
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
       - name: Cache for Test Server
@@ -128,14 +128,6 @@ jobs:
           - runs-on: macos-13
             platform: 'Catalyst'
             xcode: '14.3'
-            test-destination-os: 'latest'
-
-          # MetricKit doesn't exist for tvOS, so we can still run unit tests with
-          # Xcode 12 for it.
-          # tvOS 14
-          - runs-on: macos-11
-            platform: 'tvOS'
-            xcode: '12.5.1'
             test-destination-os: 'latest'
 
           # tvOS 15
@@ -254,7 +246,7 @@ jobs:
   # that adds a significant overhead.
   thread-sanitizer:
     name: Unit iOS - Thread Sanitizer
-    runs-on: macos-12
+    runs-on: macos-13
     # When there are threading issues the tests sometimes keep hanging
     timeout-minutes: 20
 
@@ -295,7 +287,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - run: ./scripts/ci-select-xcode.sh  "14.3"
+      - run: ./scripts/ci-select-xcode.sh
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane
@@ -323,8 +315,8 @@ jobs:
             xcode: '13.4.1'
             device: 'iPhone 8 (15.2)'
 
-          - runs-on: macos-12
-            xcode: '14.1'
+          - runs-on: macos-13
+            xcode: '14.3'
             device: 'iPhone 8 (16.1)'
 
     steps:
@@ -347,11 +339,11 @@ jobs:
 
   ui-tests-address-sanitizer:
     name: UI Tests with Address Sanitizer
-    runs-on: macos-12
+    runs-on: macos-13
 
     steps:
       - uses: actions/checkout@v3
-      - run: ./scripts/ci-select-xcode.sh 13.4.1
+      - run: ./scripts/ci-select-xcode.sh
 
       # GitHub Actions sometimes fail to launch the UI tests. Therefore we retry
       - name: Run Fastlane

@@ -2,6 +2,7 @@
 #import "SentryBaggage.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
+#import "SentryDSN.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryHttpStatusCodeRange+Private.h"
@@ -136,7 +137,7 @@ SentryNetworkTracker ()
     }
 
     // Don't measure requests to Sentry's backend
-    NSURL *apiUrl = [NSURL URLWithString:SentrySDK.options.dsn];
+    NSURL *apiUrl = SentrySDK.options.parsedDsn.url;
     if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path]) {
         return;
     }
@@ -259,7 +260,7 @@ SentryNetworkTracker ()
     }
 
     // Don't measure requests to Sentry's backend
-    NSURL *apiUrl = [NSURL URLWithString:SentrySDK.options.dsn];
+    NSURL *apiUrl = SentrySDK.options.parsedDsn.url;
     if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path]) {
         return;
     }
@@ -418,6 +419,13 @@ SentryNetworkTracker ()
         return;
     }
 
+    id hasBreadcrumb
+        = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_BREADCRUMB);
+    if (hasBreadcrumb && [hasBreadcrumb isKindOfClass:NSNumber.class] &&
+        [hasBreadcrumb boolValue]) {
+        return;
+    }
+
     SentryLevel breadcrumbLevel = sessionTask.error != nil ? kSentryLevelError : kSentryLevelInfo;
     SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
                                                                   category:@"http"];
@@ -429,18 +437,18 @@ SentryNetworkTracker ()
         [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
     breadcrumbData[@"response_body_size"] =
         [NSNumber numberWithLongLong:sessionTask.countOfBytesReceived];
-
     NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
-
     if (responseStatusCode != -1) {
         NSNumber *statusCode = [NSNumber numberWithInteger:responseStatusCode];
         breadcrumbData[@"status_code"] = statusCode;
         breadcrumbData[@"reason"] =
             [NSHTTPURLResponse localizedStringForStatusCode:responseStatusCode];
     }
-
     breadcrumb.data = breadcrumbData;
     [SentrySDK addBreadcrumb:breadcrumb];
+
+    objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_BREADCRUMB,
+        [NSNumber numberWithBool:YES], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (NSInteger)urlResponseStatusCode:(NSURLResponse *)response

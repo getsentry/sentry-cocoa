@@ -359,10 +359,10 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="fn9-mQ-2PY">
-                                <rect key="frame" x="25" y="235.5" width="270" height="112"/>
+                                <rect key="frame" x="25" y="232.5" width="270" height="118.5"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="Q2k-6Y-RnD">
-                                        <rect key="frame" x="0.0" y="0.0" width="135" height="112"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="135" height="118.5"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NFC-V3-lgW">
                                                 <rect key="frame" x="0.0" y="0.0" width="135" height="28"/>
@@ -373,7 +373,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Llv-Yz-cwF">
-                                                <rect key="frame" x="0.0" y="28" width="135" height="28"/>
+                                                <rect key="frame" x="0.0" y="30" width="135" height="28"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                 <state key="normal" title="Capture NSException"/>
                                                 <connections>
@@ -381,7 +381,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wJ4-gS-64G" userLabel="fatalError">
-                                                <rect key="frame" x="0.0" y="56" width="135" height="28"/>
+                                                <rect key="frame" x="0.0" y="60" width="135" height="28"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                 <state key="normal" title="Throw FatalError"/>
                                                 <connections>
@@ -389,7 +389,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NYx-6R-0bb">
-                                                <rect key="frame" x="0.0" y="84" width="135" height="28"/>
+                                                <rect key="frame" x="0.0" y="90.5" width="135" height="28"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                 <state key="normal" title="OOM crash"/>
                                                 <connections>
@@ -399,7 +399,7 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="2CV-VI-MDY">
-                                        <rect key="frame" x="135" y="0.0" width="135" height="112"/>
+                                        <rect key="frame" x="135" y="0.0" width="135" height="118.5"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Zbo-2T-1Zm">
                                                 <rect key="frame" x="0.0" y="0.0" width="135" height="28"/>
@@ -411,7 +411,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="s6w-E3-5yE" userLabel="DiskWriteException">
-                                                <rect key="frame" x="0.0" y="42" width="135" height="28"/>
+                                                <rect key="frame" x="0.0" y="28" width="135" height="28"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                 <state key="normal" title="DiskWriteException"/>
                                                 <connections>
@@ -419,28 +419,48 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NNd-Ec-zXw">
-                                                <rect key="frame" x="0.0" y="84" width="135" height="28"/>
+                                                <rect key="frame" x="0.0" y="56" width="135" height="28"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                 <state key="normal" title="Crash the app"/>
                                                 <connections>
                                                     <action selector="crash:" destination="QmU-DD-itF" eventType="touchUpInside" id="qlZ-bL-KUT"/>
                                                 </connections>
                                             </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wJs-Av-cg2">
+                                                <rect key="frame" x="0.0" y="84" width="135" height="34.5"/>
+                                                <state key="normal" title="Button"/>
+                                                <buttonConfiguration key="configuration" style="plain" title="Use-after-free"/>
+                                                <connections>
+                                                    <action selector="useAfterFree:" destination="QmU-DD-itF" eventType="touchUpInside" id="CBM-tY-0bu"/>
+                                                </connections>
+                                            </button>
                                         </subviews>
                                     </stackView>
                                 </subviews>
                             </stackView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="1zm-ho-TCr">
+                                <rect key="frame" x="40" y="227.5" width="240" height="128"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="240" id="5Ge-8E-fcn"/>
+                                    <constraint firstAttribute="height" constant="128" id="lc6-97-p3W"/>
+                                </constraints>
+                            </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="RXi-Ac-EvL"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="fn9-mQ-2PY" firstAttribute="centerX" secondItem="RXi-Ac-EvL" secondAttribute="centerX" id="6Jl-qx-lzY"/>
+                            <constraint firstItem="1zm-ho-TCr" firstAttribute="centerY" secondItem="RXi-Ac-EvL" secondAttribute="centerY" id="JyK-Aq-Hqe"/>
                             <constraint firstItem="fn9-mQ-2PY" firstAttribute="centerY" secondItem="RXi-Ac-EvL" secondAttribute="centerY" id="UYM-w4-XaB"/>
+                            <constraint firstItem="1zm-ho-TCr" firstAttribute="centerX" secondItem="RXi-Ac-EvL" secondAttribute="centerX" id="z3k-vH-nPR"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Errors" image="exclamationmark.triangle.fill" catalog="system" id="u05-ZO-4bg">
                         <imageReference key="selectedImage" image="exclamationmark.triangle.fill" catalog="system"/>
                     </tabBarItem>
+                    <connections>
+                        <outlet property="imageView" destination="1zm-ho-TCr" id="JvD-Tf-Vwc"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0Fg-3B-Ecy" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>

@@ -2,10 +2,29 @@
 
 ## Unreleased
 
+### Features
+
+- Experimental support for Swift Async stacktraces (#3051)
+
+### Fixes
+
+- Changed `Trace` serialized value of `sampled` from string to boolean (#3067)
+- Duplicated HTTP breadcrumbs (#3058)
+- Expose SentryPrivate and SentrySwiftUI schemes for cartahge clients that have `--no-use-binaries` option (#3071)
+- Convert last remaining `sprintf` call to `snprintf` (#3077)
+
+### Breaking Changes
+
+- Removed `nameForSentrySampleDecision` which shouldn't have been public (#3067)
+
+## 8.7.3
+
 ### Fixes
 
 - Convert one of the two remaining usages of `sprintf` to `snprintf` (#2866)
 - Cache binary images to be used for crashes (#2939)
+- Fix use-after-free ASAN warning (#3042)
+- Fix memory leaks in the profiler (#3055, #3061)
 
 ## 8.7.2
 

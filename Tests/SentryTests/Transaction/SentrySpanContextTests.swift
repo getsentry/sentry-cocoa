@@ -52,7 +52,7 @@ class SentrySpanContextTests: XCTestCase {
         XCTAssertEqual(data["type"] as? String, SENTRY_TRACE_TYPE)
         XCTAssertEqual(data["op"] as? String, someOperation)
         XCTAssertEqual(data["description"] as? String, spanContext.spanDescription)
-        XCTAssertEqual(data["sampled"] as? String, "true")
+        XCTAssertEqual(data["sampled"] as? NSNumber, true)
         XCTAssertEqual(data["parent_span_id"] as? String, parentId.sentrySpanIdString)
     }
     
@@ -68,9 +68,9 @@ class SentrySpanContextTests: XCTestCase {
     }
 
     func testSamplerDecisionNames() {
-        XCTAssertEqual(kSentrySampleDecisionNameUndecided, nameForSentrySampleDecision(.undecided))
-        XCTAssertEqual(kSentrySampleDecisionNameNo, nameForSentrySampleDecision(.no))
-        XCTAssertEqual(kSentrySampleDecisionNameYes, nameForSentrySampleDecision(.yes))
+        XCTAssertNil(valueForSentrySampleDecision(.undecided))
+        XCTAssertFalse(valueForSentrySampleDecision(.no).boolValue)
+        XCTAssertTrue(valueForSentrySampleDecision(.yes).boolValue)
     }
     
     func testSampledNoSerialization() {
@@ -82,7 +82,7 @@ class SentrySpanContextTests: XCTestCase {
         
         let data = spanContext.serialize()
         
-        XCTAssertEqual(data["sampled"] as? String, "false")
+        XCTAssertEqual(data["sampled"] as? NSNumber, false)
     }
     
     func testSampleUndecidedSerialization() {
