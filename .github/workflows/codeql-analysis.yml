@@ -12,7 +12,7 @@ on:
 jobs:
   analyze:
     name: Analyze
-    runs-on: macos-11
+    runs-on: macos-13
 
     strategy:
       fail-fast: false
@@ -34,7 +34,7 @@ jobs:
           -workspace Sentry.xcworkspace
           -scheme Sentry
           -configuration Release
-          -destination platform="iOS Simulator,OS=latest,name=iPhone 11 Pro" | xcpretty && exit ${PIPESTATUS[0]}
+          -destination platform="iOS Simulator,OS=latest,name=iPhone 14 Pro" | xcpretty && exit ${PIPESTATUS[0]}
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@0225834cc549ee0ca93cb085b92954821a145866 # pin@v2

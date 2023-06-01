@@ -21,7 +21,7 @@ jobs:
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
-      - run: ./scripts/ci-select-xcode.sh 14.3
+      - run: ./scripts/ci-select-xcode.sh
       - run: bundle install
 
       # We upload a new version to TestFlight on every commit on main
