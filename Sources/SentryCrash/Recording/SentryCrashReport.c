@@ -917,7 +917,7 @@ writeNotableStackContents(const SentryCrashReportWriter *const writer,
     for (uintptr_t address = lowAddress; address < highAddress; address += sizeof(address)) {
         if (sentrycrashmem_copySafely(
                 (void *)address, &contentsAsPointer, sizeof(contentsAsPointer))) {
-            sprintf(nameBuffer, "stack@%p", (void *)address);
+            snprintf(nameBuffer, sizeof(nameBuffer), "stack@%p", (void *)address);
             writeMemoryContentsIfNotable(writer, nameBuffer, contentsAsPointer);
         }
     }
