@@ -21,6 +21,18 @@
     return instance;
 }
 
+- (void)startBinaryImageCache
+{
+    _binaryCacheStarted = YES;
+    [super startBinaryImageCache];
+}
+
+- (void)stopBinaryImageCache
+{
+    [super stopBinaryImageCache];
+    _binaryCacheStopped = YES;
+}
+
 - (BOOL)crashedLastLaunch
 {
     return self.internalCrashedLastLaunch;

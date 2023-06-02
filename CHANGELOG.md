@@ -5,6 +5,7 @@
 ### Features
 
 - Experimental support for Swift Async stacktraces (#3051)
+- Cache binary images to be used for crashes (#2939)
 
 ### Fixes
 

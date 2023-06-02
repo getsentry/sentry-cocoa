@@ -1,5 +1,6 @@
 #import "SentryCrashWrapper.h"
 #import "SentryCrash.h"
+#import "SentryCrashBinaryImageCache.h"
 #import "SentryCrashMonitor_AppState.h"
 #import "SentryCrashMonitor_System.h"
 #import <Foundation/Foundation.h>
@@ -78,6 +79,16 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return 0;
+}
+
+- (void)startBinaryImageCache
+{
+    sentrycrashbic_startCache();
+}
+
+- (void)stopBinaryImageCache
+{
+    sentrycrashbic_stopCache();
 }
 
 @end

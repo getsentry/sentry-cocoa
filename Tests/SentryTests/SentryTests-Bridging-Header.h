@@ -186,6 +186,7 @@
 #import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"
 @import SentryPrivate;
+#import "SentryCrashBinaryImageCache.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchSourceWrapper.h"
 #import "SentryEnvelopeAttachmentHeader.h"
