@@ -14,6 +14,7 @@ on:
       - 'fastlane/**'
       - 'scripts/ci-select-xcode.sh'
       - Sentry.xcworkspace
+      - Sentry.xcodeproj
       - Gemfile.lock
 
 jobs:
