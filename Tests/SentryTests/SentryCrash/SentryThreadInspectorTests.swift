@@ -7,7 +7,7 @@ class SentryThreadInspectorTests: XCTestCase {
         var stacktraceBuilder = TestSentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []), binaryImageCache: SentryBinaryImageCache.shared ))
         var keepThreadAlive = true
         
-        func getSut(testWithRealMachineContextWrapper: Bool = false, symbolicate : Bool = true) -> SentryThreadInspector {
+        func getSut(testWithRealMachineContextWrapper: Bool = false, symbolicate: Bool = true) -> SentryThreadInspector {
             
             let machineContextWrapper = testWithRealMachineContextWrapper ? SentryCrashDefaultMachineContextWrapper() : testMachineContextWrapper as SentryCrashMachineContextWrapper
             let stacktraceBuilder = testWithRealMachineContextWrapper ? SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []), binaryImageCache: SentryBinaryImageCache.shared)) : self.stacktraceBuilder
