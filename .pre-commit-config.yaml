@@ -38,6 +38,14 @@ repos:
         args:
           - "format-swift"
 
+      - id: lint
+        name: Run Linters
+        entry: make
+        language: system
+        types_or: ["swift", "objective-c", "objective-c++", "c", "c++" ]
+        args:
+          - "lint"
+
       - id: no-changes-in-high-risk-files
         name: No Changes in High Risk Files
         entry: make
