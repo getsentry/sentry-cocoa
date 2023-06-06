@@ -122,7 +122,6 @@ class SentrySDKTests: XCTestCase {
         assertIntegrationsInstalled(integrations: expectedIntegrations)
     }
 
-
     func testStartStopBinaryImageCache() {
         SentrySDK.start { options in
             options.debug = true

@@ -176,7 +176,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertNil(fileManager.readCrashedSession())
     }
 
-
     func testEndSessionAsCrashed_NoCurrentSession() {
         let (sut, _) = givenSutWithGlobalHub()
         

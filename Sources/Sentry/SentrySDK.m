@@ -2,17 +2,17 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryAppStateManager.h"
+#import "SentryBinaryImageCache.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
+#import "SentryCrashWrapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentryOptions+Private.h"
 #import "SentryScope.h"
-#import "SentryCrashWrapper.h"
-#import "SentryBinaryImageCache.h"
 
 @interface
 SentrySDK ()
