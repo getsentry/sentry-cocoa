@@ -20,6 +20,13 @@ repos:
     - id: check-github-workflows
       args: [--verbose]
 
+  - repo: https://github.com/realm/SwiftLint
+    ## Use same version as GH actions macos-13 https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md
+    rev: 0.51.0
+    hooks:
+      - id: swiftlint
+        entry: swiftlint --fix --strict
+
   - repo: local
     hooks:
       - id: format-clang
