@@ -4,7 +4,7 @@
 @interface
 SentryBinaryImageCache ()
 
-@property (nonatomic, strong) NSArray<BinaryImageInfo *> *cache;
+@property (nonatomic, strong) NSArray<SentryBinaryImageInfo *> *cache;
 
 - (void)binaryImageAdded:(const SentryCrashBinaryImage *)image;
 

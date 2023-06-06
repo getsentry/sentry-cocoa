@@ -39,7 +39,7 @@ SentryCrashStackEntryMapper ()
                                             encoding:NSUTF8StringEncoding];
     }
 
-    BinaryImageInfo *info = [_binaryImageCache imageByAddress:stackEntry.address];
+    SentryBinaryImageInfo *info = [_binaryImageCache imageByAddress:stackEntry.address];
 
     if (info != nil && stackEntry.imageName == NULL) {
         frame.imageAddress = sentry_formatHexAddressUInt64(info.address);

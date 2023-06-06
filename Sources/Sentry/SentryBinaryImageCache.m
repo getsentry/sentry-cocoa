@@ -5,12 +5,12 @@ static void binaryImageWasAdded(const SentryCrashBinaryImage *image);
 
 static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
 
-@implementation BinaryImageInfo
+@implementation SentryBinaryImageInfo
 @end
 
 @interface
 SentryBinaryImageCache ()
-@property (nonatomic, strong) NSMutableArray<BinaryImageInfo *> *cache;
+@property (nonatomic, strong) NSMutableArray<SentryBinaryImageInfo *> *cache;
 - (void)binaryImageAdded:(const SentryCrashBinaryImage *)image;
 - (void)binaryImageRemoved:(const SentryCrashBinaryImage *)image;
 @end
@@ -41,7 +41,7 @@ SentryBinaryImageCache ()
 
 - (void)binaryImageAdded:(const SentryCrashBinaryImage *)image
 {
-    BinaryImageInfo *newImage = [[BinaryImageInfo alloc] init];
+    SentryBinaryImageInfo *newImage = [[SentryBinaryImageInfo alloc] init];
     newImage.name = [NSString stringWithCString:image->name encoding:NSUTF8StringEncoding];
     newImage.address = image->address;
     newImage.size = image->size;
@@ -52,7 +52,7 @@ SentryBinaryImageCache ()
 
         while (left < right) {
             NSUInteger mid = (left + right) / 2;
-            BinaryImageInfo *compareImage = _cache[mid];
+            SentryBinaryImageInfo *compareImage = _cache[mid];
             if (newImage.address < compareImage.address) {
                 right = mid;
             } else {
@@ -74,7 +74,7 @@ SentryBinaryImageCache ()
     }
 }
 
-- (nullable BinaryImageInfo *)imageByAddress:(const uint64_t)address;
+- (nullable SentryBinaryImageInfo *)imageByAddress:(const uint64_t)address;
 {
     @synchronized(self) {
         NSInteger index = [self indexOfImage:address];
@@ -92,7 +92,7 @@ SentryBinaryImageCache ()
 
     while (left <= right) {
         NSInteger mid = (left + right) / 2;
-        BinaryImageInfo *image = _cache[mid];
+        SentryBinaryImageInfo *image = _cache[mid];
 
         if (address >= image.address && address < (image.address + image.size)) {
             return mid;
