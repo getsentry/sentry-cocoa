@@ -1,4 +1,5 @@
 import XCTest
+import SentryTestUtils
 
 class SentryThreadInspectorTests: XCTestCase {
     
@@ -26,6 +27,11 @@ class SentryThreadInspectorTests: XCTestCase {
     override  func setUp() {
         super.setUp()
         fixture = Fixture()
+    }
+
+    override class func tearDown() {
+        super.tearDown()
+        clearTestState()
     }
     
     func testNoThreads() {
