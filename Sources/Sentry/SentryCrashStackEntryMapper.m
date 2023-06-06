@@ -39,9 +39,11 @@ SentryCrashStackEntryMapper ()
                                             encoding:NSUTF8StringEncoding];
     }
 
-    SentryBinaryImageInfo *info = [_binaryImageCache imageByAddress:stackEntry.address];
+    //If there is no symbolicatio, because debug was disabled
+    //we get image from the cache.
+    if (stackEntry.imageAddress == 0 && stackEntry.imageName == NULL) {
+        SentryBinaryImageInfo *info = [_binaryImageCache imageByAddress:stackEntry.address];
 
-    if (info != nil && stackEntry.imageName == NULL) {
         frame.imageAddress = sentry_formatHexAddressUInt64(info.address);
         frame.package = info.name;
         frame.inApp = @([self.inAppLogic isInApp:info.name]);
