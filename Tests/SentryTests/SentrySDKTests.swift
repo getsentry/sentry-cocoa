@@ -23,11 +23,9 @@ class SentrySDKTests: XCTestCase {
         }
         
         var scopeWithBlockApplied: Scope {
-            get {
-                let scope = self.scope
-                scopeBlock(scope)
-                return scope
-            }
+            let scope = self.scope
+            scopeBlock(scope)
+            return scope
         }
         
         let message = "message"

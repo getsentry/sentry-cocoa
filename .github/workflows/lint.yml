@@ -29,8 +29,9 @@ jobs:
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
+      - run: swiftlint --version
       - name: Run SwiftLint
-        run: swiftlint
+        run: swiftlint --strict
 
   xcode-analyze:
     name: Xcode Analyze
