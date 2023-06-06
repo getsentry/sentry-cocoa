@@ -289,7 +289,6 @@ class MockApplication: NSObject, SentryUIApplicationProtocol {
 // swiftlint:disable prohibited_super_call
 class ViewWithLoadViewController: UIViewController {
     override func loadView() {
-        super.loadView()
         // empty on purpose
     }
 }
