@@ -1,5 +1,5 @@
-import XCTest
 import SentryTestUtils
+import XCTest
 
 class SentryThreadInspectorTests: XCTestCase {
     
