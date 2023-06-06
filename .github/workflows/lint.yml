@@ -29,8 +29,6 @@ jobs:
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
-      - run: brew update  ## Update internal list of formulae to the latest
-      - run: brew install swiftlint --force
       - run: swiftlint --version
       - name: Run SwiftLint
         run: swiftlint --strict
