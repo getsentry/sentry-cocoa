@@ -4,8 +4,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface BinaryImageInfo : NSObject
 @property (nonatomic, strong) NSString *name;
-@property (nonatomic) NSUInteger address;
-@property (nonatomic) NSUInteger size;
+@property (nonatomic) uint64_t address;
+@property (nonatomic) uint64_t size;
 @end
 
 @interface SentryBinaryImageCache : NSObject
@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)stop;
 
-- (nullable BinaryImageInfo *)imageByAddress:(NSUInteger)address;
+- (nullable BinaryImageInfo *)imageByAddress:(const uint64_t)address;
 
 @end
 

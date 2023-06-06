@@ -11,6 +11,8 @@
 #import "SentryMeta.h"
 #import "SentryOptions+Private.h"
 #import "SentryScope.h"
+#import "SentryCrashWrapper.h"
+#import "SentryBinaryImageCache.h"
 
 @interface
 SentrySDK ()
@@ -146,6 +148,9 @@ static NSUInteger startInvocations;
     [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:scope]];
     SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
     [SentrySDK installIntegrations];
+
+    [SentryCrashWrapper.sharedInstance startBinaryImageCache];
+    [SentryBinaryImageCache.shared start];
 }
 
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
@@ -402,6 +407,9 @@ static NSUInteger startInvocations;
     [SentrySDK setCurrentHub:nil];
 
     [SentryDependencyContainer reset];
+
+    [SentryCrashWrapper.sharedInstance stopBinaryImageCache];
+    [SentryBinaryImageCache.shared stop];
 
     SENTRY_LOG_DEBUG(@"SDK closed!");
 }

@@ -74,7 +74,7 @@ SentryBinaryImageCache ()
     }
 }
 
-- (nullable BinaryImageInfo *)imageByAddress:(NSUInteger)address;
+- (nullable BinaryImageInfo *)imageByAddress:(const uint64_t)address;
 {
     @synchronized(self) {
         NSInteger index = [self indexOfImage:address];
