@@ -5,10 +5,6 @@ import UIKit
 
 class CustomViewController: UIViewController {
 
-    override func loadView() {
-        super.loadView()
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
         let label = UILabel(frame: self.view.bounds)

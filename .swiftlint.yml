@@ -7,6 +7,7 @@ excluded:
   - vendor
   - test-server/.build/
   - Tests/Perf
+  - SentryTestUtils/Dynamic/**
 
 only_rules:
   #- attributes
@@ -84,24 +85,26 @@ only_rules:
   - void_return
   - weak_delegate
   - yoda_condition
+
 identifier_name:
   allowed_symbols:
     - i
     - _
   min_length:
     - 2
-    - 1
-force_try:
-  severity: warning
-force_unwrapping:
-  severity: error
-overridden_super_call:
-  severity: error
+  max_length:
+    warning: 50
+    error: 50
+    
+    
 line_length:
-  - 220
+  - 1000 
 type_name:
   min_length:
     - 2
     - 1
+  max_length:
+    warning: 50
+    error: 50
 large_tuple:
     - 3

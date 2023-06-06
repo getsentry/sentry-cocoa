@@ -286,12 +286,14 @@ class MockApplication: NSObject, SentryUIApplicationProtocol {
     }
 }
 
+// swiftlint:disable prohibited_super_call
 class ViewWithLoadViewController: UIViewController {
     override func loadView() {
         super.loadView()
         // empty on purpose
     }
 }
+// swiftlint:enable prohibited_super_call
 
 class ObjectWithWindowsProperty: NSObject {
     var resultOfWindows: Any?

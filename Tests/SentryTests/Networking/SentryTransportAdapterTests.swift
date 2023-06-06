@@ -12,9 +12,7 @@ class SentryTransportAdapterTests: XCTestCase {
         let attachment = Attachment(data: Data(), filename: "test.txt")
         
         var sut: SentryTransportAdapter {
-            get {
-                return SentryTransportAdapter(transport: transport, options: options)
-            }
+            return SentryTransportAdapter(transport: transport, options: options)
         }
     }
 

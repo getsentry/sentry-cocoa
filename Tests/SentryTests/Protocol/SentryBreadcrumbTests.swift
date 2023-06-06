@@ -24,9 +24,7 @@ class SentryBreadcrumbTests: XCTestCase {
         }
         
         var dateAs8601String: String {
-            get {
-                return (date as NSDate).sentry_toIso8601String()
-            }
+            return (date as NSDate).sentry_toIso8601String()
         }
     }
     

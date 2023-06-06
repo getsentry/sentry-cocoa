@@ -8,7 +8,7 @@ struct TestResponseFactory {
                 statusCode: 429,
                 httpVersion: "1.1",
                 headerFields: ["Retry-After": headerValue])
-        if nil == response {
+        if response == nil {
             XCTFail("Response could not be created")
         }
         return response!
@@ -20,7 +20,7 @@ struct TestResponseFactory {
                 statusCode: 200,
                 httpVersion: "1.1",
                 headerFields: ["X-Sentry-Rate-Limits": headerValue])
-        if nil == response {
+        if response == nil {
             XCTFail("Response could not be created")
         }
         return response!
