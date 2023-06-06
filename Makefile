@@ -19,7 +19,7 @@ endif
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
-	swiftlint
+	swiftlint --strict
 .PHONY: lint
 
 no-changes-in-high-risk-files:

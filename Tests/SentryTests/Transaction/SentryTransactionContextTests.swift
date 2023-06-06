@@ -73,9 +73,7 @@ class SentryTransactionContextTests: XCTestCase {
     }
     
     private var contextWithAllParams: TransactionContext {
-        get {
-            return TransactionContext(name: transactionName, nameSource: nameSource, operation: operation, origin: origin, trace: traceID, spanId: spanID, parentSpanId: parentSpanID, sampled: sampled, parentSampled: parentSampled)
-        }
+        return TransactionContext(name: transactionName, nameSource: nameSource, operation: operation, origin: origin, trace: traceID, spanId: spanID, parentSpanId: parentSpanID, sampled: sampled, parentSampled: parentSampled)
     }
     
     func testSerialize() {

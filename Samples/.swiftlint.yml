@@ -1,0 +1,10 @@
+parent_config: ../.swiftlint.yml
+
+disabled_rules:
+  - force_cast
+  - force_try
+  - force_unwrapping
+  - identifier_name
+  - object_literal
+  - private_outlet
+  - unused_optional_binding

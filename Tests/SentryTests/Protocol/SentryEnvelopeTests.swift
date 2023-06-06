@@ -24,11 +24,9 @@ class SentryEnvelopeTests: XCTestCase {
         }
 
         var breadcrumb: Breadcrumb {
-            get {
-                let crumb = Breadcrumb(level: SentryLevel.debug, category: "ui.lifecycle")
-                crumb.message = "first breadcrumb"
-                return crumb
-            }
+            let crumb = Breadcrumb(level: SentryLevel.debug, category: "ui.lifecycle")
+            crumb.message = "first breadcrumb"
+            return crumb
         }
 
         var event: Event {

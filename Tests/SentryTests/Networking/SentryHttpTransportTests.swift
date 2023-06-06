@@ -99,18 +99,16 @@ class SentryHttpTransportTests: XCTestCase {
         }
 
         var sut: SentryHttpTransport {
-            get {
-                return SentryHttpTransport(
-                    options: options,
-                    fileManager: fileManager,
-                    requestManager: requestManager,
-                    requestBuilder: requestBuilder,
-                    rateLimits: rateLimits,
-                    envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
-                    dispatchQueueWrapper: dispatchQueueWrapper,
-                    reachability: reachability
-                )
-            }
+            return SentryHttpTransport(
+                options: options,
+                fileManager: fileManager,
+                requestManager: requestManager,
+                requestBuilder: requestBuilder,
+                rateLimits: rateLimits,
+                envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
+                dispatchQueueWrapper: dispatchQueueWrapper,
+                reachability: reachability
+            ) 
         }
     }
 

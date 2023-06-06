@@ -9,10 +9,8 @@ class TestLogOutput: SentryLogOutput {
     var callSuperWhenLogging = true
     
     var loggedMessages: [String] {
-        get {
-            queue.sync {
-                return _loggedMessages
-            }
+        queue.sync {
+            return _loggedMessages
         }
     }
     

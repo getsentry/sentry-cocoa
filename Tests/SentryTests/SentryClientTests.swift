@@ -105,14 +105,12 @@ class SentryClientTest: XCTestCase {
         }
 
         var scope: Scope {
-            get {
-                let scope = Scope()
-                scope.setEnvironment(environment)
-                scope.setTag(value: "value", key: "key")
-                scope.addAttachment(TestData.dataAttachment)
-                scope.setContext(value: [SentryDeviceContextFreeMemoryKey: 2_000], key: "device")
-                return scope
-            }
+            let scope = Scope()
+            scope.setEnvironment(environment)
+            scope.setTag(value: "value", key: "key")
+            scope.addAttachment(TestData.dataAttachment)
+            scope.setContext(value: [SentryDeviceContextFreeMemoryKey: 2_000], key: "device")
+            return scope
         }
         
         var eventWithCrash: Event {

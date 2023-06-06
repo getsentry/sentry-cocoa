@@ -9,9 +9,7 @@ class TestData {
     
     static let timestamp = Date(timeIntervalSince1970: 10)
     static var timestampAs8601String: String {
-        get {
-            (timestamp as NSDate).sentry_toIso8601String()
-        }
+        (timestamp as NSDate).sentry_toIso8601String()
     }
     static let sdk = ["name": SentryMeta.sdkName, "version": SentryMeta.versionString]
     static let context: [String: [String: Any]] = ["context": ["c": "a", "date": timestamp]]
