@@ -82,7 +82,7 @@ SentryBinaryImageCache ()
     }
 }
 
-- (NSInteger)indexOfImage:(NSUInteger)address
+- (NSInteger)indexOfImage:(uint64_t)address
 {
     if (_cache == nil)
         return -1;
