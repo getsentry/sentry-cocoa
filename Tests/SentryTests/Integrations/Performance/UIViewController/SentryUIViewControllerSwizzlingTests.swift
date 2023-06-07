@@ -88,6 +88,9 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
     
     func testViewControllerWithLoadView_TransactionBoundToScope() {
+        let d = class_getImageName(type(of: self))!
+        fixture.processInfoWrapper.setProcessPath(String(cString: d))
+
         fixture.sut.start()
         let controller = ViewWithLoadViewController()
         
@@ -328,6 +331,7 @@ class TestSubClassFinder: SentrySubClassFinder {
     var invocations = Invocations<(imageName: String, block: (AnyClass) -> Void)>()
     override func actOnSubclassesOfViewController(inImage imageName: String, block: @escaping (AnyClass) -> Void) {
         invocations.record((imageName, block))
+        super.actOnSubclassesOfViewController(inImage: imageName, block: block)
     }
 }
 
