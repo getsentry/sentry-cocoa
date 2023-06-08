@@ -192,6 +192,7 @@ serializedSamplesWithRelativeTimestamps(
     return result;
 }
 
+#    if SENTRY_HAS_UIKIT
 NSMutableDictionary<NSString *, id> *_Nullable serializeGPUMetrics(SentryTransaction *transaction)
 {
     const auto gpuMetrics = [NSMutableDictionary<NSString *, id> dictionary];
@@ -230,6 +231,7 @@ NSMutableDictionary<NSString *, id> *_Nullable serializeGPUMetrics(SentryTransac
     }
     return gpuMetrics;
 }
+#    endif // SENTRY_HAS_UIKIT
 
 NSDictionary<NSString *, id> *
 serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransaction *transaction,
