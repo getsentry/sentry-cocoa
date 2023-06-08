@@ -555,9 +555,6 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 {
     const auto profileID = [[SentryId alloc] init];
     const auto payload = [self serializeForTransaction:transaction profileID:profileID];
-#    if SENTRY_HAS_UIKIT
-    [_gCurrentFramesTracker resetProfilingTimestamps];
-#    endif // SENTRY_HAS_UIKIT
 
 #    if defined(TEST) || defined(TESTCI)
     [NSNotificationCenter.defaultCenter postNotificationName:@"SentryProfileCompleteNotification"
