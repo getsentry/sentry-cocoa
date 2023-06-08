@@ -150,6 +150,7 @@ static BOOL appStartMeasurementRead;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
         _isProfiling = YES;
+        [[SentryFramesTracker sharedInstance] recordCurrentFrameRate];
         _startSystemTime = SentryCurrentDate.systemTime;
         [SentryProfiler startWithHub:hub];
         trackTracerWithID(self.traceId);

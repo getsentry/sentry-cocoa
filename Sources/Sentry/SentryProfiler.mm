@@ -114,15 +114,19 @@ profilerTruncationReasonName(SentryProfilerTruncationReason reason)
  * recorded again unless the system changes it. In these cases, use the most recently recorded data
  * for it.
  */
-NSArray<SentrySerializedMetricReading *> *
-sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, SentryTransaction *transaction,
+NSArray<SentrySerializedMetricReading *> *_Nullable sliceGPUData(
+    SentryFrameInfoTimeSeries *frameInfo, SentryTransaction *transaction,
     BOOL useMostRecentRecording)
 {
     __block NSNumber *nearestPredecessorValue = frameInfo.firstObject[@"value"];
-    if (UNLIKELY(useMostRecentRecording && nearestPredecessorValue == nil)) {
-        // This is unlikely because in the only case when useMostRecentRecording is YES, for frame
-        // rates, we won't call this function unless
-        return @[];
+    if (useMostRecentRecording) {
+        if (nearestPredecessorValue == nil) {
+            return nil;
+        }
+        if (!orderedChronologically(frameInfo.firstObject[@"timestamp"].unsignedLongLongValue,
+                transaction.startSystemTime)) {
+            return nil;
+        }
     }
     auto slicedGPUEntries = [NSMutableArray<SentrySerializedMetricEntry *> array];
     [frameInfo enumerateObjectsUsingBlock:^(
@@ -216,7 +220,7 @@ NSMutableDictionary<NSString *, id> *_Nullable serializeGPUMetrics(SentryTransac
         const auto frameRates
             = sliceGPUData(_gCurrentFramesTracker.currentFrames.frameRateTimestamps, transaction,
                 /*useMostRecentRecording */ YES);
-        if (LIKELY(frameRates.count > 0)) {
+        if (frameRates.count > 0) {
             gpuMetrics[@"screen_frame_rates"] = @ { @"unit" : @"hz", @"values" : frameRates };
         } else {
             SENTRY_LOG_WARN(@"We had slow or frozen frame info but no frame rates, there should "

@@ -29,6 +29,7 @@ SENTRY_NO_INIT
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 /** Remove previously recorded timestamps in preparation for a later profiled transaction. */
 - (void)resetProfilingTimestamps;
+- (void)recordCurrentFrameRate;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 - (void)start;

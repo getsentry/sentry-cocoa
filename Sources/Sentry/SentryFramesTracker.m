@@ -99,12 +99,54 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     self.slowFrameTimestamps = [SentryMutableFrameInfoTimeSeries array];
     self.frameRateTimestamps = [SentryMutableFrameInfoTimeSeries array];
 }
+
+- (void)recordCurrentFrameRate
+{
+    [self recordFrameRate:[self getCurrentFrameRate] timestamp:[SentryCurrentDate systemTime]];
+}
+
+- (void)recordFrameRate:(uint64_t)frameRate timestamp:(uint64_t)timestamp
+{
+    if (![SentryProfiler isRunning]) {
+        return;
+    }
+    BOOL hasNoFrameRatesYet = self.frameRateTimestamps.count == 0;
+    uint64_t previousFrameRate
+        = self.frameRateTimestamps.lastObject[@"value"].unsignedLongLongValue;
+    BOOL frameRateChanged = previousFrameRate != frameRate;
+    BOOL shouldRecordNewFrameRate = hasNoFrameRatesYet || frameRateChanged;
+    if (shouldRecordNewFrameRate) {
+        SENTRY_LOG_DEBUG(@"Recording new frame rate at %llu.", timestamp);
+        [self recordTimestamp:timestamp value:@(frameRate) array:self.frameRateTimestamps];
+    }
+}
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 - (void)start
 {
     _isRunning = YES;
     [_displayLinkWrapper linkWithTarget:self selector:@selector(displayLinkCallback)];
+}
+
+/**
+ * Calculate the actual frame rate as pointed out by the Apple docs:
+ * https://developer.apple.com/documentation/quartzcore/cadisplaylink?language=objc The actual frame
+ * rate can change at any time by setting preferredFramesPerSecond or due to ProMotion display, low
+ * power mode, critical thermal state, and accessibility settings. Therefore we need to check the
+ * frame rate for every callback. targetTimestamp is only available on iOS 10.0 and tvOS 10.0 and
+ * above. We use a fallback of 60 fps.
+ */
+- (uint64_t)getCurrentFrameRate
+{
+    uint64_t currentFrameRate = 60;
+    if (UNLIKELY((self.displayLinkWrapper.targetTimestamp == self.displayLinkWrapper.timestamp))) {
+        currentFrameRate = 60;
+    } else {
+        currentFrameRate = (uint64_t)round(
+            (1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp)));
+    }
+
+    return currentFrameRate;
 }
 
 - (void)displayLinkCallback
@@ -119,35 +161,10 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
         return;
     }
 
-    // Calculate the actual frame rate as pointed out by the Apple docs:
-    // https://developer.apple.com/documentation/quartzcore/cadisplaylink?language=objc The actual
-    // frame rate can change at any time by setting preferredFramesPerSecond or due to ProMotion
-    // display, low power mode, critical thermal state, and accessibility settings. Therefore we
-    // need to check the frame rate for every callback.
-    // targetTimestamp is only available on iOS 10.0 and tvOS 10.0 and above. We use a fallback of
-    // 60 fps.
-    uint64_t currentFrameRate = 60;
-    if (UNLIKELY((self.displayLinkWrapper.targetTimestamp == self.displayLinkWrapper.timestamp))) {
-        currentFrameRate = 60;
-    } else {
-        currentFrameRate = (uint64_t)round(
-            (1 / (self.displayLinkWrapper.targetTimestamp - self.displayLinkWrapper.timestamp)));
-    }
+    uint64_t currentFrameRate = [self getCurrentFrameRate];
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-    if ([SentryProfiler isRunning]) {
-        BOOL hasNoFrameRatesYet = self.frameRateTimestamps.count == 0;
-        uint64_t previousFrameRate
-            = self.frameRateTimestamps.lastObject[@"value"].unsignedLongLongValue;
-        BOOL frameRateChanged = previousFrameRate != currentFrameRate;
-        BOOL shouldRecordNewFrameRate = hasNoFrameRatesYet || frameRateChanged;
-        if (shouldRecordNewFrameRate) {
-            SENTRY_LOG_DEBUG(@"Recording new frame rate at %llu.", thisFrameSystemTimestamp);
-            [self recordTimestamp:thisFrameSystemTimestamp
-                            value:@(currentFrameRate)
-                            array:self.frameRateTimestamps];
-        }
-    }
+    [self recordFrameRate:currentFrameRate timestamp:thisFrameSystemTimestamp];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     CFTimeInterval frameDuration = thisFrameTimestamp - self.previousFrameTimestamp;
