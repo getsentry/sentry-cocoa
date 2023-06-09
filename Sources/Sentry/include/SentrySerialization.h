@@ -25,6 +25,11 @@ static int const SENTRY_BAGGAGE_MAX_SIZE = 8192;
 + (SentryAppState *_Nullable)appStateWithData:(NSData *)sessionData;
 
 /**
+ * Retrieves the json object from an event envelope item data.
+ */
++ (NSDictionary *)eventEnvelopeItemJson:(NSData *)eventEnvelopeItemData;
+
+/**
  * Extract the level from data of an envelopte item containing an event. Default is the 'error'
  * level, see https://develop.sentry.dev/sdk/event-payloads/#optional-attributes
  */

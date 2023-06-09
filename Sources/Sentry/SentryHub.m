@@ -9,6 +9,7 @@
 #import "SentryEvent+Private.h"
 #import "SentryFileManager.h"
 #import "SentryId.h"
+#import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryNSTimerWrapper.h"
 #import "SentryPerformanceTracker.h"
@@ -590,35 +591,62 @@ SentryHub ()
 
 - (SentryEnvelope *)updateSessionState:(SentryEnvelope *)envelope
 {
-    if ([self envelopeContainsEventWithErrorOrHigher:envelope.items]) {
+    BOOL handled = YES;
+    if ([self envelopeContainsEventWithErrorOrHigher:envelope.items wasHandled:&handled]) {
         SentrySession *currentSession = [self incrementSessionErrors];
 
         if (currentSession != nil) {
+            if (!handled) {
+                [currentSession endSessionCrashedWithTimestamp:[_currentDateProvider date]];
+
+                _session = [[SentrySession alloc] initWithReleaseName:_client.options.releaseName];
+                _session.environment = _client.options.environment;
+                [self.scope applyToSession:_session];
+            }
+
             // Create a new envelope with the session update
             NSMutableArray<SentryEnvelopeItem *> *itemsToSend =
                 [[NSMutableArray alloc] initWithArray:envelope.items];
             [itemsToSend addObject:[[SentryEnvelopeItem alloc] initWithSession:currentSession]];
-
             return [[SentryEnvelope alloc] initWithHeader:envelope.header items:itemsToSend];
         }
     }
-
     return envelope;
 }
 
 - (BOOL)envelopeContainsEventWithErrorOrHigher:(NSArray<SentryEnvelopeItem *> *)items
+                                    wasHandled:(BOOL *)handled;
 {
     for (SentryEnvelopeItem *item in items) {
         if ([item.header.type isEqualToString:SentryEnvelopeItemTypeEvent]) {
             // If there is no level the default is error
-            SentryLevel level = [SentrySerialization levelFromData:item.data];
+            NSDictionary *eventJson = [SentrySerialization eventEnvelopeItemJson:item.data];
+            if (eventJson == nil) {
+                return NO;
+            }
+
+            SentryLevel level = sentryLevelForString(eventJson[@"level"]);
             if (level >= kSentryLevelError) {
+                *handled = [self envelopeEventItemContainsUnhandledError:eventJson];
                 return YES;
             }
         }
     }
-
     return NO;
+}
+
+- (BOOL)envelopeEventItemContainsUnhandledError:(NSDictionary *)eventDictionary
+{
+    NSArray *exceptions = eventDictionary[@"exception"][@"values"];
+    for (NSDictionary *exception in exceptions) {
+        NSDictionary *mechanism = exception[@"mechanism"];
+        NSNumber *handled = mechanism[@"handled"];
+
+        if ([handled boolValue] == NO) {
+            return NO;
+        }
+    }
+    return YES;
 }
 
 - (void)reportFullyDisplayed
