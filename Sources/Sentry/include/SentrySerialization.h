@@ -30,6 +30,11 @@ static int const SENTRY_BAGGAGE_MAX_SIZE = 8192;
  */
 + (SentryLevel)levelFromData:(NSData *)eventEnvelopeItemData;
 
+/**
+ * Retrieves the json object from an event envelope item data.
+ */
++ (NSDictionary *)eventEnvelopeItemJson:(NSData *)eventEnvelopeItemData;
+
 @end
 
 NS_ASSUME_NONNULL_END

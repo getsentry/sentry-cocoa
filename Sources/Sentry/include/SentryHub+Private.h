@@ -2,7 +2,7 @@
 #import "SentryTracer.h"
 
 @class SentryEnvelopeItem, SentryId, SentryScope, SentryTransaction, SentryDispatchQueueWrapper,
-    SentryEnvelope, SentryNSTimerWrapper;
+    SentryEnvelope, SentryNSTimerWrapper, SentrySession;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -11,6 +11,7 @@ SentryHub (Private)
 
 @property (nonatomic, strong) NSArray<id<SentryIntegrationProtocol>> *installedIntegrations;
 @property (nonatomic, strong) NSSet<NSString *> *installedIntegrationNames;
+@property (nullable, nonatomic, strong) SentrySession *session;
 
 - (void)addInstalledIntegration:(id<SentryIntegrationProtocol>)integration name:(NSString *)name;
 - (void)removeAllIntegrations;
