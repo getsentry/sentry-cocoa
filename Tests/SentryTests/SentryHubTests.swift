@@ -723,7 +723,7 @@ class SentryHubTests: XCTestCase {
           let event = TestData.event
           event.level = .error
           event.exceptions = [TestData.exception]
-          event.exceptions?.first?.mechanism?.handled = NSNumber(booleanLiteral: false)
+          event.exceptions?.first?.mechanism?.handled = false
           sut.capture(SentryEnvelope(event: event))
 
           let endSession = sut.session
