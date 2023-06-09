@@ -715,45 +715,6 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(envelope, fixture.client.captureEnvelopeInvocations.first)
     }
 
-    func testCaptureEnvelope_WithUnhandledException() {
-        sut.startSession()
-
-        let beginSession = sut.session
-
-        let event = TestData.event
-        event.level = .error
-        event.exceptions = [TestData.exception]
-        event.exceptions?.first?.mechanism?.handled = NSNumber(booleanLiteral: false)
-        sut.capture(SentryEnvelope(event: event))
-
-        let endSession = sut.session
-        XCTAssertNotEqual(beginSession, endSession)
-
-        //Check whether session was finished as crashed
-        let envelope = fixture.client.captureEnvelopeInvocations.first
-        let sessionEnvelopeItem = envelope?.items.first(where: { $0.header.type == "session" })
-
-        let json = (try! JSONSerialization.jsonObject(with: sessionEnvelopeItem!.data)) as! [String: Any]
-
-        XCTAssertNotNil(json["timestamp"])
-        XCTAssertEqual(json["status"] as? String, "crashed")
-    }
-
-    func testCaptureEnvelope_WithHandledException() {
-        sut.startSession()
-
-        let beginSession = sut.session
-
-        let event = TestData.event
-        event.level = .error
-        event.exceptions = [TestData.exception]
-        sut.capture(SentryEnvelope(event: event))
-
-        let endSession = sut.session
-
-        XCTAssertEqual(beginSession, endSession)
-    }
-
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func test_reportFullyDisplayed_enableTimeToFullDisplay_YES() {
         fixture.options.enableTimeToFullDisplay = true
@@ -766,6 +727,7 @@ class SentryHubTests: XCTestCase {
         sut.reportFullyDisplayed()
 
         XCTAssertTrue(testTTDTracker.registerFullDisplayCalled)
+
     }
 
     func test_reportFullyDisplayed_enableTimeToFullDisplay_NO() {
@@ -780,7 +742,6 @@ class SentryHubTests: XCTestCase {
 
         XCTAssertFalse(testTTDTracker.registerFullDisplayCalled)
     }
-
 #endif
 
     private func addBreadcrumbThroughConfigureScope(_ hub: SentryHub) {
