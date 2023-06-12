@@ -14,6 +14,7 @@
 - Duplicated HTTP breadcrumbs (#3058)
 - Expose SentryPrivate and SentrySwiftUI schemes for cartahge clients that have `--no-use-binaries` option (#3071)
 - Convert last remaining `sprintf` call to `snprintf` (#3077)
+- Fix a crash when serializing profiling data (#3092)
 
 ### Breaking Changes
 
