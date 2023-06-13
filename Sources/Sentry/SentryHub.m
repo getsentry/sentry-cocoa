@@ -593,23 +593,26 @@ SentryHub ()
 {
     BOOL handled = YES;
     if ([self envelopeContainsEventWithErrorOrHigher:envelope.items wasHandled:&handled]) {
-        SentrySession *currentSession = [self incrementSessionErrors];
-
-        if (currentSession != nil) {
+        SentrySession *currentSession;
+        @synchronized (_sessionLock) {
+            currentSession = handled ? [self incrementSessionErrors] : [_session copy];
+            if (currentSession == nil) {
+                return envelope;
+            }
             if (!handled) {
                 [currentSession endSessionCrashedWithTimestamp:[_currentDateProvider date]];
-
-                _session = [[SentrySession alloc] initWithReleaseName:_client.options.releaseName];
-                _session.environment = _client.options.environment;
-                [self.scope applyToSession:_session];
+                //Setting _session to nil so starSession dont capture it again
+                _session = nil;
+                [self startSession];
             }
-
-            // Create a new envelope with the session update
-            NSMutableArray<SentryEnvelopeItem *> *itemsToSend =
-                [[NSMutableArray alloc] initWithArray:envelope.items];
-            [itemsToSend addObject:[[SentryEnvelopeItem alloc] initWithSession:currentSession]];
-            return [[SentryEnvelope alloc] initWithHeader:envelope.header items:itemsToSend];
         }
+
+        // Create a new envelope with the session update
+        NSMutableArray<SentryEnvelopeItem *> *itemsToSend =
+        [[NSMutableArray alloc] initWithArray:envelope.items];
+        [itemsToSend addObject:[[SentryEnvelopeItem alloc] initWithSession:currentSession]];
+        return [[SentryEnvelope alloc] initWithHeader:envelope.header items:itemsToSend];
+        
     }
     return envelope;
 }
