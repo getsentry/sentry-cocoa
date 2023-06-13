@@ -143,7 +143,7 @@ sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, SentryTransaction *transactio
             @"value" : obj[@"value"],
         }];
     }];
-    if (useMostRecentRecording && slicedGPUEntries.count == 0 && nearestPredecessorValue != nil) {
+    if (useMostRecentRecording && slicedGPUEntries.count == 0) {
         [slicedGPUEntries addObject:@ {
             @"elapsed_since_start_ns" : @"0",
             @"value" : nearestPredecessorValue,
@@ -182,41 +182,6 @@ serializedSamplesWithRelativeTimestamps(
     }];
     return result;
 }
-
-#    if SENTRY_HAS_UIKIT
-NSDictionary<NSString *, id> *_Nullable serializedGPUMetrics(SentryTransaction *transaction)
-{
-    const auto mutableMetrics = [NSMutableDictionary<NSString *, id> dictionary];
-    const auto slowFrames = sliceGPUData(_gCurrentFramesTracker.currentFrames.slowFrameTimestamps,
-        transaction, /*useMostRecentRecording */ NO);
-    if (slowFrames.count > 0) {
-        mutableMetrics[@"slow_frame_renders"] =
-            @ { @"unit" : @"nanosecond", @"values" : slowFrames };
-    }
-
-    const auto frozenFrames
-        = sliceGPUData(_gCurrentFramesTracker.currentFrames.frozenFrameTimestamps, transaction,
-            /*useMostRecentRecording */ NO);
-    if (frozenFrames.count > 0) {
-        mutableMetrics[@"frozen_frame_renders"] =
-            @ { @"unit" : @"nanosecond", @"values" : frozenFrames };
-    }
-
-    if (slowFrames.count > 0 || frozenFrames.count > 0) {
-        const auto frameRates
-            = sliceGPUData(_gCurrentFramesTracker.currentFrames.frameRateTimestamps, transaction,
-                /*useMostRecentRecording */ YES);
-        if (frameRates.count > 0) {
-            mutableMetrics[@"screen_frame_rates"] = @ { @"unit" : @"hz", @"values" : frameRates };
-        } else {
-            // This shouldn't be possible, but is happening due to a data race so we must currently
-            // handle it
-            return nil;
-        }
-    }
-    return mutableMetrics;
-}
-#    endif // SENTRY_HAS_UIKIT
 
 NSDictionary<NSString *, id> *
 serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransaction *transaction,
@@ -293,13 +258,32 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     auto metrics = serializedMetrics;
 
 #    if SENTRY_HAS_UIKIT
-    const auto gpuMetrics = serializedGPUMetrics(transaction);
-    if (gpuMetrics != nil) {
-        const auto mutableMetrics =
-            [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
-        [mutableMetrics addEntriesFromDictionary:gpuMetrics];
-        metrics = mutableMetrics;
+    const auto mutableMetrics =
+        [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
+    const auto slowFrames = sliceGPUData(_gCurrentFramesTracker.currentFrames.slowFrameTimestamps,
+        transaction, /*useMostRecentRecording */ NO);
+    if (slowFrames.count > 0) {
+        mutableMetrics[@"slow_frame_renders"] =
+            @ { @"unit" : @"nanosecond", @"values" : slowFrames };
     }
+
+    const auto frozenFrames
+        = sliceGPUData(_gCurrentFramesTracker.currentFrames.frozenFrameTimestamps, transaction,
+            /*useMostRecentRecording */ NO);
+    if (frozenFrames.count > 0) {
+        mutableMetrics[@"frozen_frame_renders"] =
+            @ { @"unit" : @"nanosecond", @"values" : frozenFrames };
+    }
+
+    if (slowFrames.count > 0 || frozenFrames.count > 0) {
+        const auto frameRates
+            = sliceGPUData(_gCurrentFramesTracker.currentFrames.frameRateTimestamps, transaction,
+                /*useMostRecentRecording */ YES);
+        if (frameRates.count > 0) {
+            mutableMetrics[@"screen_frame_rates"] = @ { @"unit" : @"hz", @"values" : frameRates };
+        }
+    }
+    metrics = mutableMetrics;
 #    endif // SENTRY_HAS_UIKIT
 
     if (metrics.count > 0) {
