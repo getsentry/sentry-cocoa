@@ -33,8 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
     return serializedData;
 }
 
-
-
 @end
 
 NS_ASSUME_NONNULL_END
