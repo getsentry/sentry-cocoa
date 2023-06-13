@@ -824,7 +824,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         sut.urlSessionTask(task, setState: state)
         
-        let httpStatusCode = span.tags["http.status_code"] as String?
+        let httpStatusCode = span.data["http.response.status_code"] as? String
         
         if let httpResponse = response as? HTTPURLResponse {
             XCTAssertEqual("\(httpResponse.statusCode)", httpStatusCode!)
@@ -833,7 +833,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         }
         
         let path = span.data["url"] as? String
-        let method = span.data["method"] as? String
+        let method = span.data["http.method"] as? String
         let requestType = span.data["type"] as? String
         let query = span.data["http.query"] as? String
         let fragment = span.data["http.fragment"] as? String
