@@ -300,7 +300,7 @@ SentryNetworkTracker ()
 
             if (netSpan != nil) {
                 [netSpan setDataValue:[NSString stringWithFormat:@"%@", statusCode]
-                              forKey:@"http.response.status_code"];
+                               forKey:@"http.response.status_code"];
             }
         }
     }
