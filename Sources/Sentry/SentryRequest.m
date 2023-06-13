@@ -50,9 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
     ]];
 
     NSMutableDictionary *result = headers.mutableCopy;
-    NSArray *allKeys = result.allKeys;
-
-    for (NSString *key in allKeys) {
+    for (NSString *key in result.allKeys) {
         if ([_securityHeaders containsObject:[key uppercaseString]]) {
             [result removeObjectForKey:key];
         }

@@ -6,7 +6,7 @@
 
 - Experimental support for Swift Async stacktraces (#3051)
 - Cache binary images to be used for crashes (#2939)
-- Sanitize http info from breadcrumbs, spans and events (#3094) 
+- Sanitize HTTP info from breadcrumbs, spans and events (#3094) 
 
 ### Fixes
 
