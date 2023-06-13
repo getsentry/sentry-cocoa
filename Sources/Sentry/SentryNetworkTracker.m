@@ -170,7 +170,7 @@ SentryNetworkTracker ()
                                                             safeUrl.sanitizedUrl]];
                 netSpan.origin = SentryTraceOriginAutoHttpNSURLSession;
 
-                [netSpan setDataValue:sessionTask.currentRequest.HTTPMethod forKey:@"method"];
+                [netSpan setDataValue:sessionTask.currentRequest.HTTPMethod forKey:@"http.method"];
                 [netSpan setDataValue:safeUrl.sanitizedUrl forKey:@"url"];
                 [netSpan setDataValue:@"fetch" forKey:@"type"];
 
@@ -299,8 +299,8 @@ SentryNetworkTracker ()
             NSNumber *statusCode = [NSNumber numberWithInteger:responseStatusCode];
 
             if (netSpan != nil) {
-                [netSpan setTagValue:[NSString stringWithFormat:@"%@", statusCode]
-                              forKey:@"http.status_code"];
+                [netSpan setDataValue:[NSString stringWithFormat:@"%@", statusCode]
+                              forKey:@"http.response.status_code"];
             }
         }
     }
