@@ -620,14 +620,14 @@ SentryHub ()
     for (SentryEnvelopeItem *item in items) {
         if ([item.header.type isEqualToString:SentryEnvelopeItemTypeEvent]) {
             // If there is no level the default is error
-            NSDictionary *eventJson = [SentrySerialization eventEnvelopeItemJson:item.data];
+            NSDictionary *eventJson = [SentrySerialization deserializeEventEnvelopeItem:item.data];
             if (eventJson == nil) {
                 return NO;
             }
 
             SentryLevel level = sentryLevelForString(eventJson[@"level"]);
             if (level >= kSentryLevelError) {
-                *handled = [self envelopeEventItemContainsUnhandledError:eventJson];
+                *handled = [self eventContainsUnhandledError:eventJson];
                 return YES;
             }
         }
@@ -635,7 +635,7 @@ SentryHub ()
     return NO;
 }
 
-- (BOOL)envelopeEventItemContainsUnhandledError:(NSDictionary *)eventDictionary
+- (BOOL)eventContainsUnhandledError:(NSDictionary *)eventDictionary
 {
     NSArray *exceptions = eventDictionary[@"exception"][@"values"];
     for (NSDictionary *exception in exceptions) {
