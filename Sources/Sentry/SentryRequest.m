@@ -33,31 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
     return serializedData;
 }
 
-- (void)setHeaders:(nullable NSDictionary<NSString *, NSString *> *)headers
-{
-    _headers = [SentryRequest sanitizedHeaders:headers];
-}
 
-+ (NSDictionary *)sanitizedHeaders:(NSDictionary<NSString *, NSString *> *)headers
-{
-    if (headers == nil) {
-        return nil;
-    }
-    NSSet<NSString *> *_securityHeaders = [NSSet setWithArray:@[
-        @"X-FORWARDED-FOR", @"AUTHORIZATION", @"COOKIE", @"SET-COOKIE", @"X-API-KEY", @"X-REAL-IP",
-        @"REMOTE-ADDR", @"FORWARDED", @"PROXY-AUTHORIZATION", @"X-CSRF-TOKEN", @"X-CSRFTOKEN",
-        @"X-XSRF-TOKEN"
-    ]];
-
-    NSMutableDictionary *result = headers.mutableCopy;
-    for (NSString *key in result.allKeys) {
-        if ([_securityHeaders containsObject:[key uppercaseString]]) {
-            [result removeObjectForKey:key];
-        }
-    }
-
-    return result;
-}
 
 @end
 

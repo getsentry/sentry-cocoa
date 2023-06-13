@@ -13,11 +13,11 @@ public class UrlSanitized: NSObject {
         components = URLComponents(url: url, resolvingAgainstBaseURL: false)
 
         if components?.user != nil {
-            components?.user = UrlDetail.SENSITIVE_DATA_SUBSTITUTE
+            components?.user = UrlSanitized.SENSITIVE_DATA_SUBSTITUTE
         }
 
         if components?.password != nil {
-            components?.password = UrlDetail.SENSITIVE_DATA_SUBSTITUTE
+            components?.password = UrlSanitized.SENSITIVE_DATA_SUBSTITUTE
         }
     }
 

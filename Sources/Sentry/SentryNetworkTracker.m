@@ -143,7 +143,7 @@ SentryNetworkTracker ()
         return;
     }
 
-    UrlDetail *safeUrl = [[UrlDetail alloc] initWithURL:url];
+    UrlSanitized *safeUrl = [[UrlSanitized alloc] initWithURL:url];
 
     @synchronized(sessionTask) {
         if (sessionTask.state == NSURLSessionTaskStateCompleted
@@ -376,7 +376,7 @@ SentryNetworkTracker ()
 
     SentryRequest *request = [[SentryRequest alloc] init];
 
-    UrlDetail *url = [[UrlDetail alloc] initWithURL:[[sessionTask currentRequest] URL]];
+    UrlSanitized *url = [[UrlSanitized alloc] initWithURL:[[sessionTask currentRequest] URL]];
 
     request.url = url.sanitizedUrl;
     request.method = myRequest.HTTPMethod;
@@ -385,7 +385,7 @@ SentryNetworkTracker ()
     request.bodySize = [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
     if (nil != myRequest.allHTTPHeaderFields) {
         NSDictionary<NSString *, NSString *> *headers = myRequest.allHTTPHeaderFields.copy;
-        request.headers = headers;
+        request.headers = [HTTPHeaderSanitizer sanitizeHeaders:headers];
     }
 
     event.exceptions = @[ sentryException ];
@@ -397,7 +397,7 @@ SentryNetworkTracker ()
     [response setValue:responseStatusCode forKey:@"status_code"];
     if (nil != myResponse.allHeaderFields) {
         NSDictionary<NSString *, NSString *> *headers =
-            [SentryRequest sanitizedHeaders:myResponse.allHeaderFields];
+            [HTTPHeaderSanitizer sanitizeHeaders:myResponse.allHeaderFields];
         [response setValue:headers forKey:@"headers"];
     }
     if (sessionTask.countOfBytesReceived != 0) {
@@ -439,7 +439,7 @@ SentryNetworkTracker ()
     SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
                                                                   category:@"http"];
 
-    UrlDetail *urlComponents = [[UrlDetail alloc] initWithURL:sessionTask.currentRequest.URL];
+    UrlSanitized *urlComponents = [[UrlSanitized alloc] initWithURL:sessionTask.currentRequest.URL];
 
     breadcrumb.type = @"http";
     NSMutableDictionary<NSString *, id> *breadcrumbData = [NSMutableDictionary new];
