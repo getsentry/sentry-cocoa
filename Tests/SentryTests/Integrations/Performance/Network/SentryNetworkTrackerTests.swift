@@ -20,19 +20,19 @@ class SentryNetworkTrackerTests: XCTestCase {
         let nsUrlRequest = NSURLRequest(url: SentryNetworkTrackerTests.fullUrl)
         let client: TestClient!
         let hub: TestHub!
-        let securityHeader = [ "X-FORWARDED-FOR" : "value",
+        let securityHeader = [ "X-FORWARDED-FOR": "value",
                                "AUTHORIZATION": "value",
-                               "COOKIE":"value",
-                               "SET-COOKIE":"value",
-                               "X-API-KEY":"value",
-                               "X-REAL-IP":"value",
-                               "REMOTE-ADDR":"value",
-                               "FORWARDED":"value",
-                               "PROXY-AUTHORIZATION":"value",
-                               "X-CSRF-TOKEN":"value",
-                               "X-CSRFTOKEN":"value",
-                               "X-XSRF-TOKEN":"value",
-                               "VALID_HEADER":"value" ]
+                               "COOKIE": "value",
+                               "SET-COOKIE": "value",
+                               "X-API-KEY": "value",
+                               "X-REAL-IP": "value",
+                               "REMOTE-ADDR": "value",
+                               "FORWARDED": "value",
+                               "PROXY-AUTHORIZATION": "value",
+                               "X-CSRF-TOKEN": "value",
+                               "X-CSRFTOKEN": "value",
+                               "X-XSRF-TOKEN": "value",
+                               "VALID_HEADER": "value" ]
         
         init() {
             options = Options()
@@ -693,7 +693,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let sentryRequest = envelope.event.request!
 
         XCTAssertEqual(sentryRequest.url, "https://[Filtered]:[Filtered]@www.domain.com/api")
-        XCTAssertEqual(sentryRequest.headers, ["VALID_HEADER":"value"])
+        XCTAssertEqual(sentryRequest.headers, ["VALID_HEADER": "value"])
     }
     
     func testCaptureHTTPClientErrorResponse() {
@@ -741,7 +741,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         }
         let sentryResponse = envelope.event.context?["response"]
 
-        XCTAssertEqual(sentryResponse?["headers"] as? [String: String], ["VALID_HEADER":"value"])
+        XCTAssertEqual(sentryResponse?["headers"] as? [String: String], ["VALID_HEADER": "value"])
     }
     
     func testCaptureHTTPClientErrorException() {

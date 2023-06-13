@@ -143,7 +143,7 @@ SentryNetworkTracker ()
         return;
     }
 
-    UrlDetail * safeUrl = [[UrlDetail alloc] initWithURL:url];
+    UrlDetail *safeUrl = [[UrlDetail alloc] initWithURL:url];
 
     @synchronized(sessionTask) {
         if (sessionTask.state == NSURLSessionTaskStateCompleted
@@ -163,10 +163,11 @@ SentryNetworkTracker ()
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable innerSpan) {
             if (innerSpan != nil) {
                 span = innerSpan;
-                netSpan = [span
-                    startChildWithOperation:SENTRY_NETWORK_REQUEST_OPERATION
-                                description:[NSString stringWithFormat:@"%@ %@",
-                                                      sessionTask.currentRequest.HTTPMethod, safeUrl.sanitizedUrl]];
+                netSpan =
+                    [span startChildWithOperation:SENTRY_NETWORK_REQUEST_OPERATION
+                                      description:[NSString stringWithFormat:@"%@ %@",
+                                                            sessionTask.currentRequest.HTTPMethod,
+                                                            safeUrl.sanitizedUrl]];
                 netSpan.origin = SentryTraceOriginAutoHttpNSURLSession;
 
                 [netSpan setDataValue:sessionTask.currentRequest.HTTPMethod forKey:@"method"];
@@ -395,7 +396,8 @@ SentryNetworkTracker ()
 
     [response setValue:responseStatusCode forKey:@"status_code"];
     if (nil != myResponse.allHeaderFields) {
-        NSDictionary<NSString *, NSString *> *headers = [SentryRequest sanitizedHeaders:myResponse.allHeaderFields];
+        NSDictionary<NSString *, NSString *> *headers =
+            [SentryRequest sanitizedHeaders:myResponse.allHeaderFields];
         [response setValue:headers forKey:@"headers"];
     }
     if (sessionTask.countOfBytesReceived != 0) {
@@ -437,7 +439,7 @@ SentryNetworkTracker ()
     SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
                                                                   category:@"http"];
 
-    UrlDetail * urlComponents = [[UrlDetail alloc] initWithURL:sessionTask.currentRequest.URL];
+    UrlDetail *urlComponents = [[UrlDetail alloc] initWithURL:sessionTask.currentRequest.URL];
 
     breadcrumb.type = @"http";
     NSMutableDictionary<NSString *, id> *breadcrumbData = [NSMutableDictionary new];
@@ -458,7 +460,7 @@ SentryNetworkTracker ()
     if (urlComponents.query != nil) {
         breadcrumbData[@"http.query"] = urlComponents.query;
     }
-    
+
     if (urlComponents.fragment != nil) {
         breadcrumbData[@"http.fragment"] = urlComponents.fragment;
     }
