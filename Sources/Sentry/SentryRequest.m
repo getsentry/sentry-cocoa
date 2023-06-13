@@ -23,7 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
         [serializedData setValue:self.fragment forKey:@"fragment"];
         if (self.headers != nil) {
 
-
             [serializedData setValue:[self.headers sentry_sanitize] forKey:@"headers"];
         }
         [serializedData setValue:self.method forKey:@"method"];
@@ -34,31 +33,24 @@ NS_ASSUME_NONNULL_BEGIN
     return serializedData;
 }
 
-- (void)setHeaders:(nullable NSDictionary<NSString *,NSString *> *)headers {
+- (void)setHeaders:(nullable NSDictionary<NSString *, NSString *> *)headers
+{
     _headers = [SentryRequest sanitizedHeaders:headers];
 }
 
-+ (NSDictionary *)sanitizedHeaders:(NSDictionary<NSString *, NSString *> *)headers {
++ (NSDictionary *)sanitizedHeaders:(NSDictionary<NSString *, NSString *> *)headers
+{
     if (headers == nil) {
         return nil;
     }
-    NSSet<NSString *> * _securityHeaders = [NSSet setWithArray:@[
-        @"X-FORWARDED-FOR",
-        @"AUTHORIZATION",
-        @"COOKIE",
-        @"SET-COOKIE",
-        @"X-API-KEY",
-        @"X-REAL-IP",
-        @"REMOTE-ADDR",
-        @"FORWARDED",
-        @"PROXY-AUTHORIZATION",
-        @"X-CSRF-TOKEN",
-        @"X-CSRFTOKEN",
+    NSSet<NSString *> *_securityHeaders = [NSSet setWithArray:@[
+        @"X-FORWARDED-FOR", @"AUTHORIZATION", @"COOKIE", @"SET-COOKIE", @"X-API-KEY", @"X-REAL-IP",
+        @"REMOTE-ADDR", @"FORWARDED", @"PROXY-AUTHORIZATION", @"X-CSRF-TOKEN", @"X-CSRFTOKEN",
         @"X-XSRF-TOKEN"
     ]];
 
-    NSMutableDictionary * result = headers.mutableCopy;
-    NSArray * allKeys = result.allKeys;
+    NSMutableDictionary *result = headers.mutableCopy;
+    NSArray *allKeys = result.allKeys;
 
     for (NSString *key in allKeys) {
         if ([_securityHeaders containsObject:[key uppercaseString]]) {
@@ -68,7 +60,6 @@ NS_ASSUME_NONNULL_BEGIN
 
     return result;
 }
-
 
 @end
 
