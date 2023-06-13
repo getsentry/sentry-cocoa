@@ -748,6 +748,7 @@
 		D855AD62286ED6A4002573E1 /* SentryCrashTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D855AD61286ED6A4002573E1 /* SentryCrashTests.m */; };
 		D855B3E827D652AF00BCED76 /* SentryCoreDataTrackingIntegrationTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D855B3E727D652AF00BCED76 /* SentryCoreDataTrackingIntegrationTest.swift */; };
 		D855B3EA27D652C700BCED76 /* TestCoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = D855B3E927D652C700BCED76 /* TestCoreDataStack.swift */; };
+		D856272D2A3763B600FB8062 /* UrlDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = D856272B2A374A8600FB8062 /* UrlDetail.swift */; };
 		D85790292976A69F00C6AC1F /* TestDebugImageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85790282976A69F00C6AC1F /* TestDebugImageProvider.swift */; };
 		D85852B627ECEEDA00C6D8AE /* SentryScreenshot.m in Sources */ = {isa = PBXBuildFile; fileRef = D85852B427ECEEDA00C6D8AE /* SentryScreenshot.m */; };
 		D85852BA27EDDC5900C6D8AE /* SentryUIApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = D85852B827EDDC5900C6D8AE /* SentryUIApplication.m */; };
@@ -1682,6 +1683,7 @@
 		D855AD61286ED6A4002573E1 /* SentryCrashTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryCrashTests.m; sourceTree = "<group>"; };
 		D855B3E727D652AF00BCED76 /* SentryCoreDataTrackingIntegrationTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCoreDataTrackingIntegrationTest.swift; sourceTree = "<group>"; };
 		D855B3E927D652C700BCED76 /* TestCoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCoreDataStack.swift; sourceTree = "<group>"; };
+		D856272B2A374A8600FB8062 /* UrlDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UrlDetail.swift; sourceTree = "<group>"; };
 		D85790282976A69F00C6AC1F /* TestDebugImageProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestDebugImageProvider.swift; sourceTree = "<group>"; };
 		D85852B427ECEEDA00C6D8AE /* SentryScreenshot.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryScreenshot.m; sourceTree = "<group>"; };
 		D85852B827EDDC5900C6D8AE /* SentryUIApplication.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryUIApplication.m; sourceTree = "<group>"; };
@@ -3228,6 +3230,7 @@
 		D800942328F82E8D005D3943 /* Swift */ = {
 			isa = PBXGroup;
 			children = (
+				D856272A2A374A6800FB8062 /* Tools */,
 				7BF65060292B8EFE00BBA5A8 /* MetricKit */,
 				D81A349B291D0C0B005A27A9 /* Sentry.swift */,
 				D800942628F82F3A005D3943 /* SwiftDescriptor.swift */,
@@ -3290,6 +3293,14 @@
 				D85596F1280580F10041FF8B /* SentryScreenshotIntegration.m */,
 			);
 			name = Screenshot;
+			sourceTree = "<group>";
+		};
+		D856272A2A374A6800FB8062 /* Tools */ = {
+			isa = PBXGroup;
+			children = (
+				D856272B2A374A8600FB8062 /* UrlDetail.swift */,
+			);
+			path = Tools;
 			sourceTree = "<group>";
 		};
 		D859696727BE6CCF0036A46E /* CoreData */ = {
@@ -4432,6 +4443,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7BD9509F2924E3E1009EA8EB /* SentryMXManager.swift in Sources */,
+				D856272D2A3763B600FB8062 /* UrlDetail.swift in Sources */,
 				7BF65062292B8F1C00BBA5A8 /* SentryMXCallStackTree.swift in Sources */,
 				D81A3491291D0AC8005A27A9 /* SwiftDescriptor.swift in Sources */,
 			);

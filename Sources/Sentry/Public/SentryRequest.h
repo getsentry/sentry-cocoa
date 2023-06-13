@@ -42,6 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init;
 
++ (NSDictionary *)sanitizedHeaders:(NSDictionary<NSString *, NSString *> *)headers;
 @end
 
 NS_ASSUME_NONNULL_END
