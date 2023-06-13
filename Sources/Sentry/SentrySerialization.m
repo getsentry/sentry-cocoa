@@ -347,10 +347,9 @@ NS_ASSUME_NONNULL_BEGIN
                                                                       error:&error];
     if (nil != error) {
         [SentryLog
-            logWithMessage:
-                [NSString
-                    stringWithFormat:@"Failed to deserialize envelope item data: %@",
-                    error]
+            logWithMessage:[NSString
+                               stringWithFormat:@"Failed to deserialize envelope item data: %@",
+                               error]
                   andLevel:kSentryLevelError];
     }
 
