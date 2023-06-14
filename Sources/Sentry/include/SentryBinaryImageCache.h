@@ -10,8 +10,10 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
-* This class listen to `SentryCrashBinaryImageCache` to keep a copy of the loaded binaries information in a sorted collection that will be used to symbolicate frames with better performance.
-*/
+ * This class listen to `SentryCrashBinaryImageCache` to keep a copy of the loaded binaries
+ * information in a sorted collection that will be used to symbolicate frames with better
+ * performance.
+ */
 @interface SentryBinaryImageCache : NSObject
 SENTRY_NO_INIT
 
