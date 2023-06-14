@@ -39,7 +39,7 @@ SentryCrashStackEntryMapper ()
                                             encoding:NSUTF8StringEncoding];
     }
 
-    // If there is no symbolicatio, because debug was disabled
+    // If there is no symbolication, because debug was disabled
     // we get image from the cache.
     if (stackEntry.imageAddress == 0 && stackEntry.imageName == NULL) {
         SentryBinaryImageInfo *info = [_binaryImageCache imageByAddress:stackEntry.address];
