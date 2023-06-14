@@ -1,8 +1,8 @@
 import Foundation
-import XCTest
 import SentryPrivate
+import XCTest
 
-class UrlSanitizedTests : XCTestCase {
+class UrlSanitizedTests: XCTestCase {
 
     func testNoQueryAndFragment() {
         let detail = UrlSanitized(URL: URL(string: "http://sentry.io")!)
