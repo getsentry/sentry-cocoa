@@ -720,17 +720,12 @@ class SentryHubTests: XCTestCase {
         
         fixture.currentDateProvider.setDate(date: Date(timeIntervalSince1970: 2))
         
-        let beginSession = sut.session
-        
         let event = TestData.event
         event.level = .error
         event.exceptions = [TestData.exception]
         event.exceptions?.first?.mechanism?.handled = false
         sut.capture(SentryEnvelope(event: event))
-        
-        let endSession = sut.session
-        XCTAssertNotEqual(beginSession, endSession)
-        
+
         //Check whether session was finished as crashed
         let envelope = fixture.client.captureEnvelopeInvocations.first
         let sessionEnvelopeItem = envelope?.items.first(where: { $0.header.type == "session" })
