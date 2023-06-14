@@ -6,7 +6,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySessionTrackerTests")
     private static let testUrl = "https://www.domain.com/api"
-    private static let fullUrl = URL(string: "https://www.domain.com/api?query=value#fragment")!
+    private static let fullUrl = URL(string: "https://www.domain.com/api?query=value&query2=value2#fragment")!
     private static let transactionName = "TestTransaction"
     private static let transactionOperation = "Test"
     private static let origin = "auto.http.ns_url_session"
@@ -334,7 +334,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumb!.data!["reason"] as! String, HTTPURLResponse.localizedString(forStatusCode: 200))
         XCTAssertEqual(breadcrumb!.data!["request_body_size"] as! Int64, DATA_BYTES_SENT)
         XCTAssertEqual(breadcrumb!.data!["response_body_size"] as! Int64, DATA_BYTES_RECEIVED)
-        XCTAssertEqual(breadcrumb!.data!["http.query"] as? String, "query=value")
+        XCTAssertEqual(breadcrumb!.data!["http.query"] as? String, "query=value&query2=value2")
         XCTAssertEqual(breadcrumb!.data!["http.fragment"] as? String, "fragment")
     }
     
@@ -841,7 +841,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(path, "https://www.domain.com/api")
         XCTAssertEqual(method, task.currentRequest!.httpMethod)
         XCTAssertEqual(requestType, "fetch")
-        XCTAssertEqual(query, "query=value")
+        XCTAssertEqual(query, "query=value&query2=value2")
         XCTAssertEqual(fragment, "fragment")
                 
         XCTAssertEqual(span.status, status)

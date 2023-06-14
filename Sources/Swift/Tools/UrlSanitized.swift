@@ -22,11 +22,10 @@ public class UrlSanitized: NSObject {
     }
 
     public var sanitizedUrl: String? {
-        guard let result = self.components?.string else { return nil }
-        guard let end = result.firstIndex(of: "?") ?? result.firstIndex(of: "#") else {
-            return result
+        guard var result = self.components?.string else { return nil }
+        if let end = result.firstIndex(of: "?") ?? result.firstIndex(of: "#") {
+            result = String(result[result.startIndex..<end])
         }
-
-        return String(result[result.startIndex..<end]).removingPercentEncoding
+        return result.removingPercentEncoding
     }
 }
