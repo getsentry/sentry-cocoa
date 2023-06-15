@@ -339,6 +339,23 @@ NS_ASSUME_NONNULL_BEGIN
     return [[SentryAppState alloc] initWithJSONObject:appSateDictionary];
 }
 
++ (NSDictionary *)deserializeEventEnvelopeItem:(NSData *)eventEnvelopeItemData
+{
+    NSError *error = nil;
+    NSDictionary *eventDictionary = [NSJSONSerialization JSONObjectWithData:eventEnvelopeItemData
+                                                                    options:0
+                                                                      error:&error];
+    if (nil != error) {
+        [SentryLog
+            logWithMessage:[NSString
+                               stringWithFormat:@"Failed to deserialize envelope item data: %@",
+                               error]
+                  andLevel:kSentryLevelError];
+    }
+
+    return eventDictionary;
+}
+
 + (SentryLevel)levelFromData:(NSData *)eventEnvelopeItemData
 {
     NSError *error = nil;
