@@ -601,7 +601,7 @@ SentryHub ()
             }
             if (!handled) {
                 [currentSession endSessionCrashedWithTimestamp:[_currentDateProvider date]];
-                // Setting _session to nil so starSession dont capture it again
+                // Setting _session to nil so startSession doesn't capture it again
                 _session = nil;
                 [self startSession];
             }
