@@ -8,7 +8,7 @@
 {
     _executablePath = path;
 }
-#    define EXECUTABLE_PATH _executablePath;
+#    define SENTRY_BINARY_EXECUTABLE_PATH _executablePath;
 
 - (instancetype)init
 {
@@ -19,7 +19,7 @@
 
 #else
 }
-#    define EXECUTABLE_PATH NSBundle.mainBundle.executablePath;
+#    define SENTRY_BINARY_EXECUTABLE_PATH NSBundle.mainBundle.executablePath;
 #endif
 
 + (SentryNSProcessInfoWrapper *)shared
@@ -37,7 +37,7 @@
 
 - (NSString *)processPath
 {
-    return EXECUTABLE_PATH;
+    return SENTRY_BINARY_EXECUTABLE_PATH;
 }
 
 - (NSUInteger)processorCount

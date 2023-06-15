@@ -143,7 +143,7 @@ sliceGPUData(SentryFrameInfoTimeSeries *frameInfo, SentryTransaction *transactio
             @"value" : obj[@"value"],
         }];
     }];
-    if (useMostRecentRecording && slicedGPUEntries.count == 0) {
+    if (useMostRecentRecording && slicedGPUEntries.count == 0 && nearestPredecessorValue != nil) {
         [slicedGPUEntries addObject:@ {
             @"elapsed_since_start_ns" : @"0",
             @"value" : nearestPredecessorValue,

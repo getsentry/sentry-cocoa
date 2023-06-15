@@ -7,14 +7,21 @@
 - Experimental support for Swift Async stacktraces (#3051)
 - Cache binary images to be used for crashes (#2939)
 - Symbolicate locally only when debug is enabled (#3079)
+- Sanitize HTTP info from breadcrumbs, spans and events (#3094) 
 
 ### Fixes
 
 - Fix a data race for `SentryId.empty` (#3072)
-- Changed `Trace` serialized value of `sampled` from string to boolean (#3067)
 - Duplicated HTTP breadcrumbs (#3058)
 - Expose SentryPrivate and SentrySwiftUI schemes for cartahge clients that have `--no-use-binaries` option (#3071)
 - Convert last remaining `sprintf` call to `snprintf` (#3077)
+- Fix a crash when serializing profiling data (#3092)
+
+## 8.7.4
+
+### Fixes
+
+- Changed `Trace` serialized value of `sampled` from string to boolean (#3067)
 
 ### Breaking Changes
 
