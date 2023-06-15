@@ -73,7 +73,7 @@ class TraceTestViewController: UIViewController {
                 return
             }
 
-            UIAssert.isEqual(child.data["url"] as? String, "/sentry-logo-black.png", "Could not read url data value")
+            UIAssert.isEqual(child.data["url"] as? String, "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png", "Could not read url data value")
 
             UIAssert.isEqual(child.tags["http.status_code"], "200", "Could not read status_code tag value")
 

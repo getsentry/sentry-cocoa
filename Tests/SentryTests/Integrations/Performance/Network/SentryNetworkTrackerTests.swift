@@ -5,20 +5,34 @@ import XCTest
 class SentryNetworkTrackerTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySessionTrackerTests")
-    private static let testURL = URL(string: "https://www.domain.com/api")!
+    private static let testUrl = "https://www.domain.com/api"
+    private static let fullUrl = URL(string: "https://www.domain.com/api?query=value&query2=value2#fragment")!
     private static let transactionName = "TestTransaction"
     private static let transactionOperation = "Test"
     private static let origin = "auto.http.ns_url_session"
-    
+
     private class Fixture {
         static let url = ""
         let sentryTask: URLSessionDataTaskMock
         let dateProvider = TestCurrentDateProvider()
         let options: Options
         let scope: Scope
-        let nsUrlRequest = NSURLRequest(url: SentryNetworkTrackerTests.testURL)
+        let nsUrlRequest = NSURLRequest(url: SentryNetworkTrackerTests.fullUrl)
         let client: TestClient!
         let hub: TestHub!
+        let securityHeader = [ "X-FORWARDED-FOR": "value",
+                               "AUTHORIZATION": "value",
+                               "COOKIE": "value",
+                               "SET-COOKIE": "value",
+                               "X-API-KEY": "value",
+                               "X-REAL-IP": "value",
+                               "REMOTE-ADDR": "value",
+                               "FORWARDED": "value",
+                               "PROXY-AUTHORIZATION": "value",
+                               "X-CSRF-TOKEN": "value",
+                               "X-CSRFTOKEN": "value",
+                               "X-XSRF-TOKEN": "value",
+                               "VALID_HEADER": "value" ]
         
         init() {
             options = Options()
@@ -214,7 +228,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let task = createDataTask()
         let span = spanForTask(task: task)!
         
-        XCTAssertEqual(span.spanDescription, "GET \(SentryNetworkTrackerTests.testURL)")
+        XCTAssertEqual(span.spanDescription, "GET \(SentryNetworkTrackerTests.testUrl)")
         XCTAssertEqual(SentryNetworkTrackerTests.origin, span.origin)
     }
     
@@ -222,7 +236,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let task = createDataTask(method: "POST")
         let span = spanForTask(task: task)!
         
-        XCTAssertEqual(span.spanDescription, "POST \(SentryNetworkTrackerTests.testURL)")
+        XCTAssertEqual(span.spanDescription, "POST \(SentryNetworkTrackerTests.testUrl)")
         XCTAssertEqual(SentryNetworkTrackerTests.origin, span.origin)
     }
     
@@ -264,7 +278,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     }
 
     func testTaskWithoutCurrentRequest() {
-        let request = URLRequest(url: SentryNetworkTrackerTests.testURL)
+        let request = URLRequest(url: SentryNetworkTrackerTests.fullUrl)
         let task = URLSessionUnsupportedTaskMock(request: request)
         let span = spanForTask(task: task)
 
@@ -314,12 +328,14 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumb!.level, .info)
         XCTAssertEqual(breadcrumb!.type, "http")
         XCTAssertEqual(breadcrumbs!.count, 1)
-        XCTAssertEqual(breadcrumb!.data!["url"] as! String, SentryNetworkTrackerTests.testURL.absoluteString)
+        XCTAssertEqual(breadcrumb!.data!["url"] as! String, SentryNetworkTrackerTests.testUrl)
         XCTAssertEqual(breadcrumb!.data!["method"] as! String, "GET")
         XCTAssertEqual(breadcrumb!.data!["status_code"] as! NSNumber, NSNumber(value: 200))
         XCTAssertEqual(breadcrumb!.data!["reason"] as! String, HTTPURLResponse.localizedString(forStatusCode: 200))
         XCTAssertEqual(breadcrumb!.data!["request_body_size"] as! Int64, DATA_BYTES_SENT)
         XCTAssertEqual(breadcrumb!.data!["response_body_size"] as! Int64, DATA_BYTES_RECEIVED)
+        XCTAssertEqual(breadcrumb!.data!["http.query"] as? String, "query=value&query2=value2")
+        XCTAssertEqual(breadcrumb!.data!["http.fragment"] as? String, "fragment")
     }
     
     func testNoBreadcrumb_DisablingBreadcrumb() {
@@ -348,7 +364,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumb!.category, "http")
         XCTAssertEqual(breadcrumb!.level, .info)
         XCTAssertEqual(breadcrumb!.type, "http")
-        XCTAssertEqual(breadcrumb!.data!["url"] as! String, SentryNetworkTrackerTests.testURL.absoluteString)
+        XCTAssertEqual(breadcrumb!.data!["url"] as! String, SentryNetworkTrackerTests.testUrl)
         XCTAssertEqual(breadcrumb!.data!["method"] as! String, "GET")
     }
     
@@ -367,7 +383,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumb!.level, .info)
         XCTAssertEqual(breadcrumb!.type, "http")
         XCTAssertEqual(breadcrumbs!.count, 1)
-        XCTAssertEqual(breadcrumb!.data!["url"] as! String, SentryNetworkTrackerTests.testURL.absoluteString)
+        XCTAssertEqual(breadcrumb!.data!["url"] as! String, SentryNetworkTrackerTests.testUrl)
         XCTAssertEqual(breadcrumb!.data!["method"] as! String, "GET")
     }
 
@@ -427,7 +443,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(breadcrumb!.level, .error)
         XCTAssertEqual(breadcrumb!.type, "http")
         XCTAssertEqual(breadcrumbs!.count, 1)
-        XCTAssertEqual(breadcrumb!.data!["url"] as! String, SentryNetworkTrackerTests.testURL.absoluteString)
+        XCTAssertEqual(breadcrumb!.data!["url"] as! String, SentryNetworkTrackerTests.testUrl)
         XCTAssertEqual(breadcrumb!.data!["method"] as! String, "GET")
         XCTAssertNil(breadcrumb!.data!["status_code"])
         XCTAssertNil(breadcrumb!.data!["reason"])
@@ -653,10 +669,31 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(sentryRequest.url, "https://www.domain.com/api")
         XCTAssertEqual(sentryRequest.method, "GET")
         XCTAssertEqual(sentryRequest.bodySize, 652)
-        XCTAssertEqual(sentryRequest.cookies, "myCookie")
-        XCTAssertEqual(sentryRequest.headers, headers)
+        XCTAssertNil(sentryRequest.cookies)
+        XCTAssertEqual(sentryRequest.headers, ["test": "test"])
         XCTAssertEqual(sentryRequest.fragment, "myFragment")
         XCTAssertEqual(sentryRequest.queryString, "query=myQuery")
+    }
+
+    func testCaptureHTTPClientErrorRequest_noSecurityInfo() {
+        let sut = fixture.getSut()
+
+        let url = URL(string: "https://user:password@www.domain.com/api?query=myQuery#myFragment")!
+        var request = URLRequest(url: url)
+        request.allHTTPHeaderFields = fixture.securityHeader
+
+        let task = URLSessionDataTaskMock(request: request)
+        task.setResponse(createResponse(code: 500))
+        sut.urlSessionTask(task, setState: .completed)
+
+        guard let envelope = self.fixture.hub.capturedEventsWithScopes.first else {
+            XCTFail("Expected to capture 1 event")
+            return
+        }
+        let sentryRequest = envelope.event.request!
+
+        XCTAssertEqual(sentryRequest.url, "https://[Filtered]:[Filtered]@www.domain.com/api")
+        XCTAssertEqual(sentryRequest.headers, ["VALID_HEADER": "value"])
     }
     
     func testCaptureHTTPClientErrorResponse() {
@@ -665,7 +702,7 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         let headers = ["test": "test", "Cookie": "myCookie", "Set-Cookie": "myCookie"]
         let response = HTTPURLResponse(
-            url: SentryNetworkTrackerTests.testURL,
+            url: SentryNetworkTrackerTests.fullUrl,
             statusCode: 500,
             httpVersion: "1.1",
             headerFields: headers)!
@@ -680,9 +717,31 @@ class SentryNetworkTrackerTests: XCTestCase {
         let sentryResponse = envelope.event.context?["response"]
 
         XCTAssertEqual(sentryResponse?["status_code"] as? NSNumber, 500)
-        XCTAssertEqual(sentryResponse?["headers"] as? [String: String], headers)
-        XCTAssertEqual(sentryResponse?["cookies"] as? String, "myCookie")
+        XCTAssertEqual(sentryResponse?["headers"] as? [String: String], ["test": "test"])
+        XCTAssertNil(sentryResponse?["cookies"])
         XCTAssertEqual(sentryResponse?["body_size"] as? NSNumber, 256)
+    }
+
+    func testCaptureHTTPClientErrorResponse_noSecurityHeader() {
+        let sut = fixture.getSut()
+        let task = createDataTask()
+
+        let headers = fixture.securityHeader
+        let response = HTTPURLResponse(
+            url: SentryNetworkTrackerTests.fullUrl,
+            statusCode: 500,
+            httpVersion: "1.1",
+            headerFields: headers)!
+        task.setResponse(response)
+        sut.urlSessionTask(task, setState: .completed)
+
+        guard let envelope = self.fixture.hub.capturedEventsWithScopes.first else {
+            XCTFail("Expected to capture 1 event")
+            return
+        }
+        let sentryResponse = envelope.event.context?["response"]
+
+        XCTAssertEqual(sentryResponse?["headers"] as? [String: String], ["VALID_HEADER": "value"])
     }
     
     func testCaptureHTTPClientErrorException() {
@@ -765,7 +824,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         
         sut.urlSessionTask(task, setState: state)
         
-        let httpStatusCode = span.tags["http.status_code"] as String?
+        let httpStatusCode = span.data["http.response.status_code"] as? String
         
         if let httpResponse = response as? HTTPURLResponse {
             XCTAssertEqual("\(httpResponse.statusCode)", httpStatusCode!)
@@ -774,12 +833,16 @@ class SentryNetworkTrackerTests: XCTestCase {
         }
         
         let path = span.data["url"] as? String
-        let method = span.data["method"] as? String
+        let method = span.data["http.method"] as? String
         let requestType = span.data["type"] as? String
-        
-        XCTAssertEqual(path, task.currentRequest!.url!.path)
+        let query = span.data["http.query"] as? String
+        let fragment = span.data["http.fragment"] as? String
+
+        XCTAssertEqual(path, "https://www.domain.com/api")
         XCTAssertEqual(method, task.currentRequest!.httpMethod)
         XCTAssertEqual(requestType, "fetch")
+        XCTAssertEqual(query, "query=value&query2=value2")
+        XCTAssertEqual(fragment, "fragment")
                 
         XCTAssertEqual(span.status, status)
         XCTAssertNil(task.observationInfo)
@@ -816,7 +879,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     }
     
     private func createResponse(code: Int) -> URLResponse {
-        return HTTPURLResponse(url: SentryNetworkTrackerTests.testURL, statusCode: code, httpVersion: "1.1", headerFields: nil)!
+        return HTTPURLResponse(url: SentryNetworkTrackerTests.fullUrl, statusCode: code, httpVersion: "1.1", headerFields: nil)!
     }
     
     private func advanceTime(bySeconds: TimeInterval) {
@@ -829,25 +892,25 @@ class SentryNetworkTrackerTests: XCTestCase {
     }
     
     func createDataTask(method: String = "GET") -> URLSessionDataTaskMock {
-        var request = URLRequest(url: SentryNetworkTrackerTests.testURL)
+        var request = URLRequest(url: SentryNetworkTrackerTests.fullUrl)
         request.httpMethod = method
         return URLSessionDataTaskMock(request: request)
     }
     
     func createDownloadTask(method: String = "GET") -> URLSessionDownloadTaskMock {
-        var request = URLRequest(url: SentryNetworkTrackerTests.testURL)
+        var request = URLRequest(url: SentryNetworkTrackerTests.fullUrl)
         request.httpMethod = method
         return URLSessionDownloadTaskMock(request: request)
     }
     
     func createUploadTask(method: String = "GET") -> URLSessionUploadTaskMock {
-        var request = URLRequest(url: SentryNetworkTrackerTests.testURL)
+        var request = URLRequest(url: SentryNetworkTrackerTests.fullUrl)
         request.httpMethod = method
         return URLSessionUploadTaskMock(request: request)
     }
     
     func createStreamTask(method: String = "GET") -> URLSessionStreamTaskMock {
-        var request = URLRequest(url: SentryNetworkTrackerTests.testURL)
+        var request = URLRequest(url: SentryNetworkTrackerTests.fullUrl)
         request.httpMethod = method
         return URLSessionStreamTaskMock(request: request)
     }
