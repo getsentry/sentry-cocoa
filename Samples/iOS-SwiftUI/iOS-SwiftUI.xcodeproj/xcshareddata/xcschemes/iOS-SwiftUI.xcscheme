@@ -38,6 +38,16 @@
                ReferencedContainer = "container:iOS-SwiftUI.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "63AA76641EB8CB2F00D153DE"
+               BuildableName = "SentryTests.xctest"
+               BlueprintName = "SentryTests"
+               ReferencedContainer = "container:../../Sentry.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
