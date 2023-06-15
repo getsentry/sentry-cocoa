@@ -4,63 +4,61 @@
 #include <mach/mach.h>
 #include <pthread.h>
 #include <string>
-#import <sys/sysctl.h>
 #import <thread>
-
-#define SENTRY_BENCHMARK_GCD_BASED
 
 #define SENTRY_BENCHMARKING_THREAD_NAME "io.sentry.benchmark.sampler-thread"
 
-@implementation SentryBenchmarkStatsDiff
+@implementation SentryBenchmarkResult
 
 - (NSString *)debugDescription
 {
     return [NSString stringWithFormat:@"CPU ticks:\nsystem: %lld; user: %lld; idle: %lld\nPower "
                                       @"usage:\ncpu: %lld; gpu: %lld\ncontext switches: %lld",
-                     _cpuTicksSystem, _cpuTicksUser, _cpuTicksIdle, _totalCPUPower, _totalGPUPower,
+                     _cpuTicksSystem, _cpuTicksUser, _cpuTicksIdle, _cpuPower, _gpuPower,
                      _contextSwitches];
 }
 
-- (SentryBenchmarkStatsDiff *)diff:(SentryBenchmarkStatsDiff *)other
+- (SentryBenchmarkResult *)diff:(SentryBenchmarkResult *)other
 {
-    const auto diff = [[SentryBenchmarkStatsDiff alloc] init];
+    const auto diff = [[SentryBenchmarkResult alloc] init];
     diff.cpuTicksSystem = self.cpuTicksSystem - other.cpuTicksSystem;
     diff.cpuTicksUser = self.cpuTicksUser - other.cpuTicksUser;
     diff.cpuTicksIdle = self.cpuTicksIdle - other.cpuTicksIdle;
-    diff.totalCPUPower = self.totalCPUPower - other.totalCPUPower;
-    diff.totalGPUPower = self.totalGPUPower - other.totalGPUPower;
+    diff.cpuPower = self.cpuPower - other.cpuPower;
+    diff.gpuPower = self.gpuPower - other.gpuPower;
     diff.contextSwitches = self.contextSwitches - other.contextSwitches;
     return diff;
 }
 
 @end
 
-@implementation SentryBenchmarkStats
+@implementation SentryBenchmarkReading
 
-- (instancetype)initWithCPUTickInfo:(SentryCPUTickInfo *)cpuTickInfo
-                         powerUsage:(SentryPowerUsageStats *)powerUsage
+- (instancetype)initWithCPUTickInfo:(SentryCPUReading *)cpuTickInfo
+                         powerUsage:(SentryPowerReading *)powerUsage
                     contextSwitches:(uint64_t)contextSwitches
 {
     if (!(self = [super init])) {
         return nil;
     }
 
-    _cpuTickInfo = cpuTickInfo;
-    _powerUsage = powerUsage;
+    _cpuReading = cpuTickInfo;
+    _powerReading = powerUsage;
     _contextSwitches = contextSwitches;
 
     return self;
 }
 
-- (SentryBenchmarkStatsDiff *)diff:(SentryBenchmarkStats *)other
+- (SentryBenchmarkResult *)diff:(SentryBenchmarkReading *)other
 {
-    const auto diff = [[SentryBenchmarkStatsDiff alloc] init];
-    diff.cpuTicksSystem = (int64_t)self.cpuTickInfo.system - (int64_t)other.cpuTickInfo.system;
-    diff.cpuTicksUser = (int64_t)self.cpuTickInfo.user - (int64_t)other.cpuTickInfo.user;
-    diff.cpuTicksIdle = (int64_t)self.cpuTickInfo.idle - (int64_t)other.cpuTickInfo.idle;
+    const auto diff = [[SentryBenchmarkResult alloc] init];
+    diff.cpuTicksSystem
+        = (int64_t)self.cpuReading.systemTicks - (int64_t)other.cpuReading.systemTicks;
+    diff.cpuTicksUser = (int64_t)self.cpuReading.userTicks - (int64_t)other.cpuReading.userTicks;
+    diff.cpuTicksIdle = (int64_t)self.cpuReading.idleTicks - (int64_t)other.cpuReading.idleTicks;
 
-    diff.totalCPUPower = (int64_t)self.powerUsage.totalCPU - (int64_t)other.powerUsage.totalCPU;
-    diff.totalGPUPower = (int64_t)self.powerUsage.totalGPU - (int64_t)other.powerUsage.totalGPU;
+    diff.cpuPower = (int64_t)self.powerReading.totalCPU - (int64_t)other.powerReading.totalCPU;
+    diff.gpuPower = (int64_t)self.powerReading.totalGPU - (int64_t)other.powerReading.totalGPU;
 
     diff.contextSwitches = (int64_t)self.contextSwitches - (int64_t)other.contextSwitches;
 
@@ -69,22 +67,22 @@
 
 @end
 
-@implementation SentryCPUUsagePerCore
+@implementation SentryCPUCoreReadings
 
-- (instancetype)initWithUsages:(NSArray<NSNumber *> *)usages
+- (instancetype)initWithUsagePercentages:(NSArray<NSNumber *> *)usagePercentages
 {
     if (!(self = [super init])) {
         return nil;
     }
 
-    _usages = usages;
+    _usagePercentages = usagePercentages;
     return self;
 }
 
 - (NSString *)debugDescription
 {
     const auto result = [NSMutableString string];
-    [_usages enumerateObjectsUsingBlock:^(NSNumber *_Nonnull obj, NSUInteger idx,
+    [_usagePercentages enumerateObjectsUsingBlock:^(NSNumber *_Nonnull obj, NSUInteger idx,
         BOOL *_Nonnull stop) { [result appendFormat:@"Core %lu: %.1f%%; ", idx, obj.floatValue]; }];
     return [result stringByReplacingCharactersInRange:NSMakeRange(result.length - 2, 2)
                                            withString:@""];
@@ -92,7 +90,7 @@
 
 @end
 
-@implementation SentryPowerUsageStats
+@implementation SentryPowerReading
 
 - (instancetype)initWithInfo:(task_power_info_v2)info
 {
@@ -122,27 +120,27 @@
 @end
 
 @interface
-SentryCPUTickInfo ()
+SentryCPUReading ()
 @property host_cpu_load_info_data_t data;
 @end
 
-@implementation SentryCPUTickInfo
+@implementation SentryCPUReading
 
 - (instancetype)initWithData:(host_cpu_load_info_data_t)data
 {
     self = [super init];
     if (self) {
         _data = data;
-        _system = data.cpu_ticks[CPU_STATE_SYSTEM];
-        _user = data.cpu_ticks[CPU_STATE_USER] + data.cpu_ticks[CPU_STATE_NICE];
-        _idle = data.cpu_ticks[CPU_STATE_IDLE];
+        _systemTicks = data.cpu_ticks[CPU_STATE_SYSTEM];
+        _userTicks = data.cpu_ticks[CPU_STATE_USER] + data.cpu_ticks[CPU_STATE_NICE];
+        _idleTicks = data.cpu_ticks[CPU_STATE_IDLE];
     }
     return self;
 }
 
 - (uint64_t)total
 {
-    return _system + _user;
+    return _systemTicks + _userTicks;
 }
 
 - (NSString *)debugDescription
@@ -152,29 +150,10 @@ SentryCPUTickInfo ()
 
 @end
 
-@implementation SentryCPUInfo
-
-- (NSString *)debugDescription
-{
-    const auto result = [NSMutableString string];
-    for (uint64_t perfLevel = 0; perfLevel < _performanceLevels; perfLevel++) {
-        [result appendFormat:@"perf level %llu cores: physical max: %@; enabled: %@; logical max: "
-                             @"%@; enabled: %@\n",
-                perfLevel, _availablePhysicalCoresPerPerformanceLevel[perfLevel],
-                _enabledPhysicalCoresPerPerformanceLevel[perfLevel],
-                _availableLogicalCoresPerPerformanceLevel[perfLevel],
-                _enabledLogicalCoresPerPerformanceLevel[perfLevel]];
-    }
-    return [result stringByReplacingCharactersInRange:NSMakeRange(result.length - 1, 1)
-                                           withString:@""];
-}
-
-@end
-
 @interface SentryBenchmarkSample : NSObject
 
 @property NSDictionary<NSString *, NSArray<NSNumber *> *> *cpuUsagePerThread;
-@property SentryCPUUsagePerCore *cpuUsagePerCore;
+@property SentryCPUCoreReadings *cpuUsagePerCore;
 
 @end
 
@@ -240,14 +219,14 @@ const auto samples = [NSMutableArray<SentryBenchmarkSample *> array];
 dispatch_source_t source;
 dispatch_queue_t queue;
 
-SentryBenchmarkStats *startStats;
+SentryBenchmarkReading *startStats;
 }
 
 @implementation SentryBenchmarking
 
-+ (SentryBenchmarkStats *)gatherBenchmarkStats
++ (SentryBenchmarkReading *)gatherBenchmarkStats
 {
-    return [[SentryBenchmarkStats alloc]
+    return [[SentryBenchmarkReading alloc]
         initWithCPUTickInfo:[self cpuTicks:nil]
                  powerUsage:[self powerUsage:nil]
             contextSwitches:[[self numContextSwitches:nil] longLongValue]];
@@ -261,8 +240,10 @@ SentryBenchmarkStats *startStats;
     [samples addObject:sample];
 }
 
-+ (void)startSampledBenchmark
++ (void)start
 {
+    startStats = [self gatherBenchmarkStats];
+
     const auto attr = dispatch_queue_attr_make_with_qos_class(
         DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_USER_INTERACTIVE, 0);
     const auto leewayNs = intervalNs / 2;
@@ -274,7 +255,7 @@ SentryBenchmarkStats *startStats;
     dispatch_resume(source);
 }
 
-+ (NSString *)stopSampledBenchmark
++ (NSString *)stopAndReturnProfilerThreadUsage
 {
     dispatch_cancel(source);
 
@@ -336,6 +317,11 @@ SentryBenchmarkStats *startStats;
                      appSystemTime, appUserTime];
 }
 
++ (SentryBenchmarkResult *)stop
+{
+    const auto endStats = [self gatherBenchmarkStats];
+}
+
 /*
  * from https://developer.apple.com/forums/thread/91160
  *  powerInfo.task_energy is the total energy used by all threads
@@ -350,7 +336,7 @@ SentryBenchmarkStats *startStats;
  * TODO: can this be done per thread like the implementation of task_energy does? how to import the
  * kernel calls?
  */
-+ (nullable SentryPowerUsageStats *)powerUsage:(NSError **)error
++ (nullable SentryPowerReading *)powerUsage:(NSError **)error
 {
     struct task_power_info_v2 powerInfo;
 
@@ -372,10 +358,15 @@ SentryBenchmarkStats *startStats;
         return nil;
     }
 
-    return [[SentryPowerUsageStats alloc] initWithInfo:powerInfo];
+    return [[SentryPowerReading alloc] initWithInfo:powerInfo];
 }
 
-+ (SentryCPUUsagePerCore *)cpuUsagePerCore:(NSError **)error
+/**
+ * @return The CPU usage per core, where the order of results corresponds to the core number as
+ * returned by the underlying system call, e.g. @c @[ @c <core-0-CPU-usage>, @c <core-1-CPU-usage>,
+ * @c ...] .
+ */
++ (SentryCPUCoreReadings *)cpuUsagePerCore:(NSError **)error
 {
     natural_t numCPUs = 0U;
     processor_info_array_t cpuInfo;
@@ -409,7 +400,7 @@ SentryBenchmarkStats *startStats;
         [result addObject:@(usagePercent)];
     }
 
-    return [[SentryCPUUsagePerCore alloc] initWithUsages:result];
+    return [[SentryCPUCoreReadings alloc] initWithUsagePercentages:result];
 }
 
 + (nullable NSNumber *)numContextSwitches:(NSError **)error
@@ -432,7 +423,7 @@ SentryBenchmarkStats *startStats;
     return @(info.csw);
 }
 
-+ (nullable SentryCPUTickInfo *)cpuTicks:(NSError **)error
++ (nullable SentryCPUReading *)cpuTicks:(NSError **)error
 {
     kern_return_t kr;
     mach_msg_type_number_t count = HOST_CPU_LOAD_INFO_COUNT;
@@ -452,62 +443,7 @@ SentryBenchmarkStats *startStats;
         return nil;
     }
 
-    return [[SentryCPUTickInfo alloc] initWithData:data];
-}
-
-+ (nullable NSNumber *)sysctlbynameWithName:(const char *)name error:(NSError **)error
-{
-    int result;
-    size_t resultSize = sizeof(result);
-    const auto status = sysctlbyname(name, &result, &resultSize, NULL, 0);
-    if (status != KERN_SUCCESS) {
-        NSLog(@"error: %s; %d", strerror(errno), status);
-        return nil;
-    }
-
-    return @(result);
-}
-
-+ (nullable SentryCPUInfo *)cpuInfo:(NSError **)error
-{
-#define SENTRY_SYSCTLBYNAME_ULL(name)                                                              \
-    [self sysctlbynameWithName:"hw." name error:nil].unsignedLongLongValue
-    const auto info = [[SentryCPUInfo alloc] init];
-    info.availableLogicalCores = SENTRY_SYSCTLBYNAME_ULL("logicalcpu");
-    info.enabledLogicalCores = SENTRY_SYSCTLBYNAME_ULL("logicalcpu_max");
-    info.availablePhysicalCores = SENTRY_SYSCTLBYNAME_ULL("physicalcpu_max");
-    info.enabledPhysicalCores = SENTRY_SYSCTLBYNAME_ULL("physicalcpu");
-
-    info.performanceLevels = SENTRY_SYSCTLBYNAME_ULL("nperflevels");
-
-    const auto availableLogicalCoresPerPerformanceLevel = [NSMutableArray<NSNumber *> array];
-    const auto enabledLogicalCoresPerPerformanceLevel = [NSMutableArray<NSNumber *> array];
-    const auto availablePhysicalCoresPerPerformanceLevel = [NSMutableArray<NSNumber *> array];
-    const auto enabledPhysicalCoresPerPerformanceLevel = [NSMutableArray<NSNumber *> array];
-#undef SENTRY_SYSCTLBYNAME_ULL
-
-#define SENTRY_SYSCTLBYNAME_PERF(name, level)                                                      \
-    [self sysctlbynameWithName:[NSString stringWithFormat:@"hw.perflevel%llu.%s", level, name]     \
-                                   .UTF8String                                                     \
-                         error:nil]
-    for (uint64_t perfLevel = 0; perfLevel < info.performanceLevels; perfLevel++) {
-        [availableLogicalCoresPerPerformanceLevel
-            addObject:SENTRY_SYSCTLBYNAME_PERF("logicalcpu_max", perfLevel)];
-        [enabledLogicalCoresPerPerformanceLevel
-            addObject:SENTRY_SYSCTLBYNAME_PERF("logicalcpu", perfLevel)];
-        [availablePhysicalCoresPerPerformanceLevel
-            addObject:SENTRY_SYSCTLBYNAME_PERF("physicalcpu", perfLevel)];
-        [enabledPhysicalCoresPerPerformanceLevel
-            addObject:SENTRY_SYSCTLBYNAME_PERF("physicalcpu_max", perfLevel)];
-    }
-#undef SENTRY_SYSCTLBYNAME_PERF
-
-    info.availableLogicalCoresPerPerformanceLevel = availableLogicalCoresPerPerformanceLevel;
-    info.enabledLogicalCoresPerPerformanceLevel = enabledLogicalCoresPerPerformanceLevel;
-    info.availablePhysicalCoresPerPerformanceLevel = availablePhysicalCoresPerPerformanceLevel;
-    info.enabledPhysicalCoresPerPerformanceLevel = enabledPhysicalCoresPerPerformanceLevel;
-
-    return info;
+    return [[SentryCPUReading alloc] initWithData:data];
 }
 
 @end

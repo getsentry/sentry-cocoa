@@ -23,6 +23,7 @@
 		7BFC8B0626D4D24B000D3504 /* LoremIpsum.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7BFC8B0526D4D24B000D3504 /* LoremIpsum.txt */; };
 		844DA821282584C300E6B62E /* CoreDataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F57BC427BBD787000D09D4 /* CoreDataViewController.swift */; };
 		844DA822282584F700E6B62E /* SentryData.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D845F35927BAD4CC00A4D7A2 /* SentryData.xcdatamodeld */; };
+		8478A28E2A3BA1FB00067A91 /* SentryMachineInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8478A28D2A3BA1FA00067A91 /* SentryMachineInfo.mm */; };
 		848A256B286E3351008A8858 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; };
 		848A256D286E3351008A8858 /* fatal-error-binary-images-message2.json in Resources */ = {isa = PBXBuildFile; fileRef = D83A30DF279F1F5C00372D0A /* fatal-error-binary-images-message2.json */; };
 		848A256F286E3351008A8858 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 630853322440C44F00DDE4CE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -32,7 +33,6 @@
 		84B527BD28DD25E400475E8D /* SentryDevice.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84B527BC28DD25E400475E8D /* SentryDevice.mm */; };
 		84BE546F287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BE546E287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m */; };
 		84BE547E287645B900ACC735 /* SentryProcessInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BE54792876451D00ACC735 /* SentryProcessInfo.m */; };
-		84C47AEB29FC8BD300DAEB8A /* MultithreadingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C47AE229FC8BD300DAEB8A /* MultithreadingTests.swift */; };
 		84C47AEC29FC8F4B00DAEB8A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
 		84FB8120283EEDB900F3A94A /* PerformanceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB811F283EEDB900F3A94A /* PerformanceViewController.swift */; };
 		84FB812A284001B800F3A94A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
@@ -287,6 +287,8 @@
 		7B64386C26A6C544000D0F65 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7B79000329028C7300A7F467 /* MetricKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricKitManager.swift; sourceTree = "<group>"; };
 		7BFC8B0526D4D24B000D3504 /* LoremIpsum.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LoremIpsum.txt; sourceTree = "<group>"; };
+		8478A28C2A3BA1FA00067A91 /* SentryMachineInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryMachineInfo.h; sourceTree = "<group>"; };
+		8478A28D2A3BA1FA00067A91 /* SentryMachineInfo.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryMachineInfo.mm; sourceTree = "<group>"; };
 		848A2573286E3351008A8858 /* PerformanceBenchmarks.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PerformanceBenchmarks.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		848A2578286E3490008A8858 /* PerformanceBenchmarks-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PerformanceBenchmarks-Info.plist"; sourceTree = "<group>"; };
 		84A5D72529D2705000388BFA /* ProfilingUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilingUITests.swift; sourceTree = "<group>"; };
@@ -562,6 +564,8 @@
 				7B79000329028C7300A7F467 /* MetricKitManager.swift */,
 				84FB8125284001B800F3A94A /* SentryBenchmarking.h */,
 				84FB8129284001B800F3A94A /* SentryBenchmarking.mm */,
+				8478A28C2A3BA1FA00067A91 /* SentryMachineInfo.h */,
+				8478A28D2A3BA1FA00067A91 /* SentryMachineInfo.mm */,
 				D8F3D04F274E572F00B56F8C /* DSNStorage.swift */,
 				D8F3D051274E572F00B56F8C /* RandomErrors.swift */,
 				D8D7BB492750067900044146 /* UIAssert.swift */,
@@ -884,6 +888,7 @@
 			files = (
 				D8F3D05F274E6A8B00B56F8C /* AssertView.swift in Sources */,
 				D890CD3F26CEE31B001246CF /* NibViewController.swift in Sources */,
+				8478A28E2A3BA1FB00067A91 /* SentryMachineInfo.mm in Sources */,
 				D845F35B27BAD4CC00A4D7A2 /* SentryData.xcdatamodeld in Sources */,
 				D8444E4C275E38090042F4DE /* UIViewControllerExtension.swift in Sources */,
 				637AFDAE243B02760034958B /* ViewController.swift in Sources */,
