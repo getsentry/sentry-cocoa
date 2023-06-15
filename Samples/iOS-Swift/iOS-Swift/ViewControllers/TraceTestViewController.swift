@@ -75,7 +75,7 @@ class TraceTestViewController: UIViewController {
 
             UIAssert.isEqual(child.data["url"] as? String, "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png", "Could not read url data value")
 
-            UIAssert.isEqual(child.tags["http.status_code"], "200", "Could not read status_code tag value")
+            UIAssert.isEqual(child.data["http.response.status_code"] as? String, "200", "Could not read status_code tag value")
 
             UIAssert.checkForViewControllerLifeCycle(span, viewController: "TraceTestViewController", stepsToCheck: self.lifeCycleSteps)
         }
