@@ -4,7 +4,7 @@
 
 ### Breaking change
 
-- Renamed `enableTimeToFullDisplay` to `enableTimeToFullDisplayTracing`
+- Renamed `enableTimeToFullDisplay` to `enableTimeToFullDisplayTracing` (#3106)
     - `enableTimeToFullDisplay` is still available as deprecated to ease the transition.
 
 ## 8.8.0
