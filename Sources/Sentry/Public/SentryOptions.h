@@ -480,7 +480,8 @@ NS_SWIFT_NAME(Options)
  * finished with @c DeadlineExceeded status.
  * @note Default value is `NO`.
  */
-@property (nonatomic) BOOL enableTimeToFullDisplay;
+@property (nonatomic) BOOL enableTimeToFullDisplayTracing;
+@property (nonatomic) BOOL enableTimeToFullDisplay DEPRECATED_MSG_ATTRIBUTE("Use 'enableTimeToFullDisplayTracing' instead");
 
 /**
  * @warning This is an experimental feature and may still have bugs.

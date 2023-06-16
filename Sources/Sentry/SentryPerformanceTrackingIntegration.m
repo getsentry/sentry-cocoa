@@ -45,7 +45,7 @@ SentryPerformanceTrackingIntegration ()
 
     [self.swizzling start];
     SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay
-        = options.enableTimeToFullDisplay;
+        = options.enableTimeToFullDisplayTracing;
 
     return YES;
 #else

@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Breaking change
+
+- Renamed `enableTimeToFullDisplay` to `enableTimeToFullDisplayTracing`
+    - `enableTimeToFullDisplay` is still available as deprecated to ease the transition.
+
 ## 8.8.0
 
 ### Features

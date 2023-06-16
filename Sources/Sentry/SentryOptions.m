@@ -77,7 +77,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableAutoPerformanceTracing = YES;
         self.enableCaptureFailedRequests = YES;
         self.environment = kSentryDefaultEnvironment;
-        self.enableTimeToFullDisplay = NO;
+        self.enableTimeToFullDisplayTracing = NO;
 
         self.initialScope = ^SentryScope *(SentryScope *scope) { return scope; };
 
@@ -341,8 +341,14 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self setBool:options[@"enableCaptureFailedRequests"]
             block:^(BOOL value) { self->_enableCaptureFailedRequests = value; }];
 
-    [self setBool:options[@"enableTimeToFullDisplay"]
-            block:^(BOOL value) { self->_enableTimeToFullDisplay = value; }];
+    if (options[@"enableTimeToFullDisplayTracing"]) {
+        [self setBool:options[@"enableTimeToFullDisplayTracing"]
+                block:^(BOOL value) { self->_enableTimeToFullDisplayTracing = value; }];
+    } else if(options[@"enableTimeToFullDisplay"]) {
+        SENTRY_LOG_WARN(@"WARNING: 'enableTimeToFullDisplay' was deprecated. Use 'enableTimeToFullDisplayTracing' instead.");
+        [self setBool:options[@"enableTimeToFullDisplay"]
+                block:^(BOOL value) { self->_enableTimeToFullDisplayTracing = value; }];
+    }
 
     if ([self isBlock:options[@"initialScope"]]) {
         self.initialScope = options[@"initialScope"];
@@ -559,6 +565,14 @@ NSString *const kSentryDefaultEnvironment = @"production";
 {
     return (_profilesSampleRate != nil && [_profilesSampleRate doubleValue] > 0)
         || _profilesSampler != nil || _enableProfiling;
+}
+
+- (void)setEnableTimeToFullDisplay:(BOOL)enableTimeToFullDisplayTracing {
+    _enableTimeToFullDisplayTracing = enableTimeToFullDisplayTracing;
+}
+
+- (BOOL)enableTimeToFullDisplay {
+    return _enableTimeToFullDisplayTracing;
 }
 
 #    pragma clang diagnostic push
