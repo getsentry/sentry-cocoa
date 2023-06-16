@@ -209,41 +209,24 @@ class ExtraViewController: UIViewController {
     @IBAction func decodeImageMain(_ sender: Any) {
         let data = try! Data(contentsOf: Bundle.main.url(forResource: "Tongariro", withExtension: "jpg")!)
 
-        let mainStartStats = SentryBenchmarking.gatherBenchmarkStats()
+        SentryBenchmarking.start()
         let image = UIImage(data: data)
-        let mainEndStats = SentryBenchmarking.gatherBenchmarkStats()
-        let mainStats = mainEndStats.diff(mainStartStats)
-        
+        let benchmarkMain = SentryBenchmarking.stop()
+
         DispatchQueue.global(qos: .background).async {
             let data = try! Data(contentsOf: Bundle.main.url(forResource: "Tongariro", withExtension: "jpg")!)
-            let bgStartStats = SentryBenchmarking.gatherBenchmarkStats()
+            SentryBenchmarking.start()
             let image = UIImage(data: data)
-            let bgEndStats = SentryBenchmarking.gatherBenchmarkStats()
-            let bgStats = bgEndStats.diff(bgStartStats)
-
-            let diff = mainStats.diff(bgStats)
-
-            let alert = UIAlertController(title: "Benchmark results (main - bg)", message: String(reflecting: diff), preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            DispatchQueue.main.async {
-                self.present(alert, animated: false)
-            }
+            let benchmarkBackground = SentryBenchmarking.stop()
         }
     }
 
     @IBAction func decodeImageBg(_ sender: Any) {
-        let start = SentryBenchmarking.gatherBenchmarkStats()
+        SentryBenchmarking.start()
         DispatchQueue.global(qos: .background).async {
             let data = try! Data(contentsOf: Bundle.main.url(forResource: "Tongariro", withExtension: "jpg")!)
             let image = UIImage(data: data)
-            let end = SentryBenchmarking.gatherBenchmarkStats()
-            let diff = end.diff(start)
-
-            let alert = UIAlertController(title: "Benchmark results", message: String(reflecting: diff), preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            DispatchQueue.main.async {
-                self.present(alert, animated: false)
-            }
+            let benchmark = SentryBenchmarking.stop()
         }
     }
 

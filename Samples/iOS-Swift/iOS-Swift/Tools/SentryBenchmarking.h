@@ -1,17 +1,13 @@
 #import <Foundation/Foundation.h>
-
-extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
+#import <mach/host_info.h>
+#import <mach/thread_info.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
- * The CPU usage per core, where the order of results corresponds to the core number as
- * returned by the underlying system call, e.g. @c @[ @c <core-0-CPU-usage>, @c <core-1-CPU-usage>,
- * @c ...] .
- */
-@interface SentryCPUCoreReadings : NSObject
-- (instancetype)initWithUsagePercentages:(NSArray<NSNumber *> *)usagePercentages;
-@property NSArray<NSNumber *> *usagePercentages;
+extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
+
+@interface SentryThreadBasicInfo : NSObject
+@property struct thread_basic_info threadInfo;
 @end
 
 /**
@@ -27,6 +23,15 @@ NS_ASSUME_NONNULL_BEGIN
  * The amount of ticks that have occurred since system boot at the moment the info is gathered.
  */
 @interface SentryCPUReading : NSObject
+
+/**
+ * Only used to hold data as it is read; not used to hold results calculations. For results, see the
+ * other properties.
+ */
+@property host_cpu_load_info_data_t data;
+
+// MARK: extracted/calculated results
+
 @property uint64_t systemTicks;
 @property uint64_t userTicks;
 @property uint64_t idleTicks;
@@ -34,54 +39,50 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
+ * A structure that holds a sample of data that is expected to monotonically increase for a fixed
+ * number of datapoints throughout the benchmark, so that only a start and end sample are needed and
+ * the difference can be taken to compute the result.
+ */
+@interface SentryBenchmarkReading : NSObject
+@property SentryCPUReading *cpu;
+@property SentryPowerReading *power;
+@property uint64_t contextSwitches;
+@end
+
+/**
+ * For data that must be sampled because there are a variable amount of data points (threads may be
+ * created or destroyed during the benchmark) or cannot be summed (like CPU usage percentage), a
+ * wrapper around one reading at a moment in time.
+ */
+@interface SentryBenchmarkSample : NSObject
+@property NSDictionary<NSString *, SentryThreadBasicInfo *> *threadInfos;
+@property NSArray<NSNumber *> *cpuUsagePerCore;
+@end
+
+/**
+ * The CPU usage per core, where the order of results corresponds to the core number as
+ * returned by the underlying system call, e.g. @c @[ @c <core-0-CPU-usage>, @c <core-1-CPU-usage>,
+ * @c ...] .
+ */
+@interface SentrySampledBenchmarkResults : NSObject
+@property NSArray<SentryBenchmarkSample *> *allSamples;
+@property NSArray<NSNumber *> *aggregatedCPUUsagePerCore;
+@property NSDictionary<NSString *, SentryThreadBasicInfo *> *aggregatedThreadInfo;
+@end
+
+/**
  * A structure to hold the results of comparing two benchmark readings from the start and end of a
  * benchmark session, plus the aggregated results of any sample-based readings.
  */
 @interface SentryBenchmarkResult : NSObject
-// MARK: start/end differences
-@property int64_t cpuTicksSystem;
-@property int64_t cpuTicksUser;
-@property int64_t cpuTicksIdle;
+@property SentryBenchmarkReading *results;
+@property SentrySampledBenchmarkResults *sampledResults;
 
-@property int64_t cpuPower;
-@property int64_t gpuPower;
+- (instancetype)init NS_UNAVAILABLE;
 
-@property int64_t contextSwitches;
-
-// MARK: sample-based aggregations
-@property SentryCPUCoreReadings *cpuUsagePerCore;
-@property NSDictionary<NSString *, NSArray<NSNumber *> *> *cpuUsagePerThread;
-
-/**
- * Compare two sets of results of benchmark comparisons.
- *
- * Say you benchmark an operation A with a certain implementation, and then a variant B with a
- * different implementation. Once you calculate the
- *
- * self - other
- */
-- (SentryBenchmarkResult *)diff:(SentryBenchmarkResult *)other;
-@end
-
-/**
- * A structure that holds all the different readings taken at a moment in time.
- */
-@interface SentryBenchmarkReading : NSObject
-@property SentryCPUReading *cpuReading;
-@property SentryPowerReading *powerReading;
-@property uint64_t contextSwitches;
-
-- (instancetype)initWithCPUTickInfo:(SentryCPUReading *)cpuTickInfo
-                         powerUsage:(SentryPowerReading *)powerUsage
-                    contextSwitches:(uint64_t)contextSwitches;
-
-/**
- * Given two readings of various cumulative measurements, take the difference to find the "overhead"
- * of a measured operation. Essentially, end - start.
- *
- * self - other
- */
-- (SentryBenchmarkResult *)diff:(SentryBenchmarkReading *)other;
+- (instancetype)initWithStart:(SentryBenchmarkReading *)start
+                          end:(SentryBenchmarkReading *)end
+       aggregatedSampleResult:(SentrySampledBenchmarkResults *)aggregatedSampleResult;
 @end
 
 @interface SentryBenchmarking : NSObject
@@ -106,8 +107,6 @@ NS_ASSUME_NONNULL_BEGIN
  * sampling-based data like per-thread CPU time.
  */
 + (SentryBenchmarkResult *)stop;
-
-+ (SentryBenchmarkReading *)gatherBenchmarkStats;
 
 @end
 
