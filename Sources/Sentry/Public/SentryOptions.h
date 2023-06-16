@@ -481,7 +481,8 @@ NS_SWIFT_NAME(Options)
  * @note Default value is `NO`.
  */
 @property (nonatomic) BOOL enableTimeToFullDisplayTracing;
-@property (nonatomic) BOOL enableTimeToFullDisplay DEPRECATED_MSG_ATTRIBUTE("Use 'enableTimeToFullDisplayTracing' instead");
+@property (nonatomic) BOOL enableTimeToFullDisplay DEPRECATED_MSG_ATTRIBUTE(
+    "Use 'enableTimeToFullDisplayTracing' instead");
 
 /**
  * @warning This is an experimental feature and may still have bugs.
