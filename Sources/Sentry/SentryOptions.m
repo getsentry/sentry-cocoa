@@ -344,8 +344,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
     if (options[@"enableTimeToFullDisplayTracing"]) {
         [self setBool:options[@"enableTimeToFullDisplayTracing"]
                 block:^(BOOL value) { self->_enableTimeToFullDisplayTracing = value; }];
-    } else if(options[@"enableTimeToFullDisplay"]) {
-        SENTRY_LOG_WARN(@"WARNING: 'enableTimeToFullDisplay' was deprecated. Use 'enableTimeToFullDisplayTracing' instead.");
+    } else if (options[@"enableTimeToFullDisplay"]) {
+        SENTRY_LOG_WARN(@"WARNING: 'enableTimeToFullDisplay' was deprecated. Use "
+                        @"'enableTimeToFullDisplayTracing' instead.");
         [self setBool:options[@"enableTimeToFullDisplay"]
                 block:^(BOOL value) { self->_enableTimeToFullDisplayTracing = value; }];
     }
@@ -567,11 +568,13 @@ NSString *const kSentryDefaultEnvironment = @"production";
         || _profilesSampler != nil || _enableProfiling;
 }
 
-- (void)setEnableTimeToFullDisplay:(BOOL)enableTimeToFullDisplayTracing {
+- (void)setEnableTimeToFullDisplay:(BOOL)enableTimeToFullDisplayTracing
+{
     _enableTimeToFullDisplayTracing = enableTimeToFullDisplayTracing;
 }
 
-- (BOOL)enableTimeToFullDisplay {
+- (BOOL)enableTimeToFullDisplay
+{
     return _enableTimeToFullDisplayTracing;
 }
 
