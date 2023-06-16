@@ -558,7 +558,7 @@ class SentrySDKTests: XCTestCase {
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testReportFullyDisplayed() {
-        fixture.options.enableTimeToFullDisplay = true
+        fixture.options.enableTimeToFullDisplayTracing = true
 
         SentrySDK.start(options: fixture.options)
 
