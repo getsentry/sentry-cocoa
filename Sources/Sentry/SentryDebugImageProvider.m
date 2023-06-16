@@ -73,9 +73,9 @@ SentryDebugImageProvider ()
 - (NSArray<SentryDebugMeta *> *)getDebugImagesForFrames:(NSArray<SentryFrame *> *)frames
                                                 isCrash:(BOOL)isCrash
 {
-    NSMutableSet<NSString *> *imageAdresses = [[NSMutableSet alloc] init];
-    [self extractDebugImageAddressFromFrames:frames intoSet:imageAdresses];
-    return [self getDebugImagesForAddresses:imageAdresses isCrash:isCrash];
+    NSMutableSet<NSString *> *imageAddresses = [[NSMutableSet alloc] init];
+    [self extractDebugImageAddressFromFrames:frames intoSet:imageAddresses];
+    return [self getDebugImagesForAddresses:imageAddresses isCrash:isCrash];
 }
 
 - (NSArray<SentryDebugMeta *> *)getDebugImagesForThreads:(NSArray<SentryThread *> *)threads
@@ -87,13 +87,13 @@ SentryDebugImageProvider ()
 - (NSArray<SentryDebugMeta *> *)getDebugImagesForThreads:(NSArray<SentryThread *> *)threads
                                                  isCrash:(BOOL)isCrash
 {
-    NSMutableSet<NSString *> *imageAdresses = [[NSMutableSet alloc] init];
+    NSMutableSet<NSString *> *imageAddresses = [[NSMutableSet alloc] init];
 
     for (SentryThread *thread in threads) {
-        [self extractDebugImageAddressFromFrames:thread.stacktrace.frames intoSet:imageAdresses];
+        [self extractDebugImageAddressFromFrames:thread.stacktrace.frames intoSet:imageAddresses];
     }
 
-    return [self getDebugImagesForAddresses:imageAdresses isCrash:isCrash];
+    return [self getDebugImagesForAddresses:imageAddresses isCrash:isCrash];
 }
 
 - (NSArray<SentryDebugMeta *> *)getDebugImages
