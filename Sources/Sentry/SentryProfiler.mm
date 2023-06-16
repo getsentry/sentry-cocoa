@@ -186,7 +186,8 @@ serializedSamplesWithRelativeTimestamps(
 NSDictionary<NSString *, id> *
 serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransaction *transaction,
     SentryId *profileID, NSString *truncationReason, NSString *environment, NSString *release,
-    NSDictionary<NSString *, id> *serializedMetrics, NSArray<SentryDebugMeta *> *debugMeta)
+    NSDictionary<NSString *, id> *serializedMetrics, NSArray<SentryDebugMeta *> *debugMeta,
+    SentryHub *hub)
 {
     NSMutableArray<SentrySample *> *const samples = profileData[@"profile"][@"samples"];
     // We need at least two samples to be able to draw a stack frame for any given function: one
@@ -194,6 +195,8 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     // stack frame with 0 duration, which wouldn't make sense.
     if ([samples count] < 2) {
         SENTRY_LOG_DEBUG(@"Not enough samples in profile");
+        [hub.getClient recordLostEvent:kSentryDataCategoryProfile
+                                reason:kSentryDiscardReasonEventProcessor];
         return nil;
     }
 
@@ -201,6 +204,8 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     const auto slicedSamples = slicedProfileSamples(samples, transaction);
     if (slicedSamples.count < 2) {
         SENTRY_LOG_DEBUG(@"Not enough samples in profile during the transaction");
+        [hub.getClient recordLostEvent:kSentryDataCategoryProfile
+                                reason:kSentryDiscardReasonEventProcessor];
         return nil;
     }
     const auto payload = [NSMutableDictionary<NSString *, id> dictionary];
@@ -592,7 +597,8 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
             ?: _gCurrentProfiler->_hub.getClient.options.environment,
         _gCurrentProfiler->_hub.getClient.options.releaseName,
         [_gCurrentProfiler->_metricProfiler serializeForTransaction:transaction],
-        [_gCurrentProfiler->_debugImageProvider getDebugImagesCrashed:NO]);
+        [_gCurrentProfiler->_debugImageProvider getDebugImagesCrashed:NO],
+        _gCurrentProfiler -> _hub);
 }
 
 + (void)timeoutAbort
