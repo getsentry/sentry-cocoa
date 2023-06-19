@@ -568,16 +568,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
         || _profilesSampler != nil || _enableProfiling;
 }
 
-- (void)setEnableTimeToFullDisplay:(BOOL)enableTimeToFullDisplayTracing
-{
-    _enableTimeToFullDisplayTracing = enableTimeToFullDisplayTracing;
-}
-
-- (BOOL)enableTimeToFullDisplay
-{
-    return _enableTimeToFullDisplayTracing;
-}
-
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)setEnableProfiling_DEPRECATED_TEST_ONLY:(BOOL)enableProfiling_DEPRECATED_TEST_ONLY
