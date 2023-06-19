@@ -69,13 +69,15 @@ static SentryCrashBinaryImageNode rootNode = { 0 };
 static SentryCrashBinaryImageNode *tailNode = NULL;
 static pthread_mutex_t binaryImagesMutex = PTHREAD_MUTEX_INITIALIZER;
 
+static sentrycrashbic_cacheChangeCallback imageAddedCallback = NULL;
+static sentrycrashbic_cacheChangeCallback imageRemovedCallback = NULL;
+
 static void
 binaryImageAdded(const struct mach_header *header, intptr_t slide)
 {
     if (tailNode == NULL) {
         return;
     }
-
     Dl_info info;
     if (!dladdr(header, &info) || info.dli_fname == NULL) {
         return;
@@ -100,8 +102,12 @@ binaryImageAdded(const struct mach_header *header, intptr_t slide)
         tailNode = tailNode->next;
     } else {
         free(newNode);
+        newNode = NULL;
     }
     pthread_mutex_unlock(&binaryImagesMutex);
+    if (newNode && imageAddedCallback) {
+        imageAddedCallback(&newNode->image);
+    }
 }
 
 static void
@@ -112,6 +118,9 @@ binaryImageRemoved(const struct mach_header *header, intptr_t slide)
     while (nextNode != NULL) {
         if (nextNode->image.address == (uint64_t)header) {
             nextNode->available = false;
+            if (imageRemovedCallback) {
+                imageRemovedCallback(&nextNode->image);
+            }
             break;
         }
         nextNode = nextNode->next;
@@ -177,4 +186,28 @@ sentrycrashbic_stopCache(void)
     }
 
     pthread_mutex_unlock(&binaryImagesMutex);
+}
+
+static void
+initialReportToCallback(SentryCrashBinaryImage *image, void *context)
+{
+    sentrycrashbic_cacheChangeCallback callback = (sentrycrashbic_cacheChangeCallback)context;
+    callback(image);
+}
+
+void
+sentrycrashbic_registerAddedCallback(sentrycrashbic_cacheChangeCallback callback)
+{
+    imageAddedCallback = callback;
+    if (callback) {
+        pthread_mutex_lock(&binaryImagesMutex);
+        sentrycrashbic_iterateOverImages(&initialReportToCallback, callback);
+        pthread_mutex_unlock(&binaryImagesMutex);
+    }
+}
+
+void
+sentrycrashbic_registerRemovedCallback(sentrycrashbic_cacheChangeCallback callback)
+{
+    imageRemovedCallback = callback;
 }

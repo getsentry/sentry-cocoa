@@ -6,6 +6,7 @@
 
 - Experimental support for Swift Async stacktraces (#3051)
 - Cache binary images to be used for crashes (#2939)
+- Symbolicate locally only when debug is enabled (#3079)
 - Sanitize HTTP info from breadcrumbs, spans and events (#3094) 
 
 ### Fixes

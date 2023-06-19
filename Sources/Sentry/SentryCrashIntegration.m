@@ -140,7 +140,6 @@ SentryCrashIntegration ()
             [SentryCrashIntegration sendAllSentryCrashReports];
         }
     };
-    [self.crashAdapter startBinaryImageCache];
     [self.dispatchQueueWrapper dispatchOnce:&installationToken block:block];
 }
 
@@ -158,8 +157,6 @@ SentryCrashIntegration ()
         [installation uninstall];
         installationToken = 0;
     }
-
-    [self.crashAdapter stopBinaryImageCache];
 
     [NSNotificationCenter.defaultCenter removeObserver:self
                                                   name:NSCurrentLocaleDidChangeNotification
