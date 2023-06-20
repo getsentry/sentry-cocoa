@@ -65,9 +65,6 @@
                   Identifier = "SentryCrashReportStore_Tests/testDeleteAllReports">
                </Test>
                <Test
-                  Identifier = "SentryNSErrorTests/testSerializeWithUnderlyingNSException()">
-               </Test>
-               <Test
                   Identifier = "SentryProfilerSwiftTests/testConcurrentSpansWithTimeout()">
                </Test>
                <Test
