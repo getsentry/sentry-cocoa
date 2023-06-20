@@ -341,15 +341,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self setBool:options[@"enableCaptureFailedRequests"]
             block:^(BOOL value) { self->_enableCaptureFailedRequests = value; }];
 
-    if (options[@"enableTimeToFullDisplayTracing"]) {
-        [self setBool:options[@"enableTimeToFullDisplayTracing"]
-                block:^(BOOL value) { self->_enableTimeToFullDisplayTracing = value; }];
-    } else if (options[@"enableTimeToFullDisplay"]) {
-        SENTRY_LOG_WARN(@"WARNING: 'enableTimeToFullDisplay' was deprecated. Use "
-                        @"'enableTimeToFullDisplayTracing' instead.");
-        [self setBool:options[@"enableTimeToFullDisplay"]
-                block:^(BOOL value) { self->_enableTimeToFullDisplayTracing = value; }];
-    }
+    [self setBool:options[@"enableTimeToFullDisplayTracing"]
+            block:^(BOOL value) { self->_enableTimeToFullDisplayTracing = value; }];
 
     if ([self isBlock:options[@"initialScope"]]) {
         self.initialScope = options[@"initialScope"];
