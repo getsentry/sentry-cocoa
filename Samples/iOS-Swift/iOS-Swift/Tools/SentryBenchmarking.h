@@ -23,19 +23,12 @@ extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
  * The amount of ticks that have occurred since system boot at the moment the info is gathered.
  */
 @interface SentryCPUReading : NSObject
-
-/**
- * Only used to hold data as it is read; not used to hold results calculations. For results, see the
- * other properties.
- */
-@property host_cpu_load_info_data_t data;
-
-// MARK: extracted/calculated results
-
 @property uint64_t systemTicks;
 @property uint64_t userTicks;
 @property uint64_t idleTicks;
-- (uint64_t)total;
+
+/** The amount of system and user ticks. */
+- (uint64_t)totalTicks;
 @end
 
 /**

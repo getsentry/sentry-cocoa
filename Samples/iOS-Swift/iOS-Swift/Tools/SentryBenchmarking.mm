@@ -63,15 +63,18 @@
 
 - (NSString *)debugDescription
 {
-    return [NSString stringWithFormat:@"CPU ticks:\nsystem: %lld; user: %lld; idle: %lld\nPower "
-                                      @"usage:\ncpu: %lld; gpu: %lld\ncontext switches: %lld",
-                     _results.cpu.systemTicks, _results.cpu.userTicks, _results.cpu.idleTicks,
-                     _results.power.totalCPU, _results.power.totalGPU, _results.contextSwitches];
+    return [NSString stringWithFormat:@"Endpoint results: %@; cumulative sampled results: %@",
+                     _results.debugDescription, _sampledResults.debugDescription];
 }
 
 @end
 
 @implementation SentryBenchmarkReading
+
++ (NSString *)debugDescription
+{
+}
+
 @end
 
 @implementation SentrySampledBenchmarkResults
@@ -107,6 +110,17 @@
 
 @end
 
+@interface
+SentryCPUReading ()
+
+/**
+ * Only used to hold data as it is read; not used to hold results calculations. For results, see the
+ * other properties.
+ */
+@property host_cpu_load_info_data_t data;
+
+@end
+
 @implementation SentryCPUReading
 
 - (instancetype)initWithData:(host_cpu_load_info_data_t)data
@@ -121,14 +135,14 @@
     return self;
 }
 
-- (uint64_t)total
+- (uint64_t)totalTicks
 {
     return _systemTicks + _userTicks;
 }
 
 - (NSString *)debugDescription
 {
-    return [NSString stringWithFormat:@"CPU ticks: %llu", [self total]];
+    return [NSString stringWithFormat:@"CPU ticks: %llu", [self totalTicks]];
 }
 
 @end

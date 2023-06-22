@@ -206,27 +206,28 @@ class ExtraViewController: UIViewController {
         AppDelegate.startSentry()
     }
 
+    @IBOutlet weak var imageView: UIImageView!
     @IBAction func decodeImageMain(_ sender: Any) {
         let data = try! Data(contentsOf: Bundle.main.url(forResource: "Tongariro", withExtension: "jpg")!)
-
-        SentryBenchmarking.start()
         let image = UIImage(data: data)
+        SentryBenchmarking.start()
+        imageView.image = image
         let benchmarkMain = SentryBenchmarking.stop()
-
-        DispatchQueue.global(qos: .background).async {
-            let data = try! Data(contentsOf: Bundle.main.url(forResource: "Tongariro", withExtension: "jpg")!)
-            SentryBenchmarking.start()
-            let image = UIImage(data: data)
-            let benchmarkBackground = SentryBenchmarking.stop()
-        }
     }
 
     @IBAction func decodeImageBg(_ sender: Any) {
-        SentryBenchmarking.start()
-        DispatchQueue.global(qos: .background).async {
-            let data = try! Data(contentsOf: Bundle.main.url(forResource: "Tongariro", withExtension: "jpg")!)
-            let image = UIImage(data: data)
-            let benchmark = SentryBenchmarking.stop()
+        if #available(iOS 15.0, *) {
+            DispatchQueue.global(qos: .background).async {
+                let data = try! Data(contentsOf: Bundle.main.url(forResource: "Tongariro", withExtension: "jpg")!)
+                let image = UIImage(data: data)?.preparingForDisplay()
+                SentryBenchmarking.start()
+                DispatchQueue.main.async {
+                    self.imageView.image = image
+                }
+                let benchmark = SentryBenchmarking.stop()
+            }
+        } else {
+            // Fallback on earlier versions
         }
     }
 
