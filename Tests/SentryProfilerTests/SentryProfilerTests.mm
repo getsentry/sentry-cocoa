@@ -1,4 +1,5 @@
 #import "SentryEvent+Private.h"
+#import "SentryHub+TestInit.h"
 #import "SentryId.h"
 #import "SentryProfileTimeseries.h"
 #import "SentryProfiler+Test.h"
@@ -216,7 +217,7 @@ using namespace sentry::profiling;
     const auto profileID = [[SentryId alloc] init];
     const auto serialization = serializedProfileData(profileData, transaction, profileID,
         profilerTruncationReasonName(SentryProfilerTruncationReasonNormal), @"test", @"someRelease",
-        @{}, @[]);
+        @{}, @[], [[SentryHub alloc] initWithClient:nil andScope:nil]);
 
     // cause the data structures to be modified again: add new addresses
     {

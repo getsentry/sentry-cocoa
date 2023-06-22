@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 NSDictionary<NSString *, id> *serializedProfileData(NSDictionary<NSString *, id> *profileData,
     SentryTransaction *transaction, SentryId *profileID, NSString *truncationReason,
     NSString *environment, NSString *release, NSDictionary<NSString *, id> *serializedMetrics,
-    NSArray<SentryDebugMeta *> *debugMeta);
+    NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub);
 
 NS_ASSUME_NONNULL_END
 
