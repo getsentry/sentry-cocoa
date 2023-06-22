@@ -1,11 +1,11 @@
 # Changelog
 
-## Unreleased
+## 8.9.0-beta.1
 
 ### Features
 
 - Symbolicate locally only when debug is enabled (#3079)
-- Sanitize HTTP info from breadcrumbs, spans and events (#3094) 
+- Sanitize HTTP info from breadcrumbs, spans and events (#3094)
 
 ## 8.8.0
 
