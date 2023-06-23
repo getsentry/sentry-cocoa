@@ -16,6 +16,8 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
         init() {
             framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper)
+            SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
+            print("Fixture.init.SentryDependencyContainer.sharedInstance().framesTracker = \(SentryDependencyContainer.sharedInstance().framesTracker)")
             framesTracker.start()
         }
 
@@ -24,7 +26,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         }
     }
 
-    private let fixture = Fixture()
+    private lazy var fixture = Fixture()
 
     override func setUp() {
         super.setUp()
@@ -44,6 +46,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
         sut.start(for: tracer)
         XCTAssertEqual(tracer.children.count, 1)
+        print("testReportInitialDisplay_notWaitingFullDisplay.SentryDependencyContainer.sharedInstance().framesTracker = \(SentryDependencyContainer.sharedInstance().framesTracker)")
         XCTAssertEqual(Dynamic(fixture.framesTracker).listeners.count, 1)
 
         let ttidSpan = try XCTUnwrap(tracer.children.first, "Expected a TTID span")
