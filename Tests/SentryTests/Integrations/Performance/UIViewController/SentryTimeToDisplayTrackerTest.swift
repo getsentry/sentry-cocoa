@@ -20,7 +20,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         }
 
         func getSut(for controller: UIViewController, waitForFullDisplay: Bool) -> SentryTimeToDisplayTracker {
-            return SentryTimeToDisplayTracker(for: controller, framesTracker: framesTracker, waitForFullDisplay: waitForFullDisplay)
+            return SentryTimeToDisplayTracker(for: controller, waitForFullDisplay: waitForFullDisplay)
         }
     }
 
