@@ -8,7 +8,9 @@ class SentryStacktraceBuilderTests: XCTestCase {
         let queue = DispatchQueue(label: "SentryStacktraceBuilderTests")
 
         var sut: SentryStacktraceBuilder {
-            return SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: [])))
+            let res = SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []), binaryImageCache: SentryBinaryImageCache.shared))
+            res.symbolicate = true
+            return res
         }
     }
 

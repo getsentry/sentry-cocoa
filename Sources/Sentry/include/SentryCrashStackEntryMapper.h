@@ -1,3 +1,4 @@
+#import "SentryBinaryImageCache.h"
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashStackCursor.h"
 #import "SentryDefines.h"
@@ -10,7 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryCrashStackEntryMapper : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithInAppLogic:(SentryInAppLogic *)inAppLogic;
+- (instancetype)initWithInAppLogic:(SentryInAppLogic *)inAppLogic
+                  binaryImageCache:(SentryBinaryImageCache *)binaryImageCache;
 
 /**
  * Maps the stackEntry of a SentryCrashStackCursor to SentryFrame.

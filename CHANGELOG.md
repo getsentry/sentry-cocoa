@@ -5,7 +5,15 @@
 ### Breaking change
 
 - Renamed `enableTimeToFullDisplay` to `enableTimeToFullDisplayTracing` (#3106)
-    - `enableTimeToFullDisplay` is still available as deprecated to ease the transition.
+    - This is an experimental feature and may change at any time without a major revision.
+
+## 8.9.0-beta.1
+
+### Features
+
+- Symbolicate locally only when debug is enabled (#3079)
+- Sanitize HTTP info from breadcrumbs, spans and events (#3094)
+
 
 ## 8.8.0
 
@@ -13,7 +21,6 @@
 
 - Experimental support for Swift Async stacktraces (#3051)
 - Cache binary images to be used for crashes (#2939)
-- Sanitize HTTP info from breadcrumbs, spans and events (#3094) 
 
 ### Fixes
 

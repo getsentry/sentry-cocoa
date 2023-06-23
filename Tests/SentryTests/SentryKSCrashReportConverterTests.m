@@ -282,8 +282,8 @@
 
 - (void)testFatalError
 {
-    [self isValidReport:@"Resources/fatal-error-notable-adresses"];
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/fatal-error-notable-adresses"];
+    [self isValidReport:@"Resources/fatal-error-notable-addresses"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Resources/fatal-error-notable-addresses"];
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
@@ -327,8 +327,8 @@
 
 - (void)testUserInfo
 {
-    [self isValidReport:@"Resources/fatal-error-notable-adresses"];
-    NSDictionary *rawCrash = [self getCrashReport:@"Resources/fatal-error-notable-adresses"];
+    [self isValidReport:@"Resources/fatal-error-notable-addresses"];
+    NSDictionary *rawCrash = [self getCrashReport:@"Resources/fatal-error-notable-addresses"];
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
     reportConverter.userContext = @{
