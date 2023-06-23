@@ -25,7 +25,7 @@ class TestCleanup: NSObject {
         setTestDefaultLogLevel()
 
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        let framesTracker = SentryFramesTracker.sharedInstance()
+        let framesTracker = SentryDependencyContainer.sharedInstance().framesTracker
         framesTracker.stop()
         framesTracker.resetFrames()
 

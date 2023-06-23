@@ -56,7 +56,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             systemWrapper.overrides.memoryFootprintBytes = mockMemoryFootprint
 
 #if !os(macOS)
-            SentryProfiler.useFramesTracker(framesTracker)
+            SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
             framesTracker.start()
             displayLinkWrapper.call()
 #endif

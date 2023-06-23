@@ -64,8 +64,8 @@ class SentryTracerTests: XCTestCase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             displayLinkWrapper = TestDisplayLinkWrapper()
             
-            SentryFramesTracker.sharedInstance().setDisplayLinkWrapper(displayLinkWrapper)
-            SentryFramesTracker.sharedInstance().start()
+            SentryDependencyContainer.sharedInstance().framesTracker.setDisplayLinkWrapper(displayLinkWrapper)
+            SentryDependencyContainer.sharedInstance().framesTracker.start()
             displayLinkWrapper.call()
 #endif
         }
@@ -985,7 +985,7 @@ class SentryTracerTests: XCTestCase {
         
         let sut = fixture.getSut()
         
-        SentryFramesTracker.sharedInstance().resetFrames()
+        SentryDependencyContainer.sharedInstance().framesTracker.resetFrames()
         
         sut.finish()
         

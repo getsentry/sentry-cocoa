@@ -1,4 +1,5 @@
 #import "SentryUIViewControllerPerformanceTracker.h"
+#import "SentryDependencyContainer.h"
 #import "SentryFramesTracker.h"
 #import "SentryHub.h"
 #import "SentryLog.h"
@@ -138,10 +139,10 @@ SentryUIViewControllerPerformanceTracker ()
         return;
     }
 
-    SentryTimeToDisplayTracker *ttdTracker =
-        [[SentryTimeToDisplayTracker alloc] initForController:controller
-                                                framesTracker:SentryFramesTracker.sharedInstance
-                                           waitForFullDisplay:self.enableWaitForFullDisplay];
+    SentryTimeToDisplayTracker *ttdTracker = [[SentryTimeToDisplayTracker alloc]
+         initForController:controller
+             framesTracker:SentryDependencyContainer.sharedInstance.framesTracker
+        waitForFullDisplay:self.enableWaitForFullDisplay];
 
     objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER, ttdTracker,
         OBJC_ASSOCIATION_ASSIGN);

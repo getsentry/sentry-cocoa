@@ -27,10 +27,6 @@ SentryProfiler ()
 + (void)useTimeoutTimerWrapper:(SentryNSTimerWrapper *)timerWrapper
     NS_SWIFT_NAME(useTimeoutTimerWrapper(_:));
 
-#    if SENTRY_HAS_UIKIT
-+ (void)useFramesTracker:(SentryFramesTracker *)framesTracker NS_SWIFT_NAME(useFramesTracker(_:));
-#    endif // SENTRY_HAS_UIKIT
-
 @end
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
