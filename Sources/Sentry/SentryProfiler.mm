@@ -1,5 +1,5 @@
-#import "SentryProfiler+Private.h"
 #import "SentryProfiler+Test.h"
+#import "SentryProfilerState.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "NSDate+SentryExtras.h"
