@@ -1556,7 +1556,6 @@
 		844EDC74294144DB00C86F34 /* SentrySystemWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentrySystemWrapper.h; path = include/SentrySystemWrapper.h; sourceTree = "<group>"; };
 		844EDC75294144DB00C86F34 /* SentrySystemWrapper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentrySystemWrapper.mm; sourceTree = "<group>"; };
 		844EDC7829415AB300C86F34 /* TestSentrySystemWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSentrySystemWrapper.swift; sourceTree = "<group>"; };
-		844EDC7B2942843400C86F34 /* SentryProfiler+SwiftTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentryProfiler+SwiftTest.h"; path = "Tests/SentryTests/Helper/SentryProfiler+SwiftTest.h"; sourceTree = SOURCE_ROOT; };
 		844EDCE32947DC3100C86F34 /* SentryNSTimerWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryNSTimerWrapper.h; path = include/SentryNSTimerWrapper.h; sourceTree = "<group>"; };
 		844EDCE42947DC3100C86F34 /* SentryNSTimerWrapper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryNSTimerWrapper.m; sourceTree = "<group>"; };
 		844EDCE72947DCD700C86F34 /* TestSentryNSTimerWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSentryNSTimerWrapper.swift; sourceTree = "<group>"; };
@@ -3102,7 +3101,6 @@
 				8454CF8B293EAF9A006AC140 /* SentryMetricProfiler.mm */,
 				0354A22A2A134D9C003C3A04 /* SentryProfiler+Private.h */,
 				84A888FC28D9B11700C51DFD /* SentryProfiler+Test.h */,
-				844EDC7B2942843400C86F34 /* SentryProfiler+SwiftTest.h */,
 				03F84D2B27DD4191008FE43F /* SentryProfiler.mm */,
 				03BCC38D27E2A377003232C7 /* SentryProfilingConditionals.h */,
 				03F84D2927DD416B008FE43F /* SentryProfilingLogging.hpp */,

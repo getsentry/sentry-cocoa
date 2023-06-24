@@ -4,9 +4,6 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-@class SentryNSProcessInfoWrapper;
-@class SentryDispatchFactory;
-@class SentrySystemWrapper;
 @class SentryTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -42,9 +39,6 @@ typedef NSDictionary<NSString *, id /* <NSString, NSArray<SentrySerializedMetric
  */
 @interface SentryMetricProfiler : NSObject
 
-- (instancetype)initWithProcessInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
-                             systemWrapper:(SentrySystemWrapper *)systemWrapper
-                           dispatchFactory:(SentryDispatchFactory *)dispatchFactory;
 - (void)start;
 - (void)stop;
 
