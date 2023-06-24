@@ -43,13 +43,13 @@ class SentryProfilerSwiftTests: XCTestCase {
             options.profilesSampleRate = 1.0
             options.tracesSampleRate = 1.0
 
-            SentryDependencyContainer.sharedInstance().systemWrapper = systemWrapper
-            SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
+            SentryProfiler.useSystemWrapper(systemWrapper)
+            SentryProfiler.useProcessInfoWrapper(processInfoWrapper)
             dispatchFactory.vendedSourceHandler = { eventHandler in
                 self.metricTimerWrapper = eventHandler
             }
-            SentryDependencyContainer.sharedInstance().dispatchFactory = dispatchFactory
-            SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory
+            SentryProfiler.useDispatchFactory(dispatchFactory)
+            SentryProfiler.useTimeoutTimerWrapper(timeoutTimerWrapper)
 
             systemWrapper.overrides.cpuUsagePerCore = mockCPUUsages.map { NSNumber(value: $0) }
             processInfoWrapper.overrides.processorCount = UInt(mockCPUUsages.count)
