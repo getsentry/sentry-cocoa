@@ -1,6 +1,6 @@
-#import "SentryNSTimerWrapper.h"
+#import "SentryNSTimerFactory.h"
 
-@implementation SentryNSTimerWrapper
+@implementation SentryNSTimerFactory
 
 - (NSTimer *)scheduledTimerWithTimeInterval:(NSTimeInterval)interval
                                     repeats:(BOOL)repeats

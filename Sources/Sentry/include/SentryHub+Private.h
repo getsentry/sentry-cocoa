@@ -2,7 +2,7 @@
 #import "SentryTracer.h"
 
 @class SentryEnvelopeItem, SentryId, SentryScope, SentryTransaction, SentryDispatchQueueWrapper,
-    SentryEnvelope, SentryNSTimerWrapper, SentrySession;
+    SentryEnvelope, SentryNSTimerFactory, SentrySession;
 
 NS_ASSUME_NONNULL_BEGIN
 

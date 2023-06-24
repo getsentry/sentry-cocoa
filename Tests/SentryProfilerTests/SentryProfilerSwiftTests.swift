@@ -29,7 +29,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         lazy var processInfoWrapper = TestSentryNSProcessInfoWrapper()
         lazy var dispatchFactory = TestDispatchFactory()
         var metricTimerWrapper: TestDispatchSourceWrapper?
-        lazy var timeoutTimerWrapper = TestSentryNSTimerWrapper()
+        lazy var timeoutTimerFactory = TestSentryNSTimerFactory()
 
         let currentDateProvider = TestCurrentDateProvider()
 
@@ -43,13 +43,13 @@ class SentryProfilerSwiftTests: XCTestCase {
             options.profilesSampleRate = 1.0
             options.tracesSampleRate = 1.0
 
-            SentryProfiler.useSystemWrapper(systemWrapper)
-            SentryProfiler.useProcessInfoWrapper(processInfoWrapper)
+            SentryDependencyContainer.sharedInstance().systemWrapper = systemWrapper
+            SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
             dispatchFactory.vendedSourceHandler = { eventHandler in
                 self.metricTimerWrapper = eventHandler
             }
-            SentryProfiler.useDispatchFactory(dispatchFactory)
-            SentryProfiler.useTimeoutTimerWrapper(timeoutTimerWrapper)
+            SentryDependencyContainer.sharedInstance().dispatchFactory = dispatchFactory
+            SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory
 
             systemWrapper.overrides.cpuUsagePerCore = mockCPUUsages.map { NSNumber(value: $0) }
             processInfoWrapper.overrides.processorCount = UInt(mockCPUUsages.count)
@@ -221,7 +221,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         super.tearDown()
 
         // If a test early exits because of a thrown error, it may not finish the spans it created. This ensures the profiler stops before starting the next test case.
-        fixture.timeoutTimerWrapper.fire()
+        fixture.timeoutTimerFactory.fire()
 
         clearTestState()
     }
@@ -282,7 +282,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         fixture.currentDateProvider.advanceBy(nanoseconds: 1.toNanoSeconds())
         forceProfilerSample()
         fixture.currentDateProvider.advanceBy(nanoseconds: 30.toNanoSeconds())
-        fixture.timeoutTimerWrapper.fire()
+        fixture.timeoutTimerFactory.fire()
 
         fixture.currentDateProvider.advanceBy(nanoseconds: 0.5.toNanoSeconds())
 
@@ -418,7 +418,7 @@ private extension SentryProfilerSwiftTests {
         forceProfilerSample()
         fixture.currentDateProvider.advance(by: 31)
         if shouldTimeOut {
-            fixture.timeoutTimerWrapper.fire()
+            fixture.timeoutTimerFactory.fire()
         }
 
         span.finish()

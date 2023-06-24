@@ -1,8 +1,8 @@
 import XCTest
 
-class SentryNSTimerWrapperTests: XCTestCase {
+class SentryNSTimerFactoryTests: XCTestCase {
     struct Fixture {
-        lazy var timerWrapper = SentryNSTimerWrapper()
+        lazy var timerWrapper = SentryNSTimerFactory()
     }
     lazy var fixture = Fixture()
 

@@ -18,7 +18,7 @@
 #import "SentryGlobalEventProcessor.h"
 #import "SentryLog.h"
 #import "SentryNSProcessInfoWrapper.h"
-#import "SentryNSTimerWrapper.h"
+#import "SentryNSTimerFactory.h"
 #import "SentryNetworkTracker.h"
 #import "SentryPerformanceTracker+Testing.h"
 #import "SentryRandom.h"

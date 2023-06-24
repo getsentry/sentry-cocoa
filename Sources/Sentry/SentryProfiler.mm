@@ -24,7 +24,7 @@
 #    import "SentryLog.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryNSProcessInfoWrapper.h"
-#    import "SentryNSTimerWrapper.h"
+#    import "SentryNSTimerFactory.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryScope+Private.h"
@@ -84,7 +84,7 @@ SentryProfiler *_Nullable _gCurrentProfiler;
 SentryNSProcessInfoWrapper *_gCurrentProcessInfoWrapper;
 SentrySystemWrapper *_gCurrentSystemWrapper;
 SentryDispatchFactory *_gDispatchFactory;
-SentryNSTimerWrapper *_gTimeoutTimerWrapper;
+SentryNSTimerFactory *_gTimeoutTimerFactory;
 
 NSString *
 profilerTruncationReasonName(SentryProfilerTruncationReason reason)
@@ -485,11 +485,11 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 
     [_gCurrentProfiler start];
 
-    if (_gTimeoutTimerWrapper == nil) {
-        _gTimeoutTimerWrapper = [[SentryNSTimerWrapper alloc] init];
+    if (_gTimeoutTimerFactory == nil) {
+        _gTimeoutTimerFactory = [[SentryNSTimerFactory alloc] init];
     }
     _gCurrentProfiler->_timeoutTimer =
-        [_gTimeoutTimerWrapper scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
+        [_gTimeoutTimerFactory scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
                                                        target:self
                                                      selector:@selector(timeoutAbort)
                                                      userInfo:nil
@@ -558,10 +558,10 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     _gDispatchFactory = dispatchFactory;
 }
 
-+ (void)useTimeoutTimerWrapper:(SentryNSTimerWrapper *)timerWrapper
++ (void)useTimeoutTimerWrapper:(SentryNSTimerFactory *)timerWrapper
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
-    _gTimeoutTimerWrapper = timerWrapper;
+    _gTimeoutTimerFactory = timerWrapper;
 }
 
 #    pragma mark - Private

@@ -10,7 +10,7 @@
 #import "SentryFramesTracker.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
-#import "SentryNSTimerWrapper.h"
+#import "SentryNSTimerFactory.h"
 #import "SentryNoOpSpan.h"
 #import "SentryProfiler.h"
 #import "SentryProfilesSampler.h"
@@ -120,8 +120,8 @@ static BOOL appStartMeasurementRead;
     _measurements = [[NSMutableDictionary alloc] init];
     self.finishStatus = kSentrySpanStatusUndefined;
 
-    if (_configuration.timerWrapper == nil) {
-        _configuration.timerWrapper = [[SentryNSTimerWrapper alloc] init];
+    if (_configuration.timerFactory == nil) {
+        _configuration.timerFactory = [[SentryNSTimerFactory alloc] init];
     }
 
     appStartMeasurement = [self getAppStartMeasurement];
@@ -214,7 +214,7 @@ static BOOL appStartMeasurementRead;
 {
     __weak SentryTracer *weakSelf = self;
     self.deadlineTimer =
-        [_configuration.timerWrapper scheduledTimerWithTimeInterval:SENTRY_AUTO_TRANSACTION_DEADLINE
+        [_configuration.timerFactory scheduledTimerWithTimeInterval:SENTRY_AUTO_TRANSACTION_DEADLINE
                                                             repeats:NO
                                                               block:^(NSTimer *_Nonnull timer) {
                                                                   if (weakSelf == nil) {

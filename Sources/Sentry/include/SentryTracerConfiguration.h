@@ -2,7 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryNSTimerWrapper, SentryDispatchQueueWrapper, SentryProfilesSamplerDecision;
+@class SentryNSTimerFactory, SentryDispatchQueueWrapper, SentryProfilesSamplerDecision;
 
 @interface SentryTracerConfiguration : NSObject
 
@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * A writer around NSTimer, to make it testable
  */
-@property (nonatomic, strong, nullable) SentryNSTimerWrapper *timerWrapper;
+@property (nonatomic, strong, nullable) SentryNSTimerFactory *timerFactory;
 
 + (SentryTracerConfiguration *)configurationWithBlock:
     (void (^)(SentryTracerConfiguration *configuration))block;
