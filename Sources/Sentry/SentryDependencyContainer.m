@@ -1,6 +1,8 @@
 #import "SentryANRTracker.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryDispatchQueueWrapper.h"
+#import "SentryDisplayLinkWrapper.h"
+#import "SentryFramesTracker.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryUIApplication.h"
 #import <SentryAppStateManager.h>
@@ -168,7 +170,20 @@ static NSObject *sentryDependencyContainerLock;
     }
     return _application;
 }
-#endif
+
+- (SentryFramesTracker *)framesTracker
+{
+    if (_framesTracker == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_framesTracker == nil) {
+                _framesTracker = [[SentryFramesTracker alloc]
+                    initWithDisplayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
+            }
+        }
+    }
+    return _framesTracker;
+}
+#endif // SENTRY_HAS_UIKIT
 
 - (SentrySwizzleWrapper *)swizzleWrapper
 {
@@ -242,6 +257,6 @@ static NSObject *sentryDependencyContainerLock;
     return _metricKitManager;
 }
 
-#endif
+#endif // SENTRY_HAS_METRIC_KIT
 
 @end

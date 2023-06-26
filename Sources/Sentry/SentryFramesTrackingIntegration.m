@@ -1,5 +1,6 @@
 #import "SentryFramesTrackingIntegration.h"
 #import "PrivateSentrySDKOnly.h"
+#import "SentryDependencyContainer.h"
 #import "SentryFramesTracker.h"
 #import "SentryLog.h"
 
@@ -24,7 +25,7 @@ SentryFramesTrackingIntegration ()
         return NO;
     }
 
-    self.tracker = [SentryFramesTracker sharedInstance];
+    self.tracker = SentryDependencyContainer.sharedInstance.framesTracker;
     [self.tracker start];
 
     return YES;

@@ -122,12 +122,12 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     
     func testIsFramesTrackingRunning() {
         XCTAssertFalse(PrivateSentrySDKOnly.isFramesTrackingRunning)
-        SentryFramesTracker.sharedInstance().start()
+        SentryDependencyContainer.sharedInstance().framesTracker.start()
         XCTAssertTrue(PrivateSentrySDKOnly.isFramesTrackingRunning)
     }
     
     func testGetFrames() {
-        let tracker = SentryFramesTracker.sharedInstance()
+        let tracker = SentryDependencyContainer.sharedInstance().framesTracker
         let displayLink = TestDisplayLinkWrapper()
         
         tracker.setDisplayLinkWrapper(displayLink)

@@ -621,7 +621,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     }
 
     private func reportFrame() {
-        Dynamic(SentryFramesTracker.sharedInstance()).displayLinkCallback()
+        Dynamic(SentryDependencyContainer.sharedInstance().framesTracker).displayLinkCallback()
     }
 }
 #endif

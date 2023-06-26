@@ -50,18 +50,6 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     unsigned int _frozenFrames;
 }
 
-+ (instancetype)sharedInstance
-{
-    static SentryFramesTracker *sharedInstance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedInstance =
-            [[self alloc] initWithDisplayLinkWrapper:[[SentryDisplayLinkWrapper alloc] init]];
-    });
-    return sharedInstance;
-}
-
-/** Internal constructor for testing */
 - (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
 {
     if (self = [super init]) {

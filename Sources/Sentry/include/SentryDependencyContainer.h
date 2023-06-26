@@ -2,12 +2,22 @@
 #import "SentryFileManager.h"
 #import "SentryRandom.h"
 
-@class SentryAppStateManager, SentryCrashWrapper, SentryThreadWrapper, SentrySwizzleWrapper,
-    SentryDispatchQueueWrapper, SentryDebugImageProvider, SentryANRTracker,
-    SentryNSNotificationCenterWrapper, SentryMXManager, SentryNSProcessInfoWrapper;
+@class SentryANRTracker;
+@class SentryAppStateManager;
+@class SentryCrashWrapper;
+@class SentryDebugImageProvider;
+@class SentryDispatchQueueWrapper;
+@class SentryFramesTracker;
+@class SentryMXManager;
+@class SentryNSNotificationCenterWrapper;
+@class SentryNSProcessInfoWrapper;
+@class SentrySwizzleWrapper;
+@class SentryThreadWrapper;
 
 #if SENTRY_HAS_UIKIT
-@class SentryScreenshot, SentryUIApplication, SentryViewHierarchy;
+@class SentryScreenshot;
+@class SentryUIApplication;
+@class SentryViewHierarchy;
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -35,6 +45,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
 
 #if SENTRY_HAS_UIKIT
+@property (nonatomic, strong) SentryFramesTracker *framesTracker;
 @property (nonatomic, strong) SentryScreenshot *screenshot;
 @property (nonatomic, strong) SentryViewHierarchy *viewHierarchy;
 @property (nonatomic, strong) SentryUIApplication *application;

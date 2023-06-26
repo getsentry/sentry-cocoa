@@ -85,9 +85,6 @@ SentryNSProcessInfoWrapper *_gCurrentProcessInfoWrapper;
 SentrySystemWrapper *_gCurrentSystemWrapper;
 SentryDispatchFactory *_gDispatchFactory;
 SentryNSTimerWrapper *_gTimeoutTimerWrapper;
-#    if SENTRY_HAS_UIKIT
-SentryFramesTracker *_gCurrentFramesTracker;
-#    endif // SENTRY_HAS_UIKIT
 
 NSString *
 profilerTruncationReasonName(SentryProfilerTruncationReason reason)
@@ -258,9 +255,10 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     auto metrics = serializedMetrics;
 
 #    if SENTRY_HAS_UIKIT
+    const auto framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
     const auto mutableMetrics =
         [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
-    const auto slowFrames = sliceGPUData(_gCurrentFramesTracker.currentFrames.slowFrameTimestamps,
+    const auto slowFrames = sliceGPUData(framesTracker.currentFrames.slowFrameTimestamps,
         transaction, /*useMostRecentRecording */ NO);
     if (slowFrames.count > 0) {
         mutableMetrics[@"slow_frame_renders"] =
@@ -268,7 +266,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     }
 
     const auto frozenFrames
-        = sliceGPUData(_gCurrentFramesTracker.currentFrames.frozenFrameTimestamps, transaction,
+        = sliceGPUData(framesTracker.currentFrames.frozenFrameTimestamps, transaction,
             /*useMostRecentRecording */ NO);
     if (frozenFrames.count > 0) {
         mutableMetrics[@"frozen_frame_renders"] =
@@ -277,7 +275,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 
     if (slowFrames.count > 0 || frozenFrames.count > 0) {
         const auto frameRates
-            = sliceGPUData(_gCurrentFramesTracker.currentFrames.frameRateTimestamps, transaction,
+            = sliceGPUData(framesTracker.currentFrames.frameRateTimestamps, transaction,
                 /*useMostRecentRecording */ YES);
         if (frameRates.count > 0) {
             mutableMetrics[@"screen_frame_rates"] = @ { @"unit" : @"hz", @"values" : frameRates };
@@ -482,7 +480,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     }
 
 #    if SENTRY_HAS_UIKIT
-    [_gCurrentFramesTracker resetProfilingTimestamps];
+    [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
 
     [_gCurrentProfiler start];
@@ -566,14 +564,6 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     _gTimeoutTimerWrapper = timerWrapper;
 }
 
-#    if SENTRY_HAS_UIKIT
-+ (void)useFramesTracker:(SentryFramesTracker *)framesTracker
-{
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-    _gCurrentFramesTracker = framesTracker;
-}
-#    endif // SENTRY_HAS_UIKIT
-
 #    pragma mark - Private
 
 + (NSDictionary<NSString *, id> *)serializeForTransaction:(SentryTransaction *)transaction
@@ -635,7 +625,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     [_gCurrentProfiler stop];
     _gCurrentProfiler->_truncationReason = reason;
 #    if SENTRY_HAS_UIKIT
-    [_gCurrentFramesTracker resetProfilingTimestamps];
+    [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
 }
 
@@ -650,11 +640,6 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     if (_gDispatchFactory == nil) {
         _gDispatchFactory = [[SentryDispatchFactory alloc] init];
     }
-#    if SENTRY_HAS_UIKIT
-    if (_gCurrentFramesTracker == nil) {
-        _gCurrentFramesTracker = SentryFramesTracker.sharedInstance;
-    }
-#    endif // SENTRY_HAS_UIKIT
     _metricProfiler =
         [[SentryMetricProfiler alloc] initWithProcessInfoWrapper:_gCurrentProcessInfoWrapper
                                                    systemWrapper:_gCurrentSystemWrapper
