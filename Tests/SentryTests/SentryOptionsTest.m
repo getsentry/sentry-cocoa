@@ -325,9 +325,9 @@
     [self testBooleanField:@"enableCaptureFailedRequests" defaultValue:YES];
 }
 
-- (void)testEnableTimeToFullDisplay
+- (void)testEnableTimeToFullDisplayTracing
 {
-    [self testBooleanField:@"enableTimeToFullDisplay" defaultValue:NO];
+    [self testBooleanField:@"enableTimeToFullDisplayTracing" defaultValue:NO];
 }
 
 - (void)testFailedRequestStatusCodes
@@ -533,7 +533,7 @@
         @"sdk" : [NSNull null],
         @"enableCaptureFailedRequests" : [NSNull null],
         @"failedRequestStatusCodes" : [NSNull null],
-        @"enableTimeToFullDisplay" : [NSNull null],
+        @"enableTimeToFullDisplayTracing" : [NSNull null],
         @"enableTracing" : [NSNull null],
         @"swiftAsyncStacktraces" : [NSNull null]
     }
@@ -607,7 +607,7 @@
     XCTAssertEqual(500, range.min);
     XCTAssertEqual(599, range.max);
 
-    XCTAssertFalse(options.enableTimeToFullDisplay);
+    XCTAssertFalse(options.enableTimeToFullDisplayTracing);
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    pragma clang diagnostic push
