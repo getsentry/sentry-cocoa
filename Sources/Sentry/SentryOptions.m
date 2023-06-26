@@ -77,7 +77,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableAutoPerformanceTracing = YES;
         self.enableCaptureFailedRequests = YES;
         self.environment = kSentryDefaultEnvironment;
-        self.enableTimeToFullDisplay = NO;
+        self.enableTimeToFullDisplayTracing = NO;
 
         self.initialScope = ^SentryScope *(SentryScope *scope) { return scope; };
 
@@ -341,8 +341,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
     [self setBool:options[@"enableCaptureFailedRequests"]
             block:^(BOOL value) { self->_enableCaptureFailedRequests = value; }];
 
-    [self setBool:options[@"enableTimeToFullDisplay"]
-            block:^(BOOL value) { self->_enableTimeToFullDisplay = value; }];
+    [self setBool:options[@"enableTimeToFullDisplayTracing"]
+            block:^(BOOL value) { self->_enableTimeToFullDisplayTracing = value; }];
 
     if ([self isBlock:options[@"initialScope"]]) {
         self.initialScope = options[@"initialScope"];
