@@ -81,10 +81,6 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 
 std::mutex _gProfilerLock;
 SentryProfiler *_Nullable _gCurrentProfiler;
-SentryNSProcessInfoWrapper *_gCurrentProcessInfoWrapper;
-SentrySystemWrapper *_gCurrentSystemWrapper;
-SentryDispatchFactory *_gDispatchFactory;
-SentryNSTimerWrapper *_gTimeoutTimerWrapper;
 
 NSString *
 profilerTruncationReasonName(SentryProfilerTruncationReason reason)
@@ -485,15 +481,12 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 
     [_gCurrentProfiler start];
 
-    if (_gTimeoutTimerWrapper == nil) {
-        _gTimeoutTimerWrapper = [[SentryNSTimerWrapper alloc] init];
-    }
-    _gCurrentProfiler->_timeoutTimer =
-        [_gTimeoutTimerWrapper scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
-                                                       target:self
-                                                     selector:@selector(timeoutAbort)
-                                                     userInfo:nil
-                                                      repeats:NO];
+    _gCurrentProfiler->_timeoutTimer = [SentryDependencyContainer.sharedInstance.timerWrapper
+        scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
+                                target:self
+                              selector:@selector(timeoutAbort)
+                              userInfo:nil
+                               repeats:NO];
 #    if SENTRY_HAS_UIKIT
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(backgroundAbort)
@@ -536,32 +529,6 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 #    endif // defined(TEST) || defined(TESTCI)
 
     return [self envelopeItemForProfileData:payload profileID:profileID];
-}
-
-#    pragma mark - Testing
-
-+ (void)useSystemWrapper:(SentrySystemWrapper *)systemWrapper
-{
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-    _gCurrentSystemWrapper = systemWrapper;
-}
-
-+ (void)useProcessInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
-{
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-    _gCurrentProcessInfoWrapper = processInfoWrapper;
-}
-
-+ (void)useDispatchFactory:(SentryDispatchFactory *)dispatchFactory
-{
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-    _gDispatchFactory = dispatchFactory;
-}
-
-+ (void)useTimeoutTimerWrapper:(SentryNSTimerWrapper *)timerWrapper
-{
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-    _gTimeoutTimerWrapper = timerWrapper;
 }
 
 #    pragma mark - Private
@@ -631,19 +598,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 
 - (void)startMetricProfiler
 {
-    if (_gCurrentSystemWrapper == nil) {
-        _gCurrentSystemWrapper = [[SentrySystemWrapper alloc] init];
-    }
-    if (_gCurrentProcessInfoWrapper == nil) {
-        _gCurrentProcessInfoWrapper = [SentryDependencyContainer.sharedInstance processInfoWrapper];
-    }
-    if (_gDispatchFactory == nil) {
-        _gDispatchFactory = [[SentryDispatchFactory alloc] init];
-    }
-    _metricProfiler =
-        [[SentryMetricProfiler alloc] initWithProcessInfoWrapper:_gCurrentProcessInfoWrapper
-                                                   systemWrapper:_gCurrentSystemWrapper
-                                                 dispatchFactory:_gDispatchFactory];
+    _metricProfiler = [[SentryMetricProfiler alloc] init];
     [_metricProfiler start];
 }
 
