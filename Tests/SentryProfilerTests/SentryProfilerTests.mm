@@ -3,6 +3,7 @@
 #import "SentryId.h"
 #import "SentryProfileTimeseries.h"
 #import "SentryProfiler+Test.h"
+#import "SentryProfilerState.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryThread.h"
 #import "SentryTransaction.h"
