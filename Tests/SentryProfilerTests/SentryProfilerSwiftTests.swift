@@ -28,7 +28,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         lazy var systemWrapper = TestSentrySystemWrapper()
         lazy var processInfoWrapper = TestSentryNSProcessInfoWrapper()
         lazy var dispatchFactory = TestDispatchFactory()
-        var metricTimerWrapper: TestDispatchSourceWrapper?
+        var metricTimerFactory: TestDispatchSourceWrapper?
         lazy var timeoutTimerFactory = TestSentryNSTimerFactory()
 
         let currentDateProvider = TestCurrentDateProvider()
@@ -46,7 +46,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             SentryDependencyContainer.sharedInstance().systemWrapper = systemWrapper
             SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
             dispatchFactory.vendedSourceHandler = { eventHandler in
-                self.metricTimerWrapper = eventHandler
+                self.metricTimerFactory = eventHandler
             }
             SentryDependencyContainer.sharedInstance().dispatchFactory = dispatchFactory
             SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory
@@ -101,7 +101,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 
             // gather mock cpu usages and memory footprints
             for _ in 0..<mockUsageReadingsPerBatch {
-                self.metricTimerWrapper?.fire()
+                self.metricTimerFactory?.fire()
             }
 
     #if !os(macOS)
@@ -183,7 +183,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             // mock errors gathering cpu usage and memory footprint and fire a callback for them to ensure they don't add more information to the payload
             systemWrapper.overrides.cpuUsageError = NSError(domain: "test-error", code: 0)
             systemWrapper.overrides.memoryFootprintError = NSError(domain: "test-error", code: 1)
-            metricTimerWrapper?.fire()
+            metricTimerFactory?.fire()
         }
 
         // app start simulation

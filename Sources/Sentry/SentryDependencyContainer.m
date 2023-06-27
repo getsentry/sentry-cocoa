@@ -5,7 +5,7 @@
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryFramesTracker.h"
 #import "SentryNSProcessInfoWrapper.h"
-#import "SentryNSTimerWrapper.h"
+#import "SentryNSTimerFactory.h"
 #import "SentrySystemWrapper.h"
 #import "SentryUIApplication.h"
 #import <SentryAppStateManager.h>
@@ -267,16 +267,16 @@ static NSObject *sentryDependencyContainerLock;
     return _dispatchFactory;
 }
 
-- (SentryNSTimerWrapper *)timerWrapper
+- (SentryNSTimerFactory *)timerFactory
 {
-    if (_timerWrapper == nil) {
+    if (_timerFactory == nil) {
         @synchronized(sentryDependencyContainerLock) {
-            if (_timerWrapper == nil) {
-                _timerWrapper = [[SentryNSTimerWrapper alloc] init];
+            if (_timerFactory == nil) {
+                _timerFactory = [[SentryNSTimerFactory alloc] init];
             }
         }
     }
-    return _timerWrapper;
+    return _timerFactory;
 }
 
 #if SENTRY_HAS_METRIC_KIT
