@@ -49,7 +49,7 @@ class SentryProfilerSwiftTests: XCTestCase {
                 self.metricTimerWrapper = eventHandler
             }
             SentryProfiler.useDispatchFactory(dispatchFactory)
-            SentryProfiler.useTimeoutTimerWrapper(timeoutTimerWrapper)
+            SentryProfiler.useTimeoutTimerFactory(timeoutTimerFactory)
 
             systemWrapper.overrides.cpuUsagePerCore = mockCPUUsages.map { NSNumber(value: $0) }
             processInfoWrapper.overrides.processorCount = UInt(mockCPUUsages.count)

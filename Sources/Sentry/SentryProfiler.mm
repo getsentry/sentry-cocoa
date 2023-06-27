@@ -558,7 +558,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     _gDispatchFactory = dispatchFactory;
 }
 
-+ (void)useTimeoutTimerWrapper:(SentryNSTimerFactory *)timerWrapper
++ (void)useTimeoutTimerFactory:(SentryNSTimerFactory *)timerWrapper
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
     _gTimeoutTimerFactory = timerWrapper;
