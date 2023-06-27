@@ -12,7 +12,7 @@
 @class SentryMXManager;
 @class SentryNSNotificationCenterWrapper;
 @class SentryNSProcessInfoWrapper;
-@class SentryNSTimerWrapper;
+@class SentryNSTimerFactory;
 @class SentrySwizzleWrapper;
 @class SentrySystemWrapper;
 @class SentryThreadWrapper;
@@ -48,7 +48,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
 @property (nonatomic, strong) SentrySystemWrapper *systemWrapper;
 @property (nonatomic, strong) SentryDispatchFactory *dispatchFactory;
-@property (nonatomic, strong) SentryNSTimerWrapper *timerWrapper;
+@property (nonatomic, strong) SentryNSTimerFactory *timerFactory;
 
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;

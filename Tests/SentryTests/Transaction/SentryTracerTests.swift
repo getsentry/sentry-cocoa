@@ -25,7 +25,7 @@ class SentryTracerTests: XCTestCase {
         let hub: TestHub
         let scope: Scope
         let dispatchQueue = TestSentryDispatchQueueWrapper()
-        let timerWrapper = TestSentryNSTimerWrapper()
+        let timerFactory = TestSentryNSTimerFactory()
         
         let transactionName = "Some Transaction"
         let transactionOperation = "ui.load"
@@ -91,7 +91,7 @@ class SentryTracerTests: XCTestCase {
                 customSamplingContext: [:],
                 configuration: SentryTracerConfiguration(block: {
                     $0.waitForChildren = waitForChildren
-                    $0.timerWrapper = self.timerWrapper
+                    $0.timerFactory = self.timerFactory
                 }))
             return tracer
         }
@@ -165,7 +165,7 @@ class SentryTracerTests: XCTestCase {
 
         child3.finish()
 
-        fixture.timerWrapper.fire()
+        fixture.timerFactory.fire()
 
         assertOneTransactionCaptured(sut)
 
@@ -197,7 +197,7 @@ class SentryTracerTests: XCTestCase {
 
         child3.finish()
 
-        fixture.timerWrapper.fire()
+        fixture.timerFactory.fire()
 
         XCTAssertEqual(sut.status, .undefined)
         XCTAssertEqual(child1.status, .undefined)
@@ -209,7 +209,7 @@ class SentryTracerTests: XCTestCase {
         let sut = fixture.getSut()
         sut.finish()
 
-        XCTAssertFalse(fixture.timerWrapper.overrides.timer.isValid)
+        XCTAssertFalse(fixture.timerFactory.overrides.timer.isValid)
     }
     
     func testDeadlineTimer_MultipleSpansFinishedInParallel() {
@@ -224,7 +224,7 @@ class SentryTracerTests: XCTestCase {
     func testFinish_CheckDefaultStatus() {
         let sut = fixture.getSut()
         sut.finish()
-        fixture.timerWrapper.fire()
+        fixture.timerFactory.fire()
         XCTAssertEqual(sut.status, .ok)
     }
     

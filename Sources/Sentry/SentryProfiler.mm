@@ -24,7 +24,7 @@
 #    import "SentryLog.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryNSProcessInfoWrapper.h"
-#    import "SentryNSTimerWrapper.h"
+#    import "SentryNSTimerFactory.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryScope+Private.h"
@@ -481,7 +481,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 
     [_gCurrentProfiler start];
 
-    _gCurrentProfiler->_timeoutTimer = [SentryDependencyContainer.sharedInstance.timerWrapper
+    _gCurrentProfiler->_timeoutTimer = [SentryDependencyContainer.sharedInstance.timerFactory
         scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
                                 target:self
                               selector:@selector(timeoutAbort)

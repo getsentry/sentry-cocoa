@@ -6,7 +6,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceContext,
-    SentryNSTimerWrapper, SentryDispatchQueueWrapper, SentryTracer, SentryProfilesSamplerDecision,
+    SentryNSTimerFactory, SentryDispatchQueueWrapper, SentryTracer, SentryProfilesSamplerDecision,
     SentryMeasurementValue;
 
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;

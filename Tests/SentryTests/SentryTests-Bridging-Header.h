@@ -111,7 +111,7 @@
 #import "SentryNSError.h"
 #import "SentryNSNotificationCenterWrapper.h"
 #import "SentryNSProcessInfoWrapper.h"
-#import "SentryNSTimerWrapper.h"
+#import "SentryNSTimerFactory.h"
 #import "SentryNSURLRequest.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryNSURLSessionTaskSearch.h"

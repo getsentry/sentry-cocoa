@@ -11,7 +11,7 @@
 #    import "SentryFormatter.h"
 #    import "SentryLog.h"
 #    import "SentryNSProcessInfoWrapper.h"
-#    import "SentryNSTimerWrapper.h"
+#    import "SentryNSTimerFactory.h"
 #    import "SentrySystemWrapper.h"
 #    import "SentryTime.h"
 #    import "SentryTransaction.h"

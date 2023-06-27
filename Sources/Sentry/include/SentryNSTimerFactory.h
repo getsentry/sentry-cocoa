@@ -2,7 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryNSTimerWrapper : NSObject
+@interface SentryNSTimerFactory : NSObject
 
 - (NSTimer *)scheduledTimerWithTimeInterval:(NSTimeInterval)interval
                                     repeats:(BOOL)repeats

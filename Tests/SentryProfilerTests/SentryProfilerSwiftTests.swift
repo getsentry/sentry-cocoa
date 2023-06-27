@@ -28,8 +28,8 @@ class SentryProfilerSwiftTests: XCTestCase {
         lazy var systemWrapper = TestSentrySystemWrapper()
         lazy var processInfoWrapper = TestSentryNSProcessInfoWrapper()
         lazy var dispatchFactory = TestDispatchFactory()
-        var metricTimerWrapper: TestDispatchSourceWrapper?
-        lazy var timeoutTimerWrapper = TestSentryNSTimerWrapper()
+        var metricTimerFactory: TestDispatchSourceWrapper?
+        lazy var timeoutTimerFactory = TestSentryNSTimerFactory()
 
         let currentDateProvider = TestCurrentDateProvider()
 
@@ -46,10 +46,10 @@ class SentryProfilerSwiftTests: XCTestCase {
             SentryDependencyContainer.sharedInstance().systemWrapper = systemWrapper
             SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
             dispatchFactory.vendedSourceHandler = { eventHandler in
-                self.metricTimerWrapper = eventHandler
+                self.metricTimerFactory = eventHandler
             }
             SentryDependencyContainer.sharedInstance().dispatchFactory = dispatchFactory
-            SentryDependencyContainer.sharedInstance().timerWrapper = timeoutTimerWrapper
+            SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory
 
             systemWrapper.overrides.cpuUsagePerCore = mockCPUUsages.map { NSNumber(value: $0) }
             processInfoWrapper.overrides.processorCount = UInt(mockCPUUsages.count)
@@ -101,7 +101,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 
             // gather mock cpu usages and memory footprints
             for _ in 0..<mockUsageReadingsPerBatch {
-                self.metricTimerWrapper?.fire()
+                self.metricTimerFactory?.fire()
             }
 
     #if !os(macOS)
@@ -183,7 +183,7 @@ class SentryProfilerSwiftTests: XCTestCase {
             // mock errors gathering cpu usage and memory footprint and fire a callback for them to ensure they don't add more information to the payload
             systemWrapper.overrides.cpuUsageError = NSError(domain: "test-error", code: 0)
             systemWrapper.overrides.memoryFootprintError = NSError(domain: "test-error", code: 1)
-            metricTimerWrapper?.fire()
+            metricTimerFactory?.fire()
         }
 
         // app start simulation
@@ -221,7 +221,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         super.tearDown()
 
         // If a test early exits because of a thrown error, it may not finish the spans it created. This ensures the profiler stops before starting the next test case.
-        fixture.timeoutTimerWrapper.fire()
+        fixture.timeoutTimerFactory.fire()
 
         clearTestState()
     }
@@ -282,7 +282,7 @@ class SentryProfilerSwiftTests: XCTestCase {
         fixture.currentDateProvider.advanceBy(nanoseconds: 1.toNanoSeconds())
         forceProfilerSample()
         fixture.currentDateProvider.advanceBy(nanoseconds: 30.toNanoSeconds())
-        fixture.timeoutTimerWrapper.fire()
+        fixture.timeoutTimerFactory.fire()
 
         fixture.currentDateProvider.advanceBy(nanoseconds: 0.5.toNanoSeconds())
 
@@ -418,7 +418,7 @@ private extension SentryProfilerSwiftTests {
         forceProfilerSample()
         fixture.currentDateProvider.advance(by: 31)
         if shouldTimeOut {
-            fixture.timeoutTimerWrapper.fire()
+            fixture.timeoutTimerFactory.fire()
         }
 
         span.finish()
