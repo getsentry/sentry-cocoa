@@ -10,7 +10,7 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        sut = SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [bundleExecutable], inAppExcludes: []))
+        sut = SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [bundleExecutable], inAppExcludes: []), binaryImageCache: SentryBinaryImageCache.shared)
     }
 
     func testSymbolAddress() {
@@ -59,7 +59,7 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
     func testImageAddress () {
         var cursor = SentryCrashStackCursor()
         cursor.stackEntry.imageAddress = 2_488_998_912
-        
+
         let frame = sut.mapStackEntry(with: cursor)
         
         XCTAssertEqual("0x00000000945b1c00", frame.imageAddress ?? "")
@@ -68,6 +68,22 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
     func testIsInApp() {
         let frame = getFrameWithImageName(imageName: "/private/var/containers/Bundle/Application/03D20FB6-852C-4DD3-B69C-3231FB41C2B1/iOS-Swift.app/\(self.bundleExecutable)")
         XCTAssertEqual(true, frame.inApp)
+    }
+
+    func testImageFromCache() {
+        var image = createCrashBinaryImage(2_488_998_912)
+        SentryBinaryImageCache.shared.start()
+        SentryBinaryImageCache.shared.binaryImageAdded(&image)
+
+        var cursor = SentryCrashStackCursor()
+        cursor.stackEntry.address = 2_488_998_950
+
+        let frame = sut.mapStackEntry(with: cursor)
+
+        XCTAssertEqual("0x00000000945b1c00", frame.imageAddress ?? "")
+        XCTAssertEqual("Expected Name at 2488998912", frame.package)
+
+        SentryBinaryImageCache.shared.stop()
     }
     
     private func getFrameWithImageName(imageName: String) -> Frame {
@@ -81,5 +97,27 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
         }
         
         return result
+    }
+
+    func createCrashBinaryImage(_ address: UInt) -> SentryCrashBinaryImage {
+        let name = "Expected Name at \(address)"
+        let nameCString = name.withCString { strdup($0) }
+
+        let binaryImage = SentryCrashBinaryImage(
+            address: UInt64(address),
+            vmAddress: 0,
+            size: 100,
+            name: nameCString,
+            uuid: nil,
+            cpuType: 1,
+            cpuSubType: 1,
+            majorVersion: 1,
+            minorVersion: 0,
+            revisionVersion: 0,
+            crashInfoMessage: nil,
+            crashInfoMessage2: nil
+        )
+
+        return binaryImage
     }
 }

@@ -119,6 +119,19 @@ class SentrySDKTests: XCTestCase {
 
         assertIntegrationsInstalled(integrations: expectedIntegrations)
     }
+
+    func testStartStopBinaryImageCache() {
+        SentrySDK.start { options in
+            options.debug = true
+        }
+
+        XCTAssertNotNil(SentryBinaryImageCache.shared.cache)
+        XCTAssertGreaterThan(SentryBinaryImageCache.shared.cache.count, 0)
+
+        SentrySDK.close()
+
+        XCTAssertNil(SentryBinaryImageCache.shared.cache)
+    }
     
     func testStartWithConfigureOptions_NoDsn() throws {
         SentrySDK.start { options in
@@ -558,7 +571,7 @@ class SentrySDKTests: XCTestCase {
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testReportFullyDisplayed() {
-        fixture.options.enableTimeToFullDisplay = true
+        fixture.options.enableTimeToFullDisplayTracing = true
 
         SentrySDK.start(options: fixture.options)
 

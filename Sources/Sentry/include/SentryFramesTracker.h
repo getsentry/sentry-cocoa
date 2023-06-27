@@ -19,9 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Tracks total, frozen and slow frames for iOS, tvOS, and Mac Catalyst.
  */
 @interface SentryFramesTracker : NSObject
-SENTRY_NO_INIT
 
-+ (instancetype)sharedInstance;
+- (instancetype)initWithDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper;
 
 @property (nonatomic, assign, readonly) SentryScreenFrames *currentFrames;
 @property (nonatomic, assign, readonly) BOOL isRunning;

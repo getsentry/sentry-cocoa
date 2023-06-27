@@ -753,7 +753,7 @@ class SentryHubTests: XCTestCase {
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func test_reportFullyDisplayed_enableTimeToFullDisplay_YES() {
-        fixture.options.enableTimeToFullDisplay = true
+        fixture.options.enableTimeToFullDisplayTracing = true
         let sut = fixture.getSut(fixture.options)
         
         let testTTDTracker = TestTimeToDisplayTracker()
@@ -767,7 +767,7 @@ class SentryHubTests: XCTestCase {
     }
     
     func test_reportFullyDisplayed_enableTimeToFullDisplay_NO() {
-        fixture.options.enableTimeToFullDisplay = false
+        fixture.options.enableTimeToFullDisplayTracing = false
         let sut = fixture.getSut(fixture.options)
         
         let testTTDTracker = TestTimeToDisplayTracker()
@@ -982,7 +982,7 @@ class SentryHubTests: XCTestCase {
 class TestTimeToDisplayTracker: SentryTimeToDisplayTracker {
     
     init() {
-        super.init(for: UIViewController(), framesTracker: SentryFramesTracker.sharedInstance(), waitForFullDisplay: false)
+        super.init(for: UIViewController(), waitForFullDisplay: false)
     }
     
     var registerFullDisplayCalled = false

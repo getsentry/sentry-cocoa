@@ -29,7 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.attachScreenshot = true
             options.attachViewHierarchy = true
             options.environment = "test-app"
-            options.enableTimeToFullDisplay = true
+            options.enableTimeToFullDisplayTracing = true
 
             let isBenchmarking = ProcessInfo.processInfo.arguments.contains("--io.sentry.test.benchmarking")
 

@@ -76,7 +76,7 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
     func testUninstall() {
         sut.install(with: fixture.options)
         
-        SentryFramesTracker.sharedInstance().setDisplayLinkWrapper(fixture.displayLink)
+        SentryDependencyContainer.sharedInstance().framesTracker.setDisplayLinkWrapper(fixture.displayLink)
         
         sut.uninstall()
         

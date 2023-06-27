@@ -140,7 +140,6 @@ SentryUIViewControllerPerformanceTracker ()
 
     SentryTimeToDisplayTracker *ttdTracker =
         [[SentryTimeToDisplayTracker alloc] initForController:controller
-                                                framesTracker:SentryFramesTracker.sharedInstance
                                            waitForFullDisplay:self.enableWaitForFullDisplay];
 
     objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER, ttdTracker,

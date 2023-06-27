@@ -138,7 +138,7 @@ static BOOL appStartMeasurementRead;
 #if SENTRY_HAS_UIKIT
     // Store current amount of frames at the beginning to be able to calculate the amount of
     // frames at the end of the transaction.
-    SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
+    SentryFramesTracker *framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
     if (framesTracker.isRunning) {
         SentryScreenFrames *currentFrames = framesTracker.currentFrames;
         initTotalFrames = currentFrames.total;
@@ -737,7 +737,7 @@ static BOOL appStartMeasurementRead;
 
 #if SENTRY_HAS_UIKIT
     // Frames
-    SentryFramesTracker *framesTracker = [SentryFramesTracker sharedInstance];
+    SentryFramesTracker *framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
     if (framesTracker.isRunning && !_startTimeChanged) {
 
         SentryScreenFrames *currentFrames = framesTracker.currentFrames;

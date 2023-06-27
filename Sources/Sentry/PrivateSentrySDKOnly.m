@@ -131,12 +131,12 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (BOOL)isFramesTrackingRunning
 {
-    return [SentryFramesTracker sharedInstance].isRunning;
+    return SentryDependencyContainer.sharedInstance.framesTracker.isRunning;
 }
 
 + (SentryScreenFrames *)currentScreenFrames
 {
-    return [SentryFramesTracker sharedInstance].currentFrames;
+    return SentryDependencyContainer.sharedInstance.framesTracker.currentFrames;
 }
 
 + (NSArray<NSData *> *)captureScreenshots

@@ -71,7 +71,7 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
 
         let options = Options()
         options.tracesSampleRate = 0.1
-        options.enableTimeToFullDisplay = true
+        options.enableTimeToFullDisplayTracing = true
         sut.install(with: options)
 
         XCTAssertTrue(SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay)
@@ -82,7 +82,7 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
 
         let options = Options()
         options.tracesSampleRate = 0.1
-        options.enableTimeToFullDisplay = false
+        options.enableTimeToFullDisplayTracing = false
         sut.install(with: options)
 
         XCTAssertFalse(SentryUIViewControllerPerformanceTracker.shared.enableWaitForFullDisplay)

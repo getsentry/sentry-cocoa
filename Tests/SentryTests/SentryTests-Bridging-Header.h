@@ -124,7 +124,7 @@
 #import "SentryPerformanceTracker.h"
 #import "SentryPerformanceTrackingIntegration.h"
 #import "SentryPredicateDescriptor.h"
-#import "SentryProfiler+SwiftTest.h"
+#import "SentryProfiler.h"
 #import "SentryQueueableRequestManager.h"
 #import "SentryRandom.h"
 #import "SentryRateLimitParser.h"
@@ -186,6 +186,7 @@
 #import "UIViewController+Sentry.h"
 #import "URLSessionTaskMock.h"
 @import SentryPrivate;
+#import "SentryBinaryImageCache+Private.h"
 #import "SentryCrashBinaryImageCache.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchSourceWrapper.h"

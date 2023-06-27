@@ -16,15 +16,16 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
         init() {
             framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper)
+            SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
             framesTracker.start()
         }
 
         func getSut(for controller: UIViewController, waitForFullDisplay: Bool) -> SentryTimeToDisplayTracker {
-            return SentryTimeToDisplayTracker(for: controller, framesTracker: framesTracker, waitForFullDisplay: waitForFullDisplay)
+            return SentryTimeToDisplayTracker(for: controller, waitForFullDisplay: waitForFullDisplay)
         }
     }
 
-    private let fixture = Fixture()
+    private lazy var fixture = Fixture()
 
     override func setUp() {
         super.setUp()
