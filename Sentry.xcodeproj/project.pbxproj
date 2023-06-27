@@ -3100,7 +3100,6 @@
 				8454CF8B293EAF9A006AC140 /* SentryMetricProfiler.mm */,
 				0354A22A2A134D9C003C3A04 /* SentryProfiler+Private.h */,
 				84A888FC28D9B11700C51DFD /* SentryProfiler+Test.h */,
-				844EDC7B2942843400C86F34 /* SentryProfiler+SwiftTest.h */,
 				03F84D2B27DD4191008FE43F /* SentryProfiler.mm */,
 				03BCC38D27E2A377003232C7 /* SentryProfilingConditionals.h */,
 				03F84D2927DD416B008FE43F /* SentryProfilingLogging.hpp */,

@@ -3,6 +3,7 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryCurrentDate.h"
+#    import "SentryDependencyContainer.h"
 #    import "SentryDispatchFactory.h"
 #    import "SentryDispatchQueueWrapper.h"
 #    import "SentryDispatchSourceWrapper.h"
@@ -78,33 +79,24 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 @implementation SentryMetricProfiler {
     SentryDispatchSourceWrapper *_dispatchSource;
 
-    SentryNSProcessInfoWrapper *_processInfoWrapper;
-    SentrySystemWrapper *_systemWrapper;
-    SentryDispatchFactory *_dispatchFactory;
-
     /// arrays of readings keyed on NSNumbers representing the core number for the set of readings
     NSMutableDictionary<NSNumber *, NSMutableArray<SentryMetricReading *> *> *_cpuUsage;
 
     NSMutableArray<SentryMetricReading *> *_memoryFootprint;
 }
 
-- (instancetype)initWithProcessInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
-                             systemWrapper:(SentrySystemWrapper *)systemWrapper
-                           dispatchFactory:(nonnull SentryDispatchFactory *)dispatchFactory
+- (instancetype)init
 {
     if (self = [super init]) {
         _cpuUsage =
             [NSMutableDictionary<NSNumber *, NSMutableArray<SentryMetricReading *> *> dictionary];
-        const auto processorCount = processInfoWrapper.processorCount;
+        const auto processorCount
+            = SentryDependencyContainer.sharedInstance.processInfoWrapper.processorCount;
         SENTRY_LOG_DEBUG(
             @"Preparing %lu arrays for CPU core usage readings", (long unsigned)processorCount);
         for (NSUInteger core = 0; core < processorCount; core++) {
             _cpuUsage[@(core)] = [NSMutableArray<SentryMetricReading *> array];
         }
-
-        _systemWrapper = systemWrapper;
-        _processInfoWrapper = processInfoWrapper;
-        _dispatchFactory = dispatchFactory;
 
         _memoryFootprint = [NSMutableArray<SentryMetricReading *> array];
     }
@@ -165,22 +157,23 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
     __weak auto weakSelf = self;
     const auto intervalNs = (uint64_t)1e9 / frequencyHz;
     const auto leewayNs = intervalNs / 2;
-    _dispatchSource =
-        [_dispatchFactory sourceWithInterval:intervalNs
-                                      leeway:leewayNs
-                                   queueName:"io.sentry.metric-profiler"
-                                  attributes:dispatch_queue_attr_make_with_qos_class(
-                                                 DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_UTILITY, 0)
-                                eventHandler:^{
-                                    [weakSelf recordCPUPercentagePerCore];
-                                    [weakSelf recordMemoryFootprint];
-                                }];
+    _dispatchSource = [SentryDependencyContainer.sharedInstance.dispatchFactory
+        sourceWithInterval:intervalNs
+                    leeway:leewayNs
+                 queueName:"io.sentry.metric-profiler"
+                attributes:dispatch_queue_attr_make_with_qos_class(
+                               DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_UTILITY, 0)
+              eventHandler:^{
+                  [weakSelf recordCPUPercentagePerCore];
+                  [weakSelf recordMemoryFootprint];
+              }];
 }
 
 - (void)recordMemoryFootprint
 {
     NSError *error;
-    const auto footprintBytes = [_systemWrapper memoryFootprintBytes:&error];
+    const auto footprintBytes =
+        [SentryDependencyContainer.sharedInstance.systemWrapper memoryFootprintBytes:&error];
 
     if (error) {
         SENTRY_LOG_ERROR(@"Failed to read memory footprint: %@", error);
@@ -195,7 +188,8 @@ SentrySerializedMetricEntry *_Nullable serializeValuesWithNormalizedTime(
 - (void)recordCPUPercentagePerCore
 {
     NSError *error;
-    const auto result = [_systemWrapper cpuUsagePerCore:&error];
+    const auto result =
+        [SentryDependencyContainer.sharedInstance.systemWrapper cpuUsagePerCore:&error];
 
     if (error) {
         SENTRY_LOG_ERROR(@"Failed to read CPU usages: %@", error);

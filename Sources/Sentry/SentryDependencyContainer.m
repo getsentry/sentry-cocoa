@@ -1,9 +1,12 @@
 #import "SentryANRTracker.h"
 #import "SentryDefaultCurrentDateProvider.h"
+#import "SentryDispatchFactory.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryFramesTracker.h"
 #import "SentryNSProcessInfoWrapper.h"
+#import "SentryNSTimerWrapper.h"
+#import "SentrySystemWrapper.h"
 #import "SentryUIApplication.h"
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
@@ -238,6 +241,42 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _processInfoWrapper;
+}
+
+- (SentrySystemWrapper *)systemWrapper
+{
+    if (_systemWrapper == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_systemWrapper == nil) {
+                _systemWrapper = [[SentrySystemWrapper alloc] init];
+            }
+        }
+    }
+    return _systemWrapper;
+}
+
+- (SentryDispatchFactory *)dispatchFactory
+{
+    if (_dispatchFactory == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_dispatchFactory == nil) {
+                _dispatchFactory = [[SentryDispatchFactory alloc] init];
+            }
+        }
+    }
+    return _dispatchFactory;
+}
+
+- (SentryNSTimerWrapper *)timerWrapper
+{
+    if (_timerWrapper == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_timerWrapper == nil) {
+                _timerWrapper = [[SentryNSTimerWrapper alloc] init];
+            }
+        }
+    }
+    return _timerWrapper;
 }
 
 #if SENTRY_HAS_METRIC_KIT
