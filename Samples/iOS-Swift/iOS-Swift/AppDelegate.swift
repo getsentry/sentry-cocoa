@@ -39,9 +39,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enablePreWarmedAppStartTracing = !isBenchmarking
 
             options.enableFileIOTracing = !ProcessInfo.processInfo.arguments.contains("--disable-file-io-tracing")
+            options.enableAutoBreadcrumbTracking = !ProcessInfo.processInfo.arguments.contains("--disable-automatic-breadcrumbs")
+            options.enableUIViewControllerTracing = !ProcessInfo.processInfo.arguments.contains("--disable-uiviewcontroller-tracing")
+            options.enableNetworkTracking = !ProcessInfo.processInfo.arguments.contains("--disable-network-tracking")
+            options.enableCoreDataTracing = !ProcessInfo.processInfo.arguments.contains("--disable-core-data-tracing")
+            options.enableNetworkBreadcrumbs = !ProcessInfo.processInfo.arguments.contains("--disable-network-breadcrumbs")
+            options.enableSwizzling = !ProcessInfo.processInfo.arguments.contains("--disable-swizzling")
+            options.enableCrashHandler = !ProcessInfo.processInfo.arguments.contains("--disable-crash-handler")
 
             // because we run CPU for 15 seconds at full throttle, we trigger ANR issues being sent. disable such during benchmarks.
-            options.enableAppHangTracking = !isBenchmarking
+            options.enableAppHangTracking = !isBenchmarking && !ProcessInfo.processInfo.arguments.contains("--disable-anr-tracking")
             options.appHangTimeoutInterval = 2
             options.enableCaptureFailedRequests = true
             let httpStatusCodeRange = HttpStatusCodeRange(min: 400, max: 599)
