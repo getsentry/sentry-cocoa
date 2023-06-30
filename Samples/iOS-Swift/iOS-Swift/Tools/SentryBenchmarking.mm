@@ -63,7 +63,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"Endpoint results: %@; cumulative sampled results: %@",
+    return [NSString stringWithFormat:@"Endpoint results:\n%@\ncumulative sampled results:\n%@",
                      _results.description, _sampledResults.description];
 }
 
@@ -73,7 +73,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"cpu: %@; power: %@; contextSwitches: %llu",
+    return [NSString stringWithFormat:@"cpu:\n%@;\npower:\n%@; contextSwitches: %llu",
                      self.cpu.description, self.power.description, self.contextSwitches];
 }
 
@@ -90,7 +90,7 @@
         enumerateObjectsUsingBlock:^(NSNumber *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
             [cores addObject:[NSString stringWithFormat:@"Core %lu: %.1f%%", idx, obj.floatValue]];
         }];
-    [results addObject:[NSString stringWithFormat:@"Average core usages: %@",
+    [results addObject:[NSString stringWithFormat:@"Average core usages:\n%@",
                                  [cores componentsJoinedByString:@"; "]]];
 
     const auto threads = [NSMutableArray array];
@@ -128,20 +128,10 @@
 
 - (NSString *)description
 {
-    return [NSString
-        stringWithFormat:@"totalCPU: %llu; totalGPU: %llu", [self totalCPU], [self totalGPU]];
+    return
+        [NSString stringWithFormat:@"totalCPU: %llu; totalGPU: %llu; task energy: %llu nanojoules",
+                  [self totalCPU], [self totalGPU], _info.task_energy];
 }
-
-@end
-
-@interface
-SentryCPUReading ()
-
-/**
- * Only used to hold data as it is read; not used to hold results calculations. For results, see the
- * other properties.
- */
-@property host_cpu_load_info_data_t data;
 
 @end
 
@@ -151,7 +141,6 @@ SentryCPUReading ()
 {
     self = [super init];
     if (self) {
-        _data = data;
         _systemTicks = data.cpu_ticks[CPU_STATE_SYSTEM];
         _userTicks = data.cpu_ticks[CPU_STATE_USER] + data.cpu_ticks[CPU_STATE_NICE];
         _idleTicks = data.cpu_ticks[CPU_STATE_IDLE];
