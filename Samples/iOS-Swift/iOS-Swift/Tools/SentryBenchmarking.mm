@@ -61,25 +61,27 @@
     return self;
 }
 
-- (NSString *)debugDescription
+- (NSString *)description
 {
     return [NSString stringWithFormat:@"Endpoint results: %@; cumulative sampled results: %@",
-                     _results.debugDescription, _sampledResults.debugDescription];
+                     _results.description, _sampledResults.description];
 }
 
 @end
 
 @implementation SentryBenchmarkReading
 
-+ (NSString *)debugDescription
+- (NSString *)description
 {
+    return [NSString stringWithFormat:@"cpu: %@; power: %@; contextSwitches: %llu",
+                     self.cpu.description, self.power.description, self.contextSwitches];
 }
 
 @end
 
 @implementation SentrySampledBenchmarkResults
 
-- (NSString *)debugDescription
+- (NSString *)description
 {
     const auto result = [NSMutableString string];
     [_aggregatedCPUUsagePerCore enumerateObjectsUsingBlock:^(NSNumber *_Nonnull obj, NSUInteger idx,
@@ -102,7 +104,7 @@
     return _info.gpu_energy.task_gpu_utilisation;
 }
 
-- (NSString *)debugDescription
+- (NSString *)description
 {
     return [NSString
         stringWithFormat:@"totalCPU: %llu; totalGPU: %llu", [self totalCPU], [self totalGPU]];
@@ -140,7 +142,7 @@ SentryCPUReading ()
     return _systemTicks + _userTicks;
 }
 
-- (NSString *)debugDescription
+- (NSString *)description
 {
     return [NSString stringWithFormat:@"CPU ticks: %llu", [self totalTicks]];
 }

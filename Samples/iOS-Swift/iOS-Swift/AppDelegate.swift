@@ -38,6 +38,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.enableAutoPerformanceTracing = !isBenchmarking
             options.enablePreWarmedAppStartTracing = !isBenchmarking
 
+            if ProcessInfo.processInfo.arguments.contains("--disable-file-io-tracing") {
+                options.enableFileIOTracing = false
+            }
+
             // because we run CPU for 15 seconds at full throttle, we trigger ANR issues being sent. disable such during benchmarks.
             options.enableAppHangTracking = !isBenchmarking
             options.appHangTimeoutInterval = 2

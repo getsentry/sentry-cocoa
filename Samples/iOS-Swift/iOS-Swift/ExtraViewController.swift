@@ -206,6 +206,24 @@ class ExtraViewController: UIViewController {
         AppDelegate.startSentry()
     }
 
+    @IBAction func startBenchmark(_ sender: Any) {
+        SentryBenchmarking.start()
+    }
+
+    @IBAction func imageListEfficient(_ sender: Any) {
+        let vc = ImageList(efficient: true)
+        navigationController?.pushViewController(vc, animated: true)
+    }
+
+    @IBAction func imageListInefficient(_ sender: Any) {
+        let vc = ImageList(efficient: true)
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    @IBAction func stopBenchmark(_ sender: Any) {
+        print("[iOS-Swift] benchmarking results: " + SentryBenchmarking.stop().description)
+    }
+
     @IBOutlet weak var imageView: UIImageView!
     @IBAction func decodeImageMain(_ sender: Any) {
         let data = try! Data(contentsOf: Bundle.main.url(forResource: "Tongariro", withExtension: "jpg")!)
