@@ -225,19 +225,12 @@ aggregatedCPUUsagePerCore()
     return averageUsages;
 }
 
-/**
- * @return The CPU usage per core, where the order of results corresponds to the core number as
- * returned by the underlying system call, e.g. @c @[ @c <core-0-CPU-usage>, @c <core-1-CPU-usage>,
- * @c ...] .
- */
-NSArray<NSNumber *> *
-cpuUsagePerCore(NSError **error)
+processor_info_array_t _Nullable processorInfo(natural_t *numCPUs, NSError **error)
 {
-    natural_t numCPUs = 0U;
     processor_info_array_t cpuInfo;
-    mach_msg_type_number_t numCPUInfo;
-    const auto status = host_processor_info(
-        mach_host_self(), PROCESSOR_CPU_LOAD_INFO, &numCPUs, &cpuInfo, &numCPUInfo);
+    mach_msg_type_number_t numCPUInfo = PROCESSOR_CPU_LOAD_INFO_COUNT;
+    auto status = host_processor_info(
+        mach_host_self(), PROCESSOR_CPU_LOAD_INFO, numCPUs, &cpuInfo, &numCPUInfo);
     if (status != KERN_SUCCESS) {
         if (error) {
             *error = [NSError
@@ -249,20 +242,54 @@ cpuUsagePerCore(NSError **error)
                                status]
                        }];
         }
+        return NULL;
+    }
+    return cpuInfo;
+}
+
+/**
+ * @return The CPU usage per core, where the order of results corresponds to the core number as
+ * returned by the underlying system call, e.g. @c @[ @c <core-0-CPU-usage>, @c <core-1-CPU-usage>,
+ * @c ...] .
+ */
+NSArray<NSNumber *> *
+cpuUsagePerCore(NSError **error)
+{
+    natural_t numCPUsA = 0U;
+    const auto first = processorInfo(&numCPUsA, error);
+    if (first == NULL) {
         return nil;
     }
 
-    NSMutableArray *result = [NSMutableArray arrayWithCapacity:numCPUs];
-    for (natural_t core = 0U; core < numCPUs; ++core) {
+    // htop sleeps for 75 milliseconds between two samples:
+    // https://github.com/htop-dev/htop/blob/37d30a3a7d6c96da018c960d6b6bfe11cc718aa8/CommandLine.c#L402-L405
+    std::this_thread::sleep_for(std::chrono::milliseconds(75));
+
+    natural_t numCPUsB = 0U;
+    const auto second = processorInfo(&numCPUsB, error);
+    if (second == NULL) {
+        return nil;
+    }
+
+    NSCAssert(numCPUsA == numCPUsB, @"Different number of cpus reported between calls");
+
+    NSMutableArray *result = [NSMutableArray arrayWithCapacity:numCPUsA];
+
+    auto totalTicks = 0.0;
+    for (natural_t state = 0U; state < CPU_STATE_MAX; ++state) {
+        totalTicks += second[state] - first[state];
+    }
+
+    for (natural_t core = 0U; core < numCPUsA; ++core) {
         const auto indexBase = CPU_STATE_MAX * core;
-        const float user = cpuInfo[indexBase + CPU_STATE_USER];
-        const float sys = cpuInfo[indexBase + CPU_STATE_SYSTEM];
-        const float nice = cpuInfo[indexBase + CPU_STATE_NICE];
-        const float idle = cpuInfo[indexBase + CPU_STATE_IDLE];
-        const auto inUse = user + sys + nice;
-        const auto total = inUse + idle;
-        const auto usagePercent = inUse / total * 100.f;
-        [result addObject:@(usagePercent)];
+        const float user = (second[indexBase + CPU_STATE_USER] - first[indexBase + CPU_STATE_USER])
+            * 100.0 / totalTicks;
+        const float sys
+            = (second[indexBase + CPU_STATE_SYSTEM] - first[indexBase + CPU_STATE_SYSTEM]) * 100.0
+            / totalTicks;
+        const float nice = (second[indexBase + CPU_STATE_NICE] - first[indexBase + CPU_STATE_NICE])
+            * 100.0 / totalTicks;
+        [result addObject:@(user + sys + nice)];
     }
 
     return result;
