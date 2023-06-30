@@ -239,6 +239,7 @@ class ExtraViewController: UIViewController {
     
     @IBAction func stopBenchmark(_ sender: Any) {
         print("[iOS-Swift] benchmarking results:\n" + SentryBenchmarking.stop().description)
+        try! print("[iOS-Swift] machine info:\n" + SentryMachineInfo.cpuInfo().description)
     }
 
     @IBOutlet weak var imageView: UIImageView!

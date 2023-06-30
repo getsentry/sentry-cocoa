@@ -3,7 +3,7 @@
 
 @implementation SentryCPUInfo
 
-- (NSString *)debugDescription
+- (NSString *)description
 {
     const auto result = [NSMutableString string];
     for (uint64_t perfLevel = 0; perfLevel < _performanceLevels; perfLevel++) {
