@@ -211,13 +211,30 @@ class ExtraViewController: UIViewController {
     }
 
     @IBAction func imageListEfficient(_ sender: Any) {
-        let vc = ImageList(efficient: true)
-        navigationController?.pushViewController(vc, animated: true)
+        for i in 1..<64 {
+            let name = "\(i)"
+            let url = Bundle.main.url(forResource: name, withExtension: "PNG")!
+            let data = try! Data(contentsOf: url)
+            let image = UIImage(data: data)!
+            DispatchQueue.global(qos: .userInitiated).async {
+                if #available(iOS 15.0, *) {
+                    let preparedImage = image.preparingForDisplay()
+                    DispatchQueue.main.async {
+                        self.imageView.image = preparedImage
+                    }
+                }
+            }
+        }
     }
 
     @IBAction func imageListInefficient(_ sender: Any) {
-        let vc = ImageList(efficient: true)
-        navigationController?.pushViewController(vc, animated: true)
+        for i in 1..<64 {
+            let name = "\(i)"
+            let url = Bundle.main.url(forResource: name, withExtension: "PNG")!
+            let data = try! Data(contentsOf: url)
+            let image = UIImage(data: data)!
+            self.imageView.image = image
+        }
     }
     
     @IBAction func stopBenchmark(_ sender: Any) {

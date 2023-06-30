@@ -83,11 +83,33 @@
 
 - (NSString *)description
 {
-    const auto result = [NSMutableString string];
-    [_aggregatedCPUUsagePerCore enumerateObjectsUsingBlock:^(NSNumber *_Nonnull obj, NSUInteger idx,
-        BOOL *_Nonnull stop) { [result appendFormat:@"Core %lu: %.1f%%; ", idx, obj.floatValue]; }];
-    return [result stringByReplacingCharactersInRange:NSMakeRange(result.length - 2, 2)
-                                           withString:@""];
+    const auto results = [NSMutableArray array];
+
+    const auto cores = [NSMutableArray array];
+    [_aggregatedCPUUsagePerCore
+        enumerateObjectsUsingBlock:^(NSNumber *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+            [cores addObject:[NSString stringWithFormat:@"Core %lu: %.1f%%", idx, obj.floatValue]];
+        }];
+    [results addObject:[NSString stringWithFormat:@"Average core usages: %@",
+                                 [cores componentsJoinedByString:@"; "]]];
+
+    const auto threads = [NSMutableArray array];
+    [_aggregatedThreadInfo enumerateKeysAndObjectsUsingBlock:^(
+        NSString *_Nonnull key, SentryThreadBasicInfo *_Nonnull obj, BOOL *_Nonnull stop) {
+        [threads addObject:[NSString stringWithFormat:@"Thread %@: %@", key, obj.description]];
+    }];
+    [results addObject:[NSString stringWithFormat:@"Cumulative thread usages:\n%@",
+                                 [threads componentsJoinedByString:@"\n"]]];
+
+    const auto samples = [NSMutableArray array];
+    [_allSamples enumerateObjectsUsingBlock:^(
+        SentryBenchmarkSample *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+        [samples addObject:[NSString stringWithFormat:@"===Sample===\n%@", obj.description]];
+    }];
+    [results addObject:[NSString stringWithFormat:@"Samples:\n%@",
+                                 [samples componentsJoinedByString:@"\n"]]];
+
+    return [results componentsJoinedByString:@"\n"];
 }
 
 @end
@@ -149,10 +171,37 @@ SentryCPUReading ()
 
 @end
 
+uint64_t
+microsecondsFromTimeValue(time_value_t value)
+{
+    return value.seconds * 1e6 + value.microseconds;
+}
+
 @implementation SentryThreadBasicInfo
+
+- (NSString *)description
+{
+    return [NSString
+        stringWithFormat:
+            @"user time: %llu; system time: %llu; cpu_usage: %d; suspend_count: %d; sleep time: %d",
+        microsecondsFromTimeValue(_threadInfo.user_time),
+        microsecondsFromTimeValue(_threadInfo.system_time), _threadInfo.cpu_usage,
+        _threadInfo.suspend_count, _threadInfo.sleep_time];
+}
+
 @end
 
 @implementation SentryBenchmarkSample
+
+- (NSString *)description
+{
+    const auto cores = [NSMutableArray array];
+    [_cpuUsagePerCore enumerateObjectsUsingBlock:^(NSNumber *_Nonnull obj, NSUInteger idx,
+        BOOL *_Nonnull stop) { [cores addObject:obj.stringValue]; }];
+    return [NSString stringWithFormat:@"Thread infos: %@\nCore infos: %@", _threadInfos,
+                     [cores componentsJoinedByString:@", "]];
+}
+
 @end
 
 namespace {
@@ -319,15 +368,11 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
             const auto lastThreadInfo = lastSample.threadInfos[key].threadInfo;
             const auto thisThreadInfo = thisSample.threadInfos[key].threadInfo;
 
-            const auto lastSystemTime_ms = lastThreadInfo.system_time.seconds * 1e6
-                + lastThreadInfo.system_time.microseconds;
-            const auto thisSystemTime_ms = thisThreadInfo.system_time.seconds * 1e6
-                + thisThreadInfo.system_time.microseconds;
+            const auto lastSystemTime_ms = microsecondsFromTimeValue(lastThreadInfo.system_time);
+            const auto thisSystemTime_ms = microsecondsFromTimeValue(thisThreadInfo.system_time);
 
-            const auto lastUserTime_ms
-                = lastThreadInfo.user_time.seconds * 1e6 + lastThreadInfo.user_time.microseconds;
-            const auto thisUserTime_ms
-                = thisThreadInfo.user_time.seconds * 1e6 + thisThreadInfo.user_time.microseconds;
+            const auto lastUserTime_ms = microsecondsFromTimeValue(lastThreadInfo.user_time);
+            const auto thisUserTime_ms = microsecondsFromTimeValue(thisThreadInfo.user_time);
 
             const auto lastSleepTime_s = lastThreadInfo.sleep_time;
             const auto thisSleepTime_s = thisThreadInfo.sleep_time;
@@ -469,13 +514,14 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
 {
     dispatch_cancel(source);
     [self recordSample];
+    const auto endReading = [self gatherBenchmarkReading];
 
     const auto sampleResult = [[SentrySampledBenchmarkResults alloc] init];
     sampleResult.aggregatedThreadInfo = aggregateCPUUsagePerThread();
     sampleResult.aggregatedCPUUsagePerCore = aggregatedCPUUsagePerCore();
     sampleResult.allSamples = [samples copy];
     const auto result = [[SentryBenchmarkResult alloc] initWithStart:startReading
-                                                                 end:[self gatherBenchmarkReading]
+                                                                 end:endReading
                                               aggregatedSampleResult:sampleResult];
 
     [samples removeAllObjects];

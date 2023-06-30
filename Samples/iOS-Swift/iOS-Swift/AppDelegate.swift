@@ -34,13 +34,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let isBenchmarking = ProcessInfo.processInfo.arguments.contains("--io.sentry.test.benchmarking")
 
             // the benchmark test starts and stops a custom transaction using a UIButton, and automatic user interaction tracing stops the transaction that begins with that button press after the idle timeout elapses, stopping the profiler (only one profiler runs regardless of the number of concurrent transactions)
-            options.enableUserInteractionTracing = !isBenchmarking
-            options.enableAutoPerformanceTracing = !isBenchmarking
+            options.enableUserInteractionTracing = !isBenchmarking && !ProcessInfo.processInfo.arguments.contains("--disable-ui-tracing")
+            options.enableAutoPerformanceTracing = !isBenchmarking && !ProcessInfo.processInfo.arguments.contains("--disable-auto-performance-tracing")
             options.enablePreWarmedAppStartTracing = !isBenchmarking
 
-            if ProcessInfo.processInfo.arguments.contains("--disable-file-io-tracing") {
-                options.enableFileIOTracing = false
-            }
+            options.enableFileIOTracing = !ProcessInfo.processInfo.arguments.contains("--disable-file-io-tracing")
 
             // because we run CPU for 15 seconds at full throttle, we trigger ANR issues being sent. disable such during benchmarks.
             options.enableAppHangTracking = !isBenchmarking

@@ -34,7 +34,6 @@
 		84BE546F287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BE546E287503F100ACC735 /* SentrySDKPerformanceBenchmarkTests.m */; };
 		84BE547E287645B900ACC735 /* SentryProcessInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 84BE54792876451D00ACC735 /* SentryProcessInfo.m */; };
 		84C47AEC29FC8F4B00DAEB8A /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84FB8129284001B800F3A94A /* SentryBenchmarking.mm */; };
-		84D288572A4E9D40005A7FF5 /* ImageList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D288562A4E9D40005A7FF5 /* ImageList.swift */; };
 		84D288982A4EA431005A7FF5 /* 45.PNG in Resources */ = {isa = PBXBuildFile; fileRef = 84D288582A4EA42F005A7FF5 /* 45.PNG */; };
 		84D288992A4EA431005A7FF5 /* 41.PNG in Resources */ = {isa = PBXBuildFile; fileRef = 84D288592A4EA42F005A7FF5 /* 41.PNG */; };
 		84D2889A2A4EA431005A7FF5 /* 19.PNG in Resources */ = {isa = PBXBuildFile; fileRef = 84D2885A2A4EA42F005A7FF5 /* 19.PNG */; };
@@ -365,7 +364,6 @@
 		84BE54782876451D00ACC735 /* SentryProcessInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryProcessInfo.h; sourceTree = "<group>"; };
 		84BE54792876451D00ACC735 /* SentryProcessInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryProcessInfo.m; sourceTree = "<group>"; };
 		84C47AE229FC8BD300DAEB8A /* MultithreadingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultithreadingTests.swift; sourceTree = "<group>"; };
-		84D288562A4E9D40005A7FF5 /* ImageList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageList.swift; sourceTree = "<group>"; };
 		84D288582A4EA42F005A7FF5 /* 45.PNG */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 45.PNG; sourceTree = "<group>"; };
 		84D288592A4EA42F005A7FF5 /* 41.PNG */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 41.PNG; sourceTree = "<group>"; };
 		84D2885A2A4EA42F005A7FF5 /* 19.PNG */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 19.PNG; sourceTree = "<group>"; };
@@ -756,7 +754,6 @@
 				0AABE2E928855FF80057ED69 /* PermissionsViewController.swift */,
 				D8C33E1E29FBB1F70071B75A /* UIEventBreadcrumbsController.swift */,
 				D8F01DE92A1376B5008F4996 /* InfoForBreadcrumbController.swift */,
-				84D288562A4E9D40005A7FF5 /* ImageList.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -1157,7 +1154,6 @@
 				D890CD3F26CEE31B001246CF /* NibViewController.swift in Sources */,
 				8478A28E2A3BA1FB00067A91 /* SentryMachineInfo.mm in Sources */,
 				D845F35B27BAD4CC00A4D7A2 /* SentryData.xcdatamodeld in Sources */,
-				84D288572A4E9D40005A7FF5 /* ImageList.swift in Sources */,
 				D8444E4C275E38090042F4DE /* UIViewControllerExtension.swift in Sources */,
 				637AFDAE243B02760034958B /* ViewController.swift in Sources */,
 				0AABE2EA28855FF80057ED69 /* PermissionsViewController.swift in Sources */,
