@@ -7,7 +7,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     static let defaultDSN = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
-    
+
+    //swiftlint:disable function_body_length
     static func startSentry() {
         // For testing purposes, we want to be able to change the DSN and store it to disk. In a real app, you shouldn't need this behavior.
         let dsn = DSNStorage.shared.getDSN() ?? AppDelegate.defaultDSN
@@ -78,6 +79,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
     }
+    //swiftlint:enable function_body_length
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
