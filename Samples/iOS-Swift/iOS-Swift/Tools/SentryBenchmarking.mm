@@ -2,6 +2,7 @@
 #include <chrono>
 #include <mach/clock.h>
 #include <mach/mach.h>
+#import <mach/mach_time.h>
 #include <pthread.h>
 #include <string>
 #import <thread>
@@ -466,6 +467,11 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
 + (SentryBenchmarkReading *)gatherBenchmarkReading
 {
     const auto reading = [[SentryBenchmarkReading alloc] init];
+    if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)) {
+        reading.timestamp = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+    } else {
+        reading.timestamp = mach_absolute_time();
+    }
     reading.cpu = [self cpuTicks:nil];
     reading.power = [self powerUsage:nil];
     reading.contextSwitches = [[self numContextSwitches:nil] longLongValue];

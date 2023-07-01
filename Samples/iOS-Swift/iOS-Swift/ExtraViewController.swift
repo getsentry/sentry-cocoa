@@ -206,67 +206,6 @@ class ExtraViewController: UIViewController {
         AppDelegate.startSentry()
     }
 
-    @IBAction func startBenchmark(_ sender: Any) {
-        SentryBenchmarking.start()
-    }
-
-    @IBAction func imageListEfficient(_ sender: Any) {
-        for i in 1..<64 {
-            let name = "\(i)"
-            let url = Bundle.main.url(forResource: name, withExtension: "PNG")!
-            let data = try! Data(contentsOf: url)
-            let image = UIImage(data: data)!
-            DispatchQueue.global(qos: .userInitiated).async {
-                if #available(iOS 15.0, *) {
-                    let preparedImage = image.preparingForDisplay()
-                    DispatchQueue.main.async {
-                        self.imageView.image = preparedImage
-                    }
-                }
-            }
-        }
-    }
-
-    @IBAction func imageListInefficient(_ sender: Any) {
-        for i in 1..<64 {
-            let name = "\(i)"
-            let url = Bundle.main.url(forResource: name, withExtension: "PNG")!
-            let data = try! Data(contentsOf: url)
-            let image = UIImage(data: data)!
-            self.imageView.image = image
-        }
-    }
-    
-    @IBAction func stopBenchmark(_ sender: Any) {
-        print("[iOS-Swift] benchmarking results:\n" + SentryBenchmarking.stop().description)
-        try! print("[iOS-Swift] machine info:\n" + SentryMachineInfo.cpuInfo().description)
-    }
-
-    @IBOutlet weak var imageView: UIImageView!
-    @IBAction func decodeImageMain(_ sender: Any) {
-        let data = try! Data(contentsOf: Bundle.main.url(forResource: "Tongariro", withExtension: "jpg")!)
-        let image = UIImage(data: data)
-        SentryBenchmarking.start()
-        imageView.image = image
-        let benchmarkMain = SentryBenchmarking.stop()
-    }
-
-    @IBAction func decodeImageBg(_ sender: Any) {
-        if #available(iOS 15.0, *) {
-            DispatchQueue.global(qos: .background).async {
-                let data = try! Data(contentsOf: Bundle.main.url(forResource: "Tongariro", withExtension: "jpg")!)
-                let image = UIImage(data: data)?.preparingForDisplay()
-                SentryBenchmarking.start()
-                DispatchQueue.main.async {
-                    self.imageView.image = image
-                }
-                let benchmark = SentryBenchmarking.stop()
-            }
-        } else {
-            // Fallback on earlier versions
-        }
-    }
-
     private func calcPi() -> Double {
         var denominator = 1.0
         var pi = 0.0
@@ -282,17 +221,5 @@ class ExtraViewController: UIViewController {
         }
 
         return pi
-    }
-
-    func highlightButton(_ sender: UIButton) {
-        let originalLayerColor = sender.layer.backgroundColor
-        let originalTitleColor = sender.titleColor(for: .normal)
-        sender.layer.backgroundColor = UIColor.blue.cgColor
-        sender.setTitleColor(.white, for: .normal)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            sender.layer.backgroundColor = originalLayerColor
-            sender.setTitleColor(originalTitleColor, for: .normal)
-            sender.titleLabel?.textColor = originalTitleColor
-        }
     }
 }
