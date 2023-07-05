@@ -71,7 +71,7 @@ class EfficientTableViewController: AbstractTableViewController {
         }
 
         if #available(iOS 15.0, *) {
-            for i in 1..<imageFiles {
+            for i in 1...imageFiles {
                 let op = BlockOperation {
                     main.async { self.updateProgress() }
 
@@ -79,7 +79,10 @@ class EfficientTableViewController: AbstractTableViewController {
                     let name = "\(i)"
                     let url = Bundle.main.url(forResource: name, withExtension: "PNG")!
                     let data = try! Data(contentsOf: url)
-                    guard let image = UIImage(data: data)?.preparingForDisplay() else { return }
+                    var image = UIImage(data: data)?.preparingForDisplay()
+                    if image == nil {
+                        image = UIImage(systemName: "exclamationmark.circle.fill")
+                    }
                     let elapsed = Date().timeIntervalSince(start)
                     let content = Content(title: "\(name).png", image: image, workTime: elapsed)
 

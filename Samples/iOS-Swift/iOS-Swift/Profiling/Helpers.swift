@@ -53,7 +53,11 @@ extension TimeInterval {
 
 @available(iOS 13.0, *)
 class AbstractTableViewController: UITableViewController {
+
+    /// a counter for how many tasks have been started
     var task = 0
+
+    // the total amounts of each type of file to load
     let logFiles = 5
     let jsonFiles = 5
     let imageFiles = 5  

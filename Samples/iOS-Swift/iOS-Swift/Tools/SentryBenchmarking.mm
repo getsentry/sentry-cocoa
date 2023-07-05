@@ -21,6 +21,8 @@
 
     _results = [[SentryBenchmarkReading alloc] init];
 
+    _results.wallClockTime = end.wallClockTime - start.wallClockTime;
+
     _results.cpu = [[SentryCPUReading alloc] init];
     _results.cpu.systemTicks = end.cpu.systemTicks - start.cpu.systemTicks;
     _results.cpu.userTicks = end.cpu.systemTicks - start.cpu.userTicks;
@@ -64,8 +66,10 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"Endpoint results:\n%@\ncumulative sampled results:\n%@",
-                     _results.description, _sampledResults.description];
+    return [NSString
+        stringWithFormat:
+            @"Start/end esults:\nwall clock time: %llu\n%@\ncumulative sampled results:\n%@",
+        _results.wallClockTime, _results.description, _sampledResults.description];
 }
 
 @end
@@ -350,19 +354,6 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
         return nil;
     }
 
-    // definition of thread_basic_info from mach/thread_info.h:
-    //    struct thread_basic_info {
-    //        time_value_t    user_time;      /* user run time */
-    //        time_value_t    system_time;    /* system run time */
-    //        integer_t       cpu_usage;      /* scaled cpu usage percentage */
-    //        policy_t        policy;         /* scheduling policy in effect */
-    //        integer_t       run_state;      /* run state (see below) */
-    //        integer_t       flags;          /* various flags (see below) */
-    //        integer_t       suspend_count;  /* suspend count for thread */
-    //        integer_t       sleep_time;     /* number of seconds that thread
-    //                                         *  has been sleeping */
-    //    };
-
     const auto userTimeTotals = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
     const auto systemTimeTotals = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
     const auto suspendCountTotals = [NSMutableDictionary<NSString *, NSNumber *> dictionary];
@@ -468,9 +459,9 @@ NSDictionary<NSString *, SentryThreadBasicInfo *> *_Nullable aggregateCPUUsagePe
 {
     const auto reading = [[SentryBenchmarkReading alloc] init];
     if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)) {
-        reading.timestamp = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+        reading.wallClockTime = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
     } else {
-        reading.timestamp = mach_absolute_time();
+        reading.wallClockTime = mach_absolute_time();
     }
     reading.cpu = [self cpuTicks:nil];
     reading.power = [self powerUsage:nil];

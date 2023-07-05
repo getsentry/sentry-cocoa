@@ -37,7 +37,7 @@ extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));
  * the difference can be taken to compute the result.
  */
 @interface SentryBenchmarkReading : NSObject
-@property uint64_t timestamp;
+@property uint64_t wallClockTime;
 @property SentryCPUReading *cpu;
 @property SentryPowerReading *power;
 @property uint64_t contextSwitches;

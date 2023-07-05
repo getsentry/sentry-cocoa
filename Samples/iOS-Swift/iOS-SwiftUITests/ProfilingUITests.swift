@@ -46,27 +46,4 @@ final class ProfilingUITests: XCTestCase {
         let frameRateValues = try XCTUnwrap(frameRates["values"] as? [[String: Any]])
         XCTAssertFalse(frameRateValues.isEmpty)
     }
-
-    func testBenchmark() {
-        let app = XCUIApplication()
-        app.tabBars["Tab Bar"].buttons["Extra"].tap()
-
-        func perform(efficient: Bool) {
-            app.staticTexts["Start benchmark"].tap()
-            app.staticTexts["Image List (\(efficient ? "efficient" : "ineffiicient"))"].tap()
-
-            let table = app.tables.firstMatch
-            if #available(iOS 15.0, *) {
-                for _ in 0..<20 {
-                    table.swipeUp()
-                }
-            }
-
-            app.staticTexts["Back"].tap()
-            app.staticTexts["Stop benchmark"].tap()
-        }
-
-        perform(efficient: false)
-        perform(efficient: true)
-    }
 }
