@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - ci/fastlane-version-suffix
 
     paths:
       - 'Sources/**'
