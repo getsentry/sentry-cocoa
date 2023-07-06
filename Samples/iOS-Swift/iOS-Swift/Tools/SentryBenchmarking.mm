@@ -133,9 +133,12 @@
 
 - (NSString *)description
 {
-    return
-        [NSString stringWithFormat:@"totalCPU: %llu; totalGPU: %llu; task energy: %llu nanojoules",
-                  [self totalCPU], [self totalGPU], _info.task_energy];
+    const auto string = [NSMutableString
+        stringWithFormat:@"totalCPU: %llu; totalGPU: %llu", [self totalCPU], [self totalGPU]];
+#if defined(__arm__) || defined(__arm64__)
+    [string appendFormat:@"; task energy: %llu nanojoules", _info.task_energy];
+#endif // defined(__arm__) || defined(__arm64__)
+    return string;
 }
 
 @end
