@@ -19,29 +19,33 @@ platform :ios do
       xcodeproj: "./Samples/iOS-Swift/iOS-Swift.xcodeproj",
       target: "iOS-Swift"
       )
-    version = version.split("-", -1)[0]
+    new_version = version.split("-", -1)[0]
+
+    # We also need to replace the MARKETING_VERSION otherwise the build will fail with 
+    # error: The CFBundleShortVersionString of an App Clip ('8.9.0-beta.1') must match that of its containing parent app ('8.9.0').
+    sh "sed -i '' 's/MARKETING_VERSION = #{version}/MARKETING_VERSION = #{new_version}/g' ../Samples/iOS-Swift/iOS-Swift.xcodeproj/project.pbxproj"
 
     set_info_plist_value(
       path: ios_swift_infoplist_path,
       key: "CFBundleShortVersionString",
-      value: version
+      value: new_version
     )
     set_info_plist_value(
       path: ios_swift_clip_infoplist_path,
       key: "CFBundleShortVersionString",
-      value: version
+      value: new_version
     )
 
     sentryInfoPlistPath = "./Sources/Sentry/Info.plist"
     set_info_plist_value(
       path: sentryInfoPlistPath,
       key: "CFBundleShortVersionString",
-      value: version
+      value: new_version
     )
     set_info_plist_value(
       path: sentryInfoPlistPath,
       key: "CFBundleVersion",
-      value: version
+      value: new_version
     )
   end
 
