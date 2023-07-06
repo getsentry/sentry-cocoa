@@ -215,7 +215,9 @@ platform :ios do
       key_content: ENV["APP_STORE_CONNECT_KEY"]
     )
 
-    testflight
+    testflight(
+      skip_waiting_for_build_processing: true,
+    )
 
     sentry_upload_dif(
       auth_token: ENV["SENTRY_AUTH_TOKEN"],
