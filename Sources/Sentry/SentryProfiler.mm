@@ -312,12 +312,9 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 
     [_gCurrentProfiler start];
 
-    _gCurrentProfiler->_timeoutTimer = [SentryDependencyContainer.sharedInstance.timerFactory
-        scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
-                                target:self
-                              selector:@selector(timeoutAbort)
-                              userInfo:nil
-                               repeats:NO];
+    // from NSTimer.h: Timers scheduled in an async context may never fire.
+    dispatch_async(dispatch_get_main_queue(), ^{ [self scheduleTimeoutTimer]; });
+
 #    if SENTRY_HAS_UIKIT
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(backgroundAbort)
@@ -382,6 +379,29 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
         [_gCurrentProfiler->_metricProfiler serializeForTransaction:transaction],
         [_gCurrentProfiler->_debugImageProvider getDebugImagesCrashed:NO],
         _gCurrentProfiler -> _hub);
+}
+
++ (void)scheduleTimeoutTimer
+{
+    std::lock_guard<std::mutex> l(_gProfilerLock);
+
+    if (!_gCurrentProfiler) {
+        SENTRY_LOG_DEBUG(
+            @"No current global profiler manager for which to schedule a timeout timer.");
+        return;
+    }
+
+    if (![_gCurrentProfiler isRunning]) {
+        SENTRY_LOG_DEBUG(@"Current profiler is not running.");
+        return;
+    }
+
+    _gCurrentProfiler->_timeoutTimer = [SentryDependencyContainer.sharedInstance.timerFactory
+        scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
+                                target:self
+                              selector:@selector(timeoutAbort)
+                              userInfo:nil
+                               repeats:NO];
 }
 
 + (void)timeoutAbort
