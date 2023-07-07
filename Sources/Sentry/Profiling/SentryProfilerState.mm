@@ -12,7 +12,6 @@
 
 using namespace sentry::profiling;
 
-namespace {
 NSString *
 parseBacktraceSymbolsFunctionName(const char *symbol)
 {
@@ -33,7 +32,6 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     }
     return [symbolNSStr substringWithRange:[match rangeAtIndex:1]];
 }
-} // namespace
 
 @implementation SentryProfilingMutableState
 
