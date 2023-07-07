@@ -1,8 +1,11 @@
 #import "SentryProfilerMocksSwiftCompatible.h"
-#import "SentryCurrentDate.h"
-#import "SentryProfilerMocks.h"
-#import "SentryProfilerState+ObjCpp.h"
-#include <vector>
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
+#    import "SentryCurrentDate.h"
+#    import "SentryProfilerMocks.h"
+#    import "SentryProfilerState+ObjCpp.h"
+#    include <vector>
 
 using namespace std;
 
@@ -30,3 +33,5 @@ using namespace std;
 }
 
 @end
+
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
