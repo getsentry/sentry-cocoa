@@ -47,8 +47,6 @@ threadSpin(void *name)
         SENTRY_PROF_LOG_ERROR_RETURN(pthread_setschedparam(thread, policy, &param));
     }
 
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-
     const auto cache = std::make_shared<ThreadMetadataCache>();
     ThreadHandle handle(pthread_mach_thread_np(thread));
     const auto metadata = cache->metadataForThread(handle);
@@ -72,8 +70,6 @@ threadSpin(void *name)
         SENTRY_PROF_LOG_ERROR_RETURN(pthread_setschedparam(thread, policy, &param));
     }
 
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-
     const auto cache = std::make_shared<ThreadMetadataCache>();
     ThreadHandle handle(pthread_mach_thread_np(thread));
     XCTAssertEqual(cache->metadataForThread(handle).priority, 50);
@@ -93,8 +89,6 @@ threadSpin(void *name)
     pthread_t thread;
     char name[] = "io.sentry.SentryThreadMetadataCacheTests";
     XCTAssertEqual(pthread_create(&thread, nullptr, threadSpin, reinterpret_cast<void *>(name)), 0);
-
-    std::this_thread::sleep_for(std::chrono::seconds(1));
 
     const auto cache = std::make_shared<ThreadMetadataCache>();
     ThreadHandle handle(pthread_mach_thread_np(thread));
