@@ -228,7 +228,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 
     func testMetricProfiler() throws {
         let span = try fixture.newTransaction()
-        addMockBacktrace()
+        addMockSamples()
         try fixture.gatherMockedMetrics(span: span)
         self.fixture.currentDateProvider.advanceBy(nanoseconds: 1.toNanoSeconds())
         span.finish()
@@ -246,7 +246,7 @@ class SentryProfilerSwiftTests: XCTestCase {
                 fixture.currentDateProvider.advanceBy(nanoseconds: 100)
             }
 
-            addMockBacktrace()
+            addMockSamples()
 
             for (i, span) in spans.enumerated() {
                 try fixture.gatherMockedMetrics(span: span)
@@ -280,7 +280,7 @@ class SentryProfilerSwiftTests: XCTestCase {
     func testConcurrentSpansWithTimeout() throws {
         let spanA = try fixture.newTransaction()
         fixture.currentDateProvider.advanceBy(nanoseconds: 1.toNanoSeconds())
-        addMockBacktrace()
+        addMockSamples()
         fixture.currentDateProvider.advanceBy(nanoseconds: 30.toNanoSeconds())
         fixture.timeoutTimerFactory.fire()
 
@@ -288,7 +288,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 
         let spanB = try fixture.newTransaction()
         fixture.currentDateProvider.advanceBy(nanoseconds: 0.5.toNanoSeconds())
-        addMockBacktrace()
+        addMockSamples()
 
         spanB.finish()
         try self.assertValidProfileData()
@@ -405,8 +405,12 @@ private extension SentryProfilerSwiftTests {
         return try XCTUnwrap(envelope.event as? Transaction)
     }
 
-    func addMockBacktrace() {
+    func addMockSamples() {
         let state = SentryProfiler.getCurrent()._state
+        SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: 1, threadPriority: 2, threadName: "test-thread", queueAddress: 3, queueLabel: "test-queue", addresses: [0x3, 0x4, 0x5])
+        fixture.currentDateProvider.advanceBy(nanoseconds: 1)
+        SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: 1, threadPriority: 2, threadName: "test-thread", queueAddress: 3, queueLabel: "test-queue", addresses: [0x3, 0x4, 0x5])
+        fixture.currentDateProvider.advanceBy(nanoseconds: 1)
         SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: 1, threadPriority: 2, threadName: "test-thread", queueAddress: 3, queueLabel: "test-queue", addresses: [0x3, 0x4, 0x5])
     }
 
@@ -420,7 +424,7 @@ private extension SentryProfilerSwiftTests {
 
         let span = try fixture.newTransaction(testingAppLaunchSpans: testingAppLaunchSpans)
 
-        addMockBacktrace()
+        addMockSamples()
         fixture.currentDateProvider.advance(by: 31)
         if shouldTimeOut {
             fixture.timeoutTimerFactory.fire()
@@ -644,7 +648,7 @@ private extension SentryProfilerSwiftTests {
         Dynamic(hub).tracesSampler.random = TestRandom(value: 1.0)
 
         let span = try fixture.newTransaction()
-        addMockBacktrace()
+        addMockSamples()
         fixture.currentDateProvider.advance(by: 5)
         span.finish()
 

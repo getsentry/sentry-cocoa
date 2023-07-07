@@ -1,4 +1,5 @@
 #import "SentryProfilerMocksSwiftCompatible.h"
+#import "SentryCurrentDate.h"
 #import "SentryProfilerMocks.h"
 #import "SentryProfilerState+ObjCpp.h"
 #include <vector>
@@ -21,9 +22,10 @@ using namespace std;
         backtraceAddresses.push_back(address.unsignedLongLongValue);
     }
 
-    const auto backtrace = mockBacktrace(threadID, threadPriority,
+    auto backtrace = mockBacktrace(threadID, threadPriority,
         [threadName cStringUsingEncoding:NSUTF8StringEncoding], queueAddress,
         [queueLabel cStringUsingEncoding:NSUTF8StringEncoding], backtraceAddresses);
+    backtrace.absoluteTimestamp = SentryCurrentDate.getCurrentDateProvider.systemTime;
     [state appendBacktrace:backtrace];
 }
 
