@@ -124,6 +124,7 @@
 #import "SentryPerformanceTracker.h"
 #import "SentryPerformanceTrackingIntegration.h"
 #import "SentryPredicateDescriptor.h"
+#import "SentryProfiler+Private.h"
 #import "SentryProfiler+Test.h"
 #import "SentryProfilerMocksSwiftCompatible.h"
 #import "SentryProfilerState.h"

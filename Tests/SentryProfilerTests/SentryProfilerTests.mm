@@ -2,6 +2,7 @@
 #import "SentryHub+TestInit.h"
 #import "SentryId.h"
 #import "SentryProfileTimeseries.h"
+#import "SentryProfiler+Private.h"
 #import "SentryProfiler+Test.h"
 #import "SentryProfilerMocks.h"
 #import "SentryProfilerState+ObjCpp.h"

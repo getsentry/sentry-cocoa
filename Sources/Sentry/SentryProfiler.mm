@@ -1,4 +1,4 @@
-#import "SentryProfiler+Test.h"
+#import "SentryProfiler+Private.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "NSDate+SentryExtras.h"
@@ -527,6 +527,8 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     }
     return _profiler->isSampling();
 }
+
+#    pragma mark - Testing helpers
 
 #    if defined(TEST) || defined(TESTCI)
 + (SentryProfiler *)getCurrentProfiler

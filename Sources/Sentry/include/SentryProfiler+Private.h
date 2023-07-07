@@ -21,12 +21,8 @@ SentryProfiler ()
 
 @property (strong, nonatomic) SentryProfilerState *_state;
 
-#    if defined(TEST) || defined(TESTCI)
-+ (SentryProfiler *)getCurrentProfiler;
-#    endif // defined(TEST) || defined(TESTCI)
-
 @end
 
 NS_ASSUME_NONNULL_END
 
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
