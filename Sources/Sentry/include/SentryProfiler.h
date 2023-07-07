@@ -28,19 +28,6 @@ SENTRY_EXTERN NSString *const kSentryProfilerSerializationKeyFrameRates;
 
 SENTRY_EXTERN_C_BEGIN
 
-/**
- * Parses a symbol that is returned from @c backtrace_symbols()  which encodes information
- * like the frame index, image name, function name, and offset in a single string.
- * @discussion For the input:
- *  @code
- * 2 UIKitCore 0x00000001850d97ac -[UIFieldEditor _fullContentInsetsFromFonts] + 160
- * @endcode
- * This function would return:
- * @code -[UIFieldEditor _fullContentInsetsFromFonts] @endcode
- * @note If the format does not match the expected format, this returns the input string.
- */
-NSString *parseBacktraceSymbolsFunctionName(const char *symbol);
-
 NSString *profilerTruncationReasonName(SentryProfilerTruncationReason reason);
 
 SENTRY_EXTERN_C_END

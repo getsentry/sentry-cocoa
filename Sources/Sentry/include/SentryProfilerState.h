@@ -6,9 +6,22 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * Parses a symbol that is returned from @c backtrace_symbols()  which encodes information
+ * like the frame index, image name, function name, and offset in a single string.
+ * @discussion For the input:
+ *  @code
+ * 2 UIKitCore 0x00000001850d97ac -[UIFieldEditor _fullContentInsetsFromFonts] + 160
+ * @endcode
+ * This function would return:
+ * @code -[UIFieldEditor _fullContentInsetsFromFonts] @endcode
+ * @note If the format does not match the expected format, this returns the input string.
+ */
+NSString *parseBacktraceSymbolsFunctionName(const char *symbol);
+
 @class SentrySample;
 
-@interface SentryProfilingMutableState : NSObject
+@interface SentryProfilerMutableState : NSObject
 @property (nonatomic, strong, readonly) NSMutableArray<SentrySample *> *samples;
 @property (nonatomic, strong, readonly) NSMutableArray<NSArray<NSNumber *> *> *stacks;
 @property (nonatomic, strong, readonly) NSMutableArray<NSDictionary<NSString *, id> *> *frames;
@@ -57,9 +70,9 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableDictionary<NSString *, NSNumber *> *stackIndexLookup;
 @end
 
-@interface SentryProfilingState : NSObject
+@interface SentryProfilerState : NSObject
 // All functions are safe to call from multiple threads concurrently
-- (void)mutate:(void (^)(SentryProfilingMutableState *))block;
+- (void)mutate:(void (^)(SentryProfilerMutableState *))block;
 - (void)appendBacktrace:(const sentry::profiling::Backtrace &)backtrace;
 - (NSDictionary<NSString *, id> *)copyProfilingData;
 @end

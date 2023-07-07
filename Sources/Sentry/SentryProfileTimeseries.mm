@@ -5,6 +5,7 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLog.h"
+#    import "SentrySample.h"
 #    import "SentryTransaction.h"
 
 /**
@@ -82,8 +83,5 @@ NSArray<SentrySample *> *_Nullable slicedProfileSamples(
     const auto indices = [NSIndexSet indexSetWithIndexesInRange:range];
     return [samples objectsAtIndexes:indices];
 }
-
-@implementation SentrySample
-@end
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

@@ -62,7 +62,7 @@ using namespace sentry::profiling;
 
 - (void)testProfilerMutationDuringSlicing
 {
-    SentryProfilingState *state = [[SentryProfilingState alloc] init];
+    SentryProfilerState *state = [[SentryProfilerState alloc] init];
     // generate a large timeseries of simulated data
 
     const auto threads = 5;
@@ -119,7 +119,7 @@ using namespace sentry::profiling;
     sliceExpectation.expectedFulfillmentCount = operations;
 
     void (^sliceBlock)(void) = ^(void) {
-        [state mutate:^(SentryProfilingMutableState *mutableState) {
+        [state mutate:^(SentryProfilerMutableState *mutableState) {
             __unused const auto slice = slicedProfileSamples(mutableState.samples, transaction);
             [sliceExpectation fulfill];
         }];
@@ -148,7 +148,7 @@ using namespace sentry::profiling;
 
     void (^mutateBlock)(void) = ^(void) {
         [state mutate:^(
-            __unused SentryProfilingMutableState *mutableState) { [mutateExpectation fulfill]; }];
+            __unused SentryProfilerMutableState *mutableState) { [mutateExpectation fulfill]; }];
     };
 
     const auto sliceOperations = [[NSOperationQueue alloc] init]; // concurrent queue
@@ -177,7 +177,7 @@ using namespace sentry::profiling;
  */
 - (void)testProfilerMutationDuringSerialization
 {
-    SentryProfilingState *state = [[SentryProfilingState alloc] init];
+    SentryProfilerState *state = [[SentryProfilerState alloc] init];
     // initialize the data structures with some simulated data
     {
         ThreadMetadata threadMetadata;
@@ -289,7 +289,7 @@ using namespace sentry::profiling;
 
 - (void)testProfilerPayload
 {
-    SentryProfilingState *state = [[SentryProfilingState alloc] init];
+    SentryProfilerState *state = [[SentryProfilerState alloc] init];
 
     // record an initial backtrace
 
@@ -337,7 +337,7 @@ using namespace sentry::profiling;
 
     [state appendBacktrace:backtrace2];
 
-    [state mutate:^(SentryProfilingMutableState *mutableState) {
+    [state mutate:^(SentryProfilerMutableState *mutableState) {
         XCTAssertEqual(mutableState.frames.count, 5UL);
         const auto expectedOrdered = @[
             @"0x0000000000000123", @"0x0000000000000456", @"0x0000000000000789",
