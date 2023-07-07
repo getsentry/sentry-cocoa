@@ -22,7 +22,3 @@ mockBacktrace(thread::TIDType threadID, const int threadPriority, const char *th
 
     return backtrace;
 }
-
-@implementation SentryProfilerMocks
-
-@end
