@@ -47,6 +47,10 @@ threadSpin(void *name)
         SENTRY_PROF_LOG_ERROR_RETURN(pthread_setschedparam(thread, policy, &param));
     }
 
+    // give the other thread a little time to spawn, otherwise its name comes back as an empty
+    // string and the isSentryOwnedThreadName check will fail
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
     const auto cache = std::make_shared<ThreadMetadataCache>();
     ThreadHandle handle(pthread_mach_thread_np(thread));
     const auto metadata = cache->metadataForThread(handle);
@@ -69,6 +73,10 @@ threadSpin(void *name)
         param.sched_priority = 50;
         SENTRY_PROF_LOG_ERROR_RETURN(pthread_setschedparam(thread, policy, &param));
     }
+
+    // give the other thread a little time to spawn, otherwise its metadata doesn't come back as
+    // expected
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     const auto cache = std::make_shared<ThreadMetadataCache>();
     ThreadHandle handle(pthread_mach_thread_np(thread));
