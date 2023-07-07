@@ -24,6 +24,7 @@
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentryNSTimerFactory.h"
 #    import "SentryProfileTimeseries.h"
+#    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentrySample.h"
 #    import "SentrySamplingProfiler.hpp"
@@ -270,6 +271,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 @implementation SentryProfiler {
     std::shared_ptr<SamplingProfiler> _profiler;
     SentryMetricProfiler *_metricProfiler;
+    SentryScreenFrames *_screenFrameData;
     SentryDebugImageProvider *_debugImageProvider;
 
     SentryProfilerTruncationReason _truncationReason;
@@ -282,6 +284,8 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     if (!(self = [super init])) {
         return nil;
     }
+
+    _profileId = [[SentryId alloc] init];
 
     SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
     _debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
@@ -315,7 +319,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 
 #    pragma mark - Public
 
-+ (void)startWithHub:(SentryHub *)hub
++ (void)startWithHub:(SentryHub *)hub tracer:(SentryTracer *)tracer
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
 
@@ -331,11 +335,13 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     }
 
 #    if SENTRY_HAS_UIKIT
-    // also do this with SentryTracerConcurrency?
+    // TODO: also do this with SentryProfiledTracerConcurrency?
 //    [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
 
     [_gCurrentProfiler start];
+
+    trackProfilerForTracer(_gCurrentProfiler, tracer);
 }
 
 + (void)stop
@@ -354,16 +360,23 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     [_gCurrentProfiler stopForReason:SentryProfilerTruncationReasonNormal];
 }
 
-+ (BOOL)isRunning
++ (BOOL)isCurrentlyProfiling
 {
     std::lock_guard<std::mutex> l(_gProfilerLock);
     return [_gCurrentProfiler isRunning];
 }
 
-+ (SentryEnvelopeItem *)createProfilingEnvelopeItemForTransaction:(SentryTransaction *)transaction
++ (nullable SentryEnvelopeItem *)createProfilingEnvelopeItemForTransaction:
+    (SentryTransaction *)transaction
 {
-    const auto profileID = [[SentryId alloc] init];
-    const auto payload = [self serializeForTransaction:transaction profileID:profileID];
+    const auto profiler = profilerForFinishedTracer(transaction.trace);
+    if (!profiler) {
+        SENTRY_LOG_WARN(@"Expected a profiler for tracer id %@ but none was found",
+            transaction.trace.traceId.sentryIdString);
+        return nil;
+    }
+
+    const auto payload = [profiler serializeForTransaction:transaction];
 
 #    if defined(TEST) || defined(TESTCI)
     [NSNotificationCenter.defaultCenter postNotificationName:@"SentryProfileCompleteNotification"
@@ -371,24 +384,24 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
                                                     userInfo:payload];
 #    endif // defined(TEST) || defined(TESTCI)
 
-    return [self envelopeItemForProfileData:payload profileID:profileID];
+    const auto JSONData = [SentrySerialization dataWithJSONObject:payload];
+    if (JSONData == nil) {
+        SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
+        return nil;
+    }
+
+    const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfile
+                                                                length:JSONData.length];
+    return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
 }
 
 #    pragma mark - Private
 
-+ (NSDictionary<NSString *, id> *)serializeForTransaction:(SentryTransaction *)transaction
-                                                profileID:(SentryId *)profileID
+- (NSDictionary<NSString *, id> *)serializeForTransaction:(SentryTransaction *)transaction
 {
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-
-    if (_gCurrentProfiler == nil) {
-        SENTRY_LOG_DEBUG(@"No profiler from which to receive data.");
-        return nil;
-    }
-
     return serializedProfileData([_gCurrentProfiler._state copyProfilingData], transaction,
-        profileID, profilerTruncationReasonName(_gCurrentProfiler->_truncationReason),
-        _gCurrentProfiler -> _hub.scope.environmentString
+        self.profileId, profilerTruncationReasonName(_gCurrentProfiler->_truncationReason),
+        _gCurrentProfiler->_hub.scope.environmentString
             ?: _gCurrentProfiler->_hub.getClient.options.environment,
         _gCurrentProfiler->_hub.getClient.options.releaseName,
         [_gCurrentProfiler->_metricProfiler serializeForTransaction:transaction],
@@ -421,13 +434,20 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 - (void)stopForReason:(SentryProfilerTruncationReason)reason
 {
     [_timeoutTimer invalidate];
-    [self stop];
+    [_metricProfiler stop];
     _truncationReason = reason;
 
 #    if SENTRY_HAS_UIKIT
-//    this needs to go to SentryTracerConcurrency or the cleanup block for it
-//    [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
+    _screenFrameData = SentryDependencyContainer.sharedInstance.framesTracker.currentFrames;
 #    endif // SENTRY_HAS_UIKIT
+
+    if (![self isRunning]) {
+        SENTRY_LOG_WARN(@"Profiler is not currently running.");
+        return;
+    }
+
+    _profiler->stopSampling();
+    SENTRY_LOG_DEBUG(@"Stopped profiler %@.", self);
 }
 
 - (void)startMetricProfiler
@@ -492,39 +512,10 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     [self startMetricProfiler];
 }
 
-- (void)stop
-{
-    if (_profiler == nullptr) {
-        SENTRY_LOG_WARN(@"No profiler instance found.");
-        return;
-    }
-    if (!_profiler->isSampling()) {
-        SENTRY_LOG_WARN(@"Profiler is not currently sampling.");
-        return;
-    }
-
-    _profiler->stopSampling();
-    [_metricProfiler stop];
-    SENTRY_LOG_DEBUG(@"Stopped profiler %@.", self);
-}
-
-+ (SentryEnvelopeItem *)envelopeItemForProfileData:(NSDictionary<NSString *, id> *)profile
-                                         profileID:(SentryId *)profileID
-{
-    const auto JSONData = [SentrySerialization dataWithJSONObject:profile];
-    if (JSONData == nil) {
-        SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
-        return nil;
-    }
-
-    const auto header = [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfile
-                                                                length:JSONData.length];
-    return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
-}
-
 - (BOOL)isRunning
 {
     if (_profiler == nullptr) {
+        SENTRY_LOG_WARN(@"No profiler instance found.");
         return NO;
     }
     return _profiler->isSampling();

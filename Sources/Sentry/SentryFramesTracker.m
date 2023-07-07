@@ -123,7 +123,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
-    if ([SentryProfiler isRunning]) {
+    if ([SentryProfiler isCurrentlyProfiling]) {
         BOOL hasNoFrameRatesYet = self.frameRateTimestamps.count == 0;
         uint64_t previousFrameRate
             = self.frameRateTimestamps.lastObject[@"value"].unsignedLongLongValue;
@@ -179,7 +179,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 - (void)recordTimestamp:(uint64_t)timestamp value:(NSNumber *)value array:(NSMutableArray *)array
 {
-    BOOL shouldRecord = [SentryProfiler isRunning];
+    BOOL shouldRecord = [SentryProfiler isCurrentlyProfiling];
 #        if defined(TEST) || defined(TESTCI)
     shouldRecord = YES;
 #        endif

@@ -8,6 +8,8 @@ class SentryFramesTrackerTests: XCTestCase {
         
         var displayLinkWrapper: TestDisplayLinkWrapper
         var queue: DispatchQueue
+        lazy var hub = TestHub(client: nil, andScope: nil)
+        lazy var tracer = SentryTracer(transactionContext: TransactionContext(name: "test transaction", operation: "test operation"), hub: hub)
         
         init() {
             displayLinkWrapper = TestDisplayLinkWrapper()
@@ -25,15 +27,13 @@ class SentryFramesTrackerTests: XCTestCase {
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
         // the profiler must be running for the frames tracker to record frame rate info etc, validated in assertProfilingData()
-        SentryProfiler.start(with: TestHub(client: nil, andScope: nil))
+        SentryProfiler.start(with: fixture.hub, tracer: fixture.tracer)
 #endif
     }
 
     override func tearDown() {
         super.tearDown()
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-        SentryProfiler.stop()
-#endif
+        clearTestState()
     }
     
     func testIsNotRunning_WhenNotStarted() {
