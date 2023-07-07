@@ -44,14 +44,16 @@ using namespace sentry::profiling;
     profiler->startSampling([&start] { start = getAbsoluteTime(); });
     XCTAssertTrue(profiler->isSampling());
 
-    std::this_thread::sleep_for(std::chrono::seconds(3));
+    // sleep long enough for 2 samples to be collected
+    const auto sleep = (uint64_t)(2.0 / samplingRateHz * 1000);
+    std::this_thread::sleep_for(std::chrono::milliseconds(sleep));
+
     profiler->stopSampling();
 
     XCTAssertFalse(profiler->isSampling());
 
-    const auto duration = std::chrono::nanoseconds(getDurationNs(start, getAbsoluteTime()));
     XCTAssertGreaterThan(start, static_cast<std::uint64_t>(0));
-    XCTAssertGreaterThan(std::chrono::duration_cast<std::chrono::seconds>(duration).count(), 0);
+    XCTAssertGreaterThan(getDurationNs(start, getAbsoluteTime()), 0ULL);
     XCTAssertGreaterThan(profiler->numSamples(), static_cast<std::uint64_t>(0));
     XCTAssertGreaterThan(numIdleSamples, 0);
 }
