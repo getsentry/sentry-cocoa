@@ -4,7 +4,7 @@
 #import "SentryProfileTimeseries.h"
 #import "SentryProfiler+Test.h"
 #import "SentryProfilerMocks.h"
-#import "SentryProfilerState.h"
+#import "SentryProfilerState+ObjCpp.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryThread.h"
 #import "SentryTransaction.h"

@@ -1,27 +1,30 @@
 #import "SentryProfilerMocksSwiftCompatible.h"
 #import "SentryProfilerMocks.h"
-#import "SentryProfilerState.h"
+#import "SentryProfilerState+ObjCpp.h"
 #include <vector>
 
 using namespace std;
 
-void
-appendMockBacktrace(SentryProfilingState *state, uint64_t threadID, const int threadPriority,
-    const char *_Nullable threadName, uint64_t queueAddress, const char *queueLabel,
-    NSArray<NSNumber *> *addresses)
-{
+@implementation SentryProfilerMocksSwiftCompatible
 
++ (void)appendMockBacktraceToState:(SentryProfilerState *)state
+                          threadID:(uint64_t)threadID
+                    threadPriority:(const int)threadPriority
+                        threadName:(nullable NSString *)threadName
+                      queueAddress:(uint64_t)queueAddress
+                        queueLabel:(NSString *)queueLabel
+                         addresses:(NSArray<NSNumber *> *)addresses
+{
     auto backtraceAddresses = std::vector<std::uintptr_t>();
 
     for (NSNumber *address in addresses) {
         backtraceAddresses.push_back(address.unsignedLongLongValue);
     }
 
-    const auto backtrace = mockBacktrace(
-        threadID, threadPriority, threadName, queueAddress, queueLabel, backtraceAddresses);
+    const auto backtrace = mockBacktrace(threadID, threadPriority,
+        [threadName cStringUsingEncoding:NSUTF8StringEncoding], queueAddress,
+        [queueLabel cStringUsingEncoding:NSUTF8StringEncoding], backtraceAddresses);
     [state appendBacktrace:backtrace];
 }
-
-@implementation SentryProfilerMocksSwiftCompatible
 
 @end

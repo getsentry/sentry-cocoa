@@ -1,14 +1,22 @@
 #import <Foundation/Foundation.h>
 
-@class SentryProfilingState;
+@class SentryProfilerState;
 
 NS_ASSUME_NONNULL_BEGIN
 
-void appendMockBacktrace(SentryProfilingState *state, uint64_t threadID, const int threadPriority,
-    const char *_Nullable threadName, uint64_t queueAddress, const char *queueLabel,
-    NSArray<NSNumber *> *addresses);
-
+/**
+ * This delivers a wrapper around the C++ function to create a mock backtrace for incorporation into
+ * profiler state that can be called from Swift tests.
+ */
 @interface SentryProfilerMocksSwiftCompatible : NSObject
+
++ (void)appendMockBacktraceToState:(SentryProfilerState *)state
+                          threadID:(uint64_t)threadID
+                    threadPriority:(const int)threadPriority
+                        threadName:(nullable NSString *)threadName
+                      queueAddress:(uint64_t)queueAddress
+                        queueLabel:(NSString *)queueLabel
+                         addresses:(NSArray<NSNumber *> *)addresses;
 
 @end
 
