@@ -268,7 +268,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 }
 
 @implementation SentryProfiler {
-    SentryProfilingState *_state;
+    SentryProfilerState *_state;
     std::shared_ptr<SamplingProfiler> _profiler;
     SentryMetricProfiler *_metricProfiler;
     SentryDebugImageProvider *_debugImageProvider;
@@ -469,7 +469,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 
     SENTRY_LOG_DEBUG(@"Starting profiler.");
 
-    SentryProfilingState *const state = [[SentryProfilingState alloc] init];
+    SentryProfilerState *const state = [[SentryProfilerState alloc] init];
     _state = state;
     _profiler = std::make_shared<SamplingProfiler>(
         [state](auto &backtrace) {

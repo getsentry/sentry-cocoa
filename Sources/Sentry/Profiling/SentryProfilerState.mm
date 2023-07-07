@@ -33,7 +33,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     return [symbolNSStr substringWithRange:[match rangeAtIndex:1]];
 }
 
-@implementation SentryProfilingMutableState
+@implementation SentryProfilerMutableState
 
 - (instancetype)init
 {
@@ -51,20 +51,20 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 
 @end
 
-@implementation SentryProfilingState {
-    SentryProfilingMutableState *_mutableState;
+@implementation SentryProfilerState {
+    SentryProfilerMutableState *_mutableState;
     std::mutex _lock;
 }
 
 - (instancetype)init
 {
     if (self = [super init]) {
-        _mutableState = [[SentryProfilingMutableState alloc] init];
+        _mutableState = [[SentryProfilerMutableState alloc] init];
     }
     return self;
 }
 
-- (void)mutate:(void (^)(SentryProfilingMutableState *))block
+- (void)mutate:(void (^)(SentryProfilerMutableState *))block
 {
     NSParameterAssert(block);
     std::lock_guard<std::mutex> l(_lock);
@@ -73,7 +73,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 
 - (void)appendBacktrace:(const Backtrace &)backtrace
 {
-    [self mutate:^(SentryProfilingMutableState *state) {
+    [self mutate:^(SentryProfilerMutableState *state) {
         const auto threadID = sentry_stringForUInt64(backtrace.threadMetadata.threadID);
 
         NSString *queueAddress = nil;

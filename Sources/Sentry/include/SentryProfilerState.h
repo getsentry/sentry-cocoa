@@ -21,7 +21,7 @@ NSString *parseBacktraceSymbolsFunctionName(const char *symbol);
 
 @class SentrySample;
 
-@interface SentryProfilingMutableState : NSObject
+@interface SentryProfilerMutableState : NSObject
 @property (nonatomic, strong, readonly) NSMutableArray<SentrySample *> *samples;
 @property (nonatomic, strong, readonly) NSMutableArray<NSArray<NSNumber *> *> *stacks;
 @property (nonatomic, strong, readonly) NSMutableArray<NSDictionary<NSString *, id> *> *frames;
@@ -70,9 +70,9 @@ NSString *parseBacktraceSymbolsFunctionName(const char *symbol);
     NSMutableDictionary<NSString *, NSNumber *> *stackIndexLookup;
 @end
 
-@interface SentryProfilingState : NSObject
+@interface SentryProfilerState : NSObject
 // All functions are safe to call from multiple threads concurrently
-- (void)mutate:(void (^)(SentryProfilingMutableState *))block;
+- (void)mutate:(void (^)(SentryProfilerMutableState *))block;
 - (void)appendBacktrace:(const sentry::profiling::Backtrace &)backtrace;
 - (NSDictionary<NSString *, id> *)copyProfilingData;
 @end
