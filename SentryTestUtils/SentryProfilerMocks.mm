@@ -1,5 +1,7 @@
 #import "SentryProfilerMocks.h"
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
 Backtrace
 mockBacktrace(thread::TIDType threadID, const int threadPriority, const char *threadName,
     std::uint64_t queueAddress, std::string queueLabel, std::vector<std::uintptr_t> addresses)
@@ -22,3 +24,5 @@ mockBacktrace(thread::TIDType threadID, const int threadPriority, const char *th
 
     return backtrace;
 }
+
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
