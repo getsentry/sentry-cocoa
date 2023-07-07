@@ -2,6 +2,10 @@
 #import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
 
+// need to also map profiler instances to tracers, so we don't discard data from previous aborted
+// profilers when new ones are started while old transactions are still in-flight and will need the
+// profiling data when they finish
+
 @class SentryId;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED

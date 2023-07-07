@@ -286,6 +286,30 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
     _debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
     _hub = hub;
+
+    // from NSTimer.h: Timers scheduled in an async context may never fire.
+    __weak SentryProfiler *weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (![weakSelf isRunning]) {
+            return;
+        }
+
+        SentryProfiler *strongSelf = weakSelf;
+        strongSelf->_timeoutTimer = [SentryDependencyContainer.sharedInstance.timerFactory
+            scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
+                                    target:strongSelf
+                                  selector:@selector(timeoutAbort)
+                                  userInfo:nil
+                                   repeats:NO];
+    });
+
+#    if SENTRY_HAS_UIKIT
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(backgroundAbort)
+                                                 name:UIApplicationWillResignActiveNotification
+                                               object:nil];
+#    endif // SENTRY_HAS_UIKIT
+
     return self;
 }
 
@@ -307,20 +331,11 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     }
 
 #    if SENTRY_HAS_UIKIT
-    [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
+    // also do this with SentryTracerConcurrency?
+//    [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
 
     [_gCurrentProfiler start];
-
-    // from NSTimer.h: Timers scheduled in an async context may never fire.
-    dispatch_async(dispatch_get_main_queue(), ^{ [self scheduleTimeoutTimer]; });
-
-#    if SENTRY_HAS_UIKIT
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(backgroundAbort)
-                                                 name:UIApplicationWillResignActiveNotification
-                                               object:nil];
-#    endif // SENTRY_HAS_UIKIT
 }
 
 + (void)stop
@@ -336,7 +351,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
         return;
     }
 
-    [self stopProfilerForReason:SentryProfilerTruncationReasonNormal];
+    [_gCurrentProfiler stopForReason:SentryProfilerTruncationReasonNormal];
 }
 
 + (BOOL)isRunning
@@ -381,70 +396,37 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
         _gCurrentProfiler -> _hub);
 }
 
-+ (void)scheduleTimeoutTimer
+- (void)timeoutAbort
 {
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-
-    if (!_gCurrentProfiler) {
-        SENTRY_LOG_DEBUG(
-            @"No current global profiler manager for which to schedule a timeout timer.");
-        return;
-    }
-
-    if (![_gCurrentProfiler isRunning]) {
-        SENTRY_LOG_DEBUG(@"Current profiler is not running.");
-        return;
-    }
-
-    _gCurrentProfiler->_timeoutTimer = [SentryDependencyContainer.sharedInstance.timerFactory
-        scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
-                                target:self
-                              selector:@selector(timeoutAbort)
-                              userInfo:nil
-                               repeats:NO];
-}
-
-+ (void)timeoutAbort
-{
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-
-    if (!_gCurrentProfiler) {
-        SENTRY_LOG_WARN(@"No current global profiler manager to stop.");
-        return;
-    }
-    if (![_gCurrentProfiler isRunning]) {
+    if (![self isRunning]) {
         SENTRY_LOG_WARN(@"Current profiler is not running.");
         return;
     }
 
     SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", _gCurrentProfiler);
-    [self stopProfilerForReason:SentryProfilerTruncationReasonTimeout];
+    [self stopForReason:SentryProfilerTruncationReasonTimeout];
 }
 
-+ (void)backgroundAbort
+- (void)backgroundAbort
 {
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-
-    if (!_gCurrentProfiler) {
-        SENTRY_LOG_WARN(@"No current global profiler manager to stop.");
-        return;
-    }
-    if (![_gCurrentProfiler isRunning]) {
+    if (![self isRunning]) {
         SENTRY_LOG_WARN(@"Current profiler is not running.");
         return;
     }
 
     SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", _gCurrentProfiler);
-    [self stopProfilerForReason:SentryProfilerTruncationReasonAppMovedToBackground];
+    [self stopForReason:SentryProfilerTruncationReasonAppMovedToBackground];
 }
 
-+ (void)stopProfilerForReason:(SentryProfilerTruncationReason)reason
+- (void)stopForReason:(SentryProfilerTruncationReason)reason
 {
-    [_gCurrentProfiler->_timeoutTimer invalidate];
-    [_gCurrentProfiler stop];
-    _gCurrentProfiler->_truncationReason = reason;
+    [_timeoutTimer invalidate];
+    [self stop];
+    _truncationReason = reason;
+
 #    if SENTRY_HAS_UIKIT
-    [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
+//    this needs to go to SentryTracerConcurrency or the cleanup block for it
+//    [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
 }
 
