@@ -76,12 +76,6 @@
                          configuration.waitForChildren = YES;
                      }]];
 
-    // force some samples to be taken by the profiler
-    NSMutableString *string = [NSMutableString string];
-    for (int i = 0; i < 100000; i++) {
-        [string appendString:@"a"];
-    }
-
     XCTestExpectation *exp = [self expectationWithDescription:@"finishes tracers"];
     dispatch_after(
         dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
