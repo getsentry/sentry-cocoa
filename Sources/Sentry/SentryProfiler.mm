@@ -325,6 +325,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 
     if (_gCurrentProfiler && [_gCurrentProfiler isRunning]) {
         SENTRY_LOG_DEBUG(@"A profiler is already running.");
+        trackProfilerForTracer(_gCurrentProfiler, tracer);
         return;
     }
 
