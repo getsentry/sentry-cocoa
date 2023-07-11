@@ -32,6 +32,7 @@
 #    import "SentrySpanId.h"
 #    import "SentrySystemWrapper.h"
 #    import "SentryThread.h"
+#    import "SentryThreadWrapper.h"
 #    import "SentryTime.h"
 #    import "SentryTracer.h"
 #    import "SentryTracerConcurrency.h"
@@ -312,7 +313,8 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 - (void)scheduleTimeoutTimer
 {
     __weak SentryProfiler *weakSelf = self;
-    void (^block)(void) = ^(void) {
+
+    [SentryThreadWrapper onMainThread:^{
         if (![weakSelf isRunning]) {
             return;
         }
@@ -324,13 +326,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
                                   selector:@selector(timeoutAbort)
                                   userInfo:nil
                                    repeats:NO];
-    };
-
-    if (NSThread.isMainThread) {
-        block();
-    } else {
-        dispatch_async(dispatch_get_main_queue(), block);
-    }
+    }];
 }
 
 #    pragma mark - Public

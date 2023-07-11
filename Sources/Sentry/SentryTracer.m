@@ -21,6 +21,7 @@
 #import "SentrySpanContext+Private.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
+#import "SentryThreadWrapper.h"
 #import "SentryTime.h"
 #import "SentryTraceContext.h"
 #import "SentryTraceOrigins.h"
@@ -212,15 +213,14 @@ static BOOL appStartMeasurementRead;
 - (void)startDeadlineTimer
 {
     __weak SentryTracer *weakSelf = self;
-    self.deadlineTimer =
-        [_configuration.timerFactory scheduledTimerWithTimeInterval:SENTRY_AUTO_TRANSACTION_DEADLINE
-                                                            repeats:NO
-                                                              block:^(NSTimer *_Nonnull timer) {
-                                                                  if (weakSelf == nil) {
-                                                                      return;
-                                                                  }
-                                                                  [weakSelf deadlineTimerFired];
-                                                              }];
+    [SentryThreadWrapper onMainThread:^{
+        weakSelf.deadlineTimer = [weakSelf.configuration.timerFactory
+            scheduledTimerWithTimeInterval:SENTRY_AUTO_TRANSACTION_DEADLINE
+                                   repeats:NO
+                                     block:^(NSTimer *_Nonnull timer) {
+                                         [weakSelf deadlineTimerFired];
+                                     }];
+    }];
 }
 
 - (void)deadlineTimerFired
