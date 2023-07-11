@@ -28,7 +28,9 @@ NSDictionary<NSString *, id> *serializedProfileData(NSDictionary<NSString *, id>
 SentryProfiler ()
 
 @property (strong, nonatomic) SentryProfilerState *_state;
+#    if SENTRY_HAS_UIKIT
 @property (strong, nonatomic) SentryScreenFrames *_screenFrameData;
+#    endif // SENTRY_HAS_UIKIT
 
 @end
 

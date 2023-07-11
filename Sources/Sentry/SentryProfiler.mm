@@ -28,7 +28,6 @@
 #    import "SentrySample.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryScope+Private.h"
-#    import "SentryScreenFrames.h"
 #    import "SentrySerialization.h"
 #    import "SentrySpanId.h"
 #    import "SentrySystemWrapper.h"
@@ -42,9 +41,10 @@
 #    import <cstdint>
 #    import <memory>
 
-#    if TARGET_OS_IOS
+#    if SENTRY_HAS_UIKIT
+#        import "SentryScreenFrames.h"
 #        import <UIKit/UIKit.h>
-#    endif
+#    endif // SENTRY_HAS_UIKIT
 
 const int kSentryProfilerFrequencyHz = 101;
 NSTimeInterval kSentryProfilerTimeoutInterval = 30;
