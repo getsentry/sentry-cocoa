@@ -44,15 +44,16 @@
     return self;
 }
 
-- (id)copy
+- (nonnull id)copyWithZone:(nullable NSZone *)zone
 {
-    return [[SentryScreenFrames alloc] initWithTotal:_total
-                                              frozen:_frozen
-                                                slow:_slow
-                                 slowFrameTimestamps:[_slowFrameTimestamps copy]
-                               frozenFrameTimestamps:[_frozenFrameTimestamps copy]
-                                 frameRateTimestamps:[_frameRateTimestamps copy]];
+    return [[SentryScreenFrames allocWithZone:zone] initWithTotal:_total
+                                                           frozen:_frozen
+                                                             slow:_slow
+                                              slowFrameTimestamps:[_slowFrameTimestamps copy]
+                                            frozenFrameTimestamps:[_frozenFrameTimestamps copy]
+                                              frameRateTimestamps:[_frameRateTimestamps copy]];
 }
+
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end

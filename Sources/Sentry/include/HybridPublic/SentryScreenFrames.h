@@ -9,7 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NSArray<NSDictionary<NSString *, NSNumber *> *> SentryFrameInfoTimeSeries;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-@interface SentryScreenFrames : NSObject
+@interface SentryScreenFrames : NSObject <NSCopying>
 SENTRY_NO_INIT
 
 - (instancetype)initWithTotal:(NSUInteger)total frozen:(NSUInteger)frozen slow:(NSUInteger)slow;
