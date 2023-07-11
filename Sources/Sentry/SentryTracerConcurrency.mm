@@ -3,6 +3,7 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryId.h"
+#    import "SentryInternalDefines.h"
 #    import "SentryLog.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryTracer.h"
@@ -41,7 +42,7 @@ trackProfilerForTracer(SentryProfiler *profiler, SentryTracer *tracer)
     SENTRY_LOG_DEBUG(
         @"Tracking relationship between profiler id %@ and tracer id %@", profilerKey, tracerKey);
 
-    NSCAssert((_gProfilersToTracers == nil && _gTracersToProfilers == nil)
+    SENTRY_CASSERT((_gProfilersToTracers == nil && _gTracersToProfilers == nil)
             || (_gProfilersToTracers != nil && _gTracersToProfilers != nil),
         @"Both structures must be initialized simultaneously.");
 
@@ -65,20 +66,26 @@ trackProfilerForTracer(SentryProfiler *profiler, SentryTracer *tracer)
     _gTracersToProfilers[tracerKey] = profiler;
 }
 
+SentryProfiler *_Nullable profilerForTracer(SentryTracer *tracer)
+{
+    std::lock_guard<std::mutex> l(_gStateLock);
+    SENTRY_CASSERT(_gTracersToProfilers != nil,
+        @"Structure should have already been initialized by the time it is being queried");
+    return _gTracersToProfilers[tracer.traceId.sentryIdString];
+}
+
 SentryProfiler *_Nullable profilerForFinishedTracer(SentryTracer *tracer)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
-    NSCAssert(_gTracersToProfilers != nil && _gProfilersToTracers != nil,
+    SENTRY_CASSERT(_gTracersToProfilers != nil && _gProfilersToTracers != nil,
         @"Structures should have already been initialized by the time they are being queried");
 
     const auto tracerKey = tracer.traceId.sentryIdString;
     const auto profiler = _gTracersToProfilers[tracerKey];
 
-    NSCAssert(
-        profiler != nil, @"Expected a profiler to be associated with tracer id %@.", tracerKey);
-    if (profiler == nil) {
-        SENTRY_LOG_WARN(@"Could not find a profiler associated with tracer id %@.", tracerKey);
+    if (!SENTRY_CASSERT_RETURN(profiler != nil,
+            @"Expected a profiler to be associated with tracer id %@.", tracerKey)) {
         return nil;
     }
 
