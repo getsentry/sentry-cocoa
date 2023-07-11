@@ -18,10 +18,10 @@ SENTRY_EXTERN_C_BEGIN
 void trackProfilerForTracer(SentryProfiler *profiler, SentryTracer *tracer);
 
 /**
- * Stop tracking the tracer with the specified ID. If it was the last tracer for the associated
- * profiler, stop that profiler. Copy any recorded @c SentryScreenFrames data into the profiler
- * instance, and if this is the last profiler being tracked, reset the @c SentryFramesTracker data.
- * @returns the associated profiler.
+ * Return the profiler instance associated with the tracer. If it was the last tracer for the
+ * associated profiler, stop that profiler. Copy any recorded @c SentryScreenFrames data into the
+ * profiler instance, and if this is the last profiler being tracked, reset the
+ * @c SentryFramesTracker data.
  */
 SentryProfiler *_Nullable profilerForFinishedTracer(SentryTracer *tracer);
 

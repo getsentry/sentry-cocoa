@@ -5,8 +5,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-SENTRY_EXTERN NSTimeInterval kSentryProfilerTimeoutInterval;
-
 @interface
 SentryProfiler ()
 
