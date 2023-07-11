@@ -7,6 +7,7 @@
 #import "SentryProfilerMocks.h"
 #import "SentryProfilerState+ObjCpp.h"
 #import "SentryProfilingConditionals.h"
+#import "SentryScreenFrames.h"
 #import "SentryThread.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext+Private.h"
@@ -189,7 +190,17 @@ using namespace sentry::profiling;
     const auto profileID = [[SentryId alloc] init];
     const auto serialization = serializedProfileData(profileData, transaction, profileID,
         profilerTruncationReasonName(SentryProfilerTruncationReasonNormal), @"test", @"someRelease",
-        @{}, @[], [[SentryHub alloc] initWithClient:nil andScope:nil]);
+        @{}, @[], [[SentryHub alloc] initWithClient:nil andScope:nil]
+#    if SENTRY_HAS_UIKIT
+        ,
+        [[SentryScreenFrames alloc] initWithTotal:5
+                                           frozen:6
+                                             slow:7
+                              slowFrameTimestamps:@[]
+                            frozenFrameTimestamps:@[]
+                              frameRateTimestamps:@[]]
+#    endif // SENTRY_HAS_UIKIT
+    );
 
     // cause the data structures to be modified again: add new addresses
     {

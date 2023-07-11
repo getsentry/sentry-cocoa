@@ -15,7 +15,6 @@
 #    import "SentryEnvelopeItemType.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
-#    import "SentryFramesTracker.h"
 #    import "SentryHub+Private.h"
 #    import "SentryId.h"
 #    import "SentryInternalDefines.h"
@@ -156,7 +155,12 @@ NSDictionary<NSString *, id> *
 serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransaction *transaction,
     SentryId *profileID, NSString *truncationReason, NSString *environment, NSString *release,
     NSDictionary<NSString *, id> *serializedMetrics, NSArray<SentryDebugMeta *> *debugMeta,
-    SentryHub *hub)
+    SentryHub *hub
+#    if SENTRY_HAS_UIKIT
+    ,
+    SentryScreenFrames *gpuData
+#    endif // SENTRY_HAS_UIKIT
+)
 {
     NSMutableArray<SentrySample *> *const samples = profileData[@"profile"][@"samples"];
     // We need at least two samples to be able to draw a stack frame for any given function: one
@@ -232,28 +236,25 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     auto metrics = serializedMetrics;
 
 #    if SENTRY_HAS_UIKIT
-    const auto framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
     const auto mutableMetrics =
         [NSMutableDictionary<NSString *, id> dictionaryWithDictionary:metrics];
-    const auto slowFrames = sliceGPUData(framesTracker.currentFrames.slowFrameTimestamps,
-        transaction, /*useMostRecentRecording */ NO);
+    const auto slowFrames
+        = sliceGPUData(gpuData.slowFrameTimestamps, transaction, /*useMostRecentRecording */ NO);
     if (slowFrames.count > 0) {
         mutableMetrics[@"slow_frame_renders"] =
             @ { @"unit" : @"nanosecond", @"values" : slowFrames };
     }
 
-    const auto frozenFrames
-        = sliceGPUData(framesTracker.currentFrames.frozenFrameTimestamps, transaction,
-            /*useMostRecentRecording */ NO);
+    const auto frozenFrames = sliceGPUData(gpuData.frozenFrameTimestamps, transaction,
+        /*useMostRecentRecording */ NO);
     if (frozenFrames.count > 0) {
         mutableMetrics[@"frozen_frame_renders"] =
             @ { @"unit" : @"nanosecond", @"values" : frozenFrames };
     }
 
     if (slowFrames.count > 0 || frozenFrames.count > 0) {
-        const auto frameRates
-            = sliceGPUData(framesTracker.currentFrames.frameRateTimestamps, transaction,
-                /*useMostRecentRecording */ YES);
+        const auto frameRates = sliceGPUData(gpuData.frameRateTimestamps, transaction,
+            /*useMostRecentRecording */ YES);
         if (frameRates.count > 0) {
             mutableMetrics[@"screen_frame_rates"] = @ { @"unit" : @"hz", @"values" : frameRates };
         }
@@ -271,7 +272,6 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 @implementation SentryProfiler {
     std::shared_ptr<SamplingProfiler> _profiler;
     SentryMetricProfiler *_metricProfiler;
-    SentryScreenFrames *_screenFrameData;
     SentryDebugImageProvider *_debugImageProvider;
 
     SentryProfilerTruncationReason _truncationReason;
@@ -290,22 +290,8 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
     _debugImageProvider = [SentryDependencyContainer sharedInstance].debugImageProvider;
     _hub = hub;
-
-    // from NSTimer.h: Timers scheduled in an async context may never fire.
-    __weak SentryProfiler *weakSelf = self;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (![weakSelf isRunning]) {
-            return;
-        }
-
-        SentryProfiler *strongSelf = weakSelf;
-        strongSelf->_timeoutTimer = [SentryDependencyContainer.sharedInstance.timerFactory
-            scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
-                                    target:strongSelf
-                                  selector:@selector(timeoutAbort)
-                                  userInfo:nil
-                                   repeats:NO];
-    });
+    [self start];
+    [self scheduleTimeoutTimer];
 
 #    if SENTRY_HAS_UIKIT
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -315,6 +301,34 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 #    endif // SENTRY_HAS_UIKIT
 
     return self;
+}
+
+/**
+ * Schedule a timeout timer on the main thread.
+ * @warning from NSTimer.h: Timers scheduled in an async context may never fire.
+ */
+- (void)scheduleTimeoutTimer
+{
+    __weak SentryProfiler *weakSelf = self;
+    void (^block)(void) = ^(void) {
+        if (![weakSelf isRunning]) {
+            return;
+        }
+
+        SentryProfiler *strongSelf = weakSelf;
+        strongSelf->_timeoutTimer = [SentryDependencyContainer.sharedInstance.timerFactory
+            scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
+                                    target:self
+                                  selector:@selector(timeoutAbort)
+                                  userInfo:nil
+                                   repeats:NO];
+    };
+
+    if (NSThread.isMainThread) {
+        block();
+    } else {
+        dispatch_async(dispatch_get_main_queue(), block);
+    }
 }
 
 #    pragma mark - Public
@@ -335,30 +349,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
         return;
     }
 
-#    if SENTRY_HAS_UIKIT
-    // TODO: also do this with SentryProfiledTracerConcurrency?
-//    [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
-#    endif // SENTRY_HAS_UIKIT
-
-    [_gCurrentProfiler start];
-
     trackProfilerForTracer(_gCurrentProfiler, tracer);
-}
-
-+ (void)stop
-{
-    std::lock_guard<std::mutex> l(_gProfilerLock);
-
-    if (!_gCurrentProfiler) {
-        SENTRY_LOG_WARN(@"No current global profiler manager to stop.");
-        return;
-    }
-    if (![_gCurrentProfiler isRunning]) {
-        SENTRY_LOG_WARN(@"Current profiler is not running.");
-        return;
-    }
-
-    [_gCurrentProfiler stopForReason:SentryProfilerTruncationReasonNormal];
 }
 
 + (BOOL)isCurrentlyProfiling
@@ -406,8 +397,12 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
             ?: _gCurrentProfiler->_hub.getClient.options.environment,
         _gCurrentProfiler->_hub.getClient.options.releaseName,
         [_gCurrentProfiler->_metricProfiler serializeForTransaction:transaction],
-        [_gCurrentProfiler->_debugImageProvider getDebugImagesCrashed:NO],
-        _gCurrentProfiler -> _hub);
+        [_gCurrentProfiler->_debugImageProvider getDebugImagesCrashed:NO], _gCurrentProfiler -> _hub
+#    if SENTRY_HAS_UIKIT
+        ,
+        self._screenFrameData
+#    endif // SENTRY_HAS_UIKIT
+    );
 }
 
 - (void)timeoutAbort
@@ -437,10 +432,6 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     [_timeoutTimer invalidate];
     [_metricProfiler stop];
     _truncationReason = reason;
-
-#    if SENTRY_HAS_UIKIT
-    _screenFrameData = SentryDependencyContainer.sharedInstance.framesTracker.currentFrames;
-#    endif // SENTRY_HAS_UIKIT
 
     if (![self isRunning]) {
         SENTRY_LOG_WARN(@"Profiler is not currently running.");

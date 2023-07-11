@@ -1,11 +1,18 @@
 #import "SentryProfiledTracerConcurrency.h"
-#import "SentryId.h"
-#import "SentryLog.h"
-#import "SentryProfiler.h"
-#import "SentryTracer.h"
-#include <mutex>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
+
+#    import "SentryId.h"
+#    import "SentryLog.h"
+#    import "SentryProfiler+Private.h"
+#    import "SentryTracer.h"
+#    include <mutex>
+
+#    if SENTRY_HAS_UIKIT
+#        import "SentryDependencyContainer.h"
+#        import "SentryFramesTracker.h"
+#        import "SentryScreenFrames.h"
+#    endif // SENTRY_HAS_UIKIT
 
 // a mapping of profilers to the tracers that started them that are still in-flight and will need to
 // query them for their profiling data when they finish. this helps resolve the incongruity between
@@ -77,6 +84,10 @@ SentryProfiler *_Nullable profilerForFinishedTracer(SentryTracer *tracer)
 
     NSCAssert(
         profiler != nil, @"Expected a profiler to be associated with tracer id %@.", tracerKey);
+    if (profiler == nil) {
+        SENTRY_LOG_WARN(@"Could not find a profiler associated with tracer id %@.", tracerKey);
+        return nil;
+    }
 
     const auto profilerKey = profiler.profileId.sentryIdString;
 
@@ -88,6 +99,14 @@ SentryProfiler *_Nullable profilerForFinishedTracer(SentryTracer *tracer)
             [profiler stopForReason:SentryProfilerTruncationReasonNormal];
         }
     }
+
+#    if SENTRY_HAS_UIKIT
+    profiler._screenFrameData =
+        [SentryDependencyContainer.sharedInstance.framesTracker.currentFrames copy];
+    if (_gProfilersToTracers.count == 0) {
+        [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
+    }
+#    endif // SENTRY_HAS_UIKIT
 
     return profiler;
 }
