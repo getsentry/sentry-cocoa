@@ -1,4 +1,3 @@
-#include "SentryBacktrace.hpp"
 #import "SentryProfiler.h"
 #import "SentryProfilingConditionals.h"
 
@@ -6,6 +5,7 @@
 
 @class SentryDebugMeta;
 @class SentryId;
+@class SentryProfilerState;
 @class SentrySample;
 @class SentryTransaction;
 
@@ -16,6 +16,13 @@ NSDictionary<NSString *, id> *serializedProfileData(NSDictionary<NSString *, id>
     NSString *environment, NSString *release, NSDictionary<NSString *, id> *serializedMetrics,
     NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub);
 
+@interface
+SentryProfiler ()
+
+@property (strong, nonatomic) SentryProfilerState *_state;
+
+@end
+
 NS_ASSUME_NONNULL_END
 
-#endif
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED

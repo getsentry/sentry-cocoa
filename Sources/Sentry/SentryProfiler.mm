@@ -1,4 +1,4 @@
-#import "SentryProfiler+Test.h"
+#import "SentryProfiler+Private.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "NSDate+SentryExtras.h"
@@ -24,7 +24,7 @@
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentryNSTimerFactory.h"
 #    import "SentryProfileTimeseries.h"
-#    import "SentryProfilerState.h"
+#    import "SentryProfilerState+ObjCpp.h"
 #    import "SentrySample.h"
 #    import "SentrySamplingProfiler.hpp"
 #    import "SentryScope+Private.h"
@@ -268,7 +268,6 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 }
 
 @implementation SentryProfiler {
-    SentryProfilerState *_state;
     std::shared_ptr<SamplingProfiler> _profiler;
     SentryMetricProfiler *_metricProfiler;
     SentryDebugImageProvider *_debugImageProvider;
@@ -375,7 +374,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
         return nil;
     }
 
-    return serializedProfileData([_gCurrentProfiler->_state copyProfilingData], transaction,
+    return serializedProfileData([_gCurrentProfiler._state copyProfilingData], transaction,
         profileID, profilerTruncationReasonName(_gCurrentProfiler->_truncationReason),
         _gCurrentProfiler -> _hub.scope.environmentString
             ?: _gCurrentProfiler->_hub.getClient.options.environment,
@@ -470,7 +469,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     SENTRY_LOG_DEBUG(@"Starting profiler.");
 
     SentryProfilerState *const state = [[SentryProfilerState alloc] init];
-    _state = state;
+    self._state = state;
     _profiler = std::make_shared<SamplingProfiler>(
         [state](auto &backtrace) {
     // in test, we'll overwrite the sample's timestamp to one mocked by SentryCurrentDate
@@ -528,6 +527,15 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     }
     return _profiler->isSampling();
 }
+
+#    pragma mark - Testing helpers
+
+#    if defined(TEST) || defined(TESTCI)
++ (SentryProfiler *)getCurrentProfiler
+{
+    return _gCurrentProfiler;
+}
+#    endif // defined(TEST) || defined(TESTCI)
 
 @end
 

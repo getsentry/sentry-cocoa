@@ -1,6 +1,10 @@
-#import "SentryBacktrace.hpp"
 #import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
+
+/*
+ * This file should not contain any C++ interfaces so it can be used from Swift tests. See
+ * SentryProfilerState+ObjCpp.h.
+ */
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -73,7 +77,6 @@ NSString *parseBacktraceSymbolsFunctionName(const char *symbol);
 @interface SentryProfilerState : NSObject
 // All functions are safe to call from multiple threads concurrently
 - (void)mutate:(void (^)(SentryProfilerMutableState *))block;
-- (void)appendBacktrace:(const sentry::profiling::Backtrace &)backtrace;
 - (NSDictionary<NSString *, id> *)copyProfilingData;
 @end
 

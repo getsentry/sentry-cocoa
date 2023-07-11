@@ -228,7 +228,7 @@ class SentryProfilerSwiftTests: XCTestCase {
 
     func testMetricProfiler() throws {
         let span = try fixture.newTransaction()
-        forceProfilerSample()
+        addMockSamples()
         try fixture.gatherMockedMetrics(span: span)
         self.fixture.currentDateProvider.advanceBy(nanoseconds: 1.toNanoSeconds())
         span.finish()
@@ -246,7 +246,7 @@ class SentryProfilerSwiftTests: XCTestCase {
                 fixture.currentDateProvider.advanceBy(nanoseconds: 100)
             }
 
-            forceProfilerSample()
+            addMockSamples()
 
             for (i, span) in spans.enumerated() {
                 try fixture.gatherMockedMetrics(span: span)
@@ -280,7 +280,7 @@ class SentryProfilerSwiftTests: XCTestCase {
     func testConcurrentSpansWithTimeout() throws {
         let spanA = try fixture.newTransaction()
         fixture.currentDateProvider.advanceBy(nanoseconds: 1.toNanoSeconds())
-        forceProfilerSample()
+        addMockSamples()
         fixture.currentDateProvider.advanceBy(nanoseconds: 30.toNanoSeconds())
         fixture.timeoutTimerFactory.fire()
 
@@ -288,13 +288,21 @@ class SentryProfilerSwiftTests: XCTestCase {
 
         let spanB = try fixture.newTransaction()
         fixture.currentDateProvider.advanceBy(nanoseconds: 0.5.toNanoSeconds())
-        forceProfilerSample()
+        addMockSamples()
 
         spanB.finish()
         try self.assertValidProfileData()
 
         spanA.finish()
         try self.assertValidProfileData()
+    }
+
+    /**
+     * We received a report of unbounded memory growth from a customer. Was able to reproduce by endlessly starting transactions that go on to timeout, thereby also forcing the profiler to timeout. But, doing it on a nonmain queue meant that the timeout timer in the profiler would never fire. The fix was to schedule that timer on a dispatch to the main queue.
+     */
+    func testRepeatedTransactionTimeoutsFromBgQueue() {
+        let state = SentryProfilerState()
+        SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: 1, threadPriority: 2, threadName: "test", queueAddress: 1, queueLabel: "test", addresses: [0x1, 0x2, 0x3])
     }
 
     func testProfileTimeoutTimer() throws {
@@ -397,13 +405,13 @@ private extension SentryProfilerSwiftTests {
         return try XCTUnwrap(envelope.event as? Transaction)
     }
 
-    /// Keep a thread busy over a long enough period of time (long enough for 3 samples) for the sampler to pick it up.
-    func forceProfilerSample() {
-        let str = "a"
-        var concatStr = ""
-        for _ in 0..<100_000 {
-            concatStr = concatStr.appending(str)
-        }
+    func addMockSamples() {
+        let state = SentryProfiler.getCurrent()._state
+        SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: 1, threadPriority: 2, threadName: "test-thread", queueAddress: 3, queueLabel: "test-queue", addresses: [0x3, 0x4, 0x5])
+        fixture.currentDateProvider.advanceBy(nanoseconds: 1)
+        SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: 1, threadPriority: 2, threadName: "test-thread", queueAddress: 3, queueLabel: "test-queue", addresses: [0x3, 0x4, 0x5])
+        fixture.currentDateProvider.advanceBy(nanoseconds: 1)
+        SentryProfilerMocksSwiftCompatible.appendMockBacktrace(to: state, threadID: 1, threadPriority: 2, threadName: "test-thread", queueAddress: 3, queueLabel: "test-queue", addresses: [0x3, 0x4, 0x5])
     }
 
     func performTest(transactionEnvironment: String = kSentryDefaultEnvironment, shouldTimeOut: Bool = false, launchType: SentryAppStartType? = nil, prewarmed: Bool = false) throws {
@@ -415,7 +423,8 @@ private extension SentryProfilerSwiftTests {
         }
 
         let span = try fixture.newTransaction(testingAppLaunchSpans: testingAppLaunchSpans)
-        forceProfilerSample()
+
+        addMockSamples()
         fixture.currentDateProvider.advance(by: 31)
         if shouldTimeOut {
             fixture.timeoutTimerFactory.fire()
@@ -639,7 +648,7 @@ private extension SentryProfilerSwiftTests {
         Dynamic(hub).tracesSampler.random = TestRandom(value: 1.0)
 
         let span = try fixture.newTransaction()
-        forceProfilerSample()
+        addMockSamples()
         fixture.currentDateProvider.advance(by: 5)
         span.finish()
 
