@@ -20,6 +20,7 @@
 #    import "SentryInternalDefines.h"
 #    import "SentryLog.h"
 #    import "SentryMetricProfiler.h"
+#    import "SentryNSNotificationCenterWrapper.h"
 #    import "SentryNSProcessInfoWrapper.h"
 #    import "SentryNSTimerFactory.h"
 #    import "SentryProfileTimeseries.h"
@@ -294,10 +295,11 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
     [self scheduleTimeoutTimer];
 
 #    if SENTRY_HAS_UIKIT
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(backgroundAbort)
-                                                 name:UIApplicationWillResignActiveNotification
-                                               object:nil];
+    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+        addObserver:self
+           selector:@selector(backgroundAbort)
+               name:UIApplicationWillResignActiveNotification
+             object:nil];
 #    endif // SENTRY_HAS_UIKIT
 
     return self;
