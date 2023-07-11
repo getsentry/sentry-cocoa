@@ -47,7 +47,9 @@ threadSpin(void *name)
         SENTRY_PROF_LOG_ERROR_RETURN(pthread_setschedparam(thread, policy, &param));
     }
 
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    // give the other thread a little time to spawn, otherwise its name comes back as an empty
+    // string and the isSentryOwnedThreadName check will fail
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     const auto cache = std::make_shared<ThreadMetadataCache>();
     ThreadHandle handle(pthread_mach_thread_np(thread));
@@ -72,7 +74,9 @@ threadSpin(void *name)
         SENTRY_PROF_LOG_ERROR_RETURN(pthread_setschedparam(thread, policy, &param));
     }
 
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    // give the other thread a little time to spawn, otherwise its metadata doesn't come back as
+    // expected
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     const auto cache = std::make_shared<ThreadMetadataCache>();
     ThreadHandle handle(pthread_mach_thread_np(thread));
@@ -94,11 +98,13 @@ threadSpin(void *name)
     char name[] = "io.sentry.SentryThreadMetadataCacheTests";
     XCTAssertEqual(pthread_create(&thread, nullptr, threadSpin, reinterpret_cast<void *>(name)), 0);
 
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    // give the other thread a little time to spawn, otherwise its name comes back as an empty
+    // string and the isSentryOwnedThreadName check will fail
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     const auto cache = std::make_shared<ThreadMetadataCache>();
     ThreadHandle handle(pthread_mach_thread_np(thread));
-    XCTAssertEqual(cache->metadataForThread(handle).threadID, static_cast<unsigned long long>(0));
+    XCTAssertEqual(cache->metadataForThread(handle).threadID, 0ULL);
 
     XCTAssertEqual(pthread_cancel(thread), 0);
     XCTAssertEqual(pthread_join(thread, nullptr), 0);
@@ -120,7 +126,7 @@ threadSpin(void *name)
     const auto cache = std::make_shared<ThreadMetadataCache>();
     const auto metadata = cache->metadataForQueue(0);
 
-    XCTAssertEqual(metadata.address, static_cast<unsigned long long>(0));
+    XCTAssertEqual(metadata.address, 0ULL);
     XCTAssertEqual(metadata.label, nullptr);
 }
 

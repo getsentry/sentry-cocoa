@@ -235,7 +235,7 @@ countof(Array &)
             break;
         }
         std::this_thread::sleep_for(
-            std::chrono::milliseconds(static_cast<long long>(std::pow(2, i + 1)) * 1000));
+            std::chrono::milliseconds(static_cast<long long>(std::pow(2, i + 1))));
     }
 
     XCTAssertEqual(pthread_cancel(thread1), 0);
