@@ -207,6 +207,8 @@ This release can cause crashes when Profiling is enabled (#2779). Please update 
 
 - Change debug image type to macho (#2701)
 
+This change might mark 3rd party library frames as in-app, which the SDK previously marked as system frames.
+
 ## 8.1.0
 
 ### Features
