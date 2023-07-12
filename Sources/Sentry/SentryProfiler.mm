@@ -393,13 +393,11 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
 
 - (NSDictionary<NSString *, id> *)serializeForTransaction:(SentryTransaction *)transaction
 {
-    return serializedProfileData([_gCurrentProfiler._state copyProfilingData], transaction,
-        self.profileId, profilerTruncationReasonName(_gCurrentProfiler->_truncationReason),
-        _gCurrentProfiler->_hub.scope.environmentString
-            ?: _gCurrentProfiler->_hub.getClient.options.environment,
-        _gCurrentProfiler->_hub.getClient.options.releaseName,
-        [_gCurrentProfiler->_metricProfiler serializeForTransaction:transaction],
-        [_gCurrentProfiler->_debugImageProvider getDebugImagesCrashed:NO], _gCurrentProfiler -> _hub
+    return serializedProfileData([self._state copyProfilingData], transaction, self.profileId,
+        profilerTruncationReasonName(_truncationReason),
+        _hub.scope.environmentString ?: _hub.getClient.options.environment,
+        _hub.getClient.options.releaseName, [_metricProfiler serializeForTransaction:transaction],
+        [_debugImageProvider getDebugImagesCrashed:NO], _hub
 #    if SENTRY_HAS_UIKIT
         ,
         self._screenFrameData
@@ -414,7 +412,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
         return;
     }
 
-    SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", _gCurrentProfiler);
+    SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", self);
     [self stopForReason:SentryProfilerTruncationReasonTimeout];
 }
 
@@ -425,7 +423,7 @@ serializedProfileData(NSDictionary<NSString *, id> *profileData, SentryTransacti
         return;
     }
 
-    SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", _gCurrentProfiler);
+    SENTRY_LOG_DEBUG(@"Stopping profiler %@ due to timeout.", self);
     [self stopForReason:SentryProfilerTruncationReasonAppMovedToBackground];
 }
 
