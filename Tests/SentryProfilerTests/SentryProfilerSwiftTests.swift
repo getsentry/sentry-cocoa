@@ -611,7 +611,7 @@ private extension SentryProfilerSwiftTests {
                 XCTAssertEqual(actualQueueLabel, $0.label)
             }
         } else {
-            XCTAssertFalse(try XCTUnwrap(try XCTUnwrap(queueMetadata.first?.value as? [String: Any])["label"] as? String).isEmpty)
+            XCTAssertFalse(try XCTUnwrap(try XCTUnwrap(queueMetadata.first?.value)["label"] as? String).isEmpty)
         }
 
         let samples = try XCTUnwrap(sampledProfile["samples"] as? [[String: Any]])
