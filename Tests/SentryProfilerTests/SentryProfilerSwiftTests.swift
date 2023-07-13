@@ -584,7 +584,7 @@ private extension SentryProfilerSwiftTests {
         let threadMetadata = try XCTUnwrap(sampledProfile["thread_metadata"] as? [String: [String: Any]])
         let queueMetadata = try XCTUnwrap(sampledProfile["queue_metadata"] as? [String: [String: Any]])
         XCTAssertFalse(threadMetadata.isEmpty)
-        if let expectedThreadMetadata {
+        if let expectedThreadMetadata = expectedThreadMetadata {
             try expectedThreadMetadata.forEach {
                 let actualThreadMetadata = try XCTUnwrap(threadMetadata["\($0.id)"])
                 let actualThreadPriority = try XCTUnwrap(actualThreadMetadata["priority"] as? Int32)
@@ -596,7 +596,7 @@ private extension SentryProfilerSwiftTests {
             XCTAssertFalse(try threadMetadata.values.compactMap { $0["priority"] }.filter { try XCTUnwrap($0 as? Int) > 0 }.isEmpty)
         }
         XCTAssertFalse(queueMetadata.isEmpty)
-        if let expectedQueueMetadata {
+        if let expectedQueueMetadata = expectedQueueMetadata {
             try expectedQueueMetadata.forEach {
                 let actualQueueMetadata = try XCTUnwrap(queueMetadata[sentry_formatHexAddressUInt64($0.address)])
                 let actualQueueLabel = try XCTUnwrap(actualQueueMetadata["label"] as? String)
