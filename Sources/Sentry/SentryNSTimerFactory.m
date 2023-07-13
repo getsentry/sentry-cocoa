@@ -8,7 +8,8 @@
                                       block:(void (^)(NSTimer *timer))block
 {
     SENTRY_ASSERT([NSThread isMainThread],
-        @"Timers must be scheduled from the main thread, or they may never fire.");
+        @"Timers must be scheduled from the main thread, or they may never fire. See the attribute "
+        @"on the declaration in NSTimer.h.");
     return [NSTimer scheduledTimerWithTimeInterval:interval repeats:repeats block:block];
 }
 
@@ -19,7 +20,8 @@
                                     repeats:(BOOL)yesOrNo
 {
     SENTRY_ASSERT([NSThread isMainThread],
-        @"Timers must be scheduled from the main thread, or they may never fire.");
+        @"Timers must be scheduled from the main thread, or they may never fire. See the attribute "
+        @"on the declaration in NSTimer.h.");
     return [NSTimer scheduledTimerWithTimeInterval:ti
                                             target:aTarget
                                           selector:aSelector
