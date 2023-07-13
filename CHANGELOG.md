@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features
+
+- Symbolicate locally only when debug is enabled (#3079)
+- Sanitize HTTP info from breadcrumbs, spans and events (#3094)
+
 ### Breaking change
 
 - Renamed `enableTimeToFullDisplay` to `enableTimeToFullDisplayTracing` (#3106)
