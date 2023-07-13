@@ -14,20 +14,19 @@
 #        import "SentryScreenFrames.h"
 #    endif // SENTRY_HAS_UIKIT
 
-// a mapping of profilers to the tracers that started them that are still in-flight and will need to
-// query them for their profiling data when they finish. this helps resolve the incongruity between
-// the different timeout durations between tracers (500s) and profilers (30s), where a transaction
-// may start a profiler that then times out, and then a new transaction starts a new profiler, and
-// we must keep the aborted one around until its associated transaction finishes.
-typedef NSMutableDictionary</* SentryProfiler.profileId */ NSString *,
-    NSMutableSet<SentryTracer *> *>
-    SentryProfilerTracerMapping;
-static SentryProfilerTracerMapping *_gProfilersToTracers;
+/**
+ * a mapping of profilers to the tracers that started them that are still in-flight and will need to
+ * query them for their profiling data when they finish. this helps resolve the incongruity between
+ * the different timeout durations between tracers (500s) and profilers (30s), where a transaction
+ * may start a profiler that then times out, and then a new transaction starts a new profiler, and
+ * we must keep the aborted one around until its associated transaction finishes.
+ */
+static NSMutableDictionary</* SentryProfiler.profileId */ NSString *,
+    NSMutableSet<SentryTracer *> *> *_gProfilersToTracers;
 
-// provided for fast access to a profiler given a tracer
-typedef NSMutableDictionary</* SentryTracer.tracerId */ NSString *, SentryProfiler *>
-    SentryTracerProfilerMapping;
-static SentryTracerProfilerMapping *_gTracersToProfilers;
+/** provided for fast access to a profiler given a tracer */
+static NSMutableDictionary</* SentryTracer.tracerId */ NSString *, SentryProfiler *>
+    *_gTracersToProfilers;
 
 std::mutex _gStateLock;
 
@@ -47,11 +46,13 @@ trackProfilerForTracer(SentryProfiler *profiler, SentryTracer *tracer)
         @"Both structures must be initialized simultaneously.");
 
     if (_gProfilersToTracers == nil) {
-        _gProfilersToTracers =
-            [SentryProfilerTracerMapping dictionaryWithObject:[NSMutableSet setWithObject:tracer]
-                                                       forKey:profilerKey];
-        _gTracersToProfilers = [SentryTracerProfilerMapping dictionaryWithObject:profiler
-                                                                          forKey:tracerKey];
+        _gProfilersToTracers = [NSMutableDictionary</* SentryProfiler.profileId */ NSString *,
+            NSMutableSet<SentryTracer *> *> dictionaryWithObject:[NSMutableSet setWithObject:tracer]
+                                                          forKey:profilerKey];
+        _gTracersToProfilers =
+            [NSMutableDictionary</* SentryTracer.tracerId */ NSString *, SentryProfiler *>
+                dictionaryWithObject:profiler
+                              forKey:tracerKey];
         return;
     }
 
@@ -62,14 +63,6 @@ trackProfilerForTracer(SentryProfiler *profiler, SentryTracer *tracer)
     }
 
     _gTracersToProfilers[tracerKey] = profiler;
-}
-
-SentryProfiler *_Nullable profilerForTracer(SentryTracer *tracer)
-{
-    std::lock_guard<std::mutex> l(_gStateLock);
-    NSCAssert(_gTracersToProfilers != nil,
-        @"Structure should have already been initialized by the time it is being queried");
-    return _gTracersToProfilers[tracer.traceId.sentryIdString];
 }
 
 SentryProfiler *_Nullable profilerForFinishedTracer(SentryTracer *tracer)
