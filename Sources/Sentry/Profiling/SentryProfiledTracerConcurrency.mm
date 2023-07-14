@@ -1,4 +1,4 @@
-#import "SentryTracerConcurrency.h"
+#import "SentryProfiledTracerConcurrency.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
