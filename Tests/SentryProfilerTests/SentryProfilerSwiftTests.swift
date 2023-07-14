@@ -432,10 +432,18 @@ private extension SentryProfilerSwiftTests {
         addMockSamples()
         fixture.currentDateProvider.advance(by: 31)
         if shouldTimeOut {
-            fixture.timeoutTimerFactory.fire()
+            DispatchQueue.main.async {
+                self.fixture.timeoutTimerFactory.fire()
+            }
         }
 
-        span.finish()
+        let exp = expectation(description: "finished span")
+        DispatchQueue.main.async {
+            span.finish()
+            exp.fulfill()
+        }
+
+        waitForExpectations(timeout: 1)
 
         try self.assertValidProfileData(transactionEnvironment: transactionEnvironment, shouldTimeout: shouldTimeOut)
     }
@@ -603,7 +611,7 @@ private extension SentryProfilerSwiftTests {
                 XCTAssertEqual(actualQueueLabel, $0.label)
             }
         } else {
-            XCTAssertFalse(try XCTUnwrap(try XCTUnwrap(queueMetadata.first?.value as? [String: Any])["label"] as? String).isEmpty)
+            XCTAssertFalse(try XCTUnwrap(try XCTUnwrap(queueMetadata.first?.value)["label"] as? String).isEmpty)
         }
 
         let samples = try XCTUnwrap(sampledProfile["samples"] as? [[String: Any]])

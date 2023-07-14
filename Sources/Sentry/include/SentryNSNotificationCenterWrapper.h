@@ -21,17 +21,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addObserver:(id)observer
            selector:(SEL)aSelector
                name:(NSNotificationName)aName
-             object:(id)anObject;
+             object:(nullable id)anObject;
 
 - (void)addObserver:(id)observer selector:(SEL)aSelector name:(NSNotificationName)aName;
 
-- (void)removeObserver:(id)observer name:(NSNotificationName)aName object:(id)anObject;
+- (void)removeObserver:(id)observer name:(NSNotificationName)aName object:(nullable id)anObject;
 
 - (void)removeObserver:(id)observer name:(NSNotificationName)aName;
 
 - (void)removeObserver:(id)observer;
 
-- (void)postNotificationName:(NSNotificationName)aName object:(id)anObject;
+- (void)postNotificationName:(NSNotificationName)aName object:(nullable id)anObject;
 
 NS_ASSUME_NONNULL_END
 

@@ -21,6 +21,7 @@
 #import "SentryNSTimerFactory.h"
 #import "SentryNetworkTracker.h"
 #import "SentryPerformanceTracker+Testing.h"
+#import "SentryProfiler+Test.h"
 #import "SentryRandom.h"
 #import "SentrySDK+Private.h"
 #import "SentrySDK+Tests.h"

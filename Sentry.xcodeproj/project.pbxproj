@@ -3112,7 +3112,6 @@
 				8454CF8B293EAF9A006AC140 /* SentryMetricProfiler.mm */,
 				03F84D1127DD414C008FE43F /* SentryProfiler.h */,
 				03F84D2B27DD4191008FE43F /* SentryProfiler.mm */,
-				84A888FC28D9B11700C51DFD /* SentryProfiler+Test.h */,
 				84A888FC28D9B11700C51DFD /* SentryProfiler+Private.h */,
 				0354A22A2A134D9C003C3A04 /* SentryProfilerState.h */,
 				84281C642A57D36100EE88F2 /* SentryProfilerState+ObjCpp.h */,

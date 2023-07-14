@@ -2,7 +2,8 @@
 #import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
 
-@class SentryId;
+@class SentryProfiler;
+@class SentryTracer;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -10,17 +11,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 SENTRY_EXTERN_C_BEGIN
 
-typedef void (^SentryConcurrentTransactionCleanupBlock)(void);
-
-/** Track the tracer with specified ID to help with operations that need to know about all in-flight
- * concurrent tracers. */
-void trackTracerWithID(SentryId *traceID);
+/**
+ * Associate the provided profiler and tracer so that profiling data may be retrieved by the tracer
+ * when it is ready to transmit its envelope.
+ */
+void trackProfilerForTracer(SentryProfiler *profiler, SentryTracer *tracer);
 
 /**
- * Stop tracking the tracer with the specified ID, and if it was the last concurrent tracer in
- * flight, perform the cleanup actions.
+ * Return the profiler instance associated with the tracer. If it was the last tracer for the
+ * associated profiler, stop that profiler. Copy any recorded @c SentryScreenFrames data into the
+ * profiler instance, and if this is the last profiler being tracked, reset the
+ * @c SentryFramesTracker data.
  */
-void stopTrackingTracerWithID(SentryId *traceID, SentryConcurrentTransactionCleanupBlock cleanup);
+SentryProfiler *_Nullable profilerForFinishedTracer(SentryTracer *tracer);
 
 #    if defined(TEST) || defined(TESTCI)
 void resetConcurrencyTracking(void);

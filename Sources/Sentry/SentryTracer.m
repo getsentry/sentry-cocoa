@@ -151,8 +151,7 @@ static BOOL appStartMeasurementRead;
     if (_configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes) {
         _isProfiling = YES;
         _startSystemTime = SentryCurrentDate.systemTime;
-        [SentryProfiler startWithHub:hub];
-        trackTracerWithID(self.traceId);
+        [SentryProfiler startWithHub:hub tracer:self];
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -515,12 +514,11 @@ static BOOL appStartMeasurementRead;
 {
     SentryEnvelopeItem *profileEnvelopeItem =
         [SentryProfiler createProfilingEnvelopeItemForTransaction:transaction];
+
     if (!profileEnvelopeItem) {
         [_hub captureTransaction:transaction withScope:_hub.scope];
         return;
     }
-
-    stopTrackingTracerWithID(self.traceId, ^{ [SentryProfiler stop]; });
 
     SENTRY_LOG_DEBUG(@"Capturing transaction with profiling data attached.");
     [_hub captureTransaction:transaction
@@ -806,9 +804,9 @@ static BOOL appStartMeasurementRead;
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED && (defined(TEST) || defined(TESTCI))
-// this just calls through to SentryTracerConcurrency.resetConcurrencyTracking(). we have to do this
-// through SentryTracer because SentryTracerConcurrency cannot be included in test targets via ObjC
-// bridging headers because it contains C++.
+// this just calls through to SentryTracerConcurrency.resetConcurrencyTracking(). we have to
+// do this through SentryTracer because SentryTracerConcurrency cannot be included in test
+// targets via ObjC bridging headers because it contains C++.
 + (void)resetConcurrencyTracking
 {
     resetConcurrencyTracking();
