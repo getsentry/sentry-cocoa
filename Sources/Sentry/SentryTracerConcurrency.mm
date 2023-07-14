@@ -66,14 +66,6 @@ trackProfilerForTracer(SentryProfiler *profiler, SentryTracer *tracer)
     _gTracersToProfilers[tracerKey] = profiler;
 }
 
-SentryProfiler *_Nullable profilerForTracer(SentryTracer *tracer)
-{
-    std::lock_guard<std::mutex> l(_gStateLock);
-    SENTRY_CASSERT(_gTracersToProfilers != nil,
-        @"Structure should have already been initialized by the time it is being queried");
-    return _gTracersToProfilers[tracer.traceId.sentryIdString];
-}
-
 SentryProfiler *_Nullable profilerForFinishedTracer(SentryTracer *tracer)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
