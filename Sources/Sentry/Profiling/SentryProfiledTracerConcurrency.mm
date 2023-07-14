@@ -22,12 +22,12 @@
  * may start a profiler that then times out, and then a new transaction starts a new profiler, and
  * we must keep the aborted one around until its associated transaction finishes.
  */
-static NSMutableDictionary</* SentryProfiler.profileId */ NSString *,
-    NSMutableSet<SentryTracer *> *> *_gProfilersToTracers;
+static NSMapTable</* SentryTracer.tracerId */ NSString *, NSHashTable<SentryTracer *> *>
+    *_gStrongProfilersToWeakTracers;
 
 /** provided for fast access to a profiler given a tracer */
-static NSMutableDictionary</* SentryTracer.tracerId */ NSString *, SentryProfiler *>
-    *_gTracersToProfilers;
+static NSMapTable</* SentryTracer.tracerId */ NSString *, SentryProfiler *>
+    *_gWeakTracersToWeakProfilers;
 
 std::mutex _gStateLock;
 
@@ -42,28 +42,35 @@ trackProfilerForTracer(SentryProfiler *profiler, SentryTracer *tracer)
     SENTRY_LOG_DEBUG(
         @"Tracking relationship between profiler id %@ and tracer id %@", profilerKey, tracerKey);
 
-    SENTRY_CASSERT((_gProfilersToTracers == nil && _gTracersToProfilers == nil)
-            || (_gProfilersToTracers != nil && _gTracersToProfilers != nil),
+    SENTRY_CASSERT((_gStrongProfilersToWeakTracers == nil && _gWeakTracersToWeakProfilers == nil)
+            || (_gStrongProfilersToWeakTracers != nil && _gWeakTracersToWeakProfilers != nil),
         @"Both structures must be initialized simultaneously.");
 
-    if (_gProfilersToTracers == nil) {
-        _gProfilersToTracers = [NSMutableDictionary</* SentryProfiler.profileId */ NSString *,
-            NSMutableSet<SentryTracer *> *> dictionaryWithObject:[NSMutableSet setWithObject:tracer]
-                                                          forKey:profilerKey];
-        _gTracersToProfilers =
-            [NSMutableDictionary</* SentryTracer.tracerId */ NSString *, SentryProfiler *>
-                dictionaryWithObject:profiler
-                              forKey:tracerKey];
+    if (_gStrongProfilersToWeakTracers == nil) {
+        _gWeakTracersToWeakProfilers =
+            [[NSMapTable</* SentryTracer.tracerId */ NSString *, SentryProfiler *> alloc]
+                initWithKeyOptions:NSPointerFunctionsStrongMemory
+                      valueOptions:NSPointerFunctionsWeakMemory
+                          capacity:1];
+        _gStrongProfilersToWeakTracers =
+            [[NSMapTable</* SentryProfiler.profileId */ NSString *, NSHashTable<SentryTracer *> *>
+                alloc] initWithKeyOptions:NSPointerFunctionsWeakMemory
+                             valueOptions:NSPointerFunctionsWeakMemory
+                                 capacity:1];
         return;
     }
 
-    if (_gProfilersToTracers[profilerKey] == nil) {
-        _gProfilersToTracers[profilerKey] = [NSMutableSet setWithObject:tracer];
+    const auto tracerTable = [_gStrongProfilersToWeakTracers objectForKey:profilerKey];
+    if (tracerTable == nil) {
+        const auto table = [[NSHashTable alloc] initWithOptions:NSPointerFunctionsWeakMemory
+                                                       capacity:1];
+        [table addObject:tracer];
+        [_gStrongProfilersToWeakTracers setObject:table forKey:profilerKey];
     } else {
-        [_gProfilersToTracers[profilerKey] addObject:tracer];
+        [tracerTable addObject:tracer];
     }
 
-    _gTracersToProfilers[tracerKey] = profiler;
+    [_gWeakTracersToWeakProfilers setObject:profiler forKey:tracerKey];
 }
 
 void
@@ -71,11 +78,11 @@ discardProfilerForTracer(SentryTracer *tracer)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
-    SENTRY_CASSERT(_gTracersToProfilers != nil && _gProfilersToTracers != nil,
+    SENTRY_CASSERT(_gWeakTracersToWeakProfilers != nil && _gStrongProfilersToWeakTracers != nil,
         @"Structures should have already been initialized by the time they are being queried");
 
     const auto tracerKey = tracer.traceId.sentryIdString;
-    const auto profiler = _gTracersToProfilers[tracerKey];
+    const auto profiler = [_gWeakTracersToWeakProfilers objectForKey:tracerKey];
 
     if (!SENTRY_CASSERT_RETURN(profiler != nil,
             @"Expected a profiler to be associated with tracer id %@.", tracerKey)) {
@@ -84,17 +91,18 @@ discardProfilerForTracer(SentryTracer *tracer)
 
     const auto profilerKey = profiler.profileId.sentryIdString;
 
-    [_gTracersToProfilers removeObjectForKey:tracerKey];
-    [_gProfilersToTracers[profilerKey] removeObject:tracer];
-    if ([_gProfilersToTracers[profilerKey] count] == 0) {
-        [_gProfilersToTracers removeObjectForKey:profilerKey];
+    [_gWeakTracersToWeakProfilers removeObjectForKey:tracerKey];
+    const auto tracerTable = [_gStrongProfilersToWeakTracers objectForKey:profilerKey];
+    [tracerTable removeObject:tracer];
+    if ([tracerTable count] == 0) {
+        [_gStrongProfilersToWeakTracers removeObjectForKey:profilerKey];
         if ([profiler isRunning]) {
             [profiler stopForReason:SentryProfilerTruncationReasonNormal];
         }
     }
 
 #    if SENTRY_HAS_UIKIT
-    if (_gProfilersToTracers.count == 0) {
+    if (_gStrongProfilersToWeakTracers.count == 0) {
         [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
     }
 #    endif // SENTRY_HAS_UIKIT
@@ -104,11 +112,11 @@ SentryProfiler *_Nullable profilerForFinishedTracer(SentryTracer *tracer)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
-    SENTRY_CASSERT(_gTracersToProfilers != nil && _gProfilersToTracers != nil,
+    SENTRY_CASSERT(_gWeakTracersToWeakProfilers != nil && _gStrongProfilersToWeakTracers != nil,
         @"Structures should have already been initialized by the time they are being queried");
 
     const auto tracerKey = tracer.traceId.sentryIdString;
-    const auto profiler = _gTracersToProfilers[tracerKey];
+    const auto profiler = [_gWeakTracersToWeakProfilers objectForKey:tracerKey];
 
     if (!SENTRY_CASSERT_RETURN(profiler != nil,
             @"Expected a profiler to be associated with tracer id %@.", tracerKey)) {
@@ -117,10 +125,11 @@ SentryProfiler *_Nullable profilerForFinishedTracer(SentryTracer *tracer)
 
     const auto profilerKey = profiler.profileId.sentryIdString;
 
-    [_gTracersToProfilers removeObjectForKey:tracerKey];
-    [_gProfilersToTracers[profilerKey] removeObject:tracer];
-    if ([_gProfilersToTracers[profilerKey] count] == 0) {
-        [_gProfilersToTracers removeObjectForKey:profilerKey];
+    [_gWeakTracersToWeakProfilers removeObjectForKey:tracerKey];
+    const auto tracerTable = [_gStrongProfilersToWeakTracers objectForKey:profilerKey];
+    [tracerTable removeObject:tracer];
+    if ([tracerTable count] == 0) {
+        [_gStrongProfilersToWeakTracers removeObjectForKey:profilerKey];
         if ([profiler isRunning]) {
             [profiler stopForReason:SentryProfilerTruncationReasonNormal];
         }
@@ -129,7 +138,7 @@ SentryProfiler *_Nullable profilerForFinishedTracer(SentryTracer *tracer)
 #    if SENTRY_HAS_UIKIT
     profiler._screenFrameData =
         [SentryDependencyContainer.sharedInstance.framesTracker.currentFrames copy];
-    if (_gProfilersToTracers.count == 0) {
+    if (_gStrongProfilersToWeakTracers.count == 0) {
         [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
     }
 #    endif // SENTRY_HAS_UIKIT
@@ -142,8 +151,8 @@ void
 resetConcurrencyTracking()
 {
     std::lock_guard<std::mutex> l(_gStateLock);
-    [_gTracersToProfilers removeAllObjects];
-    [_gProfilersToTracers removeAllObjects];
+    [_gWeakTracersToWeakProfilers removeAllObjects];
+    [_gStrongProfilersToWeakTracers removeAllObjects];
 }
 #    endif // defined(TEST) || defined(TESTCI)
 
