@@ -10,7 +10,7 @@ final class SentryThreadWrapperTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
-    func testOnMainThreadFromNonmainContext() {
+    func testOnMainThreadFromNonMainContext() {
         let e = expectation(description: "Asserted that execution happened on main thread")
         let q = DispatchQueue(label: "a nonmain queue", qos: .background)
         q.async {
