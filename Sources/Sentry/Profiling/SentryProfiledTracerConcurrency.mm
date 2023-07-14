@@ -66,6 +66,37 @@ trackProfilerForTracer(SentryProfiler *profiler, SentryTracer *tracer)
     _gTracersToProfilers[tracerKey] = profiler;
 }
 
+void
+discardProfilerForTracer(SentryTracer *tracer)
+{
+    std::lock_guard<std::mutex> l(_gStateLock);
+
+    SENTRY_CASSERT(_gTracersToProfilers != nil && _gProfilersToTracers != nil,
+        @"Structures should have already been initialized by the time they are being queried");
+
+    const auto tracerKey = tracer.traceId.sentryIdString;
+    const auto profiler = _gTracersToProfilers[tracerKey];
+
+    if (!SENTRY_CASSERT_RETURN(profiler != nil,
+            @"Expected a profiler to be associated with tracer id %@.", tracerKey)) {
+        return;
+    }
+
+    const auto profilerKey = profiler.profileId.sentryIdString;
+
+    [_gTracersToProfilers removeObjectForKey:tracerKey];
+    [_gProfilersToTracers[profilerKey] removeObject:tracer];
+    if ([_gProfilersToTracers[profilerKey] count] == 0) {
+        [_gProfilersToTracers removeObjectForKey:profilerKey];
+    }
+
+#    if SENTRY_HAS_UIKIT
+    if (_gProfilersToTracers.count == 0) {
+        [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
+    }
+#    endif // SENTRY_HAS_UIKIT
+}
+
 SentryProfiler *_Nullable profilerForFinishedTracer(SentryTracer *tracer)
 {
     std::lock_guard<std::mutex> l(_gStateLock);

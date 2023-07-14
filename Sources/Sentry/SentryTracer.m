@@ -425,10 +425,16 @@ static BOOL appStartMeasurementRead;
 {
     [self cancelDeadlineTimer];
     if (self.isFinished) {
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+        discardProfilerForTracer(self);
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
         return;
     }
     @synchronized(self) {
         if (self.isFinished) {
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+            discardProfilerForTracer(self);
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
             return;
         }
         // Keep existing status of auto generated transactions if set by the user.
@@ -462,10 +468,16 @@ static BOOL appStartMeasurementRead;
         SENTRY_LOG_INFO(@"Auto generated transaction exceeded the max duration of %f seconds. Not "
                         @"capturing transaction.",
             SENTRY_AUTO_TRANSACTION_MAX_DURATION);
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+        discardProfilerForTracer(self);
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
         return;
     }
 
     if (_hub == nil) {
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+        discardProfilerForTracer(self);
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
         return;
     }
 
@@ -479,6 +491,9 @@ static BOOL appStartMeasurementRead;
         if (_configuration.idleTimeout > 0.0 && _children.count == 0) {
             SENTRY_LOG_DEBUG(@"Was waiting for timeout for UI event trace but it had no children, "
                              @"will not keep transaction.");
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+            discardProfilerForTracer(self);
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
             return;
         }
 
