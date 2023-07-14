@@ -11,6 +11,10 @@
 
 - Renamed `enableTimeToFullDisplay` to `enableTimeToFullDisplayTracing` (#3106)
     - This is an experimental feature and may change at any time without a major revision.
+    
+### Fixes
+
+- Fix potential unbounded memory growth when starting profiled transactions from non-main contexts (#3135)
 
 ## 8.9.0-beta.1
 

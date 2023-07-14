@@ -79,15 +79,15 @@
     XCTestExpectation *exp = [self expectationWithDescription:@"finishes tracers"];
     dispatch_after(
         dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            XCTAssert([SentryProfiler isRunning]);
+            XCTAssert([SentryProfiler isCurrentlyProfiling]);
 
             [tracer1 finish];
 
-            XCTAssert([SentryProfiler isRunning]);
+            XCTAssert([SentryProfiler isCurrentlyProfiling]);
 
             [tracer2 finish];
 
-            XCTAssertFalse([SentryProfiler isRunning]);
+            XCTAssertFalse([SentryProfiler isCurrentlyProfiling]);
 
             [exp fulfill];
         });

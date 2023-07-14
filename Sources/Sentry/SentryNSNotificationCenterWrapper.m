@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addObserver:(id)observer
            selector:(SEL)aSelector
                name:(NSNotificationName)aName
-             object:(id)anObject
+             object:(nullable id)anObject
 {
     [NSNotificationCenter.defaultCenter addObserver:observer
                                            selector:aSelector
@@ -67,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
     [NSNotificationCenter.defaultCenter removeObserver:observer name:aName object:nil];
 }
 
-- (void)removeObserver:(id)observer name:(NSNotificationName)aName object:(id)anObject
+- (void)removeObserver:(id)observer name:(NSNotificationName)aName object:(nullable id)anObject
 {
     [NSNotificationCenter.defaultCenter removeObserver:observer name:aName object:anObject];
 }
@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
     [NSNotificationCenter.defaultCenter removeObserver:observer];
 }
 
-- (void)postNotificationName:(NSNotificationName)aName object:(id)anObject
+- (void)postNotificationName:(NSNotificationName)aName object:(nullable id)anObject
 {
     [NSNotificationCenter.defaultCenter postNotificationName:aName object:anObject];
 }
