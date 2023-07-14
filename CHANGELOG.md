@@ -1,7 +1,7 @@
 # Changelog
 
-## Unreleased
-    
+## 8.9.1
+
 ### Fixes
 
 - Fix potential unbounded memory growth when starting profiled transactions from non-main contexts (#3135)
