@@ -18,7 +18,8 @@ void
 logSlicingFailureWithArray(
     NSArray<SentrySample *> *array, SentryTransaction *transaction, BOOL start)
 {
-    if (!SENTRY_CASSERT(array.count > 0, @"Should not have attempted to slice an empty array.")) {
+    if (!SENTRY_CASSERT_RETURN(
+            array.count > 0, @"Should not have attempted to slice an empty array.")) {
         return;
     }
 
