@@ -64,16 +64,19 @@ SentryPerformanceTracker () <SentryTracerDelegate>
 
         [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> span) {
             BOOL bindToScope = NO;
-            if (span != nil) {
+            if (span == nil) {
+                bindToScope = YES;
+            }
 #if SENTRY_HAS_UIKIT
+            else {
                 if ([SentryUIEventTracker isUIEventOperation:span.operation]) {
-                    bindToScope = YES;
                     SENTRY_LOG_DEBUG(
                         @"Cancelling previous UI event span %@", span.spanId.sentrySpanIdString);
                     [span finishWithStatus:kSentrySpanStatusCancelled];
+                    bindToScope = YES
                 }
-#endif // SENTRY_HAS_UIKIT
             }
+#endif // SENTRY_HAS_UIKIT
 
             SENTRY_LOG_DEBUG(@"Creating new transaction bound to scope: %d", bindToScope);
 
