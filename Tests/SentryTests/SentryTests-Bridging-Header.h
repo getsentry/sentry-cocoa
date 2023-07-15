@@ -1,7 +1,7 @@
-//
-//  Use this file to import your target's public headers that you would like to
-//  expose to Swift.
-//
+#if !TARGET_OS_WATCH
+#    import "SentryReachability.h"
+#endif // !TARGET_OS_WATCH
+
 #import "NSData+Sentry.h"
 #import "NSData+SentryCompression.h"
 #import "NSDate+SentryExtras.h"
@@ -132,7 +132,6 @@
 #import "SentryRandom.h"
 #import "SentryRateLimitParser.h"
 #import "SentryRateLimits.h"
-#import "SentryReachability.h"
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentrySDK+Private.h"
 #import "SentrySDK+Tests.h"

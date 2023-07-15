@@ -47,4 +47,4 @@
 }
 
 @end
-#endif
+#endif // !TARGET_OS_WATCH
