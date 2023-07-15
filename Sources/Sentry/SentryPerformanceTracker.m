@@ -73,7 +73,7 @@ SentryPerformanceTracker () <SentryTracerDelegate>
                     SENTRY_LOG_DEBUG(
                         @"Cancelling previous UI event span %@", span.spanId.sentrySpanIdString);
                     [span finishWithStatus:kSentrySpanStatusCancelled];
-                    bindToScope = YES
+                    bindToScope = YES;
                 }
             }
 #endif // SENTRY_HAS_UIKIT
