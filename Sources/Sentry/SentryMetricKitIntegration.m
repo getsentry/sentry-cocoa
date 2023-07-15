@@ -1,21 +1,22 @@
-#import "SentryInternalDefines.h"
-#import "SentryScope.h"
-#import <Foundation/Foundation.h>
-#import <SentryDebugMeta.h>
-#import <SentryDependencyContainer.h>
-#import <SentryEvent.h>
-#import <SentryException.h>
-#import <SentryFormatter.h>
-#import <SentryFrame.h>
-#import <SentryInAppLogic.h>
-#import <SentryLog.h>
-#import <SentryMechanism.h>
 #import <SentryMetricKitIntegration.h>
-#import <SentrySDK+Private.h>
-#import <SentryStacktrace.h>
-#import <SentryThread.h>
 
 #if SENTRY_HAS_METRIC_KIT
+
+#    import "SentryInternalDefines.h"
+#    import "SentryScope.h"
+#    import <Foundation/Foundation.h>
+#    import <SentryDebugMeta.h>
+#    import <SentryDependencyContainer.h>
+#    import <SentryEvent.h>
+#    import <SentryException.h>
+#    import <SentryFormatter.h>
+#    import <SentryFrame.h>
+#    import <SentryInAppLogic.h>
+#    import <SentryLog.h>
+#    import <SentryMechanism.h>
+#    import <SentrySDK+Private.h>
+#    import <SentryStacktrace.h>
+#    import <SentryThread.h>
 
 /**
  * We need to check if MetricKit is available for compatibility on iOS 12 and below. As there are no
@@ -23,7 +24,7 @@
  */
 #    if __has_include(<MetricKit/MetricKit.h>)
 #        import <MetricKit/MetricKit.h>
-#    endif
+#    endif // __has_include(<MetricKit/MetricKit.h>)
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -448,12 +449,6 @@ SentryMetricKitIntegration ()
 
 @end
 
-NS_ASSUME_NONNULL_END
-
-#endif
-
-NS_ASSUME_NONNULL_BEGIN
-
 @implementation
 SentryEvent (MetricKit)
 
@@ -480,3 +475,5 @@ SentryEvent (MetricKit)
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // SENTRY_HAS_METRIC_KIT

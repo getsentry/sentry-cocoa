@@ -6,7 +6,6 @@
 #    import "SentryDependencyContainer.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryHub+Private.h"
-#    import "SentryMetricKitIntegration.h"
 #    import "SentrySDK+Private.h"
 #    import "SentryViewHierarchy.h"
 
@@ -59,7 +58,10 @@ saveViewHierarchy(const char *reportDirectoryPath)
     // We don't attach the view hierarchy if there is no exception/error.
     // We don't attach the view hierarchy if the event is a crash or metric kit event.
     if ((event.exceptions == nil && event.error == nil) || event.isCrashEvent
-        || event.isMetricKitEvent) {
+#    if SENTRY_HAS_METRIC_KIT
+        || event.isMetricKitEvent
+#    endif // SENTRY_HAS_METRIC_KIT
+    ) {
         return attachments;
     }
 
