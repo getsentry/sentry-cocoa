@@ -1,13 +1,14 @@
 #import "SentryUIEventTrackingIntegration.h"
-#import <Foundation/Foundation.h>
-#import <SentryDependencyContainer.h>
-#import <SentryLog.h>
-#import <SentryNSDataSwizzling.h>
-#import <SentryOptions+Private.h>
-#import <SentryOptions.h>
-#import <SentryUIEventTracker.h>
 
 #if SENTRY_HAS_UIKIT
+
+#    import <SentryDependencyContainer.h>
+#    import <SentryLog.h>
+#    import <SentryNSDataSwizzling.h>
+#    import <SentryOptions+Private.h>
+#    import <SentryOptions.h>
+#    import <SentryUIEventTracker.h>
+
 @interface
 SentryUIEventTrackingIntegration ()
 
@@ -48,4 +49,5 @@ SentryUIEventTrackingIntegration ()
 }
 
 @end
-#endif
+
+#endif // SENTRY_HAS_UIKIT

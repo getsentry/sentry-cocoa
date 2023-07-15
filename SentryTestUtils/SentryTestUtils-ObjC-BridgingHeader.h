@@ -1,3 +1,9 @@
+#import "SentryDefines.h"
+
+#if SENTRY_HAS_UIKIT
+#    import "SentryFramesTracker+TestInit.h"
+#endif // SENTRY_HAS_UIKIT
+
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartTracker.h"
 #import "SentryAppState.h"
@@ -6,7 +12,6 @@
 #import "SentryCrashWrapper.h"
 #import "SentryCurrentDate.h"
 #import "SentryCurrentDateProvider.h"
-#import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchQueueWrapper.h"
@@ -14,7 +19,6 @@
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryEnvelope.h"
 #import "SentryFileManager.h"
-#import "SentryFramesTracker+TestInit.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryLog.h"
 #import "SentryNSProcessInfoWrapper.h"
