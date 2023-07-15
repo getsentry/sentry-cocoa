@@ -9,6 +9,10 @@
 #    import "SentryHub+Private.h"
 #    import "SentrySDK+Private.h"
 
+#    if SENTRY_HAS_METRIC_KIT
+#        import "SentryMetricKitIntegration.h"
+#    endif // SENTRY_HAS_METRIC_KIT
+
 void
 saveScreenShot(const char *path)
 {

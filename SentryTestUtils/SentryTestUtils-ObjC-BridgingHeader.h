@@ -1,11 +1,11 @@
 #import "SentryDefines.h"
 
 #if SENTRY_HAS_UIKIT
-#import "SentryAppStartTracker.h"
-#import "SentryDisplayLinkWrapper.h"
+#    import "SentryAppStartTracker.h"
+#    import "SentryDisplayLinkWrapper.h"
 #    import "SentryFramesTracker+TestInit.h"
-#import "SentryUIDeviceWrapper.h"
-#import "SentryUIViewControllerPerformanceTracker.h"
+#    import "SentryUIDeviceWrapper.h"
+#    import "SentryUIViewControllerPerformanceTracker.h"
 #endif // SENTRY_HAS_UIKIT
 
 #import "PrivateSentrySDKOnly.h"

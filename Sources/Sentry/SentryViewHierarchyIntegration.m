@@ -9,6 +9,10 @@
 #    import "SentrySDK+Private.h"
 #    import "SentryViewHierarchy.h"
 
+#    if SENTRY_HAS_METRIC_KIT
+#        import "SentryMetricKitIntegration.h"
+#    endif // SENTRY_HAS_METRIC_KIT
+
 /**
  * Function to call through to the ObjC method to save a view hierarchy, which can be passed around
  * as a function pointer in the C crash reporting code.
