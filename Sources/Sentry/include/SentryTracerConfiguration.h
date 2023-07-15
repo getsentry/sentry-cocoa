@@ -1,3 +1,4 @@
+#import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -25,10 +26,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, strong, nullable) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 
+#if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
  * Whether to sample a profile corresponding to this transaction
  */
 @property (nonatomic, strong, nullable) SentryProfilesSamplerDecision *profilesSamplerDecision;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED"
 
 /**
  * The idle time to wait until to finish the transaction

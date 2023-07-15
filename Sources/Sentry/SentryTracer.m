@@ -10,7 +10,6 @@
 #import "SentryLog.h"
 #import "SentryNSTimerFactory.h"
 #import "SentryNoOpSpan.h"
-#import "SentryProfilesSampler.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope.h"
@@ -32,6 +31,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryProfiler.h"
+#    import "SentryProfilesSampler.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #if SENTRY_HAS_UIKIT
