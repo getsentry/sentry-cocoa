@@ -88,6 +88,9 @@ discardProfilerForTracer(SentryTracer *tracer)
     [_gProfilersToTracers[profilerKey] removeObject:tracer];
     if ([_gProfilersToTracers[profilerKey] count] == 0) {
         [_gProfilersToTracers removeObjectForKey:profilerKey];
+        if ([profiler isRunning]) {
+            [profiler stopForReason:SentryProfilerTruncationReasonNormal];
+        }
     }
 
 #    if SENTRY_HAS_UIKIT
